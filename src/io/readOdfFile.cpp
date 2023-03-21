@@ -9,20 +9,15 @@
  */
 
 #include "tudat/io/readOdfFile.h"
-#include "tudat/io/readBinaryFile.h"
 
 namespace tudat
 {
 namespace input_output
 {
 
-// TODO: test
-std::shared_ptr< OdfClockOffsetBlock > parseClockOffsetData( std::bitset< 288 > dataBits )
+OdfClockOffsetBlock::OdfClockOffsetBlock( const std::bitset< 288 > dataBits )
 {
-
-    std::shared_ptr< OdfClockOffsetBlock > clockOffsetBlock = std::make_shared< OdfClockOffsetBlock >( );
-
-    // Data to parse
+    // Data to parse:
     // integerStartTime: uint32
     // fractionalStartTime: uint32
     // integerClockOffset: int32
@@ -39,23 +34,77 @@ std::shared_ptr< OdfClockOffsetBlock > parseClockOffsetData( std::bitset< 288 > 
 
     parseNumericalDataBlockWrapper< 288, 32, 32, 32, 32, 32, 32, 32, 32, 32 >(
             dataBits, unsignedCommonItemFlag,
-            clockOffsetBlock->integerStartTime_,
-            clockOffsetBlock->fractionalStartTime_,
-            clockOffsetBlock->integerClockOffset_,
-            clockOffsetBlock->fractionalClockOffset_,
-            clockOffsetBlock->primaryStationId_,
-            clockOffsetBlock->secondaryStationId_,
-            clockOffsetBlock->reservedBlock_,
-            clockOffsetBlock->integerEndTime_,
-            clockOffsetBlock->fractionalEndTime_ );
-
-    return clockOffsetBlock;
+            integerStartTime_,
+            fractionalStartTime_,
+            integerClockOffset_,
+            fractionalClockOffset_,
+            primaryStationId_,
+            secondaryStationId_,
+            reservedBlock_,
+            integerEndTime_,
+            fractionalEndTime_ );
 }
 
-std::shared_ptr< OdfDopplerDataBlock > parseDopplerOrbitData( std::bitset< 128 > dataBits, const int dopplerType )
-{
-    std::shared_ptr< OdfDopplerDataBlock > dopplerDataBlock = std::make_shared< OdfDopplerDataBlock >( dopplerType );
 
+OdfDDodDataBlock::OdfDDodDataBlock( const std::bitset< 128 > specificDataBits, const int dDodDataType ):
+    OdfDataSpecificBlock( dDodDataType )
+{
+    // Items to read:
+    // secondReceivingStationId_: uint7
+    // quasarOrSpacecraftId_: uint10
+    // phasePointIndicator_: uint1
+    // referenceFrequencyHighPart_: uint22
+    // referenceFrequencyLowPart_: uint24
+    // composite1_: int20
+    // compressionTime_: uint22
+    // secondReceivingStationDownlinkDelay__: uint22
+
+    std::vector< bool > unsignedItemFlag = { true, true, true, true, true, false, true, true };
+
+    parseNumericalDataBlockWrapper< 128, 7, 10, 1, 22, 24, 20, 22, 22 >(
+            specificDataBits, unsignedItemFlag,
+            secondReceivingStationId_,
+            quasarOrSpacecraftId_,
+            phasePointIndicator_,
+            referenceFrequencyHighPart_,
+            referenceFrequencyLowPart_,
+            composite1_,
+            compressionTime_,
+            secondReceivingStationDownlinkDelay_ );
+}
+
+OdfDDorDataBlock::OdfDDorDataBlock( const std::bitset< 128 > specificDataBits, const int dDorDataType ):
+    OdfDataSpecificBlock( dDorDataType )
+{
+    // Items to read:
+    // secondReceivingStationId_: uint7
+    // quasarOrSpacecraftId_: uint10
+    // modulusIndicator_: uint1
+    // referenceFrequencyHighPart_: uint22
+    // referenceFrequencyLowPart_: uint24
+    // composite1_: int20
+    // modulusLowPart_: uint22
+    // secondReceivingStationDownlinkDelay__: uint22
+
+    std::vector< bool > unsignedItemFlag = { true, true, true, true, true, false, true, true };
+
+    parseNumericalDataBlockWrapper< 128, 7, 10, 1, 22, 24, 20, 22, 22 >(
+            specificDataBits, unsignedItemFlag,
+            secondReceivingStationId_,
+            quasarOrSpacecraftId_,
+            modulusIndicator_,
+            referenceFrequencyHighPart_,
+            referenceFrequencyLowPart_,
+            composite1_,
+            modulusLowPart_,
+            secondReceivingStationDownlinkDelay_ );
+}
+
+OdfDopplerDataBlock::OdfDopplerDataBlock(
+        const std::bitset< 128 > specificDataBits,
+        const int dopplerDataType ):
+    OdfDataSpecificBlock( dopplerDataType )
+{
     // Items to read:
     // receiverChannel: uint7
     // spacecraftId: uint10
@@ -69,24 +118,20 @@ std::shared_ptr< OdfDopplerDataBlock > parseDopplerOrbitData( std::bitset< 128 >
     std::vector< bool > unsignedItemFlag = { true, true, true, true, true, false, true, true };
 
     parseNumericalDataBlockWrapper< 128, 7, 10, 1, 22, 24, 20, 22, 22 >(
-            dataBits, unsignedItemFlag,
-            dopplerDataBlock->receiverChannel_,
-            dopplerDataBlock->spacecraftId_,
-            dopplerDataBlock->receiverExciterFlag_,
-            dopplerDataBlock->referenceFrequencyHighPart_,
-            dopplerDataBlock->referenceFrequencyLowPart_,
-            dopplerDataBlock->reservedSegment_,
-            dopplerDataBlock->compressionTime_,
-            dopplerDataBlock->transmittingStationUplinkDelay_ );
-
-    return dopplerDataBlock;
+            specificDataBits, unsignedItemFlag,
+            receiverChannel_,
+            spacecraftId_,
+            receiverExciterFlag_,
+            referenceFrequencyHighPart_,
+            referenceFrequencyLowPart_,
+            reservedSegment_,
+            compressionTime_,
+            transmittingStationUplinkDelay_ );
 }
 
-// TODO: test
-std::shared_ptr< OdfSequentialRangeDataBlock > parseSequentialRangeData( std::bitset< 128 > dataBits )
+OdfSequentialRangeDataBlock::OdfSequentialRangeDataBlock( const std::bitset< 128 > dataBits ):
+    OdfDataSpecificBlock( 37 )
 {
-    std::shared_ptr< OdfSequentialRangeDataBlock > rangeDataBlock = std::make_shared< OdfSequentialRangeDataBlock >( );
-
     // Items to read:
     // lowestRangingComponent: uint7
     // spacecraftId: uint10
@@ -101,85 +146,19 @@ std::shared_ptr< OdfSequentialRangeDataBlock > parseSequentialRangeData( std::bi
 
     parseNumericalDataBlockWrapper< 128, 7, 10, 1, 22, 24, 20, 22, 22 >(
             dataBits, unsignedItemFlag,
-            rangeDataBlock->lowestRangingComponent_,
-            rangeDataBlock->spacecraftId_,
-            rangeDataBlock->reservedBlock_,
-            rangeDataBlock->referenceFrequencyHighPart_,
-            rangeDataBlock->referenceFrequencyLowPart_,
-            rangeDataBlock->coderInPhaseTimeOffset_,
-            rangeDataBlock->compositeTwo_,
-            rangeDataBlock->transmittingStationUplinkDelay_ );
-
-    return rangeDataBlock;
+            lowestRangingComponent_,
+            spacecraftId_,
+            reservedBlock_,
+            referenceFrequencyHighPart_,
+            referenceFrequencyLowPart_,
+            coderInPhaseTimeOffset_,
+            compositeTwo_,
+            transmittingStationUplinkDelay_ );
 }
 
-// TODO: test
-std::shared_ptr< OdfDDodDataBlock > parseDDodOrbitData( std::bitset< 128 > dataBits, const int dDodType )
+OdfToneRangeDataBlock::OdfToneRangeDataBlock( const std::bitset< 128 > specificDataBits ):
+    OdfDataSpecificBlock( 41 )
 {
-    std::shared_ptr< OdfDDodDataBlock > dataBlock = std::make_shared< OdfDDodDataBlock >( dDodType );
-
-    // Items to read:
-    // secondReceivingStationId_: uint7
-    // quasarOrSpacecraftId_: uint10
-    // phasePointIndicator_: uint1
-    // referenceFrequencyHighPart_: uint22
-    // referenceFrequencyLowPart_: uint24
-    // composite1_: int20
-    // compressionTime_: uint22
-    // secondReceivingStationDownlinkDelay__: uint22
-
-    std::vector< bool > unsignedItemFlag = { true, true, true, true, true, false, true, true };
-
-    parseNumericalDataBlockWrapper< 128, 7, 10, 1, 22, 24, 20, 22, 22 >(
-            dataBits, unsignedItemFlag,
-            dataBlock->secondReceivingStationId_,
-            dataBlock->quasarOrSpacecraftId_,
-            dataBlock->phasePointIndicator_,
-            dataBlock->referenceFrequencyHighPart_,
-            dataBlock->referenceFrequencyLowPart_,
-            dataBlock->composite1_,
-            dataBlock->compressionTime_,
-            dataBlock->secondReceivingStationDownlinkDelay_ );
-
-    return dataBlock;
-}
-
-// TODO: test
-std::shared_ptr< OdfDDorDataBlock > parseDDorOrbitData( std::bitset< 128 > dataBits, const int dDorType )
-{
-    std::shared_ptr< OdfDDorDataBlock > dataBlock = std::make_shared< OdfDDorDataBlock >( dDorType );
-
-    // Items to read:
-    // secondReceivingStationId_: uint7
-    // quasarOrSpacecraftId_: uint10
-    // modulusIndicator_: uint1
-    // referenceFrequencyHighPart_: uint22
-    // referenceFrequencyLowPart_: uint24
-    // composite1_: int20
-    // modulusLowPart_: uint22
-    // secondReceivingStationDownlinkDelay__: uint22
-
-    std::vector< bool > unsignedItemFlag = { true, true, true, true, true, false, true, true };
-
-    parseNumericalDataBlockWrapper< 128, 7, 10, 1, 22, 24, 20, 22, 22 >(
-            dataBits, unsignedItemFlag,
-            dataBlock->secondReceivingStationId_,
-            dataBlock->quasarOrSpacecraftId_,
-            dataBlock->modulusIndicator_,
-            dataBlock->referenceFrequencyHighPart_,
-            dataBlock->referenceFrequencyLowPart_,
-            dataBlock->composite1_,
-            dataBlock->modulusLowPart_,
-            dataBlock->secondReceivingStationDownlinkDelay_ );
-
-    return dataBlock;
-}
-
-// TODO: test
-std::shared_ptr< OdfToneRangeDataBlock > parseToneRangeOrbitData( std::bitset< 128 > dataBits )
-{
-    std::shared_ptr< OdfToneRangeDataBlock > dataBlock = std::make_shared< OdfToneRangeDataBlock >( );
-
     // Items to read:
     // integerObservableTime_: uint7
     // spacecraftId_: uint10
@@ -193,24 +172,20 @@ std::shared_ptr< OdfToneRangeDataBlock > parseToneRangeOrbitData( std::bitset< 1
     std::vector< bool > unsignedItemFlag = { true, true, true, true, true, false, true, true };
 
     parseNumericalDataBlockWrapper< 128, 7, 10, 1, 22, 24, 20, 22, 22 >(
-            dataBits, unsignedItemFlag,
-            dataBlock->integerObservableTime_,
-            dataBlock->spacecraftId_,
-            dataBlock->reservedBlock1_,
-            dataBlock->referenceFrequencyHighPart_,
-            dataBlock->referenceFrequencyLowPart_,
-            dataBlock->reservedBlock2_,
-            dataBlock->reservedBlock3_,
-            dataBlock->transmittingStationUplinkDelay_ );
-
-    return dataBlock;
+            specificDataBits, unsignedItemFlag,
+            integerObservableTime_,
+            spacecraftId_,
+            reservedBlock1_,
+            referenceFrequencyHighPart_,
+            referenceFrequencyLowPart_,
+            reservedBlock2_,
+            reservedBlock3_,
+            transmittingStationUplinkDelay_ );
 }
 
-// TODO: test
-std::shared_ptr< OdfAngleDataBlock > parseAngleOrbitData( std::bitset< 128 > dataBits, const int angleType )
+OdfAngleDataBlock::OdfAngleDataBlock( const std::bitset< 128 > specificDataBits, const int angleDataType ):
+    OdfDataSpecificBlock( angleDataType )
 {
-    std::shared_ptr< OdfAngleDataBlock > dataBlock = std::make_shared< OdfAngleDataBlock >( angleType );
-
     // Items to read:
     // reservedBlock1_: uint7
     // spacecraftId_: uint10
@@ -224,25 +199,20 @@ std::shared_ptr< OdfAngleDataBlock > parseAngleOrbitData( std::bitset< 128 > dat
     std::vector< bool > unsignedItemFlag = { true, true, true, true, true, false, true, true };
 
     parseNumericalDataBlockWrapper< 128, 7, 10, 1, 22, 24, 20, 22, 22 >(
-            dataBits, unsignedItemFlag,
-            dataBlock->reservedBlock1_,
-            dataBlock->spacecraftId_,
-            dataBlock->reservedBlock2_,
-            dataBlock->reservedBlock3_,
-            dataBlock->reservedBlock4_,
-            dataBlock->reservedBlock5_,
-            dataBlock->reservedBlock6_,
-            dataBlock->reservedBlock7_ );
-
-    return dataBlock;
+            specificDataBits, unsignedItemFlag,
+            reservedBlock1_,
+            spacecraftId_,
+            reservedBlock2_,
+            reservedBlock3_,
+            reservedBlock4_,
+            reservedBlock5_,
+            reservedBlock6_,
+            reservedBlock7_ );
 }
 
-
-std::shared_ptr< OdfDataBlock > parseOrbitData( std::bitset< 288 > dataBits )
+OdfCommonDataBlock::OdfCommonDataBlock( const std::bitset< 160 > commonDataBits )
 {
-    std::shared_ptr< OdfDataBlock > dataBlock = std::make_shared< OdfDataBlock >( );
-
-    // Read common data
+    // Items to read:
     // integerTimeTag: uint32
     // fractionalTimeTag: uint10
     // receivingStationDownlinkDelay: uint22
@@ -258,76 +228,72 @@ std::shared_ptr< OdfDataBlock > parseOrbitData( std::bitset< 288 > dataBits )
     // referenceBand: uint2
     // validity: uint1
 
-    std::shared_ptr< OdfCommonDataBlock > commonDataBlock = std::make_shared< OdfCommonDataBlock >( );
-    dataBlock->commonDataBlock_ = commonDataBlock;
-
-    int dataType;
-
-    std::bitset< 160 > commonDataBits = getBitsetSegment< 160, 288 >( dataBits, 0 );
-
     std::vector< bool > unsignedCommonItemFlag ( 14, true );
     unsignedCommonItemFlag.at( 3 ) = false;
     unsignedCommonItemFlag.at( 4 ) = false;
 
     parseNumericalDataBlockWrapper< 160, 32, 10, 22, 32, 32, 3, 7, 7, 2, 6, 2, 2, 2, 1 >(
             commonDataBits, unsignedCommonItemFlag,
-            commonDataBlock->integerTimeTag_,
-            commonDataBlock->fractionalTimeTag_,
-            commonDataBlock->receivingStationDownlinkDelay_,
-            commonDataBlock->integerObservable_,
-            commonDataBlock->fractionalObservable_,
-            commonDataBlock->formatId_,
-            commonDataBlock->receivingStationId_,
-            commonDataBlock->transmittingStationId_,
-            commonDataBlock->transmittingStationNetworkId_,
-            dataType,
-            commonDataBlock->downlinkBandId_,
-            commonDataBlock->uplinkBandId_,
-            commonDataBlock->referenceBandId_,
-            commonDataBlock->validity_ );
+            integerTimeTag_,
+            fractionalTimeTag_,
+            receivingStationDownlinkDelay_,
+            integerObservable_,
+            fractionalObservable_,
+            formatId_,
+            receivingStationId_,
+            transmittingStationId_,
+            transmittingStationNetworkId_,
+            dataType_,
+            downlinkBandId_,
+            uplinkBandId_,
+            referenceBandId_,
+            validity_ );
+}
 
-    // Read data type specific data
+OdfDataBlock::OdfDataBlock( std::bitset< 288 > dataBits )
+{
+    // Extract bitset with common data
+    std::bitset< 160 > commonDataBits = getBitsetSegment< 160, 288 >( dataBits, 0 );
+    // Extract bitset with data-type specific data
     std::bitset< 128 > specificDataBits = getBitsetSegment< 128, 288 >( dataBits, 160 );
 
+    commonDataBlock_ = std::make_shared< OdfCommonDataBlock >( commonDataBits );
+
+    int dataType = commonDataBlock_->dataType_;
     if ( dataType == 1 || dataType == 2 || dataType == 3 || dataType == 4 )
     {
-        dataBlock->observableSpecificDataBlock_ = parseDDodOrbitData( specificDataBits, dataType );
+        observableSpecificDataBlock_ = std::make_shared< OdfDDodDataBlock >( specificDataBits, dataType );
     }
     else if ( dataType == 5 || dataType == 6 )
     {
-        dataBlock->observableSpecificDataBlock_ = parseDDorOrbitData( specificDataBits, dataType );
+        observableSpecificDataBlock_ = std::make_shared< OdfDDorDataBlock >( specificDataBits, dataType );
     }
     else if ( dataType == 11 || dataType == 12 || dataType == 13 )
     {
-        dataBlock->observableSpecificDataBlock_ = parseDopplerOrbitData( specificDataBits, dataType );
+        observableSpecificDataBlock_ = std::make_shared< OdfDopplerDataBlock >( specificDataBits, dataType );
     }
     else if( dataType == 37 )
     {
-        dataBlock->observableSpecificDataBlock_ = parseSequentialRangeData( specificDataBits );
+        observableSpecificDataBlock_ = std::make_shared< OdfSequentialRangeDataBlock >( specificDataBits );
     }
     else if ( dataType == 41 )
     {
-        dataBlock->observableSpecificDataBlock_ = parseToneRangeOrbitData( specificDataBits );
+        observableSpecificDataBlock_ = std::make_shared< OdfToneRangeDataBlock >( specificDataBits );
     }
     else if ( dataType == 51 || dataType == 52 || dataType == 53 || dataType == 54 || dataType == 55 ||
                 dataType == 56 || dataType == 57 || dataType == 58 )
     {
-        dataBlock->observableSpecificDataBlock_ = parseAngleOrbitData( specificDataBits, dataType );
+        observableSpecificDataBlock_ = std::make_shared< OdfAngleDataBlock >( specificDataBits, dataType );
     }
     else
     {
         throw std::runtime_error( "Error, ODF data type " + std::to_string( dataType ) + " not recognized." );
     }
-
-    return dataBlock;
 }
 
-std::shared_ptr< OdfRampBlock > parseRampData( std::bitset< 288 > dataBits )
+OdfRampBlock::OdfRampBlock( const std::bitset< 288 > dataBits )
 {
-
-    std::shared_ptr< OdfRampBlock > rampBlock = std::make_shared< OdfRampBlock >( );
-
-    // Data to parse
+    // Data to parse:
     // integerRampStartTime: uint32
     // fractionalRampStartTime: uint32
     // integerRampRate: int32
@@ -345,25 +311,23 @@ std::shared_ptr< OdfRampBlock > parseRampData( std::bitset< 288 > dataBits )
 
     parseNumericalDataBlockWrapper< 288, 32, 32, 32, 32, 22, 10, 32, 32, 32, 32 >(
             dataBits, unsignedCommonItemFlag,
-            rampBlock->integerRampStartTime_,
-            rampBlock->fractionalRampStartTime_,
-            rampBlock->integerRampRate_,
-            rampBlock->fractionalRampRate_,
-            rampBlock->integerRampStartFrequency_,
-            rampBlock->transmittingStationId_,
-            rampBlock->integerRampStartFrequencyModulo_,
-            rampBlock->fractionalRampStartFrequency_,
-            rampBlock->integerRampEndTime_,
-            rampBlock->fractionalRampEndTime_ );
-
-    return rampBlock;
+            integerRampStartTime_,
+            fractionalRampStartTime_,
+            integerRampRate_,
+            fractionalRampRate_,
+            integerRampStartFrequency_,
+            transmittingStationId_,
+            integerRampStartFrequencyModulo_,
+            fractionalRampStartFrequency_,
+            integerRampEndTime_,
+            fractionalRampEndTime_ );
 }
 
-void parseHeader( std::bitset< 288 > dataBits,
-                  int32_t& primaryKey,
-                  uint32_t& secondaryKey,
-                  uint32_t& logicalRecordLength,
-                  uint32_t& groupStartPacketNumber)
+void OdfRawFileContents::parseHeader( std::bitset< 288 > dataBits,
+                                      int32_t& primaryKey,
+                                      uint32_t& secondaryKey,
+                                      uint32_t& logicalRecordLength,
+                                      uint32_t& groupStartPacketNumber)
 {
     // Items to read:
     // primaryKey: int32
@@ -397,14 +361,14 @@ void parseHeader( std::bitset< 288 > dataBits,
     }
 }
 
-void parseFileLabelData(std::bitset< 288 > dataBits,
-                        std::string& systemId,
-                        std::string& programId,
-                        uint32_t& spacecraftId,
-                        uint32_t& fileCreationDate,
-                        uint32_t& fileCreationTime,
-                        uint32_t& fileReferenceDate,
-                        uint32_t& fileReferenceTime )
+void OdfRawFileContents::parseFileLabelData(std::bitset< 288 > dataBits,
+                                            std::string& systemId,
+                                            std::string& programId,
+                                            uint32_t& spacecraftId,
+                                            uint32_t& fileCreationDate,
+                                            uint32_t& fileCreationTime,
+                                            uint32_t& fileReferenceDate,
+                                            uint32_t& fileReferenceTime )
 {
     // Get bits with ascii data
     // systemId: ASCII-8
@@ -437,21 +401,21 @@ void parseFileLabelData(std::bitset< 288 > dataBits,
             fileReferenceTime );
 }
 
-void parseIdentifierData( std::bitset< 288 > dataBits,
-                          std::string& identifierGroupStringA,
-                          std::string& identifierGroupStringB,
-                          std::string& identifierGroupStringC )
+void OdfRawFileContents::parseIdentifierData( std::bitset< 288 > dataBits,
+                                              std::string& identifierGroupStringA,
+                                              std::string& identifierGroupStringB,
+                                              std::string& identifierGroupStringC )
 {
     const int numBytes = 288 / 8;
     parseStringsBlockWrapper< numBytes, 8, 8, 20 >( dataBits, identifierGroupStringA, identifierGroupStringB,
                                                     identifierGroupStringC );
 }
 
-bool currentBlockIsHeader( std::bitset< 288 > dataBits,
-                          int& primaryKey,
-                          unsigned int& secondaryKey,
-                          unsigned int& logicalRecordLength,
-                          unsigned int& groupStartPacketNumber )
+bool OdfRawFileContents::currentBlockIsHeader( std::bitset< 288 > dataBits,
+                                               int& primaryKey,
+                                               unsigned int& secondaryKey,
+                                               unsigned int& logicalRecordLength,
+                                               unsigned int& groupStartPacketNumber )
 {
     bool blockIsHeader;
 
@@ -470,15 +434,13 @@ bool currentBlockIsHeader( std::bitset< 288 > dataBits,
     return blockIsHeader;
 }
 
-void readOdfFileBlock( std::istream& file,
-                       std::bitset< 36 * 8 >& dataBits )
+void OdfRawFileContents::readOdfFileBlock( std::istream& file, std::bitset< 36 * 8 >& dataBits )
 {
     readBinaryFileBlock< 36 >( file, dataBits );
 }
 
-//! Function to read the contents of an ODF file into an OdfRawFileContents object
-std::shared_ptr< OdfRawFileContents > readOdfFile(
-        const std::string& odfFile )
+OdfRawFileContents::OdfRawFileContents( const std::string& odfFile ):
+    fileName_( odfFile )
 {
     // Open file
     std::ifstream dataFile( odfFile, std::ios_base::binary);
@@ -486,10 +448,6 @@ std::shared_ptr< OdfRawFileContents > readOdfFile(
     {
         throw std::runtime_error( "Error when opening ODF file file." );
     }
-
-    // Create OdfRawFileContents object, and add file name
-    std::shared_ptr< OdfRawFileContents > odfFileContents = std::make_shared< OdfRawFileContents >( );
-    odfFileContents->fileName_ = odfFile;
 
     // Declare used variables
     std::bitset< 36 * 8 > currenBitBlock;
@@ -510,10 +468,8 @@ std::shared_ptr< OdfRawFileContents > readOdfFile(
 
     // Parse file label data
     readOdfFileBlock( dataFile, currenBitBlock );
-    parseFileLabelData( currenBitBlock, odfFileContents->systemId_, odfFileContents->programId_,
-                        odfFileContents->spacecraftId_, odfFileContents->fileCreationDate_,
-                        odfFileContents->fileCreationTime_,
-                        odfFileContents->fileReferenceDate_, odfFileContents->fileReferenceTime_ );
+    parseFileLabelData( currenBitBlock, systemId_, programId_, spacecraftId_, fileCreationDate_,
+                        fileCreationTime_, fileReferenceDate_, fileReferenceTime_ );
 
     // Parse identifier header
     readOdfFileBlock( dataFile, currenBitBlock );
@@ -528,9 +484,7 @@ std::shared_ptr< OdfRawFileContents > readOdfFile(
 
     // Parse identifier data
     readOdfFileBlock( dataFile, currenBitBlock );
-    parseIdentifierData(
-            currenBitBlock, odfFileContents->identifierGroupStringA_, odfFileContents->identifierGroupStringB_,
-            odfFileContents->identifierGroupStringC_ );
+    parseIdentifierData( currenBitBlock, identifierGroupStringA_, identifierGroupStringB_, identifierGroupStringC_ );
 
     // Parse orbit data header
     readOdfFileBlock( dataFile, currenBitBlock );
@@ -543,9 +497,9 @@ std::shared_ptr< OdfRawFileContents > readOdfFile(
     }
 
     // Reset data blocks and ramp blocks
-    odfFileContents->dataBlocks_.resize( 0 );
-    odfFileContents->rampBlocks_.clear();
-    odfFileContents->clockOffsetBlocks_.clear();
+    dataBlocks_.clear( );
+    rampBlocks_.clear( );
+    clockOffsetBlocks_.clear( );
 
     // Read file until summary or EOF header is found or eof() is reached
     for ( int currentRampStation = -1, currentBlockType = 109; !dataFile.eof( ); )
@@ -594,30 +548,30 @@ std::shared_ptr< OdfRawFileContents > readOdfFile(
             // Read orbit data
             if ( currentBlockType == 109 )
             {
-                std::shared_ptr< OdfDataBlock > currentDataBlock = parseOrbitData( currenBitBlock );
+                std::shared_ptr< OdfDataBlock > currentDataBlock = std::make_shared< OdfDataBlock >( currenBitBlock );
                 if( currentDataBlock != nullptr )
                 {
-                    odfFileContents->dataBlocks_.push_back( currentDataBlock );
+                    dataBlocks_.push_back( currentDataBlock );
                 }
             }
             // Read ramp data
             else if ( currentBlockType == 2030 )
             {
-                std::shared_ptr< OdfRampBlock > currentDataBlock = parseRampData( currenBitBlock );
+                std::shared_ptr< OdfRampBlock > currentDataBlock = std::make_shared< OdfRampBlock >( currenBitBlock );
                 if( currentDataBlock != nullptr )
                 {
-                    odfFileContents->rampBlocks_[ currentRampStation ].push_back( currentDataBlock );
+                    rampBlocks_[ currentRampStation ].push_back( currentDataBlock );
                 }
             }
             // Clock offset data
             else if ( currentBlockType == 2040 )
             {
-                std::shared_ptr< OdfClockOffsetBlock > currentDataBlock = parseClockOffsetData( currenBitBlock );
+                std::shared_ptr< OdfClockOffsetBlock > currentDataBlock = std::make_shared< OdfClockOffsetBlock >( currenBitBlock );
                 if( currentDataBlock != nullptr )
                 {
-                    odfFileContents->clockOffsetBlocks_[
-                            std::make_pair( currentDataBlock->primaryStationId_,
-                                            currentDataBlock->secondaryStationId_ ) ] = currentDataBlock;
+                    clockOffsetBlocks_[
+                            std::make_pair( currentDataBlock->getPrimaryStationId_( ),
+                                            currentDataBlock->getSecondaryStationId_( ) ) ] = currentDataBlock;
                 }
             }
             else
@@ -651,14 +605,12 @@ std::shared_ptr< OdfRawFileContents > readOdfFile(
             std::to_string( primaryKey ) + ", secondary key " + std::to_string( secondaryKey ) + ", logical record length " +
             std::to_string( logicalRecordLength ) + "." );
         }
-        odfFileContents->eofHeaderFound_ = true;
+        eofHeaderFound_ = true;
     }
     else
     {
-        odfFileContents->eofHeaderFound_ = false;
+        eofHeaderFound_ = false;
     }
-
-    return odfFileContents;
 }
 
 } // namespace input_output

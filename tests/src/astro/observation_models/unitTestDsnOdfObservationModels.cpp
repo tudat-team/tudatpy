@@ -34,6 +34,7 @@ namespace unit_tests
 
 using namespace tudat::spice_interface;
 using namespace tudat::ephemerides;
+using namespace tudat::input_output;
 using namespace tudat::simulation_setup;
 using namespace tudat;
 
@@ -136,11 +137,11 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
 //    std::string fileTag = "2017_ssd";
     std::string fileTag = "2017_nav";
     std::shared_ptr< input_output::OdfRawFileContents > rawOdfFileContents =
-//            input_output::readOdfFile( "/Users/pipas/Documents/dsn_trk-2-18/odf07155.dat" );
-//            input_output::readOdfFile( "/Users/pipas/Documents/messenger-rawdata-odf/mess_rs_10162_163_odf.dat" );
-//            input_output::readOdfFile( "/Users/pipas/Documents/messenger-rawdata-odf/mess_rs_09121_121_odf.dat" );
-//            input_output::readOdfFile( "/Users/pipas/Documents/messenger-rawdata-odf/mess_rs_11336_2100_odf.dat" );
-            input_output::readOdfFile( "/Users/pipas/Documents/mro-rawdata-odf/mromagr2017_097_1335xmmmv1.odf" );
+//            std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/dsn_trk-2-18/odf07155.dat" );
+//            std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/messenger-rawdata-odf/mess_rs_10162_163_odf.dat" );
+//            std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/messenger-rawdata-odf/mess_rs_09121_121_odf.dat" );
+//            std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/messenger-rawdata-odf/mess_rs_11336_2100_odf.dat" );
+            std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/mro-rawdata-odf/mromagr2017_097_1335xmmmv1.odf" );
 
     std::cout << "Start time from 1950 UTC: " << rawOdfFileContents->dataBlocks_.front()->commonDataBlock_->getObservableTime() << std::endl;
     std::cout << "End time from 1950 UTC: " << rawOdfFileContents->dataBlocks_.back()->commonDataBlock_->getObservableTime() << std::endl;
