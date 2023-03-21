@@ -20,6 +20,7 @@
 
 #include "tudat/astro/basic_astro/timeConversions.h"
 #include "tudat/io/basicInputOutput.h"
+#include "tudat/io/readBinaryFile.h"
 #include "tudat/math/interpolators/lookupScheme.h"
 
 namespace tudat
@@ -27,23 +28,11 @@ namespace tudat
 namespace input_output
 {
 
+// TODO: test
 class OdfClockOffsetBlock
 {
 public:
-
-    unsigned int integerStartTime_; // sec
-    unsigned int fractionalStartTime_; // nsec
-
-    int integerClockOffset_;  // sec
-    int fractionalClockOffset_; // nsec
-
-    unsigned int primaryStationId_;
-    unsigned int secondaryStationId_;
-
-    unsigned int reservedBlock_;
-
-    unsigned int integerEndTime_; // sec
-    unsigned int fractionalEndTime_; // nsec
+    OdfClockOffsetBlock( const std::bitset< 288 > dataBits );
 
     double getStartTime( )
     {
@@ -59,11 +48,38 @@ public:
     {
         return static_cast< double >( integerClockOffset_ ) + static_cast< double >( fractionalClockOffset_ ) * 1.0E-9;
     }
+
+    int getPrimaryStationId_( )
+    {
+        return primaryStationId_;
+    }
+
+    int getSecondaryStationId_( )
+    {
+        return secondaryStationId_;
+    }
+
+private:
+
+    unsigned int integerStartTime_; // sec
+    unsigned int fractionalStartTime_; // nsec
+
+    int integerClockOffset_;  // sec
+    int fractionalClockOffset_; // nsec
+
+    unsigned int primaryStationId_;
+    unsigned int secondaryStationId_;
+
+    unsigned int reservedBlock_;
+
+    unsigned int integerEndTime_; // sec
+    unsigned int fractionalEndTime_; // nsec
 };
 
 class OdfRampBlock
 {
 public:
+    OdfRampBlock( const std::bitset< 288 > dataBits );
 
     unsigned int integerRampStartTime_; // sec
     unsigned int fractionalRampStartTime_; // nsec
@@ -103,7 +119,7 @@ public:
     {
         return static_cast< double >( integerRampEndTime_ ) + static_cast< double >( fractionalRampEndTime_ ) * 1.0E-9;
     }
-    
+
 };
 
 class OdfDataSpecificBlock
@@ -116,14 +132,51 @@ public:
     int dataType_;
 };
 
+// TODO: test
 // Delta differential one-way Doppler data
 class OdfDDodDataBlock: public OdfDataSpecificBlock
 {
 public:
-    OdfDDodDataBlock( const int dDodDataType ):
-        OdfDataSpecificBlock( dDodDataType ){ }
+    OdfDDodDataBlock( const std::bitset< 128 > specificDataBits, const int dDodDataType );
 
     ~OdfDDodDataBlock( ){ }
+
+    int getSecondReceivingStationId( )
+    {
+        return secondReceivingStationId_;
+    }
+
+    int getQuasarOrSpacecraftId_( )
+    {
+        return quasarOrSpacecraftId_;
+    }
+
+    int getPhasePointIndicator( )
+    {
+        return phasePointIndicator_;
+    }
+
+    double getReferenceFrequency( )
+    {
+        return std::pow( 2.0, 24 )  / 1.0E3 * referenceFrequencyHighPart_ + referenceFrequencyLowPart_ / 1.0E3;
+    }
+
+    int getComposite1( )
+    {
+        return composite1_;
+    }
+
+    double getCompressionTime( )
+    {
+        return compressionTime_ * 1.0e-2;
+    }
+
+    double getSecondReceivingStationUplinkDelay( )
+    {
+        return secondReceivingStationDownlinkDelay_ * 1.0e-9;
+    }
+
+private:
 
     int secondReceivingStationId_;
     int quasarOrSpacecraftId_;
@@ -133,21 +186,48 @@ public:
     int composite1_;
     int compressionTime_; // 1e-2 sec
     int secondReceivingStationDownlinkDelay_; // nsec
+};
+
+// TODO: test
+// Delta differential one-way ranging data
+class OdfDDorDataBlock: public OdfDataSpecificBlock
+{
+public:
+    OdfDDorDataBlock( const std::bitset< 128 > specificDataBits, const int dDorDataType );
+
+    ~OdfDDorDataBlock( ){ }
+
+    int getSecondReceivingStationId( )
+    {
+        return secondReceivingStationId_;
+    }
+
+    int getQuasarOrSpacecraftId_( )
+    {
+        return quasarOrSpacecraftId_;
+    }
+
+    int getModulusIndicator( )
+    {
+        return modulusIndicator_;
+    }
 
     double getReferenceFrequency( )
     {
         return std::pow( 2.0, 24 )  / 1.0E3 * referenceFrequencyHighPart_ + referenceFrequencyLowPart_ / 1.0E3;
     }
-};
 
-// Delta differential one-way ranging data
-class OdfDDorDataBlock: public OdfDataSpecificBlock
-{
-public:
-    OdfDDorDataBlock( const int dDorDataType ):
-        OdfDataSpecificBlock( dDorDataType ){ }
+    int getComposite1( )
+    {
+        return composite1_;
+    }
 
-    ~OdfDDorDataBlock( ){ }
+    double getSecondReceivingStationUplinkDelay( )
+    {
+        return secondReceivingStationDownlinkDelay_ * 1.0e-9;
+    }
+
+private:
 
     int secondReceivingStationId_;
     int quasarOrSpacecraftId_;
@@ -157,18 +237,12 @@ public:
     int composite1_;
     int modulusLowPart_; // 1e-7 sec
     int secondReceivingStationDownlinkDelay_; // nsec
-
-    double getReferenceFrequency( )
-    {
-        return std::pow( 2.0, 24 )  / 1.0E3 * referenceFrequencyHighPart_ + referenceFrequencyLowPart_ / 1.0E3;
-    }
 };
 
 class OdfDopplerDataBlock: public OdfDataSpecificBlock
 {
 public:
-    OdfDopplerDataBlock( const int DopplerDataType ):
-        OdfDataSpecificBlock( DopplerDataType ){ }
+    OdfDopplerDataBlock( const std::bitset< 128 > specificDataBits, const int dopplerDataType );
 
     ~OdfDopplerDataBlock( ){ }
 
@@ -203,8 +277,7 @@ class OdfSequentialRangeDataBlock: public OdfDataSpecificBlock
 {
 public:
 
-    OdfSequentialRangeDataBlock( ):
-        OdfDataSpecificBlock( 37 ){ }
+    OdfSequentialRangeDataBlock( const std::bitset< 128 > dataBits );
 
     ~OdfSequentialRangeDataBlock( ){ }
 
@@ -230,12 +303,12 @@ public:
     }
 };
 
+// TODO: test
 class OdfToneRangeDataBlock: public OdfDataSpecificBlock
 {
 public:
 
-    OdfToneRangeDataBlock( ):
-        OdfDataSpecificBlock( 41 ){ }
+    OdfToneRangeDataBlock( const std::bitset< 128 > specificDataBits );
 
     ~OdfToneRangeDataBlock( ){ }
 
@@ -257,14 +330,21 @@ public:
     }
 };
 
+// TODO: test
 class OdfAngleDataBlock: public OdfDataSpecificBlock
 {
 public:
 
-    OdfAngleDataBlock( const int angleDataType ):
-        OdfDataSpecificBlock( angleDataType ){ }
+    OdfAngleDataBlock( const std::bitset< 128 > specificDataBits, const int angleDataType );
 
     ~OdfAngleDataBlock( ){ }
+
+    int getSpacecraftId( )
+    {
+        return spacecraftId_;
+    }
+
+private:
 
     int reservedBlock1_;
     int spacecraftId_;
@@ -279,6 +359,7 @@ public:
 class OdfCommonDataBlock
 {
 public:
+    OdfCommonDataBlock( const std::bitset< 160 > commonDataBits );
 
     double getObservableTime( )
     {
@@ -307,7 +388,7 @@ public:
     int receivingStationId_;
     int transmittingStationId_;
     int transmittingStationNetworkId_;
-
+    int dataType_;
     int downlinkBandId_;
     int uplinkBandId_;
     int referenceBandId_;
@@ -317,6 +398,8 @@ public:
 class OdfDataBlock
 {
 public:
+    OdfDataBlock( const std::bitset< 288 > dataBits );
+
     std::shared_ptr< OdfDataSpecificBlock > observableSpecificDataBlock_;
     std::shared_ptr< OdfCommonDataBlock > commonDataBlock_;
 };
@@ -324,14 +407,20 @@ public:
 class OdfRawFileContents
 {
 public:
+    /*!
+     *
+     * @param odfFile File name/location of ODF file that is to be read
+     */
+    OdfRawFileContents( const std::string& odfFile );
+
     std::string systemId_;
     std::string programId_;
     uint32_t spacecraftId_;
 
-    uint32_t fileCreationDate_; // year, month, day (YYMMDD)
+    uint32_t fileCreationDate_; // year, month, day (YYYMMDD): year from 1900 or 1950
     uint32_t fileCreationTime_; // hour, minute, second (HHMMSS)
 
-    uint32_t fileReferenceDate_; // year, month, day (YYMMDD)
+    uint32_t fileReferenceDate_; // year, month, day (YYYYMMDD)
     uint32_t fileReferenceTime_; // hour, minute, second (HHMMSS)
 
     std::string fileName_;
@@ -349,63 +438,33 @@ public:
 
     // Indexed by pair of (primary station ID, secondary station ID)
     std::map< std::pair< int, int >, std::shared_ptr< OdfClockOffsetBlock > > clockOffsetBlocks_;
+
+private:
+
+    //! Function to parse the contents of an ODF file label block
+    void parseFileLabelData(
+            std::bitset< 288 > dataBits, std::string& systemId, std::string& programId, uint32_t& spacecraftId,
+            uint32_t& fileCreationDate, uint32_t& fileCreationTime, uint32_t& fileReferenceDate,
+            uint32_t& fileReferenceTime );
+
+    void parseIdentifierData(
+            std::bitset< 288 > dataBits, std::string& identifierGroupStringA, std::string&identifierGroupStringB,
+            std::string& identifierGroupStringC );
+
+    //! Function to parse the contents of an ODF file header block
+    void parseHeader(
+            std::bitset< 288 > dataBits, int32_t& primaryKey, uint32_t& secondaryKey, uint32_t& logicalRecordLength,
+            uint32_t& groupStartPacketNumber);
+
+    //! Function to check if the current ODF data block is a header.
+    bool currentBlockIsHeader(
+            std::bitset< 288 > dataBits, int& primaryKey, unsigned int& secondaryKey,
+            unsigned int& logicalRecordLength, unsigned int& groupStartPacketNumber );
+
+    //! Function to read a single 36 byte block from ODF file
+    void readOdfFileBlock( std::istream& file, std::bitset< 36 * 8 >& dataBits );
+
 };
-
-std::shared_ptr< OdfClockOffsetBlock > parseClockOffsetData( std::bitset< 288 > dataBits );
-
-//! Function to parse the contents of an ODF orbit data block, specific for sequential range data.
-std::shared_ptr< OdfSequentialRangeDataBlock > parseSequentialRangeData( std::bitset< 128 > dataBits );
-
-//! Function to parse the contents of an ODF orbit data block, specific for Doppler data.
-std::shared_ptr< OdfDopplerDataBlock > parseDopplerOrbitData( std::bitset< 128 > dataBits, const int dopplerType );
-
-std::shared_ptr< OdfDDodDataBlock > parseDDodOrbitData( std::bitset< 128 > dataBits, const int dDodType );
-
-std::shared_ptr< OdfDDorDataBlock > parseDDorOrbitData( std::bitset< 128 > dataBits, const int dDorType );
-
-std::shared_ptr< OdfToneRangeDataBlock > parseToneRangeOrbitData( std::bitset< 128 > dataBits );
-
-std::shared_ptr< OdfAngleDataBlock > parseAngleOrbitData( std::bitset< 128 > dataBits, const int angleType );
-
-
-//! Function to parse the contents of an ODF orbit data block
-std::shared_ptr< OdfDataBlock > parseOrbitData( std::bitset< 288 > dataBits );
-
-//! Function to parse the contents of an ODF ramp data block
-std::shared_ptr< OdfRampBlock > parseRampData( std::bitset< 288 > dataBits );
-
-//! Function to parse the contents of an ODF file label block
-void parseFileLabelData(
-        std::bitset< 288 > dataBits, std::string& systemId, std::string& programId, uint32_t& spacecraftId,
-        uint32_t& fileCreationDate, uint32_t& fileCreationTime, uint32_t& fileReferenceDate,
-        uint32_t& fileReferenceTime );
-
-void parseIdentifierData(
-        std::bitset< 288 > dataBits, std::string& identifierGroupStringA, std::string&identifierGroupStringB,
-        std::string& identifierGroupStringC );
-
-//! Function to parse the contents of an ODF file header block
-void parseHeader(
-        std::bitset< 288 > dataBits, int32_t& primaryKey, uint32_t& secondaryKey, uint32_t& logicalRecordLength,
-        uint32_t& groupStartPacketNumber);
-
-//! Function to check if the current ODF data block is a header.
-bool currentBlockIsHeader(
-        std::bitset< 288 > dataBits, int& primaryKey, unsigned int& secondaryKey,
-        unsigned int& logicalRecordLength, unsigned int& groupStartPacketNumber );
-
-//! Function to read a single 36 byte block from ODF file
-void readOdfFileBlock( std::istream& file, std::bitset< 36 * 8 >& dataBits );
-
-//! Function to read the contents of an ODF file into an OdfRawFileContents object
-/*!
- * Function to read the contents of an ODF file into an OdfRawFileContents object. The OdfRawFileContents object contains the
- * unprocessed contents of teh ODF file, on a line-by-line basis.
- * \param odfFile File name/location of ODF file that is to be read
- * \return OdfRawFileContents object with contents of ODF file.
- */
-std::shared_ptr< OdfRawFileContents > readOdfFile(
-        const std::string& odfFile );
 
 } // namespace input_output
 

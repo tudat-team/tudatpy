@@ -57,8 +57,8 @@ BOOST_AUTO_TEST_CASE( testSingleOdfFileReader )
     SystemOfBodies bodies = createSystemOfBodies( bodySettings );
 
     std::string file = getAbsolutePath( "/data_files/odf07155.odf" );
-    std::shared_ptr< input_output::OdfRawFileContents > rawOdfContents = input_output::readOdfFile(
-            file );
+    std::shared_ptr< input_output::OdfRawFileContents > rawOdfContents =
+            std::make_shared< input_output::OdfRawFileContents >( file );
 
     // Saved file name
     BOOST_CHECK_EQUAL ( rawOdfContents->fileName_, file );
