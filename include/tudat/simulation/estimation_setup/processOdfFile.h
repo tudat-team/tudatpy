@@ -101,6 +101,11 @@ public:
         return utilities::createMapFromVectors( processedObservationTimes_, referenceFrequencies_ );
     }
 
+    std::vector< double > getReferenceFrequenciesVector( )
+    {
+        return referenceFrequencies_;
+    }
+
     std::map< double, double > getCountInterval( )
     {
         return utilities::createMapFromVectors( processedObservationTimes_, countInterval_ );

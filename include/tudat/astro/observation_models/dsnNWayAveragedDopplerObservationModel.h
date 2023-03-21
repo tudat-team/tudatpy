@@ -143,12 +143,12 @@ public:
                 turnaroundRatio * ( referenceFrequency - 1.0 / static_cast< ObservationScalarType >( integrationTime ) *
                 transmitterFrequencyIntegral ) ).finished( );
 
-        if ( time > 544845633.685653 + 5400.0 && time < 544845633.685653 + 6400.0 )
-        {
-            std::cout << time - 544845633.685653 << ": " << transmitterFrequencyIntegral << std::endl;
-//            std::cout << time - 544845633.685653 << ": " << transmissionStartTime << std::endl;
-//            std::cout << time - 544845633.685653 << ": " << transmissionEndTime << std::endl;
-        }
+//        if ( time > 544845633.685653 + 5400.0 && time < 544845633.685653 + 6400.0 )
+//        {
+//            std::cout << time - 544845633.685653 << ": " << transmitterFrequencyIntegral << std::endl;
+////            std::cout << time - 544845633.685653 << ": " << transmissionStartTime << std::endl;
+////            std::cout << time - 544845633.685653 << ": " << transmissionEndTime << std::endl;
+//        }
 
 //        std::cout << "M2: " << getDsnDefaultTurnaroundRatios( uplinkBand, downlinkBand ) << std::endl;
 //        std::cout << "Count interval: " << integrationTime << std::endl;
