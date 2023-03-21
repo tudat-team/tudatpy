@@ -79,14 +79,6 @@ std::shared_ptr< OdfDopplerDataBlock > parseDopplerOrbitData( std::bitset< 128 >
             dopplerDataBlock->compressionTime_,
             dopplerDataBlock->transmittingStationUplinkDelay_ );
 
-//    std::cout << dopplerDataBlock->receiverChannel_ << " " <<
-//              dopplerDataBlock->spacecraftId_ << " " <<
-//              dopplerDataBlock->receiverExciterFlag_ << " " <<
-//              std::fixed << dopplerDataBlock->getReferenceFrequency() << " " <<
-//              dopplerDataBlock->reservedSegment_ << " " <<
-//              dopplerDataBlock->compressionTime_ << " " <<
-//              dopplerDataBlock->transmittingStationUplinkDelay_ << std::endl;
-
     return dopplerDataBlock;
 }
 
@@ -117,14 +109,6 @@ std::shared_ptr< OdfSequentialRangeDataBlock > parseSequentialRangeData( std::bi
             rangeDataBlock->coderInPhaseTimeOffset_,
             rangeDataBlock->compositeTwo_,
             rangeDataBlock->transmittingStationUplinkDelay_ );
-
-//    std::cout << rangeDataBlock->lowestRangingComponent_ << " " <<
-//              rangeDataBlock->spacecraftId_ << " " <<
-//              rangeDataBlock->reservedBlock_ << " " <<
-//              std::fixed << rangeDataBlock->getReferenceFrequency() << " " <<
-//              rangeDataBlock->coderInPhaseTimeOffset_ << " " <<
-//              rangeDataBlock->compositeTwo_ << " " <<
-//              rangeDataBlock->transmittingStationUplinkDelay_ << std::endl;
 
     return rangeDataBlock;
 }
@@ -302,21 +286,6 @@ std::shared_ptr< OdfDataBlock > parseOrbitData( std::bitset< 288 > dataBits )
             commonDataBlock->referenceBandId_,
             commonDataBlock->validity_ );
 
-//    std::cout << commonDataBlock->integerTimeTag_ << " " <<
-//        commonDataBlock->fractionalTimeTag_ << " " <<
-//        commonDataBlock->receivingStationDownlinkDelay_ << " " <<
-//                                                               commonDataBlock->integerObservable_ << " " <<
-//                                                               commonDataBlock->fractionalObservable_ << " " <<
-//                                                               commonDataBlock->formatId_ << " " <<
-//                                                               commonDataBlock->receivingStationId_ << " " <<
-//                                                               commonDataBlock->transmittingStationId_ << " " <<
-//                                                               commonDataBlock->transmittingStationNetworkId_ << " " <<
-//                                                               dataType << " " <<
-//                                                               commonDataBlock->downlinkBandId_ << " " <<
-//                                                               commonDataBlock->uplinkBandId_ << " " <<
-//                                                               commonDataBlock->referenceBandId_ << " " <<
-//                                                               commonDataBlock->validity_ << std::endl;
-
     // Read data type specific data
     std::bitset< 128 > specificDataBits = getBitsetSegment< 128, 288 >( dataBits, 160 );
 
@@ -386,14 +355,6 @@ std::shared_ptr< OdfRampBlock > parseRampData( std::bitset< 288 > dataBits )
             rampBlock->fractionalRampStartFrequency_,
             rampBlock->integerRampEndTime_,
             rampBlock->fractionalRampEndTime_ );
-
-//    std::cout<< rampBlock->transmittingStationId<<" "<<
-//                std::fixed<<rampBlock->getRampStartTime()<<" "<<
-//                std::fixed<<rampBlock->getRampRate()<<" "<<
-//                std::fixed<<rampBlock->getRampStartFrequency()<<" "<<
-//                std::fixed<<rampBlock->getRampEndTime()<<std::endl;
-//    std::cout <<rampBlock->integerRampStartTime<<" "<<
-//                rampBlock->fractionalRampStartTime<<std::endl;
 
     return rampBlock;
 }
@@ -546,7 +507,6 @@ std::shared_ptr< OdfRawFileContents > readOdfFile(
         std::to_string( primaryKey ) + ", secondary key " + std::to_string( secondaryKey ) + ", logical record length" +
         std::to_string( logicalRecordLength ) + ", packet number " + std::to_string( groupStartPacketNumber ) + "." );
     }
-//    std::cout << primaryKey << " " << secondaryKey << " " << logicalRecordLength << " " << groupStartPacketNumber << std::endl;
 
     // Parse file label data
     readOdfFileBlock( dataFile, currenBitBlock );
@@ -554,10 +514,6 @@ std::shared_ptr< OdfRawFileContents > readOdfFile(
                         odfFileContents->spacecraftId_, odfFileContents->fileCreationDate_,
                         odfFileContents->fileCreationTime_,
                         odfFileContents->fileReferenceDate_, odfFileContents->fileReferenceTime_ );
-
-    std::cout << odfFileContents->systemId_ << " " << odfFileContents->programId_ << " " << odfFileContents->spacecraftId_ <<
-              " " << odfFileContents->fileCreationDate_ << " " << odfFileContents->fileCreationTime_ << " " <<
-              odfFileContents->fileReferenceDate_ << " " << odfFileContents->fileReferenceTime_ << std::endl;
 
     // Parse identifier header
     readOdfFileBlock( dataFile, currenBitBlock );
@@ -575,9 +531,6 @@ std::shared_ptr< OdfRawFileContents > readOdfFile(
     parseIdentifierData(
             currenBitBlock, odfFileContents->identifierGroupStringA_, odfFileContents->identifierGroupStringB_,
             odfFileContents->identifierGroupStringC_ );
-
-    std::cout << odfFileContents->identifierGroupStringA_ << " " << odfFileContents->identifierGroupStringB_ << " " <<
-              odfFileContents->identifierGroupStringC_ << std::endl;
 
     // Parse orbit data header
     readOdfFileBlock( dataFile, currenBitBlock );
@@ -611,7 +564,6 @@ std::shared_ptr< OdfRawFileContents > readOdfFile(
             // Ramp group header
             if ( primaryKey == 2030 )
             {
-//                std::cout<<primaryKey<<" "<<secondaryKey<<" "<<logicalRecordLength<<" "<<groupStartPacketNumber<<std::endl;
                 if( secondaryKey < 0 || secondaryKey > 99 || logicalRecordLength != 1 )
                 {
                     throw std::runtime_error( "Error when reading ODF file, ramp header invalid: primary key " +

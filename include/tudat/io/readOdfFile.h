@@ -103,16 +103,7 @@ public:
     {
         return static_cast< double >( integerRampEndTime_ ) + static_cast< double >( fractionalRampEndTime_ ) * 1.0E-9;
     }
-
-    void printContents( )
-    {
-        std::cout << "Start time " << integerRampStartTime_ << " " << fractionalRampStartTime_ << std::endl;
-        std::cout << "End time " << integerRampEndTime_ << " " << fractionalRampEndTime_ << std::endl;
-        std::cout << "Ramp rate " << integerRampRate_ << " " << fractionalRampRate_ << std::endl;
-        std::cout << "Start frequency " << integerRampStartFrequency_ << " " << integerRampStartFrequencyModulo_ << " " <<
-                  fractionalRampStartFrequency_ << std::endl;
-        std::cout << "Station " << transmittingStationId_ << std::endl << std::endl;
-    }
+    
 };
 
 class OdfDataSpecificBlock
@@ -205,18 +196,6 @@ public:
     double getTransmittingStationUplinkDelay( )
     {
         return transmittingStationUplinkDelay_ * 1.0e-9;
-    }
-
-    void printContents( )
-    {
-        std::cout << "Receiver: " << receiverChannel_ << " " << receiverExciterFlag_ << std::endl;
-        std::cout << "Spacecraft: " << spacecraftId_ << std::endl;
-        std::cout << "Reference frequency: " << referenceFrequencyHighPart_ << " " << referenceFrequencyLowPart_ << std::endl;
-
-        std::cout << "Reserved: " << reservedSegment_ << std::endl;
-        std::cout << "Compression time: " << compressionTime_ << std::endl;
-        std::cout << "Transmission delay: " << transmittingStationUplinkDelay_ << std::endl << std::endl;;
-
     }
 };
 
@@ -333,19 +312,6 @@ public:
     int uplinkBandId_;
     int referenceBandId_;
     int validity_;
-
-    void printContents( )
-    {
-        std::cout << "Time: " << integerTimeTag_ << " " << fractionalTimeTag_ << std::endl;
-        std::cout << "Downlink delay: " << receivingStationDownlinkDelay_ << std::endl;
-        std::cout << "Observable: " << integerObservable_ << " " << fractionalObservable_ << std::endl;
-
-        std::cout << "Format id: " << formatId_ << std::endl;
-        std::cout << "Station data: " << receivingStationId_ << " " << transmittingStationId_ << " " << transmittingStationNetworkId_ << " " << std::endl;
-        std::cout << "Bands: " << downlinkBandId_ << " " << uplinkBandId_ << " " << referenceBandId_ << " " << std::endl;
-        std::cout << "Validity: " << validity_ << std::endl << std::endl;
-
-    }
 };
 
 class OdfDataBlock
