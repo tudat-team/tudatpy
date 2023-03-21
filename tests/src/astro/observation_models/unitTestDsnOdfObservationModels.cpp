@@ -74,6 +74,9 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
               "/Users/pipas/Documents/mro-spice/mar063.bsp",
               "/Users/pipas/Documents/mro-spice/mro_psp43.bsp"} );
 
+//    spice_interface::loadStandardSpiceKernels( );
+//    spice_interface::loadSpiceKernelInTudat( { "/Users/pipas/Documents/mro-spice/mro_psp43.bsp" } );
+
     // Define bodies to use.
     std::vector< std::string > bodiesToCreate = { "Earth", "Sun", "Mercury", "Venus", "Mars" };
 
@@ -91,17 +94,19 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
 //    Time finalEphemerisTime = Time( 406717262.6828746 + 10.0 * 86400.0 ); // 2011
     Time initialEphemerisTime = Time( 544795200 - 5.0 * 86400.0 ); // 2017
     Time finalEphemerisTime = Time( 544881600 + 5.0 * 86400.0 ); // 2017
-    Time ephemerisTimeStep = Time( 300.0 );
-    Time buffer = Time( 10.0 * ephemerisTimeStep );
+    Time ephemerisTimeStepPlanets = Time( 300.0 );
+    Time bufferPlanets = Time( 10.0 * ephemerisTimeStepPlanets );
+    Time ephemerisTimeStepSpacecraft = Time( 1.0 );
+    Time bufferSpacecraft = Time( 10.0 * ephemerisTimeStepSpacecraft );
 
     // Create bodies settings needed in simulation
     BodyListSettings bodySettings =
             getDefaultBodySettings(
-                bodiesToCreate, initialEphemerisTime - buffer, finalEphemerisTime + buffer,
-                "SSB", "J2000", ephemerisTimeStep );
+                bodiesToCreate, initialEphemerisTime - bufferPlanets, finalEphemerisTime + bufferPlanets,
+                "SSB", "J2000", ephemerisTimeStepPlanets );
 
-//    bodySettings.at( "Earth" )->rotationModelSettings = gcrsToItrsRotationModelSettings(
-//            basic_astrodynamics::iau_2006, "J2000" );
+    bodySettings.at( "Earth" )->rotationModelSettings = gcrsToItrsRotationModelSettings(
+            basic_astrodynamics::iau_2006, "J2000" );
     bodySettings.at( "Earth" )->groundStationSettings = getDsnStationSettings( );
 
     // Create spacecraft
@@ -110,11 +115,20 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
     bodySettings.addSettings( spacecraftName );
     bodySettings.at( spacecraftName )->ephemerisSettings =
             std::make_shared< InterpolatedSpiceEphemerisSettings >(
-                    initialEphemerisTime - buffer, finalEphemerisTime + buffer, ephemerisTimeStep, "SSB", "J2000",
+                    initialEphemerisTime - bufferSpacecraft, finalEphemerisTime + bufferSpacecraft, ephemerisTimeStepSpacecraft, "SSB", "J2000",
                     std::make_shared< interpolators::LagrangeInterpolatorSettings >( 6 ), spacecraftName );
 
     // Create bodies
     SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+
+    // Print initial state
+//    Eigen::Matrix<double, 6, 1> state = bodies.at( spacecraftName )->getStateInBaseFrameFromEphemeris( initialEphemerisTime ) -
+//                bodies.at( "Mars" )->getStateInBaseFrameFromEphemeris( initialEphemerisTime );
+//    std::cout << "State: " << convertCartesianToKeplerianElements(
+//            state, bodies.at( "Mars" )->getGravitationalParameter() ).transpose() << std::endl;
+//    std::cout << "Orbital period: " << 2 * mathematical_constants::PI * std::sqrt(
+//            std::pow( convertCartesianToKeplerianElements( state, bodies.at( "Mars" )->getGravitationalParameter() )( 0 ), 3.0 ) /
+//            bodies.at( "Mars" )->getGravitationalParameter() ) << std::endl;
 
 //    std::string fileTag = "2007";
 //    std::string fileTag = "2009";
@@ -174,6 +188,30 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
         std::cout << observableTypes.at( i ) << " ";
     }
     std::cout << std::endl;
+
+//     std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds,
+//        std::shared_ptr< ProcessedOdfFileSingleLinkData > > > processedDataBlocks = processedOdfFileContents->getProcessedDataBlocks();
+//     std::cout << "Reference frequencies: " << std::endl;
+//     for ( auto it = processedDataBlocks.begin(); it != processedDataBlocks.end(); ++it )
+//     {
+//         for ( auto it2 = it->second.begin(); it2 != it->second.end(); ++it2 )
+//         {
+//             std::shared_ptr< ProcessedOdfFileDopplerData > processedDopplerBlock = std::dynamic_pointer_cast< ProcessedOdfFileDopplerData >(
+//                     it2->second );
+//             std::vector< double > referenceFrequencies = processedDopplerBlock->getReferenceFrequenciesVector( );
+//             double oldRefFrequency = referenceFrequencies.at( 0 );
+//             std::cout << oldRefFrequency << std::endl;
+//             for ( unsigned int i = 1; i < referenceFrequencies.size( ); ++i )
+//             {
+//                 if ( referenceFrequencies.at( i ) != oldRefFrequency )
+//                 {
+//                     oldRefFrequency = referenceFrequencies.at( i );
+//                     std::cout << referenceFrequencies.at( i ) << std::endl;
+//                 }
+//
+//             }
+//         }
+//     }
 
     // Create observed observation collection
     std::shared_ptr< observation_models::ObservationCollection< long double, Time > > observedObservationCollection =
@@ -241,9 +279,14 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
 
 //    std::cout << simulatedObservationCollection->getObservationVector( ) << std::endl;
 
-    if ( fileTag == "2007" )
+    if ( fileTag == "2007" || fileTag == "2017_nav" )
     {
-        std::vector< std::string > stations = { "DSS-63", "DSS-14", "DSS-43" };
+        std::vector< std::string > stations;
+
+        if ( fileTag == "2007" )
+            stations = { "DSS-63", "DSS-14", "DSS-43" };
+        else
+            stations = { "DSS-55", "DSS-14", "DSS-35" };
 
         for ( unsigned int i = 0; i < 3; ++i )
         {
@@ -265,7 +308,7 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
                 rampData( j, 3 ) = startFrequency.at( j );
             }
 
-            std::ofstream file("/Users/pipas/tudatpy-testing/rampData_2007" + stations.at( i ) + ".txt");
+            std::ofstream file("/Users/pipas/tudatpy-testing/rampData_" + fileTag + stations.at( i ) + ".txt");
             file << std::setprecision( 15 ) << rampData;
             file.close();
         }
@@ -289,6 +332,24 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
     std::ofstream file("/Users/pipas/tudatpy-testing/observations_" + fileTag + ".txt");
     file << std::setprecision( 15 ) << observations;
     file.close();
+
+    std::ofstream file2("/Users/pipas/tudatpy-testing/observationsStartAndSize_" + fileTag + ".txt");
+    std::map< ObservableType, std::map< int, std::vector< std::pair< int, int > > > > observationSetStartAndSize =
+            observedObservationCollection->getObservationSetStartAndSizePerLinkEndIndex();
+    for ( auto it = observationSetStartAndSize.begin(); it != observationSetStartAndSize.end(); ++it )
+    {
+        ObservableType observable = it->first;
+        for ( auto it2 = it->second.begin(); it2 != it->second.end(); ++it2 )
+        {
+            int linkEnd = it2->first;
+            for ( unsigned int i = 0; i < it2->second.size(); ++i )
+            {
+                file2 << std::setprecision( 15 ) << observable << " " << linkEnd << " " << it2->second.at( i ).first <<
+                    " " << it2->second.at( i ).second << std::endl;
+            }
+        }
+    }
+    file2.close();
 
 }
 
