@@ -81,22 +81,6 @@ class OdfRampBlock
 public:
     OdfRampBlock( const std::bitset< 288 > dataBits );
 
-    unsigned int integerRampStartTime_; // sec
-    unsigned int fractionalRampStartTime_; // nsec
-
-    int integerRampRate_; // Hz/s
-    int fractionalRampRate_; // 1e-9 Hz/s
-
-    int integerRampStartFrequency_;  // GHz
-
-    int transmittingStationId_;
-
-    unsigned int integerRampStartFrequencyModulo_; // Hz
-    unsigned int fractionalRampStartFrequency_; // Hz
-
-    unsigned int integerRampEndTime_; // sec
-    unsigned int fractionalRampEndTime_; // nsec
-
     double getRampStartFrequency( )
     {
         return static_cast< double >( integerRampStartFrequency_ ) * 1.0E9 +
@@ -119,6 +103,29 @@ public:
     {
         return static_cast< double >( integerRampEndTime_ ) + static_cast< double >( fractionalRampEndTime_ ) * 1.0E-9;
     }
+
+    int getTransmittingStationId( )
+    {
+        return transmittingStationId_;
+    }
+
+private:
+
+    unsigned int integerRampStartTime_; // sec
+    unsigned int fractionalRampStartTime_; // nsec
+
+    int integerRampRate_; // Hz/s
+    int fractionalRampRate_; // 1e-9 Hz/s
+
+    int integerRampStartFrequency_;  // GHz
+
+    int transmittingStationId_;
+
+    unsigned int integerRampStartFrequencyModulo_; // Hz
+    unsigned int fractionalRampStartFrequency_; // Hz
+
+    unsigned int integerRampEndTime_; // sec
+    unsigned int fractionalRampEndTime_; // nsec
 
 };
 
@@ -368,21 +375,13 @@ public:
 
     double getObservableValue( )
     {
-        return static_cast< double >( integerObservable_ ) +
-               static_cast< double >( fractionalObservable_ ) / 1.0E9;
+        return static_cast< double >( integerObservable_ ) + static_cast< double >( fractionalObservable_ ) / 1.0E9;
     }
 
     double getReceivingStationDownlinkDelay( )
     {
         return receivingStationDownlinkDelay_ * 1.0e-9;
     }
-
-    uint32_t integerTimeTag_; // sec
-    int fractionalTimeTag_; // msec
-    int receivingStationDownlinkDelay_; // nsec
-
-    int integerObservable_; // unit
-    int fractionalObservable_; // 1e-9 * unit
 
     int formatId_;
     int receivingStationId_;
@@ -393,6 +392,15 @@ public:
     int uplinkBandId_;
     int referenceBandId_;
     int validity_;
+
+private:
+
+    uint32_t integerTimeTag_; // sec
+    int fractionalTimeTag_; // msec
+    int receivingStationDownlinkDelay_; // nsec
+
+    int integerObservable_; // unit
+    int fractionalObservable_; // 1e-9 * unit
 };
 
 class OdfDataBlock
