@@ -17,6 +17,7 @@
 #include "tudat/interface/spice/spiceInterface.h"
 #include "tudat/io/basicInputOutput.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/astro/reference_frames/referenceFrameTransformations.h"
 
 namespace tudat
 {
@@ -381,7 +382,9 @@ BodyListSettings getDefaultBodySettings(
 
 std::vector< std::shared_ptr< GroundStationSettings > > getDsnStationSettings( )
 {
-    std::map< std::string, Eigen::Vector3d > dsnStationPositions = {
+    // DSS positions: at 2003.0 with respect to ITRF93
+    double stationPositionsReferenceEpoch = 3.0 * physical_constants::JULIAN_YEAR;
+    std::map< std::string, Eigen::Vector3d > dsnStationPositionsItrf93 = {
         { "DSS-13", ( Eigen::Vector3d( )<< -2351112.659, -4655530.636, +3660912.728 ).finished( ) },
         { "DSS-14", ( Eigen::Vector3d( )<< -2353621.420, -4641341.472, +3677052.318 ).finished( ) },
         { "DSS-15", ( Eigen::Vector3d( )<< -2353538.958, -4641649.429, +3676669.984 ).finished( ) },
@@ -398,36 +401,43 @@ std::vector< std::shared_ptr< GroundStationSettings > > getDsnStationSettings( )
         { "DSS-63", ( Eigen::Vector3d( )<< +4849092.518, -360180.3480, +4115109.251 ).finished( ) },
         { "DSS-65", ( Eigen::Vector3d( )<< +4849339.634, -360427.6630, +4114750.733 ).finished( ) } };
 
-    std::shared_ptr< GroundStationMotionSettings > goldstoneStationMotion =
-            std::make_shared< LinearGroundStationMotionSettings >(
-                ( Eigen::Vector3d( )<< -0.0180, 0.0065, -0.0038 ).finished( ) / physical_constants::JULIAN_YEAR,
-                3.0 * physical_constants::JULIAN_YEAR );
-    std::shared_ptr< GroundStationMotionSettings > canberraStationMotion =
-            std::make_shared< LinearGroundStationMotionSettings >(
-                ( Eigen::Vector3d( )<< -0.0335, -0.0041, 0.0392 ).finished( ) / physical_constants::JULIAN_YEAR,
-                3.0 * physical_constants::JULIAN_YEAR );
-    std::shared_ptr< GroundStationMotionSettings > madridStationMotion =
-            std::make_shared< LinearGroundStationMotionSettings >(
-                ( Eigen::Vector3d( )<< -0.0100, -0.0242, 0.0156  ).finished( ) / physical_constants::JULIAN_YEAR,
-                3.0 * physical_constants::JULIAN_YEAR );
+    Eigen::Vector3d goldstoneStationVelocity( -0.0180, 0.0065, -0.0038 );
+    goldstoneStationVelocity /= physical_constants::JULIAN_YEAR;
+    Eigen::Vector3d canberraStationVelocity( -0.0335, -0.0041, 0.0392 );
+    canberraStationVelocity /= physical_constants::JULIAN_YEAR;
+    Eigen::Vector3d madridStationVelocity( -0.0100, -0.0242, 0.0156 );
+    madridStationVelocity /= physical_constants::JULIAN_YEAR;
+
     std::vector< std::shared_ptr< GroundStationSettings > > stationSettingsList;
 
-    for( auto it : dsnStationPositions )
+    for( auto it : dsnStationPositionsItrf93 )
     {
-        std::shared_ptr< GroundStationSettings > stationSettings  =
-                std::make_shared< GroundStationSettings >( it.first, it.second );
+        Eigen::Vector3d stationVelocityItrf93;
         if( it.first[ 4 ] == '1' || it.first[ 4 ] == '2' )
         {
-            stationSettings->addStationMotionSettings( goldstoneStationMotion );
+            stationVelocityItrf93 = goldstoneStationVelocity;
         }
         else if( it.first[ 4 ] == '3' || it.first[ 4 ] == '4' )
         {
-            stationSettings->addStationMotionSettings( canberraStationMotion );
+            stationVelocityItrf93 = canberraStationVelocity;
         }
         else if( it.first[ 4 ] == '5' || it.first[ 4 ] == '6' )
         {
-            stationSettings->addStationMotionSettings( madridStationMotion );
+            stationVelocityItrf93 = madridStationVelocity;
         }
+
+        // Convert ground station state to ITRF2014
+        Eigen::Vector6d stationStateItrf2014 = reference_frames::convertGroundStationStateArbitraryItrfToItrf2014(
+                ( Eigen::Vector6d( ) << it.second, stationVelocityItrf93 ).finished(),
+                stationPositionsReferenceEpoch,
+                "ITRF93" );
+
+        std::shared_ptr< GroundStationMotionSettings > stationMotion = std::make_shared< LinearGroundStationMotionSettings >(
+                stationStateItrf2014.segment( 3, 3 ), stationPositionsReferenceEpoch );
+
+        std::shared_ptr< GroundStationSettings > stationSettings  = std::make_shared< GroundStationSettings >(
+                it.first, stationStateItrf2014.segment( 0, 3 ) );
+        stationSettings->addStationMotionSettings( stationMotion );
         stationSettingsList.push_back( stationSettings );
     }
 
