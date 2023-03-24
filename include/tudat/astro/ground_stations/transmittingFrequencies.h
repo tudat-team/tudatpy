@@ -6,6 +6,9 @@
  *    under the terms of the Modified BSD license. You should have received
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
+ *
+ *    References: Formulation for Observed and Computed Values of Deep Space Network Data Types for Navigation,
+ *      T. Moyer (2000), DEEP SPACE COMMUNICATIONS AND NAVIGATION SERIES
  */
 
 #ifndef TUDAT_TRANSMITTINGFREQUENCIES_H
@@ -20,6 +23,7 @@ namespace tudat
 namespace ground_stations
 {
 
+//! Class to compute the transmitted frequency of a ground station and its integral.
 class StationFrequencyInterpolator
 {
 public:
@@ -29,28 +33,51 @@ public:
     //! Destructor
     virtual ~StationFrequencyInterpolator( ) { }
 
+    /*! Templated function to compute the transmitted frequency at the specified time.
+     *
+     * Templated function to compute the transmitted frequency at the specified time.
+     *
+     * @param lookupTime Time at which to compute the frequency.
+     * @return Frequency value.
+     */
     template< typename ObservationScalarType = double, typename TimeType = double >
     ObservationScalarType getTemplatedCurrentFrequency( const TimeType& lookupTime );
 
+    /*! Templated function to compute the integral of the transmitted frequency.
+     *
+     * Templated function to compute the integral of the transmitted frequency.
+     *
+     * @param quadratureStartTime Start time of integration interval.
+     * @param quadratureEndTime End time of integration interval.
+     * @return Frequency integral
+     */
     template< typename ObservationScalarType = double, typename TimeType = double >
     ObservationScalarType getTemplatedFrequencyIntegral( const TimeType& quadratureStartTime, const TimeType& quadratureEndTime );
 
 private:
 
+    //! Get frequency (with long double as observation scalar type and double as time type).
     virtual double getCurrentFrequency( const double lookupTime ) = 0;
 
+    //! Get frequency (with double as observation scalar type and Time as time type).
     virtual double getCurrentFrequency( const Time& lookupTime ) = 0;
 
+    //! Get frequency (with long double as observation scalar type and double as time type).
     virtual long double getCurrentLongFrequency( const double lookupTime ) = 0;
 
+    //! Get frequency (with long double as observation scalar type and Time as time type).
     virtual long double getCurrentLongFrequency( const Time& lookupTime ) = 0;
 
+    //! Get frequency integral (with long double as observation scalar type and double as time type).
     virtual double getFrequencyIntegral( const double quadratureStartTime, const double quadratureEndTime ) = 0;
 
+    //! Get frequency integral (with double as observation scalar type and Time as time type).
     virtual double getFrequencyIntegral( const Time& quadratureStartTime, const Time& quadratureEndTime ) = 0;
 
+    //! Get frequency integral (with long double as observation scalar type and double as time type).
     virtual long double getLongFrequencyIntegral( const double quadratureStartTime, const double quadratureEndTime ) = 0;
 
+    //! Get frequency integral (with long double as observation scalar type and Time as time type).
     virtual long double getLongFrequencyIntegral( const Time& quadratureStartTime, const Time& quadratureEndTime ) = 0;
 
 };
@@ -83,10 +110,21 @@ private:
 //    ObservationScalarType frequency_;
 //};
 
+//! Class to compute the transmitted frequency of a ground station and its integral, for piecewise frequency (e.g. ramped
+//! DSN stations)
 class PiecewiseLinearFrequencyInterpolator: public StationFrequencyInterpolator
 {
 public:
 
+    /*! Constructor
+     *
+     * Constructor. The end time of each ramp should coincide with the start time of the following one.
+     *
+     * @param startTimes Start time of each ramp
+     * @param endTimes End time of each ramp
+     * @param rampRates Rate of each ramp
+     * @param startFrequency Start frequency of each ramp
+     */
     PiecewiseLinearFrequencyInterpolator(
             const std::vector< double >& startTimes,
             const std::vector< double >& endTimes,
@@ -122,6 +160,14 @@ public:
                 startTimes_ );
     }
 
+    /*! Templated function to compute the transmitted frequency at the specified time.
+     *
+     * Templated function to compute the transmitted frequency at the specified time. Frequency is computed according to
+     * Eq. 13-60 of Moyer (2000).
+     *
+     * @param lookupTime Time at which to compute the frequency.
+     * @return Frequency value.
+     */
     template< typename ObservationScalarType = double, typename TimeType = double >
     ObservationScalarType computeCurrentFrequency( const TimeType lookupTime )
     {
@@ -140,7 +186,17 @@ public:
                rampRates_.at( lowerNearestNeighbour ) * ( lookupTime - startTimes_.at( lowerNearestNeighbour ) );
     }
 
-    template< typename ObservationScalarType = double, typename TimeType = double >
+     /*! Templated function to compute the integral of the transmitted frequency.
+     *
+     * Templated function to compute the integral of the transmitted frequency. Integral is computed according to section
+     * 13.3.2.2.2 of Moyer (2000). Generally the integral should only be computed using the time type Time, otherwise
+     * issues related to numerical cancelation are likely to occur.
+     *
+     * @param quadratureStartTime Start time of integration interval.
+     * @param quadratureEndTime End time of integration interval.
+     * @return Frequency integral
+     */
+    template< typename ObservationScalarType = double, typename TimeType = Time >
     ObservationScalarType computeFrequencyIntegral( const TimeType quadratureStartTime,
                                                     const TimeType quadratureEndTime )
     {
@@ -154,9 +210,6 @@ public:
             integral += static_cast< ObservationScalarType > ( quadratureEndTime - quadratureStartTime ) *
                     ( computeCurrentFrequency< ObservationScalarType, TimeType >( quadratureStartTime ) +
                     computeCurrentFrequency< ObservationScalarType, TimeType >( quadratureEndTime ) ) / 2.0;
-//            integral += ( quadratureEndTime - quadratureStartTime ) *
-//                    ( computeCurrentFrequency< ObservationScalarType, TimeType >( quadratureStartTime ) + rampRates_.at( startTimeLowestNearestNeighbour ) *
-//                    ( quadratureEndTime - quadratureStartTime ) / 2.0 );
         }
         else
         {
@@ -187,21 +240,25 @@ public:
         return integral;
     }
 
+    //! Function to retrieve ramp start times
     std::vector< double > getStartTimes ( )
     {
         return startTimes_;
     }
 
+    //! Function to retrieve end start times
     std::vector< double > getEndTimes ( )
     {
         return endTimes_;
     }
 
+    //! Function to retrieve the ramp rates
     std::vector< double > getRampRates ( )
     {
         return rampRates_;
     }
 
+    //! Function to retrieve the ramp start frequencies
     std::vector< double > getStartFrequencies ( )
     {
         return startFrequencies_;
@@ -209,51 +266,64 @@ public:
 
 private:
 
+    //! Get frequency (with long double as observation scalar type and double as time type).
     virtual double getCurrentFrequency( const double lookupTime )
     {
         return computeCurrentFrequency< double, double >( lookupTime );
     }
 
+    //! Get frequency (with double as observation scalar type and Time as time type).
     virtual double getCurrentFrequency( const Time& lookupTime )
     {
         return computeCurrentFrequency< double, Time >( lookupTime );
     }
 
+    //! Get frequency (with long double as observation scalar type and double as time type).
     virtual long double getCurrentLongFrequency( const double lookupTime )
     {
          return computeCurrentFrequency< long double, double >( lookupTime );
     }
 
+    //! Get frequency (with long double as observation scalar type and Time as time type).
     virtual long double getCurrentLongFrequency( const Time& lookupTime )
     {
          return computeCurrentFrequency< long double, Time >( lookupTime );
     }
 
-        virtual double getFrequencyIntegral( const double quadratureStartTime, const double quadratureEndTime )
+    //! Get frequency integral (with long double as observation scalar type and double as time type).
+    virtual double getFrequencyIntegral( const double quadratureStartTime, const double quadratureEndTime )
     {
         return computeFrequencyIntegral< double, double >( quadratureStartTime, quadratureEndTime );
     }
 
+    //! Get frequency integral (with double as observation scalar type and Time as time type).
     virtual double getFrequencyIntegral( const Time& quadratureStartTime, const Time& quadratureEndTime )
     {
         return computeFrequencyIntegral< double, Time >( quadratureStartTime, quadratureEndTime );
     }
 
+    //! Get frequency integral (with long double as observation scalar type and double as time type).
     virtual long double getLongFrequencyIntegral( const double quadratureStartTime, const double quadratureEndTime )
     {
         return computeFrequencyIntegral< long double, double >( quadratureStartTime, quadratureEndTime );
     }
 
+    //! Get frequency integral (with long double as observation scalar type and Time as time type).
     virtual long double getLongFrequencyIntegral( const Time& quadratureStartTime, const Time& quadratureEndTime )
     {
         return computeFrequencyIntegral< long double, Time >( quadratureStartTime, quadratureEndTime );
     }
 
+    //! Start time of each ramp
     std::vector< double > startTimes_;
+    //! End time of each ramp
     std::vector< double > endTimes_;
+    //! Rate of each ramp
     std::vector< double > rampRates_;
+    //! Start frequency of each ramp
     std::vector< double > startFrequencies_;
 
+    //! Lookup scheme to find the nearest ramp start time for a given time
     std::shared_ptr< interpolators::LookUpScheme< double > > startTimeLookupScheme_;
 
 };
