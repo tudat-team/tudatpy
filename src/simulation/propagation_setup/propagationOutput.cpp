@@ -329,7 +329,7 @@ int getDependentVariableSize(
         variableSize = 1;
         break;
     case single_torque_norm_dependent_variable:
-        variableSize = 3;
+        variableSize = 1;
         break;
     case keplerian_state_dependent_variable:
         variableSize = 6;
