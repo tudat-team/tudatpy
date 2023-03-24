@@ -264,15 +264,11 @@ public:
 
             // Compute observation partial
             currentObservationSize = currentObservation.rows( );
-//            std::cout << "before call to determineObservationPartialMatrix" << "\n\n";
             observationMatrices[ times[ i ] ] = determineObservationPartialMatrix(
                         currentObservationSize, vectorOfStates, vectorOfTimes, linkEnds, currentObservation,
                         linkEndAssociatedWithTime );
-//            std::cout << "after call to determineObservationPartialMatrix" << "\n\n";
 
         }
-
-//        std::cout << "end computeObservationsWithPartials" << "\n\n";
 
         return std::make_pair( utilities::createConcatenatedEigenMatrixFromMapValues( observations ),
                                utilities::createConcatenatedEigenMatrixFromMapValues( observationMatrices ) );

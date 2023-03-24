@@ -393,10 +393,7 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
         std::shared_ptr< ProcessedOdfFileContents > processedOdfFileContents,
         simulation_setup::SystemOfBodies& bodies,
         bool setGroundStationsFrequencies = true,
-        std::function< double ( FrequencyBands, FrequencyBands ) > getTurnaroundRatio =
-                [ ] ( FrequencyBands uplinkBand, FrequencyBands downlinkBand ){ return getDsnDefaultTurnaroundRatios (
-                        uplinkBand, downlinkBand ); } )
-//                std::bind( getDsnDefaultTurnaroundRatios, std::placeholders::_1, std::placeholders::_2 ) )
+        std::function< double ( FrequencyBands, FrequencyBands ) > getTurnaroundRatio = &getDsnDefaultTurnaroundRatios )
 {
 
     // Create and fill single observation sets
