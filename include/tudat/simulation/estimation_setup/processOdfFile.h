@@ -119,7 +119,7 @@ public:
 
     // Constructor for single raw ODF data object
     ProcessedOdfFileContents(
-            const std::shared_ptr< const input_output::OdfRawFileContents > rawOdfData,
+            const std::shared_ptr< input_output::OdfRawFileContents > rawOdfData,
             const std::shared_ptr< const simulation_setup::Body > bodyWithGroundStations,
             bool verbose = true,
             std::string spacecraftName = "" ):
@@ -144,7 +144,7 @@ public:
 
     // Constructor for multiple ODF data objects
     ProcessedOdfFileContents(
-            std::vector< std::shared_ptr< const input_output::OdfRawFileContents > > rawOdfDataVector,
+            std::vector< std::shared_ptr< input_output::OdfRawFileContents > > rawOdfDataVector,
             const std::shared_ptr< const simulation_setup::Body > bodyWithGroundStations,
             bool verbose = true,
             std::string spacecraftName = "" ):
@@ -211,16 +211,16 @@ public:
 
 private:
 
-    void extractRawOdfOrbitData( std::shared_ptr< const input_output::OdfRawFileContents > rawOdfData );
+    void extractRawOdfOrbitData( std::shared_ptr< input_output::OdfRawFileContents > rawOdfData );
 
-    void extractRawOdfRampData( std::shared_ptr< const input_output::OdfRawFileContents > rawOdfData );
+    void extractRawOdfRampData( std::shared_ptr< input_output::OdfRawFileContents > rawOdfData );
 
     void extractMultipleRawOdfRampData(
-            std::vector< std::shared_ptr< const input_output::OdfRawFileContents > > rawOdfDataVector );
+            std::vector< std::shared_ptr< input_output::OdfRawFileContents > > rawOdfDataVector );
 
     void addOdfRawDataBlockToProcessedData(
             const observation_models::ObservableType currentObservableType,
-            const std::shared_ptr< const input_output::OdfDataBlock > rawDataBlock,
+            const std::shared_ptr< input_output::OdfDataBlock > rawDataBlock,
             const std::shared_ptr< ProcessedOdfFileSingleLinkData > singleLinkProcessedData,
             const std::string rawDataFileName );
 

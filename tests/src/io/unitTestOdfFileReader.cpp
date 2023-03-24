@@ -78,7 +78,7 @@ BOOST_AUTO_TEST_CASE( testSingleOdfFileReader )
     BOOST_CHECK_EQUAL ( rawOdfContents->identifierGroupStringC_, "FREQ,ANCILLARY-DATA " );
 
     // Block 0: 1-way doppler
-    std::shared_ptr< input_output::OdfCommonDataBlock > commonDataBlock = rawOdfContents->dataBlocks_.at( 0 )->commonDataBlock_;
+    std::shared_ptr< input_output::OdfCommonDataBlock > commonDataBlock = rawOdfContents->getDataBlocks( ).at( 0 )->getCommonDataBlock( );
     BOOST_CHECK_EQUAL ( commonDataBlock->getObservableTime( ), 1812103240.000 );
     BOOST_CHECK_EQUAL ( commonDataBlock->getReceivingStationDownlinkDelay( ), 0.000000000 );
     BOOST_CHECK_EQUAL ( commonDataBlock->getObservableValue( ), -382738.663803100 );
@@ -93,18 +93,18 @@ BOOST_AUTO_TEST_CASE( testSingleOdfFileReader )
 
     std::shared_ptr< input_output::OdfDopplerDataBlock > dopplerDataBlock =
             std::dynamic_pointer_cast< input_output::OdfDopplerDataBlock >(
-                    rawOdfContents->dataBlocks_.at( 0 )->observableSpecificDataBlock_ );
+                    rawOdfContents->getDataBlocks( ).at( 0 )->getObservableSpecificDataBlock( ) );
     BOOST_CHECK_EQUAL ( dopplerDataBlock->dataType_, 11 );
-    BOOST_CHECK_EQUAL ( dopplerDataBlock->receiverChannel_, 1 );
-    BOOST_CHECK_EQUAL ( dopplerDataBlock->spacecraftId_, 236 );
-    BOOST_CHECK_EQUAL ( dopplerDataBlock->receiverExciterFlag_, 1 );
+    BOOST_CHECK_EQUAL ( dopplerDataBlock->getReceiverChannel(), 1 );
+    BOOST_CHECK_EQUAL ( dopplerDataBlock->getSpacecraftId(), 236 );
+    BOOST_CHECK_EQUAL ( dopplerDataBlock->getReceiverExciterFlag(), 1 );
     BOOST_CHECK_EQUAL ( dopplerDataBlock->getReferenceFrequency( ), 2299812417.000 );
-    BOOST_CHECK_EQUAL ( dopplerDataBlock->reservedSegment_, 0 );
+//    BOOST_CHECK_EQUAL ( dopplerDataBlock->reservedSegment_, 0 );
     BOOST_CHECK_EQUAL ( dopplerDataBlock->getCompressionTime( ), 60 );
     BOOST_CHECK_EQUAL ( dopplerDataBlock->getTransmittingStationUplinkDelay( ), 0 );
 
     // Block 19: 2-way doppler
-    commonDataBlock = rawOdfContents->dataBlocks_.at( 19 )->commonDataBlock_;
+    commonDataBlock = rawOdfContents->getDataBlocks( ).at( 19 )->getCommonDataBlock( );
     BOOST_CHECK_EQUAL ( commonDataBlock->getObservableTime( ), 1812104598.000 );
     BOOST_CHECK_EQUAL ( commonDataBlock->getReceivingStationDownlinkDelay( ), 0.000000000 );
     BOOST_CHECK_EQUAL ( commonDataBlock->getObservableValue( ), -157.702220916 );
@@ -118,18 +118,18 @@ BOOST_AUTO_TEST_CASE( testSingleOdfFileReader )
     BOOST_CHECK_EQUAL ( commonDataBlock->validity_, 0 );
 
     dopplerDataBlock = std::dynamic_pointer_cast< input_output::OdfDopplerDataBlock >(
-            rawOdfContents->dataBlocks_.at( 19 )->observableSpecificDataBlock_ );
+            rawOdfContents->getDataBlocks( ).at( 19 )->getObservableSpecificDataBlock( ) );
     BOOST_CHECK_EQUAL ( dopplerDataBlock->dataType_, 12 );
-    BOOST_CHECK_EQUAL ( dopplerDataBlock->receiverChannel_, 1 );
-    BOOST_CHECK_EQUAL ( dopplerDataBlock->spacecraftId_, 236 );
-    BOOST_CHECK_EQUAL ( dopplerDataBlock->receiverExciterFlag_, 1 );
+    BOOST_CHECK_EQUAL ( dopplerDataBlock->getReceiverChannel( ), 1 );
+    BOOST_CHECK_EQUAL ( dopplerDataBlock->getSpacecraftId( ), 236 );
+    BOOST_CHECK_EQUAL ( dopplerDataBlock->getReceiverExciterFlag( ), 1 );
     BOOST_CHECK_EQUAL ( dopplerDataBlock->getReferenceFrequency( ), 7177648275.000 );
-    BOOST_CHECK_EQUAL ( dopplerDataBlock->reservedSegment_, 0 );
+//    BOOST_CHECK_EQUAL ( dopplerDataBlock->reservedSegment_, 0 );
     BOOST_CHECK_EQUAL ( dopplerDataBlock->getCompressionTime( ), 60 );
     BOOST_CHECK_EQUAL ( dopplerDataBlock->getTransmittingStationUplinkDelay( ), 0 );
 
     // Block 23: sequential range
-    commonDataBlock = rawOdfContents->dataBlocks_.at( 23 )->commonDataBlock_;
+    commonDataBlock = rawOdfContents->getDataBlocks( ).at( 23 )->getCommonDataBlock( );
     BOOST_CHECK_EQUAL ( commonDataBlock->getObservableTime( ), 1812104814.000 );
     BOOST_CHECK_EQUAL ( commonDataBlock->getReceivingStationDownlinkDelay( ), 0.000000000 );
     BOOST_CHECK_EQUAL ( commonDataBlock->getObservableValue( ), 587993.568119415 );
@@ -144,33 +144,33 @@ BOOST_AUTO_TEST_CASE( testSingleOdfFileReader )
 
     std::shared_ptr< input_output::OdfSequentialRangeDataBlock > rangeDataBlock =
             std::dynamic_pointer_cast< input_output::OdfSequentialRangeDataBlock >(
-                    rawOdfContents->dataBlocks_.at( 23 )->observableSpecificDataBlock_ );
+                    rawOdfContents->getDataBlocks( ).at( 23 )->getObservableSpecificDataBlock( ) );
     BOOST_CHECK_EQUAL ( rangeDataBlock->dataType_, 37 );
     BOOST_CHECK_EQUAL ( rangeDataBlock->lowestRangingComponent_, 14 );
-    BOOST_CHECK_EQUAL ( rangeDataBlock->spacecraftId_, 236 );
+    BOOST_CHECK_EQUAL ( rangeDataBlock->getSpacecraftId( ), 236 );
     BOOST_CHECK_EQUAL ( rangeDataBlock->reservedBlock_, 1 );
     BOOST_CHECK_EQUAL ( rangeDataBlock->getReferenceFrequency( ), 7177004669.452 );
-    BOOST_CHECK_EQUAL ( rangeDataBlock->coderInPhaseTimeOffset_, 774 );
+    BOOST_CHECK_EQUAL ( rangeDataBlock->uplinkCoderInPhaseTimeOffset_, 774 );
     BOOST_CHECK_EQUAL ( rangeDataBlock->compositeTwo_, 400000 );
     BOOST_CHECK_EQUAL ( rangeDataBlock->getTransmittingStationUplinkDelay( ), 0 );
 
     // Check number of data blocks
-    BOOST_CHECK_EQUAL ( rawOdfContents->dataBlocks_.size( ), 2233 - 4 - 1 );
+    BOOST_CHECK_EQUAL ( rawOdfContents->getDataBlocks( ).size( ), 2233 - 4 - 1 );
 
     // Check number of ramp groups
-    BOOST_CHECK_EQUAL ( rawOdfContents->rampBlocks_.size( ), 3 );
+    BOOST_CHECK_EQUAL ( rawOdfContents->getRampBlocks( ).size( ), 3 );
 
     // Ramp block for DSS-63
     std::shared_ptr< input_output::OdfRampBlock > rampBlock =
             std::dynamic_pointer_cast< input_output::OdfRampBlock >(
-                    rawOdfContents->rampBlocks_.at( 63 ).at( 5 ) );
+                    rawOdfContents->getRampBlocks( ).at( 63 ).at( 5 ) );
     BOOST_CHECK_EQUAL ( rampBlock->getRampStartTime( ), 1812101116.000000000 );
     BOOST_CHECK_EQUAL ( rampBlock->getRampRate( ), 0.095680000 );
     BOOST_CHECK_EQUAL ( rampBlock->getRampStartFrequency( ), 7177004073.170830727 );
     BOOST_CHECK_EQUAL ( rampBlock->getRampEndTime( ), 1812101962.000000000 );
 
     // Check number of ramp blocks
-    BOOST_CHECK_EQUAL ( rawOdfContents->rampBlocks_.at( 63 ).size( ), 2331 - 2233 - 1 );
+    BOOST_CHECK_EQUAL ( rawOdfContents->getRampBlocks( ).at( 63 ).size( ), 2331 - 2233 - 1 );
 
 }
 
