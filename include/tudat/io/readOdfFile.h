@@ -253,16 +253,20 @@ public:
 
     ~OdfDopplerDataBlock( ){ }
 
-    int receiverChannel_;
-    int spacecraftId_;
-    int receiverExciterFlag_;
-    int referenceFrequencyHighPart_; // 2^24 mHz
-    int referenceFrequencyLowPart_; // mHz
+    int getReceiverChannel( )
+    {
+        return receiverChannel_;
+    }
 
-    int reservedSegment_;
-    int compressionTime_; // 1e-2 sec
+    int getSpacecraftId( )
+    {
+        return spacecraftId_;
+    }
 
-    int transmittingStationUplinkDelay_; // nsec
+    int getReceiverExciterFlag( )
+    {
+        return receiverExciterFlag_;
+    }
 
     double getReferenceFrequency( )
     {
@@ -278,6 +282,20 @@ public:
     {
         return transmittingStationUplinkDelay_ * 1.0e-9;
     }
+
+private:
+
+    int receiverChannel_;
+    int spacecraftId_;
+    int receiverExciterFlag_;
+    int referenceFrequencyHighPart_; // 2^24 mHz
+    int referenceFrequencyLowPart_; // mHz
+
+    int reservedSegment_;
+    int compressionTime_; // 1e-2 sec
+
+    int transmittingStationUplinkDelay_; // nsec
+
 };
 
 class OdfSequentialRangeDataBlock: public OdfDataSpecificBlock
@@ -288,16 +306,10 @@ public:
 
     ~OdfSequentialRangeDataBlock( ){ }
 
-    int lowestRangingComponent_;
-    int spacecraftId_;
-    int reservedBlock_;
-
-    int referenceFrequencyHighPart_; // 2^24 mHz
-    int referenceFrequencyLowPart_; // mHz
-
-    int coderInPhaseTimeOffset_; // sec
-    int compositeTwo_; // sec
-    int transmittingStationUplinkDelay_; // nsec
+    int getSpacecraftId( )
+    {
+        return spacecraftId_;
+    }
 
     double getReferenceFrequency( )
     {
@@ -308,6 +320,22 @@ public:
     {
         return transmittingStationUplinkDelay_ * 1.0e-9;
     }
+
+    // TODO: create getters for these... need to read about what to get from them though
+    int lowestRangingComponent_;
+    int reservedBlock_;
+    int uplinkCoderInPhaseTimeOffset_; // sec
+    int compositeTwo_; // sec
+
+private:
+
+    int spacecraftId_;
+
+    int referenceFrequencyHighPart_; // 2^24 mHz
+    int referenceFrequencyLowPart_; // mHz
+
+    int transmittingStationUplinkDelay_; // nsec
+
 };
 
 // TODO: test
@@ -318,6 +346,23 @@ public:
     OdfToneRangeDataBlock( const std::bitset< 128 > specificDataBits );
 
     ~OdfToneRangeDataBlock( ){ }
+
+    int getSpacecraftId( )
+    {
+        return spacecraftId_;
+    }
+
+    double getReferenceFrequency( )
+    {
+        return std::pow( 2.0, 24 ) / 1.0E3 * referenceFrequencyHighPart_ + referenceFrequencyLowPart_ / 1.0E3;
+    }
+
+    double getTransmittingStationUplinkDelay( )
+    {
+        return transmittingStationUplinkDelay_ * 1.0e-9;
+    }
+
+private:
 
     int integerObservableTime_; // sec
     int spacecraftId_;
@@ -330,11 +375,6 @@ public:
     int reservedBlock3_;
 
     int transmittingStationUplinkDelay_; // nsec
-
-    double getReferenceFrequency( )
-    {
-        return std::pow( 2.0, 24 ) / 1.0E3 * referenceFrequencyHighPart_ + referenceFrequencyLowPart_ / 1.0E3;
-    }
 };
 
 // TODO: test
@@ -408,8 +448,21 @@ class OdfDataBlock
 public:
     OdfDataBlock( const std::bitset< 288 > dataBits );
 
+    std::shared_ptr< OdfDataSpecificBlock > getObservableSpecificDataBlock( )
+    {
+        return observableSpecificDataBlock_;
+    }
+
+    std::shared_ptr< OdfCommonDataBlock > getCommonDataBlock( )
+    {
+        return commonDataBlock_;
+    }
+
+private:
+
     std::shared_ptr< OdfDataSpecificBlock > observableSpecificDataBlock_;
     std::shared_ptr< OdfCommonDataBlock > commonDataBlock_;
+
 };
 
 class OdfRawFileContents
@@ -439,15 +492,34 @@ public:
 
     bool eofHeaderFound_;
 
-    std::vector< std::shared_ptr< OdfDataBlock > > dataBlocks_;
+    //! Function to retrieve the orbit data blocsk
+    std::vector< std::shared_ptr< OdfDataBlock > > getDataBlocks( )
+    {
+        return dataBlocks_;
+    }
 
-    // Indexed by transmitting station ID
-    std::map< int, std::vector< std::shared_ptr< OdfRampBlock > > > rampBlocks_;
+    //! Function to retrieve the ramp blocks
+    std::map< int, std::vector< std::shared_ptr< OdfRampBlock > > > getRampBlocks( )
+    {
+        return rampBlocks_;
+    }
 
-    // Indexed by pair of (primary station ID, secondary station ID)
-    std::map< std::pair< int, int >, std::shared_ptr< OdfClockOffsetBlock > > clockOffsetBlocks_;
+    //! Function to retrieve the clock offset blocks
+    std::map< std::pair< int, int >, std::shared_ptr< OdfClockOffsetBlock > > getClockOffsetBlocks( )
+    {
+        return clockOffsetBlocks_;
+    }
 
 private:
+
+    //! Vector of data blocks
+    std::vector< std::shared_ptr< OdfDataBlock > > dataBlocks_;
+
+    //! Vector of ramp blocks indexed by transmitting station ID
+    std::map< int, std::vector< std::shared_ptr< OdfRampBlock > > > rampBlocks_;
+
+    //! Clock offset blocks indexed by pair of (primary station ID, secondary station ID)
+    std::map< std::pair< int, int >, std::shared_ptr< OdfClockOffsetBlock > > clockOffsetBlocks_;
 
     //! Function to parse the contents of an ODF file label block
     void parseFileLabelData(

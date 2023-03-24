@@ -151,7 +151,7 @@ OdfSequentialRangeDataBlock::OdfSequentialRangeDataBlock( const std::bitset< 128
             reservedBlock_,
             referenceFrequencyHighPart_,
             referenceFrequencyLowPart_,
-            coderInPhaseTimeOffset_,
+            uplinkCoderInPhaseTimeOffset_,
             compositeTwo_,
             transmittingStationUplinkDelay_ );
 }

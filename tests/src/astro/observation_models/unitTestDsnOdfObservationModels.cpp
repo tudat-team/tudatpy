@@ -143,22 +143,22 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
 //            std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/messenger-rawdata-odf/mess_rs_11336_2100_odf.dat" );
             std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/mro-rawdata-odf/mromagr2017_097_1335xmmmv1.odf" );
 
-    std::cout << "Start time from 1950 UTC: " << rawOdfFileContents->dataBlocks_.front()->commonDataBlock_->getObservableTime() << std::endl;
-    std::cout << "End time from 1950 UTC: " << rawOdfFileContents->dataBlocks_.back()->commonDataBlock_->getObservableTime() << std::endl;
+    std::cout << "Start time from 1950 UTC: " << rawOdfFileContents->getDataBlocks( ).front()->getCommonDataBlock( )->getObservableTime() << std::endl;
+    std::cout << "End time from 1950 UTC: " << rawOdfFileContents->getDataBlocks( ).back()->getCommonDataBlock( )->getObservableTime() << std::endl;
 
-    for ( unsigned int i = 0; i < rawOdfFileContents->dataBlocks_.size(); ++i )
+    for ( unsigned int i = 0; i < rawOdfFileContents->getDataBlocks( ).size(); ++i )
     {
-        if ( rawOdfFileContents->dataBlocks_.at( i )->observableSpecificDataBlock_->dataType_ == 12 )
+        if ( rawOdfFileContents->getDataBlocks( ).at( i )->getObservableSpecificDataBlock( )->dataType_ == 12 )
         {
-            std::cout << "Start time from 1950 UTC (12): " << rawOdfFileContents->dataBlocks_.at(i)->commonDataBlock_->getObservableTime() << std::endl;
+            std::cout << "Start time from 1950 UTC (12): " << rawOdfFileContents->getDataBlocks( ).at(i)->getCommonDataBlock( )->getObservableTime() << std::endl;
             break;
         }
     }
-    for ( unsigned int i = rawOdfFileContents->dataBlocks_.size() - 1; i >= 0 ; --i )
+    for ( unsigned int i = rawOdfFileContents->getDataBlocks( ).size() - 1; i >= 0 ; --i )
     {
-        if ( rawOdfFileContents->dataBlocks_.at( i )->observableSpecificDataBlock_->dataType_ == 12 )
+        if ( rawOdfFileContents->getDataBlocks( ).at( i )->getObservableSpecificDataBlock( )->dataType_ == 12 )
         {
-            std::cout << "End time from 1950 UTC (12): " << rawOdfFileContents->dataBlocks_.at(i)->commonDataBlock_->getObservableTime() << std::endl;
+            std::cout << "End time from 1950 UTC (12): " << rawOdfFileContents->getDataBlocks( ).at(i)->getCommonDataBlock( )->getObservableTime() << std::endl;
             break;
         }
     }
