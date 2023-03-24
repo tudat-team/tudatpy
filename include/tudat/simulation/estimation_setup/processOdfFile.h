@@ -268,9 +268,10 @@ std::shared_ptr< ProcessedOdfFileContents > processOdfFileContents(
         bool verbose = true );
 
 template< typename TimeType = double >
-observation_models::ObservationAncilliarySimulationSettings< TimeType > createOdfAncillarySettings
-        ( std::shared_ptr< ProcessedOdfFileSingleLinkData > odfDataContents,
-          unsigned int dataIndex )
+observation_models::ObservationAncilliarySimulationSettings< TimeType > createOdfAncillarySettings(
+        std::shared_ptr< ProcessedOdfFileSingleLinkData > odfDataContents,
+        unsigned int dataIndex,
+        std::function< double ( FrequencyBands, FrequencyBands ) > getTurnaroundRatio )
 {
     if ( dataIndex >= odfDataContents->unprocessedObservationTimes_.size( ) )
     {
@@ -283,12 +284,12 @@ observation_models::ObservationAncilliarySimulationSettings< TimeType > createOd
     observation_models::ObservableType currentObservableType = odfDataContents->observableType_;
 
     // Set common ancillary settings
-    ancillarySettings.setAncilliaryDoubleData(
-            observation_models::uplink_band, getFrequencyBandForOdfId(
-                    odfDataContents->uplinkBandIds_.at( dataIndex ) ) );
-    ancillarySettings.setAncilliaryDoubleData(
-            observation_models::downlink_band, getFrequencyBandForOdfId(
-                    odfDataContents->downlinkBandIds_.at( dataIndex ) ) );
+    observation_models::FrequencyBands uplinkBand = getFrequencyBandForOdfId( odfDataContents->uplinkBandIds_.at( dataIndex ) );
+    observation_models::FrequencyBands downlinkBand = getFrequencyBandForOdfId( odfDataContents->downlinkBandIds_.at( dataIndex ) );
+
+    ancillarySettings.setAncilliaryDoubleData( observation_models::uplink_band, uplinkBand );
+    ancillarySettings.setAncilliaryDoubleData( observation_models::downlink_band, downlinkBand);
+    ancillarySettings.setAncilliaryDoubleData( observation_models::turnaround_ratio, getTurnaroundRatio( uplinkBand, downlinkBand ) );
 
     if ( std::dynamic_pointer_cast< ProcessedOdfFileDopplerData >( odfDataContents ) != nullptr )
     {
@@ -333,7 +334,8 @@ void separateSingleLinkOdfData(
         std::shared_ptr< ProcessedOdfFileSingleLinkData > odfSingleLinkData,
         std::vector< std::vector< TimeType > >& observationTimes,
         std::vector< std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > >& observables,
-        std::vector< observation_models::ObservationAncilliarySimulationSettings< TimeType > >& ancillarySettings )
+        std::vector< observation_models::ObservationAncilliarySimulationSettings< TimeType > >& ancillarySettings,
+        std::function< double ( FrequencyBands, FrequencyBands ) > getTurnaroundRatio )
 {
     // Initialize vectors
     observationTimes.clear( );
@@ -348,7 +350,7 @@ void separateSingleLinkOdfData(
     for ( unsigned int i = 0; i < odfSingleLinkData->unprocessedObservationTimes_.size( ); ++i )
     {
         observation_models::ObservationAncilliarySimulationSettings< TimeType > currentAncillarySettings =
-                createOdfAncillarySettings< TimeType >( odfSingleLinkData, i );
+                createOdfAncillarySettings< TimeType >( odfSingleLinkData, i, getTurnaroundRatio );
 
         bool newAncillarySettings = true;
 
@@ -391,7 +393,10 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
         std::shared_ptr< ProcessedOdfFileContents > processedOdfFileContents,
         simulation_setup::SystemOfBodies& bodies,
         bool setGroundStationsFrequencies = true,
-        std::string bodyWithGroundStations = "Earth")
+        std::function< double ( FrequencyBands, FrequencyBands ) > getTurnaroundRatio =
+                [ ] ( FrequencyBands uplinkBand, FrequencyBands downlinkBand ){ return getDsnDefaultTurnaroundRatios (
+                        uplinkBand, downlinkBand ); } )
+//                std::bind( getDsnDefaultTurnaroundRatios, std::placeholders::_1, std::placeholders::_2 ) )
 {
 
     // Create and fill single observation sets
@@ -416,7 +421,8 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
 
             // Fill vectors
             separateSingleLinkOdfData(
-                    currentObservableType, currentOdfSingleLinkData, observationTimes, observables, ancillarySettings );
+                    currentObservableType, currentOdfSingleLinkData, observationTimes, observables, ancillarySettings,
+                    getTurnaroundRatio );
 
             // Create the single observation sets and save them
             for ( unsigned int i = 0; i < observationTimes.size( ); ++i )
@@ -434,7 +440,7 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
 
     if ( setGroundStationsFrequencies )
     {
-        setGroundStationsTransmittingFrequencies( processedOdfFileContents, bodies.getBody( bodyWithGroundStations ) );
+        setGroundStationsTransmittingFrequencies( processedOdfFileContents, bodies.getBody( "Earth" ) );
     }
 
     return std::make_shared< observation_models::ObservationCollection< ObservationScalarType, TimeType > >(

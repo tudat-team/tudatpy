@@ -43,7 +43,8 @@ enum ObservationAncilliarySimulationVariable
     retransmission_delays,
     doppler_reference_frequency,
     uplink_band,
-    downlink_band
+    downlink_band,
+    turnaround_ratio
 };
 
 template< typename TimeType = double >
@@ -59,16 +60,11 @@ public:
         switch( variableType )
         {
         case doppler_integration_time:
-            doubleData_[ doppler_integration_time ] = variable;
-            break;
         case doppler_reference_frequency:
-             doubleData_[ doppler_reference_frequency ] = variable;
-             break;
         case uplink_band:
-            doubleData_[ uplink_band ] = variable;
-            break;
         case downlink_band:
-            doubleData_[ downlink_band ] = variable;
+        case turnaround_ratio:
+            doubleData_[ variableType ] = variable;
             break;
         default:
             throw std::runtime_error( "Error when setting double ancilliary observation data; could not set type " +
@@ -82,7 +78,7 @@ public:
         switch( variableType )
         {
         case retransmission_delays:
-            doubleVectorData_[ retransmission_delays ] = variable;
+            doubleVectorData_[ variableType ] = variable;
             break;
         default:
             throw std::runtime_error( "Error when setting double vector ancilliary observation data; could not set type " +
@@ -99,16 +95,11 @@ public:
             switch( variableType )
             {
             case doppler_integration_time:
-                returnVariable = doubleData_.at( doppler_integration_time );
-                break;
             case doppler_reference_frequency:
-                 returnVariable = doubleData_.at( doppler_reference_frequency );
-                 break;
             case uplink_band:
-                returnVariable = doubleData_.at( uplink_band );
-                break;
             case downlink_band:
-                returnVariable = doubleData_.at( downlink_band );
+            case turnaround_ratio:
+                returnVariable = doubleData_.at( variableType );
                 break;
             default:
                 break;
