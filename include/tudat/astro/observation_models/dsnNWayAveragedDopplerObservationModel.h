@@ -24,6 +24,46 @@ namespace tudat
 namespace observation_models
 {
 
+inline double getDsnNWayAveragedDopplerScalingFactor(
+        const std::shared_ptr< simulation_setup::SystemOfBodies > bodies,
+        const LinkEnds& linkEnds,
+        const observation_models::LinkEndType referenceLinkEnd,
+        const std::vector< Eigen::Vector6d >& linkEndStates,
+        const std::vector< double >& linkEndTimes,
+        const std::shared_ptr< ObservationAncilliarySimulationSettings< double > > ancillarySettings,
+        const bool isFirstPartial )
+{
+    double integrationTime;
+    double turnaroundRatio;
+    try
+    {
+        integrationTime = ancillarySettings->getAncilliaryDoubleData( doppler_integration_time );
+        turnaroundRatio = ancillarySettings->getAncilliaryDoubleData( turnaround_ratio );
+    }
+    catch( std::runtime_error& caughtException )
+    {
+        throw std::runtime_error(
+                "Error when retrieving integration ancillary settings for DSN N-way averaged Doppler observable: " +
+                std::string( caughtException.what( ) ) );
+    }
+
+    double transmissionTime;
+    if ( isFirstPartial )
+    {
+        transmissionTime = linkEndTimes.at( 3 );
+    }
+    else
+    {
+        transmissionTime = linkEndTimes.at( 0 );
+    }
+
+    double frequency = bodies->getBody( linkEnds.at( observation_models::transmitter ).bodyName_ )->getGroundStation(
+                linkEnds.at( observation_models::transmitter ).stationName_ )->getTransmittingFrequencyCalculator( )->
+                        template getTemplatedCurrentFrequency< double >( transmissionTime );
+
+    return turnaroundRatio * frequency / integrationTime;
+}
+
 template< typename ObservationScalarType = double, typename TimeType = Time >
 class DsnNWayAveragedDopplerObservationModel: public ObservationModel< 1, ObservationScalarType, TimeType >
 {
