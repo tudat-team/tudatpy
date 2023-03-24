@@ -6,6 +6,9 @@
  *    under the terms of the Modified BSD license. You should have received
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
+ *
+ *    References: 820-013, TRK-2-18 Tracking System Interfaces Orbit Data File Interface, Revision E, 2008, JPL/DSN
+ *
  */
 
 #ifndef TUDAT_READ_ODF_FILE_H
@@ -29,9 +32,11 @@ namespace input_output
 {
 
 // TODO: test
+//! ODF file clock offset block
 class OdfClockOffsetBlock
 {
 public:
+    
     OdfClockOffsetBlock( const std::bitset< 288 > dataBits );
 
     double getStartTime( )
@@ -76,6 +81,7 @@ private:
     unsigned int fractionalEndTime_; // nsec
 };
 
+//! ODF file ramp block
 class OdfRampBlock
 {
 public:
