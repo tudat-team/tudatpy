@@ -20,25 +20,25 @@ namespace observation_models
 {
 
 inline double getDifferencedNWayRangeScalingFactor(
+        const simulation_setup::SystemOfBodies&,
+        const LinkEnds& linkEnds,
+        const observation_models::LinkEndType referenceLinkEnd,
+        const std::vector< Eigen::Vector6d >& linkEndStates,
         const std::vector< double >& linkEndTimes,
-        const observation_models::LinkEndType referenceLinkEnd )
+        const std::shared_ptr< ObservationAncilliarySimulationSettings< double > > ancillarySettings,
+        const bool isFirstPartial )
 {
-    int numberOfEntries = linkEndTimes.size( ) / 2;
-    double arcDuration = TUDAT_NAN;
-    if ( referenceLinkEnd == observation_models::transmitter )
+    double integrationTime;
+    try
     {
-        arcDuration = linkEndTimes[ numberOfEntries ] - linkEndTimes[ 0 ];
+        integrationTime = ancillarySettings->getAncilliaryDoubleData( doppler_integration_time, true );
     }
-    else if ( referenceLinkEnd == observation_models::receiver )
+    catch( std::runtime_error& caughtException )
     {
-        arcDuration = linkEndTimes[ 2 * numberOfEntries - 1 ] - linkEndTimes[ numberOfEntries - 1 ];
+        throw std::runtime_error( "Error when retrieving integration time for one-way averaged Doppler observable: " +
+                        std::string( caughtException.what( ) ) );
     }
-    else
-    {
-        throw std::runtime_error( "Error when getting differenced n-way range scaling factor; link end " +
-                                  getLinkEndTypeString( referenceLinkEnd ) + " not recognized." );
-    }
-    return 1.0 / arcDuration;
+    return 1.0 / integrationTime;
 }
 
 

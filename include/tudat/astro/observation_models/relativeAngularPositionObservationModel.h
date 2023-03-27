@@ -24,6 +24,18 @@ namespace tudat
 namespace observation_models
 {
 
+inline double getRelativeAngularPositionScalingFactor(
+        const simulation_setup::SystemOfBodies&,
+        const LinkEnds& linkEnds,
+        const observation_models::LinkEndType referenceLinkEnd,
+        const std::vector< Eigen::Vector6d >& linkEndStates,
+        const std::vector< double >& linkEndTimes,
+        const std::shared_ptr< ObservationAncilliarySimulationSettings< double > > ancillarySettings,
+        const bool isFirstPartial )
+{
+    return 1.0;
+}
+
 //! Class for simulating relative angular position (right ascension/declination) observables.
 /*!
  *  Class for simulating relative angular position (right ascension/declination), using light-time (with light-time corrections)

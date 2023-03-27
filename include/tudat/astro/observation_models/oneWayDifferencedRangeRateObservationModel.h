@@ -29,24 +29,26 @@ namespace observation_models
 {
 
 inline double getDifferencedOneWayRangeScalingFactor(
+        const simulation_setup::SystemOfBodies& bodies,
+        const LinkEnds& linkEnds,
+        const observation_models::LinkEndType referenceLinkEnd,
+        const std::vector< Eigen::Vector6d >& linkEndStates,
         const std::vector< double >& linkEndTimes,
-        const observation_models::LinkEndType referenceLinkEnd )
+        const std::shared_ptr< ObservationAncilliarySimulationSettings< double > > ancillarySettings,
+        const bool isFirstPartial )
 {
-    double arcDuration = TUDAT_NAN;
-    if ( referenceLinkEnd == observation_models::transmitter )
+    double currentIntegrationTime;
+    try
     {
-        arcDuration = linkEndTimes[ 2 ] - linkEndTimes[ 0 ];
+        currentIntegrationTime = ancillarySettings->getAncilliaryDoubleData( doppler_integration_time, true );
     }
-    else if ( referenceLinkEnd == observation_models::receiver )
+    catch( std::runtime_error& caughtException )
     {
-        arcDuration = linkEndTimes[ 3 ] - linkEndTimes[ 1 ];
+        throw std::runtime_error( "Error when retrieving integration time for one-way averaged Doppler observable: " +
+                        std::string( caughtException.what( ) ) );
     }
-    else
-    {
-        throw std::runtime_error( "Error when getting differenced one-way range scaling factor; link end " +
-                                  getLinkEndTypeString( referenceLinkEnd ) + " not recognized." );
-    }
-    return 1.0 / arcDuration;
+
+    return 1.0 / currentIntegrationTime;
 }
 
 //! Class for simulating one-way differenced range (e.g. closed-loop Doppler) observable

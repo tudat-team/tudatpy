@@ -25,7 +25,7 @@ namespace observation_models
 {
 
 inline double getDsnNWayAveragedDopplerScalingFactor(
-        const std::shared_ptr< simulation_setup::SystemOfBodies > bodies,
+        const simulation_setup::SystemOfBodies& bodies,
         const LinkEnds& linkEnds,
         const observation_models::LinkEndType referenceLinkEnd,
         const std::vector< Eigen::Vector6d >& linkEndStates,
@@ -57,7 +57,7 @@ inline double getDsnNWayAveragedDopplerScalingFactor(
         transmissionTime = linkEndTimes.at( 0 );
     }
 
-    double frequency = bodies->getBody( linkEnds.at( observation_models::transmitter ).bodyName_ )->getGroundStation(
+    double frequency = bodies.getBody( linkEnds.at( observation_models::transmitter ).bodyName_ )->getGroundStation(
                 linkEnds.at( observation_models::transmitter ).stationName_ )->getTransmittingFrequencyCalculator( )->
                         template getTemplatedCurrentFrequency< double >( transmissionTime );
 
