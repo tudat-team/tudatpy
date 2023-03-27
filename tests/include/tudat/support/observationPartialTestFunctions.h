@@ -109,8 +109,9 @@ calculateAnalyticalPartials(
         const std::vector< Eigen::Vector6d >& states,
         const std::vector< double >& times,
         const LinkEndType linkEndOfFixedTime,
+        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings = nullptr,
         const Eigen::Matrix< double, ObservableSize, Eigen::Dynamic > currentObservation =
-        Eigen::Matrix< double, ObservableSize, Eigen::Dynamic >::Constant( ObservableSize, TUDAT_NAN ) )
+            Eigen::Matrix< double, ObservableSize, Eigen::Dynamic >::Constant( ObservableSize, TUDAT_NAN ) )
 {
     std::vector< std::vector< std::pair< Eigen::Matrix< double, ObservableSize, Eigen::Dynamic >, double > > > partialList;
 
@@ -118,7 +119,7 @@ calculateAnalyticalPartials(
          std::shared_ptr< ObservationPartial< ObservableSize > > >::const_iterator partialIterator =
          partialObjectList.begin( ); partialIterator != partialObjectList.end( ); partialIterator++ )
     {
-        partialList.push_back( partialIterator->second->calculatePartial( states, times, linkEndOfFixedTime, currentObservation ) );
+        partialList.push_back( partialIterator->second->calculatePartial( states, times, linkEndOfFixedTime, ancilliarySettings, currentObservation ) );
     }
     return partialList;
 }
@@ -142,7 +143,7 @@ void testObservationPartials(
         const bool testParameterPartial = 1,
         const double positionPerturbationMultiplier = 1.0,
         const Eigen::VectorXd parameterPerturbationMultipliers = Eigen::VectorXd::Constant( 4, 1.0 ),
-        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings < double > > ancilliarySettings = nullptr )
+        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings = nullptr )
 {
 
     printEstimatableParameterEntries( fullEstimatableParameterSet );
@@ -214,7 +215,7 @@ void testObservationPartials(
                     ObservationPartialReturnType;
             std::vector<ObservationPartialReturnType> analyticalObservationPartials =
                     calculateAnalyticalPartials<ObservableSize>(
-                        fullAnalyticalPartialSet.first, vectorOfStates, vectorOfTimes, linkEndIterator->first, currentObservation);
+                        fullAnalyticalPartialSet.first, vectorOfStates, vectorOfTimes, linkEndIterator->first, ancilliarySettings, currentObservation);
 
             // Set and test expected partial size and time
             if (observableType != euler_angle_313_observable)

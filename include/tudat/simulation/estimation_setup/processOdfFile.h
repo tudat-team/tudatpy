@@ -268,7 +268,7 @@ std::shared_ptr< ProcessedOdfFileContents > processOdfFileContents(
         bool verbose = true );
 
 template< typename TimeType = double >
-observation_models::ObservationAncilliarySimulationSettings< TimeType > createOdfAncillarySettings(
+observation_models::ObservationAncilliarySimulationSettings createOdfAncillarySettings(
         std::shared_ptr< ProcessedOdfFileSingleLinkData > odfDataContents,
         unsigned int dataIndex,
         std::function< double ( FrequencyBands, FrequencyBands ) > getTurnaroundRatio )
@@ -278,8 +278,8 @@ observation_models::ObservationAncilliarySimulationSettings< TimeType > createOd
         throw std::runtime_error("Error when creating ODF data ancillary settings: specified data index is larger than data size.");
     }
 
-    observation_models::ObservationAncilliarySimulationSettings< TimeType > ancillarySettings =
-            observation_models::ObservationAncilliarySimulationSettings< TimeType >( );
+    observation_models::ObservationAncilliarySimulationSettings ancillarySettings =
+            observation_models::ObservationAncilliarySimulationSettings( );
 
     observation_models::ObservableType currentObservableType = odfDataContents->observableType_;
 
@@ -334,7 +334,7 @@ void separateSingleLinkOdfData(
         std::shared_ptr< ProcessedOdfFileSingleLinkData > odfSingleLinkData,
         std::vector< std::vector< TimeType > >& observationTimes,
         std::vector< std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > >& observables,
-        std::vector< observation_models::ObservationAncilliarySimulationSettings< TimeType > >& ancillarySettings,
+        std::vector< observation_models::ObservationAncilliarySimulationSettings >& ancillarySettings,
         std::function< double ( FrequencyBands, FrequencyBands ) > getTurnaroundRatio )
 {
     // Initialize vectors
@@ -349,7 +349,7 @@ void separateSingleLinkOdfData(
 
     for ( unsigned int i = 0; i < odfSingleLinkData->unprocessedObservationTimes_.size( ); ++i )
     {
-        observation_models::ObservationAncilliarySimulationSettings< TimeType > currentAncillarySettings =
+        observation_models::ObservationAncilliarySimulationSettings currentAncillarySettings =
                 createOdfAncillarySettings< TimeType >( odfSingleLinkData, i, getTurnaroundRatio );
 
         bool newAncillarySettings = true;
@@ -414,7 +414,7 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
             // Get vectors of times, observations, and ancillary settings for the current observable type and link ends
             std::vector< std::vector< TimeType > > observationTimes;
             std::vector< std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > > observables;
-            std::vector< observation_models::ObservationAncilliarySimulationSettings< TimeType > > ancillarySettings;
+            std::vector< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings;
 
             // Fill vectors
             separateSingleLinkOdfData(
@@ -429,7 +429,7 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
                         currentObservableType, currentLinkEnds, observables.at( i ), observationTimes.at( i ),
                         observation_models::receiver,
                         std::vector< Eigen::VectorXd >( ),
-                        nullptr, std::make_shared< observation_models::ObservationAncilliarySimulationSettings< TimeType > >(
+                        nullptr, std::make_shared< observation_models::ObservationAncilliarySimulationSettings >(
                             ancillarySettings.at( i ) ) ) );
             }
         }
