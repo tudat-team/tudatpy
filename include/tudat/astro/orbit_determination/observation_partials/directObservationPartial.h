@@ -82,8 +82,9 @@ public:
             const std::vector< Eigen::Vector6d >& states,
             const std::vector< double >& times,
             const observation_models::LinkEndType linkEndOfFixedTime,
+            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings< double > > ancillarySettings = nullptr,
             const Eigen::Matrix< double, ObservationSize, 1 >& currentObservation =
-            Eigen::Matrix< double, ObservationSize, 1 >::Constant( TUDAT_NAN ))
+                Eigen::Matrix< double, ObservationSize, 1 >::Constant( TUDAT_NAN ) )
     {
         if( linkEndOfFixedTime != positionPartialScaler_->getCurrentLinkEndType( ) )
         {

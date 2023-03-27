@@ -266,7 +266,7 @@ public:
             currentObservationSize = currentObservation.rows( );
             observationMatrices[ times[ i ] ] = determineObservationPartialMatrix(
                         currentObservationSize, vectorOfStates, vectorOfTimes, linkEnds, currentObservation,
-                        linkEndAssociatedWithTime );
+                        linkEndAssociatedWithTime, ancilliarySettings );
 
         }
 
@@ -343,7 +343,8 @@ protected:
             const std::vector< double >& times,
             const LinkEnds& linkEnds,
             const Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > currentObservation,
-            const LinkEndType linkEndAssociatedWithTime )
+            const LinkEndType linkEndAssociatedWithTime,
+            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings < TimeType > > ancilliarySettings )
     {
 //        std::cout << "link end associated with time: " << linkEndAssociatedWithTime << "\n\n";
 
@@ -402,7 +403,9 @@ protected:
             // Calculate partials of observation w.r.t. parameters, with associated observation times (single partial
             // can consist of multiple partial matrices, associated at different times)
             std::vector< std::pair< Eigen::Matrix< double, ObservationSize, Eigen::Dynamic >, double > > singlePartialSet =
-                    partialIterator->second->calculatePartial( states, times, linkEndAssociatedWithTime, currentObservation.template cast< double >( ) );
+                    partialIterator->second->calculatePartial(
+                            states, times, linkEndAssociatedWithTime, ancilliarySettings, currentObservation.template cast< double >( ) );
+
 //            std::cout << "size time entry: " << times.size( ) << "\n\n";
 //            std::cout << "first time entry: " << times.at( 0 ) << "\n\n";
 
@@ -454,7 +457,9 @@ protected:
                                 // Calculate partials of observation w.r.t. link end states, with associated observation times
                                 // (single partial can consist of multiple partial matrices, associated at different times)
                                 std::vector< std::pair< Eigen::Matrix< double, ObservationSize, Eigen::Dynamic >, double > > linkEndStatePartialSet =
-                                        itr.second->calculatePartial( states, times, linkEndAssociatedWithTime, currentObservation.template cast< double >( ) );
+                                        itr.second->calculatePartial(
+                                                states, times, linkEndAssociatedWithTime, ancilliarySettings,
+                                                currentObservation.template cast< double >( ) );
 
                                 for( unsigned int j = 0; j < linkEndStatePartialSet.size( ); j++ )
                                 {

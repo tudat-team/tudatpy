@@ -80,6 +80,7 @@ NWayRangePartial::NWayRangePartialReturnType NWayRangePartial::calculatePartial(
         const std::vector< Eigen::Vector6d >& states,
         const std::vector< double >& times,
         const observation_models::LinkEndType linkEndOfFixedTime,
+        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings< double > > ancillarySettings,
         const Eigen::Vector1d& currentObservation )
 {
     NWayRangePartialReturnType completePartialSet;
@@ -126,7 +127,7 @@ NWayRangePartial::NWayRangePartialReturnType NWayRangePartial::calculatePartial(
         }
 
         // Compute one-way range partials
-        currentPartialSet = rangePartialIterator_->second->calculatePartial( subLinkStates, subLinkTimes, subLinkReference );
+        currentPartialSet = rangePartialIterator_->second->calculatePartial( subLinkStates, subLinkTimes, subLinkReference, ancillarySettings );
 
         // Scale partials by required amount and add to return map.
         for( unsigned int i = 0; i < currentPartialSet.size( ); i++ )
