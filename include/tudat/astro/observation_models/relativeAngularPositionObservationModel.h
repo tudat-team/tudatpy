@@ -30,7 +30,7 @@ inline double getRelativeAngularPositionScalingFactor(
         const observation_models::LinkEndType referenceLinkEnd,
         const std::vector< Eigen::Vector6d >& linkEndStates,
         const std::vector< double >& linkEndTimes,
-        const std::shared_ptr< ObservationAncilliarySimulationSettings< double > > ancillarySettings,
+        const std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings,
         const bool isFirstPartial )
 {
     return 1.0;
@@ -91,7 +91,7 @@ public:
             const LinkEndType linkEndAssociatedWithTime,
             std::vector< double >& linkEndTimes,
             std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
-            const std::shared_ptr< ObservationAncilliarySimulationSettings< TimeType > > ancilliarySetings = nullptr  )
+            const std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetings = nullptr  )
 
     {
         // Check link end associated with input time and compute observable.

@@ -103,7 +103,7 @@ TwoWayDopplerPartial::TwoWayDopplerPartialReturnType TwoWayDopplerPartial::calcu
         const std::vector< Eigen::Vector6d >& states,
         const std::vector< double >& times,
         const observation_models::LinkEndType linkEndOfFixedTime,
-        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings< double > > ancillarySettings,
+        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings,
         const Eigen::Vector1d& currentObservation )
 {
     TwoWayDopplerPartialReturnType completePartialSet;

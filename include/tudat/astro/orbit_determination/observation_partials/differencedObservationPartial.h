@@ -88,7 +88,7 @@ public:
             const std::function< double(
                     const simulation_setup::SystemOfBodies&, const observation_models::LinkEnds&,
                     const observation_models::LinkEndType, const std::vector< Eigen::Vector6d >&,
-                    const std::vector< double >&, const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings< double > >,
+                    const std::vector< double >&, const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings >,
                     const bool ) > scalingFactorFunction,
             const std::pair< std::vector< int >, std::vector< int > >& undifferencedTimeAndStateIndices,
             const simulation_setup::SystemOfBodies& bodies,
@@ -127,7 +127,7 @@ public:
             const std::vector< Eigen::Vector6d >& states,
             const std::vector< double >& times,
             const observation_models::LinkEndType linkEndOfFixedTime,
-            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings< double > > ancillarySettings = nullptr,
+            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings = nullptr,
             const Eigen::Matrix< double, ObservationSize, 1 >& currentObservation = Eigen::Matrix< double, ObservationSize, 1 >::Constant( TUDAT_NAN ) )
     {
         using namespace observation_partials;
@@ -194,7 +194,7 @@ protected:
     const std::function< double(
             const simulation_setup::SystemOfBodies&, const observation_models::LinkEnds&,
             const observation_models::LinkEndType, const std::vector< Eigen::Vector6d >&,
-            const std::vector< double >&, const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings< double > >,
+            const std::vector< double >&, const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings >,
             const bool ) > scalingFactorFunction_;
 
     const std::pair< std::vector< int >, std::vector< int > > undifferencedTimeAndStateIndices_;
