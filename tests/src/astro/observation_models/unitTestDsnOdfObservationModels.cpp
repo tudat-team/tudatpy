@@ -217,7 +217,7 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
     // Create observed observation collection
     std::shared_ptr< observation_models::ObservationCollection< long double, Time > > observedObservationCollection =
             observation_models::createOdfObservedObservationCollection< long double, Time >(
-                    processedOdfFileContents, bodies );
+                    processedOdfFileContents );
 
     std::cout << std::endl << "Observation type start and size:" << std::endl;
     std::map< observation_models::ObservableType, std::pair< int, int > > observationTypeStartAndSize =
@@ -239,7 +239,7 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
     std::map < observation_models::ObservableType, std::vector< observation_models::LinkEnds > > linkEndsPerObservable =
             observedObservationCollection->getLinkEndsPerObservableType( );
     std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria =
-            std::make_shared< LightTimeConvergenceCriteria >( true );
+            std::make_shared< LightTimeConvergenceCriteria >( );
     for ( auto it = linkEndsPerObservable.begin(); it != linkEndsPerObservable.end(); ++it )
     {
         for ( unsigned int i = 0; i < it->second.size(); ++i )
@@ -264,7 +264,7 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
 
     std::vector< std::shared_ptr< ObservationSimulationSettings< Time > > > observationSimulationSettings =
             observation_models::createOdfObservationSimulationSettingsList< long double, Time >(
-                    observedObservationCollection );
+                    observedObservationCollection, processedOdfFileContents, bodies );
 
 
     std::shared_ptr< observation_models::ObservationCollection< long double, Time > >
