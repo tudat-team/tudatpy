@@ -391,8 +391,14 @@ inline void setGroundStationsTransmittingFrequencies(
 template< typename ObservationScalarType = double, typename TimeType = double >
 std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > createOdfObservedObservationCollection(
         std::shared_ptr< ProcessedOdfFileContents > processedOdfFileContents,
+        std::vector< observation_models::ObservableType > observableTypesToProcess = std::vector< observation_models::ObservableType >( ),
         std::function< double ( FrequencyBands, FrequencyBands ) > getTurnaroundRatio = &getDsnDefaultTurnaroundRatios )
 {
+    // Set observables to process
+    if ( observableTypesToProcess.empty( ) )
+    {
+        observableTypesToProcess = processedOdfFileContents->getProcessedObservableTypes( );
+    }
 
     // Create and fill single observation sets
     std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds, std::vector< std::shared_ptr<
@@ -402,6 +408,12 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
             observableTypeIterator != processedOdfFileContents->getProcessedDataBlocks( ).end( ); ++observableTypeIterator )
     {
         observation_models::ObservableType currentObservableType = observableTypeIterator->first;
+
+        // Check if an observation set should be created for the current observable type
+        if ( std::count( observableTypesToProcess.begin( ), observableTypesToProcess.end( ), currentObservableType ) == 0 )
+        {
+            continue;
+        }
 
         for ( auto linkEndsIterator = observableTypeIterator->second.begin( );
                 linkEndsIterator != observableTypeIterator->second.end( ); ++linkEndsIterator )
