@@ -282,6 +282,7 @@ ObservableType getUndifferencedObservableType( const ObservableType differencedO
         undifferencedObservableType = one_way_range;
         break;
     case n_way_differenced_range:
+    case dsn_n_way_averaged_doppler:
         undifferencedObservableType = n_way_range;
         break;
     case relative_angular_position:
@@ -331,6 +332,7 @@ std::pair< std::vector< int >, std::vector< int > > getUndifferencedTimeAndState
         secondIndices = { 2, 3 };
         break;
     case n_way_differenced_range:
+    case dsn_n_way_averaged_doppler:
     {
         int numberOfLinkEndTimesStates = 2 + ( numberOfLinkEnds - 2 ) * 2;
         for( int i = 0; i < numberOfLinkEndTimesStates; i++ )
