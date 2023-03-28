@@ -203,6 +203,23 @@ inline std::shared_ptr< ObservationAncilliarySimulationSettings > getTwoWayAvera
 
 }
 
+inline std::shared_ptr< ObservationAncilliarySimulationSettings > getDsnNWayAveragedDopplerAncillarySettings(
+        const double turnaroundRatio,
+        const double integrationTime = 60.0,
+        const double referenceFrequency = 7.0e9,
+        const std::vector< double > retransmissionTimes = std::vector< double >( ) )
+{
+    std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings =
+            std::make_shared< ObservationAncilliarySimulationSettings >( );
+
+    ancillarySettings->setAncilliaryDoubleData( doppler_integration_time, integrationTime );
+    ancillarySettings->setAncilliaryDoubleData( doppler_reference_frequency, referenceFrequency );
+    ancillarySettings->setAncilliaryDoubleData( turnaround_ratio, turnaroundRatio );
+
+    ancillarySettings->setAncilliaryDoubleVectorData( retransmission_delays, retransmissionTimes );
+
+    return ancillarySettings;
+}
 
 
 inline std::shared_ptr< ObservationAncilliarySimulationSettings > getDefaultAncilliaryObservationSettings(
