@@ -98,6 +98,12 @@ public:
     //! Function to return the object used to compute the ground station's transmitting frequency at a given time
     std::shared_ptr< StationFrequencyInterpolator > getTransmittingFrequencyCalculator( )
     {
+        if ( transmittingFrequencyCalculator_ == nullptr )
+        {
+            throw std::runtime_error("Error when retrieving the frequency calculator for ground station " + stationId_ +
+            ": no frequency calculator has been defined");
+        }
+
         return transmittingFrequencyCalculator_;
     }
 

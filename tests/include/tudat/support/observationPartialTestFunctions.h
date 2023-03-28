@@ -132,9 +132,9 @@ std::vector< std::vector< double > > getAnalyticalPartialEvaluationTimes(
         const std::shared_ptr< EstimatableParameterSet< double > >& estimatedParameters );
 
 //! Generalized test function for partial derivatives of observations
-template< int ObservableSize = 1 >
+template< int ObservableSize = 1, typename TimeType = double >
 void testObservationPartials(
-        const std::shared_ptr< ObservationModel< ObservableSize, double, double > > observationModel,
+        const std::shared_ptr< ObservationModel< ObservableSize, double, TimeType > > observationModel,
         SystemOfBodies& bodies,
         const std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet,
         const LinkDefinition& linkEnds, const ObservableType observableType,
@@ -171,7 +171,7 @@ void testObservationPartials(
     // Create observation partials.
     std::pair<std::map<std::pair<int, int>, std::shared_ptr<ObservationPartial<ObservableSize> > >,
             std::shared_ptr<PositionPartialScaling> > fullAnalyticalPartialSet =
-            ObservationPartialCreator<ObservableSize, double, double>::createObservationPartials(
+            ObservationPartialCreator< ObservableSize, double, TimeType >::createObservationPartials(
                 observationModel, bodies, fullEstimatableParameterSet );
 
     std::shared_ptr<PositionPartialScaling> positionPartialScaler = fullAnalyticalPartialSet.second;
@@ -206,7 +206,7 @@ void testObservationPartials(
                         observationTime, linkEndIterator->first, vectorOfTimes, vectorOfStates, ancilliarySettings );
 
             // Calculate analytical observation partials.
-            if (positionPartialScaler != NULL) {
+            if (positionPartialScaler != nullptr) {
                 positionPartialScaler->update(vectorOfStates, vectorOfTimes, static_cast< LinkEndType >( linkEndIterator->first ),
                                               currentObservation);
             }
@@ -261,7 +261,7 @@ void testObservationPartials(
 
             // Define observation function for current observable/link end
             std::function<Eigen::VectorXd(const double)> observationFunction = std::bind(
-                        &ObservationModel<ObservableSize, double, double>::computeObservations,
+                        &ObservationModel< ObservableSize, double, TimeType >::computeObservations,
                         observationModel, std::placeholders::_1, linkEndIterator->first, ancilliarySettings );
 
             if (testPositionPartial)
@@ -342,10 +342,10 @@ void testObservationPartials(
                                 0, 0, ObservableSize, 7);
                 }
 
-                for (int i = 0; i < 4; i++) {
-                    Eigen::MatrixXd testPartial = (bodyRotationalStatePartial.block(0, 0, ObservableSize, 4) * appliedQuaternionPerturbation.at(i).segment(0, 4));
+                for (int j = 0; j < 4; j++) {
+                    Eigen::MatrixXd testPartial = (bodyRotationalStatePartial.block(0, 0, ObservableSize, 4) * appliedQuaternionPerturbation.at(j).segment(0, 4));
                     BOOST_CHECK_SMALL(
-                                std::fabs(testPartial(0) - changeDueToQuaternionChange(i)), 1.0E-4);
+                                std::fabs(testPartial(0) - changeDueToQuaternionChange(j)), 1.0E-4);
                 }
 
                 TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
@@ -402,7 +402,7 @@ void testObservationPartials(
                 // Test vector parameter partials
                 {
                     std::function<Eigen::VectorXd(const double)> vectorObservationFunction = std::bind(
-                                &ObservationModel<ObservableSize, double, double>::computeObservations,
+                                &ObservationModel< ObservableSize, double, TimeType >::computeObservations,
                                 observationModel, std::placeholders::_1, linkEndIterator->first, ancilliarySettings );
 
                     // Settings for parameter partial functions.

@@ -2559,9 +2559,19 @@ public:
             secondObservationModel = nWayDifferencedRangeObservationModel->getArcEndObservationModel( );
             break;
         }
+        case observation_models::dsn_n_way_averaged_doppler:
+        {
+            std::shared_ptr< observation_models::DsnNWayAveragedDopplerObservationModel< ObservationScalarType, TimeType > >
+                    dsnNWayAveragedDopplerObservationModel =
+                    std::dynamic_pointer_cast< observation_models::DsnNWayAveragedDopplerObservationModel< ObservationScalarType, TimeType > >(
+                            differencedObservationModel );
+            firstObservationModel = dsnNWayAveragedDopplerObservationModel->getArcStartObservationModel( );
+            secondObservationModel = dsnNWayAveragedDopplerObservationModel->getArcEndObservationModel( );
+            break;
+        }
         default:
             std::string errorMessage =
-                    "Error when getting undifferenced observation models " +
+                    "Error when getting size 1 undifferenced observation models: observable type " +
                     std::to_string( differencedObservationModel->getObservableType( ) ) + " not recognized.";
             throw std::runtime_error( errorMessage );
         }
@@ -2600,7 +2610,7 @@ public:
         }
         default:
             std::string errorMessage =
-                    "Error when getting undifferenced observation models " +
+                    "Error when getting size 2 undifferenced observation models: observable type " +
                     std::to_string( differencedObservationModel->getObservableType( ) ) + " not recognized.";
             throw std::runtime_error( errorMessage );
         }
