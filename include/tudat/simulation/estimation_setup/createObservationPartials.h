@@ -150,15 +150,13 @@ public:
             observationPartials = createTwoWayDopplerPartials< ObservationScalarType, TimeType >(
                         observationModel, bodies, parametersToEstimate, useBiasPartials );
             break;
-        case observation_models::one_way_differenced_range:
-            observationPartials = createDifferencedObservablePartials< ObservationScalarType, TimeType, 1 >(
-                        observationModel, bodies, parametersToEstimate, useBiasPartials );
-            break;
         case observation_models::n_way_range:
             observationPartials = createNWayRangePartials< ObservationScalarType >(
                         observationModel, bodies, parametersToEstimate, useBiasPartials );
             break;
+        case observation_models::one_way_differenced_range:
         case observation_models::n_way_differenced_range:
+        case observation_models::dsn_n_way_averaged_doppler:
             observationPartials = createDifferencedObservablePartials< ObservationScalarType, TimeType, 1 >(
                         observationModel, bodies, parametersToEstimate, useBiasPartials );
             break;
@@ -400,6 +398,30 @@ public:
             differencedPartial = std::make_shared< DifferencedObservablePartial< 1 > >(
                         firstPartial, secondPartial, &observation_models::getDifferencedNWayRangeScalingFactor,
                         getUndifferencedTimeAndStateIndices( n_way_differenced_range, linkEnds.size( ) ),
+                        bodies, linkEnds );
+            break;
+        }
+        case dsn_n_way_averaged_doppler:
+        {
+            if( firstPartial != nullptr )
+            {
+                if( std::dynamic_pointer_cast< NWayRangePartial >( firstPartial ) == nullptr )
+                {
+                    throw std::runtime_error( "Error when creating DSN n-way averaged Doppler partial; first input object type is incompatible" );
+                }
+            }
+
+            if( secondPartial != nullptr )
+            {
+                if( std::dynamic_pointer_cast< NWayRangePartial >( secondPartial ) == nullptr )
+                {
+                    throw std::runtime_error( "Error when creating DSN n-way averaged Doppler partial; second input object type is incompatible" );
+                }
+            }
+
+            differencedPartial = std::make_shared< DifferencedObservablePartial< 1 > >(
+                        firstPartial, secondPartial, &observation_models::getDsnNWayAveragedDopplerScalingFactor,
+                        getUndifferencedTimeAndStateIndices( dsn_n_way_averaged_doppler, linkEnds.size( ) ),
                         bodies, linkEnds );
             break;
         }

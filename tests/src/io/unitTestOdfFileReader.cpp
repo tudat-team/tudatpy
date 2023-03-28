@@ -27,16 +27,16 @@ using namespace tudat;
 using namespace tudat::spice_interface;
 using namespace tudat::simulation_setup;
 
-std::string getAbsolutePath ( std::string relativePath )
-{
-    std::string currFilePath = __FILE__;
-    std::string currFileName = __FILE_NAME__;
-
-    std::string currDir = currFilePath;
-    currDir.resize( currFilePath.size( ) - currFileName.size( ) - 1 );
-
-    return currDir + relativePath;
-}
+//std::string getAbsolutePath ( std::string relativePath )
+//{
+//    std::string currFilePath = __FILE__;
+//    std::string currFileName = __FILE_NAME__;
+//
+//    std::string currDir = currFilePath;
+//    currDir.resize( currFilePath.size( ) - currFileName.size( ) - 1 );
+//
+//    return currDir + relativePath;
+//}
 
 BOOST_AUTO_TEST_SUITE( test_odf_file_reader )
 
@@ -56,7 +56,7 @@ BOOST_AUTO_TEST_CASE( testSingleOdfFileReader )
 
     SystemOfBodies bodies = createSystemOfBodies( bodySettings );
 
-    std::string file = getAbsolutePath( "/data_files/odf07155.odf" );
+    std::string file = tudat::paths::getTudatTestDataPath( )  + "/odf07155.odf";
     std::shared_ptr< input_output::OdfRawFileContents > rawOdfContents =
             std::make_shared< input_output::OdfRawFileContents >( file );
 
