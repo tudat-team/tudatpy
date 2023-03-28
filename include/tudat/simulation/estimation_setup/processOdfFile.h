@@ -391,8 +391,6 @@ inline void setGroundStationsTransmittingFrequencies(
 template< typename ObservationScalarType = double, typename TimeType = double >
 std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > createOdfObservedObservationCollection(
         std::shared_ptr< ProcessedOdfFileContents > processedOdfFileContents,
-        simulation_setup::SystemOfBodies& bodies,
-        bool setGroundStationsFrequencies = true,
         std::function< double ( FrequencyBands, FrequencyBands ) > getTurnaroundRatio = &getDsnDefaultTurnaroundRatios )
 {
 
@@ -433,11 +431,6 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
                             ancillarySettings.at( i ) ) ) );
             }
         }
-    }
-
-    if ( setGroundStationsFrequencies )
-    {
-        setGroundStationsTransmittingFrequencies( processedOdfFileContents, bodies.getBody( "Earth" ) );
     }
 
     return std::make_shared< observation_models::ObservationCollection< ObservationScalarType, TimeType > >(
@@ -483,6 +476,18 @@ std::vector< std::shared_ptr< simulation_setup::ObservationSimulationSettings< T
     }
 
     return observationSimulationSettings;
+}
+
+template< typename ObservationScalarType = double, typename TimeType = double >
+std::vector< std::shared_ptr< simulation_setup::ObservationSimulationSettings< TimeType > > > createOdfObservationSimulationSettingsList(
+        std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > observedObservationCollection,
+        std::shared_ptr< ProcessedOdfFileContents > processedOdfFileContents,
+        simulation_setup::SystemOfBodies& bodies )
+{
+
+    setGroundStationsTransmittingFrequencies( processedOdfFileContents, bodies.getBody( "Earth" ) );
+
+    return createOdfObservationSimulationSettingsList< ObservationScalarType, TimeType >( observedObservationCollection );
 }
 
 } // namespace observation_models
