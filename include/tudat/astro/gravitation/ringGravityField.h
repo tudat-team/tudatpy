@@ -44,7 +44,7 @@ namespace gravitation
  * @param positionOfBodySubjectToAcceleration Position of the body subject to the acceleration wrt the ring's body-fixed frame.
  * @param ringRadius Radius of the ring.
  * @param gravitationalParameter Gravitational parameter of the ring.
- * @param gravitationalConstant Universal gravitational constant.
+ * @param ellipticIntegralK Complete elliptic integral K.
  * @return Gravitational potential.
  */
 double computeRingGravitationalPotential(
@@ -68,8 +68,9 @@ double computeRingGravitationalPotential(
  * @param positionOfBodySubjectToAcceleration Position of the body subject to the acceleration wrt the ring's body-fixed frame.
  * @param ringRadius Radius of the ring.
  * @param gravitationalParameter Gravitational parameter of the ring.
- * @param gravitationalConstant Universal gravitational constant.
- * @param ellipticIntegralSFromDAndB
+ * @param ellipticIntegralB Complete elliptic integral B.
+ * @param ellipticIntegralE Complete elliptic integral E.
+ * @param ellipticIntegralS Complete elliptic integral S.
  * @return Gravitational acceleration.
  */
 Eigen::Vector3d computeRingGravitationalAcceleration(
@@ -128,7 +129,7 @@ public:
 
     // Fucntion to get the elliptic integral E
     double getEllipticIntegralE( )
-    { 
+    {
         return currentEllipticIntegralE_;
     }
 
@@ -154,6 +155,99 @@ private:
 
     // Current value of the elliptic integral S(m)
     double currentEllipticIntegralS_;
+};
+
+//! Class to represent the gravity field of a constant density ring
+class RingGravityField: public GravityFieldModel
+{
+public:
+
+    /*! Constructor.
+     *
+     * Constructor.
+     * @param gravitationalParameter Gravitational parameter of the ring.
+     * @param ringRadius Radius of the ring.
+     * @param ellipticIntegralSFromDAndB Flag indicating whether to compute S(m) from D(m) and B(m) (if true),
+     *      or from K(m) and E(m) (if false). The former has a lower loss of accuracy due to numerical cancellation.
+     * @param fixedReferenceFrame Identifier for body-fixed reference frame to which the field is fixed (optional).
+     * @param updateInertiaTensor Function that is to be called to update the inertia tensor (typically in Body class;
+     *      default empty)
+     */
+    RingGravityField(
+            const double gravitationalParameter,
+            const double ringRadius,
+            const bool ellipticIntegralSFromDAndB,
+            const std::string& fixedReferenceFrame = "",
+            const std::function< void( ) > updateInertiaTensor = std::function< void( ) > ( ) ):
+        GravityFieldModel(gravitationalParameter, updateInertiaTensor),
+        gravitationalParameter_( gravitationalParameter ),
+        ringRadius_( ringRadius ),
+        ellipticIntegralSFromDAndB_( ellipticIntegralSFromDAndB ),
+        fixedReferenceFrame_( fixedReferenceFrame )
+    {
+        ringGravityCache_ = std::make_shared< RingGravityCache >( ringRadius_, ellipticIntegralSFromDAndB_ );
+    }
+
+    /*! Function to calculate the gravitational potential.
+     *
+     * Function to calculate the gravitational potential.
+     * @param bodyFixedPosition Position of point at which potential is to be calculated, in body-fixed frame.
+     * @return Gravitational potential.
+     */
+    virtual double getGravitationalPotential( const Eigen::Vector3d& bodyFixedPosition )
+    {
+        ringGravityCache_->update( bodyFixedPosition );
+
+        return computeRingGravitationalPotential(
+                bodyFixedPosition,
+                ringRadius_,
+                gravitationalParameter_,
+                ringGravityCache_->getEllipticIntegralK( ) );
+    }
+
+    /*! Function to calculate the gradient of the gravitational potential (i.e. the acceleration).
+     *
+     * Function to calculate the gradient of the gravitational potential (i.e. the acceleration).
+     * @param bodyFixedPosition Position of point at which potential is to be calculated, in body-fixed frame.
+     * @return Gradient of the gravitational potential.
+     */
+    virtual Eigen::Vector3d getGradientOfPotential( const Eigen::Vector3d& bodyFixedPosition )
+    {
+        ringGravityCache_->update( bodyFixedPosition );
+
+        return computeRingGravitationalAcceleration(
+                bodyFixedPosition,
+                ringRadius_,
+                gravitationalParameter_,
+                ringGravityCache_->getEllipticIntegralB( ),
+                ringGravityCache_->getEllipticIntegralE( ),
+                ringGravityCache_->getEllipticIntegralS( ) );
+    }
+
+    //! Function to retrieve the identifier for the body-fixed reference frame.
+    std::string getFixedReferenceFrame( )
+    { return fixedReferenceFrame_; }
+
+    //! Function to ring radius.
+    double getRingRadius( )
+    { return ringRadius_; }
+
+private:
+
+    // Gravitational parameter
+    const double gravitationalParameter_;
+
+    // Radius of the ring
+    const double ringRadius_;
+
+    // Flag indicating whether to compute S(m) from D(m) and B(m) (if true), or from K(m) and E(m) (if false)
+    const bool ellipticIntegralSFromDAndB_;
+
+    //! Ring cache.
+    std::shared_ptr< RingGravityCache > ringGravityCache_;
+
+    //! Identifier for body-fixed reference frame
+    std::string fixedReferenceFrame_;
 };
 
 } // namespace gravitation
