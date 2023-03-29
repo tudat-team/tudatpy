@@ -50,7 +50,8 @@ namespace gravitation
 double computeRingGravitationalPotential(
         const Eigen::Vector3d& positionOfBodySubjectToAcceleration,
         const double ringRadius,
-        const double gravitationalParameter );
+        const double gravitationalParameter,
+        const double ellipticIntegralK );
 
 //! Computes the gravitational acceleration of a one-dimensional ring
 /*!
@@ -75,7 +76,85 @@ Eigen::Vector3d computeRingGravitationalAcceleration(
         const Eigen::Vector3d& positionOfBodySubjectToAcceleration,
         const double ringRadius,
         const double gravitationalParameter,
-        const bool ellipticIntegralSFromDAndB = true );
+        const double ellipticIntegralB,
+        const double ellipticIntegralE,
+        const double ellipticIntegralS );
+
+//! Cache object in which variables that are required for the computation of ring gravity field are stored.
+class RingGravityCache
+{
+public:
+
+    /*! Constructor.
+     *
+     * Constructor.
+     * @param ringRadius Radius of the ring.
+     * @param ellipticIntegralSFromDAndB Flag indicating whether to compute S(m) from D(m) and B(m) (if true),
+     *      or from K(m) and E(m) (if false)
+     */
+    RingGravityCache(
+            const double ringRadius,
+            const bool ellipticIntegralSFromDAndB ):
+        ringRadius_( ringRadius ),
+        ellipticIntegralSFromDAndB_( ellipticIntegralSFromDAndB )
+    {
+        currentBodyFixedPosition_ = ( Eigen::Vector3d( ) << TUDAT_NAN, TUDAT_NAN, TUDAT_NAN ).finished( );
+    }
+
+    /*! Update cached variables to current state.
+     *
+     * Update cached variables to current state.
+     * @param currentBodyFixedPosition Current body fixed position.
+     */
+    void update( const Eigen::Vector3d& currentBodyFixedPosition );
+
+    // Fucntion to get the elliptic integral K
+    double getEllipticIntegralK( )
+    {
+        return currentEllipticIntegralK_;
+    }
+
+    // Fucntion to get the elliptic integral B
+    double getEllipticIntegralB( )
+    {
+        return currentEllipticIntegralB_;
+    }
+
+    // Fucntion to get the elliptic integral S
+    double getEllipticIntegralS( )
+    {
+        return currentEllipticIntegralS_;
+    }
+
+    // Fucntion to get the elliptic integral E
+    double getEllipticIntegralE( )
+    { 
+        return currentEllipticIntegralE_;
+    }
+
+private:
+
+    // Current body fixed position.
+    Eigen::Vector3d currentBodyFixedPosition_;
+
+    // Radius of the ring
+    const double ringRadius_;
+
+    // Flag indicating whether to compute S(m) from D(m) and B(m) (if true), or from K(m) and E(m) (if false)
+    const bool ellipticIntegralSFromDAndB_;
+
+    // Current value of the elliptic integral K(m)
+    double currentEllipticIntegralK_;
+
+    // Current value of the elliptic integral E(m)
+    double currentEllipticIntegralE_;
+
+    // Current value of the elliptic integral B(m)
+    double currentEllipticIntegralB_;
+
+    // Current value of the elliptic integral S(m)
+    double currentEllipticIntegralS_;
+};
 
 } // namespace gravitation
 
