@@ -821,6 +821,16 @@ inline std::shared_ptr< GravityFieldSettings > polyhedronGravitySettingsFromMu(
             gravitationalConstant );
 }
 
+inline std::shared_ptr< GravityFieldSettings > ringGravitySettings(
+        const double gravitationalParameter,
+        const double ringRadius,
+        const std::string& associatedReferenceFrame,
+        const bool ellipticIntegralSFromDAndB = true )
+{
+    return std::make_shared< RingGravityFieldSettings >(
+            gravitationalParameter, ringRadius, associatedReferenceFrame, ellipticIntegralSFromDAndB);
+}
+
 } // namespace simulation_setup
 
 } // namespace tudat
