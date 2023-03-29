@@ -41,6 +41,9 @@ std::string getAccelerationModelName( const AvailableAcceleration accelerationTy
     case polyhedron_gravity:
         accelerationName = "polyhedron gravity ";
         break;
+    case ring_gravity:
+        accelerationName = "ring gravity ";
+        break;
     case third_body_point_mass_gravity:
         accelerationName = "third-body central gravity ";
         break;
@@ -52,6 +55,9 @@ std::string getAccelerationModelName( const AvailableAcceleration accelerationTy
         break;
     case third_body_polyhedron_gravity:
         accelerationName = "third-body polyhedron gravity ";
+        break;
+    case third_body_ring_gravity:
+        accelerationName = "third-body ring gravity ";
         break;
     case thrust_acceleration:
         accelerationName = "thrust ";
@@ -131,6 +137,10 @@ AvailableAcceleration getAccelerationModelType(
     {
         accelerationType = third_body_polyhedron_gravity;
     }
+    else if( std::dynamic_pointer_cast< ThirdBodyRingGravitationalAccelerationModel >( accelerationModel ) != nullptr )
+    {
+        accelerationType = third_body_ring_gravity;
+    }
     else if( std::dynamic_pointer_cast< SphericalHarmonicsGravitationalAccelerationModel >(
                  accelerationModel ) != nullptr  )
     {
@@ -143,6 +153,10 @@ AvailableAcceleration getAccelerationModelType(
     else if( std::dynamic_pointer_cast< PolyhedronGravitationalAccelerationModel >( accelerationModel ) != nullptr  )
     {
         accelerationType = polyhedron_gravity;
+    }
+    else if( std::dynamic_pointer_cast< RingGravitationalAccelerationModel >( accelerationModel ) != nullptr  )
+    {
+        accelerationType = ring_gravity;
     }
     else if( std::dynamic_pointer_cast< AerodynamicAcceleration >(
                  accelerationModel ) != nullptr )
@@ -249,10 +263,9 @@ std::vector< std::shared_ptr< AccelerationModel3d > > getAccelerationModelsOfTyp
 bool isAccelerationDirectGravitational( const AvailableAcceleration accelerationType )
 {
     bool accelerationIsDirectGravity = 0;
-    if( ( accelerationType == point_mass_gravity ) ||
-            ( accelerationType == spherical_harmonic_gravity ) ||
-            ( accelerationType == mutual_spherical_harmonic_gravity ) ||
-            ( accelerationType == polyhedron_gravity ) )
+    if( accelerationType == point_mass_gravity || accelerationType == spherical_harmonic_gravity ||
+        accelerationType == mutual_spherical_harmonic_gravity || accelerationType == polyhedron_gravity ||
+        accelerationType == ring_gravity )
     {
         accelerationIsDirectGravity = 1;
     }
@@ -264,10 +277,9 @@ bool isAccelerationDirectGravitational( const AvailableAcceleration acceleration
 bool isAccelerationFromThirdBody( const AvailableAcceleration accelerationType )
 {
     bool accelerationIsFromThirdBody = false;
-    if( ( accelerationType == third_body_point_mass_gravity ) ||
-            ( accelerationType == third_body_spherical_harmonic_gravity ) ||
-            ( accelerationType == third_body_mutual_spherical_harmonic_gravity ) ||
-            ( accelerationType == third_body_polyhedron_gravity ) )
+    if( accelerationType == third_body_point_mass_gravity || accelerationType == third_body_spherical_harmonic_gravity ||
+        accelerationType == third_body_mutual_spherical_harmonic_gravity ||
+        accelerationType == third_body_polyhedron_gravity || accelerationType == third_body_ring_gravity )
     {
         accelerationIsFromThirdBody = true;
     }
@@ -301,6 +313,10 @@ AvailableAcceleration getAssociatedThirdBodyAcceleration( const AvailableAcceler
     else if( accelerationType == polyhedron_gravity )
     {
         thirdBodyAccelerationType = third_body_polyhedron_gravity;
+    }
+    else if( accelerationType == ring_gravity )
+    {
+        thirdBodyAccelerationType = third_body_ring_gravity;
     }
     else
     {        std::string errorMessage = "Error when getting thirdbody gravity type, requested type: " +

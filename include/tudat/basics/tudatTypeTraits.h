@@ -200,6 +200,16 @@ struct is_direct_gravity_acceleration< gravitation::PolyhedronGravitationalAccel
     static const bool value = true;
 };
 
+namespace gravitation
+{
+class RingGravitationalAccelerationModel;
+}
+
+template< >
+struct is_direct_gravity_acceleration< gravitation::RingGravitationalAccelerationModel > {
+    static const bool value = true;
+};
+
 } // namespace tudat
 
 #endif // TUDAT_TYPE_TRAITS_H
