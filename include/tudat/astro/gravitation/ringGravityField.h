@@ -8,8 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  *
  *    References:
- *          Precise computation of acceleration due to uniform ring or disk, Toshio Fukushima, 2010, Celest Mech Dyn
- *          Astr (2010) 108:339–356
+ *          Precise computation of acceleration due to uniform ring or disk, Toshio Fukushima (2010), Celestial Mechanics
+ *          and Dynamical Astronomy, 108:339–356.
  */
 
 #ifndef TUDAT_RINGGRAVITYFIELD_H
