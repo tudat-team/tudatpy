@@ -24,6 +24,7 @@
 #include "tudat/astro/gravitation/sphericalHarmonicsGravityField.h"
 #include "tudat/astro/gravitation/gravityFieldVariations.h"
 #include "tudat/astro/gravitation/polyhedronGravityField.h"
+#include "tudat/astro/gravitation/ringGravityField.h"
 
 namespace tudat
 {
@@ -426,9 +427,9 @@ public:
     /*! Constructor.
      *
      * Constructor.
-     * @param gravitationalParameter Gravitational parameter of the polyhedron.
+     * @param gravitationalParameter Gravitational parameter of the ring.
      * @param ringRadius Radius of the ring.
-     * @param associatedReferenceFrame Identifier for body-fixed reference frame to which the polyhedron is referred.
+     * @param associatedReferenceFrame Identifier for body-fixed reference frame to which the ring is referred.
      * @param ellipticIntegralSFromDAndB Flag indicating whether to compute S(m) from D(m) and B(m) (if true),
      *      or from K(m) and E(m) (if false). The former has a lower loss of accuracy due to numerical cancellation.
      */
@@ -474,18 +475,18 @@ public:
     std::string getAssociatedReferenceFrame( )
     { return associatedReferenceFrame_; }
 
-    // Function to reset identifier for body-fixed reference frame to which the polyhedron is referred.
+    // Function to reset identifier for body-fixed reference frame to which the ring is referred.
     void resetAssociatedReferenceFrame( const std::string& associatedReferenceFrame )
     { associatedReferenceFrame_ = associatedReferenceFrame; }
 
     // Function to get the flag indicating whether to compute S(m) from D(m) and B(m)
-    bool getEllipticIntegralSFromDAndB_( )
+    bool getEllipticIntegralSFromDAndB( )
     {
         return ellipticIntegralSFromDAndB_;
     }
 
     // Function to reset the flag indicating whether to compute S(m) from D(m) and B(m)
-    void resetEllipticIntegralSFromDAndB_( bool ellipticIntegralSFromDAndB )
+    void resetEllipticIntegralSFromDAndB( bool ellipticIntegralSFromDAndB )
     {
         ellipticIntegralSFromDAndB_ = ellipticIntegralSFromDAndB;
     }
@@ -499,7 +500,7 @@ protected:
     // Radius of the ring
     double ringRadius_;
 
-    // Identifier for body-fixed reference frame to which the polyhedron is referred
+    // Identifier for body-fixed reference frame to which the ring is referred
     std::string associatedReferenceFrame_;
 
     // Flag indicating whether to compute S(m) from D(m) and B(m) (if true), or from K(m) and E(m) (if false)
