@@ -17,11 +17,46 @@ namespace tudat
 namespace gravitation
 {
 
+void RingGravityCache::update (const Eigen::Vector3d& currentBodyFixedPosition)
+{
+    if ( currentBodyFixedPosition != currentBodyFixedPosition_ )
+    {
+        currentBodyFixedPosition_ = currentBodyFixedPosition;
+
+        double x = currentBodyFixedPosition_( 0 );
+        double y = currentBodyFixedPosition_( 1 );
+        double z = currentBodyFixedPosition_( 2 );
+
+        double r = std::sqrt( std::pow( x, 2.0 ) + std::pow( y, 2.0 ) );
+
+        double p = std::sqrt( std::pow( r + ringRadius_, 2.0 ) + std::pow( z, 2.0 ) );
+
+        double m = 4.0 * ringRadius_ * r / std::pow( p, 2.0 );
+        // m = k^2
+        double k = std::sqrt( std::abs( m ) );
+
+        // Compute elliptic integrals
+        currentEllipticIntegralK_ = boost::math::ellint_1( k );
+        currentEllipticIntegralE_ = boost::math::ellint_2( k );
+        currentEllipticIntegralB_ = boost::math::ellint_rf( 0.0, 1.0 - m, 1.0 ) - boost::math::ellint_rd( 0.0, 1.0 - m, 1.0 ) / 3.0;
+
+        if ( ellipticIntegralSFromDAndB_ )
+        {
+            currentEllipticIntegralS_ = ( boost::math::ellint_d( k ) - currentEllipticIntegralB_ ) / m;
+        }
+        else
+        {
+            currentEllipticIntegralS_ = ( ( 2.0 - m ) * currentEllipticIntegralK_ - 2.0 * currentEllipticIntegralE_ ) / std::pow( m, 2.0 );
+        }
+    }
+}
+
 //! Computes the gravitational potential of a one-dimensional ring.
 double computeRingGravitationalPotential(
         const Eigen::Vector3d& positionOfBodySubjectToAcceleration,
         const double ringRadius,
-        const double gravitationalParameter )
+        const double gravitationalParameter,
+        const double ellipticIntegralK )
 {
     double x = positionOfBodySubjectToAcceleration( 0 );
     double y = positionOfBodySubjectToAcceleration( 1 );
@@ -33,11 +68,7 @@ double computeRingGravitationalPotential(
 
     double lineDensityTimesGravitationalConst = gravitationalParameter / ( 2.0 * mathematical_constants::PI * ringRadius );
 
-    double m = 4.0 * ringRadius * r / std::pow( p, 2.0 );
-    // m = k^2
-    double k = std::sqrt( std::abs( m ) );
-
-    return 4.0 * lineDensityTimesGravitationalConst * ringRadius * boost::math::ellint_1( k ) / p;
+    return 4.0 * lineDensityTimesGravitationalConst * ringRadius * ellipticIntegralK / p;
 }
 
 //! Computes the gravitational acceleration of a one-dimensional ring
@@ -45,7 +76,9 @@ Eigen::Vector3d computeRingGravitationalAcceleration(
         const Eigen::Vector3d& positionOfBodySubjectToAcceleration,
         const double ringRadius,
         const double gravitationalParameter,
-        const bool ellipticIntegralSFromDAndB )
+        const double ellipticIntegralB,
+        const double ellipticIntegralE,
+        const double ellipticIntegralS )
 {
     double x = positionOfBodySubjectToAcceleration( 0 );
     double y = positionOfBodySubjectToAcceleration( 1 );
@@ -58,26 +91,7 @@ Eigen::Vector3d computeRingGravitationalAcceleration(
 
     double lineDensityTimesGravitationalConst = gravitationalParameter / ( 2.0 * mathematical_constants::PI * ringRadius );
 
-    double m = 4.0 * ringRadius * r / std::pow( p, 2.0 );
-    // m = k^2
-    double k = std::sqrt( std::abs( m ) );
-
     Eigen::Vector3d acceleration;
-
-    // Compute complete elliptic integrals
-    double ellipticIntegralK = boost::math::ellint_1( k );
-    double ellipticIntegralE = boost::math::ellint_2( k );
-    double ellipticIntegralB = boost::math::ellint_rf( 0.0, 1.0 - m, 1.0 ) - boost::math::ellint_rd( 0.0, 1.0 - m, 1.0 ) / 3.0;
-    double ellipticIntegralS;
-
-    if ( ellipticIntegralSFromDAndB )
-    {
-        ellipticIntegralS = ( boost::math::ellint_d( k ) - ellipticIntegralB ) / m;
-    }
-    else
-    {
-        ellipticIntegralS = ( ( 2.0 - m ) * ellipticIntegralK - 2.0 * ellipticIntegralE ) / std::pow( m, 2.0 );
-    }
 
     double Ar = 8.0 * lineDensityTimesGravitationalConst * ringRadius / std::pow( p, 3.0 ) * (
             ( std::pow( r, 2.0 ) + std::pow( z, 2.0 ) + std::pow( ringRadius, 2.0 ) * ellipticIntegralB / std::pow( q, 2.0 ) +
