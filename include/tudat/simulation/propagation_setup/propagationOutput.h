@@ -2245,6 +2245,28 @@ std::function< double( ) > getDoubleDependentVariableFunction(
                 polyhedronAccelerationModel->resetUpdatePotential( true );
                 variableFunction = [=]( ){ return polyhedronAccelerationModel->getCurrentPotential( ); };
             }
+            else if ( selectedAccelerationModelType == basic_astrodynamics::ring_gravity )
+            {
+                std::shared_ptr< gravitation::RingGravitationalAccelerationModel >
+                        ringAccelerationModel =  std::dynamic_pointer_cast<
+                                gravitation::RingGravitationalAccelerationModel >( selectedAccelerationModel );
+                ringAccelerationModel->resetUpdatePotential( true );
+                variableFunction = [=]( ){ return ringAccelerationModel->getCurrentPotential( ); };
+            }
+            else if ( selectedAccelerationModelType == basic_astrodynamics::third_body_ring_gravity )
+            {
+                std::shared_ptr< gravitation::ThirdBodyRingGravitationalAccelerationModel >
+                        thirdBodyRingAccelerationModel =  std::dynamic_pointer_cast<
+                                gravitation::ThirdBodyRingGravitationalAccelerationModel >( selectedAccelerationModel );
+
+                std::shared_ptr< gravitation::RingGravitationalAccelerationModel >
+                        ringAccelerationModel =  std::dynamic_pointer_cast<
+                                gravitation::RingGravitationalAccelerationModel >(
+                                        thirdBodyRingAccelerationModel->getAccelerationModelForBodyUndergoingAcceleration( ) );
+
+                ringAccelerationModel->resetUpdatePotential( true );
+                variableFunction = [=]( ){ return ringAccelerationModel->getCurrentPotential( ); };
+            }
             else
             {
                 std::string errorMessage = "Error, when setting up gravitational potential as dependent variable, for" +
