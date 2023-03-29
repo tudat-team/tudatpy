@@ -21,8 +21,7 @@ namespace gravitation
 double computeRingGravitationalPotential(
         const Eigen::Vector3d& positionOfBodySubjectToAcceleration,
         const double ringRadius,
-        const double gravitationalParameter,
-        const double gravitationalConstant )
+        const double gravitationalParameter )
 {
     double x = positionOfBodySubjectToAcceleration( 0 );
     double y = positionOfBodySubjectToAcceleration( 1 );
@@ -32,13 +31,13 @@ double computeRingGravitationalPotential(
 
     double p = std::sqrt( std::pow( r + ringRadius, 2.0 ) + std::pow( z, 2.0 ) );
 
-    double lineDensity = gravitationalParameter / ( 2.0 * mathematical_constants::PI * ringRadius * gravitationalConstant );
+    double lineDensityTimesGravitationalConst = gravitationalParameter / ( 2.0 * mathematical_constants::PI * ringRadius );
 
     double m = 4.0 * ringRadius * r / std::pow( p, 2.0 );
     // m = k^2
     double k = std::sqrt( std::abs( m ) );
 
-    return 4.0 * lineDensity * ringRadius * boost::math::ellint_1( k ) / p;
+    return 4.0 * lineDensityTimesGravitationalConst * ringRadius * boost::math::ellint_1( k ) / p;
 }
 
 //! Computes the gravitational acceleration of a one-dimensional ring
@@ -46,7 +45,6 @@ Eigen::Vector3d computeRingGravitationalAcceleration(
         const Eigen::Vector3d& positionOfBodySubjectToAcceleration,
         const double ringRadius,
         const double gravitationalParameter,
-        const double gravitationalConstant,
         const bool ellipticIntegralSFromDAndB )
 {
     double x = positionOfBodySubjectToAcceleration( 0 );
@@ -58,7 +56,7 @@ Eigen::Vector3d computeRingGravitationalAcceleration(
     double p = std::sqrt( std::pow( r + ringRadius, 2.0 ) + std::pow( z, 2.0 ) );
     double q = std::sqrt( std::pow( r - ringRadius, 2.0 ) + std::pow( z, 2.0 ) );
 
-    double lineDensity = gravitationalParameter / ( 2.0 * mathematical_constants::PI * ringRadius * gravitationalConstant );
+    double lineDensityTimesGravitationalConst = gravitationalParameter / ( 2.0 * mathematical_constants::PI * ringRadius );
 
     double m = 4.0 * ringRadius * r / std::pow( p, 2.0 );
     // m = k^2
@@ -81,14 +79,14 @@ Eigen::Vector3d computeRingGravitationalAcceleration(
         ellipticIntegralS = ( ( 2.0 - m ) * ellipticIntegralK - 2.0 * ellipticIntegralE ) / std::pow( m, 2.0 );
     }
 
-    double Ar = 8.0 * lineDensity * ringRadius / std::pow( p, 3.0 ) * (
+    double Ar = 8.0 * lineDensityTimesGravitationalConst * ringRadius / std::pow( p, 3.0 ) * (
             ( std::pow( r, 2.0 ) + std::pow( z, 2.0 ) + std::pow( ringRadius, 2.0 ) * ellipticIntegralB / std::pow( q, 2.0 ) +
             2.0 * ringRadius * ( r + ringRadius ) * ellipticIntegralS / std::pow( p, 2.0 ) )
             );
 
     acceleration( 0 ) = - Ar * x;
     acceleration( 1 ) = - Ar * y;
-    acceleration( 2 ) = - 4.0 * lineDensity * ringRadius * ellipticIntegralE / ( p * std::pow( q, 2.0) ) * z;
+    acceleration( 2 ) = - 4.0 * lineDensityTimesGravitationalConst * ringRadius * ellipticIntegralE / ( p * std::pow( q, 2.0) ) * z;
 
     return acceleration;
 }

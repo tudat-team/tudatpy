@@ -50,8 +50,7 @@ namespace gravitation
 double computeRingGravitationalPotential(
         const Eigen::Vector3d& positionOfBodySubjectToAcceleration,
         const double ringRadius,
-        const double gravitationalParameter,
-        const double gravitationalConstant );
+        const double gravitationalParameter );
 
 //! Computes the gravitational acceleration of a one-dimensional ring
 /*!
@@ -76,7 +75,6 @@ Eigen::Vector3d computeRingGravitationalAcceleration(
         const Eigen::Vector3d& positionOfBodySubjectToAcceleration,
         const double ringRadius,
         const double gravitationalParameter,
-        const double gravitationalConstant,
         const bool ellipticIntegralSFromDAndB = true );
 
 } // namespace gravitation
