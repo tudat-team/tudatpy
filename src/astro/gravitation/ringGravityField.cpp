@@ -40,14 +40,39 @@ void RingGravityCache::update (const Eigen::Vector3d& currentBodyFixedPosition)
         currentEllipticIntegralE_ = boost::math::ellint_2( k );
         currentEllipticIntegralB_ = boost::math::ellint_rf( 0.0, 1.0 - m, 1.0 ) - boost::math::ellint_rd( 0.0, 1.0 - m, 1.0 ) / 3.0;
 
-        if ( ellipticIntegralSFromDAndB_ )
+        // If far from 1/m singularity: compute S using the other elliptic integrals
+        if ( m > 0.01 )
         {
-            currentEllipticIntegralS_ = ( boost::math::ellint_d( k ) - currentEllipticIntegralB_ ) / m;
+            if ( ellipticIntegralSFromDAndB_ )
+            {
+                // Fukushima (2010), eq. 32
+                currentEllipticIntegralS_ = ( boost::math::ellint_d( k ) - currentEllipticIntegralB_ ) / m;
+            }
+            else
+            {
+                // Fukushima (2010), eq. 31
+                currentEllipticIntegralS_ = ( ( 2.0 - m ) * currentEllipticIntegralK_ - 2.0 * currentEllipticIntegralE_ ) / std::pow( m, 2.0 );
+            }
         }
+        // If close to 1/m singularity, compute S via Taylor series, according to Fukushima (2010), sec. A.1
         else
         {
-            currentEllipticIntegralS_ = ( ( 2.0 - m ) * currentEllipticIntegralK_ - 2.0 * currentEllipticIntegralE_ ) / std::pow( m, 2.0 );
+            // Taylor series coefficients for m in [0, 0.1]
+            std::vector< double > taylorCoefficients = {
+                    0.204012532440038310, 0.159513582234205843, 0.130422818255893004, 0.111687838140976463,
+                    0.098925188226691425, 0.089815348807960028, 0.083084759300136632, 0.077987984857306626,
+                    0.074062924745595950, 0.071009059783923539, 0.068623059119746445, 0.066762755430661757,
+                    0.065325983044110253 };
+            double m0 = 0.05;
+
+            currentEllipticIntegralS_ = 0;
+
+            for ( unsigned int taylorOrder = 0; taylorOrder <= 12; ++taylorOrder )
+            {
+                currentEllipticIntegralS_ += taylorCoefficients.at( taylorOrder ) * std::pow( m - m0, taylorOrder );
+            }
         }
+
     }
 }
 

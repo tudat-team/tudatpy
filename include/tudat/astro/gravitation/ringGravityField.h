@@ -104,7 +104,9 @@ public:
 
     /*! Update cached variables to current state.
      *
-     * Update cached variables to current state.
+     * Update cached variables to current state. Computes the various elliptic integrals according to Fukushima (2010),
+     * Eq. 31, 32, section A.1.
+     *
      * @param currentBodyFixedPosition Current body fixed position.
      */
     void update( const Eigen::Vector3d& currentBodyFixedPosition );
