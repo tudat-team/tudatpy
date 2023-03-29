@@ -101,6 +101,14 @@ std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > cre
                 nameOfBodyExertingAcceleration,
                 sumGravitationalParameters);
         break;
+    case ring_gravity:
+        accelerationModel = createRingGravityAcceleration(
+                bodyUndergoingAcceleration,
+                bodyExertingAcceleration,
+                nameOfBodyUndergoingAcceleration,
+                nameOfBodyExertingAcceleration,
+                sumGravitationalParameters);
+        break;
     default:
 
         std::string errorMessage = "Error when making gravitional acceleration model, cannot parse type " +
@@ -174,6 +182,19 @@ std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > cre
                         accelerationSettings, "", 1 ) ),
                 nameOfCentralBody );
         break;
+    case ring_gravity:
+        accelerationModel = std::make_shared< ThirdBodyRingGravitationalAccelerationModel >(
+                std::dynamic_pointer_cast< RingGravitationalAccelerationModel >(
+                    createDirectGravitationalAcceleration(
+                        bodyUndergoingAcceleration, bodyExertingAcceleration,
+                        nameOfBodyUndergoingAcceleration, nameOfBodyExertingAcceleration,
+                        accelerationSettings, "", 0 ) ),
+                std::dynamic_pointer_cast< RingGravitationalAccelerationModel >(
+                    createDirectGravitationalAcceleration(
+                        centralBody, bodyExertingAcceleration, nameOfCentralBody, nameOfBodyExertingAcceleration,
+                        accelerationSettings, "", 1 ) ),
+                nameOfCentralBody );
+        break;
     default:
 
         std::string errorMessage = "Error when making third-body gravitional acceleration model, cannot parse type " +
@@ -198,7 +219,8 @@ std::shared_ptr< AccelerationModel< Eigen::Vector3d > > createGravitationalAccel
     if( accelerationSettings->accelerationType_ != point_mass_gravity &&
             accelerationSettings->accelerationType_ != spherical_harmonic_gravity &&
             accelerationSettings->accelerationType_ != mutual_spherical_harmonic_gravity &&
-            accelerationSettings->accelerationType_ != polyhedron_gravity)
+            accelerationSettings->accelerationType_ != polyhedron_gravity &&
+            accelerationSettings->accelerationType_ != ring_gravity )
     {
         throw std::runtime_error( "Error when making gravitational acceleration, type is inconsistent" );
     }
@@ -648,6 +670,89 @@ createPolyhedronGravityAcceleration(
     return accelerationModel;
 }
 
+std::shared_ptr< gravitation::RingGravitationalAccelerationModel > createRingGravityAcceleration(
+        const std::shared_ptr< Body > bodyUndergoingAcceleration,
+        const std::shared_ptr< Body > bodyExertingAcceleration,
+        const std::string& nameOfBodyUndergoingAcceleration,
+        const std::string& nameOfBodyExertingAcceleration,
+        const bool useCentralBodyFixedFrame)
+{
+
+    // Declare pointer to return object
+    std::shared_ptr< RingGravitationalAccelerationModel > accelerationModel;
+
+    // Get pointer to gravity field of central body and cast to required type.
+    std::shared_ptr< RingGravityField > ringGravityField =
+            std::dynamic_pointer_cast< RingGravityField >(
+                bodyExertingAcceleration->getGravityFieldModel( ) );
+
+    std::shared_ptr< RotationalEphemeris> rotationalEphemeris = bodyExertingAcceleration->getRotationalEphemeris( );
+
+    if( ringGravityField == nullptr )
+    {
+        throw std::runtime_error(
+                    std::string( "Error, ring gravity field model not set when ")
+                    + " making ring gravitational acceleration of " +
+                    nameOfBodyExertingAcceleration +
+                    " on " + nameOfBodyUndergoingAcceleration );
+    }
+    else
+    {
+        if( rotationalEphemeris == nullptr )
+        {
+            throw std::runtime_error( "Warning when making ring acceleration on body " +
+                                      nameOfBodyUndergoingAcceleration + ", no rotation model found for " +
+                                      nameOfBodyExertingAcceleration );
+        }
+
+        if( rotationalEphemeris->getTargetFrameOrientation( ) != ringGravityField->getFixedReferenceFrame( ) )
+        {
+            throw std::runtime_error( "Warning when making ring acceleration on body " +
+                                      nameOfBodyUndergoingAcceleration + ", rotation model found for " +
+                                      nameOfBodyExertingAcceleration + " is incompatible, frames are: " +
+                                      rotationalEphemeris->getTargetFrameOrientation( ) + " and " +
+                                      ringGravityField->getFixedReferenceFrame( ) );
+        }
+
+        std::function< double( ) > gravitationalParameterFunction;
+
+        // Check if mutual acceleration is to be used.
+        if( useCentralBodyFixedFrame == false ||
+                bodyUndergoingAcceleration->getGravityFieldModel( ) == nullptr )
+        {
+            gravitationalParameterFunction =
+                    std::bind( &RingGravityField::getGravitationalParameter, ringGravityField );
+        }
+        else
+        {
+            // Create function returning summed gravitational parameter of the two bodies.
+            std::function< double( ) > gravitationalParameterOfBodyExertingAcceleration =
+                    std::bind( &gravitation::GravityFieldModel::getGravitationalParameter,
+                               ringGravityField );
+            std::function< double( ) > gravitationalParameterOfBodyUndergoingAcceleration =
+                    std::bind( &gravitation::GravityFieldModel::getGravitationalParameter,
+                               bodyUndergoingAcceleration->getGravityFieldModel( ) );
+            gravitationalParameterFunction =
+                    std::bind( &utilities::sumFunctionReturn< double >,
+                               gravitationalParameterOfBodyExertingAcceleration,
+                               gravitationalParameterOfBodyUndergoingAcceleration );
+        }
+
+        // Create acceleration object.
+        accelerationModel =
+                std::make_shared< RingGravitationalAccelerationModel >(
+                        std::bind( &Body::getPositionByReference, bodyUndergoingAcceleration, std::placeholders::_1 ),
+                        gravitationalParameterFunction,
+                        ringGravityField->getRingRadius( ),
+                        ringGravityField->getEllipticIntegralSFromDAndB( ),
+                        std::bind( &Body::getPositionByReference, bodyExertingAcceleration, std::placeholders::_1 ),
+                        std::bind( &Body::getCurrentRotationToGlobalFrame, bodyExertingAcceleration ),
+                        useCentralBodyFixedFrame );
+
+    }
+    return accelerationModel;
+}
+
 //! Function to create a third body central gravity acceleration model.
 std::shared_ptr< gravitation::ThirdBodyCentralGravityAcceleration >
 createThirdBodyCentralGravityAccelerationModel(
@@ -833,7 +938,7 @@ createThirdBodyPolyhedronGravityAccelerationModel(
     if( polyhedronGravityField == nullptr )
     {
         std::string errorMessage = "Error " + nameOfBodyExertingAcceleration + " does not have a polyhedron gravity field " +
-                "when making third body spherical harmonics gravity acceleration on " +
+                "when making third body polyhedron gravity acceleration on " +
                 nameOfBodyUndergoingAcceleration;
         throw std::runtime_error( errorMessage );
     }
@@ -846,6 +951,46 @@ createThirdBodyPolyhedronGravityAccelerationModel(
                     bodyUndergoingAcceleration, bodyExertingAcceleration, nameOfBodyUndergoingAcceleration,
                     nameOfBodyExertingAcceleration, 0 ) ),
             std::dynamic_pointer_cast< PolyhedronGravitationalAccelerationModel >(
+                createPolyhedronGravityAcceleration(
+                    centralBody, bodyExertingAcceleration, nameOfCentralBody,
+                    nameOfBodyExertingAcceleration, 0 ) ),
+            nameOfCentralBody );
+    }
+
+    return accelerationModel;
+}
+
+std::shared_ptr< gravitation::ThirdBodyRingGravitationalAccelerationModel > createThirdBodyRingGravityAccelerationModel(
+        const std::shared_ptr< Body > bodyUndergoingAcceleration,
+        const std::shared_ptr< Body > bodyExertingAcceleration,
+        const std::shared_ptr< Body > centralBody,
+        const std::string& nameOfBodyUndergoingAcceleration,
+        const std::string& nameOfBodyExertingAcceleration,
+        const std::string& nameOfCentralBody )
+{
+    using namespace basic_astrodynamics;
+
+    // Declare pointer to return object
+    std::shared_ptr< ThirdBodyRingGravitationalAccelerationModel > accelerationModel;
+
+    // Get pointer to gravity field of central body and cast to required type.
+    std::shared_ptr< RingGravityField > ringGravityField =
+            std::dynamic_pointer_cast< RingGravityField >( bodyExertingAcceleration->getGravityFieldModel( ) );
+    if( ringGravityField == nullptr )
+    {
+        std::string errorMessage = "Error " + nameOfBodyExertingAcceleration + " does not have a ring gravity field " +
+                "when making third body ring gravity acceleration on " +
+                nameOfBodyUndergoingAcceleration;
+        throw std::runtime_error( errorMessage );
+    }
+    else
+    {
+        accelerationModel =  std::make_shared< ThirdBodyRingGravitationalAccelerationModel >(
+            std::dynamic_pointer_cast< RingGravitationalAccelerationModel >(
+                createPolyhedronGravityAcceleration(
+                    bodyUndergoingAcceleration, bodyExertingAcceleration, nameOfBodyUndergoingAcceleration,
+                    nameOfBodyExertingAcceleration, 0 ) ),
+            std::dynamic_pointer_cast< RingGravitationalAccelerationModel >(
                 createPolyhedronGravityAcceleration(
                     centralBody, bodyExertingAcceleration, nameOfCentralBody,
                     nameOfBodyExertingAcceleration, 0 ) ),
@@ -1501,24 +1646,10 @@ std::shared_ptr< AccelerationModel< Eigen::Vector3d > > createAccelerationModel(
     switch( accelerationSettings->accelerationType_ )
     {
     case point_mass_gravity:
-        accelerationModelPointer = createGravitationalAccelerationModel(
-                    bodyUndergoingAcceleration, bodyExertingAcceleration, accelerationSettings,
-                    nameOfBodyUndergoingAcceleration, nameOfBodyExertingAcceleration,
-                    centralBody, nameOfCentralBody );
-        break;
     case spherical_harmonic_gravity:
-        accelerationModelPointer = createGravitationalAccelerationModel(
-                    bodyUndergoingAcceleration, bodyExertingAcceleration, accelerationSettings,
-                    nameOfBodyUndergoingAcceleration, nameOfBodyExertingAcceleration,
-                    centralBody, nameOfCentralBody );
-        break;
     case mutual_spherical_harmonic_gravity:
-        accelerationModelPointer = createGravitationalAccelerationModel(
-                    bodyUndergoingAcceleration, bodyExertingAcceleration, accelerationSettings,
-                    nameOfBodyUndergoingAcceleration, nameOfBodyExertingAcceleration,
-                    centralBody, nameOfCentralBody );
-        break;
     case polyhedron_gravity:
+    case ring_gravity:
         accelerationModelPointer = createGravitationalAccelerationModel(
                     bodyUndergoingAcceleration, bodyExertingAcceleration, accelerationSettings,
                     nameOfBodyUndergoingAcceleration, nameOfBodyExertingAcceleration,

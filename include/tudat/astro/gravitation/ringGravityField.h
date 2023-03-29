@@ -232,6 +232,10 @@ public:
     double getRingRadius( )
     { return ringRadius_; }
 
+    //! Function to the ellipticIntegralSFromDAndB flag
+    bool getEllipticIntegralSFromDAndB( )
+    { return ellipticIntegralSFromDAndB_; }
+
 private:
 
     // Gravitational parameter
