@@ -484,6 +484,52 @@ std::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
         }
         break;
     }
+    case one_dimensional_ring:
+    {
+        // Check whether settings for ring gravity field model are consistent with its type.
+        std::shared_ptr< RingGravityFieldSettings > ringFieldSettings =
+                std::dynamic_pointer_cast< RingGravityFieldSettings >( gravityFieldSettings );
+
+        if( ringFieldSettings == nullptr )
+        {
+            throw std::runtime_error(
+                "Error, expected ring gravity settings when making gravity field model for body " + body);
+        }
+        else if( gravityFieldVariationSettings.size( ) != 0 )
+        {
+            throw std::runtime_error( "Error, requested ring gravity field, but field variations settings are not empty." );
+        }
+        else
+        {
+            std::function< void( ) > inertiaTensorUpdateFunction = std::function< void( ) >( );
+
+            std::string associatedReferenceFrame = ringFieldSettings->getAssociatedReferenceFrame( );
+            if( associatedReferenceFrame == "" )
+            {
+                std::shared_ptr< ephemerides::RotationalEphemeris> rotationalEphemeris =
+                        bodies.at( body )->getRotationalEphemeris( );
+                if( rotationalEphemeris == nullptr )
+                {
+                    throw std::runtime_error( "Error when creating ring gravity field for body " + body +
+                                              ", neither a frame ID nor a rotational model for the body have been defined" );
+                }
+                else
+                {
+                    associatedReferenceFrame = rotationalEphemeris->getTargetFrameOrientation( );
+                }
+            }
+
+            // Create and initialize ring gravity field model.
+            gravityFieldModel = std::make_shared< RingGravityField >(
+                    ringFieldSettings->getGravitationalParameter(),
+                    ringFieldSettings->getRingRadius(),
+                    ringFieldSettings->getEllipticIntegralSFromDAndB(),
+                    associatedReferenceFrame,
+                    inertiaTensorUpdateFunction );
+        }
+
+        break;
+    }
     default:
         throw std::runtime_error(
                     "Error, did not recognize gravity field model settings type " +
