@@ -36,7 +36,20 @@ void RingGravityCache::update (const Eigen::Vector3d& currentBodyFixedPosition)
         double k = std::sqrt( std::abs( m ) );
 
         // Compute elliptic integrals
-        currentEllipticIntegralK_ = boost::math::ellint_1( k );
+
+        try
+        {
+            currentEllipticIntegralK_ = boost::math::ellint_1( k );
+        }
+        // If boost throws overflow error: occurs for r=ringRadius singularity
+        catch( std::runtime_error& caughtException )
+        {
+            throw std::runtime_error(
+                    "Error when computing ring gravity, likely as a result of trying to compute it for a point in or "
+                    "very close to the ring (singularity). Caught exception: \n" +
+                    std::string( caughtException.what( ) ) );
+        }
+
         currentEllipticIntegralE_ = boost::math::ellint_2( k );
         currentEllipticIntegralB_ = boost::math::ellint_rf( 0.0, 1.0 - m, 1.0 ) - boost::math::ellint_rd( 0.0, 1.0 - m, 1.0 ) / 3.0;
 
