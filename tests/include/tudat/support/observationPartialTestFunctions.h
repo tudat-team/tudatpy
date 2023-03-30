@@ -196,19 +196,25 @@ void testObservationPartials(
             runSimulation = false;
         }
 
-        if( observableType == observation_models::dsn_n_way_averaged_doppler && linkEndIterator->first == retransmitter )
+        if( observableType == observation_models::dsn_n_way_averaged_doppler && linkEndIterator->first != receiver )
         {
             runSimulation = false;
         }
 
         if ( runSimulation )
         {
+            std::cerr << "Reference link end: " << linkEndIterator->first << std::endl;
 
             // Evaluate nominal observation values
             std::vector<Eigen::Vector6d> vectorOfStates;
             std::vector<double> vectorOfTimes;
             Eigen::VectorXd currentObservation = observationModel->computeObservationsWithLinkEndData(
                         observationTime, linkEndIterator->first, vectorOfTimes, vectorOfStates, ancilliarySettings );
+
+            for ( unsigned int i = 0; i < vectorOfTimes.size(); ++i )
+            {
+                std::cout << "Time " << i << ": " << vectorOfTimes.at(i) << std::endl;
+            }
 
             // Calculate analytical observation partials.
             if (positionPartialScaler != nullptr) {
@@ -253,7 +259,6 @@ void testObservationPartials(
                     // Associated times for partial derivatives w.r.t. gamma not yet fully consistent (no impact on estimation)
                     if (i < 2)
                     {
-
                         BOOST_CHECK_EQUAL(analyticalObservationPartials.at( i ).size(), expectedPartialTimes.at( i ).size());
                     }
 
@@ -291,7 +296,7 @@ void testObservationPartials(
                     bodyPositionPartial.setZero();
                     for (unsigned int j = 0; j < analyticalObservationPartials.at( i ).size(); j++)
                     {
-                        bodyPositionPartial += analyticalObservationPartials.at( i ).at( j ).first.block(0, 0, ObservableSize, 3);;
+                        bodyPositionPartial += analyticalObservationPartials.at( i ).at( j ).first.block(0, 0, ObservableSize, 3);
                     }
 
                     // Test position partial

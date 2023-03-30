@@ -238,6 +238,9 @@ Eigen::Matrix< double, Eigen::Dynamic, 3 > calculatePartialWrtConstantBodyState(
 
         numericalPartialWrtBodyPosition.block( 0, i, observableSize, 1  ) = ( upPerturbedObservation - downPerturbedObservation ) /
                 ( 2.0 * bodyPositionVariation( i ) );
+
+        std::cout << "UP: " << upPerturbedObservation << " DOWN: " << downPerturbedObservation;
+        std::cout << " VAR: " << 2.0 * bodyPositionVariation( i ) << " PARTIAL: " << numericalPartialWrtBodyPosition.block( 0, i, observableSize, 1  ) << std::endl;
     }
     bodyEphemeris->updateConstantState( bodyUnperturbedState );
     bodies.at( bodyName )->recomputeStateOnNextCall( );

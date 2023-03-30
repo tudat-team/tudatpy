@@ -170,14 +170,12 @@ public:
         // Scale partials by arc duration
         for( unsigned int i = 0; i < firstPartials.size( ); i++ )
         {
-            std::cout << firstPartials[ i ].second << " " << firstPartials[ i ].first << " " << firstPartials[ i ].first * firstPartialScalingFactor << std::endl;
             differencedPartials.push_back(
                         std::make_pair( - firstPartials[ i ].first * firstPartialScalingFactor, firstPartials[ i ].second ) );
         }
 
         for( unsigned int i = 0; i < secondPartials.size( ); i++ )
         {
-            std::cout << secondPartials[ i ].second << " " << secondPartials[ i ].first << " " << secondPartials[ i ].first * secondPartialScalingFactor << std::endl;
             differencedPartials.push_back(
                         std::make_pair( secondPartials[ i ].first * secondPartialScalingFactor, secondPartials[ i ].second ) );
         }
