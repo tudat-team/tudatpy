@@ -136,7 +136,7 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
 //    std::string fileTag = "2011";
 //    std::string fileTag = "2017_ssd";
     std::string fileTag = "2017_nav";
-    std::shared_ptr< input_output::OdfRawFileContents > rawOdfFileContents =
+    std::shared_ptr< OdfRawFileContents > rawOdfFileContents =
 //            std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/dsn_trk-2-18/odf07155.dat" );
 //            std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/messenger-rawdata-odf/mess_rs_10162_163_odf.dat" );
 //            std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/messenger-rawdata-odf/mess_rs_09121_121_odf.dat" );

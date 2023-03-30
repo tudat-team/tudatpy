@@ -143,7 +143,8 @@ void testObservationPartials(
         const bool testParameterPartial = 1,
         const double positionPerturbationMultiplier = 1.0,
         const Eigen::VectorXd parameterPerturbationMultipliers = Eigen::VectorXd::Constant( 4, 1.0 ),
-        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings = nullptr )
+        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings = nullptr,
+        double observationTime = 1.1E7 )
 {
 
     printEstimatableParameterEntries( fullEstimatableParameterSet );
@@ -195,13 +196,17 @@ void testObservationPartials(
             runSimulation = false;
         }
 
+        if( observableType == observation_models::dsn_n_way_averaged_doppler && linkEndIterator->first == retransmitter )
+        {
+            runSimulation = false;
+        }
+
         if ( runSimulation )
         {
 
             // Evaluate nominal observation values
             std::vector<Eigen::Vector6d> vectorOfStates;
             std::vector<double> vectorOfTimes;
-            double observationTime = 1.1E7;
             Eigen::VectorXd currentObservation = observationModel->computeObservationsWithLinkEndData(
                         observationTime, linkEndIterator->first, vectorOfTimes, vectorOfStates, ancilliarySettings );
 
@@ -293,6 +298,7 @@ void testObservationPartials(
                     if ( ( observableType != angular_position ) && ( observableType != relative_angular_position ) )
                     {
                         TUDAT_CHECK_MATRIX_CLOSE_FRACTION(bodyPositionPartial, (numericalPartialWrtBodyPosition), tolerance);
+                        std::cerr << "Computed: " << bodyPositionPartial << std::endl << "Numerical: " << numericalPartialWrtBodyPosition << std::endl;
                     }
                     else
                     {

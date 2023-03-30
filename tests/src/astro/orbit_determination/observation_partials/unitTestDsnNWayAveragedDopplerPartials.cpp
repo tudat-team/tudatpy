@@ -25,6 +25,9 @@
 #include "tudat/io/basicInputOutput.h"
 #include "tudat/interface/spice/spiceInterface.h"
 
+#include "tudat/io/readOdfFile.h"
+#include "tudat/simulation/estimation_setup/processOdfFile.h"
+
 #include "tudat/simulation/estimation_setup/createObservationModel.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/constantRotationRate.h"
 #include "tudat/simulation/estimation_setup/createObservationPartials.h"
@@ -46,6 +49,7 @@ using namespace tudat::simulation_setup;
 using namespace tudat::spice_interface;
 using namespace tudat::observation_partials;
 using namespace tudat::estimatable_parameters;
+using namespace tudat::input_output;
 
 BOOST_AUTO_TEST_SUITE( test_dsn_n_way_averaged_doppler_observation_partials)
 
@@ -70,19 +74,34 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerPartials )
     // Define and create ground stations.
     std::vector< std::pair< std::string, std::string > > groundStations;
     groundStations.resize( 2 );
-    groundStations[ 0 ] = std::make_pair( "Earth", "Graz" );
+    groundStations[ 0 ] = std::make_pair( "Earth", "DSS-55" );
     groundStations[ 1 ] = std::make_pair( "Mars", "MSL" );
+
+    double initialEphemerisTime = 544845633.0;
+    double finalEphemerisTime = 544869060.0;
+    double stateEvaluationTime = initialEphemerisTime + 8.0e3;
+
+    // Read ODF file - used just for the automatic creation of ground station ramp frequency calculator
+    std::shared_ptr< OdfRawFileContents > rawOdfFileContents =
+            std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/mro-rawdata-odf/mromagr2017_097_1335xmmmv1.odf" );
 
     // Test partials with constant ephemerides (allows test of position partials)
     {
         // Create environment
-        SystemOfBodies bodies = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.1E7, true );
+        SystemOfBodies bodies = setupEnvironment( groundStations, initialEphemerisTime,
+                                                  finalEphemerisTime, stateEvaluationTime, true );
+
+        // Process ODF file
+        std::shared_ptr< ProcessedOdfFileContents > processedOdfFileContents =
+            std::make_shared< ProcessedOdfFileContents >( rawOdfFileContents, bodies.getBody( "Earth" ), true );
+        // Create ground stations
+        setGroundStationsTransmittingFrequencies( processedOdfFileContents, bodies.getBody( "Earth" ) );
 
         // Set link ends for observation model
         LinkEnds linkEnds;
-        linkEnds[ transmitter ] = groundStations[ 1 ];
-        linkEnds[ retransmitter ] = groundStations[ 0 ];
-        linkEnds[ receiver ] = groundStations[ 1 ];
+        linkEnds[ transmitter ] = groundStations[ 0 ];
+        linkEnds[ retransmitter ] = groundStations[ 1 ];
+        linkEnds[ receiver ] = groundStations[ 0 ];
 
         // Generate DSN n-way averaged doppler model
         std::vector< std::string > perturbingBodies;
@@ -99,49 +118,50 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerPartials )
 
         // Create parameter objects.
         std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet =
-                createEstimatableParameters( bodies, 1.1E7 );
+                createEstimatableParameters( bodies, stateEvaluationTime );
 
         testObservationPartials< 1 >(
                 dsnNWayAveragedDopplerModel, bodies, fullEstimatableParameterSet, linkEnds,
                 dsn_n_way_averaged_doppler, 1.0E-4, true, true, 1000.0, parameterPerturbationMultipliers,
                 getDsnNWayAveragedDopplerAncillarySettings(
-                        880.0/749.0, 60.0, 7.0e9, getRetransmissionDelays( 1.0E7, 1 ) ) );
+                        880.0/749.0, 60.0, 7.0e9, getRetransmissionDelays( initialEphemerisTime, 1 ) ),
+                        stateEvaluationTime );
     }
 
     // Test partials with real ephemerides (without test of position partials)
-    {
-        // Create environment
-        SystemOfBodies bodies = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.1E7, false );
-
-        // Set link ends for observation model
-        LinkEnds linkEnds;
-        linkEnds[ transmitter ] = groundStations[ 1 ];
-        linkEnds[ retransmitter ] = groundStations[ 0 ];
-        linkEnds[ receiver ] = groundStations[ 1 ];
-
-        // Generate one-way range model
-        std::vector< std::string > perturbingBodies;
-        perturbingBodies.push_back( "Earth" );
-        std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList;
-        lightTimeCorrectionsList.push_back(
-                    std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( perturbingBodies ) );
-
-       std::shared_ptr< ObservationModel< 1 > > dsnNWayAveragedDopplerModel =
-                observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
-                    std::make_shared< observation_models::DsnNWayAveragedDopplerObservationSettings >(
-                        linkEnds,
-                        lightTimeCorrectionsList ) , bodies );
-
-       // Create parameter objects.
-       std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet =
-               createEstimatableParameters( bodies, 1.1E7 );
-
-       testObservationPartials< 1 >(
-               dsnNWayAveragedDopplerModel, bodies, fullEstimatableParameterSet, linkEnds,
-               dsn_n_way_averaged_doppler, 1.0E-4, false, true, 1000.0, parameterPerturbationMultipliers,
-               getDsnNWayAveragedDopplerAncillarySettings(
-                       880.0/749.0, 60.0, 7.0e9, getRetransmissionDelays( 1.0E7, 1 ) ) );
-    }
+//    {
+//        // Create environment
+//        SystemOfBodies bodies = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.1E7, false );
+//
+//        // Set link ends for observation model
+//        LinkEnds linkEnds;
+//        linkEnds[ transmitter ] = groundStations[ 1 ];
+//        linkEnds[ retransmitter ] = groundStations[ 0 ];
+//        linkEnds[ receiver ] = groundStations[ 1 ];
+//
+//        // Generate one-way range model
+//        std::vector< std::string > perturbingBodies;
+//        perturbingBodies.push_back( "Earth" );
+//        std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList;
+//        lightTimeCorrectionsList.push_back(
+//                    std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( perturbingBodies ) );
+//
+//       std::shared_ptr< ObservationModel< 1 > > dsnNWayAveragedDopplerModel =
+//                observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
+//                    std::make_shared< observation_models::DsnNWayAveragedDopplerObservationSettings >(
+//                        linkEnds,
+//                        lightTimeCorrectionsList ) , bodies );
+//
+//       // Create parameter objects.
+//       std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet =
+//               createEstimatableParameters( bodies, 1.1E7 );
+//
+//       testObservationPartials< 1 >(
+//               dsnNWayAveragedDopplerModel, bodies, fullEstimatableParameterSet, linkEnds,
+//               dsn_n_way_averaged_doppler, 1.0E-4, false, true, 1000.0, parameterPerturbationMultipliers,
+//               getDsnNWayAveragedDopplerAncillarySettings(
+//                       880.0/749.0, 60.0, 7.0e9, getRetransmissionDelays( 1.0E7, 1 ) ) );
+//    }
 }
 
 

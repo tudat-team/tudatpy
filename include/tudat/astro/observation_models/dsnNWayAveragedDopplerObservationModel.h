@@ -61,7 +61,7 @@ inline double getDsnNWayAveragedDopplerScalingFactor(
                 linkEnds.at( observation_models::transmitter ).stationName_ )->getTransmittingFrequencyCalculator( )->
                         template getTemplatedCurrentFrequency< double >( transmissionTime );
 
-    return turnaroundRatio * frequency / integrationTime;
+    return turnaroundRatio * frequency / integrationTime / physical_constants::getSpeedOfLight< double >( );
 }
 
 template< typename ObservationScalarType = double, typename TimeType = Time >
