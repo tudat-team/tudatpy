@@ -129,39 +129,47 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerPartials )
     }
 
     // Test partials with real ephemerides (without test of position partials)
-//    {
-//        // Create environment
-//        SystemOfBodies bodies = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.1E7, false );
-//
-//        // Set link ends for observation model
-//        LinkEnds linkEnds;
-//        linkEnds[ transmitter ] = groundStations[ 1 ];
-//        linkEnds[ retransmitter ] = groundStations[ 0 ];
-//        linkEnds[ receiver ] = groundStations[ 1 ];
-//
-//        // Generate one-way range model
-//        std::vector< std::string > perturbingBodies;
-//        perturbingBodies.push_back( "Earth" );
-//        std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList;
-//        lightTimeCorrectionsList.push_back(
-//                    std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( perturbingBodies ) );
-//
-//       std::shared_ptr< ObservationModel< 1 > > dsnNWayAveragedDopplerModel =
-//                observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
-//                    std::make_shared< observation_models::DsnNWayAveragedDopplerObservationSettings >(
-//                        linkEnds,
-//                        lightTimeCorrectionsList ) , bodies );
-//
-//       // Create parameter objects.
-//       std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet =
-//               createEstimatableParameters( bodies, 1.1E7 );
-//
-//       testObservationPartials< 1 >(
-//               dsnNWayAveragedDopplerModel, bodies, fullEstimatableParameterSet, linkEnds,
-//               dsn_n_way_averaged_doppler, 1.0E-4, false, true, 1000.0, parameterPerturbationMultipliers,
-//               getDsnNWayAveragedDopplerAncillarySettings(
-//                       880.0/749.0, 60.0, 7.0e9, getRetransmissionDelays( 1.0E7, 1 ) ) );
-//    }
+    {
+        // Create environment
+        SystemOfBodies bodies = setupEnvironment( groundStations, initialEphemerisTime,
+                                                  finalEphemerisTime, stateEvaluationTime, true );
+
+        // Process ODF file
+        std::shared_ptr< ProcessedOdfFileContents > processedOdfFileContents =
+            std::make_shared< ProcessedOdfFileContents >( rawOdfFileContents, bodies.getBody( "Earth" ), true );
+        // Create ground stations
+        setGroundStationsTransmittingFrequencies( processedOdfFileContents, bodies.getBody( "Earth" ) );
+
+        // Set link ends for observation model
+        LinkEnds linkEnds;
+        linkEnds[ transmitter ] = groundStations[ 0 ];
+        linkEnds[ retransmitter ] = groundStations[ 1 ];
+        linkEnds[ receiver ] = groundStations[ 0 ];
+
+        // Generate one-way range model
+        std::vector< std::string > perturbingBodies;
+        perturbingBodies.push_back( "Earth" );
+        std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList;
+        lightTimeCorrectionsList.push_back(
+                    std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( perturbingBodies ) );
+
+       std::shared_ptr< ObservationModel< 1, double, Time > > dsnNWayAveragedDopplerModel =
+                observation_models::ObservationModelCreator< 1, double, Time >::createObservationModel(
+                    std::make_shared< observation_models::DsnNWayAveragedDopplerObservationSettings >(
+                        linkEnds,
+                        lightTimeCorrectionsList ) , bodies );
+
+       // Create parameter objects.
+       std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet =
+               createEstimatableParameters( bodies, stateEvaluationTime );
+
+       testObservationPartials< 1 >(
+               dsnNWayAveragedDopplerModel, bodies, fullEstimatableParameterSet, linkEnds,
+               dsn_n_way_averaged_doppler, 1.0E-4, false, true, 1000.0, parameterPerturbationMultipliers,
+               getDsnNWayAveragedDopplerAncillarySettings(
+                       880.0/749.0, 60.0, 7.0e9, getRetransmissionDelays( initialEphemerisTime, 1 ) ),
+                       stateEvaluationTime );
+    }
 }
 
 
