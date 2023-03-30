@@ -48,14 +48,35 @@ inline double getDsnNWayAveragedDopplerScalingFactor(
     }
 
     double transmissionTime;
-    if ( isFirstPartial )
+    if ( referenceLinkEnd == receiver )
     {
-        transmissionTime = linkEndTimes.at( 4 );
+        if ( isFirstPartial )
+        {
+            transmissionTime = linkEndTimes.at( 0 );
+        }
+        else
+        {
+            transmissionTime = linkEndTimes.at( 4 );
+        }
     }
+//    else if ( referenceLinkEnd == transmitter )
+//    {
+//        if ( isFirstPartial )
+//        {
+//            transmissionTime = linkEndTimes.at( 3 );
+//        }
+//        else
+//        {
+//            transmissionTime = linkEndTimes.at( 7 );
+//        }
+//    }
     else
     {
-        transmissionTime = linkEndTimes.at( 0 );
+        throw std::runtime_error(
+                "Error when getting DSN N-way Doppler partials scaling factor: the selected reference link end (" +
+                getLinkEndTypeString( referenceLinkEnd ) + ") is not valid." );
     }
+
 
     double frequency = bodies.getBody( linkEnds.at( observation_models::transmitter ).bodyName_ )->getGroundStation(
                 linkEnds.at( observation_models::transmitter ).stationName_ )->getTransmittingFrequencyCalculator( )->
@@ -107,6 +128,14 @@ public:
             std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
             const std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings = nullptr )
     {
+        // Check if selected reference link end is valid
+        if ( linkEndAssociatedWithTime != receiver )
+        {
+            throw std::runtime_error(
+                "Error when computing DSN N-way Doppler observables: the selected reference link end (" +
+                getLinkEndTypeString( linkEndAssociatedWithTime ) + ") is not valid." );
+        }
+
         std::vector< double > arcStartLinkEndTimes;
         std::vector< Eigen::Matrix< double, 6, 1 > > arcStartLinkEndStates;
         std::vector< double > arcEndLinkEndTimes;
