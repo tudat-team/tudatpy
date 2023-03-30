@@ -50,7 +50,7 @@ inline double getDsnNWayAveragedDopplerScalingFactor(
     double transmissionTime;
     if ( isFirstPartial )
     {
-        transmissionTime = linkEndTimes.at( 3 );
+        transmissionTime = linkEndTimes.at( 4 );
     }
     else
     {

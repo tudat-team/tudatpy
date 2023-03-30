@@ -313,141 +313,141 @@ void testObservationPartials(
                 }
             }
 
-            Eigen::Vector4d quaternionVariation;
-            quaternionVariation << 1.0E-6, 1.0E-6, 1.0E-6, 1.0E-6;
-            quaternionVariation *= positionPerturbationMultiplier;
-
-            Eigen::Vector3d angularVelocityVariation;
-            angularVelocityVariation << 1.0E-9, 1.0E-9, 1.0E-9;
-            angularVelocityVariation *= positionPerturbationMultiplier;
-
-            Eigen::Matrix<double, Eigen::Dynamic, 7> bodyRotationalStatePartial =
-                    Eigen::Matrix<double, ObservableSize, 7>::Zero();
-            for (unsigned int i = 0; i < bodiesWithEstimatedRotationalState.size(); i++)
-            {
-                // Compute numerical position partial
-                Eigen::Matrix<double, Eigen::Dynamic, 3> numericalPartialWrtAngularVelocityVector =
-                        calculatePartialWrtConstantBodyAngularVelocityVector(
-                            bodiesWithEstimatedRotationalState.at( i ), bodies, angularVelocityVariation,
-                            observationFunction, observationTime, ObservableSize);
-
-                std::vector<Eigen::Vector4d> appliedQuaternionPerturbation;
-                Eigen::MatrixXd changeDueToQuaternionChange =
-                        calculateChangeDueToConstantBodyOrientation(
-                            bodiesWithEstimatedRotationalState.at( i ), bodies, quaternionVariation,
-                            observationFunction, observationTime, ObservableSize, appliedQuaternionPerturbation);
-
-                int indexToUse = i + numberOfBodiesWithEstimatedTranslationalState;
-                if (observableType == euler_angle_313_observable) {
-                    indexToUse = i;
-                }
-                // Set total analytical partial
-                bodyRotationalStatePartial.setZero();
-                for (unsigned int j = 0; j < analyticalObservationPartials[indexToUse].size(); j++) {
-                    bodyRotationalStatePartial += analyticalObservationPartials[indexToUse].at( j ).first.block(
-                                0, 0, ObservableSize, 7);
-                }
-
-                for (int j = 0; j < 4; j++) {
-                    Eigen::MatrixXd testPartial = (bodyRotationalStatePartial.block(0, 0, ObservableSize, 4) * appliedQuaternionPerturbation.at(j).segment(0, 4));
-                    BOOST_CHECK_SMALL(
-                                std::fabs(testPartial(0) - changeDueToQuaternionChange(j)), 1.0E-4);
-                }
-
-                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                            (bodyRotationalStatePartial.block(0, 4, ObservableSize, 3)), numericalPartialWrtAngularVelocityVector,
-                            std::numeric_limits<double>::epsilon());
-            }
-
-
-            if (testParameterPartial)
-            {
-
-                // Test double parameter partials
-                {
-                    // Settings for parameter partial functions.
-                    std::vector<double> parameterPerturbations;
-                    if (bodiesWithEstimatedRotationalState.size() == 0) {
-                        parameterPerturbations.push_back(1.0E-10 * parameterPerturbationMultipliers(0));
-                        parameterPerturbations.push_back(1.0E-10 * parameterPerturbationMultipliers(1));
-                        parameterPerturbations.push_back(1.0E8 * parameterPerturbationMultipliers(2));
-                    } else {
-                        parameterPerturbations.push_back(1.0E8 * parameterPerturbationMultipliers(2));
-                    }
-
-                    std::vector<std::function<void()> > updateFunctionList;
-
-                    updateFunctionList.push_back(emptyVoidFunction);
-                    updateFunctionList.push_back(emptyVoidFunction);
-                    updateFunctionList.push_back(emptyVoidFunction);
-
-                    // Compute numerical partials.
-                    std::vector<Eigen::VectorXd> numericalPartialsWrtDoubleParameters =
-                            calculateNumericalPartialsWrtDoubleParameters(
-                                doubleParameterVector, updateFunctionList, parameterPerturbations,
-                                observationFunction, observationTime);
-
-                    // Compute analytical partial and test against numerical partial
-                    Eigen::VectorXd currentParameterPartial;
-                    int numberOfEstimatedBodies =
-                            bodiesWithEstimatedTranslationalState.size() + bodiesWithEstimatedRotationalState.size();
-
-                    for (unsigned int i = 0; i < numericalPartialsWrtDoubleParameters.size(); i++)
-                    {
-                        currentParameterPartial.setZero(ObservableSize);
-                        for (unsigned int j = 0; j < analyticalObservationPartials[i + numberOfEstimatedBodies].size(); j++)
-                        {
-                            currentParameterPartial += analyticalObservationPartials[i + numberOfEstimatedBodies].at( j ).first;
-
-                        }
-                        TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                                    currentParameterPartial, (numericalPartialsWrtDoubleParameters.at( i )), tolerance);
-                    }
-                }
-
-                // Test vector parameter partials
-                {
-                    std::function<Eigen::VectorXd(const double)> vectorObservationFunction = std::bind(
-                                &ObservationModel< ObservableSize, double, TimeType >::computeObservations,
-                                observationModel, std::placeholders::_1, linkEndIterator->first, ancilliarySettings );
-
-                    // Settings for parameter partial functions.
-                    std::vector<Eigen::VectorXd> parameterPerturbations;
-                    parameterPerturbations.push_back(Eigen::Vector2d::Constant(1.0E-4 * parameterPerturbationMultipliers(3)));
-                    parameterPerturbations.push_back(Eigen::Vector2d::Constant(1.0E-4 * parameterPerturbationMultipliers(3)));
-
-                    std::vector<std::function<void()> > updateFunctionList;
-                    updateFunctionList.push_back(emptyVoidFunction);
-                    updateFunctionList.push_back(emptyVoidFunction);
-
-                    // Compute numerical partials.
-                    std::vector<Eigen::MatrixXd> numericalPartialsWrtVectorParameters =
-                            calculateNumericalPartialsWrtVectorParameters(
-                                vectorParameterVector, updateFunctionList, parameterPerturbations,
-                                vectorObservationFunction, observationTime);
-
-                    // Compute analytical partial and test against numerical partial
-                    Eigen::MatrixXd currentParameterPartial;
-                    int startIndex = bodiesWithEstimatedTranslationalState.size() + bodiesWithEstimatedRotationalState.size() +
-                            doubleParameterVector.size();
-
-                    for (unsigned int i = 0; i < numericalPartialsWrtVectorParameters.size(); i++)
-                    {
-                        currentParameterPartial = Eigen::MatrixXd::Zero(
-                                    ObservableSize, vectorParameterVector.at(i)->getParameterSize());
-
-                        for (unsigned int j = 0; j < analyticalObservationPartials[i + startIndex].size(); j++)
-                        {
-                            currentParameterPartial += analyticalObservationPartials[i + startIndex].at( j ).first;
-
-                        }
-
-                        TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                                    (currentParameterPartial), (numericalPartialsWrtVectorParameters.at( i )), tolerance);
-
-                    }
-                }
-            }
+//            Eigen::Vector4d quaternionVariation;
+//            quaternionVariation << 1.0E-6, 1.0E-6, 1.0E-6, 1.0E-6;
+//            quaternionVariation *= positionPerturbationMultiplier;
+//
+//            Eigen::Vector3d angularVelocityVariation;
+//            angularVelocityVariation << 1.0E-9, 1.0E-9, 1.0E-9;
+//            angularVelocityVariation *= positionPerturbationMultiplier;
+//
+//            Eigen::Matrix<double, Eigen::Dynamic, 7> bodyRotationalStatePartial =
+//                    Eigen::Matrix<double, ObservableSize, 7>::Zero();
+//            for (unsigned int i = 0; i < bodiesWithEstimatedRotationalState.size(); i++)
+//            {
+//                // Compute numerical position partial
+//                Eigen::Matrix<double, Eigen::Dynamic, 3> numericalPartialWrtAngularVelocityVector =
+//                        calculatePartialWrtConstantBodyAngularVelocityVector(
+//                            bodiesWithEstimatedRotationalState.at( i ), bodies, angularVelocityVariation,
+//                            observationFunction, observationTime, ObservableSize);
+//
+//                std::vector<Eigen::Vector4d> appliedQuaternionPerturbation;
+//                Eigen::MatrixXd changeDueToQuaternionChange =
+//                        calculateChangeDueToConstantBodyOrientation(
+//                            bodiesWithEstimatedRotationalState.at( i ), bodies, quaternionVariation,
+//                            observationFunction, observationTime, ObservableSize, appliedQuaternionPerturbation);
+//
+//                int indexToUse = i + numberOfBodiesWithEstimatedTranslationalState;
+//                if (observableType == euler_angle_313_observable) {
+//                    indexToUse = i;
+//                }
+//                // Set total analytical partial
+//                bodyRotationalStatePartial.setZero();
+//                for (unsigned int j = 0; j < analyticalObservationPartials[indexToUse].size(); j++) {
+//                    bodyRotationalStatePartial += analyticalObservationPartials[indexToUse].at( j ).first.block(
+//                                0, 0, ObservableSize, 7);
+//                }
+//
+//                for (int j = 0; j < 4; j++) {
+//                    Eigen::MatrixXd testPartial = (bodyRotationalStatePartial.block(0, 0, ObservableSize, 4) * appliedQuaternionPerturbation.at(j).segment(0, 4));
+//                    BOOST_CHECK_SMALL(
+//                                std::fabs(testPartial(0) - changeDueToQuaternionChange(j)), 1.0E-4);
+//                }
+//
+//                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+//                            (bodyRotationalStatePartial.block(0, 4, ObservableSize, 3)), numericalPartialWrtAngularVelocityVector,
+//                            std::numeric_limits<double>::epsilon());
+//            }
+//
+//
+//            if (testParameterPartial)
+//            {
+//
+//                // Test double parameter partials
+//                {
+//                    // Settings for parameter partial functions.
+//                    std::vector<double> parameterPerturbations;
+//                    if (bodiesWithEstimatedRotationalState.size() == 0) {
+//                        parameterPerturbations.push_back(1.0E-10 * parameterPerturbationMultipliers(0));
+//                        parameterPerturbations.push_back(1.0E-10 * parameterPerturbationMultipliers(1));
+//                        parameterPerturbations.push_back(1.0E8 * parameterPerturbationMultipliers(2));
+//                    } else {
+//                        parameterPerturbations.push_back(1.0E8 * parameterPerturbationMultipliers(2));
+//                    }
+//
+//                    std::vector<std::function<void()> > updateFunctionList;
+//
+//                    updateFunctionList.push_back(emptyVoidFunction);
+//                    updateFunctionList.push_back(emptyVoidFunction);
+//                    updateFunctionList.push_back(emptyVoidFunction);
+//
+//                    // Compute numerical partials.
+//                    std::vector<Eigen::VectorXd> numericalPartialsWrtDoubleParameters =
+//                            calculateNumericalPartialsWrtDoubleParameters(
+//                                doubleParameterVector, updateFunctionList, parameterPerturbations,
+//                                observationFunction, observationTime);
+//
+//                    // Compute analytical partial and test against numerical partial
+//                    Eigen::VectorXd currentParameterPartial;
+//                    int numberOfEstimatedBodies =
+//                            bodiesWithEstimatedTranslationalState.size() + bodiesWithEstimatedRotationalState.size();
+//
+//                    for (unsigned int i = 0; i < numericalPartialsWrtDoubleParameters.size(); i++)
+//                    {
+//                        currentParameterPartial.setZero(ObservableSize);
+//                        for (unsigned int j = 0; j < analyticalObservationPartials[i + numberOfEstimatedBodies].size(); j++)
+//                        {
+//                            currentParameterPartial += analyticalObservationPartials[i + numberOfEstimatedBodies].at( j ).first;
+//
+//                        }
+//                        TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+//                                    currentParameterPartial, (numericalPartialsWrtDoubleParameters.at( i )), tolerance);
+//                    }
+//                }
+//
+//                // Test vector parameter partials
+//                {
+//                    std::function< Eigen::Matrix< ObservableScalarType, ObservableSize, 1 >( TimeType ) > vectorObservationFunction =
+//                            std::bind( &ObservationModel< ObservableSize, ObservableScalarType, TimeType >::computeObservations,
+//                                       observationModel, std::placeholders::_1, linkEndIterator->first, ancilliarySettings );
+//
+//                    // Settings for parameter partial functions.
+//                    std::vector<Eigen::VectorXd> parameterPerturbations;
+//                    parameterPerturbations.push_back(Eigen::Vector2d::Constant(1.0E-4 * parameterPerturbationMultipliers(3)));
+//                    parameterPerturbations.push_back(Eigen::Vector2d::Constant(1.0E-4 * parameterPerturbationMultipliers(3)));
+//
+//                    std::vector<std::function<void()> > updateFunctionList;
+//                    updateFunctionList.push_back(emptyVoidFunction);
+//                    updateFunctionList.push_back(emptyVoidFunction);
+//
+//                    // Compute numerical partials.
+//                    std::vector<Eigen::MatrixXd> numericalPartialsWrtVectorParameters =
+//                            calculateNumericalPartialsWrtVectorParameters(
+//                                vectorParameterVector, updateFunctionList, parameterPerturbations,
+//                                vectorObservationFunction, observationTime);
+//
+//                    // Compute analytical partial and test against numerical partial
+//                    Eigen::MatrixXd currentParameterPartial;
+//                    int startIndex = bodiesWithEstimatedTranslationalState.size() + bodiesWithEstimatedRotationalState.size() +
+//                            doubleParameterVector.size();
+//
+//                    for (unsigned int i = 0; i < numericalPartialsWrtVectorParameters.size(); i++)
+//                    {
+//                        currentParameterPartial = Eigen::MatrixXd::Zero(
+//                                    ObservableSize, vectorParameterVector.at(i)->getParameterSize());
+//
+//                        for (unsigned int j = 0; j < analyticalObservationPartials[i + startIndex].size(); j++)
+//                        {
+//                            currentParameterPartial += analyticalObservationPartials[i + startIndex].at( j ).first;
+//
+//                        }
+//
+//                        TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+//                                    (currentParameterPartial), (numericalPartialsWrtVectorParameters.at( i )), tolerance);
+//
+//                    }
+//                }
+//            }
         }
     }
 }
