@@ -115,6 +115,8 @@ public:
         return transmittingStationId_;
     }
 
+    void printDataBlock( std::ofstream& outFile );
+
 private:
 
     unsigned int integerRampStartTime_; // sec
@@ -141,6 +143,11 @@ public:
     OdfDataSpecificBlock( int dataType_ ): dataType_( dataType_ ){ }
 
     virtual ~OdfDataSpecificBlock( ){ }
+
+    virtual void printDataBlock( std::ofstream& outFile )
+    {
+        outFile << "Printing not implemented for current type";
+    }
 
     int dataType_;
 };
@@ -288,6 +295,8 @@ public:
     {
         return transmittingStationUplinkDelay_ * 1.0e-9;
     }
+
+    void printDataBlock( std::ofstream& outFile );
 
 private:
 
@@ -439,6 +448,8 @@ public:
     int referenceBandId_;
     int validity_;
 
+    void printDataBlock( std::ofstream& outFile );
+
 private:
 
     uint32_t integerTimeTag_; // sec
@@ -462,6 +473,13 @@ public:
     std::shared_ptr< OdfCommonDataBlock > getCommonDataBlock( )
     {
         return commonDataBlock_;
+    }
+
+    void printDataBlock( std::ofstream& outFile )
+    {
+        commonDataBlock_->printDataBlock( outFile );
+        observableSpecificDataBlock_->printDataBlock( outFile );
+        outFile << std::endl;
     }
 
 private:
@@ -515,6 +533,8 @@ public:
     {
         return clockOffsetBlocks_;
     }
+
+    void writeOdfToTextFile( const std::string& odfTextFile );
 
 private:
 

@@ -6,6 +6,8 @@
  *    under the terms of the Modified BSD license. You should have received
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
+ *
+ *    References: 820-013, TRK-2-18 Tracking System Interfaces Orbit Data File Interface, Revision E, 2008, JPL/DSN
  */
 
 #ifndef TUDAT_PROCESSODFFILE_H
@@ -30,10 +32,26 @@ namespace tudat
 namespace observation_models
 {
 
+/*! Get the observable type associated with a given ODF data ID.
+ *
+ * @param odfId ODF data ID
+ * @return Observable type
+ */
 observation_models::ObservableType getObservableTypeForOdfId( const int odfId );
 
+/*! Get the frequency band associated with a given ODF frequency band ID.
+ *
+ * @param odfId ODF frequency band ID
+ * @return Frequency band
+ */
 observation_models::FrequencyBands getFrequencyBandForOdfId ( const int odfId );
 
+/*! Get the ground station name associated with a given ODF network and station ID.
+ *
+ * @param networkId ODF network ID
+ * @param stationId ODF ground station ID
+ * @return Ground station name
+ */
 std::string getStationNameFromStationId ( const int networkId, const int stationId );
 
 class ProcessedOdfFileSingleLinkData
@@ -262,11 +280,6 @@ observation_models::LinkEnds getLinkEndsFromOdfBlock (
         const std::shared_ptr< input_output::OdfDataBlock > dataBlock,
         std::string spacecraftName );
 
-std::shared_ptr< ProcessedOdfFileContents > processOdfFileContents(
-        const std::shared_ptr< input_output::OdfRawFileContents > rawOdfData,
-        std::string spacecraftName = "",
-        bool verbose = true );
-
 template< typename TimeType = double >
 observation_models::ObservationAncilliarySimulationSettings createOdfAncillarySettings(
         std::shared_ptr< ProcessedOdfFileSingleLinkData > odfDataContents,
@@ -303,9 +316,6 @@ observation_models::ObservationAncilliarySimulationSettings createOdfAncillarySe
 
         if ( currentObservableType == observation_models::dsn_n_way_averaged_doppler )
         {
-//            std::cout << "Delays (" << odfDataContents->processedObservationTimes_.at( dataIndex ) << "): " <<
-//                dopplerDataBlock->transmitterUplinkDelays_.at( dataIndex ) << " " << 0.0 << " " <<
-//                dopplerDataBlock->receiverDownlinkDelays_.at( dataIndex ) << std::endl;
             ancillarySettings.setAncilliaryDoubleVectorData(
                 observation_models::retransmission_delays,  std::vector< double >{
                     dopplerDataBlock->transmitterUplinkDelays_.at( dataIndex ), 0.0,

@@ -172,6 +172,14 @@ BOOST_AUTO_TEST_CASE( testSingleOdfFileReader )
     // Check number of ramp blocks
     BOOST_CHECK_EQUAL ( rawOdfContents->getRampBlocks( ).at( 63 ).size( ), 2331 - 2233 - 1 );
 
+    // Write to txt file
+    rawOdfContents->writeOdfToTextFile("/Users/pipas/tudatpy-testing/odf07155_out.txt");
+}
+
+BOOST_AUTO_TEST_CASE( testProcessSingleOdfFile )
+{
+
+
 }
 
     //   boost::shared_ptr< orbit_determination::ProcessedOdfFileContents > odfContents =
