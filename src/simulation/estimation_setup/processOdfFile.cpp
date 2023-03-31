@@ -28,12 +28,12 @@ observation_models::ObservableType getObservableTypeForOdfId(
 //    case 11:
 //        observableType = observation_models::dsn_one_way_averaged_doppler;
 //        break;
-    case 12:
-        observableType = observation_models::dsn_n_way_averaged_doppler;
-        break;
-//    case 13:
+//    case 12:
 //        observableType = observation_models::dsn_n_way_averaged_doppler;
 //        break;
+    case 13:
+        observableType = observation_models::dsn_n_way_averaged_doppler;
+        break;
     default:
         throw std::runtime_error( "Error when getting observable type for ODF ID, ID: " +
                                   std::to_string( odfId ) + " not recognized." );
@@ -532,6 +532,10 @@ void ProcessedOdfFileContents::extractRawOdfOrbitData(
             processedDataBlocks_[ currentObservableType ][ linkEnds ]->receivingStation_ =
                     getStationNameFromStationId( 0, rawDataBlocks.at( i )->getCommonDataBlock( )->receivingStationId_ );
             processedDataBlocks_[ currentObservableType ][ linkEnds ]->observableType_ = currentObservableType;
+
+            std::cout << processedDataBlocks_[ currentObservableType ][ linkEnds ]->observableType_ << ": " <<
+                processedDataBlocks_[ currentObservableType ][ linkEnds ]->transmittingStation_ << " " <<
+                processedDataBlocks_[ currentObservableType ][ linkEnds ]->receivingStation_ << std::endl;
         }
 
         addOdfRawDataBlockToProcessedData(

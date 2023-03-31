@@ -45,6 +45,16 @@ OdfClockOffsetBlock::OdfClockOffsetBlock( const std::bitset< 288 > dataBits )
             fractionalEndTime_ );
 }
 
+void OdfRampBlock::printDataBlock( std::ofstream& outFile )
+{
+    outFile << std::setfill(' ') << std::setw(3) << transmittingStationId_ << " ";
+    outFile << std::setfill(' ') << std::setw(20) << std::setprecision(9) << getRampStartTime() << " ";
+    outFile << std::setfill(' ') << std::setw(20) << std::setprecision(9) << getRampRate() << " ";
+    outFile << std::setfill(' ') << std::setw(20) << std::setprecision(9) << getRampStartFrequency() << " ";
+    outFile << std::setfill(' ') << std::setw(20) << std::setprecision(9) << getRampEndTime() << " ";
+    outFile << std::endl;
+}
+
 
 OdfDDodDataBlock::OdfDDodDataBlock( const std::bitset< 128 > specificDataBits, const int dDodDataType ):
     OdfDataSpecificBlock( dDodDataType )
@@ -127,6 +137,17 @@ OdfDopplerDataBlock::OdfDopplerDataBlock(
             reservedSegment_,
             compressionTime_,
             transmittingStationUplinkDelay_ );
+}
+
+void OdfDopplerDataBlock::printDataBlock( std::ofstream& outFile )
+{
+    outFile << std::setfill(' ') << std::setw(2) << receiverChannel_ << " ";
+    outFile << std::setfill(' ') << std::setw(3) << spacecraftId_ << " ";
+    outFile << std::setfill(' ') << std::setw(2) << receiverExciterFlag_ << " ";
+    outFile << std::setfill(' ') << std::setw(14) << std::setprecision(3) << getReferenceFrequency() << " ";
+    outFile << std::setfill(' ') << std::setw(7) << reservedSegment_ << " ";
+    outFile << std::setfill(' ') << std::setw(7) << std::setprecision(3) << getCompressionTime() << " ";
+    outFile << std::setfill(' ') << std::setw(7) << std::setprecision(3) << getTransmittingStationUplinkDelay() << " ";
 }
 
 OdfSequentialRangeDataBlock::OdfSequentialRangeDataBlock( const std::bitset< 128 > dataBits ):
@@ -250,6 +271,22 @@ OdfCommonDataBlock::OdfCommonDataBlock( const std::bitset< 160 > commonDataBits 
             validity_ );
 }
 
+void OdfCommonDataBlock::printDataBlock( std::ofstream& outFile )
+{
+    outFile << std::fixed << std::setprecision(3) << getObservableTime() << " ";
+    outFile << std::setfill(' ') << std::setw(11) << getReceivingStationDownlinkDelay() << " ";
+    outFile << std::setfill(' ') << std::setw(20) << std::setprecision(9) << getObservableValue() << " ";
+    outFile << std::setfill(' ') << std::setw(2) << formatId_ << " ";
+    outFile << std::setfill(' ') << std::setw(4) << receivingStationId_ << " ";
+    outFile << std::setfill(' ') << std::setw(4) << transmittingStationId_ << " ";
+    outFile << std::setfill(' ') << std::setw(3) << transmittingStationNetworkId_ << " ";
+    outFile << std::setfill(' ') << std::setw(5) << dataType_ << " ";
+    outFile << std::setfill(' ') << std::setw(3) << downlinkBandId_ << " ";
+    outFile << std::setfill(' ') << std::setw(2) << uplinkBandId_ << " ";
+    outFile << std::setfill(' ') << std::setw(2) << referenceBandId_ << " ";
+    outFile << std::setfill(' ') << std::setw(1) << validity_ << " ";
+}
+
 OdfDataBlock::OdfDataBlock( std::bitset< 288 > dataBits )
 {
     // Extract bitset with common data
@@ -359,6 +396,78 @@ void OdfRawFileContents::parseHeader( std::bitset< 288 > dataBits,
             throw std::runtime_error( "Error when reading ODF file, header file inconsistent: filler items are not zero." );
         }
     }
+}
+
+void OdfRawFileContents::writeOdfToTextFile( const std::string& odfTextFile )
+{
+    std::ofstream dataFile( odfTextFile );
+    if ( !dataFile.good( ) )
+    {
+        throw std::runtime_error( "Error when opening output ODF text file." );
+    }
+
+    dataFile << "================================================" << std::endl;
+    dataFile << "---Label Group:        Header Record------------" << std::endl;
+    dataFile << "      Prime_Key    Second_ Key    Log_Rec_Len   Gp_St_Pkt_No" << std::endl;
+    dataFile << "            101              0              1              0" << std::endl;
+    dataFile << "-----------------------Data---------------------" << std::endl;
+    dataFile << "  SystemID  ProgrmID  SCID  CrDate  CrTime  FRefDate  FRefTime" << std::endl;
+    dataFile << "  " << systemId_ << "  " << programId_ << "   " << spacecraftId_ << "  " << fileCreationDate_ << "  " << fileCreationTime_ <<
+        "  " << fileReferenceDate_ << "    " << std::setw(6) << std::setfill('0') << fileReferenceTime_ << std::endl;
+
+    dataFile << "================================================" << std::endl;
+    dataFile << "---Identfier Group:    Header Record------------" << std::endl;
+    dataFile << "      Prime_Key    Second_ Key    Log_Rec_Len   Gp_St_Pkt_No" << std::endl;
+    dataFile << "            107              0              1              2" << std::endl;
+
+    dataFile << "-----------------------Data---------------------" << std::endl;
+    dataFile << "   Item_1    Item_2          Item_3" << std::endl;
+    dataFile << "  " << identifierGroupStringA_ << "  " << identifierGroupStringB_ << "   " << identifierGroupStringC_ << std::endl;
+
+    dataFile << "================================================" << std::endl;
+    dataFile << "---Orbit Data Group:   Header Record------------" << std::endl;
+    dataFile << "      Prime_Key    Second_ Key    Log_Rec_Len   Gp_St_Pkt_No" << std::endl;
+    dataFile << "            109              0              1              4" << std::endl;
+
+    dataFile << "-----------------------Data---------------------" << std::endl;
+    dataFile << "   Time Tag     dl_delay          Observable   Fmt  DSSr DSSt Net D_Typ DL UL Ex V 15  16 17 Reference Freq Item_20 Item_21 Item_22" << std::endl;
+
+
+    int packetCounter = 4;
+    for ( unsigned int i = 0; i < dataBlocks_.size(); ++i )
+    {
+        ++packetCounter;
+        dataBlocks_.at( i )->printDataBlock( dataFile );
+    }
+
+    for ( auto it = rampBlocks_.begin(); it != rampBlocks_.end(); ++it )
+    {
+        ++packetCounter;
+        dataFile << "================================================" << std::endl;
+        dataFile << "---Ramp Group:         Header Record------------" << std::endl;
+        dataFile << "      Prime_Key    Second_ Key    Log_Rec_Len   Gp_St_Pkt_No" << std::endl;
+        dataFile << "             -1    " << std::setw(11) << it->first << "              1   "
+            << std::setw(12) << packetCounter << std::endl;
+        dataFile << "-----------------------Data---------------------" << std::endl;
+        dataFile << "DSS   Ramp Start Time         Ramp Rate         Start Frequency        Ramp End Time" << std::endl;
+
+        for ( unsigned int i = 0; i < it->second.size(); ++i )
+        {
+            ++packetCounter;
+            it->second.at( i )->printDataBlock( dataFile );
+        }
+    }
+
+    if ( eofHeaderFound_ )
+    {
+        ++packetCounter;
+        dataFile << "================================================" << std::endl;
+        dataFile << "      Prime_Key    Second_ Key    Log_Rec_Len   Gp_St_Pkt_No" << std::endl;
+        dataFile << "             -1              0              0   " << std::setw(12) << packetCounter << std::endl;
+        dataFile << "-----------------------Data---------------------" << std::endl;
+    }
+    
+    dataFile.close();
 }
 
 void OdfRawFileContents::parseFileLabelData(std::bitset< 288 > dataBits,
