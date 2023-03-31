@@ -24,6 +24,25 @@ namespace tudat
 namespace observation_models
 {
 
+/*! Calculate the scaling factor for computing partials via DifferencedObservablePartial.
+ *
+ * Calculate the scaling factor for computing partials via DifferencedObservablePartial, for DSN n-way Doppler
+ * observations. The scaling factor depends on whether it is the first or the second partial being calculated. In
+ * DifferencedObservablePartial, the first partial is multiplied by -1, hence here corresponds to the start of the
+ * integration interval. The second partial is multiplied by +1, hence here corresponds to the end of the
+ * integration interval.
+ *
+ * @param bodies System of bodies
+ * @param linkEnds Map of the linkEnds defining the observation model
+ * @param referenceLinkEnd Link end at which given time is valid, i.e. link end for which associated time
+ *      is kept constant (to input value)
+ * @param linkEndStates List of states at each link end during observation.
+ * @param linkEndTimes List of times at each link end during observation.
+ * @param ancillarySettings Observation ancillary simulation settings.
+ * @param isFirstPartial Boolean indicating whether the scaling factor should be computed for the first (true) or
+ *      second (false) partial.
+ * @return Scaling factor
+ */
 inline double getDsnNWayAveragedDopplerScalingFactor(
         const simulation_setup::SystemOfBodies& bodies,
         const LinkEnds& linkEnds,
@@ -91,6 +110,15 @@ class DsnNWayAveragedDopplerObservationModel: public ObservationModel< 1, Observ
 public:
     typedef Eigen::Matrix< ObservationScalarType, 6, 1 > StateType;
 
+    /*! Constructor.
+     *
+     * @param linkEnds Map of the linkEnds defining the observation model
+     * @param arcStartObservationModel N-way range observation model associated with the start of the Doppler integration time.
+     * @param arcEndObservationModel N-way range observation model associated with the end of the Doppler integration time.
+     * @param bodyWithGroundStations Body object where the ground stations are located.
+     * @param observationBiasCalculator Object for calculating (system-dependent) errors in the
+     *  observable, i.e. deviations from the physically ideal observable between reference points (default none).
+     */
     DsnNWayAveragedDopplerObservationModel(
             const LinkEnds& linkEnds,
             const std::shared_ptr< NWayRangeObservationModel< ObservationScalarType, TimeType > > arcStartObservationModel,
@@ -121,6 +149,19 @@ public:
     //! Destructor
     ~DsnNWayAveragedDopplerObservationModel( ) { }
 
+    /*! Function to compute DSN n-way Doppler observation at given time.
+     *
+     * Function to compute DSN n-way Doppler observation at given time. Only implemented for receiver as the
+     * linkEndAssociatedWithTime.
+     *
+     * @param time Time at which observable is to be evaluated.
+     * @param linkEndAssociatedWithTime Link end at which given time is valid, i.e. link end for which associated time
+     *  is kept constant (to input value)
+     * @param linkEndTimes List of times at each link end during observation.
+     * @param linkEndStates List of states at each link end during observation.
+     * @param ancillarySettings Observation ancillary simulation settings.
+     * @return Observation value.
+     */
     Eigen::Matrix< ObservationScalarType, 1, 1 > computeIdealObservationsWithLinkEndData(
             const TimeType time,
             const LinkEndType linkEndAssociatedWithTime,
@@ -196,11 +237,13 @@ public:
         return observation;
     }
 
+    // Function to retrieve the arc end observation model
     std::shared_ptr< NWayRangeObservationModel< ObservationScalarType, TimeType > > getArcEndObservationModel( )
     {
         return arcEndObservationModel_;
     }
 
+    // Function to retrieve the arc start observation model
     std::shared_ptr< NWayRangeObservationModel< ObservationScalarType, TimeType > > getArcStartObservationModel( )
     {
         return arcStartObservationModel_;
@@ -208,12 +251,16 @@ public:
 
 private:
 
+    // N-way range observation model associated with the start of the Doppler integration time.
     std::shared_ptr< NWayRangeObservationModel< ObservationScalarType, TimeType > > arcStartObservationModel_;
 
+    // N-way range observation model associated with the end of the Doppler integration time.
     std::shared_ptr< NWayRangeObservationModel< ObservationScalarType, TimeType > > arcEndObservationModel_;
 
+    // Body object where the ground stations are located.
     std::shared_ptr< simulation_setup::Body > bodyWithGroundStations_;
 
+    // Number of link ends
     unsigned int numberOfLinkEnds_;
 };
 
