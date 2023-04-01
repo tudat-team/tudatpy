@@ -131,8 +131,8 @@ public:
 };
 
 
-bool compareByStartDate( std::shared_ptr< input_output::OdfRawFileContents > rawOdfData1,
-                         std::shared_ptr< input_output::OdfRawFileContents > rawOdfData2 );
+bool compareRawOdfDataByStartDate( std::shared_ptr< input_output::OdfRawFileContents > rawOdfData1,
+                                   std::shared_ptr< input_output::OdfRawFileContents > rawOdfData2 );
 
 class ProcessedOdfFileContents
 {
