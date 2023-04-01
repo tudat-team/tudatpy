@@ -143,6 +143,8 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
 //            std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/messenger-rawdata-odf/mess_rs_11336_2100_odf.dat" );
             std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/mro-rawdata-odf/mromagr2017_097_1335xmmmv1.odf" );
 
+//    rawOdfFileContents->writeOdfToTextFile("/Users/pipas/tudatpy-testing/mromagr2017_097_1335xmmmv1.txt");
+
     std::cout << "Start time from 1950 UTC: " << rawOdfFileContents->getDataBlocks( ).front()->getCommonDataBlock( )->getObservableTime() << std::endl;
     std::cout << "End time from 1950 UTC: " << rawOdfFileContents->getDataBlocks( ).back()->getCommonDataBlock( )->getObservableTime() << std::endl;
 

@@ -18,8 +18,7 @@ namespace tudat
 namespace observation_models
 {
 
-observation_models::ObservableType getObservableTypeForOdfId(
-        const int odfId )
+observation_models::ObservableType getObservableTypeForOdfId( const int odfId )
 {
     observation_models::ObservableType observableType;
 
@@ -28,9 +27,9 @@ observation_models::ObservableType getObservableTypeForOdfId(
 //    case 11:
 //        observableType = observation_models::dsn_one_way_averaged_doppler;
 //        break;
-//    case 12:
-//        observableType = observation_models::dsn_n_way_averaged_doppler;
-//        break;
+    case 12:
+        observableType = observation_models::dsn_n_way_averaged_doppler;
+        break;
     case 13:
         observableType = observation_models::dsn_n_way_averaged_doppler;
         break;
@@ -465,6 +464,39 @@ std::vector< double > ProcessedOdfFileContents::computeObservationTimesTdbFromJ2
         return observationTimesTdbFromJ2000;
     }
 
+bool compareByStartDate( std::shared_ptr< input_output::OdfRawFileContents > rawOdfData1,
+                         std::shared_ptr< input_output::OdfRawFileContents > rawOdfData2 )
+{
+    if ( rawOdfData1->getDataBlocks( ).at( 0 )->getCommonDataBlock( )->getObservableTime( ) <
+        rawOdfData2->getDataBlocks( ).at( 0 )->getCommonDataBlock( )->getObservableTime( ) )
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+void ProcessedOdfFileContents::sortAndValidateOdfDataVector(
+        std::vector< std::shared_ptr< input_output::OdfRawFileContents > >& rawOdfDataVector )
+{
+    unsigned int spacecraftId = rawOdfDataVector.front( )->spacecraftId_;
+
+    for ( unsigned int i = 0; i < rawOdfDataVector.size( ); ++i )
+    {
+        // Check if spacecraft ID is valid
+        if ( rawOdfDataVector.at( i )->spacecraftId_ != spacecraftId )
+        {
+            throw std::runtime_error( "Error when creating processed ODF object from raw data: multiple spacecraft IDs"
+                                      "found (" + std::to_string( spacecraftId ) + " and " +
+                                      std::to_string( rawOdfDataVector.at( i )->spacecraftId_ ) + ")." );
+        }
+    }
+
+    std::stable_sort( rawOdfDataVector.begin( ), rawOdfDataVector.end( ), &compareByStartDate );
+}
+
 void ProcessedOdfFileContents::extractRawOdfOrbitData(
         std::shared_ptr< input_output::OdfRawFileContents > rawOdfData )
 {
@@ -515,6 +547,32 @@ void ProcessedOdfFileContents::extractRawOdfOrbitData(
         // Create new data object, if required
         if( createNewObject )
         {
+            std::string transmittingStation = getStationNameFromStationId(
+                    rawDataBlocks.at( i )->getCommonDataBlock( )->transmittingStationNetworkId_,
+                    rawDataBlocks.at( i )->getCommonDataBlock( )->transmittingStationId_ );
+            std::string receivingStation = getStationNameFromStationId( 0, rawDataBlocks.at( i )->getCommonDataBlock( )->receivingStationId_ );
+
+            // Check if ground stations are in ramp tables
+            if( currentObservableType == observation_models::dsn_one_way_averaged_doppler ||
+                    currentObservableType == observation_models::dsn_n_way_averaged_doppler )
+            {
+                if ( rampInterpolators_.count( transmittingStation ) == 0 || rampInterpolators_.count( receivingStation ) == 0 )
+                {
+                    for ( std::string station : { transmittingStation, receivingStation } )
+                    {
+                        if ( verbose_ && rampInterpolators_.count( station ) == 0 &&
+                            std::count( ignoredGroundStations_.begin( ), ignoredGroundStations_.end( ), station ) == 0 )
+                        {
+                            ignoredGroundStations_.push_back( station );
+                            std::cerr << "Warning: ground station " << station << " not available in ramp tables," <<
+                                " ignoring corresponding data." << std::endl;
+                        }
+                    }
+
+                    continue;
+                }
+            }
+
             if( currentObservableType == observation_models::dsn_one_way_averaged_doppler ||
                     currentObservableType == observation_models::dsn_n_way_averaged_doppler )
             {
@@ -526,11 +584,8 @@ void ProcessedOdfFileContents::extractRawOdfOrbitData(
                     std::to_string( currentObservableType ) + ") is not implemented.");
             }
 
-            processedDataBlocks_[ currentObservableType ][ linkEnds ]->transmittingStation_ =
-                    getStationNameFromStationId( rawDataBlocks.at( i )->getCommonDataBlock( )->transmittingStationNetworkId_,
-                                                 rawDataBlocks.at( i )->getCommonDataBlock( )->transmittingStationId_ );
-            processedDataBlocks_[ currentObservableType ][ linkEnds ]->receivingStation_ =
-                    getStationNameFromStationId( 0, rawDataBlocks.at( i )->getCommonDataBlock( )->receivingStationId_ );
+            processedDataBlocks_[ currentObservableType ][ linkEnds ]->transmittingStation_ = transmittingStation;
+            processedDataBlocks_[ currentObservableType ][ linkEnds ]->receivingStation_ = receivingStation;
             processedDataBlocks_[ currentObservableType ][ linkEnds ]->observableType_ = currentObservableType;
 
             std::cout << processedDataBlocks_[ currentObservableType ][ linkEnds ]->observableType_ << ": " <<
@@ -593,6 +648,21 @@ void ProcessedOdfFileContents::extractMultipleRawOdfRampData(
 
             for( unsigned int j = 0; i < it->second.size( ); j++ )
             {
+                // Check if zero time ramp
+                if ( rampBlocks.at( j )->getRampStartTime( ) == rampBlocks.at( j )->getRampEndTime( ) )
+                {
+                    continue;
+                }
+
+                // Check if adding ramp block vector to previously existing vector and add connection point
+                if ( j == 0 && startTimesPerStation[ stationName ].size( ) != 0 )
+                {
+                    startTimesPerStation[ stationName ].push_back( endTimesPerStation[ stationName ].back( ) );
+                    endTimesPerStation[ stationName ].push_back( rampBlocks.at( j )->getRampStartTime( ) );
+                    rampRatesPerStation[ stationName ].push_back( TUDAT_NAN );
+                    startFrequenciesPerStation[ stationName ].push_back( TUDAT_NAN );
+                }
+
                 startTimesPerStation[ stationName ].push_back( rampBlocks.at( j )->getRampStartTime( ) );
                 endTimesPerStation[ stationName ].push_back( rampBlocks.at( j )->getRampEndTime( ) );
                 rampRatesPerStation[ stationName ].push_back( rampBlocks.at( j )->getRampRate( ) );

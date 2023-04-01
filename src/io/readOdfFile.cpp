@@ -466,7 +466,7 @@ void OdfRawFileContents::writeOdfToTextFile( const std::string& odfTextFile )
         dataFile << "             -1              0              0   " << std::setw(12) << packetCounter << std::endl;
         dataFile << "-----------------------Data---------------------" << std::endl;
     }
-    
+
     dataFile.close();
 }
 

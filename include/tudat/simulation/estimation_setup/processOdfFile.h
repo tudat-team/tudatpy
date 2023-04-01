@@ -131,6 +131,9 @@ public:
 };
 
 
+bool compareByStartDate( std::shared_ptr< input_output::OdfRawFileContents > rawOdfData1,
+                         std::shared_ptr< input_output::OdfRawFileContents > rawOdfData2 );
+
 class ProcessedOdfFileContents
 {
 public:
@@ -155,9 +158,10 @@ public:
             spacecraftName_ = std::to_string( - rawOdfData->spacecraftId_ );
         }
 
+        // Extract and process raw ODF data
+        extractRawOdfRampData( rawOdfData );
         extractRawOdfOrbitData( rawOdfData );
         updateProcessedObservationTimes( );
-        extractRawOdfRampData( rawOdfData );
     }
 
     // Constructor for multiple ODF data objects
@@ -170,8 +174,6 @@ public:
         bodyWithGroundStations_ ( bodyWithGroundStations ),
         verbose_( verbose )
     {
-        unsigned int spacecraftId = rawOdfDataVector.front( )->spacecraftId_;
-
         if ( spacecraftName != "" )
         {
             spacecraftName_ = spacecraftName;
@@ -179,25 +181,19 @@ public:
         else
         {
             // Spacecraft name selected to be the "NAIF Id", which is equal to -"JPL Id" (for a spacecraft)
-            spacecraftName_ = std::to_string( - spacecraftId );
+            spacecraftName_ = std::to_string( - rawOdfDataVector.front( )->spacecraftId_ );
         }
 
+        // Sort ODF data files
+        sortAndValidateOdfDataVector( rawOdfDataVector );
+
+        // Extract and process raw ODF data
+        extractMultipleRawOdfRampData( rawOdfDataVector );
         for ( unsigned int i = 0; i < rawOdfDataVector.size( ); ++i )
         {
-            // Check if spacecraft ID is valid
-            if ( rawOdfDataVector.at( i )->spacecraftId_ != spacecraftId )
-            {
-                throw std::runtime_error("Error when creating processed ODF object from raw data: multiple spacecraft IDs"
-                                         "found (" + std::to_string( spacecraftId ) + " and " +
-                                         std::to_string( rawOdfDataVector.at( i )->spacecraftId_ ) + ").");
-            }
-
             extractRawOdfOrbitData( rawOdfDataVector.at( i ) );
         }
-
         updateProcessedObservationTimes( );
-
-        extractMultipleRawOdfRampData( rawOdfDataVector );
     }
 
     std::string getSpacecraftName( )
@@ -216,6 +212,11 @@ public:
         return notReadRawOdfObservableTypes_;
     }
 
+    std::vector< std::string > getIgnoredGroundStations( )
+    {
+        return ignoredGroundStations_;
+    }
+
     const std::map< std::string, std::shared_ptr< ground_stations::PiecewiseLinearFrequencyInterpolator > >& getRampInterpolators( )
     {
         return rampInterpolators_;
@@ -228,6 +229,8 @@ public:
     }
 
 private:
+
+    void sortAndValidateOdfDataVector( std::vector< std::shared_ptr< input_output::OdfRawFileContents > >& rawOdfDataVector );
 
     void extractRawOdfOrbitData( std::shared_ptr< input_output::OdfRawFileContents > rawOdfData );
 
@@ -261,6 +264,10 @@ private:
     // Vector keeping the invalid observable types that were found in the raw ODF data
     std::vector< int > notReadRawOdfObservableTypes_;
 
+    // Vector keeping the invalid ground stations that were found in the raw ODF data
+    std::vector< std::string > ignoredGroundStations_;
+
+    // Flag indicating whether to print warnings
     bool verbose_;
 };
 
