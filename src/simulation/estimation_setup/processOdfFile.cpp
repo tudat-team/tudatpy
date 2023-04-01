@@ -464,8 +464,8 @@ std::vector< double > ProcessedOdfFileContents::computeObservationTimesTdbFromJ2
         return observationTimesTdbFromJ2000;
     }
 
-bool compareByStartDate( std::shared_ptr< input_output::OdfRawFileContents > rawOdfData1,
-                         std::shared_ptr< input_output::OdfRawFileContents > rawOdfData2 )
+bool compareRawOdfDataByStartDate( std::shared_ptr< input_output::OdfRawFileContents > rawOdfData1,
+                                   std::shared_ptr< input_output::OdfRawFileContents > rawOdfData2 )
 {
     if ( rawOdfData1->getDataBlocks( ).at( 0 )->getCommonDataBlock( )->getObservableTime( ) <
         rawOdfData2->getDataBlocks( ).at( 0 )->getCommonDataBlock( )->getObservableTime( ) )
@@ -494,7 +494,7 @@ void ProcessedOdfFileContents::sortAndValidateOdfDataVector(
         }
     }
 
-    std::stable_sort( rawOdfDataVector.begin( ), rawOdfDataVector.end( ), &compareByStartDate );
+    std::stable_sort( rawOdfDataVector.begin( ), rawOdfDataVector.end( ), &compareRawOdfDataByStartDate );
 }
 
 void ProcessedOdfFileContents::extractRawOdfOrbitData(
