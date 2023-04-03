@@ -516,15 +516,16 @@ void ProcessedOdfFileContents::extractRawOdfOrbitData(
         }
         catch( const std::runtime_error& )
         {
+            if ( std::find( notReadRawOdfObservableTypes_.begin( ), notReadRawOdfObservableTypes_.end( ),
+                                currentObservableId ) == notReadRawOdfObservableTypes_.end( ) )
+            {
+                notReadRawOdfObservableTypes_.push_back( currentObservableId );
+            }
+
             if ( verbose_ )
             {
-                if ( std::find( notReadRawOdfObservableTypes_.begin( ), notReadRawOdfObservableTypes_.end( ),
-                                currentObservableId ) == notReadRawOdfObservableTypes_.end( ) )
-                {
-                    notReadRawOdfObservableTypes_.push_back( currentObservableId );
-                    std::cerr << "Warning: processing of ODF data type " << currentObservableId <<
-                        " is not implemented, ignoring the corresponding data." << std::endl;
-                }
+                std::cerr << "Warning: processing of ODF data type " << currentObservableId <<
+                    " is not implemented, ignoring the corresponding data." << std::endl;
             }
             continue;
         }
@@ -563,6 +564,7 @@ void ProcessedOdfFileContents::extractRawOdfOrbitData(
                             " ignoring corresponding data." << std::endl;
                     }
                 }
+                continue;
             }
             if ( requiresFirstReceivingStation( currentObservableType ) && rampInterpolators_.count( receivingStation ) == 0 )
             {
@@ -575,6 +577,7 @@ void ProcessedOdfFileContents::extractRawOdfOrbitData(
                             " ignoring corresponding data." << std::endl;
                     }
                 }
+                continue;
             }
 
             if( currentObservableType == observation_models::dsn_one_way_averaged_doppler ||
@@ -589,6 +592,7 @@ void ProcessedOdfFileContents::extractRawOdfOrbitData(
                     std::to_string( currentObservableType ) + ") is not implemented.");
             }
 
+            // TODO: move transmitting station to data specific block? Since some types (e.g. 1-way doppler) don't use it
             processedDataBlocks_[ currentObservableType ][ linkEnds ]->transmittingStation_ = transmittingStation;
         }
 
