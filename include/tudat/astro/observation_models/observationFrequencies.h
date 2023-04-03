@@ -12,6 +12,8 @@
 #ifndef TUDAT_OBSERVATIONFREQUENCIES_H
 #define TUDAT_OBSERVATIONFREQUENCIES_H
 
+#include <string>
+
 namespace tudat
 {
 
@@ -26,58 +28,13 @@ enum FrequencyBands
     ku_band
 };
 
-inline double getDsnDefaultTurnaroundRatios( FrequencyBands uplinkBand, FrequencyBands downlinkBand )
-{
-    double numerator, denominator;
+std::string getFrequencyBandString( FrequencyBands frequencyBand );
 
-    if ( uplinkBand == s_band )
-    {
-        denominator = 221.0;
-    }
-    else if ( uplinkBand == x_band )
-    {
-        denominator = 749.0;
-    }
-    else if ( uplinkBand == ka_band )
-    {
-        denominator = 3599.0;
-    }
-    else
-    {
-        throw std::runtime_error("Error when retrieving default turnaround ratios: uplink frequency band" +
-            std::to_string( uplinkBand ) + "is not recognized." );
-    }
+double getDsnDefaultTurnaroundRatios( FrequencyBands uplinkBand, FrequencyBands downlinkBand );
 
-    if ( downlinkBand == s_band )
-    {
-        numerator = 240.0;
-    }
-    else if ( downlinkBand == x_band )
-    {
-        numerator = 880.0;
-    }
-    else if ( downlinkBand == ka_band )
-    {
-        numerator = 3344.0;
-    }
-    else
-    {
-        throw std::runtime_error("Error when retrieving default turnaround ratios: downlink frequency band" +
-            std::to_string( downlinkBand ) + "is not recognized." );
-    }
+double getCassiniTurnaroundRatio( );
 
-    return numerator / denominator;
-}
-
-inline double getCassiniTurnaroundRatio( )
-{
-    return 14.0 / 15.0;
-}
-
-inline double getCassiniTurnaroundRatio( FrequencyBands uplinkBand, FrequencyBands downlinkBand )
-{
-    return getCassiniTurnaroundRatio( );
-}
+double getCassiniTurnaroundRatio( FrequencyBands uplinkBand, FrequencyBands downlinkBand );
 
 } // namespace observation_models
 

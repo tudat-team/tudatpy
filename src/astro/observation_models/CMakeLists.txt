@@ -17,6 +17,7 @@ set(observation_models_SOURCES
         "observationSimulator.cpp"
         "observationModel.cpp"
         "corrections/firstOrderRelativisticCorrection.cpp"
+        "observationFrequencies.cpp"
         )
 
 # Set the header files.
@@ -44,7 +45,7 @@ set(observation_models_HEADERS
         "corrections/lightTimeCorrection.h"
         "corrections/firstOrderRelativisticCorrection.h"
         "dsnNWayAveragedDopplerObservationModel.h"
-        "observationFrequencyDefs.h"
+        "observationFrequencies.h"
         )
 
 TUDAT_ADD_LIBRARY("observation_models"
