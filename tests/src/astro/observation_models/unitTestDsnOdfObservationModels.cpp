@@ -139,11 +139,11 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
     std::shared_ptr< OdfRawFileContents > rawOdfFileContents =
 //            std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/dsn_trk-2-18/odf07155.dat" );
 //            std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/messenger-rawdata-odf/mess_rs_10162_163_odf.dat" );
-            std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/messenger-rawdata-odf/mess_rs_09121_121_odf.dat" );
+//            std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/messenger-rawdata-odf/mess_rs_09121_121_odf.dat" );
 //            std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/messenger-rawdata-odf/mess_rs_11336_2100_odf.dat" );
-//            std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/mro-rawdata-odf/mromagr2017_097_1335xmmmv1.odf" );
+            std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/mro-rawdata-odf/mromagr2017_097_1335xmmmv1.odf" );
 
-    rawOdfFileContents->writeOdfToTextFile("/Users/pipas/tudatpy-testing/mess_rs_09121_121_odf.txt");
+//    rawOdfFileContents->writeOdfToTextFile("/Users/pipas/tudatpy-testing/mess_rs_09121_121_odf.txt");
 
     std::cout << std::setprecision( 18 );
     std::cout << "Start time from 1950 UTC: " << rawOdfFileContents->getDataBlocks( ).front()->getCommonDataBlock( )->getObservableTime() << std::endl;
@@ -196,7 +196,7 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
     // Create observed observation collection
     std::shared_ptr< observation_models::ObservationCollection< long double, Time > > observedObservationCollection =
             observation_models::createOdfObservedObservationCollection< long double, Time >(
-                    processedOdfFileContents );
+                    processedOdfFileContents, { dsn_n_way_averaged_doppler } );
 
     std::cout << std::endl << "Observation type start and size:" << std::endl;
     std::map< observation_models::ObservableType, std::pair< int, int > > observationTypeStartAndSize =
