@@ -193,8 +193,6 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
     }
     std::cout << std::endl;
 
-    return;
-
     // Create observed observation collection
     std::shared_ptr< observation_models::ObservationCollection< long double, Time > > observedObservationCollection =
             observation_models::createOdfObservedObservationCollection< long double, Time >(
