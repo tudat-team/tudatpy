@@ -520,12 +520,11 @@ void ProcessedOdfFileContents::extractRawOdfOrbitData(
                                 currentObservableId ) == notReadRawOdfObservableTypes_.end( ) )
             {
                 notReadRawOdfObservableTypes_.push_back( currentObservableId );
-            }
-
-            if ( verbose_ )
-            {
-                std::cerr << "Warning: processing of ODF data type " << currentObservableId <<
-                    " is not implemented, ignoring the corresponding data." << std::endl;
+                if ( verbose_ )
+                {
+                    std::cerr << "Warning: processing of ODF data type " << currentObservableId <<
+                        " is not implemented, ignoring the corresponding data." << std::endl;
+                }
             }
             continue;
         }
