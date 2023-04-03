@@ -58,7 +58,11 @@ class ProcessedOdfFileSingleLinkData
 {
 public:
 
-    ProcessedOdfFileSingleLinkData( ){ }
+    ProcessedOdfFileSingleLinkData( observation_models::ObservableType observableType,
+                                    std::string receivingStation ):
+        receivingStation_( receivingStation ),
+        observableType_( observableType )
+    { }
 
     virtual ~ProcessedOdfFileSingleLinkData( ){ }
 
@@ -73,8 +77,6 @@ public:
     std::vector< int > referenceBandIds_;
 
     std::vector< std::string > originFiles_;
-
-    observation_models::ObservableType observableType_;
 
     std::string transmittingStation_;
     std::string receivingStation_;
@@ -94,12 +96,26 @@ public:
         return processedObservationTimes_;
     }
 
+    observation_models::ObservableType getObservableType( )
+    {
+        return observableType_;
+    }
+
+private:
+
+    observation_models::ObservableType observableType_;
+
 };
 
 
 class ProcessedOdfFileDopplerData: public ProcessedOdfFileSingleLinkData
 {
 public:
+
+    ProcessedOdfFileDopplerData( observation_models::ObservableType observableType,
+                                 std::string receivingStation ):
+        ProcessedOdfFileSingleLinkData( observableType, receivingStation )
+    { }
 
     ~ProcessedOdfFileDopplerData( ){ }
 
@@ -205,7 +221,7 @@ public:
 
     std::vector< observation_models::ObservableType > getProcessedObservableTypes( );
 
-    std::pair< double, double > getStartAndEndTime( const simulation_setup::SystemOfBodies& bodies );
+    std::pair< double, double > getStartAndEndTime( );
 
     std::vector< int > getNotReadRawOdfObservableTypes( )
     {
@@ -240,7 +256,6 @@ private:
             std::vector< std::shared_ptr< input_output::OdfRawFileContents > > rawOdfDataVector );
 
     void addOdfRawDataBlockToProcessedData(
-            const observation_models::ObservableType currentObservableType,
             const std::shared_ptr< input_output::OdfDataBlock > rawDataBlock,
             const std::shared_ptr< ProcessedOdfFileSingleLinkData > singleLinkProcessedData,
             const std::string rawDataFileName );
@@ -301,7 +316,7 @@ observation_models::ObservationAncilliarySimulationSettings createOdfAncillarySe
     observation_models::ObservationAncilliarySimulationSettings ancillarySettings =
             observation_models::ObservationAncilliarySimulationSettings( );
 
-    observation_models::ObservableType currentObservableType = odfDataContents->observableType_;
+    observation_models::ObservableType currentObservableType = odfDataContents->getObservableType( );
 
     // Set common ancillary settings
     observation_models::FrequencyBands uplinkBand = getFrequencyBandForOdfId( odfDataContents->uplinkBandIds_.at( dataIndex ) );

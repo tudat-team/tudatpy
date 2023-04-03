@@ -84,6 +84,33 @@ int getObservableSize( const ObservableType observableType );
 
 bool isObservableOfIntegratedType( const ObservableType observableType );
 
+/*! Function indicating whether observable type requires transmitting ground station.
+ *
+ * Function indicating whether observable type requires transmitting ground station in system of bodies for the
+ * observations to be simulated.
+ * @param observableType Type of observable.
+ * @return
+ */
+bool requiresTransmittingStation( const ObservableType observableType );
+
+/*! Function indicating whether observable type requires receiving ground station.
+ *
+ * Function indicating whether observable type requires receiving ground station in system of bodies for the
+ * observations to be simulated.
+ * @param observableType Type of observable.
+ * @return
+ */
+bool requiresFirstReceivingStation( const ObservableType observableType );
+
+/*! Function indicating whether observable type requires a second receiving ground station.
+ *
+ * Function indicating whether observable type requires a second receiving ground station in system of bodies for the
+ * observations to be simulated.
+ * @param observableType Type of observable.
+ * @return
+ */
+bool requiresSecondReceivingStation( const ObservableType observableType );
+
 //bool areObservableLinksContinuous( const ObservableType observableType );
 
 LinkEndType getDefaultReferenceLinkEndType(

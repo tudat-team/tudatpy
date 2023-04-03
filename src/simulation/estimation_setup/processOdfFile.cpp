@@ -24,9 +24,9 @@ observation_models::ObservableType getObservableTypeForOdfId( const int odfId )
 
     switch( odfId )
     {
-//    case 11:
-//        observableType = observation_models::dsn_one_way_averaged_doppler;
-//        break;
+    case 11:
+        observableType = observation_models::dsn_one_way_averaged_doppler;
+        break;
     case 12:
         observableType = observation_models::dsn_n_way_averaged_doppler;
         break;
@@ -130,7 +130,7 @@ std::vector< observation_models::ObservableType > ProcessedOdfFileContents::getP
     return observableTypes;
 }
 
-std::pair< double, double > ProcessedOdfFileContents::getStartAndEndTime( const simulation_setup::SystemOfBodies& bodies )
+std::pair< double, double > ProcessedOdfFileContents::getStartAndEndTime( )
 {
     // Reset variables
     double startTimeTdbSinceJ2000 = TUDAT_NAN;
@@ -349,7 +349,6 @@ observation_models::LinkEnds getLinkEndsFromOdfBlock (
 }
 
 void ProcessedOdfFileContents::addOdfRawDataBlockToProcessedData(
-        const observation_models::ObservableType currentObservableType,
         const std::shared_ptr< input_output::OdfDataBlock > rawDataBlock,
         const std::shared_ptr< ProcessedOdfFileSingleLinkData > singleLinkProcessedData,
         const std::string rawDataFileName )
@@ -367,8 +366,8 @@ void ProcessedOdfFileContents::addOdfRawDataBlockToProcessedData(
         singleLinkProcessedData->originFiles_.push_back( rawDataFileName );
 
         // Add properties to data object for Doppler data
-        if ( currentObservableType == observation_models::dsn_one_way_averaged_doppler ||
-             currentObservableType == observation_models::dsn_n_way_averaged_doppler )
+        if ( singleLinkProcessedData->getObservableType( ) == observation_models::dsn_one_way_averaged_doppler ||
+             singleLinkProcessedData->getObservableType( ) == observation_models::dsn_n_way_averaged_doppler )
         {
             std::shared_ptr< input_output::OdfDopplerDataBlock > odfDopplerDataBlock =
                     std::dynamic_pointer_cast< input_output::OdfDopplerDataBlock >(
@@ -400,7 +399,7 @@ void ProcessedOdfFileContents::updateProcessedObservationTimes( )
               linkEndsIterator != observableTypeIterator->second.end( ); ++linkEndsIterator )
         {
             linkEndsIterator->second->processedObservationTimes_ = computeObservationTimesTdbFromJ2000(
-                    linkEndsIterator->second->transmittingStation_,
+                    linkEndsIterator->second->receivingStation_,
                     linkEndsIterator->second->unprocessedObservationTimes_ );
         }
     }
@@ -553,30 +552,36 @@ void ProcessedOdfFileContents::extractRawOdfOrbitData(
             std::string receivingStation = getStationNameFromStationId( 0, rawDataBlocks.at( i )->getCommonDataBlock( )->receivingStationId_ );
 
             // Check if ground stations are in ramp tables
-            if( currentObservableType == observation_models::dsn_one_way_averaged_doppler ||
-                    currentObservableType == observation_models::dsn_n_way_averaged_doppler )
+            if ( requiresTransmittingStation( currentObservableType ) && rampInterpolators_.count( transmittingStation ) == 0 )
             {
-                if ( rampInterpolators_.count( transmittingStation ) == 0 || rampInterpolators_.count( receivingStation ) == 0 )
+                if ( std::count( ignoredGroundStations_.begin( ), ignoredGroundStations_.end( ), transmittingStation ) == 0 )
                 {
-                    for ( std::string station : { transmittingStation, receivingStation } )
+                    ignoredGroundStations_.push_back( transmittingStation );
+                    if ( verbose_ )
                     {
-                        if ( verbose_ && rampInterpolators_.count( station ) == 0 &&
-                            std::count( ignoredGroundStations_.begin( ), ignoredGroundStations_.end( ), station ) == 0 )
-                        {
-                            ignoredGroundStations_.push_back( station );
-                            std::cerr << "Warning: ground station " << station << " not available in ramp tables," <<
-                                " ignoring corresponding data." << std::endl;
-                        }
+                        std::cerr << "Warning: ground station " << transmittingStation << " not available in ramp tables," <<
+                            " ignoring corresponding data." << std::endl;
                     }
-
-                    continue;
+                }
+            }
+            if ( requiresFirstReceivingStation( currentObservableType ) && rampInterpolators_.count( receivingStation ) == 0 )
+            {
+                if ( std::count( ignoredGroundStations_.begin( ), ignoredGroundStations_.end( ), receivingStation ) == 0 )
+                {
+                    ignoredGroundStations_.push_back( receivingStation );
+                    if ( verbose_ )
+                    {
+                        std::cerr << "Warning: ground station " << receivingStation << " not available in ramp tables," <<
+                            " ignoring corresponding data." << std::endl;
+                    }
                 }
             }
 
             if( currentObservableType == observation_models::dsn_one_way_averaged_doppler ||
                     currentObservableType == observation_models::dsn_n_way_averaged_doppler )
             {
-                processedDataBlocks_[ currentObservableType ][ linkEnds ] = std::make_shared< ProcessedOdfFileDopplerData >( );
+                processedDataBlocks_[ currentObservableType ][ linkEnds ] = std::make_shared< ProcessedOdfFileDopplerData >(
+                        currentObservableType, receivingStation );
             }
             else
             {
@@ -585,17 +590,10 @@ void ProcessedOdfFileContents::extractRawOdfOrbitData(
             }
 
             processedDataBlocks_[ currentObservableType ][ linkEnds ]->transmittingStation_ = transmittingStation;
-            processedDataBlocks_[ currentObservableType ][ linkEnds ]->receivingStation_ = receivingStation;
-            processedDataBlocks_[ currentObservableType ][ linkEnds ]->observableType_ = currentObservableType;
-
-            std::cout << processedDataBlocks_[ currentObservableType ][ linkEnds ]->observableType_ << ": " <<
-                processedDataBlocks_[ currentObservableType ][ linkEnds ]->transmittingStation_ << " " <<
-                processedDataBlocks_[ currentObservableType ][ linkEnds ]->receivingStation_ << std::endl;
         }
 
         addOdfRawDataBlockToProcessedData(
-                currentObservableType, rawDataBlocks.at( i ),
-                processedDataBlocks_[ currentObservableType ][ linkEnds ],
+                rawDataBlocks.at( i ), processedDataBlocks_[ currentObservableType ][ linkEnds ],
                 rawOdfData->fileName_ );
     }
 
