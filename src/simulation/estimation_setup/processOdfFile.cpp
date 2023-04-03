@@ -24,9 +24,9 @@ observation_models::ObservableType getObservableTypeForOdfId( const int odfId )
 
     switch( odfId )
     {
-    case 11:
-        observableType = observation_models::dsn_one_way_averaged_doppler;
-        break;
+//    case 11:
+//        observableType = observation_models::dsn_one_way_averaged_doppler;
+//        break;
     case 12:
         observableType = observation_models::dsn_n_way_averaged_doppler;
         break;
@@ -366,8 +366,7 @@ void ProcessedOdfFileContents::addOdfRawDataBlockToProcessedData(
         singleLinkProcessedData->originFiles_.push_back( rawDataFileName );
 
         // Add properties to data object for Doppler data
-        if ( singleLinkProcessedData->getObservableType( ) == observation_models::dsn_one_way_averaged_doppler ||
-             singleLinkProcessedData->getObservableType( ) == observation_models::dsn_n_way_averaged_doppler )
+        if ( singleLinkProcessedData->getObservableType( ) == observation_models::dsn_n_way_averaged_doppler )
         {
             std::shared_ptr< input_output::OdfDopplerDataBlock > odfDopplerDataBlock =
                     std::dynamic_pointer_cast< input_output::OdfDopplerDataBlock >(
@@ -579,8 +578,7 @@ void ProcessedOdfFileContents::extractRawOdfOrbitData(
                 continue;
             }
 
-            if( currentObservableType == observation_models::dsn_one_way_averaged_doppler ||
-                    currentObservableType == observation_models::dsn_n_way_averaged_doppler )
+            if( currentObservableType == observation_models::dsn_n_way_averaged_doppler )
             {
                 processedDataBlocks_[ currentObservableType ][ linkEnds ] = std::make_shared< ProcessedOdfFileDopplerData >(
                         currentObservableType, receivingStation );
@@ -591,7 +589,6 @@ void ProcessedOdfFileContents::extractRawOdfOrbitData(
                     std::to_string( currentObservableType ) + ") is not implemented.");
             }
 
-            // TODO: move transmitting station to data specific block? Since some types (e.g. 1-way doppler) don't use it
             processedDataBlocks_[ currentObservableType ][ linkEnds ]->transmittingStation_ = transmittingStation;
         }
 
