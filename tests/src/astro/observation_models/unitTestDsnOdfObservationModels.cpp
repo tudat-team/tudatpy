@@ -139,12 +139,13 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
     std::shared_ptr< OdfRawFileContents > rawOdfFileContents =
 //            std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/dsn_trk-2-18/odf07155.dat" );
 //            std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/messenger-rawdata-odf/mess_rs_10162_163_odf.dat" );
-//            std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/messenger-rawdata-odf/mess_rs_09121_121_odf.dat" );
+            std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/messenger-rawdata-odf/mess_rs_09121_121_odf.dat" );
 //            std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/messenger-rawdata-odf/mess_rs_11336_2100_odf.dat" );
-            std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/mro-rawdata-odf/mromagr2017_097_1335xmmmv1.odf" );
+//            std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/mro-rawdata-odf/mromagr2017_097_1335xmmmv1.odf" );
 
-//    rawOdfFileContents->writeOdfToTextFile("/Users/pipas/tudatpy-testing/mromagr2017_097_1335xmmmv1.txt");
+    rawOdfFileContents->writeOdfToTextFile("/Users/pipas/tudatpy-testing/mess_rs_09121_121_odf.txt");
 
+    std::cout << std::setprecision( 18 );
     std::cout << "Start time from 1950 UTC: " << rawOdfFileContents->getDataBlocks( ).front()->getCommonDataBlock( )->getObservableTime() << std::endl;
     std::cout << "End time from 1950 UTC: " << rawOdfFileContents->getDataBlocks( ).back()->getCommonDataBlock( )->getObservableTime() << std::endl;
 
@@ -181,8 +182,8 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
     std::cout << std::endl;
 
     std::cout << std::setprecision( 18 );
-    std::cout << "Start time: " << processedOdfFileContents->getStartAndEndTime( bodies ).first << std::endl;
-    std::cout << "End time: " << processedOdfFileContents->getStartAndEndTime( bodies ).second << std::endl;
+    std::cout << "Start time: " << processedOdfFileContents->getStartAndEndTime( ).first << std::endl;
+    std::cout << "End time: " << processedOdfFileContents->getStartAndEndTime( ).second << std::endl;
 
     std::vector< observation_models::ObservableType > observableTypes = processedOdfFileContents->getProcessedObservableTypes( );
     std::cout << "Observable types: ";
@@ -192,29 +193,7 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
     }
     std::cout << std::endl;
 
-//     std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds,
-//        std::shared_ptr< ProcessedOdfFileSingleLinkData > > > processedDataBlocks = processedOdfFileContents->getProcessedDataBlocks();
-//     std::cout << "Reference frequencies: " << std::endl;
-//     for ( auto it = processedDataBlocks.begin(); it != processedDataBlocks.end(); ++it )
-//     {
-//         for ( auto it2 = it->second.begin(); it2 != it->second.end(); ++it2 )
-//         {
-//             std::shared_ptr< ProcessedOdfFileDopplerData > processedDopplerBlock = std::dynamic_pointer_cast< ProcessedOdfFileDopplerData >(
-//                     it2->second );
-//             std::vector< double > referenceFrequencies = processedDopplerBlock->getReferenceFrequenciesVector( );
-//             double oldRefFrequency = referenceFrequencies.at( 0 );
-//             std::cout << oldRefFrequency << std::endl;
-//             for ( unsigned int i = 1; i < referenceFrequencies.size( ); ++i )
-//             {
-//                 if ( referenceFrequencies.at( i ) != oldRefFrequency )
-//                 {
-//                     oldRefFrequency = referenceFrequencies.at( i );
-//                     std::cout << referenceFrequencies.at( i ) << std::endl;
-//                 }
-//
-//             }
-//         }
-//     }
+    return;
 
     // Create observed observation collection
     std::shared_ptr< observation_models::ObservationCollection< long double, Time > > observedObservationCollection =

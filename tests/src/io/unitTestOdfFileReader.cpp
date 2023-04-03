@@ -44,18 +44,6 @@ BOOST_AUTO_TEST_SUITE( test_odf_file_reader )
 //! Files available at https://pds-geosciences.wustl.edu/dataserv/radio_science.htm (see radio science documentation bundle)
 BOOST_AUTO_TEST_CASE( testSingleOdfFileReader )
 {
-    spice_interface::loadStandardSpiceKernels( );
-
-    // Create Earth and it ground stations
-    std::vector< std::string > bodiesToCreate;
-    bodiesToCreate.push_back( "Earth" );
-
-    BodyListSettings bodySettings = getDefaultBodySettings( bodiesToCreate );
-
-    bodySettings.at( "Earth" )->groundStationSettings = getDsnStationSettings( );
-
-    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
-
     std::string file = tudat::paths::getTudatTestDataPath( )  + "/odf07155.odf";
     std::shared_ptr< input_output::OdfRawFileContents > rawOdfContents =
             std::make_shared< input_output::OdfRawFileContents >( file );
@@ -178,8 +166,29 @@ BOOST_AUTO_TEST_CASE( testSingleOdfFileReader )
 
 BOOST_AUTO_TEST_CASE( testProcessSingleOdfFile )
 {
+    spice_interface::loadStandardSpiceKernels( );
 
+    // Create system of bodies
+    std::string spacecraftName = "Messenger";
 
+    std::vector< std::string > bodiesToCreate = { "Earth" };
+
+    BodyListSettings bodySettings = getDefaultBodySettings( bodiesToCreate );
+    bodySettings.at( "Earth" )->groundStationSettings = getDsnStationSettings( );
+
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+
+    // Load ODF file
+    std::string file = tudat::paths::getTudatTestDataPath( )  + "/mess_rs_09121_121_odf.dat";
+    std::shared_ptr< input_output::OdfRawFileContents > rawOdfContents =
+            std::make_shared< input_output::OdfRawFileContents >( file );
+
+    // Process ODF file
+    std::shared_ptr< observation_models::ProcessedOdfFileContents > processedOdfFileContents =
+            std::make_shared< observation_models::ProcessedOdfFileContents >(
+                    rawOdfContents, bodies.getBody( "Earth" ), true, spacecraftName );
+
+    std::pair< double, double > startAndEndTimeTdb = processedOdfFileContents->getStartAndEndTime( );
 }
 
     //   boost::shared_ptr< orbit_determination::ProcessedOdfFileContents > odfContents =

@@ -88,6 +88,91 @@ bool isObservableOfIntegratedType( const ObservableType observableType )
     return isIntegratedType;
 }
 
+bool requiresTransmittingStation( const ObservableType observableType )
+{
+    bool requiresTransmittingStation = true;
+    switch( observableType )
+    {
+    case one_way_range:
+    case angular_position:
+    case position_observable:
+    case one_way_doppler:
+    case one_way_differenced_range:
+    case n_way_range:
+    case two_way_doppler:
+    case euler_angle_313_observable:
+    case velocity_observable:
+    case relative_angular_position:
+    case n_way_differenced_range:
+    case dsn_one_way_averaged_doppler:
+        requiresTransmittingStation = false;
+        break;
+    case dsn_n_way_averaged_doppler:
+        requiresTransmittingStation = true;
+        break;
+    default:
+        throw std::runtime_error( "Error when determining if observable type requires transmitting station: observable " +
+                                  getObservableName( observableType ) + " not found." );
+    }
+    return requiresTransmittingStation;
+}
+
+bool requiresFirstReceivingStation( const ObservableType observableType )
+{
+    bool requiresFirstReceivingStation = true;
+    switch( observableType )
+    {
+    case one_way_range:
+    case angular_position:
+    case position_observable:
+    case one_way_doppler:
+    case one_way_differenced_range:
+    case n_way_range:
+    case two_way_doppler:
+    case euler_angle_313_observable:
+    case velocity_observable:
+    case relative_angular_position:
+    case n_way_differenced_range:
+        requiresFirstReceivingStation = false;
+        break;
+    case dsn_one_way_averaged_doppler:
+    case dsn_n_way_averaged_doppler:
+        requiresFirstReceivingStation = true;
+        break;
+    default:
+        throw std::runtime_error( "Error when determining if observable type requires first receiving station: observable " +
+                                  getObservableName( observableType ) + " not found." );
+    }
+    return requiresFirstReceivingStation;
+}
+
+bool requiresSecondReceivingStation( const ObservableType observableType )
+{
+    bool requiresSecondReceivingStation = true;
+    switch( observableType )
+    {
+    case one_way_range:
+    case angular_position:
+    case position_observable:
+    case one_way_doppler:
+    case one_way_differenced_range:
+    case n_way_range:
+    case two_way_doppler:
+    case euler_angle_313_observable:
+    case velocity_observable:
+    case relative_angular_position:
+    case n_way_differenced_range:
+    case dsn_one_way_averaged_doppler:
+    case dsn_n_way_averaged_doppler:
+        requiresSecondReceivingStation = false;
+        break;
+    default:
+        throw std::runtime_error( "Error when determining if observable type requires second receiving station: observable " +
+                                  getObservableName( observableType ) + " not found." );
+    }
+    return requiresSecondReceivingStation;
+}
+
 //bool areObservableLinksContinuous( const ObservableType observableType )
 //{
 //    bool isTypeContinuous = true;
