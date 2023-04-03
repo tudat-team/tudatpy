@@ -18,6 +18,9 @@
 #include "tudat/simulation/estimation_setup/processOdfFile.h"
 #include "tudat/simulation/estimation.h"
 
+#include "tudat/interface/sofa/sofaTimeConversions.h"
+#include "tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h"
+
 namespace tudat
 {
 namespace unit_tests
@@ -189,6 +192,48 @@ BOOST_AUTO_TEST_CASE( testProcessSingleOdfFile )
                     rawOdfContents, bodies.getBody( "Earth" ), true, spacecraftName );
 
     std::pair< double, double > startAndEndTimeTdb = processedOdfFileContents->getStartAndEndTime( );
+    double startTime = startAndEndTimeTdb.first;
+    double endTime = startAndEndTimeTdb.second;
+
+    // Compare start and end time with values in LBL file
+    for ( unsigned int i = 0; i < 2; ++i )
+    {
+        double time, expectedFractionOfDay;
+        int expectedYear, expectedMonth, expectedDay;
+        // Expected start time: 2009-05-01T12:41:18.000 UTC
+        if ( i == 0 )
+        {
+            time = startTime;
+            expectedYear = 2009;
+            expectedMonth = 5;
+            expectedDay = 1;
+            expectedFractionOfDay = 12.0 / 24.0 + 41.0 / ( 24.0 * 60.0 ) + 18.0 / ( 24.0 * 3600.0 );
+        }
+        // Expected end time: 2009-05-01T22:44:35.000
+        else
+        {
+            time = endTime;
+            expectedYear = 2009;
+            expectedMonth = 5;
+            expectedDay = 1;
+            expectedFractionOfDay = 22.0 / 24.0 + 44.0 / ( 24.0 * 60.0 ) + 35.0 / ( 24.0 * 3600.0 );
+        }
+
+        // Get UTC time
+        earth_orientation::TerrestrialTimeScaleConverter timeScaleConverter = earth_orientation::TerrestrialTimeScaleConverter( );
+        double timeUtc = timeScaleConverter.getCurrentTime< double >( basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, time );
+
+        // Get UTC calendar date
+        int year, month, day;
+        double fractionOfDay;
+        iauJd2cal( basic_astrodynamics::JULIAN_DAY_ON_J2000, timeUtc / physical_constants::JULIAN_DAY, &year, &month, &day, &fractionOfDay );
+
+        BOOST_CHECK_EQUAL ( year, expectedYear );
+        BOOST_CHECK_EQUAL ( month, expectedMonth );
+        BOOST_CHECK_EQUAL ( day, expectedDay );
+        BOOST_CHECK_CLOSE_FRACTION( fractionOfDay, expectedFractionOfDay, 1e-10 );
+    }
+
 }
 
     //   boost::shared_ptr< orbit_determination::ProcessedOdfFileContents > odfContents =
