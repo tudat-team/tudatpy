@@ -238,7 +238,16 @@ void expose_environment(py::module &m) {
             .def("set_control_surface_deflection",
                  &tsm::VehicleSystems::setCurrentControlSurfaceDeflection,
                  py::arg("control_surface_id"),
-                 py::arg("deflection_angle"));
+                 py::arg("deflection_angle"))
+            .def("get_engine_model",
+                 &tsm::VehicleSystems::getEngineModel,
+                 py::arg("engine_name"));
+
+    py::class_<tsm::EngineModel,
+            std::shared_ptr<tsm::EngineModel>>(m, "EngineModel" )
+            .def_property_readonly("thrust_magnitude_calculator",
+                                   &tsm::EngineModel::getThrustMagnitudeWrapper );
+
 
     /*!
      **************   FLIGHT CONDITIONS AND ASSOCIATED FUNCTIONALITY  ******************
@@ -493,6 +502,27 @@ void expose_environment(py::module &m) {
             std::shared_ptr<te::GcrsToItrsRotationModel>,
             te::RotationalEphemeris>(
                 m, "GcrsToItrsRotationModel");
+
+
+    py::class_<te::DirectionBasedRotationalEphemeris,
+            std::shared_ptr<te::DirectionBasedRotationalEphemeris>,
+            te::RotationalEphemeris>(
+            m, "CustomInertialDirectionBasedRotationalEphemeris")
+            .def_property_readonly("inertial_body_axis_calculator",
+                 &te::DirectionBasedRotationalEphemeris::getInertialBodyAxisDirectionCalculator );
+
+    py::class_<te::InertialBodyFixedDirectionCalculator,
+            std::shared_ptr<te::InertialBodyFixedDirectionCalculator>>(
+            m, "InertialBodyFixedDirectionCalculator");
+
+    py::class_<te::CustomBodyFixedDirectionCalculator,
+            std::shared_ptr<te::CustomBodyFixedDirectionCalculator>,
+            te::InertialBodyFixedDirectionCalculator>(
+            m, "CustomBodyFixedDirectionCalculator")
+            .def_property("inertial_body_axis_direction_function",
+                                   &te::CustomBodyFixedDirectionCalculator::getInertialBodyAxisDirectionFunction,
+                                   &te::CustomBodyFixedDirectionCalculator::resetInertialBodyAxisDirectionFunction);
+
 
 
     /*!
