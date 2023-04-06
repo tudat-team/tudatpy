@@ -68,14 +68,6 @@ It is then recommended to switch to the `develop` branch using the commands abov
 conda env create -f environment.yaml
 ````
 
-> **Note**
->  Are you a Mac user with a M1 processor (a osx-arm64 system)? Then, edit the channels of the `environment.yaml` file as follows, before creating the environment:
->  ````
->  channels:
->  - https://conda.anaconda.org/conda-forge/osx-arm64
->  - https://conda.anaconda.org/tudat-team/osx-arm64
->  ````
-
 There are two directions you can go from here. CLion or the command line.
 
 ### Build: CLion
