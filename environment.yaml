@@ -15,6 +15,4 @@ dependencies:
   - numpy
   - pandas # for tudat.io
   - matplotlib # for tudat.plotting
-  - basemap # for tudat.plotting
-  - basemap-data-hires # for tudat.plotting
   - pytest
