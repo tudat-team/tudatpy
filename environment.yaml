@@ -1,4 +1,4 @@
-name: tudat-bundle-sandbox
+name: tudat-bundle
 channels:
   - conda-forge
   - tudat-team
