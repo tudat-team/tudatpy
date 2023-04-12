@@ -17,6 +17,7 @@ dependencies:
   - pydantic
   - numpydoc
   - tudatpy
+  - boost-cpp=1.74.0
   - pip
   - pip:
      - nbsphinx
