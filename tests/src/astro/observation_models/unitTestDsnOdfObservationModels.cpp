@@ -149,28 +149,33 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
     std::cout << "Start time from 1950 UTC: " << rawOdfFileContents->getDataBlocks( ).front()->getCommonDataBlock( )->getObservableTime() << std::endl;
     std::cout << "End time from 1950 UTC: " << rawOdfFileContents->getDataBlocks( ).back()->getCommonDataBlock( )->getObservableTime() << std::endl;
 
-    for ( unsigned int i = 0; i < rawOdfFileContents->getDataBlocks( ).size(); ++i )
-    {
-        if ( rawOdfFileContents->getDataBlocks( ).at( i )->getObservableSpecificDataBlock( )->dataType_ == 12 )
-        {
-            std::cout << "Start time from 1950 UTC (12): " << rawOdfFileContents->getDataBlocks( ).at(i)->getCommonDataBlock( )->getObservableTime() << std::endl;
-            break;
-        }
-    }
-    for ( unsigned int i = rawOdfFileContents->getDataBlocks( ).size() - 1; i >= 0 ; --i )
-    {
-        if ( rawOdfFileContents->getDataBlocks( ).at( i )->getObservableSpecificDataBlock( )->dataType_ == 12 )
-        {
-            std::cout << "End time from 1950 UTC (12): " << rawOdfFileContents->getDataBlocks( ).at(i)->getCommonDataBlock( )->getObservableTime() << std::endl;
-            break;
-        }
-    }
+//    for ( unsigned int i = 0; i < rawOdfFileContents->getDataBlocks( ).size(); ++i )
+//    {
+//        if ( rawOdfFileContents->getDataBlocks( ).at( i )->getObservableSpecificDataBlock( )->dataType_ == 12 )
+//        {
+//            std::cout << "Start time from 1950 UTC (12): " << rawOdfFileContents->getDataBlocks( ).at(i)->getCommonDataBlock( )->getObservableTime() << std::endl;
+//            break;
+//        }
+//    }
+//    for ( unsigned int i = rawOdfFileContents->getDataBlocks( ).size() - 1; i >= 0 ; --i )
+//    {
+//        if ( rawOdfFileContents->getDataBlocks( ).at( i )->getObservableSpecificDataBlock( )->dataType_ == 12 )
+//        {
+//            std::cout << "End time from 1950 UTC (12): " << rawOdfFileContents->getDataBlocks( ).at(i)->getCommonDataBlock( )->getObservableTime() << std::endl;
+//            break;
+//        }
+//    }
 
+    std::shared_ptr< OdfRawFileContents > rawOdfFileContents2 =
+            std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/mro-rawdata-odf/mromagr2017_098_1555xmmmv1.odf" );
+    std::shared_ptr< OdfRawFileContents > rawOdfFileContents0 =
+            std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/mro-rawdata-odf/mromagr2017_096_0820xmmmv1.odf" );
 
     // Read and process ODF file data
+    std::vector< std::shared_ptr< input_output::OdfRawFileContents > > rawOdfDataVector = { rawOdfFileContents0 };
     std::shared_ptr< ProcessedOdfFileContents > processedOdfFileContents =
             std::make_shared< ProcessedOdfFileContents >(
-                    rawOdfFileContents,bodies.getBody( "Earth" ), true, spacecraftName );
+                    rawOdfDataVector, bodies.getBody( "Earth" ), true, spacecraftName );
 
     std::cout << std::endl << "Spacecraft name: " << processedOdfFileContents->getSpacecraftName( ) << std::endl;
     std::vector< std::string > groundStationsNames = processedOdfFileContents->getGroundStationsNames( );

@@ -246,10 +246,22 @@ public:
         return startTimes_;
     }
 
-    //! Function to retrieve end start times
+    //! Function to retrieve ramp start time
+    double getStartTime ( )
+    {
+        return startTimes_.front( );
+    }
+
+    //! Function to retrieve ramp end times
     std::vector< double > getEndTimes ( )
     {
         return endTimes_;
+    }
+
+    //! Function to retrieve ramp end time
+    double getEndTime( )
+    {
+        return endTimes_.back( );
     }
 
     //! Function to retrieve the ramp rates
