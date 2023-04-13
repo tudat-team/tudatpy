@@ -78,7 +78,6 @@ public:
 
     std::vector< std::string > originFiles_;
 
-    std::string transmittingStation_;
     std::string receivingStation_;
 
     std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > getObservables( )
@@ -113,11 +112,15 @@ class ProcessedOdfFileDopplerData: public ProcessedOdfFileSingleLinkData
 public:
 
     ProcessedOdfFileDopplerData( observation_models::ObservableType observableType,
-                                 std::string receivingStation ):
-        ProcessedOdfFileSingleLinkData( observableType, receivingStation )
+                                 std::string receivingStation,
+                                 std::string transmittingStation ):
+        ProcessedOdfFileSingleLinkData( observableType, receivingStation ),
+        transmittingStation_( transmittingStation )
     { }
 
     ~ProcessedOdfFileDopplerData( ){ }
+
+    std::string transmittingStation_;
 
     std::vector< int > receiverChannels_;
     std::vector< double > referenceFrequencies_;
@@ -208,9 +211,9 @@ public:
 
     std::pair< double, double > getStartAndEndTime( );
 
-    std::vector< int > getNotReadRawOdfObservableTypes( )
+    std::vector< int > getIgnoredRawOdfObservableTypes( )
     {
-        return notReadRawOdfObservableTypes_;
+        return ignoredRawOdfObservableTypes_;
     }
 
     std::vector< std::string > getIgnoredGroundStations( )
@@ -232,6 +235,10 @@ public:
 private:
 
     void sortAndValidateOdfDataVector( std::vector< std::shared_ptr< input_output::OdfRawFileContents > >& rawOdfDataVector );
+
+    bool isObservationValid( std::shared_ptr< input_output::OdfDataBlock > rawDataBlock,
+                             observation_models::LinkEnds linkEnds,
+                             observation_models::ObservableType currentObservableType );
 
     void extractRawOdfOrbitData( std::shared_ptr< input_output::OdfRawFileContents > rawOdfData );
 
@@ -259,11 +266,18 @@ private:
 
     std::map< std::string, std::shared_ptr< ground_stations::PiecewiseLinearFrequencyInterpolator > > rampInterpolators_;
 
+    // Unprocessed ramp start and end times. Used for pre-processing observations
+    std::map< std::string, std::vector< double > > unprocessedRampStartTimesPerStation_;
+    std::map< std::string, std::vector< double > > unprocessedRampEndTimesPerStation_;
+
     // Vector keeping the invalid observable types that were found in the raw ODF data
-    std::vector< int > notReadRawOdfObservableTypes_;
+    std::vector< int > ignoredRawOdfObservableTypes_;
 
     // Vector keeping the invalid ground stations that were found in the raw ODF data
     std::vector< std::string > ignoredGroundStations_;
+
+    // Vector keeping the invalid ground stations that were found in the raw ODF data
+    std::vector< std::shared_ptr< input_output::OdfDataBlock > > ignoredOdfRawDataBlocks_;
 
     // Flag indicating whether to print warnings
     bool verbose_;

@@ -163,149 +163,6 @@ std::pair< double, double > ProcessedOdfFileContents::getStartAndEndTime( )
     return std::make_pair( startTimeTdbSinceJ2000, endTimeTdbSinceJ2000 );
 }
 
-//std::shared_ptr< ground_stations::PiecewiseLinearFrequencyInterpolator > mergeRampDataInterpolators(
-//        const std::vector< std::shared_ptr< ground_stations::PiecewiseLinearFrequencyInterpolator > >& interpolatorList )
-//{
-//    std::map< double, double > rampEndTimesPerStation;
-//    std::map< double, double > rampRatesPerStation;
-//    std::map< double, double > rampStartFrequenciesPerStation;
-//
-//    for( unsigned int i = 0; i < interpolatorList.size( ); i++ )
-//    {
-//        for( unsigned int j = 0; j < interpolatorList.at( i )->getStartTimes().size( ); j++ )
-//        {
-//            rampEndTimesPerStation[ interpolatorList.at( i )->getStartTimes().at( j ) ] =
-//                    interpolatorList.at( i )->getEndTimes().at( j );
-//            rampRatesPerStation[ interpolatorList.at( i )->getStartTimes().at( j ) ] =
-//                    interpolatorList.at( i )->getRampRates().at( j );
-//            rampStartFrequenciesPerStation[ interpolatorList.at( i )->getStartTimes().at( j ) ] =
-//                    interpolatorList.at( i )->getStartFrequencies().at( j );
-//        }
-//    }
-//    return std::make_shared< ground_stations::PiecewiseLinearFrequencyInterpolator >(
-//                utilities::createVectorFromMapKeys( rampEndTimesPerStation ),
-//                utilities::createVectorFromMapValues( rampEndTimesPerStation ),
-//                utilities::createVectorFromMapValues( rampRatesPerStation ),
-//                utilities::createVectorFromMapValues( rampStartFrequenciesPerStation ) );
-//}
-//
-//void addOdfFileContentsToMergedContents(
-//        const observation_models::ObservableType observableType,
-//        std::shared_ptr< ProcessedOdfFileSingleLinkData > mergedOdfFileContents,
-//        std::shared_ptr< ProcessedOdfFileSingleLinkData > blockToAdd )
-//{
-//    mergedOdfFileContents->downlinkBandIds_.insert(
-//            mergedOdfFileContents->downlinkBandIds_.end( ),
-//            blockToAdd->downlinkBandIds_.begin( ), blockToAdd->downlinkBandIds_.end( ) );
-//
-//    mergedOdfFileContents->observableValues_.insert(
-//            mergedOdfFileContents->observableValues_.end( ),
-//            blockToAdd->observableValues_.begin( ), blockToAdd->observableValues_.end( ) );
-//
-//    mergedOdfFileContents->unprocessedObservationTimes_.insert(
-//            mergedOdfFileContents->unprocessedObservationTimes_.end( ),
-//            blockToAdd->unprocessedObservationTimes_.begin( ), blockToAdd->unprocessedObservationTimes_.end( ) );
-//
-//    mergedOdfFileContents->originFiles_.insert(
-//            mergedOdfFileContents->originFiles_.end( ),
-//            blockToAdd->originFiles_.begin( ), blockToAdd->originFiles_.end( ) );
-//
-//    if( observableType == observation_models::dsn_one_way_averaged_doppler ||
-//            observableType == observation_models::dsn_n_way_averaged_doppler )
-//    {
-//        std::shared_ptr< ProcessedOdfFileDopplerData > dopplerBlockToAdd
-//                = std::dynamic_pointer_cast< ProcessedOdfFileDopplerData >(
-//                    blockToAdd );
-//        std::shared_ptr< ProcessedOdfFileDopplerData > currentDopplerObservableMergedData =
-//                std::dynamic_pointer_cast< ProcessedOdfFileDopplerData >(
-//                    mergedOdfFileContents );
-//
-//
-//        currentDopplerObservableMergedData->referenceFrequencies_.insert(
-//                currentDopplerObservableMergedData->referenceFrequencies_.end( ),
-//                dopplerBlockToAdd->referenceFrequencies_.begin( ), dopplerBlockToAdd->referenceFrequencies_.end( ) );
-//
-//        currentDopplerObservableMergedData->receiverRampingFlags_.insert(
-//                currentDopplerObservableMergedData->receiverRampingFlags_.end( ),
-//                dopplerBlockToAdd->receiverRampingFlags_.begin( ), dopplerBlockToAdd->receiverRampingFlags_.end( ) );
-//
-//        currentDopplerObservableMergedData->countInterval_.insert(
-//                currentDopplerObservableMergedData->countInterval_.end( ),
-//                dopplerBlockToAdd->countInterval_.begin( ), dopplerBlockToAdd->countInterval_.end( ) );
-//
-//        currentDopplerObservableMergedData->receiverChannels_.insert(
-//                currentDopplerObservableMergedData->receiverChannels_.end( ),
-//                dopplerBlockToAdd->receiverChannels_.begin( ), dopplerBlockToAdd->receiverChannels_.end( ) );
-//    }
-//}
-//
-//std::shared_ptr< ProcessedOdfFileContents > mergeOdfFileContents(
-//        const std::vector< std::shared_ptr< ProcessedOdfFileContents > > odfFileContents )
-//{
-//    std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds,
-//            std::shared_ptr< ProcessedOdfFileSingleLinkData > > > mergedOdfFileContents;
-//    std::map< std::string, std::vector< std::shared_ptr< ground_stations::PiecewiseLinearFrequencyInterpolator > > > rampInterpolatorList;
-//
-//    // Iterate over all ODF files
-//    for( unsigned int i = 0; i < odfFileContents.size( ); i++ )
-//    {
-//        // Retrieve contents of current file.
-//        std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds,
-//                std::shared_ptr< ProcessedOdfFileSingleLinkData > > >  dataBlocks =
-//                odfFileContents.at( i )->processedDataBlocks_;
-//
-//        for( auto it = dataBlocks.begin( ); it != dataBlocks.end( ); it++ )
-//        {
-//            for( auto linkIt = it->second.begin( ); linkIt != it->second.end( ); linkIt++ )
-//            {
-//                bool setNewObject = false;
-//                if( mergedOdfFileContents.count( it->first ) == 0 )
-//                {
-//                    setNewObject = true;
-//                }
-//                else if( mergedOdfFileContents.at( it->first ).count( linkIt->first ) == 0 )
-//                {
-//                    setNewObject = true;
-//                }
-//
-//                if( setNewObject )
-//                {
-//                    mergedOdfFileContents[ it->first ][ linkIt->first ] = linkIt->second;
-//                }
-//                else
-//                {
-//                    addOdfFileContentsToMergedContents(
-//                                it->first, mergedOdfFileContents[ it->first ][ linkIt->first ], linkIt->second );
-//                }
-//            }
-//        }
-//
-//        std::map< std::string, std::shared_ptr< ground_stations::PiecewiseLinearFrequencyInterpolator > > currentRampInterpolators =
-//                odfFileContents.at( i )->rampInterpolators_;
-//
-//        for( auto it = currentRampInterpolators.begin( ); it != currentRampInterpolators.end( ); it++ )
-//        {
-//            rampInterpolatorList[ it->first ].push_back( it->second );
-//        }
-//    }
-//
-//    std::map< std::string, std::shared_ptr< ground_stations::PiecewiseLinearFrequencyInterpolator > > mergedRampInterpolators;
-//    for( auto it = rampInterpolatorList.begin( ); it != rampInterpolatorList.end( ); it++ )
-//    {
-//        mergedRampInterpolators[ it->first ] = mergeRampDataInterpolators(
-//                    it->second );
-//    }
-//
-//
-//    std::shared_ptr< ProcessedOdfFileContents > processedOdfFile =
-//            std::make_shared< ProcessedOdfFileContents >( );
-//
-//    processedOdfFile->processedDataBlocks_ = mergedOdfFileContents;
-//    processedOdfFile->rampInterpolators_ = mergedRampInterpolators;
-//    processedOdfFile->spacecraftName_ = "AAA";
-//    return processedOdfFile;
-//}
-
 observation_models::LinkEnds getLinkEndsFromOdfBlock (
         const std::shared_ptr< input_output::OdfDataBlock > dataBlock,
         std::string spacecraftName )
@@ -495,6 +352,85 @@ void ProcessedOdfFileContents::sortAndValidateOdfDataVector(
     std::stable_sort( rawOdfDataVector.begin( ), rawOdfDataVector.end( ), &compareRawOdfDataByStartDate );
 }
 
+bool ProcessedOdfFileContents::isObservationValid(
+        std::shared_ptr< input_output::OdfDataBlock > rawDataBlock,
+        observation_models::LinkEnds linkEnds,
+        observation_models::ObservableType currentObservableType )
+{
+    int currentObservableId = rawDataBlock->getObservableSpecificDataBlock( )->dataType_;
+
+    std::string transmittingStation, receivingStation;
+
+    if ( requiresTransmittingStation( currentObservableType ) )
+    {
+        transmittingStation = linkEnds.at( transmitter ).stationName_;
+
+        // Check if transmitting station is in ramp tables
+        if ( rampInterpolators_.count( transmittingStation ) == 0 )
+        {
+            if ( std::count( ignoredGroundStations_.begin( ), ignoredGroundStations_.end( ), transmittingStation ) == 0 )
+            {
+                ignoredGroundStations_.push_back( transmittingStation );
+                if ( verbose_ )
+                {
+                    std::cerr << "Warning: ground station " << transmittingStation << " not available in ramp tables," <<
+                        " ignoring corresponding data." << std::endl;
+                }
+            }
+            ignoredOdfRawDataBlocks_.push_back( rawDataBlock );
+            return false;
+        }
+
+        // Check if observation time is covered by ramp tables
+        if ( rawDataBlock->getCommonDataBlock( )->getObservableTime( ) <
+            unprocessedRampStartTimesPerStation_[ transmittingStation ].front( ) )
+        {
+            if ( verbose_ )
+            {
+                std::cerr << "Warning: observation of ODF type " << currentObservableId << " not covered by ramp table of station " <<
+                    transmittingStation << ", ignoring it." << std::endl;
+            }
+            ignoredOdfRawDataBlocks_.push_back( rawDataBlock );
+            return false;
+        }
+    }
+    if ( requiresFirstReceivingStation( currentObservableType ) )
+    {
+        receivingStation = linkEnds.at( receiver ).stationName_;
+
+        // Check if receiving station is in ramp tables
+        if ( rampInterpolators_.count( receivingStation ) == 0 )
+        {
+            if ( std::count( ignoredGroundStations_.begin( ), ignoredGroundStations_.end( ), receivingStation ) == 0 )
+            {
+                ignoredGroundStations_.push_back( receivingStation );
+                if ( verbose_ )
+                {
+                    std::cerr << "Warning: observation of ODF type " << currentObservableId << " not covered by ramp table of station " <<
+                        receivingStation << ", ignoring it." << std::endl;
+                }
+            }
+            ignoredOdfRawDataBlocks_.push_back( rawDataBlock );
+            return false;
+        }
+
+        // Check if observation time is covered by ramp tables
+        if ( rawDataBlock->getCommonDataBlock( )->getObservableTime( ) < unprocessedRampStartTimesPerStation_[ receivingStation ].front( ) ||
+            rawDataBlock->getCommonDataBlock( )->getObservableTime( ) > unprocessedRampStartTimesPerStation_[ receivingStation ].back( ) )
+        {
+            if ( verbose_ )
+            {
+                std::cerr << "Warning: observation of ODF type " << currentObservableId << " not covered by ramp tables," <<
+                    " ignoring it." << std::endl;
+            }
+            ignoredOdfRawDataBlocks_.push_back( rawDataBlock );
+            return false;
+        }
+    }
+
+    return true;
+}
+
 void ProcessedOdfFileContents::extractRawOdfOrbitData(
         std::shared_ptr< input_output::OdfRawFileContents > rawOdfData )
 {
@@ -515,86 +451,57 @@ void ProcessedOdfFileContents::extractRawOdfOrbitData(
         }
         catch( const std::runtime_error& )
         {
-            if ( std::find( notReadRawOdfObservableTypes_.begin( ), notReadRawOdfObservableTypes_.end( ),
-                                currentObservableId ) == notReadRawOdfObservableTypes_.end( ) )
+            if ( std::find( ignoredRawOdfObservableTypes_.begin( ), ignoredRawOdfObservableTypes_.end( ),
+                            currentObservableId ) == ignoredRawOdfObservableTypes_.end( ) )
             {
-                notReadRawOdfObservableTypes_.push_back( currentObservableId );
+                ignoredRawOdfObservableTypes_.push_back( currentObservableId );
                 if ( verbose_ )
                 {
                     std::cerr << "Warning: processing of ODF data type " << currentObservableId <<
                         " is not implemented, ignoring the corresponding data." << std::endl;
                 }
             }
+            ignoredOdfRawDataBlocks_.push_back( rawDataBlocks.at( i ) );
             continue;
         }
 
         observation_models::LinkEnds linkEnds = getLinkEndsFromOdfBlock(
                 rawDataBlocks.at( i ), spacecraftName_ );
 
-        // Check if data object already exists for current observable/link ends
-        bool createNewObject = false;
-        if( processedDataBlocks_.count( currentObservableType ) == 0 )
+        // Check if observation is valid and should be processed
+        if ( isObservationValid( rawDataBlocks.at( i ), linkEnds, currentObservableType ) )
         {
-            createNewObject = true;
-        }
-        else if( processedDataBlocks_.at( currentObservableType ).count( linkEnds ) == 0 )
-        {
-            createNewObject = true;
-        }
-
-        // Create new data object, if required
-        if( createNewObject )
-        {
-            std::string transmittingStation = getStationNameFromStationId(
-                    rawDataBlocks.at( i )->getCommonDataBlock( )->transmittingStationNetworkId_,
-                    rawDataBlocks.at( i )->getCommonDataBlock( )->transmittingStationId_ );
-            std::string receivingStation = getStationNameFromStationId( 0, rawDataBlocks.at( i )->getCommonDataBlock( )->receivingStationId_ );
-
-            // Check if ground stations are in ramp tables
-            if ( requiresTransmittingStation( currentObservableType ) && rampInterpolators_.count( transmittingStation ) == 0 )
+            // Check if data object already exists for current observable/link ends
+            bool createNewObject = false;
+            if ( processedDataBlocks_.count( currentObservableType ) == 0 )
             {
-                if ( std::count( ignoredGroundStations_.begin( ), ignoredGroundStations_.end( ), transmittingStation ) == 0 )
+                createNewObject = true;
+            }
+            else if ( processedDataBlocks_.at( currentObservableType ).count( linkEnds ) == 0 )
+            {
+                createNewObject = true;
+            }
+
+            // Create new data object, if required
+            if ( createNewObject )
+            {
+                if ( currentObservableType == observation_models::dsn_n_way_averaged_doppler )
                 {
-                    ignoredGroundStations_.push_back( transmittingStation );
-                    if ( verbose_ )
-                    {
-                        std::cerr << "Warning: ground station " << transmittingStation << " not available in ramp tables," <<
-                            " ignoring corresponding data." << std::endl;
-                    }
+                    processedDataBlocks_[ currentObservableType ][ linkEnds ] = std::make_shared< ProcessedOdfFileDopplerData >(
+                            currentObservableType, linkEnds.at( receiver ).stationName_, linkEnds.at( transmitter ).stationName_ );
                 }
-                continue;
-            }
-            if ( requiresFirstReceivingStation( currentObservableType ) && rampInterpolators_.count( receivingStation ) == 0 )
-            {
-                if ( std::count( ignoredGroundStations_.begin( ), ignoredGroundStations_.end( ), receivingStation ) == 0 )
+                else
                 {
-                    ignoredGroundStations_.push_back( receivingStation );
-                    if ( verbose_ )
-                    {
-                        std::cerr << "Warning: ground station " << receivingStation << " not available in ramp tables," <<
-                            " ignoring corresponding data." << std::endl;
-                    }
+                    throw std::runtime_error(
+                            "Error when processing ODF file contents: processing of the selected observable type (" +
+                            std::to_string( currentObservableType ) + ") is not implemented." );
                 }
-                continue;
             }
 
-            if( currentObservableType == observation_models::dsn_n_way_averaged_doppler )
-            {
-                processedDataBlocks_[ currentObservableType ][ linkEnds ] = std::make_shared< ProcessedOdfFileDopplerData >(
-                        currentObservableType, receivingStation );
-            }
-            else
-            {
-                throw std::runtime_error( "Error when processing ODF file contents: processing of the selected observable type (" +
-                    std::to_string( currentObservableType ) + ") is not implemented.");
-            }
-
-            processedDataBlocks_[ currentObservableType ][ linkEnds ]->transmittingStation_ = transmittingStation;
+            addOdfRawDataBlockToProcessedData(
+                    rawDataBlocks.at( i ), processedDataBlocks_[ currentObservableType ][ linkEnds ],
+                    rawOdfData->fileName_ );
         }
-
-        addOdfRawDataBlockToProcessedData(
-                rawDataBlocks.at( i ), processedDataBlocks_[ currentObservableType ][ linkEnds ],
-                rawOdfData->fileName_ );
     }
 
 }
@@ -603,8 +510,7 @@ void ProcessedOdfFileContents::extractMultipleRawOdfRampData(
         std::vector< std::shared_ptr< input_output::OdfRawFileContents > > rawOdfDataVector )
 {
 
-    std::map< std::string, std::vector< double > > startTimesPerStation, endTimesPerStation,
-        rampRatesPerStation, startFrequenciesPerStation;
+    std::map< std::string, std::vector< double > > rampRatesPerStation, startFrequenciesPerStation;
 
     for( unsigned int i = 0; i < rawOdfDataVector.size( ); ++i )
     {
@@ -625,28 +531,28 @@ void ProcessedOdfFileContents::extractMultipleRawOdfRampData(
                 }
 
                 // Check if adding ramp block vector to previously existing vector: add connection point
-                if ( j == 0 && startTimesPerStation[ stationName ].size( ) != 0 )
+                if ( j == 0 && !unprocessedRampStartTimesPerStation_[ stationName ].empty( ) )
                 {
-                    startTimesPerStation[ stationName ].push_back( endTimesPerStation[ stationName ].back( ) );
-                    endTimesPerStation[ stationName ].push_back( rampBlocks.at( j )->getRampStartTime( ) );
+                    unprocessedRampStartTimesPerStation_[ stationName ].push_back( unprocessedRampEndTimesPerStation_[ stationName ].back( ) );
+                    unprocessedRampEndTimesPerStation_[ stationName ].push_back( rampBlocks.at( j )->getRampStartTime( ) );
                     rampRatesPerStation[ stationName ].push_back( TUDAT_NAN );
                     startFrequenciesPerStation[ stationName ].push_back( TUDAT_NAN );
                 }
 
-                startTimesPerStation[ stationName ].push_back( rampBlocks.at( j )->getRampStartTime( ) );
-                endTimesPerStation[ stationName ].push_back( rampBlocks.at( j )->getRampEndTime( ) );
+                unprocessedRampStartTimesPerStation_[ stationName ].push_back( rampBlocks.at( j )->getRampStartTime( ) );
+                unprocessedRampEndTimesPerStation_[ stationName ].push_back( rampBlocks.at( j )->getRampEndTime( ) );
                 rampRatesPerStation[ stationName ].push_back( rampBlocks.at( j )->getRampRate( ) );
                 startFrequenciesPerStation[ stationName ].push_back( rampBlocks.at( j )->getRampStartFrequency( ) );
             }
         }
     }
 
-    for( auto it = startTimesPerStation.begin( ); it != startTimesPerStation.end( ); ++it )
+    for( auto it = unprocessedRampStartTimesPerStation_.begin( ); it != unprocessedRampStartTimesPerStation_.end( ); ++it )
     {
         std::string stationName = it->first;
         rampInterpolators_[ stationName ] = std::make_shared< ground_stations::PiecewiseLinearFrequencyInterpolator >(
-                computeObservationTimesTdbFromJ2000( stationName, startTimesPerStation[ stationName ] ),
-                computeObservationTimesTdbFromJ2000( stationName, endTimesPerStation[ stationName ] ),
+                computeObservationTimesTdbFromJ2000( stationName, unprocessedRampStartTimesPerStation_[ stationName ] ),
+                computeObservationTimesTdbFromJ2000( stationName, unprocessedRampEndTimesPerStation_[ stationName ] ),
                 rampRatesPerStation[ stationName ], startFrequenciesPerStation[ stationName ] );
     }
 

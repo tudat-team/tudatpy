@@ -135,7 +135,7 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
 //    std::string fileTag = "2009";
 //    std::string fileTag = "2011";
 //    std::string fileTag = "2017_ssd";
-    std::string fileTag = "2017_nav";
+    std::string fileTag = "2017_096_nav";
     std::shared_ptr< OdfRawFileContents > rawOdfFileContents =
 //            std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/dsn_trk-2-18/odf07155.dat" );
 //            std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/messenger-rawdata-odf/mess_rs_10162_163_odf.dat" );
@@ -170,9 +170,11 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
             std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/mro-rawdata-odf/mromagr2017_098_1555xmmmv1.odf" );
     std::shared_ptr< OdfRawFileContents > rawOdfFileContents0 =
             std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/mro-rawdata-odf/mromagr2017_096_0820xmmmv1.odf" );
+    std::shared_ptr< OdfRawFileContents > rawOdfFileContentsNeg1 =
+            std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/mro-rawdata-odf/mromagr2017_095_0825xmmmv1.odf" );
 
     // Read and process ODF file data
-    std::vector< std::shared_ptr< input_output::OdfRawFileContents > > rawOdfDataVector = { rawOdfFileContents0 };
+    std::vector< std::shared_ptr< input_output::OdfRawFileContents > > rawOdfDataVector = { rawOdfFileContentsNeg1, rawOdfFileContents0, rawOdfFileContents, rawOdfFileContents2 };
     std::shared_ptr< ProcessedOdfFileContents > processedOdfFileContents =
             std::make_shared< ProcessedOdfFileContents >(
                     rawOdfDataVector, bodies.getBody( "Earth" ), true, spacecraftName );
