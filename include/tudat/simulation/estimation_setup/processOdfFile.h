@@ -160,25 +160,10 @@ public:
             const std::shared_ptr< const simulation_setup::Body > bodyWithGroundStations,
             bool verbose = true,
             std::string spacecraftName = "" ):
-        spacecraftName_( spacecraftName ),
-        bodyWithGroundStations_ ( bodyWithGroundStations ),
-        verbose_( verbose )
-    {
-        if ( spacecraftName != "" )
-        {
-            spacecraftName_ = spacecraftName;
-        }
-        else
-        {
-            // Spacecraft name selected to be the "NAIF Id", which is equal to -"JPL Id" (for a spacecraft)
-            spacecraftName_ = std::to_string( - rawOdfData->spacecraftId_ );
-        }
-
-        // Extract and process raw ODF data
-        extractRawOdfRampData( rawOdfData );
-        extractRawOdfOrbitData( rawOdfData );
-        updateProcessedObservationTimes( );
-    }
+        ProcessedOdfFileContents(
+                std::vector< std::shared_ptr< input_output::OdfRawFileContents > >{ rawOdfData },
+                bodyWithGroundStations, verbose, spacecraftName )
+    { }
 
     // Constructor for multiple ODF data objects
     ProcessedOdfFileContents(
@@ -196,7 +181,7 @@ public:
         }
         else
         {
-            // Spacecraft name selected to be the "NAIF Id", which is equal to -"JPL Id" (for a spacecraft)
+            // Spacecraft name selected to be "NAIF Id", which is equal to -"JPL Id" (for a spacecraft)
             spacecraftName_ = std::to_string( - rawOdfDataVector.front( )->spacecraftId_ );
         }
 
@@ -249,8 +234,6 @@ private:
     void sortAndValidateOdfDataVector( std::vector< std::shared_ptr< input_output::OdfRawFileContents > >& rawOdfDataVector );
 
     void extractRawOdfOrbitData( std::shared_ptr< input_output::OdfRawFileContents > rawOdfData );
-
-    void extractRawOdfRampData( std::shared_ptr< input_output::OdfRawFileContents > rawOdfData );
 
     void extractMultipleRawOdfRampData(
             std::vector< std::shared_ptr< input_output::OdfRawFileContents > > rawOdfDataVector );

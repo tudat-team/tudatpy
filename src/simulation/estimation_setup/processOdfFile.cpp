@@ -27,9 +27,9 @@ observation_models::ObservableType getObservableTypeForOdfId( const int odfId )
 //    case 11:
 //        observableType = observation_models::dsn_one_way_averaged_doppler;
 //        break;
-    case 12:
-        observableType = observation_models::dsn_n_way_averaged_doppler;
-        break;
+//    case 12:
+//        observableType = observation_models::dsn_n_way_averaged_doppler;
+//        break;
     case 13:
         observableType = observation_models::dsn_n_way_averaged_doppler;
         break;
@@ -599,34 +599,6 @@ void ProcessedOdfFileContents::extractRawOdfOrbitData(
 
 }
 
-void ProcessedOdfFileContents::extractRawOdfRampData( std::shared_ptr< input_output::OdfRawFileContents > rawOdfData )
-{
-
-    std::map< int, std::vector< std::shared_ptr< input_output::OdfRampBlock > > > rampBlocksPerStation = rawOdfData->getRampBlocks( );
-    for( auto it = rampBlocksPerStation.begin( ); it != rampBlocksPerStation.end( ); it++ )
-    {
-        std::string stationName = getStationNameFromStationId( 0, it->first );
-
-        std::vector< std::shared_ptr< input_output::OdfRampBlock > > rampBlocks = it->second;
-
-        std::vector< double > startTimes, endTimes, rampRates, startFrequencies;
-        for( unsigned int i = 0; i < it->second.size( ); i++ )
-        {
-            startTimes.push_back( rampBlocks.at( i )->getRampStartTime( ) );
-            endTimes.push_back( rampBlocks.at( i )->getRampEndTime( ) );
-            rampRates.push_back( rampBlocks.at( i )->getRampRate( ) );
-            startFrequencies.push_back( rampBlocks.at( i )->getRampStartFrequency( ) );
-        }
-
-        std::cout << std::endl << stationName << ": " << std::endl;
-        rampInterpolators_[ stationName ] = std::make_shared< ground_stations::PiecewiseLinearFrequencyInterpolator >(
-                computeObservationTimesTdbFromJ2000( stationName, startTimes ),
-                computeObservationTimesTdbFromJ2000( stationName, endTimes ),
-                rampRates, startFrequencies );
-    }
-
-}
-
 void ProcessedOdfFileContents::extractMultipleRawOdfRampData(
         std::vector< std::shared_ptr< input_output::OdfRawFileContents > > rawOdfDataVector )
 {
@@ -644,7 +616,7 @@ void ProcessedOdfFileContents::extractMultipleRawOdfRampData(
 
             std::vector< std::shared_ptr< input_output::OdfRampBlock > > rampBlocks = it->second;
 
-            for( unsigned int j = 0; i < it->second.size( ); j++ )
+            for( unsigned int j = 0; j < it->second.size( ); j++ )
             {
                 // Check if zero time ramp
                 if ( rampBlocks.at( j )->getRampStartTime( ) == rampBlocks.at( j )->getRampEndTime( ) )
@@ -652,7 +624,7 @@ void ProcessedOdfFileContents::extractMultipleRawOdfRampData(
                     continue;
                 }
 
-                // Check if adding ramp block vector to previously existing vector and add connection point
+                // Check if adding ramp block vector to previously existing vector: add connection point
                 if ( j == 0 && startTimesPerStation[ stationName ].size( ) != 0 )
                 {
                     startTimesPerStation[ stationName ].push_back( endTimesPerStation[ stationName ].back( ) );
