@@ -236,208 +236,76 @@ BOOST_AUTO_TEST_CASE( testProcessSingleOdfFile )
 
 }
 
-    //   boost::shared_ptr< orbit_determination::ProcessedOdfFileContents > odfContents =
-    //           orbit_determination::parseOdfFileContents(
-    //               input_output::readOdfFile( "/home/dominic/Downloads/mromagr2017_117_0745xmmmv1.odf" ) );
+BOOST_AUTO_TEST_CASE( testProcessMultipleOdfFile )
+{
+    spice_interface::loadStandardSpiceKernels( );
 
-    //   std::map< observation_models::ObservableType,
-    //           std::vector< boost::shared_ptr< orbit_determination::ProcessdOdfFileSingleLinkData > > > dataBlocks =
-    //           odfContents->dataBlocks;
+    // Create system of bodies
+    std::string spacecraftName = "MRO";
 
-    //   for( auto it = dataBlocks.begin( ); it != dataBlocks.end( ); it++ )
-    //   {
-    //       int counter = 0;
-    //       for( unsigned int i = 0; i < it->second.size( ); i++ )
-    //       {
-    //           boost::shared_ptr< orbit_determination::ProcessdOdfFileDopplerData > currentDopplerData =
-    //                   boost::dynamic_pointer_cast< orbit_determination::ProcessdOdfFileDopplerData >(
-    //                       it->second.at( i ) );
-    //           std::string fileSuffix = std::to_string( it->first ) + "_" + std::to_string( counter );
+    std::vector< std::string > bodiesToCreate = { "Earth" };
 
-    //           input_output::writeDataMapToTextFile(
-    //                       currentDopplerData->getCompressionTimes( ),
-    //                           "odfTestCompressionTimes_" + fileSuffix + ".dat", "/home/dominic/Documents/" ) ;
-    //           input_output::writeDataMapToTextFile(
-    //                       currentDopplerData->getObservationData( ),
-    //                           "odfTestObservations_" + fileSuffix + ".dat", "/home/dominic/Documents/" ) ;
-    //           input_output::writeDataMapToTextFile(
-    //                       currentDopplerData->getReferenceFrequencies( ),
-    //                           "odfTestReferenceFrequencies_" + fileSuffix + ".dat", "/home/dominic/Documents/" ) ;
-    //           input_output::writeDataMapToTextFile(
-    //                       currentDopplerData->getRampFlags( ),
-    //                           "odfTestRampFlags_" + fileSuffix + ".dat", "/home/dominic/Documents/" ) ;
-    //           counter++;
-    //       }
-    //   }
+    BodyListSettings bodySettings = getDefaultBodySettings( bodiesToCreate );
+    bodySettings.at( "Earth" )->groundStationSettings = getDsnStationSettings( );
 
-//    std::vector< boost::filesystem::path > files = input_output::listAllFilesInDirectory(
-//                "/Users/pipas/Documents/dsn_trk-2-18/", false ); // "/home/dominic/Software/MercuryData/odf/"
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
 
-//    for( unsigned int i = 0; i < files.size( ); i++ )
-//    {
-//        if( i % 100 == 0 )
-//        {
-//            //std::cout<<i<<std::endl;
-//        }
-//        std::string fileString = files.at( i ).string( );
-//        int stringSize = fileString.size( );
-//
-//        if( fileString.substr( stringSize - 3, stringSize -1 ) == "dat" )
-//        {
-////            input_output::readOdfFile( "/Users/pipas/Documents/dsn_trk-2-18/" + fileString );
-//
-//            odfContentsList.push_back( orbit_determination::ProcessedOdfFileContents(
-//                    input_output::readOdfFile( "/Users/pipas/Documents/dsn_trk-2-18/" + fileString ) ) ); // "/home/dominic/Software/MercuryData/odf/"
-//        }
-//    }
+    // Load ODF files
+    std::shared_ptr< input_output::OdfRawFileContents > rawOdfContents1 = std::make_shared< input_output::OdfRawFileContents >(
+            tudat::paths::getTudatTestDataPath( )  + "/mromagr2017_097_1335xmmmv1.odf" );
+    std::shared_ptr< input_output::OdfRawFileContents > rawOdfContents2 = std::make_shared< input_output::OdfRawFileContents >(
+            tudat::paths::getTudatTestDataPath( )  + "/mromagr2017_098_1555xmmmv1.odf" );
+    std::vector< std::shared_ptr< input_output::OdfRawFileContents > > rawOdfDataVector = { rawOdfContents2, rawOdfContents1 };
 
-//    observation_models::ProcessedOdfFileContents odfContents = observation_models::ProcessedOdfFileContents(
-//            input_output::readOdfFile( "/Users/pipas/Documents/dsn_trk-2-18/odf07155.dat" ),
-//            bodies.getBody( "Earth" ) );
+    // Process ODF files
+    std::shared_ptr< observation_models::ProcessedOdfFileContents > processedOdfFileContents =
+            std::make_shared< observation_models::ProcessedOdfFileContents >(
+                    rawOdfDataVector, bodies.getBody( "Earth" ), true, spacecraftName );
 
-//
-//    std::shared_ptr< orbit_determination::ProcessedOdfFileContents > mergedData =
-//            orbit_determination::mergeOdfFileContents(
-//                odfContentsList );
-//
-//    std::map< observation_models::ObservableType, std::map< std::pair< std::string, std::string >,
-//            std::shared_ptr< orbit_determination::ProcessdOdfFileSingleLinkData > > > dataBlocksMerged =
-//            mergedData->processedDataBlocks;
-//
-//    double filterStartTime = 58.0 * 365.25 * 86400.0;
-//    double filterEndTime = 62.0 * 365.25 * 86400.0;
-//
-//    double filterFrequency = 200.0E3;
-//
-//    for( auto it = dataBlocksMerged.begin( ); it != dataBlocksMerged.end( ); it++ )
-//    {
-//        int counter = 0;
-//
-//        std::vector< double > observationTimes, observables, referenceFrequencies;
-//        std::vector< std::string > receivingStation, transmittingStation;
-//        std::vector< double > receivingRampFrequency, transmittingRampFrequency;
-//        std::vector< std::string > originFiles;
-//        std::vector< bool > rampFlags;
-//
-//
-//        for( auto linkIt = it->second.begin( ); linkIt != it->second.end( ); linkIt++ )
-//        {
-//            std::shared_ptr< orbit_determination::ProcessdOdfFileDopplerData > currentDopplerData =
-//                    std::dynamic_pointer_cast< orbit_determination::ProcessdOdfFileDopplerData >( linkIt->second );
-//
-//            std::vector< double > currentObservationTimes = currentDopplerData->observationTimes,
-//                    currentObservables = currentDopplerData->observableValues,
-//                    currentReferenceFrequencies = currentDopplerData->referenceFrequency;
-//            std::vector< std::string > currentOriginFiles = currentDopplerData->originFile;
-//            std::vector< bool > currentRampFlags = currentDopplerData->rampingFlag;
-//            std::cout<<it->first<<" "<<linkIt->first.first<<" "<<linkIt->first.second<<" "<<currentObservationTimes.size( )<<std::endl;
-//
-//            std::shared_ptr< orbit_determination::RampedReferenceFrequencyInterpolator > transmitterRampInterpolator;
-//            if( mergedData->rampInterpolators.count(
-//                        boost::lexical_cast< int >( linkIt->first.first ) ) != 0 )
-//            {
-//                transmitterRampInterpolator = mergedData->rampInterpolators.at(
-//                            boost::lexical_cast< int >( linkIt->first.first ) );
-//            }
-//            else
-//            {
-//                transmitterRampInterpolator = NULL;
-//            }
-//
-//            std::shared_ptr< orbit_determination::RampedReferenceFrequencyInterpolator > receiverRampInterpolator;
-//            if( mergedData->rampInterpolators.count(
-//                        boost::lexical_cast< int >( linkIt->first.second ) ) != 0 )
-//            {
-//                receiverRampInterpolator = mergedData->rampInterpolators.at(
-//                            boost::lexical_cast< int >( linkIt->first.second ) );
-//            }
-//            else
-//            {
-//                receiverRampInterpolator = NULL;
-//            }
-//
-//            for( unsigned int j = 0; j < currentObservationTimes.size( ); j++ )
-//            {
-//                if( currentObservationTimes.at( j ) > filterStartTime &&
-//                        currentObservationTimes.at( j ) < filterEndTime &&
-//                        std::fabs( currentObservables.at( j ) ) < filterFrequency
-//                        && std::stoi( linkIt->first.second ) > 0 && std::stoi( linkIt->first.second ) < 100
-//                         && std::stoi( linkIt->first.first ) > 0 && std::stoi( linkIt->first.first ) < 100 )
-//                {
-//
-//                    observationTimes.push_back( currentObservationTimes.at( j ) );
-//                    observables.push_back( currentObservables.at( j ) );
-//                    //originFiles.push_back( currentOriginFiles.at( j ) );
-//                    rampFlags.push_back( currentRampFlags.at( j ) );
-//                    referenceFrequencies.push_back( currentReferenceFrequencies.at( j ) );
-//
-//                    receivingStation.push_back( linkIt->first.second );
-//                    transmittingStation.push_back( linkIt->first.first );
-//
-//                    bool testBoolean;
-//
-//                    if( receiverRampInterpolator != NULL )
-//                    {
-//                       receivingRampFrequency.push_back( receiverRampInterpolator->getCurrentReferenceFrequency(
-//                                                             currentObservationTimes.at( j ), testBoolean ) );
-//                    }
-//                    else
-//                    {
-//                        receivingRampFrequency.push_back( TUDAT_NAN );
-//                    }
-//
-//                    if( transmitterRampInterpolator != NULL )
-//                    {
-//                       transmittingRampFrequency.push_back( transmitterRampInterpolator->getCurrentReferenceFrequency(
-//                                                                currentObservationTimes.at( j ), testBoolean ) );
-//                    }
-//                    else
-//                    {
-//                        transmittingRampFrequency.push_back( TUDAT_NAN );
-//                    }
-//
-//
-//
-//                    //           std::string fileSuffix = std::to_string( it->first ) + "_" + std::to_string( counter );
-//
-//                    //           input_output::writeDataMapToTextFile(
-//                    //                       currentDopplerData->getCompressionTimes( ),
-//                    //                           "odfTestCompressionTimes_" + fileSuffix + ".dat", "/home/dominic/Documents/" ) ;
-//                    //           input_output::writeDataMapToTextFile(
-//                    //                       currentDopplerData->getObservationData( ),
-//                    //                           "odfTestObservations_" + fileSuffix + ".dat", "/home/dominic/Documents/" ) ;
-//                    //           input_output::writeDataMapToTextFile(
-//                    //                       currentDopplerData->getReferenceFrequencies( ),
-//                    //                           "odfTestReferenceFrequencies_" + fileSuffix + ".dat", "/home/dominic/Documents/" ) ;
-//                    //           input_output::writeDataMapToTextFile(
-//                    //                       currentDopplerData->getRampFlags( ),
-//                    //                           "odfTestRampFlags_" + fileSuffix + ".dat", "/home/dominic/Documents/" ) ;
-//                    counter++;
-//                }
-//            }
-//        }
-//
-//        Eigen::MatrixXd dataMatrix = Eigen::MatrixXd( rampFlags.size( ), 8 );
-//        for( unsigned int j = 0; j < rampFlags.size( ); j++ )
-//        {
-//            dataMatrix( j, 0 ) = observationTimes.at( j );
-//            dataMatrix( j, 1 ) = observables.at( j );
-//            dataMatrix( j, 2 ) = boost::lexical_cast< double >( receivingStation.at( j ) );
-//            dataMatrix( j, 3 ) = boost::lexical_cast< double >( transmittingStation.at( j ) );
-//            dataMatrix( j, 4 ) = referenceFrequencies.at( j );
-//            dataMatrix( j, 5 ) = static_cast< double >( rampFlags.at( j ) );
-//            dataMatrix( j, 6 ) = static_cast< double >( receivingRampFrequency.at( j ) );
-//            dataMatrix( j, 7 ) = static_cast< double >( transmittingRampFrequency.at( j ) );
-//        }
-//
-//        std::cout << dataMatrix << std::endl << std::endl;
-//
-//
-//        input_output::writeMatrixToFile(
-//                    dataMatrix, "odfFileSummary_" + std::to_string( it->first ), 16,
-//                    "/Users/pipas/Documents/dsn_trk-2-18/" ); // "/home/dominic/Documents/"
-//    }
+    std::pair< double, double > startAndEndTimeTdb = processedOdfFileContents->getStartAndEndTime( );
+    double startTime = startAndEndTimeTdb.first;
+    double endTime = startAndEndTimeTdb.second;
 
+    // Compare start and end time with values in LBL file
+    for ( unsigned int i = 0; i < 2; ++i )
+    {
+        double time, expectedFractionOfDay;
+        int expectedYear, expectedMonth, expectedDay;
+        // Expected start time: 2017-097T13:35:34.5 UTC
+        if ( i == 0 )
+        {
+            time = startTime;
+            expectedYear = 2017;
+            expectedMonth = 4;
+            expectedDay = 7;
+            expectedFractionOfDay = 13.0 / 24.0 + 35.0 / ( 24.0 * 60.0 ) + 34.5 / ( 24.0 * 3600.0 );
+        }
+        // Expected end time: 2017-100T03:50:21.5 UTC
+        else
+        {
+            time = endTime;
+            expectedYear = 2017;
+            expectedMonth = 4;
+            expectedDay = 10;
+            expectedFractionOfDay = 3.0 / 24.0 + 50.0 / ( 24.0 * 60.0 ) + 21.5 / ( 24.0 * 3600.0 );
+        }
+
+        // Get UTC time
+        earth_orientation::TerrestrialTimeScaleConverter timeScaleConverter = earth_orientation::TerrestrialTimeScaleConverter( );
+        double timeUtc = timeScaleConverter.getCurrentTime< double >( basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, time );
+
+        // Get UTC calendar date
+        int year, month, day;
+        double fractionOfDay;
+        iauJd2cal( basic_astrodynamics::JULIAN_DAY_ON_J2000, timeUtc / physical_constants::JULIAN_DAY, &year, &month, &day, &fractionOfDay );
+
+        BOOST_CHECK_EQUAL ( year, expectedYear );
+        BOOST_CHECK_EQUAL ( month, expectedMonth );
+        BOOST_CHECK_EQUAL ( day, expectedDay );
+        BOOST_CHECK_CLOSE_FRACTION( fractionOfDay, expectedFractionOfDay, 1e-10 );
+    }
+
+}
 
 BOOST_AUTO_TEST_SUITE_END( )
 

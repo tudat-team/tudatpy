@@ -174,7 +174,7 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
             std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/mro-rawdata-odf/mromagr2017_095_0825xmmmv1.odf" );
 
     // Read and process ODF file data
-    std::vector< std::shared_ptr< input_output::OdfRawFileContents > > rawOdfDataVector = { rawOdfFileContentsNeg1, rawOdfFileContents0, rawOdfFileContents, rawOdfFileContents2 };
+    std::vector< std::shared_ptr< input_output::OdfRawFileContents > > rawOdfDataVector = { rawOdfFileContents2, rawOdfFileContents };
     std::shared_ptr< ProcessedOdfFileContents > processedOdfFileContents =
             std::make_shared< ProcessedOdfFileContents >(
                     rawOdfDataVector, bodies.getBody( "Earth" ), true, spacecraftName );

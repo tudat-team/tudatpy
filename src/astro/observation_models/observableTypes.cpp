@@ -136,6 +136,9 @@ bool requiresFirstReceivingStation( const ObservableType observableType )
     case dsn_n_way_averaged_doppler:
         requiresFirstReceivingStation = false;
         break;
+    case dsn_one_way_averaged_doppler:
+        requiresFirstReceivingStation = true;
+        break;
     default:
         throw std::runtime_error( "Error when determining if observable type requires first receiving station: observable " +
                                   getObservableName( observableType ) + " not found." );
@@ -160,6 +163,7 @@ bool requiresSecondReceivingStation( const ObservableType observableType )
     case relative_angular_position:
     case n_way_differenced_range:
     case dsn_n_way_averaged_doppler:
+    case dsn_one_way_averaged_doppler:
         requiresSecondReceivingStation = false;
         break;
     default:
