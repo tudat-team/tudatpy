@@ -54,6 +54,15 @@ public:
         return engineModels_;
     }
 
+    std::shared_ptr< EngineModel > getEngineModel( const std::string engineName )
+    {
+        if( engineModels_.count( engineName ) == 0 )
+        {
+            throw std::runtime_error( "Error when retrieving engine " + engineName + ", no such engine found." );
+        }
+        return engineModels_.at( engineName );
+    }
+
     //! Function to set a single engine in the vehicle
     /*!
      * Function to set a single engine in the vehicle. Each engine can be identified by a string. If only a single
