@@ -35,7 +35,7 @@ TUDAT_ADD_TEST_CASE(TidalPropertyEstimation
     ${Tudat_ESTIMATION_LIBRARIES}
     )
 
-TUDAT_ADD_TEST_CASE(HybridArcStateEstimation
+TUDAT_ADD_TEST_CASE2(HybridArcStateEstimation
     PRIVATE_LINKS
     ${Tudat_ESTIMATION_LIBRARIES}
     )
@@ -86,7 +86,7 @@ TUDAT_ADD_TEST_CASE(FullPlanetaryRotationModelEstimation
     )
 
 
-TUDAT_ADD_TEST_CASE(EstimationFromIdealDataTimeDouble
+TUDAT_ADD_TEST_CASE2(EstimationFromIdealDataTimeDouble
     PRIVATE_LINKS
     ${Tudat_ESTIMATION_LIBRARIES}
     )
