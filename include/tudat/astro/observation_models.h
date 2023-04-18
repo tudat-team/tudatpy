@@ -32,5 +32,6 @@
 #include "observation_models/relativeAngularPositionObservationModel.h"
 #include "observation_models/corrections/lightTimeCorrection.h"
 #include "observation_models/corrections/firstOrderRelativisticCorrection.h"
+#include "observation_models/corrections/tabulatedMediaCorrection.h"
 
 #endif // TUDAT_OBSERVATION_MODELS_H
