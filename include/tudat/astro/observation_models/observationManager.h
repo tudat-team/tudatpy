@@ -275,7 +275,7 @@ public:
 //        std::cout << "end computeObservationsWithPartials" << "\n\n";
 
         return std::make_pair(
-                utilities::createConcatenatedEigenMatrixFromMapValues< TimeType, ObservationScalarType, ObservationSize, 1 > >( observations ),
+                utilities::createConcatenatedEigenMatrixFromMapValues< TimeType, ObservationScalarType, ObservationSize, 1 >( observations ),
                 utilities::createConcatenatedEigenMatrixFromMapValues< TimeType, ObservationScalarType, ObservationSize, Eigen::Dynamic >( observationMatrices ) );
     }
 
