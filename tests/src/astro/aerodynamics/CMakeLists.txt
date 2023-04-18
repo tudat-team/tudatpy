@@ -8,7 +8,7 @@
 #    http://tudat.tudelft.nl/LICENSE.
 #
 
-TUDAT_ADD_TEST_CASE2(AerodynamicMomentAndAerodynamicForce
+TUDAT_ADD_TEST_CASE(AerodynamicMomentAndAerodynamicForce
         PRIVATE_LINKS
         ${Tudat_PROPAGATION_LIBRARIES}
         Tudat::tudat_aerodynamics
@@ -20,7 +20,7 @@ TUDAT_ADD_TEST_CASE(AerodynamicsNamespace
         Tudat::tudat_basic_mathematics
         )
 
-TUDAT_ADD_TEST_CASE2(CoefficientGenerator
+TUDAT_ADD_TEST_CASE(CoefficientGenerator
         PRIVATE_LINKS
         Tudat::tudat_aerodynamics
         Tudat::tudat_geometric_shapes
