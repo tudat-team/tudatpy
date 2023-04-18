@@ -274,8 +274,9 @@ public:
 
 //        std::cout << "end computeObservationsWithPartials" << "\n\n";
 
-        return std::make_pair( utilities::createConcatenatedEigenMatrixFromMapValues( observations ),
-                               utilities::createConcatenatedEigenMatrixFromMapValues( observationMatrices ) );
+        return std::make_pair(
+                utilities::createConcatenatedEigenMatrixFromMapValues< TimeType, ObservationScalarType, ObservationSize, 1 > >( observations ),
+                utilities::createConcatenatedEigenMatrixFromMapValues< TimeType, ObservationScalarType, ObservationSize, Eigen::Dynamic >( observationMatrices ) );
     }
 
     //! Function to return the full list of observation partial objects
