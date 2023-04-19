@@ -11,6 +11,11 @@
 #ifndef TUDAT_TABULATEDMEDIACORRECTION_H
 #define TUDAT_TABULATEDMEDIACORRECTION_H
 
+#include <cmath>
+#include <vector>
+
+#include "tudat/math/interpolators.h"
+
 namespace tudat
 {
 
@@ -28,6 +33,16 @@ public:
     { }
 
     virtual double computeReferenceCorrection( const double time ) = 0;
+
+    double getStartTime( )
+    {
+        return startTime_;
+    }
+
+    double getEndTime( )
+    {
+        return endTime_;
+    }
 
 protected:
 
@@ -159,6 +174,236 @@ private:
     std::vector< double > cosineCoefficients_;
 
 };
+
+class TabulatedMediaReferenceCorrectionManager
+{
+public:
+
+    TabulatedMediaReferenceCorrectionManager( ):
+        isLookupSchemeUpdated_( false )
+    { }
+
+    TabulatedMediaReferenceCorrectionManager(
+            std::vector< std::shared_ptr< TabulatedMediaReferenceCorrection > > correctionVector ):
+        correctionVector_( correctionVector ),
+        isLookupSchemeUpdated_( false )
+    {
+        for ( unsigned int i = 0; i < correctionVector_.size( ); ++i )
+        {
+            startTimes_.push_back( correctionVector_.at( i )->getStartTime( ) );
+            endTimes_.push_back( correctionVector_.at( i )->getEndTime( ) );
+        }
+    }
+
+    double pushReferenceCorrectionCalculator( std::shared_ptr< TabulatedMediaReferenceCorrection > correctionCalculator )
+    {
+        if ( correctionVector_.empty( ) ||
+            ( !correctionVector_.empty( ) && correctionCalculator->getStartTime( ) > startTimes_.back( ) &&
+                correctionCalculator->getEndTime( ) > endTimes_.back( ) ) )
+        {
+            startTimes_.push_back( correctionCalculator->getStartTime( ) );
+            endTimes_.push_back( correctionCalculator->getEndTime( ) );
+            correctionVector_.push_back( correctionCalculator );
+        }
+        else
+        {
+            throw std::runtime_error("Inconsistency in times when pushing tabulated media reference correction calculator. ");
+        }
+
+        isLookupSchemeUpdated_ = false;
+    }
+
+    double computeMediaCorrection( double time )
+    {
+        if ( correctionVector_.empty( ) )
+        {
+            throw std::runtime_error("Error when computing reference media correction: no correction object provided. ");
+        }
+
+        if ( !isLookupSchemeUpdated_ )
+        {
+            startTimeLookupScheme_ = std::make_shared< interpolators::HuntingAlgorithmLookupScheme< double > >( startTimes_ );
+            isLookupSchemeUpdated_ = true;
+        }
+
+        int lowerNearestNeighbour = startTimeLookupScheme_->findNearestLowerNeighbour( time );
+
+        return correctionVector_.at( lowerNearestNeighbour )->computeReferenceCorrection( time );
+    }
+
+private:
+
+    std::vector< double > startTimes_;
+
+    std::vector< double > endTimes_;
+
+    std::vector< std::shared_ptr< TabulatedMediaReferenceCorrection > > correctionVector_;
+
+    bool isLookupSchemeUpdated_;
+
+    //! Lookup scheme to find the nearest correction object start time for a given time
+    std::shared_ptr< interpolators::LookUpScheme< double > > startTimeLookupScheme_;
+};
+
+enum TroposphericMappingModel
+{
+    simplified_chao,
+    niell
+};
+
+class TroposhericElevationMapping
+{
+public:
+
+    TroposhericElevationMapping( )
+    { }
+
+    virtual double computeDryTroposphericMapping(
+            const Eigen::Vector6d& transmitterState,
+            const Eigen::Vector6d& receiverState,
+            const double transmissionTime,
+            const double receptionTime ) = 0;
+
+    virtual double computeWetTroposphericMapping(
+            const Eigen::Vector6d& transmitterState,
+            const Eigen::Vector6d& receiverState,
+            const double transmissionTime,
+            const double receptionTime ) = 0;
+
+protected:
+
+private:
+
+};
+
+// Moyer (2000), Eq. 10-8 to 10-10
+class SimplifiedChaoTroposphericMapping: public TroposhericElevationMapping
+{
+public:
+    SimplifiedChaoTroposphericMapping(
+            std::function< double ( Eigen::Vector3d inertialVectorAwayFromStation, double time ) > elevationFunction,
+            bool isUplinkCorrection ):
+        TroposhericElevationMapping( ),
+        elevationFunction_( elevationFunction ),
+        isUplinkCorrection_( isUplinkCorrection )
+    { }
+
+    double computeDryTroposphericMapping(
+            const Eigen::Vector6d& transmitterState,
+            const Eigen::Vector6d& receiverState,
+            const double transmissionTime,
+            const double receptionTime ) override
+    {
+        computeCurrentElevation( transmitterState, receiverState, transmissionTime, receptionTime );
+        return troposphericSimplifiedChaoMapping( currentElevation_, false );
+    }
+
+    double computeWetTroposphericMapping(
+            const Eigen::Vector6d& transmitterState,
+            const Eigen::Vector6d& receiverState,
+            const double transmissionTime,
+            const double receptionTime ) override
+    {
+        computeCurrentElevation( transmitterState, receiverState, transmissionTime, receptionTime );
+        return troposphericSimplifiedChaoMapping( currentElevation_, true );
+    }
+
+private:
+
+    double troposphericSimplifiedChaoMapping( const double elevation,
+                                              const bool dryCorrection );
+
+    void computeCurrentElevation(
+            const Eigen::Vector6d& transmitterState,
+            const Eigen::Vector6d& receiverState,
+            const double transmissionTime,
+            const double receptionTime );
+
+    double currentElevation_;
+
+    double currentStationTime_;
+
+    std::function< double ( Eigen::Vector3d, double ) > elevationFunction_;
+
+    // Boolean indicating whether the correction is for uplink or donwlink (necessary when computing the elevation)
+    bool isUplinkCorrection_;
+
+};
+
+// Moyer (2000), section 10.2.1.3.2
+class NiellTroposphericMapping: public TroposhericElevationMapping
+{
+public:
+    NiellTroposphericMapping(
+            std::function< double ( Eigen::Vector3d inertialVectorAwayFromStation, double time ) > elevationFunction,
+            std::function< Eigen::Vector3d ( double time ) > groundStationGeodeticPositionFunction,
+            bool isUplinkCorrection );
+
+    double computeWetTroposphericMapping(
+            const Eigen::Vector6d& transmitterState,
+            const Eigen::Vector6d& receiverState,
+            const double transmissionTime,
+            const double receptionTime ) override;
+
+    double computeDryTroposphericMapping(
+            const Eigen::Vector6d& transmitterState,
+            const Eigen::Vector6d& receiverState,
+            const double transmissionTime,
+            const double receptionTime ) override;
+
+private:
+
+    double computeMFunction ( const double a, const double b, const double c, const double elevation );
+
+    double computeDryCoefficient(
+            std::shared_ptr< interpolators::OneDimensionalInterpolator< double, double > > averageInterpolator,
+            std::shared_ptr< interpolators::OneDimensionalInterpolator< double, double > > amplitudeInterpolator,
+            const double time,
+            const double geodeticLatitude );
+
+    std::function< double ( Eigen::Vector3d, double ) > elevationFunction_;
+
+    std::function< Eigen::Vector3d ( double ) > groundStationGeodeticPositionFunction_;
+
+    // Boolean indicating whether the correction is for uplink or donwlink (necessary when computing the elevation)
+    bool isUplinkCorrection_;
+
+    const std::vector< double > referenceGeodeticLatitudes_ = { 15.0 * mathematical_constants::PI / 180.0,
+                                                                30.0 * mathematical_constants::PI / 180.0,
+                                                                45.0 * mathematical_constants::PI / 180.0,
+                                                                60.0 * mathematical_constants::PI / 180.0,
+                                                                75.0 * mathematical_constants::PI / 180.0 };
+
+    const std::vector< double > aDryAverage_ = { 1.2769934e-3, 1.2683230e-3, 1.2465397e-3, 1.2196049e-3, 1.2045996e-3 };
+    const std::vector< double > bDryAverage_ = { 2.9153695e-3, 2.9152299e-3, 2.9288445e-3, 2.9022565e-3, 2.9024912e-3 };
+    const std::vector< double > cDryAverage_ = { 62.610505e-3, 62.837393e-3, 63.721774e-3, 63.824265e-3, 64.258455e-3 };
+
+    const std::vector< double > aDryAmplitude_ = { 0.0e-5, 1.2709626e-5, 2.6523662e-5, 3.4000452e-5, 4.1202191e-5 };
+    const std::vector< double > bDryAmplitude_ = { 0.0e-5, 2.1414979e-5, 3.0160779e-5, 7.2562722e-5, 11.723375e-5 };
+    const std::vector< double > cDryAmplitude_ = { 0.0e-5, 9.0128400e-5, 4.3497037e-5, 84.795348e-5, 170.37206e-5 };
+
+    const double aHt = 2.53e-5;
+    const double bHt = 5.49e-3;
+    const double cHt = 1.14e-3;
+
+    const std::vector< double > aWet_ = { 5.8021897e-4, 5.6794847e-4, 5.8118019e-4, 5.9727542e-4, 6.1641693e-4 };
+    const std::vector< double > bWet_ = { 1.4275268e-3, 1.5138625e-3, 1.4572752e-3, 1.5007428e-3, 1.7599082e-3 };
+    const std::vector< double > cWet_ = { 4.3472961e-2, 4.6729510e-2, 4.3908931e-2, 4.4626982e-2, 5.4736038e-2 };
+
+    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, double > > aDryAverageInterpolator_;
+    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, double > > bDryAverageInterpolator_;
+    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, double > > cDryAverageInterpolator_;
+
+    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, double > > aDryAmplitudeInterpolator_;
+    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, double > > bDryAmplitudeInterpolator_;
+    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, double > > cDryAmplitudeInterpolator_;
+
+    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, double > > aWetInterpolator_;
+    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, double > > bWetInterpolator_;
+    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, double > > cWetInterpolator_;
+};
+
+
 
 } // namespace observation_models
 
