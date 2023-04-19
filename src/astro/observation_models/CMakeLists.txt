@@ -17,6 +17,7 @@ set(observation_models_SOURCES
         "observationSimulator.cpp"
         "observationModel.cpp"
         "corrections/firstOrderRelativisticCorrection.cpp"
+        "corrections/tabulatedMediaCorrection.cpp"
         "observationFrequencies.cpp"
         )
 
@@ -44,6 +45,7 @@ set(observation_models_HEADERS
         "observationViabilityCalculator.h"
         "corrections/lightTimeCorrection.h"
         "corrections/firstOrderRelativisticCorrection.h"
+        "corrections/tabulatedMediaCorrection.h"
         "dsnNWayAveragedDopplerObservationModel.h"
         "observationFrequencies.h"
         )

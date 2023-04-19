@@ -24,7 +24,9 @@ namespace observation_models
 enum LightTimeCorrectionType
 {
     first_order_relativistic,
-    function_wrapper_light_time_correction
+    function_wrapper_light_time_correction,
+    tabulated_ionospheric,
+    tabulated_tropospheric
 };
 
 
