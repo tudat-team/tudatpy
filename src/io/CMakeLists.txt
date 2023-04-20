@@ -32,6 +32,7 @@ set(io_SOURCES
         "tabulatedAtmosphereReader.cpp"
         "util.cpp"
         "readOdfFile.cpp"
+        "readTabulatedMediaCorrections.cpp"
         )
 
 # Add header files.
@@ -69,6 +70,7 @@ set(io_HEADERS
         "util.h"
         "readOdfFile.h"
         "readBinaryFile.h"
+        "readTabulatedMediaCorrections.h"
         )
 
 # Add library.

@@ -35,6 +35,7 @@
 #include "io/parseSolarActivityData.h"
 #include "io/readHistoryFromFile.h"
 #include "io/readOdfFile.h"
+#include "io/readTabulatedMediaCorrections.h"
 #include "io/separatedParser.h"
 #include "io/solarActivityData.h"
 #include "io/streamFilters.h"

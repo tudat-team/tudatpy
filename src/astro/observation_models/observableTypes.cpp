@@ -403,6 +403,35 @@ ObservableType getDifferencedObservableType( const ObservableType undifferencedO
     return differencedObservableType;
 }
 
+ObservableType getBaseObservableType( const ObservableType observableType )
+{
+    ObservableType baseObservableType = undefined_observation_model;
+    switch( observableType )
+    {
+    case one_way_range:
+    case n_way_range:
+        baseObservableType = one_way_range;
+        break;
+    case one_way_doppler:
+    case one_way_differenced_range:
+    case two_way_doppler:
+    case n_way_differenced_range:
+    case dsn_one_way_averaged_doppler:
+    case dsn_n_way_averaged_doppler:
+        baseObservableType = one_way_doppler;
+        break;
+    case angular_position:
+    case relative_angular_position:
+        baseObservableType = angular_position;
+        break;
+    default:
+        throw std::runtime_error( "Error when getting base observable type for " + getObservableName( observableType ) +
+            ", no such type exists" );
+
+    }
+    return baseObservableType;
+}
+
 std::pair< std::vector< int >, std::vector< int > > getUndifferencedTimeAndStateIndices(
         const ObservableType differencedObservableType,
         const int numberOfLinkEnds )

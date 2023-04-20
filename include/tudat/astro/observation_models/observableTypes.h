@@ -70,6 +70,8 @@ ObservableType getUndifferencedObservableType( const ObservableType differencedO
 
 ObservableType getDifferencedObservableType( const ObservableType undifferencedObservableType );
 
+ObservableType getBaseObservableType( const ObservableType observableType );
+
 std::pair< std::vector< int >, std::vector< int > > getUndifferencedTimeAndStateIndices(
         const ObservableType differencedObservableType,
         const int numberOfLinkEnds );
