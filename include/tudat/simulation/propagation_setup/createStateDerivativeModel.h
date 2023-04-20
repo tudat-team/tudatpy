@@ -461,95 +461,41 @@ createStateDerivativeModel(
  *  \param bodies List of body objects that comprises the environment
  */
 template< typename StateScalarType = double, typename TimeType = double >
-void setMultiTypePropagationClosure(
+void setPropagationClosure(
         const std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > propagatorSettings,
         const simulation_setup::SystemOfBodies& bodies )
 {
-    // Cast to multi-type settings, and perform closure if
-    std::shared_ptr< MultiTypePropagatorSettings< StateScalarType, TimeType > > multiTypePropagatorSettings =
-            std::dynamic_pointer_cast< MultiTypePropagatorSettings< StateScalarType, TimeType > >( propagatorSettings );
-
-    if( multiTypePropagatorSettings != nullptr )
+    if( std::dynamic_pointer_cast< MultiTypePropagatorSettings< StateScalarType, TimeType > >( propagatorSettings ) != nullptr )
     {
-        // Perform closure for the case where both translational and rotational states are propagated
-        if( multiTypePropagatorSettings->propagatorSettingsMap_.count( translational_state ) > 0 &&
-                multiTypePropagatorSettings->propagatorSettingsMap_.count( rotational_state ) > 0 )
+        std::shared_ptr< MultiTypePropagatorSettings< StateScalarType, TimeType > > multiTypePropagatorSettings =
+                std::dynamic_pointer_cast< MultiTypePropagatorSettings< StateScalarType, TimeType > >( propagatorSettings );
+
+        if ( multiTypePropagatorSettings->propagatorSettingsMap_.count( rotational_state ) > 0 )
         {
-            std::vector< std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > > translationalStateSettings =
-                    multiTypePropagatorSettings->propagatorSettingsMap_.at( translational_state );
-            std::vector< std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > > rotationalStateSettings =
+            std::vector<std::shared_ptr<SingleArcPropagatorSettings< StateScalarType, TimeType> > > rotationalStateSettings =
                     multiTypePropagatorSettings->propagatorSettingsMap_.at( rotational_state );
-
-            // Iterate over all accelerations, and identify those bodies for which an aerodynamic acceleration is applied
-            std::vector< std::string > bodiesWithAerodynamicAcceleration;
-            for( unsigned int i = 0; i < translationalStateSettings.size( ); i++ )
+            for ( unsigned int i = 0; i < rotationalStateSettings.size( ); i++ )
             {
-                std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType, TimeType > > currentTranslationalState =
-                        std::dynamic_pointer_cast< TranslationalStatePropagatorSettings< StateScalarType, TimeType > >(
-                            translationalStateSettings.at( i ) );
-                basic_astrodynamics::AccelerationMap currentAccelerationsMap = currentTranslationalState->getAccelerationsMap( );
-
-                for( basic_astrodynamics::AccelerationMap::const_iterator accelerationIterator = currentAccelerationsMap.begin( );
-                     accelerationIterator != currentAccelerationsMap.end( ); accelerationIterator++ )
-                {
-                    for( basic_astrodynamics::SingleBodyAccelerationMap::const_iterator singleBodyIterator =
-                         accelerationIterator->second.begin( ); singleBodyIterator != accelerationIterator->second.end( );
-                         singleBodyIterator++ )
-                    {
-                        for( unsigned int j = 0; j < singleBodyIterator->second.size( ); j++ )
-                        {
-                            if( std::find( bodiesWithAerodynamicAcceleration.begin( ), bodiesWithAerodynamicAcceleration.end( ),
-                                           accelerationIterator->first ) == bodiesWithAerodynamicAcceleration.end( ) )
-                            {
-                                if( basic_astrodynamics::getAccelerationModelType( singleBodyIterator->second.at( j ) ) ==
-                                        basic_astrodynamics::aerodynamic )
-                                {
-                                    bodiesWithAerodynamicAcceleration.push_back( accelerationIterator->first );
-                                }
-                            }
-                        }
-                    }
-                }
+                setPropagationClosure( rotationalStateSettings.at( i ), bodies );
             }
-
-            // Iterate over all settings and identify those bodies for which rotational dynamics is propagated.
-            std::vector< std::string > bodiesWithPropagatedRotation;
-            for( unsigned int i = 0; i < rotationalStateSettings.size( ); i++ )
+        }
+    }
+    else if( std::dynamic_pointer_cast< RotationalStatePropagatorSettings< StateScalarType, TimeType > >( propagatorSettings ) != nullptr )
+    {
+        std::shared_ptr< RotationalStatePropagatorSettings< StateScalarType, TimeType > > rotationalPropagatorSettings =
+                std::dynamic_pointer_cast< RotationalStatePropagatorSettings< StateScalarType, TimeType > >( propagatorSettings );
+        std::vector< std::string > currentBodiesWithPropagatedRotation = rotationalPropagatorSettings->bodiesToIntegrate_;
+        for( unsigned int i = 0; i < currentBodiesWithPropagatedRotation.size( ); i++ )
+        {
+            std::shared_ptr< aerodynamics::FlightConditions > currentFlightConditions =
+                    bodies.at( currentBodiesWithPropagatedRotation.at( i ) )->getFlightConditions( );
+            if( currentFlightConditions != nullptr )
             {
-                std::shared_ptr< RotationalStatePropagatorSettings< StateScalarType, TimeType > > currentTranslationalState =
-                        std::dynamic_pointer_cast< RotationalStatePropagatorSettings< StateScalarType, TimeType > >(
-                            rotationalStateSettings.at( i ) );
-                std::vector< std::string > currentBodiesWithPropagatedRotation = currentTranslationalState->bodiesToIntegrate_;
-                for( unsigned int j = 0; j < currentBodiesWithPropagatedRotation.size( ); j++ )
-                {
-                    if( std::find( bodiesWithPropagatedRotation.begin( ), bodiesWithPropagatedRotation.end( ),
-                                   currentBodiesWithPropagatedRotation.at( j ) ) == bodiesWithPropagatedRotation.end( ) )
-                    {
-                        bodiesWithPropagatedRotation.push_back( currentBodiesWithPropagatedRotation.at( j ) );
-                    }
-                }
-            }
-
-            // Find bodies for which both aerodynamic acceleration is used and rotational propagation is performed.
-            std::vector< std::string > bodiesWithAerodynamicRotationalClosure;
-            for( unsigned int i = 0; i < bodiesWithPropagatedRotation.size( ); i++ )
-            {
-                if( std::find( bodiesWithAerodynamicAcceleration.begin( ), bodiesWithAerodynamicAcceleration.end( ),
-                               bodiesWithPropagatedRotation.at( i ) ) != bodiesWithAerodynamicAcceleration.end( ) )
-                {
-                    bodiesWithAerodynamicRotationalClosure.push_back( bodiesWithPropagatedRotation.at( i ) );
-                }
-            }
-
-            // Ensure that vehicle orientation is correctly set for aerodynamic acceleration/torque
-            for( unsigned int i = 0; i < bodiesWithAerodynamicRotationalClosure.size( ); i++ )
-            {
-                std::shared_ptr< aerodynamics::FlightConditions > currentFlightConditions =
-                        bodies.at( bodiesWithAerodynamicRotationalClosure.at( i ) )->getFlightConditions( );
-                std::shared_ptr< reference_frames::FromBodyAerodynamicAngleInterface > rotationInterface =
-                        std::make_shared< reference_frames::FromBodyAerodynamicAngleInterface >(
-                            bodies.at( bodiesWithAerodynamicRotationalClosure.at( i ) ) );
-                currentFlightConditions->getAerodynamicAngleCalculator( )->setBodyFixedAngleInterface( rotationInterface );
+                std::shared_ptr<reference_frames::FromBodyAerodynamicAngleInterface> rotationInterface =
+                        std::make_shared<reference_frames::FromBodyAerodynamicAngleInterface>(
+                                bodies.at( currentBodiesWithPropagatedRotation.at( i )));
+                currentFlightConditions->getAerodynamicAngleCalculator( )->setBodyFixedAngleInterface(
+                        rotationInterface );
             }
         }
     }
@@ -606,9 +552,6 @@ createStateDerivativeModels(
                 }
             }
         }
-
-        setMultiTypePropagationClosure( propagatorSettings, bodies );
-
         break;
     }
         // If not hybrid, call create function for single object directly.
@@ -616,7 +559,7 @@ createStateDerivativeModels(
         stateDerivativeModels.push_back( createStateDerivativeModel< StateScalarType, TimeType >(
                                              propagatorSettings, bodies, propagationStartTime ) );
     }
-
+    setPropagationClosure( propagatorSettings, bodies );
     return stateDerivativeModels;
 }
 

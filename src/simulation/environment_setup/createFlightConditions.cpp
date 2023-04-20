@@ -139,7 +139,7 @@ std::shared_ptr< aerodynamics::AtmosphericFlightConditions > createAtmosphericFl
             std::make_shared< aerodynamics::AtmosphericFlightConditions >(
                 centralBody->getAtmosphereModel( ), centralBody->getShapeModel( ),
                 bodyWithFlightConditions->getAerodynamicCoefficientInterface( ), aerodynamicAngleCalculator,
-                controlSurfaceDeflectionFunction );
+                centralBody->getBodyName( ), controlSurfaceDeflectionFunction );
 
     return flightConditions;
 
@@ -175,7 +175,7 @@ std::shared_ptr< aerodynamics::FlightConditions >  createFlightConditions(
                 nameOfBodyExertingAcceleration );
 
     return std::make_shared< aerodynamics::FlightConditions >(
-                centralBody->getShapeModel( ), aerodynamicAngleCalculator );
+                centralBody->getShapeModel( ), centralBody->getBodyName( ), aerodynamicAngleCalculator );
 
 }
 
@@ -195,17 +195,37 @@ void addFlightConditions(
         throw std::runtime_error( "Error when creating flight conditions for body " + bodyName + ", central body " + centralBodyName + " not found" );
     }
 
+    std::shared_ptr< aerodynamics::FlightConditions > currentBodyFlightConditions = bodies.at( bodyName )->getFlightConditions( );
+    if( currentBodyFlightConditions != nullptr )
+    {
+        if( currentBodyFlightConditions->getCentralBody( ) != centralBodyName )
+        {
+            throw std::runtime_error( "Error, flight conditions for " + bodyName + "w.r.t." + centralBodyName + " cannot be created, flight conditions w.r.t." +
+                                              currentBodyFlightConditions->getCentralBody( ) + "already created." );
+        }
+    }
     std::shared_ptr< Body > body = bodies.at( bodyName );
     std::shared_ptr< Body > centralBody = bodies.at( centralBodyName );
-    if( centralBody->getAtmosphereModel( ) == nullptr )
+    if( centralBody->getAtmosphereModel( ) == nullptr || body->getAerodynamicCoefficientInterface( ) == nullptr )
     {
-        body->setFlightConditions(
-                createFlightConditions( body, centralBody, bodyName, centralBodyName ) );
+        if( currentBodyFlightConditions == nullptr )
+        {
+            body->setFlightConditions(
+                    createFlightConditions( body, centralBody, bodyName, centralBodyName ) );
+        }
     }
     else
     {
-        body->setFlightConditions(
+        if( currentBodyFlightConditions == nullptr )
+        {
+            body->setFlightConditions(
                 createAtmosphericFlightConditions( body, centralBody, bodyName, centralBodyName ) );
+        }
+        else if( std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >( currentBodyFlightConditions ) == nullptr )
+        {
+            throw std::runtime_error( "Error when creating flight conditions for body " + bodyName + "w.r.t." + centralBodyName +
+                ", flight conditions already exist, but they are for an atmosphere-free body" );
+        }
     }
 }
 

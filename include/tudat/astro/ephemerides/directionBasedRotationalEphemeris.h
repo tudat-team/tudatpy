@@ -94,6 +94,16 @@ public:
 
     virtual void update( const double time );
 
+    void resetInertialBodyAxisDirectionFunction( const std::function< Eigen::Vector3d( const double ) > inertialBodyAxisDirectionFunction )
+    {
+        inertialBodyAxisDirectionFunction_ = inertialBodyAxisDirectionFunction;
+    }
+
+    std::function< Eigen::Vector3d( const double ) > getInertialBodyAxisDirectionFunction( )
+    {
+        return inertialBodyAxisDirectionFunction_;
+    }
+
 protected:
 
     std::function< Eigen::Vector3d( const double ) > inertialBodyAxisDirectionFunction_;
@@ -257,11 +267,28 @@ public:
         directionCalculator_ = directionCalculator;
     }
 
+    std::shared_ptr< InertialBodyFixedDirectionCalculator > getInertialBodyAxisDirectionCalculator( )
+    {
+        return directionCalculator_;
+    }
+
     void setFreeRotationAngleFunction( const std::function< double( const double ) >& freeRotationAngleFunction )
     {
         freeRotationAngleFunction_= freeRotationAngleFunction;
     }
 
+    void resetDirectionFunction( const std::function< Eigen::Vector3d( const double) > inertialBodyAxisDirectionFunction )
+    {
+        if( std::dynamic_pointer_cast< CustomBodyFixedDirectionCalculator >( directionCalculator_ ) == nullptr )
+        {
+            throw std::runtime_error( "Error in custom inertial direction based rotation model; cannot reset custom direction function, as no such function exists." );
+        }
+        else
+        {
+            std::dynamic_pointer_cast< CustomBodyFixedDirectionCalculator >( directionCalculator_ )->resetInertialBodyAxisDirectionFunction(
+                    inertialBodyAxisDirectionFunction );
+        }
+    }
 
 
 protected:
@@ -271,8 +298,6 @@ protected:
     void calculateEulerAngles( );
 
     std::shared_ptr< InertialBodyFixedDirectionCalculator > directionCalculator_;
-
-    std::function< Eigen::Vector3d( const double ) > inertialBodyAxisDirectionFunction_;
 
     Eigen::Vector3d associatedBodyFixedDirection_;
 

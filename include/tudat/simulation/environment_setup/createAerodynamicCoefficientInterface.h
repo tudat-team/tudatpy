@@ -169,7 +169,7 @@ public:
      * \param controlSurfaceSetting Settings for the arodynamic coefficients of control surface.
      * \param controlSurfaceName Id of control surface.
      */
-    void setControlSurfaceSettings(
+    void addControlSurfaceSettings(
             const std::shared_ptr< ControlSurfaceIncrementAerodynamicCoefficientSettings > controlSurfaceSetting,
             const std::string controlSurfaceName )
     {

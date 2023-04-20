@@ -110,6 +110,18 @@ std::string getDependentVariableName(
     case aerodynamic_moment_coefficients_dependent_variable:
         variableName = "Aerodynamic moment coefficients ";
         break;
+    case aerodynamic_control_surface_free_force_coefficients_dependent_variable:
+        variableName = "Aerodynamic control-surface free force coefficients ";
+        break;
+    case aerodynamic_control_surface_free_moment_coefficients_dependent_variable:
+        variableName = "Aerodynamic control-surface free moment coefficients ";
+        break;
+    case aerodynamic_control_surface_force_coefficients_increment_dependent_variable:
+        variableName = "Aerodynamic force coefficients control surface increment ";
+        break;
+    case aerodynamic_control_surface_moment_coefficients_increment_dependent_variable:
+        variableName = "Aerodynamic moment coefficients control surface increment ";
+        break;
     case inertial_to_body_fixed_rotation_matrix_variable:
         variableName = "Rotation matrix to body-fixed frame ";
         break;

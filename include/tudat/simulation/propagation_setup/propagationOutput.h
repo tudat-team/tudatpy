@@ -951,6 +951,94 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
 
         break;
     }
+    case aerodynamic_control_surface_free_force_coefficients_dependent_variable:
+    {
+        if( std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
+                bodies.at( bodyWithProperty )->getFlightConditions( ) )== nullptr )
+        {
+            simulation_setup::addAtmosphericFlightConditions(
+                    bodies, bodyWithProperty, secondaryBody );
+        }
+
+        variableFunction = std::bind(
+                &aerodynamics::AerodynamicCoefficientInterface::getCurrentControlSurfaceFreeForceCoefficients,
+                std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
+                        bodies.at( bodyWithProperty )->getFlightConditions( ) )->getAerodynamicCoefficientInterface( ) );
+        parameterSize = 3;
+
+        break;
+    }
+    case aerodynamic_control_surface_free_moment_coefficients_dependent_variable:
+    {
+        if( std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
+                bodies.at( bodyWithProperty )->getFlightConditions( ) )== nullptr )
+        {
+            simulation_setup::addAtmosphericFlightConditions(
+                    bodies, bodyWithProperty, secondaryBody );
+        }
+
+        variableFunction = std::bind(
+                &aerodynamics::AerodynamicCoefficientInterface::getCurrentControlSurfaceFreeMomentCoefficients,
+                std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
+                        bodies.at( bodyWithProperty )->getFlightConditions( ) )->getAerodynamicCoefficientInterface( ) );
+        parameterSize = 3;
+
+        break;
+    }
+    case aerodynamic_control_surface_force_coefficients_increment_dependent_variable:
+    {
+        std::shared_ptr< ControlSurfaceCoefficientDependentVariableSettings > controlSurfaceVariabelSettings =
+                std::dynamic_pointer_cast< ControlSurfaceCoefficientDependentVariableSettings >( dependentVariableSettings );
+        if( controlSurfaceVariabelSettings == nullptr )
+        {
+            std::string errorMessage= "Error, inconsistent inout when creating dependent variable function of type aerodynamic_control_surface_force_coefficients_increment_dependent_variable";
+            throw std::runtime_error( errorMessage );
+        }
+        else
+        {
+            if( std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
+                    bodies.at( bodyWithProperty )->getFlightConditions( ) )== nullptr )
+            {
+                simulation_setup::addAtmosphericFlightConditions(
+                        bodies, bodyWithProperty, secondaryBody );
+            }
+
+            variableFunction = std::bind(
+                    &aerodynamics::AerodynamicCoefficientInterface::getCurrentForceCoefficientIncrement,
+                    std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
+                            bodies.at( bodyWithProperty )->getFlightConditions( ) )->getAerodynamicCoefficientInterface( ),
+                            controlSurfaceVariabelSettings->controlSurfaceName_ );
+            parameterSize = 3;
+        }
+        break;
+    }
+    case aerodynamic_control_surface_moment_coefficients_increment_dependent_variable:
+    {
+        std::shared_ptr< ControlSurfaceCoefficientDependentVariableSettings > controlSurfaceVariabelSettings =
+                std::dynamic_pointer_cast< ControlSurfaceCoefficientDependentVariableSettings >( dependentVariableSettings );
+        if( controlSurfaceVariabelSettings == nullptr )
+        {
+            std::string errorMessage= "Error, inconsistent inout when creating dependent variable function of type aerodynamic_control_surface_moment_coefficients_increment_dependent_variable";
+            throw std::runtime_error( errorMessage );
+        }
+        else
+        {
+            if( std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
+                    bodies.at( bodyWithProperty )->getFlightConditions( ) )== nullptr )
+            {
+                simulation_setup::addAtmosphericFlightConditions(
+                        bodies, bodyWithProperty, secondaryBody );
+            }
+
+            variableFunction = std::bind(
+                    &aerodynamics::AerodynamicCoefficientInterface::getCurrentMomentCoefficientIncrement,
+                    std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
+                            bodies.at( bodyWithProperty )->getFlightConditions( ) )->getAerodynamicCoefficientInterface( ),
+                    controlSurfaceVariabelSettings->controlSurfaceName_ );
+            parameterSize = 3;
+        }
+        break;
+    }
     case inertial_to_body_fixed_rotation_matrix_variable:
     {
         std::function< Eigen::Quaterniond( ) > rotationFunction =
@@ -2233,6 +2321,30 @@ std::function< double( ) > getDoubleDependentVariableFunction(
                 throw std::runtime_error( errorMessage );
             }
 
+            break;
+        }
+        case custom_dependent_variable:
+        {
+            std::shared_ptr< CustomDependentVariableSaveSettings > customVariableSettings =
+                    std::dynamic_pointer_cast< CustomDependentVariableSaveSettings >( dependentVariableSettings );
+
+            if( customVariableSettings == nullptr )
+            {
+                std::string errorMessage= "Error, inconsistent inout when creating dependent variable function of type custom_dependent_variable";
+                throw std::runtime_error( errorMessage );
+            }
+            else
+            {
+                variableFunction = [=]( )
+                {
+                    Eigen::VectorXd customVariables = customVariableSettings->customDependentVariableFunction_( );
+                    if( customVariables.rows( ) != 1 )
+                    {
+                        throw std::runtime_error( "Error when retrieving size-1 custom dependent variable, actual size is " + std::to_string( customVariables.rows( ) ) );
+                    }
+                    return customVariables( 0 );
+                };
+            }
             break;
         }
         default:

@@ -102,7 +102,7 @@ std::tuple< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >, bool, Eig
 
     if( observationFeasible )
     {
-        addNoiseAndDependentVariableToObservation(
+        addNoiseAndDependentVariableToObservation< ObservationSize , ObservationScalarType, TimeType >(
                     calculatedObservation, observationTime, dependentVariables,
                     vectorOfStates, vectorOfTimes, observationModel->getObservableType( ),
                     noiseFunction, dependentVariableCalculator );
@@ -315,7 +315,7 @@ simulatePerArcSingleObservationSet(
             observationFeasible = isObservationViable( vectorOfStates, vectorOfTimes, additionalViabilityCalculators );
             if( observationFeasible )
             {
-                addNoiseAndDependentVariableToObservation(
+                addNoiseAndDependentVariableToObservation< ObservationSize , ObservationScalarType, TimeType >(
                             currentObservation, it.first, currentDependentVariable, vectorOfStates, vectorOfTimes,
                             observationModel->getObservableType( ),
                             observationsToSimulate->getObservationNoiseFunction( ),

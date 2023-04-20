@@ -18,10 +18,10 @@ namespace simulation_setup
 
 //! Function to create control surface aerodynamic coefficient settings fom coefficients stored in data files
 std::shared_ptr< ControlSurfaceIncrementAerodynamicCoefficientSettings >
-readTabulatedControlIncrementAerodynamicCoefficientsFromFiles(
-        const std::map< int, std::string > forceCoefficientFiles,
-        const std::map< int, std::string > momentCoefficientFiles,
-        const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableNames )
+    readTabulatedControlIncrementAerodynamicCoefficientsFromFiles(
+            const std::map< int, std::string > forceCoefficientFiles,
+            const std::map< int, std::string > momentCoefficientFiles,
+            const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableNames )
 {
     // Retrieve number of independent variables from file.
     int numberOfIndependentVariables =
@@ -105,6 +105,20 @@ createControlSurfaceIncrementAerodynamicCoefficientInterface(
     // Check type of interface that is to be created.
     switch( coefficientSettings->getAerodynamicCoefficientType( ) )
     {
+    case custom_aerodynamic_coefficients:
+    {
+        std::shared_ptr< CustomControlSurfaceIncrementAerodynamicCoefficientSettings > customSettings =
+                std::dynamic_pointer_cast< CustomControlSurfaceIncrementAerodynamicCoefficientSettings >(
+                        coefficientSettings );
+        if( coefficientSettings == nullptr )
+        {
+            throw std::runtime_error( "Error when creating custom aerodynamic coefficient settings; input type is inconsistent" );
+        }
+        coefficientInterface = std::make_shared< aerodynamics::CustomControlSurfaceIncrementAerodynamicInterface >(
+                customSettings->getCoefficientFunction( ),
+                customSettings->getIndependentVariableNames( ) );
+        break;
+    }
     case tabulated_coefficients:
     {
         // Check number of dimensions of tabulated coefficients.

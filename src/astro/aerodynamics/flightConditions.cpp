@@ -29,9 +29,11 @@ namespace aerodynamics
 
 //! Constructor, sets objects and functions from which relevant environment and state variables are retrieved.
 FlightConditions::FlightConditions( const std::shared_ptr< basic_astrodynamics::BodyShapeModel > shapeModel,
+                  const std::string& centralBodyName,
                   const std::shared_ptr< reference_frames::AerodynamicAngleCalculator >
                   aerodynamicAngleCalculator ):
     shapeModel_( shapeModel ),
+    centralBody_( centralBodyName ),
     aerodynamicAngleCalculator_( aerodynamicAngleCalculator ),
     currentTime_( TUDAT_NAN )
 {
@@ -84,8 +86,9 @@ AtmosphericFlightConditions::AtmosphericFlightConditions(
         const std::shared_ptr< basic_astrodynamics::BodyShapeModel > shapeModel,
         const std::shared_ptr< AerodynamicCoefficientInterface > aerodynamicCoefficientInterface,
         const std::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator,
+        const std::string centralBodyName,
         const std::function< double( const std::string& ) > controlSurfaceDeflectionFunction ):
-    FlightConditions( shapeModel, aerodynamicAngleCalculator ),
+    FlightConditions( shapeModel, centralBodyName, aerodynamicAngleCalculator ),
     atmosphereModel_( atmosphereModel ),
     aerodynamicCoefficientInterface_( aerodynamicCoefficientInterface ),
     controlSurfaceDeflectionFunction_( controlSurfaceDeflectionFunction )

@@ -813,11 +813,8 @@ public:
         // Create thrust input.
         if( bodyWithGuidance_->getFlightConditions( ) == nullptr && nameOfCentralBody != "" )
         {
-            bodyWithGuidance_->setFlightConditions(
-                        createAtmosphericFlightConditions( bodyWithGuidance_,
-                                                           bodies.at( nameOfCentralBody ),
-                                                           nameOfBodyWithGuidance,
-                                                           nameOfCentralBody ) );
+            addAtmosphericFlightConditions(
+                    bodies, nameOfBodyWithGuidance, nameOfCentralBody );;
         }
         thrustInputFunctions_ = getPropulsionInputVariables(
                     bodyWithGuidance_, guidanceFreeIndependentVariables );
