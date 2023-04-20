@@ -147,6 +147,11 @@ public:
                     thrustMagnitude_, specificImpulse_ );
     }
 
+    double getConstantThrustForceMagnitude( )
+    {
+        return thrustMagnitude_;
+    }
+
 
     double getCurrentMassRate( const double currentMass = TUDAT_NAN )
     {
@@ -282,6 +287,12 @@ public:
     {
         return currentSpecificImpulse_;
     }
+
+    void resetThrustMagnitudeFunction( const std::function< double( const double ) > thrustMagnitudeFunction )
+    {
+        thrustMagnitudeFunction_ = thrustMagnitudeFunction;
+    }
+
 
     //! Function to reset the current time of the thrust model derived class.
     /*!

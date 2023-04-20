@@ -153,10 +153,14 @@ public:
         }
         controlSurfaceIncrementInterfaces_.at( currentControlSurface )->updateCurrentCoefficients(
                     controlSurfaceIndependentVariables );
-        currentForceCoefficients_ +=
+
+        currentControlSurfaceForceCoefficient_[ currentControlSurface ] =
                 controlSurfaceIncrementInterfaces_.at( currentControlSurface )->getCurrentForceCoefficients( );
-        currentMomentCoefficients_ +=
+        currentForceCoefficients_ += currentControlSurfaceForceCoefficient_.at( currentControlSurface );
+
+        currentControlSurfaceMomentCoefficient_[ currentControlSurface ] =
                 controlSurfaceIncrementInterfaces_.at( currentControlSurface )->getCurrentMomentCoefficients( );
+        currentMomentCoefficients_ += currentControlSurfaceMomentCoefficient_.at( currentControlSurface );
     }
 
     //! Function to update the aerodynamic coefficients of the full body with control surfaces
@@ -176,12 +180,19 @@ public:
     {
         updateCurrentCoefficients( independentVariables, currentTime );
 
-        for( std::map< std::string, std::vector< double > >::const_iterator controlSurfaceIterator =
-             controlSurfaceIndependentVariables.begin( ); controlSurfaceIterator != controlSurfaceIndependentVariables.end( );
-             controlSurfaceIterator++ )
+        if( controlSurfaceIndependentVariables.size( ) != 0 )
         {
-            updateCurrentControlSurfaceCoefficientsCoefficients(
+            currentControlSurfaceFreeForceCoefficients_ = currentForceCoefficients_;
+            currentControlSurfaceFreeMomentCoefficients_ = currentMomentCoefficients_;
+
+            for ( std::map<std::string, std::vector<double> >::const_iterator controlSurfaceIterator =
+                    controlSurfaceIndependentVariables.begin( );
+                  controlSurfaceIterator != controlSurfaceIndependentVariables.end( );
+                  controlSurfaceIterator++ )
+            {
+                updateCurrentControlSurfaceCoefficientsCoefficients(
                         controlSurfaceIterator->first, controlSurfaceIterator->second );
+            }
         }
     }
 
@@ -200,6 +211,45 @@ public:
         return currentForceCoefficients_;
     }
 
+    Eigen::Vector3d getCurrentControlSurfaceFreeForceCoefficients( )
+    {
+        if( controlSurfaceIncrementInterfaces_.size( ) > 0 )
+        {
+            return currentControlSurfaceFreeForceCoefficients_;
+        }
+        else
+        {
+            return currentForceCoefficients_;
+        }
+    }
+
+    Eigen::Vector3d getCurrentForceCoefficientIncrement( const std::string& controlSurfaceName )
+    {
+        if( currentControlSurfaceForceCoefficient_.count( controlSurfaceName ) == 0 )
+        {
+            throw std::runtime_error( "Error when getting current control surface force increment of surface "
+                + controlSurfaceName + ", no such control surface found" );
+        }
+        else
+        {
+            return currentControlSurfaceForceCoefficient_.at( controlSurfaceName );
+        }
+    }
+
+    Eigen::Vector3d getCurrentMomentCoefficientIncrement( const std::string& controlSurfaceName )
+    {
+        if( currentControlSurfaceMomentCoefficient_.count( controlSurfaceName ) == 0 )
+        {
+            throw std::runtime_error( "Error when getting current control surface moment increment of surface "
+                                      + controlSurfaceName + ", no such control surface found" );
+        }
+        else
+        {
+            return currentControlSurfaceMomentCoefficient_.at( controlSurfaceName );
+        }
+    }
+
+
 
     //! Function for calculating and returning aerodynamic moment coefficients
     /*!
@@ -211,6 +261,17 @@ public:
         return currentMomentCoefficients_;
     }
 
+    Eigen::Vector3d getCurrentControlSurfaceFreeMomentCoefficients( )
+    {
+        if( controlSurfaceIncrementInterfaces_.size( ) > 0 )
+        {
+            return currentControlSurfaceFreeMomentCoefficients_;
+        }
+        else
+        {
+            return currentMomentCoefficients_;
+        }
+    }
     //! Function for calculating and returning aerodynamic force and moment coefficients
     /*!
      *  Function for calculating and returning aerodynamic force and moment coefficients
@@ -304,8 +365,20 @@ public:
             const std::map< std::string, std::shared_ptr< ControlSurfaceIncrementAerodynamicInterface > >
             controlSurfaceIncrementInterfaces )
     {
+        if( controlSurfaceIncrementInterfaces_.size( ) != 0 )
+        {
+            std::cerr<<"Warning, overwriting existing control surface increments"<<std::endl;
+        }
         controlSurfaceIncrementInterfaces_ = controlSurfaceIncrementInterfaces;
         controlSurfaceNames_ = utilities::createVectorFromMapKeys( controlSurfaceIncrementInterfaces_ );
+    }
+
+    void addControlSurface(
+            const std::string& controlSurfaceName,
+            const std::shared_ptr< ControlSurfaceIncrementAerodynamicInterface > controlSurfaceIncrementInterface )
+    {
+        controlSurfaceNames_.push_back( controlSurfaceName );
+        controlSurfaceIncrementInterfaces_[ controlSurfaceName ] = controlSurfaceIncrementInterface;
     }
 
     //! Function to get control surface name at given index in list of control surfaces
@@ -317,6 +390,11 @@ public:
     std::string getControlSurfaceName( const int index )
     {
         return controlSurfaceNames_.at( index );
+    }
+
+    std::vector< std::string > getControlSurfaceNames( )
+    {
+        return controlSurfaceNames_;
     }
 
     //! Function to return the number of control surfaces in current coefficient interface.
@@ -394,11 +472,19 @@ protected:
      */
     Eigen::Vector3d currentForceCoefficients_;
 
+    Eigen::Vector3d currentControlSurfaceFreeForceCoefficients_;
+
+    std::map< std::string, Eigen::Vector3d > currentControlSurfaceForceCoefficient_;
+
     //! The current moment coefficients.
     /*!
      * The moment coefficients at the current flight condition.
      */
     Eigen::Vector3d currentMomentCoefficients_;
+
+    Eigen::Vector3d currentControlSurfaceFreeMomentCoefficients_;
+
+    std::map< std::string, Eigen::Vector3d > currentControlSurfaceMomentCoefficient_;
 
     //! Aerodynamic reference length.
     /*!

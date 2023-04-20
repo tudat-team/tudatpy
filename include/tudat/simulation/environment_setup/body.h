@@ -944,6 +944,14 @@ public:
             aerodynamicCoefficientInterface)
     {
         aerodynamicCoefficientInterface_ = aerodynamicCoefficientInterface;
+        std::vector< std::string > controlSurfaceList = aerodynamicCoefficientInterface->getControlSurfaceNames( );
+        for( unsigned int i = 0; i < controlSurfaceList.size( ); i++ )
+        {
+            if ( getVehicleSystems( )->doesControlSurfaceExist( controlSurfaceList.at( i )) == 0 )
+            {
+                vehicleSystems_->setCurrentControlSurfaceDeflection( controlSurfaceList.at( i ), 0.0 );
+            }
+        }
 
         if( std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >( aerodynamicFlightConditions_ ) != nullptr )
         {
@@ -1141,7 +1149,12 @@ public:
      * Function to retrieve container object with hardware systems present on/in body.
      * \return Container object with hardware systems present on/in body.
      */
-    std::shared_ptr<system_models::VehicleSystems> getVehicleSystems() {
+    std::shared_ptr<system_models::VehicleSystems> getVehicleSystems()
+    {
+        if( vehicleSystems_ == nullptr )
+        {
+            vehicleSystems_ = std::make_shared< system_models::VehicleSystems >( );
+        }
         return vehicleSystems_;
     }
 
@@ -1150,11 +1163,14 @@ public:
      * Function to set container object with hardware systems present on/in body (typically only non-nullptr for a vehicle).
      * \param vehicleSystems Container object with hardware systems present on/in body.
      */
-    void setVehicleSystems(const std::shared_ptr<system_models::VehicleSystems> vehicleSystems) {
+    void setVehicleSystems(const std::shared_ptr<system_models::VehicleSystems> vehicleSystems)
+    {
         vehicleSystems_ = vehicleSystems;
     }
 
-    //! Function to set the function returning body mass as a function of time
+
+
+            //! Function to set the function returning body mass as a function of time
     /*!
      * Function to set the function returning body mass as a function of time
      * \param bodyMassFunction Function returning body mass as a function of time

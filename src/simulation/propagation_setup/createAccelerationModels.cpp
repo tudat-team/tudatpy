@@ -888,6 +888,7 @@ std::shared_ptr< aerodynamics::AerodynamicAcceleration > createAerodynamicAccele
 
     if( bodyFlightConditions == nullptr && bodyUndergoingAcceleration->getFlightConditions( ) == nullptr )
     {
+
         bodyFlightConditions = createAtmosphericFlightConditions( bodyUndergoingAcceleration,
                                                                   bodyExertingAcceleration,
                                                                   nameOfBodyUndergoingAcceleration,
