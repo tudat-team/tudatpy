@@ -353,7 +353,7 @@ bool compareAtmosphericCspFileStartDate( std::shared_ptr< CspRawFile > rawCspDat
     std::shared_ptr< AtmosphericCorrectionCspCommand > cspCommand1 = std::dynamic_pointer_cast< AtmosphericCorrectionCspCommand >(
                 rawCspData1->getCspCommands( ).at( 0 ) );
     std::shared_ptr< AtmosphericCorrectionCspCommand > cspCommand2 = std::dynamic_pointer_cast< AtmosphericCorrectionCspCommand >(
-                rawCspData1->getCspCommands( ).at( 0 ) );
+                rawCspData2->getCspCommands( ).at( 0 ) );
 
     if ( cspCommand1 == nullptr || cspCommand2 == nullptr )
     {
