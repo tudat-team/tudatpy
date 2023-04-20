@@ -19,6 +19,7 @@
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/corrections/lightTimeCorrection.h"
+#include "tudat/astro/observation_models/corrections/tabulatedMediaCorrection.h"
 
 namespace tudat
 {
@@ -101,6 +102,46 @@ private:
     std::vector< std::string > perturbingBodies_;
 
 };
+
+// Class defining tabulated tropospheric corrections
+class TabulatedTroposphericCorrectionSettings: public LightTimeCorrectionSettings
+{
+public:
+    TabulatedTroposphericCorrectionSettings(
+            const AtmosphericCorrectionPerStationType& troposphericDryCorrection,
+            const AtmosphericCorrectionPerStationType& troposphericWetCorrection,
+            const TroposphericMappingModel troposphericMappingModel = niell ):
+        LightTimeCorrectionSettings( tabulated_tropospheric ),
+        troposphericDryCorrection_( troposphericDryCorrection ),
+        troposphericWetCorrection_( troposphericWetCorrection ),
+        troposphericMappingModelType_( troposphericMappingModel )
+    { }
+
+    AtmosphericCorrectionPerStationType getTroposphericDryCorrection( )
+    {
+        return troposphericDryCorrection_;
+    }
+
+    AtmosphericCorrectionPerStationType getTroposphericWetCorrection( )
+    {
+        return troposphericWetCorrection_;
+    }
+
+    TroposphericMappingModel getTroposphericMappingModelType( )
+    {
+        return troposphericMappingModelType_;
+    }
+
+private:
+
+    AtmosphericCorrectionPerStationType troposphericDryCorrection_;
+
+    AtmosphericCorrectionPerStationType troposphericWetCorrection_;
+
+    TroposphericMappingModel troposphericMappingModelType_;
+
+};
+
 
 inline std::shared_ptr< LightTimeCorrectionSettings > firstOrderRelativisticLightTimeCorrectionSettings(
         const std::vector< std::string >& perturbingBodies )
