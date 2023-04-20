@@ -21,10 +21,14 @@ namespace input_output
 {
 
 // TODO: code to parse CSP commands is super shitty... would be nice if it wasn't
+
 class CspCommand
 {
 public:
-    CspCommand( )
+    CspCommand ( )
+    { }
+
+    virtual ~CspCommand ( )
     { }
 
 private:
@@ -103,6 +107,18 @@ std::vector< std::string > getGroundStationsNames( std::string groundStationIden
 
 std::vector< observation_models::ObservableType > getBaseObservableTypes( std::string observableTypeIdentifier );
 
+bool compareAtmosphericCspFileStartDate( std::shared_ptr< CspRawFile > rawCspData1,
+                                         std::shared_ptr< CspRawFile > rawCspData2 );
+
+observation_models::AtmosphericCorrectionPerStationType createTroposphericCorrection(
+        std::vector< std::shared_ptr< CspRawFile > >& rawCspFiles,
+        const std::string& modelIdentifier );
+
+observation_models::AtmosphericCorrectionPerStationType createTroposphericDryCorrection(
+        std::vector< std::shared_ptr< CspRawFile > >& rawCspFiles );
+
+observation_models::AtmosphericCorrectionPerStationType createTroposphericWetCorrection(
+        std::vector< std::shared_ptr< CspRawFile > >& rawCspFiles );
 
 } // namespace input_output
 

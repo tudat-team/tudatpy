@@ -262,21 +262,18 @@ std::shared_ptr< observation_models::TabulatedMediaReferenceCorrection > createR
 
     if ( computationSpecifier == "BY CONST" || computationSpecifier == "BY DCONST" )
     {
-        mediaCorrection = std::dynamic_pointer_cast< observation_models::TabulatedMediaReferenceCorrection >(
-                std::make_shared< observation_models::ConstantReferenceCorrection >(
-                        startTime, endTime, coefficients.front( ) ) );
+        mediaCorrection =std::make_shared< observation_models::ConstantReferenceCorrection >(
+                        startTime, endTime, coefficients.front( ) );
     }
     else if ( computationSpecifier == "BY NRMPOW" || computationSpecifier == "BY DNRMPOW" )
     {
-        mediaCorrection = std::dynamic_pointer_cast< observation_models::TabulatedMediaReferenceCorrection >(
-                std::make_shared< observation_models::PowerSeriesReferenceCorrection >(
-                        startTime, endTime, coefficients ) );
+        mediaCorrection = std::make_shared< observation_models::PowerSeriesReferenceCorrection >(
+                        startTime, endTime, coefficients );
     }
     else if ( computationSpecifier == "BY TRIG" || computationSpecifier == "BY DTRIG" )
     {
-        mediaCorrection = std::dynamic_pointer_cast< observation_models::TabulatedMediaReferenceCorrection >(
-                std::make_shared< observation_models::FourierSeriesReferenceCorrection >(
-                        startTime, endTime, coefficients ) );
+        mediaCorrection = std::make_shared< observation_models::FourierSeriesReferenceCorrection >(
+                        startTime, endTime, coefficients );
     }
     else
     {
@@ -343,6 +340,122 @@ std::vector< observation_models::ObservableType > getBaseObservableTypes( std::s
     return baseObservableTypes;
 }
 
+bool compareAtmosphericCspFileStartDate( std::shared_ptr< CspRawFile > rawCspData1,
+                                         std::shared_ptr< CspRawFile > rawCspData2 )
+{
+
+    std::shared_ptr< AtmosphericCorrectionCspCommand > cspCommand1 = std::dynamic_pointer_cast< AtmosphericCorrectionCspCommand >(
+                rawCspData1->getCspCommands( ).at( 0 ) );
+    std::shared_ptr< AtmosphericCorrectionCspCommand > cspCommand2 = std::dynamic_pointer_cast< AtmosphericCorrectionCspCommand >(
+                rawCspData1->getCspCommands( ).at( 0 ) );
+
+    if ( cspCommand1 == nullptr || cspCommand2 == nullptr )
+    {
+        throw std::runtime_error( "Error when comparing atmospheric CSP files: inconsistent CSP command type." );
+    }
+
+    if ( cspCommand1->startTime_ < cspCommand2->startTime_ )
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+observation_models::AtmosphericCorrectionPerStationType createTroposphericCorrection(
+        std::vector< std::shared_ptr< CspRawFile > >& rawCspFiles,
+        const std::string& modelIdentifier )
+{
+    // Sort CSP files by start date
+    std::stable_sort( rawCspFiles.begin( ), rawCspFiles.end( ), &compareAtmosphericCspFileStartDate );
+
+    observation_models::AtmosphericCorrectionPerStationType troposphericCorrection;
+
+    std::map< std::string, std::map< std::string, std::shared_ptr< observation_models::TabulatedMediaReferenceCorrectionManager > > >
+            troposphericCorrectionPerStationPerType;
+
+    for ( unsigned int i = 0; i < rawCspFiles.size( ); ++i )
+    {
+        for ( unsigned int j = 0; j < rawCspFiles.at( i )->getCspCommands( ).size( ); ++j )
+        {
+            std::shared_ptr< AtmosphericCorrectionCspCommand > cspCommand = std::dynamic_pointer_cast< AtmosphericCorrectionCspCommand >(
+                    rawCspFiles.at( i )->getCspCommands( ).at( j ) );
+            if ( cspCommand == nullptr )
+            {
+                throw std::runtime_error( "Error when creating tabulated atmospheric corrections: inconsistent CSP command type." );
+            }
+
+            if ( modelIdentifier != cspCommand->modelIdentifier_ )
+            {
+                continue;
+            }
+
+            // Check whether new media correction manager object should be created
+            bool createNewObject = false;
+            if ( troposphericCorrectionPerStationPerType.count( cspCommand->groundStationsId_ ) == 0 )
+            {
+                createNewObject = true;
+            }
+            else if ( troposphericCorrectionPerStationPerType.at( cspCommand->groundStationsId_ ).count(
+                    cspCommand->dataTypesIdentifier_ ) == 0 )
+            {
+                createNewObject = true;
+            }
+
+            if ( createNewObject )
+            {
+                troposphericCorrectionPerStationPerType.at( cspCommand->groundStationsId_ ).at( cspCommand->dataTypesIdentifier_ ) =
+                        std::make_shared< observation_models::TabulatedMediaReferenceCorrectionManager >( );
+            }
+
+            // Create correction calculator and save it to correction manager
+            troposphericCorrectionPerStationPerType.at( cspCommand->groundStationsId_ ).at(
+                    cspCommand->dataTypesIdentifier_ )->pushReferenceCorrectionCalculator( createReferenceCorrection(
+                            cspCommand->startTime_, cspCommand->endTime_,
+                            cspCommand->computationCoefficients_, cspCommand->computationSpecifier_ ) );
+        }
+    }
+
+    // Loop over created calculator managers and assign them to map with ground station and observation type as keys
+    for ( auto stationIt = troposphericCorrectionPerStationPerType.begin( );
+            stationIt != troposphericCorrectionPerStationPerType.end( ); ++stationIt )
+    {
+        std::vector< std::string > groundStations = getGroundStationsNames( stationIt->first );
+
+        for ( auto observableIt = stationIt->second.begin( ); observableIt != stationIt->second.end( ); ++observableIt )
+        {
+            std::vector< observation_models::ObservableType > observableTypes = getBaseObservableTypes(
+                observableIt->first );
+
+            for ( const std::string& groundStation : groundStations )
+            {
+                for ( const observation_models::ObservableType& observableType : observableTypes )
+                {
+                    troposphericCorrection.at( groundStation ).at( observableType ) =
+                            troposphericCorrectionPerStationPerType.at( stationIt->first ).at( observableIt->first );
+                }
+            }
+        }
+    }
+
+    return troposphericCorrection;
+}
+
+observation_models::AtmosphericCorrectionPerStationType createTroposphericDryCorrection(
+        std::vector< std::shared_ptr< CspRawFile > >& rawCspFiles )
+{
+    std::string modelIdentifier = "DRY NUPART";
+    return createTroposphericCorrection( rawCspFiles, modelIdentifier );
+}
+
+observation_models::AtmosphericCorrectionPerStationType createTroposphericWetCorrection(
+        std::vector< std::shared_ptr< CspRawFile > >& rawCspFiles )
+{
+    std::string modelIdentifier = "WET NUPART";
+    return createTroposphericCorrection( rawCspFiles, modelIdentifier );
+}
 
 } // namespace input_output
 
