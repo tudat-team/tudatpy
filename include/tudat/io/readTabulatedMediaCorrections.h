@@ -111,14 +111,14 @@ bool compareAtmosphericCspFileStartDate( std::shared_ptr< CspRawFile > rawCspDat
                                          std::shared_ptr< CspRawFile > rawCspData2 );
 
 observation_models::AtmosphericCorrectionPerStationType createTroposphericCorrection(
-        std::vector< std::shared_ptr< CspRawFile > >& rawCspFiles,
+        std::vector< std::shared_ptr< CspRawFile > > rawCspFiles,
         const std::string& modelIdentifier );
 
 observation_models::AtmosphericCorrectionPerStationType createTroposphericDryCorrection(
-        std::vector< std::shared_ptr< CspRawFile > >& rawCspFiles );
+        const std::vector< std::shared_ptr< CspRawFile > >& rawCspFiles );
 
 observation_models::AtmosphericCorrectionPerStationType createTroposphericWetCorrection(
-        std::vector< std::shared_ptr< CspRawFile > >& rawCspFiles );
+        const std::vector< std::shared_ptr< CspRawFile > >& rawCspFiles );
 
 } // namespace input_output
 

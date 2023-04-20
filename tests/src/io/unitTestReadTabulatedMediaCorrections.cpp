@@ -27,6 +27,11 @@ BOOST_AUTO_TEST_SUITE( test_read_tabulated_media_corrections )
 BOOST_AUTO_TEST_CASE( testName )
 {
 
+    std::shared_ptr< CspRawFile > cspFile = std::make_shared< CspRawFile >( "/Users/pipas/Documents/mro-data/tro/mromagr2017_091_2017_121.tro.txt" );
+
+    observation_models::AtmosphericCorrectionPerStationType dryTroposphericCorrections =
+            createTroposphericDryCorrection( { cspFile } );
+
 //    std::vector< std::string > cspCommands = readCspCommandsFile( "/Users/pipas/Documents/mro-data/tro/mromagr2017_091_2017_121.tro.txt" );
 //
 //    std::cout << cspCommands.at(0) << std::endl << std::endl;
