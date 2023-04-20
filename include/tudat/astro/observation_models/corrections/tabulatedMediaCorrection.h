@@ -15,6 +15,7 @@
 #include <vector>
 
 #include "tudat/math/interpolators.h"
+#include "tudat/astro/observation_models/observableTypes.h"
 
 namespace tudat
 {
@@ -31,6 +32,8 @@ public:
        startTime_( startTime ),
        endTime_( endTime )
     { }
+
+    virtual ~TabulatedMediaReferenceCorrection( ){ }
 
     virtual double computeReferenceCorrection( const double time ) = 0;
 
@@ -66,7 +69,7 @@ private:
 
 };
 
-class ConstantReferenceCorrection: protected TabulatedMediaReferenceCorrection
+class ConstantReferenceCorrection: public TabulatedMediaReferenceCorrection
 {
 public:
 
@@ -90,7 +93,7 @@ private:
 
 };
 
-class PowerSeriesReferenceCorrection: protected TabulatedMediaReferenceCorrection
+class PowerSeriesReferenceCorrection: public TabulatedMediaReferenceCorrection
 {
 public:
 
@@ -122,7 +125,7 @@ private:
 
 };
 
-class FourierSeriesReferenceCorrection: protected TabulatedMediaReferenceCorrection
+class FourierSeriesReferenceCorrection: public TabulatedMediaReferenceCorrection
 {
 public:
 
@@ -244,6 +247,11 @@ private:
     //! Lookup scheme to find the nearest correction object start time for a given time
     std::shared_ptr< interpolators::LookUpScheme< double > > startTimeLookupScheme_;
 };
+
+typedef std::map< std::string, std::map< observation_models::ObservableType,
+    std::shared_ptr< observation_models::TabulatedMediaReferenceCorrectionManager > > > AtmosphericCorrectionPerStationType;
+
+typedef std::map< std::string, AtmosphericCorrectionPerStationType > AtmosphericCorrectionPerSpacecraftType;
 
 enum TroposphericMappingModel
 {

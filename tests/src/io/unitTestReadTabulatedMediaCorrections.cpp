@@ -27,22 +27,22 @@ BOOST_AUTO_TEST_SUITE( test_read_tabulated_media_corrections )
 BOOST_AUTO_TEST_CASE( testName )
 {
 
-    std::vector< std::string > cspCommands = readCspCommandsFile( "/Users/pipas/Documents/mro-data/tro/mromagr2017_091_2017_121.tro.txt" );
-
-    std::cout << cspCommands.at(0) << std::endl << std::endl;
-
-    std::vector< std::string > vectorOfIndividualStrings;
-    boost::algorithm::split( vectorOfIndividualStrings,
-                             cspCommands.at(0),
-                             boost::algorithm::is_any_of( ",()" ),
-                             boost::algorithm::token_compress_on );
-
-    for ( int i = 0; i < vectorOfIndividualStrings.size(); ++i )
-    {
-        std::cout << vectorOfIndividualStrings.at(i) << std::endl;
-    }
-
-    tdbName( vectorOfIndividualStrings );
+//    std::vector< std::string > cspCommands = readCspCommandsFile( "/Users/pipas/Documents/mro-data/tro/mromagr2017_091_2017_121.tro.txt" );
+//
+//    std::cout << cspCommands.at(0) << std::endl << std::endl;
+//
+//    std::vector< std::string > vectorOfIndividualStrings;
+//    boost::algorithm::split( vectorOfIndividualStrings,
+//                             cspCommands.at(0),
+//                             boost::algorithm::is_any_of( ",()" ),
+//                             boost::algorithm::token_compress_on );
+//
+//    for ( int i = 0; i < vectorOfIndividualStrings.size(); ++i )
+//    {
+//        std::cout << vectorOfIndividualStrings.at(i) << std::endl;
+//    }
+//
+//    tdbName( vectorOfIndividualStrings );
 
 }
 
