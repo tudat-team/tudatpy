@@ -57,6 +57,7 @@ AtmosphericCorrectionCspCommand::AtmosphericCorrectionCspCommand( std::vector< s
                 }
                 catch( ... )
                 {
+                    --i;
                     break;
                 }
             }
@@ -156,6 +157,11 @@ CspRawFile::CspRawFile( const std::string& cspFile ):
         std::vector< std::string > cspVectorOfIndividualStrings;
         boost::algorithm::split( cspVectorOfIndividualStrings, cspCommandsVector.at( i ),
                                  boost::algorithm::is_any_of( ",()" ), boost::algorithm::token_compress_on );
+        // Check if last string is empty and remove it if so
+        if ( cspVectorOfIndividualStrings.back( ).empty( ) )
+        {
+            cspVectorOfIndividualStrings.pop_back( );
+        }
 
         std::shared_ptr< CspCommand > cspCommand;
 
@@ -365,7 +371,7 @@ bool compareAtmosphericCspFileStartDate( std::shared_ptr< CspRawFile > rawCspDat
 }
 
 observation_models::AtmosphericCorrectionPerStationType createTroposphericCorrection(
-        std::vector< std::shared_ptr< CspRawFile > >& rawCspFiles,
+        std::vector< std::shared_ptr< CspRawFile > > rawCspFiles,
         const std::string& modelIdentifier )
 {
     // Sort CSP files by start date
@@ -406,7 +412,7 @@ observation_models::AtmosphericCorrectionPerStationType createTroposphericCorrec
 
             if ( createNewObject )
             {
-                troposphericCorrectionPerStationPerType.at( cspCommand->groundStationsId_ ).at( cspCommand->dataTypesIdentifier_ ) =
+                troposphericCorrectionPerStationPerType[ cspCommand->groundStationsId_ ][ cspCommand->dataTypesIdentifier_ ] =
                         std::make_shared< observation_models::TabulatedMediaReferenceCorrectionManager >( );
             }
 
@@ -433,7 +439,7 @@ observation_models::AtmosphericCorrectionPerStationType createTroposphericCorrec
             {
                 for ( const observation_models::ObservableType& observableType : observableTypes )
                 {
-                    troposphericCorrection.at( groundStation ).at( observableType ) =
+                    troposphericCorrection[ groundStation ][ observableType ] =
                             troposphericCorrectionPerStationPerType.at( stationIt->first ).at( observableIt->first );
                 }
             }
@@ -444,14 +450,14 @@ observation_models::AtmosphericCorrectionPerStationType createTroposphericCorrec
 }
 
 observation_models::AtmosphericCorrectionPerStationType createTroposphericDryCorrection(
-        std::vector< std::shared_ptr< CspRawFile > >& rawCspFiles )
+        const std::vector< std::shared_ptr< CspRawFile > >& rawCspFiles )
 {
     std::string modelIdentifier = "DRY NUPART";
     return createTroposphericCorrection( rawCspFiles, modelIdentifier );
 }
 
 observation_models::AtmosphericCorrectionPerStationType createTroposphericWetCorrection(
-        std::vector< std::shared_ptr< CspRawFile > >& rawCspFiles )
+        const std::vector< std::shared_ptr< CspRawFile > >& rawCspFiles )
 {
     std::string modelIdentifier = "WET NUPART";
     return createTroposphericCorrection( rawCspFiles, modelIdentifier );
