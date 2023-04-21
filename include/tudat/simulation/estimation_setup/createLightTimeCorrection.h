@@ -174,6 +174,13 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections(
         const LinkEndId& transmitter,
         const LinkEndId& receiver );
 
+std::shared_ptr< TroposhericElevationMapping > createTroposphericElevationMapping(
+        const TroposphericMappingModel troposphericMappingModelType,
+        const simulation_setup::SystemOfBodies& bodies,
+        const LinkEndId& transmitter,
+        const LinkEndId& receiver,
+        const bool isUplinkCorrection );
+
 } // namespace observation_models
 
 } // namespace tudat

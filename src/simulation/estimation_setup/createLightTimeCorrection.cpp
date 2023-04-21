@@ -97,27 +97,34 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections(
                     "Error when creating tabulated tropospheric correction: incompatible settings type." );
         }
 
+        // If one of the link ends is the body with the atmosphere then create the tropospheric correction
         if ( transmitter.bodyName_ != receiver.bodyName_ && (
                 transmitter.bodyName_ == troposphericCorrectionSettings->getBodyWithAtmosphere( ) ||
                 receiver.bodyName_ == troposphericCorrectionSettings->getBodyWithAtmosphere( ) ) )
         {
             bool isUplinkCorrection;
+            LinkEndId groundStation, spacecraft;
             if( transmitter.bodyName_ == troposphericCorrectionSettings->getBodyWithAtmosphere( ) )
             {
                 isUplinkCorrection = true;
+                groundStation = transmitter;
+                spacecraft = receiver;
             }
             else
             {
                 isUplinkCorrection = false;
+                groundStation = receiver;
+                spacecraft = transmitter;
             }
 
-            
+            std::shared_ptr< TroposhericElevationMapping > troposphericElevationMapping =
+                    createTroposphericElevationMapping( ..., bodies, transmitter, receiver, isUplinkCorrection );
 
-//        lightTimeCorrection = std::make_shared< TabulatedTroposphericCorrection >(
-//                troposphericCorrectionSettings->getTroposphericDryCorrection( ),
-//                troposphericCorrectionSettings->getTroposphericWetCorrection( ),
-//                ...
-//                );
+            lightTimeCorrection = std::make_shared< TabulatedTroposphericCorrection >(
+                    troposphericCorrectionSettings->getTroposphericDryCorrection( ).at( groundStation.stationName_ ).at( ),
+                    troposphericCorrectionSettings->getTroposphericWetCorrection( ).at( groundStation.stationName_ ).at( ),
+                    troposphericElevationMapping,
+                    isUplinkCorrection );
         }
         // Set correction to nullptr if correction isn't valid for selected link ends
         else
@@ -140,6 +147,70 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections(
     return lightTimeCorrection;
 }
 
+std::shared_ptr< TroposhericElevationMapping > createTroposphericElevationMapping(
+        const TroposphericMappingModel troposphericMappingModelType,
+        const simulation_setup::SystemOfBodies& bodies,
+        const LinkEndId& transmitter,
+        const LinkEndId& receiver,
+        const bool isUplinkCorrection )
+{
+
+    std::shared_ptr< TroposhericElevationMapping > troposphericMappingModel;
+
+    LinkEndId groundStation;
+    if ( isUplinkCorrection )
+    {
+        groundStation = transmitter;
+    }
+    else
+    {
+        groundStation = receiver;
+    }
+
+    switch( troposphericMappingModelType )
+    {
+        case simplified_chao:
+        {
+            std::function< double ( Eigen::Vector3d, double ) > elevationFunction = std::bind(
+                    &ground_stations::PointingAnglesCalculator::calculateElevationAngle,
+                    bodies.getBody( groundStation.bodyName_ )->getGroundStation(
+                            groundStation.stationName_ )->getPointingAnglesCalculator( ),
+                            std::placeholders::_1, std::placeholders::_2 );
+
+            troposphericMappingModel = std::make_shared< SimplifiedChaoTroposphericMapping >(
+                    elevationFunction, isUplinkCorrection );
+
+            break;
+        }
+        case niell:
+        {
+            std::function< double ( Eigen::Vector3d, double ) > elevationFunction = std::bind(
+                    &ground_stations::PointingAnglesCalculator::calculateElevationAngle,
+                    bodies.getBody( groundStation.bodyName_ )->getGroundStation(
+                            groundStation.stationName_ )->getPointingAnglesCalculator( ),
+                            std::placeholders::_1, std::placeholders::_2 );
+
+            // Using nominal geodetic position, i.e. ignoring station motion
+            std::function< Eigen::Vector3d ( double ) > groundStationGeodeticPositionFunction = std::bind(
+                    &ground_stations::GroundStationState::getNominalGeodeticPosition,
+                    bodies.getBody( groundStation.bodyName_ )->getGroundStation(
+                            groundStation.stationName_ )->getNominalStationState( ) );
+
+            troposphericMappingModel = std::make_shared< NiellTroposphericMapping >(
+                    elevationFunction, groundStationGeodeticPositionFunction, isUplinkCorrection );
+
+            break;
+        }
+        default:
+            throw std::runtime_error( "Error when creating tropospheric elevation mapping model: model type " +
+                std::to_string( troposphericMappingModelType ) + " not recognized." );
+
+            break;
+    }
+
+    return troposphericMappingModel;
 }
 
-}
+} // namespace observation_models
+
+} // namespace tudat
