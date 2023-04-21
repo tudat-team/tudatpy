@@ -225,6 +225,30 @@ double NiellTroposphericMapping::computeDryCoefficient(
     return dryCoefficient;
 }
 
+double TabulatedTroposphericCorrection::calculateLightTimeCorrection(
+        const Eigen::Vector6d& transmitterState,
+        const Eigen::Vector6d& receiverState,
+        const double transmissionTime,
+        const double receptionTime )
+{
+    double stationTime;
+    if ( isUplinkCorrection_ )
+    {
+        stationTime = transmissionTime;
+    }
+    else
+    {
+        stationTime = receptionTime;
+    }
+
+    return dryReferenceCorrectionCalculator_->computeMediaCorrection( stationTime ) *
+        elevationMapping_->computeDryTroposphericMapping(
+                transmitterState, receiverState, transmissionTime, receptionTime ) +
+        wetReferenceCorrectionCalculator_->computeMediaCorrection( stationTime ) *
+        elevationMapping_->computeWetTroposphericMapping(
+                transmitterState, receiverState, transmissionTime, receptionTime );
+}
+
 } // namespace observation_models
 
 } // namespace tudat

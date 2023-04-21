@@ -87,6 +87,46 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections(
 
         break;
     }
+    case tabulated_tropospheric:
+    {
+        std::shared_ptr< TabulatedTroposphericCorrectionSettings > troposphericCorrectionSettings =
+            std::dynamic_pointer_cast< TabulatedTroposphericCorrectionSettings >( correctionSettings );
+        if ( correctionSettings == nullptr )
+        {
+            throw std::runtime_error(
+                    "Error when creating tabulated tropospheric correction: incompatible settings type." );
+        }
+
+        if ( transmitter.bodyName_ != receiver.bodyName_ && (
+                transmitter.bodyName_ == troposphericCorrectionSettings->getBodyWithAtmosphere( ) ||
+                receiver.bodyName_ == troposphericCorrectionSettings->getBodyWithAtmosphere( ) ) )
+        {
+            bool isUplinkCorrection;
+            if( transmitter.bodyName_ == troposphericCorrectionSettings->getBodyWithAtmosphere( ) )
+            {
+                isUplinkCorrection = true;
+            }
+            else
+            {
+                isUplinkCorrection = false;
+            }
+
+            
+
+//        lightTimeCorrection = std::make_shared< TabulatedTroposphericCorrection >(
+//                troposphericCorrectionSettings->getTroposphericDryCorrection( ),
+//                troposphericCorrectionSettings->getTroposphericWetCorrection( ),
+//                ...
+//                );
+        }
+        // Set correction to nullptr if correction isn't valid for selected link ends
+        else
+        {
+            lightTimeCorrection = nullptr;
+        }
+
+        break;
+    }
     default:
     {
         std::string errorMessage = "Error, light time correction type " +

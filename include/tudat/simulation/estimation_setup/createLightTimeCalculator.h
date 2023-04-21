@@ -53,10 +53,13 @@ createLightTimeCalculator(
     // Create lighttime correction functions from lightTimeCorrections
     for( unsigned int i = 0; i < lightTimeCorrections.size( ); i++ )
     {
+        std::shared_ptr< LightTimeCorrection > lightTimeCorrectionFunction = createLightTimeCorrections(
+                        lightTimeCorrections[ i ], bodies, transmittingLinkEnd, receivingLinkEnd );
 
-        lightTimeCorrectionFunctions.push_back(
-                    createLightTimeCorrections(
-                        lightTimeCorrections[ i ], bodies, transmittingLinkEnd, receivingLinkEnd ) );
+        if ( lightTimeCorrectionFunction != nullptr )
+        {
+            lightTimeCorrectionFunctions.push_back( lightTimeCorrectionFunction );
+        }
     }
 
     // Create light time calculator.
