@@ -444,7 +444,8 @@ public:
             const LinkEndType fixedLinkEnd,
             const LinkEndType linkEndAtWhichPartialIsEvaluated ) override
     {
-        throw std::runtime_error( "calculateLightTimeCorrectionPartialDerivativeWrtLinkEndTime not implemented for TabulatedTroposphericCorrection" );
+        // TODO: Add computation of partial
+        return 0.0;
     }
 
     Eigen::Matrix< double, 3, 1 > calculateLightTimeCorrectionPartialDerivativeWrtLinkEndPosition(
@@ -454,7 +455,8 @@ public:
             const double receptionTime,
             const LinkEndType linkEndAtWhichPartialIsEvaluated ) override
     {
-        throw std::runtime_error( "calculateLightTimeCorrectionPartialDerivativeWrtLinkEndPosition not implemented for TabulatedTroposphericCorrection" );
+        // TODO: Add computation of partial
+        return Eigen::Vector3d::Zero( );
     }
 
 private:
