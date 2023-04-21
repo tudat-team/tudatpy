@@ -24,7 +24,8 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections(
         const std::shared_ptr< LightTimeCorrectionSettings > correctionSettings,
         const simulation_setup::SystemOfBodies& bodies,
         const LinkEndId& transmitter,
-        const LinkEndId& receiver )
+        const LinkEndId& receiver,
+        const ObservableType observableType )
 {
 
     using namespace tudat::ephemerides;
@@ -103,28 +104,44 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections(
                 receiver.bodyName_ == troposphericCorrectionSettings->getBodyWithAtmosphere( ) ) )
         {
             bool isUplinkCorrection;
-            LinkEndId groundStation, spacecraft;
+            LinkEndId groundStation;
             if( transmitter.bodyName_ == troposphericCorrectionSettings->getBodyWithAtmosphere( ) )
             {
                 isUplinkCorrection = true;
                 groundStation = transmitter;
-                spacecraft = receiver;
             }
             else
             {
                 isUplinkCorrection = false;
                 groundStation = receiver;
-                spacecraft = transmitter;
             }
 
             std::shared_ptr< TroposhericElevationMapping > troposphericElevationMapping =
-                    createTroposphericElevationMapping( ..., bodies, transmitter, receiver, isUplinkCorrection );
+                    createTroposphericElevationMapping( troposphericCorrectionSettings->getTroposphericMappingModelType( ),
+                                                        bodies, transmitter, receiver, isUplinkCorrection );
 
-            lightTimeCorrection = std::make_shared< TabulatedTroposphericCorrection >(
-                    troposphericCorrectionSettings->getTroposphericDryCorrection( ).at( groundStation.stationName_ ).at( ),
-                    troposphericCorrectionSettings->getTroposphericWetCorrection( ).at( groundStation.stationName_ ).at( ),
+            ObservableType baseObservableType = getBaseObservableType( observableType );
+
+            std::shared_ptr< TabulatedMediaReferenceCorrectionManager > dryCorrectionCalculator, wetCorrectionCalculator;
+            if ( troposphericCorrectionSettings->getTroposphericDryCorrection( ).count( groundStation.stationName_ ) &&
+                troposphericCorrectionSettings->getTroposphericDryCorrection( ).at( groundStation.stationName_ ).count( baseObservableType ) &&
+                troposphericCorrectionSettings->getTroposphericWetCorrection( ).count( groundStation.stationName_ ) &&
+                troposphericCorrectionSettings->getTroposphericWetCorrection( ).at( groundStation.stationName_ ).count( baseObservableType ) )
+            {
+                lightTimeCorrection = std::make_shared< TabulatedTroposphericCorrection >(
+                    troposphericCorrectionSettings->getTroposphericDryCorrection( ).at(
+                            groundStation.stationName_ ).at( baseObservableType ),
+                    troposphericCorrectionSettings->getTroposphericWetCorrection( ).at(
+                            groundStation.stationName_ ).at( baseObservableType ),
                     troposphericElevationMapping,
                     isUplinkCorrection );
+            }
+            else
+            {
+                throw std::runtime_error(
+                        "Error when creating tabulated tropospheric corrections for " + groundStation.stationName_ +
+                        "ground station and " + getObservableName( observableType ) + " observable: tabulated data not available. " );
+            }
         }
         // Set correction to nullptr if correction isn't valid for selected link ends
         else

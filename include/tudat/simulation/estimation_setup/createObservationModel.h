@@ -1486,7 +1486,8 @@ public:
     static std::shared_ptr< observation_models::ObservationModel<
     ObservationSize, ObservationScalarType, TimeType > > createObservationModel(
             const std::shared_ptr< ObservationModelSettings > observationSettings,
-            const simulation_setup::SystemOfBodies &bodies );
+            const simulation_setup::SystemOfBodies &bodies,
+            ObservableType topLevelObservableType = undefined_observation_model );
 };
 
 //! Interface class for creating observation models of size 1.
@@ -1506,13 +1507,19 @@ public:
     static std::shared_ptr< observation_models::ObservationModel<
     1, ObservationScalarType, TimeType > > createObservationModel(
             const std::shared_ptr< ObservationModelSettings > observationSettings,
-            const simulation_setup::SystemOfBodies &bodies )
+            const simulation_setup::SystemOfBodies &bodies,
+            ObservableType topLevelObservableType = undefined_observation_model )
     {
         using namespace observation_models;
 
         std::shared_ptr< observation_models::ObservationModel<
                 1, ObservationScalarType, TimeType > > observationModel;
         LinkEnds linkEnds = observationSettings->linkEnds_.linkEnds_;
+
+        if ( topLevelObservableType == undefined_observation_model )
+        {
+            topLevelObservableType = observationSettings->observableType_;
+        }
 
         // Check type of observation model.
         switch( observationSettings->observableType_ )
@@ -1549,7 +1556,7 @@ public:
                     ObservationScalarType, TimeType > >(
                         linkEnds, createLightTimeCalculator< ObservationScalarType, TimeType >(
                             linkEnds.at( transmitter ), linkEnds.at( receiver ),
-                            bodies, observationSettings->lightTimeCorrectionsList_ ),
+                            bodies, topLevelObservableType, observationSettings->lightTimeCorrectionsList_ ),
                         observationBias );
 
             break;
@@ -1589,7 +1596,7 @@ public:
                             linkEnds,
                             createLightTimeCalculator< ObservationScalarType, TimeType >(
                                 linkEnds.at( transmitter ), linkEnds.at( receiver ),
-                                bodies, observationSettings->lightTimeCorrectionsList_ ),
+                                bodies, topLevelObservableType, observationSettings->lightTimeCorrectionsList_ ),
                             observationBias,
                             std::function< ObservationScalarType( const TimeType ) >( ),
                             std::function< ObservationScalarType( const TimeType ) >( ),
@@ -1621,7 +1628,7 @@ public:
                             linkEnds,
                             createLightTimeCalculator< ObservationScalarType, TimeType >(
                                 linkEnds.at( transmitter ), linkEnds.at( receiver ),
-                                bodies, observationSettings->lightTimeCorrectionsList_ ),
+                                bodies, topLevelObservableType, observationSettings->lightTimeCorrectionsList_ ),
                             transmitterProperTimeRate,
                             receiverProperTimeRate,
                             observationBias,
@@ -1685,11 +1692,11 @@ public:
                             std::dynamic_pointer_cast< OneWayDopplerObservationModel< ObservationScalarType, TimeType > >(
                                 ObservationModelCreator< 1, ObservationScalarType, TimeType >::createObservationModel(
                                     std::make_shared< ObservationModelSettings >(
-                                        one_way_doppler, uplinkLinkEnds, observationSettings->lightTimeCorrectionsList_ ), bodies ) ),
+                                        one_way_doppler, uplinkLinkEnds, observationSettings->lightTimeCorrectionsList_ ), bodies, topLevelObservableType ) ),
                             std::dynamic_pointer_cast< OneWayDopplerObservationModel< ObservationScalarType, TimeType > >(
                                 ObservationModelCreator< 1, ObservationScalarType, TimeType >::createObservationModel(
                                     std::make_shared< ObservationModelSettings >(
-                                        one_way_doppler, downlinkLinkEnds, observationSettings->lightTimeCorrectionsList_ ), bodies ) ),
+                                        one_way_doppler, downlinkLinkEnds, observationSettings->lightTimeCorrectionsList_ ), bodies, topLevelObservableType ) ),
                             observationBias );
             }
             else
@@ -1699,10 +1706,10 @@ public:
                             linkEnds,
                             std::dynamic_pointer_cast< OneWayDopplerObservationModel< ObservationScalarType, TimeType > >(
                                 ObservationModelCreator< 1, ObservationScalarType, TimeType >::createObservationModel(
-                                    twoWayDopplerSettings->uplinkOneWayDopplerSettings_, bodies ) ),
+                                    twoWayDopplerSettings->uplinkOneWayDopplerSettings_, bodies, topLevelObservableType ) ),
                             std::dynamic_pointer_cast< OneWayDopplerObservationModel< ObservationScalarType, TimeType > >(
                                 ObservationModelCreator< 1, ObservationScalarType, TimeType >::createObservationModel(
-                                    twoWayDopplerSettings->downlinkOneWayDopplerSettings_, bodies ) ),
+                                    twoWayDopplerSettings->downlinkOneWayDopplerSettings_, bodies, topLevelObservableType ) ),
                             observationBias, twoWayDopplerSettings->normalizeWithSpeedOfLight_ );
             }
 
@@ -1748,10 +1755,10 @@ public:
                         linkEnds,
                         createLightTimeCalculator< ObservationScalarType, TimeType >(
                             linkEnds.at( transmitter ), linkEnds.at( receiver ),
-                            bodies, observationSettings->lightTimeCorrectionsList_ ),
+                            bodies, topLevelObservableType, observationSettings->lightTimeCorrectionsList_ ),
                         createLightTimeCalculator< ObservationScalarType, TimeType >(
                             linkEnds.at( transmitter ), linkEnds.at( receiver ),
-                            bodies, observationSettings->lightTimeCorrectionsList_ ),
+                            bodies, topLevelObservableType, observationSettings->lightTimeCorrectionsList_ ),
                         observationBias );
 
             break;
@@ -1833,7 +1840,7 @@ public:
                     lightTimeCalculators.push_back(
                                 createLightTimeCalculator< ObservationScalarType, TimeType >(
                                     transmitterIterator->second, receiverIterator->second,
-                                    bodies, nWayRangeObservationSettings->oneWayRangeObsevationSettings_.at( i )->
+                                    bodies, topLevelObservableType, nWayRangeObservationSettings->oneWayRangeObsevationSettings_.at( i )->
                                     lightTimeCorrectionsList_ ) );
                 }
                 else
@@ -1841,7 +1848,7 @@ public:
                     lightTimeCalculators.push_back(
                                 createLightTimeCalculator< ObservationScalarType, TimeType >(
                                     transmitterIterator->second, receiverIterator->second,
-                                    bodies, observationSettings->lightTimeCorrectionsList_ ) );
+                                    bodies, topLevelObservableType, observationSettings->lightTimeCorrectionsList_ ) );
                 }
 
                 transmitterIterator++;
@@ -1874,11 +1881,11 @@ public:
                 arcStartObservationModel =
                         std::dynamic_pointer_cast< NWayRangeObservationModel< ObservationScalarType, TimeType > >(
                             ObservationModelCreator< 1, ObservationScalarType, TimeType >::createObservationModel(
-                                undifferencedObservationSettings, bodies ) );
+                                undifferencedObservationSettings, bodies, topLevelObservableType ) );
                 arcEndObservationModel =
                         std::dynamic_pointer_cast< NWayRangeObservationModel< ObservationScalarType, TimeType > >(
                             ObservationModelCreator< 1, ObservationScalarType, TimeType >::createObservationModel(
-                                undifferencedObservationSettings, bodies ) );
+                                undifferencedObservationSettings, bodies, topLevelObservableType ) );
             }
             catch( const std::exception& caughtException )
             {
@@ -1919,11 +1926,11 @@ public:
                 arcStartObservationModel =
                         std::dynamic_pointer_cast< NWayRangeObservationModel< ObservationScalarType, TimeType > >(
                             ObservationModelCreator< 1, ObservationScalarType, TimeType >::createObservationModel(
-                                nWayRangeObservationSettings, bodies ) );
+                                nWayRangeObservationSettings, bodies, topLevelObservableType ) );
                 arcEndObservationModel =
                         std::dynamic_pointer_cast< NWayRangeObservationModel< ObservationScalarType, TimeType > >(
                             ObservationModelCreator< 1, ObservationScalarType, TimeType >::createObservationModel(
-                                nWayRangeObservationSettings, bodies ) );
+                                nWayRangeObservationSettings, bodies, topLevelObservableType ) );
             }
             catch( const std::exception& caughtException )
             {
@@ -1975,7 +1982,8 @@ public:
     static std::shared_ptr< observation_models::ObservationModel<
     2, ObservationScalarType, TimeType > > createObservationModel(
             const std::shared_ptr< ObservationModelSettings > observationSettings,
-            const simulation_setup::SystemOfBodies &bodies )
+            const simulation_setup::SystemOfBodies &bodies,
+            ObservableType topLevelObservableType = undefined_observation_model )
     {
         using namespace observation_models;
         std::shared_ptr< observation_models::ObservationModel<
@@ -2019,7 +2027,7 @@ public:
                         linkEnds,
                         createLightTimeCalculator< ObservationScalarType, TimeType >(
                             linkEnds.at( transmitter ), linkEnds.at( receiver ),
-                            bodies, observationSettings->lightTimeCorrectionsList_ ),
+                            bodies, topLevelObservableType, observationSettings->lightTimeCorrectionsList_ ),
                         observationBias );
 
             break;
@@ -2060,9 +2068,11 @@ public:
             observationModel = std::make_shared< RelativeAngularPositionObservationModel<
                     ObservationScalarType, TimeType > >(
                         linkEnds, createLightTimeCalculator< ObservationScalarType, TimeType >(
-                            linkEnds.at( transmitter ), linkEnds.at( receiver ), bodies, observationSettings->lightTimeCorrectionsList_ ),
+                            linkEnds.at( transmitter ), linkEnds.at( receiver ), bodies,
+                            topLevelObservableType, observationSettings->lightTimeCorrectionsList_ ),
                         createLightTimeCalculator< ObservationScalarType, TimeType >(
-                            linkEnds.at( transmitter2 ), linkEnds.at( receiver ), bodies, observationSettings->lightTimeCorrectionsList_ ), observationBias );
+                            linkEnds.at( transmitter2 ), linkEnds.at( receiver ), bodies,
+                            topLevelObservableType, observationSettings->lightTimeCorrectionsList_ ), observationBias );
 
             break;
         }
@@ -2096,7 +2106,8 @@ public:
     static std::shared_ptr< observation_models::ObservationModel<
     3, ObservationScalarType, TimeType > > createObservationModel(
             const std::shared_ptr< ObservationModelSettings > observationSettings,
-            const simulation_setup::SystemOfBodies &bodies )
+            const simulation_setup::SystemOfBodies &bodies,
+            ObservableType topLevelObservableType = undefined_observation_model )
     {
         using namespace observation_models;
         std::shared_ptr< observation_models::ObservationModel<
