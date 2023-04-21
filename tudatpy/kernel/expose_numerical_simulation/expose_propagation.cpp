@@ -23,6 +23,7 @@ namespace py = pybind11;
 
 namespace ta = tudat::aerodynamics;
 namespace tp = tudat::propagators;
+namespace tpr = tudat::propulsion;
 namespace tba = tudat::basic_astrodynamics;
 namespace tss = tudat::simulation_setup;
 namespace tni = tudat::numerical_integrators;
@@ -361,6 +362,17 @@ void expose_propagation(py::module &m)
             .def_property_readonly("multi_arc_results",
                                    &tp::HybridArcSimulationResults<tp::SingleArcVariationalSimulationResults, double, TIME_TYPE>::getMultiArcResults,
                                    get_docstring("HybridArcVariationalSimulationResults.arc_start_times").c_str() );
+
+    py::class_<
+            tpr::ThrustMagnitudeWrapper,
+            std::shared_ptr< tpr::ThrustMagnitudeWrapper > >(m, "ThrustMagnitudeWrapper" );
+
+    py::class_<
+            tpr::ConstantThrustMagnitudeWrapper,
+            std::shared_ptr< tpr::ConstantThrustMagnitudeWrapper >,
+            tpr::ThrustMagnitudeWrapper >(m, "ConstantThrustMagnitudeWrapper" )
+            .def_property("constant_thrust_magnitude", &tpr::ConstantThrustMagnitudeWrapper::getConstantThrustForceMagnitude,
+                          &tpr::ConstantThrustMagnitudeWrapper::resetConstantThrustForceMagnitude );
 }
 }// namespace propagation
 }// namespace numerical_simulation
