@@ -267,6 +267,8 @@ public:
     TroposhericElevationMapping( )
     { }
 
+    virtual ~TroposhericElevationMapping( ){ }
+
     virtual double computeDryTroposphericMapping(
             const Eigen::Vector6d& transmitterState,
             const Eigen::Vector6d& receiverState,

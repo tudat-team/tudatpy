@@ -172,7 +172,8 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections(
         const std::shared_ptr< LightTimeCorrectionSettings > correctionSettings,
         const simulation_setup::SystemOfBodies& bodies,
         const LinkEndId& transmitter,
-        const LinkEndId& receiver );
+        const LinkEndId& receiver,
+        const ObservableType observableType = undefined_observation_model);
 
 std::shared_ptr< TroposhericElevationMapping > createTroposphericElevationMapping(
         const TroposphericMappingModel troposphericMappingModelType,
