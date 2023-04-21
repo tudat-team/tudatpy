@@ -181,10 +181,10 @@ void expose_element_conversion(py::module &m) {
           py::arg("keplerian_elements"),
           get_docstring("keplerian_to_mee").c_str());
 
-//    m.def("flip_mee_singularity",
-//          &tmg::isOrbitRetrograde,
-//          py::arg("keplerian_elements"),
-//          get_docstring("flip_mee_singularity").c_str());
+    m.def("flip_mee_singularity",
+          py::overload_cast< const Eigen::Vector6d& >( &tmg::isOrbitRetrograde ),
+          py::arg("keplerian_elements"),
+          get_docstring("flip_mee_singularity").c_str());
 
     m.def("mee_to_keplerian",
           &toec::convertModifiedEquinoctialToKeplerianElements< double >,

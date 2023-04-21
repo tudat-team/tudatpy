@@ -144,10 +144,22 @@ void expose_environment(py::module &m) {
             .def_property_readonly("current_force_coefficients", &ta::AerodynamicCoefficientInterface::getCurrentForceCoefficients )
             .def_property_readonly("current_moment_coefficients", &ta::AerodynamicCoefficientInterface::getCurrentMomentCoefficients )
             .def_property_readonly("current_coefficients", &ta::AerodynamicCoefficientInterface::getCurrentAerodynamicCoefficients )
+            .def_property_readonly("independent_variable_names", &ta::AerodynamicCoefficientInterface::getIndependentVariableNames )
+            .def_property_readonly("control_surface_independent_variable_names", &ta::AerodynamicCoefficientInterface::getControlSurfaceIndependentVariables )
+            .def_property_readonly("current_control_surface_free_force_coefficients", &ta::AerodynamicCoefficientInterface::getCurrentControlSurfaceFreeForceCoefficients )
+            .def_property_readonly("current_control_surface_free_moment_coefficients", &ta::AerodynamicCoefficientInterface::getCurrentControlSurfaceFreeMomentCoefficients )
+            .def("current_control_surface_force_coefficient_increment", &ta::AerodynamicCoefficientInterface::getCurrentForceCoefficientIncrement,
+                 py::arg( "control_surface_name" ) )
+            .def("current_control_surface_moment_coefficient_increment", &ta::AerodynamicCoefficientInterface::getCurrentMomentCoefficientIncrement,
+                 py::arg( "control_surface_name" ) )
             .def("set_control_surface_increments", &ta::AerodynamicCoefficientInterface::setControlSurfaceIncrements,
                  py::arg( "control_surface_list" ) )
             .def("update_coefficients", &ta::AerodynamicCoefficientInterface::updateCurrentCoefficients,
                  py::arg( "independent_variables" ),
+                 py::arg( "time") )
+            .def("update_full_coefficients", &ta::AerodynamicCoefficientInterface::updateFullCurrentCoefficients,
+                 py::arg( "independent_variables" ),
+                 py::arg( "control_surface_independent_variables" ),
                  py::arg( "time") );
 
     py::class_<ta::ControlSurfaceIncrementAerodynamicInterface,
@@ -226,7 +238,16 @@ void expose_environment(py::module &m) {
             .def("set_control_surface_deflection",
                  &tsm::VehicleSystems::setCurrentControlSurfaceDeflection,
                  py::arg("control_surface_id"),
-                 py::arg("deflection_angle"));
+                 py::arg("deflection_angle"))
+            .def("get_engine_model",
+                 &tsm::VehicleSystems::getEngineModel,
+                 py::arg("engine_name"));
+
+    py::class_<tsm::EngineModel,
+            std::shared_ptr<tsm::EngineModel>>(m, "EngineModel" )
+            .def_property_readonly("thrust_magnitude_calculator",
+                                   &tsm::EngineModel::getThrustMagnitudeWrapper );
+
 
     /*!
      **************   FLIGHT CONDITIONS AND ASSOCIATED FUNCTIONALITY  ******************
@@ -326,16 +347,22 @@ void expose_environment(py::module &m) {
      **************   EPHEMERIDES  ******************
      */
 
-    py::class_<te::Ephemeris, std::shared_ptr<te::Ephemeris>>(m, "Ephemeris")
-            .def("cartesian_state", &te::Ephemeris::getCartesianState, py::arg("seconds_since_epoch") = 0.0)
-            .def("cartesian_position", &te::Ephemeris::getCartesianPosition, py::arg("seconds_since_epoch") = 0.0)
-            .def("cartesian_velocity", &te::Ephemeris::getCartesianVelocity, py::arg("seconds_since_epoch") = 0.0);
+    py::class_<te::Ephemeris, std::shared_ptr<te::Ephemeris>>(m, "Ephemeris", get_docstring("Ephemeris").c_str())
+            .def("cartesian_state", &te::Ephemeris::getCartesianState,
+                 py::arg("current_time"),
+                 get_docstring("Ephemeris.cartesian_state").c_str())
+            .def("cartesian_position", &te::Ephemeris::getCartesianPosition,
+                 py::arg("current_time"),
+                 get_docstring("Ephemeris.cartesian_position").c_str())
+            .def("cartesian_velocity", &te::Ephemeris::getCartesianVelocity,
+                 py::arg("current_time"),
+                 get_docstring("Ephemeris.cartesian_velocity").c_str());
 
 
     py::class_<te::ConstantEphemeris,
             std::shared_ptr<te::ConstantEphemeris>,
             te::Ephemeris>(
-                m, "ConstantEphemeris")
+                m, "ConstantEphemeris", get_docstring("ConstantEphemeris").c_str())
             .def(py::init<
                  const std::function<Eigen::Vector6d()>,//<pybind11/functional.h>,<pybind11/eigen.h>
                  const std::string &,
@@ -351,7 +378,8 @@ void expose_environment(py::module &m) {
                  py::arg("reference_frame_origin") = "SSB",
                  py::arg("reference_frame_orientation") = "ECLIPJ2000")
             .def("update_constant_state", &te::ConstantEphemeris::updateConstantState,
-                 py::arg("new_state"));
+                 py::arg("new_state"),
+                 get_docstring("ConstantEphemeris.update_constant_state").c_str());
 
 
     py::class_<te::KeplerEphemeris,
@@ -474,6 +502,27 @@ void expose_environment(py::module &m) {
             std::shared_ptr<te::GcrsToItrsRotationModel>,
             te::RotationalEphemeris>(
                 m, "GcrsToItrsRotationModel");
+
+
+    py::class_<te::DirectionBasedRotationalEphemeris,
+            std::shared_ptr<te::DirectionBasedRotationalEphemeris>,
+            te::RotationalEphemeris>(
+            m, "CustomInertialDirectionBasedRotationalEphemeris")
+            .def_property_readonly("inertial_body_axis_calculator",
+                 &te::DirectionBasedRotationalEphemeris::getInertialBodyAxisDirectionCalculator );
+
+    py::class_<te::InertialBodyFixedDirectionCalculator,
+            std::shared_ptr<te::InertialBodyFixedDirectionCalculator>>(
+            m, "InertialBodyFixedDirectionCalculator");
+
+    py::class_<te::CustomBodyFixedDirectionCalculator,
+            std::shared_ptr<te::CustomBodyFixedDirectionCalculator>,
+            te::InertialBodyFixedDirectionCalculator>(
+            m, "CustomBodyFixedDirectionCalculator")
+            .def_property("inertial_body_axis_direction_function",
+                                   &te::CustomBodyFixedDirectionCalculator::getInertialBodyAxisDirectionFunction,
+                                   &te::CustomBodyFixedDirectionCalculator::resetInertialBodyAxisDirectionFunction);
+
 
 
     /*!
