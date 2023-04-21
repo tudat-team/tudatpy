@@ -110,10 +110,12 @@ public:
     TabulatedTroposphericCorrectionSettings(
             const AtmosphericCorrectionPerStationType& troposphericDryCorrection,
             const AtmosphericCorrectionPerStationType& troposphericWetCorrection,
+            const std::string bodyWithAtmosphere = "Earth",
             const TroposphericMappingModel troposphericMappingModel = niell ):
         LightTimeCorrectionSettings( tabulated_tropospheric ),
         troposphericDryCorrection_( troposphericDryCorrection ),
         troposphericWetCorrection_( troposphericWetCorrection ),
+        bodyWithAtmosphere_( bodyWithAtmosphere ),
         troposphericMappingModelType_( troposphericMappingModel )
     { }
 
@@ -132,11 +134,18 @@ public:
         return troposphericMappingModelType_;
     }
 
+    std::string getBodyWithAtmosphere( )
+    {
+        return bodyWithAtmosphere_;
+    }
+
 private:
 
     AtmosphericCorrectionPerStationType troposphericDryCorrection_;
 
     AtmosphericCorrectionPerStationType troposphericWetCorrection_;
+
+    std::string bodyWithAtmosphere_;
 
     TroposphericMappingModel troposphericMappingModelType_;
 
@@ -151,7 +160,8 @@ inline std::shared_ptr< LightTimeCorrectionSettings > firstOrderRelativisticLigh
 
 //! Function to create object that computes a single (type of) correction to the light-time
 /*!
- * Function to create object that computes a single (type of) correction to the light-time
+ * Function to create object that computes a single (type of) correction to the light-time. Returns nullptr if the
+ * selected corrections aren't applicable to the specified pair of transmitter and receiver.
  * \param correctionSettings User-defined settings for the light-time correction that is to be created
  * \param bodies List of body objects that constitutes the environment
  * \param transmitter Id of transmitting body/reference point (first/second)

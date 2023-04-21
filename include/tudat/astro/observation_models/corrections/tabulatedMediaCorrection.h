@@ -16,6 +16,7 @@
 
 #include "tudat/math/interpolators.h"
 #include "tudat/astro/observation_models/observableTypes.h"
+#include "tudat/astro/observation_models/corrections/lightTimeCorrection.h"
 
 namespace tudat
 {
@@ -411,7 +412,61 @@ private:
     std::shared_ptr< interpolators::OneDimensionalInterpolator< double, double > > cWetInterpolator_;
 };
 
+class TabulatedTroposphericCorrection: public LightTimeCorrection
+{
+public:
 
+    TabulatedTroposphericCorrection(
+            std::shared_ptr< TabulatedMediaReferenceCorrectionManager > dryReferenceCorrectionCalculator,
+            std::shared_ptr< TabulatedMediaReferenceCorrectionManager > wetReferenceCorrectionCalculator,
+            std::shared_ptr< TroposhericElevationMapping > elevationMapping,
+            bool isUplinkCorrection ):
+        LightTimeCorrection( tabulated_tropospheric ),
+        dryReferenceCorrectionCalculator_( dryReferenceCorrectionCalculator ),
+        wetReferenceCorrectionCalculator_( wetReferenceCorrectionCalculator ),
+        elevationMapping_( elevationMapping ),
+        isUplinkCorrection_( isUplinkCorrection )
+    { }
+
+    double calculateLightTimeCorrection(
+            const Eigen::Vector6d& transmitterState,
+            const Eigen::Vector6d& receiverState,
+            const double transmissionTime,
+            const double receptionTime ) override;
+
+    double calculateLightTimeCorrectionPartialDerivativeWrtLinkEndTime(
+            const Eigen::Vector6d& transmitterState,
+            const Eigen::Vector6d& receiverState,
+            const double transmissionTime,
+            const double receptionTime,
+            const LinkEndType fixedLinkEnd,
+            const LinkEndType linkEndAtWhichPartialIsEvaluated ) override
+    {
+        throw std::runtime_error( "calculateLightTimeCorrectionPartialDerivativeWrtLinkEndTime not implemented for TabulatedTroposphericCorrection" );
+    }
+
+    Eigen::Matrix< double, 3, 1 > calculateLightTimeCorrectionPartialDerivativeWrtLinkEndPosition(
+            const Eigen::Vector6d& transmitterState,
+            const Eigen::Vector6d& receiverState,
+            const double transmissionTime,
+            const double receptionTime,
+            const LinkEndType linkEndAtWhichPartialIsEvaluated ) override
+    {
+        throw std::runtime_error( "calculateLightTimeCorrectionPartialDerivativeWrtLinkEndPosition not implemented for TabulatedTroposphericCorrection" );
+    }
+
+private:
+
+    std::shared_ptr< TabulatedMediaReferenceCorrectionManager > dryReferenceCorrectionCalculator_;
+
+    std::shared_ptr< TabulatedMediaReferenceCorrectionManager > wetReferenceCorrectionCalculator_;
+
+    std::shared_ptr< TroposhericElevationMapping > elevationMapping_;
+
+    // Boolean indicating whether the correction is for uplink or donwlink (necessary when computing the elevation)
+    bool isUplinkCorrection_;
+
+};
 
 } // namespace observation_models
 
