@@ -55,10 +55,13 @@ void expose_transfer_trajectory(py::module &m) {
                    get_docstring("TransferLegTypes.hodographic_low_thrust_leg").c_str())
             .export_values();
 
-    py::class_<
-            tms::TransferLeg,
-            std::shared_ptr<tms::TransferLeg> >(m, "TransferLeg",
-                                                get_docstring("TransferLeg").c_str());
+    py::class_< tms::TransferLeg,
+            std::shared_ptr<tms::TransferLeg> >(m, "TransferLeg", get_docstring("TransferLeg").c_str())
+            .def("state_along_trajectory", py::overload_cast<  const double >( &tms::TransferLeg::getStateAlongTrajectory ),
+                 py::arg( "time_since_leg_beginning" ),
+                 get_docstring("TransferLeg.time_since_leg_beginning").c_str() );
+
+
 
     py::class_<
             tsbm::SphericalShapingLeg,
@@ -238,7 +241,11 @@ void expose_transfer_trajectory(py::module &m) {
             .def_property_readonly( "number_of_nodes", &tms::TransferTrajectory::getNumberOfNodes,
                                     get_docstring("TransferTrajectory.number_of_nodes").c_str() )
             .def_property_readonly( "number_of_legs", &tms::TransferTrajectory::getNumberOfLegs,
-                                    get_docstring("TransferTrajectory.number_of_legs").c_str() );
+                                    get_docstring("TransferTrajectory.number_of_legs").c_str() )
+            .def_property_readonly( "legs", &tms::TransferTrajectory::getLegs,
+                                    get_docstring("TransferTrajectory.legs").c_str() );
+
+
 
     m.def("unpowered_leg",
           &tms::unpoweredLeg,
@@ -275,7 +282,7 @@ void expose_transfer_trajectory(py::module &m) {
 
     m.def("departure_node",
           &tms::escapeAndDepartureNode,
-          py::arg( "departure_semi_major_axis" ),
+          py::arg( "departure_semi_major_axi    s" ),
           py::arg( "departure_eccentricity" ),
           get_docstring("departure_node").c_str() );
 
@@ -300,6 +307,13 @@ void expose_transfer_trajectory(py::module &m) {
           py::arg( "central_body" ),
           get_docstring("create_transfer_trajectory").c_str());
 
+    m.def("set_low_thrust_acceleration",
+          &tms::setLowThrustAcceleration,
+          py::arg( "transfer_leg" ),
+          py::arg( "bodies" ),
+          py::arg( "body_name" ),
+          py::arg( "engine_name" ),
+          get_docstring("set_low_thrust_acceleration").c_str());
 
 };
 
