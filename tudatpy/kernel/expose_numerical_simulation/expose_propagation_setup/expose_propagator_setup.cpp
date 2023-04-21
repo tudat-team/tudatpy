@@ -297,6 +297,10 @@ void expose_propagator_setup(py::module &m) {
                           &tp::SingleArcPropagatorSettings<double,TIME_TYPE>::getTerminationSettings,
                           &tp::SingleArcPropagatorSettings<double,TIME_TYPE>::resetTerminationSettings,
                           get_docstring("SingleArcPropagatorSettings.termination_settings").c_str() )
+            .def_property("integrator_settings",
+                          &tp::SingleArcPropagatorSettings<double,TIME_TYPE>::getIntegratorSettings,
+                          &tp::SingleArcPropagatorSettings<double,TIME_TYPE>::setIntegratorSettings,
+                          get_docstring("SingleArcPropagatorSettings.termination_settings").c_str() )
             .def_property_readonly("processing_settings",
                                    &tp::SingleArcPropagatorSettings<double,TIME_TYPE>::getOutputSettings,
                                    get_docstring("SingleArcPropagatorSettings.processing_settings").c_str() )

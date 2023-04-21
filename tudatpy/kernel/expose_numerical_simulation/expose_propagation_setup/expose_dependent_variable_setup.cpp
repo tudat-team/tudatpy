@@ -436,6 +436,32 @@ namespace dependent_variable {
               py::arg("central_body") = "",
               get_docstring("aerodynamic_moment_coefficients").c_str());
 
+        m.def("aerodynamic_force_coefficients_control_surface_free",
+              &tp::aerodynamicForceCoefficientControlSurfaceFreeDependentVariable,
+              py::arg("body"),
+              py::arg("central_body") = "",
+              get_docstring("aerodynamic_force_coefficients_control_surface_free").c_str());
+
+        m.def("aerodynamic_moment_coefficients_control_surface_free",
+              &tp::aerodynamicMomentCoefficientControlSurfaceFreeDependentVariable,
+              py::arg("body"),
+              py::arg("central_body") = "",
+              get_docstring("aerodynamic_moment_coefficients_control_surface_free").c_str());
+
+        m.def("aerodynamic_force_coefficients_control_surface_increment",
+              &tp::aerodynamicForceCoefficientControlSurfaceIncrementDependentVariable,
+              py::arg("body"),
+              py::arg("control_surface_name"),
+              py::arg("central_body") = "",
+              get_docstring("aerodynamic_force_coefficients_control_surface_increment").c_str());
+
+        m.def("aerodynamic_moment_coefficients_control_surface_increment",
+              &tp::aerodynamicMomentCoefficientControlSurfaceIncrementDependentVariable,
+              py::arg("body"),
+              py::arg("control_surface_name"),
+              py::arg("central_body") = "",
+              get_docstring("aerodynamic_moment_coefficients_control_surface_increment").c_str());
+
         m.def("latitude",
               &tp::latitudeDependentVariable,
               py::arg("body"),

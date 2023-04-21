@@ -23,6 +23,7 @@ namespace py = pybind11;
 
 namespace ta = tudat::aerodynamics;
 namespace tp = tudat::propagators;
+namespace tpr = tudat::propulsion;
 namespace tba = tudat::basic_astrodynamics;
 namespace tss = tudat::simulation_setup;
 namespace tni = tudat::numerical_integrators;
@@ -135,16 +136,22 @@ void expose_propagation(py::module &m)
           py::arg("bodies"),
           py::arg("initial_time"));
 
+    py::class_<
+            tp::DampedInitialRotationalStateResults<TIME_TYPE, double>,
+            std::shared_ptr<tp::DampedInitialRotationalStateResults<TIME_TYPE, double>>>(m, "DampedInitialRotationalStateResults",
+                                                                 get_docstring("DampedInitialRotationalStateResults").c_str())
+            .def_readwrite("initial_state", &tp::DampedInitialRotationalStateResults<TIME_TYPE,double>::initialState_)
+            .def_readwrite("forward_backward_states", &tp::DampedInitialRotationalStateResults<TIME_TYPE,double>::forwardBackwardPropagatedStates_)
+            .def_readwrite("forward_backward_dependent_variables", &tp::DampedInitialRotationalStateResults<TIME_TYPE,double>::forwardBackwardDependentVariables_ );
+
     m.def("get_zero_proper_mode_rotational_state",
           py::overload_cast<
           const tss::SystemOfBodies&,
-          const std::shared_ptr< tni::IntegratorSettings< TIME_TYPE > >,
           const std::shared_ptr< tp::SingleArcPropagatorSettings< double, TIME_TYPE > >,
           const double,
           const std::vector< double >,
-          const bool >( &tp::getZeroProperModeRotationalState< TIME_TYPE, double > ),
+          const bool >( &tp::getZeroProperModeRotationalStateWithStruct< TIME_TYPE, double > ),
           py::arg("bodies"),
-          py::arg("integrator_settings"),
           py::arg("propagator_settings"),
           py::arg("body_mean_rotational_rate"),
           py::arg("dissipation_times"),
@@ -355,6 +362,17 @@ void expose_propagation(py::module &m)
             .def_property_readonly("multi_arc_results",
                                    &tp::HybridArcSimulationResults<tp::SingleArcVariationalSimulationResults, double, TIME_TYPE>::getMultiArcResults,
                                    get_docstring("HybridArcVariationalSimulationResults.arc_start_times").c_str() );
+
+    py::class_<
+            tpr::ThrustMagnitudeWrapper,
+            std::shared_ptr< tpr::ThrustMagnitudeWrapper > >(m, "ThrustMagnitudeWrapper" );
+
+    py::class_<
+            tpr::ConstantThrustMagnitudeWrapper,
+            std::shared_ptr< tpr::ConstantThrustMagnitudeWrapper >,
+            tpr::ThrustMagnitudeWrapper >(m, "ConstantThrustMagnitudeWrapper" )
+            .def_property("constant_thrust_magnitude", &tpr::ConstantThrustMagnitudeWrapper::getConstantThrustForceMagnitude,
+                          &tpr::ConstantThrustMagnitudeWrapper::resetConstantThrustForceMagnitude );
 }
 }// namespace propagation
 }// namespace numerical_simulation

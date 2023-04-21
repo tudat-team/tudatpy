@@ -109,20 +109,16 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 {%- for v in range(structure[function.name].overloads) %}
 
     } else if(name == "{{ function.name }}" && variant=={{ v }}) {
-            return R"(
-            {% filter indent(8) -%}
-            {{ structure[function.name][v] | safe }}
-            {%- endfilter %}
+        return R"(
+        {{ structure[function.name][v] | safe }}
     )";
 
 {% endfor %}
 {%- else %}
 
     } else if(name == "{{ function.name }}" && variant==0) {
-            return R"(
-            {% filter indent(8) -%}
-            {{ structure[function.name] | safe }}
-            {%- endfilter %}
+        return R"(
+        {{ structure[function.name] | safe }}
     )";
 
 {% endif %}
