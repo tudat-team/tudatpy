@@ -109,7 +109,7 @@ public:
     {
         isTimeValid( time );
 
-        const double normalizedTime = 2.0 * ( ( time - startTime_ ) / ( time - endTime_ ) ) - 1.0;
+        const double normalizedTime = 2.0 * ( ( time - startTime_ ) / ( endTime_ - startTime_ ) ) - 1.0;
 
         double correction = 0;
         for ( unsigned int i = 0; i < coefficients_.size( ); ++i )
@@ -306,7 +306,7 @@ public:
             const double receptionTime ) override
     {
         computeCurrentElevation( transmitterState, receiverState, transmissionTime, receptionTime );
-        return troposphericSimplifiedChaoMapping( currentElevation_, false );
+        return troposphericSimplifiedChaoMapping( currentElevation_, true );
     }
 
     double computeWetTroposphericMapping(
@@ -316,7 +316,7 @@ public:
             const double receptionTime ) override
     {
         computeCurrentElevation( transmitterState, receiverState, transmissionTime, receptionTime );
-        return troposphericSimplifiedChaoMapping( currentElevation_, true );
+        return troposphericSimplifiedChaoMapping( currentElevation_, false );
     }
 
 private:
@@ -331,8 +331,6 @@ private:
             const double receptionTime );
 
     double currentElevation_;
-
-    double currentStationTime_;
 
     std::function< double ( Eigen::Vector3d, double ) > elevationFunction_;
 
@@ -393,9 +391,9 @@ private:
     const std::vector< double > bDryAmplitude_ = { 0.0e-5, 2.1414979e-5, 3.0160779e-5, 7.2562722e-5, 11.723375e-5 };
     const std::vector< double > cDryAmplitude_ = { 0.0e-5, 9.0128400e-5, 4.3497037e-5, 84.795348e-5, 170.37206e-5 };
 
-    const double aHt = 2.53e-5;
-    const double bHt = 5.49e-3;
-    const double cHt = 1.14e-3;
+    const double aHt_ = 2.53e-5;
+    const double bHt_ = 5.49e-3;
+    const double cHt_ = 1.14e-3;
 
     const std::vector< double > aWet_ = { 5.8021897e-4, 5.6794847e-4, 5.8118019e-4, 5.9727542e-4, 6.1641693e-4 };
     const std::vector< double > bWet_ = { 1.4275268e-3, 1.5138625e-3, 1.4572752e-3, 1.5007428e-3, 1.7599082e-3 };

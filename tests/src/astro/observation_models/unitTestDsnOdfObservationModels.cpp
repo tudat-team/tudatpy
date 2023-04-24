@@ -21,6 +21,7 @@
 #include "tudat/simulation/estimation_setup.h"
 
 #include "tudat/io/readOdfFile.h"
+#include "tudat/io/readTabulatedMediaCorrections.h"
 #include "tudat/simulation/estimation_setup/processOdfFile.h"
 
 #include <boost/date_time/gregorian/gregorian.hpp>
@@ -174,7 +175,7 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
             std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/mro-rawdata-odf/mromagr2017_095_0825xmmmv1.odf" );
 
     // Read and process ODF file data
-    std::vector< std::shared_ptr< input_output::OdfRawFileContents > > rawOdfDataVector = { rawOdfFileContents2, rawOdfFileContents };
+    std::vector< std::shared_ptr< input_output::OdfRawFileContents > > rawOdfDataVector = { rawOdfFileContents };
     std::shared_ptr< ProcessedOdfFileContents > processedOdfFileContents =
             std::make_shared< ProcessedOdfFileContents >(
                     rawOdfDataVector, bodies.getBody( "Earth" ), true, spacecraftName );
@@ -218,9 +219,15 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
     // Create computed observation collection
     std::vector< std::shared_ptr< observation_models::ObservationModelSettings > > observationModelSettingsList;
 
+    std::shared_ptr< input_output::CspRawFile > cspFile = std::make_shared< input_output::CspRawFile >( "/Users/pipas/Documents/mro-data/tro/mromagr2017_091_2017_121.tro.txt" );
+
     std::vector< std::shared_ptr< observation_models::LightTimeCorrectionSettings > > lightTimeCorrectionSettings =
             { std::make_shared< observation_models::FirstOrderRelativisticLightTimeCorrectionSettings >(
-                    lightTimePerturbingBodies ) };
+                    lightTimePerturbingBodies ),
+              std::make_shared< observation_models::TabulatedTroposphericCorrectionSettings >(
+                      createTroposphericDryCorrection( { cspFile } ),
+                      createTroposphericWetCorrection( { cspFile } ) )
+            };
 
     std::map < observation_models::ObservableType, std::vector< observation_models::LinkEnds > > linkEndsPerObservable =
             observedObservationCollection->getLinkEndsPerObservableType( );
