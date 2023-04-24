@@ -62,13 +62,8 @@ void SimplifiedChaoTroposphericMapping::computeCurrentElevation(
         spacecraftState = transmitterState;
     }
 
-    if ( groundStationTime != currentStationTime_ )
-    {
-        currentElevation_ = elevationFunction_( spacecraftState.segment( 0, 3 ) - groundStationState.segment( 0, 3 ),
-                                                groundStationTime );
-        currentStationTime_ = groundStationTime;
-    }
-
+    currentElevation_ = elevationFunction_( spacecraftState.segment( 0, 3 ) - groundStationState.segment( 0, 3 ),
+                                            groundStationTime );
 }
 
 NiellTroposphericMapping::NiellTroposphericMapping(
@@ -175,8 +170,9 @@ double NiellTroposphericMapping::computeDryTroposphericMapping(
     double bDry = computeDryCoefficient( bDryAverageInterpolator_, bDryAmplitudeInterpolator_, groundStationTime, geodeticLatitude );
     double cDry = computeDryCoefficient( cDryAverageInterpolator_, cDryAmplitudeInterpolator_, groundStationTime, geodeticLatitude );
 
+    // Altitude in equation should be in km
     return computeMFunction( aDry, bDry, cDry, elevation ) + ( 1.0 / std::sin( elevation ) - computeMFunction(
-            aHt, bHt, cHt, elevation ) ) * altitude;
+            aHt_, bHt_, cHt_, elevation ) ) * altitude * 1e-3;
 
 }
 
@@ -208,7 +204,7 @@ double NiellTroposphericMapping::computeDryCoefficient(
     double startOfYearTime = basic_astrodynamics::convertCalendarDateToJulianDaysSinceEpoch(
             year, 1, 1, 0, 0, 0.0, basic_astrodynamics::JULIAN_DAY_ON_J2000 );
 
-    double normalizedTime = ( time - startOfYearTime - 28 * physical_constants::JULIAN_DAY ) / 365.25 * physical_constants::JULIAN_DAY;
+    double normalizedTime = ( time - startOfYearTime - 28 * physical_constants::JULIAN_DAY ) / ( 365.25 * physical_constants::JULIAN_DAY );
 
     double dryCoefficient;
     if ( geodeticLatitude >= 0 )

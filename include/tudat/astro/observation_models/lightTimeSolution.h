@@ -16,6 +16,7 @@
 #include <boost/lexical_cast.hpp>
 #include <functional>
 #include <iostream>
+#include <iomanip>
 #include <map>
 #include <vector>
 
