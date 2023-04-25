@@ -448,6 +448,8 @@ public:
         receiverStateOutput = receiverState;
         transmitterStateOutput = transmitterState;
 
+        std::cerr << std::setprecision(18) << "Light time: " << newLightTimeCalculation << std::endl;
+
         return newLightTimeCalculation;
     }
 
