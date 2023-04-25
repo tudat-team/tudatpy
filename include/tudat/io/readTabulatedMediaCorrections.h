@@ -110,14 +110,14 @@ std::vector< observation_models::ObservableType > getBaseObservableTypes( std::s
 bool compareAtmosphericCspFileStartDate( std::shared_ptr< CspRawFile > rawCspData1,
                                          std::shared_ptr< CspRawFile > rawCspData2 );
 
-observation_models::AtmosphericCorrectionPerStationType createTroposphericCorrection(
+observation_models::AtmosphericCorrectionPerStationAndSpacecraftType createTroposphericCorrection(
         std::vector< std::shared_ptr< CspRawFile > > rawCspFiles,
         const std::string& modelIdentifier );
 
-observation_models::AtmosphericCorrectionPerStationType createTroposphericDryCorrection(
+observation_models::AtmosphericCorrectionPerStationAndSpacecraftType createTroposphericDryCorrection(
         const std::vector< std::shared_ptr< CspRawFile > >& rawCspFiles );
 
-observation_models::AtmosphericCorrectionPerStationType createTroposphericWetCorrection(
+observation_models::AtmosphericCorrectionPerStationAndSpacecraftType createTroposphericWetCorrection(
         const std::vector< std::shared_ptr< CspRawFile > >& rawCspFiles );
 
 } // namespace input_output

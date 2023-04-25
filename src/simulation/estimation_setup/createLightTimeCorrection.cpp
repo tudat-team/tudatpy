@@ -123,16 +123,18 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections(
             ObservableType baseObservableType = getBaseObservableType( observableType );
 
             std::shared_ptr< TabulatedMediaReferenceCorrectionManager > dryCorrectionCalculator, wetCorrectionCalculator;
-            if ( troposphericCorrectionSettings->getTroposphericDryCorrection( ).count( groundStation.stationName_ ) &&
-                troposphericCorrectionSettings->getTroposphericDryCorrection( ).at( groundStation.stationName_ ).count( baseObservableType ) &&
-                troposphericCorrectionSettings->getTroposphericWetCorrection( ).count( groundStation.stationName_ ) &&
-                troposphericCorrectionSettings->getTroposphericWetCorrection( ).at( groundStation.stationName_ ).count( baseObservableType ) )
+            std::pair< std::string, std::string > stationSpacecraftPair = std::make_pair( groundStation.stationName_, "" );
+
+            if ( troposphericCorrectionSettings->getTroposphericDryCorrection( ).count( stationSpacecraftPair ) &&
+                troposphericCorrectionSettings->getTroposphericDryCorrection( ).at( stationSpacecraftPair ).count( baseObservableType ) &&
+                troposphericCorrectionSettings->getTroposphericWetCorrection( ).count( stationSpacecraftPair ) &&
+                troposphericCorrectionSettings->getTroposphericWetCorrection( ).at( stationSpacecraftPair ).count( baseObservableType ) )
             {
                 lightTimeCorrection = std::make_shared< TabulatedTroposphericCorrection >(
                     troposphericCorrectionSettings->getTroposphericDryCorrection( ).at(
-                            groundStation.stationName_ ).at( baseObservableType ),
+                            stationSpacecraftPair ).at( baseObservableType ),
                     troposphericCorrectionSettings->getTroposphericWetCorrection( ).at(
-                            groundStation.stationName_ ).at( baseObservableType ),
+                            stationSpacecraftPair ).at( baseObservableType ),
                     troposphericElevationMapping,
                     isUplinkCorrection );
             }
