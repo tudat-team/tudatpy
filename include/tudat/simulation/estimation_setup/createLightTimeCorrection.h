@@ -108,8 +108,8 @@ class TabulatedTroposphericCorrectionSettings: public LightTimeCorrectionSetting
 {
 public:
     TabulatedTroposphericCorrectionSettings(
-            const AtmosphericCorrectionPerStationType& troposphericDryCorrection,
-            const AtmosphericCorrectionPerStationType& troposphericWetCorrection,
+            const AtmosphericCorrectionPerStationAndSpacecraftType& troposphericDryCorrection,
+            const AtmosphericCorrectionPerStationAndSpacecraftType& troposphericWetCorrection,
             const std::string bodyWithAtmosphere = "Earth",
             const TroposphericMappingModel troposphericMappingModel = niell ):
         LightTimeCorrectionSettings( tabulated_tropospheric ),
@@ -119,12 +119,12 @@ public:
         troposphericMappingModelType_( troposphericMappingModel )
     { }
 
-    AtmosphericCorrectionPerStationType getTroposphericDryCorrection( )
+    AtmosphericCorrectionPerStationAndSpacecraftType getTroposphericDryCorrection( )
     {
         return troposphericDryCorrection_;
     }
 
-    AtmosphericCorrectionPerStationType getTroposphericWetCorrection( )
+    AtmosphericCorrectionPerStationAndSpacecraftType getTroposphericWetCorrection( )
     {
         return troposphericWetCorrection_;
     }
@@ -141,9 +141,9 @@ public:
 
 private:
 
-    AtmosphericCorrectionPerStationType troposphericDryCorrection_;
+    AtmosphericCorrectionPerStationAndSpacecraftType troposphericDryCorrection_;
 
-    AtmosphericCorrectionPerStationType troposphericWetCorrection_;
+    AtmosphericCorrectionPerStationAndSpacecraftType troposphericWetCorrection_;
 
     std::string bodyWithAtmosphere_;
 

@@ -370,14 +370,14 @@ bool compareAtmosphericCspFileStartDate( std::shared_ptr< CspRawFile > rawCspDat
     }
 }
 
-observation_models::AtmosphericCorrectionPerStationType createTroposphericCorrection(
+observation_models::AtmosphericCorrectionPerStationAndSpacecraftType createTroposphericCorrection(
         std::vector< std::shared_ptr< CspRawFile > > rawCspFiles,
         const std::string& modelIdentifier )
 {
     // Sort CSP files by start date
     std::stable_sort( rawCspFiles.begin( ), rawCspFiles.end( ), &compareAtmosphericCspFileStartDate );
 
-    observation_models::AtmosphericCorrectionPerStationType troposphericCorrection;
+    observation_models::AtmosphericCorrectionPerStationAndSpacecraftType troposphericCorrection;
 
     std::map< std::string, std::map< std::string, std::shared_ptr< observation_models::TabulatedMediaReferenceCorrectionManager > > >
             troposphericCorrectionPerStationPerType;
@@ -439,7 +439,7 @@ observation_models::AtmosphericCorrectionPerStationType createTroposphericCorrec
             {
                 for ( const observation_models::ObservableType& observableType : observableTypes )
                 {
-                    troposphericCorrection[ groundStation ][ observableType ] =
+                    troposphericCorrection[ std::make_pair( groundStation, "" ) ][ observableType ] =
                             troposphericCorrectionPerStationPerType.at( stationIt->first ).at( observableIt->first );
                 }
             }
@@ -449,14 +449,14 @@ observation_models::AtmosphericCorrectionPerStationType createTroposphericCorrec
     return troposphericCorrection;
 }
 
-observation_models::AtmosphericCorrectionPerStationType createTroposphericDryCorrection(
+observation_models::AtmosphericCorrectionPerStationAndSpacecraftType createTroposphericDryCorrection(
         const std::vector< std::shared_ptr< CspRawFile > >& rawCspFiles )
 {
     std::string modelIdentifier = "DRY NUPART";
     return createTroposphericCorrection( rawCspFiles, modelIdentifier );
 }
 
-observation_models::AtmosphericCorrectionPerStationType createTroposphericWetCorrection(
+observation_models::AtmosphericCorrectionPerStationAndSpacecraftType createTroposphericWetCorrection(
         const std::vector< std::shared_ptr< CspRawFile > >& rawCspFiles )
 {
     std::string modelIdentifier = "WET NUPART";

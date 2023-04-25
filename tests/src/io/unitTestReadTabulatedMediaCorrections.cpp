@@ -29,7 +29,7 @@ BOOST_AUTO_TEST_CASE( testName )
 
     std::shared_ptr< CspRawFile > cspFile = std::make_shared< CspRawFile >( "/Users/pipas/Documents/mro-data/tro/mromagr2017_091_2017_121.tro.txt" );
 
-    observation_models::AtmosphericCorrectionPerStationType dryTroposphericCorrections =
+    observation_models::AtmosphericCorrectionPerStationAndSpacecraftType dryTroposphericCorrections =
             createTroposphericDryCorrection( { cspFile } );
 
 //    std::vector< std::string > cspCommands = readCspCommandsFile( "/Users/pipas/Documents/mro-data/tro/mromagr2017_091_2017_121.tro.txt" );
