@@ -31,8 +31,6 @@ AtmosphericCorrectionCspCommand::AtmosphericCorrectionCspCommand( std::vector< s
 {
     for ( unsigned int i = 0; i < cspCommand.size(); ++i )
     {
-        boost::algorithm::trim( cspCommand.at( i ) );
-
         if ( cspCommand.at( i ) == "MODEL" )
         {
             modelIdentifier_ = cspCommand.at( i + 1 );
@@ -160,6 +158,7 @@ CspRawFile::CspRawFile( const std::string& cspFile ):
         // Loop over strings and find type of model
         for ( unsigned int j = 0; j < cspVectorOfIndividualStrings.size( ); ++ j )
         {
+            boost::algorithm::trim( cspVectorOfIndividualStrings.at( j ) );
             if ( cspVectorOfIndividualStrings.at( j ) == "MODEL" )
             {
                 if ( cspVectorOfIndividualStrings.at( j + 1 ) == "DRY NUPART" ||
