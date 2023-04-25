@@ -25,7 +25,9 @@ namespace tudat
 namespace input_output
 {
 
-AtmosphericCorrectionCspCommand::AtmosphericCorrectionCspCommand( std::vector< std::string >& cspCommand )
+AtmosphericCorrectionCspCommand::AtmosphericCorrectionCspCommand( std::vector< std::string >& cspCommand ):
+    sourceSpecifier_( "" ),
+    sourceId_( 0 )
 {
     for ( unsigned int i = 0; i < cspCommand.size(); ++i )
     {
@@ -66,6 +68,12 @@ AtmosphericCorrectionCspCommand::AtmosphericCorrectionCspCommand( std::vector< s
         {
             groundStationsId_ = cspCommand.at( i + 1 );
             ++i;
+        }
+        else if ( cspCommand.at( i ) == "SCID" || cspCommand.at( i ) == "QUASAR" )
+        {
+            sourceSpecifier_ = cspCommand.at( i );
+            sourceId_ = std::stoi( cspCommand.at( i + 1 ) );
+            i = i + 2;
         }
         else if ( cspCommand.at( i ) == "ADJUST" )
         {
@@ -130,22 +138,6 @@ double AtmosphericCorrectionCspCommand::convertTime( std::string yearMonthDay, s
             year, month, day, hours, minutes, seconds, basic_astrodynamics::JULIAN_DAY_ON_J2000 ) * physical_constants::JULIAN_DAY;
 }
 
-IonosphericCorrectionCspCommand::IonosphericCorrectionCspCommand( std::vector< std::string >& cspCommand ):
-    AtmosphericCorrectionCspCommand( cspCommand )
-{
-    for ( unsigned int i = 0; i < cspCommand.size(); ++i )
-    {
-        boost::algorithm::trim( cspCommand.at( i ) );
-
-        if ( cspCommand.at( i ) == "SCID" || cspCommand.at( i ) == "QUASAR" )
-        {
-            sourceSpecifier_ = cspCommand.at( i );
-            sourceId_ = std::stoi( cspCommand.at( i + 1) );
-            break;
-        }
-    }
-}
-
 CspRawFile::CspRawFile( const std::string& cspFile ):
     fileName_( cspFile )
 {
@@ -171,13 +163,10 @@ CspRawFile::CspRawFile( const std::string& cspFile ):
             if ( cspVectorOfIndividualStrings.at( j ) == "MODEL" )
             {
                 if ( cspVectorOfIndividualStrings.at( j + 1 ) == "DRY NUPART" ||
-                    cspVectorOfIndividualStrings.at( j + 1 ) == "WET NUPART" )
+                    cspVectorOfIndividualStrings.at( j + 1 ) == "WET NUPART" ||
+                    cspVectorOfIndividualStrings.at( j + 1 ) == "CHPART" )
                 {
                     cspCommand = std::make_shared< AtmosphericCorrectionCspCommand >( cspVectorOfIndividualStrings );
-                }
-                else if ( cspVectorOfIndividualStrings.at( j + 1 ) == "CHPART" )
-                {
-                    cspCommand = std::make_shared< IonosphericCorrectionCspCommand >( cspVectorOfIndividualStrings );
                 }
                 else
                 {
@@ -370,17 +359,65 @@ bool compareAtmosphericCspFileStartDate( std::shared_ptr< CspRawFile > rawCspDat
     }
 }
 
+std::string getSourceName(
+        std::string& sourceSpecifier,
+        int sourceId,
+        const std::map< int, std::string >& spacecraftNamePerSpacecraftId,
+        const std::map< int, std::string >& quasarNamePerQuasarId )
+{
+    std::string sourceName;
+
+    if ( sourceSpecifier.empty( ) || sourceId == 0 )
+    {
+        sourceName = "";
+    }
+    else if ( sourceSpecifier == "SCID" )
+    {
+        if ( spacecraftNamePerSpacecraftId.count( sourceId ) )
+        {
+            sourceName = spacecraftNamePerSpacecraftId.at( sourceId );
+        }
+        else
+        {
+            // Spacecraft name selected to be "NAIF Id", which is equal to -"JPL Id" (for a spacecraft)
+            sourceName = std::to_string( - sourceId );
+        }
+    }
+    else if ( sourceSpecifier == "QUASAR" )
+    {
+        if ( quasarNamePerQuasarId.count( sourceId ) )
+        {
+            sourceName = quasarNamePerQuasarId.at( sourceId );
+        }
+        else
+        {
+            throw std::runtime_error( "Error when retrieving source name from CSP file: automatic selection of "
+                                      "quasar name is not implemented." );
+        }
+    }
+    else
+    {
+        throw std::runtime_error( "Error when retrieving source name from CSP file: invalid source specifier." );
+    }
+
+    return sourceName;
+}
+
 observation_models::AtmosphericCorrectionPerStationAndSpacecraftType createTroposphericCorrection(
         std::vector< std::shared_ptr< CspRawFile > > rawCspFiles,
-        const std::string& modelIdentifier )
+        const std::string& modelIdentifier,
+        const std::map< int, std::string >& spacecraftNamePerSpacecraftId,
+        const std::map< int, std::string >& quasarNamePerQuasarId )
 {
     // Sort CSP files by start date
     std::stable_sort( rawCspFiles.begin( ), rawCspFiles.end( ), &compareAtmosphericCspFileStartDate );
 
     observation_models::AtmosphericCorrectionPerStationAndSpacecraftType troposphericCorrection;
 
-    std::map< std::string, std::map< std::string, std::shared_ptr< observation_models::TabulatedMediaReferenceCorrectionManager > > >
-            troposphericCorrectionPerStationPerType;
+    // Keys: std::pair< station, source (i.e. spacecraft or quasar) >, data type identifier
+    std::map< std::pair< std::string, std::string >, std::map< std::string,
+        std::shared_ptr< observation_models::TabulatedMediaReferenceCorrectionManager > > >
+        correctionsPerStationsAndSourcePerType;
 
     for ( unsigned int i = 0; i < rawCspFiles.size( ); ++i )
     {
@@ -398,26 +435,32 @@ observation_models::AtmosphericCorrectionPerStationAndSpacecraftType createTropo
                 continue;
             }
 
+            std::string sourceName = getSourceName(  cspCommand->sourceSpecifier_, cspCommand->sourceId_,
+                                                     spacecraftNamePerSpacecraftId, quasarNamePerQuasarId );
+            if ( ( modelIdentifier == "DRY NUPART" || modelIdentifier == "WET NUPART" ) && !sourceName.empty( ) )
+            {
+                throw std::runtime_error( "Error when creating tabulated atmospheric corrections: invalid source name was"
+                                          "created for tropospheric corrections." );
+            }
+            std::pair< std::string, std::string > stationsAndSource = std::make_pair(
+                    cspCommand->groundStationsId_, sourceName );
+
             // Check whether new media correction manager object should be created
             bool createNewObject = false;
-            if ( troposphericCorrectionPerStationPerType.count( cspCommand->groundStationsId_ ) == 0 )
-            {
-                createNewObject = true;
-            }
-            else if ( troposphericCorrectionPerStationPerType.at( cspCommand->groundStationsId_ ).count(
-                    cspCommand->dataTypesIdentifier_ ) == 0 )
+            if ( correctionsPerStationsAndSourcePerType.count( stationsAndSource ) == 0 ||
+                correctionsPerStationsAndSourcePerType.at( stationsAndSource ).count( cspCommand->dataTypesIdentifier_ ) == 0 )
             {
                 createNewObject = true;
             }
 
             if ( createNewObject )
             {
-                troposphericCorrectionPerStationPerType[ cspCommand->groundStationsId_ ][ cspCommand->dataTypesIdentifier_ ] =
+                correctionsPerStationsAndSourcePerType[ stationsAndSource ][ cspCommand->dataTypesIdentifier_ ] =
                         std::make_shared< observation_models::TabulatedMediaReferenceCorrectionManager >( );
             }
 
             // Create correction calculator and save it to correction manager
-            troposphericCorrectionPerStationPerType.at( cspCommand->groundStationsId_ ).at(
+            correctionsPerStationsAndSourcePerType.at( stationsAndSource ).at(
                     cspCommand->dataTypesIdentifier_ )->pushReferenceCorrectionCalculator( createReferenceCorrection(
                             cspCommand->startTime_, cspCommand->endTime_,
                             cspCommand->computationCoefficients_, cspCommand->computationSpecifier_ ) );
@@ -425,12 +468,13 @@ observation_models::AtmosphericCorrectionPerStationAndSpacecraftType createTropo
     }
 
     // Loop over created calculator managers and assign them to map with ground station and observation type as keys
-    for ( auto stationIt = troposphericCorrectionPerStationPerType.begin( );
-            stationIt != troposphericCorrectionPerStationPerType.end( ); ++stationIt )
+    for ( auto stationsAndSourceIt = correctionsPerStationsAndSourcePerType.begin( );
+            stationsAndSourceIt != correctionsPerStationsAndSourcePerType.end( ); ++stationsAndSourceIt )
     {
-        std::vector< std::string > groundStations = getGroundStationsNames( stationIt->first );
+        std::vector< std::string > groundStations = getGroundStationsNames( stationsAndSourceIt->first.first );
+        std::string source = stationsAndSourceIt->first.second;
 
-        for ( auto observableIt = stationIt->second.begin( ); observableIt != stationIt->second.end( ); ++observableIt )
+        for ( auto observableIt = stationsAndSourceIt->second.begin( ); observableIt != stationsAndSourceIt->second.end( ); ++observableIt )
         {
             std::vector< observation_models::ObservableType > observableTypes = getBaseObservableTypes(
                 observableIt->first );
@@ -439,8 +483,8 @@ observation_models::AtmosphericCorrectionPerStationAndSpacecraftType createTropo
             {
                 for ( const observation_models::ObservableType& observableType : observableTypes )
                 {
-                    troposphericCorrection[ std::make_pair( groundStation, "" ) ][ observableType ] =
-                            troposphericCorrectionPerStationPerType.at( stationIt->first ).at( observableIt->first );
+                    troposphericCorrection[ std::make_pair( groundStation, source ) ][ observableType ] =
+                            correctionsPerStationsAndSourcePerType.at( stationsAndSourceIt->first ).at( observableIt->first );
                 }
             }
         }
@@ -461,6 +505,15 @@ observation_models::AtmosphericCorrectionPerStationAndSpacecraftType createTropo
 {
     std::string modelIdentifier = "WET NUPART";
     return createTroposphericCorrection( rawCspFiles, modelIdentifier );
+}
+
+observation_models::AtmosphericCorrectionPerStationAndSpacecraftType createIonosphericCorrection(
+        const std::vector< std::shared_ptr< CspRawFile > >& rawCspFiles,
+        const std::map< int, std::string >& spacecraftNamePerSpacecraftId,
+        const std::map< int, std::string >& quasarNamePerQuasarId )
+{
+    std::string modelIdentifier = "CHPART";
+    return createTroposphericCorrection( rawCspFiles, modelIdentifier, spacecraftNamePerSpacecraftId, quasarNamePerQuasarId );
 }
 
 } // namespace input_output

@@ -20,7 +20,7 @@ namespace tudat
 namespace input_output
 {
 
-// TODO: code to parse CSP commands is super shitty... would be nice if it wasn't
+// TODO: code to parse CSP commands is a bit shitty... would be nice if it wasn't
 
 class CspCommand
 {
@@ -50,26 +50,15 @@ public:
 
     std::string groundStationsId_;
 
+    std::string sourceSpecifier_;
+    int sourceId_;
+
     double startTime_;
     double endTime_;
 
 private:
 
     double convertTime( std::string yearMonthDay, std::string hoursMinutesSeconds );
-};
-
-class IonosphericCorrectionCspCommand: public AtmosphericCorrectionCspCommand
-{
-public:
-
-    IonosphericCorrectionCspCommand( std::vector< std::string >& cspCommand );
-
-    std::string sourceSpecifier_;
-
-    int sourceId_;
-
-private:
-
 };
 
 class CspRawFile
@@ -110,15 +99,28 @@ std::vector< observation_models::ObservableType > getBaseObservableTypes( std::s
 bool compareAtmosphericCspFileStartDate( std::shared_ptr< CspRawFile > rawCspData1,
                                          std::shared_ptr< CspRawFile > rawCspData2 );
 
+std::string getSourceName(
+        std::string& sourceSpecifier,
+        int sourceId,
+        const std::map< int, std::string >& spacecraftNamePerSpacecraftId,
+        const std::map< int, std::string >& quasarNamePerQuasarId );
+
 observation_models::AtmosphericCorrectionPerStationAndSpacecraftType createTroposphericCorrection(
         std::vector< std::shared_ptr< CspRawFile > > rawCspFiles,
-        const std::string& modelIdentifier );
+        const std::string& modelIdentifier,
+        const std::map< int, std::string >& spacecraftNamePerSpacecraftId = std::map< int, std::string >( ),
+        const std::map< int, std::string >& quasarNamePerQuasarId = std::map< int, std::string >( ) );
 
 observation_models::AtmosphericCorrectionPerStationAndSpacecraftType createTroposphericDryCorrection(
         const std::vector< std::shared_ptr< CspRawFile > >& rawCspFiles );
 
 observation_models::AtmosphericCorrectionPerStationAndSpacecraftType createTroposphericWetCorrection(
         const std::vector< std::shared_ptr< CspRawFile > >& rawCspFiles );
+
+observation_models::AtmosphericCorrectionPerStationAndSpacecraftType createIonosphericCorrection(
+        const std::vector< std::shared_ptr< CspRawFile > >& rawCspFiles,
+        const std::map< int, std::string >& spacecraftNamePerSpacecraftId = std::map< int, std::string >( ),
+        const std::map< int, std::string >& quasarNamePerQuasarId = std::map< int, std::string >( ) );
 
 } // namespace input_output
 
