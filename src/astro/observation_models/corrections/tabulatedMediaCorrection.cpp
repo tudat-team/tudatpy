@@ -22,6 +22,81 @@ namespace tudat
 namespace observation_models
 {
 
+double PowerSeriesReferenceCorrection::computeReferenceCorrection( const double time )
+{
+    isTimeValid( time );
+
+    const double normalizedTime = 2.0 * ( ( time - startTime_ ) / ( endTime_ - startTime_ ) ) - 1.0;
+
+    double correction = 0;
+    for ( unsigned int i = 0; i < coefficients_.size( ); ++i )
+    {
+        correction += coefficients_.at( i ) * std::pow( normalizedTime, i );
+    }
+
+    return correction;
+}
+
+FourierSeriesReferenceCorrection::FourierSeriesReferenceCorrection(
+        const double startTime,
+        const double endTime,
+        const std::vector< double > coefficients ):
+    TabulatedMediaReferenceCorrection( startTime, endTime )
+{
+    if ( coefficients.size( ) < 2 || coefficients.size( ) % 2 != 0 )
+    {
+        throw std::runtime_error(
+                "Error when computing Fourier series tabulated media reference correction: size of specified coefficients ("
+                + std::to_string( coefficients.size( ) ) + ") is invalid." );
+    }
+
+    period_ = coefficients.at( 0 );
+
+    cosineCoefficients_.push_back( coefficients.at( 1 ) );
+    sineCoefficients_.push_back( 0.0 );
+
+    for ( unsigned int i = 2; i < coefficients.size( ); i = i + 2 )
+    {
+        cosineCoefficients_.push_back( coefficients.at( i ) );
+        sineCoefficients_.push_back( coefficients.at( i + 1 ) );
+    }
+}
+
+double FourierSeriesReferenceCorrection::computeReferenceCorrection( const double time )
+{
+    isTimeValid( time );
+
+    const double normalizedTime = 2.0 * mathematical_constants::PI * ( time - startTime_ ) / period_;
+
+    double correction = 0;
+    for ( unsigned int i = 0; i < sineCoefficients_.size( ); ++i )
+    {
+        correction += cosineCoefficients_.at( i ) * std::cos( i * normalizedTime );
+        correction += sineCoefficients_.at( i ) * std::sin( i * normalizedTime );
+    }
+
+    return correction;
+}
+
+double TabulatedMediaReferenceCorrectionManager::computeMediaCorrection( double time )
+{
+
+    if ( correctionVector_.empty( ) )
+    {
+        throw std::runtime_error("Error when computing reference media correction: no correction object provided. ");
+    }
+
+    if ( !isLookupSchemeUpdated_ )
+    {
+        startTimeLookupScheme_ = std::make_shared< interpolators::HuntingAlgorithmLookupScheme< double > >( startTimes_ );
+        isLookupSchemeUpdated_ = true;
+    }
+
+    int lowerNearestNeighbour = startTimeLookupScheme_->findNearestLowerNeighbour( time );
+
+    return correctionVector_.at( lowerNearestNeighbour )->computeReferenceCorrection( time );
+}
+
 double SimplifiedChaoTroposphericMapping::troposphericSimplifiedChaoMapping( const double elevation,
                                                                              const bool dryCorrection )
 {
@@ -237,12 +312,13 @@ double TabulatedTroposphericCorrection::calculateLightTimeCorrection(
         stationTime = receptionTime;
     }
 
-    return dryReferenceCorrectionCalculator_->computeMediaCorrection( stationTime ) *
+    return ( dryReferenceCorrectionCalculator_->computeMediaCorrection( stationTime ) *
         elevationMapping_->computeDryTroposphericMapping(
                 transmitterState, receiverState, transmissionTime, receptionTime ) +
         wetReferenceCorrectionCalculator_->computeMediaCorrection( stationTime ) *
         elevationMapping_->computeWetTroposphericMapping(
-                transmitterState, receiverState, transmissionTime, receptionTime );
+                transmitterState, receiverState, transmissionTime, receptionTime ) ) /
+                physical_constants::getSpeedOfLight< double >( );
 }
 
 } // namespace observation_models
