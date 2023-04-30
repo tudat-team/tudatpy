@@ -2294,6 +2294,7 @@ std::function< double( ) > getDoubleDependentVariableFunction(
         case visible_source_panel_count:
         case illuminated_source_panel_count:
         case visible_and_illuminated_source_panel_count:
+        case visible_source_area:
         {
             auto radiationPressureAccelerationList = getAccelerationBetweenBodies(
                 dependentVariableSettings->associatedBody_,
@@ -2314,9 +2315,17 @@ std::function< double( ) > getDoubleDependentVariableFunction(
                             radiationPressureAccelerationList.front());
             if (radiationPressureAcceleration == nullptr)
             {
-                throw std::runtime_error("Error, source body " + dependentVariableSettings->secondaryBody_ +
-                     " does not have a paneled source, which is required for the visible/illuminated source "+
-                     "panel count dependent variable");
+                if (dependentVariable == visible_source_area) {
+                    throw std::runtime_error("Error, source body " + dependentVariableSettings->secondaryBody_ +
+                         " does not have a paneled source, which is required for the visible source area "+
+                         "dependent variable");
+                }
+                else
+                {
+                    throw std::runtime_error("Error, source body " + dependentVariableSettings->secondaryBody_ +
+                         " does not have a paneled source, which is required for the visible/illuminated source "+
+                         "panel count dependent variable");
+                }
             }
 
             switch (dependentVariable)
@@ -2329,6 +2338,9 @@ std::function< double( ) > getDoubleDependentVariableFunction(
                     break;
                 case visible_and_illuminated_source_panel_count:
                     variableFunction = [=] () { return radiationPressureAcceleration->getVisibleAndIlluminatedSourcePanelCount(); };
+                    break;
+                case visible_source_area:
+                    variableFunction = [=] () { return radiationPressureAcceleration->getVisibleSourceArea(); };
                     break;
                 default:
                     break;

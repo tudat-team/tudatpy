@@ -232,6 +232,11 @@ public:
         return visibleAndIlluminatedSourcePanelCount;
     }
 
+    double getVisibleSourceArea() const
+    {
+        return sourceModel_->getVisibleArea();
+    }
+
 private:
     Eigen::Vector3d calculateAcceleration() override;
 
