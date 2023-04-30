@@ -101,6 +101,7 @@ IrradianceWithSourceList PaneledRadiationSourceModel::evaluateIrradianceAtPositi
 {
     IrradianceWithSourceList irradiances{};
 
+    visibleArea = 0;
     for (const auto& panel : getPanels())
     {
         const Eigen::Vector3d targetPositionRelativeToPanel = targetPosition - panel.getRelativeCenter();
@@ -130,9 +131,9 @@ IrradianceWithSourceList PaneledRadiationSourceModel::evaluateIrradianceAtPositi
             // Do not add panels to list if they do not contribute to irradiance at target location
             // This prevents unnecessary evaluations in the radiation pressure acceleration evaluation
             irradiances.emplace_back(irradiance, panel.getRelativeCenter());
+            visibleArea += panel.getArea();
         }
     }
-
     return irradiances;
 }
 

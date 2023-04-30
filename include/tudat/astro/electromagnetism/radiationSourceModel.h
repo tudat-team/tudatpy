@@ -222,6 +222,11 @@ public:
     */
     virtual unsigned int getNumberOfPanels() const = 0;
 
+    double getVisibleArea() const
+    {
+        return visibleArea;
+    }
+
 protected:
     std::string originalSourceName_; // needed for environment updater setup
 
@@ -229,6 +234,10 @@ protected:
 
     // Only needed to transfer occultation settings from body setup to acceleration setup
     std::vector<std::string> originalSourceToSourceOccultingBodies_;
+
+private:
+    // For dependent variable
+    double visibleArea{TUDAT_NAN};
 };
 
 /*!
