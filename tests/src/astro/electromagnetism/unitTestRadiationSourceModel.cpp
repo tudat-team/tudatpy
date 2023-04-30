@@ -502,6 +502,48 @@ BOOST_AUTO_TEST_CASE( generatePaneledSphericalCap_FarAway )
     BOOST_CHECK_CLOSE(areas[2], areas[3], 1e-15);
 }
 
+//! Test area of spherical cap panels using Knocke's algorithm
+BOOST_AUTO_TEST_CASE( generatePaneledSphericalCap_Area )
+{
+    const auto radius = 42;
+
+    {
+        // Case 1: closer and 2 rings with larger panels
+        const Eigen::Vector3d targetPosition(53, 89, 60);
+        const auto panels = generatePaneledSphericalCap(targetPosition, {7, 15}, radius);
+        const auto areas = std::get<3>(panels);
+
+        // Sum of panel areas should equal spherical cap area
+        const auto expectedTotalArea = 2 * PI * radius * radius * (1 - radius / targetPosition.norm());
+        const auto actualTotalArea = std::accumulate(areas.begin(), areas.end(), 0.0);
+        BOOST_CHECK_CLOSE(actualTotalArea, expectedTotalArea, 1e-13);
+
+        // Central panel area should equal central spherical cap area
+        // Central cap angle is 1/3 of total spherical cap angle (there are 2 rings)
+        const auto expectedCentralCapArea = 2 * PI * radius * radius * (1 - radius / targetPosition.norm() / 3.);
+        const auto actualCentralCapArea = areas[0];
+        BOOST_CHECK_CLOSE(actualTotalArea, expectedTotalArea, 1e-13);
+    }
+
+    {
+        // Case 2: further and 3 rings with smaller panels
+        const Eigen::Vector3d targetPosition(100, -129, 98);
+        const auto panels = generatePaneledSphericalCap(targetPosition, {30, 60, 80}, radius);
+        const auto areas = std::get<3>(panels);
+
+        // Sum of panel areas should equal spherical cap area
+        const auto expectedTotalArea = 2 * PI * radius * radius * (1 - radius / targetPosition.norm());
+        const auto actualTotalArea = std::accumulate(areas.begin(), areas.end(), 0.0);
+        BOOST_CHECK_CLOSE(actualTotalArea, expectedTotalArea, 1e-12);
+
+        // Central panel area should equal central spherical cap area
+        // Central cap angle is 1/4 of total spherical cap angle (there are 3 rings)
+        const auto expectedCentralCapArea = 2 * PI * radius * radius * (1 - radius / targetPosition.norm() / 4.);
+        const auto actualCentralCapArea = areas[0];
+        BOOST_CHECK_CLOSE(actualTotalArea, expectedTotalArea, 1e-12);
+    }
+}
+
 //! Test generation of spherical cap panels using Knocke's algorithm at realistic target position by comparison with
 //! Python implementation
 // https://github.com/DominikStiller/tudelft-hpb-project/blob/7bf0d9d8f2f0195395edbf86213c2370d78b45d3/analysis/paneling.ipynb
