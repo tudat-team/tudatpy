@@ -132,6 +132,7 @@ enum PropagationDependentVariables
     visible_source_panel_count = 59,
     illuminated_source_panel_count = 60,
     visible_and_illuminated_source_panel_count = 61,
+    visible_source_area = 62
 };
 
 // Functional base class for defining settings for dependent variables that are to be saved during propagation
@@ -1307,7 +1308,7 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > receivedFractionDe
 
 }
 
-inline std::shared_ptr< SingleDependentVariableSaveSettings > visibleSourcePanelDependentVariable(
+inline std::shared_ptr< SingleDependentVariableSaveSettings > visibleSourcePanelCountDependentVariable(
         const std::string& targetBody,
         const std::string& sourceBody)
 {
@@ -1315,7 +1316,7 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > visibleSourcePanel
             visible_source_panel_count, targetBody, sourceBody);
 }
 
-inline std::shared_ptr< SingleDependentVariableSaveSettings > illuminatedSourcePanelDependentVariable(
+inline std::shared_ptr< SingleDependentVariableSaveSettings > illuminatedSourcePanelCountDependentVariable(
         const std::string& targetBody,
         const std::string& sourceBody)
 {
@@ -1323,12 +1324,20 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > illuminatedSourceP
             illuminated_source_panel_count, targetBody, sourceBody);
 }
 
-inline std::shared_ptr< SingleDependentVariableSaveSettings > visibleAndIlluminatedSourcePanelDependentVariable(
+inline std::shared_ptr< SingleDependentVariableSaveSettings > visibleAndIlluminatedSourcePanelCountDependentVariable(
         const std::string& targetBody,
         const std::string& sourceBody)
 {
     return std::make_shared< SingleDependentVariableSaveSettings >(
             visible_and_illuminated_source_panel_count, targetBody, sourceBody);
+}
+
+inline std::shared_ptr< SingleDependentVariableSaveSettings > visibleSourceAreaDependentVariable(
+        const std::string& targetBody,
+        const std::string& sourceBody)
+{
+    return std::make_shared< SingleDependentVariableSaveSettings >(
+            visible_source_area, targetBody, sourceBody);
 }
 
 } // namespace propagators

@@ -292,6 +292,9 @@ std::string getDependentVariableName(
     case visible_and_illuminated_source_panel_count:
         variableName = "Number of visible and illuminated source panels";
         break;
+    case visible_source_area:
+        variableName = "Visible area";
+        break;
     default:
         std::string errorMessage = "Error, dependent variable " +
                 std::to_string( propagationDependentVariables ) +
@@ -382,7 +385,8 @@ std::string getDependentVariableId(
     }
     else if ((dependentVariableSettings->dependentVariableType_ == visible_source_panel_count) ||
             (dependentVariableSettings->dependentVariableType_ == illuminated_source_panel_count) ||
-            (dependentVariableSettings->dependentVariableType_ == visible_and_illuminated_source_panel_count))
+            (dependentVariableSettings->dependentVariableType_ == visible_and_illuminated_source_panel_count) ||
+            (dependentVariableSettings->dependentVariableType_ == visible_source_area))
     {
         variableId += " of " + dependentVariableSettings->secondaryBody_
                 + " as seen from " + dependentVariableSettings->associatedBody_;
