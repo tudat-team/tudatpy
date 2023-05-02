@@ -395,7 +395,7 @@ public:
 
         // Calculate light-time solution assuming infinte speed of signal as initial estimate.
         ObservationScalarType previousLightTimeCalculation =
-                calculateNewLightTimeEstime( receiverState, transmitterState );
+                calculateNewLightTimeEstimate( receiverState, transmitterState );
 
         // Set variables for iteration
         ObservationScalarType newLightTimeCalculation = 0.0;
@@ -434,7 +434,7 @@ public:
                 transmissionTime = time;
                 receiverState = ( stateFunctionOfReceivingBody_( receptionTime ) );
             }
-            newLightTimeCalculation = calculateNewLightTimeEstime( receiverState, transmitterState );
+            newLightTimeCalculation = calculateNewLightTimeEstimate( receiverState, transmitterState );
             isToleranceReached = isLightTimeSolutionConverged(
                         lightTimeConvergenceCriteria_, previousLightTimeCalculation, newLightTimeCalculation, counter,
                         currentCorrection_, time, updateLightTimeCorrections );
@@ -490,6 +490,18 @@ public:
         return correctionFunctions_;
     }
 
+    //! Function to get the current unperturbed light time (distance divided by the speed of light)
+    ObservationScalarType getCurrentUnperturbedLightTime( )
+    {
+        return currentUnperturbedLightTime_;
+    }
+
+    //! Function to get the value of the current light time corrections
+    ObservationScalarType getCurrentLightTimeCorrection( )
+    {
+        return currentCorrection_;
+    }
+
 protected:
 
     //! Transmitter state function.
@@ -522,8 +534,11 @@ protected:
 
     std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria_;
 
+    //! Current unperturbed light-time (i.e. without corrections)
+    ObservationScalarType currentUnperturbedLightTime_;
+
     //! Current light-time correction.
-    double currentCorrection_;
+    ObservationScalarType currentCorrection_;
 
     //! Function to calculate a new light-time estimate from the link-ends states.
     /*!
@@ -534,12 +549,14 @@ protected:
      *  \param transmitterState Assumed state of transmitter.
      *  \return New value of the light-time estimate.
      */
-    ObservationScalarType calculateNewLightTimeEstime(
+    ObservationScalarType calculateNewLightTimeEstimate(
             const StateType& receiverState,
-            const StateType& transmitterState ) const
+            const StateType& transmitterState )
     {
-        return ( receiverState - transmitterState ).segment( 0, 3 ).norm( ) /
-                physical_constants::getSpeedOfLight< ObservationScalarType >( ) + currentCorrection_;
+        currentUnperturbedLightTime_ = ( receiverState - transmitterState ).segment( 0, 3 ).norm( ) /
+                physical_constants::getSpeedOfLight< ObservationScalarType >( );
+
+        return currentUnperturbedLightTime_ + currentCorrection_;
     }
 
     //! Function to reset the currentCorrection_ variable during current iteration.
