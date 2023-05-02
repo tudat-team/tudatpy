@@ -1556,7 +1556,8 @@ public:
                     ObservationScalarType, TimeType > >(
                         linkEnds, createLightTimeCalculator< ObservationScalarType, TimeType >(
                             linkEnds.at( transmitter ), linkEnds.at( receiver ),
-                            bodies, topLevelObservableType, observationSettings->lightTimeCorrectionsList_ ),
+                            bodies, topLevelObservableType, observationSettings->lightTimeCorrectionsList_,
+                            observationSettings->lightTimeConvergenceCriteria_ ),
                         observationBias );
 
             break;
@@ -1596,7 +1597,8 @@ public:
                             linkEnds,
                             createLightTimeCalculator< ObservationScalarType, TimeType >(
                                 linkEnds.at( transmitter ), linkEnds.at( receiver ),
-                                bodies, topLevelObservableType, observationSettings->lightTimeCorrectionsList_ ),
+                                bodies, topLevelObservableType, observationSettings->lightTimeCorrectionsList_,
+                                observationSettings->lightTimeConvergenceCriteria_ ),
                             observationBias,
                             std::function< ObservationScalarType( const TimeType ) >( ),
                             std::function< ObservationScalarType( const TimeType ) >( ),
@@ -1628,7 +1630,8 @@ public:
                             linkEnds,
                             createLightTimeCalculator< ObservationScalarType, TimeType >(
                                 linkEnds.at( transmitter ), linkEnds.at( receiver ),
-                                bodies, topLevelObservableType, observationSettings->lightTimeCorrectionsList_ ),
+                                bodies, topLevelObservableType, observationSettings->lightTimeCorrectionsList_,
+                                observationSettings->lightTimeConvergenceCriteria_ ),
                             transmitterProperTimeRate,
                             receiverProperTimeRate,
                             observationBias,
@@ -1755,10 +1758,12 @@ public:
                         linkEnds,
                         createLightTimeCalculator< ObservationScalarType, TimeType >(
                             linkEnds.at( transmitter ), linkEnds.at( receiver ),
-                            bodies, topLevelObservableType, observationSettings->lightTimeCorrectionsList_ ),
+                            bodies, topLevelObservableType, observationSettings->lightTimeCorrectionsList_,
+                            observationSettings->lightTimeConvergenceCriteria_ ),
                         createLightTimeCalculator< ObservationScalarType, TimeType >(
                             linkEnds.at( transmitter ), linkEnds.at( receiver ),
-                            bodies, topLevelObservableType, observationSettings->lightTimeCorrectionsList_ ),
+                            bodies, topLevelObservableType, observationSettings->lightTimeCorrectionsList_,
+                            observationSettings->lightTimeConvergenceCriteria_ ),
                         observationBias );
 
             break;
@@ -1841,14 +1846,16 @@ public:
                                 createLightTimeCalculator< ObservationScalarType, TimeType >(
                                     transmitterIterator->second, receiverIterator->second,
                                     bodies, topLevelObservableType, nWayRangeObservationSettings->oneWayRangeObsevationSettings_.at( i )->
-                                    lightTimeCorrectionsList_ ) );
+                                    lightTimeCorrectionsList_,
+                                    nWayRangeObservationSettings->oneWayRangeObsevationSettings_.at( i )->lightTimeConvergenceCriteria_ ) );
                 }
                 else
                 {
                     lightTimeCalculators.push_back(
                                 createLightTimeCalculator< ObservationScalarType, TimeType >(
                                     transmitterIterator->second, receiverIterator->second,
-                                    bodies, topLevelObservableType, observationSettings->lightTimeCorrectionsList_ ) );
+                                    bodies, topLevelObservableType, observationSettings->lightTimeCorrectionsList_,
+                                    observationSettings->lightTimeConvergenceCriteria_ ) );
                 }
 
                 transmitterIterator++;
@@ -2027,7 +2034,8 @@ public:
                         linkEnds,
                         createLightTimeCalculator< ObservationScalarType, TimeType >(
                             linkEnds.at( transmitter ), linkEnds.at( receiver ),
-                            bodies, topLevelObservableType, observationSettings->lightTimeCorrectionsList_ ),
+                            bodies, topLevelObservableType, observationSettings->lightTimeCorrectionsList_,
+                            observationSettings->lightTimeConvergenceCriteria_ ),
                         observationBias );
 
             break;
@@ -2069,10 +2077,12 @@ public:
                     ObservationScalarType, TimeType > >(
                         linkEnds, createLightTimeCalculator< ObservationScalarType, TimeType >(
                             linkEnds.at( transmitter ), linkEnds.at( receiver ), bodies,
-                            topLevelObservableType, observationSettings->lightTimeCorrectionsList_ ),
+                            topLevelObservableType, observationSettings->lightTimeCorrectionsList_,
+                            observationSettings->lightTimeConvergenceCriteria_ ),
                         createLightTimeCalculator< ObservationScalarType, TimeType >(
                             linkEnds.at( transmitter2 ), linkEnds.at( receiver ), bodies,
-                            topLevelObservableType, observationSettings->lightTimeCorrectionsList_ ), observationBias );
+                            topLevelObservableType, observationSettings->lightTimeCorrectionsList_,
+                            observationSettings->lightTimeConvergenceCriteria_ ), observationBias );
 
             break;
         }

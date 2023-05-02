@@ -54,7 +54,7 @@ enum LightTimeFailureHandling
 struct LightTimeConvergenceCriteria
 {
     LightTimeConvergenceCriteria(
-            const bool iterateCorrections = true,
+            const bool iterateCorrections = false,
             const int maximumNumberOfIterations = 50,
             const double absoluteTolerance = TUDAT_NAN,
             const LightTimeFailureHandling failureHandling = accept_without_warning):
