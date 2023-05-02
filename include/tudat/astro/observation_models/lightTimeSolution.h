@@ -490,10 +490,10 @@ public:
         return correctionFunctions_;
     }
 
-    //! Function to get the current unperturbed light time (distance divided by the speed of light)
-    ObservationScalarType getCurrentUnperturbedLightTime( )
+    //! Function to get the current ideal light time (distance divided by the speed of light)
+    ObservationScalarType getCurrentIdealLightTime( )
     {
-        return currentUnperturbedLightTime_;
+        return currentIdealLightTime_;
     }
 
     //! Function to get the value of the current light time corrections
@@ -534,8 +534,8 @@ protected:
 
     std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria_;
 
-    //! Current unperturbed light-time (i.e. without corrections)
-    ObservationScalarType currentUnperturbedLightTime_;
+    //! Current ideal light-time (i.e. without corrections)
+    ObservationScalarType currentIdealLightTime_;
 
     //! Current light-time correction.
     ObservationScalarType currentCorrection_;
@@ -553,10 +553,10 @@ protected:
             const StateType& receiverState,
             const StateType& transmitterState )
     {
-        currentUnperturbedLightTime_ = ( receiverState - transmitterState ).segment( 0, 3 ).norm( ) /
+        currentIdealLightTime_ = ( receiverState - transmitterState ).segment( 0, 3 ).norm( ) /
                 physical_constants::getSpeedOfLight< ObservationScalarType >( );
 
-        return currentUnperturbedLightTime_ + currentCorrection_;
+        return currentIdealLightTime_ + currentCorrection_;
     }
 
     //! Function to reset the currentCorrection_ variable during current iteration.
