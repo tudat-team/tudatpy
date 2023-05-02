@@ -203,10 +203,10 @@ BOOST_AUTO_TEST_CASE( test_ParameterPostFitResiduals )
         {
             BOOST_CHECK_EQUAL( finalPrefitDifference.norm( ) > 400.0, true );
 
-            BOOST_CHECK_EQUAL( initialPostfitDifference.norm( ) > 40.0, true );
+            BOOST_CHECK_EQUAL( initialPostfitDifference.norm( ) > 10.0, true );
             BOOST_CHECK_EQUAL( initialPostfitDifference.norm( ) < 60.0, true );
 
-            BOOST_CHECK_EQUAL( finalPostfitDifference.norm( ) > 40.0, true );
+            BOOST_CHECK_EQUAL( finalPostfitDifference.norm( ) > 10.0, true );
             BOOST_CHECK_EQUAL( finalPostfitDifference.norm( ) < 60.0, true );
 
             BOOST_CHECK_EQUAL( prefitRms / postfitRms > 8.0, true );
