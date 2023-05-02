@@ -54,7 +54,7 @@ enum LightTimeFailureHandling
 struct LightTimeConvergenceCriteria
 {
     LightTimeConvergenceCriteria(
-            const bool iterateCorrections = false,
+            const bool iterateCorrections = true,
             const int maximumNumberOfIterations = 50,
             const double absoluteTolerance = TUDAT_NAN,
             const LightTimeFailureHandling failureHandling = accept_without_warning):
@@ -496,15 +496,13 @@ protected:
     /*!
      *  Transmitter state function.
      */
-    std::function< StateType( const double ) >
-    stateFunctionOfTransmittingBody_;
+    std::function< StateType( const TimeType ) > stateFunctionOfTransmittingBody_;
 
     //! Receiver state function.
     /*!
      *  Receiver state function.
      */
-    std::function< StateType( const double ) >
-    stateFunctionOfReceivingBody_;
+    std::function< StateType( const TimeType ) > stateFunctionOfReceivingBody_;
 
     //! List of light-time correction functions.
     /*!
@@ -540,8 +538,7 @@ protected:
             const StateType& receiverState,
             const StateType& transmitterState ) const
     {
-        return ( ( ( receiverState - transmitterState ).segment( 0, 3 ) ).
-                 template cast< ObservationScalarType >( ) ).norm( ) /
+        return ( receiverState - transmitterState ).segment( 0, 3 ).norm( ) /
                 physical_constants::getSpeedOfLight< ObservationScalarType >( ) + currentCorrection_;
     }
 

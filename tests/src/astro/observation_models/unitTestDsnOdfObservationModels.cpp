@@ -105,7 +105,7 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
     BodyListSettings bodySettings =
             getDefaultBodySettings(
                 bodiesToCreate, initialEphemerisTime - bufferPlanets, finalEphemerisTime + bufferPlanets,
-                "SSB", "J2000", ephemerisTimeStepPlanets );
+                    "SSB", "J2000", ephemerisTimeStepPlanets );
 
     bodySettings.at( "Earth" )->rotationModelSettings = gcrsToItrsRotationModelSettings(
             basic_astrodynamics::iau_2006, "J2000" );
@@ -121,7 +121,7 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
                     std::make_shared< interpolators::LagrangeInterpolatorSettings >( 6 ), spacecraftName );
 
     // Create bodies
-    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+    SystemOfBodies bodies = createSystemOfBodies< long double, Time >( bodySettings );
 
     // Print initial state
 //    Eigen::Matrix<double, 6, 1> state = bodies.at( spacecraftName )->getStateInBaseFrameFromEphemeris( initialEphemerisTime ) -
@@ -222,17 +222,18 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
     std::shared_ptr< input_output::CspRawFile > cspFile = std::make_shared< input_output::CspRawFile >( "/Users/pipas/Documents/mro-data/tro/mromagr2017_091_2017_121.tro.txt" );
 
     std::vector< std::shared_ptr< observation_models::LightTimeCorrectionSettings > > lightTimeCorrectionSettings =
-            { std::make_shared< observation_models::FirstOrderRelativisticLightTimeCorrectionSettings >(
-                    lightTimePerturbingBodies ),
-              std::make_shared< observation_models::TabulatedTroposphericCorrectionSettings >(
-                      createTroposphericDryCorrection( { cspFile } ),
-                      createTroposphericWetCorrection( { cspFile } ) )
+            {
+            std::make_shared< observation_models::FirstOrderRelativisticLightTimeCorrectionSettings >(
+                    lightTimePerturbingBodies )
+//              std::make_shared< observation_models::TabulatedTroposphericCorrectionSettings >(
+//                      createTroposphericDryCorrection( { cspFile } ),
+//                      createTroposphericWetCorrection( { cspFile } ) )
             };
 
     std::map < observation_models::ObservableType, std::vector< observation_models::LinkEnds > > linkEndsPerObservable =
             observedObservationCollection->getLinkEndsPerObservableType( );
     std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria =
-            std::make_shared< LightTimeConvergenceCriteria >( );
+            std::make_shared< LightTimeConvergenceCriteria >( true );
     for ( auto it = linkEndsPerObservable.begin(); it != linkEndsPerObservable.end(); ++it )
     {
         for ( unsigned int i = 0; i < it->second.size(); ++i )
@@ -242,10 +243,19 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
 //                            it->first, it->second.at( i ), lightTimeCorrectionSettings, nullptr, nullptr ) );
             if ( it->first == observation_models::dsn_n_way_averaged_doppler )
             {
+//                observationModelSettingsList.push_back(
+//                    std::make_shared< observation_models::DsnNWayAveragedDopplerObservationSettings >(
+//                            it->second.at( i ), lightTimeCorrectionSettings, nullptr,
+//                            lightTimeConvergenceCriteria ) );
                 observationModelSettingsList.push_back(
-                    std::make_shared< observation_models::DsnNWayAveragedDopplerObservationSettings >(
+                    std::make_shared< observation_models::NWayDifferencedRangeObservationSettings >(
                             it->second.at( i ), lightTimeCorrectionSettings, nullptr,
                             lightTimeConvergenceCriteria ) );
+//                observationModelSettingsList.push_back(
+//                    std::make_shared< observation_models::NWayRangeObservationSettings >(
+//                            it->second.at( i ),
+//                            nullptr, 3, nullptr,
+//                            lightTimeConvergenceCriteria ) );
             }
         }
     }
@@ -323,7 +333,7 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
         observations( i, 2 ) = observedObservationCollection->getConcatenatedTimeVector( ).at( i );
     }
 
-    std::ofstream file("/Users/pipas/tudatpy-testing/observations_" + fileTag + ".txt");
+    std::ofstream file("/Users/pipas/tudatpy-testing/observations_" + fileTag + "_test.txt");
     file << std::setprecision( 15 ) << observations;
     file.close();
 
