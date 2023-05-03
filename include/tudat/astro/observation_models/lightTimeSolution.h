@@ -698,59 +698,59 @@ public:
         // Define objects to keep light times
         ObservationScalarType totalLightTime = 0.0;
         ObservationScalarType currentLightTime;
-        // Define 'current time'
-        TimeType currentLinkEndStartTime = time;
 
         // Retrieve index of link end where to start.
         unsigned int startLinkEndIndex = getNWayLinkIndexFromLinkEndType( linkEndAssociatedWithTime, numberOfLinkEnds_ );
-        unsigned int currentDownIndex = startLinkEndIndex;
-
-        // Move 'backwards' from reference link end to transmitter.
-        while( currentDownIndex > 0 )
-        {
-            unsigned int transmitterIndex = 2 * ( currentDownIndex - 1 );
-            currentLightTime = lightTimeCalculators_.at( currentDownIndex - 1 )->calculateLightTimeWithMultiLegLinkEndsStates(
-                        linkEndsStates, linkEndsTimes, currentLinkEndStartTime, true, transmitterIndex );
-
-            // If an additional leg is required, retrieve retransmission delay and update current time
-            currentLinkEndStartTime -= currentLightTime;
-            if( currentDownIndex > 1 )
-            {
-                currentLightTime += currentRetransmissionDelays.at( currentDownIndex - 2 );
-            }
-
-            // Add computed light-time to total time and move to next leg
-            totalLightTime += currentLightTime;
-            currentDownIndex--;
-        }
-
-        unsigned int currentUpIndex = startLinkEndIndex;
 
         // If start is not at transmitter or receiver, compute and add retransmission delay.
         if( ( startLinkEndIndex != 0 ) && ( startLinkEndIndex != numberOfLinkEnds_ - 1 ) )
         {
-            currentLinkEndStartTime = time + currentRetransmissionDelays.at( startLinkEndIndex - 1 );
-            totalLightTime += currentRetransmissionDelays.at( startLinkEndIndex - 1 );
+            if ( currentRetransmissionDelays.at( startLinkEndIndex ) != 0.0 )
+            {
+                throw std::runtime_error(
+                        "Error when computing light time with reference link end that is not receiver or transmitter: "
+                        "dealing with non-zero retransmission delays at the reference link end is not implemented. It "
+                        "would require distinguishing between reception and transmission delays." );
+            }
         }
 
-        // Move 'forwards' from reference link end to receiver.
-        while( currentUpIndex < numberOfLinkEnds_ - 1 )
-        {
-            unsigned int transmitterIndex = 2 * currentUpIndex;
-            currentLightTime = lightTimeCalculators_.at( currentUpIndex )->calculateLightTimeWithMultiLegLinkEndsStates(
-                        linkEndsStates, linkEndsTimes, currentLinkEndStartTime, false, transmitterIndex );
+        // Initialize light time with initial delay
+        totalLightTime += currentRetransmissionDelays.at( startLinkEndIndex );
 
+        // Define 'current reception time': time at the receiving antenna
+        TimeType currentLinkEndReceptionTime = time - currentRetransmissionDelays.at( startLinkEndIndex );
+
+        // Move 'backwards' from reference link end to transmitter.
+        for( unsigned int currentDownIndex = startLinkEndIndex; currentDownIndex > 0; --currentDownIndex )
+        {
+            unsigned int transmitterIndex = 2 * ( currentDownIndex - 1 );
+            currentLightTime = lightTimeCalculators_.at( currentDownIndex - 1 )->calculateLightTimeWithMultiLegLinkEndsStates(
+                        linkEndsStates, linkEndsTimes, currentLinkEndReceptionTime, true, transmitterIndex );
 
             // If an additional leg is required, retrieve retransmission delay and update current time
-            currentLinkEndStartTime += currentLightTime;
-            if( currentUpIndex < numberOfLinks_ - 1 )
-            {
-                currentLightTime += currentRetransmissionDelays.at( currentUpIndex );
-            }
+            currentLightTime += currentRetransmissionDelays.at( currentDownIndex - 1 );
+            currentLinkEndReceptionTime -= currentLightTime;
 
             // Add computed light-time to total time and move to next leg
             totalLightTime += currentLightTime;
-            currentUpIndex++;
+        }
+
+        // Define 'current transmission time': time at the transmitting antenna
+        TimeType currentLinkEndTransmissionTime = time + currentRetransmissionDelays.at( startLinkEndIndex );
+
+        // Move 'forwards' from reference link end to receiver.
+        for( unsigned int currentUpIndex = startLinkEndIndex; currentUpIndex < numberOfLinkEnds_ - 1; ++currentUpIndex )
+        {
+            unsigned int transmitterIndex = 2 * currentUpIndex;
+            currentLightTime = lightTimeCalculators_.at( currentUpIndex )->calculateLightTimeWithMultiLegLinkEndsStates(
+                        linkEndsStates, linkEndsTimes, currentLinkEndTransmissionTime, false, transmitterIndex );
+
+            // If an additional leg is required, retrieve retransmission delay and update current time
+            currentLightTime += currentRetransmissionDelays.at( currentUpIndex + 1 );
+            currentLinkEndTransmissionTime += currentLightTime;
+
+            // Add computed light-time to total time and move to next leg
+            totalLightTime += currentLightTime;
         }
 
         // Save output

@@ -38,17 +38,27 @@ std::vector< double > getRetransmissionDelays( const double evaluationTime, cons
     std::vector< double > retransmissionDelays;
     if( evaluationTime < 1.5E5 )
     {
+        // Transmission delay
+        retransmissionDelays.push_back( 0.0 );
+        // Retransmission delay
         for( int i = 0; i < numberOfRetransmitters; i++ )
         {
             retransmissionDelays.push_back( 0.0 );
         }
+        // Reception delay
+        retransmissionDelays.push_back( 0.0 );
     }
     else
     {
+        // Transmission delay
+        retransmissionDelays.push_back( 1.0e-5 );
+        // Retransmission delay
         for( int i = 0; i < numberOfRetransmitters; i++ )
         {
-            retransmissionDelays.push_back( evaluationTime * 5.0E-17 * static_cast< double >( i + 1 ) );
+            retransmissionDelays.push_back( evaluationTime * 5.0E-12 * static_cast< double >( i + 1 ) );
         }
+        // Reception delay
+        retransmissionDelays.push_back( 2.0e-5 );
     }
     return retransmissionDelays;
 }
@@ -172,22 +182,33 @@ BOOST_AUTO_TEST_CASE( testNWayRangeModel )
             for( LinkEnds::const_iterator linkEndIterator = twoWayLinkEnds.begin( ); linkEndIterator != twoWayLinkEnds.end( );
                  linkEndIterator++ )
             {
+                std::vector< double > retransmissionDelays = getRetransmissionDelays( observationTime, 1 );
+                // Only check reference link ends other than transmitter/ receiver if the associated delay is not zero.
+                // Light time calculation is not implemented for case with non-zero delay
+                if ( linkEndIterator->first != transmitter && linkEndIterator->first != receiver )
+                {
+                    if ( retransmissionDelays.at( 1 ) != 0 )
+                    {
+                        continue;
+                    }
+                }
+
                 // Compute 2-way range
                 twoWayRange = twoWayObservationModel->computeObservationsWithLinkEndData(
                             observationTime, linkEndIterator->first, twoWayLinkEndTimes, twoWayLinkEndStates,
-                            getNWayRangeAncilliarySettings( getRetransmissionDelays( observationTime, 1 ) ) );
+                            getNWayRangeAncilliarySettings( retransmissionDelays ) );
 
                 // Set observation times/reference link ends of constituent one-way ranges
                 if( linkEndIterator->first == transmitter )
                 {
-                    uplinkObservationTime = observationTime;
+                    uplinkObservationTime = twoWayLinkEndTimes.at( 0 );
                     downlinkObservationTime = twoWayLinkEndTimes.at( 2 );
                     uplinkReferenceLinkEnd = transmitter;
                     downlinkReferenceLinkEnd = transmitter;
                 }
                 else if( linkEndIterator->first == reflector1 )
                 {
-                    uplinkObservationTime = observationTime;
+                    uplinkObservationTime = twoWayLinkEndTimes.at( 1 );
                     downlinkObservationTime = twoWayLinkEndTimes.at( 2 );
                     uplinkReferenceLinkEnd = receiver;
                     downlinkReferenceLinkEnd = transmitter;
@@ -195,7 +216,7 @@ BOOST_AUTO_TEST_CASE( testNWayRangeModel )
                 else if( linkEndIterator->first == receiver )
                 {
                     uplinkObservationTime = twoWayLinkEndTimes.at( 1 );
-                    downlinkObservationTime = observationTime;
+                    downlinkObservationTime = twoWayLinkEndTimes.at( 3 );
                     uplinkReferenceLinkEnd = receiver;
                     downlinkReferenceLinkEnd = receiver;
                 }
@@ -207,11 +228,23 @@ BOOST_AUTO_TEST_CASE( testNWayRangeModel )
                             downlinkObservationTime, downlinkReferenceLinkEnd, downlinkLinkEndTimes, downlinkLinkEndStates );
 
                 // Check validity of retransmission delay
-                std::vector< double > retransmissionDelays = getRetransmissionDelays(
-                            observationTime, 1 );
                 BOOST_CHECK_SMALL(
-                            std::fabs( twoWayLinkEndTimes.at( 2 ) - twoWayLinkEndTimes.at( 1 ) - retransmissionDelays.at( 0 ) ),
-                            observationTime  * std::numeric_limits< double >::epsilon( )  );
+                            std::fabs( twoWayLinkEndTimes.at( 2 ) - twoWayLinkEndTimes.at( 1 ) - retransmissionDelays.at( 1 ) ),
+                            observationTime * std::numeric_limits< double >::epsilon( ) );
+                // Check validity of transmission delay
+                if ( linkEndIterator->first == transmitter )
+                {
+                    BOOST_CHECK_SMALL(
+                            std::fabs( twoWayLinkEndTimes.at( 0 ) - observationTime - retransmissionDelays.at( 0 ) ),
+                            observationTime * std::numeric_limits< double >::epsilon( ) );
+                }
+                // Check validity of reception delay
+                else if ( linkEndIterator->first == receiver )
+                {
+                    BOOST_CHECK_SMALL(
+                            std::fabs( observationTime - twoWayLinkEndTimes.at( 3 ) - retransmissionDelays.at( 2 ) ),
+                            observationTime * std::numeric_limits< double >::epsilon( ) );
+                }
 
                 // Check if link end times are consistent
                 BOOST_CHECK_CLOSE_FRACTION( uplinkLinkEndTimes.at( 0 ), twoWayLinkEndTimes.at( 0 ),
@@ -235,9 +268,10 @@ BOOST_AUTO_TEST_CASE( testNWayRangeModel )
                 TUDAT_CHECK_MATRIX_CLOSE_FRACTION( downlinkLinkEndStates.at( 1 ), twoWayLinkEndStates.at( 3 ),
                                                    std::numeric_limits< double >::epsilon( ) );
 
-                // Check if range observations from 2-way and consituent one-ay are equal
+                // Check if range observations from 2-way and constituent one-way are equal
+                double delaySum = retransmissionDelays.at( 0 ) + retransmissionDelays.at( 1 ) + retransmissionDelays.at( 2 );
                 BOOST_CHECK_CLOSE_FRACTION(
-                            ( uplinkRange + downlinkRange )( 0 ) + retransmissionDelays.at( 0 ) *
+                            ( uplinkRange + downlinkRange )( 0 ) + delaySum *
                             physical_constants::SPEED_OF_LIGHT,
                             twoWayRange( 0 ), 2.0 * std::numeric_limits< double >::epsilon( ) );
             }
@@ -343,10 +377,21 @@ BOOST_AUTO_TEST_CASE( testNWayRangeModel )
             for( LinkEnds::const_iterator linkEndIterator = fourWayLinkEnds.begin( ); linkEndIterator != fourWayLinkEnds.end( );
                  linkEndIterator++ )
             {
+                std::vector< double > retransmissionDelays = getRetransmissionDelays( observationTime, 3 );
+                // Only check reference link ends other than transmitter/ receiver if the associated delay is not zero.
+                // Light time calculation is not implemented for case with non-zero delay
+                if ( linkEndIterator->first != transmitter && linkEndIterator->first != receiver )
+                {
+                    if ( retransmissionDelays.at( 1 ) != 0 || retransmissionDelays.at( 2 ) != 0 || retransmissionDelays.at( 3 ) != 0 )
+                    {
+                        continue;
+                    }
+                }
+
                 // Compute 4-way range
                 fourWayRange = fourWayObservationModel->computeObservationsWithLinkEndData(
                             observationTime, linkEndIterator->first, fourWayLinkEndTimes, fourWayLinkEndStates,
-                            getNWayRangeAncilliarySettings( getRetransmissionDelays( observationTime, 3 ) ) );
+                            getNWayRangeAncilliarySettings( retransmissionDelays ) );
 
                 // Set observation times of constituent one-way ranges
                 firstlinkObservationTime = fourWayLinkEndTimes.at( 0 );
@@ -365,17 +410,29 @@ BOOST_AUTO_TEST_CASE( testNWayRangeModel )
                             fourthlinkObservationTime, sublinkReferenceLinkEnd, fourthlinkLinkEndTimes, fourthlinkLinkEndStates );
 
                 // Check validity of retransmission delay
-                std::vector< double > retransmissionDelays = getRetransmissionDelays(
-                            observationTime, 3 );
                 BOOST_CHECK_SMALL(
-                            std::fabs( fourWayLinkEndTimes.at( 2 ) - fourWayLinkEndTimes.at( 1 ) - retransmissionDelays.at( 0 ) ),
+                            std::fabs( fourWayLinkEndTimes.at( 2 ) - fourWayLinkEndTimes.at( 1 ) - retransmissionDelays.at( 1 ) ),
                             observationTime  * std::numeric_limits< double >::epsilon( )  );
                 BOOST_CHECK_SMALL(
-                            std::fabs( fourWayLinkEndTimes.at( 4 ) - fourWayLinkEndTimes.at( 3 ) - retransmissionDelays.at( 1 ) ),
+                            std::fabs( fourWayLinkEndTimes.at( 4 ) - fourWayLinkEndTimes.at( 3 ) - retransmissionDelays.at( 2 ) ),
                             observationTime  * std::numeric_limits< double >::epsilon( )  );
                 BOOST_CHECK_SMALL(
-                            std::fabs( fourWayLinkEndTimes.at( 6 ) - fourWayLinkEndTimes.at( 5 ) - retransmissionDelays.at( 2 ) ),
+                            std::fabs( fourWayLinkEndTimes.at( 6 ) - fourWayLinkEndTimes.at( 5 ) - retransmissionDelays.at( 3 ) ),
                             observationTime  * std::numeric_limits< double >::epsilon( )  );
+                // Check validity of transmission delay
+                if ( linkEndIterator->first == transmitter )
+                {
+                    BOOST_CHECK_SMALL(
+                            std::fabs( fourWayLinkEndTimes.at( 0 ) - observationTime - retransmissionDelays.at( 0 ) ),
+                            observationTime * std::numeric_limits< double >::epsilon( ) );
+                }
+                // Check validity of reception delay
+                else if ( linkEndIterator->first == receiver )
+                {
+                    BOOST_CHECK_SMALL(
+                            std::fabs( observationTime - fourWayLinkEndTimes.at( 7 ) - retransmissionDelays.at( 4 ) ),
+                            observationTime * std::numeric_limits< double >::epsilon( ) );
+                }
 
                 // Check if link end times are consistent
                 BOOST_CHECK_CLOSE_FRACTION( firstlinkLinkEndTimes.at( 0 ), fourWayLinkEndTimes.at( 0 ),
@@ -420,11 +477,12 @@ BOOST_AUTO_TEST_CASE( testNWayRangeModel )
                 TUDAT_CHECK_MATRIX_CLOSE_FRACTION( fourthlinkLinkEndStates.at( 1 ), fourWayLinkEndStates.at( 7 ),
                                                    ( 25.0 * std::numeric_limits< double >::epsilon( ) ) );
 
-                // Check if range observations from 4-way and consituent one-ay are equal
+                // Check if range observations from 4-way and constituent one-way are equal
+                double delaySum = retransmissionDelays.at( 0 ) + retransmissionDelays.at( 1 ) + retransmissionDelays.at( 2 ) +
+                        retransmissionDelays.at( 3 ) + retransmissionDelays.at( 4 );
                 BOOST_CHECK_CLOSE_FRACTION(
                             ( firstlinkRange + secondlinkRange + thirdlinkRange + fourthlinkRange )( 0 ) +
-                              ( retransmissionDelays.at( 0 ) + retransmissionDelays.at( 1 ) + retransmissionDelays.at( 2 ) ) *
-                              physical_constants::SPEED_OF_LIGHT, fourWayRange( 0 ),
+                              delaySum * physical_constants::SPEED_OF_LIGHT, fourWayRange( 0 ),
                             2.0 * std::numeric_limits< double >::epsilon( ) );
             }
         }
