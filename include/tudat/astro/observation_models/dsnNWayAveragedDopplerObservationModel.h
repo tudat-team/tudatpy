@@ -176,6 +176,12 @@ public:
                 "Error when computing DSN N-way Doppler observables: the selected reference link end (" +
                 getLinkEndTypeString( linkEndAssociatedWithTime ) + ") is not valid." );
         }
+        // Check if ancillary settings were provided
+        if( ancillarySettings == nullptr )
+        {
+            throw std::runtime_error(
+                    "Error when simulating n-way DSN averaged Doppler observable; no ancillary settings found. " );
+        }
 
         std::vector< double > arcStartLinkEndTimes;
         std::vector< Eigen::Matrix< double, 6, 1 > > arcStartLinkEndStates;
