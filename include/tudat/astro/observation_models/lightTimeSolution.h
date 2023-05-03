@@ -653,6 +653,24 @@ public:
         numberOfLinkEnds_( lightTimeCalculators.size( ) + 1 )
     { }
 
+    // Constructor for a single leg
+    MultiLegLightTimeCalculator(
+            const std::function< StateType( const TimeType ) > positionFunctionOfTransmittingBody,
+            const std::function< StateType( const TimeType ) > positionFunctionOfReceivingBody,
+            const std::vector< std::shared_ptr< LightTimeCorrection > > correctionFunctions =
+                std::vector< std::shared_ptr< LightTimeCorrection > >( ),
+            const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria
+                = std::make_shared< LightTimeConvergenceCriteria >( ) ):
+        lightTimeConvergenceCriteria_( lightTimeConvergenceCriteria ),
+        numberOfLinks_( 1 ),
+        numberOfLinkEnds_( 2 )
+    {
+        lightTimeCalculators_.clear( );
+        lightTimeCalculators_.push_back( std::make_shared< LightTimeCalculator< ObservationScalarType, TimeType > >(
+                positionFunctionOfTransmittingBody, positionFunctionOfReceivingBody, correctionFunctions,
+                lightTimeConvergenceCriteria ) );
+    }
+
     ObservationScalarType calculateLightTimeWithLinkEndsStates(
             const TimeType time,
             const LinkEndType linkEndAssociatedWithTime,
