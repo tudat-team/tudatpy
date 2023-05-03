@@ -23,6 +23,7 @@
 #include "tudat/basics/basicTypedefs.h"
 #include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/astro/observation_models/corrections/lightTimeCorrection.h"
+#include "tudat/astro/observation_models/observationModel.h"
 
 namespace tudat
 {
@@ -584,6 +585,83 @@ protected:
         currentCorrection_ = totalLightTimeCorrections;
     }
 private:
+};
+
+template< typename ObservationScalarType = double, typename TimeType = double >
+class MultiLegLightTimeCalculator
+{
+public:
+
+    MultiLegLightTimeCalculator(
+            const std::vector< std::shared_ptr< LightTimeCalculator < ObservationScalarType, TimeType > > >
+                    lightTimeCalculators,
+            const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria
+                = std::make_shared< LightTimeConvergenceCriteria >( ) ):
+        lightTimeCalculators_( lightTimeCalculators ),
+        lightTimeConvergenceCriteria_( lightTimeConvergenceCriteria ),
+        numberOfLinkEnds_( lightTimeCalculators.size( ) + 1 )
+    { }
+
+    ObservationScalarType calculateLightTimeWithLinkEndsStates(
+            const TimeType time,
+            const LinkEndType linkEndAssociatedWithTime,
+            std::vector< double >& linkEndTimesOutput,
+            std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStatesOutput,
+            const std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings =
+                    nullptr )
+    {
+
+        std::vector< double > currentRetransmissionDelays;
+        if( ancillarySettings != nullptr )
+        {
+            currentRetransmissionDelays = ancillarySettings->getAncilliaryDoubleVectorData( retransmission_delays );
+
+            if ( currentRetransmissionDelays.size( ) != numberOfLinkEnds_ )
+            {
+                throw std::runtime_error(
+                        "Error when computing multi-leg light time: size of retransmission delays (" +
+                        std::to_string( currentRetransmissionDelays.size() ) + ") is invalid, should be " +
+                        std::to_string( numberOfLinkEnds_ ) + "." );
+            }
+        }
+        else
+        {
+            for( int i = 0; i < numberOfLinkEnds_; i++ )
+            {
+                currentRetransmissionDelays.push_back( 0.0 );
+            }
+        }
+
+    }
+
+    ObservationScalarType getTotalIdealLightTime(  )
+    {
+        ObservationScalarType lightTime = 0;
+        for ( unsigned int i = 0; i < lightTimeCalculators_.size( ); ++i )
+        {
+            lightTime += lightTimeCalculators_.at( i )->getCurrentIdealLightTime( );
+        }
+        return lightTime;
+    }
+
+    ObservationScalarType getTotalLightTimeCorrections(  )
+    {
+        ObservationScalarType lightTimeCorrections = 0;
+        for ( unsigned int i = 0; i < lightTimeCalculators_.size( ); ++i )
+        {
+            lightTimeCorrections += lightTimeCalculators_.at( i )->getCurrentLightTimeCorrection( );
+        }
+        return lightTimeCorrections;
+    }
+
+private:
+
+    std::vector< std::shared_ptr< LightTimeCalculator< ObservationScalarType, TimeType > > > lightTimeCalculators_;
+
+    std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria_;
+
+    //! Number of link ends (=number of legs + 1)
+    int numberOfLinkEnds_;
 };
 
 } // namespace observation_models
