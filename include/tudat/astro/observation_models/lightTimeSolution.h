@@ -661,25 +661,25 @@ public:
             const std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings = nullptr )
     {
 
-        std::vector< double > currentRetransmissionDelays;
+        std::vector< double > transmissionReceptionDelays;
         if( ancillarySettings != nullptr )
         {
-            currentRetransmissionDelays = ancillarySettings->getAncilliaryDoubleVectorData( retransmission_delays );
+            transmissionReceptionDelays = ancillarySettings->getAncilliaryDoubleVectorData( transmission_reception_delays );
 
             // Delays vector already including delays at receiving and transmitting stations
-            if ( currentRetransmissionDelays.size( ) == numberOfLinkEnds_ )
+            if ( transmissionReceptionDelays.size( ) == numberOfLinkEnds_ )
             { }
             // Delays vector not including delays at receiving and transmitting stations: set them to 0
-            else if ( currentRetransmissionDelays.size( ) == numberOfLinkEnds_ - 2 )
+            else if ( transmissionReceptionDelays.size( ) == numberOfLinkEnds_ - 2 )
             {
-                currentRetransmissionDelays.insert( currentRetransmissionDelays.begin( ), 0.0 );
-                currentRetransmissionDelays.push_back( 0.0 );
+                transmissionReceptionDelays.insert( transmissionReceptionDelays.begin( ), 0.0 );
+                transmissionReceptionDelays.push_back( 0.0 );
             }
             else
             {
                 throw std::runtime_error(
                         "Error when computing multi-leg light time: size of retransmission delays (" +
-                        std::to_string( currentRetransmissionDelays.size() ) + ") is invalid, should be " +
+                        std::to_string( transmissionReceptionDelays.size() ) + ") is invalid, should be " +
                         std::to_string( numberOfLinkEnds_ ) + " or " + std::to_string( numberOfLinkEnds_ - 2) + "." );
             }
         }
@@ -687,7 +687,7 @@ public:
         {
             for( unsigned int i = 0; i < numberOfLinkEnds_; i++ )
             {
-                currentRetransmissionDelays.push_back( 0.0 );
+                transmissionReceptionDelays.push_back( 0.0 );
             }
         }
 
@@ -705,7 +705,7 @@ public:
         // If start is not at transmitter or receiver, compute and add retransmission delay.
         if( ( startLinkEndIndex != 0 ) && ( startLinkEndIndex != numberOfLinkEnds_ - 1 ) )
         {
-            if ( currentRetransmissionDelays.at( startLinkEndIndex ) != 0.0 )
+            if ( transmissionReceptionDelays.at( startLinkEndIndex ) != 0.0 )
             {
                 throw std::runtime_error(
                         "Error when computing light time with reference link end that is not receiver or transmitter: "
@@ -715,10 +715,10 @@ public:
         }
 
         // Initialize light time with initial delay
-        totalLightTime += currentRetransmissionDelays.at( startLinkEndIndex );
+        totalLightTime += transmissionReceptionDelays.at( startLinkEndIndex );
 
         // Define 'current reception time': time at the receiving antenna
-        TimeType currentLinkEndReceptionTime = time - currentRetransmissionDelays.at( startLinkEndIndex );
+        TimeType currentLinkEndReceptionTime = time - transmissionReceptionDelays.at( startLinkEndIndex );
 
         // Move 'backwards' from reference link end to transmitter.
         for( unsigned int currentDownIndex = startLinkEndIndex; currentDownIndex > 0; --currentDownIndex )
@@ -728,7 +728,7 @@ public:
                         linkEndsStates, linkEndsTimes, currentLinkEndReceptionTime, true, transmitterIndex );
 
             // If an additional leg is required, retrieve retransmission delay and update current time
-            currentLightTime += currentRetransmissionDelays.at( currentDownIndex - 1 );
+            currentLightTime += transmissionReceptionDelays.at( currentDownIndex - 1 );
             currentLinkEndReceptionTime -= currentLightTime;
 
             // Add computed light-time to total time and move to next leg
@@ -736,7 +736,7 @@ public:
         }
 
         // Define 'current transmission time': time at the transmitting antenna
-        TimeType currentLinkEndTransmissionTime = time + currentRetransmissionDelays.at( startLinkEndIndex );
+        TimeType currentLinkEndTransmissionTime = time + transmissionReceptionDelays.at( startLinkEndIndex );
 
         // Move 'forwards' from reference link end to receiver.
         for( unsigned int currentUpIndex = startLinkEndIndex; currentUpIndex < numberOfLinkEnds_ - 1; ++currentUpIndex )
@@ -746,7 +746,7 @@ public:
                         linkEndsStates, linkEndsTimes, currentLinkEndTransmissionTime, false, transmitterIndex );
 
             // If an additional leg is required, retrieve retransmission delay and update current time
-            currentLightTime += currentRetransmissionDelays.at( currentUpIndex + 1 );
+            currentLightTime += transmissionReceptionDelays.at( currentUpIndex + 1 );
             currentLinkEndTransmissionTime += currentLightTime;
 
             // Add computed light-time to total time and move to next leg

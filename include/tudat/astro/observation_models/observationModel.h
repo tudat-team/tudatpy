@@ -40,7 +40,7 @@ namespace observation_models
 enum ObservationAncilliarySimulationVariable
 {
     doppler_integration_time,
-    retransmission_delays,
+    transmission_reception_delays,
     doppler_reference_frequency,
     uplink_band,
     downlink_band,
@@ -76,7 +76,7 @@ public:
     {
         switch( variableType )
         {
-        case retransmission_delays:
+        case transmission_reception_delays:
             doubleVectorData_[ variableType ] = variable;
             break;
         default:
@@ -123,8 +123,8 @@ public:
         {
             switch( variableType )
             {
-            case retransmission_delays:
-                returnVariable = doubleVectorData_.at( retransmission_delays );
+            case transmission_reception_delays:
+                returnVariable = doubleVectorData_.at( transmission_reception_delays );
                 break;
             default:
                 break;
@@ -174,7 +174,7 @@ inline std::shared_ptr< ObservationAncilliarySimulationSettings > getNWayRangeAn
 {
     std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySettings =
             std::make_shared< ObservationAncilliarySimulationSettings >( );
-    ancilliarySettings->setAncilliaryDoubleVectorData( retransmission_delays, retransmissionTimes );
+    ancilliarySettings->setAncilliaryDoubleVectorData( transmission_reception_delays, retransmissionTimes );
     return ancilliarySettings;
 }
 
@@ -185,7 +185,7 @@ inline std::shared_ptr< ObservationAncilliarySimulationSettings > getNWayAverage
     std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySettings =
             std::make_shared< ObservationAncilliarySimulationSettings >( );
     ancilliarySettings->setAncilliaryDoubleData( doppler_integration_time, integrationTime );
-    ancilliarySettings->setAncilliaryDoubleVectorData( retransmission_delays, retransmissionTimes );
+    ancilliarySettings->setAncilliaryDoubleVectorData( transmission_reception_delays, retransmissionTimes );
     return ancilliarySettings;
 }
 
@@ -216,7 +216,7 @@ inline std::shared_ptr< ObservationAncilliarySimulationSettings > getDsnNWayAver
     ancillarySettings->setAncilliaryDoubleData( doppler_reference_frequency, referenceFrequency );
     ancillarySettings->setAncilliaryDoubleData( turnaround_ratio, turnaroundRatio );
 
-    ancillarySettings->setAncilliaryDoubleVectorData( retransmission_delays, retransmissionTimes );
+    ancillarySettings->setAncilliaryDoubleVectorData( transmission_reception_delays, retransmissionTimes );
 
     return ancillarySettings;
 }
