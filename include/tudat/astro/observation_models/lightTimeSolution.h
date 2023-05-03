@@ -322,9 +322,7 @@ public:
      *  \return The value of the light time between the link ends.
      */
     ObservationScalarType calculateLightTime( const TimeType time,
-                               const bool isTimeAtReception = true,
-                               const ObservationScalarType tolerance =
-            getDefaultLightTimeTolerance< ObservationScalarType >( ) )
+                               const bool isTimeAtReception = true )
     {
         // Declare and initialize variables for receiver and transmitter state (returned by reference).
         StateType receiverState;
@@ -332,7 +330,7 @@ public:
 
         // Calculate light time.
         ObservationScalarType lightTime = calculateLightTimeWithLinkEndsStates(
-                    receiverState, transmitterState, time, isTimeAtReception, tolerance );
+                    receiverState, transmitterState, time, isTimeAtReception );
         return lightTime;
     }
 
@@ -348,9 +346,7 @@ public:
      *  \return The vector from the transmitter to the reciever.
      */
     PositionType calculateRelativeRangeVector( const TimeType time,
-                                               const bool isTimeAtReception = 1 ,
-                                               const ObservationScalarType tolerance =
-            getDefaultLightTimeTolerance< ObservationScalarType >( ) )
+                                               const bool isTimeAtReception = 1 )
     {
         // Declare and initialize variables for receiver and transmitter state (returned by reference).
         StateType receiverState;
@@ -358,7 +354,7 @@ public:
 
         // Calculate link end states and the determine range vector.
         calculateLightTimeWithLinkEndsStates( receiverState, transmitterState,
-                                              time, isTimeAtReception, tolerance );
+                                              time, isTimeAtReception );
         return ( receiverState - transmitterState ).segment( 0, 3 );
     }
 
@@ -379,9 +375,7 @@ public:
             StateType& receiverStateOutput,
             StateType& transmitterStateOutput,
             const TimeType time,
-            const bool isTimeAtReception = 1,
-            const ObservationScalarType tolerance =
-            ( getDefaultLightTimeTolerance< ObservationScalarType >( ) ) )
+            const bool isTimeAtReception = 1 )
     {
         // Initialize reception and transmission times and states to initial guess (zero light time)
         TimeType receptionTime = time;
