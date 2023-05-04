@@ -458,28 +458,26 @@ public:
                                       "state and time vectors is inconsistent." );
         }
 
-        // Initialize reception and transmission times and states to initial guess
-        TimeType receptionTime, transmissionTime;
+        // Initialize reception and transmission times and states to initial guess: zero light time
+        TimeType receptionTime = time, transmissionTime = time;
         StateType receiverState, transmitterState;
-        // If initial guess is provided as input, use that
-        if ( !std::isnan( linkEndsTimes.at( currentMultiLegTransmitterIndex ) ) && !std::isnan( linkEndsTimes.at( currentMultiLegReceiverIndex ) ) )
+        // If initial guess is provided as input, use that instead
+        if ( !isTimeAtReception && !std::isnan( linkEndsTimes.at( currentMultiLegReceiverIndex ) ) )
         {
             receptionTime = linkEndsTimes.at( currentMultiLegReceiverIndex );
-            transmissionTime = linkEndsTimes.at( currentMultiLegTransmitterIndex );
-            receiverState = stateFunctionOfReceivingBody_( receptionTime );
-            transmitterState = stateFunctionOfTransmittingBody_( transmissionTime );
         }
-        // If initial guess is not provided as input, use zero light time
-        else
+        else if ( isTimeAtReception && !std::isnan( linkEndsTimes.at( currentMultiLegTransmitterIndex ) ) )
         {
-            receptionTime = time;
-            transmissionTime = time;
+            transmissionTime = linkEndsTimes.at( currentMultiLegTransmitterIndex );
         }
         receiverState = stateFunctionOfReceivingBody_( receptionTime );
         transmitterState = stateFunctionOfTransmittingBody_( transmissionTime );
 
         // Set initial light-time correction.
-        setTotalLightTimeCorrection( transmitterState, receiverState, transmissionTime, receptionTime );
+        updateCurrentLinkEndStatesAndTimes(
+                linkEndsTimes, linkEndsStates, currentMultiLegTransmitterIndex, receptionTime, transmissionTime,
+                receiverState, transmitterState );
+        setTotalLightTimeCorrection( linkEndsStates, linkEndsTimes, currentMultiLegTransmitterIndex );
 
         // Calculate light-time solution
         ObservationScalarType previousLightTimeCalculation = calculateNewLightTimeEstimate(
@@ -505,7 +503,10 @@ public:
             // Update light-time corrections, if necessary.
             if( updateLightTimeCorrections )
             {
-                setTotalLightTimeCorrection( transmitterState, receiverState, transmissionTime, receptionTime );
+                updateCurrentLinkEndStatesAndTimes(
+                    linkEndsTimes, linkEndsStates, currentMultiLegTransmitterIndex, receptionTime, transmissionTime,
+                    receiverState, transmitterState );
+                setTotalLightTimeCorrection( linkEndsStates, linkEndsTimes, currentMultiLegTransmitterIndex );
             }
 
             // Update light-time estimate for this iteration.
@@ -532,10 +533,9 @@ public:
         }
 
         // Set output variables and return the light time.
-        linkEndsTimes.at( currentMultiLegReceiverIndex ) = receptionTime;
-        linkEndsTimes.at( currentMultiLegTransmitterIndex ) = transmissionTime;
-        linkEndsStates.at( currentMultiLegReceiverIndex ) = receiverState;
-        linkEndsStates.at( currentMultiLegTransmitterIndex ) = transmitterState;
+        updateCurrentLinkEndStatesAndTimes(
+                linkEndsTimes, linkEndsStates, currentMultiLegTransmitterIndex, receptionTime, transmissionTime,
+                receiverState, transmitterState );
 
         std::cerr << std::setprecision(18) << "Light time: " << newLightTimeCalculation << std::endl;
 
@@ -694,6 +694,20 @@ protected:
     }
 
 private:
+
+    void updateCurrentLinkEndStatesAndTimes( std::vector< TimeType >& linkEndsTimes,
+                                             std::vector< StateType >& linkEndsStates,
+                                             const unsigned int currentMultiLegTransmitterIndex,
+                                             const TimeType receptionTime,
+                                             const TimeType transmissionTime,
+                                             const StateType receiverState,
+                                             const StateType transmitterState )
+    {
+        linkEndsTimes.at( currentMultiLegTransmitterIndex + 1 ) = receptionTime;
+        linkEndsTimes.at( currentMultiLegTransmitterIndex ) = transmissionTime;
+        linkEndsStates.at( currentMultiLegTransmitterIndex + 1 ) = receiverState;
+        linkEndsStates.at( currentMultiLegTransmitterIndex ) = transmitterState;
+    }
 };
 
 template< typename ObservationScalarType = double, typename TimeType = double >
