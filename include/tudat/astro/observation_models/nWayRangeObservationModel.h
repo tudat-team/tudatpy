@@ -46,12 +46,23 @@ public:
             const LinkEnds& linkEnds,
             const std::vector< std::shared_ptr< observation_models::LightTimeCalculator
                 < ObservationScalarType, TimeType > > > lightTimeCalculators,
-            const std::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = nullptr ):
+            const std::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = nullptr,
+            const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria
+                = std::make_shared< MultiLegLightTimeConvergenceCriteria >( ) ):
         ObservationModel< 1, ObservationScalarType, TimeType >( n_way_range, linkEnds, observationBiasCalculator )
     {
         multiLegLightTimeCalculator_ = std::make_shared< observation_models::MultiLegLightTimeCalculator<
-                ObservationScalarType, TimeType > >( lightTimeCalculators );
+                ObservationScalarType, TimeType > >( lightTimeCalculators, lightTimeConvergenceCriteria );
     }
+
+    NWayRangeObservationModel(
+            const LinkEnds& linkEnds,
+            const std::shared_ptr< observation_models::MultiLegLightTimeCalculator
+                < ObservationScalarType, TimeType > > multiLegLightTimeCalculator,
+            const std::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = nullptr ):
+        ObservationModel< 1, ObservationScalarType, TimeType >( n_way_range, linkEnds, observationBiasCalculator ),
+        multiLegLightTimeCalculator_( multiLegLightTimeCalculator )
+    { }
 
     //! Destructor
     ~NWayRangeObservationModel( ){ }
@@ -93,6 +104,11 @@ public:
     std::vector< std::shared_ptr< LightTimeCalculator< ObservationScalarType, TimeType > > > getLightTimeCalculators( )
     {
         return multiLegLightTimeCalculator_->getLightTimeCalculators( );
+    }
+
+    std::shared_ptr< MultiLegLightTimeCalculator< ObservationScalarType, TimeType > > getMultiLegLightTimeCalculator( )
+    {
+        return multiLegLightTimeCalculator_;
     }
 
 private:
