@@ -104,10 +104,10 @@ public:
      *  \return Total light time correction due to gravitating masses defined by perturbingBodyStateFunctions_ and
      *  perturbingBodyGravitationalParameterFunctions_ member variables.
      */
-    double calculateLightTimeCorrection( const Eigen::Vector6d& transmitterState,
-                                         const Eigen::Vector6d& receiverState,
-                                         const double transmissionTime,
-                                         const double receptionTime );
+    double calculateLightTimeCorrectionWithMultiLegLinkEndStates(
+            const std::vector< Eigen::Vector6d >& linkEndsStates,
+            const std::vector< double >& linkEndsTimes,
+            const unsigned int currentMultiLegTransmitterIndex ) override;
 
     //! Function to compute the partial derivative of the light-time correction w.r.t. observation time
     /*!
@@ -127,7 +127,7 @@ public:
             const double transmissionTime,
             const double receptionTime,
             const LinkEndType fixedLinkEnd,
-            const LinkEndType linkEndAtWhichPartialIsEvaluated )
+            const LinkEndType linkEndAtWhichPartialIsEvaluated ) override
     {
         return 0.0;
     }
@@ -147,7 +147,7 @@ public:
             const Eigen::Vector6d& receiverState,
             const double transmissionTime,
             const double receptionTime,
-            const LinkEndType linkEndAtWhichPartialIsEvaluated );
+            const LinkEndType linkEndAtWhichPartialIsEvaluated ) override;
 
     //! Function to get the names of bodies causing light-time correction.
     /*!

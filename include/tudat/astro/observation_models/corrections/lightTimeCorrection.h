@@ -62,11 +62,22 @@ public:
      * \param receptionTime Time of singal reception
      * \return Light-time correction
      */
-    virtual double calculateLightTimeCorrection(
+    double calculateLightTimeCorrection(
             const Eigen::Vector6d& transmitterState,
             const Eigen::Vector6d& receiverState,
             const double transmissionTime,
-            const double receptionTime ) = 0;
+            const double receptionTime )
+    {
+        std::vector< Eigen::Vector6d > linkEndsStates = { transmitterState, receiverState };
+        std::vector< double > linkEndsTimes = { transmissionTime, receptionTime };
+
+        return calculateLightTimeCorrectionWithMultiLegLinkEndStates( linkEndsStates, linkEndsTimes, 0 );
+    }
+
+    virtual double calculateLightTimeCorrectionWithMultiLegLinkEndStates(
+            const std::vector< Eigen::Vector6d >& linkEndsStates,
+            const std::vector< double >& linkEndsTimes,
+            const unsigned int currentMultiLegTransmitterIndex = 0 ) = 0;
 
     //! Pure virtual function to compute the partial derivative of the light-time correction w.r.t. observation time
     /*!
@@ -148,6 +159,30 @@ public:
     }
 
 protected:
+
+    void getTransmissionReceptionTimesAndStates(
+            const std::vector< Eigen::Vector6d >& linkEndsStatesInput,
+            const std::vector< double >& linkEndsTimesInput,
+            const unsigned int currentMultiLegTransmitterIndex,
+            Eigen::Vector6d& transmitterStateOutput,
+            Eigen::Vector6d& receiverStateOutput,
+            double& transmissionTimeOutput,
+            double& receptionTimeOutput )
+    {
+        const unsigned int currentMultiLegReceiverIndex = currentMultiLegTransmitterIndex + 1;
+
+        if ( currentMultiLegReceiverIndex >= linkEndsStatesInput.size( ) || currentMultiLegReceiverIndex >= linkEndsTimesInput.size( ) )
+        {
+            throw std::runtime_error(
+                    "Error when getting receiver and transmitter states and times in LightTimeCorrection: "
+                    "specified transmitter index is invalid" );
+        }
+
+        transmitterStateOutput = linkEndsStatesInput.at( currentMultiLegTransmitterIndex );
+        receiverStateOutput = linkEndsStatesInput.at( currentMultiLegReceiverIndex );
+        transmissionTimeOutput = linkEndsTimesInput.at( currentMultiLegTransmitterIndex );
+        receptionTimeOutput = linkEndsTimesInput.at( currentMultiLegReceiverIndex );
+    }
 
     //! Type of light-time correction represented by instance of class.
     LightTimeCorrectionType lightTimeCorrectionType_;

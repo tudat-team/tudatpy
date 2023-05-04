@@ -383,11 +383,10 @@ public:
         isUplinkCorrection_( isUplinkCorrection )
     { }
 
-    double calculateLightTimeCorrection(
-            const Eigen::Vector6d& transmitterState,
-            const Eigen::Vector6d& receiverState,
-            const double transmissionTime,
-            const double receptionTime ) override;
+    double calculateLightTimeCorrectionWithMultiLegLinkEndStates(
+            const std::vector< Eigen::Vector6d >& linkEndsStates,
+            const std::vector< double >& linkEndsTimes,
+            const unsigned int currentMultiLegTransmitterIndex ) override;
 
     double calculateLightTimeCorrectionPartialDerivativeWrtLinkEndTime(
             const Eigen::Vector6d& transmitterState,
