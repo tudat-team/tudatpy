@@ -149,7 +149,7 @@ BOOST_AUTO_TEST_CASE( testLightWithSpice )
     // Test light time with corrections.
 
     // Set single light-time correction function.
-    std::vector< LightTimeCorrectionFunction > lightTimeCorrections;
+    std::vector< LightTimeCorrectionFunctionSingleLeg > lightTimeCorrections;
     lightTimeCorrections.push_back( &getTimeDifferenceLightTimeCorrection );
 
     // Create light-time object with correction.
