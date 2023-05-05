@@ -555,7 +555,7 @@ public:
         StateType transmitterState = stateFunctionOfTransmittingBody_( transmissionTime );
 
         // Set variables for iteration of light time
-        unsigned int iterationsCounter = 0;
+        iterationCounter_ = 0;
 
         // Set variable determining whether to update the light time each iteration.
         bool updateLightTimeCorrections = false;
@@ -576,7 +576,7 @@ public:
         // Check whether estimate is already within tolerance
         bool trueBool = true;
         bool isToleranceReached = isSingleLegLightTimeSolutionConverged(
-                lightTimeConvergenceCriteria_, previousLightTimeCalculation, newLightTimeCalculation, iterationsCounter,
+                lightTimeConvergenceCriteria_, previousLightTimeCalculation, newLightTimeCalculation, iterationCounter_,
                 currentCorrection_, time, trueBool );
         previousLightTimeCalculation = newLightTimeCalculation;
 
@@ -607,12 +607,12 @@ public:
             }
             newLightTimeCalculation = calculateNewLightTimeEstimate( receiverState, transmitterState );
             isToleranceReached = isSingleLegLightTimeSolutionConverged(
-                    lightTimeConvergenceCriteria_, previousLightTimeCalculation, newLightTimeCalculation, iterationsCounter,
+                    lightTimeConvergenceCriteria_, previousLightTimeCalculation, newLightTimeCalculation, iterationCounter_,
                     currentCorrection_, time, updateLightTimeCorrections );
 
             // Update light time for new iteration.
             previousLightTimeCalculation = newLightTimeCalculation;
-            iterationsCounter++;
+            iterationCounter_++;
         }
 
         // Set output variables and return the light time.
@@ -621,7 +621,7 @@ public:
                 receiverState, transmitterState );
 
         std::cerr << std::setprecision(18) << "Light time: " << newLightTimeCalculation <<
-                  " (" << iterationsCounter + 1 << " iter) " << std::endl;
+                  " (" << iterationCounter_ << " iter) " << std::endl;
 
         return newLightTimeCalculation;
     }
@@ -675,6 +675,11 @@ public:
         return currentCorrection_;
     }
 
+    unsigned int getNumberOfIterations( )
+    {
+        return iterationCounter_;
+    }
+
 protected:
 
     //! Transmitter state function.
@@ -712,6 +717,9 @@ protected:
 
     //! Current light-time correction.
     ObservationScalarType currentCorrection_;
+
+    // Number of iterations until light time convergence
+    unsigned int iterationCounter_;
 
     //! Function to calculate a new light-time estimate from the link-ends states.
     /*!
@@ -1048,6 +1056,8 @@ private:
     std::vector< double > transmissionReceptionDelays_;
 
     unsigned int iterationCounter_;
+
+    std::vector< std::vector< unsigned int > > singleLegIterationsPerMultiLegIteration_;
 };
 
 } // namespace observation_models
