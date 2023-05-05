@@ -256,6 +256,16 @@ BOOST_AUTO_TEST_CASE( testNWayRangeModel )
                 if ( iterateMultipleLegs )
                 {
                     BOOST_CHECK_EQUAL( numIter, 1 );
+                    // Check number of single-leg iterations. Since no corrections that depend on legs other than the ones
+                    // they apply to are used, the method should converge at the 0th iteration (i.e. first computation
+                    // of the light time should coincide with the initial guess)
+                    for ( unsigned int i = 0; i < 2; ++i )
+                    {
+                        int iterLeg = std::dynamic_pointer_cast< NWayRangeObservationModel< double, double > >(
+                            twoWayObservationModel )->getMultiLegLightTimeCalculator( )->getLightTimeCalculators(
+                                    ).at( i )->getNumberOfIterations( );
+                        BOOST_CHECK_EQUAL( iterLeg, 0 );
+                    }
                 }
                 else
                 {
@@ -325,6 +335,11 @@ BOOST_AUTO_TEST_CASE( testNWayRangeModel )
             lightTimeCorrectionSettings.push_back( std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
                                                        lightTimePerturbingBodies ) );
 
+            // Create light time convergence criteria
+            bool iterateMultipleLegs = observationTimeNumber % 2;
+            std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria =
+                std::make_shared< MultiLegLightTimeConvergenceCriteria >( true, iterateMultipleLegs );
+
 
             // Create observation settings for 4-way model and constituent one-way models
             std::shared_ptr< ObservationModelSettings > firstlinkObservableSettings = std::make_shared< ObservationModelSettings >
@@ -343,7 +358,7 @@ BOOST_AUTO_TEST_CASE( testNWayRangeModel )
             fourWayLinkSettings.push_back( fourthlinkObservableSettings );
             std::shared_ptr< NWayRangeObservationSettings > fourWayObservableSettings =
                     std::make_shared< NWayRangeObservationSettings >(
-                        fourWayLinkSettings );
+                        fourWayLinkSettings, nullptr, lightTimeConvergenceCriteria );
 
             // Create observation models
             std::shared_ptr< ObservationModel< 1, double, double > > firstlinkObservationModel =
@@ -448,6 +463,28 @@ BOOST_AUTO_TEST_CASE( testNWayRangeModel )
                     BOOST_CHECK_SMALL(
                             std::fabs( observationTime - fourWayLinkEndTimes.at( 7 ) - retransmissionDelays.at( 4 ) ),
                             observationTime * std::numeric_limits< double >::epsilon( ) );
+                }
+
+                 // Check number of multi-leg iterations
+                int numIter = std::dynamic_pointer_cast< NWayRangeObservationModel< double, double > >(
+                            fourWayObservationModel )->getMultiLegLightTimeCalculator( )->getNumberOfMultiLegIterations( );
+                if ( iterateMultipleLegs )
+                {
+                    BOOST_CHECK_EQUAL( numIter, 1 );
+                    // Check number of single-leg iterations. Since no corrections that depend on legs other than the ones
+                    // they apply to are used, the method should converge at the 0th iteration (i.e. first computation
+                    // of the light time should coincide with the initial guess)
+                    for ( unsigned int i = 0; i < 4; ++i )
+                    {
+                        int iterLeg = std::dynamic_pointer_cast< NWayRangeObservationModel< double, double > >(
+                            fourWayObservationModel )->getMultiLegLightTimeCalculator( )->getLightTimeCalculators(
+                                    ).at( i )->getNumberOfIterations( );
+                        BOOST_CHECK_EQUAL( iterLeg, 0 );
+                    }
+                }
+                else
+                {
+                    BOOST_CHECK_EQUAL( numIter, 0 );
                 }
 
                 // Check if link end times are consistent

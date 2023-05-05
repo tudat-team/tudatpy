@@ -233,7 +233,7 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
     std::map < observation_models::ObservableType, std::vector< observation_models::LinkEnds > > linkEndsPerObservable =
             observedObservationCollection->getLinkEndsPerObservableType( );
     std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria =
-            std::make_shared< MultiLegLightTimeConvergenceCriteria >( true, true );
+            std::make_shared< MultiLegLightTimeConvergenceCriteria >( true, false );
     for ( auto it = linkEndsPerObservable.begin(); it != linkEndsPerObservable.end(); ++it )
     {
         for ( unsigned int i = 0; i < it->second.size(); ++i )
