@@ -137,6 +137,10 @@ BOOST_AUTO_TEST_CASE( testNWayRangeModel )
             lightTimeCorrectionSettings.push_back( std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
                                                        lightTimePerturbingBodies ) );
 
+            // Create light time convergence criteria
+            bool iterateMultipleLegs = observationTimeNumber % 2;
+            std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria =
+                std::make_shared< MultiLegLightTimeConvergenceCriteria >( true, iterateMultipleLegs );
 
             // Create observation settings for 2-way model and constituent one-way models
             std::shared_ptr< ObservationModelSettings > uplinkObservableSettings = std::make_shared< ObservationModelSettings >
@@ -147,7 +151,7 @@ BOOST_AUTO_TEST_CASE( testNWayRangeModel )
             twoWayLinkSettings.push_back( uplinkObservableSettings );
             twoWayLinkSettings.push_back( downlinkObservableSettings );
             std::shared_ptr< NWayRangeObservationSettings > twoWayObservableSettings = std::make_shared< NWayRangeObservationSettings >
-                    ( twoWayLinkSettings );
+                    ( twoWayLinkSettings, nullptr, lightTimeConvergenceCriteria );
 
             // Create observation models
             std::shared_ptr< ObservationModel< 1, double, double > > uplinkObservationModel =
@@ -244,6 +248,18 @@ BOOST_AUTO_TEST_CASE( testNWayRangeModel )
                     BOOST_CHECK_SMALL(
                             std::fabs( observationTime - twoWayLinkEndTimes.at( 3 ) - retransmissionDelays.at( 2 ) ),
                             observationTime * std::numeric_limits< double >::epsilon( ) );
+                }
+
+                // Check number of multi-leg iterations
+                int numIter = std::dynamic_pointer_cast< NWayRangeObservationModel< double, double > >(
+                            twoWayObservationModel )->getMultiLegLightTimeCalculator( )->getNumberOfMultiLegIterations( );
+                if ( iterateMultipleLegs )
+                {
+                    BOOST_CHECK_EQUAL( numIter, 1 );
+                }
+                else
+                {
+                    BOOST_CHECK_EQUAL( numIter, 0 );
                 }
 
                 // Check if link end times are consistent
