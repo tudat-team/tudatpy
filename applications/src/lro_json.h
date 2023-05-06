@@ -25,8 +25,6 @@ Settings loadSettings(char* path);
 std::ostream& operator<<(std::ostream& os, const Settings& settings);
 
 
-void loadLROSpiceKernels();
-
 simulation_setup::SystemOfBodies createSimulationBodies();
 
 basic_astrodynamics::AccelerationMap createSimulationAccelerations(const simulation_setup::SystemOfBodies&);
@@ -35,8 +33,6 @@ Eigen::VectorXd createSimulationInitialState();
 
 std::shared_ptr< propagators::SingleArcSimulationResults<>> createAndRunSimulation(
         const simulation_setup::SystemOfBodies&, const basic_astrodynamics::AccelerationMap&, const Eigen::VectorXd&);
-
-void saveSimulationResults(const std::shared_ptr<propagators::SingleArcSimulationResults<>>& propagationResults);
 
 
 
