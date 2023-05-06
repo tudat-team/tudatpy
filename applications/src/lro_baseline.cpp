@@ -1,12 +1,14 @@
 #include <iostream>
+#include <memory>
 
 #include <Eigen/Core>
-#include <boost/filesystem.hpp>
-#include <boost/algorithm/string/predicate.hpp>
-#include <boost/range/adaptors.hpp>
 
 #include <tudat/simulation/simulation.h>
 #include "tudat/interface/spice/spiceEphemeris.h"
+#include "tudat/math/basic/mathematicalConstants.h"
+
+#include "liblro.h"
+
 
 using namespace tudat;
 using namespace tudat::simulation_setup;
@@ -20,12 +22,10 @@ using namespace tudat::gravitation;
 using namespace tudat::numerical_integrators;
 
 
-void loadLROSpiceKernels();
 SystemOfBodies createSimulationBodies();
 AccelerationMap createSimulationAccelerations(const SystemOfBodies&);
 Eigen::VectorXd createSimulationInitialState();
 std::shared_ptr< propagators::SingleArcSimulationResults<>> createAndRunSimulation(const SystemOfBodies&, const AccelerationMap&, const Eigen::VectorXd&);
-void saveSimulationResults(const std::shared_ptr<propagators::SingleArcSimulationResults<>>& propagationResults);
 
 
 namespace simulation_constants
@@ -60,48 +60,9 @@ int main()
     auto accelerations = createSimulationAccelerations(bodies);
     auto initialState = createSimulationInitialState();
     auto dynamicsSimulator = createAndRunSimulation(bodies, accelerations, initialState);
-    saveSimulationResults(dynamicsSimulator);
+    saveSimulationResults(dynamicsSimulator, resultsFolder);
 
     return EXIT_SUCCESS;
-}
-
-// Loads SPICE kernels for LRO
-void loadLROSpiceKernels()
-{
-    using namespace tudat::spice_interface;
-
-    std::string path = "spice/lro/data";
-
-    // Leap seconds
-    loadSpiceKernelInTudat(path + "/lsk/naif0012.tls");
-    // Planetary orientation shapes
-    loadSpiceKernelInTudat(path + "/pck/pck00010.tpc");
-    // Planetary gravitational parameters
-    loadSpiceKernelInTudat(path + "/pck/gm_de431.tpc");
-    // Lunar frame
-    loadSpiceKernelInTudat(path + "/fk/moon_080317.tf");
-    loadSpiceKernelInTudat(path + "/pck/moon_pa_de421_1900_2050.bpc");
-
-    // LRO spacecraft bus and instrument frames
-    loadSpiceKernelInTudat(path + "/fk/lro_frames_2012255_v02.tf");
-    // LRO spacecraft clock
-    loadSpiceKernelInTudat(path + "/sclk/lro_clkcor_2022075_v00.tsc");
-
-    // LRO ephemeris
-    for(auto& entry : boost::make_iterator_range(boost::filesystem::directory_iterator(path + "/spk"), {})) {
-        if (entry.path().extension() == ".bsp")
-        {
-            loadSpiceKernelInTudat(entry.path().string());
-        }
-    }
-
-    // LRO orientation
-    for(auto& entry : boost::make_iterator_range(boost::filesystem::directory_iterator(path + "/ck"), {})) {
-        if (entry.path().extension() == ".bc")
-        {
-            loadSpiceKernelInTudat(entry.path().string());
-        }
-    }
 }
 
 SystemOfBodies createSimulationBodies()
@@ -232,47 +193,4 @@ std::shared_ptr<propagators::SingleArcSimulationResults<>> createAndRunSimulatio
 
     auto propagationResults = dynamicsSimulator->getPropagationResults();
     return std::dynamic_pointer_cast<SingleArcSimulationResults<double, double>>(propagationResults);
-}
-
-void saveSimulationResults(const std::shared_ptr<SingleArcSimulationResults<>>& propagationResults)
-{
-    auto stateHistory = propagationResults->getEquationsOfMotionNumericalSolution();
-    auto dependentVariableHistory = propagationResults->getDependentVariableHistory();
-    auto cpuTimeHistory = propagationResults->getCumulativeComputationTimeHistory();
-    auto dependentVariableNames = propagationResults->getDependentVariableId();
-    auto stateNames = propagationResults->getProcessedStateIds();
-
-    input_output::writeDataMapToTextFile(stateHistory,
-                                         "state_history.csv",
-                                         resultsFolder,
-                                         "",
-                                         std::numeric_limits< double >::digits10,
-                                         std::numeric_limits< double >::digits10,
-                                         ",");
-
-    input_output::writeDataMapToTextFile(dependentVariableHistory,
-                                         "dependent_variable_history.csv",
-                                         resultsFolder,
-                                         "",
-                                         std::numeric_limits< double >::digits10,
-                                         std::numeric_limits< double >::digits10,
-                                         ",");
-
-    input_output::writeDataMapToTextFile(cpuTimeHistory,
-                                         "cpu_time.csv",
-                                         resultsFolder,
-                                         "",
-                                         std::numeric_limits< double >::digits10,
-                                         std::numeric_limits< double >::digits10,
-                                         ",");
-
-    input_output::writeIdMapToTextFile(dependentVariableNames,
-                                       "dependent_variable_names.csv",
-                                       resultsFolder,
-                                       ";");
-
-    input_output::writeIdMapToTextFile(stateNames,
-                                       "state_names.csv",
-                                       resultsFolder,
-                                       ";");
 }
