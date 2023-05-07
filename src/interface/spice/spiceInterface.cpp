@@ -125,7 +125,7 @@ Eigen::Vector3d getBodyCartesianPositionAtEpoch(const std::string &targetBodyNam
 
 //! Get Cartesian state of a satellite from its two-line element set at a specified epoch.
 Vector6d getCartesianStateFromTleAtEpoch(double epoch, std::shared_ptr<ephemerides::Tle> tle) {
-    if( !( epoch == epoch ) || (epoch < 0) )
+    if( !( epoch == epoch ))
     {
         throw std::invalid_argument( "Error when retrieving TLE from Spice, input time is " + std::to_string(epoch) );
     }
