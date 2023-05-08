@@ -76,25 +76,11 @@ public:
             const LinkEndType linkEndAssociatedWithTime,
             const std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetings = nullptr ) const
     {
-        if( ancilliarySetings == nullptr )
-        {
-            throw std::runtime_error( "Error when simulating n-way averaged Doppler observable; no ancilliary settings found. Ancilliary settings are requiured for integration time" );
-        }
+        std::vector< double > linkEndTimes;
+        std::vector< Eigen::Matrix< double, 6, 1 > > linkEndStates;
 
-        TimeType integrationTime;
-        try
-        {
-            integrationTime = ancilliarySetings->getAncilliaryDoubleData( doppler_integration_time, true );
-        }
-        catch( std::runtime_error& caughtException )
-        {
-            throw std::runtime_error( "Error when retrieving integration time for one-way averaged Doppler observable: " +
-                            std::string( caughtException.what( ) ) );
-        }
-
-        return ( arcEndObservationModel_->computeObservations( time + integrationTime / 2.0, linkEndAssociatedWithTime ) -
-                arcStartObservationModel_->computeObservations( time - integrationTime / 2.0, linkEndAssociatedWithTime ) ) /
-                static_cast< ObservationScalarType >( integrationTime );
+        return computeIdealObservationsWithLinkEndData(
+                time, linkEndAssociatedWithTime, linkEndTimes, linkEndStates, ancilliarySetings );
     }
 
 
