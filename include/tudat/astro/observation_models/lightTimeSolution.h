@@ -101,9 +101,9 @@ public:
             const bool iterateCorrections = false,
             const bool iterateMultiLegLightTime = true,
             const int maximumNumberOfIterations = 50,
-            const double absoluteTolerance = TUDAT_NAN,
+            const double fractionOfLightTimeTolerance = TUDAT_NAN,
             const LightTimeFailureHandling failureHandling = accept_without_warning):
-        LightTimeConvergenceCriteria( iterateCorrections, maximumNumberOfIterations, absoluteTolerance, failureHandling ),
+        LightTimeConvergenceCriteria( iterateCorrections, maximumNumberOfIterations, fractionOfLightTimeTolerance, failureHandling ),
         iterateMultiLegLightTime_( iterateMultiLegLightTime )
         { }
 
