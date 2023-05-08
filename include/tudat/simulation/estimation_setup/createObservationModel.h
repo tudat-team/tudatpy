@@ -1799,32 +1799,6 @@ public:
                         std::to_string( linkEnds.size( ) ) + " link ends found";
                 throw std::runtime_error( errorMessage );
             }
-            if( linkEnds.count( receiver ) == 0 )
-            {
-                throw std::runtime_error( "Error when making n way range model, no receiver found" );
-            }
-
-            if( linkEnds.count( transmitter ) == 0 )
-            {
-                throw std::runtime_error( "Error when making n way range model, no transmitter found" );
-            }
-
-            // Check link end consistency.
-            for( LinkEnds::const_iterator linkEndIterator = linkEnds.begin( ); linkEndIterator != linkEnds.end( );
-                 linkEndIterator++ )
-            {
-                if( ( linkEndIterator->first != transmitter ) && ( linkEndIterator->first != receiver ) )
-                {
-                    int linkEndIndex = static_cast< int >( linkEndIterator->first );
-                    LinkEndType previousLinkEndType = static_cast< LinkEndType >( linkEndIndex - 1 );
-
-                    if( linkEnds.count( previousLinkEndType ) == 0 )
-                    {
-                        throw std::runtime_error( "Error when making n-way range model, did not find link end type " +
-                                                  std::to_string( previousLinkEndType ) );
-                    }
-                }
-            }
 
             // Create observation bias object
             std::shared_ptr< ObservationBias< 1 > > observationBias;
@@ -1835,66 +1809,38 @@ public:
                             linkEnds, observationSettings->observableType_, observationSettings->biasSettings_, bodies );
             }
 
-            std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList;
             std::shared_ptr< NWayRangeObservationSettings > nWayRangeObservationSettings =
                     std::dynamic_pointer_cast< NWayRangeObservationSettings >( observationSettings );
-
             if( nWayRangeObservationSettings == nullptr )
             {
-                lightTimeCorrectionsList = observationSettings->lightTimeCorrectionsList_;
+                throw std::runtime_error( "Error when making n-way range observation model, input type inconsistent" );
             }
             else if( nWayRangeObservationSettings->oneWayRangeObsevationSettings_.size( ) != linkEnds.size( ) - 1 )
             {
                 throw std::runtime_error( "Error when making n-way range, input data is inconsistent" );
             }
 
-            // Define light-time calculator list
-            std::vector< std::shared_ptr< LightTimeCalculator< ObservationScalarType, TimeType > > > lightTimeCalculators;
-
-            // Iterate over all link ends and create light-time calculators
-            LinkEnds::const_iterator transmitterIterator = linkEnds.begin( );
-            LinkEnds::const_iterator receiverIterator = linkEnds.begin( );
-            receiverIterator++;
+            // Create vector of convergence criteria and light time corrections
+            std::vector< std::shared_ptr< LightTimeConvergenceCriteria > > singleLegsLightTimeConvergenceCriteriaList;
+            std::vector< std::vector< std::shared_ptr< LightTimeCorrectionSettings > > > lightTimeCorrectionsList;
             for( unsigned int i = 0; i < linkEnds.size( ) - 1; i++ )
             {
-                if( nWayRangeObservationSettings != nullptr )
-                {
-                    if( nWayRangeObservationSettings->oneWayRangeObsevationSettings_.at( i )->observableType_ != one_way_range )
-                    {
-                        throw std::runtime_error( "Error in n-way observable creation, constituent link is not of type 1-way" );
-                    }
-                    lightTimeCalculators.push_back(
-                                createLightTimeCalculator< ObservationScalarType, TimeType >(
-                                    transmitterIterator->second, receiverIterator->second,
-                                    bodies, topLevelObservableType, nWayRangeObservationSettings->oneWayRangeObsevationSettings_.at( i )->
-                                    lightTimeCorrectionsList_,
-                                    nWayRangeObservationSettings->oneWayRangeObsevationSettings_.at( i )->lightTimeConvergenceCriteria_ ) );
-                }
-                else
-                {
-                    lightTimeCalculators.push_back(
-                                createLightTimeCalculator< ObservationScalarType, TimeType >(
-                                    transmitterIterator->second, receiverIterator->second,
-                                    bodies, topLevelObservableType, observationSettings->lightTimeCorrectionsList_,
-                                    observationSettings->lightTimeConvergenceCriteria_ ) );
-                }
-
-                transmitterIterator++;
-                receiverIterator++;
+                lightTimeCorrectionsList.push_back(
+                        nWayRangeObservationSettings->oneWayRangeObsevationSettings_.at( i )->lightTimeCorrectionsList_ );
+                singleLegsLightTimeConvergenceCriteriaList.push_back(
+                        nWayRangeObservationSettings->oneWayRangeObsevationSettings_.at( i )->lightTimeConvergenceCriteria_ );
             }
 
             // Create multi-leg light time calculator
             std::shared_ptr< observation_models::MultiLegLightTimeCalculator< ObservationScalarType, TimeType > >
-                    multiLegLightTimeCalculator = std::make_shared< observation_models::MultiLegLightTimeCalculator<
-                            ObservationScalarType, TimeType > >(
-                                    lightTimeCalculators, nWayRangeObservationSettings->multiLegLightTimeConvergenceCriteria_ );
+                    multiLegLightTimeCalculator = createMultiLegLightTimeCalculator< ObservationScalarType, TimeType >(
+                            linkEnds, bodies, topLevelObservableType, lightTimeCorrectionsList,
+                            singleLegsLightTimeConvergenceCriteriaList,
+                            nWayRangeObservationSettings->multiLegLightTimeConvergenceCriteria_ );
 
             // Create observation model
-            observationModel = std::make_shared< NWayRangeObservationModel<
-                    ObservationScalarType, TimeType > >(
-                        linkEnds,
-                        multiLegLightTimeCalculator,
-                        observationBias );
+            observationModel = std::make_shared< NWayRangeObservationModel< ObservationScalarType, TimeType > >(
+                        linkEnds, multiLegLightTimeCalculator, observationBias );
             break;
         }
         case n_way_differenced_range:

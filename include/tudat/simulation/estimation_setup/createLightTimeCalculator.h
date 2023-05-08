@@ -102,6 +102,111 @@ createLightTimeCalculator(
                 lightTimeConvergenceCriteria );
 }
 
+template< typename ObservationScalarType = double, typename TimeType = double >
+std::shared_ptr< MultiLegLightTimeCalculator< ObservationScalarType, TimeType > > createMultiLegLightTimeCalculator(
+        const LinkEnds& linkEnds,
+        const simulation_setup::SystemOfBodies& bodies,
+        const ObservableType observableType = undefined_observation_model,
+        const std::vector< std::vector< std::shared_ptr< LightTimeCorrectionSettings > > >& lightTimeCorrections
+            = std::vector< std::vector< std::shared_ptr< LightTimeCorrectionSettings > > >( ),
+        const std::vector< std::shared_ptr< LightTimeConvergenceCriteria > >& singleLegsLightTimeConvergenceCriteria
+            = std::vector< std::shared_ptr< LightTimeConvergenceCriteria > >( ),
+        const std::shared_ptr< LightTimeConvergenceCriteria > multiLegLightTimeConvergenceCriteria
+            = std::make_shared< MultiLegLightTimeConvergenceCriteria >( ) )
+{
+
+    // Check if link ends contain a receiver and a transmitter
+    if( linkEnds.count( receiver ) == 0 )
+    {
+        throw std::runtime_error( "Error when making multi-leg light time calculator, no receiver found" );
+    }
+    if( linkEnds.count( transmitter ) == 0 )
+    {
+        throw std::runtime_error( "Error when making multi-leg light time calculator, no transmitter found" );
+    }
+
+    // Check link end consistency.
+    for( LinkEnds::const_iterator linkEndIterator = linkEnds.begin( ); linkEndIterator != linkEnds.end( );
+         linkEndIterator++ )
+    {
+        if( ( linkEndIterator->first != transmitter ) && ( linkEndIterator->first != receiver ) )
+        {
+            int linkEndIndex = static_cast< int >( linkEndIterator->first );
+            LinkEndType previousLinkEndType = static_cast< LinkEndType >( linkEndIndex - 1 );
+
+            if( linkEnds.count( previousLinkEndType ) == 0 )
+            {
+                throw std::runtime_error( "Error when making multi-leg light time calculator, did not find link end type " +
+                                          std::to_string( previousLinkEndType ) );
+            }
+        }
+    }
+
+    // Check consistency of convergence criteria size, corrections size, and number of link ends
+    unsigned int numberOfLinks = linkEnds.size( ) - 1;
+    if ( !( lightTimeCorrections.size( ) == numberOfLinks || lightTimeCorrections.empty( ) ) )
+    {
+        throw std::runtime_error(
+                "Error when making multi-leg light time calculator: size of single-leg light time corrections (" +
+                std::to_string( lightTimeCorrections.size( ) ) +
+                ") are inconsistent with number of links (" + std::to_string( numberOfLinks ) + ")." );
+    }
+    else if ( !( singleLegsLightTimeConvergenceCriteria.size( ) == numberOfLinks || singleLegsLightTimeConvergenceCriteria.empty( ) ) )
+    {
+        throw std::runtime_error(
+                "Error when making multi-leg light time calculator: size of single-leg convergence criteria (" +
+                std::to_string( singleLegsLightTimeConvergenceCriteria.size( ) ) +
+                ") are inconsistent with number of links (" + std::to_string( numberOfLinks ) + ")." );
+    }
+
+    // Define light-time calculator list
+    std::vector< std::shared_ptr< LightTimeCalculator< ObservationScalarType, TimeType > > > lightTimeCalculators;
+    // Iterate over all link ends and create light-time calculators
+    LinkEnds::const_iterator transmitterIterator = linkEnds.begin( );
+    LinkEnds::const_iterator receiverIterator = linkEnds.begin( );
+    receiverIterator++;
+    for( unsigned int i = 0; i < linkEnds.size( ) - 1; i++ )
+    {
+        // Get convergence criteria of current leg
+        std::shared_ptr< LightTimeConvergenceCriteria > currentConvergenceCriteria;
+        if ( singleLegsLightTimeConvergenceCriteria.empty( ) )
+        {
+            currentConvergenceCriteria = std::make_shared< LightTimeConvergenceCriteria >( );
+        }
+        else
+        {
+            currentConvergenceCriteria = singleLegsLightTimeConvergenceCriteria.at( i );
+        }
+
+        // Get light time corrections of current leg
+        std::vector< std::shared_ptr< LightTimeCorrectionSettings > > currentLightTimeCorrections;
+        if ( lightTimeCorrections.empty( ) )
+        { }
+        else
+        {
+            currentLightTimeCorrections = lightTimeCorrections.at( i );
+        }
+
+        lightTimeCalculators.push_back(
+                createLightTimeCalculator< ObservationScalarType, TimeType >(
+                        transmitterIterator->second, receiverIterator->second,
+                        bodies, observableType, currentLightTimeCorrections,
+                        currentConvergenceCriteria ) );
+
+        transmitterIterator++;
+        receiverIterator++;
+    }
+
+    // Create multi-leg light time calculator
+    std::shared_ptr< observation_models::MultiLegLightTimeCalculator< ObservationScalarType, TimeType > >
+            multiLegLightTimeCalculator = std::make_shared< observation_models::MultiLegLightTimeCalculator<
+                    ObservationScalarType, TimeType > >(
+                            lightTimeCalculators, multiLegLightTimeConvergenceCriteria );
+
+    return multiLegLightTimeCalculator;
+}
+
+
 } // namespace observation_models
 
 } // namespace tudat
