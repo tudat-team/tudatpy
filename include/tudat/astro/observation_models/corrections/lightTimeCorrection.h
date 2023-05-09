@@ -29,6 +29,9 @@ enum LightTimeCorrectionType
     tabulated_tropospheric
 };
 
+bool requiresMultiLegIterations( const LightTimeCorrectionType& lightTimeCorrectionType );
+
+std::string getLightTimeCorrectionName( const LightTimeCorrectionType& lightTimeCorrectionType );
 
 //! Base class for computing deviations from the light-time w.r.t. straight-line propagation at constant velocity (c).
 /*!

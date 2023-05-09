@@ -16,6 +16,7 @@ set(observation_models_SOURCES
         "observationManager.cpp"
         "observationSimulator.cpp"
         "observationModel.cpp"
+        "corrections/lightTimeCorrections.cpp"
         "corrections/firstOrderRelativisticCorrection.cpp"
         "corrections/tabulatedMediaCorrection.cpp"
         "observationFrequencies.cpp"
