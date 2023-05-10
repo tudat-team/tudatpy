@@ -22,8 +22,10 @@
 
 #include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/basics/basicTypedefs.h"
+#include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/observableTypes.h"
+#include "tudat/astro/system_models/timingSystem.h"
 #include "tudat/math/interpolators/lookupScheme.h"
 
 
@@ -182,7 +184,6 @@ private:
 
     //! Constant (entry-wise) observation bias.
     Eigen::Matrix< double, ObservationSize, 1 > observationBias_;
-
 };
 
 //! Class for an arc-wise constant absolute observation bias of a given size
@@ -1176,6 +1177,39 @@ private:
 
     //! Object used to determine the index from observationBiases_ to be used, based on the current time.
     std::shared_ptr< interpolators::LookUpScheme< double > > lookupScheme_;
+
+};
+
+
+template< int ObservationSize = 1 >
+class ClockInducedRangeBias: public ObservationBias< ObservationSize >
+{
+public:
+
+    ClockInducedRangeBias(
+            const std::shared_ptr< system_models::TimingSystem > timingSystem,
+            const int linkEndIndexForTime ):
+            timingSystem_( timingSystem ), linkEndIndexForTime_( linkEndIndexForTime ){ }
+
+    //! Destructor
+    ~ClockInducedRangeBias( ){ }
+
+    Eigen::Matrix< double, ObservationSize, 1 > getObservationBias(
+            const std::vector< double >& linkEndTimes,
+            const std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
+            const Eigen::Matrix< double, ObservationSize, 1 >& currentObservableValue =
+            ( Eigen::Matrix< double, ObservationSize, 1 >( ) << TUDAT_NAN ).finished( ) )
+    {
+        return timingSystem_->getCompleteClockError( linkEndTimes.at( linkEndIndexForTime_ ) ) * physical_constants::SPEED_OF_LIGHT;
+    }
+
+private:
+
+    std::shared_ptr< system_models::TimingSystem > timingSystem_;
+
+    //! Link end index from which the 'current time' is determined (e.g. entry from linkEndTimes used in getObservationBias
+    //! function.
+    int linkEndIndexForTime_;
 
 };
 

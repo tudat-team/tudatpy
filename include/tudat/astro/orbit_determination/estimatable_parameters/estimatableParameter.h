@@ -71,7 +71,9 @@ enum EstimatebleParametersEnum
     constant_time_drift_observation_bias,
     arc_wise_time_drift_observation_bias,
     constant_time_observation_bias,
-    arc_wise_time_observation_bias
+    arc_wise_time_observation_bias,
+    global_polynomial_clock_corrections,
+    arc_wise_polynomial_clock_corrections
 };
 
 std::string getParameterTypeString( const EstimatebleParametersEnum parameterType );
@@ -132,6 +134,8 @@ bool isParameterTidalProperty( const EstimatebleParametersEnum parameterType );
  * \return True if parameter is an arc-wise initial dynamical state.
  */
 bool isParameterArcWiseInitialStateProperty( const EstimatebleParametersEnum parameterType );
+
+bool isParameterClockProperty( const EstimatebleParametersEnum parameterType );
 
 //! Typedef for full parameter identifier.
 typedef std::pair< EstimatebleParametersEnum, std::pair< std::string, std::string > > EstimatebleParameterIdentifier;

@@ -417,6 +417,24 @@ bool isParameterArcWiseInitialStateProperty( const EstimatebleParametersEnum par
     return flag;
 }
 
+bool isParameterClockProperty( const EstimatebleParametersEnum parameterType )
+{
+    bool flag;
+    switch( parameterType )
+    {
+        case global_polynomial_clock_corrections:
+            flag = true;
+            break;
+        case arc_wise_polynomial_clock_corrections:
+            flag = true;
+            break;
+        default:
+            flag = false;
+            break;
+    }
+    return flag;
+}
+
 
 
 }
