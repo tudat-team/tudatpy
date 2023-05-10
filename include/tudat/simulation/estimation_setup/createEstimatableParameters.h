@@ -39,6 +39,7 @@
 #include "tudat/astro/orbit_determination/estimatable_parameters/freeCoreNutationRate.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/desaturationDeltaV.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/longitudeLibrationAmplitude.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/polynomialClockCorrections.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/constantThrust.h"
 #include "tudat/astro/relativity/metric.h"
 #include "tudat/astro/basic_astro/accelerationModelTypes.h"
@@ -1818,6 +1819,63 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
             }
             break;
         }
+            case global_polynomial_clock_corrections:
+            {
+                std::shared_ptr< GlobalPolynomialClockCorrectionsParameterSettings > polynomialClockParameterSettings =
+                        std::dynamic_pointer_cast< GlobalPolynomialClockCorrectionsParameterSettings >( vectorParameterName );
+                if( polynomialClockParameterSettings == NULL )
+                {
+                    std::cerr<<"Error, expected global polynomial clock variation settings "<<std::endl;
+                }
+                else
+                {
+                    std::shared_ptr< system_models::TimingSystem > timingSystem =
+                            getTimingSystem( polynomialClockParameterSettings->parameterType_.second, bodies );
+                    if( timingSystem == NULL )
+                    {
+                        std::cerr<<"Error when making global polynomial clock variation parameter, could not find timing system of:  "<<
+                                 polynomialClockParameterSettings->parameterType_.second.first<<" "<<
+                                 polynomialClockParameterSettings->parameterType_.second.second<<std::endl;
+                    }
+                    else
+                    {
+                        vectorParameterToEstimate = std::make_shared< GlobalPolynomialClockCorrections >(
+                                timingSystem, polynomialClockParameterSettings->correctionPowers_,
+                                polynomialClockParameterSettings->parameterType_.second.first,
+                                polynomialClockParameterSettings->parameterType_.second.second );
+                    }
+                }
+                break;
+            }
+            case arc_wise_polynomial_clock_corrections:
+            {
+                std::shared_ptr< MultiArcPolynomialClockCorrectionsParameterSettings > polynomialClockParameterSettings =
+                        std::dynamic_pointer_cast< MultiArcPolynomialClockCorrectionsParameterSettings >( vectorParameterName );
+                if( polynomialClockParameterSettings == NULL )
+                {
+                    std::cerr<<"Error, expected multi-arc polynomial clock variation settings "<<std::endl;
+                }
+                else
+                {
+                    std::shared_ptr< system_models::TimingSystem > timingSystem =
+                            getTimingSystem( polynomialClockParameterSettings->parameterType_.second, bodies );
+                    if( timingSystem == NULL )
+                    {
+                        std::cerr<<"Error when making multi-arc polynomial clock variation parameter, could not find timing system of:  "<<
+                                 polynomialClockParameterSettings->parameterType_.second.first<<" "<<
+                                 polynomialClockParameterSettings->parameterType_.second.second<<std::endl;
+                    }
+                    else
+                    {
+                        vectorParameterToEstimate = std::make_shared< MultiArcClockCorrections >(
+                                timingSystem, polynomialClockParameterSettings->correctionPowers_,
+                                polynomialClockParameterSettings->arcIndices_,
+                                polynomialClockParameterSettings->parameterType_.second.first,
+                                polynomialClockParameterSettings->parameterType_.second.second );
+                    }
+                }
+                break;
+            }
         default:
             std::string errorMessage = "Warning, this vector parameter (" +
                     std::to_string( vectorParameterName->parameterType_.first ) +
@@ -1966,7 +2024,7 @@ getAssociatedMultiArcParameter(
     }
     default:
         throw std::runtime_error( "Error when getting multi-arc parameter from single-arc equivalent, parameter type " +
-                                  boost::lexical_cast< std::string >( singleArcParameter->getParameterName( ).first ) +
+                                          getParameterTypeString( singleArcParameter->getParameterName( ).first ) +
                                   " not recognized." );
     }
     return multiArcParameter;
