@@ -18,6 +18,7 @@
 
 #include "tudat/astro/ground_stations/groundStationState.h"
 #include "tudat/astro/ground_stations/pointingAnglesCalculator.h"
+#include "tudat/astro/system_models/timingSystem.h"
 
 namespace tudat
 {
@@ -89,6 +90,16 @@ public:
         return pointingAnglesCalculator_;
     }
 
+    std::shared_ptr< system_models::TimingSystem > getTimingSystem( )
+    {
+        return timingSystem_;
+    }
+
+    void setTimingSystem( const std::shared_ptr< system_models::TimingSystem > timingSystem )
+    {
+        timingSystem_ = timingSystem;
+    }
+
 private:
 
     //! Object to define and compute the state of the ground station.
@@ -96,6 +107,8 @@ private:
 
     //! Object used to computed pointing angles (elevation, azimuth) to a given target from this ground station.
     std::shared_ptr< PointingAnglesCalculator > pointingAnglesCalculator_;
+
+    std::shared_ptr< system_models::TimingSystem > timingSystem_;
 
     //! Name of the ground station
     std::string stationId_;
