@@ -53,11 +53,12 @@ inline double getDsnNWayAveragedDopplerScalingFactor(
         const bool isFirstPartial )
 {
     double integrationTime;
-    double turnaroundRatio;
+    FrequencyBands uplinkBand, downlinkBand;
     try
     {
         integrationTime = ancillarySettings->getAncilliaryDoubleData( doppler_integration_time );
-        turnaroundRatio = ancillarySettings->getAncilliaryDoubleData( turnaround_ratio );
+        uplinkBand = static_cast< FrequencyBands >( ancillarySettings->getAncilliaryDoubleData( uplink_band ) );
+        downlinkBand = static_cast< FrequencyBands >( ancillarySettings->getAncilliaryDoubleData( downlink_band ) );
     }
     catch( std::runtime_error& caughtException )
     {
@@ -96,6 +97,8 @@ inline double getDsnNWayAveragedDopplerScalingFactor(
                 getLinkEndTypeString( referenceLinkEnd ) + ") is not valid." );
     }
 
+    double turnaroundRatio = bodies.getBody( linkEnds.at( observation_models::retransmitter ).bodyName_
+            )->getVehicleSystems( )->getTransponderTurnaroundRatio( )( uplinkBand, downlinkBand );
 
     double frequency = bodies.getBody( linkEnds.at( observation_models::transmitter ).bodyName_ )->getGroundStation(
                 linkEnds.at( observation_models::transmitter ).stationName_ )->getTransmittingFrequencyCalculator( )->
@@ -124,12 +127,15 @@ public:
             const std::shared_ptr< NWayRangeObservationModel< ObservationScalarType, TimeType > > arcStartObservationModel,
             const std::shared_ptr< NWayRangeObservationModel< ObservationScalarType, TimeType > > arcEndObservationModel,
             const std::shared_ptr< simulation_setup::Body > bodyWithGroundStations,
+            const std::function< double ( observation_models::FrequencyBands uplinkBand,
+                    observation_models::FrequencyBands downlinkBand ) >& turnaroundRatio,
             const std::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = nullptr ):
         ObservationModel< 1, ObservationScalarType, TimeType >( dsn_n_way_averaged_doppler , linkEnds, observationBiasCalculator),
         arcStartObservationModel_( arcStartObservationModel ),
         arcEndObservationModel_( arcEndObservationModel ),
         bodyWithGroundStations_( bodyWithGroundStations ),
-        numberOfLinkEnds_( linkEnds.size( ) )
+        numberOfLinkEnds_( linkEnds.size( ) ),
+        turnaroundRatio_( turnaroundRatio )
     {
         if( !std::is_same< Time, TimeType >::value )
         {
@@ -138,11 +144,11 @@ public:
                     "is not valid, using it would lead to large numerical errors.");
         }
 
-        if ( numberOfLinkEnds_ < 1 || numberOfLinkEnds_ > 3 )
+        if ( numberOfLinkEnds_ != 3 )
         {
             throw std::runtime_error(
-                    "Error when defining DSN N-way averaged Doppler observation model: the selected number of link ends (" +
-                    std::to_string( numberOfLinkEnds_ ) + ") is not valid. Allowed values: 1, 2, and 3.");
+                    "Error when defining DSN N-way averaged Doppler observation model: model allows exactly 3 link ends, " +
+                    std::to_string( numberOfLinkEnds_ ) + "were selected.");
         }
     }
 
@@ -190,12 +196,13 @@ public:
 
         TimeType integrationTime;
         ObservationScalarType referenceFrequency;
-        double turnaroundRatio;
+        FrequencyBands uplinkBand, downlinkBand;
         try
         {
             integrationTime = ancillarySettings->getAncilliaryDoubleData( doppler_integration_time );
             referenceFrequency = ancillarySettings->getAncilliaryDoubleData( doppler_reference_frequency );
-            turnaroundRatio = ancillarySettings->getAncilliaryDoubleData( turnaround_ratio );
+            uplinkBand = static_cast< FrequencyBands >( ancillarySettings->getAncilliaryDoubleData( uplink_band ) );
+            downlinkBand = static_cast< FrequencyBands >( ancillarySettings->getAncilliaryDoubleData( downlink_band ) );
         }
         catch( std::runtime_error& caughtException )
         {
@@ -223,7 +230,7 @@ public:
                         transmissionStartTime, transmissionEndTime );
 
         Eigen::Matrix< ObservationScalarType, 1, 1 > observation = ( Eigen::Matrix< ObservationScalarType, 1, 1 >( ) <<
-                turnaroundRatio * ( referenceFrequency - 1.0 / static_cast< ObservationScalarType >( integrationTime ) *
+                turnaroundRatio_( uplinkBand, downlinkBand ) * ( referenceFrequency - 1.0 / static_cast< ObservationScalarType >( integrationTime ) *
                 transmitterFrequencyIntegral ) ).finished( );
 
         linkEndTimes.clear( );
@@ -268,6 +275,9 @@ private:
 
     // Number of link ends
     unsigned int numberOfLinkEnds_;
+
+    // Function returning the turnaround ratio for given uplink and downlink bands
+    std::function< double ( FrequencyBands uplinkBand, FrequencyBands downlinkBand ) > turnaroundRatio_;
 };
 
 

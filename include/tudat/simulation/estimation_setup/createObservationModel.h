@@ -1930,6 +1930,8 @@ public:
                     DsnNWayAveragedDopplerObservationModel< ObservationScalarType, TimeType > >(
                         linkEnds, arcStartObservationModel, arcEndObservationModel,
                         bodies.getBody( linkEnds.at( observation_models::transmitter ).bodyName_ ),
+                        bodies.getBody( linkEnds.at( observation_models::retransmitter ).bodyName_ )->getVehicleSystems(
+                                )->getTransponderTurnaroundRatio( ),
                         observationBias );
 
             break;

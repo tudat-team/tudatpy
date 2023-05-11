@@ -558,6 +558,22 @@ void ProcessedOdfFileContents::extractMultipleRawOdfRampData(
 
 }
 
+void setOdfInformationInBodies(
+        const std::shared_ptr< ProcessedOdfFileContents > processedOdfFileContents,
+        simulation_setup::SystemOfBodies& bodies,
+        const std::string& bodyWithGroundStations,
+        const std::function< double ( FrequencyBands uplinkBand, FrequencyBands downlinkBand ) > getTurnaroundRatio )
+{
+
+    // Set transmitting frequency objects in ground stations
+    setGroundStationsTransmittingFrequencies( processedOdfFileContents, bodies.getBody( bodyWithGroundStations ) );
+
+    // Set turnaround ratios in spacecraft body
+    std::shared_ptr< system_models::VehicleSystems > vehicleSystems = std::make_shared< system_models::VehicleSystems >( );
+    vehicleSystems->setTransponderTurnaroundRatio( getTurnaroundRatio );
+    bodies.getBody( processedOdfFileContents->getSpacecraftName( ) )->setVehicleSystems( vehicleSystems );
+}
+
 } // namespace observation_models
 
 } // namespace tudat

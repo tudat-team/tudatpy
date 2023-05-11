@@ -90,7 +90,10 @@ double getCassiniTurnaroundRatio( )
     return 14.0 / 15.0;
 }
 
-double getCassiniTurnaroundRatio( FrequencyBands uplinkBand, FrequencyBands downlinkBand );
+double getCassiniTurnaroundRatio( FrequencyBands uplinkBand, FrequencyBands downlinkBand )
+{
+    return getCassiniTurnaroundRatio( );
+}
 
 } // namespace observation_models
 
