@@ -151,6 +151,35 @@ private:
 
 };
 
+// Class defining tabulated ionospheric corrections
+class TabulatedIonosphericCorrectionSettings: public LightTimeCorrectionSettings
+{
+public:
+    TabulatedIonosphericCorrectionSettings(
+            const AtmosphericCorrectionPerStationAndSpacecraftType& referenceRangeCorrection,
+            const std::string bodyWithAtmosphere = "Earth" ):
+        LightTimeCorrectionSettings( tabulated_ionospheric ),
+        referenceRangeCorrection_( referenceRangeCorrection ),
+        bodyWithAtmosphere_( bodyWithAtmosphere )
+    { }
+
+    AtmosphericCorrectionPerStationAndSpacecraftType getReferenceRangeCorrection( )
+    {
+        return referenceRangeCorrection_;
+    }
+
+    std::string getBodyWithAtmosphere( )
+    {
+        return bodyWithAtmosphere_;
+    }
+
+private:
+
+    AtmosphericCorrectionPerStationAndSpacecraftType referenceRangeCorrection_;
+
+    std::string bodyWithAtmosphere_;
+
+};
 
 inline std::shared_ptr< LightTimeCorrectionSettings > firstOrderRelativisticLightTimeCorrectionSettings(
         const std::vector< std::string >& perturbingBodies )
