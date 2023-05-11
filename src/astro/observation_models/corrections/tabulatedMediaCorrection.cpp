@@ -327,6 +327,50 @@ double TabulatedTroposphericCorrection::calculateLightTimeCorrectionWithMultiLeg
                 physical_constants::getSpeedOfLight< double >( );
 }
 
+TabulatedIonosphericCorrection::TabulatedIonosphericCorrection(
+        std::shared_ptr< TabulatedMediaReferenceCorrectionManager > referenceCorrectionCalculator,
+        std::function< double ( double time ) > transmittedFrequencyFunction,
+        ObservableType observableType,
+        bool isUplinkCorrection,
+        double referenceFrequency ):
+    LightTimeCorrection( tabulated_ionospheric ),
+    referenceCorrectionCalculator_( referenceCorrectionCalculator ),
+    transmittedFrequencyFunction_( transmittedFrequencyFunction ),
+    referenceFrequency_( referenceFrequency ),
+    isUplinkCorrection_( isUplinkCorrection )
+{
+    sign_ = 1;
+    std::cerr << "Don't forget to correct sign of ION corrections!" << std::endl
+}
+
+double TabulatedIonosphericCorrection::calculateLightTimeCorrectionWithMultiLegLinkEndStates(
+        const std::vector< Eigen::Vector6d >& linkEndsStates,
+        const std::vector< double >& linkEndsTimes,
+        const unsigned int currentMultiLegTransmitterIndex )
+{
+    // Retrieve state and time of receiver and transmitter
+    Eigen::Vector6d legTransmitterState, legReceiverState;
+    double legTransmissionTime, legReceptionTime;
+    getTransmissionReceptionTimesAndStates(
+            linkEndsStates, linkEndsTimes, currentMultiLegTransmitterIndex, legTransmitterState, legReceiverState,
+            legTransmissionTime, legReceptionTime );
+
+    double stationTime;
+    if ( isUplinkCorrection_ )
+    {
+        stationTime = legTransmissionTime;
+    }
+    else
+    {
+        stationTime = legReceptionTime;
+    }
+
+    double firstLegTransmissionTime = linkEndsTimes.front( );
+
+    return sign_ * referenceCorrectionCalculator_->computeMediaCorrection( stationTime ) *
+        std::pow( referenceFrequency_ / transmittedFrequencyFunction_( firstLegTransmissionTime ), 2.0 );
+}
+
 } // namespace observation_models
 
 } // namespace tudat

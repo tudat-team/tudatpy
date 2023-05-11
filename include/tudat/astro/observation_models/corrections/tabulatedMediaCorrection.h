@@ -367,6 +367,7 @@ private:
     std::shared_ptr< interpolators::OneDimensionalInterpolator< double, double > > cWetInterpolator_;
 };
 
+// Moyer (2000), section 10.2.1
 class TabulatedTroposphericCorrection: public LightTimeCorrection
 {
 public:
@@ -420,6 +421,62 @@ private:
     std::shared_ptr< TroposhericElevationMapping > elevationMapping_;
 
     // Boolean indicating whether the correction is for uplink or donwlink (necessary when computing the elevation)
+    bool isUplinkCorrection_;
+
+};
+
+// Moyer (2000), section 10.2.2
+class TabulatedIonosphericCorrection: public LightTimeCorrection
+{
+public:
+
+    TabulatedIonosphericCorrection(
+            std::shared_ptr< TabulatedMediaReferenceCorrectionManager > referenceCorrectionCalculator,
+            std::function< double ( double time ) > transmittedFrequencyFunction,
+            ObservableType baseObservableType,
+            bool isUplinkCorrection,
+            double referenceFrequency = 2295e6 );
+
+    double calculateLightTimeCorrectionWithMultiLegLinkEndStates(
+            const std::vector< Eigen::Vector6d >& linkEndsStates,
+            const std::vector< double >& linkEndsTimes,
+            const unsigned int currentMultiLegTransmitterIndex ) override;
+
+    double calculateLightTimeCorrectionPartialDerivativeWrtLinkEndTime(
+            const Eigen::Vector6d& transmitterState,
+            const Eigen::Vector6d& receiverState,
+            const double transmissionTime,
+            const double receptionTime,
+            const LinkEndType fixedLinkEnd,
+            const LinkEndType linkEndAtWhichPartialIsEvaluated ) override
+    {
+        // TODO: Add computation of partial
+        return 0.0;
+    }
+
+    Eigen::Matrix< double, 3, 1 > calculateLightTimeCorrectionPartialDerivativeWrtLinkEndPosition(
+            const Eigen::Vector6d& transmitterState,
+            const Eigen::Vector6d& receiverState,
+            const double transmissionTime,
+            const double receptionTime,
+            const LinkEndType linkEndAtWhichPartialIsEvaluated ) override
+    {
+        // TODO: Add computation of partial
+        return Eigen::Vector3d::Zero( );
+    }
+
+private:
+
+    std::shared_ptr< TabulatedMediaReferenceCorrectionManager > referenceCorrectionCalculator_;
+
+    std::function< double ( double ) > transmittedFrequencyFunction_;
+
+    double referenceFrequency_;
+
+    // Sign of the correction (+1 or -1)
+    int sign_;
+
+    // Boolean indicating whether the correction is for uplink or downlink
     bool isUplinkCorrection_;
 
 };
