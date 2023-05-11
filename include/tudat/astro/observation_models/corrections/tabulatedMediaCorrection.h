@@ -6,6 +6,11 @@
  *    under the terms of the Modified BSD license. You should have received
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
+ *
+ *    References:
+ *          T. Moyer (2000), Formulation for Observed and Computed Values of Deep Space Network Data Types for Navigation,
+ *              DEEP SPACE COMMUNICATIONS AND NAVIGATION SERIES
+ *
  */
 
 #ifndef TUDAT_TABULATEDMEDIACORRECTION_H
@@ -368,18 +373,19 @@ private:
 };
 
 // Moyer (2000), section 10.2.1
-class TabulatedTroposphericCorrection: public LightTimeCorrection
+class MappedTroposphericCorrection: public LightTimeCorrection
 {
 public:
 
-    TabulatedTroposphericCorrection(
-            std::shared_ptr< TabulatedMediaReferenceCorrectionManager > dryReferenceCorrectionCalculator,
-            std::shared_ptr< TabulatedMediaReferenceCorrectionManager > wetReferenceCorrectionCalculator,
+    MappedTroposphericCorrection(
+            const LightTimeCorrectionType lightTimeCorrectionType,
+            std::function< double ( double time ) > dryZenithCorrectionFunction,
+            std::function< double ( double time ) > wetZenithCorrectionFunction,
             std::shared_ptr< TroposhericElevationMapping > elevationMapping,
             bool isUplinkCorrection ):
-        LightTimeCorrection( tabulated_tropospheric ),
-        dryReferenceCorrectionCalculator_( dryReferenceCorrectionCalculator ),
-        wetReferenceCorrectionCalculator_( wetReferenceCorrectionCalculator ),
+        LightTimeCorrection( lightTimeCorrectionType ),
+        dryZenithCorrectionFunction_( dryZenithCorrectionFunction ),
+        wetZenithCorrectionFunction_( wetZenithCorrectionFunction ),
         elevationMapping_( elevationMapping ),
         isUplinkCorrection_( isUplinkCorrection )
     { }
@@ -397,7 +403,6 @@ public:
             const LinkEndType fixedLinkEnd,
             const LinkEndType linkEndAtWhichPartialIsEvaluated ) override
     {
-        // TODO: Add computation of partial
         return 0.0;
     }
 
@@ -408,20 +413,42 @@ public:
             const double receptionTime,
             const LinkEndType linkEndAtWhichPartialIsEvaluated ) override
     {
-        // TODO: Add computation of partial
         return Eigen::Vector3d::Zero( );
     }
 
-private:
+protected:
 
-    std::shared_ptr< TabulatedMediaReferenceCorrectionManager > dryReferenceCorrectionCalculator_;
+    std::function< double ( double time ) > dryZenithCorrectionFunction_;
 
-    std::shared_ptr< TabulatedMediaReferenceCorrectionManager > wetReferenceCorrectionCalculator_;
+    std::function< double ( double time ) > wetZenithCorrectionFunction_;
 
     std::shared_ptr< TroposhericElevationMapping > elevationMapping_;
 
     // Boolean indicating whether the correction is for uplink or donwlink (necessary when computing the elevation)
     bool isUplinkCorrection_;
+};
+
+// Moyer (2000), section 10.2.1
+class TabulatedTroposphericCorrection: public MappedTroposphericCorrection
+{
+public:
+
+    TabulatedTroposphericCorrection(
+            std::shared_ptr< TabulatedMediaReferenceCorrectionManager > dryReferenceCorrectionCalculator,
+            std::shared_ptr< TabulatedMediaReferenceCorrectionManager > wetReferenceCorrectionCalculator,
+            std::shared_ptr< TroposhericElevationMapping > elevationMapping,
+            bool isUplinkCorrection ):
+        MappedTroposphericCorrection(
+                tabulated_tropospheric,
+                std::bind( &TabulatedMediaReferenceCorrectionManager::computeMediaCorrection,
+                           dryReferenceCorrectionCalculator, std::placeholders::_1 ),
+                std::bind( &TabulatedMediaReferenceCorrectionManager::computeMediaCorrection,
+                           wetReferenceCorrectionCalculator, std::placeholders::_1 ),
+                elevationMapping,
+                isUplinkCorrection )
+    { }
+
+private:
 
 };
 
