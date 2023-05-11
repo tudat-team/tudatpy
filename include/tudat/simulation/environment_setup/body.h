@@ -1135,7 +1135,13 @@ public:
      * Function to retrieve container object with hardware systems present on/in body.
      * \return Container object with hardware systems present on/in body.
      */
-    std::shared_ptr<system_models::VehicleSystems> getVehicleSystems() {
+    std::shared_ptr<system_models::VehicleSystems> getVehicleSystems()
+    {
+        if( vehicleSystems_ == nullptr )
+        {
+            throw std::runtime_error( "Error when retrieving vehicle systems from body " + bodyName_ +
+                                      ": vehicle systems are not defined" );
+        }
         return vehicleSystems_;
     }
 

@@ -27,6 +27,7 @@
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/astro/observation_models/observationBias.h"
+#include "tudat/astro/observation_models/observationFrequencies.h"
 
 
 
@@ -43,8 +44,7 @@ enum ObservationAncilliarySimulationVariable
     transmission_reception_delays,
     doppler_reference_frequency,
     uplink_band,
-    downlink_band,
-    turnaround_ratio
+    downlink_band
 };
 
 struct ObservationAncilliarySimulationSettings
@@ -62,7 +62,6 @@ public:
         case doppler_reference_frequency:
         case uplink_band:
         case downlink_band:
-        case turnaround_ratio:
             doubleData_[ variableType ] = variable;
             break;
         default:
@@ -97,7 +96,6 @@ public:
             case doppler_reference_frequency:
             case uplink_band:
             case downlink_band:
-            case turnaround_ratio:
                 returnVariable = doubleData_.at( variableType );
                 break;
             default:
@@ -204,7 +202,8 @@ inline std::shared_ptr< ObservationAncilliarySimulationSettings > getTwoWayAvera
 }
 
 inline std::shared_ptr< ObservationAncilliarySimulationSettings > getDsnNWayAveragedDopplerAncillarySettings(
-        const double turnaroundRatio,
+        const FrequencyBands& uplinkBand,
+        const FrequencyBands& downlinkBand,
         const double integrationTime = 60.0,
         const double referenceFrequency = 7.0e9,
         const std::vector< double > retransmissionTimes = std::vector< double >( ) )
@@ -214,7 +213,8 @@ inline std::shared_ptr< ObservationAncilliarySimulationSettings > getDsnNWayAver
 
     ancillarySettings->setAncilliaryDoubleData( doppler_integration_time, integrationTime );
     ancillarySettings->setAncilliaryDoubleData( doppler_reference_frequency, referenceFrequency );
-    ancillarySettings->setAncilliaryDoubleData( turnaround_ratio, turnaroundRatio );
+    ancillarySettings->setAncilliaryDoubleData( uplink_band, uplinkBand );
+    ancillarySettings->setAncilliaryDoubleData( downlink_band, downlinkBand );
 
     ancillarySettings->setAncilliaryDoubleVectorData( transmission_reception_delays, retransmissionTimes );
 

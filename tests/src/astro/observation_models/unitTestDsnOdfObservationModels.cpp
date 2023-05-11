@@ -180,39 +180,39 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
             std::make_shared< ProcessedOdfFileContents >(
                     rawOdfDataVector, bodies.getBody( "Earth" ), true, spacecraftName );
 
-    std::cout << std::endl << "Spacecraft name: " << processedOdfFileContents->getSpacecraftName( ) << std::endl;
-    std::vector< std::string > groundStationsNames = processedOdfFileContents->getGroundStationsNames( );
-    std::cout << "Ground stations: ";
-    for ( unsigned int i = 0; i < groundStationsNames.size( ); ++i )
-    {
-        std::cout << groundStationsNames.at( i ) << " ";
-    }
-    std::cout << std::endl;
-
-    std::cout << std::setprecision( 18 );
-    std::cout << "Start time: " << processedOdfFileContents->getStartAndEndTime( ).first << std::endl;
-    std::cout << "End time: " << processedOdfFileContents->getStartAndEndTime( ).second << std::endl;
-
-    std::vector< observation_models::ObservableType > observableTypes = processedOdfFileContents->getProcessedObservableTypes( );
-    std::cout << "Observable types: ";
-    for ( unsigned int i = 0; i < observableTypes.size( ); ++i )
-    {
-        std::cout << observableTypes.at( i ) << " ";
-    }
-    std::cout << std::endl;
+//    std::cout << std::endl << "Spacecraft name: " << processedOdfFileContents->getSpacecraftName( ) << std::endl;
+//    std::vector< std::string > groundStationsNames = processedOdfFileContents->getGroundStationsNames( );
+//    std::cout << "Ground stations: ";
+//    for ( unsigned int i = 0; i < groundStationsNames.size( ); ++i )
+//    {
+//        std::cout << groundStationsNames.at( i ) << " ";
+//    }
+//    std::cout << std::endl;
+//
+//    std::cout << std::setprecision( 18 );
+//    std::cout << "Start time: " << processedOdfFileContents->getStartAndEndTime( ).first << std::endl;
+//    std::cout << "End time: " << processedOdfFileContents->getStartAndEndTime( ).second << std::endl;
+//
+//    std::vector< observation_models::ObservableType > observableTypes = processedOdfFileContents->getProcessedObservableTypes( );
+//    std::cout << "Observable types: ";
+//    for ( unsigned int i = 0; i < observableTypes.size( ); ++i )
+//    {
+//        std::cout << observableTypes.at( i ) << " ";
+//    }
+//    std::cout << std::endl;
 
     // Create observed observation collection
     std::shared_ptr< observation_models::ObservationCollection< long double, Time > > observedObservationCollection =
             observation_models::createOdfObservedObservationCollection< long double, Time >(
                     processedOdfFileContents, { dsn_n_way_averaged_doppler } );
 
-    std::cout << std::endl << "Observation type start and size:" << std::endl;
-    std::map< observation_models::ObservableType, std::pair< int, int > > observationTypeStartAndSize =
-            observedObservationCollection->getObservationTypeStartAndSize( );
-    for ( auto it = observationTypeStartAndSize.begin(); it != observationTypeStartAndSize.end(); ++it )
-    {
-        std::cout << it->first << " " << std::get<0>(it->second) << " " << std::get<1>(it->second) << std::endl;
-    }
+//    std::cout << std::endl << "Observation type start and size:" << std::endl;
+//    std::map< observation_models::ObservableType, std::pair< int, int > > observationTypeStartAndSize =
+//            observedObservationCollection->getObservationTypeStartAndSize( );
+//    for ( auto it = observationTypeStartAndSize.begin(); it != observationTypeStartAndSize.end(); ++it )
+//    {
+//        std::cout << it->first << " " << std::get<0>(it->second) << " " << std::get<1>(it->second) << std::endl;
+//    }
 
 //    std::cout << "Observed observables: "<< observedObservationCollection->getObservationVector( ) << std::endl;
 
@@ -260,26 +260,27 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
         }
     }
 
+    observation_models::setOdfInformationInBodies( processedOdfFileContents, bodies );
+    
     std::vector< std::shared_ptr< observation_models::ObservationSimulatorBase< long double, Time > > >
             observationSimulators = observation_models::createObservationSimulators< long double, Time >(
                     observationModelSettingsList, bodies );
 
-
     std::vector< std::shared_ptr< ObservationSimulationSettings< Time > > > observationSimulationSettings =
             observation_models::createOdfObservationSimulationSettingsList< long double, Time >(
-                    observedObservationCollection, processedOdfFileContents, bodies );
+                    observedObservationCollection );
 
 
     std::shared_ptr< observation_models::ObservationCollection< long double, Time > >
             simulatedObservationCollection = simulation_setup::simulateObservations< long double, Time >(
                     observationSimulationSettings, observationSimulators, bodies );
 
-    std::cout << std::endl << "Observation type start and size:" << std::endl;
-    observationTypeStartAndSize = simulatedObservationCollection->getObservationTypeStartAndSize( );
-    for ( auto it = observationTypeStartAndSize.begin(); it != observationTypeStartAndSize.end(); ++it )
-    {
-        std::cout << it->first << " " << std::get<0>(it->second) << " " << std::get<1>(it->second) << std::endl;
-    }
+//    std::cout << std::endl << "Observation type start and size:" << std::endl;
+//    observationTypeStartAndSize = simulatedObservationCollection->getObservationTypeStartAndSize( );
+//    for ( auto it = observationTypeStartAndSize.begin(); it != observationTypeStartAndSize.end(); ++it )
+//    {
+//        std::cout << it->first << " " << std::get<0>(it->second) << " " << std::get<1>(it->second) << std::endl;
+//    }
 
 //    std::cout << simulatedObservationCollection->getObservationVector( ) << std::endl;
 
