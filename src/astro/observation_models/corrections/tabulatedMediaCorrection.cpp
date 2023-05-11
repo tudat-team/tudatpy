@@ -296,10 +296,10 @@ double NiellTroposphericMapping::computeDryCoefficient(
     return dryCoefficient;
 }
 
-double TabulatedTroposphericCorrection::calculateLightTimeCorrectionWithMultiLegLinkEndStates(
-        const std::vector< Eigen::Vector6d >& linkEndsStates,
-        const std::vector< double >& linkEndsTimes,
-        const unsigned int currentMultiLegTransmitterIndex )
+double MappedTroposphericCorrection::calculateLightTimeCorrectionWithMultiLegLinkEndStates(
+            const std::vector< Eigen::Vector6d >& linkEndsStates,
+            const std::vector< double >& linkEndsTimes,
+            const unsigned int currentMultiLegTransmitterIndex )
 {
     // Retrieve state and time of receiver and transmitter
     Eigen::Vector6d transmitterState, receiverState;
@@ -318,10 +318,10 @@ double TabulatedTroposphericCorrection::calculateLightTimeCorrectionWithMultiLeg
         stationTime = receptionTime;
     }
 
-    return ( dryReferenceCorrectionCalculator_->computeMediaCorrection( stationTime ) *
+    return ( dryZenithCorrectionFunction_( stationTime ) *
         elevationMapping_->computeDryTroposphericMapping(
                 transmitterState, receiverState, transmissionTime, receptionTime ) +
-        wetReferenceCorrectionCalculator_->computeMediaCorrection( stationTime ) *
+        wetZenithCorrectionFunction_( stationTime ) *
         elevationMapping_->computeWetTroposphericMapping(
                 transmitterState, receiverState, transmissionTime, receptionTime ) ) /
                 physical_constants::getSpeedOfLight< double >( );
@@ -340,7 +340,7 @@ TabulatedIonosphericCorrection::TabulatedIonosphericCorrection(
     isUplinkCorrection_( isUplinkCorrection )
 {
     sign_ = 1;
-    std::cerr << "Don't forget to correct sign of ION corrections!" << std::endl
+    std::cerr << "Don't forget to correct sign of ION corrections!" << std::endl;
 }
 
 double TabulatedIonosphericCorrection::calculateLightTimeCorrectionWithMultiLegLinkEndStates(
