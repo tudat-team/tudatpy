@@ -9,7 +9,9 @@
  *
  *    References:
  *          T. Moyer (2000), Formulation for Observed and Computed Values of Deep Space Network Data Types for Navigation,
- *              DEEP SPACE COMMUNICATIONS AND NAVIGATION SERIES
+ *              DEEP SPACE COMMUNICATIONS AND NAVIGATION SERIES, JPL/NASA
+ *          J.A. Estefan and O.J. Sovers (1994), A Comparative Survey of Current and Proposed Tropospheric Refraction-Delay
+ *              Models forDSN Radio Metric Data Calibration, JPL/NASA
  *
  */
 
@@ -379,13 +381,13 @@ public:
 
     MappedTroposphericCorrection(
             const LightTimeCorrectionType lightTimeCorrectionType,
-            std::function< double ( double time ) > dryZenithCorrectionFunction,
-            std::function< double ( double time ) > wetZenithCorrectionFunction,
             std::shared_ptr< TroposhericElevationMapping > elevationMapping,
-            bool isUplinkCorrection ):
+            bool isUplinkCorrection,
+            std::function< double ( double time ) > dryZenithRangeCorrectionFunction = [] ( double ) { return 0.0; },
+            std::function< double ( double time ) > wetZenithRangeCorrectionFunction = [] ( double ) { return 0.0; } ):
         LightTimeCorrection( lightTimeCorrectionType ),
-        dryZenithCorrectionFunction_( dryZenithCorrectionFunction ),
-        wetZenithCorrectionFunction_( wetZenithCorrectionFunction ),
+        dryZenithRangeCorrectionFunction_( dryZenithRangeCorrectionFunction ),
+        wetZenithRangeCorrectionFunction_( wetZenithRangeCorrectionFunction ),
         elevationMapping_( elevationMapping ),
         isUplinkCorrection_( isUplinkCorrection )
     { }
@@ -418,9 +420,11 @@ public:
 
 protected:
 
-    std::function< double ( double time ) > dryZenithCorrectionFunction_;
+    // Dry atmosphere zenith range correction (in meters)
+    std::function< double ( double time ) > dryZenithRangeCorrectionFunction_;
 
-    std::function< double ( double time ) > wetZenithCorrectionFunction_;
+    // Wet atmosphere zenith range correction (in meters)
+    std::function< double ( double time ) > wetZenithRangeCorrectionFunction_;
 
     std::shared_ptr< TroposhericElevationMapping > elevationMapping_;
 
@@ -440,16 +444,68 @@ public:
             bool isUplinkCorrection ):
         MappedTroposphericCorrection(
                 tabulated_tropospheric,
+                elevationMapping,
+                isUplinkCorrection,
                 std::bind( &TabulatedMediaReferenceCorrectionManager::computeMediaCorrection,
                            dryReferenceCorrectionCalculator, std::placeholders::_1 ),
                 std::bind( &TabulatedMediaReferenceCorrectionManager::computeMediaCorrection,
-                           wetReferenceCorrectionCalculator, std::placeholders::_1 ),
-                elevationMapping,
-                isUplinkCorrection )
+                           wetReferenceCorrectionCalculator, std::placeholders::_1 ) ),
+        dryReferenceCorrectionCalculator_( dryReferenceCorrectionCalculator ),
+        wetReferenceCorrectionCalculator_( wetReferenceCorrectionCalculator )
     { }
 
 private:
 
+    // Dry atmosphere zenith range correction (in meters)
+    std::shared_ptr< TabulatedMediaReferenceCorrectionManager > dryReferenceCorrectionCalculator_;
+
+    // Wet atmosphere zenith range correction (in meters)
+    std::shared_ptr< TabulatedMediaReferenceCorrectionManager > wetReferenceCorrectionCalculator_;
+};
+
+// Estefan (1994)
+class SaastamoinenTroposphericCorrection: public MappedTroposphericCorrection
+{
+public:
+
+    SaastamoinenTroposphericCorrection(
+            std::function< Eigen::Vector3d ( double time ) > groundStationGeodeticPositionFunction,
+            std::function< double ( double time ) > pressureFunction,
+            std::function< double ( double time ) > temperatureFunction,
+            std::function< double ( double time ) > waterVaporPartialPressureFunction,
+            std::shared_ptr< TroposhericElevationMapping > elevationMapping,
+            bool isUplinkCorrection ):
+        MappedTroposphericCorrection(
+                saastamoinen_tropospheric,
+                elevationMapping,
+                isUplinkCorrection ),
+        groundStationGeodeticPositionFunction_( groundStationGeodeticPositionFunction ),
+        pressureFunction_( pressureFunction ),
+        temperatureFunction_( temperatureFunction ),
+        waterVaporPartialPressureFunction_( waterVaporPartialPressureFunction )
+    {
+        // Override default values for dry and wet zenith corrections
+        dryZenithRangeCorrectionFunction_ = std::bind(
+                &SaastamoinenTroposphericCorrection::computeDryZenithRangeCorrection, this, std::placeholders::_1 );
+        wetZenithRangeCorrectionFunction_ = std::bind(
+                &SaastamoinenTroposphericCorrection::computeWetZenithRangeCorrection, this, std::placeholders::_1 );
+    }
+
+private:
+
+    // Computes the dry atmosphere zenith range correction (in meters)
+    double computeDryZenithRangeCorrection( const double stationTime );
+
+    // Computes the wet atmosphere zenith range correction (in meters)
+    double computeWetZenithRangeCorrection( const double stationTime );
+
+    std::function< Eigen::Vector3d ( double ) > groundStationGeodeticPositionFunction_;
+
+    std::function< double ( double ) > pressureFunction_;
+
+    std::function< double ( double ) > temperatureFunction_;
+
+    std::function< double ( double ) > waterVaporPartialPressureFunction_;
 };
 
 // Moyer (2000), section 10.2.2

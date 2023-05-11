@@ -318,13 +318,32 @@ double MappedTroposphericCorrection::calculateLightTimeCorrectionWithMultiLegLin
         stationTime = receptionTime;
     }
 
-    return ( dryZenithCorrectionFunction_( stationTime ) *
-        elevationMapping_->computeDryTroposphericMapping(
+    return ( dryZenithRangeCorrectionFunction_( stationTime ) *
+             elevationMapping_->computeDryTroposphericMapping(
                 transmitterState, receiverState, transmissionTime, receptionTime ) +
-        wetZenithCorrectionFunction_( stationTime ) *
-        elevationMapping_->computeWetTroposphericMapping(
+            wetZenithRangeCorrectionFunction_( stationTime ) *
+            elevationMapping_->computeWetTroposphericMapping(
                 transmitterState, receiverState, transmissionTime, receptionTime ) ) /
                 physical_constants::getSpeedOfLight< double >( );
+}
+
+double SaastamoinenTroposphericCorrection::computeDryZenithRangeCorrection( const double stationTime )
+{
+    Eigen::Vector3d stationGeodeticPosition = groundStationGeodeticPositionFunction_( stationTime );
+    double altitude = stationGeodeticPosition( 0 );
+    double geodeticLatitude = stationGeodeticPosition( 1 );
+
+    double gravitationalAccelerationFactor = 1.0 - 0.00266 * std::cos( 2.0 * geodeticLatitude ) - 2.8e-7 * altitude;
+
+    // 1e2 factor is conversion of pressure from Pa to mBar
+    return 0.0022768 * pressureFunction_( stationTime ) * 1e2 / gravitationalAccelerationFactor;
+}
+
+double SaastamoinenTroposphericCorrection::computeWetZenithRangeCorrection( const double stationTime )
+{
+    // 1e2 factor is conversion of pressure from Pa to mBar
+    return 0.002277 * waterVaporPartialPressureFunction_( stationTime ) * 1e2 * (
+            1255.0 / temperatureFunction_( stationTime ) + 0.05 );
 }
 
 TabulatedIonosphericCorrection::TabulatedIonosphericCorrection(
