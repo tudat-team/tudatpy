@@ -161,6 +161,69 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections(
 
         break;
     }
+    case tabulated_ionospheric:
+    {
+        std::shared_ptr< TabulatedIonosphericCorrectionSettings > ionosphericCorrectionSettings =
+            std::dynamic_pointer_cast< TabulatedIonosphericCorrectionSettings >( correctionSettings );
+        if ( correctionSettings == nullptr )
+        {
+            throw std::runtime_error(
+                    "Error when creating tabulated ionospheric correction: incompatible settings type." );
+        }
+
+        // If one of the link ends is the body with the atmosphere then create the tropospheric correction
+        if ( transmitter.bodyName_ != receiver.bodyName_ && (
+                transmitter.bodyName_ == ionosphericCorrectionSettings->getBodyWithAtmosphere( ) ||
+                receiver.bodyName_ == ionosphericCorrectionSettings->getBodyWithAtmosphere( ) ) )
+        {
+            bool isUplinkCorrection;
+            LinkEndId groundStation, spacecraft;
+            if( transmitter.bodyName_ == ionosphericCorrectionSettings->getBodyWithAtmosphere( ) )
+            {
+                isUplinkCorrection = true;
+                groundStation = transmitter;
+                spacecraft = receiver;
+            }
+            else
+            {
+                isUplinkCorrection = false;
+                groundStation = receiver;
+                spacecraft = transmitter;
+            }
+
+            ObservableType baseObservableType = getBaseObservableType( observableType );
+
+            std::shared_ptr< TabulatedMediaReferenceCorrectionManager > correctionCalculator;
+            std::pair< std::string, std::string > stationSpacecraftPair = std::make_pair(
+                    groundStation.stationName_, spacecraft.bodyName_ );
+
+            if ( ionosphericCorrectionSettings->getReferenceRangeCorrection( ).count( stationSpacecraftPair ) &&
+                ionosphericCorrectionSettings->getReferenceRangeCorrection( ).at( stationSpacecraftPair ).count( baseObservableType ) )
+            {
+//                lightTimeCorrection = std::make_shared< TabulatedIonosphericCorrection >(
+//                    ionosphericCorrectionSettings->getReferenceRangeCorrection( ).at( stationSpacecraftPair ).at(
+//                            baseObservableType ),
+//                    ...,
+//                    baseObservableType,
+//                    isUplinkCorrection,
+//                    ionosphericCorrectionSettings->getReferenceFrequency( ) );
+            }
+            else
+            {
+                throw std::runtime_error(
+                        "Error when creating tabulated tropospheric corrections for " + groundStation.stationName_ +
+                        "ground station and " + getObservableName( observableType ) + " observable: tabulated data not available. " );
+            }
+
+        }
+        // Set correction to nullptr if correction isn't valid for selected link ends
+        else
+        {
+            lightTimeCorrection = nullptr;
+        }
+
+        break;
+    }
     default:
     {
         std::string errorMessage = "Error, light time correction type " +
