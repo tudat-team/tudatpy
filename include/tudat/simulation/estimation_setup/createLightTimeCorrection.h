@@ -110,7 +110,7 @@ public:
     TabulatedTroposphericCorrectionSettings(
             const AtmosphericCorrectionPerStationAndSpacecraftType& troposphericDryCorrection,
             const AtmosphericCorrectionPerStationAndSpacecraftType& troposphericWetCorrection,
-            const std::string bodyWithAtmosphere = "Earth",
+            const std::string& bodyWithAtmosphere = "Earth",
             const TroposphericMappingModel troposphericMappingModel = niell ):
         LightTimeCorrectionSettings( tabulated_tropospheric ),
         troposphericDryCorrection_( troposphericDryCorrection ),
@@ -157,15 +157,22 @@ class TabulatedIonosphericCorrectionSettings: public LightTimeCorrectionSettings
 public:
     TabulatedIonosphericCorrectionSettings(
             const AtmosphericCorrectionPerStationAndSpacecraftType& referenceRangeCorrection,
-            const std::string bodyWithAtmosphere = "Earth" ):
+            const double referenceFrequency = 2295e6,
+            const std::string& bodyWithAtmosphere = "Earth" ):
         LightTimeCorrectionSettings( tabulated_ionospheric ),
         referenceRangeCorrection_( referenceRangeCorrection ),
+        referenceFrequency_( referenceFrequency ),
         bodyWithAtmosphere_( bodyWithAtmosphere )
     { }
 
     AtmosphericCorrectionPerStationAndSpacecraftType getReferenceRangeCorrection( )
     {
         return referenceRangeCorrection_;
+    }
+
+    double getReferenceFrequency( )
+    {
+        return referenceFrequency_;
     }
 
     std::string getBodyWithAtmosphere( )
@@ -176,6 +183,8 @@ public:
 private:
 
     AtmosphericCorrectionPerStationAndSpacecraftType referenceRangeCorrection_;
+
+    double referenceFrequency_;
 
     std::string bodyWithAtmosphere_;
 
