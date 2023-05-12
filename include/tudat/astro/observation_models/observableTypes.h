@@ -113,6 +113,12 @@ bool requiresFirstReceivingStation( const ObservableType observableType );
  */
 bool requiresSecondReceivingStation( const ObservableType observableType );
 
+bool isRadiometricObservableType( const ObservableType observableType );
+
+bool isPhaseVelocityBasedObservableType( const ObservableType observableType );
+
+bool isGroupVelocityBasedObservableType( const ObservableType observableType );
+
 //bool areObservableLinksContinuous( const ObservableType observableType );
 
 LinkEndType getDefaultReferenceLinkEndType(
