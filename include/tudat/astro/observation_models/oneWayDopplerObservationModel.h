@@ -543,14 +543,14 @@ public:
         {
         case receiver:
             lightTime = lightTimeCalculator_->calculateLightTimeWithLinkEndsStates(
-                        receiverState_, transmitterState_, time, true );
+                        receiverState_, transmitterState_, time, true, ancilliarySetings );
             transmissionTime = time - lightTime;
             receptionTime = time;
             break;
 
         case transmitter:
             lightTime = lightTimeCalculator_->calculateLightTimeWithLinkEndsStates(
-                        receiverState_, transmitterState_, time, false );
+                        receiverState_, transmitterState_, time, false, ancilliarySetings );
             transmissionTime = time;
             receptionTime = time + lightTime;
             break;

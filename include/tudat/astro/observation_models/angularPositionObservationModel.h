@@ -105,7 +105,7 @@ public:
 
         // Compute light-time and receiver/transmitter states.
         ObservationScalarType lightTime = lightTimeCalculator_->calculateLightTimeWithLinkEndsStates(
-                    receiverState, transmitterState, time, isTimeAtReception );
+                    receiverState, transmitterState, time, isTimeAtReception, ancilliarySetings );
 
         // Compute spherical relative position
         Eigen::Matrix< ObservationScalarType, 3, 1 > sphericalRelativeCoordinates =

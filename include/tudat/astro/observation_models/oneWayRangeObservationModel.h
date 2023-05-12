@@ -101,14 +101,14 @@ public:
         {
         case receiver:
             observation = lightTimeCalculator_->calculateLightTimeWithLinkEndsStates(
-                        receiverState, transmitterState, time, 1 );
+                        receiverState, transmitterState, time, 1, ancilliarySetings );
             transmissionTime = time - observation;
             receptionTime = time;
             break;
 
         case transmitter:
             observation = lightTimeCalculator_->calculateLightTimeWithLinkEndsStates(
-                        receiverState, transmitterState, time, 0 );
+                        receiverState, transmitterState, time, 0, ancilliarySetings );
             transmissionTime = time;
             receptionTime = time + observation;
             break;

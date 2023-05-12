@@ -13,6 +13,7 @@
 
 #include "tudat/basics/basicTypedefs.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
+#include "tudat/astro/observation_models/observationModel.h"
 
 namespace tudat
 {
@@ -70,18 +71,21 @@ public:
             const Eigen::Vector6d& transmitterState,
             const Eigen::Vector6d& receiverState,
             const double transmissionTime,
-            const double receptionTime )
+            const double receptionTime,
+            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings = nullptr )
     {
         std::vector< Eigen::Vector6d > linkEndsStates = { transmitterState, receiverState };
         std::vector< double > linkEndsTimes = { transmissionTime, receptionTime };
 
-        return calculateLightTimeCorrectionWithMultiLegLinkEndStates( linkEndsStates, linkEndsTimes, 0 );
+        return calculateLightTimeCorrectionWithMultiLegLinkEndStates( linkEndsStates, linkEndsTimes, 0,
+                                                                      ancillarySettings );
     }
 
     virtual double calculateLightTimeCorrectionWithMultiLegLinkEndStates(
             const std::vector< Eigen::Vector6d >& linkEndsStates,
             const std::vector< double >& linkEndsTimes,
-            const unsigned int currentMultiLegTransmitterIndex = 0 ) = 0;
+            const unsigned int currentMultiLegTransmitterIndex = 0,
+            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings = nullptr ) = 0;
 
     //! Pure virtual function to compute the partial derivative of the light-time correction w.r.t. observation time
     /*!

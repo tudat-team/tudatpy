@@ -140,7 +140,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
         Eigen::Vector6d transmitterState, receiverState;        
         // Compute light time
         double lightTime = lightTimeCalculator->calculateLightTimeWithLinkEndsStates(
-                    receiverState, transmitterState, observationTime, testCase );
+                    receiverState, transmitterState, observationTime, testCase, ancilliarySetings );
 
         // Compare light time calculator link end conditions with observation model
         {

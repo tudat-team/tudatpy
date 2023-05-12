@@ -143,11 +143,11 @@ public:
 
             // Calculate light times at the start of the reception interval
             lightTimeAtStartInterval = arcStartLightTimeCalculator_->calculateLightTimeWithLinkEndsStates(
-                         receiverStateAtArcStart, transmitterStateAtArcStart, linkEndTimes[ 1 ] , 1 );
+                         receiverStateAtArcStart, transmitterStateAtArcStart, linkEndTimes[ 1 ] , 1, ancilliarySetings );
 
             // Calculate light times at the end of the reception interval
             lightTimeAtEndInterval = arcEndLightTimeCalculator_->calculateLightTimeWithLinkEndsStates(
-                        receiverStateAtArcEnd, transmitterStateAtArcEnd, linkEndTimes[ 3 ] , 1 );
+                        receiverStateAtArcEnd, transmitterStateAtArcEnd, linkEndTimes[ 3 ] , 1, ancilliarySetings );
 
             linkEndTimes[ 0 ] = linkEndTimes[ 1 ] - static_cast< double >( lightTimeAtStartInterval );
             linkEndTimes[ 2 ] = linkEndTimes[ 3 ] - static_cast< double >( lightTimeAtEndInterval );
@@ -161,13 +161,13 @@ public:
 
             // Calculate light times at the start of the reception interval
             lightTimeAtEndInterval = arcEndLightTimeCalculator_->calculateLightTimeWithLinkEndsStates(
-                        receiverStateAtArcEnd, transmitterStateAtArcEnd, linkEndTimes[ 2 ], 0 );
+                        receiverStateAtArcEnd, transmitterStateAtArcEnd, linkEndTimes[ 2 ], 0, ancilliarySetings );
 
             linkEndTimes[ 3 ] = linkEndTimes[ 2 ] + static_cast< double >( lightTimeAtEndInterval );
 
             // Calculate light times at the end of the reception interval
             lightTimeAtStartInterval = arcStartLightTimeCalculator_->calculateLightTimeWithLinkEndsStates(
-                        receiverStateAtArcStart, transmitterStateAtArcStart, linkEndTimes[ 0 ], 0 );
+                        receiverStateAtArcStart, transmitterStateAtArcStart, linkEndTimes[ 0 ], 0, ancilliarySetings );
 
             linkEndTimes[ 1 ] = linkEndTimes[ 0 ] + static_cast< double >( lightTimeAtStartInterval );
         }
