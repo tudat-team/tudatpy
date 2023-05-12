@@ -23,6 +23,7 @@ bool requiresMultiLegIterations( const LightTimeCorrectionType& lightTimeCorrect
     {
     case first_order_relativistic:
     case tabulated_tropospheric:
+    case saastamoinen_tropospheric:
         requiresMultiLegIterations = false;
         break;
     case tabulated_ionospheric:
@@ -51,6 +52,9 @@ std::string getLightTimeCorrectionName( const LightTimeCorrectionType& lightTime
         break;
     case tabulated_ionospheric:
         name = "tabulated ionospheric";
+        break;
+    case saastamoinen_tropospheric:
+        name = "Saastamoinen tropospheric";
         break;
     default:
         throw std::runtime_error(
