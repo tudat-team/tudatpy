@@ -23,8 +23,9 @@ namespace observation_models
 std::shared_ptr< LightTimeCorrection > createLightTimeCorrections(
         const std::shared_ptr< LightTimeCorrectionSettings > correctionSettings,
         const simulation_setup::SystemOfBodies& bodies,
-        const LinkEndId& transmitter,
-        const LinkEndId& receiver,
+        const LinkEnds& linkEnds,
+        const LinkEndType& transmittingLinkEndType,
+        const LinkEndType& receivingLinkEndType,
         const ObservableType observableType )
 {
 
@@ -32,6 +33,9 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections(
     using namespace tudat::gravitation;
 
     std::shared_ptr< LightTimeCorrection > lightTimeCorrection;
+
+    LinkEndId transmitter= linkEnds.at( transmittingLinkEndType );
+    LinkEndId receiver = linkEnds.at( receivingLinkEndType );
 
     if ( observableType == two_way_doppler && requiresMultiLegIterations( correctionSettings->getCorrectionType( ) ) )
     {

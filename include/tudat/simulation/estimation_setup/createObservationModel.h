@@ -1576,7 +1576,7 @@ public:
             observationModel = std::make_shared< OneWayRangeObservationModel<
                     ObservationScalarType, TimeType > >(
                         linkEnds, createLightTimeCalculator< ObservationScalarType, TimeType >(
-                            linkEnds.at( transmitter ), linkEnds.at( receiver ),
+                            linkEnds, transmitter, receiver,
                             bodies, topLevelObservableType, observationSettings->lightTimeCorrectionsList_,
                             observationSettings->lightTimeConvergenceCriteria_ ),
                         observationBias );
@@ -1617,7 +1617,7 @@ public:
                         ObservationScalarType, TimeType > >(
                             linkEnds,
                             createLightTimeCalculator< ObservationScalarType, TimeType >(
-                                linkEnds.at( transmitter ), linkEnds.at( receiver ),
+                                linkEnds, transmitter, receiver,
                                 bodies, topLevelObservableType, observationSettings->lightTimeCorrectionsList_,
                                 observationSettings->lightTimeConvergenceCriteria_ ),
                             observationBias,
@@ -1650,7 +1650,7 @@ public:
                         ObservationScalarType, TimeType > >(
                             linkEnds,
                             createLightTimeCalculator< ObservationScalarType, TimeType >(
-                                linkEnds.at( transmitter ), linkEnds.at( receiver ),
+                                linkEnds, transmitter, receiver,
                                 bodies, topLevelObservableType, observationSettings->lightTimeCorrectionsList_,
                                 observationSettings->lightTimeConvergenceCriteria_ ),
                             transmitterProperTimeRate,
@@ -1778,11 +1778,11 @@ public:
                     ObservationScalarType, TimeType > >(
                         linkEnds,
                         createLightTimeCalculator< ObservationScalarType, TimeType >(
-                            linkEnds.at( transmitter ), linkEnds.at( receiver ),
+                            linkEnds, transmitter, receiver,
                             bodies, topLevelObservableType, observationSettings->lightTimeCorrectionsList_,
                             observationSettings->lightTimeConvergenceCriteria_ ),
                         createLightTimeCalculator< ObservationScalarType, TimeType >(
-                            linkEnds.at( transmitter ), linkEnds.at( receiver ),
+                            linkEnds, transmitter, receiver,
                             bodies, topLevelObservableType, observationSettings->lightTimeCorrectionsList_,
                             observationSettings->lightTimeConvergenceCriteria_ ),
                         observationBias );
@@ -2008,7 +2008,7 @@ public:
                     ObservationScalarType, TimeType > >(
                         linkEnds,
                         createLightTimeCalculator< ObservationScalarType, TimeType >(
-                            linkEnds.at( transmitter ), linkEnds.at( receiver ),
+                            linkEnds, transmitter, receiver,
                             bodies, topLevelObservableType, observationSettings->lightTimeCorrectionsList_,
                             observationSettings->lightTimeConvergenceCriteria_ ),
                         observationBias );
@@ -2051,11 +2051,11 @@ public:
             observationModel = std::make_shared< RelativeAngularPositionObservationModel<
                     ObservationScalarType, TimeType > >(
                         linkEnds, createLightTimeCalculator< ObservationScalarType, TimeType >(
-                            linkEnds.at( transmitter ), linkEnds.at( receiver ), bodies,
+                            linkEnds, transmitter, receiver, bodies,
                             topLevelObservableType, observationSettings->lightTimeCorrectionsList_,
                             observationSettings->lightTimeConvergenceCriteria_ ),
                         createLightTimeCalculator< ObservationScalarType, TimeType >(
-                            linkEnds.at( transmitter2 ), linkEnds.at( receiver ), bodies,
+                            linkEnds, transmitter2, receiver, bodies,
                             topLevelObservableType, observationSettings->lightTimeCorrectionsList_,
                             observationSettings->lightTimeConvergenceCriteria_ ), observationBias );
 
