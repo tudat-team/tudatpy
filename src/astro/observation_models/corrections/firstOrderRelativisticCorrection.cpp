@@ -24,7 +24,8 @@ namespace observation_models
 double FirstOrderLightTimeCorrectionCalculator::calculateLightTimeCorrectionWithMultiLegLinkEndStates(
         const std::vector< Eigen::Vector6d >& linkEndsStates,
         const std::vector< double >& linkEndsTimes,
-        const unsigned int currentMultiLegTransmitterIndex )
+        const unsigned int currentMultiLegTransmitterIndex,
+        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings )
 {
     // Retrieve state and time of receiver and transmitter
     Eigen::Vector6d transmitterState, receiverState;

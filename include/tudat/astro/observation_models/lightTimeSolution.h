@@ -42,11 +42,13 @@ ObservationScalarType getDefaultLightTimeTolerance( );
 //! Typedef for function calculating light-time correction in light-time calculation loop.
 typedef std::function< double(
         const Eigen::Vector6d&, const Eigen::Vector6d&,
-        const double, const double ) > LightTimeCorrectionFunctionSingleLeg;
+        const double, const double,
+        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ) > LightTimeCorrectionFunctionSingleLeg;
 
 typedef std::function< double(
         const std::vector< Eigen::Vector6d >&, const std::vector< double >&,
-        const unsigned int ) > LightTimeCorrectionFunctionMultiLeg;
+        const unsigned int,
+        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ) > LightTimeCorrectionFunctionMultiLeg;
 
 enum LightTimeFailureHandling
 {
@@ -241,12 +243,14 @@ public:
         lightTimeCorrectionFunction_ = [=] (
                 const std::vector< Eigen::Vector6d >& linkEndsStates,
                 const std::vector< double >& linkEndsTimes,
-                const unsigned int currentMultiLegTransmitterIndex ) -> double
+                const unsigned int currentMultiLegTransmitterIndex,
+                const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings ) -> double
         {
             return lightTimeCorrectionFunction( linkEndsStates.at( currentMultiLegTransmitterIndex ),
                                                 linkEndsStates.at( currentMultiLegTransmitterIndex + 1 ),
                                                 linkEndsTimes.at( currentMultiLegTransmitterIndex ),
-                                                linkEndsTimes.at( currentMultiLegTransmitterIndex + 1) );
+                                                linkEndsTimes.at( currentMultiLegTransmitterIndex + 1),
+                                                ancillarySettings );
         };
     }
 
@@ -269,10 +273,11 @@ public:
      double calculateLightTimeCorrectionWithMultiLegLinkEndStates(
             const std::vector< Eigen::Vector6d >& linkEndsStates,
             const std::vector< double >& linkEndsTimes,
-            const unsigned int currentMultiLegTransmitterIndex ) override
+            const unsigned int currentMultiLegTransmitterIndex,
+            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings = nullptr ) override
     {
          return lightTimeCorrectionFunction_(
-                 linkEndsStates, linkEndsTimes, currentMultiLegTransmitterIndex );
+                 linkEndsStates, linkEndsTimes, currentMultiLegTransmitterIndex, ancillarySettings );
     }
 
     //! Function to compute the partial derivative of the light-time correction w.r.t. observation time
@@ -488,13 +493,14 @@ public:
             StateType& receiverStateOutput,
             StateType& transmitterStateOutput,
             const TimeType time,
-            const bool isTimeAtReception = 1 )
+            const bool isTimeAtReception = 1,
+            const std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings = nullptr )
     {
         std::vector< StateType > linkEndsStates( 2, StateType::Constant( TUDAT_NAN ) );
         std::vector< TimeType > linkEndsTimes( 2, TUDAT_NAN );
 
         ObservationScalarType lightTime = calculateLightTimeWithMultiLegLinkEndsStates(
-                linkEndsStates, linkEndsTimes, time, isTimeAtReception, 0 );
+                linkEndsStates, linkEndsTimes, time, isTimeAtReception, 0, ancillarySettings );
 
         transmitterStateOutput = linkEndsStates.at( 0 );
         receiverStateOutput = linkEndsStates.at( 1 );
@@ -520,7 +526,8 @@ public:
         std::vector< TimeType >& linkEndsTimes,
         const TimeType time,
         const bool isTimeAtReception = true,
-        const unsigned int currentMultiLegTransmitterIndex = 0 )
+        const unsigned int currentMultiLegTransmitterIndex = 0,
+        const std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings = nullptr )
     {
         const unsigned int currentMultiLegReceiverIndex = currentMultiLegTransmitterIndex + 1;
 
@@ -568,7 +575,7 @@ public:
         updateCurrentLinkEndStatesAndTimes(
                 linkEndsTimes, linkEndsStates, currentMultiLegTransmitterIndex, receptionTime, transmissionTime,
                 receiverState, transmitterState );
-        setTotalLightTimeCorrection( linkEndsStates, linkEndsTimes, currentMultiLegTransmitterIndex );
+        setTotalLightTimeCorrection( linkEndsStates, linkEndsTimes, currentMultiLegTransmitterIndex, ancillarySettings );
 
         // Compute new light time estimate
         ObservationScalarType newLightTimeCalculation = calculateNewLightTimeEstimate( receiverState, transmitterState );
@@ -589,7 +596,7 @@ public:
                 updateCurrentLinkEndStatesAndTimes(
                     linkEndsTimes, linkEndsStates, currentMultiLegTransmitterIndex, receptionTime, transmissionTime,
                     receiverState, transmitterState );
-                setTotalLightTimeCorrection( linkEndsStates, linkEndsTimes, currentMultiLegTransmitterIndex );
+                setTotalLightTimeCorrection( linkEndsStates, linkEndsTimes, currentMultiLegTransmitterIndex, ancillarySettings );
             }
 
             // Update light-time estimate for this iteration.
@@ -640,9 +647,10 @@ public:
             const StateType& receiverState,
             const TimeType transmitterTime,
             const TimeType receiverTime,
-            const bool isPartialWrtReceiver )
+            const bool isPartialWrtReceiver,
+            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings = nullptr )
     {
-        setTotalLightTimeCorrection( transmitterState, receiverState, transmitterTime, receiverTime );
+        setTotalLightTimeCorrection( transmitterState, receiverState, transmitterTime, receiverTime, ancillarySettings );
 
         Eigen::Matrix< ObservationScalarType, 3, 1 > relativePosition =
                 receiverState.segment( 0, 3 ) - transmitterState.segment( 0, 3 );
@@ -752,19 +760,21 @@ protected:
     void setTotalLightTimeCorrection( const StateType& transmitterState,
                                       const StateType& receiverState,
                                       const TimeType transmissionTime ,
-                                      const TimeType receptionTime )
+                                      const TimeType receptionTime,
+                                      const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings )
     {
         std::vector< StateType > linkEndStates = { transmitterState, receiverState };
         std::vector< TimeType > linkEndTimes = { transmissionTime, receptionTime };
         unsigned int currentMultiLegTransmitterIndex = 0;
 
-        setTotalLightTimeCorrection( linkEndStates, linkEndTimes, currentMultiLegTransmitterIndex );
+        setTotalLightTimeCorrection( linkEndStates, linkEndTimes, currentMultiLegTransmitterIndex, ancillarySettings );
     }
 
     void setTotalLightTimeCorrection(
             std::vector< StateType >& linkEndStates,
             std::vector< TimeType >& linkEndTimes,
-            const unsigned int currentMultiLegTransmitterIndex )
+            const unsigned int currentMultiLegTransmitterIndex,
+            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings )
     {
         ObservationScalarType totalLightTimeCorrections = mathematical_constants::getFloatingInteger< ObservationScalarType >( 0 );
 
@@ -780,7 +790,7 @@ protected:
         {
             totalLightTimeCorrections += static_cast< ObservationScalarType >(
                         correctionFunctions_[ i ]->calculateLightTimeCorrectionWithMultiLegLinkEndStates(
-                            linkEndStatesDouble, linkEndTimesDouble, currentMultiLegTransmitterIndex ) );
+                            linkEndStatesDouble, linkEndTimesDouble, currentMultiLegTransmitterIndex, ancillarySettings ) );
         }
         currentCorrection_ = totalLightTimeCorrections;
     }
@@ -917,7 +927,7 @@ public:
         std::vector< StateType > linkEndStates( 2 * numberOfLinks_, StateType::Constant( TUDAT_NAN ) );
 
         ObservationScalarType previousLightTimeEstimate = calculateMultiLegLightTimeEstimate(
-                time, startLinkEndIndex, linkEndTimes, linkEndStates );
+                time, startLinkEndIndex, linkEndTimes, linkEndStates, ancillarySettings );
         ObservationScalarType newLightTimeEstimate;
 
         // Iterate light times only if necessary. Don't iterate if the model is constituted by a single leg
@@ -933,7 +943,7 @@ public:
             while( !isToleranceReached )
             {
                 newLightTimeEstimate = calculateMultiLegLightTimeEstimate(
-                        time, startLinkEndIndex, linkEndTimes, linkEndStates );
+                        time, startLinkEndIndex, linkEndTimes, linkEndStates, ancillarySettings );
 
                 isToleranceReached = isMultiLegLightTimeSolutionConverged(
                     lightTimeConvergenceCriteria_, previousLightTimeEstimate, newLightTimeEstimate, iterationCounter_,
@@ -999,7 +1009,8 @@ private:
             const TimeType time,
             const unsigned int startLinkEndIndex,
             std::vector< TimeType >& linkEndTimes,
-            std::vector< StateType >& linkEndStates )
+            std::vector< StateType >& linkEndStates,
+            const std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings = nullptr )
     {
         // Define objects to keep light times
         ObservationScalarType totalLightTime = 0.0;
@@ -1016,7 +1027,7 @@ private:
         {
             unsigned int transmitterIndex = 2 * ( currentDownIndex - 1 );
             currentLightTime = lightTimeCalculators_.at( currentDownIndex - 1 )->calculateLightTimeWithMultiLegLinkEndsStates(
-                        linkEndStates, linkEndTimes, currentLinkEndReceptionTime, true, transmitterIndex );
+                        linkEndStates, linkEndTimes, currentLinkEndReceptionTime, true, transmitterIndex, ancillarySettings );
 
             // If an additional leg is required, retrieve retransmission delay and update current time
             currentLightTime += transmissionReceptionDelays_.at( currentDownIndex - 1 );
@@ -1034,7 +1045,7 @@ private:
         {
             unsigned int transmitterIndex = 2 * currentUpIndex;
             currentLightTime = lightTimeCalculators_.at( currentUpIndex )->calculateLightTimeWithMultiLegLinkEndsStates(
-                        linkEndStates, linkEndTimes, currentLinkEndTransmissionTime, false, transmitterIndex );
+                        linkEndStates, linkEndTimes, currentLinkEndTransmissionTime, false, transmitterIndex, ancillarySettings );
 
             // If an additional leg is required, retrieve retransmission delay and update current time
             currentLightTime += transmissionReceptionDelays_.at( currentUpIndex + 1 );

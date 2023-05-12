@@ -107,7 +107,8 @@ public:
     double calculateLightTimeCorrectionWithMultiLegLinkEndStates(
             const std::vector< Eigen::Vector6d >& linkEndsStates,
             const std::vector< double >& linkEndsTimes,
-            const unsigned int currentMultiLegTransmitterIndex ) override;
+            const unsigned int currentMultiLegTransmitterIndex,
+            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings ) override;
 
     //! Function to compute the partial derivative of the light-time correction w.r.t. observation time
     /*!
