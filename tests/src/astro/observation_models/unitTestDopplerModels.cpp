@@ -353,7 +353,7 @@ BOOST_AUTO_TEST_CASE( testTwoWayDoppplerModel )
                         std::make_shared< ObservationModelSettings >( two_way_doppler, linkEnds ), bodies ) );
         std::shared_ptr< ObservationModel< 1, double, double > > twoWayRangeObservationModel =
                 ObservationModelCreator< 1, double, double>::createObservationModel(
-                    std::make_shared< ObservationModelSettings >( n_way_range, linkEnds ), bodies );
+                    twoWayRangeSimple( linkEnds ), bodies );
 
         std::shared_ptr< ObservationModel< 1, double, double > > uplinkDopplerObservationModel =
                 ObservationModelCreator< 1, double, double>::createObservationModel(
