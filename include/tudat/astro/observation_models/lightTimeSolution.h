@@ -864,10 +864,14 @@ public:
             const std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings = nullptr )
     {
 
+        transmissionReceptionDelays_.clear( );
         if( ancillarySettings != nullptr )
         {
-            transmissionReceptionDelays_ = ancillarySettings->getAncilliaryDoubleVectorData( transmission_reception_delays );
-
+            transmissionReceptionDelays_ = ancillarySettings->getAncilliaryDoubleVectorData(
+                    transmission_reception_delays, false );
+        }
+        if ( !transmissionReceptionDelays_.empty( ) )
+        {
             // Delays vector already including delays at receiving and transmitting stations
             if ( transmissionReceptionDelays_.size( ) == numberOfLinkEnds_ )
             { }
