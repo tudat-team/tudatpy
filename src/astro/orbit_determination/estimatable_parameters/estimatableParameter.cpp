@@ -138,6 +138,12 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
     case arc_wise_time_observation_bias:
         parameterDescription = "arc-wise time observation bias ";
         break;
+    case global_polynomial_clock_corrections:
+        parameterDescription = "global polynomial clock corrections ";
+        break;
+    case arc_wise_polynomial_clock_corrections:
+        parameterDescription = "arc-wise polynomial clock corrections ";
+        break;
     default:
         std::string errorMessage = "Error when getting parameter string, did not recognize parameter " +
                 std::to_string( parameterType );
@@ -282,6 +288,12 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
     case arc_wise_time_observation_bias:
         isDoubleParameter = false;
         break;
+    case global_polynomial_clock_corrections:
+        isDoubleParameter = false;
+        break;
+    case arc_wise_polynomial_clock_corrections:
+        isDoubleParameter = false;
+        break;
     default:
         throw std::runtime_error( "Error, parameter type " + std::to_string( parameterType ) +
                                   " not found when getting parameter type" );
@@ -354,6 +366,12 @@ bool isParameterObservationLinkProperty( const EstimatebleParametersEnum paramet
         flag = true;
         break;
     case arc_wise_time_observation_bias:
+        flag = true;
+        break;
+    case global_polynomial_clock_corrections:
+        flag = true;
+        break;
+    case arc_wise_polynomial_clock_corrections:
         flag = true;
         break;
     default:

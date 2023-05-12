@@ -147,8 +147,16 @@ TimingSystem::TimingSystem( const std::vector< Time > arcTimes,
     for( unsigned int i = 0; i < arcTimes.size( ) - 1; i++ )
     {
         polynomialDriftCoefficients_.push_back( allArcsPolynomialDriftCoefficients );
-        clockErrorFunction_.push_back( clockNoiseGenerationFunction( arcTimes[ i ], arcTimes[ i + 1 ], clockNoiseTimeStep ) );
         synchronizationTimes_.push_back( arcTimes[ i ] );
+        if( clockNoiseGenerationFunction != nullptr )
+        {
+            clockErrorFunction_.push_back( clockNoiseGenerationFunction( arcTimes[ i ], arcTimes[ i + 1 ], clockNoiseTimeStep ) );
+        }
+        else
+        {
+            clockErrorFunction_.push_back( [=](const double){return 0.0;} );
+        }
+
     }
 
     currentTimeArcLookup_ = std::make_shared< interpolators::HuntingAlgorithmLookupScheme< Time > >( synchronizationTimes_ );
@@ -171,7 +179,14 @@ TimingSystem::TimingSystem( const std::vector< Time > arcTimes,
 
     for( unsigned int i = 0; i < arcTimes.size( ) - 1; i++ )
     {
-        clockErrorFunction_.push_back( clockNoiseGenerationFunction( arcTimes[ i ], arcTimes[ i + 1 ], clockNoiseTimeStep ) );
+        if( clockNoiseGenerationFunction != nullptr )
+        {
+            clockErrorFunction_.push_back( clockNoiseGenerationFunction( arcTimes[ i ], arcTimes[ i + 1 ], clockNoiseTimeStep ) );
+        }
+        else
+        {
+            clockErrorFunction_.push_back( [=](const double){return 0.0;} );
+        }
         synchronizationTimes_.push_back( arcTimes[ i ] );
     }
 
