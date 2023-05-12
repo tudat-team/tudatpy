@@ -359,8 +359,28 @@ TabulatedIonosphericCorrection::TabulatedIonosphericCorrection(
     referenceFrequency_( referenceFrequency ),
     isUplinkCorrection_( isUplinkCorrection )
 {
-    sign_ = 1;
-    std::cerr << "Don't forget to correct sign of ION corrections!" << std::endl;
+    if ( isRadiometricObservableType( observableType ) )
+    {
+        if ( isGroupVelocityBasedObservableType( observableType ) )
+        {
+            sign_ = 1;
+        }
+        else if ( isPhaseVelocityBasedObservableType( observableType ) )
+        {
+            sign_ = -1;
+        }
+        else
+        {
+            throw std::runtime_error( "Error when creating tabulated ionospheric correction: radiometric correction not "
+                                      "recognized." );
+        }
+    }
+    else
+    {
+        throw std::runtime_error( "Error when creating tabulated ionospheric correction: correction is only valid for "
+                                  "radiometric types." );
+    }
+
 }
 
 double TabulatedIonosphericCorrection::calculateLightTimeCorrectionWithMultiLegLinkEndStates(

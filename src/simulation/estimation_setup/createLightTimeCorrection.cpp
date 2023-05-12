@@ -110,6 +110,12 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections(
                     "Error when creating tabulated tropospheric correction: incompatible settings type." );
         }
 
+        if ( !isRadiometricObservableType( observableType ) )
+        {
+            throw std::runtime_error(
+                    "Error when creating tabulated tropospheric correction: selected observable type is not radiometric." );
+        }
+
         // If one of the link ends is the body with the atmosphere then create the tropospheric correction
         if ( transmitter.bodyName_ != receiver.bodyName_ && (
                 transmitter.bodyName_ == troposphericCorrectionSettings->getBodyWithAtmosphere( ) ||

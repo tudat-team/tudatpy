@@ -173,6 +173,93 @@ bool requiresSecondReceivingStation( const ObservableType observableType )
     return requiresSecondReceivingStation;
 }
 
+bool isRadiometricObservableType( const ObservableType observableType )
+{
+    bool isRadiometric;
+    switch( observableType )
+    {
+    case one_way_range:
+    case one_way_doppler:
+    case one_way_differenced_range:
+    case n_way_range:
+    case two_way_doppler:
+    case n_way_differenced_range:
+    case dsn_n_way_averaged_doppler:
+    case dsn_one_way_averaged_doppler:
+        isRadiometric = true;
+        break;
+    case angular_position:
+    case position_observable:
+    case euler_angle_313_observable:
+    case velocity_observable:
+    case relative_angular_position:
+        isRadiometric = false;
+        break;
+    default:
+        throw std::runtime_error( "Error when determining if observable type is radiometric: observable " +
+                                  getObservableName( observableType ) + " not found." );
+    }
+    return isRadiometric;
+}
+
+bool isPhaseVelocityBasedObservableType( const ObservableType observableType )
+{
+    bool isPhaseVelocityBased;
+    switch( observableType )
+    {
+    case one_way_doppler:
+    case one_way_differenced_range:
+    case two_way_doppler:
+    case n_way_differenced_range:
+    case dsn_n_way_averaged_doppler:
+    case dsn_one_way_averaged_doppler:
+        isPhaseVelocityBased = true;
+        break;
+    case one_way_range:
+    case n_way_range:
+    case angular_position:
+    case position_observable:
+    case euler_angle_313_observable:
+    case velocity_observable:
+    case relative_angular_position:
+        isPhaseVelocityBased = false;
+        break;
+    default:
+        throw std::runtime_error( "Error when determining if observable type is radiometric: observable " +
+                                  getObservableName( observableType ) + " not found." );
+    }
+    return isPhaseVelocityBased;
+}
+
+bool isGroupVelocityBasedObservableType( const ObservableType observableType )
+{
+    bool isGroupVelocityBased;
+    switch( observableType )
+    {
+    case one_way_range:
+    case n_way_range:
+        isGroupVelocityBased = true;
+        break;
+    case two_way_doppler:
+    case n_way_differenced_range:
+    case dsn_n_way_averaged_doppler:
+    case dsn_one_way_averaged_doppler:
+    case one_way_doppler:
+    case one_way_differenced_range:
+    case angular_position:
+    case position_observable:
+    case euler_angle_313_observable:
+    case velocity_observable:
+    case relative_angular_position:
+        isGroupVelocityBased = false;
+        break;
+    default:
+        throw std::runtime_error( "Error when determining if observable type is radiometric: observable " +
+                                  getObservableName( observableType ) + " not found." );
+    }
+    return isGroupVelocityBased;
+}
+
 //bool areObservableLinksContinuous( const ObservableType observableType )
 //{
 //    bool isTypeContinuous = true;
