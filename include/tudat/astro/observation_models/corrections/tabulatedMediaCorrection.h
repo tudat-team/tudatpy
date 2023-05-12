@@ -516,7 +516,7 @@ public:
 
     TabulatedIonosphericCorrection(
             std::shared_ptr< TabulatedMediaReferenceCorrectionManager > referenceCorrectionCalculator,
-            std::function< double ( double time ) > transmittedFrequencyFunction,
+            std::function< double ( std::vector< FrequencyBands > frequencyBands, double time ) > transmittedFrequencyFunction,
             ObservableType baseObservableType,
             bool isUplinkCorrection,
             double referenceFrequency = 2295e6 );
@@ -554,7 +554,7 @@ private:
 
     std::shared_ptr< TabulatedMediaReferenceCorrectionManager > referenceCorrectionCalculator_;
 
-    std::function< double ( double ) > transmittedFrequencyFunction_;
+    std::function< double ( std::vector< FrequencyBands > frequencyBands, double time ) > transmittedFrequencyFunction_;
 
     double referenceFrequency_;
 

@@ -204,13 +204,13 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections(
             if ( ionosphericCorrectionSettings->getReferenceRangeCorrection( ).count( stationSpacecraftPair ) &&
                 ionosphericCorrectionSettings->getReferenceRangeCorrection( ).at( stationSpacecraftPair ).count( baseObservableType ) )
             {
-//                lightTimeCorrection = std::make_shared< TabulatedIonosphericCorrection >(
-//                    ionosphericCorrectionSettings->getReferenceRangeCorrection( ).at( stationSpacecraftPair ).at(
-//                            baseObservableType ),
-//                    ...,
-//                    baseObservableType,
-//                    isUplinkCorrection,
-//                    ionosphericCorrectionSettings->getReferenceFrequency( ) );
+                lightTimeCorrection = std::make_shared< TabulatedIonosphericCorrection >(
+                    ionosphericCorrectionSettings->getReferenceRangeCorrection( ).at( stationSpacecraftPair ).at(
+                            baseObservableType ),
+                    createLinkFrequencyFunction( bodies, linkEnds, transmittingLinkEndType, receivingLinkEndType ),
+                    baseObservableType,
+                    isUplinkCorrection,
+                    ionosphericCorrectionSettings->getReferenceFrequency( ) );
             }
             else
             {

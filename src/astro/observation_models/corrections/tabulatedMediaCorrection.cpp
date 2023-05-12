@@ -349,7 +349,7 @@ double SaastamoinenTroposphericCorrection::computeWetZenithRangeCorrection( cons
 
 TabulatedIonosphericCorrection::TabulatedIonosphericCorrection(
         std::shared_ptr< TabulatedMediaReferenceCorrectionManager > referenceCorrectionCalculator,
-        std::function< double ( double time ) > transmittedFrequencyFunction,
+        std::function< double ( std::vector< FrequencyBands > frequencyBands, double time ) > transmittedFrequencyFunction,
         ObservableType observableType,
         bool isUplinkCorrection,
         double referenceFrequency ):
@@ -388,8 +388,26 @@ double TabulatedIonosphericCorrection::calculateLightTimeCorrectionWithMultiLegL
 
     double firstLegTransmissionTime = linkEndsTimes.front( );
 
+    // Retrieve frequency bands
+    std::vector< FrequencyBands > frequencyBands;
+    if( ancillarySettings == nullptr )
+    {
+        throw std::runtime_error(
+                "Error when computing tabulated ionospheric corrections: no ancillary settings found. " );
+    }
+    try
+    {
+        frequencyBands = convertDoubleVectorToFrequencyBands( ancillarySettings->getAncilliaryDoubleVectorData( frequency_bands ) );
+    }
+    catch( std::runtime_error& caughtException )
+    {
+        throw std::runtime_error(
+                "Error when retrieving frequency bands for tabulated ionospheric corrections: " +
+                std::string( caughtException.what( ) ) );
+    }
+
     return sign_ * referenceCorrectionCalculator_->computeMediaCorrection( stationTime ) *
-        std::pow( referenceFrequency_ / transmittedFrequencyFunction_( firstLegTransmissionTime ), 2.0 );
+        std::pow( referenceFrequency_ / transmittedFrequencyFunction_( frequencyBands, firstLegTransmissionTime ), 2.0 );
 }
 
 } // namespace observation_models
