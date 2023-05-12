@@ -68,7 +68,7 @@ BOOST_AUTO_TEST_CASE( testAngularPositionModel )
     
 
     // Define link ends for observations.
-    LinkDefinition linkEnds;
+    LinkEnds linkEnds;
     linkEnds[ transmitter ] = std::make_pair< std::string, std::string >( "Earth" , "" );
     linkEnds[ receiver ] = std::make_pair< std::string, std::string >( "Mars" , ""  );
 
@@ -105,7 +105,7 @@ BOOST_AUTO_TEST_CASE( testAngularPositionModel )
     // Manually create and compute light time corrections
     std::shared_ptr< LightTimeCorrection > lightTimeCorrectionCalculator =
             createLightTimeCorrections(
-                lightTimeCorrectionSettings.at( 0 ), bodies, linkEnds[ transmitter ], linkEnds[ receiver ] );
+                lightTimeCorrectionSettings.at( 0 ), bodies, linkEnds, transmitter, receiver );
     double lightTimeCorrection = lightTimeCorrectionCalculator->calculateLightTimeCorrection(
                 linkEndStates.at( 0 ), linkEndStates.at( 1 ), linkEndTimes.at( 0 ), linkEndTimes.at( 1 ) );
 

@@ -43,8 +43,9 @@ createLightTimeCalculator(
         const std::function< Eigen::Matrix< ObservationScalarType, 6, 1 >( const TimeType ) >& receiverCompleteEphemeris,
         const simulation_setup::SystemOfBodies& bodies,
         const std::vector< std::shared_ptr< LightTimeCorrectionSettings > >& lightTimeCorrections,
-        const LinkEndId& transmittingLinkEnd,
-        const LinkEndId& receivingLinkEnd,
+        const LinkEnds& linkEnds,
+        const LinkEndType& transmittingLinkEndType,
+        const LinkEndType& receivingLinkEndType,
         const ObservableType observableType,
         const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria
             = std::make_shared< LightTimeConvergenceCriteria >( )  )
@@ -55,7 +56,8 @@ createLightTimeCalculator(
     for( unsigned int i = 0; i < lightTimeCorrections.size( ); i++ )
     {
         std::shared_ptr< LightTimeCorrection > lightTimeCorrectionFunction = createLightTimeCorrections(
-                        lightTimeCorrections[ i ], bodies, transmittingLinkEnd, receivingLinkEnd, observableType );
+                        lightTimeCorrections[ i ], bodies, linkEnds, transmittingLinkEndType,
+                        receivingLinkEndType, observableType );
 
         if ( lightTimeCorrectionFunction != nullptr )
         {
@@ -82,8 +84,9 @@ createLightTimeCalculator(
 template< typename ObservationScalarType = double, typename TimeType = double >
 std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > >
 createLightTimeCalculator(
-        const LinkEndId& transmittingLinkEnd,
-        const LinkEndId& receivingLinkEnd,
+        const LinkEnds& linkEnds,
+        const LinkEndType& transmittingLinkEndType,
+        const LinkEndType& receivingLinkEndType,
         const simulation_setup::SystemOfBodies& bodies,
         const ObservableType observableType = undefined_observation_model,
         const std::vector< std::shared_ptr< LightTimeCorrectionSettings > >& lightTimeCorrections =
@@ -95,11 +98,11 @@ createLightTimeCalculator(
     // Get link end state functions and create light time calculator.
     return createLightTimeCalculator< ObservationScalarType, TimeType >(
                 simulation_setup::getLinkEndCompleteEphemerisFunction< TimeType, ObservationScalarType >(
-                    transmittingLinkEnd, bodies ),
+                    linkEnds.at( transmittingLinkEndType ), bodies ),
                 simulation_setup::getLinkEndCompleteEphemerisFunction< TimeType, ObservationScalarType >(
-                    receivingLinkEnd, bodies ),
-                bodies, lightTimeCorrections, transmittingLinkEnd, receivingLinkEnd, observableType,
-                lightTimeConvergenceCriteria );
+                    linkEnds.at( receivingLinkEndType ), bodies ),
+                bodies, lightTimeCorrections, linkEnds, transmittingLinkEndType, receivingLinkEndType,
+                observableType, lightTimeConvergenceCriteria );
 }
 
 template< typename ObservationScalarType = double, typename TimeType = double >
@@ -189,7 +192,7 @@ std::shared_ptr< MultiLegLightTimeCalculator< ObservationScalarType, TimeType > 
 
         lightTimeCalculators.push_back(
                 createLightTimeCalculator< ObservationScalarType, TimeType >(
-                        transmitterIterator->second, receiverIterator->second,
+                        linkEnds, transmitterIterator->first, receiverIterator->first,
                         bodies, observableType, currentLightTimeCorrections,
                         currentConvergenceCriteria ) );
 

@@ -146,7 +146,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
 
         // Creare independent light time calculator object
         std::shared_ptr< LightTimeCalculator< double, double > > lightTimeCalculator =
-                createLightTimeCalculator( linkEnds[ transmitter ], linkEnds[ receiver ], bodies );
+                createLightTimeCalculator( linkEnds, transmitter, receiver, bodies );
         Eigen::Vector6d transmitterState, receiverState;
         // Compute light time
         double lightTime = lightTimeCalculator->calculateLightTimeWithLinkEndsStates(
@@ -365,9 +365,9 @@ BOOST_AUTO_TEST_CASE( testTwoWayDoppplerModel )
 
         // Creare independent light time calculator objects
         std::shared_ptr< LightTimeCalculator< double, double > > uplinkLightTimeCalculator =
-                createLightTimeCalculator( linkEnds[ transmitter ], linkEnds[ reflector1 ], bodies );
+                createLightTimeCalculator( linkEnds, transmitter, reflector1, bodies );
         std::shared_ptr< LightTimeCalculator< double, double > > downlinkLightTimeCalculator =
-                createLightTimeCalculator( linkEnds[ reflector1 ], linkEnds[ receiver ], bodies );
+                createLightTimeCalculator( linkEnds, reflector1, receiver, bodies );
 
         // Test observable for both fixed link ends
         for( unsigned testCase = 0; testCase < 3; testCase++ )
