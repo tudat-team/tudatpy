@@ -13,6 +13,7 @@
 #define TUDAT_OBSERVATIONFREQUENCIES_H
 
 #include <string>
+#include <vector>
 
 namespace tudat
 {
@@ -35,6 +36,10 @@ double getDsnDefaultTurnaroundRatios( FrequencyBands uplinkBand, FrequencyBands 
 double getCassiniTurnaroundRatio( );
 
 double getCassiniTurnaroundRatio( FrequencyBands uplinkBand, FrequencyBands downlinkBand );
+
+std::vector< double > convertFrequencyBandsToDoubleVector( const std::vector< FrequencyBands >& frequencyBands );
+
+std::vector< FrequencyBands > convertDoubleVectorToFrequencyBands( const std::vector< double >& frequencyBands );
 
 } // namespace observation_models
 

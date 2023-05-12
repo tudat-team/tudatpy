@@ -305,6 +305,19 @@ std::shared_ptr< TroposhericElevationMapping > createTroposphericElevationMappin
     return troposphericMappingModel;
 }
 
+std::function< double ( double ) > createLinkFrequencyFunction(
+        const simulation_setup::SystemOfBodies& bodies,
+        const LinkEnds& linkEnds,
+        const LinkEndType& transmittingLinkEndType,
+        const LinkEndType& receivingLinkEndType )
+{
+    std::shared_ptr< ground_stations::StationFrequencyInterpolator > transmittedFrequencyCalculator = bodies.getBody(
+            linkEnds.at( transmitter ).bodyName_ )->getGroundStation( linkEnds.at( transmitter ).stationName_
+                    )->getTransmittingFrequencyCalculator( );
+
+
+}
+
 } // namespace observation_models
 
 } // namespace tudat

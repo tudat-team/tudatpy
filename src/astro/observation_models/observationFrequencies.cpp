@@ -11,6 +11,8 @@
 
 #include "tudat/astro/observation_models/observationFrequencies.h"
 
+#include <iostream>
+
 namespace tudat
 {
 
@@ -93,6 +95,35 @@ double getCassiniTurnaroundRatio( )
 double getCassiniTurnaroundRatio( FrequencyBands uplinkBand, FrequencyBands downlinkBand )
 {
     return getCassiniTurnaroundRatio( );
+}
+
+std::vector< double > convertFrequencyBandsToDoubleVector( const std::vector< FrequencyBands >& frequencyBands )
+{
+    std::vector< double > doubleFrequencyBands;
+
+    for ( FrequencyBands frequencyBand : frequencyBands )
+    {
+        doubleFrequencyBands.push_back( frequencyBand );
+    }
+
+    for ( unsigned int i = 0; i < doubleFrequencyBands.size(); ++i )
+    {
+        std::cerr << doubleFrequencyBands.at(i) << " ";
+    }
+
+    return doubleFrequencyBands;
+}
+
+std::vector< FrequencyBands > convertDoubleVectorToFrequencyBands( const std::vector< double >& frequencyBands )
+{
+    std::vector< FrequencyBands > frequencyBandFrequencyBands;
+
+    for ( double frequencyBand : frequencyBands )
+    {
+        frequencyBandFrequencyBands.push_back( static_cast< FrequencyBands >( frequencyBand ) );
+    }
+
+    return frequencyBandFrequencyBands;
 }
 
 } // namespace observation_models
