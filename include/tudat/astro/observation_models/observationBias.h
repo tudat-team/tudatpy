@@ -46,7 +46,8 @@ enum ObservationBiasTypes
     constant_time_drift_bias,
     arc_wise_time_drift_bias,
     constant_time_bias,
-    arc_wise_time_bias
+    arc_wise_time_bias,
+    clock_induced_bias
 };
 
 //! Base class (non-functional) for describing observation biases
@@ -1188,8 +1189,10 @@ public:
 
     ClockInducedRangeBias(
             const std::shared_ptr< system_models::TimingSystem > timingSystem,
-            const int linkEndIndexForTime ):
-            timingSystem_( timingSystem ), linkEndIndexForTime_( linkEndIndexForTime ){ }
+            const int linkEndIndexForTime,
+            const observation_models::LinkEndId linkEndId ):
+            timingSystem_( timingSystem ), linkEndIndexForTime_( linkEndIndexForTime ),
+            signMultiplier_( linkEndIndexForTime == 1 ? 1.0 : -1.0 ), linkEndId_( linkEndId ){ }
 
     //! Destructor
     ~ClockInducedRangeBias( ){ }
@@ -1200,7 +1203,17 @@ public:
             const Eigen::Matrix< double, ObservationSize, 1 >& currentObservableValue =
             ( Eigen::Matrix< double, ObservationSize, 1 >( ) << TUDAT_NAN ).finished( ) )
     {
-        return timingSystem_->getCompleteClockError( linkEndTimes.at( linkEndIndexForTime_ ) ) * physical_constants::SPEED_OF_LIGHT;
+        return -signMultiplier_ * Eigen::Matrix< double, ObservationSize, 1 >::Ones( ) * timingSystem_->getCompleteClockError( linkEndTimes.at( linkEndIndexForTime_ ) ) * physical_constants::SPEED_OF_LIGHT;
+    }
+
+    std::shared_ptr< system_models::TimingSystem > getTimingSystem( )
+    {
+        return timingSystem_;
+    }
+
+    LinkEndId getLinkEndId( )
+    {
+        return linkEndId_;
     }
 
 private:
@@ -1211,6 +1224,9 @@ private:
     //! function.
     int linkEndIndexForTime_;
 
+    double signMultiplier_;
+
+    LinkEndId linkEndId_;
 };
 
 
@@ -1263,6 +1279,15 @@ ObservationBiasTypes getObservationBiasType(
     {
         biasType = arc_wise_time_bias;
     }
+    else if( std::dynamic_pointer_cast< ClockInducedRangeBias< ObservationSize > >( biasObject ) != nullptr )
+    {
+        biasType = clock_induced_bias;
+    }
+    else if( biasObject == nullptr )
+    {
+        std::string errorMessage = "Error, found nullptr when retrieving bias type";
+        throw std::runtime_error( errorMessage );
+    }
     else
     {
         std::string errorMessage = "Error, did not recognize observation bias when retrieving bias type";
@@ -1270,6 +1295,34 @@ ObservationBiasTypes getObservationBiasType(
     }
     return biasType;
 }
+
+template< int ObservationSize = 1 >
+std::vector< std::shared_ptr< ObservationBias< ObservationSize > > > getClockInducedBiases(
+        const std::shared_ptr< ObservationBias< ObservationSize > > fullBias )
+{
+    std::vector< std::shared_ptr< ObservationBias< ObservationSize > > > clockInducedBiases;
+    if( fullBias != nullptr )
+    {
+        if( getObservationBiasType( fullBias ) == clock_induced_bias )
+        {
+            clockInducedBiases.push_back( fullBias );
+        }
+        else if( getObservationBiasType( fullBias ) == multiple_observation_biases )
+        {
+            std::shared_ptr< MultiTypeObservationBias< ObservationSize > > combinedBias =
+                    std::dynamic_pointer_cast< MultiTypeObservationBias< ObservationSize > >( fullBias );
+            for( unsigned int i = 0; i < combinedBias->getBiasList( ).size( ); i++ )
+            {
+                if( getObservationBiasType( combinedBias->getBiasList( ).at( i ) ) == clock_induced_bias )
+                {
+                    clockInducedBiases.push_back( combinedBias->getBiasList( ).at( i ) );
+                }
+            }
+        }
+    }
+    return clockInducedBiases;
+}
+
 
 } // namespace observation_models
 

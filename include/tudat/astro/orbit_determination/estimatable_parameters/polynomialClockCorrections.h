@@ -64,6 +64,12 @@ public:
         return timingSystem_;
     }
 
+    observation_models::LinkEndId getLinkEndId( )
+    {
+        return observation_models::LinkEndId( parameterName_.second );
+    }
+
+
 
 protected:
 
@@ -145,6 +151,11 @@ public:
     std::vector< int > getArcIndices( )
     {
         return arcIndices_;
+    }
+
+    observation_models::LinkEndId getLinkEndId( )
+    {
+        return observation_models::LinkEndId( parameterName_.second );
     }
 
 protected:

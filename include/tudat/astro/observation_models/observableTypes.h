@@ -105,7 +105,7 @@ std::vector< int > getLinkEndIndicesForLinkEndTypeAtObservable(
 //! Function to retrieve the link end indices in link end states/times that are to be used in viability calculation
 /*!
  * Function to retrieve the link end indices in link end states/times that are to be used in viability calculation.
- * Return variable is a vector of pairs, where each the first entry denotes the index of the point at which the link is to be
+ * Return variable is a vector of pairs, where eacgetLinkEndTypesForGivenLinkEndIdh the first entry denotes the index of the point at which the link is to be
  * checkd. The second entry denotes the index for the opposite end of the link.
  * \param linkEnds Complete set of link ends for which check is to be performed
  * \param observableType Observable type for which check is to be performed

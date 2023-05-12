@@ -65,7 +65,7 @@ std::shared_ptr< ObservationPartial< ObservationSize > > createObservationPartia
 {
     std::shared_ptr< ObservationPartial< ObservationSize > > observationPartial;
 
-    observationPartial = createPartialWrtClockProperty(
+    observationPartial = ObservationPartialWrtClockCreator< Eigen::VectorXd, ObservationSize >::createPartialWrtClockProperty(
             linkEnds, observableType, parameterToEstimate, getClockInducedBiases( observationBiases ) );
     if( observationPartial == nullptr )
     {
