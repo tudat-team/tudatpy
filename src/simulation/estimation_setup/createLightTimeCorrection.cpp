@@ -305,7 +305,7 @@ std::shared_ptr< TroposhericElevationMapping > createTroposphericElevationMappin
     return troposphericMappingModel;
 }
 
-std::function< double ( double ) > createLinkFrequencyFunction(
+std::function< double ( std::vector< FrequencyBands >, double ) > createLinkFrequencyFunction(
         const simulation_setup::SystemOfBodies& bodies,
         const LinkEnds& linkEnds,
         const LinkEndType& transmittingLinkEndType,
@@ -315,7 +315,29 @@ std::function< double ( double ) > createLinkFrequencyFunction(
             linkEnds.at( transmitter ).bodyName_ )->getGroundStation( linkEnds.at( transmitter ).stationName_
                     )->getTransmittingFrequencyCalculator( );
 
+    std::vector< std::function< double ( FrequencyBands, FrequencyBands ) > > turnaroundRatioFunctions;
 
+    for ( auto retransmitterLinkEndsIt = linkEnds.begin( )++; retransmitterLinkEndsIt->first != receivingLinkEndType;
+            ++retransmitterLinkEndsIt )
+    {
+        turnaroundRatioFunctions.push_back( bodies.getBody( retransmitterLinkEndsIt->second.bodyName_
+            )->getVehicleSystems( )->getTransponderTurnaroundRatio( ) );
+    }
+
+    std::function< double ( std::vector< FrequencyBands >, double ) > linkFrequencyFunction = [=] (
+            const std::vector< FrequencyBands >& frequencyBands, const double time )
+    {
+        double frequency = transmittedFrequencyCalculator->getTemplatedCurrentFrequency< double, double >( time );
+
+        for ( unsigned int i = 0; i < turnaroundRatioFunctions.size( ); ++i )
+        {
+            frequency *= turnaroundRatioFunctions.at( i )( frequencyBands.at( i ), frequencyBands.at( i + 1 ) );
+        }
+
+        return frequency;
+    };
+
+    return linkFrequencyFunction;
 }
 
 } // namespace observation_models
