@@ -221,7 +221,7 @@ std::shared_ptr< TroposhericElevationMapping > createTroposphericElevationMappin
         const LinkEndId& receiver,
         const bool isUplinkCorrection );
 
-std::function< double ( double ) > createLinkFrequencyFunction(
+std::function< double ( std::vector< FrequencyBands >, double ) > createLinkFrequencyFunction(
         const simulation_setup::SystemOfBodies& bodies,
         const LinkEnds& linkEnds,
         const LinkEndType& transmittingLinkEndType,
