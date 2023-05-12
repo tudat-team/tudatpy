@@ -124,7 +124,7 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerPartials )
                 dsnNWayAveragedDopplerModel, bodies, fullEstimatableParameterSet, linkEnds,
                 dsn_n_way_averaged_doppler, 1.0E-4, true, true, 1000.0, parameterPerturbationMultipliers,
                 getDsnNWayAveragedDopplerAncillarySettings(
-                        x_band, x_band, 60.0, 7.0e9, getRetransmissionDelays( initialEphemerisTime, 1 ) ),
+                        std::vector< FrequencyBands >{ x_band, x_band }, 60.0, 7.0e9, getRetransmissionDelays( initialEphemerisTime, 1 ) ),
                         stateEvaluationTime );
     }
 
@@ -167,7 +167,7 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerPartials )
                dsnNWayAveragedDopplerModel, bodies, fullEstimatableParameterSet, linkEnds,
                dsn_n_way_averaged_doppler, 1.0E-4, false, true, 1000.0, parameterPerturbationMultipliers,
                getDsnNWayAveragedDopplerAncillarySettings(
-                       x_band, x_band, 60.0, 7.0e9, getRetransmissionDelays( initialEphemerisTime, 1 ) ),
+                       std::vector< FrequencyBands >{ x_band, x_band }, 60.0, 7.0e9, getRetransmissionDelays( initialEphemerisTime, 1 ) ),
                        stateEvaluationTime );
     }
 }

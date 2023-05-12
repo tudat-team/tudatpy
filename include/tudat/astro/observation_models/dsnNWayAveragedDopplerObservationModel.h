@@ -53,12 +53,11 @@ inline double getDsnNWayAveragedDopplerScalingFactor(
         const bool isFirstPartial )
 {
     double integrationTime;
-    FrequencyBands uplinkBand, downlinkBand;
+    std::vector< FrequencyBands > frequencyBands;
     try
     {
         integrationTime = ancillarySettings->getAncilliaryDoubleData( doppler_integration_time );
-        uplinkBand = static_cast< FrequencyBands >( ancillarySettings->getAncilliaryDoubleData( uplink_band ) );
-        downlinkBand = static_cast< FrequencyBands >( ancillarySettings->getAncilliaryDoubleData( downlink_band ) );
+        frequencyBands = convertDoubleVectorToFrequencyBands( ancillarySettings->getAncilliaryDoubleVectorData( frequency_bands ) );
     }
     catch( std::runtime_error& caughtException )
     {
@@ -66,6 +65,16 @@ inline double getDsnNWayAveragedDopplerScalingFactor(
                 "Error when retrieving integration ancillary settings for DSN N-way averaged Doppler observable: " +
                 std::string( caughtException.what( ) ) );
     }
+
+    if ( frequencyBands.size( ) != linkEnds.size( ) - 1 )
+    {
+        throw std::runtime_error(
+                "Error when retrieving frequency bands ancillary settings for DSN N-way averaged Doppler observable partials: "
+                "size (" + std::to_string( frequencyBands.size( ) ) + ") is inconsistent with number of links (" +
+                std::to_string( linkEnds.size( ) - 1 ) + ")." );
+    }
+    FrequencyBands uplinkBand = frequencyBands.at( 0 );
+    FrequencyBands downlinkBand = frequencyBands.at( 1 );
 
     double transmissionTime;
     if ( referenceLinkEnd == receiver )
@@ -196,20 +205,29 @@ public:
 
         TimeType integrationTime;
         ObservationScalarType referenceFrequency;
-        FrequencyBands uplinkBand, downlinkBand;
+        std::vector< FrequencyBands > frequencyBands;
         try
         {
             integrationTime = ancillarySettings->getAncilliaryDoubleData( doppler_integration_time );
             referenceFrequency = ancillarySettings->getAncilliaryDoubleData( doppler_reference_frequency );
-            uplinkBand = static_cast< FrequencyBands >( ancillarySettings->getAncilliaryDoubleData( uplink_band ) );
-            downlinkBand = static_cast< FrequencyBands >( ancillarySettings->getAncilliaryDoubleData( downlink_band ) );
+            frequencyBands = convertDoubleVectorToFrequencyBands( ancillarySettings->getAncilliaryDoubleVectorData( frequency_bands ) );
         }
         catch( std::runtime_error& caughtException )
         {
             throw std::runtime_error(
-                    "Error when retrieving integration ancillary settings for DSN N-way averaged Doppler observable: " +
+                    "Error when retrieving ancillary settings for DSN N-way averaged Doppler observable: " +
                     std::string( caughtException.what( ) ) );
         }
+
+        if ( frequencyBands.size( ) != numberOfLinkEnds_ - 1 )
+        {
+            throw std::runtime_error(
+                    "Error when retrieving frequency bands ancillary settings for DSN N-way averaged Doppler observable: "
+                    "size (" + std::to_string( frequencyBands.size( ) ) + ") is inconsistent with number of links (" +
+                    std::to_string( numberOfLinkEnds_ - 1 ) + ")." );
+        }
+        FrequencyBands uplinkBand = frequencyBands.at( 0 );
+        FrequencyBands downlinkBand = frequencyBands.at( 1 );
 
         TimeType receptionStartTime = time - integrationTime / 2.0;
         TimeType receptionEndTime = time + integrationTime / 2.0;

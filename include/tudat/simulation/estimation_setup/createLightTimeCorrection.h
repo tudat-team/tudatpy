@@ -221,6 +221,12 @@ std::shared_ptr< TroposhericElevationMapping > createTroposphericElevationMappin
         const LinkEndId& receiver,
         const bool isUplinkCorrection );
 
+std::function< double ( double ) > createLinkFrequencyFunction(
+        const simulation_setup::SystemOfBodies& bodies,
+        const LinkEnds& linkEnds,
+        const LinkEndType& transmittingLinkEndType,
+        const LinkEndType& receivingLinkEndType );
+
 } // namespace observation_models
 
 } // namespace tudat
