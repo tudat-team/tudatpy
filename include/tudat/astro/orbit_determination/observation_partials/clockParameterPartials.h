@@ -68,7 +68,7 @@ public:
 
 
             partialSet.push_back( std::make_pair(
-                                      -physical_constants::SPEED_OF_LIGHT * timingPartialIterator_->second.second *
+                                      physical_constants::SPEED_OF_LIGHT * timingPartialIterator_->second.second *
                                       timingPartialIterator_->second.first->getPartialOfClockErrorWrtParameter( currentTime ), currentTime ) );
         }
 
