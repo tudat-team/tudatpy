@@ -1203,7 +1203,7 @@ public:
             const Eigen::Matrix< double, ObservationSize, 1 >& currentObservableValue =
             ( Eigen::Matrix< double, ObservationSize, 1 >( ) << TUDAT_NAN ).finished( ) )
     {
-        return -signMultiplier_ * Eigen::Matrix< double, ObservationSize, 1 >::Ones( ) * timingSystem_->getCompleteClockError( linkEndTimes.at( linkEndIndexForTime_ ) ) * physical_constants::SPEED_OF_LIGHT;
+        return signMultiplier_ * Eigen::Matrix< double, ObservationSize, 1 >::Ones( ) * timingSystem_->getCompleteClockError( linkEndTimes.at( linkEndIndexForTime_ ) ) * physical_constants::SPEED_OF_LIGHT;
     }
 
     std::shared_ptr< system_models::TimingSystem > getTimingSystem( )

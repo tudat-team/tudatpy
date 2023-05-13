@@ -229,11 +229,11 @@ BOOST_AUTO_TEST_CASE( test_ClockPartials )
     BOOST_CHECK_CLOSE_FRACTION( rangePartialWrtArcWiseSatelliteClockParameters[ 0 ].second, testTime, std::numeric_limits< double >::epsilon( ) );
 
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( rangePartialWrtGlobalSatelliteClockParameters[ 0 ].first,
-                                       ( -1.0 * expectedGlobalSatelliteCoefficientPartials * physical_constants::SPEED_OF_LIGHT ),
+                                       ( 1.0 * expectedGlobalSatelliteCoefficientPartials * physical_constants::SPEED_OF_LIGHT ),
                                        std::numeric_limits< double >::epsilon( ) );
 
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( rangePartialWrtArcWiseSatelliteClockParameters[ 0 ].first,
-                                       ( -1.0 * expectedArcWiseSatelliteCoefficientPartials * physical_constants::SPEED_OF_LIGHT ),
+                                       ( 1.0 * expectedArcWiseSatelliteCoefficientPartials * physical_constants::SPEED_OF_LIGHT ),
                                        std::numeric_limits< double >::epsilon( ) );
 
     // Create parameters from global and arcwise station clock corrections.
@@ -304,10 +304,10 @@ BOOST_AUTO_TEST_CASE( test_ClockPartials )
                                 - rangeWithoutTimeError.x( ) / physical_constants::SPEED_OF_LIGHT, std::numeric_limits< double >::epsilon( ) );
 
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( rangePartialWrtGlobalStationClockParameters[ 0 ].first,
-                                       ( expectedGlobalStationCoefficientPartials * physical_constants::SPEED_OF_LIGHT ),
+                                       ( -expectedGlobalStationCoefficientPartials * physical_constants::SPEED_OF_LIGHT ),
                                        std::numeric_limits< double >::epsilon( ) );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( rangePartialWrtArcWiseStationClockParameters[ 0 ].first,
-                                       ( expectedArcWiseStationCoefficientPartials * physical_constants::SPEED_OF_LIGHT ),
+                                       ( -expectedArcWiseStationCoefficientPartials * physical_constants::SPEED_OF_LIGHT ),
                                        std::numeric_limits< double >::epsilon( ) );
 }
 
