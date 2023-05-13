@@ -304,6 +304,15 @@ else( )
     add_definitions(-DTUDAT_BUILD_WITH_NRLMSISE=0)
 endif ()
 
+if(NOT APPLE)
+    find_package(FFTW3)
+    message(STATUS ${FFTW3_LIBRARIES})
+    include_directories(SYSTEM AFTER "${FFTW3_INCLUDE_DIRS}")
+    set (FFTW3_LIBRARIES "/home/dominic/miniconda3/envs/tudat-bundle-sandbox/lib/libfftw3.so")
+else( )
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isystem \"${FFTW_INCLUDE_DIR}\"")
+endif( )
+
 # JSON
 if (TUDAT_BUILD_WITH_JSON_INTERFACE)
     find_package(nlohmann_json REQUIRED 3.7.3)
