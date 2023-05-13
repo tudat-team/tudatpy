@@ -146,6 +146,10 @@ std::shared_ptr< RandomVariableGenerator< double > > createBoostContinuousRandom
         const std::vector< double >& parameters,
         const double seed );
 
+static const std::shared_ptr< RandomVariableGenerator< double > > defaultRandomSeedGenerator =
+        createBoostContinuousRandomVariableGenerator(
+                uniform_boost_distribution, std::vector< double >( { 0.0, 1.0E16 } ), 42 );
+
 } // namespace statistics
 
 } // namespace tudat

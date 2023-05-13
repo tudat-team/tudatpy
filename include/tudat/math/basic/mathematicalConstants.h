@@ -41,6 +41,8 @@ constexpr static double E = 2.7182818284590452353602874;
  */
 constexpr static double GOLDEN_RATIO = 1.6180339887498948482;
 
+const static double EULER_MASCHERONI_CONSTANT = 0.577215664901532860606512090082;
+
 //! Independent root of -1, typically denoted i.
 /*!
  *  Independent root of -1, typically denoted i.

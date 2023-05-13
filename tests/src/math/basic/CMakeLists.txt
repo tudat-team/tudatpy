@@ -25,3 +25,4 @@ TUDAT_ADD_TEST_CASE(SphericalHarmonics PRIVATE_LINKS tudat_basic_mathematics)
 TUDAT_ADD_TEST_CASE(RotationAboutArbitraryAxis PRIVATE_LINKS tudat_basic_mathematics)
 
 TUDAT_ADD_TEST_CASE(RotationPartials PRIVATE_LINKS tudat_basic_mathematics tudat_reference_frames)
+

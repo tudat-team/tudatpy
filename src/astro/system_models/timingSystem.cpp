@@ -7,137 +7,139 @@
 #include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/astro/system_models/timingSystem.h"
 #include "tudat/math/basic/linearAlgebra.h"
-//#include "Mathematics/Statistics/powerLawNoiseGeneration.h"
+#include "tudat/math/interpolators/linearInterpolator.h"
+#include "tudat/math/statistics/powerLawNoiseGeneration.h"
 
 namespace tudat
 {
 
 namespace system_models
 {
-//
-////! Function to convert allan variance amplitudes (time domain) to phase noise amplitudes (frequency domain)
-//std::map< int, double > convertAllanVarianceAmplitudesToPhaseNoiseAmplitudes(
-//        const std::map< int, double > allanVarianceAmplitudes,
-//        const double frequencyDomainCutoffFrequency,
-//        const bool isInverseSquareTermFlickerPhaseNoise )
-//{
-//    std::map< int, double > phaseNoiseAmplitudes;
-//
-//    // Iterate over all allan variance amplitudes and calculate associated phase noise amplitude.
-//    for( std::map< int, double >::const_iterator amplitudeIterator = allanVarianceAmplitudes.begin( );
-//         amplitudeIterator != allanVarianceAmplitudes.end( ); amplitudeIterator++ )
-//    {
-//        // Check if requested amplitude is within implemented range.
-//        if( amplitudeIterator->first < -2 || amplitudeIterator->first > 1 )
-//        {
-//            std::cerr<<"Error, Allan variance amplitude not in correct range, found "<<amplitudeIterator->first<<std::endl;
-//        }
-//        else
-//        {
-//            switch( amplitudeIterator->first )
-//            {
-//            case -2:
-//                if( isInverseSquareTermFlickerPhaseNoise )
-//                {
-//                    phaseNoiseAmplitudes[ -1 ] = amplitudeIterator->second * 1.0 / (
-//                                3.0 * ( mathematical_constants::EULER_MASCHERONI_CONSTANT +  2.0 *
-//                                        std::log( 2.0 * mathematical_constants::PI * frequencyDomainCutoffFrequency ) ) - std::log( 2 ) );
-//                }
-//                else
-//                {
-//                    phaseNoiseAmplitudes[ 0 ] = amplitudeIterator->second / ( 3.0 * frequencyDomainCutoffFrequency );
-//                }
-//                break;
-//            case -1:
-//                phaseNoiseAmplitudes[ -2 ] = amplitudeIterator->second / ( 2.0 * mathematical_constants::PI * mathematical_constants::PI );
-//                break;
-//            case 0:
-//                phaseNoiseAmplitudes[ -3 ] = amplitudeIterator->second / ( 8.0 * mathematical_constants::PI * mathematical_constants::PI * std::log( 2.0 ) );
-//                break;
-//            case 1:
-//                phaseNoiseAmplitudes[ -4 ] = 3.0 * amplitudeIterator->second / ( 8.0 * std::pow( mathematical_constants::PI, 4.0 ) );
-//                break;
-//            default:
-//                std::cerr<<"Error, did not recognize Allan variance power of "<<amplitudeIterator->first<<std::endl;
-//            }
-//        }
-//    }
-//    return phaseNoiseAmplitudes;
-//}
-//
-////! Function to generate clock noise for a clock with given allan variance behaviour
-//std::pair< std::vector< double >, double > generateClockNoise( const std::map< int, double > allanVarianceAmplitudes,
-//                                                               const double startTime, const double endTime,
-//                                                               const int numberOfTimeSteps, const bool isInverseSquareTermFlickerPhaseNoise,
-//                                                               const double seed )
-//{
-//    using namespace statistics;
-//
-//    // Calculate time step between subsequent realizations of stochastic process
-//    double timeStep = ( endTime - startTime ) / static_cast< double >( numberOfTimeSteps );
-//
-//    // Calculate maximum noise frequency that can be generated with goven time step
-//    double maximumFrequency = 0.5 / timeStep;
-//
-//    // Calculate number of steps in frequency domain (for real time domain data)
-//    int numberOfFrequencySteps = numberOfTimeSteps / 2;
-//
-//    if( numberOfTimeSteps % 2 == 1 )
-//    {
-//        numberOfFrequencySteps++;
-//    }
-//
-//    // Convert time domain amplitudes to frequency domain amplitudes.
-//    std::map< int, double > phaseNoiseAmplitudes = convertAllanVarianceAmplitudesToPhaseNoiseAmplitudes(
-//                allanVarianceAmplitudes, maximumFrequency, isInverseSquareTermFlickerPhaseNoise );
-//
-//    std::map< double, double > doublePhaseNoiseAmplitudes;
-//
-//    for( std::map< int, double >::iterator noiseIterator = phaseNoiseAmplitudes.begin( ); noiseIterator != phaseNoiseAmplitudes.end( );
-//         noiseIterator++ )
-//    {
-//        doublePhaseNoiseAmplitudes[ static_cast< double >( noiseIterator->first ) ] = noiseIterator->second;
-//
-//    }
-//    // return clock noise with time step used.
-//    return generatePowerLawNoise(
-//        maximumFrequency, numberOfFrequencySteps, doublePhaseNoiseAmplitudes, seed );
-//}
-//
-//std::map< double, double > generateClockNoiseMap( const std::map< int, double >& allanVarianceAmplitudes,
-//                                                  const double startTime, const double endTime,
-//                                                  const double timeStep, const bool isInverseSquareTermFlickerPhaseNoise, const double seed )
-//{
-//    int numberOfTimeSteps = std::ceil( ( endTime - startTime ) / timeStep );
-//
-//    std::cout<<"Generating clock noise with :"<<numberOfTimeSteps<<" steps"<<std::endl;
-//
-//    std::pair< std::vector< double >, double > clockNoise = generateClockNoise(
-//                allanVarianceAmplitudes, startTime, endTime, numberOfTimeSteps, isInverseSquareTermFlickerPhaseNoise, seed );
-//    std::map< double, double > clockNoiseMap;
-//
-//    for( unsigned int i = 0; i < clockNoise.first.size( ); i++ )
-//    {
-//        clockNoiseMap[ startTime + static_cast< double >( i * clockNoise.second ) ] = clockNoise.first[ i ];
-//    }
-//
-//    return clockNoiseMap;
-//}
-//
-//std::function< double( const double ) > getClockNoiseInterpolator(
-//        const std::map< int, double > allanVarianceAmplitudes,
-//        const double startTime, const double endTime,
-//        const double timeStep, const bool isInverseSquareTermFlickerPhaseNoise, const double seed )
-//{
-//    std::map< double, double > clockNoiseMap = generateClockNoiseMap( allanVarianceAmplitudes, startTime, endTime, timeStep,
-//                                                                      isInverseSquareTermFlickerPhaseNoise, seed );
-//
-//    typedef interpolators::OneDimensionalInterpolator< double, double > LocalInterpolator;
-//
-//    return std::bind(
-//                static_cast< double( LocalInterpolator::* )( const double ) >
-//                ( &LocalInterpolator::interpolate ), std::make_shared< interpolators::LinearInterpolatorDouble >( clockNoiseMap ), _1 );
-//}
+
+//! Function to convert allan variance amplitudes (time domain) to phase noise amplitudes (frequency domain)
+std::map< int, double > convertAllanVarianceAmplitudesToPhaseNoiseAmplitudes(
+        const std::map< int, double > allanVarianceAmplitudes,
+        const double frequencyDomainCutoffFrequency,
+        const bool isInverseSquareTermFlickerPhaseNoise )
+{
+    std::map< int, double > phaseNoiseAmplitudes;
+
+    // Iterate over all allan variance amplitudes and calculate associated phase noise amplitude.
+    for( std::map< int, double >::const_iterator amplitudeIterator = allanVarianceAmplitudes.begin( );
+         amplitudeIterator != allanVarianceAmplitudes.end( ); amplitudeIterator++ )
+    {
+        // Check if requested amplitude is within implemented range.
+        if( amplitudeIterator->first < -2 || amplitudeIterator->first > 1 )
+        {
+            std::cerr<<"Error, Allan variance amplitude not in correct range, found "<<amplitudeIterator->first<<std::endl;
+        }
+        else
+        {
+            switch( amplitudeIterator->first )
+            {
+            case -2:
+                if( isInverseSquareTermFlickerPhaseNoise )
+                {
+                    phaseNoiseAmplitudes[ -1 ] = amplitudeIterator->second * 1.0 / (
+                                3.0 * ( mathematical_constants::EULER_MASCHERONI_CONSTANT +  2.0 *
+                                        std::log( 2.0 * mathematical_constants::PI * frequencyDomainCutoffFrequency ) ) - std::log( 2 ) );
+                }
+                else
+                {
+                    phaseNoiseAmplitudes[ 0 ] = amplitudeIterator->second / ( 3.0 * frequencyDomainCutoffFrequency );
+                }
+                break;
+            case -1:
+                phaseNoiseAmplitudes[ -2 ] = amplitudeIterator->second / ( 2.0 * mathematical_constants::PI * mathematical_constants::PI );
+                break;
+            case 0:
+                phaseNoiseAmplitudes[ -3 ] = amplitudeIterator->second / ( 8.0 * mathematical_constants::PI * mathematical_constants::PI * std::log( 2.0 ) );
+                break;
+            case 1:
+                phaseNoiseAmplitudes[ -4 ] = 3.0 * amplitudeIterator->second / ( 8.0 * std::pow( mathematical_constants::PI, 4.0 ) );
+                break;
+            default:
+                std::cerr<<"Error, did not recognize Allan variance power of "<<amplitudeIterator->first<<std::endl;
+            }
+        }
+    }
+    return phaseNoiseAmplitudes;
+}
+
+//! Function to generate clock noise for a clock with given allan variance behaviour
+std::pair< std::vector< double >, double > generateClockNoise( const std::map< int, double > allanVarianceAmplitudes,
+                                                               const double startTime, const double endTime,
+                                                               const int numberOfTimeSteps, const bool isInverseSquareTermFlickerPhaseNoise,
+                                                               const double seed )
+{
+    using namespace statistics;
+
+    // Calculate time step between subsequent realizations of stochastic process
+    double timeStep = ( endTime - startTime ) / static_cast< double >( numberOfTimeSteps );
+
+    // Calculate maximum noise frequency that can be generated with goven time step
+    double maximumFrequency = 0.5 / timeStep;
+
+    // Calculate number of steps in frequency domain (for real time domain data)
+    int numberOfFrequencySteps = numberOfTimeSteps / 2;
+
+    if( numberOfTimeSteps % 2 == 1 )
+    {
+        numberOfFrequencySteps++;
+    }
+
+    // Convert time domain amplitudes to frequency domain amplitudes.
+    std::map< int, double > phaseNoiseAmplitudes = convertAllanVarianceAmplitudesToPhaseNoiseAmplitudes(
+                allanVarianceAmplitudes, maximumFrequency, isInverseSquareTermFlickerPhaseNoise );
+
+    std::map< double, double > doublePhaseNoiseAmplitudes;
+
+    for( std::map< int, double >::iterator noiseIterator = phaseNoiseAmplitudes.begin( ); noiseIterator != phaseNoiseAmplitudes.end( );
+         noiseIterator++ )
+    {
+        doublePhaseNoiseAmplitudes[ static_cast< double >( noiseIterator->first ) ] = noiseIterator->second;
+
+    }
+    // return clock noise with time step used.
+    return generatePowerLawNoise(
+        maximumFrequency, numberOfFrequencySteps, doublePhaseNoiseAmplitudes, seed );
+}
+
+std::map< double, double > generateClockNoiseMap( const std::map< int, double >& allanVarianceAmplitudes,
+                                                  const double startTime, const double endTime,
+                                                  const double timeStep, const bool isInverseSquareTermFlickerPhaseNoise, const double seed )
+{
+    int numberOfTimeSteps = std::ceil( ( endTime - startTime ) / timeStep );
+
+    std::cout<<"Generating clock noise with :"<<numberOfTimeSteps<<" steps"<<std::endl;
+
+    std::pair< std::vector< double >, double > clockNoise = generateClockNoise(
+                allanVarianceAmplitudes, startTime, endTime, numberOfTimeSteps, isInverseSquareTermFlickerPhaseNoise, seed );
+    std::map< double, double > clockNoiseMap;
+
+    for( unsigned int i = 0; i < clockNoise.first.size( ); i++ )
+    {
+        clockNoiseMap[ startTime + static_cast< double >( i * clockNoise.second ) ] = clockNoise.first[ i ];
+    }
+
+    return clockNoiseMap;
+}
+
+std::function< double( const double ) > getClockNoiseInterpolator(
+        const std::map< int, double > allanVarianceAmplitudes,
+        const double startTime, const double endTime,
+        const double timeStep, const bool isInverseSquareTermFlickerPhaseNoise, const double seed )
+{
+    std::map< double, double > clockNoiseMap = generateClockNoiseMap( allanVarianceAmplitudes, startTime, endTime, timeStep,
+                                                                      isInverseSquareTermFlickerPhaseNoise, seed );
+
+    typedef interpolators::OneDimensionalInterpolator< double, double > LocalInterpolator;
+
+    return std::bind(
+                static_cast< double( LocalInterpolator::* )( const double ) >
+                ( &LocalInterpolator::interpolate ), std::make_shared< interpolators::LinearInterpolatorDouble >( clockNoiseMap ),
+                        std::placeholders::_1 );
+}
 
 TimingSystem::TimingSystem( const std::vector< Time > arcTimes,
               const std::vector< double > allArcsPolynomialDriftCoefficients,
