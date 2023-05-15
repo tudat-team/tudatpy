@@ -368,6 +368,17 @@ void expose_estimation(py::module &m) {
             .def_property_readonly("ancilliary_settings", &tom::SingleObservationSet<double, TIME_TYPE>::getAncilliarySettings,
                                    get_docstring("SingleObservationSet.ancilliary_settings").c_str() );
 
+
+    m.def("single_observation_set",
+          &tss::singleObservationSetWithoutDependentVariables< double, TIME_TYPE >,
+          py::arg("observable_type"),
+          py::arg("link_definition" ),
+          py::arg("observations" ),
+          py::arg("observation_times"),
+          py::arg("reference_link_end"),
+          py::arg("ancilliary_settings") = nullptr,
+          get_docstring("single_observation_set").c_str() );
+
     /*!
      *************** STATE TRANSITION INTERFACE ***************
      */
