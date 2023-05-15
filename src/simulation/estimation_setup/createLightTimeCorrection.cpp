@@ -171,6 +171,86 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections(
 
         break;
     }
+    case saastamoinen_tropospheric:
+    {
+        std::shared_ptr< SaastamoinenTroposphericCorrectionSettings > troposphericCorrectionSettings =
+            std::dynamic_pointer_cast< SaastamoinenTroposphericCorrectionSettings >( correctionSettings );
+        if ( correctionSettings == nullptr )
+        {
+            throw std::runtime_error(
+                    "Error when creating Saastamoinen tropospheric correction: incompatible settings type." );
+        }
+
+        if ( !isRadiometricObservableType( observableType ) )
+        {
+            throw std::runtime_error(
+                    "Error when creating tabulated tropospheric correction: selected observable type is not radiometric." );
+        }
+
+        // If one of the link ends is the body with the atmosphere then create the tropospheric correction
+        if ( transmitter.bodyName_ != receiver.bodyName_ && (
+                transmitter.bodyName_ == troposphericCorrectionSettings->getBodyWithAtmosphere( ) ||
+                receiver.bodyName_ == troposphericCorrectionSettings->getBodyWithAtmosphere( ) ) )
+        {
+            bool isUplinkCorrection;
+            LinkEndId groundStation;
+            if( transmitter.bodyName_ == troposphericCorrectionSettings->getBodyWithAtmosphere( ) )
+            {
+                isUplinkCorrection = true;
+                groundStation = transmitter;
+            }
+            else
+            {
+                isUplinkCorrection = false;
+                groundStation = receiver;
+            }
+
+            std::shared_ptr< TroposhericElevationMapping > troposphericElevationMapping =
+                    createTroposphericElevationMapping( troposphericCorrectionSettings->getTroposphericMappingModelType( ),
+                                                        bodies, transmitter, receiver, isUplinkCorrection );
+
+            // Using nominal geodetic position, i.e. ignoring station motion
+            std::function< Eigen::Vector3d ( double ) > groundStationGeodeticPositionFunction = std::bind(
+                    &ground_stations::GroundStationState::getNominalGeodeticPosition,
+                    bodies.getBody( groundStation.bodyName_ )->getGroundStation(
+                            groundStation.stationName_ )->getNominalStationState( ) );
+
+            std::function< double ( const double ) > waterVaporPartialPressureFunction;
+            if ( troposphericCorrectionSettings->getWaterVaporPartialPressureModelType( ) == tabulated )
+            {
+                waterVaporPartialPressureFunction = bodies.getBody( groundStation.bodyName_ )->getGroundStation(
+                        groundStation.stationName_ )->getWaterVaporPartialPressureFunction( );
+            }
+            else if ( troposphericCorrectionSettings->getWaterVaporPartialPressureModelType( ) == bean_and_dutton )
+            {
+                waterVaporPartialPressureFunction = getBeanAndDuttonWaterVaporPartialPressureFunction(
+                        bodies.getBody( groundStation.bodyName_ )->getGroundStation(
+                            groundStation.stationName_ )->getRelativeHumidityFunction( ),
+                        bodies.getBody( groundStation.bodyName_ )->getGroundStation(
+                            groundStation.stationName_ )->getTemperatureFunction( ) );
+            }
+            else
+            {
+                throw std::runtime_error( "Error when creating Saastamoinen tropospheric correction: water vapor partial "
+                                          "pressure model type not recognized." );
+            }
+
+            lightTimeCorrection = std::make_shared< SaastamoinenTroposphericCorrection >(
+                    groundStationGeodeticPositionFunction,
+                    bodies.getBody( groundStation.bodyName_ )->getGroundStation( groundStation.stationName_ )->getPressureFunction( ),
+                    bodies.getBody( groundStation.bodyName_ )->getGroundStation( groundStation.stationName_ )->getTemperatureFunction( ),
+                    waterVaporPartialPressureFunction,
+                    troposphericElevationMapping,
+                    isUplinkCorrection );
+        }
+        // Set correction to nullptr if correction isn't valid for selected link ends
+        else
+        {
+            lightTimeCorrection = nullptr;
+        }
+
+        break;
+    }
     case tabulated_ionospheric:
     {
         std::shared_ptr< TabulatedIonosphericCorrectionSettings > ionosphericCorrectionSettings =

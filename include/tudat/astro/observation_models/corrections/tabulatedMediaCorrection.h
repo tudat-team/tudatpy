@@ -464,16 +464,39 @@ private:
     std::shared_ptr< TabulatedMediaReferenceCorrectionManager > wetReferenceCorrectionCalculator_;
 };
 
+//! Enum defining different types of water vapor partial pressure models.
+enum WaterVaporPartialPressureModel
+{
+    tabulated,
+    bean_and_dutton
+};
+
+/*! Calculate the partial vapor pressure.
+ *
+ * Calculate the partial vapor pressure according to the Bean and Dutton (1966) model, as described by Estefan (1994),
+ * Eq. 16.
+ *
+ * @param relativeHumidity Relative humidity, defined in [0,1]
+ * @param temperature Temperature in Kelvin
+ * @return Partial vapor pressure in Pa
+ */
+double calculateBeanAndDuttonWaterVaporPartialPressure( double relativeHumidity,
+                                                        double temperature );
+
+std::function< double ( const double ) > getBeanAndDuttonWaterVaporPartialPressureFunction(
+        std::function< double ( const double time ) > relativeHumidity,
+        std::function< double ( const double time ) > temperature );
+
 // Estefan (1994)
 class SaastamoinenTroposphericCorrection: public MappedTroposphericCorrection
 {
 public:
 
     SaastamoinenTroposphericCorrection(
-            std::function< Eigen::Vector3d ( double time ) > groundStationGeodeticPositionFunction,
-            std::function< double ( double time ) > pressureFunction,
-            std::function< double ( double time ) > temperatureFunction,
-            std::function< double ( double time ) > waterVaporPartialPressureFunction,
+            std::function< Eigen::Vector3d ( const double time ) > groundStationGeodeticPositionFunction,
+            std::function< double ( const double time ) > pressureFunction,
+            std::function< double ( const double time ) > temperatureFunction,
+            std::function< double ( const double time ) > waterVaporPartialPressureFunction,
             std::shared_ptr< TroposhericElevationMapping > elevationMapping,
             bool isUplinkCorrection ):
         MappedTroposphericCorrection(
@@ -500,13 +523,13 @@ private:
     // Computes the wet atmosphere zenith range correction (in meters)
     double computeWetZenithRangeCorrection( const double stationTime );
 
-    std::function< Eigen::Vector3d ( double ) > groundStationGeodeticPositionFunction_;
+    std::function< Eigen::Vector3d ( const double ) > groundStationGeodeticPositionFunction_;
 
-    std::function< double ( double ) > pressureFunction_;
+    std::function< double ( const double ) > pressureFunction_;
 
-    std::function< double ( double ) > temperatureFunction_;
+    std::function< double ( const double ) > temperatureFunction_;
 
-    std::function< double ( double ) > waterVaporPartialPressureFunction_;
+    std::function< double ( const double ) > waterVaporPartialPressureFunction_;
 };
 
 // Moyer (2000), section 10.2.2
