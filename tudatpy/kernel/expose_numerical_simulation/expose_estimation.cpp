@@ -195,6 +195,21 @@ std::pair< std::vector< double >, std::vector< Eigen::VectorXd > > getTargetAngl
                                targetAnglesAndRange ) );
 }
 
+template< typename ObservationScalarType = double, typename TimeType = double >
+std::shared_ptr< tom::SingleObservationSet< ObservationScalarType, TimeType > > singleObservationSetWithoutDependentVariables(
+            const tom::ObservableType observableType,
+            const tom::LinkDefinition& linkEnds,
+            const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observations,
+            const std::vector< TimeType > observationTimes,
+            const tom::LinkEndType referenceLinkEnd,
+            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings < TimeType > > ancilliarySettings = nullptr )
+{
+    return std::make_shared< tom::SingleObservationSet< ObservationScalarType, TimeType > >(
+            observableType, linkEnds, observations, observationTimes, referenceLinkEnd,
+            std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >( ), nullptr, ancilliarySettings );
+}
+
+
 }
 
 }
@@ -310,6 +325,8 @@ void expose_estimation(py::module &m) {
     py::class_< tom::ObservationCollection<double, TIME_TYPE>,
             std::shared_ptr<tom::ObservationCollection<double, TIME_TYPE>>>(m, "ObservationCollection",
                                                            get_docstring("ObservationCollection").c_str() )
+            .def(py::init< std::vector< std::shared_ptr< tom::SingleObservationSet< double, TIME_TYPE > > > >(),
+                 py::arg("observation_sets") )
             .def_property_readonly("concatenated_times", &tom::ObservationCollection<double, TIME_TYPE>::getConcatenatedTimeVector,
                                    get_docstring("ObservationCollection.concatenated_times").c_str() )
             .def_property_readonly("concatenated_observations", &tom::ObservationCollection<double, TIME_TYPE>::getObservationVector,
@@ -330,8 +347,6 @@ void expose_estimation(py::module &m) {
                                    py::arg( "observable_type" ),
                                    py::arg( "link_definition" ),
                                    get_docstring("ObservationCollection.get_single_link_and_type_observations").c_str() );
-
-
 
     py::class_< tom::SingleObservationSet<double, TIME_TYPE>,
             std::shared_ptr<tom::SingleObservationSet<double, TIME_TYPE>>>(m, "SingleObservationSet",
