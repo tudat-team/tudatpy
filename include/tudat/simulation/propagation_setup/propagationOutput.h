@@ -2323,6 +2323,30 @@ std::function< double( ) > getDoubleDependentVariableFunction(
 
             break;
         }
+        case custom_dependent_variable:
+        {
+            std::shared_ptr< CustomDependentVariableSaveSettings > customVariableSettings =
+                    std::dynamic_pointer_cast< CustomDependentVariableSaveSettings >( dependentVariableSettings );
+
+            if( customVariableSettings == nullptr )
+            {
+                std::string errorMessage= "Error, inconsistent inout when creating dependent variable function of type custom_dependent_variable";
+                throw std::runtime_error( errorMessage );
+            }
+            else
+            {
+                variableFunction = [=]( )
+                {
+                    Eigen::VectorXd customVariables = customVariableSettings->customDependentVariableFunction_( );
+                    if( customVariables.rows( ) != 1 )
+                    {
+                        throw std::runtime_error( "Error when retrieving size-1 custom dependent variable, actual size is " + std::to_string( customVariables.rows( ) ) );
+                    }
+                    return customVariables( 0 );
+                };
+            }
+            break;
+        }
         default:
             std::string errorMessage =
                     "Error, did not recognize double dependent variable type when making variable function: " +

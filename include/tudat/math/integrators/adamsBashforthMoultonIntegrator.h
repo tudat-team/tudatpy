@@ -133,7 +133,6 @@ public:
         minimumOrder_ = 6;
         maximumOrder_ = 11;
         order_ = minimumOrder_;
-        stepSize_ = 1.;
         fixedSingleStep_ = fixedStepSize_;
         
         // Start filling the state and state derivative history deques.

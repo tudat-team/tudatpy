@@ -217,7 +217,7 @@ public:
             const typename Base::StateFunction positionOfBodySubjectToAccelerationFunction,
             const double aGravitationalParameter,
             const typename Base::StateFunction positionOfBodyExertingAccelerationFunction =
-            [ ]( StateMatrix& input ){ input = StateMatrix::Zero( ); },
+            [ ]( Eigen::Vector3d& input ){ input = Eigen::Vector3d::Zero( ); },
             const bool isMutualAttractionUsed = false )
         : Base( positionOfBodySubjectToAccelerationFunction,
                 [ = ]( ){ return aGravitationalParameter; },
@@ -250,7 +250,7 @@ public:
             const typename Base::StateFunction positionOfBodySubjectToAccelerationFunction,
             const std::function< double( ) > aGravitationalParameterFunction,
             const typename Base::StateFunction positionOfBodyExertingAccelerationFunction =
-            [ ]( StateMatrix& input ){ input = StateMatrix::Zero( ); },
+            [ ]( Eigen::Vector3d& input ){ input = Eigen::Vector3d::Zero( ); },
             const bool isMutualAttractionUsed = false )
         : Base( positionOfBodySubjectToAccelerationFunction,
                 aGravitationalParameterFunction,
