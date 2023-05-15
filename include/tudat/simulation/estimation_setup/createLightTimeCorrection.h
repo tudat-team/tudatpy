@@ -103,7 +103,7 @@ private:
 
 };
 
-// Class defining tabulated tropospheric corrections
+// Class defining  settings for tabulated tropospheric corrections
 class TabulatedTroposphericCorrectionSettings: public LightTimeCorrectionSettings
 {
 public:
@@ -151,7 +151,45 @@ private:
 
 };
 
-// Class defining tabulated ionospheric corrections
+class SaastamoinenTroposphericCorrectionSettings: public LightTimeCorrectionSettings
+{
+public:
+    SaastamoinenTroposphericCorrectionSettings(
+            const std::string& bodyWithAtmosphere = "Earth",
+            const TroposphericMappingModel troposphericMappingModel = niell,
+            const WaterVaporPartialPressureModel waterVaporPartialPressureModel = tabulated ):
+        LightTimeCorrectionSettings( saastamoinen_tropospheric ),
+        bodyWithAtmosphere_( bodyWithAtmosphere ),
+        troposphericMappingModelType_( troposphericMappingModel ),
+        waterVaporPartialPressureModelType_( waterVaporPartialPressureModel )
+    { }
+
+    std::string getBodyWithAtmosphere( )
+    {
+        return bodyWithAtmosphere_;
+    }
+
+    TroposphericMappingModel getTroposphericMappingModelType( )
+    {
+        return troposphericMappingModelType_;
+    }
+
+    WaterVaporPartialPressureModel getWaterVaporPartialPressureModelType( )
+    {
+        return waterVaporPartialPressureModelType_;
+    }
+
+private:
+
+    std::string bodyWithAtmosphere_;
+
+    TroposphericMappingModel troposphericMappingModelType_;
+
+    WaterVaporPartialPressureModel waterVaporPartialPressureModelType_;
+
+};
+
+// Class defining settings for tabulated ionospheric corrections
 class TabulatedIonosphericCorrectionSettings: public LightTimeCorrectionSettings
 {
 public:

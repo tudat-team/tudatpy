@@ -328,6 +328,26 @@ double MappedTroposphericCorrection::calculateLightTimeCorrectionWithMultiLegLin
                 physical_constants::getSpeedOfLight< double >( );
 }
 
+double calculateBeanAndDuttonWaterVaporPartialPressure( double relativeHumidity,
+                                                        double temperature )
+{
+    if ( relativeHumidity < 0 || relativeHumidity > 1 )
+    {
+        throw std::runtime_error( "Error when computing partial vapor pressure: invalid relative humidity value (" +
+            std::to_string( relativeHumidity ) + "), should be in [0,1]." );
+    }
+
+    return 6.11 * relativeHumidity * std::pow( 10.0, 7.5 * ( ( temperature - 273.15 ) / ( temperature - 35.85 ) ) );
+}
+
+std::function< double ( const double ) > getBeanAndDuttonWaterVaporPartialPressureFunction(
+        std::function< double ( const double time ) > relativeHumidity,
+        std::function< double ( const double time ) > temperature )
+{
+    return [=] ( double time ) { return calculateBeanAndDuttonWaterVaporPartialPressure(
+            relativeHumidity( time ), temperature( time ) ); };
+}
+
 double SaastamoinenTroposphericCorrection::computeDryZenithRangeCorrection( const double stationTime )
 {
     Eigen::Vector3d stationGeodeticPosition = groundStationGeodeticPositionFunction_( stationTime );
