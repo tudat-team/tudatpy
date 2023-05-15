@@ -60,7 +60,7 @@ void PolyhedronGravityField::computeVerticesAndFacetsDefiningEachEdge ( )
 
         // Check if all edges of the facet have been included in verticesDefiningEachEdge. If so, remove the edge from
         // the edgesToInsert vector and add the facet to facetsDefiningEachEdge
-        for ( unsigned int edge = 0; edge < numberOfInsertedEdges and !edgesToInsert.empty(); ++edge )
+        for ( unsigned int edge = 0; edge < numberOfInsertedEdges && !edgesToInsert.empty(); ++edge )
         {
             // Loop over edges of current facet still to be inserted
             for ( unsigned int i = 0; i < edgesToInsert.size(); ++i)
