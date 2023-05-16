@@ -66,6 +66,8 @@ struct BodySettings
     //! Settings for the aerodynamic coefficients that the body is to contain.
     std::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings;
 
+    std::shared_ptr< BodyMassPropertiesSettings > bodyMassPropertiesSettings;
+
     //! Settings for variations of the gravity field of the body.
     std::vector< std::shared_ptr< GravityFieldVariationSettings > > gravityFieldVariationSettings;
 
@@ -87,6 +89,11 @@ void addRadiationPressureInterface(
 void addRotationModel(
         const SystemOfBodies& bodies, const std::string bodyName,
         const std::shared_ptr< RotationModelSettings > rotationModelSettings );
+
+void addBodyMassProerties(
+    const SystemOfBodies& bodies, const std::string bodyName,
+    const std::shared_ptr< BodyMassPropertiesSettings > bodyMassProperties );
+
 
 
 class BodyListSettings
@@ -268,6 +275,19 @@ SystemOfBodies createSystemOfBodies(
                                                  orderedBodySettings.at( i ).second->gravityFieldVariationSettings ) );
         }
     }
+
+
+    // Create gravity field model objects for each body (if required).
+    for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
+    {
+        if( orderedBodySettings.at( i ).second->bodyMassPropertiesSettings != nullptr )
+        {
+            bodyList.at( orderedBodySettings.at( i ).first )->setMassProperties(
+                createBodyMassProperties( orderedBodySettings.at( i ).second->bodyMassPropertiesSettings,
+                                         orderedBodySettings.at( i ).first, bodyList ) );
+        }
+    }
+
 
     for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
     {

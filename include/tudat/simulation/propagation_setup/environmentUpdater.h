@@ -658,10 +658,6 @@ private:
                     }
                     case body_mass_distribution_update:
                     {
-                        std::cout<<"Setting update "<<currentBodies.at( i )<<" "<<bodyList_.at( currentBodies.at( i ) )->getMassProperties( )<<std::endl;
-                        std::cout<<"Setting update test "<< ( std::dynamic_pointer_cast< simulation_setup::TimeDependentBodyMassProperties >(
-                            bodyList_.at( currentBodies.at( i ) )->getMassProperties( ) ) == nullptr )<<std::endl;
-
                         updateTimeFunctionList[ body_mass_distribution_update ].push_back(
                             std::make_pair( currentBodies.at( i ),
                                            std::bind( &simulation_setup::BodyMassProperties::updateMassDistribution,

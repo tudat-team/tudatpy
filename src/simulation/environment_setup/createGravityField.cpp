@@ -502,6 +502,77 @@ std::shared_ptr< SphericalHarmonicsGravityFieldSettings > createHomogeneousTriAx
                 coefficients.second, associatedReferenceFrame );
 }
 
+std::shared_ptr< BodyMassProperties > createBodyMassProperties(
+    const std::shared_ptr< BodyMassPropertiesSettings > massPropertiesSettings,
+    const std::string& body,
+    const SystemOfBodies& bodies )
+{
+    using namespace simulation_setup;
+
+    std::shared_ptr< BodyMassProperties > bodyMassProperties;
+    switch( massPropertiesSettings->getBodyMassPropertiesType( ) )
+    {
+    case constant_body_mass_properties:
+    {
+        std::shared_ptr< ConstantBodyMassPropertiesSettings > constantBodyMassPropertiesSettings =
+            std::dynamic_pointer_cast< ConstantBodyMassPropertiesSettings >( massPropertiesSettings );
+        if( constantBodyMassPropertiesSettings == nullptr )
+        {
+            throw std::runtime_error( "Error when creating constant_body_mass_properties, input type is incompatible" );
+        }
+
+        bodyMassProperties = std::make_shared<TimeDependentBodyMassProperties>(
+            constantBodyMassPropertiesSettings->getMass( ),
+            constantBodyMassPropertiesSettings->getCenterOfMass( ),
+            constantBodyMassPropertiesSettings->getInertiaTensor( ) );
+        break;
+    }
+    case from_function_body_mass_properties:
+    {
+        std::shared_ptr< FromFunctionBodyMassPropertiesSettings > fromFunctionBodyMassPropertiesSettings =
+            std::dynamic_pointer_cast< FromFunctionBodyMassPropertiesSettings >( massPropertiesSettings );
+        if( fromFunctionBodyMassPropertiesSettings == nullptr )
+        {
+            throw std::runtime_error( "Error when creating from_function_body_mass_properties, input type is incompatible" );
+        }
+
+        bodyMassProperties = std::make_shared<TimeDependentBodyMassProperties>(
+            fromFunctionBodyMassPropertiesSettings->getMassFunction( ),
+            fromFunctionBodyMassPropertiesSettings->getCenterOfMassFunction( ),
+            fromFunctionBodyMassPropertiesSettings->getInertiaTensorFunction( ) );
+        break;
+    }
+    case from_gravity_field_body_mass_properties:
+    {
+        if( std::dynamic_pointer_cast< FromGravityFieldBodyMassProperties >( bodies.at( body )->getMassProperties( ) ) == nullptr )
+        {
+            throw std::runtime_error( "Error when creating from_gravity_field_body_mass_properties, associated mass properties should already exist" );
+
+        }
+        break;
+    }
+    case mass_dependent_mass_distribution_properties:
+    {
+        std::shared_ptr< MassDependentMassDistributionSettings > massDependentMassDistributionSettings =
+            std::dynamic_pointer_cast< MassDependentMassDistributionSettings >( massPropertiesSettings );
+        if( massDependentMassDistributionSettings == nullptr )
+        {
+            throw std::runtime_error( "Error when creating mass_dependent_mass_distribution_properties, input type is incompatible" );
+        }
+
+        bodyMassProperties = std::make_shared<MassDependentBodyMassProperties>(
+            massDependentMassDistributionSettings->getCurrentMass( ),
+            massDependentMassDistributionSettings->getCenterOfMassFunction( ),
+            massDependentMassDistributionSettings->getInertiaTensorFunction( ) );
+        break;
+    }
+    default:
+        throw std::runtime_error( "Error when creating body mass properties, did not recognize type " + std::to_string(
+            massPropertiesSettings->getBodyMassPropertiesType( )  ) );
+
+    }
+    return bodyMassProperties;
+}
 } // namespace simulation_setup
 
 } // namespace tudat

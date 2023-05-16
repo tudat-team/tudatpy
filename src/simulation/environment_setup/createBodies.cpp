@@ -72,6 +72,18 @@ void addRotationModel(
                     rotationModelSettings, bodyName, bodies ) );
 }
 
+void addBodyMassProerties(
+    const SystemOfBodies& bodies, const std::string bodyName,
+    const std::shared_ptr< BodyMassPropertiesSettings > bodyMassProperties )
+{
+    if( bodies.count( bodyName ) == 0 )
+    {
+        throw std::runtime_error( "Error when setting mass properties for body "+ bodyName + ", body is not found in system of bodies" );
+    }
+    bodies.at( bodyName )->setMassProperties( createBodyMassProperties(
+        bodyMassProperties, bodyName, bodies ) );
+}
+
 void setSimpleRotationSettingsFromSpice(
         const BodyListSettings& bodySettings, const std::string& bodyName, const double spiceEvaluationTime )
 {
