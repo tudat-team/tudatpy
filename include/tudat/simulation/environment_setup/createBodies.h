@@ -90,6 +90,12 @@ void addRotationModel(
         const SystemOfBodies& bodies, const std::string bodyName,
         const std::shared_ptr< RotationModelSettings > rotationModelSettings );
 
+void addGravityFieldModel(
+    const SystemOfBodies& bodies, const std::string bodyName,
+    const std::shared_ptr< GravityFieldSettings > gravityFieldSettings,
+    const std::vector< std::shared_ptr< GravityFieldVariationSettings > >& gravityFieldVariationSettings =
+        std::vector< std::shared_ptr< GravityFieldVariationSettings > >( ));
+
 void addBodyMassProerties(
     const SystemOfBodies& bodies, const std::string bodyName,
     const std::shared_ptr< BodyMassPropertiesSettings > bodyMassProperties );
@@ -277,18 +283,6 @@ SystemOfBodies createSystemOfBodies(
     }
 
 
-    // Create gravity field model objects for each body (if required).
-    for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
-    {
-        if( orderedBodySettings.at( i ).second->bodyMassPropertiesSettings != nullptr )
-        {
-            bodyList.at( orderedBodySettings.at( i ).first )->setMassProperties(
-                createBodyMassProperties( orderedBodySettings.at( i ).second->bodyMassPropertiesSettings,
-                                         orderedBodySettings.at( i ).first, bodyList ) );
-        }
-    }
-
-
     for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
     {
         if( orderedBodySettings.at( i ).second->gravityFieldVariationSettings.size( ) > 0 )
@@ -297,6 +291,17 @@ SystemOfBodies createSystemOfBodies(
                         createGravityFieldModelVariationsSet(
                             orderedBodySettings.at( i ).first, bodyList,
                             orderedBodySettings.at( i ).second->gravityFieldVariationSettings ) );
+        }
+    }
+
+    // Create gravity field model objects for each body (if required).
+    for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
+    {
+        if( orderedBodySettings.at( i ).second->bodyMassPropertiesSettings != nullptr )
+        {
+            bodyList.at( orderedBodySettings.at( i ).first )->setMassProperties(
+                createBodyMassProperties( orderedBodySettings.at( i ).second->bodyMassPropertiesSettings,
+                                          orderedBodySettings.at( i ).first, bodyList ) );
         }
     }
 
