@@ -251,9 +251,6 @@ protected:
     //! Name of central body (i.e. body with the atmosphere)
     std::string centralBody_;
 
-    //! Name of central body (i.e. body with the atmosphere)
-    std::string centralBody_;
-
     //! Object from which the aerodynamic/trajectory angles of the vehicle are calculated.
     std::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator_;
 

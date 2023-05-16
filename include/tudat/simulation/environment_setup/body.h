@@ -278,7 +278,7 @@ public:
     TimeDependentBodyMassProperties(
             const double mass,
             const Eigen::Vector3d& centerOfMass = Eigen::Vector3d::Constant( TUDAT_NAN ),
-            const Eigen::Matrix3d& inertiaTensor = Eigen::Matrix3d::Constant( TUDAT_NAN )):
+            const Eigen::Matrix3d& inertiaTensor = Eigen::Matrix3d::Constant( TUDAT_NAN ) ):
             massFunction_( nullptr ), centerOfMassFunction_( nullptr ), inertiaTensorFunction_( nullptr )
     {
         currentMass_ = mass;
@@ -1364,6 +1364,15 @@ public:
         return massProperties_;
     }
 
+    void setMassProperties( const std::shared_ptr< BodyMassProperties > massProperties )
+    {
+        if( gravityFieldModel_ != nullptr )
+        {
+            std::cerr<<"Warning, setting body mass distribution, but existing gravity field model and associated mass properties already found; overriding existing body mass properties"<<std::endl;
+        }
+        massProperties_ = massProperties;
+    }
+
 
 
 
@@ -1507,42 +1516,6 @@ public:
         return massProperties_->getCurrentInertiaTensor( );
     }
 
-    //! Function to retrieve body scaled mean moment of inertia
-    /*!
-     *  Function to retrieve body scaled mean moment of inertia
-     * \return Body scaled mean moment of inertia
-     */
-//    double getScaledMeanMomentOfInertia( )
-//    {
-//        double scaledMeanMomentOfInertia;
-//        if( std::dynamic_pointer_cast< FromGravityFieldBodyMassProperties >( massProperties_ ) == nullptr )
-//        {
-//            throw std::runtime_error( "Error when retrieving scaled mean moment of inertia; no mass properties from gravity field are found" );
-//        }
-//        else
-//        {
-//            scaledMeanMomentOfInertia = std::dynamic_pointer_cast< FromGravityFieldBodyMassProperties >( massProperties_ )->getScaledMeanMomentOfInertia( );
-//        }
-//        return scaledMeanMomentOfInertia;
-//    }
-
-    //! Function to reset body scaled mean moment of inertia
-    /*!
-     *  Function to reset body scaled mean moment of inertia, and update associated inertia tensor
-     *  \param scaledMeanMomentOfInertia New body scaled mean moment of inertia
-     */
-//    void setScaledMeanMomentOfInertia(const double scaledMeanMomentOfInertia)
-//    {
-//        if( std::dynamic_pointer_cast< FromGravityFieldBodyMassProperties >( massProperties_ ) == nullptr )
-//        {
-//            throw std::runtime_error( "Error when setting scaled mean moment of inertia; no mass properties from gravity field are found" );
-//        }
-//        else
-//        {
-//            std::dynamic_pointer_cast< FromGravityFieldBodyMassProperties >( massProperties_ )->setScaledMeanMomentOfInertia( scaledMeanMomentOfInertia );
-//        }
-//    }
-
     //! Function to (re)set the body moment-of-inertia tensor.
     /*!
      * Function to (re)set the body moment-of-inertia tensor.
@@ -1562,115 +1535,6 @@ public:
             }
         }
     }
-
-    //! Function to (re)set the body moment-of-inertia tensor and scaled mean-moment of inertia.
-    /*!
-     * Function to (re)set the body moment-of-inertia tensor and scaled mean-moment of inertia.
-     * \param bodyInertiaTensor Body moment-of-inertia tensor.
-     * \param scaledMeanMomentOfInertia Body scaled mean-moment of inertia
-     */
-//    void setBodyInertiaTensor( const Eigen::Matrix3d &bodyInertiaTensor, const double scaledMeanMomentOfInertia )
-//    {
-//        bodyInertiaTensor_ = bodyInertiaTensor;
-//        scaledMeanMomentOfInertia_ = scaledMeanMomentOfInertia;
-//    }
-
-    //! Function to (re)set the body moment-of-inertia tensor from the gravity field, for a spherical harmonics gravity field.
-    /*!
-     * Function to (re)set the body moment-of-inertia tensor from the gravity field, requires only a mean moment of inertia
-     * (scaled by mass times reference radius squared). Other data are taken from this body's spherical harmonic gravity field
-     * \param scaledMeanMomentOfInertia  Mean moment of inertial, divided by (M*R^2), with M the mass of the body and R the
-     * reference radius of the gravity field.
-     */
-//    void setBodyInertiaTensorFromGravityField(const double scaledMeanMomentOfInertia)
-//    {
-//        if( std::dynamic_pointer_cast< FromGravityFieldBodyMassProperties >( massProperties_ ) == nullptr )
-//        {
-//            throw std::runtime_error( "Error when setting inertia tensor from scaled mean moment of inertia, no from-gravity field mass properties found." );
-//        }
-//        else
-//        {
-//            std::dynamic_pointer_cast< FromGravityFieldBodyMassProperties >( massProperties_ )->setScaledMeanMomentOfInertia( scaledMeanMomentOfInertia );
-//        }
-//    }
-
-//    //! Function to (re)set the body moment-of-inertia tensor from existing gravity field and mean moment of inertia.
-//    /*!
-//     * Function to (re)set the body moment-of-inertia tensor from existing gravity field and mean moment of inertia.
-//     * \param printWarningIfNotSet  Boolean to denote whether a warning is to be printed if scaled mean moment is not defined.
-//     */
-//    void setBodyInertiaTensorFromGravityFieldAndExistingMeanMoment( const bool printWarningIfNotSet = true )
-//     {
-//        if (!(scaledMeanMomentOfInertia_ == scaledMeanMomentOfInertia_))
-//        {
-//            std::shared_ptr<gravitation::SphericalHarmonicsGravityField> sphericalHarmonicGravityField =
-//                    std::dynamic_pointer_cast<gravitation::SphericalHarmonicsGravityField>(gravityFieldModel_);
-//            if (sphericalHarmonicGravityField != nullptr)
-//            {
-//                double normalizationFactor =
-//                        sphericalHarmonicGravityField->getGravitationalParameter() * sphericalHarmonicGravityField->getReferenceRadius() * sphericalHarmonicGravityField->getReferenceRadius() / physical_constants::GRAVITATIONAL_CONSTANT;
-//                scaledMeanMomentOfInertia_ =
-//                        (bodyInertiaTensor_(0, 0) + bodyInertiaTensor_(1, 1) + bodyInertiaTensor_(2, 2)) / (3.0 * normalizationFactor);
-//            }
-//            else if (printWarningIfNotSet)
-//            {
-//                std::cerr << "Warning when setting body inertia tensor, mean moment of inertia set to zero. " << std::endl;
-//            }
-//        }
-//
-//        if (scaledMeanMomentOfInertia_ == scaledMeanMomentOfInertia_)
-//        {
-//            setBodyInertiaTensorFromGravityField(scaledMeanMomentOfInertia_);
-//        }
-//    }
-
-    //! Function to (re)set the body moment-of-inertia tensor from the gravity field, for a polyhedron gravity field.
-    /*!
-     * Function to (re)set the body moment-of-inertia tensor from the gravity field, for a polyhedron gravity field.
-     * Requires only the density as argument. Other data are taken from this body's polyhedron gravity field
-     * \param density Density of the body.
-     */
-//    void setBodyInertiaTensorFromGravityFieldAndDensity ( const double density )
-//    {
-//        std::shared_ptr< gravitation::PolyhedronGravityField > polyhedronGravityField =
-//                std::dynamic_pointer_cast< gravitation::PolyhedronGravityField >( gravityFieldModel_ );
-//        if ( polyhedronGravityField == nullptr )
-//        {
-//            throw std::runtime_error("Error when setting inertia tensor from density, gravity field model is not polyhedron");
-//        }
-//        else
-//        {
-//            throw std::runtime_error( "Error, linking of inertia tensor and polyhedron gravity field disabled" );
-////            bodyInertiaTensor_ = basic_astrodynamics::computePolyhedronInertiaTensor(
-////                    polyhedronGravityField->getVerticesCoordinates( ),
-////                    polyhedronGravityField->getVerticesDefiningEachEdge( ),
-////                    density );
-//
-//        }
-//    }
-
-    //! Function to (re)set the body moment-of-inertia tensor from the gravity field, for a polyhedron gravity field.
-    /*!
-     * Function to (re)set the body moment-of-inertia tensor from the gravity field, for a polyhedron gravity field.
-     * Uses an already existing body density.
-     */
-//    void setBodyInertiaTensorFromGravityFieldAndExistingDensity( )
-//    {
-//        if (!std::isnan( density_ ) )
-//        {
-//            std::shared_ptr< gravitation::PolyhedronGravityField > polyhedronGravityField =
-//                    std::dynamic_pointer_cast< gravitation::PolyhedronGravityField >( gravityFieldModel_ );
-//            if ( polyhedronGravityField == nullptr )
-//            {
-//                throw std::runtime_error("Error when setting inertia tensor from polyhedron model, "
-//                                         "gravity field model is not polyhedron.");
-//            }
-//
-//            setBodyInertiaTensorFromGravityFieldAndDensity( density_ );
-//        }
-//    }
-
-
 
     //! Function to add a ground station to the body
     /*!

@@ -731,7 +731,161 @@ inline std::shared_ptr< GravityFieldSettings > polyhedronGravitySettingsFromMu(
             gravitationalConstant );
 }
 
+enum BodyMassPropertiesType
+{
+    constant_body_mass_properties,
+    from_function_body_mass_properties,
+    from_gravity_field_body_mass_properties,
+    mass_dependent_mass_distribution_properties
+};
+
+class BodyMassPropertiesSettings
+{
+public:
+    BodyMassPropertiesSettings( const BodyMassPropertiesType bodyMassPropertiesType ):
+            bodyMassPropertiesType_( bodyMassPropertiesType ){ }
+
+    virtual ~BodyMassPropertiesSettings( ){ }
+
+    BodyMassPropertiesType getBodyMassPropertiesType( )
+    {
+        return bodyMassPropertiesType_;
+    }
+
+protected:
+
+    BodyMassPropertiesType bodyMassPropertiesType_;
+};
+
+class ConstantBodyMassPropertiesSettings : public BodyMassPropertiesSettings
+{
+public:
+    ConstantBodyMassPropertiesSettings(
+        const double mass,
+        const Eigen::Vector3d &centerOfMass = Eigen::Vector3d::Constant( TUDAT_NAN ),
+        const Eigen::Matrix3d &inertiaTensor = Eigen::Matrix3d::Constant( TUDAT_NAN ) ):
+        BodyMassPropertiesSettings( constant_body_mass_properties ),
+        mass_( mass ),
+        centerOfMass_( centerOfMass ),
+        inertiaTensor_( inertiaTensor )
+    {
+    }
+
+    virtual ~ConstantBodyMassPropertiesSettings( ){ }
+
+    double getMass( )
+    {
+        return mass_;
+    }
+
+    Eigen::Vector3d getCenterOfMass( )
+    {
+        return centerOfMass_;
+    }
+
+    Eigen::Matrix3d getInertiaTensor( )
+    {
+        return inertiaTensor_;
+    }
+
+
+protected:
+
+    double mass_;
+
+    Eigen::Vector3d centerOfMass_;
+
+    Eigen::Matrix3d inertiaTensor_;
+};
+
+class FromFunctionBodyMassPropertiesSettings : public BodyMassPropertiesSettings
+{
+public:
+    FromFunctionBodyMassPropertiesSettings(
+        const std::function< double( const double ) > massFunction,
+        const std::function< Eigen::Vector3d( const double ) > centerOfMassFunction = nullptr,
+        const std::function< Eigen::Matrix3d( const double ) > inertiaTensorFunction = nullptr):
+        BodyMassPropertiesSettings( from_function_body_mass_properties ),
+        massFunction_( massFunction ),
+        centerOfMassFunction_( centerOfMassFunction ),
+        inertiaTensorFunction_( inertiaTensorFunction )
+    {
+    }
+
+    virtual ~FromFunctionBodyMassPropertiesSettings( ){ }
+
+    std::function< double( const double ) > getMassFunction( )
+    {
+        return massFunction_;
+    }
+
+    std::function< Eigen::Vector3d( const double ) > getCenterOfMassFunction( )
+    {
+        return centerOfMassFunction_;
+    }
+
+    std::function< Eigen::Matrix3d( const double ) > getInertiaTensorFunction( )
+    {
+        return inertiaTensorFunction_;
+    }
+
+
+protected:
+
+    std::function< double( const double ) > massFunction_;
+
+    std::function< Eigen::Vector3d( const double ) > centerOfMassFunction_;
+
+    std::function< Eigen::Matrix3d( const double ) > inertiaTensorFunction_;
+};
+
+class MassDependentMassDistributionSettings : public BodyMassPropertiesSettings
+{
+public:
+    MassDependentMassDistributionSettings(
+        const double currentMass,
+        const std::function< Eigen::Vector3d( const double ) > centerOfMassFunction,
+        const std::function< Eigen::Matrix3d( const double ) > inertiaTensorFunction ):
+        BodyMassPropertiesSettings( mass_dependent_mass_distribution_properties ),
+        currentMass_( currentMass ),
+        centerOfMassFunction_( centerOfMassFunction ),
+        inertiaTensorFunction_( inertiaTensorFunction )
+    {
+    }
+
+    virtual ~MassDependentMassDistributionSettings( ){ }
+
+    double getCurrentMass( )
+    {
+        return currentMass_;
+    }
+
+    std::function< Eigen::Vector3d( const double ) > getCenterOfMassFunction( )
+    {
+        return centerOfMassFunction_;
+    }
+
+    std::function< Eigen::Matrix3d( const double ) > getInertiaTensorFunction( )
+    {
+        return inertiaTensorFunction_;
+    }
+
+
+protected:
+
+    double currentMass_;
+
+    std::function< Eigen::Vector3d( const double ) > centerOfMassFunction_;
+
+    std::function< Eigen::Matrix3d( const double ) > inertiaTensorFunction_;
+};
+
+std::shared_ptr< BodyMassProperties > createBodyMassProperties(
+    const std::shared_ptr<BodyMassPropertiesSettings> bodyMassPropertiesSettings,
+    const std::string& body,
+    const SystemOfBodies& bodies );
 } // namespace simulation_setup
 
 } // namespace tudat
+
 #endif // TUDAT_CREATEGRAVITYFIELD_H
