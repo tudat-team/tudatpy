@@ -72,6 +72,29 @@ void addRotationModel(
                     rotationModelSettings, bodyName, bodies ) );
 }
 
+void addGravityFieldModel(
+    const SystemOfBodies& bodies, const std::string bodyName,
+    const std::shared_ptr< GravityFieldSettings > gravityFieldSettings,
+    const std::vector< std::shared_ptr< GravityFieldVariationSettings > >& gravityFieldVariationSettings )
+{
+    if( bodies.count( bodyName ) == 0 )
+    {
+        throw std::runtime_error( "Error when setting gravity field model for body "+ bodyName + ", body is not found in system of bodies" );
+    }
+    bodies.at( bodyName )->setGravityFieldModel( createGravityFieldModel(
+        gravityFieldSettings, bodyName, bodies, gravityFieldVariationSettings ) );
+
+    if( gravityFieldVariationSettings.size( ) > 0 )
+    {
+       bodies.at( bodyName )->setGravityFieldVariationSet(
+            createGravityFieldModelVariationsSet(
+                bodyName, bodies, gravityFieldVariationSettings ) );
+    }
+
+    bodies.at( bodyName )->updateConstantEphemerisDependentMemberQuantities( );
+
+}
+
 void addBodyMassProerties(
     const SystemOfBodies& bodies, const std::string bodyName,
     const std::shared_ptr< BodyMassPropertiesSettings > bodyMassProperties )
