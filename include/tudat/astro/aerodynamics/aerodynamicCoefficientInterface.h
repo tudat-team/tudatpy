@@ -463,6 +463,17 @@ public:
     }
 
 
+    void resetForceCoefficientsFrame( const AerodynamicCoefficientFrames forceCoefficientsFrame )
+    {
+        forceCoefficientsFrame_ = forceCoefficientsFrame;
+    }
+
+    void resetMomentCoefficientsFrame( const AerodynamicCoefficientFrames momentCoefficientsFrame )
+    {
+        momentCoefficientsFrame_ = momentCoefficientsFrame;
+    }
+
+
     //! Function to set the list of control surface aerodynamic coefficient interfaces
     /*!
      * Function to set the list of control surface aerodynamic coefficient interfaces
