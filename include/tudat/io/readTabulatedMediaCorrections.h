@@ -6,6 +6,9 @@
  *    under the terms of the Modified BSD license. You should have received
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
+ *
+ *    References:
+ *          820-013 TRK-2-23, Media Calibration Interface, Revision C (2008), DSN/JPL
  */
 
 #ifndef TUDAT_READTABULATEDMEDIACORRECTIONS_H

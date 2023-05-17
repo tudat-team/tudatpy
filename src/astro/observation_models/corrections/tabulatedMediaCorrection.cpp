@@ -337,7 +337,8 @@ double calculateBeanAndDuttonWaterVaporPartialPressure( double relativeHumidity,
             std::to_string( relativeHumidity ) + "), should be in [0,1]." );
     }
 
-    return 6.11 * relativeHumidity * std::pow( 10.0, 7.5 * ( ( temperature - 273.15 ) / ( temperature - 35.85 ) ) );
+    // 1e2 factor is conversion from mbar to Pa
+    return 6.11 * relativeHumidity * std::pow( 10.0, 7.5 * ( ( temperature - 273.15 ) / ( temperature - 35.85 ) ) ) * 1e2;
 }
 
 std::function< double ( const double ) > getBeanAndDuttonWaterVaporPartialPressureFunction(
