@@ -129,7 +129,7 @@ BOOST_AUTO_TEST_CASE( testNiellChaoMappingFunctionConsistency )
 
 // Compare values of Niell mapping function with
 // Niell (1996), Global mapping functions for the atmosphere delay at radio wavelengths, Journal of Geophysics Research
-BOOST_AUTO_TEST_CASE( testNiellMappingFunction )
+BOOST_AUTO_TEST_CASE( testNiellMappingFunctionNiellPaper )
 {
 
     double elevation = 5.0 * mathematical_constants::PI / 180.0;
@@ -171,7 +171,6 @@ BOOST_AUTO_TEST_CASE( testNiellMappingFunction )
 
         BOOST_CHECK_SMALL( std::abs( calculatedMapping - dryMapping.at( i ) ), dryTolerance.at( i ) );
     }
-    std::cout << std::endl;
 
     // Test wet mapping
     for ( unsigned int i = 0; i < wetTime.size( ); ++i )
@@ -182,6 +181,73 @@ BOOST_AUTO_TEST_CASE( testNiellMappingFunction )
         BOOST_CHECK_SMALL( std::abs( calculatedMapping - wetMapping ), wetTolerance );
     }
 
+}
+// Compare Niell mapping values with GODOT
+// Reference values extracted from GODOT for XMM-Newton satellite
+BOOST_AUTO_TEST_CASE( testNiellMappingFunctionGodot )
+{
+    std::cout << "-------------------------------------------------------" << std::endl;
+    double toleranceWet = 1e-13;
+    // Dry tolerance needs to be much larger because GODOT has two errors:
+    // - Instead of using 28 days as reference time, they use 27 days
+    // - When computing the dry coefficients they are missing the 1/2 term inside the cosine
+    // See https://gitlab.space-codev.org/godot/godot/-/blob/f0e574576361b2b227d60672d6f48edc564e9f14/godot/model/obs/TroposphereMappingFunctions.cpp#L74-75
+    double toleranceDry = 1e-5;
+
+    for ( unsigned int gs = 0; gs < 3; ++gs )
+    {
+        std::vector< double > times = { 517557600.0 };
+        Eigen::Vector3d groundStationGeodeticPosition;
+        std::vector< double > elevations;
+        std::vector< double > expectedWetMapping;
+        std::vector< double > expectedDryMapping;
+        if ( gs == 0 ) // Kourou
+        {
+            groundStationGeodeticPosition = ( Eigen::Vector3d( ) <<
+                    -0.0142714925195833e3, 0.0916549210572268, TUDAT_NAN ).finished( );
+            elevations = { 0.279499332478995 };
+            expectedWetMapping = { 3.59993033305367 };
+            expectedDryMapping = { 3.57132955130791 };
+        }
+        else if ( gs == 1 ) // Kiruna
+        {
+            groundStationGeodeticPosition = ( Eigen::Vector3d( ) <<
+                    0.402633377266284e3, 1.18433033971699, TUDAT_NAN ).finished( );
+            elevations = { -1.03692130895857 };
+            expectedWetMapping = { -1.16140864286966 };
+            expectedDryMapping = { -1.16115998824861 };
+        }
+        else // Canberra_34
+        {
+            groundStationGeodeticPosition = ( Eigen::Vector3d( ) <<
+                    0.692418697207358e3, -0.61781997683548, TUDAT_NAN ).finished( );
+            elevations = { 0.187111816282427 };
+            expectedWetMapping = { 5.29410018021229 };
+            expectedDryMapping = { 5.20743179879896 };
+        }
+
+        for ( unsigned int j = 0; j < times.size( ); ++j )
+        {
+            // Create mapping function
+            std::function< double ( Eigen::Vector3d, double ) > elevationFunction =
+                    [=]( Eigen::Vector3d inertialVectorAwayFromStation, double time ){ return elevations.at( j ); };
+            // Geodetic position: [altitude, latitude, longitude]
+            std::function< Eigen::Vector3d ( double ) > groundStationGeodeticPositionFunction =
+                    [=]( double time ){ return groundStationGeodeticPosition; };
+
+            NiellTroposphericMapping niellModel = NiellTroposphericMapping(
+                    elevationFunction, groundStationGeodeticPositionFunction, true );
+
+            BOOST_CHECK_CLOSE_FRACTION(
+                    niellModel.computeWetTroposphericMapping(
+                            Eigen::Vector6d::Zero(), Eigen::Vector6d::Zero(), times.at( j ), times.at( j ) ),
+                    expectedWetMapping.at( j ), toleranceWet );
+            BOOST_CHECK_CLOSE_FRACTION(
+                    niellModel.computeDryTroposphericMapping(
+                            Eigen::Vector6d::Zero(), Eigen::Vector6d::Zero(), times.at( j ), times.at( j ) ),
+                    expectedDryMapping.at( j ), toleranceDry );
+        }
+    }
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

@@ -245,10 +245,15 @@ double NiellTroposphericMapping::computeDryTroposphericMapping(
     double bDry = computeDryCoefficient( bDryAverageInterpolator_, bDryAmplitudeInterpolator_, groundStationTime, geodeticLatitude );
     double cDry = computeDryCoefficient( cDryAverageInterpolator_, cDryAmplitudeInterpolator_, groundStationTime, geodeticLatitude );
 
-    // Altitude in equation should be in km
-    return computeMFunction( aDry, bDry, cDry, elevation ) + ( 1.0 / std::sin( elevation ) - computeMFunction(
-            aHt_, bHt_, cHt_, elevation ) ) * altitude * 1e-3;
+    double altitudeCorrection = 0.0;
+    double sinElevation = std::sin( elevation );
+    if ( std::abs( sinElevation ) > 1e-12 )
+    {
+        // Altitude in equation should be in km
+        altitudeCorrection = ( 1.0 / sinElevation - computeMFunction( aHt_, bHt_, cHt_, elevation ) ) * altitude * 1e-3;
+    }
 
+    return computeMFunction( aDry, bDry, cDry, elevation ) + altitudeCorrection;
 }
 
 double NiellTroposphericMapping::computeMFunction ( const double a, const double b, const double c, const double elevation )
