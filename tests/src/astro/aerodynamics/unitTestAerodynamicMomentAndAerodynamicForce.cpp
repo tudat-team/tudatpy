@@ -822,6 +822,188 @@ BOOST_AUTO_TEST_CASE( testAerodynamicTrimWithFreeAngles )
     }
 }
 
+
+BOOST_AUTO_TEST_CASE( testCombinedAerodynamicForceAndMoment )
+{
+    // Load Spice kernels.
+    spice_interface::loadStandardSpiceKernels( );
+
+    // Set simulation start epoch.
+    const double simulationStartEpoch = 0.0;
+
+    // Set simulation end epoch.
+    const double simulationEndEpoch = 3300.0;
+
+    // Set numerical integration fixed step size.
+    const double fixedStepSize = 1.0;
+
+
+    // Set Keplerian elements for Capsule.
+    Eigen::Vector6d apolloInitialStateInKeplerianElements;
+    apolloInitialStateInKeplerianElements( semiMajorAxisIndex ) = spice_interface::getAverageRadius( "Earth" ) + 120.0E3;
+    apolloInitialStateInKeplerianElements( eccentricityIndex ) = 0.005;
+    apolloInitialStateInKeplerianElements( inclinationIndex ) = unit_conversions::convertDegreesToRadians( 85.3 );
+    apolloInitialStateInKeplerianElements( argumentOfPeriapsisIndex )
+            = unit_conversions::convertDegreesToRadians( 235.7 );
+    apolloInitialStateInKeplerianElements( longitudeOfAscendingNodeIndex )
+            = unit_conversions::convertDegreesToRadians( 23.4 );
+    apolloInitialStateInKeplerianElements( trueAnomalyIndex ) = unit_conversions::convertDegreesToRadians( 139.87 );
+
+    // Convert apollo state from Keplerian elements to Cartesian elements.
+    const double earthGravitationalParameter = getBodyGravitationalParameter( "Earth" );
+    const Eigen::Vector6d apolloInitialState = convertKeplerianToCartesianElements(
+                apolloInitialStateInKeplerianElements,
+                getBodyGravitationalParameter( "Earth" ) );
+
+    for( unsigned int i = 0; i < 2; i++ )
+    {
+
+        // Define simulation body settings.
+        BodyListSettings bodySettings =
+                getDefaultBodySettings( { "Earth", "Moon" }, simulationStartEpoch - 10.0 * fixedStepSize,
+                                        simulationEndEpoch + 10.0 * fixedStepSize, "Earth", "ECLIPJ2000" );
+        bodySettings.at( "Earth" )->gravityFieldSettings =
+                std::make_shared< simulation_setup::GravityFieldSettings >( central_spice );
+
+
+        // Create Earth object
+        simulation_setup::SystemOfBodies bodies = simulation_setup::createSystemOfBodies( bodySettings );
+
+        // Create vehicle objects.
+        bodies.createEmptyBody( "Apollo" );
+
+        // Create vehicle aerodynamic coefficients
+        auto aerodynamicCoefficients = unit_tests::getApolloCoefficientInterface( ) ;
+        if( i == 1 )
+        {
+            aerodynamicCoefficients->resetForceCoefficientsFrame( body_fixed_frame_coefficients );
+        }
+        bodies.at( "Apollo" )->setAerodynamicCoefficientInterface(
+                    unit_tests::getApolloCoefficientInterface( ) );
+        bodies.at( "Apollo" )->setConstantBodyMass( 5.0E3 );
+        bodies.at( "Apollo" )->setRotationalEphemeris(
+                    createRotationModel(
+                        std::make_shared< PitchTrimRotationSettings >(
+                            "Earth", "ECLIPJ2000", "VehicleFixed", &sideslipBankAngleFunction ),
+                        "Apollo", bodies ) );
+
+        // Define propagator settings variables.
+        SelectedAccelerationMap accelerationMap;
+        SelectedTorqueMap torqueMap;
+        std::vector< std::string > bodiesToPropagate;
+        std::vector< std::string > centralBodies;
+
+        // Define acceleration model settings.
+        std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfApollo;
+        accelerationsOfApollo[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
+        accelerationsOfApollo[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( aerodynamic ) );
+        accelerationsOfApollo[ "Moon" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
+        accelerationMap[ "Apollo" ] = accelerationsOfApollo;
+
+        std::map< std::string, std::vector< std::shared_ptr< TorqueSettings > > > torquesOfApollo;
+        torquesOfApollo[ "Earth" ].push_back( std::make_shared< TorqueSettings >( aerodynamic_torque ) );
+        torqueMap[ "Apollo" ] = torquesOfApollo;
+
+
+        bodiesToPropagate.push_back( "Apollo" );
+        centralBodies.push_back( "Earth" );
+
+        // Set initial state
+        Eigen::Vector6d systemInitialState = apolloInitialState;
+        Eigen::VectorXd systemInitialRotationalState = Eigen::VectorXd::Zero( 7 );
+        systemInitialRotationalState.segment( 0, 4 ) = linear_algebra::convertQuaternionToVectorFormat(
+            Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ) );
+        systemInitialRotationalState.segment( 4, 3 ) = Eigen::Vector3d::Constant( 1.0E-5 );
+
+        // Define list of dependent variables to save.
+        std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
+        dependentVariables.push_back(
+                    std::make_shared< SingleDependentVariableSaveSettings >( mach_number_dependent_variable, "Apollo" ) );
+        dependentVariables.push_back(
+                    std::make_shared< BodyAerodynamicAngleVariableSaveSettings >(
+                        "Apollo", reference_frames::angle_of_attack ) );
+        dependentVariables.push_back(
+                    std::make_shared< BodyAerodynamicAngleVariableSaveSettings >(
+                        "Apollo", reference_frames::angle_of_sideslip ) );
+        dependentVariables.push_back(
+                    std::make_shared< BodyAerodynamicAngleVariableSaveSettings >(
+                        "Apollo", reference_frames::bank_angle ) );
+        dependentVariables.push_back(
+                    std::make_shared< SingleDependentVariableSaveSettings >(
+                        aerodynamic_moment_coefficients_dependent_variable, "Apollo" ) );
+        dependentVariables.push_back(
+                    std::make_shared< SingleDependentVariableSaveSettings >(
+                        aerodynamic_force_coefficients_dependent_variable, "Apollo" ) );
+
+
+        // Create acceleration models and propagation settings.
+        basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
+                    bodies, accelerationMap, bodiesToPropagate, centralBodies );
+        basic_astrodynamics::TorqueModelMap torqueModelMap = createTorqueModelsMap(
+            bodies, torqueMap, bodiesToPropagate );
+
+        std::shared_ptr< IntegratorSettings< > > integratorSettings =
+                std::make_shared< IntegratorSettings< > >
+                ( rungeKutta4, simulationStartEpoch, fixedStepSize );
+
+        std::shared_ptr< TranslationalStatePropagatorSettings < double > > translationalPropagatorSettings =
+                std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                    centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, simulationStartEpoch, integratorSettings,
+                  std::make_shared< propagators::PropagationTimeTerminationSettings >( 300.0 ), cowell,
+                  dependentVariables );
+
+        std::shared_ptr< RotationalStatePropagatorSettings< double > > rotationalPropagatorSettings =
+            std::make_shared< RotationalStatePropagatorSettings< double > >(
+                torqueModelMap, bodiesToPropagate, systemInitialRotationalState, simulationStartEpoch, integratorSettings,
+                std::make_shared< propagators::PropagationTimeTerminationSettings >( 300.0 ), quaternions,
+                dependentVariables );
+
+        std::vector< std::shared_ptr< SingleArcPropagatorSettings< double, double > > > propagatorSettingsVector;
+        propagatorSettingsVector.push_back( translationalPropagatorSettings );
+        propagatorSettingsVector.push_back( rotationalPropagatorSettings );
+
+        std::shared_ptr< MultiTypePropagatorSettings< double > > propagatorSettings =
+            std::make_shared< MultiTypePropagatorSettings< double > >(
+                propagatorSettingsVector, integratorSettings, simulationStartEpoch,
+                std::make_shared< propagators::PropagationTimeTerminationSettings >( 300.0 ),
+                dependentVariables );
+
+
+
+        // Create simulation object and propagate dynamics.
+        SingleArcDynamicsSimulator< > dynamicsSimulator(
+                    bodies, propagatorSettings );
+
+        std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > dependentVariableOutput =
+                dynamicsSimulator.getDependentVariableHistory( );
+
+        std::shared_ptr< tudat::aerodynamics::AerodynamicCoefficientInterface > aerodynamicCoefficientInterface =
+                bodies.at( "Apollo" )->getAerodynamicCoefficientInterface( );
+
+        for( auto it : dependentVariableOutput )
+        {
+            double machNumber = it.second( 0 );
+            double angleOfAttack = it.second( 1 );
+            double sideslipAngle = it.second( 2 );
+            double bankAngle = it.second( 3 );
+            aerodynamicCoefficientInterface->updateFullCurrentCoefficients(
+            { machNumber, angleOfAttack,sideslipAngle } );
+
+            Eigen::Vector3d testMomentCoefficients = aerodynamicCoefficientInterface->getCurrentMomentCoefficients( );
+            Eigen::Vector3d testForceCoefficients = aerodynamicCoefficientInterface->getCurrentForceCoefficients( );
+            Eigen::Vector2d testAngles = sideslipBankAngleFunction( it.first );
+            Eigen::Vector3d momentCoefficients = it.second.segment( 4, 3 );
+            Eigen::Vector3d forceCoefficients = it.second.segment( 7, 3 );
+
+            BOOST_CHECK_EQUAL( testAngles( 0 ), sideslipAngle );
+            BOOST_CHECK_EQUAL( testAngles( 1 ), bankAngle );
+
+            TUDAT_CHECK_MATRIX_CLOSE_FRACTION( momentCoefficients, testMomentCoefficients, std::numeric_limits< double >::epsilon( ) );
+            TUDAT_CHECK_MATRIX_CLOSE_FRACTION( forceCoefficients, testForceCoefficients, std::numeric_limits< double >::epsilon( ) );
+        }
+    }
+}
+
 BOOST_AUTO_TEST_SUITE_END( )
 
 }

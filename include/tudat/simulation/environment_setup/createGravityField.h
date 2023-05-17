@@ -880,6 +880,33 @@ protected:
     std::function< Eigen::Matrix3d( const double ) > inertiaTensorFunction_;
 };
 
+inline std::shared_ptr< BodyMassPropertiesSettings > constantBodyMassPropertiesSettings(
+    const double mass,
+    const Eigen::Vector3d &centerOfMass = Eigen::Vector3d::Constant( TUDAT_NAN ),
+    const Eigen::Matrix3d &inertiaTensor = Eigen::Matrix3d::Constant( TUDAT_NAN ) )
+{
+    return std::make_shared< ConstantBodyMassPropertiesSettings >(
+        mass, centerOfMass, inertiaTensor );
+}
+
+inline std::shared_ptr< BodyMassPropertiesSettings > fromFunctionBodyMassPropertiesSettings(
+    const std::function< double( const double ) > massFunction,
+    const std::function< Eigen::Vector3d( const double ) > centerOfMassFunction = nullptr,
+    const std::function< Eigen::Matrix3d( const double ) > inertiaTensorFunction = nullptr )
+{
+    return std::make_shared< FromFunctionBodyMassPropertiesSettings >(
+        massFunction, centerOfMassFunction, inertiaTensorFunction );
+}
+
+inline std::shared_ptr< BodyMassPropertiesSettings > massDependentMassDistributionSettings(
+    const double currentMass,
+    const std::function< Eigen::Vector3d( const double ) > centerOfMassFunction,
+    const std::function< Eigen::Matrix3d( const double ) > inertiaTensorFunction )
+{
+    return std::make_shared< MassDependentMassDistributionSettings >(
+        currentMass, centerOfMassFunction, inertiaTensorFunction );
+}
+
 std::shared_ptr< BodyMassProperties > createBodyMassProperties(
     const std::shared_ptr<BodyMassPropertiesSettings> bodyMassPropertiesSettings,
     const std::string& body,
