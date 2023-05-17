@@ -118,3 +118,6 @@ TUDAT_ADD_TEST_CASE(OdfFileReader
 
 TUDAT_ADD_TEST_CASE(ReadTabulatedMediaCorrections
         PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES} )
+
+TUDAT_ADD_TEST_CASE(ReadTabulatedWeatherData
+        PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES} )
