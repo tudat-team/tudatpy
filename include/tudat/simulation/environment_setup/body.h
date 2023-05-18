@@ -224,6 +224,10 @@ class BodyMassProperties {
 
     double getCurrentMass( )
     {
+        if( !isMassComputed_ )
+        {
+            throw std::runtime_error( "Error when retrieveing mass, mass is not computed/defined." );
+        }
         return currentMass_;
     }
 
@@ -282,6 +286,8 @@ public:
             massFunction_( nullptr ), centerOfMassFunction_( nullptr ), inertiaTensorFunction_( nullptr )
     {
         currentMass_ = mass;
+        isMassComputed_ = true;
+
         if( !centerOfMass.hasNaN( ) )
         {
             currentCenterOfMass_ = centerOfMass;
@@ -296,6 +302,16 @@ public:
 
     virtual ~TimeDependentBodyMassProperties( ){ }
 
+    virtual void resetCurrentTime( )
+    {
+        if( massFunction_ != nullptr )
+        {
+            isMassComputed_ = false;
+        }
+        isComComputed_ = false;
+        isInertiaTensorComputed_ = false;
+    }
+
     std::function< double( const double ) > getMassFunction( )
     {
         return massFunction_;
@@ -309,6 +325,7 @@ public:
     virtual void setCurrentMass( const double currentMass )
     {
         currentMass_ = currentMass;
+        isMassComputed_ = true;
     }
 
     void setInertiaTensor( const Eigen::Matrix3d& inertiaTensor )
