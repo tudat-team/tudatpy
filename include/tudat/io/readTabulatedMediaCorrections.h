@@ -44,6 +44,11 @@ public:
 
     AtmosphericCorrectionCspCommand( std::vector< std::string >& cspCommand );
 
+    AtmosphericCorrectionCspCommand( ):
+        sourceSpecifier_( "" ),
+        sourceId_( 0 )
+    { }
+
     std::string modelIdentifier_;
 
     std::string dataTypesIdentifier_;
@@ -59,16 +64,37 @@ public:
     double startTime_;
     double endTime_;
 
+    double convertTime( std::string yearMonthDay, std::string hoursMinutesSeconds );
+
 private:
 
-    double convertTime( std::string yearMonthDay, std::string hoursMinutesSeconds );
 };
 
 class CspRawFile
 {
 public:
 
-    CspRawFile( const std::string& cspFile );
+    CspRawFile( const std::string& cspFile ):
+        fileName_( cspFile )
+    {
+        // Read CSP commands. Each command saved as one string
+        std::vector< std::string > cspCommandsVector = readCspCommandsFile( fileName_ );
+
+        // Parse commands
+        parseCspCommands( cspCommandsVector );
+    }
+
+    CspRawFile( std::vector< std::string > cspCommandsVector ):
+        fileName_( "" )
+    {
+        // Parse commands
+        parseCspCommands( cspCommandsVector );
+    }
+
+    CspRawFile( std::vector< std::shared_ptr< CspCommand > > cspCommands ):
+        fileName_( "" ),
+        cspCommands_( cspCommands )
+    { }
 
     std::string getFileName( )
     {
@@ -83,6 +109,8 @@ public:
 private:
 
     std::vector< std::string > readCspCommandsFile( std::string file );
+
+    void parseCspCommands( const std::vector< std::string >& cspCommandsVector );
 
     std::string fileName_;
 
@@ -114,16 +142,24 @@ observation_models::AtmosphericCorrectionPerStationAndSpacecraftType createTropo
         const std::map< int, std::string >& spacecraftNamePerSpacecraftId = std::map< int, std::string >( ),
         const std::map< int, std::string >& quasarNamePerQuasarId = std::map< int, std::string >( ) );
 
-observation_models::AtmosphericCorrectionPerStationAndSpacecraftType createTroposphericDryCorrection(
+observation_models::AtmosphericCorrectionPerStationAndSpacecraftType createTroposphericDryCorrectionAdjustment(
         const std::vector< std::shared_ptr< CspRawFile > >& rawCspFiles );
 
-observation_models::AtmosphericCorrectionPerStationAndSpacecraftType createTroposphericWetCorrection(
+observation_models::AtmosphericCorrectionPerStationAndSpacecraftType createTroposphericWetCorrectionAdjustment(
         const std::vector< std::shared_ptr< CspRawFile > >& rawCspFiles );
 
 observation_models::AtmosphericCorrectionPerStationAndSpacecraftType createIonosphericCorrection(
         const std::vector< std::shared_ptr< CspRawFile > >& rawCspFiles,
         const std::map< int, std::string >& spacecraftNamePerSpacecraftId = std::map< int, std::string >( ),
         const std::map< int, std::string >& quasarNamePerQuasarId = std::map< int, std::string >( ) );
+
+// CSP commands corresponding to the DSN default tropospheric seasonal model.
+// Estefan and Sovers (1994), Fig. 3b
+std::shared_ptr< CspRawFile > getDsnDefaultTroposphericSeasonalModelCspFile( );
+
+observation_models::AtmosphericCorrectionPerStationAndSpacecraftType createDefaultTroposphericDryCorrection( );
+
+observation_models::AtmosphericCorrectionPerStationAndSpacecraftType createDefaultTroposphericWetCorrection( );
 
 } // namespace input_output
 
