@@ -419,6 +419,16 @@ public:
         return Eigen::Vector3d::Zero( );
     }
 
+    std::function< double ( double time ) > getDryZenithRangeCorrectionFunction( )
+    {
+        return dryZenithRangeCorrectionFunction_;
+    }
+
+    std::function< double ( double time ) > getWetZenithRangeCorrectionFunction( )
+    {
+        return wetZenithRangeCorrectionFunction_;
+    }
+
 protected:
 
     // Dry atmosphere zenith range correction (in meters)
