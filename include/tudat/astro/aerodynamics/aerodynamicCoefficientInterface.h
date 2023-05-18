@@ -430,27 +430,6 @@ public:
         return numberOfIndependentVariables_;
     }
 
-//    //! Function that returns whether the coefficients are given in aerodynamic frame.
-//    /*!
-//     * Function that returns whether the coefficients are given in aerodynamic frame (given in body)
-//     * frame if false.
-//     * \return Boolean whether coefficients are in aerodynamic frame
-//     */
-//    bool getAreCoefficientsInAerodynamicFrame( )
-//    {
-//        return areCoefficientsInAerodynamicFrame_;
-//    }
-//
-//    //! Function that returns whether the coefficients are positive in positive axes directions.
-//    /*!
-//     * Function that returns whether the coefficients are positive in positive axes directions, i.e.
-//     * if positive force (in given frame) gives positive coefficients.
-//     * \return Boolean whether coefficients are in positive direction.
-//     */
-//    bool getAreCoefficientsInNegativeAxisDirection( )
-//    {
-//        return areCoefficientsInNegativeAxisDirection_;
-//    }
 
     AerodynamicCoefficientFrames getForceCoefficientsFrame( )
     {

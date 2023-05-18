@@ -233,11 +233,19 @@ class BodyMassProperties {
 
     Eigen::Vector3d getCurrentCenterOfMass( )
     {
+        if( !isComComputed_ )
+        {
+            throw std::runtime_error( "Error when retrieving center of mass, center of mass is not computed/defined." );
+        }
         return currentCenterOfMass_;
     }
 
     Eigen::Matrix3d getCurrentInertiaTensor( )
     {
+        if( !isInertiaTensorComputed_ )
+        {
+            throw std::runtime_error( "Error when retrieving inertia tensor, inertia tensor is not computed/defined." );
+        }
         return currentInertiaTensor_;
     }
 
@@ -291,11 +299,13 @@ public:
         if( !centerOfMass.hasNaN( ) )
         {
             currentCenterOfMass_ = centerOfMass;
+            isComComputed_ = true;
         }
 
         if( !inertiaTensor.hasNaN( ) )
         {
             currentInertiaTensor_ = inertiaTensor;
+            isInertiaTensorComputed_ = true;
         }
     }
 
@@ -308,8 +318,16 @@ public:
         {
             isMassComputed_ = false;
         }
-        isComComputed_ = false;
-        isInertiaTensorComputed_ = false;
+
+        if( centerOfMassFunction_ != nullptr )
+        {
+            isComComputed_ = false;
+        }
+
+        if( inertiaTensorFunction_ != nullptr )
+        {
+            isInertiaTensorComputed_ = false;
+        }
     }
 
     std::function< double( const double ) > getMassFunction( )
@@ -331,6 +349,7 @@ public:
     void setInertiaTensor( const Eigen::Matrix3d& inertiaTensor )
     {
         currentInertiaTensor_ = inertiaTensor;
+        isInertiaTensorComputed_ = true;
     }
 
     virtual void updateMass( const double currentTime )
@@ -398,13 +417,14 @@ public:
         if( inertiaTensorFunction_ != nullptr && ( !isInertiaTensorComputed_ || !isBodyInPropagation_ ) )
         {
             currentInertiaTensor_ = inertiaTensorFunction_( currentMass_ );
-            isComComputed_ = true;
+            isInertiaTensorComputed_ = true;
         }
     }
 
     virtual void setCurrentMass( const double currentMass )
     {
         currentMass_ = currentMass;
+        isMassComputed_ = true;
     }
 
 protected:
@@ -427,6 +447,10 @@ public:
         currentCenterOfMass_ = gravityFieldModel_->getCenterOfMass( );
         currentInertiaTensor_ = gravityFieldModel_->getInertiaTensor( );
 
+        isMassComputed_ = true;
+        isComComputed_ = true;
+        isInertiaTensorComputed_ = true;
+
         if( std::dynamic_pointer_cast< gravitation::TimeDependentSphericalHarmonicsGravityField >( gravityFieldModel ) != nullptr )
         {
             modelIsTimeDependent_  = true;
@@ -438,6 +462,16 @@ public:
     }
 
     virtual ~FromGravityFieldBodyMassProperties( ){ }
+
+    virtual void resetCurrentTime( )
+    {
+        if( modelIsTimeDependent_ )
+        {
+            isMassComputed_ = false;
+            isComComputed_ = false;
+            isInertiaTensorComputed_ = false;
+        }
+    }
 
     virtual void updateMass( const double currentTime )
     {
