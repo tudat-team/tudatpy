@@ -544,8 +544,6 @@ public:
           currentRotationToLocalFrameDerivative_( Eigen::Matrix3d::Zero( ) ),
           currentAngularVelocityVectorInGlobalFrame_( Eigen::Vector3d::Zero( ) ),
           currentAngularVelocityVectorInLocalFrame_( Eigen::Vector3d::Zero( ) ),
-          bodyFixedCenterOfMass_( Eigen::Vector3d::Zero( ) ),
-          density_( TUDAT_NAN ),
           bodyName_( "unnamed_body" )
     {
         currentLongState_ = currentState_.cast< long double >( );
@@ -1549,12 +1547,7 @@ public:
 
     Eigen::Vector3d getBodyFixedCenterOfMass( )
     {
-        return bodyFixedCenterOfMass_;
-    }
-
-    void setBodyFixedCenterOfMass( const Eigen::Vector3d& bodyFixedCenterOfMass )
-    {
-        bodyFixedCenterOfMass_ = bodyFixedCenterOfMass;
+        return massProperties_->getCurrentCenterOfMass( );
     }
 
     //! Function to retrieve the body moment-of-inertia tensor.
@@ -1730,13 +1723,8 @@ private:
 //    //! Body moment-of-inertia tensor.
 //    Eigen::Matrix3d bodyInertiaTensor_;
 
-    Eigen::Vector3d bodyFixedCenterOfMass_;
-
 //    //! Body scaled mean moment of inertia
 //    double scaledMeanMomentOfInertia_;
-
-    //! Body density
-    double density_;
 
     //! Ephemeris of body.
     std::shared_ptr<ephemerides::Ephemeris> bodyEphemeris_;
