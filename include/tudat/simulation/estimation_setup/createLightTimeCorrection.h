@@ -20,6 +20,7 @@
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/corrections/lightTimeCorrection.h"
 #include "tudat/astro/observation_models/corrections/tabulatedMediaCorrection.h"
+#include "tudat/io/readTabulatedMediaCorrections.h"
 
 namespace tudat
 {
@@ -108,16 +109,32 @@ class TabulatedTroposphericCorrectionSettings: public LightTimeCorrectionSetting
 {
 public:
     TabulatedTroposphericCorrectionSettings(
-            const AtmosphericCorrectionPerStationAndSpacecraftType& troposphericDryCorrection,
-            const AtmosphericCorrectionPerStationAndSpacecraftType& troposphericWetCorrection,
+            const AtmosphericCorrectionPerStationAndSpacecraftType& troposphericDryCorrectionAdjustment,
+            const AtmosphericCorrectionPerStationAndSpacecraftType& troposphericWetCorrectionAdjustment,
             const std::string& bodyWithAtmosphere = "Earth",
-            const TroposphericMappingModel troposphericMappingModel = niell ):
+            const TroposphericMappingModel troposphericMappingModel = niell,
+            const AtmosphericCorrectionPerStationAndSpacecraftType& troposphericDryCorrection =
+                    input_output::createDefaultTroposphericDryCorrection( ),
+            const AtmosphericCorrectionPerStationAndSpacecraftType& troposphericWetCorrection =
+                    input_output::createDefaultTroposphericWetCorrection( ) ):
         LightTimeCorrectionSettings( tabulated_tropospheric ),
+        troposphericDryCorrectionAdjustment_( troposphericDryCorrectionAdjustment ),
+        troposphericWetCorrectionAdjustment_( troposphericWetCorrectionAdjustment ),
         troposphericDryCorrection_( troposphericDryCorrection ),
         troposphericWetCorrection_( troposphericWetCorrection ),
         bodyWithAtmosphere_( bodyWithAtmosphere ),
         troposphericMappingModelType_( troposphericMappingModel )
     { }
+
+    AtmosphericCorrectionPerStationAndSpacecraftType getTroposphericDryCorrectionAdjustment( )
+    {
+        return troposphericDryCorrectionAdjustment_;
+    }
+
+    AtmosphericCorrectionPerStationAndSpacecraftType getTroposphericWetCorrectionAdjustment( )
+    {
+        return troposphericWetCorrectionAdjustment_;
+    }
 
     AtmosphericCorrectionPerStationAndSpacecraftType getTroposphericDryCorrection( )
     {
@@ -140,6 +157,10 @@ public:
     }
 
 private:
+
+    AtmosphericCorrectionPerStationAndSpacecraftType troposphericDryCorrectionAdjustment_;
+
+    AtmosphericCorrectionPerStationAndSpacecraftType troposphericWetCorrectionAdjustment_;
 
     AtmosphericCorrectionPerStationAndSpacecraftType troposphericDryCorrection_;
 

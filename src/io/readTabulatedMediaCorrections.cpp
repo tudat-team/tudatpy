@@ -136,11 +136,8 @@ double AtmosphericCorrectionCspCommand::convertTime( std::string yearMonthDay, s
             year, month, day, hours, minutes, seconds, basic_astrodynamics::JULIAN_DAY_ON_J2000 ) * physical_constants::JULIAN_DAY;
 }
 
-CspRawFile::CspRawFile( const std::string& cspFile ):
-    fileName_( cspFile )
+void CspRawFile::parseCspCommands( const std::vector< std::string >& cspCommandsVector )
 {
-    // Read CSP commands. Each command saved as one string
-    std::vector< std::string > cspCommandsVector = readCspCommandsFile( fileName_ );
 
     for ( unsigned int i = 0; i < cspCommandsVector.size( ); ++i )
     {
@@ -492,14 +489,14 @@ observation_models::AtmosphericCorrectionPerStationAndSpacecraftType createTropo
     return troposphericCorrection;
 }
 
-observation_models::AtmosphericCorrectionPerStationAndSpacecraftType createTroposphericDryCorrection(
+observation_models::AtmosphericCorrectionPerStationAndSpacecraftType createTroposphericDryCorrectionAdjustment(
         const std::vector< std::shared_ptr< CspRawFile > >& rawCspFiles )
 {
     std::string modelIdentifier = "DRY NUPART";
     return createTroposphericCorrection( rawCspFiles, modelIdentifier );
 }
 
-observation_models::AtmosphericCorrectionPerStationAndSpacecraftType createTroposphericWetCorrection(
+observation_models::AtmosphericCorrectionPerStationAndSpacecraftType createTroposphericWetCorrectionAdjustment(
         const std::vector< std::shared_ptr< CspRawFile > >& rawCspFiles )
 {
     std::string modelIdentifier = "WET NUPART";
@@ -513,6 +510,81 @@ observation_models::AtmosphericCorrectionPerStationAndSpacecraftType createIonos
 {
     std::string modelIdentifier = "CHPART";
     return createTroposphericCorrection( rawCspFiles, modelIdentifier, spacecraftNamePerSpacecraftId, quasarNamePerQuasarId );
+}
+
+std::shared_ptr< CspRawFile > getDsnDefaultTroposphericSeasonalModelCspFile( )
+{
+    std::vector< std::shared_ptr< CspCommand > > cspCommands;
+
+    for ( unsigned int i = 0; i < 6; ++i )
+    {
+        std::shared_ptr< AtmosphericCorrectionCspCommand > command = std::make_shared< AtmosphericCorrectionCspCommand >( );
+        command->dataTypesIdentifier_ = "DOPRNG";
+        command->computationSpecifier_ = "BY TRIG";
+        command->endTime_ = TUDAT_NAN;
+        command->startTime_ = command->convertTime( "72/01/01", "00:00" );
+
+        switch ( i )
+        {
+            case 0:
+                command->modelIdentifier_ = "WET NUPART";
+                command->groundStationsId_ = "C10";
+                command->computationCoefficients_ =
+                        { 31557600., 0.0870, -0.0360, -0.0336, 0.0002, 0.0200, 0.0008, -0.0021, -0.0036, -0.0002 };
+                break;
+            case 1:
+                command->modelIdentifier_ = "DRY NUPART";
+                command->groundStationsId_ = "C10";
+                command->computationCoefficients_ =
+                        { 31557600., 2.0521, 0.0082, -0.0005, -0.0004, 0.0033, -0.0015, 0.0005, -0.0011, 0.0036 };
+                break;
+            case 2:
+                command->modelIdentifier_ = "WET NUPART";
+                command->groundStationsId_ = "C40";
+                command->computationCoefficients_ =
+                        { 31557600., 0.1149, 0.0255, 0.0020, 0.0010, 0.0026, 0.0036, -0.0001, 0.0007, 0.0012 };
+                break;
+            case 3:
+                command->modelIdentifier_ = "DRY NUPART";
+                command->groundStationsId_ = "C40";
+                command->computationCoefficients_ =
+                        { 31557600., 2.1579, -0.0032, -0.0002, 0.0012, 0.0017, -0.0043, 0.0052, 0.0016, -0.0021 };
+                break;
+            case 4:
+                command->modelIdentifier_ = "WET NUPART";
+                command->groundStationsId_ = "C60";
+                command->computationCoefficients_ =
+                        { 31557600., 0.1255, -0.0284, -0.0273, -0.0094, 0.0005, -0.0031, -0.0003, -0.0034, -0.0013 };
+                break;
+            case 5:
+                command->modelIdentifier_ = "DRY NUPART";
+                command->groundStationsId_ = "C60";
+                command->computationCoefficients_ =
+                        { 31557600., 2.1094, 0.0037, -0.0010, 0.0036, 0.0019, -0.0006, 0.0021, 0.0018, -0.0004 };
+                break;
+            default:
+                throw std::runtime_error( "Error when getting default DSN tropospheric seasonal model." );
+                break;
+        }
+
+        cspCommands.push_back( command );
+    }
+
+    return std::make_shared< CspRawFile >( cspCommands );
+}
+
+observation_models::AtmosphericCorrectionPerStationAndSpacecraftType createDefaultTroposphericDryCorrection( )
+{
+    std::string modelIdentifier = "DRY NUPART";
+    return createTroposphericCorrection(
+            { getDsnDefaultTroposphericSeasonalModelCspFile( ) }, modelIdentifier );
+}
+
+observation_models::AtmosphericCorrectionPerStationAndSpacecraftType createDefaultTroposphericWetCorrection( )
+{
+    std::string modelIdentifier = "WET NUPART";
+    return createTroposphericCorrection(
+            { getDsnDefaultTroposphericSeasonalModelCspFile( ) }, modelIdentifier );
 }
 
 } // namespace input_output

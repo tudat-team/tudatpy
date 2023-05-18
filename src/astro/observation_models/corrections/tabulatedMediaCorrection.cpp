@@ -22,6 +22,25 @@ namespace tudat
 namespace observation_models
 {
 
+bool TabulatedMediaReferenceCorrection::isTimeValid( const double time )
+{
+    if ( !std::isnan( startTime_ ) && time < startTime_ )
+    {
+        throw std::runtime_error(
+                "Error when computing tabulated media reference correction: selected time (" + std::to_string( time ) +
+                ") is below start time (" + std::to_string( startTime_ ) + ")." );
+    }
+
+    if ( !std::isnan( endTime_ ) && time > endTime_ )
+    {
+        throw std::runtime_error(
+                "Error when computing tabulated media reference correction: selected time (" + std::to_string( time ) +
+                ") is over end time (" + std::to_string( endTime_ ) + ")." );
+    }
+
+    return true;
+}
+
 double PowerSeriesReferenceCorrection::computeReferenceCorrection( const double time )
 {
     isTimeValid( time );
@@ -86,13 +105,16 @@ double TabulatedMediaReferenceCorrectionManager::computeMediaCorrection( double 
         throw std::runtime_error("Error when computing reference media correction: no correction object provided. ");
     }
 
-    if ( !isLookupSchemeUpdated_ )
+    int lowerNearestNeighbour = 0;
+    if ( startTimes_.size( ) > 1 )
     {
-        startTimeLookupScheme_ = std::make_shared< interpolators::HuntingAlgorithmLookupScheme< double > >( startTimes_ );
-        isLookupSchemeUpdated_ = true;
+        if ( !isLookupSchemeUpdated_ )
+        {
+            startTimeLookupScheme_ = std::make_shared< interpolators::HuntingAlgorithmLookupScheme< double > >( startTimes_ );
+            isLookupSchemeUpdated_ = true;
+        }
+        lowerNearestNeighbour = startTimeLookupScheme_->findNearestLowerNeighbour( time );
     }
-
-    int lowerNearestNeighbour = startTimeLookupScheme_->findNearestLowerNeighbour( time );
 
     return correctionVector_.at( lowerNearestNeighbour )->computeReferenceCorrection( time );
 }

@@ -35,8 +35,8 @@ class TabulatedMediaReferenceCorrection
 {
 public:
 
-    TabulatedMediaReferenceCorrection( const double startTime,
-                                       const double endTime ):
+    TabulatedMediaReferenceCorrection( const double startTime = TUDAT_NAN,
+                                       const double endTime = TUDAT_NAN ):
        startTime_( startTime ),
        endTime_( endTime )
     { }
@@ -57,18 +57,7 @@ public:
 
 protected:
 
-    bool isTimeValid( const double time )
-    {
-        if ( time < startTime_ || time > endTime_ )
-        {
-            throw std::runtime_error(
-                    "Error when computing tabulated media reference correction: selected time (" + std::to_string( time ) +
-                    ") is outside validity interval (" + std::to_string( startTime_ ) + " to " + std::to_string( endTime_ ) +
-                    ")." );
-        }
-
-        return true;
-    }
+    bool isTimeValid( const double time );
 
     const double startTime_;
     const double endTime_;
@@ -448,30 +437,53 @@ class TabulatedTroposphericCorrection: public MappedTroposphericCorrection
 {
 public:
 
+    /*!
+     *
+     * @param seasonalModelDryZenithCorrectionCalculator, seasonalModelWetZenithCorrectionCalculator Correction calculators
+     *      based on seasonal model. These corrections should either correspond to Figure 3a or 3b of Estefan and Sovers (1994).
+     * @param dryZenithCorrectionAdjustmentCorrectionCalculator, wetZenithCorrectionAdjustmentCorrectionCalculator Corrections
+     *      to the seasonal model based on real time data. Should be read from DSN TRK-2-23 files.
+     * @param elevationMapping
+     * @param isUplinkCorrection
+     */
     TabulatedTroposphericCorrection(
-            std::shared_ptr< TabulatedMediaReferenceCorrectionManager > dryReferenceCorrectionCalculator,
-            std::shared_ptr< TabulatedMediaReferenceCorrectionManager > wetReferenceCorrectionCalculator,
+            std::shared_ptr< TabulatedMediaReferenceCorrectionManager > seasonalModelDryZenithCorrectionCalculator,
+            std::shared_ptr< TabulatedMediaReferenceCorrectionManager > seasonalModelWetZenithCorrectionCalculator,
+            std::shared_ptr< TabulatedMediaReferenceCorrectionManager > dryZenithCorrectionAdjustmentCalculator,
+            std::shared_ptr< TabulatedMediaReferenceCorrectionManager > wetZenithCorrectionAdjustmentCalculator,
             std::shared_ptr< TroposhericElevationMapping > elevationMapping,
             bool isUplinkCorrection ):
         MappedTroposphericCorrection(
                 tabulated_tropospheric,
                 elevationMapping,
-                isUplinkCorrection,
-                std::bind( &TabulatedMediaReferenceCorrectionManager::computeMediaCorrection,
-                           dryReferenceCorrectionCalculator, std::placeholders::_1 ),
-                std::bind( &TabulatedMediaReferenceCorrectionManager::computeMediaCorrection,
-                           wetReferenceCorrectionCalculator, std::placeholders::_1 ) ),
-        dryReferenceCorrectionCalculator_( dryReferenceCorrectionCalculator ),
-        wetReferenceCorrectionCalculator_( wetReferenceCorrectionCalculator )
-    { }
+                isUplinkCorrection ),
+        seasonalModelDryZenithCorrectionCalculator_( seasonalModelDryZenithCorrectionCalculator ),
+        seasonalModelWetZenithCorrectionCalculator_( seasonalModelWetZenithCorrectionCalculator ),
+        dryZenithCorrectionAdjustmentCalculator_( dryZenithCorrectionAdjustmentCalculator ),
+        wetZenithCorrectionAdjustmentCalculator_( wetZenithCorrectionAdjustmentCalculator )
+    {
+        // Override default values for dry and wet zenith corrections
+        dryZenithRangeCorrectionFunction_ = [=] ( double time ) {
+            return seasonalModelDryZenithCorrectionCalculator_->computeMediaCorrection( time ) +
+                dryZenithCorrectionAdjustmentCalculator_->computeMediaCorrection( time ); };
+        wetZenithRangeCorrectionFunction_ = [=] ( double time ) {
+            return seasonalModelWetZenithCorrectionCalculator_->computeMediaCorrection( time ) +
+                wetZenithCorrectionAdjustmentCalculator_->computeMediaCorrection( time ); };
+    }
 
 private:
 
-    // Dry atmosphere zenith range correction (in meters)
-    std::shared_ptr< TabulatedMediaReferenceCorrectionManager > dryReferenceCorrectionCalculator_;
+    // Dry atmosphere zenith range correction (in meters): based on seasonal model
+    std::shared_ptr< TabulatedMediaReferenceCorrectionManager > seasonalModelDryZenithCorrectionCalculator_;
 
-    // Wet atmosphere zenith range correction (in meters)
-    std::shared_ptr< TabulatedMediaReferenceCorrectionManager > wetReferenceCorrectionCalculator_;
+    // Wet atmosphere zenith range correction (in meters): based on seasonal model
+    std::shared_ptr< TabulatedMediaReferenceCorrectionManager > seasonalModelWetZenithCorrectionCalculator_;
+
+    // Dry atmosphere zenith range correction (in meters): tabulated correction to seasonal model
+    std::shared_ptr< TabulatedMediaReferenceCorrectionManager > dryZenithCorrectionAdjustmentCalculator_;
+
+    // Wet atmosphere zenith range correction (in meters): tabulated correction to seasonal model
+    std::shared_ptr< TabulatedMediaReferenceCorrectionManager > wetZenithCorrectionAdjustmentCalculator_;
 };
 
 //! Enum defining different types of water vapor partial pressure models.
