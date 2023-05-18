@@ -362,14 +362,14 @@ double SaastamoinenTroposphericCorrection::computeDryZenithRangeCorrection( cons
 
     double gravitationalAccelerationFactor = 1.0 - 0.00266 * std::cos( 2.0 * geodeticLatitude ) - 2.8e-7 * altitude;
 
-    // 1e2 factor is conversion of pressure from Pa to mBar
-    return 0.0022768 * pressureFunction_( stationTime ) * 1e2 / gravitationalAccelerationFactor;
+    // 1e-2 factor is conversion of pressure from Pa to mBar
+    return 0.0022768 * pressureFunction_( stationTime ) * 1e-2 / gravitationalAccelerationFactor;
 }
 
 double SaastamoinenTroposphericCorrection::computeWetZenithRangeCorrection( const double stationTime )
 {
-    // 1e2 factor is conversion of pressure from Pa to mBar
-    return 0.002277 * waterVaporPartialPressureFunction_( stationTime ) * 1e2 * (
+    // 1e-2 factor is conversion of pressure from Pa to mBar
+    return 0.002277 * waterVaporPartialPressureFunction_( stationTime ) * 1e-2 * (
             1255.0 / temperatureFunction_( stationTime ) + 0.05 );
 }
 

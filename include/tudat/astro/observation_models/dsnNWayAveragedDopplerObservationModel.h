@@ -14,6 +14,8 @@
 #include <stdexcept>
 #include <string>
 
+#include "tudat/simulation/simulation.h"
+
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/astro/observation_models/observationFrequencies.h"
 #include "tudat/astro/observation_models/nWayRangeObservationModel.h"
