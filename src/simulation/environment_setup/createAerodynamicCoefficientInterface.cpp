@@ -251,7 +251,8 @@ createUnivariateTabulatedCoefficientAerodynamicCoefficientInterface(
 }
 
 std::shared_ptr< aerodynamics::AerodynamicMomentContributionInterface > createMomentContributionInterface(
-            const std::shared_ptr< AerodynamicCoefficientSettings > coefficientSettings,
+            const aerodynamics::AerodynamicCoefficientFrames forceCoefficientFrame,
+            const aerodynamics::AerodynamicCoefficientFrames momentCoefficientFrame,
             const std::shared_ptr< Body > body )
 {
     if( body->getFlightConditions( ) == nullptr )
@@ -260,9 +261,9 @@ std::shared_ptr< aerodynamics::AerodynamicMomentContributionInterface > createMo
     }
 
     std::pair< reference_frames::AerodynamicsReferenceFrames, int > forceCoefficientFrameId =
-            convertCoefficientFrameToGeneralAerodynamicFrame( coefficientSettings->getForceCoefficientsFrame( ) );
+            convertCoefficientFrameToGeneralAerodynamicFrame( forceCoefficientFrame );
     std::pair< reference_frames::AerodynamicsReferenceFrames, int > momentCoefficientFrameId =
-            convertCoefficientFrameToGeneralAerodynamicFrame( coefficientSettings->getMomentCoefficientsFrame( ) );
+            convertCoefficientFrameToGeneralAerodynamicFrame( momentCoefficientFrame );
     std::function< Eigen::Matrix3d( ) > coefficientRotationFunction;
     if( forceCoefficientFrameId.first == momentCoefficientFrameId.first )
     {
@@ -280,6 +281,16 @@ std::shared_ptr< aerodynamics::AerodynamicMomentContributionInterface > createMo
     }
     return std::make_shared< aerodynamics::AerodynamicMomentContributionInterface >(
             coefficientRotationFunction, std::bind( &Body::getBodyFixedCenterOfMass, body ) );
+}
+
+std::shared_ptr< aerodynamics::AerodynamicMomentContributionInterface > createMomentContributionInterface(
+    const std::shared_ptr< AerodynamicCoefficientSettings > coefficientSettings,
+    const std::shared_ptr< Body > body )
+{
+    return createMomentContributionInterface(
+        coefficientSettings->getForceCoefficientsFrame( ),
+        coefficientSettings->getMomentCoefficientsFrame( ),
+        body );
 }
 
 //! Function to create and aerodynamic coefficient interface.
@@ -449,7 +460,7 @@ createAerodynamicCoefficientInterface(
     {
         if( bodies.count( body ) == 0 )
         {
-            throw std::runtime_error( "Error when making aerodynami moment correction interface, no body " + body + " was found." );
+            throw std::runtime_error( "Error when making aerodynamic moment correction interface, no body " + body + " was found." );
         }
         momentContributionInterface = createMomentContributionInterface( coefficientSettings, bodies.at( body ) );
         coefficientInterface->setMomentContributionInterface( momentContributionInterface );

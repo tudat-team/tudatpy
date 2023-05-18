@@ -1538,6 +1538,11 @@ createTabulatedCoefficientAerodynamicCoefficientInterface(
 }
 
 std::shared_ptr< aerodynamics::AerodynamicMomentContributionInterface > createMomentContributionInterface(
+    const aerodynamics::AerodynamicCoefficientFrames forceCoefficientFrame,
+    const aerodynamics::AerodynamicCoefficientFrames momentCoefficientFrame,
+    const std::shared_ptr< Body > body );
+
+std::shared_ptr< aerodynamics::AerodynamicMomentContributionInterface > createMomentContributionInterface(
         const std::shared_ptr< AerodynamicCoefficientSettings > coefficientSettings,
         const std::shared_ptr< Body > body );
 
