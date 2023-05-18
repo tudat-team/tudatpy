@@ -147,11 +147,19 @@ inline AerodynamicCoefficientFrames getAerodynamicCoefficientFrame(
 struct AerodynamicMomentContributionInterface
 {
     AerodynamicMomentContributionInterface( const std::function< Eigen::Matrix3d( ) > forceToMomentFrameRotation,
+                                            const std::function< Eigen::Matrix3d( ) > bodyFixedToMomentFrameRotation,
                                             const std::function< Eigen::Vector3d( ) > centerOfMassPosition ):
             forceToMomentFrameRotation_( forceToMomentFrameRotation ),
+            bodyFixedToMomentFrameRotation_( bodyFixedToMomentFrameRotation ),
             centerOfMassPosition_( centerOfMassPosition ){ }
 
+    Eigen::Vector3d getMomentCoefficientsCorrection(
+        const Eigen::Vector3d& momentReferencePoint,
+        const Eigen::Vector3d& forceCoefficients,
+        const double referenceLength );
+
     std::function< Eigen::Matrix3d( ) > forceToMomentFrameRotation_;
+    std::function< Eigen::Matrix3d( ) > bodyFixedToMomentFrameRotation_;
     std::function< Eigen::Vector3d( ) > centerOfMassPosition_;
 };
 
@@ -267,31 +275,8 @@ public:
             const std::vector< double >& independentVariables,
             const std::map< std::string, std::vector< double > >& controlSurfaceIndependentVariables =
             std::map< std::string, std::vector< double > > ( ),
-            const double currentTime = TUDAT_NAN )
-    {
-        updateCurrentCoefficients( independentVariables, currentTime );
-
-        if( controlSurfaceIndependentVariables.size( ) != 0 )
-        {
-            currentControlSurfaceFreeForceCoefficients_ = currentForceCoefficients_;
-            currentControlSurfaceFreeMomentCoefficients_ = currentMomentCoefficients_;
-
-            for ( std::map<std::string, std::vector<double> >::const_iterator controlSurfaceIterator =
-                    controlSurfaceIndependentVariables.begin( );
-                  controlSurfaceIterator != controlSurfaceIndependentVariables.end( );
-                  controlSurfaceIterator++ )
-            {
-                updateCurrentControlSurfaceCoefficientsCoefficients(
-                        controlSurfaceIterator->first, controlSurfaceIterator->second );
-            }
-        }
-
-        if( momentContributionInterface_ != nullptr )
-        {
-            currentMomentCoefficients_ += ( momentContributionInterface_->centerOfMassPosition_( ) - momentReferencePoint_ ).cross(
-                    currentForceCoefficients_ ) / referenceLength_;
-        }
-    }
+            const double currentTime = TUDAT_NAN,
+            const bool addMomentContributionIfPresent = true );
 
     /*!
     //! Function for calculating and returning aerodynamic force coefficients

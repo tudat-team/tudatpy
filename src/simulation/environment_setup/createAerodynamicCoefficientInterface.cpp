@@ -265,22 +265,35 @@ std::shared_ptr< aerodynamics::AerodynamicMomentContributionInterface > createMo
     std::pair< reference_frames::AerodynamicsReferenceFrames, int > momentCoefficientFrameId =
             convertCoefficientFrameToGeneralAerodynamicFrame( momentCoefficientFrame );
     std::function< Eigen::Matrix3d( ) > coefficientRotationFunction;
+    std::function< Eigen::Matrix3d( ) > armRotationFunction;
+
     if( forceCoefficientFrameId.first == momentCoefficientFrameId.first )
     {
-        Eigen::Matrix3d constantConversion =
-                static_cast< double >(
-                        forceCoefficientFrameId.second * momentCoefficientFrameId.second ) * Eigen::Matrix3d::Identity( );
-        coefficientRotationFunction = [=](){ return constantConversion; };
+        coefficientRotationFunction = [=](){ return Eigen::Matrix3d::Identity( ); };
     }
     else
     {
-        double constantSign = static_cast< double >(
-                forceCoefficientFrameId.second * momentCoefficientFrameId.second );
-        coefficientRotationFunction = [=](){ return constantSign * body->getFlightConditions( )->getAerodynamicAngleCalculator( )->getRotationMatrixBetweenFrames(
+        coefficientRotationFunction = [=](){ return body->getFlightConditions( )->getAerodynamicAngleCalculator( )->getRotationMatrixBetweenFrames(
                 forceCoefficientFrameId.first, momentCoefficientFrameId.first ); };
     }
+
+    if( momentCoefficientFrameId.first == reference_frames::body_frame )
+    {
+        armRotationFunction = [=](){ return Eigen::Matrix3d::Identity( ); };
+    }
+    else
+    {
+        armRotationFunction = [=]( )
+            {
+                return body->getFlightConditions( )->getAerodynamicAngleCalculator( )->getRotationMatrixBetweenFrames(
+                    reference_frames::body_frame, momentCoefficientFrameId.first );
+            };
+    }
+
+    std::cout<<momentCoefficientFrameId.second<<" "<<forceCoefficientFrameId.second<<" "<<
+                                                                                        forceCoefficientFrame<<" "<<momentCoefficientFrame<<std::endl;
     return std::make_shared< aerodynamics::AerodynamicMomentContributionInterface >(
-            coefficientRotationFunction, std::bind( &Body::getBodyFixedCenterOfMass, body ) );
+            coefficientRotationFunction, armRotationFunction, std::bind( &Body::getBodyFixedCenterOfMass, body ) );
 }
 
 std::shared_ptr< aerodynamics::AerodynamicMomentContributionInterface > createMomentContributionInterface(
