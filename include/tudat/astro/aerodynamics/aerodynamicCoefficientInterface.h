@@ -41,23 +41,23 @@ enum AerodynamicCoefficientFrames
     undefined_frame_coefficients
 };
 
-inline std::pair< reference_frames::AerodynamicsReferenceFrames, int > convertCoefficientFrameToGeneralAerodynamicFrame(
+inline std::pair< reference_frames::AerodynamicsReferenceFrames, double > convertCoefficientFrameToGeneralAerodynamicFrame(
         const AerodynamicCoefficientFrames coefficientFrame )
 {
-    std::pair< reference_frames::AerodynamicsReferenceFrames, int > frameConversion;
+    std::pair< reference_frames::AerodynamicsReferenceFrames, double > frameConversion;
     switch( coefficientFrame )
     {
         case body_fixed_frame_coefficients:
-            frameConversion = std::make_pair( reference_frames::body_frame, 1 );
+            frameConversion = std::make_pair( reference_frames::body_frame, 1.0 );
             break;
         case negative_body_fixed_frame_coefficients:
-            frameConversion = std::make_pair( reference_frames::body_frame, -1 );
+            frameConversion = std::make_pair( reference_frames::body_frame, -1.0 );
             break;
         case negative_aerodynamic_frame_coefficients:
-            frameConversion = std::make_pair( reference_frames::aerodynamic_frame, -1 );
+            frameConversion = std::make_pair( reference_frames::aerodynamic_frame, -1.0 );
             break;
         case positive_aerodynamic_frame_coefficients:
-            frameConversion = std::make_pair( reference_frames::aerodynamic_frame, 1 );
+            frameConversion = std::make_pair( reference_frames::aerodynamic_frame, 1.0 );
             break;
         default:
             throw std::runtime_error( "Error when retrieving aerodynamic coefficient frame defintion; undefined frame used as input" );
@@ -148,10 +148,13 @@ struct AerodynamicMomentContributionInterface
 {
     AerodynamicMomentContributionInterface( const std::function< Eigen::Matrix3d( ) > forceToMomentFrameRotation,
                                             const std::function< Eigen::Matrix3d( ) > bodyFixedToMomentFrameRotation,
-                                            const std::function< Eigen::Vector3d( ) > centerOfMassPosition ):
+                                            const std::function< Eigen::Vector3d( ) > centerOfMassPosition,
+                                            const double signMultiplier ):
             forceToMomentFrameRotation_( forceToMomentFrameRotation ),
             bodyFixedToMomentFrameRotation_( bodyFixedToMomentFrameRotation ),
-            centerOfMassPosition_( centerOfMassPosition ){ }
+            centerOfMassPosition_( centerOfMassPosition ),
+            signMultiplier_( signMultiplier )
+            { }
 
     Eigen::Vector3d getMomentCoefficientsCorrection(
         const Eigen::Vector3d& momentReferencePoint,
@@ -161,6 +164,7 @@ struct AerodynamicMomentContributionInterface
     std::function< Eigen::Matrix3d( ) > forceToMomentFrameRotation_;
     std::function< Eigen::Matrix3d( ) > bodyFixedToMomentFrameRotation_;
     std::function< Eigen::Vector3d( ) > centerOfMassPosition_;
+    double signMultiplier_;
 };
 
 //! Base class to hold an aerodynamic coefficient interface.
