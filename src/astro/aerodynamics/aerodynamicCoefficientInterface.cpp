@@ -22,7 +22,7 @@ Eigen::Vector3d AerodynamicMomentContributionInterface::getMomentCoefficientsCor
     const Eigen::Vector3d& forceCoefficients,
     const double referenceLength )
 {
-    return ( bodyFixedToMomentFrameRotation_( ) * ( momentReferencePoint - centerOfMassPosition_( ) ) ).cross(
+    return signMultiplier_ * ( bodyFixedToMomentFrameRotation_( ) * ( momentReferencePoint - centerOfMassPosition_( ) ) ).cross(
         forceToMomentFrameRotation_( ) * forceCoefficients ) / referenceLength;
 }
 

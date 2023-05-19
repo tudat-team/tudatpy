@@ -260,9 +260,9 @@ std::shared_ptr< aerodynamics::AerodynamicMomentContributionInterface > createMo
         throw std::runtime_error( "Error when creating moment contribution interface, body " + body->getBodyName( ) + " has no flight conditions." );
     }
 
-    std::pair< reference_frames::AerodynamicsReferenceFrames, int > forceCoefficientFrameId =
+    std::pair< reference_frames::AerodynamicsReferenceFrames, double > forceCoefficientFrameId =
             convertCoefficientFrameToGeneralAerodynamicFrame( forceCoefficientFrame );
-    std::pair< reference_frames::AerodynamicsReferenceFrames, int > momentCoefficientFrameId =
+    std::pair< reference_frames::AerodynamicsReferenceFrames, double > momentCoefficientFrameId =
             convertCoefficientFrameToGeneralAerodynamicFrame( momentCoefficientFrame );
     std::function< Eigen::Matrix3d( ) > coefficientRotationFunction;
     std::function< Eigen::Matrix3d( ) > armRotationFunction;
@@ -290,10 +290,8 @@ std::shared_ptr< aerodynamics::AerodynamicMomentContributionInterface > createMo
             };
     }
 
-    std::cout<<momentCoefficientFrameId.second<<" "<<forceCoefficientFrameId.second<<" "<<
-                                                                                        forceCoefficientFrame<<" "<<momentCoefficientFrame<<std::endl;
     return std::make_shared< aerodynamics::AerodynamicMomentContributionInterface >(
-            coefficientRotationFunction, armRotationFunction, std::bind( &Body::getBodyFixedCenterOfMass, body ) );
+            coefficientRotationFunction, armRotationFunction, std::bind( &Body::getBodyFixedCenterOfMass, body ), forceCoefficientFrameId.second );
 }
 
 std::shared_ptr< aerodynamics::AerodynamicMomentContributionInterface > createMomentContributionInterface(
