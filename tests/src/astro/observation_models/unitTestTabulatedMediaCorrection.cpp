@@ -360,18 +360,25 @@ BOOST_AUTO_TEST_CASE( testTabulatedAndSaastamoinenTroposphericCorrectionsConsist
 
     double initialTime = 544795200.0;
     double timeStep = 3600.0;
-    unsigned int numberOfPoints = 144;
+    unsigned int numberOfPoints = 144 - 2;
 
     for ( unsigned int i = 0; i < numberOfPoints; ++i )
     {
         double time = initialTime + i * timeStep;
 
-        std::cout << "SAS: " << std::setprecision(15) <<
-            saastamoinenCorrection->getDryZenithRangeCorrectionFunction( )( time ) << "\t" <<
-            saastamoinenCorrection->getWetZenithRangeCorrectionFunction( )( time ) << std::endl;
-        std::cout << "TAB: " <<
-            tabulatedCorrection->getDryZenithRangeCorrectionFunction( )( time ) << "\t" <<
-            tabulatedCorrection->getWetZenithRangeCorrectionFunction( )( time ) << std::endl << std::endl;
+        // Estefan and Sovers (1994) say that uncertainty of Saastamoinen wet correction is in the order of 6 to 10 cm
+        // Tolerance: 10cm
+        BOOST_CHECK_SMALL(
+                saastamoinenCorrection->getWetZenithRangeCorrectionFunction( )( time ) -
+                tabulatedCorrection->getWetZenithRangeCorrectionFunction( )( time ),
+                0.1 );
+
+        // Dry error between models should be smaller... but didn't find any expected values
+        // Tolerance set to 0.5cm based on observed difference between models
+        BOOST_CHECK_SMALL(
+                saastamoinenCorrection->getDryZenithRangeCorrectionFunction( )( time ) -
+                tabulatedCorrection->getDryZenithRangeCorrectionFunction( )( time ),
+                0.005 );
     }
 }
 
