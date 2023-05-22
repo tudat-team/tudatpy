@@ -138,7 +138,7 @@ BOOST_AUTO_TEST_CASE( testDirectBodyMassProperties )
                     &dummyCenterOfMassFunction2,
                     &dummyInertiaTensorFunction2 );
             }
-            addBodyMassProerties(
+            addBodyMassProperties(
                 bodies, "Vehicle", bodyMassProperties );
 
             double thrustMagnitude1 = 1.0E3;

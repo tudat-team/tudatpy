@@ -141,6 +141,11 @@ public:
         return addForceContributionToMoments_;
     }
 
+    void setAddForceContributionToMoments( const bool addForceContributionToMoments )
+    {
+        addForceContributionToMoments_ = addForceContributionToMoments;
+    }
+
     //  Function to return settings to be used for creating the interpoaltor of data.
     /*  
      *  Function to return settings to be used for creating the interpoaltor of data.
@@ -539,11 +544,12 @@ inline std::shared_ptr< AerodynamicCoefficientSettings > customAerodynamicCoeffi
         const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables >
         independentVariableNames,
         const aerodynamics::AerodynamicCoefficientFrames forceCoefficientsFrame = aerodynamics::negative_aerodynamic_frame_coefficients,
-        const aerodynamics::AerodynamicCoefficientFrames momentCoefficientsFrame = aerodynamics::body_fixed_frame_coefficients )
+        const aerodynamics::AerodynamicCoefficientFrames momentCoefficientsFrame = aerodynamics::body_fixed_frame_coefficients,
+        const bool addForceContributionToMoments = false )
 {
     return std::make_shared< CustomAerodynamicCoefficientSettings >(
             forceCoefficientFunction, momentCoefficientFunction, referenceLength, referenceArea,
-            momentReferencePoint, independentVariableNames, forceCoefficientsFrame, momentCoefficientsFrame );
+            momentReferencePoint, independentVariableNames, forceCoefficientsFrame, momentCoefficientsFrame, addForceContributionToMoments );
 }
 
 inline std::shared_ptr< AerodynamicCoefficientSettings > customAerodynamicCoefficientSettings(
@@ -1068,6 +1074,7 @@ inline std::shared_ptr< AerodynamicCoefficientSettings > oneDimensionalTabulated
         const aerodynamics::AerodynamicCoefficientsIndependentVariables independentVariableName,
         const aerodynamics::AerodynamicCoefficientFrames forceCoefficientsFrame = aerodynamics::negative_aerodynamic_frame_coefficients,
         const aerodynamics::AerodynamicCoefficientFrames momentCoefficientsFrame = aerodynamics::body_fixed_frame_coefficients,
+        const bool addForceContributionToMoments = false,
         const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = nullptr
         )
 {
@@ -1075,7 +1082,7 @@ inline std::shared_ptr< AerodynamicCoefficientSettings > oneDimensionalTabulated
                 independentVariables, forceCoefficients, momentCoefficients, referenceLength,
                 referenceArea, momentReferencePoint, independentVariableName,
                 forceCoefficientsFrame, momentCoefficientsFrame,
-                false, interpolatorSettings );
+                addForceContributionToMoments, interpolatorSettings );
 }
 
 //! @get_docstring(oneDimensionalTabulatedAerodynamicCoefficientSettings, 1)
@@ -1307,6 +1314,7 @@ std::shared_ptr< AerodynamicCoefficientSettings > readTabulatedAerodynamicCoeffi
         const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableNames,
         const aerodynamics::AerodynamicCoefficientFrames forceCoefficientFrame = aerodynamics::negative_aerodynamic_frame_coefficients,
         const aerodynamics::AerodynamicCoefficientFrames momentCoefficientFrame = aerodynamics::body_fixed_frame_coefficients,
+        const bool addForceContributionToMoments = false,
         const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = nullptr );
 
 //  Function to create aerodynamic coefficient settings from coefficients stored in data files

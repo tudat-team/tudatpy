@@ -918,7 +918,7 @@ BOOST_AUTO_TEST_CASE( testCombinedAerodynamicForceAndMoment )
                     &massDependentCenterOfMass,
                     &massDependentInertiaTensor );
 
-                addBodyMassProerties(
+                addBodyMassProperties(
                     bodies, "Apollo", bodyMassProperties );
 
                 addFlightConditions(
