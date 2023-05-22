@@ -296,17 +296,8 @@ double NiellTroposphericMapping::computeDryCoefficient(
     double coefficientAverage = averageInterpolator->interpolate( std::abs( geodeticLatitude ) );
     double coefficientAmplitude = amplitudeInterpolator->interpolate( std::abs( geodeticLatitude ) );
 
-    // Get calendar date
-    int year, month, day;
-    double fractionOfDay;
-    iauJd2cal( basic_astrodynamics::JULIAN_DAY_ON_J2000,
-               time / physical_constants::JULIAN_DAY, &year, &month, &day, &fractionOfDay );
-
-    // Get time since start of the calendar year
-    double startOfYearTime = basic_astrodynamics::convertCalendarDateToJulianDaysSinceEpoch(
-            year, 1, 1, 0, 0, 0.0, basic_astrodynamics::JULIAN_DAY_ON_J2000 );
-
-    double normalizedTime = ( time - startOfYearTime - 28 * physical_constants::JULIAN_DAY ) / ( 365.25 * physical_constants::JULIAN_DAY );
+    double normalizedTime = ( sofa_interface::convertSecondsSinceEpochToSecondsOfYear( time ) -
+            28.0 * physical_constants::JULIAN_DAY ) / ( 365.25 * physical_constants::JULIAN_DAY );
 
     double dryCoefficient;
     if ( geodeticLatitude >= 0 )
@@ -398,7 +389,7 @@ double SaastamoinenTroposphericCorrection::computeWetZenithRangeCorrection( cons
 TabulatedIonosphericCorrection::TabulatedIonosphericCorrection(
         std::shared_ptr< TabulatedMediaReferenceCorrectionManager > referenceCorrectionCalculator,
         std::function< double ( std::vector< FrequencyBands > frequencyBands, double time ) > transmittedFrequencyFunction,
-        ObservableType observableType,
+        ObservableType baseObservableType,
         bool isUplinkCorrection,
         double referenceFrequency ):
     LightTimeCorrection( tabulated_ionospheric ),
@@ -407,13 +398,13 @@ TabulatedIonosphericCorrection::TabulatedIonosphericCorrection(
     referenceFrequency_( referenceFrequency ),
     isUplinkCorrection_( isUplinkCorrection )
 {
-    if ( isRadiometricObservableType( observableType ) )
+    if ( isRadiometricObservableType( baseObservableType ) )
     {
-        if ( isGroupVelocityBasedObservableType( observableType ) )
+        if ( isGroupVelocityBasedObservableType( baseObservableType ) )
         {
             sign_ = 1;
         }
-        else if ( isPhaseVelocityBasedObservableType( observableType ) )
+        else if ( isPhaseVelocityBasedObservableType( baseObservableType ) )
         {
             sign_ = -1;
         }
@@ -476,6 +467,195 @@ double TabulatedIonosphericCorrection::calculateLightTimeCorrectionWithMultiLegL
 
     return sign_ * referenceCorrectionCalculator_->computeMediaCorrection( stationTime ) *
         std::pow( referenceFrequency_ / transmittedFrequencyFunction_( frequencyBands, firstLegTransmissionTime ), 2.0 );
+}
+
+double JakowskiVtecCalculator::calculateVtec( const double time,
+                                              const Eigen::Vector3d subIonosphericPointGeodeticPosition )
+{
+    const double subIonosphericLatitude = subIonosphericPointGeodeticPosition( 1 );
+    const double subIonosphericLongitude = subIonosphericPointGeodeticPosition( 2 );
+    const double sunDeclination = sunDeclinationFunction_( time );
+
+    // Dependency on solar zenith: F1
+
+    const double localTimeSeconds = std::fmod( getUtcTime( time ) + 43200.0 +
+            unit_conversions::convertRadiansToDegrees( subIonosphericLongitude ) / 15.0, 86400.0 );
+    const double localTimeHours = localTimeSeconds / 3600.0;
+
+    const double diurnalVariation = 2.0 * mathematical_constants::PI * ( localTimeHours - 14.0 ) / 24.0;
+    const double semiDiurnalVariation = 2.0 * mathematical_constants::PI * localTimeHours / 12.0;
+    const double terDiurnalVariation = 2.0 * mathematical_constants::PI * localTimeHours / 8.0;
+
+    const double cosChiX = std::cos( subIonosphericLatitude - sunDeclination );
+    const double cosChiXx = cosChiX - 2.0 / mathematical_constants::PI * subIonosphericLatitude * std::sin( sunDeclination );
+    // From GODOT:
+    // "Note: in the paper by Jakowsky (2011) the equation 11 for cxx is wrong (has a square root around cx+0.4)"
+    const double cosChiXxx = cosChiX + 0.4;
+
+    const double f1 = cosChiXxx + cosChiXx * (
+            jakowskiCoefficients_.at( 0 ) * std::cos( diurnalVariation ) +
+            jakowskiCoefficients_.at( 1 ) * std::cos( semiDiurnalVariation ) +
+            jakowskiCoefficients_.at( 2 ) * std::sin( semiDiurnalVariation ) +
+            jakowskiCoefficients_.at( 3 ) * std::cos( terDiurnalVariation ) +
+            jakowskiCoefficients_.at( 4 ) * std::sin( terDiurnalVariation ) );
+
+    // Seasonal variation: F2
+    const double dayOfYear = sofa_interface::convertSecondsSinceEpochToSecondsOfYear( time ) / physical_constants::JULIAN_DAY;
+
+    const double annualVariation = 2.0 * mathematical_constants::PI * ( dayOfYear - 18.0 ) / 365.25;
+    const double semiAnnualVariation = 4.0 * mathematical_constants::PI * ( dayOfYear - 6.0 ) / 365.25;
+
+    const double f2 = ( 1.0 + jakowskiCoefficients_.at( 5 ) * std::cos( annualVariation ) +
+            jakowskiCoefficients_.at( 6 ) * std::cos( semiAnnualVariation ) );
+
+    // Geomagnetic field dependency: F3 and F4
+
+    // Geomagnetic latitude, Klobuchar (1975), section 5.3
+    const double geomagneticLatitude = std::asin(
+            std::sin( subIonosphericLatitude )  * std::sin( geomagneticPoleLatitude_ ) +
+            std::cos( subIonosphericLatitude ) * std::cos( geomagneticPoleLatitude_ ) *
+                std::cos( subIonosphericLongitude - geomagneticPoleLongitude_ ) );
+
+    const double f3 = 1.0 + jakowskiCoefficients_.at( 5 ) * std::cos( geomagneticLatitude );
+
+    const double phiC1 = unit_conversions::convertDegreesToRadians( 16.0 );
+    const double phiC2 = - unit_conversions::convertDegreesToRadians( 10.0 );
+    const double sigmaC1 = unit_conversions::convertDegreesToRadians( 12.0 );
+    const double sigmaC2 = unit_conversions::convertDegreesToRadians( 13.0 );
+
+    const double ec1 = - std::pow( ( geomagneticLatitude - phiC1 ) / sigmaC1, 2.0 ) / 2.0;
+    const double ec2 = - std::pow( ( geomagneticLatitude - phiC2 ) / sigmaC2, 2.0 ) / 2.0;
+    const double f4 = ( 1.0 + jakowskiCoefficients_.at( 8 ) * std::exp( ec1 ) +
+            jakowskiCoefficients_.at( 9 ) * std::exp( ec2 ) );
+
+    // Solar activity dependency: F5
+    const double f5 = jakowskiCoefficients_.at( 10 ) + jakowskiCoefficients_.at( 11 ) *
+            observedSolarRadioFlux107Function_( time );
+
+    return f1 * f2 * f3 * f4 * f5;
+}
+
+MappedVtecIonosphericCorrection::MappedVtecIonosphericCorrection(
+        std::shared_ptr< VtecCalculator > vtecCalculator,
+        std::function< double ( std::vector< FrequencyBands > frequencyBands, double time ) > transmittedFrequencyFunction,
+        std::function< double ( Eigen::Vector3d inertialVectorAwayFromStation, double time ) > elevationFunction,
+        std::function< double ( Eigen::Vector3d inertialVectorAwayFromStation, double time ) > azimuthFunction,
+        std::function< Eigen::Vector3d ( double time ) > groundStationGeodeticPositionFunction,
+        ObservableType baseObservableType,
+        bool isUplinkCorrection,
+        double bodyWithAtmosphereMeanEquatorialRadius,
+        double firstOrderDelayCoefficient ):
+    LightTimeCorrection( mapped_vtec_ionospheric ),
+    vtecCalculator_( vtecCalculator ),
+    transmittedFrequencyFunction_( transmittedFrequencyFunction ),
+    elevationFunction_( elevationFunction ),
+    azimuthFunction_( azimuthFunction ),
+    groundStationGeodeticPositionFunction_( groundStationGeodeticPositionFunction ),
+    bodyWithAtmosphereMeanEquatorialRadius_( bodyWithAtmosphereMeanEquatorialRadius ),
+    firstOrderDelayCoefficient_( firstOrderDelayCoefficient ),
+    isUplinkCorrection_( isUplinkCorrection )
+{
+    if ( isRadiometricObservableType( baseObservableType ) )
+    {
+        if ( isGroupVelocityBasedObservableType( baseObservableType ) )
+        {
+            sign_ = 1;
+        }
+        else if ( isPhaseVelocityBasedObservableType( baseObservableType ) )
+        {
+            sign_ = -1;
+        }
+        else
+        {
+            throw std::runtime_error( "Error when creating mapped VTEC ionospheric correction: radiometric correction not "
+                                      "recognized." );
+        }
+    }
+    else
+    {
+        throw std::runtime_error( "Error when creating mapped VTEC ionospheric correction: correction is only valid for "
+                                  "radiometric types." );
+    }
+}
+
+double MappedVtecIonosphericCorrection::calculateLightTimeCorrectionWithMultiLegLinkEndStates(
+        const std::vector< Eigen::Vector6d >& linkEndsStates,
+        const std::vector< double >& linkEndsTimes,
+        const unsigned int currentMultiLegTransmitterIndex,
+        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings )
+{
+    // Retrieve state and time of receiver and transmitter
+    Eigen::Vector6d legTransmitterState, legReceiverState;
+    double legTransmissionTime, legReceptionTime;
+    getTransmissionReceptionTimesAndStates(
+            linkEndsStates, linkEndsTimes, currentMultiLegTransmitterIndex, legTransmitterState, legReceiverState,
+            legTransmissionTime, legReceptionTime );
+
+    double groundStationTime, spacecraftTime;
+    Eigen::Vector6d groundStationState, spacecraftState;
+    if ( isUplinkCorrection_ )
+    {
+        groundStationTime = legTransmissionTime;
+        groundStationState = legTransmitterState;
+        spacecraftState = legReceiverState;
+    }
+    else
+    {
+        groundStationTime = legReceptionTime;
+        groundStationState = legReceiverState;
+        spacecraftState = legTransmitterState;
+    }
+
+    double firstLegTransmissionTime = linkEndsTimes.front( );
+
+    // Retrieve frequency bands
+    std::vector< FrequencyBands > frequencyBands;
+    if( ancillarySettings == nullptr )
+    {
+        throw std::runtime_error(
+                "Error when computing mapped VTEC ionospheric corrections: no ancillary settings found. " );
+    }
+    try
+    {
+        frequencyBands = convertDoubleVectorToFrequencyBands( ancillarySettings->getAncilliaryDoubleVectorData( frequency_bands ) );
+    }
+    catch( std::runtime_error& caughtException )
+    {
+        throw std::runtime_error(
+                "Error when retrieving frequency bands for mapped VTEC ionospheric corrections: " +
+                std::string( caughtException.what( ) ) );
+    }
+
+    double elevation = elevationFunction_( spacecraftState.segment( 0, 3 ) - groundStationState.segment( 0, 3 ),
+                                           groundStationTime );
+    double azimuth = azimuthFunction_( spacecraftState.segment( 0, 3 ) - groundStationState.segment( 0, 3 ),
+                                           groundStationTime );
+    Eigen::Vector3d groundStationGeodeticPosition = groundStationGeodeticPositionFunction_( groundStationTime );
+    double geodeticLatitude = groundStationGeodeticPosition( 1 );
+    double geodeticLongitude = groundStationGeodeticPosition( 2 );
+
+    const double zenithAngle = std::asin( bodyWithAtmosphereMeanEquatorialRadius_ /
+            ( bodyWithAtmosphereMeanEquatorialRadius_ + vtecCalculator_->getReferenceIonosphereHeight( ) ) * std::cos( elevation ) );
+
+    Eigen::Vector3d subIonosphericPointGeodeticPosition;
+    // Altitude
+    subIonosphericPointGeodeticPosition( 0 ) = TUDAT_NAN;
+    // Latitude
+    subIonosphericPointGeodeticPosition( 1 ) = std::asin(
+            std::sin( geodeticLatitude ) * std::sin( elevation + zenithAngle ) + std::cos( geodeticLatitude ) *
+            std::cos( elevation + zenithAngle ) * std::cos( azimuth ) );
+    // Longitude
+    subIonosphericPointGeodeticPosition( 2 ) = geodeticLongitude;
+    if ( std::abs( std::cos( subIonosphericPointGeodeticPosition( 1 ) ) ) > 1e-12 )
+    {
+        subIonosphericPointGeodeticPosition( 2 ) += std::asin( std::cos( elevation + zenithAngle ) * std::sin( azimuth ) /
+                std::cos( subIonosphericPointGeodeticPosition( 1 ) ) );
+    }
+
+    return sign_ * firstOrderDelayCoefficient_ *
+        vtecCalculator_->calculateVtec( groundStationTime, subIonosphericPointGeodeticPosition ) /
+        std::pow( transmittedFrequencyFunction_( frequencyBands, firstLegTransmissionTime ), 2.0 ) /
+        std::cos( zenithAngle );
 }
 
 } // namespace observation_models

@@ -12,6 +12,10 @@
  *              DEEP SPACE COMMUNICATIONS AND NAVIGATION SERIES, JPL/NASA
  *          J.A. Estefan and O.J. Sovers (1994), A Comparative Survey of Current and Proposed Tropospheric Refraction-Delay
  *              Models forDSN Radio Metric Data Calibration, JPL/NASA
+ *          N. Jakowski, M.M. Hoque and C. Mayer (2011), A new global TEC model for estimating transionospheric radio wave
+ *              propagation errors, Journal of Geodesy, 85:965–974
+ *          J.A. Klobuchar (1975), A First-Order, Worldwide, Ionospheric, Time-Delay Algorithm, AIR FORCE CAMBRIDGE
+ *              RESEARCH LABORATORIES
  *
  */
 
@@ -24,6 +28,8 @@
 #include "tudat/math/interpolators.h"
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/astro/observation_models/corrections/lightTimeCorrection.h"
+#include "tudat/astro/basic_astro/unitConversions.h"
+#include "tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h"
 
 namespace tudat
 {
@@ -602,6 +608,171 @@ private:
     std::function< double ( std::vector< FrequencyBands > frequencyBands, double time ) > transmittedFrequencyFunction_;
 
     double referenceFrequency_;
+
+    // Sign of the correction (+1 or -1)
+    int sign_;
+
+    // Boolean indicating whether the correction is for uplink or downlink
+    bool isUplinkCorrection_;
+
+};
+
+// Calculator of the vertical total electron content (VTEC) of the ionosphere
+class VtecCalculator
+{
+public:
+
+    VtecCalculator( const double referenceIonosphereHeight ):
+        referenceIonosphereHeight_( referenceIonosphereHeight )
+    { }
+
+    ~VtecCalculator( ){ }
+
+    virtual double calculateVtec( const double time,
+                                  const Eigen::Vector3d subIonosphericPointGeodeticPosition ) = 0;
+
+    double getReferenceIonosphereHeight( )
+    {
+        return referenceIonosphereHeight_;
+    }
+
+private:
+
+    const double referenceIonosphereHeight_;
+
+};
+
+// Model from Jakowski et al. (2011)
+// Computation of geomagnetic latitude from Klobuchar (1975)
+class JakowskiVtecCalculator: public VtecCalculator
+{
+public:
+
+    // Default values copied from GODOT
+    // - Geomagnetic pole latitude and longitude:
+    //      "Geomagnetic North pole latitude and longitude, values for 2025 from http://wdc.kugi.kyoto-u.ac.jp/poles/polesexp.html
+    //      Variation of Geomagnetic poles is historically slow with very minor effect on model results
+    //      e.g. (1.5,2.7) deg difference between 1960 and 2010, resulting in <3 cm effect on range"
+    // - Reference ionosphere height:
+    //      "400km confirmed as good choice by Jakowski in email to G.Bellei, 11.11.2014"
+    JakowskiVtecCalculator(
+            std::function< double ( const double time ) > sunDeclinationFunction,
+            std::function< double ( const double time ) > observedSolarRadioFlux107Function,
+            bool useUtcTime = false,
+            double geomagneticPoleLatitude = unit_conversions::convertDegreesToRadians( 80.9 ),
+            double geomagneticPoleLongitude = unit_conversions::convertDegreesToRadians( -72.6 ),
+            double referenceIonosphereHeight = 400.0e3 ):
+        VtecCalculator( referenceIonosphereHeight ),
+        sunDeclinationFunction_( sunDeclinationFunction ),
+        observedSolarRadioFlux107Function_( observedSolarRadioFlux107Function ),
+        geomagneticPoleLatitude_( geomagneticPoleLatitude ),
+        geomagneticPoleLongitude_( geomagneticPoleLongitude )
+    {
+        if ( useUtcTime )
+        {
+            timeScaleConverter_ = std::make_shared< earth_orientation::TerrestrialTimeScaleConverter >( );
+        }
+        else
+        {
+            timeScaleConverter_ = nullptr;
+        }
+    }
+
+    double calculateVtec( const double time,
+                          const Eigen::Vector3d subIonosphericPointGeodeticPosition ) override;
+
+private:
+
+    double getUtcTime( double time )
+    {
+        if ( timeScaleConverter_ == nullptr )
+        {
+            return time;
+        }
+        else
+        {
+            return timeScaleConverter_->getCurrentTime(
+                    basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, time );
+        }
+    }
+
+    // Coefficients of Jakowski model
+    const std::vector< double > jakowskiCoefficients_ = { 0.89656, 0.16984, -0.02166, 0.05928, 0.00738, 0.13912,
+                                                          -0.17593, -0.34545, 1.1167, 1.1573, -4.3356, 0.17775 };
+
+    const std::function< double ( const double time ) > sunDeclinationFunction_;
+
+    //! Observed (unadjusted) value of F10.7. Expressed in units of 10-22 W/m2/Hz.
+    const std::function< double ( const double time ) > observedSolarRadioFlux107Function_;
+
+    const double geomagneticPoleLatitude_;
+
+    const double geomagneticPoleLongitude_;
+
+    std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > timeScaleConverter_;
+
+};
+
+// Moyer (2000), section 10.3.1
+class MappedVtecIonosphericCorrection: public LightTimeCorrection
+{
+public:
+
+    MappedVtecIonosphericCorrection(
+            std::shared_ptr< VtecCalculator > vtecCalculator,
+            std::function< double ( std::vector< FrequencyBands > frequencyBands, double time ) > transmittedFrequencyFunction,
+            std::function< double ( Eigen::Vector3d inertialVectorAwayFromStation, double time ) > elevationFunction,
+            std::function< double ( Eigen::Vector3d inertialVectorAwayFromStation, double time ) > azimuthFunction,
+            std::function< Eigen::Vector3d ( double time ) > groundStationGeodeticPositionFunction,
+            ObservableType baseObservableType,
+            bool isUplinkCorrection,
+            double bodyWithAtmosphereMeanEquatorialRadius,
+            double firstOrderDelayCoefficient = 40.3 );
+
+    double calculateLightTimeCorrectionWithMultiLegLinkEndStates(
+            const std::vector< Eigen::Vector6d >& linkEndsStates,
+            const std::vector< double >& linkEndsTimes,
+            const unsigned int currentMultiLegTransmitterIndex,
+            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings ) override;
+
+    double calculateLightTimeCorrectionPartialDerivativeWrtLinkEndTime(
+            const Eigen::Vector6d& transmitterState,
+            const Eigen::Vector6d& receiverState,
+            const double transmissionTime,
+            const double receptionTime,
+            const LinkEndType fixedLinkEnd,
+            const LinkEndType linkEndAtWhichPartialIsEvaluated ) override
+    {
+        // TODO: Add computation of partial
+        return 0.0;
+    }
+
+    Eigen::Matrix< double, 3, 1 > calculateLightTimeCorrectionPartialDerivativeWrtLinkEndPosition(
+            const Eigen::Vector6d& transmitterState,
+            const Eigen::Vector6d& receiverState,
+            const double transmissionTime,
+            const double receptionTime,
+            const LinkEndType linkEndAtWhichPartialIsEvaluated ) override
+    {
+        // TODO: Add computation of partial
+        return Eigen::Vector3d::Zero( );
+    }
+
+private:
+
+    std::shared_ptr< VtecCalculator > vtecCalculator_;
+
+    std::function< double ( std::vector< FrequencyBands > frequencyBands, double time ) > transmittedFrequencyFunction_;
+
+    std::function< double ( Eigen::Vector3d inertialVectorAwayFromStation, double time ) > elevationFunction_;
+
+    std::function< double ( Eigen::Vector3d inertialVectorAwayFromStation, double time ) > azimuthFunction_;
+
+    std::function< Eigen::Vector3d ( double time ) > groundStationGeodeticPositionFunction_;
+
+    const double bodyWithAtmosphereMeanEquatorialRadius_;
+
+    const double firstOrderDelayCoefficient_;
 
     // Sign of the correction (+1 or -1)
     int sign_;
