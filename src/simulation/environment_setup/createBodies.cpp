@@ -95,7 +95,7 @@ void addGravityFieldModel(
 
 }
 
-void addBodyMassProerties(
+void addBodyMassProperties(
     const SystemOfBodies& bodies, const std::string bodyName,
     const std::shared_ptr< BodyMassPropertiesSettings > bodyMassProperties )
 {

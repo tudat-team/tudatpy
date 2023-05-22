@@ -28,6 +28,7 @@ std::shared_ptr< AerodynamicCoefficientSettings > readTabulatedAerodynamicCoeffi
         const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableNames,
         const aerodynamics::AerodynamicCoefficientFrames forceCoefficientFrame,
         const aerodynamics::AerodynamicCoefficientFrames momentCoefficientFrame,
+        const bool addForceContributionToMoments,
         const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings )
 {
     // Retrieve number of independent variables from file.
@@ -66,6 +67,8 @@ std::shared_ptr< AerodynamicCoefficientSettings > readTabulatedAerodynamicCoeffi
                                   std::to_string( numberOfIndependentVariables ) +
                                   " independent variables, up to 3 currently supported" );
     }
+
+    coefficientSettings->setAddForceContributionToMoments( addForceContributionToMoments );
     return coefficientSettings;
 }
 
@@ -90,6 +93,7 @@ std::shared_ptr< AerodynamicCoefficientSettings > readTabulatedAerodynamicCoeffi
             independentVariableNames,
             aerodynamics::getAerodynamicCoefficientFrame( areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection ),
             aerodynamics::getAerodynamicCoefficientFrame( areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection ),
+            false,
             interpolatorSettings );
 }
 

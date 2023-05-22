@@ -96,7 +96,7 @@ void addGravityFieldModel(
     const std::vector< std::shared_ptr< GravityFieldVariationSettings > >& gravityFieldVariationSettings =
         std::vector< std::shared_ptr< GravityFieldVariationSettings > >( ));
 
-void addBodyMassProerties(
+void addBodyMassProperties(
     const SystemOfBodies& bodies, const std::string bodyName,
     const std::shared_ptr< BodyMassPropertiesSettings > bodyMassProperties );
 
