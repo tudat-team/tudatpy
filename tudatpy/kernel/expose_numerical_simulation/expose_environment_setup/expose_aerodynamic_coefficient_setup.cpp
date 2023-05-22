@@ -74,6 +74,10 @@ namespace aerodynamic_coefficients {
                 std::shared_ptr<tss::AerodynamicCoefficientSettings>>(
                 m, "AerodynamicCoefficientSettings",
                 get_docstring("AerodynamicCoefficientSettings").c_str())
+                .def_property("add_force_contribution_to_moments",
+                              &tss::AerodynamicCoefficientSettings::getAddForceContributionToMoments,
+                              &tss::AerodynamicCoefficientSettings::setAddForceContributionToMoments,
+                              get_docstring("AerodynamicCoefficientSettings.add_force_contribution_to_moments").c_str() )
                 .def("add_single_control_surface",
                      &tss::AerodynamicCoefficientSettings::addControlSurfaceSettings,
                      py::arg( "control_surface_settings" ),
@@ -120,7 +124,8 @@ namespace aerodynamic_coefficients {
                       const Eigen::Vector3d&,
                       const std::vector< ta::AerodynamicCoefficientsIndependentVariables >,
                       const ta::AerodynamicCoefficientFrames,
-                      const ta::AerodynamicCoefficientFrames >(&tss::customAerodynamicCoefficientSettings),
+                      const ta::AerodynamicCoefficientFrames,
+                      const bool >(&tss::customAerodynamicCoefficientSettings),
               py::arg("force_coefficient_function"),
               py::arg("moment_coefficient_function"),
               py::arg("reference_length"),
@@ -129,6 +134,7 @@ namespace aerodynamic_coefficients {
               py::arg("independent_variable_names"),
               py::arg("force_coefficients_frame") = ta::negative_aerodynamic_frame_coefficients,
               py::arg("moment_coefficients_frame") = ta::body_fixed_frame_coefficients,
+              py::arg("add_force_contribution_to_moments" ) = false,
               get_docstring("custom_aerodynamic_force_and_moment_coefficients").c_str());
 
 
@@ -143,6 +149,7 @@ namespace aerodynamic_coefficients {
                       const ta::AerodynamicCoefficientsIndependentVariables,
                       const ta::AerodynamicCoefficientFrames,
                       const ta::AerodynamicCoefficientFrames,
+                      const bool,
                       const std::shared_ptr<ti::InterpolatorSettings>>
                       (&tss::oneDimensionalTabulatedAerodynamicCoefficientSettings),
               py::arg("independent_variables"),
@@ -154,6 +161,7 @@ namespace aerodynamic_coefficients {
               py::arg("independent_variable_name"),
               py::arg("force_coefficients_frame") = ta::negative_aerodynamic_frame_coefficients,
               py::arg("moment_coefficients_frame") = ta::body_fixed_frame_coefficients,
+              py::arg("add_force_contribution_to_moments" ) = false,
               py::arg("interpolator_settings") = nullptr,
               get_docstring("tabulated").c_str());
 
@@ -199,6 +207,7 @@ namespace aerodynamic_coefficients {
                       const std::vector< ta::AerodynamicCoefficientsIndependentVariables >,
                       const ta::AerodynamicCoefficientFrames,
                       const ta::AerodynamicCoefficientFrames,
+                      const bool,
                       const std::shared_ptr< ti::InterpolatorSettings > >
                       (&tss::readTabulatedAerodynamicCoefficientsFromFiles),
               py::arg("force_coefficient_files"),
@@ -209,6 +218,7 @@ namespace aerodynamic_coefficients {
               py::arg("independent_variable_names"),
               py::arg("force_coefficients_frame") = ta::negative_aerodynamic_frame_coefficients,
               py::arg("moment_coefficients_frame") = ta::body_fixed_frame_coefficients,
+              py::arg("add_force_contribution_to_moments" ) = false,
               py::arg("interpolator_settings") = nullptr,
               get_docstring("tabulated_from_files").c_str());
 
