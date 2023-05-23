@@ -71,7 +71,8 @@ namespace environment_setup {
                 .def_readwrite("aerodynamic_coefficient_settings", &tss::BodySettings::aerodynamicCoefficientSettings, get_docstring("BodySettings.aerodynamic_coefficient_settings").c_str())
                 .def_readwrite("gravity_field_variation_settings", &tss::BodySettings::gravityFieldVariationSettings, get_docstring("BodySettings.gravity_field_variation_settings").c_str())
                 .def_readwrite("shape_deformation_settings", &tss::BodySettings::bodyDeformationSettings, get_docstring("BodySettings.shape_deformation_settings").c_str())
-                .def_readwrite("ground_station_settings", &tss::BodySettings::groundStationSettings, get_docstring("BodySettings.ground_station_settings").c_str());
+                .def_readwrite("ground_station_settings", &tss::BodySettings::groundStationSettings, get_docstring("BodySettings.ground_station_settings").c_str())
+                .def_readwrite("mass_property_settings", &tss::BodySettings::bodyMassPropertiesSettings, get_docstring("BodySettings.bodyMassPropertiesSettings").c_str());
 
 
         py::class_<tss::BodyListSettings,
@@ -162,8 +163,12 @@ namespace environment_setup {
               get_docstring("add_aerodynamic_coefficient_interface").c_str());
 
         m.def("create_aerodynamic_coefficient_interface",
+              &tss::createAerodynamicCoefficientInterfaceDeprecated,
+              py::arg("coefficient_settings"), py::arg("body") );
+
+        m.def("create_aerodynamic_coefficient_interface",
               &tss::createAerodynamicCoefficientInterface,
-              py::arg("coefficient_settings"), py::arg("body"),
+              py::arg("coefficient_settings"), py::arg("body"), py::arg("bodies"),
               get_docstring("create_aerodynamic_coefficient_interface").c_str());
 
         m.def("add_radiation_pressure_interface",
@@ -176,6 +181,10 @@ namespace environment_setup {
               py::arg("bodies"), py::arg("body_name"), py::arg("rotation_model_settings"),
               get_docstring("add_rotation_model").c_str());
 
+        m.def("add_mass_properties_model",
+              &tss::addBodyMassProperties,
+              py::arg("bodies"), py::arg("body_name"), py::arg("mass_property_settings"),
+              get_docstring("add_mass_properties_model").c_str());
 
         m.def("add_engine_model",
               &tss::addEngineModel,
