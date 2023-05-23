@@ -98,7 +98,9 @@ std::shared_ptr< RotationModelSettings > getDefaultRotationModelSettings(
 
 double marsTimeDependentPhaseAngleCorrectionFunction( const double secondsSinceJ2000 );
 
-std::shared_ptr< RotationModelSettings > getHighAccuracyMarsRotationModel(  );
+std::shared_ptr< RotationModelSettings > getHighAccuracyMarsRotationModel(
+    const std::string& baseFrameOrientation = "ECLIPJ2000",
+    const std::string& targetFrameOrientation = "Mars_Fixed" );
 
 //! Function to create default settings for a body's shape model.
 /*!
