@@ -28,7 +28,18 @@ namespace trf = tudat::reference_frames;
 namespace tp = tudat::physical_constants;
 namespace ta = tudat::aerodynamics;
 
-
+namespace tudat
+{
+namespace simulation_setup
+{
+inline std::shared_ptr<AtmosphereSettings> us76AtmosphereSettings( )
+{
+    std::string
+        atmosphereTableFile = paths::getAtmosphereTablesPath( ) + "/USSA1976Until100kmPer100mUntil1000kmPer1000m.dat";
+    return std::make_shared<TabulatedAtmosphereSettings>( atmosphereTableFile );
+}
+}
+}
 namespace tudatpy {
 namespace numerical_simulation {
 namespace environment_setup {
@@ -115,6 +126,9 @@ namespace atmosphere {
                                                        tss::temperature_dependent_atmosphere } ),
               py::arg("specific_gas_constant" ) = tp::SPECIFIC_GAS_CONSTANT_AIR,
               py::arg("ratio_of_specific_heats" ) = 1.4 );
+
+        m.def("us76",
+              &tss::us76AtmosphereSettings );
 
         m.def("custom_constant_temperature",
               py::overload_cast<const std::function<double(const double)>,
