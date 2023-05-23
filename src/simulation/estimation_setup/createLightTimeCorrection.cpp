@@ -12,6 +12,9 @@
 #include "tudat/simulation/estimation_setup/createLightTimeCorrection.h"
 #include "tudat/astro/observation_models/corrections/firstOrderRelativisticCorrection.h"
 #include "tudat/astro/relativity/metric.h"
+#include "tudat/astro/basic_astro/sphericalBodyShapeModel.h"
+#include "tudat/astro/basic_astro/oblateSpheroidBodyShapeModel.h"
+#include "tudat/math/basic/coordinateConversions.h"
 
 namespace tudat
 {
@@ -313,6 +316,129 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections(
                         "ground station and " + getObservableName( observableType ) + " observable: tabulated data not available. " );
             }
 
+        }
+        // Set correction to nullptr if correction isn't valid for selected link ends
+        else
+        {
+            lightTimeCorrection = nullptr;
+        }
+
+        break;
+    }
+    case jakowski_vtec_ionospheric:
+    {
+        std::shared_ptr< JakowskiIonosphericCorrectionSettings > ionosphericCorrectionSettings =
+            std::dynamic_pointer_cast< JakowskiIonosphericCorrectionSettings >( correctionSettings );
+        if ( correctionSettings == nullptr )
+        {
+            throw std::runtime_error(
+                    "Error when creating Jakowski VTEC ionospheric correction: incompatible settings type." );
+        }
+
+        // If one of the link ends is the body with the atmosphere then create the tropospheric correction
+        if ( transmitter.bodyName_ != receiver.bodyName_ && (
+                transmitter.bodyName_ == ionosphericCorrectionSettings->getBodyWithAtmosphere( ) ||
+                receiver.bodyName_ == ionosphericCorrectionSettings->getBodyWithAtmosphere( ) ) )
+        {
+            bool isUplinkCorrection;
+            LinkEndId groundStation, spacecraft;
+            if( transmitter.bodyName_ == ionosphericCorrectionSettings->getBodyWithAtmosphere( ) )
+            {
+                isUplinkCorrection = true;
+                groundStation = transmitter;
+                spacecraft = receiver;
+            }
+            else
+            {
+                isUplinkCorrection = false;
+                groundStation = receiver;
+                spacecraft = transmitter;
+            }
+
+            ObservableType baseObservableType = getBaseObservableType( observableType );
+
+            std::shared_ptr< TabulatedMediaReferenceCorrectionManager > correctionCalculator;
+            std::pair< std::string, std::string > stationSpacecraftPair = std::make_pair(
+                    groundStation.stationName_, spacecraft.bodyName_ );
+
+            // Create Jakowski VTEC calculator
+
+            std::shared_ptr< input_output::solar_activity::SolarActivityContainer > solarActivityContainer =
+                    std::make_shared< input_output::solar_activity::SolarActivityContainer >(
+                            ionosphericCorrectionSettings->getSolarActivityData( ) );
+            std::function< double ( double ) > flux10p7Function = [=] ( double time ) {
+                return solarActivityContainer->getSolarActivityData( time )->solarRadioFlux107Observed; };
+
+            // Elevation computed wrt to body-fixed frame of body with ground station
+            // In principle the elevation is defined wrt a body-centered inertial frame, but since this frame has the same
+            // z axis as the body-fixed frame we can use either of them to compute the elevation. This wouldn't be valid
+            // for computing the right ascension though.
+            std::function< double ( double ) > sunElevationFunction = [=] ( double time ) {
+                Eigen::Vector3d bodyFixedCartesianRelativePosition =
+                        bodies.getBody( groundStation.bodyName_ )->getRotationalEphemeris( )->getRotationMatrixToTargetFrame( time ) *
+                        ( bodies.getBody( "Sun" )->getStateInBaseFrameFromEphemeris( time ) -
+                        bodies.getBody( groundStation.bodyName_ )->getStateInBaseFrameFromEphemeris( time ) ).segment( 0, 3 );
+                Eigen::Vector3d bodyFixedSphericalRelativePosition = coordinate_conversions::convertCartesianToSpherical(
+                        bodyFixedCartesianRelativePosition );
+                return mathematical_constants::PI / 2.0 - bodyFixedSphericalRelativePosition.y( );
+            };
+
+            std::shared_ptr< JakowskiVtecCalculator > vtecCalculator = std::make_shared< JakowskiVtecCalculator >(
+                    sunElevationFunction,
+                    flux10p7Function,
+                    ionosphericCorrectionSettings->getUseUtcTimeForLocalTime( ),
+                    ionosphericCorrectionSettings->getGeomagneticPoleLatitude( ),
+                    ionosphericCorrectionSettings->getGeomagneticPoleLongitude( ),
+                    ionosphericCorrectionSettings->getIonosphereHeight( ) );
+
+            // Create ionospheric correction
+
+            std::function< double ( Eigen::Vector3d, double ) > elevationFunction = std::bind(
+                    &ground_stations::PointingAnglesCalculator::calculateElevationAngle,
+                    bodies.getBody( groundStation.bodyName_ )->getGroundStation(
+                            groundStation.stationName_ )->getPointingAnglesCalculator( ),
+                            std::placeholders::_1, std::placeholders::_2 );
+            std::function< double ( Eigen::Vector3d, double ) > azimuthFunction = std::bind(
+                    &ground_stations::PointingAnglesCalculator::calculateAzimuthAngle,
+                    bodies.getBody( groundStation.bodyName_ )->getGroundStation(
+                            groundStation.stationName_ )->getPointingAnglesCalculator( ),
+                            std::placeholders::_1, std::placeholders::_2 );
+
+            // Nominal geodetic position, i.e. ignoring station motion
+            std::function< Eigen::Vector3d ( double ) > groundStationGeodeticPositionFunction = std::bind(
+                    &ground_stations::GroundStationState::getNominalGeodeticPosition,
+                    bodies.getBody( groundStation.bodyName_ )->getGroundStation(
+                            groundStation.stationName_ )->getNominalStationState( ) );
+
+            // Get equatorial radius
+            double equatorialRadius;
+            std::shared_ptr< basic_astrodynamics::BodyShapeModel > shapeModel = bodies.getBody( groundStation.bodyName_ )->getShapeModel( );
+            if( std::dynamic_pointer_cast< basic_astrodynamics::SphericalBodyShapeModel >( shapeModel ) != nullptr )
+            {
+                equatorialRadius = std::dynamic_pointer_cast< basic_astrodynamics::SphericalBodyShapeModel >(
+                            shapeModel )->getAverageRadius( );
+            }
+            else if( std::dynamic_pointer_cast< basic_astrodynamics::OblateSpheroidBodyShapeModel >( shapeModel ) != nullptr )
+            {
+                equatorialRadius = std::dynamic_pointer_cast< basic_astrodynamics::OblateSpheroidBodyShapeModel >(
+                                shapeModel )->getEquatorialRadius( );
+            }
+            else
+            {
+                throw std::runtime_error( "Error when creating Jakowski ionospheric corrections for body " +
+                    groundStation.bodyName_ + ": shape model not recognized" );
+            }
+
+            lightTimeCorrection = std::make_shared< MappedVtecIonosphericCorrection >(
+                    vtecCalculator,
+                    createLinkFrequencyFunction( bodies, linkEnds, transmittingLinkEndType, receivingLinkEndType ),
+                    elevationFunction,
+                    azimuthFunction,
+                    groundStationGeodeticPositionFunction,
+                    baseObservableType,
+                    isUplinkCorrection,
+                    equatorialRadius,
+                    ionosphericCorrectionSettings->getFirstOrderDelayCoefficient( ) );
         }
         // Set correction to nullptr if correction isn't valid for selected link ends
         else

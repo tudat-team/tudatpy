@@ -626,8 +626,9 @@ public:
         referenceIonosphereHeight_( referenceIonosphereHeight )
     { }
 
-    ~VtecCalculator( ){ }
+    virtual ~VtecCalculator( ){ }
 
+    // Calculates the VTEC in [m^-2]. (m^-2 = 1e16 TECU)
     virtual double calculateVtec( const double time,
                                   const Eigen::Vector3d subIonosphericPointGeodeticPosition ) = 0;
 
@@ -658,7 +659,7 @@ public:
     JakowskiVtecCalculator(
             std::function< double ( const double time ) > sunDeclinationFunction,
             std::function< double ( const double time ) > observedSolarRadioFlux107Function,
-            bool useUtcTime = false,
+            bool useUtcTimeForLocalTime = false,
             double geomagneticPoleLatitude = unit_conversions::convertDegreesToRadians( 80.9 ),
             double geomagneticPoleLongitude = unit_conversions::convertDegreesToRadians( -72.6 ),
             double referenceIonosphereHeight = 400.0e3 ):
@@ -668,7 +669,7 @@ public:
         geomagneticPoleLatitude_( geomagneticPoleLatitude ),
         geomagneticPoleLongitude_( geomagneticPoleLongitude )
     {
-        if ( useUtcTime )
+        if ( useUtcTimeForLocalTime )
         {
             timeScaleConverter_ = std::make_shared< earth_orientation::TerrestrialTimeScaleConverter >( );
         }

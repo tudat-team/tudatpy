@@ -126,31 +126,6 @@ BOOST_AUTO_TEST_CASE( testCspCommandsExtraction )
     }
 }
 
-BOOST_AUTO_TEST_CASE( test2 )
-{
-    std::shared_ptr< CspRawFile > cspFile = std::make_shared< CspRawFile >( "/Users/pipas/Documents/mro-data/tro/mromagr2017_091_2017_121.tro.txt" );
-
-    observation_models::AtmosphericCorrectionPerStationAndSpacecraftType dryTroposphericCorrections =
-            createTroposphericDryCorrectionAdjustment( { cspFile } );
-
-//    std::vector< std::string > cspCommands = readCspCommandsFile( "/Users/pipas/Documents/mro-data/tro/mromagr2017_091_2017_121.tro.txt" );
-//
-//    std::cout << cspCommands.at(0) << std::endl << std::endl;
-//
-//    std::vector< std::string > vectorOfIndividualStrings;
-//    boost::algorithm::split( vectorOfIndividualStrings,
-//                             cspCommands.at(0),
-//                             boost::algorithm::is_any_of( ",()" ),
-//                             boost::algorithm::token_compress_on );
-//
-//    for ( int i = 0; i < vectorOfIndividualStrings.size(); ++i )
-//    {
-//        std::cout << vectorOfIndividualStrings.at(i) << std::endl;
-//    }
-//
-//    tdbName( vectorOfIndividualStrings );
-}
-
 BOOST_AUTO_TEST_SUITE_END( )
 
 } // namespace unit_tests

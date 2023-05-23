@@ -27,7 +27,7 @@ bool requiresMultiLegIterations( const LightTimeCorrectionType& lightTimeCorrect
         requiresMultiLegIterations = false;
         break;
     case tabulated_ionospheric:
-    case mapped_vtec_ionospheric:
+    case jakowski_vtec_ionospheric:
         requiresMultiLegIterations = true;
         break;
     default:
