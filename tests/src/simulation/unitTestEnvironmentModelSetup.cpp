@@ -696,6 +696,7 @@ BOOST_AUTO_TEST_CASE( test_polyhedronInertiaTensorSetup )
 
         SystemOfBodies bodies = createSystemOfBodies( bodySettings );
 
+        bodies.getBody( "Phobos" )->getMassProperties( )->update( 0.0 );
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedInertiaTensor, bodies.getBody( "Phobos" )->getBodyInertiaTensor(), 1e-15 );
     }
 }
@@ -1354,7 +1355,7 @@ BOOST_AUTO_TEST_CASE( test_synchronousRotationModelSetup )
     bodySettings.at( "Europa" )->ephemerisSettings->resetFrameOrigin( "Jupiter" );
 
     SystemOfBodies bodies = createSystemOfBodies( bodySettings );
-    
+
 
     std::shared_ptr< SynchronousRotationModelSettings > synchronousRotationSettings
             = std::dynamic_pointer_cast< SynchronousRotationModelSettings >( bodySettings.at( "Europa" )->rotationModelSettings );
@@ -1475,7 +1476,7 @@ BOOST_AUTO_TEST_CASE( test_radiationPressureInterfaceSetup )
 
     // Create bodies
     SystemOfBodies bodies = createSystemOfBodies( bodySettings );
-    
+
 
     BOOST_CHECK_EQUAL( bodies.at( "Vehicle" )->getRadiationPressureInterfaces( ).size( ), 1 );
     BOOST_CHECK_EQUAL( bodies.at( "Vehicle" )->getRadiationPressureInterfaces( ).count( "Sun" ), 1 );
@@ -1671,13 +1672,14 @@ BOOST_AUTO_TEST_CASE( test_flightConditionsSetup )
     bodySettings.addSettings( "Vehicle" );
     bodySettings.at( "Vehicle" ) ->aerodynamicCoefficientSettings =
             std::make_shared< ConstantAerodynamicCoefficientSettings >(
-                1.0, 2.0, 3.0, Eigen::Vector3d::Zero( ),
+                1.0, 2.0, Eigen::Vector3d::Zero( ),
                 ( Eigen::Vector3d( ) << -1.1, 0.1, 2.3 ).finished( ),
-                Eigen::Vector3d::Zero( ), 1, 1 );
+                Eigen::Vector3d::Zero( ),
+                negative_aerodynamic_frame_coefficients, negative_aerodynamic_frame_coefficients );
 
     // Create bodies
     SystemOfBodies bodies = createSystemOfBodies( bodySettings );
-    
+
 
 
     // Define expected aerodynamic angles (see testAerodynamicAngleCalculator)
@@ -1834,7 +1836,7 @@ BOOST_AUTO_TEST_CASE( test_solarSailingRadiationPressureInterfaceSetup )
 
     // Create bodies
     SystemOfBodies bodies = createSystemOfBodies( bodySettings );
-    
+
 
     BOOST_CHECK_EQUAL( bodies.at( "Vehicle" )->getRadiationPressureInterfaces( ).size( ), 1 );
     BOOST_CHECK_EQUAL( bodies.at( "Vehicle" )->getRadiationPressureInterfaces( ).count( "Sun" ), 1 );
@@ -1911,7 +1913,7 @@ BOOST_AUTO_TEST_CASE( test_groundStationCreation )
     // Create bodies
     SystemOfBodies bodies = createSystemOfBodies( bodySettings );
 
-    
+
 
     BOOST_CHECK_EQUAL( bodies.at( "Earth" )->getGroundStationMap( ).count( "Station1" ), 1 );
     BOOST_CHECK_EQUAL( bodies.at( "Earth" )->getGroundStationMap( ).count( "Station2" ), 1 );
@@ -2009,7 +2011,7 @@ BOOST_AUTO_TEST_CASE( test_panelledRadiationPressureInterfaceSetup )
 
     // Create bodies
     SystemOfBodies bodies = createSystemOfBodies( bodySettings );
-    
+
 
     Eigen::Vector7d unitRotationalState = Eigen::Vector7d::Zero( );
     unitRotationalState.segment( 0, 4 ) = linear_algebra::convertQuaternionToVectorFormat(

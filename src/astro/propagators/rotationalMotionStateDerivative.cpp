@@ -66,7 +66,15 @@ Eigen::Vector3d evaluateRotationalEquationsOfMotion(
         const Eigen::Vector3d& angularVelocityVector,
         const Eigen::Matrix3d& inertiaTensorTimeDerivative )
 {
-    return inertiaTensor.inverse( ) * ( totalTorque );
+    Eigen::Matrix3d inverseInertiaTensor = inertiaTensor.inverse( );
+    if( inverseInertiaTensor.hasNaN( ) )
+    {
+        std::cout<<inertiaTensor<<std::endl<<std::endl;
+        std::cout<<inverseInertiaTensor<<std::endl<<std::endl;
+
+        throw std::runtime_error( "Error when evaluating rotational equations of motion, inverse inertia tensor contains NaN. ");
+    }
+    return inverseInertiaTensor * ( totalTorque );
 }
 
 template class RotationalMotionStateDerivative< double, double >;

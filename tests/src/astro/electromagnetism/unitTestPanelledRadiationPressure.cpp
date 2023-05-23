@@ -178,6 +178,7 @@ BOOST_AUTO_TEST_CASE( testSimpleGeometryPanelledRadiationPressure )
             bodies.at( "Sun" )->setStateFromEphemeris( testTimes[ i ] );
             bodies.at( "Vehicle" )->setStateFromEphemeris( testTimes[ i ] );
             bodies.at( "Vehicle" )->setCurrentRotationToLocalFrameFromEphemeris( testTimes[ i ] );
+            bodies.at( "Vehicle" )->updateMass( testTimes[ i ] );
             radiationPressureInterface->updateInterface( testTimes[ i ] );
             accelerationModel->updateMembers( testTimes[ i ] );
 
@@ -482,6 +483,7 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureMontenbruckModel )
             bodies.at( "Sun" )->setStateFromEphemeris( testTimes[ i ] );
             bodies.at( "Vehicle" )->setStateFromEphemeris( testTimes[ i ] );
             bodies.at( "Vehicle" )->setCurrentRotationToLocalFrameFromEphemeris( testTimes[ i ] );
+            bodies.at( "Vehicle" )->updateMass( testTimes[ i ] );
             radiationPressureInterface->updateInterface( testTimes[ i ] );
             accelerationModel->updateMembers( testTimes[ i ] );
 
@@ -818,6 +820,7 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureTimeVaryingPanelOrientation )
             bodies.at( "Sun" )->setStateFromEphemeris( testTimes[ i ] );
             bodies.at( "Vehicle" )->setStateFromEphemeris( testTimes[ i ] );
             bodies.at( "Vehicle" )->setCurrentRotationToLocalFrameFromEphemeris( testTimes[ i ] );
+            bodies.at( "Vehicle" )->updateMass( testTimes[ i ] );
             radiationPressureInterface->updateInterface( testTimes[ i ] );
             accelerationModel->updateMembers( testTimes[ i ] );
 
@@ -881,6 +884,7 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureTimeVaryingPanelOrientation )
             bodies.at( "Sun" )->setStateFromEphemeris( testTimes[ i ] );
             bodies.at( "Vehicle" )->setStateFromEphemeris( testTimes[ i ] );
             bodies.at( "Vehicle" )->setCurrentRotationToLocalFrameFromEphemeris( testTimes[ i ] );
+            bodies.at( "Vehicle" )->updateMass( testTimes[ i ] );
             radiationPressureInterfaceTimeVaryingSurfaceNormal->updateInterface( testTimes[ i ] );
             accelerationModelTimeVaryingPanelSurfaceNormal->updateMembers( testTimes[ i ] );
 
