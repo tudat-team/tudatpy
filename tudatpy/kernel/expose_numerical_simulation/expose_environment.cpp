@@ -138,6 +138,20 @@ void expose_environment(py::module &m) {
                         get_docstring("AerodynamicCoefficientsIndependentVariables.undefined_independent_variable").c_str())
             .export_values();
 
+
+    py::enum_<ta::AerodynamicCoefficientFrames>(m, "AerodynamicCoefficientFrames",
+                                                               get_docstring("AerodynamicCoefficientFrames").c_str())
+        .value("positive_body_fixed_frame_coefficients", ta::AerodynamicCoefficientFrames::body_fixed_frame_coefficients,
+               get_docstring("AerodynamicCoefficientFrames.positive_body_fixed_frame_coefficients").c_str())
+        .value("negative_body_fixed_frame_coefficients", ta::AerodynamicCoefficientFrames::negative_body_fixed_frame_coefficients,
+               get_docstring("AerodynamicCoefficientFrames.negative_body_fixed_frame_coefficients").c_str())
+        .value("positive_aerodynamic_frame_coefficients", ta::AerodynamicCoefficientFrames::positive_aerodynamic_frame_coefficients,
+               get_docstring("AerodynamicCoefficientFrames.positive_aerodynamic_frame_coefficients").c_str())
+        .value("negative_aerodynamic_frame_coefficients", ta::AerodynamicCoefficientFrames::negative_aerodynamic_frame_coefficients,
+               get_docstring("AerodynamicCoefficientFrames.negative_aerodynamic_frame_coefficients").c_str())
+        .export_values();
+
+
     py::class_<ta::AerodynamicCoefficientInterface,
             std::shared_ptr<ta::AerodynamicCoefficientInterface>>(m, "AerodynamicCoefficientInterface" )
             .def_property_readonly("reference_area", &ta::AerodynamicCoefficientInterface::getReferenceArea )
@@ -160,7 +174,8 @@ void expose_environment(py::module &m) {
             .def("update_full_coefficients", &ta::AerodynamicCoefficientInterface::updateFullCurrentCoefficients,
                  py::arg( "independent_variables" ),
                  py::arg( "control_surface_independent_variables" ),
-                 py::arg( "time") );
+                 py::arg( "time"),
+                 py::arg( "check_force_contribution" ) = true );
 
     py::class_<ta::ControlSurfaceIncrementAerodynamicInterface,
             std::shared_ptr<ta::ControlSurfaceIncrementAerodynamicInterface>>(
