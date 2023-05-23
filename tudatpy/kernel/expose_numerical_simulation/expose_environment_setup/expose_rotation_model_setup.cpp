@@ -192,6 +192,8 @@ namespace rotation_model {
 
         m.def("mars_high_accuracy",
               &tss::getHighAccuracyMarsRotationModel,
+                py::arg("base_frame") = "ECLIPJ2000",
+                py::arg("target_frame") = "Mars_Fixed",
               get_docstring("mars_high_accuracy").c_str()
         );
 
