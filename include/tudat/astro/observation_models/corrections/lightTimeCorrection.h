@@ -26,10 +26,10 @@ enum LightTimeCorrectionType
 {
     first_order_relativistic,
     function_wrapper_light_time_correction,
-    tabulated_ionospheric,
     tabulated_tropospheric,
     saastamoinen_tropospheric,
-    mapped_vtec_ionospheric
+    tabulated_ionospheric,
+    jakowski_vtec_ionospheric
 };
 
 bool requiresMultiLegIterations( const LightTimeCorrectionType& lightTimeCorrectionType );

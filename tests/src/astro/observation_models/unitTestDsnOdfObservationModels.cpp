@@ -107,6 +107,7 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
                 bodiesToCreate, initialEphemerisTime - bufferPlanets, finalEphemerisTime + bufferPlanets,
                     "SSB", "J2000", ephemerisTimeStepPlanets );
 
+    bodySettings.at( "Earth" )->shapeModelSettings = fromSpiceOblateSphericalBodyShapeSettings( );
     bodySettings.at( "Earth" )->rotationModelSettings = gcrsToItrsRotationModelSettings(
             basic_astrodynamics::iau_2006, "J2000" );
     bodySettings.at( "Earth" )->groundStationSettings = getDsnStationSettings( );

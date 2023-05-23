@@ -75,6 +75,17 @@ std::shared_ptr< basic_astrodynamics::BodyShapeModel > createBodyShapeModel(
                     spice_interface::getAverageRadius( body ) );
         break;
     }
+    case oblate_spice:
+    {
+        const double equatorialRadius = spice_interface::getAverageEquatorialRadius( body );
+        const double polarRadius = spice_interface::getPolarRadius( body );
+
+        const double flattening = 1 - polarRadius / equatorialRadius;
+
+        shapeModel = std::make_shared< OblateSpheroidBodyShapeModel >( equatorialRadius, flattening );
+
+        break;
+    }
     case polyhedron_shape:
     {
         // Check input consistency

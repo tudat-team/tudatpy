@@ -21,6 +21,7 @@
 #include "tudat/astro/observation_models/corrections/lightTimeCorrection.h"
 #include "tudat/astro/observation_models/corrections/tabulatedMediaCorrection.h"
 #include "tudat/io/readTabulatedMediaCorrections.h"
+#include "tudat/io/solarActivityData.h"
 
 namespace tudat
 {
@@ -246,6 +247,83 @@ private:
     double referenceFrequency_;
 
     std::string bodyWithAtmosphere_;
+
+};
+
+// Class defining settings for Jakowski ionospheric corrections
+class JakowskiIonosphericCorrectionSettings: public LightTimeCorrectionSettings
+{
+public:
+    JakowskiIonosphericCorrectionSettings(
+            const double ionosphereHeight = 400.0e3,
+            const double firstOrderDelayCoefficient = 40.3,
+            const input_output::solar_activity::SolarActivityDataMap& solarActivityData =
+                    input_output::solar_activity::readSolarActivityData(
+                            paths::getSpaceWeatherDataPath( ) + "/sw19571001.txt" ),
+            const double geomagneticPoleLatitude = unit_conversions::convertDegreesToRadians( 80.9 ),
+            const double geomagneticPoleLongitude = unit_conversions::convertDegreesToRadians( -72.6 ),
+            const bool useUtcTimeForLocalTime = false,
+            const std::string& bodyWithAtmosphere = "Earth"):
+        LightTimeCorrectionSettings( jakowski_vtec_ionospheric ),
+        ionosphereHeight_( ionosphereHeight ),
+        firstOrderDelayCoefficient_( firstOrderDelayCoefficient ),
+        solarActivityData_( solarActivityData ),
+        geomagneticPoleLatitude_( geomagneticPoleLatitude ),
+        geomagneticPoleLongitude_( geomagneticPoleLongitude ),
+        useUtcTimeForLocalTime_( useUtcTimeForLocalTime ),
+        bodyWithAtmosphere_( bodyWithAtmosphere )
+    { }
+
+    double getIonosphereHeight( )
+    {
+        return ionosphereHeight_;
+    }
+
+    double getFirstOrderDelayCoefficient( )
+    {
+        return firstOrderDelayCoefficient_;
+    }
+
+    input_output::solar_activity::SolarActivityDataMap getSolarActivityData( )
+    {
+        return solarActivityData_;
+    }
+
+    double getGeomagneticPoleLatitude( )
+    {
+        return geomagneticPoleLatitude_;
+    }
+
+    double getGeomagneticPoleLongitude( )
+    {
+        return geomagneticPoleLongitude_;
+    }
+
+    bool getUseUtcTimeForLocalTime( )
+    {
+        return useUtcTimeForLocalTime_;
+    }
+
+    std::string getBodyWithAtmosphere( )
+    {
+        return bodyWithAtmosphere_;
+    }
+
+private:
+
+    const double ionosphereHeight_;
+
+    const double firstOrderDelayCoefficient_;
+
+    input_output::solar_activity::SolarActivityDataMap solarActivityData_;
+
+    const double geomagneticPoleLatitude_;
+
+    const double geomagneticPoleLongitude_;
+
+    const bool useUtcTimeForLocalTime_;
+
+    const std::string bodyWithAtmosphere_;
 
 };
 

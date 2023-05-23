@@ -532,7 +532,8 @@ double JakowskiVtecCalculator::calculateVtec( const double time,
     const double f5 = jakowskiCoefficients_.at( 10 ) + jakowskiCoefficients_.at( 11 ) *
             observedSolarRadioFlux107Function_( time );
 
-    return f1 * f2 * f3 * f4 * f5;
+    // 1e16 is conversion factor from TECU to m^-2
+    return f1 * f2 * f3 * f4 * f5 * 1e16;
 }
 
 MappedVtecIonosphericCorrection::MappedVtecIonosphericCorrection(
@@ -545,7 +546,7 @@ MappedVtecIonosphericCorrection::MappedVtecIonosphericCorrection(
         bool isUplinkCorrection,
         double bodyWithAtmosphereMeanEquatorialRadius,
         double firstOrderDelayCoefficient ):
-    LightTimeCorrection( mapped_vtec_ionospheric ),
+    LightTimeCorrection( jakowski_vtec_ionospheric ),
     vtecCalculator_( vtecCalculator ),
     transmittedFrequencyFunction_( transmittedFrequencyFunction ),
     elevationFunction_( elevationFunction ),
