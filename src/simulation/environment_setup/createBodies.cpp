@@ -44,7 +44,7 @@ void addAerodynamicCoefficientInterface(
         throw std::runtime_error( "Error when setting aerodynamic coefficients for body "+ bodyName + ", body is not found in system of bodies" );
     }
     bodies.at( bodyName )->setAerodynamicCoefficientInterface(
-                createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, bodyName) );
+                createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, bodyName, bodies ) );
 }
 
 void addRadiationPressureInterface(
@@ -70,6 +70,41 @@ void addRotationModel(
     }
     bodies.at( bodyName )->setRotationalEphemeris( createRotationModel(
                     rotationModelSettings, bodyName, bodies ) );
+}
+
+void addGravityFieldModel(
+    const SystemOfBodies& bodies, const std::string bodyName,
+    const std::shared_ptr< GravityFieldSettings > gravityFieldSettings,
+    const std::vector< std::shared_ptr< GravityFieldVariationSettings > >& gravityFieldVariationSettings )
+{
+    if( bodies.count( bodyName ) == 0 )
+    {
+        throw std::runtime_error( "Error when setting gravity field model for body "+ bodyName + ", body is not found in system of bodies" );
+    }
+    bodies.at( bodyName )->setGravityFieldModel( createGravityFieldModel(
+        gravityFieldSettings, bodyName, bodies, gravityFieldVariationSettings ) );
+
+    if( gravityFieldVariationSettings.size( ) > 0 )
+    {
+       bodies.at( bodyName )->setGravityFieldVariationSet(
+            createGravityFieldModelVariationsSet(
+                bodyName, bodies, gravityFieldVariationSettings ) );
+    }
+
+    bodies.at( bodyName )->updateConstantEphemerisDependentMemberQuantities( );
+
+}
+
+void addBodyMassProperties(
+    const SystemOfBodies& bodies, const std::string bodyName,
+    const std::shared_ptr< BodyMassPropertiesSettings > bodyMassProperties )
+{
+    if( bodies.count( bodyName ) == 0 )
+    {
+        throw std::runtime_error( "Error when setting mass properties for body "+ bodyName + ", body is not found in system of bodies" );
+    }
+    bodies.at( bodyName )->setMassProperties( createBodyMassProperties(
+        bodyMassProperties, bodyName, bodies ) );
 }
 
 void setSimpleRotationSettingsFromSpice(

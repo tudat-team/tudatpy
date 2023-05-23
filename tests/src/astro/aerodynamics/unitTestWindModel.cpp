@@ -100,9 +100,10 @@ BOOST_AUTO_TEST_CASE( testWindModelInPropagation )
         // Set aerodynamic coefficients.
         std::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings =
                 std::make_shared< ConstantAerodynamicCoefficientSettings >(
-                    2.0, 4.0, 1.5, Eigen::Vector3d::Zero( ), Eigen::Vector3d::UnitX( ), Eigen::Vector3d::Zero( ), 1, 1 );
+                    2.0, 4.0, Eigen::Vector3d::Zero( ), Eigen::Vector3d::UnitX( ), Eigen::Vector3d::Zero( ),
+                    negative_aerodynamic_frame_coefficients, negative_aerodynamic_frame_coefficients );
         bodies.at( "Vehicle" )->setAerodynamicCoefficientInterface(
-                    createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Vehicle" ) );
+                    createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Vehicle", bodies ) );
 
         // Define acceleration model settings.
         SelectedAccelerationMap accelerationMap;
