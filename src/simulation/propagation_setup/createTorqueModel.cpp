@@ -81,15 +81,8 @@ std::shared_ptr< aerodynamics::AerodynamicTorque > createAerodynamicTorqueModel(
     // Retrieve frame in which aerodynamic coefficients are defined.
     std::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > aerodynamicCoefficients =
             bodyUndergoingTorque->getAerodynamicCoefficientInterface( );
-    reference_frames::AerodynamicsReferenceFrames torqueFrame;
-    if( aerodynamicCoefficients->getAreCoefficientsInAerodynamicFrame( ) )
-    {
-        torqueFrame = reference_frames::aerodynamic_frame;
-    }
-    else
-    {
-        torqueFrame = reference_frames::body_frame;
-    }
+    reference_frames::AerodynamicsReferenceFrames torqueFrame = aerodynamics::getCompleteFrameForCoefficients(
+            aerodynamicCoefficients->getMomentCoefficientsFrame( ) );
 
     // Create function to transform from frame of aerodynamic coefficienrs to that of propagation.
     std::function< Eigen::Vector3d( const Eigen::Vector3d& ) > toPropagationFrameTransformation;
@@ -115,7 +108,8 @@ std::shared_ptr< aerodynamics::AerodynamicTorque > createAerodynamicTorqueModel(
                 std::bind( &aerodynamics::AtmosphericFlightConditions::getCurrentAirspeed, bodyFlightConditions ),
                 std::bind( &aerodynamics::AerodynamicCoefficientInterface::getReferenceArea, aerodynamicCoefficients ),
                 std::bind( &aerodynamics::AerodynamicCoefficientInterface::getReferenceLengths, aerodynamicCoefficients ),
-                aerodynamicCoefficients->getAreCoefficientsInNegativeAxisDirection( ) );
+                aerodynamics::areCoefficientsInNegativeDirection(
+                        aerodynamicCoefficients->getMomentCoefficientsFrame( ) ) );
 }
 
 //! Function to create a second-degree gravitational torque.

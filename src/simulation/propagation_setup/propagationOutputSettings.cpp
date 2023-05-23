@@ -289,6 +289,12 @@ std::string getDependentVariableName(
     case minimum_constellation_ground_station_distance:
         variableName = "Minimum instantaneous ground station visible constellation distance";
         break;
+    case body_center_of_mass:
+        variableName = "Body center of mass";
+        break;
+    case body_inertia_tensor:
+        variableName = "Body inertia tensor";
+        break;
     default:
         std::string errorMessage = "Error, dependent variable " +
                 std::to_string( propagationDependentVariables ) +

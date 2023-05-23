@@ -176,7 +176,7 @@ private:
                 for( unsigned int i = 0; i < bodiesWithIntegratedMass.size( ); i++ )
                 {
                     bodyList_.at( std::get< 0 >( bodiesWithIntegratedMass[ i ] ) )
-                            ->setConstantBodyMass( integratedStateIterator_->second( i ) );
+                            ->setCurrentPropagatedBodyMass( integratedStateIterator_->second( i ) );
                 }
                 break;
             }
@@ -607,16 +607,6 @@ private:
                                                                resetCurrentTime, bodyList_.at( currentBodies.at( i ) )->
                                                                getRotationalEphemeris( ) ) ) );
                                 }
-                                
-                                //                                if( bodyList_.at( currentBodies.at( i ) )->getRotationalEphemeris( ) == nullptr )
-                                //                                {
-                                //                                    resetFunctionVector_.push_back(
-                                //                                                boost::make_tuple(
-                                //                                                    body_rotational_state_update, currentBodies.at( i ),
-                                //                                                    std::bind( &reference_frames::DependentOrientationCalculator::
-                                //                                                                 resetCurrentTime, bodyList_.at( currentBodies.at( i ) )->
-                                //                                                                 getDependentOrientationCalculator( ), TUDAT_NAN ) ) );
-                                //                                }
                             }
                             else
                             {
@@ -650,11 +640,33 @@ private:
                         
                         if( addUpdate )
                         {
+                            if( bodyList_.at( currentBodies.at( i ) )->getMassProperties( ) == nullptr )
+                            {
+                                throw std::runtime_error( "Error when setting update of mass of " + currentBodies.at( i ) + ", body has no mass properties," );
+                            }
                             updateTimeFunctionList[ body_mass_update ].push_back(
                                         std::make_pair( currentBodies.at( i ),
-                                                        std::bind( &simulation_setup::Body::updateMass,
-                                                                   bodyList_.at( currentBodies.at( i ) ), std::placeholders::_1  ) ) );
+                                                        std::bind( &simulation_setup::BodyMassProperties::updateMass,
+                                                                   bodyList_.at( currentBodies.at( i ) )->getMassProperties( ), std::placeholders::_1  ) ) );
+                            resetFunctionVector_.push_back(
+                                boost::make_tuple(
+                                    body_mass_update, currentBodies.at( i ),
+                                    std::bind( &simulation_setup::BodyMassProperties::resetCurrentTime, bodyList_.at( currentBodies.at( i ) )->getMassProperties( ) ) ) );
+
                         }
+                        break;
+                    }
+                    case body_mass_distribution_update:
+                    {
+                        updateTimeFunctionList[ body_mass_distribution_update ].push_back(
+                            std::make_pair( currentBodies.at( i ),
+                                           std::bind( &simulation_setup::BodyMassProperties::updateMassDistribution,
+                                                     bodyList_.at( currentBodies.at( i ) )->getMassProperties( ), std::placeholders::_1  ) ) );
+                        resetFunctionVector_.push_back(
+                            boost::make_tuple(
+                                body_mass_distribution_update, currentBodies.at( i ),
+                                std::bind( &simulation_setup::BodyMassProperties::resetCurrentTime, bodyList_.at( currentBodies.at( i ) )->getMassProperties( ) ) ) );
+
                         break;
                     }
                     case spherical_harmonic_gravity_field_update:

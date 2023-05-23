@@ -792,7 +792,7 @@ public:
             = std::make_shared< LightTimeConvergenceCriteria >( ) ):
         ObservationModelSettings( n_way_range, linkEnds, std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ), biasSettings )
     {
-        for( int i = 0; i < linkEnds.size( ) - 1; i++ )
+        for( unsigned int i = 0; i < linkEnds.size( ) - 1; i++ )
         {
             oneWayRangeObsevationSettings_.push_back(
                         std::make_shared< ObservationModelSettings >(
