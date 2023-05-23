@@ -130,7 +130,9 @@ enum PropagationDependentVariables
     aerodynamic_control_surface_free_force_coefficients_dependent_variable = 57,
     aerodynamic_control_surface_free_moment_coefficients_dependent_variable = 58,
     aerodynamic_control_surface_force_coefficients_increment_dependent_variable = 59,
-    aerodynamic_control_surface_moment_coefficients_increment_dependent_variable = 60
+    aerodynamic_control_surface_moment_coefficients_increment_dependent_variable = 60,
+    body_center_of_mass = 61,
+    body_inertia_tensor = 62
 };
 
 // Functional base class for defining settings for dependent variables that are to be saved during propagation
