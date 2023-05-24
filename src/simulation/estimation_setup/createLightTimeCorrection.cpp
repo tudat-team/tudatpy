@@ -312,8 +312,9 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections(
             else
             {
                 throw std::runtime_error(
-                        "Error when creating tabulated tropospheric corrections for " + groundStation.stationName_ +
-                        "ground station and " + getObservableName( observableType ) + " observable: tabulated data not available. " );
+                        "Error when creating tabulated ionospheric corrections for " + groundStation.stationName_ +
+                        " ground station, " + spacecraft.bodyName_ + " spacecraft, and "
+                        + getObservableName( observableType ) + " observable: tabulated data not available. " );
             }
 
         }
@@ -537,7 +538,7 @@ std::function< double ( std::vector< FrequencyBands >, double ) > createLinkFreq
 
     std::vector< std::function< double ( FrequencyBands, FrequencyBands ) > > turnaroundRatioFunctions;
 
-    for ( auto retransmitterLinkEndsIt = linkEnds.begin( )++; retransmitterLinkEndsIt->first != receivingLinkEndType;
+    for ( auto retransmitterLinkEndsIt = ++linkEnds.begin( ); retransmitterLinkEndsIt->first != receivingLinkEndType;
             ++retransmitterLinkEndsIt )
     {
         turnaroundRatioFunctions.push_back( bodies.getBody( retransmitterLinkEndsIt->second.bodyName_

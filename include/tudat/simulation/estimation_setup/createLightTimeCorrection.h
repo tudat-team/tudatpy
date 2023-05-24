@@ -262,7 +262,7 @@ public:
                             paths::getSpaceWeatherDataPath( ) + "/sw19571001.txt" ),
             const double geomagneticPoleLatitude = unit_conversions::convertDegreesToRadians( 80.9 ),
             const double geomagneticPoleLongitude = unit_conversions::convertDegreesToRadians( -72.6 ),
-            const bool useUtcTimeForLocalTime = false,
+            const bool useUtcTimeForLocalTimeComputation = false,
             const std::string& bodyWithAtmosphere = "Earth"):
         LightTimeCorrectionSettings( jakowski_vtec_ionospheric ),
         ionosphereHeight_( ionosphereHeight ),
@@ -270,7 +270,7 @@ public:
         solarActivityData_( solarActivityData ),
         geomagneticPoleLatitude_( geomagneticPoleLatitude ),
         geomagneticPoleLongitude_( geomagneticPoleLongitude ),
-        useUtcTimeForLocalTime_( useUtcTimeForLocalTime ),
+        useUtcTimeForLocalTime_( useUtcTimeForLocalTimeComputation ),
         bodyWithAtmosphere_( bodyWithAtmosphere )
     { }
 

@@ -477,6 +477,109 @@ BOOST_AUTO_TEST_CASE( testJakowskiIonosphericCorrectionGodot )
     }
 }
 
+// Check consistency between tabulated and Jakowski ionospheric corrections
+BOOST_AUTO_TEST_CASE( testTabulatedAndJakowskiIonosphericCorrectionsConsistency )
+{
+
+    // Create bodies
+    spice_interface::loadStandardSpiceKernels(  );
+    spice_interface::loadSpiceKernelInTudat( "/Users/pipas/Documents/mro-spice/mro_psp43.bsp" );
+
+    std::vector< std::string > bodiesToCreate = { "Earth", "Mars", "Sun" };
+    simulation_setup::BodyListSettings bodySettings = simulation_setup::getDefaultBodySettings( bodiesToCreate );
+    bodySettings.at( "Earth" )->groundStationSettings = simulation_setup::getDsnStationSettings( );
+
+    std::string spacecraftName = "MRO";
+    bodySettings.addSettings( spacecraftName );
+    bodySettings.at( spacecraftName )->ephemerisSettings = std::make_shared< simulation_setup::DirectSpiceEphemerisSettings >(  );
+
+    simulation_setup::SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+
+    // Create link ends
+    LinkEnds linkEnds;
+    linkEnds[ transmitter ] = LinkEndId( "Earth", "DSS-26" );
+    linkEnds[ receiver ] = LinkEndId( "MRO" );
+
+    // Set transmitting frequency calculator
+    double frequency = 2.2e9;
+    bodies.getBody( "Earth" )->getGroundStation( "DSS-26" )->setTransmittingFrequencyCalculator(
+            std::make_shared< ground_stations::ConstantFrequencyInterpolator >( frequency ) );
+
+    // Create Saastamoinen corrections
+    std::shared_ptr< LightTimeCorrectionSettings > jakowskiCorrectionSettings =
+            std::make_shared< JakowskiIonosphericCorrectionSettings >( );
+    std::shared_ptr< LightTimeCorrection > jakowskiCorrection = createLightTimeCorrections(
+            jakowskiCorrectionSettings, bodies, linkEnds, transmitter, receiver,
+            observation_models::dsn_n_way_averaged_doppler );
+
+    // Load tabulated corrections data
+    std::shared_ptr< input_output::CspRawFile > ionosphericCspFile = std::make_shared< input_output::CspRawFile >(
+            "/Users/pipas/Documents/mro-data/ion/mromagr2017_091_2017_121.ion.txt" );
+
+    // Define spacecraft name associated with ionospheric correction
+    std::map< int, std::string > spacecraftNamePerSpacecraftId;
+    spacecraftNamePerSpacecraftId[ 74 ] = "MRO";
+
+    // Create tabulated corrections
+    std::shared_ptr< LightTimeCorrectionSettings > tabulatedCorrectionSettings =
+            std::make_shared< observation_models::TabulatedIonosphericCorrectionSettings >(
+                    input_output::createIonosphericCorrection(
+                            { ionosphericCspFile }, spacecraftNamePerSpacecraftId ) );
+    std::shared_ptr< LightTimeCorrection > tabulatedCorrection = createLightTimeCorrections(
+            tabulatedCorrectionSettings, bodies, linkEnds, transmitter, receiver,
+            observation_models::dsn_n_way_averaged_doppler );
+
+    double initialTime = 544795200.0;
+    double timeStep = 3600.0;
+    unsigned int numberOfPoints = 144;
+
+    unsigned int currentMultiLegTransmitterIndex = 0;
+
+    std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings = std::make_shared<
+            ObservationAncilliarySimulationSettings >( );
+    ancillarySettings->setAncilliaryDoubleVectorData( frequency_bands, { TUDAT_NAN } );
+
+    double time = initialTime - timeStep;
+    for ( unsigned int i = 0; i < numberOfPoints; ++i )
+    {
+        time += timeStep;
+
+        // Approximate light time
+        double lightTime = ( bodies.getBody( "Mars" )->getStateInBaseFrameFromEphemeris( time ) -
+                bodies.getBody( "Earth" )->getStateInBaseFrameFromEphemeris( time ) ).segment( 0, 3 ).norm( ) /
+                        SPEED_OF_LIGHT;
+
+        std::vector< Eigen::Vector6d > linkEndsStates;
+        std::vector< double > linkEndsTimes;
+        // Approximate state and time of DSS-26
+        linkEndsStates.push_back( bodies.getBody( "Earth" )->getStateInBaseFrameFromEphemeris( time ) );
+        linkEndsTimes.push_back( time );
+        // Approximate state and time of MRO
+        linkEndsStates.push_back( bodies.getBody( "Mars" )->getStateInBaseFrameFromEphemeris( time + lightTime ) );
+        linkEndsTimes.push_back( time + lightTime );
+
+        // Try/catch block used to jump over time epochs when the ionospheric tabulated corrections aren't defined
+        double computedTabulatedCorrection;
+        try
+        {
+            computedTabulatedCorrection = tabulatedCorrection->calculateLightTimeCorrectionWithMultiLegLinkEndStates(
+                    linkEndsStates, linkEndsTimes, currentMultiLegTransmitterIndex, ancillarySettings );
+        }
+        catch( ... )
+        {
+            time += timeStep;
+            continue;
+        }
+
+        // Quite a big difference between models... is this normal?
+        BOOST_CHECK_SMALL(
+                jakowskiCorrection->calculateLightTimeCorrectionWithMultiLegLinkEndStates(
+                    linkEndsStates, linkEndsTimes, currentMultiLegTransmitterIndex, ancillarySettings ) -
+                computedTabulatedCorrection,
+                2.1 );
+    }
+}
+
 BOOST_AUTO_TEST_SUITE_END( )
 
 }
