@@ -82,33 +82,83 @@ private:
 
 };
 
-//class ConstantFrequencyInterpolator: public StationFrequencyInterpolator< ObservationScalarType, TimeType >
-//{
-//public:
-//    //! Constructor
-//    ConstantFrequencyInterpolator( ObservationScalarType frequency ):
-//        StationFrequencyInterpolator< ObservationScalarType, TimeType >( ),
-//        frequency_( frequency )
-//    { }
-//
-//    //! Destructor
-//    ~ConstantFrequencyInterpolator( ) { }
-//
-//    ObservationScalarType getCurrentFrequency( const TimeType lookupTime )
-//    {
-//        return frequency_;
-//    }
-//
-//    ObservationScalarType getFrequencyIntegral( const TimeType quadratureStartTime,
-//                                                const TimeType quadratureEndTime )
-//    {
-//        return frequency_ * ( quadratureEndTime - quadratureStartTime );
-//    }
-//
-//private:
-//
-//    ObservationScalarType frequency_;
-//};
+class ConstantFrequencyInterpolator: public StationFrequencyInterpolator
+{
+public:
+    //! Constructor
+    ConstantFrequencyInterpolator( double frequency ):
+        StationFrequencyInterpolator( ),
+        frequency_( frequency )
+    { }
+
+    //! Destructor
+    ~ConstantFrequencyInterpolator( ) { }
+
+    template< typename ObservationScalarType = double, typename TimeType = double >
+    ObservationScalarType computeCurrentFrequency( const TimeType lookupTime )
+    {
+        return frequency_;
+    }
+
+    template< typename ObservationScalarType = double, typename TimeType = double >
+    ObservationScalarType computeFrequencyIntegral( const TimeType quadratureStartTime,
+                                                    const TimeType quadratureEndTime )
+    {
+        return frequency_ * ( quadratureEndTime - quadratureStartTime );
+    }
+
+private:
+
+    //! Get frequency (with long double as observation scalar type and double as time type).
+    virtual double getCurrentFrequency( const double lookupTime )
+    {
+        return computeCurrentFrequency< double, double >( lookupTime );
+    }
+
+    //! Get frequency (with double as observation scalar type and Time as time type).
+    virtual double getCurrentFrequency( const Time& lookupTime )
+    {
+        return computeCurrentFrequency< double, Time >( lookupTime );
+    }
+
+    //! Get frequency (with long double as observation scalar type and double as time type).
+    virtual long double getCurrentLongFrequency( const double lookupTime )
+    {
+         return computeCurrentFrequency< long double, double >( lookupTime );
+    }
+
+    //! Get frequency (with long double as observation scalar type and Time as time type).
+    virtual long double getCurrentLongFrequency( const Time& lookupTime )
+    {
+         return computeCurrentFrequency< long double, Time >( lookupTime );
+    }
+
+    //! Get frequency integral (with long double as observation scalar type and double as time type).
+    virtual double getFrequencyIntegral( const double quadratureStartTime, const double quadratureEndTime )
+    {
+        return computeFrequencyIntegral< double, double >( quadratureStartTime, quadratureEndTime );
+    }
+
+    //! Get frequency integral (with double as observation scalar type and Time as time type).
+    virtual double getFrequencyIntegral( const Time& quadratureStartTime, const Time& quadratureEndTime )
+    {
+        return computeFrequencyIntegral< double, Time >( quadratureStartTime, quadratureEndTime );
+    }
+
+    //! Get frequency integral (with long double as observation scalar type and double as time type).
+    virtual long double getLongFrequencyIntegral( const double quadratureStartTime, const double quadratureEndTime )
+    {
+        return computeFrequencyIntegral< long double, double >( quadratureStartTime, quadratureEndTime );
+    }
+
+    //! Get frequency integral (with long double as observation scalar type and Time as time type).
+    virtual long double getLongFrequencyIntegral( const Time& quadratureStartTime, const Time& quadratureEndTime )
+    {
+        return computeFrequencyIntegral< long double, Time >( quadratureStartTime, quadratureEndTime );
+    }
+
+    double frequency_;
+};
 
 //! Class to compute the transmitted frequency of a ground station and its integral, for piecewise frequency (e.g. ramped
 //! DSN stations)
