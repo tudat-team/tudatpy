@@ -478,9 +478,8 @@ double JakowskiVtecCalculator::calculateVtec( const double time,
 
     // Dependency on solar zenith: F1
 
-    const double localTimeSeconds = std::fmod( getUtcTime( time ) + 43200.0 +
-            unit_conversions::convertRadiansToDegrees( subIonosphericLongitude ) / 15.0, 86400.0 );
-    const double localTimeHours = localTimeSeconds / 3600.0;
+    const double localTimeHours = std::fmod( getUtcTime( time ) / 3600.0 + 12.0 +
+            unit_conversions::convertRadiansToDegrees( subIonosphericLongitude ) / 15.0, 24.0 );
 
     const double diurnalVariation = 2.0 * mathematical_constants::PI * ( localTimeHours - 14.0 ) / 24.0;
     const double semiDiurnalVariation = 2.0 * mathematical_constants::PI * localTimeHours / 12.0;
@@ -516,7 +515,7 @@ double JakowskiVtecCalculator::calculateVtec( const double time,
             std::cos( subIonosphericLatitude ) * std::cos( geomagneticPoleLatitude_ ) *
                 std::cos( subIonosphericLongitude - geomagneticPoleLongitude_ ) );
 
-    const double f3 = 1.0 + jakowskiCoefficients_.at( 5 ) * std::cos( geomagneticLatitude );
+    const double f3 = 1.0 + jakowskiCoefficients_.at( 7 ) * std::cos( geomagneticLatitude );
 
     const double phiC1 = unit_conversions::convertDegreesToRadians( 16.0 );
     const double phiC2 = - unit_conversions::convertDegreesToRadians( 10.0 );
@@ -592,7 +591,7 @@ double MappedVtecIonosphericCorrection::calculateLightTimeCorrectionWithMultiLeg
             linkEndsStates, linkEndsTimes, currentMultiLegTransmitterIndex, legTransmitterState, legReceiverState,
             legTransmissionTime, legReceptionTime );
 
-    double groundStationTime, spacecraftTime;
+    double groundStationTime;
     Eigen::Vector6d groundStationState, spacecraftState;
     if ( isUplinkCorrection_ )
     {

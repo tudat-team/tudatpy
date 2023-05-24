@@ -382,6 +382,101 @@ BOOST_AUTO_TEST_CASE( testTabulatedAndSaastamoinenTroposphericCorrectionsConsist
     }
 }
 
+// Compare Jakowski ionospheric correction values with GODOT
+// Reference values extracted from GODOT for XMM-Newton satellite
+BOOST_AUTO_TEST_CASE( testJakowskiIonosphericCorrectionGodot )
+{
+
+    // Reasons for differences with respect to GODOT:
+    // - They compute the day of year using UTC instead of TDB
+    double tolerance = 1e-5;
+
+    double earthEquatorialRadius = 6378.137e3; // [m]
+
+    std::shared_ptr< ObservationAncilliarySimulationSettings > dummyAncillarySettings = std::make_shared<
+            ObservationAncilliarySimulationSettings >( );
+    dummyAncillarySettings->setAncilliaryDoubleVectorData( frequency_bands, { TUDAT_NAN } );
+
+    // Corrections computed for Doppler observations (i.e. they should be negative)
+
+    for ( unsigned int gs = 0; gs < 3; ++gs )
+    {
+        std::vector< double > times = { 517557600.0 - 43200.0 };
+        std::vector< double > expectedIonCorrection; // In seconds
+        Eigen::Vector3d groundStationGeodeticPosition; // Geodetic position: [altitude, latitude, longitude]
+        std::vector< double > sunDeclinations;
+        std::vector< double > f10p7Fluxes;
+        std::vector< double > frequencies;
+        std::vector< double > elevations;
+        std::vector< double > azimuths;
+        if ( gs == 0 ) // Kourou
+        {
+            groundStationGeodeticPosition = ( Eigen::Vector3d( ) <<
+                    TUDAT_NAN, 0.091654942533145, -0.921615256282849 ).finished( );
+            expectedIonCorrection = { -7.47038731425228e-09 };
+            sunDeclinations = { 0.370069487990568 };
+            f10p7Fluxes = { 117 };
+            frequencies = { 2200000000 };
+            elevations = { 0.279499332478995 };
+            azimuths = { -2.95873929229529 };
+        }
+        else if ( gs == 1 ) // Kiruna
+        {
+            groundStationGeodeticPosition = ( Eigen::Vector3d( ) <<
+                    TUDAT_NAN, 1.18433036447975 , 0.365896613894482 ).finished( );
+            expectedIonCorrection = { -1.28829718201383e-09 };
+            sunDeclinations = { 0.370069487990568 };
+            f10p7Fluxes = { 117 };
+            frequencies = { 2200000000 };
+            elevations = { -1.03692130895857 };
+            azimuths = { -2.14548021229947 };
+        }
+        else // Canberra_34
+        {
+            groundStationGeodeticPosition = ( Eigen::Vector3d( ) <<
+                    TUDAT_NAN, -0.617819875528966, 2.60022584821302 ).finished( );
+            expectedIonCorrection = { -9.96973909248328e-09 };
+            sunDeclinations = { 0.370069487990568 };
+            f10p7Fluxes = { 117 };
+            frequencies = { 2200000000 };
+            elevations = { 0.187111816282427 };
+            azimuths = { 2.81038493722934 };
+        }
+
+        for ( unsigned int j = 0; j < times.size( ); ++j )
+        {
+            // Create functions
+            std::function< Eigen::Vector3d ( double ) > groundStationGeodeticPositionFunction =
+                    [=]( double time ){ return groundStationGeodeticPosition; };
+            std::function< double ( double ) > sunDeclinationFunction =
+                    [=]( double time ){ return sunDeclinations.at( j ); };
+            std::function< double ( double ) > f10p7FluxFunction =
+                    [=]( double time ){ return f10p7Fluxes.at( j ); };
+            std::function< double ( std::vector< FrequencyBands >, double ) > frequencyFunction =
+                    [=]( std::vector< FrequencyBands > freqBands, double time ){ return frequencies.at( j ); };
+            std::function< double ( Eigen::Vector3d, double ) > elevationFunction =
+                    [=]( Eigen::Vector3d inertialVectorAwayFromStation, double time ){ return elevations.at( j ); };
+            std::function< double ( Eigen::Vector3d, double ) > azimuthFunction =
+                    [=]( Eigen::Vector3d inertialVectorAwayFromStation, double time ){ return azimuths.at( j ); };
+
+            // Create VTEC calculator
+            std::shared_ptr< JakowskiVtecCalculator > vtecCalculator = std::make_shared< JakowskiVtecCalculator >(
+                    sunDeclinationFunction, f10p7FluxFunction, true );
+
+            // Create ionospheric correction model
+            MappedVtecIonosphericCorrection ionosphericCorrection = MappedVtecIonosphericCorrection(
+                    vtecCalculator, frequencyFunction, elevationFunction, azimuthFunction, groundStationGeodeticPositionFunction,
+                    observation_models::dsn_n_way_averaged_doppler, true, earthEquatorialRadius );
+
+            BOOST_CHECK_CLOSE_FRACTION(
+                    ionosphericCorrection.calculateLightTimeCorrectionWithMultiLegLinkEndStates(
+                        { Eigen::Vector6d::Zero(), Eigen::Vector6d::Zero() }, { times.at( j ), times.at( j ) }, 0,
+                        dummyAncillarySettings ),
+                    expectedIonCorrection.at( j ) * physical_constants::SPEED_OF_LIGHT, tolerance );
+        }
+    }
+}
+
 BOOST_AUTO_TEST_SUITE_END( )
 
 }
