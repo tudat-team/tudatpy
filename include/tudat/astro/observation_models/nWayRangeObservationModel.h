@@ -48,7 +48,7 @@ public:
                 < ObservationScalarType, TimeType > > > lightTimeCalculators,
             const std::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = nullptr,
             const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria
-                = std::make_shared< MultiLegLightTimeConvergenceCriteria >( ) ):
+                = std::make_shared< LightTimeConvergenceCriteria >( ) ):
         ObservationModel< 1, ObservationScalarType, TimeType >( n_way_range, linkEnds, observationBiasCalculator )
     {
         multiLegLightTimeCalculator_ = std::make_shared< observation_models::MultiLegLightTimeCalculator<

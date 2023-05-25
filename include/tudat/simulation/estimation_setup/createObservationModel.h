@@ -774,7 +774,7 @@ public:
             const std::vector< std::shared_ptr< ObservationModelSettings > > oneWayRangeObsevationSettings,
             const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
             const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria
-                = std::make_shared< MultiLegLightTimeConvergenceCriteria >( ) ):
+                = std::make_shared< LightTimeConvergenceCriteria >( ) ):
         ObservationModelSettings( n_way_range, mergeOneWayLinkEnds( getObservationModelListLinkEnds( oneWayRangeObsevationSettings ) ),
                                   std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ), biasSettings, nullptr ),
         oneWayRangeObsevationSettings_( oneWayRangeObsevationSettings ),
@@ -794,7 +794,7 @@ public:
             const int numberOfLinkEnds,
             const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
             const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria
-                = std::make_shared< MultiLegLightTimeConvergenceCriteria >( ) ):
+                = std::make_shared< LightTimeConvergenceCriteria >( ) ):
         ObservationModelSettings( n_way_range, linkEnds, std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ), biasSettings ),
         multiLegLightTimeConvergenceCriteria_( lightTimeConvergenceCriteria )
     {
@@ -831,7 +831,7 @@ public:
             std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
             const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
             const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria
-            = std::make_shared< MultiLegLightTimeConvergenceCriteria >( ) ):
+            = std::make_shared< LightTimeConvergenceCriteria >( ) ):
         ObservationModelSettings( n_way_differenced_range, linkEnds, lightTimeCorrectionsList, biasSettings ),
         multiLegLightTimeConvergenceCriteria_( lightTimeConvergenceCriteria )
     {
@@ -848,7 +848,7 @@ public:
             const std::vector< std::shared_ptr< ObservationModelSettings > > oneWayRangeObsevationSettings,
             const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
             const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria
-                = std::make_shared< MultiLegLightTimeConvergenceCriteria >( ) ):
+                = std::make_shared< LightTimeConvergenceCriteria >( ) ):
         ObservationModelSettings( n_way_differenced_range,
                                   mergeOneWayLinkEnds( getObservationModelListLinkEnds( oneWayRangeObsevationSettings ) ),
                                   std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ), biasSettings ),
@@ -896,7 +896,7 @@ public:
             const std::vector< std::shared_ptr< ObservationModelSettings > > oneWayRangeObsevationSettings,
             const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
             const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria
-                = std::make_shared< MultiLegLightTimeConvergenceCriteria >( ) ):
+                = std::make_shared< LightTimeConvergenceCriteria >( ) ):
         ObservationModelSettings( n_way_differenced_range,
                                   mergeOneWayLinkEnds( getObservationModelListLinkEnds( oneWayRangeObsevationSettings ) ),
                                   std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ), biasSettings ),

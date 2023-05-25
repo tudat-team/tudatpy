@@ -138,9 +138,8 @@ BOOST_AUTO_TEST_CASE( testNWayRangeModel )
                                                        lightTimePerturbingBodies ) );
 
             // Create light time convergence criteria
-            bool iterateMultipleLegs = observationTimeNumber % 2;
             std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria =
-                std::make_shared< MultiLegLightTimeConvergenceCriteria >( true, iterateMultipleLegs );
+                std::make_shared< LightTimeConvergenceCriteria >( true );
 
             // Create observation settings for 2-way model and constituent one-way models
             std::shared_ptr< ObservationModelSettings > uplinkObservableSettings = std::make_shared< ObservationModelSettings >
@@ -253,24 +252,10 @@ BOOST_AUTO_TEST_CASE( testNWayRangeModel )
                 // Check number of multi-leg iterations
                 int numIter = std::dynamic_pointer_cast< NWayRangeObservationModel< double, double > >(
                             twoWayObservationModel )->getMultiLegLightTimeCalculator( )->getNumberOfMultiLegIterations( );
-                if ( iterateMultipleLegs )
-                {
-                    BOOST_CHECK_EQUAL( numIter, 1 );
-                    // Check number of single-leg iterations. Since no corrections that depend on legs other than the ones
-                    // they apply to are used, the method should converge at the 0th iteration (i.e. first computation
-                    // of the light time should coincide with the initial guess)
-                    for ( unsigned int i = 0; i < 2; ++i )
-                    {
-                        int iterLeg = std::dynamic_pointer_cast< NWayRangeObservationModel< double, double > >(
-                            twoWayObservationModel )->getMultiLegLightTimeCalculator( )->getLightTimeCalculators(
-                                    ).at( i )->getNumberOfIterations( );
-                        BOOST_CHECK_EQUAL( iterLeg, 0 );
-                    }
-                }
-                else
-                {
-                    BOOST_CHECK_EQUAL( numIter, 0 );
-                }
+                bool iterateMultipleLegs = std::dynamic_pointer_cast< NWayRangeObservationModel< double, double > >(
+                            twoWayObservationModel )->getMultiLegLightTimeCalculator( )->getIterateMultiLegLightTime( );
+                BOOST_CHECK_EQUAL( numIter, 0 );
+                BOOST_CHECK_EQUAL( iterateMultipleLegs, false );
 
                 // Check if link end times are consistent
                 BOOST_CHECK_CLOSE_FRACTION( uplinkLinkEndTimes.at( 0 ), twoWayLinkEndTimes.at( 0 ),
@@ -338,7 +323,7 @@ BOOST_AUTO_TEST_CASE( testNWayRangeModel )
             // Create light time convergence criteria
             bool iterateMultipleLegs = observationTimeNumber % 2;
             std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria =
-                std::make_shared< MultiLegLightTimeConvergenceCriteria >( true, iterateMultipleLegs );
+                std::make_shared< LightTimeConvergenceCriteria >( true, iterateMultipleLegs );
 
 
             // Create observation settings for 4-way model and constituent one-way models
@@ -468,24 +453,10 @@ BOOST_AUTO_TEST_CASE( testNWayRangeModel )
                  // Check number of multi-leg iterations
                 int numIter = std::dynamic_pointer_cast< NWayRangeObservationModel< double, double > >(
                             fourWayObservationModel )->getMultiLegLightTimeCalculator( )->getNumberOfMultiLegIterations( );
-                if ( iterateMultipleLegs )
-                {
-                    BOOST_CHECK_EQUAL( numIter, 1 );
-                    // Check number of single-leg iterations. Since no corrections that depend on legs other than the ones
-                    // they apply to are used, the method should converge at the 0th iteration (i.e. first computation
-                    // of the light time should coincide with the initial guess)
-                    for ( unsigned int i = 0; i < 4; ++i )
-                    {
-                        int iterLeg = std::dynamic_pointer_cast< NWayRangeObservationModel< double, double > >(
-                            fourWayObservationModel )->getMultiLegLightTimeCalculator( )->getLightTimeCalculators(
-                                    ).at( i )->getNumberOfIterations( );
-                        BOOST_CHECK_EQUAL( iterLeg, 0 );
-                    }
-                }
-                else
-                {
-                    BOOST_CHECK_EQUAL( numIter, 0 );
-                }
+                bool iterateMultipleLegs = std::dynamic_pointer_cast< NWayRangeObservationModel< double, double > >(
+                            fourWayObservationModel )->getMultiLegLightTimeCalculator( )->getIterateMultiLegLightTime( );
+                BOOST_CHECK_EQUAL( numIter, 0 );
+                BOOST_CHECK_EQUAL( iterateMultipleLegs, false );
 
                 // Check if link end times are consistent
                 BOOST_CHECK_CLOSE_FRACTION( firstlinkLinkEndTimes.at( 0 ), fourWayLinkEndTimes.at( 0 ),

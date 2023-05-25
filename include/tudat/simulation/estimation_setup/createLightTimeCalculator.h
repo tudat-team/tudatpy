@@ -115,7 +115,7 @@ std::shared_ptr< MultiLegLightTimeCalculator< ObservationScalarType, TimeType > 
         const std::vector< std::shared_ptr< LightTimeConvergenceCriteria > >& singleLegsLightTimeConvergenceCriteria
             = std::vector< std::shared_ptr< LightTimeConvergenceCriteria > >( ),
         const std::shared_ptr< LightTimeConvergenceCriteria > multiLegLightTimeConvergenceCriteria
-            = std::make_shared< MultiLegLightTimeConvergenceCriteria >( ) )
+            = std::make_shared< LightTimeConvergenceCriteria >( ) )
 {
 
     // Check if link ends contain a receiver and a transmitter
@@ -164,6 +164,8 @@ std::shared_ptr< MultiLegLightTimeCalculator< ObservationScalarType, TimeType > 
 
     // Define light-time calculator list
     std::vector< std::shared_ptr< LightTimeCalculator< ObservationScalarType, TimeType > > > lightTimeCalculators;
+    // Boolean indicating whether any of the used light time corrections require multi-leg iterations
+    bool multiLegIterationsRequired = false;
     // Iterate over all link ends and create light-time calculators
     LinkEnds::const_iterator transmitterIterator = linkEnds.begin( );
     LinkEnds::const_iterator receiverIterator = linkEnds.begin( );
@@ -196,6 +198,19 @@ std::shared_ptr< MultiLegLightTimeCalculator< ObservationScalarType, TimeType > 
                         bodies, observableType, currentLightTimeCorrections,
                         currentConvergenceCriteria ) );
 
+        // Check whether any of the corrections requires multi-leg iterations
+        if ( !multiLegIterationsRequired )
+        {
+            for ( unsigned j = 0; j < currentLightTimeCorrections.size( ); ++j )
+            {
+                if ( requiresMultiLegIterations( currentLightTimeCorrections.at( j )->getCorrectionType( ) ) )
+                {
+                    multiLegIterationsRequired = true;
+                    break;
+                }
+            }
+        }
+
         transmitterIterator++;
         receiverIterator++;
     }
@@ -204,7 +219,7 @@ std::shared_ptr< MultiLegLightTimeCalculator< ObservationScalarType, TimeType > 
     std::shared_ptr< observation_models::MultiLegLightTimeCalculator< ObservationScalarType, TimeType > >
             multiLegLightTimeCalculator = std::make_shared< observation_models::MultiLegLightTimeCalculator<
                     ObservationScalarType, TimeType > >(
-                            lightTimeCalculators, multiLegLightTimeConvergenceCriteria );
+                            lightTimeCalculators, multiLegLightTimeConvergenceCriteria, multiLegIterationsRequired );
 
     return multiLegLightTimeCalculator;
 }

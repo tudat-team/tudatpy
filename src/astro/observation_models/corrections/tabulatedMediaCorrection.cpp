@@ -465,8 +465,9 @@ double TabulatedIonosphericCorrection::calculateLightTimeCorrectionWithMultiLegL
                 std::string( caughtException.what( ) ) );
     }
 
-    return sign_ * referenceCorrectionCalculator_->computeMediaCorrection( stationTime ) *
-        std::pow( referenceFrequency_ / transmittedFrequencyFunction_( frequencyBands, firstLegTransmissionTime ), 2.0 );
+    return ( sign_ * referenceCorrectionCalculator_->computeMediaCorrection( stationTime ) *
+        std::pow( referenceFrequency_ / transmittedFrequencyFunction_( frequencyBands, firstLegTransmissionTime ), 2.0 ) ) /
+                physical_constants::getSpeedOfLight< double >( );
 }
 
 double JakowskiVtecCalculator::calculateVtec( const double time,
@@ -652,10 +653,10 @@ double MappedVtecIonosphericCorrection::calculateLightTimeCorrectionWithMultiLeg
                 std::cos( subIonosphericPointGeodeticPosition( 1 ) ) );
     }
 
-    return sign_ * firstOrderDelayCoefficient_ *
+    return ( sign_ * firstOrderDelayCoefficient_ *
         vtecCalculator_->calculateVtec( groundStationTime, subIonosphericPointGeodeticPosition ) /
         std::pow( transmittedFrequencyFunction_( frequencyBands, firstLegTransmissionTime ), 2.0 ) /
-        std::cos( zenithAngle );
+        std::cos( zenithAngle ) ) / physical_constants::getSpeedOfLight< double >( );
 }
 
 } // namespace observation_models

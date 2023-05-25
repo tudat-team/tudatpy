@@ -472,7 +472,7 @@ BOOST_AUTO_TEST_CASE( testJakowskiIonosphericCorrectionGodot )
                     ionosphericCorrection.calculateLightTimeCorrectionWithMultiLegLinkEndStates(
                         { Eigen::Vector6d::Zero(), Eigen::Vector6d::Zero() }, { times.at( j ), times.at( j ) }, 0,
                         dummyAncillarySettings ),
-                    expectedIonCorrection.at( j ) * physical_constants::SPEED_OF_LIGHT, tolerance );
+                    expectedIonCorrection.at( j ), tolerance );
         }
     }
 }

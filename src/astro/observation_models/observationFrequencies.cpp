@@ -106,11 +106,6 @@ std::vector< double > convertFrequencyBandsToDoubleVector( const std::vector< Fr
         doubleFrequencyBands.push_back( frequencyBand );
     }
 
-    for ( unsigned int i = 0; i < doubleFrequencyBands.size(); ++i )
-    {
-        std::cerr << doubleFrequencyBands.at(i) << " ";
-    }
-
     return doubleFrequencyBands;
 }
 

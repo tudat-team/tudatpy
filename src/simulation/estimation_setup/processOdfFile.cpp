@@ -27,12 +27,12 @@ observation_models::ObservableType getObservableTypeForOdfId( const int odfId )
 //    case 11:
 //        observableType = observation_models::dsn_one_way_averaged_doppler;
 //        break;
-//    case 12:
-//        observableType = observation_models::dsn_n_way_averaged_doppler;
-//        break;
-    case 13:
+    case 12:
         observableType = observation_models::dsn_n_way_averaged_doppler;
         break;
+//    case 13:
+//        observableType = observation_models::dsn_n_way_averaged_doppler;
+//        break;
     default:
         throw std::runtime_error( "Error when getting observable type for ODF ID, ID: " +
                                   std::to_string( odfId ) + " not recognized." );
@@ -311,10 +311,10 @@ std::vector< double > ProcessedOdfFileContents::computeObservationTimesTdbFromJ2
 //            " Earth-fixed position: "  << earthFixedPositions.at(i).transpose( ) << std::endl;
 //        }
 
-        std::cout << std::setprecision(18) << "UTC_1950: " << observationTimesUtcFromEME1950.at(0) <<
-            " UTC_J2000: " << observationTimesUtcFromJ2000.at(0) <<
-            " TDB_J2000: " << observationTimesTdbFromJ2000.at(0) <<
-            " Earth-fixed position: "  << earthFixedPositions.at( 0 ).transpose( ) << std::endl;
+//        std::cout << std::setprecision(18) << "UTC_1950: " << observationTimesUtcFromEME1950.at(0) <<
+//            " UTC_J2000: " << observationTimesUtcFromJ2000.at(0) <<
+//            " TDB_J2000: " << observationTimesTdbFromJ2000.at(0) <<
+//            " Earth-fixed position: "  << earthFixedPositions.at( 0 ).transpose( ) << std::endl;
 
         return observationTimesTdbFromJ2000;
     }
