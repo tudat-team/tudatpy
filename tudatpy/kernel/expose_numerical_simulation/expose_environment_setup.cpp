@@ -153,6 +153,12 @@ namespace environment_setup {
         m.def("create_body_ephemeris", &tss::createBodyEphemeris< double, TIME_TYPE >,
               py::arg("ephemeris_settings"), py::arg("body_name"));
 
+        m.def("create_ground_station_ephemeris",
+              py::overload_cast< const std::shared_ptr< tss::Body >, const std::string& >(
+                  &tss::createReferencePointEphemeris<double, TIME_TYPE > ),
+              py::arg("body"),
+              py::arg("station_name") );
+
         m.def("get_safe_interpolation_interval", &tss::getSafeInterpolationInterval,
               py::arg("ephemeris_model"));
 
