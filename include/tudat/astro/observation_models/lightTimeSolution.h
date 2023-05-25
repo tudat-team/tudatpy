@@ -96,32 +96,6 @@ protected:
 
 };
 
-class MultiLegLightTimeConvergenceCriteria: public LightTimeConvergenceCriteria
-{
-public:
-    MultiLegLightTimeConvergenceCriteria(
-            const bool iterateCorrections = false,
-            const bool iterateMultiLegLightTime = true,
-            const int maximumNumberOfIterations = 50,
-            const double fractionOfLightTimeTolerance = TUDAT_NAN,
-            const LightTimeFailureHandling failureHandling = accept_without_warning):
-        LightTimeConvergenceCriteria( iterateCorrections, maximumNumberOfIterations, fractionOfLightTimeTolerance, failureHandling ),
-        iterateMultiLegLightTime_( iterateMultiLegLightTime )
-        { }
-
-    MultiLegLightTimeConvergenceCriteria(
-            const LightTimeConvergenceCriteria singleLegConvergenceCriteria,
-            const bool iterateMultiLegLightTime = true ):
-        LightTimeConvergenceCriteria( singleLegConvergenceCriteria ),
-        iterateMultiLegLightTime_( iterateMultiLegLightTime )
-        { }
-
-    bool iterateMultiLegLightTime_;
-
-protected:
-
-};
-
 template< typename ObservationScalarType, typename TimeType >
 bool isSingleLegLightTimeSolutionConverged(
         const std::shared_ptr< LightTimeConvergenceCriteria > convergenceCriteria,
@@ -527,7 +501,8 @@ public:
         const TimeType time,
         const bool isTimeAtReception = true,
         const unsigned int currentMultiLegTransmitterIndex = 0,
-        const std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings = nullptr )
+        const std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings = nullptr,
+        const bool computeLightTimeCorrections = true )
     {
         const unsigned int currentMultiLegReceiverIndex = currentMultiLegTransmitterIndex + 1;
 
@@ -575,7 +550,14 @@ public:
         updateCurrentLinkEndStatesAndTimes(
                 linkEndsTimes, linkEndsStates, currentMultiLegTransmitterIndex, receptionTime, transmissionTime,
                 receiverState, transmitterState );
-        setTotalLightTimeCorrection( linkEndsStates, linkEndsTimes, currentMultiLegTransmitterIndex, ancillarySettings );
+        if ( computeLightTimeCorrections )
+        {
+            setTotalLightTimeCorrection( linkEndsStates, linkEndsTimes, currentMultiLegTransmitterIndex, ancillarySettings );
+        }
+        else
+        {
+            currentCorrection_ = 0.0;
+        }
 
         // Compute new light time estimate
         ObservationScalarType newLightTimeCalculation = calculateNewLightTimeEstimate( receiverState, transmitterState );
@@ -591,7 +573,7 @@ public:
         while( !isToleranceReached )
         {
             // Update light-time corrections, if necessary.
-            if( updateLightTimeCorrections )
+            if( updateLightTimeCorrections && computeLightTimeCorrections )
             {
                 updateCurrentLinkEndStatesAndTimes(
                     linkEndsTimes, linkEndsStates, currentMultiLegTransmitterIndex, receptionTime, transmissionTime,
@@ -823,19 +805,21 @@ public:
             const std::vector< std::shared_ptr< LightTimeCalculator < ObservationScalarType, TimeType > > >
                     lightTimeCalculators,
             const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria
-                = std::make_shared< MultiLegLightTimeConvergenceCriteria >( ) ):
+                = std::make_shared< LightTimeConvergenceCriteria >( ),
+            const bool iterateMultiLegLightTime = true ):
         lightTimeCalculators_( lightTimeCalculators ),
+        lightTimeConvergenceCriteria_( lightTimeConvergenceCriteria ),
         numberOfLinks_( lightTimeCalculators.size( ) ),
-        numberOfLinkEnds_( lightTimeCalculators.size( ) + 1 )
+        numberOfLinkEnds_( lightTimeCalculators.size( ) + 1 ),
+        iterateMultiLegLightTime_( iterateMultiLegLightTime )
     {
-        // Check if convergence criteria is of type MultiLegLightTimeConvergenceCriteria. If not, create it. This will
-        // effectively set the value of whether to iterate the multi-leg corrections to the
-        // MultiLegLightTimeConvergenceCriteria default
-        lightTimeConvergenceCriteria_ = std::dynamic_pointer_cast< MultiLegLightTimeConvergenceCriteria >( lightTimeConvergenceCriteria );
-        if ( lightTimeConvergenceCriteria_ == nullptr )
+        if ( iterateMultiLegLightTime_ )
         {
-            lightTimeConvergenceCriteria_ = std::make_shared< MultiLegLightTimeConvergenceCriteria >(
-                    *lightTimeConvergenceCriteria );
+            std::cerr << "iterateMultiLegLightTime: ON" << std::endl;
+        }
+        else
+        {
+            std::cerr << "iterateMultiLegLightTime: OFF" << std::endl;
         }
     }
 
@@ -846,24 +830,16 @@ public:
             const std::vector< std::shared_ptr< LightTimeCorrection > > correctionFunctions =
                 std::vector< std::shared_ptr< LightTimeCorrection > >( ),
             const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria
-                = std::make_shared< MultiLegLightTimeConvergenceCriteria >( ) ):
+                = std::make_shared< LightTimeConvergenceCriteria >( ) ):
+        lightTimeConvergenceCriteria_( lightTimeConvergenceCriteria ),
         numberOfLinks_( 1 ),
-        numberOfLinkEnds_( 2 )
+        numberOfLinkEnds_( 2 ),
+        iterateMultiLegLightTime_( false )
     {
         lightTimeCalculators_.clear( );
         lightTimeCalculators_.push_back( std::make_shared< LightTimeCalculator< ObservationScalarType, TimeType > >(
                 positionFunctionOfTransmittingBody, positionFunctionOfReceivingBody, correctionFunctions,
                 lightTimeConvergenceCriteria ) );
-
-        // Check if convergence criteria is of type MultiLegLightTimeConvergenceCriteria. If not, create it. This will
-        // effectively set the value of whether to iterate the multi-leg corrections to the
-        // MultiLegLightTimeConvergenceCriteria default
-        lightTimeConvergenceCriteria_ = std::dynamic_pointer_cast< MultiLegLightTimeConvergenceCriteria >( lightTimeConvergenceCriteria );
-        if ( lightTimeConvergenceCriteria_ == nullptr )
-        {
-            lightTimeConvergenceCriteria_ = std::make_shared< MultiLegLightTimeConvergenceCriteria >(
-                    *lightTimeConvergenceCriteria );
-        }
     }
 
     ObservationScalarType calculateLightTimeWithLinkEndsStates(
@@ -926,13 +902,28 @@ public:
         std::vector< TimeType > linkEndTimes( 2 * numberOfLinks_, TUDAT_NAN );
         std::vector< StateType > linkEndStates( 2 * numberOfLinks_, StateType::Constant( TUDAT_NAN ) );
 
-        ObservationScalarType previousLightTimeEstimate = calculateMultiLegLightTimeEstimate(
-                time, startLinkEndIndex, linkEndTimes, linkEndStates, ancillarySettings );
+        // Get initial estimate of light time
+        ObservationScalarType previousLightTimeEstimate;
+        // If multi-leg iterations are required, then compute the light time without corrections (because some
+        // corrections depend on the state/time at other legs)
+        if ( iterateMultiLegLightTime_ )
+        {
+            previousLightTimeEstimate = calculateMultiLegLightTimeEstimate(
+                time, startLinkEndIndex, linkEndTimes, linkEndStates, ancillarySettings, false );
+        }
+        // If none of the legs' light-times depends on the other legs, directly compute the first light time estimate with
+        // corrections
+        else
+        {
+            previousLightTimeEstimate = calculateMultiLegLightTimeEstimate(
+                time, startLinkEndIndex, linkEndTimes, linkEndStates, ancillarySettings, true );
+        }
         ObservationScalarType newLightTimeEstimate;
 
-        // Iterate light times only if necessary. Don't iterate if the model is constituted by a single leg
+        // Iterate light times only if necessary, i.e. don't iterate if the model is constituted by a single leg or if
+        // it is consituted by multiple legs but doesn't require multiple leg iterations.
         iterationCounter_ = 0;
-        if ( numberOfLinks_ == 1 || !lightTimeConvergenceCriteria_->iterateMultiLegLightTime_ )
+        if ( numberOfLinks_ == 1 || !iterateMultiLegLightTime_ )
         {
             newLightTimeEstimate = previousLightTimeEstimate;
         }
@@ -943,7 +934,7 @@ public:
             while( !isToleranceReached )
             {
                 newLightTimeEstimate = calculateMultiLegLightTimeEstimate(
-                        time, startLinkEndIndex, linkEndTimes, linkEndStates, ancillarySettings );
+                        time, startLinkEndIndex, linkEndTimes, linkEndStates, ancillarySettings, true );
 
                 isToleranceReached = isMultiLegLightTimeSolutionConverged(
                     lightTimeConvergenceCriteria_, previousLightTimeEstimate, newLightTimeEstimate, iterationCounter_,
@@ -1003,6 +994,11 @@ public:
         return iterationCounter_;
     }
 
+    bool getIterateMultiLegLightTime( )
+    {
+        return iterateMultiLegLightTime_;
+    }
+
 private:
 
     ObservationScalarType calculateMultiLegLightTimeEstimate(
@@ -1010,7 +1006,8 @@ private:
             const unsigned int startLinkEndIndex,
             std::vector< TimeType >& linkEndTimes,
             std::vector< StateType >& linkEndStates,
-            const std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings = nullptr )
+            const std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings = nullptr,
+            bool computeLightTimeCorrections = true )
     {
         // Define objects to keep light times
         ObservationScalarType totalLightTime = 0.0;
@@ -1027,7 +1024,8 @@ private:
         {
             unsigned int transmitterIndex = 2 * ( currentDownIndex - 1 );
             currentLightTime = lightTimeCalculators_.at( currentDownIndex - 1 )->calculateLightTimeWithMultiLegLinkEndsStates(
-                        linkEndStates, linkEndTimes, currentLinkEndReceptionTime, true, transmitterIndex, ancillarySettings );
+                        linkEndStates, linkEndTimes, currentLinkEndReceptionTime, true, transmitterIndex,
+                        ancillarySettings, computeLightTimeCorrections );
 
             // If an additional leg is required, retrieve retransmission delay and update current time
             currentLightTime += transmissionReceptionDelays_.at( currentDownIndex - 1 );
@@ -1045,7 +1043,8 @@ private:
         {
             unsigned int transmitterIndex = 2 * currentUpIndex;
             currentLightTime = lightTimeCalculators_.at( currentUpIndex )->calculateLightTimeWithMultiLegLinkEndsStates(
-                        linkEndStates, linkEndTimes, currentLinkEndTransmissionTime, false, transmitterIndex, ancillarySettings );
+                        linkEndStates, linkEndTimes, currentLinkEndTransmissionTime, false, transmitterIndex,
+                        ancillarySettings, computeLightTimeCorrections );
 
             // If an additional leg is required, retrieve retransmission delay and update current time
             currentLightTime += transmissionReceptionDelays_.at( currentUpIndex + 1 );
@@ -1060,7 +1059,7 @@ private:
 
     std::vector< std::shared_ptr< LightTimeCalculator< ObservationScalarType, TimeType > > > lightTimeCalculators_;
 
-    std::shared_ptr< MultiLegLightTimeConvergenceCriteria > lightTimeConvergenceCriteria_;
+    std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria_;
 
     //! Number of links in multi-leg light-time model
     const unsigned int numberOfLinks_;
@@ -1073,6 +1072,8 @@ private:
     unsigned int iterationCounter_;
 
     std::vector< std::vector< unsigned int > > singleLegIterationsPerMultiLegIteration_;
+
+    const bool iterateMultiLegLightTime_;
 };
 
 } // namespace observation_models

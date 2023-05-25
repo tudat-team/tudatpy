@@ -44,6 +44,16 @@ BOOST_AUTO_TEST_SUITE( test_dsn_odf_observation_models )
 BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
 {
 
+    std::string saveDirectory = "/Users/pipas/tudatpy-testing/mgs/mors_2190/";
+
+//    std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/mgs-m-rss-1-ext-v1/mors_2190/odf/5327332a.odf" )->writeOdfToTextFile(
+//            saveDirectory + "5327332a.txt");
+//    std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/mgs-m-rss-1-ext-v1/mors_2190/odf/5332333a.odf" )->writeOdfToTextFile(
+//            saveDirectory + "5332333a.txt");
+//    std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/mgs-m-rss-1-ext-v1/mors_2190/odf/5333334a.odf" )->writeOdfToTextFile(
+//            saveDirectory + "5333334a.txt");
+//    return;
+
     // Official mission trajectory kernels V2 (already includes planetary kernels)
 //    spice_interface::loadStandardSpiceKernels(
 //            { "/Users/pipas/Documents/messenger-spice/msgr_040803_150430_150430_od431sc_2.bsp" } );
@@ -71,13 +81,24 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
 //              "/Users/pipas/Documents/mro-spice/mro_psp43_ssd_mro95a.bsp"} );
 
     // MRO NAV kernerls
-    spice_interface::loadStandardSpiceKernels(
-            { "/Users/pipas/Documents/mro-spice/de414.bsp",
-              "/Users/pipas/Documents/mro-spice/mar063.bsp",
-              "/Users/pipas/Documents/mro-spice/mro_psp43.bsp"} );
+//    spice_interface::loadStandardSpiceKernels(
+//            { "/Users/pipas/Documents/mro-spice/de414.bsp",
+//              "/Users/pipas/Documents/mro-spice/mar063.bsp",
+//              "/Users/pipas/Documents/mro-spice/mro_psp43.bsp"} );
 
 //    spice_interface::loadStandardSpiceKernels( );
 //    spice_interface::loadSpiceKernelInTudat( { "/Users/pipas/Documents/mro-spice/mro_psp43.bsp" } );
+
+    // MGS kernels
+//    spice_interface::loadStandardSpiceKernels( {
+//        "/Users/pipas/Documents/mro-spice/de414.bsp",
+//        "/Users/pipas/Documents/mgs-spice/mar063.bsp",
+//        "/Users/pipas/Documents/mgs-spice/mgs_ext5_ipng_mgs95j.bsp",
+//        "/Users/pipas/Documents/mgs-spice/mgs_ext6_ipng_mgs95j.bsp" } );
+    spice_interface::loadStandardSpiceKernels( {
+        "/Users/pipas/Documents/mro-spice/de414.bsp",
+        "/Users/pipas/Documents/mgs-spice/mar063.bsp",
+        "/Users/pipas/Documents/mgs-spice/mgs_ext22_ipng_mgs95j.bsp" } );
 
     // Define bodies to use.
     std::vector< std::string > bodiesToCreate = { "Earth", "Sun", "Mercury", "Venus", "Mars" };
@@ -94,11 +115,15 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
 //    Time finalEphemerisTime = Time( 294489941.185480893 + 10.0 * 86400.0 ); // 2009
 //    Time initialEphemerisTime = Time( 406630870.68285096 - 10.0 * 86400.0 ); // 2011
 //    Time finalEphemerisTime = Time( 406717262.6828746 + 10.0 * 86400.0 ); // 2011
-    Time initialEphemerisTime = Time( 544795200 - 5.0 * 86400.0 ); // 2017
-    Time finalEphemerisTime = Time( 544881600 + 5.0 * 86400.0 ); // 2017
-    Time ephemerisTimeStepPlanets = Time( 300.0 );
+//    Time initialEphemerisTime = Time( 544795200 - 5.0 * 86400.0 ); // 2017
+//    Time finalEphemerisTime = Time( 544881600 + 5.0 * 86400.0 ); // 2017
+//    Time initialEphemerisTime = Time( 70545600 - 5.0 * 86400.0 ); // End of March 2002
+//    Time finalEphemerisTime = Time( 70891200 + 1.0 * 86400.0 ); // End of March 2002
+    Time initialEphemerisTime = Time( 185976000 - 2.0 * 86400.0 ); // End of November 2005
+    Time finalEphemerisTime = Time( 186580800 + 5.0 * 86400.0 ); // End of November 2005
+    Time ephemerisTimeStepPlanets = Time( 100.0 );
     Time bufferPlanets = Time( 10.0 * ephemerisTimeStepPlanets );
-    Time ephemerisTimeStepSpacecraft = Time( 1.0 );
+    Time ephemerisTimeStepSpacecraft = Time( 100.0 );
     Time bufferSpacecraft = Time( 10.0 * ephemerisTimeStepSpacecraft );
 
     // Create bodies settings needed in simulation
@@ -114,7 +139,7 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
 
     // Create spacecraft
 //    std::string spacecraftName = "Messenger";
-    std::string spacecraftName = "MRO";
+    std::string spacecraftName = "MGS";
     bodySettings.addSettings( spacecraftName );
     bodySettings.at( spacecraftName )->ephemerisSettings =
             std::make_shared< InterpolatedSpiceEphemerisSettings >(
@@ -133,23 +158,21 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
 //            std::pow( convertCartesianToKeplerianElements( state, bodies.at( "Mars" )->getGravitationalParameter() )( 0 ), 3.0 ) /
 //            bodies.at( "Mars" )->getGravitationalParameter() ) << std::endl;
 
-//    std::string fileTag = "2007";
-//    std::string fileTag = "2009";
-//    std::string fileTag = "2011";
-//    std::string fileTag = "2017_ssd";
-    std::string fileTag = "2017_096_nav";
+
     std::shared_ptr< OdfRawFileContents > rawOdfFileContents =
 //            std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/dsn_trk-2-18/odf07155.dat" );
 //            std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/messenger-rawdata-odf/mess_rs_10162_163_odf.dat" );
 //            std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/messenger-rawdata-odf/mess_rs_09121_121_odf.dat" );
 //            std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/messenger-rawdata-odf/mess_rs_11336_2100_odf.dat" );
-            std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/mro-rawdata-odf/mromagr2017_097_1335xmmmv1.odf" );
+//            std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/mro-rawdata-odf/mromagr2017_097_1335xmmmv1.odf" );
+//            std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/mgs-m-rss-1-ext-v1/mors_0720/odf/2088089a.odf" );
+            std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/mgs-m-rss-1-ext-v1/mors_2190/odf/5332333a.odf" );
 
-//    rawOdfFileContents->writeOdfToTextFile("/Users/pipas/tudatpy-testing/mess_rs_09121_121_odf.txt");
+//    rawOdfFileContents->writeOdfToTextFile( saveDirectory + "mess_rs_09121_121_odf.txt");
 
-    std::cout << std::setprecision( 18 );
-    std::cout << "Start time from 1950 UTC: " << rawOdfFileContents->getDataBlocks( ).front()->getCommonDataBlock( )->getObservableTime() << std::endl;
-    std::cout << "End time from 1950 UTC: " << rawOdfFileContents->getDataBlocks( ).back()->getCommonDataBlock( )->getObservableTime() << std::endl;
+//    std::cout << std::setprecision( 18 );
+//    std::cout << "Start time from 1950 UTC: " << rawOdfFileContents->getDataBlocks( ).front()->getCommonDataBlock( )->getObservableTime() << std::endl;
+//    std::cout << "End time from 1950 UTC: " << rawOdfFileContents->getDataBlocks( ).back()->getCommonDataBlock( )->getObservableTime() << std::endl;
 
 //    for ( unsigned int i = 0; i < rawOdfFileContents->getDataBlocks( ).size(); ++i )
 //    {
@@ -168,12 +191,12 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
 //        }
 //    }
 
-    std::shared_ptr< OdfRawFileContents > rawOdfFileContents2 =
-            std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/mro-rawdata-odf/mromagr2017_098_1555xmmmv1.odf" );
-    std::shared_ptr< OdfRawFileContents > rawOdfFileContents0 =
-            std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/mro-rawdata-odf/mromagr2017_096_0820xmmmv1.odf" );
-    std::shared_ptr< OdfRawFileContents > rawOdfFileContentsNeg1 =
-            std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/mro-rawdata-odf/mromagr2017_095_0825xmmmv1.odf" );
+//    std::shared_ptr< OdfRawFileContents > rawOdfFileContents2 =
+//            std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/mro-rawdata-odf/mromagr2017_098_1555xmmmv1.odf" );
+//    std::shared_ptr< OdfRawFileContents > rawOdfFileContents0 =
+//            std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/mro-rawdata-odf/mromagr2017_096_0820xmmmv1.odf" );
+//    std::shared_ptr< OdfRawFileContents > rawOdfFileContentsNeg1 =
+//            std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/mro-rawdata-odf/mromagr2017_095_0825xmmmv1.odf" );
 
     // Read and process ODF file data
     std::vector< std::shared_ptr< input_output::OdfRawFileContents > > rawOdfDataVector = { rawOdfFileContents };
@@ -220,21 +243,46 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
     // Create computed observation collection
     std::vector< std::shared_ptr< observation_models::ObservationModelSettings > > observationModelSettingsList;
 
-    std::shared_ptr< input_output::CspRawFile > cspFile = std::make_shared< input_output::CspRawFile >( "/Users/pipas/Documents/mro-data/tro/mromagr2017_091_2017_121.tro.txt" );
+    std::shared_ptr< input_output::CspRawFile > troposphericCspFile = std::make_shared< input_output::CspRawFile >(
+//            "/Users/pipas/Documents/mro-data/tro/mromagr2017_091_2017_121.tro.txt"
+//            "/Users/pipas/Documents/mgs-m-rss-1-ext-v1/mors_0720/tro/2060091a.tro"
+            "/Users/pipas/Documents/mgs-m-rss-1-ext-v1/mors_2190/tro/5305337a.tro"
+            );
+    std::shared_ptr< input_output::CspRawFile > ionosphericCspFile1 = std::make_shared< input_output::CspRawFile >(
+//            "/Users/pipas/Documents/mgs-m-rss-1-ext-v1/mors_0720/ion/2060121b.ion"
+            "/Users/pipas/Documents/mgs-m-rss-1-ext-v1/mors_2190/ion/5305335g.ion"
+            );
+    std::shared_ptr< input_output::CspRawFile > ionosphericCspFile2 = std::make_shared< input_output::CspRawFile >(
+//            "/Users/pipas/Documents/mgs-m-rss-1-ext-v1/mors_0720/ion/2060121b.ion"
+            "/Users/pipas/Documents/mgs-m-rss-1-ext-v1/mors_2190/ion/5335001a.ion"
+            );
+
+    std::map< int, std::string > spacecraftNamePerSpacecraftId;
+    spacecraftNamePerSpacecraftId[ 74 ] = "MRO";
+    spacecraftNamePerSpacecraftId[ 94 ] = "MGS";
+
+//    std::string fileTag = "2007";
+//    std::string fileTag = "2009";
+//    std::string fileTag = "2011";
+//    std::string fileTag = "2017_ssd";
+//    std::string fileTag = "2017_096_nav";
+    std::string fileTag = "5332333aOdf_ionCorr";
 
     std::vector< std::shared_ptr< observation_models::LightTimeCorrectionSettings > > lightTimeCorrectionSettings =
             {
-            std::make_shared< observation_models::FirstOrderRelativisticLightTimeCorrectionSettings >(
-                    lightTimePerturbingBodies )
-//              std::make_shared< observation_models::TabulatedTroposphericCorrectionSettings >(
-//                      createTroposphericDryCorrection( { cspFile } ),
-//                      createTroposphericWetCorrection( { cspFile } ) )
+//            std::make_shared< observation_models::FirstOrderRelativisticLightTimeCorrectionSettings >(
+//                    lightTimePerturbingBodies )
+//            std::make_shared< observation_models::TabulatedTroposphericCorrectionSettings >(
+//                      createTroposphericDryCorrectionAdjustment( { troposphericCspFile } ),
+//                      createTroposphericDryCorrectionAdjustment( { troposphericCspFile } ) )
+            std::make_shared< observation_models::TabulatedIonosphericCorrectionSettings >(
+                      createIonosphericCorrection( { ionosphericCspFile1, ionosphericCspFile2 }, spacecraftNamePerSpacecraftId ) )
             };
 
     std::map < observation_models::ObservableType, std::vector< observation_models::LinkEnds > > linkEndsPerObservable =
             observedObservationCollection->getLinkEndsPerObservableType( );
     std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria =
-            std::make_shared< MultiLegLightTimeConvergenceCriteria >( true, false );
+            std::make_shared< LightTimeConvergenceCriteria >( true );
     for ( auto it = linkEndsPerObservable.begin(); it != linkEndsPerObservable.end(); ++it )
     {
         for ( unsigned int i = 0; i < it->second.size(); ++i )
@@ -285,40 +333,40 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
 
 //    std::cout << simulatedObservationCollection->getObservationVector( ) << std::endl;
 
-    if ( fileTag == "2007" || fileTag == "2017_nav" )
-    {
-        std::vector< std::string > stations;
-
-        if ( fileTag == "2007" )
-            stations = { "DSS-63", "DSS-14", "DSS-43" };
-        else
-            stations = { "DSS-55", "DSS-14", "DSS-35" };
-
-        for ( unsigned int i = 0; i < 3; ++i )
-        {
-            std::shared_ptr< ground_stations::PiecewiseLinearFrequencyInterpolator > rampInterpolator =
-                    std::dynamic_pointer_cast< ground_stations::PiecewiseLinearFrequencyInterpolator >(
-                bodies.at("Earth")->getGroundStation( stations.at( i ) )->getTransmittingFrequencyCalculator( ) );
-
-            std::vector< double > startTimes = rampInterpolator->getStartTimes( );
-            std::vector< double > endTimes = rampInterpolator->getEndTimes( );
-            std::vector< double > rampRates = rampInterpolator->getRampRates( );
-            std::vector< double > startFrequency = rampInterpolator->getStartFrequencies( );
-
-            Eigen::MatrixXd rampData ( startTimes.size( ), 4 );
-            for ( unsigned int j = 0; j < startTimes.size( ); ++j )
-            {
-                rampData( j, 0 ) = startTimes.at( j );
-                rampData( j, 1 ) = endTimes.at( j );
-                rampData( j, 2 ) = rampRates.at( j );
-                rampData( j, 3 ) = startFrequency.at( j );
-            }
-
-            std::ofstream file("/Users/pipas/tudatpy-testing/rampData_" + fileTag + stations.at( i ) + ".txt");
-            file << std::setprecision( 15 ) << rampData;
-            file.close();
-        }
-    }
+//    if ( fileTag == "2007" || fileTag == "2017_nav" )
+//    {
+//        std::vector< std::string > stations;
+//
+//        if ( fileTag == "2007" )
+//            stations = { "DSS-63", "DSS-14", "DSS-43" };
+//        else
+//            stations = { "DSS-55", "DSS-14", "DSS-35" };
+//
+//        for ( unsigned int i = 0; i < 3; ++i )
+//        {
+//            std::shared_ptr< ground_stations::PiecewiseLinearFrequencyInterpolator > rampInterpolator =
+//                    std::dynamic_pointer_cast< ground_stations::PiecewiseLinearFrequencyInterpolator >(
+//                bodies.at("Earth")->getGroundStation( stations.at( i ) )->getTransmittingFrequencyCalculator( ) );
+//
+//            std::vector< double > startTimes = rampInterpolator->getStartTimes( );
+//            std::vector< double > endTimes = rampInterpolator->getEndTimes( );
+//            std::vector< double > rampRates = rampInterpolator->getRampRates( );
+//            std::vector< double > startFrequency = rampInterpolator->getStartFrequencies( );
+//
+//            Eigen::MatrixXd rampData ( startTimes.size( ), 4 );
+//            for ( unsigned int j = 0; j < startTimes.size( ); ++j )
+//            {
+//                rampData( j, 0 ) = startTimes.at( j );
+//                rampData( j, 1 ) = endTimes.at( j );
+//                rampData( j, 2 ) = rampRates.at( j );
+//                rampData( j, 3 ) = startFrequency.at( j );
+//            }
+//
+//            std::ofstream file("/Users/pipas/tudatpy-testing/rampData_" + fileTag + stations.at( i ) + ".txt");
+//            file << std::setprecision( 15 ) << rampData;
+//            file.close();
+//        }
+//    }
 
     Eigen::Matrix< long double, Eigen::Dynamic, 1 > simulatedObservations =
             simulatedObservationCollection->getObservationVector( );
@@ -335,11 +383,11 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
         observations( i, 2 ) = observedObservationCollection->getConcatenatedTimeVector( ).at( i );
     }
 
-    std::ofstream file("/Users/pipas/tudatpy-testing/observations_" + fileTag + "_test.txt");
+    std::ofstream file(saveDirectory + "observations_" + fileTag + ".txt");
     file << std::setprecision( 15 ) << observations;
     file.close();
 
-    std::ofstream file2("/Users/pipas/tudatpy-testing/observationsStartAndSize_" + fileTag + ".txt");
+    std::ofstream file2(saveDirectory + "observationsStartAndSize_" + fileTag + ".txt");
     std::map< ObservableType, std::map< int, std::vector< std::pair< int, int > > > > observationSetStartAndSize =
             observedObservationCollection->getObservationSetStartAndSizePerLinkEndIndex();
     for ( auto it = observationSetStartAndSize.begin(); it != observationSetStartAndSize.end(); ++it )
