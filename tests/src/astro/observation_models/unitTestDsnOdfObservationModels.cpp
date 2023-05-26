@@ -39,12 +39,13 @@ using namespace tudat::input_output;
 using namespace tudat::simulation_setup;
 using namespace tudat;
 
-BOOST_AUTO_TEST_SUITE( test_dsn_odf_observation_models )
-
-BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
+void runSimulation(
+        std::string saveDirectory,
+        std::string fileTag,
+        bool useInterpolatedEphemerides,
+        float epehemeridesTimeStep,
+        std::vector< LightTimeCorrectionType > lightTimeCorrectionTypes )
 {
-
-    std::string saveDirectory = "/Users/pipas/tudatpy-testing/mgs/mors_2190/";
 
 //    std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/mgs-m-rss-1-ext-v1/mors_2190/odf/5327332a.odf" )->writeOdfToTextFile(
 //            saveDirectory + "5327332a.txt");
@@ -95,10 +96,12 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
 //        "/Users/pipas/Documents/mgs-spice/mar063.bsp",
 //        "/Users/pipas/Documents/mgs-spice/mgs_ext5_ipng_mgs95j.bsp",
 //        "/Users/pipas/Documents/mgs-spice/mgs_ext6_ipng_mgs95j.bsp" } );
-    spice_interface::loadStandardSpiceKernels( {
-        "/Users/pipas/Documents/mro-spice/de414.bsp",
-        "/Users/pipas/Documents/mgs-spice/mar063.bsp",
-        "/Users/pipas/Documents/mgs-spice/mgs_ext22_ipng_mgs95j.bsp" } );
+//    spice_interface::loadStandardSpiceKernels( {
+//        "/Users/pipas/Documents/mro-spice/de414.bsp",
+//        "/Users/pipas/Documents/mgs-spice/mar063.bsp",
+//        "/Users/pipas/Documents/mgs-spice/mgs_ext22_ipng_mgs95j.bsp" } );
+    spice_interface::loadStandardSpiceKernels( );
+    spice_interface::loadSpiceKernelInTudat( "/Users/pipas/Documents/mgs-spice/mgs_ext22_ipng_mgs95j.bsp" );
 
     // Define bodies to use.
     std::vector< std::string > bodiesToCreate = { "Earth", "Sun", "Mercury", "Venus", "Mars" };
@@ -121,16 +124,24 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
 //    Time finalEphemerisTime = Time( 70891200 + 1.0 * 86400.0 ); // End of March 2002
     Time initialEphemerisTime = Time( 185976000 - 2.0 * 86400.0 ); // End of November 2005
     Time finalEphemerisTime = Time( 186580800 + 5.0 * 86400.0 ); // End of November 2005
-    Time ephemerisTimeStepPlanets = Time( 100.0 );
+    Time ephemerisTimeStepPlanets = Time( epehemeridesTimeStep );
     Time bufferPlanets = Time( 10.0 * ephemerisTimeStepPlanets );
-    Time ephemerisTimeStepSpacecraft = Time( 100.0 );
+    Time ephemerisTimeStepSpacecraft = Time( epehemeridesTimeStep );
     Time bufferSpacecraft = Time( 10.0 * ephemerisTimeStepSpacecraft );
 
     // Create bodies settings needed in simulation
-    BodyListSettings bodySettings =
-            getDefaultBodySettings(
+    BodyListSettings bodySettings;
+    if ( useInterpolatedEphemerides )
+    {
+        bodySettings = getDefaultBodySettings(
                 bodiesToCreate, initialEphemerisTime - bufferPlanets, finalEphemerisTime + bufferPlanets,
                     "SSB", "J2000", ephemerisTimeStepPlanets );
+    }
+    else
+    {
+        bodySettings = getDefaultBodySettings( bodiesToCreate, "SSB", "J2000" );
+    }
+
 
     bodySettings.at( "Earth" )->shapeModelSettings = fromSpiceOblateSphericalBodyShapeSettings( );
     bodySettings.at( "Earth" )->rotationModelSettings = gcrsToItrsRotationModelSettings(
@@ -141,10 +152,19 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
 //    std::string spacecraftName = "Messenger";
     std::string spacecraftName = "MGS";
     bodySettings.addSettings( spacecraftName );
-    bodySettings.at( spacecraftName )->ephemerisSettings =
-            std::make_shared< InterpolatedSpiceEphemerisSettings >(
-                    initialEphemerisTime - bufferSpacecraft, finalEphemerisTime + bufferSpacecraft, ephemerisTimeStepSpacecraft, "SSB", "J2000",
-                    std::make_shared< interpolators::LagrangeInterpolatorSettings >( 6 ), spacecraftName );
+    if ( useInterpolatedEphemerides )
+    {
+        bodySettings.at( spacecraftName )->ephemerisSettings =
+                std::make_shared< InterpolatedSpiceEphemerisSettings >(
+                        initialEphemerisTime - bufferSpacecraft, finalEphemerisTime + bufferSpacecraft,
+                        ephemerisTimeStepSpacecraft, "SSB", "J2000",
+                        std::make_shared< interpolators::LagrangeInterpolatorSettings >( 6 ), spacecraftName );
+    }
+    else
+    {
+        bodySettings.at( spacecraftName )->ephemerisSettings =
+                std::make_shared< DirectSpiceEphemerisSettings >( "SSB", "J2000" );
+    }
 
     // Create bodies
     SystemOfBodies bodies = createSystemOfBodies< long double, Time >( bodySettings );
@@ -261,23 +281,28 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
     spacecraftNamePerSpacecraftId[ 74 ] = "MRO";
     spacecraftNamePerSpacecraftId[ 94 ] = "MGS";
 
-//    std::string fileTag = "2007";
-//    std::string fileTag = "2009";
-//    std::string fileTag = "2011";
-//    std::string fileTag = "2017_ssd";
-//    std::string fileTag = "2017_096_nav";
-    std::string fileTag = "5332333aOdf_ionCorr";
+    std::vector< std::shared_ptr< observation_models::LightTimeCorrectionSettings > > lightTimeCorrectionSettings;
 
-    std::vector< std::shared_ptr< observation_models::LightTimeCorrectionSettings > > lightTimeCorrectionSettings =
-            {
-//            std::make_shared< observation_models::FirstOrderRelativisticLightTimeCorrectionSettings >(
-//                    lightTimePerturbingBodies )
-//            std::make_shared< observation_models::TabulatedTroposphericCorrectionSettings >(
-//                      createTroposphericDryCorrectionAdjustment( { troposphericCspFile } ),
-//                      createTroposphericDryCorrectionAdjustment( { troposphericCspFile } ) )
-            std::make_shared< observation_models::TabulatedIonosphericCorrectionSettings >(
-                      createIonosphericCorrection( { ionosphericCspFile1, ionosphericCspFile2 }, spacecraftNamePerSpacecraftId ) )
-            };
+    if ( std::count( lightTimeCorrectionTypes.begin(), lightTimeCorrectionTypes.end(), first_order_relativistic ) )
+    {
+        lightTimeCorrectionSettings.push_back(
+                std::make_shared< observation_models::FirstOrderRelativisticLightTimeCorrectionSettings >(
+                    lightTimePerturbingBodies ) );
+    }
+    if ( std::count( lightTimeCorrectionTypes.begin(), lightTimeCorrectionTypes.end(), tabulated_tropospheric ) )
+    {
+        lightTimeCorrectionSettings.push_back(
+                std::make_shared< observation_models::TabulatedTroposphericCorrectionSettings >(
+                        createTroposphericDryCorrectionAdjustment( { troposphericCspFile } ),
+                        createTroposphericDryCorrectionAdjustment( { troposphericCspFile } ) ) );
+    }
+    if ( std::count( lightTimeCorrectionTypes.begin(), lightTimeCorrectionTypes.end(), tabulated_ionospheric ) )
+    {
+        lightTimeCorrectionSettings.push_back(
+                std::make_shared< observation_models::TabulatedIonosphericCorrectionSettings >(
+                      createIonosphericCorrection( { ionosphericCspFile1, ionosphericCspFile2 },
+                                                   spacecraftNamePerSpacecraftId ) ) );
+    }
 
     std::map < observation_models::ObservableType, std::vector< observation_models::LinkEnds > > linkEndsPerObservable =
             observedObservationCollection->getLinkEndsPerObservableType( );
@@ -404,6 +429,71 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
         }
     }
     file2.close();
+
+}
+
+BOOST_AUTO_TEST_SUITE( test_dsn_odf_observation_models )
+
+BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
+{
+    std::string saveDirectory = "/Users/pipas/tudatpy-testing/mgs/mors_2190/";
+
+    int testCase = 2;
+
+//    std::string fileTag = "2007";
+//    std::string fileTag = "2009";
+//    std::string fileTag = "2011";
+//    std::string fileTag = "2017_ssd";
+//    std::string fileTag = "2017_096_nav";
+
+
+    // Default
+    if ( testCase == 0 )
+    {
+        std::string fileTag = "5332333aOdf";
+        double ephemeridesTimeStep = 100.0;
+        runSimulation( saveDirectory, fileTag + "_troCorr", true, ephemeridesTimeStep,
+                       { tabulated_tropospheric } );
+    }
+    else if ( testCase == 2 )
+    {
+        std::string fileTag = "5332333aOdf_iau2000b";
+        runSimulation( saveDirectory, fileTag + "_noCorr", false, TUDAT_NAN, { } );
+    }
+    else if ( testCase == 1 )
+    {
+        // Test of SPICE interpolation step size
+        std::string fileTag = "5332333aOdf";
+        for ( unsigned int i = 0; i < 2; ++i )
+        {
+            std::vector< LightTimeCorrectionType > lightTimeCorrections;
+            std::string typeTag;
+            if ( i == 0 )
+            {
+                lightTimeCorrections = { };
+                typeTag = "noCorr";
+            }
+            else
+            {
+                lightTimeCorrections = { first_order_relativistic };
+                typeTag = "relCorr";
+            }
+
+            runSimulation( saveDirectory + "data_spice_test/", fileTag + "_" + typeTag + "_SpiceDirect", false,
+                           TUDAT_NAN,
+                           lightTimeCorrections );
+
+            std::vector< int > ephemeridesTimeSteps = { 1, 2, 5, 10, 20, 50, 100, 200, 300, 400 };
+
+            for ( int step: ephemeridesTimeSteps )
+            {
+                runSimulation(
+                        saveDirectory + "data_spice_test/",
+                        fileTag + "_" + typeTag + "_SpiceInterp" + std::to_string( step ),
+                        true, step, lightTimeCorrections );
+            }
+        }
+    }
 
 }
 
