@@ -46,7 +46,7 @@ namespace tudat
 namespace unit_tests
 {
 
-BOOST_AUTO_TEST_SUITE( test_body_mass_properties )
+BOOST_AUTO_TEST_SUITE( test_rigid_body_properties )
 
 
 
@@ -76,7 +76,7 @@ Eigen::Matrix3d dummyInertiaTensorFunction2( const double mass )
 }
 
 
-BOOST_AUTO_TEST_CASE( testDirectBodyMassProperties )
+BOOST_AUTO_TEST_CASE( testDirectRigidBodyProperties )
 {
     using namespace tudat;
     using namespace numerical_integrators;
@@ -117,29 +117,29 @@ BOOST_AUTO_TEST_CASE( testDirectBodyMassProperties )
 
             bodies.createEmptyBody( "Vehicle" );
 
-            std::shared_ptr< BodyMassPropertiesSettings > bodyMassProperties;
+            std::shared_ptr< RigidBodyPropertiesSettings > rigidBodyProperties;
             if ( i == 0 )
             {
-                bodyMassProperties = std::make_shared< ConstantBodyMassPropertiesSettings >(
+                rigidBodyProperties = std::make_shared< ConstantRigidBodyPropertiesSettings >(
                     vehicleMass, ( Eigen::Vector3d( ) << 1.0, 2.0, 3.0 ).finished( ),
                     3.0 * Eigen::Matrix3d::Identity( ) );
             }
             else if( i == 1 )
             {
-                bodyMassProperties = std::make_shared< FromFunctionBodyMassPropertiesSettings >(
+                rigidBodyProperties = std::make_shared< FromFunctionRigidBodyPropertiesSettings >(
                     &dummyMassFunction,
                     &dummyCenterOfMassFunction,
                     &dummyInertiaTensorFunction );
             }
             else if( i == 2 )
             {
-                bodyMassProperties = std::make_shared< MassDependentMassDistributionSettings >(
+                rigidBodyProperties = std::make_shared< MassDependentMassDistributionSettings >(
                     vehicleMass,
                     &dummyCenterOfMassFunction2,
                     &dummyInertiaTensorFunction2 );
             }
-            addBodyMassProperties(
-                bodies, "Vehicle", bodyMassProperties );
+            addRigidBodyProperties(
+                bodies, "Vehicle", rigidBodyProperties );
 
             double thrustMagnitude1 = 1.0E3;
             double specificImpulse1 = 250.0;

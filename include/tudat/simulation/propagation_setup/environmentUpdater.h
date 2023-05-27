@@ -646,12 +646,12 @@ private:
                             }
                             updateTimeFunctionList[ body_mass_update ].push_back(
                                         std::make_pair( currentBodies.at( i ),
-                                                        std::bind( &simulation_setup::BodyMassProperties::updateMass,
+                                                        std::bind( &simulation_setup::RigidBodyProperties::updateMass,
                                                                    bodyList_.at( currentBodies.at( i ) )->getMassProperties( ), std::placeholders::_1  ) ) );
                             resetFunctionVector_.push_back(
                                 boost::make_tuple(
                                     body_mass_update, currentBodies.at( i ),
-                                    std::bind( &simulation_setup::BodyMassProperties::resetCurrentTime, bodyList_.at( currentBodies.at( i ) )->getMassProperties( ) ) ) );
+                                    std::bind( &simulation_setup::RigidBodyProperties::resetCurrentTime, bodyList_.at( currentBodies.at( i ) )->getMassProperties( ) ) ) );
 
                         }
                         break;
@@ -660,12 +660,12 @@ private:
                     {
                         updateTimeFunctionList[ body_mass_distribution_update ].push_back(
                             std::make_pair( currentBodies.at( i ),
-                                           std::bind( &simulation_setup::BodyMassProperties::updateMassDistribution,
+                                           std::bind( &simulation_setup::RigidBodyProperties::updateMassDistribution,
                                                      bodyList_.at( currentBodies.at( i ) )->getMassProperties( ), std::placeholders::_1  ) ) );
                         resetFunctionVector_.push_back(
                             boost::make_tuple(
                                 body_mass_distribution_update, currentBodies.at( i ),
-                                std::bind( &simulation_setup::BodyMassProperties::resetCurrentTime, bodyList_.at( currentBodies.at( i ) )->getMassProperties( ) ) ) );
+                                std::bind( &simulation_setup::RigidBodyProperties::resetCurrentTime, bodyList_.at( currentBodies.at( i ) )->getMassProperties( ) ) ) );
 
                         break;
                     }

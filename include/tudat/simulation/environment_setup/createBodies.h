@@ -66,7 +66,7 @@ struct BodySettings
     //! Settings for the aerodynamic coefficients that the body is to contain.
     std::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings;
 
-    std::shared_ptr< BodyMassPropertiesSettings > bodyMassPropertiesSettings;
+    std::shared_ptr< RigidBodyPropertiesSettings > rigidBodyPropertiesSettings;
 
     //! Settings for variations of the gravity field of the body.
     std::vector< std::shared_ptr< GravityFieldVariationSettings > > gravityFieldVariationSettings;
@@ -96,9 +96,9 @@ void addGravityFieldModel(
     const std::vector< std::shared_ptr< GravityFieldVariationSettings > >& gravityFieldVariationSettings =
         std::vector< std::shared_ptr< GravityFieldVariationSettings > >( ));
 
-void addBodyMassProperties(
+void addRigidBodyProperties(
     const SystemOfBodies& bodies, const std::string bodyName,
-    const std::shared_ptr< BodyMassPropertiesSettings > bodyMassProperties );
+    const std::shared_ptr< RigidBodyPropertiesSettings > rigidBodyProperties );
 
 
 
@@ -297,10 +297,10 @@ SystemOfBodies createSystemOfBodies(
     // Create gravity field model objects for each body (if required).
     for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
     {
-        if( orderedBodySettings.at( i ).second->bodyMassPropertiesSettings != nullptr )
+        if( orderedBodySettings.at( i ).second->rigidBodyPropertiesSettings != nullptr )
         {
             bodyList.at( orderedBodySettings.at( i ).first )->setMassProperties(
-                createBodyMassProperties( orderedBodySettings.at( i ).second->bodyMassPropertiesSettings,
+                createRigidBodyProperties( orderedBodySettings.at( i ).second->rigidBodyPropertiesSettings,
                                           orderedBodySettings.at( i ).first, bodyList ) );
         }
     }
