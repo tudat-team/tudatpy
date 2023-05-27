@@ -116,7 +116,10 @@ public:
      * determined.
      * \return Aerodynamic reference point.
      */
-    Eigen::VectorXd getMomentReferencePoint( ) { return momentReferencePoint_; }
+    Eigen::Vector3d  getMomentReferencePoint( ) { return momentReferencePoint_; }
+
+    void setMomentReferencePoint( const Eigen::Vector3d& momentReferencePoint ) { momentReferencePoint_ = momentReferencePoint; }
+
 
     //  Function to return identifiers of physical meaning of independent variables.
     /*  
@@ -540,13 +543,13 @@ inline std::shared_ptr< AerodynamicCoefficientSettings > customAerodynamicCoeffi
         const std::function< Eigen::Vector3d( const std::vector< double >& ) > momentCoefficientFunction,
         const double referenceLength,
         const double referenceArea,
-        const Eigen::Vector3d& momentReferencePoint,
         const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables >
         independentVariableNames,
         const aerodynamics::AerodynamicCoefficientFrames forceCoefficientsFrame = aerodynamics::negative_aerodynamic_frame_coefficients,
         const aerodynamics::AerodynamicCoefficientFrames momentCoefficientsFrame = aerodynamics::body_fixed_frame_coefficients,
-        const bool addForceContributionToMoments = false )
+        const Eigen::Vector3d& momentReferencePoint = Eigen::Vector3d::Constant( TUDAT_NAN ) )
 {
+    bool addForceContributionToMoments = !momentReferencePoint.hasNaN( );
     return std::make_shared< CustomAerodynamicCoefficientSettings >(
             forceCoefficientFunction, momentCoefficientFunction, referenceLength, referenceArea,
             momentReferencePoint, independentVariableNames, forceCoefficientsFrame, momentCoefficientsFrame, addForceContributionToMoments );
@@ -716,13 +719,12 @@ public:
             const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableNames,
             const aerodynamics::AerodynamicCoefficientFrames forceCoefficientsFrame = aerodynamics::negative_aerodynamic_frame_coefficients,
             const aerodynamics::AerodynamicCoefficientFrames momentCoefficientsFrame = aerodynamics::undefined_frame_coefficients,
-            const bool addForceContributionToMoments = false,
             const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = nullptr ) :
         TabulatedAerodynamicCoefficientSettingsBase(
             tabulated_coefficients, TUDAT_NAN, referenceArea,
             Eigen::Vector3d::Constant( TUDAT_NAN ),
             independentVariableNames, forceCoefficientsFrame,
-            momentCoefficientsFrame, addForceContributionToMoments, interpolatorSettings ),
+            momentCoefficientsFrame, false, interpolatorSettings ),
         independentVariables_( independentVariables ),
         forceCoefficients_( forceCoefficients )
     {
@@ -949,12 +951,11 @@ public:
             const aerodynamics::AerodynamicCoefficientsIndependentVariables independentVariableName,
             const aerodynamics::AerodynamicCoefficientFrames forceCoefficientsFrame = aerodynamics::negative_aerodynamic_frame_coefficients,
             const aerodynamics::AerodynamicCoefficientFrames momentCoefficientsFrame = aerodynamics::undefined_frame_coefficients,
-            const bool addForceContributionToMoments = false,
             const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = nullptr ) :
         TabulatedAerodynamicCoefficientSettingsBase(
             tabulated_coefficients, TUDAT_NAN, referenceArea,
             Eigen::Vector3d::Constant( TUDAT_NAN ), { independentVariableName }, forceCoefficientsFrame,
-            momentCoefficientsFrame, addForceContributionToMoments, interpolatorSettings )
+            momentCoefficientsFrame, false, interpolatorSettings )
     {
         if( forceCoefficients.size( ) != independentVariables.size( ) )
         {
@@ -996,13 +997,12 @@ public:
             const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableNames,
             const aerodynamics::AerodynamicCoefficientFrames forceCoefficientsFrame = aerodynamics::negative_aerodynamic_frame_coefficients,
             const aerodynamics::AerodynamicCoefficientFrames momentCoefficientsFrame = aerodynamics::undefined_frame_coefficients,
-            const bool addForceContributionToMoments = false,
             const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = nullptr ) :
         TabulatedAerodynamicCoefficientSettingsBase(
             tabulated_coefficients, TUDAT_NAN, referenceArea,
             Eigen::Vector3d::Constant( TUDAT_NAN ),
             independentVariableNames, forceCoefficientsFrame,
-            momentCoefficientsFrame, addForceContributionToMoments, interpolatorSettings )
+            momentCoefficientsFrame, false, interpolatorSettings )
     {
         if( forceCoefficients.shape( )[ 0 ] != independentVariables.size( ) )
         {
@@ -1070,14 +1070,14 @@ inline std::shared_ptr< AerodynamicCoefficientSettings > oneDimensionalTabulated
         const std::vector< Eigen::Vector3d > momentCoefficients,
         const double referenceLength,
         const double referenceArea,
-        const Eigen::Vector3d& momentReferencePoint,
         const aerodynamics::AerodynamicCoefficientsIndependentVariables independentVariableName,
         const aerodynamics::AerodynamicCoefficientFrames forceCoefficientsFrame = aerodynamics::negative_aerodynamic_frame_coefficients,
         const aerodynamics::AerodynamicCoefficientFrames momentCoefficientsFrame = aerodynamics::body_fixed_frame_coefficients,
-        const bool addForceContributionToMoments = false,
+        const Eigen::Vector3d& momentReferencePoint = Eigen::Vector3d::Constant( TUDAT_NAN ),
         const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = nullptr
         )
 {
+    bool addForceContributionToMoments = !momentReferencePoint.hasNaN( );
     return std::make_shared< TabulatedAerodynamicCoefficientSettings< 1 > >(
                 independentVariables, forceCoefficients, momentCoefficients, referenceLength,
                 referenceArea, momentReferencePoint, independentVariableName,
@@ -1098,7 +1098,7 @@ inline std::shared_ptr< AerodynamicCoefficientSettings > oneDimensionalTabulated
     return std::make_shared< TabulatedAerodynamicCoefficientSettings< 1 > >(
                 independentVariables, forceCoefficients, referenceArea, independentVariableName,
                 forceCoefficientsFrame, aerodynamics::undefined_frame_coefficients,
-                false, interpolatorSettings );
+                interpolatorSettings );
 }
 
 // 1-dimensional case
@@ -1140,7 +1140,7 @@ inline std::shared_ptr< AerodynamicCoefficientSettings > oneDimensionalTabulated
             independentVariables, forceCoefficients, referenceArea, independentVariableName,
             aerodynamics::getAerodynamicCoefficientFrame( areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection ),
             aerodynamics::getAerodynamicCoefficientFrame( areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection ),
-            false, interpolatorSettings );
+            interpolatorSettings );
 }
 
 //  Function to create aerodynamic coefficient settings from coefficients stored in data files
@@ -1262,7 +1262,7 @@ readGivenSizeTabulatedAerodynamicCoefficientsFromFiles(
     std::shared_ptr< TabulatedAerodynamicCoefficientSettings< NumberOfDimensions > > tabulatedCoefficients =
             std::make_shared< TabulatedAerodynamicCoefficientSettings< NumberOfDimensions > >(
                 aerodynamicCoefficients.second, aerodynamicCoefficients.first, referenceArea, independentVariableNames,
-                forceCoefficientsFrame, aerodynamics::undefined_frame_coefficients, false, interpolatorSettings );
+                forceCoefficientsFrame, aerodynamics::undefined_frame_coefficients, interpolatorSettings );
     tabulatedCoefficients->setForceCoefficientsFiles( forceCoefficientFiles );
     return tabulatedCoefficients;
 }
@@ -1310,11 +1310,10 @@ std::shared_ptr< AerodynamicCoefficientSettings > readTabulatedAerodynamicCoeffi
         const std::map< int, std::string > momentCoefficientFiles,
         const double referenceLength,
         const double referenceArea,
-        const Eigen::Vector3d& momentReferencePoint,
         const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableNames,
         const aerodynamics::AerodynamicCoefficientFrames forceCoefficientFrame = aerodynamics::negative_aerodynamic_frame_coefficients,
         const aerodynamics::AerodynamicCoefficientFrames momentCoefficientFrame = aerodynamics::body_fixed_frame_coefficients,
-        const bool addForceContributionToMoments = false,
+        const Eigen::Vector3d& momentReferencePoint = Eigen::Vector3d::Constant( TUDAT_NAN ),
         const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = nullptr );
 
 //  Function to create aerodynamic coefficient settings from coefficients stored in data files

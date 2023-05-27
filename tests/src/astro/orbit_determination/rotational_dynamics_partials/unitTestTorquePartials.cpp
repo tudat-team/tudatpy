@@ -263,7 +263,7 @@ BOOST_AUTO_TEST_CASE( testSecondDegreeGravitationalTorquePartials )
                 marsGravitationalParameterParameter, gravitationalTorque, 1.0E12 );
     Eigen::Vector3d testPartialWrtMeanMomentOfInertia = calculateTorqueWrtParameterPartials(
                 phobosMeanMomentOfInertia, gravitationalTorque, 1.0E-1 );
-    std::function< void( ) > updateFunction = std::bind( &BodyMassProperties::update, bodies.at( "Phobos")->getMassProperties( ) , testTime );
+    std::function< void( ) > updateFunction = std::bind( &RigidBodyProperties::update, bodies.at( "Phobos")->getMassProperties( ) , testTime );
             //std::bind( &Body::setBodyInertiaTensorFromGravityFieldAndExistingMeanMoment, bodies.at( "Phobos" ), true );
     Eigen::MatrixXd testPartialWrtPhobosCosineCoefficients = calculateTorqueWrtParameterPartials(
                 phobosCosineCoefficientsParameter, gravitationalTorque,
@@ -524,7 +524,7 @@ BOOST_AUTO_TEST_CASE( testInertialTorquePartials )
 
 
     std::function< void( ) > updateFunction =
-            std::bind( &BodyMassProperties::update, bodies.at( "Phobos")->getMassProperties( ) , testTime );
+            std::bind( &RigidBodyProperties::update, bodies.at( "Phobos")->getMassProperties( ) , testTime );
 //            std::bind( &Body::setBodyInertiaTensorFromGravityFieldAndExistingMeanMoment, bodies.at( "Phobos" ), true );
     Eigen::Vector3d testPartialWrtPhobosGravitationalParameter = calculateTorqueWrtParameterPartials(
                 phobosGravitationalParameterParameter, inertialTorqueModel, 1.0E8, updateFunction );
@@ -849,7 +849,7 @@ BOOST_AUTO_TEST_CASE( testConstantTorquePartials )
                 phobosStateSetFunction, effectiveTorqueModel, phobos->getState( ), velocityPerturbation, 3 );
 
 
-    std::function< void( ) > updateFunction = std::bind( &BodyMassProperties::update, bodies.at( "Phobos")->getMassProperties( ) , testTime );
+    std::function< void( ) > updateFunction = std::bind( &RigidBodyProperties::update, bodies.at( "Phobos")->getMassProperties( ) , testTime );
            // std::bind( &Body::setBodyInertiaTensorFromGravityFieldAndExistingMeanMoment, bodies.at( "Phobos" ), true );
     Eigen::Vector3d testPartialWrtPhobosGravitationalParameter = calculateTorqueWrtParameterPartials(
                 phobosGravitationalParameterParameter, effectiveTorqueModel, 1.0E2, updateFunction );

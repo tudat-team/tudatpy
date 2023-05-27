@@ -913,13 +913,13 @@ BOOST_AUTO_TEST_CASE( testCombinedAerodynamicForceAndMoment )
             }
             else
             {
-                auto bodyMassProperties = std::make_shared< MassDependentMassDistributionSettings >(
+                auto rigidBodyProperties = std::make_shared< MassDependentMassDistributionSettings >(
                     initialVehicleMass,
                     &massDependentCenterOfMass,
                     &massDependentInertiaTensor );
 
-                addBodyMassProperties(
-                    bodies, "Apollo", bodyMassProperties );
+                addRigidBodyProperties(
+                    bodies, "Apollo", rigidBodyProperties );
 
                 addFlightConditions(
                     bodies, "Apollo", "Earth" );

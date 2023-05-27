@@ -192,9 +192,9 @@ private:
     int stateMultiplier_;
 };
 
-class BodyMassProperties {
+class RigidBodyProperties {
   public:
-    BodyMassProperties()
+    RigidBodyProperties()
         : currentMass_(TUDAT_NAN),
           currentCenterOfMass_(Eigen::Vector3d::Constant(TUDAT_NAN)),
           currentInertiaTensor_(Eigen::Matrix3d::Constant(TUDAT_NAN)),
@@ -203,7 +203,7 @@ class BodyMassProperties {
           isComComputed_(false),
           isInertiaTensorComputed_(false){}
 
-    virtual ~BodyMassProperties() {}
+    virtual ~RigidBodyProperties() {}
 
     void update(const double currentTime)
     {
@@ -274,10 +274,10 @@ protected:
     bool isInertiaTensorComputed_;
 };
 
-class TimeDependentBodyMassProperties: public BodyMassProperties
+class TimeDependentRigidBodyProperties: public RigidBodyProperties
 {
 public:
-    TimeDependentBodyMassProperties(
+    TimeDependentRigidBodyProperties(
             const std::function< double( const double ) > massFunction,
             const std::function< Eigen::Vector3d( const double ) > centerOfMassFunction = nullptr,
             const std::function< Eigen::Matrix3d( const double ) > inertiaTensorFunction = nullptr ):
@@ -287,7 +287,7 @@ public:
     {
     }
 
-    TimeDependentBodyMassProperties(
+    TimeDependentRigidBodyProperties(
             const double mass,
             const Eigen::Vector3d& centerOfMass = Eigen::Vector3d::Constant( TUDAT_NAN ),
             const Eigen::Matrix3d& inertiaTensor = Eigen::Matrix3d::Constant( TUDAT_NAN ) ):
@@ -310,7 +310,7 @@ public:
     }
 
 
-    virtual ~TimeDependentBodyMassProperties( ){ }
+    virtual ~TimeDependentRigidBodyProperties( ){ }
 
     virtual void resetCurrentTime( )
     {
@@ -386,10 +386,10 @@ protected:
 
 };
 
-class MassDependentBodyMassProperties: public BodyMassProperties
+class MassDependentRigidBodyProperties: public RigidBodyProperties
 {
 public:
-    MassDependentBodyMassProperties(
+    MassDependentRigidBodyProperties(
             const double currentMass,
             const std::function< Eigen::Vector3d( const double ) > centerOfMassFunction,
             const std::function< Eigen::Matrix3d( const double ) > inertiaTensorFunction ):
@@ -400,7 +400,7 @@ public:
         updateMassDistribution( TUDAT_NAN );
     }
 
-    virtual ~MassDependentBodyMassProperties( ){ }
+    virtual ~MassDependentRigidBodyProperties( ){ }
 
     virtual void updateMass( const double currentTime )
     {
@@ -436,10 +436,10 @@ protected:
 };
 
 
-class FromGravityFieldBodyMassProperties: public BodyMassProperties
+class FromGravityFieldRigidBodyProperties: public RigidBodyProperties
 {
 public:
-    FromGravityFieldBodyMassProperties(
+    FromGravityFieldRigidBodyProperties(
             const std::shared_ptr< gravitation::GravityFieldModel > gravityFieldModel ):
             gravityFieldModel_( gravityFieldModel )
     {
@@ -461,7 +461,7 @@ public:
         }
     }
 
-    virtual ~FromGravityFieldBodyMassProperties( ){ }
+    virtual ~FromGravityFieldRigidBodyProperties( ){ }
 
     virtual void resetCurrentTime( )
     {
@@ -1137,7 +1137,7 @@ public:
         }
         else
         {
-            massProperties_ = std::make_shared< FromGravityFieldBodyMassProperties >( gravityFieldModel );
+            massProperties_ = std::make_shared< FromGravityFieldRigidBodyProperties >( gravityFieldModel );
         }
 
     }
@@ -1408,12 +1408,12 @@ public:
         vehicleSystems_ = vehicleSystems;
     }
 
-    std::shared_ptr< BodyMassProperties > getMassProperties( )
+    std::shared_ptr< RigidBodyProperties > getMassProperties( )
     {
         return massProperties_;
     }
 
-    void setMassProperties( const std::shared_ptr< BodyMassProperties > massProperties )
+    void setMassProperties( const std::shared_ptr< RigidBodyProperties > massProperties )
     {
         if( gravityFieldModel_ != nullptr )
         {
@@ -1434,13 +1434,13 @@ public:
     {
         if( massProperties_ == nullptr )
         {
-            massProperties_ = std::make_shared< TimeDependentBodyMassProperties >( bodyMassFunction );
+            massProperties_ = std::make_shared< TimeDependentRigidBodyProperties >( bodyMassFunction );
         }
         else
         {
-            if ( std::dynamic_pointer_cast<TimeDependentBodyMassProperties>( massProperties_ ) != nullptr )
+            if ( std::dynamic_pointer_cast<TimeDependentRigidBodyProperties>( massProperties_ ) != nullptr )
             {
-                std::dynamic_pointer_cast<TimeDependentBodyMassProperties>( massProperties_ )->setMassFunction(
+                std::dynamic_pointer_cast<TimeDependentRigidBodyProperties>( massProperties_ )->setMassFunction(
                         bodyMassFunction );
             }
             else
@@ -1460,7 +1460,7 @@ public:
     {
         if( massProperties_ == nullptr )
         {
-            massProperties_ = std::make_shared< TimeDependentBodyMassProperties >( bodyMass );
+            massProperties_ = std::make_shared< TimeDependentRigidBodyProperties >( bodyMass );
         }
         else
         {
@@ -1472,7 +1472,7 @@ public:
     {
         if( massProperties_ == nullptr )
         {
-            massProperties_ = std::make_shared< TimeDependentBodyMassProperties >( bodyMass );
+            massProperties_ = std::make_shared< TimeDependentRigidBodyProperties >( bodyMass );
         }
         else
         {
@@ -1488,9 +1488,9 @@ public:
     std::function< double( const double ) > getBodyMassFunction( )
     {
         std::function<double(const double)> bodyMassFunction;
-        if ( std::dynamic_pointer_cast<TimeDependentBodyMassProperties>( massProperties_ ) != nullptr )
+        if ( std::dynamic_pointer_cast<TimeDependentRigidBodyProperties>( massProperties_ ) != nullptr )
         {
-            bodyMassFunction = std::dynamic_pointer_cast<TimeDependentBodyMassProperties>( massProperties_ )->getMassFunction( );
+            bodyMassFunction = std::dynamic_pointer_cast<TimeDependentRigidBodyProperties>( massProperties_ )->getMassFunction( );
         }
         else
         {
@@ -1573,9 +1573,9 @@ public:
         }
         else
         {
-            if( std::dynamic_pointer_cast< TimeDependentBodyMassProperties >( massProperties_ ) != nullptr )
+            if( std::dynamic_pointer_cast< TimeDependentRigidBodyProperties >( massProperties_ ) != nullptr )
             {
-                std::dynamic_pointer_cast< TimeDependentBodyMassProperties >( massProperties_ )->setInertiaTensor( bodyInertiaTensor );
+                std::dynamic_pointer_cast< TimeDependentRigidBodyProperties >( massProperties_ )->setInertiaTensor( bodyInertiaTensor );
             }
         }
     }
@@ -1752,7 +1752,7 @@ private:
 
     std::vector< std::shared_ptr< basic_astrodynamics::BodyDeformationModel > > bodyDeformationModels_;
 
-    std::shared_ptr< BodyMassProperties > massProperties_;
+    std::shared_ptr< RigidBodyProperties > massProperties_;
 
     //! List of radiation pressure models for the body, with the sources bodies as key
     std::map<std::string, std::shared_ptr<electromagnetism::RadiationPressureInterface>>

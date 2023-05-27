@@ -731,47 +731,47 @@ inline std::shared_ptr< GravityFieldSettings > polyhedronGravitySettingsFromMu(
             gravitationalConstant );
 }
 
-enum BodyMassPropertiesType
+enum RigidBodyPropertiesType
 {
-    constant_body_mass_properties,
-    from_function_body_mass_properties,
-    from_gravity_field_body_mass_properties,
-    mass_dependent_mass_distribution_properties
+    constant_rigid_body_properties,
+    from_function_rigid_body_properties,
+    from_gravity_field_rigid_body_properties,
+    mass_dependent_rigid_body_properties
 };
 
-class BodyMassPropertiesSettings
+class RigidBodyPropertiesSettings
 {
 public:
-    BodyMassPropertiesSettings( const BodyMassPropertiesType bodyMassPropertiesType ):
-            bodyMassPropertiesType_( bodyMassPropertiesType ){ }
+    RigidBodyPropertiesSettings( const RigidBodyPropertiesType rigidBodyPropertiesType ):
+            rigidBodyPropertiesType_( rigidBodyPropertiesType ){ }
 
-    virtual ~BodyMassPropertiesSettings( ){ }
+    virtual ~RigidBodyPropertiesSettings( ){ }
 
-    BodyMassPropertiesType getBodyMassPropertiesType( )
+    RigidBodyPropertiesType getRigidBodyPropertiesType( )
     {
-        return bodyMassPropertiesType_;
+        return rigidBodyPropertiesType_;
     }
 
 protected:
 
-    BodyMassPropertiesType bodyMassPropertiesType_;
+    RigidBodyPropertiesType rigidBodyPropertiesType_;
 };
 
-class ConstantBodyMassPropertiesSettings : public BodyMassPropertiesSettings
+class ConstantRigidBodyPropertiesSettings : public RigidBodyPropertiesSettings
 {
 public:
-    ConstantBodyMassPropertiesSettings(
+    ConstantRigidBodyPropertiesSettings(
         const double mass,
         const Eigen::Vector3d &centerOfMass = Eigen::Vector3d::Constant( TUDAT_NAN ),
         const Eigen::Matrix3d &inertiaTensor = Eigen::Matrix3d::Constant( TUDAT_NAN ) ):
-        BodyMassPropertiesSettings( constant_body_mass_properties ),
+        RigidBodyPropertiesSettings( constant_rigid_body_properties ),
         mass_( mass ),
         centerOfMass_( centerOfMass ),
         inertiaTensor_( inertiaTensor )
     {
     }
 
-    virtual ~ConstantBodyMassPropertiesSettings( ){ }
+    virtual ~ConstantRigidBodyPropertiesSettings( ){ }
 
     double getMass( )
     {
@@ -798,21 +798,21 @@ protected:
     Eigen::Matrix3d inertiaTensor_;
 };
 
-class FromFunctionBodyMassPropertiesSettings : public BodyMassPropertiesSettings
+class FromFunctionRigidBodyPropertiesSettings : public RigidBodyPropertiesSettings
 {
 public:
-    FromFunctionBodyMassPropertiesSettings(
+    FromFunctionRigidBodyPropertiesSettings(
         const std::function< double( const double ) > massFunction,
         const std::function< Eigen::Vector3d( const double ) > centerOfMassFunction = nullptr,
         const std::function< Eigen::Matrix3d( const double ) > inertiaTensorFunction = nullptr):
-        BodyMassPropertiesSettings( from_function_body_mass_properties ),
+        RigidBodyPropertiesSettings( from_function_rigid_body_properties ),
         massFunction_( massFunction ),
         centerOfMassFunction_( centerOfMassFunction ),
         inertiaTensorFunction_( inertiaTensorFunction )
     {
     }
 
-    virtual ~FromFunctionBodyMassPropertiesSettings( ){ }
+    virtual ~FromFunctionRigidBodyPropertiesSettings( ){ }
 
     std::function< double( const double ) > getMassFunction( )
     {
@@ -839,14 +839,14 @@ protected:
     std::function< Eigen::Matrix3d( const double ) > inertiaTensorFunction_;
 };
 
-class MassDependentMassDistributionSettings : public BodyMassPropertiesSettings
+class MassDependentMassDistributionSettings : public RigidBodyPropertiesSettings
 {
 public:
     MassDependentMassDistributionSettings(
         const double currentMass,
         const std::function< Eigen::Vector3d( const double ) > centerOfMassFunction,
         const std::function< Eigen::Matrix3d( const double ) > inertiaTensorFunction ):
-        BodyMassPropertiesSettings( mass_dependent_mass_distribution_properties ),
+        RigidBodyPropertiesSettings( mass_dependent_rigid_body_properties ),
         currentMass_( currentMass ),
         centerOfMassFunction_( centerOfMassFunction ),
         inertiaTensorFunction_( inertiaTensorFunction )
@@ -880,25 +880,25 @@ protected:
     std::function< Eigen::Matrix3d( const double ) > inertiaTensorFunction_;
 };
 
-inline std::shared_ptr< BodyMassPropertiesSettings > constantBodyMassPropertiesSettings(
+inline std::shared_ptr< RigidBodyPropertiesSettings > constantRigidBodyPropertiesSettings(
     const double mass,
     const Eigen::Vector3d &centerOfMass = Eigen::Vector3d::Constant( TUDAT_NAN ),
     const Eigen::Matrix3d &inertiaTensor = Eigen::Matrix3d::Constant( TUDAT_NAN ) )
 {
-    return std::make_shared< ConstantBodyMassPropertiesSettings >(
+    return std::make_shared< ConstantRigidBodyPropertiesSettings >(
         mass, centerOfMass, inertiaTensor );
 }
 
-inline std::shared_ptr< BodyMassPropertiesSettings > fromFunctionBodyMassPropertiesSettings(
+inline std::shared_ptr< RigidBodyPropertiesSettings > fromFunctionRigidBodyPropertiesSettings(
     const std::function< double( const double ) > massFunction,
     const std::function< Eigen::Vector3d( const double ) > centerOfMassFunction = nullptr,
     const std::function< Eigen::Matrix3d( const double ) > inertiaTensorFunction = nullptr )
 {
-    return std::make_shared< FromFunctionBodyMassPropertiesSettings >(
+    return std::make_shared< FromFunctionRigidBodyPropertiesSettings >(
         massFunction, centerOfMassFunction, inertiaTensorFunction );
 }
 
-inline std::shared_ptr< BodyMassPropertiesSettings > massDependentMassDistributionSettings(
+inline std::shared_ptr< RigidBodyPropertiesSettings > massDependentMassDistributionSettings(
     const double currentMass,
     const std::function< Eigen::Vector3d( const double ) > centerOfMassFunction,
     const std::function< Eigen::Matrix3d( const double ) > inertiaTensorFunction )
@@ -907,8 +907,8 @@ inline std::shared_ptr< BodyMassPropertiesSettings > massDependentMassDistributi
         currentMass, centerOfMassFunction, inertiaTensorFunction );
 }
 
-std::shared_ptr< BodyMassProperties > createBodyMassProperties(
-    const std::shared_ptr<BodyMassPropertiesSettings> bodyMassPropertiesSettings,
+std::shared_ptr< RigidBodyProperties > createRigidBodyProperties(
+    const std::shared_ptr<RigidBodyPropertiesSettings> rigidBodyPropertiesSettings,
     const std::string& body,
     const SystemOfBodies& bodies );
 } // namespace simulation_setup

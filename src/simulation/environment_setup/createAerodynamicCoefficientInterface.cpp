@@ -24,11 +24,10 @@ std::shared_ptr< AerodynamicCoefficientSettings > readTabulatedAerodynamicCoeffi
         const std::map< int, std::string > momentCoefficientFiles,
         const double referenceLength,
         const double referenceArea,
-        const Eigen::Vector3d& momentReferencePoint,
         const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableNames,
         const aerodynamics::AerodynamicCoefficientFrames forceCoefficientFrame,
         const aerodynamics::AerodynamicCoefficientFrames momentCoefficientFrame,
-        const bool addForceContributionToMoments,
+        const Eigen::Vector3d& momentReferencePoint,
         const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings )
 {
     // Retrieve number of independent variables from file.
@@ -68,7 +67,10 @@ std::shared_ptr< AerodynamicCoefficientSettings > readTabulatedAerodynamicCoeffi
                                   " independent variables, up to 3 currently supported" );
     }
 
-    coefficientSettings->setAddForceContributionToMoments( addForceContributionToMoments );
+    if( !momentReferencePoint.hasNaN( ) )
+    {
+        coefficientSettings->setAddForceContributionToMoments( true );
+    }
     return coefficientSettings;
 }
 
@@ -89,11 +91,11 @@ std::shared_ptr< AerodynamicCoefficientSettings > readTabulatedAerodynamicCoeffi
         throw std::runtime_error( "Error when using deprecated reading of aerodynamic coefficients from files, lateral reference length must be equal to regular reference length" );
     }
     return readTabulatedAerodynamicCoefficientsFromFiles(
-            forceCoefficientFiles, momentCoefficientFiles, referenceLength, referenceArea, momentReferencePoint,
+            forceCoefficientFiles, momentCoefficientFiles, referenceLength, referenceArea,
             independentVariableNames,
             aerodynamics::getAerodynamicCoefficientFrame( areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection ),
             aerodynamics::getAerodynamicCoefficientFrame( areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection ),
-            false,
+            momentReferencePoint,
             interpolatorSettings );
 }
 
