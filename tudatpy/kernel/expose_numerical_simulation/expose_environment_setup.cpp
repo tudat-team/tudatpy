@@ -21,6 +21,7 @@
 #include "expose_environment_setup/expose_rotation_model_setup.h"
 #include "expose_environment_setup/expose_shape_setup.h"
 #include "expose_environment_setup/expose_shape_deformation_setup.h"
+#include "expose_environment_setup/expose_rigid_body_setup.h"
 
 #include "tudatpy/docstrings.h"
 #include "tudatpy/scalarTypes.h"
@@ -28,10 +29,8 @@
 #include <tudat/simulation/environment_setup.h>
 #include <tudat/astro/reference_frames/referenceFrameTransformations.h>
 
-//#include <pybind11/chrono.h>
 #include <pybind11/eigen.h>
 #include <pybind11/functional.h>
-//#include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <pybind11/complex.h>
@@ -72,7 +71,7 @@ namespace environment_setup {
                 .def_readwrite("gravity_field_variation_settings", &tss::BodySettings::gravityFieldVariationSettings, get_docstring("BodySettings.gravity_field_variation_settings").c_str())
                 .def_readwrite("shape_deformation_settings", &tss::BodySettings::bodyDeformationSettings, get_docstring("BodySettings.shape_deformation_settings").c_str())
                 .def_readwrite("ground_station_settings", &tss::BodySettings::groundStationSettings, get_docstring("BodySettings.ground_station_settings").c_str())
-                .def_readwrite("mass_property_settings", &tss::BodySettings::bodyMassPropertiesSettings, get_docstring("BodySettings.bodyMassPropertiesSettings").c_str());
+                .def_readwrite("rigid_body_settings", &tss::BodySettings::rigidBodyPropertiesSettings, get_docstring("BodySettings.rigidBodyPropertiesSettings").c_str());
 
 
         py::class_<tss::BodyListSettings,
@@ -188,7 +187,7 @@ namespace environment_setup {
               get_docstring("add_rotation_model").c_str());
 
         m.def("add_mass_properties_model",
-              &tss::addBodyMassProperties,
+              &tss::addRigidBodyProperties,
               py::arg("bodies"), py::arg("body_name"), py::arg("mass_property_settings"),
               get_docstring("add_mass_properties_model").c_str());
 
@@ -282,6 +281,9 @@ namespace environment_setup {
 
         auto ground_station_setup = m.def_submodule("ground_station");
         ground_station::expose_ground_station_setup(ground_station_setup);
+
+        auto rigid_body_setup = m.def_submodule("rigid_body");
+        rigid_body::expose_rigid_body_setup(rigid_body_setup);
 
 //        auto system_model_setup = m.def_submodule("system_models");
 //        gravity_field_variation::expose_system_model_setup(system_model_setup);
