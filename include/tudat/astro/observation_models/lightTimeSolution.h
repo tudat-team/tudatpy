@@ -609,7 +609,7 @@ public:
                 linkEndsTimes, linkEndsStates, currentMultiLegTransmitterIndex, receptionTime, transmissionTime,
                 receiverState, transmitterState );
 
-        std::cout << std::setprecision(18) << "Light time: " << newLightTimeCalculation <<
+        std::cout << std::setprecision(21) << "Light time: " << newLightTimeCalculation <<
                   " (" << iterationCounter_ << " iter) " << std::endl;
 
         return newLightTimeCalculation;

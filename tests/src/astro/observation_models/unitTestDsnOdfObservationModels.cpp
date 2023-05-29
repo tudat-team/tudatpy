@@ -49,8 +49,8 @@ void runSimulation(
 
 //    std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/mgs-m-rss-1-ext-v1/mors_2190/odf/5327332a.odf" )->writeOdfToTextFile(
 //            saveDirectory + "5327332a.txt");
-//    std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/mgs-m-rss-1-ext-v1/mors_2190/odf/5332333a.odf" )->writeOdfToTextFile(
-//            saveDirectory + "5332333a.txt");
+    std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/mgs-m-rss-1-ext-v1/mors_2190/odf/5332333a.odf" )->writeOdfToTextFile(
+            saveDirectory + "5332333a.txt");
 //    std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/mgs-m-rss-1-ext-v1/mors_2190/odf/5333334a.odf" )->writeOdfToTextFile(
 //            saveDirectory + "5333334a.txt");
 //    return;
@@ -404,8 +404,8 @@ void runSimulation(
 
     for ( unsigned int i = 0; i < simulatedObservationCollection->getObservationVector( ).size( ); ++i )
     {
-        observations( i, 0 ) = simulatedObservationCollection->getConcatenatedTimeVector( ).at( i );
-        observations( i, 2 ) = observedObservationCollection->getConcatenatedTimeVector( ).at( i );
+        observations( i, 0 ) = static_cast< Time >( simulatedObservationCollection->getConcatenatedTimeVector( ).at( i ) ).getSeconds< long double >();
+        observations( i, 2 ) = static_cast< Time >( observedObservationCollection->getConcatenatedTimeVector( ).at( i ) ).getSeconds< long double >();
     }
 
     std::ofstream file(saveDirectory + "observations_" + fileTag + ".txt");
@@ -438,7 +438,7 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
 {
     std::string saveDirectory = "/Users/pipas/tudatpy-testing/mgs/mors_2190/";
 
-    int testCase = 2;
+    int testCase = 3;
 
 //    std::string fileTag = "2007";
 //    std::string fileTag = "2009";
@@ -459,6 +459,18 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
     {
         std::string fileTag = "5332333aOdf_iau2000b";
         runSimulation( saveDirectory, fileTag + "_noCorr", false, TUDAT_NAN, { } );
+    }
+    else if ( testCase == 3 )
+    {
+        std::string fileTag = "5332333aOdf_directState";
+
+        runSimulation( saveDirectory, fileTag + "_noCorr", true, 50.0, { } );
+
+        runSimulation( saveDirectory, fileTag + "_relCorr", true, 50.0, { first_order_relativistic } );
+
+        runSimulation( saveDirectory, fileTag + "_troCorr", true, 50.0, { tabulated_tropospheric } );
+
+        runSimulation( saveDirectory, fileTag + "_ionCorr", true, 50.0, { tabulated_ionospheric } );
     }
     else if ( testCase == 1 )
     {

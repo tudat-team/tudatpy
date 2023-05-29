@@ -147,7 +147,7 @@ void OdfDopplerDataBlock::printDataBlock( std::ofstream& outFile )
     outFile << std::setfill(' ') << std::setw(14) << std::setprecision(3) << getReferenceFrequency() << " ";
     outFile << std::setfill(' ') << std::setw(7) << reservedSegment_ << " ";
     outFile << std::setfill(' ') << std::setw(7) << std::setprecision(3) << getCompressionTime() << " ";
-    outFile << std::setfill(' ') << std::setw(7) << std::setprecision(3) << getTransmittingStationUplinkDelay() << " ";
+    outFile << std::setfill(' ') << std::setw(7) << std::setprecision(3) << transmittingStationUplinkDelay_ << " ";
 }
 
 OdfSequentialRangeDataBlock::OdfSequentialRangeDataBlock( const std::bitset< 128 > dataBits ):
@@ -274,7 +274,7 @@ OdfCommonDataBlock::OdfCommonDataBlock( const std::bitset< 160 > commonDataBits 
 void OdfCommonDataBlock::printDataBlock( std::ofstream& outFile )
 {
     outFile << std::fixed << std::setprecision(3) << getObservableTime() << " ";
-    outFile << std::setfill(' ') << std::setw(11) << getReceivingStationDownlinkDelay() << " ";
+    outFile << std::setfill(' ') << std::setw(11) << receivingStationDownlinkDelay_ << " ";
     outFile << std::setfill(' ') << std::setw(20) << std::setprecision(9) << getObservableValue() << " ";
     outFile << std::setfill(' ') << std::setw(2) << formatId_ << " ";
     outFile << std::setfill(' ') << std::setw(4) << receivingStationId_ << " ";

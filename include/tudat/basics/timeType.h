@@ -197,7 +197,7 @@ public:
      */
     friend Time operator+( const double& timeToAdd1, const Time& timeToAdd2 )
     {
-        return Time( timeToAdd2.fullPeriods_, timeToAdd2.secondsIntoFullPeriod_ + static_cast< long double >( timeToAdd1 ) );
+        return Time( timeToAdd1 ) + timeToAdd2;
     }
 
     //! Addition operator for long double variable with Time object.
@@ -209,7 +209,7 @@ public:
      */
     friend Time operator+( const long double& timeToAdd1, const Time& timeToAdd2 )
     {
-        return Time( timeToAdd2.fullPeriods_, timeToAdd2.secondsIntoFullPeriod_ + timeToAdd1 );
+        return Time( timeToAdd1 ) + timeToAdd2;
     }
 
     //! Addition operator for Time object with double variable
@@ -261,8 +261,7 @@ public:
      */
     friend Time operator-( const Time& timeToSubtract1, const double timeToSubtract2 )
     {
-        return Time( timeToSubtract1.fullPeriods_,
-                     timeToSubtract1.secondsIntoFullPeriod_ - static_cast< long double >( timeToSubtract2 ) );
+        return timeToSubtract1 - Time( timeToSubtract2 );
     }
 
     //! Subtraction operator for double from Time object
@@ -274,7 +273,7 @@ public:
      */
     friend Time operator-( const Time& timeToSubtract1, const long double timeToSubtract2 )
     {
-        return Time( timeToSubtract1.fullPeriods_, timeToSubtract1.secondsIntoFullPeriod_ - timeToSubtract2 );
+        return timeToSubtract1 - Time( timeToSubtract2 );
     }
 
     //! Subtraction operator for Time object from double
@@ -286,8 +285,7 @@ public:
      */
     friend Time operator-( const double timeToSubtract1, const Time& timeToSubtract2 )
     {
-        return Time( -timeToSubtract2.fullPeriods_,
-                     static_cast< long double >( timeToSubtract1 ) - timeToSubtract2.secondsIntoFullPeriod_ );
+        return Time( timeToSubtract1 ) - timeToSubtract2;
     }
 
     //! Subtraction operator for Time object from long double
@@ -299,7 +297,7 @@ public:
      */
     friend Time operator-( const long double timeToSubtract1, const Time& timeToSubtract2 )
     {
-        return Time( -timeToSubtract2.fullPeriods_, timeToSubtract1 - timeToSubtract2.secondsIntoFullPeriod_ );
+        return Time( timeToSubtract1 ) - timeToSubtract2;
     }
 
 
