@@ -244,8 +244,8 @@ public:
         TimeType transmissionStartTime = receptionStartTime - startLightTime;
         TimeType transmissionEndTime = receptionEndTime - endLightTime;
 
-        double transmitterFrequencyIntegral = bodyWithGroundStations_->getGroundStation(
-                this->getLinkEnds( ).at( observation_models::transmitter ).stationName_
+        ObservationScalarType transmitterFrequencyIntegral = bodyWithGroundStations_->getGroundStation(
+                this->linkEnds_.at( observation_models::transmitter ).stationName_
                 )->getTransmittingFrequencyCalculator( )->template getTemplatedFrequencyIntegral< ObservationScalarType, TimeType >(
                         transmissionStartTime, transmissionEndTime );
 
