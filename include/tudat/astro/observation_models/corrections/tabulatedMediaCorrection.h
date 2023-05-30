@@ -16,6 +16,7 @@
  *              propagation errors, Journal of Geodesy, 85:965–974
  *          J.A. Klobuchar (1975), A First-Order, Worldwide, Ionospheric, Time-Delay Algorithm, AIR FORCE CAMBRIDGE
  *              RESEARCH LABORATORIES
+ *          820-013 TRK-2-23, Media Calibration Interface, Revision C (2008), DSN/JPL
  *
  */
 
@@ -72,6 +73,7 @@ private:
 
 };
 
+// TRK-2-23 (2008), section 3.1.7
 class ConstantReferenceCorrection: public TabulatedMediaReferenceCorrection
 {
 public:
@@ -101,6 +103,7 @@ private:
 
 };
 
+// TRK-2-23 (2008), section 3.1.7
 class PowerSeriesReferenceCorrection: public TabulatedMediaReferenceCorrection
 {
 public:
@@ -125,6 +128,7 @@ private:
 
 };
 
+// TRK-2-23 (2008), section 3.1.7
 class FourierSeriesReferenceCorrection: public TabulatedMediaReferenceCorrection
 {
 public:
@@ -244,10 +248,19 @@ private:
 
 };
 
-// Moyer (2000), Eq. 10-8 to 10-10
+// Chao tropospheric mapping, according to Moyer (2000), Eq. 10-8 to 10-10
+// Used to map a zenith range correction to a different elevation
 class SimplifiedChaoTroposphericMapping: public TroposhericElevationMapping
 {
 public:
+
+    /*!
+     * Constructor
+     * @param elevationFunction Function that computes the elevation as seen from the ground station, given the vector to
+     *      the target and the current time.
+     * @param isUplinkCorrection Boolean indicating whether correction is for uplink (i.e. transmitting station on planet,
+      *      reception on spacecraft) or downlink (i.e. transmission from spacecraft, reception at ground station)
+     */
     SimplifiedChaoTroposphericMapping(
             std::function< double ( Eigen::Vector3d inertialVectorAwayFromStation, double time ) > elevationFunction,
             bool isUplinkCorrection ):
@@ -287,8 +300,10 @@ private:
             const double transmissionTime,
             const double receptionTime );
 
+    // Value of the current elevation
     double currentElevation_;
 
+    // Function that computes the elevation as seen from the ground station, given the vector to the target and the current time.
     std::function< double ( Eigen::Vector3d, double ) > elevationFunction_;
 
     // Boolean indicating whether the correction is for uplink or donwlink (necessary when computing the elevation)
@@ -296,21 +311,33 @@ private:
 
 };
 
-// Moyer (2000), section 10.2.1.3.2
+// Niell tropospheric mapping, according to Moyer (2000), section 10.2.1.3.2
+// Used to map a zenith range correction to a different elevation
 class NiellTroposphericMapping: public TroposhericElevationMapping
 {
 public:
+
+    /*!
+     * Constructor
+     * @param elevationFunction Function that computes the elevation as seen from the ground station, given the vector to
+     *      the target and the current time.
+     * @param groundStationGeodeticPositionFunction Geodetic position of the ground station as a function of time
+     * @param isUplinkCorrection Boolean indicating whether correction is for uplink (i.e. transmitting station on planet,
+      *      reception on spacecraft) or downlink (i.e. transmission from spacecraft, reception at ground station)
+     */
     NiellTroposphericMapping(
             std::function< double ( Eigen::Vector3d inertialVectorAwayFromStation, double time ) > elevationFunction,
             std::function< Eigen::Vector3d ( double time ) > groundStationGeodeticPositionFunction,
             bool isUplinkCorrection );
 
+    // Moyer (2000), section 10.2.1.3.2
     double computeWetTroposphericMapping(
             const Eigen::Vector6d& transmitterState,
             const Eigen::Vector6d& receiverState,
             const double transmissionTime,
             const double receptionTime ) override;
 
+    // Moyer (2000), section 10.2.1.3.2
     double computeDryTroposphericMapping(
             const Eigen::Vector6d& transmitterState,
             const Eigen::Vector6d& receiverState,
@@ -319,43 +346,53 @@ public:
 
 private:
 
+    // Moyer (2000), section 10.2.1.3.2
     double computeMFunction ( const double a, const double b, const double c, const double elevation );
 
+    // Moyer (2000), section 10.2.1.3.2
     double computeDryCoefficient(
             std::shared_ptr< interpolators::OneDimensionalInterpolator< double, double > > averageInterpolator,
             std::shared_ptr< interpolators::OneDimensionalInterpolator< double, double > > amplitudeInterpolator,
             const double time,
             const double geodeticLatitude );
 
+    // Function that computes the elevation as seen from the ground station, given the vector to the target and the current time.
     std::function< double ( Eigen::Vector3d, double ) > elevationFunction_;
 
+    // Geodetic position of the ground station as a function of time
     std::function< Eigen::Vector3d ( double ) > groundStationGeodeticPositionFunction_;
 
     // Boolean indicating whether the correction is for uplink or donwlink (necessary when computing the elevation)
     bool isUplinkCorrection_;
 
+    // Estefan and Sovers (1994), table 4a/4b
     const std::vector< double > referenceGeodeticLatitudes_ = { 15.0 * mathematical_constants::PI / 180.0,
                                                                 30.0 * mathematical_constants::PI / 180.0,
                                                                 45.0 * mathematical_constants::PI / 180.0,
                                                                 60.0 * mathematical_constants::PI / 180.0,
                                                                 75.0 * mathematical_constants::PI / 180.0 };
 
+    // Estefan and Sovers (1994), table 4a
     const std::vector< double > aDryAverage_ = { 1.2769934e-3, 1.2683230e-3, 1.2465397e-3, 1.2196049e-3, 1.2045996e-3 };
     const std::vector< double > bDryAverage_ = { 2.9153695e-3, 2.9152299e-3, 2.9288445e-3, 2.9022565e-3, 2.9024912e-3 };
     const std::vector< double > cDryAverage_ = { 62.610505e-3, 62.837393e-3, 63.721774e-3, 63.824265e-3, 64.258455e-3 };
 
+    // Estefan and Sovers (1994), table 4a
     const std::vector< double > aDryAmplitude_ = { 0.0e-5, 1.2709626e-5, 2.6523662e-5, 3.4000452e-5, 4.1202191e-5 };
     const std::vector< double > bDryAmplitude_ = { 0.0e-5, 2.1414979e-5, 3.0160779e-5, 7.2562722e-5, 11.723375e-5 };
     const std::vector< double > cDryAmplitude_ = { 0.0e-5, 9.0128400e-5, 4.3497037e-5, 84.795348e-5, 170.37206e-5 };
 
+    // Estefan and Sovers (1994), eqs. 55a, 55b, 55c
     const double aHt_ = 2.53e-5;
     const double bHt_ = 5.49e-3;
     const double cHt_ = 1.14e-3;
 
+    // Estefan and Sovers (1994), table 4b
     const std::vector< double > aWet_ = { 5.8021897e-4, 5.6794847e-4, 5.8118019e-4, 5.9727542e-4, 6.1641693e-4 };
     const std::vector< double > bWet_ = { 1.4275268e-3, 1.5138625e-3, 1.4572752e-3, 1.5007428e-3, 1.7599082e-3 };
     const std::vector< double > cWet_ = { 4.3472961e-2, 4.6729510e-2, 4.3908931e-2, 4.4626982e-2, 5.4736038e-2 };
 
+    // Interpolators to compute the mapping coefficients for the desired latitude values
     std::shared_ptr< interpolators::OneDimensionalInterpolator< double, double > > aDryAverageInterpolator_;
     std::shared_ptr< interpolators::OneDimensionalInterpolator< double, double > > bDryAverageInterpolator_;
     std::shared_ptr< interpolators::OneDimensionalInterpolator< double, double > > cDryAverageInterpolator_;
@@ -374,6 +411,15 @@ class MappedTroposphericCorrection: public LightTimeCorrection
 {
 public:
 
+    /*!
+     * Constructor
+     * @param lightTimeCorrectionType Type of light-time correction represented by instance of class.
+     * @param elevationMapping Mapping function of range corrections from zenith to other elevations
+     * @param isUplinkCorrection Boolean indicating whether correction is for uplink (i.e. transmitting station on planet,
+      *      reception on spacecraft) or downlink (i.e. transmission from spacecraft, reception at ground station)
+     * @param dryZenithRangeCorrectionFunction Function computing the dry atmosphere zenith correction for a given time
+     * @param wetZenithRangeCorrectionFunction Function computing the wet atmosphere zenith correction for a given time
+     */
     MappedTroposphericCorrection(
             const LightTimeCorrectionType lightTimeCorrectionType,
             std::shared_ptr< TroposhericElevationMapping > elevationMapping,
@@ -438,19 +484,20 @@ protected:
     bool isUplinkCorrection_;
 };
 
-// Moyer (2000), section 10.2.1
+// Tabulated tropospheric corrections using DSN data, according to Moyer (2000), section 10.2.1
 class TabulatedTroposphericCorrection: public MappedTroposphericCorrection
 {
 public:
 
     /*!
-     *
+     * Constructor
      * @param seasonalModelDryZenithCorrectionCalculator, seasonalModelWetZenithCorrectionCalculator Correction calculators
      *      based on seasonal model. These corrections should either correspond to Figure 3a or 3b of Estefan and Sovers (1994).
      * @param dryZenithCorrectionAdjustmentCorrectionCalculator, wetZenithCorrectionAdjustmentCorrectionCalculator Corrections
      *      to the seasonal model based on real time data. Should be read from DSN TRK-2-23 files.
-     * @param elevationMapping
-     * @param isUplinkCorrection
+     * @param elevationMapping Mapping function of range corrections from zenith to other elevations
+     * @param isUplinkCorrection Boolean indicating whether correction is for uplink (i.e. transmitting station on planet,
+      *      reception on spacecraft) or downlink (i.e. transmission from spacecraft, reception at ground station)
      */
     TabulatedTroposphericCorrection(
             std::shared_ptr< TabulatedMediaReferenceCorrectionManager > seasonalModelDryZenithCorrectionCalculator,
@@ -469,6 +516,7 @@ public:
         wetZenithCorrectionAdjustmentCalculator_( wetZenithCorrectionAdjustmentCalculator )
     {
         // Override default values for dry and wet zenith corrections
+        // TRK-2-23 (2008), section 3.2.2
         dryZenithRangeCorrectionFunction_ = [=] ( double time ) {
             return seasonalModelDryZenithCorrectionCalculator_->computeMediaCorrection( time ) +
                 dryZenithCorrectionAdjustmentCalculator_->computeMediaCorrection( time ); };
@@ -501,8 +549,8 @@ enum WaterVaporPartialPressureModel
 
 /*! Calculate the partial vapor pressure.
  *
- * Calculate the partial vapor pressure according to the Bean and Dutton (1966) model, as described by Estefan (1994),
- * Eq. 16.
+ * Calculate the partial vapor pressure according to the Bean and Dutton (1966) model, as described by Estefan and Sovers
+ * (1994), Eq. 16.
  *
  * @param relativeHumidity Relative humidity, defined in [0,1]
  * @param temperature Temperature in Kelvin
@@ -515,11 +563,21 @@ std::function< double ( const double ) > getBeanAndDuttonWaterVaporPartialPressu
         std::function< double ( const double time ) > relativeHumidity,
         std::function< double ( const double time ) > temperature );
 
-// Estefan (1994)
+// Saastamaoinen model for tropospheric corrections, according to Estefan and Sovers (1994)
 class SaastamoinenTroposphericCorrection: public MappedTroposphericCorrection
 {
 public:
 
+    /*!
+     * Constructor
+     * @param groundStationGeodeticPositionFunction  Geodetic position of the ground station as a function of time
+     * @param pressureFunction Pressure at the ground station as a function of time
+     * @param temperatureFunction Temperature at the ground station as a function of time
+     * @param waterVaporPartialPressureFunction Water vapor partial pressure at the ground station as a function of time
+     * @param elevationMapping Mapping function of range corrections from zenith to other elevations
+     * @param isUplinkCorrection Boolean indicating whether correction is for uplink (i.e. transmitting station on planet,
+      *      reception on spacecraft) or downlink (i.e. transmission from spacecraft, reception at ground station)
+     */
     SaastamoinenTroposphericCorrection(
             std::function< Eigen::Vector3d ( const double time ) > groundStationGeodeticPositionFunction,
             std::function< double ( const double time ) > pressureFunction,
@@ -551,20 +609,35 @@ private:
     // Computes the wet atmosphere zenith range correction (in meters)
     double computeWetZenithRangeCorrection( const double stationTime );
 
+    // Geodetic position of the ground station as a function of time
     std::function< Eigen::Vector3d ( const double ) > groundStationGeodeticPositionFunction_;
 
+    // Pressure at the ground station as a function of time
     std::function< double ( const double ) > pressureFunction_;
 
+    // Temperature at the ground station as a function of time
     std::function< double ( const double ) > temperatureFunction_;
 
+    // Water vapor partial pressure at the ground station as a function of time
     std::function< double ( const double ) > waterVaporPartialPressureFunction_;
 };
 
-// Moyer (2000), section 10.2.2
+// Tabulated ionospheric corrections using DSN data, according to Moyer (2000), section 10.2.2
 class TabulatedIonosphericCorrection: public LightTimeCorrection
 {
 public:
 
+     /*!
+      * Constructor
+      * @param referenceCorrectionCalculator Range correction calculator. Corrections based on real time data, which should
+      *      read from DSN TRK-2-23 files.
+      * @param transmittedFrequencyFunction Function calculating the frequency at the current link given a vector with
+      *     the frequency bands in each link of the model and the transmission time.
+      * @param baseObservableType Observable type associated with the correction.
+      * @param isUplinkCorrection Boolean indicating whether correction is for uplink (i.e. transmitting station on planet,
+      *      reception on spacecraft) or downlink (i.e. transmission from spacecraft, reception at ground station)
+      * @param referenceFrequency Frequency for which the reference corrections are given.
+      */
     TabulatedIonosphericCorrection(
             std::shared_ptr< TabulatedMediaReferenceCorrectionManager > referenceCorrectionCalculator,
             std::function< double ( std::vector< FrequencyBands > frequencyBands, double time ) > transmittedFrequencyFunction,
@@ -603,10 +676,13 @@ public:
 
 private:
 
+    // Range correction calculator. Correction determined for referenceFrequency_
     std::shared_ptr< TabulatedMediaReferenceCorrectionManager > referenceCorrectionCalculator_;
 
+    // Frequency at the link as a function of the frequency bands per link, and of the current time
     std::function< double ( std::vector< FrequencyBands > frequencyBands, double time ) > transmittedFrequencyFunction_;
 
+    // Reference frequency for which the reference corrections where calculated
     double referenceFrequency_;
 
     // Sign of the correction (+1 or -1)
@@ -649,13 +725,27 @@ class JakowskiVtecCalculator: public VtecCalculator
 {
 public:
 
-    // Default values copied from GODOT
-    // - Geomagnetic pole latitude and longitude:
-    //      "Geomagnetic North pole latitude and longitude, values for 2025 from http://wdc.kugi.kyoto-u.ac.jp/poles/polesexp.html
-    //      Variation of Geomagnetic poles is historically slow with very minor effect on model results
-    //      e.g. (1.5,2.7) deg difference between 1960 and 2010, resulting in <3 cm effect on range"
-    // - Reference ionosphere height:
-    //      "400km confirmed as good choice by Jakowski in email to G.Bellei, 11.11.2014"
+    /*!
+     * Constructor
+     *
+     * Default values copied from GODOT
+     * - Geomagnetic pole latitude and longitude:
+     *      "Geomagnetic North pole latitude and longitude, values for 2025 from http://wdc.kugi.kyoto-u.ac.jp/poles/polesexp.html
+     *      Variation of Geomagnetic poles is historically slow with very minor effect on model results
+     *      e.g. (1.5,2.7) deg difference between 1960 and 2010, resulting in <3 cm effect on range"
+     * - Reference ionosphere height:
+     *      "400km confirmed as good choice by Jakowski in email to G.Bellei, 11.11.2014"
+     *
+     * @param sunDeclinationFunction Declination of the Sun as seen from the ground station as a function of time
+     * @param observedSolarRadioFlux107Function Observed F10.7 flux as a function of time
+     * @param useUtcTimeForLocalTime Boolean indicating whether to use UTC (if true) or TDB (if false) time when computing
+     *      the local time. According to Jakowski, UT1 should be used, but UTC is the closest time scale that doesn't
+     *      require loading file data. Anyway, TDB is most likely accurate enough, hence the default is here selected to
+     *      use TDB.
+     * @param geomagneticPoleLatitude Latitude of the geomagnetic pole
+     * @param geomagneticPoleLongitude Longitude of the geomagnetic pole
+     * @param referenceIonosphereHeight Ionosphere height
+     */
     JakowskiVtecCalculator(
             std::function< double ( const double time ) > sunDeclinationFunction,
             std::function< double ( const double time ) > observedSolarRadioFlux107Function,
@@ -714,7 +804,10 @@ private:
 
 };
 
-// Moyer (2000), section 10.3.1
+// Computes the ionospheric delay by mapping the vertical TEC to slant TEC using a very simple mapping function, following
+// Moyer (2000), section 10.3.1.
+// At some point, it might be worth using other mapping functions, in which case the part of this class where the mapping
+// is executed should be moved to a new class.
 class MappedVtecIonosphericCorrection: public LightTimeCorrection
 {
 public:

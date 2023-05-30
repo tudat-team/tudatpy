@@ -124,17 +124,20 @@ double SimplifiedChaoTroposphericMapping::troposphericSimplifiedChaoMapping( con
 {
     double a, b;
 
+    // Moyer (2000), eq. 10-9
     if ( dryCorrection )
     {
         a = 0.00143;
         b = 0.0445;
     }
+    // Moyer (2000), eq. 10-10
     else
     {
         a = 0.00035;
         b = 0.017;
     }
 
+    // Moyer (2000), eq. 10-8
     return 1.0 / ( std::sin( elevation ) + a / ( std::tan( elevation ) + b ) );
 }
 
@@ -337,6 +340,7 @@ double MappedTroposphericCorrection::calculateLightTimeCorrectionWithMultiLegLin
         stationTime = receptionTime;
     }
 
+    // Moyer (2000), eq. 10-1
     return ( dryZenithRangeCorrectionFunction_( stationTime ) *
              elevationMapping_->computeDryTroposphericMapping(
                 transmitterState, receiverState, transmissionTime, receptionTime ) +
@@ -355,6 +359,7 @@ double calculateBeanAndDuttonWaterVaporPartialPressure( double relativeHumidity,
             std::to_string( relativeHumidity ) + "), should be in [0,1]." );
     }
 
+    // Estefan and Sovers (1994), eq. 16
     // 1e2 factor is conversion from mbar to Pa
     return 6.11 * relativeHumidity * std::pow( 10.0, 7.5 * ( ( temperature - 273.15 ) / ( temperature - 35.85 ) ) ) * 1e2;
 }
@@ -373,14 +378,18 @@ double SaastamoinenTroposphericCorrection::computeDryZenithRangeCorrection( cons
     double altitude = stationGeodeticPosition( 0 );
     double geodeticLatitude = stationGeodeticPosition( 1 );
 
+    // Estefan and Sovers (1994), eq. 13
     double gravitationalAccelerationFactor = 1.0 - 0.00266 * std::cos( 2.0 * geodeticLatitude ) - 2.8e-7 * altitude;
 
+    // Estefan and Sovers (1994), eq. 12
     // 1e-2 factor is conversion of pressure from Pa to mBar
     return 0.0022768 * pressureFunction_( stationTime ) * 1e-2 / gravitationalAccelerationFactor;
 }
 
 double SaastamoinenTroposphericCorrection::computeWetZenithRangeCorrection( const double stationTime )
 {
+
+    // Estefan and Sovers (1994), eq. 18
     // 1e-2 factor is conversion of pressure from Pa to mBar
     return 0.002277 * waterVaporPartialPressureFunction_( stationTime ) * 1e-2 * (
             1255.0 / temperatureFunction_( stationTime ) + 0.05 );
@@ -400,6 +409,7 @@ TabulatedIonosphericCorrection::TabulatedIonosphericCorrection(
 {
     if ( isRadiometricObservableType( baseObservableType ) )
     {
+        // Moyer (2000), section 10.2.2, 4th paragraph
         if ( isGroupVelocityBasedObservableType( baseObservableType ) )
         {
             sign_ = 1;
@@ -465,6 +475,7 @@ double TabulatedIonosphericCorrection::calculateLightTimeCorrectionWithMultiLegL
                 std::string( caughtException.what( ) ) );
     }
 
+    // Moyer (2000), eq. 10-11
     return ( sign_ * referenceCorrectionCalculator_->computeMediaCorrection( stationTime ) *
         std::pow( referenceFrequency_ / transmittedFrequencyFunction_( frequencyBands, firstLegTransmissionTime ), 2.0 ) ) /
                 physical_constants::getSpeedOfLight< double >( );

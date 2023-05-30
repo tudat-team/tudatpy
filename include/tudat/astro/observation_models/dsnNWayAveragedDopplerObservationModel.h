@@ -6,6 +6,10 @@
  *    under the terms of the Modified BSD license. You should have received
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
+ *
+ *    References:
+ *          T. Moyer (2000), Formulation for Observed and Computed Values of Deep Space Network Data Types for Navigation,
+ *              DEEP SPACE COMMUNICATIONS AND NAVIGATION SERIES, JPL/NASA
  */
 
 #ifndef TUDAT_DSNNWAYAVERAGEDDOPPLEROBSERVATIONMODEL_H
@@ -29,7 +33,8 @@ namespace observation_models
 /*! Calculate the scaling factor for computing partials via DifferencedObservablePartial.
  *
  * Calculate the scaling factor for computing partials via DifferencedObservablePartial, for DSN n-way Doppler
- * observations. The scaling factor depends on whether it is the first or the second partial being calculated. In
+ * observations. The scaling factor are selected according to eq. 13-59 of Moyer(2000).
+ * The scaling factor depends on whether it is the first or the second partial being calculated. In
  * DifferencedObservablePartial, the first partial is multiplied by -1, hence here corresponds to the start of the
  * integration interval. The second partial is multiplied by +1, hence here corresponds to the end of the
  * integration interval.
@@ -115,6 +120,7 @@ inline double getDsnNWayAveragedDopplerScalingFactor(
                 linkEnds.at( observation_models::transmitter ).stationName_ )->getTransmittingFrequencyCalculator( )->
                         template getTemplatedCurrentFrequency< double >( transmissionTime );
 
+    // Moyer (2000), eq. 13-59
     return turnaroundRatio * frequency / integrationTime / physical_constants::getSpeedOfLight< double >( );
 }
 
@@ -169,7 +175,7 @@ public:
     /*! Function to compute DSN n-way Doppler observation at given time.
      *
      * Function to compute DSN n-way Doppler observation at given time. Only implemented for receiver as the
-     * linkEndAssociatedWithTime.
+     * linkEndAssociatedWithTime. Computes the observable according to section 13.3.2.2 of Moyer (2000).
      *
      * @param time Time at which observable is to be evaluated.
      * @param linkEndAssociatedWithTime Link end at which given time is valid, i.e. link end for which associated time
@@ -230,7 +236,6 @@ public:
         }
         FrequencyBands uplinkBand = frequencyBands.at( 0 );
         FrequencyBands downlinkBand = frequencyBands.at( 1 );
-
         TimeType receptionStartTime = time - integrationTime / 2.0;
         TimeType receptionEndTime = time + integrationTime / 2.0;
 
@@ -241,6 +246,7 @@ public:
                 receptionEndTime, linkEndAssociatedWithTime, arcEndLinkEndTimes, arcEndLinkEndStates,
                 ancillarySettings )( 0, 0 ) / physical_constants::getSpeedOfLight< ObservationScalarType >( );
 
+        // Moyer (2000), eqs. 13-52 and 13-53
         TimeType transmissionStartTime = receptionStartTime - startLightTime;
         TimeType transmissionEndTime = receptionEndTime - endLightTime;
 
@@ -249,6 +255,7 @@ public:
                 )->getTransmittingFrequencyCalculator( )->template getTemplatedFrequencyIntegral< ObservationScalarType, TimeType >(
                         transmissionStartTime, transmissionEndTime );
 
+        // Moyer (2000), eq. 13-54
         Eigen::Matrix< ObservationScalarType, 1, 1 > observation = ( Eigen::Matrix< ObservationScalarType, 1, 1 >( ) <<
                 turnaroundRatio_( uplinkBand, downlinkBand ) * ( referenceFrequency - 1.0 / static_cast< ObservationScalarType >( integrationTime ) *
                 transmitterFrequencyIntegral ) ).finished( );
