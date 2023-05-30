@@ -855,40 +855,6 @@ public:
                     std::make_shared< SingleArcPropagatorProcessingSettings >( *this->outputSettings_ ) );
     }
 
-    //    //! Constructor for generic stopping conditions, providing settings to create accelerations map.
-    //    /*!
-    //     * Constructor for generic stopping conditions, providing settings to create accelerations map.
-    //     * \param centralBodies List of bodies w.r.t. which the bodies in bodiesToIntegrate_ are propagated.
-    //     * \param accelerationSettingsMap A map containing settings for the accelerations acting on each body, identifying
-    //     *  the body being acted on and the body acted on by an acceleration. The map has as key a string denoting
-    //     *  the name of the body the list of accelerations, provided as the value corresponding to a key, is acting on.
-    //     *  This map-value is again a map with string as key, denoting the body exerting the acceleration, and as value
-    //     *  a pointer to an acceleration model.
-    //     * \param bodiesToIntegrate List of bodies for which the translational state is to be propagated.
-    //     * \param initialBodyStates Initial state used as input for numerical integration
-    //     * \param terminationSettings Settings for creating the object that checks whether the propagation is finished.
-    //     * \param propagator Type of translational state propagator to be used
-    //     * \param dependentVariablesToSave Settings for the dependent variables that are to be saved during propagation
-    //     * (default none).
-    //     * \param statePrintInterval Variable indicating how often (once per statePrintInterval_ seconds or propagation independenty
-    //     * variable) the current state and time are to be printed to console (default never).
-    //     */
-    //    TranslationalStatePropagatorSettings( const std::vector< std::string >& centralBodies,
-    //                                          const simulation_setup::SelectedAccelerationMap& accelerationSettingsMap,
-    //                                          const std::vector< std::string >& bodiesToIntegrate,
-    //                                          const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyStates,
-    //                                          const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
-    //                                          const TranslationalPropagatorType propagator = cowell,
-    //                                          const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave =
-    //            std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
-    //                                          const double statePrintInterval = TUDAT_NAN ):
-    //        SingleArcPropagatorSettings< StateScalarType, TimeType >( translational_state, initialBodyStates, terminationSettings,
-    //                                                        dependentVariablesToSave, statePrintInterval ),
-    //        centralBodies_( centralBodies ),
-    //        bodiesToIntegrate_( bodiesToIntegrate ),
-    //        propagator_( propagator ),
-    //        accelerationSettingsMap_( accelerationSettingsMap ) { verifyInput( ); }
-
     //! Constructor for fixed propagation time stopping conditions, providing an alreay-created accelerations map.
     /*!
      * Constructor for fixed propagation time stopping conditions, providing an alreay-created accelerations map.
@@ -1993,7 +1959,7 @@ public:
             std::make_shared< SingleArcPropagatorProcessingSettings >( ) ):
         SingleArcPropagatorSettings< StateScalarType, TimeType >(
             hybrid, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( 0 ),
-            terminationSettings, dependentVariablesToSave, statePrintInterval )
+            terminationSettings, dependentVariablesToSave, statePrintInterval, outputSettings )
     {
         for( unsigned int i = 0; i < propagatorSettingsVector.size( ); i++ )
         {
