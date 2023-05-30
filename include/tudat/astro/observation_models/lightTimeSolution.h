@@ -512,29 +512,39 @@ public:
                                       "state and time vectors is inconsistent." );
         }
 
-        // Initialize reception and transmission times, and light time: zero light time as initial guess
+        // Initialize reception and transmission times
         TimeType receptionTime = time, transmissionTime = time;
+        StateType receiverState, transmitterState;
         ObservationScalarType previousLightTimeCalculation = 0.0;
 
-        // If link end times are provided as input, use that as initial guess instead
+        // If link end times are provided as input, use that as initial guess
         if ( !std::isnan( linkEndsTimes.at( currentMultiLegTransmitterIndex ) ) && !std::isnan( linkEndsTimes.at( currentMultiLegReceiverIndex ) ) )
         {
             previousLightTimeCalculation = currentCorrection_ + currentIdealLightTime_;
-
-            // reference time is at reception
-            if ( isTimeAtReception )
-            {
-                transmissionTime = receptionTime - previousLightTimeCalculation;
-            }
-            // reference time is at transmission
-            else
-            {
-                receptionTime = transmissionTime + previousLightTimeCalculation;
-            }
         }
-        // Initialize receiver and transmitter states
-        StateType receiverState = stateFunctionOfReceivingBody_( receptionTime );
-        StateType transmitterState = stateFunctionOfTransmittingBody_( transmissionTime );
+        // If no link end times are provided, compute an initial guess for the light time without corrections
+        else
+        {
+            receiverState = stateFunctionOfReceivingBody_( receptionTime );
+            transmitterState = stateFunctionOfTransmittingBody_( transmissionTime );
+
+            currentCorrection_ = 0.0;
+
+            previousLightTimeCalculation = calculateNewLightTimeEstimate( receiverState, transmitterState );
+        }
+
+        // Set value of transmission and reception times based on initial guess for light time
+        if ( isTimeAtReception ) // reference time is at reception
+        {
+            transmissionTime = receptionTime - previousLightTimeCalculation;
+        }
+        else // reference time is at transmission
+        {
+            receptionTime = transmissionTime + previousLightTimeCalculation;
+        }
+        // Set receiver and transmitter states to initial guess
+        receiverState = stateFunctionOfReceivingBody_( receptionTime );
+        transmitterState = stateFunctionOfTransmittingBody_( transmissionTime );
 
         // Set variables for iteration of light time
         iterationCounter_ = 0;

@@ -22,6 +22,7 @@
 
 #include "tudat/io/readOdfFile.h"
 #include "tudat/io/readTabulatedMediaCorrections.h"
+#include "tudat/io/readTabulatedWeatherData.h"
 #include "tudat/simulation/estimation_setup/processOdfFile.h"
 
 #include <boost/date_time/gregorian/gregorian.hpp>
@@ -43,14 +44,14 @@ void runSimulation(
         std::string saveDirectory,
         std::string fileTag,
         bool useInterpolatedEphemerides,
-        float epehemeridesTimeStep,
+        double epehemeridesTimeStep,
         std::vector< LightTimeCorrectionType > lightTimeCorrectionTypes )
 {
 
 //    std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/mgs-m-rss-1-ext-v1/mors_2190/odf/5327332a.odf" )->writeOdfToTextFile(
 //            saveDirectory + "5327332a.txt");
-    std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/mgs-m-rss-1-ext-v1/mors_2190/odf/5332333a.odf" )->writeOdfToTextFile(
-            saveDirectory + "5332333a.txt");
+//    std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/mgs-m-rss-1-ext-v1/mors_2190/odf/5332333a.odf" )->writeOdfToTextFile(
+//            saveDirectory + "5332333a.txt");
 //    std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/mgs-m-rss-1-ext-v1/mors_2190/odf/5333334a.odf" )->writeOdfToTextFile(
 //            saveDirectory + "5333334a.txt");
 //    return;
@@ -187,6 +188,7 @@ void runSimulation(
 //            std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/mro-rawdata-odf/mromagr2017_097_1335xmmmv1.odf" );
 //            std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/mgs-m-rss-1-ext-v1/mors_0720/odf/2088089a.odf" );
             std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/mgs-m-rss-1-ext-v1/mors_2190/odf/5332333a.odf" );
+//            std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/mgs-m-rss-1-ext-v1/mors_2190/odf/5327332a.odf" );
 
 //    rawOdfFileContents->writeOdfToTextFile( saveDirectory + "mess_rs_09121_121_odf.txt");
 
@@ -302,6 +304,21 @@ void runSimulation(
                 std::make_shared< observation_models::TabulatedIonosphericCorrectionSettings >(
                       createIonosphericCorrection( { ionosphericCspFile1, ionosphericCspFile2 },
                                                    spacecraftNamePerSpacecraftId ) ) );
+    }
+    if ( std::count( lightTimeCorrectionTypes.begin(), lightTimeCorrectionTypes.end(), saastamoinen_tropospheric ) )
+    {
+        input_output::setDsnWeatherDataInGroundStations(
+            bodies,
+            std::vector< std::string >
+                    { "/Users/pipas/Documents/mgs-m-rss-1-ext-v1/mors_2190/wea/50013321.wea",
+                      "/Users/pipas/Documents/mgs-m-rss-1-ext-v1/mors_2190/wea/50013324.wea",
+                      "/Users/pipas/Documents/mgs-m-rss-1-ext-v1/mors_2190/wea/50013326.wea" } );
+
+        lightTimeCorrectionSettings.push_back( std::make_shared< SaastamoinenTroposphericCorrectionSettings >( ) );
+    }
+    if ( std::count( lightTimeCorrectionTypes.begin(), lightTimeCorrectionTypes.end(), jakowski_vtec_ionospheric ) )
+    {
+        lightTimeCorrectionSettings.push_back( std::make_shared< JakowskiIonosphericCorrectionSettings >( ) );
     }
 
     std::map < observation_models::ObservableType, std::vector< observation_models::LinkEnds > > linkEndsPerObservable =
@@ -462,15 +479,21 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
     }
     else if ( testCase == 3 )
     {
-        std::string fileTag = "5332333aOdf_directState";
+//        std::string fileTag = "5332333aOdf_interpState50";
+        std::string fileTag = "5332333aOdf_interpState50";
+        double ephemeridesTimeStep = 50.0;
 
-        runSimulation( saveDirectory, fileTag + "_noCorr", true, 50.0, { } );
+        runSimulation( saveDirectory, fileTag + "_noCorr", true, ephemeridesTimeStep, { } );
 
-        runSimulation( saveDirectory, fileTag + "_relCorr", true, 50.0, { first_order_relativistic } );
+        runSimulation( saveDirectory, fileTag + "_relCorr", true, ephemeridesTimeStep, { first_order_relativistic } );
 
-        runSimulation( saveDirectory, fileTag + "_troCorr", true, 50.0, { tabulated_tropospheric } );
+        runSimulation( saveDirectory, fileTag + "_troCorr", true, ephemeridesTimeStep, { tabulated_tropospheric } );
 
-        runSimulation( saveDirectory, fileTag + "_ionCorr", true, 50.0, { tabulated_ionospheric } );
+//        runSimulation( saveDirectory, fileTag + "_ionCorr", true, ephemeridesTimeStep, { tabulated_ionospheric } );
+
+//        runSimulation( saveDirectory, fileTag + "_troGdCorr", true, ephemeridesTimeStep, { saastamoinen_tropospheric } );
+
+//        runSimulation( saveDirectory, fileTag + "_ionGdCorr", true, ephemeridesTimeStep, { jakowski_vtec_ionospheric } );
     }
     else if ( testCase == 1 )
     {

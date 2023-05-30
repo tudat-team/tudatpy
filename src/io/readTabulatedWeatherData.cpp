@@ -257,9 +257,21 @@ std::function< double ( double ) > createInterpolatingFunction(
         const std::vector< double >& keys,
         const std::vector< double >& values )
 {
+    std::vector< double > validKeys;
+    std::vector< double > validValues;
+
+    for ( unsigned int i = 0; i < keys.size( ); ++i )
+    {
+        if ( !std::isnan( values.at( i ) ) )
+        {
+            validKeys.push_back( keys.at( i ) );
+            validValues.push_back( values.at( i ) );
+        }
+    }
+
     std::shared_ptr< interpolators::OneDimensionalInterpolator< double, double > > interpolator =
             createOneDimensionalInterpolator(
-                    utilities::createMapFromVectors( keys, values ), interpolatorSettings );
+                    utilities::createMapFromVectors( validKeys, validValues ), interpolatorSettings );
     std::function< double ( double ) > function = [=] ( const double time ) { return interpolator->interpolate( time ); };
 
     return function;

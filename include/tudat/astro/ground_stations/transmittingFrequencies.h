@@ -197,17 +197,26 @@ public:
         // Check if there are no discontinuities between end times and subsequent start times
         for ( unsigned int i = 1; i < startTimes_.size( ); ++i )
         {
+            // If there are discontinuities, save that information
             if ( startTimes_.at( i ) != endTimes_.at( i - 1 ) )
             {
-                throw std::runtime_error(
-                        "Error when creating piecewise linear frequency interpolator: discontinuity between ramp end "
-                        "time (" + std::to_string( endTimes_.at( i - 1 ) ) + ") and start time of the following ramp (" +
-                        std::to_string( startTimes_.at( i ) ) + ")." );
+//                throw std::runtime_error(
+//                        "Error when creating piecewise linear frequency interpolator: discontinuity between ramp end "
+//                        "time (" + std::to_string( endTimes_.at( i - 1 ) ) + ") and start time of the following ramp (" +
+//                        std::to_string( startTimes_.at( i ) ) + ")." );
+                invalidTimeBlocksStartTimes_.push_back( endTimes_.at( i - 1 ) );
+                invalidTimeBlocksEndTimes_.push_back( startTimes_.at( i ) );
             }
         }
 
         startTimeLookupScheme_ = std::make_shared< interpolators::HuntingAlgorithmLookupScheme< double > >(
                 startTimes_ );
+
+        if ( !invalidTimeBlocksStartTimes_.empty( ) )
+        {
+            invalidStartTimeLookupScheme_ = std::make_shared< interpolators::BinarySearchLookupScheme< double > >(
+                invalidTimeBlocksStartTimes_ );
+        }
     }
 
     /*! Templated function to compute the transmitted frequency at the specified time.
@@ -231,6 +240,20 @@ public:
                     ") is outside the ramp table interval (" + std::to_string( startTimes_.at( 0 ) ) + " to " +
                     std::to_string( startTimes_.back( ) ) + ")." );
         }
+        else if ( invalidStartTimeLookupScheme_ != nullptr )
+        {
+            int invalidLowestNearestNeighbour = invalidStartTimeLookupScheme_->findNearestLowerNeighbour( lookupTime );
+            if ( lookupTime > invalidTimeBlocksStartTimes_.at ( invalidLowestNearestNeighbour ) &&
+                lookupTime < invalidTimeBlocksEndTimes_.at ( invalidLowestNearestNeighbour ) )
+            {
+                throw std::runtime_error(
+                    "Error when interpolating ramp reference frequency: look up time (" + std::to_string(
+                            static_cast< double >( lookupTime ) ) +
+                    ") is in time interval without transmitted frequency (" +
+                    std::to_string( invalidTimeBlocksStartTimes_.at ( invalidLowestNearestNeighbour ) ) + " to " +
+                    std::to_string( invalidTimeBlocksEndTimes_.at ( invalidLowestNearestNeighbour ) ) + ")." );
+            }
+        }
 
         return startFrequencies_.at( lowerNearestNeighbour ) +
                rampRates_.at( lowerNearestNeighbour ) * ( lookupTime - startTimes_.at( lowerNearestNeighbour ) );
@@ -240,7 +263,7 @@ public:
      *
      * Templated function to compute the integral of the transmitted frequency. Integral is computed according to section
      * 13.3.2.2.2 of Moyer (2000). Generally the integral should only be computed using the time type Time, otherwise
-     * issues related to numerical cancelation are likely to occur.
+     * issues related to numerical cancellation are likely to occur.
      *
      * @param quadratureStartTime Start time of integration interval.
      * @param quadratureEndTime End time of integration interval.
@@ -250,6 +273,27 @@ public:
     ObservationScalarType computeFrequencyIntegral( const TimeType quadratureStartTime,
                                                     const TimeType quadratureEndTime )
     {
+        if ( invalidStartTimeLookupScheme_ != nullptr )
+        {
+            int invalidStartLowestNearestNeighbour = invalidStartTimeLookupScheme_->findNearestLowerNeighbour( quadratureStartTime );
+            // Integral is valid if both quadrature start/end times are before or after the invalid block. Need to check
+            // that they aren't before the block because the lookup scheme might return a lowest nearest neighbour to the
+            // right of the lookup time
+            if ( !(
+                    ( quadratureStartTime > invalidTimeBlocksEndTimes_.at( invalidStartLowestNearestNeighbour ) &&
+                    quadratureEndTime > invalidTimeBlocksEndTimes_.at( invalidStartLowestNearestNeighbour ) ) ||
+                    ( quadratureStartTime < invalidTimeBlocksStartTimes_.at( invalidStartLowestNearestNeighbour ) &&
+                    quadratureEndTime < invalidTimeBlocksStartTimes_.at( invalidStartLowestNearestNeighbour ) ) ) )
+            {
+                throw std::runtime_error(
+                        "Error when integrating ramp reference frequency: look up time (" + std::to_string(
+                            static_cast< double >( quadratureStartTime ) ) +
+                        ") is in time interval without transmitted frequency (" +
+                        std::to_string( invalidTimeBlocksStartTimes_.at ( invalidStartLowestNearestNeighbour ) ) + " to " +
+                        std::to_string( invalidTimeBlocksEndTimes_.at ( invalidStartLowestNearestNeighbour ) ) + ")." );
+            }
+        }
+
         ObservationScalarType integral = 0;
 
         int startTimeLowestNearestNeighbour = startTimeLookupScheme_->findNearestLowerNeighbour( quadratureStartTime );
@@ -385,8 +429,15 @@ private:
     //! Start frequency of each ramp
     std::vector< double > startFrequencies_;
 
+    //! Start and end times of blocks where no frequency was transmitted
+    std::vector< double > invalidTimeBlocksStartTimes_;
+    std::vector< double > invalidTimeBlocksEndTimes_;
+
     //! Lookup scheme to find the nearest ramp start time for a given time
     std::shared_ptr< interpolators::LookUpScheme< double > > startTimeLookupScheme_;
+
+    //! Lookup scheme to find the nearest start time of the blocks without frequency transmission
+    std::shared_ptr< interpolators::LookUpScheme< double > > invalidStartTimeLookupScheme_;
 
 };
 
