@@ -525,10 +525,18 @@ std::shared_ptr< ephemerides::RotationalEphemeris > createRotationModel(
 
     case spice_rotation_model:
     {
+        std::shared_ptr< SpiceRotationModelSettings > spiceRotationModelSettings =
+            std::dynamic_pointer_cast< SpiceRotationModelSettings >( rotationModelSettings );
+        std::string spiceFrameName = "";
+        if( spiceRotationModelSettings != nullptr )
+        {
+            spiceFrameName = spiceRotationModelSettings->getSpiceFrameName( );
+        }
         // Create rotational ephemeris directly from Spice.
         rotationalEphemeris = std::make_shared< SpiceRotationalEphemeris >(
                     rotationModelSettings->getOriginalFrame( ),
-                    rotationModelSettings->getTargetFrame( ) );
+                    rotationModelSettings->getTargetFrame( ),
+                    spiceFrameName );
         break;
     }
     case planetary_rotation_model:
