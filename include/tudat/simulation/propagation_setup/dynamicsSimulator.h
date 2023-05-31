@@ -1196,6 +1196,11 @@ public:
         return propagationResults_->dependentVariableIds_;
     }
 
+    //! Function return whether the propagation is sequential or not (forward and backward leg).
+    bool isPropagationSequential( ) const
+    {
+        return sequentialPropagation_;
+    }
 
 ///////////////////////////////////////////////////
 //////////////// END DEPRECATED ///////////////////

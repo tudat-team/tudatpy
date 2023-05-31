@@ -138,11 +138,6 @@ BOOST_AUTO_TEST_CASE( testNonSequentialSingleArcDynamics )
     std::map< double, Eigen::VectorXd > backwardStateHistory = backwardDynamicsSimulator.getEquationsOfMotionNumericalSolution( );
     std::map< double, Eigen::VectorXd > backwardDependentVariablesHistory = backwardDynamicsSimulator.getDependentVariableHistory( );
 
-    std::map< double, Eigen::VectorXd > combinedStateHistory = forwardStateHistory;
-    combinedStateHistory.insert( backwardStateHistory.begin( ), backwardStateHistory.end( ) );
-    std::map< double, Eigen::VectorXd > combinedDependentVariablesHistory = forwardDependentVariablesHistory;
-    combinedDependentVariablesHistory.insert( backwardDependentVariablesHistory.begin( ), backwardDependentVariablesHistory.end( ) );
-
     //! Create settings for non-sequential propagation
     std::shared_ptr< NonSequentialPropagationTerminationSettings > terminationSettings =
             std::make_shared< NonSequentialPropagationTerminationSettings >(
@@ -158,10 +153,19 @@ BOOST_AUTO_TEST_CASE( testNonSequentialSingleArcDynamics )
     std::map< double, Eigen::VectorXd > nonsequentialStateHistory = nonsequentialDynamicsSimulator.getEquationsOfMotionNumericalSolution( );
     std::map< double, Eigen::VectorXd > nonsequentialDependentVariablesHistory = nonsequentialDynamicsSimulator.getDependentVariableHistory( );
 
-    for ( auto itr : combinedStateHistory )
-    {
-        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( itr.second, nonsequentialStateHistory.at( itr.first ), std::numeric_limits< double >::epsilon( ) );
-    }
+    // Check consistency of state history sizes
+    BOOST_CHECK_EQUAL( nonsequentialStateHistory.size( ), forwardStateHistory.size( ) + backwardStateHistory.size( ) - 1 );
+    BOOST_CHECK_EQUAL( nonsequentialDependentVariablesHistory.size( ), forwardDependentVariablesHistory.size( ) + backwardDependentVariablesHistory.size( ) - 1 );
+
+    // Check propagated state and dependent variables at initial time.
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( nonsequentialStateHistory.begin( )->second, backwardStateHistory.begin( )->second, std::numeric_limits< double >::epsilon( ) );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( nonsequentialDependentVariablesHistory.begin( )->second, backwardDependentVariablesHistory.begin( )->second,
+                                       std::numeric_limits< double >::epsilon( ) );
+
+    // Check propagated state and dependent variables at final time.
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( nonsequentialStateHistory.rbegin( )->second, forwardStateHistory.rbegin( )->second, std::numeric_limits< double >::epsilon( ) );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( nonsequentialDependentVariablesHistory.rbegin( )->second, forwardDependentVariablesHistory.rbegin( )->second,
+                                       std::numeric_limits< double >::epsilon( ) );
 
 }
 
