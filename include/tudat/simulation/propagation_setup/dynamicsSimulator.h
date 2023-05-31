@@ -744,6 +744,12 @@ public:
                     integratorSettings_->initialTimeStep_, dynamicsStateDerivative_->getStateDerivativeModels( ),
                     predefinedStateDerivativeModels.stateDerivativePartials_ );
 
+        sequentialPropagation_ = true;
+        if ( propagationTerminationCondition_->getTerminationType( ) == non_sequential_stopping_condition )
+        {
+            sequentialPropagation_ = false;
+        }
+
         std::map< IntegratedStateType, std::vector< std::tuple< std::string, std::string, PropagatorType > > > integratedStateAndBodyList =
                 getIntegratedTypeAndBodyList( propagatorSettings_ );
 
@@ -772,12 +778,7 @@ public:
                     dependentVariableIds_, integratedStateAndBodyList, propagatorSettings_->getOutputSettingsWithCheck( ),
                     std::bind( &DynamicsStateDerivativeModel< TimeType, StateScalarType >::convertNumericalStateSolutionsToOutputSolutions,
                                dynamicsStateDerivative_,
-                               std::placeholders::_1, std::placeholders::_2 ), dependentVariableInterface ) ;
-
-
-
-
-
+                               std::placeholders::_1, std::placeholders::_2 ), dependentVariableInterface, sequentialPropagation_ ) ;
 
         // Integrate equations of motion if required.
         if( areEquationsOfMotionToBeIntegrated )
@@ -864,7 +865,7 @@ public:
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& initialStates )
     {
         integrateEquationsOfMotion< SingleArcSimulationResults< StateScalarType, TimeType > >(
-            dynamicsStateDerivative_->convertFromOutputSolution(initialStates, propagatorSettings_->getInitialTime( ) ),
+            dynamicsStateDerivative_->convertFromOutputSolution( initialStates, propagatorSettings_->getInitialTime( ) ),
                 propagationResults_ );
     }
 
@@ -1252,6 +1253,9 @@ protected:
 
     std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType > > propagationResults_;
 
+    //! Boolean denoting whether the propagation is performing sequentially, or both forward and backward (default = true).
+    bool sequentialPropagation_;
+
 
 private:
 
@@ -1275,16 +1279,49 @@ private:
         simulation_setup::setAreBodiesInPropagation( bodies_, true );
         dynamicsStateDerivative_->updateStateDerivativeModelSettings( processedInitialState.block(
                 0, processedInitialState.cols( ) - 1, processedInitialState.rows(), 1  ) );
-        integrateEquations< SimulationResults, Eigen::Matrix< StateScalarType, Eigen::Dynamic, SimulationResults::number_of_columns >, TimeType >(
-                stateDerivativeFunction_,
-                processedInitialState ,
-                propagatorSettings_->getInitialTime( ),
-                integratorSettings_,
-                propagationTerminationCondition_,
-                propagationResults,
-                dependentVariablesFunctions_,
-                statePostProcessingFunction,
-                propagatorSettings_->getOutputSettings( ) );
+
+        if ( sequentialPropagation_ )
+        {
+            integrateEquations< SimulationResults, Eigen::Matrix< StateScalarType, Eigen::Dynamic, SimulationResults::number_of_columns >, TimeType >(
+                    stateDerivativeFunction_,
+                    processedInitialState ,
+                    propagatorSettings_->getInitialTime( ),
+                    integratorSettings_,
+                    propagationTerminationCondition_,
+                    propagationResults,
+                    dependentVariablesFunctions_,
+                    statePostProcessingFunction,
+                    propagatorSettings_->getOutputSettings( ) );
+        }
+        else
+        {
+            std::shared_ptr< NonSequentialPropagationTerminationCondition > nonSequentialTerminations =
+                    std::dynamic_pointer_cast< NonSequentialPropagationTerminationCondition >( propagationTerminationCondition_ );
+            integrateEquations< SimulationResults, Eigen::Matrix< StateScalarType, Eigen::Dynamic, SimulationResults::number_of_columns >, TimeType >(
+                    stateDerivativeFunction_,
+                    processedInitialState ,
+                    propagatorSettings_->getInitialTime( ),
+                    integratorSettings_,
+                    nonSequentialTerminations->getForwardPropagationTerminationCondition( ),
+                    propagationResults,
+                    dependentVariablesFunctions_,
+                    statePostProcessingFunction,
+                    propagatorSettings_->getOutputSettings( ) );
+
+            integratorSettings_->initialTimeStep_ = - integratorSettings_->initialTimeStep_;
+            integrateEquations< SimulationResults, Eigen::Matrix< StateScalarType, Eigen::Dynamic, SimulationResults::number_of_columns >, TimeType >(
+                    stateDerivativeFunction_,
+                    processedInitialState ,
+                    propagatorSettings_->getInitialTime( ),
+                    integratorSettings_,
+                    nonSequentialTerminations->getBackwardPropagationTerminationCondition( ),
+                    propagationResults,
+                    dependentVariablesFunctions_,
+                    statePostProcessingFunction,
+                    propagatorSettings_->getOutputSettings( ) );
+            integratorSettings_->initialTimeStep_ *= ( - 1.0 );
+        }
+
         simulation_setup::setAreBodiesInPropagation( bodies_, false );
     }
 
