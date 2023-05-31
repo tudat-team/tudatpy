@@ -17,6 +17,8 @@
  *          J.A. Klobuchar (1975), A First-Order, Worldwide, Ionospheric, Time-Delay Algorithm, AIR FORCE CAMBRIDGE
  *              RESEARCH LABORATORIES
  *          820-013 TRK-2-23, Media Calibration Interface, Revision C (2008), DSN/JPL
+ *          O. Olsen (2007), HELIOSAT - An orbit determination software with applications to deep space missions,
+ *              University of Oslo.
  *
  */
 
@@ -719,8 +721,9 @@ private:
 
 };
 
-// Model from Jakowski et al. (2011)
-// Computation of geomagnetic latitude from Klobuchar (1975)
+// Computation of the VTEC using the model from Jakowski et al. (2011)
+// The geomagnetic latitude is computed according to Klobuchar (1975)
+// The local time is computed according to Moyer (2000)
 class JakowskiVtecCalculator: public VtecCalculator
 {
 public:
@@ -787,17 +790,20 @@ private:
         }
     }
 
-    // Coefficients of Jakowski model
+    // Coefficients of Jakowski model, Jakowski et al. (2011), tab. 1
     const std::vector< double > jakowskiCoefficients_ = { 0.89656, 0.16984, -0.02166, 0.05928, 0.00738, 0.13912,
                                                           -0.17593, -0.34545, 1.1167, 1.1573, -4.3356, 0.17775 };
 
+    // Declination of the Sun as seen from the ground station as a function of time
     const std::function< double ( const double time ) > sunDeclinationFunction_;
 
     //! Observed (unadjusted) value of F10.7. Expressed in units of 10-22 W/m2/Hz.
     const std::function< double ( const double time ) > observedSolarRadioFlux107Function_;
 
+    // Latitude of the geomagnetic pole
     const double geomagneticPoleLatitude_;
 
+    // Longitude of the geomagnetic pole
     const double geomagneticPoleLongitude_;
 
     std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > timeScaleConverter_;
@@ -806,12 +812,27 @@ private:
 
 // Computes the ionospheric delay by mapping the vertical TEC to slant TEC using a very simple mapping function, following
 // Moyer (2000), section 10.3.1.
-// At some point, it might be worth using other mapping functions, in which case the part of this class where the mapping
-// is executed should be moved to a new class.
 class MappedVtecIonosphericCorrection: public LightTimeCorrection
 {
 public:
 
+    /*!
+     * Constructor.
+     * @param vtecCalculator Class to calculate the vertical total electron content (VTEC)
+     * @param transmittedFrequencyFunction Function calculating the frequency at the current link given a vector with
+     *     the frequency bands in each link of the model and the transmission time.
+     * @param elevationFunction Function that computes the elevation as seen from the ground station, given the vector to
+     *      the target and the current time.
+     * @param azimuthFunction Function that computes the azimuth as seen from the ground station, given the vector to
+     *      the target and the current time.
+     * @param groundStationGeodeticPositionFunction Geodetic position of the ground station as a function of time
+     * @param baseObservableType Observable type associated with the correction.
+     * @param isUplinkCorrection Boolean indicating whether correction is for uplink (i.e. transmitting station on planet,
+      *      reception on spacecraft) or downlink (i.e. transmission from spacecraft, reception at ground station)
+     * @param bodyWithAtmosphereMeanEquatorialRadius Mean equatorial radius of the body with the ionosphere.
+     * @param firstOrderDelayCoefficient Value of the 1st order delay coefficient. Default value from Jakowski (2011);
+     *      also see IERS conventions 2010, eq. 9.24.
+     */
     MappedVtecIonosphericCorrection(
             std::shared_ptr< VtecCalculator > vtecCalculator,
             std::function< double ( std::vector< FrequencyBands > frequencyBands, double time ) > transmittedFrequencyFunction,
@@ -823,6 +844,12 @@ public:
             double bodyWithAtmosphereMeanEquatorialRadius,
             double firstOrderDelayCoefficient = 40.3 );
 
+    // Note 1: Function uses a very simple mapping function, following Moyer (2000). At some point, it might be worth
+    //      using other mapping functions, in which case the part of the function where the mapping is executed should
+    //      be moved to a new class.
+    // Note 2: Currently the STEC is calculated from the VTEC using the algorithm for computing the sub-ionospheric point
+    //      described by Moyer (2000). This algorithm fails if the line of sight passes near the poles. For an alternative
+    //      method see Olsen (2007), section 5.7.
     double calculateLightTimeCorrectionWithMultiLegLinkEndStates(
             const std::vector< Eigen::Vector6d >& linkEndsStates,
             const std::vector< double >& linkEndsTimes,
@@ -854,18 +881,25 @@ public:
 
 private:
 
+    // Class to calculate the vertical total electron content (VTEC)
     std::shared_ptr< VtecCalculator > vtecCalculator_;
 
+    // Frequency at the link as a function of the frequency bands per link, and of the current time
     std::function< double ( std::vector< FrequencyBands > frequencyBands, double time ) > transmittedFrequencyFunction_;
 
+    // Function that computes the elevation as seen from the ground station, given the vector to the target and the current time.
     std::function< double ( Eigen::Vector3d inertialVectorAwayFromStation, double time ) > elevationFunction_;
 
+    // Function that computes the azimuth as seen from the ground station, given the vector to the target and the current time.
     std::function< double ( Eigen::Vector3d inertialVectorAwayFromStation, double time ) > azimuthFunction_;
 
+    // Geodetic position of the ground station as a function of time
     std::function< Eigen::Vector3d ( double time ) > groundStationGeodeticPositionFunction_;
 
+    // Mean equatorial radius of the body with the ionosphere
     const double bodyWithAtmosphereMeanEquatorialRadius_;
 
+    // Value of the 1st order delay coefficient
     const double firstOrderDelayCoefficient_;
 
     // Sign of the correction (+1 or -1)

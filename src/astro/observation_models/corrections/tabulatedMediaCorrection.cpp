@@ -488,21 +488,26 @@ double JakowskiVtecCalculator::calculateVtec( const double time,
     const double subIonosphericLongitude = subIonosphericPointGeodeticPosition( 2 );
     const double sunDeclination = sunDeclinationFunction_( time );
 
+
     // Dependency on solar zenith: F1
 
+    // Moyer (2000), eqs. 10-46, 10.47
     const double localTimeHours = std::fmod( getUtcTime( time ) / 3600.0 + 12.0 +
             unit_conversions::convertRadiansToDegrees( subIonosphericLongitude ) / 15.0, 24.0 );
 
+    // Jakowski et al. (2011), eqs. 5, 6, 7
     const double diurnalVariation = 2.0 * mathematical_constants::PI * ( localTimeHours - 14.0 ) / 24.0;
     const double semiDiurnalVariation = 2.0 * mathematical_constants::PI * localTimeHours / 12.0;
     const double terDiurnalVariation = 2.0 * mathematical_constants::PI * localTimeHours / 8.0;
 
+    // Jakowski et al. (2011), eqs. 9, 10, 11
     const double cosChiX = std::cos( subIonosphericLatitude - sunDeclination );
     const double cosChiXx = cosChiX - 2.0 / mathematical_constants::PI * subIonosphericLatitude * std::sin( sunDeclination );
     // From GODOT:
     // "Note: in the paper by Jakowsky (2011) the equation 11 for cxx is wrong (has a square root around cx+0.4)"
     const double cosChiXxx = cosChiX + 0.4;
 
+    // Jakowski et al. (2011), eqs. 8
     const double f1 = cosChiXxx + cosChiXx * (
             jakowskiCoefficients_.at( 0 ) * std::cos( diurnalVariation ) +
             jakowskiCoefficients_.at( 1 ) * std::cos( semiDiurnalVariation ) +
@@ -510,14 +515,18 @@ double JakowskiVtecCalculator::calculateVtec( const double time,
             jakowskiCoefficients_.at( 3 ) * std::cos( terDiurnalVariation ) +
             jakowskiCoefficients_.at( 4 ) * std::sin( terDiurnalVariation ) );
 
+
     // Seasonal variation: F2
     const double dayOfYear = sofa_interface::convertSecondsSinceEpochToSecondsOfYear( time ) / physical_constants::JULIAN_DAY;
 
+    // Jakowski et al. (2011), eqs. 13, 14
     const double annualVariation = 2.0 * mathematical_constants::PI * ( dayOfYear - 18.0 ) / 365.25;
     const double semiAnnualVariation = 4.0 * mathematical_constants::PI * ( dayOfYear - 6.0 ) / 365.25;
 
+    // Jakowski et al. (2011), eq. 12
     const double f2 = ( 1.0 + jakowskiCoefficients_.at( 5 ) * std::cos( annualVariation ) +
             jakowskiCoefficients_.at( 6 ) * std::cos( semiAnnualVariation ) );
+
 
     // Geomagnetic field dependency: F3 and F4
 
@@ -527,8 +536,10 @@ double JakowskiVtecCalculator::calculateVtec( const double time,
             std::cos( subIonosphericLatitude ) * std::cos( geomagneticPoleLatitude_ ) *
                 std::cos( subIonosphericLongitude - geomagneticPoleLongitude_ ) );
 
+     // Jakowski et al. (2011), eq. 15
     const double f3 = 1.0 + jakowskiCoefficients_.at( 7 ) * std::cos( geomagneticLatitude );
 
+    // Jakowski et al. (2011), eqs. 17, 18
     const double phiC1 = unit_conversions::convertDegreesToRadians( 16.0 );
     const double phiC2 = - unit_conversions::convertDegreesToRadians( 10.0 );
     const double sigmaC1 = unit_conversions::convertDegreesToRadians( 12.0 );
@@ -536,13 +547,17 @@ double JakowskiVtecCalculator::calculateVtec( const double time,
 
     const double ec1 = - std::pow( ( geomagneticLatitude - phiC1 ) / sigmaC1, 2.0 ) / 2.0;
     const double ec2 = - std::pow( ( geomagneticLatitude - phiC2 ) / sigmaC2, 2.0 ) / 2.0;
+    // Jakowski et al. (2011), eqs. 16
     const double f4 = ( 1.0 + jakowskiCoefficients_.at( 8 ) * std::exp( ec1 ) +
             jakowskiCoefficients_.at( 9 ) * std::exp( ec2 ) );
 
+
     // Solar activity dependency: F5
+    // Jakowski et al. (2011), eq. 19
     const double f5 = jakowskiCoefficients_.at( 10 ) + jakowskiCoefficients_.at( 11 ) *
             observedSolarRadioFlux107Function_( time );
 
+    // Jakowski et al. (2011), eq. 4
     // 1e16 is conversion factor from TECU to m^-2
     return f1 * f2 * f3 * f4 * f5 * 1e16;
 }
@@ -646,17 +661,18 @@ double MappedVtecIonosphericCorrection::calculateLightTimeCorrectionWithMultiLeg
     double geodeticLatitude = groundStationGeodeticPosition( 1 );
     double geodeticLongitude = groundStationGeodeticPosition( 2 );
 
+    // Moyer (2000), eq. 10-43
     const double zenithAngle = std::asin( bodyWithAtmosphereMeanEquatorialRadius_ /
             ( bodyWithAtmosphereMeanEquatorialRadius_ + vtecCalculator_->getReferenceIonosphereHeight( ) ) * std::cos( elevation ) );
 
     Eigen::Vector3d subIonosphericPointGeodeticPosition;
     // Altitude
     subIonosphericPointGeodeticPosition( 0 ) = TUDAT_NAN;
-    // Latitude
+    // Latitude: Moyer (2000), eq. 10-44
     subIonosphericPointGeodeticPosition( 1 ) = std::asin(
             std::sin( geodeticLatitude ) * std::sin( elevation + zenithAngle ) + std::cos( geodeticLatitude ) *
             std::cos( elevation + zenithAngle ) * std::cos( azimuth ) );
-    // Longitude
+    // Longitude: Moyer (2000), eq. 10-45
     subIonosphericPointGeodeticPosition( 2 ) = geodeticLongitude;
     if ( std::abs( std::cos( subIonosphericPointGeodeticPosition( 1 ) ) ) > 1e-12 )
     {
@@ -664,6 +680,7 @@ double MappedVtecIonosphericCorrection::calculateLightTimeCorrectionWithMultiLeg
                 std::cos( subIonosphericPointGeodeticPosition( 1 ) ) );
     }
 
+    // Jakowski et al. (2011), eqs. 1 and 2; IERS conventions 2010, section 9.4
     return ( sign_ * firstOrderDelayCoefficient_ *
         vtecCalculator_->calculateVtec( groundStationTime, subIonosphericPointGeodeticPosition ) /
         std::pow( transmittedFrequencyFunction_( frequencyBands, firstLegTransmissionTime ), 2.0 ) /
