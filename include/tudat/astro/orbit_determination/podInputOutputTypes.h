@@ -736,7 +736,7 @@ struct EstimationOutput: public CovarianceAnalysisOutput< ObservationScalarType,
         else
         {
             std::cerr << "Warning, requesting parameter history, but history not saved." << std::endl;
-            return Eigen::MatrixXd::Zero( 0, 0 );
+            return Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, Eigen::Dynamic >::Zero( 0, 0 );
         }
     }
 

@@ -82,6 +82,16 @@ public:
                                                                       ancillarySettings );
     }
 
+     //! Pure virtual function to compute the light-time correction
+     /*!
+      * Pure virtual function to compute the light-time correction, function is to be implemented in derived class
+      * for specific correction model.
+      * @param linkEndsStates List of states at each link end during observation.
+      * @param linkEndsTimes List of times at each link end during observation.
+      * @param currentMultiLegTransmitterIndex Index in the linkEndsStates and linkEndsTimes of the transmitter in the current link.
+      * @param ancillarySettings Observation ancillary simulation settings.
+      * @return
+      */
     virtual double calculateLightTimeCorrectionWithMultiLegLinkEndStates(
             const std::vector< Eigen::Vector6d >& linkEndsStates,
             const std::vector< double >& linkEndsTimes,
