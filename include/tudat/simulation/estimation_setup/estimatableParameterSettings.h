@@ -107,6 +107,29 @@ public:
         EstimatableParameterSettings( associatedBody, parameterType ), blockIndices_( blockIndices ),
         minimumDegree_( -1 ), minimumOrder_( -1 ), maximumDegree_( -1 ), maximumOrder_( -1 )
     {
+        for( unsigned int i = 0; i < blockIndices.size( ); i++ )
+        {
+            if( blockIndices.at( i ).first == 0 )
+            {
+                throw std::runtime_error( "Error, cannot estimate degree 0 spherical harmonic gravity field coefficient, estimation gravitational parameter instead" );
+            }
+
+            if( blockIndices.at( i ).first < 0 )
+            {
+                throw std::runtime_error( "Error, cannot estimate negative degree spherical harmonic gravity field coefficients, but found degree " + std::to_string( blockIndices.at( i ).first ) );
+            }
+
+            if( blockIndices.at( i ).second == 0 && parameterType == spherical_harmonics_sine_coefficient_block )
+            {
+                throw std::runtime_error( "Error when making spherical harmonic sine parameter settings, found order set to 0, but degree 0 spherical harmonic sine coefficients do not exist" );
+            }
+
+            if( blockIndices.at( i ).second > blockIndices.at( i ).first )
+            {
+                throw std::runtime_error( "Error when making spherical harmonic sine parameter settings, found coefficient with order > degree, which does not exist" );
+            }
+        }
+
         if( ( parameterType != spherical_harmonics_cosine_coefficient_block ) &&
                 ( parameterType != spherical_harmonics_sine_coefficient_block ) )
         {
@@ -141,6 +164,31 @@ public:
                 ( parameterType != spherical_harmonics_sine_coefficient_block ) )
         {
             throw std::runtime_error( "Error when making spherical harmonic parameter settings, input parameter type is inconsistent." );
+        }
+
+        if( minimumOrder == 0 && parameterType == spherical_harmonics_sine_coefficient_block )
+        {
+            throw std::runtime_error( "Error when making spherical harmonic sine parameter settings, minimum order is set to 0, but degree 0 spherical harmonic sine coefficients do not exist" );
+        }
+
+        if( maximumDegree < minimumDegree )
+        {
+            throw std::runtime_error( "Error when making spherical harmonic parameter settings, maximum degree is smaller than minimum degree" );
+        }
+
+        if( maximumOrder < minimumOrder )
+        {
+            throw std::runtime_error( "Error when making spherical harmonic parameter settings, maximum order is smaller than minimum order" );
+        }
+
+        if( minimumDegree == 0 )
+        {
+            throw std::runtime_error( "Error, cannot estimate degree 0 spherical harmonic gravity field coefficient, estimation gravitational parameter instead" );
+        }
+
+        if( minimumDegree < 0 )
+        {
+            throw std::runtime_error( "Error, cannot estimate negative degree spherical harmonic gravity field coefficients, but minimum degree is set to " + std::to_string( minimumDegree ) );
         }
 
         blockIndices_ = getSphericalHarmonicBlockIndices( minimumDegree, minimumOrder, maximumDegree, maximumOrder );
