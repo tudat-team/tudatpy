@@ -48,6 +48,7 @@ struct Settings
     double simulationEndEpoch{};
     double printInterval{};
     std::string targetType{};
+    bool withInstantaneousReradiation{};
     bool useOccultation{};
     bool useMoonRadiation{};
     std::string panelingMoon{};
@@ -75,6 +76,7 @@ Settings loadSettings(char* path)
     settings.printInterval = settings.simulationDuration / 10;
 
     settings.targetType = settings_["target_type"];
+    settings.withInstantaneousReradiation = settings_["with_instantaneous_reradiation"];
     settings.useOccultation = settings_["use_occultation"];
     settings.useMoonRadiation = settings_["use_moon_radiation"];
     settings.panelingMoon = settings_["paneling_moon"];
@@ -101,6 +103,7 @@ std::ostream& operator<<(std::ostream& os, const Settings& settings)
         << " - Simulation duration: "<<(settings.simulationDuration / 60)<<" min"<<std::endl
         << " - Simulation end: "<<formatEphemerisTime(settings.simulationEndEpoch)<<std::endl
         << " - Target type: "<<settings.targetType<<std::endl
+        << " - With instantaneous reradiation: "<<settings.withInstantaneousReradiation<<std::endl
         << " - Use occultation: "<<settings.useOccultation<<std::endl
         << " - Use moon radiation: "<<settings.useMoonRadiation<<std::endl
         << " - Paneling type (Moon): "<<settings.panelingMoon<<std::endl

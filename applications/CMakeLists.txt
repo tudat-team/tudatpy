@@ -29,3 +29,18 @@ TUDAT_ADD_EXECUTABLE(application_shadow_function_estimation
         "src/shadow_function_estimation.cpp"
         ${Tudat_PROPAGATION_LIBRARIES}
         )
+
+TUDAT_ADD_EXECUTABLE(application_validation_verification
+        "src/validation_verification.cpp"
+        ${Tudat_PROPAGATION_LIBRARIES}
+        )
+
+TUDAT_ADD_EXECUTABLE(application_regression_test
+        "src/regression_test.cpp"
+        ${Tudat_PROPAGATION_LIBRARIES} tudat_liblro
+        )
+
+TUDAT_ADD_EXECUTABLE(application_scratch
+        "src/scratch.cpp"
+        ${Tudat_PROPAGATION_LIBRARIES}
+        )

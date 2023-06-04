@@ -78,11 +78,16 @@ SystemOfBodies createSimulationBodies()
             spiceRotationModelSettings(globalFrameOrientation, moonFrame);
     std::dynamic_pointer_cast<SphericalHarmonicsGravityFieldSettings>(
             bodySettings.at("Moon")->gravityFieldSettings)->resetAssociatedReferenceFrame(moonFrame);
+//    bodySettings.at("Moon")->radiationSourceModelSettings =
+//            staticallyPaneledRadiationSourceModelSettings("Sun", {
+//                albedoPanelRadiosityModelSettings(albedo_dlam1),
+//                angleBasedThermalPanelRadiosityModelSettings(100, 375, 0.95)
+//            }, 2000, {"Earth"});
     bodySettings.at("Moon")->radiationSourceModelSettings =
-            staticallyPaneledRadiationSourceModelSettings("Sun", {
-                albedoPanelRadiosityModelSettings(albedo_dlam1),
+            dynamicallyPaneledRadiationSourceModelSettings("Sun", {
+                albedoPanelRadiosityModelSettings(SphericalHarmonicsSurfacePropertyDistributionModel::albedo_dlam1),
                 angleBasedThermalPanelRadiosityModelSettings(100, 375, 0.95)
-            }, 1, {"Earth"});
+            }, {6, 12}, {"Earth"});
 
     // Create LRO
     bodySettings.addSettings("LRO");
@@ -91,16 +96,16 @@ SystemOfBodies createSimulationBodies()
 //    bodySettings.at("LRO")->radiationPressureTargetModelSettings =
 //            cannonballRadiationPressureTargetModelSettings(15.38, 1.41);
     bodySettings.at("LRO")->radiationPressureTargetModelSettings = paneledRadiationPressureTargetModelSettingsWithOccultationMap({
-            TargetPanelSettings(2.82, 0.29, 0.22, Eigen::Vector3d::UnitX()),
-            TargetPanelSettings(2.82, 0.39, 0.19, -Eigen::Vector3d::UnitX()),
-            TargetPanelSettings(3.69, 0.32, 0.23, Eigen::Vector3d::UnitY()),
-            TargetPanelSettings(3.69, 0.32, 0.18, -Eigen::Vector3d::UnitY()),
-            TargetPanelSettings(5.14, 0.32, 0.18, Eigen::Vector3d::UnitZ()),
-            TargetPanelSettings(5.14, 0.54, 0.15, -Eigen::Vector3d::UnitZ()),
-            TargetPanelSettings(11.0, 0.05, 0.05, "Sun"),
-            TargetPanelSettings(11.0, 0.05, 0.05, "Sun", false),  // not officially given
-            TargetPanelSettings(1.0, 0.18, 0.28, "Earth"),
-            TargetPanelSettings(1.0, 0.019, 0.0495, "Earth", false),
+            TargetPanelSettings(2.82, 0.29, 0.22, false, Eigen::Vector3d::UnitX()),
+            TargetPanelSettings(2.82, 0.39, 0.19, false, -Eigen::Vector3d::UnitX()),
+            TargetPanelSettings(3.69, 0.32, 0.23, false, Eigen::Vector3d::UnitY()),
+            TargetPanelSettings(3.69, 0.32, 0.18, false, -Eigen::Vector3d::UnitY()),
+            TargetPanelSettings(5.14, 0.32, 0.18, false, Eigen::Vector3d::UnitZ()),
+            TargetPanelSettings(5.14, 0.54, 0.15, false, -Eigen::Vector3d::UnitZ()),
+            TargetPanelSettings(11.0, 0.05, 0.05, false, "Sun"),
+            TargetPanelSettings(11.0, 0.05, 0.05, false, "Sun", false),  // not officially given
+            TargetPanelSettings(1.0, 0.18, 0.28, false, "Earth"),
+            TargetPanelSettings(1.0, 0.019, 0.0495, false, "Earth", false),
     }, {
         // Moon is never occulted as seen from LRO
         {"Sun", {"Earth", "Moon"}}
@@ -121,7 +126,7 @@ AccelerationMap createSimulationAccelerations(const SystemOfBodies& bodies)
                         radiationPressureAcceleration()
                 }},
                 {"Earth", {
-                        sphericalHarmonicAcceleration(50, 50)
+                        sphericalHarmonicAcceleration(25, 25)
                 }},
                 {"Sun", {
                         pointMassGravityAcceleration(),
@@ -157,9 +162,10 @@ std::shared_ptr<propagators::SingleArcSimulationResults<>> createAndRunSimulatio
                     receivedIrradianceDependentVariable("LRO", "Sun"),
                     receivedIrradianceDependentVariable("LRO", "Moon"),
                     receivedFractionDependentVariable("LRO", "Sun"),
-                    visibleSourcePanelDependentVariable("LRO", "Moon"),
-                    illuminatedSourcePanelDependentVariable("LRO", "Moon"),
-                    visibleAndIlluminatedSourcePanelDependentVariable("LRO", "Moon"),
+                    visibleSourcePanelCountDependentVariable("LRO", "Moon"),
+                    illuminatedSourcePanelCountDependentVariable("LRO", "Moon"),
+                    visibleAndIlluminatedSourcePanelCountDependentVariable("LRO", "Moon"),
+                    visibleSourceAreaDependentVariable("LRO", "Moon")
             };
 
     auto integratorSettings = rungeKuttaVariableStepSettingsScalarTolerances(

@@ -78,7 +78,7 @@ SystemOfBodies createSimulationBodies()
         {
             panelRadiosityModels.push_back(angleBasedThermalPanelRadiosityModelSettings(100, 375, 0.95));
         }
-        else
+        else if (settings.thermalTypeMoon != "NoThermal")
         {
             throw std::runtime_error("Invalid thermal_type_moon");
         }
@@ -125,16 +125,16 @@ SystemOfBodies createSimulationBodies()
         }
 
         bodySettings.at("LRO")->radiationPressureTargetModelSettings = paneledRadiationPressureTargetModelSettingsWithOccultationMap({
-                TargetPanelSettings(2.82, 0.29, 0.22, Eigen::Vector3d::UnitX()),
-                TargetPanelSettings(2.82, 0.39, 0.19, -Eigen::Vector3d::UnitX()),
-                TargetPanelSettings(3.69, 0.32, 0.23, Eigen::Vector3d::UnitY()),
-                TargetPanelSettings(3.69, 0.32, 0.18, -Eigen::Vector3d::UnitY()),
-                TargetPanelSettings(5.14, 0.32, 0.18, Eigen::Vector3d::UnitZ()),
-                TargetPanelSettings(5.14, 0.54, 0.15, -Eigen::Vector3d::UnitZ()),
-                TargetPanelSettings(11.0, 0.05, 0.05, "Sun"),
-                TargetPanelSettings(11.0, 0.05, 0.05, "Sun", false),  // not officially given
-                TargetPanelSettings(1.0, 0.18, 0.28, "Earth"),
-                TargetPanelSettings(1.0, 0.019, 0.0495, "Earth", false),
+                TargetPanelSettings(2.82, 0.29, 0.22, settings.withInstantaneousReradiation, Eigen::Vector3d::UnitX()),
+                TargetPanelSettings(2.82, 0.39, 0.19, settings.withInstantaneousReradiation, -Eigen::Vector3d::UnitX()),
+                TargetPanelSettings(3.69, 0.32, 0.23, settings.withInstantaneousReradiation, Eigen::Vector3d::UnitY()),
+                TargetPanelSettings(3.69, 0.32, 0.18, settings.withInstantaneousReradiation, -Eigen::Vector3d::UnitY()),
+                TargetPanelSettings(5.14, 0.32, 0.18, settings.withInstantaneousReradiation, Eigen::Vector3d::UnitZ()),
+                TargetPanelSettings(5.14, 0.54, 0.15, settings.withInstantaneousReradiation, -Eigen::Vector3d::UnitZ()),
+                TargetPanelSettings(11.0, 0.05, 0.05, settings.withInstantaneousReradiation, "Sun"),
+                TargetPanelSettings(11.0, 0.05, 0.05, settings.withInstantaneousReradiation, "Sun", false),  // not officially given
+                TargetPanelSettings(1.0, 0.18, 0.28, settings.withInstantaneousReradiation, "Earth"),
+                TargetPanelSettings(1.0, 0.019, 0.0495, settings.withInstantaneousReradiation, "Earth", false),
         }, occultingBodiesForLRO);
     }
     else
@@ -156,7 +156,7 @@ AccelerationMap createSimulationAccelerations(const SystemOfBodies& bodies)
                         sphericalHarmonicAcceleration(100, 100)
                 }},
                 {"Earth", {
-                        sphericalHarmonicAcceleration(50, 50)
+                        sphericalHarmonicAcceleration(25, 25)
                 }},
                 {"Sun", {
                         pointMassGravityAcceleration(),
@@ -202,9 +202,10 @@ std::shared_ptr<propagators::SingleArcSimulationResults<>> createAndRunSimulatio
         dependentVariablesList.insert(dependentVariablesList.end(), {
                 singleAccelerationDependentVariable(radiation_pressure, "LRO", "Moon"),
                 receivedIrradianceDependentVariable("LRO", "Moon"),
-                visibleSourcePanelDependentVariable("LRO", "Moon"),
-                illuminatedSourcePanelDependentVariable("LRO", "Moon"),
-                visibleAndIlluminatedSourcePanelDependentVariable("LRO", "Moon"),
+                visibleSourcePanelCountDependentVariable("LRO", "Moon"),
+                illuminatedSourcePanelCountDependentVariable("LRO", "Moon"),
+                visibleAndIlluminatedSourcePanelCountDependentVariable("LRO", "Moon"),
+                visibleSourceAreaDependentVariable("LRO", "Moon")
         });
     }
 
