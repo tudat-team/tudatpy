@@ -212,6 +212,11 @@ std::shared_ptr< TransferNodeSettings > captureAndInsertionNode(
         const double captureSemiMajorAxis,
         const double captureEccentricity );
 
+void setLowThrustAcceleration( const std::shared_ptr< TransferLeg > transferLeg,
+                               const simulation_setup::SystemOfBodies& bodyMap,
+                               const std::string bodyName,
+                               const std::string engineName );
+
 std::shared_ptr< TransferLeg > createTransferLeg (const simulation_setup::SystemOfBodies& bodyMap,
                                                   const std::shared_ptr< TransferLegSettings > legSettings,
                                                   const std::string& departureBodyName,

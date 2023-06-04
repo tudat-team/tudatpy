@@ -127,12 +127,19 @@ enum PropagationDependentVariables
     total_acceleration_partial_wrt_body_translational_state = 54,
     minimum_constellation_distance = 55,
     minimum_constellation_ground_station_distance = 56,
-    received_irradiance = 57,
-    received_fraction = 58,
-    visible_source_panel_count = 59,
-    illuminated_source_panel_count = 60,
-    visible_and_illuminated_source_panel_count = 61,
-    visible_source_area = 62
+    aerodynamic_control_surface_free_force_coefficients_dependent_variable = 57,
+    aerodynamic_control_surface_free_moment_coefficients_dependent_variable = 58,
+    aerodynamic_control_surface_force_coefficients_increment_dependent_variable = 59,
+    aerodynamic_control_surface_moment_coefficients_increment_dependent_variable = 60,
+    body_center_of_mass = 61,
+    body_inertia_tensor = 62,
+    minimum_constellation_ground_station_distance = 63,
+    received_irradiance = 64,
+    received_fraction = 65,
+    visible_source_panel_count = 66,
+    illuminated_source_panel_count = 67,
+    visible_and_illuminated_source_panel_count = 68,
+    visible_source_area = 69
 };
 
 // Functional base class for defining settings for dependent variables that are to be saved during propagation
@@ -372,7 +379,34 @@ public:
 
 };
 
-// Class to define variations in spherical harmonic acceleration due to single gravity field variation.
+        class ControlSurfaceCoefficientDependentVariableSettings: public SingleDependentVariableSaveSettings
+        {
+        public:
+
+            ControlSurfaceCoefficientDependentVariableSettings(
+                    const std::string& associatedBody,
+                    const std::string& controlSurfaceName,
+                    const std::string& centralBody,
+                    const PropagationDependentVariables variableType ):
+                    SingleDependentVariableSaveSettings( variableType, associatedBody, centralBody ),
+                    controlSurfaceName_( controlSurfaceName )
+                    {
+                        if( variableType != aerodynamic_control_surface_force_coefficients_increment_dependent_variable &&
+                            variableType != aerodynamic_control_surface_moment_coefficients_increment_dependent_variable )
+                        {
+                           throw std::runtime_error( "Error when making control surface coefficient dependent variable; dependent variable " +
+                                std::to_string( variableType ) + " not recognized" );
+                        }
+                    }
+
+            // Orientation angle that is to be saved.
+            std::string controlSurfaceName_;
+
+        };
+
+
+
+        // Class to define variations in spherical harmonic acceleration due to single gravity field variation.
 class SingleVariationSphericalHarmonicAccelerationSaveSettings: public SingleDependentVariableSaveSettings
 {
 public:
@@ -872,6 +906,42 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > aerodynamicMomentC
     return std::make_shared< SingleDependentVariableSaveSettings >(
                 aerodynamic_moment_coefficients_dependent_variable, associatedBody, centralBody );
 }
+
+inline std::shared_ptr< SingleDependentVariableSaveSettings > aerodynamicForceCoefficientControlSurfaceFreeDependentVariable(
+        const std::string& associatedBody,
+        const std::string& centralBody = "" )
+{
+    return std::make_shared< SingleDependentVariableSaveSettings >(
+            aerodynamic_control_surface_free_force_coefficients_dependent_variable, associatedBody, centralBody );
+}
+
+
+inline std::shared_ptr< SingleDependentVariableSaveSettings > aerodynamicMomentCoefficientControlSurfaceFreeDependentVariable(
+        const std::string& associatedBody,
+        const std::string& centralBody = "" )
+{
+    return std::make_shared< SingleDependentVariableSaveSettings >(
+            aerodynamic_control_surface_free_moment_coefficients_dependent_variable, associatedBody, centralBody );
+}
+
+inline std::shared_ptr< SingleDependentVariableSaveSettings > aerodynamicForceCoefficientControlSurfaceIncrementDependentVariable(
+        const std::string& associatedBody,
+        const std::string& controlSurfaceName,
+        const std::string& centralBody = "" )
+{
+    return std::make_shared< ControlSurfaceCoefficientDependentVariableSettings >(
+            associatedBody, controlSurfaceName, centralBody, aerodynamic_control_surface_force_coefficients_increment_dependent_variable );
+}
+
+inline std::shared_ptr< SingleDependentVariableSaveSettings > aerodynamicMomentCoefficientControlSurfaceIncrementDependentVariable(
+        const std::string& associatedBody,
+        const std::string& controlSurfaceName,
+        const std::string& centralBody = "" )
+{
+    return std::make_shared< ControlSurfaceCoefficientDependentVariableSettings >(
+            associatedBody, controlSurfaceName, centralBody, aerodynamic_control_surface_moment_coefficients_increment_dependent_variable );
+}
+
 
 //! @get_docstring(inertialToBodyFixedRotationMatrixVariable)
 inline std::shared_ptr< SingleDependentVariableSaveSettings > inertialToBodyFixedRotationMatrixVariable(
