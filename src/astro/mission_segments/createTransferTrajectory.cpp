@@ -66,6 +66,53 @@ std::shared_ptr< TransferNodeSettings > captureAndInsertionNode(
                 captureSemiMajorAxis, captureEccentricity );
 }
 
+void setLowThrustAcceleration( const std::shared_ptr< TransferLeg > transferLeg,
+                               const simulation_setup::SystemOfBodies& bodyMap,
+                               const std::string bodyName,
+                               const std::string engineName )
+{
+    std::function< Eigen::Vector3d( const double ) > thrustDirectionFunction =
+            [=](const double time){return transferLeg->getThrustAccelerationAlongTrajectory(time).normalized( ); };
+    std::function< double( const double ) > thrustMagnitudeFunction =
+            [=](const double time){return transferLeg->getThrustAccelerationAlongTrajectory(time).norm( ) * bodyMap.at( bodyName )->getBodyMass( ); };
+    std::shared_ptr< system_models::EngineModel > engineModel =
+            bodyMap.getBody( bodyName )->getVehicleSystems( )->getEngineModel( engineName );
+    if( std::dynamic_pointer_cast< propulsion::CustomThrustMagnitudeWrapper >( engineModel->getThrustMagnitudeWrapper( ) ) == nullptr )
+    {
+        throw std::runtime_error( "Error, thrust magnitude wrapper is inconsistent when setting low-thrust acceleration." );
+    }
+    else
+    {
+        std::dynamic_pointer_cast< propulsion::CustomThrustMagnitudeWrapper >( engineModel->getThrustMagnitudeWrapper( ) )->resetThrustMagnitudeFunction(
+                thrustMagnitudeFunction );
+    }
+
+    std::shared_ptr< ephemerides::RotationalEphemeris > rotationModel =
+            bodyMap.getBody( bodyName )->getRotationalEphemeris( );
+    if( std::dynamic_pointer_cast< ephemerides::DirectionBasedRotationalEphemeris >( rotationModel ) == nullptr )
+    {
+        throw std::runtime_error( "Error, orientation model inconsistent when setting low-thrust acceleration." );
+    }
+    else
+    {
+        std::shared_ptr<ephemerides::DirectionBasedRotationalEphemeris> directionBasedRotationalEphemeris =
+                std::dynamic_pointer_cast<ephemerides::DirectionBasedRotationalEphemeris>( rotationModel );
+        if ( std::dynamic_pointer_cast<ephemerides::CustomBodyFixedDirectionCalculator>(
+                directionBasedRotationalEphemeris->getInertialBodyAxisDirectionCalculator( )) == nullptr )
+        {
+            throw std::runtime_error(
+                    "Error, inertial thrust direction model inconsistent when setting low-thrust acceleration." );
+
+        } else {
+            std::dynamic_pointer_cast<ephemerides::CustomBodyFixedDirectionCalculator>(
+                    directionBasedRotationalEphemeris->getInertialBodyAxisDirectionCalculator( ))->resetInertialBodyAxisDirectionFunction(
+                    thrustDirectionFunction );
+        }
+    }
+
+}
+
+
 std::shared_ptr< TransferLeg > createTransferLeg (
         const simulation_setup::SystemOfBodies& bodyMap,
         const std::shared_ptr< TransferLegSettings > legSettings,

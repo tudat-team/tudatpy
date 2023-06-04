@@ -1131,36 +1131,14 @@ Eigen::Matrix< double, 1, 6 > calculatePartialOfDirectLibrationAngleWrtCartesian
                 currentState.segment( 0, 3 ) );
     Eigen::Vector3d crossProduct =
             ( currentState.segment< 3 >( 0 ).cross( currentState.segment< 3 >( 3 ) ) );
+
     Eigen::Vector3d preMultiplier = crossProduct / crossProduct.norm( );
+
     Eigen::Matrix< double, Eigen::Dynamic, 6 > totalPartial = - ( currentState.segment< 3 >( 0 ).dot( currentState.segment< 3 >( 3 ) ) ) *
             preMultiplier.transpose( ) * testPartial / ( crossProduct.norm( ) * crossProduct.norm( ) );
     totalPartial.block( 0, 0, 1, 3 ) += currentState.segment< 3 >( 3 ).transpose( ) / crossProduct.norm( );
     totalPartial.block( 0, 3, 1, 3 ) += currentState.segment< 3 >( 0 ).transpose( ) / crossProduct.norm( );
     return scaledLibrationAmplitude * totalPartial;
-//    Eigen::Vector3d positionVector = currentState.segment( 0, 3 );
-//    double positionNorm = positionVector.norm( );
-
-//    Eigen::Vector3d velocityVector = currentState.segment( 3, 3 );
-//    double velocityNorm = velocityVector.norm( );
-
-//    Eigen::Vector3d crossProduct = positionVector.cross( velocityVector );
-
-
-//    double crossProductNorm = crossProduct.norm( );
-//    double crossProductPartialScaling =
-//            positionVector.dot( velocityVector ) / ( crossProductNorm * crossProductNorm );
-
-//    Eigen::Matrix< double, 1, 6 > angleDerivatives;
-//    angleDerivatives.setZero( );
-
-//    angleDerivatives.block( 0, 0, 1, 3 ) =
-//            velocityVector.transpose( ) + crossProductPartialScaling * positionVector.transpose( ) * (
-//                velocityNorm * velocityNorm * Eigen::Matrix3d::Identity( ) - velocityVector * velocityVector.transpose( ) );
-//    angleDerivatives.block( 0, 3, 1, 3 ) =
-//            positionVector.transpose( ) + crossProductPartialScaling * velocityVector.transpose( ) * (
-//                positionNorm * positionNorm * Eigen::Matrix3d::Identity( ) - positionVector * positionVector.transpose( ) );
-
-//    return scaledLibrationAmplitude * angleDerivatives / crossProductNorm;
 }
 
 //! Function to compute the required partial derivative of rotation matrix.
@@ -1217,36 +1195,36 @@ calculatePartialOfRotationMatrixToBaseFrameWrParameter( const double time )
     for( int i = 0; i < 3; i++ )
     {
         rotationMatrixPartials[ i ].block( 0, 0, 3, 1 ) =
-                -rVectorDerivativeWrtPosition.block( 0, i, 3, 1 );
+            -rVectorDerivativeWrtPosition.block( 0, i, 3, 1 );
         rotationMatrixPartials[ i ].block( 0, 1, 3, 1 ) =
-                -sVectorDerivativeWrtPosition.block( 0, i, 3, 1 );
+            -sVectorDerivativeWrtPosition.block( 0, i, 3, 1 );
         rotationMatrixPartials[ i ].block( 0, 2, 3, 1 ) =
-                wVectorDerivativeWrtPosition.block( 0, i, 3, 1 );
+            wVectorDerivativeWrtPosition.block( 0, i, 3, 1 );
         rotationMatrixPartials[ i ] = rotationMatrixPartials[ i ] * correctionRotation;
 
         rotationMatrixPartials[ i + 3 ].block( 0, 0, 3, 1 ).setZero( );
         rotationMatrixPartials[ i + 3 ].block( 0, 1, 3, 1 ) =
-                -sVectorDerivativeWrtVelocity.block( 0, i, 3, 1 );
+            -sVectorDerivativeWrtVelocity.block( 0, i, 3, 1 );
         rotationMatrixPartials[ i + 3 ].block( 0, 2, 3, 1 ) =
-                wVectorDerivativeWrtVelocity.block( 0, i, 3, 1 );
+            wVectorDerivativeWrtVelocity.block( 0, i, 3, 1 );
         rotationMatrixPartials[ i + 3 ] = rotationMatrixPartials[ i + 3 ] * correctionRotation;
 
-        if( directLongitudeLibrationCalculator_ != nullptr )
+    }
+
+    if( directLongitudeLibrationCalculator_ != nullptr )
+    {
+        Eigen::Matrix3d lockedRotation =
+                synchronousRotationaModel_->getFullyLockedRotationToBaseFrame( time );
+        Eigen::Matrix3d librationRotationDerivativeWrtAngle =
+                reference_frames::getDerivativeOfZAxisRotationWrtAngle( correctionRotation );
+
+        Eigen::Matrix< double, 1, 6 > librationDerivatives =
+                calculatePartialOfDirectLibrationAngleWrtCartesianStates(
+                    currentState, directLongitudeLibrationCalculator_->getScaledLibrationAmplitude( ) );
+        for( int i = 0; i < 6; i++ )
         {
-//            Eigen::Matrix3d lockedRotation =
-//                    synchronousRotationaModel_->getFullyLockedRotationToBaseFrame( time );
-//            Eigen::Matrix3d librationRotationDerivativeWrtAngle =
-//                    reference_frames::getDerivativeOfZAxisRotationWrtAngle( correctionRotation );
-
-//            Eigen::Matrix< double, 1, 6 > librationDerivatives =
-//                    calculatePartialOfDirectLibrationAngleWrtCartesianStates(
-//                        currentState, directLongitudeLibrationCalculator_->getScaledLibrationAmplitude( ) );
-            //        for( int i = 0; i < 6; i++ )
-            //        {
-            //            rotationMatrixPartials[ i ] += lockedRotation * librationRotationDerivativeWrtAngle * librationDerivatives( i );
-            //        }
+            rotationMatrixPartials[ i ] += lockedRotation * librationRotationDerivativeWrtAngle * librationDerivatives( i );
         }
-
     }
 
     return rotationMatrixPartials;

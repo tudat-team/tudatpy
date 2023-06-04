@@ -114,7 +114,7 @@ namespace ephemerides
 		boost::algorithm::split( tleLines, lines, boost::is_any_of( "\n\r" ) );
 		if( tleLines.size() != 2 )
 		{
-			throw std::runtime_error( "Error: TLE class was instantiated with string object, but string contains more than 2 lines." );
+			throw std::runtime_error( "Error: TLE class was instantiated with string object, but string does not contain two 2 lines." );
 		}
 		// Check line length
 		for( std::string line : tleLines )
@@ -193,10 +193,8 @@ namespace ephemerides
 		meanMotion_ = meanMotionRevDay * 2.0 * mathematical_constants::PI / ( 60 * 24 );
 	}
 
-	Tle::Tle( const std::string& tleLine1, const std::string& tleLine2 )
-	{
-		throw std::runtime_error( "Error constructing TLE object: two string initialization not yet implemented." );
-	}
+	Tle::Tle( const std::string& tleLine1, const std::string& tleLine2 ): Tle( std::string( tleLine1 + "\n" + tleLine2 ) )
+	{ }
 
     Tle::Tle( const double *spiceElements )
 	{
