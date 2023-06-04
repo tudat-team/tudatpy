@@ -55,7 +55,7 @@ Eigen::Vector3d IsotropicPointSourceRadiationPressureAcceleration::calculateAcce
 
     if (occultedSourceIrradiance <= 0)
     {
-        // Some body is occluding source seen from target
+        // Some body is occluding source as seen from target
         return Eigen::Vector3d::Zero();
     }
 

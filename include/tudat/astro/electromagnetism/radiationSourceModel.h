@@ -153,7 +153,7 @@ private:
 //   Paneled radiation source
 //*********************************************************************************************
 
-/*!F
+/*!
  * Class modeling a radiation source that is discretized into panels, each with its own radiosity model. A radiosity
  * model describes the radiation emitted (thermal) or reflected (albedo) by each panel. Since both depend on the
  * radiation from a third body (referred to as the original source), all irradiance evaluations involve the irradiance

@@ -217,7 +217,9 @@ DynamicallyPaneledRadiationSourceModel::DynamicallyPaneledRadiationSourceModel(
 
         // Initialize with empty panels
         panels_.emplace_back(
-                TUDAT_NAN, Eigen::Vector3d(), Eigen::Vector3d(),
+                TUDAT_NAN,
+                Eigen::Vector3d(TUDAT_NAN, TUDAT_NAN, TUDAT_NAN),
+                Eigen::Vector3d(TUDAT_NAN, TUDAT_NAN, TUDAT_NAN),
                 std::move(radiosityModels));
     }
 }
@@ -227,13 +229,13 @@ IrradianceWithSourceList DynamicallyPaneledRadiationSourceModel::evaluateIrradia
         double originalSourceIrradiance,
         const Eigen::Vector3d& originalSourceToSourceDirection)
 {
-    // Generate center points of panels in spherical coordinates
-    const auto panels = generatePaneledSphericalCap(
+    // Generate center points of panelProperties in spherical coordinates
+    const auto panelProperties = generatePaneledSphericalCap(
             targetPosition, numberOfPanelsPerRing_, sourceBodyShapeModel_->getAverageRadius());
-    const auto panelCenters = std::get<0>(panels);
-    const auto polarAngles = std::get<1>(panels);
-    const auto azimuthAngles = std::get<2>(panels);
-    const auto areas = std::get<3>(panels);
+    const auto panelCenters = std::get<0>(panelProperties);
+    const auto polarAngles = std::get<1>(panelProperties);
+    const auto azimuthAngles = std::get<2>(panelProperties);
+    const auto areas = std::get<3>(panelProperties);
 
     for (unsigned int i = 0; i < numberOfPanels; ++i)
     {
@@ -357,7 +359,7 @@ generatePaneledSphericalCap(
     const Eigen::Vector3d centralCapCenterInTargetCentricFrameCartesian = targetPosition.normalized() * radius;
     const Eigen::Vector3d centralCapCenterInTargetCentricFrameSpherical =
             coordinate_conversions::convertCartesianToSpherical(centralCapCenterInTargetCentricFrameCartesian);
-    const auto centralCapCenterPolarAngleInTargetCentricFrame = computeModulo(centralCapCenterInTargetCentricFrameSpherical[1], PI);
+    const auto centralCapCenterPolarAngleInTargetCentricFrame = centralCapCenterInTargetCentricFrameSpherical[1];
     const auto centralCapCenterAzimuthAngleInTargetCentricFrame = computeModulo(centralCapCenterInTargetCentricFrameSpherical[2], 2 * PI);
     const auto centralCapArea = 2 * PI * radius * radius * (1 - cos(angularResolutionPolar));
 
@@ -395,7 +397,7 @@ generatePaneledSphericalCap(
             Eigen::Vector3d panelCenterInTargetCentricFrameSpherical =
                     coordinate_conversions::convertCartesianToSpherical(panelCenterInTargetCentricFrameCartesian);
 
-            double panelCenterPolarAngleInTargetCentricFrame = computeModulo(panelCenterInTargetCentricFrameSpherical[1], PI);
+            double panelCenterPolarAngleInTargetCentricFrame = panelCenterInTargetCentricFrameSpherical[1];
             double panelCenterAzimuthAngleInTargetCentricFrame = computeModulo(panelCenterInTargetCentricFrameSpherical[2], 2 * PI);
 
             panelCenters.push_back(panelCenterInTargetCentricFrameCartesian);
