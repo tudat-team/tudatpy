@@ -100,6 +100,28 @@ void checkValidityOfRequiredEnvironmentUpdates(
                     }
                     break;
                 }
+                case body_mass_update:
+                {
+                    if( bodies.at( updateIterator->second.at( i ) )->getMassProperties( ) == nullptr )
+                    {
+                        throw std::runtime_error(
+                                    "Error when making environment model update settings, no mass properties of body "
+                                    + updateIterator->second.at( i ) );
+                    }
+
+                    break;
+                }
+                case body_mass_distribution_update:
+                {
+                    if( bodies.at( updateIterator->second.at( i ) )->getMassProperties( ) == nullptr )
+                    {
+                        throw std::runtime_error(
+                            "Error when making environment model update settings, no mass properties of body "
+                            + updateIterator->second.at( i ) );
+                    }
+
+                    break;
+                }
                 // RP-OLD
                 case radiation_pressure_interface_update:
                 {
@@ -138,24 +160,6 @@ void checkValidityOfRequiredEnvironmentUpdates(
                     }
                     break;
                 }
-                case body_mass_update:
-                    if( bodies.at( updateIterator->second.at( i ) )->getMassProperties( ) == nullptr )
-                    {
-                        throw std::runtime_error(
-                                    "Error when making environment model update settings, no mass properties of body "
-                                    + updateIterator->second.at( i ) );
-                    }
-
-                    break;
-                case body_mass_distribution_update:
-                    if( bodies.at( updateIterator->second.at( i ) )->getMassProperties( ) == nullptr )
-                    {
-                        throw std::runtime_error(
-                            "Error when making environment model update settings, no mass properties of body "
-                            + updateIterator->second.at( i ) );
-                    }
-
-                    break;
                 }
             }
         }

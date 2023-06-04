@@ -133,13 +133,12 @@ enum PropagationDependentVariables
     aerodynamic_control_surface_moment_coefficients_increment_dependent_variable = 60,
     body_center_of_mass = 61,
     body_inertia_tensor = 62,
-    minimum_constellation_ground_station_distance = 63,
-    received_irradiance = 64,
-    received_fraction = 65,
-    visible_source_panel_count = 66,
-    illuminated_source_panel_count = 67,
-    visible_and_illuminated_source_panel_count = 68,
-    visible_source_area = 69
+    received_irradiance = 63,
+    received_fraction = 64,
+    visible_source_panel_count = 65,
+    illuminated_source_panel_count = 66,
+    visible_and_illuminated_source_panel_count = 67,
+    visible_source_area = 68
 };
 
 // Functional base class for defining settings for dependent variables that are to be saved during propagation
