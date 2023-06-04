@@ -55,11 +55,13 @@ void cannonballTargetNew(int i)
 
     // Create planets
     auto bodySettings = getDefaultBodySettings({"Sun", "Moon"}, globalFrameOrigin, globalFrameOrientation);
+    bodySettings.at("Sun")->radiationSourceModelSettings =
+            // Sun luminosity used by old models is fixed to this value
+            isotropicPointRadiationSourceModelSettings(constantLuminosityModelSettings(3.839E26));
 
     // Create LRO
     bodySettings.addSettings("LRO");
     bodySettings.at("LRO")->constantMass = lroMass;
-    bodySettings.at("LRO")->rotationModelSettings = spiceRotationModelSettings(globalFrameOrientation, "LRO_SC_BUS");
     bodySettings.at("LRO")->radiationPressureTargetModelSettings =
             cannonballRadiationPressureTargetModelSettings(lroArea, lroCp, {"Moon"});
 
@@ -83,6 +85,7 @@ void cannonballTargetNew(int i)
                     relativePositionDependentVariable("LRO", "Moon"),
                     relativeVelocityDependentVariable("LRO", "Moon"),
                     singleAccelerationDependentVariable(radiation_pressure, "LRO", "Sun"),
+                    relativePositionDependentVariable("Sun", "Moon"),
             };
 
     auto propagationResults = createAndRunSimulation(
@@ -102,6 +105,8 @@ void paneledTargetNew(int i)
 
     // Create planets
     auto bodySettings = getDefaultBodySettings({"Sun", "Moon"}, globalFrameOrigin, globalFrameOrientation);
+    bodySettings.at("Sun")->radiationSourceModelSettings =
+            isotropicPointRadiationSourceModelSettings(constantLuminosityModelSettings(3.839E26));
 
     // Create LRO
     bodySettings.addSettings("LRO");
@@ -140,6 +145,7 @@ void paneledTargetNew(int i)
                     relativePositionDependentVariable("LRO", "Moon"),
                     relativeVelocityDependentVariable("LRO", "Moon"),
                     singleAccelerationDependentVariable(radiation_pressure, "LRO", "Sun"),
+                    relativePositionDependentVariable("Sun", "Moon"),
             };
 
     auto propagationResults = createAndRunSimulation(
@@ -163,9 +169,6 @@ void cannonballTargetOld(int i)
     // Create LRO
     bodySettings.addSettings("LRO");
     bodySettings.at("LRO")->constantMass = lroMass;
-    bodySettings.at("LRO")->rotationModelSettings = spiceRotationModelSettings(globalFrameOrientation, "LRO_SC_BUS");
-    bodySettings.at("LRO")->radiationPressureTargetModelSettings =
-            cannonballRadiationPressureTargetModelSettings(lroArea, lroCp);
     bodySettings.at("LRO")->radiationPressureSettings["Sun"] =
             cannonBallRadiationPressureSettings("Sun", lroArea, lroCp, {"Moon"});
 
@@ -189,6 +192,7 @@ void cannonballTargetOld(int i)
                     relativePositionDependentVariable("LRO", "Moon"),
                     relativeVelocityDependentVariable("LRO", "Moon"),
                     singleAccelerationDependentVariable(cannon_ball_radiation_pressure, "LRO", "Sun"),
+                    relativePositionDependentVariable("Sun", "Moon"),
             };
 
     auto propagationResults = createAndRunSimulation(
@@ -255,6 +259,7 @@ void paneledTargetOld(int i)
                     relativePositionDependentVariable("LRO", "Moon"),
                     relativeVelocityDependentVariable("LRO", "Moon"),
                     singleAccelerationDependentVariable(panelled_radiation_pressure_acceleration, "LRO", "Sun"),
+                    relativePositionDependentVariable("Sun", "Moon"),
             };
 
     auto propagationResults = createAndRunSimulation(
@@ -304,7 +309,7 @@ int main()
 {
     loadLROSpiceKernels();
 
-    int nRepetitions = 10;
+    int nRepetitions = 1;
 
     std::cout << "cannonballTargetNew" << std::endl;
     for (int i = 0; i < nRepetitions; ++i)

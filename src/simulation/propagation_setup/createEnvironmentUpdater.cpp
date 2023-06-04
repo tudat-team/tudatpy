@@ -371,38 +371,34 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                 case radiation_pressure:
                 {
                     singleAccelerationUpdateNeeds[ body_mass_update ].push_back(
-                            acceleratedBodyIterator->first );
+                            acceleratedBodyIterator->first);
                     singleAccelerationUpdateNeeds[ radiation_source_model_update ].push_back(
-                            accelerationModelIterator->first );
+                            accelerationModelIterator->first);
                     singleAccelerationUpdateNeeds[ radiation_pressure_target_model_update ].push_back(
-                            acceleratedBodyIterator->first );
+                            acceleratedBodyIterator->first);
 
                     auto radiationPressureAcceleration =
                             std::dynamic_pointer_cast<electromagnetism::RadiationPressureAcceleration>(
                                     accelerationModelIterator->second.at(i));
 
+                    // Update original source in case of paneled source
                     auto paneledRadiationSourceModel =
                             std::dynamic_pointer_cast<electromagnetism::PaneledRadiationSourceModel>(
                                     radiationPressureAcceleration->getSourceModel());
                     if (paneledRadiationSourceModel != nullptr) {
                         // Only paneled source, not point source needs rotational state and has original source
                         singleAccelerationUpdateNeeds[ body_rotational_state_update ].push_back(
-                                accelerationModelIterator->first );
-
-                        auto paneledSourceRadiationPressureAcceleration =
-                                std::dynamic_pointer_cast<electromagnetism::PaneledSourceRadiationPressureAcceleration>(
-                                        accelerationModelIterator->second.at(i));
+                                accelerationModelIterator->first);
 
                         std::string originalSourceName =
                                 paneledRadiationSourceModel->getOriginalSourceName();
-                        singleAccelerationUpdateNeeds[ radiation_source_model_update ].push_back(
-                                originalSourceName );
-                        singleAccelerationUpdateNeeds[ body_translational_state_update ].push_back(
-                                originalSourceName );
+                        singleAccelerationUpdateNeeds[ radiation_source_model_update ].push_back(originalSourceName);
+                        singleAccelerationUpdateNeeds[ body_translational_state_update ].push_back(originalSourceName);
                         // No original source rotational state update necessary because only isotropic point sources
                         // are supported
                     }
 
+                    // Update target rotation in case of paneled target
                     auto paneledRadiationPressureTargetModel =
                             std::dynamic_pointer_cast<electromagnetism::PaneledRadiationPressureTargetModel>(
                                     radiationPressureAcceleration->getTargetModel());
@@ -411,6 +407,15 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                         singleAccelerationUpdateNeeds[ body_rotational_state_update ].push_back(
                                 acceleratedBodyIterator->first );
                     }
+
+                    // Update occulting body positions
+                    auto occultingBodyNames =
+                            radiationPressureAcceleration->getSourceToTargetOccultationModel()->getOccultingBodyNames();
+                    for (auto bodyName : occultingBodyNames)
+                    {
+                        singleAccelerationUpdateNeeds[ body_translational_state_update ].push_back(bodyName);
+                    }
+
                     break;
                 }
                 case cannon_ball_radiation_pressure:
