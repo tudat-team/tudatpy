@@ -31,7 +31,13 @@ template< typename TimeType >
 struct CurrentTimes
 {
     //! Default constructor
-    CurrentTimes( ){ }
+    CurrentTimes( ):
+        tai( TUDAT_NAN ),
+        tt( TUDAT_NAN ),
+        tdb( TUDAT_NAN ),
+        utc( TUDAT_NAN ),
+        ut1( TUDAT_NAN )
+        { }
 
     //! Function to retrieve the current time in requested scale
     /*!

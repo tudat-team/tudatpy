@@ -18,10 +18,10 @@ namespace simulation_setup
 
 //! Function to create control surface aerodynamic coefficient settings fom coefficients stored in data files
 std::shared_ptr< ControlSurfaceIncrementAerodynamicCoefficientSettings >
-readTabulatedControlIncrementAerodynamicCoefficientsFromFiles(
-        const std::map< int, std::string > forceCoefficientFiles,
-        const std::map< int, std::string > momentCoefficientFiles,
-        const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableNames )
+    readTabulatedControlIncrementAerodynamicCoefficientsFromFiles(
+            const std::map< int, std::string > forceCoefficientFiles,
+            const std::map< int, std::string > momentCoefficientFiles,
+            const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableNames )
 {
     // Retrieve number of independent variables from file.
     int numberOfIndependentVariables =

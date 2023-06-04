@@ -343,6 +343,50 @@ BOOST_AUTO_TEST_CASE( test_ephemerisSetup )
 
 }
 
+//! Test set up of gravity field model environment models.
+BOOST_AUTO_TEST_CASE( test_defaultGravityFieldSetup )
+{
+    std::cout<<"Test"<<std::endl;
+    // Load Spice kernel
+    spice_interface::loadStandardSpiceKernels( );
+
+    // Create settings for spice central gravity field model.
+    std::shared_ptr< SphericalHarmonicsGravityFieldSettings > mercurySphericalHarmonicsGravityFieldSettings =
+            std::dynamic_pointer_cast< SphericalHarmonicsGravityFieldSettings >( getDefaultGravityFieldSettings( "Mercury", TUDAT_NAN, TUDAT_NAN ) );
+    BOOST_CHECK_CLOSE_FRACTION(
+            mercurySphericalHarmonicsGravityFieldSettings->getReferenceRadius( ), 2440000.0, 10.0 * std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION(
+            mercurySphericalHarmonicsGravityFieldSettings->getGravitationalParameter( ), 22031868691090.8, 10.0 * std::numeric_limits< double >::epsilon( ) );
+
+    std::shared_ptr< SphericalHarmonicsGravityFieldSettings > venusSphericalHarmonicsGravityFieldSettings =
+            std::dynamic_pointer_cast< SphericalHarmonicsGravityFieldSettings >( getDefaultGravityFieldSettings( "Venus", TUDAT_NAN, TUDAT_NAN ) );
+    BOOST_CHECK_CLOSE_FRACTION(
+            venusSphericalHarmonicsGravityFieldSettings->getReferenceRadius( ), 6051000, 10.0 * std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION(
+            venusSphericalHarmonicsGravityFieldSettings->getGravitationalParameter( ), 324858592079000, 10.0 * std::numeric_limits< double >::epsilon( ) );
+
+    std::shared_ptr< SphericalHarmonicsGravityFieldSettings > earthSphericalHarmonicsGravityFieldSettings =
+            std::dynamic_pointer_cast< SphericalHarmonicsGravityFieldSettings >( getDefaultGravityFieldSettings( "Earth", TUDAT_NAN, TUDAT_NAN ) );
+    BOOST_CHECK_CLOSE_FRACTION(
+            earthSphericalHarmonicsGravityFieldSettings->getReferenceRadius( ), 6378136.3, 10.0 * std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION(
+            earthSphericalHarmonicsGravityFieldSettings->getGravitationalParameter( ), 398600441500000, 10.0 * std::numeric_limits< double >::epsilon( ) );
+
+    std::shared_ptr< SphericalHarmonicsGravityFieldSettings > marsSphericalHarmonicsGravityFieldSettings =
+            std::dynamic_pointer_cast< SphericalHarmonicsGravityFieldSettings >( getDefaultGravityFieldSettings( "Mars", TUDAT_NAN, TUDAT_NAN ) );
+    BOOST_CHECK_CLOSE_FRACTION(
+            marsSphericalHarmonicsGravityFieldSettings->getReferenceRadius( ), 3396000, 10.0 * std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION(
+            marsSphericalHarmonicsGravityFieldSettings->getGravitationalParameter( ), 42828375815756.1, 10.0 * std::numeric_limits< double >::epsilon( ) );
+
+    std::shared_ptr< SphericalHarmonicsGravityFieldSettings > jupiterSphericalHarmonicsGravityFieldSettings =
+            std::dynamic_pointer_cast< SphericalHarmonicsGravityFieldSettings >( getDefaultGravityFieldSettings( "Jupiter", TUDAT_NAN, TUDAT_NAN ) );
+    BOOST_CHECK_CLOSE_FRACTION(
+            jupiterSphericalHarmonicsGravityFieldSettings->getReferenceRadius( ), 71492000 , 10.0 * std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION(
+            jupiterSphericalHarmonicsGravityFieldSettings->getGravitationalParameter( ), 1.266865341960128e+17, 10.0 * std::numeric_limits< double >::epsilon( ) );
+
+}
 
 //! Test set up of gravity field model environment models.
 BOOST_AUTO_TEST_CASE( test_gravityFieldSetup )
@@ -658,6 +702,7 @@ BOOST_AUTO_TEST_CASE( test_polyhedronInertiaTensorSetup )
 
         SystemOfBodies bodies = createSystemOfBodies( bodySettings );
 
+        bodies.getBody( "Phobos" )->getMassProperties( )->update( 0.0 );
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedInertiaTensor, bodies.getBody( "Phobos" )->getBodyInertiaTensor(), 1e-15 );
     }
 }
@@ -1316,7 +1361,7 @@ BOOST_AUTO_TEST_CASE( test_synchronousRotationModelSetup )
     bodySettings.at( "Europa" )->ephemerisSettings->resetFrameOrigin( "Jupiter" );
 
     SystemOfBodies bodies = createSystemOfBodies( bodySettings );
-    
+
 
     std::shared_ptr< SynchronousRotationModelSettings > synchronousRotationSettings
             = std::dynamic_pointer_cast< SynchronousRotationModelSettings >( bodySettings.at( "Europa" )->rotationModelSettings );
@@ -1905,13 +1950,14 @@ BOOST_AUTO_TEST_CASE( test_flightConditionsSetup )
     bodySettings.addSettings( "Vehicle" );
     bodySettings.at( "Vehicle" ) ->aerodynamicCoefficientSettings =
             std::make_shared< ConstantAerodynamicCoefficientSettings >(
-                1.0, 2.0, 3.0, Eigen::Vector3d::Zero( ),
+                1.0, 2.0, Eigen::Vector3d::Zero( ),
                 ( Eigen::Vector3d( ) << -1.1, 0.1, 2.3 ).finished( ),
-                Eigen::Vector3d::Zero( ), 1, 1 );
+                Eigen::Vector3d::Zero( ),
+                negative_aerodynamic_frame_coefficients, negative_aerodynamic_frame_coefficients );
 
     // Create bodies
     SystemOfBodies bodies = createSystemOfBodies( bodySettings );
-    
+
 
 
     // Define expected aerodynamic angles (see testAerodynamicAngleCalculator)
@@ -2146,7 +2192,7 @@ BOOST_AUTO_TEST_CASE( test_groundStationCreation )
     // Create bodies
     SystemOfBodies bodies = createSystemOfBodies( bodySettings );
 
-    
+
 
     BOOST_CHECK_EQUAL( bodies.at( "Earth" )->getGroundStationMap( ).count( "Station1" ), 1 );
     BOOST_CHECK_EQUAL( bodies.at( "Earth" )->getGroundStationMap( ).count( "Station2" ), 1 );

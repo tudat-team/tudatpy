@@ -200,14 +200,10 @@ namespace tudat
                     auto offNominalIterator = numericalResultsVector.at( i ).begin( );
                     offNominalIterator++;
 
-                    std::cout<<"Results size "<<i<<" "<<numericalResultsVector.at( 0 ).size( )<<" "<<numericalResultsVector.at( 1 ).size( )<<std::endl;
                     while( nominalIterator != numericalResultsVector.at( 0 ).end( ) && offNominalIterator != numericalResultsVector.at( i ).end( ) )
                     {
-                        std::cout<<"Pre-check "<<i<<" "<<nominalIterator->first - initialEphemerisTime<<" "<<offNominalIterator->first - initialEphemerisTime<<" "<<
-                            nominalIterator->first - previousOutputTime<<" "<<stepsSinceLastSave<<std::endl;
                         if( !( nominalIterator->first - previousOutputTime < 60.0 && stepsSinceLastSave < stepsToCheck ) )
                         {
-                            std::cout<<"Performing test "<<nominalIterator->first  - offNominalIterator->first<<" "<<stepsSinceLastSave<<" "<<stepsToCheck<<std::endl;
                             BOOST_CHECK_EQUAL( nominalIterator->first, offNominalIterator->first );
 
                             previousOutputTime = nominalIterator->first;

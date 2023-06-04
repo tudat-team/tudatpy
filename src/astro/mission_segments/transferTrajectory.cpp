@@ -62,6 +62,7 @@ void TransferTrajectory::evaluateTrajectory(
                     nodes_.at( i+1 )->updateNodeParameters( nodeTotalParameters );
                     nodeEvaluated.at( i+1 ) = true;
                     totalDeltaV_ += nodes_.at( i+1 )->getNodeDeltaV( );
+
                 }
             }
         }

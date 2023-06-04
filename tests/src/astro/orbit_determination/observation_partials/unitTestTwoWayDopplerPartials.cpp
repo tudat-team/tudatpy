@@ -115,7 +115,8 @@ BOOST_AUTO_TEST_CASE( testTwoWayDopplerPartials )
                     twoWayDopplerModel =
                             observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
                                 std::make_shared< observation_models::TwoWayDopplerObservationSettings >(
-                                    linkEnds, std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( perturbingBodies ),
+                                    linkEnds, std::vector< std::shared_ptr< LightTimeCorrectionSettings > >(
+                                            { std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( perturbingBodies ) } ),
                                     nullptr, std::make_shared< LightTimeConvergenceCriteria>( ), static_cast< bool >( normalizeObservable ) ), bodies  );
                 }
                 else
@@ -177,7 +178,8 @@ BOOST_AUTO_TEST_CASE( testTwoWayDopplerPartials )
                     twoWayDopplerModel =
                             observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
                                 std::make_shared< observation_models::TwoWayDopplerObservationSettings >(
-                                    linkEnds, std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( perturbingBodies ),
+                                    linkEnds, std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( {
+                                        std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( perturbingBodies ) } ),
                                     nullptr, std::make_shared< LightTimeConvergenceCriteria>( ), static_cast< bool >( normalizeObservable ) ), bodies  );
                 }
                 else

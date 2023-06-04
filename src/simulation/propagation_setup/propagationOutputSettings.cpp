@@ -110,6 +110,18 @@ std::string getDependentVariableName(
     case aerodynamic_moment_coefficients_dependent_variable:
         variableName = "Aerodynamic moment coefficients ";
         break;
+    case aerodynamic_control_surface_free_force_coefficients_dependent_variable:
+        variableName = "Aerodynamic control-surface free force coefficients ";
+        break;
+    case aerodynamic_control_surface_free_moment_coefficients_dependent_variable:
+        variableName = "Aerodynamic control-surface free moment coefficients ";
+        break;
+    case aerodynamic_control_surface_force_coefficients_increment_dependent_variable:
+        variableName = "Aerodynamic force coefficients control surface increment ";
+        break;
+    case aerodynamic_control_surface_moment_coefficients_increment_dependent_variable:
+        variableName = "Aerodynamic moment coefficients control surface increment ";
+        break;
     case inertial_to_body_fixed_rotation_matrix_variable:
         variableName = "Rotation matrix to body-fixed frame ";
         break;
@@ -276,6 +288,12 @@ std::string getDependentVariableName(
         break;
     case minimum_constellation_ground_station_distance:
         variableName = "Minimum instantaneous ground station visible constellation distance";
+        break;
+    case body_center_of_mass:
+        variableName = "Body center of mass";
+        break;
+    case body_inertia_tensor:
+        variableName = "Body inertia tensor";
         break;
     case received_irradiance:
         variableName = "Received irradiance";
