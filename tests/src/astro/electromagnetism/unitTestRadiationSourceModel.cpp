@@ -22,6 +22,7 @@
 #include "tudat/basics/testMacros.h"
 #include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/math/basic/mathematicalConstants.h"
+#include "tudat/math/basic/basicMathematicsFunctions.h"
 #include "tudat/math/basic/coordinateConversions.h"
 #include "tudat/astro/electromagnetism/radiationSourceModel.h"
 #include "tudat/astro/electromagnetism/sourcePanelRadiosityModel.h"
@@ -262,6 +263,108 @@ BOOST_AUTO_TEST_CASE( testStaticallyPaneledRadiationSourceModel_Albedo )
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION(actualSourcePositionPanel3, expectedSourcePositionPanel3, 1e-15);
         BOOST_CHECK_CLOSE_FRACTION(actualIrradiancePanel4, expectedIrradiance, 1e-15);
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION(actualSourcePositionPanel4, expectedSourcePositionPanel4, 1e-15);
+    }
+}
+
+//! Test dynamically paneled source with a single panel for two timesteps to check updating
+BOOST_AUTO_TEST_CASE( testDynamicallyPaneledRadiationSourceModel_CentralCapOnly )
+{
+    const auto radius = 5;
+    const auto radiosity = 3;
+
+    std::vector<std::unique_ptr<SourcePanelRadiosityModel>> baseRadiosityModels;
+    baseRadiosityModels.push_back(std::make_unique<ConstantSourcePanelRadiosityModel>(radiosity));
+
+    DynamicallyPaneledRadiationSourceModel radiationSourceModel(
+            "",
+            std::make_shared<basic_astrodynamics::SphericalBodyShapeModel>(radius),
+            baseRadiosityModels, {});
+
+    // Timestep 1
+    const auto altitude1 = 2;
+    const Eigen::Vector3d targetPosition1 = (radius + altitude1) * Eigen::Vector3d(1, 1, 0).normalized();
+    const auto panelArea1 = 2 * PI * radius * radius * (1 - radius / targetPosition1.norm());
+
+    const auto expectedReceivedIrradiance1 = radiosity / (PI * altitude1 * altitude1) * panelArea1;
+    radiationSourceModel.updateMembers(0);
+    const auto irradianceList1 = radiationSourceModel.evaluateIrradianceAtPosition(
+            targetPosition1,
+            TUDAT_NAN,
+            -targetPosition1.normalized());
+    const auto actualReceivedIrradiance1 = irradianceList1.front().first;
+
+    BOOST_CHECK_CLOSE_FRACTION(actualReceivedIrradiance1, expectedReceivedIrradiance1, 1e-15);
+
+    // Timestep 2
+    const auto altitude2 = 14;
+    const Eigen::Vector3d targetPosition2 = (radius + altitude2) * Eigen::Vector3d(0.7, 5.6, 1.2).normalized();
+    const auto panelArea2 = 2 * PI * radius * radius * (1 - radius / targetPosition2.norm());
+
+    const auto expectedReceivedIrradiance2 = radiosity / (PI * altitude2 * altitude2) * panelArea2;
+    radiationSourceModel.updateMembers(1);
+    const auto irradianceList2 = radiationSourceModel.evaluateIrradianceAtPosition(
+            targetPosition2,
+            TUDAT_NAN,
+            -targetPosition2.normalized());
+    const auto actualReceivedIrradiance2 = irradianceList2.front().first;
+
+    BOOST_CHECK_CLOSE_FRACTION(actualReceivedIrradiance2, expectedReceivedIrradiance2, 1e-15);
+}
+
+//! Test dynamically paneled source on whether panels properties are updated when moving
+BOOST_AUTO_TEST_CASE( testDynamicallyPaneledRadiationSourceModel_PanelMoving )
+{
+    const auto radius = 6000e3;
+    const Eigen::Vector3d north(0, 0, 1);
+
+    std::vector<std::unique_ptr<SourcePanelRadiosityModel>> baseRadiosityModels;
+    baseRadiosityModels.push_back(std::make_unique<ConstantSourcePanelRadiosityModel>(1));
+
+    DynamicallyPaneledRadiationSourceModel radiationSourceModel(
+            "",
+            std::make_shared<basic_astrodynamics::SphericalBodyShapeModel>(radius),
+            baseRadiosityModels, {6, 12});
+
+    // Timestep 1: target in northern hemisphere
+    const Eigen::Vector3d targetPosition1 = (radius + 150) * Eigen::Vector3d(-0.03, 0.002, 1).normalized();
+    radiationSourceModel.updateMembers(0);
+    radiationSourceModel.evaluateIrradianceAtPosition(targetPosition1, TUDAT_NAN, Eigen::Vector3d::UnitX());
+
+    for (const auto& panel : radiationSourceModel.getPanels())
+    {
+        // Panel normal should point towards north
+        BOOST_CHECK(panel.getSurfaceNormal().dot(north) > 0);
+        BOOST_CHECK(panel.getRelativeCenter().dot(north) > 0);
+        BOOST_CHECK(panel.getLatitude() > 0);
+    }
+
+    // Timestep 2: target in southern hemisphere
+    const Eigen::Vector3d targetPosition2 = (radius + 100) * Eigen::Vector3d(0.05, -0.02, -0.8).normalized();
+    radiationSourceModel.updateMembers(1);
+    radiationSourceModel.evaluateIrradianceAtPosition(targetPosition2, TUDAT_NAN, Eigen::Vector3d::UnitX());
+
+    for (const auto& panel : radiationSourceModel.getPanels())
+    {
+        // Panel normal should point towards south
+        BOOST_CHECK(panel.getSurfaceNormal().dot(north) < 0);
+        BOOST_CHECK(panel.getRelativeCenter().dot(north) < 0);
+        BOOST_CHECK(panel.getLatitude() < 0);
+
+        // Check consistency of panel's spherical and cartesian coordinates
+        const Eigen::Vector3d& cartesianPosition = panel.getRelativeCenter();
+        const Eigen::Vector3d sphericalPosition =
+                coordinate_conversions::convertCartesianToSpherical(cartesianPosition);
+
+        const auto radiusFromConversion = sphericalPosition(0);
+        const auto latitudeFromConversion = basic_mathematics::computeModulo(PI / 2 - sphericalPosition(1), PI);
+        const auto longitudeFromConversion = basic_mathematics::computeModulo(sphericalPosition(2), 2 * PI);
+
+        const auto latitudeFromPanel = basic_mathematics::computeModulo(panel.getLatitude(), PI);
+        const auto longitudeFromPanel = basic_mathematics::computeModulo(panel.getLongitude(), 2 * PI);
+
+        BOOST_CHECK_CLOSE_FRACTION(radiusFromConversion, radius, 1e-13);
+        BOOST_CHECK_CLOSE_FRACTION(latitudeFromConversion, latitudeFromPanel, 1e-15);
+        BOOST_CHECK_CLOSE_FRACTION(longitudeFromConversion, longitudeFromPanel, 1e-15);
     }
 }
 

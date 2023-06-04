@@ -60,7 +60,7 @@ BOOST_AUTO_TEST_CASE( testConstantPanelRadiosityModel )
                 1,
                 Eigen::Vector3d::UnitX(),
                 2 * Eigen::Vector3d(1, 0, 1).normalized(),
-                4,
+                3,
                 -Eigen::Vector3d(1, 1, 0).normalized());
         BOOST_CHECK_CLOSE(expectedEmittedIrradiance, actualEmittedIrradiance, 1e-10);
     }
