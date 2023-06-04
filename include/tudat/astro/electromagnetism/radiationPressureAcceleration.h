@@ -49,6 +49,11 @@ public:
         return targetModel_;
     }
 
+    std::shared_ptr<OccultationModel> getSourceToTargetOccultationModel() const
+    {
+        return sourceToTargetOccultationModel_;
+    }
+
     double getReceivedIrradiance() const
     {
         return receivedIrradiance;
