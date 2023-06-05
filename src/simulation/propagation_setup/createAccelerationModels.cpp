@@ -1055,7 +1055,7 @@ createRadiationPressureAccelerationModel(
         auto originalSourceToSourceOccultingBodies = paneledRadiationSourceModel->getOriginalSourceToSourceOccultingBodies();
 
         // Check if occulting bodies are not original source or source
-        for (auto& occultingBodyName : sourceToTargetOccultingBodies)
+        for (auto& occultingBodyName : originalSourceToSourceOccultingBodies)
         {
             if (occultingBodyName == originalSourceName)
             {
