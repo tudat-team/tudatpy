@@ -54,23 +54,23 @@ void expose_rigid_body_setup(py::module &m) {
           py::arg("mass"),
           py::arg("center_of_mass") = Eigen::Vector3d::Constant( TUDAT_NAN ),
           py::arg("inertia_tensor") = Eigen::Matrix3d::Constant( TUDAT_NAN ),
-          get_docstring("constant_mass_properties").c_str()
+          get_docstring("constant_rigid_body_properties").c_str()
     );
 
-    m.def("custom_rigid_body_properties",
+    m.def("custom_time_dependent_rigid_body_properties",
           tss::fromFunctionRigidBodyPropertiesSettings,
           py::arg("mass_function"),
           py::arg("center_of_mass_function") = nullptr,
           py::arg("inertia_tensor_function") = nullptr,
-          get_docstring("custom_mass_properties").c_str()
+          get_docstring("custom_time_dependent_rigid_body_properties").c_str()
     );
 
-    m.def("mass_dependent_rigid_body_properties",
+    m.def("custom_mass_dependent_rigid_body_properties",
           tss::massDependentMassDistributionSettings,
-          py::arg("current_mass"),
+          py::arg("mass"),
           py::arg("center_of_mass_function") = nullptr,
           py::arg("inertia_tensor_function") = nullptr,
-          get_docstring("mass_dependent_mass_properties").c_str()
+          get_docstring("custom_mass_dependent_rigid_body_properties").c_str()
     );
 
 
