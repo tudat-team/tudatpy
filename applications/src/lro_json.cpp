@@ -107,23 +107,23 @@ SystemOfBodies createSimulationBodies()
         }
     }
 
+    std::map<std::string, std::vector<std::string>> occultingBodiesForLRO{};
+    if (settings.useOccultation)
+    {
+        // Moon is never occulted as seen from LRO
+        occultingBodiesForLRO = {{"Sun", {"Earth", "Moon"}}};
+    }
+
     // Create LRO
     bodySettings.addSettings("LRO");
     bodySettings.at("LRO")->constantMass = 1208.0;
     bodySettings.at("LRO")->rotationModelSettings = spiceRotationModelSettings(globalFrameOrientation, "LRO_SC_BUS");
     if (settings.targetType == "Cannonball") {
         bodySettings.at("LRO")->radiationPressureTargetModelSettings =
-                cannonballRadiationPressureTargetModelSettings(15.38, 1.41);
+                cannonballRadiationPressureTargetModelSettingsWithOccultationMap(15.38, 1.41, occultingBodiesForLRO);
     }
     else if (settings.targetType == "Paneled")
     {
-        std::map<std::string, std::vector<std::string>> occultingBodiesForLRO{};
-        if (settings.useOccultation)
-        {
-            // Moon is never occulted as seen from LRO
-            occultingBodiesForLRO = {{"Sun", {"Earth", "Moon"}}};
-        }
-
         bodySettings.at("LRO")->radiationPressureTargetModelSettings = paneledRadiationPressureTargetModelSettingsWithOccultationMap({
                 TargetPanelSettings(2.82, 0.29, 0.22, settings.withInstantaneousReradiation, Eigen::Vector3d::UnitX()),
                 TargetPanelSettings(2.82, 0.39, 0.19, settings.withInstantaneousReradiation, -Eigen::Vector3d::UnitX()),
