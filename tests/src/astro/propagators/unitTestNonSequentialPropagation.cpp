@@ -186,7 +186,7 @@ BOOST_AUTO_TEST_CASE( testNonSequentialMultiArcDynamics )
     double initialEpoch = 0.0;
     double finalEpoch = 86400.0;
     std::vector< double > arcStartTimes = { 0.0, 8.0 * 3600.0, 16.0 * 3600.0 };
-    std::vector< double > arcEndTimes = { 8.0 * 3600.0, 16.0 * 3600.0, 86400.0 };
+    std::vector< double > arcEndTimes = { 7.0 * 3600.0, 15.0 * 3600.0, 86400.0 };
     std::vector< double > midArcTimes;
     for ( unsigned int i = 0 ; i < arcStartTimes.size( ) ; i++ )
     {
@@ -279,9 +279,8 @@ BOOST_AUTO_TEST_CASE( testNonSequentialMultiArcDynamics )
         backwardPropagationSettingsList.push_back( std::make_shared< TranslationalStatePropagatorSettings< double > >(
                 centralBodies, accelerationsMap, bodiesToPropagate, midArcStatesMoons.at( i ), arcStartTimes.at( i ), cowell, dependentVariables ) );
 
-        std::shared_ptr< NonSequentialPropagationTerminationSettings > terminationSettings =
-                std::make_shared< NonSequentialPropagationTerminationSettings >(
-                        std::make_shared< PropagationTimeTerminationSettings >( arcEndTimes.at( i ) ),
+        std::shared_ptr< NonSequentialPropagationTerminationSettings > terminationSettings = std::make_shared< NonSequentialPropagationTerminationSettings >(
+                std::make_shared< PropagationTimeTerminationSettings >( arcEndTimes.at( i ) ),
                         std::make_shared< PropagationTimeTerminationSettings >( arcStartTimes.at( i ) ) );
         std::shared_ptr< TranslationalStatePropagatorSettings< > > nonsequentialPropagatorSettings = std::make_shared< TranslationalStatePropagatorSettings< > >(
                 centralBodies, accelerationsMap, bodiesToPropagate, midArcStatesMoons.at( i ), midArcTimes.at( i ), forwardIntegratorSettings,

@@ -1525,7 +1525,7 @@ template< typename StateScalarType = double, typename TimeType = double >
 std::shared_ptr< MultiArcPropagatorSettings< StateScalarType, TimeType > > validateDeprecatedMultiArcSettings(
         const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
         const std::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
-        const std::vector< double > arcStartTimes,
+        const std::vector< double > propagationStartTimes,
         const bool clearNumericalSolutions = true,
         const bool setIntegratedResult = true,
         const bool setDependentVariablesInterface = false )
@@ -1538,15 +1538,15 @@ std::shared_ptr< MultiArcPropagatorSettings< StateScalarType, TimeType > > valid
     }
 
     std::vector<std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > > integratorSettingsList(
-                arcStartTimes.size( ), integratorSettings);
+            propagationStartTimes.size( ), integratorSettings);
 
     std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > > independentIntegratorSettingsList =
             utilities::cloneDuplicatePointers( integratorSettingsList );
 
-    for( unsigned int i = 0; i < arcStartTimes.size( ); i++ )
+    for( unsigned int i = 0; i < propagationStartTimes.size( ); i++ )
     {
         multiArcPropagatorSettings->getSingleArcSettings( ).at( i )->resetInitialTime(
-                    arcStartTimes.at( i ) );
+                propagationStartTimes.at( i ) );
     }
 
     return validateDeprecatedMultiArcSettings(

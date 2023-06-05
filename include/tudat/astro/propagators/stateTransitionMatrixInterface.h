@@ -263,6 +263,7 @@ public:
             stateTransitionMatrixInterpolators,
             const std::vector< std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > >
             sensitivityMatrixInterpolators,
+            const std::vector< double >& propagationStartTimes,
             const std::vector< double >& arcStartTimes,
             const std::vector< double >& arcEndTimes,
             const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate,
@@ -272,6 +273,7 @@ public:
         CombinedStateTransitionAndSensitivityMatrixInterface( numberOfInitialDynamicalParameters, numberOfParameters ),
         stateTransitionMatrixInterpolators_( stateTransitionMatrixInterpolators ),
         sensitivityMatrixInterpolators_( sensitivityMatrixInterpolators ),
+        propagationStartTimes_( propagationStartTimes ),
         arcStartTimes_( arcStartTimes ),
         arcEndTimes_( arcEndTimes ),
         statePartialAdditionIndices_( statePartialAdditionIndices )
@@ -282,7 +284,7 @@ public:
         }
         numberOfStateArcs_ = arcStartTimes_.size( );
 
-        estimatable_parameters::getParametersToEstimatePerArcTest( parametersToEstimate, arcWiseParametersToEstimate_, arcStartTimes_, estimatedBodiesPerArc_, arcIndicesPerBody_ );
+        estimatable_parameters::getParametersToEstimatePerArcTest( parametersToEstimate, arcWiseParametersToEstimate_, propagationStartTimes_, estimatedBodiesPerArc_, arcIndicesPerBody_ );
         processArcWiseParametersIndices( parametersToEstimate, arcStartTimes_ );
         getArcStartTimesPerBody( );
 
@@ -297,7 +299,6 @@ public:
             throw std::runtime_error(
                         "Error when making multi arc state transition and sensitivity interface, vector sizes are inconsistent" );
         }
-
         std::vector< double > arcSplitTimes = arcStartTimes_;
         arcSplitTimes.push_back(  std::numeric_limits< double >::max( ));
         lookUpscheme_ = std::make_shared< interpolators::HuntingAlgorithmLookupScheme< double > >(
@@ -729,8 +730,6 @@ protected:
             arcWiseStateTransitionMatrixSize_.push_back( getSingleArcInitialDynamicalStateParameterSetSize( arcWiseParametersToEstimate_[ arc ] ) );
             arcWiseSensitivityMatrixSize_.push_back( getSingleArcParameterSetSize( arcWiseParametersToEstimate_[ arc ] ) - arcWiseStateTransitionMatrixSize_[ arc ] );
 
-    //        std::cout << "arc " << arc << " - arcWiseStateTransitionMatrixSize_: " << arcWiseStateTransitionMatrixSize_[ arc ] << "\n\n";
-    //        std::cout << "arc " << arc << " - arcWiseSensitivityMatrixSize_: " << arcWiseSensitivityMatrixSize_[ arc ] << "\n\n";
 
             fullStateTransitionMatrixSize_ += arcWiseStateTransitionMatrixSize_[ arc ];
 
@@ -815,6 +814,9 @@ private:
     //! List of interpolators returning the sensitivity matrix as a function of time.
     std::vector< std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > >
     sensitivityMatrixInterpolators_;
+
+    //! Times at which the propagation starts for each arc.
+    std::vector< double > propagationStartTimes_;
 
     //! Times at which the multiple arcs start
     std::vector< double > arcStartTimes_;
