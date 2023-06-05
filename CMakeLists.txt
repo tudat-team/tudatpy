@@ -67,7 +67,7 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 # Find Boost libraries on local system.
 find_package(Boost 1.72.0
-        COMPONENTS thread date_time system unit_test_framework filesystem regex REQUIRED)
+        COMPONENTS thread date_time system filesystem regex REQUIRED)
 
 find_package(Eigen3 REQUIRED)
 include_directories(SYSTEM AFTER "${EIGEN3_INCLUDE_DIR}")
