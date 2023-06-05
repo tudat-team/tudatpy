@@ -113,6 +113,11 @@ inline double getDsnNWayAveragedDopplerScalingFactor(
                 getLinkEndTypeString( referenceLinkEnd ) + ") is not valid." );
     }
 
+    if ( bodies.getBody( linkEnds.at( observation_models::retransmitter ).bodyName_ )->getVehicleSystems( ) == nullptr )
+    {
+        throw std::runtime_error( "Error when getting DSN N-way Doppler partials scaling factor: vehicle systems are not "
+                                  "defined for retransmitter link end." );
+    }
     double turnaroundRatio = bodies.getBody( linkEnds.at( observation_models::retransmitter ).bodyName_
             )->getVehicleSystems( )->getTransponderTurnaroundRatio( )( uplinkBand, downlinkBand );
 

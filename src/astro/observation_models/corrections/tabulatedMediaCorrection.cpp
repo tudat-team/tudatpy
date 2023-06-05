@@ -681,6 +681,7 @@ double MappedVtecIonosphericCorrection::calculateLightTimeCorrectionWithMultiLeg
     }
 
     // Jakowski et al. (2011), eqs. 1 and 2; IERS conventions 2010, section 9.4
+    // Mapping of VTEC to STEC: 1 / cos(zenithAngle)
     return ( sign_ * firstOrderDelayCoefficient_ *
         vtecCalculator_->calculateVtec( groundStationTime, subIonosphericPointGeodeticPosition ) /
         std::pow( transmittedFrequencyFunction_( frequencyBands, firstLegTransmissionTime ), 2.0 ) /
