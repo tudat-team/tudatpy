@@ -65,7 +65,6 @@ public:
     {
         thrustMagnitudeWrapper_->update( currentTime );
         currentBodyFixedThrustDirection_ = bodyFixedThrustDirection_( currentTime ).normalized( );
-        std::cout<<"Current thrust "<<currentTime<<" "<<currentBodyFixedThrustDirection_.transpose( )<<std::endl;
     }
 
 
