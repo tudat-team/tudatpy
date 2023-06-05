@@ -126,6 +126,24 @@ namespace environment_setup {
               py::arg("time_step") = 300.0,
               get_docstring("get_default_single_body_settings_time_limited").c_str());
 
+        m.def("get_default_single_alternate_body_settings",
+              py::overload_cast<const std::string&, const std::string&, const std::string&>(
+                  &tss::getDefaultSingleAlternateNameBodySettings),
+              py::arg("body_name"),
+              py::arg("source_body_name"),
+              py::arg("base_frame_orientation") = "ECLIPJ2000",
+              get_docstring("get_default_single_alternate_body_settings").c_str());
+
+        m.def("get_default_single_alternate_body_settings_time_limited",
+              py::overload_cast< const std::string&, const std::string&, const double, const double, const std::string&, const double >(
+                  &tss::getDefaultSingleAlternateNameBodySettings),
+              py::arg("body_name"),
+              py::arg("source_body_name"),
+              py::arg("initial_time"),
+              py::arg("final_time"),
+              py::arg("base_frame_orientation") = "ECLIPJ2000",
+              py::arg("time_step") = 300.0,
+              get_docstring("get_default_single_alternate_body_settings_time_limited").c_str());
 
         m.def("create_simplified_system_of_bodies", &tss::createSimplifiedSystemOfBodies,
               py::arg("initial_time") = 0,

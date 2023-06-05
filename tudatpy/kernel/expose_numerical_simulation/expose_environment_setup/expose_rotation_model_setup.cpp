@@ -122,6 +122,7 @@ namespace rotation_model {
               &tss::spiceRotationModelSettings,
               py::arg("base_frame"),
               py::arg("target_frame"),
+              py::arg("spice_frame_name") = "",
               get_docstring("spice").c_str()
         );
 

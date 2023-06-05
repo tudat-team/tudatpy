@@ -128,7 +128,8 @@ namespace atmosphere {
               py::arg("ratio_of_specific_heats" ) = 1.4 );
 
         m.def("us76",
-              &tss::us76AtmosphereSettings );
+              &tss::us76AtmosphereSettings,
+              get_docstring("us76").c_str() );
 
         m.def("custom_constant_temperature",
               py::overload_cast<const std::function<double(const double)>,
