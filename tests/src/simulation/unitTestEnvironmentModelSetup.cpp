@@ -1937,6 +1937,45 @@ BOOST_AUTO_TEST_CASE( test_groundStationCreation )
 
 
 
+BOOST_AUTO_TEST_CASE( test_DefaultSettingsDifferentBody )
+{
+
+    BodyListSettings bodySettings;
+    bodySettings.addSettings( getDefaultSingleBodySettings( "Mars", "ECLIPJ2000" ), "Mars" );
+    bodySettings.addSettings( getDefaultSingleAlternateNameBodySettings( "Earth", "Mars", "ECLIPJ2000" ), "Earth" );
+
+    // Create bodies
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+
+    double testTime = 1.0E7;
+
+    Eigen::Vector6d earthState = bodies.at( "Earth" )->getStateInBaseFrameFromEphemeris( testTime );
+    Eigen::Vector6d marsState = bodies.at( "Mars" )->getStateInBaseFrameFromEphemeris( testTime );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( earthState, marsState, std::numeric_limits< double >::epsilon( ) );
+
+    Eigen::Matrix3d earthRotation = bodies.at( "Earth" )->getRotationalEphemeris( )->getRotationMatrixToBaseFrame( testTime );
+    Eigen::Matrix3d marsRotation = bodies.at( "Mars" )->getRotationalEphemeris( )->getRotationMatrixToBaseFrame( testTime );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( earthRotation, marsRotation, std::numeric_limits< double >::epsilon( ) );
+
+    BOOST_CHECK_CLOSE_FRACTION( bodies.at( "Earth" )->getShapeModel( )->getAverageRadius( ),
+                                bodies.at( "Mars" )->getShapeModel( )->getAverageRadius( ),
+                                std::numeric_limits< double >::epsilon( ) );
+
+    Eigen::Vector3d testPosition =
+        ( Eigen::Vector3d( ) << 1.0E7, 2.0E7, 1.5E7 ).finished( );
+    double earthPotential = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalPotential( testPosition );
+    double marsPotential = bodies.at( "Mars" )->getGravityFieldModel( )->getGravitationalPotential( testPosition );
+    BOOST_CHECK_CLOSE_FRACTION( earthPotential, marsPotential,
+                                std::numeric_limits< double >::epsilon( ) );
+
+    BOOST_CHECK_EQUAL( bodies.at( "Earth" )->getRotationalEphemeris( )->getTargetFrameOrientation( ), "IAU_Earth" );
+    BOOST_CHECK_EQUAL( bodies.at( "Mars" )->getRotationalEphemeris( )->getTargetFrameOrientation( ), "IAU_Mars" );
+
+}
+
+
+
+
 //! Test set up of panelled radiation pressure interface environment models.
 BOOST_AUTO_TEST_CASE( test_panelledRadiationPressureInterfaceSetup )
 {
