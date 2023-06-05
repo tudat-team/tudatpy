@@ -290,8 +290,7 @@ namespace aerodynamic_coefficients {
               py::arg("reference_area"),
               py::arg("constant_force_coefficient"),
               py::arg("are_coefficients_in_aerodynamic_frame") = true,
-              py::arg("are_coefficients_in_negative_axis_direction") = true,
-              get_docstring("constant").c_str());
+              py::arg("are_coefficients_in_negative_axis_direction") = true );
 
         m.def("custom_aerodynamic_force_coefficients",
               py::overload_cast<
@@ -348,8 +347,7 @@ namespace aerodynamic_coefficients {
               py::arg("independent_variable_name"),
               py::arg("are_coefficients_in_aerodynamic_frame") = true,
               py::arg("are_coefficients_in_negative_axis_direction") = true,
-              py::arg("interpolator_settings") = nullptr,
-              get_docstring("tabulated").c_str());
+              py::arg("interpolator_settings") = nullptr);
 
         m.def("tabulated_force_only",
               py::overload_cast<
@@ -383,8 +381,7 @@ namespace aerodynamic_coefficients {
               py::arg("independent_variable_names"),
               py::arg("are_coefficients_in_aerodynamic_frame") = true,
               py::arg("are_coefficients_in_negative_axis_direction") = true,
-              py::arg("interpolator_settings") = nullptr,
-              get_docstring("tabulated_force_only_from_files").c_str());
+              py::arg("interpolator_settings") = nullptr );
 
         m.def("tabulated_from_files",
               py::overload_cast<
@@ -408,8 +405,7 @@ namespace aerodynamic_coefficients {
               py::arg("independent_variable_names"),
               py::arg("are_coefficients_in_aerodynamic_frame") = true,
               py::arg("are_coefficients_in_negative_axis_direction") = true,
-              py::arg("interpolator_settings") = nullptr,
-              get_docstring("tabulated_from_files").c_str());
+              py::arg("interpolator_settings") = nullptr );
 
     }
 
