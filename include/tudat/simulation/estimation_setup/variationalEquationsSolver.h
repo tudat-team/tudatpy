@@ -1237,7 +1237,7 @@ public:
             const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
             const std::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
             const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate,
-            const std::vector< double > arcStartTimes,
+            const std::vector< double > propagationStartTimes,
             const bool integrateDynamicalAndVariationalEquationsConcurrently = true,
             const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > variationalOnlyIntegratorSettings =
             std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ),
@@ -1246,7 +1246,7 @@ public:
             const bool resetMultiArcDynamicsAfterPropagation = true,
             const bool setDependentVariablesInterface = false ):
         MultiArcVariationalEquationsSolver( bodies, validateDeprecatedMultiArcSettings(
-                                        integratorSettings, propagatorSettings, arcStartTimes,
+                                        integratorSettings, propagatorSettings, propagationStartTimes,
                                         clearNumericalSolution, resetMultiArcDynamicsAfterPropagation, setDependentVariablesInterface ),
                                             parametersToEstimate,
                                     integrateEquationsOnCreation ){ }
@@ -1531,6 +1531,7 @@ private:
         {
             stateTransitionInterface_ = std::make_shared< MultiArcCombinedStateTransitionAndSensitivityMatrixInterface< StateScalarType > >(
                         stateTransitionMatrixInterpolators, sensitivityMatrixInterpolators,
+                        propagatorSettings_->getArcStartTimes( ),
                         arcStartTimesToUse,
                         arcEndTimesToUse,
                         parametersToEstimate_,
@@ -1542,8 +1543,7 @@ private:
             std::dynamic_pointer_cast< MultiArcCombinedStateTransitionAndSensitivityMatrixInterface< StateScalarType > >(
                         stateTransitionInterface_ )->updateMatrixInterpolators(
                         stateTransitionMatrixInterpolators, sensitivityMatrixInterpolators,
-                        arcStartTimesToUse,
-                        arcEndTimesToUse, getArcWiseStatePartialAdditionIndices( ) );
+                        arcStartTimesToUse, arcEndTimesToUse, getArcWiseStatePartialAdditionIndices( ) );
         }
     }
 

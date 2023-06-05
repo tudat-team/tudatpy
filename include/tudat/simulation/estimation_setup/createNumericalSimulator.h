@@ -158,6 +158,7 @@ std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterfa
                     std::vector< std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > >( ),
                     std::vector< double >( ),
                     std::vector< double >( ),
+                    std::vector< double >( ),
                     parametersToEstimate,
                     dynamicalStateSize, totalParameterSize,
                     std::vector< std::vector< std::pair< int, int > > >( ));
