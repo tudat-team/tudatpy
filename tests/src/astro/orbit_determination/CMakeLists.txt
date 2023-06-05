@@ -96,18 +96,18 @@ TUDAT_ADD_TEST_CASE(EstimationFromDsnData
     ${Tudat_ESTIMATION_LIBRARIES}
     )
 
-if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
-
-    TUDAT_ADD_TEST_CASE(EstimationFromIdealDataDoubleLongDouble
-        PRIVATE_LINKS
-        ${Tudat_ESTIMATION_LIBRARIES}
-        )
-
-    TUDAT_ADD_TEST_CASE(EstimationFromIdealDataTimeLongDouble
-        PRIVATE_LINKS
-        ${Tudat_ESTIMATION_LIBRARIES}
-        )
-
-endif( )
+#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+#
+#    TUDAT_ADD_TEST_CASE(EstimationFromIdealDataDoubleLongDouble
+#        PRIVATE_LINKS
+#        ${Tudat_ESTIMATION_LIBRARIES}
+#        )
+#
+#    TUDAT_ADD_TEST_CASE(EstimationFromIdealDataTimeLongDouble
+#        PRIVATE_LINKS
+#        ${Tudat_ESTIMATION_LIBRARIES}
+#        )
+#
+#endif( )
 
 

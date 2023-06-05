@@ -541,6 +541,12 @@ std::function< double ( std::vector< FrequencyBands >, double ) > createLinkFreq
     for ( auto retransmitterLinkEndsIt = ++linkEnds.begin( ); retransmitterLinkEndsIt->first != receivingLinkEndType;
             ++retransmitterLinkEndsIt )
     {
+        if ( bodies.getBody( retransmitterLinkEndsIt->second.bodyName_ )->getVehicleSystems( ) == nullptr )
+        {
+            throw std::runtime_error(
+                    "Error when creating link frequency function: vehicle systems are not defined for " +
+                    retransmitterLinkEndsIt->second.bodyName_ + "." );
+        }
         turnaroundRatioFunctions.push_back( bodies.getBody( retransmitterLinkEndsIt->second.bodyName_
             )->getVehicleSystems( )->getTransponderTurnaroundRatio( ) );
     }

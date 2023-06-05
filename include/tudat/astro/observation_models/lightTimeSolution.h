@@ -619,8 +619,8 @@ public:
                 linkEndsTimes, linkEndsStates, currentMultiLegTransmitterIndex, receptionTime, transmissionTime,
                 receiverState, transmitterState );
 
-        std::cout << std::setprecision(21) << "Light time: " << newLightTimeCalculation <<
-                  " (" << iterationCounter_ << " iter) " << std::endl;
+//        std::cout << std::setprecision(21) << "Light time: " << newLightTimeCalculation <<
+//                  " (" << iterationCounter_ << " iter) " << std::endl;
 
         return newLightTimeCalculation;
     }
@@ -957,7 +957,7 @@ public:
             }
         }
 
-        std::cout << "Iterations: " << iterationCounter_ << std::endl;
+//        std::cout << "Iterations: " << iterationCounter_ << std::endl;
 
 
         // Save output

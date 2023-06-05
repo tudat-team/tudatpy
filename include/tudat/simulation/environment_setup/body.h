@@ -1137,11 +1137,6 @@ public:
      */
     std::shared_ptr<system_models::VehicleSystems> getVehicleSystems()
     {
-        if( vehicleSystems_ == nullptr )
-        {
-            throw std::runtime_error( "Error when retrieving vehicle systems from body " + bodyName_ +
-                                      ": vehicle systems are not defined" );
-        }
         return vehicleSystems_;
     }
 

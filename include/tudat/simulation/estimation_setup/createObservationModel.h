@@ -1926,6 +1926,13 @@ public:
                         linkEnds, observationSettings->observableType_, observationSettings->biasSettings_, bodies );
             }
 
+            if ( bodies.getBody( linkEnds.at( observation_models::retransmitter ).bodyName_ )->getVehicleSystems( ) == nullptr )
+            {
+                throw std::runtime_error(
+                        "Error when creating DSN N-way averaged Doppler observation model: vehicle systems are not "
+                        "defined for retransmitter link end." );
+            }
+
             observationModel = std::make_shared<
                     DsnNWayAveragedDopplerObservationModel< ObservationScalarType, TimeType > >(
                         linkEnds, arcStartObservationModel, arcEndObservationModel,

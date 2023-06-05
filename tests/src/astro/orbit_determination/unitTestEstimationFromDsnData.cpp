@@ -45,7 +45,10 @@ void runSimulation(
         std::string fileTag,
         bool useInterpolatedEphemerides,
         double epehemeridesTimeStep,
-        std::vector< LightTimeCorrectionType > lightTimeCorrectionTypes )
+        std::vector< LightTimeCorrectionType > lightTimeCorrectionTypes,
+        int sphericalHarmonicsOrder,
+        double integrationTolerance,
+        int estimationMaxIterations )
 {
 
     // MGS kernels
@@ -60,9 +63,13 @@ void runSimulation(
 //        "/Users/pipas/Documents/mgs-spice/mgs_ext22_ipng_mgs95j.bsp" } );
     spice_interface::loadStandardSpiceKernels( );
     spice_interface::loadSpiceKernelInTudat( "/Users/pipas/Documents/mgs-spice/mgs_ext22_ipng_mgs95j.bsp" );
+//    spice_interface::loadSpiceKernelInTudat( "/Users/pipas/Documents/mro-spice/de414.bsp" );
+//    spice_interface::loadSpiceKernelInTudat( "/Users/pipas/Documents/mgs-spice/mar063.bsp" );
 
     // Define bodies to use.
-    std::vector< std::string > bodiesToCreate = { "Earth", "Sun", "Mercury", "Venus", "Mars", "Jupiter" };
+    std::vector< std::string > bodiesToCreate = {
+            "Earth", "Sun", "Mercury", "Venus", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune", "Phobos", "Deimos",
+            "Io", "Ganymede", "Callisto", "Europa", "Titan" };
 
     std::string baseFrameOrientation = "J2000";
     std::string baseFrameOrigin = "SSB";
@@ -71,8 +78,8 @@ void runSimulation(
     std::vector< std::string > lightTimePerturbingBodies = bodiesToCreate;
 
     // Specify initial time
-    Time initialEphemerisTime = Time( 185976000 - 1.0 * 86400.0 ); // End of November 2005
-    Time finalEphemerisTime = Time( 186580800 + 1.0 * 86400.0 ); // End of November 2005
+    Time initialEphemerisTime = Time( 185976000 - 1.0 * 86400.0 ); // -1.0 // End of November 2005
+    Time finalEphemerisTime = Time( 186580800 + 1.0 * 86400.0 ); // +1.0 // End of November 2005
     Time ephemerisTimeStepPlanets = Time( epehemeridesTimeStep );
     Time bufferPlanets = Time( 10.0 * ephemerisTimeStepPlanets );
     Time ephemerisTimeStepSpacecraft = Time( epehemeridesTimeStep );
@@ -96,6 +103,25 @@ void runSimulation(
             basic_astrodynamics::iau_2006, baseFrameOrientation );
     bodySettings.at( "Earth" )->groundStationSettings = getDsnStationSettings( );
 
+    // Create vector of atmosphere dependent and independent variables
+    std::vector< aerodynamics::AtmosphereDependentVariables > dependentVariables = {
+        aerodynamics::specific_heat_ratio_dependent_atmosphere, aerodynamics::temperature_dependent_atmosphere,
+        aerodynamics::density_dependent_atmosphere, aerodynamics::pressure_dependent_atmosphere,
+        aerodynamics::gas_constant_dependent_atmosphere };
+    std::vector< aerodynamics::AtmosphereIndependentVariables > independentVariables = {
+        aerodynamics::longitude_dependent_atmosphere, aerodynamics::latitude_dependent_atmosphere,
+        aerodynamics::altitude_dependent_atmosphere };
+    // Create a tabulated atmosphere object.
+    std::map< int, std::string > tabulatedAtmosphereFiles;
+    tabulatedAtmosphereFiles[ 0 ] = paths::getAtmosphereTablesPath( ) + "/MCDMeanAtmosphereTimeAverage/specificHeatRatio.dat";
+    tabulatedAtmosphereFiles[ 1 ] = paths::getAtmosphereTablesPath( ) + "/MCDMeanAtmosphereTimeAverage/temperature.dat";
+    tabulatedAtmosphereFiles[ 2 ] = paths::getAtmosphereTablesPath( ) + "/MCDMeanAtmosphereTimeAverage/density.dat";
+    tabulatedAtmosphereFiles[ 3 ] = paths::getAtmosphereTablesPath( ) + "/MCDMeanAtmosphereTimeAverage/pressure.dat";
+    tabulatedAtmosphereFiles[ 4 ] = paths::getAtmosphereTablesPath( ) + "/MCDMeanAtmosphereTimeAverage/gasConstant.dat";
+
+    bodySettings.at( "Mars" )->atmosphereSettings = std::make_shared< TabulatedAtmosphereSettings >(
+            tabulatedAtmosphereFiles, independentVariables, dependentVariables );
+
     // Create spacecraft
     std::string spacecraftName = "MGS";
     bodySettings.addSettings( spacecraftName );
@@ -114,18 +140,46 @@ void runSimulation(
     }
     bodySettings.at( spacecraftName )->constantMass = 700.0;
 
+    // Create radiation pressure settings
+    double referenceAreaRadiation = 20.0;
+    double radiationPressureCoefficient = 1.0;
+    std::vector< std::string > occultingBodies = { "Mars" };
+    bodySettings.at( spacecraftName )->radiationPressureSettings[ "Sun" ] =
+            cannonBallRadiationPressureSettings( "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
+
+    // Create aerodynamic coefficient interface settings.
+    double referenceArea = 17.5;
+    bodySettings.at( spacecraftName )->aerodynamicCoefficientSettings = std::make_shared< ConstantAerodynamicCoefficientSettings >(
+                referenceArea, ( Eigen::Vector3d( ) << 2.0, 0.0, 0.0 ).finished( ),
+                true, true );
+
     // Create bodies
     SystemOfBodies bodies = createSystemOfBodies< long double, Time >( bodySettings );
 
     // Set accelerations on Vehicle that are to be taken into account.
     SelectedAccelerationMap accelerationMap;
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
-    accelerationsOfVehicle[ "Mars" ].push_back( std::make_shared< SphericalHarmonicAccelerationSettings >( 10, 10 ) );
-    accelerationsOfVehicle[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::point_mass_gravity ) );
-    accelerationsOfVehicle[ "Jupiter" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::point_mass_gravity ) );
-    accelerationsOfVehicle[ "Venus" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::point_mass_gravity ) );
-    accelerationsOfVehicle[ "Mercury" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::point_mass_gravity ) );
-    accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::point_mass_gravity ) );
+    accelerationsOfVehicle[ "Sun" ].push_back( pointMassGravityAcceleration( ) );
+    accelerationsOfVehicle[ "Sun" ].push_back( cannonBallRadiationPressureAcceleration( ) );
+//    accelerationsOfVehicle[ "Sun" ].push_back( relativisticAccelerationCorrection(  ) );
+    accelerationsOfVehicle[ "Mercury" ].push_back( pointMassGravityAcceleration( ) );
+    accelerationsOfVehicle[ "Venus" ].push_back( pointMassGravityAcceleration( ) );
+    accelerationsOfVehicle[ "Earth" ].push_back( pointMassGravityAcceleration( ) );
+    accelerationsOfVehicle[ "Mars" ].push_back( sphericalHarmonicAcceleration( sphericalHarmonicsOrder, sphericalHarmonicsOrder ) );
+    accelerationsOfVehicle[ "Mars" ].push_back( relativisticAccelerationCorrection(  ) );
+    accelerationsOfVehicle[ "Mars" ].push_back( aerodynamicAcceleration( ) );
+    accelerationsOfVehicle[ "Phobos" ].push_back( pointMassGravityAcceleration( ) );
+    accelerationsOfVehicle[ "Deimos" ].push_back( pointMassGravityAcceleration( ) );
+    accelerationsOfVehicle[ "Jupiter" ].push_back( pointMassGravityAcceleration( ) );
+    accelerationsOfVehicle[ "Io" ].push_back( pointMassGravityAcceleration( ) );
+    accelerationsOfVehicle[ "Ganymede" ].push_back( pointMassGravityAcceleration( ) );
+    accelerationsOfVehicle[ "Callisto" ].push_back( pointMassGravityAcceleration( ) );
+    accelerationsOfVehicle[ "Europa" ].push_back( pointMassGravityAcceleration( ) );
+    accelerationsOfVehicle[ "Saturn" ].push_back( pointMassGravityAcceleration( ) );
+    accelerationsOfVehicle[ "Titan" ].push_back( pointMassGravityAcceleration( ) );
+    accelerationsOfVehicle[ "Uranus" ].push_back( pointMassGravityAcceleration( ) );
+    accelerationsOfVehicle[ "Neptune" ].push_back( pointMassGravityAcceleration( ) );
+
 //    accelerationsOfVehicle[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::cannon_ball_radiation_pressure ) );
 //    accelerationsOfVehicle[ "Mars" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::aerodynamic ) );
     accelerationMap[ spacecraftName ] = accelerationsOfVehicle;
@@ -140,10 +194,9 @@ void runSimulation(
     AccelerationMap accelerationModelMap = createAccelerationModelsMap( bodies, accelerationMap, bodiesToIntegrate, centralBodies );
 
     // Create integrator settings
-    double tolerance = 1e-11;
     double initialStep = 5.0;
     std::shared_ptr< IntegratorSettings< Time > > integratorSettings = rungeKuttaVariableStepSettingsScalarTolerances< Time >(
-            initialStep, rungeKutta87DormandPrince, 1e-16, 1e16, tolerance, tolerance );
+            initialStep, rungeKutta87DormandPrince, 1e-16, 1e16, integrationTolerance, integrationTolerance );
 
     // Set initial state from ephemerides
     Time initialPropagationTime = initialEphemerisTime;
@@ -170,10 +223,10 @@ void runSimulation(
             sampledTimes.push_back( newTime );
         }
     }
-    std::map< Time, Eigen::Matrix < long double, Eigen::Dynamic, 1 > > spiceStateHistory;
+    std::map< long double, Eigen::Matrix < long double, Eigen::Dynamic, 1 > > spiceStateHistory;
     for ( auto it = sampledTimes.begin( ); it != sampledTimes.end( ); ++it )
     {
-        spiceStateHistory[ *it ] =
+        spiceStateHistory[ (*it).getSeconds< long double >() ] =
                 bodies.getBody( spacecraftName )->getStateInBaseFrameFromEphemeris< long double, Time >( *it ) -
                     bodies.getBody( centralBody )->getStateInBaseFrameFromEphemeris< long double, Time >( *it );
     }
@@ -299,8 +352,8 @@ void runSimulation(
     std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
     parameterNames.push_back( std::make_shared< InitialTranslationalStateEstimatableParameterSettings< long double > >(
             spacecraftName, spacecraftInitialState, centralBody, baseFrameOrientation ) );
-//    parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( spacecraftName, radiation_pressure_coefficient ) );
-//    parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( spacecraftName, constant_drag_coefficient ) );
+    parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( spacecraftName, radiation_pressure_coefficient ) );
+    parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( spacecraftName, constant_drag_coefficient ) );
 
     // Create parameters
     std::shared_ptr< estimatable_parameters::EstimatableParameterSet< long double > > parametersToEstimate =
@@ -319,10 +372,10 @@ void runSimulation(
 //            std::dynamic_pointer_cast< SingleArcSimulationResults< long double, Time > >(
 //                    dynamicsSimulator->getPropagationResults( ) )->getEquationsOfMotionNumericalSolution( );
 
-    std::map< Time, Eigen::Matrix < long double, Eigen::Dynamic, 1 > > propagatedStateHistory;
+    std::map< long double, Eigen::Matrix < long double, Eigen::Dynamic, 1 > > propagatedStateHistory;
     for ( auto it = sampledTimes.begin( ); it != sampledTimes.end( ); ++it )
     {
-        propagatedStateHistory[ *it ] =
+        propagatedStateHistory[ (*it).getSeconds< long double >() ] =
                 bodies.getBody( spacecraftName )->getStateInBaseFrameFromEphemeris< long double, Time >( *it ) -
                     bodies.getBody( centralBody )->getStateInBaseFrameFromEphemeris< long double, Time >( *it );
     }
@@ -334,7 +387,10 @@ void runSimulation(
 
     // Define estimation input
     std::shared_ptr< EstimationInput< long double, Time  > > estimationInput =
-            std::make_shared< EstimationInput< long double, Time > >( observedObservationCollection );
+            std::make_shared< EstimationInput< long double, Time > >(
+                    observedObservationCollection,
+                    Eigen::MatrixXd::Zero( 0, 0 ),
+                    std::make_shared< EstimationConvergenceChecker >( estimationMaxIterations ) );
 
     // Perform estimation
     std::shared_ptr< EstimationOutput< long double, Time > > estimationOutput = orbitDeterminationManager.estimateParameters(
@@ -370,7 +426,7 @@ void runSimulation(
     }
 
     std::ofstream file(saveDirectory + "residuals_" + fileTag + ".txt");
-    file << std::setprecision( 17 ) << residualHistory;
+    file << std::setprecision( 17 ) << residualsWithTime;
     file.close();
 
     std::ofstream file3(saveDirectory + "parameters_" + fileTag + ".txt");
@@ -403,7 +459,7 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
 {
     std::string saveDirectory = "/Users/pipas/tudatpy-testing/mgs/mors_2190/estimation/";
 
-    int testCase = 0;
+    int testCase = 4;
 
     if ( testCase == 0 )
     {
@@ -411,7 +467,70 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
         std::string fileTag = "5332333aOdf_interpState50";
         double ephemeridesTimeStep = 50.0;
 
-        runSimulation( saveDirectory, fileTag + "_allCorr", true, ephemeridesTimeStep, { first_order_relativistic, tabulated_tropospheric, tabulated_ionospheric } );
+        runSimulation( saveDirectory, fileTag + "_allCorr", true, ephemeridesTimeStep,
+                       { first_order_relativistic, tabulated_tropospheric, tabulated_ionospheric }, 10, 1e-11, 0 );
+    }
+    else if ( testCase == 1 )
+    {
+//        std::string fileTag = "5332333aOdf_interpState50";
+        std::string fileTag = "5332333aOdf_interpState50";
+        double ephemeridesTimeStep = 50.0;
+
+        runSimulation( saveDirectory, fileTag + "_allCorrSh10", true, ephemeridesTimeStep,
+                       { first_order_relativistic, tabulated_tropospheric, tabulated_ionospheric }, 10, 1e-11, 0 );
+        runSimulation( saveDirectory, fileTag + "_allCorrSh20", true, ephemeridesTimeStep,
+                       { first_order_relativistic, tabulated_tropospheric, tabulated_ionospheric }, 20, 1e-11, 0 );
+        runSimulation( saveDirectory, fileTag + "_allCorrSh30", true, ephemeridesTimeStep,
+                       { first_order_relativistic, tabulated_tropospheric, tabulated_ionospheric }, 30, 1e-11, 0 );
+        runSimulation( saveDirectory, fileTag + "_allCorrSh40", true, ephemeridesTimeStep,
+                       { first_order_relativistic, tabulated_tropospheric, tabulated_ionospheric }, 40, 1e-11, 0 );
+        runSimulation( saveDirectory, fileTag + "_allCorrSh50", true, ephemeridesTimeStep,
+                       { first_order_relativistic, tabulated_tropospheric, tabulated_ionospheric }, 50, 1e-11, 0 );
+        runSimulation( saveDirectory, fileTag + "_allCorrSh60", true, ephemeridesTimeStep,
+                       { first_order_relativistic, tabulated_tropospheric, tabulated_ionospheric }, 60, 1e-11, 0 );
+    }
+    else if ( testCase == 2 )
+    {
+//        std::string fileTag = "5332333aOdf_interpState50";
+        std::string fileTag = "5332333aOdf_interpState50";
+        double ephemeridesTimeStep = 50.0;
+
+        runSimulation( saveDirectory, fileTag + "_allCorrSh50Tol5", true, ephemeridesTimeStep,
+                       { first_order_relativistic, tabulated_tropospheric, tabulated_ionospheric }, 50, 1e-5, 0 );
+        runSimulation( saveDirectory, fileTag + "_allCorrSh50Tol6", true, ephemeridesTimeStep,
+                       { first_order_relativistic, tabulated_tropospheric, tabulated_ionospheric }, 50, 1e-6, 0 );
+        runSimulation( saveDirectory, fileTag + "_allCorrSh50Tol7", true, ephemeridesTimeStep,
+                       { first_order_relativistic, tabulated_tropospheric, tabulated_ionospheric }, 50, 1e-7, 0 );
+        runSimulation( saveDirectory, fileTag + "_allCorrSh50Tol8", true, ephemeridesTimeStep,
+                       { first_order_relativistic, tabulated_tropospheric, tabulated_ionospheric }, 50, 1e-8, 0 );
+        runSimulation( saveDirectory, fileTag + "_allCorrSh50Tol9", true, ephemeridesTimeStep,
+                       { first_order_relativistic, tabulated_tropospheric, tabulated_ionospheric }, 50, 1e-9, 0 );
+        runSimulation( saveDirectory, fileTag + "_allCorrSh50Tol10", true, ephemeridesTimeStep,
+                       { first_order_relativistic, tabulated_tropospheric, tabulated_ionospheric }, 50, 1e-10, 0 );
+        runSimulation( saveDirectory, fileTag + "_allCorrSh50Tol11", true, ephemeridesTimeStep,
+                       { first_order_relativistic, tabulated_tropospheric, tabulated_ionospheric }, 50, 1e-11, 0 );
+        runSimulation( saveDirectory, fileTag + "_allCorrSh50Tol12", true, ephemeridesTimeStep,
+                       { first_order_relativistic, tabulated_tropospheric, tabulated_ionospheric }, 50, 1e-12, 0 );
+    }
+    else if ( testCase == 3)
+    {
+        std::string fileTag = "5332333aOdf_interpState50";
+        double ephemeridesTimeStep = 50.0;
+//        runSimulation( saveDirectory, fileTag + "_allCorrSh50Tol10", true, ephemeridesTimeStep,
+//                       { first_order_relativistic, tabulated_tropospheric, tabulated_ionospheric }, 50, 1e-10 );
+        runSimulation( saveDirectory, fileTag + "_allCorrSh40Tol10", true, ephemeridesTimeStep,
+                       { first_order_relativistic, tabulated_tropospheric, tabulated_ionospheric }, 40, 1e-10, 0 );
+        runSimulation( saveDirectory, fileTag + "_allCorrSh60Tol10", true, ephemeridesTimeStep,
+                       { first_order_relativistic, tabulated_tropospheric, tabulated_ionospheric }, 60, 1e-10, 0 );
+    }
+    else if ( testCase == 4)
+    {
+        std::string fileTag = "5332333aOdf_interpState50";
+        double ephemeridesTimeStep = 50.0;
+//        runSimulation( saveDirectory, fileTag + "_allCorrSh80Tol10", true, ephemeridesTimeStep,
+//                       { first_order_relativistic, tabulated_tropospheric, tabulated_ionospheric }, 80, 1e-10, 5 );
+        runSimulation( saveDirectory, fileTag + "_allCorrSh120Tol10Moons", true, ephemeridesTimeStep,
+                       { first_order_relativistic, tabulated_tropospheric, tabulated_ionospheric }, 120, 1e-10, 5 );
     }
 
 
