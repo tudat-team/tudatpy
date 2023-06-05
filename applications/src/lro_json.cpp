@@ -160,10 +160,14 @@ AccelerationMap createSimulationAccelerations(const SystemOfBodies& bodies)
                 }},
                 {"Sun", {
                         pointMassGravityAcceleration(),
-                        radiationPressureAcceleration()
                 }},
             }}
     };
+
+    if (settings.useSolarRadiation)
+    {
+        accelerationMap["LRO"]["Sun"].push_back(radiationPressureAcceleration());
+    }
 
     if (settings.useMoonRadiation)
     {
@@ -193,10 +197,15 @@ std::shared_ptr<propagators::SingleArcSimulationResults<>> createAndRunSimulatio
                     singleAccelerationDependentVariable(spherical_harmonic_gravity, "LRO", "Moon"),
                     singleAccelerationDependentVariable(spherical_harmonic_gravity, "LRO", "Earth"),
                     singleAccelerationDependentVariable(point_mass_gravity, "LRO", "Sun"),
-                    singleAccelerationDependentVariable(radiation_pressure, "LRO", "Sun"),
-                    receivedIrradianceDependentVariable("LRO", "Sun"),
-                    receivedFractionDependentVariable("LRO", "Sun"),
             };
+    if (settings.useSolarRadiation)
+    {
+        dependentVariablesList.insert(dependentVariablesList.end(), {
+                singleAccelerationDependentVariable(radiation_pressure, "LRO", "Sun"),
+                receivedIrradianceDependentVariable("LRO", "Sun"),
+                receivedFractionDependentVariable("LRO", "Sun"),
+        });
+    }
     if (settings.useMoonRadiation)
     {
         dependentVariablesList.insert(dependentVariablesList.end(), {
