@@ -33,5 +33,6 @@
 #include "observation_models/corrections/lightTimeCorrection.h"
 #include "observation_models/corrections/firstOrderRelativisticCorrection.h"
 #include "observation_models/corrections/tabulatedMediaCorrection.h"
+#include "observation_models/corrections/solarCoronaCorrection.h"
 
 #endif // TUDAT_OBSERVATION_MODELS_H

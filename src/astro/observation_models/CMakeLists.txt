@@ -19,6 +19,7 @@ set(observation_models_SOURCES
         "corrections/lightTimeCorrections.cpp"
         "corrections/firstOrderRelativisticCorrection.cpp"
         "corrections/tabulatedMediaCorrection.cpp"
+        "corrections/solarCoronaCorrection.cpp"
         "observationFrequencies.cpp"
         )
 
@@ -47,6 +48,7 @@ set(observation_models_HEADERS
         "corrections/lightTimeCorrection.h"
         "corrections/firstOrderRelativisticCorrection.h"
         "corrections/tabulatedMediaCorrection.h"
+        "corrections/solarCoronaCorrection.h"
         "dsnNWayAveragedDopplerObservationModel.h"
         "observationFrequencies.h"
         )
