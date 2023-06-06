@@ -45,7 +45,9 @@ void runSimulation(
         std::string fileTag,
         bool useInterpolatedEphemerides,
         double epehemeridesTimeStep,
-        std::vector< LightTimeCorrectionType > lightTimeCorrectionTypes )
+        std::vector< LightTimeCorrectionType > lightTimeCorrectionTypes,
+        std::string spacecraftEphemeridesOrigin,
+        std::string planetaryEphemeridesOrigin )
 {
 
 //    std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/mgs-m-rss-1-ext-v1/mors_2190/odf/5327332a.odf" )->writeOdfToTextFile(
@@ -136,11 +138,11 @@ void runSimulation(
     {
         bodySettings = getDefaultBodySettings(
                 bodiesToCreate, initialEphemerisTime - bufferPlanets, finalEphemerisTime + bufferPlanets,
-                    "SSB", "J2000", ephemerisTimeStepPlanets );
+                    planetaryEphemeridesOrigin, "J2000", ephemerisTimeStepPlanets );
     }
     else
     {
-        bodySettings = getDefaultBodySettings( bodiesToCreate, "SSB", "J2000" );
+        bodySettings = getDefaultBodySettings( bodiesToCreate, planetaryEphemeridesOrigin, "J2000" );
     }
 
 
@@ -158,13 +160,13 @@ void runSimulation(
         bodySettings.at( spacecraftName )->ephemerisSettings =
                 std::make_shared< InterpolatedSpiceEphemerisSettings >(
                         initialEphemerisTime - bufferSpacecraft, finalEphemerisTime + bufferSpacecraft,
-                        ephemerisTimeStepSpacecraft, "SSB", "J2000",
+                        ephemerisTimeStepSpacecraft, spacecraftEphemeridesOrigin, "J2000",
                         std::make_shared< interpolators::LagrangeInterpolatorSettings >( 6 ), spacecraftName );
     }
     else
     {
         bodySettings.at( spacecraftName )->ephemerisSettings =
-                std::make_shared< DirectSpiceEphemerisSettings >( "SSB", "J2000" );
+                std::make_shared< DirectSpiceEphemerisSettings >( spacecraftEphemeridesOrigin, "J2000" );
     }
 
     // Create bodies
@@ -453,9 +455,9 @@ BOOST_AUTO_TEST_SUITE( test_dsn_odf_observation_models )
 
 BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
 {
-    std::string saveDirectory = "/Users/pipas/tudatpy-testing/mgs/mors_2190/";
+    std::string saveDirectory = "/Users/pipas/tudatpy-testing/mgs/mors_2190/data_origin_test/";
 
-    int testCase = 3;
+    int testCase = 4;
 
 //    std::string fileTag = "2007";
 //    std::string fileTag = "2009";
@@ -463,31 +465,37 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
 //    std::string fileTag = "2017_ssd";
 //    std::string fileTag = "2017_096_nav";
 
-
     // Default
     if ( testCase == 0 )
     {
         std::string fileTag = "5332333aOdf";
+        std::string ephemeridesOrigin = "SSB";
         double ephemeridesTimeStep = 100.0;
         runSimulation( saveDirectory, fileTag + "_troCorr", true, ephemeridesTimeStep,
-                       { tabulated_tropospheric } );
+                       { tabulated_tropospheric }, ephemeridesOrigin, ephemeridesOrigin );
     }
     else if ( testCase == 2 )
     {
         std::string fileTag = "5332333aOdf_iau2000b";
-        runSimulation( saveDirectory, fileTag + "_noCorr", false, TUDAT_NAN, { } );
+        std::string ephemeridesOrigin = "SSB";
+        runSimulation( saveDirectory, fileTag + "_noCorr", false, TUDAT_NAN, { },
+                       ephemeridesOrigin, ephemeridesOrigin );
     }
     else if ( testCase == 3 )
     {
 //        std::string fileTag = "5332333aOdf_interpState50";
+        std::string ephemeridesOrigin = "SSB";
         std::string fileTag = "5332333aOdf_interpState50";
         double ephemeridesTimeStep = 50.0;
 
-        runSimulation( saveDirectory, fileTag + "_noCorr", true, ephemeridesTimeStep, { } );
+        runSimulation( saveDirectory, fileTag + "_noCorr", true, ephemeridesTimeStep, { },
+                       ephemeridesOrigin, ephemeridesOrigin );
 
-        runSimulation( saveDirectory, fileTag + "_relCorr", true, ephemeridesTimeStep, { first_order_relativistic } );
+        runSimulation( saveDirectory, fileTag + "_relCorr", true, ephemeridesTimeStep, { first_order_relativistic },
+                       ephemeridesOrigin, ephemeridesOrigin );
 
-        runSimulation( saveDirectory, fileTag + "_troCorr", true, ephemeridesTimeStep, { tabulated_tropospheric } );
+        runSimulation( saveDirectory, fileTag + "_troCorr", true, ephemeridesTimeStep, { tabulated_tropospheric },
+                       ephemeridesOrigin, ephemeridesOrigin );
 
 //        runSimulation( saveDirectory, fileTag + "_ionCorr", true, ephemeridesTimeStep, { tabulated_ionospheric } );
 
@@ -495,10 +503,29 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
 
 //        runSimulation( saveDirectory, fileTag + "_ionGdCorr", true, ephemeridesTimeStep, { jakowski_vtec_ionospheric } );
     }
+    else if ( testCase == 4 )
+    {
+        std::string fileTag = "5332333aOdf_interpState50";
+        double ephemeridesTimeStep = 50.0;
+
+        runSimulation( saveDirectory, fileTag + "_noCorr_SsbPlanet_SsbSpacecraft", true, ephemeridesTimeStep, { },
+                       "SSB", "SSB" );
+
+        runSimulation( saveDirectory, fileTag + "_noCorr_SsbPlanet_MarsSpacecraft", true, ephemeridesTimeStep, { },
+                       "Mars", "SSB" );
+
+        runSimulation( saveDirectory, fileTag + "_noCorr_MarsPlanet_SsbSpacecraft", true, ephemeridesTimeStep, { },
+                       "SSB", "Mars" );
+
+        runSimulation( saveDirectory, fileTag + "_noCorr_MarsPlanet_MarsSpacecraft", true, ephemeridesTimeStep, { },
+                       "Mars", "Mars" );
+
+    }
     else if ( testCase == 1 )
     {
         // Test of SPICE interpolation step size
         std::string fileTag = "5332333aOdf";
+        std::string ephemeridesOrigin = "SSB";
         for ( unsigned int i = 0; i < 2; ++i )
         {
             std::vector< LightTimeCorrectionType > lightTimeCorrections;
@@ -516,7 +543,7 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
 
             runSimulation( saveDirectory + "data_spice_test/", fileTag + "_" + typeTag + "_SpiceDirect", false,
                            TUDAT_NAN,
-                           lightTimeCorrections );
+                           lightTimeCorrections, ephemeridesOrigin, ephemeridesOrigin );
 
             std::vector< int > ephemeridesTimeSteps = { 1, 2, 5, 10, 20, 50, 100, 200, 300, 400 };
 
@@ -525,7 +552,8 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
                 runSimulation(
                         saveDirectory + "data_spice_test/",
                         fileTag + "_" + typeTag + "_SpiceInterp" + std::to_string( step ),
-                        true, step, lightTimeCorrections );
+                        true, step, lightTimeCorrections,
+                        ephemeridesOrigin, ephemeridesOrigin );
             }
         }
     }
