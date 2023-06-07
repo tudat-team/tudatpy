@@ -885,6 +885,23 @@ inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > bulirsch
                 minimumFactorDecreaseForNextStepSize );
 }
 
+
+template< typename IndependentVariableType = double >
+inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > bulirschStoerFixedStepIntegratorSettings(
+    const IndependentVariableType timeStep,
+    const ExtrapolationMethodStepSequences extrapolationSequence,
+    const unsigned int maximumNumberOfSteps,
+    const bool assessTerminationOnMinorSteps = false )
+{
+    return std::make_shared< BulirschStoerIntegratorSettings< IndependentVariableType > >(
+        TUDAT_NAN, timeStep,
+        extrapolationSequence, maximumNumberOfSteps,
+        timeStep, timeStep,
+        std::numeric_limits< double >::infinity( ), std::numeric_limits< double >::infinity( ),
+        assessTerminationOnMinorSteps,
+        1.0, 1.0, 1.0 );
+}
+
 template< typename IndependentVariableType = double >
 inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > adamsBashforthMoultonSettingsDeprecated(
         const IndependentVariableType initialTime,
@@ -924,6 +941,59 @@ inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > adamsBas
                 relativeErrorTolerance, absoluteErrorTolerance,
                 minimumOrder, maximumOrder,
                 assessTerminationOnMinorSteps, bandwidth );
+}
+
+template< typename IndependentVariableType = double >
+inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > adamsBashforthMoultonSettingsFixedOrder(
+    const IndependentVariableType initialTimeStep,
+    const IndependentVariableType minimumStepSize,
+    const IndependentVariableType maximumStepSize,
+    const double relativeErrorTolerance = 1.0E-12,
+    const double absoluteErrorTolerance = 1.0E-12,
+    const int order = 6,
+    const bool assessTerminationOnMinorSteps = false,
+    const IndependentVariableType bandwidth = 200. )
+{
+    return std::make_shared< AdamsBashforthMoultonSettings< IndependentVariableType > >(
+        TUDAT_NAN, initialTimeStep,
+        minimumStepSize, maximumStepSize,
+        relativeErrorTolerance, absoluteErrorTolerance,
+        order, order,
+        assessTerminationOnMinorSteps, bandwidth );
+}
+
+template< typename IndependentVariableType = double >
+inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > adamsBashforthMoultonSettingsFixedStep(
+    const IndependentVariableType fixedStep,
+    const double relativeErrorTolerance = 1.0E-12,
+    const double absoluteErrorTolerance = 1.0E-12,
+    const int minimumOrder = 6,
+    const int maximumOrder = 11,
+    const bool assessTerminationOnMinorSteps = false,
+    const IndependentVariableType bandwidth = 200. )
+{
+    return std::make_shared< AdamsBashforthMoultonSettings< IndependentVariableType > >(
+        TUDAT_NAN, fixedStep,
+        fixedStep, fixedStep,
+        relativeErrorTolerance, absoluteErrorTolerance,
+        minimumOrder, maximumOrder,
+        assessTerminationOnMinorSteps, bandwidth );
+}
+
+template< typename IndependentVariableType = double >
+inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > adamsBashforthMoultonSettingsFixedStepFixedOrder(
+    const IndependentVariableType fixedStep,
+    const int order,
+    const bool assessTerminationOnMinorSteps = false,
+    const IndependentVariableType bandwidth = 200. )
+{
+    return std::make_shared< AdamsBashforthMoultonSettings< IndependentVariableType > >(
+        TUDAT_NAN, fixedStep,
+        fixedStep, fixedStep,
+        std::numeric_limits< double >::epsilon( ),
+        std::numeric_limits< double >::epsilon( ),
+        order, order,
+        assessTerminationOnMinorSteps, bandwidth );
 }
 
 // Function to create a numerical integrator.

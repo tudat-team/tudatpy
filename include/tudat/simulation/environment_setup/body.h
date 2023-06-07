@@ -1422,10 +1422,7 @@ public:
         massProperties_ = massProperties;
     }
 
-
-
-
-            //! Function to set the function returning body mass as a function of time
+    //! Function to set the function returning body mass as a function of time
     /*!
      * Function to set the function returning body mass as a function of time
      * \param bodyMassFunction Function returning body mass as a function of time
@@ -1576,6 +1573,10 @@ public:
             if( std::dynamic_pointer_cast< TimeDependentRigidBodyProperties >( massProperties_ ) != nullptr )
             {
                 std::dynamic_pointer_cast< TimeDependentRigidBodyProperties >( massProperties_ )->setInertiaTensor( bodyInertiaTensor );
+            }
+            else
+            {
+                throw std::runtime_error( "Error when trying to reset body inertia tensor, rigid body properties already exist, and are not of compatible type" );
             }
         }
     }

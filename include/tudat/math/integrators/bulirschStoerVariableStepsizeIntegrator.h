@@ -127,6 +127,13 @@ public:
         {
             integratedStates_[ i ].resize( maximumStepIndex_ + 1  );
         }
+
+        useFixedStep_ = false;
+        if( ( initialStepSize == minimumStepSize ) && ( initialStepSize == maximumStepSize ) &&
+            !relativeErrorTolerance_.allFinite( ) && !absoluteErrorTolerance_.allFinite( ) )
+        {
+            useFixedStep_ = true;
+        }
     }
 
     // Default constructor.
@@ -180,6 +187,13 @@ public:
         for( unsigned int i = 0; i < maximumStepIndex_ + 1 ; i++ )
         {
             integratedStates_[ i ].resize( maximumStepIndex_ + 1  );
+        }
+
+        useFixedStep_ = false;
+        if( ( stepSize == minimumStepSize ) && ( stepSize == maximumStepSize ) &&
+            std::isinf( relativeErrorTolerance ) && std::isinf( absoluteErrorTolerance ) )
+        {
+            useFixedStep_ = true;
         }
     }
 
@@ -275,31 +289,46 @@ public:
 
             if( i == maximumStepIndex_ )
             {
-                const StateType errorTolerance_ =
-                        ( integratedStates_.at( i ).at( i ).array( ).abs( ) * relativeErrorTolerance_.array( ) ).matrix( )
+                if ( !useFixedStep_ )
+                {
+                    const StateType errorTolerance_ =
+                        ( integratedStates_.at( i ).at( i ).array( ).abs( ) *
+                          relativeErrorTolerance_.array( )).matrix( )
                         + absoluteErrorTolerance_;
 
-                double maximumAllowableErrorValue = errorTolerance_.array( ).maxCoeff( );
-                double maximumErrorValue = ( integratedStates_.at( i ).at( i ) - integratedStates_.at( i ).at( i - 1 ) ).array( ).abs( ).maxCoeff( );
+                    double maximumAllowableErrorValue = errorTolerance_.array( ).maxCoeff( );
+                    double maximumErrorValue = ( integratedStates_.at( i ).at( i ) -
+                                                 integratedStates_.at( i ).at( i - 1 )).array( ).abs( ).maxCoeff( );
 
-                errorScaleTerm = safetyFactorForNextStepSize_ * std::pow( maximumAllowableErrorValue / maximumErrorValue,
-                                           ( 1.0 / static_cast< double >( 2 * i - 1 ) ) );
+                    errorScaleTerm =
+                        safetyFactorForNextStepSize_ * std::pow( maximumAllowableErrorValue / maximumErrorValue,
+                                                                 ( 1.0 / static_cast< double >( 2 * i - 1 )));
 
-                if( maximumErrorValue < maximumAllowableErrorValue )
+                    if ( maximumErrorValue < maximumAllowableErrorValue )
+                    {
+
+                        stepSuccessful = true;
+                    }
+                    else
+                    {
+                        stepSuccessful = false;
+                    }
+                }
+                else
                 {
-                    // Accept the current step.
+                    stepSuccessful = true;
+                }
+
+                if( stepSuccessful )
+                {
                     lastIndependentVariable_ = currentIndependentVariable_;
                     lastState_ = currentState_;
                     currentIndependentVariable_ += stepSize;
                     currentState_ = integratedStates_[ i ][ i ];
                     stepSize_ = stepSize;
-                    stepSuccessful = true;
-                }
-                else
-                {
-                    stepSuccessful = false;
                 }
             }
+
         }
 
         if( !stepSuccessful )
@@ -320,7 +349,7 @@ public:
             }
             performIntegrationStep( stepSize_ );
         }
-        else
+        else if( !useFixedStep_ )
         {
             if( errorScaleTerm > maximumFactorIncreaseForNextStepSize_ )
             {
@@ -335,10 +364,7 @@ public:
             {
                this->stepSize_ = stepSize / ( std::fabs( stepSize ) ) * maximumStepSize_ ;
             }
-
         }
-
-
         return currentState_;
     }
 
@@ -509,6 +535,8 @@ private:
     unsigned int maximumStepIndex_;
 
     std::vector< double > subSteps_;
+
+    bool useFixedStep_;
 
 };
 
