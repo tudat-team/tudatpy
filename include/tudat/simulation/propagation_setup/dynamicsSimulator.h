@@ -748,6 +748,11 @@ public:
         if ( propagationTerminationCondition_->getTerminationType( ) == non_sequential_stopping_condition )
         {
             sequentialPropagation_ = false;
+            if ( integratorSettings_->initialTimeStep_ < 0 )
+            {
+                throw std::runtime_error( "Error when using non-sequential propagation, the initial integrator time step must be positive (first provided for forward leg, "
+                                          "conversion to negative time step for backward leg is automatic)." );
+            }
         }
 
         std::map< IntegratedStateType, std::vector< std::tuple< std::string, std::string, PropagatorType > > > integratedStateAndBodyList =
@@ -1466,7 +1471,7 @@ template< typename StateScalarType = double, typename TimeType = double >
 std::shared_ptr< MultiArcPropagatorSettings< StateScalarType, TimeType > > validateDeprecatedMultiArcSettings(
         const std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > > integratorSettings,
         const std::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
-        const bool clearNumericalSolutions = true,
+        const bool clearNumericalSolutions = false,
         const bool setIntegratedResult = true,
         const bool setDependentVariablesInterface = false  )
 {
@@ -1526,7 +1531,7 @@ std::shared_ptr< MultiArcPropagatorSettings< StateScalarType, TimeType > > valid
         const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
         const std::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
         const std::vector< double > propagationStartTimes,
-        const bool clearNumericalSolutions = true,
+        const bool clearNumericalSolutions = false,
         const bool setIntegratedResult = true,
         const bool setDependentVariablesInterface = false )
 {

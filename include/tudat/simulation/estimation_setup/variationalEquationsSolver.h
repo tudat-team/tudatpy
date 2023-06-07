@@ -1495,16 +1495,16 @@ private:
 
         for( unsigned int i = 0; i < variationalPropagationResults_->getSingleArcResults( ).size( ); i++ )
         {
-            if( dynamicsSimulator_->getSingleArcDynamicsSimulators( ).at( i )->getIntegratorSettings( )->initialTimeStep_ > 0.0 )
-            {
+//            if( dynamicsSimulator_->getSingleArcDynamicsSimulators( ).at( i )->getIntegratorSettings( )->initialTimeStep_ > 0.0 )
+//            {
                 arcStartTimesToUse.push_back( dynamicsSimulator_->getArcStartTimes( ).at( i ) );
                 arcEndTimesToUse.push_back( dynamicsSimulator_->getArcEndTimes( ).at( i ) );
-            }
-            else
-            {
-                arcStartTimesToUse.push_back( dynamicsSimulator_->getArcEndTimes( ).at( i ) );
-                arcEndTimesToUse.push_back( dynamicsSimulator_->getArcStartTimes( ).at( i ) );
-            }
+//            }
+//            else
+//            {
+//                arcStartTimesToUse.push_back( dynamicsSimulator_->getArcEndTimes( ).at( i ) );
+//                arcEndTimesToUse.push_back( dynamicsSimulator_->getArcStartTimes( ).at( i ) );
+//            }
 
             try
             {
