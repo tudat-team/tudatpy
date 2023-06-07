@@ -133,7 +133,13 @@ public:
         minimumOrder_ = 6;
         maximumOrder_ = 11;
         order_ = minimumOrder_;
-        fixedSingleStep_ = fixedStepSize_;
+
+        if( ( initialStepSize == minimumStepSize ) && ( initialStepSize == maximumStepSize ) )
+        {
+            fixedStepSize_ = true;
+        }
+
+
         
         // Start filling the state and state derivative history deques.
         stateHistory_.push_front( currentState_ );
@@ -254,9 +260,6 @@ public:
                 derivHistory_.pop_back( );
             }
             stepSize_ = stepSize;
-            
-            // Allow single step integrator to determine own stepsize
-            fixedSingleStep_ = fixedStepSize_;
         }
         return performIntegrationStep( );
     }
@@ -533,8 +536,6 @@ public:
             lastIndependentVariable_ = currentIndependentVariable_;
         }
 
-        // Allow single step integrator to determine own stepsize
-        fixedSingleStep_ = fixedStepSize_;
     }
 
     //! Return maximum truncation error.
@@ -769,16 +770,7 @@ protected:
      * Advisable to change for fixth-order integration runs.
      */
     unsigned int order_;
-    
-    //! Fixed Single Step Integrator.
-    /*!
-     * Boolean value whether to only take fixed steps with the single-step integrator or whether
-     * to allow stepsize and error control by the integrator. While filling the first entry of then
-     * initial state and derivate history this can help to determine an appropriate step-size, but is
-     * undesirable for subsequent entries.
-     */
-    bool fixedSingleStep_;
-    
+
     //! Numerical Single Step Integrator.
     /*!
      * Single step integrator to perform intitialization of multi-step history.
@@ -833,7 +825,7 @@ protected:
                     minimumStepSize_, maximumStepSize_, stepSize_, relativeErrorTolerance_, absoluteErrorTolerance_ );
         
         StateType currentState;
-        if( fixedSingleStep_ )
+        if( fixedStepSize_ )
         {
             singleFixedStepIntegrator_.modifyCurrentState( currentState_ );
             currentState = singleFixedStepIntegrator_.performIntegrationStep( stepSize_ );
@@ -848,9 +840,6 @@ protected:
             
             // Find out the step size that was used during integration
             lastStepSize_ = singleVariableStepIntegrator_.getCurrentIndependentVariable( ) - currentIndependentVariable_;
-
-            // Next time use same step size
-            fixedSingleStep_ = true;
         }
         
         // Even if a different step size is suggested, let's stick with the old one, since the goal is to start

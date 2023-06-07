@@ -104,7 +104,7 @@ BOOST_AUTO_TEST_CASE( testCowellPropagatorKeplerCompare )
     double earthGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
 
 
-    for( unsigned int integratorCase = 0; integratorCase < 4; integratorCase++ )
+    for( unsigned int integratorCase = 0; integratorCase < 8; integratorCase++ )
     {
         for ( unsigned int orbitCase = 0; orbitCase < 3; orbitCase++ )
         {
