@@ -30,7 +30,6 @@ enum LightTimeCorrectionType
     saastamoinen_tropospheric,
     tabulated_ionospheric,
     jakowski_vtec_ionospheric,
-    anderson_solar_corona,
     inverse_power_series_solar_corona
 };
 
