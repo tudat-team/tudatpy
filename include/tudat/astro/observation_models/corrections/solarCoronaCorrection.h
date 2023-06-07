@@ -36,7 +36,7 @@ public:
 
     SolarCoronaCorrection(
             const LightTimeCorrectionType lightTimeCorrectionType,
-            const ObservableType baseObservableType,
+            const ObservableType observableType,
             const std::function< Eigen::Vector6d ( double time ) > sunStateFunction,
             const std::function< double ( std::vector< FrequencyBands > frequencyBands, double time ) > transmittedFrequencyFunction ):
         LightTimeCorrection( lightTimeCorrectionType ),
@@ -44,13 +44,13 @@ public:
         transmittedFrequencyFunction_( transmittedFrequencyFunction )
     {
         // Sign according to Moyer (2000), section 10.4.2
-        if ( isRadiometricObservableType( baseObservableType ) )
+        if ( isRadiometricObservableType( observableType ) )
         {
-            if ( isGroupVelocityBasedObservableType( baseObservableType ) )
+            if ( isGroupVelocityBasedObservableType( observableType ) )
             {
                 sign_ = 1;
             }
-            else if ( isPhaseVelocityBasedObservableType( baseObservableType ) )
+            else if ( isPhaseVelocityBasedObservableType( observableType ) )
             {
                 sign_ = -1;
             }
@@ -113,19 +113,20 @@ private:
 
 };
 
+// Neglects influence of Sun's latitude
 class InversePowerSeriesSolarCoronaCorrection: public SolarCoronaCorrection
 {
 public:
 
     InversePowerSeriesSolarCoronaCorrection(
-            const ObservableType baseObservableType,
+            const ObservableType observableType,
             const std::function< Eigen::Vector6d ( double time ) > sunStateFunction,
             const std::function< double ( std::vector< FrequencyBands > frequencyBands, double time ) > transmittedFrequencyFunction,
             const std::vector< double >& coefficients = { 1.31 * 5.97e-6 },
             const std::vector< double >& positiveExponents = { 2.0 },
             const double criticalPlasmaDensityDelayCoefficient = 40.3,
             const double sunRadius = 696e6 ):
-        SolarCoronaCorrection( inverse_power_series_solar_corona, baseObservableType, sunStateFunction, transmittedFrequencyFunction ),
+        SolarCoronaCorrection( inverse_power_series_solar_corona, observableType, sunStateFunction, transmittedFrequencyFunction ),
         coefficients_( coefficients ),
         positiveExponents_( coefficients ),
         criticalPlasmaDensityDelayCoefficient_( criticalPlasmaDensityDelayCoefficient ),

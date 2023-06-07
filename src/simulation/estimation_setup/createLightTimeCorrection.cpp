@@ -11,6 +11,7 @@
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/estimation_setup/createLightTimeCorrection.h"
 #include "tudat/astro/observation_models/corrections/firstOrderRelativisticCorrection.h"
+#include "tudat/astro/observation_models/corrections/solarCoronaCorrection.h"
 #include "tudat/astro/relativity/metric.h"
 #include "tudat/astro/basic_astro/sphericalBodyShapeModel.h"
 #include "tudat/astro/basic_astro/oblateSpheroidBodyShapeModel.h"
@@ -446,6 +447,40 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections(
         {
             lightTimeCorrection = nullptr;
         }
+
+        break;
+    }
+    case inverse_power_series_solar_corona:
+    {
+        std::shared_ptr< InversePowerSeriesSolarCoronaCorrectionSettings > coronaCorrectionSettings =
+            std::dynamic_pointer_cast< InversePowerSeriesSolarCoronaCorrectionSettings >( correctionSettings );
+        if ( correctionSettings == nullptr )
+        {
+            throw std::runtime_error(
+                    "Error when creating inverse power series solar corona correction: incompatible settings type." );
+        }
+
+        std::string sunBodyName = coronaCorrectionSettings->getSunBodyName( );
+
+        std::function< Eigen::Vector6d( const double ) > sunStateFunction = std::bind(
+                &simulation_setup::Body::getStateInBaseFrameFromEphemeris< double, double >,
+                bodies.at( sunBodyName ), std::placeholders::_1 );
+
+        std::shared_ptr< basic_astrodynamics::BodyShapeModel > sunShapeModel = bodies.at( sunBodyName )->getShapeModel( );
+        if ( sunShapeModel == nullptr )
+        {
+            throw std::runtime_error( "Error when creating inverse power series solar corona correction: no shape model "
+                                      "was found for the Sun" );
+        }
+
+        lightTimeCorrection = std::make_shared< InversePowerSeriesSolarCoronaCorrection >(
+                observableType,
+                sunStateFunction,
+                createLinkFrequencyFunction( bodies, linkEnds, transmittingLinkEndType, receivingLinkEndType ),
+                coronaCorrectionSettings->getCoefficients( ),
+                coronaCorrectionSettings->getPositiveExponents( ),
+                coronaCorrectionSettings->getCriticalPlasmaDensityDelayCoefficient( ),
+                sunShapeModel->getAverageRadius( ) );
 
         break;
     }
