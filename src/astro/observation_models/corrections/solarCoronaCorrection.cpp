@@ -109,13 +109,6 @@ double InversePowerSeriesSolarCoronaCorrection::calculateLightTimeCorrectionWith
     Eigen::Vector3d transmitterPositionWrtSun = ( legTransmitterState - sunStateFunction_( legTransmissionTime ) ).segment( 0, 3 );
     Eigen::Vector3d receiverPositionWrtSun = ( legReceiverState - sunStateFunction_( legReceptionTime ) ).segment( 0, 3 );
 
-    // Check if minimum distance along line of sight is valid
-//    double minimumDistanceOfLineOfSight = computeMinimumDistanceOfLineOfSight( transmitterPositionWrtSun, receiverPositionWrtSun );
-//    if ( std::isnan( minimumDistanceOfLineOfSight ) )
-//    {
-//        throw std::runtime_error( "Error when computing solar corona correction: minimum distance along LOS is not valid." );
-//    }
-
     double sunReceiverTransmitterAngle = linear_algebra::computeAngleBetweenVectors(
             - receiverPositionWrtSun,
             transmitterPositionWrtSun - receiverPositionWrtSun );
@@ -125,7 +118,7 @@ double InversePowerSeriesSolarCoronaCorrection::calculateLightTimeCorrectionWith
     // Compute electron density integral: Verma et al. (2013), eq. 3/4
     double electronDensityIntegral = 0.0;
     // If all exponents are integer calculate integral of electron density analytically
-    if ( exponentsAreIntegers_ )
+    if ( exponentsAreIntegers_ && std::abs( receiverSunTransmitterAngle ) > 0.1 * mathematical_constants::PI / 180.0 )
     {
         // Reset analytical integrals
         cosinePowersIntegrals_.clear( );
@@ -136,7 +129,7 @@ double InversePowerSeriesSolarCoronaCorrection::calculateLightTimeCorrectionWith
                     static_cast< unsigned int >( positiveExponents_.at( i ) ) );
         }
     }
-    // If exponents aren't integer, calculate integral it numerically
+    // If exponents aren't integer, calculate integral numerically
     // Verma et al. (2013) calculate it via integration of Taylor series (eq. A.6), but the expansion they use isn't valid.
     // The function is integrated in [alpha - pi/2, beta + alpha - pi/2], using a Taylor series defined around 0.
     // alpha = Sun-Receiver-Transmitter angle
@@ -149,7 +142,7 @@ double InversePowerSeriesSolarCoronaCorrection::calculateLightTimeCorrectionWith
         electronDensityIntegral = computeElectronDensityIntegralNumerically(
             transmitterPositionWrtSun, receiverPositionWrtSun, ( legReceptionTime + legTransmissionTime ) / 2.0 );
     }
-    
+
     // Verma et al. (2013), eq. 1
     return sign_ * criticalPlasmaDensityDelayCoefficient_ / std::pow( getCurrentFrequency( ancillarySettings, linkEndsTimes.front( ) ), 2.0 ) *
         electronDensityIntegral / physical_constants::getSpeedOfLight< double >( );

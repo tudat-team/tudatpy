@@ -44,6 +44,8 @@ BOOST_AUTO_TEST_CASE( testInversePowerSeriesCorrectionMorley )
             0.7, 1.1, 1.3, 1.5, 1.6, 1.7 // 180 deg
     };
 
+    double tolerance = 0.1;
+
     // Convert angles to radians
     for ( unsigned int i = 0; i < sepAngle.size( ); ++i )
         sepAngle.at( i ) *= mathematical_constants::PI / 180.0;
@@ -56,12 +58,15 @@ BOOST_AUTO_TEST_CASE( testInversePowerSeriesCorrectionMorley )
     for ( unsigned int i = 0; i < expectedRangeCorrection.size( ); ++i )
         expectedRangeCorrection.at( i ) *= 0.5;
 
-    // Define frequency function: X-band, i.e. 8 to 12 GHz
+    // Define frequency function. They say X-band, i.e. 7 to 8 GHz
+    // Morley and Budnik (2007) say they use X-band
+    // Wikipedia: X-band for uplink: 7.145 - 7.190 GHz, for downlink 8.4 - 8.45 GHz (https://en.wikipedia.org/wiki/Deep_space_bands)
+    // Selected the frequency to make one of the points coincide
     std::function< double ( std::vector< FrequencyBands >, double ) > frequencyFunction =
-            []( std::vector< FrequencyBands >, double ){ return 10e9; };
+            []( std::vector< FrequencyBands >, double ){ return 7.66e9; };
 
     // Set coefficients
-    const std::vector< double > coefficients = { 1.3e2, 0.5 };
+    const std::vector< double > coefficients = { 1.3e14, 0.5e12 };
     const std::vector< double > integerPositiveExponents = { 6.0, 2.0 };
     const std::vector< double > doublePositiveExponents = { 6.0 + 1e-12, 2.0 + 1e-12 };
 
@@ -72,11 +77,11 @@ BOOST_AUTO_TEST_CASE( testInversePowerSeriesCorrectionMorley )
     Eigen::Vector6d earthState = Eigen::Vector6d::Zero( );
     earthState( 0 ) = 1.0 * physical_constants::ASTRONOMICAL_UNIT;
 
-    InversePowerSeriesSolarCoronaCorrection coronaCorrectionExact = InversePowerSeriesSolarCoronaCorrection(
+    InversePowerSeriesSolarCoronaCorrection coronaCorrectionAnalytical = InversePowerSeriesSolarCoronaCorrection(
             observation_models::n_way_range, sunStateFunction, frequencyFunction,
             coefficients, integerPositiveExponents );
 
-    InversePowerSeriesSolarCoronaCorrection coronaCorrectionApproximated = InversePowerSeriesSolarCoronaCorrection(
+    InversePowerSeriesSolarCoronaCorrection coronaCorrectionNumerical = InversePowerSeriesSolarCoronaCorrection(
             observation_models::n_way_range, sunStateFunction, frequencyFunction,
             coefficients, doublePositiveExponents );
 
@@ -84,10 +89,9 @@ BOOST_AUTO_TEST_CASE( testInversePowerSeriesCorrectionMorley )
             ObservationAncilliarySimulationSettings >( );
     dummyAncillarySettings->setAncilliaryDoubleVectorData( frequency_bands, { TUDAT_NAN } );
 
-
-    for ( unsigned int i = 0; i < 1; ++i ) // sepAngle.size( )
+    for ( unsigned int i = 0; i < sepAngle.size( ); ++i )
     {
-        for ( unsigned int j = 3; j < 4; ++j ) // geocentricDistance.size( )
+        for ( unsigned int j = 0; j < geocentricDistance.size( ); ++j )
         {
             int id = i * sepAngle.size( ) + j;
 
@@ -95,15 +99,15 @@ BOOST_AUTO_TEST_CASE( testInversePowerSeriesCorrectionMorley )
             spacecraftState( 0 ) = 1.0 * physical_constants::ASTRONOMICAL_UNIT - std::cos( sepAngle.at( i ) ) * geocentricDistance.at( j );
             spacecraftState( 1 ) = std::sin( sepAngle.at( i ) ) * geocentricDistance.at( j );
 
-            std::cerr << std::setprecision( 15 ) << coronaCorrectionExact.calculateLightTimeCorrectionWithMultiLegLinkEndStates(
-                    { spacecraftState, earthState }, { 0.0, 0.0 }, 0, dummyAncillarySettings ) * SPEED_OF_LIGHT <<
-                    std::endl << std::endl;
+            double calculatedCorrectionAnalytical = coronaCorrectionAnalytical.calculateLightTimeCorrectionWithMultiLegLinkEndStates(
+                    { spacecraftState, earthState }, { 0.0, 0.0 }, 0, dummyAncillarySettings ) * SPEED_OF_LIGHT;
 
-            std::cerr << std::setprecision( 15 ) << coronaCorrectionApproximated.calculateLightTimeCorrectionWithMultiLegLinkEndStates(
-                    { spacecraftState, earthState }, { 0.0, 0.0 }, 0, dummyAncillarySettings ) * SPEED_OF_LIGHT <<
-                    std::endl << std::endl;
+            double calculatedCorrectionNumerical = coronaCorrectionNumerical.calculateLightTimeCorrectionWithMultiLegLinkEndStates(
+                    { spacecraftState, earthState }, { 0.0, 0.0 }, 0, dummyAncillarySettings ) * SPEED_OF_LIGHT;
 
-            std::cerr << expectedRangeCorrection.at( id ) << std::endl << std::endl;
+            BOOST_CHECK_SMALL( calculatedCorrectionAnalytical - expectedRangeCorrection.at( id ), tolerance );
+            BOOST_CHECK_SMALL( calculatedCorrectionNumerical - expectedRangeCorrection.at( id ), tolerance );
+
         }
     }
 }
