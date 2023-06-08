@@ -984,8 +984,7 @@ template< typename IndependentVariableType = double >
 inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > adamsBashforthMoultonSettingsFixedStepFixedOrder(
     const IndependentVariableType fixedStep,
     const int order,
-    const bool assessTerminationOnMinorSteps = false,
-    const IndependentVariableType bandwidth = 200. )
+    const bool assessTerminationOnMinorSteps = false )
 {
     return std::make_shared< AdamsBashforthMoultonSettings< IndependentVariableType > >(
         TUDAT_NAN, fixedStep,
@@ -993,7 +992,7 @@ inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > adamsBas
         std::numeric_limits< double >::epsilon( ),
         std::numeric_limits< double >::epsilon( ),
         order, order,
-        assessTerminationOnMinorSteps, bandwidth );
+        assessTerminationOnMinorSteps, 1.0 );
 }
 
 // Function to create a numerical integrator.
