@@ -301,6 +301,13 @@ namespace integrator {
                   py::arg("minimum_factor_increase") = 0.1,
                   get_docstring("bulirsch_stoer").c_str());
 
+        m.def("bulirsch_stoer_fixed_step",
+              &tni::bulirschStoerFixedStepIntegratorSettings<TIME_TYPE>,
+              py::arg("time_step"),
+              py::arg("extrapolation_sequence"),
+              py::arg("maximum_number_of_steps"),
+              py::arg("assess_termination_on_minor_steps") = false,
+              get_docstring("bulirsch_stoer_fixed_step").c_str());
 
             m.def("adams_bashforth_moulton",
                   &tni::adamsBashforthMoultonSettingsDeprecated<TIME_TYPE>,
@@ -327,7 +334,38 @@ namespace integrator {
                   py::arg("assess_termination_on_minor_steps") = false,
                   py::arg("bandwidth") = 200.0,
                   get_docstring("adams_bashforth_moulton").c_str());
-        }
+
+        m.def("adams_bashforth_moulton_fixed_order",
+              &tni::adamsBashforthMoultonSettingsFixedOrder<TIME_TYPE>,
+              py::arg("initial_time_step"),
+              py::arg("minimum_step_size"),
+              py::arg("maximum_step_size"),
+              py::arg("relative_error_tolerance") = 1.0E-12,
+              py::arg("absolute_error_tolerance") = 1.0E-12,
+              py::arg("order") = 6,
+              py::arg("assess_termination_on_minor_steps") = false,
+              py::arg("bandwidth") = 200.0,
+              get_docstring("adams_bashforth_moulton_fixed_order").c_str());
+
+        m.def("adams_bashforth_moulton_fixed_order",
+              &tni::adamsBashforthMoultonSettingsFixedStep<TIME_TYPE>,
+              py::arg("time_step"),
+              py::arg("relative_error_tolerance") = 1.0E-12,
+              py::arg("absolute_error_tolerance") = 1.0E-12,
+              py::arg("minimum_order") = 6,
+              py::arg("maximum_order") = 11,
+              py::arg("assess_termination_on_minor_steps") = false,
+              py::arg("bandwidth") = 200.0,
+              get_docstring("adams_bashforth_moulton_fixed_order").c_str());
+
+        m.def("adams_bashforth_moulton_fixed_step_fixed_order",
+              &tni::adamsBashforthMoultonSettingsFixedStepFixedOrder<TIME_TYPE>,
+              py::arg("time_step"),
+              py::arg("order") = 6,
+              py::arg("assess_termination_on_minor_steps") = false,
+            get_docstring("adams_bashforth_moulton_fixed_step_fixed_order").c_str());
+    }
+
 
 }// namespace integrator
 }// namespace propagation_setup
