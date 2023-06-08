@@ -100,6 +100,17 @@ protected:
             const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings,
             const double currentTime );
 
+    // Returns NAN for models that don't require defining explicitly the electron density model
+    virtual double computeElectronDensity( const Eigen::Vector3d& positionWrtSun, const double time )
+    {
+        return TUDAT_NAN;
+    }
+
+    double computeElectronDensityIntegralNumerically(
+            const Eigen::Vector3d& transmitterPositionWrtSun,
+            const Eigen::Vector3d& receiverPositionWrtSun,
+            const double time );
+
     // Sign of the correction (+1 or -1)
     int sign_;
 
@@ -122,13 +133,14 @@ public:
             const ObservableType observableType,
             const std::function< Eigen::Vector6d ( double time ) > sunStateFunction,
             const std::function< double ( std::vector< FrequencyBands > frequencyBands, double time ) > transmittedFrequencyFunction,
-            const std::vector< double >& coefficients = { 1.31 * 5.97e-6 },
+            const std::vector< double >& coefficients =
+                    { 1.31 * 5.97e-6 * std::pow( physical_constants::ASTRONOMICAL_UNIT, 2.0 ) / std::pow( 696e6, 2 ) },
             const std::vector< double >& positiveExponents = { 2.0 },
             const double criticalPlasmaDensityDelayCoefficient = 40.3,
             const double sunRadius = 696e6 ):
         SolarCoronaCorrection( inverse_power_series_solar_corona, observableType, sunStateFunction, transmittedFrequencyFunction ),
         coefficients_( coefficients ),
-        positiveExponents_( coefficients ),
+        positiveExponents_( positiveExponents ),
         criticalPlasmaDensityDelayCoefficient_( criticalPlasmaDensityDelayCoefficient ),
         sunRadius_( sunRadius )
     {
@@ -139,12 +151,18 @@ public:
                 ") are incompatible." );
         }
 
+        exponentsAreIntegers_ = true;
         for ( double exponent : positiveExponents )
         {
-            if ( exponent < 0 )
+            if ( exponent <= 0 )
             {
                 throw std::runtime_error( "Error when creating inverse power series solar corona correction: negative exponent was"
                                           "provided (" + std::to_string( exponent ) + "). All provided exponents should be positive." );
+            }
+
+            if ( std::fmod( exponent, 1.0 ) != 0 )
+            {
+                exponentsAreIntegers_ = false;
             }
         }
     }
@@ -157,11 +175,7 @@ public:
 
 private:
 
-    double computeSingleTermIntegralViaTaylorExpansion(
-            const Eigen::Vector3d& receiverPositionWrtSun,
-            const double sunReceiverTransmitterAngle,
-            const double receiverSunTransmitterAngle,
-            const double positiveExponent );
+    double computeElectronDensity( const Eigen::Vector3d& positionWrtSun, const double time ) override;
 
     double computeSingleTermIntegralAnalytically(
             const Eigen::Vector3d& receiverPositionWrtSun,
@@ -177,6 +191,8 @@ private:
     const std::vector< double > coefficients_;
 
     const std::vector< double > positiveExponents_;
+
+    bool exponentsAreIntegers_;
 
     const double criticalPlasmaDensityDelayCoefficient_;
 

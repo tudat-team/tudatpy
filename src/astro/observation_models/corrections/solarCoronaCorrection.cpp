@@ -11,6 +11,7 @@
 #include "tudat/astro/observation_models/corrections/solarCoronaCorrection.h"
 
 #include "tudat/math/basic/linearAlgebra.h"
+#include "tudat/math/quadrature.h"
 
 namespace tudat
 {
@@ -41,6 +42,29 @@ double SolarCoronaCorrection::computeMinimumDistanceOfLineOfSight(
         return TUDAT_NAN;
     }
 
+}
+
+double SolarCoronaCorrection::computeElectronDensityIntegralNumerically(
+        const Eigen::Vector3d& transmitterPositionWrtSun,
+        const Eigen::Vector3d& receiverPositionWrtSun,
+        const double time )
+{
+
+    // Numerically integrate the electron density along the line of sight between the transmitter and receiver
+    // Fraction of the distance between the position of transmitter (fractionOfLOS = 0) and the position of the receiver
+    // (fractionOfLOS = 1) is used as independent variable
+
+    std::function< double ( double ) > electronDensityAlongLOS = [=] ( const double fractionOfLOS ) {
+        return computeElectronDensity( transmitterPositionWrtSun +
+            fractionOfLOS * ( receiverPositionWrtSun - transmitterPositionWrtSun ), time ); };
+
+    numerical_quadrature::GaussianQuadrature< double, double > quadrature =
+            numerical_quadrature::GaussianQuadrature< double, double >(
+                    electronDensityAlongLOS, 0.0, 1.0, 50 );
+
+    // ( receiverPositionWrtSun - transmitterPositionWrtSun ).norm( ) is the factor to convert the variable of integration
+    // from the distance to the fraction of the total distance
+    return quadrature.getQuadrature( ) * ( receiverPositionWrtSun - transmitterPositionWrtSun ).norm( );
 }
 
 double SolarCoronaCorrection::getCurrentFrequency(
@@ -86,10 +110,11 @@ double InversePowerSeriesSolarCoronaCorrection::calculateLightTimeCorrectionWith
     Eigen::Vector3d receiverPositionWrtSun = ( legReceiverState - sunStateFunction_( legReceptionTime ) ).segment( 0, 3 );
 
     // Check if minimum distance along line of sight is valid
-    if ( std::isnan( computeMinimumDistanceOfLineOfSight( transmitterPositionWrtSun, receiverPositionWrtSun ) ) )
-    {
-        throw std::runtime_error( "Error when computing solar corona correction: minimum distance along LOS is not valid." );
-    }
+//    double minimumDistanceOfLineOfSight = computeMinimumDistanceOfLineOfSight( transmitterPositionWrtSun, receiverPositionWrtSun );
+//    if ( std::isnan( minimumDistanceOfLineOfSight ) )
+//    {
+//        throw std::runtime_error( "Error when computing solar corona correction: minimum distance along LOS is not valid." );
+//    }
 
     double sunReceiverTransmitterAngle = linear_algebra::computeAngleBetweenVectors(
             - receiverPositionWrtSun,
@@ -97,54 +122,50 @@ double InversePowerSeriesSolarCoronaCorrection::calculateLightTimeCorrectionWith
     double receiverSunTransmitterAngle = linear_algebra::computeAngleBetweenVectors(
             receiverPositionWrtSun, transmitterPositionWrtSun );
 
-    // Verma et al. (2013), eq. 3/4
+    // Compute electron density integral: Verma et al. (2013), eq. 3/4
     double electronDensityIntegral = 0.0;
-    for ( unsigned int i = 0; i < coefficients_.size( ); ++i )
+    // If all exponents are integer calculate integral of electron density analytically
+    if ( exponentsAreIntegers_ )
     {
-        // If exponent is integer
-        if ( std::fmod( positiveExponents_.at( i ), 1.0 ) == 0 )
+        // Reset analytical integrals
+        cosinePowersIntegrals_.clear( );
+        for ( unsigned int i = 0; i < coefficients_.size( ); ++i )
         {
             electronDensityIntegral += coefficients_.at( i ) * computeSingleTermIntegralAnalytically(
                     receiverPositionWrtSun, sunReceiverTransmitterAngle, receiverSunTransmitterAngle,
                     static_cast< unsigned int >( positiveExponents_.at( i ) ) );
         }
-        else
-        {
-            electronDensityIntegral += coefficients_.at( i ) * computeSingleTermIntegralViaTaylorExpansion(
-                    receiverPositionWrtSun, sunReceiverTransmitterAngle, receiverSunTransmitterAngle,
-                    positiveExponents_.at( i ) );
-        }
     }
-
+    // If exponents aren't integer, calculate integral it numerically
+    // Verma et al. (2013) calculate it via integration of Taylor series (eq. A.6), but the expansion they use isn't valid.
+    // The function is integrated in [alpha - pi/2, beta + alpha - pi/2], using a Taylor series defined around 0.
+    // alpha = Sun-Receiver-Transmitter angle
+    // beta = Receiver-Sun-Transmitter angle
+    // Near conjunctions alpha is small (close to 0) and beta large (close to pi), so the integration is executed roughly
+    // between [-pi/2, pi/2]. Evidently the Taylor series can't be expected to be valid over that range. Numerical tests
+    // confirmed this.
+    else
+    {
+        electronDensityIntegral = computeElectronDensityIntegralNumerically(
+            transmitterPositionWrtSun, receiverPositionWrtSun, ( legReceptionTime + legTransmissionTime ) / 2.0 );
+    }
+    
     // Verma et al. (2013), eq. 1
-    return sign_ * criticalPlasmaDensityDelayCoefficient_ * std::pow( getCurrentFrequency( ancillarySettings, linkEndsTimes.front( ) ), 2.0 ) *
+    return sign_ * criticalPlasmaDensityDelayCoefficient_ / std::pow( getCurrentFrequency( ancillarySettings, linkEndsTimes.front( ) ), 2.0 ) *
         electronDensityIntegral / physical_constants::getSpeedOfLight< double >( );
 }
 
-// Verma et al. (2006), eq. A.6
-double InversePowerSeriesSolarCoronaCorrection::computeSingleTermIntegralViaTaylorExpansion(
-        const Eigen::Vector3d& receiverPositionWrtSun,
-        const double sunReceiverTransmitterAngle,
-        const double receiverSunTransmitterAngle,
-        const double positiveExponent )
+double InversePowerSeriesSolarCoronaCorrection::computeElectronDensity( const Eigen::Vector3d& positionWrtSun,
+                                                                        const double time )
 {
-    // Rename terms for simplicity
-    double alpha = sunReceiverTransmitterAngle;
-    double beta = receiverSunTransmitterAngle;
+    double electronDensity = 0.0;
 
-    double mulTerm = std::pow( sunRadius_, positiveExponent ) /
-            std::pow( receiverPositionWrtSun.norm( ) * std::sin( alpha ), positiveExponent - 1.0 );
+    for ( unsigned int i = 0; i < coefficients_.size( ); ++i )
+    {
+        electronDensity += coefficients_.at( i ) * std::pow( positionWrtSun.norm( ) / sunRadius_, - positiveExponents_.at( i ) );
+    }
 
-    double sumTerm1 = beta;
-
-    double sumTerm2 = - ( positiveExponent - 2.0 ) / 6.0 * (
-            std::pow( beta + alpha - mathematical_constants::PI / 2.0, 3.0 ) -
-            std::pow( alpha - mathematical_constants::PI / 2.0, 3.0 ) );
-
-    double sumTerm3 = ( 3.0 * std::pow( positiveExponent, 2.0 ) - 14.0 * positiveExponent + 16.0 ) / 12.0 *
-            ( std::pow( beta + alpha - mathematical_constants::PI / 2.0, 5.0 ) -  std::pow( alpha - mathematical_constants::PI / 2.0, 5.0 ) );
-
-    return mulTerm * ( sumTerm1 + sumTerm2 + sumTerm3 );
+    return electronDensity;
 }
 
 // Verma et al., eq. A.4
@@ -164,7 +185,7 @@ double InversePowerSeriesSolarCoronaCorrection::computeSingleTermIntegralAnalyti
     double mulTerm = std::pow( sunRadius_, positiveExponent ) /
             std::pow( receiverPositionWrtSun.norm( ) * std::sin( alpha ), positiveExponent - 1.0 );
 
-    return mulTerm * computeCosinePowerIntegral( lowerBound, upperBound, positiveExponent );
+    return mulTerm * computeCosinePowerIntegral( lowerBound, upperBound, positiveExponent - 2 );
 }
 
 // Wikipedia, https://en.wikipedia.org/wiki/List_of_integrals_of_trigonometric_functions
