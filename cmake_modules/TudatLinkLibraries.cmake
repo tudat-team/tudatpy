@@ -109,6 +109,7 @@ if (TUDAT_BUILD_WITH_ESTIMATION_TOOLS)
             Tudat::tudat_propagators
             ${TUDAT_EXTERNAL_INTERFACE_LIBRARIES}
             Tudat::tudat_basic_astrodynamics
+            Tudat::tudat_numerical_quadrature
             Tudat::tudat_interpolators
             Tudat::tudat_root_finders
             Tudat::tudat_basic_mathematics
