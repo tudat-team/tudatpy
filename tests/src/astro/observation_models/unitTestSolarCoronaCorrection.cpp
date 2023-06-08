@@ -100,7 +100,7 @@ BOOST_AUTO_TEST_CASE( testInversePowerSeriesCorrectionMorley )
             spacecraftState( 1 ) = std::sin( sepAngle.at( i ) ) * geocentricDistance.at( j );
 
             double calculatedCorrectionAnalytical = coronaCorrectionAnalytical.calculateLightTimeCorrectionWithMultiLegLinkEndStates(
-                    { spacecraftState, earthState }, { 0.0, 0.0 }, 0, dummyAncillarySettings ) * SPEED_OF_LIGHT;
+                    { earthState, spacecraftState }, { 0.0, 0.0 }, 0, dummyAncillarySettings ) * SPEED_OF_LIGHT;
 
             double calculatedCorrectionNumerical = coronaCorrectionNumerical.calculateLightTimeCorrectionWithMultiLegLinkEndStates(
                     { spacecraftState, earthState }, { 0.0, 0.0 }, 0, dummyAncillarySettings ) * SPEED_OF_LIGHT;
