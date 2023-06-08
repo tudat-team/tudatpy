@@ -134,7 +134,7 @@ public:
             const std::function< Eigen::Vector6d ( double time ) > sunStateFunction,
             const std::function< double ( std::vector< FrequencyBands > frequencyBands, double time ) > transmittedFrequencyFunction,
             const std::vector< double >& coefficients =
-                    { 1.31 * 5.97e-6 * std::pow( physical_constants::ASTRONOMICAL_UNIT, 2.0 ) / std::pow( 696e6, 2 ) },
+                    { 1.31 * 5.97e6 * std::pow( physical_constants::ASTRONOMICAL_UNIT, 2.0 ) / std::pow( 696e6, 2 ) },
             const std::vector< double >& positiveExponents = { 2.0 },
             const double criticalPlasmaDensityDelayCoefficient = 40.3,
             const double sunRadius = 696e6 ):
