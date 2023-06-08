@@ -15,6 +15,8 @@
  *              application to planetary ephemerides, Astronomy and Astrophysics, 550, A124
  *          D. Aksim and D. Pavlov (2022), Improving the Solar Wind Density Model Used in Processing of Spacecraft Ranging
  *              Observations, Monthly Notices of the Royal Astronomical Society, Volume 514, Issue 3
+ *          T. Morley and F. Budnik (2007) , EFFECTS ON SPACECRAFT RADIOMETRIC DATA AT SUPERIOR SOLAR CONJUNCTION, 20th
+ *              International Symposium on Space Flight Dynamics
  */
 
 #ifndef TUDAT_SOLARCORONACORRECTION_H
@@ -29,11 +31,19 @@ namespace tudat
 namespace observation_models
 {
 
-// Abstract class
+// Abstract class. Doesn't implement any correction model.
 class SolarCoronaCorrection: public LightTimeCorrection
 {
 public:
 
+    /*!
+     * Constructor.
+     * @param lightTimeCorrectionType Type of light time correction.
+     * @param observableType Observable type associated with the correction.
+     * @param sunStateFunction State of the Sun as a function of time.
+     * @param transmittedFrequencyFunction Function calculating the frequency at the current link given a vector with
+     *     the frequency bands in each link of the model and the transmission time.
+     */
     SolarCoronaCorrection(
             const LightTimeCorrectionType lightTimeCorrectionType,
             const ObservableType observableType,
@@ -92,20 +102,48 @@ public:
 
 protected:
 
+    /*!
+     * Computes the minimum distance along the line of sight to the Sun. Used in some solar correction models.
+     * @param transmitterPositionWrtSun Position of the transmitter with respect to the Sun.
+     * @param receiverPositionWrtSun Position of the receiver with respect to the Sun.
+     * @return Distance
+     */
     double computeMinimumDistanceOfLineOfSight(
             Eigen::Vector3d transmitterPositionWrtSun,
             Eigen::Vector3d receiverPositionWrtSun );
 
+    /*!
+     * Gets the frequency at the current leg using the ancillary settings.
+     * @param ancillarySettings Ancillary settings.
+     * @param transmissionTime Time at which the signal was transmitted.
+     * @return Frequency at current leg.
+     */
     double getCurrentFrequency(
             const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings,
-            const double currentTime );
+            const double transmissionTime );
 
-    // Returns NAN for models that don't require defining explicitly the electron density model
+
+    /*!
+     * Computes the electron density at a certain position and time.
+     *
+     * @param positionWrtSun Position where to compute the electron density.
+     * @param time Time at which to compute the electron density.
+     */
     virtual double computeElectronDensity( const Eigen::Vector3d& positionWrtSun, const double time )
     {
         return TUDAT_NAN;
     }
 
+    /*!
+     * Computes the integral of the electron density along the line of sight, using Gaussian quadrature. Requires the
+     * base class to have defined an implementation for computeElectronDensity.
+     * @param transmitterPositionWrtSun Position of the transmitter with respect to the Sun.
+     * @param receiverPositionWrtSun Position of the receiver with respect to the Sun.
+     * @param time Time at which to compute the integral (i.e. assuming that the light time between the receiver and
+     *      transmitter is zero). Giving the uncertainty of solar corona models and the associated time scales, it is
+     *      unlikely that it ever becomes necessary to make a distinction between the reception and transmission time.
+     * @return Integral.
+     */
     double computeElectronDensityIntegralNumerically(
             const Eigen::Vector3d& transmitterPositionWrtSun,
             const Eigen::Vector3d& receiverPositionWrtSun,
@@ -124,11 +162,30 @@ private:
 
 };
 
-// Neglects influence of Sun's latitude
+// Inverse power series solar correction model, based on Verma et al. (2013).
 class InversePowerSeriesSolarCoronaCorrection: public SolarCoronaCorrection
 {
 public:
 
+    /*!
+     * Constructor. Model describes corrections for electron density of the form \sum c r^{-k}, mostly following
+     * Verma et al. (2013). r corresponds to the dimensionless distance: distance / solar_radius. Model neglects the
+     * effect of the latitude wrt Sun in the electron density.
+     *
+     * See e.g. Verma et al. (2013) and Morley and Budnik (2007) for examples of coefficients.
+     * The default values are taken from Aksim and Pavlov (2022).
+     *
+     * @param observableType Observable type associated with the correction.
+     * @param sunStateFunction State of the Sun as a function of time.
+     * @param transmittedFrequencyFunction Function calculating the frequency at the current link given a vector with
+     *     the frequency bands in each link of the model and the transmission time.
+     * @param coefficients c coefficients of the series.
+     * @param positiveExponents k exponents of the series.
+     * @param criticalPlasmaDensityDelayCoefficient Coefficient that multiplies the integral of the electron density to
+     *      get the value of the correction. Corresponds to
+     *      1 / ( 2 * electron_mass * vacuum_permittivity * (2 pi)^2 ) / electron_charge^2 )
+     * @param sunRadius Radius of the Sun.
+     */
     InversePowerSeriesSolarCoronaCorrection(
             const ObservableType observableType,
             const std::function< Eigen::Vector6d ( double time ) > sunStateFunction,
@@ -154,12 +211,14 @@ public:
         exponentsAreIntegers_ = true;
         for ( double exponent : positiveExponents )
         {
+            // Check if all exponents are positive
             if ( exponent <= 0 )
             {
                 throw std::runtime_error( "Error when creating inverse power series solar corona correction: negative exponent was"
                                           "provided (" + std::to_string( exponent ) + "). All provided exponents should be positive." );
             }
 
+            // Check if all exponents are integers
             if ( std::fmod( exponent, 1.0 ) != 0 )
             {
                 exponentsAreIntegers_ = false;
@@ -167,6 +226,15 @@ public:
         }
     }
 
+    /*!
+    * Function to compute the light-time correction, assuming an inverse power series model for the electron density
+    * distribution, according to Verma et al. (2013).
+    * @param linkEndsStates List of states at each link end during observation.
+    * @param linkEndsTimes List of times at each link end during observation.
+    * @param currentMultiLegTransmitterIndex Index in the linkEndsStates and linkEndsTimes of the transmitter in the current link.
+    * @param ancillarySettings Observation ancillary simulation settings.
+    * @return
+    */
     double calculateLightTimeCorrectionWithMultiLegLinkEndStates(
             const std::vector< Eigen::Vector6d >& linkEndsStates,
             const std::vector< double >& linkEndsTimes,
@@ -175,30 +243,59 @@ public:
 
 private:
 
+    /*!
+     * Computes the electron density, according to Verma et al. (2013).
+     *
+     * @param positionWrtSun Position where to compute the electron density.
+     * @param time Time at which to compute the electron density.
+     */
     double computeElectronDensity( const Eigen::Vector3d& positionWrtSun, const double time ) override;
 
+    /*!
+     * Computes the integral of a single r^{-k} electron density term over the line of sight. Does so analytically, which
+     * is only valid if k is an integer >= 0.
+     *
+     * @param receiverPositionWrtSun Position of the receiver with respect to the Sun.
+     * @param sunReceiverTransmitterAngle Angle between Receiver-Sun and Receiver-Transmitter vectors.
+     * @param receiverSunTransmitterAngle Angle between Sun-Receiver and Sun-Transmitter vectors.
+     * @param positiveExponent Value of the k exponent. Should be an integer.
+     * @return Integral value.
+     */
     double computeSingleTermIntegralAnalytically(
             const Eigen::Vector3d& receiverPositionWrtSun,
             const double sunReceiverTransmitterAngle,
             const double receiverSunTransmitterAngle,
             const unsigned int positiveExponent );
 
+    /*!
+     * Computes the integral of (cos(x))^k analytically, for an integer k >= 0.
+     * @param lowerBound Lower bound of the integral.
+     * @param upperBound Upper bound of the integral.
+     * @param positiveExponent Exponent k.
+     * @return Integral value.
+     */
     double computeCosinePowerIntegral(
             const double lowerBound,
             const double upperBound,
             const unsigned int positiveExponent );
 
+    // Vector containing the c coefficients of the electron density model (\sum c r^{-k}).
     const std::vector< double > coefficients_;
 
+    // Vector containing the k exponents of the electron density model (\sum c r^{-k}).
     const std::vector< double > positiveExponents_;
 
+    // Boolean indicating whether all exponents are integers. If so, correction can be calculated fully analytically
     bool exponentsAreIntegers_;
 
+    // Solar corona correction coefficient.
     const double criticalPlasmaDensityDelayCoefficient_;
 
+    // Radius of the Sun.
     const double sunRadius_;
 
-    std::map< unsigned int, double > cosinePowersIntegrals_;
+    // Cache containing the integral of the already computed cosine-powers integrals.
+    std::map< unsigned int, double > cosinePowersIntegralsCache_;
 
 };
 

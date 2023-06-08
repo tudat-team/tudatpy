@@ -69,7 +69,7 @@ double SolarCoronaCorrection::computeElectronDensityIntegralNumerically(
 
 double SolarCoronaCorrection::getCurrentFrequency(
         const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings,
-        const double currentTime )
+        const double transmissionTime )
 {
     // Retrieve frequency bands
     std::vector< FrequencyBands > frequencyBands;
@@ -89,7 +89,7 @@ double SolarCoronaCorrection::getCurrentFrequency(
                 std::string( caughtException.what( ) ) );
     }
 
-    return transmittedFrequencyFunction_( frequencyBands, currentTime );
+    return transmittedFrequencyFunction_( frequencyBands, transmissionTime );
 }
 
 double InversePowerSeriesSolarCoronaCorrection::calculateLightTimeCorrectionWithMultiLegLinkEndStates(
@@ -121,7 +121,7 @@ double InversePowerSeriesSolarCoronaCorrection::calculateLightTimeCorrectionWith
     if ( exponentsAreIntegers_ && std::abs( receiverSunTransmitterAngle ) > 0.1 * mathematical_constants::PI / 180.0 )
     {
         // Reset analytical integrals
-        cosinePowersIntegrals_.clear( );
+        cosinePowersIntegralsCache_.clear( );
         for ( unsigned int i = 0; i < coefficients_.size( ); ++i )
         {
             electronDensityIntegral += coefficients_.at( i ) * computeSingleTermIntegralAnalytically(
@@ -153,6 +153,7 @@ double InversePowerSeriesSolarCoronaCorrection::computeElectronDensity( const Ei
 {
     double electronDensity = 0.0;
 
+    // Verma et al. (2013), eq. 4
     for ( unsigned int i = 0; i < coefficients_.size( ); ++i )
     {
         electronDensity += coefficients_.at( i ) * std::pow( positionWrtSun.norm( ) / sunRadius_, - positiveExponents_.at( i ) );
@@ -190,7 +191,7 @@ double InversePowerSeriesSolarCoronaCorrection::computeCosinePowerIntegral(
     double integral;
 
     // If integral hasn't been computed yet
-    if ( cosinePowersIntegrals_.count( positiveExponent ) == 0 )
+    if ( cosinePowersIntegralsCache_.count( positiveExponent ) == 0 )
     {
         if ( positiveExponent == 0 )
         {
@@ -214,12 +215,12 @@ double InversePowerSeriesSolarCoronaCorrection::computeCosinePowerIntegral(
         }
 
         // Set computed value of integral
-        cosinePowersIntegrals_[ positiveExponent ] = integral;
+        cosinePowersIntegralsCache_[ positiveExponent ] = integral;
     }
     // If integral has already been computed, use previous value
     else
     {
-        integral = cosinePowersIntegrals_.at( positiveExponent );
+        integral = cosinePowersIntegralsCache_.at( positiveExponent );
     }
 
     return integral;
