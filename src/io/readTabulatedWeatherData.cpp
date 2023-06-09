@@ -33,7 +33,7 @@ void DsnWeatherData::readSingleFileWeatherData( const std::string& weatherFile )
         throw std::runtime_error( "Error when opening weather file: " + weatherFile );
     }
 
-     // Define number of characters associated with the weather data
+    // Define number of characters associated with the weather data
     std::vector< int > weatherDataCharStart = { 10, 19, 28, 39, 54 };
     std::vector< int > weatherDataCharLen = { 5, 5, 6, 6, 3 };
 
@@ -107,10 +107,12 @@ void DsnWeatherData::readSingleFileWeatherData( const std::string& weatherFile )
             for ( unsigned int i = 0; i < 5; ++i )
             {
                 double value;
+                // Try to convert the characters associated with the current data field to a double
                 try
                 {
                     value = std::stod( line.substr( weatherDataCharStart.at( i ), weatherDataCharLen.at( i ) ) );
                 }
+                // If that fails, set data field to NAN
                 catch( ... )
                 {
                     value = TUDAT_NAN;
@@ -118,17 +120,19 @@ void DsnWeatherData::readSingleFileWeatherData( const std::string& weatherFile )
 
                 switch ( i )
                 {
-                    // Temperatures converted from celsius to kelvin
+                    // Temperature converted from celsius to kelvin
                     case 0:
                         dewPoint_.push_back( value + 273.15 );
                         break;
+                    // Temperature converted from celsius to kelvin
                     case 1:
                         temperature_.push_back( value + 273.15 );
                         break;
-                    // Pressures converted from mbar to Pa
+                    // Pressure converted from mbar to Pa
                     case 2:
                         pressure_.push_back( value * 1e2 );
                         break;
+                    // Pressure converted from mbar to Pa
                     case 3:
                         waterVaporPartialPressure_.push_back( value * 1e2 );
                         break;
