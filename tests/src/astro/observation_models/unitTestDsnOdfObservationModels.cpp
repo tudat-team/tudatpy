@@ -41,70 +41,21 @@ using namespace tudat::simulation_setup;
 using namespace tudat;
 
 void runSimulation(
+        std::vector< std::string > odfFiles,
+        std::vector< std::string > troposphericCorrectionFileNames,
+        std::vector< std::string > ionosphericCorrectionFileNames,
+        std::vector< std::string > weatherFileNames,
         std::string saveDirectory,
         std::string fileTag,
+        Time initialEphemerisTime,
+        Time finalEphemerisTime,
         bool useInterpolatedEphemerides,
         double epehemeridesTimeStep,
         std::vector< LightTimeCorrectionType > lightTimeCorrectionTypes,
         std::string spacecraftEphemeridesOrigin,
-        std::string planetaryEphemeridesOrigin )
+        std::string planetaryEphemeridesOrigin,
+        bool writeOdfToTxtFile )
 {
-
-//    std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/mgs-m-rss-1-ext-v1/mors_2190/odf/5327332a.odf" )->writeOdfToTextFile(
-//            saveDirectory + "5327332a.txt");
-//    std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/mgs-m-rss-1-ext-v1/mors_2190/odf/5332333a.odf" )->writeOdfToTextFile(
-//            saveDirectory + "5332333a.txt");
-//    std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/mgs-m-rss-1-ext-v1/mors_2190/odf/5333334a.odf" )->writeOdfToTextFile(
-//            saveDirectory + "5333334a.txt");
-//    return;
-
-    // Official mission trajectory kernels V2 (already includes planetary kernels)
-//    spice_interface::loadStandardSpiceKernels(
-//            { "/Users/pipas/Documents/messenger-spice/msgr_040803_150430_150430_od431sc_2.bsp" } );
-
-    // Official mission trajectory kernels V0
-//    spice_interface::loadStandardSpiceKernels( );
-//    spice_interface::loadSpiceKernelInTudat(
-//            { "/Users/pipas/Documents/messenger-spice/msgr_040803_150430_150430_od431sc_0.bsp" } );
-
-    // GSFC kernels (more accurate)
-//    spice_interface::loadStandardSpiceKernels( );
-//    spice_interface::loadSpiceKernelInTudat( "/Users/pipas/Documents/messenger-spice/msgr_110318_110714_recon_gsfc_1.bsp" );
-//    spice_interface::loadSpiceKernelInTudat( "/Users/pipas/Documents/messenger-spice/msgr_110716_120430_recon_gsfc_1.bsp" );
-//    spice_interface::loadSpiceKernelInTudat( "/Users/pipas/Documents/messenger-spice/msgr_120501_130430_recon_gsfc_1.bsp" );
-//    spice_interface::loadSpiceKernelInTudat( "/Users/pipas/Documents/messenger-spice/msgr_130501_140430_recon_gsfc_1.bsp" );
-//    spice_interface::loadSpiceKernelInTudat( "/Users/pipas/Documents/messenger-spice/msgr_140501_150429_recon_gsfc_1.bsp" );
-
-    // MRO SSL kernels
-//    spice_interface::loadStandardSpiceKernels( );
-//    spice_interface::loadSpiceKernelInTudat( "/Users/pipas/Documents/mro-spice/mro_psp43_ssd_mro95a.bsp" );
-
-//    spice_interface::loadStandardSpiceKernels(
-//            { "/Users/pipas/Documents/mro-spice/de414.bsp",
-//              "/Users/pipas/Documents/mro-spice/mar063.bsp",
-//              "/Users/pipas/Documents/mro-spice/mro_psp43_ssd_mro95a.bsp"} );
-
-    // MRO NAV kernerls
-//    spice_interface::loadStandardSpiceKernels(
-//            { "/Users/pipas/Documents/mro-spice/de414.bsp",
-//              "/Users/pipas/Documents/mro-spice/mar063.bsp",
-//              "/Users/pipas/Documents/mro-spice/mro_psp43.bsp"} );
-
-//    spice_interface::loadStandardSpiceKernels( );
-//    spice_interface::loadSpiceKernelInTudat( { "/Users/pipas/Documents/mro-spice/mro_psp43.bsp" } );
-
-    // MGS kernels
-//    spice_interface::loadStandardSpiceKernels( {
-//        "/Users/pipas/Documents/mro-spice/de414.bsp",
-//        "/Users/pipas/Documents/mgs-spice/mar063.bsp",
-//        "/Users/pipas/Documents/mgs-spice/mgs_ext5_ipng_mgs95j.bsp",
-//        "/Users/pipas/Documents/mgs-spice/mgs_ext6_ipng_mgs95j.bsp" } );
-//    spice_interface::loadStandardSpiceKernels( {
-//        "/Users/pipas/Documents/mro-spice/de414.bsp",
-//        "/Users/pipas/Documents/mgs-spice/mar063.bsp",
-//        "/Users/pipas/Documents/mgs-spice/mgs_ext22_ipng_mgs95j.bsp" } );
-    spice_interface::loadStandardSpiceKernels( );
-    spice_interface::loadSpiceKernelInTudat( "/Users/pipas/Documents/mgs-spice/mgs_ext22_ipng_mgs95j.bsp" );
 
     // Define bodies to use.
     std::vector< std::string > bodiesToCreate = { "Earth", "Sun", "Mercury", "Venus", "Mars" };
@@ -112,21 +63,6 @@ void runSimulation(
     // Define light-time perturbing bodies
     std::vector< std::string > lightTimePerturbingBodies = bodiesToCreate;
 
-    // Specify initial time
-//    Time initialEphemerisTime = Time( 234224663.2 - 10.0 * 86400.0 ); // 2007
-//    Time finalEphemerisTime = Time( 234349306.2 + 10.0 * 86400.0 ); // 2007
-//    Time initialEphemerisTime = Time( 329140800 - 100.0 * 86400.0 ); // 2010
-//    Time finalEphemerisTime = Time( 329400000 + 100.0 * 86400.0 ); // 2010
-//    Time initialEphemerisTime = Time( 294455561.18548876 - 10.0 * 86400.0 ); // 2009
-//    Time finalEphemerisTime = Time( 294489941.185480893 + 10.0 * 86400.0 ); // 2009
-//    Time initialEphemerisTime = Time( 406630870.68285096 - 10.0 * 86400.0 ); // 2011
-//    Time finalEphemerisTime = Time( 406717262.6828746 + 10.0 * 86400.0 ); // 2011
-//    Time initialEphemerisTime = Time( 544795200 - 5.0 * 86400.0 ); // 2017
-//    Time finalEphemerisTime = Time( 544881600 + 5.0 * 86400.0 ); // 2017
-//    Time initialEphemerisTime = Time( 70545600 - 5.0 * 86400.0 ); // End of March 2002
-//    Time finalEphemerisTime = Time( 70891200 + 1.0 * 86400.0 ); // End of March 2002
-    Time initialEphemerisTime = Time( 185976000 - 2.0 * 86400.0 ); // End of November 2005
-    Time finalEphemerisTime = Time( 186580800 + 5.0 * 86400.0 ); // End of November 2005
     Time ephemerisTimeStepPlanets = Time( epehemeridesTimeStep );
     Time bufferPlanets = Time( 10.0 * ephemerisTimeStepPlanets );
     Time ephemerisTimeStepSpacecraft = Time( epehemeridesTimeStep );
@@ -152,7 +88,6 @@ void runSimulation(
     bodySettings.at( "Earth" )->groundStationSettings = getDsnStationSettings( );
 
     // Create spacecraft
-//    std::string spacecraftName = "Messenger";
     std::string spacecraftName = "MGS";
     bodySettings.addSettings( spacecraftName );
     if ( useInterpolatedEphemerides )
@@ -172,27 +107,18 @@ void runSimulation(
     // Create bodies
     SystemOfBodies bodies = createSystemOfBodies< long double, Time >( bodySettings );
 
-    // Print initial state
-//    Eigen::Matrix<double, 6, 1> state = bodies.at( spacecraftName )->getStateInBaseFrameFromEphemeris( initialEphemerisTime ) -
-//                bodies.at( "Mars" )->getStateInBaseFrameFromEphemeris( initialEphemerisTime );
-//    std::cout << "State: " << convertCartesianToKeplerianElements(
-//            state, bodies.at( "Mars" )->getGravitationalParameter() ).transpose() << std::endl;
-//    std::cout << "Orbital period: " << 2 * mathematical_constants::PI * std::sqrt(
-//            std::pow( convertCartesianToKeplerianElements( state, bodies.at( "Mars" )->getGravitationalParameter() )( 0 ), 3.0 ) /
-//            bodies.at( "Mars" )->getGravitationalParameter() ) << std::endl;
+    // Read and process ODF file data
+    std::vector< std::shared_ptr< input_output::OdfRawFileContents > > rawOdfDataVector;
+    for ( std::string odfFile : odfFiles )
+        rawOdfDataVector.push_back( std::make_shared< OdfRawFileContents >( odfFile ) );
 
+    if ( writeOdfToTxtFile )
+        for ( std::shared_ptr< input_output::OdfRawFileContents > rawOdfData : rawOdfDataVector )
+            rawOdfData->writeOdfToTextFile( rawOdfData->fileName_ + ".txt" );
 
-    std::shared_ptr< OdfRawFileContents > rawOdfFileContents =
-//            std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/dsn_trk-2-18/odf07155.dat" );
-//            std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/messenger-rawdata-odf/mess_rs_10162_163_odf.dat" );
-//            std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/messenger-rawdata-odf/mess_rs_09121_121_odf.dat" );
-//            std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/messenger-rawdata-odf/mess_rs_11336_2100_odf.dat" );
-//            std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/mro-rawdata-odf/mromagr2017_097_1335xmmmv1.odf" );
-//            std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/mgs-m-rss-1-ext-v1/mors_0720/odf/2088089a.odf" );
-            std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/mgs-m-rss-1-ext-v1/mors_2190/odf/5332333a.odf" );
-//            std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/mgs-m-rss-1-ext-v1/mors_2190/odf/5327332a.odf" );
-
-//    rawOdfFileContents->writeOdfToTextFile( saveDirectory + "mess_rs_09121_121_odf.txt");
+    std::shared_ptr< ProcessedOdfFileContents > processedOdfFileContents =
+            std::make_shared< ProcessedOdfFileContents >(
+                    rawOdfDataVector, bodies.getBody( "Earth" ), true, spacecraftName );
 
 //    std::cout << std::setprecision( 18 );
 //    std::cout << "Start time from 1950 UTC: " << rawOdfFileContents->getDataBlocks( ).front()->getCommonDataBlock( )->getObservableTime() << std::endl;
@@ -215,71 +141,13 @@ void runSimulation(
 //        }
 //    }
 
-//    std::shared_ptr< OdfRawFileContents > rawOdfFileContents2 =
-//            std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/mro-rawdata-odf/mromagr2017_098_1555xmmmv1.odf" );
-//    std::shared_ptr< OdfRawFileContents > rawOdfFileContents0 =
-//            std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/mro-rawdata-odf/mromagr2017_096_0820xmmmv1.odf" );
-//    std::shared_ptr< OdfRawFileContents > rawOdfFileContentsNeg1 =
-//            std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/mro-rawdata-odf/mromagr2017_095_0825xmmmv1.odf" );
-
-    // Read and process ODF file data
-    std::vector< std::shared_ptr< input_output::OdfRawFileContents > > rawOdfDataVector = { rawOdfFileContents };
-    std::shared_ptr< ProcessedOdfFileContents > processedOdfFileContents =
-            std::make_shared< ProcessedOdfFileContents >(
-                    rawOdfDataVector, bodies.getBody( "Earth" ), true, spacecraftName );
-
-//    std::cout << std::endl << "Spacecraft name: " << processedOdfFileContents->getSpacecraftName( ) << std::endl;
-//    std::vector< std::string > groundStationsNames = processedOdfFileContents->getGroundStationsNames( );
-//    std::cout << "Ground stations: ";
-//    for ( unsigned int i = 0; i < groundStationsNames.size( ); ++i )
-//    {
-//        std::cout << groundStationsNames.at( i ) << " ";
-//    }
-//    std::cout << std::endl;
-//
-//    std::cout << std::setprecision( 18 );
-//    std::cout << "Start time: " << processedOdfFileContents->getStartAndEndTime( ).first << std::endl;
-//    std::cout << "End time: " << processedOdfFileContents->getStartAndEndTime( ).second << std::endl;
-//
-//    std::vector< observation_models::ObservableType > observableTypes = processedOdfFileContents->getProcessedObservableTypes( );
-//    std::cout << "Observable types: ";
-//    for ( unsigned int i = 0; i < observableTypes.size( ); ++i )
-//    {
-//        std::cout << observableTypes.at( i ) << " ";
-//    }
-//    std::cout << std::endl;
-
     // Create observed observation collection
     std::shared_ptr< observation_models::ObservationCollection< long double, Time > > observedObservationCollection =
             observation_models::createOdfObservedObservationCollection< long double, Time >(
                     processedOdfFileContents, { dsn_n_way_averaged_doppler } );
 
-//    std::cout << std::endl << "Observation type start and size:" << std::endl;
-//    std::map< observation_models::ObservableType, std::pair< int, int > > observationTypeStartAndSize =
-//            observedObservationCollection->getObservationTypeStartAndSize( );
-//    for ( auto it = observationTypeStartAndSize.begin(); it != observationTypeStartAndSize.end(); ++it )
-//    {
-//        std::cout << it->first << " " << std::get<0>(it->second) << " " << std::get<1>(it->second) << std::endl;
-//    }
-
-//    std::cout << "Observed observables: "<< observedObservationCollection->getObservationVector( ) << std::endl;
-
     // Create computed observation collection
     std::vector< std::shared_ptr< observation_models::ObservationModelSettings > > observationModelSettingsList;
-
-    std::shared_ptr< input_output::CspRawFile > troposphericCspFile = std::make_shared< input_output::CspRawFile >(
-//            "/Users/pipas/Documents/mro-data/tro/mromagr2017_091_2017_121.tro.txt"
-//            "/Users/pipas/Documents/mgs-m-rss-1-ext-v1/mors_0720/tro/2060091a.tro"
-            "/Users/pipas/Documents/mgs-m-rss-1-ext-v1/mors_2190/tro/5305337a.tro"
-            );
-    std::shared_ptr< input_output::CspRawFile > ionosphericCspFile1 = std::make_shared< input_output::CspRawFile >(
-//            "/Users/pipas/Documents/mgs-m-rss-1-ext-v1/mors_0720/ion/2060121b.ion"
-            "/Users/pipas/Documents/mgs-m-rss-1-ext-v1/mors_2190/ion/5305335g.ion"
-            );
-    std::shared_ptr< input_output::CspRawFile > ionosphericCspFile2 = std::make_shared< input_output::CspRawFile >(
-//            "/Users/pipas/Documents/mgs-m-rss-1-ext-v1/mors_0720/ion/2060121b.ion"
-            "/Users/pipas/Documents/mgs-m-rss-1-ext-v1/mors_2190/ion/5335001a.ion"
-            );
 
     std::map< int, std::string > spacecraftNamePerSpacecraftId;
     spacecraftNamePerSpacecraftId[ 74 ] = "MRO";
@@ -295,26 +163,28 @@ void runSimulation(
     }
     if ( std::count( lightTimeCorrectionTypes.begin(), lightTimeCorrectionTypes.end(), tabulated_tropospheric ) )
     {
+        std::vector< std::shared_ptr< input_output::CspRawFile > > troposphericCspFiles;
+        for ( std::string cspFile : troposphericCorrectionFileNames )
+            troposphericCspFiles.push_back( std::make_shared< input_output::CspRawFile >( cspFile ) );
+
         lightTimeCorrectionSettings.push_back(
                 std::make_shared< observation_models::TabulatedTroposphericCorrectionSettings >(
-                        createTroposphericDryCorrectionAdjustment( { troposphericCspFile } ),
-                        createTroposphericDryCorrectionAdjustment( { troposphericCspFile } ) ) );
+                        createTroposphericDryCorrectionAdjustment( troposphericCspFiles ),
+                        createTroposphericWetCorrectionAdjustment( troposphericCspFiles ) ) );
     }
     if ( std::count( lightTimeCorrectionTypes.begin(), lightTimeCorrectionTypes.end(), tabulated_ionospheric ) )
     {
+        std::vector< std::shared_ptr< input_output::CspRawFile > > ionosphericCspFiles;
+        for ( std::string cspFile : ionosphericCorrectionFileNames )
+            ionosphericCspFiles.push_back( std::make_shared< input_output::CspRawFile >( cspFile ) );
+
         lightTimeCorrectionSettings.push_back(
                 std::make_shared< observation_models::TabulatedIonosphericCorrectionSettings >(
-                      createIonosphericCorrection( { ionosphericCspFile1, ionosphericCspFile2 },
-                                                   spacecraftNamePerSpacecraftId ) ) );
+                      createIonosphericCorrection( ionosphericCspFiles, spacecraftNamePerSpacecraftId ) ) );
     }
     if ( std::count( lightTimeCorrectionTypes.begin(), lightTimeCorrectionTypes.end(), saastamoinen_tropospheric ) )
     {
-        input_output::setDsnWeatherDataInGroundStations(
-            bodies,
-            std::vector< std::string >
-                    { "/Users/pipas/Documents/mgs-m-rss-1-ext-v1/mors_2190/wea/50013321.wea",
-                      "/Users/pipas/Documents/mgs-m-rss-1-ext-v1/mors_2190/wea/50013324.wea",
-                      "/Users/pipas/Documents/mgs-m-rss-1-ext-v1/mors_2190/wea/50013326.wea" } );
+        input_output::setDsnWeatherDataInGroundStations(bodies, weatherFileNames  );
 
         lightTimeCorrectionSettings.push_back( std::make_shared< SaastamoinenTroposphericCorrectionSettings >( ) );
     }
@@ -368,15 +238,6 @@ void runSimulation(
             simulatedObservationCollection = simulation_setup::simulateObservations< long double, Time >(
                     observationSimulationSettings, observationSimulators, bodies );
 
-//    std::cout << std::endl << "Observation type start and size:" << std::endl;
-//    observationTypeStartAndSize = simulatedObservationCollection->getObservationTypeStartAndSize( );
-//    for ( auto it = observationTypeStartAndSize.begin(); it != observationTypeStartAndSize.end(); ++it )
-//    {
-//        std::cout << it->first << " " << std::get<0>(it->second) << " " << std::get<1>(it->second) << std::endl;
-//    }
-
-//    std::cout << simulatedObservationCollection->getObservationVector( ) << std::endl;
-
 //    if ( fileTag == "2007" || fileTag == "2017_nav" )
 //    {
 //        std::vector< std::string > stations;
@@ -411,9 +272,6 @@ void runSimulation(
 //            file.close();
 //        }
 //    }
-
-    Eigen::Matrix< long double, Eigen::Dynamic, 1 > simulatedObservations =
-            simulatedObservationCollection->getObservationVector( );
 
     Eigen::Matrix< long double, Eigen::Dynamic, 4 > observations;
     observations.resize( simulatedObservationCollection->getObservationVector( ).size( ), 4 );
@@ -455,31 +313,99 @@ BOOST_AUTO_TEST_SUITE( test_dsn_odf_observation_models )
 
 BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
 {
+
+    // MESSENGER: Official mission trajectory kernels V2 (already includes planetary kernels)
+//    spice_interface::loadStandardSpiceKernels(
+//            { "/Users/pipas/Documents/messenger-spice/msgr_040803_150430_150430_od431sc_2.bsp" } );
+
+    // MESSENGER: GSFC kernels (more accurate)
+//    spice_interface::loadStandardSpiceKernels( );
+//    spice_interface::loadSpiceKernelInTudat( "/Users/pipas/Documents/messenger-spice/msgr_110318_110714_recon_gsfc_1.bsp" );
+//    spice_interface::loadSpiceKernelInTudat( "/Users/pipas/Documents/messenger-spice/msgr_110716_120430_recon_gsfc_1.bsp" );
+//    spice_interface::loadSpiceKernelInTudat( "/Users/pipas/Documents/messenger-spice/msgr_120501_130430_recon_gsfc_1.bsp" );
+//    spice_interface::loadSpiceKernelInTudat( "/Users/pipas/Documents/messenger-spice/msgr_130501_140430_recon_gsfc_1.bsp" );
+//    spice_interface::loadSpiceKernelInTudat( "/Users/pipas/Documents/messenger-spice/msgr_140501_150429_recon_gsfc_1.bsp" );
+
+    // MRO SSD kernels
+//    spice_interface::loadStandardSpiceKernels( );
+//    spice_interface::loadSpiceKernelInTudat( "/Users/pipas/Documents/mro-spice/mro_psp43_ssd_mro95a.bsp" );
+
+//    spice_interface::loadStandardSpiceKernels(
+//            { "/Users/pipas/Documents/mro-spice/de414.bsp",
+//              "/Users/pipas/Documents/mro-spice/mar063.bsp",
+//              "/Users/pipas/Documents/mro-spice/mro_psp43_ssd_mro95a.bsp"} );
+
+    // MRO NAV kernerls
+//    spice_interface::loadStandardSpiceKernels(
+//            { "/Users/pipas/Documents/mro-spice/de414.bsp",
+//              "/Users/pipas/Documents/mro-spice/mar063.bsp",
+//              "/Users/pipas/Documents/mro-spice/mro_psp43.bsp"} );
+
+//    spice_interface::loadStandardSpiceKernels( );
+//    spice_interface::loadSpiceKernelInTudat( { "/Users/pipas/Documents/mro-spice/mro_psp43.bsp" } );
+
+    // MGS kernels
+//    spice_interface::loadStandardSpiceKernels( {
+//        "/Users/pipas/Documents/mro-spice/de414.bsp",
+//        "/Users/pipas/Documents/mgs-spice/mar063.bsp",
+//        "/Users/pipas/Documents/mgs-spice/mgs_ext5_ipng_mgs95j.bsp",
+//        "/Users/pipas/Documents/mgs-spice/mgs_ext6_ipng_mgs95j.bsp" } );
+//    spice_interface::loadStandardSpiceKernels( {
+//        "/Users/pipas/Documents/mro-spice/de414.bsp",
+//        "/Users/pipas/Documents/mgs-spice/mar063.bsp",
+//        "/Users/pipas/Documents/mgs-spice/mgs_ext22_ipng_mgs95j.bsp" } );
+    spice_interface::loadStandardSpiceKernels( );
+    spice_interface::loadSpiceKernelInTudat( "/Users/pipas/Documents/mgs-spice/mgs_ext22_ipng_mgs95j.bsp" );
+
     std::string saveDirectory = "/Users/pipas/tudatpy-testing/mgs/mors_2190/data_origin_test/";
+
+    std::vector< std::string > odfFiles = { "/Users/pipas/Documents/mgs-m-rss-1-ext-v1/mors_2190/odf/5332333a.odf" };
+//    std::vector< std::string > odfFiles = { "/Users/pipas/Documents/mgs-m-rss-1-ext-v1/mors_2190/odf/5327332a.odf" };
+
+    std::vector< std::string > tropCorrectionFiles = { "/Users/pipas/Documents/mgs-m-rss-1-ext-v1/mors_2190/tro/5305337a.tro" };
+    std::vector< std::string > ionCorrectionFiles = {
+            "/Users/pipas/Documents/mgs-m-rss-1-ext-v1/mors_2190/ion/5305335g.ion",
+            "/Users/pipas/Documents/mgs-m-rss-1-ext-v1/mors_2190/ion/5335001a.ion" };
+    std::vector< std::string > weatherFiles = {
+            "/Users/pipas/Documents/mgs-m-rss-1-ext-v1/mors_2190/wea/50013321.wea",
+            "/Users/pipas/Documents/mgs-m-rss-1-ext-v1/mors_2190/wea/50013324.wea",
+            "/Users/pipas/Documents/mgs-m-rss-1-ext-v1/mors_2190/wea/50013326.wea" };
+
+    // Specify initial time
+//    Time initialEphemerisTime = Time( 234224663.2 - 10.0 * 86400.0 ); // 2007
+//    Time finalEphemerisTime = Time( 234349306.2 + 10.0 * 86400.0 ); // 2007
+//    Time initialEphemerisTime = Time( 329140800 - 100.0 * 86400.0 ); // 2010
+//    Time finalEphemerisTime = Time( 329400000 + 100.0 * 86400.0 ); // 2010
+//    Time initialEphemerisTime = Time( 294455561.18548876 - 10.0 * 86400.0 ); // 2009
+//    Time finalEphemerisTime = Time( 294489941.185480893 + 10.0 * 86400.0 ); // 2009
+//    Time initialEphemerisTime = Time( 406630870.68285096 - 10.0 * 86400.0 ); // 2011
+//    Time finalEphemerisTime = Time( 406717262.6828746 + 10.0 * 86400.0 ); // 2011
+//    Time initialEphemerisTime = Time( 544795200 - 5.0 * 86400.0 ); // 2017
+//    Time finalEphemerisTime = Time( 544881600 + 5.0 * 86400.0 ); // 2017
+    Time initialEphemerisTime = Time( 185976000 - 2.0 * 86400.0 ); // End of November 2005
+    Time finalEphemerisTime = Time( 186580800 + 5.0 * 86400.0 ); // End of November 2005
 
     int testCase = 4;
 
-//    std::string fileTag = "2007";
-//    std::string fileTag = "2009";
-//    std::string fileTag = "2011";
-//    std::string fileTag = "2017_ssd";
-//    std::string fileTag = "2017_096_nav";
 
-    // Default
     if ( testCase == 0 )
     {
         std::string fileTag = "5332333aOdf";
         std::string ephemeridesOrigin = "SSB";
         double ephemeridesTimeStep = 100.0;
-        runSimulation( saveDirectory, fileTag + "_troCorr", true, ephemeridesTimeStep,
-                       { tabulated_tropospheric }, ephemeridesOrigin, ephemeridesOrigin );
+        runSimulation( odfFiles, tropCorrectionFiles, ionCorrectionFiles, weatherFiles,
+                       saveDirectory, fileTag + "_troCorr",
+                       initialEphemerisTime, finalEphemerisTime, true, ephemeridesTimeStep,
+                       { tabulated_tropospheric }, ephemeridesOrigin, ephemeridesOrigin, false );
     }
     else if ( testCase == 2 )
     {
         std::string fileTag = "5332333aOdf_iau2000b";
         std::string ephemeridesOrigin = "SSB";
-        runSimulation( saveDirectory, fileTag + "_noCorr", false, TUDAT_NAN, { },
-                       ephemeridesOrigin, ephemeridesOrigin );
+        runSimulation( odfFiles, tropCorrectionFiles, ionCorrectionFiles, weatherFiles,
+                       saveDirectory, fileTag + "_noCorr",
+                       initialEphemerisTime, finalEphemerisTime, false, TUDAT_NAN, { },
+                       ephemeridesOrigin, ephemeridesOrigin, false );
     }
     else if ( testCase == 3 )
     {
@@ -488,42 +414,63 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
         std::string fileTag = "5332333aOdf_interpState50";
         double ephemeridesTimeStep = 50.0;
 
-        runSimulation( saveDirectory, fileTag + "_noCorr", true, ephemeridesTimeStep, { },
-                       ephemeridesOrigin, ephemeridesOrigin );
+        runSimulation( odfFiles, tropCorrectionFiles, ionCorrectionFiles, weatherFiles,
+                       saveDirectory, fileTag + "_noCorr",
+                       initialEphemerisTime, finalEphemerisTime, true, ephemeridesTimeStep, { },
+                       ephemeridesOrigin, ephemeridesOrigin, false );
 
-        runSimulation( saveDirectory, fileTag + "_relCorr", true, ephemeridesTimeStep, { first_order_relativistic },
-                       ephemeridesOrigin, ephemeridesOrigin );
+        runSimulation( odfFiles, tropCorrectionFiles, ionCorrectionFiles, weatherFiles,
+                       saveDirectory, fileTag + "_relCorr",
+                       initialEphemerisTime, finalEphemerisTime, true, ephemeridesTimeStep, { first_order_relativistic },
+                       ephemeridesOrigin, ephemeridesOrigin, false );
 
-        runSimulation( saveDirectory, fileTag + "_troCorr", true, ephemeridesTimeStep, { tabulated_tropospheric },
-                       ephemeridesOrigin, ephemeridesOrigin );
+        runSimulation( odfFiles, tropCorrectionFiles, ionCorrectionFiles, weatherFiles,
+                       saveDirectory, fileTag + "_troCorr",
+                       initialEphemerisTime, finalEphemerisTime, true, ephemeridesTimeStep, { tabulated_tropospheric },
+                       ephemeridesOrigin, ephemeridesOrigin, false );
 
-//        runSimulation( saveDirectory, fileTag + "_ionCorr", true, ephemeridesTimeStep, { tabulated_ionospheric } );
+//        runSimulation( odfFiles, tropCorrectionFiles, ionCorrectionFiles, weatherFiles,
+//                       saveDirectory, fileTag + "_ionCorr", initialEphemerisTime, finalEphemerisTime, true,
+//                       ephemeridesTimeStep, { tabulated_ionospheric }, false );
 
-//        runSimulation( saveDirectory, fileTag + "_troGdCorr", true, ephemeridesTimeStep, { saastamoinen_tropospheric } );
+//        runSimulation( odfFiles, tropCorrectionFiles, ionCorrectionFiles, weatherFiles,
+//                       saveDirectory, fileTag + "_troGdCorr", initialEphemerisTime, finalEphemerisTime, true,
+//                       ephemeridesTimeStep, { saastamoinen_tropospheric }, false );
 
-//        runSimulation( saveDirectory, fileTag + "_ionGdCorr", true, ephemeridesTimeStep, { jakowski_vtec_ionospheric } );
+//        runSimulation( odfFiles, tropCorrectionFiles, ionCorrectionFiles, weatherFiles,
+//                       saveDirectory, fileTag + "_ionGdCorr", initialEphemerisTime, finalEphemerisTime, true,
+//                       ephemeridesTimeStep, { jakowski_vtec_ionospheric }, false );
     }
+    // Effect of ephemerides origin on residuals
     else if ( testCase == 4 )
     {
         std::string fileTag = "5332333aOdf_interpState50";
         double ephemeridesTimeStep = 50.0;
 
-        runSimulation( saveDirectory, fileTag + "_noCorr_SsbPlanet_SsbSpacecraft", true, ephemeridesTimeStep, { },
-                       "SSB", "SSB" );
+        runSimulation( odfFiles, tropCorrectionFiles, ionCorrectionFiles, weatherFiles,
+                       saveDirectory, fileTag + "_noCorr_SsbPlanet_SsbSpacecraft",
+                       initialEphemerisTime, finalEphemerisTime, true, ephemeridesTimeStep, { },
+                       "SSB", "SSB", false );
 
-        runSimulation( saveDirectory, fileTag + "_noCorr_SsbPlanet_MarsSpacecraft", true, ephemeridesTimeStep, { },
-                       "Mars", "SSB" );
+        runSimulation( odfFiles, tropCorrectionFiles, ionCorrectionFiles, weatherFiles,
+                       saveDirectory, fileTag + "_noCorr_SsbPlanet_MarsSpacecraft",
+                       initialEphemerisTime, finalEphemerisTime, true, ephemeridesTimeStep, { },
+                       "Mars", "SSB", false );
 
-        runSimulation( saveDirectory, fileTag + "_noCorr_MarsPlanet_SsbSpacecraft", true, ephemeridesTimeStep, { },
-                       "SSB", "Mars" );
+        runSimulation( odfFiles, tropCorrectionFiles, ionCorrectionFiles, weatherFiles,
+                       saveDirectory, fileTag + "_noCorr_MarsPlanet_SsbSpacecraft",
+                       initialEphemerisTime, finalEphemerisTime, true, ephemeridesTimeStep, { },
+                       "SSB", "Mars", false );
 
-        runSimulation( saveDirectory, fileTag + "_noCorr_MarsPlanet_MarsSpacecraft", true, ephemeridesTimeStep, { },
-                       "Mars", "Mars" );
+        runSimulation( odfFiles, tropCorrectionFiles, ionCorrectionFiles, weatherFiles,
+                       saveDirectory, fileTag + "_noCorr_MarsPlanet_MarsSpacecraft",
+                       initialEphemerisTime, finalEphemerisTime, true, ephemeridesTimeStep, { },
+                       "Mars", "Mars", false );
 
     }
+    // Test of SPICE interpolation step size
     else if ( testCase == 1 )
     {
-        // Test of SPICE interpolation step size
         std::string fileTag = "5332333aOdf";
         std::string ephemeridesOrigin = "SSB";
         for ( unsigned int i = 0; i < 2; ++i )
@@ -541,19 +488,21 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
                 typeTag = "relCorr";
             }
 
-            runSimulation( saveDirectory + "data_spice_test/", fileTag + "_" + typeTag + "_SpiceDirect", false,
-                           TUDAT_NAN,
-                           lightTimeCorrections, ephemeridesOrigin, ephemeridesOrigin );
+            runSimulation( odfFiles, tropCorrectionFiles, ionCorrectionFiles, weatherFiles,
+                           saveDirectory + "data_spice_test/", fileTag + "_" + typeTag + "_SpiceDirect",
+                           initialEphemerisTime, finalEphemerisTime, false, TUDAT_NAN,
+                           lightTimeCorrections, ephemeridesOrigin, ephemeridesOrigin, false );
 
             std::vector< int > ephemeridesTimeSteps = { 1, 2, 5, 10, 20, 50, 100, 200, 300, 400 };
 
             for ( int step: ephemeridesTimeSteps )
             {
                 runSimulation(
+                        odfFiles, tropCorrectionFiles, ionCorrectionFiles, weatherFiles,
                         saveDirectory + "data_spice_test/",
                         fileTag + "_" + typeTag + "_SpiceInterp" + std::to_string( step ),
-                        true, step, lightTimeCorrections,
-                        ephemeridesOrigin, ephemeridesOrigin );
+                        initialEphemerisTime, finalEphemerisTime, true, step, lightTimeCorrections,
+                        ephemeridesOrigin, ephemeridesOrigin, false );
             }
         }
     }
