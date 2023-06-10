@@ -104,9 +104,9 @@ public:
     PerElementIntegratorStepSizeControlSettings(
         const ToleranceType relativeErrorTolerance,
         const ToleranceType absoluteErrorTolerance,
-        const double safetyFactorForNextStepSize,
-        const double minimumFactorDecreaseForNextStepSize,
-        const double maximumFactorDecreaseForNextStepSize ):
+        const double safetyFactorForNextStepSize = 0.8,
+        const double minimumFactorDecreaseForNextStepSize = 4.0,
+        const double maximumFactorDecreaseForNextStepSize = 0.1 ):
         IntegratorStepSizeControlSettings(
             per_element_step_size_control, safetyFactorForNextStepSize,
             minimumFactorDecreaseForNextStepSize, maximumFactorDecreaseForNextStepSize ),
