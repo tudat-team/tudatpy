@@ -176,7 +176,7 @@ void CspRawFile::parseCspCommands( const std::vector< std::string >& cspCommands
     }
 }
 
-std::vector< std::string > CspRawFile::readCspCommandsFile( std::string file )
+std::vector< std::string > CspRawFile::readCspCommandsFile( const std::string& file )
 {
 
     // Open file
@@ -243,10 +243,10 @@ std::vector< std::string > CspRawFile::readCspCommandsFile( std::string file )
 }
 
 std::shared_ptr< observation_models::TabulatedMediaReferenceCorrection > createReferenceCorrection(
-        double startTime,
-        double endTime,
-        std::vector< double > coefficients,
-        std::string computationSpecifier )
+        const double startTime,
+        const double endTime,
+        const std::vector< double >& coefficients,
+        const std::string& computationSpecifier )
 {
 
     std::shared_ptr< observation_models::TabulatedMediaReferenceCorrection > mediaCorrection;
@@ -275,7 +275,7 @@ std::shared_ptr< observation_models::TabulatedMediaReferenceCorrection > createR
     return mediaCorrection;
 }
 
-std::vector< std::string > getGroundStationsNames( std::string groundStationIdentifier )
+std::vector< std::string > getGroundStationsNames( const std::string& groundStationIdentifier )
 {
     std::vector< std::string > groundStations;
 
@@ -299,7 +299,7 @@ std::vector< std::string > getGroundStationsNames( std::string groundStationIden
     return groundStations;
 }
 
-std::vector< observation_models::ObservableType > getBaseObservableTypes( std::string observableTypeIdentifier )
+std::vector< observation_models::ObservableType > getBaseObservableTypes( const std::string& observableTypeIdentifier )
 {
     std::vector< observation_models::ObservableType > baseObservableTypes;
 
@@ -356,8 +356,8 @@ bool compareAtmosphericCspFileStartDate( std::shared_ptr< CspRawFile > rawCspDat
 }
 
 std::string getSourceName(
-        std::string& sourceSpecifier,
-        int sourceId,
+        const std::string& sourceSpecifier,
+        const int sourceId,
         const std::map< int, std::string >& spacecraftNamePerSpacecraftId,
         const std::map< int, std::string >& quasarNamePerQuasarId )
 {
@@ -399,7 +399,7 @@ std::string getSourceName(
     return sourceName;
 }
 
-observation_models::AtmosphericCorrectionPerStationAndSpacecraftType createTroposphericCorrection(
+observation_models::AtmosphericCorrectionPerStationAndSpacecraftType extractAtmosphericCorrection(
         std::vector< std::shared_ptr< CspRawFile > > rawCspFiles,
         const std::string& modelIdentifier,
         const std::map< int, std::string >& spacecraftNamePerSpacecraftId,
@@ -489,27 +489,28 @@ observation_models::AtmosphericCorrectionPerStationAndSpacecraftType createTropo
     return troposphericCorrection;
 }
 
-observation_models::AtmosphericCorrectionPerStationAndSpacecraftType createTroposphericDryCorrectionAdjustment(
+observation_models::AtmosphericCorrectionPerStationAndSpacecraftType extractTroposphericDryCorrectionAdjustment(
         const std::vector< std::shared_ptr< CspRawFile > >& rawCspFiles )
 {
     std::string modelIdentifier = "DRY NUPART";
-    return createTroposphericCorrection( rawCspFiles, modelIdentifier );
+    return extractAtmosphericCorrection( rawCspFiles, modelIdentifier );
 }
 
-observation_models::AtmosphericCorrectionPerStationAndSpacecraftType createTroposphericWetCorrectionAdjustment(
+observation_models::AtmosphericCorrectionPerStationAndSpacecraftType extractTroposphericWetCorrectionAdjustment(
         const std::vector< std::shared_ptr< CspRawFile > >& rawCspFiles )
 {
     std::string modelIdentifier = "WET NUPART";
-    return createTroposphericCorrection( rawCspFiles, modelIdentifier );
+    return extractAtmosphericCorrection( rawCspFiles, modelIdentifier );
 }
 
-observation_models::AtmosphericCorrectionPerStationAndSpacecraftType createIonosphericCorrection(
+observation_models::AtmosphericCorrectionPerStationAndSpacecraftType extractIonosphericCorrection(
         const std::vector< std::shared_ptr< CspRawFile > >& rawCspFiles,
         const std::map< int, std::string >& spacecraftNamePerSpacecraftId,
         const std::map< int, std::string >& quasarNamePerQuasarId )
 {
     std::string modelIdentifier = "CHPART";
-    return createTroposphericCorrection( rawCspFiles, modelIdentifier, spacecraftNamePerSpacecraftId, quasarNamePerQuasarId );
+    return extractAtmosphericCorrection( rawCspFiles, modelIdentifier, spacecraftNamePerSpacecraftId,
+                                         quasarNamePerQuasarId );
 }
 
 std::shared_ptr< CspRawFile > getDsnDefaultTroposphericSeasonalModelCspFile( )
@@ -573,17 +574,17 @@ std::shared_ptr< CspRawFile > getDsnDefaultTroposphericSeasonalModelCspFile( )
     return std::make_shared< CspRawFile >( cspCommands );
 }
 
-observation_models::AtmosphericCorrectionPerStationAndSpacecraftType createDefaultTroposphericDryCorrection( )
+observation_models::AtmosphericCorrectionPerStationAndSpacecraftType extractDefaultTroposphericDryCorrection( )
 {
     std::string modelIdentifier = "DRY NUPART";
-    return createTroposphericCorrection(
+    return extractAtmosphericCorrection(
             { getDsnDefaultTroposphericSeasonalModelCspFile( ) }, modelIdentifier );
 }
 
-observation_models::AtmosphericCorrectionPerStationAndSpacecraftType createDefaultTroposphericWetCorrection( )
+observation_models::AtmosphericCorrectionPerStationAndSpacecraftType extractDefaultTroposphericWetCorrection( )
 {
     std::string modelIdentifier = "WET NUPART";
-    return createTroposphericCorrection(
+    return extractAtmosphericCorrection(
             { getDsnDefaultTroposphericSeasonalModelCspFile( ) }, modelIdentifier );
 }
 

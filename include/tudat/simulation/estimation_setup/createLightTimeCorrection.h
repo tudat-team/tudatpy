@@ -115,9 +115,9 @@ public:
             const std::string& bodyWithAtmosphere = "Earth",
             const TroposphericMappingModel troposphericMappingModel = niell,
             const AtmosphericCorrectionPerStationAndSpacecraftType& troposphericDryCorrection =
-                    input_output::createDefaultTroposphericDryCorrection( ),
+            input_output::extractDefaultTroposphericDryCorrection( ),
             const AtmosphericCorrectionPerStationAndSpacecraftType& troposphericWetCorrection =
-                    input_output::createDefaultTroposphericWetCorrection( ) ):
+            input_output::extractDefaultTroposphericWetCorrection( ) ):
         LightTimeCorrectionSettings( tabulated_tropospheric ),
         troposphericDryCorrectionAdjustment_( troposphericDryCorrectionAdjustment ),
         troposphericWetCorrectionAdjustment_( troposphericWetCorrectionAdjustment ),
