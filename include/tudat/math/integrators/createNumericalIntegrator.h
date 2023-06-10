@@ -15,6 +15,7 @@
 #include <memory>
 #include <boost/lexical_cast.hpp>
 
+#include "tudat/basics/tudatTypeTraits.h"
 #include "tudat/basics/timeType.h"
 #include "tudat/math/integrators/bulirschStoerVariableStepsizeIntegrator.h"
 #include "tudat/math/integrators/numericalIntegrator.h"
@@ -23,6 +24,7 @@
 #include "tudat/math/integrators/euler.h"
 #include "tudat/math/integrators/adamsBashforthMoultonIntegrator.h"
 #include "tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h"
+#include "tudat/math/integrators/stepSizeController.h"
 
 namespace tudat
 {
@@ -41,6 +43,154 @@ enum AvailableIntegrators
     bulirschStoer,
     adamsBashforthMoulton
 };
+
+class IntegratorStepSizeValidationSettings
+{
+public:
+    IntegratorStepSizeValidationSettings(
+        const double minimumStep,
+        const double maximumStep,
+        const MinimumIntegrationTimeHandling minimumIntegrationTimeHandling = throw_exception_below_minimum ):
+        minimumStep_( minimumStep ),
+        maximumStep_( maximumStep ),
+        minimumIntegrationTimeHandling_( minimumIntegrationTimeHandling ){ }
+
+    const double minimumStep_;
+    const double maximumStep_;
+    MinimumIntegrationTimeHandling minimumIntegrationTimeHandling_;
+};
+
+template< typename TimeStepType = double >
+std::shared_ptr< IntegratorStepSizeValidator< TimeStepType > > createIntegratorStepSizeValidator(
+    const std::shared_ptr< IntegratorStepSizeValidationSettings > validationSettings )
+{
+    return std::make_shared< BasicIntegratorStepSizeValidator< TimeStepType > >(
+        static_cast< TimeStepType >( validationSettings->minimumStep_ ),
+        static_cast< TimeStepType >( validationSettings->maximumStep_ ),
+        validationSettings->minimumIntegrationTimeHandling_ );
+}
+
+enum StepSizeControlTypes
+{
+    per_element_step_size_control
+};
+
+class IntegratorStepSizeControlSettings
+{
+public:
+    IntegratorStepSizeControlSettings(
+        StepSizeControlTypes stepSizeControlType,
+        const double safetyFactorForNextStepSize,
+        const double minimumFactorDecreaseForNextStepSize,
+        const double maximumFactorDecreaseForNextStepSize ):
+        stepSizeControlType_( stepSizeControlType ),
+        safetyFactorForNextStepSize_( safetyFactorForNextStepSize ),
+        minimumFactorDecreaseForNextStepSize_( minimumFactorDecreaseForNextStepSize ),
+        maximumFactorDecreaseForNextStepSize_( maximumFactorDecreaseForNextStepSize ){ }
+
+    virtual ~IntegratorStepSizeControlSettings( ){ }
+
+    StepSizeControlTypes stepSizeControlType_;
+    double safetyFactorForNextStepSize_;
+    double minimumFactorDecreaseForNextStepSize_;
+    double maximumFactorDecreaseForNextStepSize_;
+
+};
+
+template< typename ToleranceType >
+class PerElementIntegratorStepSizeControlSettings: public IntegratorStepSizeControlSettings
+{
+public:
+    PerElementIntegratorStepSizeControlSettings(
+        const ToleranceType relativeErrorTolerance,
+        const ToleranceType absoluteErrorTolerance,
+        const double safetyFactorForNextStepSize,
+        const double minimumFactorDecreaseForNextStepSize,
+        const double maximumFactorDecreaseForNextStepSize ):
+        IntegratorStepSizeControlSettings(
+            per_element_step_size_control, safetyFactorForNextStepSize,
+            minimumFactorDecreaseForNextStepSize, maximumFactorDecreaseForNextStepSize ),
+        relativeErrorTolerance_( relativeErrorTolerance ), absoluteErrorTolerance_( absoluteErrorTolerance )
+        {
+            usedScalarTolerances_ = std::is_same< ToleranceType, double >::value;
+            if( !usedScalarTolerances_ && !std::is_same< ToleranceType, Eigen::MatrixXd >::value )
+            {
+                throw std::runtime_error( "Error in per-element step size control settings, only double or MatrixXd tolerances accepted" );
+            }
+        }
+
+    ~PerElementIntegratorStepSizeControlSettings( ){ }
+
+    const ToleranceType relativeErrorTolerance_;
+    const ToleranceType absoluteErrorTolerance_;
+    bool usedScalarTolerances_;
+};
+
+
+class PerBlockIntegratorStepSizeControlSettings: public IntegratorStepSizeControlSettings
+{
+public:
+    PerBlockIntegratorStepSizeControlSettings(
+        const double relativeErrorTolerance,
+        const double absoluteErrorTolerance,
+        const double safetyFactorForNextStepSize,
+        const double minimumFactorDecreaseForNextStepSize,
+        const double maximumFactorDecreaseForNextStepSize ):
+        IntegratorStepSizeControlSettings(
+            per_element_step_size_control, safetyFactorForNextStepSize,
+            minimumFactorDecreaseForNextStepSize, maximumFactorDecreaseForNextStepSize ),
+        relativeErrorTolerance_( relativeErrorTolerance ), absoluteErrorTolerance_( absoluteErrorTolerance ){ }
+
+    ~PerBlockIntegratorStepSizeControlSettings( ){ }
+
+    const double relativeErrorTolerance_;
+    const double absoluteErrorTolerance_;
+};
+
+
+template< typename TimeStepType, typename StateType >
+std::shared_ptr< IntegratorStepSizeController< TimeStepType, StateType > > createStepSizeController(
+    const std::shared_ptr< IntegratorStepSizeControlSettings > stepSizeControlSettings,
+    const int integratorOrder )
+{
+    std::shared_ptr< IntegratorStepSizeController< TimeStepType, StateType > > stepSizeController;
+    switch( stepSizeControlSettings->stepSizeControlType_ )
+    {
+    case per_element_step_size_control:
+    {
+        std::shared_ptr<PerElementIntegratorStepSizeControlSettings< double > > perElementSettings =
+            std::dynamic_pointer_cast<PerElementIntegratorStepSizeControlSettings< double > >( stepSizeControlSettings );
+        std::shared_ptr<PerElementIntegratorStepSizeControlSettings< Eigen::MatrixXd > > perElementMatrixSettings =
+            std::dynamic_pointer_cast< PerElementIntegratorStepSizeControlSettings< Eigen::MatrixXd > >( stepSizeControlSettings );
+        if( perElementSettings != nullptr )
+        {
+
+            stepSizeController = std::make_shared<PerElementIntegratorStepSizeController<TimeStepType, StateType> >(
+                perElementSettings->relativeErrorTolerance_, perElementSettings->absoluteErrorTolerance_,
+                perElementSettings->safetyFactorForNextStepSize_, integratorOrder,
+                perElementSettings->minimumFactorDecreaseForNextStepSize_,
+                perElementSettings->maximumFactorDecreaseForNextStepSize_ );
+        }
+        else if( perElementMatrixSettings != nullptr )
+        {
+            stepSizeController = std::make_shared<PerElementIntegratorStepSizeController<TimeStepType, StateType> >(
+                perElementMatrixSettings->relativeErrorTolerance_, perElementMatrixSettings->absoluteErrorTolerance_,
+                perElementMatrixSettings->safetyFactorForNextStepSize_, integratorOrder,
+                perElementMatrixSettings->minimumFactorDecreaseForNextStepSize_,
+                perElementMatrixSettings->maximumFactorDecreaseForNextStepSize_ );
+        }
+        else
+        {
+            throw std::runtime_error( "Error, per-element step size controller only available for double and MatrixXd tolerances." );
+        }
+        break;
+    }
+    default:
+        throw std::runtime_error( "Error, did not recognize step size control type " + std::to_string(
+            stepSizeControlSettings->stepSizeControlType_ ) );
+    }
+    return stepSizeController;
+}
 
 // Class to define settings of numerical integrator
 /*
@@ -184,6 +334,53 @@ public:
     // Order of Runge-Kutta method to be used.
     RungeKuttaCoefficients::OrderEstimateToIntegrate orderToUse_;
 };
+
+// Class to define settings of variable step RK numerical integrator with scalar tolerances.
+/*
+ *  Class to define settings of variable step RK numerical integrator with scalar tolerances.
+ */
+template< typename IndependentVariableType = double >
+class MultiStageVariableStepSizeSettings: public IntegratorSettings< IndependentVariableType >
+{
+public:
+
+    MultiStageVariableStepSizeSettings(
+        const IndependentVariableType initialTimeStep,
+        const numerical_integrators::CoefficientSets coefficientSet,
+        const std::shared_ptr< IntegratorStepSizeControlSettings > stepSizeControlSettings,
+        const std::shared_ptr< IntegratorStepSizeValidationSettings > stepSizeAcceptanceSettings,
+        const bool assessTerminationOnMinorSteps = false ) :
+        IntegratorSettings< IndependentVariableType >(
+            rungeKuttaVariableStepSize, TUDAT_NAN, initialTimeStep,
+            assessTerminationOnMinorSteps ),
+        coefficientSet_( coefficientSet ),
+        stepSizeControlSettings_( stepSizeControlSettings ),
+        stepSizeAcceptanceSettings_( stepSizeAcceptanceSettings )
+    { }
+
+    virtual std::shared_ptr< IntegratorSettings< IndependentVariableType > > clone( ) const
+    {
+        return std::make_shared< MultiStageVariableStepSizeSettings< IndependentVariableType> >(
+            this->initialTimeStep_, coefficientSet_,
+            stepSizeControlSettings_, stepSizeAcceptanceSettings_,
+            this->assessTerminationOnMinorSteps_ );
+    }
+
+    // Destructor.
+    /*
+     *  Destructor.
+     */
+    ~MultiStageVariableStepSizeSettings( ) { }
+
+
+    numerical_integrators::CoefficientSets coefficientSet_;
+
+    std::shared_ptr< IntegratorStepSizeControlSettings > stepSizeControlSettings_;
+
+    std::shared_ptr< IntegratorStepSizeValidationSettings > stepSizeAcceptanceSettings_;
+};
+
+
 
 // Base class to define settings of variable step RK numerical integrator.
 /*
@@ -411,6 +608,7 @@ public:
 // Alias for variable step RK numerical integrator with scalar tolerances (added for compatibility with old code).
 template< typename IndependentVariableType = double >
 using RungeKuttaVariableStepSizeSettings = RungeKuttaVariableStepSizeSettingsScalarTolerances< IndependentVariableType >;
+
 
 // Class to define settings of variable step RK numerical integrator with vector tolerances.
 /*
@@ -1055,49 +1253,57 @@ DependentVariableType, IndependentVariableStepType > > createIntegrator(
         std::shared_ptr< RungeKuttaVariableStepSizeBaseSettings< IndependentVariableType > >
                 variableStepIntegratorSettings = std::dynamic_pointer_cast< RungeKuttaVariableStepSizeBaseSettings<
                 IndependentVariableType > >( integratorSettings );
-
-        if( std::fabs( static_cast<double>(variableStepIntegratorSettings->initialTimeStep_) ) <
-                std::fabs( static_cast<double>(variableStepIntegratorSettings->minimumStepSize_) ) )
+        if( variableStepIntegratorSettings != nullptr )
         {
-            throw std::runtime_error( "Error when making RK variable step-size integrator: initial step size is smaller than minimum step" );
-        }
 
-
-        if( std::fabs( static_cast<double>(variableStepIntegratorSettings->initialTimeStep_) ) >
-                std::fabs( static_cast<double>(variableStepIntegratorSettings->maximumStepSize_) ) )
-        {
-            throw std::runtime_error( "Error when making RK variable step-size integrator: initial step size is larger than maximum step" );
-        }
-
-        // Check input consistency
-        if ( variableStepIntegratorSettings == nullptr )
-        {
-            throw std::runtime_error( "Error, type of integrator settings (rungeKuttaVariableStepSize) not compatible with "
-                                      "selected integrator (derived class of IntegratorSettings must be "
-                                      "RungeKuttaVariableStepSizeBaseSettings for this type)." );
-        }
-
-        // Get requested RK coefficients
-        RungeKuttaCoefficients coefficients = RungeKuttaCoefficients::get( variableStepIntegratorSettings->coefficientSet_ );
-
-        // Check which constructor is being used
-        if ( variableStepIntegratorSettings->areTolerancesDefinedAsScalar_ )
-        {
-            // Settings with scalar tolerances
-            std::shared_ptr< RungeKuttaVariableStepSizeSettingsScalarTolerances< IndependentVariableType > >
-                    scalarTolerancesIntegratorSettings = std::dynamic_pointer_cast<
-                    RungeKuttaVariableStepSizeSettingsScalarTolerances< IndependentVariableType > >( variableStepIntegratorSettings );
-
-            // Check input consistency
-            if ( scalarTolerancesIntegratorSettings == nullptr )
+            if ( std::fabs( static_cast<double>(variableStepIntegratorSettings->initialTimeStep_)) <
+                 std::fabs( static_cast<double>(variableStepIntegratorSettings->minimumStepSize_)))
             {
-                throw std::runtime_error( "Error while creating Runge-Kutta variable step size integrator. Input class must be of "
-                                          "RungeKuttaVariableStepSizeSettingsScalarTolerances type." );
+                throw std::runtime_error(
+                    "Error when making RK variable step-size integrator: initial step size is smaller than minimum step" );
             }
 
-            // Create Runge-Kutta integrator with scalar tolerances
-            integrator = std::make_shared< RungeKuttaVariableStepSizeIntegrator
-                    < IndependentVariableType, DependentVariableType, DependentVariableType, IndependentVariableStepType > >
+
+            if ( std::fabs( static_cast<double>(variableStepIntegratorSettings->initialTimeStep_)) >
+                 std::fabs( static_cast<double>(variableStepIntegratorSettings->maximumStepSize_)))
+            {
+                throw std::runtime_error(
+                    "Error when making RK variable step-size integrator: initial step size is larger than maximum step" );
+            }
+
+            // Check input consistency
+            if ( variableStepIntegratorSettings == nullptr )
+            {
+                throw std::runtime_error(
+                    "Error, type of integrator settings (rungeKuttaVariableStepSize) not compatible with "
+                    "selected integrator (derived class of IntegratorSettings must be "
+                    "RungeKuttaVariableStepSizeBaseSettings for this type)." );
+            }
+
+            // Get requested RK coefficients
+            RungeKuttaCoefficients
+                coefficients = RungeKuttaCoefficients::get( variableStepIntegratorSettings->coefficientSet_ );
+
+            // Check which constructor is being used
+            if ( variableStepIntegratorSettings->areTolerancesDefinedAsScalar_ )
+            {
+                // Settings with scalar tolerances
+                std::shared_ptr<RungeKuttaVariableStepSizeSettingsScalarTolerances<IndependentVariableType> >
+                    scalarTolerancesIntegratorSettings = std::dynamic_pointer_cast<
+                    RungeKuttaVariableStepSizeSettingsScalarTolerances<IndependentVariableType> >(
+                    variableStepIntegratorSettings );
+
+                // Check input consistency
+                if ( scalarTolerancesIntegratorSettings == nullptr )
+                {
+                    throw std::runtime_error(
+                        "Error while creating Runge-Kutta variable step size integrator. Input class must be of "
+                        "RungeKuttaVariableStepSizeSettingsScalarTolerances type." );
+                }
+
+                // Create Runge-Kutta integrator with scalar tolerances
+                integrator = std::make_shared<RungeKuttaVariableStepSizeIntegrator
+                    <IndependentVariableType, DependentVariableType, DependentVariableType, IndependentVariableStepType> >
                     ( coefficients, stateDerivativeFunction, initialTime, initialState,
                       static_cast< IndependentVariableStepType >( scalarTolerancesIntegratorSettings->minimumStepSize_ ),
                       static_cast< IndependentVariableStepType >( scalarTolerancesIntegratorSettings->maximumStepSize_ ),
@@ -1108,41 +1314,43 @@ DependentVariableType, IndependentVariableStepType > > createIntegrator(
                       static_cast< IndependentVariableStepType >( scalarTolerancesIntegratorSettings->maximumFactorIncreaseForNextStepSize_ ),
                       static_cast< IndependentVariableStepType >( scalarTolerancesIntegratorSettings->minimumFactorDecreaseForNextStepSize_ ),
                       nullptr, scalarTolerancesIntegratorSettings->exceptionIfMinimumStepExceeded_ );
-        }
-        else
-        {
-            // Settings with vector tolerances
-            std::shared_ptr< RungeKuttaVariableStepSizeSettingsVectorTolerances< IndependentVariableType > >
+            }
+            else
+            {
+                // Settings with vector tolerances
+                std::shared_ptr<RungeKuttaVariableStepSizeSettingsVectorTolerances<IndependentVariableType> >
                     vectorTolerancesIntegratorSettings = std::dynamic_pointer_cast<
-                    RungeKuttaVariableStepSizeSettingsVectorTolerances< IndependentVariableType > >(
-                        variableStepIntegratorSettings );
+                    RungeKuttaVariableStepSizeSettingsVectorTolerances<IndependentVariableType> >(
+                    variableStepIntegratorSettings );
 
-            // Check input consistency
-            if ( vectorTolerancesIntegratorSettings == nullptr )
-            {
-                throw std::runtime_error( "Error while creating Runge-Kutta variable step size integrator. Input class must be of "
-                                          "RungeKuttaVariableStepSizeSettingsVectorTolerances type with suitable independent variable type." );
-            }
+                // Check input consistency
+                if ( vectorTolerancesIntegratorSettings == nullptr )
+                {
+                    throw std::runtime_error(
+                        "Error while creating Runge-Kutta variable step size integrator. Input class must be of "
+                        "RungeKuttaVariableStepSizeSettingsVectorTolerances type with suitable independent variable type." );
+                }
 
-            // Check that sizes of tolerances and initial state match
-            auto relativeErrorTolerance = vectorTolerancesIntegratorSettings->relativeErrorTolerance_.template cast<
-                    typename DependentVariableType::Scalar >( );
-            auto absoluteErrorTolerance = vectorTolerancesIntegratorSettings->absoluteErrorTolerance_.template cast<
-                    typename DependentVariableType::Scalar >( );
-            if ( ( relativeErrorTolerance.rows( ) != initialState.rows( ) ) ||
-                 ( relativeErrorTolerance.cols( ) != initialState.cols( ) ) ||
-                 ( absoluteErrorTolerance.rows( ) != initialState.rows( ) ) ||
-                 ( absoluteErrorTolerance.cols( ) != initialState.cols( ) ) )
-            {
-                throw std::runtime_error( "Error while creating Runge-Kutta variable step size integrator. The sizes of the "
-                                          "relative and absolute tolerance vectors do not match the size of the initial state. "
-                                          "This could be the case if you are propagating more than just one state, e.g., translational "
-                                          "and/or rotational dynamics and mass, or more than one body." );
-            }
+                // Check that sizes of tolerances and initial state match
+                auto relativeErrorTolerance = vectorTolerancesIntegratorSettings->relativeErrorTolerance_.template cast<
+                    typename DependentVariableType::Scalar>( );
+                auto absoluteErrorTolerance = vectorTolerancesIntegratorSettings->absoluteErrorTolerance_.template cast<
+                    typename DependentVariableType::Scalar>( );
+                if (( relativeErrorTolerance.rows( ) != initialState.rows( )) ||
+                    ( relativeErrorTolerance.cols( ) != initialState.cols( )) ||
+                    ( absoluteErrorTolerance.rows( ) != initialState.rows( )) ||
+                    ( absoluteErrorTolerance.cols( ) != initialState.cols( )))
+                {
+                    throw std::runtime_error(
+                        "Error while creating Runge-Kutta variable step size integrator. The sizes of the "
+                        "relative and absolute tolerance vectors do not match the size of the initial state. "
+                        "This could be the case if you are propagating more than just one state, e.g., translational "
+                        "and/or rotational dynamics and mass, or more than one body." );
+                }
 
-            // Create Runge-Kutta integrator with vector tolerances
-            integrator = std::make_shared< RungeKuttaVariableStepSizeIntegrator
-                    < IndependentVariableType, DependentVariableType, DependentVariableType, IndependentVariableStepType > >
+                // Create Runge-Kutta integrator with vector tolerances
+                integrator = std::make_shared<RungeKuttaVariableStepSizeIntegrator
+                    <IndependentVariableType, DependentVariableType, DependentVariableType, IndependentVariableStepType> >
                     ( coefficients, stateDerivativeFunction, initialTime, initialState,
                       static_cast< IndependentVariableStepType >( vectorTolerancesIntegratorSettings->minimumStepSize_ ),
                       static_cast< IndependentVariableStepType >( vectorTolerancesIntegratorSettings->maximumStepSize_ ),
@@ -1151,7 +1359,37 @@ DependentVariableType, IndependentVariableStepType > > createIntegrator(
                       static_cast< IndependentVariableStepType >( vectorTolerancesIntegratorSettings->safetyFactorForNextStepSize_ ),
                       static_cast< IndependentVariableStepType >( vectorTolerancesIntegratorSettings->maximumFactorIncreaseForNextStepSize_ ),
                       static_cast< IndependentVariableStepType >( vectorTolerancesIntegratorSettings->minimumFactorDecreaseForNextStepSize_ ),
-                      nullptr, vectorTolerancesIntegratorSettings->exceptionIfMinimumStepExceeded_  );
+                      nullptr, vectorTolerancesIntegratorSettings->exceptionIfMinimumStepExceeded_ );
+            }
+        }
+        else
+        {
+            std::shared_ptr< MultiStageVariableStepSizeSettings< IndependentVariableType > >
+                variableStepIntegratorSettings = std::dynamic_pointer_cast< MultiStageVariableStepSizeSettings<
+                IndependentVariableType > >( integratorSettings );
+            if( variableStepIntegratorSettings == nullptr )
+            {
+                throw std::runtime_error( "Error when creating variable-step integrator, input settings not recognized" );
+            }
+            // Get requested RK coefficients
+            RungeKuttaCoefficients
+                coefficients = RungeKuttaCoefficients::get( variableStepIntegratorSettings->coefficientSet_ );
+
+            std::shared_ptr< IntegratorStepSizeController< IndependentVariableType, DependentVariableType > > stepSizeController =
+                createStepSizeController< IndependentVariableType, DependentVariableType >(
+                    variableStepIntegratorSettings->stepSizeControlSettings_,
+                    coefficients.higherOrder );
+
+            std::shared_ptr< IntegratorStepSizeValidator< IndependentVariableType > > stepSizeValidator =
+                createIntegratorStepSizeValidator(
+                    variableStepIntegratorSettings->stepSizeAcceptanceSettings_ );
+
+            integrator = std::make_shared<RungeKuttaVariableStepSizeIntegrator
+                <IndependentVariableType, DependentVariableType, DependentVariableType, IndependentVariableStepType> >
+                ( coefficients, stateDerivativeFunction, initialTime, initialState,
+                  static_cast< IndependentVariableStepType >( integratorSettings->initialTimeStep_ ),
+                  stepSizeController, stepSizeValidator );
+
         }
         break;
     }
