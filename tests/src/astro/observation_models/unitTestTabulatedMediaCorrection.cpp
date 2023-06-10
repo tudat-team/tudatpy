@@ -350,8 +350,8 @@ BOOST_AUTO_TEST_CASE( testTabulatedAndSaastamoinenTroposphericCorrectionsConsist
     // Create tabulated corrections
     std::shared_ptr< LightTimeCorrectionSettings > tabulatedCorrectionSettings =
             std::make_shared< observation_models::TabulatedTroposphericCorrectionSettings >(
-                    input_output::createTroposphericDryCorrectionAdjustment( { troposphericCspFile } ),
-                    input_output::createTroposphericWetCorrectionAdjustment( { troposphericCspFile } ) );
+                    input_output::extractTroposphericDryCorrectionAdjustment( { troposphericCspFile } ),
+                    input_output::extractTroposphericWetCorrectionAdjustment( { troposphericCspFile } ) );
     std::shared_ptr< LightTimeCorrection > tabulatedCorrectionBase = createLightTimeCorrections(
             tabulatedCorrectionSettings, bodies, linkEnds, transmitter, receiver,
             observation_models::dsn_n_way_averaged_doppler );
@@ -523,7 +523,7 @@ BOOST_AUTO_TEST_CASE( testTabulatedAndJakowskiIonosphericCorrectionsConsistency 
     // Create tabulated corrections
     std::shared_ptr< LightTimeCorrectionSettings > tabulatedCorrectionSettings =
             std::make_shared< observation_models::TabulatedIonosphericCorrectionSettings >(
-                    input_output::createIonosphericCorrection(
+                    input_output::extractIonosphericCorrection(
                             { ionosphericCspFile }, spacecraftNamePerSpacecraftId ) );
     std::shared_ptr< LightTimeCorrection > tabulatedCorrection = createLightTimeCorrections(
             tabulatedCorrectionSettings, bodies, linkEnds, transmitter, receiver,

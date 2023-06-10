@@ -274,8 +274,8 @@ void runSimulation(
 
         lightTimeCorrectionSettings.push_back(
                 std::make_shared< observation_models::TabulatedTroposphericCorrectionSettings >(
-                        createTroposphericDryCorrectionAdjustment( troposphericCspFiles ),
-                        createTroposphericWetCorrectionAdjustment( troposphericCspFiles ) ) );
+                        extractTroposphericDryCorrectionAdjustment( troposphericCspFiles ),
+                        extractTroposphericWetCorrectionAdjustment( troposphericCspFiles ) ) );
     }
     if ( std::count( lightTimeCorrectionTypes.begin(), lightTimeCorrectionTypes.end(), tabulated_ionospheric ) )
     {
@@ -285,7 +285,7 @@ void runSimulation(
 
         lightTimeCorrectionSettings.push_back(
                 std::make_shared< observation_models::TabulatedIonosphericCorrectionSettings >(
-                      createIonosphericCorrection( ionosphericCspFiles, spacecraftNamePerSpacecraftId ) ) );
+                        extractIonosphericCorrection( ionosphericCspFiles, spacecraftNamePerSpacecraftId ) ) );
     }
     if ( std::count( lightTimeCorrectionTypes.begin(), lightTimeCorrectionTypes.end(), saastamoinen_tropospheric ) )
     {
