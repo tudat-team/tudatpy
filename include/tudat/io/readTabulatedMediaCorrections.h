@@ -219,8 +219,7 @@ bool compareAtmosphericCspFileStartDate( std::shared_ptr< CspRawFile > rawCspDat
 /*!
  * Returns the name of the data source.
  * If the source ID is defined in one of the provided maps, the function returns the name in the map.
- * If the source is a spacecraft and its ID isn't in the spacecraftNamePerSpacecraftId map, the name of the spacecraft is
- * set to its NAIF ID.
+ * If the source is a spacecraft and its ID isn't in the spacecraftNamePerSpacecraftId map, an error is thrown.
  * If the source is a quasar and its ID isn't in the quasarNamePerQuasarId map, an error is thrown.
  *
  * @param sourceSpecifier CSP source specifier (SCID or QUASAR)
@@ -276,8 +275,7 @@ observation_models::AtmosphericCorrectionPerStationAndSpacecraftType extractTrop
 
 /*!
  * Creates the objets to compute the ionospheric corrections, based on the data in the provided CSP files.
- * If the source is a spacecraft and its ID isn't in the spacecraftNamePerSpacecraftId map, the name of the spacecraft is
- * set to its NAIF ID.
+ * If the source is a spacecraft and its ID isn't in the spacecraftNamePerSpacecraftId map, an error is thrown.
  * If the source is a quasar and its ID isn't in the quasarNamePerQuasarId map, an error is thrown.
  *
  * @param rawCspFiles Vector of CSP files.

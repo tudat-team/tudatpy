@@ -262,40 +262,25 @@ void runSimulation(
 
     if ( std::count( lightTimeCorrectionTypes.begin(), lightTimeCorrectionTypes.end(), first_order_relativistic ) )
     {
-        lightTimeCorrectionSettings.push_back(
-                std::make_shared< observation_models::FirstOrderRelativisticLightTimeCorrectionSettings >(
-                    lightTimePerturbingBodies ) );
+        lightTimeCorrectionSettings.push_back( firstOrderRelativisticLightTimeCorrectionSettings( lightTimePerturbingBodies ) );
     }
     if ( std::count( lightTimeCorrectionTypes.begin(), lightTimeCorrectionTypes.end(), tabulated_tropospheric ) )
     {
-        std::vector< std::shared_ptr< input_output::CspRawFile > > troposphericCspFiles;
-        for ( std::string cspFile : troposphericCorrectionFileNames )
-            troposphericCspFiles.push_back( std::make_shared< input_output::CspRawFile >( cspFile ) );
-
-        lightTimeCorrectionSettings.push_back(
-                std::make_shared< observation_models::TabulatedTroposphericCorrectionSettings >(
-                        extractTroposphericDryCorrectionAdjustment( troposphericCspFiles ),
-                        extractTroposphericWetCorrectionAdjustment( troposphericCspFiles ) ) );
+        lightTimeCorrectionSettings.push_back( tabulatedTroposphericCorrectionSettings( troposphericCorrectionFileNames ) );
     }
     if ( std::count( lightTimeCorrectionTypes.begin(), lightTimeCorrectionTypes.end(), tabulated_ionospheric ) )
     {
-        std::vector< std::shared_ptr< input_output::CspRawFile > > ionosphericCspFiles;
-        for ( std::string cspFile : ionosphericCorrectionFileNames )
-            ionosphericCspFiles.push_back( std::make_shared< input_output::CspRawFile >( cspFile ) );
-
-        lightTimeCorrectionSettings.push_back(
-                std::make_shared< observation_models::TabulatedIonosphericCorrectionSettings >(
-                        extractIonosphericCorrection( ionosphericCspFiles, spacecraftNamePerSpacecraftId ) ) );
+        lightTimeCorrectionSettings.push_back( tabulatedIonosphericCorrectionSettings( ionosphericCorrectionFileNames, spacecraftNamePerSpacecraftId ) );
     }
     if ( std::count( lightTimeCorrectionTypes.begin(), lightTimeCorrectionTypes.end(), saastamoinen_tropospheric ) )
     {
         input_output::setDsnWeatherDataInGroundStations(bodies, weatherFileNames  );
 
-        lightTimeCorrectionSettings.push_back( std::make_shared< SaastamoinenTroposphericCorrectionSettings >( ) );
+        lightTimeCorrectionSettings.push_back( saastamoinenTroposphericCorrectionSettings( ) );
     }
     if ( std::count( lightTimeCorrectionTypes.begin(), lightTimeCorrectionTypes.end(), jakowski_vtec_ionospheric ) )
     {
-        lightTimeCorrectionSettings.push_back( std::make_shared< JakowskiIonosphericCorrectionSettings >( ) );
+        lightTimeCorrectionSettings.push_back( jakowskiIonosphericCorrectionSettings( ) );
     }
 
     std::map < observation_models::ObservableType, std::vector< observation_models::LinkEnds > > linkEndsPerObservable =

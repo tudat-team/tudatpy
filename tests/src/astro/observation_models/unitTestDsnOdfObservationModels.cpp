@@ -157,40 +157,25 @@ void runSimulation(
 
     if ( std::count( lightTimeCorrectionTypes.begin(), lightTimeCorrectionTypes.end(), first_order_relativistic ) )
     {
-        lightTimeCorrectionSettings.push_back(
-                std::make_shared< observation_models::FirstOrderRelativisticLightTimeCorrectionSettings >(
-                    lightTimePerturbingBodies ) );
+        lightTimeCorrectionSettings.push_back( firstOrderRelativisticLightTimeCorrectionSettings( lightTimePerturbingBodies ) );
     }
     if ( std::count( lightTimeCorrectionTypes.begin(), lightTimeCorrectionTypes.end(), tabulated_tropospheric ) )
     {
-        std::vector< std::shared_ptr< input_output::CspRawFile > > troposphericCspFiles;
-        for ( std::string cspFile : troposphericCorrectionFileNames )
-            troposphericCspFiles.push_back( std::make_shared< input_output::CspRawFile >( cspFile ) );
-
-        lightTimeCorrectionSettings.push_back(
-                std::make_shared< observation_models::TabulatedTroposphericCorrectionSettings >(
-                        extractTroposphericDryCorrectionAdjustment( troposphericCspFiles ),
-                        extractTroposphericWetCorrectionAdjustment( troposphericCspFiles ) ) );
+        lightTimeCorrectionSettings.push_back( tabulatedTroposphericCorrectionSettings( troposphericCorrectionFileNames ) );
     }
     if ( std::count( lightTimeCorrectionTypes.begin(), lightTimeCorrectionTypes.end(), tabulated_ionospheric ) )
     {
-        std::vector< std::shared_ptr< input_output::CspRawFile > > ionosphericCspFiles;
-        for ( std::string cspFile : ionosphericCorrectionFileNames )
-            ionosphericCspFiles.push_back( std::make_shared< input_output::CspRawFile >( cspFile ) );
-
-        lightTimeCorrectionSettings.push_back(
-                std::make_shared< observation_models::TabulatedIonosphericCorrectionSettings >(
-                        extractIonosphericCorrection( ionosphericCspFiles, spacecraftNamePerSpacecraftId ) ) );
+        lightTimeCorrectionSettings.push_back( tabulatedIonosphericCorrectionSettings( ionosphericCorrectionFileNames, spacecraftNamePerSpacecraftId ) );
     }
     if ( std::count( lightTimeCorrectionTypes.begin(), lightTimeCorrectionTypes.end(), saastamoinen_tropospheric ) )
     {
         input_output::setDsnWeatherDataInGroundStations(bodies, weatherFileNames  );
 
-        lightTimeCorrectionSettings.push_back( std::make_shared< SaastamoinenTroposphericCorrectionSettings >( ) );
+        lightTimeCorrectionSettings.push_back( saastamoinenTroposphericCorrectionSettings( ) );
     }
     if ( std::count( lightTimeCorrectionTypes.begin(), lightTimeCorrectionTypes.end(), jakowski_vtec_ionospheric ) )
     {
-        lightTimeCorrectionSettings.push_back( std::make_shared< JakowskiIonosphericCorrectionSettings >( ) );
+        lightTimeCorrectionSettings.push_back( jakowskiIonosphericCorrectionSettings( ) );
     }
 
     std::map < observation_models::ObservableType, std::vector< observation_models::LinkEnds > > linkEndsPerObservable =
@@ -357,8 +342,6 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
     spice_interface::loadStandardSpiceKernels( );
     spice_interface::loadSpiceKernelInTudat( "/Users/pipas/Documents/mgs-spice/mgs_ext22_ipng_mgs95j.bsp" );
 
-    std::string saveDirectory = "/Users/pipas/tudatpy-testing/mgs/mors_2190/data_origin_test/";
-
     std::vector< std::string > odfFiles = { "/Users/pipas/Documents/mgs-m-rss-1-ext-v1/mors_2190/odf/5332333a.odf" };
 //    std::vector< std::string > odfFiles = { "/Users/pipas/Documents/mgs-m-rss-1-ext-v1/mors_2190/odf/5327332a.odf" };
 
@@ -385,11 +368,12 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
     Time initialEphemerisTime = Time( 185976000 - 2.0 * 86400.0 ); // End of November 2005
     Time finalEphemerisTime = Time( 186580800 + 5.0 * 86400.0 ); // End of November 2005
 
-    int testCase = 4;
+    int testCase = 3;
 
 
     if ( testCase == 0 )
     {
+        std::string saveDirectory = "/Users/pipas/tudatpy-testing/mgs/mors_2190/";
         std::string fileTag = "5332333aOdf";
         std::string ephemeridesOrigin = "SSB";
         double ephemeridesTimeStep = 100.0;
@@ -400,6 +384,7 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
     }
     else if ( testCase == 2 )
     {
+        std::string saveDirectory = "/Users/pipas/tudatpy-testing/mgs/mors_2190/";
         std::string fileTag = "5332333aOdf_iau2000b";
         std::string ephemeridesOrigin = "SSB";
         runSimulation( odfFiles, tropCorrectionFiles, ionCorrectionFiles, weatherFiles,
@@ -409,6 +394,7 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
     }
     else if ( testCase == 3 )
     {
+        std::string saveDirectory = "/Users/pipas/tudatpy-testing/mgs/mors_2190/";
 //        std::string fileTag = "5332333aOdf_interpState50";
         std::string ephemeridesOrigin = "SSB";
         std::string fileTag = "5332333aOdf_interpState50";
@@ -429,21 +415,25 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
                        initialEphemerisTime, finalEphemerisTime, true, ephemeridesTimeStep, { tabulated_tropospheric },
                        ephemeridesOrigin, ephemeridesOrigin, false );
 
-//        runSimulation( odfFiles, tropCorrectionFiles, ionCorrectionFiles, weatherFiles,
-//                       saveDirectory, fileTag + "_ionCorr", initialEphemerisTime, finalEphemerisTime, true,
-//                       ephemeridesTimeStep, { tabulated_ionospheric }, false );
+        runSimulation( odfFiles, tropCorrectionFiles, ionCorrectionFiles, weatherFiles,
+                       saveDirectory, fileTag + "_ionCorr",
+                       initialEphemerisTime, finalEphemerisTime, true, ephemeridesTimeStep, { tabulated_ionospheric },
+                       ephemeridesOrigin, ephemeridesOrigin, false );
 
 //        runSimulation( odfFiles, tropCorrectionFiles, ionCorrectionFiles, weatherFiles,
-//                       saveDirectory, fileTag + "_troGdCorr", initialEphemerisTime, finalEphemerisTime, true,
-//                       ephemeridesTimeStep, { saastamoinen_tropospheric }, false );
-
+//                       saveDirectory, fileTag + "_troGdCorr",
+//                       initialEphemerisTime, finalEphemerisTime, true, ephemeridesTimeStep, { saastamoinen_tropospheric },
+//                       ephemeridesOrigin, ephemeridesOrigin, false );
+//
 //        runSimulation( odfFiles, tropCorrectionFiles, ionCorrectionFiles, weatherFiles,
-//                       saveDirectory, fileTag + "_ionGdCorr", initialEphemerisTime, finalEphemerisTime, true,
-//                       ephemeridesTimeStep, { jakowski_vtec_ionospheric }, false );
+//                       saveDirectory, fileTag + "_ionGdCorr",
+//                       initialEphemerisTime, finalEphemerisTime, true, ephemeridesTimeStep, { jakowski_vtec_ionospheric },
+//                       ephemeridesOrigin, ephemeridesOrigin, false );
     }
     // Effect of ephemerides origin on residuals
     else if ( testCase == 4 )
     {
+        std::string saveDirectory = "/Users/pipas/tudatpy-testing/mgs/mors_2190/data_origin_test/";
         std::string fileTag = "5332333aOdf_interpState50";
         double ephemeridesTimeStep = 50.0;
 
@@ -471,6 +461,7 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
     // Test of SPICE interpolation step size
     else if ( testCase == 1 )
     {
+        std::string saveDirectory = "/Users/pipas/tudatpy-testing/mgs/mors_2190/";
         std::string fileTag = "5332333aOdf";
         std::string ephemeridesOrigin = "SSB";
         for ( unsigned int i = 0; i < 2; ++i )
