@@ -32,7 +32,7 @@ BOOST_AUTO_TEST_CASE( readWeatherData )
     // Reading data without gaps
     {
         std::shared_ptr< DsnWeatherData > weatherFile = std::make_shared< DsnWeatherData >(
-                "/Users/pipas/Documents/mro-data/wea/mromagr20170012017365_10.wea.txt" );
+                tudat::paths::getTudatTestDataPath( ) + "mromagr20170012017365_10.wea.txt" );
 
         BOOST_CHECK_EQUAL ( weatherFile->dsnStationComplexId_, 10 );
 
@@ -77,7 +77,7 @@ BOOST_AUTO_TEST_CASE( readWeatherData )
     // Reading data with gaps
     {
         std::shared_ptr< DsnWeatherData > weatherFile = std::make_shared< DsnWeatherData >(
-            "/Users/pipas/Documents/mro-data/wea/mromagr20060012006365_10.wea.txt" );
+            tudat::paths::getTudatTestDataPath( ) + "mromagr20060012006365_10.wea.txt" );
 
         BOOST_CHECK_EQUAL ( weatherFile->dsnStationComplexId_, 10 );
 
@@ -112,11 +112,11 @@ BOOST_AUTO_TEST_CASE( setWeatherData )
     setDsnWeatherDataInGroundStations(
             bodies,
             std::vector< std::string >
-                    { "/Users/pipas/Documents/mro-data/wea/mromagr20180012018365_10.wea.txt",
-                      "/Users/pipas/Documents/mro-data/wea/mromagr20170012017365_60.wea.txt",
-                      "/Users/pipas/Documents/mro-data/wea/mromagr20170012017365_10.wea.txt",
-                      "/Users/pipas/Documents/mro-data/wea/mromagr20170012017365_40.wea.txt",
-                      "/Users/pipas/Documents/mro-data/wea/mromagr20160012016366_10.wea.txt" } );
+                    { tudat::paths::getTudatTestDataPath( ) + "mromagr20180012018365_10.wea.txt",
+                      tudat::paths::getTudatTestDataPath( ) + "mromagr20170012017365_60.wea.txt",
+                      tudat::paths::getTudatTestDataPath( ) + "mromagr20170012017365_10.wea.txt",
+                      tudat::paths::getTudatTestDataPath( ) + "mromagr20170012017365_40.wea.txt",
+                      tudat::paths::getTudatTestDataPath( ) + "mromagr20160012016366_10.wea.txt" } );
 
     std::vector< std::string > complex10GroundStations = { "DSS-13", "DSS-14", "DSS-15", "DSS-24", "DSS-25", "DSS-26" };
     for ( std::string groundStation : complex10GroundStations )
