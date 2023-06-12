@@ -95,7 +95,7 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerPartials )
         std::shared_ptr< ProcessedOdfFileContents > processedOdfFileContents =
             std::make_shared< ProcessedOdfFileContents >( rawOdfFileContents, bodies.getBody( "Earth" ), true );
         // Create ground stations
-        setGroundStationsTransmittingFrequencies( processedOdfFileContents, bodies.getBody( "Earth" ) );
+        setTransmittingFrequenciesInGroundStations( processedOdfFileContents, bodies.getBody( "Earth" ) );
 
         // Set link ends for observation model
         LinkEnds linkEnds;
@@ -138,7 +138,7 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerPartials )
         std::shared_ptr< ProcessedOdfFileContents > processedOdfFileContents =
             std::make_shared< ProcessedOdfFileContents >( rawOdfFileContents, bodies.getBody( "Earth" ), true );
         // Create ground stations
-        setGroundStationsTransmittingFrequencies( processedOdfFileContents, bodies.getBody( "Earth" ) );
+        setTransmittingFrequenciesInGroundStations( processedOdfFileContents, bodies.getBody( "Earth" ) );
 
         // Set link ends for observation model
         LinkEnds linkEnds;
