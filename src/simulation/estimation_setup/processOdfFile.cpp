@@ -24,6 +24,7 @@ observation_models::ObservableType getObservableTypeForOdfId( const int odfId )
 
     switch( odfId )
     {
+    // TODO: don't forget to remove ProcessedOdfFileContentsPrivateFunctionTest class after implementing processing of data type 11 (1-way Doppler)
 //    case 11:
 //        observableType = observation_models::dsn_one_way_averaged_doppler;
 //        break;
@@ -485,17 +486,8 @@ void ProcessedOdfFileContents::extractRawOdfOrbitData(
             // Create new data object, if required
             if ( createNewObject )
             {
-                if ( currentObservableType == observation_models::dsn_n_way_averaged_doppler )
-                {
-                    processedDataBlocks_[ currentObservableType ][ linkEnds ] = std::make_shared< ProcessedOdfFileDopplerData >(
-                            currentObservableType, linkEnds.at( receiver ).stationName_, linkEnds.at( transmitter ).stationName_ );
-                }
-                else
-                {
-                    throw std::runtime_error(
-                            "Error when processing ODF file contents: processing of the selected observable type (" +
-                            std::to_string( currentObservableType ) + ") is not implemented." );
-                }
+                processedDataBlocks_[ currentObservableType ][ linkEnds ] = std::make_shared< ProcessedOdfFileDopplerData >(
+                        currentObservableType, linkEnds.at( receiver ).stationName_, linkEnds.at( transmitter ).stationName_ );
             }
 
             addOdfRawDataBlockToProcessedData(
