@@ -126,7 +126,6 @@ public:
             const TimeStepType safetyFactorForNextStepSize = 0.8,
             const TimeStepType maximumFactorIncreaseForNextStepSize = 4.0,
             const TimeStepType minimumFactorDecreaseForNextStepSize = 0.1,
-            const NewStepSizeFunction& newStepSizeFunction = 0,
             const bool exceptionIfMinimumStepExceeded = true ) :
         ReinitializableNumericalIntegratorBase( stateDerivativeFunction ),
         currentIndependentVariable_( intervalStart ),
@@ -136,32 +135,27 @@ public:
         minimumStepSize_( std::fabs( static_cast< double >( minimumStepSize ) ) ),
         maximumStepSize_( std::fabs( static_cast< double >( maximumStepSize ) ) ),
         stepSize_( initialStepSize ),
-        relativeErrorTolerance_( relativeErrorTolerance.array( ).abs( ) ),
-        absoluteErrorTolerance_( absoluteErrorTolerance.array( ).abs( ) ),
-        safetyFactorForNextStepSize_( std::fabs( static_cast< double >( safetyFactorForNextStepSize ) ) ),
-        maximumFactorIncreaseForNextStepSize_( std::fabs( static_cast< double >( maximumFactorIncreaseForNextStepSize ) ) ),
-        minimumFactorDecreaseForNextStepSize_( std::fabs( static_cast< double >( minimumFactorDecreaseForNextStepSize ) ) ),
-        newStepSizeFunction_( newStepSizeFunction ), exceptionIfMinimumStepExceeded_( exceptionIfMinimumStepExceeded ),
         useStepSizeControl_( true )
     {
-        if( !( currentState_.rows( ) == relativeErrorTolerance_.rows( ) ) ||
-                !( currentState_.cols( ) == relativeErrorTolerance_.cols( ) ) )
-        {
-            throw std::runtime_error( "Error when creating variable step-size RK integrator, relative tolerance input size is inconsistent" );
-        }
-
-        if( !( currentState_.rows( ) == absoluteErrorTolerance_.rows( ) ) ||
-                !( currentState_.cols( ) == absoluteErrorTolerance_.cols( ) ) )
-        {
-            throw std::runtime_error( "Error when creating variable step-size RK integrator, absolute tolerance input size is inconsistent" );
-        }
-
         stepSizeController_ = std::make_shared< PerElementIntegratorStepSizeController< TimeStepType, StateType > >(
-            relativeErrorTolerance_, absoluteErrorTolerance_, safetyFactorForNextStepSize_, coefficients_.higherOrder,
-            minimumFactorDecreaseForNextStepSize_, maximumFactorIncreaseForNextStepSize_ );
+            relativeErrorTolerance, absoluteErrorTolerance,
+            static_cast< double >( safetyFactorForNextStepSize ), coefficients_.lowerOrder + 1,
+            static_cast< double >( minimumFactorDecreaseForNextStepSize ),
+            static_cast< double >( maximumFactorIncreaseForNextStepSize ) );
         stepSizeController_->initialize( initialState );
-        stepSizeValidator_ = std::make_shared< BasicIntegratorStepSizeValidator< TimeStepType > >( minimumStepSize_, maximumStepSize_);
 
+        std::shared_ptr< BasicIntegratorStepSizeValidator< TimeStepType > > stepSizeValidator =
+            std::make_shared< BasicIntegratorStepSizeValidator< TimeStepType > >( minimumStepSize_, maximumStepSize_);
+        stepSizeValidator = std::make_shared< BasicIntegratorStepSizeValidator< TimeStepType > >( minimumStepSize_, maximumStepSize_);
+        if( exceptionIfMinimumStepExceeded )
+        {
+            stepSizeValidator->resetMinimumIntegrationTimeHandling( throw_exception_below_minimum );
+        }
+        else
+        {
+            stepSizeValidator->resetMinimumIntegrationTimeHandling( set_to_minimum_step_silently );
+        }
+        stepSizeValidator_ = stepSizeValidator;
     }
 
     //! Default constructor.
@@ -201,7 +195,6 @@ public:
             const TimeStepType safetyFactorForNextStepSize = 0.8,
             const TimeStepType maximumFactorIncreaseForNextStepSize = 4.0,
             const TimeStepType minimumFactorDecreaseForNextStepSize = 0.1,
-            const NewStepSizeFunction& newStepSizeFunction = 0,
             const bool exceptionIfMinimumStepExceeded = true  ) :
         ReinitializableNumericalIntegratorBase( stateDerivativeFunction ),
         currentIndependentVariable_( intervalStart ),
@@ -211,23 +204,29 @@ public:
         minimumStepSize_( std::fabs( static_cast< double >( minimumStepSize ) ) ),
         maximumStepSize_( std::fabs( static_cast< double >( maximumStepSize ) ) ),
         stepSize_( initialStepSize ),
-        relativeErrorTolerance_( StateType::Constant( initialState.rows( ), initialState.cols( ),
-                                                      std::fabs( relativeErrorTolerance ) ) ),
-        absoluteErrorTolerance_( StateType::Constant( initialState.rows( ), initialState.cols( ),
-                                                      std::fabs( absoluteErrorTolerance ) ) ),
-        safetyFactorForNextStepSize_( std::fabs( static_cast< double >( safetyFactorForNextStepSize ) ) ),
-        maximumFactorIncreaseForNextStepSize_( std::fabs( static_cast< double >( maximumFactorIncreaseForNextStepSize ) ) ),
-        minimumFactorDecreaseForNextStepSize_( std::fabs( static_cast< double >( minimumFactorDecreaseForNextStepSize ) ) ),
-        newStepSizeFunction_( newStepSizeFunction ),
-        exceptionIfMinimumStepExceeded_( exceptionIfMinimumStepExceeded ),
         useStepSizeControl_( true )
     {
         stepSizeController_ = std::make_shared< PerElementIntegratorStepSizeController< TimeStepType, StateType > >(
-            relativeErrorTolerance_, absoluteErrorTolerance_, safetyFactorForNextStepSize_, coefficients_.higherOrder,
-            minimumFactorDecreaseForNextStepSize_, maximumFactorIncreaseForNextStepSize_ );
+            StateType::Constant( initialState.rows( ), initialState.cols( ),
+                                 std::fabs( relativeErrorTolerance ) ),
+            StateType::Constant( initialState.rows( ), initialState.cols( ),
+                                 std::fabs( absoluteErrorTolerance ) ),
+            static_cast< double >( safetyFactorForNextStepSize ), coefficients_.lowerOrder + 1,
+            static_cast< double >( minimumFactorDecreaseForNextStepSize ),
+            static_cast< double >( maximumFactorIncreaseForNextStepSize) );
         stepSizeController_->initialize( initialState );
 
-        stepSizeValidator_ = std::make_shared< BasicIntegratorStepSizeValidator< TimeStepType > >( minimumStepSize_, maximumStepSize_);
+        std::shared_ptr< BasicIntegratorStepSizeValidator< TimeStepType > >stepSizeValidator =
+            std::make_shared< BasicIntegratorStepSizeValidator< TimeStepType > >( minimumStepSize_, maximumStepSize_);
+        if( exceptionIfMinimumStepExceeded )
+        {
+            stepSizeValidator->resetMinimumIntegrationTimeHandling( throw_exception_below_minimum );
+        }
+        else
+        {
+            stepSizeValidator->resetMinimumIntegrationTimeHandling( set_to_minimum_step_silently );
+        }
+        stepSizeValidator_ = stepSizeValidator;
 
         // Raise error if a fixed step coefficient set is used with this variable step integrator.
         if( coefficients_.isFixedStepSize )
@@ -399,6 +398,12 @@ public:
         return stepSizeController_;
     }
 
+    void setStepSizeController(
+        const std::shared_ptr< IntegratorStepSizeController< TimeStepType, StateType > > stepSizeController )
+    {
+        stepSizeController_ = stepSizeController;
+    }
+
     std::shared_ptr< IntegratorStepSizeValidator< TimeStepType > > getStepSizeValidator( )
     {
         return stepSizeValidator_;
@@ -419,32 +424,6 @@ protected:
                                                        const StateType& higherOrderEstimate,
                                                        const TimeStepType stepSize );
 
-    //! Compute new step size.
-    /*!
-     * Computes the new step size based on a generic definition of the local truncation error.
-     * \param stepSize Integration step size of current step.
-     * \param orders Pair of lower and higher orders of the two schemes used in variable step size
-     *           integration. Note that the order is important (lower first, higher second).
-     * \param safetyFactorForNextStepSize Safety factor used to scale prediction of next step size.
-     * \param minimumAndMaximumFactorsForNextStepSize Pair of minimum and maximum safety factor
-     *          decrease and increase for computing the next step size. Note that the order is
-     *          important (minimum first, maximum second).
-     * \param relativeErrorTolerance Allowable relative error between integrations using two
-     *           schemes.
-     * \param absoluteErrorTolerance Allowable relative error between integrations using two
-     *           schemes.
-     * \param lowerOrderEstimate Numerical integration result using lower order scheme.
-     * \param higherOrderEstimate Numerical integration result using higher order scheme.
-     * \return Pair with new step size and a boolean denoting whether the step size computation
-     *           was succesfull, i.e. whether tolerances etc. are met.
-     */
-    virtual std::pair< TimeStepType, bool > computeNewStepSize(
-            const TimeStepType stepSize,
-            const std::pair< TimeStepType, TimeStepType >& orders,
-            const TimeStepType safetyFactorForNextStepSize,
-            const std::pair< TimeStepType, TimeStepType >& minimumAndMaximumFactorsForNextStepSize,
-            const StateType& relativeErrorTolerance, const StateType& absoluteErrorTolerance,
-            const StateType& lowerOrderEstimate, const StateType& higherOrderEstimate );
 
     //! Current independent variable.
     /*!
@@ -494,56 +473,12 @@ protected:
      */
     TimeStepType stepSize_;
 
-    //! Relative error tolerance.
-    /*!
-     * Relative error tolerance per element in the state.
-     */
-    StateType relativeErrorTolerance_;
-
-    //! Absolute error tolerance.
-    /*!
-     * Absolute error tolerance per element in the state.
-     */
-    StateType absoluteErrorTolerance_;
-
-    //! Safety factor for next step size.
-    /*!
-     * Safety factor used to scale prediction of next step size. This is usually picked between
-     * 0.8 and 0.9 (Burden and Faires, 2001).
-     */
-    TimeStepType safetyFactorForNextStepSize_;
-
-    //! Maximum factor increase for next step size.
-    /*!
-     * The maximum factor by which the next step size can increase compared to the current value.
-     * The need for this maximum stems from a need to ensure that the step size changes do not
-     * alias with the dynamics of the model being integrated. This is typically set at 4.0, based
-     * on numerical experiments (Burden and Faires, 2001).
-     */
-    TimeStepType maximumFactorIncreaseForNextStepSize_;
-
-    //! Minimum factor decrease for next step size.
-    /*!
-     * The minimum factor by which the next step size can decrease compared to the current value.
-     * The need for this minimum stems from a need to ensure that the step size changes do not
-     * alias with the dynamics of the model being integrated. This is typically set at 0.1, based
-     * on numerical experiments (Burden and Faires, 2001).
-     */
-    TimeStepType minimumFactorDecreaseForNextStepSize_;
-
-    //! Function that returns the new step size computed.
-    /*!
-     * Function that returns the new step size computed, as passed to the constructor.
-     */
-    NewStepSizeFunction newStepSizeFunction_;
 
     //! Vector of state derivatives.
     /*!
      * Vector of state derivatives, i.e. values of k_{i} in Runge-Kutta scheme.
      */
     std::vector< StateDerivativeType > currentStateDerivatives_;
-
-    bool exceptionIfMinimumStepExceeded_;
 
 
 
@@ -669,58 +604,6 @@ RungeKuttaVariableStepSizeIntegrator< IndependentVariableType, StateType, StateD
         this->stepSize_ = stepSize;
         return true;
     }
-}
-
-//! Compute new step size.
-/*!
- * Computes the new step size based on a generic definition of the local truncation error.
- */
-template< typename IndependentVariableType, typename StateType, typename StateDerivativeType, typename TimeStepType >
-std::pair< TimeStepType, bool >
-RungeKuttaVariableStepSizeIntegrator< IndependentVariableType, StateType, StateDerivativeType, TimeStepType >
-::computeNewStepSize(
-        const TimeStepType stepSize,
-        const std::pair< TimeStepType, TimeStepType >& orders,
-        const TimeStepType safetyFactorForNextStepSize,
-        const std::pair< TimeStepType, TimeStepType >& minimumAndMaximumFactorsForNextStepSize,
-        const StateType& relativeErrorTolerance,
-        const StateType& absoluteErrorTolerance,
-        const StateType& lowerOrderEstimate,
-        const StateType& higherOrderEstimate )
-{
-    TUDAT_UNUSED_PARAMETER( minimumAndMaximumFactorsForNextStepSize );
-
-    // Compute the truncation error based on the higher and lower order estimates.
-    const StateType truncationError_ =
-            ( higherOrderEstimate - lowerOrderEstimate ).array( ).abs( );
-
-    // Compute error tolerance based on relative and absolute error tolerances.
-    const StateType errorTolerance_ =
-            ( higherOrderEstimate.array( ).abs( ) *
-              relativeErrorTolerance.array( ) ).matrix( )
-            + absoluteErrorTolerance;
-
-    // Compute relative truncation error. This will indicate if the current step satisfies the
-    // required tolerances.
-    const StateType relativeTruncationError_ = truncationError_.array( ) /
-            errorTolerance_.array( );
-
-    // Compute the maximum error based on the largest coefficient in the relative truncation error
-    // matrix.
-    const typename StateType::Scalar maximumErrorInState_
-            = relativeTruncationError_.array( ).abs( ).maxCoeff( );
-
-    // Compute the new step size. This is based off of the equation given in
-    // (Montenbruck and Gill, 2005).
-    const TimeStepType newStepSize = safetyFactorForNextStepSize * stepSize
-            * std::pow( 1.0 / maximumErrorInState_, 1.0 / orders.second );
-
-    // Check if the current state can be accepted.
-    const bool isIntegrationStepAccepted = maximumErrorInState_ <= 1.0;
-
-    // Return the computed new step size and whether the current step taken is acceptable. If it
-    // isn't, the step will be recomputed with the computed new step size.
-    return std::make_pair( newStepSize, isIntegrationStepAccepted );
 }
 
 //! Exception that is thrown if the minimum step size is exceeded.
