@@ -198,7 +198,8 @@ protected:
         // Compute the new step size. This is based off of the equation given in
         // (Montenbruck and Gill, 2005).
         const TimeStepType timeStepRatio = safetyFactorForNextStepSize_
-                                           * std::pow( 1.0 / maximumErrorInState, 1.0 / integratorOrder_ );
+                                           * std::pow( 1.0 / static_cast< double >( maximumErrorInState ),
+                                                       1.0 / static_cast< double >( integratorOrder_ ) );
 
         bool tolerancesMet = maximumErrorInState <= 1.0;
         if ( timeStepRatio <= minimumFactorDecreaseForNextStepSize_ )
