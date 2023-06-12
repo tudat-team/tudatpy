@@ -1313,7 +1313,7 @@ DependentVariableType, IndependentVariableStepType > > createIntegrator(
                       static_cast< IndependentVariableStepType >( scalarTolerancesIntegratorSettings->safetyFactorForNextStepSize_ ),
                       static_cast< IndependentVariableStepType >( scalarTolerancesIntegratorSettings->maximumFactorIncreaseForNextStepSize_ ),
                       static_cast< IndependentVariableStepType >( scalarTolerancesIntegratorSettings->minimumFactorDecreaseForNextStepSize_ ),
-                      nullptr, scalarTolerancesIntegratorSettings->exceptionIfMinimumStepExceeded_ );
+                      scalarTolerancesIntegratorSettings->exceptionIfMinimumStepExceeded_ );
             }
             else
             {
@@ -1359,7 +1359,7 @@ DependentVariableType, IndependentVariableStepType > > createIntegrator(
                       static_cast< IndependentVariableStepType >( vectorTolerancesIntegratorSettings->safetyFactorForNextStepSize_ ),
                       static_cast< IndependentVariableStepType >( vectorTolerancesIntegratorSettings->maximumFactorIncreaseForNextStepSize_ ),
                       static_cast< IndependentVariableStepType >( vectorTolerancesIntegratorSettings->minimumFactorDecreaseForNextStepSize_ ),
-                      nullptr, vectorTolerancesIntegratorSettings->exceptionIfMinimumStepExceeded_ );
+                      vectorTolerancesIntegratorSettings->exceptionIfMinimumStepExceeded_ );
             }
         }
         else
@@ -1375,13 +1375,13 @@ DependentVariableType, IndependentVariableStepType > > createIntegrator(
             RungeKuttaCoefficients
                 coefficients = RungeKuttaCoefficients::get( variableStepIntegratorSettings->coefficientSet_ );
 
-            std::shared_ptr< IntegratorStepSizeController< IndependentVariableType, DependentVariableType > > stepSizeController =
-                createStepSizeController< IndependentVariableType, DependentVariableType >(
+            std::shared_ptr< IntegratorStepSizeController< IndependentVariableStepType, DependentVariableType > > stepSizeController =
+                createStepSizeController< IndependentVariableStepType, DependentVariableType >(
                     variableStepIntegratorSettings->stepSizeControlSettings_,
                     coefficients.higherOrder );
 
-            std::shared_ptr< IntegratorStepSizeValidator< IndependentVariableType > > stepSizeValidator =
-                createIntegratorStepSizeValidator< IndependentVariableType >(
+            std::shared_ptr< IntegratorStepSizeValidator< IndependentVariableStepType > > stepSizeValidator =
+                createIntegratorStepSizeValidator< IndependentVariableStepType >(
                     variableStepIntegratorSettings->stepSizeAcceptanceSettings_ );
 
             integrator = std::make_shared<RungeKuttaVariableStepSizeIntegrator

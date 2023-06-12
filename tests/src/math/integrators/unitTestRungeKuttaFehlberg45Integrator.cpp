@@ -112,15 +112,16 @@ using numerical_integrator_test_functions::computeNonAutonomousModelStateDerivat
 //                    minimumStepSize,
 //                    maximumStepSize,
 //                    initialStepSize,
-//                    relativeErrorTolerance,
+//                    std::numeric_limits< double >::infinity( ),
 //                    absoluteErrorTolerance,
 //                    safetyFactorForNextStepSize,
-//                    maximumFactorIncreaseForNextStepSize,
-//                    minimumFactorDecreaseForNextStepSize,
+//                    0.0,
+//                    std::numeric_limits< double >::infinity( ),
 //                    std::bind( &BurdenAndFairesNumericalIntegratorTest::computeNewStepSize,
 //                                 &burdenAndFairesNumericalIntegratorTest,
 //                                 std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4,
 //                               std::placeholders::_5, std::placeholders::_6, std::placeholders::_7, std::placeholders::_8 ) );
+//
 //
 //        // Integrator to final time.
 //        Eigen::VectorXd finalState = integrator.integrateTo( finalTime, initialStepSize );

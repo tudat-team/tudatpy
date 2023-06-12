@@ -268,7 +268,15 @@ public:
                                                            std::fabs( scalarAbsoluteErrorTolerance_ ) );
             tolerancesSet_ = true;
         }
+        else
+        {
+            if( ( relativeErrorTolerance_.rows( ) != state.rows( ) ) || ( relativeErrorTolerance_.cols( ) != state.cols( ) ) )
+            {
+                throw std::runtime_error( "Error in step size controller, size of toleranes is incompatible with state" );
+            }
+        }
     }
+
     std::pair< TimeStepType, bool > computeNewStepSize(
         const StateType& firstStateEstimate,
         const StateType& secondStateEstimate,

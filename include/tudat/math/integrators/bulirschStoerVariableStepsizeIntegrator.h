@@ -18,6 +18,7 @@
 
 #include <Eigen/Core>
 
+#include <tudat/math/integrators/stepSizeController.h>
 #include <tudat/math/integrators/numericalIntegrator.h>
 #include <tudat/math/basic/mathematicalConstants.h>
 
@@ -110,14 +111,8 @@ public:
             const TimeStepType minimumFactorDecreaseForNextStepSize = 0.1 ):
         Base( stateDerivativeFunction ), currentIndependentVariable_( intervalStart ),
         currentState_( initialState ), lastIndependentVariable_( intervalStart ),
-        sequence_( sequence ), minimumStepSize_( minimumStepSize ), maximumStepSize_( maximumStepSize ),
-        stepSize_( initialStepSize ),
-        relativeErrorTolerance_( relativeErrorTolerance ),
-        absoluteErrorTolerance_( absoluteErrorTolerance ),
-        safetyFactorForNextStepSize_( safetyFactorForNextStepSize ),
-        maximumFactorIncreaseForNextStepSize_( maximumFactorIncreaseForNextStepSize ),
-        minimumFactorDecreaseForNextStepSize_( minimumFactorDecreaseForNextStepSize ),
-        isMinimumStepSizeViolated_( false )
+        sequence_( sequence ),
+        stepSize_( initialStepSize )
     {
         maximumStepIndex_ = sequence_.size( ) - 1;
         subSteps_.resize( maximumStepIndex_ + 1 );
@@ -130,10 +125,22 @@ public:
 
         useFixedStep_ = false;
         if( ( initialStepSize == minimumStepSize ) && ( initialStepSize == maximumStepSize ) &&
-            !relativeErrorTolerance_.allFinite( ) && !absoluteErrorTolerance_.allFinite( ) )
+            !relativeErrorTolerance.allFinite( ) && !absoluteErrorTolerance.allFinite( ) )
         {
             useFixedStep_ = true;
         }
+
+        stepSizeController_ = std::make_shared< PerElementIntegratorStepSizeController< TimeStepType, StateType > >(
+            relativeErrorTolerance, absoluteErrorTolerance,
+            static_cast< double >( safetyFactorForNextStepSize ), static_cast< double >( 2 * maximumStepIndex_ - 1 ),
+            static_cast< double >( minimumFactorDecreaseForNextStepSize ),
+            static_cast< double >( maximumFactorIncreaseForNextStepSize ) );
+        stepSizeController_->initialize( initialState );
+
+        stepSizeValidator_=
+            std::make_shared< BasicIntegratorStepSizeValidator< TimeStepType > >( minimumStepSize, maximumStepSize);
+
+
     }
 
     // Default constructor.
@@ -170,15 +177,7 @@ public:
             const TimeStepType minimumFactorDecreaseForNextStepSize = 0.1 ):
         Base( stateDerivativeFunction ), currentIndependentVariable_( intervalStart ),
         currentState_( initialState ), lastIndependentVariable_( intervalStart ),
-        sequence_( sequence ), minimumStepSize_( minimumStepSize ),  maximumStepSize_( maximumStepSize ), stepSize_( stepSize ),
-        relativeErrorTolerance_( StateType::Constant( initialState.rows( ), initialState.cols( ),
-                                                      relativeErrorTolerance ) ),
-        absoluteErrorTolerance_( StateType::Constant( initialState.rows( ), initialState.cols( ),
-                                                      absoluteErrorTolerance ) ),
-        safetyFactorForNextStepSize_( safetyFactorForNextStepSize ),
-        maximumFactorIncreaseForNextStepSize_( maximumFactorIncreaseForNextStepSize ),
-        minimumFactorDecreaseForNextStepSize_( minimumFactorDecreaseForNextStepSize ),
-        isMinimumStepSizeViolated_( false )
+        sequence_( sequence ), stepSize_( stepSize )
     {
         maximumStepIndex_ = sequence_.size( ) - 1;
         subSteps_.resize( maximumStepIndex_ + 1 );
@@ -195,6 +194,19 @@ public:
         {
             useFixedStep_ = true;
         }
+
+        stepSizeController_ = std::make_shared< PerElementIntegratorStepSizeController< TimeStepType, StateType > >(
+            StateType::Constant( initialState.rows( ), initialState.cols( ),
+                                 relativeErrorTolerance ),
+            StateType::Constant( initialState.rows( ), initialState.cols( ),
+                                 absoluteErrorTolerance ),
+            static_cast< double >( safetyFactorForNextStepSize ), static_cast< double >( 2 * maximumStepIndex_ - 1 ),
+            static_cast< double >( minimumFactorDecreaseForNextStepSize ),
+            static_cast< double >( maximumFactorIncreaseForNextStepSize ) );
+        stepSizeController_->initialize( initialState );
+
+        stepSizeValidator_=
+            std::make_shared< BasicIntegratorStepSizeValidator< TimeStepType > >( minimumStepSize, maximumStepSize);
     }
 
     ~BulirschStoerVariableStepSizeIntegrator( ){ }
@@ -251,7 +263,7 @@ public:
         }
 
         double errorScaleTerm = TUDAT_NAN;
-        for ( unsigned int i = 0; i <= maximumStepIndex_; i++ )
+        for( unsigned int i = 0; i <= maximumStepIndex_; i++ )
         {
             // Compute Euler step and set as state at center point for use with mid-point method.
             stateAtCenterPoint_ = currentState_ + subSteps_.at( i )
@@ -286,86 +298,47 @@ public:
                         ( pow( subSteps_.at( i - k ), 2.0 ) / std::pow( subSteps_.at( i ), 2.0 ) - 1.0 )
                         * ( integratedStates_[ i ][ k - 1 ] - integratedStates_[ i - 1 ][ k - 1 ] );
             }
-
-            if( i == maximumStepIndex_ )
-            {
-                if ( !useFixedStep_ )
-                {
-                    const StateType errorTolerance_ =
-                        ( integratedStates_.at( i ).at( i ).array( ).abs( ) *
-                          relativeErrorTolerance_.array( )).matrix( )
-                        + absoluteErrorTolerance_;
-
-                    double maximumAllowableErrorValue = errorTolerance_.array( ).maxCoeff( );
-                    double maximumErrorValue = ( integratedStates_.at( i ).at( i ) -
-                                                 integratedStates_.at( i ).at( i - 1 )).array( ).abs( ).maxCoeff( );
-
-                    errorScaleTerm =
-                        safetyFactorForNextStepSize_ * std::pow( maximumAllowableErrorValue / maximumErrorValue,
-                                                                 ( 1.0 / static_cast< double >( 2 * i - 1 )));
-
-                    if ( maximumErrorValue < maximumAllowableErrorValue )
-                    {
-
-                        stepSuccessful = true;
-                    }
-                    else
-                    {
-                        stepSuccessful = false;
-                    }
-                }
-                else
-                {
-                    stepSuccessful = true;
-                }
-
-                if( stepSuccessful )
-                {
-                    lastIndependentVariable_ = currentIndependentVariable_;
-                    lastState_ = currentState_;
-                    currentIndependentVariable_ += stepSize;
-                    currentState_ = integratedStates_[ i ][ i ];
-                    stepSize_ = stepSize;
-                }
-            }
-
         }
 
-        if( !stepSuccessful )
+        if( computeNextStepSizeAndValidateResult(
+            integratedStates_.at( maximumStepIndex_ ).at( maximumStepIndex_ - 1 ),
+            integratedStates_.at( maximumStepIndex_ ).at( maximumStepIndex_ ), stepSize ) )
         {
-            if( safetyFactorForNextStepSize_ * errorScaleTerm < minimumFactorDecreaseForNextStepSize_ )
-            {
-                this->stepSize_ = stepSize * minimumFactorDecreaseForNextStepSize_ * errorScaleTerm;
-            }
-            else
-            {
-                this->stepSize_ = stepSize * safetyFactorForNextStepSize_ * errorScaleTerm;
-            }
-
-            if( std::fabs( stepSize_ ) < std::fabs( minimumStepSize_ ) )
-            {
-                isMinimumStepSizeViolated_ = true;
-                throw std::runtime_error( "Error in BS integrator, minimum step size exceeded" );
-            }
-            performIntegrationStep( stepSize_ );
+            this->lastIndependentVariable_ = this->currentIndependentVariable_;
+            this->lastState_ = this->currentState_;
+            this->currentIndependentVariable_ += stepSize;
+            currentState_ = integratedStates_[ maximumStepIndex_ ][ maximumStepIndex_ ];
         }
-        else if( !useFixedStep_ )
+        else
         {
-            if( errorScaleTerm > maximumFactorIncreaseForNextStepSize_ )
-            {
-                this->stepSize_ = stepSize * maximumFactorIncreaseForNextStepSize_;
-            }
-            else
-            {
-                this->stepSize_ = stepSize * errorScaleTerm;
-            }
-
-            if(  std::fabs( this->stepSize_ ) >=  std::fabs( maximumStepSize_ ) )
-            {
-               this->stepSize_ = stepSize / ( std::fabs( stepSize ) ) * maximumStepSize_ ;
-            }
+            performIntegrationStep( this->stepSize_ );
         }
+
         return currentState_;
+    }
+
+    bool computeNextStepSizeAndValidateResult(
+        const StateType& lowerOrderEstimate,
+        const StateType& higherOrderEstimate,
+        const TimeStepType stepSize )
+    {
+        if( !useFixedStep_ )
+        {
+            // Compute new step size using new step size function, which also returns whether the
+            // relative error is within bounds or not.
+            std::pair< TimeStepType, bool > recommendedNewStepSizePair = stepSizeController_->computeNewStepSize(
+                lowerOrderEstimate, higherOrderEstimate, stepSize );
+            std::pair< TimeStepType, bool > validatedNewStepSizePair = stepSizeValidator_->validateStep(
+                recommendedNewStepSizePair, stepSize );
+
+            this->stepSize_ = validatedNewStepSizePair.first;
+            return validatedNewStepSizePair.second;
+        }
+        else
+        {
+            this->stepSize_ = stepSize;
+            return true;
+        }
     }
 
     // Rollback internal state to the last state.
@@ -387,14 +360,6 @@ public:
         currentState_ = lastState_;
         return true;
     }
-
-    // Check if minimum step size constraint was violated.
-    /*
-     * Returns true if the minimum step size constraint has been violated since this integrator
-     * was constructed.
-     * \return True if the minimum step size constraint was violated.
-     */
-    bool isMinimumStepSizeViolated( ) const { return isMinimumStepSizeViolated_; }
 
     IndependentVariableType getPreviousIndependentVariable( )
     {
@@ -452,18 +417,6 @@ private:
      */
     std::vector< unsigned int > sequence_;
 
-    // Minimum step size.
-    /*
-     * Minimum step size.
-     */
-    TimeStepType minimumStepSize_;
-
-    // Minimum step size.
-    /*
-     * Maximum step size.
-     */
-    TimeStepType maximumStepSize_;
-
 
     // Last used step size.
     /*
@@ -471,46 +424,6 @@ private:
      */
     TimeStepType stepSize_;
 
-    // Relative error tolerance.
-    /*
-     * Relative error tolerance per element in the state.
-     */
-    StateType relativeErrorTolerance_;
-
-    // Absolute error tolerance.
-    /*
-     *  Absolute error tolerance per element in the state.
-     */
-    StateType absoluteErrorTolerance_;
-
-    // Safety factor for next step size.
-    /*
-     * Safety factor used to scale prediction of next step size. This is usually picked between
-     * 0.8 and 0.9 (Burden and Faires, 2001).
-     */
-    TimeStepType safetyFactorForNextStepSize_;
-
-    // Maximum factor increase for next step size.
-    /*
-     * The maximum factor by which the next step size can increase compared to the current value.
-     * The need for this maximum stems from a need to ensure that the step size changes do not
-     * alias with the dynamics of the model being integrated.
-     */
-    TimeStepType maximumFactorIncreaseForNextStepSize_;
-
-    // Minimum factor decrease for next step size.
-    /*
-     * The minimum factor by which the next step size can decrease compared to the current value.
-     * The need for this minimum stems from a need to ensure that the step size changes do not
-     * alias with the dynamics of the model being integrated.
-     */
-    TimeStepType minimumFactorDecreaseForNextStepSize_;
-
-    // Flag to indicate whether the minimum step size constraint has been violated.
-    /*
-     * Flag to indicate whether the minimum step size constraint has been violated.
-     */
-    bool isMinimumStepSizeViolated_;
 
     // Execute mid-point method.
     /*
@@ -535,6 +448,11 @@ private:
     unsigned int maximumStepIndex_;
 
     std::vector< double > subSteps_;
+
+
+    std::shared_ptr< IntegratorStepSizeController< TimeStepType, StateType > > stepSizeController_;
+
+    std::shared_ptr< IntegratorStepSizeValidator< TimeStepType > > stepSizeValidator_;
 
     bool useFixedStep_;
 
