@@ -105,8 +105,8 @@ public:
         const ToleranceType relativeErrorTolerance,
         const ToleranceType absoluteErrorTolerance,
         const double safetyFactorForNextStepSize = 0.8,
-        const double minimumFactorDecreaseForNextStepSize = 4.0,
-        const double maximumFactorDecreaseForNextStepSize = 0.1 ):
+        const double minimumFactorDecreaseForNextStepSize = 0.1,
+        const double maximumFactorDecreaseForNextStepSize = 4.0 ):
         IntegratorStepSizeControlSettings(
             per_element_step_size_control, safetyFactorForNextStepSize,
             minimumFactorDecreaseForNextStepSize, maximumFactorDecreaseForNextStepSize ),
@@ -167,7 +167,7 @@ std::shared_ptr< IntegratorStepSizeController< TimeStepType, StateType > > creat
 
             stepSizeController = std::make_shared<PerElementIntegratorStepSizeController<TimeStepType, StateType> >(
                 perElementSettings->relativeErrorTolerance_, perElementSettings->absoluteErrorTolerance_,
-                perElementSettings->safetyFactorForNextStepSize_, integratorOrder,
+                perElementSettings->safetyFactorForNextStepSize_, integratorOrder + 1,
                 perElementSettings->minimumFactorDecreaseForNextStepSize_,
                 perElementSettings->maximumFactorDecreaseForNextStepSize_ );
         }
@@ -175,7 +175,7 @@ std::shared_ptr< IntegratorStepSizeController< TimeStepType, StateType > > creat
         {
             stepSizeController = std::make_shared<PerElementIntegratorStepSizeController<TimeStepType, StateType> >(
                 perElementMatrixSettings->relativeErrorTolerance_, perElementMatrixSettings->absoluteErrorTolerance_,
-                perElementMatrixSettings->safetyFactorForNextStepSize_, integratorOrder,
+                perElementMatrixSettings->safetyFactorForNextStepSize_, integratorOrder + 1,
                 perElementMatrixSettings->minimumFactorDecreaseForNextStepSize_,
                 perElementMatrixSettings->maximumFactorDecreaseForNextStepSize_ );
         }
@@ -1381,7 +1381,7 @@ DependentVariableType, IndependentVariableStepType > > createIntegrator(
                     coefficients.higherOrder );
 
             std::shared_ptr< IntegratorStepSizeValidator< IndependentVariableType > > stepSizeValidator =
-                createIntegratorStepSizeValidator(
+                createIntegratorStepSizeValidator< IndependentVariableType >(
                     variableStepIntegratorSettings->stepSizeAcceptanceSettings_ );
 
             integrator = std::make_shared<RungeKuttaVariableStepSizeIntegrator

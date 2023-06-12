@@ -82,7 +82,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForPointMassCentralBodies )
         // Create bodies needed in simulation
         SystemOfBodies bodies = createSystemOfBodies(
                     getDefaultBodySettings( bodyNames, initialEphemerisTime - buffer, finalEphemerisTime + buffer ) );
-        
+
 
         // Set accelerations between bodies that are to be taken into account.
         SelectedAccelerationMap accelerationMap;
@@ -634,7 +634,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForHighEccentricities )
             std::make_shared< MultiStageVariableStepSizeSettings< > >
                 ( fixedStepSize,  rungeKuttaFehlberg78,
                   std::make_shared< PerElementIntegratorStepSizeControlSettings< double > >( 1.0E-14, 1.0E-14 ),
-                  std::make_shared< IntegratorStepSizeValidationSettings >( 1.0E-4, 3600.0 ) );
+                  std::make_shared< IntegratorStepSizeValidationSettings >( 1.0E-4, 3600.0, set_to_minimum_step_silently ) );
 
 
         TranslationalPropagatorType propagatorType = encke;
