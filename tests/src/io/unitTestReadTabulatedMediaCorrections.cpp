@@ -30,7 +30,7 @@ BOOST_AUTO_TEST_CASE( testCspCommandsExtraction )
     // Reading troposphere file
     {
         std::shared_ptr< CspRawFile > cspFile = std::make_shared< CspRawFile >(
-                "/Users/pipas/Documents/mro-data/tro/mromagr2017_091_2017_121.tro.txt" );
+                tudat::paths::getTudatTestDataPath( ) + "mromagr2017_091_2017_121.tro.txt" );
         std::vector< std::shared_ptr< CspCommand > > extractedCspCommands = cspFile->getCspCommands( );
 
         std::vector< unsigned long > cspCommandsIds = { 0, 1, extractedCspCommands.size( ) - 1 };
@@ -100,7 +100,7 @@ BOOST_AUTO_TEST_CASE( testCspCommandsExtraction )
     // Reading ionosphere file
     {
         std::shared_ptr< CspRawFile > cspFile = std::make_shared< CspRawFile >(
-                "/Users/pipas/Documents/messenger-data/ion/mess_rs_2007335_001_dp_ion.txt" );
+                tudat::paths::getTudatTestDataPath( ) + "mess_rs_2007335_001_dp_ion.txt" );
         std::vector< std::shared_ptr< CspCommand > > extractedCspCommands = cspFile->getCspCommands( );
 
         std::shared_ptr< AtmosphericCorrectionCspCommand > atmosphericCommand = std::dynamic_pointer_cast< AtmosphericCorrectionCspCommand >(
