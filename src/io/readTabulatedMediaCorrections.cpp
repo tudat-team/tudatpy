@@ -376,7 +376,10 @@ std::string getSourceName(
         else
         {
             // Spacecraft name selected to be "NAIF Id", which is equal to -"JPL Id" (for a spacecraft)
-            sourceName = std::to_string( - sourceId );
+            // sourceName = std::to_string( - sourceId );
+
+            throw std::runtime_error( "Error when retrieving source name from CSP atmosphere file (troposphere/ionosphere corrections):"
+                                      " no spacecraft name was provided." );
         }
     }
     else if ( sourceSpecifier == "QUASAR" )
@@ -387,8 +390,8 @@ std::string getSourceName(
         }
         else
         {
-            throw std::runtime_error( "Error when retrieving source name from CSP file: automatic selection of "
-                                      "quasar name is not implemented." );
+            throw std::runtime_error( "Error when retrieving source name from CSP atmosphere file (troposphere/ionosphere corrections): "
+                                      "no quasar name was provided." );
         }
     }
     else
