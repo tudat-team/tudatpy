@@ -281,6 +281,27 @@ private:
 
     // Flag indicating whether to print warnings
     bool verbose_;
+
+    // TODO: friend class used in unit test. Remove after processing of ODF data type 11 (1-way Doppler) is implemented
+    friend class ProcessedOdfFileContentsPrivateFunctionTest;
+};
+
+// TODO: friend class used in unit test. Remove after processing of ODF data type 11 (1-way Doppler) is implemented
+class ProcessedOdfFileContentsPrivateFunctionTest
+{
+public:
+
+    static double computeObservationTimesTdbFromJ2000(
+            std::shared_ptr< ProcessedOdfFileContents > processedOdfFileContents,
+            const std::string groundStation,
+            const double observationTimeUtcFromEME1950 )
+    {
+        return processedOdfFileContents->computeObservationTimesTdbFromJ2000(
+                groundStation, { observationTimeUtcFromEME1950 } ).front( );
+    }
+
+private:
+
 };
 
 observation_models::LinkEnds getLinkEndsFromOdfBlock (

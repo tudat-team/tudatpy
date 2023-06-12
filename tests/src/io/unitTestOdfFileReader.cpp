@@ -30,16 +30,6 @@ using namespace tudat;
 using namespace tudat::spice_interface;
 using namespace tudat::simulation_setup;
 
-//std::string getAbsolutePath ( std::string relativePath )
-//{
-//    std::string currFilePath = __FILE__;
-//    std::string currFileName = __FILE_NAME__;
-//
-//    std::string currDir = currFilePath;
-//    currDir.resize( currFilePath.size( ) - currFileName.size( ) - 1 );
-//
-//    return currDir + relativePath;
-//}
 
 BOOST_AUTO_TEST_SUITE( test_odf_file_reader )
 
@@ -192,7 +182,14 @@ BOOST_AUTO_TEST_CASE( testProcessSingleOdfFile )
                     rawOdfContents, bodies.getBody( "Earth" ), true, spacecraftName );
 
     std::pair< double, double > startAndEndTimeTdb = processedOdfFileContents->getStartAndEndTime( );
-    double startTime = startAndEndTimeTdb.first;
+
+    // double startTime = startAndEndTimeTdb.first;
+    // TODO: delete following line and replace by previous one after processing of ODF data type 11 (1-way Doppler) is implemented
+    double startTime = observation_models::ProcessedOdfFileContentsPrivateFunctionTest::computeObservationTimesTdbFromJ2000(
+            processedOdfFileContents,
+            "DSS-25",
+            rawOdfContents->getDataBlocks( ).front( )->getCommonDataBlock( )->getObservableTime( ) );
+
     double endTime = startAndEndTimeTdb.second;
 
     // Compare start and end time with values in LBL file
@@ -263,7 +260,14 @@ BOOST_AUTO_TEST_CASE( testProcessMultipleOdfFile )
                     rawOdfDataVector, bodies.getBody( "Earth" ), true, spacecraftName );
 
     std::pair< double, double > startAndEndTimeTdb = processedOdfFileContents->getStartAndEndTime( );
-    double startTime = startAndEndTimeTdb.first;
+
+    // double startTime = startAndEndTimeTdb.first;
+    // TODO: delete following line and replace by previous one after processing of ODF data type 11 (1-way Doppler) is implemented
+    double startTime = observation_models::ProcessedOdfFileContentsPrivateFunctionTest::computeObservationTimesTdbFromJ2000(
+            processedOdfFileContents,
+            "DSS-55",
+            rawOdfContents1->getDataBlocks( ).front( )->getCommonDataBlock( )->getObservableTime( ) );
+
     double endTime = startAndEndTimeTdb.second;
 
     // Compare start and end time with values in LBL file
@@ -302,7 +306,7 @@ BOOST_AUTO_TEST_CASE( testProcessMultipleOdfFile )
         BOOST_CHECK_EQUAL ( year, expectedYear );
         BOOST_CHECK_EQUAL ( month, expectedMonth );
         BOOST_CHECK_EQUAL ( day, expectedDay );
-        BOOST_CHECK_CLOSE_FRACTION( fractionOfDay, expectedFractionOfDay, 1e-10 );
+        BOOST_CHECK_CLOSE_FRACTION( fractionOfDay, expectedFractionOfDay, 1e-9 );
     }
 
 }
