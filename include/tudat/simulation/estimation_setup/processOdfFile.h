@@ -412,7 +412,7 @@ void separateSingleLinkOdfData(
 }
 
 // Add transmitting stations to ground stations
-inline void setGroundStationsTransmittingFrequencies(
+inline void setTransmittingFrequenciesInGroundStations(
         std::shared_ptr< ProcessedOdfFileContents > processedOdfFileContents,
         std::shared_ptr< simulation_setup::Body > bodyWithGroundStations )
 {

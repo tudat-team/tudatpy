@@ -558,7 +558,7 @@ void setOdfInformationInBodies(
 {
 
     // Set transmitting frequency objects in ground stations
-    setGroundStationsTransmittingFrequencies( processedOdfFileContents, bodies.getBody( bodyWithGroundStations ) );
+    setTransmittingFrequenciesInGroundStations( processedOdfFileContents, bodies.getBody( bodyWithGroundStations ) );
 
     // Set turnaround ratios in spacecraft body
     std::shared_ptr< system_models::VehicleSystems > vehicleSystems = std::make_shared< system_models::VehicleSystems >( );
