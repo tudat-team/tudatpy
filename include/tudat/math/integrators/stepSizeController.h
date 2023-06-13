@@ -329,8 +329,10 @@ template< typename TimeStepType, typename StateType = Eigen::VectorXd >
 class PerSegmentIntegratorStepSizeController: public IntegratorStepSizeController< TimeStepType, StateType >
 {
 public:
+
+
     PerSegmentIntegratorStepSizeController(
-        const std::vector< std::pair< int, int > >& blocksToCheck,
+        const std::function< std::vector< std::pair< int, int > >( const int, const int ) >& blocksToCheckFunction,
         const StateType relativeErrorTolerance,
         const StateType absoluteErrorTolerance,
         const double safetyFactorForNextStepSize,
@@ -339,12 +341,76 @@ public:
         const double maximumFactorDecreaseForNextStepSize ):
         IntegratorStepSizeController< TimeStepType, StateType >(
             safetyFactorForNextStepSize, integratorOrder, minimumFactorDecreaseForNextStepSize, maximumFactorDecreaseForNextStepSize ),
-        blocksToCheck_( blocksToCheck ),
+        blocksToCheckFunction_( blocksToCheckFunction ),
         relativeErrorTolerance_( relativeErrorTolerance ),
-        absoluteErrorTolerance_( absoluteErrorTolerance )
+        absoluteErrorTolerance_( absoluteErrorTolerance ),
+        tolerancesSet_( true )
+    {
+    }
+
+    PerSegmentIntegratorStepSizeController(
+        const std::function< std::vector< std::pair< int, int > >( const int, const int ) >& blocksToCheckFunction,
+        const double relativeErrorTolerance,
+        const double absoluteErrorTolerance,
+        const double safetyFactorForNextStepSize,
+        const int integratorOrder,
+        const double minimumFactorDecreaseForNextStepSize,
+        const double maximumFactorDecreaseForNextStepSize ):
+        IntegratorStepSizeController< TimeStepType, StateType >(
+            safetyFactorForNextStepSize, integratorOrder, minimumFactorDecreaseForNextStepSize, maximumFactorDecreaseForNextStepSize ),
+        blocksToCheckFunction_( blocksToCheckFunction ),
+        scalarRelativeErrorTolerance_( relativeErrorTolerance ),
+        scalarAbsoluteErrorTolerance_( absoluteErrorTolerance ),
+        tolerancesSet_( false )
+    {
+    }
+
+    void initialize( const StateType& state )
+    {
+        relativeTruncationError_.resize( state.rows( ), state.cols( ) );
+
+        if( blocksToCheck_.size( ) == 0 )
         {
-            relativeTruncationError_.resize( relativeErrorTolerance.rows( ), relativeErrorTolerance.cols( ) );
+            if( blocksToCheckFunction_ == nullptr )
+            {
+                throw std::runtime_error( "Error when setting per-segment step-size control, no blocks are provided" );
+            }
+            blocksToCheck_ = blocksToCheckFunction_( state.rows( ), state.cols( ) );
+            if( blocksToCheck_.size( ) == 0 )
+            {
+                throw std::runtime_error( "Error when setting per-segment step-size control, no blocks are provided by blocks-to-check function" );
+            }
         }
+
+        for( unsigned int i = 0; i < blocksToCheck_.size( ); i++ )
+        {
+            int maximumRow = blocksToCheck_.at( i ).first + blocksToCheck_.at( i ).second;
+            if( maximumRow > state.rows( ) )
+            {
+                throw std::runtime_error( "Error when setting per-segment step-size control, block to check is out of bounds. Number of rows is " +
+                std::to_string( state.rows( ) ) + ", but control is requested on segment " +
+                std::to_string( blocksToCheck_.at( i ).first  ) + ", " +
+                std::to_string( blocksToCheck_.at( i ).second ) );
+            }
+        }
+
+        if( !tolerancesSet_ )
+        {
+            relativeErrorTolerance_ = StateType::Constant( blocksToCheck_.size( ), 1,
+                                                           std::fabs( scalarRelativeErrorTolerance_ ) );
+            absoluteErrorTolerance_ = StateType::Constant( blocksToCheck_.size( ), 1,
+                                                           std::fabs( scalarAbsoluteErrorTolerance_ ) );
+            tolerancesSet_ = true;
+        }
+        else
+        {
+            if( ( relativeErrorTolerance_.rows( ) != blocksToCheck_.size( ) ) || ( relativeErrorTolerance_.cols( ) != 1 ) )
+            {
+                throw std::runtime_error( "Error in per-segment step size controller, size of tolerances is incompatible with state blocks" );
+            }
+        }
+    }
+
 
     virtual ~PerSegmentIntegratorStepSizeController( ){ }
 
@@ -353,6 +419,11 @@ public:
         const StateType& secondStateEstimate,
         const TimeStepType& currentStep )
     {
+        if( blocksToCheck_.size( ) == 0 )
+        {
+            throw std::runtime_error( "Error when using per-segment step-size control, no blocks are provided" );
+        }
+
         // Compute the truncation error based on the higher and lower order estimates.
         const StateType truncationError_ =
             ( firstStateEstimate - secondStateEstimate ).array( ).abs( );
@@ -369,7 +440,7 @@ public:
         const typename StateType::Scalar maximumErrorInState_
             = relativeTruncationError_.array( ).abs( ).maxCoeff( );
 
-        return computeTimeStepFromErrorEstimate( maximumErrorInState_, currentStep );
+        return this->computeTimeStepFromErrorEstimate( maximumErrorInState_, currentStep );
 
     }
 
@@ -377,9 +448,17 @@ protected:
 
     std::vector< std::pair< int, int > > blocksToCheck_;
 
-    const StateType relativeErrorTolerance_;
+    std::function< std::vector< std::pair< int, int > >( const int, const int ) > blocksToCheckFunction_;
 
-    const StateType absoluteErrorTolerance_;
+    StateType relativeErrorTolerance_;
+
+    StateType absoluteErrorTolerance_;
+
+    const double scalarRelativeErrorTolerance_ = TUDAT_NAN;
+
+    const double scalarAbsoluteErrorTolerance_ = TUDAT_NAN;
+
+    bool tolerancesSet_;
 
     StateType relativeTruncationError_;
 };
