@@ -72,8 +72,32 @@ std::shared_ptr< IntegratorStepSizeValidator< TimeStepType > > createIntegratorS
 
 enum StepSizeControlTypes
 {
-    per_element_step_size_control
+    per_element_step_size_control,
+    per_block_step_size_control
 };
+
+std::vector< std::pair< int, int > > getStandardCartesianStatesElementsToCheck(
+    const int numberOfRows, const int numberOfColumns )
+{
+    if( numberOfColumns != 1 )
+    {
+        throw std::runtime_error( "Error when getting standard Cartesian element blocks for step-size control; propagated state has more than 1 column." );
+    }
+
+    if( numberOfRows % 6 != 0 )
+    {
+        throw std::runtime_error( "Error when getting standard Cartesian element blocks for step-size control; propagated state has incompatible number of rows: " +
+        std::to_string( numberOfRows ) );
+    }
+
+    std::vector< std::pair< int, int > > blocks;
+    for( int i = 0; i < numberOfRows / 3; i++ )
+    {
+        blocks.push_back( { i * 3, 3 } );
+    }
+    return blocks;
+}
+
 
 class IntegratorStepSizeControlSettings
 {
@@ -126,25 +150,36 @@ public:
     bool usedScalarTolerances_;
 };
 
-
+template< typename ToleranceType >
 class PerBlockIntegratorStepSizeControlSettings: public IntegratorStepSizeControlSettings
 {
 public:
     PerBlockIntegratorStepSizeControlSettings(
-        const double relativeErrorTolerance,
-        const double absoluteErrorTolerance,
+        const std::function< std::vector< std::pair< int, int > >( const int, const int ) >& blocksToCheckFunction,
+        const ToleranceType relativeErrorTolerance,
+        const ToleranceType absoluteErrorTolerance,
         const double safetyFactorForNextStepSize,
         const double minimumFactorDecreaseForNextStepSize,
         const double maximumFactorDecreaseForNextStepSize ):
         IntegratorStepSizeControlSettings(
             per_element_step_size_control, safetyFactorForNextStepSize,
             minimumFactorDecreaseForNextStepSize, maximumFactorDecreaseForNextStepSize ),
-        relativeErrorTolerance_( relativeErrorTolerance ), absoluteErrorTolerance_( absoluteErrorTolerance ){ }
+        blocksToCheckFunction_( blocksToCheckFunction ),
+        relativeErrorTolerance_( relativeErrorTolerance ), absoluteErrorTolerance_( absoluteErrorTolerance )
+    {
+        usedScalarTolerances_ = std::is_same< ToleranceType, double >::value;
+        if( !usedScalarTolerances_ && !std::is_same< ToleranceType, Eigen::MatrixXd >::value )
+        {
+            throw std::runtime_error( "Error in per-element step size control settings, only double or MatrixXd tolerances accepted" );
+        }
+    }
 
     ~PerBlockIntegratorStepSizeControlSettings( ){ }
 
-    const double relativeErrorTolerance_;
-    const double absoluteErrorTolerance_;
+    std::function< std::vector< std::pair< int, int > >( const int, const int ) > blocksToCheckFunction_;
+    const ToleranceType relativeErrorTolerance_;
+    const ToleranceType absoluteErrorTolerance_;
+    bool usedScalarTolerances_;
 };
 
 
@@ -178,6 +213,37 @@ std::shared_ptr< IntegratorStepSizeController< TimeStepType, StateType > > creat
                 perElementMatrixSettings->safetyFactorForNextStepSize_, integratorOrder + 1,
                 perElementMatrixSettings->minimumFactorDecreaseForNextStepSize_,
                 perElementMatrixSettings->maximumFactorDecreaseForNextStepSize_ );
+        }
+        else
+        {
+            throw std::runtime_error( "Error, per-element step size controller only available for double and MatrixXd tolerances." );
+        }
+        break;
+    }
+    case per_block_step_size_control:
+    {
+        std::shared_ptr<PerBlockIntegratorStepSizeControlSettings< double > > perBlockSettings =
+            std::dynamic_pointer_cast<PerBlockIntegratorStepSizeControlSettings< double > >( stepSizeControlSettings );
+        std::shared_ptr<PerBlockIntegratorStepSizeControlSettings< Eigen::MatrixXd > > perBlockMatrixSettings =
+            std::dynamic_pointer_cast< PerBlockIntegratorStepSizeControlSettings< Eigen::MatrixXd > >( stepSizeControlSettings );
+        if( perBlockSettings != nullptr )
+        {
+
+            stepSizeController = std::make_shared<PerSegmentIntegratorStepSizeController<TimeStepType, StateType> >(
+                perBlockSettings->blocksToCheckFunction_,
+                perBlockSettings->relativeErrorTolerance_, perBlockSettings->absoluteErrorTolerance_,
+                perBlockSettings->safetyFactorForNextStepSize_, integratorOrder + 1,
+                perBlockSettings->minimumFactorDecreaseForNextStepSize_,
+                perBlockSettings->maximumFactorDecreaseForNextStepSize_ );
+        }
+        else if( perBlockMatrixSettings != nullptr )
+        {
+            stepSizeController = std::make_shared<PerSegmentIntegratorStepSizeController<TimeStepType, StateType> >(
+                perBlockSettings->blocksToCheckFunction_,
+                perBlockMatrixSettings->relativeErrorTolerance_, perBlockMatrixSettings->absoluteErrorTolerance_,
+                perBlockMatrixSettings->safetyFactorForNextStepSize_, integratorOrder + 1,
+                perBlockMatrixSettings->minimumFactorDecreaseForNextStepSize_,
+                perBlockMatrixSettings->maximumFactorDecreaseForNextStepSize_ );
         }
         else
         {
