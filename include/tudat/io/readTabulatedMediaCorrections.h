@@ -14,7 +14,6 @@
 #ifndef TUDAT_READTABULATEDMEDIACORRECTIONS_H
 #define TUDAT_READTABULATEDMEDIACORRECTIONS_H
 
-#include "tudat/astro/observation_models/corrections/tabulatedMediaCorrection.h"
 #include "tudat/astro/observation_models/observableTypes.h"
 
 namespace tudat
@@ -174,21 +173,6 @@ private:
 };
 
 /*!
- * Creates the object to compute the media correction, given the information in a CSP command.
- *
- * @param startTime Start time of CSP command.
- * @param endTime End time of CSP command.
- * @param coefficients Coefficients of computation model.
- * @param computationSpecifier Computation model specifier.
- * @return Object to compute DSN tabulated media correction.
- */
-std::shared_ptr< observation_models::TabulatedMediaReferenceCorrection > createReferenceCorrection(
-        const double startTime,
-        const double endTime,
-        const std::vector< double >& coefficients,
-        const std::string& computationSpecifier );
-
-/*!
  * Returns the names of the ground stations associated with a given CSP ground station identifier. The identifier may
  * correspond to a single ground station or to a complex.
  *
@@ -235,81 +219,11 @@ std::string getSourceName(
         const std::map< int, std::string >& quasarNamePerQuasarId = std::map< int, std::string >( ) );
 
 /*!
- * Creates the objects to compute the specified atmospheric corrections using the data in the provided CSP files.
- * spacecraftNamePerSpacecraftId and quasarNamePerQuasarId are only necessary for ionospheric corrections (the case in which
- * the data is provided for a specific spacecraft/quasar).
- * Function should not be called directly. Instead, one should call the function associated with the desired correction
- * type (dry troposphere, wet troposhere, or ionosphere).
- *
- * @param rawCspFiles Vector of CSP files.
- * @param modelIdentifier CSP model identifier (DRY NUPART, WET NUPART, or CHPART)
- * @param spacecraftNamePerSpacecraftId Map with the name of the body associated with each spacecraft ID in the CSP file.
- * @param quasarNamePerQuasarId Map with the name of the body associated with each quasar ID in the CSP file.
- * @return Atmospheric corrections mapped by a pair of (ground station, spacecraft) and by the observable type.
- */
-observation_models::AtmosphericCorrectionPerStationAndSpacecraftType extractAtmosphericCorrection(
-        std::vector< std::shared_ptr< CspRawFile > > rawCspFiles,
-        const std::string& modelIdentifier,
-        const std::map< int, std::string >& spacecraftNamePerSpacecraftId = std::map< int, std::string >( ),
-        const std::map< int, std::string >& quasarNamePerQuasarId = std::map< int, std::string >( ) );
-
-/*!
- * Creates the objets to compute the dry tropospheric correction adjustments, based on the data in the provided CSP files.
- *
- * @param rawCspFiles Vector of CSP files.
- * @return Atmospheric corrections mapped by a pair of (ground station, spacecraft) and by the observable type. The
- *      corrections don't depend on the data source, hence the spacecraft is always set to empty string ("").
- */
-observation_models::AtmosphericCorrectionPerStationAndSpacecraftType extractTroposphericDryCorrectionAdjustment(
-        const std::vector< std::shared_ptr< CspRawFile > >& rawCspFiles );
-
-/*!
- * Creates the objets to compute the wet tropospheric correction adjustments, based on the data in the provided CSP files.
- *
- * @param rawCspFiles Vector of CSP files.
- * @return Atmospheric corrections mapped by a pair of (ground station, spacecraft) and by the observable type. The
- *      corrections don't depend on the data source, hence the spacecraft is always set to empty string ("").
- */
-observation_models::AtmosphericCorrectionPerStationAndSpacecraftType extractTroposphericWetCorrectionAdjustment(
-        const std::vector< std::shared_ptr< CspRawFile > >& rawCspFiles );
-
-/*!
- * Creates the objets to compute the ionospheric corrections, based on the data in the provided CSP files.
- * If the source is a spacecraft and its ID isn't in the spacecraftNamePerSpacecraftId map, an error is thrown.
- * If the source is a quasar and its ID isn't in the quasarNamePerQuasarId map, an error is thrown.
- *
- * @param rawCspFiles Vector of CSP files.
- * @param spacecraftNamePerSpacecraftId Map with the name of the body associated with each spacecraft ID in the CSP file.
- * @param quasarNamePerQuasarId Map with the name of the body associated with each quasar ID in the CSP file.
- * @return Atmospheric corrections mapped by a pair of (ground station, spacecraft) and by the observable type.
- */
-observation_models::AtmosphericCorrectionPerStationAndSpacecraftType extractIonosphericCorrection(
-        const std::vector< std::shared_ptr< CspRawFile > >& rawCspFiles,
-        const std::map< int, std::string >& spacecraftNamePerSpacecraftId = std::map< int, std::string >( ),
-        const std::map< int, std::string >& quasarNamePerQuasarId = std::map< int, std::string >( ) );
-
-/*!
  * Returns a CSP commands file corresponding to the DSN default tropospheric seasonal model, according to Estefan and
  * Sovers (1994), Fig. 3b.
  * @return
  */
 std::shared_ptr< CspRawFile > getDsnDefaultTroposphericSeasonalModelCspFile( );
-
-/*!
- * Creates the objects to compute the default tropospheric dry corrections, according to the DSN default seasonal model.
- *
- * @return Atmospheric corrections mapped by a pair of (ground station, spacecraft) and by the observable type. The
- *      corrections don't depend on the data source, hence the spacecraft is always set to empty string ("").
- */
-observation_models::AtmosphericCorrectionPerStationAndSpacecraftType extractDefaultTroposphericDryCorrection( );
-
-/*!
- * Creates the objects to compute the default tropospheric wet corrections, according to the DSN default seasonal model.
- *
- * @return Atmospheric corrections mapped by a pair of (ground station, spacecraft) and by the observable type. The
- *      corrections don't depend on the data source, hence the spacecraft is always set to empty string ("").
- */
-observation_models::AtmosphericCorrectionPerStationAndSpacecraftType extractDefaultTroposphericWetCorrection( );
 
 } // namespace input_output
 

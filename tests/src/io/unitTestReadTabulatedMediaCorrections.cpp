@@ -13,6 +13,7 @@
 
 #include "tudat/basics/testMacros.h"
 
+#include "tudat/io/basicInputOutput.h"
 #include "tudat/io/readTabulatedMediaCorrections.h"
 
 namespace tudat

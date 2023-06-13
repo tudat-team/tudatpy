@@ -192,10 +192,6 @@ void runSimulation(
     Eigen::Matrix< long double, 6, 1 > spacecraftInitialState =
             bodies.getBody( spacecraftName )->getStateInBaseFrameFromEphemeris< long double, Time >( initialPropagationTime ) -
             bodies.getBody( centralBody )->getStateInBaseFrameFromEphemeris< long double, Time >( initialPropagationTime );
-    std::cout << std::setprecision(20) << "Initial state Spacecraft: " <<
-        bodies.getBody( spacecraftName )->getStateInBaseFrameFromEphemeris< long double, Time >( initialPropagationTime ).transpose( ) << std::endl;
-    std::cout << "Initial state Mars: " <<
-        bodies.getBody( centralBody )->getStateInBaseFrameFromEphemeris< long double, Time >( initialPropagationTime ).transpose( ) << std::endl;
 
     // Retrieve state history from SPICE
     std::vector< Time > sampledTimes;
@@ -374,22 +370,6 @@ void runSimulation(
     }
     writeDataMapToTextFile( propagatedStateHistoryPostFitToWrite, "stateHistoryPropagatedPostFit_" + fileTag + ".txt", saveDirectory,
                             "", 18, 18 );
-
-//    std::vector< std::shared_ptr< observation_models::ObservationSimulatorBase< long double, Time > > >
-//            observationSimulators = observation_models::createObservationSimulators< long double, Time >(
-//                    observationModelSettingsList, bodies );
-//
-//    std::vector< std::shared_ptr< ObservationSimulationSettings< Time > > > observationSimulationSettings =
-//            observation_models::createOdfObservationSimulationSettingsList< long double, Time >(
-//                    observedObservationCollection );
-//
-//    // Create observation collection
-//    std::shared_ptr< observation_models::ObservationCollection< long double, Time > >
-//            simulatedObservationCollection = simulation_setup::simulateObservations< long double, Time >(
-//                    observationSimulationSettings, observationSimulators, bodies );
-//
-//    Eigen::Matrix< long double, Eigen::Dynamic, 1 > simulatedObservations =
-//            simulatedObservationCollection->getObservationVector( );
 
     // Retrieve residuals and set them in matrix
     Eigen::MatrixXd residualHistory = estimationOutput->getResidualHistoryMatrix( );

@@ -18,6 +18,7 @@
 #include "estimation_setup/createEulerAngleObservationPartials.h"
 #include "estimation_setup/createLightTimeCalculator.h"
 #include "estimation_setup/createLightTimeCorrection.h"
+#include "estimation_setup/createAtmosphericLightTimeCorrection.h"
 #include "estimation_setup/createLightTimeCorrectionPartials.h"
 #include "estimation_setup/createNumericalSimulator.h"
 #include "estimation_setup/createNWayRangePartials.h"
