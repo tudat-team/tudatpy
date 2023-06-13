@@ -5,6 +5,29 @@ namespace tudat
 namespace numerical_integrators
 {
 
+std::vector< std::pair< int, int > > getStandardCartesianStatesElementsToCheck(
+    const int numberOfRows, const int numberOfColumns )
+{
+    if( numberOfColumns != 1 )
+    {
+        throw std::runtime_error( "Error when getting standard Cartesian element blocks for step-size control; propagated state has more than 1 column." );
+    }
+
+    if( numberOfRows % 6 != 0 )
+    {
+        throw std::runtime_error( "Error when getting standard Cartesian element blocks for step-size control; propagated state has incompatible number of rows: " +
+                                  std::to_string( numberOfRows ) );
+    }
+
+    std::vector< std::pair< int, int > > blocks;
+    for( int i = 0; i < numberOfRows / 3; i++ )
+    {
+        blocks.push_back( { i * 3, 3 } );
+    }
+    return blocks;
+}
+
+
 //template std::shared_ptr< numerical_integrators::NumericalIntegrator< double, Eigen::VectorXd,
 //Eigen::VectorXd, double > > createIntegrator< double, Eigen::VectorXd, double >(
 //        std::function< Eigen::VectorXd( const double, const Eigen::VectorXd& ) > stateDerivativeFunction,
