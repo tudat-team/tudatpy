@@ -101,3 +101,6 @@ TUDAT_ADD_TEST_CASE(RingGravityField
         tudat_gravitation
         tudat_basic_astrodynamics
         tudat_basic_mathematics)
+
+TUDAT_ADD_TEST_CASE(RingGravityModel
+        PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES} )

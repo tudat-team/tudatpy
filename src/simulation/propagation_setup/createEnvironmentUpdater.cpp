@@ -402,6 +402,7 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                 case ring_gravity:
                     singleAccelerationUpdateNeeds[ body_rotational_state_update ].push_back(
                             accelerationModelIterator->first );
+                    break;
                 case third_body_spherical_harmonic_gravity:
                 {
                     singleAccelerationUpdateNeeds[ body_rotational_state_update ].push_back(

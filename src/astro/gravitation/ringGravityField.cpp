@@ -27,10 +27,13 @@ void RingGravityCache::update (const Eigen::Vector3d& currentBodyFixedPosition)
         double y = currentBodyFixedPosition_( 1 );
         double z = currentBodyFixedPosition_( 2 );
 
+        // Fukushima (2010), eq. 2
         double r = std::sqrt( std::pow( x, 2.0 ) + std::pow( y, 2.0 ) );
 
+        // Fukushima (2010), eq. 3
         double p = std::sqrt( std::pow( r + ringRadius_, 2.0 ) + std::pow( z, 2.0 ) );
 
+        // Fukushima (2010), eq. 5
         double m = 4.0 * ringRadius_ * r / std::pow( p, 2.0 );
         // m = k^2
         double k = std::sqrt( std::abs( m ) );
@@ -51,9 +54,10 @@ void RingGravityCache::update (const Eigen::Vector3d& currentBodyFixedPosition)
         }
 
         currentEllipticIntegralE_ = boost::math::ellint_2( k );
+        // BOOST: https://www.boost.org/doc/libs/1_81_0/libs/math/doc/html/math_toolkit/ellint/ellint_intro.html
         currentEllipticIntegralB_ = boost::math::ellint_rf( 0.0, 1.0 - m, 1.0 ) - boost::math::ellint_rd( 0.0, 1.0 - m, 1.0 ) / 3.0;
 
-        // If far from 1/m singularity: compute S using the other elliptic integrals
+        // If far from 1/m singularity: compute S using elliptic integrals
         if ( m > 0.01 )
         {
             if ( ellipticIntegralSFromDAndB_ )
@@ -100,12 +104,15 @@ double computeRingGravitationalPotential(
     double y = positionOfBodySubjectToAcceleration( 1 );
     double z = positionOfBodySubjectToAcceleration( 2 );
 
+    // Fukushima (2010), eq. 2
     double r = std::sqrt( std::pow( x, 2.0 ) + std::pow( y, 2.0 ) );
 
+    // Fukushima (2010), eq. 3
     double p = std::sqrt( std::pow( r + ringRadius, 2.0 ) + std::pow( z, 2.0 ) );
 
     double lineDensityTimesGravitationalConst = gravitationalParameter / ( 2.0 * mathematical_constants::PI * ringRadius );
 
+    // Fukushima (2010), eq. 1
     return 4.0 * lineDensityTimesGravitationalConst * ringRadius * ellipticIntegralK / p;
 }
 
@@ -122,22 +129,28 @@ Eigen::Vector3d computeRingGravitationalAcceleration(
     double y = positionOfBodySubjectToAcceleration( 1 );
     double z = positionOfBodySubjectToAcceleration( 2 );
 
+    // Fukushima (2010), eq. 2
     double r = std::sqrt( std::pow( x, 2.0 ) + std::pow( y, 2.0 ) );
 
+    // Fukushima (2010), eq. 3
     double p = std::sqrt( std::pow( r + ringRadius, 2.0 ) + std::pow( z, 2.0 ) );
+    // Fukushima (2010), eq. 15
     double q = std::sqrt( std::pow( r - ringRadius, 2.0 ) + std::pow( z, 2.0 ) );
 
     double lineDensityTimesGravitationalConst = gravitationalParameter / ( 2.0 * mathematical_constants::PI * ringRadius );
 
     Eigen::Vector3d acceleration;
 
+    // Fukushima (2010), eq. 30
     double Ar = 8.0 * lineDensityTimesGravitationalConst * ringRadius / std::pow( p, 3.0 ) * (
-            ( std::pow( r, 2.0 ) + std::pow( z, 2.0 ) + std::pow( ringRadius, 2.0 ) * ellipticIntegralB / std::pow( q, 2.0 ) +
-            2.0 * ringRadius * ( r + ringRadius ) * ellipticIntegralS / std::pow( p, 2.0 ) )
+            ( std::pow( r, 2.0 ) + std::pow( z, 2.0 ) - std::pow( ringRadius, 2.0 ) ) * ellipticIntegralB / std::pow( q, 2.0 ) +
+            2.0 * ringRadius * ( r + ringRadius ) * ellipticIntegralS / std::pow( p, 2.0 )
             );
 
+    // Fukushima (2010), eq. 16
     acceleration( 0 ) = - Ar * x;
     acceleration( 1 ) = - Ar * y;
+    // Fukushima (2010), eq. 16, 18
     acceleration( 2 ) = - 4.0 * lineDensityTimesGravitationalConst * ringRadius * ellipticIntegralE / ( p * std::pow( q, 2.0) ) * z;
 
     return acceleration;

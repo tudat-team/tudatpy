@@ -196,7 +196,7 @@ public:
      * @param bodyFixedPosition Position of point at which potential is to be calculated, in body-fixed frame.
      * @return Gravitational potential.
      */
-    virtual double getGravitationalPotential( const Eigen::Vector3d& bodyFixedPosition )
+    double getGravitationalPotential( const Eigen::Vector3d& bodyFixedPosition ) override
     {
         ringGravityCache_->update( bodyFixedPosition );
 
@@ -213,7 +213,7 @@ public:
      * @param bodyFixedPosition Position of point at which potential is to be calculated, in body-fixed frame.
      * @return Gradient of the gravitational potential.
      */
-    virtual Eigen::Vector3d getGradientOfPotential( const Eigen::Vector3d& bodyFixedPosition )
+    Eigen::Vector3d getGradientOfPotential( const Eigen::Vector3d& bodyFixedPosition ) override
     {
         ringGravityCache_->update( bodyFixedPosition );
 
