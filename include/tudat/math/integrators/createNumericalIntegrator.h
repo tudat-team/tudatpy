@@ -77,27 +77,7 @@ enum StepSizeControlTypes
 };
 
 std::vector< std::pair< int, int > > getStandardCartesianStatesElementsToCheck(
-    const int numberOfRows, const int numberOfColumns )
-{
-    if( numberOfColumns != 1 )
-    {
-        throw std::runtime_error( "Error when getting standard Cartesian element blocks for step-size control; propagated state has more than 1 column." );
-    }
-
-    if( numberOfRows % 6 != 0 )
-    {
-        throw std::runtime_error( "Error when getting standard Cartesian element blocks for step-size control; propagated state has incompatible number of rows: " +
-        std::to_string( numberOfRows ) );
-    }
-
-    std::vector< std::pair< int, int > > blocks;
-    for( int i = 0; i < numberOfRows / 3; i++ )
-    {
-        blocks.push_back( { i * 3, 3 } );
-    }
-    return blocks;
-}
-
+    const int numberOfRows, const int numberOfColumns );
 
 class IntegratorStepSizeControlSettings
 {
@@ -158,11 +138,11 @@ public:
         const std::function< std::vector< std::pair< int, int > >( const int, const int ) >& blocksToCheckFunction,
         const ToleranceType relativeErrorTolerance,
         const ToleranceType absoluteErrorTolerance,
-        const double safetyFactorForNextStepSize,
-        const double minimumFactorDecreaseForNextStepSize,
-        const double maximumFactorDecreaseForNextStepSize ):
+        const double safetyFactorForNextStepSize = 0.8,
+        const double minimumFactorDecreaseForNextStepSize = 0.1,
+        const double maximumFactorDecreaseForNextStepSize = 4.0 ):
         IntegratorStepSizeControlSettings(
-            per_element_step_size_control, safetyFactorForNextStepSize,
+            per_block_step_size_control, safetyFactorForNextStepSize,
             minimumFactorDecreaseForNextStepSize, maximumFactorDecreaseForNextStepSize ),
         blocksToCheckFunction_( blocksToCheckFunction ),
         relativeErrorTolerance_( relativeErrorTolerance ), absoluteErrorTolerance_( absoluteErrorTolerance )
@@ -247,7 +227,7 @@ std::shared_ptr< IntegratorStepSizeController< TimeStepType, StateType > > creat
         }
         else
         {
-            throw std::runtime_error( "Error, per-element step size controller only available for double and MatrixXd tolerances." );
+            throw std::runtime_error( "Error, per-block step size controller only available for double and MatrixXd tolerances." );
         }
         break;
     }

@@ -367,8 +367,6 @@ public:
 
     void initialize( const StateType& state )
     {
-        relativeTruncationError_.resize( state.rows( ), state.cols( ) );
-
         if( blocksToCheck_.size( ) == 0 )
         {
             if( blocksToCheckFunction_ == nullptr )
@@ -381,6 +379,8 @@ public:
                 throw std::runtime_error( "Error when setting per-segment step-size control, no blocks are provided by blocks-to-check function" );
             }
         }
+
+        relativeTruncationError_.resize( blocksToCheck_.size( ), 1 );
 
         for( unsigned int i = 0; i < blocksToCheck_.size( ); i++ )
         {
@@ -404,7 +404,7 @@ public:
         }
         else
         {
-            if( ( relativeErrorTolerance_.rows( ) != blocksToCheck_.size( ) ) || ( relativeErrorTolerance_.cols( ) != 1 ) )
+            if( ( relativeErrorTolerance_.rows( ) != static_cast< int >( blocksToCheck_.size( ) ) ) || ( relativeErrorTolerance_.cols( ) != 1 ) )
             {
                 throw std::runtime_error( "Error in per-segment step size controller, size of tolerances is incompatible with state blocks" );
             }
@@ -430,8 +430,8 @@ public:
 
         for( unsigned int i = 0; i < blocksToCheck_.size( ); i++ )
         {
-            relativeTruncationError_( i ) = truncationError_.segment( blocksToCheck_.at( i ).first, blocksToCheck_.at( i ).second ).norm( ) /
-                ( firstStateEstimate.segment( blocksToCheck_.at( i ).first, blocksToCheck_.at( i ).second ).norm( ) *
+            relativeTruncationError_( i ) = truncationError_.block( blocksToCheck_.at( i ).first, 0, blocksToCheck_.at( i ).second, 1 ).norm( ) /
+                ( firstStateEstimate.block( blocksToCheck_.at( i ).first, 0, blocksToCheck_.at( i ).second, 1 ).norm( ) *
                   relativeErrorTolerance_( i ) + absoluteErrorTolerance_( i ) );
         }
 
