@@ -21,6 +21,8 @@
 #include "tudat/astro/gravitation/ringGravityField.h"
 #include "tudat/astro/basic_astro/physicalConstants.h"
 
+#include "tudat/astro/gravitation/centralGravityModel.h"
+
 namespace tudat
 {
 namespace unit_tests
@@ -106,7 +108,7 @@ BOOST_AUTO_TEST_CASE( testEllipticIntegralsComputation )
         {
             BOOST_CHECK_CLOSE_FRACTION( expectedEllipticIntegralS, gravityCache2.getEllipticIntegralS( ), 1e-13 );
         }
-        // Computation of S(m) via K(m) and E(m) is more sensitive to numerical cancellation, hence the higher tolerance.
+        // Computation of S(m) via K(m) and E(m) is more sensitive to numerical cancellation, hence the larger tolerance.
         else
         {
             BOOST_CHECK_CLOSE_FRACTION( expectedEllipticIntegralS, gravityCache2.getEllipticIntegralS( ), 1e-12 );
@@ -117,7 +119,7 @@ BOOST_AUTO_TEST_CASE( testEllipticIntegralsComputation )
 
 }
 
-//! Test computation of potential, gradient of potential, hessian of potential
+//! Test computation of potential, gradient of potential
 BOOST_AUTO_TEST_CASE( testGravityComputation )
 {
     const double tolerance = 1.0E-14;
