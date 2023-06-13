@@ -214,9 +214,6 @@ private:
     std::shared_ptr< interpolators::LookUpScheme< double > > startTimeLookupScheme_;
 };
 
-typedef std::map< std::pair< std::string, std::string >, std::map< observation_models::ObservableType,
-    std::shared_ptr< observation_models::TabulatedMediaReferenceCorrectionManager > > > AtmosphericCorrectionPerStationAndSpacecraftType;
-
 enum TroposphericMappingModel
 {
     simplified_chao,

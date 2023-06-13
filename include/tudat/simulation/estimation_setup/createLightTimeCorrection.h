@@ -20,7 +20,7 @@
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/corrections/lightTimeCorrection.h"
 #include "tudat/astro/observation_models/corrections/tabulatedMediaCorrection.h"
-#include "tudat/io/readTabulatedMediaCorrections.h"
+#include "tudat/simulation/estimation_setup/createAtmosphericLightTimeCorrection.h"
 #include "tudat/io/solarActivityData.h"
 
 namespace tudat
@@ -115,9 +115,9 @@ public:
             const std::string& bodyWithAtmosphere = "Earth",
             const TroposphericMappingModel troposphericMappingModel = niell,
             const AtmosphericCorrectionPerStationAndSpacecraftType& troposphericDryCorrection =
-                input_output::extractDefaultTroposphericDryCorrection( ),
+                extractDefaultTroposphericDryCorrection( ),
             const AtmosphericCorrectionPerStationAndSpacecraftType& troposphericWetCorrection =
-                input_output::extractDefaultTroposphericWetCorrection( ) ):
+                extractDefaultTroposphericWetCorrection( ) ):
         LightTimeCorrectionSettings( tabulated_tropospheric ),
         troposphericDryCorrectionAdjustment_( troposphericDryCorrectionAdjustment ),
         troposphericWetCorrectionAdjustment_( troposphericWetCorrectionAdjustment ),

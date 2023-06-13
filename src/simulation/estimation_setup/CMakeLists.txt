@@ -17,6 +17,7 @@ set(estimation_HEADERS
         createLightTimeCalculator.h
         createAccelerationPartials.h
         createLightTimeCorrection.h
+        createAtmosphericLightTimeCorrection.h
         createObservationManager.h
         orbitDeterminationManager.h
         createLightTimeCorrectionPartials.h
@@ -51,6 +52,7 @@ set(estimation_SOURCES
         createObservationManager.cpp
         createEstimatableParameters.cpp
         createLightTimeCorrection.cpp
+        createAtmosphericLightTimeCorrection.cpp
         createLightTimeCorrectionPartials.cpp
         orbitDeterminationManager.cpp
         createCartesianStatePartials.cpp
