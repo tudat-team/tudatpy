@@ -524,6 +524,24 @@ std::vector< std::shared_ptr< simulation_setup::ObservationSimulationSettings< T
     return observationSimulationSettings;
 }
 
+template< typename ObservationScalarType = double, typename TimeType = double >
+void changeObservableTypesOfObservationSimulationSettings(
+        std::vector< std::shared_ptr< simulation_setup::ObservationSimulationSettings< TimeType > > >& observationSimulationSettings,
+        const std::map< ObservableType, ObservableType >& replacementObservableTypes =
+                { { dsn_n_way_averaged_doppler, n_way_differenced_range },
+                  { dsn_one_way_averaged_doppler, one_way_differenced_range } } )
+{
+    for ( unsigned int i = 0; i < observationSimulationSettings.size( ); ++i )
+    {
+        ObservableType currentObservableType = observationSimulationSettings.at( i )->getObservableType( );
+
+        if ( replacementObservableTypes.count( currentObservableType ) )
+        {
+            observationSimulationSettings.at( i )->setObservableType( replacementObservableTypes.at( currentObservableType ) );
+        }
+    }
+}
+
 void setOdfInformationInBodies(
         const std::shared_ptr< ProcessedOdfFileContents > processedOdfFileContents,
         simulation_setup::SystemOfBodies& bodies,

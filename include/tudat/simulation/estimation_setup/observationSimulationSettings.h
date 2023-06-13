@@ -80,6 +80,11 @@ struct ObservationSimulationSettings
         return observableType_;
     }
 
+    void setObservableType( observation_models::ObservableType observableType )
+    {
+        observableType_ = observableType;
+    }
+
     observation_models::LinkDefinition getLinkEnds( )
     {
         return linkEnds_;
