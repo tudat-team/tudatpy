@@ -79,6 +79,9 @@ enum StepSizeControlTypes
 std::vector< std::pair< int, int > > getStandardCartesianStatesElementsToCheck(
     const int numberOfRows, const int numberOfColumns );
 
+std::vector< std::pair< int, int > > getStandardRotationalStatesElementsToCheck(
+    const int numberOfRows, const int numberOfColumns );
+
 class IntegratorStepSizeControlSettings
 {
 public:
