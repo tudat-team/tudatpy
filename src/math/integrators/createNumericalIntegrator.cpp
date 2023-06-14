@@ -5,13 +5,10 @@ namespace tudat
 namespace numerical_integrators
 {
 
-std::vector< std::pair< int, int > > getStandardCartesianStatesElementsToCheck(
+std::vector< std::tuple< int, int, int, int > > getStandardCartesianStatesElementsToCheck(
     const int numberOfRows, const int numberOfColumns )
 {
-    if( numberOfColumns != 1 )
-    {
-        throw std::runtime_error( "Error when getting standard Cartesian element blocks for step-size control; propagated state has more than 1 column." );
-    }
+    int stateColumn = numberOfColumns - 1;
 
     if( numberOfRows % 6 != 0 )
     {
@@ -19,21 +16,22 @@ std::vector< std::pair< int, int > > getStandardCartesianStatesElementsToCheck(
                                   std::to_string( numberOfRows ) );
     }
 
-    std::vector< std::pair< int, int > > blocks;
+    std::vector< std::tuple< int, int, int, int > > blocks;
     for( int i = 0; i < numberOfRows / 3; i++ )
     {
-        blocks.push_back( { i * 3, 3 } );
+        blocks.push_back( { i * 3, stateColumn, 3, 1 } );
     }
-    return blocks;
-}
-
-std::vector< std::pair< int, int > > getStandardRotationalStatesElementsToCheck(
-    const int numberOfRows, const int numberOfColumns )
-{
-    if( numberOfColumns != 1 )
+    return blocks;    if( numberOfColumns != 1 )
     {
         throw std::runtime_error( "Error when getting standard rotational state element blocks for step-size control; propagated state has more than 1 column." );
     }
+}
+
+std::vector< std::tuple< int, int, int, int > > getStandardRotationalStatesElementsToCheck(
+    const int numberOfRows, const int numberOfColumns )
+{
+    int stateColumn = numberOfColumns - 1;
+
 
     if( numberOfRows % 7 != 0 )
     {
@@ -41,11 +39,11 @@ std::vector< std::pair< int, int > > getStandardRotationalStatesElementsToCheck(
                                   std::to_string( numberOfRows ) );
     }
 
-    std::vector< std::pair< int, int > > blocks;
+    std::vector< std::tuple< int, int, int, int > > blocks;
     for( int i = 0; i < numberOfRows / 7; i++ )
     {
-        blocks.push_back( { i * 7, 4 } );
-        blocks.push_back( { i * 7 + 4, 3 } );
+        blocks.push_back( { i * 7, stateColumn, 4, 1 } );
+        blocks.push_back( { i * 7 + 4, stateColumn, 3, 1 } );
     }
     return blocks;
 }
