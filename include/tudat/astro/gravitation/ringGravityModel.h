@@ -101,7 +101,7 @@ public:
      * \param positionOfBodySubjectToAccelerationFunction Pointer to function returning position of
      *          body subject to gravitational acceleration.
      * \param gravitationalParameterFunction Pointer to function returning the gravitational parameter.
-     * \param aRingRadius A (constant) ring radius [m].
+     * \param ringRadiusFunction Pointer to function returning the ring radius [m].
      * \param ellipticIntegralSFromDAndB Flag indicating whether to compute S(m) from D(m) and B(m) (if true),
      *      or from K(m) and E(m) (if false). The former has a lower loss of accuracy due to numerical cancellation
      * \param positionOfBodyExertingAccelerationFunction Pointer to function returning position of

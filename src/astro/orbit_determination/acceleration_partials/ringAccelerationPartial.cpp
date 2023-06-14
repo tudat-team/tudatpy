@@ -25,6 +25,7 @@ RingGravityPartial::RingGravityPartial(
     AccelerationPartial( acceleratedBody, acceleratingBody, basic_astrodynamics::ring_gravity ),
     gravitationalParameterFunction_( accelerationModel->getGravitationalParameterFunction( ) ),
     ringRadiusFunction_( accelerationModel->getRingRadiusFunction( ) ),
+    ringCache_( accelerationModel->getRingCache( ) ),
     positionFunctionOfAcceleratedBody_( std::bind( &gravitation::RingGravitationalAccelerationModel::
                                                    getCurrentPositionOfBodySubjectToAcceleration, accelerationModel ) ),
     positionFunctionOfAcceleratingBody_( std::bind( &gravitation::RingGravitationalAccelerationModel::
