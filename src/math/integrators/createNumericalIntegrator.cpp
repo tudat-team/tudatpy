@@ -27,6 +27,28 @@ std::vector< std::pair< int, int > > getStandardCartesianStatesElementsToCheck(
     return blocks;
 }
 
+std::vector< std::pair< int, int > > getStandardRotationalStatesElementsToCheck(
+    const int numberOfRows, const int numberOfColumns )
+{
+    if( numberOfColumns != 1 )
+    {
+        throw std::runtime_error( "Error when getting standard rotational state element blocks for step-size control; propagated state has more than 1 column." );
+    }
+
+    if( numberOfRows % 7 != 0 )
+    {
+        throw std::runtime_error( "Error when getting standard rotational state element blocks for step-size control; propagated state has incompatible number of rows: " +
+                                  std::to_string( numberOfRows ) );
+    }
+
+    std::vector< std::pair< int, int > > blocks;
+    for( int i = 0; i < numberOfRows / 7; i++ )
+    {
+        blocks.push_back( { i * 7, 4 } );
+        blocks.push_back( { i * 7 + 4, 3 } );
+    }
+    return blocks;
+}
 
 //template std::shared_ptr< numerical_integrators::NumericalIntegrator< double, Eigen::VectorXd,
 //Eigen::VectorXd, double > > createIntegrator< double, Eigen::VectorXd, double >(

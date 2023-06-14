@@ -238,8 +238,8 @@ BOOST_AUTO_TEST_CASE( testCowellPropagatorKeplerCompare )
             integratorSettings = std::make_shared<MultiStageVariableStepSizeSettings<> >
                 ( initialStep, rungeKuttaFehlberg45,
                   std::make_shared<PerBlockIntegratorStepSizeControlSettings<double> >(
-                      [ = ]( const int, const int )
-                      { return blocks; }, tolerance, tolerance ),
+                      &getStandardCartesianStatesElementsToCheck,
+                      tolerance, tolerance ),
                   std::make_shared<IntegratorStepSizeValidationSettings>( std::numeric_limits<double>::min( ),
                                                                           std::numeric_limits<double>::max( ),
                                                                           set_to_minimum_step_silently ));
