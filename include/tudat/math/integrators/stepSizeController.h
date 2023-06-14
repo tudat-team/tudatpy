@@ -67,7 +67,7 @@ protected:
     bool acceptNanStep_;
 };
 
-enum MinimumIntegrationTimeHandling
+enum MinimumIntegrationTimeStepHandling
 {
     throw_exception_below_minimum,
     set_to_minimum_step_silently,
@@ -82,10 +82,10 @@ public:
     BasicIntegratorStepSizeValidator(
         const TimeStepType minimumStep,
         const TimeStepType maximumStep,
-        const MinimumIntegrationTimeHandling minimumIntegrationTimeHandling = throw_exception_below_minimum ):
+        const MinimumIntegrationTimeStepHandling minimumIntegrationTimeStepHandling = throw_exception_below_minimum ):
         IntegratorStepSizeValidator< TimeStepType >( ),
         minimumStep_( minimumStep ), maximumStep_( maximumStep ),
-        minimumIntegrationTimeHandling_( minimumIntegrationTimeHandling ){ }
+        minimumIntegrationTimeStepHandling_( minimumIntegrationTimeStepHandling ){ }
 
     virtual ~BasicIntegratorStepSizeValidator( ){ }
 
@@ -97,15 +97,15 @@ public:
 
         if ( std::fabs( recommendedStep.first ) < std::fabs( minimumStep_ ) )
         {
-            if( minimumIntegrationTimeHandling_ == throw_exception_below_minimum )
+            if( minimumIntegrationTimeStepHandling_ == throw_exception_below_minimum )
             {
                 throw std::runtime_error( "Error in step-size control, minimum step size " + std::to_string( minimumStep_ ) +
                 " is higher than required time step " + std::to_string( recommendedStep.first ) );
             }
             else
             {
-                if( ( minimumIntegrationTimeHandling_ == set_to_minimum_step_every_time_warning ) ||
-                    ( ( minimumIntegrationTimeHandling_ == set_to_minimum_step_single_warning ) &&!minimumStepWarningIsPrinted_ ) )
+                if( ( minimumIntegrationTimeStepHandling_ == set_to_minimum_step_every_time_warning ) ||
+                    ( ( minimumIntegrationTimeStepHandling_ == set_to_minimum_step_single_warning ) &&!minimumStepWarningIsPrinted_ ) )
                 {
                     std::cerr<<"Warning in step-size control, minimum step size " + std::to_string( minimumStep_ ) +
                                               " is higher than required time step " + std::to_string( recommendedStep.first ) + ", minimum step will be used."<<std::endl;
@@ -142,9 +142,9 @@ public:
         return std::make_pair(  newStepSize, acceptStep );
     }
 
-    void resetMinimumIntegrationTimeHandling( const MinimumIntegrationTimeHandling minimumIntegrationTimeHandling )
+    void resetMinimumIntegrationTimeStepHandling( const MinimumIntegrationTimeStepHandling minimumIntegrationTimeStepHandling )
     {
-        minimumIntegrationTimeHandling_ = minimumIntegrationTimeHandling;
+        minimumIntegrationTimeStepHandling_ = minimumIntegrationTimeStepHandling;
     }
 
     void restartPropagation( )
@@ -158,7 +158,7 @@ protected:
 
     const TimeStepType maximumStep_;
 
-    MinimumIntegrationTimeHandling minimumIntegrationTimeHandling_;
+    MinimumIntegrationTimeStepHandling minimumIntegrationTimeStepHandling_;
 
     bool minimumStepWarningIsPrinted_;
 };
@@ -326,13 +326,13 @@ protected:
 
 
 template< typename TimeStepType, typename StateType = Eigen::VectorXd >
-class PerSegmentIntegratorStepSizeController: public IntegratorStepSizeController< TimeStepType, StateType >
+class PerBlockIntegratorStepSizeController: public IntegratorStepSizeController< TimeStepType, StateType >
 {
 public:
 
 
-    PerSegmentIntegratorStepSizeController(
-        const std::function< std::vector< std::pair< int, int > >( const int, const int ) >& blocksToCheckFunction,
+    PerBlockIntegratorStepSizeController(
+        const std::function< std::vector< std::tuple< int, int, int, int > >( const int, const int ) >& blocksToCheckFunction,
         const StateType relativeErrorTolerance,
         const StateType absoluteErrorTolerance,
         const double safetyFactorForNextStepSize,
@@ -348,8 +348,8 @@ public:
     {
     }
 
-    PerSegmentIntegratorStepSizeController(
-        const std::function< std::vector< std::pair< int, int > >( const int, const int ) >& blocksToCheckFunction,
+    PerBlockIntegratorStepSizeController(
+        const std::function< std::vector< std::tuple< int, int, int, int > >( const int, const int ) >& blocksToCheckFunction,
         const double relativeErrorTolerance,
         const double absoluteErrorTolerance,
         const double safetyFactorForNextStepSize,
@@ -384,13 +384,22 @@ public:
 
         for( unsigned int i = 0; i < blocksToCheck_.size( ); i++ )
         {
-            int maximumRow = blocksToCheck_.at( i ).first + blocksToCheck_.at( i ).second;
+            int maximumRow = std::get< 0 >( blocksToCheck_.at( i ) ) + std::get< 2 >( blocksToCheck_.at( i ) );
             if( maximumRow > state.rows( ) )
             {
                 throw std::runtime_error( "Error when setting per-segment step-size control, block to check is out of bounds. Number of rows is " +
-                std::to_string( state.rows( ) ) + ", but control is requested on segment " +
-                std::to_string( blocksToCheck_.at( i ).first  ) + ", " +
-                std::to_string( blocksToCheck_.at( i ).second ) );
+                std::to_string( state.rows( ) ) + ", but control is requested on row segment" +
+                std::to_string( std::get< 0 >( blocksToCheck_.at( i ) )  ) + ", " +
+                std::to_string( std::get< 2 >( blocksToCheck_.at( i ) ) ) );
+            }
+
+            int maximumColumn = std::get< 1 >( blocksToCheck_.at( i ) ) + std::get< 3 >( blocksToCheck_.at( i ) );
+            if( maximumColumn > state.cols( ) )
+            {
+                throw std::runtime_error( "Error when setting per-segment step-size control, block to check is out of bounds. Number of columns is " +
+                                          std::to_string( state.cols( ) ) + ", but control is requested on column segment" +
+                                          std::to_string( std::get< 1 >( blocksToCheck_.at( i ) )  ) + ", " +
+                                          std::to_string( std::get< 3 >( blocksToCheck_.at( i ) ) ) );
             }
         }
 
@@ -412,7 +421,7 @@ public:
     }
 
 
-    virtual ~PerSegmentIntegratorStepSizeController( ){ }
+    virtual ~PerBlockIntegratorStepSizeController( ){ }
 
     std::pair< TimeStepType, bool > computeNewStepSize(
         const StateType& firstStateEstimate,
@@ -430,8 +439,16 @@ public:
 
         for( unsigned int i = 0; i < blocksToCheck_.size( ); i++ )
         {
-            relativeTruncationError_( i ) = truncationError_.block( blocksToCheck_.at( i ).first, 0, blocksToCheck_.at( i ).second, 1 ).norm( ) /
-                ( firstStateEstimate.block( blocksToCheck_.at( i ).first, 0, blocksToCheck_.at( i ).second, 1 ).norm( ) *
+            relativeTruncationError_( i ) = truncationError_.block(
+                std::get< 0 >( blocksToCheck_.at( i ) ),
+                std::get< 1 >( blocksToCheck_.at( i ) ),
+                std::get< 2 >( blocksToCheck_.at( i ) ),
+                std::get< 3 >( blocksToCheck_.at( i ) ) ).norm( ) /
+                ( firstStateEstimate.block(
+                    std::get< 0 >( blocksToCheck_.at( i ) ),
+                    std::get< 1 >( blocksToCheck_.at( i ) ),
+                    std::get< 2 >( blocksToCheck_.at( i ) ),
+                    std::get< 3 >( blocksToCheck_.at( i ) ) ).norm( ) *
                   relativeErrorTolerance_( i ) + absoluteErrorTolerance_( i ) );
         }
 
@@ -446,9 +463,9 @@ public:
 
 protected:
 
-    std::vector< std::pair< int, int > > blocksToCheck_;
+    std::vector< std::tuple< int, int, int, int > > blocksToCheck_;
 
-    std::function< std::vector< std::pair< int, int > >( const int, const int ) > blocksToCheckFunction_;
+    std::function< std::vector< std::tuple< int, int, int, int > >( const int, const int ) > blocksToCheckFunction_;
 
     StateType relativeErrorTolerance_;
 

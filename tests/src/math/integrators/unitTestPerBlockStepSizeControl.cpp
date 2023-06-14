@@ -27,6 +27,7 @@
 #include "tudat/math/integrators/createNumericalIntegrator.h"
 #include "tudat/simulation/environment_setup.h"
 #include "tudat/simulation/propagation_setup.h"
+#include "tudat/simulation/estimation_setup.h"
 
 namespace tudat
 {
@@ -94,9 +95,9 @@ BOOST_AUTO_TEST_CASE( testPerBlockCircleStepSizeControl )
         }
         else
         {
-            std::vector< std::pair< int, int > > blocks;
-            blocks.push_back( std::make_pair( 0, 2 ) );
-            blocks.push_back( std::make_pair( 2, 2 ) );
+            std::vector< std::tuple< int, int, int, int > > blocks;
+            blocks.push_back( std::make_tuple( 0, 0, 2, 1 ) );
+            blocks.push_back( std::make_tuple( 2, 0, 2, 1 ) );
 
             integratorSettings = std::make_shared<MultiStageVariableStepSizeSettings<> >
                 ( initiaStep, rungeKuttaFehlberg45,
@@ -172,6 +173,7 @@ BOOST_AUTO_TEST_CASE( testCowellPropagatorKeplerCompare )
     using namespace tudat::simulation_setup;
     using namespace tudat::basic_astrodynamics;
     using namespace tudat::orbital_element_conversions;
+    using namespace tudat::estimatable_parameters;
     using namespace tudat::propagators;
     using namespace tudat;
 
@@ -214,106 +216,155 @@ BOOST_AUTO_TEST_CASE( testCowellPropagatorKeplerCompare )
     Eigen::VectorXd systemInitialState = convertKeplerianToCartesianElements(
         initialKeplerElements, bodies.getBody( "Earth" )->getGravitationalParameter( ) );
 
-    // Define settings for numerical integrator.
-    for ( unsigned int test = 0; test < 2; test++ )
+
+    std::vector< std::map< double, Eigen::VectorXd > > stateSolutions;
+    for ( unsigned int dynamicsType = 0; dynamicsType < 2; dynamicsType++ )
     {
-        double initialStep = 10.0;
-        double tolerance = 1.0E-14;
-        std::shared_ptr<IntegratorSettings<> > integratorSettings;
-        if ( test == 0 )
+        // Define settings for numerical integrator.
+        for ( unsigned int tolerancesType = 0; tolerancesType < 2; tolerancesType++ )
         {
-            integratorSettings = std::make_shared<MultiStageVariableStepSizeSettings<> >
-                ( initialStep, rungeKuttaFehlberg45,
-                  std::make_shared<PerElementIntegratorStepSizeControlSettings<double> >( tolerance, tolerance ),
-                  std::make_shared<IntegratorStepSizeValidationSettings>( std::numeric_limits<double>::min( ),
-                                                                          std::numeric_limits<double>::max( ),
-                                                                          set_to_minimum_step_silently ));
-        }
-        else
-        {
-            std::vector<std::pair<int, int> > blocks;
-            blocks.push_back( std::make_pair( 0, 3 ));
-            blocks.push_back( std::make_pair( 3, 3 ));
-
-            integratorSettings = std::make_shared<MultiStageVariableStepSizeSettings<> >
-                ( initialStep, rungeKuttaFehlberg45,
-                  std::make_shared<PerBlockIntegratorStepSizeControlSettings<double> >(
-                      &getStandardCartesianStatesElementsToCheck,
-                      tolerance, tolerance ),
-                  std::make_shared<IntegratorStepSizeValidationSettings>( std::numeric_limits<double>::min( ),
-                                                                          std::numeric_limits<double>::max( ),
-                                                                          set_to_minimum_step_silently ));
-        }
-
-
-        // Create acceleration models and propagation settings.
-        AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-            bodies, accelerationMap, bodiesToIntegrate, centralBodies );
-        std::shared_ptr<TranslationalStatePropagatorSettings<double, double> > propagatorSettings =
-            std::make_shared<TranslationalStatePropagatorSettings<double, double> >
-                ( centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialState,
-                  initialEphemerisTime, integratorSettings,
-                  std::make_shared<PropagationTimeTerminationSettings>( finalEphemerisTime ));
-
-        // Create dynamics simulation object.
-        SingleArcDynamicsSimulator<double, double> dynamicsSimulator(
-            bodies, propagatorSettings );
-
-        double minimumStep = std::numeric_limits<double>::infinity( );
-        double maximumStep = 0.0;
-
-        Eigen::VectorXd stateAtMinimumStep;
-        Eigen::VectorXd stateAtMaximumStep;
-
-        double timeOfMinimumStep = TUDAT_NAN;
-        double timeOfMaximumStep = TUDAT_NAN;
-
-        std::map<double, Eigen::VectorXd> stateHistory = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
-        auto firstIterator = stateHistory.begin( );
-        auto secondIterator = stateHistory.begin( );
-        secondIterator++;
-
-        while ( secondIterator != stateHistory.end( ))
-        {
-            double timeStep = secondIterator->first - firstIterator->first;
-            if ( timeStep > maximumStep )
+            double initialStep = 10.0;
+            double tolerance = 1.0E-14;
+            std::shared_ptr<IntegratorSettings<> > integratorSettings;
+            if ( tolerancesType == 0 )
             {
-                maximumStep = timeStep;
-                stateAtMaximumStep = firstIterator->second;
-                timeOfMaximumStep = firstIterator->first;
+                integratorSettings = std::make_shared<MultiStageVariableStepSizeSettings<> >
+                    ( initialStep, rungeKuttaFehlberg45,
+                      std::make_shared<PerElementIntegratorStepSizeControlSettings<double> >( tolerance, tolerance ),
+                      std::make_shared<IntegratorStepSizeValidationSettings>( std::numeric_limits<double>::min( ),
+                                                                              std::numeric_limits<double>::max( ),
+                                                                              set_to_minimum_step_silently ));
+            }
+            else
+            {
+                std::vector<std::pair<int, int> > blocks;
+                blocks.push_back( std::make_pair( 0, 3 ));
+                blocks.push_back( std::make_pair( 3, 3 ));
+
+                integratorSettings = std::make_shared<MultiStageVariableStepSizeSettings<> >
+                    ( initialStep, rungeKuttaFehlberg45,
+                      std::make_shared<PerBlockIntegratorStepSizeControlSettings<double> >(
+                          &getStandardCartesianStatesElementsToCheck,
+                          tolerance, tolerance ),
+                      std::make_shared<IntegratorStepSizeValidationSettings>( std::numeric_limits<double>::min( ),
+                                                                              std::numeric_limits<double>::max( ),
+                                                                              set_to_minimum_step_silently ));
             }
 
-            if ( timeStep < minimumStep )
+
+            // Create acceleration models and propagation settings.
+            AccelerationMap accelerationModelMap = createAccelerationModelsMap(
+                bodies, accelerationMap, bodiesToIntegrate, centralBodies );
+            std::shared_ptr<TranslationalStatePropagatorSettings<double, double> > propagatorSettings =
+                std::make_shared<TranslationalStatePropagatorSettings<double, double> >
+                    ( centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialState,
+                      initialEphemerisTime, integratorSettings,
+                      std::make_shared<PropagationTimeTerminationSettings>( finalEphemerisTime ));
+
+            if( dynamicsType == 0 )
             {
-                minimumStep = timeStep;
-                stateAtMinimumStep = firstIterator->second;
-                timeOfMinimumStep = firstIterator->first;;
+                // Create dynamics simulation object.
+                SingleArcDynamicsSimulator<double, double> dynamicsSimulator(
+                    bodies, propagatorSettings );
+
+                double minimumStep = std::numeric_limits<double>::infinity( );
+                double maximumStep = 0.0;
+
+                Eigen::VectorXd stateAtMinimumStep;
+                Eigen::VectorXd stateAtMaximumStep;
+
+                double timeOfMinimumStep = TUDAT_NAN;
+                double timeOfMaximumStep = TUDAT_NAN;
+
+                std::map<double, Eigen::VectorXd> stateHistory = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
+                stateSolutions.push_back( stateHistory );
+
+                auto firstIterator = stateHistory.begin( );
+                auto secondIterator = stateHistory.begin( );
+                secondIterator++;
+
+                while ( secondIterator != stateHistory.end( ))
+                {
+                    double timeStep = secondIterator->first - firstIterator->first;
+                    if ( timeStep > maximumStep )
+                    {
+                        maximumStep = timeStep;
+                        stateAtMaximumStep = firstIterator->second;
+                        timeOfMaximumStep = firstIterator->first;
+                    }
+
+                    if ( timeStep < minimumStep )
+                    {
+                        minimumStep = timeStep;
+                        stateAtMinimumStep = firstIterator->second;
+                        timeOfMinimumStep = firstIterator->first;;
+                    }
+                    firstIterator++;
+                    secondIterator++;
+                }
+
+                Eigen::Vector6d stateError = ( convertKeplerianToCartesianElements( propagateKeplerOrbit(
+                    initialKeplerElements, stateHistory.rbegin( )->first - initialEphemerisTime,
+                    bodies.getBody( "Earth" )->getGravitationalParameter( )), bodies.getBody(
+                    "Earth" )->getGravitationalParameter( ))
+                                               - stateHistory.rbegin( )->second );
+    //        std::cout<<stateError.segment( 0, 3 ).norm( )<<" "<<stateError.segment( 3, 3 ).norm( )<<std::endl;
+    //
+    //        std::cout<< dynamicsSimulator.getCumulativeNumberOfFunctionEvaluations( ).rbegin( )->second<<std::endl<<std::endl;
+
+                double timeStepRatio = maximumStep / minimumStep;
+                if ( tolerancesType == 1 )
+                {
+                    BOOST_CHECK(( timeStepRatio - 1.0 ) < 0.2 );
+                }
+
+                if ( tolerancesType == 0 )
+                {
+                    double minimumPositionRatio = stateAtMinimumStep.segment( 0, 3 ).cwiseAbs( ).minCoeff( ) /
+                                                  stateAtMinimumStep.segment( 0, 3 ).norm( );
+                    double minimumVelocityRatio = stateAtMinimumStep.segment( 3, 3 ).cwiseAbs( ).minCoeff( ) /
+                                                  stateAtMinimumStep.segment( 3, 3 ).norm( );
+
+                    BOOST_CHECK( timeStepRatio > 8 );
+                    BOOST_CHECK( std::min( minimumPositionRatio, minimumVelocityRatio ) < 2.0E-4 );
+                }
             }
-            firstIterator++;
-            secondIterator++;
-        }
+            else
+            {
+                std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames =
+                    getInitialStateParameterSettings< double >( propagatorSettings, bodies );
+                std::shared_ptr< estimatable_parameters::EstimatableParameterSet< > > parametersToEstimate =
+                    createParametersToEstimate( parameterNames, bodies );
 
-        Eigen::Vector6d stateError = ( convertKeplerianToCartesianElements( propagateKeplerOrbit(
-            initialKeplerElements, stateHistory.rbegin( )->first - initialEphemerisTime,
-            bodies.getBody( "Earth" )->getGravitationalParameter( ) ) , bodies.getBody( "Earth" )->getGravitationalParameter( ) )
-                                                           - stateHistory.rbegin( )->second );
-//        std::cout<<stateError.segment( 0, 3 ).norm( )<<" "<<stateError.segment( 3, 3 ).norm( )<<std::endl;
-//
-//        std::cout<< dynamicsSimulator.getCumulativeNumberOfFunctionEvaluations( ).rbegin( )->second<<std::endl<<std::endl;
+                SingleArcVariationalEquationsSolver<double, double> dynamicsSimulator(
+                    bodies, propagatorSettings, parametersToEstimate );
+                auto stateHistory = dynamicsSimulator.getEquationsOfMotionSolution( );
+                auto stateTransitionHistory = dynamicsSimulator.getStateTransitionMatrixSolution( );
 
-        double timeStepRatio = maximumStep / minimumStep;
-        if ( test == 1 )
-        {
-            BOOST_CHECK(( timeStepRatio - 1.0 ) < 0.2 );
-        }
+                if( tolerancesType == 0 )
+                {
+                    BOOST_CHECK( stateSolutions.at( tolerancesType ).size( ) != stateHistory.size( ) );
+                }
+                else
+                {
+                    BOOST_CHECK( stateSolutions.at( tolerancesType ).size( ) != stateHistory.size( ) );
 
-        if ( test == 0 )
-        {
-            double minimumPositionRatio = stateAtMinimumStep.segment( 0, 3 ).cwiseAbs().minCoeff( ) / stateAtMinimumStep.segment( 0, 3 ).norm( );
-            double minimumVelocityRatio = stateAtMinimumStep.segment( 3, 3 ).cwiseAbs().minCoeff( ) / stateAtMinimumStep.segment( 3, 3 ).norm( );
+                    auto firstIterator = stateSolutions.at( tolerancesType ).begin( );
+                    auto secondIterator = stateHistory.begin( );
 
-            BOOST_CHECK( timeStepRatio > 8 );
-            BOOST_CHECK( std::min( minimumPositionRatio, minimumVelocityRatio ) < 2.0E-4 );
+                    while( firstIterator != stateSolutions.at( tolerancesType ).end( ) &&
+                        secondIterator != stateHistory.end( ) )
+                    {
+                        BOOST_CHECK_CLOSE_FRACTION( firstIterator->first, secondIterator->first, std::numeric_limits< double >::epsilon( ) );
+                        firstIterator++;
+                        secondIterator++;
+                    }
+
+                }
+                std::cout<<stateSolutions.at( tolerancesType ).size( )<<std::endl;
+                std::cout<<stateHistory.size( )<<std::endl<<std::endl;
+
+            }
         }
     }
 }

@@ -50,15 +50,16 @@ public:
     IntegratorStepSizeValidationSettings(
         const double minimumStep,
         const double maximumStep,
-        const MinimumIntegrationTimeHandling minimumIntegrationTimeHandling = throw_exception_below_minimum ):
+        const MinimumIntegrationTimeStepHandling minimumIntegrationTimeStepHandling = throw_exception_below_minimum ):
         minimumStep_( minimumStep ),
         maximumStep_( maximumStep ),
-        minimumIntegrationTimeHandling_( minimumIntegrationTimeHandling ){ }
+        minimumIntegrationTimeStepHandling_( minimumIntegrationTimeStepHandling ){ }
 
-    const double minimumStep_;
-    const double maximumStep_;
-    MinimumIntegrationTimeHandling minimumIntegrationTimeHandling_;
+    double minimumStep_;
+    double maximumStep_;
+    MinimumIntegrationTimeStepHandling minimumIntegrationTimeStepHandling_;
 };
+
 
 template< typename TimeStepType = double >
 std::shared_ptr< IntegratorStepSizeValidator< TimeStepType > > createIntegratorStepSizeValidator(
@@ -67,7 +68,7 @@ std::shared_ptr< IntegratorStepSizeValidator< TimeStepType > > createIntegratorS
     return std::make_shared< BasicIntegratorStepSizeValidator< TimeStepType > >(
         static_cast< TimeStepType >( validationSettings->minimumStep_ ),
         static_cast< TimeStepType >( validationSettings->maximumStep_ ),
-        validationSettings->minimumIntegrationTimeHandling_ );
+        validationSettings->minimumIntegrationTimeStepHandling_ );
 }
 
 enum StepSizeControlTypes
@@ -76,10 +77,10 @@ enum StepSizeControlTypes
     per_block_step_size_control
 };
 
-std::vector< std::pair< int, int > > getStandardCartesianStatesElementsToCheck(
+std::vector< std::tuple< int, int, int, int > > getStandardCartesianStatesElementsToCheck(
     const int numberOfRows, const int numberOfColumns );
 
-std::vector< std::pair< int, int > > getStandardRotationalStatesElementsToCheck(
+std::vector< std::tuple< int, int, int, int > > getStandardRotationalStatesElementsToCheck(
     const int numberOfRows, const int numberOfColumns );
 
 class IntegratorStepSizeControlSettings
@@ -138,7 +139,7 @@ class PerBlockIntegratorStepSizeControlSettings: public IntegratorStepSizeContro
 {
 public:
     PerBlockIntegratorStepSizeControlSettings(
-        const std::function< std::vector< std::pair< int, int > >( const int, const int ) >& blocksToCheckFunction,
+        const std::function< std::vector< std::tuple< int, int, int, int > >( const int, const int ) >& blocksToCheckFunction,
         const ToleranceType relativeErrorTolerance,
         const ToleranceType absoluteErrorTolerance,
         const double safetyFactorForNextStepSize = 0.8,
@@ -159,11 +160,64 @@ public:
 
     ~PerBlockIntegratorStepSizeControlSettings( ){ }
 
-    std::function< std::vector< std::pair< int, int > >( const int, const int ) > blocksToCheckFunction_;
+    std::function< std::vector< std::tuple< int, int, int, int > >( const int, const int ) > blocksToCheckFunction_;
     const ToleranceType relativeErrorTolerance_;
     const ToleranceType absoluteErrorTolerance_;
     bool usedScalarTolerances_;
 };
+
+inline std::shared_ptr< IntegratorStepSizeValidationSettings > stepSizeValidationSettings(
+    const double minimumStep,
+    const double maximumStep,
+    const MinimumIntegrationTimeStepHandling minimumIntegrationTimeStepHandling = throw_exception_below_minimum )
+{
+    return std::make_shared< IntegratorStepSizeValidationSettings >(
+        minimumStep, maximumStep, minimumIntegrationTimeStepHandling );
+}
+
+template< typename ToleranceType >
+inline std::shared_ptr< IntegratorStepSizeControlSettings > perElementIntegratorStepSizeControlSettings(
+    const ToleranceType relativeErrorTolerance,
+    const ToleranceType absoluteErrorTolerance,
+    const double safetyFactorForNextStepSize = 0.8,
+    const double minimumFactorDecreaseForNextStepSize = 0.1,
+    const double maximumFactorDecreaseForNextStepSize = 4.0 )
+{
+    return std::make_shared< PerElementIntegratorStepSizeControlSettings< ToleranceType > >(
+        relativeErrorTolerance, absoluteErrorTolerance,
+        safetyFactorForNextStepSize, minimumFactorDecreaseForNextStepSize, maximumFactorDecreaseForNextStepSize  );
+}
+
+
+template< typename ToleranceType >
+inline std::shared_ptr< IntegratorStepSizeControlSettings > perBlockIntegratorStepSizeControlSettings(
+    const std::vector< std::tuple< int, int, int, int > > blocksToCheck,
+    const ToleranceType relativeErrorTolerance,
+    const ToleranceType absoluteErrorTolerance,
+    const double safetyFactorForNextStepSize = 0.8,
+    const double minimumFactorDecreaseForNextStepSize = 0.1,
+    const double maximumFactorDecreaseForNextStepSize = 4.0 )
+{
+    return std::make_shared< PerBlockIntegratorStepSizeControlSettings< ToleranceType > >(
+        [=](const int, const int){return blocksToCheck; },
+        relativeErrorTolerance, absoluteErrorTolerance,
+        safetyFactorForNextStepSize, minimumFactorDecreaseForNextStepSize, maximumFactorDecreaseForNextStepSize  );
+}
+
+template< typename ToleranceType >
+inline std::shared_ptr< IntegratorStepSizeControlSettings > perBlockFromFunctionIntegratorStepSizeControlSettings(
+    const std::function< std::vector< std::tuple< int, int, int, int > >( const int, const int ) > blocksToCheckFunction,
+    const ToleranceType relativeErrorTolerance,
+    const ToleranceType absoluteErrorTolerance,
+    const double safetyFactorForNextStepSize = 0.8,
+    const double minimumFactorDecreaseForNextStepSize = 0.1,
+    const double maximumFactorDecreaseForNextStepSize = 4.0 )
+{
+    return std::make_shared< PerBlockIntegratorStepSizeControlSettings< ToleranceType > >(
+        blocksToCheckFunction,
+        relativeErrorTolerance, absoluteErrorTolerance,
+        safetyFactorForNextStepSize, minimumFactorDecreaseForNextStepSize, maximumFactorDecreaseForNextStepSize  );
+}
 
 
 template< typename TimeStepType, typename StateType >
@@ -212,7 +266,7 @@ std::shared_ptr< IntegratorStepSizeController< TimeStepType, StateType > > creat
         if( perBlockSettings != nullptr )
         {
 
-            stepSizeController = std::make_shared<PerSegmentIntegratorStepSizeController<TimeStepType, StateType> >(
+            stepSizeController = std::make_shared<PerBlockIntegratorStepSizeController<TimeStepType, StateType> >(
                 perBlockSettings->blocksToCheckFunction_,
                 perBlockSettings->relativeErrorTolerance_, perBlockSettings->absoluteErrorTolerance_,
                 perBlockSettings->safetyFactorForNextStepSize_, integratorOrder + 1,
@@ -221,7 +275,7 @@ std::shared_ptr< IntegratorStepSizeController< TimeStepType, StateType > > creat
         }
         else if( perBlockMatrixSettings != nullptr )
         {
-            stepSizeController = std::make_shared<PerSegmentIntegratorStepSizeController<TimeStepType, StateType> >(
+            stepSizeController = std::make_shared<PerBlockIntegratorStepSizeController<TimeStepType, StateType> >(
                 perBlockSettings->blocksToCheckFunction_,
                 perBlockMatrixSettings->relativeErrorTolerance_, perBlockMatrixSettings->absoluteErrorTolerance_,
                 perBlockMatrixSettings->safetyFactorForNextStepSize_, integratorOrder + 1,
@@ -1081,6 +1135,18 @@ inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > rungeKut
                 exceptionIfMinimumStepExceeded );
 
     return settings;
+}
+
+template< typename IndependentVariableType = double >
+inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > multiStageVariableStepSizeSettings(
+    const IndependentVariableType initialTimeStep,
+    const numerical_integrators::CoefficientSets coefficientSet,
+    const std::shared_ptr< IntegratorStepSizeControlSettings > stepSizeControlSettings,
+    const std::shared_ptr< IntegratorStepSizeValidationSettings > stepSizeAcceptanceSettings,
+    const bool assessTerminationOnMinorSteps = false )
+{
+    return std::make_shared< MultiStageVariableStepSizeSettings< IndependentVariableType > >(
+        initialTimeStep, coefficientSet, stepSizeControlSettings, stepSizeAcceptanceSettings, assessTerminationOnMinorSteps );
 }
 
 template< typename IndependentVariableType = double >

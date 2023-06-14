@@ -149,11 +149,11 @@ public:
         stepSizeValidator = std::make_shared< BasicIntegratorStepSizeValidator< TimeStepType > >( minimumStepSize_, maximumStepSize_);
         if( exceptionIfMinimumStepExceeded )
         {
-            stepSizeValidator->resetMinimumIntegrationTimeHandling( throw_exception_below_minimum );
+            stepSizeValidator->resetMinimumIntegrationTimeStepHandling( throw_exception_below_minimum );
         }
         else
         {
-            stepSizeValidator->resetMinimumIntegrationTimeHandling( set_to_minimum_step_silently );
+            stepSizeValidator->resetMinimumIntegrationTimeStepHandling( set_to_minimum_step_silently );
         }
         stepSizeValidator_ = stepSizeValidator;
     }
@@ -220,11 +220,11 @@ public:
             std::make_shared< BasicIntegratorStepSizeValidator< TimeStepType > >( minimumStepSize_, maximumStepSize_);
         if( exceptionIfMinimumStepExceeded )
         {
-            stepSizeValidator->resetMinimumIntegrationTimeHandling( throw_exception_below_minimum );
+            stepSizeValidator->resetMinimumIntegrationTimeStepHandling( throw_exception_below_minimum );
         }
         else
         {
-            stepSizeValidator->resetMinimumIntegrationTimeHandling( set_to_minimum_step_silently );
+            stepSizeValidator->resetMinimumIntegrationTimeStepHandling( set_to_minimum_step_silently );
         }
         stepSizeValidator_ = stepSizeValidator;
 
