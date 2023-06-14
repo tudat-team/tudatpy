@@ -33,7 +33,7 @@ public:
      *  wrt which a partial is to be taken.
      *  \param acceleratedBody Name of body undergoing acceleration.
      *  \param acceleratingBody Name of body exerting acceleration.
-     *  \param accelerationModel Spherical harmonic gravity acceleration model from which acceleration is calculated wrt
+     *  \param accelerationModel Ring gravity acceleration model from which acceleration is calculated wrt
      *  which the object being constructed is to calculate partials.
      *  \param rotationMatrixPartials Map of RotationMatrixPartial, one for each paramater representing a property of the
      *  rotation of the body exerting the acceleration wrt which an acceleration partial will be calculated.
