@@ -82,8 +82,10 @@ public:
     BasicIntegratorStepSizeValidator(
         const TimeStepType minimumStep,
         const TimeStepType maximumStep,
-        const MinimumIntegrationTimeStepHandling minimumIntegrationTimeStepHandling = throw_exception_below_minimum ):
-        IntegratorStepSizeValidator< TimeStepType >( ),
+        const MinimumIntegrationTimeStepHandling minimumIntegrationTimeStepHandling = throw_exception_below_minimum,
+        const bool acceptInfinityStep = false,
+        const bool acceptNanStep = false ):
+        IntegratorStepSizeValidator< TimeStepType >( acceptInfinityStep, acceptNanStep ),
         minimumStep_( minimumStep ), maximumStep_( maximumStep ),
         minimumIntegrationTimeStepHandling_( minimumIntegrationTimeStepHandling ){ }
 
