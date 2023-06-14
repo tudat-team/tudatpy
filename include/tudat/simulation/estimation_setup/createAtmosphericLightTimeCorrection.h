@@ -20,6 +20,10 @@ namespace tudat
 namespace observation_models
 {
 
+/*!
+ * Object that computes atmospheric corrections (tropospheric or ionospheric), mapped by a pair (ground station, spacecraft)
+ * and by the base observable type.
+ */
 typedef std::map< std::pair< std::string, std::string >, std::map< observation_models::ObservableType,
     std::shared_ptr< TabulatedMediaReferenceCorrectionManager > > > AtmosphericCorrectionPerStationAndSpacecraftType;
 

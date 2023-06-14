@@ -40,25 +40,45 @@ namespace tudat
 namespace observation_models
 {
 
+// Base class defining a tabulated media correction. The computation of the media correction should be implemented
+// in a derived class.
 class TabulatedMediaReferenceCorrection
 {
 public:
 
+    /*!
+     * Constructor. Requires specifying the initial and final time during which the media correction is valid.
+     * Initial/final time should be set to TUDAT_NAN if there is no initial/final limit to the validity of there
+     * corrections.
+     *
+     * @param startTime Start time of the validity of the media correction.
+     * @param endTime End time of the validity of the media correction.
+     */
     TabulatedMediaReferenceCorrection( const double startTime = TUDAT_NAN,
                                        const double endTime = TUDAT_NAN ):
        startTime_( startTime ),
        endTime_( endTime )
     { }
 
+    // Destructor
     virtual ~TabulatedMediaReferenceCorrection( ){ }
 
+    /*!
+     * Function to compute the atmospheric correction as a function of time. Should be implemented in the derived
+     * class.
+     *
+     * @param time Time at which to compute the correction.
+     * @return Atmospheric correction value
+     */
     virtual double computeReferenceCorrection( const double time ) = 0;
 
+    // Return start time of media-correction validity.
     double getStartTime( )
     {
         return startTime_;
     }
 
+    // Return end time of media-correction validity.
     double getEndTime( )
     {
         return endTime_;
@@ -66,20 +86,38 @@ public:
 
 protected:
 
+    /*!
+     * Checks whether the selected time is within the bounds for which the atmospheric correction is defined.
+     * Throws error if the specified time isn't valid.
+     *
+     * @param time Time at which to compute the correction.
+     * @return Boolean indicating whether time is valid or not.
+     */
     bool isTimeValid( const double time );
 
+    // Start time of the media-correction validity.
     const double startTime_;
+
+    // End time of the media-correction validity.
     const double endTime_;
 
 private:
 
 };
 
-// TRK-2-23 (2008), section 3.1.7
+// Derived class implementing a constant tabulated atmospheric correction, according to TRK-2-23 (2008),
+// section 3.1.7.
 class ConstantReferenceCorrection: public TabulatedMediaReferenceCorrection
 {
 public:
 
+    /*!
+     * Constructor.
+
+     * @param startTime Start time of the validity of the media correction.
+     * @param endTime End time of the validity of the media correction.
+     * @param constantCorrection Constant value of the correction.
+     */
     ConstantReferenceCorrection( const double startTime,
                                  const double endTime,
                                  const double constantCorrection ):
@@ -87,13 +125,21 @@ public:
         constantCorrection_( constantCorrection )
     { }
 
+    /*!
+     * Function to compute the atmospheric correction as a function of time. Returns the value of the constant
+     * correction, according to TRK-2-23 (2008), section 3.1.7.
+     *
+     * @param time Time at which to compute the correction.
+     * @return Atmospheric correction value.
+     */
     double computeReferenceCorrection( const double time ) override
     {
         isTimeValid( time );
-        
+
         return constantCorrection_;
     }
 
+    // Return the constant correction
     double getConstantCorrection( )
     {
         return constantCorrection_;
@@ -101,15 +147,24 @@ public:
 
 private:
 
+    // Value of the constant correction
     const double constantCorrection_;
 
 };
 
-// TRK-2-23 (2008), section 3.1.7
+// Derived class implementing a power series tabulated atmospheric correction, according to TRK-2-23 (2008),
+// section 3.1.7.
 class PowerSeriesReferenceCorrection: public TabulatedMediaReferenceCorrection
 {
 public:
 
+    /*!
+     * Constructor.
+     *
+     * @param startTime Start time of the validity of the media correction.
+     * @param endTime End time of the validity of the media correction.
+     * @param coefficients Coefficients of the power series. The i^th coefficient applies to the power of order i.
+     */
     PowerSeriesReferenceCorrection( const double startTime,
                                     const double endTime,
                                     const std::vector< double > coefficients ):
@@ -117,8 +172,16 @@ public:
         coefficients_( coefficients )
     { }
 
+    /*!
+     * Function to compute the atmospheric correction as a function of time. Correction is computed according to
+     * a power series, according to TRK-2-23 (2008), section 3.1.7.
+     *
+     * @param time Time at which to compute the correction.
+     * @return Atmospheric correction value.
+     */
     double computeReferenceCorrection( const double time ) override;
 
+    // Returns the power series coefficients
     std::vector< double > getCoefficients( )
     {
         return coefficients_;
@@ -126,26 +189,45 @@ public:
 
 private:
 
+    // Power series coefficients
     const std::vector< double > coefficients_;
 
 };
 
-// TRK-2-23 (2008), section 3.1.7
+// Derived class implementing a Fourier series tabulated atmospheric correction, according to TRK-2-23 (2008),
+// section 3.1.7.
 class FourierSeriesReferenceCorrection: public TabulatedMediaReferenceCorrection
 {
 public:
 
+   /*!
+    * Constructor.
+    *
+    * @param startTime Start time of the validity of the media correction.
+    * @param endTime End time of the validity of the media correction.
+    * @param coefficients Coefficients of the Fourier series. Order of the coefficients is described by TRK-2-23 (2008),
+    *      section 3.1.7.
+    */
     FourierSeriesReferenceCorrection( const double startTime,
                                       const double endTime,
                                       const std::vector< double > coefficients );
 
+    /*!
+    * Function to compute the atmospheric correction as a function of time. Correction is computed according to
+    * a Fourier series, according to TRK-2-23 (2008), section 3.1.7.
+    *
+    * @param time Time at which to compute the correction.
+    * @return Atmospheric correction value.
+    */
     double computeReferenceCorrection( const double time ) override;
 
+    // Returns the sine coefficients of the Fourier series.
     std::vector< double > getSineCoefficients( )
     {
         return sineCoefficients_;
     }
 
+    // Returns the cosine coefficients of the Fourier series.
     std::vector< double > getCosineCoefficients( )
     {
         return cosineCoefficients_;
@@ -153,21 +235,35 @@ public:
 
 private:
 
+    // Fundamental period of the series
     double period_;
 
+    // Sine coefficients of the Fourier series.
     std::vector< double > sineCoefficients_;
+
+    // Cosine coefficients of the Fourier series.
     std::vector< double > cosineCoefficients_;
 
 };
 
+// Class for managing multiple objects computing media corrections. Effectively serves to select the appropriate
+// for computing the correction at a given time.
 class TabulatedMediaReferenceCorrectionManager
 {
 public:
 
+    /*!
+     * Constructor.
+     */
     TabulatedMediaReferenceCorrectionManager( ):
         isLookupSchemeUpdated_( false )
     { }
 
+    /*!
+     * Constructor.
+     *
+     * @param correctionVector Vector of objects computing media corrections.
+     */
     TabulatedMediaReferenceCorrectionManager(
             std::vector< std::shared_ptr< TabulatedMediaReferenceCorrection > > correctionVector ):
         correctionVector_( correctionVector ),
@@ -180,6 +276,11 @@ public:
         }
     }
 
+    /*!
+     * Saves a correction calculation object.
+     *
+     * @param correctionCalculator Correction calculation object.
+     */
     void pushReferenceCorrectionCalculator( std::shared_ptr< TabulatedMediaReferenceCorrection > correctionCalculator )
     {
         if ( correctionVector_.empty( ) ||
@@ -198,43 +299,83 @@ public:
         isLookupSchemeUpdated_ = false;
     }
 
+    /*!
+    * Function to compute the atmospheric correction as a function of time.
+    * For the specified time, the function selects the appropriate correction calculation object and the uses it
+    * to compute the time.
+    *
+    * @param time Time at which to compute the correction.
+    * @return Atmospheric correction value.
+    */
     double computeMediaCorrection( double time );
 
 private:
 
+    // Vector with the start validity times of the corrections.
     std::vector< double > startTimes_;
 
+    // Vector with the end validity times of the corrections.
     std::vector< double > endTimes_;
 
+    // Vector containing the objects that compute the media corrections
     std::vector< std::shared_ptr< TabulatedMediaReferenceCorrection > > correctionVector_;
 
+    // Boolean indicating whether the lookup scheme is updated (it gets out of date in case the start times vector
+    // is modified)
     bool isLookupSchemeUpdated_;
 
     //! Lookup scheme to find the nearest correction object start time for a given time
     std::shared_ptr< interpolators::LookUpScheme< double > > startTimeLookupScheme_;
 };
 
+// Enum listing the available tropospheric mapping models.
 enum TroposphericMappingModel
 {
     simplified_chao,
     niell
 };
 
+// Base class defining a tropospheric elevation mapping function (used to map a zenith tropospheric correction
+// to the desired elevation)
 class TroposhericElevationMapping
 {
 public:
 
+    /*!
+     * Constructor.
+     */
     TroposhericElevationMapping( )
     { }
 
+    // Destructor
     virtual ~TroposhericElevationMapping( ){ }
 
+    /*!
+     * Computes the factor that maps the dry troposheric correction. The computation of this factor should be
+     * implemented in a derived class.
+     *
+     * @param transmitterState State of the transmitter at transmission.
+     * @param receiverState State of the receiver at reception.
+     * @param transmissionTime Transmission time.
+     * @param receptionTime Reception time.
+     * @return Dry mapping factor.
+     */
     virtual double computeDryTroposphericMapping(
             const Eigen::Vector6d& transmitterState,
             const Eigen::Vector6d& receiverState,
             const double transmissionTime,
             const double receptionTime ) = 0;
 
+    /*!
+     * Computes the factor that maps the wet troposheric correction. The computation of this factor should be
+     * implemented in a derived class.
+     *
+     * @param transmitterState State of the transmitter at transmission.
+     * @param receiverState State of the receiver at reception.
+     * @param transmissionTime Transmission time.
+     * @param receptionTime Reception time.
+     * @return Wet mapping factor.
+     */
     virtual double computeWetTroposphericMapping(
             const Eigen::Vector6d& transmitterState,
             const Eigen::Vector6d& receiverState,
@@ -247,8 +388,9 @@ private:
 
 };
 
-// Chao tropospheric mapping, according to Moyer (2000), Eq. 10-8 to 10-10
 // Used to map a zenith range correction to a different elevation
+// Derived class that implements the simplified Chao tropospheric mapping function, according to Moyer (2000), section eqs. 10-8 to 10-10.
+// Mapping function is used to map a zenith range correction to a different elevation.
 class SimplifiedChaoTroposphericMapping: public TroposhericElevationMapping
 {
 public:
@@ -268,6 +410,16 @@ public:
         isUplinkCorrection_( isUplinkCorrection )
     { }
 
+    /*!
+     * Computes the factor that maps the dry troposheric correction, using the simplified Chao mapping model.
+     * Implementation according to Moyer (2000), eqs. 10-8 and 10-9.
+     *
+     * @param transmitterState State of the transmitter at transmission.
+     * @param receiverState State of the receiver at reception.
+     * @param transmissionTime Transmission time.
+     * @param receptionTime Reception time.
+     * @return Dry mapping factor.
+     */
     double computeDryTroposphericMapping(
             const Eigen::Vector6d& transmitterState,
             const Eigen::Vector6d& receiverState,
@@ -278,6 +430,16 @@ public:
         return troposphericSimplifiedChaoMapping( currentElevation_, true );
     }
 
+    /*!
+     * Computes the factor that maps the wet troposheric correction, using the simplified Chao mapping model.
+     * Implementation according to Moyer (2000), eqs. 10-8 and 10-10.
+     *
+     * @param transmitterState State of the transmitter at transmission.
+     * @param receiverState State of the receiver at reception.
+     * @param transmissionTime Transmission time.
+     * @param receptionTime Reception time.
+     * @return Wet mapping factor.
+     */
     double computeWetTroposphericMapping(
             const Eigen::Vector6d& transmitterState,
             const Eigen::Vector6d& receiverState,
@@ -290,9 +452,26 @@ public:
 
 private:
 
+    /*!
+     * Computes the wet/dry mapping factor, using the simplified Chao mapping model.
+     * Implementation according to Moyer (2000), eqs. 10-8, 10-9, and 10-10
+     *
+     * @param elevation Current elevation.
+     * @param dryCorrection Bool indicating whether to compute the dry mapping (if true) or the wet correction (if false).
+     * @return Dry or wet mapping factor. 
+     */
     double troposphericSimplifiedChaoMapping( const double elevation,
                                               const bool dryCorrection );
 
+    /*!
+     * Retrieves the current elevation.
+     *
+     * @param transmitterState State of the transmitter at transmission.
+     * @param receiverState State of the receiver at reception.
+     * @param transmissionTime Transmission time.
+     * @param receptionTime Reception time.
+     * @return Elevation.
+     */
     void computeCurrentElevation(
             const Eigen::Vector6d& transmitterState,
             const Eigen::Vector6d& receiverState,
@@ -310,8 +489,8 @@ private:
 
 };
 
-// Niell tropospheric mapping, according to Moyer (2000), section 10.2.1.3.2
-// Used to map a zenith range correction to a different elevation
+// Derived class that implements the Niell tropospheric mapping function, according to Moyer (2000), section 10.2.1.3.2.
+// Mapping function is used to map a zenith range correction to a different elevation.
 class NiellTroposphericMapping: public TroposhericElevationMapping
 {
 public:
@@ -329,14 +508,33 @@ public:
             std::function< Eigen::Vector3d ( double time ) > groundStationGeodeticPositionFunction,
             bool isUplinkCorrection );
 
-    // Moyer (2000), section 10.2.1.3.2
+
+    /*!
+     * Computes the factor that maps the wet troposheric correction, using the Niell mapping model. Implementation
+     * according to Moyer (2000), section 10.2.1.3.2.
+     *
+     * @param transmitterState State of the transmitter at transmission.
+     * @param receiverState State of the receiver at reception.
+     * @param transmissionTime Transmission time.
+     * @param receptionTime Reception time.
+     * @return Wet mapping factor.
+     */
     double computeWetTroposphericMapping(
             const Eigen::Vector6d& transmitterState,
             const Eigen::Vector6d& receiverState,
             const double transmissionTime,
             const double receptionTime ) override;
 
-    // Moyer (2000), section 10.2.1.3.2
+   /*!
+    * Computes the factor that maps the dry troposheric correction, using the Niell mapping model. Implementation
+    * according to Moyer (2000), section 10.2.1.3.2.
+    *
+    * @param transmitterState State of the transmitter at transmission.
+    * @param receiverState State of the receiver at reception.
+    * @param transmissionTime Transmission time.
+    * @param receptionTime Reception time.
+    * @return Dry mapping factor.
+    */
     double computeDryTroposphericMapping(
             const Eigen::Vector6d& transmitterState,
             const Eigen::Vector6d& receiverState,
@@ -345,10 +543,30 @@ public:
 
 private:
 
-    // Moyer (2000), section 10.2.1.3.2
+    /*!
+     * Computes the value of the function M, according to Moyer (2000), section 10.2.1.3.2, and Estefan and Sovers (1994),
+     * eq. 51. The equation of Estefan and Sovers (1994) is wrong, the correct version is described by Moyer (2000).
+     *
+     * @param a Mapping coefficient a.
+     * @param b Mapping coefficient b.
+     * @param c Mapping coefficient c.
+     * @param elevation Elevation of the spacecraft as seen from the ground station.
+     * @return Value of M function.
+     */
     double computeMFunction ( const double a, const double b, const double c, const double elevation );
 
-    // Moyer (2000), section 10.2.1.3.2
+    /*!
+     * Computes a given dry mapping function coefficient as a function of time and latitude of the ground station,
+     * according to Moyer (2000), section 10.2.1.3.2.
+     *
+     * @param averageInterpolator Interpolator for the average value of the mapping coefficient, giving the value of the
+     *      average as a function of the latitude of the ground station.
+     * @param amplitudeInterpolator Interpolator for the amplitude of the mapping coefficient, giving the value of the
+     *      amplitude as a function of the latitude of the ground station.
+     * @param time Time at which
+     * @param geodeticLatitude Geodetic latitude of the ground station.
+     * @return Dry mapping coefficient.
+     */
     double computeDryCoefficient(
             std::shared_ptr< interpolators::OneDimensionalInterpolator< double, double > > averageInterpolator,
             std::shared_ptr< interpolators::OneDimensionalInterpolator< double, double > > amplitudeInterpolator,
@@ -405,7 +623,9 @@ private:
     std::shared_ptr< interpolators::OneDimensionalInterpolator< double, double > > cWetInterpolator_;
 };
 
-// Moyer (2000), section 10.2.1
+// Base class implementing a mapped tropospheric light-time correction, according to Moyer (2000), section 10.2.1.
+// Class implements the computation of the light time. This computation requires functions that return the wet/dry zenith
+// corrections, which should be implemented in derived classes.
 class MappedTroposphericCorrection: public LightTimeCorrection
 {
 public:
@@ -432,12 +652,34 @@ public:
         isUplinkCorrection_( isUplinkCorrection )
     { }
 
+    /*!
+      * Function to computes a mapped tropospheric light-time correction. Correction is computed according to Moyer
+      * (2000), section 10.2.1, using dry/wet zenith correction functions defined in the derived classes.
+      *
+      * @param linkEndsStates List of states at each link end during observation.
+      * @param linkEndsTimes List of times at each link end during observation.
+      * @param currentMultiLegTransmitterIndex Index in the linkEndsStates and linkEndsTimes of the transmitter in the current link.
+      * @param ancillarySettings Observation ancillary simulation settings.
+      * @return Light-time correction
+      */
     double calculateLightTimeCorrectionWithMultiLegLinkEndStates(
             const std::vector< Eigen::Vector6d >& linkEndsStates,
             const std::vector< double >& linkEndsTimes,
             const unsigned int currentMultiLegTransmitterIndex,
             const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings ) override;
 
+    /*!
+     * Function to compute the partial derivative of the light-time correction w.r.t. observation time. Partial is
+     * currently not implemented, function returns 0.
+     *
+     * \param transmitterState State of transmitted at transmission time
+     * \param receiverState State of receiver at reception time
+     * \param transmissionTime Time of signal transmission
+     * \param receptionTime Time of singal reception
+     * \param fixedLinkEnd Reference link end for observation
+     * \param linkEndAtWhichPartialIsEvaluated Link end at which the time partial is to be taken
+     * \return Partial of light-time correction w.r.t. observation time
+     */
     double calculateLightTimeCorrectionPartialDerivativeWrtLinkEndTime(
             const Eigen::Vector6d& transmitterState,
             const Eigen::Vector6d& receiverState,
@@ -449,6 +691,17 @@ public:
         return 0.0;
     }
 
+    /*!
+     * Function to compute the partial derivative of the light-time correction w.r.t. link end position. Partial is
+     * currently not implemented, function returns 0.
+     *
+     * \param transmitterState State of transmitted at transmission time
+     * \param receiverState State of receiver at reception time
+     * \param transmissionTime Time of signal transmission
+     * \param receptionTime Time of singal reception
+     * \param linkEndAtWhichPartialIsEvaluated Link end at which the position partial is to be taken
+     * \return Partial of ight-time correction w.r.t. link end position
+     */
     Eigen::Matrix< double, 3, 1 > calculateLightTimeCorrectionPartialDerivativeWrtLinkEndPosition(
             const Eigen::Vector6d& transmitterState,
             const Eigen::Vector6d& receiverState,
@@ -459,11 +712,13 @@ public:
         return Eigen::Vector3d::Zero( );
     }
 
+    // Returns the function that computes the dry zenith correction as a function of time.
     std::function< double ( double time ) > getDryZenithRangeCorrectionFunction( )
     {
         return dryZenithRangeCorrectionFunction_;
     }
 
+    // Returns the function that computes the wet zenith correction as a function of time.
     std::function< double ( double time ) > getWetZenithRangeCorrectionFunction( )
     {
         return wetZenithRangeCorrectionFunction_;
@@ -477,13 +732,15 @@ protected:
     // Wet atmosphere zenith range correction (in meters)
     std::function< double ( double time ) > wetZenithRangeCorrectionFunction_;
 
+    // Object that maps the zenith tropospheric correction to the desired elevation.
     std::shared_ptr< TroposhericElevationMapping > elevationMapping_;
 
     // Boolean indicating whether the correction is for uplink or donwlink (necessary when computing the elevation)
     bool isUplinkCorrection_;
 };
 
-// Tabulated tropospheric corrections using DSN data, according to Moyer (2000), section 10.2.1
+// Class to compute the tabulated tropospheric corrections using DSN data, according to Moyer (2000), section 10.2.1.
+// Derived class from MappedTroposphericCorrection.
 class TabulatedTroposphericCorrection: public MappedTroposphericCorrection
 {
 public:
@@ -558,11 +815,20 @@ enum WaterVaporPartialPressureModel
 double calculateBeanAndDuttonWaterVaporPartialPressure( double relativeHumidity,
                                                         double temperature );
 
-std::function< double ( const double ) > getBeanAndDuttonWaterVaporPartialPressureFunction(
+/*!
+ * Returns a function that computes the water vapor partial pressure as a function of time, according to the Bean and
+ * Dutton (1966) model.
+ *
+ * @param relativeHumidity Relative humidity as a function of time.
+ * @param temperature Temperature as a function of time.
+ * @return Water vapor partial pressure as a function of time.
+ */
+std::function< double ( const double time ) > getBeanAndDuttonWaterVaporPartialPressureFunction(
         std::function< double ( const double time ) > relativeHumidity,
         std::function< double ( const double time ) > temperature );
 
-// Saastamaoinen model for tropospheric corrections, according to Estefan and Sovers (1994)
+// Class to compute the Saastamaoinen tropospheric corrections, according to Estefan and Sovers (1994). Derived class
+// from MappedTroposphericCorrection.
 class SaastamoinenTroposphericCorrection: public MappedTroposphericCorrection
 {
 public:
@@ -575,7 +841,7 @@ public:
      * @param waterVaporPartialPressureFunction Water vapor partial pressure at the ground station as a function of time
      * @param elevationMapping Mapping function of range corrections from zenith to other elevations
      * @param isUplinkCorrection Boolean indicating whether correction is for uplink (i.e. transmitting station on planet,
-      *      reception on spacecraft) or downlink (i.e. transmission from spacecraft, reception at ground station)
+     *      reception on spacecraft) or downlink (i.e. transmission from spacecraft, reception at ground station)
      */
     SaastamoinenTroposphericCorrection(
             std::function< Eigen::Vector3d ( const double time ) > groundStationGeodeticPositionFunction,
@@ -644,12 +910,34 @@ public:
             bool isUplinkCorrection,
             double referenceFrequency = 2295e6 );
 
+    /*!
+      * Function to compute the ionospheric light-time correction, using tabulated DSN data, according to Moyer (2000),
+      * section 10.2.2.
+      *
+      * @param linkEndsStates List of states at each link end during observation.
+      * @param linkEndsTimes List of times at each link end during observation.
+      * @param currentMultiLegTransmitterIndex Index in the linkEndsStates and linkEndsTimes of the transmitter in the current link.
+      * @param ancillarySettings Observation ancillary simulation settings.
+      * @return Light-time correction
+      */
     double calculateLightTimeCorrectionWithMultiLegLinkEndStates(
             const std::vector< Eigen::Vector6d >& linkEndsStates,
             const std::vector< double >& linkEndsTimes,
             const unsigned int currentMultiLegTransmitterIndex,
             const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings ) override;
 
+    /*!
+     * Function to compute the partial derivative of the light-time correction w.r.t. observation time. Partial is
+     * currently not implemented, function returns 0.
+     *
+     * \param transmitterState State of transmitted at transmission time
+     * \param receiverState State of receiver at reception time
+     * \param transmissionTime Time of signal transmission
+     * \param receptionTime Time of singal reception
+     * \param fixedLinkEnd Reference link end for observation
+     * \param linkEndAtWhichPartialIsEvaluated Link end at which the time partial is to be taken
+     * \return Partial of light-time correction w.r.t. observation time
+     */
     double calculateLightTimeCorrectionPartialDerivativeWrtLinkEndTime(
             const Eigen::Vector6d& transmitterState,
             const Eigen::Vector6d& receiverState,
@@ -662,6 +950,17 @@ public:
         return 0.0;
     }
 
+    /*!
+     * Function to compute the partial derivative of the light-time correction w.r.t. link end position. Partial is
+     * currently not implemented, function returns 0.
+     *
+     * \param transmitterState State of transmitted at transmission time
+     * \param receiverState State of receiver at reception time
+     * \param transmissionTime Time of signal transmission
+     * \param receptionTime Time of singal reception
+     * \param linkEndAtWhichPartialIsEvaluated Link end at which the position partial is to be taken
+     * \return Partial of ight-time correction w.r.t. link end position
+     */
     Eigen::Matrix< double, 3, 1 > calculateLightTimeCorrectionPartialDerivativeWrtLinkEndPosition(
             const Eigen::Vector6d& transmitterState,
             const Eigen::Vector6d& receiverState,
@@ -692,21 +991,35 @@ private:
 
 };
 
-// Calculator of the vertical total electron content (VTEC) of the ionosphere
+// Base class for calculating the vertical total electron content (VTEC) of the ionosphere.
 class VtecCalculator
 {
 public:
 
+    /*!
+     * Constructor.
+     *
+     * @param referenceIonosphereHeight Reference height of the ionosphere layer used when computing VTEC.
+     */
     VtecCalculator( const double referenceIonosphereHeight ):
         referenceIonosphereHeight_( referenceIonosphereHeight )
     { }
 
+    // Destructor
     virtual ~VtecCalculator( ){ }
 
-    // Calculates the VTEC in [m^-2]. (m^-2 = 1e16 TECU)
+    /*!
+     * Function to calculate the VTEC in [m^-2]. (m^-2 = 1e16 TECU). Pure virtual function, should be implemented in
+     * derived class.
+     *
+     * @param time Time at which to compute the VTEC
+     * @param subIonosphericPointGeodeticPosition Geodetic position of the sub-ionospheric point where to compute the VTEC.
+     * @return VTEC
+     */
     virtual double calculateVtec( const double time,
                                   const Eigen::Vector3d subIonosphericPointGeodeticPosition ) = 0;
 
+    // Returns the reference ionoshere height
     double getReferenceIonosphereHeight( )
     {
         return referenceIonosphereHeight_;
@@ -714,11 +1027,12 @@ public:
 
 private:
 
+    // Reference height of the ionosphere layer used when computing VTEC.
     const double referenceIonosphereHeight_;
 
 };
 
-// Computation of the VTEC using the model from Jakowski et al. (2011)
+// Derived class implementing the computation of the VTEC using the model from Jakowski et al. (2011)
 // The geomagnetic latitude is computed according to Klobuchar (1975)
 // The local time is computed according to Moyer (2000)
 class JakowskiVtecCalculator: public VtecCalculator
@@ -769,11 +1083,25 @@ public:
         }
     }
 
+    /*!
+     * Function to calculate the VTEC in [m^-2]. (m^-2 = 1e16 TECU).
+     *
+     * @param time Time at which to compute the VTEC
+     * @param subIonosphericPointGeodeticPosition Geodetic position of the sub-ionospheric point where to compute the VTEC.
+     * @return VTEC
+     */
     double calculateVtec( const double time,
                           const Eigen::Vector3d subIonosphericPointGeodeticPosition ) override;
 
 private:
 
+    /*!
+     * Gets the time used to compute the local time. If a time scale converter was provided, this time is obtained by
+     * converting from TDB from UTC. If no time scale converter is provided, the function simply returns the TDB time.
+     *
+     * @param time TDB time at ground station.
+     * @return Time (TDB or UTC).
+     */
     double getUtcTime( double time )
     {
         if ( timeScaleConverter_ == nullptr )
@@ -803,6 +1131,7 @@ private:
     // Longitude of the geomagnetic pole
     const double geomagneticPoleLongitude_;
 
+    // Time scale converter. Used to convert the time from TDB to UTC.
     std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > timeScaleConverter_;
 
 };
@@ -841,18 +1170,41 @@ public:
             double bodyWithAtmosphereMeanEquatorialRadius,
             double firstOrderDelayCoefficient = 40.3 );
 
-    // Note 1: Function uses a very simple mapping function, following Moyer (2000). At some point, it might be worth
-    //      using other mapping functions, in which case the part of the function where the mapping is executed should
-    //      be moved to a new class.
-    // Note 2: Currently the STEC is calculated from the VTEC using the algorithm for computing the sub-ionospheric point
-    //      described by Moyer (2000). This algorithm fails if the line of sight passes near the poles. For an alternative
-    //      method see Olsen (2007), section 5.7.
+    /*!
+      * Function to compute the ionospheric light-time correction, by mapping the vertical TEC to slant TEC using a very
+      * simple mapping function, following Moyer (2000), section 10.3.1.
+      *
+      * Note 1: Function uses a very simple mapping function, following Moyer (2000). At some point, it might be worth
+      *     using other mapping functions, in which case the part of the function where the mapping is executed should
+      *     be moved to a new class.
+      * Note 2: Currently the STEC is calculated from the VTEC using the algorithm for computing the sub-ionospheric point
+      *     described by Moyer (2000). This algorithm fails if the line of sight passes near the poles. For an alternative
+      *     method see Olsen (2007), section 5.7.
+      *
+      * @param linkEndsStates List of states at each link end during observation.
+      * @param linkEndsTimes List of times at each link end during observation.
+      * @param currentMultiLegTransmitterIndex Index in the linkEndsStates and linkEndsTimes of the transmitter in the current link.
+      * @param ancillarySettings Observation ancillary simulation settings.
+      * @return Light-time correction
+      */
     double calculateLightTimeCorrectionWithMultiLegLinkEndStates(
             const std::vector< Eigen::Vector6d >& linkEndsStates,
             const std::vector< double >& linkEndsTimes,
             const unsigned int currentMultiLegTransmitterIndex,
             const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings ) override;
 
+    /*!
+     * Function to compute the partial derivative of the light-time correction w.r.t. observation time. Partial is
+     * currently not implemented, function returns 0.
+     *
+     * \param transmitterState State of transmitted at transmission time
+     * \param receiverState State of receiver at reception time
+     * \param transmissionTime Time of signal transmission
+     * \param receptionTime Time of singal reception
+     * \param fixedLinkEnd Reference link end for observation
+     * \param linkEndAtWhichPartialIsEvaluated Link end at which the time partial is to be taken
+     * \return Partial of light-time correction w.r.t. observation time
+     */
     double calculateLightTimeCorrectionPartialDerivativeWrtLinkEndTime(
             const Eigen::Vector6d& transmitterState,
             const Eigen::Vector6d& receiverState,
@@ -865,6 +1217,17 @@ public:
         return 0.0;
     }
 
+    /*!
+     * Function to compute the partial derivative of the light-time correction w.r.t. link end position. Partial is
+     * currently not implemented, function returns 0.
+     *
+     * \param transmitterState State of transmitted at transmission time
+     * \param receiverState State of receiver at reception time
+     * \param transmissionTime Time of signal transmission
+     * \param receptionTime Time of singal reception
+     * \param linkEndAtWhichPartialIsEvaluated Link end at which the position partial is to be taken
+     * \return Partial of ight-time correction w.r.t. link end position
+     */
     Eigen::Matrix< double, 3, 1 > calculateLightTimeCorrectionPartialDerivativeWrtLinkEndPosition(
             const Eigen::Vector6d& transmitterState,
             const Eigen::Vector6d& receiverState,
