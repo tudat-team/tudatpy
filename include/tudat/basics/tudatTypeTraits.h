@@ -154,6 +154,16 @@ struct is_direct_gravity_partial< acceleration_partials::PolyhedronGravityPartia
     static const bool value = true;
 };
 
+namespace acceleration_partials
+{
+class RingGravityPartial;
+}
+
+template< >
+struct is_direct_gravity_partial< acceleration_partials::RingGravityPartial > {
+    static const bool value = true;
+};
+
 template< typename T >
 struct is_direct_gravity_acceleration {
     static const bool value = false;
