@@ -472,6 +472,17 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections(
         const LinkEndType& receivingLinkEndType,
         const ObservableType observableType = undefined_observation_model);
 
+/*!
+ * Function to create the object the zenith troposheric correction to the desired elevation.
+ *
+ * @param troposphericMappingModelType Type of the tropospheric mapping model.
+ * @param bodies List of body objects that constitutes the environment
+ * @param transmitter Id of transmitting body/reference point (first/second)
+ * @param receiver Id of receiving body/reference point (first/second)
+ * @param isUplinkCorrection Boolean indicating whether the desired correction is for uplink (ground station as transmitter,
+ *      spacecraft as receiver) or for downlik (spacecraft as transmitter, ground station as receiver)
+ * @return Object for mapping the zenith tropospheric correction.
+ */
 std::shared_ptr< TroposhericElevationMapping > createTroposphericElevationMapping(
         const TroposphericMappingModel troposphericMappingModelType,
         const simulation_setup::SystemOfBodies& bodies,
@@ -479,6 +490,16 @@ std::shared_ptr< TroposhericElevationMapping > createTroposphericElevationMappin
         const LinkEndId& receiver,
         const bool isUplinkCorrection );
 
+/*!
+ * Creates a function that returns the frequency at a given link, as a function of the frequency band used in each link
+ * and of the time at which the signal was transmitted at the transmitter (of the first link).
+ *
+ * @param bodies List of body objects that constitutes the environment
+ * @param linkEnds
+ * @param transmittingLinkEndType Type of the transmitting link end (for this link).
+ * @param receivingLinkEndType Type of the receiving link end (for this link).
+ * @return Function that returns the frequency at the selected link.
+ */
 std::function< double ( std::vector< FrequencyBands >, double ) > createLinkFrequencyFunction(
         const simulation_setup::SystemOfBodies& bodies,
         const LinkEnds& linkEnds,
