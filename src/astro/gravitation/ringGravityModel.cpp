@@ -30,12 +30,13 @@ void RingGravitationalAccelerationModel::updateMembers( const double currentTime
 
         currentRelativePosition_ = rotationToIntegrationFrame_.inverse( ) * currentInertialRelativePosition_;
 
+        ringCache_->setRingRadius( ringRadiusFunction_( ) );
         ringCache_->update( currentRelativePosition_ );
 
         // Compute the current acceleration
         currentAccelerationInBodyFixedFrame_ = computeRingGravitationalAcceleration(
                 currentRelativePosition_,
-                ringRadius_,
+                ringRadiusFunction_( ),
                 gravitationalParameterFunction_(),
                 ringCache_->getEllipticIntegralB( ),
                 ringCache_->getEllipticIntegralE( ),
@@ -48,7 +49,7 @@ void RingGravitationalAccelerationModel::updateMembers( const double currentTime
         {
             currentPotential_ = computeRingGravitationalPotential(
                 currentRelativePosition_,
-                ringRadius_,
+                ringRadiusFunction_( ),
                 gravitationalParameterFunction_(),
                 ringCache_->getEllipticIntegralK( ) );
         }

@@ -156,6 +156,107 @@ Eigen::Vector3d computeRingGravitationalAcceleration(
     return acceleration;
 }
 
+Eigen::Matrix3d computeRingHessianOfGravitationalPotential(
+        const Eigen::Vector3d& positionOfBodySubjectToAcceleration,
+        const double ringRadius,
+        const double gravitationalParameter,
+        const double ellipticIntegralB,
+        const double ellipticIntegralE,
+        const double ellipticIntegralS,
+        const double ellipticIntegralK )
+{
+    double x = positionOfBodySubjectToAcceleration( 0 );
+    double y = positionOfBodySubjectToAcceleration( 1 );
+    double z = positionOfBodySubjectToAcceleration( 2 );
+
+    // Fukushima (2010), eq. 2
+    double r = std::sqrt( std::pow( x, 2.0 ) + std::pow( y, 2.0 ) );
+
+    // Fukushima (2010), eq. 3
+    double p = std::sqrt( std::pow( r + ringRadius, 2.0 ) + std::pow( z, 2.0 ) );
+    // Fukushima (2010), eq. 15
+    double q = std::sqrt( std::pow( r - ringRadius, 2.0 ) + std::pow( z, 2.0 ) );
+
+    double lineDensityTimesGravitationalConst = gravitationalParameter / ( 2.0 * mathematical_constants::PI * ringRadius );
+
+    // Derivatives of acceleration, derived via sympy
+
+    double dax_dx =-8*lineDensityTimesGravitationalConst*ringRadius*x*(2*ellipticIntegralB*x/std::pow(q, 2) +
+            0.5*ellipticIntegralS*(4*ringRadius*x/(std::pow(p, 2)*r) - 8*ringRadius*x*(r + ringRadius)/std::pow(p, 4))*
+            (std::pow(r, 2) - std::pow(ringRadius, 2) + std::pow(z, 2))/std::pow(q, 2) +
+            (-2*ellipticIntegralB*x*(r - ringRadius)*(std::pow(r, 2) - std::pow(ringRadius, 2) + std::pow(z, 2))/
+            std::pow(q, 4) + 2*ellipticIntegralS*ringRadius*x/std::pow(p, 2) -
+            4*ellipticIntegralS*ringRadius*x*std::pow(r + ringRadius, 2)/std::pow(p, 4))/r -
+            2*ringRadius*(r + ringRadius)*(0.5*ellipticIntegralB*std::pow(p, 2) + 1.0*ellipticIntegralS*
+            (-1.0*std::pow(p, 2) + 4.0*r*ringRadius))*(4*ringRadius*x/(std::pow(p, 2)*r) -
+            8*ringRadius*x*(r + ringRadius)/std::pow(p, 4))/(std::pow(p, 2)*(-std::pow(p, 2) +
+            4*r*ringRadius)))/std::pow(p, 3) - 8*lineDensityTimesGravitationalConst*ringRadius*(ellipticIntegralB*(std::pow(r, 2) -
+            std::pow(ringRadius, 2) + std::pow(z, 2))/std::pow(q, 2) + 2*ellipticIntegralS*ringRadius*(r +
+            ringRadius)/std::pow(p, 2))/std::pow(p, 3) + 24*lineDensityTimesGravitationalConst*ringRadius*std::pow(x, 2)*
+            (r + ringRadius)*(ellipticIntegralB*(std::pow(r, 2) - std::pow(ringRadius, 2) + std::pow(z, 2))/std::pow(q, 2) +
+            2*ellipticIntegralS*ringRadius*(r + ringRadius)/std::pow(p, 2))/(std::pow(p, 5)*r);
+
+    double dax_dy =-8*lineDensityTimesGravitationalConst*ringRadius*x*(2*ellipticIntegralB*y/std::pow(q, 2) +
+            0.5*ellipticIntegralS*(4*ringRadius*y/(std::pow(p, 2)*r) - 8*ringRadius*y*(r + ringRadius)/std::pow(p, 4))*
+            (std::pow(r, 2) - std::pow(ringRadius, 2) + std::pow(z, 2))/std::pow(q, 2) +
+            (-2*ellipticIntegralB*y*(r - ringRadius)*(std::pow(r, 2) - std::pow(ringRadius, 2) +
+            std::pow(z, 2))/std::pow(q, 4) + 2*ellipticIntegralS*ringRadius*y/std::pow(p, 2) -
+            4*ellipticIntegralS*ringRadius*y*std::pow(r + ringRadius, 2)/std::pow(p, 4))/r -
+            2*ringRadius*(r + ringRadius)*(0.5*ellipticIntegralB*std::pow(p, 2) + 1.0*ellipticIntegralS*(-1.0*std::pow(p, 2) +
+            4.0*r*ringRadius))*(4*ringRadius*y/(std::pow(p, 2)*r) - 8*ringRadius*y*(r + ringRadius)/std::pow(p, 4))/
+            (std::pow(p, 2)*(-std::pow(p, 2) + 4*r*ringRadius)))/std::pow(p, 3) +
+            24*lineDensityTimesGravitationalConst*ringRadius*x*y*(r + ringRadius)*(ellipticIntegralB*(std::pow(r, 2) -
+            std::pow(ringRadius, 2) + std::pow(z, 2))/std::pow(q, 2) + 2*ellipticIntegralS*ringRadius*(r +
+            ringRadius)/std::pow(p, 2))/(std::pow(p, 5)*r);
+
+    double day_dy =-8*lineDensityTimesGravitationalConst*ringRadius*y*(2*ellipticIntegralB*y/std::pow(q, 2) +
+            0.5*ellipticIntegralS*(4*ringRadius*y/(std::pow(p, 2)*r) - 8*ringRadius*y*(r + ringRadius)/std::pow(p, 4))*(std::pow(r, 2)
+            - std::pow(ringRadius, 2) + std::pow(z, 2))/std::pow(q, 2) + (-2*ellipticIntegralB*y*(r - ringRadius)*(std::pow(r, 2) -
+            std::pow(ringRadius, 2) + std::pow(z, 2))/std::pow(q, 4) + 2*ellipticIntegralS*ringRadius*y/std::pow(p, 2) -
+            4*ellipticIntegralS*ringRadius*y*std::pow(r + ringRadius, 2)/std::pow(p, 4))/r - 2*ringRadius*
+            (r + ringRadius)*(0.5*ellipticIntegralB*std::pow(p, 2) + 1.0*ellipticIntegralS*(-1.0*std::pow(p, 2) +
+            4.0*r*ringRadius))*(4*ringRadius*y/(std::pow(p, 2)*r) - 8*ringRadius*y*(r + ringRadius)/std::pow(p, 4))/
+            (std::pow(p, 2)*(-std::pow(p, 2) + 4*r*ringRadius)))/std::pow(p, 3) -
+            8*lineDensityTimesGravitationalConst*ringRadius*(ellipticIntegralB*(std::pow(r, 2) - std::pow(ringRadius, 2) +
+            std::pow(z, 2))/std::pow(q, 2) + 2*ellipticIntegralS*ringRadius*(r + ringRadius)/std::pow(p, 2))/
+            std::pow(p, 3) + 24*lineDensityTimesGravitationalConst*ringRadius*std::pow(y, 2)*(r + ringRadius)*(
+            ellipticIntegralB*(std::pow(r, 2) - std::pow(ringRadius, 2) + std::pow(z, 2))/std::pow(q, 2) +
+            2*ellipticIntegralS*ringRadius*(r + ringRadius)/std::pow(p, 2))/(std::pow(p, 5)*r);
+
+    double daz_dx =
+            (-0.5*lineDensityTimesGravitationalConst*p*z*(-ellipticIntegralK + ellipticIntegralE)*(4*ringRadius*x/(std::pow(p, 2)*r)
+            - 8*ringRadius*x*(r + ringRadius)/std::pow(p, 4))/std::pow(q, 2) + 8*lineDensityTimesGravitationalConst*
+            ringRadius*x*z*(r - ringRadius)*ellipticIntegralE/(p*std::pow(q, 4)) + 4*lineDensityTimesGravitationalConst*
+            ringRadius*x*z*(r + ringRadius)*ellipticIntegralE/(std::pow(p, 3)*std::pow(q, 2)))/r;
+
+    double daz_dy =
+            (-0.5*lineDensityTimesGravitationalConst*p*z*(-ellipticIntegralK + ellipticIntegralE)*(4*ringRadius*y/(std::pow(p, 2)*r)
+            - 8*ringRadius*y*(r + ringRadius)/std::pow(p, 4))/std::pow(q, 2) + 8*lineDensityTimesGravitationalConst*
+            ringRadius*y*z*(r - ringRadius)*ellipticIntegralE/(p*std::pow(q, 4)) +
+            4*lineDensityTimesGravitationalConst*ringRadius*y*z*(r + ringRadius)*ellipticIntegralE/(std::pow(p, 3)*
+            std::pow(q, 2)))/r;
+
+    double daz_dz =
+            -4*lineDensityTimesGravitationalConst*ringRadius*ellipticIntegralE/(p*std::pow(q, 2)) +
+            8*lineDensityTimesGravitationalConst*ringRadius*std::pow(z, 2)*ellipticIntegralE/(p*std::pow(q, 4)) +
+            4.0*lineDensityTimesGravitationalConst*ringRadius*std::pow(z, 2)*(-ellipticIntegralK + ellipticIntegralE)/
+            (std::pow(p, 3)*std::pow(q, 2)) + 4*lineDensityTimesGravitationalConst*ringRadius*std::pow(z, 2)*
+            ellipticIntegralE/(std::pow(p, 3)*std::pow(q, 2));
+
+    Eigen::Matrix3d hessianMatrix;
+    hessianMatrix(0,0) = dax_dx;
+    hessianMatrix(1,1) = day_dy;
+    hessianMatrix(2,2) = daz_dz;
+    hessianMatrix(0,1) = dax_dy;
+    hessianMatrix(1,0) = hessianMatrix(0,1);
+    hessianMatrix(0,2) = daz_dx;
+    hessianMatrix(2,0) = hessianMatrix(0,2);
+    hessianMatrix(1,2) = daz_dy;
+    hessianMatrix(2,1) = hessianMatrix(1,2);
+
+    return hessianMatrix;
+}
+
 } // namespace gravitation
 
 } // namespace tudat

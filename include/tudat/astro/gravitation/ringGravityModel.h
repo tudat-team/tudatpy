@@ -79,12 +79,12 @@ public:
             const bool updateGravitationalPotential = false )
         : subjectPositionFunction_( positionOfBodySubjectToAccelerationFunction ),
           gravitationalParameterFunction_( [ = ]( ){ return aGravitationalParameter; } ),
-          ringRadius_( aRingRadius ),
+          ringRadiusFunction_( [ = ]( ){ return aRingRadius; } ),
           ellipticIntegralSFromDAndB_( ellipticIntegralSFromDAndB ),
           sourcePositionFunction_( positionOfBodyExertingAccelerationFunction ),
           rotationFromBodyFixedToIntegrationFrameFunction_( rotationFromBodyFixedToIntegrationFrameFunction ),
           isMutualAttractionUsed_( isMutualAttractionUsed ),
-          ringCache_( std::make_shared< RingGravityCache >( ringRadius_, ellipticIntegralSFromDAndB_ ) ),
+          ringCache_( std::make_shared< RingGravityCache >( aRingRadius, ellipticIntegralSFromDAndB_ ) ),
           currentPotential_( TUDAT_NAN ),
           updatePotential_( updateGravitationalPotential )
     { }
@@ -100,7 +100,7 @@ public:
      * gravitational acceleration is an optional parameter; the default position is the origin.
      * \param positionOfBodySubjectToAccelerationFunction Pointer to function returning position of
      *          body subject to gravitational acceleration.
-     * \param gravitationalParameterFunction Pointer to function returning gravitational parameter.
+     * \param gravitationalParameterFunction Pointer to function returning the gravitational parameter.
      * \param aRingRadius A (constant) ring radius [m].
      * \param ellipticIntegralSFromDAndB Flag indicating whether to compute S(m) from D(m) and B(m) (if true),
      *      or from K(m) and E(m) (if false). The former has a lower loss of accuracy due to numerical cancellation
@@ -119,7 +119,7 @@ public:
     RingGravitationalAccelerationModel (
             const StateFunction positionOfBodySubjectToAccelerationFunction,
             const std::function< double() > gravitationalParameterFunction,
-            const double aRingRadius,
+            const std::function< double() > ringRadiusFunction,
             const bool ellipticIntegralSFromDAndB,
             const StateFunction positionOfBodyExertingAccelerationFunction =
                     [ ]( Eigen::Vector3d& input) { input = Eigen::Vector3d::Zero( ); },
@@ -129,12 +129,12 @@ public:
             const bool updateGravitationalPotential = false )
         : subjectPositionFunction_( positionOfBodySubjectToAccelerationFunction ),
           gravitationalParameterFunction_( gravitationalParameterFunction ),
-          ringRadius_( aRingRadius ),
+          ringRadiusFunction_( ringRadiusFunction ),
           ellipticIntegralSFromDAndB_( ellipticIntegralSFromDAndB ),
           sourcePositionFunction_( positionOfBodyExertingAccelerationFunction ),
           rotationFromBodyFixedToIntegrationFrameFunction_( rotationFromBodyFixedToIntegrationFrameFunction ),
           isMutualAttractionUsed_( isMutualAttractionUsed ),
-          ringCache_( std::make_shared< RingGravityCache >( ringRadius_, ellipticIntegralSFromDAndB_ ) ),
+          ringCache_( std::make_shared< RingGravityCache >( ringRadiusFunction(), ellipticIntegralSFromDAndB_ ) ),
           currentPotential_( TUDAT_NAN ),
           updatePotential_( updateGravitationalPotential )
     { }
@@ -180,9 +180,9 @@ public:
     }
 
     //! Function to return the radius of the ring.
-    double getRingRadius( )
+    std::function< double( ) > getRingRadiusFunction( )
     {
-        return ringRadius_;
+        return ringRadiusFunction_;
     }
 
     //! Function to return current position vector of body exerting gravitational acceleration in inertial frame.
@@ -239,8 +239,8 @@ private:
     //! Function returning a gravitational parameter [m^3 s^-2].
     const std::function< double( ) > gravitationalParameterFunction_;
 
-    //! Ring radius [m].
-    const double ringRadius_;
+    //! Function returning the ring radius [m].
+    const std::function< double() > ringRadiusFunction_;
 
     //! Flag indicating whether to compute S(m) from D(m) and B(m) (if true), or from K(m) and E(m) (if false)
     const bool ellipticIntegralSFromDAndB_;

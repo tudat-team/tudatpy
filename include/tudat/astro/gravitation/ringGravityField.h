@@ -81,6 +81,28 @@ Eigen::Vector3d computeRingGravitationalAcceleration(
         const double ellipticIntegralE,
         const double ellipticIntegralS );
 
+/*!
+ * Computes the hessian matrix of the gravitational potential of a 1-dimensional ring. The ring is assumed to be
+ * contained in the xy plane, with center at the origin of the reference frame.
+ *
+ * @param positionOfBodySubjectToAcceleration Position of the body subject to the acceleration wrt the ring's body-fixed frame.
+ * @param ringRadius Radius of the ring.
+ * @param gravitationalParameter Gravitational parameter of the ring.
+ * @param ellipticIntegralB Complete elliptic integral B.
+ * @param ellipticIntegralE Complete elliptic integral E.
+ * @param ellipticIntegralS Complete elliptic integral S.
+ * @param ellipticIntegralK Complete elliptic integral K.
+ * @return Hessian matrix.
+ */
+Eigen::Matrix3d computeRingHessianOfGravitationalPotential(
+        const Eigen::Vector3d& positionOfBodySubjectToAcceleration,
+        const double ringRadius,
+        const double gravitationalParameter,
+        const double ellipticIntegralB,
+        const double ellipticIntegralE,
+        const double ellipticIntegralS,
+        const double ellipticIntegralK );
+
 //! Cache object in which variables that are required for the computation of ring gravity field are stored.
 class RingGravityCache
 {
@@ -135,13 +157,29 @@ public:
         return currentEllipticIntegralE_;
     }
 
+    double getRingRadius( )
+    {
+        return ringRadius_;
+    }
+
+    void setRingRadius( double ringRadius )
+    {
+        // Update ring radius and reset cache if needed
+        if ( ringRadius != ringRadius_ )
+        {
+            ringRadius_ = ringRadius;
+            // Reset body fixed position so that cache get updated next time
+            currentBodyFixedPosition_ = ( Eigen::Vector3d( ) << TUDAT_NAN, TUDAT_NAN, TUDAT_NAN ).finished( );
+        }
+    }
+
 private:
 
     // Current body fixed position.
     Eigen::Vector3d currentBodyFixedPosition_;
 
     // Radius of the ring
-    const double ringRadius_;
+    double ringRadius_;
 
     // Flag indicating whether to compute S(m) from D(m) and B(m) (if true), or from K(m) and E(m) (if false)
     const bool ellipticIntegralSFromDAndB_;
