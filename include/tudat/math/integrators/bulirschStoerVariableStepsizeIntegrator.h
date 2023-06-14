@@ -120,7 +120,6 @@ public:
         stepSizeController_( nullptr ),
         stepSizeValidator_( nullptr )
     {
-        std::cout<<"Initializing: "<<initialState<<" "<<initialStepSize<<" "<<intervalStart<<std::endl;
         maximumStepIndex_ = sequence_.size( ) - 1;
         subSteps_.resize( maximumStepIndex_ + 1 );
 
