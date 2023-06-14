@@ -800,6 +800,20 @@ class BulirschStoerIntegratorSettings: public IntegratorSettings< IndependentVar
 {
 public:
 
+    BulirschStoerIntegratorSettings(
+        const IndependentVariableType initialTimeStep,
+        const ExtrapolationMethodStepSequences extrapolationSequence,
+        const unsigned int maximumNumberOfSteps,
+        const std::shared_ptr< IntegratorStepSizeControlSettings > stepSizeControlSettings,
+        const std::shared_ptr< IntegratorStepSizeValidationSettings > stepSizeAcceptanceSettings,
+        const bool assessTerminationOnMinorSteps = false ):
+        IntegratorSettings< IndependentVariableType >(
+            bulirschStoer, TUDAT_NAN, initialTimeStep,
+            assessTerminationOnMinorSteps ),
+        extrapolationSequence_( extrapolationSequence ), maximumNumberOfSteps_( maximumNumberOfSteps ),
+        stepSizeControlSettings_( stepSizeControlSettings ), stepSizeAcceptanceSettings_( stepSizeAcceptanceSettings ){ }
+
+
     // Constructor.
     /*
      *  Constructor for variable step RK integrator settings.
@@ -837,20 +851,22 @@ public:
         IntegratorSettings< IndependentVariableType >(
             bulirschStoer, initialTime, initialTimeStep, 
             assessTerminationOnMinorSteps ),
-        extrapolationSequence_( extrapolationSequence ), maximumNumberOfSteps_( maximumNumberOfSteps ),
-        minimumStepSize_( minimumStepSize ), maximumStepSize_( maximumStepSize ),
-        relativeErrorTolerance_( relativeErrorTolerance ), absoluteErrorTolerance_( absoluteErrorTolerance ),
-        safetyFactorForNextStepSize_( safetyFactorForNextStepSize ),
-        maximumFactorIncreaseForNextStepSize_( maximumFactorIncreaseForNextStepSize ),
-        minimumFactorDecreaseForNextStepSize_( minimumFactorDecreaseForNextStepSize ){ }
+        extrapolationSequence_( extrapolationSequence ), maximumNumberOfSteps_( maximumNumberOfSteps )
+        {
+            stepSizeAcceptanceSettings_ = std::make_shared< IntegratorStepSizeValidationSettings >(
+                minimumStepSize, maximumStepSize );
+            stepSizeControlSettings_ = std::make_shared< PerElementIntegratorStepSizeControlSettings< double > >(
+                relativeErrorTolerance,
+                absoluteErrorTolerance, safetyFactorForNextStepSize, minimumFactorDecreaseForNextStepSize,
+                maximumFactorIncreaseForNextStepSize );
+        }
 
     virtual std::shared_ptr< IntegratorSettings< IndependentVariableType > > clone( ) const
     {
         return std::make_shared< BulirschStoerIntegratorSettings< IndependentVariableType> >(
-                    this->initialTimeDeprecated_, this->initialTimeStep_, extrapolationSequence_, maximumNumberOfSteps_,
-                    this->minimumStepSize_, this->maximumStepSize_, relativeErrorTolerance_, absoluteErrorTolerance_,
-                    this->assessTerminationOnMinorSteps_,
-                    this->safetyFactorForNextStepSize_, this->maximumFactorIncreaseForNextStepSize_, this->minimumFactorDecreaseForNextStepSize_ );
+                    this->initialTimeStep_, extrapolationSequence_, maximumNumberOfSteps_,
+                    stepSizeControlSettings_,
+                    stepSizeAcceptanceSettings_, this->assessTerminationOnMinorSteps_ );
     }
 
     // Destructor.
@@ -865,29 +881,10 @@ public:
     // Number of entries in the sequence, e.g. number of integrations used for a single extrapolation.
     unsigned int maximumNumberOfSteps_;
 
-    // Minimum step size for integration.
-    /*
-     *  Minimum step size for integration. Integration stops (exception thrown) if time step comes below this value.
-     */
-    const IndependentVariableType minimumStepSize_;
+    std::shared_ptr< IntegratorStepSizeControlSettings > stepSizeControlSettings_;
 
-    // Maximum step size for integration.
-    const IndependentVariableType maximumStepSize_;
+    std::shared_ptr< IntegratorStepSizeValidationSettings > stepSizeAcceptanceSettings_;
 
-    // Relative error tolerance for step size control
-    const double relativeErrorTolerance_;
-
-    // Absolute error tolerance for step size control
-    const double absoluteErrorTolerance_;
-
-    // Safety factor for step size control
-    const IndependentVariableType safetyFactorForNextStepSize_;
-
-    // Maximum increase factor in time step in subsequent iterations.
-    const IndependentVariableType maximumFactorIncreaseForNextStepSize_;
-
-    // Minimum decrease factor in time step in subsequent iterations.
-    const IndependentVariableType minimumFactorDecreaseForNextStepSize_;
 
 };
 
@@ -1158,6 +1155,64 @@ inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > multiSta
         initialTimeStep, coefficientSet, stepSizeControlSettings, stepSizeAcceptanceSettings, assessTerminationOnMinorSteps );
 }
 
+
+template< typename IndependentVariableType = double >
+inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > bulirschStoerVariableStepIntegratorSettings(
+    const IndependentVariableType initialTimeStep,
+    const ExtrapolationMethodStepSequences extrapolationSequence,
+    const unsigned int maximumNumberOfSteps,
+    const std::shared_ptr< IntegratorStepSizeControlSettings > stepSizeControlSettings,
+    const std::shared_ptr< IntegratorStepSizeValidationSettings > stepSizeAcceptanceSettings,
+    const bool assessTerminationOnMinorSteps = false )
+{
+    return std::make_shared< BulirschStoerIntegratorSettings< IndependentVariableType > >(
+        initialTimeStep,
+        extrapolationSequence, maximumNumberOfSteps,
+        stepSizeControlSettings, stepSizeAcceptanceSettings,
+        assessTerminationOnMinorSteps );
+}
+
+
+
+template< typename IndependentVariableType = double >
+inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > bulirschStoerFixedStepIntegratorSettings(
+    const IndependentVariableType timeStep,
+    const ExtrapolationMethodStepSequences extrapolationSequence,
+    const unsigned int maximumNumberOfSteps,
+    const bool assessTerminationOnMinorSteps = false )
+{
+    return std::make_shared< BulirschStoerIntegratorSettings< IndependentVariableType > >(
+        timeStep,
+        extrapolationSequence, maximumNumberOfSteps,
+        nullptr, nullptr,
+        assessTerminationOnMinorSteps );
+}
+
+
+template< typename IndependentVariableType = double >
+inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > bulirschStoerIntegratorSettingsDeprecatedNew(
+    const IndependentVariableType initialTimeStep,
+    const ExtrapolationMethodStepSequences extrapolationSequence,
+    const unsigned int maximumNumberOfSteps,
+    const IndependentVariableType minimumStepSize, const IndependentVariableType maximumStepSize,
+    const double relativeErrorTolerance = 1.0E-12,
+    const double absoluteErrorTolerance = 1.0E-12,
+    const bool assessTerminationOnMinorSteps = false,
+    const IndependentVariableType safetyFactorForNextStepSize = 0.7,
+    const IndependentVariableType maximumFactorIncreaseForNextStepSize = 10.0,
+    const IndependentVariableType minimumFactorDecreaseForNextStepSize = 0.1 )
+{
+    return std::make_shared< BulirschStoerIntegratorSettings< IndependentVariableType > >(
+        TUDAT_NAN, initialTimeStep,
+        extrapolationSequence, maximumNumberOfSteps,
+        minimumStepSize, maximumStepSize,
+        relativeErrorTolerance, absoluteErrorTolerance,
+        assessTerminationOnMinorSteps,
+        safetyFactorForNextStepSize,
+        maximumFactorIncreaseForNextStepSize,
+        minimumFactorDecreaseForNextStepSize );
+}
+
 template< typename IndependentVariableType = double >
 inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > bulirschStoerIntegratorSettingsDeprecated(
         const IndependentVariableType initialTime,
@@ -1183,47 +1238,7 @@ inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > bulirsch
                 minimumFactorDecreaseForNextStepSize );
 }
 
-template< typename IndependentVariableType = double >
-inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > bulirschStoerIntegratorSettings(
-        const IndependentVariableType initialTimeStep,
-        const ExtrapolationMethodStepSequences extrapolationSequence,
-        const unsigned int maximumNumberOfSteps,
-        const IndependentVariableType minimumStepSize, const IndependentVariableType maximumStepSize,
-        const double relativeErrorTolerance = 1.0E-12,
-        const double absoluteErrorTolerance = 1.0E-12,
-        const bool assessTerminationOnMinorSteps = false,
-        const IndependentVariableType safetyFactorForNextStepSize = 0.7,
-        const IndependentVariableType maximumFactorIncreaseForNextStepSize = 10.0,
-        const IndependentVariableType minimumFactorDecreaseForNextStepSize = 0.1 )
-{
-    return std::make_shared< BulirschStoerIntegratorSettings< IndependentVariableType > >(
-                TUDAT_NAN, initialTimeStep,
-                extrapolationSequence, maximumNumberOfSteps,
-                minimumStepSize, maximumStepSize,
-                relativeErrorTolerance, absoluteErrorTolerance,
-                  assessTerminationOnMinorSteps,
-                safetyFactorForNextStepSize,
-                maximumFactorIncreaseForNextStepSize,
-                minimumFactorDecreaseForNextStepSize );
-}
 
-
-
-template< typename IndependentVariableType = double >
-inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > bulirschStoerFixedStepIntegratorSettings(
-    const IndependentVariableType timeStep,
-    const ExtrapolationMethodStepSequences extrapolationSequence,
-    const unsigned int maximumNumberOfSteps,
-    const bool assessTerminationOnMinorSteps = false )
-{
-    return std::make_shared< BulirschStoerIntegratorSettings< IndependentVariableType > >(
-        TUDAT_NAN, timeStep,
-        extrapolationSequence, maximumNumberOfSteps,
-        timeStep, timeStep,
-        std::numeric_limits< double >::infinity( ), std::numeric_limits< double >::infinity( ),
-        assessTerminationOnMinorSteps,
-        1.0, 1.0, 1.0 );
-}
 
 template< typename IndependentVariableType = double >
 inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > adamsBashforthMoultonSettingsDeprecated(
@@ -1526,19 +1541,6 @@ DependentVariableType, IndependentVariableStepType > > createIntegrator(
                     integratorSettings );
 
 
-        if( std::fabs( static_cast<double>(bulirschStoerIntegratorSettings->initialTimeStep_) ) <
-                std::fabs( static_cast<double>(bulirschStoerIntegratorSettings->minimumStepSize_) ) )
-        {
-            throw std::runtime_error( "Error when making BS variable step-size integrator: initial step size is smaller than minimum step" );
-        }
-
-
-        if( std::fabs( static_cast<double>(bulirschStoerIntegratorSettings->initialTimeStep_)  ) >
-                std::fabs( static_cast<double>(bulirschStoerIntegratorSettings->maximumStepSize_) ) )
-        {
-            throw std::runtime_error( "Error when making BS variable step-size integrator: initial step size is larger than maximum step" );
-        }
-
         // Check that integrator type has been cast properly
         if ( bulirschStoerIntegratorSettings == nullptr )
         {
@@ -1548,19 +1550,55 @@ DependentVariableType, IndependentVariableStepType > > createIntegrator(
         }
         else
         {
-            integrator = std::make_shared< BulirschStoerVariableStepSizeIntegrator
-                    < IndependentVariableType, DependentVariableType, DependentVariableType, IndependentVariableStepType > >
+//            if( std::fabs( static_cast<double>(bulirschStoerIntegratorSettings->initialTimeStep_) ) <
+//                std::fabs( static_cast<double>(bulirschStoerIntegratorSettings->minimumStepSize_) ) )
+//            {
+//                throw std::runtime_error( "Error when making BS variable step-size integrator: initial step size is smaller than minimum step" );
+//            }
+//
+//
+//            if( std::fabs( static_cast<double>(bulirschStoerIntegratorSettings->initialTimeStep_)  ) >
+//                std::fabs( static_cast<double>(bulirschStoerIntegratorSettings->maximumStepSize_) ) )
+//            {
+//                throw std::runtime_error( "Error when making BS variable step-size integrator: initial step size is larger than maximum step" );
+//            }
+//
+            if( ( bulirschStoerIntegratorSettings->stepSizeControlSettings_ != nullptr  ) != ( bulirschStoerIntegratorSettings->stepSizeAcceptanceSettings_ != nullptr ) )
+            {
+                throw std::runtime_error( "Error when creating Bulirsch-Stoer integrator, settings are inconsistent (step-size control and acceptance settings have only one of two set)" );
+            }
+
+            if( bulirschStoerIntegratorSettings->stepSizeControlSettings_ != nullptr )
+            {
+                // TODO: Check if order makes sense here
+                std::shared_ptr<IntegratorStepSizeController<IndependentVariableStepType, DependentVariableType> >
+                    stepSizeController =
+                    createStepSizeController<IndependentVariableStepType, DependentVariableType>(
+                        bulirschStoerIntegratorSettings->stepSizeControlSettings_,
+                        static_cast< double >( 2 * ( bulirschStoerIntegratorSettings->maximumNumberOfSteps_ - 1 ) -
+                                               1 ));
+
+                std::shared_ptr<IntegratorStepSizeValidator<IndependentVariableStepType> > stepSizeValidator =
+                    createIntegratorStepSizeValidator<IndependentVariableStepType>(
+                        bulirschStoerIntegratorSettings->stepSizeAcceptanceSettings_ );
+
+                integrator = std::make_shared<BulirschStoerVariableStepSizeIntegrator
+                    <IndependentVariableType, DependentVariableType, DependentVariableType, IndependentVariableStepType> >
                     ( getBulirschStoerStepSequence( bulirschStoerIntegratorSettings->extrapolationSequence_,
                                                     bulirschStoerIntegratorSettings->maximumNumberOfSteps_ ),
                       stateDerivativeFunction, initialTime, initialState,
-                      static_cast< IndependentVariableStepType >( bulirschStoerIntegratorSettings->minimumStepSize_ ),
-                      static_cast< IndependentVariableStepType >( bulirschStoerIntegratorSettings->maximumStepSize_ ),
                       static_cast< IndependentVariableStepType >( integratorSettings->initialTimeStep_ ),
-                      bulirschStoerIntegratorSettings->relativeErrorTolerance_,
-                      bulirschStoerIntegratorSettings->absoluteErrorTolerance_,
-                      static_cast< IndependentVariableStepType >( bulirschStoerIntegratorSettings->safetyFactorForNextStepSize_ ),
-                      static_cast< IndependentVariableStepType >( bulirschStoerIntegratorSettings->maximumFactorIncreaseForNextStepSize_ ),
-                      static_cast< IndependentVariableStepType >( bulirschStoerIntegratorSettings->minimumFactorDecreaseForNextStepSize_ ) );
+                      stepSizeController, stepSizeValidator );
+            }
+            else
+            {
+                integrator = std::make_shared<BulirschStoerVariableStepSizeIntegrator
+                    <IndependentVariableType, DependentVariableType, DependentVariableType, IndependentVariableStepType> >
+                    ( getBulirschStoerStepSequence( bulirschStoerIntegratorSettings->extrapolationSequence_,
+                                                    bulirschStoerIntegratorSettings->maximumNumberOfSteps_ ),
+                      stateDerivativeFunction, initialTime, initialState,
+                      static_cast< IndependentVariableStepType >( integratorSettings->initialTimeStep_ ) );
+            }
         }
         break;
     }

@@ -77,7 +77,63 @@ public:
      */
     typedef typename Base::StateDerivativeFunction StateDerivativeFunction;
 
-    // Default constructor.
+
+
+    BulirschStoerVariableStepSizeIntegrator(
+        const std::vector< unsigned int >& sequence,
+        const StateDerivativeFunction& stateDerivativeFunction,
+        const IndependentVariableType intervalStart,
+        const StateType& initialState,
+        const TimeStepType initialStepSize,
+        const std::shared_ptr< IntegratorStepSizeController< TimeStepType, StateType > > stepSizeController,
+        const std::shared_ptr< IntegratorStepSizeValidator< TimeStepType > > stepSizeValidator ):
+            Base( stateDerivativeFunction ), currentIndependentVariable_( intervalStart ),
+            currentState_( initialState ), lastIndependentVariable_( intervalStart ),
+            sequence_( sequence ),
+            stepSize_( initialStepSize ),
+            stepSizeController_( stepSizeController ),
+            stepSizeValidator_( stepSizeValidator )
+        {
+            maximumStepIndex_ = sequence_.size( ) - 1;
+            subSteps_.resize( maximumStepIndex_ + 1 );
+
+            integratedStates_.resize( maximumStepIndex_ + 1  );
+            for( unsigned int i = 0; i < maximumStepIndex_ + 1 ; i++ )
+            {
+                integratedStates_[ i ].resize( maximumStepIndex_ + 1  );
+            }
+
+            useFixedStep_ = false;
+            stepSizeController_->initialize( initialState );
+        }
+
+    BulirschStoerVariableStepSizeIntegrator(
+        const std::vector< unsigned int >& sequence,
+        const StateDerivativeFunction& stateDerivativeFunction,
+        const IndependentVariableType intervalStart,
+        const StateType& initialState,
+        const TimeStepType initialStepSize ):
+        Base( stateDerivativeFunction ), currentIndependentVariable_( intervalStart ),
+        currentState_( initialState ), lastIndependentVariable_( intervalStart ),
+        sequence_( sequence ),
+        stepSize_( initialStepSize ),
+        stepSizeController_( nullptr ),
+        stepSizeValidator_( nullptr )
+    {
+        std::cout<<"Initializing: "<<initialState<<" "<<initialStepSize<<" "<<intervalStart<<std::endl;
+        maximumStepIndex_ = sequence_.size( ) - 1;
+        subSteps_.resize( maximumStepIndex_ + 1 );
+
+        integratedStates_.resize( maximumStepIndex_ + 1  );
+        for( unsigned int i = 0; i < maximumStepIndex_ + 1 ; i++ )
+        {
+            integratedStates_[ i ].resize( maximumStepIndex_ + 1  );
+        }
+
+        useFixedStep_ = true;
+    }
+
+// Default constructor.
     /*
      * Default constructor, taking sequence, a state derivative function, initial conditions,
      * minimum step size and relative error tolerance per item in the state vector as argument.
@@ -98,17 +154,17 @@ public:
      * \sa NumericalIntegrator::NumericalIntegrator.
      */
     BulirschStoerVariableStepSizeIntegrator(
-            const std::vector< unsigned int >& sequence,
-            const StateDerivativeFunction& stateDerivativeFunction,
-            const IndependentVariableType intervalStart,  const StateType& initialState,
-            const TimeStepType minimumStepSize,
-            const TimeStepType maximumStepSize,
-            const TimeStepType initialStepSize,
-            const StateType& relativeErrorTolerance,
-            const StateType& absoluteErrorTolerance,
-            const TimeStepType safetyFactorForNextStepSize = 0.6,
-            const TimeStepType maximumFactorIncreaseForNextStepSize = 4.0,
-            const TimeStepType minimumFactorDecreaseForNextStepSize = 0.1 ):
+        const std::vector< unsigned int >& sequence,
+        const StateDerivativeFunction& stateDerivativeFunction,
+        const IndependentVariableType intervalStart,  const StateType& initialState,
+        const TimeStepType minimumStepSize,
+        const TimeStepType maximumStepSize,
+        const TimeStepType initialStepSize,
+        const StateType& relativeErrorTolerance,
+        const StateType& absoluteErrorTolerance,
+        const TimeStepType safetyFactorForNextStepSize = 0.6,
+        const TimeStepType maximumFactorIncreaseForNextStepSize = 4.0,
+        const TimeStepType minimumFactorDecreaseForNextStepSize = 0.1 ):
         Base( stateDerivativeFunction ), currentIndependentVariable_( intervalStart ),
         currentState_( initialState ), lastIndependentVariable_( intervalStart ),
         sequence_( sequence ),
@@ -132,7 +188,8 @@ public:
 
         stepSizeController_ = std::make_shared< PerElementIntegratorStepSizeController< TimeStepType, StateType > >(
             relativeErrorTolerance, absoluteErrorTolerance,
-            static_cast< double >( safetyFactorForNextStepSize ), static_cast< double >( 2 * maximumStepIndex_ - 1 ),
+            static_cast< double >( safetyFactorForNextStepSize ),
+            static_cast< double >( 2 * maximumStepIndex_ - 1 ),
             static_cast< double >( minimumFactorDecreaseForNextStepSize ),
             static_cast< double >( maximumFactorIncreaseForNextStepSize ) );
         stepSizeController_->initialize( initialState );
