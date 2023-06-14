@@ -1575,7 +1575,7 @@ DependentVariableType, IndependentVariableStepType > > createIntegrator(
                     stepSizeController =
                     createStepSizeController<IndependentVariableStepType, DependentVariableType>(
                         bulirschStoerIntegratorSettings->stepSizeControlSettings_,
-                        static_cast< double >( 2 * ( bulirschStoerIntegratorSettings->maximumNumberOfSteps_ - 1 ) -
+                        static_cast< double >( 2 * ( bulirschStoerIntegratorSettings->maximumNumberOfSteps_ - 1 ) +
                                                1 ));
 
                 std::shared_ptr<IntegratorStepSizeValidator<IndependentVariableStepType> > stepSizeValidator =
