@@ -377,6 +377,68 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAc
         }
         break;
     }
+    case ring_gravity:
+    {
+        // Check if identifier is consistent with type.
+        std::shared_ptr< RingGravitationalAccelerationModel > ringAcceleration =
+                std::dynamic_pointer_cast< RingGravitationalAccelerationModel >( accelerationModel );
+        if( ringAcceleration == nullptr )
+        {
+            throw std::runtime_error(
+                        "Acceleration class type does not match acceleration type enum (ring_gravity) set when making "
+                        "acceleration partial." );
+        }
+        else
+        {
+            std::map< std::pair< estimatable_parameters::EstimatebleParametersEnum, std::string >,
+                    std::shared_ptr< observation_partials::RotationMatrixPartial > >
+                    rotationMatrixPartials = observation_partials::createRotationMatrixPartials(
+                        parametersToEstimate, acceleratingBody.first, bodies );
+
+            // Create partial-calculating object.
+            accelerationPartial = std::make_shared< RingGravityPartial >
+                    ( acceleratedBody.first, acceleratingBody.first, ringAcceleration, rotationMatrixPartials );
+
+        }
+        break;
+    }
+    case third_body_ring_gravity:
+    {
+        // Check if identifier is consistent with type.
+        if( std::dynamic_pointer_cast< ThirdBodyRingGravitationalAccelerationModel >( accelerationModel ) == nullptr )
+        {
+            throw std::runtime_error( "Acceleration class type does not match acceleration type "
+                                      "(third_body_ring_gravity) when making acceleration partial." );
+        }
+        else
+        {
+            std::shared_ptr< ThirdBodyRingGravitationalAccelerationModel > thirdBodyAccelerationModel  =
+                    std::dynamic_pointer_cast< ThirdBodyRingGravitationalAccelerationModel >(
+                        accelerationModel );
+
+            // Create partials for constituent central gravity accelerations
+            std::shared_ptr< RingGravityPartial > accelerationPartialForBodyUndergoingAcceleration =
+                    std::dynamic_pointer_cast< RingGravityPartial >(
+                        createAnalyticalAccelerationPartial(
+                            thirdBodyAccelerationModel->getAccelerationModelForBodyUndergoingAcceleration( ),
+                            acceleratedBody, acceleratingBody, bodies, parametersToEstimate ) );
+            std::shared_ptr< RingGravityPartial > accelerationPartialForCentralBody =
+                    std::dynamic_pointer_cast< RingGravityPartial >(
+                        createAnalyticalAccelerationPartial(
+                            thirdBodyAccelerationModel->getAccelerationModelForCentralBody( ),
+                            std::make_pair( thirdBodyAccelerationModel->getCentralBodyName( ),
+                                            bodies.at( thirdBodyAccelerationModel->getCentralBodyName( ) ) ),
+                            acceleratingBody, bodies, parametersToEstimate  ) );
+
+            // Create partial-calculating object.
+            accelerationPartial = std::make_shared< ThirdBodyGravityPartial< RingGravityPartial > >(
+                        accelerationPartialForBodyUndergoingAcceleration,
+                        accelerationPartialForCentralBody, acceleratedBody.first, acceleratingBody.first,
+                        thirdBodyAccelerationModel->getCentralBodyName( ) );
+
+        }
+        break;
+    }
     case cannon_ball_radiation_pressure:
     {
         // Check if identifier is consistent with type.
