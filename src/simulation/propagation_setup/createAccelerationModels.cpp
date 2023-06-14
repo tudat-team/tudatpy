@@ -738,12 +738,14 @@ std::shared_ptr< gravitation::RingGravitationalAccelerationModel > createRingGra
                                gravitationalParameterOfBodyUndergoingAcceleration );
         }
 
+        std::function< double( ) > ringRadiusFunction = std::bind( &RingGravityField::getRingRadius, ringGravityField );
+
         // Create acceleration object.
         accelerationModel =
                 std::make_shared< RingGravitationalAccelerationModel >(
                         std::bind( &Body::getPositionByReference, bodyUndergoingAcceleration, std::placeholders::_1 ),
                         gravitationalParameterFunction,
-                        ringGravityField->getRingRadius( ),
+                        ringRadiusFunction,
                         ringGravityField->getEllipticIntegralSFromDAndB( ),
                         std::bind( &Body::getPositionByReference, bodyExertingAcceleration, std::placeholders::_1 ),
                         std::bind( &Body::getCurrentRotationToGlobalFrame, bodyExertingAcceleration ),
