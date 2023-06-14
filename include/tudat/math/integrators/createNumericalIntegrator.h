@@ -50,14 +50,21 @@ public:
     IntegratorStepSizeValidationSettings(
         const double minimumStep,
         const double maximumStep,
-        const MinimumIntegrationTimeStepHandling minimumIntegrationTimeStepHandling = throw_exception_below_minimum ):
+        const MinimumIntegrationTimeStepHandling minimumIntegrationTimeStepHandling = throw_exception_below_minimum,
+        const bool acceptInfinityStep = false,
+        const bool acceptNanStep = false ):
         minimumStep_( minimumStep ),
         maximumStep_( maximumStep ),
-        minimumIntegrationTimeStepHandling_( minimumIntegrationTimeStepHandling ){ }
+        minimumIntegrationTimeStepHandling_( minimumIntegrationTimeStepHandling ),
+        acceptInfinityStep_( acceptInfinityStep ),
+        acceptNanStep_( acceptNanStep ){ }
 
     double minimumStep_;
     double maximumStep_;
     MinimumIntegrationTimeStepHandling minimumIntegrationTimeStepHandling_;
+
+    bool acceptInfinityStep_;
+    bool acceptNanStep_;
 };
 
 
@@ -169,10 +176,12 @@ public:
 inline std::shared_ptr< IntegratorStepSizeValidationSettings > stepSizeValidationSettings(
     const double minimumStep,
     const double maximumStep,
-    const MinimumIntegrationTimeStepHandling minimumIntegrationTimeStepHandling = throw_exception_below_minimum )
+    const MinimumIntegrationTimeStepHandling minimumIntegrationTimeStepHandling = throw_exception_below_minimum,
+    const bool acceptInfinityStep = false,
+    const bool acceptNanStep = false)
 {
     return std::make_shared< IntegratorStepSizeValidationSettings >(
-        minimumStep, maximumStep, minimumIntegrationTimeStepHandling );
+        minimumStep, maximumStep, minimumIntegrationTimeStepHandling, acceptInfinityStep, acceptNanStep );
 }
 
 template< typename ToleranceType >
@@ -1197,6 +1206,7 @@ inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > bulirsch
                 maximumFactorIncreaseForNextStepSize,
                 minimumFactorDecreaseForNextStepSize );
 }
+
 
 
 template< typename IndependentVariableType = double >

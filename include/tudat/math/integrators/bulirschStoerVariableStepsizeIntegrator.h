@@ -140,7 +140,6 @@ public:
         stepSizeValidator_=
             std::make_shared< BasicIntegratorStepSizeValidator< TimeStepType > >( minimumStepSize, maximumStepSize);
 
-
     }
 
     // Default constructor.
