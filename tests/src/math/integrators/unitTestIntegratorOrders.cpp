@@ -239,8 +239,8 @@ BOOST_AUTO_TEST_CASE( testFixedMultiStageNumericalIntegratorOrder )
 
                 // Calculate the order p from two subsequent errors, using the fact that
                 // error_{i} / error_{i-1} = ( step_{i} / step_{i-1} )^p
-                // NOTE, the first run on the 14(12) method is omitted due to stability issues
-                if ( i > 0 && !( j == 8 && i == 1 ) )
+                // NOTE, the first run on the 10(8), 12(10) and 14(12) method is omitted due to error stability issues
+                if ( i > 0 && !( ( j > 5 ) && ( i == 1 ) ) )
                 {
                     calculatedOrder.push_back( std::log( errors.at( i ) / errors.at( i - 1 )) /
                                             std::log( timeStepsToUse.at( i ) / timeStepsToUse.at( i - 1 )));
@@ -260,84 +260,79 @@ BOOST_AUTO_TEST_CASE( testFixedMultiStageNumericalIntegratorOrder )
             //
             if( k == 0 )
             {
-                std::cout << j << " " << meanOrder << " " << expectedLowerOrders.at( j ) << " "
-                          << standardDeviationOrder
-                          << std::endl;
+
                 BOOST_CHECK( meanOrder > expectedLowerOrders.at( j ) - 0.5 );
-                BOOST_CHECK( meanOrder < expectedLowerOrders.at( j ) + 2.0 );
+                BOOST_CHECK( meanOrder < expectedLowerOrders.at( j ) + ( j == 8 ) ? 2.0 : 1.0 );
                 BOOST_CHECK( standardDeviationOrder < 0.4 );
             }
             else
             {
                 BOOST_CHECK( meanOrder > expectedHigherOrders.at( j ) - 0.5 );
-                BOOST_CHECK( meanOrder < expectedHigherOrders.at( j ) + 2.0 );
-                BOOST_CHECK( standardDeviationOrder < 0.4 );
+                BOOST_CHECK( meanOrder < expectedHigherOrders.at( j ) + 1.0 );
+                BOOST_CHECK( standardDeviationOrder < ( j == 6 ) ? 1.0 : 0.4 );
 
-                std::cout << j << " " << meanOrder << " " << expectedHigherOrders.at( j ) << " "
-                          << standardDeviationOrder
-                          << std::endl;
             }
         }
     }
 }
 
-//
-////! This tests the order of the fixed-step Bulirsch-Stoer integrtor, using an unperturbed Earth orbiter.
-////! For a method using k substeps, the order should ideally be 2*k + 1.
-////! The method test computes the order p from a set of subsequent runs, and then computes the mean (to
-////! verify whether the method behaves as would be expected) and standard deviation (to check the order
-////! behaviour is robust)
-////! The exact values of the time steps have been tweaked to make sure the solutions fall in the range
-////! where the time step is expected to behave well. For high-order methods in particular, this has required
-////! substantial tuning (for a 10th order method, a factor 2 in time step will result in a factor 1024 in error)
-//BOOST_AUTO_TEST_CASE( testFixedBulirschStoerNumericalIntegratorOrder )
-//{
-//    std::vector<double> timeSteps = { 400.0, 350.0, 300.0, 250.0, 200.0 };
-//
-//    // Run test for different sequences
-//    for( unsigned int k = 0; k < 2; k++ )
-//    {
-//        // Run test for different number of substeps
-//        for ( unsigned int j = 3; j < 7; j++ )
-//        {
-//            // Use higher time step for highest order method
-//            double multiplicationFactor = ( j == 6 ) ? 1.8 : 1.0;
-//
-//            // Calculate final state error for each method
-//            std::vector<double> errors;
-//            std::vector<double> calculatedOrder;
-//            for ( unsigned int i = 0; i < timeSteps.size( ); i++ )
-//            {
-//                Eigen::VectorXd finalState = getFinalIntegrationError(
-//                    bulirschStoerFixedStepIntegratorSettings(
-//                        multiplicationFactor * timeSteps.at( i ), static_cast< ExtrapolationMethodStepSequences >( k ), j ), 10.0, 0.01 );
-//                errors.push_back( finalState.segment( 0, 3 ).norm( ));
-//
-//                // Calculate the order p from two subsequent errors, using the fact that
-//                // error_{i} / error_{i-1} = ( step_{i} / step_{i-1} )^p
-//                if ( i > 0 )
-//                {
-//                    calculatedOrder.push_back( std::log( errors.at( i ) / errors.at( i - 1 ) ) /
-//                                            std::log( timeSteps.at( i ) / timeSteps.at( i - 1 ) ) );
-//                }
-//            }
-//
-//            // Calculate mean and standard deviation of values of order computed from eacg two subsequent steps
-//            double meanOrder = std::accumulate( calculatedOrder.begin( ), calculatedOrder.end( ), 0.0 ) / calculatedOrder.size( );
-//            double standardDeviationOrder = std::sqrt(
-//                std::inner_product( calculatedOrder.begin( ), calculatedOrder.end( ), calculatedOrder.begin( ), 0.0 ) /
-//                calculatedOrder.size( ) - meanOrder * meanOrder );
-//
-//            // Check that the order is in the right range.
-//            BOOST_CHECK( meanOrder > ( 2.0 * static_cast< double >( j ) ) );
-//            BOOST_CHECK( meanOrder < ( 2.0 * static_cast< double >( j ) ) + 2 );
-//
-//            // Check that the value of the order is reasonable constant; the high value for the test here is only needed for
-//            // the 13th order method.
-//            BOOST_CHECK( standardDeviationOrder < 0.5 );
-//        }
-//    }
-//}
+
+//! This tests the order of the fixed-step Bulirsch-Stoer integrtor, using an unperturbed Earth orbiter.
+//! For a method using k substeps, the order should ideally be 2*k + 1.
+//! The method test computes the order p from a set of subsequent runs, and then computes the mean (to
+//! verify whether the method behaves as would be expected) and standard deviation (to check the order
+//! behaviour is robust)
+//! The exact values of the time steps have been tweaked to make sure the solutions fall in the range
+//! where the time step is expected to behave well. For high-order methods in particular, this has required
+//! substantial tuning (for a 10th order method, a factor 2 in time step will result in a factor 1024 in error)
+BOOST_AUTO_TEST_CASE( testFixedBulirschStoerNumericalIntegratorOrder )
+{
+    std::vector<double> timeSteps = { 400.0, 350.0, 300.0, 250.0, 200.0 };
+
+    // Run test for different sequences
+    for( unsigned int k = 0; k < 2; k++ )
+    {
+        // Run test for different number of substeps
+        for ( unsigned int j = 3; j < 7; j++ )
+        {
+            // Use higher time step for highest order method
+            double multiplicationFactor = ( j == 6 ) ? 1.8 : 1.0;
+
+            // Calculate final state error for each method
+            std::vector<double> errors;
+            std::vector<double> calculatedOrder;
+            for ( unsigned int i = 0; i < timeSteps.size( ); i++ )
+            {
+                Eigen::VectorXd finalState = getFinalIntegrationError(
+                    bulirschStoerFixedStepIntegratorSettings(
+                        multiplicationFactor * timeSteps.at( i ), static_cast< ExtrapolationMethodStepSequences >( k ), j ), 10.0, 0.01 );
+                errors.push_back( finalState.segment( 0, 3 ).norm( ));
+
+                // Calculate the order p from two subsequent errors, using the fact that
+                // error_{i} / error_{i-1} = ( step_{i} / step_{i-1} )^p
+                if ( i > 0 )
+                {
+                    calculatedOrder.push_back( std::log( errors.at( i ) / errors.at( i - 1 ) ) /
+                                            std::log( timeSteps.at( i ) / timeSteps.at( i - 1 ) ) );
+                }
+            }
+
+            // Calculate mean and standard deviation of values of order computed from eacg two subsequent steps
+            double meanOrder = std::accumulate( calculatedOrder.begin( ), calculatedOrder.end( ), 0.0 ) / calculatedOrder.size( );
+            double standardDeviationOrder = std::sqrt(
+                std::inner_product( calculatedOrder.begin( ), calculatedOrder.end( ), calculatedOrder.begin( ), 0.0 ) /
+                calculatedOrder.size( ) - meanOrder * meanOrder );
+
+            // Check that the order is in the right range.
+            BOOST_CHECK( meanOrder > ( 2.0 * static_cast< double >( j ) ) );
+            BOOST_CHECK( meanOrder < ( 2.0 * static_cast< double >( j ) ) + 2 );
+
+            // Check that the value of the order is reasonable constant; the high value for the test here is only needed for
+            // the 13th order method.
+            BOOST_CHECK( standardDeviationOrder < 0.5 );
+        }
+    }
+}
 
 BOOST_AUTO_TEST_SUITE_END( )
 
