@@ -61,7 +61,7 @@ enum CoefficientSets
 struct RungeKuttaCoefficients
 {
     // Enum of order estimates that can be integrated.
-    enum OrderEstimateToIntegrate { lower, higher };
+    enum OrderEstimateToIntegrate { lower = 0, higher = 1  };
 
     // Main table of the Butcher tableau.
     Eigen::MatrixXd aCoefficients;

@@ -43,3 +43,6 @@ TUDAT_ADD_TEST_CASE(BulirschStoerVariableStepSizeIntegrator
 
 TUDAT_ADD_TEST_CASE(PerBlockStepSizeControl
         PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
+
+TUDAT_ADD_TEST_CASE(IntegratorOrders
+        PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES})
