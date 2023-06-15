@@ -32,8 +32,8 @@ namespace numerical_integrators
 //! @get_docstring(ExtrapolationMethodStepSequences.__docstring__)
 enum ExtrapolationMethodStepSequences
 {
-    bulirsch_stoer_sequence,
-    deufelhard_sequence
+    bulirsch_stoer_sequence = 0,
+    deufelhard_sequence = 1
 };
 
 // Function to retrieve the sequence of number of steps to used for Bulirsch-Stoer integration
