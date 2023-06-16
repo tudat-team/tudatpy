@@ -237,7 +237,8 @@ namespace integrator {
         m.def("standard_cartesian_state_element_blocks",
               &tni::getStandardCartesianStatesElementsToCheck,
               py::arg("number_of_rows"),
-              py::arg("number_of_columns") );
+              py::arg("number_of_columns"),
+              get_docstring("standard_cartesian_state_element_blocks").c_str());
 
         m.def("standard_rotational_state_element_blocks",
               &tni::getStandardRotationalStatesElementsToCheck,
@@ -266,7 +267,7 @@ namespace integrator {
 
         m.def("runge_kutta_fixed_step",
               &tni::rungeKuttaFixedStepSettings<TIME_TYPE>,
-              py::arg("initial_time_step"),
+              py::arg("time_step"),
               py::arg("coefficient_set"),
               py::arg("order_to_use") = tni::RungeKuttaCoefficients::OrderEstimateToIntegrate::lower,
               py::arg("assess_termination_on_minor_steps") = false,
@@ -298,41 +299,6 @@ namespace integrator {
               py::arg("maximum_number_of_steps"),
               py::arg("assess_termination_on_minor_steps") = false,
               get_docstring("bulirsch_stoer_fixed_step").c_str());
-        /*!
-         * DEPRECATED -------------------------------------------------------------------------
-         *
-         */
-
-
-        m.def("runge_kutta_variable_step_size_vector_tolerances",
-              &tni::rungeKuttaVariableStepSettingsVectorTolerances<TIME_TYPE>,
-              py::arg("initial_time_step"),
-              py::arg("coefficient_set"),
-              py::arg("minimum_step_size"),
-              py::arg("maximum_step_size"),
-              py::arg("relative_error_tolerance"),
-              py::arg("absolute_error_tolerance"),
-              py::arg("assess_termination_on_minor_steps") = false,
-              py::arg("safety_factor") = 0.8,
-              py::arg("maximum_factor_increase") = 4.0,
-              py::arg("minimum_factor_increase") = 0.1,
-              py::arg("throw_exception_if_minimum_step_exceeded") = true,
-              get_docstring("runge_kutta_variable_step_size_vector_tolerances").c_str());
-
-        m.def("runge_kutta_variable_step_size",
-              &tni::rungeKuttaVariableStepSettingsScalarTolerances<TIME_TYPE>,
-              py::arg("initial_time_step"),
-              py::arg("coefficient_set"),
-              py::arg("minimum_step_size"),
-              py::arg("maximum_step_size"),
-              py::arg("relative_error_tolerance"),
-              py::arg("absolute_error_tolerance"),
-              py::arg("assess_termination_on_minor_steps") = false,
-              py::arg("safety_factor") = 0.8,
-              py::arg("maximum_factor_increase") = 4.0,
-              py::arg("minimum_factor_increase") = 0.1,
-              py::arg("throw_exception_if_minimum_step_exceeded") = true,
-              get_docstring("runge_kutta_variable_step_size").c_str());
 
         m.def("adams_bashforth_moulton",
               &tni::adamsBashforthMoultonSettings<TIME_TYPE>,
@@ -378,6 +344,44 @@ namespace integrator {
               get_docstring("adams_bashforth_moulton_fixed_step_fixed_order").c_str());
 
         /*!
+         * DEPRECATED -------------------------------------------------------------------------
+         *
+         */
+
+
+        m.def("runge_kutta_variable_step_size_vector_tolerances",
+              &tni::rungeKuttaVariableStepSettingsVectorTolerances<TIME_TYPE>,
+              py::arg("initial_time_step"),
+              py::arg("coefficient_set"),
+              py::arg("minimum_step_size"),
+              py::arg("maximum_step_size"),
+              py::arg("relative_error_tolerance"),
+              py::arg("absolute_error_tolerance"),
+              py::arg("assess_termination_on_minor_steps") = false,
+              py::arg("safety_factor") = 0.8,
+              py::arg("maximum_factor_increase") = 4.0,
+              py::arg("minimum_factor_increase") = 0.1,
+              py::arg("throw_exception_if_minimum_step_exceeded") = true,
+              get_docstring("runge_kutta_variable_step_size_vector_tolerances").c_str());
+
+        m.def("runge_kutta_variable_step_size",
+              &tni::rungeKuttaVariableStepSettingsScalarTolerances<TIME_TYPE>,
+              py::arg("initial_time_step"),
+              py::arg("coefficient_set"),
+              py::arg("minimum_step_size"),
+              py::arg("maximum_step_size"),
+              py::arg("relative_error_tolerance"),
+              py::arg("absolute_error_tolerance"),
+              py::arg("assess_termination_on_minor_steps") = false,
+              py::arg("safety_factor") = 0.8,
+              py::arg("maximum_factor_increase") = 4.0,
+              py::arg("minimum_factor_increase") = 0.1,
+              py::arg("throw_exception_if_minimum_step_exceeded") = true,
+              get_docstring("runge_kutta_variable_step_size").c_str());
+
+
+
+        /*!
          * DEPRECATED UNDOCUMENTED -------------------------------------------------------------------------
          *
          */
@@ -412,6 +416,12 @@ namespace integrator {
                   py::arg("order_to_use") = tni::RungeKuttaCoefficients::OrderEstimateToIntegrate::lower,
                   py::arg("assess_termination_on_minor_steps") = false );
 
+            m.def("runge_kutta_fixed_step_size",
+                  &tni::rungeKuttaFixedStepSettings<TIME_TYPE>,
+                  py::arg("initial_time_step"),
+                  py::arg("coefficient_set"),
+                  py::arg("order_to_use") = tni::RungeKuttaCoefficients::OrderEstimateToIntegrate::lower,
+                  py::arg("assess_termination_on_minor_steps") = false );
 
             m.def("runge_kutta_variable_step_size",
                   &tni::rungeKuttaVariableStepSettingsScalarTolerancesDeprecated<TIME_TYPE>,
