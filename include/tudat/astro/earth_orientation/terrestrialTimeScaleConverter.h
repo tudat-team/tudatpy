@@ -352,7 +352,7 @@ private:
  * \param eopReader Object that reads an Earth Orientation Parameters file.
  * \return Default Earth time scales conversion object
  */
-std::shared_ptr< TerrestrialTimeScaleConverter >  createDefaultTimeConverter( const std::shared_ptr< EOPReader > eopReader =
+std::shared_ptr< TerrestrialTimeScaleConverter > createDefaultTimeConverter( const std::shared_ptr< EOPReader > eopReader =
         std::make_shared< EOPReader >( ) );
 
 }

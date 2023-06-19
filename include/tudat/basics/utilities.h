@@ -816,6 +816,13 @@ std::vector< A > getFirstTupleEntryVector( const std::vector< std::tuple< A, Arg
     return vectorOfFirstEntries;
 }
 
+template< typename T >
+constexpr int constexpr_int_floor(const T& f)
+{
+    const int i = static_cast<int>(f);
+    return f < i ? i - 1 : i;
+}
+
 } // namespace utilities
 
 } // namespace tudat
