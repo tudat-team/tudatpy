@@ -276,7 +276,7 @@ public:
 
         return std::make_pair(
                 utilities::createConcatenatedEigenMatrixFromMapValues< TimeType, ObservationScalarType, ObservationSize, 1 >( observations ),
-                utilities::createConcatenatedEigenMatrixFromMapValues< TimeType, ObservationScalarType, ObservationSize, Eigen::Dynamic >( observationMatrices ) );
+                utilities::createConcatenatedEigenMatrixFromMapValues< TimeType, double, ObservationSize, Eigen::Dynamic >( observationMatrices ) );
     }
 
     //! Function to return the full list of observation partial objects

@@ -41,7 +41,7 @@ static constexpr int J2000_JULIAN_DAY_IN_FULL_PERIODS = physical_constants::JULI
 
 struct DateTime
 {
-    DateTime( int year, int month, int day, int hour, int minute, long double seconds )   :
+    DateTime( int year, int month, int day, int hour, int minute, long double seconds ):
         year_( year ), month_( month ), day_ (day ), hour_( hour ), minute_( minute ), seconds_( seconds )
     {
         if( month > 12 || month < 1 )
@@ -1111,8 +1111,8 @@ protected:
 
 };
 
-
-inline Time timeFromDecomposedDateTime(
+template< typename TimeType >
+TimeType timeFromDecomposedDateTime(
     const int year, const int month, const int day,
     const int hour, const int minutes, const long double seconds )
 {
@@ -1129,7 +1129,7 @@ inline Time timeFromDecomposedDateTime(
 
     int fullPeriods = daysSinceJ2000 * TIME_NORMALIZATION_TERMS_PER_DAY + ( hour - 12 );
     long double secondsIntoFullPeriod = secondsIntoCurrentHour;
-    return Time( fullPeriods, secondsIntoFullPeriod );
+    return static_cast< TimeType >( Time( fullPeriods, secondsIntoFullPeriod ) );
 }
 
 
@@ -1160,71 +1160,84 @@ ScalarType modifiedJulianDayFromTime( const Time& time )
 
 //! Function to get Time from the current Julian day
 template< typename ScalarType >
-inline Time timeFromJulianDay( const ScalarType julianDay )
+Time timeFromJulianDay( const ScalarType julianDay )
 {
     return Time( 0.0, ( julianDay - basic_astrodynamics::getJulianDayOnJ2000< ScalarType >( ) ) * physical_constants::getJulianDay< ScalarType >( ) );
 }
 
 //! Function to get Time from the current modified Julian day
 template< typename ScalarType >
-inline Time timeFromModifiedJulianDay( const ScalarType julianDay )
+Time timeFromModifiedJulianDay( const ScalarType julianDay )
 {
     return Time( 0.0, ( julianDay - basic_astrodynamics::getModifiedJulianDayOnJ2000< ScalarType >( ) ) * physical_constants::getJulianDay< ScalarType >( ) );
 }
 
 //! Function to get Time from an ISO time string
-inline Time timeFromIsoString( const std::string& isoTime )
+template< typename TimeType >
+TimeType timeFromIsoString( const std::string& isoTime )
 {
 
-    // Get year and month
-    std::vector< std::string > splitTime;
-    boost::algorithm::split( splitTime, isoTime,
-                             boost::is_any_of( "-" ),
-                             boost::algorithm::token_compress_on );
-    int year = boost::lexical_cast< int >( splitTime.at( 0 ) );
-    int month = boost::lexical_cast< int >( splitTime.at( 1 ) );
+    try
+    {
+        // Get year and month
+        std::vector<std::string> splitTime;
+        boost::algorithm::split( splitTime, isoTime,
+                                 boost::is_any_of( "-‐" ),
+                                 boost::algorithm::token_compress_on );
+        int year = boost::lexical_cast<int>( splitTime.at( 0 ));
+        int month = boost::lexical_cast<int>( splitTime.at( 1 ));
 
-    // Get day
-    std::string remainingString = splitTime.at( 2 );
-    splitTime.clear( );
-    boost::algorithm::split( splitTime, remainingString,
-                             boost::is_any_of( "T " ),
-                             boost::algorithm::token_compress_on );
+        // Get day
+        std::string remainingString = splitTime.at( 2 );
+        splitTime.clear( );
+        boost::algorithm::split( splitTime, remainingString,
+                                 boost::is_any_of( "T " ),
+                                 boost::algorithm::token_compress_on );
 
-    int days = boost::lexical_cast< int >( splitTime.at( 0 ) );
+        int days = boost::lexical_cast<int>( splitTime.at( 0 ));
 
-    // Get hours, minutes, seconds
-    remainingString = splitTime.at( 1 );
-    splitTime.clear( );
-    boost::algorithm::split( splitTime, remainingString,
-                             boost::is_any_of( ":" ),
-                             boost::algorithm::token_compress_on );
-    int hours = boost::lexical_cast< int >( splitTime.at( 0 ) );
-    int minutes = boost::lexical_cast< int >( splitTime.at( 1 ) );
-    long double seconds = boost::lexical_cast< long double >( splitTime.at( 2 ) );
+        // Get hours, minutes, seconds
+        remainingString = splitTime.at( 1 );
+        splitTime.clear( );
+        boost::algorithm::split( splitTime, remainingString,
+                                 boost::is_any_of( ":" ),
+                                 boost::algorithm::token_compress_on );
+        int hours = boost::lexical_cast<int>( splitTime.at( 0 ));
+        int minutes = boost::lexical_cast<int>( splitTime.at( 1 ));
+        long double seconds = boost::lexical_cast<long double>( splitTime.at( 2 ));
 
-    return timeFromDecomposedDateTime(
-        year, month, days, hours, minutes, seconds );
+        return timeFromDecomposedDateTime<TimeType>(
+            year, month, days, hours, minutes, seconds );
+    }
+    catch( std::runtime_error& caughtException )
+    {
+        throw std::runtime_error( "Error when parsing iso datetime string " + isoTime + ". Caught exception is: " +
+                                      caughtException.what( ) );
+    }
 }
 
 
 //! Function to get Time from an ISO time string
-inline Time timeFromDateTime( const DateTime& dateTime )
+template< typename TimeType >
+TimeType timeFromDateTime( const DateTime& dateTime )
 {
-    return timeFromDecomposedDateTime(
+    return timeFromDecomposedDateTime< TimeType >(
         dateTime.year_, dateTime.month_, dateTime.day_, dateTime.hour_, dateTime.minute_, dateTime.seconds_ );
 }
 
-
-inline boost::gregorian::date convertTimeToCalendarDate( const Time time )
+template< typename TimeType >
+inline boost::gregorian::date convertTimeToCalendarDate( const TimeType timeInput )
 {
+    Time time = Time( timeInput );
     long double julianDay = julianDayFromTime< long double >( time );
     boost::gregorian::date currentDate = basic_astrodynamics::convertJulianDayToCalendarDate( julianDay );
     return currentDate;
 }
 
-inline DateTime getCalendarDateFromTime( const Time& time )
+template< typename TimeType >
+inline DateTime getCalendarDateFromTime( const TimeType& timeInput )
 {
+    Time time = Time( timeInput );
     int fullPeriodsSinceMidnightJD0 = time.getFullPeriods( ) + basic_astrodynamics::JULIAN_DAY_ON_J2000_INT * TIME_NORMALIZATION_TERMS_PER_DAY +  TIME_NORMALIZATION_TERMS_PER_HALF_DAY;
     if( fullPeriodsSinceMidnightJD0 < 0 )
     {
