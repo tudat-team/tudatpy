@@ -8,16 +8,22 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+#include <chrono>
+#include <ctime>
+
 #include "tudatpy/docstrings.h"
 
 #include "expose_time_conversion.h"
+#include "tudatpy/scalarTypes.h"
 
 #include <boost/date_time/gregorian/gregorian.hpp>
 
+#include "tudat/astro/basic_astro/dateTime.h"
 #include "tudat/astro/basic_astro/physicalConstants.h"
 #include <tudat/astro/basic_astro.h>
 #include <tudat/astro/basic_astro/timeConversions.h>
 #include <tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h>
+#include <tudat/math/basic/mathematicalConstants.h>
 
 #include <pybind11/chrono.h>
 #include <pybind11/pybind11.h>
@@ -28,56 +34,56 @@ namespace tba = tudat::basic_astrodynamics;
 namespace pc  = tudat::physical_constants;
 namespace teo = tudat::earth_orientation;
 
-// Convert a time_point (which is automatically converted from a Python datetime) to gregorian::date.
-// Mind that the Gregorian date only contain the year, month, and day. Hour, minutes, and seconds, are lost in the conversion.
-boost::gregorian::date timePointToGregorianDate(const std::chrono::system_clock::time_point datetime) {
+tba::DateTime timePointToDateTime(const std::chrono::system_clock::time_point datetime)
+{
     std::time_t tt = std::chrono::system_clock::to_time_t(datetime);
     std::tm local_tm = *localtime(&tt);
-    return boost::gregorian::date(local_tm.tm_year + 1900, local_tm.tm_mon + 1, local_tm.tm_mday);
+
+    using namespace std::chrono;
+    microseconds timeInMicroSeconds = duration_cast<microseconds>(datetime.time_since_epoch());
+    std::size_t fractional_seconds = timeInMicroSeconds.count() % 1000000;
+
+    return tba::DateTime( local_tm.tm_year + 1900, local_tm.tm_mon + 1, local_tm.tm_mday,
+        local_tm.tm_hour, local_tm.tm_min, static_cast< long double >( local_tm.tm_sec ) +
+        static_cast< long double >( fractional_seconds ) /
+        tudat::mathematical_constants::getFloatingInteger< long double >( 1000000 ) );
 }
 
 // Convert from Gregorian date to time_point (Python datetime). Only year/month/day, no time.
-std::chrono::system_clock::time_point GregorianDateToTimePoint(const boost::gregorian::date gregorianDate) {
-    std::tm local_tm = boost::gregorian::to_tm(gregorianDate);
-    std::time_t tt = std::mktime(&local_tm);
-    return std::chrono::system_clock::from_time_t(tt);
+std::chrono::system_clock::time_point dateTimeToTimePoint(const tba::DateTime& dateTime )
+{
+    std::tm tm = {
+        static_cast< int >( dateTime.seconds_ ),
+        dateTime.minute_,
+        dateTime.hour_,
+        dateTime.day_,
+        dateTime.month_ - 1,
+        dateTime.year_ - 1900
+
+    };
+    tm.tm_isdst = 1;
+    std::chrono::system_clock::time_point timePoint = std::chrono::system_clock::from_time_t(std::mktime(&tm));
+    return timePoint + std::chrono::microseconds ( static_cast< int >( std::round(
+                                                     ( dateTime.seconds_ - static_cast< long double >( tm.tm_sec ) ) *
+                                                     tudat::mathematical_constants::getFloatingInteger< long double >( 1E6 ) ) ) );
 }
 
 // Convert Julian day to calendar date. This code ensures that the value returned is a time_point (Python datetime).
-std::chrono::system_clock::time_point convertJulianDayToCalendarDatePy(const double julianDay) {
-    boost::gregorian::date gregorianDate = tba::convertJulianDayToCalendarDate(julianDay);
-    std::chrono::system_clock::time_point tp = GregorianDateToTimePoint(gregorianDate);
-    // Add the seconds in the current Julian day (to get back time that is lose in gregorian date)
-    return tp + std::chrono::seconds(int(tba::calculateSecondsInCurrentJulianDay(julianDay)));
+std::chrono::system_clock::time_point convertJulianDayToCalendarDatePy( const double julianDay )
+{
+    tba::DateTime dateTime =
+        tba::getCalendarDateFromTime< double >( tudat::timeFromJulianDay< double >( julianDay ) );
+
+    return dateTimeToTimePoint(dateTime);
 }
 
 // Convert calendar date to Julian day since a given epoch. This code allows for the calendar date to be a time_point (Python datetime).
 template< typename TimeScalarType = double >
-TimeScalarType convertCalendarDateToJulianDaySinceEpochPy( const std::chrono::system_clock::time_point calendarDate,
-                                                           const TimeScalarType epochSinceJulianDayZero = tba::JULIAN_DAY_ON_J2000) {
-    std::time_t tt = std::chrono::system_clock::to_time_t(calendarDate);
-    std::tm local_tm = *localtime(&tt);
-    const boost::gregorian::date gregorianDate = boost::gregorian::date(local_tm.tm_year + 1900, local_tm.tm_mon + 1, local_tm.tm_mday);
-    const TimeScalarType fractionOfDay = (local_tm.tm_hour*3600+local_tm.tm_min*60+local_tm.tm_sec)/pc::JULIAN_DAY;
-    return tba::calculateJulianDaySinceEpoch(gregorianDate, fractionOfDay, epochSinceJulianDayZero);
-}
-
-// Convert calendar date to Julian day. This code allows for the input to be a time_point (Python datetime).
-template< typename TimeScalarType = double >
-TimeScalarType convertCalendarDateToJulianDayPy(const std::chrono::system_clock::time_point calendarDate) {
-    return convertCalendarDateToJulianDaySinceEpochPy(calendarDate, 0.0);
-}
-
-// Compute which day of the year a given calendar date is. This block allows for the calendar date to be a time_point (Python datetime).
-double convertDayMonthYearToDayOfYearPy(std::chrono::system_clock::time_point calendarDate) {
-    boost::gregorian::date gregorianDate = timePointToGregorianDate(calendarDate);
-    return tba::convertDayMonthYearToDayOfYear(gregorianDate);
-}
-
-// Convert a year and number of days in a year to a calendar date. This code convert the output to a time_point (Python datetime).
-std::chrono::system_clock::time_point convertYearAndDaysInYearToDatePy(const int year, const int daysInYear) {
-    boost::gregorian::date gregorianDate = tba::convertYearAndDaysInYearToDate(year, daysInYear);
-    return GregorianDateToTimePoint(gregorianDate);
+TimeScalarType convertCalendarDateToJulianDayPy(
+    const std::chrono::system_clock::time_point calendarDate )
+{
+    tba::DateTime dateTime = timePointToDateTime( calendarDate );
+    return tudat::julianDayFromTime< TimeScalarType >( dateTime.epoch< TimeScalarType >( ) );
 }
 
 namespace tudat
@@ -101,6 +107,23 @@ namespace time_conversion {
 
 void expose_time_conversion(py::module &m) {
 
+//    m.attr("default_time_converter") = tudat::earth_orientation::defaultTimeConverter;
+
+
+    m.def("datetime_to_tudat",
+          &timePointToDateTime,
+          py::arg("datetime"),
+          get_docstring("datetime_to_tudat").c_str()
+    );
+
+    m.def("datetime_to_python",
+          &dateTimeToTimePoint,
+          py::arg("datetime"),
+          get_docstring("datetime_to_python").c_str()
+    );
+
+
+
     m.def("calendar_date_to_julian_day",
           &convertCalendarDateToJulianDayPy< double >,
           py::arg("calendar_date"),
@@ -108,9 +131,8 @@ void expose_time_conversion(py::module &m) {
           );
 
     m.def("calendar_date_to_julian_day_since_epoch",
-          &convertCalendarDateToJulianDaySinceEpochPy< double >,
+          &convertCalendarDateToJulianDayPy< double >,
           py::arg("calendar_date"),
-          py::arg("epoch_since_julian_day_zero") = tba::JULIAN_DAY_ON_J2000,
           get_docstring("calendar_date_to_julian_day_since_epoch").c_str()
           );
 
@@ -146,27 +168,6 @@ void expose_time_conversion(py::module &m) {
           get_docstring("seconds_since_epoch_to_julian_centuries_since_epoch").c_str()
           );
 
-    // m.def("calendar_date_to_julian_day_since_epoch",
-    //       &tba::convertCalendarDateToJulianDaysSinceEpoch< double >,
-    //       py::arg("calendar_year"),
-    //       py::arg("calendar_month"),
-    //       py::arg("calendar_day"),
-    //       py::arg("calendar_hour"),
-    //       py::arg("calendar_minutes"),
-    //       py::arg("calendar_seconds"),
-    //       py::arg("reference_julian_day")
-    //   );
-
-    // m.def("calendar_date_to_julian_day",
-    //       &tba::convertCalendarDateToJulianDay< double >,
-    //       py::arg("calendar_year"),
-    //       py::arg("calendar_month"),
-    //       py::arg("calendar_day"),
-    //       py::arg("calendar_hour"),
-    //       py::arg("calendar_minutes"),
-    //       py::arg("calendar_seconds")
-    //   );
-
     m.def("julian_day_to_modified_julian_day",
           &tba::convertJulianDayToModifiedJulianDay< double >,
           py::arg("julian_day"),
@@ -196,19 +197,6 @@ void expose_time_conversion(py::module &m) {
           &tba::calculateSecondsInCurrentJulianDay,
           py::arg("julian_day"),
           get_docstring("calculate_seconds_in_current_julian_day").c_str()
-          );
-
-    m.def("calendar_date_to_day_of_year",
-          &convertDayMonthYearToDayOfYearPy,
-          py::arg("calendar_date"),
-          get_docstring("calendar_date_to_day_of_year").c_str()
-          );
-
-    m.def("year_and_days_in_year_to_calendar_date",
-          &convertYearAndDaysInYearToDatePy,
-          py::arg("year"),
-          py::arg("days_in_year"),
-          get_docstring("year_and_days_in_year_to_calendar_date").c_str()
           );
 
     // Time scales conversion (inputs and outputs are always time in seconds since J2000)
@@ -277,6 +265,64 @@ void expose_time_conversion(py::module &m) {
     m.def("default_time_scale_converter",
           &teo::createDefaultTimeConverterPy,
           get_docstring("default_time_scale_converter").c_str() );
+
+
+    py::class_< tba::DateTime >( m,"DateTime", get_docstring("DateTime").c_str())
+        .def(py::init<
+                 const int,
+                 const int,
+                 const int,
+                 const int,
+                 const int,
+                 const long double>(),
+             py::arg("year"), py::arg("month"), py::arg("day"),
+             py::arg("hour") = 12, py::arg("minute") = 0, py::arg("seconds") = 0.0L )
+        .def_readwrite("year", &tba::DateTime::year_ )
+        .def_readwrite("month", &tba::DateTime::month_ )
+        .def_readwrite("day", &tba::DateTime::day_ )
+        .def_readwrite("hour", &tba::DateTime::hour_ )
+        .def_readwrite("minute", &tba::DateTime::minute_ )
+        .def_readwrite("seconds", &tba::DateTime::seconds_ )
+        .def("iso_string",
+             &tba::DateTime::isoString,
+             py::arg("add_T") = false )
+        .def("day_of_year",
+             &tba::DateTime::dayOfYear )
+        .def("epoch",
+             &tba::DateTime::epoch< TIME_TYPE > )
+        .def("julian_day",
+             &tba::DateTime::julianDay< double > )
+        .def("modified_julian_day",
+             &tba::DateTime::modifiedJulianDay< double > );
+
+
+    m.def("epoch_from_date_time",
+          &tba::timeFromDecomposedDateTime< TIME_TYPE >,
+          py::arg("year"), py::arg("month"), py::arg("day"),
+          py::arg("hour"), py::arg("minute"), py::arg("seconds"),
+          get_docstring("epoch_from_date_time").c_str() );
+
+    m.def("epoch_from_date_time_iso_string",
+          &tba::timeFromIsoString< TIME_TYPE >,
+          py::arg("iso_datetime"),
+          get_docstring("epoch_from_date_time_iso_string").c_str() );
+
+
+    m.def("epoch_from_julian_day",
+          &tudat::timeFromJulianDay< TIME_TYPE >,
+          py::arg("julian_day"),
+          get_docstring("epoch_from_julian_day").c_str() );
+
+    m.def("epoch_from_modified_julian_day",
+          &tudat::timeFromModifiedJulianDay< TIME_TYPE >,
+          py::arg("modified_julian_day"),
+          get_docstring("epoch_from_modified_julian_day").c_str() );
+
+    m.def("date_time_from_epoch",
+          &tba::getCalendarDateFromTime< TIME_TYPE >,
+          py::arg("epoch"),
+          get_docstring("date_time_from_epoch").c_str() );
+
 
 
 
