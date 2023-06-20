@@ -384,6 +384,11 @@ namespace tudat
 
             std::shared_ptr< SingleArcDependentVariablesInterface< TimeType > > dependentVariableInterface_;
 
+
+
+            //! Bool denoting whether the propagation is sequential or bidirectional (default is true).
+            bool sequentialPropagation_;
+
             //! Function to convert the propagated solution to conventional solution (see DynamicsStateDerivativeModel::convertToOutputSolution)
             const std::function< void ( std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >&,
                                         const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& ) > rawSolutionConversionFunction_;
@@ -400,9 +405,6 @@ namespace tudat
             friend class SingleArcDynamicsSimulator<StateScalarType, TimeType>;
 
 //            friend class MultiArcSimulationResults<StateScalarType, TimeType, NumberOfStateColumns >;
-
-            //! Bool denoting whether the propagation is sequential or bidirectional (default is true).
-            bool sequentialPropagation_;
 
             //! Boolean denoting whether the full propagation has been fully completed or is ongoing (for non sequential propagations only)
             bool isPropagationOngoing_ = false;

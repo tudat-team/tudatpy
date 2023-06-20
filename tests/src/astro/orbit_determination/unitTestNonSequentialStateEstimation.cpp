@@ -172,7 +172,7 @@ BOOST_AUTO_TEST_CASE( testNonSequentialSingleArcStateEstimation )
     std::vector< observation_models::LinkEnds > linkEndsList;
     std::vector< std::shared_ptr< observation_models::ObservationModelSettings > > observationSettingsList;
     linkEndsList.resize( bodiesToPropagate.size( ) );
-    for ( int i = 0 ; i < bodiesToPropagate.size( ) ; i++ )
+    for ( unsigned int i = 0 ; i < bodiesToPropagate.size( ) ; i++ )
     {
         linkEndsList[ i ][ observation_models::observed_body ] = observation_models::LinkEndId( bodiesToPropagate.at( i ), "" );
         observationSettingsList.push_back( std::make_shared< observation_models::ObservationModelSettings >(
@@ -464,7 +464,7 @@ BOOST_AUTO_TEST_CASE( testNonSequentialMultiArcStateEstimation )
     std::vector< observation_models::LinkEnds > linkEndsList;
     std::vector< std::shared_ptr< observation_models::ObservationModelSettings > > observationSettingsList;
     linkEndsList.resize( bodiesToPropagate.size( ) );
-    for( int i = 0; i < bodiesToPropagate.size( ) ; i++ )
+    for( unsigned int i = 0; i < bodiesToPropagate.size( ) ; i++ )
     {
         linkEndsList[ i ][ observation_models::observed_body ] = observation_models::LinkEndId( bodiesToPropagate.at( i ), "" );
         observationSettingsList.push_back( std::make_shared< observation_models::ObservationModelSettings >(
@@ -805,7 +805,7 @@ BOOST_AUTO_TEST_CASE( testNonSequentialHybridArcStateEstimation )
     std::vector< observation_models::LinkEnds > linkEndsList;
     std::vector< std::shared_ptr< observation_models::ObservationModelSettings > > observationSettingsList;
     linkEndsList.resize( multiArcBodiesToPropagate.size( ) );
-    for( int i = 0; i < multiArcBodiesToPropagate.size( ) ; i++ )
+    for( unsigned int i = 0; i < multiArcBodiesToPropagate.size( ) ; i++ )
     {
         linkEndsList[ i ][ observation_models::observed_body ] = observation_models::LinkEndId( multiArcBodiesToPropagate.at( i ), "" );
         observationSettingsList.push_back( std::make_shared< observation_models::ObservationModelSettings >(
