@@ -133,6 +133,7 @@ void expose_acceleration_setup(py::module &m) {
             .value("panelled_radiation_pressure_acceleration_type", tba::AvailableAcceleration::panelled_radiation_pressure_acceleration, get_docstring("AvailableAcceleration.panelled_radiation_pressure_acceleration_type").c_str())
             .value("quasi_impulsive_shots_acceleration_type", tba::AvailableAcceleration::momentum_wheel_desaturation_acceleration, get_docstring("AvailableAcceleration.momentum_wheel_desaturation_acceleration_type").c_str())
             .value("solar_sail_acceleration_type", tba::AvailableAcceleration::solar_sail_acceleration, get_docstring("AvailableAcceleration.solar_sail_acceleration_type").c_str())
+            .value("custom_acceleration_type", tba::AvailableAcceleration::custom_acceleration, get_docstring("AvailableAcceleration.custom_acceleration").c_str())
             .export_values();
 
     //////////////////////////////////////////////////////////////////////////////
