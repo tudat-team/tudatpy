@@ -11,6 +11,9 @@
 #ifndef TUDAT_TIMETYPE_H
 #define TUDAT_TIMETYPE_H
 
+#include <sstream>
+#include <iomanip>
+
 #include <cmath>
 #include <algorithm>
 
@@ -22,7 +25,6 @@
 #include <Eigen/Core>
 
 #include "tudat/astro/basic_astro/timeConversions.h"
-
 #include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/math/basic/basicMathematicsFunctions.h"
 
@@ -39,45 +41,6 @@ static constexpr int TIME_NORMALIZATION_TERMS_PER_HALF_DAY = TIME_NORMALIZATION_
 
 static constexpr int J2000_JULIAN_DAY_IN_FULL_PERIODS = physical_constants::JULIAN_DAY_INT * TIME_NORMALIZATION_TERMS_PER_DAY;
 
-struct DateTime
-{
-    DateTime( int year, int month, int day, int hour, int minute, long double seconds ):
-        year_( year ), month_( month ), day_ (day ), hour_( hour ), minute_( minute ), seconds_( seconds )
-    {
-        if( month > 12 || month < 1 )
-        {
-            throw std::runtime_error( "Error when creating Tudat DateTime, input month was " + std::to_string( month ) );
-        }
-
-        if(  day > basic_astrodynamics::getDaysInMonth( month, year ) )
-        {
-            throw std::runtime_error( "Error when creating Tudat DateTime, input date was " +
-                std::to_string( day ) + "-" + std::to_string( month ) + "-" + std::to_string( year ) );
-        }
-
-        if( hour > 23 || hour < 0 )
-        {
-            throw std::runtime_error( "Error when creating Tudat DateTime, input hour was " + std::to_string( hour ) );
-        }
-
-        if( minute > 59 || minute < 0 )
-        {
-            throw std::runtime_error( "Error when creating Tudat DateTime, input minute was " + std::to_string( minute ) );
-        }
-
-        if( seconds > 60.0L || seconds < 0.0L || (seconds != seconds ) )
-        {
-            throw std::runtime_error( "Error when creating Tudat DateTime, input seconds was " + std::to_string( seconds ) );
-        }
-    }
-
-    int year_;
-    int month_;
-    int day_;
-    int hour_;
-    int minute_;
-    long double seconds_;
-};
 
 //! Class for defining time with a resolution that is sub-fs for very long periods of time.
 /*!
@@ -1111,27 +1074,6 @@ protected:
 
 };
 
-template< typename TimeType >
-TimeType timeFromDecomposedDateTime(
-    const int year, const int month, const int day,
-    const int hour, const int minutes, const long double seconds )
-{
-    boost::gregorian::date currentDate( year, month, day );
-    int daysSinceJ2000 = currentDate.julian_day( ) - basic_astrodynamics::JULIAN_DAY_ON_J2000_INT;
-
-    if( TIME_NORMALIZATION_INTEGER_TERM != 3600 )
-    {
-        throw std::runtime_error( "Error when getting time from decomposed date time; normalization period has been changed!" );
-    }
-    long double secondsIntoCurrentHour =
-        static_cast< long double >( minutes ) * 60.0L +
-        seconds;
-
-    int fullPeriods = daysSinceJ2000 * TIME_NORMALIZATION_TERMS_PER_DAY + ( hour - 12 );
-    long double secondsIntoFullPeriod = secondsIntoCurrentHour;
-    return static_cast< TimeType >( Time( fullPeriods, secondsIntoFullPeriod ) );
-}
-
 
 //! The Time at JD0
 constexpr static Time TIME_AT_JD0 =  Time(
@@ -1170,93 +1112,6 @@ template< typename ScalarType >
 Time timeFromModifiedJulianDay( const ScalarType julianDay )
 {
     return Time( 0.0, ( julianDay - basic_astrodynamics::getModifiedJulianDayOnJ2000< ScalarType >( ) ) * physical_constants::getJulianDay< ScalarType >( ) );
-}
-
-//! Function to get Time from an ISO time string
-template< typename TimeType >
-TimeType timeFromIsoString( const std::string& isoTime )
-{
-
-    try
-    {
-        // Get year and month
-        std::vector<std::string> splitTime;
-        boost::algorithm::split( splitTime, isoTime,
-                                 boost::is_any_of( "-‐" ),
-                                 boost::algorithm::token_compress_on );
-        int year = boost::lexical_cast<int>( splitTime.at( 0 ));
-        int month = boost::lexical_cast<int>( splitTime.at( 1 ));
-
-        // Get day
-        std::string remainingString = splitTime.at( 2 );
-        splitTime.clear( );
-        boost::algorithm::split( splitTime, remainingString,
-                                 boost::is_any_of( "T " ),
-                                 boost::algorithm::token_compress_on );
-
-        int days = boost::lexical_cast<int>( splitTime.at( 0 ));
-
-        // Get hours, minutes, seconds
-        remainingString = splitTime.at( 1 );
-        splitTime.clear( );
-        boost::algorithm::split( splitTime, remainingString,
-                                 boost::is_any_of( ":" ),
-                                 boost::algorithm::token_compress_on );
-        int hours = boost::lexical_cast<int>( splitTime.at( 0 ));
-        int minutes = boost::lexical_cast<int>( splitTime.at( 1 ));
-        long double seconds = boost::lexical_cast<long double>( splitTime.at( 2 ));
-
-        return timeFromDecomposedDateTime<TimeType>(
-            year, month, days, hours, minutes, seconds );
-    }
-    catch( std::runtime_error& caughtException )
-    {
-        throw std::runtime_error( "Error when parsing iso datetime string " + isoTime + ". Caught exception is: " +
-                                      caughtException.what( ) );
-    }
-}
-
-
-//! Function to get Time from an ISO time string
-template< typename TimeType >
-TimeType timeFromDateTime( const DateTime& dateTime )
-{
-    return timeFromDecomposedDateTime< TimeType >(
-        dateTime.year_, dateTime.month_, dateTime.day_, dateTime.hour_, dateTime.minute_, dateTime.seconds_ );
-}
-
-template< typename TimeType >
-inline boost::gregorian::date convertTimeToCalendarDate( const TimeType timeInput )
-{
-    Time time = Time( timeInput );
-    long double julianDay = julianDayFromTime< long double >( time );
-    boost::gregorian::date currentDate = basic_astrodynamics::convertJulianDayToCalendarDate( julianDay );
-    return currentDate;
-}
-
-template< typename TimeType >
-inline DateTime getCalendarDateFromTime( const TimeType& timeInput )
-{
-    Time time = Time( timeInput );
-    int fullPeriodsSinceMidnightJD0 = time.getFullPeriods( ) + basic_astrodynamics::JULIAN_DAY_ON_J2000_INT * TIME_NORMALIZATION_TERMS_PER_DAY +  TIME_NORMALIZATION_TERMS_PER_HALF_DAY;
-    if( fullPeriodsSinceMidnightJD0 < 0 )
-    {
-        throw std::runtime_error( "Error calendar date from Time not implemented for negative Julian days" );
-    }
-    int fullDaysSinceMidnightJD0 = fullPeriodsSinceMidnightJD0 / TIME_NORMALIZATION_TERMS_PER_DAY;
-    int day, month, year;
-    basic_astrodynamics::convertShiftedJulianDayToCalendarDate< int >(
-        fullDaysSinceMidnightJD0, day, month, year);
-
-    if( TIME_NORMALIZATION_INTEGER_TERM != 3600 )
-    {
-        throw std::runtime_error( "Error, Time to calendar date only implemented for normalization term of 3600 s" );
-    }
-    int hour = time.fullPeriodsSinceMidnight( );
-    int minute = std::floor( time.getSecondsIntoFullPeriod( ) / 60.0L );
-    long double seconds = time.getSecondsIntoFullPeriod( ) - 60.0L * static_cast< long double >( minute );
-
-    return DateTime( year, month, day, hour, minute, seconds );
 }
 
 

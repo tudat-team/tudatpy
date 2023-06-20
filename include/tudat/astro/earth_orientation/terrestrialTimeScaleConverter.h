@@ -16,6 +16,7 @@
 
 #include "tudat/math/interpolators/oneDimensionalInterpolator.h"
 #include "tudat/basics/timeType.h"
+#include "tudat/astro/basic_astro/dateTime.h"
 #include "tudat/astro/earth_orientation/shortPeriodEarthOrientationCorrectionCalculator.h"
 #include "tudat/astro/earth_orientation/eopReader.h"
 #include "tudat/basics/utilities.h"
@@ -379,14 +380,15 @@ TimeType convertTimeScale(
         inputScale, outputScale, time, earthFixedPosition ) );
 }
 
+
 template< typename TimeType >
 TimeType convertToTimeScale(
-    const DateTime inputDateTime,
+    const basic_astrodynamics::DateTime inputDateTime,
     const basic_astrodynamics::TimeScales inputScale, const basic_astrodynamics::TimeScales outputScale,
     const std::shared_ptr< TerrestrialTimeScaleConverter > timeConverter = defaultTimeConverter,
     const Eigen::Vector3d& earthFixedPosition = Eigen::Vector3d::Zero( ) )
 {
-    Time time = timeFromDateTime< Time >( inputDateTime );
+    Time time = inputDateTime.epoch< Time >( );
     return static_cast< TimeType >( timeConverter->getCurrentTime(
         inputScale, outputScale, time, earthFixedPosition ) );
 }

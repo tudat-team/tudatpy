@@ -15,6 +15,8 @@
 
 #include "tudat/basics/testMacros.h"
 #include "tudat/basics/timeType.h"
+#include "tudat/astro/basic_astro/dateTime.h"
+
 #include "tudat/math/basic/mathematicalConstants.h"
 
 namespace tudat
@@ -25,6 +27,7 @@ namespace unit_tests
 BOOST_AUTO_TEST_SUITE( test_time_type )
 
 using namespace mathematical_constants;
+using namespace basic_astrodynamics;
 
 //! Test if Time objects cast to the expected precision
 BOOST_AUTO_TEST_CASE( testTimeBasicCasts )
@@ -419,164 +422,6 @@ BOOST_AUTO_TEST_CASE( testComparisonOperators )
                 ( 1.0L + 2.0L * std::numeric_limits< long double >::epsilon( ) );
         BOOST_CHECK( testTime2 != testTimeLongDouble2Rounded );
         BOOST_CHECK( testTime2 < testTimeLongDouble2Rounded );
-    }
-}
-
-//! Test if the comparison operators defined for the Time object function correctly
-BOOST_AUTO_TEST_CASE( testTimeStrings )
-{
-
-    std::vector< int > years = { 2023, 2373, 1910, 1621, 1900, 2000, 2004 };
-    std::vector< std::pair< int, int > > dates = {
-        { 5, 17 },
-        { 1, 1 },
-        { 8, 31 },
-        { 12, 17 },
-        { 12, 31 },
-        { 2, 29 },
-    };
-    std::vector< std::tuple< int, int, long double > > times = {
-        { 8, 34, 30.234567890123456789L },
-        { 11, 34, 30.234567890123456789L },
-        { 18, 34, 30.234567890123456789L },
-        { 23, 34, 30.234567890123456789L },
-        { 0, 0, 0.0L },
-        { 12, 0, 0.0L },
-        { 11, 59, 60.0L - std::numeric_limits< long double >::epsilon( ) * 3600.0L   },
-        { 23, 59, 60.0L - std::numeric_limits< long double >::epsilon( ) * 3600.0L   },
-        { 11, 59, std::numeric_limits< long double >::epsilon( ) * 3600.0L   },
-        { 23, 59, std::numeric_limits< long double >::epsilon( ) * 3600.0L   }
-    };
-
-//    std::cout<<40 / 25<<" "<<-40 / 25<<std::endl;
-//    std::vector< DateTime > dateTimes =
-//        {
-//          DateTime( 2023, 5, 17, 8, 59, 30.234567890123456789L ),
-//          DateTime( 2023, 5, 17, 11, 59, 30.234567890123456789L ),
-//          DateTime( 2023, 5, 17, 0, 00, 0.0L ),
-//          DateTime( 2023, 5, 17, 12, 00, 0.0L ),
-//          DateTime( 2023, 5, 17, 18, 59, 30.234567890123456789L ),
-//          DateTime( 2023, 5, 17, 23, 59, 30.234567890123456789L ),
-//          DateTime( 2023, 5, 17, 23, 59, 60.0L - std::numeric_limits< long double >::epsilon( ) * 3600.0L  ),
-//          DateTime( 2023, 5, 17, 11, 59, 60.0L - std::numeric_limits< long double >::epsilon( ) * 3600.0L  ),
-//          DateTime( 2023, 5, 17, 23, 59, std::numeric_limits< long double >::epsilon( ) * 3600.0L  ),
-//          DateTime( 2023, 5, 17, 11, 59, std::numeric_limits< long double >::epsilon( ) * 3600.0L  ),
-//          DateTime( 2000, 1, 1, 12, 00, 0.0L ),
-//          DateTime( 1910, 8, 25, 8, 59, 30.234567890123456789L ),
-//          DateTime( 1910, 8, 25, 11, 59, 30.234567890123456789L ),
-//          DateTime( 1910, 8, 25, 0, 0, 0.0L ),
-//          DateTime( 1910, 8, 25, 12, 0, 0.0L ),
-//          DateTime( 1910, 8, 25, 18, 59, 30.234567890123456789L ),
-//          DateTime( 1910, 8, 25, 23, 59, 30.234567890123456789L ),
-//          DateTime( 1910, 8, 25, 23, 59, 60.0L - std::numeric_limits< long double >::epsilon( ) * 3600.0L  ),
-//          DateTime( 1910, 8, 25, 11, 59, 60.0L - std::numeric_limits< long double >::epsilon( ) * 3600.0L  ),
-//          DateTime( 1910, 8, 25, 23, 59, std::numeric_limits< long double >::epsilon( ) * 3600.0L  ),
-//          DateTime( 1910, 8, 25, 11, 59, std::numeric_limits< long double >::epsilon( ) * 3600.0L  ),
-//          DateTime( -1910, 8, 25, 0, 0, 0.0L ),
-//          DateTime( -1910, 8, 25, 12, 0, 0.0L ),
-//          DateTime( -1910, 8, 25, 18, 59, 30.234567890123456789L ),
-//          DateTime( -1910, 8, 25, 23, 59, 30.234567890123456789L ),
-//          DateTime( -1910, 8, 25, 23, 59, 60.0L - std::numeric_limits< long double >::epsilon( ) * 3600.0L  ),
-//          DateTime( -1910, 8, 25, 11, 59, 60.0L - std::numeric_limits< long double >::epsilon( ) * 3600.0L  ),
-//          DateTime( -1910, 8, 25, 23, 59, std::numeric_limits< long double >::epsilon( ) * 3600.0L  ),
-//          DateTime( -1910, 8, 25, 11, 59, std::numeric_limits< long double >::epsilon( ) * 3600.0L  ),
-//          } ;
-
-    for( unsigned int i = 0; i < years.size( ); i++ )
-    {
-        for( unsigned int j = 0; j < dates.size( ); j++ )
-        {
-            for ( unsigned int k = 0; k < times.size( ); k++ )
-            {
-                bool exceptionCaught = 0;
-                try
-                {
-                    std::cout << i << " " << j << " " << k << std::endl;
-                    DateTime currentDateTime( years.at( i ), dates.at( j ).first, dates.at( j ).second,
-                                              std::get<0>( times.at( k )), std::get<1>( times.at( k )),
-                                              std::get<2>( times.at( k )));
-                    Time currentTime = timeFromDateTime< Time >( currentDateTime );
-
-                    // Check that hours into current day are calculated correctly
-                    int fullPeriodsUntilStartOfCurrentDay = 24 * ( currentTime.getFullPeriods( ) / 24 );
-                    if ( currentTime.getFullPeriods( ) < 0 && ( currentTime.getFullPeriods( ) % 24 != 0 ))
-                    {
-                        fullPeriodsUntilStartOfCurrentDay -= 24;
-                    }
-                    if ( currentDateTime.hour_ >= 12 )
-                    {
-                        BOOST_CHECK_EQUAL( currentTime.getFullPeriods( ) - fullPeriodsUntilStartOfCurrentDay,
-                                           currentDateTime.hour_ - 12 );
-                    }
-                    else
-                    {
-                        BOOST_CHECK_EQUAL( currentTime.getFullPeriods( ) - fullPeriodsUntilStartOfCurrentDay,
-                                           currentDateTime.hour_ + 12 );
-                    }
-
-
-                    // Check that seconds into current hour are computed correctly
-                    long double expectedSecondsIntoFullPeriod =
-                        60.0L * currentDateTime.minute_ + currentDateTime.seconds_;
-                    BOOST_CHECK_CLOSE_FRACTION( expectedSecondsIntoFullPeriod, currentTime.getSecondsIntoFullPeriod( ),
-                                                std::numeric_limits<long double>::epsilon( ) * 3600.0L );
-
-                    long double secondsSinceMidnight =
-                        static_cast< long double >( currentDateTime.hour_ ) * 3600.0L +
-                        static_cast< long double >( currentDateTime.minute_ ) * 60.0L +
-                        currentDateTime.seconds_;
-
-                    BOOST_CHECK_SMALL( std::fabs( secondsSinceMidnight - currentTime.secondsSinceMidnight( )),
-                                       std::numeric_limits<long double>::epsilon( ));
-                    if ( currentDateTime.hour_ >= 12 )
-                    {
-                        BOOST_CHECK_SMALL(
-                            std::fabs(( secondsSinceMidnight - currentTime.secondsSinceNoon( ) - 12.0L * 3600.0L )),
-                            3600.0 * std::numeric_limits<long double>::epsilon( ));
-                    }
-                    else
-                    {
-                        BOOST_CHECK_SMALL(
-                            std::fabs( secondsSinceMidnight + 12.0L * 3600.0L - currentTime.secondsSinceNoon( )),
-                            3600.0 * std::numeric_limits<long double>::epsilon( ));
-                    }
-
-                    DateTime reconstructedDateTime = getCalendarDateFromTime( currentTime );
-                    BOOST_CHECK_EQUAL( reconstructedDateTime.year_, currentDateTime.year_ );
-                    BOOST_CHECK_EQUAL( reconstructedDateTime.month_, currentDateTime.month_ );
-                    BOOST_CHECK_EQUAL( reconstructedDateTime.day_, currentDateTime.day_ );
-                    BOOST_CHECK_EQUAL( reconstructedDateTime.hour_, currentDateTime.hour_ );
-                    BOOST_CHECK_EQUAL( reconstructedDateTime.minute_, currentDateTime.minute_ );
-                    BOOST_CHECK_SMALL( std::fabs( reconstructedDateTime.seconds_ - currentDateTime.seconds_ ),
-                                       std::numeric_limits<long double>::epsilon( ) * 3600.0L );
-
-                    long double currentJulianDay = julianDayFromTime<long double>( currentTime );
-                    Time reconstructedTime = timeFromJulianDay< long double >( currentJulianDay );
-                    double timeTolerance = 3.0 * currentJulianDay * 86400.0 * std::numeric_limits<long double>::epsilon( );
-                    BOOST_CHECK_SMALL( std::fabs( static_cast< double >( reconstructedTime - currentTime )),
-                                       timeTolerance );
-
-                    long double currentModifiedJulianDay = modifiedJulianDayFromTime<long double>( currentTime );
-                    reconstructedTime = timeFromModifiedJulianDay< long double >( currentModifiedJulianDay );
-                    timeTolerance = std::fabs( 3.0 * currentModifiedJulianDay * 86400.0 * std::numeric_limits<long double>::epsilon( ));
-                    BOOST_CHECK_SMALL( std::fabs( static_cast< double >( reconstructedTime - currentTime )),
-                                       timeTolerance );
-                }
-                catch( ... )
-                {
-                    exceptionCaught = true;
-                }
-
-                if( j == 5 && i < 5 )
-                {
-                    BOOST_CHECK_EQUAL( exceptionCaught, true );
-                }
-                else
-                {
-                    BOOST_CHECK_EQUAL( exceptionCaught, false );
-                }
-            }
-        }
     }
 }
 
