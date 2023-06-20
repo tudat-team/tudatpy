@@ -556,7 +556,7 @@ BOOST_AUTO_TEST_CASE( testNonSequentialHybridArcVariationalEquations )
     std::shared_ptr< TranslationalStatePropagatorSettings< > > backwardSingleArcPropagatorSettings = std::make_shared< TranslationalStatePropagatorSettings< > >(
             singleArcCentralBodies, singleArcAccelerationsMap, singleArcBodiesToPropagate, midArcStatesJupiter, midSingleArc, backwardIntegratorSettings,
             std::make_shared< PropagationTimeTerminationSettings >( initialEpoch ) );
-    
+
     std::shared_ptr< NonSequentialPropagationTerminationSettings > terminationSettings = std::make_shared< NonSequentialPropagationTerminationSettings >(
             std::make_shared< PropagationTimeTerminationSettings >( finalEpoch ),
             std::make_shared< PropagationTimeTerminationSettings >( initialEpoch ) );
