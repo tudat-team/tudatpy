@@ -15,6 +15,8 @@
 #include <vector>
 #include <iostream>
 #include <stdexcept>
+#include <sstream>
+#include <iomanip>
 
 #include <functional>
 #include <boost/multi_array.hpp>
@@ -821,6 +823,26 @@ constexpr int constexpr_int_floor(const T& f)
 {
     const int i = static_cast<int>(f);
     return f < i ? i - 1 : i;
+}
+
+template< typename IntType >
+std::string paddedZeroIntString(
+    const IntType valueToConvert,
+    const int numberOfDigits )
+{
+    std::stringstream intStream;
+    intStream << std::setw( numberOfDigits ) << std::setfill( '0' ) << valueToConvert;
+    std::string intString = intStream.str( );
+    return intString;
+}
+
+template <typename T>
+std::string to_string_with_precision(const T a_value, const int n = 6)
+{
+    std::ostringstream out;
+    out.precision(n);
+    out << std::fixed << a_value;
+    return std::move(out).str();
 }
 
 } // namespace utilities
