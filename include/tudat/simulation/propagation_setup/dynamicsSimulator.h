@@ -748,7 +748,7 @@ public:
         if ( propagationTerminationCondition_->getTerminationType( ) == non_sequential_stopping_condition )
         {
             sequentialPropagation_ = false;
-            if ( integratorSettings_->initialTimeStep_ < 0 )
+            if ( integratorSettings_->initialTimeStep_ < 0.0 )
             {
                 throw std::runtime_error( "Error when using non-sequential propagation, the initial integrator time step must be positive (first provided for forward leg, "
                                           "conversion to negative time step for backward leg is automatic)." );
@@ -1318,7 +1318,7 @@ private:
                     statePostProcessingFunction,
                     propagatorSettings_->getOutputSettings( ) );
 
-            integratorSettings_->initialTimeStep_ = - integratorSettings_->initialTimeStep_;
+            integratorSettings_->initialTimeStep_ *= ( - 1.0 );
             integrateEquations< SimulationResults, Eigen::Matrix< StateScalarType, Eigen::Dynamic, SimulationResults::number_of_columns >, TimeType >(
                     stateDerivativeFunction_,
                     processedInitialState ,
