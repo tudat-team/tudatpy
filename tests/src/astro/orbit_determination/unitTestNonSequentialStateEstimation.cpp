@@ -128,19 +128,20 @@ BOOST_AUTO_TEST_CASE( testNonSequentialSingleArcStateEstimation )
         }
     }
 
-
     // Define propagator settings.
     std::shared_ptr< TranslationalStatePropagatorSettings< > > forwardPropagatorSettings = std::make_shared< TranslationalStatePropagatorSettings< > >(
-            centralBodies, accelerationsMap, bodiesToPropagate, midArcStatesMoons, finalEpoch, cowell, dependentVariables );
+            centralBodies, accelerationsMap, bodiesToPropagate, midArcStatesMoons, midArcEpoch, forwardIntegratorSettings,
+            std::make_shared< PropagationTimeTerminationSettings >( finalEpoch ), cowell, dependentVariables );
 
     std::shared_ptr< TranslationalStatePropagatorSettings< > > backwardPropagatorSettings = std::make_shared< TranslationalStatePropagatorSettings< > >(
-            centralBodies, accelerationsMap, bodiesToPropagate, midArcStatesMoons, initialEpoch, cowell, dependentVariables );
+            centralBodies, accelerationsMap, bodiesToPropagate, midArcStatesMoons, midArcEpoch, backwardIntegratorSettings,
+            std::make_shared< PropagationTimeTerminationSettings >( initialEpoch ), cowell, dependentVariables );
 
     //! Create settings for non-sequential propagation
     std::shared_ptr< NonSequentialPropagationTerminationSettings > terminationSettings = std::make_shared< NonSequentialPropagationTerminationSettings >(
             std::make_shared< PropagationTimeTerminationSettings >( finalEpoch ), std::make_shared< PropagationTimeTerminationSettings >( initialEpoch ) );
     std::shared_ptr< TranslationalStatePropagatorSettings< > > nonsequentialPropagatorSettings = std::make_shared< TranslationalStatePropagatorSettings< > >(
-            centralBodies, accelerationsMap, bodiesToPropagate, midArcStatesMoons, terminationSettings, cowell, dependentVariables );
+            centralBodies, accelerationsMap, bodiesToPropagate, midArcStatesMoons, midArcEpoch, forwardIntegratorSettings, terminationSettings, cowell, dependentVariables );
 
     // Define parameters to estimate for non-sequentiql propagation / estimation
     std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
@@ -155,15 +156,15 @@ BOOST_AUTO_TEST_CASE( testNonSequentialSingleArcStateEstimation )
         parameterNames.push_back( std::make_shared< SphericalHarmonicEstimatableParameterSettings >(
                 2, 1, 2, 2, bodiesToPropagate.at( i ), spherical_harmonics_sine_coefficient_block ) );
     }
-    std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > nonSequentialPropagationParametersToEstimate =
+    std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > nonSequentialParameters =
             createParametersToEstimate< double >( parameterNames, bodies, nonsequentialPropagatorSettings );
     Eigen::Matrix< double, Eigen::Dynamic, 1 > nonSequentialParameterEstimate =
-            nonSequentialPropagationParametersToEstimate->template getFullParameterValues< double >( );
+            nonSequentialParameters->template getFullParameterValues< double >( );
 
-    std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > forwardPropagationParametersToEstimate =
+    std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > forwardParameters =
             createParametersToEstimate< double >( parameterNames, bodies, forwardPropagatorSettings );
 
-    std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > backwardPropagationParametersToEstimate =
+    std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > backwardParameters =
             createParametersToEstimate< double >( parameterNames, bodies, backwardPropagatorSettings );
 
 
@@ -198,26 +199,26 @@ BOOST_AUTO_TEST_CASE( testNonSequentialSingleArcStateEstimation )
     }
 
     // Define observation settings
-    std::vector< std::shared_ptr<ObservationSimulationSettings< double > > > measurementSimulationInputForward,
-            measurementSimulationInputBackward, measurementSimulationInputAll;
+    std::vector< std::shared_ptr<ObservationSimulationSettings< double > > > measurementInputForward,
+            measurementInputBackward, measurementInputAll;
     for ( unsigned int i = 0 ; i < bodiesToPropagate.size( ) ; i++ )
     {
-        measurementSimulationInputForward.push_back( std::make_shared< TabulatedObservationSimulationSettings< > >(
+        measurementInputForward.push_back( std::make_shared< TabulatedObservationSimulationSettings< > >(
                 observation_models::position_observable, linkEndsList[ i ], observationTimesForward, observation_models::observed_body ) );
-        measurementSimulationInputBackward.push_back( std::make_shared< TabulatedObservationSimulationSettings< > >(
+        measurementInputBackward.push_back( std::make_shared< TabulatedObservationSimulationSettings< > >(
                 observation_models::position_observable, linkEndsList[ i ], observationTimesBackward, observation_models::observed_body ) );
-        measurementSimulationInputAll.push_back( std::make_shared< TabulatedObservationSimulationSettings< > >(
+        measurementInputAll.push_back( std::make_shared< TabulatedObservationSimulationSettings< > >(
                 observation_models::position_observable, linkEndsList[ i ], allObservationTimes, observation_models::observed_body ) );
     }
 
 
     // Create orbit determination object for forward propagation / estimation.
     OrbitDeterminationManager< > orbitDeterminationManagerForward = OrbitDeterminationManager< >(
-            bodies, forwardPropagationParametersToEstimate, observationSettingsList, forwardIntegratorSettings, forwardPropagatorSettings );
+            bodies, forwardParameters, observationSettingsList, forwardPropagatorSettings );
 
     // Simulate observations for forward propagation / estimation
     std::shared_ptr< observation_models::ObservationCollection< > > observationsAndTimesForward = simulateObservations< >(
-            measurementSimulationInputForward, orbitDeterminationManagerForward.getObservationSimulators( ), bodies );
+            measurementInputForward, orbitDeterminationManagerForward.getObservationSimulators( ), bodies );
 
     // Define estimation input for forward propagation / estimation
     std::shared_ptr< EstimationInput< double, double  > > estimationInputForward =
@@ -229,11 +230,11 @@ BOOST_AUTO_TEST_CASE( testNonSequentialSingleArcStateEstimation )
 
     // Create orbit determination object for backward propagation / estimation.
     OrbitDeterminationManager< > orbitDeterminationManagerBackward = OrbitDeterminationManager< >(
-            bodies, backwardPropagationParametersToEstimate, observationSettingsList, backwardIntegratorSettings, backwardPropagatorSettings );
+            bodies, backwardParameters, observationSettingsList, backwardPropagatorSettings );
 
     // Simulate observations for backward propagation / estimation
     std::shared_ptr< observation_models::ObservationCollection< > > observationsAndTimesBackward = simulateObservations< >(
-            measurementSimulationInputBackward, orbitDeterminationManagerBackward.getObservationSimulators( ), bodies );
+            measurementInputBackward, orbitDeterminationManagerBackward.getObservationSimulators( ), bodies );
 
     // Define POD input for backward propagation / estimation
     std::shared_ptr< EstimationInput< double, double  > > estimationInputBackward =
@@ -245,11 +246,11 @@ BOOST_AUTO_TEST_CASE( testNonSequentialSingleArcStateEstimation )
 
     // Create orbit determination object for non-sequential propagation / estimation.
     OrbitDeterminationManager< > orbitDeterminationManagerNonSequential = OrbitDeterminationManager< >(
-            bodies, nonSequentialPropagationParametersToEstimate, observationSettingsList, forwardIntegratorSettings, nonsequentialPropagatorSettings );
+            bodies, nonSequentialParameters, observationSettingsList, nonsequentialPropagatorSettings );
 
     // Simulate observations for non-sequential propagation / estimation
     std::shared_ptr< observation_models::ObservationCollection< > > observationsAndTimesNonSequential = simulateObservations< >(
-            measurementSimulationInputAll, orbitDeterminationManagerNonSequential.getObservationSimulators( ), bodies );
+            measurementInputAll, orbitDeterminationManagerNonSequential.getObservationSimulators( ), bodies );
 
     // Define POD input for non-sequential propgation / estimation
     std::shared_ptr< EstimationInput< double, double  > > estimationInputNonSequential =
@@ -766,7 +767,7 @@ BOOST_AUTO_TEST_CASE( testNonSequentialHybridArcStateEstimation )
             nonSequentialSingleArcPropagatorSettings, std::make_shared< MultiArcPropagatorSettings< > >( nonSequentialPropagationSettingsList ) );
 
 
-    // Define parameters to estimate for mid-arc propagation / estimation
+    // Define parameters to estimate for non-sequential propagation / estimation
     std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
     parameterNames.push_back( std::make_shared< InitialTranslationalStateEstimatableParameterSettings< double > >(
             singleArcBodiesToPropagate.at( 0 ), midArcStatesJupiter, singleArcCentralBodies.at( 0 ) ) );
@@ -901,7 +902,7 @@ BOOST_AUTO_TEST_CASE( testNonSequentialHybridArcStateEstimation )
     // Perform forward estimation
     std::shared_ptr< EstimationOutput< double, double > > estimationOutputForward = orbitDeterminationForward.estimateParameters( estimationInputForward );
 
-//     Perform backward estimation
+    // Perform backward estimation
     std::shared_ptr< EstimationOutput< double, double > > estimationOutputBackward = orbitDeterminationBackward.estimateParameters( estimationInputBackward );
 
     // Perform non-sequential estimation
