@@ -148,6 +148,16 @@ public:
         return convertedTime;
     }
 
+    template< typename TimeType >
+    TimeType getCurrentTimeDifference(
+        const basic_astrodynamics::TimeScales inputScale, const basic_astrodynamics::TimeScales outputScale,
+        const TimeType& inputTimeValue, const Eigen::Vector3d& earthFixedPosition = Eigen::Vector3d::Zero( ) )
+    {
+        Time convertedTime = getCurrentTime< Time >( inputScale, outputScale,
+            Time( inputTimeValue ), earthFixedPosition );
+        return static_cast< TimeType >( convertedTime - inputTimeValue );
+    }
+
     //! Function to reset all current times at given precision to NaN.
     template< typename TimeType >
     void resetTimes( )
@@ -354,6 +364,32 @@ private:
  */
 std::shared_ptr< TerrestrialTimeScaleConverter > createDefaultTimeConverter( const std::shared_ptr< EOPReader > eopReader =
         std::make_shared< EOPReader >( ) );
+
+static const std::shared_ptr< TerrestrialTimeScaleConverter > defaultTimeConverter = createDefaultTimeConverter( );
+
+template< typename TimeType >
+TimeType convertTimeScale(
+    const TimeType& inputTime,
+    const basic_astrodynamics::TimeScales inputScale, const basic_astrodynamics::TimeScales outputScale,
+    const std::shared_ptr< TerrestrialTimeScaleConverter > timeConverter = defaultTimeConverter,
+    const Eigen::Vector3d& earthFixedPosition = Eigen::Vector3d::Zero( ) )
+{
+    Time time = Time( inputTime );
+    return static_cast< TimeType >( timeConverter->getCurrentTime(
+        inputScale, outputScale, time, earthFixedPosition ) );
+}
+
+template< typename TimeType >
+TimeType convertToTimeScale(
+    const DateTime inputDateTime,
+    const basic_astrodynamics::TimeScales inputScale, const basic_astrodynamics::TimeScales outputScale,
+    const std::shared_ptr< TerrestrialTimeScaleConverter > timeConverter = defaultTimeConverter,
+    const Eigen::Vector3d& earthFixedPosition = Eigen::Vector3d::Zero( ) )
+{
+    Time time = timeFromDateTime< Time >( inputDateTime );
+    return static_cast< TimeType >( timeConverter->getCurrentTime(
+        inputScale, outputScale, time, earthFixedPosition ) );
+}
 
 }
 
