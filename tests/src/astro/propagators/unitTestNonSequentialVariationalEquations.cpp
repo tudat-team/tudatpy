@@ -91,17 +91,14 @@ BOOST_AUTO_TEST_CASE( testNonSequentialSingleArcVariationalEquations )
             bodies, accelerationSettings, bodiesToPropagate, centralBodies );
 
     // Define integrator settings
-    double initialTimeIntegration = midArcEpoch;
     double timeStep = 3600.0;
     std::shared_ptr< numerical_integrators::IntegratorSettings< > > forwardIntegratorSettings =
             std::make_shared< numerical_integrators::RungeKuttaVariableStepSizeSettingsScalarTolerances< double > >(
-                    initialTimeIntegration, timeStep, CoefficientSets::rungeKuttaFehlberg78,
-                    timeStep, timeStep, 1.0e3, 1.0e3 );
+                    midArcEpoch, timeStep, CoefficientSets::rungeKuttaFehlberg78, timeStep, timeStep, 1.0e3, 1.0e3 );
 
     std::shared_ptr< numerical_integrators::IntegratorSettings< > > backwardIntegratorSettings =
             std::make_shared< numerical_integrators::RungeKuttaVariableStepSizeSettingsScalarTolerances< double > >(
-                    initialTimeIntegration, - timeStep, CoefficientSets::rungeKuttaFehlberg78,
-                    - timeStep, - timeStep, 1.0e3, 1.0e3 );
+                    midArcEpoch, - timeStep, CoefficientSets::rungeKuttaFehlberg78, - timeStep, - timeStep, 1.0e3, 1.0e3 );
 
     // Define initial states
     Eigen::VectorXd midArcStatesMoons = propagators::getInitialStatesOfBodies( bodiesToPropagate, centralBodies, bodies, midArcEpoch );
@@ -122,17 +119,18 @@ BOOST_AUTO_TEST_CASE( testNonSequentialSingleArcVariationalEquations )
 
     // Define propagator settings.
     std::shared_ptr< TranslationalStatePropagatorSettings< > > forwardPropagatorSettings = std::make_shared< TranslationalStatePropagatorSettings< > >(
-            centralBodies, accelerationsMap, bodiesToPropagate, midArcStatesMoons, finalEpoch, cowell, dependentVariables );
+            centralBodies, accelerationsMap, bodiesToPropagate, midArcStatesMoons, midArcEpoch, forwardIntegratorSettings,
+            std::make_shared< PropagationTimeTerminationSettings >( finalEpoch ), cowell, dependentVariables );
     std::shared_ptr< TranslationalStatePropagatorSettings< > > backwardPropagatorSettings = std::make_shared< TranslationalStatePropagatorSettings< > >(
-            centralBodies, accelerationsMap, bodiesToPropagate, midArcStatesMoons, initialEpoch, cowell, dependentVariables );
+            centralBodies, accelerationsMap, bodiesToPropagate, midArcStatesMoons, midArcEpoch, backwardIntegratorSettings,
+            std::make_shared< PropagationTimeTerminationSettings >( initialEpoch ), cowell, dependentVariables );
 
     // Define parameters to estimate
     std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
     for( unsigned int i = 0; i < bodiesToPropagate.size( ); i++ )
     {
-        parameterNames.push_back(
-                std::make_shared< InitialTranslationalStateEstimatableParameterSettings< double > >(
-                        bodiesToPropagate.at( i ), midArcStatesMoons.segment( i * 6, 6 ), centralBodies.at( i ) ) );
+        parameterNames.push_back( std::make_shared< InitialTranslationalStateEstimatableParameterSettings< double > >(
+                bodiesToPropagate.at( i ), midArcStatesMoons.segment( i * 6, 6 ), centralBodies.at( i ) ) );
 
         parameterNames.push_back( std::make_shared< EstimatableParameterSettings >(
                 bodiesToPropagate.at( i ), gravitational_parameter ) );
@@ -143,24 +141,22 @@ BOOST_AUTO_TEST_CASE( testNonSequentialSingleArcVariationalEquations )
                 2, 1,  2, 2, bodiesToPropagate.at( i ), spherical_harmonics_sine_coefficient_block ) );
     }
 
-    std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > forwardPropagationParametersToEstimate =
+    std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > forwardParameters =
             createParametersToEstimate< double >( parameterNames, bodies, forwardPropagatorSettings );
-    printEstimatableParameterEntries( forwardPropagationParametersToEstimate );
+    printEstimatableParameterEntries( forwardParameters );
 
-    std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > backwardPropagationParametersToEstimate =
+    std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > backwardParameters =
             createParametersToEstimate< double >( parameterNames, bodies, backwardPropagatorSettings );
 
     // Propagate variational equations (forward leg)
     bool setIntegratedResult = false;
     bool integrateConcurrently = true;
     SingleArcVariationalEquationsSolver< > forwardVariationalEquationsSolver = SingleArcVariationalEquationsSolver< >(
-            bodies, forwardIntegratorSettings, forwardPropagatorSettings, forwardPropagationParametersToEstimate, integrateConcurrently,
-            forwardIntegratorSettings, false, true, setIntegratedResult );
+            bodies, forwardPropagatorSettings, forwardParameters );
 
     // Propagate variational equations (backward leg)
     SingleArcVariationalEquationsSolver< > backwardVariationalEquationsSolver = SingleArcVariationalEquationsSolver< >(
-            bodies, backwardIntegratorSettings, backwardPropagatorSettings, backwardPropagationParametersToEstimate, integrateConcurrently,
-            backwardIntegratorSettings, false, true, setIntegratedResult );
+            bodies, backwardPropagatorSettings, backwardParameters );
 
     // Save propagations outputs
     std::map< double, Eigen::MatrixXd > forwardStmHistory = forwardVariationalEquationsSolver.getStateTransitionMatrixSolution( );
@@ -168,17 +164,19 @@ BOOST_AUTO_TEST_CASE( testNonSequentialSingleArcVariationalEquations )
     std::map< double, Eigen::MatrixXd > backwardStmHistory = backwardVariationalEquationsSolver.getStateTransitionMatrixSolution( );
     std::map< double, Eigen::MatrixXd > backwardSemHistory = backwardVariationalEquationsSolver.getSensitivityMatrixSolution( );
 
-    //! Create settings for non-sequential propagation
+    // Create settings for non-sequential propagation
     std::shared_ptr< NonSequentialPropagationTerminationSettings > terminationSettings = std::make_shared< NonSequentialPropagationTerminationSettings >(
             std::make_shared< PropagationTimeTerminationSettings >( finalEpoch ), std::make_shared< PropagationTimeTerminationSettings >( initialEpoch ) );
     std::shared_ptr< TranslationalStatePropagatorSettings< > > nonsequentialPropagatorSettings = std::make_shared< TranslationalStatePropagatorSettings< > >(
-            centralBodies, accelerationsMap, bodiesToPropagate, midArcStatesMoons, terminationSettings, cowell, dependentVariables );
+            centralBodies, accelerationsMap, bodiesToPropagate, midArcStatesMoons, midArcEpoch, forwardIntegratorSettings, terminationSettings, cowell, dependentVariables );
 
+    // Create parameters for non-sequential propagation
+    std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > nonSequentialParameters =
+            createParametersToEstimate< double >( parameterNames, bodies, nonsequentialPropagatorSettings );
 
     // Propagate variational equations (non-sequentially)
     SingleArcVariationalEquationsSolver< > nonsequentialVariationalEquationsSolver = SingleArcVariationalEquationsSolver< >(
-            bodies, forwardIntegratorSettings, nonsequentialPropagatorSettings, forwardPropagationParametersToEstimate, integrateConcurrently,
-            forwardIntegratorSettings, false, true, setIntegratedResult );
+            bodies, nonsequentialPropagatorSettings, nonSequentialParameters );
 
     std::map< double, Eigen::MatrixXd > nonsequentialStmHistory = nonsequentialVariationalEquationsSolver.getStateTransitionMatrixSolution( );
     std::map< double, Eigen::MatrixXd > nonsequentialSemHistory = nonsequentialVariationalEquationsSolver.getSensitivityMatrixSolution( );
@@ -355,28 +353,28 @@ BOOST_AUTO_TEST_CASE( testNonSequentialMultiArcVariationalEquations )
                 2, 1, 2, 2, bodiesToPropagate.at( i ), spherical_harmonics_sine_coefficient_block ) );
     }
 
-    std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > forwardPropagationParametersToEstimate =
+    std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > forwardParameters =
             createParametersToEstimate< double >( parameterNames, bodies, forwardPropagatorSettings );
-    printEstimatableParameterEntries( forwardPropagationParametersToEstimate );
+    printEstimatableParameterEntries( forwardParameters );
 
-    std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > backwardPropagationParametersToEstimate =
+    std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > backwardParameters =
             createParametersToEstimate< double >( parameterNames, bodies, backwardPropagatorSettings );
 
-    std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > nonSequentialPropagationParametersToEstimate =
+    std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > nonSequentialParameters =
             createParametersToEstimate< double >( parameterNames, bodies, nonSequentialPropagatorSettings );
 
     // Propagate variational equations (forward leg)
     MultiArcVariationalEquationsSolver< > forwardVariationalEquationsSolver = MultiArcVariationalEquationsSolver< >(
-            bodies, forwardPropagatorSettings, forwardPropagationParametersToEstimate, true );
+            bodies, forwardPropagatorSettings, forwardParameters, true );
 
 
     // Propagate variational equations (backward leg)
     MultiArcVariationalEquationsSolver< > backwardVariationalEquationsSolver = MultiArcVariationalEquationsSolver< >(
-            bodies, backwardPropagatorSettings, backwardPropagationParametersToEstimate, true );
+            bodies, backwardPropagatorSettings, backwardParameters, true );
 
-    // Propagate variational equations non-sequentially from mid-arc.
+    // Propagate variational equations (non-sequential).
     MultiArcVariationalEquationsSolver< > nonSequentialVariationalEquationsSolver = MultiArcVariationalEquationsSolver< >(
-            bodies, nonSequentialPropagatorSettings, nonSequentialPropagationParametersToEstimate, true );
+            bodies, nonSequentialPropagatorSettings, nonSequentialParameters, true );
 
 
     std::vector< std::vector< std::map< double, Eigen::MatrixXd > > > forwardVariationalHistory = forwardVariationalEquationsSolver.getNumericalVariationalEquationsSolution( );
@@ -591,27 +589,27 @@ BOOST_AUTO_TEST_CASE( testNonSequentialHybridArcVariationalEquations )
                     2, 1, 2, 2, multiArcBodiesToPropagate.at( i ), spherical_harmonics_sine_coefficient_block ) );
         }
 
-        std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > forwardPropagationParametersToEstimate =
+        std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > forwardParameters =
                 createParametersToEstimate< double >( parameterNames, bodies, forwardPropagatorSettings );
-        printEstimatableParameterEntries( forwardPropagationParametersToEstimate );
+        printEstimatableParameterEntries( forwardParameters );
 
-        std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > backwardPropagationParametersToEstimate =
+        std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > backwardParameters =
                 createParametersToEstimate< double >( parameterNames, bodies, backwardPropagatorSettings );
 
-        std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > nonSequentialPropagationParametersToEstimate =
+        std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > nonSequentialParameters =
                 createParametersToEstimate< double >( parameterNames, bodies, nonSequentialPropagatorSettings );
 
         // Propagate variational equations (forward leg)
         HybridArcVariationalEquationsSolver< > forwardVariationalEquationsSolver = HybridArcVariationalEquationsSolver< >(
-                bodies, forwardPropagatorSettings, forwardPropagationParametersToEstimate, true );
+                bodies, forwardPropagatorSettings, forwardParameters, true );
 
         // Propagate variational equations (backward leg)
         HybridArcVariationalEquationsSolver< > backwardVariationalEquationsSolver = HybridArcVariationalEquationsSolver< >(
-                bodies, backwardPropagatorSettings, backwardPropagationParametersToEstimate, true );
+                bodies, backwardPropagatorSettings, backwardParameters, true );
 
-        // Propagate variational equations non-sequentially from mid-arc.
+        // Propagate variational equations non-sequentially.
         HybridArcVariationalEquationsSolver< > nonSequentialVariationalEquationsSolver = HybridArcVariationalEquationsSolver< >(
-                bodies, nonSequentialPropagatorSettings, nonSequentialPropagationParametersToEstimate, true );
+                bodies, nonSequentialPropagatorSettings, nonSequentialParameters, true );
 
         std::vector< std::map< double, Eigen::MatrixXd > > forwardSingleArcVariationalHistory =
                 forwardVariationalEquationsSolver.getSingleArcSolver( )->getNumericalVariationalEquationsSolution( );

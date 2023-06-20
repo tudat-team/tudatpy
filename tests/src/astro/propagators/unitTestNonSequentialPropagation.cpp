@@ -89,17 +89,14 @@ BOOST_AUTO_TEST_CASE( testNonSequentialSingleArcDynamics )
             bodies, accelerationSettings, bodiesToPropagate, centralBodies );
 
     // Define integrator settings
-    double initialTimeIntegration = midArcEpoch;
     double timeStep = 3600.0;
     std::shared_ptr< numerical_integrators::IntegratorSettings< > > forwardIntegratorSettings =
             std::make_shared< numerical_integrators::RungeKuttaVariableStepSizeSettingsScalarTolerances< double > >(
-                    initialTimeIntegration, timeStep, CoefficientSets::rungeKuttaFehlberg78,
-                    timeStep, timeStep, 1.0e3, 1.0e3 );
+                    midArcEpoch, timeStep, CoefficientSets::rungeKuttaFehlberg78, timeStep, timeStep, 1.0e3, 1.0e3 );
 
     std::shared_ptr< numerical_integrators::IntegratorSettings< > > backwardIntegratorSettings =
             std::make_shared< numerical_integrators::RungeKuttaVariableStepSizeSettingsScalarTolerances< double > >(
-                    initialTimeIntegration, - timeStep, CoefficientSets::rungeKuttaFehlberg78,
-                    - timeStep, - timeStep, 1.0e3, 1.0e3 );
+                    midArcEpoch, - timeStep, CoefficientSets::rungeKuttaFehlberg78, - timeStep, - timeStep, 1.0e3, 1.0e3 );
 
     // Define initial states
     Eigen::VectorXd midArcStatesMoons = propagators::getInitialStatesOfBodies( bodiesToPropagate, centralBodies, bodies, midArcEpoch );
@@ -119,18 +116,18 @@ BOOST_AUTO_TEST_CASE( testNonSequentialSingleArcDynamics )
 
     // Define propagator settings.
     std::shared_ptr< TranslationalStatePropagatorSettings< > > forwardPropagatorSettings = std::make_shared< TranslationalStatePropagatorSettings< > >(
-            centralBodies, accelerationsMap, bodiesToPropagate, midArcStatesMoons, finalEpoch, cowell, dependentVariablesSettings );
+            centralBodies, accelerationsMap, bodiesToPropagate, midArcStatesMoons, midArcEpoch, forwardIntegratorSettings,
+            std::make_shared< PropagationTimeTerminationSettings >( finalEpoch ), cowell, dependentVariablesSettings );
     std::shared_ptr< TranslationalStatePropagatorSettings< > > backwardPropagatorSettings = std::make_shared< TranslationalStatePropagatorSettings< > >(
-            centralBodies, accelerationsMap, bodiesToPropagate, midArcStatesMoons, initialEpoch, cowell, dependentVariablesSettings );
+            centralBodies, accelerationsMap, bodiesToPropagate, midArcStatesMoons, midArcEpoch, backwardIntegratorSettings,
+            std::make_shared< PropagationTimeTerminationSettings >( initialEpoch ), cowell, dependentVariablesSettings );
 
     // Propagate dynamics (forward leg)
     bool setIntegratedResult = false;
-    SingleArcDynamicsSimulator< > forwardDynamicsSimulator = SingleArcDynamicsSimulator< >(
-            bodies, forwardIntegratorSettings, forwardPropagatorSettings, true, false, setIntegratedResult, true );
+    SingleArcDynamicsSimulator< > forwardDynamicsSimulator = SingleArcDynamicsSimulator< >( bodies, forwardPropagatorSettings, true );
 
     // Propagate dynamics (backward leg)
-    SingleArcDynamicsSimulator< > backwardDynamicsSimulator = SingleArcDynamicsSimulator< >(
-            bodies, backwardIntegratorSettings, backwardPropagatorSettings, true, false, setIntegratedResult, true );
+    SingleArcDynamicsSimulator< > backwardDynamicsSimulator = SingleArcDynamicsSimulator< >( bodies, backwardPropagatorSettings, true );
 
     // Save propagations outputs
     std::map< double, Eigen::VectorXd > forwardStateHistory = forwardDynamicsSimulator.getEquationsOfMotionNumericalSolution( );
@@ -144,11 +141,10 @@ BOOST_AUTO_TEST_CASE( testNonSequentialSingleArcDynamics )
                     std::make_shared< PropagationTimeTerminationSettings >( finalEpoch ),
                     std::make_shared< PropagationTimeTerminationSettings >( initialEpoch ) );
     std::shared_ptr< TranslationalStatePropagatorSettings< > > nonsequentialPropagatorSettings = std::make_shared< TranslationalStatePropagatorSettings< > >(
-            centralBodies, accelerationsMap, bodiesToPropagate, midArcStatesMoons, terminationSettings, cowell, dependentVariablesSettings );
+            centralBodies, accelerationsMap, bodiesToPropagate, midArcStatesMoons, midArcEpoch, forwardIntegratorSettings, terminationSettings, cowell, dependentVariablesSettings );
 
     // Propagate dynamics (non-sequentially)
-    SingleArcDynamicsSimulator< > nonsequentialDynamicsSimulator = SingleArcDynamicsSimulator< >(
-            bodies, forwardIntegratorSettings, nonsequentialPropagatorSettings, true, false, true, true );
+    SingleArcDynamicsSimulator< > nonsequentialDynamicsSimulator = SingleArcDynamicsSimulator< >( bodies, nonsequentialPropagatorSettings, true );
 
     std::map< double, Eigen::VectorXd > nonsequentialStateHistory = nonsequentialDynamicsSimulator.getEquationsOfMotionNumericalSolution( );
     std::map< double, Eigen::VectorXd > nonsequentialDependentVariablesHistory = nonsequentialDynamicsSimulator.getDependentVariableHistory( );
@@ -275,9 +271,11 @@ BOOST_AUTO_TEST_CASE( testNonSequentialMultiArcDynamics )
     for ( unsigned int i = 0 ; i < nbArcs ; i++ )
     {
         forwardPropagationSettingsList.push_back( std::make_shared< TranslationalStatePropagatorSettings< double > >(
-                centralBodies, accelerationsMap, bodiesToPropagate, midArcStatesMoons.at( i ), arcEndTimes.at( i ), cowell, dependentVariables ) );
+                centralBodies, accelerationsMap, bodiesToPropagate, midArcStatesMoons.at( i ), midArcTimes.at( i ), forwardIntegratorSettings,
+                std::make_shared< PropagationTimeTerminationSettings >( arcEndTimes.at( i ) ), cowell, dependentVariables ) );
         backwardPropagationSettingsList.push_back( std::make_shared< TranslationalStatePropagatorSettings< double > >(
-                centralBodies, accelerationsMap, bodiesToPropagate, midArcStatesMoons.at( i ), arcStartTimes.at( i ), cowell, dependentVariables ) );
+                centralBodies, accelerationsMap, bodiesToPropagate, midArcStatesMoons.at( i ), midArcTimes.at( i ), backwardIntegratorSettings,
+                std::make_shared< PropagationTimeTerminationSettings >( arcStartTimes.at( i ) ), cowell, dependentVariables ) );
 
         std::shared_ptr< NonSequentialPropagationTerminationSettings > terminationSettings = std::make_shared< NonSequentialPropagationTerminationSettings >(
                 std::make_shared< PropagationTimeTerminationSettings >( arcEndTimes.at( i ) ),
@@ -294,12 +292,10 @@ BOOST_AUTO_TEST_CASE( testNonSequentialMultiArcDynamics )
 
     // Propagate dynamics (forward leg)
     bool setIntegratedResult = true;
-    MultiArcDynamicsSimulator< > forwardDynamicsSimulator = MultiArcDynamicsSimulator< >(
-            bodies, forwardIntegratorSettings, forwardPropagatorSettings, midArcTimes, true, false, setIntegratedResult );
+    MultiArcDynamicsSimulator< > forwardDynamicsSimulator = MultiArcDynamicsSimulator< >( bodies, forwardPropagatorSettings, true );
 
     // Propagate dynamics (backward leg)
-    MultiArcDynamicsSimulator< > backwardDynamicsSimulator = MultiArcDynamicsSimulator< >(
-            bodies, backwardIntegratorSettings, backwardPropagatorSettings, midArcTimes, true, false, setIntegratedResult );
+    MultiArcDynamicsSimulator< > backwardDynamicsSimulator = MultiArcDynamicsSimulator< >( bodies, backwardPropagatorSettings, true );
 
     // Save propagations outputs
     std::vector< std::map< double, Eigen::VectorXd > > forwardStateHistory = forwardDynamicsSimulator.getEquationsOfMotionNumericalSolution( );
