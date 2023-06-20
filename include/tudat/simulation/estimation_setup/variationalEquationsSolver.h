@@ -1426,7 +1426,7 @@ public:
     {
         std::vector< std::vector< std::map< double, Eigen::MatrixXd > > > fullSolution;
         fullSolution.resize( numberOfArcs_ );
-        for( unsigned int i = 0; i < numberOfArcs_; i++ )
+        for( int i = 0; i < numberOfArcs_; i++ )
         {
             fullSolution[ i ].push_back( variationalPropagationResults_->getSingleArcResults( ).at( i )->getStateTransitionSolution( ) );
             fullSolution[ i ].push_back( variationalPropagationResults_->getSingleArcResults( ).at( i )->getSensitivitySolution( ) );
