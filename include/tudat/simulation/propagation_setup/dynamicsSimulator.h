@@ -744,6 +744,17 @@ public:
                     integratorSettings_->initialTimeStep_, dynamicsStateDerivative_->getStateDerivativeModels( ),
                     predefinedStateDerivativeModels.stateDerivativePartials_ );
 
+        sequentialPropagation_ = true;
+        if ( propagationTerminationCondition_->getTerminationType( ) == non_sequential_stopping_condition )
+        {
+            sequentialPropagation_ = false;
+            if ( integratorSettings_->initialTimeStep_ < 0.0 )
+            {
+                throw std::runtime_error( "Error when using non-sequential propagation, the initial integrator time step must be positive (first provided for forward leg, "
+                                          "conversion to negative time step for backward leg is automatic)." );
+            }
+        }
+
         std::map< IntegratedStateType, std::vector< std::tuple< std::string, std::string, PropagatorType > > > integratedStateAndBodyList =
                 getIntegratedTypeAndBodyList( propagatorSettings_ );
 
@@ -772,12 +783,7 @@ public:
                     dependentVariableIds_, integratedStateAndBodyList, propagatorSettings_->getOutputSettingsWithCheck( ),
                     std::bind( &DynamicsStateDerivativeModel< TimeType, StateScalarType >::convertNumericalStateSolutionsToOutputSolutions,
                                dynamicsStateDerivative_,
-                               std::placeholders::_1, std::placeholders::_2 ), dependentVariableInterface ) ;
-
-
-
-
-
+                               std::placeholders::_1, std::placeholders::_2 ), dependentVariableInterface, sequentialPropagation_ ) ;
 
         // Integrate equations of motion if required.
         if( areEquationsOfMotionToBeIntegrated )
@@ -864,7 +870,7 @@ public:
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& initialStates )
     {
         integrateEquationsOfMotion< SingleArcSimulationResults< StateScalarType, TimeType > >(
-            dynamicsStateDerivative_->convertFromOutputSolution(initialStates, propagatorSettings_->getInitialTime( ) ),
+            dynamicsStateDerivative_->convertFromOutputSolution( initialStates, propagatorSettings_->getInitialTime( ) ),
                 propagationResults_ );
     }
 
@@ -1195,6 +1201,11 @@ public:
         return propagationResults_->dependentVariableIds_;
     }
 
+    //! Function return whether the propagation is sequential or not (forward and backward leg).
+    bool isPropagationSequential( ) const
+    {
+        return sequentialPropagation_;
+    }
 
 ///////////////////////////////////////////////////
 //////////////// END DEPRECATED ///////////////////
@@ -1252,6 +1263,9 @@ protected:
 
     std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType > > propagationResults_;
 
+    //! Boolean denoting whether the propagation is performing sequentially, or both forward and backward (default = true).
+    bool sequentialPropagation_;
+
 
 private:
 
@@ -1275,16 +1289,49 @@ private:
         simulation_setup::setAreBodiesInPropagation( bodies_, true );
         dynamicsStateDerivative_->updateStateDerivativeModelSettings( processedInitialState.block(
                 0, processedInitialState.cols( ) - 1, processedInitialState.rows(), 1  ) );
-        integrateEquations< SimulationResults, Eigen::Matrix< StateScalarType, Eigen::Dynamic, SimulationResults::number_of_columns >, TimeType >(
-                stateDerivativeFunction_,
-                processedInitialState ,
-                propagatorSettings_->getInitialTime( ),
-                integratorSettings_,
-                propagationTerminationCondition_,
-                propagationResults,
-                dependentVariablesFunctions_,
-                statePostProcessingFunction,
-                propagatorSettings_->getOutputSettings( ) );
+
+        if ( sequentialPropagation_ )
+        {
+            integrateEquations< SimulationResults, Eigen::Matrix< StateScalarType, Eigen::Dynamic, SimulationResults::number_of_columns >, TimeType >(
+                    stateDerivativeFunction_,
+                    processedInitialState ,
+                    propagatorSettings_->getInitialTime( ),
+                    integratorSettings_,
+                    propagationTerminationCondition_,
+                    propagationResults,
+                    dependentVariablesFunctions_,
+                    statePostProcessingFunction,
+                    propagatorSettings_->getOutputSettings( ) );
+        }
+        else
+        {
+            std::shared_ptr< NonSequentialPropagationTerminationCondition > nonSequentialTerminations =
+                    std::dynamic_pointer_cast< NonSequentialPropagationTerminationCondition >( propagationTerminationCondition_ );
+            integrateEquations< SimulationResults, Eigen::Matrix< StateScalarType, Eigen::Dynamic, SimulationResults::number_of_columns >, TimeType >(
+                    stateDerivativeFunction_,
+                    processedInitialState ,
+                    propagatorSettings_->getInitialTime( ),
+                    integratorSettings_,
+                    nonSequentialTerminations->getForwardPropagationTerminationCondition( ),
+                    propagationResults,
+                    dependentVariablesFunctions_,
+                    statePostProcessingFunction,
+                    propagatorSettings_->getOutputSettings( ) );
+
+            integratorSettings_->initialTimeStep_ *= ( - 1.0 );
+            integrateEquations< SimulationResults, Eigen::Matrix< StateScalarType, Eigen::Dynamic, SimulationResults::number_of_columns >, TimeType >(
+                    stateDerivativeFunction_,
+                    processedInitialState ,
+                    propagatorSettings_->getInitialTime( ),
+                    integratorSettings_,
+                    nonSequentialTerminations->getBackwardPropagationTerminationCondition( ),
+                    propagationResults,
+                    dependentVariablesFunctions_,
+                    statePostProcessingFunction,
+                    propagatorSettings_->getOutputSettings( ) );
+            integratorSettings_->initialTimeStep_ *= ( - 1.0 );
+        }
+
         simulation_setup::setAreBodiesInPropagation( bodies_, false );
     }
 
@@ -1424,7 +1471,7 @@ template< typename StateScalarType = double, typename TimeType = double >
 std::shared_ptr< MultiArcPropagatorSettings< StateScalarType, TimeType > > validateDeprecatedMultiArcSettings(
         const std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > > integratorSettings,
         const std::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
-        const bool clearNumericalSolutions = true,
+        const bool clearNumericalSolutions = false,
         const bool setIntegratedResult = true,
         const bool setDependentVariablesInterface = false  )
 {
@@ -1483,8 +1530,8 @@ template< typename StateScalarType = double, typename TimeType = double >
 std::shared_ptr< MultiArcPropagatorSettings< StateScalarType, TimeType > > validateDeprecatedMultiArcSettings(
         const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
         const std::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
-        const std::vector< double > arcStartTimes,
-        const bool clearNumericalSolutions = true,
+        const std::vector< double > propagationStartTimes,
+        const bool clearNumericalSolutions = false,
         const bool setIntegratedResult = true,
         const bool setDependentVariablesInterface = false )
 {
@@ -1496,15 +1543,15 @@ std::shared_ptr< MultiArcPropagatorSettings< StateScalarType, TimeType > > valid
     }
 
     std::vector<std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > > integratorSettingsList(
-                arcStartTimes.size( ), integratorSettings);
+            propagationStartTimes.size( ), integratorSettings);
 
     std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > > independentIntegratorSettingsList =
             utilities::cloneDuplicatePointers( integratorSettingsList );
 
-    for( unsigned int i = 0; i < arcStartTimes.size( ); i++ )
+    for( unsigned int i = 0; i < propagationStartTimes.size( ); i++ )
     {
         multiArcPropagatorSettings->getSingleArcSettings( ).at( i )->resetInitialTime(
-                    arcStartTimes.at( i ) );
+                propagationStartTimes.at( i ) );
     }
 
     return validateDeprecatedMultiArcSettings(
