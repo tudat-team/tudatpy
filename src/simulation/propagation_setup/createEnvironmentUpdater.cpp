@@ -1044,6 +1044,8 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
     }
     case custom_stopping_condition:
         break;
+    case non_sequential_stopping_condition:
+        break;
     default:
         throw std::runtime_error( "Error when creating environment updater settings for termination conditions, type not found" );
     }

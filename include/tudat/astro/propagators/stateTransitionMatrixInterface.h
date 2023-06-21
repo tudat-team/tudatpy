@@ -263,6 +263,7 @@ public:
             stateTransitionMatrixInterpolators,
             const std::vector< std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > >
             sensitivityMatrixInterpolators,
+            const std::vector< double >& propagationStartTimes,
             const std::vector< double >& arcStartTimes,
             const std::vector< double >& arcEndTimes,
             const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate,
@@ -272,6 +273,7 @@ public:
         CombinedStateTransitionAndSensitivityMatrixInterface( numberOfInitialDynamicalParameters, numberOfParameters ),
         stateTransitionMatrixInterpolators_( stateTransitionMatrixInterpolators ),
         sensitivityMatrixInterpolators_( sensitivityMatrixInterpolators ),
+        propagationStartTimes_( propagationStartTimes ),
         arcStartTimes_( arcStartTimes ),
         arcEndTimes_( arcEndTimes ),
         statePartialAdditionIndices_( statePartialAdditionIndices )
@@ -282,7 +284,7 @@ public:
         }
         numberOfStateArcs_ = arcStartTimes_.size( );
 
-        estimatable_parameters::getParametersToEstimatePerArcTest( parametersToEstimate, arcWiseParametersToEstimate_, arcStartTimes_, estimatedBodiesPerArc_, arcIndicesPerBody_ );
+        estimatable_parameters::getParametersToEstimatePerArcTest( parametersToEstimate, arcWiseParametersToEstimate_, propagationStartTimes_, estimatedBodiesPerArc_, arcIndicesPerBody_ );
         processArcWiseParametersIndices( parametersToEstimate, arcStartTimes_ );
         getArcStartTimesPerBody( );
 
@@ -297,7 +299,6 @@ public:
             throw std::runtime_error(
                         "Error when making multi arc state transition and sensitivity interface, vector sizes are inconsistent" );
         }
-
         std::vector< double > arcSplitTimes = arcStartTimes_;
         arcSplitTimes.push_back(  std::numeric_limits< double >::max( ));
         lookUpscheme_ = std::make_shared< interpolators::HuntingAlgorithmLookupScheme< double > >(
@@ -576,9 +577,9 @@ public:
     {
 
         int currentArc =  lookUpscheme_->findNearestLowerNeighbour( evaluationTime );
-        if( evaluationTime < arcEndTimes_.at( currentArc ) && evaluationTime > arcStartTimes_.at( currentArc ) )
+        if( evaluationTime <= arcEndTimes_.at( currentArc ) && evaluationTime >= arcStartTimes_.at( currentArc ) )
         {
-            return std::make_pair( currentArc, arcStartTimes_.at( currentArc ) );
+            return std::make_pair( currentArc, propagationStartTimes_.at( currentArc ) );
         }
         else
         {
@@ -608,7 +609,7 @@ public:
     //            if ( itr != arcStartTimes_.cend( ) )
     //            {
     //                currentArc = std::distance( arcStartTimes_.begin( ), itr );
-                    return std::make_pair( arcStartTimesPerBody_.at( body ).second.at( currentArc ), arcStartTimesPerBody_.at( body ).first.at( currentArc ) );
+                    return std::make_pair( propagationStartTimesPerBody_.at( body ).second.at( currentArc ), propagationStartTimesPerBody_.at( body ).first.at( currentArc ) );
     //            }
     //            else
     //            {
@@ -729,8 +730,6 @@ protected:
             arcWiseStateTransitionMatrixSize_.push_back( getSingleArcInitialDynamicalStateParameterSetSize( arcWiseParametersToEstimate_[ arc ] ) );
             arcWiseSensitivityMatrixSize_.push_back( getSingleArcParameterSetSize( arcWiseParametersToEstimate_[ arc ] ) - arcWiseStateTransitionMatrixSize_[ arc ] );
 
-    //        std::cout << "arc " << arc << " - arcWiseStateTransitionMatrixSize_: " << arcWiseStateTransitionMatrixSize_[ arc ] << "\n\n";
-    //        std::cout << "arc " << arc << " - arcWiseSensitivityMatrixSize_: " << arcWiseSensitivityMatrixSize_[ arc ] << "\n\n";
 
             fullStateTransitionMatrixSize_ += arcWiseStateTransitionMatrixSize_[ arc ];
 
@@ -785,15 +784,19 @@ protected:
                 {
                     std::vector< double > arcStartTimesVector = { arcStartTimes_.at( itr.first ) };
                     std::vector< double > arcEndTimesVector = { arcEndTimes_.at( itr.first ) };
+                    std::vector< double > propagationStartTimesVector = { propagationStartTimes_.at( itr.first ) };
                     std::vector< int > arcIndicesVector = { itr.first };
                     arcStartTimesPerBody_[ itr.second.at( i ) ] = std::make_pair( arcStartTimesVector, arcIndicesVector );
                     arcEndTimesPerBody_[ itr.second.at( i ) ] = std::make_pair( arcEndTimesVector, arcIndicesVector );
+                    propagationStartTimesPerBody_[ itr.second.at( i ) ] = std::make_pair( propagationStartTimesVector, arcIndicesVector );
                 }
                 else {
                     arcStartTimesPerBody_[ itr.second.at( i ) ].first.push_back( arcStartTimes_.at( itr.first ) );
                     arcStartTimesPerBody_[ itr.second.at( i) ].second.push_back( itr.first );
                     arcEndTimesPerBody_[ itr.second.at( i ) ].first.push_back( arcEndTimes_.at( itr.first ) );
                     arcEndTimesPerBody_[ itr.second.at( i ) ].second.push_back( itr.first );
+                    propagationStartTimesPerBody_[ itr.second.at( i ) ].first.push_back( propagationStartTimes_.at( itr.first ) );
+                    propagationStartTimesPerBody_[ itr.second.at( i) ].second.push_back( itr.first );
                 }
             }
         }
@@ -815,6 +818,9 @@ private:
     //! List of interpolators returning the sensitivity matrix as a function of time.
     std::vector< std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > >
     sensitivityMatrixInterpolators_;
+
+    //! Times at which the propagation starts for each arc.
+    std::vector< double > propagationStartTimes_;
 
     //! Times at which the multiple arcs start
     std::vector< double > arcStartTimes_;
@@ -844,6 +850,9 @@ private:
 
     //! Vector containing the times at which each arc ends, per body.
     std::map< std::string, std::pair< std::vector< double >, std::vector< int > > > arcEndTimesPerBody_;
+
+    //! Vector containing the times at which each propagation starts, per body.
+    std::map< std::string, std::pair< std::vector< double >, std::vector< int > > > propagationStartTimesPerBody_;
 
     //! Look-up algorithm to determine the arc of a given time, per body
     std::map< std::string, std::shared_ptr< interpolators::HuntingAlgorithmLookupScheme< double > > > lookUpschemePerBody_;
@@ -952,13 +961,11 @@ public:
     {
     //    std::cout << "before identifying current arc" << "\n\n";
         std::pair< int, double > currentArc = multiArcInterface_->getCurrentArc( evaluationTime );
-    //    std::cout << "current arc: " << currentArc.first << " & " << currentArc.second << "\n\n";
 
         std::vector< std::pair< int, double > > currentArcsDefinedByEachBody;
         for ( unsigned int i = 0 ; i < arcDefiningBodies.size( ) ; i++ )
         {
             std::pair< int, double > currentArcDefinedByBody = multiArcInterface_->getCurrentArc(evaluationTime, arcDefiningBodies.at( i ) );
-    //        std::cout << "current arc defined by body: " << currentArcDefinedByBody.first << "\n\n";
             currentArcsDefinedByEachBody.push_back( currentArcDefinedByBody );
         }
         for ( unsigned int i = 0 ; i < currentArcsDefinedByEachBody.size( ) ; i++ )
@@ -1024,7 +1031,6 @@ public:
             Eigen::MatrixXd singleArcStateTransitionAtArcStart = singleArcInterface_->getCombinedStateTransitionAndSensitivityMatrix(
                         currentArc.second, arcDefiningBodies );
 
-    //        std::cout << "test2" << "\n\n";
 
             // Set coupled block
             combinedStateTransitionMatrix.block(

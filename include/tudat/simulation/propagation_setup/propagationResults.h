@@ -76,7 +76,8 @@ namespace tudat
                                        const std::shared_ptr <SingleArcPropagatorProcessingSettings> &outputSettings,
                                        const std::function< void ( std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >&,
                                                                    const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& ) > rawSolutionConversionFunction,
-                                       const std::shared_ptr< SingleArcDependentVariablesInterface< TimeType > > dependentVariableInterface = nullptr ) :
+                                       const std::shared_ptr< SingleArcDependentVariablesInterface< TimeType > > dependentVariableInterface = nullptr,
+                                       const bool sequentialPropagation = true ) :
                     SimulationResults<StateScalarType, TimeType>(),
                     dependentVariableIds_(dependentVariableIds),
                     processedStateIds_(getProcessedStateStrings( integratedStateAndBodyList ) ),
@@ -84,6 +85,7 @@ namespace tudat
                     integratedStateAndBodyList_( integratedStateAndBodyList ),
                     outputSettings_(outputSettings),
                     dependentVariableInterface_( dependentVariableInterface ),
+                    sequentialPropagation_( sequentialPropagation ),
                     rawSolutionConversionFunction_( rawSolutionConversionFunction ),
                     propagationIsPerformed_(false),
                     solutionIsCleared_( false ),
@@ -119,13 +121,30 @@ namespace tudat
                     const std::map<TimeType, unsigned int>& cumulativeNumberOfFunctionEvaluations,
                     std::shared_ptr <PropagationTerminationDetails> propagationTerminationReason )
             {
-                reset( );
-                equationsOfMotionNumericalSolutionRaw_ = equationsOfMotionNumericalSolutionRaw;
+                if ( sequentialPropagation_ || !isPropagationOngoing_ )
+                {
+                    reset( );
+                    equationsOfMotionNumericalSolutionRaw_ = equationsOfMotionNumericalSolutionRaw;
+                    dependentVariableHistory_ = dependentVariableHistory;
+                    cumulativeComputationTimeHistory_ = cumulativeComputationTimeHistory;
+                    cumulativeNumberOfFunctionEvaluations_ = cumulativeNumberOfFunctionEvaluations;
+
+                    if ( !sequentialPropagation_ )
+                    {
+                        isPropagationOngoing_ = true;
+                    }
+                }
+                else if ( !sequentialPropagation_ && isPropagationOngoing_ )
+                {
+                    equationsOfMotionNumericalSolutionRaw_.insert( equationsOfMotionNumericalSolutionRaw.begin( ), equationsOfMotionNumericalSolutionRaw.end( ) );
+                    dependentVariableHistory_.insert( dependentVariableHistory.begin( ), dependentVariableHistory.end( ) );
+                    cumulativeComputationTimeHistory_.insert ( cumulativeComputationTimeHistory.begin( ), cumulativeComputationTimeHistory.end( ) );
+                    cumulativeNumberOfFunctionEvaluations_.insert( cumulativeNumberOfFunctionEvaluations.begin( ), cumulativeNumberOfFunctionEvaluations.end( ) );
+                    isPropagationOngoing_ = false;
+                }
                 rawSolutionConversionFunction_( equationsOfMotionNumericalSolution_, equationsOfMotionNumericalSolutionRaw_ );
-                dependentVariableHistory_ = dependentVariableHistory;
-                cumulativeComputationTimeHistory_ = cumulativeComputationTimeHistory;
-                cumulativeNumberOfFunctionEvaluations_ = cumulativeNumberOfFunctionEvaluations;
                 propagationTerminationReason_ = propagationTerminationReason;
+
             }
 
             //! Function to clear all maps with numerical results, but *not* signal that a new propagation will start,
@@ -365,6 +384,11 @@ namespace tudat
 
             std::shared_ptr< SingleArcDependentVariablesInterface< TimeType > > dependentVariableInterface_;
 
+
+
+            //! Bool denoting whether the propagation is sequential or bidirectional (default is true).
+            bool sequentialPropagation_;
+
             //! Function to convert the propagated solution to conventional solution (see DynamicsStateDerivativeModel::convertToOutputSolution)
             const std::function< void ( std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >&,
                                         const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& ) > rawSolutionConversionFunction_;
@@ -382,6 +406,8 @@ namespace tudat
 
 //            friend class MultiArcSimulationResults<StateScalarType, TimeType, NumberOfStateColumns >;
 
+            //! Boolean denoting whether the full propagation has been fully completed or is ongoing (for non sequential propagations only)
+            bool isPropagationOngoing_ = false;
 
         };
 
