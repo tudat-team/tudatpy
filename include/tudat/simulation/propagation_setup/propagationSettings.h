@@ -829,10 +829,6 @@ public:
         accelerationsMap_( accelerationsMap )
         {
             verifyInput( );
-            if ( this->terminationSettings_->terminationType_ == non_sequential_stopping_condition )
-            {
-                sequentialPropagation_ = false;
-            }
         }
 
     TranslationalStatePropagatorSettings( const std::vector< std::string >& centralBodies,
@@ -855,10 +851,6 @@ public:
         accelerationsMap_( accelerationsMap )
         {
             verifyInput( );
-            if ( this->terminationSettings_->terminationType_ == non_sequential_stopping_condition )
-            {
-                sequentialPropagation_ = false;
-            }
         }
 
     virtual std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > clone( )
@@ -905,10 +897,6 @@ public:
         accelerationsMap_( accelerationsMap )
         {
             verifyInput( );
-            if ( this->terminationSettings_->terminationType_ == non_sequential_stopping_condition )
-            {
-                sequentialPropagation_ = false;
-            }
         }
 
     //    //! Constructor for fixed propagation time stopping conditions, providing settings to create accelerations map.
@@ -957,9 +945,6 @@ public:
 
     //! Type of translational state propagator to be used
     TranslationalPropagatorType propagator_;
-
-    //! Boolean denoting whether the propagation starts at the (temporal) beginning of the arc (default = true)
-    bool sequentialPropagation_ = true;
 
     //! Function to create the acceleration models.
     /*!

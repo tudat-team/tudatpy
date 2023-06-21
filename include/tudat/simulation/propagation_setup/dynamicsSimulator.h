@@ -1318,7 +1318,7 @@ private:
                     statePostProcessingFunction,
                     propagatorSettings_->getOutputSettings( ) );
 
-            integratorSettings_->initialTimeStep_ *= ( - 1.0 );
+            integratorSettings_->initialTimeStep_ *= -1.0;
             integrateEquations< SimulationResults, Eigen::Matrix< StateScalarType, Eigen::Dynamic, SimulationResults::number_of_columns >, TimeType >(
                     stateDerivativeFunction_,
                     processedInitialState ,
@@ -1329,7 +1329,7 @@ private:
                     dependentVariablesFunctions_,
                     statePostProcessingFunction,
                     propagatorSettings_->getOutputSettings( ) );
-            integratorSettings_->initialTimeStep_ *= ( - 1.0 );
+            integratorSettings_->initialTimeStep_ *= -1.0;
         }
 
         simulation_setup::setAreBodiesInPropagation( bodies_, false );
