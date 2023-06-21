@@ -826,7 +826,10 @@ public:
         centralBodies_( centralBodies ),
         bodiesToIntegrate_( bodiesToIntegrate ),
         propagator_( propagator ),
-        accelerationsMap_( accelerationsMap ) { verifyInput( ); }
+        accelerationsMap_( accelerationsMap )
+        {
+            verifyInput( );
+        }
 
     TranslationalStatePropagatorSettings( const std::vector< std::string >& centralBodies,
                                           const basic_astrodynamics::AccelerationMap& accelerationsMap,
@@ -845,7 +848,10 @@ public:
         centralBodies_( centralBodies ),
         bodiesToIntegrate_( bodiesToIntegrate ),
         propagator_( propagator ),
-        accelerationsMap_( accelerationsMap ) { verifyInput( ); }
+        accelerationsMap_( accelerationsMap )
+        {
+            verifyInput( );
+        }
 
     virtual std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > clone( )
     {
@@ -888,7 +894,10 @@ public:
         centralBodies_( centralBodies ),
         bodiesToIntegrate_( bodiesToIntegrate ),
         propagator_( propagator ),
-        accelerationsMap_( accelerationsMap ) { verifyInput( ); }
+        accelerationsMap_( accelerationsMap )
+        {
+            verifyInput( );
+        }
 
     //    //! Constructor for fixed propagation time stopping conditions, providing settings to create accelerations map.
     //    /*!
