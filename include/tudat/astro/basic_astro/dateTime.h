@@ -124,6 +124,11 @@ struct DateTime
         return timeFromDecomposedDateTime<TimeType>(
             year_, month_, day_, hour_, minute_, seconds_ );
     }
+
+    int dayOfYear( )
+    {
+        return basic_astrodynamics::convertDayMonthYearToDayOfYear( day_, month_, year_ );
+    }
 };
 
 template< typename TimeType >
