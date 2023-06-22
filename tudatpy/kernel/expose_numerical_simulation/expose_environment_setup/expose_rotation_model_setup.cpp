@@ -122,6 +122,7 @@ namespace rotation_model {
               &tss::spiceRotationModelSettings,
               py::arg("base_frame"),
               py::arg("target_frame"),
+              py::arg("spice_frame_name") = "",
               get_docstring("spice").c_str()
         );
 
@@ -192,6 +193,8 @@ namespace rotation_model {
 
         m.def("mars_high_accuracy",
               &tss::getHighAccuracyMarsRotationModel,
+                py::arg("base_frame") = "ECLIPJ2000",
+                py::arg("target_frame") = "Mars_Fixed",
               get_docstring("mars_high_accuracy").c_str()
         );
 
