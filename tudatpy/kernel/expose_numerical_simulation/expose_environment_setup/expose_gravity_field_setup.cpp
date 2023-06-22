@@ -305,46 +305,6 @@ void expose_gravity_field_setup(py::module &m) {
               py::arg("gravitational_constant") = tudat::physical_constants::GRAVITATIONAL_CONSTANT
               );
 
-    py::enum_<tss::BodyMassPropertiesType>(m, "BodyMassPropertiesType",
-                                     get_docstring("BodyMassPropertiesType").c_str())
-        .value("from_function_body_mass_properties", tss::BodyMassPropertiesType::from_function_body_mass_properties, get_docstring("BodyMassPropertiesType.from_function_body_mass_properties").c_str())
-        .value("constant_body_mass_properties", tss::BodyMassPropertiesType::constant_body_mass_properties, get_docstring("BodyMassPropertiesType.constant_body_mass_properties").c_str())
-        .value("from_gravity_field_body_mass_properties", tss::BodyMassPropertiesType::from_gravity_field_body_mass_properties, get_docstring("BodyMassPropertiesType.from_gravity_field_body_mass_properties").c_str())
-        .value("mass_dependent_mass_distribution_properties", tss::BodyMassPropertiesType::mass_dependent_mass_distribution_properties, get_docstring("BodyMassPropertiesType.mass_dependent_mass_distribution_properties").c_str())
-        .export_values();
-
-    py::class_<tss::BodyMassPropertiesSettings, std::shared_ptr<tss::BodyMassPropertiesSettings>>(
-        m, "BodyMassPropertiesSettings",
-        get_docstring("BodyMassPropertiesSettings").c_str())
-        //            .def(py::init<const tss::GravityFieldType>(),
-        //                 py::arg("gravity_field_type"))
-        .def_property_readonly("body_mass_property_type", &tss::BodyMassPropertiesSettings::getBodyMassPropertiesType,
-                               get_docstring("BodyMassPropertiesSettings.body_mass_property_type").c_str());
-
-
-    m.def("constant_mass_properties",
-          tss::constantBodyMassPropertiesSettings,
-          py::arg("mass"),
-          py::arg("center_of_mass") = Eigen::Vector3d::Constant( TUDAT_NAN ),
-          py::arg("inertia_tensor") = Eigen::Matrix3d::Constant( TUDAT_NAN ),
-          get_docstring("constant_mass_properties").c_str()
-    );
-
-    m.def("custom_mass_properties",
-          tss::constantBodyMassPropertiesSettings,
-          py::arg("mass_function"),
-          py::arg("center_of_mass_function") = nullptr,
-          py::arg("inertia_tensor_function") = nullptr,
-          get_docstring("custom_mass_properties").c_str()
-    );
-
-    m.def("mass_dependent_mass_properties",
-          tss::massDependentMassDistributionSettings,
-          py::arg("current_mass"),
-          py::arg("center_of_mass_function") = nullptr,
-          py::arg("inertia_tensor_function") = nullptr,
-          get_docstring("mass_dependent_mass_properties").c_str()
-    );
 
 
 }
