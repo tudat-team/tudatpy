@@ -248,17 +248,23 @@ void expose_environment(py::module &m) {
 
 
     py::class_<tsm::VehicleSystems,
-            std::shared_ptr<tsm::VehicleSystems>>(m, "VehicleSystems" )
+            std::shared_ptr<tsm::VehicleSystems>>(m, "VehicleSystems", get_docstring("VehicleSystems").c_str() )
             .def(py::init< >() )
             .def("set_control_surface_deflection",
                  &tsm::VehicleSystems::setCurrentControlSurfaceDeflection,
                  py::arg("control_surface_id"),
-                 py::arg("deflection_angle"))
+                 py::arg("deflection_angle"),
+                 get_docstring("VehicleSystems.set_control_surface_deflection").c_str() )
+            .def("get_control_surface_deflection",
+                 &tsm::VehicleSystems::getCurrentControlSurfaceDeflection,
+                  py::arg("control_surface_id"),
+                  get_docstring("VehicleSystems.get_control_surface_deflection").c_str() )
             .def("get_engine_model",
                  &tsm::VehicleSystems::getEngineModel,
-                 py::arg("engine_name"));
+                 py::arg("engine_name"),
+                 get_docstring("VehicleSystems.get_engine_model").c_str() );
 
-    py::class_<tsm::EngineModel,
+        py::class_<tsm::EngineModel,
             std::shared_ptr<tsm::EngineModel>>(m, "EngineModel" )
             .def_property_readonly("thrust_magnitude_calculator",
                                    &tsm::EngineModel::getThrustMagnitudeWrapper );
@@ -649,9 +655,9 @@ void expose_environment(py::module &m) {
             .def_property("gravity_field_model", &tss::Body::getGravityFieldModel, &tss::Body::setGravityFieldModel, get_docstring("Body.gravity_field_model").c_str())
             .def_property("aerodynamic_coefficient_interface", &tss::Body::getAerodynamicCoefficientInterface,
                           &tss::Body::setAerodynamicCoefficientInterface, get_docstring("Body.aerodynamic_coefficient_interface").c_str())
-            .def_property("flight_conditions", &tss::Body::getFlightConditions, &tss::Body::setFlightConditions)
+            .def_property("flight_conditions", &tss::Body::getFlightConditions, &tss::Body::setFlightConditions, get_docstring("Body.flight_conditions").c_str())
             .def_property("rotation_model", &tss::Body::getRotationalEphemeris, &tss::Body::setRotationalEphemeris, get_docstring("Body.rotation_model").c_str())
-            .def_property("system_models", &tss::Body::getVehicleSystems, &tss::Body::setVehicleSystems)
+            .def_property("system_models", &tss::Body::getVehicleSystems, &tss::Body::setVehicleSystems, get_docstring("Body.system_models").c_str())
             .def_property_readonly("gravitational_parameter", &tss::Body::getGravitationalParameter, get_docstring("Body.gravitational_parameter").c_str())
             .def("get_ground_station", &tss::Body::getGroundStation, py::arg("station_name"))
             .def_property_readonly("ground_station_list", &tss::Body::getGroundStationMap );
