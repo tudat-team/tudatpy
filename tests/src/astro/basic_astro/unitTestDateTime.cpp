@@ -74,32 +74,32 @@ BOOST_AUTO_TEST_CASE( testDateTimeConversions )
                     {
                         fullPeriodsUntilStartOfCurrentDay -= 24;
                     }
-                    if ( currentDateTime.hour_ >= 12 )
+                    if ( currentDateTime.getHour( ) >= 12 )
                     {
                         BOOST_CHECK_EQUAL( currentTime.getFullPeriods( ) - fullPeriodsUntilStartOfCurrentDay,
-                                           currentDateTime.hour_ - 12 );
+                                           currentDateTime.getHour( ) - 12 );
                     }
                     else
                     {
                         BOOST_CHECK_EQUAL( currentTime.getFullPeriods( ) - fullPeriodsUntilStartOfCurrentDay,
-                                           currentDateTime.hour_ + 12 );
+                                           currentDateTime.getHour( ) + 12 );
                     }
 
 
                     // Check that seconds into current hour are computed correctly
                     long double expectedSecondsIntoFullPeriod =
-                        60.0L * currentDateTime.minute_ + currentDateTime.seconds_;
+                        60.0L * currentDateTime.getMinute( ) + currentDateTime.getSeconds( );
                     BOOST_CHECK_CLOSE_FRACTION( expectedSecondsIntoFullPeriod, currentTime.getSecondsIntoFullPeriod( ),
                                                 std::numeric_limits<long double>::epsilon( ) * 3600.0L );
 
                     long double secondsSinceMidnight =
-                        static_cast< long double >( currentDateTime.hour_ ) * 3600.0L +
-                        static_cast< long double >( currentDateTime.minute_ ) * 60.0L +
-                        currentDateTime.seconds_;
+                        static_cast< long double >( currentDateTime.getHour( ) ) * 3600.0L +
+                        static_cast< long double >( currentDateTime.getMinute( ) ) * 60.0L +
+                        currentDateTime.getSeconds( );
 
                     BOOST_CHECK_SMALL( std::fabs( secondsSinceMidnight - currentTime.secondsSinceMidnight( )),
                                        std::numeric_limits<long double>::epsilon( ));
-                    if ( currentDateTime.hour_ >= 12 )
+                    if ( currentDateTime.getHour( ) >= 12 )
                     {
                         BOOST_CHECK_SMALL(
                             std::fabs(( secondsSinceMidnight - currentTime.secondsSinceNoon( ) - 12.0L * 3600.0L )),
@@ -113,12 +113,12 @@ BOOST_AUTO_TEST_CASE( testDateTimeConversions )
                     }
 
                     DateTime reconstructedDateTime = getCalendarDateFromTime( currentTime );
-                    BOOST_CHECK_EQUAL( reconstructedDateTime.year_, currentDateTime.year_ );
-                    BOOST_CHECK_EQUAL( reconstructedDateTime.month_, currentDateTime.month_ );
-                    BOOST_CHECK_EQUAL( reconstructedDateTime.day_, currentDateTime.day_ );
-                    BOOST_CHECK_EQUAL( reconstructedDateTime.hour_, currentDateTime.hour_ );
-                    BOOST_CHECK_EQUAL( reconstructedDateTime.minute_, currentDateTime.minute_ );
-                    BOOST_CHECK_SMALL( std::fabs( reconstructedDateTime.seconds_ - currentDateTime.seconds_ ),
+                    BOOST_CHECK_EQUAL( reconstructedDateTime.getYear( ), currentDateTime.getYear( ) );
+                    BOOST_CHECK_EQUAL( reconstructedDateTime.getMonth( ), currentDateTime.getMonth( ) );
+                    BOOST_CHECK_EQUAL( reconstructedDateTime.getDay( ), currentDateTime.getDay( ) );
+                    BOOST_CHECK_EQUAL( reconstructedDateTime.getHour( ), currentDateTime.getHour( ) );
+                    BOOST_CHECK_EQUAL( reconstructedDateTime.getMinute( ), currentDateTime.getMinute( ) );
+                    BOOST_CHECK_SMALL( std::fabs( reconstructedDateTime.getSeconds( ) - currentDateTime.getSeconds( ) ),
                                        std::numeric_limits<long double>::epsilon( ) * 3600.0L );
 
                     long double currentJulianDay = julianDayFromTime<long double>( currentTime );
