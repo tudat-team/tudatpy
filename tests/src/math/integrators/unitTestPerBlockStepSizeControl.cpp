@@ -122,8 +122,8 @@ BOOST_AUTO_TEST_CASE( testPerBlockCircleStepSizeControl )
         Eigen::VectorXd stateAtMinimumStep;
         Eigen::VectorXd stateAtMaximumStep;
 
-        double timeOfMinimumStep = TUDAT_NAN;
-        double timeOfMaximumStep = TUDAT_NAN;
+//        double timeOfMinimumStep = TUDAT_NAN;
+//        double timeOfMaximumStep = TUDAT_NAN;
 
         while ( integrator->getCurrentIndependentVariable( ) < finalTime )
         {
@@ -133,14 +133,14 @@ BOOST_AUTO_TEST_CASE( testPerBlockCircleStepSizeControl )
             {
                 maximumStep = timeStep;
                 stateAtMaximumStep = integrator->getCurrentState( );
-                timeOfMaximumStep = integrator->getCurrentIndependentVariable( );
+//                timeOfMaximumStep = integrator->getCurrentIndependentVariable( );
             }
 
             if ( timeStep < minimumStep )
             {
                 minimumStep = timeStep;
                 stateAtMinimumStep = integrator->getCurrentState( );
-                timeOfMinimumStep = integrator->getCurrentIndependentVariable( );
+//                timeOfMinimumStep = integrator->getCurrentIndependentVariable( );
             }
 
             stateHistory[ integrator->getCurrentIndependentVariable( ) ] =
@@ -150,7 +150,6 @@ BOOST_AUTO_TEST_CASE( testPerBlockCircleStepSizeControl )
         Eigen::VectorXd finalError = circleState(
             integrator->getCurrentIndependentVariable( ), radius, angularRate ) -
                 integrator->getCurrentState( );
-        std::cout<<finalError.transpose( )<<std::endl;
 
         double timeStepRatio = maximumStep / minimumStep;
         if( test == 1 )
@@ -218,14 +217,18 @@ BOOST_AUTO_TEST_CASE( testCowellPropagatorKeplerCompare )
 
 
     std::vector< std::map< double, Eigen::VectorXd > > stateSolutions;
+
+    // Test for dynamics and variational equations propagations
     for ( unsigned int dynamicsType = 0; dynamicsType < 2; dynamicsType++ )
     {
-        // Define settings for numerical integrator.
+        // Test for element-wise and block-wise tolerances
         for ( unsigned int tolerancesType = 0; tolerancesType < 2; tolerancesType++ )
         {
             double initialStep = 10.0;
             double tolerance = 1.0E-14;
             std::shared_ptr<IntegratorSettings<> > integratorSettings;
+
+            // Element-wise tolerances
             if ( tolerancesType == 0 )
             {
                 integratorSettings = std::make_shared<MultiStageVariableStepSizeSettings<> >
@@ -235,6 +238,7 @@ BOOST_AUTO_TEST_CASE( testCowellPropagatorKeplerCompare )
                                                                               std::numeric_limits<double>::max( ),
                                                                               set_to_minimum_step_silently ));
             }
+            // Block-wise tolerances
             else
             {
                 std::vector<std::pair<int, int> > blocks;
@@ -261,6 +265,7 @@ BOOST_AUTO_TEST_CASE( testCowellPropagatorKeplerCompare )
                       initialEphemerisTime, integratorSettings,
                       std::make_shared<PropagationTimeTerminationSettings>( finalEphemerisTime ));
 
+            // Test for dynamics-only
             if( dynamicsType == 0 )
             {
                 // Create dynamics simulation object.
@@ -273,8 +278,8 @@ BOOST_AUTO_TEST_CASE( testCowellPropagatorKeplerCompare )
                 Eigen::VectorXd stateAtMinimumStep;
                 Eigen::VectorXd stateAtMaximumStep;
 
-                double timeOfMinimumStep = TUDAT_NAN;
-                double timeOfMaximumStep = TUDAT_NAN;
+//                double timeOfMinimumStep = TUDAT_NAN;
+//                double timeOfMaximumStep = TUDAT_NAN;
 
                 std::map<double, Eigen::VectorXd> stateHistory = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
                 stateSolutions.push_back( stateHistory );
@@ -290,34 +295,34 @@ BOOST_AUTO_TEST_CASE( testCowellPropagatorKeplerCompare )
                     {
                         maximumStep = timeStep;
                         stateAtMaximumStep = firstIterator->second;
-                        timeOfMaximumStep = firstIterator->first;
+//                        timeOfMaximumStep = firstIterator->first;
                     }
 
                     if ( timeStep < minimumStep )
                     {
                         minimumStep = timeStep;
                         stateAtMinimumStep = firstIterator->second;
-                        timeOfMinimumStep = firstIterator->first;;
+//                        timeOfMinimumStep = firstIterator->first;;
                     }
                     firstIterator++;
                     secondIterator++;
                 }
 
-                Eigen::Vector6d stateError = ( convertKeplerianToCartesianElements( propagateKeplerOrbit(
-                    initialKeplerElements, stateHistory.rbegin( )->first - initialEphemerisTime,
-                    bodies.getBody( "Earth" )->getGravitationalParameter( )), bodies.getBody(
-                    "Earth" )->getGravitationalParameter( ))
-                                               - stateHistory.rbegin( )->second );
-    //        std::cout<<stateError.segment( 0, 3 ).norm( )<<" "<<stateError.segment( 3, 3 ).norm( )<<std::endl;
-    //
-    //        std::cout<< dynamicsSimulator.getCumulativeNumberOfFunctionEvaluations( ).rbegin( )->second<<std::endl<<std::endl;
+//                Eigen::Vector6d stateError = ( convertKeplerianToCartesianElements( propagateKeplerOrbit(
+//                    initialKeplerElements, stateHistory.rbegin( )->first - initialEphemerisTime,
+//                    bodies.getBody( "Earth" )->getGravitationalParameter( )), bodies.getBody(
+//                    "Earth" )->getGravitationalParameter( ))
+//                                               - stateHistory.rbegin( )->second );
 
                 double timeStepRatio = maximumStep / minimumStep;
+
+                // Check that time-step variation is small for block-wise comparison
                 if ( tolerancesType == 1 )
                 {
                     BOOST_CHECK(( timeStepRatio - 1.0 ) < 0.2 );
                 }
 
+                // Check that time-step variation is larger for element-wise comparison
                 if ( tolerancesType == 0 )
                 {
                     double minimumPositionRatio = stateAtMinimumStep.segment( 0, 3 ).cwiseAbs( ).minCoeff( ) /
@@ -329,6 +334,7 @@ BOOST_AUTO_TEST_CASE( testCowellPropagatorKeplerCompare )
                     BOOST_CHECK( std::min( minimumPositionRatio, minimumVelocityRatio ) < 2.0E-4 );
                 }
             }
+            // Test for dynamics and variational equations only
             else
             {
                 std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames =
@@ -347,7 +353,7 @@ BOOST_AUTO_TEST_CASE( testCowellPropagatorKeplerCompare )
                 }
                 else
                 {
-                    BOOST_CHECK( stateSolutions.at( tolerancesType ).size( ) != stateHistory.size( ) );
+                    BOOST_CHECK( stateSolutions.at( tolerancesType ).size( ) == stateHistory.size( ) );
 
                     auto firstIterator = stateSolutions.at( tolerancesType ).begin( );
                     auto secondIterator = stateHistory.begin( );
@@ -361,9 +367,6 @@ BOOST_AUTO_TEST_CASE( testCowellPropagatorKeplerCompare )
                     }
 
                 }
-                std::cout<<stateSolutions.at( tolerancesType ).size( )<<std::endl;
-                std::cout<<stateHistory.size( )<<std::endl<<std::endl;
-
             }
         }
     }
