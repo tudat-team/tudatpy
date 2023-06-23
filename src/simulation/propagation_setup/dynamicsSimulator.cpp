@@ -9,7 +9,7 @@
 // */
 
 //#include "tudat/simulation/propagation_setup/createStateDerivativeModel.h"
-//#include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
+#include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
 //#include "tudat/basics/timeType.h"
 
 //namespace tudat

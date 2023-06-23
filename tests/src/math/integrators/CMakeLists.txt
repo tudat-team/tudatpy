@@ -40,3 +40,9 @@ TUDAT_ADD_TEST_CASE(RungeKutta87DormandPrinceIntegrator
 
 TUDAT_ADD_TEST_CASE(BulirschStoerVariableStepSizeIntegrator
         PRIVATE_LINKS tudat_test_support tudat_numerical_integrators tudat_input_output)
+
+TUDAT_ADD_TEST_CASE(PerBlockStepSizeControl
+        PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
+
+TUDAT_ADD_TEST_CASE(IntegratorOrders
+        PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES})
