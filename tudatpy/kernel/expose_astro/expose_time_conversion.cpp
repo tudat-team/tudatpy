@@ -53,18 +53,18 @@ tba::DateTime timePointToDateTime(const std::chrono::system_clock::time_point da
 std::chrono::system_clock::time_point dateTimeToTimePoint(const tba::DateTime& dateTime )
 {
     std::tm tm = {
-        static_cast< int >( dateTime.seconds_ ),
-        dateTime.minute_,
-        dateTime.hour_,
-        dateTime.day_,
-        dateTime.month_ - 1,
-        dateTime.year_ - 1900
+        static_cast< int >( dateTime.getSeconds( ) ),
+        dateTime.getMinute( ),
+        dateTime.getHour( ),
+        dateTime.getDay( ),
+        dateTime.getMonth( ) - 1,
+        dateTime.getYear( ) - 1900
 
     };
     tm.tm_isdst = 1;
     std::chrono::system_clock::time_point timePoint = std::chrono::system_clock::from_time_t(std::mktime(&tm));
     return timePoint + std::chrono::microseconds ( static_cast< int >( std::round(
-                                                     ( dateTime.seconds_ - static_cast< long double >( tm.tm_sec ) ) *
+                                                     ( dateTime.getSeconds( ) - static_cast< long double >( tm.tm_sec ) ) *
                                                      tudat::mathematical_constants::getFloatingInteger< long double >( 1E6 ) ) ) );
 }
 
@@ -83,7 +83,7 @@ TimeScalarType convertCalendarDateToJulianDayPy(
     const std::chrono::system_clock::time_point calendarDate )
 {
     tba::DateTime dateTime = timePointToDateTime( calendarDate );
-    return tudat::julianDayFromTime< TimeScalarType >( dateTime.epoch< TimeScalarType >( ) );
+    return dateTime.julianDay< TimeScalarType >( );
 }
 
 namespace tudat
@@ -252,6 +252,10 @@ void expose_time_conversion(py::module &m) {
             .value("ut1_scale", tba::ut1_scale)
             .export_values();
 
+    m.def("default_time_scale_converter",
+          &teo::createDefaultTimeConverterPy,
+          get_docstring("default_time_scale_converter").c_str() );
+
     py::class_<teo::TerrestrialTimeScaleConverter,
             std::shared_ptr<teo::TerrestrialTimeScaleConverter>>(
                 m, "TimeScaleConverter",
@@ -261,11 +265,6 @@ void expose_time_conversion(py::module &m) {
                   py::arg( "output_scale" ),
                   py::arg( "input_value" ),
                   py::arg( "earth_fixed_position" ) = Eigen::Vector3d::Zero( ) );
-
-    m.def("default_time_scale_converter",
-          &teo::createDefaultTimeConverterPy,
-          get_docstring("default_time_scale_converter").c_str() );
-
 
     py::class_< tba::DateTime >( m,"DateTime", get_docstring("DateTime").c_str())
         .def(py::init<
@@ -277,30 +276,35 @@ void expose_time_conversion(py::module &m) {
                  const long double>(),
              py::arg("year"), py::arg("month"), py::arg("day"),
              py::arg("hour") = 12, py::arg("minute") = 0, py::arg("seconds") = 0.0L )
-        .def_readwrite("year", &tba::DateTime::year_ )
-        .def_readwrite("month", &tba::DateTime::month_ )
-        .def_readwrite("day", &tba::DateTime::day_ )
-        .def_readwrite("hour", &tba::DateTime::hour_ )
-        .def_readwrite("minute", &tba::DateTime::minute_ )
-        .def_readwrite("seconds", &tba::DateTime::seconds_ )
+        .def_property("year", &tba::DateTime::getYear, &tba::DateTime::setYear, get_docstring("DateTime.year").c_str() )
+        .def_property("month", &tba::DateTime::getMonth, &tba::DateTime::setMonth, get_docstring("DateTime.month").c_str() )
+        .def_property("day", &tba::DateTime::getDay, &tba::DateTime::setDay, get_docstring("DateTime.day").c_str() )
+        .def_property("hour", &tba::DateTime::getHour, &tba::DateTime::setHour, get_docstring("DateTime.hour").c_str() )
+        .def_property("minute", &tba::DateTime::getMinute, &tba::DateTime::setMinute, get_docstring("DateTime.minute").c_str() )
+        .def_property("seconds", &tba::DateTime::getSeconds, &tba::DateTime::setSeconds, get_docstring("DateTime.seconds").c_str() )
         .def("iso_string",
              &tba::DateTime::isoString,
-             py::arg("add_T") = false )
+             py::arg("add_T") = false,
+             get_docstring("DateTime.iso_string").c_str( ) )
         .def("day_of_year",
-             &tba::DateTime::dayOfYear )
+             &tba::DateTime::dayOfYear,
+             get_docstring("DateTime.day_of_year").c_str( ) )
         .def("epoch",
-             &tba::DateTime::epoch< TIME_TYPE > )
+             &tba::DateTime::epoch< TIME_TYPE >,
+                 get_docstring("DateTime.epoch").c_str( ) )
         .def("julian_day",
-             &tba::DateTime::julianDay< double > )
+             &tba::DateTime::julianDay< double >,
+             get_docstring("DateTime.julian_day").c_str( ) )
         .def("modified_julian_day",
-             &tba::DateTime::modifiedJulianDay< double > );
+             &tba::DateTime::modifiedJulianDay< double >,
+             get_docstring("DateTime.modified_julian_day").c_str( ) );
 
 
-    m.def("epoch_from_date_time",
+    m.def("epoch_from_date_time_components",
           &tba::timeFromDecomposedDateTime< TIME_TYPE >,
           py::arg("year"), py::arg("month"), py::arg("day"),
           py::arg("hour"), py::arg("minute"), py::arg("seconds"),
-          get_docstring("epoch_from_date_time").c_str() );
+          get_docstring("epoch_from_date_time_components").c_str() );
 
     m.def("epoch_from_date_time_iso_string",
           &tba::timeFromIsoString< TIME_TYPE >,
@@ -308,21 +312,25 @@ void expose_time_conversion(py::module &m) {
           get_docstring("epoch_from_date_time_iso_string").c_str() );
 
 
-    m.def("epoch_from_julian_day",
-          &tudat::timeFromJulianDay< TIME_TYPE >,
-          py::arg("julian_day"),
-          get_docstring("epoch_from_julian_day").c_str() );
+//    m.def("epoch_from_julian_day",
+//          &tudat::timeFromJulianDay< TIME_TYPE >,
+//          py::arg("julian_day"),
+//          get_docstring("epoch_from_julian_day").c_str() );
 
-    m.def("epoch_from_modified_julian_day",
-          &tudat::timeFromModifiedJulianDay< TIME_TYPE >,
-          py::arg("modified_julian_day"),
-          get_docstring("epoch_from_modified_julian_day").c_str() );
+//    m.def("epoch_from_modified_julian_day",
+//          &tudat::timeFromModifiedJulianDay< TIME_TYPE >,
+//          py::arg("modified_julian_day"),
+//          get_docstring("epoch_from_modified_julian_day").c_str() );
 
     m.def("date_time_from_epoch",
           &tba::getCalendarDateFromTime< TIME_TYPE >,
           py::arg("epoch"),
           get_docstring("date_time_from_epoch").c_str() );
 
+    m.def("date_time_from_iso_string",
+          &tba::getCalendarDateFromTime< TIME_TYPE >,
+          py::arg("iso_datetime"),
+          get_docstring("date_time_from_iso_string").c_str() );
 
 
 
