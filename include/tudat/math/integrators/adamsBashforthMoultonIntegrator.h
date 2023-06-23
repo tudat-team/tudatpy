@@ -272,6 +272,7 @@ public:
      */
     StateType performIntegrationStep( )
     {
+//        std::cout<<"Orders "<<order_<<" "<<minimumOrder_<<" "<<maximumOrder_<<" "<<fixedStepSize_<<std::endl;
         // Set last* variables for rollback.
         lastStepSize_ = stepSize_;
         lastState_ = stateHistory_.back( );
@@ -632,14 +633,28 @@ public:
      * Function to reset the minimum order of the integrator
      * \param minimumOrder New minimum order of the integrator
      */
-    void setMinimumOrder( unsigned int minimumOrder ){ minimumOrder_ = minimumOrder; }
+    void setMinimumOrder( unsigned int minimumOrder )
+    {
+        minimumOrder_ = minimumOrder;
+        if( order_ < minimumOrder )
+        {
+            order_ = minimumOrder_;
+        }
+    }
 
     //! Function to reset the maximum order of the integrator
     /*!
      * Function to reset the maximum order of the integrator
      * \param maximumOrder New maximum order of the integrator
      */
-    void setMaximumOrder( unsigned int maximumOrder ){ maximumOrder_ = maximumOrder; }
+    void setMaximumOrder( unsigned int maximumOrder )
+    {
+        maximumOrder_ = maximumOrder;
+        if( order_ > maximumOrder_ )
+        {
+            order_ = maximumOrder_;
+        }
+    }
 
     IndependentVariableType getPreviousIndependentVariable( )
     {

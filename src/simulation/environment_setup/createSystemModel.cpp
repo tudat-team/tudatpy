@@ -38,7 +38,6 @@ void addVariableDirectionEngineModel(
         const simulation_setup::SystemOfBodies& bodies,
         const std::function< Eigen::Vector3d( const double ) > bodyFixedThrustDirection )
 {
-    std::cout<<"Adding engine model "<<bodyName<<" "<<engineName<<std::endl;
     {
         std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > magnitudeUpdateSettings;
         std::shared_ptr< propulsion::ThrustMagnitudeWrapper > thrustMagnitudeWrapper = createThrustMagnitudeWrapper(
