@@ -1213,6 +1213,32 @@ inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > bulirsch
         minimumFactorDecreaseForNextStepSize );
 }
 
+
+template< typename IndependentVariableType = double >
+inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > bulirschStoerIntegratorSettings(
+    const IndependentVariableType initialTimeStep,
+    const ExtrapolationMethodStepSequences extrapolationSequence,
+    const unsigned int maximumNumberOfSteps,
+    const IndependentVariableType minimumStepSize, const IndependentVariableType maximumStepSize,
+    const double relativeErrorTolerance = 1.0E-12,
+    const double absoluteErrorTolerance = 1.0E-12,
+    const bool assessTerminationOnMinorSteps = false,
+    const IndependentVariableType safetyFactorForNextStepSize = 0.7,
+    const IndependentVariableType maximumFactorIncreaseForNextStepSize = 10.0,
+    const IndependentVariableType minimumFactorDecreaseForNextStepSize = 0.1 )
+{
+    return std::make_shared< BulirschStoerIntegratorSettings< IndependentVariableType > >(
+        TUDAT_NAN, initialTimeStep,
+        extrapolationSequence, maximumNumberOfSteps,
+        minimumStepSize, maximumStepSize,
+        relativeErrorTolerance, absoluteErrorTolerance,
+        assessTerminationOnMinorSteps,
+        safetyFactorForNextStepSize,
+        maximumFactorIncreaseForNextStepSize,
+        minimumFactorDecreaseForNextStepSize );
+}
+
+
 template< typename IndependentVariableType = double >
 inline std::shared_ptr< IntegratorSettings< IndependentVariableType > > bulirschStoerIntegratorSettingsDeprecated(
         const IndependentVariableType initialTime,

@@ -127,7 +127,7 @@ BOOST_AUTO_TEST_CASE( testCowellPropagatorKeplerCompare )
             }
             else if( integratorCase == 3 )
             {
-                integratorSettings = numerical_integrators::bulirschStoerIntegratorSettings< double >(
+                integratorSettings = bulirschStoerIntegratorSettings< double >(
                     600.0, bulirsch_stoer_sequence, 8, 1.0E-3, 7200.0, 1.0E-6, 1.0E-6 );
             }
             else if( integratorCase == 4 )
