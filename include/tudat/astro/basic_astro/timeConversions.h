@@ -162,6 +162,17 @@ TimeScalarType convertSecondsSinceEpochToJulianDay(
     return ( secondsSinceEpoch / physical_constants::getJulianDay< TimeScalarType >( ) + epochSinceJulianDayZero );
 }
 
+inline int julianDayNumberFromDate(
+    int year, int month, int day )
+{
+    int a, m, y, leap_days;
+    a = (14 - month) / 12;
+    m = (month - 3) + (12 * a);
+    y = year + 4800 - a;
+    leap_days = (y / 4) - (y / 100) + (y / 400);
+    return day + (((153 * m) + 2) / 5) + (365 * y) + leap_days - 32045;
+
+}
 
 //! Compute Julian day from given date and time
 /*!
@@ -188,8 +199,7 @@ TimeScalarType convertCalendarDateToJulianDaysSinceEpoch( const int calendarYear
 {
     // Calculate julian day of calendar date.
     TimeScalarType julianDay =
-            static_cast< TimeScalarType >( boost::gregorian::date( calendarYear, calendarMonth, calendarDay ).
-                                           julian_day( ) ) - referenceJulianDay;
+            static_cast< TimeScalarType >( julianDayNumberFromDate( calendarYear, calendarMonth, calendarDay ) - referenceJulianDay );
 
     //Compute day fraction
     const TimeScalarType dayFraction =

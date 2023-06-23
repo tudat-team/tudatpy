@@ -20,14 +20,12 @@ namespace tudat
 namespace basic_astrodynamics
 {
 
-
 template< typename TimeType >
 TimeType timeFromDecomposedDateTime(
     const int year, const int month, const int day,
     const int hour, const int minutes, const long double seconds )
 {
-    boost::gregorian::date currentDate( year, month, day );
-    int daysSinceJ2000 = currentDate.julian_day( ) - basic_astrodynamics::JULIAN_DAY_ON_J2000_INT;
+    int daysSinceJ2000 = julianDayNumberFromDate( year, month, day ) - basic_astrodynamics::JULIAN_DAY_ON_J2000_INT;
 
     if ( TIME_NORMALIZATION_INTEGER_TERM != 3600 )
     {
@@ -46,45 +44,85 @@ TimeType timeFromDecomposedDateTime(
 
 struct DateTime
 {
+public:
     DateTime( int year, int month, int day, int hour, int minute, long double seconds ) :
         year_( year ), month_( month ), day_( day ), hour_( hour ), minute_( minute ), seconds_( seconds )
     {
-        if ( month > 12 || month < 1 )
-        {
-            throw std::runtime_error( "Error when creating Tudat DateTime, input month was " + std::to_string( month ));
-        }
-
-        if ( day > basic_astrodynamics::getDaysInMonth( month, year ))
-        {
-            throw std::runtime_error( "Error when creating Tudat DateTime, input date was " +
-                                      std::to_string( day ) + "-" + std::to_string( month ) + "-" +
-                                      std::to_string( year ));
-        }
-
-        if ( hour > 23 || hour < 0 )
-        {
-            throw std::runtime_error( "Error when creating Tudat DateTime, input hour was " + std::to_string( hour ));
-        }
-
-        if ( minute > 59 || minute < 0 )
-        {
-            throw std::runtime_error(
-                "Error when creating Tudat DateTime, input minute was " + std::to_string( minute ));
-        }
-
-        if ( seconds > 60.0L || seconds < 0.0L || ( seconds != seconds ))
-        {
-            throw std::runtime_error(
-                "Error when creating Tudat DateTime, input seconds was " + std::to_string( seconds ));
-        }
+        verifyMonth( );
+        verifyDay( );
+        verifyHour( );
+        verifyMinute( );
+        verifySeconds( );
     }
 
-    int year_;
-    int month_;
-    int day_;
-    int hour_;
-    int minute_;
-    long double seconds_;
+
+
+    int getYear( ) const
+    {
+        return year_;
+    }
+
+    int getMonth( ) const
+    {
+        return month_;
+    }
+
+    int getDay( ) const
+    {
+        return day_;
+    }
+
+    int getHour( ) const
+    {
+        return hour_;
+    }
+
+    int getMinute( ) const
+    {
+        return minute_;
+    }
+
+    long double getSeconds( ) const
+    {
+        return seconds_;
+    }
+
+    void setYear( const int year )
+    {
+        year_ = year;
+        verifyDay( );
+    }
+
+    void setMonth( const int month )
+    {
+        month_ = month;
+        verifyMonth( );
+        verifyDay( );
+    }
+
+    void setDay( const int day )
+    {
+        day_ = day;
+        verifyDay( );
+    }
+
+    void setHour( const int hour )
+    {
+        hour_ = hour;
+        verifyHour( );
+    }
+
+    void setMinute( const int minute )
+    {
+        minute_ = minute;
+        verifyMinute( );
+    }
+
+    void setSeconds( const long double seconds )
+    {
+        seconds_ = seconds;
+        verifySeconds( );
+    }
 
     std::string isoString( const bool addT = false )
     {
@@ -129,6 +167,60 @@ struct DateTime
     {
         return basic_astrodynamics::convertDayMonthYearToDayOfYear( day_, month_, year_ );
     }
+
+protected:
+
+
+    int year_;
+    int month_;
+    int day_;
+    int hour_;
+    int minute_;
+    long double seconds_;
+
+    void verifyMonth( )
+    {
+        if ( month_ > 12 || month_ < 1 )
+        {
+            throw std::runtime_error( "Error when creating Tudat DateTime, input month was " + std::to_string( month_ ));
+        }
+    }
+
+    void verifyDay( )
+    {
+        if ( day_ > basic_astrodynamics::getDaysInMonth( month_, year_ ))
+        {
+            throw std::runtime_error( "Error when creating Tudat DateTime, input date was " +
+                                      std::to_string( day_ ) + "-" + std::to_string( month_ ) + "-" +
+                                      std::to_string( year_ ));
+        }
+    }
+
+    void verifyHour( )
+    {
+        if ( hour_ > 23 || hour_ < 0 )
+        {
+            throw std::runtime_error( "Error when creating Tudat DateTime, input hour was " + std::to_string( hour_ ));
+        }
+    }
+
+    void verifyMinute( )
+    {
+        if ( minute_ > 59 || minute_ < 0 )
+        {
+            throw std::runtime_error(
+                "Error when creating Tudat DateTime, input minute was " + std::to_string( minute_ ));
+        }
+    }
+
+    void verifySeconds( )
+    {
+        if ( seconds_ > 60.0L || seconds_ < 0.0L || ( seconds_ != seconds_ ))
+        {
+            throw std::runtime_error(
+                "Error when creating Tudat DateTime, input seconds was " + std::to_string( seconds_ ));
+        }
+    }
 };
 
 template< typename TimeType >
@@ -144,6 +236,7 @@ inline DateTime getCalendarDateFromTime( const TimeType &timeInput )
     }
     int fullDaysSinceMidnightJD0 = fullPeriodsSinceMidnightJD0 / TIME_NORMALIZATION_TERMS_PER_DAY;
     int day, month, year;
+
     basic_astrodynamics::convertShiftedJulianDayToCalendarDate<int>(
         fullDaysSinceMidnightJD0, day, month, year );
 
