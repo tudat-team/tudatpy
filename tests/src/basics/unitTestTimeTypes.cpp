@@ -15,6 +15,8 @@
 
 #include "tudat/basics/testMacros.h"
 #include "tudat/basics/timeType.h"
+#include "tudat/astro/basic_astro/dateTime.h"
+
 #include "tudat/math/basic/mathematicalConstants.h"
 
 namespace tudat
@@ -25,6 +27,7 @@ namespace unit_tests
 BOOST_AUTO_TEST_SUITE( test_time_type )
 
 using namespace mathematical_constants;
+using namespace basic_astrodynamics;
 
 //! Test if Time objects cast to the expected precision
 BOOST_AUTO_TEST_CASE( testTimeBasicCasts )
@@ -421,6 +424,7 @@ BOOST_AUTO_TEST_CASE( testComparisonOperators )
         BOOST_CHECK( testTime2 < testTimeLongDouble2Rounded );
     }
 }
+
 
 BOOST_AUTO_TEST_SUITE_END( )
 
