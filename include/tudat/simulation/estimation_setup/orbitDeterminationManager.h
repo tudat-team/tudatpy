@@ -579,32 +579,38 @@ public:
 
         bool exceptionDuringPropagation = false;
 
-        try
-        {
-            if( estimationInput->getReintegrateEquationsOnFirstIteration( ) )
-            {
-                resetParameterEstimate(
-                            parametersToEstimate_->template getFullParameterValues< ObservationScalarType >( ),
-                            estimationInput->getReintegrateVariationalEquations( ) );
-            }
-        }
-        catch( std::runtime_error& error )
-        {
-            std::cerr<<"Error when resetting parameters during covariance calculation: "<<std::endl<<
-                       error.what( )<<std::endl<<"Terminating calculation"<<std::endl;
-            exceptionDuringPropagation = true;
-        }
+        std::shared_ptr< propagators::SimulationResults< ObservationScalarType, TimeType > > simulationResults;
+        Eigen::VectorXd parameterValues = parametersToEstimate_->template getFullParameterValues< ObservationScalarType >( );
+        std::pair< Eigen::MatrixXd, Eigen::VectorXd > designMatrixAndResiduals = performPreEstimationSteps(
+                estimationInput, parameterValues, false, 1, exceptionDuringPropagation, simulationResults );
+        Eigen::MatrixXd designMatrix = designMatrixAndResiduals.first;
 
-        if( estimationInput->getPrintOutput( ) )
-        {
-            std::cout << "Calculating residuals and partials " << totalNumberOfObservations << std::endl;
-        }
-
-        // Calculate residuals and observation matrix for current parameter estimate.
-        Eigen::MatrixXd designMatrix;
-        calculateDesignMatrix(
-                    estimationInput->getObservationCollection( ),
-                    numberOfEstimatedParameters, totalNumberOfObservations, designMatrix );
+//        try
+//        {
+//            if( estimationInput->getReintegrateEquationsOnFirstIteration( ) )
+//            {
+//                resetParameterEstimate(
+//                            parametersToEstimate_->template getFullParameterValues< ObservationScalarType >( ),
+//                            estimationInput->getReintegrateVariationalEquations( ) );
+//            }
+//        }
+//        catch( std::runtime_error& error )
+//        {
+//            std::cerr<<"Error when resetting parameters during covariance calculation: "<<std::endl<<
+//                       error.what( )<<std::endl<<"Terminating calculation"<<std::endl;
+//            exceptionDuringPropagation = true;
+//        }
+//
+//        if( estimationInput->getPrintOutput( ) )
+//        {
+//            std::cout << "Calculating residuals and partials " << totalNumberOfObservations << std::endl;
+//        }
+//
+//        // Calculate residuals and observation matrix for current parameter estimate.
+//        Eigen::MatrixXd designMatrix;
+//        calculateDesignMatrix(
+//                    estimationInput->getObservationCollection( ),
+//                    numberOfEstimatedParameters, totalNumberOfObservations, designMatrix );
 
         Eigen::VectorXd normalizationTerms = normalizeDesignMatrix( designMatrix );
         Eigen::MatrixXd normalizedInverseAprioriCovarianceMatrix = normalizeAprioriCovariance(
@@ -1137,12 +1143,12 @@ protected:
 
 
     std::pair< Eigen::MatrixXd, Eigen::VectorXd > performPreEstimationSteps(
-            std::shared_ptr< EstimationInput< ObservationScalarType, TimeType > > estimationInput,
+            std::shared_ptr< CovarianceAnalysisInput< ObservationScalarType, TimeType > > estimationInput,
             ParameterVectorType& newParameterEstimate,
             const bool calculateResiduals,
             const int numberOfIterations,
             bool& exceptionDuringPropagation,
-            std::shared_ptr< propagators::SimulationResults< ObservationScalarType, TimeType > >& simulationResults )
+            std::shared_ptr< propagators::SimulationResults< ObservationScalarType, TimeType > >& simulationResults = nullptr )
     {
         // Get size of parameter vector and number of observations (total and per type)
         int parameterVectorSize = newParameterEstimate.size( );
@@ -1156,9 +1162,12 @@ protected:
                 resetParameterEstimate( newParameterEstimate, estimationInput->getReintegrateVariationalEquations( ) );
             }
 
-            if( estimationInput->getSaveStateHistoryForEachIteration( ) )
+            if( std::dynamic_pointer_cast< EstimationInput< ObservationScalarType, TimeType > >( estimationInput ) != nullptr )
             {
-                simulationResults = variationalEquationsSolver_->getVariationalPropagationResults( );
+                if ( std::dynamic_pointer_cast< EstimationInput< ObservationScalarType, TimeType > >( estimationInput )->getSaveStateHistoryForEachIteration( ) )
+                {
+                    simulationResults = variationalEquationsSolver_->getVariationalPropagationResults( );
+                }
             }
         }
         catch( std::runtime_error& error )
