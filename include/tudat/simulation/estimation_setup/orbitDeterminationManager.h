@@ -680,44 +680,54 @@ public:
         int numberOfIterations = 0;
         do
         {
-            // Re-integrate equations of motion and variational equations with new parameter estimate.
-            try
-            {
-                if( ( numberOfIterations > 0 ) || ( estimationInput->getReintegrateEquationsOnFirstIteration( ) ) )
-                {
-                    resetParameterEstimate( newParameterEstimate, estimationInput->getReintegrateVariationalEquations( ) );
-                }
-
-                if( estimationInput->getSaveStateHistoryForEachIteration( ) )
-                {
-                    simulationResultsPerIteration.push_back( variationalEquationsSolver_->getVariationalPropagationResults( ) );
-                }
-            }
-            catch( std::runtime_error& error )
-            {
-                std::cerr<<"Error when resetting parameters during parameter estimation: "<<std::endl<<
-                           error.what( )<<std::endl<<"Terminating estimation"<<std::endl;
-                exceptionDuringPropagation = true;
-                break;
-            }
-
             oldParameterEstimate = newParameterEstimate;
 
-            if( estimationInput->getPrintOutput( ) )
+            std::shared_ptr< propagators::SimulationResults< ObservationScalarType, TimeType > > simulationResults;
+            std::pair< Eigen::MatrixXd, Eigen::VectorXd > designMatrixAndResiduals = performPreEstimationSteps(
+                    estimationInput, newParameterEstimate, true, numberOfIterations, exceptionDuringPropagation, simulationResults );
+            if( estimationInput->getSaveStateHistoryForEachIteration( ) )
             {
-                std::cout << "Calculating residuals and partials " << totalNumberOfObservations << std::endl;
+                simulationResultsPerIteration.push_back( simulationResults );
             }
+            Eigen::VectorXd residuals = designMatrixAndResiduals.second;
+            Eigen::MatrixXd designMatrix = designMatrixAndResiduals.first;
 
-            // Calculate residuals and observation matrix for current parameter estimate.
-            Eigen::VectorXd residuals;
-            Eigen::MatrixXd designMatrix;
-            calculateDesignMatrixAndResiduals(
-                        estimationInput->getObservationCollection( ),
-                        parameterVectorSize,
-                        totalNumberOfObservations,
-                        designMatrix,
-                        residuals,
-                        true );
+//            // Re-integrate equations of motion and variational equations with new parameter estimate.
+//            try
+//            {
+//                if( ( numberOfIterations > 0 ) || ( estimationInput->getReintegrateEquationsOnFirstIteration( ) ) )
+//                {
+//                    resetParameterEstimate( newParameterEstimate, estimationInput->getReintegrateVariationalEquations( ) );
+//                }
+//
+//                if( estimationInput->getSaveStateHistoryForEachIteration( ) )
+//                {
+//                    simulationResultsPerIteration.push_back( variationalEquationsSolver_->getVariationalPropagationResults( ) );
+//                }
+//            }
+//            catch( std::runtime_error& error )
+//            {
+//                std::cerr<<"Error when resetting parameters during parameter estimation: "<<std::endl<<
+//                           error.what( )<<std::endl<<"Terminating estimation"<<std::endl;
+//                exceptionDuringPropagation = true;
+//                break;
+//            }
+
+//            if( estimationInput->getPrintOutput( ) )
+//            {
+//                std::cout << "Calculating residuals and partials " << totalNumberOfObservations << std::endl;
+//            }
+
+//            // Calculate residuals and observation matrix for current parameter estimate.
+//            Eigen::VectorXd residuals;
+//            Eigen::MatrixXd designMatrix;
+//            calculateDesignMatrixAndResiduals(
+//                        estimationInput->getObservationCollection( ),
+//                        parameterVectorSize,
+//                        totalNumberOfObservations,
+//                        designMatrix,
+//                        residuals,
+//                        true );
 
             Eigen::VectorXd normalizationTerms = normalizeDesignMatrix( designMatrix );
             Eigen::MatrixXd normalizedInverseAprioriCovarianceMatrix = normalizeAprioriCovariance(
@@ -1123,6 +1133,61 @@ protected:
             indicesAndSizeEstimatedParameters_.push_back( std::make_pair( std::make_pair( indicesInEstimatedParametersSet.first, indicesInFullParametersSet.first ),
                                                                           indicesInFullParametersSet.second ) );
         }
+    }
+
+
+    std::pair< Eigen::MatrixXd, Eigen::VectorXd > performPreEstimationSteps(
+            std::shared_ptr< EstimationInput< ObservationScalarType, TimeType > > estimationInput,
+            ParameterVectorType& newParameterEstimate,
+            const bool calculateResiduals,
+            const int numberOfIterations,
+            bool& exceptionDuringPropagation,
+            std::shared_ptr< propagators::SimulationResults< ObservationScalarType, TimeType > >& simulationResults )
+    {
+        // Get size of parameter vector and number of observations (total and per type)
+        int parameterVectorSize = newParameterEstimate.size( );
+        int totalNumberOfObservations = estimationInput->getObservationCollection( )->getTotalObservableSize( );
+
+        // Re-integrate equations of motion and variational equations with new parameter estimate.
+        try
+        {
+            if( ( numberOfIterations > 0 ) || ( estimationInput->getReintegrateEquationsOnFirstIteration( ) ) )
+            {
+                resetParameterEstimate( newParameterEstimate, estimationInput->getReintegrateVariationalEquations( ) );
+            }
+
+            if( estimationInput->getSaveStateHistoryForEachIteration( ) )
+            {
+                simulationResults = variationalEquationsSolver_->getVariationalPropagationResults( );
+            }
+        }
+        catch( std::runtime_error& error )
+        {
+            std::cerr<<"Error when resetting parameters during parameter estimation: "<<std::endl<<
+                     error.what( )<<std::endl<<"Terminating estimation"<<std::endl;
+            exceptionDuringPropagation = true;
+        }
+
+        if( estimationInput->getPrintOutput( ) )
+        {
+            std::cout << "Calculating residuals and partials " << totalNumberOfObservations << std::endl;
+        }
+
+        // Calculate residuals and observation matrix for current parameter estimate.
+        Eigen::VectorXd residuals;
+        Eigen::MatrixXd designMatrix;
+        if ( calculateResiduals )
+        {
+            calculateDesignMatrixAndResiduals(
+                    estimationInput->getObservationCollection( ), parameterVectorSize, totalNumberOfObservations, designMatrix, residuals, true );
+        }
+        else
+        {
+            calculateDesignMatrix(
+                    estimationInput->getObservationCollection( ), parameterVectorSize, totalNumberOfObservations, designMatrix );
+        }
+
+        return std::make_pair( designMatrix, residuals );
     }
 
     //! Boolean to denote whether any dynamical parameters are estimated
