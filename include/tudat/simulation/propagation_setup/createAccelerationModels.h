@@ -517,6 +517,31 @@ createAccelerationModel(
  */
 SelectedAccelerationList orderSelectedAccelerationMap( const SelectedAccelerationMap& selectedAccelerationPerBody );
 
+inline basic_astrodynamics::AccelerationMap createEihAccelerationMap(
+    const SystemOfBodies& bodies,
+    const std::map< std::pair< std::string, std::string >, std::shared_ptr< AccelerationSettings > > eihAccelerationSettings,
+    const std::map< std::string, std::string >& centralBodies )
+{
+    std::vector< std::pair< std::string, std::string > > bodyCombinations = utilities::createVectorFromMapKeys( eihAccelerationSettings );
+    std::vector< std::string > eihBodies;
+    for( unsigned int i = 0; i < bodyCombinations.size( ); i++ )
+    {
+        if( std::find( bodyCombinations.begin( ), bodyCombinations.end( ),
+                         std::make_pair( bodyCombinations.at( i ).second, bodyCombinations.at( i ).first ) ) == bodyCombinations.end( ) )
+        {
+            throw  std::runtime_error( "Error whem making EIH accelerations, bodies " + bodyCombinations.at( i ).first + ", " +
+            bodyCombinations.at( i ).second + ", not found inverse order for undergoing/exerting acceleration " );
+        }
+
+        if( std::find( eihBodies.begin( ), eihBodies.end( ), bodyCombinations.at( i ).first ) == eihBodies.end( ) )
+        {
+            eihBodies.push_back( bodyCombinations.at( i ).first );
+        }
+    }
+
+
+}
+
 //! Function to create acceleration models from a map of bodies and acceleration model types.
 /*!
  *  Function to create acceleration models from a map of bodies and acceleration model types.
@@ -540,6 +565,7 @@ inline basic_astrodynamics::AccelerationMap createAccelerationModelsMap(
 {
     // Declare return map.
     basic_astrodynamics::AccelerationMap accelerationModelMap;
+    std::map< std::pair< std::string, std::string >, std::shared_ptr< AccelerationSettings >  > eihAccelerationSettings;
 
     // Put selectedAccelerationPerBody in correct order
     SelectedAccelerationList orderedAccelerationPerBody =
@@ -610,7 +636,21 @@ inline basic_astrodynamics::AccelerationMap createAccelerationModelsMap(
                             ", but no such body found in map of bodies" );
             }
 
-            if( !( accelerationsForBody.at( i ).second->accelerationType_ == basic_astrodynamics::thrust_acceleration ) )
+            if( ( accelerationsForBody.at( i ).second->accelerationType_ == basic_astrodynamics::thrust_acceleration ) )
+            {
+                thrustAccelerationSettings.push_back( accelerationsForBody.at( i ) );
+            }
+            else if( ( accelerationsForBody.at( i ).second->accelerationType_ == basic_astrodynamics::einstein_infeld_hoffmann_acceleration ) )
+            {
+                if( eihAccelerationSettings.count( std::make_pair( bodyUndergoingAcceleration, bodyExertingAcceleration ) ) != 0 )
+                {
+                    throw std::runtime_error( "Error when parsing EIH acceleration settings, found combinatin of bodies " +
+                    bodyUndergoingAcceleration + ", " + bodyExertingAcceleration  + " multiple times." );
+                }
+                eihAccelerationSettings[ std::make_pair( bodyUndergoingAcceleration, bodyExertingAcceleration ) ] =
+                    accelerationsForBody.at( i ).second;
+            }
+            else
             {
                 currentAcceleration = createAccelerationModel( bodies.at( bodyUndergoingAcceleration ),
                                                                bodies.at( bodyExertingAcceleration ),
@@ -624,11 +664,7 @@ inline basic_astrodynamics::AccelerationMap createAccelerationModelsMap(
 
                 // Create acceleration model.
                 mapOfAccelerationsForBody[ bodyExertingAcceleration ].push_back(
-                            currentAcceleration );
-            }
-            else
-            {
-                thrustAccelerationSettings.push_back( accelerationsForBody.at( i ) );
+                    currentAcceleration );
             }
 
         }

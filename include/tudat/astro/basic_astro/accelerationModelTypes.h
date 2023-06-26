@@ -63,7 +63,8 @@ enum AvailableAcceleration
     panelled_radiation_pressure_acceleration,
     momentum_wheel_desaturation_acceleration,
     solar_sail_acceleration,
-    custom_acceleration
+    custom_acceleration,
+    einstein_infeld_hoffmann_acceleration
 };
 
 // Function to get a string representing a 'named identification' of an acceleration type
