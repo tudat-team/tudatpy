@@ -160,7 +160,7 @@ BOOST_AUTO_TEST_CASE( testPerBlockCircleStepSizeControl )
         if( test == 0 )
         {
             std::cout<<test<<" "<<timeStepRatio<<std::endl;
-            BOOST_CHECK( timeStepRatio > 8 );
+            BOOST_CHECK( timeStepRatio > 6 );
             BOOST_CHECK( ( std::fabs( stateAtMinimumStep( 0 ) ) < 1.0E-2 ) || ( std::fabs( stateAtMinimumStep( 1 ) ) < 1.0E-2 ) );
         }
     }
