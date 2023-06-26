@@ -134,10 +134,21 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromD
         const bool checkConditionNumber,
         const double maximumAllowedConditionNumber,
         const Eigen::MatrixXd& constraintMultiplier,
-        const Eigen::VectorXd& constraintRightHandside )
+        const Eigen::VectorXd& constraintRightHandside,
+        const Eigen::MatrixXd& designMatrixConsiderParameters,
+        const Eigen::MatrixXd& considerCovariance )
 {
-    Eigen::VectorXd rightHandSide = designMatrix.transpose( ) *
-            ( diagonalOfWeightMatrix.cwiseProduct( observationResiduals ) );
+    Eigen::VectorXd rightHandSide = Eigen::VectorXd::Zero( observationResiduals.size( ) );
+    if ( considerCovariance.size( ) > 0 && designMatrixConsiderParameters.size( ) > 0 )
+    {
+        rightHandSide = designMatrix.transpose( ) *
+                        ( diagonalOfWeightMatrix.cwiseProduct( observationResiduals + designMatrixConsiderParameters * considerCovariance ) );
+    }
+    else
+    {
+        rightHandSide = designMatrix.transpose( ) * ( diagonalOfWeightMatrix.cwiseProduct( observationResiduals ) );
+    }
+
     Eigen::MatrixXd inverseOfCovarianceMatrix = calculateInverseOfUpdatedCovarianceMatrix(
                 designMatrix, diagonalOfWeightMatrix, inverseOfAPrioriCovarianceMatrix,
                 constraintMultiplier, constraintRightHandside );
