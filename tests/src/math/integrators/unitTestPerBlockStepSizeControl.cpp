@@ -159,6 +159,7 @@ BOOST_AUTO_TEST_CASE( testPerBlockCircleStepSizeControl )
 
         if( test == 0 )
         {
+            std::cout<<test<<" "<<timeStepRatio<<std::endl;
             BOOST_CHECK( timeStepRatio > 8 );
             BOOST_CHECK( ( std::fabs( stateAtMinimumStep( 0 ) ) < 1.0E-2 ) || ( std::fabs( stateAtMinimumStep( 1 ) ) < 1.0E-2 ) );
         }
@@ -315,6 +316,8 @@ BOOST_AUTO_TEST_CASE( testCowellPropagatorKeplerCompare )
 //                                               - stateHistory.rbegin( )->second );
 
                 double timeStepRatio = maximumStep / minimumStep;
+
+                std::cout<<dynamicsType<<" "<<tolerancesType<<" "<<timeStepRatio<<std::endl;
 
                 // Check that time-step variation is small for block-wise comparison
                 if ( tolerancesType == 1 )
