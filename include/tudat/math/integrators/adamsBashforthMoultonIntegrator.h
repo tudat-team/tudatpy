@@ -133,8 +133,13 @@ public:
         minimumOrder_ = 6;
         maximumOrder_ = 11;
         order_ = minimumOrder_;
-        stepSize_ = 1.;
-        fixedSingleStep_ = fixedStepSize_;
+
+        if( ( initialStepSize == minimumStepSize ) && ( initialStepSize == maximumStepSize ) )
+        {
+            fixedStepSize_ = true;
+        }
+
+
         
         // Start filling the state and state derivative history deques.
         stateHistory_.push_front( currentState_ );
@@ -255,9 +260,6 @@ public:
                 derivHistory_.pop_back( );
             }
             stepSize_ = stepSize;
-            
-            // Allow single step integrator to determine own stepsize
-            fixedSingleStep_ = fixedStepSize_;
         }
         return performIntegrationStep( );
     }
@@ -270,6 +272,7 @@ public:
      */
     StateType performIntegrationStep( )
     {
+//        std::cout<<"Orders "<<order_<<" "<<minimumOrder_<<" "<<maximumOrder_<<" "<<fixedStepSize_<<std::endl;
         // Set last* variables for rollback.
         lastStepSize_ = stepSize_;
         lastState_ = stateHistory_.back( );
@@ -534,8 +537,6 @@ public:
             lastIndependentVariable_ = currentIndependentVariable_;
         }
 
-        // Allow single step integrator to determine own stepsize
-        fixedSingleStep_ = fixedStepSize_;
     }
 
     //! Return maximum truncation error.
@@ -632,14 +633,28 @@ public:
      * Function to reset the minimum order of the integrator
      * \param minimumOrder New minimum order of the integrator
      */
-    void setMinimumOrder( unsigned int minimumOrder ){ minimumOrder_ = minimumOrder; }
+    void setMinimumOrder( unsigned int minimumOrder )
+    {
+        minimumOrder_ = minimumOrder;
+        if( order_ < minimumOrder )
+        {
+            order_ = minimumOrder_;
+        }
+    }
 
     //! Function to reset the maximum order of the integrator
     /*!
      * Function to reset the maximum order of the integrator
      * \param maximumOrder New maximum order of the integrator
      */
-    void setMaximumOrder( unsigned int maximumOrder ){ maximumOrder_ = maximumOrder; }
+    void setMaximumOrder( unsigned int maximumOrder )
+    {
+        maximumOrder_ = maximumOrder;
+        if( order_ > maximumOrder_ )
+        {
+            order_ = maximumOrder_;
+        }
+    }
 
     IndependentVariableType getPreviousIndependentVariable( )
     {
@@ -770,16 +785,7 @@ protected:
      * Advisable to change for fixth-order integration runs.
      */
     unsigned int order_;
-    
-    //! Fixed Single Step Integrator.
-    /*!
-     * Boolean value whether to only take fixed steps with the single-step integrator or whether
-     * to allow stepsize and error control by the integrator. While filling the first entry of then
-     * initial state and derivate history this can help to determine an appropriate step-size, but is
-     * undesirable for subsequent entries.
-     */
-    bool fixedSingleStep_;
-    
+
     //! Numerical Single Step Integrator.
     /*!
      * Single step integrator to perform intitialization of multi-step history.
@@ -834,7 +840,7 @@ protected:
                     minimumStepSize_, maximumStepSize_, stepSize_, relativeErrorTolerance_, absoluteErrorTolerance_ );
         
         StateType currentState;
-        if( fixedSingleStep_ )
+        if( fixedStepSize_ )
         {
             singleFixedStepIntegrator_.modifyCurrentState( currentState_ );
             currentState = singleFixedStepIntegrator_.performIntegrationStep( stepSize_ );
@@ -849,9 +855,6 @@ protected:
             
             // Find out the step size that was used during integration
             lastStepSize_ = singleVariableStepIntegrator_.getCurrentIndependentVariable( ) - currentIndependentVariable_;
-
-            // Next time use same step size
-            fixedSingleStep_ = true;
         }
         
         // Even if a different step size is suggested, let's stick with the old one, since the goal is to start

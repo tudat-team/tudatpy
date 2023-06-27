@@ -44,7 +44,8 @@ std::shared_ptr< AtmosphereSettings > getDefaultAtmosphereModelSettings(
  */
 std::shared_ptr< EphemerisSettings > getDefaultEphemerisSettings(
         const std::string& bodyName,
-        const std::string baseFrameOrientation = "ECLIPJ2000" );
+        const std::string& baseFrameOrientation = "ECLIPJ2000",
+        const std::string& originatingNameBodyName = "" );
 
 //! Function to create default settings for a body's ephemeris.
 /*!
@@ -60,7 +61,8 @@ std::shared_ptr< EphemerisSettings > getDefaultEphemerisSettings(
         const std::string& bodyName,
         const double initialTime,
         const double finalTime,
-        const std::string baseFrameOrientation = "ECLIPJ2000",
+        const std::string& baseFrameOrientation = "ECLIPJ2000",
+        const std::string& originatingNameBodyName = "",
         const double timeStep = 300.0 );
 
 //! Function to create default settings for a body's gravity field model.
@@ -94,11 +96,14 @@ std::shared_ptr< RotationModelSettings > getDefaultRotationModelSettings(
         const std::string& bodyName,
         const double initialTime,
         const double finalTime,
-        const std::string baseFrameOrientation = "ECLIPJ2000" );
+        const std::string& baseFrameOrientation = "ECLIPJ2000",
+        const std::string& spiceBodyName = "" );
 
 double marsTimeDependentPhaseAngleCorrectionFunction( const double secondsSinceJ2000 );
 
-std::shared_ptr< RotationModelSettings > getHighAccuracyMarsRotationModel(  );
+std::shared_ptr< RotationModelSettings > getHighAccuracyMarsRotationModel(
+    const std::string& baseFrameOrientation = "ECLIPJ2000",
+    const std::string& targetFrameOrientation = "Mars_Fixed" );
 
 //! Function to create default settings for a body's shape model.
 /*!
@@ -137,9 +142,22 @@ std::shared_ptr< BodySettings > getDefaultSingleBodySettings(
         const std::string& baseFrameOrientation = "ECLIPJ2000",
         const double timeStep = 300.0 );
 
+std::shared_ptr< BodySettings > getDefaultSingleAlternateNameBodySettings(
+    const std::string& body,
+    const std::string& originatingName,
+    const double initialTime,
+    const double finalTime,
+    const std::string& baseFrameOrientation = "ECLIPJ2000",
+    const double timeStep = 300.0 );
+
 std::shared_ptr< BodySettings > getDefaultSingleBodySettings(
         const std::string& bodyName,
         const std::string& baseFrameOrientation = "ECLIPJ2000" );
+
+std::shared_ptr< BodySettings > getDefaultSingleAlternateNameBodySettings(
+    const std::string& bodyName,
+    const std::string& originatingName,
+    const std::string& baseFrameOrientation = "ECLIPJ2000" );
 
 //! Function to create default settings from which to create a set of body objects.
 /*!

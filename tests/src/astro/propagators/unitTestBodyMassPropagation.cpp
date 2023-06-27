@@ -94,11 +94,11 @@ BOOST_AUTO_TEST_CASE( testTwoBodyMassPropagation )
     bodies.createEmptyBody( "Vehicle2" );
 
     // Create mass rate models.
-    std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels;
-    massRateModels[ "Vehicle1" ] = std::make_shared< basic_astrodynamics::CustomMassRateModel >(
-                std::bind( &getDummyMassRate1, bodies ) );
-    massRateModels[ "Vehicle2" ] = std::make_shared< basic_astrodynamics::CustomMassRateModel >(
-                std::bind( &getDummyMassRate2, bodies ) );
+    std::map< std::string, std::vector< std::shared_ptr< basic_astrodynamics::MassRateModel > > > massRateModels;
+    massRateModels[ "Vehicle1" ].push_back( std::make_shared< basic_astrodynamics::CustomMassRateModel >(
+                std::bind( &getDummyMassRate1, bodies ) ) );
+    massRateModels[ "Vehicle2" ].push_back( std::make_shared< basic_astrodynamics::CustomMassRateModel >(
+                std::bind( &getDummyMassRate2, bodies ) ) );
     bodies.at( "Earth" )->setEphemeris( std::make_shared< ephemerides::ConstantEphemeris >(
                                           [ ]( ){ return Eigen::Vector6d::Zero( ); } ) );
     bodies.at( "Vehicle1" )->setEphemeris( std::make_shared< ephemerides::ConstantEphemeris >(
@@ -106,22 +106,22 @@ BOOST_AUTO_TEST_CASE( testTwoBodyMassPropagation )
     bodies.at( "Vehicle2" )->setEphemeris( std::make_shared< ephemerides::ConstantEphemeris >(
                                          [ ]( ){ return Eigen::Vector6d::Zero( ); }, "Earth" ) );
 
+    // Define numerical integrator settings.
+    std::shared_ptr< IntegratorSettings< > > integratorSettings = rungeKutta4Settings( 1.0 );
+
     // Create settings for propagation
     Eigen::VectorXd initialMass = Eigen::VectorXd( 2 );
     initialMass( 0 ) = 500.0;
     initialMass( 1 ) = 1000.0;
-    std::shared_ptr< PropagatorSettings< double > > propagatorSettings =
+    std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings =
             std::make_shared< MassPropagatorSettings< double > >(
-                std::vector< std::string >{ "Vehicle1", "Vehicle2" }, massRateModels, initialMass,
-                std::make_shared< PropagationTimeTerminationSettings >( 1000.0 ) );
-
-    // Define numerical integrator settings.
-    std::shared_ptr< IntegratorSettings< > > integratorSettings =
-            std::make_shared< IntegratorSettings< > >( rungeKutta4, 0.0, 1.0 );
+                std::vector< std::string >{ "Vehicle1", "Vehicle2" }, massRateModels, initialMass, 0.0,
+            integratorSettings, std::make_shared< PropagationTimeTerminationSettings >( 1000.0 ) );
+    propagatorSettings->getOutputSettingsBase( )->setIntegratedResult( true );
 
     // Create dynamics simulation object.
     SingleArcDynamicsSimulator< double, double > dynamicsSimulator(
-                bodies, integratorSettings, propagatorSettings, true, false, true );
+                bodies, propagatorSettings );
 
     // Test propagated solution.
     std::map< double, Eigen::VectorXd > integratedState = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
@@ -139,6 +139,9 @@ BOOST_AUTO_TEST_CASE( testTwoBodyMassPropagation )
                               9.0 * std::exp( 4.0 * stateIterator->first / 1E4 ) ), 1.0E-13 );
 
         // Test reset mass solution of vehicles.
+        bodies.at( "Vehicle1" )->getMassProperties( )->resetCurrentTime( );
+        bodies.at( "Vehicle2" )->getMassProperties( )->resetCurrentTime( );
+
         bodies.at( "Vehicle1" )->updateMass( stateIterator->first );
         bodies.at( "Vehicle2" )->updateMass( stateIterator->first );
 

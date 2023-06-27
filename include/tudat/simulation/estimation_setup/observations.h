@@ -180,11 +180,11 @@ std::map< ObservableType, std::map< LinkEnds, std::vector< std::shared_ptr< Sing
 createSortedObservationSetList( const std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > observationSetList )
 {
    std::map< ObservableType, std::map< LinkEnds, std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > > > sortedObservations;
-   for( unsigned int i = 0; i < observationSetList; i++ )
+   for( unsigned int i = 0; i < observationSetList.size( ); i++ )
    {
 
-       sortedObservations[ observationSetList.at( i )->getObservableType( ) ][ observationSetList.at( i )->getLinkEnds( ).linkEnds_ ] =
-               observationSetList.at( i );
+       sortedObservations[ observationSetList.at( i )->getObservableType( ) ][ observationSetList.at( i )->getLinkEnds( ).linkEnds_ ].push_back(
+               observationSetList.at( i ) );
    }
    return sortedObservations;
 }

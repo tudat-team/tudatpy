@@ -1550,6 +1550,34 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
         }
         break;
     }
+    case body_center_of_mass:
+    {
+        if( bodies.at( bodyWithProperty )->getMassProperties( ) == nullptr )
+        {
+            throw std::runtime_error( "Error when saving body center of mass for " + bodyWithProperty + ", body has no mass properties." );
+        }
+        else
+        {
+            auto massProperties = bodies.at( bodyWithProperty )->getMassProperties( );
+            variableFunction = [=]( ){ return massProperties->getCurrentCenterOfMass( ); };
+            parameterSize = 3;
+        }
+        break;
+    }
+    case body_inertia_tensor:
+    {
+        if( bodies.at( bodyWithProperty )->getMassProperties( ) == nullptr )
+        {
+            throw std::runtime_error( "Error when saving body inertia tensor for " + bodyWithProperty + ", body has no mass properties." );
+        }
+        else
+        {
+            auto massProperties = bodies.at( bodyWithProperty )->getMassProperties( );
+            variableFunction = [=]( ){ return getVectorRepresentationForRotationMatrix( massProperties->getCurrentInertiaTensor( ) ); };
+            parameterSize = 9;
+        }
+        break;
+    }
     case custom_dependent_variable:
     {
         std::shared_ptr< CustomDependentVariableSaveSettings > customVariableSettings =
@@ -2343,6 +2371,30 @@ std::function< double( ) > getDoubleDependentVariableFunction(
                 throw std::runtime_error( errorMessage );
             }
 
+            break;
+        }
+        case custom_dependent_variable:
+        {
+            std::shared_ptr< CustomDependentVariableSaveSettings > customVariableSettings =
+                    std::dynamic_pointer_cast< CustomDependentVariableSaveSettings >( dependentVariableSettings );
+
+            if( customVariableSettings == nullptr )
+            {
+                std::string errorMessage= "Error, inconsistent inout when creating dependent variable function of type custom_dependent_variable";
+                throw std::runtime_error( errorMessage );
+            }
+            else
+            {
+                variableFunction = [=]( )
+                {
+                    Eigen::VectorXd customVariables = customVariableSettings->customDependentVariableFunction_( );
+                    if( customVariables.rows( ) != 1 )
+                    {
+                        throw std::runtime_error( "Error when retrieving size-1 custom dependent variable, actual size is " + std::to_string( customVariables.rows( ) ) );
+                    }
+                    return customVariables( 0 );
+                };
+            }
             break;
         }
         default:

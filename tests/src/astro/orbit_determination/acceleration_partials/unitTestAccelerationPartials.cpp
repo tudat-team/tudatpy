@@ -550,10 +550,11 @@ BOOST_AUTO_TEST_CASE( testAerodynamicAccelerationPartials )
 
     std::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings =
             std::make_shared< ConstantAerodynamicCoefficientSettings >(
-                2.0, 4.0, 1.5, Eigen::Vector3d::Zero( ), aerodynamicCoefficients, Eigen::Vector3d::Zero( ),
-                areCoefficientsInAerodynamicFrame, 1 );
+                2.0, 4.0, Eigen::Vector3d::Zero( ), aerodynamicCoefficients, Eigen::Vector3d::Zero( ),
+                aerodynamics::getAerodynamicCoefficientFrame( areCoefficientsInAerodynamicFrame, 1 ),
+                aerodynamics::getAerodynamicCoefficientFrame( areCoefficientsInAerodynamicFrame, 1 ) );
     bodies.at( "Vehicle" )->setAerodynamicCoefficientInterface(
-                createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Vehicle" ) );
+                createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Vehicle", bodies ) );
 
 
 

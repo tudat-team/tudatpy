@@ -329,7 +329,7 @@ int getDependentVariableSize(
         variableSize = 1;
         break;
     case single_torque_norm_dependent_variable:
-        variableSize = 3;
+        variableSize = 1;
         break;
     case keplerian_state_dependent_variable:
         variableSize = 6;
@@ -467,6 +467,12 @@ int getDependentVariableSize(
         break;
     case minimum_constellation_ground_station_distance:
         variableSize = 3;
+        break;
+    case body_center_of_mass:
+        variableSize = 3;
+        break;
+    case body_inertia_tensor:
+        variableSize = 9;
         break;
     default:
         std::string errorMessage = "Error, did not recognize dependent variable size of type: " +

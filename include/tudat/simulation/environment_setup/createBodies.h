@@ -66,6 +66,8 @@ struct BodySettings
     //! Settings for the aerodynamic coefficients that the body is to contain.
     std::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings;
 
+    std::shared_ptr< RigidBodyPropertiesSettings > rigidBodyPropertiesSettings;
+
     //! Settings for variations of the gravity field of the body.
     std::vector< std::shared_ptr< GravityFieldVariationSettings > > gravityFieldVariationSettings;
 
@@ -87,6 +89,17 @@ void addRadiationPressureInterface(
 void addRotationModel(
         const SystemOfBodies& bodies, const std::string bodyName,
         const std::shared_ptr< RotationModelSettings > rotationModelSettings );
+
+void addGravityFieldModel(
+    const SystemOfBodies& bodies, const std::string bodyName,
+    const std::shared_ptr< GravityFieldSettings > gravityFieldSettings,
+    const std::vector< std::shared_ptr< GravityFieldVariationSettings > >& gravityFieldVariationSettings =
+        std::vector< std::shared_ptr< GravityFieldVariationSettings > >( ));
+
+void addRigidBodyProperties(
+    const SystemOfBodies& bodies, const std::string bodyName,
+    const std::shared_ptr< RigidBodyPropertiesSettings > rigidBodyProperties );
+
 
 
 class BodyListSettings
@@ -269,6 +282,7 @@ SystemOfBodies createSystemOfBodies(
         }
     }
 
+
     for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
     {
         if( orderedBodySettings.at( i ).second->gravityFieldVariationSettings.size( ) > 0 )
@@ -280,6 +294,17 @@ SystemOfBodies createSystemOfBodies(
         }
     }
 
+    // Create gravity field model objects for each body (if required).
+    for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
+    {
+        if( orderedBodySettings.at( i ).second->rigidBodyPropertiesSettings != nullptr )
+        {
+            bodyList.at( orderedBodySettings.at( i ).first )->setMassProperties(
+                createRigidBodyProperties( orderedBodySettings.at( i ).second->rigidBodyPropertiesSettings,
+                                          orderedBodySettings.at( i ).first, bodyList ) );
+        }
+    }
+
     // Create aerodynamic coefficient interface objects for each body (if required).
     for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
     {
@@ -288,7 +313,7 @@ SystemOfBodies createSystemOfBodies(
             bodyList.at( orderedBodySettings.at( i ).first )->setAerodynamicCoefficientInterface(
                         createAerodynamicCoefficientInterface(
                             orderedBodySettings.at( i ).second->aerodynamicCoefficientSettings,
-                            orderedBodySettings.at( i ).first ) );
+                            orderedBodySettings.at( i ).first, bodyList ) );
         }
     }
 

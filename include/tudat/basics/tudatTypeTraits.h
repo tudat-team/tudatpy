@@ -220,6 +220,18 @@ struct is_direct_gravity_acceleration< gravitation::RingGravitationalAcceleratio
     static const bool value = true;
 };
 
+template< typename VariableType, typename std::enable_if< is_eigen_matrix< VariableType >::value, int >::type = 0 >
+static int getEigenCompileTimeNumberORows( )
+{
+    return VariableType::RowsAtCompileTime;
+}
+
+template< typename VariableType, typename std::enable_if< is_eigen_matrix< VariableType >::value, int >::type = 0 >
+static int getEigenCompileTimeNumberOfCols( )
+{
+    return VariableType::ColsAtCompileTime;
+}
+
 } // namespace tudat
 
 #endif // TUDAT_TYPE_TRAITS_H

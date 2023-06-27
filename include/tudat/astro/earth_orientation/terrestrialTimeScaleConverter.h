@@ -16,6 +16,7 @@
 
 #include "tudat/math/interpolators/oneDimensionalInterpolator.h"
 #include "tudat/basics/timeType.h"
+#include "tudat/astro/basic_astro/dateTime.h"
 #include "tudat/astro/earth_orientation/shortPeriodEarthOrientationCorrectionCalculator.h"
 #include "tudat/astro/earth_orientation/eopReader.h"
 #include "tudat/basics/utilities.h"
@@ -31,7 +32,13 @@ template< typename TimeType >
 struct CurrentTimes
 {
     //! Default constructor
-    CurrentTimes( ){ }
+    CurrentTimes( ):
+        tai( TUDAT_NAN ),
+        tt( TUDAT_NAN ),
+        tdb( TUDAT_NAN ),
+        utc( TUDAT_NAN ),
+        ut1( TUDAT_NAN )
+        { }
 
     //! Function to retrieve the current time in requested scale
     /*!
@@ -140,6 +147,16 @@ public:
             convertedTime = getCurrentTimeList< TimeType >( ).getTimeValue( outputScale );
         }
         return convertedTime;
+    }
+
+    template< typename TimeType >
+    TimeType getCurrentTimeDifference(
+        const basic_astrodynamics::TimeScales inputScale, const basic_astrodynamics::TimeScales outputScale,
+        const TimeType& inputTimeValue, const Eigen::Vector3d& earthFixedPosition = Eigen::Vector3d::Zero( ) )
+    {
+        Time convertedTime = getCurrentTime< Time >( inputScale, outputScale,
+            Time( inputTimeValue ), earthFixedPosition );
+        return static_cast< TimeType >( convertedTime - inputTimeValue );
     }
 
     //! Function to reset all current times at given precision to NaN.
@@ -346,8 +363,35 @@ private:
  * \param eopReader Object that reads an Earth Orientation Parameters file.
  * \return Default Earth time scales conversion object
  */
-std::shared_ptr< TerrestrialTimeScaleConverter >  createDefaultTimeConverter( const std::shared_ptr< EOPReader > eopReader =
+std::shared_ptr< TerrestrialTimeScaleConverter > createDefaultTimeConverter( const std::shared_ptr< EOPReader > eopReader =
         std::make_shared< EOPReader >( ) );
+
+static const std::shared_ptr< TerrestrialTimeScaleConverter > defaultTimeConverter = createDefaultTimeConverter( );
+
+template< typename TimeType >
+TimeType convertTimeScale(
+    const TimeType& inputTime,
+    const basic_astrodynamics::TimeScales inputScale, const basic_astrodynamics::TimeScales outputScale,
+    const std::shared_ptr< TerrestrialTimeScaleConverter > timeConverter = defaultTimeConverter,
+    const Eigen::Vector3d& earthFixedPosition = Eigen::Vector3d::Zero( ) )
+{
+    Time time = Time( inputTime );
+    return static_cast< TimeType >( timeConverter->getCurrentTime(
+        inputScale, outputScale, time, earthFixedPosition ) );
+}
+
+
+template< typename TimeType >
+TimeType convertToTimeScale(
+    const basic_astrodynamics::DateTime inputDateTime,
+    const basic_astrodynamics::TimeScales inputScale, const basic_astrodynamics::TimeScales outputScale,
+    const std::shared_ptr< TerrestrialTimeScaleConverter > timeConverter = defaultTimeConverter,
+    const Eigen::Vector3d& earthFixedPosition = Eigen::Vector3d::Zero( ) )
+{
+    Time time = inputDateTime.epoch< Time >( );
+    return static_cast< TimeType >( timeConverter->getCurrentTime(
+        inputScale, outputScale, time, earthFixedPosition ) );
+}
 
 }
 
