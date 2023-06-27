@@ -231,6 +231,9 @@ void expose_acceleration_setup(py::module &m) {
      m.def("polyhedron_gravity", &tss::polyhedronAcceleration,
           get_docstring("polyhedron_gravity").c_str());
 
+    m.def("ring_gravity", &tss::ringAcceleration,
+          get_docstring("ring_gravity").c_str());
+
     m.def("relativistic_correction", &tss::relativisticAccelerationCorrection,
           py::arg( "use_schwarzschild" ) = false,
           py::arg( "use_lense_thirring" ) = false,
