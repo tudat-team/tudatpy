@@ -8,7 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include "tudat/astro/observation_models/corrections/tabulatedMediaCorrection.h"
+#include "tudat/astro/observation_models/corrections/atmosphereCorrection.h"
 
 #include "tudat/astro/basic_astro/timeConversions.h"
 #include "tudat/basics/utilities.h"

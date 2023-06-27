@@ -19,7 +19,7 @@
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/corrections/lightTimeCorrection.h"
-#include "tudat/astro/observation_models/corrections/tabulatedMediaCorrection.h"
+#include "tudat/astro/observation_models/corrections/atmosphereCorrection.h"
 #include "tudat/simulation/estimation_setup/createAtmosphericLightTimeCorrection.h"
 #include "tudat/io/solarActivityData.h"
 
