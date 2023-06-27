@@ -1237,7 +1237,7 @@ public:
             const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
             const std::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
             const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate,
-            const std::vector< double > arcStartTimes,
+            const std::vector< double > propagationStartTimes,
             const bool integrateDynamicalAndVariationalEquationsConcurrently = true,
             const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > variationalOnlyIntegratorSettings =
             std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ),
@@ -1246,7 +1246,7 @@ public:
             const bool resetMultiArcDynamicsAfterPropagation = true,
             const bool setDependentVariablesInterface = false ):
         MultiArcVariationalEquationsSolver( bodies, validateDeprecatedMultiArcSettings(
-                                        integratorSettings, propagatorSettings, arcStartTimes,
+                                        integratorSettings, propagatorSettings, propagationStartTimes,
                                         clearNumericalSolution, resetMultiArcDynamicsAfterPropagation, setDependentVariablesInterface ),
                                             parametersToEstimate,
                                     integrateEquationsOnCreation ){ }
@@ -1399,7 +1399,7 @@ public:
             Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > arcWiseParametersValues = arcWiseParametersToEstimate_.at( i )->template getFullParameterValues< StateScalarType >( );
             Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > newArcWiseParametersValues = arcWiseParametersValues;
             newArcWiseParametersValues.segment( 0, newParametersValues.size( ) ) = newParametersValues;
-            arcWiseParametersToEstimate_.at( i )->template resetParameterValues( newArcWiseParametersValues );
+            arcWiseParametersToEstimate_.at( i )->resetParameterValues( newArcWiseParametersValues );
         }
 
         // Check if re-integration of variational equations is requested
@@ -1426,7 +1426,7 @@ public:
     {
         std::vector< std::vector< std::map< double, Eigen::MatrixXd > > > fullSolution;
         fullSolution.resize( numberOfArcs_ );
-        for( unsigned int i = 0; i < numberOfArcs_; i++ )
+        for( int i = 0; i < numberOfArcs_; i++ )
         {
             fullSolution[ i ].push_back( variationalPropagationResults_->getSingleArcResults( ).at( i )->getStateTransitionSolution( ) );
             fullSolution[ i ].push_back( variationalPropagationResults_->getSingleArcResults( ).at( i )->getSensitivitySolution( ) );
@@ -1495,16 +1495,8 @@ private:
 
         for( unsigned int i = 0; i < variationalPropagationResults_->getSingleArcResults( ).size( ); i++ )
         {
-            if( dynamicsSimulator_->getSingleArcDynamicsSimulators( ).at( i )->getIntegratorSettings( )->initialTimeStep_ > 0.0 )
-            {
-                arcStartTimesToUse.push_back( dynamicsSimulator_->getArcStartTimes( ).at( i ) );
-                arcEndTimesToUse.push_back( dynamicsSimulator_->getArcEndTimes( ).at( i ) );
-            }
-            else
-            {
-                arcStartTimesToUse.push_back( dynamicsSimulator_->getArcEndTimes( ).at( i ) );
-                arcEndTimesToUse.push_back( dynamicsSimulator_->getArcStartTimes( ).at( i ) );
-            }
+            arcStartTimesToUse.push_back( dynamicsSimulator_->getArcStartTimes( ).at( i ) );
+            arcEndTimesToUse.push_back( dynamicsSimulator_->getArcEndTimes( ).at( i ) );
 
             try
             {
@@ -1531,6 +1523,7 @@ private:
         {
             stateTransitionInterface_ = std::make_shared< MultiArcCombinedStateTransitionAndSensitivityMatrixInterface< StateScalarType > >(
                         stateTransitionMatrixInterpolators, sensitivityMatrixInterpolators,
+                        propagatorSettings_->getArcStartTimes( ),
                         arcStartTimesToUse,
                         arcEndTimesToUse,
                         parametersToEstimate_,
@@ -1542,8 +1535,7 @@ private:
             std::dynamic_pointer_cast< MultiArcCombinedStateTransitionAndSensitivityMatrixInterface< StateScalarType > >(
                         stateTransitionInterface_ )->updateMatrixInterpolators(
                         stateTransitionMatrixInterpolators, sensitivityMatrixInterpolators,
-                        arcStartTimesToUse,
-                        arcEndTimesToUse, getArcWiseStatePartialAdditionIndices( ) );
+                        arcStartTimesToUse, arcEndTimesToUse, getArcWiseStatePartialAdditionIndices( ) );
         }
     }
 
@@ -1946,12 +1938,12 @@ public:
             Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > newParametersValues = originalPopagatorSettings_->getMultiArcPropagatorSettings( )->getSingleArcSettings( ).at( i )->getInitialStates( );
             Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > newArcWiseParametersValues = originalMultiArcSolver_->getArcWiseParametersToEstimate( ).at( i )->template getFullParameterValues< StateScalarType >( );
             newArcWiseParametersValues.segment( 0, newParametersValues.size( ) ) = newParametersValues;
-            originalMultiArcSolver_->getArcWiseParametersToEstimate( ).at( i )->template resetParameterValues( newArcWiseParametersValues );
+            originalMultiArcSolver_->getArcWiseParametersToEstimate( ).at( i )->resetParameterValues( newArcWiseParametersValues );
 
             Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > newFullParametersValues = propagatorSettings_->getMultiArcPropagatorSettings( )->getSingleArcSettings( ).at( i )->getInitialStates( );
             Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > newFullArcWiseParametersValues = multiArcSolver_->getArcWiseParametersToEstimate( ).at( i )->template getFullParameterValues< StateScalarType >( );
             newFullArcWiseParametersValues.segment( 0, newFullParametersValues.size( ) ) = newFullParametersValues;
-            multiArcSolver_->getArcWiseParametersToEstimate( ).at( i )->template resetParameterValues( newFullArcWiseParametersValues );
+            multiArcSolver_->getArcWiseParametersToEstimate( ).at( i )->resetParameterValues( newFullArcWiseParametersValues );
         }
 
         // Check if re-integration of variational equations is requested

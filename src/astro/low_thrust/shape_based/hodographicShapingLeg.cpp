@@ -584,7 +584,7 @@ Eigen::Vector3d HodographicShapingLeg::computeThrustAcceleration(const double ti
 {
     if ( timeSinceDeparture < 0.0 || timeSinceDeparture > timeOfFlight_ )
     {
-        throw std::runtime_error( "Error when computing acceleration vector, requested time is outside bounds" );
+        return Eigen::Vector3d::Zero( );
     }
 
     if( thrustAccelerationVectorCache_.count( timeSinceDeparture ) == 0 )

@@ -130,7 +130,9 @@ enum PropagationDependentVariables
     aerodynamic_control_surface_free_force_coefficients_dependent_variable = 57,
     aerodynamic_control_surface_free_moment_coefficients_dependent_variable = 58,
     aerodynamic_control_surface_force_coefficients_increment_dependent_variable = 59,
-    aerodynamic_control_surface_moment_coefficients_increment_dependent_variable = 60
+    aerodynamic_control_surface_moment_coefficients_increment_dependent_variable = 60,
+    body_center_of_mass = 61,
+    body_inertia_tensor = 62
 };
 
 // Functional base class for defining settings for dependent variables that are to be saved during propagation
@@ -1119,46 +1121,47 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > radiationPressureD
 
 //! @get_docstring(localTemperatureDependentVariable)
 inline std::shared_ptr< SingleDependentVariableSaveSettings > localTemperatureDependentVariable(
-        const std::string& associatedBody )
+        const std::string& associatedBody,
+        const std::string& bodyWithAtmosphere  )
 {
 	return std::make_shared< SingleDependentVariableSaveSettings >(
-			local_temperature_dependent_variable, associatedBody );
+			local_temperature_dependent_variable, associatedBody, bodyWithAtmosphere );
 }
 
 //! @get_docstring(localDynamicPressureDependentVariable)
 inline std::shared_ptr< SingleDependentVariableSaveSettings > localDynamicPressureDependentVariable(
-		const std::string& associatedBody
-)
+		const std::string& associatedBody,
+        const std::string& bodyWithAtmosphere )
 {
 	return std::make_shared< SingleDependentVariableSaveSettings >(
-			local_dynamic_pressure_dependent_variable, associatedBody );
+			local_dynamic_pressure_dependent_variable, associatedBody, bodyWithAtmosphere );
 }
 
 //! @get_docstring(localAerodynamicHeatRateDependentVariable)
 inline std::shared_ptr< SingleDependentVariableSaveSettings > localAerodynamicHeatRateDependentVariable(
-		const std::string& associatedBody
-)
+		const std::string& associatedBody,
+        const std::string& bodyWithAtmosphere )
 {
 	return std::make_shared< SingleDependentVariableSaveSettings >(
-			local_aerodynamic_heat_rate_dependent_variable, associatedBody );
+			local_aerodynamic_heat_rate_dependent_variable, associatedBody, bodyWithAtmosphere );
 }
 
 //! @get_docstring(totalAerodynamicGLoadDependentVariable)
 inline std::shared_ptr< SingleDependentVariableSaveSettings > totalAerodynamicGLoadDependentVariable(
-		const std::string& associatedBody
-)
+		const std::string& associatedBody,
+        const std::string& bodyWithAtmosphere )
 {
 	return std::make_shared< SingleDependentVariableSaveSettings >(
-			total_aerodynamic_g_load_variable, associatedBody );
+			total_aerodynamic_g_load_variable, associatedBody, bodyWithAtmosphere );
 }
 
 //! @get_docstring(stagnationPointHeatFluxDependentVariable)
 inline std::shared_ptr< SingleDependentVariableSaveSettings > stagnationPointHeatFluxDependentVariable(
-		const std::string& associatedBody
-)
+		const std::string& associatedBody,
+        const std::string& bodyWithAtmosphere )
 {
 	return std::make_shared< SingleDependentVariableSaveSettings >(
-			stagnation_point_heat_flux_dependent_variable, associatedBody );
+			stagnation_point_heat_flux_dependent_variable, associatedBody, bodyWithAtmosphere );
 }
 
 //! @get_docstring(totalMassRateDependentVariable)

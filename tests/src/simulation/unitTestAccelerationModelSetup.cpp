@@ -485,6 +485,9 @@ BOOST_AUTO_TEST_CASE( test_radiationPressureAcceleration )
     Eigen::Vector3d expectedAcceleration = expectedForceDirection.normalized( ) * expectedForceMagnitude / bodyMass;
 
     // Compare results
+    std::cout<<expectedAcceleration.transpose( )<<std::endl;
+    std::cout<<calculatedAcceleration.transpose( )<<std::endl;
+
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                 expectedAcceleration, calculatedAcceleration, ( 2.0 * std::numeric_limits< double >::epsilon( ) ) );
 
@@ -535,8 +538,9 @@ BOOST_AUTO_TEST_CASE( test_aerodynamicAccelerationModelSetup )
 
         bodySettings.at( "Vehicle" )->aerodynamicCoefficientSettings =
                 std::make_shared< ConstantAerodynamicCoefficientSettings >(
-                    1.0, referenceArea, 1.0, Eigen::Vector3d::Zero( ), aerodynamicCoefficients, Eigen::Vector3d::Zero( ),
-                    areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection );
+                    1.0, referenceArea, Eigen::Vector3d::Zero( ), aerodynamicCoefficients, Eigen::Vector3d::Zero( ),
+                    getAerodynamicCoefficientFrame( areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection ),
+                    getAerodynamicCoefficientFrame( areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection ) );
 
         // Create body objects.
         SystemOfBodies bodies = createSystemOfBodies( bodySettings );

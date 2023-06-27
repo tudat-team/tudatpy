@@ -782,24 +782,17 @@ public:
      * Constructor for same light-time corrections per link
      * \param lightTimeCorrections Settings for a single light-time correction that is to be used for the observation model
      * (nullptr if none)
-     * \param numberOfLinkEnds Number of link ends in observable (equal to n+1 for 'n'-way observable)
      * \param biasSettings Settings for the observation bias model that is to be used (default none: nullptr)
      */
     NWayRangeObservationSettings(
             const LinkDefinition& linkEnds,
             const std::vector< std::shared_ptr< LightTimeCorrectionSettings > >& lightTimeCorrectionsList,
-            const int numberOfLinkEnds,
             const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
             const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria
             = std::make_shared< LightTimeConvergenceCriteria >( ) ):
         ObservationModelSettings( n_way_range, linkEnds, std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ), biasSettings )
     {
-        if( static_cast< int >( linkEnds.size( ) ) != numberOfLinkEnds )
-        {
-            throw std::runtime_error( "Error when making n-way range settings, input is incompatible" );
-        }
-
-        for( int i = 0; i < numberOfLinkEnds - 1; i++ )
+        for( unsigned int i = 0; i < linkEnds.size( ) - 1; i++ )
         {
             oneWayRangeObsevationSettings_.push_back(
                         std::make_shared< ObservationModelSettings >(
@@ -1046,7 +1039,7 @@ inline std::shared_ptr< ObservationModelSettings > twoWayRangeSimple(
                                   std::to_string( linkEnds.linkEnds_.size( ) ) + ") is incompatible." );
     }
     return std::make_shared< NWayRangeObservationSettings >(
-                linkEnds, lightTimeCorrectionsList, linkEnds.size( ), biasSettings, lightTimeConvergenceCriteria );
+                linkEnds, lightTimeCorrectionsList, biasSettings, lightTimeConvergenceCriteria );
 }
 
 
@@ -1068,7 +1061,7 @@ inline std::shared_ptr< ObservationModelSettings > nWayRangeSimple(
         = std::make_shared< LightTimeConvergenceCriteria >( ) )
 {
     return std::make_shared< NWayRangeObservationSettings >(
-                linkEnds, lightTimeCorrectionsList, linkEnds.size( ), biasSettings, lightTimeConvergenceCriteria );
+                linkEnds, lightTimeCorrectionsList, biasSettings, lightTimeConvergenceCriteria );
 }
 
 inline std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria(

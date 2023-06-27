@@ -12,7 +12,7 @@
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
-
+#include <cmath>
 #include <boost/math/special_functions/factorials.hpp>
 
 #include "tudat/math/basic/legendrePolynomials.h"
@@ -504,6 +504,7 @@ double computeLegendrePolynomialDerivative( const int order,
                                             const double currentLegendrePolynomial,
                                             const double incrementedLegendrePolynomial )
 {
+
     // Return polynomial derivative.
     return incrementedLegendrePolynomial
             / std::sqrt( 1.0 - polynomialParameter * polynomialParameter )
@@ -520,6 +521,10 @@ double computeGeodesyLegendrePolynomialDerivative( const int order,
                                                    const double incrementedLegendrePolynomial,
                                                    const double normalizationCorrection )
 {
+    if( !std::isfinite( oneOverPolynomialParameterComplement ) )
+    {
+        throw std::runtime_error( "Error when computing derivative of normalized associated Legendre polynomial, found NaN/Inf value. This may be caused by evaluating at the poles, where a singularity occurs" );
+    }
     // Return polynomial derivative.
     return normalizationCorrection * incrementedLegendrePolynomial * oneOverPolynomialParameterComplement
             - static_cast< double >( order ) * polynomialParameter *

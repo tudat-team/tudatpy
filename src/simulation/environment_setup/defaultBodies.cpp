@@ -45,10 +45,11 @@ std::shared_ptr< AtmosphereSettings > getDefaultAtmosphereModelSettings(
 //! Function to create default settings for a body's ephemeris.
 std::shared_ptr< EphemerisSettings > getDefaultEphemerisSettings(
         const std::string& bodyName,
-        const std::string baseFrameOrientation )
+        const std::string& baseFrameOrientation,
+        const std::string& originatingNameBodyName )
 {
-    std::string bodyNameToUse = bodyName;
-    if( bodyName == "Uranus" || bodyName == "Neptune" || bodyName == "Pluto" )
+    std::string bodyNameToUse = ( originatingNameBodyName == "" ) ? bodyName : originatingNameBodyName;
+    if( originatingNameBodyName == "Uranus" || originatingNameBodyName == "Neptune" || originatingNameBodyName == "Pluto" )
     {
         bodyNameToUse += "_BARYCENTER";
     }
@@ -62,11 +63,12 @@ std::shared_ptr< EphemerisSettings > getDefaultEphemerisSettings(
         const std::string& bodyName,
         const double initialTime,
         const double finalTime,
-        const std::string baseFrameOrientation,
+        const std::string& baseFrameOrientation,
+        const std::string& originatingNameBodyName,
         const double timeStep )
 {
-    std::string bodyNameToUse = bodyName;
-    if( bodyName == "Uranus" || bodyName == "Neptune" || bodyName == "Pluto" )
+    std::string bodyNameToUse = ( originatingNameBodyName == "" ) ? bodyName : originatingNameBodyName;
+    if( originatingNameBodyName == "Uranus" || originatingNameBodyName == "Neptune" || originatingNameBodyName == "Pluto" )
     {
         bodyNameToUse += "_BARYCENTER";
     }
@@ -190,14 +192,20 @@ std::shared_ptr< RotationModelSettings > getDefaultRotationModelSettings(
         const std::string& bodyName,
         const double initialTime,
         const double finalTime,
-        const std::string baseFrameOrientation )
+        const std::string& baseFrameOrientation,
+        const std::string& spiceBodyName )
 {
     TUDAT_UNUSED_PARAMETER( initialTime );
     TUDAT_UNUSED_PARAMETER( finalTime );
 
+    std::string spiceFrameName = "IAU_" + bodyName;
+    if( spiceBodyName != "" )
+    {
+        spiceFrameName = "IAU_" + spiceBodyName;
+    }
     // Create settings for a rotation model taken directly from Spice.
-    return std::make_shared< RotationModelSettings >(
-                spice_rotation_model, baseFrameOrientation, "IAU_" + bodyName );
+    return std::make_shared< SpiceRotationModelSettings >(
+                baseFrameOrientation, "IAU_" + bodyName, spiceFrameName );
 
 }
 
@@ -208,7 +216,9 @@ double marsTimeDependentPhaseAngleCorrectionFunction( const double secondsSinceJ
 }
 
 // Mars orientation parameter solution from the MRO120D gravity field (A.S. Konopliv et al. 2016)
-std::shared_ptr< RotationModelSettings > getHighAccuracyMarsRotationModel( )
+std::shared_ptr< RotationModelSettings > getHighAccuracyMarsRotationModel(
+    const std::string& baseFrameOrientation,
+    const std::string& targetFrameOrientation )
 {
     std::shared_ptr< RotationModelSettings > rotationModelSettings;
 
@@ -271,7 +281,7 @@ std::shared_ptr< RotationModelSettings > getHighAccuracyMarsRotationModel( )
                 convertDegreesToRadians( 350.891985307 ) / physical_constants::JULIAN_DAY,
                 0.07,
                 convertDegreesToRadians( -1.5 ) / physical_constants::JULIAN_DAY,
-                "ECLIPJ2000", "Mars_Fixed", "Sun",
+                baseFrameOrientation, targetFrameOrientation, "Sun",
                 nutationCorrectionSettings,
                 meanMotionTimeDependentPhaseNutationCorrections, timeDependentPhaseCorrectionFunctions, rotationRateCorrections,
                 xPolarMotionCoefficients, yPolarMotionCoefficients );
@@ -300,33 +310,55 @@ std::shared_ptr< BodySettings > getDefaultSingleBodySettings(
         const std::string& baseFrameOrientation,
         const double timeStep )
 {
+    return  getDefaultSingleAlternateNameBodySettings(
+        bodyName, bodyName, initialTime, finalTime, baseFrameOrientation, timeStep );
+}
+
+std::shared_ptr< BodySettings > getDefaultSingleAlternateNameBodySettings(
+    const std::string& bodyName,
+    const std::string& originatingName,
+    const double initialTime,
+    const double finalTime,
+    const std::string& baseFrameOrientation,
+    const double timeStep )
+{
     std::shared_ptr< BodySettings > singleBodySettings = std::make_shared< BodySettings >( );
 
     // Get default settings for each of the environment models in the body.
     singleBodySettings->atmosphereSettings = getDefaultAtmosphereModelSettings(
-                bodyName, initialTime, finalTime );
+        originatingName, initialTime, finalTime );
     singleBodySettings->rotationModelSettings = getDefaultRotationModelSettings(
-                bodyName, initialTime, finalTime, baseFrameOrientation );
+        bodyName, initialTime, finalTime, baseFrameOrientation, originatingName );
 
-    if( ( !( initialTime == initialTime ) && ( finalTime == finalTime ) ) ||
-            ( ( initialTime == initialTime ) && !( finalTime == finalTime ) ) )
+    if( !( std::isnan( initialTime ) == std::isnan( finalTime ) ) )
     {
-        throw std::runtime_error( "Error when getting default body settings, only one input time is NaN" );
+        throw std::runtime_error( "Error when getting default body settings, some but not all input times are NaN" );
     }
-    else if( !( initialTime == initialTime ) )
+    else if( std::isnan( initialTime ) )
     {
         singleBodySettings->ephemerisSettings = getDefaultEphemerisSettings(
-                    bodyName, baseFrameOrientation );
+            originatingName, baseFrameOrientation, originatingName );
     }
     else
     {
+        if( std::isnan( timeStep ) )
+        {
+            throw std::runtime_error( "Error when getting default body settings, time step is NaN" );
+        }
+
         singleBodySettings->ephemerisSettings = getDefaultEphemerisSettings(
-                    bodyName, initialTime, finalTime, baseFrameOrientation, timeStep );
+        originatingName, initialTime, finalTime, baseFrameOrientation, originatingName, timeStep );
     }
+
     singleBodySettings->gravityFieldSettings = getDefaultGravityFieldSettings(
-                bodyName, initialTime, finalTime );
+        originatingName, initialTime, finalTime );
+    if( std::dynamic_pointer_cast< SphericalHarmonicsGravityFieldSettings >( singleBodySettings->gravityFieldSettings ) != nullptr )
+    {
+        std::dynamic_pointer_cast< SphericalHarmonicsGravityFieldSettings >( singleBodySettings->gravityFieldSettings )->resetAssociatedReferenceFrame(
+            singleBodySettings->rotationModelSettings->getTargetFrame( ) );
+    }
     singleBodySettings->shapeModelSettings = getDefaultBodyShapeSettings(
-                bodyName, initialTime, finalTime );
+        originatingName, initialTime, finalTime );
 
     return singleBodySettings;
 }
@@ -337,6 +369,15 @@ std::shared_ptr< BodySettings > getDefaultSingleBodySettings(
 {
     return getDefaultSingleBodySettings(
                 bodyName, TUDAT_NAN, TUDAT_NAN, baseFrameOrientation );
+}
+
+std::shared_ptr< BodySettings > getDefaultSingleAlternateNameBodySettings(
+    const std::string& bodyName,
+    const std::string& originatingName,
+    const std::string& baseFrameOrientation )
+{
+    return getDefaultSingleAlternateNameBodySettings(
+        bodyName, originatingName, TUDAT_NAN, TUDAT_NAN, baseFrameOrientation );
 }
 
 //! Function to create default settings from which to create a set of body objects.
