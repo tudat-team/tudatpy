@@ -12,7 +12,7 @@
 #define TUDAT_CREATEATMOSPHERICLIGHTTIMECORRECTION_H
 
 #include "tudat/io/readTabulatedMediaCorrections.h"
-#include "tudat/astro/observation_models/corrections/tabulatedMediaCorrection.h"
+#include "tudat/astro/observation_models/corrections/atmosphereCorrection.h"
 
 namespace tudat
 {

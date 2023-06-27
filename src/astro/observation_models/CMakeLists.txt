@@ -18,7 +18,7 @@ set(observation_models_SOURCES
         "observationModel.cpp"
         "corrections/lightTimeCorrections.cpp"
         "corrections/firstOrderRelativisticCorrection.cpp"
-        "corrections/tabulatedMediaCorrection.cpp"
+        "corrections/atmosphereCorrection.cpp"
         "corrections/solarCoronaCorrection.cpp"
         "observationFrequencies.cpp"
         )
