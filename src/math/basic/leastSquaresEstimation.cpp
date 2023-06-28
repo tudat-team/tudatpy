@@ -136,13 +136,13 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromD
         const Eigen::MatrixXd& constraintMultiplier,
         const Eigen::VectorXd& constraintRightHandside,
         const Eigen::MatrixXd& designMatrixConsiderParameters,
-        const Eigen::MatrixXd& considerCovariance )
+        const Eigen::VectorXd& considerParametersValues )
 {
     Eigen::VectorXd rightHandSide = Eigen::VectorXd::Zero( observationResiduals.size( ) );
-    if ( considerCovariance.size( ) > 0 && designMatrixConsiderParameters.size( ) > 0 )
+    if ( considerParametersValues.size( ) > 0 && designMatrixConsiderParameters.size( ) > 0 )
     {
         rightHandSide = designMatrix.transpose( ) *
-                        ( diagonalOfWeightMatrix.cwiseProduct( observationResiduals + designMatrixConsiderParameters * considerCovariance ) );
+                        ( diagonalOfWeightMatrix.cwiseProduct( observationResiduals + designMatrixConsiderParameters * considerParametersValues ) );
     }
     else
     {
@@ -164,8 +164,7 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromD
     }
 
     return std::make_pair( solveSystemOfEquationsWithSvd(
-                               inverseOfCovarianceMatrix, rightHandSide, checkConditionNumber, maximumAllowedConditionNumber ),
-                           inverseOfCovarianceMatrix );
+            inverseOfCovarianceMatrix, rightHandSide, checkConditionNumber, maximumAllowedConditionNumber ), inverseOfCovarianceMatrix );
 
 }
 
