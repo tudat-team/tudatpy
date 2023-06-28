@@ -92,12 +92,6 @@ void RingGravityPartial::update( const double currentTime )
                         std::make_pair( estimatable_parameters::initial_body_state, "" ) )->
                     calculatePartialOfRotationMatrixToBaseFrameWrParameter( currentTime );
 
-            for ( unsigned int i = 0; i < rotationPositionPartials.size( ); ++i)
-            {
-                std::cerr << "Rotational position partial " << i << std::endl;
-                std::cerr << rotationPositionPartials.at(i) << std::endl;
-            }
-
             // Add correction terms to position and velocity partials
             for( unsigned int i = 0; i < 3; i++ )
             {
