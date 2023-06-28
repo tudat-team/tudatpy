@@ -6,6 +6,10 @@
  *    under the terms of the Modified BSD license. You should have received
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
+ *
+ *    References:
+ *    T. Moyer (2000), Formulation for Observed and Computed Values of Deep Space Network Data Types for Navigation,
+ *              DEEP SPACE COMMUNICATIONS AND NAVIGATION SERIES, JPL/NASA
  */
 
 
@@ -29,16 +33,55 @@ enum FrequencyBands
     ku_band
 };
 
+/*!
+ * Function returning a string with the name of the frequency band.
+ *
+ * @param frequencyBand Frequency band
+ * @return Name of the frequency band.
+ */
 std::string getFrequencyBandString( FrequencyBands frequencyBand );
 
+/*!
+ * Returns the default turnaround ratios used for DSN spacecraft, according to Moyer (2000), table 13-1.
+ *
+ * @param uplinkBand Uplink band
+ * @param downlinkBand Downlink band
+ * @return Turnaround ratio
+ */
 double getDsnDefaultTurnaroundRatios( FrequencyBands uplinkBand, FrequencyBands downlinkBand );
 
-double getCassiniTurnaroundRatio( );
+/*!
+ * Returns the Cassini turnaround ratio for Ka uplink and downlink bands, according to Moyer (2000), section 13.2.2.
+ */
+double getCassiniKaBandTurnaroundRatio( );
 
+/*!
+ * Returns the Cassini turnaround ratio as a function of the uplink and downlink band. Returns the Cassini-specific
+ * turnaround ratio for Ka band uplink and downlink, and the default DSN turnaround ratios for other bands, according
+ * to Moyer (2000), section 13.2.2.
+ *
+ * @param uplinkBand Uplink band
+ * @param downlinkBand Downlink band
+ * @return Turnaround ratio
+ */
 double getCassiniTurnaroundRatio( FrequencyBands uplinkBand, FrequencyBands downlinkBand );
 
+/*!
+ * Converts a vector of frequency bands to the corresponding vector of doubles, using the correspondence between each
+ * enum and an integer.
+ *
+ * @param frequencyBands Vector of frequency bands
+ * @return Vector of doubles
+ */
 std::vector< double > convertFrequencyBandsToDoubleVector( const std::vector< FrequencyBands >& frequencyBands );
 
+/*!
+ * Converts a vector of doubles to the corresponding vector of frequency bands, using the correspondence between each
+ * enum and an integer.
+ *
+ * @param frequencyBands Vector of doubles
+ * @return Vector of frequency bands
+ */
 std::vector< FrequencyBands > convertDoubleVectorToFrequencyBands( const std::vector< double >& frequencyBands );
 
 } // namespace observation_models

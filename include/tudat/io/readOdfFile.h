@@ -431,6 +431,8 @@ public:
     int uplinkCoderInPhaseTimeOffset_; // sec
     int compositeTwo_; // sec
 
+    int reservedBlock_;
+
 private:
 
     int spacecraftId_;
@@ -439,8 +441,6 @@ private:
     int referenceFrequencyLowPart_; // mHz
 
     int transmittingStationUplinkDelay_; // nsec
-
-    int reservedBlock_;
 };
 
 // TODO: test

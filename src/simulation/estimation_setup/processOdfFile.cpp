@@ -304,19 +304,6 @@ std::vector< double > ProcessedOdfFileContents::computeObservationTimesTdbFromJ2
                 basic_astrodynamics::utc_scale, basic_astrodynamics::tdb_scale, observationTimesUtcFromJ2000,
                 earthFixedPositions );
 
-//        for ( unsigned int i = 0; i < observationTimesUtcFromJ2000.size( ); ++i )
-//        {
-//            std::cout << std::setprecision(18) << "UTC_1950: " << observationTimesUtcFromEME1950.at(i) <<
-//            " UTC_J2000: " << observationTimesUtcFromJ2000.at(i) <<
-//            " TDB_J2000: " << observationTimesTdbFromJ2000.at(i) <<
-//            " Earth-fixed position: "  << earthFixedPositions.at(i).transpose( ) << std::endl;
-//        }
-
-//        std::cout << std::setprecision(18) << "UTC_1950: " << observationTimesUtcFromEME1950.at(0) <<
-//            " UTC_J2000: " << observationTimesUtcFromJ2000.at(0) <<
-//            " TDB_J2000: " << observationTimesTdbFromJ2000.at(0) <<
-//            " Earth-fixed position: "  << earthFixedPositions.at( 0 ).transpose( ) << std::endl;
-
         return observationTimesTdbFromJ2000;
     }
 

@@ -87,14 +87,21 @@ double getDsnDefaultTurnaroundRatios( FrequencyBands uplinkBand, FrequencyBands 
     return numerator / denominator;
 }
 
-double getCassiniTurnaroundRatio( )
+double getCassiniKaBandTurnaroundRatio( )
 {
     return 14.0 / 15.0;
 }
 
 double getCassiniTurnaroundRatio( FrequencyBands uplinkBand, FrequencyBands downlinkBand )
 {
-    return getCassiniTurnaroundRatio( );
+    if ( uplinkBand == ka_band && downlinkBand == ka_band )
+    {
+        return getCassiniKaBandTurnaroundRatio( );
+    }
+    else
+    {
+        return getDsnDefaultTurnaroundRatios( uplinkBand, downlinkBand );
+    }
 }
 
 std::vector< double > convertFrequencyBandsToDoubleVector( const std::vector< FrequencyBands >& frequencyBands )
