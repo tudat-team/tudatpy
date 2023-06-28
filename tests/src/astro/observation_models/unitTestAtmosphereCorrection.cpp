@@ -309,7 +309,7 @@ BOOST_AUTO_TEST_CASE( testSaastamoinenTroposphericCorrectionGodot )
 BOOST_AUTO_TEST_CASE( testTabulatedAndSaastamoinenTroposphericCorrectionsConsistency )
 {
     // Create bodies
-    spice_interface::loadStandardSpiceKernels( { "/Users/pipas/Documents/mro-spice/mro_psp43.bsp" } );
+    spice_interface::loadStandardSpiceKernels(  );
 
     std::vector< std::string > bodiesToCreate = { "Earth", "Mars" };
     simulation_setup::BodyListSettings bodySettings = simulation_setup::getDefaultBodySettings( bodiesToCreate );
@@ -325,13 +325,13 @@ BOOST_AUTO_TEST_CASE( testTabulatedAndSaastamoinenTroposphericCorrectionsConsist
     input_output::setDsnWeatherDataInGroundStations(
             bodies,
             std::vector< std::string >
-                    { "/Users/pipas/Documents/mro-data/wea/mromagr20170012017365_10.wea.txt",
-                      "/Users/pipas/Documents/mro-data/wea/mromagr20170012017365_40.wea.txt",
-                      "/Users/pipas/Documents/mro-data/wea/mromagr20170012017365_60.wea.txt" } );
+                    { tudat::paths::getTudatTestDataPath( ) + "mromagr20170012017365_10.wea.txt",
+                      tudat::paths::getTudatTestDataPath( ) + "mromagr20170012017365_40.wea.txt",
+                      tudat::paths::getTudatTestDataPath( ) + "mromagr20170012017365_60.wea.txt" } );
 
     // Load tabulated corrections data
     std::shared_ptr< input_output::CspRawFile > troposphericCspFile = std::make_shared< input_output::CspRawFile >(
-            "/Users/pipas/Documents/mro-data/tro/mromagr2017_091_2017_121.tro.txt" );
+            tudat::paths::getTudatTestDataPath( ) + "mromagr2017_091_2017_121.tro.txt" );
 
     // Create link ends
     LinkEnds linkEnds;
@@ -483,7 +483,6 @@ BOOST_AUTO_TEST_CASE( testTabulatedAndJakowskiIonosphericCorrectionsConsistency 
 
     // Create bodies
     spice_interface::loadStandardSpiceKernels(  );
-    spice_interface::loadSpiceKernelInTudat( "/Users/pipas/Documents/mro-spice/mro_psp43.bsp" );
 
     std::vector< std::string > bodiesToCreate = { "Earth", "Mars", "Sun" };
     simulation_setup::BodyListSettings bodySettings = simulation_setup::getDefaultBodySettings( bodiesToCreate );
@@ -514,7 +513,7 @@ BOOST_AUTO_TEST_CASE( testTabulatedAndJakowskiIonosphericCorrectionsConsistency 
 
     // Load tabulated corrections data
     std::shared_ptr< input_output::CspRawFile > ionosphericCspFile = std::make_shared< input_output::CspRawFile >(
-            "/Users/pipas/Documents/mro-data/ion/mromagr2017_091_2017_121.ion.txt" );
+            tudat::paths::getTudatTestDataPath( ) + "mromagr2017_091_2017_121.ion.txt" );
 
     // Define spacecraft name associated with ionospheric correction
     std::map< int, std::string > spacecraftNamePerSpacecraftId;

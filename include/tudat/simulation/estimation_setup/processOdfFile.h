@@ -185,7 +185,7 @@ public:
         else
         {
             // Spacecraft name selected to be "NAIF Id", which is equal to -"JPL Id" (for a spacecraft)
-            spacecraftName_ = std::to_string( - rawOdfDataVector.front( )->spacecraftId_ );
+            spacecraftName_ = std::to_string( - static_cast< int >( rawOdfDataVector.front( )->spacecraftId_ ) );
         }
 
         // Sort ODF data files
