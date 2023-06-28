@@ -158,7 +158,7 @@ BOOST_AUTO_TEST_CASE( testConsiderParameters )
 
 
     // Define parameters to estimate for non-sequential propagation / estimation
-    std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
+    std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames, considerParameterNames, parameterNamesAll;
     for( unsigned int i = 0; i < bodiesToPropagate.size( ); i++ )
     {
         parameterNames.push_back( std::make_shared< ArcWiseInitialTranslationalStateEstimatableParameterSettings< double > >(
@@ -167,7 +167,6 @@ BOOST_AUTO_TEST_CASE( testConsiderParameters )
         parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( bodiesToPropagate.at( i ), gravitational_parameter ) );
     }
 
-    std::vector< std::shared_ptr< EstimatableParameterSettings > > considerParameterNames;
     for( unsigned int i = 0; i < bodiesToPropagate.size( ); i++ )
     {
         considerParameterNames.push_back( std::make_shared< SphericalHarmonicEstimatableParameterSettings >(
@@ -179,7 +178,15 @@ BOOST_AUTO_TEST_CASE( testConsiderParameters )
             createParametersToEstimate< double >( parameterNames, bodies, propagatorSettings, considerParameterNames );
     printEstimatableParameterEntries( parameters );
 
-    std::cout << "size parameters to estimate: " << parameters->getFullParameterValues< double >( ).size( ) << "\n\n";
+    // Create parameters object with all parameters estimated
+    parameterNamesAll = parameterNames;
+    for ( unsigned int i = 0 ; i < considerParameterNames.size( ) ; i++ )
+    {
+        parameterNamesAll.push_back( considerParameterNames[ i ] );
+    }
+    std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersAll =
+            createParametersToEstimate< double >( parameterNamesAll, bodies, propagatorSettings );
+    printEstimatableParameterEntries( parametersAll );
 
     // Define links and observations.
     std::vector< observation_models::LinkEnds > linkEndsList;
@@ -210,25 +217,94 @@ BOOST_AUTO_TEST_CASE( testConsiderParameters )
                 observation_models::position_observable, linkEndsList[ i ], observationTimes, observation_models::observed_body ) );
     }
 
-    // Create orbit determination manager
+    // Create orbit determination managers
     OrbitDeterminationManager< > orbitDeterminationManager = OrbitDeterminationManager< >(
             bodies, parameters, observationSettingsList, propagatorSettings );
+    OrbitDeterminationManager< > orbitDeterminationManagerAll = OrbitDeterminationManager< >(
+            bodies, parametersAll, observationSettingsList, propagatorSettings );
 
     // Simulate observations
     std::shared_ptr< observation_models::ObservationCollection< > > observationsAndTimes = simulateObservations< >(
             measurementInput, orbitDeterminationManager.getObservationSimulators( ), bodies  );
+    std::shared_ptr< observation_models::ObservationCollection< > > observationsAndTimesAll = simulateObservations< >(
+            measurementInput, orbitDeterminationManagerAll.getObservationSimulators( ), bodies  );
+
+    // Define consider covariance
+    int nbConsiderParameters = parameters->getConsiderParameters( )->getEstimatedParameterSetSize( );
+    Eigen::VectorXd considerParametersValues = parameters->getConsiderParameters( )->getFullParameterValues< double >( );
+    Eigen::MatrixXd considerCovariance = Eigen::MatrixXd::Zero( nbConsiderParameters, nbConsiderParameters );
+    for ( int i = 0 ; i < nbConsiderParameters ; i++ )
+    {
+        considerCovariance( i, i ) = ( 0.1 * considerParametersValues[ i ] ) * ( 0.1 * considerParametersValues[ i ] );
+    }
+
+    // Define estimation input when estimating all parameters
+    std::shared_ptr< EstimationInput< double, double  > > estimationInputAll = std::make_shared< EstimationInput< double, double > >(
+            observationsAndTimesAll, Eigen::MatrixXd::Zero( 0, 0 ), std::make_shared< EstimationConvergenceChecker >( 1 ) );
+    std::shared_ptr< CovarianceAnalysisInput< double, double  > > covarianceInputAll = std::make_shared< CovarianceAnalysisInput< double, double > >(
+            observationsAndTimesAll, Eigen::MatrixXd::Zero( 0, 0 ) );
+
+    // Perform estimation for all parameters
+    std::shared_ptr< EstimationOutput< double, double > > estimationOutputAll = orbitDeterminationManagerAll.estimateParameters( estimationInputAll );
+    std::shared_ptr< CovarianceAnalysisOutput< double, double > > covarianceOutputAll = orbitDeterminationManagerAll.computeCovariance( covarianceInputAll );
+
+    // Retrieve covariance matrix when estimating all parameters
+    Eigen::MatrixXd covarianceAll = covarianceOutputAll->getUnnormalizedCovarianceMatrix( );
 
     // Define estimation input
-    std::shared_ptr< EstimationInput< double, double  > > estimationInput =
-            std::make_shared< EstimationInput< double, double > >( observationsAndTimes, Eigen::MatrixXd::Zero( 0, 0 ), std::make_shared< EstimationConvergenceChecker >( 1 ) );
+    std::shared_ptr< EstimationInput< double, double  > > estimationInput = std::make_shared< EstimationInput< double, double > >(
+            observationsAndTimes, Eigen::MatrixXd::Zero( 0, 0 ), std::make_shared< EstimationConvergenceChecker >( 1 ), considerCovariance );
+    std::shared_ptr< CovarianceAnalysisInput< double, double  > > covarianceInput = std::make_shared< CovarianceAnalysisInput< double, double > >(
+            observationsAndTimes, Eigen::MatrixXd::Zero( 0, 0 ), considerCovariance );
 
     // Perform estimation
+    std::shared_ptr< CovarianceAnalysisOutput< double, double> > covarianceOutput = orbitDeterminationManager.computeCovariance( covarianceInput );
     std::shared_ptr< EstimationOutput< double, double > > estimationOutput = orbitDeterminationManager.estimateParameters( estimationInput );
 
     // Retrieve covariance matrix
-    Eigen::MatrixXd covariance = estimationOutput->getUnnormalizedCovarianceMatrix( );
-    std::cout << "size cov: " << covariance.rows( ) << "\n\n";
+    Eigen::MatrixXd covariance = covarianceOutput->getUnnormalizedCovarianceMatrix( );
+    int nbEstimatedParameters = covariance.rows( );
 
+    // Retrieve partials consider parameters
+    Eigen::MatrixXd fullPartials = covarianceOutputAll->getUnnormalizedDesignMatrix( );
+        unsigned int nbObservations = fullPartials.rows( );
+    Eigen::MatrixXd extractedConsiderPartials = fullPartials.block( 0, nbEstimatedParameters, nbObservations, nbConsiderParameters );
+    Eigen::MatrixXd extractedEstimatedPartials = fullPartials.block( 0, 0, nbObservations, nbEstimatedParameters );
+    Eigen::MatrixXd weightedEstimatedPartials = linear_algebra::multiplyDesignMatrixByDiagonalWeightMatrix(
+            extractedEstimatedPartials, estimationInput->getWeightsMatrixDiagonals( ) );
+
+    // Compute covariance with consider parameters contribution manually.
+    // Compute normalised inverse covariance (w/o consider parameters)
+    Eigen::MatrixXd normalisedEstimatedPartials = covarianceOutputAll->getNormalizedDesignMatrix( ).block( 0, 0, nbObservations, nbEstimatedParameters );
+    Eigen::MatrixXd weightedNormalisedEstimatedPartials = linear_algebra::multiplyDesignMatrixByDiagonalWeightMatrix(
+            normalisedEstimatedPartials, estimationInput->getWeightsMatrixDiagonals( ) );
+    Eigen::MatrixXd computedNormalisedInvCovariance = normalisedEstimatedPartials.transpose( ) * weightedNormalisedEstimatedPartials;
+    Eigen::VectorXd normalisationTerms = covarianceOutputAll->designMatrixTransformationDiagonal_.segment( 0, nbEstimatedParameters );
+
+    // Invert covariance matrix
+    Eigen::MatrixXd computedCovariance = computedNormalisedInvCovariance.inverse( );
+    // Unnormalise covariance matrix (w/o consider parameters)
+    for ( int i = 0 ; i < normalisationTerms.rows( ) ; i++ )
+    {
+        for ( int j = 0 ; j < normalisationTerms.rows( ); j++ )
+        {
+            computedCovariance( i, j ) /= ( normalisationTerms( i ) * normalisationTerms( j ) );
+        }
+    }
+    // Add contribution consider parameters
+    Eigen::MatrixXd computedCovarianceConsiderParameters = computedCovariance
+            + ( computedCovariance * weightedEstimatedPartials.transpose( ) )
+            * ( extractedConsiderPartials * considerCovariance * extractedConsiderPartials.transpose( ) )
+            * ( computedCovariance * weightedEstimatedPartials.transpose( ) ).transpose( );
+
+    // Compare with manually computed covariance
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( covariance, computedCovarianceConsiderParameters, 1.0e-12 );
+
+    Eigen::VectorXd rightHandSide = weightedNormalisedEstimatedPartials.transpose( ) * extractedConsiderPartials * considerParametersValues;
+    Eigen::MatrixXd leftHandSide = computedNormalisedInvCovariance;
+
+    Eigen::VectorXd leastSquaresOutput = linear_algebra::solveSystemOfEquationsWithSvd( leftHandSide, rightHandSide );
+    std::cout << "leastSquaresOutput: " << leastSquaresOutput.cwiseQuotient( normalisationTerms ).transpose( ) << "\n\n";
 
 }
 
