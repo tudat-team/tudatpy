@@ -723,7 +723,7 @@ public:
                                        designMatrixEstimatedParameters,
                                        residuals, estimationInput->getWeightsMatrixDiagonals( ),
                                        normalizedInverseAprioriCovarianceMatrix, 1, 1.0E8, constraintStateMultiplier, constraintRightHandSide,
-                                       designMatrixConsiderParameters, considerParametersValues_ ) );
+                                       designMatrixConsiderParameters, estimationInput->considerParametersDeviations_ ) );
 //                std::cout << "after least-squares adjustment" << "\n\n";
 
                 if( constraintStateMultiplier.rows( ) > 0 )

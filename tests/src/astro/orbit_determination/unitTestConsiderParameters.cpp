@@ -258,8 +258,9 @@ BOOST_AUTO_TEST_CASE( testConsiderParameters )
     Eigen::MatrixXd covarianceAll = covarianceOutputAll->getUnnormalizedCovarianceMatrix( );
 
     // Define estimation input with consider parameters
+    Eigen::VectorXd considerParametersDeviations = 0.01 * considerParametersValues;
     std::shared_ptr< EstimationInput< double, double  > > estimationInput = std::make_shared< EstimationInput< double, double > >(
-            observationsAndTimes, Eigen::MatrixXd::Zero( 0, 0 ), std::make_shared< EstimationConvergenceChecker >( 1 ), considerCovariance );
+            observationsAndTimes, Eigen::MatrixXd::Zero( 0, 0 ), std::make_shared< EstimationConvergenceChecker >( 1 ), considerCovariance, considerParametersDeviations );
     std::shared_ptr< CovarianceAnalysisInput< double, double  > > covarianceInput = std::make_shared< CovarianceAnalysisInput< double, double > >(
             observationsAndTimes, Eigen::MatrixXd::Zero( 0, 0 ), considerCovariance );
 
@@ -308,10 +309,10 @@ BOOST_AUTO_TEST_CASE( testConsiderParameters )
 //    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( covariance, computedCovarianceConsiderParameters, 1.0e-12 );
 
     // Manually perform full estimation step
-    Eigen::VectorXd rightHandSide = weightedNormalisedEstimatedPartials.transpose( ) * extractedConsiderPartials * considerParametersValues;
+    Eigen::VectorXd rightHandSide = weightedNormalisedEstimatedPartials.transpose( ) * extractedConsiderPartials * considerParametersDeviations;
     Eigen::MatrixXd leftHandSide = computedNormalisedInvCovariance;
 
-    Eigen::VectorXd leastSquaresOutput = linear_algebra::solveSystemOfEquationsWithSvd( leftHandSide, rightHandSide );
+    Eigen::VectorXd leastSquaresOutput = linear_algebra::solveSystemOfEquationsWithSvd( leftHandSide, rightHandSide, 1, 1.0e8 );
     Eigen::VectorXd computedUpdateParameters = leastSquaresOutput.cwiseQuotient( normalisationTerms );
     std::cout << "leastSquaresOutput: " << ( computedUpdateParameters - updateParameters ).transpose( ) << "\n\n";
 
