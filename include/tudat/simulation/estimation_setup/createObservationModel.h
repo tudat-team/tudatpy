@@ -1936,7 +1936,8 @@ public:
             observationModel = std::make_shared<
                     DsnNWayAveragedDopplerObservationModel< ObservationScalarType, TimeType > >(
                         linkEnds, arcStartObservationModel, arcEndObservationModel,
-                        bodies.getBody( linkEnds.at( observation_models::transmitter ).bodyName_ ),
+                        bodies.getBody( linkEnds.at( observation_models::transmitter ).bodyName_ )->getGroundStation(
+                                linkEnds.at( observation_models::transmitter ).stationName_ )->getTransmittingFrequencyCalculator( ),
                         bodies.getBody( linkEnds.at( observation_models::retransmitter ).bodyName_ )->getVehicleSystems(
                                 )->getTransponderTurnaroundRatio( ),
                         observationBias );

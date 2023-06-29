@@ -54,6 +54,7 @@ void runSimulation(
         std::vector< LightTimeCorrectionType > lightTimeCorrectionTypes,
         int sphericalHarmonicsOrder,
         double integrationTolerance,
+        std::pair< double, double > integrationMinMaxStep,
         int estimationMaxIterations )
 {
 
@@ -184,8 +185,13 @@ void runSimulation(
 
     // Create integrator settings
     double initialStep = 5.0;
+    if ( integrationMinMaxStep.first == integrationMinMaxStep.second )
+    {
+        initialStep = integrationMinMaxStep.first;
+    }
     std::shared_ptr< IntegratorSettings< Time > > integratorSettings = rungeKuttaVariableStepSettingsScalarTolerances< Time >(
-            initialStep, rungeKutta87DormandPrince, 1e-16, 1e16, integrationTolerance, integrationTolerance );
+            initialStep, rungeKutta87DormandPrince, integrationMinMaxStep.first,
+            integrationMinMaxStep.second, integrationTolerance, integrationTolerance );
 
     // Set initial state from ephemerides
     Time initialPropagationTime = initialEphemerisTime;
@@ -352,6 +358,7 @@ void runSimulation(
                     observedObservationCollection,
                     Eigen::MatrixXd::Zero( 0, 0 ),
                     std::make_shared< EstimationConvergenceChecker >( estimationMaxIterations ) );
+    estimationInput->saveStateHistoryForEachIteration_ = true;
 
     // Perform estimation
     std::shared_ptr< EstimationOutput< long double, Time > > estimationOutput = orbitDeterminationManager.estimateParameters(
@@ -361,8 +368,8 @@ void runSimulation(
     std::shared_ptr< propagators::SimulationResults< long double, Time > > postFitSimulationResults =
             estimationOutput->getSimulationResults( ).at( estimationOutput->bestIteration_ );
     std::map < Time, Eigen::Matrix < long double, Eigen::Dynamic, 1 > > propagatedStateHistoryPostFit =
-            std::dynamic_pointer_cast< SingleArcSimulationResults< long double, Time > >(
-                    postFitSimulationResults )->getEquationsOfMotionNumericalSolution( );
+            std::dynamic_pointer_cast< SingleArcVariationalSimulationResults< long double, Time > >(
+                    postFitSimulationResults )->getDynamicsResults( )->getEquationsOfMotionNumericalSolution( );
     std::map< long double, Eigen::Matrix < long double, Eigen::Dynamic, 1 > > propagatedStateHistoryPostFitToWrite;
     for ( auto it = propagatedStateHistoryPostFit.begin( ); it != propagatedStateHistoryPostFit.end( ); ++it )
     {
@@ -392,6 +399,15 @@ void runSimulation(
     std::ofstream file3(saveDirectory + "parameters_" + fileTag + ".txt");
     file3 << std::setprecision( 21 ) << parameterHistory;
     file3.close();
+
+    // Retrieve covariance matrix
+    Eigen::MatrixXd normalizedCovarianceMatrix = estimationOutput->getNormalizedCovarianceMatrix( );
+    Eigen::MatrixXd unnormalizedCovarianceMatrix = estimationOutput->getUnnormalizedCovarianceMatrix( );
+    std::ofstream file4(saveDirectory + "covariance_" + fileTag + ".txt");
+    file4 << std::setprecision( 17 ) << "Normalized covariance matrix: " << std::endl << normalizedCovarianceMatrix;
+    file4 << std::endl << std::endl;
+    file4 << "Unnormalized covariance matrix: " << std::endl << unnormalizedCovarianceMatrix;
+    file4.close( );
 
     std::ofstream file2(saveDirectory + "observationsStartAndSize_" + fileTag + ".txt");
     std::map< ObservableType, std::map< int, std::vector< std::pair< int, int > > > > observationSetStartAndSize =
@@ -448,6 +464,8 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
     Time initialEphemerisTime = Time( 185976000 - 1.0 * 86400.0 ); // End of November 2005
     Time finalEphemerisTime = Time( 186580800 + 1.0 * 86400.0 ); // End of November 2005
 
+    std::pair< double, double > integrationMinMaxStep = std::make_pair( 1e-16, 1e16 );
+
     int testCase = 4;
 
     if ( testCase == 0 )
@@ -459,7 +477,8 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
         runSimulation( odfFiles, tropCorrectionFiles, ionCorrectionFiles, weatherFiles,
                        saveDirectory, fileTag + "_allCorr",
                        initialEphemerisTime, finalEphemerisTime, true, ephemeridesTimeStep,
-                       { first_order_relativistic, tabulated_tropospheric, tabulated_ionospheric }, 10, 1e-11, 0 );
+                       { first_order_relativistic, tabulated_tropospheric, tabulated_ionospheric }, 10, 1e-11,
+                       integrationMinMaxStep, 0 );
     }
     else if ( testCase == 1 )
     {
@@ -470,27 +489,33 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
         runSimulation( odfFiles, tropCorrectionFiles, ionCorrectionFiles, weatherFiles,
                        saveDirectory, fileTag + "_allCorrSh10",
                        initialEphemerisTime, finalEphemerisTime, true, ephemeridesTimeStep,
-                       { first_order_relativistic, tabulated_tropospheric, tabulated_ionospheric }, 10, 1e-11, 0 );
+                       { first_order_relativistic, tabulated_tropospheric, tabulated_ionospheric }, 10, 1e-11,
+                       integrationMinMaxStep, 0 );
         runSimulation( odfFiles, tropCorrectionFiles, ionCorrectionFiles, weatherFiles,
                        saveDirectory, fileTag + "_allCorrSh20",
                        initialEphemerisTime, finalEphemerisTime, true, ephemeridesTimeStep,
-                       { first_order_relativistic, tabulated_tropospheric, tabulated_ionospheric }, 20, 1e-11, 0 );
+                       { first_order_relativistic, tabulated_tropospheric, tabulated_ionospheric }, 20, 1e-11,
+                       integrationMinMaxStep, 0 );
         runSimulation( odfFiles, tropCorrectionFiles, ionCorrectionFiles, weatherFiles,
                        saveDirectory, fileTag + "_allCorrSh30",
                        initialEphemerisTime, finalEphemerisTime, true, ephemeridesTimeStep,
-                       { first_order_relativistic, tabulated_tropospheric, tabulated_ionospheric }, 30, 1e-11, 0 );
+                       { first_order_relativistic, tabulated_tropospheric, tabulated_ionospheric }, 30, 1e-11,
+                       integrationMinMaxStep, 0 );
         runSimulation( odfFiles, tropCorrectionFiles, ionCorrectionFiles, weatherFiles,
                        saveDirectory, fileTag + "_allCorrSh40", \
                        initialEphemerisTime, finalEphemerisTime, true, ephemeridesTimeStep,
-                       { first_order_relativistic, tabulated_tropospheric, tabulated_ionospheric }, 40, 1e-11, 0 );
+                       { first_order_relativistic, tabulated_tropospheric, tabulated_ionospheric }, 40, 1e-11,
+                       integrationMinMaxStep, 0 );
         runSimulation( odfFiles, tropCorrectionFiles, ionCorrectionFiles, weatherFiles,
                        saveDirectory, fileTag + "_allCorrSh50",
                        initialEphemerisTime, finalEphemerisTime, true, ephemeridesTimeStep,
-                       { first_order_relativistic, tabulated_tropospheric, tabulated_ionospheric }, 50, 1e-11, 0 );
+                       { first_order_relativistic, tabulated_tropospheric, tabulated_ionospheric }, 50, 1e-11,
+                       integrationMinMaxStep, 0 );
         runSimulation( odfFiles, tropCorrectionFiles, ionCorrectionFiles, weatherFiles,
                        saveDirectory, fileTag + "_allCorrSh60",
                        initialEphemerisTime, finalEphemerisTime, true, ephemeridesTimeStep,
-                       { first_order_relativistic, tabulated_tropospheric, tabulated_ionospheric }, 60, 1e-11, 0 );
+                       { first_order_relativistic, tabulated_tropospheric, tabulated_ionospheric }, 60, 1e-11,
+                       integrationMinMaxStep, 0 );
     }
     else if ( testCase == 2 )
     {
@@ -501,35 +526,43 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
         runSimulation( odfFiles, tropCorrectionFiles, ionCorrectionFiles, weatherFiles,
                        saveDirectory, fileTag + "_allCorrSh50Tol5",
                        initialEphemerisTime, finalEphemerisTime, true, ephemeridesTimeStep,
-                       { first_order_relativistic, tabulated_tropospheric, tabulated_ionospheric }, 50, 1e-5, 0 );
+                       { first_order_relativistic, tabulated_tropospheric, tabulated_ionospheric }, 50, 1e-5,
+                       integrationMinMaxStep, 0 );
         runSimulation( odfFiles, tropCorrectionFiles, ionCorrectionFiles, weatherFiles,
                        saveDirectory, fileTag + "_allCorrSh50Tol6",
                        initialEphemerisTime, finalEphemerisTime, true, ephemeridesTimeStep,
-                       { first_order_relativistic, tabulated_tropospheric, tabulated_ionospheric }, 50, 1e-6, 0 );
+                       { first_order_relativistic, tabulated_tropospheric, tabulated_ionospheric }, 50, 1e-6,
+                       integrationMinMaxStep, 0 );
         runSimulation( odfFiles, tropCorrectionFiles, ionCorrectionFiles, weatherFiles,
                        saveDirectory, fileTag + "_allCorrSh50Tol7",
                        initialEphemerisTime, finalEphemerisTime, true, ephemeridesTimeStep,
-                       { first_order_relativistic, tabulated_tropospheric, tabulated_ionospheric }, 50, 1e-7, 0 );
+                       { first_order_relativistic, tabulated_tropospheric, tabulated_ionospheric }, 50, 1e-7,
+                       integrationMinMaxStep, 0 );
         runSimulation( odfFiles, tropCorrectionFiles, ionCorrectionFiles, weatherFiles,
                        saveDirectory, fileTag + "_allCorrSh50Tol8",
                        initialEphemerisTime, finalEphemerisTime, true, ephemeridesTimeStep,
-                       { first_order_relativistic, tabulated_tropospheric, tabulated_ionospheric }, 50, 1e-8, 0 );
+                       { first_order_relativistic, tabulated_tropospheric, tabulated_ionospheric }, 50, 1e-8,
+                       integrationMinMaxStep, 0 );
         runSimulation( odfFiles, tropCorrectionFiles, ionCorrectionFiles, weatherFiles,
                        saveDirectory, fileTag + "_allCorrSh50Tol9",
                        initialEphemerisTime, finalEphemerisTime, true, ephemeridesTimeStep,
-                       { first_order_relativistic, tabulated_tropospheric, tabulated_ionospheric }, 50, 1e-9, 0 );
+                       { first_order_relativistic, tabulated_tropospheric, tabulated_ionospheric }, 50, 1e-9,
+                       integrationMinMaxStep, 0 );
         runSimulation( odfFiles, tropCorrectionFiles, ionCorrectionFiles, weatherFiles,
                        saveDirectory, fileTag + "_allCorrSh50Tol10",
                        initialEphemerisTime, finalEphemerisTime, true, ephemeridesTimeStep,
-                       { first_order_relativistic, tabulated_tropospheric, tabulated_ionospheric }, 50, 1e-10, 0 );
+                       { first_order_relativistic, tabulated_tropospheric, tabulated_ionospheric }, 50, 1e-10,
+                       integrationMinMaxStep, 0 );
         runSimulation( odfFiles, tropCorrectionFiles, ionCorrectionFiles, weatherFiles,
                        saveDirectory, fileTag + "_allCorrSh50Tol11",
                        initialEphemerisTime, finalEphemerisTime, true, ephemeridesTimeStep,
-                       { first_order_relativistic, tabulated_tropospheric, tabulated_ionospheric }, 50, 1e-11, 0 );
+                       { first_order_relativistic, tabulated_tropospheric, tabulated_ionospheric }, 50, 1e-11,
+                       integrationMinMaxStep, 0 );
         runSimulation( odfFiles, tropCorrectionFiles, ionCorrectionFiles, weatherFiles,
                        saveDirectory, fileTag + "_allCorrSh50Tol12",
                        initialEphemerisTime, finalEphemerisTime, true, ephemeridesTimeStep,
-                       { first_order_relativistic, tabulated_tropospheric, tabulated_ionospheric }, 50, 1e-12, 0 );
+                       { first_order_relativistic, tabulated_tropospheric, tabulated_ionospheric }, 50, 1e-12,
+                       integrationMinMaxStep, 0 );
     }
     else if ( testCase == 3)
     {
@@ -538,15 +571,18 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
         runSimulation( odfFiles, tropCorrectionFiles, ionCorrectionFiles, weatherFiles,
                        saveDirectory, fileTag + "_allCorrSh50Tol10",
                        initialEphemerisTime, finalEphemerisTime, true, ephemeridesTimeStep,
-                       { first_order_relativistic, tabulated_tropospheric, tabulated_ionospheric }, 50, 1e-10, 0 );
+                       { first_order_relativistic, tabulated_tropospheric, tabulated_ionospheric }, 50, 1e-10,
+                       integrationMinMaxStep, 0 );
         runSimulation( odfFiles, tropCorrectionFiles, ionCorrectionFiles, weatherFiles,
                        saveDirectory, fileTag + "_allCorrSh40Tol10",
                        initialEphemerisTime, finalEphemerisTime, true, ephemeridesTimeStep,
-                       { first_order_relativistic, tabulated_tropospheric, tabulated_ionospheric }, 40, 1e-10, 0 );
+                       { first_order_relativistic, tabulated_tropospheric, tabulated_ionospheric }, 40, 1e-10,
+                       integrationMinMaxStep, 0 );
         runSimulation( odfFiles, tropCorrectionFiles, ionCorrectionFiles, weatherFiles,
                        saveDirectory, fileTag + "_allCorrSh60Tol10",
                        initialEphemerisTime, finalEphemerisTime, true, ephemeridesTimeStep,
-                       { first_order_relativistic, tabulated_tropospheric, tabulated_ionospheric }, 60, 1e-10, 0 );
+                       { first_order_relativistic, tabulated_tropospheric, tabulated_ionospheric }, 60, 1e-10,
+                       integrationMinMaxStep, 0 );
     }
     else if ( testCase == 4)
     {
@@ -555,12 +591,17 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
 
 //        runSimulation( odfFiles, tropCorrectionFiles, ionCorrectionFiles, weatherFiles,
 //                       saveDirectory, fileTag + "_allCorrSh120Tol10Moons", true, ephemeridesTimeStep,
-//                       { first_order_relativistic, tabulated_tropospheric, tabulated_ionospheric }, 120, 1e-10, 5 );
+//                       { first_order_relativistic, tabulated_tropospheric, tabulated_ionospheric }, 120, 1e-10, integrationMinMaxStep, 5 );
 
         runSimulation( odfFiles, tropCorrectionFiles, ionCorrectionFiles, weatherFiles,
                        saveDirectory, fileTag + "_noCorrSh120Tol10Moons",
                        initialEphemerisTime, finalEphemerisTime, true, ephemeridesTimeStep,
-                       { }, 120, 1e-10, 5 );
+                       { }, 120, 1e-10, integrationMinMaxStep, 5 );
+
+//        runSimulation( odfFiles, tropCorrectionFiles, ionCorrectionFiles, weatherFiles,
+//                       saveDirectory, fileTag + "_noCorrSh120Tol10MoonsStep20",
+//                       initialEphemerisTime, finalEphemerisTime, true, ephemeridesTimeStep,
+//                       { }, 120, 1e16, std::make_pair( 20.0, 20.0 ), 1 );
     }
 
 

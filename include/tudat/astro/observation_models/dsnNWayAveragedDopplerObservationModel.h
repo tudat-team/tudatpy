@@ -148,15 +148,15 @@ public:
             const LinkEnds& linkEnds,
             const std::shared_ptr< NWayRangeObservationModel< ObservationScalarType, TimeType > > arcStartObservationModel,
             const std::shared_ptr< NWayRangeObservationModel< ObservationScalarType, TimeType > > arcEndObservationModel,
-            const std::shared_ptr< simulation_setup::Body > bodyWithGroundStations,
+            const std::shared_ptr< ground_stations::StationFrequencyInterpolator > transmittingFrequencyCalculator,
             const std::function< double ( observation_models::FrequencyBands uplinkBand,
                     observation_models::FrequencyBands downlinkBand ) >& turnaroundRatio,
             const std::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = nullptr ):
         ObservationModel< 1, ObservationScalarType, TimeType >( dsn_n_way_averaged_doppler , linkEnds, observationBiasCalculator),
         arcStartObservationModel_( arcStartObservationModel ),
         arcEndObservationModel_( arcEndObservationModel ),
-        bodyWithGroundStations_( bodyWithGroundStations ),
         numberOfLinkEnds_( linkEnds.size( ) ),
+        transmittingFrequencyCalculator_( transmittingFrequencyCalculator ),
         turnaroundRatio_( turnaroundRatio )
     {
         if( !std::is_same< Time, TimeType >::value )
@@ -255,9 +255,8 @@ public:
         TimeType transmissionStartTime = receptionStartTime - startLightTime;
         TimeType transmissionEndTime = receptionEndTime - endLightTime;
 
-        ObservationScalarType transmitterFrequencyIntegral = bodyWithGroundStations_->getGroundStation(
-                this->linkEnds_.at( observation_models::transmitter ).stationName_
-                )->getTransmittingFrequencyCalculator( )->template getTemplatedFrequencyIntegral< ObservationScalarType, TimeType >(
+        ObservationScalarType transmitterFrequencyIntegral =
+                transmittingFrequencyCalculator_->template getTemplatedFrequencyIntegral< ObservationScalarType, TimeType >(
                         transmissionStartTime, transmissionEndTime );
 
         // Moyer (2000), eq. 13-54
@@ -302,11 +301,11 @@ private:
     // N-way range observation model associated with the end of the Doppler integration time.
     std::shared_ptr< NWayRangeObservationModel< ObservationScalarType, TimeType > > arcEndObservationModel_;
 
-    // Body object where the ground stations are located.
-    std::shared_ptr< simulation_setup::Body > bodyWithGroundStations_;
-
     // Number of link ends
     unsigned int numberOfLinkEnds_;
+
+    // Object returning the transmitted frequency as the transmitting link end
+    std::shared_ptr< ground_stations::StationFrequencyInterpolator > transmittingFrequencyCalculator_;
 
     // Function returning the turnaround ratio for given uplink and downlink bands
     std::function< double ( FrequencyBands uplinkBand, FrequencyBands downlinkBand ) > turnaroundRatio_;
