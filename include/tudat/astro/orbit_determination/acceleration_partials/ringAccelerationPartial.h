@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2019, Delft University of Technology
+/*    Copyright (c) 2010-2023, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -8,23 +8,20 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef TUDAT_POLYHEDRONACCELERATIONPARTIAL_H
-#define TUDAT_POLYHEDRONACCELERATIONPARTIAL_H
+#ifndef TUDAT_RINGACCELERATIONPARTIAL_H
+#define TUDAT_RINGACCELERATIONPARTIAL_H
 
-#include <tudat/astro/gravitation/polyhedronGravityField.h>
-#include "tudat/astro/gravitation/polyhedronGravityModel.h"
+#include "tudat/astro/gravitation/ringGravityModel.h"
+#include "tudat/astro/gravitation/ringGravityField.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/accelerationPartial.h"
 #include "tudat/astro/orbit_determination/observation_partials/rotationMatrixPartial.h"
-#include "tudat/astro/gravitation/polyhedronGravityField.h"
-
-#include "tudat/math/basic/coordinateConversions.h"
 
 namespace tudat
 {
 namespace acceleration_partials
 {
 
-class PolyhedronGravityPartial: public AccelerationPartial
+class RingGravityPartial: public AccelerationPartial
 {
 public:
 
@@ -36,20 +33,20 @@ public:
      *  wrt which a partial is to be taken.
      *  \param acceleratedBody Name of body undergoing acceleration.
      *  \param acceleratingBody Name of body exerting acceleration.
-     *  \param accelerationModel Spherical harmonic gravity acceleration model from which acceleration is calculated wrt
+     *  \param accelerationModel Ring gravity acceleration model from which acceleration is calculated wrt
      *  which the object being constructed is to calculate partials.
      *  \param rotationMatrixPartials Map of RotationMatrixPartial, one for each paramater representing a property of the
      *  rotation of the body exerting the acceleration wrt which an acceleration partial will be calculated.
      */
-    PolyhedronGravityPartial(
+    RingGravityPartial(
         const std::string& acceleratedBody,
         const std::string& acceleratingBody,
-        const std::shared_ptr< gravitation::PolyhedronGravitationalAccelerationModel > accelerationModel,
+        const std::shared_ptr< gravitation::RingGravitationalAccelerationModel > accelerationModel,
         const observation_partials::RotationMatrixPartialNamedList& rotationMatrixPartials =
             observation_partials::RotationMatrixPartialNamedList( ) );
 
     //! Destructor
-    ~PolyhedronGravityPartial( ){ }
+    ~RingGravityPartial( ){ }
 
     //! Function for updating the partial object to current state and time.
     /*!
@@ -193,6 +190,21 @@ public:
 
 private:
 
+    //! Current body-fixed (w.r.t body exerting acceleration) position of body undergoing acceleration
+    /*!
+     *  Current body-fixed (w.r.t body exerting acceleration) position of body undergoing acceleration,
+     *  set by update( time ) function.
+     */
+    Eigen::Vector3d bodyFixedPosition_;
+
+    //! Current spherical coordinate of body undergoing acceleration
+    /*!
+     *  Current spherical coordinate of body undergoing acceleration, in reference frame fixed to body exerting acceleration.
+     *  Order of components is radial distance (from center of body), latitude, longitude. Note that the the second entry
+     *  differs from the direct output of the cartesian -> spherical coordinates, which produces a colatitude.
+     */
+    Eigen::Vector3d bodyFixedSphericalPosition_;
+
     //! The current partial of the acceleration wrt the position of the body undergoing the acceleration.
     /*!
      *  The current partial of the acceleration wrt the position of the body undergoing the acceleration.
@@ -220,17 +232,11 @@ private:
     //! Function to return the gravitational parameter used for calculating the acceleration.
     std::function< double( ) > gravitationalParameterFunction_;
 
-    //! Function to return the volume used for calculating the acceleration.
-    std::function< double( ) > volumeFunction_;
+    //! Function to return the ring radius used for calculating the acceleration.
+    std::function< double( ) > ringRadiusFunction_;
 
-    //!  Polyhedron cache for this acceleration
-    std::shared_ptr< gravitation::PolyhedronGravityCache > polyhedronCache_;
-
-    //! Polyhedron facets dyads.
-    std::vector< Eigen::MatrixXd > facetDyads_;
-
-    //! Polyhedron edge dyads.
-    std::vector< Eigen::MatrixXd > edgeDyads_;
+    //! Ring gravity cache for this acceleration
+    std::shared_ptr< gravitation::RingGravityCache > ringCache_;
 
     //! Function returning position of body undergoing acceleration.
     std::function< Eigen::Vector3d( ) > positionFunctionOfAcceleratedBody_;
@@ -266,4 +272,5 @@ private:
 
 } // namespace tudat
 
-#endif //TUDAT_POLYHEDRONACCELERATIONPARTIAL_H
+
+#endif //TUDAT_RINGACCELERATIONPARTIAL_H

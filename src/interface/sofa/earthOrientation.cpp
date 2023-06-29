@@ -158,7 +158,7 @@ double calculateEarthRotationAngleTemplated< Time >(
     int fullDaysSinceEpoch = currentUt1.getFullPeriods( ) * 3600 / TIME_NORMALIZATION_INTEGER_TERM / 24 ;
     int hoursIntoCurrentDay = hoursSinceEpoch - 24 * fullDaysSinceEpoch;
 
-    return calculateEarthRotationAngle( currentUt1.secondsIntoCurrentDay( ),
+    return calculateEarthRotationAngle( currentUt1.secondsSinceNoon( ),
                                         basic_astrodynamics::JULIAN_DAY_ON_J2000 + currentUt1.fullDaysSinceEpoch( ) );
 }
 

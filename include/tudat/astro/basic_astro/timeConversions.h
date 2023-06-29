@@ -40,7 +40,7 @@ enum TimeScales
     local_proper_time_scale = 7
 };
 
-const static double JULIAN_DAY_ON_J2000_INT = 2451545;
+const static int JULIAN_DAY_ON_J2000_INT = 2451545;
 
 //! Julian day at J2000, i.e. 01-01-2000, at 12:00 (in TT).
 const static double JULIAN_DAY_ON_J2000 = mathematical_constants::getFloatingInteger< double >( JULIAN_DAY_ON_J2000_INT );
@@ -55,6 +55,12 @@ const static long double JULIAN_DAY_ON_J2000_LONG = mathematical_constants::getF
  */
 template< typename TimeType >
 TimeType getJulianDayOnJ2000( );
+
+template< typename TimeType >
+constexpr TimeType getModifiedJulianDayOnJ2000( )
+{
+    return static_cast< TimeType >( 51544 ) + mathematical_constants::getFloatingFraction< TimeType >( 1, 2 );
+}
 
 //! Julian day at Modified Julain Date 0, i.e. Nov 17, 1858, 00:00.
 const static double JULIAN_DAY_AT_0_MJD = 2400000.5;
@@ -156,6 +162,17 @@ TimeScalarType convertSecondsSinceEpochToJulianDay(
     return ( secondsSinceEpoch / physical_constants::getJulianDay< TimeScalarType >( ) + epochSinceJulianDayZero );
 }
 
+inline int julianDayNumberFromDate(
+    int year, int month, int day )
+{
+    int a, m, y, leap_days;
+    a = (14 - month) / 12;
+    m = (month - 3) + (12 * a);
+    y = year + 4800 - a;
+    leap_days = (y / 4) - (y / 100) + (y / 400);
+    return day + (((153 * m) + 2) / 5) + (365 * y) + leap_days - 32045;
+
+}
 
 //! Compute Julian day from given date and time
 /*!
@@ -182,8 +199,7 @@ TimeScalarType convertCalendarDateToJulianDaysSinceEpoch( const int calendarYear
 {
     // Calculate julian day of calendar date.
     TimeScalarType julianDay =
-            static_cast< TimeScalarType >( boost::gregorian::date( calendarYear, calendarMonth, calendarDay ).
-                                           julian_day( ) ) - referenceJulianDay;
+            static_cast< TimeScalarType >( julianDayNumberFromDate( calendarYear, calendarMonth, calendarDay ) - referenceJulianDay );
 
     //Compute day fraction
     const TimeScalarType dayFraction =
@@ -272,13 +288,91 @@ TimeScalarType convertSecondsSinceEpochToJulianCenturiesSinceEpoch( const TimeSc
     return convertSecondsSinceEpochToJulianYearsSinceEpoch( secondsSinceEpoch ) / 100.0;
 }
 
+
+template< typename ScalarType >
+void convertShiftedJulianDayToCalendarDate(
+    ScalarType shiftedJulianDay, int& day, int& month, int& year)
+{
+    // Declare temporary variables.
+    int L, M, N, P, Q;
+
+    // Execute algorithm.
+    if( shiftedJulianDay > 2299160 )    // after Oct 4, 1582
+    {
+        L = shiftedJulianDay + 68569;
+        M = (4 * L) / 146097;
+        L = L - ((146097 * M + 3) / 4);
+        N = (4000 * (L + 1)) / 1461001;
+        L = L - ((1461 * N) / 4) + 31;
+        P = (80 * L) / 2447;
+        day = int(L - (2447 * P) / 80);
+        L = P / 11;
+        month = int(P + 2 - 12 * L);
+        year = int(100 * (M - 49) + N + L);
+    }
+    else
+    {
+        P = shiftedJulianDay + 1402;
+        Q = (P - 1) / 1461;
+        L = P - 1461 * Q;
+        M = (L - 1) / 365 - L / 1461;
+        N = L - 365 * M + 30;
+        P = (80 * N) / 2447;
+        day = int(N - (2447 * P) / 80);
+        N = P / 11;
+        month = int( P + 2 - 12 * N );
+        year = int( 4 * Q + M + N - 4716 );
+        if(year <= 0)
+        {
+            --year;
+        }
+    }
+    // catch century/non-400 non-leap years
+    if( year > 1599 && !( year % 100 )
+        && ( year % 400 ) && month == 2 && day == 29 )
+    {
+        month = 3;
+        day = 1;
+    }
+}
+
+
+template< typename ScalarType >
+void convertJulianDayToCalendarDate( ScalarType julianDay,
+                                     int& day, int& month, int& year)
+{
+    // Execute algorithm.
+    ScalarType shiftedJulianDay = julianDay + mathematical_constants::getFloatingFraction< ScalarType >( 1, 2 );
+    convertShiftedJulianDayToCalendarDate( shiftedJulianDay, day, month, year );
+}
+
+template< typename ScalarType >
+void convertModifiedJulianDayToCalendarDate(
+    ScalarType modifiedJulianDay,
+    int& day, int& month, int& year)
+{
+    // Execute algorithm.
+    ScalarType shiftedJulianDay = modifiedJulianDay + mathematical_constants::getFloatingInteger< ScalarType >( 2400001 );
+    convertShiftedJulianDayToCalendarDate( shiftedJulianDay, day, month, year );
+}
+
 //! Function to convert julian day to gregorian calendar date.
 /*!
  *  Function to convert julian day to gregorian calendar date. Algorithm from (Wertz, 2009, Eq. 4.3)
  *  \param julianDay Julian day to convert to gregorian calendar date.
  *  \return Gregorian calendar date at given julian day.
  */
-boost::gregorian::date convertJulianDayToCalendarDate( const double julianDay );
+//! Function to convert julian day to gregorian calendar date.
+template< typename ScalarType >
+boost::gregorian::date convertJulianDayToCalendarDate( ScalarType julianDay )
+{
+
+    // Declare date variables.
+    int day, month, year;
+    convertJulianDayToCalendarDate( julianDay, day, month, year );
+
+    return boost::gregorian::date( year, month, static_cast< double >( day ) );
+}
 
 //! Function to convert gregorian calendar date and fraction of day to a number of julian days since a reference epoch.
 /*!
