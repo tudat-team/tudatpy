@@ -576,14 +576,28 @@ std::function< double ( std::vector< FrequencyBands >, double ) > createLinkFreq
     for ( auto retransmitterLinkEndsIt = ++linkEnds.begin( ); retransmitterLinkEndsIt->first != receivingLinkEndType;
             ++retransmitterLinkEndsIt )
     {
-        if ( bodies.getBody( retransmitterLinkEndsIt->second.bodyName_ )->getVehicleSystems( ) == nullptr )
+
+        std::shared_ptr< system_models::VehicleSystems > vehicleSystems;
+        // Check if retransmitter is a body
+        if ( retransmitterLinkEndsIt->second.stationName_ == "" )
+        {
+            vehicleSystems = bodies.getBody( retransmitterLinkEndsIt->second.bodyName_ )->getVehicleSystems( );
+        }
+        // If retransmitter is a ground station of the body
+        else
+        {
+            vehicleSystems = bodies.getBody( retransmitterLinkEndsIt->second.bodyName_ )->getGroundStation(
+                    retransmitterLinkEndsIt->second.stationName_ )->getVehicleSystems( );
+        }
+
+        if ( vehicleSystems == nullptr )
         {
             throw std::runtime_error(
                     "Error when creating link frequency function: vehicle systems are not defined for " +
-                    retransmitterLinkEndsIt->second.bodyName_ + "." );
+                    retransmitterLinkEndsIt->second.bodyName_ + "/" + retransmitterLinkEndsIt->second.stationName_ + " link end." );
         }
-        turnaroundRatioFunctions.push_back( bodies.getBody( retransmitterLinkEndsIt->second.bodyName_
-            )->getVehicleSystems( )->getTransponderTurnaroundRatio( ) );
+
+        turnaroundRatioFunctions.push_back( vehicleSystems->getTransponderTurnaroundRatio( ) );
     }
 
     std::function< double ( std::vector< FrequencyBands >, double ) > linkFrequencyFunction = [=] (

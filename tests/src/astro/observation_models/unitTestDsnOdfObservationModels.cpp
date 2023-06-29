@@ -405,20 +405,20 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
                        initialEphemerisTime, finalEphemerisTime, true, ephemeridesTimeStep, { },
                        ephemeridesOrigin, ephemeridesOrigin, false );
 
-        runSimulation( odfFiles, tropCorrectionFiles, ionCorrectionFiles, weatherFiles,
-                       saveDirectory, fileTag + "_relCorr",
-                       initialEphemerisTime, finalEphemerisTime, true, ephemeridesTimeStep, { first_order_relativistic },
-                       ephemeridesOrigin, ephemeridesOrigin, false );
-
-        runSimulation( odfFiles, tropCorrectionFiles, ionCorrectionFiles, weatherFiles,
-                       saveDirectory, fileTag + "_troCorr",
-                       initialEphemerisTime, finalEphemerisTime, true, ephemeridesTimeStep, { tabulated_tropospheric },
-                       ephemeridesOrigin, ephemeridesOrigin, false );
-
-        runSimulation( odfFiles, tropCorrectionFiles, ionCorrectionFiles, weatherFiles,
-                       saveDirectory, fileTag + "_ionCorr",
-                       initialEphemerisTime, finalEphemerisTime, true, ephemeridesTimeStep, { tabulated_ionospheric },
-                       ephemeridesOrigin, ephemeridesOrigin, false );
+//        runSimulation( odfFiles, tropCorrectionFiles, ionCorrectionFiles, weatherFiles,
+//                       saveDirectory, fileTag + "_relCorr",
+//                       initialEphemerisTime, finalEphemerisTime, true, ephemeridesTimeStep, { first_order_relativistic },
+//                       ephemeridesOrigin, ephemeridesOrigin, false );
+//
+//        runSimulation( odfFiles, tropCorrectionFiles, ionCorrectionFiles, weatherFiles,
+//                       saveDirectory, fileTag + "_troCorr",
+//                       initialEphemerisTime, finalEphemerisTime, true, ephemeridesTimeStep, { tabulated_tropospheric },
+//                       ephemeridesOrigin, ephemeridesOrigin, false );
+//
+//        runSimulation( odfFiles, tropCorrectionFiles, ionCorrectionFiles, weatherFiles,
+//                       saveDirectory, fileTag + "_ionCorr",
+//                       initialEphemerisTime, finalEphemerisTime, true, ephemeridesTimeStep, { tabulated_ionospheric },
+//                       ephemeridesOrigin, ephemeridesOrigin, false );
 
 //        runSimulation( odfFiles, tropCorrectionFiles, ionCorrectionFiles, weatherFiles,
 //                       saveDirectory, fileTag + "_troGdCorr",

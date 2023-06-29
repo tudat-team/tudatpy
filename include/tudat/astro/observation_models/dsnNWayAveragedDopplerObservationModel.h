@@ -51,8 +51,7 @@ namespace observation_models
  * @return Scaling factor
  */
 inline double getDsnNWayAveragedDopplerScalingFactor(
-        const simulation_setup::SystemOfBodies& bodies,
-        const LinkEnds& linkEnds,
+        const std::function< double ( std::vector< FrequencyBands > frequencyBands, double time ) > receivedFrequencyFunction,
         const observation_models::LinkEndType referenceLinkEnd,
         const std::vector< Eigen::Vector6d >& linkEndStates,
         const std::vector< double >& linkEndTimes,
@@ -72,16 +71,6 @@ inline double getDsnNWayAveragedDopplerScalingFactor(
                 "Error when retrieving integration ancillary settings for DSN N-way averaged Doppler observable: " +
                 std::string( caughtException.what( ) ) );
     }
-
-    if ( frequencyBands.size( ) != linkEnds.size( ) - 1 )
-    {
-        throw std::runtime_error(
-                "Error when retrieving frequency bands ancillary settings for DSN N-way averaged Doppler observable partials: "
-                "size (" + std::to_string( frequencyBands.size( ) ) + ") is inconsistent with number of links (" +
-                std::to_string( linkEnds.size( ) - 1 ) + ")." );
-    }
-    FrequencyBands uplinkBand = frequencyBands.at( 0 );
-    FrequencyBands downlinkBand = frequencyBands.at( 1 );
 
     double transmissionTime;
     if ( referenceLinkEnd == receiver )
@@ -113,40 +102,10 @@ inline double getDsnNWayAveragedDopplerScalingFactor(
                 getLinkEndTypeString( referenceLinkEnd ) + ") is not valid." );
     }
 
-    std::function< double ( observation_models::FrequencyBands, observation_models::FrequencyBands ) > turnaroundRatioFunction;
-    // Check if receiver retransmitter is a body
-    if ( linkEnds.at( observation_models::retransmitter ).stationName_ == "" )
-    {
-        if ( bodies.getBody( linkEnds.at( observation_models::retransmitter ).bodyName_ )->getVehicleSystems( ) == nullptr )
-        {
-            throw std::runtime_error(
-                    "Error when getting DSN N-way Doppler partials scaling factor: vehicle systems are not "
-                    "defined for retransmitter link end body." );
-        }
-        turnaroundRatioFunction = bodies.getBody( linkEnds.at( observation_models::retransmitter ).bodyName_ )->getVehicleSystems(
-                )->getTransponderTurnaroundRatio( );
-    }
-    // If retransmitter is a ground station of the body
-    else
-    {
-        if ( bodies.getBody( linkEnds.at( observation_models::retransmitter ).bodyName_ )->getGroundStation(
-                linkEnds.at( observation_models::retransmitter ).stationName_ )->getVehicleSystems( ) == nullptr )
-        {
-            throw std::runtime_error(
-                    "Error when getting DSN N-way Doppler partials scaling factor: vehicle systems are not "
-                    "defined for retransmitter link end station." );
-        }
-        turnaroundRatioFunction = bodies.getBody( linkEnds.at( observation_models::retransmitter ).bodyName_ )->getGroundStation(
-                linkEnds.at( observation_models::retransmitter ).stationName_ )->getVehicleSystems( )->getTransponderTurnaroundRatio( );
-    }
-    double turnaroundRatio = turnaroundRatioFunction( uplinkBand, downlinkBand );
-
-    double frequency = bodies.getBody( linkEnds.at( observation_models::transmitter ).bodyName_ )->getGroundStation(
-                linkEnds.at( observation_models::transmitter ).stationName_ )->getTransmittingFrequencyCalculator( )->
-                        template getTemplatedCurrentFrequency< double >( transmissionTime );
+    double frequency = receivedFrequencyFunction( frequencyBands, transmissionTime );
 
     // Moyer (2000), eq. 13-59
-    return turnaroundRatio * frequency / integrationTime / physical_constants::getSpeedOfLight< double >( );
+    return frequency / integrationTime / physical_constants::getSpeedOfLight< double >( );
 }
 
 template< typename ObservationScalarType = double, typename TimeType = Time >

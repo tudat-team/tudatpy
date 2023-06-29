@@ -500,7 +500,7 @@ std::shared_ptr< TroposhericElevationMapping > createTroposphericElevationMappin
  * @param receivingLinkEndType Type of the receiving link end (for this link).
  * @return Function that returns the frequency at the selected link.
  */
-std::function< double ( std::vector< FrequencyBands >, double ) > createLinkFrequencyFunction(
+std::function< double ( std::vector< FrequencyBands > frequencyBands, double transmissionTime ) > createLinkFrequencyFunction(
         const simulation_setup::SystemOfBodies& bodies,
         const LinkEnds& linkEnds,
         const LinkEndType& transmittingLinkEndType,

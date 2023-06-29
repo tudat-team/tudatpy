@@ -86,20 +86,15 @@ public:
             const std::shared_ptr< ObservationPartial< ObservationSize > > firstPartial,
             const std::shared_ptr< ObservationPartial< ObservationSize > > secondPartial,
             const std::function< double(
-                    const simulation_setup::SystemOfBodies&, const observation_models::LinkEnds&,
                     const observation_models::LinkEndType, const std::vector< Eigen::Vector6d >&,
                     const std::vector< double >&, const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings >,
                     const bool ) > scalingFactorFunction,
-            const std::pair< std::vector< int >, std::vector< int > >& undifferencedTimeAndStateIndices,
-            const simulation_setup::SystemOfBodies& bodies,
-            const observation_models::LinkEnds& linkEnds ):
+            const std::pair< std::vector< int >, std::vector< int > >& undifferencedTimeAndStateIndices ):
         ObservationPartial< ObservationSize >( firstPartial->getParameterIdentifier( ) ),
         firstPartial_( firstPartial ),
         secondPartial_( secondPartial ),
         scalingFactorFunction_( scalingFactorFunction ),
-        undifferencedTimeAndStateIndices_( undifferencedTimeAndStateIndices ),
-        bodies_( bodies ),
-        linkEnds_( linkEnds )
+        undifferencedTimeAndStateIndices_( undifferencedTimeAndStateIndices )
     {
         if( firstPartial_ != nullptr && secondPartial_ != nullptr )
         {
@@ -163,9 +158,9 @@ public:
 
         std::vector< std::pair< Eigen::Matrix< double, ObservationSize, Eigen::Dynamic >, double > > differencedPartials;
         double firstPartialScalingFactor = scalingFactorFunction_(
-                bodies_, linkEnds_, linkEndOfFixedTime, states, times, ancillarySettings, true );
+                linkEndOfFixedTime, states, times, ancillarySettings, true );
         double secondPartialScalingFactor = scalingFactorFunction_(
-                bodies_, linkEnds_, linkEndOfFixedTime, states, times, ancillarySettings, false );
+                linkEndOfFixedTime, states, times, ancillarySettings, false );
 
         // Scale partials by arc duration
         for( unsigned int i = 0; i < firstPartials.size( ); i++ )
@@ -192,16 +187,11 @@ protected:
     std::shared_ptr< ObservationPartial< ObservationSize > > secondPartial_;
 
     const std::function< double(
-            const simulation_setup::SystemOfBodies&, const observation_models::LinkEnds&,
             const observation_models::LinkEndType, const std::vector< Eigen::Vector6d >&,
             const std::vector< double >&, const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings >,
             const bool ) > scalingFactorFunction_;
 
     const std::pair< std::vector< int >, std::vector< int > > undifferencedTimeAndStateIndices_;
-
-    simulation_setup::SystemOfBodies bodies_;
-
-    observation_models::LinkEnds linkEnds_;
 };
 
 
