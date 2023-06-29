@@ -619,9 +619,6 @@ public:
                 linkEndsTimes, linkEndsStates, currentMultiLegTransmitterIndex, receptionTime, transmissionTime,
                 receiverState, transmitterState );
 
-//        std::cout << std::setprecision(21) << "Light time: " << newLightTimeCalculation <<
-//                  " (" << iterationCounter_ << " iter) " << std::endl;
-
         return newLightTimeCalculation;
     }
 
@@ -823,14 +820,6 @@ public:
         numberOfLinkEnds_( lightTimeCalculators.size( ) + 1 ),
         iterateMultiLegLightTime_( iterateMultiLegLightTime )
     {
-        if ( iterateMultiLegLightTime_ )
-        {
-            std::cout << "iterateMultiLegLightTime: ON" << std::endl;
-        }
-        else
-        {
-            std::cout << "iterateMultiLegLightTime: OFF" << std::endl;
-        }
     }
 
     // Constructor for a single leg
@@ -956,8 +945,6 @@ public:
                 ++iterationCounter_;
             }
         }
-
-//        std::cout << "Iterations: " << iterationCounter_ << std::endl;
 
 
         // Save output
