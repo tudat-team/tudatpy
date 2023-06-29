@@ -113,13 +113,33 @@ inline double getDsnNWayAveragedDopplerScalingFactor(
                 getLinkEndTypeString( referenceLinkEnd ) + ") is not valid." );
     }
 
-    if ( bodies.getBody( linkEnds.at( observation_models::retransmitter ).bodyName_ )->getVehicleSystems( ) == nullptr )
+    std::function< double ( observation_models::FrequencyBands, observation_models::FrequencyBands ) > turnaroundRatioFunction;
+    // Check if receiver retransmitter is a body
+    if ( linkEnds.at( observation_models::retransmitter ).stationName_ == "" )
     {
-        throw std::runtime_error( "Error when getting DSN N-way Doppler partials scaling factor: vehicle systems are not "
-                                  "defined for retransmitter link end." );
+        if ( bodies.getBody( linkEnds.at( observation_models::retransmitter ).bodyName_ )->getVehicleSystems( ) == nullptr )
+        {
+            throw std::runtime_error(
+                    "Error when getting DSN N-way Doppler partials scaling factor: vehicle systems are not "
+                    "defined for retransmitter link end body." );
+        }
+        turnaroundRatioFunction = bodies.getBody( linkEnds.at( observation_models::retransmitter ).bodyName_ )->getVehicleSystems(
+                )->getTransponderTurnaroundRatio( );
     }
-    double turnaroundRatio = bodies.getBody( linkEnds.at( observation_models::retransmitter ).bodyName_
-            )->getVehicleSystems( )->getTransponderTurnaroundRatio( )( uplinkBand, downlinkBand );
+    // If retransmitter is a ground station of the body
+    else
+    {
+        if ( bodies.getBody( linkEnds.at( observation_models::retransmitter ).bodyName_ )->getGroundStation(
+                linkEnds.at( observation_models::retransmitter ).stationName_ )->getVehicleSystems( ) == nullptr )
+        {
+            throw std::runtime_error(
+                    "Error when getting DSN N-way Doppler partials scaling factor: vehicle systems are not "
+                    "defined for retransmitter link end station." );
+        }
+        turnaroundRatioFunction = bodies.getBody( linkEnds.at( observation_models::retransmitter ).bodyName_ )->getGroundStation(
+                linkEnds.at( observation_models::retransmitter ).stationName_ )->getVehicleSystems( )->getTransponderTurnaroundRatio( );
+    }
+    double turnaroundRatio = turnaroundRatioFunction( uplinkBand, downlinkBand );
 
     double frequency = bodies.getBody( linkEnds.at( observation_models::transmitter ).bodyName_ )->getGroundStation(
                 linkEnds.at( observation_models::transmitter ).stationName_ )->getTransmittingFrequencyCalculator( )->

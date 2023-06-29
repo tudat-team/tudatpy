@@ -96,6 +96,10 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerPartials )
             std::make_shared< ProcessedOdfFileContents >( rawOdfFileContents, bodies.getBody( "Earth" ), true );
         // Create ground stations
         setTransmittingFrequenciesInGroundStations( processedOdfFileContents, bodies.getBody( "Earth" ) );
+        // Set turnaround ratios in spacecraft (ground station)
+        std::shared_ptr< system_models::VehicleSystems > vehicleSystems = std::make_shared< system_models::VehicleSystems >( );
+        vehicleSystems->setTransponderTurnaroundRatio( &getDsnDefaultTurnaroundRatios );
+        bodies.getBody( "Mars" )->getGroundStation( "MSL" )->setVehicleSystems( vehicleSystems );
 
         // Set link ends for observation model
         LinkEnds linkEnds;
@@ -139,6 +143,10 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerPartials )
             std::make_shared< ProcessedOdfFileContents >( rawOdfFileContents, bodies.getBody( "Earth" ), true );
         // Create ground stations
         setTransmittingFrequenciesInGroundStations( processedOdfFileContents, bodies.getBody( "Earth" ) );
+        // Set turnaround ratios in spacecraft (ground station)
+        std::shared_ptr< system_models::VehicleSystems > vehicleSystems = std::make_shared< system_models::VehicleSystems >( );
+        vehicleSystems->setTransponderTurnaroundRatio( &getDsnDefaultTurnaroundRatios );
+        bodies.getBody( "Mars" )->getGroundStation( "MSL" )->setVehicleSystems( vehicleSystems );
 
         // Set link ends for observation model
         LinkEnds linkEnds;
