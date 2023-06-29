@@ -83,7 +83,7 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerPartials )
 
     // Read ODF file - used just for the automatic creation of ground station ramp frequency calculator
     std::shared_ptr< OdfRawFileContents > rawOdfFileContents =
-            std::make_shared< OdfRawFileContents >( "/Users/pipas/Documents/mro-rawdata-odf/mromagr2017_097_1335xmmmv1.odf" );
+            std::make_shared< OdfRawFileContents >( tudat::paths::getTudatTestDataPath( ) + "mromagr2017_097_1335xmmmv1.odf" );
 
     // Test partials with constant ephemerides (allows test of position partials)
     {
