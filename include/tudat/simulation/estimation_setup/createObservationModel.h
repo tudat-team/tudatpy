@@ -1927,14 +1927,14 @@ public:
             }
 
             std::function< double ( observation_models::FrequencyBands, observation_models::FrequencyBands ) > turnaroundRatioFunction;
-            // Check if receiver retransmitter is a body
+            // Check if retransmitter is a body
             if ( linkEnds.at( observation_models::retransmitter ).stationName_ == "" )
             {
                 if ( bodies.getBody( linkEnds.at( observation_models::retransmitter ).bodyName_ )->getVehicleSystems( ) == nullptr )
                 {
                     throw std::runtime_error(
                             "Error when creating DSN N-way averaged Doppler observation model: vehicle systems are not "
-                            "defined for retransmitter link end body." );
+                            "defined for retransmitter link end body " + linkEnds.at( observation_models::retransmitter ).bodyName_ + "." );
                 }
                 turnaroundRatioFunction = bodies.getBody( linkEnds.at( observation_models::retransmitter ).bodyName_ )->getVehicleSystems(
                         )->getTransponderTurnaroundRatio( );
@@ -1947,7 +1947,7 @@ public:
                 {
                     throw std::runtime_error(
                             "Error when creating DSN N-way averaged Doppler observation model: vehicle systems are not "
-                            "defined for retransmitter link end station." );
+                            "defined for retransmitter link end station " + linkEnds.at( observation_models::retransmitter ).stationName_ + "." );
                 }
                 turnaroundRatioFunction = bodies.getBody( linkEnds.at( observation_models::retransmitter ).bodyName_ )->getGroundStation(
                         linkEnds.at( observation_models::retransmitter ).stationName_ )->getVehicleSystems( )->getTransponderTurnaroundRatio( );

@@ -373,8 +373,7 @@ public:
             }
             differencedPartial = std::make_shared< DifferencedObservablePartial< 1 > >(
                         firstPartial, secondPartial, &observation_models::getDifferencedOneWayRangeScalingFactor,
-                        getUndifferencedTimeAndStateIndices( one_way_differenced_range, linkEnds.size( ) ),
-                        bodies, linkEnds );
+                        getUndifferencedTimeAndStateIndices( one_way_differenced_range, linkEnds.size( ) ) );
             break;
         }
         case n_way_differenced_range:
@@ -397,8 +396,7 @@ public:
 
             differencedPartial = std::make_shared< DifferencedObservablePartial< 1 > >(
                         firstPartial, secondPartial, &observation_models::getDifferencedNWayRangeScalingFactor,
-                        getUndifferencedTimeAndStateIndices( n_way_differenced_range, linkEnds.size( ) ),
-                        bodies, linkEnds );
+                        getUndifferencedTimeAndStateIndices( n_way_differenced_range, linkEnds.size( ) ) );
             break;
         }
         case dsn_n_way_averaged_doppler:
@@ -419,10 +417,21 @@ public:
                 }
             }
 
+            const std::function< double ( std::vector< FrequencyBands >, double ) > receivedFrequencyFunction =
+                    createLinkFrequencyFunction(
+                            bodies, linkEnds, observation_models::retransmitter, observation_models::receiver );
+
+            const std::function< double(
+                    const observation_models::LinkEndType, const std::vector< Eigen::Vector6d >&,
+                    const std::vector< double >&, const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings >,
+                    const bool ) > scalingFactorFunction =
+                            std::bind( observation_models::getDsnNWayAveragedDopplerScalingFactor, receivedFrequencyFunction,
+                                       std::placeholders::_1, std::placeholders::_2, std::placeholders::_3,
+                                       std::placeholders::_4, std::placeholders::_5 );
+
             differencedPartial = std::make_shared< DifferencedObservablePartial< 1 > >(
-                        firstPartial, secondPartial, &observation_models::getDsnNWayAveragedDopplerScalingFactor,
-                        getUndifferencedTimeAndStateIndices( dsn_n_way_averaged_doppler, linkEnds.size( ) ),
-                        bodies, linkEnds );
+                        firstPartial, secondPartial, scalingFactorFunction,
+                        getUndifferencedTimeAndStateIndices( dsn_n_way_averaged_doppler, linkEnds.size( ) ) );
             break;
         }
         default:
@@ -477,8 +486,7 @@ public:
             }
             differencedPartial = std::make_shared< DifferencedObservablePartial< 2 > >(
                     firstPartial, secondPartial, &getRelativeAngularPositionScalingFactor,
-                    getUndifferencedTimeAndStateIndices( relative_angular_position, linkEnds.size( ) ),
-                    bodies, linkEnds );
+                    getUndifferencedTimeAndStateIndices( relative_angular_position, linkEnds.size( ) ) );
             break;
         }
         default:

@@ -20,8 +20,6 @@ namespace observation_models
 {
 
 inline double getDifferencedNWayRangeScalingFactor(
-        const simulation_setup::SystemOfBodies&,
-        const LinkEnds& linkEnds,
         const observation_models::LinkEndType referenceLinkEnd,
         const std::vector< Eigen::Vector6d >& linkEndStates,
         const std::vector< double >& linkEndTimes,
