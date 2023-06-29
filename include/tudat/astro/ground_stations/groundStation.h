@@ -19,6 +19,7 @@
 #include "tudat/astro/ground_stations/groundStationState.h"
 #include "tudat/astro/ground_stations/pointingAnglesCalculator.h"
 #include "tudat/astro/ground_stations/transmittingFrequencies.h"
+#include "tudat/astro/system_models/vehicleSystems.h"
 
 namespace tudat
 {
@@ -189,6 +190,26 @@ public:
         return dewPointFunction_;
     }
 
+    //! Function to retrieve container object with hardware systems present on/in body
+    /*!
+     * Function to retrieve container object with hardware systems present on/in body.
+     * \return Container object with hardware systems present on/in body.
+     */
+    std::shared_ptr< system_models::VehicleSystems > getVehicleSystems( )
+    {
+        return vehicleSystems_;
+    }
+
+    //! Function to set container object with hardware systems present on/in body
+    /*!
+     * Function to set container object with hardware systems present on/in body (typically only non-nullptr for a vehicle).
+     * \param vehicleSystems Container object with hardware systems present on/in body.
+     */
+    void setVehicleSystems( const std::shared_ptr< system_models::VehicleSystems > vehicleSystems )
+    {
+        vehicleSystems_ = vehicleSystems;
+    }
+
 private:
 
     //! Object to define and compute the state of the ground station.
@@ -217,6 +238,9 @@ private:
 
     //! Function returning the dew point [K] as a function of time.
     std::function< double ( const double time ) > dewPointFunction_;
+
+    //! Container object with hardware systems present on/in body (typically only non-nullptr for a vehicle).
+    std::shared_ptr< system_models::VehicleSystems > vehicleSystems_;
 };
 
 } // namespace ground_stations
