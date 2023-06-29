@@ -136,13 +136,13 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromD
         const Eigen::MatrixXd& constraintMultiplier,
         const Eigen::VectorXd& constraintRightHandside,
         const Eigen::MatrixXd& designMatrixConsiderParameters,
-        const Eigen::VectorXd& considerParametersValues )
+        const Eigen::VectorXd& considerParametersDeviations )
 {
     Eigen::VectorXd rightHandSide = Eigen::VectorXd::Zero( observationResiduals.size( ) );
-    if ( considerParametersValues.size( ) > 0 && designMatrixConsiderParameters.size( ) > 0 )
+    if ( considerParametersDeviations.size( ) > 0 && designMatrixConsiderParameters.size( ) > 0 )
     {
         rightHandSide = designMatrix.transpose( ) *
-                        ( diagonalOfWeightMatrix.cwiseProduct( observationResiduals + designMatrixConsiderParameters * considerParametersValues ) );
+                        ( diagonalOfWeightMatrix.cwiseProduct( observationResiduals + designMatrixConsiderParameters * considerParametersDeviations ) );
     }
     else
     {
