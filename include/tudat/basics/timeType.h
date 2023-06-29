@@ -11,6 +11,9 @@
 #ifndef TUDAT_TIMETYPE_H
 #define TUDAT_TIMETYPE_H
 
+#include <sstream>
+#include <iomanip>
+
 #include <cmath>
 #include <algorithm>
 
@@ -22,18 +25,22 @@
 #include <Eigen/Core>
 
 #include "tudat/astro/basic_astro/timeConversions.h"
-
 #include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/math/basic/basicMathematicsFunctions.h"
 
 namespace tudat
 {
 
-static constexpr int TIME_NORMALIZATION_INTEGER_TERM = 60;
+static constexpr int TIME_NORMALIZATION_INTEGER_TERM = 3600;
 
 static constexpr long double TIME_NORMALIZATION_TERM = mathematical_constants::getFloatingInteger< long double >( TIME_NORMALIZATION_INTEGER_TERM );
 
-static constexpr int TIME_NORMALIZATION_TERMS_PER_DAY = 86400 / TIME_NORMALIZATION_INTEGER_TERM;
+static constexpr int TIME_NORMALIZATION_TERMS_PER_DAY = physical_constants::JULIAN_DAY_INT / TIME_NORMALIZATION_INTEGER_TERM;
+
+static constexpr int TIME_NORMALIZATION_TERMS_PER_HALF_DAY = TIME_NORMALIZATION_TERMS_PER_DAY / 2;
+
+static constexpr int J2000_JULIAN_DAY_IN_FULL_PERIODS = physical_constants::JULIAN_DAY_INT * TIME_NORMALIZATION_TERMS_PER_DAY;
+
 
 //! Class for defining time with a resolution that is sub-fs for very long periods of time.
 /*!
@@ -49,51 +56,7 @@ class Time
 {
 public:
 
-    //! Constructor, initialize time to 0
-    Time( ):fullPeriods_( 0 ), secondsIntoFullPeriod_( 0.0L ){ }
-
-    Time( const std::string isoTime )
-    {
-//        '1999-01-01T00:00:00.123456789'
-
-        // Get year and month
-        std::vector< std::string > splitTime;
-        boost::algorithm::split( splitTime, isoTime,
-                                 boost::is_any_of( "-" ),
-                                 boost::algorithm::token_compress_on );
-        int year = boost::lexical_cast< int >( splitTime.at( 0 ) );
-        int month = boost::lexical_cast< int >( splitTime.at( 1 ) );
-
-        // Get day
-        std::string remainingString = splitTime.at( 2 );
-        splitTime.clear( );
-        boost::algorithm::split( splitTime, remainingString,
-                                 boost::is_any_of( "T" ),
-                                 boost::algorithm::token_compress_on );
-        int days = boost::lexical_cast< int >( splitTime.at( 0 ) );
-        boost::gregorian::date currentDate( year, month, days );
-        int daysSinceJ2000 = currentDate.julian_day( ) - basic_astrodynamics::JULIAN_DAY_ON_J2000_INT;
-
-        // Get hours, minutes, seconds
-        remainingString = splitTime.at( 1 );
-        splitTime.clear( );
-        boost::algorithm::split( splitTime, remainingString,
-                                 boost::is_any_of( "T" ),
-                                 boost::algorithm::token_compress_on );
-        int hours = boost::lexical_cast< int >( splitTime.at( 0 ) );
-        int minutes = boost::lexical_cast< int >( splitTime.at( 1 ) );
-        long double seconds = boost::lexical_cast< long double >( splitTime.at( 2 ) );
-
-        long double secondsSinceNoon =
-                static_cast< long double >( hours - 12 ) * 3600.0L +
-                static_cast< long double >( minutes ) * 60.0L +
-                seconds;
-
-        fullPeriods_ = daysSinceJ2000 * TIME_NORMALIZATION_TERMS_PER_DAY;
-        secondsIntoFullPeriod_ = secondsSinceNoon;
-        normalizeMembers( );
-    }
-
+    constexpr Time( ):fullPeriods_( 0 ), secondsIntoFullPeriod_( 0.0L ), daysToAdd( 0 ){ }
 
     //! Constructor, sets current hour and time into current hour directly
     /*!
@@ -103,8 +66,8 @@ public:
      * between 0 and 3600: the time representation is normalized upon construction to ensure that the internal representation
      * is in this range.
      */
-    Time( const int fullPeriods, const long double secondsIntoFullPeriod ):
-        fullPeriods_( fullPeriods ), secondsIntoFullPeriod_( secondsIntoFullPeriod )
+    constexpr Time( const int fullPeriods, const long double secondsIntoFullPeriod ):
+        fullPeriods_( fullPeriods ), secondsIntoFullPeriod_( secondsIntoFullPeriod ), daysToAdd( 0 )
     {
         normalizeMembers( );
     }
@@ -114,8 +77,8 @@ public:
      * Constructor, sets number of seconds since epoch (with long double representation as input)
      * \param numberOfSeconds Number of seconds since epoch.
      */
-    Time( const long double numberOfSeconds ):
-        fullPeriods_( 0 ), secondsIntoFullPeriod_( numberOfSeconds )
+    constexpr Time( const long double numberOfSeconds ):
+        fullPeriods_( 0 ), secondsIntoFullPeriod_( numberOfSeconds ), daysToAdd( 0 )
     {
         normalizeMembers( );
     }
@@ -125,8 +88,8 @@ public:
      * Constructor, sets number of seconds since epoch (with double representation as input)
      * \param secondsIntoFullPeriod Number of seconds since epoch.
      */
-    Time( const double secondsIntoFullPeriod ):
-        fullPeriods_( 0 ), secondsIntoFullPeriod_( static_cast< long double >( secondsIntoFullPeriod ) )
+    constexpr Time( const double secondsIntoFullPeriod ):
+        fullPeriods_( 0 ), secondsIntoFullPeriod_( static_cast< long double >( secondsIntoFullPeriod ) ), daysToAdd( 0 )
     {
         normalizeMembers( );
     }
@@ -136,8 +99,8 @@ public:
      * Constructor, sets number of seconds since epoch (with int representation as input)
      * \param secondsIntoFullPeriod Number of seconds since epoch.
      */
-    Time( const int secondsIntoFullPeriod ):
-        fullPeriods_( 0 ), secondsIntoFullPeriod_( static_cast< long double >( secondsIntoFullPeriod ) )
+    constexpr Time( const int secondsIntoFullPeriod ):
+        fullPeriods_( 0 ), secondsIntoFullPeriod_( static_cast< long double >( secondsIntoFullPeriod ) ), daysToAdd( 0 )
     {
         normalizeMembers( );
     }
@@ -147,8 +110,8 @@ public:
      * Copy constructor
      * \param otherTime Time that is to be copied.
      */
-    Time( const Time& otherTime ):
-        fullPeriods_( otherTime.fullPeriods_ ), secondsIntoFullPeriod_( otherTime.secondsIntoFullPeriod_ )
+    constexpr Time( const Time& otherTime ):
+        fullPeriods_( otherTime.fullPeriods_ ), secondsIntoFullPeriod_( otherTime.secondsIntoFullPeriod_ ), daysToAdd( 0 )
     {
         normalizeMembers( );
     }
@@ -1049,7 +1012,14 @@ public:
 
     int fullDaysSinceEpoch( ) const
     {
-        return fullPeriods_ / TIME_NORMALIZATION_TERMS_PER_DAY;
+        if( fullPeriods_ >= 0 || ( ( fullPeriods_ % TIME_NORMALIZATION_TERMS_PER_DAY ) == 0 ) )
+        {
+            return fullPeriods_ / TIME_NORMALIZATION_TERMS_PER_DAY;
+        }
+        else
+        {
+            return fullPeriods_ / TIME_NORMALIZATION_TERMS_PER_DAY - 1;
+        }
     }
 
     int fullPeriodsIntoCurrentDay( ) const
@@ -1057,15 +1027,33 @@ public:
         return fullPeriods_ - fullDaysSinceEpoch( ) * TIME_NORMALIZATION_TERMS_PER_DAY;
     }
 
-    long double secondsIntoCurrentDay( ) const
+    long double secondsSinceNoon( ) const
     {
         return static_cast< long double >( fullPeriodsIntoCurrentDay( ) * TIME_NORMALIZATION_TERM ) + secondsIntoFullPeriod_;
+    }
+
+    int fullPeriodsSinceMidnight( ) const
+    {
+        int fullPeriodsIntoCurrentDay = this->fullPeriodsIntoCurrentDay( );
+        if( fullPeriodsIntoCurrentDay < TIME_NORMALIZATION_TERMS_PER_HALF_DAY)
+        {
+            return fullPeriodsIntoCurrentDay + TIME_NORMALIZATION_TERMS_PER_HALF_DAY;
+        }
+        else
+        {
+            return fullPeriodsIntoCurrentDay - TIME_NORMALIZATION_TERMS_PER_HALF_DAY;
+        }
+    }
+
+    long double secondsSinceMidnight( ) const
+    {
+        return static_cast< long double >( fullPeriodsSinceMidnight( ) * TIME_NORMALIZATION_TERM ) + secondsIntoFullPeriod_;
     }
 
 protected:
 
     //! Function to renormalize the members of the Time object, so that secondsIntoFullPeriod_ is between 0 and 3600
-    void normalizeMembers( )
+    constexpr void normalizeMembers( )
     {
         if( secondsIntoFullPeriod_ < 0.0L || secondsIntoFullPeriod_ >= TIME_NORMALIZATION_TERM )
         {
@@ -1075,16 +1063,57 @@ protected:
         }
     }
 
-    //! Pre-declared variable used in often-called normalizeMembers function
-    int daysToAdd;
-
     //! Number of full hours since epoch
     int fullPeriods_;
 
     //! Number of seconds into current hour
     long double secondsIntoFullPeriod_;
 
+    //! Pre-declared variable used in often-called normalizeMembers function
+    int daysToAdd;
+
 };
+
+
+//! The Time at JD0
+constexpr static Time TIME_AT_JD0 =  Time(
+    -basic_astrodynamics::JULIAN_DAY_ON_J2000_INT *  tudat::TIME_NORMALIZATION_TERMS_PER_DAY,
+    0.0L );
+
+//! The Time at MJD0
+constexpr static Time TIME_AT_MJD0 = Time(
+    -51545 * tudat::TIME_NORMALIZATION_TERMS_PER_DAY,
+    static_cast< long double >( TIME_NORMALIZATION_TERMS_PER_HALF_DAY ) * TIME_NORMALIZATION_TERM );
+
+//! Function to get the Julian day from the current Time
+template< typename ScalarType >
+ScalarType julianDayFromTime( const Time& time )
+{
+    return ( time - TIME_AT_JD0 ).fullDaysSinceEpoch( ) + time.secondsSinceNoon( ) / physical_constants::getJulianDay< ScalarType >( );
+}
+
+//! Function to get the modified Julian day from the current Time
+template< typename ScalarType >
+ScalarType modifiedJulianDayFromTime( const Time& time )
+{
+    Time scaledTime = time - TIME_AT_MJD0;
+    return scaledTime.fullDaysSinceEpoch( ) + scaledTime.secondsSinceNoon( ) / physical_constants::getJulianDay< ScalarType >( );
+}
+
+//! Function to get Time from the current Julian day
+template< typename ScalarType >
+Time timeFromJulianDay( const ScalarType julianDay )
+{
+    return Time( 0.0, ( julianDay - basic_astrodynamics::getJulianDayOnJ2000< ScalarType >( ) ) * physical_constants::getJulianDay< ScalarType >( ) );
+}
+
+//! Function to get Time from the current modified Julian day
+template< typename ScalarType >
+Time timeFromModifiedJulianDay( const ScalarType julianDay )
+{
+    return Time( 0.0, ( julianDay - basic_astrodynamics::getModifiedJulianDayOnJ2000< ScalarType >( ) ) * physical_constants::getJulianDay< ScalarType >( ) );
+}
+
 
 } // namespace tudat
 

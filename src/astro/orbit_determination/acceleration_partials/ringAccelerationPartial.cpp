@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2019, Delft University of Technology
+/*    Copyright (c) 2010-2023, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -8,8 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include "tudat/astro/orbit_determination/acceleration_partials/polyhedronAccelerationPartial.h"
-#include "tudat/math/basic/polyhedron.h"
+#include "tudat/astro/orbit_determination/acceleration_partials/ringAccelerationPartial.h"
+
 #include "tudat/astro/orbit_determination/acceleration_partials/centralGravityAccelerationPartial.h"
 
 namespace tudat
@@ -17,37 +17,32 @@ namespace tudat
 namespace acceleration_partials
 {
 
-//! Contructor.
-PolyhedronGravityPartial::PolyhedronGravityPartial (
+RingGravityPartial::RingGravityPartial(
         const std::string& acceleratedBody,
         const std::string& acceleratingBody,
-        const std::shared_ptr< gravitation::PolyhedronGravitationalAccelerationModel > accelerationModel,
+        const std::shared_ptr< gravitation::RingGravitationalAccelerationModel > accelerationModel,
         const observation_partials::RotationMatrixPartialNamedList& rotationMatrixPartials ):
-    AccelerationPartial( acceleratedBody, acceleratingBody, basic_astrodynamics::polyhedron_gravity ),
+    AccelerationPartial( acceleratedBody, acceleratingBody, basic_astrodynamics::ring_gravity ),
     gravitationalParameterFunction_( accelerationModel->getGravitationalParameterFunction( ) ),
-    volumeFunction_( accelerationModel->getVolumeFunction( ) ),
-    polyhedronCache_( accelerationModel->getPolyhedronCache() ),
-    facetDyads_( accelerationModel->getFacetDyadsFunction( )( ) ),
-    edgeDyads_( accelerationModel->getEdgeDyadsFunction( )( ) ),
-    positionFunctionOfAcceleratedBody_( std::bind( &gravitation::PolyhedronGravitationalAccelerationModel::
+    ringRadiusFunction_( accelerationModel->getRingRadiusFunction( ) ),
+    ringCache_( accelerationModel->getRingCache( ) ),
+    positionFunctionOfAcceleratedBody_( std::bind( &gravitation::RingGravitationalAccelerationModel::
                                                    getCurrentPositionOfBodySubjectToAcceleration, accelerationModel ) ),
-    positionFunctionOfAcceleratingBody_( std::bind( &gravitation::PolyhedronGravitationalAccelerationModel::
+    positionFunctionOfAcceleratingBody_( std::bind( &gravitation::RingGravitationalAccelerationModel::
                                                     getCurrentPositionOfBodyExertingAcceleration, accelerationModel ) ),
-    fromBodyFixedToIntegrationFrameRotation_( std::bind( &gravitation::PolyhedronGravitationalAccelerationModel::
+    fromBodyFixedToIntegrationFrameRotation_( std::bind( &gravitation::RingGravitationalAccelerationModel::
                                                          getCurrentRotationToIntegrationFrameMatrix, accelerationModel ) ),
-    accelerationFunction_( std::bind( &gravitation::PolyhedronGravitationalAccelerationModel::getAcceleration,
+    accelerationFunction_( std::bind( &gravitation::RingGravitationalAccelerationModel::getAcceleration,
                                       accelerationModel ) ),
-    updateFunction_( std::bind( &gravitation::PolyhedronGravitationalAccelerationModel::updateMembers,
+    updateFunction_( std::bind( &gravitation::RingGravitationalAccelerationModel::updateMembers,
                                 accelerationModel, std::placeholders::_1 ) ),
     rotationMatrixPartials_( rotationMatrixPartials )
 {
 
 }
 
-void PolyhedronGravityPartial::update( const double currentTime )
+void RingGravityPartial::update( const double currentTime )
 {
-    using namespace tudat::coordinate_conversions;
-
     if( !( currentTime_ == currentTime ) )
     {
         // Update acceleration model
@@ -55,13 +50,18 @@ void PolyhedronGravityPartial::update( const double currentTime )
 
         // Calculate Cartesian position in frame fixed to body exerting acceleration
         Eigen::Matrix3d currentRotationToBodyFixedFrame_ = fromBodyFixedToIntegrationFrameRotation_( ).inverse( );
+        bodyFixedPosition_ = currentRotationToBodyFixedFrame_ *
+                ( positionFunctionOfAcceleratedBody_( ) - positionFunctionOfAcceleratingBody_( ) );
 
         // Calculate partial of acceleration wrt position of body undergoing acceleration.
-        currentBodyFixedPartialWrtPosition_ = basic_mathematics::calculatePolyhedronHessianOfGravitationalPotential(
-                gravitationalParameterFunction_() / volumeFunction_(),
-                facetDyads_, edgeDyads_,
-                polyhedronCache_->getPerFacetFactor(),
-                polyhedronCache_->getPerEdgeFactor() );
+        currentBodyFixedPartialWrtPosition_ = gravitation::computeRingHessianOfGravitationalPotential(
+                bodyFixedPosition_,
+                ringRadiusFunction_( ),
+                gravitationalParameterFunction_( ),
+                ringCache_->getEllipticIntegralB( ),
+                ringCache_->getEllipticIntegralE( ),
+                ringCache_->getEllipticIntegralS( ),
+                ringCache_->getEllipticIntegralK( ) );
 
         currentPartialWrtVelocity_.setZero( );
         currentPartialWrtPosition_.setZero( );
