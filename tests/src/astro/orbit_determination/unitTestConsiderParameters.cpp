@@ -49,6 +49,7 @@ BOOST_AUTO_TEST_SUITE( test_consider_parameters )
 
 BOOST_AUTO_TEST_CASE( testConsiderParameters )
 {
+
     //Load spice kernels.
     spice_interface::loadStandardSpiceKernels( );
 
@@ -258,7 +259,7 @@ BOOST_AUTO_TEST_CASE( testConsiderParameters )
     Eigen::MatrixXd covarianceAll = covarianceOutputAll->getUnnormalizedCovarianceMatrix( );
 
     // Define estimation input with consider parameters
-    Eigen::VectorXd considerParametersDeviations = 0.01 * considerParametersValues;
+    Eigen::VectorXd considerParametersDeviations = 0.1 * considerParametersValues;
     std::shared_ptr< EstimationInput< double, double  > > estimationInput = std::make_shared< EstimationInput< double, double > >(
             observationsAndTimes, Eigen::MatrixXd::Zero( 0, 0 ), std::make_shared< EstimationConvergenceChecker >( 1 ), considerCovariance, considerParametersDeviations );
     std::shared_ptr< CovarianceAnalysisInput< double, double  > > covarianceInput = std::make_shared< CovarianceAnalysisInput< double, double > >(
@@ -267,57 +268,83 @@ BOOST_AUTO_TEST_CASE( testConsiderParameters )
     // Perform estimation with consider parameters
     std::shared_ptr< CovarianceAnalysisOutput< double, double> > covarianceOutput = orbitDeterminationManager.computeCovariance( covarianceInput );
     std::shared_ptr< EstimationOutput< double, double > > estimationOutput = orbitDeterminationManager.estimateParameters( estimationInput );
-    Eigen::VectorXd updateParameters = estimationOutput->parameterEstimate_ - nominalParameters;
-    std::cout << "update parameters: " << updateParameters.transpose( ) << "\n\n";
+    Eigen::VectorXd updatedParameters = estimationOutput->parameterEstimate_;
 
     // Retrieve covariance matrix
     Eigen::MatrixXd covariance = covarianceOutput->getUnnormalizedCovarianceMatrix( );
 
-    // Retrieve partials consider parameters
-    Eigen::MatrixXd fullPartials = covarianceOutputAll->getUnnormalizedDesignMatrix( );
-        unsigned int nbObservations = fullPartials.rows( );
-    Eigen::MatrixXd extractedConsiderPartials = fullPartials.block( 0, nbEstimatedParameters, nbObservations, nbConsiderParameters );
-    Eigen::MatrixXd extractedEstimatedPartials = fullPartials.block( 0, 0, nbObservations, nbEstimatedParameters );
+    // Retrieve unnormalised partials estimated and consider parameters
+    Eigen::MatrixXd fullPartials = estimationOutputAll->getUnnormalizedDesignMatrix( );
+    unsigned int nbObservations = fullPartials.rows( );
+    Eigen::MatrixXd considerPartials = fullPartials.block( 0, nbEstimatedParameters, nbObservations, nbConsiderParameters );
+    Eigen::MatrixXd estimatedPartials = fullPartials.block( 0, 0, nbObservations, nbEstimatedParameters );
     Eigen::MatrixXd weightedEstimatedPartials = linear_algebra::multiplyDesignMatrixByDiagonalWeightMatrix(
-            extractedEstimatedPartials, estimationInput->getWeightsMatrixDiagonals( ) );
+            estimatedPartials, estimationInput->getWeightsMatrixDiagonals( ) );
 
-    // Manually compute covariance with consider parameters contribution.
-    // Compute normalised inverse covariance (w/o consider parameters)
-    Eigen::MatrixXd normalisedEstimatedPartials = covarianceOutputAll->getNormalizedDesignMatrix( ).block( 0, 0, nbObservations, nbEstimatedParameters );
+    // Manually compute normalised inverse covariance (w/o consider parameters)
+    Eigen::MatrixXd normalisedEstimatedPartials = estimationOutputAll->getNormalizedDesignMatrix( ).block( 0, 0, nbObservations, nbEstimatedParameters );
+    Eigen::MatrixXd normalisedConsiderPartials = estimationOutputAll->getNormalizedDesignMatrix( ).block( 0, nbEstimatedParameters, nbObservations, nbConsiderParameters );
     Eigen::MatrixXd weightedNormalisedEstimatedPartials = linear_algebra::multiplyDesignMatrixByDiagonalWeightMatrix(
             normalisedEstimatedPartials, estimationInput->getWeightsMatrixDiagonals( ) );
     Eigen::MatrixXd computedNormalisedInvCovariance = normalisedEstimatedPartials.transpose( ) * weightedNormalisedEstimatedPartials;
-    Eigen::VectorXd normalisationTerms = covarianceOutputAll->designMatrixTransformationDiagonal_.segment( 0, nbEstimatedParameters );
+
+    // Retrieve normalisation terms
+    Eigen::VectorXd normalisationTerms = estimationOutputAll->designMatrixTransformationDiagonal_.segment( 0, nbEstimatedParameters );
+    Eigen::VectorXd normalisationTermsConsider = estimationOutputAll->designMatrixTransformationDiagonal_.segment( nbEstimatedParameters, nbConsiderParameters );
 
     // Invert covariance matrix
-    Eigen::MatrixXd computedCovariance = computedNormalisedInvCovariance.inverse( );
-    // Unnormalise covariance matrix (w/o consider parameters)
+    Eigen::MatrixXd computedNormalizedCovariance = computedNormalisedInvCovariance.inverse( );
+
+    //  Check consistency normalized covariance matrix without consider contributions
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( covarianceOutput->normalizedCovarianceMatrix_, computedNormalizedCovariance, 1.0e-12 );
+
+    // Compute unnormalized covariance matrix
+    Eigen::MatrixXd computedUnnormalizedCovariance = computedNormalizedCovariance;
     for ( int i = 0 ; i < normalisationTerms.rows( ) ; i++ )
     {
         for ( int j = 0 ; j < normalisationTerms.rows( ); j++ )
         {
-            computedCovariance( i, j ) /= ( normalisationTerms( i ) * normalisationTerms( j ) );
+            computedUnnormalizedCovariance( i, j ) /= ( normalisationTerms( i ) * normalisationTerms( j ) );
         }
     }
+
+    // Compute normalized consider covariance
+    Eigen::MatrixXd normalizedConsiderCovariance = orbitDeterminationManagerAll.normalizeCovariance( considerCovariance, normalisationTermsConsider );
+
+    // Compute (unnormalised) contribution of consider parameters
+    Eigen::MatrixXd computedContributionConsiderCovariance = ( computedUnnormalizedCovariance * weightedEstimatedPartials.transpose( ) )
+    * ( considerPartials * considerCovariance * considerPartials.transpose( ) )
+    * ( computedUnnormalizedCovariance * weightedEstimatedPartials.transpose( ) ).transpose( );
+
     // Add contribution consider parameters
-    Eigen::MatrixXd computedCovarianceConsiderParameters = computedCovariance
-            + ( computedCovariance * weightedEstimatedPartials.transpose( ) )
-            * ( extractedConsiderPartials * considerCovariance * extractedConsiderPartials.transpose( ) )
-            * ( computedCovariance * weightedEstimatedPartials.transpose( ) ).transpose( );
+    Eigen::MatrixXd computedNormalizedCovarianceConsiderParameters = computedNormalizedCovariance
+            + ( computedNormalizedCovariance * weightedNormalisedEstimatedPartials.transpose( ) )
+            * ( normalisedConsiderPartials * normalizedConsiderCovariance * normalisedConsiderPartials.transpose( ) )
+            * ( computedNormalizedCovariance * weightedNormalisedEstimatedPartials.transpose( ) ).transpose( );
+
+    // Unnormalise covariance matrix (with consider parameters)
+    Eigen::MatrixXd computedCovarianceConsiderParameters = computedNormalizedCovarianceConsiderParameters;
+    for ( int i = 0 ; i < normalisationTerms.rows( ) ; i++ )
+    {
+        for ( int j = 0 ; j < normalisationTerms.rows( ); j++ )
+        {
+            computedCovarianceConsiderParameters( i, j ) /= ( normalisationTerms( i ) * normalisationTerms( j ) );
+        }
+    }
 
     // Compare with manually computed covariance
-//    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( covariance, computedCovarianceConsiderParameters, 1.0e-12 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( covarianceOutput->unnormalizedCovarianceWithConsiderParameters_, computedCovarianceConsiderParameters, 1.0e-12 );
 
     // Manually perform full estimation step
-    Eigen::VectorXd rightHandSide = weightedNormalisedEstimatedPartials.transpose( ) * extractedConsiderPartials * considerParametersDeviations;
+    Eigen::VectorXd rightHandSide = normalisedEstimatedPartials.transpose( ) * estimationInput->getWeightsMatrixDiagonals( ).cwiseProduct( normalisedConsiderPartials *
+            considerParametersDeviations.cwiseProduct( normalisationTermsConsider ) );
     Eigen::MatrixXd leftHandSide = computedNormalisedInvCovariance;
 
     Eigen::VectorXd leastSquaresOutput = linear_algebra::solveSystemOfEquationsWithSvd( leftHandSide, rightHandSide, 1, 1.0e8 );
-    Eigen::VectorXd computedUpdateParameters = leastSquaresOutput.cwiseQuotient( normalisationTerms );
-    std::cout << "leastSquaresOutput: " << ( computedUpdateParameters - updateParameters ).transpose( ) << "\n\n";
+    Eigen::VectorXd computedUpdatedParameters = leastSquaresOutput.cwiseQuotient( normalisationTerms ) + nominalParameters;
 
     // Check consistency
-//    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( updateParameters, leastSquaresOutput.cwiseQuotient( normalisationTerms ), 1.0e-12 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( updatedParameters, computedUpdatedParameters, 1.0e-12 );
 
 }
 

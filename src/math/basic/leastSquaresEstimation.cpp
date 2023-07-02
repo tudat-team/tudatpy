@@ -124,6 +124,18 @@ Eigen::MatrixXd calculateInverseOfUpdatedCovarianceMatrix(
                 Eigen::MatrixXd::Zero( designMatrix.cols( ), designMatrix.cols( ) ) );
 }
 
+Eigen::MatrixXd calculateConsiderParametersCovarianceContribution(
+        const Eigen::MatrixXd& normalisedCovarianceMatrix,
+        const Eigen::MatrixXd& designMatrix,
+        const Eigen::VectorXd& diagonalOfWeightMatrix,
+        const Eigen::MatrixXd& considerDesignMatrix,
+        const Eigen::MatrixXd& considerCovariance )
+{
+    return ( normalisedCovarianceMatrix * multiplyDesignMatrixByDiagonalWeightMatrix( designMatrix, diagonalOfWeightMatrix ).transpose( ) )
+    * ( considerDesignMatrix * considerCovariance * considerDesignMatrix.transpose( ) )
+    * ( normalisedCovarianceMatrix * multiplyDesignMatrixByDiagonalWeightMatrix( designMatrix, diagonalOfWeightMatrix ).transpose( ) ).transpose( );
+}
+
 //! Function to perform an iteration least squares estimation from information matrix, weights and residuals and a priori
 //! information
 std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromDesignMatrix(
