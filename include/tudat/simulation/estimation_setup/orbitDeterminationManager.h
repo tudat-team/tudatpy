@@ -377,13 +377,13 @@ public:
      */
     void calculateDesignMatrixAndResiduals(
             const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > observationsCollection,
-            const int parameterVectorSize, const int totalObservationSize,
+            const int totalObservationSize,
             Eigen::MatrixXd& designMatrix,
             Eigen::VectorXd& residuals,
             const bool calculateResiduals = true )
     {
         // Initialize return data.
-        designMatrix = Eigen::MatrixXd::Zero( totalObservationSize, parameterVectorSize );
+        designMatrix = Eigen::MatrixXd::Zero( totalObservationSize, totalNumberParameters_ );
         residuals = Eigen::VectorXd::Zero( totalObservationSize );
 
         typename observation_models::ObservationCollection< ObservationScalarType, TimeType >::SortedObservationSets
@@ -423,7 +423,7 @@ public:
                     }
 
                     // Set current observation partials in matrix of all partials
-                    designMatrix.block( observationIndices.first, 0, observationIndices.second, parameterVectorSize ) =
+                    designMatrix.block( observationIndices.first, 0, observationIndices.second, totalNumberParameters_ ) =
                             observationsWithPartials.second;
 
                 }
@@ -445,12 +445,12 @@ public:
 
     void calculateDesignMatrix(
             const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > observationsCollection,
-            const int parameterVectorSize, const int totalObservationSize,
+            const int totalObservationSize,
             Eigen::MatrixXd& designMatrix )
     {
         Eigen::VectorXd dummyVector;
         calculateDesignMatrixAndResiduals(
-                    observationsCollection, parameterVectorSize, totalObservationSize, designMatrix, dummyVector, false );
+                    observationsCollection, totalObservationSize, designMatrix, dummyVector, false );
 
     }
 
@@ -471,6 +471,22 @@ public:
             }
         }
         return normalizedInverseAprioriCovarianceMatrix;
+    }
+
+    Eigen::MatrixXd normalizeCovariance(
+            const Eigen::MatrixXd& covariance,
+            const Eigen::VectorXd& normalizationFactors )
+    {
+        int numberParameters = covariance.rows( );
+        Eigen::MatrixXd normalizedCovariance = Eigen::MatrixXd::Zero( numberParameters, numberParameters );
+        for( int j = 0; j < numberParameters; j++ )
+        {
+            for( int k = 0; k < numberParameters; k++ )
+            {
+                normalizedCovariance( j, k ) = covariance( j, k ) * ( normalizationFactors( j ) * normalizationFactors( k ) );
+            }
+        }
+        return normalizedCovariance;
     }
 
     //! Function to normalize the matrix of partial derivatives so that each column is in the range [-1,1]
@@ -573,53 +589,63 @@ public:
     std::shared_ptr< CovarianceAnalysisOutput< ObservationScalarType, TimeType > > computeCovariance(
             const std::shared_ptr< CovarianceAnalysisInput< ObservationScalarType, TimeType > > estimationInput )
     {
-        // Get size of parameter vector and number of observations (total and per type)
-        int numberOfEstimatedParameters = parametersToEstimate_->getParameterSetSize( );
-        int numberOfConsiderParameters = 0;
-        if ( considerParameters_ != nullptr )
-        {
-            numberOfConsiderParameters = considerParameters_->getParameterSetSize( );
-        }
-        int nunberAllParameters = fullParameters_->getEstimatedParameterSetSize( );
+        // Get total number of observations
         int totalNumberOfObservations = estimationInput->getObservationCollection( )->getTotalObservableSize( );
 
-        bool exceptionDuringPropagation = false;
-
-        std::shared_ptr< propagators::SimulationResults< ObservationScalarType, TimeType > > simulationResults;
+        // Define full parameters values
         Eigen::VectorXd parameterValues = parametersToEstimate_->template getFullParameterValues< ObservationScalarType >( );
-
         ParameterVectorType fullParameterEstimate;
-        fullParameterEstimate.resize( nunberAllParameters );
-        fullParameterEstimate.segment( 0, numberOfEstimatedParameters ) = parameterValues;
-        fullParameterEstimate.segment( numberOfEstimatedParameters, numberOfConsiderParameters ) = considerParametersValues_;
+        fullParameterEstimate.resize( totalNumberParameters_ );
+        fullParameterEstimate.segment( 0, numberEstimatedParameters_ ) = parameterValues;
+        fullParameterEstimate.segment( numberEstimatedParameters_, numberConsiderParameters_ ) = considerParametersValues_;
 
-        std::pair< Eigen::MatrixXd, Eigen::VectorXd > designMatrixAndResiduals = performPreEstimationSteps(
-                estimationInput, fullParameterEstimate, nunberAllParameters, false, 1, exceptionDuringPropagation, simulationResults );
-        Eigen::MatrixXd designMatrix = designMatrixAndResiduals.first;
+        // Compute design matrices (estimated and consider), and residuals (empty for covariance analysis)
+        bool exceptionDuringPropagation = false;
+        std::shared_ptr< propagators::SimulationResults< ObservationScalarType, TimeType > > simulationResults;
+        std::pair< std::pair< Eigen::MatrixXd, Eigen::MatrixXd >, Eigen::VectorXd > designMatricesAndResiduals = performPreEstimationSteps(
+                estimationInput, fullParameterEstimate, false, 1, exceptionDuringPropagation, simulationResults );
+        Eigen::MatrixXd designMatrixEstimatedParameters = designMatricesAndResiduals.first.first;
+        Eigen::MatrixXd designMatrixConsiderParameters = designMatricesAndResiduals.first.second;
 
-        // Divide partials matrix between estimated and consider parameters
-        std::pair< Eigen::MatrixXd, Eigen::MatrixXd > designMatrices = separateEstimatedAndConsiderDesignMatrices(
-                designMatrix, totalNumberOfObservations, numberOfEstimatedParameters, numberOfConsiderParameters );
-        Eigen::MatrixXd designMatrixEstimatedParameters = designMatrices.first;
-        Eigen::MatrixXd designMatrixConsiderParameters = designMatrices.second;
-
+        // Normalise partials and inverse a priori covariance
         Eigen::VectorXd normalizationTerms = normalizeDesignMatrix( designMatrixEstimatedParameters );
         Eigen::MatrixXd normalizedInverseAprioriCovarianceMatrix = normalizeAprioriCovariance(
-                estimationInput->getInverseOfAprioriCovariance( numberOfEstimatedParameters ), normalizationTerms );
+                estimationInput->getInverseOfAprioriCovariance( numberEstimatedParameters_ ), normalizationTerms );
 
+        // Normalise partials w.r.t. consider parameters and consider covariance
+        Eigen::VectorXd considerNormalizationTerms = normalizeDesignMatrix( designMatrixConsiderParameters );
+        Eigen::MatrixXd normalizedConsiderCovariance = normalizeCovariance( estimationInput->getConsiderCovariance( ), considerNormalizationTerms );
+
+        // Retrieve constraints
         Eigen::MatrixXd constraintStateMultiplier;
         Eigen::VectorXd constraintRightHandSide;
         parametersToEstimate_->getConstraints( constraintStateMultiplier, constraintRightHandSide );
 
+        // Compute inverse of updated covariance
         Eigen::MatrixXd inverseNormalizedCovariance = linear_algebra::calculateInverseOfUpdatedCovarianceMatrix(
-                designMatrixEstimatedParameters.block( 0, 0, designMatrixEstimatedParameters.rows( ), numberOfEstimatedParameters ),
+                designMatrixEstimatedParameters.block( 0, 0, designMatrixEstimatedParameters.rows( ), numberEstimatedParameters_ ),
                 estimationInput->getWeightsMatrixDiagonals( ),
                 normalizedInverseAprioriCovarianceMatrix, constraintStateMultiplier, constraintRightHandSide );
 
+        // Compute contribution consider parameters
+        Eigen::MatrixXd covarianceContributionConsiderParameters;
+        if ( considerParameters_ != nullptr )
+        {
+            covarianceContributionConsiderParameters = linear_algebra::calculateConsiderParametersCovarianceContribution(
+                    inverseNormalizedCovariance.inverse( ), designMatrixEstimatedParameters, estimationInput->getWeightsMatrixDiagonals( ),
+                    designMatrixConsiderParameters, normalizedConsiderCovariance );
+        }
+        else
+        {
+            covarianceContributionConsiderParameters = Eigen::MatrixXd::Zero( 0, 0 );
+        }
+
+        // Create covariance output object
         std::shared_ptr< CovarianceAnalysisOutput< ObservationScalarType, TimeType > > estimationOutput =
                 std::make_shared< CovarianceAnalysisOutput< ObservationScalarType, TimeType > >(
                      designMatrixEstimatedParameters, estimationInput->getWeightsMatrixDiagonals( ), normalizationTerms,
-                    inverseNormalizedCovariance, designMatrixConsiderParameters, estimationInput->getConsiderCovariance( ), exceptionDuringPropagation );
+                    inverseNormalizedCovariance, designMatrixConsiderParameters, considerNormalizationTerms, covarianceContributionConsiderParameters,
+                    exceptionDuringPropagation );
 
         return estimationOutput;
     }
@@ -640,21 +666,20 @@ public:
     {
         currentParameterEstimate_ = parametersToEstimate_->template getFullParameterValues< ObservationScalarType >( );
 
-        // Get size of parameter vector and number of observations (total and per type)
-        int estimatedParametersVectorSize = currentParameterEstimate_.size( );
-        int fullParametersVectorSize = currentFullParameterValues_.size( );
-        int considerParametersVectorSize = considerParametersValues_.size( );
+        // Get number of observations
         int totalNumberOfObservations = estimationInput->getObservationCollection( )->getTotalObservableSize( );
 
         // Declare variables to be returned (i.e. results from best iteration)
         double bestResidual = TUDAT_NAN;
-        ParameterVectorType bestParameterEstimate = ParameterVectorType::Constant( estimatedParametersVectorSize, TUDAT_NAN );
-        Eigen::VectorXd bestTransformationData = Eigen::VectorXd::Constant( fullParametersVectorSize, TUDAT_NAN );
+        ParameterVectorType bestParameterEstimate = ParameterVectorType::Constant( numberEstimatedParameters_, TUDAT_NAN );
+        Eigen::VectorXd bestTransformationData = Eigen::VectorXd::Constant( numberEstimatedParameters_, TUDAT_NAN );
+        Eigen::VectorXd bestConsiderTransformationData = Eigen::VectorXd::Constant( numberConsiderParameters_, TUDAT_NAN );
         Eigen::VectorXd bestResiduals = Eigen::VectorXd::Constant( totalNumberOfObservations, TUDAT_NAN );
-        Eigen::MatrixXd bestDesignMatrixEstimatedParameters = Eigen::MatrixXd::Constant( totalNumberOfObservations, fullParametersVectorSize, TUDAT_NAN );
-        Eigen::MatrixXd bestDesignMatrixConsiderParameters = Eigen::MatrixXd::Constant( totalNumberOfObservations, considerParametersVectorSize, TUDAT_NAN );
+        Eigen::MatrixXd bestDesignMatrixEstimatedParameters = Eigen::MatrixXd::Constant( totalNumberOfObservations, totalNumberParameters_, TUDAT_NAN );
+        Eigen::MatrixXd bestDesignMatrixConsiderParameters = Eigen::MatrixXd::Constant( totalNumberOfObservations, numberConsiderParameters_, TUDAT_NAN );
         Eigen::VectorXd bestWeightsMatrixDiagonal = Eigen::VectorXd::Constant( totalNumberOfObservations, TUDAT_NAN );
-        Eigen::MatrixXd bestInverseNormalizedCovarianceMatrix = Eigen::MatrixXd::Constant( estimatedParametersVectorSize, estimatedParametersVectorSize, TUDAT_NAN );
+        Eigen::MatrixXd bestInverseNormalizedCovarianceMatrix = Eigen::MatrixXd::Constant( numberEstimatedParameters_, numberEstimatedParameters_, TUDAT_NAN );
+        Eigen::MatrixXd bestConsiderCovarianceContribution = Eigen::MatrixXd::Constant( numberEstimatedParameters_, numberEstimatedParameters_, TUDAT_NAN );
 
         std::vector< Eigen::VectorXd > residualHistory;
         std::vector< ParameterVectorType > parameterHistory;
@@ -664,71 +689,66 @@ public:
         std::vector< double > rmsResidualHistory;
         double residualRms;
 
-        // Declare variables to be used in loop.
-
         // Set current parameter estimate as both previous and current estimate
         ParameterVectorType newParameterEstimate = currentParameterEstimate_;
         ParameterVectorType oldParameterEstimate = currentParameterEstimate_;
         ParameterVectorType newFullParameterEstimate;
-        newFullParameterEstimate.resize( fullParametersVectorSize );
-
-//        std::cout << "old parameter estimate: " << oldParameterEstimate.transpose( ) << "\n\n";
-
-        int numberOfEstimatedParameters = estimatedParametersVectorSize;
-        int numberOfConsiderParameters = considerParametersVectorSize;
-        int totalNumberParameters = fullParametersVectorSize;
+        newFullParameterEstimate.resize( totalNumberParameters_ );
 
         bool exceptionDuringPropagation = false, exceptionDuringInversion = false;
+
         // Iterate until convergence (at least once)
         int bestIteration = -1;
         int numberOfIterations = 0;
         do
         {
             oldParameterEstimate = newParameterEstimate;
-            newFullParameterEstimate.segment( 0, estimatedParametersVectorSize ) = newParameterEstimate;
-            newFullParameterEstimate.segment( estimatedParametersVectorSize, considerParametersVectorSize ) = considerParametersValues_;
+            newFullParameterEstimate.segment( 0, numberEstimatedParameters_ ) = newParameterEstimate;
+            newFullParameterEstimate.segment( numberEstimatedParameters_, numberConsiderParameters_ ) = considerParametersValues_;
 
+            // Compute design matrices (for estimated and consider parameters) and residuals.
             std::shared_ptr< propagators::SimulationResults< ObservationScalarType, TimeType > > simulationResults;
-            std::pair< Eigen::MatrixXd, Eigen::VectorXd > designMatrixAndResiduals = performPreEstimationSteps(
-                    estimationInput, newFullParameterEstimate, totalNumberParameters, true, numberOfIterations, exceptionDuringPropagation, simulationResults );
+            std::pair< std::pair< Eigen::MatrixXd, Eigen::MatrixXd >, Eigen::VectorXd > designMatricesAndResiduals = performPreEstimationSteps(
+                    estimationInput, newFullParameterEstimate, true, numberOfIterations, exceptionDuringPropagation, simulationResults );
+            Eigen::VectorXd residuals = designMatricesAndResiduals.second;
+            Eigen::MatrixXd designMatrixEstimatedParameters = designMatricesAndResiduals.first.first;
+            Eigen::MatrixXd designMatrixConsiderParameters = designMatricesAndResiduals.first.second;
+
+            // Set simulation results
             if( estimationInput->getSaveStateHistoryForEachIteration( ) )
             {
                 simulationResultsPerIteration.push_back( simulationResults );
             }
-            Eigen::VectorXd residuals = designMatrixAndResiduals.second;
-            Eigen::MatrixXd designMatrix = designMatrixAndResiduals.first;
 
-            // Divide partials matrix between estimated and consider parameters
-            std::pair< Eigen::MatrixXd, Eigen::MatrixXd > designMatrices = separateEstimatedAndConsiderDesignMatrices(
-                    designMatrix, totalNumberOfObservations, numberOfEstimatedParameters, numberOfConsiderParameters );
-            Eigen::MatrixXd designMatrixEstimatedParameters = designMatrices.first;
-            Eigen::MatrixXd designMatrixConsiderParameters = designMatrices.second;
-
-            // Get normalised terms and normalise estimated parameters partials
+            // Normalise estimated parameters partials and inverse apriori covariance
             Eigen::VectorXd normalizationTerms = normalizeDesignMatrix( designMatrixEstimatedParameters );
-
             Eigen::MatrixXd normalizedInverseAprioriCovarianceMatrix = normalizeAprioriCovariance(
-                    estimationInput->getInverseOfAprioriCovariance( numberOfEstimatedParameters ), normalizationTerms );
+                    estimationInput->getInverseOfAprioriCovariance( numberEstimatedParameters_ ), normalizationTerms );
+
+            // Normalise partials w.r.t. consider parameters, consider covariance and parameters deviations
+            Eigen::VectorXd normalizationTermsConsider = normalizeDesignMatrix( designMatrixConsiderParameters );
+            Eigen::MatrixXd normalizedConsiderCovariance = normalizeCovariance( estimationInput->getConsiderCovariance( ), normalizationTermsConsider );
+            Eigen::VectorXd normalizedConsiderParametersDeviation =
+                    estimationInput->considerParametersDeviations_.cwiseProduct( normalizationTermsConsider );
 
             // Perform least squares calculation for correction to parameter vector.
             std::pair< Eigen::VectorXd, Eigen::MatrixXd > leastSquaresOutput;
             try
             {
+                // Get constraints
                 Eigen::MatrixXd constraintStateMultiplier;
                 Eigen::VectorXd constraintRightHandSide;
                 parametersToEstimate_->getConstraints( constraintStateMultiplier, constraintRightHandSide );
-//                std::cout << "before least-squares adjustment" << "\n\n";
-                leastSquaresOutput =
-                        std::move( linear_algebra::performLeastSquaresAdjustmentFromDesignMatrix(
-                                       designMatrixEstimatedParameters,
-                                       residuals, estimationInput->getWeightsMatrixDiagonals( ),
-                                       normalizedInverseAprioriCovarianceMatrix, 1, 1.0E8, constraintStateMultiplier, constraintRightHandSide,
-                                       designMatrixConsiderParameters, estimationInput->considerParametersDeviations_ ) );
-//                std::cout << "after least-squares adjustment" << "\n\n";
+
+                // Perform LSQ inversion
+                leastSquaresOutput = std::move( linear_algebra::performLeastSquaresAdjustmentFromDesignMatrix(
+                        designMatrixEstimatedParameters, residuals, estimationInput->getWeightsMatrixDiagonals( ),
+                        normalizedInverseAprioriCovarianceMatrix, 1, 1.0E8, constraintStateMultiplier, constraintRightHandSide,
+                        designMatrixConsiderParameters, normalizedConsiderParametersDeviation ) );
 
                 if( constraintStateMultiplier.rows( ) > 0 )
                 {
-                    leastSquaresOutput.first.conservativeResize( estimatedParametersVectorSize );
+                    leastSquaresOutput.first.conservativeResize( numberEstimatedParameters_ );
                 }
             }
             catch( std::runtime_error& error )
@@ -740,13 +760,20 @@ public:
             }
 
             ParameterVectorType parameterAddition =
-                    ( leastSquaresOutput.first.cwiseQuotient( normalizationTerms.segment( 0, numberOfEstimatedParameters ) ) ).
-                    template cast< ObservationScalarType >( );
+                    ( leastSquaresOutput.first.cwiseQuotient( normalizationTerms.segment( 0, numberEstimatedParameters_ ) ) ).template cast< ObservationScalarType >( );
 
-            //            std::cout<<"LSQ: "<<leastSquaresOutput.first<<std::endl<<
-            //                       normalizationTerms.segment( 0, numberOfEstimatedParameters ).transpose( )<<std::endl;
-
-
+            // Compute contribution consider parameters
+            Eigen::MatrixXd covarianceContributionConsiderParameters;
+            if ( considerParameters_ != nullptr )
+            {
+                covarianceContributionConsiderParameters = linear_algebra::calculateConsiderParametersCovarianceContribution(
+                        ( leastSquaresOutput.second ).inverse( ), designMatrixEstimatedParameters, estimationInput->getWeightsMatrixDiagonals( ),
+                        designMatrixConsiderParameters, normalizedConsiderCovariance );
+            }
+            else
+            {
+                covarianceContributionConsiderParameters = Eigen::MatrixXd::Zero( 0, 0 );
+            }
 
             // Update value of parameter vector
 //            std::cout << "before updating parameter vector" << "\n\n";
@@ -796,7 +823,9 @@ public:
                 }
                 bestWeightsMatrixDiagonal = std::move( estimationInput->getWeightsMatrixDiagonals( ) );
                 bestTransformationData = std::move( normalizationTerms );
+                bestConsiderTransformationData = std::move( normalizationTermsConsider );
                 bestInverseNormalizedCovarianceMatrix = std::move( leastSquaresOutput.second );
+                bestConsiderCovarianceContribution = covarianceContributionConsiderParameters;
                 bestIteration = numberOfIterations;
             }
 
@@ -812,18 +841,17 @@ public:
             std::cout << "Final residual: " << bestResidual << std::endl;
         }
 
-
+        // Create estimation output object
         std::shared_ptr< EstimationOutput< ObservationScalarType, TimeType > > estimationOutput =
                 std::make_shared< EstimationOutput< ObservationScalarType, TimeType > >(
                     bestParameterEstimate, bestResiduals, bestDesignMatrixEstimatedParameters, bestWeightsMatrixDiagonal,
                     bestTransformationData, bestInverseNormalizedCovarianceMatrix, bestResidual, bestIteration,
-                    residualHistory, parameterHistory, bestDesignMatrixConsiderParameters, estimationInput->getConsiderCovariance( ),
-                    exceptionDuringInversion, exceptionDuringPropagation );
+                    residualHistory, parameterHistory, bestDesignMatrixConsiderParameters, bestConsiderTransformationData,
+                    bestConsiderCovarianceContribution, exceptionDuringInversion, exceptionDuringPropagation );
 
         if( estimationInput->getSaveStateHistoryForEachIteration( ) )
         {
-            estimationOutput->setSimulationResults(
-                        simulationResultsPerIteration );
+            estimationOutput->setSimulationResults( simulationResultsPerIteration );
         }
 
         return estimationOutput;
@@ -982,6 +1010,15 @@ protected:
         setFullParametersSet( );
         getEstimatedAndConsiderParametersIndices( );
 
+        // Retrieve size of estimated and consider parameters
+        totalNumberParameters_ = fullParameters_->getParameterSetSize( );
+        numberEstimatedParameters_ = parametersToEstimate_->getParameterSetSize( );
+        numberConsiderParameters_ = 0;
+        if ( considerParameters_ != nullptr )
+        {
+            numberConsiderParameters_ = considerParameters_->getParameterSetSize( );
+        }
+
         // Check if any dynamics is to be estimated
         std::map< propagators::IntegratedStateType, std::vector< std::pair< std::string, std::string > > > initialDynamicalStates =
                 estimatable_parameters::getListOfInitialDynamicalStateParametersEstimate< ObservationScalarType >( fullParameters_ );
@@ -1008,7 +1045,7 @@ protected:
         else if( propagatorSettings == nullptr )
         {
             stateTransitionAndSensitivityMatrixInterface_ = createStateTransitionAndSensitivityMatrixInterface< ObservationScalarType, TimeType >(
-                        propagatorSettings, fullParameters_, 0, parametersToEstimate_->getParameterSetSize( ) );
+                        propagatorSettings, fullParameters_, 0, totalNumberParameters_ );
         }
         else
         {
@@ -1115,14 +1152,13 @@ protected:
     }
 
 
-    std::pair< Eigen::MatrixXd, Eigen::VectorXd > performPreEstimationSteps(
+    std::pair< std::pair< Eigen::MatrixXd, Eigen::MatrixXd >, Eigen::VectorXd > performPreEstimationSteps(
             std::shared_ptr< CovarianceAnalysisInput< ObservationScalarType, TimeType > > estimationInput,
             ParameterVectorType& newParameterEstimate,
-            const int fullParameterVectorSize,
             const bool calculateResiduals,
             const int numberOfIterations,
             bool& exceptionDuringPropagation,
-            std::shared_ptr< propagators::SimulationResults< ObservationScalarType, TimeType > >& simulationResults = nullptr )
+            std::shared_ptr< propagators::SimulationResults< ObservationScalarType, TimeType > >& simulationResults )
     {
         // Get number of observations
         int totalNumberOfObservations = estimationInput->getObservationCollection( )->getTotalObservableSize( );
@@ -1161,31 +1197,32 @@ protected:
         if ( calculateResiduals )
         {
             calculateDesignMatrixAndResiduals(
-                    estimationInput->getObservationCollection( ), fullParameterVectorSize, totalNumberOfObservations, designMatrix, residuals, true );
+                    estimationInput->getObservationCollection( ), totalNumberOfObservations, designMatrix, residuals, true );
         }
         else
         {
             calculateDesignMatrix(
-                    estimationInput->getObservationCollection( ), fullParameterVectorSize, totalNumberOfObservations, designMatrix );
+                    estimationInput->getObservationCollection( ), totalNumberOfObservations, designMatrix );
         }
 
-        return std::make_pair( designMatrix, residuals );
+        // Divide partials matrix between estimated and consider parameters
+        std::pair< Eigen::MatrixXd, Eigen::MatrixXd > designMatrices = separateEstimatedAndConsiderDesignMatrices( designMatrix, totalNumberOfObservations );
+
+        return std::make_pair( designMatrices, residuals );
     }
 
     std::pair< Eigen::MatrixXd, Eigen::MatrixXd > separateEstimatedAndConsiderDesignMatrices(
             const Eigen::MatrixXd& designMatrix,
-            const int numberObservations,
-            const int numberEstimatedParameters,
-            const int numberConsiderParameters )
+            const int numberObservations )
     {
-        Eigen::MatrixXd designMatrixEstimatedParameters = Eigen::MatrixXd::Zero( numberObservations, numberEstimatedParameters );
+        Eigen::MatrixXd designMatrixEstimatedParameters = Eigen::MatrixXd::Zero( numberObservations, numberEstimatedParameters_ );
         for ( unsigned int i = 0 ; i < indicesAndSizeEstimatedParameters_.size( ) ; i++ )
         {
             designMatrixEstimatedParameters.block( 0, indicesAndSizeEstimatedParameters_[ i ].first.first, numberObservations,
                                                    indicesAndSizeEstimatedParameters_[ i ].second )
                     = designMatrix.block( 0, indicesAndSizeEstimatedParameters_[ i ].first.second, numberObservations, indicesAndSizeEstimatedParameters_[ i ].second );
         }
-        Eigen::MatrixXd designMatrixConsiderParameters = Eigen::MatrixXd::Zero( numberObservations, numberConsiderParameters );
+        Eigen::MatrixXd designMatrixConsiderParameters = Eigen::MatrixXd::Zero( numberObservations, numberConsiderParameters_ );
         for ( unsigned int i = 0 ; i < indicesAndSizeConsiderParameters_.size( ) ; i++ )
         {
             designMatrixConsiderParameters.block( 0, indicesAndSizeConsiderParameters_[ i ].first.first, numberObservations,
@@ -1226,6 +1263,15 @@ protected:
 
     //! Consider parameters values
     ParameterVectorType considerParametersValues_;
+
+    //! Total number of parameters (estimated and consider parameters together)
+    unsigned int totalNumberParameters_;
+
+    //! Number of estimated parameters
+    unsigned int numberEstimatedParameters_;
+
+    //! Number of consider parameters
+    unsigned int numberConsiderParameters_;
 
     //std::vector< int > observationLinkParameterIndices_;
 
