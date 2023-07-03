@@ -140,7 +140,6 @@ void expose_propagation(py::module &m)
             tp::DampedInitialRotationalStateResults<TIME_TYPE, double>,
             std::shared_ptr<tp::DampedInitialRotationalStateResults<TIME_TYPE, double>>>(m, "RotationalProperModeDampingResults",
                                                                  get_docstring("RotationalProperModeDampingResults").c_str())
-            .def_readwrite("initial_state", &tp::DampedInitialRotationalStateResults<TIME_TYPE,double>::initialState_)
             .def_readwrite("damped_initial_state", &tp::DampedInitialRotationalStateResults<TIME_TYPE,double>::initialState_,
                            get_docstring("RotationalProperModeDampingResults.damped_initial_state").c_str())
             .def_readwrite("forward_backward_states", &tp::DampedInitialRotationalStateResults<TIME_TYPE,double>::forwardBackwardPropagatedStates_,
