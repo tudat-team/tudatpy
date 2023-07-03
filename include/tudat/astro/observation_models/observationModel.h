@@ -43,7 +43,8 @@ enum ObservationAncilliarySimulationVariable
     doppler_integration_time,
     transmission_reception_delays,
     doppler_reference_frequency,
-    frequency_bands
+    frequency_bands,
+    reception_reference_frequency_band
 };
 
 struct ObservationAncilliarySimulationSettings
@@ -59,6 +60,7 @@ public:
         {
         case doppler_integration_time:
         case doppler_reference_frequency:
+        case reception_reference_frequency_band:
             doubleData_[ variableType ] = variable;
             break;
         default:
@@ -92,6 +94,7 @@ public:
             {
             case doppler_integration_time:
             case doppler_reference_frequency:
+            case reception_reference_frequency_band:
                 returnVariable = doubleData_.at( variableType );
                 break;
             default:

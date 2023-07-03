@@ -114,7 +114,7 @@ void runSimulation(
 
     if ( writeOdfToTxtFile )
         for ( std::shared_ptr< input_output::OdfRawFileContents > rawOdfData : rawOdfDataVector )
-            rawOdfData->writeOdfToTextFile( rawOdfData->fileName_ + ".txt" );
+            rawOdfData->writeOdfToTextFile( saveDirectory + rawOdfData->fileName_.substr( rawOdfData->fileName_.find_last_of( "/" ) + 1 ) + ".txt" );
 
     std::shared_ptr< ProcessedOdfFileContents > processedOdfFileContents =
             std::make_shared< ProcessedOdfFileContents >(
@@ -368,7 +368,7 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
     Time initialEphemerisTime = Time( 185976000 - 2.0 * 86400.0 ); // End of November 2005
     Time finalEphemerisTime = Time( 186580800 + 5.0 * 86400.0 ); // End of November 2005
 
-    int testCase = 3;
+    int testCase = 5;
 
 
     if ( testCase == 0 )
@@ -457,6 +457,33 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
                        initialEphemerisTime, finalEphemerisTime, true, ephemeridesTimeStep, { },
                        "Mars", "Mars", false );
 
+    }
+    // Validation against Verma (2022)
+    else if ( testCase == 5 )
+    {
+        std::string saveDirectory = "/Users/pipas/tudatpy-testing/mgs/mors_0401/";
+        std::string ephemeridesOrigin = "SSB";
+        std::string fileTag = "mors0401";
+        double ephemeridesTimeStep = 50.0;
+        odfFiles = {
+                "/Users/pipas/Documents/mgs-m-rss-1-map-v1/mors_0401/odf/9068068a.odf",
+                "/Users/pipas/Documents/mgs-m-rss-1-map-v1/mors_0401/odf/9068068b.odf",
+                "/Users/pipas/Documents/mgs-m-rss-1-map-v1/mors_0401/odf/9068071a.odf"
+//                "/Users/pipas/Documents/mgs-m-rss-1-map-v1/mors_0401/odf/9071074a.odf",
+//                "/Users/pipas/Documents/mgs-m-rss-1-map-v1/mors_0401/odf/9072073a.odf"
+        };
+        initialEphemerisTime = Time( -25754400 );
+        finalEphemerisTime = Time( -25272000 + 2.0 * 86400.0 );
+
+        spice_interface::clearSpiceKernels( );
+        spice_interface::loadStandardSpiceKernels( );
+        spice_interface::loadSpiceKernelInTudat( "/Users/pipas/Documents/planet-spice/de438.bsp" );
+        spice_interface::loadSpiceKernelInTudat( "/Users/pipas/Documents/mgs-spice/mgs_map1_ipng_mgs95j.bsp" );
+
+        runSimulation( odfFiles, tropCorrectionFiles, ionCorrectionFiles, weatherFiles,
+                       saveDirectory, fileTag + "_noCorr",
+                       initialEphemerisTime, finalEphemerisTime, false, ephemeridesTimeStep, { },
+                       ephemeridesOrigin, ephemeridesOrigin, true );
     }
     // Test of SPICE interpolation step size
     else if ( testCase == 1 )

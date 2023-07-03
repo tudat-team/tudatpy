@@ -460,9 +460,12 @@ observation_models::ObservationAncilliarySimulationSettings createOdfAncillarySe
     std::vector< observation_models::FrequencyBands > frequencyBands = {
             getFrequencyBandForOdfId( odfDataContents->uplinkBandIds_.at( dataIndex ) ),
             getFrequencyBandForOdfId( odfDataContents->downlinkBandIds_.at( dataIndex ) ) };
-
     ancillarySettings.setAncilliaryDoubleVectorData(
             observation_models::frequency_bands, convertFrequencyBandsToDoubleVector( frequencyBands ) );
+
+    ancillarySettings.setAncilliaryDoubleData(
+            observation_models::reception_reference_frequency_band,
+            convertFrequencyBandToDouble( getFrequencyBandForOdfId( odfDataContents->referenceBandIds_.at( dataIndex ) ) ) );
 
     if ( std::dynamic_pointer_cast< ProcessedOdfFileDopplerData >( odfDataContents ) != nullptr )
     {
