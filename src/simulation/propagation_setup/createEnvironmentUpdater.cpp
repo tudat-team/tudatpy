@@ -423,6 +423,10 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                     singleAccelerationUpdateNeeds[ body_rotational_state_update ].push_back(
                             accelerationModelIterator->first );
                     break;
+                case ring_gravity:
+                    singleAccelerationUpdateNeeds[ body_rotational_state_update ].push_back(
+                            accelerationModelIterator->first );
+                    break;
                 case third_body_spherical_harmonic_gravity:
                 {
                     singleAccelerationUpdateNeeds[ body_rotational_state_update ].push_back(
@@ -506,6 +510,30 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                                     std::string( "Error, incompatible input (ThirdBodyPolyhedronGravitational" )
                                     + std::string( "AccelerationModel) to createTranslationalEquationsOfMotion ")
                                     + std::string( "EnvironmentUpdaterSettings" ) );
+                    }
+                    break;
+                }
+                case third_body_ring_gravity:
+                {
+                    singleAccelerationUpdateNeeds[ body_rotational_state_update ].push_back(
+                        accelerationModelIterator->first );
+
+                    std::shared_ptr< gravitation::ThirdBodyRingGravitationalAccelerationModel >
+                        thirdBodyAcceleration = std::dynamic_pointer_cast<
+                            gravitation::ThirdBodyRingGravitationalAccelerationModel >(
+                                accelerationModelIterator->second.at( i ) );
+
+                    if( thirdBodyAcceleration != nullptr && translationalAccelerationModels.count(
+                                thirdBodyAcceleration->getCentralBodyName( ) ) == 0 )
+                    {
+                        singleAccelerationUpdateNeeds[ body_translational_state_update ].push_back(
+                                    thirdBodyAcceleration->getCentralBodyName( ) );
+                    }
+                    else if( thirdBodyAcceleration == nullptr )
+                    {
+                        throw std::runtime_error(
+                                "Error, incompatible input (ThirdBodyRingGravitationalAccelerationModel "
+                                "to createTranslationalEquationsOfMotion EnvironmentUpdaterSettings" );
                     }
                     break;
                 }

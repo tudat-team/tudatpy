@@ -32,4 +32,9 @@ TUDAT_ADD_TEST_CASE(PolyhedronPartials
         ${Tudat_ESTIMATION_LIBRARIES}
         )
 
+TUDAT_ADD_TEST_CASE(RingPartials
+        PRIVATE_LINKS
+        ${Tudat_ESTIMATION_LIBRARIES}
+        )
+
 
