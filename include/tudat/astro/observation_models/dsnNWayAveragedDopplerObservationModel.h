@@ -198,11 +198,13 @@ public:
         TimeType integrationTime;
         ObservationScalarType referenceFrequency;
         std::vector< FrequencyBands > frequencyBands;
+        FrequencyBands referenceUplinkBand;
         try
         {
             integrationTime = ancillarySettings->getAncilliaryDoubleData( doppler_integration_time );
             referenceFrequency = ancillarySettings->getAncilliaryDoubleData( doppler_reference_frequency );
             frequencyBands = convertDoubleVectorToFrequencyBands( ancillarySettings->getAncilliaryDoubleVectorData( frequency_bands ) );
+            referenceUplinkBand = convertDoubleToFrequencyBand( ancillarySettings->getAncilliaryDoubleData( reception_reference_frequency_band ) );
         }
         catch( std::runtime_error& caughtException )
         {
@@ -240,8 +242,9 @@ public:
 
         // Moyer (2000), eq. 13-54
         Eigen::Matrix< ObservationScalarType, 1, 1 > observation = ( Eigen::Matrix< ObservationScalarType, 1, 1 >( ) <<
-                turnaroundRatio_( uplinkBand, downlinkBand ) * ( referenceFrequency - 1.0 / static_cast< ObservationScalarType >( integrationTime ) *
-                transmitterFrequencyIntegral ) ).finished( );
+                turnaroundRatio_( referenceUplinkBand, downlinkBand ) * referenceFrequency -
+                turnaroundRatio_( uplinkBand, downlinkBand ) / static_cast< ObservationScalarType >( integrationTime ) *
+                transmitterFrequencyIntegral ).finished( );
 
         linkEndTimes.clear( );
         linkEndStates.clear( );

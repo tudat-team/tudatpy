@@ -75,6 +75,11 @@ double getCassiniTurnaroundRatio( FrequencyBands uplinkBand, FrequencyBands down
  */
 std::vector< double > convertFrequencyBandsToDoubleVector( const std::vector< FrequencyBands >& frequencyBands );
 
+inline double convertFrequencyBandToDouble( const FrequencyBands& frequencyBand )
+{
+    return convertFrequencyBandsToDoubleVector( { frequencyBand } ).front( );
+}
+
 /*!
  * Converts a vector of doubles to the corresponding vector of frequency bands, using the correspondence between each
  * enum and an integer.
@@ -83,6 +88,11 @@ std::vector< double > convertFrequencyBandsToDoubleVector( const std::vector< Fr
  * @return Vector of frequency bands
  */
 std::vector< FrequencyBands > convertDoubleVectorToFrequencyBands( const std::vector< double >& frequencyBands );
+
+inline FrequencyBands convertDoubleToFrequencyBand( const double frequencyBand )
+{
+    return convertDoubleVectorToFrequencyBands( { frequencyBand } ).front( );
+}
 
 } // namespace observation_models
 
