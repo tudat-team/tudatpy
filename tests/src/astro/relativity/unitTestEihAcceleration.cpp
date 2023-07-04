@@ -42,13 +42,17 @@ int main( )
 
     // Set simulation end epoch.
     const double simulationStartEpoch = 0.0 * tudat::physical_constants::JULIAN_YEAR;
-    const double simulationEndEpoch = 0.25 * tudat::physical_constants::JULIAN_YEAR;
+    const double simulationEndEpoch = 25.0 * tudat::physical_constants::JULIAN_YEAR;
 
     // Create body objects.
     std::vector<std::string> bodiesToCreate =
         { "Sun", "Mercury", "Venus", "Earth", "Moon", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune" };
     BodyListSettings bodySettings =
         getDefaultBodySettings( bodiesToCreate );
+    for( unsigned int i = 0; i < bodiesToCreate.size( ); i++ )
+    {
+        bodySettings.at( bodiesToCreate.at( i ) )->gravityFieldSettings = centralGravityFromSpiceSettings( );
+    }
 
     // Create Earth object
     SystemOfBodies bodies = createSystemOfBodies( bodySettings );
@@ -96,12 +100,11 @@ int main( )
             bodiesToPropagate, centralBodies, bodies, simulationStartEpoch );
 
         std::shared_ptr<IntegratorSettings<> >
-            integratorSettings = std::make_shared<MultiStageVariableStepSizeSettings<> >
-            ( 86400.0, rungeKuttaFehlberg78,
-              std::make_shared<PerElementIntegratorStepSizeControlSettings<double> >( 1.0E-12, 1.0E-12 ),
-              std::make_shared<IntegratorStepSizeValidationSettings>( std::numeric_limits<double>::min( ),
-                                                                      std::numeric_limits<double>::max( ),
-                                                                      set_to_minimum_step_silently ));
+            integratorSettings = std::make_shared<RungeKuttaFixedStepSizeSettings<> >( 86400.0, rungeKuttaFehlberg78 );
+//              std::make_shared<PerElementIntegratorStepSizeControlSettings<double> >( 1.0E-12, 1.0E-12 ),
+//              std::make_shared<IntegratorStepSizeValidationSettings>( std::numeric_limits<double>::min( ),
+//                                                                      std::numeric_limits<double>::max( ),
+//                                                                      set_to_minimum_step_silently ));
 
         std::shared_ptr<TranslationalStatePropagatorSettings<double> > propagatorSettings =
             std::make_shared<TranslationalStatePropagatorSettings<double> >
@@ -109,6 +112,7 @@ int main( )
                   integratorSettings,
                   std::make_shared<PropagationTimeTerminationSettings>( simulationEndEpoch ),
                   cowell );
+        propagatorSettings->getOutputSettings( )->setResultsSaveFrequencyInSteps( 20 );
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ///////////////////////             PROPAGATE ORBIT            ////////////////////////////////////////////////////////

@@ -23,6 +23,9 @@ EinsteinInfeldHoffmannEquations::EinsteinInfeldHoffmannEquations(
     ppnGammaFunction_( ppnGammaFunction ),
     ppnBetaFunction_( ppnBetaFunction )
 {
+    scalarEihCorrections_.resize( 7 );
+    vectorEihCorrections_.resize( 3 );
+
     for( unsigned int i = 0; i < acceleratingBodies_.size(); i++ )
     {
         currentGravitationalParameters_.resize( acceleratingBodies_.size() );
@@ -34,21 +37,46 @@ EinsteinInfeldHoffmannEquations::EinsteinInfeldHoffmannEquations(
 
         currentRelativePositions_.resize( acceleratedBodies_.size() );
         currentRelativeDistances_.resize( acceleratedBodies_.size() );
+        currentRelativeVelocities_.resize( acceleratedBodies_.size() );
+
         relativePositionVelocityProduct_.resize( acceleratedBodies_.size() );
         velocityInnerProducts_.resize( acceleratedBodies_.size() );
         currentSingleSourceLocalPotential_.resize( acceleratedBodies_.size() );
         singlePointMassAccelerations_.resize( acceleratedBodies_.size() );
         currentSingleAccelerations_.resize( acceleratedBodies_.size() );
 
+        for( int k = 0; k < 7; k++ )
+        {
+            scalarEihCorrections_[ k ].resize( acceleratedBodies_.size( ) );
+        }
+
+        for( int k = 0; k < 3; k++ )
+        {
+            vectorEihCorrections_[ k ].resize( acceleratedBodies_.size( ) );
+        }
+
         for( unsigned int i = 0; i < acceleratedBodies_.size( ); i++ )
         {
             currentRelativePositions_[ i ].resize( acceleratingBodies_.size( ) );
             currentRelativeDistances_[ i ].resize( acceleratingBodies_.size( ) );
+            currentRelativeVelocities_[ i ].resize( acceleratingBodies_.size( ) );
+
             relativePositionVelocityProduct_[ i ].resize( acceleratingBodies_.size( ) );
             velocityInnerProducts_[ i ].resize( acceleratingBodies_.size( ) );
             currentSingleSourceLocalPotential_[ i ].resize( acceleratingBodies_.size( ) );
             singlePointMassAccelerations_[ i ].resize( acceleratingBodies_.size( ) );
             currentSingleAccelerations_[ i ].resize( acceleratingBodies_.size( ) );
+
+            for( int k = 0; k < 7; k++ )
+            {
+                scalarEihCorrections_[ k ][ i ].resize( acceleratingBodies_.size( ) );
+            }
+
+            for( int k = 0; k < 3; k++ )
+            {
+                vectorEihCorrections_[ k ][ i ].resize( acceleratingBodies_.size( ) );
+            }
+
 
         }
 
@@ -59,7 +87,9 @@ EinsteinInfeldHoffmannEquations::EinsteinInfeldHoffmannEquations(
     {
         acceleratedBodyMap_[ acceleratedBodies.at( i ) ] = i;
     }
-    expansionMultipliers_.resize( 10 );
+    scalarTermMultipliers_.resize( 7 );
+    vectorTermMultipliers_.resize( 3 );
+
     recomputeExpansionMultipliers( );
 }
 
@@ -68,16 +98,17 @@ void EinsteinInfeldHoffmannEquations::recomputeExpansionMultipliers( )
     currentPpnGamma_ = ppnGammaFunction_( );
     currentPpnBeta_ = ppnBetaFunction_( );
 
-    expansionMultipliers_[ 0 ] = -2.0 * ( currentPpnGamma_ + currentPpnBeta_ );
-    expansionMultipliers_[ 1 ] = -( 2.0 * currentPpnBeta_ + 1.0 );
-    expansionMultipliers_[ 2 ] = currentPpnGamma_;
-    expansionMultipliers_[ 3 ] = 1.0 + currentPpnGamma_;
-    expansionMultipliers_[ 4 ] = -2.0 * ( 1.0 + currentPpnGamma_ );
-    expansionMultipliers_[ 5 ] = -1.5;
-    expansionMultipliers_[ 6 ] = 0.5;
-    expansionMultipliers_[ 7 ] = 2.0 * ( 1.0 + currentPpnGamma_ );
-    expansionMultipliers_[ 8 ] = -1.0 + 2.0 * currentPpnGamma_;
-    expansionMultipliers_[ 9 ] = ( 3.0 + 4.0 * currentPpnGamma_ ) / 2.0;
+    scalarTermMultipliers_[ 0 ] = -2.0 * ( currentPpnGamma_ + currentPpnBeta_ );
+    scalarTermMultipliers_[ 1 ] = - 2.0 * currentPpnBeta_ - 1.0 ;
+    scalarTermMultipliers_[ 2 ] = currentPpnGamma_;
+    scalarTermMultipliers_[ 3 ] = 1.0 + currentPpnGamma_;
+    scalarTermMultipliers_[ 4 ] = -2.0 * ( 1.0 + currentPpnGamma_ );
+    scalarTermMultipliers_[ 5 ] = -1.5;
+    scalarTermMultipliers_[ 6 ] = 0.5;
+
+    vectorTermMultipliers_[ 0 ] = 2.0 * ( 1.0 + currentPpnGamma_ );
+    vectorTermMultipliers_[ 1 ] = -1.0 + 2.0 * currentPpnGamma_;
+    vectorTermMultipliers_[ 2 ] = ( 3.0 + 4.0 * currentPpnGamma_ ) / 2.0;
 }
 
 void EinsteinInfeldHoffmannEquations::update( const double currentTime )
@@ -102,25 +133,62 @@ void EinsteinInfeldHoffmannEquations::update( const double currentTime )
         for( unsigned int i = 0; i < acceleratedBodies_.size( ); i++ )
         {
             // Reset value
-            totalPointMassAccelerations_[ i ].setZero( );
             currentLocalPotentials_[ i ] = 0.0;
+            totalPointMassAccelerations_[ i ].setZero( );
 
+            for( unsigned int j = 0; j < acceleratingBodies_.size( ); j++ )
+            {
+
+                // v_{i} * v_{j}
+                velocityInnerProducts_[ i ][ j ] = currentVelocities_[ i ].dot( currentVelocities_[ j ] );
+
+                if( i != j )
+                {
+                    // r_{ij} = r_{j} - r_{i}
+                    currentRelativePositions_[ i ][ j ] = currentPositions_[ j ] - currentPositions_[ i ];
+                    currentRelativeDistances_[ i ][ j ] = currentRelativePositions_[ i ][ j ].norm( );
+
+                    currentRelativeVelocities_[ i ][ j ] = currentVelocities_[ j ] - currentVelocities_[ i ];
+
+                    // r_{ij} * v_{j}
+                    relativePositionVelocityProduct_[ i ][ j ] = currentRelativePositions_[ i ][ j ].dot( currentVelocities_[ j ] );
+
+                    // mu_j / ||r_{ij}||
+                    currentSingleSourceLocalPotential_[ i ][ j ] = currentGravitationalParameters_[ j ] / currentRelativeDistances_[ i ][ j ];
+
+                    // mu_{j} * r_{ij} / ||r_{ij}||^3
+                    singlePointMassAccelerations_[ i ][ j ] = currentGravitationalParameters_[ j ] * currentRelativePositions_[ i ][ j ] /
+                                                              ( currentRelativeDistances_[ i ][ j ] * currentRelativeDistances_[ i ][ j ] * currentRelativeDistances_[ i ][ j ] );
+
+
+                    currentLocalPotentials_[ i ] += currentSingleSourceLocalPotential_[ i ][ j ];
+                    totalPointMassAccelerations_[ i ] += singlePointMassAccelerations_[ i ][ j ];
+                }
+            }
+        }
+
+        for( unsigned int i = 0; i < acceleratedBodies_.size( ); i++ )
+        {
             for( unsigned int j = 0; j < acceleratingBodies_.size( ); j++ )
             {
                 if( i != j )
                 {
+                    scalarEihCorrections_[ 0 ][ i ][ j ] = currentLocalPotentials_[ i ];
+                    scalarEihCorrections_[ 1 ][ i ][ j ] = currentLocalPotentials_[ j ];
+                    scalarEihCorrections_[ 2 ][ i ][ j ] = velocityInnerProducts_[ i ][ i ];
 
-                    currentRelativePositions_[ i ][ j ] = currentPositions_[ j ] - currentPositions_[ i ];
-                    currentRelativeDistances_[ i ][ j ] = currentRelativePositions_[ i ][ j ].norm( );
-                    relativePositionVelocityProduct_[ i ][ j ] = currentRelativePositions_[ i ][ j ].dot( currentVelocities_[ j ] );
-                    velocityInnerProducts_[ i ][ j ] = currentVelocities_[ i ].dot( currentVelocities_[ j ] );
+                    scalarEihCorrections_[ 3 ][ i ][ j ] = currentVelocities_[ j ].dot( currentVelocities_[ j ] );
+                    scalarEihCorrections_[ 4 ][ i ][ j ] = velocityInnerProducts_[ i ][ j ];
+                    scalarEihCorrections_[ 5 ][ i ][ j ] =
+                        relativePositionVelocityProduct_[ i ][ j ] * relativePositionVelocityProduct_[ i ][ j ] /
+                         ( currentRelativeDistances_[ i ][ j ] * currentRelativeDistances_[ i ][ j ] );
+                    scalarEihCorrections_[ 6 ][ i ][ j ] = currentRelativePositions_[ i ][ j ].dot( totalPointMassAccelerations_[ j ] );
 
-                    currentSingleSourceLocalPotential_[ i ][ j ] = currentGravitationalParameters_[ j ] / currentRelativeDistances_[ i ][ j ];
-                    singlePointMassAccelerations_[ i ][ j ] = currentGravitationalParameters_[ j ] * currentRelativePositions_[ i ][ j ] /
-                                                              ( currentRelativeDistances_[ i ][ j ] * currentRelativeDistances_[ i ][ j ] * currentRelativeDistances_[ i ][ j ] );
-
-                    currentLocalPotentials_[ i ] += currentSingleSourceLocalPotential_[ i ][ j ];
-                    totalPointMassAccelerations_[ i ] += singlePointMassAccelerations_[ i ][ j ];
+                    vectorEihCorrections_[ 0 ][ i ][ j ] = currentRelativePositions_[ i ][ j ].dot( currentVelocities_[ i ] ) /
+                        ( currentRelativeDistances_[ i ][ j ] * currentRelativeDistances_[ i ][ j ] ) * currentRelativeVelocities_[ i ][ j ];
+                    vectorEihCorrections_[ 1 ][ i ][ j ] = currentRelativePositions_[ i ][ j ].dot( currentVelocities_[ j ] ) /
+                        ( currentRelativeDistances_[ i ][ j ] * currentRelativeDistances_[ i ][ j ] ) * currentRelativeVelocities_[ i ][ j ];
+                    vectorEihCorrections_[ 2 ][ i ][ j ] = totalPointMassAccelerations_[ j ];
                 }
             }
         }
@@ -137,6 +205,9 @@ void EinsteinInfeldHoffmannEquations::calculateAccelerations( )
     double summedTerm1, summedTerm2;
     Eigen::Vector3d singleTerm;
 
+    double currentScalarTermMultiplier = 0;
+    Eigen::Vector3d currentVectorTermMultiplier = Eigen::Vector3d::Zero( );
+
     for( unsigned int i = 0; i < acceleratedBodies_.size( ); i++ )
     {
 
@@ -145,22 +216,26 @@ void EinsteinInfeldHoffmannEquations::calculateAccelerations( )
         for( unsigned int j = 0; j < acceleratingBodies_.size( ); j++ )
         {
             currentSingleAccelerations_[ i ][ j ].setZero( );
+
             if( i != j )
             {
-                currentSingleAccelerations_[ i ][ j ] +=
-                    singlePointMassAccelerations_[ i ][ j ]  * ( 1.0 + INVERSE_SQUARE_SPEED_OF_LIGHT *
-                        ( expansionMultipliers_[ 0 ] * currentLocalPotentials_[ i ] + expansionMultipliers_[ 1 ] * currentLocalPotentials_[ j ] +
-                          expansionMultipliers_[ 2 ] * currentSquareSpeeds_[ i ] + expansionMultipliers_[ 3 ] * currentSquareSpeeds_[ j ] +
-                          expansionMultipliers_[ 4 ] * velocityInnerProducts_[ i ][ j ] + expansionMultipliers_[ 5 ] *
-                              ( relativePositionVelocityProduct_[ i ][ j ] * relativePositionVelocityProduct_[ i ][ j ] ) /
-                              ( currentRelativeDistances_[ i ][ j ] * currentRelativeDistances_[ i ][ j ] ) +
-                          expansionMultipliers_[ 6 ] * currentRelativePositions_[ i ][ j ].dot( totalPointMassAccelerations_[ j ] ) ) );
+                currentScalarTermMultiplier = 0;
+                currentVectorTermMultiplier.setZero( );
 
-                currentSingleAccelerations_[ i ][ j ] += INVERSE_SQUARE_SPEED_OF_LIGHT * (
-                           singlePointMassAccelerations_[ i ][ j ].dot(
-                               expansionMultipliers_[ 7 ] * currentVelocities_[ i ] + expansionMultipliers_[ 8 ] * currentVelocities_[ j ] ) *
-                               ( currentVelocities_[ i ] - currentVelocities_[ j ] ) +
-                               expansionMultipliers_[ 9 ] * currentSingleSourceLocalPotential_[ i ][ j ] * totalPointMassAccelerations_[ j ] );
+                for(  int k = 0; k < 7; k++ )
+                {
+                    currentScalarTermMultiplier += scalarTermMultipliers_[ k ] * scalarEihCorrections_[ k ][ i ][ j ];
+                }
+                currentSingleAccelerations_[ i ][ j ] = singlePointMassAccelerations_[ i ][ j ] *
+                    ( 1.0 + currentScalarTermMultiplier * physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT );
+
+                for(  int k = 0; k < 3; k++ )
+                {
+                    currentVectorTermMultiplier += vectorTermMultipliers_[ k ] * vectorEihCorrections_[ k ][ i ][ j ];
+                }
+                currentSingleAccelerations_[ i ][ j ] += currentSingleSourceLocalPotential_[ i ][ j ] *
+                    currentVectorTermMultiplier * physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT;
+
             }
             currentAccelerations_[ i ] += currentSingleAccelerations_[ i ][ j ];
         }
