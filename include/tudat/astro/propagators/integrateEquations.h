@@ -535,7 +535,7 @@ void integrateEquationsFromIntegrator(
     // Perform numerical integration steps until end time reached.
     do
     {
-        try
+//        try
         {
             if( ( newState.allFinite( ) == true ) && ( !newState.hasNaN( ) ) )
             {
@@ -652,15 +652,15 @@ void integrateEquationsFromIntegrator(
                 breakPropagation = true;
             }
         }
-        catch( const std::exception& caughtException )
-        {
-            std::cerr << caughtException.what( ) << std::endl;
-            std::cerr << "Error, propagation terminated at t=" + std::to_string( static_cast< double >( currentTime ) ) +
-                         ", returning propagation data up to current time." << std::endl;
-            breakPropagation = true;
-            propagationTerminationReason = std::make_shared< PropagationTerminationDetails >(
-                        runtime_error_caught_in_propagation );
-        }
+//        catch( const std::exception& caughtException )
+//        {
+//            std::cerr << caughtException.what( ) << std::endl;
+//            std::cerr << "Error, propagation terminated at t=" + std::to_string( static_cast< double >( currentTime ) ) +
+//                         ", returning propagation data up to current time." << std::endl;
+//            breakPropagation = true;
+//            propagationTerminationReason = std::make_shared< PropagationTerminationDetails >(
+//                        runtime_error_caught_in_propagation );
+//        }
     }
     while( !breakPropagation );
 

@@ -10,13 +10,14 @@
 namespace tudat
 {
 
-namespace gravitation
+namespace relativity
 {
 
 class EinsteinInfeldHoffmannEquations
 {
 public:
     EinsteinInfeldHoffmannEquations( const std::vector< std::string > acceleratedBodies,
+                                     const std::vector< std::string > acceleratingBodies,
                                      const std::vector< std::function< double( ) > > gravitationalParameterFunction,
                                      const std::vector< std::function< Eigen::Matrix< double, 6, 1 >( ) > > bodyStateFunctions,
                                      const std::function< double( ) > ppnGammaFunction,
@@ -36,9 +37,13 @@ public:
 
 private:
 
+    void recomputeExpansionMultipliers( );
+
     void calculateAccelerations( );
 
     std::vector< std::string > acceleratedBodies_;
+
+    std::vector< std::string > acceleratingBodies_;
 
     std::vector< std::function< double( ) > > gravitationalParameterFunction_;
 
@@ -54,27 +59,52 @@ private:
 
     std::map< std::string, int > acceleratedBodyMap_;
 
+
+
+    // mu_{i}
     std::vector< double > currentGravitationalParameters_;
 
+    // v_{i}
     std::vector< Eigen::Vector3d > currentVelocities_;
 
+    // r_{i}
     std::vector< Eigen::Vector3d > currentPositions_;
 
+    // v_{i} * v_{i}
     std::vector< double > currentSquareSpeeds_;
 
-    std::vector< std::vector< Eigen::Vector3d > > currentRelativePositions_;
 
+
+    // sum_(j not i) ( mu_j / ||r_{ij}|| ) = sum( currentSingleSourceLocalPotential_ )
+    std::vector< double > currentLocalPotentials_;
+
+    // sum_(j not i) ( mu_{j} * r_{ij} / ||r_{ij}||^3 ) = sum( singlePointMassAccelerations_ )
     std::vector< Eigen::Vector3d > totalPointMassAccelerations_;
 
-    std::vector< std::vector< Eigen::Vector3d > > singlePointMassAccelerations_;
 
+
+    // r_{ij} = r_{j} - r_{i}
+    std::vector< std::vector< Eigen::Vector3d > > currentRelativePositions_;
+
+    // || r_{ij} ||
     std::vector< std::vector< double > > currentRelativeDistances_;
 
-    std::vector< std::vector< double > > secondaryCentralBodyTerms_; //sum mu_{l}/r_{il} (i=1st, l=2nd)
+    // r_{ij} * v_{j}
+    std::vector< std::vector< double > > relativePositionVelocityProduct_;
 
-    std::vector< std::vector< double > > relativePositionVelocityProduct_; //(r_{i}-r_{j})*\dot r_{j} (i=1st, j=2nd)
-
+    // v_{i} * v_{j}
     std::vector< std::vector< double > > velocityInnerProducts_;
+
+    // mu_j / ||r_{ij}||
+    std::vector< std::vector< double > > currentSingleSourceLocalPotential_;
+
+    // mu_{j} * r_{ij} / ||r_{ij}||^3
+    std::vector< std::vector< Eigen::Vector3d > > singlePointMassAccelerations_;
+
+
+
+
+
 
     std::vector< std::vector< Eigen::Vector3d > > currentSingleAccelerations_;
 
@@ -85,6 +115,7 @@ private:
 
     double currentPpnBeta_;
 
+    std::vector< double > expansionMultipliers_;
 
     double currentTime_;
 };
