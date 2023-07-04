@@ -207,6 +207,11 @@ AvailableAcceleration getAccelerationModelType(
     {
         accelerationType = custom_acceleration;
     }
+    else if( std::dynamic_pointer_cast< relativity::EinsteinInfeldHoffmannAcceleration >( accelerationModel ) != nullptr )
+    {
+        accelerationType = einstein_infeld_hoffmann_acceleration;
+    }
+
     else
     {
         throw std::runtime_error(
