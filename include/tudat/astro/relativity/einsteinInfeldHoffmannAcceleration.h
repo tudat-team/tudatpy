@@ -8,7 +8,7 @@
 namespace tudat
 {
 
-namespace gravitation
+namespace relativity
 {
 
 class EinsteinInfeldHoffmannAcceleration: public basic_astrodynamics::AccelerationModel< Eigen::Vector3d >
@@ -31,8 +31,12 @@ public:
             {
                 currentAcceleration_ = eihEquations_->getAccelerationOfBody( bodyUndergoingAcceleration_ );
             }
-
         }
+    }
+
+    std::vector< std::string > getBodiesExertingAcceleration( )
+    {
+        return bodiesExertingAcceleration_;
     }
 
 private:
