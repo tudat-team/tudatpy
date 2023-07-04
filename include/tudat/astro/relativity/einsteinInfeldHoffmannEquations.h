@@ -86,6 +86,9 @@ private:
     // r_{ij} = r_{j} - r_{i}
     std::vector< std::vector< Eigen::Vector3d > > currentRelativePositions_;
 
+    // v_{ij} = v_{j} - v_{i}
+    std::vector< std::vector< Eigen::Vector3d > > currentRelativeVelocities_;
+
     // || r_{ij} ||
     std::vector< std::vector< double > > currentRelativeDistances_;
 
@@ -108,14 +111,27 @@ private:
 
     std::vector< std::vector< Eigen::Vector3d > > currentSingleAccelerations_;
 
+    std::vector< std::vector< double > > currentScalarTermMultiplier_;
+
+    std::vector< std::vector< Eigen::Vector3d > > currentVectorTermMultiplier_;
+
     std::vector< Eigen::Vector3d > currentAccelerations_;
+
+
+
+    std::vector< std::vector< std::vector< double > > > scalarEihCorrections_;
+
+    std::vector< std::vector< std::vector< Eigen::Vector3d > > > vectorEihCorrections_;
 
 
     double currentPpnGamma_;
 
     double currentPpnBeta_;
 
-    std::vector< double > expansionMultipliers_;
+
+    std::vector< double > scalarTermMultipliers_;
+
+    std::vector< double > vectorTermMultipliers_;
 
     double currentTime_;
 };
