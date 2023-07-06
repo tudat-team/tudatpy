@@ -41,6 +41,7 @@ using namespace tudat::simulation_setup;
 using namespace tudat;
 
 void runSimulation(
+        std::string spacecraftName,
         std::vector< std::string > odfFiles,
         std::vector< std::string > troposphericCorrectionFileNames,
         std::vector< std::string > ionosphericCorrectionFileNames,
@@ -54,7 +55,8 @@ void runSimulation(
         std::vector< LightTimeCorrectionType > lightTimeCorrectionTypes,
         std::string spacecraftEphemeridesOrigin,
         std::string planetaryEphemeridesOrigin,
-        bool writeOdfToTxtFile )
+        bool writeOdfToTxtFile,
+        std::pair< Time, Time > startAndEndTimesToProcess = std::make_pair< Time, Time >( TUDAT_NAN, TUDAT_NAN ) )
 {
 
     // Define bodies to use.
@@ -88,7 +90,6 @@ void runSimulation(
     bodySettings.at( "Earth" )->groundStationSettings = getDsnStationSettings( );
 
     // Create spacecraft
-    std::string spacecraftName = "MGS";
     bodySettings.addSettings( spacecraftName );
     if ( useInterpolatedEphemerides )
     {
@@ -144,7 +145,8 @@ void runSimulation(
     // Create observed observation collection
     std::shared_ptr< observation_models::ObservationCollection< long double, Time > > observedObservationCollection =
             observation_models::createOdfObservedObservationCollection< long double, Time >(
-                    processedOdfFileContents, { dsn_n_way_averaged_doppler } );
+                    processedOdfFileContents, { dsn_n_way_averaged_doppler },
+                    startAndEndTimesToProcess );
 
     // Create computed observation collection
     std::vector< std::shared_ptr< observation_models::ObservationModelSettings > > observationModelSettingsList;
@@ -368,6 +370,8 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
     Time initialEphemerisTime = Time( 185976000 - 2.0 * 86400.0 ); // End of November 2005
     Time finalEphemerisTime = Time( 186580800 + 5.0 * 86400.0 ); // End of November 2005
 
+    std::string spacecraftName = "MGS";
+
     int testCase = 5;
 
 
@@ -377,7 +381,7 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
         std::string fileTag = "5332333aOdf";
         std::string ephemeridesOrigin = "SSB";
         double ephemeridesTimeStep = 100.0;
-        runSimulation( odfFiles, tropCorrectionFiles, ionCorrectionFiles, weatherFiles,
+        runSimulation( spacecraftName, odfFiles, tropCorrectionFiles, ionCorrectionFiles, weatherFiles,
                        saveDirectory, fileTag + "_troCorr",
                        initialEphemerisTime, finalEphemerisTime, true, ephemeridesTimeStep,
                        { tabulated_tropospheric }, ephemeridesOrigin, ephemeridesOrigin, false );
@@ -387,7 +391,7 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
         std::string saveDirectory = "/Users/pipas/tudatpy-testing/mgs/mors_2190/";
         std::string fileTag = "5332333aOdf_iau2000b";
         std::string ephemeridesOrigin = "SSB";
-        runSimulation( odfFiles, tropCorrectionFiles, ionCorrectionFiles, weatherFiles,
+        runSimulation( spacecraftName, odfFiles, tropCorrectionFiles, ionCorrectionFiles, weatherFiles,
                        saveDirectory, fileTag + "_noCorr",
                        initialEphemerisTime, finalEphemerisTime, false, TUDAT_NAN, { },
                        ephemeridesOrigin, ephemeridesOrigin, false );
@@ -400,32 +404,32 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
         std::string fileTag = "5332333aOdf_interpState50";
         double ephemeridesTimeStep = 50.0;
 
-        runSimulation( odfFiles, tropCorrectionFiles, ionCorrectionFiles, weatherFiles,
+        runSimulation( spacecraftName, odfFiles, tropCorrectionFiles, ionCorrectionFiles, weatherFiles,
                        saveDirectory, fileTag + "_noCorr",
                        initialEphemerisTime, finalEphemerisTime, true, ephemeridesTimeStep, { },
                        ephemeridesOrigin, ephemeridesOrigin, false );
 
-//        runSimulation( odfFiles, tropCorrectionFiles, ionCorrectionFiles, weatherFiles,
+//        runSimulation( spacecraftName, odfFiles, tropCorrectionFiles, ionCorrectionFiles, weatherFiles,
 //                       saveDirectory, fileTag + "_relCorr",
 //                       initialEphemerisTime, finalEphemerisTime, true, ephemeridesTimeStep, { first_order_relativistic },
 //                       ephemeridesOrigin, ephemeridesOrigin, false );
 //
-//        runSimulation( odfFiles, tropCorrectionFiles, ionCorrectionFiles, weatherFiles,
+//        runSimulation( spacecraftName, odfFiles, tropCorrectionFiles, ionCorrectionFiles, weatherFiles,
 //                       saveDirectory, fileTag + "_troCorr",
 //                       initialEphemerisTime, finalEphemerisTime, true, ephemeridesTimeStep, { tabulated_tropospheric },
 //                       ephemeridesOrigin, ephemeridesOrigin, false );
 //
-//        runSimulation( odfFiles, tropCorrectionFiles, ionCorrectionFiles, weatherFiles,
+//        runSimulation( spacecraftName, odfFiles, tropCorrectionFiles, ionCorrectionFiles, weatherFiles,
 //                       saveDirectory, fileTag + "_ionCorr",
 //                       initialEphemerisTime, finalEphemerisTime, true, ephemeridesTimeStep, { tabulated_ionospheric },
 //                       ephemeridesOrigin, ephemeridesOrigin, false );
 
-//        runSimulation( odfFiles, tropCorrectionFiles, ionCorrectionFiles, weatherFiles,
+//        runSimulation( spacecraftName, odfFiles, tropCorrectionFiles, ionCorrectionFiles, weatherFiles,
 //                       saveDirectory, fileTag + "_troGdCorr",
 //                       initialEphemerisTime, finalEphemerisTime, true, ephemeridesTimeStep, { saastamoinen_tropospheric },
 //                       ephemeridesOrigin, ephemeridesOrigin, false );
 //
-//        runSimulation( odfFiles, tropCorrectionFiles, ionCorrectionFiles, weatherFiles,
+//        runSimulation( spacecraftName, odfFiles, tropCorrectionFiles, ionCorrectionFiles, weatherFiles,
 //                       saveDirectory, fileTag + "_ionGdCorr",
 //                       initialEphemerisTime, finalEphemerisTime, true, ephemeridesTimeStep, { jakowski_vtec_ionospheric },
 //                       ephemeridesOrigin, ephemeridesOrigin, false );
@@ -437,28 +441,28 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
         std::string fileTag = "5332333aOdf_interpState50";
         double ephemeridesTimeStep = 50.0;
 
-        runSimulation( odfFiles, tropCorrectionFiles, ionCorrectionFiles, weatherFiles,
+        runSimulation( spacecraftName, odfFiles, tropCorrectionFiles, ionCorrectionFiles, weatherFiles,
                        saveDirectory, fileTag + "_noCorr_SsbPlanet_SsbSpacecraft",
                        initialEphemerisTime, finalEphemerisTime, true, ephemeridesTimeStep, { },
                        "SSB", "SSB", false );
 
-        runSimulation( odfFiles, tropCorrectionFiles, ionCorrectionFiles, weatherFiles,
+        runSimulation( spacecraftName, odfFiles, tropCorrectionFiles, ionCorrectionFiles, weatherFiles,
                        saveDirectory, fileTag + "_noCorr_SsbPlanet_MarsSpacecraft",
                        initialEphemerisTime, finalEphemerisTime, true, ephemeridesTimeStep, { },
                        "Mars", "SSB", false );
 
-        runSimulation( odfFiles, tropCorrectionFiles, ionCorrectionFiles, weatherFiles,
+        runSimulation( spacecraftName, odfFiles, tropCorrectionFiles, ionCorrectionFiles, weatherFiles,
                        saveDirectory, fileTag + "_noCorr_MarsPlanet_SsbSpacecraft",
                        initialEphemerisTime, finalEphemerisTime, true, ephemeridesTimeStep, { },
                        "SSB", "Mars", false );
 
-        runSimulation( odfFiles, tropCorrectionFiles, ionCorrectionFiles, weatherFiles,
+        runSimulation( spacecraftName, odfFiles, tropCorrectionFiles, ionCorrectionFiles, weatherFiles,
                        saveDirectory, fileTag + "_noCorr_MarsPlanet_MarsSpacecraft",
                        initialEphemerisTime, finalEphemerisTime, true, ephemeridesTimeStep, { },
                        "Mars", "Mars", false );
 
     }
-    // Validation against Verma (2022)
+    // Validation against Verma (2022), MGS
     else if ( testCase == 5 )
     {
         std::string saveDirectory = "/Users/pipas/tudatpy-testing/mgs/mors_0401/";
@@ -467,7 +471,7 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
         double ephemeridesTimeStep = 50.0;
         odfFiles = {
                 "/Users/pipas/Documents/mgs-m-rss-1-map-v1/mors_0401/odf/9068068a.odf",
-                "/Users/pipas/Documents/mgs-m-rss-1-map-v1/mors_0401/odf/9068068b.odf",
+//                "/Users/pipas/Documents/mgs-m-rss-1-map-v1/mors_0401/odf/9068068b.odf",
                 "/Users/pipas/Documents/mgs-m-rss-1-map-v1/mors_0401/odf/9068071a.odf"
 //                "/Users/pipas/Documents/mgs-m-rss-1-map-v1/mors_0401/odf/9071074a.odf",
 //                "/Users/pipas/Documents/mgs-m-rss-1-map-v1/mors_0401/odf/9072073a.odf"
@@ -480,10 +484,35 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
         spice_interface::loadSpiceKernelInTudat( "/Users/pipas/Documents/planet-spice/de438.bsp" );
         spice_interface::loadSpiceKernelInTudat( "/Users/pipas/Documents/mgs-spice/mgs_map1_ipng_mgs95j.bsp" );
 
-        runSimulation( odfFiles, tropCorrectionFiles, ionCorrectionFiles, weatherFiles,
+        runSimulation( spacecraftName, odfFiles, tropCorrectionFiles, ionCorrectionFiles, weatherFiles,
                        saveDirectory, fileTag + "_noCorr",
                        initialEphemerisTime, finalEphemerisTime, false, ephemeridesTimeStep, { },
                        ephemeridesOrigin, ephemeridesOrigin, true );
+    }
+    else if ( testCase == 6 )
+    {
+        std::string saveDirectory = "/Users/pipas/tudatpy-testing/magellan/mg_2601/";
+        std::string ephemeridesOrigin = "SSB";
+        std::string fileTag = "mg2601";
+        double ephemeridesTimeStep = 50.0;
+        spacecraftName = "Magellan";
+        odfFiles = {
+                "/Users/pipas/Documents/mgn-v-rss-1-tracking-v1/mg_2601/odf/3004003a.odf"
+        };
+        initialEphemerisTime = Time( TUDAT_NAN );
+        finalEphemerisTime = Time( TUDAT_NAN );
+        std::pair< Time, Time > startAndEndTimesToProcess = std::make_pair( Time( -212932800 ), Time( -212328000 ) );
+
+        spice_interface::clearSpiceKernels( );
+        spice_interface::loadStandardSpiceKernels( );
+        spice_interface::loadSpiceKernelInTudat( "/Users/pipas/Documents/planet-spice/de438.bsp" );
+        spice_interface::loadSpiceKernelInTudat( "/Users/pipas/Documents/mgn-spice/mgn_cycle4_grav.bsp" );
+
+        runSimulation( spacecraftName, odfFiles, tropCorrectionFiles, ionCorrectionFiles, weatherFiles,
+                       saveDirectory, fileTag + "_noCorr",
+                       initialEphemerisTime, finalEphemerisTime, false, ephemeridesTimeStep, { },
+                       ephemeridesOrigin, ephemeridesOrigin, true,
+                       startAndEndTimesToProcess );
     }
     // Test of SPICE interpolation step size
     else if ( testCase == 1 )
@@ -506,7 +535,7 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
                 typeTag = "relCorr";
             }
 
-            runSimulation( odfFiles, tropCorrectionFiles, ionCorrectionFiles, weatherFiles,
+            runSimulation( spacecraftName, odfFiles, tropCorrectionFiles, ionCorrectionFiles, weatherFiles,
                            saveDirectory + "data_spice_test/", fileTag + "_" + typeTag + "_SpiceDirect",
                            initialEphemerisTime, finalEphemerisTime, false, TUDAT_NAN,
                            lightTimeCorrections, ephemeridesOrigin, ephemeridesOrigin, false );
@@ -516,7 +545,7 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
             for ( int step: ephemeridesTimeSteps )
             {
                 runSimulation(
-                        odfFiles, tropCorrectionFiles, ionCorrectionFiles, weatherFiles,
+                        spacecraftName, odfFiles, tropCorrectionFiles, ionCorrectionFiles, weatherFiles,
                         saveDirectory + "data_spice_test/",
                         fileTag + "_" + typeTag + "_SpiceInterp" + std::to_string( step ),
                         initialEphemerisTime, finalEphemerisTime, true, step, lightTimeCorrections,

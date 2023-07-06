@@ -568,7 +568,8 @@ void separateSingleLinkOdfData(
 template< typename ObservationScalarType = double, typename TimeType = double >
 std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > createOdfObservedObservationCollection(
         std::shared_ptr< ProcessedOdfFileContents > processedOdfFileContents,
-        std::vector< observation_models::ObservableType > observableTypesToProcess = std::vector< observation_models::ObservableType >( ) )
+        std::vector< observation_models::ObservableType > observableTypesToProcess = std::vector< observation_models::ObservableType >( ),
+        std::pair< TimeType, TimeType > startAndEndTimesToProcess = std::make_pair< TimeType, TimeType >( TUDAT_NAN, TUDAT_NAN ) )
 {
     // Set observables to process
     if ( observableTypesToProcess.empty( ) )
@@ -606,12 +607,43 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
             separateSingleLinkOdfData(
                     currentObservableType, currentOdfSingleLinkData, observationTimes, observables, ancillarySettings );
 
+            std::vector< std::vector< TimeType > > truncatedObservationTimes;
+            std::vector< std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > > truncatedObservables;
+
+            if ( std::isnan( startAndEndTimesToProcess.first ) && std::isnan( startAndEndTimesToProcess.second ) )
+            {
+                truncatedObservationTimes = observationTimes;
+                truncatedObservables = observables;
+            }
+            else
+            {
+                for ( unsigned int i = 0; i < observationTimes.size( ); ++i )
+                {
+                    std::vector< TimeType > singleTruncatedObservationTimes;
+                    std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > singleTruncatedObservables;
+
+                    for ( unsigned int j = 0; j < observationTimes.at( i ).size( ); ++j )
+                    {
+                        if ( ( (!std::isnan( startAndEndTimesToProcess.first ) && observationTimes.at( i ).at( j ) >= startAndEndTimesToProcess.first) ||
+                            std::isnan( startAndEndTimesToProcess.first ) ) &&
+                            ( (!std::isnan( startAndEndTimesToProcess.second ) && observationTimes.at( i ).at( j ) <= startAndEndTimesToProcess.second) ||
+                            std::isnan( startAndEndTimesToProcess.second ) ) )
+                        {
+                            singleTruncatedObservationTimes.push_back( observationTimes.at( i ).at( j ) );
+                            singleTruncatedObservables.push_back( observables.at( i ).at( j ) );
+                        }
+                    }
+                    truncatedObservationTimes.push_back( singleTruncatedObservationTimes );
+                    truncatedObservables.push_back( singleTruncatedObservables );
+                }
+            }
+
             // Create the single observation sets and save them
             for ( unsigned int i = 0; i < observationTimes.size( ); ++i )
             {
                 sortedObservationSets[ currentObservableType ][ currentLinkEnds ].push_back(
                     std::make_shared< observation_models::SingleObservationSet< ObservationScalarType, TimeType > >(
-                        currentObservableType, currentLinkEnds, observables.at( i ), observationTimes.at( i ),
+                        currentObservableType, currentLinkEnds, truncatedObservables.at( i ), truncatedObservationTimes.at( i ),
                         observation_models::receiver,
                         std::vector< Eigen::VectorXd >( ),
                         nullptr, std::make_shared< observation_models::ObservationAncilliarySimulationSettings >(
