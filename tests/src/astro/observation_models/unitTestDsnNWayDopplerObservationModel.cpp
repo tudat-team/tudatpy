@@ -51,15 +51,17 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
 {
 
     spice_interface::loadStandardSpiceKernels( );
-    spice_interface::loadSpiceKernelInTudat( "/Users/pipas/Documents/planet-spice/de438.bsp" );
-    spice_interface::loadSpiceKernelInTudat( "/Users/pipas/Documents/mgs-spice/mgs_map1_ipng_mgs95j.bsp" );
+    // Verma (2022) uses DE438, but here we use the standard Tudat SPICE kernels as the difference produced by the kernels
+    // is way below the level of the current residuals.
+    // spice_interface::loadSpiceKernelInTudat( "/Users/pipas/Documents/planet-spice/de438.bsp" );
+    spice_interface::loadSpiceKernelInTudat( tudat::paths::getTudatTestDataPath( ) + "dsn_n_way_doppler_observation_model/mgs_map1_ipng_mgs95j.bsp" );
 
     std::string spacecraftName = "MGS";
     std::string ephemeridesOrigin = "SSB";
 
     std::vector< std::string > odfFiles = {
-            "/Users/pipas/Documents/mgs-m-rss-1-map-v1/mors_0401/odf/9068068a.odf",
-            "/Users/pipas/Documents/mgs-m-rss-1-map-v1/mors_0401/odf/9068071a.odf" };
+            tudat::paths::getTudatTestDataPath( ) + "dsn_n_way_doppler_observation_model/9068068a.odf",
+            tudat::paths::getTudatTestDataPath( ) + "dsn_n_way_doppler_observation_model/9068071a.odf" };
 
     // Define bodies to use.
     std::vector< std::string > bodiesToCreate = { "Earth", "Sun", "Mars" };
@@ -170,7 +172,8 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
 
          // Ignoring observations with reference frequencies of approximately 2.115e9.
          // The observations with f_ref ~ 2.114e9 are reproduced accurately, while the ones with f_ref ~ 2.115e9 have very
-         // large residuals. Comparing contiguous data points with f_ref ~ 2.114e9 and f_ref ~ 2.115e9, which only differ
+         // large residuals (the residuals are basically a bias).
+         // Comparing contiguous data points with f_ref ~ 2.114e9 and f_ref ~ 2.115e9, which only differ
          // in the value of the f_ref, the simulated observations for f_ref ~ 2.115e9 appear to be consistent with the
          // value of f_ref, while the observed observations do not. Considering the that the data points are identical
          // besides f_ref, it is suggested that the values of the reference frequency f_ref ~ 2.115e9 are wrongly reported
