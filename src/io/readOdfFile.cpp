@@ -269,6 +269,12 @@ OdfCommonDataBlock::OdfCommonDataBlock( const std::bitset< 160 > commonDataBits 
             uplinkBandId_,
             referenceBandId_,
             validity_ );
+
+    if ( formatId_ != 2 )
+    {
+        throw std::runtime_error( "Error when reading ODF file: reading of ODF files with format ID " + std::to_string( formatId_ ) +
+            " not implemented." );
+    }
 }
 
 void OdfCommonDataBlock::printDataBlock( std::ofstream& outFile )
