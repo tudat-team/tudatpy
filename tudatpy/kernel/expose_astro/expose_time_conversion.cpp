@@ -61,7 +61,7 @@ std::chrono::system_clock::time_point dateTimeToTimePoint(const tba::DateTime& d
         dateTime.getYear( ) - 1900
 
     };
-    tm.tm_isdst = 1;
+    tm.tm_isdst = -1;
     std::chrono::system_clock::time_point timePoint = std::chrono::system_clock::from_time_t(std::mktime(&tm));
     return timePoint + std::chrono::microseconds ( static_cast< int >( std::round(
                                                      ( dateTime.getSeconds( ) - static_cast< long double >( tm.tm_sec ) ) *
