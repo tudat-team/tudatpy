@@ -197,15 +197,23 @@ public:
         // Check if there are no discontinuities between end times and subsequent start times
         for ( unsigned int i = 1; i < startTimes_.size( ); ++i )
         {
-            // If there are discontinuities, save that information
+            // If there are discontinuities
             if ( startTimes_.at( i ) != endTimes_.at( i - 1 ) )
             {
-//                throw std::runtime_error(
-//                        "Error when creating piecewise linear frequency interpolator: discontinuity between ramp end "
-//                        "time (" + std::to_string( endTimes_.at( i - 1 ) ) + ") and start time of the following ramp (" +
-//                        std::to_string( startTimes_.at( i ) ) + ")." );
-                invalidTimeBlocksStartTimes_.push_back( endTimes_.at( i - 1 ) );
-                invalidTimeBlocksEndTimes_.push_back( startTimes_.at( i ) );
+                // If the start and end times are inconsistent throw error
+                if ( endTimes_.at( i - 1 ) > startTimes_.at( i ) )
+                {
+                    throw std::runtime_error(
+                            "Error when creating piecewise linear frequency interpolator: inconsistency between ramp end "
+                            "time (" + std::to_string( endTimes_.at( i - 1 ) ) + ") and start time of the following ramp (" +
+                            std::to_string( startTimes_.at( i ) ) + "); the end is smaller than the start time." );
+                }
+                // If there are gaps in the data save that information
+                else
+                {
+                    invalidTimeBlocksStartTimes_.push_back( endTimes_.at( i - 1 ) );
+                    invalidTimeBlocksEndTimes_.push_back( startTimes_.at( i ) );
+                }
             }
         }
 
