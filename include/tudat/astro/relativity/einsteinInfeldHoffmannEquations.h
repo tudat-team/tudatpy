@@ -35,6 +35,76 @@ public:
         return getAccelerationOfBody( acceleratedBodyMap_.at( bodyName ) );
     }
 
+    double getDistance( const int bodyUndergoing, const int bodyExerting )
+    {
+        return currentRelativeDistances_.at( bodyUndergoing ).at( bodyExerting );
+    }
+
+    Eigen::Vector3d getRelativePositions( const int bodyUndergoing, const int bodyExerting )
+    {
+        return currentRelativePositions_.at( bodyUndergoing ).at( bodyExerting );
+    }
+
+    Eigen::Vector3d getVelocity( const int bodyIndex )
+    {
+        return currentVelocities_.at( bodyIndex );
+    }
+
+    double getGravitationalParameter( const int bodyIndex )
+    {
+        return currentGravitationalParameters_.at( bodyIndex );
+    }
+
+
+
+    double getScalarTermMultiplier( const int bodyUndergoing, const int bodyExerting )
+    {
+        return currentScalarTermMultiplier_.at( bodyUndergoing ).at( bodyExerting );
+    }
+
+    Eigen::Vector3d getVectorTermMultiplier( const int bodyUndergoing, const int bodyExerting )
+    {
+        return currentVectorTermMultiplier_.at( bodyUndergoing ).at( bodyExerting );
+    }
+
+
+
+
+    double getSingleSourceLocalPotential( const int bodyUndergoing, const int bodyExerting )
+    {
+        return currentSingleSourceLocalPotential_.at( bodyUndergoing ).at( bodyExerting );
+    }
+
+    Eigen::Vector3d getSinglePointMassAccelerations( const int bodyUndergoing, const int bodyExerting )
+    {
+        return singlePointMassAccelerations_.at( bodyUndergoing ).at( bodyExerting );
+    }
+
+    double getLocalPotential( const int bodyIndex )
+    {
+        return currentLocalPotentials_.at( bodyIndex );
+    }
+
+    Eigen::Vector3d getTotalPointMassAcceleration( const int bodyIndex )
+    {
+        return totalPointMassAccelerations_.at( bodyIndex );
+    }
+
+    std::vector< std::vector< std::vector< double > > > getScalarEihCorrections( )
+    {
+        return scalarEihCorrections_;
+    }
+
+    std::vector< std::string > getBodiesUndergoingAcceleration( )
+    {
+        return acceleratedBodies_;
+    }
+
+    std::vector< std::string > getBodiesExertingAcceleration( )
+    {
+        return acceleratingBodies_;
+    }
+
 private:
 
     void recomputeExpansionMultipliers( );
@@ -103,9 +173,6 @@ private:
 
     // mu_{j} * r_{ij} / ||r_{ij}||^3
     std::vector< std::vector< Eigen::Vector3d > > singlePointMassAccelerations_;
-
-
-
 
 
 

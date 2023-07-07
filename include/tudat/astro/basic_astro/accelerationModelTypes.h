@@ -123,6 +123,8 @@ std::vector< std::shared_ptr< AccelerationModel3d > > getAccelerationModelsOfTyp
         const std::vector< std::shared_ptr< AccelerationModel3d > >& fullList,
         const AvailableAcceleration modelType );
 
+
+
 // Function to check whether an acceleration type is a direct gravitational acceleration
 /*
  * Function to check whether an acceleration type is a direct gravitational acceleration, e.g. a gravitational

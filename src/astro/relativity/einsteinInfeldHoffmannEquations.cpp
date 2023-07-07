@@ -45,6 +45,9 @@ EinsteinInfeldHoffmannEquations::EinsteinInfeldHoffmannEquations(
         singlePointMassAccelerations_.resize( acceleratedBodies_.size() );
         currentSingleAccelerations_.resize( acceleratedBodies_.size() );
 
+        currentScalarTermMultiplier_.resize( acceleratedBodies_.size() );
+        currentVectorTermMultiplier_.resize( acceleratedBodies_.size() );
+
         for( int k = 0; k < 7; k++ )
         {
             scalarEihCorrections_[ k ].resize( acceleratedBodies_.size( ) );
@@ -66,6 +69,8 @@ EinsteinInfeldHoffmannEquations::EinsteinInfeldHoffmannEquations(
             currentSingleSourceLocalPotential_[ i ].resize( acceleratingBodies_.size( ) );
             singlePointMassAccelerations_[ i ].resize( acceleratingBodies_.size( ) );
             currentSingleAccelerations_[ i ].resize( acceleratingBodies_.size( ) );
+            currentScalarTermMultiplier_[ i ].resize( acceleratingBodies_.size() );
+            currentVectorTermMultiplier_[ i ].resize( acceleratingBodies_.size() );
 
             for( int k = 0; k < 7; k++ )
             {
@@ -165,6 +170,7 @@ void EinsteinInfeldHoffmannEquations::update( const double currentTime )
                     totalPointMassAccelerations_[ i ] += singlePointMassAccelerations_[ i ][ j ];
                 }
             }
+            std::cout<<"Local potential "<<i<<" "<<currentLocalPotentials_[ i ]<<std::endl;
         }
 
         for( unsigned int i = 0; i < acceleratedBodies_.size( ); i++ )
@@ -205,9 +211,6 @@ void EinsteinInfeldHoffmannEquations::calculateAccelerations( )
     double summedTerm1, summedTerm2;
     Eigen::Vector3d singleTerm;
 
-    double currentScalarTermMultiplier = 0;
-    Eigen::Vector3d currentVectorTermMultiplier = Eigen::Vector3d::Zero( );
-
     for( unsigned int i = 0; i < acceleratedBodies_.size( ); i++ )
     {
 
@@ -219,22 +222,22 @@ void EinsteinInfeldHoffmannEquations::calculateAccelerations( )
 
             if( i != j )
             {
-                currentScalarTermMultiplier = 0;
-                currentVectorTermMultiplier.setZero( );
+                currentScalarTermMultiplier_[ i ][ j ] = 0;
+                currentVectorTermMultiplier_[ i ][ j ].setZero( );
 
                 for(  int k = 0; k < 7; k++ )
                 {
-                    currentScalarTermMultiplier += scalarTermMultipliers_[ k ] * scalarEihCorrections_[ k ][ i ][ j ];
+                    currentScalarTermMultiplier_[ i ][ j ] += scalarTermMultipliers_[ k ] * scalarEihCorrections_[ k ][ i ][ j ];
                 }
                 currentSingleAccelerations_[ i ][ j ] = singlePointMassAccelerations_[ i ][ j ] *
-                    ( 1.0 + currentScalarTermMultiplier * physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT );
+                    ( 1.0 + currentScalarTermMultiplier_[ i ][ j ] * physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT );
 
                 for(  int k = 0; k < 3; k++ )
                 {
-                    currentVectorTermMultiplier += vectorTermMultipliers_[ k ] * vectorEihCorrections_[ k ][ i ][ j ];
+                    currentVectorTermMultiplier_[ i ][ j ] += vectorTermMultipliers_[ k ] * vectorEihCorrections_[ k ][ i ][ j ];
                 }
                 currentSingleAccelerations_[ i ][ j ] += currentSingleSourceLocalPotential_[ i ][ j ] *
-                    currentVectorTermMultiplier * physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT;
+                    currentVectorTermMultiplier_[ i ][ j ] * physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT;
 
             }
             currentAccelerations_[ i ] += currentSingleAccelerations_[ i ][ j ];
