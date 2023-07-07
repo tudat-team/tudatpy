@@ -39,6 +39,12 @@ public:
         return bodiesExertingAcceleration_;
     }
 
+    std::shared_ptr< EinsteinInfeldHoffmannEquations > getEihEquations( )
+    {
+        return eihEquations_;
+    }
+
+
 private:
 
     std::shared_ptr< EinsteinInfeldHoffmannEquations > eihEquations_;

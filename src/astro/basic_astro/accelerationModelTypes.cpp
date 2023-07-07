@@ -264,6 +264,7 @@ std::vector< std::shared_ptr< AccelerationModel3d > > getAccelerationModelsOfTyp
     return accelerationList;
 }
 
+
 //! Function to check whether an acceleration type is a direct gravitational acceleration
 bool isAccelerationDirectGravitational( const AvailableAcceleration accelerationType )
 {
