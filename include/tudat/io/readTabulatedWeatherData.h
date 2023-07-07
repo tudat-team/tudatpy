@@ -86,12 +86,6 @@ private:
 };
 
 /*!
- * Returns the default DSN station names per DSN station complex id. Stations are named as "DSS-i", following the
- * nomenclature used when retrieving the default DSN ground station settings.
- */
-std::map< int, std::vector< std::string > > getDefaultDsnStationNamesPerComplex( );
-
-/*!
  * Checks which file starts first. Used to sort weather files. Returns true if file1 starts first, false otherwise.
  *
  * @param file1 Weather data file.
@@ -156,7 +150,7 @@ inline void setDsnWeatherDataInGroundStations(
         simulation_setup::SystemOfBodies& bodies,
         const std::vector< std::string >& weatherFiles,
         std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = interpolators::linearInterpolation( ),
-        const std::map< int, std::vector< std::string > >& groundStationsPerComplex = getDefaultDsnStationNamesPerComplex( ),
+        const std::map< int, std::vector< std::string > >& groundStationsPerComplex = simulation_setup::getDefaultDsnStationNamesPerComplex( ),
         const std::string& bodyWithGroundStations = "Earth" )
 {
     setDsnWeatherDataInGroundStations(

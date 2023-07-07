@@ -15,6 +15,7 @@
 #define TUDAT_READTABULATEDMEDIACORRECTIONS_H
 
 #include "tudat/astro/observation_models/observableTypes.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
 
 namespace tudat
 {

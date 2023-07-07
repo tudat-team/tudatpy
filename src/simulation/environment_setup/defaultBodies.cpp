@@ -380,10 +380,8 @@ BodyListSettings getDefaultBodySettings(
     return BodyListSettings( settingsMap, baseFrameOrigin, baseFrameOrientation );
 }
 
-std::vector< std::shared_ptr< GroundStationSettings > > getDsnStationSettings( )
+std::map< std::string, Eigen::Vector3d > getApproximateDsnGroundStationPositions( )
 {
-    // DSS positions: at 2003.0 with respect to ITRF93
-    double stationPositionsReferenceEpoch = 3.0 * physical_constants::JULIAN_YEAR;
     std::map< std::string, Eigen::Vector3d > dsnStationPositionsItrf93 = {
         { "DSS-13", ( Eigen::Vector3d( )<< -2351112.659, -4655530.636, +3660912.728 ).finished( ) },
         { "DSS-14", ( Eigen::Vector3d( )<< -2353621.420, -4641341.472, +3677052.318 ).finished( ) },
@@ -400,6 +398,43 @@ std::vector< std::shared_ptr< GroundStationSettings > > getDsnStationSettings( )
         { "DSS-55", ( Eigen::Vector3d( )<< +4849525.256, -360606.0932, +4114495.084 ).finished( ) },
         { "DSS-63", ( Eigen::Vector3d( )<< +4849092.518, -360180.3480, +4115109.251 ).finished( ) },
         { "DSS-65", ( Eigen::Vector3d( )<< +4849339.634, -360427.6630, +4114750.733 ).finished( ) } };
+
+    return dsnStationPositionsItrf93;
+}
+
+std::map< int, std::vector< std::string > > getDefaultDsnStationNamesPerComplex( )
+{
+    std::map< int, std::vector< std::string > > stationsPerComplex;
+    stationsPerComplex[ 10 ] = { "DSS-13", "DSS-14", "DSS-15", "DSS-24", "DSS-25", "DSS-26" };
+    stationsPerComplex[ 40 ] = { "DSS-34", "DSS-35", "DSS-36", "DSS-43", "DSS-45" };
+    stationsPerComplex[ 60 ] = { "DSS-54", "DSS-55", "DSS-63", "DSS-65" };
+
+    return stationsPerComplex;
+}
+
+Eigen::Vector3d getApproximateGroundStationPosition( std::string stationName )
+{
+    Eigen::Vector3d groundStationPosition;
+
+    std::map< std::string, Eigen::Vector3d > dsnMap = getApproximateDsnGroundStationPositions( );
+    if ( dsnMap.count( stationName ) != 0 )
+    {
+        groundStationPosition = dsnMap.at( stationName );
+    }
+    else
+    {
+        throw std::runtime_error( "Error when retrieving approximate ground station position: station name " + stationName +
+            "not recognized." );
+    }
+
+    return groundStationPosition;
+}
+
+std::vector< std::shared_ptr< GroundStationSettings > > getDsnStationSettings( )
+{
+    // DSS positions: at 2003.0 with respect to ITRF93
+    double stationPositionsReferenceEpoch = 3.0 * physical_constants::JULIAN_YEAR;
+    std::map< std::string, Eigen::Vector3d > dsnStationPositionsItrf93 = getApproximateDsnGroundStationPositions( );
 
     Eigen::Vector3d goldstoneStationVelocity( -0.0180, 0.0065, -0.0038 );
     goldstoneStationVelocity /= physical_constants::JULIAN_YEAR;

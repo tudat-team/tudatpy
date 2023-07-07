@@ -202,46 +202,52 @@ public:
      * Constructor for single raw ODF data object. Processes the raw ODF data.
      *
      * @param rawOdfDataVector Vector of multiple ODF data objects
-     * @param bodyWithGroundStations Body where the ground stations are located
+     * @param spacecraftName Name of the spacecraft.
      * @param verbose Bool indicating whether to print warning regarding e.g. ignored data.
-     * @param spacecraftName Name of the spacecraft. If no name is provided, the name is selected to be the NAIF ID.
+     * @param bodyFixedGroundStationPositions Map with the position of each ground station in the corresponding planet's
+     *      body-fixed frame. Positions are only used for converting the time between UTC and TDB, therefore approximate
+     *      positions are sufficient.
      */
     ProcessedOdfFileContents(
             const std::shared_ptr< input_output::OdfRawFileContents > rawOdfData,
-            const std::shared_ptr< const simulation_setup::Body > bodyWithGroundStations,
+            const std::string spacecraftName,
             bool verbose = true,
-            std::string spacecraftName = "" ):
+            const std::map< std::string, Eigen::Vector3d >& bodyFixedGroundStationPositions =
+                    simulation_setup::getApproximateDsnGroundStationPositions( ) ):
         ProcessedOdfFileContents(
                 std::vector< std::shared_ptr< input_output::OdfRawFileContents > >{ rawOdfData },
-                bodyWithGroundStations, verbose, spacecraftName )
+                spacecraftName, verbose, bodyFixedGroundStationPositions )
     { }
 
     /*!
      * Constructor for multiple ODF data objects. Processes the raw ODF data.
      *
      * @param rawOdfDataVector Vector of multiple ODF data objects
-     * @param bodyWithGroundStations Body where the ground stations are located
+     * @param spacecraftName Name of the spacecraft.
      * @param verbose Bool indicating whether to print warning regarding e.g. ignored data.
-     * @param spacecraftName Name of the spacecraft. If no name is provided, the name is selected to be the NAIF ID.
+     * @param bodyFixedGroundStationPositions Map with the position of each ground station in the corresponding planet's
+     *      body-fixed frame. Positions are only used for converting the time between UTC and TDB, therefore approximate
+     *      positions are sufficient.
      */
     ProcessedOdfFileContents(
             std::vector< std::shared_ptr< input_output::OdfRawFileContents > > rawOdfDataVector,
-            const std::shared_ptr< const simulation_setup::Body > bodyWithGroundStations,
+            const std::string spacecraftName,
             bool verbose = true,
-            std::string spacecraftName = "" ):
+            const std::map< std::string, Eigen::Vector3d >& bodyFixedGroundStationPositions =
+                    simulation_setup::getApproximateDsnGroundStationPositions( ) ):
         spacecraftName_( spacecraftName ),
-        bodyWithGroundStations_ ( bodyWithGroundStations ),
+        approximateBodyFixedGroundStationPositions_ ( bodyFixedGroundStationPositions ),
         verbose_( verbose )
     {
-        if ( spacecraftName != "" )
-        {
-            spacecraftName_ = spacecraftName;
-        }
-        else
-        {
-            // Spacecraft name selected to be "NAIF Id", which is equal to -"JPL Id" (for a spacecraft)
-            spacecraftName_ = std::to_string( - static_cast< int >( rawOdfDataVector.front( )->spacecraftId_ ) );
-        }
+//        if ( spacecraftName != "" )
+//        {
+//            spacecraftName_ = spacecraftName;
+//        }
+//        else
+//        {
+//            // Spacecraft name selected to be "NAIF Id", which is equal to -"JPL Id" (for a spacecraft)
+//            spacecraftName_ = std::to_string( - static_cast< int >( rawOdfDataVector.front( )->spacecraftId_ ) );
+//        }
 
         // Sort ODF data files by date and check whether all the provided files apply to the same spacecraft
         sortAndValidateOdfDataVector( rawOdfDataVector );
@@ -372,10 +378,10 @@ private:
             std::string groundStation, std::vector< double > observationTimesUtcFromEME1950 );
 
     // Name of the spacecraft
-    std::string spacecraftName_;
+    const std::string spacecraftName_;
 
-    // Pointer to the body containing the ground stations
-    std::shared_ptr< const simulation_setup::Body > bodyWithGroundStations_;
+    // Map containing approximate position of ground stations
+    const std::map< std::string, Eigen::Vector3d > approximateBodyFixedGroundStationPositions_;
 
     // Processed data mapped by observable type and link ends
     std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds,

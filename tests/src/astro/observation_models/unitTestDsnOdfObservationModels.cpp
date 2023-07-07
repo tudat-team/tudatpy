@@ -119,7 +119,7 @@ void runSimulation(
 
     std::shared_ptr< ProcessedOdfFileContents > processedOdfFileContents =
             std::make_shared< ProcessedOdfFileContents >(
-                    rawOdfDataVector, bodies.getBody( "Earth" ), true, spacecraftName );
+                    rawOdfDataVector, spacecraftName, true );
 
 //    std::cout << std::setprecision( 18 );
 //    std::cout << "Start time from 1950 UTC: " << rawOdfFileContents->getDataBlocks( ).front()->getCommonDataBlock( )->getObservableTime() << std::endl;

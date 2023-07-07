@@ -27,7 +27,7 @@ namespace input_output
 void DsnWeatherData::readSingleFileWeatherData( const std::string& weatherFile )
 {
     // Open file
-    std::ifstream stream( weatherFile, std::ios_base::binary );
+    std::ifstream stream( weatherFile, std::ios_base::in );
     if ( !stream.good( ) )
     {
         throw std::runtime_error( "Error when opening weather file: " + weatherFile );
@@ -151,16 +151,6 @@ void DsnWeatherData::readSingleFileWeatherData( const std::string& weatherFile )
 
     // Close file
     stream.close( );
-}
-
-std::map< int, std::vector< std::string > > getDefaultDsnStationNamesPerComplex( )
-{
-    std::map< int, std::vector< std::string > > stationsPerComplex;
-    stationsPerComplex[ 10 ] = { "DSS-13", "DSS-14", "DSS-15", "DSS-24", "DSS-25", "DSS-26" };
-    stationsPerComplex[ 40 ] = { "DSS-34", "DSS-35", "DSS-36", "DSS-43", "DSS-45" };
-    stationsPerComplex[ 60 ] = { "DSS-54", "DSS-55", "DSS-63", "DSS-65" };
-
-    return stationsPerComplex;
 }
 
 bool compareDsnWeatherFileStartDate( std::shared_ptr< DsnWeatherData > file1,

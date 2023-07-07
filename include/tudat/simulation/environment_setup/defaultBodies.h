@@ -180,6 +180,37 @@ BodyListSettings getDefaultBodySettings(
         const std::string baseFrameOrigin = "SSB",
         const std::string baseFrameOrientation = "ECLIPJ2000" );
 
+/*!
+ * Returns a map with the approximate positions of the DSN ground stations, having as key the ground station names. The
+ * ground stations are named "DSS-id". The ground station positions are selected according to table 2 of DSN 810-005,
+ * 301 Coverage and Geometry, Revision K (2016), DSN/JPL. The positions of the ground stations are specified at 2003.0
+ * with respect to ITRF93.
+ *
+ * @return Map with the ground station positions
+ */
+std::map< std::string, Eigen::Vector3d > getApproximateDsnGroundStationPositions( );
+
+/*!
+ * Returns the default DSN station names per DSN station complex id. Stations are named as "DSS-i", following the
+ * nomenclature used when retrieving the default DSN ground station settings.
+ */
+std::map< int, std::vector< std::string > > getDefaultDsnStationNamesPerComplex( );
+
+/*!
+ * Returns the approximate position of the specified ground station. Currently only implemented for DSN stations.
+ *
+ * @param stationName Station name
+ * @return Ground station position.
+ */
+Eigen::Vector3d getApproximateGroundStationPosition( std::string stationName );
+
+/*!
+ * Returns the settings for DSN ground stations. The settings are specified according to table 2 and 3 of DSN 810-005,
+ * 301 Coverage and Geometry, Revision K (2016), DSN/JPL. The positions of the ground stations are specified with respect
+ * to ITRF2014 and account for their linear motion.
+ *
+ * @return Vector of ground station settings.
+ */
 std::vector< std::shared_ptr< GroundStationSettings > > getDsnStationSettings( );
 
 } // namespace simulation_setup
