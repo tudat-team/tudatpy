@@ -1071,10 +1071,34 @@ inline std::shared_ptr< ObservationModelSettings > nWayDifferencedRangeObservati
 
 inline std::shared_ptr< ObservationModelSettings > nWayDifferencedRangeObservationSettings(
         const std::vector< std::shared_ptr< ObservationModelSettings > > oneWayRangeObsevationSettings,
-        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr )
+        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
+        const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria
+                = std::make_shared< LightTimeConvergenceCriteria >( ) )
 {
     return std::make_shared< NWayDifferencedRangeObservationSettings >(
-                oneWayRangeObsevationSettings, biasSettings );
+                oneWayRangeObsevationSettings, biasSettings, lightTimeConvergenceCriteria );
+}
+
+inline std::shared_ptr< ObservationModelSettings > dsnNWayAveragedDopplerObservationSettings(
+        const LinkDefinition& linkEnds,
+        const std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList =
+                std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
+        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
+        const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria =
+                std::make_shared< LightTimeConvergenceCriteria >( ) )
+{
+    return std::make_shared< DsnNWayAveragedDopplerObservationSettings >(
+                linkEnds, lightTimeCorrectionsList, biasSettings, lightTimeConvergenceCriteria );
+}
+
+inline std::shared_ptr< ObservationModelSettings > dsnNWayAveragedDopplerObservationSettings(
+        const std::vector< std::shared_ptr< ObservationModelSettings > > oneWayRangeObsevationSettings,
+        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
+        const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria
+                = std::make_shared< LightTimeConvergenceCriteria >( ) )
+{
+    return std::make_shared< DsnNWayAveragedDopplerObservationSettings >(
+                oneWayRangeObsevationSettings, biasSettings, lightTimeConvergenceCriteria );
 }
 
 

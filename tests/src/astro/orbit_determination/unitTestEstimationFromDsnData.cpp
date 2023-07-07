@@ -243,8 +243,7 @@ void runSimulation(
         rawOdfDataVector.push_back( std::make_shared< OdfRawFileContents >( odfFile ) );
 
     std::shared_ptr< ProcessedOdfFileContents > processedOdfFileContents =
-            std::make_shared< ProcessedOdfFileContents >(
-                    rawOdfDataVector, bodies.getBody( "Earth" ), true, spacecraftName );
+            std::make_shared< ProcessedOdfFileContents >( rawOdfDataVector, spacecraftName );
 
     // Create observed observation collection
     std::shared_ptr< observation_models::ObservationCollection< long double, Time > > observedObservationCollection =
