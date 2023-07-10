@@ -68,6 +68,8 @@ public:
         currentTotalVectorTermWrtExertingVelocity_.resize( numberOfExertingBodies_ );
         currentTotalVectorTermWrtUndergoingVelocity_.resize( numberOfExertingBodies_ );
 
+        currentTotalAccelerationsWrtPositionCrossTerms_.resize( numberOfExertingBodies_ );
+
 
         for( int i = 0; i < numberOfUndergoingBodies_; i++ )
         {
@@ -92,6 +94,8 @@ public:
             currentTotalScalarTermWrtUndergoingVelocity_[ i ].resize( numberOfExertingBodies_ );
             currentTotalVectorTermWrtExertingVelocity_[ i ].resize( numberOfExertingBodies_ );
             currentTotalVectorTermWrtUndergoingVelocity_[ i ].resize( numberOfExertingBodies_ );
+            currentTotalAccelerationsWrtPositionCrossTerms_[ i ].resize( numberOfExertingBodies_ );
+
         }
 
 
@@ -171,17 +175,34 @@ public:
                 currentTotalAccelerationsWrtPositionCrossTerms_[ i ][ m ].setZero( );
                 if( i != m )
                 {
+                    for( int j = 0; j < numberOfExertingBodies_; j++ )
+                    {
+                        if( ( j != i ) && ( j != m ) )
+                        {
+                            currentTotalAccelerationsWrtPositionCrossTerms_[ i ][ m ] +=
+                                physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT *
+                                     ( eihEquations_->getSinglePointMassAccelerations( i, j ) * (
+                                         getSingleScalarCrossTermWrtPositionPartial( i, j, m, 0 ) +
+                                         getSingleScalarCrossTermWrtPositionPartial( i, j, m, 1 ) +
+                                         getSingleScalarCrossTermWrtPositionPartial( i, j, m, 6 ) ) +
+                                       eihEquations_->getSingleSourceLocalPotential( i, j ) *
+                                       getSingleVectorCrossTermWrtPositionPartial( i, j, m, 2 ) );
+                        }
+                    }
+
                     currentTotalAccelerationsWrtPosition_[ i ][ m ] =
                         currentSinglePointMassAccelerationsWrtExertingPosition_[ i ][ m ] *
-                        ( 1.0 * physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT * eihEquations_->getScalarTermMultiplier( i, m ) ) +
+                        ( 1.0 * physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT * eihEquations_->getTotalScalarTermCorrection( i, m ) ) +
                         physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT *
-                        eihEquations_->getVectorTermMultiplier( i, m ) * currentLocalPotentialsWrtPosition_.at( i ).at( m );
+                        eihEquations_->getTotalVectorTermCorrection( i, m ) * currentLocalPotentialsWrtPosition_.at( i ).at( m );
 
                     currentTotalAccelerationsWrtPosition_[ i ][ i ] -= currentTotalAccelerationsWrtPosition_[ i ][ m ];
 
                     currentTotalAccelerationsWrtPosition_[ i ][ m ] += physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT *
                         ( eihEquations_->getSinglePointMassAccelerations( i, m ) * currentTotalScalarTermWrtExertingPosition_.at( i ).at( m ) +
                           eihEquations_->getSingleSourceLocalPotential( i, m ) * currentTotalVectorTermWrtExertingPosition_.at( i ).at( m ) );
+
+                    currentTotalAccelerationsWrtPosition_[ i ][ m ] += currentTotalAccelerationsWrtPositionCrossTerms_[ i ][ m ];
 
                     currentTotalAccelerationsWrtPosition_[ i ][ i ] += physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT *
                        ( eihEquations_->getSinglePointMassAccelerations( i, m ) * currentTotalScalarTermWrtUndergoingPosition_.at( i ).at( m ) +
@@ -196,14 +217,7 @@ public:
                        ( eihEquations_->getSinglePointMassAccelerations( i, m ) * currentTotalScalarTermWrtUndergoingVelocity_.at( i ).at( m ) +
                          eihEquations_->getSingleSourceLocalPotential( i, m ) * currentTotalVectorTermWrtUndergoingVelocity_.at( i ).at( m ) );
 
-                    for( int j = 0; j < numberOfExertingBodies_; j++ )
-                    {
-                        if( ( j != i ) && ( j != m ) )
-                        {
-                            currentTotalAccelerationsWrtPositionCrossTerms_[ i ][ m ] += physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT *
-                                ( eihEquations_->getSinglePointMassAccelerations( i, j ) );
-                        }
-                    }
+
                 }
             }
         }
@@ -217,22 +231,21 @@ public:
         case 0:
             if( wrtExerting )
             {
-                scalarTermWrtPosition += currentTotalPotentialWrtPosition_[ bodyUndergoing ][ bodyExerting ] *
-                    eihEquations_->getRelativePositions();
+                scalarTermWrtPosition += eihEquations_->getScalarTermMultiplier( termIndex ) * currentTotalPotentialWrtPosition_[ bodyUndergoing ][ bodyExerting ];
             }
             else
             {
-                scalarTermWrtPosition += currentTotalPotentialWrtPosition_[ bodyUndergoing ][ bodyUndergoing ];
+                scalarTermWrtPosition += eihEquations_->getScalarTermMultiplier( termIndex ) * currentTotalPotentialWrtPosition_[ bodyUndergoing ][ bodyUndergoing ];
             }
             break;
         case 1:
             if( wrtExerting )
             {
-                scalarTermWrtPosition += currentTotalPotentialWrtPosition_[ bodyExerting ][ bodyExerting ];
+                scalarTermWrtPosition += eihEquations_->getScalarTermMultiplier( termIndex ) * currentTotalPotentialWrtPosition_[ bodyExerting ][ bodyExerting ];
             }
             else
             {
-                scalarTermWrtPosition += currentTotalPotentialWrtPosition_[ bodyExerting ][ bodyUndergoing ];
+                scalarTermWrtPosition += eihEquations_->getScalarTermMultiplier( termIndex ) * currentTotalPotentialWrtPosition_[ bodyExerting ][ bodyUndergoing ];
             }
             break;
         case 2:
@@ -247,13 +260,13 @@ public:
             Eigen::Vector3d exertingVelocity = eihEquations_->getVelocity( bodyExerting );
             if( wrtExerting )
             {
-                scalarTermWrtPosition += 2.0 * normalizedRelativePosition.dot( exertingVelocity ) * exertingVelocity.transpose( ) *
+                scalarTermWrtPosition += eihEquations_->getScalarTermMultiplier( termIndex ) * 2.0 * normalizedRelativePosition.dot( exertingVelocity ) * exertingVelocity.transpose( ) *
                     ( Eigen::Matrix3d::Identity( ) - normalizedRelativePosition * normalizedRelativePosition.transpose( ) ) /
                     eihEquations_->getRelativePositions( bodyUndergoing, bodyExerting ).norm( );
             }
             else
             {
-                scalarTermWrtPosition -= 2.0 * normalizedRelativePosition.dot( exertingVelocity ) * exertingVelocity.transpose( ) *
+                scalarTermWrtPosition -= eihEquations_->getScalarTermMultiplier( termIndex ) * 2.0 * normalizedRelativePosition.dot( exertingVelocity ) * exertingVelocity.transpose( ) *
                     ( Eigen::Matrix3d::Identity( ) - normalizedRelativePosition * normalizedRelativePosition.transpose( ) ) /
                     eihEquations_->getRelativePositions( bodyUndergoing, bodyExerting ).norm( );
             }
@@ -262,15 +275,17 @@ public:
         case 6:
             if( wrtExerting )
             {
-                scalarTermWrtPosition += eihEquations_->getRelativePositions( bodyUndergoing, bodyExerting ).transpose( ) *
+                scalarTermWrtPosition += eihEquations_->getScalarTermMultiplier( termIndex ) * (
+                    eihEquations_->getRelativePositions( bodyUndergoing, bodyExerting ).transpose( ) *
                                         currentTotalPointMassAccelerationsWrtPosition_[ bodyExerting ][ bodyExerting ] +
-                                        eihEquations_->getTotalPointMassAcceleration( bodyExerting ).transpose( );
+                                        eihEquations_->getTotalPointMassAcceleration( bodyExerting ).transpose( ) );
             }
             else
             {
-                scalarTermWrtPosition += eihEquations_->getRelativePositions( bodyUndergoing, bodyExerting ).transpose( ) *
+                scalarTermWrtPosition += eihEquations_->getScalarTermMultiplier( termIndex ) * (
+                    eihEquations_->getRelativePositions( bodyUndergoing, bodyExerting ).transpose( ) *
                                         currentTotalPointMassAccelerationsWrtPosition_[ bodyExerting ][ bodyUndergoing ] -
-                                        eihEquations_->getTotalPointMassAcceleration( bodyExerting ).transpose( );
+                                        eihEquations_->getTotalPointMassAcceleration( bodyExerting ).transpose( ) );
             }
             break;
         default:
@@ -286,14 +301,14 @@ public:
         switch( termIndex )
         {
         case 0:
-            scalarTermWrtPosition += currentTotalPotentialWrtPosition_[ bodyUndergoing ][ bodyPartial ];
+            scalarTermWrtPosition += eihEquations_->getScalarTermMultiplier( termIndex ) * currentTotalPotentialWrtPosition_[ bodyUndergoing ][ bodyPartial ];
             break;
         case 1:
-            scalarTermWrtPosition += currentTotalPotentialWrtPosition_[ bodyExerting ][ bodyPartial ];
+            scalarTermWrtPosition += eihEquations_->getScalarTermMultiplier( termIndex ) * currentTotalPotentialWrtPosition_[ bodyExerting ][ bodyPartial ];
             break;
 
         case 6:
-            scalarTermWrtPosition += eihEquations_->getRelativePositions( bodyUndergoing, bodyExerting ).transpose( ) *
+            scalarTermWrtPosition += eihEquations_->getScalarTermMultiplier( termIndex ) * eihEquations_->getRelativePositions( bodyUndergoing, bodyExerting ).transpose( ) *
                                      currentTotalPointMassAccelerationsWrtPosition_[ bodyExerting ][ bodyPartial ];
             break;
         default:
@@ -315,23 +330,23 @@ public:
         case 2:
             if( !wrtExerting )
             {
-                scalarTermWrtVelocity += 2.0 * eihEquations_->getVelocity( bodyUndergoing ).transpose( );
+                scalarTermWrtVelocity += 2.0 * eihEquations_->getScalarTermMultiplier( termIndex ) * eihEquations_->getVelocity( bodyUndergoing ).transpose( );
             }
             break;
         case 3:
             if( wrtExerting )
             {
-                scalarTermWrtVelocity += 2.0 * eihEquations_->getVelocity( bodyExerting ).transpose( );
+                scalarTermWrtVelocity += eihEquations_->getScalarTermMultiplier( termIndex ) * 2.0 * eihEquations_->getVelocity( bodyExerting ).transpose( );
             }
             break;
         case 4:
             if( wrtExerting )
             {
-                scalarTermWrtVelocity += eihEquations_->getVelocity( bodyUndergoing ).transpose( );
+                scalarTermWrtVelocity += eihEquations_->getScalarTermMultiplier( termIndex ) * eihEquations_->getVelocity( bodyUndergoing ).transpose( );
             }
             else
             {
-                scalarTermWrtVelocity += eihEquations_->getVelocity( bodyExerting ).transpose( );
+                scalarTermWrtVelocity += eihEquations_->getScalarTermMultiplier( termIndex ) * eihEquations_->getVelocity( bodyExerting ).transpose( );
             }
             break;
         case 5:
@@ -340,7 +355,8 @@ public:
             {
                 Eigen::Vector3d normalizedRelativePosition = eihEquations_->getRelativePositions( bodyUndergoing, bodyExerting ).normalized( );
                 Eigen::Vector3d exertingVelocity = eihEquations_->getVelocity( bodyExerting );
-                scalarTermWrtVelocity += 2.0 * normalizedRelativePosition.dot( exertingVelocity ) * normalizedRelativePosition.transpose( );
+                scalarTermWrtVelocity += eihEquations_->getScalarTermMultiplier( termIndex ) *
+                    2.0 * normalizedRelativePosition.dot( exertingVelocity ) * normalizedRelativePosition.transpose( );
             }
             break;
         }
@@ -355,6 +371,7 @@ public:
     void addSingleVectorTermWrtPositionPartial(
         Eigen::Matrix3d& vectorTermWrtPosition, const int bodyUndergoing, const int bodyExerting, const bool wrtExerting, const int termIndex )
     {
+
         switch( termIndex )
         {
         case 0:
@@ -365,7 +382,7 @@ public:
 
             double sign = ( wrtExerting ? 1.0 : -1.0 );
             vectorTermWrtPosition +=
-                sign * eihEquations_->getRelativeVelocity( bodyUndergoing, bodyExerting ) *
+                eihEquations_->getVectorTermMultiplier( termIndex ) * sign * eihEquations_->getRelativeVelocity( bodyUndergoing, bodyExerting ) *
                 ( eihEquations_->getVelocity( bodyUndergoing ).transpose( ) * inverseSquareDistance *
                 ( Eigen::Matrix3d::Identity( ) - 2.0 * relativePositionNormalized * relativePositionNormalized.transpose( ) ) );
             break;
@@ -378,7 +395,7 @@ public:
 
             double sign = ( wrtExerting ? 1.0 : -1.0 );
             vectorTermWrtPosition +=
-                sign * eihEquations_->getRelativeVelocity( bodyUndergoing, bodyExerting ) *
+                eihEquations_->getVectorTermMultiplier( termIndex ) * sign * eihEquations_->getRelativeVelocity( bodyUndergoing, bodyExerting ) *
                 ( eihEquations_->getVelocity( bodyExerting ) .transpose( ) * inverseSquareDistance *
                   ( Eigen::Matrix3d::Identity( ) - 2.0 * relativePositionNormalized * relativePositionNormalized.transpose( ) ) );
             break;
@@ -386,11 +403,11 @@ public:
         case 2:
             if( wrtExerting )
             {
-                vectorTermWrtPosition += currentTotalPointMassAccelerationsWrtPosition_.at( bodyExerting ).at( bodyExerting );
+                vectorTermWrtPosition += eihEquations_->getVectorTermMultiplier( termIndex ) * currentTotalPointMassAccelerationsWrtPosition_.at( bodyExerting ).at( bodyExerting );
             }
             else
             {
-                vectorTermWrtPosition += currentTotalPointMassAccelerationsWrtPosition_.at( bodyExerting ).at( bodyUndergoing );
+                vectorTermWrtPosition += eihEquations_->getVectorTermMultiplier( termIndex ) * currentTotalPointMassAccelerationsWrtPosition_.at( bodyExerting ).at( bodyUndergoing );
             }
             break;
         default:
@@ -399,7 +416,7 @@ public:
         }
     }
 
-    Eigen::Matrix< double, 3, 3 > addSingleVectorCrossTermWrtPositionPartial(
+    Eigen::Matrix< double, 3, 3 > getSingleVectorCrossTermWrtPositionPartial(
         const int bodyUndergoing, const int bodyExerting, const int bodyPartial, const int termIndex )
     {
         Eigen::Matrix< double, 3, 3 > vectorTermWrtPosition;
@@ -407,7 +424,7 @@ public:
         {
 
         case 2:
-            vectorTermWrtPosition += currentTotalPointMassAccelerationsWrtPosition_.at( bodyUndergoing ).at( bodyPartial );
+            vectorTermWrtPosition += eihEquations_->getVectorTermMultiplier( termIndex ) * currentTotalPointMassAccelerationsWrtPosition_.at( bodyUndergoing ).at( bodyPartial );
             break;
         default:
             throw std::runtime_error( "Error when getting EIH vector cross term partial w.r.t. positon, index " + std::to_string( termIndex ) + " not allowed." );
@@ -429,13 +446,13 @@ public:
             {
                 if( wrtExerting )
                 {
-                    vectorTermWrtVelocity -= baseMultiplier * Eigen::Matrix3d::Identity( );
+                    vectorTermWrtVelocity -= eihEquations_->getVectorTermMultiplier( termIndex ) *baseMultiplier * Eigen::Matrix3d::Identity( );
 
                 }
                 else
                 {
-                    vectorTermWrtVelocity += baseMultiplier * Eigen::Matrix3d::Identity( ) + eihEquations_->getRelativeVelocity(
-                        bodyUndergoing, bodyExerting ) * eihEquations_->getRelativePositions( bodyUndergoing, bodyExerting ).transpose( ) * inverseSquareDistance;
+                    vectorTermWrtVelocity += eihEquations_->getVectorTermMultiplier( termIndex ) * ( baseMultiplier * Eigen::Matrix3d::Identity( ) + eihEquations_->getRelativeVelocity(
+                        bodyUndergoing, bodyExerting ) * eihEquations_->getRelativePositions( bodyUndergoing, bodyExerting ).transpose( ) * inverseSquareDistance );
                 }
             }
             break;
@@ -448,13 +465,13 @@ public:
             {
                 if( wrtExerting )
                 {
-                    vectorTermWrtVelocity += baseMultiplier * Eigen::Matrix3d::Identity( ) + eihEquations_->getRelativeVelocity(
-                        bodyUndergoing, bodyExerting ) * eihEquations_->getRelativePositions( bodyUndergoing, bodyExerting ).transpose( ) * inverseSquareDistance;
+                    vectorTermWrtVelocity += eihEquations_->getVectorTermMultiplier( termIndex ) * ( baseMultiplier * Eigen::Matrix3d::Identity( ) + eihEquations_->getRelativeVelocity(
+                        bodyUndergoing, bodyExerting ) * eihEquations_->getRelativePositions( bodyUndergoing, bodyExerting ).transpose( ) * inverseSquareDistance );
 
                 }
                 else
                 {
-                    vectorTermWrtVelocity -= baseMultiplier * Eigen::Matrix3d::Identity( );
+                    vectorTermWrtVelocity -= eihEquations_->getVectorTermMultiplier( termIndex ) * baseMultiplier * Eigen::Matrix3d::Identity( );
 
                 }
             }
