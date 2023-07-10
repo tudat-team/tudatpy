@@ -34,16 +34,34 @@ public:
     {
         return getAccelerationOfBody( acceleratedBodyMap_.at( bodyName ) );
     }
-
-    double getDistance( const int bodyUndergoing, const int bodyExerting )
-    {
-        return currentRelativeDistances_.at( bodyUndergoing ).at( bodyExerting );
-    }
+//
+//    double getDistance( const int bodyUndergoing, const int bodyExerting )
+//    {
+//        return currentRelativeDistances_.at( bodyUndergoing ).at( bodyExerting );
+//    }
 
     Eigen::Vector3d getRelativePositions( const int bodyUndergoing, const int bodyExerting )
     {
         return currentRelativePositions_.at( bodyUndergoing ).at( bodyExerting );
     }
+
+    double getRelativeDistance( const int bodyUndergoing, const int bodyExerting )
+    {
+        return currentRelativeDistances_.at( bodyUndergoing ).at( bodyExerting );
+    }
+
+    double getInverseSquareDistance( const int bodyUndergoing, const int bodyExerting )
+    {
+        return currentInverseSquareDistances_.at( bodyUndergoing ).at( bodyExerting );
+    }
+
+
+    Eigen::Vector3d getRelativeVelocity( const int bodyUndergoing, const int bodyExerting )
+    {
+        return currentRelativeVelocities_.at( bodyUndergoing ).at( bodyExerting );
+    }
+
+
 
     Eigen::Vector3d getVelocity( const int bodyIndex )
     {
@@ -80,6 +98,11 @@ public:
         return singlePointMassAccelerations_.at( bodyUndergoing ).at( bodyExerting );
     }
 
+    double getLineOfSighSpeed( const int bodyUndergoing, const int bodyExerting )
+    {
+        return lineOfSightSpeed_.at( bodyUndergoing ).at( bodyExerting );
+    }
+
     double getLocalPotential( const int bodyIndex )
     {
         return currentLocalPotentials_.at( bodyIndex );
@@ -94,6 +117,12 @@ public:
     {
         return scalarEihCorrections_;
     }
+
+    std::vector< std::vector< std::vector< Eigen::Vector3d > > > getVectorEihCorrections( )
+    {
+        return vectorEihCorrections_;
+    }
+
 
     std::vector< std::string > getBodiesUndergoingAcceleration( )
     {
@@ -162,8 +191,11 @@ private:
     // || r_{ij} ||
     std::vector< std::vector< double > > currentRelativeDistances_;
 
+    // 1  / || r_{ij} ||^2
+    std::vector< std::vector< double > > currentInverseSquareDistances_;
+
     // r_{ij} * v_{j}
-    std::vector< std::vector< double > > relativePositionVelocityProduct_;
+    std::vector< std::vector< double > > lineOfSightSpeed_;
 
     // v_{i} * v_{j}
     std::vector< std::vector< double > > velocityInnerProducts_;
