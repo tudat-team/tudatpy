@@ -235,48 +235,53 @@ BOOST_AUTO_TEST_CASE( testEihPartials )
     {
         // Get current body nominal state
         Eigen::Vector6d nominalState = bodies.at( bodiesToCreate.at( i ))->getState( );
-        for ( unsigned int index = 0; index < 6; index++ )
-        {
-            // Reset to nominal state
-            bodies.at( bodiesToCreate.at( i ))->setState( nominalState );
-            eihEquations->update( TUDAT_NAN );
-            eihEquations->update( testTime );
 
-            // Iterate over each scalar term
+        // Reset to nominal state
+        bodies.at( bodiesToCreate.at( i ))->setState( nominalState );
+        eihEquations->update( TUDAT_NAN );
+        eihEquations->update( testTime );
+
+        // Iterate over each scalar term
+
+        for ( unsigned int j = 0; j < numberOfPropatedBodies; j++ )
+        {
+
             for ( int k = 0; k < 7; k++ )
             {
-                for ( unsigned int j = 0; j < numberOfPropatedBodies; j++ )
-                {
 
-                    // Compute analytical d(fs)_{k,ji}/dx_{i}
-                    eihPartials->addSingleScalarTermWrtPositionPartial(
-                        analyticalScalarEihCorrectionsWrtExertingPosition[ k ][ j ][ i ], j, i, true, k );
-                    eihPartials->addSingleScalarTermWrtVelocityPartial(
-                        analyticalScalarEihCorrectionsWrtExertingVelocity[ k ][ j ][ i ], j, i, true, k );
+                // Compute analytical d(fs)_{k,ji}/dx_{i}
+                eihPartials->addSingleScalarTermWrtPositionPartial(
+                    analyticalScalarEihCorrectionsWrtExertingPosition[ k ][ j ][ i ], j, i, true, k );
+                eihPartials->addSingleScalarTermWrtVelocityPartial(
+                    analyticalScalarEihCorrectionsWrtExertingVelocity[ k ][ j ][ i ], j, i, true, k );
 
-                    // Compute analytical d(fs)_{k,ji}/dx_{j}
-                    eihPartials->addSingleScalarTermWrtPositionPartial(
-                        analyticalScalarEihCorrectionsWrtUndergoingPosition[ k ][ j ][ i ], j, i, false, k );
-                    eihPartials->addSingleScalarTermWrtVelocityPartial(
-                        analyticalScalarEihCorrectionsWrtUndergoingVelocity[ k ][ j ][ i ], j, i, true, k );
+                // Compute analytical d(fs)_{k,ji}/dx_{j}
+                eihPartials->addSingleScalarTermWrtPositionPartial(
+                    analyticalScalarEihCorrectionsWrtUndergoingPosition[ k ][ j ][ i ], j, i, false, k );
+                eihPartials->addSingleScalarTermWrtVelocityPartial(
+                    analyticalScalarEihCorrectionsWrtUndergoingVelocity[ k ][ j ][ i ], j, i, true, k );
 
-                    if ( k < 3 )
-                    {
-                        // Compute analytical d(fv)_{k,ji}/dx_{i}
-                        eihPartials->addSingleVectorTermWrtPositionPartial(
-                            analyticalVectorEihCorrectionsWrtExertingPosition[ k ][ j ][ i ], j, i, true, k );
-                        eihPartials->addSingleVectorTermWrtVelocityPartial(
-                            analyticalVectorEihCorrectionsWrtExertingVelocity[ k ][ j ][ i ], j, i, true, k );
-
-                        // Compute analytical d(fv)_{k,ji}/dx_{j}
-                        eihPartials->addSingleVectorTermWrtPositionPartial(
-                            analyticalVectorEihCorrectionsWrtUndergoingPosition[ k ][ j ][ i ], j, i, false, k );
-                        eihPartials->addSingleVectorTermWrtVelocityPartial(
-                            analyticalVectorEihCorrectionsWrtUndergoingVelocity[ k ][ j ][ i ], j, i, true, k );
-                    }
-                }
             }
 
+            for ( int k = 0; k < 3; k++ )
+            {
+                // Compute analytical d(fv)_{k,ji}/dx_{i}
+                eihPartials->addSingleVectorTermWrtPositionPartial(
+                    analyticalVectorEihCorrectionsWrtExertingPosition[ k ][ j ][ i ], j, i, true, k );
+                eihPartials->addSingleVectorTermWrtVelocityPartial(
+                    analyticalVectorEihCorrectionsWrtExertingVelocity[ k ][ j ][ i ], j, i, true, k );
+
+                // Compute analytical d(fv)_{k,ji}/dx_{j}
+                eihPartials->addSingleVectorTermWrtPositionPartial(
+                    analyticalVectorEihCorrectionsWrtUndergoingPosition[ k ][ j ][ i ], j, i, false, k );
+                eihPartials->addSingleVectorTermWrtVelocityPartial(
+                    analyticalVectorEihCorrectionsWrtUndergoingVelocity[ k ][ j ][ i ], j, i, true, k );
+
+            }
+        }
+
+        for ( unsigned int index = 0; index < 6; index++ )
+        {
             // Perturb exerting body (x_{i}) up
             Eigen::Vector6d upperturbedState = nominalState;
             upperturbedState( index ) += (( index < 3 ) ? positionPerturbation : velocityPerturbation );
@@ -305,16 +310,16 @@ BOOST_AUTO_TEST_CASE( testEihPartials )
                         upperturbedUndergoingScalarEihCorrections[ k ][ i ][ j ]( index ) =
                             eihEquations->getScalarEihCorrections( ).at( k ).at( j ).at( i );
                     }
+                }
 
-                    if ( k < 3 )
+                for ( int k = 0; k < 3; k++ )
+                {
+                    upperturbedExertingVectorEihCorrections[ k ][ i ][ j ].block( 0, index, 3, 1 ) =
+                        eihEquations->getVectorEihCorrections( ).at( k ).at( j ).at( i );
+                    if ( j < numberOfPropatedBodies )
                     {
-                        upperturbedExertingVectorEihCorrections[ k ][ i ][ j ].block( 0, index, 3, 1 ) =
-                            eihEquations->getVectorEihCorrections( ).at( k ).at( j ).at( i );
-                        if ( j < numberOfPropatedBodies )
-                        {
-                            upperturbedUndergoingVectorEihCorrections[ k ][ i ][ j ].block( 0, index, 3, 1 ) =
-                                eihEquations->getVectorEihCorrections( ).at( k ).at( i ).at( j );
-                        }
+                        upperturbedUndergoingVectorEihCorrections[ k ][ i ][ j ].block( 0, index, 3, 1 ) =
+                            eihEquations->getVectorEihCorrections( ).at( k ).at( i ).at( j );
                     }
                 }
 
@@ -343,16 +348,16 @@ BOOST_AUTO_TEST_CASE( testEihPartials )
                         downperturbedUndergoingScalarEihCorrections[ k ][ i ][ j ]( index ) =
                             eihEquations->getScalarEihCorrections( ).at( k ).at( j ).at( i );
                     }
+                }
 
-                    if ( k < 3 )
+                for ( int k = 0; k < 3; k++ )
+                {
+                    downperturbedExertingVectorEihCorrections[ k ][ i ][ j ].block( 0, index, 3, 1 ) =
+                        eihEquations->getVectorEihCorrections( ).at( k ).at( j ).at( i );
+                    if ( j < numberOfPropatedBodies )
                     {
-                        downperturbedExertingVectorEihCorrections[ k ][ i ][ j ].block( 0, index, 3, 1 ) =
-                            eihEquations->getVectorEihCorrections( ).at( k ).at( j ).at( i );
-                        if ( j < numberOfPropatedBodies )
-                        {
-                            downperturbedUndergoingVectorEihCorrections[ k ][ i ][ j ].block( 0, index, 3, 1 ) =
-                                eihEquations->getVectorEihCorrections( ).at( k ).at( i ).at( j );
-                        }
+                        downperturbedUndergoingVectorEihCorrections[ k ][ i ][ j ].block( 0, index, 3, 1 ) =
+                            eihEquations->getVectorEihCorrections( ).at( k ).at( i ).at( j );
                     }
                 }
             }
@@ -398,7 +403,6 @@ BOOST_AUTO_TEST_CASE( testEihPartials )
                         numericalScalarEihCorrectionsWrtExertingVelocity[ k ][ i ][ j ].block( 0, 0, 1, 3 ),
                         analyticalScalarEihCorrectionsWrtExertingVelocity[ k ][ j ][ i ].block( 0, 0, 1, 3 ),
                         1.0E-4);
-
 //                    std::cout<<"k "<<k<<" (i,j) "<<i<<" "<<j<<std::endl
 //                             <<numericalScalarEihCorrectionsWrtExertingVelocity[ k ][ i ][ j ]<<std::endl
 //                             <<analyticalScalarEihCorrectionsWrtExertingVelocity[ k ][ j ][ i ]<<std::endl<<std::endl;
