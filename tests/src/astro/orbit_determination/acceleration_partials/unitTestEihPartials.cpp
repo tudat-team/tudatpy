@@ -142,150 +142,95 @@ BOOST_AUTO_TEST_CASE( testEihPartials )
     double positionPerturbation = 1.0E8;
     double velocityPerturbation = 0.1;
 
-    std::vector< std::vector< Eigen::Matrix< double, 1, 6 > > > upperturbedTotalPotentials_( numberOfBodies );
-    std::vector< std::vector< Eigen::Matrix< double, 1, 6 > > > downperturbedTotalPotentials_( numberOfBodies );
+    std::vector< std::vector< Eigen::Matrix< double, 1, 6 > > > upperturbedTotalPotentials_ = utilities::getTwoDimensionalVector< Eigen::Matrix< double, 1, 6 > >(
+        numberOfBodies, numberOfBodies, Eigen::Matrix< double, 1, 6 >::Zero( ) );
+    std::vector< std::vector< Eigen::Matrix< double, 1, 6 > > > downperturbedTotalPotentials_ = utilities::getTwoDimensionalVector< Eigen::Matrix< double, 1, 6 > >(
+        numberOfBodies, numberOfBodies, Eigen::Matrix< double, 1, 6 >::Zero( ) );
 
-    std::vector< std::vector< Eigen::Matrix< double, 1, 6 > > > upperturbedSingleContrubutionPotentials( numberOfBodies );
-    std::vector< std::vector< Eigen::Matrix< double, 1, 6 > > > downperturbedSingleContrubutionPotentials( numberOfBodies );
+    std::vector< std::vector< Eigen::Matrix< double, 1, 6 > > > upperturbedSingleContrubutionPotentials = utilities::getTwoDimensionalVector< Eigen::Matrix< double, 1, 6 > >(
+        numberOfBodies, numberOfBodies, Eigen::Matrix< double, 1, 6 >::Zero( ) );
+    std::vector< std::vector< Eigen::Matrix< double, 1, 6 > > > downperturbedSingleContrubutionPotentials = utilities::getTwoDimensionalVector< Eigen::Matrix< double, 1, 6 > >(
+        numberOfBodies, numberOfBodies, Eigen::Matrix< double, 1, 6 >::Zero( ) );
 
-    std::vector< std::vector< Eigen::Matrix< double, 3, 6 > > > upperturbedSinglePointmassAcceleration( numberOfBodies );
-    std::vector< std::vector< Eigen::Matrix< double, 3, 6 > > > downperturbedSinglePointmassAcceleration( numberOfBodies );
+    std::vector< std::vector< Eigen::Matrix< double, 3, 6 > > > upperturbedSinglePointmassAcceleration = utilities::getTwoDimensionalVector< Eigen::Matrix< double, 3, 6 > >(
+        numberOfBodies, numberOfBodies, Eigen::Matrix< double, 3, 6 >::Zero( ) );
+    std::vector< std::vector< Eigen::Matrix< double, 3, 6 > > > downperturbedSinglePointmassAcceleration = utilities::getTwoDimensionalVector< Eigen::Matrix< double, 3, 6 > >(
+        numberOfBodies, numberOfBodies, Eigen::Matrix< double, 3, 6 >::Zero( ) );
 
-    std::vector< std::vector< Eigen::Matrix< double, 3, 6 > > > upperturbedTotalPointmassAcceleration( numberOfBodies );
-    std::vector< std::vector< Eigen::Matrix< double, 3, 6 > > > downperturbedTotalPointmassAcceleration( numberOfBodies );
+    std::vector< std::vector< Eigen::Matrix< double, 3, 6 > > > upperturbedTotalPointmassAcceleration = utilities::getTwoDimensionalVector< Eigen::Matrix< double, 3, 6 > >(
+        numberOfBodies, numberOfBodies, Eigen::Matrix< double, 3, 6 >::Zero( ) );
+    std::vector< std::vector< Eigen::Matrix< double, 3, 6 > > > downperturbedTotalPointmassAcceleration = utilities::getTwoDimensionalVector< Eigen::Matrix< double, 3, 6 > >(
+        numberOfBodies, numberOfBodies, Eigen::Matrix< double, 3, 6 >::Zero( ) );
 
-    std::vector< std::vector< std::vector< Eigen::Matrix< double, 1, 6 > > > > upperturbedExertingScalarEihCorrections( 7 );
-    std::vector< std::vector< std::vector< Eigen::Matrix< double, 1, 6 > > > > downperturbedExertingScalarEihCorrections( 7 );
+    std::vector< std::vector< std::vector< Eigen::Matrix< double, 1, 6 > > > > upperturbedExertingScalarEihCorrections = utilities::getThreeDimensionalVector< Eigen::Matrix< double, 1, 6 > >(
+        7, numberOfBodies, numberOfBodies, Eigen::Matrix< double, 1, 6 >::Zero( ) );
+    std::vector< std::vector< std::vector< Eigen::Matrix< double, 1, 6 > > > > downperturbedExertingScalarEihCorrections = utilities::getThreeDimensionalVector< Eigen::Matrix< double, 1, 6 > >(
+        7, numberOfBodies, numberOfBodies, Eigen::Matrix< double, 1, 6 >::Zero( ) );
 
-    std::vector< std::vector< std::vector< Eigen::Matrix< double, 1, 6 > > > > upperturbedUndergoingScalarEihCorrections( 7 );
-    std::vector< std::vector< std::vector< Eigen::Matrix< double, 1, 6 > > > > downperturbedUndergoingScalarEihCorrections( 7 );
+    std::vector< std::vector< std::vector< Eigen::Matrix< double, 1, 6 > > > > upperturbedUndergoingScalarEihCorrections = utilities::getThreeDimensionalVector< Eigen::Matrix< double, 1, 6 > >(
+        7, numberOfBodies, numberOfBodies, Eigen::Matrix< double, 1, 6 >::Zero( ) );
+    std::vector< std::vector< std::vector< Eigen::Matrix< double, 1, 6 > > > > downperturbedUndergoingScalarEihCorrections = utilities::getThreeDimensionalVector< Eigen::Matrix< double, 1, 6 > >(
+        7, numberOfBodies, numberOfBodies, Eigen::Matrix< double, 1, 6 >::Zero( ) );
 
-    std::vector< std::vector< std::vector< Eigen::Matrix< double, 3, 6 > > > > upperturbedExertingVectorEihCorrections( 3 );
-    std::vector< std::vector< std::vector< Eigen::Matrix< double, 3, 6 > > > > downperturbedExertingVectorEihCorrections( 3 );
+    std::vector< std::vector< std::vector< Eigen::Matrix< double, 3, 6 > > > > upperturbedExertingVectorEihCorrections = utilities::getThreeDimensionalVector< Eigen::Matrix< double, 3, 6 > >(
+        3, numberOfBodies, numberOfBodies, Eigen::Matrix< double, 3, 6 >::Zero( ) );
+    std::vector< std::vector< std::vector< Eigen::Matrix< double, 3, 6 > > > > downperturbedExertingVectorEihCorrections = utilities::getThreeDimensionalVector< Eigen::Matrix< double, 3, 6 > >(
+        3, numberOfBodies, numberOfBodies, Eigen::Matrix< double, 3, 6 >::Zero( ) );
 
-    std::vector< std::vector< std::vector< Eigen::Matrix< double, 3, 6 > > > > upperturbedUndergoingVectorEihCorrections( 3 );
-    std::vector< std::vector< std::vector< Eigen::Matrix< double, 3, 6 > > > > downperturbedUndergoingVectorEihCorrections( 3 );
+    std::vector< std::vector< std::vector< Eigen::Matrix< double, 3, 6 > > > > upperturbedUndergoingVectorEihCorrections = utilities::getThreeDimensionalVector< Eigen::Matrix< double, 3, 6 > >(
+        3, numberOfBodies, numberOfBodies, Eigen::Matrix< double, 3, 6 >::Zero( ) );
+    std::vector< std::vector< std::vector< Eigen::Matrix< double, 3, 6 > > > > downperturbedUndergoingVectorEihCorrections = utilities::getThreeDimensionalVector< Eigen::Matrix< double, 3, 6 > >(
+        3, numberOfBodies, numberOfBodies, Eigen::Matrix< double, 3, 6 >::Zero( ) );
 
-    for( int k = 0; k < 7; k++ )
-    {
-        upperturbedExertingScalarEihCorrections[ k ].resize( numberOfBodies );
-        downperturbedExertingScalarEihCorrections[ k ].resize( numberOfBodies );
 
-        upperturbedUndergoingScalarEihCorrections[ k ].resize( numberOfBodies );
-        downperturbedUndergoingScalarEihCorrections[ k ].resize( numberOfBodies );
+    std::vector< std::vector< Eigen::Matrix< double, 1, 3 > > >  numericalTotalPotentialsWrtPosition = utilities::getTwoDimensionalVector< Eigen::Matrix< double, 1, 3 > >(
+        numberOfBodies, numberOfBodies, Eigen::Matrix< double, 1, 3 >::Zero( ) );
+    std::vector< std::vector< Eigen::Matrix< double, 1, 3 > > >  numericalSingleContributionPotentialsWrtPosition = utilities::getTwoDimensionalVector< Eigen::Matrix< double, 1, 3 > >(
+        numberOfBodies, numberOfBodies, Eigen::Matrix< double, 1, 3 >::Zero( ) );
+    std::vector< std::vector< Eigen::Matrix< double, 3, 3 > > >  numericalSinglePointMassAccelerationWrtPosition = utilities::getTwoDimensionalVector< Eigen::Matrix< double, 3, 3 > >(
+        numberOfBodies, numberOfBodies, Eigen::Matrix< double, 3, 3 >::Zero( ) );
+    std::vector< std::vector< Eigen::Matrix< double, 3, 3 > > >  numericalTotalPointMassAccelerationWrtPosition = utilities::getTwoDimensionalVector< Eigen::Matrix< double, 3, 3 > >(
+        numberOfBodies, numberOfBodies, Eigen::Matrix< double, 3, 3 >::Zero( ) );
+    std::vector< std::vector< std::vector< Eigen::Matrix< double, 1, 3 > > > > numericalScalarEihCorrectionsWrtExertingPosition = utilities::getThreeDimensionalVector< Eigen::Matrix< double, 1, 3 > >(
+        7, numberOfBodies, numberOfBodies, Eigen::Matrix< double, 1, 3 >::Zero( ) );
+    std::vector< std::vector< std::vector< Eigen::Matrix< double, 1, 3 > > > > numericalScalarEihCorrectionsWrtExertingVelocity = utilities::getThreeDimensionalVector< Eigen::Matrix< double, 1, 3 > >(
+        7, numberOfBodies, numberOfBodies, Eigen::Matrix< double, 1, 3 >::Zero( ) );
+    std::vector< std::vector< std::vector< Eigen::Matrix< double, 1, 3 > > > > numericalScalarEihCorrectionsWrtUndergoingPosition = utilities::getThreeDimensionalVector< Eigen::Matrix< double, 1, 3 > >(
+        7, numberOfBodies, numberOfBodies, Eigen::Matrix< double, 1, 3 >::Zero( ) );
+    std::vector< std::vector< std::vector< Eigen::Matrix< double, 1, 3 > > > > numericalScalarEihCorrectionsWrtUndergoingVelocity = utilities::getThreeDimensionalVector< Eigen::Matrix< double, 1, 3 > >(
+        7, numberOfBodies, numberOfBodies, Eigen::Matrix< double, 1, 3 >::Zero( ) );
+    std::vector< std::vector< std::vector< Eigen::Matrix< double, 3, 3 > > > > numericalVectorEihCorrectionsWrtExertingPosition = utilities::getThreeDimensionalVector< Eigen::Matrix< double, 3, 3 > >(
+        3, numberOfBodies, numberOfBodies, Eigen::Matrix< double, 3, 3 >::Zero( ) );
+    std::vector< std::vector< std::vector< Eigen::Matrix< double, 3, 3 > > > > numericalVectorEihCorrectionsWrtExertingVelocity = utilities::getThreeDimensionalVector< Eigen::Matrix< double, 3, 3 > >(
+        3, numberOfBodies, numberOfBodies, Eigen::Matrix< double, 3, 3 >::Zero( ) );
+    std::vector< std::vector< std::vector< Eigen::Matrix< double, 3, 3 > > > > numericalVectorEihCorrectionsWrtUndergoingPosition = utilities::getThreeDimensionalVector< Eigen::Matrix< double, 3, 3 > >(
+        3, numberOfBodies, numberOfBodies, Eigen::Matrix< double, 3, 3 >::Zero( ) );
+    std::vector< std::vector< std::vector< Eigen::Matrix< double, 3, 3 > > > > numericalVectorEihCorrectionsWrtUndergoingVelocity = utilities::getThreeDimensionalVector< Eigen::Matrix< double, 3, 3 > >(
+        3, numberOfBodies, numberOfBodies, Eigen::Matrix< double, 3, 3 >::Zero( ) );
 
-        if( k < 3 )
-        {
-            upperturbedExertingVectorEihCorrections[ k ].resize( numberOfBodies );
-            downperturbedExertingVectorEihCorrections[ k ].resize( numberOfBodies );
+    std::vector< std::vector< Eigen::Matrix< double, 1, 3 > > >  analyticalTotalPotentialsWrtPosition = eihPartials->getCurrentTotalPotentialWrtPosition( );
+    std::vector< std::vector< Eigen::Matrix< double, 1, 3 > > >  analyticalSingleContributionPotentialsWrtPosition = eihPartials->getCurrentLocalPotentialWrtPosition( );
+    std::vector< std::vector< Eigen::Matrix< double, 3, 3 > > >  analyticalSinglePointMassAccelerationWrtPosition = eihPartials->getCurrentSinglePointMassAccelerationWrtPosition( );
+    std::vector< std::vector< Eigen::Matrix< double, 3, 3 > > >  analyticalTotalPointMassAccelerationWrtPosition = eihPartials->getCurrentTotalPointMassAccelerationWrtPosition( );
 
-            upperturbedUndergoingVectorEihCorrections[ k ].resize( numberOfBodies );
-            downperturbedUndergoingVectorEihCorrections[ k ].resize( numberOfBodies );
-        }
-    }
+    std::vector< std::vector< std::vector< Eigen::Matrix< double, 1, 3 > > > > analyticalScalarEihCorrectionsWrtExertingPosition = utilities::getThreeDimensionalVector< Eigen::Matrix< double, 1, 3 > >(
+        7, numberOfBodies, numberOfBodies, Eigen::Matrix< double, 1, 3 >::Zero( ) );
+    std::vector< std::vector< std::vector< Eigen::Matrix< double, 1, 3 > > > > analyticalScalarEihCorrectionsWrtExertingVelocity = utilities::getThreeDimensionalVector< Eigen::Matrix< double, 1, 3 > >(
+        7, numberOfBodies, numberOfBodies, Eigen::Matrix< double, 1, 3 >::Zero( ) );
+    std::vector< std::vector< std::vector< Eigen::Matrix< double, 1, 3 > > > > analyticalScalarEihCorrectionsWrtUndergoingPosition = utilities::getThreeDimensionalVector< Eigen::Matrix< double, 1, 3 > >(
+        7, numberOfBodies, numberOfBodies, Eigen::Matrix< double, 1, 3 >::Zero( ) );
+    std::vector< std::vector< std::vector< Eigen::Matrix< double, 1, 3 > > > > analyticalScalarEihCorrectionsWrtUndergoingVelocity = utilities::getThreeDimensionalVector< Eigen::Matrix< double, 1, 3 > >(
+        7, numberOfBodies, numberOfBodies, Eigen::Matrix< double, 1, 3 >::Zero( ) );
 
-    std::vector< std::vector< Eigen::Matrix< double, 1, 3 > > >  numericalTotalPotentialsWrtPosition_( numberOfBodies );
-    std::vector< std::vector< Eigen::Matrix< double, 1, 3 > > >  numericalSingleContributionPotentialsWrtPosition_( numberOfBodies );
-    std::vector< std::vector< Eigen::Matrix< double, 3, 3 > > >  numericalSinglePointMassAccelerationWrtPosition_( numberOfBodies );
-    std::vector< std::vector< Eigen::Matrix< double, 3, 3 > > >  numericalTotalPointMassAccelerationWrtPosition_( numberOfBodies );
-    std::vector< std::vector< std::vector< Eigen::Matrix< double, 1, 3 > > > > numericalScalarEihCorrectionsWrtExertingPosition_( 7 );
-    std::vector< std::vector< std::vector< Eigen::Matrix< double, 1, 3 > > > > numericalScalarEihCorrectionsWrtExertingVelocity_( 7 );
-    std::vector< std::vector< std::vector< Eigen::Matrix< double, 1, 3 > > > > numericalScalarEihCorrectionsWrtUndergoingPosition_( 7 );
-    std::vector< std::vector< std::vector< Eigen::Matrix< double, 1, 3 > > > > numericalVectorEihCorrectionsWrtExertingPosition_( 3 );
-    std::vector< std::vector< std::vector< Eigen::Matrix< double, 1, 3 > > > > numericalVectorEihCorrectionsWrtExertingVelocity_( 3 );
-    std::vector< std::vector< std::vector< Eigen::Matrix< double, 1, 3 > > > > numericalVectorEihCorrectionsWrtUndergoingPosition_( 3 );
+    std::vector< std::vector< std::vector< Eigen::Matrix< double, 3, 3 > > > > analyticalVectorEihCorrectionsWrtExertingPosition = utilities::getThreeDimensionalVector< Eigen::Matrix< double, 3, 3 > >(
+        3, numberOfBodies, numberOfBodies, Eigen::Matrix< double, 3, 3 >::Zero( ) );
+    std::vector< std::vector< std::vector< Eigen::Matrix< double, 3, 3 > > > > analyticalVectorEihCorrectionsWrtExertingVelocity = utilities::getThreeDimensionalVector< Eigen::Matrix< double, 3, 3 > >(
+        3, numberOfBodies, numberOfBodies, Eigen::Matrix< double, 3, 3 >::Zero( ) );
+    std::vector< std::vector< std::vector< Eigen::Matrix< double, 3, 3 > > > > analyticalVectorEihCorrectionsWrtUndergoingPosition = utilities::getThreeDimensionalVector< Eigen::Matrix< double, 3, 3 > >(
+        3, numberOfBodies, numberOfBodies, Eigen::Matrix< double, 3, 3 >::Zero( ) );
+    std::vector< std::vector< std::vector< Eigen::Matrix< double, 3, 3 > > > > analyticalVectorEihCorrectionsWrtUndergoingVelocity = utilities::getThreeDimensionalVector< Eigen::Matrix< double, 3, 3 > >(
+        3, numberOfBodies, numberOfBodies, Eigen::Matrix< double, 3, 3 >::Zero( ) );
 
-    std::vector< std::vector< Eigen::Matrix< double, 1, 3 > > >  analyticalTotalPotentialsWrtPosition_ = eihPartials->getCurrentTotalPotentialWrtPosition( );
-    std::vector< std::vector< Eigen::Matrix< double, 1, 3 > > >  analyticalSingleContributionPotentialsWrtPosition_ = eihPartials->getCurrentLocalPotentialWrtPosition( );
-    std::vector< std::vector< Eigen::Matrix< double, 3, 3 > > >  analyticalSinglePointMassAccelerationWrtPosition_ = eihPartials->getCurrentSinglePointMassAccelerationWrtPosition( );
-    std::vector< std::vector< Eigen::Matrix< double, 3, 3 > > >  analyticalTotalPointMassAccelerationWrtPosition_ = eihPartials->getCurrentTotalPointMassAccelerationWrtPosition( );
-    std::vector< std::vector< std::vector< Eigen::Matrix< double, 1, 3 > > > > analyticalScalarEihCorrectionsWrtExertingPosition_( 7 );
-    std::vector< std::vector< std::vector< Eigen::Matrix< double, 1, 3 > > > > analyticalScalarEihCorrectionsWrtExertingVelocity_( 7 );
-    std::vector< std::vector< std::vector< Eigen::Matrix< double, 1, 3 > > > > analyticalScalarEihCorrectionsWrtUndergoingPosition_( 7 );
-    std::vector< std::vector< std::vector< Eigen::Matrix< double, 3, 3 > > > > analyticalVectorEihCorrectionsWrtExertingPosition_( 3 );
-    std::vector< std::vector< std::vector< Eigen::Matrix< double, 3, 3 > > > > analyticalVectorEihCorrectionsWrtExertingVelocity_( 3 );
-    std::vector< std::vector< std::vector< Eigen::Matrix< double, 3, 3 > > > > analyticalVectorEihCorrectionsWrtUndergoingPosition_( 3 );
-
-    for( int k = 0; k < 7; k++ )
-    {
-        numericalScalarEihCorrectionsWrtExertingPosition_[ k ].resize( numberOfBodies );
-        analyticalScalarEihCorrectionsWrtExertingPosition_[ k ].resize( numberOfBodies );
-
-        numericalScalarEihCorrectionsWrtExertingVelocity_[ k ].resize( numberOfBodies );
-        analyticalScalarEihCorrectionsWrtExertingVelocity_[ k ].resize( numberOfBodies );
-
-        numericalScalarEihCorrectionsWrtUndergoingPosition_[ k ].resize( numberOfBodies );
-        analyticalScalarEihCorrectionsWrtUndergoingPosition_[ k ].resize( numberOfBodies );
-
-        if( k < 3 )
-        {
-            numericalVectorEihCorrectionsWrtExertingPosition_[ k ].resize( numberOfBodies );
-            analyticalVectorEihCorrectionsWrtExertingPosition_[ k ].resize( numberOfBodies );
-
-            numericalVectorEihCorrectionsWrtExertingVelocity_[ k ].resize( numberOfBodies );
-            analyticalVectorEihCorrectionsWrtExertingVelocity_[ k ].resize( numberOfBodies );
-
-            numericalVectorEihCorrectionsWrtUndergoingPosition_[ k ].resize( numberOfBodies );
-            analyticalVectorEihCorrectionsWrtUndergoingPosition_[ k ].resize( numberOfBodies );
-        }
-    }
-    
-    for( unsigned int i = 0; i < numberOfBodies; i++ )
-    {
-        upperturbedTotalPotentials_[ i ].resize( numberOfBodies );
-        downperturbedTotalPotentials_[ i ].resize( numberOfBodies );
-
-        upperturbedSingleContrubutionPotentials[ i ].resize( numberOfBodies );
-        downperturbedSingleContrubutionPotentials[ i ].resize( numberOfBodies );
-
-        upperturbedSinglePointmassAcceleration[ i ].resize( numberOfBodies );
-        downperturbedSinglePointmassAcceleration[ i ].resize( numberOfBodies );
-
-        upperturbedTotalPointmassAcceleration[ i ].resize( numberOfBodies );
-        downperturbedTotalPointmassAcceleration[ i ].resize( numberOfBodies );
-
-        numericalTotalPotentialsWrtPosition_[ i ].resize( numberOfBodies );
-        numericalSingleContributionPotentialsWrtPosition_[ i ].resize( numberOfBodies );
-        numericalSinglePointMassAccelerationWrtPosition_[ i ].resize( numberOfBodies );
-        numericalTotalPointMassAccelerationWrtPosition_[ i ].resize( numberOfBodies );
-
-        for( int k = 0; k < 7; k++ )
-        {
-            upperturbedExertingScalarEihCorrections[ k ][ i ].resize( numberOfBodies );
-            downperturbedExertingScalarEihCorrections[ k ][ i ].resize( numberOfBodies );
-
-            upperturbedUndergoingScalarEihCorrections[ k ][ i ].resize( numberOfBodies );
-            downperturbedUndergoingScalarEihCorrections[ k ][ i ].resize( numberOfBodies );
-
-            numericalScalarEihCorrectionsWrtExertingPosition_[ k ][ i ].resize( numberOfBodies );
-            analyticalScalarEihCorrectionsWrtExertingPosition_[ k ][ i ].resize( numberOfBodies );
-
-            numericalScalarEihCorrectionsWrtExertingVelocity_[ k ][ i ].resize( numberOfBodies );
-            analyticalScalarEihCorrectionsWrtExertingVelocity_[ k ][ i ].resize( numberOfBodies );
-
-            numericalScalarEihCorrectionsWrtUndergoingPosition_[ k ][ i ].resize( numberOfBodies );
-            analyticalScalarEihCorrectionsWrtUndergoingPosition_[ k ][ i ].resize( numberOfBodies );
-
-            if( k < 3 )
-            {
-                upperturbedExertingVectorEihCorrections[ k ][ i ].resize( numberOfBodies );
-                downperturbedExertingVectorEihCorrections[ k ][ i ].resize( numberOfBodies );
-
-                upperturbedUndergoingVectorEihCorrections[ k ][ i ].resize( numberOfBodies );
-                downperturbedUndergoingVectorEihCorrections[ k ][ i ].resize( numberOfBodies );
-
-                numericalVectorEihCorrectionsWrtExertingPosition_[ k ][ i ].resize( numberOfBodies );
-                analyticalVectorEihCorrectionsWrtExertingPosition_[ k ][ i ].resize( numberOfBodies );
-
-                numericalVectorEihCorrectionsWrtExertingVelocity_[ k ][ i ].resize( numberOfBodies );
-                analyticalVectorEihCorrectionsWrtExertingVelocity_[ k ][ i ].resize( numberOfBodies );
-
-                numericalVectorEihCorrectionsWrtUndergoingPosition_[ k ][ i ].resize( numberOfBodies );
-                analyticalVectorEihCorrectionsWrtUndergoingPosition_[ k ][ i ].resize( numberOfBodies );
-            }
-        }
-
-    }
     for( unsigned int i = 0; i < numberOfBodies; i++ )
     {
         // Get current body nominal state
@@ -302,44 +247,32 @@ BOOST_AUTO_TEST_CASE( testEihPartials )
             {
                 for ( unsigned int j = 0; j < numberOfPropatedBodies; j++ )
                 {
-                    // Set d(fs)_{k,ji}/dx_{i} to 0
-                    analyticalScalarEihCorrectionsWrtExertingPosition_[ k ][ j ][ i ].setZero( );
-
-                    analyticalScalarEihCorrectionsWrtExertingVelocity_[ k ][ j ][ i ].setZero( );
-
-                    // Set d(fs)_{k,ji}/dx_{j} to 0
-                    analyticalScalarEihCorrectionsWrtUndergoingPosition_[ k ][ j ][ i ].setZero( );
 
                     // Compute analytical d(fs)_{k,ji}/dx_{i}
                     eihPartials->addSingleScalarTermWrtPositionPartial(
-                        analyticalScalarEihCorrectionsWrtExertingPosition_[ k ][ j ][ i ], j, i, true, k );
+                        analyticalScalarEihCorrectionsWrtExertingPosition[ k ][ j ][ i ], j, i, true, k );
                     eihPartials->addSingleScalarTermWrtVelocityPartial(
-                        analyticalScalarEihCorrectionsWrtExertingVelocity_[ k ][ j ][ i ], j, i, true, k );
+                        analyticalScalarEihCorrectionsWrtExertingVelocity[ k ][ j ][ i ], j, i, true, k );
 
                     // Compute analytical d(fs)_{k,ji}/dx_{j}
                     eihPartials->addSingleScalarTermWrtPositionPartial(
-                        analyticalScalarEihCorrectionsWrtUndergoingPosition_[ k ][ j ][ i ], j, i, false, k );
+                        analyticalScalarEihCorrectionsWrtUndergoingPosition[ k ][ j ][ i ], j, i, false, k );
+                    eihPartials->addSingleScalarTermWrtVelocityPartial(
+                        analyticalScalarEihCorrectionsWrtUndergoingVelocity[ k ][ j ][ i ], j, i, true, k );
 
                     if ( k < 3 )
                     {
-                        // Set d(fv)_{k,ji}/dx_{i} to 0
-                        analyticalVectorEihCorrectionsWrtExertingPosition_[ k ][ j ][ i ].setZero( );
-
-                        analyticalVectorEihCorrectionsWrtExertingVelocity_[ k ][ j ][ i ].setZero( );
-
-                        // Set d(fv)_{k,ji}/dx_{j} to 0
-                        analyticalVectorEihCorrectionsWrtUndergoingPosition_[ k ][ j ][ i ].setZero( );
-
                         // Compute analytical d(fv)_{k,ji}/dx_{i}
                         eihPartials->addSingleVectorTermWrtPositionPartial(
-                            analyticalVectorEihCorrectionsWrtExertingPosition_[ k ][ j ][ i ], j, i, true, k );
-
+                            analyticalVectorEihCorrectionsWrtExertingPosition[ k ][ j ][ i ], j, i, true, k );
                         eihPartials->addSingleVectorTermWrtVelocityPartial(
-                            analyticalVectorEihCorrectionsWrtExertingVelocity_[ k ][ j ][ i ], j, i, true, k );
+                            analyticalVectorEihCorrectionsWrtExertingVelocity[ k ][ j ][ i ], j, i, true, k );
 
                         // Compute analytical d(fv)_{k,ji}/dx_{j}
                         eihPartials->addSingleVectorTermWrtPositionPartial(
-                            analyticalVectorEihCorrectionsWrtUndergoingPosition_[ k ][ j ][ i ], j, i, false, k );
+                            analyticalVectorEihCorrectionsWrtUndergoingPosition[ k ][ j ][ i ], j, i, false, k );
+                        eihPartials->addSingleVectorTermWrtVelocityPartial(
+                            analyticalVectorEihCorrectionsWrtUndergoingVelocity[ k ][ j ][ i ], j, i, true, k );
                     }
                 }
             }
@@ -430,70 +363,70 @@ BOOST_AUTO_TEST_CASE( testEihPartials )
     {
         for( unsigned int j = 0; j < numberOfPropatedBodies; j++ )
         {
-            numericalTotalPotentialsWrtPosition_[ i ][ j ] =
+            numericalTotalPotentialsWrtPosition[ i ][ j ] =
                 ( upperturbedTotalPotentials_[ i ][ j ].block( 0, 0, 1, 3 ) - downperturbedTotalPotentials_[ i ][ j ].block( 0, 0, 1, 3 ) ) /
                 ( 2.0 * positionPerturbation );
 
 
-            numericalSingleContributionPotentialsWrtPosition_[ i ][ j ] =
+            numericalSingleContributionPotentialsWrtPosition[ i ][ j ] =
                 ( upperturbedSingleContrubutionPotentials[ i ][ j ].block( 0, 0, 1, 3 ) - downperturbedSingleContrubutionPotentials[ i ][ j ].block( 0, 0, 1, 3 ) ) /
                 ( 2.0 * positionPerturbation );
-            numericalSinglePointMassAccelerationWrtPosition_[ i ][ j ] =
+            numericalSinglePointMassAccelerationWrtPosition[ i ][ j ] =
                 ( upperturbedSinglePointmassAcceleration[ i ][ j ].block( 0, 0, 3, 3 ) - downperturbedSinglePointmassAcceleration[ i ][ j ].block( 0, 0, 3, 3 ) ) /
                 ( 2.0 * positionPerturbation );
-            numericalTotalPointMassAccelerationWrtPosition_[ i ][ j ] =
+            numericalTotalPointMassAccelerationWrtPosition[ i ][ j ] =
                 ( upperturbedTotalPointmassAcceleration[ i ][ j ].block( 0, 0, 3, 3 ) - downperturbedTotalPointmassAcceleration[ i ][ j ].block( 0, 0, 3, 3 ) ) /
                 ( 2.0 * positionPerturbation );
             if( i != j )
             {
                 for( int k = 0; k < 7; k++ )
                 {
-                    numericalScalarEihCorrectionsWrtExertingPosition_[ k ][ i ][ j ] =
+                    numericalScalarEihCorrectionsWrtExertingPosition[ k ][ i ][ j ] =
                         ( upperturbedExertingScalarEihCorrections[ k ][ i ][ j ].block( 0, 0, 1, 3 ) - downperturbedExertingScalarEihCorrections[ k ][ i ][ j ].block( 0, 0, 1, 3 ) ) /
                         ( 2.0 * positionPerturbation );
 
                     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                        numericalScalarEihCorrectionsWrtExertingPosition_[ k ][ i ][ j ].block( 0, 0, 1, 3 ),
-                        analyticalScalarEihCorrectionsWrtExertingPosition_[ k ][ j ][ i ].block( 0, 0, 1, 3 ),
+                        numericalScalarEihCorrectionsWrtExertingPosition[ k ][ i ][ j ].block( 0, 0, 1, 3 ),
+                        analyticalScalarEihCorrectionsWrtExertingPosition[ k ][ j ][ i ].block( 0, 0, 1, 3 ),
                         1.0E-4);
 
-                    numericalScalarEihCorrectionsWrtExertingVelocity_[ k ][ i ][ j ] =
+                    numericalScalarEihCorrectionsWrtExertingVelocity[ k ][ i ][ j ] =
                         ( upperturbedExertingScalarEihCorrections[ k ][ i ][ j ].block( 0, 3, 1, 3 ) - downperturbedExertingScalarEihCorrections[ k ][ i ][ j ].block( 0, 3, 1, 3 ) ) /
                         ( 2.0 * velocityPerturbation );
 
                     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                        numericalScalarEihCorrectionsWrtExertingVelocity_[ k ][ i ][ j ].block( 0, 0, 1, 3 ),
-                        analyticalScalarEihCorrectionsWrtExertingVelocity_[ k ][ j ][ i ].block( 0, 0, 1, 3 ),
+                        numericalScalarEihCorrectionsWrtExertingVelocity[ k ][ i ][ j ].block( 0, 0, 1, 3 ),
+                        analyticalScalarEihCorrectionsWrtExertingVelocity[ k ][ j ][ i ].block( 0, 0, 1, 3 ),
                         1.0E-4);
 
 //                    std::cout<<"k "<<k<<" (i,j) "<<i<<" "<<j<<std::endl
-//                             <<numericalScalarEihCorrectionsWrtExertingVelocity_[ k ][ i ][ j ]<<std::endl
-//                             <<analyticalScalarEihCorrectionsWrtExertingVelocity_[ k ][ j ][ i ]<<std::endl<<std::endl;
+//                             <<numericalScalarEihCorrectionsWrtExertingVelocity[ k ][ i ][ j ]<<std::endl
+//                             <<analyticalScalarEihCorrectionsWrtExertingVelocity[ k ][ j ][ i ]<<std::endl<<std::endl;
 
                 }
             }
 
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                numericalTotalPotentialsWrtPosition_[ i ][ j ].block( 0, 0, 1, 3 ),
-                analyticalTotalPotentialsWrtPosition_[ j ][ i ].block( 0, 0, 1, 3 ),
+                numericalTotalPotentialsWrtPosition[ i ][ j ].block( 0, 0, 1, 3 ),
+                analyticalTotalPotentialsWrtPosition[ j ][ i ].block( 0, 0, 1, 3 ),
                 1.0E-4);
 
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                numericalTotalPointMassAccelerationWrtPosition_[ i ][ j ].block( 0, 0, 3, 3 ),
-                analyticalTotalPointMassAccelerationWrtPosition_[ j ][ i ].block( 0, 0, 3, 3 ),
+                numericalTotalPointMassAccelerationWrtPosition[ i ][ j ].block( 0, 0, 3, 3 ),
+                analyticalTotalPointMassAccelerationWrtPosition[ j ][ i ].block( 0, 0, 3, 3 ),
                 1.0E-4);
 
             if( i != j )
             {
 
                 TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                    numericalSingleContributionPotentialsWrtPosition_[ i ][ j ].block( 0, 0, 1, 3 ),
-                    analyticalSingleContributionPotentialsWrtPosition_[ j ][ i ].block( 0, 0, 1, 3 ),
+                    numericalSingleContributionPotentialsWrtPosition[ i ][ j ].block( 0, 0, 1, 3 ),
+                    analyticalSingleContributionPotentialsWrtPosition[ j ][ i ].block( 0, 0, 1, 3 ),
                     1.0E-4);
 
                 TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                    numericalSinglePointMassAccelerationWrtPosition_[ i ][ j ].block( 0, 0, 3, 3 ),
-                    analyticalSinglePointMassAccelerationWrtPosition_[ j ][ i ].block( 0, 0, 3, 3 ),
+                    numericalSinglePointMassAccelerationWrtPosition[ i ][ j ].block( 0, 0, 3, 3 ),
+                    analyticalSinglePointMassAccelerationWrtPosition[ j ][ i ].block( 0, 0, 3, 3 ),
                     1.0E-4);
             }
         }
