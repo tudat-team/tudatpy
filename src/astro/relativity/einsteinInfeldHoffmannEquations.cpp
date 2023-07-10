@@ -46,8 +46,8 @@ EinsteinInfeldHoffmannEquations::EinsteinInfeldHoffmannEquations(
         singlePointMassAccelerations_.resize( acceleratedBodies_.size() );
         currentSingleAccelerations_.resize( acceleratedBodies_.size() );
 
-        currentScalarTermMultiplier_.resize( acceleratedBodies_.size() );
-        currentVectorTermMultiplier_.resize( acceleratedBodies_.size() );
+        totalScalarTermCorrection.resize( acceleratedBodies_.size() );
+        totalVectorTermCorrection_.resize( acceleratedBodies_.size() );
 
         for( int k = 0; k < 7; k++ )
         {
@@ -71,8 +71,8 @@ EinsteinInfeldHoffmannEquations::EinsteinInfeldHoffmannEquations(
             currentSingleSourceLocalPotential_[ i ].resize( acceleratingBodies_.size( ) );
             singlePointMassAccelerations_[ i ].resize( acceleratingBodies_.size( ) );
             currentSingleAccelerations_[ i ].resize( acceleratingBodies_.size( ) );
-            currentScalarTermMultiplier_[ i ].resize( acceleratingBodies_.size() );
-            currentVectorTermMultiplier_[ i ].resize( acceleratingBodies_.size() );
+            totalScalarTermCorrection[ i ].resize( acceleratingBodies_.size() );
+            totalVectorTermCorrection_[ i ].resize( acceleratingBodies_.size() );
 
             for( int k = 0; k < 7; k++ )
             {
@@ -181,20 +181,20 @@ void EinsteinInfeldHoffmannEquations::update( const double currentTime )
             {
                 if( i != j )
                 {
-                    scalarEihCorrections_[ 0 ][ i ][ j ] = currentLocalPotentials_[ i ];
-                    scalarEihCorrections_[ 1 ][ i ][ j ] = currentLocalPotentials_[ j ];
-                    scalarEihCorrections_[ 2 ][ i ][ j ] = velocityInnerProducts_[ i ][ i ];
+                    scalarEihCorrections_[ 0 ][ i ][ j ] = scalarTermMultipliers_[ 0 ] * currentLocalPotentials_[ i ];
+                    scalarEihCorrections_[ 1 ][ i ][ j ] = scalarTermMultipliers_[ 1 ] * currentLocalPotentials_[ j ];
+                    scalarEihCorrections_[ 2 ][ i ][ j ] = scalarTermMultipliers_[ 2 ] * velocityInnerProducts_[ i ][ i ];
 
-                    scalarEihCorrections_[ 3 ][ i ][ j ] = currentVelocities_[ j ].dot( currentVelocities_[ j ] );
-                    scalarEihCorrections_[ 4 ][ i ][ j ] = velocityInnerProducts_[ i ][ j ];
+                    scalarEihCorrections_[ 3 ][ i ][ j ] = scalarTermMultipliers_[ 3 ] * currentVelocities_[ j ].dot( currentVelocities_[ j ] );
+                    scalarEihCorrections_[ 4 ][ i ][ j ] = scalarTermMultipliers_[ 4 ] * velocityInnerProducts_[ i ][ j ];
                     scalarEihCorrections_[ 5 ][ i ][ j ] =
-                        lineOfSightSpeed_[ i ][ j ] * lineOfSightSpeed_[ i ][ j ] /
+                        scalarTermMultipliers_[ 5 ] * lineOfSightSpeed_[ i ][ j ] * lineOfSightSpeed_[ i ][ j ] /
                          ( currentRelativeDistances_[ i ][ j ] * currentRelativeDistances_[ i ][ j ] );
-                    scalarEihCorrections_[ 6 ][ i ][ j ] = currentRelativePositions_[ i ][ j ].dot( totalPointMassAccelerations_[ j ] );
+                    scalarEihCorrections_[ 6 ][ i ][ j ] = scalarTermMultipliers_[ 6 ] * currentRelativePositions_[ i ][ j ].dot( totalPointMassAccelerations_[ j ] );
 
-                    vectorEihCorrections_[ 0 ][ i ][ j ] = currentRelativePositions_[ i ][ j ].dot( currentVelocities_[ i ] ) * currentInverseSquareDistances_[ i ][ j ] * currentRelativeVelocities_[ i ][ j ];
-                    vectorEihCorrections_[ 1 ][ i ][ j ] = lineOfSightSpeed_[ i ][ j ] * currentInverseSquareDistances_[ i ][ j ] * currentRelativeVelocities_[ i ][ j ];
-                    vectorEihCorrections_[ 2 ][ i ][ j ] = totalPointMassAccelerations_[ j ];
+                    vectorEihCorrections_[ 0 ][ i ][ j ] = vectorTermMultipliers_[ 0 ] * currentRelativePositions_[ i ][ j ].dot( currentVelocities_[ i ] ) * currentInverseSquareDistances_[ i ][ j ] * currentRelativeVelocities_[ i ][ j ];
+                    vectorEihCorrections_[ 1 ][ i ][ j ] = vectorTermMultipliers_[ 1 ] * lineOfSightSpeed_[ i ][ j ] * currentInverseSquareDistances_[ i ][ j ] * currentRelativeVelocities_[ i ][ j ];
+                    vectorEihCorrections_[ 2 ][ i ][ j ] = vectorTermMultipliers_[ 2 ] * totalPointMassAccelerations_[ j ];
                 }
             }
         }
@@ -222,22 +222,22 @@ void EinsteinInfeldHoffmannEquations::calculateAccelerations( )
 
             if( i != j )
             {
-                currentScalarTermMultiplier_[ i ][ j ] = 0;
-                currentVectorTermMultiplier_[ i ][ j ].setZero( );
+                totalScalarTermCorrection[ i ][ j ] = 0;
+                totalVectorTermCorrection_[ i ][ j ].setZero( );
 
                 for(  int k = 0; k < 7; k++ )
                 {
-                    currentScalarTermMultiplier_[ i ][ j ] += scalarTermMultipliers_[ k ] * scalarEihCorrections_[ k ][ i ][ j ];
+                    totalScalarTermCorrection[ i ][ j ] += scalarEihCorrections_[ k ][ i ][ j ];
                 }
                 currentSingleAccelerations_[ i ][ j ] = singlePointMassAccelerations_[ i ][ j ] *
-                    ( 1.0 + currentScalarTermMultiplier_[ i ][ j ] * physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT );
+                    ( 1.0 + totalScalarTermCorrection[ i ][ j ] * physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT );
 
                 for(  int k = 0; k < 3; k++ )
                 {
-                    currentVectorTermMultiplier_[ i ][ j ] += vectorTermMultipliers_[ k ] * vectorEihCorrections_[ k ][ i ][ j ];
+                    totalVectorTermCorrection_[ i ][ j ] += vectorEihCorrections_[ k ][ i ][ j ];
                 }
                 currentSingleAccelerations_[ i ][ j ] += currentSingleSourceLocalPotential_[ i ][ j ] *
-                    currentVectorTermMultiplier_[ i ][ j ] * physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT;
+                    totalVectorTermCorrection_[ i ][ j ] * physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT;
 
             }
             currentAccelerations_[ i ] += currentSingleAccelerations_[ i ][ j ];

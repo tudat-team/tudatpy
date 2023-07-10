@@ -70,14 +70,14 @@ public:
 
 
 
-    double getScalarTermMultiplier( const int bodyUndergoing, const int bodyExerting )
+    double getTotalScalarTermCorrection( const int bodyUndergoing, const int bodyExerting )
     {
-        return currentScalarTermMultiplier_.at( bodyUndergoing ).at( bodyExerting );
+        return totalScalarTermCorrection.at( bodyUndergoing ).at( bodyExerting );
     }
 
-    Eigen::Vector3d& getVectorTermMultiplier( const int bodyUndergoing, const int bodyExerting )
+    Eigen::Vector3d& getTotalVectorTermCorrection( const int bodyUndergoing, const int bodyExerting )
     {
-        return currentVectorTermMultiplier_.at( bodyUndergoing ).at( bodyExerting );
+        return totalVectorTermCorrection_.at( bodyUndergoing ).at( bodyExerting );
     }
 
 
@@ -129,12 +129,12 @@ public:
         return acceleratingBodies_;
     }
 
-    double getScalarTermMultipliers( const int k )
+    double getScalarTermMultiplier( const int k )
     {
         return scalarTermMultipliers_.at( k );
     }
 
-    double getVectorTermMultipliers( const int k )
+    double getVectorTermMultiplier( const int k )
     {
         return vectorTermMultipliers_.at( k );
     }
@@ -215,9 +215,9 @@ private:
 
     std::vector< std::vector< Eigen::Vector3d > > currentSingleAccelerations_;
 
-    std::vector< std::vector< double > > currentScalarTermMultiplier_;
+    std::vector< std::vector< double > > totalScalarTermCorrection;
 
-    std::vector< std::vector< Eigen::Vector3d > > currentVectorTermMultiplier_;
+    std::vector< std::vector< Eigen::Vector3d > > totalVectorTermCorrection_;
 
     std::vector< Eigen::Vector3d > currentAccelerations_;
 
