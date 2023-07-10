@@ -129,6 +129,16 @@ public:
         return acceleratingBodies_;
     }
 
+    double getScalarTermMultipliers( const int k )
+    {
+        return scalarTermMultipliers_.at( k );
+    }
+
+    double getVectorTermMultipliers( const int k )
+    {
+        return vectorTermMultipliers_.at( k );
+    }
+
 private:
 
     void recomputeExpansionMultipliers( );
