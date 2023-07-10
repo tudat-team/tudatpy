@@ -168,7 +168,7 @@ public:
 
             for( int m = 0; m < numberOfExertingBodies_; m++ )
             {
-//                currentTotalAccelerationsWrtPositionCrossTerms_[ i ][ m ].setZero( );
+                currentTotalAccelerationsWrtPositionCrossTerms_[ i ][ m ].setZero( );
                 if( i != m )
                 {
                     currentTotalAccelerationsWrtPosition_[ i ][ m ] =
@@ -196,15 +196,14 @@ public:
                        ( eihEquations_->getSinglePointMassAccelerations( i, m ) * currentTotalScalarTermWrtUndergoingVelocity_.at( i ).at( m ) +
                          eihEquations_->getSingleSourceLocalPotential( i, m ) * currentTotalVectorTermWrtUndergoingVelocity_.at( i ).at( m ) );
 
-//                    for( int j = 0; j < numberOfExertingBodies_; j++ )
-//                    {
-//                        if( ( j != i ) && ( j != m ) )
-//                        {
-//                            addSingleScalarCrossTermWrtPositionPartial( )
-//                            currentTotalAccelerationsWrtPositionCrossTerms_ += physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT *
-//                                ( );
-//                        }
-//                    }
+                    for( int j = 0; j < numberOfExertingBodies_; j++ )
+                    {
+                        if( ( j != i ) && ( j != m ) )
+                        {
+                            currentTotalAccelerationsWrtPositionCrossTerms_[ i ][ m ] += physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT *
+                                ( eihEquations_->getSinglePointMassAccelerations( i, j ) );
+                        }
+                    }
                 }
             }
         }
@@ -218,7 +217,8 @@ public:
         case 0:
             if( wrtExerting )
             {
-                scalarTermWrtPosition += currentTotalPotentialWrtPosition_[ bodyUndergoing ][ bodyExerting ];
+                scalarTermWrtPosition += currentTotalPotentialWrtPosition_[ bodyUndergoing ][ bodyExerting ] *
+                    eihEquations_->getRelativePositions();
             }
             else
             {
@@ -279,9 +279,10 @@ public:
         }
     }
 
-    void addSingleScalarCrossTermWrtPositionPartial(
-        Eigen::Matrix< double, 1, 3 >& scalarTermWrtPosition, const int bodyUndergoing, const int bodyExerting, const int bodyPartial, const int termIndex )
+    Eigen::Matrix< double, 1, 3 > getSingleScalarCrossTermWrtPositionPartial(
+        const int bodyUndergoing, const int bodyExerting, const int bodyPartial, const int termIndex )
     {
+        Eigen::Matrix< double, 1, 3 > scalarTermWrtPosition;
         switch( termIndex )
         {
         case 0:
@@ -299,6 +300,7 @@ public:
             throw std::runtime_error( "Error when getting EIH scalar cross term partial w.r.t. positon, index " + std::to_string( termIndex ) + " not allowed." );
 
         }
+        return scalarTermWrtPosition;
     }
 
     void addSingleScalarTermWrtVelocityPartial(
@@ -384,11 +386,11 @@ public:
         case 2:
             if( wrtExerting )
             {
-                vectorTermWrtPosition += currentTotalPointMassAccelerationsWrtPosition_.at( bodyUndergoing ).at( bodyExerting );
+                vectorTermWrtPosition += currentTotalPointMassAccelerationsWrtPosition_.at( bodyExerting ).at( bodyExerting );
             }
             else
             {
-                vectorTermWrtPosition += currentTotalPointMassAccelerationsWrtPosition_.at( bodyUndergoing ).at( bodyUndergoing );
+                vectorTermWrtPosition += currentTotalPointMassAccelerationsWrtPosition_.at( bodyExerting ).at( bodyUndergoing );
             }
             break;
         default:
@@ -397,9 +399,10 @@ public:
         }
     }
 
-    void addSingleVectorCrossTermWrtPositionPartial(
-        Eigen::Matrix< double, 3, 3 >& vectorTermWrtPosition, const int bodyUndergoing, const int bodyExerting, const int bodyPartial, const int termIndex )
+    Eigen::Matrix< double, 3, 3 > addSingleVectorCrossTermWrtPositionPartial(
+        const int bodyUndergoing, const int bodyExerting, const int bodyPartial, const int termIndex )
     {
+        Eigen::Matrix< double, 3, 3 > vectorTermWrtPosition;
         switch( termIndex )
         {
 
@@ -410,7 +413,9 @@ public:
             throw std::runtime_error( "Error when getting EIH vector cross term partial w.r.t. positon, index " + std::to_string( termIndex ) + " not allowed." );
 
         }
+        return vectorTermWrtPosition;
     }
+
     void addSingleVectorTermWrtVelocityPartial(
         Eigen::Matrix3d& vectorTermWrtVelocity, const int bodyUndergoing, const int bodyExerting, const bool wrtExerting, const int termIndex )
     {
