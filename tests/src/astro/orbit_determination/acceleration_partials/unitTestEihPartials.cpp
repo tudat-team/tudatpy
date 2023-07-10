@@ -403,10 +403,27 @@ BOOST_AUTO_TEST_CASE( testEihPartials )
                         numericalScalarEihCorrectionsWrtExertingVelocity[ k ][ i ][ j ].block( 0, 0, 1, 3 ),
                         analyticalScalarEihCorrectionsWrtExertingVelocity[ k ][ j ][ i ].block( 0, 0, 1, 3 ),
                         1.0E-4);
-//                    std::cout<<"k "<<k<<" (i,j) "<<i<<" "<<j<<std::endl
-//                             <<numericalScalarEihCorrectionsWrtExertingVelocity[ k ][ i ][ j ]<<std::endl
-//                             <<analyticalScalarEihCorrectionsWrtExertingVelocity[ k ][ j ][ i ]<<std::endl<<std::endl;
+                }
 
+                for( int k = 0; k < 3; k++ )
+                {
+                    numericalVectorEihCorrectionsWrtExertingPosition[ k ][ i ][ j ] =
+                        ( upperturbedExertingVectorEihCorrections[ k ][ i ][ j ].block( 0, 0, 3, 3 ) - downperturbedExertingVectorEihCorrections[ k ][ i ][ j ].block( 0, 0, 3, 3 ) ) /
+                        ( 2.0 * positionPerturbation );
+
+                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                        numericalVectorEihCorrectionsWrtExertingPosition[ k ][ i ][ j ].block( 0, 0, 3, 3 ),
+                        analyticalVectorEihCorrectionsWrtExertingPosition[ k ][ j ][ i ].block( 0, 0, 3, 3 ),
+                        1.0E-4);
+
+                    numericalVectorEihCorrectionsWrtExertingVelocity[ k ][ i ][ j ] =
+                        ( upperturbedExertingVectorEihCorrections[ k ][ i ][ j ].block( 0, 3, 3, 3 ) - downperturbedExertingVectorEihCorrections[ k ][ i ][ j ].block( 0, 3, 3, 3 ) ) /
+                        ( 2.0 * velocityPerturbation );
+
+                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                        numericalVectorEihCorrectionsWrtExertingVelocity[ k ][ i ][ j ].block( 0, 0, 3, 3 ),
+                        analyticalVectorEihCorrectionsWrtExertingVelocity[ k ][ j ][ i ].block( 0, 0, 3, 3 ),
+                        1.0E-4);
                 }
             }
 

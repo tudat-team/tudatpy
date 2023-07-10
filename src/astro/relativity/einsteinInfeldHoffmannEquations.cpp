@@ -194,7 +194,7 @@ void EinsteinInfeldHoffmannEquations::update( const double currentTime )
 
                     vectorEihCorrections_[ 0 ][ i ][ j ] = -lineOfSightSpeed_[ j ][ i ] * currentInverseSquareDistances_[ i ][ j ] * currentRelativeVelocities_[ i ][ j ];
                     vectorEihCorrections_[ 1 ][ i ][ j ] = lineOfSightSpeed_[ i ][ j ] * currentInverseSquareDistances_[ i ][ j ] * currentRelativeVelocities_[ i ][ j ];
-                    vectorEihCorrections_[ 2 ][ i ][ j ] = totalPointMassAccelerations_[ j ];
+                    vectorEihCorrections_[ 2 ][ i ][ j ] = totalPointMassAccelerations_[ i ];
                 }
             }
         }
