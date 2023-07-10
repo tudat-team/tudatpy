@@ -864,6 +864,18 @@ std::string to_string_with_precision(const T a_value, const int n = 6)
     return std::move(out).str();
 }
 
+template<typename T>
+std::vector< std::vector< T > > getTwoDimensionalVector( const int firstDimension, const int secondDimension, const T initializationValue )
+{
+    return std::vector< std::vector< T > >(firstDimension, std::vector<T>(secondDimension, initializationValue));
+}
+
+template<typename T>
+std::vector< std::vector< std::vector< T > > > getThreeDimensionalVector( const int firstDimension, const int secondDimension, const int thirdDimension, const T initializationValue )
+{
+    return std::vector< std::vector< std::vector< T > > >(firstDimension, std::vector< std::vector<T> >(secondDimension, std::vector<T>( thirdDimension, initializationValue) ) );
+}
+
 } // namespace utilities
 
 } // namespace tudat
