@@ -192,7 +192,7 @@ void EinsteinInfeldHoffmannEquations::update( const double currentTime )
                          ( currentRelativeDistances_[ i ][ j ] * currentRelativeDistances_[ i ][ j ] );
                     scalarEihCorrections_[ 6 ][ i ][ j ] = currentRelativePositions_[ i ][ j ].dot( totalPointMassAccelerations_[ j ] );
 
-                    vectorEihCorrections_[ 0 ][ i ][ j ] = -lineOfSightSpeed_[ j ][ i ] * currentInverseSquareDistances_[ i ][ j ] * currentRelativeVelocities_[ i ][ j ];
+                    vectorEihCorrections_[ 0 ][ i ][ j ] = currentRelativePositions_[ i ][ j ].dot( currentVelocities_[ i ] ) * currentInverseSquareDistances_[ i ][ j ] * currentRelativeVelocities_[ i ][ j ];
                     vectorEihCorrections_[ 1 ][ i ][ j ] = lineOfSightSpeed_[ i ][ j ] * currentInverseSquareDistances_[ i ][ j ] * currentRelativeVelocities_[ i ][ j ];
                     vectorEihCorrections_[ 2 ][ i ][ j ] = totalPointMassAccelerations_[ i ];
                 }
