@@ -288,7 +288,7 @@ std::vector< double > ProcessedOdfFileContents::computeObservationTimesTdbFromJ2
 
         std::vector< double > observationTimesUtcFromJ2000 = computeObservationTimesUtcFromJ2000( observationTimesUtcFromEME1950 );
 
-        if ( approximateBodyFixedGroundStationPositions_.count( groundStation ) == 0 )
+        if ( approximateEarthFixedGroundStationPositions_.count( groundStation ) == 0 )
         {
             throw std::runtime_error( "Error when processing ODF file, converting time from UTC to TDB: the position of "
                                       "the ground station " + groundStation + " was not specified." );
@@ -298,7 +298,7 @@ std::vector< double > ProcessedOdfFileContents::computeObservationTimesTdbFromJ2
         for ( unsigned int i = 0; i < observationTimesUtcFromJ2000.size( ); ++i )
         {
             // TDB time wrt Earth center used to retrieve the ground station's position
-            earthFixedPositions.push_back( approximateBodyFixedGroundStationPositions_.at( groundStation ) );
+            earthFixedPositions.push_back( approximateEarthFixedGroundStationPositions_.at( groundStation ) );
         }
 
         std::vector< double > observationTimesTdbFromJ2000 = timeScaleConverter.getCurrentTimes(
