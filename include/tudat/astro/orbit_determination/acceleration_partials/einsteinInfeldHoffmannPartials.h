@@ -63,6 +63,12 @@ public:
         currentTotalVectorTermWrtExertingPosition_.resize( numberOfExertingBodies_ );
         currentTotalVectorTermWrtUndergoingPosition_.resize( numberOfExertingBodies_ );
 
+        currentTotalScalarTermWrtExertingVelocity_.resize( numberOfExertingBodies_ );
+        currentTotalScalarTermWrtUndergoingVelocity_.resize( numberOfExertingBodies_ );
+        currentTotalVectorTermWrtExertingVelocity_.resize( numberOfExertingBodies_ );
+        currentTotalVectorTermWrtUndergoingVelocity_.resize( numberOfExertingBodies_ );
+
+
         for( int i = 0; i < numberOfUndergoingBodies_; i++ )
         {
             currentTotalAccelerationsWrtPosition_[ i ].resize( numberOfExertingBodies_ );
@@ -81,6 +87,11 @@ public:
             currentTotalScalarTermWrtUndergoingPosition_[ i ].resize( numberOfExertingBodies_ );
             currentTotalVectorTermWrtExertingPosition_[ i ].resize( numberOfExertingBodies_ );
             currentTotalVectorTermWrtUndergoingPosition_[ i ].resize( numberOfExertingBodies_ );
+
+            currentTotalScalarTermWrtExertingVelocity_[ i ].resize( numberOfExertingBodies_ );
+            currentTotalScalarTermWrtUndergoingVelocity_[ i ].resize( numberOfExertingBodies_ );
+            currentTotalVectorTermWrtExertingVelocity_[ i ].resize( numberOfExertingBodies_ );
+            currentTotalVectorTermWrtUndergoingVelocity_[ i ].resize( numberOfExertingBodies_ );
         }
 
 
@@ -114,6 +125,13 @@ public:
                 currentTotalVectorTermWrtExertingPosition_[ i ][ j ].setZero( );
                 currentTotalVectorTermWrtUndergoingPosition_[ i ][ j ].setZero( );
 
+                currentTotalScalarTermWrtExertingVelocity_[ i ][ j ].setZero( );
+                currentTotalScalarTermWrtUndergoingVelocity_[ i ][ j ].setZero( );
+
+                currentTotalVectorTermWrtExertingVelocity_[ i ][ j ].setZero( );
+                currentTotalVectorTermWrtUndergoingVelocity_[ i ][ j ].setZero( );
+
+
                 for( int k = 0; k < 7; k++ )
                 {
                     addSingleScalarTermWrtPositionPartial(
@@ -121,12 +139,22 @@ public:
                     addSingleScalarTermWrtPositionPartial(
                         currentTotalScalarTermWrtUndergoingPosition_[ i ][ j ], i, j, false, k );
 
+                    addSingleScalarTermWrtVelocityPartial(
+                        currentTotalScalarTermWrtExertingVelocity_[ i ][ j ], i, j, true, k );
+                    addSingleScalarTermWrtVelocityPartial(
+                        currentTotalScalarTermWrtUndergoingVelocity_[ i ][ j ], i, j, false, k );
+
                     if( k < 3 )
                     {
                         addSingleVectorTermWrtPositionPartial(
                             currentTotalVectorTermWrtExertingPosition_[ i ][ j ], i, j, true, k );
                         addSingleVectorTermWrtPositionPartial(
                             currentTotalVectorTermWrtUndergoingPosition_[ i ][ j ], i, j, false, k );
+
+                        addSingleVectorTermWrtVelocityPartial(
+                            currentTotalVectorTermWrtExertingVelocity_[ i ][ j ], i, j, true, k );
+                        addSingleVectorTermWrtVelocityPartial(
+                            currentTotalVectorTermWrtUndergoingVelocity_[ i ][ j ], i, j, false, k );
 
                     }
                 }
@@ -136,25 +164,47 @@ public:
         for( int i = 0; i < numberOfUndergoingBodies_; i++ )
         {
             currentTotalAccelerationsWrtPosition_[ i ][ i ].setZero( );
-            for( int j = 0; j < numberOfExertingBodies_; j++ )
+            currentTotalAccelerationsWrtVelocity_[ i ][ i ].setZero( );
+
+            for( int m = 0; m < numberOfExertingBodies_; m++ )
             {
-                if( i != j )
+//                currentTotalAccelerationsWrtPositionCrossTerms_[ i ][ m ].setZero( );
+                if( i != m )
                 {
-                    currentTotalAccelerationsWrtPosition_[ i ][ j ] =
-                        currentSinglePointMassAccelerationsWrtExertingPosition_[ i ][ j ] *
-                        ( 1.0 * physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT * eihEquations_->getScalarTermMultiplier( i, j ) ) +
+                    currentTotalAccelerationsWrtPosition_[ i ][ m ] =
+                        currentSinglePointMassAccelerationsWrtExertingPosition_[ i ][ m ] *
+                        ( 1.0 * physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT * eihEquations_->getScalarTermMultiplier( i, m ) ) +
                         physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT *
-                            eihEquations_->getVectorTermMultiplier( i, j ) * currentLocalPotentialsWrtPosition_.at( i ).at( j );
+                        eihEquations_->getVectorTermMultiplier( i, m ) * currentLocalPotentialsWrtPosition_.at( i ).at( m );
 
-                    currentTotalAccelerationsWrtPosition_[ i ][ i ] -= currentTotalAccelerationsWrtPosition_[ i ][ j ];
+                    currentTotalAccelerationsWrtPosition_[ i ][ i ] -= currentTotalAccelerationsWrtPosition_[ i ][ m ];
 
-                    currentTotalAccelerationsWrtPosition_[ i ][ j ] += physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT *
-                        ( eihEquations_->getSinglePointMassAccelerations( i, j ) * currentTotalScalarTermWrtExertingPosition_.at( i ).at( j ) +
-                          eihEquations_->getSingleSourceLocalPotential( i, j ) * currentTotalVectorTermWrtExertingPosition_.at( i ).at( j ) );
+                    currentTotalAccelerationsWrtPosition_[ i ][ m ] += physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT *
+                        ( eihEquations_->getSinglePointMassAccelerations( i, m ) * currentTotalScalarTermWrtExertingPosition_.at( i ).at( m ) +
+                          eihEquations_->getSingleSourceLocalPotential( i, m ) * currentTotalVectorTermWrtExertingPosition_.at( i ).at( m ) );
 
                     currentTotalAccelerationsWrtPosition_[ i ][ i ] += physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT *
-                       ( eihEquations_->getSinglePointMassAccelerations( i, j ) * currentTotalScalarTermWrtUndergoingPosition_.at( i ).at( j ) +
-                         eihEquations_->getSingleSourceLocalPotential( i, j ) * currentTotalVectorTermWrtUndergoingPosition_.at( i ).at( j ) );
+                       ( eihEquations_->getSinglePointMassAccelerations( i, m ) * currentTotalScalarTermWrtUndergoingPosition_.at( i ).at( m ) +
+                         eihEquations_->getSingleSourceLocalPotential( i, m ) * currentTotalVectorTermWrtUndergoingPosition_.at( i ).at( m ) );
+
+
+                    currentTotalAccelerationsWrtVelocity_[ i ][ m ] += physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT *
+                       ( eihEquations_->getSinglePointMassAccelerations( i, m ) * currentTotalScalarTermWrtExertingVelocity_.at( i ).at( m ) +
+                         eihEquations_->getSingleSourceLocalPotential( i, m ) * currentTotalVectorTermWrtExertingVelocity_.at( i ).at( m ) );
+
+                    currentTotalAccelerationsWrtVelocity_[ i ][ i ] += physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT *
+                       ( eihEquations_->getSinglePointMassAccelerations( i, m ) * currentTotalScalarTermWrtUndergoingVelocity_.at( i ).at( m ) +
+                         eihEquations_->getSingleSourceLocalPotential( i, m ) * currentTotalVectorTermWrtUndergoingVelocity_.at( i ).at( m ) );
+
+//                    for( int j = 0; j < numberOfExertingBodies_; j++ )
+//                    {
+//                        if( ( j != i ) && ( j != m ) )
+//                        {
+//                            addSingleScalarCrossTermWrtPositionPartial( )
+//                            currentTotalAccelerationsWrtPositionCrossTerms_ += physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT *
+//                                ( );
+//                        }
+//                    }
                 }
             }
         }
@@ -225,6 +275,28 @@ public:
             break;
         default:
             throw std::runtime_error( "Error when getting EIH scalar term partial w.r.t. positon, index " + std::to_string( termIndex ) + " not allowed." );
+
+        }
+    }
+
+    void addSingleScalarCrossTermWrtPositionPartial(
+        Eigen::Matrix< double, 1, 3 >& scalarTermWrtPosition, const int bodyUndergoing, const int bodyExerting, const int bodyPartial, const int termIndex )
+    {
+        switch( termIndex )
+        {
+        case 0:
+            scalarTermWrtPosition += currentTotalPotentialWrtPosition_[ bodyUndergoing ][ bodyPartial ];
+            break;
+        case 1:
+            scalarTermWrtPosition += currentTotalPotentialWrtPosition_[ bodyExerting ][ bodyPartial ];
+            break;
+
+        case 6:
+            scalarTermWrtPosition += eihEquations_->getRelativePositions( bodyUndergoing, bodyExerting ).transpose( ) *
+                                     currentTotalPointMassAccelerationsWrtPosition_[ bodyExerting ][ bodyPartial ];
+            break;
+        default:
+            throw std::runtime_error( "Error when getting EIH scalar cross term partial w.r.t. positon, index " + std::to_string( termIndex ) + " not allowed." );
 
         }
     }
@@ -325,6 +397,20 @@ public:
         }
     }
 
+    void addSingleVectorCrossTermWrtPositionPartial(
+        Eigen::Matrix< double, 3, 3 >& vectorTermWrtPosition, const int bodyUndergoing, const int bodyExerting, const int bodyPartial, const int termIndex )
+    {
+        switch( termIndex )
+        {
+
+        case 2:
+            vectorTermWrtPosition += currentTotalPointMassAccelerationsWrtPosition_.at( bodyUndergoing ).at( bodyPartial );
+            break;
+        default:
+            throw std::runtime_error( "Error when getting EIH vector cross term partial w.r.t. positon, index " + std::to_string( termIndex ) + " not allowed." );
+
+        }
+    }
     void addSingleVectorTermWrtVelocityPartial(
         Eigen::Matrix3d& vectorTermWrtVelocity, const int bodyUndergoing, const int bodyExerting, const bool wrtExerting, const int termIndex )
     {
@@ -413,7 +499,10 @@ protected:
 
     std::vector< std::vector< Eigen::Matrix3d > > currentTotalAccelerationsWrtPosition_;
 
+    std::vector< std::vector< Eigen::Matrix3d > > currentTotalAccelerationsWrtPositionCrossTerms_;
+
     std::vector< std::vector< Eigen::Matrix3d > > currentTotalAccelerationsWrtVelocity_;
+
 
     std::vector< std::vector< double > > currentTotalAccelerationsWrtGravitationalParameter_;
 
@@ -443,6 +532,15 @@ protected:
     std::vector< std::vector< Eigen::Matrix3d > >  currentTotalVectorTermWrtExertingPosition_;
 
     std::vector< std::vector< Eigen::Matrix3d > >  currentTotalVectorTermWrtUndergoingPosition_;
+
+
+    std::vector< std::vector< Eigen::Matrix< double, 1, 3  > > >  currentTotalScalarTermWrtExertingVelocity_;
+
+    std::vector< std::vector< Eigen::Matrix< double, 1, 3  > > >  currentTotalScalarTermWrtUndergoingVelocity_;
+
+    std::vector< std::vector< Eigen::Matrix3d > >  currentTotalVectorTermWrtExertingVelocity_;
+
+    std::vector< std::vector< Eigen::Matrix3d > >  currentTotalVectorTermWrtUndergoingVelocity_;
 
 
 
