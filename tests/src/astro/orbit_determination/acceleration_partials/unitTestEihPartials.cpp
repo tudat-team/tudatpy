@@ -84,7 +84,7 @@ BOOST_AUTO_TEST_CASE( testEihPartials )
 
     // Create body objects.
     std::vector<std::string> bodiesToCreate =
-        { "Jupiter", "Sun"  };
+        { "Earth", "Jupiter", "Venus" };
 //        { "Earth", "Venus", "Mercury", "Sun" };//, "Moon", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune" };
     unsigned int numberOfBodies = bodiesToCreate.size( );
     BodyListSettings bodySettings =
@@ -108,8 +108,8 @@ BOOST_AUTO_TEST_CASE( testEihPartials )
 
     // Define propagator settings variables.
     SelectedAccelerationMap accelerationMap;
-    std::vector<std::string> bodiesToPropagate = { "Jupiter", "Sun" };
-    std::vector<std::string> centralBodies = { "SSB", "SSB" };
+    std::vector<std::string> bodiesToPropagate = { "Earth", "Jupiter", "Venus" };
+    std::vector<std::string> centralBodies = { "SSB", "SSB", "SSB" };
 
     unsigned int numberOfPropatedBodies = bodiesToPropagate.size( );
 
@@ -141,6 +141,12 @@ BOOST_AUTO_TEST_CASE( testEihPartials )
 
     double positionPerturbation = 1.0E8;
     double velocityPerturbation = 0.1;
+
+    std::vector< std::vector< Eigen::Matrix< double, 3, 6 > > > upperturbedTotalAcceleration = utilities::getTwoDimensionalVector< Eigen::Matrix< double, 3, 6 > >(
+        numberOfBodies, numberOfBodies, Eigen::Matrix< double, 3, 6 >::Zero( ) );
+    std::vector< std::vector< Eigen::Matrix< double, 3, 6 > > > downperturbedTotalAcceleration = utilities::getTwoDimensionalVector< Eigen::Matrix< double, 3, 6 > >(
+        numberOfBodies, numberOfBodies, Eigen::Matrix< double, 3, 6 >::Zero( ) );
+
 
     std::vector< std::vector< Eigen::Matrix< double, 1, 6 > > > upperturbedTotalPotentials_ = utilities::getTwoDimensionalVector< Eigen::Matrix< double, 1, 6 > >(
         numberOfBodies, numberOfBodies, Eigen::Matrix< double, 1, 6 >::Zero( ) );
@@ -183,6 +189,11 @@ BOOST_AUTO_TEST_CASE( testEihPartials )
         3, numberOfBodies, numberOfBodies, Eigen::Matrix< double, 3, 6 >::Zero( ) );
 
 
+    std::vector< std::vector< Eigen::Matrix< double, 3, 3 > > >  numericalTotalAcclerationWrtPosition = utilities::getTwoDimensionalVector< Eigen::Matrix< double, 3, 3 > >(
+        numberOfBodies, numberOfBodies, Eigen::Matrix< double, 3, 3 >::Zero( ) );
+    std::vector< std::vector< Eigen::Matrix< double, 3, 3 > > >  numericalTotalAcclerationWrtVelocity = utilities::getTwoDimensionalVector< Eigen::Matrix< double, 3, 3 > >(
+        numberOfBodies, numberOfBodies, Eigen::Matrix< double, 3, 3 >::Zero( ) );
+
     std::vector< std::vector< Eigen::Matrix< double, 1, 3 > > >  numericalTotalPotentialsWrtPosition = utilities::getTwoDimensionalVector< Eigen::Matrix< double, 1, 3 > >(
         numberOfBodies, numberOfBodies, Eigen::Matrix< double, 1, 3 >::Zero( ) );
     std::vector< std::vector< Eigen::Matrix< double, 1, 3 > > >  numericalSingleContributionPotentialsWrtPosition = utilities::getTwoDimensionalVector< Eigen::Matrix< double, 1, 3 > >(
@@ -207,6 +218,9 @@ BOOST_AUTO_TEST_CASE( testEihPartials )
         3, numberOfBodies, numberOfBodies, Eigen::Matrix< double, 3, 3 >::Zero( ) );
     std::vector< std::vector< std::vector< Eigen::Matrix< double, 3, 3 > > > > numericalVectorEihCorrectionsWrtUndergoingVelocity = utilities::getThreeDimensionalVector< Eigen::Matrix< double, 3, 3 > >(
         3, numberOfBodies, numberOfBodies, Eigen::Matrix< double, 3, 3 >::Zero( ) );
+
+    std::vector< std::vector< Eigen::Matrix< double, 3, 3 > > >  analyticalTotalAccelerationWrtPosition = eihPartials->getCurrentTotalAccelerationsWrtPosition( );
+    std::vector< std::vector< Eigen::Matrix< double, 3, 3 > > >  analyticalTotalAccelerationWrtVelocity = eihPartials->getCurrentTotalAccelerationsWrtVelocity( );
 
     std::vector< std::vector< Eigen::Matrix< double, 1, 3 > > >  analyticalTotalPotentialsWrtPosition = eihPartials->getCurrentTotalPotentialWrtPosition( );
     std::vector< std::vector< Eigen::Matrix< double, 1, 3 > > >  analyticalSingleContributionPotentialsWrtPosition = eihPartials->getCurrentLocalPotentialWrtPosition( );
@@ -291,6 +305,8 @@ BOOST_AUTO_TEST_CASE( testEihPartials )
 
             for ( unsigned int j = 0; j < numberOfPropatedBodies; j++ )
             {
+                upperturbedTotalAcceleration[ i ][ j ].block( 0, index, 3, 1 ) = eihEquations->getAccelerationOfBody( j );
+
                 // Compute upperturbed potentials and accelerations
                 upperturbedTotalPotentials_[ i ][ j ]( index ) = eihEquations->getLocalPotential( j );
                 upperturbedSingleContrubutionPotentials[ i ][ j ]( index ) =
@@ -326,6 +342,8 @@ BOOST_AUTO_TEST_CASE( testEihPartials )
             eihEquations->update( testTime );
             for ( unsigned int j = 0; j < numberOfPropatedBodies; j++ )
             {
+                downperturbedTotalAcceleration[ i ][ j ].block( 0, index, 3, 1 ) = eihEquations->getAccelerationOfBody( j );
+
                 downperturbedTotalPotentials_[ i ][ j ]( index ) = eihEquations->getLocalPotential( j );
                 downperturbedSingleContrubutionPotentials[ i ][ j ]( index ) =
                     eihEquations->getSingleSourceLocalPotential( j, i );
@@ -356,6 +374,15 @@ BOOST_AUTO_TEST_CASE( testEihPartials )
     {
         for( unsigned int j = 0; j < numberOfPropatedBodies; j++ )
         {
+            numericalTotalAcclerationWrtPosition[ i ][ j ] =
+                ( upperturbedTotalAcceleration[ i ][ j ].block( 0, 0, 3, 3 ) - downperturbedTotalAcceleration[ i ][ j ].block( 0, 0, 3, 3 ) ) /
+                ( 2.0 * positionPerturbation );
+
+            numericalTotalAcclerationWrtVelocity[ i ][ j ] =
+                ( upperturbedTotalAcceleration[ i ][ j ].block( 0, 3, 3, 3 ) - downperturbedTotalAcceleration[ i ][ j ].block( 0, 3, 3, 3 ) ) /
+                ( 2.0 * velocityPerturbation );
+
+
             numericalTotalPotentialsWrtPosition[ i ][ j ] =
                 ( upperturbedTotalPotentials_[ i ][ j ].block( 0, 0, 1, 3 ) - downperturbedTotalPotentials_[ i ][ j ].block( 0, 0, 1, 3 ) ) /
                 ( 2.0 * positionPerturbation );
@@ -460,12 +487,30 @@ BOOST_AUTO_TEST_CASE( testEihPartials )
 //                             <<analyticalVectorEihCorrectionsWrtExertingVelocity[ k ][ j ][ i ].block( 0, 0, 3, 3 )<<std::endl<<std::endl;
 //
 //
-//                    std::cout<<"Undergoing "<<i<<" "<<j<<" "<<k<<std::endl
-//                    <<numericalVectorEihCorrectionsWrtUndergoingVelocity[ k ][ i ][ j ].block( 0, 0, 3, 3 )<<std::endl<<std::endl
-//                    <<analyticalVectorEihCorrectionsWrtUndergoingVelocity[ k ][ j ][ i ].block( 0, 0, 3, 3 )<<std::endl<<std::endl;
 
                 }
             }
+
+            TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                numericalTotalAcclerationWrtPosition[ i ][ j ].block( 0, 0, 3, 3 ),
+                analyticalTotalAccelerationWrtPosition[ j ][ i ].block( 0, 0, 3, 3 ),
+                1.0E-3);
+
+//            TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+//                numericalTotalAcclerationWrtVelocity[ i ][ j ].block( 0, 0, 3, 3 ),
+//                analyticalTotalAccelerationWrtVelocity[ j ][ i ].block( 0, 0, 3, 3 ),
+//                1.0E-2);
+//            TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+//                numericalTotalAcclerationWrtVelocity[ i ][ j ].block( 0, 0, 3, 3 ),
+//                analyticalTotalAccelerationWrtVelocity[ j ][ i ].block( 0, 0, 3, 3 ),
+//                1.0E-2);
+
+//                                std::cout<<"Partials "<<i<<" "<<j<<" "<<std::endl
+//                    <<numericalTotalAcclerationWrtVelocity[ i ][ j ].block( 0, 0, 3, 3 )<<std::endl<<std::endl
+//                    <<analyticalTotalAccelerationWrtVelocity[ j ][ i ].block( 0, 0, 3, 3 )<<std::endl<<std::endl
+//                    <<analyticalTotalAccelerationWrtVelocity[ j ][ i ].block( 0, 0, 3, 3 ).cwiseQuotient(
+//                        numericalTotalAcclerationWrtVelocity[ i ][ j ].block( 0, 0, 3, 3 ) )<<std::endl<<std::endl;
+
 
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                 numericalTotalPotentialsWrtPosition[ i ][ j ].block( 0, 0, 1, 3 ),
