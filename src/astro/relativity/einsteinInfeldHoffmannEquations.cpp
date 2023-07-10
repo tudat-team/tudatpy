@@ -21,7 +21,9 @@ EinsteinInfeldHoffmannEquations::EinsteinInfeldHoffmannEquations(
     gravitationalParameterFunction_( gravitationalParameterFunction ),
     bodyStateFunctions_( bodyStateFunctions ),
     ppnGammaFunction_( ppnGammaFunction ),
-    ppnBetaFunction_( ppnBetaFunction )
+    ppnBetaFunction_( ppnBetaFunction ),
+    omitMainTerm_( false ),
+    currentTime_( TUDAT_NAN )
 {
     scalarEihCorrections_.resize( 7 );
     vectorEihCorrections_.resize( 3 );
