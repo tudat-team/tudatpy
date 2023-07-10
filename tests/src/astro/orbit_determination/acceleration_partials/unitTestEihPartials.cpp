@@ -391,16 +391,6 @@ BOOST_AUTO_TEST_CASE( testEihPartials )
                         numericalScalarEihCorrectionsWrtUndergoingPosition[ k ][ i ][ j ].block( 0, 0, 1, 3 ),
                         analyticalScalarEihCorrectionsWrtUndergoingPosition[ k ][ j ][ i ].block( 0, 0, 1, 3 ),
                         1.0E-3);
-//
-//                    std::cout<<"Exerting"<<i<<" "<<j<<" "<<k<<std::endl
-//                             <<numericalScalarEihCorrectionsWrtExertingPosition[ k ][ i ][ j ].block( 0, 0, 1, 3 )<<std::endl
-//                             <<analyticalScalarEihCorrectionsWrtExertingPosition[ k ][ j ][ i ].block( 0, 0, 1, 3 )<<std::endl<<std::endl;
-//
-//
-//                    std::cout<<"Undergoing"<<i<<" "<<j<<" "<<k<<std::endl
-//                    <<numericalScalarEihCorrectionsWrtUndergoingPosition[ k ][ i ][ j ].block( 0, 0, 1, 3 )<<std::endl
-//                    <<analyticalScalarEihCorrectionsWrtUndergoingPosition[ k ][ j ][ i ].block( 0, 0, 1, 3 )<<std::endl<<std::endl;
-
 
                     numericalScalarEihCorrectionsWrtExertingVelocity[ k ][ i ][ j ] =
                         ( upperturbedExertingScalarEihCorrections[ k ][ i ][ j ].block( 0, 3, 1, 3 ) - downperturbedExertingScalarEihCorrections[ k ][ i ][ j ].block( 0, 3, 1, 3 ) ) /
@@ -454,6 +444,11 @@ BOOST_AUTO_TEST_CASE( testEihPartials )
                     numericalVectorEihCorrectionsWrtUndergoingVelocity[ k ][ i ][ j ] =
                         ( upperturbedUndergoingVectorEihCorrections[ k ][ i ][ j ].block( 0, 3, 3, 3 ) - downperturbedUndergoingVectorEihCorrections[ k ][ i ][ j ].block( 0, 3, 3, 3 ) ) /
                         ( 2.0 * velocityPerturbation );
+
+//                    std::cout<<"Undergoing"<<i<<" "<<j<<" "<<k<<std::endl
+//                    <<numericalVectorEihCorrectionsWrtUndergoingVelocity[ k ][ i ][ j ].block( 0, 0, 3, 3 )<<std::endl
+//                    <<analyticalVectorEihCorrectionsWrtUndergoingVelocity[ k ][ j ][ i ].block( 0, 0, 3, 3 )<<std::endl<<std::endl;
+
 
                     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                         numericalVectorEihCorrectionsWrtUndergoingVelocity[ k ][ i ][ j ].block( 0, 0, 3, 3 ),
