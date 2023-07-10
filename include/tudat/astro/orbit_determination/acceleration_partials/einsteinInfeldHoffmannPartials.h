@@ -193,14 +193,20 @@ public:
             break;
         case 5:
         {
-            double distanceNorm = eihEquations_->getDistance( bodyUndergoing, bodyExerting );
             Eigen::Vector3d normalizedRelativePosition = eihEquations_->getRelativePositions( bodyUndergoing, bodyExerting ).normalized( );
             Eigen::Vector3d exertingVelocity = eihEquations_->getVelocity( bodyExerting );
-
-            scalarTermWrtPosition += ( exertingVelocity.transpose( ) -
-                2.0 * ( normalizedRelativePosition.dot( exertingVelocity ) ) * normalizedRelativePosition.transpose( ) ) /
-                ( distanceNorm * distanceNorm ) * ( wrtExerting ? 1.0 : -1.0 );
-
+            if( wrtExerting )
+            {
+                scalarTermWrtPosition += 2.0 * normalizedRelativePosition.dot( exertingVelocity ) * exertingVelocity.transpose( ) *
+                    ( Eigen::Matrix3d::Identity( ) - normalizedRelativePosition * normalizedRelativePosition.transpose( ) ) /
+                    eihEquations_->getRelativePositions( bodyUndergoing, bodyExerting ).norm( );
+            }
+            else
+            {
+                scalarTermWrtPosition -= 2.0 * normalizedRelativePosition.dot( exertingVelocity ) * exertingVelocity.transpose( ) *
+                    ( Eigen::Matrix3d::Identity( ) - normalizedRelativePosition * normalizedRelativePosition.transpose( ) ) /
+                    eihEquations_->getRelativePositions( bodyUndergoing, bodyExerting ).norm( );
+            }
             break;
         }
         case 6:
@@ -260,8 +266,7 @@ public:
             {
                 Eigen::Vector3d normalizedRelativePosition = eihEquations_->getRelativePositions( bodyUndergoing, bodyExerting ).normalized( );
                 Eigen::Vector3d exertingVelocity = eihEquations_->getVelocity( bodyExerting );
-
-                scalarTermWrtVelocity += 2.0 * normalizedRelativePosition.dot( exertingVelocity ) * normalizedRelativePosition;
+                scalarTermWrtVelocity += 2.0 * normalizedRelativePosition.dot( exertingVelocity ) * normalizedRelativePosition.transpose( );
             }
             break;
         }
@@ -274,24 +279,105 @@ public:
     }
 
     void addSingleVectorTermWrtPositionPartial(
-        Eigen::Matrix3d& scalarTermWrtPosition, const int bodyUndergoing, const int bodyExerting, const bool wrtExerting, const int termIndex )
+        Eigen::Matrix3d& vectorTermWrtPosition, const int bodyUndergoing, const int bodyExerting, const bool wrtExerting, const int termIndex )
     {
-        scalarTermWrtPosition.setZero( );
         switch( termIndex )
         {
         case 0:
+        {
+            double inverseSquareDistance = eihEquations_->getInverseSquareDistance( bodyUndergoing, bodyExerting );
+            Eigen::Vector3d relativePosition = eihEquations_->getRelativePositions( bodyUndergoing, bodyExerting );
 
+
+            double sign = ( wrtExerting ? 1.0 : -1.0 );
+            vectorTermWrtPosition +=
+                sign * eihEquations_->getRelativeVelocity( bodyUndergoing, bodyExerting ) *
+                ( eihEquations_->getVelocity( bodyUndergoing ) .transpose( ) * inverseSquareDistance *
+                ( Eigen::Matrix3d::Identity( ) - 2.0 * relativePosition * relativePosition.transpose( ) ) );
+            break;
+        }
         case 1:
+        {
+            double inverseSquareDistance = eihEquations_->getInverseSquareDistance( bodyUndergoing, bodyExerting );
+            Eigen::Vector3d relativePosition = eihEquations_->getRelativePositions( bodyUndergoing, bodyExerting );
 
+
+            double sign = ( wrtExerting ? 1.0 : -1.0 );
+            vectorTermWrtPosition +=
+                sign * eihEquations_->getRelativeVelocity( bodyUndergoing, bodyExerting ) *
+                ( eihEquations_->getVelocity( bodyExerting ) .transpose( ) * inverseSquareDistance *
+                  ( Eigen::Matrix3d::Identity( ) - 2.0 * relativePosition * relativePosition.transpose( ) ) );
             break;
+        }
         case 2:
+            if( wrtExerting )
+            {
+                vectorTermWrtPosition += currentTotalPointMassAccelerationsWrtPosition_.at( bodyUndergoing ).at( bodyExerting );
+            }
+            else
+            {
+                vectorTermWrtPosition += currentTotalPointMassAccelerationsWrtPosition_.at( bodyUndergoing ).at( bodyUndergoing );
+            }
             break;
-
         default:
             throw std::runtime_error( "Error when getting EIH vector term partial w.r.t. position, index " + std::to_string( termIndex ) + " not allowed." );
 
         }
     }
+
+    void addSingleVectorTermWrtVelocityPartial(
+        Eigen::Matrix3d& vectorTermWrtVelocity, const int bodyUndergoing, const int bodyExerting, const bool wrtExerting, const int termIndex )
+    {
+        switch( termIndex )
+        {
+        case 0:
+        {
+            double inverseSquareDistance = eihEquations_->getInverseSquareDistance(
+                bodyUndergoing, bodyExerting );
+            double baseMultiplier = -eihEquations_->getLineOfSighSpeed( bodyExerting, bodyUndergoing ) * inverseSquareDistance;
+            {
+                if( wrtExerting )
+                {
+                    vectorTermWrtVelocity += -baseMultiplier * Eigen::Matrix3d::Identity( ) + eihEquations_->getRelativeVelocity(
+                        bodyUndergoing, bodyExerting ) * eihEquations_->getRelativePositions( bodyUndergoing, bodyExerting ).transpose( ) * inverseSquareDistance;
+
+                }
+                else
+                {
+                    vectorTermWrtVelocity += baseMultiplier * Eigen::Matrix3d::Identity( );
+                }
+            }
+            break;
+        }
+        case 1:
+        {
+            double inverseSquareDistance = eihEquations_->getInverseSquareDistance(
+                bodyUndergoing, bodyExerting );
+            double baseMultiplier = eihEquations_->getLineOfSighSpeed( bodyUndergoing, bodyExerting ) * inverseSquareDistance;
+            {
+                if( wrtExerting )
+                {
+                    vectorTermWrtVelocity -= baseMultiplier * Eigen::Matrix3d::Identity( );
+
+                }
+                else
+                {
+                    vectorTermWrtVelocity += baseMultiplier * Eigen::Matrix3d::Identity( ) + eihEquations_->getRelativeVelocity(
+                        bodyUndergoing, bodyExerting ) * eihEquations_->getRelativePositions( bodyUndergoing, bodyExerting ).transpose( ) * inverseSquareDistance;
+
+                }
+            }
+            break;
+        }
+        case 2:
+            break;
+        default:
+            throw std::runtime_error( "Error when getting EIH vector term partial w.r.t. position, index " + std::to_string( termIndex ) + " not allowed." );
+
+        }
+    }
+
+
 
     std::vector< std::vector< Eigen::Matrix< double, 1, 3  > > > getCurrentTotalPotentialWrtPosition( )
     {
@@ -320,10 +406,9 @@ protected:
 
     std::shared_ptr< relativity::EinsteinInfeldHoffmannEquations > eihEquations_;
 
+    int numberOfExertingBodies_;
 
     int numberOfUndergoingBodies_;
-
-    int numberOfExertingBodies_;
 
 
     std::vector< std::vector< Eigen::Matrix3d > > currentTotalAccelerationsWrtPosition_;

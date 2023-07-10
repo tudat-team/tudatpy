@@ -36,10 +36,11 @@ EinsteinInfeldHoffmannEquations::EinsteinInfeldHoffmannEquations(
         totalPointMassAccelerations_.resize( acceleratingBodies_.size() );
 
         currentRelativePositions_.resize( acceleratedBodies_.size() );
+        currentInverseSquareDistances_.resize( acceleratedBodies.size() );
         currentRelativeDistances_.resize( acceleratedBodies_.size() );
         currentRelativeVelocities_.resize( acceleratedBodies_.size() );
 
-        relativePositionVelocityProduct_.resize( acceleratedBodies_.size() );
+        lineOfSightSpeed_.resize( acceleratedBodies_.size() );
         velocityInnerProducts_.resize( acceleratedBodies_.size() );
         currentSingleSourceLocalPotential_.resize( acceleratedBodies_.size() );
         singlePointMassAccelerations_.resize( acceleratedBodies_.size() );
@@ -61,10 +62,11 @@ EinsteinInfeldHoffmannEquations::EinsteinInfeldHoffmannEquations(
         for( unsigned int i = 0; i < acceleratedBodies_.size( ); i++ )
         {
             currentRelativePositions_[ i ].resize( acceleratingBodies_.size( ) );
+            currentInverseSquareDistances_[ i ].resize( acceleratingBodies_.size( ) );
             currentRelativeDistances_[ i ].resize( acceleratingBodies_.size( ) );
             currentRelativeVelocities_[ i ].resize( acceleratingBodies_.size( ) );
 
-            relativePositionVelocityProduct_[ i ].resize( acceleratingBodies_.size( ) );
+            lineOfSightSpeed_[ i ].resize( acceleratingBodies_.size( ) );
             velocityInnerProducts_[ i ].resize( acceleratingBodies_.size( ) );
             currentSingleSourceLocalPotential_[ i ].resize( acceleratingBodies_.size( ) );
             singlePointMassAccelerations_[ i ].resize( acceleratingBodies_.size( ) );
@@ -152,25 +154,25 @@ void EinsteinInfeldHoffmannEquations::update( const double currentTime )
                     // r_{ij} = r_{j} - r_{i}
                     currentRelativePositions_[ i ][ j ] = currentPositions_[ j ] - currentPositions_[ i ];
                     currentRelativeDistances_[ i ][ j ] = currentRelativePositions_[ i ][ j ].norm( );
+                    currentInverseSquareDistances_[ i ][ j ] = 1.0 / ( currentRelativeDistances_[ i ][ j ] * currentRelativeDistances_[ i ][ j ]  );
 
                     currentRelativeVelocities_[ i ][ j ] = currentVelocities_[ j ] - currentVelocities_[ i ];
 
                     // r_{ij} * v_{j}
-                    relativePositionVelocityProduct_[ i ][ j ] = currentRelativePositions_[ i ][ j ].dot( currentVelocities_[ j ] );
+                    lineOfSightSpeed_[ i ][ j ] = currentRelativePositions_[ i ][ j ].dot( currentVelocities_[ j ] );
 
                     // mu_j / ||r_{ij}||
                     currentSingleSourceLocalPotential_[ i ][ j ] = currentGravitationalParameters_[ j ] / currentRelativeDistances_[ i ][ j ];
 
                     // mu_{j} * r_{ij} / ||r_{ij}||^3
-                    singlePointMassAccelerations_[ i ][ j ] = currentGravitationalParameters_[ j ] * currentRelativePositions_[ i ][ j ] /
-                                                              ( currentRelativeDistances_[ i ][ j ] * currentRelativeDistances_[ i ][ j ] * currentRelativeDistances_[ i ][ j ] );
+                    singlePointMassAccelerations_[ i ][ j ] = currentGravitationalParameters_[ j ] * currentRelativePositions_[ i ][ j ].normalized( ) *
+                        currentInverseSquareDistances_[ i ][ j ];
 
 
                     currentLocalPotentials_[ i ] += currentSingleSourceLocalPotential_[ i ][ j ];
                     totalPointMassAccelerations_[ i ] += singlePointMassAccelerations_[ i ][ j ];
                 }
             }
-            std::cout<<"Local potential "<<i<<" "<<currentLocalPotentials_[ i ]<<std::endl;
         }
 
         for( unsigned int i = 0; i < acceleratedBodies_.size( ); i++ )
@@ -186,14 +188,12 @@ void EinsteinInfeldHoffmannEquations::update( const double currentTime )
                     scalarEihCorrections_[ 3 ][ i ][ j ] = currentVelocities_[ j ].dot( currentVelocities_[ j ] );
                     scalarEihCorrections_[ 4 ][ i ][ j ] = velocityInnerProducts_[ i ][ j ];
                     scalarEihCorrections_[ 5 ][ i ][ j ] =
-                        relativePositionVelocityProduct_[ i ][ j ] * relativePositionVelocityProduct_[ i ][ j ] /
+                        lineOfSightSpeed_[ i ][ j ] * lineOfSightSpeed_[ i ][ j ] /
                          ( currentRelativeDistances_[ i ][ j ] * currentRelativeDistances_[ i ][ j ] );
                     scalarEihCorrections_[ 6 ][ i ][ j ] = currentRelativePositions_[ i ][ j ].dot( totalPointMassAccelerations_[ j ] );
 
-                    vectorEihCorrections_[ 0 ][ i ][ j ] = currentRelativePositions_[ i ][ j ].dot( currentVelocities_[ i ] ) /
-                        ( currentRelativeDistances_[ i ][ j ] * currentRelativeDistances_[ i ][ j ] ) * currentRelativeVelocities_[ i ][ j ];
-                    vectorEihCorrections_[ 1 ][ i ][ j ] = currentRelativePositions_[ i ][ j ].dot( currentVelocities_[ j ] ) /
-                        ( currentRelativeDistances_[ i ][ j ] * currentRelativeDistances_[ i ][ j ] ) * currentRelativeVelocities_[ i ][ j ];
+                    vectorEihCorrections_[ 0 ][ i ][ j ] = -lineOfSightSpeed_[ j ][ i ] * currentInverseSquareDistances_[ i ][ j ] * currentRelativeVelocities_[ i ][ j ];
+                    vectorEihCorrections_[ 1 ][ i ][ j ] = lineOfSightSpeed_[ i ][ j ] * currentInverseSquareDistances_[ i ][ j ] * currentRelativeVelocities_[ i ][ j ];
                     vectorEihCorrections_[ 2 ][ i ][ j ] = totalPointMassAccelerations_[ j ];
                 }
             }
