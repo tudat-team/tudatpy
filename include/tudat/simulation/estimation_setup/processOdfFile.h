@@ -486,14 +486,14 @@ observation_models::ObservationAncilliarySimulationSettings createOdfAncillarySe
         if ( currentObservableType == observation_models::dsn_n_way_averaged_doppler )
         {
             ancillarySettings.setAncilliaryDoubleVectorData(
-                    observation_models::transmission_reception_delays, std::vector< double >{
+                    observation_models::link_ends_delays, std::vector< double >{
                     dopplerDataBlock->transmitterUplinkDelays_.at( dataIndex ), 0.0,
                     dopplerDataBlock->receiverDownlinkDelays_.at( dataIndex ) } );
         }
         else
         {
             ancillarySettings.setAncilliaryDoubleVectorData(
-                    observation_models::transmission_reception_delays, std::vector< double >{
+                    observation_models::link_ends_delays, std::vector< double >{
                     dopplerDataBlock->transmitterUplinkDelays_.at( dataIndex ),
                     dopplerDataBlock->receiverDownlinkDelays_.at( dataIndex ) } );
         }
