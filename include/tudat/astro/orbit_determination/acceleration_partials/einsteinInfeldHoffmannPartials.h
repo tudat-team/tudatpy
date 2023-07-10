@@ -286,27 +286,27 @@ public:
         case 0:
         {
             double inverseSquareDistance = eihEquations_->getInverseSquareDistance( bodyUndergoing, bodyExerting );
-            Eigen::Vector3d relativePosition = eihEquations_->getRelativePositions( bodyUndergoing, bodyExerting );
+            Eigen::Vector3d relativePositionNormalized = eihEquations_->getRelativePositions( bodyUndergoing, bodyExerting ).normalized( );
 
 
             double sign = ( wrtExerting ? 1.0 : -1.0 );
             vectorTermWrtPosition +=
                 sign * eihEquations_->getRelativeVelocity( bodyUndergoing, bodyExerting ) *
-                ( eihEquations_->getVelocity( bodyUndergoing ) .transpose( ) * inverseSquareDistance *
-                ( Eigen::Matrix3d::Identity( ) - 2.0 * relativePosition * relativePosition.transpose( ) ) );
+                ( eihEquations_->getVelocity( bodyUndergoing ).transpose( ) * inverseSquareDistance *
+                ( Eigen::Matrix3d::Identity( ) - 2.0 * relativePositionNormalized * relativePositionNormalized.transpose( ) ) );
             break;
         }
         case 1:
         {
             double inverseSquareDistance = eihEquations_->getInverseSquareDistance( bodyUndergoing, bodyExerting );
-            Eigen::Vector3d relativePosition = eihEquations_->getRelativePositions( bodyUndergoing, bodyExerting );
+            Eigen::Vector3d relativePositionNormalized = eihEquations_->getRelativePositions( bodyUndergoing, bodyExerting ).normalized( );
 
 
             double sign = ( wrtExerting ? 1.0 : -1.0 );
             vectorTermWrtPosition +=
                 sign * eihEquations_->getRelativeVelocity( bodyUndergoing, bodyExerting ) *
                 ( eihEquations_->getVelocity( bodyExerting ) .transpose( ) * inverseSquareDistance *
-                  ( Eigen::Matrix3d::Identity( ) - 2.0 * relativePosition * relativePosition.transpose( ) ) );
+                  ( Eigen::Matrix3d::Identity( ) - 2.0 * relativePositionNormalized * relativePositionNormalized.transpose( ) ) );
             break;
         }
         case 2:
@@ -334,17 +334,17 @@ public:
         {
             double inverseSquareDistance = eihEquations_->getInverseSquareDistance(
                 bodyUndergoing, bodyExerting );
-            double baseMultiplier = -eihEquations_->getLineOfSighSpeed( bodyExerting, bodyUndergoing ) * inverseSquareDistance;
+            double baseMultiplier = eihEquations_->getLineOfSighSpeed( bodyExerting, bodyUndergoing ) * inverseSquareDistance;
             {
                 if( wrtExerting )
                 {
-                    vectorTermWrtVelocity += -baseMultiplier * Eigen::Matrix3d::Identity( ) + eihEquations_->getRelativeVelocity(
-                        bodyUndergoing, bodyExerting ) * eihEquations_->getRelativePositions( bodyUndergoing, bodyExerting ).transpose( ) * inverseSquareDistance;
+                    vectorTermWrtVelocity -= baseMultiplier * Eigen::Matrix3d::Identity( );
 
                 }
                 else
                 {
-                    vectorTermWrtVelocity += baseMultiplier * Eigen::Matrix3d::Identity( );
+                    vectorTermWrtVelocity += -baseMultiplier * Eigen::Matrix3d::Identity( ) + eihEquations_->getRelativeVelocity(
+                        bodyUndergoing, bodyExerting ) * eihEquations_->getRelativePositions( bodyUndergoing, bodyExerting ).transpose( ) * inverseSquareDistance;
                 }
             }
             break;
@@ -357,13 +357,13 @@ public:
             {
                 if( wrtExerting )
                 {
-                    vectorTermWrtVelocity -= baseMultiplier * Eigen::Matrix3d::Identity( );
+                    vectorTermWrtVelocity += baseMultiplier * Eigen::Matrix3d::Identity( ) + eihEquations_->getRelativeVelocity(
+                        bodyUndergoing, bodyExerting ) * eihEquations_->getRelativePositions( bodyUndergoing, bodyExerting ).transpose( ) * inverseSquareDistance;
 
                 }
                 else
                 {
-                    vectorTermWrtVelocity += baseMultiplier * Eigen::Matrix3d::Identity( ) + eihEquations_->getRelativeVelocity(
-                        bodyUndergoing, bodyExerting ) * eihEquations_->getRelativePositions( bodyUndergoing, bodyExerting ).transpose( ) * inverseSquareDistance;
+                    vectorTermWrtVelocity += baseMultiplier * Eigen::Matrix3d::Identity( );
 
                 }
             }
