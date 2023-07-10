@@ -34,13 +34,8 @@ public:
     {
         return getAccelerationOfBody( acceleratedBodyMap_.at( bodyName ) );
     }
-//
-//    double getDistance( const int bodyUndergoing, const int bodyExerting )
-//    {
-//        return currentRelativeDistances_.at( bodyUndergoing ).at( bodyExerting );
-//    }
 
-    Eigen::Vector3d getRelativePositions( const int bodyUndergoing, const int bodyExerting )
+    Eigen::Vector3d& getRelativePositions( const int bodyUndergoing, const int bodyExerting )
     {
         return currentRelativePositions_.at( bodyUndergoing ).at( bodyExerting );
     }
@@ -56,14 +51,14 @@ public:
     }
 
 
-    Eigen::Vector3d getRelativeVelocity( const int bodyUndergoing, const int bodyExerting )
+    Eigen::Vector3d& getRelativeVelocity( const int bodyUndergoing, const int bodyExerting )
     {
         return currentRelativeVelocities_.at( bodyUndergoing ).at( bodyExerting );
     }
 
 
 
-    Eigen::Vector3d getVelocity( const int bodyIndex )
+    Eigen::Vector3d& getVelocity( const int bodyIndex )
     {
         return currentVelocities_.at( bodyIndex );
     }
@@ -80,7 +75,7 @@ public:
         return currentScalarTermMultiplier_.at( bodyUndergoing ).at( bodyExerting );
     }
 
-    Eigen::Vector3d getVectorTermMultiplier( const int bodyUndergoing, const int bodyExerting )
+    Eigen::Vector3d& getVectorTermMultiplier( const int bodyUndergoing, const int bodyExerting )
     {
         return currentVectorTermMultiplier_.at( bodyUndergoing ).at( bodyExerting );
     }
@@ -93,7 +88,7 @@ public:
         return currentSingleSourceLocalPotential_.at( bodyUndergoing ).at( bodyExerting );
     }
 
-    Eigen::Vector3d getSinglePointMassAccelerations( const int bodyUndergoing, const int bodyExerting )
+    Eigen::Vector3d& getSinglePointMassAccelerations( const int bodyUndergoing, const int bodyExerting )
     {
         return singlePointMassAccelerations_.at( bodyUndergoing ).at( bodyExerting );
     }
@@ -108,7 +103,7 @@ public:
         return currentLocalPotentials_.at( bodyIndex );
     }
 
-    Eigen::Vector3d getTotalPointMassAcceleration( const int bodyIndex )
+    Eigen::Vector3d& getTotalPointMassAcceleration( const int bodyIndex )
     {
         return totalPointMassAccelerations_.at( bodyIndex );
     }
