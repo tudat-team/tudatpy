@@ -139,6 +139,11 @@ public:
         return vectorTermMultipliers_.at( k );
     }
 
+    bool getOmitMainTerm( )
+    {
+        return omitMainTerm_;
+    }
+
 private:
 
     void recomputeExpansionMultipliers( );
@@ -157,6 +162,7 @@ private:
 
     std::function< double( ) > ppnBetaFunction_;
 
+    bool omitMainTerm_;
 
 
 
