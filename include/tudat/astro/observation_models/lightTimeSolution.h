@@ -853,7 +853,7 @@ public:
         if( ancillarySettings != nullptr )
         {
             transmissionReceptionDelays_ = ancillarySettings->getAncilliaryDoubleVectorData(
-                    transmission_reception_delays, false );
+                    link_ends_delays, false );
         }
         if ( !transmissionReceptionDelays_.empty( ) )
         {

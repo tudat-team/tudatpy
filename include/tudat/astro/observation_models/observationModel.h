@@ -41,7 +41,7 @@ namespace observation_models
 enum ObservationAncilliarySimulationVariable
 {
     doppler_integration_time,
-    transmission_reception_delays,
+    link_ends_delays,
     doppler_reference_frequency,
     frequency_bands,
     reception_reference_frequency_band
@@ -65,7 +65,7 @@ public:
             break;
         default:
             throw std::runtime_error( "Error when setting double ancilliary observation data; could not set type " +
-                                      std::to_string( variableType ) );
+                                      getAncillaryDataName( variableType ) );
         }
     }
 
@@ -74,13 +74,13 @@ public:
     {
         switch( variableType )
         {
-        case transmission_reception_delays:
+        case link_ends_delays:
         case frequency_bands:
             doubleVectorData_[ variableType ] = variable;
             break;
         default:
             throw std::runtime_error( "Error when setting double vector ancilliary observation data; could not set type " +
-                                      std::to_string( variableType ) );
+                                      getAncillaryDataName( variableType ) );
         }
     }
 
@@ -106,7 +106,7 @@ public:
             if( throwException )
             {
                 throw std::runtime_error( "Error when getting double ancilliary observation data; could not retrieve type " +
-                                          std::to_string( variableType ) );
+                                          getAncillaryDataName( variableType ) );
             }
         }
         return returnVariable;
@@ -120,7 +120,7 @@ public:
         {
             switch( variableType )
             {
-            case transmission_reception_delays:
+            case link_ends_delays:
             case frequency_bands:
                 returnVariable = doubleVectorData_.at( variableType );
                 break;
@@ -133,10 +133,39 @@ public:
             if( throwException )
             {
                 throw std::runtime_error( "Error when getting double vector ancilliary observation data; could not retrieve type " +
-                                          std::to_string( variableType ) );
+                                          getAncillaryDataName( variableType ) );
             }
         }
         return returnVariable;
+    }
+
+    std::string getAncillaryDataName( const ObservationAncilliarySimulationVariable& variableType )
+    {
+        std::string name;
+
+        switch( variableType )
+        {
+        case link_ends_delays:
+            name = "link ends time delays";
+            break;
+        case frequency_bands:
+            name = "frequency bands";
+            break;
+        case doppler_integration_time:
+            name = "Doppler observable integration time";
+            break;
+        case doppler_reference_frequency:
+            name = "DSN Doppler reference frequency";
+            break;
+        case reception_reference_frequency_band:
+            name = "DSN reference frequency band at reception";
+            break;
+        default:
+            throw std::runtime_error( "Error when getting ancillary observation data name; variable type not recognized." );
+            break;
+        }
+
+        return name;
     }
 
     bool operator==( const ObservationAncilliarySimulationSettings& rightSettings )
@@ -168,22 +197,22 @@ inline std::shared_ptr< ObservationAncilliarySimulationSettings > getAveragedDop
 }
 
 inline std::shared_ptr< ObservationAncilliarySimulationSettings > getNWayRangeAncilliarySettings(
-        const std::vector< double > retransmissionTimes = std::vector< double >( ) )
+        const std::vector< double > linkEndsDelays = std::vector< double >( ) )
 {
     std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySettings =
             std::make_shared< ObservationAncilliarySimulationSettings >( );
-    ancilliarySettings->setAncilliaryDoubleVectorData( transmission_reception_delays, retransmissionTimes );
+    ancilliarySettings->setAncilliaryDoubleVectorData( link_ends_delays, linkEndsDelays );
     return ancilliarySettings;
 }
 
 inline std::shared_ptr< ObservationAncilliarySimulationSettings > getNWayAveragedDopplerAncilliarySettings(
         const double integrationTime = 60.0,
-        const std::vector< double > retransmissionTimes = std::vector< double >( ) )
+        const std::vector< double > linkEndsDelays = std::vector< double >( ) )
 {
     std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySettings =
             std::make_shared< ObservationAncilliarySimulationSettings >( );
     ancilliarySettings->setAncilliaryDoubleData( doppler_integration_time, integrationTime );
-    ancilliarySettings->setAncilliaryDoubleVectorData( transmission_reception_delays, retransmissionTimes );
+    ancilliarySettings->setAncilliaryDoubleVectorData( link_ends_delays, linkEndsDelays );
     return ancilliarySettings;
 }
 
@@ -203,18 +232,20 @@ inline std::shared_ptr< ObservationAncilliarySimulationSettings > getTwoWayAvera
 
 inline std::shared_ptr< ObservationAncilliarySimulationSettings > getDsnNWayAveragedDopplerAncillarySettings(
         const std::vector< FrequencyBands >& frequencyBands,
+        const FrequencyBands receptionReferenceFrequencyBand,
         const double integrationTime = 60.0,
         const double referenceFrequency = 7.0e9,
-        const std::vector< double > retransmissionTimes = std::vector< double >( ) )
+        const std::vector< double > linkEndsDelays = std::vector< double >( ) )
 {
     std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings =
             std::make_shared< ObservationAncilliarySimulationSettings >( );
 
     ancillarySettings->setAncilliaryDoubleData( doppler_integration_time, integrationTime );
     ancillarySettings->setAncilliaryDoubleData( doppler_reference_frequency, referenceFrequency );
+    ancillarySettings->setAncilliaryDoubleData( reception_reference_frequency_band, convertFrequencyBandToDouble( receptionReferenceFrequencyBand ) );
 
     ancillarySettings->setAncilliaryDoubleVectorData( frequency_bands, convertFrequencyBandsToDoubleVector( frequencyBands ) );
-    ancillarySettings->setAncilliaryDoubleVectorData( transmission_reception_delays, retransmissionTimes );
+    ancillarySettings->setAncilliaryDoubleVectorData( link_ends_delays, linkEndsDelays );
 
     return ancillarySettings;
 }
