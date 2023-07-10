@@ -772,6 +772,11 @@ private:
 
 };
 
+inline std::shared_ptr< OdfRawFileContents > readOdfFile( std::string fileName )
+{
+    return std::make_shared< OdfRawFileContents >( fileName );
+}
+
 } // namespace input_output
 
 } // namespace tudat

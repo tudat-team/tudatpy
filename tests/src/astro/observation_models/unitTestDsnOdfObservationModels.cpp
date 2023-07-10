@@ -121,27 +121,6 @@ void runSimulation(
             std::make_shared< ProcessedOdfFileContents >(
                     rawOdfDataVector, spacecraftName, true );
 
-//    std::cout << std::setprecision( 18 );
-//    std::cout << "Start time from 1950 UTC: " << rawOdfFileContents->getDataBlocks( ).front()->getCommonDataBlock( )->getObservableTime() << std::endl;
-//    std::cout << "End time from 1950 UTC: " << rawOdfFileContents->getDataBlocks( ).back()->getCommonDataBlock( )->getObservableTime() << std::endl;
-
-//    for ( unsigned int i = 0; i < rawOdfFileContents->getDataBlocks( ).size(); ++i )
-//    {
-//        if ( rawOdfFileContents->getDataBlocks( ).at( i )->getObservableSpecificDataBlock( )->dataType_ == 12 )
-//        {
-//            std::cout << "Start time from 1950 UTC (12): " << rawOdfFileContents->getDataBlocks( ).at(i)->getCommonDataBlock( )->getObservableTime() << std::endl;
-//            break;
-//        }
-//    }
-//    for ( unsigned int i = rawOdfFileContents->getDataBlocks( ).size() - 1; i >= 0 ; --i )
-//    {
-//        if ( rawOdfFileContents->getDataBlocks( ).at( i )->getObservableSpecificDataBlock( )->dataType_ == 12 )
-//        {
-//            std::cout << "End time from 1950 UTC (12): " << rawOdfFileContents->getDataBlocks( ).at(i)->getCommonDataBlock( )->getObservableTime() << std::endl;
-//            break;
-//        }
-//    }
-
     // Create observed observation collection
     std::shared_ptr< observation_models::ObservationCollection< long double, Time > > observedObservationCollection =
             observation_models::createOdfObservedObservationCollection< long double, Time >(
@@ -194,7 +173,7 @@ void runSimulation(
             if ( it->first == observation_models::dsn_n_way_averaged_doppler )
             {
                 observationModelSettingsList.push_back(
-                    std::make_shared< observation_models::DsnNWayAveragedDopplerObservationSettings >(
+                    observation_models::dsnNWayAveragedDopplerObservationSettings(
                             it->second.at( i ), lightTimeCorrectionSettings, nullptr,
                             lightTimeConvergenceCriteria ) );
 //                observationModelSettingsList.push_back(
