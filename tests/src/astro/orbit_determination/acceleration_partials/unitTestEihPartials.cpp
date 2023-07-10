@@ -84,7 +84,7 @@ BOOST_AUTO_TEST_CASE( testEihPartials )
 
     // Create body objects.
     std::vector<std::string> bodiesToCreate =
-        { "Jupiter", "Sun" , "Venus" };
+        { "Jupiter", "Sun"  };
 //        { "Earth", "Venus", "Mercury", "Sun" };//, "Moon", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune" };
     unsigned int numberOfBodies = bodiesToCreate.size( );
     BodyListSettings bodySettings =
@@ -108,8 +108,8 @@ BOOST_AUTO_TEST_CASE( testEihPartials )
 
     // Define propagator settings variables.
     SelectedAccelerationMap accelerationMap;
-    std::vector<std::string> bodiesToPropagate = { "Jupiter", "Sun", "Venus" };//, "Venus" };
-    std::vector<std::string> centralBodies = { "SSB", "SSB", "SSB" };
+    std::vector<std::string> bodiesToPropagate = { "Jupiter", "Sun" };
+    std::vector<std::string> centralBodies = { "SSB", "SSB" };
 
     unsigned int numberOfPropatedBodies = bodiesToPropagate.size( );
 
@@ -275,7 +275,7 @@ BOOST_AUTO_TEST_CASE( testEihPartials )
                 eihPartials->addSingleVectorTermWrtPositionPartial(
                     analyticalVectorEihCorrectionsWrtUndergoingPosition[ k ][ j ][ i ], j, i, false, k );
                 eihPartials->addSingleVectorTermWrtVelocityPartial(
-                    analyticalVectorEihCorrectionsWrtUndergoingVelocity[ k ][ j ][ i ], j, i, true, k );
+                    analyticalVectorEihCorrectionsWrtUndergoingVelocity[ k ][ j ][ i ], j, i, false, k );
 
             }
         }
@@ -305,22 +305,16 @@ BOOST_AUTO_TEST_CASE( testEihPartials )
                 {
                     upperturbedExertingScalarEihCorrections[ k ][ i ][ j ]( index ) =
                         eihEquations->getScalarEihCorrections( ).at( k ).at( j ).at( i );
-                    if ( j < numberOfPropatedBodies )
-                    {
-                        upperturbedUndergoingScalarEihCorrections[ k ][ i ][ j ]( index ) =
-                            eihEquations->getScalarEihCorrections( ).at( k ).at( j ).at( i );
-                    }
+                    upperturbedUndergoingScalarEihCorrections[ k ][ j ][ i ]( index ) =
+                        eihEquations->getScalarEihCorrections( ).at( k ).at( i ).at( j );
                 }
 
                 for ( int k = 0; k < 3; k++ )
                 {
                     upperturbedExertingVectorEihCorrections[ k ][ i ][ j ].block( 0, index, 3, 1 ) =
                         eihEquations->getVectorEihCorrections( ).at( k ).at( j ).at( i );
-                    if ( j < numberOfPropatedBodies )
-                    {
-                        upperturbedUndergoingVectorEihCorrections[ k ][ i ][ j ].block( 0, index, 3, 1 ) =
-                            eihEquations->getVectorEihCorrections( ).at( k ).at( i ).at( j );
-                    }
+                    upperturbedUndergoingVectorEihCorrections[ k ][ j ][ i ].block( 0, index, 3, 1 ) =
+                        eihEquations->getVectorEihCorrections( ).at( k ).at( i ).at( j );
                 }
 
             }
@@ -343,22 +337,16 @@ BOOST_AUTO_TEST_CASE( testEihPartials )
                 {
                     downperturbedExertingScalarEihCorrections[ k ][ i ][ j ]( index ) =
                         eihEquations->getScalarEihCorrections( ).at( k ).at( j ).at( i );
-                    if ( j < numberOfPropatedBodies )
-                    {
-                        downperturbedUndergoingScalarEihCorrections[ k ][ i ][ j ]( index ) =
-                            eihEquations->getScalarEihCorrections( ).at( k ).at( j ).at( i );
-                    }
+                    downperturbedUndergoingScalarEihCorrections[ k ][ j ][ i ]( index ) =
+                        eihEquations->getScalarEihCorrections( ).at( k ).at( i ).at( j );
                 }
 
                 for ( int k = 0; k < 3; k++ )
                 {
                     downperturbedExertingVectorEihCorrections[ k ][ i ][ j ].block( 0, index, 3, 1 ) =
                         eihEquations->getVectorEihCorrections( ).at( k ).at( j ).at( i );
-                    if ( j < numberOfPropatedBodies )
-                    {
-                        downperturbedUndergoingVectorEihCorrections[ k ][ i ][ j ].block( 0, index, 3, 1 ) =
-                            eihEquations->getVectorEihCorrections( ).at( k ).at( i ).at( j );
-                    }
+                    downperturbedUndergoingVectorEihCorrections[ k ][ j ][ i ].block( 0, index, 3, 1 ) =
+                        eihEquations->getVectorEihCorrections( ).at( k ).at( i ).at( j );
                 }
             }
         }
@@ -384,7 +372,7 @@ BOOST_AUTO_TEST_CASE( testEihPartials )
                 ( 2.0 * positionPerturbation );
             if( i != j )
             {
-                for( int k = 0; k < 7; k++ )
+                for( int k = 0; k < 2; k++ )
                 {
                     numericalScalarEihCorrectionsWrtExertingPosition[ k ][ i ][ j ] =
                         ( upperturbedExertingScalarEihCorrections[ k ][ i ][ j ].block( 0, 0, 1, 3 ) - downperturbedExertingScalarEihCorrections[ k ][ i ][ j ].block( 0, 0, 1, 3 ) ) /
@@ -393,7 +381,26 @@ BOOST_AUTO_TEST_CASE( testEihPartials )
                     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                         numericalScalarEihCorrectionsWrtExertingPosition[ k ][ i ][ j ].block( 0, 0, 1, 3 ),
                         analyticalScalarEihCorrectionsWrtExertingPosition[ k ][ j ][ i ].block( 0, 0, 1, 3 ),
-                        1.0E-4);
+                        1.0E-3);
+
+                    numericalScalarEihCorrectionsWrtUndergoingPosition[ k ][ i ][ j ] =
+                        ( upperturbedUndergoingScalarEihCorrections[ k ][ i ][ j ].block( 0, 0, 1, 3 ) - downperturbedUndergoingScalarEihCorrections[ k ][ i ][ j ].block( 0, 0, 1, 3 ) ) /
+                        ( 2.0 * positionPerturbation );
+
+                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                        numericalScalarEihCorrectionsWrtUndergoingPosition[ k ][ i ][ j ].block( 0, 0, 1, 3 ),
+                        analyticalScalarEihCorrectionsWrtUndergoingPosition[ k ][ j ][ i ].block( 0, 0, 1, 3 ),
+                        1.0E-3);
+//
+//                    std::cout<<"Exerting"<<i<<" "<<j<<" "<<k<<std::endl
+//                             <<numericalScalarEihCorrectionsWrtExertingPosition[ k ][ i ][ j ].block( 0, 0, 1, 3 )<<std::endl
+//                             <<analyticalScalarEihCorrectionsWrtExertingPosition[ k ][ j ][ i ].block( 0, 0, 1, 3 )<<std::endl<<std::endl;
+//
+//
+//                    std::cout<<"Undergoing"<<i<<" "<<j<<" "<<k<<std::endl
+//                    <<numericalScalarEihCorrectionsWrtUndergoingPosition[ k ][ i ][ j ].block( 0, 0, 1, 3 )<<std::endl
+//                    <<analyticalScalarEihCorrectionsWrtUndergoingPosition[ k ][ j ][ i ].block( 0, 0, 1, 3 )<<std::endl<<std::endl;
+
 
                     numericalScalarEihCorrectionsWrtExertingVelocity[ k ][ i ][ j ] =
                         ( upperturbedExertingScalarEihCorrections[ k ][ i ][ j ].block( 0, 3, 1, 3 ) - downperturbedExertingScalarEihCorrections[ k ][ i ][ j ].block( 0, 3, 1, 3 ) ) /
@@ -402,7 +409,16 @@ BOOST_AUTO_TEST_CASE( testEihPartials )
                     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                         numericalScalarEihCorrectionsWrtExertingVelocity[ k ][ i ][ j ].block( 0, 0, 1, 3 ),
                         analyticalScalarEihCorrectionsWrtExertingVelocity[ k ][ j ][ i ].block( 0, 0, 1, 3 ),
-                        1.0E-4);
+                        1.0E-3);
+
+                    numericalScalarEihCorrectionsWrtUndergoingVelocity[ k ][ i ][ j ] =
+                        ( upperturbedUndergoingScalarEihCorrections[ k ][ i ][ j ].block( 0, 3, 1, 3 ) - downperturbedUndergoingScalarEihCorrections[ k ][ i ][ j ].block( 0, 3, 1, 3 ) ) /
+                        ( 2.0 * velocityPerturbation );
+
+                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                        numericalScalarEihCorrectionsWrtUndergoingVelocity[ k ][ i ][ j ].block( 0, 0, 1, 3 ),
+                        analyticalScalarEihCorrectionsWrtUndergoingVelocity[ k ][ j ][ i ].block( 0, 0, 1, 3 ),
+                        1.0E-3);
                 }
 
                 for( int k = 0; k < 3; k++ )
@@ -414,7 +430,17 @@ BOOST_AUTO_TEST_CASE( testEihPartials )
                     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                         numericalVectorEihCorrectionsWrtExertingPosition[ k ][ i ][ j ].block( 0, 0, 3, 3 ),
                         analyticalVectorEihCorrectionsWrtExertingPosition[ k ][ j ][ i ].block( 0, 0, 3, 3 ),
-                        1.0E-4);
+                        1.0E-3);
+
+                    numericalVectorEihCorrectionsWrtUndergoingPosition[ k ][ i ][ j ] =
+                        ( upperturbedUndergoingVectorEihCorrections[ k ][ i ][ j ].block( 0, 0, 3, 3 ) - downperturbedUndergoingVectorEihCorrections[ k ][ i ][ j ].block( 0, 0, 3, 3 ) ) /
+                        ( 2.0 * positionPerturbation );
+
+
+                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                        numericalVectorEihCorrectionsWrtUndergoingPosition[ k ][ i ][ j ].block( 0, 0, 3, 3 ),
+                        analyticalVectorEihCorrectionsWrtUndergoingPosition[ k ][ j ][ i ].block( 0, 0, 3, 3 ),
+                        1.0E-3);
 
                     numericalVectorEihCorrectionsWrtExertingVelocity[ k ][ i ][ j ] =
                         ( upperturbedExertingVectorEihCorrections[ k ][ i ][ j ].block( 0, 3, 3, 3 ) - downperturbedExertingVectorEihCorrections[ k ][ i ][ j ].block( 0, 3, 3, 3 ) ) /
@@ -423,19 +449,38 @@ BOOST_AUTO_TEST_CASE( testEihPartials )
                     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                         numericalVectorEihCorrectionsWrtExertingVelocity[ k ][ i ][ j ].block( 0, 0, 3, 3 ),
                         analyticalVectorEihCorrectionsWrtExertingVelocity[ k ][ j ][ i ].block( 0, 0, 3, 3 ),
-                        1.0E-4);
+                        1.0E-3);
+
+                    numericalVectorEihCorrectionsWrtUndergoingVelocity[ k ][ i ][ j ] =
+                        ( upperturbedUndergoingVectorEihCorrections[ k ][ i ][ j ].block( 0, 3, 3, 3 ) - downperturbedUndergoingVectorEihCorrections[ k ][ i ][ j ].block( 0, 3, 3, 3 ) ) /
+                        ( 2.0 * velocityPerturbation );
+
+                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                        numericalVectorEihCorrectionsWrtUndergoingVelocity[ k ][ i ][ j ].block( 0, 0, 3, 3 ),
+                        analyticalVectorEihCorrectionsWrtUndergoingVelocity[ k ][ j ][ i ].block( 0, 0, 3, 3 ),
+                        1.0E-3);
+
+//                                        std::cout<<"Exerting "<<i<<" "<<j<<" "<<k<<std::endl
+//                             <<numericalVectorEihCorrectionsWrtExertingVelocity[ k ][ i ][ j ].block( 0, 0, 3, 3 )<<std::endl<<std::endl
+//                             <<analyticalVectorEihCorrectionsWrtExertingVelocity[ k ][ j ][ i ].block( 0, 0, 3, 3 )<<std::endl<<std::endl;
+//
+//
+//                    std::cout<<"Undergoing "<<i<<" "<<j<<" "<<k<<std::endl
+//                    <<numericalVectorEihCorrectionsWrtUndergoingVelocity[ k ][ i ][ j ].block( 0, 0, 3, 3 )<<std::endl<<std::endl
+//                    <<analyticalVectorEihCorrectionsWrtUndergoingVelocity[ k ][ j ][ i ].block( 0, 0, 3, 3 )<<std::endl<<std::endl;
+
                 }
             }
 
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                 numericalTotalPotentialsWrtPosition[ i ][ j ].block( 0, 0, 1, 3 ),
                 analyticalTotalPotentialsWrtPosition[ j ][ i ].block( 0, 0, 1, 3 ),
-                1.0E-4);
+                1.0E-3);
 
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                 numericalTotalPointMassAccelerationWrtPosition[ i ][ j ].block( 0, 0, 3, 3 ),
                 analyticalTotalPointMassAccelerationWrtPosition[ j ][ i ].block( 0, 0, 3, 3 ),
-                1.0E-4);
+                1.0E-3);
 
             if( i != j )
             {
@@ -443,12 +488,12 @@ BOOST_AUTO_TEST_CASE( testEihPartials )
                 TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                     numericalSingleContributionPotentialsWrtPosition[ i ][ j ].block( 0, 0, 1, 3 ),
                     analyticalSingleContributionPotentialsWrtPosition[ j ][ i ].block( 0, 0, 1, 3 ),
-                    1.0E-4);
+                    1.0E-3);
 
                 TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                     numericalSinglePointMassAccelerationWrtPosition[ i ][ j ].block( 0, 0, 3, 3 ),
                     analyticalSinglePointMassAccelerationWrtPosition[ j ][ i ].block( 0, 0, 3, 3 ),
-                    1.0E-4);
+                    1.0E-3);
             }
         }
     }

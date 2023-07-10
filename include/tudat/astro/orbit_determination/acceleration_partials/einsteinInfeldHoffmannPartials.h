@@ -343,7 +343,7 @@ public:
                 }
                 else
                 {
-                    vectorTermWrtVelocity += -baseMultiplier * Eigen::Matrix3d::Identity( ) + eihEquations_->getRelativeVelocity(
+                    vectorTermWrtVelocity += baseMultiplier * Eigen::Matrix3d::Identity( ) + eihEquations_->getRelativeVelocity(
                         bodyUndergoing, bodyExerting ) * eihEquations_->getRelativePositions( bodyUndergoing, bodyExerting ).transpose( ) * inverseSquareDistance;
                 }
             }
@@ -363,7 +363,7 @@ public:
                 }
                 else
                 {
-                    vectorTermWrtVelocity += baseMultiplier * Eigen::Matrix3d::Identity( );
+                    vectorTermWrtVelocity -= baseMultiplier * Eigen::Matrix3d::Identity( );
 
                 }
             }
