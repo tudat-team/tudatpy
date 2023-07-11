@@ -24,6 +24,7 @@
 #include "tudat/astro/gravitation/sphericalHarmonicsGravityField.h"
 #include "tudat/astro/gravitation/gravityFieldVariations.h"
 #include "tudat/astro/gravitation/polyhedronGravityField.h"
+#include "tudat/astro/gravitation/ringGravityField.h"
 
 namespace tudat
 {
@@ -42,7 +43,8 @@ enum GravityFieldType
     central,
     central_spice,
     spherical_harmonic,
-    polyhedron
+    polyhedron,
+    one_dimensional_ring
 };
 
 // Class for providing settings for gravity field model.
@@ -417,6 +419,97 @@ protected:
 
 };
 
+// Derived class of GravityFieldSettings defining settings of polyhedron gravity
+// field representation.
+// References: Precise computation of acceleration due to uniform ring or disk, Toshio Fukushima (2010), Celestial Mechanics
+//             and Dynamical Astronomy, 108:339–356.
+class RingGravityFieldSettings: public GravityFieldSettings
+{
+public:
+
+    /*! Constructor.
+     *
+     * Constructor.
+     * @param gravitationalParameter Gravitational parameter of the ring.
+     * @param ringRadius Radius of the ring.
+     * @param associatedReferenceFrame Identifier for body-fixed reference frame to which the ring is referred.
+     * @param ellipticIntegralSFromDAndB Flag indicating whether to compute S(m) from D(m) and B(m) (if true),
+     *      or from K(m) and E(m) (if false). The former has a lower loss of accuracy due to numerical cancellation.
+     */
+    RingGravityFieldSettings( const double gravitationalParameter,
+                              const double ringRadius,
+                              const std::string& associatedReferenceFrame,
+                              const bool ellipticIntegralSFromDAndB = true ):
+        GravityFieldSettings( one_dimensional_ring ),
+        gravitationalParameter_( gravitationalParameter ),
+        ringRadius_( ringRadius ),
+        associatedReferenceFrame_( associatedReferenceFrame ),
+        ellipticIntegralSFromDAndB_( ellipticIntegralSFromDAndB )
+    { }
+
+    //! Destructor
+    virtual ~RingGravityFieldSettings( ){ }
+
+    // Function to return the gravitational parameter.
+    double getGravitationalParameter( )
+    {
+        return gravitationalParameter_;
+    }
+
+    // Function to reset the gravitational parameter.
+    void resetGravitationalParameter ( const double gravitationalParameter )
+    {
+        gravitationalParameter_ = gravitationalParameter;
+    }
+
+    // Function to return the ring radius
+    double getRingRadius ( )
+    {
+        return ringRadius_;
+    }
+
+    // Function to reset the density.
+    void resetRingRadius ( double ringRadius )
+    {
+        ringRadius_ = ringRadius;
+    }
+
+    // Function to return identifier for body-fixed reference frame.
+    std::string getAssociatedReferenceFrame( )
+    { return associatedReferenceFrame_; }
+
+    // Function to reset identifier for body-fixed reference frame to which the ring is referred.
+    void resetAssociatedReferenceFrame( const std::string& associatedReferenceFrame )
+    { associatedReferenceFrame_ = associatedReferenceFrame; }
+
+    // Function to get the flag indicating whether to compute S(m) from D(m) and B(m)
+    bool getEllipticIntegralSFromDAndB( )
+    {
+        return ellipticIntegralSFromDAndB_;
+    }
+
+    // Function to reset the flag indicating whether to compute S(m) from D(m) and B(m)
+    void resetEllipticIntegralSFromDAndB( bool ellipticIntegralSFromDAndB )
+    {
+        ellipticIntegralSFromDAndB_ = ellipticIntegralSFromDAndB;
+    }
+
+
+protected:
+
+    // Gravitational parameter
+    double gravitationalParameter_;
+
+    // Radius of the ring
+    double ringRadius_;
+
+    // Identifier for body-fixed reference frame to which the ring is referred
+    std::string associatedReferenceFrame_;
+
+    // Flag indicating whether to compute S(m) from D(m) and B(m) (if true), or from K(m) and E(m) (if false)
+    bool ellipticIntegralSFromDAndB_;
+
+};
 
 // Spherical harmonics models supported by Tudat.
 //! @get_docstring(SphericalHarmonicsModel.__docstring__)
@@ -731,6 +824,16 @@ inline std::shared_ptr< GravityFieldSettings > polyhedronGravitySettingsFromMu(
             gravitationalConstant );
 }
 
+inline std::shared_ptr< GravityFieldSettings > ringGravitySettings(
+        const double gravitationalParameter,
+        const double ringRadius,
+        const std::string& associatedReferenceFrame,
+        const bool ellipticIntegralSFromDAndB = true )
+{
+    return std::make_shared< RingGravityFieldSettings >(
+            gravitationalParameter, ringRadius, associatedReferenceFrame, ellipticIntegralSFromDAndB);
+}
+
 enum RigidBodyPropertiesType
 {
     constant_rigid_body_properties,
@@ -911,6 +1014,7 @@ std::shared_ptr< RigidBodyProperties > createRigidBodyProperties(
     const std::shared_ptr<RigidBodyPropertiesSettings> rigidBodyPropertiesSettings,
     const std::string& body,
     const SystemOfBodies& bodies );
+
 } // namespace simulation_setup
 
 } // namespace tudat

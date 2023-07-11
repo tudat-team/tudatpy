@@ -5,6 +5,49 @@ namespace tudat
 namespace numerical_integrators
 {
 
+std::vector< std::tuple< int, int, int, int > > getStandardCartesianStatesElementsToCheck(
+    const int numberOfRows, const int numberOfColumns )
+{
+    int stateColumn = numberOfColumns - 1;
+
+    if( numberOfRows % 6 != 0 )
+    {
+        throw std::runtime_error( "Error when getting standard Cartesian element blocks for step-size control; propagated state has incompatible number of rows: " +
+                                  std::to_string( numberOfRows ) );
+    }
+
+    std::vector< std::tuple< int, int, int, int > > blocks;
+    for( int i = 0; i < numberOfRows / 3; i++ )
+    {
+        blocks.push_back( { i * 3, stateColumn, 3, 1 } );
+    }
+    return blocks;    if( numberOfColumns != 1 )
+    {
+        throw std::runtime_error( "Error when getting standard rotational state element blocks for step-size control; propagated state has more than 1 column." );
+    }
+}
+
+std::vector< std::tuple< int, int, int, int > > getStandardRotationalStatesElementsToCheck(
+    const int numberOfRows, const int numberOfColumns )
+{
+    int stateColumn = numberOfColumns - 1;
+
+
+    if( numberOfRows % 7 != 0 )
+    {
+        throw std::runtime_error( "Error when getting standard rotational state element blocks for step-size control; propagated state has incompatible number of rows: " +
+                                  std::to_string( numberOfRows ) );
+    }
+
+    std::vector< std::tuple< int, int, int, int > > blocks;
+    for( int i = 0; i < numberOfRows / 7; i++ )
+    {
+        blocks.push_back( { i * 7, stateColumn, 4, 1 } );
+        blocks.push_back( { i * 7 + 4, stateColumn, 3, 1 } );
+    }
+    return blocks;
+}
+
 //template std::shared_ptr< numerical_integrators::NumericalIntegrator< double, Eigen::VectorXd,
 //Eigen::VectorXd, double > > createIntegrator< double, Eigen::VectorXd, double >(
 //        std::function< Eigen::VectorXd( const double, const Eigen::VectorXd& ) > stateDerivativeFunction,

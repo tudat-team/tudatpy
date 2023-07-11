@@ -133,6 +133,33 @@ protected:
 
 };
 
+class SpiceRotationModelSettings: public RotationModelSettings
+{
+public:
+
+    SpiceRotationModelSettings( const std::string& originalFrame,
+                                const std::string& targetFrame,
+                                const std::string& spiceFrameName ):
+        RotationModelSettings( spice_rotation_model, originalFrame, targetFrame ),
+        spiceFrameName_( spiceFrameName ){ }
+
+    std::string getSpiceFrameName( )
+    {
+        return spiceFrameName_;
+    }
+
+    void setSpiceFrameName( const std::string& spiceFrameName )
+    {
+        spiceFrameName_ = spiceFrameName;
+    }
+
+
+private:
+    std::string spiceFrameName_;
+
+};
+
+
 //RotationModelSettings derived class for defining settings of a simple rotational ephemeris.
 class SimpleRotationModelSettings: public RotationModelSettings
 {
@@ -999,11 +1026,12 @@ inline std::shared_ptr< RotationModelSettings > customRotationModelSettings(
 //! @get_docstring(spiceRotationModelSettings)
 inline std::shared_ptr< RotationModelSettings > spiceRotationModelSettings(
         const std::string& originalFrame,
-        const std::string& targetFrame
+        const std::string& targetFrame,
+        const std::string& spiceFrameName
         )
 {
-    return std::make_shared< RotationModelSettings >(
-                spice_rotation_model, originalFrame, targetFrame );
+    return std::make_shared< SpiceRotationModelSettings >(
+                originalFrame, targetFrame, spiceFrameName );
 }
 
 //! @get_docstring(gcrsToItrsRotationModelSettings)
