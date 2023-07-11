@@ -172,6 +172,76 @@ public:
         setConstantPerObservableAndLinkEndsWeights( weightPerObservableAndLinkEnds );
     }
 
+
+    void setTabulatedPerObservableAndLinkEndsWeights(
+            const std::map< observation_models::ObservableType,
+            std::map< observation_models::LinkEnds, Eigen::VectorXd > > weightsPerObservableAndLinkEnds )
+    {
+        std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds, std::vector< std::pair< int, int > > > > observationSetStartAndSize =
+                observationCollection_->getObservationSetStartAndSize( );
+
+        for( auto observableIterator : weightsPerObservableAndLinkEnds )
+        {
+            observation_models::ObservableType currentObservable = observableIterator.first;
+            if( observationSetStartAndSize.count( currentObservable) == 0 )
+            {
+                std::cerr<< "Warning when setting weights for data type "<< std::to_string( currentObservable) <<  ". " <<
+                         " No data of given type found." <<std::endl;
+            }
+            else
+            {
+                for( auto linkEndIterator : observableIterator.second )
+                {
+                    observation_models::LinkEnds currentLinkEnds = linkEndIterator.first;
+                    if( observationSetStartAndSize.at( currentObservable ).count( currentLinkEnds ) == 0 )
+                    {
+
+                        std::cerr<< "Warning when setting weights for data type " << std::to_string( currentObservable)<< " and link ends " <<
+                                 //static_cast< std::string >( currentLinkEnds ) +
+                                 ". No data of given type and link ends found." <<std::endl;
+                    }
+                    else
+                    {
+                        std::vector< std::pair< int, int > > indicesToUse = observationSetStartAndSize.at( currentObservable ).at( currentLinkEnds );
+                        for( unsigned int i = 0; i < indicesToUse.size( ); i++ )
+                        {
+                            if ( indicesToUse.at( i ).second != linkEndIterator.second.size( ) )
+                            {
+                                throw std::runtime_error( "Error when setting tabulated weights for data type " + std::to_string( currentObservable) +
+                                ", weights vector is inconsistent with the number of observations." );
+                            }
+                            weightsMatrixDiagonals_.segment( indicesToUse.at( i ).first, indicesToUse.at( i ).second ) =  linkEndIterator.second;
+                        }
+                    }
+                }
+            }
+
+        }
+    }
+
+    void setTabulatedPerObservableAndLinkEndsWeights(
+            const observation_models::ObservableType observableType,
+            const std::vector< observation_models::LinkEnds >& linkEnds,
+            const Eigen::VectorXd& weights )
+    {
+        std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds, Eigen::VectorXd > > weightPerObservableAndLinkEnds;
+        for( unsigned int i = 0; i < linkEnds.size( ); i++ )
+        {
+            weightPerObservableAndLinkEnds[ observableType ][ linkEnds.at( i ) ] = weights;
+        }
+        setTabulatedPerObservableAndLinkEndsWeights( weightPerObservableAndLinkEnds );
+    }
+
+    void setTabulatedPerObservableAndLinkEndsWeights(
+            const observation_models::ObservableType observableType,
+            const observation_models::LinkEnds& linkEnds,
+            const Eigen::VectorXd& weights )
+    {
+        std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds, Eigen::VectorXd > > weightPerObservableAndLinkEnds;
+        weightPerObservableAndLinkEnds[ observableType ][ linkEnds ] =  weights;
+        setTabulatedPerObservableAndLinkEndsWeights( weightPerObservableAndLinkEnds );
+    }
+
     //! Function to return the total data structure of observations and associated times/link ends/type (by reference)
     /*!
      * Function to return the total data structure of observations and associated times/link ends/type (by reference)
