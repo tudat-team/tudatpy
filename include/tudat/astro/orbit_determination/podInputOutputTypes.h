@@ -739,18 +739,39 @@ struct CovarianceAnalysisOutput
     Eigen::MatrixXd getNormalizedWeightedDesignMatrix( )
     {
         Eigen::MatrixXd weightedNormalizedDesignMatrix = normalizedDesignMatrix_;
-        scaleDesignMatrixWithWeights(
-                    weightedNormalizedDesignMatrix,
-                    weightsMatrixDiagonal_ );
+        scaleDesignMatrixWithWeights( weightedNormalizedDesignMatrix, weightsMatrixDiagonal_ );
         return weightedNormalizedDesignMatrix;
+    }
+
+    Eigen::MatrixXd getConsiderCovarianceContribution( )
+    {
+        return considerCovarianceContribution_;
+    }
+
+    Eigen::MatrixXd getNormalizedCovarianceWithConsiderParameters( )
+    {
+        return normalizedCovarianceWithConsiderParameters_;
+    }
+
+    Eigen::MatrixXd getUnnormalizedCovarianceWithConsiderParameters( )
+    {
+        return unnormalizedCovarianceWithConsiderParameters_;
+    }
+
+    Eigen::MatrixXd getNormalizedDesignMatrixConsiderParameters( )
+    {
+        return normalizedDesignMatrixConsiderParameters_;
+    }
+
+    Eigen::VectorXd getConsiderNormalizationFactors( )
+    {
+        return considerNormalizationFactors_;
     }
 
     Eigen::MatrixXd getUnnormalizedWeightedDesignMatrix( )
     {
         Eigen::MatrixXd weightedUnnormalizedDesignMatrix = getUnnormalizedDesignMatrix( );
-        scaleDesignMatrixWithWeights(
-                    weightedUnnormalizedDesignMatrix,
-                    weightsMatrixDiagonal_ );
+        scaleDesignMatrixWithWeights( weightedUnnormalizedDesignMatrix, weightsMatrixDiagonal_ );
         return weightedUnnormalizedDesignMatrix;
     }
 
