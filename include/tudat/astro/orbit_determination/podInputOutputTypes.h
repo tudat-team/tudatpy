@@ -49,6 +49,12 @@ public:
     {
         weightsMatrixDiagonals_ = Eigen::VectorXd::Zero( observationCollection->getTotalObservableSize( ) );
         setConstantWeightsMatrix( 1.0 );
+
+        considerParametersIncluded_ = false;
+        if ( considerCovariance.size( ) > 0 )
+        {
+            considerParametersIncluded_ = true;
+        }
     }
 
     virtual ~CovarianceAnalysisInput( ){ }
@@ -278,6 +284,11 @@ public:
         this->printOutput_ = printOutput;
     }
 
+    bool areConsiderParametersIncluded( ) const
+    {
+        return considerParametersIncluded_;
+    }
+
 
 
 protected:
@@ -304,6 +315,9 @@ protected:
 
     //! Boolean denoting whether to print output to th terminal when running the estimation.
     bool printOutput_;
+
+    //! Boolean denoting whether consider parameters are included in the covariance analysis
+    bool considerParametersIncluded_;
 };
 
 
@@ -411,18 +425,25 @@ public:
         convergenceChecker_( convergenceChecker ),
         considerParametersDeviations_( considerParametersDeviations )
     {
-        if ( considerCovariance.size( ) > 0 && considerParametersDeviations_.size( ) > 0 )
+        if ( this->areConsiderParametersIncluded( ) )
         {
-            if ( ( considerCovariance.rows( ) != considerCovariance.cols( ) ) || ( considerCovariance.rows( ) != considerParametersDeviations_.size( ) ) )
+            if ( considerParametersDeviations_.size( ) > 0 )
             {
-                throw std::runtime_error("Error when defining consider covariance and consider parameters deviations, sizes are inconsistent.");
+                if ( considerCovariance.rows( ) != considerParametersDeviations_.size( ) )
+                {
+                    throw std::runtime_error("Error when defining consider covariance and consider parameters deviations, sizes are inconsistent.");
+                }
+                std::cerr << "Warning, considerParametersDeviations are provided as input. These should contain (statistical) deviations with respect to the *nominal*"
+                             "consider parameters values, and not their absolute values." << "\n\n";
             }
-            if ( considerParametersDeviations_.size( ) != 0 && considerCovariance.size( ) == 0 )
+        }
+        else
+        {
+            if ( considerParametersDeviations_.size( ) > 0 )
             {
                 throw std::runtime_error("Error, non-zero consider parameters deviations, but no consider covariance provided.");
             }
         }
-
     }
 
     //! Destructor
