@@ -366,6 +366,15 @@ BOOST_AUTO_TEST_CASE( testComparisonOperators )
         BOOST_CHECK( testTimeLongDouble  == testTime );
         BOOST_CHECK( testTimeLongDouble  == testTime );
 
+        BOOST_CHECK( !( testTime2 == testTime ) );
+        BOOST_CHECK( !( testTime2 == testTimeDouble ) );
+        BOOST_CHECK( !( testTime2 == testTimeLongDouble ) );
+        BOOST_CHECK( !( testTime2 == testTime ) );
+
+        BOOST_CHECK( !( testTimeDouble  == testTime2 ) );
+        BOOST_CHECK( !( testTimeLongDouble  == testTime2 ) );
+        BOOST_CHECK( !( testTimeLongDouble  == testTime2 ) );
+
         // Check not-equals comparison
         BOOST_CHECK( testTime2 != testTimeDouble );
         BOOST_CHECK( testTime2 != testTimeLongDouble );
@@ -373,39 +382,71 @@ BOOST_AUTO_TEST_CASE( testComparisonOperators )
 
         BOOST_CHECK( testTimeDouble  != testTime2 );
         BOOST_CHECK( testTimeLongDouble  != testTime2 );
+        BOOST_CHECK( testTime != testTime2 );
 
-        // Check (strict) greater/less than
+        // Check strict greater than
         BOOST_CHECK( testTime2 > testTimeDouble );
         BOOST_CHECK( testTime2 > testTimeLongDouble );
         BOOST_CHECK( testTime2 > testTime );
 
+        BOOST_CHECK( !( testTimeDouble > testTime2 ) );
+        BOOST_CHECK( !( testTimeLongDouble > testTime2 ) );
+        BOOST_CHECK( !( testTime > testTime2 ) );
+
+        BOOST_CHECK( testTimeDouble2 > testTime );
+        BOOST_CHECK( testTimeLongDouble2  > testTime );
+
+        BOOST_CHECK( !( testTime > testTimeDouble2 ) );
+        BOOST_CHECK( !( testTime > testTimeLongDouble2 ) );
+
+        // Check strict less than
+        BOOST_CHECK( testTime < testTimeDouble2 );
+        BOOST_CHECK( testTime < testTimeLongDouble2 );
+        BOOST_CHECK( testTime < testTime2 );
+
+        BOOST_CHECK( !( testTimeDouble2 < testTime ) );
+        BOOST_CHECK( !( testTimeLongDouble2 < testTime ) );
+        BOOST_CHECK( !( testTime2 < testTime ) );
 
         BOOST_CHECK( testTimeDouble < testTime2 );
         BOOST_CHECK( testTimeLongDouble  < testTime2 );
+
+        BOOST_CHECK( !( testTime2 < testTimeDouble ) );
+        BOOST_CHECK( !( testTime2 < testTimeLongDouble ) );
+
+        // Check greater than or equal to
+        BOOST_CHECK( testTime >= testTime );
 
         BOOST_CHECK( testTime2 >= testTimeDouble );
         BOOST_CHECK( testTime2 >= testTimeLongDouble );
         BOOST_CHECK( testTime2 >= testTime );
 
-        BOOST_CHECK( testTime >= testTime );
+        BOOST_CHECK( !( testTimeDouble >= testTime2 ) );
+        BOOST_CHECK( !( testTimeLongDouble >= testTime2 ) );
+        BOOST_CHECK( !( testTime >= testTime2 ) );
 
-        BOOST_CHECK( testTimeDouble <= testTime2 );
-        BOOST_CHECK( testTimeLongDouble  <= testTime2 );
+        BOOST_CHECK( testTimeDouble2 >= testTime );
+        BOOST_CHECK( testTimeLongDouble2  >= testTime );
 
-        // Check (strict) greater/less than (opposite direction)
-        BOOST_CHECK( testTime < testTimeDouble2 );
-        BOOST_CHECK( testTime < testTimeLongDouble2 );
-        BOOST_CHECK( testTime < testTime2 );
+        BOOST_CHECK( !( testTime >= testTimeDouble2 ) );
+        BOOST_CHECK( !( testTime >= testTimeLongDouble2 ) );
 
-        BOOST_CHECK( testTimeDouble2 > testTime );
-        BOOST_CHECK( testTimeLongDouble2  > testTime );
+        // Check less than or equal to
+        BOOST_CHECK( testTime <= testTime );
 
         BOOST_CHECK( testTime <= testTimeDouble2 );
         BOOST_CHECK( testTime <= testTimeLongDouble2 );
         BOOST_CHECK( testTime <= testTime2 );
 
-        BOOST_CHECK( testTimeDouble2 >= testTime );
-        BOOST_CHECK( testTimeLongDouble2  >= testTime );
+        BOOST_CHECK( !( testTimeDouble2 <= testTime ) );
+        BOOST_CHECK( !( testTimeLongDouble2 <= testTime ) );
+        BOOST_CHECK( !( testTime2 <= testTime ) );
+
+        BOOST_CHECK( testTimeDouble <= testTime2 );
+        BOOST_CHECK( testTimeLongDouble  <= testTime2 );
+
+        BOOST_CHECK( !( testTime2 <= testTimeDouble ) );
+        BOOST_CHECK( !( testTime2 <= testTimeLongDouble ) );
 
         // Check if comparison picks up small differences
         long double currentFullSeconds = testTime2.getSecondsIntoFullPeriod( );
