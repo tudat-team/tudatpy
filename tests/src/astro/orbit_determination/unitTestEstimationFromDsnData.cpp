@@ -170,8 +170,6 @@ void runSimulation(
     accelerationsOfVehicle[ "Uranus" ].push_back( pointMassGravityAcceleration( ) );
     accelerationsOfVehicle[ "Neptune" ].push_back( pointMassGravityAcceleration( ) );
 
-//    accelerationsOfVehicle[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::cannon_ball_radiation_pressure ) );
-//    accelerationsOfVehicle[ "Mars" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::aerodynamic ) );
     accelerationMap[ spacecraftName ] = accelerationsOfVehicle;
 
     // Set bodies for which initial state is to be estimated and integrated.

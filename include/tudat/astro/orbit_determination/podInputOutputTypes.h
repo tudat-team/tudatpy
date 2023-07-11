@@ -788,6 +788,11 @@ struct EstimationOutput: public CovarianceAnalysisOutput< ObservationScalarType,
         return simulationResultsPerIteration_;
     }
 
+    std::shared_ptr< propagators::SimulationResults< ObservationScalarType, TimeType > > getBestIterationSimulationResults( )
+    {
+        return simulationResultsPerIteration_.at( bestIteration_ );
+    }
+
 
     //! Vector of estimated parameter values.
     Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > parameterEstimate_;
