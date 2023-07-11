@@ -219,29 +219,6 @@ public:
         }
     }
 
-    void setTabulatedPerObservableAndLinkEndsWeights(
-            const observation_models::ObservableType observableType,
-            const std::vector< observation_models::LinkEnds >& linkEnds,
-            const Eigen::VectorXd& weights )
-    {
-        std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds, Eigen::VectorXd > > weightPerObservableAndLinkEnds;
-        for( unsigned int i = 0; i < linkEnds.size( ); i++ )
-        {
-            weightPerObservableAndLinkEnds[ observableType ][ linkEnds.at( i ) ] = weights;
-        }
-        setTabulatedPerObservableAndLinkEndsWeights( weightPerObservableAndLinkEnds );
-    }
-
-    void setTabulatedPerObservableAndLinkEndsWeights(
-            const observation_models::ObservableType observableType,
-            const observation_models::LinkEnds& linkEnds,
-            const Eigen::VectorXd& weights )
-    {
-        std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds, Eigen::VectorXd > > weightPerObservableAndLinkEnds;
-        weightPerObservableAndLinkEnds[ observableType ][ linkEnds ] =  weights;
-        setTabulatedPerObservableAndLinkEndsWeights( weightPerObservableAndLinkEnds );
-    }
-
     //! Function to return the total data structure of observations and associated times/link ends/type (by reference)
     /*!
      * Function to return the total data structure of observations and associated times/link ends/type (by reference)
