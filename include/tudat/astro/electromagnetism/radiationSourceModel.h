@@ -14,6 +14,8 @@
  *          Journal of Geophysical Research: Planets 118. 8(2013): 1676–1698.
  *      Knocke, Philip et al. "Earth radiation pressure effects on satellites."
  *          Astrodynamics Conference. American Institute of Aeronautics and Astronautics, 1988.
+ *      Knocke, Philip. "Earth radiation pressure effects on satellites." PhD diss.,
+ *          The University of Texas at Austin, 1989.
  *      Charles J. Wetterer, et al. "Refining Space Object Radiation Pressure Modeling with Bidirectional Reflectance
  *          Distribution Functions". Journal of Guidance, Control, and Dynamics 37. 1(2014): 185–196.
  */
@@ -493,21 +495,38 @@ std::pair<std::vector<double>, std::vector<double>> generateEvenlySpacedPoints_S
 std::pair<std::vector<double>, std::vector<double>> generateEvenlySpacedPoints_Staggered(unsigned int n);
 
 /*!
- * Generate panels for the spherical cap of the source body that is visible from the target as in Knocke (1988). The
- * spherical cap is divided into a central cap centered around the subsatellite point and a number of rings divided into
- * panels.
+ * Generate panels for the spherical cap of the source body that is visible from the target. The spherical cap is
+ * divided into a central cap centered around the subsatellite point and a number of rings divided into panels.
+ * Each ring has the same angular resolution.
  *
  * @param targetPosition Position of the target in local frame
  * @param numberOfPanelsPerRing Number of panels for each ring, excluding the central cap
- * @param radius Radius of the body
+ * @param bodyRadius Radius of the body
  * @return a tuple of vectors of Cartesian panel centers, the respective polar angles (between 0 and π) and azimuth angles
  *      (between 0 and 2π), and areas
  */
 std::tuple<std::vector<Eigen::Vector3d>, std::vector<double>, std::vector<double>, std::vector<double>>
-generatePaneledSphericalCap(
+generatePaneledSphericalCap_EqualAngularResolution(
         const Eigen::Vector3d& targetPosition,
         const std::vector<int>& numberOfPanelsPerRing,
-        double radius);
+        double bodyRadius);
+
+/*!
+ * Generate panels for the spherical cap of the source body that is visible from the target as in Knocke (1988). The
+ * spherical cap is divided into a central cap centered around the subsatellite point and a number of rings divided into
+ * panels. The width of each ring is such that all panels have the same projected, attenuated area.
+ *
+ * @param targetPosition Position of the target in local frame
+ * @param numberOfPanelsPerRing Number of panels for each ring, excluding the central cap
+ * @param R_e Radius of the body
+ * @return a tuple of vectors of Cartesian panel centers, the respective polar angles (between 0 and π) and azimuth angles
+ *      (between 0 and 2π), and areas
+ */
+std::tuple<std::vector<Eigen::Vector3d>, std::vector<double>, std::vector<double>, std::vector<double>>
+generatePaneledSphericalCap_EqualProjectedAttenuatedArea(
+        const Eigen::Vector3d& targetPosition,
+        const std::vector<int>& numberOfPanelsPerRing,
+        double bodyRadius);
 
 
 } // tudat

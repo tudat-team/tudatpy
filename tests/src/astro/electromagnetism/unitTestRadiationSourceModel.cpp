@@ -283,7 +283,7 @@ BOOST_AUTO_TEST_CASE( testDynamicallyPaneledRadiationSourceModel_CentralCapOnly 
     // Timestep 1
     const auto altitude1 = 2;
     const Eigen::Vector3d targetPosition1 = (radius + altitude1) * Eigen::Vector3d(1, 1, 0).normalized();
-    const auto panelArea1 = 2 * PI * radius * radius * (1 - radius / targetPosition1.norm());
+    const auto panelArea1 = 2 * PI * altitude1 * altitude1 * (1 - cos(asin(radius / targetPosition1.norm())));
 
     const auto expectedReceivedIrradiance1 = radiosity / (PI * altitude1 * altitude1) * panelArea1;
     radiationSourceModel.updateMembers(0);
@@ -298,7 +298,7 @@ BOOST_AUTO_TEST_CASE( testDynamicallyPaneledRadiationSourceModel_CentralCapOnly 
     // Timestep 2
     const auto altitude2 = 14;
     const Eigen::Vector3d targetPosition2 = (radius + altitude2) * Eigen::Vector3d(0.7, 5.6, 1.2).normalized();
-    const auto panelArea2 = 2 * PI * radius * radius * (1 - radius / targetPosition2.norm());
+    const auto panelArea2 = 2 * PI * altitude2 * altitude2 * (1 - cos(asin(radius / targetPosition2.norm())));
 
     const auto expectedReceivedIrradiance2 = radiosity / (PI * altitude2 * altitude2) * panelArea2;
     radiationSourceModel.updateMembers(1);
@@ -562,15 +562,15 @@ BOOST_AUTO_TEST_CASE( testGenerateEvenlySpacedPoints_Staggered_Validity )
     }
 }
 
-//! Test generation of spherical cap panels using Knocke's algorithm with target at infinity
-BOOST_AUTO_TEST_CASE( generatePaneledSphericalCap_FarAway )
+//! Test generation of spherical cap panels (equal angular resolution) with target at infinity
+BOOST_AUTO_TEST_CASE( generatePaneledSphericalCap_EqualAngularResolution_FarAway )
 {
     const auto expectedNumberOfPanels = 4;
 
     // Target above North Pole at infinity can see whole Northern Hemisphere
     const Eigen::Vector3d targetPosition(0, 0, std::numeric_limits<double>::max());
 
-    const auto panels = generatePaneledSphericalCap(targetPosition, {3}, 1);
+    const auto panels = generatePaneledSphericalCap_EqualAngularResolution(targetPosition, {3}, 1);
     const auto panelCenters = std::get<0>(panels);
     const auto polarAngles = std::get<1>(panels);
     const auto azimuthAngles = std::get<2>(panels);
@@ -605,15 +605,15 @@ BOOST_AUTO_TEST_CASE( generatePaneledSphericalCap_FarAway )
     BOOST_CHECK_CLOSE(areas[2], areas[3], 1e-15);
 }
 
-//! Test area of spherical cap panels using Knocke's algorithm
-BOOST_AUTO_TEST_CASE( generatePaneledSphericalCap_Area )
+//! Test area of spherical cap panels (equal angular resolution)
+BOOST_AUTO_TEST_CASE( generatePaneledSphericalCap_EqualAngularResolution_Area )
 {
     const auto radius = 42;
 
     {
         // Case 1: closer and 2 rings with larger panels
         const Eigen::Vector3d targetPosition(53, 89, 60);
-        const auto panels = generatePaneledSphericalCap(targetPosition, {7, 15}, radius);
+        const auto panels = generatePaneledSphericalCap_EqualAngularResolution(targetPosition, {7, 15}, radius);
         const auto areas = std::get<3>(panels);
 
         // Sum of panel areas should equal spherical cap area
@@ -631,7 +631,7 @@ BOOST_AUTO_TEST_CASE( generatePaneledSphericalCap_Area )
     {
         // Case 2: further and 3 rings with smaller panels
         const Eigen::Vector3d targetPosition(100, -129, 98);
-        const auto panels = generatePaneledSphericalCap(targetPosition, {30, 60, 80}, radius);
+        const auto panels = generatePaneledSphericalCap_EqualAngularResolution(targetPosition, {30, 60, 80}, radius);
         const auto areas = std::get<3>(panels);
 
         // Sum of panel areas should equal spherical cap area
@@ -647,10 +647,10 @@ BOOST_AUTO_TEST_CASE( generatePaneledSphericalCap_Area )
     }
 }
 
-//! Test generation of spherical cap panels using Knocke's algorithm at realistic target position by comparison with
+//! Test generation of spherical cap panels (equal angular resolution) at realistic target position by comparison with
 //! Python implementation
 // https://github.com/DominikStiller/tudelft-hpb-project/blob/7bf0d9d8f2f0195395edbf86213c2370d78b45d3/analysis/paneling.ipynb
-BOOST_AUTO_TEST_CASE( generatePaneledSphericalCap_Realistic )
+BOOST_AUTO_TEST_CASE( generatePaneledSphericalCap_EqualAngularResolution_Realistic )
 {
     const auto expectedNumberOfPanels = 18;
 
@@ -659,7 +659,7 @@ BOOST_AUTO_TEST_CASE( generatePaneledSphericalCap_Realistic )
     // Moon orbiter at 50 km altitude at random position
     const Eigen::Vector3d targetPosition(389737.1519614824, 1558948.6078459297, -779474.3039229648);
 
-    const auto panels = generatePaneledSphericalCap(targetPosition, {6, 11}, radius);
+    const auto panels = generatePaneledSphericalCap_EqualAngularResolution(targetPosition, {6, 11}, radius);
     const auto actualPanelCenters = std::get<0>(panels);
     const auto actualPolarAngles = std::get<1>(panels);
     const auto actualAzimuthAngles = std::get<2>(panels);
@@ -733,6 +733,98 @@ BOOST_AUTO_TEST_CASE( generatePaneledSphericalCap_Realistic )
         BOOST_CHECK_CLOSE(actualPolarAngles[i], expectedPolarAngles[i], 1e-13);
         BOOST_CHECK_CLOSE(actualAzimuthAngles[i], expectedAzimuthAngles[i], 1e-13);
         BOOST_CHECK_CLOSE(actualAreas[i], expectedAreas[i], 1e-13);
+    }
+}
+
+//! Test generation of spherical cap panels (equal projected, attenuated area) at realistic target position by
+//! comparison with Python implementation
+// TODO add github link
+BOOST_AUTO_TEST_CASE( generatePaneledSphericalCap_EqualProjectedAttenuatedArea_Realistic )
+{
+    const auto expectedNumberOfPanels = 19;
+
+    // Lunar radius
+    const auto radius = 1736e3;
+    // Moon orbiter at 50 km altitude at random position
+    const Eigen::Vector3d targetPosition(389737.1519614824, 1558948.6078459297, -779474.3039229648);
+
+    const auto panels = generatePaneledSphericalCap_EqualProjectedAttenuatedArea(targetPosition, {6, 12}, radius);
+    const auto actualPanelCenters = std::get<0>(panels);
+    const auto actualPolarAngles = std::get<1>(panels);
+    const auto actualAzimuthAngles = std::get<2>(panels);
+    const auto actualAreas = std::get<3>(panels);
+
+    // Generated with Python script with visually verified results
+    const std::vector<double> expectedPolarAngles{
+            2.0224297678744287,
+            2.0268079445936222,
+            2.0400859611532436,
+            2.035596498490586,
+            2.0178975172108244,
+            2.00476118810318,
+            2.0091839258021347,
+            2.050456571638972,
+            2.1122370409779743,
+            2.1496743777236054,
+            2.1509134692969587,
+            2.1155456886708004,
+            2.0548231103587136,
+            1.986370210260097,
+            1.928177046097441,
+            1.894529160022493,
+            1.893435757961558,
+            1.925155127079269,
+            1.9821447838884818
+    };
+    const std::vector<double> expectedAzimuthAngles{
+            1.3258176636680326,
+            1.3059665670011258,
+            1.3201529522298527,
+            1.3401027799356686,
+            1.3455831501248858,
+            1.331386125214984,
+            1.311714407491817,
+            1.1805753504073533,
+            1.2145604018192864,
+            1.2823187937083034,
+            1.3642057562411483,
+            1.4335950118641554,
+            1.4700787075913622,
+            1.4666274274522162,
+            1.4275575412504624,
+            1.3642219611288369,
+            1.2919649375174327,
+            1.2275660219855986,
+            1.186540053050643
+    };
+    const std::vector<double> expectedAreas{
+            632483355.8710622,
+            1075077896.0345714,
+            1075077896.0345714,
+            1075077896.0345714,
+            1075077896.0345714,
+            1075077896.0345714,
+            1075077896.0345714,
+            100543547120.72939,
+            100543547120.72939,
+            100543547120.72939,
+            100543547120.72939,
+            100543547120.72939,
+            100543547120.72939,
+            100543547120.72939,
+            100543547120.72939,
+            100543547120.72939,
+            100543547120.72939,
+            100543547120.72939,
+            100543547120.72939
+    };
+
+    for (int i = 0; i < expectedNumberOfPanels; ++i)
+    {
+        BOOST_CHECK_CLOSE(actualPanelCenters[i].norm(), radius, 1e-13);
+        BOOST_CHECK_CLOSE(actualPolarAngles[i], expectedPolarAngles[i], 1e-13);
+        BOOST_CHECK_CLOSE(actualAzimuthAngles[i], expectedAzimuthAngles[i], 1e-13);
+        BOOST_CHECK_CLOSE(actualAreas[i], expectedAreas[i], 1e-12);
     }
 }
 
