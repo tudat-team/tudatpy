@@ -103,6 +103,7 @@ YACMA_PYTHON_MODULE(kernel
         kernel/expose_numerical_simulation/expose_environment_setup/expose_rotation_model_setup.cpp
         kernel/expose_numerical_simulation/expose_environment_setup/expose_shape_setup.cpp
         kernel/expose_numerical_simulation/expose_environment_setup/expose_ground_station_setup.cpp
+        kernel/expose_numerical_simulation/expose_environment_setup/expose_rigid_body_setup.cpp
 
 
         kernel/expose_numerical_simulation/expose_propagation_setup.cpp
