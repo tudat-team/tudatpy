@@ -180,10 +180,10 @@ std::vector< std::string > CspRawFile::readCspCommandsFile( const std::string& f
 {
 
     // Open file
-    std::ifstream stream( file, std::ios_base::binary );
+    std::ifstream stream( file, std::ios_base::in );
     if ( !stream.good( ) )
     {
-        throw std::runtime_error( "Error when opening file: " + file );
+        throw std::runtime_error( "Error when opening CSP file: " + file );
     }
 
     // Line based parsing
@@ -248,15 +248,15 @@ std::vector< std::string > getGroundStationsNames( const std::string& groundStat
 
     if ( groundStationIdentifier == "C10" )
     {
-        groundStations = { "DSS-13", "DSS-14", "DSS-15", "DSS-24", "DSS-25", "DSS-26" };
+        groundStations = simulation_setup::getDefaultDsnStationNamesPerComplex( ).at( 10 );
     }
     else if ( groundStationIdentifier == "C40" )
     {
-        groundStations = { "DSS-34", "DSS-35", "DSS-36", "DSS-43", "DSS-45" };
+        groundStations = simulation_setup::getDefaultDsnStationNamesPerComplex( ).at( 40 );
     }
     else if ( groundStationIdentifier == "C60" )
     {
-        groundStations = { "DSS-54", "DSS-55", "DSS-63", "DSS-65" };
+        groundStations = simulation_setup::getDefaultDsnStationNamesPerComplex( ).at( 60 );
     }
     else
     {
