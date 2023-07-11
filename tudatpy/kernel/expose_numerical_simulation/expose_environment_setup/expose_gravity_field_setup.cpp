@@ -92,7 +92,8 @@ void expose_gravity_field_setup(py::module &m) {
             .value("central_spice_gravity", tss::GravityFieldType::central_spice, get_docstring("GravityFieldType.central_spice_gravity").c_str())
             .value("spherical_harmonic_gravity", tss::GravityFieldType::spherical_harmonic, get_docstring("GravityFieldType.spherical_harmonic_gravity").c_str())
             .value("polyhedron_gravity", tss::GravityFieldType::polyhedron, get_docstring("GravityFieldType.polyhedron_gravity").c_str())
-            .export_values();
+            .value("ring_gravity", tss::GravityFieldType::one_dimensional_ring, get_docstring("GravityFieldType.ring_gravity").c_str())
+        .export_values();
 
 
     py::enum_<tss::SphericalHarmonicsModel>(m, "PredefinedSphericalHarmonicsModel",
@@ -153,6 +154,10 @@ void expose_gravity_field_setup(py::module &m) {
                           &tss::SphericalHarmonicsGravityFieldSettings::getCreateTimeDependentField,
                           &tss::SphericalHarmonicsGravityFieldSettings::setCreateTimeDependentField,
                           get_docstring("SphericalHarmonicsGravityFieldSettings.create_time_dependent_field").c_str())
+            .def_property("scaled_mean_moment_of_inertia",
+                         &tss::SphericalHarmonicsGravityFieldSettings::getScaledMeanMomentOfInertia,
+                         &tss::SphericalHarmonicsGravityFieldSettings::setScaledMeanMomentOfInertia,
+                         get_docstring("SphericalHarmonicsGravityFieldSettings.scaled_mean_moment_of_inertia").c_str())
             .def_property_readonly("reference_radius",
                                    &tss::SphericalHarmonicsGravityFieldSettings::getReferenceRadius,
                                    get_docstring("SphericalHarmonicsGravityFieldSettings.reference_radius").c_str());
@@ -300,6 +305,15 @@ void expose_gravity_field_setup(py::module &m) {
               py::arg("associated_reference_frame"),
               py::arg("gravitational_constant") = tudat::physical_constants::GRAVITATIONAL_CONSTANT
               );
+
+    m.def("ring_model",
+          &tss::ringGravitySettings,
+          py::arg("gravitational_parameter"),
+          py::arg("ring_radius"),
+          py::arg("associated_reference_frame"),
+          py::arg("elliptic_integral_s_from_d_and_b"),
+          get_docstring("ring_model").c_str()
+    );
 }
 
 }// namespace gravity_field

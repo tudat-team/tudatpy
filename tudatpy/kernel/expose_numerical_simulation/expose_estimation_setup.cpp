@@ -64,15 +64,24 @@ void expose_estimation_setup(py::module &m) {
           get_docstring("create_observation_simulators").c_str() );
 
 
-//    m.def("single_type_observation_collection",
-//          &tom::createManualObservationCollection< >,
-//          py::arg("observable_type"),
-//          py::arg("link_ends"),
-//          py::arg("observations_list"),
-//          py::arg("times_list"),
-//          py::arg("reference_link_end" ),
-//          py::arg("ancilliary_settings" ) = nullptr,
-//          get_docstring("single_type_observaion_collection").c_str() );
+    m.def("single_type_observation_collection",
+          py::overload_cast<
+            const tom::ObservableType,
+            const tom::LinkDefinition&,
+            const std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > >&,
+            const std::vector< TIME_TYPE >,
+            const tom::LinkEndType,
+            const std::shared_ptr< tom::ObservationAncilliarySimulationSettings < TIME_TYPE > > >(
+        &tom::createManualObservationCollection< double, TIME_TYPE > ),
+          py::arg("observable_type"),
+          py::arg("link_ends"),
+          py::arg("observations_list"),
+          py::arg("times_list"),
+          py::arg("reference_link_end" ),
+          py::arg("ancilliary_settings" ) = nullptr,
+          get_docstring("single_type_observaion_collection").c_str() );
+
+
 
     // ************** Modules ***************
 
