@@ -24,6 +24,7 @@
 #include "tudat/io/readTabulatedMediaCorrections.h"
 #include "tudat/io/readTabulatedWeatherData.h"
 #include "tudat/simulation/estimation_setup/processOdfFile.h"
+#include "tudat/simulation/propagation_setup/setNumericallyIntegratedStates.h"
 
 #include <boost/date_time/gregorian/gregorian.hpp>
 
@@ -53,12 +54,6 @@ void runEstimation(
         int estimationMaxIterations,
         double observationsSamplingTime )
 {
-    // Select observation times
-    std::vector< Time > observationTimes;
-    for ( Time t = initialEphemerisTime; t < finalEphemerisTime; t += observationsSamplingTime )
-    {
-        observationTimes.push_back( t );
-    }
 
     // Define bodies to use.
     std::vector< std::string > bodiesToCreate = {
@@ -145,6 +140,23 @@ void runEstimation(
     // Create bodies
     SystemOfBodies bodies = createSystemOfBodies< long double, Time >( bodySettings );
 
+    Time initialPropagationTime = initialEphemerisTime + 600.0;
+    Time finalPropagationTime = finalEphemerisTime - 600.0;
+    // Select observation times
+    // Compute observed observations. NOTE: don't move this to after the creation of the OrbitDeterminationManager!
+    std::vector< Time > observationTimes;
+    std::vector< Eigen::Matrix< long double, Eigen::Dynamic, 1 > > observations;
+    for ( Time t = initialPropagationTime; t < finalPropagationTime; t += observationsSamplingTime )
+    {
+        try
+        {
+            observations.push_back( bodies.getBody( spacecraftName )->getStateInBaseFrameFromEphemeris< long double, Time >( t ).segment( 0, 3 ) );
+            observationTimes.push_back( t );
+        }
+        catch( ... )
+        { }
+    }
+
     // Set accelerations on Vehicle that are to be taken into account.
     SelectedAccelerationMap accelerationMap;
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
@@ -191,8 +203,6 @@ void runEstimation(
             integrationMinMaxStep.second, integrationTolerance, integrationTolerance );
 
     // Set initial state from ephemerides
-    Time initialPropagationTime = initialEphemerisTime;
-    Time finalPropagationTime = finalEphemerisTime;
     Eigen::Matrix< long double, 6, 1 > spacecraftInitialState =
             bodies.getBody( spacecraftName )->getStateInBaseFrameFromEphemeris< long double, Time >( initialPropagationTime ) -
             bodies.getBody( centralBody )->getStateInBaseFrameFromEphemeris< long double, Time >( initialPropagationTime );
@@ -264,12 +274,6 @@ void runEstimation(
     writeDataMapToTextFile( spiceStateHistory, "stateHistorySpice_" + fileTag + ".txt", saveDirectory,
                             "", 18, 18 );
 
-    // Compute observed observations
-    std::vector< Eigen::Matrix< long double, Eigen::Dynamic, 1 > > observations;
-    for ( Time t : observationTimes )
-    {
-        observations.push_back( bodies.getBody( spacecraftName )->getStateInBaseFrameFromEphemeris< long double, Time >( t ).segment( 0, 3 ) );
-    }
     std::vector< std::shared_ptr< SingleObservationSet< long double, Time > > > observationSetList;
     observationSetList.push_back(
             std::make_shared< SingleObservationSet< long double, Time > >(
@@ -292,14 +296,25 @@ void runEstimation(
     // Retrieve post-fit state history
     std::shared_ptr< propagators::SimulationResults< long double, Time > > postFitSimulationResults =
             estimationOutput->getBestIterationSimulationResults( );
-    std::map < Time, Eigen::Matrix < long double, Eigen::Dynamic, 1 > > propagatedStateHistoryPostFit =
+    std::map < Time, Eigen::Matrix < long double, Eigen::Dynamic, 1 > > propagatedStateHistoryPostFitDynamic =
             std::dynamic_pointer_cast< SingleArcVariationalSimulationResults< long double, Time > >(
                     postFitSimulationResults )->getDynamicsResults( )->getEquationsOfMotionNumericalSolution( );
-    std::map< long double, Eigen::Matrix < long double, Eigen::Dynamic, 1 > > propagatedStateHistoryPostFitToWrite;
-    for ( auto it = propagatedStateHistoryPostFit.begin( ); it != propagatedStateHistoryPostFit.end( ); ++it )
+    std::map < Time, Eigen::Matrix < long double, 6, 1 > > propagatedStateHistoryPostFit;
+    for ( auto it = propagatedStateHistoryPostFitDynamic.begin( ); it != propagatedStateHistoryPostFitDynamic.end( ); ++it )
     {
-        propagatedStateHistoryPostFitToWrite[ it->first.getSeconds< long double >() ] = it->second;
+        propagatedStateHistoryPostFit[ it->first ] = it->second;
     }
+    std::shared_ptr< interpolators::OneDimensionalInterpolator< Time, Eigen::Matrix< long double, 6, 1 > > > postFitStateInterpolator =
+            propagators::createStateInterpolator< Time, long double >( propagatedStateHistoryPostFit );
+    std::map< long double, Eigen::Matrix < long double, Eigen::Dynamic, 1 > > propagatedStateHistoryPostFitToWrite;
+    for ( Time t : observationTimes )
+    {
+        propagatedStateHistoryPostFitToWrite[ t.getSeconds< long double >() ] = postFitStateInterpolator->interpolate( t );
+    }
+//    for ( auto it = propagatedStateHistoryPostFit.begin( ); it != propagatedStateHistoryPostFit.end( ); ++it )
+//    {
+//        propagatedStateHistoryPostFitToWrite[ it->first.getSeconds< long double >() ] = it->second;
+//    }
     writeDataMapToTextFile( propagatedStateHistoryPostFitToWrite, "stateHistoryPropagatedPostFit_" + fileTag + ".txt", saveDirectory,
                             "", 18, 18 );
 
@@ -374,9 +389,8 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
         double observationsSamplingTime = 40.0;
 
         // Select ephemeris time range (based on available data in loaded SPICE ephemeris)
-        Time initialEphemerisTime = Time( 185976000 + 0.0 * 86400.0 ); // 23 November 2005, 0h
-//        Time finalEphemerisTime = Time( 185976000 + 0.2 * 86400.0 ); // 30 November 2005, 0h
-        Time finalEphemerisTime = Time( 186580800 - 2.0 * 86400.0 ); // 30 November 2005, 0h
+        Time initialEphemerisTime = Time( 185976000 - 1.0 * 86400.0 ); // 23 November 2005, 0h
+        Time finalEphemerisTime = Time( 186580800 + 1.0 * 86400.0 ); // 30 November 2005, 0h
 
         runEstimation( saveDirectory, fileTag,
                        initialEphemerisTime, finalEphemerisTime, true, ephemeridesTimeStep,
