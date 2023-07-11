@@ -202,46 +202,53 @@ public:
      * Constructor for single raw ODF data object. Processes the raw ODF data.
      *
      * @param rawOdfDataVector Vector of multiple ODF data objects
-     * @param bodyWithGroundStations Body where the ground stations are located
+     * @param spacecraftName Name of the spacecraft.
      * @param verbose Bool indicating whether to print warning regarding e.g. ignored data.
-     * @param spacecraftName Name of the spacecraft. If no name is provided, the name is selected to be the NAIF ID.
+     * @param earthFixedGroundStationPositions Map with the position of each ground station in the corresponding planet's
+     *      body-fixed frame. Positions are only used for converting the time between UTC and TDB, therefore approximate
+     *      positions are sufficient.
      */
     ProcessedOdfFileContents(
             const std::shared_ptr< input_output::OdfRawFileContents > rawOdfData,
-            const std::shared_ptr< const simulation_setup::Body > bodyWithGroundStations,
+            const std::string spacecraftName,
             bool verbose = true,
-            std::string spacecraftName = "" ):
+            const std::map< std::string, Eigen::Vector3d >& earthFixedGroundStationPositions =
+                    simulation_setup::getApproximateDsnGroundStationPositions( ) ):
         ProcessedOdfFileContents(
                 std::vector< std::shared_ptr< input_output::OdfRawFileContents > >{ rawOdfData },
-                bodyWithGroundStations, verbose, spacecraftName )
+                spacecraftName, verbose, earthFixedGroundStationPositions )
     { }
 
     /*!
      * Constructor for multiple ODF data objects. Processes the raw ODF data.
      *
      * @param rawOdfDataVector Vector of multiple ODF data objects
-     * @param bodyWithGroundStations Body where the ground stations are located
+     * @param spacecraftName Name of the spacecraft.
      * @param verbose Bool indicating whether to print warning regarding e.g. ignored data.
-     * @param spacecraftName Name of the spacecraft. If no name is provided, the name is selected to be the NAIF ID.
+     * @param earthFixedGroundStationPositions Map with the position of each ground station in the corresponding planet's
+     *      body-fixed frame. Positions are only used for converting the time between UTC and TDB, therefore approximate
+     *      positions are sufficient.
      */
     ProcessedOdfFileContents(
             std::vector< std::shared_ptr< input_output::OdfRawFileContents > > rawOdfDataVector,
-            const std::shared_ptr< const simulation_setup::Body > bodyWithGroundStations,
+            const std::string spacecraftName,
             bool verbose = true,
-            std::string spacecraftName = "" ):
-        spacecraftName_( spacecraftName ),
-        bodyWithGroundStations_ ( bodyWithGroundStations ),
-        verbose_( verbose )
+            const std::map< std::string, Eigen::Vector3d >& earthFixedGroundStationPositions =
+                    simulation_setup::getApproximateDsnGroundStationPositions( ) ):
+            rawOdfData_( rawOdfDataVector ),
+            spacecraftName_( spacecraftName ),
+            approximateEarthFixedGroundStationPositions_ ( earthFixedGroundStationPositions ),
+            verbose_( verbose )
     {
-        if ( spacecraftName != "" )
-        {
-            spacecraftName_ = spacecraftName;
-        }
-        else
-        {
-            // Spacecraft name selected to be "NAIF Id", which is equal to -"JPL Id" (for a spacecraft)
-            spacecraftName_ = std::to_string( - static_cast< int >( rawOdfDataVector.front( )->spacecraftId_ ) );
-        }
+//        if ( spacecraftName != "" )
+//        {
+//            spacecraftName_ = spacecraftName;
+//        }
+//        else
+//        {
+//            // Spacecraft name selected to be "NAIF Id", which is equal to -"JPL Id" (for a spacecraft)
+//            spacecraftName_ = std::to_string( - static_cast< int >( rawOdfDataVector.front( )->spacecraftId_ ) );
+//        }
 
         // Sort ODF data files by date and check whether all the provided files apply to the same spacecraft
         sortAndValidateOdfDataVector( rawOdfDataVector );
@@ -294,6 +301,12 @@ public:
         std::shared_ptr< ProcessedOdfFileSingleLinkData > > >& getProcessedDataBlocks( )
     {
         return processedDataBlocks_;
+    }
+
+    // Return the raw ODF data
+    std::vector< std::shared_ptr< input_output::OdfRawFileContents > > getRawOdfData( )
+    {
+        return rawOdfData_;
     }
 
 private:
@@ -371,11 +384,14 @@ private:
     std::vector< double > computeObservationTimesTdbFromJ2000(
             std::string groundStation, std::vector< double > observationTimesUtcFromEME1950 );
 
-    // Name of the spacecraft
-    std::string spacecraftName_;
+    // Vector of raw ODF data
+    std::vector< std::shared_ptr< input_output::OdfRawFileContents > > rawOdfData_;
 
-    // Pointer to the body containing the ground stations
-    std::shared_ptr< const simulation_setup::Body > bodyWithGroundStations_;
+    // Name of the spacecraft
+    const std::string spacecraftName_;
+
+    // Map containing approximate position of ground stations
+    const std::map< std::string, Eigen::Vector3d > approximateEarthFixedGroundStationPositions_;
 
     // Processed data mapped by observable type and link ends
     std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds,
@@ -422,6 +438,58 @@ public:
 private:
 
 };
+
+inline std::shared_ptr< ProcessedOdfFileContents > processOdfData(
+        const std::vector< std::string >& odfFileNames,
+        const std::string& spacecraftName,
+        const bool verbose = true,
+        const std::map< std::string, Eigen::Vector3d >& earthFixedGroundStationPositions =
+                simulation_setup::getApproximateDsnGroundStationPositions( ) )
+{
+    std::vector< std::shared_ptr< input_output::OdfRawFileContents > > rawOdfDataVector;
+    for ( std::string odfFile : odfFileNames )
+    {
+        rawOdfDataVector.push_back( std::make_shared< input_output::OdfRawFileContents >( odfFile ) );
+    }
+
+    return std::make_shared< ProcessedOdfFileContents >(
+            rawOdfDataVector, spacecraftName, verbose, earthFixedGroundStationPositions );
+}
+
+inline std::shared_ptr< ProcessedOdfFileContents > processOdfData(
+        const std::string& odfFileName,
+        const std::string& spacecraftName,
+        const bool verbose = true,
+        const std::map< std::string, Eigen::Vector3d >& earthFixedGroundStationPositions =
+                simulation_setup::getApproximateDsnGroundStationPositions( ) )
+{
+    return processOdfData(
+            std::vector< std::string >{ odfFileName },
+            spacecraftName, verbose, earthFixedGroundStationPositions );
+}
+
+inline std::shared_ptr< ProcessedOdfFileContents > processOdfData(
+        const std::vector< std::shared_ptr< input_output::OdfRawFileContents > >& odfFiles,
+        const std::string& spacecraftName,
+        const bool verbose = true,
+        const std::map< std::string, Eigen::Vector3d >& earthFixedGroundStationPositions =
+                simulation_setup::getApproximateDsnGroundStationPositions( ) )
+{
+    return std::make_shared< ProcessedOdfFileContents >(
+            odfFiles, spacecraftName, verbose, earthFixedGroundStationPositions );
+}
+
+inline std::shared_ptr< ProcessedOdfFileContents > processOdfData(
+        const std::shared_ptr< input_output::OdfRawFileContents > odfFile,
+        const std::string& spacecraftName,
+        const bool verbose = true,
+        const std::map< std::string, Eigen::Vector3d >& earthFixedGroundStationPositions =
+                simulation_setup::getApproximateDsnGroundStationPositions( ) )
+{
+    return processOdfData(
+            std::vector< std::shared_ptr< input_output::OdfRawFileContents > >{ odfFile },
+            spacecraftName, verbose, earthFixedGroundStationPositions );
+}
 
 /*!
  * Creates the link ends associated with a given ODF observation block.
@@ -480,14 +548,14 @@ observation_models::ObservationAncilliarySimulationSettings createOdfAncillarySe
         if ( currentObservableType == observation_models::dsn_n_way_averaged_doppler )
         {
             ancillarySettings.setAncilliaryDoubleVectorData(
-                    observation_models::transmission_reception_delays, std::vector< double >{
+                    observation_models::link_ends_delays, std::vector< double >{
                     dopplerDataBlock->transmitterUplinkDelays_.at( dataIndex ), 0.0,
                     dopplerDataBlock->receiverDownlinkDelays_.at( dataIndex ) } );
         }
         else
         {
             ancillarySettings.setAncilliaryDoubleVectorData(
-                    observation_models::transmission_reception_delays, std::vector< double >{
+                    observation_models::link_ends_delays, std::vector< double >{
                     dopplerDataBlock->transmitterUplinkDelays_.at( dataIndex ),
                     dopplerDataBlock->receiverDownlinkDelays_.at( dataIndex ) } );
         }

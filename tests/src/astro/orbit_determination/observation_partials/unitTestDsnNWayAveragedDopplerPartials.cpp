@@ -93,7 +93,7 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerPartials )
 
         // Process ODF file
         std::shared_ptr< ProcessedOdfFileContents > processedOdfFileContents =
-            std::make_shared< ProcessedOdfFileContents >( rawOdfFileContents, bodies.getBody( "Earth" ), true );
+            std::make_shared< ProcessedOdfFileContents >( rawOdfFileContents, "MSL", true );
         // Create ground stations
         setTransmittingFrequenciesInGroundStations( processedOdfFileContents, bodies.getBody( "Earth" ) );
         // Set turnaround ratios in spacecraft (ground station)
@@ -128,7 +128,7 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerPartials )
                 dsnNWayAveragedDopplerModel, bodies, fullEstimatableParameterSet, linkEnds,
                 dsn_n_way_averaged_doppler, 1.0E-4, true, true, 1000.0, parameterPerturbationMultipliers,
                 getDsnNWayAveragedDopplerAncillarySettings(
-                        std::vector< FrequencyBands >{ x_band, x_band }, 60.0, 7.0e9, getRetransmissionDelays( initialEphemerisTime, 1 ) ),
+                        std::vector< FrequencyBands >{ x_band, x_band }, x_band, 60.0, 7.0e9, getRetransmissionDelays( initialEphemerisTime, 1 ) ),
                         stateEvaluationTime );
     }
 
@@ -140,7 +140,7 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerPartials )
 
         // Process ODF file
         std::shared_ptr< ProcessedOdfFileContents > processedOdfFileContents =
-            std::make_shared< ProcessedOdfFileContents >( rawOdfFileContents, bodies.getBody( "Earth" ), true );
+            std::make_shared< ProcessedOdfFileContents >( rawOdfFileContents, "MSL", true );
         // Create ground stations
         setTransmittingFrequenciesInGroundStations( processedOdfFileContents, bodies.getBody( "Earth" ) );
         // Set turnaround ratios in spacecraft (ground station)
@@ -175,7 +175,7 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerPartials )
                dsnNWayAveragedDopplerModel, bodies, fullEstimatableParameterSet, linkEnds,
                dsn_n_way_averaged_doppler, 1.0E-4, false, true, 1000.0, parameterPerturbationMultipliers,
                getDsnNWayAveragedDopplerAncillarySettings(
-                       std::vector< FrequencyBands >{ x_band, x_band }, 60.0, 7.0e9, getRetransmissionDelays( initialEphemerisTime, 1 ) ),
+                       std::vector< FrequencyBands >{ x_band, x_band }, x_band, 60.0, 7.0e9, getRetransmissionDelays( initialEphemerisTime, 1 ) ),
                        stateEvaluationTime );
     }
 }

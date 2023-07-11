@@ -201,13 +201,37 @@ void testObservationPartials(
             runSimulation = false;
         }
 
+        // Remove retransmission delay from the retransmitting reference link end: computation of multi-leg light currently doesn't support
+        // retransmission delays at the reference link end
+        std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > modifiedAncilliarySettings;
+        if ( observableType == n_way_range && ( linkEndIterator->first != receiver && linkEndIterator->first != transmitter ) )
+        {
+            std::vector< double > delays = ancilliarySettings->getAncilliaryDoubleVectorData( link_ends_delays, false );
+            // If delays are specified including transmission, retransmission and reception
+            if ( delays.size( ) == currentLinkEnds.size( ) )
+            {
+                delays.at( static_cast< int >( linkEndIterator->first ) ) = 0.0;
+            }
+            // If only retransmission delays are specified
+            else
+            {
+                delays.at( static_cast< int >( linkEndIterator->first ) - 1 ) = 0.0;
+            }
+            modifiedAncilliarySettings = std::make_shared< ObservationAncilliarySimulationSettings >( );
+            modifiedAncilliarySettings->setAncilliaryDoubleVectorData( link_ends_delays, delays );
+        }
+        else
+        {
+            modifiedAncilliarySettings = ancilliarySettings;
+        }
+
         if ( runSimulation )
         {
             // Evaluate nominal observation values
             std::vector<Eigen::Vector6d> vectorOfStates;
             std::vector<double> vectorOfTimes;
             Eigen::VectorXd currentObservation = observationModel->computeObservationsWithLinkEndData(
-                        observationTime, linkEndIterator->first, vectorOfTimes, vectorOfStates, ancilliarySettings );
+                        observationTime, linkEndIterator->first, vectorOfTimes, vectorOfStates, modifiedAncilliarySettings );
 
             // Calculate analytical observation partials.
             if (positionPartialScaler != nullptr) {
@@ -219,7 +243,7 @@ void testObservationPartials(
                     ObservationPartialReturnType;
             std::vector<ObservationPartialReturnType> analyticalObservationPartials =
                     calculateAnalyticalPartials<ObservableSize>(
-                        fullAnalyticalPartialSet.first, vectorOfStates, vectorOfTimes, linkEndIterator->first, ancilliarySettings, currentObservation);
+                        fullAnalyticalPartialSet.first, vectorOfStates, vectorOfTimes, linkEndIterator->first, modifiedAncilliarySettings, currentObservation);
 
             // Set and test expected partial size and time
             if (observableType != euler_angle_313_observable)
@@ -265,7 +289,7 @@ void testObservationPartials(
             // Define observation function for current observable/link end
             std::function<Eigen::VectorXd(const double)> observationFunction = std::bind(
                         &ObservationModel< ObservableSize, double, TimeType >::computeObservations,
-                        observationModel, std::placeholders::_1, linkEndIterator->first, ancilliarySettings );
+                        observationModel, std::placeholders::_1, linkEndIterator->first, modifiedAncilliarySettings );
 
             if (testPositionPartial)
             {
@@ -406,7 +430,7 @@ void testObservationPartials(
                 {
                     std::function< Eigen::Matrix< double, ObservableSize, 1 >( TimeType ) > vectorObservationFunction =
                             std::bind( &ObservationModel< ObservableSize, double, TimeType >::computeObservations,
-                                       observationModel, std::placeholders::_1, linkEndIterator->first, ancilliarySettings );
+                                       observationModel, std::placeholders::_1, linkEndIterator->first, modifiedAncilliarySettings );
 
                     // Settings for parameter partial functions.
                     std::vector<Eigen::VectorXd> parameterPerturbations;
