@@ -171,7 +171,14 @@ public:
         }
 
         // Determine the lower entry in the table corresponding to the target independent variable value.
-        int lowerEntry_ = lookUpScheme_->findNearestLowerNeighbour( targetIndependentVariableValue );
+        unsigned int lowerEntry_ = lookUpScheme_->findNearestLowerNeighbour( targetIndependentVariableValue );
+
+        // If lowerEntry_ is the last element of independentValues_, execute extrapolation with
+        // the last and second to last elements of independentValues_.
+        if ( lowerEntry_ == independentValues_.size( ) - 1 )
+        {
+            lowerEntry_ -= 1;
+        }
 
         // Compute Hermite spline
         ScalarType factor = static_cast< ScalarType >( targetIndependentVariableValue - independentValues_[ lowerEntry_ ] ) /
