@@ -15,6 +15,8 @@
 
 #include "tudat/basics/testMacros.h"
 #include "tudat/basics/timeType.h"
+#include "tudat/astro/basic_astro/dateTime.h"
+
 #include "tudat/math/basic/mathematicalConstants.h"
 
 namespace tudat
@@ -25,6 +27,7 @@ namespace unit_tests
 BOOST_AUTO_TEST_SUITE( test_time_type )
 
 using namespace mathematical_constants;
+using namespace basic_astrodynamics;
 
 //! Test if Time objects cast to the expected precision
 BOOST_AUTO_TEST_CASE( testTimeBasicCasts )
@@ -292,7 +295,7 @@ BOOST_AUTO_TEST_CASE( testArithmeticOperations )
         BOOST_CHECK_EQUAL( multipliedTime.getFullPeriods( ), 16 );
         BOOST_CHECK_CLOSE_FRACTION( multipliedTime.getSecondsIntoFullPeriod( ),
                                     PI * 3.0,
-                                    2.0 * std::numeric_limits< double >::epsilon( ) );
+                                    TIME_NORMALIZATION_TERM * std::numeric_limits< double >::epsilon( ) );
 
         multipliedTime = 2.0 * testTime;
         BOOST_CHECK_EQUAL( multipliedTime.getFullPeriods( ), 10 );
@@ -304,7 +307,7 @@ BOOST_AUTO_TEST_CASE( testArithmeticOperations )
         BOOST_CHECK_EQUAL( multipliedTime.getFullPeriods( ), 16 );
         BOOST_CHECK_CLOSE_FRACTION( multipliedTime.getSecondsIntoFullPeriod( ),
                                     PI * 3.0,
-                                    2.0 * std::numeric_limits< double >::epsilon( ) );
+                                    TIME_NORMALIZATION_TERM * std::numeric_limits< double >::epsilon( ) );
 
 
     }
@@ -421,6 +424,7 @@ BOOST_AUTO_TEST_CASE( testComparisonOperators )
         BOOST_CHECK( testTime2 < testTimeLongDouble2Rounded );
     }
 }
+
 
 BOOST_AUTO_TEST_SUITE_END( )
 

@@ -127,6 +127,21 @@ public:
         return boundaryHandling_;
     }
 
+    void resetBoundaryHandling( const BoundaryInterpolationType boundaryHandling )
+    {
+        if( boundaryHandling_.size( ) > 0)
+        {
+            for ( unsigned int i = 0; i < boundaryHandling_.size( ); i++ )
+            {
+                boundaryHandling_[ i ] = boundaryHandling;
+            }
+        }
+        else
+        {
+            boundaryHandling_.push_back( boundaryHandling );
+        }
+    }
+
 protected:
 
     //! Selected type of interpolator.

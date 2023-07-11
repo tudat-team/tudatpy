@@ -55,7 +55,11 @@ TUDAT_ADD_TEST_CASE(ForwardsBackwardsIntegration PRIVATE_LINKS ${Tudat_PROPAGATI
 
 TUDAT_ADD_TEST_CASE(ExactTermination PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES})
 
+TUDAT_ADD_TEST_CASE(NonSequentialPropagation PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES})
+
 TUDAT_ADD_TEST_CASE(PropagationResultsSaving PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES})
+
+TUDAT_ADD_TEST_CASE(IntegratorSteps PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES})
 
 TUDAT_ADD_TEST_CASE(StateDerivativeRestrictedThreeBodyProblem PRIVATE_LINKS tudat_mission_segments tudat_root_finders tudat_propagators tudat_numerical_integrators tudat_basic_astrodynamics tudat_input_output)
 
@@ -84,5 +88,7 @@ TUDAT_ADD_TEST_CASE(HybridArcVariationalEquations PRIVATE_LINKS ${Tudat_ESTIMATI
 TUDAT_ADD_TEST_CASE(DependentVariableOutput PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
 
 TUDAT_ADD_TEST_CASE(DependentVariablesInterface PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
+
+TUDAT_ADD_TEST_CASE(NonSequentialVariationalEquations PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
 
 endif( )

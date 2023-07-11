@@ -168,7 +168,7 @@ std::map< KeyType, std::vector< ScalarValueType > > readStlVectorMapFromFile(
                                  boost::algorithm::token_compress_on );
 
         // Determine key and put single line entries into vector.
-        KeyType key;
+        KeyType key = KeyType( );
         std::vector< ScalarValueType > values;
         for ( unsigned int columnIndex = 0; columnIndex < lineSplit_.size( ); columnIndex++ )
         {
