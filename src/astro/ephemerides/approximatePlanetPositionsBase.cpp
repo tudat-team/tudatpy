@@ -75,7 +75,7 @@ int getPlanetIndex( const std::string& bodyName )
     }
     else
     {
-        throw std::runtime_error( "Error, could find body " + bodyName + " when getting planet index." );
+        throw std::runtime_error( "Error, could not find body " + bodyName + " when getting planet index." );
     }
     return bodyIndex;
 }

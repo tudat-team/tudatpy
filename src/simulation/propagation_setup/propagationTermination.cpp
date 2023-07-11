@@ -128,6 +128,19 @@ bool HybridPropagationTerminationCondition::iterateToExactTermination( )
     return iterateToExactCondition;
 }
 
+//! Function to check whether the propagation is to be be stopped
+bool NonSequentialPropagationTerminationCondition::checkStopCondition( const double time, const double cpuTime )
+{
+    // Check if single condition is fulfilled.
+    bool stopPropagation = false;
+    if ( forwardPropagationTerminationCondition_->checkStopCondition( time, cpuTime ) || backwardPropagationTerminationCondition_->checkStopCondition( time, cpuTime ) )
+    {
+        stopPropagation = true;
+    }
+
+    return stopPropagation;
+}
+
 } // namespace propagators
 
 } // namespace tudat
