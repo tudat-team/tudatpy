@@ -233,8 +233,8 @@ inline std::shared_ptr< ObservationAncilliarySimulationSettings > getTwoWayAvera
 inline std::shared_ptr< ObservationAncilliarySimulationSettings > getDsnNWayAveragedDopplerAncillarySettings(
         const std::vector< FrequencyBands >& frequencyBands,
         const FrequencyBands receptionReferenceFrequencyBand,
+        const double referenceFrequency,
         const double integrationTime = 60.0,
-        const double referenceFrequency = 7.0e9,
         const std::vector< double > linkEndsDelays = std::vector< double >( ) )
 {
     std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings =

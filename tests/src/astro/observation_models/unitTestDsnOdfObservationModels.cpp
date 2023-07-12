@@ -351,7 +351,7 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
 
     std::string spacecraftName = "MGS";
 
-    int testCase = 5;
+    int testCase = 3;
 
 
     if ( testCase == 0 )
