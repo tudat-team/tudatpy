@@ -121,6 +121,8 @@ void runSimulation(
             std::make_shared< ProcessedOdfFileContents >(
                     rawOdfDataVector, spacecraftName, true );
 
+    observation_models::setOdfInformationInBodies( processedOdfFileContents, bodies );
+
     // Create observed observation collection
     std::shared_ptr< observation_models::ObservationCollection< long double, Time > > observedObservationCollection =
             observation_models::createOdfObservedObservationCollection< long double, Time >(
@@ -188,8 +190,6 @@ void runSimulation(
             }
         }
     }
-
-    observation_models::setOdfInformationInBodies( processedOdfFileContents, bodies );
     
     std::vector< std::shared_ptr< observation_models::ObservationSimulatorBase< long double, Time > > >
             observationSimulators = observation_models::createObservationSimulators< long double, Time >(
