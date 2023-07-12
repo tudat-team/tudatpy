@@ -10,6 +10,7 @@
 
 #include "tudat/astro/orbit_determination/acceleration_partials/directTidalDissipationAccelerationPartial.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/directTidalTimeLag.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/inverseTidalQualityFactor.h"
 #include "tudat/math/basic/linearAlgebra.h"
 
 namespace tudat
@@ -154,11 +155,51 @@ DirectTidalDissipationAccelerationPartial::getParameterPartialFunction(
 
         }
     }
+    else if( parameter->getParameterName( ).first == estimatable_parameters::inverse_tidal_quality_factor )
+    {
+        if( ( parameter->getParameterName( ).second.first == acceleratingBody_ ) && tidalAcceleration_->getModelTideOnPlanet( ) )
+        {
+            std::shared_ptr< estimatable_parameters::InverseTidalQualityFactor > inverseQualityFactorParameter =
+                    std::dynamic_pointer_cast< estimatable_parameters::InverseTidalQualityFactor >( parameter );
+            if( inverseQualityFactorParameter == nullptr )
+            {
+                throw std::runtime_error( "Error when getting partial of DirectTidalDissipationAcceleration w.r.t. InverseTidalQualityFactor, models are inconsistent" );
+            }
+            else
+            {
+                std::vector< std::string > bodiesCausingDeformation = inverseQualityFactorParameter->getBodiesCausingDeformation( );
+                if( bodiesCausingDeformation.size( ) == 0 || (
+                        std::find( bodiesCausingDeformation.begin( ), bodiesCausingDeformation.end( ), acceleratedBody_ ) != bodiesCausingDeformation.end( ) ) )
+                {
+                    partialFunctionPair = std::make_pair(
+                            std::bind( &DirectTidalDissipationAccelerationPartial::wrtInverseTidalQualityFactor, this, std::placeholders::_1 ), 1 );
+                }
+            }
+        }
+        else if( ( parameter->getParameterName( ).second.first == acceleratedBody_ ) && !tidalAcceleration_->getModelTideOnPlanet( ) )
+        {
+            std::shared_ptr< estimatable_parameters::InverseTidalQualityFactor > inverseQualityFactorParameter =
+                    std::dynamic_pointer_cast< estimatable_parameters::InverseTidalQualityFactor >( parameter );
+            if( inverseQualityFactorParameter == nullptr )
+            {
+                throw std::runtime_error( "Error when getting partial of DirectTidalDissipationAcceleration w.r.t. InverseTidalQualityFactor, models are inconsistent" );
+            }
+            else
+            {
+                std::vector< std::string > bodiesCausingDeformation = inverseQualityFactorParameter->getBodiesCausingDeformation( );
+                if( bodiesCausingDeformation.size( ) == 0 || (
+                        std::find( bodiesCausingDeformation.begin( ), bodiesCausingDeformation.end( ), acceleratingBody_ ) != bodiesCausingDeformation.end( ) ) )
+                {
+                    partialFunctionPair = std::make_pair(
+                            std::bind( &DirectTidalDissipationAccelerationPartial::wrtInverseTidalQualityFactor, this, std::placeholders::_1 ), 1 );
+                }
+            }
+        }
+    }
     else
     {
         partialFunctionPair = std::make_pair( std::function< void( Eigen::MatrixXd& ) >( ), 0 );
     }
-
 
     return partialFunctionPair;
 }
@@ -266,6 +307,19 @@ void DirectTidalDissipationAccelerationPartial::wrtTidalTimeLag( Eigen::MatrixXd
                     tidalAcceleration_->getCurrentRelativeState( ), tidalAcceleration_->getCurrentAngularVelocityVectorOfBodyUndergoingTide( ),
                     tidalAcceleration_->getCurrentTidalAccelerationMultiplier( ), 1.0, false );
     }
+}
+
+void DirectTidalDissipationAccelerationPartial::wrtInverseTidalQualityFactor( Eigen::MatrixXd &qualityFactorParameterPartial )
+{
+    if ( isnan( tidalAcceleration_->getTidalPeriod( ) ) || isnan( tidalAcceleration_->getInverseTidalQualityFactor( ) ) )
+    {
+        throw std::runtime_error( "Error when computing tidal dissipation acceleration partial w.r.t. inverse quality factor Q, "
+                                  " no value is provided for Q and tidal period." );
+    }
+    Eigen::MatrixXd timeLagPartial;
+    wrtTidalTimeLag( timeLagPartial );
+    qualityFactorParameterPartial = timeLagPartial * tidalAcceleration_->getTidalPeriod( ) / ( 2.0 * mathematical_constants::PI  *
+            ( 1.0 + tidalAcceleration_->getInverseTidalQualityFactor( ) * tidalAcceleration_->getInverseTidalQualityFactor( ) ) );
 }
 
 

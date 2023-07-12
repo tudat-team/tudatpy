@@ -694,6 +694,19 @@ inline std::shared_ptr< AccelerationSettings > directTidalDissipationAcceleratio
                                                                            explicitLibraionalTideOnSatellite);
 }
 
+//! @get_docstring(directTidalDissipationAccelerationFromInvQ)
+inline std::shared_ptr< AccelerationSettings > directTidalDissipationAccelerationFromInvQ(
+        const double k2LoveNumber, const double inverseTidalQualityFactor,
+        const double tidalPeriod,
+        const bool includeDirectRadialComponent = true,
+        const bool useTideRaisedOnPlanet = true,
+        const bool explicitLibraionalTideOnSatellite = false
+)
+{
+    return std::make_shared< DirectTidalDissipationAccelerationSettings >(
+            k2LoveNumber, inverseTidalQualityFactor, tidalPeriod, includeDirectRadialComponent, useTideRaisedOnPlanet, explicitLibraionalTideOnSatellite);
+}
+
 // Class for providing acceleration settings for a momentum wheel desaturation acceleration model.
 /*
  *  Class for providing acceleration settings for a momentum wheel desaturation acceleration model.

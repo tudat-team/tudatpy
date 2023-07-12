@@ -941,6 +941,50 @@ public:
 
 };
 
+//! Class to define settings for estimating the inverse of the tidal quality factor of a direct tidal acceleration model
+/*!
+ *  Class to define settings for estimating the inverse of the tidal quality factor of a direct tidal acceleration model, it links to one or more
+ *  objects of type DirectTidalDissipationAcceleration. The user can provide a list of bodies cause deformation, and the
+ *  associated DirectTidalDissipationAcceleration objects will be used. If the list of bodies causing deformation is left empty,
+ *  all DirectTidalDissipationAcceleration objects for the given body undergoing deformation will be used
+ */
+class InverseTidalQualityFactorEstimatableParameterSettings: public EstimatableParameterSettings
+{
+public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param associatedBody Body being deformed
+     * \param deformingBody Body causing deformed
+     */
+    InverseTidalQualityFactorEstimatableParameterSettings( const std::string& associatedBody,
+                                                           const std::string& deformingBody ):
+            EstimatableParameterSettings( associatedBody, inverse_tidal_quality_factor )
+    {
+        if( deformingBody != "" )
+        {
+            deformingBodies_.push_back( deformingBody );
+        }
+    }
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param associatedBody Body being deformed
+     * \param deformingBodies Names of bodies causing tidal deformation
+     */
+    InverseTidalQualityFactorEstimatableParameterSettings( const std::string& associatedBody,
+                                                           const std::vector< std::string >& deformingBodies ):
+            EstimatableParameterSettings( associatedBody, inverse_tidal_quality_factor ),
+            deformingBodies_( deformingBodies ){ }
+
+
+    //! Names of bodies causing tidal deformation
+    std::vector< std::string > deformingBodies_;
+
+};
+
 
 inline std::shared_ptr< EstimatableParameterSettings > gravitationalParameter( const std::string bodyName )
 {
@@ -1188,6 +1232,22 @@ inline std::shared_ptr< EstimatableParameterSettings > directTidalDissipationLag
 
 
 inline std::shared_ptr< EstimatableParameterSettings > directTidalDissipationLagTime(
+        const std::string& body,
+        const std::string& deformingBody)
+{
+    return directTidalDissipationLagTime( body, std::vector< std::string >( { deformingBody } ) );
+}
+
+
+inline std::shared_ptr< EstimatableParameterSettings > inverseTidalQualityFactor(
+        const std::string& body,
+        const std::vector< std::string >& deformingBodies )
+{
+    return std::make_shared< InverseTidalQualityFactorEstimatableParameterSettings >(
+            body, deformingBodies);
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > inverseTidalQualityFactor(
         const std::string& body,
         const std::string& deformingBody)
 {
