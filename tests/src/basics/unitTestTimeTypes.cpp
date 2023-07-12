@@ -124,7 +124,7 @@ BOOST_AUTO_TEST_CASE( testArithmeticOperations )
 
         int correctionPeriods = ( numberOfSeconds1 + numberOfSeconds2 ) / TIME_NORMALIZATION_INTEGER_TERM;
         int correctionPeriodsDifference = ( numberOfSeconds1 - numberOfSeconds2 ) / TIME_NORMALIZATION_INTEGER_TERM + 1;
-        
+
         Time outputTime;
 
         // Test Time additions
