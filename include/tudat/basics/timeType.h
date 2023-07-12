@@ -428,8 +428,8 @@ public:
      */
     void operator+=( const double timeToAdd )
     {
-        secondsIntoFullPeriod_ += static_cast< long double >( timeToAdd );
-        normalizeMembers( );
+        Time timeTimeToAdd = Time( timeToAdd );
+        *this += timeTimeToAdd;
     }
 
     //! Add and assign operator for adding a double
@@ -439,8 +439,8 @@ public:
      */
     void operator+=( const long double timeToAdd )
     {
-        secondsIntoFullPeriod_ += timeToAdd;
-        normalizeMembers( );
+        Time timeTimeToAdd = Time( timeToAdd );
+        *this += timeTimeToAdd;
     }
 
     //! Subtract and assign operator for adding a Time
@@ -462,8 +462,8 @@ public:
      */
     void operator-=( const double timeToSubtract )
     {
-        secondsIntoFullPeriod_ -= static_cast< long double >( timeToSubtract );
-        normalizeMembers( );
+        Time timeTimeToSubtract = Time( timeToSubtract );
+        *this -= timeTimeToSubtract;
     }
 
     //! Subtract and assign operator for adding a long double
@@ -473,8 +473,8 @@ public:
      */
     void operator-=( const long double timeToSubtract )
     {
-        secondsIntoFullPeriod_ -= timeToSubtract;
-        normalizeMembers( );
+        Time timeTimeToSubtract = Time( timeToSubtract );
+        *this -= timeTimeToSubtract;
     }
 
     //! Multiply and assign operator for multiplying by double
@@ -484,14 +484,7 @@ public:
      */
     void operator*=( const double timeToMultiply )
     {
-        long double newPeriods = static_cast< long double >( timeToMultiply ) * static_cast< long double >( fullPeriods_ );
-        long double roundedNewPeriods = std::floor( newPeriods );
-
-        fullPeriods_ = static_cast< int >( std::round( roundedNewPeriods ) );
-        secondsIntoFullPeriod_ *= static_cast< long double >( timeToMultiply );
-        secondsIntoFullPeriod_ += ( newPeriods - roundedNewPeriods ) * TIME_NORMALIZATION_TERM;
-
-        normalizeMembers( );
+        *this *= static_cast< long double >( timeToMultiply );
     }
 
     //! Multiply and assign operator for multiplying by long double
@@ -518,14 +511,7 @@ public:
      */
     void operator/=( const double timeToDivide )
     {
-        long double newPeriods = static_cast< long double >( timeToDivide ) / static_cast< long double >( fullPeriods_ );
-        long double roundedNewPeriods = std::floor( newPeriods );
-
-        fullPeriods_ = static_cast< int >( std::round( roundedNewPeriods ) );
-        secondsIntoFullPeriod_ *= timeToDivide;
-        secondsIntoFullPeriod_ += ( newPeriods - roundedNewPeriods );
-
-        normalizeMembers( );
+        *this /= static_cast< long double >( timeToDivide );
     }
 
     //! Divided and assign operator for dividing by long double
