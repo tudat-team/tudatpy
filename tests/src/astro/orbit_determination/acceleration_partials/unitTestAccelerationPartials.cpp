@@ -1103,7 +1103,7 @@ BOOST_AUTO_TEST_CASE( testDirectDissipationAccelerationPartial )
                     std::dynamic_pointer_cast<  gravitation::DirectTidalDissipationAcceleration >(
                         simulation_setup::createAccelerationModel(
                             io, jupiter, std::make_shared< simulation_setup::DirectTidalDissipationAccelerationSettings >(
-                                loveNumber, timeLag, useRadialTerm, usePlanetTide ) , "Io", "Jupiter" ) );
+                                loveNumber, timeLag, bool( useRadialTerm ), bool( usePlanetTide ) ) , "Io", "Jupiter" ) );
 
             // Create acceleration partial object.
             std::shared_ptr< acceleration_partials::DirectTidalDissipationAccelerationPartial > accelerationPartial =
