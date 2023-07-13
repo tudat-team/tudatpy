@@ -507,54 +507,29 @@ std::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > cre
     switch( observableType )
     {
     case one_way_range:
-        observationManager = createObservationManager< 1, ObservationScalarType, TimeType >(
-                    observableType, observationModelSettingsList, bodies, parametersToEstimate,
-                    stateTransitionMatrixInterface, dependentVariablesInterface );
-        break;
     case n_way_range:
-        observationManager = createObservationManager< 1, ObservationScalarType, TimeType >(
-                    observableType, observationModelSettingsList, bodies, parametersToEstimate,
-                    stateTransitionMatrixInterface, dependentVariablesInterface );
-        break;
     case one_way_doppler:
-        observationManager = createObservationManager< 1, ObservationScalarType, TimeType >(
-                    observableType, observationModelSettingsList, bodies, parametersToEstimate,
-                    stateTransitionMatrixInterface, dependentVariablesInterface );
-        break;
     case two_way_doppler:
-        observationManager = createObservationManager< 1, ObservationScalarType, TimeType >(
-                    observableType, observationModelSettingsList, bodies, parametersToEstimate,
-                    stateTransitionMatrixInterface, dependentVariablesInterface );
-        break;
     case one_way_differenced_range:
+    case n_way_differenced_range:
+    case dsn_one_way_averaged_doppler:
+    case dsn_n_way_averaged_doppler:
         observationManager = createObservationManager< 1, ObservationScalarType, TimeType >(
                     observableType, observationModelSettingsList, bodies, parametersToEstimate,
                     stateTransitionMatrixInterface, dependentVariablesInterface );
         break;
     case angular_position:
+    case relative_angular_position:
         observationManager = createObservationManager< 2, ObservationScalarType, TimeType >(
                     observableType, observationModelSettingsList, bodies, parametersToEstimate,
                     stateTransitionMatrixInterface, dependentVariablesInterface );
         break;
     case position_observable:
-        observationManager = createObservationManager< 3, ObservationScalarType, TimeType >(
-                    observableType, observationModelSettingsList, bodies, parametersToEstimate,
-                    stateTransitionMatrixInterface, dependentVariablesInterface );
-        break;
     case euler_angle_313_observable:
-        observationManager = createObservationManager< 3, ObservationScalarType, TimeType >(
-                    observableType, observationModelSettingsList, bodies, parametersToEstimate,
-                    stateTransitionMatrixInterface, dependentVariablesInterface );
-        break;
     case velocity_observable:
         observationManager = createObservationManager< 3, ObservationScalarType, TimeType >(
                     observableType, observationModelSettingsList, bodies, parametersToEstimate,
                     stateTransitionMatrixInterface, dependentVariablesInterface );
-        break;
-    case relative_angular_position:
-        observationManager = createObservationManager< 2, ObservationScalarType, TimeType >(
-                observableType, observationModelSettingsList, bodies, parametersToEstimate,
-                        stateTransitionMatrixInterface, dependentVariablesInterface );
         break;
     default:
         throw std::runtime_error(

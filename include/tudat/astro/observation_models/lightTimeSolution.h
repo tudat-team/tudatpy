@@ -13,15 +13,16 @@
 
 #include <memory>
 
-#include <boost/lexical_cast.hpp>
 #include <functional>
 #include <iostream>
+#include <iomanip>
 #include <map>
 #include <vector>
 
 #include "tudat/basics/basicTypedefs.h"
 #include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/astro/observation_models/corrections/lightTimeCorrection.h"
+#include "tudat/astro/observation_models/observationModel.h"
 
 namespace tudat
 {
@@ -41,7 +42,13 @@ ObservationScalarType getDefaultLightTimeTolerance( );
 //! Typedef for function calculating light-time correction in light-time calculation loop.
 typedef std::function< double(
         const Eigen::Vector6d&, const Eigen::Vector6d&,
-        const double, const double ) > LightTimeCorrectionFunction;
+        const double, const double,
+        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ) > LightTimeCorrectionFunctionSingleLeg;
+
+typedef std::function< double(
+        const std::vector< Eigen::Vector6d >&, const std::vector< double >&,
+        const unsigned int,
+        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ) > LightTimeCorrectionFunctionMultiLeg;
 
 enum LightTimeFailureHandling
 {
@@ -50,24 +57,27 @@ enum LightTimeFailureHandling
     throw_exception
 };
 
-struct LightTimeConvergenceCriteria
+class LightTimeConvergenceCriteria
 {
+public:
     LightTimeConvergenceCriteria(
             const bool iterateCorrections = false,
             const int maximumNumberOfIterations = 50,
-            const double absoluteTolerance = TUDAT_NAN,
+            const double fractionOfLightTimeTolerance = TUDAT_NAN,
             const LightTimeFailureHandling failureHandling = accept_without_warning):
-        iterateCorrections_( iterateCorrections ),
-        maximumNumberOfIterations_( maximumNumberOfIterations ),
-        failureHandling_( failureHandling ),
-        absoluteTolerance_( absoluteTolerance ) { }
+            iterateCorrections_( iterateCorrections ),
+            maximumNumberOfIterations_( maximumNumberOfIterations ),
+            failureHandling_( failureHandling ),
+            fractionOfLightTimeTolerance_( fractionOfLightTimeTolerance ) { }
+
+    virtual ~LightTimeConvergenceCriteria( ){ }
 
     template< typename ScalarType = double >
-    double getAbsoluteTolerance( )
+    double getFractionOfLightTimeTolerance( )
     {
-        if( absoluteTolerance_ == absoluteTolerance_ )
+        if( fractionOfLightTimeTolerance_ == fractionOfLightTimeTolerance_ )
         {
-            return absoluteTolerance_;
+            return fractionOfLightTimeTolerance_;
         }
         else
         {
@@ -82,12 +92,12 @@ struct LightTimeConvergenceCriteria
     LightTimeFailureHandling failureHandling_;
 
 protected:
-    double absoluteTolerance_;
+    double fractionOfLightTimeTolerance_;
 
 };
 
 template< typename ObservationScalarType, typename TimeType >
-bool isLightTimeSolutionConverged(
+bool isSingleLegLightTimeSolutionConverged(
         const std::shared_ptr< LightTimeConvergenceCriteria > convergenceCriteria,
         const ObservationScalarType previousLightTimeCalculation,
         const ObservationScalarType newLightTimeCalculation,
@@ -99,7 +109,7 @@ bool isLightTimeSolutionConverged(
     bool isToleranceReached = false;
     // Check for convergence.
     if( std::fabs( newLightTimeCalculation - previousLightTimeCalculation ) <
-            convergenceCriteria->getAbsoluteTolerance< ObservationScalarType >( ) )
+            convergenceCriteria->getFractionOfLightTimeTolerance< ObservationScalarType >( ) * newLightTimeCalculation )
     {
         // If convergence reached, but light-time corrections not iterated,
         // perform 1 more iteration to check for change in correction.
@@ -120,8 +130,7 @@ bool isLightTimeSolutionConverged(
         {
             std::string errorMessage  =
                     "light time unconverged at level " +
-                    boost::lexical_cast< std::string >(
-                        std::fabs( newLightTimeCalculation - previousLightTimeCalculation ) ) +
+                    std::to_string( std::fabs( newLightTimeCalculation - previousLightTimeCalculation ) ) +
                     "; current light-time corrections are: "  +
                     std::to_string( currentCorrection ) + " and current time was " +
                     std::to_string( static_cast< double >( currentTime ) );
@@ -144,6 +153,51 @@ bool isLightTimeSolutionConverged(
     return isToleranceReached;
 }
 
+template< typename ObservationScalarType, typename TimeType >
+bool isMultiLegLightTimeSolutionConverged(
+        const std::shared_ptr< LightTimeConvergenceCriteria > convergenceCriteria,
+        const ObservationScalarType previousLightTimeCalculation,
+        const ObservationScalarType newLightTimeCalculation,
+        const int numberOfIterations,
+        const TimeType& currentTime )
+{
+    bool isToleranceReached = false;
+    // Check for convergence.
+    if( std::fabs( newLightTimeCalculation - previousLightTimeCalculation ) <
+            convergenceCriteria->getFractionOfLightTimeTolerance< ObservationScalarType >( ) * newLightTimeCalculation )
+    {
+        isToleranceReached = true;
+    }
+    else
+    {
+        // Get out of infinite loop (for instance due to low accuracy state functions,
+        // to stringent tolerance or limit case for trop. corrections).
+        if( numberOfIterations == convergenceCriteria->maximumNumberOfIterations_ )
+        {
+            std::string errorMessage  =
+                    "multi-leg light time unconverged at level " +
+                    std::to_string( std::fabs( newLightTimeCalculation - previousLightTimeCalculation ) ) +
+                    " seconds. Current reference time was " +
+                    std::to_string( static_cast< double >( currentTime ) );
+            switch( convergenceCriteria->failureHandling_ )
+            {
+            case accept_without_warning:
+                isToleranceReached = true;
+                break;
+            case print_warning_and_accept:
+                std::cerr<< "Warning, " << errorMessage << std::endl;
+                break;
+            case throw_exception:
+                throw std::runtime_error( "Error, " + errorMessage );
+                break;
+            default:
+                throw std::runtime_error( "Error, did not recognize light time failure handling; " + errorMessage );
+            }
+        }
+    }
+    return isToleranceReached;
+}
+
 //! Class for wrapping a custom light-time correction function
 class LightTimeCorrectionFunctionWrapper: public LightTimeCorrection
 {
@@ -156,10 +210,30 @@ public:
      * state and time.
      */
     LightTimeCorrectionFunctionWrapper(
-            const LightTimeCorrectionFunction lightTimeCorrectionFunction ):
+            const LightTimeCorrectionFunctionSingleLeg lightTimeCorrectionFunction ):
+        LightTimeCorrection( function_wrapper_light_time_correction ),
+    isWarningProvided_( false )
+    {
+        lightTimeCorrectionFunction_ = [=] (
+                const std::vector< Eigen::Vector6d >& linkEndsStates,
+                const std::vector< double >& linkEndsTimes,
+                const unsigned int currentMultiLegTransmitterIndex,
+                const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings ) -> double
+        {
+            return lightTimeCorrectionFunction( linkEndsStates.at( currentMultiLegTransmitterIndex ),
+                                                linkEndsStates.at( currentMultiLegTransmitterIndex + 1 ),
+                                                linkEndsTimes.at( currentMultiLegTransmitterIndex ),
+                                                linkEndsTimes.at( currentMultiLegTransmitterIndex + 1),
+                                                ancillarySettings );
+        };
+    }
+
+    LightTimeCorrectionFunctionWrapper(
+            const LightTimeCorrectionFunctionMultiLeg lightTimeCorrectionFunction ):
         LightTimeCorrection( function_wrapper_light_time_correction ),
         lightTimeCorrectionFunction_( lightTimeCorrectionFunction ),
-    isWarningProvided_( false ){ }
+    isWarningProvided_( false )
+    { }
 
     //! Function to compute the light-time correction
     /*!
@@ -170,14 +244,14 @@ public:
      * \param receptionTime Time of singal reception
      * \return Light-time correction
      */
-    double calculateLightTimeCorrection(
-            const Eigen::Vector6d& transmitterState,
-            const Eigen::Vector6d& receiverState,
-            const double transmissionTime,
-            const double receptionTime )
+     double calculateLightTimeCorrectionWithMultiLegLinkEndStates(
+            const std::vector< Eigen::Vector6d >& linkEndsStates,
+            const std::vector< double >& linkEndsTimes,
+            const unsigned int currentMultiLegTransmitterIndex,
+            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings = nullptr ) override
     {
-        return lightTimeCorrectionFunction_(
-                    transmitterState, receiverState, transmissionTime, receptionTime );
+         return lightTimeCorrectionFunction_(
+                 linkEndsStates, linkEndsTimes, currentMultiLegTransmitterIndex, ancillarySettings );
     }
 
     //! Function to compute the partial derivative of the light-time correction w.r.t. observation time
@@ -198,7 +272,7 @@ public:
             const double transmissionTime,
             const double receptionTime,
             const LinkEndType fixedLinkEnd,
-            const LinkEndType linkEndAtWhichPartialIsEvaluated )
+            const LinkEndType linkEndAtWhichPartialIsEvaluated ) override
     {
         if( !isWarningProvided_ )
         {
@@ -225,7 +299,7 @@ public:
             const Eigen::Vector6d& receiverState,
             const double transmissionTime,
             const double receptionTime,
-            const LinkEndType linkEndAtWhichPartialIsEvaluated )
+            const LinkEndType linkEndAtWhichPartialIsEvaluated ) override
     {
         if( !isWarningProvided_ )
         {
@@ -239,7 +313,7 @@ public:
 private:
 
     //! Custom light-time correction functions, as a function of transmitter and receiver state and time.
-    LightTimeCorrectionFunction lightTimeCorrectionFunction_;
+    LightTimeCorrectionFunctionMultiLeg lightTimeCorrectionFunction_;
 
     //! Boolean denoting whether a warning has been provided when calling the partial derivative function(s)
     bool isWarningProvided_;
@@ -274,14 +348,15 @@ public:
             const std::function< StateType( const TimeType ) > positionFunctionOfTransmittingBody,
             const std::function< StateType( const TimeType ) > positionFunctionOfReceivingBody,
             const std::vector< std::shared_ptr< LightTimeCorrection > > correctionFunctions =
-            std::vector< std::shared_ptr< LightTimeCorrection > >( ),
+                std::vector< std::shared_ptr< LightTimeCorrection > >( ),
             const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria
-            = std::make_shared< LightTimeConvergenceCriteria >( ) ):
+                = std::make_shared< LightTimeConvergenceCriteria >( ) ):
         stateFunctionOfTransmittingBody_( positionFunctionOfTransmittingBody ),
         stateFunctionOfReceivingBody_( positionFunctionOfReceivingBody ),
         correctionFunctions_( correctionFunctions ),
         lightTimeConvergenceCriteria_( lightTimeConvergenceCriteria ),
-        currentCorrection_( 0.0 ){ }
+        currentCorrection_( 0.0 )
+        { }
 
     //! Class constructor.
     /*!
@@ -293,9 +368,28 @@ public:
     LightTimeCalculator(
             const std::function< StateType( const TimeType ) > positionFunctionOfTransmittingBody,
             const std::function< StateType( const TimeType ) > positionFunctionOfReceivingBody,
-            const std::vector< LightTimeCorrectionFunction > correctionFunctions,
+            const std::vector< LightTimeCorrectionFunctionMultiLeg > correctionFunctions,
             const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria
-            = std::make_shared< LightTimeConvergenceCriteria >( ) ):
+                = std::make_shared< LightTimeConvergenceCriteria >( ) ):
+        stateFunctionOfTransmittingBody_( positionFunctionOfTransmittingBody ),
+        stateFunctionOfReceivingBody_( positionFunctionOfReceivingBody ),
+        lightTimeConvergenceCriteria_( lightTimeConvergenceCriteria ),
+        currentCorrection_( 0.0 )
+    {
+        for( unsigned int i = 0; i < correctionFunctions.size( ); i++ )
+        {
+            correctionFunctions_.push_back(
+                        std::make_shared< LightTimeCorrectionFunctionWrapper >(
+                            correctionFunctions.at( i ) ) );
+        }
+    }
+
+    LightTimeCalculator(
+            const std::function< StateType( const TimeType ) > positionFunctionOfTransmittingBody,
+            const std::function< StateType( const TimeType ) > positionFunctionOfReceivingBody,
+            const std::vector< LightTimeCorrectionFunctionSingleLeg > correctionFunctions,
+            const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria
+                = std::make_shared< LightTimeConvergenceCriteria >( ) ):
         stateFunctionOfTransmittingBody_( positionFunctionOfTransmittingBody ),
         stateFunctionOfReceivingBody_( positionFunctionOfReceivingBody ),
         lightTimeConvergenceCriteria_( lightTimeConvergenceCriteria ),
@@ -320,9 +414,7 @@ public:
      *  \return The value of the light time between the link ends.
      */
     ObservationScalarType calculateLightTime( const TimeType time,
-                               const bool isTimeAtReception = true,
-                               const ObservationScalarType tolerance =
-            getDefaultLightTimeTolerance< ObservationScalarType >( ) )
+                               const bool isTimeAtReception = true )
     {
         // Declare and initialize variables for receiver and transmitter state (returned by reference).
         StateType receiverState;
@@ -330,7 +422,7 @@ public:
 
         // Calculate light time.
         ObservationScalarType lightTime = calculateLightTimeWithLinkEndsStates(
-                    receiverState, transmitterState, time, isTimeAtReception, tolerance );
+                    receiverState, transmitterState, time, isTimeAtReception );
         return lightTime;
     }
 
@@ -346,9 +438,7 @@ public:
      *  \return The vector from the transmitter to the reciever.
      */
     PositionType calculateRelativeRangeVector( const TimeType time,
-                                               const bool isTimeAtReception = 1 ,
-                                               const ObservationScalarType tolerance =
-            getDefaultLightTimeTolerance< ObservationScalarType >( ) )
+                                               const bool isTimeAtReception = 1 )
     {
         // Declare and initialize variables for receiver and transmitter state (returned by reference).
         StateType receiverState;
@@ -356,7 +446,7 @@ public:
 
         // Calculate link end states and the determine range vector.
         calculateLightTimeWithLinkEndsStates( receiverState, transmitterState,
-                                              time, isTimeAtReception, tolerance );
+                                              time, isTimeAtReception );
         return ( receiverState - transmitterState ).segment( 0, 3 );
     }
 
@@ -378,30 +468,87 @@ public:
             StateType& transmitterStateOutput,
             const TimeType time,
             const bool isTimeAtReception = 1,
-            const ObservationScalarType tolerance =
-            ( getDefaultLightTimeTolerance< ObservationScalarType >( ) ) )
+            const std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings = nullptr )
     {
-        // Initialize reception and transmission times and states to initial guess (zero light time)
-        TimeType receptionTime = time;
-        TimeType transmissionTime = time;
-        StateType receiverState = stateFunctionOfReceivingBody_( receptionTime );
-        StateType transmitterState =
-                stateFunctionOfTransmittingBody_( transmissionTime );
+        std::vector< StateType > linkEndsStates( 2, StateType::Constant( TUDAT_NAN ) );
+        std::vector< TimeType > linkEndsTimes( 2, TUDAT_NAN );
 
-        // Set initial light-time correction.
-        setTotalLightTimeCorrection(
-                    transmitterState, receiverState, transmissionTime, receptionTime );
+        ObservationScalarType lightTime = calculateLightTimeWithMultiLegLinkEndsStates(
+                linkEndsStates, linkEndsTimes, time, isTimeAtReception, 0, ancillarySettings );
 
-        // Calculate light-time solution assuming infinte speed of signal as initial estimate.
-        ObservationScalarType previousLightTimeCalculation =
-                calculateNewLightTimeEstime( receiverState, transmitterState );
+        transmitterStateOutput = linkEndsStates.at( 0 );
+        receiverStateOutput = linkEndsStates.at( 1 );
 
-        // Set variables for iteration
-        ObservationScalarType newLightTimeCalculation = 0.0;
-        bool isToleranceReached = false;
+        return lightTime;
+    }
 
-        // Recalculate light-time solution until tolerance is reached.
-        int counter = 0;
+    //! Function to calculate the light time and link-ends states, given an initial guess for all legs.
+    /*!
+     *  Function to calculate the transmitter state at transmission time, the receiver state at
+     *  reception time, and the light time. Calculation uses the states and times at each link end of the model (which
+     *  are provided as argument) as initial guess.
+     *  The input time can be either at transmission or reception (default) time.
+     *  \param linkEndsStates Input/output link end states over all legs of model.
+     *  \param linkEndsTimes Input/output link end times over all legs of model.
+     *  \param time Time at reception or transmission.
+     *  \param isTimeAtReception True if input time is at reception, false if at transmission.
+     *  \param currentMultiLegTransmitterIndex Index of current transmitter in multi-leg model
+     *  \return The value of the light time between the reciever state and the transmitter state.
+     */
+    ObservationScalarType calculateLightTimeWithMultiLegLinkEndsStates(
+        std::vector< StateType >& linkEndsStates,
+        std::vector< TimeType >& linkEndsTimes,
+        const TimeType time,
+        const bool isTimeAtReception = true,
+        const unsigned int currentMultiLegTransmitterIndex = 0,
+        const std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings = nullptr,
+        const bool computeLightTimeCorrections = true )
+    {
+        const unsigned int currentMultiLegReceiverIndex = currentMultiLegTransmitterIndex + 1;
+
+        if ( linkEndsStates.size( ) != linkEndsTimes.size( ) || currentMultiLegReceiverIndex > linkEndsTimes.size( ) - 1 )
+        {
+            throw std::runtime_error( "Error when calculating light time with multi-leg information: size of provided"
+                                      "state and time vectors is inconsistent." );
+        }
+
+        // Initialize reception and transmission times
+        TimeType receptionTime = time, transmissionTime = time;
+        StateType receiverState, transmitterState;
+        ObservationScalarType previousLightTimeCalculation = 0.0;
+
+        // If link end times are provided as input, use that as initial guess
+        if ( !std::isnan( static_cast< double >( linkEndsTimes.at( currentMultiLegTransmitterIndex ) ) ) &&
+        !std::isnan( static_cast< double >( linkEndsTimes.at( currentMultiLegReceiverIndex ) ) ) )
+        {
+            previousLightTimeCalculation = currentCorrection_ + currentIdealLightTime_;
+        }
+        // If no link end times are provided, compute an initial guess for the light time without corrections
+        else
+        {
+            receiverState = stateFunctionOfReceivingBody_( receptionTime );
+            transmitterState = stateFunctionOfTransmittingBody_( transmissionTime );
+
+            currentCorrection_ = 0.0;
+
+            previousLightTimeCalculation = calculateNewLightTimeEstimate( receiverState, transmitterState );
+        }
+
+        // Set value of transmission and reception times based on initial guess for light time
+        if ( isTimeAtReception ) // reference time is at reception
+        {
+            transmissionTime = receptionTime - previousLightTimeCalculation;
+        }
+        else // reference time is at transmission
+        {
+            receptionTime = transmissionTime + previousLightTimeCalculation;
+        }
+        // Set receiver and transmitter states to initial guess
+        receiverState = stateFunctionOfReceivingBody_( receptionTime );
+        transmitterState = stateFunctionOfTransmittingBody_( transmissionTime );
+
+        // Set variables for iteration of light time
+        iterationCounter_ = 0;
 
         // Set variable determining whether to update the light time each iteration.
         bool updateLightTimeCorrections = false;
@@ -410,14 +557,39 @@ public:
             updateLightTimeCorrections = true;
         }
 
+        // Set initial light-time correction.
+        updateCurrentLinkEndStatesAndTimes(
+                linkEndsTimes, linkEndsStates, currentMultiLegTransmitterIndex, receptionTime, transmissionTime,
+                receiverState, transmitterState );
+        if ( computeLightTimeCorrections )
+        {
+            setTotalLightTimeCorrection( linkEndsStates, linkEndsTimes, currentMultiLegTransmitterIndex, ancillarySettings );
+        }
+        else
+        {
+            currentCorrection_ = 0.0;
+        }
+
+        // Compute new light time estimate
+        ObservationScalarType newLightTimeCalculation = calculateNewLightTimeEstimate( receiverState, transmitterState );
+
+        // Check whether estimate is already within tolerance
+        bool trueBool = true;
+        bool isToleranceReached = isSingleLegLightTimeSolutionConverged(
+                lightTimeConvergenceCriteria_, previousLightTimeCalculation, newLightTimeCalculation, iterationCounter_,
+                currentCorrection_, time, trueBool );
+        previousLightTimeCalculation = newLightTimeCalculation;
+
         // Iterate until tolerance reached.
         while( !isToleranceReached )
         {
             // Update light-time corrections, if necessary.
-            if( updateLightTimeCorrections )
+            if( updateLightTimeCorrections && computeLightTimeCorrections )
             {
-                setTotalLightTimeCorrection(
-                            transmitterState, receiverState, transmissionTime, receptionTime );
+                updateCurrentLinkEndStatesAndTimes(
+                    linkEndsTimes, linkEndsStates, currentMultiLegTransmitterIndex, receptionTime, transmissionTime,
+                    receiverState, transmitterState );
+                setTotalLightTimeCorrection( linkEndsStates, linkEndsTimes, currentMultiLegTransmitterIndex, ancillarySettings );
             }
 
             // Update light-time estimate for this iteration.
@@ -433,19 +605,20 @@ public:
                 transmissionTime = time;
                 receiverState = ( stateFunctionOfReceivingBody_( receptionTime ) );
             }
-            newLightTimeCalculation = calculateNewLightTimeEstime( receiverState, transmitterState );
-            isToleranceReached = isLightTimeSolutionConverged(
-                        lightTimeConvergenceCriteria_, previousLightTimeCalculation, newLightTimeCalculation, counter,
-                        currentCorrection_, time, updateLightTimeCorrections );
+            newLightTimeCalculation = calculateNewLightTimeEstimate( receiverState, transmitterState );
+            isToleranceReached = isSingleLegLightTimeSolutionConverged(
+                    lightTimeConvergenceCriteria_, previousLightTimeCalculation, newLightTimeCalculation, iterationCounter_,
+                    currentCorrection_, time, updateLightTimeCorrections );
 
             // Update light time for new iteration.
             previousLightTimeCalculation = newLightTimeCalculation;
-            counter++;
+            iterationCounter_++;
         }
 
         // Set output variables and return the light time.
-        receiverStateOutput = receiverState;
-        transmitterStateOutput = transmitterState;
+        updateCurrentLinkEndStatesAndTimes(
+                linkEndsTimes, linkEndsStates, currentMultiLegTransmitterIndex, receptionTime, transmissionTime,
+                receiverState, transmitterState );
 
         return newLightTimeCalculation;
     }
@@ -464,9 +637,10 @@ public:
             const StateType& receiverState,
             const TimeType transmitterTime,
             const TimeType receiverTime,
-            const bool isPartialWrtReceiver )
+            const bool isPartialWrtReceiver,
+            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings = nullptr )
     {
-        setTotalLightTimeCorrection( transmitterState, receiverState, transmitterTime, receiverTime );
+        setTotalLightTimeCorrection( transmitterState, receiverState, transmitterTime, receiverTime, ancillarySettings );
 
         Eigen::Matrix< ObservationScalarType, 3, 1 > relativePosition =
                 receiverState.segment( 0, 3 ) - transmitterState.segment( 0, 3 );
@@ -487,21 +661,36 @@ public:
         return correctionFunctions_;
     }
 
+    //! Function to get the current ideal light time (distance divided by the speed of light)
+    ObservationScalarType getCurrentIdealLightTime( )
+    {
+        return currentIdealLightTime_;
+    }
+
+    //! Function to get the value of the current light time corrections
+    ObservationScalarType getCurrentLightTimeCorrection( )
+    {
+        return currentCorrection_;
+    }
+
+    unsigned int getNumberOfIterations( )
+    {
+        return iterationCounter_;
+    }
+
 protected:
 
     //! Transmitter state function.
     /*!
      *  Transmitter state function.
      */
-    std::function< StateType( const double ) >
-    stateFunctionOfTransmittingBody_;
+    std::function< StateType( const TimeType ) > stateFunctionOfTransmittingBody_;
 
     //! Receiver state function.
     /*!
      *  Receiver state function.
      */
-    std::function< StateType( const double ) >
-    stateFunctionOfReceivingBody_;
+    std::function< StateType( const TimeType ) > stateFunctionOfReceivingBody_;
 
     //! List of light-time correction functions.
     /*!
@@ -521,8 +710,14 @@ protected:
 
     std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria_;
 
+    //! Current ideal light-time (i.e. without corrections)
+    ObservationScalarType currentIdealLightTime_;
+
     //! Current light-time correction.
-    double currentCorrection_;
+    ObservationScalarType currentCorrection_;
+
+    // Number of iterations until light time convergence
+    unsigned int iterationCounter_;
 
     //! Function to calculate a new light-time estimate from the link-ends states.
     /*!
@@ -533,13 +728,14 @@ protected:
      *  \param transmitterState Assumed state of transmitter.
      *  \return New value of the light-time estimate.
      */
-    ObservationScalarType calculateNewLightTimeEstime(
+    ObservationScalarType calculateNewLightTimeEstimate(
             const StateType& receiverState,
-            const StateType& transmitterState ) const
+            const StateType& transmitterState )
     {
-        return ( ( ( receiverState - transmitterState ).segment( 0, 3 ) ).
-                 template cast< ObservationScalarType >( ) ).norm( ) /
-                physical_constants::getSpeedOfLight< ObservationScalarType >( ) + currentCorrection_;
+        currentIdealLightTime_ = ( receiverState - transmitterState ).segment( 0, 3 ).norm( ) /
+                physical_constants::getSpeedOfLight< ObservationScalarType >( );
+
+        return currentIdealLightTime_ + currentCorrection_;
     }
 
     //! Function to reset the currentCorrection_ variable during current iteration.
@@ -554,19 +750,328 @@ protected:
     void setTotalLightTimeCorrection( const StateType& transmitterState,
                                       const StateType& receiverState,
                                       const TimeType transmissionTime ,
-                                      const TimeType receptionTime )
+                                      const TimeType receptionTime,
+                                      const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings )
+    {
+        std::vector< StateType > linkEndStates = { transmitterState, receiverState };
+        std::vector< TimeType > linkEndTimes = { transmissionTime, receptionTime };
+        unsigned int currentMultiLegTransmitterIndex = 0;
+
+        setTotalLightTimeCorrection( linkEndStates, linkEndTimes, currentMultiLegTransmitterIndex, ancillarySettings );
+    }
+
+    void setTotalLightTimeCorrection(
+            std::vector< StateType >& linkEndStates,
+            std::vector< TimeType >& linkEndTimes,
+            const unsigned int currentMultiLegTransmitterIndex,
+            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings )
     {
         ObservationScalarType totalLightTimeCorrections = mathematical_constants::getFloatingInteger< ObservationScalarType >( 0 );
+
+        std::vector< double > linkEndTimesDouble( linkEndTimes.size( ) );
+        std::vector< Eigen::Vector6d > linkEndStatesDouble( linkEndStates.size( ) );
+        for ( unsigned int i = 0; i < linkEndTimesDouble.size( ); ++i )
+        {
+            linkEndTimesDouble.at( i ) = static_cast< double >( linkEndTimes.at( i ) );
+            linkEndStatesDouble.at( i ) = linkEndStates.at( i ).template cast< double >( );
+        }
+
         for( unsigned int i = 0; i < correctionFunctions_.size( ); i++ )
         {
             totalLightTimeCorrections += static_cast< ObservationScalarType >(
-                        correctionFunctions_[ i ]->calculateLightTimeCorrection(
-                            transmitterState.template cast< double >( ), receiverState.template cast< double >( ),
-                            static_cast< double >( transmissionTime ), static_cast< double >( receptionTime ) ) );
+                        correctionFunctions_[ i ]->calculateLightTimeCorrectionWithMultiLegLinkEndStates(
+                            linkEndStatesDouble, linkEndTimesDouble, currentMultiLegTransmitterIndex, ancillarySettings ) );
         }
         currentCorrection_ = totalLightTimeCorrections;
     }
+
 private:
+
+    void updateCurrentLinkEndStatesAndTimes( std::vector< TimeType >& linkEndsTimes,
+                                             std::vector< StateType >& linkEndsStates,
+                                             const unsigned int currentMultiLegTransmitterIndex,
+                                             const TimeType receptionTime,
+                                             const TimeType transmissionTime,
+                                             const StateType receiverState,
+                                             const StateType transmitterState )
+    {
+        linkEndsTimes.at( currentMultiLegTransmitterIndex + 1 ) = receptionTime;
+        linkEndsTimes.at( currentMultiLegTransmitterIndex ) = transmissionTime;
+        linkEndsStates.at( currentMultiLegTransmitterIndex + 1 ) = receiverState;
+        linkEndsStates.at( currentMultiLegTransmitterIndex ) = transmitterState;
+    }
+};
+
+template< typename ObservationScalarType = double, typename TimeType = double >
+class MultiLegLightTimeCalculator
+{
+public:
+
+    typedef Eigen::Matrix< ObservationScalarType, 6, 1 > StateType;
+
+    MultiLegLightTimeCalculator(
+            const std::vector< std::shared_ptr< LightTimeCalculator < ObservationScalarType, TimeType > > >
+                    lightTimeCalculators,
+            const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria
+                = std::make_shared< LightTimeConvergenceCriteria >( ),
+            const bool iterateMultiLegLightTime = true ):
+        lightTimeCalculators_( lightTimeCalculators ),
+        lightTimeConvergenceCriteria_( lightTimeConvergenceCriteria ),
+        numberOfLinks_( lightTimeCalculators.size( ) ),
+        numberOfLinkEnds_( lightTimeCalculators.size( ) + 1 ),
+        iterateMultiLegLightTime_( iterateMultiLegLightTime )
+    {
+    }
+
+    // Constructor for a single leg
+    MultiLegLightTimeCalculator(
+            const std::function< StateType( const TimeType ) > positionFunctionOfTransmittingBody,
+            const std::function< StateType( const TimeType ) > positionFunctionOfReceivingBody,
+            const std::vector< std::shared_ptr< LightTimeCorrection > > correctionFunctions =
+                std::vector< std::shared_ptr< LightTimeCorrection > >( ),
+            const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria
+                = std::make_shared< LightTimeConvergenceCriteria >( ) ):
+        lightTimeConvergenceCriteria_( lightTimeConvergenceCriteria ),
+        numberOfLinks_( 1 ),
+        numberOfLinkEnds_( 2 ),
+        iterateMultiLegLightTime_( false )
+    {
+        lightTimeCalculators_.clear( );
+        lightTimeCalculators_.push_back( std::make_shared< LightTimeCalculator< ObservationScalarType, TimeType > >(
+                positionFunctionOfTransmittingBody, positionFunctionOfReceivingBody, correctionFunctions,
+                lightTimeConvergenceCriteria ) );
+    }
+
+    ObservationScalarType calculateLightTimeWithLinkEndsStates(
+            const TimeType time,
+            const LinkEndType linkEndAssociatedWithTime,
+            std::vector< double >& linkEndsTimesOutput,
+            std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndsStatesOutput,
+            const std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings = nullptr )
+    {
+
+        linkEndsDelays_.clear( );
+        if( ancillarySettings != nullptr )
+        {
+            linkEndsDelays_ = ancillarySettings->getAncilliaryDoubleVectorData(
+                    link_ends_delays, false );
+        }
+        if ( !linkEndsDelays_.empty( ) )
+        {
+            // Delays vector already including delays at receiving and transmitting stations
+            if ( linkEndsDelays_.size( ) == numberOfLinkEnds_ )
+            { }
+            // Delays vector not including delays at receiving and transmitting stations: set them to 0
+            else if ( linkEndsDelays_.size( ) == numberOfLinkEnds_ - 2 )
+            {
+                linkEndsDelays_.insert( linkEndsDelays_.begin( ), 0.0 );
+                linkEndsDelays_.push_back( 0.0 );
+            }
+            else
+            {
+                throw std::runtime_error(
+                        "Error when computing multi-leg light time: size of retransmission delays (" +
+                        std::to_string( linkEndsDelays_.size() ) + ") is invalid, should be " +
+                        std::to_string( numberOfLinkEnds_ ) + " or " + std::to_string( numberOfLinkEnds_ - 2) + "." );
+            }
+        }
+        else
+        {
+            for( unsigned int i = 0; i < numberOfLinkEnds_; i++ )
+            {
+                linkEndsDelays_.push_back( 0.0 );
+            }
+        }
+
+        // Retrieve index of link end where to start.
+        unsigned int startLinkEndIndex = getNWayLinkIndexFromLinkEndType( linkEndAssociatedWithTime, numberOfLinkEnds_ );
+
+        // If start is not at transmitter or receiver, compute and add retransmission delay.
+        if( ( startLinkEndIndex != 0 ) && ( startLinkEndIndex != numberOfLinkEnds_ - 1 ) )
+        {
+            if ( linkEndsDelays_.at( startLinkEndIndex ) != 0.0 )
+            {
+                throw std::runtime_error(
+                        "Error when computing light time with reference link end that is not receiver or transmitter: "
+                        "dealing with non-zero retransmission delays at the reference link end is not implemented. It "
+                        "would require distinguishing between reception and transmission delays at the retransmitting link end." );
+            }
+        }
+
+        // Initialize vectors with states and times
+        std::vector< TimeType > linkEndTimes( 2 * numberOfLinks_, TUDAT_NAN );
+        std::vector< StateType > linkEndStates( 2 * numberOfLinks_, StateType::Constant( TUDAT_NAN ) );
+
+        // Get initial estimate of light time
+        ObservationScalarType previousLightTimeEstimate;
+        // If multi-leg iterations are required, then compute the light time without corrections (because some
+        // corrections depend on the state/time at other legs)
+        if ( iterateMultiLegLightTime_ )
+        {
+            previousLightTimeEstimate = calculateMultiLegLightTimeEstimate(
+                time, startLinkEndIndex, linkEndTimes, linkEndStates, ancillarySettings, false );
+        }
+        // If none of the legs' light-times depends on the other legs, directly compute the first light time estimate with
+        // corrections
+        else
+        {
+            previousLightTimeEstimate = calculateMultiLegLightTimeEstimate(
+                time, startLinkEndIndex, linkEndTimes, linkEndStates, ancillarySettings, true );
+        }
+        ObservationScalarType newLightTimeEstimate;
+
+        // Iterate light times only if necessary, i.e. don't iterate if the model is constituted by a single leg or if
+        // it is consituted by multiple legs but doesn't require multiple leg iterations.
+        iterationCounter_ = 0;
+        if ( numberOfLinks_ == 1 || !iterateMultiLegLightTime_ )
+        {
+            newLightTimeEstimate = previousLightTimeEstimate;
+        }
+        else
+        {
+            bool isToleranceReached = false;
+
+            while( !isToleranceReached )
+            {
+                newLightTimeEstimate = calculateMultiLegLightTimeEstimate(
+                        time, startLinkEndIndex, linkEndTimes, linkEndStates, ancillarySettings, true );
+
+                isToleranceReached = isMultiLegLightTimeSolutionConverged(
+                    lightTimeConvergenceCriteria_, previousLightTimeEstimate, newLightTimeEstimate, iterationCounter_,
+                    time );
+
+                // Update light time for next iteration
+                previousLightTimeEstimate = newLightTimeEstimate;
+
+                ++iterationCounter_;
+            }
+        }
+
+
+        // Save output
+        linkEndsTimesOutput.clear( );
+        linkEndsStatesOutput.clear( );
+        linkEndsTimesOutput.resize( 2 * numberOfLinks_ );
+        linkEndsStatesOutput.resize( 2 * numberOfLinks_ );
+        for ( unsigned int i = 0; i < linkEndTimes.size( ); ++i )
+        {
+            linkEndsStatesOutput.at( i ) = linkEndStates.at( i ).template cast< double >( );
+            linkEndsTimesOutput.at( i ) = linkEndTimes.at( i );
+        }
+
+        return newLightTimeEstimate;
+    }
+
+    ObservationScalarType getTotalIdealLightTime(  )
+    {
+        ObservationScalarType lightTime = 0;
+        for ( unsigned int i = 0; i < lightTimeCalculators_.size( ); ++i )
+        {
+            lightTime += lightTimeCalculators_.at( i )->getCurrentIdealLightTime( );
+        }
+        return lightTime;
+    }
+
+    ObservationScalarType getTotalLightTimeCorrections(  )
+    {
+        ObservationScalarType lightTimeCorrections = 0;
+        for ( unsigned int i = 0; i < lightTimeCalculators_.size( ); ++i )
+        {
+            lightTimeCorrections += lightTimeCalculators_.at( i )->getCurrentLightTimeCorrection( );
+        }
+        return lightTimeCorrections;
+    }
+
+    std::vector< std::shared_ptr< LightTimeCalculator< ObservationScalarType, TimeType > > > getLightTimeCalculators( )
+    {
+        return lightTimeCalculators_;
+    }
+
+    unsigned int getNumberOfMultiLegIterations( )
+    {
+        return iterationCounter_;
+    }
+
+    bool getIterateMultiLegLightTime( )
+    {
+        return iterateMultiLegLightTime_;
+    }
+
+private:
+
+    ObservationScalarType calculateMultiLegLightTimeEstimate(
+            const TimeType time,
+            const unsigned int startLinkEndIndex,
+            std::vector< TimeType >& linkEndTimes,
+            std::vector< StateType >& linkEndStates,
+            const std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings = nullptr,
+            bool computeLightTimeCorrections = true )
+    {
+        // Define objects to keep light times
+        ObservationScalarType totalLightTime = 0.0;
+        ObservationScalarType currentLightTime;
+
+        // Initialize light time with initial delay
+        totalLightTime += linkEndsDelays_.at( startLinkEndIndex );
+
+        // Define 'current reception time': time at the receiving antenna
+        TimeType currentLinkEndReceptionTime = time - linkEndsDelays_.at( startLinkEndIndex );
+
+        // Move 'backwards' from reference link end to transmitter.
+        for( unsigned int currentDownIndex = startLinkEndIndex; currentDownIndex > 0; --currentDownIndex )
+        {
+            unsigned int transmitterIndex = 2 * ( currentDownIndex - 1 );
+            currentLightTime = lightTimeCalculators_.at( currentDownIndex - 1 )->calculateLightTimeWithMultiLegLinkEndsStates(
+                        linkEndStates, linkEndTimes, currentLinkEndReceptionTime, true, transmitterIndex,
+                        ancillarySettings, computeLightTimeCorrections );
+
+            // If an additional leg is required, retrieve retransmission delay and update current time
+            currentLightTime += linkEndsDelays_.at( currentDownIndex - 1 );
+            currentLinkEndReceptionTime -= currentLightTime;
+
+            // Add computed light-time to total time and move to next leg
+            totalLightTime += currentLightTime;
+        }
+
+        // Define 'current transmission time': time at the transmitting antenna
+        TimeType currentLinkEndTransmissionTime = time + linkEndsDelays_.at( startLinkEndIndex );
+
+        // Move 'forwards' from reference link end to receiver.
+        for( unsigned int currentUpIndex = startLinkEndIndex; currentUpIndex < numberOfLinkEnds_ - 1; ++currentUpIndex )
+        {
+            unsigned int transmitterIndex = 2 * currentUpIndex;
+            currentLightTime = lightTimeCalculators_.at( currentUpIndex )->calculateLightTimeWithMultiLegLinkEndsStates(
+                        linkEndStates, linkEndTimes, currentLinkEndTransmissionTime, false, transmitterIndex,
+                        ancillarySettings, computeLightTimeCorrections );
+
+            // If an additional leg is required, retrieve retransmission delay and update current time
+            currentLightTime += linkEndsDelays_.at( currentUpIndex + 1 );
+            currentLinkEndTransmissionTime += currentLightTime;
+
+            // Add computed light-time to total time and move to next leg
+            totalLightTime += currentLightTime;
+        }
+
+        return totalLightTime;
+    }
+
+    std::vector< std::shared_ptr< LightTimeCalculator< ObservationScalarType, TimeType > > > lightTimeCalculators_;
+
+    std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria_;
+
+    //! Number of links in multi-leg light-time model
+    const unsigned int numberOfLinks_;
+
+    //! Number of link ends in multi-leg light-time model (=number of links + 1)
+    const unsigned int numberOfLinkEnds_;
+
+    std::vector< double > linkEndsDelays_;
+
+    unsigned int iterationCounter_;
+
+    std::vector< std::vector< unsigned int > > singleLegIterationsPerMultiLegIteration_;
+
+    const bool iterateMultiLegLightTime_;
 };
 
 } // namespace observation_models

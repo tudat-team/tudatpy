@@ -92,7 +92,7 @@ public:
     computeObservationsWithPartials( const std::vector< TimeType >& times,
                                      const LinkEnds linkEnds,
                                      const LinkEndType linkEndAssociatedWithTime,
-                                     const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings < TimeType > > ancilliarySettings ) = 0;
+                                     const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings ) = 0;
 
     //! Function (ṕure virtual) to return the object used to simulate noise-free observations
     /*!
@@ -234,7 +234,7 @@ public:
     computeObservationsWithPartials( const std::vector< TimeType >& times,
                                      const LinkEnds linkEnds,
                                      const LinkEndType linkEndAssociatedWithTime,
-                                     const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings < TimeType > > ancilliarySettings )
+                                     const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings )
     {
         // Initialize return vectors.
         std::map< TimeType, Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > > observations;
@@ -264,15 +264,11 @@ public:
 
             // Compute observation partial
             currentObservationSize = currentObservation.rows( );
-//            std::cout << "before call to determineObservationPartialMatrix" << "\n\n";
             observationMatrices[ times[ i ] ] = determineObservationPartialMatrix(
                         currentObservationSize, vectorOfStates, vectorOfTimes, linkEnds, currentObservation,
-                        linkEndAssociatedWithTime );
-//            std::cout << "after call to determineObservationPartialMatrix" << "\n\n";
+                        linkEndAssociatedWithTime, ancilliarySettings );
 
         }
-
-//        std::cout << "end computeObservationsWithPartials" << "\n\n";
 
         return std::make_pair(
                 utilities::createConcatenatedEigenMatrixFromMapValues< TimeType, ObservationScalarType, ObservationSize, 1 >( observations ),
@@ -348,7 +344,8 @@ protected:
             const std::vector< double >& times,
             const LinkEnds& linkEnds,
             const Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > currentObservation,
-            const LinkEndType linkEndAssociatedWithTime )
+            const LinkEndType linkEndAssociatedWithTime,
+            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings )
     {
 //        std::cout << "link end associated with time: " << linkEndAssociatedWithTime << "\n\n";
 
@@ -407,7 +404,9 @@ protected:
             // Calculate partials of observation w.r.t. parameters, with associated observation times (single partial
             // can consist of multiple partial matrices, associated at different times)
             std::vector< std::pair< Eigen::Matrix< double, ObservationSize, Eigen::Dynamic >, double > > singlePartialSet =
-                    partialIterator->second->calculatePartial( states, times, linkEndAssociatedWithTime, currentObservation.template cast< double >( ) );
+                    partialIterator->second->calculatePartial(
+                            states, times, linkEndAssociatedWithTime, ancilliarySettings, currentObservation.template cast< double >( ) );
+
 //            std::cout << "size time entry: " << times.size( ) << "\n\n";
 //            std::cout << "first time entry: " << times.at( 0 ) << "\n\n";
 
@@ -459,7 +458,9 @@ protected:
                                 // Calculate partials of observation w.r.t. link end states, with associated observation times
                                 // (single partial can consist of multiple partial matrices, associated at different times)
                                 std::vector< std::pair< Eigen::Matrix< double, ObservationSize, Eigen::Dynamic >, double > > linkEndStatePartialSet =
-                                        itr.second->calculatePartial( states, times, linkEndAssociatedWithTime, currentObservation.template cast< double >( ) );
+                                        itr.second->calculatePartial(
+                                                states, times, linkEndAssociatedWithTime, ancilliarySettings,
+                                                currentObservation.template cast< double >( ) );
 
                                 for( unsigned int j = 0; j < linkEndStatePartialSet.size( ); j++ )
                                 {

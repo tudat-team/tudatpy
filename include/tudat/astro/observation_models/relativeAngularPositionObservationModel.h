@@ -24,6 +24,16 @@ namespace tudat
 namespace observation_models
 {
 
+inline double getRelativeAngularPositionScalingFactor(
+        const observation_models::LinkEndType referenceLinkEnd,
+        const std::vector< Eigen::Vector6d >& linkEndStates,
+        const std::vector< double >& linkEndTimes,
+        const std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings,
+        const bool isFirstPartial )
+{
+    return 1.0;
+}
+
 //! Class for simulating relative angular position (right ascension/declination) observables.
 /*!
  *  Class for simulating relative angular position (right ascension/declination), using light-time (with light-time corrections)
@@ -79,7 +89,7 @@ public:
             const LinkEndType linkEndAssociatedWithTime,
             std::vector< double >& linkEndTimes,
             std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
-            const std::shared_ptr< ObservationAncilliarySimulationSettings< TimeType > > ancilliarySetings = nullptr  )
+            const std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetings = nullptr  )
 
     {
         // Check link end associated with input time and compute observable.
@@ -94,9 +104,9 @@ public:
 
         // Compute light-times and receiver/transmitters states.
         ObservationScalarType lightTimeFirstTransmitter = lightTimeCalculatorFirstTransmitter_->calculateLightTimeWithLinkEndsStates(
-                    receiverState, firstTransmitterState, time, true );
+                    receiverState, firstTransmitterState, time, true, ancilliarySetings );
         ObservationScalarType lightTimeSecondTransmitter = lightTimeCalculatorSecondTransmitter_->calculateLightTimeWithLinkEndsStates(
-                    receiverState, secondTransmitterState, time, true );
+                    receiverState, secondTransmitterState, time, true, ancilliarySetings );
 
         // Compute spherical relative position for first transmitter / receiver
         Eigen::Matrix< ObservationScalarType, 3, 1 > sphericalRelativeCoordinatesFirstTransmitter =

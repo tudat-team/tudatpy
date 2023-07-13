@@ -322,6 +322,35 @@ double getAverageRadius(const std::string &body) {
             / 3.0;
 }
 
+//! Get the (arithmetic) mean of the two equatorial axes of the tri-axial ellipsoid shape.
+double getAverageEquatorialRadius( const std::string& body )
+{
+    // Declare variable in which raw result is to be put by Spice function.
+    double radii[3];
+
+    // Call Spice function to retrieve gravitational parameter.
+    SpiceInt numberOfReturnedParameters;
+    bodvrd_c( body.c_str(), "RADII", 3, &numberOfReturnedParameters, radii );
+
+    // Compute average and convert from km to m.
+    return unit_conversions::convertKilometersToMeters< double >(
+            radii[0] + radii[1] ) / 2.0;
+}
+
+//! Get the polar radius of the tri-axial ellipsoid shape.
+double getPolarRadius( const std::string& body )
+{
+    // Declare variable in which raw result is to be put by Spice function.
+    double radii[3];
+
+    // Call Spice function to retrieve gravitational parameter.
+    SpiceInt numberOfReturnedParameters;
+    bodvrd_c( body.c_str(), "RADII", 3, &numberOfReturnedParameters, radii );
+
+    // Compute average and convert from km to m.
+    return unit_conversions::convertKilometersToMeters< double >(radii[2] );
+}
+
 //! Convert a body name to its NAIF identification number.
 int convertBodyNameToNaifId(const std::string &bodyName) {
     // Convert body name to NAIF ID number.
@@ -331,6 +360,18 @@ int convertBodyNameToNaifId(const std::string &bodyName) {
 
     // Convert SpiceInt (typedef for long) to int and return.
     return static_cast<int>(bodyNaifId);
+}
+
+//! Convert a NAIF identification number to its body name.
+std::string convertNaifIdToBodyName( int bodyNaifId )
+{
+    // Maximum SPICE name length is 32. Therefore, a name length of 33 is used (+1 for null terminator)
+    SpiceChar bodyName[33];
+
+    bodc2s_c( bodyNaifId, 33, bodyName );
+
+    // Convert SpiceChar to std::string
+    return static_cast< std::string >( bodyName );
 }
 
 //! Check if a certain property of a body is in the kernel pool.

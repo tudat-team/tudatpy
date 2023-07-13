@@ -68,6 +68,7 @@
 #include "orbit_determination/rotational_dynamics_partials/sphericalHarmonicGravitationalTorquePartial.h"
 #include "orbit_determination/rotational_dynamics_partials/torquePartial.h"
 #include "orbit_determination/podInputOutputTypes.h"
+#include "tudat/simulation/estimation_setup/processOdfFile.h"
 #include "orbit_determination/stateDerivativePartial.h"
 
 #endif // TUDAT_ORBIT_DETERMINATION_H

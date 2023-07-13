@@ -186,7 +186,7 @@ inline int julianDayNumberFromDate(
   * \param calendarMinutes Minutes of the time of this day in minutes.
   * \param calendarSeconds Seconds of the time of this day in seconds.
   * \param referenceJulianDay Reference Julian day (i.e. t=0) for input time.
-  * \return Seconds since referenceJulianDay for input date/time.
+  * \return Days since referenceJulianDay for input date/time.
   */
 template< typename TimeScalarType = double >
 TimeScalarType convertCalendarDateToJulianDaysSinceEpoch( const int calendarYear,
