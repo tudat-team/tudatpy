@@ -518,7 +518,8 @@ public:
         ObservationScalarType previousLightTimeCalculation = 0.0;
 
         // If link end times are provided as input, use that as initial guess
-        if ( !std::isnan( linkEndsTimes.at( currentMultiLegTransmitterIndex ) ) && !std::isnan( linkEndsTimes.at( currentMultiLegReceiverIndex ) ) )
+        if ( !std::isnan( static_cast< double >( linkEndsTimes.at( currentMultiLegTransmitterIndex ) ) ) &&
+        !std::isnan( static_cast< double >( linkEndsTimes.at( currentMultiLegReceiverIndex ) ) ) )
         {
             previousLightTimeCalculation = currentCorrection_ + currentIdealLightTime_;
         }
