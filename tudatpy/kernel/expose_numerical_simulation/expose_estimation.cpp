@@ -287,7 +287,7 @@ void expose_estimation(py::module &m) {
           py::arg("observations"),
           py::arg("reference_link_end" ),
           py::arg("ancilliary_settings_per_observatble" ) = std::map< tom::ObservableType,
-          std::shared_ptr< tom::ObservationAncilliarySimulationSettings < double > > >( ) );
+          std::shared_ptr< tom::ObservationAncilliarySimulationSettings > >( ) );
 
     m.def("compute_target_angles_and_range",
           &tss::getTargetAnglesAndRange,
@@ -326,6 +326,8 @@ void expose_estimation(py::module &m) {
                                    get_docstring("ObservationCollection.observation_vector_size").c_str() )
             .def_property_readonly("sorted_observation_sets", &tom::ObservationCollection<double, TIME_TYPE>::getSortedObservationSets,
                                    get_docstring("ObservationCollection.sorted_observation_sets").c_str() )
+            .def_property_readonly("link_ends_per_observable_type", &tom::ObservationCollection<double, TIME_TYPE>::getLinkEndsPerObservableType,
+                                   get_docstring("ObservationCollection.link_ends_per_observable_type").c_str() )
             .def("get_single_link_and_type_observations", &tom::ObservationCollection<double, TIME_TYPE>::getSingleLinkAndTypeObservationSets,
                                    py::arg( "observable_type" ),
                                    py::arg( "link_definition" ),
@@ -577,7 +579,10 @@ void expose_estimation(py::module &m) {
                                    get_docstring("EstimationOutput.simulation_results_per_iteration").c_str() )
             .def_readonly("final_residuals",
                           &tss::EstimationOutput<double, TIME_TYPE>::residuals_,
-                          get_docstring("EstimationOutput.final_residuals").c_str() );
+                          get_docstring("EstimationOutput.final_residuals").c_str() )
+            .def_readonly("best_iteration",
+                          &tss::EstimationOutput<double, TIME_TYPE>::bestIteration_,
+                          get_docstring("EstimationOutput.best_iteration").c_str() );
 
     m.attr("PodOutput") = m.attr("EstimationOutput");
 

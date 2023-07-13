@@ -13,12 +13,14 @@
 #include "tudat/simulation/estimation_setup/simulateObservations.h"
 #include "tudat/simulation/estimation_setup/createObservationModel.h"
 #include "tudat/simulation/estimation_setup/observationSimulationSettings.h"
+#include "tudat/simulation/estimation_setup/processOdfFile.h"
 
 #include "tudatpy/docstrings.h"
 #include "tudatpy/scalarTypes.h"
 
 namespace tss = tudat::simulation_setup;
 namespace tom = tudat::observation_models;
+namespace tuc = tudat::unit_conversions;
 
 namespace tudat
 {
@@ -242,6 +244,8 @@ void expose_observation_setup(py::module &m) {
             .value("two_way_instantaneous_doppler_type", tom::ObservableType::two_way_doppler )
             .value("n_way_averaged_doppler_type", tom::ObservableType::n_way_differenced_range )
             .value("euler_angle_313_observable_type", tom::ObservableType::euler_angle_313_observable )
+            .value("dsn_one_way_averaged_doppler", tom::ObservableType::dsn_one_way_averaged_doppler )
+            .value("dsn_n_way_averaged_doppler", tom::ObservableType::dsn_n_way_averaged_doppler )
             .export_values();
 
 
@@ -435,11 +439,34 @@ void expose_observation_setup(py::module &m) {
     m.def("n_way_doppler_averaged_from_one_way_links",
           py::overload_cast<
           const std::vector< std::shared_ptr< tom::ObservationModelSettings > >,
-          const std::shared_ptr< tom::ObservationBiasSettings > >( &tom::nWayDifferencedRangeObservationSettings ),
+          const std::shared_ptr< tom::ObservationBiasSettings >,
+          const std::shared_ptr< tom::LightTimeConvergenceCriteria > >( &tom::nWayDifferencedRangeObservationSettings ),
           py::arg("one_way_range_settings" ),
           py::arg("bias_settings") = nullptr,
+          py::arg("light_time_convergence_settings") = std::make_shared< tom::LightTimeConvergenceCriteria >( ),
           get_docstring("n_way_doppler_averaged_from_one_way_links").c_str() );
 
+    m.def("dsn_n_way_doppler_averaged",
+          py::overload_cast<
+              const tom::LinkDefinition&,
+              const std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >,
+              const std::shared_ptr< tom::ObservationBiasSettings >,
+              const std::shared_ptr< tom::LightTimeConvergenceCriteria > >( &tom::dsnNWayAveragedDopplerObservationSettings ),
+          py::arg("link_ends" ),
+          py::arg("light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
+          py::arg("bias_settings") = nullptr,
+          py::arg("light_time_convergence_settings") = std::make_shared< tom::LightTimeConvergenceCriteria >( ),
+          get_docstring("dsn_n_way_doppler_averaged").c_str() );
+
+    m.def("dsn_n_way_doppler_averaged_from_one_way_links",
+          py::overload_cast<
+              const std::vector< std::shared_ptr< tom::ObservationModelSettings > >,
+              const std::shared_ptr< tom::ObservationBiasSettings >,
+              const std::shared_ptr< tom::LightTimeConvergenceCriteria > >( &tom::dsnNWayAveragedDopplerObservationSettings ),
+          py::arg("one_way_range_settings" ),
+          py::arg("bias_settings") = nullptr,
+          py::arg("light_time_convergence_settings") = std::make_shared< tom::LightTimeConvergenceCriteria >( ),
+          get_docstring("dsn_n_way_doppler_averaged_from_one_way_links").c_str() );
 
     py::class_<tom::LightTimeCorrectionSettings,
             std::shared_ptr<tom::LightTimeCorrectionSettings>>(
@@ -450,6 +477,61 @@ void expose_observation_setup(py::module &m) {
           &tom::firstOrderRelativisticLightTimeCorrectionSettings,
           py::arg("perturbing_bodies"),
           get_docstring("first_order_relativistic_light_time_correction").c_str() );
+
+    py::enum_< tom::TroposphericMappingModel >(m, "TroposphericMappingModel",
+                                               get_docstring("TroposphericMappingModel").c_str() )
+            .value("simplified_chao", tom::TroposphericMappingModel::simplified_chao )
+            .value("niell", tom::TroposphericMappingModel::niell )
+            .export_values();
+
+    py::enum_< tom::WaterVaporPartialPressureModel >(m, "WaterVaporPartialPressureModel",
+                                               get_docstring("WaterVaporPartialPressureModel").c_str() )
+            .value("tabulated", tom::WaterVaporPartialPressureModel::tabulated )
+            .value("bean_and_dutton", tom::WaterVaporPartialPressureModel::bean_and_dutton )
+            .export_values();
+
+    m.def("dsn_tabulated_tropospheric_light_time_correction",
+          &tom::tabulatedTroposphericCorrectionSettings,
+          py::arg("file_names"),
+          py::arg("body_with_atmosphere_name") = "Earth",
+          py::arg("mapping_model") =  tom::TroposphericMappingModel::niell,
+          get_docstring("dsn_tabulated_tropospheric_light_time_correction").c_str() );
+
+    m.def("saastamoinen_tropospheric_light_time_correction",
+          &tom::tabulatedTroposphericCorrectionSettings,
+          py::arg("body_with_atmosphere_name") = "Earth",
+          py::arg("mapping_model") =  tom::TroposphericMappingModel::niell,
+          py::arg("water_vapor_partial_pressure_model") =  tom::WaterVaporPartialPressureModel::tabulated,
+          get_docstring("saastamoinen_tropospheric_light_time_correction").c_str() );
+
+    m.def("dsn_tabulated_ionospheric_light_time_correction",
+          &tom::tabulatedIonosphericCorrectionSettings,
+          py::arg("file_names"),
+          py::arg("spacecraft_name_per_id") = std::map< int, std::string >( ),
+          py::arg("quasar_name_per_id") = std::map< int, std::string >( ),
+          py::arg("reference_frequency") = 2295e6,
+          py::arg("body_with_atmosphere_name") = "Earth",
+          get_docstring("dsn_tabulated_ionospheric_light_time_correction").c_str() );
+
+    m.def("jakowski_ionospheric_light_time_correction",
+          &tom::jakowskiIonosphericCorrectionSettings,
+          py::arg("ionosphere_height") = 400.0e3,
+          py::arg("first_order_delay_coefficient") = 40.3,
+          py::arg("solar_activity_data") = tudat::input_output::solar_activity::readSolarActivityData(
+                  tudat::paths::getSpaceWeatherDataPath( ) + "/sw19571001.txt" ),
+          py::arg("geomagnetic_pole_latitude") = tuc::convertDegreesToRadians( 80.9 ),
+          py::arg("geomagnetic_pole_longitude") = tuc::convertDegreesToRadians( -72.6 ),
+          py::arg("use_utc_for_local_time_computation") = false,
+          py::arg("body_with_atmosphere_name") = "Earth",
+          get_docstring("jakowski_ionospheric_light_time_correction").c_str() );
+
+    m.def("inverse_power_series_solar_corona_light_time_correction",
+          &tom::inversePowerSeriesSolarCoronaCorrectionSettings,
+          py::arg("coefficients") = std::vector< double >{ 1.31 * 5.97e-6 },
+          py::arg("positive_exponents") = std::vector< double >{ 2.0 },
+          py::arg("delay_coefficient") = 40.3,
+          py::arg("sun_body_name") = "Sun",
+          get_docstring("inverse_power_series_solar_corona_light_time_correction").c_str() );
 
     py::class_<tom::ObservationBiasSettings,
             std::shared_ptr<tom::ObservationBiasSettings>>(
@@ -545,8 +627,11 @@ void expose_observation_setup(py::module &m) {
 
     py::enum_< tom::ObservationAncilliarySimulationVariable >(m, "ObservationAncilliarySimulationVariable",
                                                get_docstring("ObservationAncilliarySimulationVariable").c_str() )
-            .value("retransmission_delays", tom::ObservationAncilliarySimulationVariable::retransmission_delays )
+            .value("link_ends_delays", tom::ObservationAncilliarySimulationVariable::link_ends_delays )
             .value("doppler_integration_time", tom::ObservationAncilliarySimulationVariable::doppler_integration_time )
+            .value("doppler_reference_frequency", tom::ObservationAncilliarySimulationVariable::doppler_reference_frequency )
+            .value("frequency_bands", tom::ObservationAncilliarySimulationVariable::frequency_bands )
+            .value("reception_reference_frequency_band", tom::ObservationAncilliarySimulationVariable::reception_reference_frequency_band )
             .export_values();
 
     py::class_<tom::ObservationViabilitySettings,
@@ -634,48 +719,57 @@ void expose_observation_setup(py::module &m) {
                                                          get_docstring("TabulatedObservationSimulationSettings").c_str() );
 
 
-    py::class_<tom::ObservationAncilliarySimulationSettings<double>,
-            std::shared_ptr<tom::ObservationAncilliarySimulationSettings<double>> >(
+    py::class_< tom::ObservationAncilliarySimulationSettings,
+            std::shared_ptr< tom::ObservationAncilliarySimulationSettings > >(
                 m, "ObservationAncilliarySimulationSettings",
                 get_docstring("ObservationAncilliarySimulationSettings").c_str() )
             .def("get_float_settings",
-                 &tom::ObservationAncilliarySimulationSettings<double>::getAncilliaryDoubleData,
+                 &tom::ObservationAncilliarySimulationSettings::getAncilliaryDoubleData,
                  py::arg("setting_type" ),
                  py::arg("throw_exception" ) = true,
                  get_docstring("ObservationAncilliarySimulationSettings.get_float_settings").c_str() )
             .def("get_float_list_settings",
-                 &tom::ObservationAncilliarySimulationSettings<double>::getAncilliaryDoubleVectorData,
+                 &tom::ObservationAncilliarySimulationSettings::getAncilliaryDoubleVectorData,
                  py::arg("setting_type" ),
                  py::arg("throw_exception" ) = true,
                  get_docstring("ObservationAncilliarySimulationSettings.get_float_list_settings").c_str() );
 
 
     m.def("doppler_ancilliary_settings",
-          &tom::getAveragedDopplerAncilliarySettings< TIME_TYPE >,
+          &tom::getAveragedDopplerAncilliarySettings,
           py::arg("integration_time") = 60.0,
           get_docstring("doppler_integration_time_settings").c_str() );
 
     m.def("two_way_range_ancilliary_settings",
-          &tom::getTwoWayRangeAncilliarySettings< TIME_TYPE >,
+          &tom::getTwoWayRangeAncilliarySettings,
           py::arg("retransmission_delay") = 0.0,
           get_docstring("two_way_range_ancilliary_settings").c_str() );
 
     m.def("two_way_doppler_ancilliary_settings",
-          &tom::getTwoWayAveragedDopplerAncilliarySettings< TIME_TYPE >,
+          &tom::getTwoWayAveragedDopplerAncilliarySettings,
           py::arg("integration_time") = 60.0,
           py::arg("retransmission_delay") = 0.0,
           get_docstring("two_way_doppler_ancilliary_settings").c_str() );
 
     m.def("n_way_range_ancilliary_settings",
-          &tom::getNWayRangeAncilliarySettings< TIME_TYPE >,
-          py::arg("retransmission_delays") = std::vector< double >( ),
+          &tom::getNWayRangeAncilliarySettings,
+          py::arg("link_end_delays") = std::vector< double >( ),
           get_docstring("n_way_range_ancilliary_settings").c_str() );
 
     m.def("n_way_doppler_ancilliary_settings",
-          &tom::getNWayAveragedDopplerAncilliarySettings< TIME_TYPE >,
+          &tom::getNWayAveragedDopplerAncilliarySettings,
           py::arg("integration_time") = 60.0,
-          py::arg("retransmission_delays") = std::vector< double >( ),
+          py::arg("link_end_delays") = std::vector< double >( ),
           get_docstring("n_way_doppler_ancilliary_settings").c_str() );
+
+    m.def("dsn_n_way_doppler_ancilliary_settings",
+          &tom::getDsnNWayAveragedDopplerAncillarySettings,
+          py::arg("frequency_bands"),
+          py::arg("reference_frequency_band"),
+          py::arg("reference_frequency"),
+          py::arg("integration_time") = 60.0,
+          py::arg("link_end_delays") = std::vector< double >( ),
+          get_docstring("dsn_n_way_doppler_ancilliary_settings").c_str() );
 
     m.def("tabulated_simulation_settings",
           &tss::tabulatedObservationSimulationSettings< TIME_TYPE >,
@@ -878,11 +972,104 @@ void expose_observation_setup(py::module &m) {
           py::arg("link_ends"),
           get_docstring("add_dependent_variables_to_observable_for_link_ends").c_str() );
 
+    /////////////////////////////////////////////////////////////////////////////////////////////////
+    // FREQUENCIES
+    /////////////////////////////////////////////////////////////////////////////////////////////////
 
+    py::enum_< tom::FrequencyBands >(m, "FrequencyBands", get_docstring("FrequencyBands").c_str() )
+            .value("s_band", tom::FrequencyBands::s_band )
+            .value("x_band", tom::FrequencyBands::x_band )
+            .value("ka_band", tom::FrequencyBands::ka_band )
+            .value("ku_band", tom::FrequencyBands::ku_band );
 
+    m.def("dsn_default_turnaround_ratios",
+          &tom::getDsnDefaultTurnaroundRatios,
+          py::arg("uplink_band"),
+          py::arg("downlink_band"),
+          get_docstring("dsn_default_turnaround_ratios").c_str() );
 
+    m.def("cassini_turnaround_ratios",
+          &tom::getCassiniTurnaroundRatio,
+          py::arg("uplink_band"),
+          py::arg("downlink_band"),
+          get_docstring("cassini_turnaround_ratios").c_str() );
 
+    /////////////////////////////////////////////////////////////////////////////////////////////////
+    // ODF OBSERVATIONS
+    /////////////////////////////////////////////////////////////////////////////////////////////////
 
+    py::class_< tom::ProcessedOdfFileContents, std::shared_ptr< tom::ProcessedOdfFileContents > >
+            (m, "ProcessedOdfFileContents", get_docstring("ProcessedOdfFileContents").c_str( ) )
+             .def_property_readonly("ground_station_names",
+                 &tom::ProcessedOdfFileContents::getGroundStationsNames,
+                 get_docstring("ProcessedOdfFileContents.get_ground_station_names").c_str( ) )
+             .def_property_readonly("processed_observable_types",
+                 &tom::ProcessedOdfFileContents::getProcessedObservableTypes,
+                 get_docstring("ProcessedOdfFileContents.get_processed_observable_types").c_str( ) )
+             .def_property_readonly("start_and_end_time",
+                 &tom::ProcessedOdfFileContents::getStartAndEndTime,
+                 get_docstring("ProcessedOdfFileContents.get_start_and_end_time").c_str( ) )
+             .def_property_readonly("ignored_odf_observable_types",
+                 &tom::ProcessedOdfFileContents::getIgnoredRawOdfObservableTypes,
+                 get_docstring("ProcessedOdfFileContents.get_ignored_odf_observable_types").c_str( ) )
+             .def_property_readonly("ignored_ground_stations",
+                 &tom::ProcessedOdfFileContents::getIgnoredGroundStations,
+                 get_docstring("ProcessedOdfFileContents.get_ignored_ground_stations").c_str( ) )
+             .def_property_readonly("raw_odf_data",
+                 &tom::ProcessedOdfFileContents::getRawOdfData,
+                 get_docstring("ProcessedOdfFileContents.get_raw_odf_data").c_str( ) );
+
+    m.def("process_odf_data_multiple_files",
+          py::overload_cast<
+              const std::vector< std::string >&,
+              const std::string&,
+              const bool,
+              const std::map< std::string, Eigen::Vector3d >& >( &tom::processOdfData ),
+          py::arg("file_names"),
+          py::arg("spacecraft_name"),
+          py::arg("verbose") = true,
+          py::arg("earth_fixed_ground_station_positions") = tss::getApproximateDsnGroundStationPositions( ),
+          get_docstring("create_odf_observed_observations").c_str() );
+
+    m.def("process_odf_data_single_file",
+          py::overload_cast<
+              const std::string&,
+              const std::string&,
+              const bool,
+              const std::map< std::string, Eigen::Vector3d >& >( &tom::processOdfData ),
+          py::arg("file_name"),
+          py::arg("spacecraft_name"),
+          py::arg("verbose") = true,
+          py::arg("earth_fixed_ground_station_positions") = tss::getApproximateDsnGroundStationPositions( ),
+          get_docstring("create_odf_observed_observations").c_str() );
+
+    m.def("set_odf_information_in_bodies",
+          &tom::setOdfInformationInBodies,
+          py::arg("processed_odf_file"),
+          py::arg("bodies"),
+          py::arg("body_with_ground_stations_name") = "Earth",
+          py::arg("turnaround_ratio_function") = &tom::getDsnDefaultTurnaroundRatios,
+          get_docstring("set_odf_information_in_bodies").c_str() );
+
+    m.def("create_odf_observed_observation_collection",
+          &tom::createOdfObservedObservationCollection< double, TIME_TYPE >,
+          py::arg("processed_odf_file"),
+          py::arg("observable_types_to_process") = std::vector< tom::ObservableType >( ),
+          py::arg("start_and_end_times_to_process") = std::make_pair< TIME_TYPE, TIME_TYPE >( TUDAT_NAN, TUDAT_NAN ),
+          get_docstring("create_odf_observed_observation_collection").c_str() );
+
+    m.def("create_odf_observation_simulation_settings_list",
+          &tom::createOdfObservationSimulationSettingsList< double, TIME_TYPE >,
+          py::arg("observed_observation_collection"),
+          get_docstring("create_odf_observation_simulation_settings_list").c_str() );
+
+    m.def("change_simulation_settings_observable_types",
+          &tom::changeObservableTypesOfObservationSimulationSettings< double, TIME_TYPE >,
+          py::arg("observation_simulation_settings"),
+          py::arg("replacement_observable_types") = std::map< tom::ObservableType, tom::ObservableType >{
+                { tom::dsn_n_way_averaged_doppler, tom::n_way_differenced_range },
+                { tom::dsn_one_way_averaged_doppler, tom::one_way_differenced_range } },
+          get_docstring("change_simulation_settings_observable_types").c_str() );
 
 
     //////////////////////////////////////////// DEPRECATED ////////////////////////////////////////////
