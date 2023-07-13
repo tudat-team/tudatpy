@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 
 #include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/astro/relativity/einsteinInfeldHoffmannEquations.h"
@@ -25,6 +26,19 @@ EinsteinInfeldHoffmannEquations::EinsteinInfeldHoffmannEquations(
     omitMainTerm_( false ),
     currentTime_( TUDAT_NAN )
 {
+//    if( acceleratedBodies.size( ) > acceleratingBodies.size( ) )
+//    {
+//        throw std::runtime_error( "Error when creating EIH object, number of undergoing bodies exceed exerting bodies" );
+//    }
+//
+//    for( unsigned int i = 0; i < acceleratingBodies_.size( ); i++ )
+//    {
+//        if( acceleratedBodies_.at( i ) != acceleratingBodies_.at( i ) )
+//        {
+//            throw std::runtime_error( "Error when creating EIH object, ordering of bodies is inconsistent" );
+//        }
+//    }
+
     scalarEihCorrections_.resize( 7 );
     vectorEihCorrections_.resize( 3 );
 
@@ -124,7 +138,7 @@ void EinsteinInfeldHoffmannEquations::update( const double currentTime )
 {
     if( currentTime_ != currentTime )
     {
-
+        currentTime_ = currentTime;
         Eigen::Matrix< double, 6, 1 > currentBodyState;
         for( unsigned int i = 0; i < acceleratingBodies_.size( ); i++ )
         {
@@ -136,6 +150,7 @@ void EinsteinInfeldHoffmannEquations::update( const double currentTime )
             currentPositions_[ i ] = currentBodyState.segment( 0, 3 );
             currentVelocities_[ i ] = currentBodyState.segment( 3, 3 );
             currentSquareSpeeds_[ i ] = currentVelocities_[ i ].dot( currentVelocities_[ i ] );
+            std::cout<<"Current state "<<std::setprecision( 16 )<<i<<" "<<currentBodyState.transpose( )<<std::endl;
 
         }
 
@@ -203,7 +218,10 @@ void EinsteinInfeldHoffmannEquations::update( const double currentTime )
 
         calculateAccelerations( );
     }
-    currentTime_ = currentTime;
+    else
+    {
+        currentTime_ = currentTime;
+    }
 }
 
 void EinsteinInfeldHoffmannEquations::calculateAccelerations( )
@@ -230,20 +248,27 @@ void EinsteinInfeldHoffmannEquations::calculateAccelerations( )
                 for(  int k = 0; k < 7; k++ )
                 {
                     totalScalarTermCorrection[ i ][ j ] += scalarEihCorrections_[ k ][ i ][ j ];
+                    std::cout<<"Scalar "<<k<<" "<<i<<" "<<j<<" "<<scalarEihCorrections_[ k ][ i ][ j ]<<" "<<totalScalarTermCorrection[ i ][ j ]<<std::endl;
                 }
+                std::cout<<"Point mass "<<singlePointMassAccelerations_[ i ][ j ].transpose( )<<std::endl;
                 currentSingleAccelerations_[ i ][ j ] = singlePointMassAccelerations_[ i ][ j ] *
                     ( 1.0 + totalScalarTermCorrection[ i ][ j ] * physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT );
 
                 for(  int k = 0; k < 3; k++ )
                 {
                     totalVectorTermCorrection_[ i ][ j ] += vectorEihCorrections_[ k ][ i ][ j ];
+                    std::cout<<"Vector "<<k<<" "<<i<<" "<<j<<" "<<vectorEihCorrections_[ k ][ i ][ j ]<<" "<<totalVectorTermCorrection_[ i ][ j ].transpose( )<<std::endl;
+
                 }
+                std::cout<<"Potential "<<currentSingleSourceLocalPotential_[ i ][ j ]<<std::endl;
                 currentSingleAccelerations_[ i ][ j ] += currentSingleSourceLocalPotential_[ i ][ j ] *
                     totalVectorTermCorrection_[ i ][ j ] * physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT;
 
             }
+            std::cout<<std::setprecision( 16 )<<"Contribution "<<" "<<i<<" "<<j<<" "<<currentSingleAccelerations_[ i ][ j ].transpose( )<<std::endl;
             currentAccelerations_[ i ] += currentSingleAccelerations_[ i ][ j ];
         }
+        std::cout<<std::setprecision( 16 )<<currentTime_<<" "<<i<<" "<<currentAccelerations_[ i ].transpose( )<<std::endl;
     }
 }
 

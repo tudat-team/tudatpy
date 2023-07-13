@@ -44,6 +44,11 @@ public:
         return eihEquations_;
     }
 
+    virtual void resetCurrentTime( )
+    {
+        currentTime_ = TUDAT_NAN;
+        eihEquations_->resetCurrentTime( );
+    }
 
 private:
 

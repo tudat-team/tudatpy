@@ -113,11 +113,21 @@ public:
         return scalarEihCorrections_;
     }
 
+    double getScalarEihCorrection( const int k, const int bodyUndergoing, const int bodyExerting )
+    {
+        return scalarEihCorrections_.at( k ).at( bodyUndergoing ).at( bodyExerting );
+    }
+
+
     std::vector< std::vector< std::vector< Eigen::Vector3d > > > getVectorEihCorrections( )
     {
         return vectorEihCorrections_;
     }
 
+    Eigen::Vector3d getVectorEihCorrection( const int k, const int bodyUndergoing, const int bodyExerting )
+    {
+        return vectorEihCorrections_.at( k ).at( bodyUndergoing ).at( bodyExerting );
+    }
 
     std::vector< std::string > getBodiesUndergoingAcceleration( )
     {
@@ -143,6 +153,12 @@ public:
     {
         return omitMainTerm_;
     }
+
+    void resetCurrentTime( )
+    {
+        currentTime_ = TUDAT_NAN;
+    }
+
 
 private:
 

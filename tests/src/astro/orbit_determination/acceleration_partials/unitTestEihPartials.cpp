@@ -7,7 +7,7 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
-
+//
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
@@ -71,7 +71,6 @@ using namespace tudat::propulsion;
 BOOST_AUTO_TEST_SUITE( test_eih_partials )
 
 BOOST_AUTO_TEST_CASE( testEihPartials )
-//int main( )
 {
     double testTime = 1.0E8;
 
@@ -84,7 +83,7 @@ BOOST_AUTO_TEST_CASE( testEihPartials )
 
     // Create body objects.
     std::vector<std::string> bodiesToCreate =
-        { "Earth", "Jupiter", "Venus" };
+        { "Earth", "Jupiter" };
 //        { "Earth", "Venus", "Mercury", "Sun" };//, "Moon", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune" };
     unsigned int numberOfBodies = bodiesToCreate.size( );
     BodyListSettings bodySettings =
@@ -108,8 +107,8 @@ BOOST_AUTO_TEST_CASE( testEihPartials )
 
     // Define propagator settings variables.
     SelectedAccelerationMap accelerationMap;
-    std::vector<std::string> bodiesToPropagate = { "Earth", "Jupiter", "Venus" };
-    std::vector<std::string> centralBodies = { "SSB", "SSB", "SSB" };
+    std::vector<std::string> bodiesToPropagate = { "Earth", "Jupiter" };
+    std::vector<std::string> centralBodies = { "SSB", "SSB" };
 
     unsigned int numberOfPropatedBodies = bodiesToPropagate.size( );
 
@@ -259,7 +258,6 @@ BOOST_AUTO_TEST_CASE( testEihPartials )
 
         for ( unsigned int j = 0; j < numberOfPropatedBodies; j++ )
         {
-
             for ( int k = 0; k < 7; k++ )
             {
 
@@ -472,21 +470,10 @@ BOOST_AUTO_TEST_CASE( testEihPartials )
                         ( upperturbedUndergoingVectorEihCorrections[ k ][ i ][ j ].block( 0, 3, 3, 3 ) - downperturbedUndergoingVectorEihCorrections[ k ][ i ][ j ].block( 0, 3, 3, 3 ) ) /
                         ( 2.0 * velocityPerturbation );
 
-//                    std::cout<<"Undergoing"<<i<<" "<<j<<" "<<k<<std::endl
-//                    <<numericalVectorEihCorrectionsWrtUndergoingVelocity[ k ][ i ][ j ].block( 0, 0, 3, 3 )<<std::endl
-//                    <<analyticalVectorEihCorrectionsWrtUndergoingVelocity[ k ][ j ][ i ].block( 0, 0, 3, 3 )<<std::endl<<std::endl;
-
-
                     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                         numericalVectorEihCorrectionsWrtUndergoingVelocity[ k ][ i ][ j ].block( 0, 0, 3, 3 ),
                         analyticalVectorEihCorrectionsWrtUndergoingVelocity[ k ][ j ][ i ].block( 0, 0, 3, 3 ),
                         1.0E-3);
-
-//                                        std::cout<<"Exerting "<<i<<" "<<j<<" "<<k<<std::endl
-//                             <<numericalVectorEihCorrectionsWrtExertingVelocity[ k ][ i ][ j ].block( 0, 0, 3, 3 )<<std::endl<<std::endl
-//                             <<analyticalVectorEihCorrectionsWrtExertingVelocity[ k ][ j ][ i ].block( 0, 0, 3, 3 )<<std::endl<<std::endl;
-//
-//
 
                 }
             }
@@ -496,20 +483,19 @@ BOOST_AUTO_TEST_CASE( testEihPartials )
                 analyticalTotalAccelerationWrtPosition[ j ][ i ].block( 0, 0, 3, 3 ),
                 1.0E-3);
 
-//            TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-//                numericalTotalAcclerationWrtVelocity[ i ][ j ].block( 0, 0, 3, 3 ),
-//                analyticalTotalAccelerationWrtVelocity[ j ][ i ].block( 0, 0, 3, 3 ),
-//                1.0E-2);
+//            TEST IS DISABLE DUE TO ISSUES WITH FINDING A SUITABLE VELOCITY PERTURBATION THAT WORKS FOR TEH FULL TEST.
+//            THIS PARTIAL IS TESTED IN THE NEXT TEST.
 //            TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
 //                numericalTotalAcclerationWrtVelocity[ i ][ j ].block( 0, 0, 3, 3 ),
 //                analyticalTotalAccelerationWrtVelocity[ j ][ i ].block( 0, 0, 3, 3 ),
 //                1.0E-2);
 
-//                                std::cout<<"Partials "<<i<<" "<<j<<" "<<std::endl
-//                    <<numericalTotalAcclerationWrtVelocity[ i ][ j ].block( 0, 0, 3, 3 )<<std::endl<<std::endl
-//                    <<analyticalTotalAccelerationWrtVelocity[ j ][ i ].block( 0, 0, 3, 3 )<<std::endl<<std::endl
-//                    <<analyticalTotalAccelerationWrtVelocity[ j ][ i ].block( 0, 0, 3, 3 ).cwiseQuotient(
-//                        numericalTotalAcclerationWrtVelocity[ i ][ j ].block( 0, 0, 3, 3 ) )<<std::endl<<std::endl;
+
+                                std::cout<<"Partials "<<i<<" "<<j<<" "<<std::endl
+                                    <<analyticalTotalAccelerationWrtVelocity[ j ][ i ].block( 0, 0, 3, 3 )<<std::endl<<std::endl
+                                    <<numericalTotalAcclerationWrtVelocity[ i ][ j ].block( 0, 0, 3, 3 )<<std::endl<<std::endl
+                    <<numericalTotalAcclerationWrtVelocity[ i ][ j ].block( 0, 0, 3, 3 ).cwiseQuotient(
+                        analyticalTotalAccelerationWrtVelocity[ j ][ i ].block( 0, 0, 3, 3 ) )<<std::endl<<std::endl;
 
 
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
@@ -537,6 +523,182 @@ BOOST_AUTO_TEST_CASE( testEihPartials )
             }
         }
     }
+}
+
+BOOST_AUTO_TEST_CASE( testEihSingleAccelerationPartials )
+//int main( )
+{
+
+
+    double testTime = 1.0E8;
+
+    // Load Spice kernels.
+    spice_interface::loadStandardSpiceKernels( );
+
+    // Set simulation end epoch.
+    const double simulationStartEpoch = 0.0 * tudat::physical_constants::JULIAN_YEAR;
+    const double simulationEndEpoch = 25.0 * tudat::physical_constants::JULIAN_YEAR;
+
+    // Create body objects.
+    std::vector<std::string> bodiesToCreate =
+        { "Earth", "Jupiter", "Venus" };
+//        { "Earth", "Venus", "Mercury", "Sun" };//, "Moon", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune" };
+    unsigned int numberOfBodies = bodiesToCreate.size( );
+    BodyListSettings bodySettings =
+        getDefaultBodySettings( bodiesToCreate );
+    for( unsigned int i = 0; i < numberOfBodies; i++ )
+    {
+        bodySettings.at( bodiesToCreate.at( i ) )->gravityFieldSettings = centralGravityFromSpiceSettings( );
+    }
+
+    // Create Earth object
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+
+    for( unsigned int i = 0; i < numberOfBodies; i++ )
+    {
+        bodies.at( bodiesToCreate.at( i ) )->setState(
+            bodies.at( bodiesToCreate.at( i ) )->getStateInBaseFrameFromEphemeris( testTime ) );
+    }
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////            CREATE ACCELERATIONS          //////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    // Define propagator settings variables.
+    SelectedAccelerationMap accelerationMap;
+    std::vector<std::string> bodiesToPropagate = { "Earth", "Jupiter", "Venus" };
+    std::vector<std::string> centralBodies = { "SSB", "SSB", "SSB" };
+
+    unsigned int numberOfPropatedBodies = bodiesToPropagate.size( );
+
+    // Define propagation settings.
+    for ( unsigned int i = 0; i < bodiesToPropagate.size( ); i++ )
+    {
+        std::map<std::string, std::vector<std::shared_ptr<AccelerationSettings> > > accelerationsOfCurrentBody;
+        for ( unsigned int j = 0; j < numberOfBodies; j++ )
+        {
+            if ( bodiesToPropagate.at( i ) != bodiesToCreate.at( j ))
+            {
+                accelerationsOfCurrentBody[ bodiesToCreate.at( j ) ].push_back(
+                    std::make_shared<AccelerationSettings>(
+                        einstein_infeld_hoffmann_acceleration ) );
+            }
+        }
+        accelerationMap[ bodiesToPropagate.at( i ) ] = accelerationsOfCurrentBody;
+    }
+
+    // Create acceleration models and propagation settings.
+    basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
+        bodies, accelerationMap, bodiesToPropagate, centralBodies );
+
+    // Create acceleration models and propagation settings.
+    basic_astrodynamics::AccelerationMap accelerationModelMapManual = createAccelerationModelsMap(
+        bodies, accelerationMap, bodiesToPropagate, centralBodies );
+
+    std::shared_ptr< relativity::EinsteinInfeldHoffmannEquations > eihEquationsManual = propagators::getEihEquationsFromAccelerationMap(
+        accelerationModelMap );
+    std::shared_ptr< acceleration_partials::EihEquationsPartials > eihPartialsManual =
+        std::make_shared< acceleration_partials::EihEquationsPartials >( eihEquationsManual );
+    eihPartialsManual->update( testTime );
+
+    // Set parameters that are to be estimated.
+    std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
+    for( unsigned int i = 0; i < bodiesToPropagate.size( ); i++ )
+    {
+        parameterNames.push_back(
+            std::make_shared<estimatable_parameters::InitialTranslationalStateEstimatableParameterSettings<double> >(
+                bodiesToPropagate.at( i ), bodies.at( bodiesToPropagate.at( i ) )->getStateInBaseFrameFromEphemeris( testTime ), centralBodies.at( i ),
+                bodies.getFrameOrientation( ) ) );
+    }
+
+    // Create parameters
+    std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate =
+        createParametersToEstimate< double >( parameterNames, bodies );
+
+    orbit_determination::StateDerivativePartialsMap accelerationPartials = createAccelerationPartialsMap(
+        accelerationModelMap, bodies,
+        parametersToEstimate );
+    BOOST_CHECK_EQUAL( accelerationPartials.size( ), bodiesToPropagate.size( ) );
+
+    std::vector< std::shared_ptr< relativity::EinsteinInfeldHoffmannAcceleration > > eihAccelerations;
+    std::vector< std::shared_ptr< acceleration_partials::EihAccelerationPartial > > eihPartials;
+    for( unsigned int i = 0; i < bodiesToPropagate.size( ); i++ )
+    {
+        BOOST_CHECK( std::dynamic_pointer_cast< relativity::EinsteinInfeldHoffmannAcceleration >(
+            accelerationModelMap.at( bodiesToPropagate.at( i ) ).begin( )->second.at( 0 ) ) != nullptr );
+        eihAccelerations.push_back( std::dynamic_pointer_cast< relativity::EinsteinInfeldHoffmannAcceleration >(
+            accelerationModelMap.at( bodiesToPropagate.at( i ) ).begin( )->second.at( 0 ) ) );
+
+        BOOST_CHECK_EQUAL( accelerationPartials.at( i ).size( ), 1 );
+        BOOST_CHECK( std::dynamic_pointer_cast< acceleration_partials::EihAccelerationPartial >( accelerationPartials.at( i ).at( 0 ) ) != nullptr );
+        eihPartials.push_back( std::dynamic_pointer_cast< acceleration_partials::EihAccelerationPartial >( accelerationPartials.at( i ).at( 0 ) ) );
+    }
+
+    std::vector< std::vector< Eigen::MatrixXd > > analyticalPositionPartials = utilities::getTwoDimensionalVector< Eigen::MatrixXd >(
+        numberOfBodies, numberOfBodies, Eigen::MatrixXd::Zero( 3, 3 ) );
+    std::vector< std::vector< Eigen::MatrixXd > > analyticalVelocityPartials = utilities::getTwoDimensionalVector< Eigen::MatrixXd >(
+        numberOfBodies, numberOfBodies, Eigen::MatrixXd::Zero( 3, 3 ) );
+
+    std::vector< std::vector< Eigen::MatrixXd > > numericalPositionPartials = utilities::getTwoDimensionalVector< Eigen::MatrixXd >(
+        numberOfBodies, numberOfBodies, Eigen::MatrixXd::Zero( 3, 3 ) );
+    std::vector< std::vector< Eigen::MatrixXd > > numericalVelocityPartials = utilities::getTwoDimensionalVector< Eigen::MatrixXd >(
+        numberOfBodies, numberOfBodies, Eigen::MatrixXd::Zero( 3, 3 ) );
+
+    // Declare perturbations in position for numerical partial/
+    Eigen::Vector3d positionPerturbation;
+    positionPerturbation << 1.0E7, 1.0E7, 1.0E7;
+    Eigen::Vector3d velocityPerturbation;
+    velocityPerturbation << 1.0E3, 1.0E3, 1.0E4;
+
+    std::vector< std::function< void( Eigen::Vector6d ) > > stateSetFunctions;
+    std::vector< std::function< Eigen::Vector6d( ) > > stateGetFunctions;
+
+    for( unsigned int i = 0; i < bodiesToPropagate.size( ); i++ )
+    {
+        bodies.at( bodiesToPropagate.at( i ) )->setState(
+            bodies.at( bodiesToPropagate.at( i ) )->getStateInBaseFrameFromEphemeris( testTime ) );
+        stateSetFunctions.push_back( std::bind( &Body::setState, bodies.at( bodiesToPropagate.at( i ) ), std::placeholders::_1 ) );
+    }
+
+
+    for( unsigned int i = 0; i < bodiesToPropagate.size( ); i++ )
+    {
+        for( unsigned int j = 0; j < bodiesToPropagate.size( ); j++ )
+        {
+            eihPartials.at( i )->update( TUDAT_NAN );
+            eihPartials.at( i )->update( testTime );
+
+            numericalPositionPartials[ i ][ j ] = calculateAccelerationWrtStatePartials(
+                stateSetFunctions.at( j ), eihAccelerations.at( i ),
+                bodies.at( bodiesToPropagate.at( j ))->getStateInBaseFrameFromEphemeris( testTime ),
+                positionPerturbation, 0, emptyFunction, testTime );
+            numericalVelocityPartials[ i ][ j ] = calculateAccelerationWrtStatePartials(
+                stateSetFunctions.at( j ), eihAccelerations.at( i ),
+                bodies.at( bodiesToPropagate.at( j ))->getStateInBaseFrameFromEphemeris( testTime ),
+                velocityPerturbation, 3, emptyFunction, testTime );
+
+            if ( i == j )
+            {
+                eihPartials.at( i )->wrtPositionOfAcceleratedBody(
+                    analyticalPositionPartials[ i ][ j ].block( 0, 0, 3, 3 ));
+                eihPartials.at( i )->wrtVelocityOfAcceleratedBody(
+                    analyticalVelocityPartials[ i ][ j ].block( 0, 0, 3, 3 ));
+            }
+            else
+            {
+                eihPartials.at( i )->wrtPositionOfAdditionalBody(
+                    bodiesToPropagate.at( j ), analyticalPositionPartials[ i ][ j ].block( 0, 0, 3, 3 ));
+                eihPartials.at( i )->wrtVelocityOfAdditionalBody(
+                    bodiesToPropagate.at( j ), analyticalVelocityPartials[ i ][ j ].block( 0, 0, 3, 3 ));
+            }
+
+            TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                numericalPositionPartials[ i ][ j ], analyticalPositionPartials[ i ][ j ], 1.0E-5 );
+            TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                numericalVelocityPartials[ i ][ j ], analyticalVelocityPartials[ i ][ j ], 1.0E-5 );
+
+        }
+    }
+
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
