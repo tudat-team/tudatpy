@@ -38,7 +38,9 @@ enum ObservableType
     euler_angle_313_observable = 7,
     velocity_observable = 8,
     relative_angular_position = 9,
-    n_way_differenced_range = 10
+    n_way_differenced_range = 10,
+    dsn_one_way_averaged_doppler = 11,
+    dsn_n_way_averaged_doppler = 12
 };
 
 
@@ -68,6 +70,8 @@ ObservableType getUndifferencedObservableType( const ObservableType differencedO
 
 ObservableType getDifferencedObservableType( const ObservableType undifferencedObservableType );
 
+ObservableType getBaseObservableType( const ObservableType observableType );
+
 std::pair< std::vector< int >, std::vector< int > > getUndifferencedTimeAndStateIndices(
         const ObservableType differencedObservableType,
         const int numberOfLinkEnds );
@@ -81,6 +85,39 @@ std::pair< std::vector< int >, std::vector< int > > getUndifferencedTimeAndState
 int getObservableSize( const ObservableType observableType );
 
 bool isObservableOfIntegratedType( const ObservableType observableType );
+
+/*! Function indicating whether observable type requires transmitting ground station.
+ *
+ * Function indicating whether observable type requires transmitting ground station in system of bodies for the
+ * observations to be simulated.
+ * @param observableType Type of observable.
+ * @return
+ */
+bool requiresTransmittingStation( const ObservableType observableType );
+
+/*! Function indicating whether observable type requires receiving ground station.
+ *
+ * Function indicating whether observable type requires receiving ground station in system of bodies for the
+ * observations to be simulated.
+ * @param observableType Type of observable.
+ * @return
+ */
+bool requiresFirstReceivingStation( const ObservableType observableType );
+
+/*! Function indicating whether observable type requires a second receiving ground station.
+ *
+ * Function indicating whether observable type requires a second receiving ground station in system of bodies for the
+ * observations to be simulated.
+ * @param observableType Type of observable.
+ * @return
+ */
+bool requiresSecondReceivingStation( const ObservableType observableType );
+
+bool isRadiometricObservableType( const ObservableType observableType );
+
+bool isPhaseVelocityBasedObservableType( const ObservableType observableType );
+
+bool isGroupVelocityBasedObservableType( const ObservableType observableType );
 
 //bool areObservableLinksContinuous( const ObservableType observableType );
 

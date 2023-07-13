@@ -116,7 +116,7 @@ public:
     //! Function to convert a time value from the input to the output scale.
     /*!
      *  This function converts a time value from the input to the output scale.
-     *  The availabel time scales are defined in the TimeScales enum.
+     *  The available time scales are defined in the TimeScales enum.
      *  \param inputScale Time scale of inputTimeValue.
      *  \param outputScale Desired time scale for output value.
      *  \param inputTimeValue Time value that is to be converted.
@@ -129,6 +129,16 @@ public:
             const TimeType& inputTimeValue, const Eigen::Vector3d& earthFixedPosition = Eigen::Vector3d::Zero( ) )
     {
         TimeType convertedTime;
+
+        // Check whether desired conversion is possible (conversion to/from UT1 requires interpolator)
+        if ( inputScale == basic_astrodynamics::ut1_scale || outputScale == basic_astrodynamics::ut1_scale )
+        {
+            if ( dailyUtcUt1CorrectionInterpolator_ == nullptr )
+            {
+                throw std::runtime_error("Error when converting to/from UT1 time scale: UTC to UT1 interpolator "
+                                         "was not provided.");
+            }
+        }
 
         // Check if any conversion should take place.
         if( inputScale == outputScale )
@@ -157,6 +167,65 @@ public:
         Time convertedTime = getCurrentTime< Time >( inputScale, outputScale,
             Time( inputTimeValue ), earthFixedPosition );
         return static_cast< TimeType >( convertedTime - inputTimeValue );
+    }
+
+    //! Function to convert a vector of time values from the input to the output scale.
+    /*!
+     *  This function converts a vector of time values from the input to the output scale.
+     *  The available time scales are defined in the TimeScales enum.
+     *  \param inputScale Time scale of inputTimeValues.
+     *  \param outputScale Desired time scale for output values.
+     *  \param inputTimeValues Time values that are to be converted.
+     *  \param earthFixedPosition Earth-fixed position at which time conversions are to be evaluated
+     *  \return Converted time values.
+     */
+    template< typename TimeType >
+    std::vector< TimeType > getCurrentTimes(
+            const basic_astrodynamics::TimeScales inputScale, const basic_astrodynamics::TimeScales outputScale,
+            const std::vector< TimeType >& inputTimeValues, const Eigen::Vector3d& earthFixedPosition = Eigen::Vector3d::Zero( ) )
+    {
+        std::vector < TimeType > convertedTimes;
+
+        for ( unsigned int i = 0; i < inputTimeValues.size(); ++i )
+        {
+            convertedTimes.push_back(
+                    getCurrentTime( inputScale, outputScale, inputTimeValues.at( i ), earthFixedPosition ) );
+        }
+
+        return convertedTimes;
+    }
+
+    //! Function to convert a vector of time values from the input to the output scale.
+    /*!
+     *  This function converts a vector of time values from the input to the output scale.
+     *  The available time scales are defined in the TimeScales enum.
+     *  \param inputScale Time scale of inputTimeValues.
+     *  \param outputScale Desired time scale for output values.
+     *  \param inputTimeValues Time values that are to be converted.
+     *  \param earthFixedPositions Earth-fixed positions at which time conversions are to be evaluated
+     *  \return Converted time values.
+     */
+    template< typename TimeType >
+    std::vector< TimeType > getCurrentTimes(
+            const basic_astrodynamics::TimeScales inputScale, const basic_astrodynamics::TimeScales outputScale,
+            const std::vector< TimeType >& inputTimeValues,
+            const std::vector< Eigen::Vector3d >& earthFixedPositions )
+    {
+        if ( inputTimeValues.size( ) != earthFixedPositions.size( ) )
+        {
+            throw std::runtime_error(
+                "Error time values between scales: number of inputted time values and number of Earth-fixed positions are not consistent." );
+        }
+
+        std::vector < TimeType > convertedTimes;
+
+        for ( unsigned int i = 0; i < inputTimeValues.size(); ++i )
+        {
+            convertedTimes.push_back(
+                    getCurrentTime( inputScale, outputScale, inputTimeValues.at( i ), earthFixedPositions.at( i ) ) );
+        }
+
+        return convertedTimes;
     }
 
     //! Function to reset all current times at given precision to NaN.
@@ -237,11 +306,14 @@ public:
                         timesToUpdate.tt, siteLongitude, distanceFromSpinAxis, distanceFromEquatorialPlane ) );
             timesToUpdate.tdb = timesToUpdate.tt + tdbMinusTt;
 
-            timesToUpdate.ut1 = static_cast< TimeType >( dailyUtcUt1CorrectionInterpolator_->interpolate( timesToUpdate.utc ) )
-                    + timesToUpdate.utc;
-
-            timesToUpdate.ut1 += static_cast< TimeType >(
+            if ( dailyUtcUt1CorrectionInterpolator_ != nullptr )
+            {
+                timesToUpdate.ut1 =
+                        static_cast< TimeType >( dailyUtcUt1CorrectionInterpolator_->interpolate( timesToUpdate.utc ) )
+                        + timesToUpdate.utc;
+                timesToUpdate.ut1 += static_cast< TimeType >(
                         shortPeriodUt1CorrectionCalculator_->getCorrections( timesToUpdate.tdb ) );
+            }
 
             break;
         case basic_astrodynamics::ut1_scale:
@@ -283,6 +355,11 @@ public:
     {
         TimeType currentUtc = getCurrentTime( inputScale, basic_astrodynamics::utc_scale, inputTimeValue, currentPosition );
         TimeType currentTt = getCurrentTime( inputScale, basic_astrodynamics::tt_scale, inputTimeValue, currentPosition );
+
+        if ( dailyUtcUt1CorrectionInterpolator_ == nullptr )
+            {
+                throw std::runtime_error("Error when getting UT1 correction: UTC to UT1 interpolator was not provided.");
+            }
 
         return dailyUtcUt1CorrectionInterpolator_->interpolate( currentUtc ) +
                 shortPeriodUt1CorrectionCalculator_->getCorrections( currentTt );
@@ -328,12 +405,15 @@ private:
         getCurrentTimeList< TimeType >( ).utc = sofa_interface::convertTAItoUTC< TimeType >(
                     getCurrentTimeList< TimeType >( ).tai );
 
-        getCurrentTimeList< TimeType >( ).ut1 = static_cast< TimeType >( dailyUtcUt1CorrectionInterpolator_->interpolate(
+        if ( dailyUtcUt1CorrectionInterpolator_ != nullptr )
+        {
+            getCurrentTimeList< TimeType >( ).ut1 = static_cast< TimeType >( dailyUtcUt1CorrectionInterpolator_->interpolate(
                     getCurrentTimeList< TimeType >( ).utc ) ) + getCurrentTimeList< TimeType >( ).utc;
 
-        getCurrentTimeList< TimeType >( ).ut1 +=
-                static_cast< TimeType >( shortPeriodUt1CorrectionCalculator_->getCorrections(
-                    getCurrentTimeList< TimeType >( ).tt ) );
+            getCurrentTimeList< TimeType >( ).ut1 +=
+                    static_cast< TimeType >( shortPeriodUt1CorrectionCalculator_->getCorrections(
+                        getCurrentTimeList< TimeType >( ).tt ) );
+        }
     }
 
     //! Interpolator for UT1 corrections, values published daily by IERS

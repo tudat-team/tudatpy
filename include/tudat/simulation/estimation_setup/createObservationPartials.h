@@ -150,15 +150,13 @@ public:
             observationPartials = createTwoWayDopplerPartials< ObservationScalarType, TimeType >(
                         observationModel, bodies, parametersToEstimate, useBiasPartials );
             break;
-        case observation_models::one_way_differenced_range:
-            observationPartials = createDifferencedObservablePartials< ObservationScalarType, TimeType, 1 >(
-                        observationModel, bodies, parametersToEstimate, useBiasPartials );
-            break;
         case observation_models::n_way_range:
             observationPartials = createNWayRangePartials< ObservationScalarType >(
                         observationModel, bodies, parametersToEstimate, useBiasPartials );
             break;
+        case observation_models::one_way_differenced_range:
         case observation_models::n_way_differenced_range:
+        case observation_models::dsn_n_way_averaged_doppler:
             observationPartials = createDifferencedObservablePartials< ObservationScalarType, TimeType, 1 >(
                         observationModel, bodies, parametersToEstimate, useBiasPartials );
             break;
@@ -328,7 +326,8 @@ public:
             const observation_models::ObservableType differencedObservableType,
             const std::shared_ptr< ObservationPartial< ObservationSize > > firstPartial,
             const std::shared_ptr< ObservationPartial< ObservationSize > > secondPartial,
-            const observation_models::LinkEnds& linkEnds );
+            const observation_models::LinkEnds& linkEnds,
+            const simulation_setup::SystemOfBodies& bodies );
 };
 
 template< >
@@ -339,7 +338,8 @@ public:
             const observation_models::ObservableType differencedObservableType,
             const std::shared_ptr< ObservationPartial< 1 > > firstPartial,
             const std::shared_ptr< ObservationPartial< 1 > > secondPartial,
-            const observation_models::LinkEnds& linkEnds )
+            const observation_models::LinkEnds& linkEnds,
+            const simulation_setup::SystemOfBodies& bodies )
     {
         using namespace observation_models;
 
@@ -399,6 +399,41 @@ public:
                         getUndifferencedTimeAndStateIndices( n_way_differenced_range, linkEnds.size( ) ) );
             break;
         }
+        case dsn_n_way_averaged_doppler:
+        {
+            if( firstPartial != nullptr )
+            {
+                if( std::dynamic_pointer_cast< NWayRangePartial >( firstPartial ) == nullptr )
+                {
+                    throw std::runtime_error( "Error when creating DSN n-way averaged Doppler partial; first input object type is incompatible" );
+                }
+            }
+
+            if( secondPartial != nullptr )
+            {
+                if( std::dynamic_pointer_cast< NWayRangePartial >( secondPartial ) == nullptr )
+                {
+                    throw std::runtime_error( "Error when creating DSN n-way averaged Doppler partial; second input object type is incompatible" );
+                }
+            }
+
+            const std::function< double ( std::vector< FrequencyBands >, double ) > receivedFrequencyFunction =
+                    createLinkFrequencyFunction(
+                            bodies, linkEnds, observation_models::retransmitter, observation_models::receiver );
+
+            const std::function< double(
+                    const observation_models::LinkEndType, const std::vector< Eigen::Vector6d >&,
+                    const std::vector< double >&, const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings >,
+                    const bool ) > scalingFactorFunction =
+                            std::bind( observation_models::getDsnNWayAveragedDopplerScalingFactor, receivedFrequencyFunction,
+                                       std::placeholders::_1, std::placeholders::_2, std::placeholders::_3,
+                                       std::placeholders::_4, std::placeholders::_5 );
+
+            differencedPartial = std::make_shared< DifferencedObservablePartial< 1 > >(
+                        firstPartial, secondPartial, scalingFactorFunction,
+                        getUndifferencedTimeAndStateIndices( dsn_n_way_averaged_doppler, linkEnds.size( ) ) );
+            break;
+        }
         default:
             throw std::runtime_error( "Error when creating differenced observable partial (size 1); observable " + getObservableName( differencedObservableType ) +
                                       " is not differenced. " );
@@ -416,7 +451,8 @@ public:
             const observation_models::ObservableType differencedObservableType,
             const std::shared_ptr< ObservationPartial< 2 > > firstPartial,
             const std::shared_ptr< ObservationPartial< 2 > > secondPartial,
-            const observation_models::LinkEnds& linkEnds )
+            const observation_models::LinkEnds& linkEnds,
+            const simulation_setup::SystemOfBodies& bodies )
     {
         using namespace observation_models;
 
@@ -449,8 +485,8 @@ public:
                 }
             }
             differencedPartial = std::make_shared< DifferencedObservablePartial< 2 > >(
-                        firstPartial, secondPartial, [=]( const std::vector< double >&, const observation_models::LinkEndType ){ return 1.0; },
-            getUndifferencedTimeAndStateIndices( relative_angular_position, linkEnds.size( ) ) );
+                    firstPartial, secondPartial, &getRelativeAngularPositionScalingFactor,
+                    getUndifferencedTimeAndStateIndices( relative_angular_position, linkEnds.size( ) ) );
             break;
         }
         default:
@@ -543,12 +579,13 @@ std::shared_ptr< PositionPartialScaling > > createDifferencedObservablePartials(
     for( auto it : mergedPartials )
     {
         // Create range rate partial.
-        differencedObservationPartialList[ it.first] =
+        differencedObservationPartialList[ it.first ] =
                 DifferencedObservationPartialCreator< ObservationSize >::createDifferencedObservationPartial(
                     differencedObservableType,
                     it.second.first,
                     it.second.second,
-                    linkEnds );
+                    linkEnds,
+                    bodies );
     }
 
 

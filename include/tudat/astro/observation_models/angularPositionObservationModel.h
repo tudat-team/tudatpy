@@ -76,7 +76,7 @@ public:
             const LinkEndType linkEndAssociatedWithTime,
             std::vector< double >& linkEndTimes,
             std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
-            const std::shared_ptr< ObservationAncilliarySimulationSettings< TimeType > > ancilliarySetings = nullptr )
+            const std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetings = nullptr )
 
     {
         // Check link end associated with input time and compute observable
@@ -105,7 +105,7 @@ public:
 
         // Compute light-time and receiver/transmitter states.
         ObservationScalarType lightTime = lightTimeCalculator_->calculateLightTimeWithLinkEndsStates(
-                    receiverState, transmitterState, time, isTimeAtReception );
+                    receiverState, transmitterState, time, isTimeAtReception, ancilliarySetings );
 
         // Compute spherical relative position
         Eigen::Matrix< ObservationScalarType, 3, 1 > sphericalRelativeCoordinates =
