@@ -198,12 +198,7 @@ public:
                         currentTotalAccelerationsWrtPosition_[ i ][ m ] += physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT *
                             currentTotalAccelerationsWrtPositionCrossTerms_[ i ][ m ];
 
-    //
-    //                    std::cout<<"In loop "<<i<<" "<<m<<std::endl<<
-    //                    physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT * eihEquations_->getSinglePointMassAccelerations( i, m ) * currentTotalScalarTermWrtExertingVelocity_.at( i ).at( m )<<std::endl<<std::endl<<
-    //                    physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT * eihEquations_->getSingleSourceLocalPotential( i, m ) * currentTotalVectorTermWrtExertingVelocity_.at( i ).at( m )<<std::endl<<std::endl;
-    //
-                        currentTotalAccelerationsWrtVelocity_[ i ][ m ] += physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT *
+                        currentTotalAccelerationsWrtVelocity_[ i ][ m ] = physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT *
                            ( eihEquations_->getSinglePointMassAccelerations( i, m ) * currentTotalScalarTermWrtExertingVelocity_.at( i ).at( m ) +
                              eihEquations_->getSingleSourceLocalPotential( i, m ) * currentTotalVectorTermWrtExertingVelocity_.at( i ).at( m ) );
 
@@ -487,9 +482,19 @@ public:
         return currentTotalAccelerationsWrtPosition_;
     }
 
+    Eigen::Matrix3d getCurrentTotalAccelerationWrtPosition( const int bodyUndergoing, const int bodyExerting )
+    {
+        return currentTotalAccelerationsWrtPosition_.at( bodyUndergoing ).at( bodyExerting );
+    }
+
     std::vector< std::vector< Eigen::Matrix3d > > getCurrentTotalAccelerationsWrtVelocity( )
     {
         return currentTotalAccelerationsWrtVelocity_;
+    }
+
+    Eigen::Matrix3d getCurrentTotalAccelerationWrtVelocity( const int bodyUndergoing, const int bodyExerting )
+    {
+        return currentTotalAccelerationsWrtVelocity_.at( bodyUndergoing ).at( bodyExerting );
     }
 
     std::vector< std::vector< Eigen::Matrix< double, 1, 3  > > > getCurrentTotalPotentialWrtPosition( )
@@ -512,8 +517,97 @@ public:
         return currentTotalPointMassAccelerationsWrtPosition_;
     }
 
+    std::shared_ptr< relativity::EinsteinInfeldHoffmannEquations > getEihEquations( )
+    {
+        return eihEquations_;
+    }
 
 
+    Eigen::Vector3d getAccelerationWrtGamma( const int bodyIndex )
+    {
+        Eigen::Vector3d gammaPartial = Eigen::Vector3d::Zero( );
+        for( int j = 0; j < numberOfExertingBodies_; j++ )
+        {
+            if( j != bodyIndex )
+            {
+                double accelerationMultiplier = 0.0;
+                accelerationMultiplier += -2.0 * eihEquations_->getScalarEihCorrection( 0, bodyIndex, j ) / eihEquations_->getScalarTermMultiplier( 0 ) ;
+                accelerationMultiplier += eihEquations_->getScalarEihCorrection( 2, bodyIndex, j ) / eihEquations_->getScalarTermMultiplier( 2 ) ;
+                accelerationMultiplier += eihEquations_->getScalarEihCorrection( 3, bodyIndex, j ) / eihEquations_->getScalarTermMultiplier( 3 ) ;
+                accelerationMultiplier += -2.0 * eihEquations_->getScalarEihCorrection( 4, bodyIndex, j ) / eihEquations_->getScalarTermMultiplier( 4 ) ;
+
+                Eigen::Vector3d potentialMultiplier = Eigen::Vector3d::Zero( );
+                potentialMultiplier += 2.0 * eihEquations_->getVectorEihCorrection( 0, bodyIndex, j ) / eihEquations_->getVectorTermMultiplier( 0 );
+                potentialMultiplier += 2.0 * eihEquations_->getVectorEihCorrection( 1, bodyIndex, j ) / eihEquations_->getVectorTermMultiplier( 1 );
+                potentialMultiplier += 2.0 * eihEquations_->getVectorEihCorrection( 2, bodyIndex, j ) / eihEquations_->getVectorTermMultiplier( 2 );
+
+                gammaPartial += accelerationMultiplier * eihEquations_->getSinglePointMassAccelerations( bodyIndex, j ) +
+                    potentialMultiplier * eihEquations_->getSingleSourceLocalPotential( bodyIndex, j );
+
+            }
+        }
+        return gammaPartial;
+    }
+
+    Eigen::Vector3d getAccelerationWrtBeta( const int bodyIndex )
+    {
+        Eigen::Vector3d betaPartial = Eigen::Vector3d::Zero( );
+        for( int j = 0; j < numberOfExertingBodies_; j++ )
+        {
+            if( j != bodyIndex )
+            {
+                double accelerationMultiplier = 0;
+                accelerationMultiplier += -2.0 * eihEquations_->getScalarEihCorrection( 0, bodyIndex, j ) / eihEquations_->getScalarTermMultiplier( 0 );
+                accelerationMultiplier += -2.0 * eihEquations_->getScalarEihCorrection( 1, bodyIndex, j ) / eihEquations_->getScalarTermMultiplier( 1 );
+
+                betaPartial += accelerationMultiplier * eihEquations_->getSinglePointMassAccelerations( bodyIndex, j );
+
+            }
+        }
+        return betaPartial;
+    }
+
+    Eigen::Vector3d getAccelerationWrtGravitationalParameter( const int bodyIndex, const int muIndex )
+    {
+        Eigen::Vector3d muPartial = Eigen::Vector3d::Zero( );
+        double currentMu = eihEquations_->getGravitationalParameter( bodyIndex );
+        if( currentMu == 0.0 )
+        {
+            throw std::runtime_error( "Error when computing EIH partial w.r.t. mu, value of mu is 0" );
+        }
+
+        if( bodyIndex != muIndex )
+        {
+            muPartial += eihEquations_->getSinglePointMassAccelerations( bodyIndex, muIndex )  *
+                ( 1.0 + physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT * eihEquations_->getTotalScalarTermCorrection( bodyIndex, muIndex ) );
+            muPartial += eihEquations_->getSingleSourceLocalPotential( bodyIndex, muIndex ) *
+                physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT * eihEquations_->getTotalVectorTermCorrection( bodyIndex, muIndex );
+        }
+
+        double scalarMultiplier0 = eihEquations_->getScalarTermMultiplier( 0 );
+        double scalarMultiplier1 = eihEquations_->getScalarTermMultiplier( 1 );
+        double scalarMultiplier6 = eihEquations_->getScalarTermMultiplier( 6 );
+
+        double scalarTerm0Partial = 0.0;
+        if( bodyIndex != muIndex )
+        {
+            eihEquations_->getSingleSourceLocalPotential( bodyIndex, muIndex );
+        }
+
+        for( int j = 0; j < numberOfExertingBodies_; j++ )
+        {
+            if ( j != bodyIndex )
+            {
+                muPartial += ( eihEquations_->getSinglePointMassAccelerations( bodyIndex, j ) *
+                    ( scalarMultiplier0 * scalarTerm0Partial + scalarMultiplier1 * eihEquations_->getSingleSourceLocalPotential( j, muIndex ) +
+                    scalarMultiplier6 * eihEquations_->getRelativePositions( bodyIndex, j ).dot(
+                        eihEquations_->getSinglePointMassAccelerations( j, muIndex ) ) ) +
+                    eihEquations_->getSingleSourceLocalPotential( bodyIndex, j ) * eihEquations_->getSinglePointMassAccelerations( j, muIndex ) )
+                        * physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT;
+            }
+        }
+        return muPartial / currentMu;
+    }
 
 protected:
 
@@ -573,6 +667,163 @@ protected:
 
 
 };
+
+
+//! Class to calculate the partials of the central gravitational acceleration w.r.t. parameters and states.
+class EihAccelerationPartial: public AccelerationPartial
+{
+public:
+
+    //! Default constructor.
+    /*!
+     *  Default constructor.
+     *  \param gravitationalAcceleration Central gravitational acceleration w.r.t. which partials are to be taken.
+     *  \param acceleratedBody Body undergoing acceleration.
+     *  \param acceleratingBody Body exerting acceleration.
+     */
+    EihAccelerationPartial(
+        const std::shared_ptr< acceleration_partials::EihEquationsPartials > fulEihPartials,
+        const std::string acceleratedBody ):
+        AccelerationPartial( acceleratedBody, "", basic_astrodynamics::einstein_infeld_hoffmann_acceleration ),
+        fulEihPartials_( fulEihPartials )
+    {
+        std::vector< std::string > bodyList = fulEihPartials_->getEihEquations( )->getBodiesExertingAcceleration( );
+        for( unsigned int i = 0; i < bodyList.size( ); i++ )
+        {
+            bodyIndices_[ bodyList.at( i ) ] = i;
+        }
+        aceleratedBodyIndex_ = bodyIndices_.at( acceleratedBody );
+    }
+
+
+    void wrtPositionOfAcceleratedBody(
+        Eigen::Block< Eigen::MatrixXd > partialMatrix,
+        const bool addContribution = 1, const int startRow = 0, const int startColumn = 0 )
+    {
+        if( addContribution )
+        {
+            partialMatrix.block( startRow, startColumn, 3, 3 ) += fulEihPartials_->getCurrentTotalAccelerationWrtPosition(
+                aceleratedBodyIndex_, aceleratedBodyIndex_ );
+        }
+        else
+        {
+            partialMatrix.block( startRow, startColumn, 3, 3 ) -= fulEihPartials_->getCurrentTotalAccelerationWrtPosition(
+                aceleratedBodyIndex_, aceleratedBodyIndex_ );
+        }
+    }
+
+
+    void wrtPositionOfAcceleratingBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
+                                        const bool addContribution = 1, const int startRow = 0, const int startColumn = 0 )
+    {
+        throw std::runtime_error( "Error when calculating EIH partial w.r.t. body exerting acceleration, no such single body exists" );
+    }
+
+    virtual void wrtPositionOfAdditionalBody(
+        const std::string& bodyName, Eigen::Block< Eigen::MatrixXd > partialMatrix,
+        const bool addContribution = 1, const int startRow = 0, const int startColumn = 0 )
+    {
+        int additionalBodyIndex = bodyIndices_.at( bodyName );
+        if( addContribution )
+        {
+            partialMatrix.block( startRow, startColumn, 3, 3 ) += fulEihPartials_->getCurrentTotalAccelerationWrtPosition(
+                aceleratedBodyIndex_, additionalBodyIndex );
+        }
+        else
+        {
+            partialMatrix.block( startRow, startColumn, 3, 3 ) -= fulEihPartials_->getCurrentTotalAccelerationWrtPosition(
+                aceleratedBodyIndex_, additionalBodyIndex );
+        }
+    }
+
+
+    void wrtVelocityOfAcceleratedBody(
+        Eigen::Block< Eigen::MatrixXd > partialMatrix,
+        const bool addContribution = 1, const int startRow = 0, const int startColumn = 0 )
+    {
+        if( addContribution )
+        {
+            partialMatrix.block( startRow, startColumn, 3, 3 ) += fulEihPartials_->getCurrentTotalAccelerationWrtVelocity(
+                aceleratedBodyIndex_, aceleratedBodyIndex_ );
+        }
+        else
+        {
+            partialMatrix.block( startRow, startColumn, 3, 3 ) -= fulEihPartials_->getCurrentTotalAccelerationWrtVelocity(
+                aceleratedBodyIndex_, aceleratedBodyIndex_ );
+        }
+    }
+
+
+    void wrtVelocityOfAcceleratingBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
+                                        const bool addContribution = 1, const int startRow = 0, const int startColumn = 0 )
+    {
+        throw std::runtime_error( "Error when calculating EIH partial w.r.t. body exerting acceleration, no such single body exists" );
+    }
+
+    virtual void wrtVelocityOfAdditionalBody(
+        const std::string& bodyName, Eigen::Block< Eigen::MatrixXd > partialMatrix,
+        const bool addContribution = 1, const int startRow = 0, const int startColumn = 0 )
+    {
+        int additionalBodyIndex = bodyIndices_.at( bodyName );
+        if( addContribution )
+        {
+            partialMatrix.block( startRow, startColumn, 3, 3 ) += fulEihPartials_->getCurrentTotalAccelerationWrtVelocity(
+                aceleratedBodyIndex_, additionalBodyIndex );
+        }
+        else
+        {
+            partialMatrix.block( startRow, startColumn, 3, 3 ) -= fulEihPartials_->getCurrentTotalAccelerationWrtVelocity(
+                aceleratedBodyIndex_, additionalBodyIndex );
+        }
+    }
+
+
+
+    bool isStateDerivativeDependentOnIntegratedAdditionalStateTypes(
+        const std::pair< std::string, std::string >& stateReferencePoint,
+        const propagators::IntegratedStateType integratedStateType )
+    {
+        return 0;
+    }
+
+
+    std::pair< std::function< void( Eigen::MatrixXd& ) >, int >
+    getParameterPartialFunction( std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
+    {
+        std::function< void( Eigen::MatrixXd& ) > partialFunction;
+        return std::make_pair( partialFunction, 0 );
+    }
+
+
+    std::pair< std::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunction(
+        std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
+    {
+        std::function< void( Eigen::MatrixXd& ) > partialFunction;
+        return std::make_pair( partialFunction, 0 );
+    }
+
+
+    void update( const double currentTime = TUDAT_NAN )
+    {
+        fulEihPartials_->update( currentTime );
+        currentTime_ = currentTime;
+    }
+
+    const std::shared_ptr< acceleration_partials::EihEquationsPartials > getFulEihPartials( )
+    {
+        return fulEihPartials_;
+    }
+
+
+protected:
+
+    const std::shared_ptr< acceleration_partials::EihEquationsPartials > fulEihPartials_;
+
+    std::map< std::string, int > bodyIndices_;
+
+    int aceleratedBodyIndex_;
+};
+
 
 } // namespace acceleration_partials
 
