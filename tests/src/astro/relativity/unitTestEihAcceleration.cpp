@@ -8,20 +8,20 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-//
-//#define BOOST_TEST_DYN_LINK
-//#define BOOST_TEST_MAIN
+
+#define BOOST_TEST_DYN_LINK
+#define BOOST_TEST_MAIN
 
 #include <boost/test/unit_test.hpp>
 
 #include "tudat/interface/spice/spiceInterface.h"
 #include "tudat/simulation/simulation.h"
-//
-//namespace tudat
-//{
-//
-//namespace unit_tests
-//{
+
+namespace tudat
+{
+
+namespace unit_tests
+{
 
 using namespace tudat;
 using namespace tudat::simulation_setup;
@@ -31,29 +31,27 @@ using namespace tudat::orbital_element_conversions;
 using namespace tudat::basic_mathematics;
 using namespace tudat::basic_astrodynamics;
 using namespace tudat::unit_conversions;
-//
-//BOOST_AUTO_TEST_SUITE( test_eih_accelerations )
-//
-//BOOST_AUTO_TEST_CASE( testEihPropagation )
-int main( )
+
+BOOST_AUTO_TEST_SUITE( test_eih_accelerations )
+
+BOOST_AUTO_TEST_CASE( testEihPropagation )
+//int main( )
 {
     // Load Spice kernels.
     spice_interface::loadStandardSpiceKernels( );
 
     // Set simulation end epoch.
     const double simulationStartEpoch = 0.0 * tudat::physical_constants::JULIAN_YEAR;
-    const double simulationEndEpoch = tudat::physical_constants::JULIAN_DAY;
+    const double simulationEndEpoch = 2.0 * 365.0 * tudat::physical_constants::JULIAN_DAY;
 
 
     std::vector< Eigen::Vector6d > rmsDifferences;
     std::vector< Eigen::Vector6d > maximumDifferences;
-    for( unsigned int test = 0; test < 1; test++ )
+    for( unsigned int test = 0; test < 2; test++ )
     {
-        std::cout<<"Running case "<<test<<std::endl;
         // Create body objects.
         std::vector<std::string> bodiesToCreate =
-            { "Sun", "Venus", "Jupiter" };
-//        { "Sun", "Mercury", "Venus", "Earth", "Moon", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune" };
+        { "Sun", "Mercury", "Venus", "Earth", "Moon", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune" };
         BodyListSettings bodySettings =
             getDefaultBodySettings( bodiesToCreate );
         for( unsigned int i = 0; i < bodiesToCreate.size( ); i++ )
@@ -106,11 +104,7 @@ int main( )
             bodiesToPropagate, centralBodies, bodies, simulationStartEpoch );
 
         std::shared_ptr<IntegratorSettings<> >
-            integratorSettings = std::make_shared<RungeKuttaFixedStepSizeSettings<> >( 86400.0, CoefficientSets::forwardEuler );
-//              std::make_shared<PerElementIntegratorStepSizeControlSettings<double> >( 1.0E-12, 1.0E-12 ),
-//              std::make_shared<IntegratorStepSizeValidationSettings>( std::numeric_limits<double>::min( ),
-//                                                                      std::numeric_limits<double>::max( ),
-//                                                                      set_to_minimum_step_silently ));
+            integratorSettings = std::make_shared<RungeKuttaFixedStepSizeSettings<> >( 6400.0, CoefficientSets::rungeKutta87DormandPrince );
 
         std::shared_ptr<TranslationalStatePropagatorSettings<double> > propagatorSettings =
             std::make_shared<TranslationalStatePropagatorSettings<double> >
@@ -118,7 +112,7 @@ int main( )
                   integratorSettings,
                   std::make_shared<PropagationTimeTerminationSettings>( simulationEndEpoch ),
                   cowell );
-//        propagatorSettings->getOutputSettings( )->setResultsSaveFrequencyInSteps( 20 );
+        propagatorSettings->getOutputSettings( )->setResultsSaveFrequencyInSteps( 20 );
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ///////////////////////             PROPAGATE ORBIT            ////////////////////////////////////////////////////////
@@ -129,7 +123,6 @@ int main( )
             bodies, propagatorSettings );
         std::map<double, Eigen::VectorXd>
             integrationResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
-        std::cout<<dynamicsSimulator.getPropagationTerminationReason( )->getPropagationTerminationReason( )<<std::endl;
         Eigen::Vector6d currentDifference;
         Eigen::Vector6d rmsDifference = Eigen::Vector6d::Zero( );
         Eigen::Vector6d maximumDifference = Eigen::Vector6d::Zero( );
@@ -149,34 +142,23 @@ int main( )
         }
         rmsDifference = rmsDifference.cwiseSqrt( ) / static_cast< double >( integrationResult.size( ) );
 
-        std::cout<<integrationResult.size( )<<std::endl;
         rmsDifferences.push_back( rmsDifference );
         maximumDifferences.push_back( maximumDifference );
 
-        std::cout<<rmsDifference.transpose( )<<std::endl;
-        std::cout<<maximumDifference.transpose( )<<std::endl<<std::endl;
-
-
     }
-//
-//    std::cout<<rmsDifferences.at( 0 ).transpose( )<<std::endl;
-//    std::cout<<rmsDifferences.at( 1 ).transpose( )<<std::endl;
-//
-//    std::cout<<rmsDifferences.at( 0 ).cwiseQuotient( rmsDifferences.at( 1 ) ).transpose( )<<std::endl;
-//    std::cout<<maximumDifferences.at( 0 ).cwiseQuotient( maximumDifferences.at( 1 ) ).transpose( )<<std::endl;
-//
-//    for ( int i = 0; i < 6; i++ )
-//    {
-//        std::cout<<( rmsDifferences.at( 0 )( i ) / rmsDifferences.at( 1 )( i ) )<<std::endl;
-//        std::cout<<( maximumDifferences.at( 0 )( i ) / maximumDifferences.at( 1 )( i ) )<<std::endl;
-//    }
+
+    for ( int i = 0; i < 6; i++ )
+    {
+        BOOST_CHECK_SMALL( rmsDifferences.at( 0 )( i ) / rmsDifferences.at( 1 )( i ), 0.2 );
+        BOOST_CHECK_SMALL( maximumDifferences.at( 0 )( i ) / maximumDifferences.at( 1 )( i ), 0.2 );
+    }
 
 }
-//
-//BOOST_AUTO_TEST_SUITE_END( )
-//
-//}
-//
-//}
+
+BOOST_AUTO_TEST_SUITE_END( )
+
+}
+
+}
 
 
