@@ -194,7 +194,15 @@ std::map< std::string, Eigen::Vector3d > getApproximateDsnGroundStationPositions
  * Returns the default DSN station names per DSN station complex id. Stations are named as "DSS-i", following the
  * nomenclature used when retrieving the default DSN ground station settings.
  */
-std::map< int, std::vector< std::string > > getDefaultDsnStationNamesPerComplex( );
+inline std::map< int, std::vector< std::string > > getDefaultDsnStationNamesPerComplex( )
+{
+    std::map< int, std::vector< std::string > > stationsPerComplex;
+    stationsPerComplex[ 10 ] = { "DSS-13", "DSS-14", "DSS-15", "DSS-24", "DSS-25", "DSS-26" };
+    stationsPerComplex[ 40 ] = { "DSS-34", "DSS-35", "DSS-36", "DSS-43", "DSS-45" };
+    stationsPerComplex[ 60 ] = { "DSS-54", "DSS-55", "DSS-63", "DSS-65" };
+
+    return stationsPerComplex;
+}
 
 /*!
  * Returns the approximate position of the specified ground station. Currently only implemented for DSN stations.
