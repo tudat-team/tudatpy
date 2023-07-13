@@ -128,8 +128,10 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerPartials )
                 dsnNWayAveragedDopplerModel, bodies, fullEstimatableParameterSet, linkEnds,
                 dsn_n_way_averaged_doppler, 1.0E-4, true, true, 1000.0, parameterPerturbationMultipliers,
                 getDsnNWayAveragedDopplerAncillarySettings(
-                        std::vector< FrequencyBands >{ x_band, x_band }, x_band, 60.0, 7.0e9, getRetransmissionDelays( initialEphemerisTime, 1 ) ),
-                        stateEvaluationTime );
+                    std::vector< FrequencyBands >{ x_band, x_band }, x_band, 7.0e9, 60.0, getRetransmissionDelays( initialEphemerisTime, 1 ) ),
+                    stateEvaluationTime );
+
+
     }
 
     // Test partials with real ephemerides (without test of position partials)
@@ -175,8 +177,8 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerPartials )
                dsnNWayAveragedDopplerModel, bodies, fullEstimatableParameterSet, linkEnds,
                dsn_n_way_averaged_doppler, 1.0E-4, false, true, 1000.0, parameterPerturbationMultipliers,
                getDsnNWayAveragedDopplerAncillarySettings(
-                       std::vector< FrequencyBands >{ x_band, x_band }, x_band, 60.0, 7.0e9, getRetransmissionDelays( initialEphemerisTime, 1 ) ),
-                       stateEvaluationTime );
+                   std::vector< FrequencyBands >{ x_band, x_band }, x_band, 7.0e9, 60.0, getRetransmissionDelays( initialEphemerisTime, 1 ) ),
+                   stateEvaluationTime );
     }
 }
 

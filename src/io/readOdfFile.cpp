@@ -542,7 +542,7 @@ bool OdfRawFileContents::currentBlockIsHeader( std::bitset< 288 > dataBits,
 
         blockIsHeader =  true;
     }
-    catch( std::runtime_error )
+    catch( std::runtime_error const& )
     {
         blockIsHeader =  false;
     }
