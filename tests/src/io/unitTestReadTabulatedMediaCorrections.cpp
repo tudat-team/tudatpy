@@ -34,7 +34,8 @@ BOOST_AUTO_TEST_CASE( testCspCommandsExtraction )
                 tudat::paths::getTudatTestDataPath( ) + "mromagr2017_091_2017_121.tro.txt" );
         std::vector< std::shared_ptr< CspCommand > > extractedCspCommands = cspFile->getCspCommands( );
 
-        std::vector< unsigned long > cspCommandsIds = { 0, 1, extractedCspCommands.size( ) - 1 };
+        BOOST_CHECK_EQUAL( ( extractedCspCommands.size( ) > 0 ), true );
+        std::vector< unsigned int > cspCommandsIds = { 0, 1, static_cast< unsigned int >( extractedCspCommands.size( ) ) - 1 };
 
         for ( unsigned int cspCommandId: cspCommandsIds )
         {
