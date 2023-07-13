@@ -39,7 +39,7 @@ void DsnWeatherData::readSingleFileWeatherData( const std::string& weatherFile )
 
     // Line based parsing
     std::string line;
-    int year, month, day;
+    int year = -0, month = -1, day = -1;
     while ( stream.good( ) && !stream.eof( ) )
     {
         // Get line from stream

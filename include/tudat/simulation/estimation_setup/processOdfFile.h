@@ -678,7 +678,8 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
             std::vector< std::vector< TimeType > > truncatedObservationTimes;
             std::vector< std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > > truncatedObservables;
 
-            if ( std::isnan( startAndEndTimesToProcess.first ) && std::isnan( startAndEndTimesToProcess.second ) )
+            if ( std::isnan( static_cast< double >( startAndEndTimesToProcess.first ) ) &&
+                std::isnan( static_cast< double >( startAndEndTimesToProcess.second ) ) )
             {
                 truncatedObservationTimes = observationTimes;
                 truncatedObservables = observables;
@@ -692,10 +693,10 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
 
                     for ( unsigned int j = 0; j < observationTimes.at( i ).size( ); ++j )
                     {
-                        if ( ( (!std::isnan( startAndEndTimesToProcess.first ) && observationTimes.at( i ).at( j ) >= startAndEndTimesToProcess.first) ||
-                            std::isnan( startAndEndTimesToProcess.first ) ) &&
-                            ( (!std::isnan( startAndEndTimesToProcess.second ) && observationTimes.at( i ).at( j ) <= startAndEndTimesToProcess.second) ||
-                            std::isnan( startAndEndTimesToProcess.second ) ) )
+                        if ( ( (!std::isnan( static_cast< double >( startAndEndTimesToProcess.first ) ) && observationTimes.at( i ).at( j ) >= startAndEndTimesToProcess.first) ||
+                            std::isnan( static_cast< double >( startAndEndTimesToProcess.first ) ) ) &&
+                            ( (!std::isnan( static_cast< double >( startAndEndTimesToProcess.second ) ) && observationTimes.at( i ).at( j ) <= startAndEndTimesToProcess.second) ||
+                            std::isnan( static_cast< double >( startAndEndTimesToProcess.second ) ) ) )
                         {
                             singleTruncatedObservationTimes.push_back( observationTimes.at( i ).at( j ) );
                             singleTruncatedObservables.push_back( observables.at( i ).at( j ) );
