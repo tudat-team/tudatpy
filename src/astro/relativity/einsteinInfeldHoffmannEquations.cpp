@@ -106,6 +106,11 @@ EinsteinInfeldHoffmannEquations::EinsteinInfeldHoffmannEquations(
     {
         acceleratedBodyMap_[ acceleratedBodies.at( i ) ] = i;
     }
+
+    for( unsigned int i = 0; i < acceleratingBodies_.size(); i++ )
+    {
+        acceleratingBodyMap_[ acceleratingBodies_.at( i ) ] = i;
+    }
     scalarTermMultipliers_.resize( 7 );
     vectorTermMultipliers_.resize( 3 );
 

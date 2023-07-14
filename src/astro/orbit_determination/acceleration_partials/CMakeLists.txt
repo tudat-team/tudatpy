@@ -24,6 +24,7 @@ set(acceleration_partials_SOURCES
   "thrustAccelerationPartial.cpp"
   "polyhedronAccelerationPartial.cpp"
   "ringAccelerationPartial.cpp"
+  "einsteinInfeldHoffmannPartials.cpp"
 )
 
 # Set the header files.
@@ -45,6 +46,7 @@ set(acceleration_partials_HEADERS
   "thrustAccelerationPartial.h"
   "polyhedronAccelerationPartial.h"
   "ringAccelerationPartial.h"
+  "einsteinInfeldHoffmannPartials.h"
 )
 
 TUDAT_ADD_LIBRARY("acceleration_partials"
