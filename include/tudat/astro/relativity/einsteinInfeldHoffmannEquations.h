@@ -159,6 +159,12 @@ public:
         currentTime_ = TUDAT_NAN;
     }
 
+    std::map< std::string, int > getAcceleratedBodyMap( )
+    {
+        return acceleratedBodyMap_;
+    }
+
+
 
 private:
 
