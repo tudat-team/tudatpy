@@ -239,7 +239,7 @@ IrradianceWithSourceList DynamicallyPaneledRadiationSourceModel::evaluateIrradia
 
     for (unsigned int i = 0; i < numberOfPanels; ++i)
     {
-        const auto relativeCenter = panelCenters[i];
+        const auto& relativeCenter = panelCenters[i];
         const Eigen::Vector3d surfaceNormal = relativeCenter.normalized();
         const auto polarAngle = polarAngles[i];
         const auto azimuthAngle = azimuthAngles[i];

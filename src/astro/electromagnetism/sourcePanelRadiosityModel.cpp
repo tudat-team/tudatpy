@@ -29,7 +29,7 @@ void SourcePanelRadiosityModel::updateMembers(
         const double currentTime)
 {
     if (
-        // New location
+        // New location, always update
             (panelLatitude_ != panelLatitude || panelLongitude_ != panelLongitude) ||
             // New time and not time-invariant
             (!isTimeInvariant() && currentTime_ != currentTime))
@@ -82,7 +82,7 @@ double AlbedoSourcePanelRadiosityModel::evaluateIrradianceAtPosition(
 
     const auto receivedIrradiance = cosBetweenNormalAndOriginalSource * originalSourceIrradiance;
 
-    // Reflected fraction is given in [1/sr] (i.e. per solid angle)
+    // Reflected fraction is given in [1/sr] (i.e. per unit solid angle)
     const auto reflectedFraction =
             reflectionLaw_->evaluateReflectedFraction(panelSurfaceNormal, originalSourceToSourceDirection, targetDirection);
 
