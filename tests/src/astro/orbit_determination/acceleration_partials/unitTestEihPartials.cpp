@@ -490,12 +490,12 @@ BOOST_AUTO_TEST_CASE( testEihPartials )
 //                analyticalTotalAccelerationWrtVelocity[ j ][ i ].block( 0, 0, 3, 3 ),
 //                1.0E-2);
 
-
-                                std::cout<<"Partials "<<i<<" "<<j<<" "<<std::endl
-                                    <<analyticalTotalAccelerationWrtVelocity[ j ][ i ].block( 0, 0, 3, 3 )<<std::endl<<std::endl
-                                    <<numericalTotalAcclerationWrtVelocity[ i ][ j ].block( 0, 0, 3, 3 )<<std::endl<<std::endl
-                    <<numericalTotalAcclerationWrtVelocity[ i ][ j ].block( 0, 0, 3, 3 ).cwiseQuotient(
-                        analyticalTotalAccelerationWrtVelocity[ j ][ i ].block( 0, 0, 3, 3 ) )<<std::endl<<std::endl;
+//
+//                                std::cout<<"Partials "<<i<<" "<<j<<" "<<std::endl
+//                                    <<analyticalTotalAccelerationWrtVelocity[ j ][ i ].block( 0, 0, 3, 3 )<<std::endl<<std::endl
+//                                    <<numericalTotalAcclerationWrtVelocity[ i ][ j ].block( 0, 0, 3, 3 )<<std::endl<<std::endl
+//                    <<numericalTotalAcclerationWrtVelocity[ i ][ j ].block( 0, 0, 3, 3 ).cwiseQuotient(
+//                        analyticalTotalAccelerationWrtVelocity[ j ][ i ].block( 0, 0, 3, 3 ) )<<std::endl<<std::endl;
 
 
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
@@ -590,16 +590,6 @@ BOOST_AUTO_TEST_CASE( testEihSingleAccelerationPartials )
     basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
         bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
-    // Create acceleration models and propagation settings.
-    basic_astrodynamics::AccelerationMap accelerationModelMapManual = createAccelerationModelsMap(
-        bodies, accelerationMap, bodiesToPropagate, centralBodies );
-
-    std::shared_ptr< relativity::EinsteinInfeldHoffmannEquations > eihEquationsManual = propagators::getEihEquationsFromAccelerationMap(
-        accelerationModelMap );
-    std::shared_ptr< acceleration_partials::EihEquationsPartials > eihPartialsManual =
-        std::make_shared< acceleration_partials::EihEquationsPartials >( eihEquationsManual );
-    eihPartialsManual->update( testTime );
-
     // Set parameters that are to be estimated.
     std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
     for( unsigned int i = 0; i < bodiesToPropagate.size( ); i++ )
@@ -662,7 +652,9 @@ BOOST_AUTO_TEST_CASE( testEihSingleAccelerationPartials )
     std::vector< std::function< void( Eigen::Vector6d ) > > stateSetFunctions;
     std::vector< std::function< Eigen::Vector6d( ) > > stateGetFunctions;
     std::vector< std::shared_ptr< EstimatableParameter< double > > > gravitationalParameters;
-   
+    std::shared_ptr< EstimatableParameter< double > > gammaParameter = std::make_shared< PPNParameterGamma >( );
+    std::shared_ptr< EstimatableParameter< double > > betaParameter = std::make_shared< PPNParameterBeta >( );
+
     for( unsigned int i = 0; i < bodiesToPropagate.size( ); i++ )
     {
         bodies.at( bodiesToPropagate.at( i ) )->setState(
@@ -671,7 +663,6 @@ BOOST_AUTO_TEST_CASE( testEihSingleAccelerationPartials )
         gravitationalParameters.push_back( std::make_shared<
             GravitationalParameter >( bodies.at( bodiesToPropagate.at( i ) )->getGravityFieldModel( ), bodiesToPropagate.at( i ) ) );
     }
-
 
     for( unsigned int i = 0; i < bodiesToPropagate.size( ); i++ )
     {
@@ -689,7 +680,7 @@ BOOST_AUTO_TEST_CASE( testEihSingleAccelerationPartials )
                 bodies.at( bodiesToPropagate.at( j ))->getStateInBaseFrameFromEphemeris( testTime ),
                 velocityPerturbation, 3, emptyFunction, testTime );
             numericalMuPartials[ i ][ j ] = calculateAccelerationWrtParameterPartials(
-                gravitationalParameters.at( j ), eihAccelerations.at( i ), gravitationalParameters.at( j )->getParameterValue( ) );
+                gravitationalParameters.at( j ), eihAccelerations.at( i ), 100.0 * gravitationalParameters.at( j )->getParameterValue( ) );
 
             if ( i == j )
             {
@@ -706,18 +697,34 @@ BOOST_AUTO_TEST_CASE( testEihSingleAccelerationPartials )
                     bodiesToPropagate.at( j ), analyticalVelocityPartials[ i ][ j ].block( 0, 0, 3, 3 ));
             }
             analyticalMuPartials[ i ][ j ] = eihPartials.at( i )->wrtParameter( gravitationalParameters.at( j ) );
-            std::cout<<i<<" "<<j<<std::endl
-            <<analyticalMuPartials[ i ][ j ].transpose( ).cwiseQuotient(
-            numericalMuPartials[ i ][ j ].transpose( ) )<<std::endl<<std::endl;
+
 
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                 numericalPositionPartials[ i ][ j ], analyticalPositionPartials[ i ][ j ], 1.0E-5 );
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                 numericalVelocityPartials[ i ][ j ], analyticalVelocityPartials[ i ][ j ], 1.0E-5 );
+            TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                numericalPositionPartials[ i ][ j ], analyticalPositionPartials[ i ][ j ], 1.0E-5 );
+            TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                numericalMuPartials[ i ][ j ], analyticalMuPartials[ i ][ j ], 1.0E-3 );
 
         }
-    }
 
+        analyticalGammaPartials[ i ]  = eihPartials.at( i )->wrtParameter( gammaParameter );
+        analyticalBetaPartials[ i ]  = eihPartials.at( i )->wrtParameter( betaParameter );
+
+        numericalGammaPartials[ i ] = calculateAccelerationWrtParameterPartials(
+            gammaParameter, eihAccelerations.at( i ), 100.0, std::bind( &EinsteinInfeldHoffmannEquations::recomputeExpansionMultipliers,
+                                                                        eihAccelerations.at( 0 )->getEihEquations( ) ) );
+        numericalBetaPartials[ i ] = calculateAccelerationWrtParameterPartials(
+            betaParameter, eihAccelerations.at( i ), 100.0, std::bind( &EinsteinInfeldHoffmannEquations::recomputeExpansionMultipliers,
+                                                                       eihAccelerations.at( 0 )->getEihEquations( ) ) );
+
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            numericalGammaPartials[ i ], analyticalGammaPartials[ i ], 1.0E-5 );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            numericalBetaPartials[ i ], analyticalBetaPartials[ i ], 1.0E-5 );
+    }
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

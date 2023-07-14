@@ -523,9 +523,9 @@ public:
     }
 
 
-    Eigen::Vector3d getAccelerationWrtGamma( const int bodyIndex )
+    void getAccelerationWrtGamma( Eigen::MatrixXd& gammaPartial, const int bodyIndex )
     {
-        Eigen::Vector3d gammaPartial = Eigen::Vector3d::Zero( );
+        gammaPartial.setZero( 3, 1 );
         for( int j = 0; j < numberOfExertingBodies_; j++ )
         {
             if( j != bodyIndex )
@@ -546,12 +546,12 @@ public:
 
             }
         }
-        return gammaPartial;
+        gammaPartial *= physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT;
     }
 
-    Eigen::Vector3d getAccelerationWrtBeta( const int bodyIndex )
+    void getAccelerationWrtBeta( Eigen::MatrixXd& betaPartial, const int bodyIndex )
     {
-        Eigen::Vector3d betaPartial = Eigen::Vector3d::Zero( );
+        betaPartial.setZero( 3, 1 );
         for( int j = 0; j < numberOfExertingBodies_; j++ )
         {
             if( j != bodyIndex )
@@ -564,7 +564,7 @@ public:
 
             }
         }
-        return betaPartial;
+        betaPartial *= physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT;
     }
 
     void getAccelerationWrtGravitationalParameter( Eigen::MatrixXd& muPartial, const int bodyIndex, const int muIndex )
@@ -587,6 +587,7 @@ public:
         double scalarMultiplier0 = eihEquations_->getScalarTermMultiplier( 0 );
         double scalarMultiplier1 = eihEquations_->getScalarTermMultiplier( 1 );
         double scalarMultiplier6 = eihEquations_->getScalarTermMultiplier( 6 );
+        double vectorMultiplier0 = eihEquations_->getVectorTermMultiplier( 2 );
 
         double scalarTerm0Partial = 0.0;
         if( bodyIndex != muIndex )
@@ -599,11 +600,12 @@ public:
             if ( j != bodyIndex )
             {
                 muPartial += ( eihEquations_->getSinglePointMassAccelerations( bodyIndex, j ) *
-                    ( scalarMultiplier0 * scalarTerm0Partial + scalarMultiplier1 * eihEquations_->getSingleSourceLocalPotential( j, muIndex ) +
+                    ( scalarMultiplier0 * scalarTerm0Partial +
+                    scalarMultiplier1 * eihEquations_->getSingleSourceLocalPotential( j, muIndex ) +
                     scalarMultiplier6 * eihEquations_->getRelativePositions( bodyIndex, j ).dot(
-                        eihEquations_->getSinglePointMassAccelerations( j, muIndex ) ) ) +
-                    eihEquations_->getSingleSourceLocalPotential( bodyIndex, j ) * eihEquations_->getSinglePointMassAccelerations( j, muIndex ) )
-                        * physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT;
+                        eihEquations_->getSinglePointMassAccelerations( j, muIndex ) ) )
+                  +  vectorMultiplier0 * eihEquations_->getSingleSourceLocalPotential( bodyIndex, j ) * eihEquations_->getSinglePointMassAccelerations( j, muIndex )
+                    ) *physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT;;
             }
         }
         muPartial /= currentMu;
@@ -803,6 +805,18 @@ public:
                                                  std::placeholders::_1, acceleratedBodyIndex_,
                                                  fullEihPartials_->getEihEquations( )->getAcceleratedBodyMap( ).at( parameter->getParameterName( ).second.first ) ), 1 );
             }
+        }
+        else if( parameter->getParameterName( ).first == estimatable_parameters::ppn_parameter_gamma )
+        {
+            partialFunctionPair =
+                std::make_pair( std::bind( &EihEquationsPartials::getAccelerationWrtGamma, fullEihPartials_,
+                                           std::placeholders::_1, acceleratedBodyIndex_ ), 1 );
+        }
+        else if( parameter->getParameterName( ).first == estimatable_parameters::ppn_parameter_beta )
+        {
+            partialFunctionPair =
+                std::make_pair( std::bind( &EihEquationsPartials::getAccelerationWrtBeta, fullEihPartials_,
+                                           std::placeholders::_1, acceleratedBodyIndex_ ), 1 );
         }
         else
         {
