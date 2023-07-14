@@ -8,6 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+#include <pybind11/functional.h>
+
 #include "expose_observation_setup.h"
 
 #include "tudat/simulation/estimation_setup/simulateObservations.h"
@@ -1043,12 +1045,17 @@ void expose_observation_setup(py::module &m) {
           py::arg("earth_fixed_ground_station_positions") = tss::getApproximateDsnGroundStationPositions( ),
           get_docstring("create_odf_observed_observations").c_str() );
 
+    // Create wrapper function
+    py::cpp_function getDsnDefaultTurnaroundRatios_wrapper =
+            [](tudat::observation_models::FrequencyBands band1, tudat::observation_models::FrequencyBands band2) {
+        return tom::getDsnDefaultTurnaroundRatios(band1, band2); };
+
     m.def("set_odf_information_in_bodies",
           &tom::setOdfInformationInBodies,
           py::arg("processed_odf_file"),
           py::arg("bodies"),
           py::arg("body_with_ground_stations_name") = "Earth",
-          py::arg("turnaround_ratio_function") = &tom::getDsnDefaultTurnaroundRatios,
+          py::arg("turnaround_ratio_function") = getDsnDefaultTurnaroundRatios_wrapper,
           get_docstring("set_odf_information_in_bodies").c_str() );
 
     m.def("create_odf_observed_observation_collection",
