@@ -541,8 +541,8 @@ BOOST_AUTO_TEST_CASE( testEihSingleAccelerationPartials )
 
     // Create body objects.
     std::vector<std::string> bodiesToCreate =
-        { "Earth", "Jupiter", "Venus" };
-//        { "Earth", "Venus", "Mercury", "Sun" };//, "Moon", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune" };
+//        { "Earth", "Jupiter" };
+        { "Earth", "Jupiter", "Venus" };//, "Moon", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune" };
     unsigned int numberOfBodies = bodiesToCreate.size( );
     BodyListSettings bodySettings =
         getDefaultBodySettings( bodiesToCreate );
@@ -565,7 +565,7 @@ BOOST_AUTO_TEST_CASE( testEihSingleAccelerationPartials )
 
     // Define propagator settings variables.
     SelectedAccelerationMap accelerationMap;
-    std::vector<std::string> bodiesToPropagate = { "Earth", "Jupiter", "Venus" };
+    std::vector<std::string> bodiesToPropagate = bodiesToCreate;
     std::vector<std::string> centralBodies = { "SSB", "SSB", "SSB" };
 
     unsigned int numberOfPropatedBodies = bodiesToPropagate.size( );
@@ -637,26 +637,39 @@ BOOST_AUTO_TEST_CASE( testEihSingleAccelerationPartials )
         numberOfBodies, numberOfBodies, Eigen::MatrixXd::Zero( 3, 3 ) );
     std::vector< std::vector< Eigen::MatrixXd > > analyticalVelocityPartials = utilities::getTwoDimensionalVector< Eigen::MatrixXd >(
         numberOfBodies, numberOfBodies, Eigen::MatrixXd::Zero( 3, 3 ) );
+    std::vector< std::vector< Eigen::Vector3d > > analyticalMuPartials = utilities::getTwoDimensionalVector< Eigen::Vector3d >(
+        numberOfBodies, numberOfBodies, Eigen::Vector3d::Zero( ) );
+    std::vector< Eigen::Vector3d > analyticalGammaPartials( numberOfBodies, Eigen::Vector3d::Zero( ) );
+    std::vector< Eigen::Vector3d > analyticalBetaPartials( numberOfBodies, Eigen::Vector3d::Zero( ) );
 
     std::vector< std::vector< Eigen::MatrixXd > > numericalPositionPartials = utilities::getTwoDimensionalVector< Eigen::MatrixXd >(
         numberOfBodies, numberOfBodies, Eigen::MatrixXd::Zero( 3, 3 ) );
     std::vector< std::vector< Eigen::MatrixXd > > numericalVelocityPartials = utilities::getTwoDimensionalVector< Eigen::MatrixXd >(
         numberOfBodies, numberOfBodies, Eigen::MatrixXd::Zero( 3, 3 ) );
+    std::vector< std::vector< Eigen::Vector3d > > numericalMuPartials = utilities::getTwoDimensionalVector< Eigen::Vector3d >(
+        numberOfBodies, numberOfBodies, Eigen::Vector3d::Zero( ) );
+    std::vector< Eigen::Vector3d > numericalGammaPartials( numberOfBodies, Eigen::Vector3d::Zero( ) );
+    std::vector< Eigen::Vector3d > numericalBetaPartials( numberOfBodies, Eigen::Vector3d::Zero( ) );
+
+
 
     // Declare perturbations in position for numerical partial/
     Eigen::Vector3d positionPerturbation;
-    positionPerturbation << 1.0E7, 1.0E7, 1.0E7;
+    positionPerturbation << 1.0E6, 1.0E6, 1.0E7;
     Eigen::Vector3d velocityPerturbation;
     velocityPerturbation << 1.0E3, 1.0E3, 1.0E4;
 
     std::vector< std::function< void( Eigen::Vector6d ) > > stateSetFunctions;
     std::vector< std::function< Eigen::Vector6d( ) > > stateGetFunctions;
-
+    std::vector< std::shared_ptr< EstimatableParameter< double > > > gravitationalParameters;
+   
     for( unsigned int i = 0; i < bodiesToPropagate.size( ); i++ )
     {
         bodies.at( bodiesToPropagate.at( i ) )->setState(
             bodies.at( bodiesToPropagate.at( i ) )->getStateInBaseFrameFromEphemeris( testTime ) );
         stateSetFunctions.push_back( std::bind( &Body::setState, bodies.at( bodiesToPropagate.at( i ) ), std::placeholders::_1 ) );
+        gravitationalParameters.push_back( std::make_shared<
+            GravitationalParameter >( bodies.at( bodiesToPropagate.at( i ) )->getGravityFieldModel( ), bodiesToPropagate.at( i ) ) );
     }
 
 
@@ -675,6 +688,8 @@ BOOST_AUTO_TEST_CASE( testEihSingleAccelerationPartials )
                 stateSetFunctions.at( j ), eihAccelerations.at( i ),
                 bodies.at( bodiesToPropagate.at( j ))->getStateInBaseFrameFromEphemeris( testTime ),
                 velocityPerturbation, 3, emptyFunction, testTime );
+            numericalMuPartials[ i ][ j ] = calculateAccelerationWrtParameterPartials(
+                gravitationalParameters.at( j ), eihAccelerations.at( i ), gravitationalParameters.at( j )->getParameterValue( ) );
 
             if ( i == j )
             {
@@ -690,6 +705,10 @@ BOOST_AUTO_TEST_CASE( testEihSingleAccelerationPartials )
                 eihPartials.at( i )->wrtVelocityOfAdditionalBody(
                     bodiesToPropagate.at( j ), analyticalVelocityPartials[ i ][ j ].block( 0, 0, 3, 3 ));
             }
+            analyticalMuPartials[ i ][ j ] = eihPartials.at( i )->wrtParameter( gravitationalParameters.at( j ) );
+            std::cout<<i<<" "<<j<<std::endl
+            <<analyticalMuPartials[ i ][ j ].transpose( ).cwiseQuotient(
+            numericalMuPartials[ i ][ j ].transpose( ) )<<std::endl<<std::endl;
 
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                 numericalPositionPartials[ i ][ j ], analyticalPositionPartials[ i ][ j ], 1.0E-5 );
