@@ -88,12 +88,12 @@ Eigen::Vector3d PaneledSourceRadiationPressureAcceleration::calculateAcceleratio
     // If other types than isotropic point sources are supported as original source, rotate to original source frame here
     Eigen::Vector3d sourceCenterPositionInOriginalSourceFrame = sourceCenterPositionInGlobalFrame - originalSourceCenterPositionInGlobalFrame;
     auto originalSourceIrradiance = originalSourceModel_->evaluateIrradianceAtPosition(sourceCenterPositionInOriginalSourceFrame);
-    Eigen::Vector3d originalSourceToSourceDirectionInSourceFrame =
-            sourceRotationFromGlobalToLocalFrame * (sourceCenterPositionInGlobalFrame - originalSourceCenterPositionInGlobalFrame).normalized();
 
     // Evaluate irradiances from all sub-sources at target position in source frame
     Eigen::Vector3d targetCenterPositionInSourceFrame =
             sourceRotationFromGlobalToLocalFrame * (targetCenterPositionInGlobalFrame - sourceCenterPositionInGlobalFrame);
+    Eigen::Vector3d originalSourceToSourceDirectionInSourceFrame =
+            sourceRotationFromGlobalToLocalFrame * sourceCenterPositionInOriginalSourceFrame.normalized();
     auto sourceIrradiancesAndPositions = sourceModel_->evaluateIrradianceAtPosition(
             targetCenterPositionInSourceFrame,
             originalSourceIrradiance,

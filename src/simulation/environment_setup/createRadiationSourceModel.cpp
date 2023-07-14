@@ -91,7 +91,7 @@ SecondDegreeZonalPeriodicSurfacePropertyDistributionSettings::SecondDegreeZonalP
             // Knocke Earth albedo model: Knocke, Philip et al. "Earth radiation pressure effects on satellites." Astrodynamics Conference. American Institute of Aeronautics and Astronautics, 1988.
             a0 = 0.34;
             c0 = 0;
-            c1 = 0.1;
+            c1 = 0.10;
             c2 = 0;
             a2 = 0.29;
             referenceEpoch = spice_interface::convertDateStringToEphemerisTime("1981 DEC 22");
