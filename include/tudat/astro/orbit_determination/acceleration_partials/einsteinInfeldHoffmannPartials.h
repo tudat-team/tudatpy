@@ -567,10 +567,10 @@ public:
         return betaPartial;
     }
 
-    Eigen::Vector3d getAccelerationWrtGravitationalParameter( const int bodyIndex, const int muIndex )
+    void getAccelerationWrtGravitationalParameter( Eigen::MatrixXd& muPartial, const int bodyIndex, const int muIndex )
     {
-        Eigen::Vector3d muPartial = Eigen::Vector3d::Zero( );
-        double currentMu = eihEquations_->getGravitationalParameter( bodyIndex );
+        muPartial.setZero( 3, 1 );
+        double currentMu = eihEquations_->getGravitationalParameter( muIndex     );
         if( currentMu == 0.0 )
         {
             throw std::runtime_error( "Error when computing EIH partial w.r.t. mu, value of mu is 0" );
@@ -606,7 +606,7 @@ public:
                         * physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT;
             }
         }
-        return muPartial / currentMu;
+        muPartial /= currentMu;
     }
 
 protected:
@@ -685,14 +685,14 @@ public:
         const std::shared_ptr< acceleration_partials::EihEquationsPartials > fulEihPartials,
         const std::string acceleratedBody ):
         AccelerationPartial( acceleratedBody, "", basic_astrodynamics::einstein_infeld_hoffmann_acceleration ),
-        fulEihPartials_( fulEihPartials )
+        fullEihPartials_( fulEihPartials )
     {
-        std::vector< std::string > bodyList = fulEihPartials_->getEihEquations( )->getBodiesExertingAcceleration( );
+        std::vector< std::string > bodyList = fullEihPartials_->getEihEquations( )->getBodiesExertingAcceleration( );
         for( unsigned int i = 0; i < bodyList.size( ); i++ )
         {
             bodyIndices_[ bodyList.at( i ) ] = i;
         }
-        aceleratedBodyIndex_ = bodyIndices_.at( acceleratedBody );
+        acceleratedBodyIndex_ = bodyIndices_.at( acceleratedBody );
     }
 
 
@@ -702,13 +702,13 @@ public:
     {
         if( addContribution )
         {
-            partialMatrix.block( startRow, startColumn, 3, 3 ) += fulEihPartials_->getCurrentTotalAccelerationWrtPosition(
-                aceleratedBodyIndex_, aceleratedBodyIndex_ );
+            partialMatrix.block( startRow, startColumn, 3, 3 ) += fullEihPartials_->getCurrentTotalAccelerationWrtPosition(
+                acceleratedBodyIndex_, acceleratedBodyIndex_ );
         }
         else
         {
-            partialMatrix.block( startRow, startColumn, 3, 3 ) -= fulEihPartials_->getCurrentTotalAccelerationWrtPosition(
-                aceleratedBodyIndex_, aceleratedBodyIndex_ );
+            partialMatrix.block( startRow, startColumn, 3, 3 ) -= fullEihPartials_->getCurrentTotalAccelerationWrtPosition(
+                acceleratedBodyIndex_, acceleratedBodyIndex_ );
         }
     }
 
@@ -726,13 +726,13 @@ public:
         int additionalBodyIndex = bodyIndices_.at( bodyName );
         if( addContribution )
         {
-            partialMatrix.block( startRow, startColumn, 3, 3 ) += fulEihPartials_->getCurrentTotalAccelerationWrtPosition(
-                aceleratedBodyIndex_, additionalBodyIndex );
+            partialMatrix.block( startRow, startColumn, 3, 3 ) += fullEihPartials_->getCurrentTotalAccelerationWrtPosition(
+                acceleratedBodyIndex_, additionalBodyIndex );
         }
         else
         {
-            partialMatrix.block( startRow, startColumn, 3, 3 ) -= fulEihPartials_->getCurrentTotalAccelerationWrtPosition(
-                aceleratedBodyIndex_, additionalBodyIndex );
+            partialMatrix.block( startRow, startColumn, 3, 3 ) -= fullEihPartials_->getCurrentTotalAccelerationWrtPosition(
+                acceleratedBodyIndex_, additionalBodyIndex );
         }
     }
 
@@ -743,13 +743,13 @@ public:
     {
         if( addContribution )
         {
-            partialMatrix.block( startRow, startColumn, 3, 3 ) += fulEihPartials_->getCurrentTotalAccelerationWrtVelocity(
-                aceleratedBodyIndex_, aceleratedBodyIndex_ );
+            partialMatrix.block( startRow, startColumn, 3, 3 ) += fullEihPartials_->getCurrentTotalAccelerationWrtVelocity(
+                acceleratedBodyIndex_, acceleratedBodyIndex_ );
         }
         else
         {
-            partialMatrix.block( startRow, startColumn, 3, 3 ) -= fulEihPartials_->getCurrentTotalAccelerationWrtVelocity(
-                aceleratedBodyIndex_, aceleratedBodyIndex_ );
+            partialMatrix.block( startRow, startColumn, 3, 3 ) -= fullEihPartials_->getCurrentTotalAccelerationWrtVelocity(
+                acceleratedBodyIndex_, acceleratedBodyIndex_ );
         }
     }
 
@@ -767,13 +767,13 @@ public:
         int additionalBodyIndex = bodyIndices_.at( bodyName );
         if( addContribution )
         {
-            partialMatrix.block( startRow, startColumn, 3, 3 ) += fulEihPartials_->getCurrentTotalAccelerationWrtVelocity(
-                aceleratedBodyIndex_, additionalBodyIndex );
+            partialMatrix.block( startRow, startColumn, 3, 3 ) += fullEihPartials_->getCurrentTotalAccelerationWrtVelocity(
+                acceleratedBodyIndex_, additionalBodyIndex );
         }
         else
         {
-            partialMatrix.block( startRow, startColumn, 3, 3 ) -= fulEihPartials_->getCurrentTotalAccelerationWrtVelocity(
-                aceleratedBodyIndex_, additionalBodyIndex );
+            partialMatrix.block( startRow, startColumn, 3, 3 ) -= fullEihPartials_->getCurrentTotalAccelerationWrtVelocity(
+                acceleratedBodyIndex_, additionalBodyIndex );
         }
     }
 
@@ -790,8 +790,26 @@ public:
     std::pair< std::function< void( Eigen::MatrixXd& ) >, int >
     getParameterPartialFunction( std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
     {
-        std::function< void( Eigen::MatrixXd& ) > partialFunction;
-        return std::make_pair( partialFunction, 0 );
+        std::pair< std::function< void( Eigen::MatrixXd& ) >, int > partialFunctionPair;
+
+        // Check dependencies.
+        if( parameter->getParameterName( ).first ==  estimatable_parameters::gravitational_parameter )
+        {
+            if( fullEihPartials_->getEihEquations( )->getAcceleratedBodyMap( ).count( parameter->getParameterName( ).second.first ) > 0 )
+            {
+                // If parameter is gravitational parameter, check and create dependency function .
+                partialFunctionPair =
+                    std::make_pair( std::bind( &EihEquationsPartials::getAccelerationWrtGravitationalParameter, fullEihPartials_,
+                                                 std::placeholders::_1, acceleratedBodyIndex_,
+                                                 fullEihPartials_->getEihEquations( )->getAcceleratedBodyMap( ).at( parameter->getParameterName( ).second.first ) ), 1 );
+            }
+        }
+        else
+        {
+            partialFunctionPair = std::make_pair( std::function< void( Eigen::MatrixXd& ) >( ), 0 );
+        }
+
+        return partialFunctionPair;
     }
 
 
@@ -805,23 +823,23 @@ public:
 
     void update( const double currentTime = TUDAT_NAN )
     {
-        fulEihPartials_->update( currentTime );
+        fullEihPartials_->update( currentTime );
         currentTime_ = currentTime;
     }
 
     const std::shared_ptr< acceleration_partials::EihEquationsPartials > getFulEihPartials( )
     {
-        return fulEihPartials_;
+        return fullEihPartials_;
     }
 
 
 protected:
 
-    const std::shared_ptr< acceleration_partials::EihEquationsPartials > fulEihPartials_;
+    const std::shared_ptr< acceleration_partials::EihEquationsPartials > fullEihPartials_;
 
     std::map< std::string, int > bodyIndices_;
 
-    int aceleratedBodyIndex_;
+    int acceleratedBodyIndex_;
 };
 
 
