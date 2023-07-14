@@ -164,11 +164,11 @@ public:
         return acceleratedBodyMap_;
     }
 
+    void recomputeExpansionMultipliers( );
 
 
 private:
 
-    void recomputeExpansionMultipliers( );
 
     void calculateAccelerations( );
 
