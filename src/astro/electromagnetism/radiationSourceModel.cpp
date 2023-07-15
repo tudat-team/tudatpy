@@ -229,7 +229,7 @@ IrradianceWithSourceList DynamicallyPaneledRadiationSourceModel::evaluateIrradia
         double originalSourceIrradiance,
         const Eigen::Vector3d& originalSourceToSourceDirection)
 {
-    // Generate center points of panelProperties in spherical coordinates
+    // Generate center points of panels in spherical coordinates
     const auto panelProperties = generatePaneledSphericalCap_EqualProjectedAttenuatedArea(
             targetPosition, numberOfPanelsPerRing_, sourceBodyShapeModel_->getAverageRadius());
     const auto panelCenters = std::get<0>(panelProperties);
@@ -338,8 +338,8 @@ generatePaneledSphericalCap_EqualAngularResolution(
         const std::vector<int>& numberOfPanelsPerRing,
         double bodyRadius)
 {
-    // The panels are first generated as if the target were above the North Pole ("polar-centric frame"),
-    // then rotated to the actual position ("target-centric frame"). This works because a spherical body
+    // The panels are first generated as if the target were above the North Pole ("pole-aligned frame"),
+    // then rotated to the actual position ("target-aligned frame"). This works because a spherical body
     // is assumed so that panel areas do not change upon rotation.
 
     std::vector<Eigen::Vector3d> panelCenters;
@@ -347,7 +347,7 @@ generatePaneledSphericalCap_EqualAngularResolution(
     std::vector<double> azimuthAngles;
     std::vector<double> areas;
 
-    const Eigen::Quaterniond rotationFromPolarCentricToTargetCentricFrame =
+    const Eigen::Quaterniond rotationFromPoleAlignedToTargetAlignedFrame =
             Eigen::Quaterniond::FromTwoVectors(Eigen::Vector3d::UnitZ(), targetPosition);
 
     const auto numberOfRings = numberOfPanelsPerRing.size();
@@ -356,16 +356,16 @@ generatePaneledSphericalCap_EqualAngularResolution(
     const auto angularResolutionPolar = sphericalCapAngle / (numberOfRings + 1);
 
     // Create central cap
-    const Eigen::Vector3d centralCapCenterInTargetCentricFrameCartesian = targetPosition.normalized() * bodyRadius;
-    const Eigen::Vector3d centralCapCenterInTargetCentricFrameSpherical =
-            coordinate_conversions::convertCartesianToSpherical(centralCapCenterInTargetCentricFrameCartesian);
-    const auto centralCapCenterPolarAngleInTargetCentricFrame = centralCapCenterInTargetCentricFrameSpherical[1];
-    const auto centralCapCenterAzimuthAngleInTargetCentricFrame = computeModulo(centralCapCenterInTargetCentricFrameSpherical[2], 2 * PI);
+    const Eigen::Vector3d centralCapCenterInTargetAlignedFrameCartesian = targetPosition.normalized() * bodyRadius;
+    const Eigen::Vector3d centralCapCenterInTargetAlignedFrameSpherical =
+            coordinate_conversions::convertCartesianToSpherical(centralCapCenterInTargetAlignedFrameCartesian);
+    const auto centralCapCenterPolarAngleInTargetAlignedFrame = centralCapCenterInTargetAlignedFrameSpherical[1];
+    const auto centralCapCenterAzimuthAngleInTargetAlignedFrame = computeModulo(centralCapCenterInTargetAlignedFrameSpherical[2], 2 * PI);
     const auto centralCapArea = 2 * PI * bodyRadius * bodyRadius * (1 - cos(angularResolutionPolar));
 
-    panelCenters.push_back(centralCapCenterInTargetCentricFrameCartesian);
-    polarAngles.push_back(centralCapCenterPolarAngleInTargetCentricFrame);
-    azimuthAngles.push_back(centralCapCenterAzimuthAngleInTargetCentricFrame);
+    panelCenters.push_back(centralCapCenterInTargetAlignedFrameCartesian);
+    polarAngles.push_back(centralCapCenterPolarAngleInTargetAlignedFrame);
+    azimuthAngles.push_back(centralCapCenterAzimuthAngleInTargetAlignedFrame);
     areas.push_back(centralCapArea);
 
     // Create rings
@@ -374,7 +374,7 @@ generatePaneledSphericalCap_EqualAngularResolution(
         int numberOfPanelsInCurrentRing = numberOfPanelsPerRing[currentRingNumber];
         // First ring stretches from 1*angularResolutionPolar to 2*angularResolutionPolar, so its
         // center is at 1.5*angularResolutionPolar
-        double panelCenterPolarAngleInPolarCentricFrame = (1.5 + currentRingNumber) * angularResolutionPolar;
+        double panelCenterPolarAngleInPoleAlignedFrame = (1.5 + currentRingNumber) * angularResolutionPolar;
         // Angular distance between panels within ring
         double angularResolutionAzimuth = 2 * PI / numberOfPanelsInCurrentRing;
 
@@ -382,27 +382,27 @@ generatePaneledSphericalCap_EqualAngularResolution(
         // Panels within the same ring have the same area
         double panelArea =
                 2 * bodyRadius * bodyRadius * angularResolutionAzimuth
-                * sin(angularResolutionPolar / 2) * sin(panelCenterPolarAngleInPolarCentricFrame);
+                * sin(angularResolutionPolar / 2) * sin(panelCenterPolarAngleInPoleAlignedFrame);
 
         // Create panels of ring
         for (int currentPanelNumber = 0; currentPanelNumber < numberOfPanelsInCurrentRing; currentPanelNumber++)
         {
-            double panelCenterAzimuthAngleInPolarCentricFrame = currentPanelNumber * angularResolutionAzimuth;
+            double panelCenterAzimuthAngleInPoleAlignedFrame = currentPanelNumber * angularResolutionAzimuth;
 
-            // Rotate from polar-centric to target-centric frame in Cartesian coordinates
-            Eigen::Vector3d panelCenterInPolarCentricFrameSpherical(
-                    bodyRadius, panelCenterPolarAngleInPolarCentricFrame, panelCenterAzimuthAngleInPolarCentricFrame);
-            Eigen::Vector3d panelCenterInTargetCentricFrameCartesian =
-                    rotationFromPolarCentricToTargetCentricFrame * coordinate_conversions::convertSphericalToCartesian(panelCenterInPolarCentricFrameSpherical);
-            Eigen::Vector3d panelCenterInTargetCentricFrameSpherical =
-                    coordinate_conversions::convertCartesianToSpherical(panelCenterInTargetCentricFrameCartesian);
+            // Rotate from pole-aligned to target-aligned frame in Cartesian coordinates
+            Eigen::Vector3d panelCenterInPoleAlignedFrameSpherical(
+                    bodyRadius, panelCenterPolarAngleInPoleAlignedFrame, panelCenterAzimuthAngleInPoleAlignedFrame);
+            Eigen::Vector3d panelCenterInTargetAlignedFrameCartesian =
+                    rotationFromPoleAlignedToTargetAlignedFrame * coordinate_conversions::convertSphericalToCartesian(panelCenterInPoleAlignedFrameSpherical);
+            Eigen::Vector3d panelCenterInTargetAlignedFrameSpherical =
+                    coordinate_conversions::convertCartesianToSpherical(panelCenterInTargetAlignedFrameCartesian);
 
-            double panelCenterPolarAngleInTargetCentricFrame = panelCenterInTargetCentricFrameSpherical[1];
-            double panelCenterAzimuthAngleInTargetCentricFrame = computeModulo(panelCenterInTargetCentricFrameSpherical[2], 2 * PI);
+            double panelCenterPolarAngleInTargetAlignedFrame = panelCenterInTargetAlignedFrameSpherical[1];
+            double panelCenterAzimuthAngleInTargetAlignedFrame = computeModulo(panelCenterInTargetAlignedFrameSpherical[2], 2 * PI);
 
-            panelCenters.push_back(panelCenterInTargetCentricFrameCartesian);
-            polarAngles.push_back(panelCenterPolarAngleInTargetCentricFrame);
-            azimuthAngles.push_back(panelCenterAzimuthAngleInTargetCentricFrame);
+            panelCenters.push_back(panelCenterInTargetAlignedFrameCartesian);
+            polarAngles.push_back(panelCenterPolarAngleInTargetAlignedFrame);
+            azimuthAngles.push_back(panelCenterAzimuthAngleInTargetAlignedFrame);
             areas.push_back(panelArea);
         }
     }
@@ -438,7 +438,7 @@ generatePaneledSphericalCap_EqualProjectedAttenuatedArea(
 
     std::vector<double> betas;
 
-    const Eigen::Quaterniond rotationFromPolarCentricToTargetCentricFrame =
+    const Eigen::Quaterniond rotationFromPoleAlignedToTargetAlignedFrame =
             Eigen::Quaterniond::FromTwoVectors(Eigen::Vector3d::UnitZ(), targetPosition);
 
     const auto numberOfRings = numberOfPanelsPerRing.size();
@@ -467,16 +467,16 @@ generatePaneledSphericalCap_EqualProjectedAttenuatedArea(
     const auto A_prime = 2 * (1 - cos(zeta_1));
 
     // Create central cap
-    const Eigen::Vector3d centralCapCenterInTargetCentricFrameCartesian = targetPosition.normalized() * R_e;
-    const Eigen::Vector3d centralCapCenterInTargetCentricFrameSpherical =
-            coordinate_conversions::convertCartesianToSpherical(centralCapCenterInTargetCentricFrameCartesian);
-    const auto centralCapCenterPolarAngleInTargetCentricFrame = centralCapCenterInTargetCentricFrameSpherical[1];
-    const auto centralCapCenterAzimuthAngleInTargetCentricFrame = computeModulo(centralCapCenterInTargetCentricFrameSpherical[2], 2 * PI);
+    const Eigen::Vector3d centralCapCenterInTargetAlignedFrameCartesian = targetPosition.normalized() * R_e;
+    const Eigen::Vector3d centralCapCenterInTargetAlignedFrameSpherical =
+            coordinate_conversions::convertCartesianToSpherical(centralCapCenterInTargetAlignedFrameCartesian);
+    const auto centralCapCenterPolarAngleInTargetAlignedFrame = centralCapCenterInTargetAlignedFrameSpherical[1];
+    const auto centralCapCenterAzimuthAngleInTargetAlignedFrame = computeModulo(centralCapCenterInTargetAlignedFrameSpherical[2], 2 * PI);
     const auto centralCapArea = A_prime * PI * (r_s - R_e) * (r_s - R_e);
 
-    panelCenters.push_back(centralCapCenterInTargetCentricFrameCartesian);
-    polarAngles.push_back(centralCapCenterPolarAngleInTargetCentricFrame);
-    azimuthAngles.push_back(centralCapCenterAzimuthAngleInTargetCentricFrame);
+    panelCenters.push_back(centralCapCenterInTargetAlignedFrameCartesian);
+    polarAngles.push_back(centralCapCenterPolarAngleInTargetAlignedFrame);
+    azimuthAngles.push_back(centralCapCenterAzimuthAngleInTargetAlignedFrame);
     areas.push_back(centralCapArea);
 
     // Create rings
@@ -487,7 +487,7 @@ generatePaneledSphericalCap_EqualProjectedAttenuatedArea(
         // Angular distance between panels within ring
         double angularResolutionAzimuth = 2 * PI / N_s;
 
-        // Ring center is anglewise halfway between both boundaries
+        // Ring center is polar-angle-wise halfway between both boundaries
         double beta_star = (betas[currentRingNumber] + betas[currentRingNumber + 1]) / 2;
 
         double r_squared = R_e * R_e + r_s * r_s - 2 * R_e * r_s * cos(beta_star);
@@ -497,22 +497,22 @@ generatePaneledSphericalCap_EqualProjectedAttenuatedArea(
         // Create panels of ring
         for (int currentPanelNumber = 0; currentPanelNumber < N_s; currentPanelNumber++)
         {
-            double panelCenterAzimuthAngleInPolarCentricFrame = currentPanelNumber * angularResolutionAzimuth;
+            double panelCenterAzimuthAngleInPoleAlignedFrame = currentPanelNumber * angularResolutionAzimuth;
 
-            // Rotate from polar-centric to target-centric frame in Cartesian coordinates
-            Eigen::Vector3d panelCenterInPolarCentricFrameSpherical(
-                    R_e, beta_star, panelCenterAzimuthAngleInPolarCentricFrame);
-            Eigen::Vector3d panelCenterInTargetCentricFrameCartesian =
-                    rotationFromPolarCentricToTargetCentricFrame * coordinate_conversions::convertSphericalToCartesian(panelCenterInPolarCentricFrameSpherical);
-            Eigen::Vector3d panelCenterInTargetCentricFrameSpherical =
-                    coordinate_conversions::convertCartesianToSpherical(panelCenterInTargetCentricFrameCartesian);
+            // Rotate from pole-aligned to target-aligned frame in Cartesian coordinates
+            Eigen::Vector3d panelCenterInPoleAlignedFrameSpherical(
+                    R_e, beta_star, panelCenterAzimuthAngleInPoleAlignedFrame);
+            Eigen::Vector3d panelCenterInTargetAlignedFrameCartesian =
+                    rotationFromPoleAlignedToTargetAlignedFrame * coordinate_conversions::convertSphericalToCartesian(panelCenterInPoleAlignedFrameSpherical);
+            Eigen::Vector3d panelCenterInTargetAlignedFrameSpherical =
+                    coordinate_conversions::convertCartesianToSpherical(panelCenterInTargetAlignedFrameCartesian);
 
-            double panelCenterPolarAngleInTargetCentricFrame = panelCenterInTargetCentricFrameSpherical[1];
-            double panelCenterAzimuthAngleInTargetCentricFrame = computeModulo(panelCenterInTargetCentricFrameSpherical[2], 2 * PI);
+            double panelCenterPolarAngleInTargetAlignedFrame = panelCenterInTargetAlignedFrameSpherical[1];
+            double panelCenterAzimuthAngleInTargetAlignedFrame = computeModulo(panelCenterInTargetAlignedFrameSpherical[2], 2 * PI);
 
-            panelCenters.push_back(panelCenterInTargetCentricFrameCartesian);
-            polarAngles.push_back(panelCenterPolarAngleInTargetCentricFrame);
-            azimuthAngles.push_back(panelCenterAzimuthAngleInTargetCentricFrame);
+            panelCenters.push_back(panelCenterInTargetAlignedFrameCartesian);
+            polarAngles.push_back(panelCenterPolarAngleInTargetAlignedFrame);
+            azimuthAngles.push_back(panelCenterAzimuthAngleInTargetAlignedFrame);
             areas.push_back(panelArea);
         }
     }
