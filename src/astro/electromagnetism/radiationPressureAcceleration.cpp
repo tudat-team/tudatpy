@@ -125,7 +125,7 @@ Eigen::Vector3d PaneledSourceRadiationPressureAcceleration::calculateAcceleratio
 
         if (occultedSourceIrradiance > 0)
         {
-            // No body is occluding source seen from target
+            // No body is occluding source as seen from target
             Eigen::Vector3d sourceToTargetDirectionInTargetFrame =
                     targetRotationFromGlobalToLocalFrame * (targetCenterPositionInGlobalFrame - sourcePositionInGlobalFrame).normalized();
             totalForceInTargetFrame +=
