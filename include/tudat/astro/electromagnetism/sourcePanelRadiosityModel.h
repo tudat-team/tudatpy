@@ -28,6 +28,12 @@ namespace electromagnetism
 /*!
  * Class modeling the radiosity emitted by a panel of a paneled radiation source.
  *
+ * Implementation notice: SourcePanelRadiosityModels are cloned when using a dynamically paneled source. Their copy
+ * constructors must ensure that class members are (not) shared between clones, as appropriate. For example, the
+ * albedo/emissivity surface property distributions should be shared to enable caching. The reflection law of an
+ * AlbedoSourcePanelRadiosityModel should not be shared. Therefore, a custom copy constructor has to be implemented.
+ * Scalar members are copied properly by the default copy constructor.
+ *
  * @see PaneledRadiationSourceModel::Panel
  */
 class SourcePanelRadiosityModel
@@ -153,6 +159,13 @@ public:
             const std::shared_ptr<SurfacePropertyDistribution>& albedoDistribution) :
             albedoDistribution_(albedoDistribution),
             reflectionLaw_(std::make_shared<LambertianReflectionLaw>(TUDAT_NAN)) {}
+
+    AlbedoSourcePanelRadiosityModel(
+            const AlbedoSourcePanelRadiosityModel& other)
+            : SourcePanelRadiosityModel(other),
+              albedoDistribution_(other.albedoDistribution_),
+              reflectionLaw_(std::make_shared<LambertianReflectionLaw>(*other.reflectionLaw_))
+    {}
 
     double evaluateIrradianceAtPosition(
             double panelArea,
