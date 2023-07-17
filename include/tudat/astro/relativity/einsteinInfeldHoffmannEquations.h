@@ -7,6 +7,8 @@
 
 #include <Eigen/Core>
 
+#include "tudat/math/basic/mathematicalConstants.h"
+
 namespace tudat
 {
 
@@ -164,6 +166,12 @@ public:
         return acceleratedBodyMap_;
     }
 
+    std::map< std::string, int > getAcceleratingBodyMap( )
+    {
+        return acceleratingBodyMap_;
+    }
+
+
     void recomputeExpansionMultipliers( );
 
 
@@ -191,6 +199,7 @@ private:
 
     std::map< std::string, int > acceleratedBodyMap_;
 
+    std::map< std::string, int > acceleratingBodyMap_;
 
 
     // mu_{i}

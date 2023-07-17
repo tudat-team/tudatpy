@@ -8,21 +8,21 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MAIN
+//
+//#define BOOST_TEST_DYN_LINK
+//#define BOOST_TEST_MAIN
 
 #include <boost/test/unit_test.hpp>
 
 #include "tudat/interface/spice/spiceInterface.h"
 #include "tudat/simulation/simulation.h"
 #include "tudat/simulation/estimation.h"
-
-namespace tudat
-{
-
-namespace unit_tests
-{
+//
+//namespace tudat
+//{
+//
+//namespace unit_tests
+//{
 
 using namespace tudat;
 using namespace tudat::simulation_setup;
@@ -35,12 +35,12 @@ using namespace tudat::unit_conversions;
 using namespace tudat::estimatable_parameters;
 using namespace tudat::orbit_determination;
 using namespace tudat::observation_models;
-
-
-BOOST_AUTO_TEST_SUITE( test_eih_estimation )
-
-BOOST_AUTO_TEST_CASE( testEihEstimation )
-//int main( )
+//
+//
+//BOOST_AUTO_TEST_SUITE( test_eih_estimation )
+//
+//BOOST_AUTO_TEST_CASE( testEihEstimation )
+int main( )
 {
     // Load Spice kernels.
     spice_interface::loadStandardSpiceKernels( );
@@ -54,30 +54,40 @@ BOOST_AUTO_TEST_CASE( testEihEstimation )
 
     std::vector< Eigen::Vector6d > rmsDifferences;
     std::vector< Eigen::Vector6d > maximumDifferences;
+
+    std::vector<std::string> bodiesToPropagate = { "Venus" };
+    std::vector<std::string> centralBodies = std::vector<std::string>( bodiesToPropagate.size( ), "SSB" );
+
     for( unsigned int test = 0; test < 2; test++ )
     {
         // Create body objects.
         std::vector<std::string> bodiesToCreate =
-        { "Sun", "Mercury", "Venus", "Earth", "Moon", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune" };
+        { "Sun", "Mercury", "Venus", "Earth", "Moon", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto" };
         BodyListSettings bodySettings =
             getDefaultBodySettings( bodiesToCreate );
         for( unsigned int i = 0; i < bodiesToCreate.size( ); i++ )
         {
+            if( bodiesToCreate.at( i ) != "Sun" && bodiesToCreate.at( i ) != "Mercury" && bodiesToCreate.at( i ) != "Venus" && bodiesToCreate.at( i ) != "Earth" && bodiesToCreate.at( i ) != "Moon"  )
+            {
+                bodySettings.at( bodiesToCreate.at( i ) )->ephemerisSettings = directSpiceEphemerisSettings(
+                    "SSB", "ECLIPJ2000", bodiesToCreate.at( i ) + "_Barycenter" );
+            }
             bodySettings.at( bodiesToCreate.at( i ) )->gravityFieldSettings = centralGravityFromSpiceSettings( );
         }
-        bodySettings.at( "Venus" )->ephemerisSettings = tabulatedEphemerisSettings(
-            bodySettings.at( "Venus" )->ephemerisSettings, simulationStartEpoch - 10.0 * 86400.0, simulationEndEpoch + 10.0 * 86400.0, 86400.0 );
-        bodySettings.addSettings( "Ceres" );
-        bodySettings.at( "Ceres" )->ephemerisSettings = directSpiceEphemerisSettings( "SSB", "ECLIPJ2000", false, false, false );
-        bodySettings.at( "Ceres" )->gravityFieldSettings = centralGravityFromSpiceSettings( );
 
-        bodySettings.addSettings( "Vesta" );
-        bodySettings.at( "Vesta" )->ephemerisSettings = directSpiceEphemerisSettings( "SSB", "ECLIPJ2000", false, false, false );
-        bodySettings.at( "Vesta" )->gravityFieldSettings = centralGravityFromSpiceSettings( );
+        for( unsigned int i = 0; i < bodiesToPropagate.size( ); i++ )
+        {
+            bodySettings.at( bodiesToPropagate.at( i ) )->ephemerisSettings = tabulatedEphemerisSettings(
+                bodySettings.at( bodiesToPropagate.at( i ) )->ephemerisSettings, simulationStartEpoch - 10.0 * 86400.0, simulationEndEpoch + 10.0 * 86400.0, 86400.0 );
+        }
 
-        bodySettings.addSettings( "Pallas" );
-        bodySettings.at( "Pallas" )->ephemerisSettings = directSpiceEphemerisSettings( "SSB", "ECLIPJ2000", false, false, false );
-        bodySettings.at( "Pallas" )->gravityFieldSettings = centralGravityFromSpiceSettings( );
+        std::vector<std::string> minorBodies = { "Ceres", "Vesta", "Pallas", "2000010", "2000704", "2000052" };
+        for( unsigned int i = 0; i < minorBodies.size( ); i++ )
+        {
+            bodySettings.addSettings( minorBodies.at( i ) );
+            bodySettings.at( minorBodies.at( i ) )->ephemerisSettings = directSpiceEphemerisSettings( "SSB", "ECLIPJ2000", false, false, false );
+            bodySettings.at( minorBodies.at( i ) )->gravityFieldSettings = centralGravityFromSpiceSettings( );
+        }
 
 
         // Create Earth object
@@ -90,8 +100,7 @@ BOOST_AUTO_TEST_CASE( testEihEstimation )
 
         // Define propagator settings variables.
         SelectedAccelerationMap accelerationMap;
-        std::vector<std::string> bodiesToPropagate = { "Venus" };
-        std::vector<std::string> centralBodies = { "SSB" };
+
 
         // Define propagation settings.
         for ( unsigned int i = 0; i < bodiesToPropagate.size( ); i++ )
@@ -105,17 +114,14 @@ BOOST_AUTO_TEST_CASE( testEihEstimation )
                         std::make_shared<AccelerationSettings>(
                             accelerationType ));
                 }
-
             }
-            accelerationsOfCurrentBody[ "Ceres" ].push_back(
-                std::make_shared<AccelerationSettings>(
-                    point_mass_gravity ));
-            accelerationsOfCurrentBody[ "Vesta" ].push_back(
-                std::make_shared<AccelerationSettings>(
-                    point_mass_gravity ));
-            accelerationsOfCurrentBody[ "Pallas" ].push_back(
-                std::make_shared<AccelerationSettings>(
-                    point_mass_gravity ));
+
+            for ( unsigned int j = 0; j < minorBodies.size( ); j++ )
+            {
+                accelerationsOfCurrentBody[ minorBodies.at( j )].push_back(
+                    std::make_shared<AccelerationSettings>(
+                        point_mass_gravity ) );
+            }
 
             accelerationMap[ bodiesToPropagate.at( i ) ] = accelerationsOfCurrentBody;
         }
@@ -149,6 +155,7 @@ BOOST_AUTO_TEST_CASE( testEihEstimation )
             getInitialStateParameterSettings< double >( propagatorSettings, bodies );
         parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Sun", gravitational_parameter ) );
         parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Mercury", gravitational_parameter ) );
+//        parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Venus", gravitational_parameter ) );
         parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Earth", gravitational_parameter ) );
         parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Mars", gravitational_parameter ) );
         parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Jupiter", gravitational_parameter ) );
@@ -166,11 +173,14 @@ BOOST_AUTO_TEST_CASE( testEihEstimation )
         std::vector< std::shared_ptr< ObservationModelSettings > >  observationSettingsList;
         std::vector< LinkEnds > linkEndsList;
 
-        LinkEnds observationLinkEnds;
-        observationLinkEnds[ observed_body ] = std::pair< std::string, std::string >( std::make_pair( "Venus", "" ) );
-        linkEndsList.push_back( observationLinkEnds );
-        observationSettingsList.push_back( std::make_shared< ObservationModelSettings >(
-            position_observable, observationLinkEnds ) );
+        for( unsigned int i = 0; i < bodiesToPropagate.size( ); i++ )
+        {
+            LinkEnds observationLinkEnds;
+            observationLinkEnds[ observed_body ] = std::pair<std::string, std::string>( std::make_pair( bodiesToPropagate.at( i ), "" ));
+            linkEndsList.push_back( observationLinkEnds );
+            observationSettingsList.push_back( std::make_shared<ObservationModelSettings>(
+                position_observable, observationLinkEnds ));
+        }
 
 
         std::vector< double > baseTimeList;
@@ -181,9 +191,12 @@ BOOST_AUTO_TEST_CASE( testEihEstimation )
             currentTime += 86400.0;
         }
         std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > measurementSimulationInput;
-        measurementSimulationInput.push_back(
-                std::make_shared< TabulatedObservationSimulationSettings< > >(
-                    position_observable, linkEndsList.at( 0 ), baseTimeList, observed_body ) );
+        for( unsigned int i = 0; i < bodiesToPropagate.size( ); i++ )
+        {
+            measurementSimulationInput.push_back(
+                std::make_shared<TabulatedObservationSimulationSettings<> >(
+                    position_observable, linkEndsList.at( i ), baseTimeList, observed_body ));
+        }
 
         // Simulate ideal observations
         std::shared_ptr< ObservationCollection< > > observationsAndTimes = simulateObservations< double, double >(
@@ -223,11 +236,11 @@ BOOST_AUTO_TEST_CASE( testEihEstimation )
 //    }
 
 }
-
-BOOST_AUTO_TEST_SUITE_END( )
-
-}
-
-}
+//
+//BOOST_AUTO_TEST_SUITE_END( )
+//
+//}
+//
+//}
 
 
