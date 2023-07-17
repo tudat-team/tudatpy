@@ -109,8 +109,6 @@ IrradianceWithSourceList PaneledRadiationSourceModel::evaluateIrradianceAtPositi
         {
             // Avoids unnecessary panel radiosity model evaluations
             // No need to normalize target position here
-            // TODO-DOMINIK find better way to eliminate unnecessary evaluations.
-            //      maybe use data structure for fast lookup on sphere (spherical quad-tree, HEALPix)
             continue;
         }
 
@@ -126,14 +124,15 @@ IrradianceWithSourceList PaneledRadiationSourceModel::evaluateIrradianceAtPositi
                     originalSourceToSourceDirection);
         }
 
-        if (irradiance != 0)
+        if (irradiance > 0)
         {
             // Do not add panels to list if they do not contribute to irradiance at target location
-            // This prevents unnecessary evaluations in the radiation pressure acceleration evaluation
+            // This prevents unnecessary evaluations in the radiation pressure acceleration
             irradiances.emplace_back(irradiance, panel.getRelativeCenter());
             visibleArea += panel.getArea();
         }
     }
+
     return irradiances;
 }
 
@@ -452,7 +451,7 @@ generatePaneledSphericalCap_EqualProjectedAttenuatedArea(
     // Calculate ring boundaries
     const auto zeta_m = asin(R_e / r_s);
     const auto zeta_1 = acos((N - 1 + cos(zeta_m)) / N);
-    const auto gamma_1 = asin(r_s * sin(zeta_1) / R_e);
+    const auto gamma_1 = asin(std::min(1.0, r_s * sin(zeta_1) / R_e));
     betas.push_back(gamma_1 - zeta_1);
 
     int k = 1;
@@ -464,15 +463,13 @@ generatePaneledSphericalCap_EqualProjectedAttenuatedArea(
         betas.push_back(gamma_i - zeta_i);
     }
 
-    const auto A_prime = 2 * (1 - cos(zeta_1));
-
     // Create central cap
     const Eigen::Vector3d centralCapCenterInTargetAlignedFrameCartesian = targetPosition.normalized() * R_e;
     const Eigen::Vector3d centralCapCenterInTargetAlignedFrameSpherical =
             coordinate_conversions::convertCartesianToSpherical(centralCapCenterInTargetAlignedFrameCartesian);
     const auto centralCapCenterPolarAngleInTargetAlignedFrame = centralCapCenterInTargetAlignedFrameSpherical[1];
     const auto centralCapCenterAzimuthAngleInTargetAlignedFrame = computeModulo(centralCapCenterInTargetAlignedFrameSpherical[2], 2 * PI);
-    const auto centralCapArea = A_prime * PI * (r_s - R_e) * (r_s - R_e);
+    const auto centralCapArea = 2 * PI * R_e * R_e * (1 - cos(betas.front()));
 
     panelCenters.push_back(centralCapCenterInTargetAlignedFrameCartesian);
     polarAngles.push_back(centralCapCenterPolarAngleInTargetAlignedFrame);
@@ -490,9 +487,13 @@ generatePaneledSphericalCap_EqualProjectedAttenuatedArea(
         // Ring center is polar-angle-wise halfway between both boundaries
         double beta_star = (betas[currentRingNumber] + betas[currentRingNumber + 1]) / 2;
 
-        double r_squared = R_e * R_e + r_s * r_s - 2 * R_e * r_s * cos(beta_star);
-        double alpha = asin(sin(beta_star) * r_s / sqrt(r_squared));
-        double panelArea = A_prime * PI * r_squared / cos(alpha);
+        // The panel area could also be calculated from the constant A'. This has been implemented here:
+        // https://github.com/DominikStiller/tudat/blob/d58c9840af0bac16026e313bb95461cbda290c3e/src/astro/electromagnetism/radiationSourceModel.cpp#L495
+        // However, this leads to extremely large areas for the outer panels, since a constant viewing angle (alpha) is
+        // assumed. Calculating the panel area from the sphere geometry, as done here, gives a realistic panel area.
+        // Experiments for LAGEOS-1 showed that the resulting RP accelerations for both area calculation approaches
+        // agree within 2%. Both converge for a large number of rings, since the outer panels are smaller then.
+        double panelArea =  2 * PI * R_e * R_e * (cos(betas[currentRingNumber]) - cos(betas[currentRingNumber + 1])) / N_s;
 
         // Create panels of ring
         for (int currentPanelNumber = 0; currentPanelNumber < N_s; currentPanelNumber++)
