@@ -1854,7 +1854,9 @@ std::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialStatePa
         const std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > >& parameterNames,
         const SystemOfBodies& bodies,
         const std::shared_ptr< propagators::PropagatorSettings< InitialStateParameterType > > propagatorSettings =
-        std::shared_ptr< propagators::PropagatorSettings< InitialStateParameterType > >( ) )
+        std::shared_ptr< propagators::PropagatorSettings< InitialStateParameterType > >( ),
+        const std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > >& considerParameterNames =
+                std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > >( ) )
 
 {
     using namespace tudat::estimatable_parameters;
@@ -1909,8 +1911,14 @@ std::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialStatePa
         }
     }
 
+    std::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > considerParameters;
+    if ( !considerParameterNames.empty( ) )
+    {
+        considerParameters = createParametersToEstimate( considerParameterNames, bodies, propagatorSettings );
+    }
+
     return std::make_shared< EstimatableParameterSet< InitialStateParameterType > >(
-                doubleParametersToEstimate, vectorParametersToEstimate, initialDynamicalParametersToEstimate );
+                doubleParametersToEstimate, vectorParametersToEstimate, initialDynamicalParametersToEstimate, considerParameters );
 }
 
 //! Function to get the multi-arc parameter equivalent of a single-arc initial state parameter
