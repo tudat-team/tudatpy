@@ -283,7 +283,7 @@ BOOST_AUTO_TEST_CASE( testDynamicallyPaneledRadiationSourceModel_CentralCapOnly 
     // Timestep 1
     const auto altitude1 = 2;
     const Eigen::Vector3d targetPosition1 = (radius + altitude1) * Eigen::Vector3d(1, 1, 0).normalized();
-    const auto panelArea1 = 2 * PI * altitude1 * altitude1 * (1 - cos(asin(radius / targetPosition1.norm())));
+    const auto panelArea1 = 2 * PI * radius * radius * (1 - radius / targetPosition1.norm());
 
     const auto expectedReceivedIrradiance1 = radiosity / (PI * altitude1 * altitude1) * panelArea1;
     radiationSourceModel.updateMembers(0);
@@ -298,7 +298,7 @@ BOOST_AUTO_TEST_CASE( testDynamicallyPaneledRadiationSourceModel_CentralCapOnly 
     // Timestep 2
     const auto altitude2 = 14;
     const Eigen::Vector3d targetPosition2 = (radius + altitude2) * Eigen::Vector3d(0.7, 5.6, 1.2).normalized();
-    const auto panelArea2 = 2 * PI * altitude2 * altitude2 * (1 - cos(asin(radius / targetPosition2.norm())));
+    const auto panelArea2 = 2 * PI * radius * radius * (1 - radius / targetPosition2.norm());
 
     const auto expectedReceivedIrradiance2 = radiosity / (PI * altitude2 * altitude2) * panelArea2;
     radiationSourceModel.updateMembers(1);
@@ -798,25 +798,25 @@ BOOST_AUTO_TEST_CASE( generatePaneledSphericalCap_EqualProjectedAttenuatedArea_R
             1.186540053050643
     };
     const std::vector<double> expectedAreas{
-            632483355.8710622,
-            1075077896.0345714,
-            1075077896.0345714,
-            1075077896.0345714,
-            1075077896.0345714,
-            1075077896.0345714,
-            1075077896.0345714,
-            100543547120.72939,
-            100543547120.72939,
-            100543547120.72939,
-            100543547120.72939,
-            100543547120.72939,
-            100543547120.72939,
-            100543547120.72939,
-            100543547120.72939,
-            100543547120.72939,
-            100543547120.72939,
-            100543547120.72939,
-            100543547120.72939
+        674520599.8457742,
+        1151393038.209153,
+        1151393038.209153,
+        1151393038.209153,
+        1151393038.209153,
+        1151393038.209153,
+        1151393038.209153,
+        43544116264.76841,
+        43544116264.76841,
+        43544116264.76841,
+        43544116264.76841,
+        43544116264.76841,
+        43544116264.76841,
+        43544116264.76841,
+        43544116264.76841,
+        43544116264.76841,
+        43544116264.76841,
+        43544116264.76841,
+        43544116264.76841
     };
 
     for (int i = 0; i < expectedNumberOfPanels; ++i)
