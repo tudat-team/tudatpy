@@ -48,7 +48,7 @@ public:
         for( unsigned int i = 1; i < tidalAccelerationModels_.size( ); i++ )
         {
             // Check whether input is fully consistent at iteration 0.
-            if ( isnan( tidalAccelerationModels_.at( i )->getInverseTidalQualityFactor( ) ) || isnan( tidalAccelerationModels_.at( i )->getTidalPeriod(  ) ) )
+            if ( std::isnan( tidalAccelerationModels_.at( i )->getInverseTidalQualityFactor( ) ) || std::isnan( tidalAccelerationModels_.at( i )->getTidalPeriod(  ) ) )
             {
                 throw std::runtime_error( "Error when creating inverse tidal quality factor parameter, no value provided for Q and/or tidal period "
                                           " in the acceleration model." );

@@ -1555,7 +1555,7 @@ std::shared_ptr< gravitation::DirectTidalDissipationAcceleration > createDirectT
                 std::bind( &Body::getCurrentAngularVelocityVectorInGlobalFrame, bodyExertingAcceleration );
 
         // Create direct tidal model from tidal time lag directly
-        if ( isnan( tidalAccelerationSettings->inverseTidalQualityFactor_ ) && isnan( tidalAccelerationSettings->tidalPeriod_ ) )
+        if ( std::isnan( tidalAccelerationSettings->inverseTidalQualityFactor_ ) && std::isnan( tidalAccelerationSettings->tidalPeriod_ ) )
         {
             return std::make_shared< DirectTidalDissipationAcceleration >(
                     std::bind( &Body::getState, bodyUndergoingAcceleration ), std::bind( &Body::getState, bodyExertingAcceleration ),
@@ -1577,7 +1577,7 @@ std::shared_ptr< gravitation::DirectTidalDissipationAcceleration > createDirectT
     else if( !tidalAccelerationSettings->explicitLibraionalTideOnSatellite_ )
     {
         // Create direct tidal model from tidal time lag directly
-        if ( isnan( tidalAccelerationSettings->inverseTidalQualityFactor_ ) && isnan( tidalAccelerationSettings->tidalPeriod_ ) )
+        if ( std::isnan( tidalAccelerationSettings->inverseTidalQualityFactor_ ) && std::isnan( tidalAccelerationSettings->tidalPeriod_ ) )
         {
             return std::make_shared< DirectTidalDissipationAcceleration >(
                     std::bind( &Body::getState, bodyUndergoingAcceleration ), std::bind( &Body::getState, bodyExertingAcceleration ),
@@ -1602,7 +1602,7 @@ std::shared_ptr< gravitation::DirectTidalDissipationAcceleration > createDirectT
                 std::bind( &Body::getCurrentAngularVelocityVectorInGlobalFrame, bodyExertingAcceleration );
 
         // Create direct tidal model from tidal time lag directly
-        if ( isnan( tidalAccelerationSettings->inverseTidalQualityFactor_ ) && isnan( tidalAccelerationSettings->tidalPeriod_ ) )
+        if ( std::isnan( tidalAccelerationSettings->inverseTidalQualityFactor_ ) && std::isnan( tidalAccelerationSettings->tidalPeriod_ ) )
         {
             return std::make_shared< DirectTidalDissipationAcceleration >(
                     std::bind( &Body::getState, bodyUndergoingAcceleration ), std::bind( &Body::getState, bodyExertingAcceleration ),
