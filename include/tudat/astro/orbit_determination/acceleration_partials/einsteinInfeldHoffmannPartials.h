@@ -51,9 +51,9 @@ public:
             currentTime_( TUDAT_NAN )
     {
         currentTotalAccelerationsWrtPosition_ = utilities::getTwoDimensionalVector< Eigen::Matrix< double, 3, 3 > >(
-            numberOfUndergoingBodies_, numberOfExertingBodies_, Eigen::Matrix< double, 3, 3 >::Zero( ) );
+            numberOfExertingBodies_, numberOfExertingBodies_, Eigen::Matrix< double, 3, 3 >::Zero( ) );
         currentTotalAccelerationsWrtVelocity_ = utilities::getTwoDimensionalVector< Eigen::Matrix< double, 3, 3 > >(
-            numberOfUndergoingBodies_, numberOfExertingBodies_, Eigen::Matrix< double, 3, 3 >::Zero( ) );
+            numberOfExertingBodies_, numberOfExertingBodies_, Eigen::Matrix< double, 3, 3 >::Zero( ) );
 //        currentTotalAccelerationsWrtGravitationalParameter_.resize( numberOfUndergoingBodies_ );
 
         currentSinglePointMassAccelerationsWrtExertingPosition_ = utilities::getTwoDimensionalVector< Eigen::Matrix< double, 3, 3 > >(
@@ -92,7 +92,7 @@ public:
         if( currentTime_ != currentTime )
         {
             eihEquations_->update( currentTime );
-            for( int i = 0; i < numberOfUndergoingBodies_; i++ )
+            for( int i = 0; i < numberOfExertingBodies_; i++ )
             {
                 currentTotalPointMassAccelerationsWrtPosition_[ i ][ i ].setZero( );
                 currentTotalPotentialWrtPosition_[ i ][ i ].setZero( );
@@ -153,7 +153,7 @@ public:
                 }
             }
 
-            for( int i = 0; i < numberOfUndergoingBodies_; i++ )
+            for( int i = 0; i < numberOfExertingBodies_; i++ )
             {
                 currentTotalAccelerationsWrtPosition_[ i ][ i ].setZero( );
                 currentTotalAccelerationsWrtVelocity_[ i ][ i ].setZero( );
@@ -248,7 +248,8 @@ public:
             break;
         case 5:
         {
-            Eigen::Vector3d normalizedRelativePosition = eihEquations_->getRelativePositions( bodyUndergoing, bodyExerting ).normalized( );
+            Eigen::Vector3d normalizedRelativePosition = eihEquations_->getRelativePositions( bodyUndergoing, bodyExerting ) /
+                                                         eihEquations_->getRelativeDistance( bodyUndergoing, bodyExerting );
             Eigen::Vector3d exertingVelocity = eihEquations_->getVelocity( bodyExerting );
             if( wrtExerting )
             {
@@ -345,7 +346,8 @@ public:
         {
             if( wrtExerting )
             {
-                Eigen::Vector3d normalizedRelativePosition = eihEquations_->getRelativePositions( bodyUndergoing, bodyExerting ).normalized( );
+                Eigen::Vector3d normalizedRelativePosition = eihEquations_->getRelativePositions( bodyUndergoing, bodyExerting ) /
+                    eihEquations_->getRelativeDistance( bodyUndergoing, bodyExerting );
                 Eigen::Vector3d exertingVelocity = eihEquations_->getVelocity( bodyExerting );
                 scalarTermWrtVelocity += eihEquations_->getScalarTermMultiplier( termIndex ) *
                     2.0 * normalizedRelativePosition.dot( exertingVelocity ) * normalizedRelativePosition.transpose( );
@@ -369,7 +371,8 @@ public:
         case 0:
         {
             double inverseSquareDistance = eihEquations_->getInverseSquareDistance( bodyUndergoing, bodyExerting );
-            Eigen::Vector3d relativePositionNormalized = eihEquations_->getRelativePositions( bodyUndergoing, bodyExerting ).normalized( );
+            Eigen::Vector3d relativePositionNormalized = eihEquations_->getRelativePositions( bodyUndergoing, bodyExerting ) /
+                                                         eihEquations_->getRelativeDistance( bodyUndergoing, bodyExerting );
 
 
             double sign = ( wrtExerting ? 1.0 : -1.0 );
@@ -382,7 +385,8 @@ public:
         case 1:
         {
             double inverseSquareDistance = eihEquations_->getInverseSquareDistance( bodyUndergoing, bodyExerting );
-            Eigen::Vector3d relativePositionNormalized = eihEquations_->getRelativePositions( bodyUndergoing, bodyExerting ).normalized( );
+            Eigen::Vector3d relativePositionNormalized = eihEquations_->getRelativePositions( bodyUndergoing, bodyExerting ) /
+                                                         eihEquations_->getRelativeDistance( bodyUndergoing, bodyExerting );
 
 
             double sign = ( wrtExerting ? 1.0 : -1.0 );
@@ -567,49 +571,7 @@ public:
         betaPartial *= physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT;
     }
 
-    void getAccelerationWrtGravitationalParameter( Eigen::MatrixXd& muPartial, const int bodyIndex, const int muIndex )
-    {
-        muPartial.setZero( 3, 1 );
-        double currentMu = eihEquations_->getGravitationalParameter( muIndex     );
-        if( currentMu == 0.0 )
-        {
-            throw std::runtime_error( "Error when computing EIH partial w.r.t. mu, value of mu is 0" );
-        }
-
-        if( bodyIndex != muIndex )
-        {
-            muPartial += eihEquations_->getSinglePointMassAccelerations( bodyIndex, muIndex )  *
-                ( 1.0 + physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT * eihEquations_->getTotalScalarTermCorrection( bodyIndex, muIndex ) );
-            muPartial += eihEquations_->getSingleSourceLocalPotential( bodyIndex, muIndex ) *
-                physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT * eihEquations_->getTotalVectorTermCorrection( bodyIndex, muIndex );
-        }
-
-        double scalarMultiplier0 = eihEquations_->getScalarTermMultiplier( 0 );
-        double scalarMultiplier1 = eihEquations_->getScalarTermMultiplier( 1 );
-        double scalarMultiplier6 = eihEquations_->getScalarTermMultiplier( 6 );
-        double vectorMultiplier0 = eihEquations_->getVectorTermMultiplier( 2 );
-
-        double scalarTerm0Partial = 0.0;
-        if( bodyIndex != muIndex )
-        {
-            eihEquations_->getSingleSourceLocalPotential( bodyIndex, muIndex );
-        }
-
-        for( int j = 0; j < numberOfExertingBodies_; j++ )
-        {
-            if ( j != bodyIndex )
-            {
-                muPartial += ( eihEquations_->getSinglePointMassAccelerations( bodyIndex, j ) *
-                    ( scalarMultiplier0 * scalarTerm0Partial +
-                    scalarMultiplier1 * eihEquations_->getSingleSourceLocalPotential( j, muIndex ) +
-                    scalarMultiplier6 * eihEquations_->getRelativePositions( bodyIndex, j ).dot(
-                        eihEquations_->getSinglePointMassAccelerations( j, muIndex ) ) )
-                  +  vectorMultiplier0 * eihEquations_->getSingleSourceLocalPotential( bodyIndex, j ) * eihEquations_->getSinglePointMassAccelerations( j, muIndex )
-                    ) *physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT;;
-            }
-        }
-        muPartial /= currentMu;
-    }
+    void getAccelerationWrtGravitationalParameter( Eigen::MatrixXd& muPartial, const int bodyIndex, const int muIndex );
 
 protected:
 
@@ -797,13 +759,15 @@ public:
         // Check dependencies.
         if( parameter->getParameterName( ).first ==  estimatable_parameters::gravitational_parameter )
         {
-            if( fullEihPartials_->getEihEquations( )->getAcceleratedBodyMap( ).count( parameter->getParameterName( ).second.first ) > 0 )
+//            std::cout<<"Checking "<<parameter->getParameterName( ).second.first<<" "
+//            <<fullEihPartials_->getEihEquations( )->getAcceleratingBodyMap( ).count( parameter->getParameterName( ).second.first )<<std::endl;
+            if( fullEihPartials_->getEihEquations( )->getAcceleratingBodyMap( ).count( parameter->getParameterName( ).second.first ) > 0 )
             {
                 // If parameter is gravitational parameter, check and create dependency function .
                 partialFunctionPair =
                     std::make_pair( std::bind( &EihEquationsPartials::getAccelerationWrtGravitationalParameter, fullEihPartials_,
                                                  std::placeholders::_1, acceleratedBodyIndex_,
-                                                 fullEihPartials_->getEihEquations( )->getAcceleratedBodyMap( ).at( parameter->getParameterName( ).second.first ) ), 1 );
+                                                 fullEihPartials_->getEihEquations( )->getAcceleratingBodyMap( ).at( parameter->getParameterName( ).second.first ) ), 1 );
             }
         }
         else if( parameter->getParameterName( ).first == estimatable_parameters::ppn_parameter_gamma )
