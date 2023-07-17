@@ -311,7 +311,7 @@ void DirectTidalDissipationAccelerationPartial::wrtTidalTimeLag( Eigen::MatrixXd
 
 void DirectTidalDissipationAccelerationPartial::wrtInverseTidalQualityFactor( Eigen::MatrixXd &qualityFactorParameterPartial )
 {
-    if ( isnan( tidalAcceleration_->getTidalPeriod( ) ) || isnan( tidalAcceleration_->getInverseTidalQualityFactor( ) ) )
+    if ( std::isnan( tidalAcceleration_->getTidalPeriod( ) ) || std::isnan( tidalAcceleration_->getInverseTidalQualityFactor( ) ) )
     {
         throw std::runtime_error( "Error when computing tidal dissipation acceleration partial w.r.t. inverse quality factor Q, "
                                   " no value is provided for Q and tidal period." );
