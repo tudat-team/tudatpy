@@ -31,6 +31,7 @@
 #include "tudat/astro/orbit_determination/estimatable_parameters/equivalencePrincipleViolationParameter.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/tidalLoveNumber.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/directTidalTimeLag.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/inverseTidalQualityFactor.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/meanMomentOfInertiaParameter.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/desaturationDeltaV.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/periodicSpinVariation.h"
@@ -137,7 +138,7 @@ std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAc
         }
         break;
     }
-        // Direct tidal time lags need to be linked to direct tidal acceleration
+    // Direct tidal time lags need to be linked to direct tidal acceleration
     case direct_dissipation_tidal_time_lag:
     {
         std::shared_ptr< DirectTidalTimeLagEstimatableParameterSettings > dissipationTimeLagSettings =
@@ -184,6 +185,28 @@ std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAc
                     }
                 }
             }
+        }
+        break;
+    }
+    // Inverse tidal quality factor to be linked to direct tidal acceleration
+    case inverse_tidal_quality_factor:
+    {
+        std::shared_ptr< InverseTidalQualityFactorEstimatableParameterSettings > qualityFactorSettings =
+                std::dynamic_pointer_cast< InverseTidalQualityFactorEstimatableParameterSettings >( parameterSettings );
+        std::string currentBodyName =  parameterSettings ->parameterType_.second.first;
+        if( qualityFactorSettings == nullptr )
+        {
+            throw std::runtime_error( "Error, expected inverse tidal quality factor parameter settings." );
+        }
+        else
+        {
+            std::vector< std::shared_ptr< gravitation::DirectTidalDissipationAcceleration > > tidalAccelerationModelList =
+                    gravitation::getTidalDissipationAccelerationModels( accelerationModelMap, currentBodyName, qualityFactorSettings->deformingBodies_ );
+            for( unsigned int i = 0; i < tidalAccelerationModelList.size( ); i++ )
+            {
+                accelerationModelList.push_back( tidalAccelerationModelList.at( i ) );
+            }
+
         }
         break;
     }
@@ -1103,6 +1126,45 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
 
             break;
         }
+        case inverse_tidal_quality_factor:
+        {
+            if( propagatorSettings == nullptr )
+            {
+                throw std::runtime_error( "Error when creating inverse_tidal_quality_factor parameter, no propagatorSettings provided." );
+            }
+
+            // Check input consistency
+            std::shared_ptr< InverseTidalQualityFactorEstimatableParameterSettings > qualityFactorSettings =
+                    std::dynamic_pointer_cast< InverseTidalQualityFactorEstimatableParameterSettings >( doubleParameterName );
+            if( qualityFactorSettings == nullptr )
+            {
+                throw std::runtime_error( "Error, expected inverse tidal quality factor parameter settings." );
+            }
+            else
+            {
+                std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > associatedAccelerationModels =
+                        getAccelerationModelsListForParametersFromBase< InitialStateParameterType, TimeType >( propagatorSettings, doubleParameterName );
+                std::vector< std::shared_ptr< DirectTidalDissipationAcceleration > > associatedTidalAccelerationModels;
+                for( unsigned int i = 0; i < associatedAccelerationModels.size( ); i++ )
+                {
+                    // Create parameter object
+                    if( std::dynamic_pointer_cast< DirectTidalDissipationAcceleration >( associatedAccelerationModels.at( i ) )
+                        != nullptr )
+                    {
+                        associatedTidalAccelerationModels.push_back(
+                                std::dynamic_pointer_cast< DirectTidalDissipationAcceleration >( associatedAccelerationModels.at( i ) ) );
+                    }
+                    else
+                    {
+                        throw std::runtime_error(
+                                "Error, expected DirectTidalDissipationAcceleration in list when creating inverse_tidal_quality_factor parameter" );
+                    }
+                }
+                doubleParameterToEstimate = std::make_shared< InverseTidalQualityFactor >(
+                        associatedTidalAccelerationModels, currentBodyName, qualityFactorSettings->deformingBodies_ );
+            }
+            break;
+        }
         default:
             throw std::runtime_error( "Warning, this double parameter has not yet been implemented when making parameters" );
             break;
@@ -1838,6 +1900,45 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
     return vectorParameterToEstimate;
 }
 
+
+//! Function checking whether the direct tidal parameters to be estimated are not incompatible
+//! Tidal time lag and inverse of tidal quality factor cannot be simultaneously estimated for the same body and deforming bodies.
+template< typename InitialStateParameterType = double >
+bool checkCompatibilityDirectTidalParameters(
+        const std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > >& parameterNames )
+{
+    using namespace tudat::estimatable_parameters;
+
+    bool compatibleParameters = true;
+    for ( unsigned int i = 0; i < parameterNames.size( ); i++ )
+    {
+        if ( parameterNames[ i ]->parameterType_.first == direct_dissipation_tidal_time_lag )
+        {
+            std::string associatedBody = parameterNames[ i ]->parameterType_.second.first;
+            std::vector< std::string > deformingBodies = std::dynamic_pointer_cast< DirectTidalTimeLagEstimatableParameterSettings >( parameterNames[ i ] )->deformingBodies_;
+
+            for ( unsigned int j = 0 ; j < parameterNames.size( ) ; j++ )
+            {
+                if ( i != j )
+                {
+                    if ( parameterNames[ j ]->parameterType_.first == inverse_tidal_quality_factor )
+                    {
+                        std::string associatedBody2 = parameterNames[ j ]->parameterType_.second.first;
+                        std::vector< std::string > deformingBodies2 =
+                                std::dynamic_pointer_cast< InverseTidalQualityFactorEstimatableParameterSettings >( parameterNames[ j ] )->deformingBodies_;
+
+                        if ( ( associatedBody == associatedBody2 ) && ( deformingBodies == deformingBodies2 ) )
+                        {
+                            compatibleParameters = false;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return compatibleParameters;
+}
+
 //! Function to create the interface object for estimating any number/type of parameters.
 /*!
  *  Function to create the interface object for estimating any number/type of parameters. This can include both
@@ -1865,6 +1966,13 @@ std::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialStatePa
             initialDynamicalParametersToEstimate;
     std::vector< std::shared_ptr< EstimatableParameter< double > > > doubleParametersToEstimate;
     std::vector< std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > > vectorParametersToEstimate;
+
+    // Check that tidal parameters are not inconsistent
+    if ( !checkCompatibilityDirectTidalParameters( parameterNames ) )
+    {
+        throw std::runtime_error( "Error, tidal time lag and inverse tidal quality factor cannot be simultaneously estimated"
+                                  " for the same bodies." );
+    }
 
     // Iterate over all parameters.
     bool vectorParameterIsFound = 0;

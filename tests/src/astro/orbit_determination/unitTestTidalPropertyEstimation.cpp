@@ -86,32 +86,63 @@ BOOST_AUTO_TEST_CASE( test_DissipationParameterEstimation )
 
     SystemOfBodies bodies = createSystemOfBodies( bodySettings );
 
-    
 
-    // Test estimation of Jupiter dissipation without and with frequency dependence
-    for( unsigned int test = 0; test < 2; test++ )
+
+    // Test estimation of Jupiter dissipation without and with frequency dependence,
+    // First estimating the tidal time lag (tests 0 and 1) and then the tidal quality factor Q (tests 2 and 3)
+    for( unsigned int test = 0; test < 4; test++ )
     {
         // Define accelerations acting on Io and Europa
         double satelliteLoveNumber = 1.0, satelliteTimeLag = 1000.0;
         double jupiterLoveNumber = 1.0, jupiterTimeLag = 100.0;
+
+        double jupiterRotationRate = 2.0 * mathematical_constants::PI / ( 9.8 * 3600.0 );
+
+        double ioPeriod = 1.769 * 86400.0;
+        double synodicPeriodIo = 2.0 * mathematical_constants::PI / ( 2.0 * std::fabs( jupiterRotationRate - 2.0 * mathematical_constants::PI / ioPeriod ) );
+        double jupiterInvQ = std::tan( jupiterTimeLag / synodicPeriodIo * 2.0 * mathematical_constants::PI );
+        double ioInvQ = std::tan( satelliteTimeLag / ioPeriod * 2.0 * mathematical_constants::PI );
+        double europaPeriod = 3.551 * 86400.0;
+        double synodicPeriodEuropa = 2.0 * mathematical_constants::PI / ( 2.0 * std::fabs( jupiterRotationRate - 2.0 * mathematical_constants::PI / europaPeriod ) );
+        double europaInvQ = std::tan( satelliteTimeLag / europaPeriod * 2.0 * mathematical_constants::PI );
+
         SelectedAccelerationMap accelerationMap;
         for( unsigned int i = 0; i < satelliteNames.size( ); i++ )
         {
             std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfSatellite;
-            accelerationsOfSatellite[ "Jupiter" ].push_back( std::make_shared< AccelerationSettings >(
-                                                                 point_mass_gravity ) );
-            accelerationsOfSatellite[ "Sun" ].push_back( std::make_shared< AccelerationSettings >(
-                                                             point_mass_gravity ) );
-            accelerationsOfSatellite[ "Jupiter" ].push_back( std::make_shared< DirectTidalDissipationAccelerationSettings >(
-                                                                 satelliteLoveNumber, satelliteTimeLag, false, false ) );
-            accelerationsOfSatellite[ "Jupiter" ].push_back( std::make_shared< DirectTidalDissipationAccelerationSettings >(
-                                                                 jupiterLoveNumber, jupiterTimeLag, false, true ) );
+            accelerationsOfSatellite[ "Jupiter" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
+            accelerationsOfSatellite[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
+
+            if ( test < 2 )
+            {
+                accelerationsOfSatellite[ "Jupiter" ].push_back( std::make_shared< DirectTidalDissipationAccelerationSettings >(
+                        satelliteLoveNumber, satelliteTimeLag, false, false ) );
+                accelerationsOfSatellite[ "Jupiter" ].push_back( std::make_shared< DirectTidalDissipationAccelerationSettings >(
+                        jupiterLoveNumber, jupiterTimeLag, false, true ) );
+            }
+            else
+            {
+                if ( satelliteNames.at( i ) == "Io" )
+                {
+                    accelerationsOfSatellite[ "Jupiter" ].push_back( std::make_shared< DirectTidalDissipationAccelerationSettings >(
+                            satelliteLoveNumber, ioInvQ, ioPeriod, false, false ) );
+                    accelerationsOfSatellite[ "Jupiter" ].push_back( std::make_shared< DirectTidalDissipationAccelerationSettings >(
+                            jupiterLoveNumber, jupiterInvQ, synodicPeriodIo, false, true ) );
+                }
+                else if ( satelliteNames.at( i ) == "Europa" )
+                {
+                    accelerationsOfSatellite[ "Jupiter" ].push_back( std::make_shared< DirectTidalDissipationAccelerationSettings >(
+                            satelliteLoveNumber, europaInvQ, europaPeriod, false, false ) );
+                    accelerationsOfSatellite[ "Jupiter" ].push_back( std::make_shared< DirectTidalDissipationAccelerationSettings >(
+                            jupiterLoveNumber, jupiterInvQ, synodicPeriodEuropa, false, true ) );
+                }
+            }
+
             for( unsigned int j = 0; j < satelliteNames.size( ); j++ )
             {
-                if( i != j )
+                if ( i != j )
                 {
-                    accelerationsOfSatellite[ satelliteNames.at( j ) ].push_back(
-                                std::make_shared< AccelerationSettings >( point_mass_gravity ) );
+                    accelerationsOfSatellite[ satelliteNames.at( j ) ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
                 }
             }
             accelerationMap[ satelliteNames.at( i ) ] = accelerationsOfSatellite;
@@ -124,39 +155,52 @@ BOOST_AUTO_TEST_CASE( test_DissipationParameterEstimation )
         std::vector< std::string > centralBodies;
         centralBodies.push_back( "Jupiter" );
         centralBodies.push_back( "Jupiter" );
-        AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                    bodies, accelerationMap, bodiesToEstimate, centralBodies );
+        AccelerationMap accelerationModelMap = createAccelerationModelsMap( bodies, accelerationMap, bodiesToEstimate, centralBodies );
 
-
-        std::shared_ptr< PropagatorSettings< double > > propagatorSettings =
-                std::make_shared< TranslationalStatePropagatorSettings< double > >
-                ( centralBodies, accelerationModelMap, bodiesToEstimate,
-                  getInitialStatesOfBodies( bodiesToEstimate, centralBodies, bodies, initialEphemerisTime ),
-                  finalEphemerisTime );
+        std::shared_ptr< PropagatorSettings< double > > propagatorSettings = std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                centralBodies, accelerationModelMap, bodiesToEstimate, getInitialStatesOfBodies( bodiesToEstimate, centralBodies, bodies, initialEphemerisTime ),
+                finalEphemerisTime );
 
         // Set parameters that are to be estimated.
-        std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames =
-                getInitialStateParameterSettings< double >( propagatorSettings, bodies );
-        parameterNames.push_back(
-                    std::make_shared< tudat::estimatable_parameters::DirectTidalTimeLagEstimatableParameterSettings >(
-                        "Io", "" ) );
-        parameterNames.push_back(
-                    std::make_shared< tudat::estimatable_parameters::DirectTidalTimeLagEstimatableParameterSettings >(
-                        "Europa", "" ) );
-        if( test == 0 )
+        std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames = getInitialStateParameterSettings< double >( propagatorSettings, bodies );
+
+        if ( test < 2 )
         {
             parameterNames.push_back(
-                        std::make_shared< tudat::estimatable_parameters::DirectTidalTimeLagEstimatableParameterSettings >(
-                            "Jupiter", "" ) );
+                    std::make_shared< tudat::estimatable_parameters::DirectTidalTimeLagEstimatableParameterSettings >( "Io", "" ) );
+            parameterNames.push_back(
+                    std::make_shared< tudat::estimatable_parameters::DirectTidalTimeLagEstimatableParameterSettings >( "Europa", "" ) );
         }
         else
         {
+            parameterNames.push_back( std::make_shared< tudat::estimatable_parameters::InverseTidalQualityFactorEstimatableParameterSettings >( "Io", "" ) );
             parameterNames.push_back(
-                        std::make_shared< tudat::estimatable_parameters::DirectTidalTimeLagEstimatableParameterSettings >(
-                            "Jupiter", "Io" ) );
+                    std::make_shared< tudat::estimatable_parameters::InverseTidalQualityFactorEstimatableParameterSettings >( "Europa", "" ) );
+        }
+
+        if( test == 0 )
+        {
             parameterNames.push_back(
-                        std::make_shared< tudat::estimatable_parameters::DirectTidalTimeLagEstimatableParameterSettings >(
-                            "Jupiter", "Europa" ) );
+                    std::make_shared< tudat::estimatable_parameters::DirectTidalTimeLagEstimatableParameterSettings >( "Jupiter", "" ) );
+        }
+        else if ( test == 1 )
+        {
+            parameterNames.push_back(
+                    std::make_shared< tudat::estimatable_parameters::DirectTidalTimeLagEstimatableParameterSettings >( "Jupiter", "Io" ) );
+            parameterNames.push_back(
+                    std::make_shared< tudat::estimatable_parameters::DirectTidalTimeLagEstimatableParameterSettings >( "Jupiter", "Europa" ) );
+        }
+        else if ( test == 2 )
+        {
+            parameterNames.push_back(
+                    std::make_shared< tudat::estimatable_parameters::InverseTidalQualityFactorEstimatableParameterSettings >( "Jupiter", "" ) );
+        }
+        else if ( test == 3 )
+        {
+            parameterNames.push_back(
+                    std::make_shared< tudat::estimatable_parameters::InverseTidalQualityFactorEstimatableParameterSettings >( "Jupiter", "Io" ) );
+            parameterNames.push_back(
+                    std::make_shared< tudat::estimatable_parameters::InverseTidalQualityFactorEstimatableParameterSettings >( "Jupiter", "Europa" ) );
         }
         std::shared_ptr< tudat::estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate =
                 createParametersToEstimate< double, double >( parameterNames, bodies, propagatorSettings );
@@ -168,22 +212,16 @@ BOOST_AUTO_TEST_CASE( test_DissipationParameterEstimation )
         linkEnds[ 0 ][ observed_body ] = std::make_pair< std::string, std::string >( "Io", "" );
         linkEnds[ 1 ][ observed_body ] = std::make_pair< std::string, std::string >( "Europa", "" );
         std::vector< std::shared_ptr< ObservationModelSettings > > observationSettingsList;
-        observationSettingsList.push_back( std::make_shared< ObservationModelSettings >(
-                                           position_observable, linkEnds[ 0 ] ) );
-        observationSettingsList.push_back( std::make_shared< ObservationModelSettings >(
-                                           position_observable, linkEnds[ 1 ] ) );
+        observationSettingsList.push_back( std::make_shared< ObservationModelSettings >( position_observable, linkEnds[ 0 ] ) );
+        observationSettingsList.push_back( std::make_shared< ObservationModelSettings >( position_observable, linkEnds[ 1 ] ) );
 
         // Define integrator and propagator settings.
-        std::shared_ptr< IntegratorSettings< > > integratorSettings =
-                std::make_shared< RungeKuttaVariableStepSizeSettings< > >
-                ( 0.0, fixedStepSize,
-                  rungeKuttaFehlberg78, fixedStepSize, fixedStepSize, 1.0, 1.0 );
+        std::shared_ptr< IntegratorSettings< > > integratorSettings = std::make_shared< RungeKuttaVariableStepSizeSettings< > >(
+                0.0, fixedStepSize, rungeKuttaFehlberg78, fixedStepSize, fixedStepSize, 1.0, 1.0 );
 
         // Create orbit determination object.
-        OrbitDeterminationManager< double, double > orbitDeterminationManager =
-                OrbitDeterminationManager< double, double >(
-                    bodies, parametersToEstimate,
-                    observationSettingsList, integratorSettings, propagatorSettings );
+        OrbitDeterminationManager< double, double > orbitDeterminationManager = OrbitDeterminationManager< double, double >(
+                bodies, parametersToEstimate, observationSettingsList, integratorSettings, propagatorSettings );
 
         Eigen::VectorXd initialParameterEstimate =
                 parametersToEstimate->template getFullParameterValues< double >( );
@@ -191,7 +229,7 @@ BOOST_AUTO_TEST_CASE( test_DissipationParameterEstimation )
         // Test if tidal time lag parameters are correctly linked to acceleration models
         std::vector< std::shared_ptr< EstimatableParameter< double > > > dissipationEstimatedParameters =
                 parametersToEstimate->getEstimatedDoubleParameters( );
-        if( test == 0 )
+        if( test == 0 || test == 2 )
         {
             BOOST_CHECK_EQUAL( dissipationEstimatedParameters.size( ), 3 );
         }
@@ -201,24 +239,43 @@ BOOST_AUTO_TEST_CASE( test_DissipationParameterEstimation )
         }
         for( unsigned int i = 0; i < dissipationEstimatedParameters.size( ); i++ )
         {
-            std::shared_ptr< DirectTidalTimeLag > currentTidalTimeLagParameter =
-                    std::dynamic_pointer_cast< DirectTidalTimeLag >( dissipationEstimatedParameters.at( i ) );
-            BOOST_CHECK_EQUAL( ( currentTidalTimeLagParameter == nullptr ), false );
-            int numberOfAccelerationModels = currentTidalTimeLagParameter->getTidalAccelerationModels( ).size( );
-
-            if( ( i == 2 ) && ( test == 0 ) )
+            if( test < 2 )
             {
-                BOOST_CHECK_EQUAL( numberOfAccelerationModels, 2 );
+                std::shared_ptr< DirectTidalTimeLag > currentTidalTimeLagParameter =
+                        std::dynamic_pointer_cast< DirectTidalTimeLag >( dissipationEstimatedParameters.at( i ) );
+                BOOST_CHECK_EQUAL( ( currentTidalTimeLagParameter == nullptr ), false );
+                int numberOfAccelerationModels = currentTidalTimeLagParameter->getTidalAccelerationModels( ).size( );
+
+                if( ( i == 2 ) && ( test == 0 ) )
+                {
+                    BOOST_CHECK_EQUAL( numberOfAccelerationModels, 2 );
+                }
+                else
+                {
+                    BOOST_CHECK_EQUAL( numberOfAccelerationModels, 1 );
+                }
             }
             else
             {
-                BOOST_CHECK_EQUAL( numberOfAccelerationModels, 1 );
+                std::shared_ptr< InverseTidalQualityFactor > currentQualityFactorParameter =
+                        std::dynamic_pointer_cast< InverseTidalQualityFactor >( dissipationEstimatedParameters.at( i ) );
+                BOOST_CHECK_EQUAL( ( currentQualityFactorParameter == nullptr ), false );
+                int numberOfAccelerationModels = currentQualityFactorParameter->getTidalAccelerationModels( ).size( );
+
+                if( ( i == 2 ) && ( test == 2 ) )
+                {
+                    BOOST_CHECK_EQUAL( numberOfAccelerationModels, 2 );
+                }
+                else
+                {
+                    BOOST_CHECK_EQUAL( numberOfAccelerationModels, 1 );
+                }
             }
 
 
         }
 
-        // Define observatoion simulation times
+        // Define observation simulation times
         std::vector< double > observationTimes;
         double observationTime = initialEphemerisTime + 10.0 * fixedStepSize;
         while( observationTime < finalEphemerisTime - 10.0 * fixedStepSize  )
@@ -227,18 +284,15 @@ BOOST_AUTO_TEST_CASE( test_DissipationParameterEstimation )
             observationTime += 6.0 * 3600.0;;
         }
 
-
         std::vector< std::shared_ptr< ObservationSimulationSettings< > > > measurementSimulationInput;
-        measurementSimulationInput.push_back(
-                    std::make_shared< TabulatedObservationSimulationSettings< > >(
+        measurementSimulationInput.push_back( std::make_shared< TabulatedObservationSimulationSettings< > >(
                         position_observable, linkEnds[ 0 ], observationTimes, observed_body ) );
-        measurementSimulationInput.push_back(
-                    std::make_shared< TabulatedObservationSimulationSettings< > >(
+        measurementSimulationInput.push_back( std::make_shared< TabulatedObservationSimulationSettings< > >(
                         position_observable, linkEnds[ 1 ], observationTimes, observed_body ) );
 
         // Simulate observations
         std::shared_ptr< ObservationCollection< > >  observationsAndTimes = simulateObservations< double, double >(
-                    measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
+                measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
 
         // Perturb parameter values
@@ -252,22 +306,17 @@ BOOST_AUTO_TEST_CASE( test_DissipationParameterEstimation )
             initialParameterEstimate[ 4 + 6 * i ] += 1.0E-5;
             initialParameterEstimate[ 5 + 6 * i ] += 1.0E-5;
         }
-        for( unsigned int i = 6 * bodiesToEstimate.size( );
-             i < static_cast< unsigned int >( initialParameterEstimate.rows( ) ); i++ )
+        for ( unsigned int i = 6 * bodiesToEstimate.size( ) ; i < static_cast< unsigned int >( initialParameterEstimate.rows( ) ) ; i++ )
         {
             initialParameterEstimate[ i ] *= 10.0;
         }
         parametersToEstimate->resetParameterValues( initialParameterEstimate );
 
         // Estimate initial states and tidal parameters
-        std::shared_ptr< EstimationInput< double, double > > estimationInput =
-                std::make_shared< EstimationInput< double, double > >(
-                    observationsAndTimes );
-        estimationInput->setConvergenceChecker(
-                    std::make_shared< EstimationConvergenceChecker >( 3 ) );
+        std::shared_ptr< EstimationInput< double, double > > estimationInput = std::make_shared< EstimationInput< double, double > >( observationsAndTimes );
+        estimationInput->setConvergenceChecker( std::make_shared< EstimationConvergenceChecker >( 3 ) );
 
-        std::shared_ptr< EstimationOutput< double > > estimationOutput = orbitDeterminationManager.estimateParameters(
-                    estimationInput );
+        std::shared_ptr< EstimationOutput< double > > estimationOutput = orbitDeterminationManager.estimateParameters( estimationInput );
 
         // Check if parameters are correctly estimated
         Eigen::VectorXd estimatedParametervalues = estimationOutput->parameterEstimate_;
@@ -278,12 +327,25 @@ BOOST_AUTO_TEST_CASE( test_DissipationParameterEstimation )
             BOOST_CHECK_SMALL( std::fabs( truthParameters( i + 3 ) - estimationOutput->parameterEstimate_( i + 3 ) ), 1.0E-6 );
             BOOST_CHECK_SMALL( std::fabs( truthParameters( i + 9 ) - estimationOutput->parameterEstimate_( i + 9 ) ), 1.0E-6 );
         }
-        BOOST_CHECK_SMALL( std::fabs( truthParameters( 12 ) - estimationOutput->parameterEstimate_( 12 ) ), 0.1 );
-        BOOST_CHECK_SMALL( std::fabs( truthParameters( 13 ) - estimationOutput->parameterEstimate_( 13 ) ), 10.0 );
-        BOOST_CHECK_SMALL( std::fabs( truthParameters( 14 ) - estimationOutput->parameterEstimate_( 14 ) ), 1.0E-3 );
-        if( test == 1 )
+        if ( test < 2 )
         {
-            BOOST_CHECK_SMALL( std::fabs( truthParameters( 15 ) - estimationOutput->parameterEstimate_( 15 ) ), 1.0E-2 );
+            BOOST_CHECK_SMALL( std::fabs( truthParameters( 12 ) - estimationOutput->parameterEstimate_( 12 ) ), 0.1 );
+            BOOST_CHECK_SMALL( std::fabs( truthParameters( 13 ) - estimationOutput->parameterEstimate_( 13 ) ), 10.0 );
+            BOOST_CHECK_SMALL( std::fabs( truthParameters( 14 ) - estimationOutput->parameterEstimate_( 14 ) ), 1.0E-3 );
+            if( test == 1 )
+            {
+                BOOST_CHECK_SMALL( std::fabs( truthParameters( 15 ) - estimationOutput->parameterEstimate_( 15 ) ), 1.0E-2 );
+            }
+        }
+        else
+        {
+            BOOST_CHECK_SMALL( std::fabs( truthParameters( 12 ) - estimationOutput->parameterEstimate_( 12 ) ), 1.0e-6 );
+            BOOST_CHECK_SMALL( std::fabs( truthParameters( 13 ) - estimationOutput->parameterEstimate_( 13 ) ), 1.0e-4 );
+            BOOST_CHECK_SMALL( std::fabs( truthParameters( 14 ) - estimationOutput->parameterEstimate_( 14 ) ), 1.0E-7 );
+            if( test == 1 )
+            {
+                BOOST_CHECK_SMALL( std::fabs( truthParameters( 15 ) - estimationOutput->parameterEstimate_( 15 ) ), 1.0E-6 );
+            }
         }
 
         std::cout << "Parameter error: " << ( truthParameters -  estimationOutput->parameterEstimate_ ).transpose( ) << std::endl;

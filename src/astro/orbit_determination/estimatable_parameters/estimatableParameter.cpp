@@ -138,6 +138,9 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
     case arc_wise_time_observation_bias:
         parameterDescription = "arc-wise time observation bias ";
         break;
+    case inverse_tidal_quality_factor:
+        parameterDescription = " inverse of tidal quality factor ";
+        break;
     default:
         std::string errorMessage = "Error when getting parameter string, did not recognize parameter " +
                 std::to_string( parameterType );
@@ -281,6 +284,9 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
         break;
     case arc_wise_time_observation_bias:
         isDoubleParameter = false;
+        break;
+    case inverse_tidal_quality_factor:
+        isDoubleParameter = true;
         break;
     default:
         throw std::runtime_error( "Error, parameter type " + std::to_string( parameterType ) +
