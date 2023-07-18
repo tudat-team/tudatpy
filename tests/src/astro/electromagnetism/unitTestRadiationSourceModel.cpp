@@ -738,7 +738,7 @@ BOOST_AUTO_TEST_CASE( generatePaneledSphericalCap_EqualAngularResolution_Realist
 
 //! Test generation of spherical cap panels (equal projected, attenuated area) at realistic target position by
 //! comparison with Python implementation
-// TODO add github link
+// https://github.com/DominikStiller/tudelft-hpb-project/blob/395c862023814d54b0eed74de326500e21d4d281/analysis/paneling.ipynb
 BOOST_AUTO_TEST_CASE( generatePaneledSphericalCap_EqualProjectedAttenuatedArea_Realistic )
 {
     const auto expectedNumberOfPanels = 19;

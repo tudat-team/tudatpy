@@ -94,7 +94,7 @@ SecondDegreeZonalPeriodicSurfacePropertyDistributionSettings::SecondDegreeZonalP
             c1 = 0.10;
             c2 = 0;
             a2 = 0.29;
-            referenceEpoch = spice_interface::convertDateStringToEphemerisTime("1981 DEC 22");
+            referenceEpoch = spice_interface::convertDateStringToEphemerisTime("1981-12-22 00:00:00 UTC");
             period = physical_constants::JULIAN_YEAR_IN_DAYS;
 
             break;
@@ -107,7 +107,7 @@ SecondDegreeZonalPeriodicSurfacePropertyDistributionSettings::SecondDegreeZonalP
             c1 = -0.07;
             c2 = 0;
             a2 = -0.18;
-            referenceEpoch = spice_interface::convertDateStringToEphemerisTime("1981 DEC 22");
+            referenceEpoch = spice_interface::convertDateStringToEphemerisTime("1981-12-22 00:00:00 UTC");
             period = physical_constants::JULIAN_YEAR_IN_DAYS;
 
             break;
