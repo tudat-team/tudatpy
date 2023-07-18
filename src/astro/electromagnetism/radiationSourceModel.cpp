@@ -112,6 +112,8 @@ IrradianceWithSourceList PaneledRadiationSourceModel::evaluateIrradianceAtPositi
             continue;
         }
 
+        visibleArea += panel.getArea();
+
         // The irradiance from a panel is the sum of the irradiances from all of its radiosity models
         double irradiance = 0;
         for (auto& radiosityModel : panel.getRadiosityModels())
@@ -129,7 +131,6 @@ IrradianceWithSourceList PaneledRadiationSourceModel::evaluateIrradianceAtPositi
             // Do not add panels to list if they do not contribute to irradiance at target location
             // This prevents unnecessary evaluations in the radiation pressure acceleration
             irradiances.emplace_back(irradiance, panel.getRelativeCenter());
-            visibleArea += panel.getArea();
         }
     }
 
