@@ -1363,6 +1363,12 @@ inline std::shared_ptr< EstimatableParameterSettings > quasiImpulsiveShots(
                 associatedBody, desaturation_delta_v_values );
 }
 
+
+inline std::shared_ptr< EstimatableParameterSettings > scaledLongitudeLibrationAmplitude( const std::string bodyName )
+{
+    return std::make_shared< EstimatableParameterSettings >( bodyName, scaled_longitude_libration_amplitude );
+}
+
 } // namespace estimatable_parameters
 
 } // namespace tudat
