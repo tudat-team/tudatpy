@@ -368,6 +368,10 @@ void expose_estimated_parameter_setup(py::module &m) {
           get_docstring("order_varying_k_love_number", 2).c_str() );
 
 
+    m.def("scaled_longitude_libration_amplitude",
+          &tep::scaledLongitudeLibrationAmplitude,
+          get_docstring("scaled_longitude_libration_amplitude").c_str() );
+
     // ###############  Global (GR) Model Parameters ################################
 
     m.def("ppn_parameter_gamma",
