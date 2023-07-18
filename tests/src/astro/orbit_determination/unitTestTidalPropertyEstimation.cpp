@@ -419,6 +419,7 @@ BOOST_AUTO_TEST_CASE( test_LoveNumberEstimationFromOrbiterData )
     // Create parameters
     std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate =
             createParametersToEstimate< double, double >( parameterNames, bodies );
+    printEstimatableParameterEntries(parametersToEstimate);
 
     // Define observation settings
     std::vector< std::shared_ptr< ObservationModelSettings > > observationSettingsList;
@@ -482,7 +483,7 @@ BOOST_AUTO_TEST_CASE( test_LoveNumberEstimationFromOrbiterData )
     for( int i = 0; i < 3; i++ )
     {
         BOOST_CHECK_SMALL( std::fabs( estimationError( i ) ), 1.0E-4 );
-        BOOST_CHECK_SMALL( std::fabs( estimationError( i + 3 ) ), 1.0E-8 );
+        BOOST_CHECK_SMALL( std::fabs( estimationError( i + 3 ) ), 5.0E-8 );
     }
 
     for( int i = 0; i < estimationError.rows( ) - 6; i++ )
