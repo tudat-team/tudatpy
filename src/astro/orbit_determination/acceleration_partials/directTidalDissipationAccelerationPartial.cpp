@@ -74,7 +74,7 @@ Eigen::Matrix3d computeDirectTidalAccelerationDueToTideOnSatelliteWrtPosition(
     double radialComponentMultiplier = ( includeDirectRadialComponent == true ) ? 1.0 : 0.0;
 
     return currentTidalAccelerationMultiplier * (
-                2.0 * radialComponentMultiplier * (
+            radialComponentMultiplier * (
                     Eigen::Matrix3d::Identity( ) - 8.0 * relativePositionUnitVector * relativePositionUnitVector.transpose( ) ) +
                 timeLag * 3.5 * ( -20.0 * positionVelocityInnerProduct *
                                   relativePositionUnitVector * relativePositionUnitVector.transpose( ) / distanceSquared +
