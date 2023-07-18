@@ -267,6 +267,15 @@ void expose_acceleration_setup(py::module &m) {
           py::arg("explicit_libraional_tide_on_satellite" ) = false,
           get_docstring("direct_tidal_dissipation_acceleration").c_str());
 
+    m.def("direct_tidal_dissipation_acceleration", &tss::directTidalDissipationAccelerationFromInvQ,
+          py::arg("k2_love_number"),
+          py::arg("inverse_tidal_quality_factor"),
+          py::arg("tidal_period"),
+          py::arg("include_direct_radial_component") = true,
+          py::arg("use_tide_raised_on_planet") = true,
+          py::arg("explicit_libraional_tide_on_satellite" ) = false,
+          get_docstring("direct_tidal_dissipation_acceleration").c_str());
+
     m.def("quasi_impulsive_shots_acceleration", &tss::momentumWheelDesaturationAcceleration,
           py::arg("thrust_mid_times"),
           py::arg("delta_v_values"),
