@@ -14,6 +14,7 @@
 
 #include "tudat/io/readHistoryFromFile.h"
 #include "tudat/io/missileDatcomData.h"
+#include "tudat/io/solarActivityData.h"
 #include "tudat/io/readOdfFile.h"
 #include "tudat/io/readTabulatedWeatherData.h"
 
@@ -147,6 +148,11 @@ void expose_io(py::module &m) {
             .value("cnb", tudat::input_output::MissileDatcomData::StaticCoefficientNames::cnb, get_docstring("StaticCoefficientNames.cnb").c_str())
             .value("clb", tudat::input_output::MissileDatcomData::StaticCoefficientNames::clb, get_docstring("StaticCoefficientNames.clb").c_str())
             .export_values();
+
+      py::class_<
+            tio::solar_activity::SolarActivityData,
+            std::shared_ptr< tio::solar_activity::SolarActivityData > >(
+                    m, "SolarActivityData", get_docstring("SolarActivityData").c_str() );
 
       py::class_<
             tio::OdfRawFileContents,
