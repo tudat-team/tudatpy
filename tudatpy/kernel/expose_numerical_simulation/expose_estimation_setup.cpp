@@ -48,7 +48,7 @@ void expose_estimation_setup(py::module &m) {
           py::arg("bodies"),
           py::arg("propagator_settings") =
                   std::shared_ptr< tp::PropagatorSettings< double > >( ),
-          py::arg("consider_parameters_names") = std::shared_ptr< tep::EstimatableParameterSettings >( ),
+          py::arg("consider_parameters_names") = nullptr,
           get_docstring("create_parameter_set").c_str() );
 
 
