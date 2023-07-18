@@ -499,9 +499,11 @@ void expose_estimation(py::module &m) {
                                                                            get_docstring("CovarianceAnalysisInput").c_str() )
             .def(py::init<
                  const std::shared_ptr< tom::ObservationCollection<double, TIME_TYPE> >&,
+                 const Eigen::MatrixXd,
                  const Eigen::MatrixXd >( ),
                  py::arg( "observations_and_times" ),
                  py::arg( "inverse_apriori_covariance" ) = Eigen::MatrixXd::Zero( 0, 0 ),
+                 py::arg( "consider_covariance" ) = Eigen::MatrixXd::Zero( 0, 0 ),
                  get_docstring("CovarianceAnalysisInput.ctor").c_str() )
             .def( "set_constant_weight",
                   &tss::CovarianceAnalysisInput<double, TIME_TYPE>::setConstantWeightsMatrix,
@@ -509,6 +511,10 @@ void expose_estimation(py::module &m) {
                   get_docstring("CovarianceAnalysisInput.set_constant_weight").c_str() )
             .def( "set_constant_weight_per_observable",
                   &tss::CovarianceAnalysisInput<double, TIME_TYPE>::setConstantPerObservableWeightsMatrix,
+                  py::arg( "weight_per_observable" ),
+                  get_docstring("CovarianceAnalysisInput.set_constant_weight_per_observable").c_str() )
+            .def( "set_constant_weight_per_observable",
+                  &tss::CovarianceAnalysisInput<double, TIME_TYPE>::setTabulatedPerObservableAndLinkEndsWeights,
                   py::arg( "weight_per_observable" ),
                   get_docstring("CovarianceAnalysisInput.set_constant_weight_per_observable").c_str() )
             .def( "define_covariance_settings",
@@ -530,10 +536,14 @@ void expose_estimation(py::module &m) {
             .def(py::init<
                  const std::shared_ptr< tom::ObservationCollection<double, TIME_TYPE> >&,
                  const Eigen::MatrixXd,
-                 std::shared_ptr< tss::EstimationConvergenceChecker > >( ),
+                 std::shared_ptr< tss::EstimationConvergenceChecker >,
+                 const Eigen::MatrixXd,
+                 const Eigen::VectorXd >( ),
                  py::arg( "observations_and_times" ),
                  py::arg( "inverse_apriori_covariance" ) = Eigen::MatrixXd::Zero( 0, 0 ),
                  py::arg( "convergence_checker" ) = std::make_shared< tss::EstimationConvergenceChecker >( ),
+                 py::arg( "consider_covariance" ) = Eigen::MatrixXd::Zero( 0, 0 ),
+                 py::arg( "consider_parameters_deviations" ) = Eigen::VectorXd::Zero( 0 ),
                  get_docstring("EstimationInput.ctor").c_str() )
             .def( "define_estimation_settings",
                   &tss::EstimationInput<double, TIME_TYPE>::defineEstimationSettings,
@@ -582,6 +592,21 @@ void expose_estimation(py::module &m) {
             .def_property_readonly("weighted_normalized_design_matrix",
                                    &tss::CovarianceAnalysisOutput<double, TIME_TYPE>::getNormalizedWeightedDesignMatrix,
                                    get_docstring("CovarianceAnalysisOutput.weighted_normalized_design_matrix").c_str() )
+            .def_property_readonly("consider_covariance_contribution",
+                                   &tss::CovarianceAnalysisOutput<double, TIME_TYPE>::getConsiderCovarianceContribution,
+                                   get_docstring("CovarianceAnalysisOutput.consider_covariance_contribution").c_str() )
+            .def_property_readonly("normalized_covariance_with_consider_parameters",
+                                   &tss::CovarianceAnalysisOutput<double, TIME_TYPE>::getNormalizedCovarianceWithConsiderParameters,
+                                   get_docstring("CovarianceAnalysisOutput.normalized_covariance_with_consider_parameters").c_str() )
+            .def_property_readonly("unnormalized_covariance_with_consider_parameters",
+                                   &tss::CovarianceAnalysisOutput<double, TIME_TYPE>::getUnnormalizedCovarianceWithConsiderParameters,
+                                   get_docstring("CovarianceAnalysisOutput.unnormalized_covariance_with_consider_parameters").c_str() )
+            .def_property_readonly("normalized_design_matrix_consider_parameters",
+                                   &tss::CovarianceAnalysisOutput<double, TIME_TYPE>::getNormalizedDesignMatrixConsiderParameters,
+                                   get_docstring("CovarianceAnalysisOutput.normalized_design_matrix_consider_parameters").c_str() )
+            .def_property_readonly("consider_normalization_factors",
+                                   &tss::CovarianceAnalysisOutput<double, TIME_TYPE>::getConsiderNormalizationFactors,
+                                   get_docstring("CovarianceAnalysisOutput.consider_normalization_factors").c_str() )
             .def_readonly("normalization_terms",
                           &tss::CovarianceAnalysisOutput<double, TIME_TYPE>::designMatrixTransformationDiagonal_,
                           get_docstring("CovarianceAnalysisOutput.normalization_terms").c_str() );
