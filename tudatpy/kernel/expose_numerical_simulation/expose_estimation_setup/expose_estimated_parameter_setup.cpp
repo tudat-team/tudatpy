@@ -370,6 +370,7 @@ void expose_estimated_parameter_setup(py::module &m) {
 
     m.def("scaled_longitude_libration_amplitude",
           &tep::scaledLongitudeLibrationAmplitude,
+          py::arg("body_name"),
           get_docstring("scaled_longitude_libration_amplitude").c_str() );
 
     // ###############  Global (GR) Model Parameters ################################
