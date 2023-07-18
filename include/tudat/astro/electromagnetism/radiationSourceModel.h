@@ -477,6 +477,9 @@ private:
  * The generated points are more staggered with Wetterer's algorithm, while Saff's points are more aligned along zonal
  * and meridional lines (spiraling). Staggered points should be preferred.
  *
+ * Visualization of Saff's and Wetterer's algorithm for static paneling:
+ * https://nbviewer.org/github/DominikStiller/tudelft-hpb-project/blob/395c862023814d54b0eed74de326500e21d4d281/analysis/paneling.ipynb#Static-paneling
+ *
  * @param n number of points to generate
  * @return a pair of vectors of polar angles (between 0 and π) and azimuth angles (between 0 and 2π)
  */
@@ -489,6 +492,9 @@ std::pair<std::vector<double>, std::vector<double>> generateEvenlySpacedPoints_S
  * The generated points are more staggered with Wetterer's algorithm, while Saff's points are more aligned along zonal
  * and meridional lines (spiraling). Staggered points should be preferred.
  *
+ * Visualization of Saff's and Wetterer's algorithm for static paneling:
+ * https://nbviewer.org/github/DominikStiller/tudelft-hpb-project/blob/395c862023814d54b0eed74de326500e21d4d281/analysis/paneling.ipynb#Static-paneling
+ *
  * @param n number of points to generate
  * @return a pair of vectors of polar angles (between 0 and π) and azimuth angles (between 0 and 2π)
  */
@@ -498,6 +504,9 @@ std::pair<std::vector<double>, std::vector<double>> generateEvenlySpacedPoints_S
  * Generate panels for the spherical cap of the source body that is visible from the target. The spherical cap is
  * divided into a central cap centered around the subsatellite point and a number of rings divided into panels.
  * Each ring has the same angular resolution.
+ *
+ * Visualization of algorithm for dynamic paneling with equal angular resolution:
+ * https://nbviewer.org/github/DominikStiller/tudelft-hpb-project/blob/395c862023814d54b0eed74de326500e21d4d281/analysis/paneling.ipynb#Dynamic-paneling-with-equal-angular-resolution
  *
  * @param targetPosition Position of the target in local frame
  * @param numberOfPanelsPerRing Number of panels for each ring, excluding the central cap
@@ -515,6 +524,9 @@ generatePaneledSphericalCap_EqualAngularResolution(
  * Generate panels for the spherical cap of the source body that is visible from the target as in Knocke (1988). The
  * spherical cap is divided into a central cap centered around the subsatellite point and a number of rings divided into
  * panels. The width of each ring is such that all panels have the same projected, attenuated area.
+ *
+ * Visualization of algorithm for dynamic paneling with  equal projected, attenuated area:
+ * https://nbviewer.org/github/DominikStiller/tudelft-hpb-project/blob/395c862023814d54b0eed74de326500e21d4d281/analysis/paneling.ipynb#Dynamic-paneling-with-equal-projected,-attenuated-areas
  *
  * @param targetPosition Position of the target in local frame
  * @param numberOfPanelsPerRing Number of panels for each ring, excluding the central cap
