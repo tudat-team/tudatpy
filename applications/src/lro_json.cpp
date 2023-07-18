@@ -50,7 +50,7 @@ SystemOfBodies createSimulationBodies()
 
     bodySettings.at("Moon")->shapeModelSettings = oblateSphericalBodyShapeSettings(1738.1e3, 0.0012);
     bodySettings.at("Moon")->rotationModelSettings =
-            spiceRotationModelSettings(globalFrameOrientation, moonFrame);
+            spiceRotationModelSettings(globalFrameOrientation, moonFrame, moonFrame);
     std::dynamic_pointer_cast<SphericalHarmonicsGravityFieldSettings>(
             bodySettings.at("Moon")->gravityFieldSettings)->resetAssociatedReferenceFrame(moonFrame);
 
@@ -66,7 +66,7 @@ SystemOfBodies createSimulationBodies()
             panelRadiosityModels.push_back(
                     albedoPanelRadiosityModelSettings(SphericalHarmonicsSurfacePropertyDistributionModel::albedo_dlam1));
         }
-        else
+        else if (settings.albedoDistributionMoon != "NoAlbedo")
         {
             throw std::runtime_error("Invalid albedo_distribution_moon");
         }
@@ -118,7 +118,8 @@ SystemOfBodies createSimulationBodies()
     // Create LRO
     bodySettings.addSettings("LRO");
     bodySettings.at("LRO")->constantMass = 1208.0;
-    bodySettings.at("LRO")->rotationModelSettings = spiceRotationModelSettings(globalFrameOrientation, "LRO_SC_BUS");
+    bodySettings.at("LRO")->rotationModelSettings =
+            spiceRotationModelSettings(globalFrameOrientation, "LRO_SC_BUS", "LRO_SC_BUS");
     if (settings.targetType == "Cannonball") {
         bodySettings.at("LRO")->radiationPressureTargetModelSettings =
                 cannonballRadiationPressureTargetModelSettingsWithOccultationMap(11.52, 1.04, occultingBodiesForLRO);
@@ -196,10 +197,12 @@ std::shared_ptr<propagators::SingleArcSimulationResults<>> createAndRunSimulatio
                     keplerianStateDependentVariable("LRO", "Moon"),
                     altitudeDependentVariable("LRO", "Moon"),
                     relativePositionDependentVariable("Sun", "Moon"),
-                    relativePositionDependentVariable("Sun", "Earth"),
+                    relativePositionDependentVariable("Earth", "Moon"),
                     singleAccelerationDependentVariable(spherical_harmonic_gravity, "LRO", "Moon"),
                     singleAccelerationDependentVariable(spherical_harmonic_gravity, "LRO", "Earth"),
                     singleAccelerationDependentVariable(point_mass_gravity, "LRO", "Sun"),
+                    latitudeDependentVariable("LRO", "Moon"),
+                    longitudeDependentVariable("LRO", "Moon"),
             };
     if (settings.useSolarRadiation)
     {
