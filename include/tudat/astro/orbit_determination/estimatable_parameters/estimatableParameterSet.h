@@ -60,8 +60,9 @@ public:
             const std::vector< std::shared_ptr< EstimatableParameter< Eigen::Matrix
             < InitialStateParameterType, Eigen::Dynamic, 1 > > > >& estimateInitialStateParameters =
             ( std::vector< std::shared_ptr< EstimatableParameter< Eigen::Matrix
-              < InitialStateParameterType, Eigen::Dynamic, 1 > > > >( ) ) ):
-        estimatedDoubleParameters_( estimatedDoubleParameters ), estimatedVectorParameters_( estimatedVectorParameters ),
+              < InitialStateParameterType, Eigen::Dynamic, 1 > > > >( ) ),
+              const std::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > considerParameters = nullptr ):
+        estimatedDoubleParameters_( estimatedDoubleParameters ), estimatedVectorParameters_( estimatedVectorParameters ), considerParameters_( considerParameters ),
         totalConstraintSize_( 0 )
     {
         // Initialize total number of parameters to 0.
@@ -363,6 +364,11 @@ public:
         return estimatedVectorParameters_;
     }
 
+    std::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > getConsiderParameters( )
+    {
+        return considerParameters_;
+    }
+
     //! Function to retrieve the start index and size of (a) parameters(s) with a given identifier
     /*!
      * Function to retrieve the start index and size of (a) parameters(s) with a given identifier
@@ -407,6 +413,103 @@ public:
         }
 
         return typeIndices;
+    }
+
+    //! Function to retrieve the start index and size of a parameter with a given parameter description
+    /*!
+     * Function to retrieve the start index and size of a parameter with a given parameter description
+     * \param requiredParameterDescription Parameter description that is to be searched in full list of parameters
+     * \return Pair of start indices and sizes of parameters corresponding to requiredParameterDescription
+     */
+    std::pair< int, int > getIndicesForParameterDescription(
+            const std::string requiredParameterDescription )
+    {
+        std::pair< int, int > parameterIndices;
+        bool detectedParameter = false;
+
+        for( auto parameterIterator : initialSingleArcStateParameters_ )
+        {
+            if( parameterIterator.second->getParameterDescription( ) == requiredParameterDescription )
+            {
+                if ( detectedParameter )
+                {
+                    throw std::runtime_error( "Error when looking for parameter indices based on description, more than one parameter found for: " + requiredParameterDescription );
+                }
+                parameterIndices = std::make_pair( parameterIterator.first, parameterIterator.second->getParameterSize( ) );
+                detectedParameter = true;
+            }
+        }
+
+        for( auto parameterIterator : initialMultiArcStateParameters_ )
+        {
+            if( parameterIterator.second->getParameterDescription( ) == requiredParameterDescription )
+            {
+                if ( detectedParameter )
+                {
+                    throw std::runtime_error( "Error when looking for parameter indices based on description, more than one parameter found for: " + requiredParameterDescription );
+                }
+                parameterIndices = std::make_pair( parameterIterator.first, parameterIterator.second->getParameterSize( ) );
+                detectedParameter = true;
+            }
+        }
+
+        for( auto parameterIterator : doubleParameters_ )
+        {
+            if( parameterIterator.second->getParameterDescription( ) == requiredParameterDescription )
+            {
+                if ( detectedParameter )
+                {
+                    throw std::runtime_error( "Error when looking for parameter indices based on description, more than one parameter found for: " + requiredParameterDescription );
+                }
+                parameterIndices = std::make_pair( parameterIterator.first, parameterIterator.second->getParameterSize( ) );
+                detectedParameter = true;
+            }
+        }
+
+        for( auto parameterIterator : vectorParameters_ )
+        {
+            if( parameterIterator.second->getParameterDescription( ) == requiredParameterDescription )
+            {
+                if ( detectedParameter )
+                {
+                    throw std::runtime_error( "Error when looking for parameter indices based on description, more than one parameter found for: " + requiredParameterDescription );
+                }
+                parameterIndices = std::make_pair( parameterIterator.first, parameterIterator.second->getParameterSize( ) );
+                detectedParameter = true;
+            }
+        }
+
+        if ( !detectedParameter )
+        {
+            throw std::runtime_error( "Error when looking for parameter indices based on description, no parameter found for: " + requiredParameterDescription );
+        }
+
+        return parameterIndices;
+    }
+
+    //! Function to retrieve the list of parameters descriptions
+    /*!
+     * Function to retrieve the list of parameters descriptions
+     * \return List of parameters descriptions (for all parameters)
+     */
+    std::vector< std::string > getParametersDescriptions( ) const
+    {
+        std::vector< std::string > parametersDescriptions;
+
+        for ( auto itr : doubleParameters_ )
+        {
+            parametersDescriptions.push_back( itr.second->getParameterDescription( ) );
+        }
+        for ( auto itr : vectorParameters_ )
+        {
+            parametersDescriptions.push_back( itr.second->getParameterDescription( ) );
+        }
+        for ( auto itr : initialStateParameters_ )
+        {
+            parametersDescriptions.push_back( itr.second->getParameterDescription( ) );
+        }
+
+        return parametersDescriptions;
     }
 
     //! Function to get list of initial dynamical states that are to be estimated.
@@ -631,6 +734,9 @@ protected:
     std::vector< std::shared_ptr< EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > >
     estimateMultiArcInitialStateParameters_;
 
+    //! Set of consider parameters.
+    std::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > considerParameters_;
+
     //! Map of double parameters that are to be estimated, with start index in total parameter vector as key.
     std::map< int, std::shared_ptr< EstimatableParameter< double > > > doubleParameters_;
 
@@ -727,6 +833,13 @@ void printEstimatableParameterEntries(
         std::cout << parameterIterator->first << ", " << parameterIterator->second->getParameterDescription( ) << std::endl;
     }
     std::cout << std::endl;
+
+    std::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > considerParameters = estimatableParameters->getConsiderParameters( );
+    if ( considerParameters != nullptr )
+    {
+        std::cout << "Consider parameters: " << "\n\n";
+        printEstimatableParameterEntries( considerParameters );
+    }
 }
 
 //! Function to get the list of names of bodies for which initial translational dynamical state is estimated.

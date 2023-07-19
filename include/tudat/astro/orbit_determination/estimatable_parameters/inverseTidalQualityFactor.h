@@ -8,8 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef TUDAT_DIRECTTIDALTIMELAG_H
-#define TUDAT_DIRECTTIDALTIMELAG_H
+#ifndef TUDAT_INVERSETIDALQUALITYFACTOR_H
+#define TUDAT_INVERSETIDALQUALITYFACTOR_H
 
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
 #include "tudat/astro/gravitation/directTidalDissipationAcceleration.h"
@@ -20,62 +20,67 @@ namespace tudat
 namespace estimatable_parameters
 {
 
-//! Interface class for estimation the tidal time lag in a direct tidal acceleration model
+//! Interface class for estimating the inverse of the tidal quality factor Q in a direct tidal acceleration model
 /*!
- * Interface class for estimation the tidal time lag in a direct tidal acceleration modell (e.g. without modification of
- * deformed body's gravity field. Modifies the tidal time lag parameter of a (set of) DirectTidalDissipationAcceleration objects
- */
-class DirectTidalTimeLag: public EstimatableParameter< double >
+* Interface class for estimating the inverse of the tidal quality factor Q in a direct tidal acceleration model (e.g. without modification of
+* deformed body's gravity field. Modifies the tidal quality factor of a (set of) DirectTidalDissipationAcceleration objects
+*/
+class InverseTidalQualityFactor: public EstimatableParameter< double >
 {
 public:
 
     //! Constructor
     /*!
      * Constructor
-     * \param tidalAccelerationModels List of acceleration models of which the tidal time lag is to be estimated
+     * \param tidalAccelerationModels List of acceleration models of which the tidal quality factor is to be estimated
      * \param deformedBody Name of body being tidally deformed
      * \param bodiesCausingDeformation List of bodies causing tidal deformation (empty if all bodies causing deformation in
      * AccelerationMap are used)
      */
-    DirectTidalTimeLag(
+    InverseTidalQualityFactor(
             const std::vector< std::shared_ptr< gravitation::DirectTidalDissipationAcceleration > > tidalAccelerationModels,
             const std::string& deformedBody,
             const std::vector< std::string > bodiesCausingDeformation = std::vector< std::string >( ) ):
-        EstimatableParameter< double >(
-            direct_dissipation_tidal_time_lag, deformedBody ),
-        tidalAccelerationModels_( tidalAccelerationModels ),
-        bodiesCausingDeformation_( bodiesCausingDeformation )
+            EstimatableParameter< double >( inverse_tidal_quality_factor, deformedBody ),
+            tidalAccelerationModels_( tidalAccelerationModels ),
+            bodiesCausingDeformation_( bodiesCausingDeformation )
     {
         for( unsigned int i = 1; i < tidalAccelerationModels_.size( ); i++ )
         {
-            // Check whetehr input is fully consistent at iteration 0.
-            if( tidalAccelerationModels_.at( i )->getTimeLag( ) != tidalAccelerationModels_.at( 0 )->getTimeLag( ) )
+            // Check whether input is fully consistent at iteration 0.
+            if ( std::isnan( tidalAccelerationModels_.at( i )->getInverseTidalQualityFactor( ) ) || std::isnan( tidalAccelerationModels_.at( i )->getTidalPeriod(  ) ) )
             {
-                std::cerr << "Warning when making direct tidal time lag parameter. Time lags are different in model upon creation, but will be estimated to the same value" << std::endl;
+                throw std::runtime_error( "Error when creating inverse tidal quality factor parameter, no value provided for Q and/or tidal period "
+                                          " in the acceleration model." );
+            }
+            if( tidalAccelerationModels_.at( i )->getInverseTidalQualityFactor( ) != tidalAccelerationModels_.at( 0 )->getInverseTidalQualityFactor( ) )
+            {
+                std::cerr << "Warning when creating inverse tidal quality factor parameter. "
+                             "Quality factors are different in model upon creation, but will be estimated to the same value." << std::endl;
             }
         }
     }
 
-    //! Function to retrieve the tidal time lag value
+    //! Function to retrieve the inverse of the tidal quality factor.
     /*!
-     * Function to retrieve the tidal time lag value
-     * \return Current tidal time lag value
+     * Function to retrieve the inverse of the tidal quality foator.
+     * \return Current value of the inverse of the tidal quality factor.
      */
     double getParameterValue( )
     {
-        return tidalAccelerationModels_.at( 0 )->getTimeLag( );
+        return tidalAccelerationModels_.at( 0 )->getInverseTidalQualityFactor( );
     }
 
-    //! Function to reset the tidal time lag value
+    //! Function to reset the value for the inverse of the tidal quality factor
     /*!
-     * Function to reset the tidal time lag value
-     * \param parameterValue New tidal time lag value
+     * FFunction to reset the value for the inverse of the tidal quality factor
+     * \param parameterValue New value for inverse of the tidal quality factor
      */
     void setParameterValue( double parameterValue )
     {
         for( unsigned int i = 0; i < tidalAccelerationModels_.size( ); i++ )
         {
-            tidalAccelerationModels_.at( i )->resetTimeLag( parameterValue );
+            tidalAccelerationModels_.at( i )->resetInverseTidalQualityFactor( parameterValue );
         }
     }
 
@@ -110,17 +115,16 @@ public:
         return bodiesCausingDeformation_;
     }
 
-    //! Function to retrieve parameter description.
-    /*!
-    * Function to retrieve parameter description.
-    * \return Description direct tidal time lag parameter.
-    */
     std::string getParameterDescription( )
     {
         std::string parameterDescription =
-                getParameterTypeString( parameterName_.first ) + "of " + parameterName_.second.first + " due to ";
+                getParameterTypeString( parameterName_.first ) + "of " + parameterName_.second.first;
         for ( unsigned int i = 0 ; i < bodiesCausingDeformation_.size( ) ; i++ )
         {
+            if ( i == 0 )
+            {
+                parameterDescription += " due to ";
+            }
             parameterDescription += bodiesCausingDeformation_[ i ];
             if ( i != bodiesCausingDeformation_.size( ) - 1 )
             {
@@ -145,4 +149,4 @@ private:
 
 }
 
-#endif // TUDAT_DIRECTTIDALTIMELAG_H
+#endif // TUDAT_INVERSETIDALQUALITYFACTOR_H
