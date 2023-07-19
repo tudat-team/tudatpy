@@ -8,21 +8,21 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-//
-//#define BOOST_TEST_DYN_LINK
-//#define BOOST_TEST_MAIN
+
+#define BOOST_TEST_DYN_LINK
+#define BOOST_TEST_MAIN
 
 #include <boost/test/unit_test.hpp>
 
 #include "tudat/interface/spice/spiceInterface.h"
 #include "tudat/simulation/simulation.h"
 #include "tudat/simulation/estimation.h"
-//
-//namespace tudat
-//{
-//
-//namespace unit_tests
-//{
+
+namespace tudat
+{
+
+namespace unit_tests
+{
 
 using namespace tudat;
 using namespace tudat::simulation_setup;
@@ -35,12 +35,11 @@ using namespace tudat::unit_conversions;
 using namespace tudat::estimatable_parameters;
 using namespace tudat::orbit_determination;
 using namespace tudat::observation_models;
-//
-//
-//BOOST_AUTO_TEST_SUITE( test_eih_estimation )
-//
-//BOOST_AUTO_TEST_CASE( testEihEstimation )
-int main( )
+
+
+BOOST_AUTO_TEST_SUITE( test_eih_estimation )
+
+BOOST_AUTO_TEST_CASE( testEihEstimation )
 {
     // Load Spice kernels.
     spice_interface::loadStandardSpiceKernels( );
@@ -50,6 +49,7 @@ int main( )
     // Set simulation end epoch.
     const double simulationStartEpoch = 0.0 * tudat::physical_constants::JULIAN_YEAR;
     const double simulationEndEpoch = 25.0 * 365.0 * tudat::physical_constants::JULIAN_DAY;
+    const double stepSize = 2.0 * 86400.0;
 
 
     std::vector< Eigen::Vector6d > rmsDifferences;
@@ -58,11 +58,12 @@ int main( )
     std::vector<std::string> bodiesToPropagate = { "Venus" };
     std::vector<std::string> centralBodies = std::vector<std::string>( bodiesToPropagate.size( ), "SSB" );
 
+    std::vector< Eigen::VectorXd > parameterCorrections;
     for( unsigned int test = 0; test < 2; test++ )
     {
         // Create body objects.
         std::vector<std::string> bodiesToCreate =
-        { "Sun", "Mercury", "Venus", "Earth", "Moon", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto" };
+        { "Sun", "Mercury", "Venus", "Earth", "Moon", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune" };
         BodyListSettings bodySettings =
             getDefaultBodySettings( bodiesToCreate );
         for( unsigned int i = 0; i < bodiesToCreate.size( ); i++ )
@@ -78,7 +79,7 @@ int main( )
         for( unsigned int i = 0; i < bodiesToPropagate.size( ); i++ )
         {
             bodySettings.at( bodiesToPropagate.at( i ) )->ephemerisSettings = tabulatedEphemerisSettings(
-                bodySettings.at( bodiesToPropagate.at( i ) )->ephemerisSettings, simulationStartEpoch - 10.0 * 86400.0, simulationEndEpoch + 10.0 * 86400.0, 86400.0 );
+                bodySettings.at( bodiesToPropagate.at( i ) )->ephemerisSettings, simulationStartEpoch - 10.0 * stepSize, simulationEndEpoch + 10.0 * stepSize, stepSize );
         }
 
         std::vector<std::string> minorBodies = { "Ceres", "Vesta", "Pallas", "2000010", "2000704", "2000052" };
@@ -140,7 +141,7 @@ int main( )
             bodiesToPropagate, centralBodies, bodies, simulationStartEpoch );
 
         std::shared_ptr<IntegratorSettings<> >
-            integratorSettings = std::make_shared<RungeKuttaFixedStepSizeSettings<> >( 86400.0, CoefficientSets::rungeKutta87DormandPrince );
+            integratorSettings = std::make_shared<RungeKuttaFixedStepSizeSettings<> >( stepSize, CoefficientSets::rungeKutta87DormandPrince );
 
         std::shared_ptr<TranslationalStatePropagatorSettings<double> > propagatorSettings =
             std::make_shared<TranslationalStatePropagatorSettings<double> >
@@ -184,11 +185,11 @@ int main( )
 
 
         std::vector< double > baseTimeList;
-        double currentTime = simulationStartEpoch + 10.0 * 86400.0;
+        double currentTime = simulationStartEpoch + 10.0 * stepSize;
         while( currentTime < simulationEndEpoch - 10.0 * 86400 )
         {
             baseTimeList.push_back( currentTime );
-            currentTime += 86400.0;
+            currentTime += stepSize;
         }
         std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > measurementSimulationInput;
         for( unsigned int i = 0; i < bodiesToPropagate.size( ); i++ )
@@ -215,32 +216,48 @@ int main( )
                 observationsAndTimes );
 //        estimationInput->defineEstimationSettings( true, true, true, true, true );
         estimationInput->setConvergenceChecker(
-            std::make_shared< EstimationConvergenceChecker >( 3 ) );
+            std::make_shared< EstimationConvergenceChecker >( 2 ) );
 
     
 
         // Fit nominal dynamics to pertrubed dynamical model
+        Eigen::VectorXd trueParameters = parametersToEstimate->getFullParameterValues< double >( );
         std::shared_ptr< EstimationOutput< double > > estimationOutput = orbitDeterminationManager.estimateParameters(
             estimationInput );
 
-        Eigen::VectorXd bestResiduals = estimationOutput->residuals_;
-        input_output::writeMatrixToFile( bestResiduals, "residuals_eih_" + std::to_string( test ) + ".dat", 16 );
+        if( test == 0 )
+        {
+            BOOST_CHECK_EQUAL( estimationOutput->residualStandardDeviation_ < 15.0, true );
+        }
+        else
+        {
+            BOOST_CHECK_EQUAL( estimationOutput->residualStandardDeviation_ > 150.0, true );
+        }
 
+        Eigen::VectorXd estimatedParameters = parametersToEstimate->getFullParameterValues< double >( );
+        Eigen::VectorXd parameterCorrection = estimatedParameters - trueParameters;
+        std::cout<<std::endl<<"PARAMETER CORRECTION  ************"<<std::endl<<
+        parameterCorrection.transpose( )<<std::endl<<std::endl;
 
+        parameterCorrections.push_back( parameterCorrection );
+//        Eigen::VectorXd bestResiduals = estimationOutput->residuals_;
+//        input_output::writeMatrixToFile( bestResiduals, "residuals_eih_" + std::to_string( test ) + ".dat", 16 );
     }
-//
-//    for ( int i = 0; i < 6; i++ )
-//    {
-//        BOOST_CHECK_SMALL( rmsDifferences.at( 0 )( i ) / rmsDifferences.at( 1 )( i ), 0.2 );
-//        BOOST_CHECK_SMALL( maximumDifferences.at( 0 )( i ) / maximumDifferences.at( 1 )( i ), 0.2 );
-//    }
+
+    BOOST_CHECK_SMALL( parameterCorrections.at( 0 ).segment( 0, 3 ).norm( ) /
+                       parameterCorrections.at( 1 ).segment( 0, 3 ).norm( ), 0.025 );
+
+    BOOST_CHECK_SMALL( parameterCorrections.at( 0 ).segment( 3, 3 ).norm( ) /
+                       parameterCorrections.at( 1 ).segment( 3, 3 ).norm( ), 0.025 );
+
+    BOOST_CHECK_SMALL( parameterCorrections.at( 0 )( 6 ) /
+                       parameterCorrections.at( 1 )( 6 ), 0.00025 );
+}
+
+BOOST_AUTO_TEST_SUITE_END( )
 
 }
-//
-//BOOST_AUTO_TEST_SUITE_END( )
-//
-//}
-//
-//}
+
+}
 
 

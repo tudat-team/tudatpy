@@ -42,7 +42,7 @@ BOOST_AUTO_TEST_CASE( testEihPropagation )
 
     // Set simulation end epoch.
     const double simulationStartEpoch = 0.0 * tudat::physical_constants::JULIAN_YEAR;
-    const double simulationEndEpoch = 2.0 * 365.0 * tudat::physical_constants::JULIAN_DAY;
+    const double simulationEndEpoch = 10.0 * tudat::physical_constants::JULIAN_YEAR;
 
 
     std::vector< Eigen::Vector6d > rmsDifferences;
