@@ -96,10 +96,10 @@ TUDAT_ADD_TEST_CASE(NonSequentialStateEstimation
      ${Tudat_ESTIMATION_LIBRARIES}
      )
 
-# TUDAT_ADD_TEST_CASE(EihEstimation
-#         PRIVATE_LINKS
-#         ${Tudat_ESTIMATION_LIBRARIES}
-#         )
+ TUDAT_ADD_TEST_CASE(EihEstimation
+         PRIVATE_LINKS
+         ${Tudat_ESTIMATION_LIBRARIES}
+         )
 
  TUDAT_ADD_TEST_CASE(ConsiderParameters
          PRIVATE_LINKS
