@@ -338,7 +338,7 @@ generatePaneledSphericalCap_EqualAngularResolution(
         const std::vector<int>& numberOfPanelsPerRing,
         double bodyRadius)
 {
-    // The panels are first generated as if the target were above the North Pole ("pole-aligned frame"),
+    // The panels are first generated as if the target were above the north pole ("pole-aligned frame"),
     // then rotated to the actual position ("target-aligned frame"). This works because a spherical body
     // is assumed so that panel areas do not change upon rotation.
 
@@ -416,7 +416,7 @@ generatePaneledSphericalCap_EqualProjectedAttenuatedArea(
         const std::vector<int>& numberOfPanelsPerRing,
         double R_e)
 {
-    // The panels are first generated as if the target were above the North Pole ("polar-centric frame"),
+    // The panels are first generated as if the target were above the north pole ("polar-centric frame"),
     // then rotated to the actual position ("target-centric frame"). This works because a spherical body
     // is assumed so that panel areas do not change upon rotation.
 

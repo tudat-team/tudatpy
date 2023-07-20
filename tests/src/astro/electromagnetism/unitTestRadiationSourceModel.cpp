@@ -567,7 +567,7 @@ BOOST_AUTO_TEST_CASE( generatePaneledSphericalCap_EqualAngularResolution_FarAway
 {
     const auto expectedNumberOfPanels = 4;
 
-    // Target above North Pole at infinity can see whole Northern Hemisphere
+    // Target above north pole at infinity can see whole northern hemisphere
     const Eigen::Vector3d targetPosition(0, 0, std::numeric_limits<double>::max());
 
     const auto panels = generatePaneledSphericalCap_EqualAngularResolution(targetPosition, {3}, 1);
@@ -733,6 +733,62 @@ BOOST_AUTO_TEST_CASE( generatePaneledSphericalCap_EqualAngularResolution_Realist
         BOOST_CHECK_CLOSE(actualPolarAngles[i], expectedPolarAngles[i], 1e-13);
         BOOST_CHECK_CLOSE(actualAzimuthAngles[i], expectedAzimuthAngles[i], 1e-13);
         BOOST_CHECK_CLOSE(actualAreas[i], expectedAreas[i], 1e-13);
+    }
+}
+
+//! Test location panels for target above poles (equal projected, attenuated area)
+BOOST_AUTO_TEST_CASE( generatePaneledSphericalCap_EqualProjectedAttenuatedArea_Poles )
+{
+    const auto radius = 42;
+
+    {
+        // Case 1: above north pole --> all panels should be in northern hemisphere
+        const Eigen::Vector3d targetPosition(0, 0, 53);
+        const auto panels = generatePaneledSphericalCap_EqualProjectedAttenuatedArea(targetPosition, {6, 12}, radius);
+        const auto panelCenters = std::get<0>(panels);
+        const auto polarAngles = std::get<1>(panels);
+        const auto aziAngles = std::get<2>(panels);
+
+        // Check central cap
+        const auto expectedPanelCenter = Eigen::Vector3d(0, 0, radius);
+        const auto& actualPanelCenter = panelCenters[0];
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION(actualPanelCenter, expectedPanelCenter, 1e-15);
+
+        const auto expectedPolarAngle = 0;
+        const auto actualPolarAngle = polarAngles[0];
+        BOOST_CHECK_CLOSE(actualPolarAngle, expectedPolarAngle, 1e-13);
+
+        // Check rings
+        for (unsigned int i = 0; i < panelCenters.size(); ++i)
+        {
+            BOOST_CHECK_GE(panelCenters[i].dot(Eigen::Vector3d::UnitZ()), 0);
+            BOOST_CHECK_LE(polarAngles[i], PI / 2);
+        }
+    }
+
+    {
+        // Case 2: above south pole --> all panels should be in southern hemisphere
+        const Eigen::Vector3d targetPosition(0, 0, -87);
+        const auto panels = generatePaneledSphericalCap_EqualProjectedAttenuatedArea(targetPosition, {5, 15}, radius);
+        const auto panelCenters = std::get<0>(panels);
+        const auto polarAngles = std::get<1>(panels);
+        const auto aziAngles = std::get<2>(panels);
+
+        // Check central cap
+        const auto expectedPanelCenter = Eigen::Vector3d(0, 0, -radius);
+        const auto& actualPanelCenter = panelCenters[0];
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION(actualPanelCenter, expectedPanelCenter, 1e-15);
+
+        const auto expectedPolarAngle = PI;
+        const auto actualPolarAngle = polarAngles[0];
+        BOOST_CHECK_CLOSE(actualPolarAngle, expectedPolarAngle, 1e-13);
+
+        // Check rings
+        for (unsigned int i = 0; i < panelCenters.size(); ++i)
+        {
+            BOOST_CHECK_GE(panelCenters[i].dot(-Eigen::Vector3d::UnitZ()), 0);
+            BOOST_CHECK_GE(polarAngles[i], PI / 2);
+        }
     }
 }
 

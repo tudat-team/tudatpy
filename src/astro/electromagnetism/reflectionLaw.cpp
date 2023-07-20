@@ -37,7 +37,6 @@ double SpecularDiffuseMixReflectionLaw::evaluateReflectedFraction(const Eigen::V
     // Wetterer (2014) Eq. 4
     const auto diffuseReflectance = diffuseReflectivity_ / mathematical_constants::PI;
 
-    // TODO-DOMINIK is this correct? Should follow from Montenbruck (2014)
     double instantaneousReradiationReflectance = 0;
     if (withInstantaneousReradiation_)
     {

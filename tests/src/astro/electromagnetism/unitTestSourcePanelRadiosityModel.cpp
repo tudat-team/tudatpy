@@ -66,6 +66,18 @@ BOOST_AUTO_TEST_CASE( testConstantPanelRadiosityModel )
     }
 
     {
+        // Target in-plane with panel
+        const auto expectedEmittedIrradiance = 0;
+        const auto actualEmittedIrradiance = radiosityModel.evaluateIrradianceAtPosition(
+                1,
+                Eigen::Vector3d::UnitX(),
+                3 * Eigen::Vector3d::UnitY(),
+                1,
+                -Eigen::Vector3d::UnitX());
+        BOOST_CHECK_CLOSE(expectedEmittedIrradiance, actualEmittedIrradiance, 1e-15);
+    }
+
+    {
         // Target behind panel
         const auto expectedEmittedIrradiance = 0;
         const auto actualEmittedIrradiance = radiosityModel.evaluateIrradianceAtPosition(

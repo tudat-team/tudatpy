@@ -48,7 +48,7 @@ Eigen::Vector3d PaneledRadiationPressureTargetModel::evaluateRadiationPressureFo
     {
         const auto surfaceNormal = panel.getSurfaceNormal();
         const double cosBetweenNormalAndIncoming = (-sourceToTargetDirection).dot(surfaceNormal);
-        if (cosBetweenNormalAndIncoming >= 0)
+        if (cosBetweenNormalAndIncoming > 0)
         {
             const double effectiveArea = panel.getArea() * cosBetweenNormalAndIncoming;
             const auto radiationPressure = sourceIrradiance / physical_constants::SPEED_OF_LIGHT;
