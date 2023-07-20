@@ -53,6 +53,8 @@ public:
         rotationFromInertialToBodyFixedFrame_( rotationFromInertialToBodyFixedFrame ),
         rotationFromBodyFixedToTopoCentricFrame_( rotationFromBodyFixedToTopoCentricFrame ){ }
 
+    double calculateElevationAngle( const Eigen::Vector3d& vectorInTopoCentricFrame );
+
     //! Function to calculate the elevation angle from body-fixed point to given point.
     /*!
      *  Function to calculate the elevation angle from body-fixed reference point (typically ground station) to given point.
@@ -63,6 +65,8 @@ public:
      *  \return Elevation angle from reference point to input point (inertialVectorAwayFromStation)
      */
     double calculateElevationAngle( const Eigen::Vector3d inertialVectorAwayFromStation, const double time );
+
+    double calculateAzimuthAngle( const Eigen::Vector3d& vectorInTopoCentricFrame );
 
     //! Function to calculate the azimuth angle from body-fixed point to given point.
     /*!
