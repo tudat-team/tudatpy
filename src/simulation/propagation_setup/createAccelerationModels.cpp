@@ -415,7 +415,7 @@ createSphericalHarmonicsGravityAcceleration(
                                sphericalHarmonicsSettings->maximumOrder_ );
 
             std::function< Eigen::MatrixXd( ) > cosineCoefficientFunction;
-            if( !useDegreeZeroTerm )
+            if( !useDegreeZeroTerm || sphericalHarmonicsSettings->removePointMass_ )
             {
                 cosineCoefficientFunction =
                         std::bind( &setDegreeAndOrderCoefficientToZero, originalCosineCoefficientFunction );
