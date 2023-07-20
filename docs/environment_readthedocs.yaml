@@ -14,7 +14,7 @@ dependencies:
   - jinja2
   - yaml
   #- cmake
-  - pydantic
+  - pydantic=1.10.9
   - numpydoc
   - tudatpy
   - pip
