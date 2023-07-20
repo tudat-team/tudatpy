@@ -292,8 +292,6 @@ public:
         // Check dependencies.
         if( parameter->getParameterName( ).first ==  estimatable_parameters::gravitational_parameter )
         {
-//            std::cout<<"Checking "<<parameter->getParameterName( ).second.first<<" "
-//            <<fullEihPartials_->getEihEquations( )->getAcceleratingBodyMap( ).count( parameter->getParameterName( ).second.first )<<std::endl;
             if( fullEihPartials_->getEihEquations( )->getAcceleratingBodyMap( ).count( parameter->getParameterName( ).second.first ) > 0 )
             {
                 // If parameter is gravitational parameter, check and create dependency function .
