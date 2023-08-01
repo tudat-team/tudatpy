@@ -35,8 +35,8 @@ TUDAT_ADD_EXECUTABLE(application_shadow_function_estimation
         ${Tudat_PROPAGATION_LIBRARIES}
         )
 
-TUDAT_ADD_EXECUTABLE(application_validation_verification
-        "src/validation_verification.cpp"
+TUDAT_ADD_EXECUTABLE(application_lageos
+        "src/lageos.cpp"
         ${Tudat_PROPAGATION_LIBRARIES}
         )
 
