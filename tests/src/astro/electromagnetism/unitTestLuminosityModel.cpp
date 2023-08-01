@@ -41,7 +41,7 @@ BOOST_AUTO_TEST_CASE( testIrradianceBasedLuminosityModel )
 {
     const auto expectedLuminosity = celestial_body_constants::SUN_LUMINOSITY;
 
-    IrradianceBasedLuminosityModel luminosityModel([](double) { return 1360.8; }, physical_constants::ASTRONOMICAL_UNIT);
+    IrradianceBasedLuminosityModel luminosityModel(1360.8, physical_constants::ASTRONOMICAL_UNIT);
     luminosityModel.updateMembers(TUDAT_NAN);
     const auto actualLuminosity = luminosityModel.getLuminosity();
 
