@@ -10,6 +10,8 @@
  *    References
  *      Noomen, R. AE2230-I Flight and Orbital Mechanics Lecture Notes, Ch. Perturbations (2),
  *             Delft University of Technology, 2022.
+ *      Knocke, Philip et al. "Earth radiation pressure effects on satellites."
+ *          Astrodynamics Conference. American Institute of Aeronautics and Astronautics, 1988.
  */
 
 #define BOOST_TEST_DYN_LINK
@@ -27,6 +29,7 @@
 #include "tudat/astro/electromagnetism/radiationPressureTargetModel.h"
 
 #include "tudat/interface/spice/spiceInterface.h"
+#include "tudat/astro/basic_astro/celestialBodyConstants.h"
 #include "tudat/astro/basic_astro/orbitalElementConversions.h"
 #include "tudat/astro/basic_astro/astrodynamicsFunctions.h"
 #include "tudat/astro/basic_astro/sphericalBodyShapeModel.h"
@@ -953,6 +956,116 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_StaticallyPaneledSource_
         BOOST_CHECK(actualVisibleSourcePanelCount == expectedVisibleSourcePanelCount);
         BOOST_CHECK(actualIlluminatedSourcePanelCount == expectedIlluminatedSourcePanelCount);
         BOOST_CHECK(actualVisibleAndIlluminatedSourcePanelCount == expectedVisibleAndIlluminatedSourcePanelCount);
+    }
+}
+
+//! Test radiation acceleration model for LAGEOS with albedo and thermal radiation from Earth (Knocke 1988)
+BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_DynamicallyPaneledSource_CannonballTarget_LAGEOS )
+{
+    using namespace tudat;
+    using namespace tudat::simulation_setup;
+    using namespace tudat::electromagnetism;
+    using namespace tudat::ephemerides;
+    using namespace tudat::basic_astrodynamics;
+
+    spice_interface::loadStandardSpiceKernels( );
+
+    double area = 0.28483;
+    double coefficient = 1.13;
+    double bodyMass = 406.9;
+
+    const auto globalFrameOrigin = "Earth";
+    const auto globalFrameOrientation = "J2000";
+    const auto bodySettings = getDefaultBodySettings({"Earth", "Sun"}, globalFrameOrigin, globalFrameOrientation);
+    auto bodies = createSystemOfBodies(bodySettings);
+    setGlobalFrameBodyEphemerides(bodies.getMap(), globalFrameOrigin, globalFrameOrientation);
+
+    const auto originalSourceModelSettings = bodySettings.at("Sun")->radiationSourceModelSettings;
+    const auto originalSourceModel =
+            std::dynamic_pointer_cast<IsotropicPointRadiationSourceModel>(createRadiationSourceModel(originalSourceModelSettings, "Sun", bodies));
+    const auto originalSourceBodyShapeModel = bodies.at("Sun")->getShapeModel();
+
+    const auto targetModelSettings = cannonballRadiationPressureTargetModelSettings(area, coefficient);
+    const auto targetModel = createRadiationPressureTargetModel(targetModelSettings, "Vehicle", bodies);
+
+    const auto sourceModelSettings = dynamicallyPaneledRadiationSourceModelSettings("Sun", {
+                    albedoPanelRadiosityModelSettings(SecondDegreeZonalPeriodicSurfacePropertyDistributionModel::albedo_knocke),
+                    delayedThermalPanelRadiosityModelSettings(SecondDegreeZonalPeriodicSurfacePropertyDistributionModel::emissivity_knocke)
+            }, {6, 12});
+    const auto sourceModel =
+            std::dynamic_pointer_cast<PaneledRadiationSourceModel>(createRadiationSourceModel(sourceModelSettings, globalFrameOrigin, bodies));
+
+    const auto tle = std::make_shared<Tle>(
+            "1 08820U 76039  A 77047.52561960  .00000002 +00000-0 +00000-0 0  9994\n"
+            "2 08820 109.8332 127.3884 0044194 201.3006 158.6132 06.38663945018402");
+    auto ephemeris = std::make_shared<TleEphemeris>(globalFrameOrigin, globalFrameOrientation, tle);
+
+    const auto startTime = spice_interface::convertDateStringToEphemerisTime("1977-02-22");
+
+    Eigen::Vector6d initialStateInKeplerianElements =
+            orbital_element_conversions::convertCartesianToKeplerianElements(
+                   ephemeris->getCartesianState(startTime), celestial_body_constants::EARTH_GRAVITATIONAL_PARAMETER);
+
+    double orbitalPeriod = basic_astrodynamics::computeKeplerOrbitalPeriod(
+        initialStateInKeplerianElements[ orbital_element_conversions::semiMajorAxisIndex ],
+        celestial_body_constants::EARTH_GRAVITATIONAL_PARAMETER, 0 );
+
+    const int n_rev = 3;
+    const double n_steps_per_rev = 10;
+    for (int i = 0; i <= n_rev * n_steps_per_rev; ++i)
+    {
+        double t = startTime + i / n_steps_per_rev * orbitalPeriod;
+
+        bodies.at("Earth")->setStateFromEphemeris(t);
+        bodies.at("Earth")->setCurrentRotationToLocalFrameFromEphemeris(t);
+        bodies.at("Sun")->setStateFromEphemeris(t);
+
+        const Eigen::Quaterniond earthToGlobalRotation = bodies.at("Earth")->getCurrentRotationToGlobalFrame();
+
+        const auto position = ephemeris->getCartesianPosition(t);
+        const auto velocity = ephemeris->getCartesianVelocity(t);
+
+        const auto originalSourcePosition = bodies.at("Sun")->getPosition();
+
+        PaneledSourceRadiationPressureAcceleration accelerationModel(
+            sourceModel,
+            [] () { return Eigen::Vector3d::Zero(); },
+            [=] () { return earthToGlobalRotation; },
+            targetModel,
+            [=] () { return position; },
+            [] () { return Eigen::Quaterniond::Identity(); },
+            [=] () { return bodyMass; },
+            originalSourceModel,
+            originalSourceBodyShapeModel,
+            [=] () { return originalSourcePosition; },
+            std::make_shared<NoOccultingBodyOccultationModel>(),
+            std::make_shared<NoOccultingBodyOccultationModel>()
+        );
+
+        sourceModel->updateMembers(t);
+        accelerationModel.updateMembers(t);
+
+        const auto acceleration = accelerationModel.getAcceleration();
+
+        Eigen::Vector3d radialUnit = position.normalized();
+        Eigen::Vector3d alongTrackUnit = (velocity - radialUnit * velocity.dot(radialUnit)).normalized();
+        Eigen::Vector3d crossTrackUnit = radialUnit.cross(alongTrackUnit);
+
+        auto radialAcceleration = acceleration.dot(radialUnit);
+        auto alongTrackAcceleration = acceleration.dot(alongTrackUnit);
+        auto crossTrackAcceleration = acceleration.dot(crossTrackUnit);
+
+        // Compare with Knocke (1988), Fig. 4
+        BOOST_CHECK_GT(radialAcceleration, 1.5e-10);
+        BOOST_CHECK_LT(radialAcceleration, 3.9e-10);
+
+        BOOST_CHECK_GT(alongTrackAcceleration, -4.0e-11);
+        BOOST_CHECK_LT(alongTrackAcceleration, 4.0e-11);
+
+        // Cross-track/normal acceleration from figure is less, but ours are a bit larger and more negative, likely
+        // since we have a slightly different arc
+        BOOST_CHECK_GT(crossTrackAcceleration, -3.0e-11);
+        BOOST_CHECK_LT(crossTrackAcceleration, 1.0e-11);
     }
 }
 
