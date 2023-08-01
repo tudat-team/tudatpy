@@ -698,11 +698,222 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_IsotropicPointSource_Pan
                                 * expectedPanelNormal ) );
             }
 
-            TUDAT_CHECK_MATRIX_CLOSE_FRACTION(calculatedAcceleration, expectedAcceleration, 1e-10)
+            for( unsigned int j = 0; j < 3; j++ )
+            {
+                BOOST_CHECK_SMALL( std::fabs( calculatedAcceleration[j] - expectedAcceleration[j] ), 3.0e-23 );
+            }
         }
     }
-
 }
+
+//! Test radiation acceleration model for a paneled spacecraft with time-varying solar panels orientation.
+// This is done by checking consistency of (i) a rotating spacecraft with fixed panels and
+// (ii) a constant-attitude spacecraft with rotating panels
+BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_IsotropicPointSource_PaneledTarget_TimeVaryingPanelOrientation )
+{
+    using namespace tudat::basic_astrodynamics;
+    using namespace tudat::simulation_setup;
+    using namespace tudat::ephemerides;
+    
+    //Load spice kernels.
+    spice_interface::loadStandardSpiceKernels( );
+
+    // Create bodies needed in simulation
+    double initialEphemerisTime = 0.0;
+    double finalEphemerisTime = 1.1 * 365.25 * 86400.0;
+    std::vector< std::string > bodyNames;
+    bodyNames.push_back( "Sun" );
+    SystemOfBodies bodies = createSystemOfBodies(
+                getDefaultBodySettings( bodyNames,initialEphemerisTime, finalEphemerisTime ) );
+
+    // Create vehicle
+    double vehicleMass = 2000.0;
+    bodies.createEmptyBody( "Vehicle" );
+    bodies.at( "Vehicle" )->setConstantBodyMass( vehicleMass );
+
+
+    // Compute spacecraft orbital period, and compute test times
+    double orbitalPeriod = 2.0 * mathematical_constants::PI * std::sqrt( std::pow( physical_constants::ASTRONOMICAL_UNIT, 3.0 ) /
+                                                                         spice_interface::getBodyGravitationalParameter( "Sun" ) );
+    std::vector< double > testTimes = { 0.0, orbitalPeriod / 4.0, orbitalPeriod / 2.0, 3.0 * orbitalPeriod / 4.0 };
+
+    // Put vehicle on circular orbit around Sun.
+    Eigen::Vector6d initialStateInKeplerianElements = Eigen::Vector6d::Zero( );
+    initialStateInKeplerianElements[ 0 ] = physical_constants::ASTRONOMICAL_UNIT;
+    bodies.at( "Vehicle" )->setEphemeris( std::make_shared< KeplerEphemeris >( initialStateInKeplerianElements, 0.0,
+                                                 spice_interface::getBodyGravitationalParameter( "Sun" ), "Sun", "ECLIPJ2000", 1 ) );
+
+    // Define rotational model parameters.
+    std::vector< double > rightAscensionPole;
+    rightAscensionPole.push_back( 0.0 );
+    rightAscensionPole.push_back( 0.2 );
+
+    std::vector< double > declinationPole;
+    declinationPole.push_back( mathematical_constants::PI / 2.0 );
+    declinationPole.push_back( 0.4 );
+
+    std::vector< double > primeMeridianLongitude;
+    primeMeridianLongitude.push_back( - mathematical_constants::PI / 2.0 );
+    primeMeridianLongitude.push_back( - 0.2 );
+
+    std::vector< double > rotationalRate;
+    rotationalRate.push_back( 1.0E-5 );
+    rotationalRate.push_back( 1.0E-5 );
+
+    std::vector< double > numberSecondsSinceEpoch;
+    numberSecondsSinceEpoch.push_back( 0.0 );
+    numberSecondsSinceEpoch.push_back( 0.0 );
+
+
+    // Case 0: vehicle-fixed axes aligned with inertial ones at time t = 0.
+    // Case 1: arbitrary chosen rotational model for the vehicle.
+
+    for ( unsigned int testCase = 0 ; testCase < 2 ; testCase++)
+    {
+        /// First calculation with simple rotational ephemeris and constant panel orientation.
+        std::vector<Eigen::Vector3d> calculatedAcceleration;
+        {
+            // Define simple rotational ephemeris.
+            bodies.at("Vehicle")->setRotationalEphemeris(std::make_shared<tudat::ephemerides::SimpleRotationalEphemeris>(
+                    rightAscensionPole[testCase], declinationPole[testCase], primeMeridianLongitude[testCase],
+                    rotationalRate[testCase], numberSecondsSinceEpoch[testCase], "ECLIPJ2000", "VehicleFixed"));
+    
+            // Create panels
+            std::vector<TargetPanel> panels{
+                    TargetPanel(2.0, Eigen::Vector3d::UnitX(),
+                                reflectionLawFromSpecularAndDiffuseReflectivity(0.0, 0.06)),
+                    TargetPanel(4.0, -Eigen::Vector3d::UnitX(),
+                                reflectionLawFromSpecularAndDiffuseReflectivity(0.1, 0.46)),
+            };
+            bodies.at("Vehicle")->setRadiationPressureTargetModel(
+                    std::make_shared<PaneledRadiationPressureTargetModel>(panels));
+    
+            SelectedAccelerationMap accelerationMap{
+                    {"Vehicle", {
+                            {"Sun", {
+                                    radiationPressureAcceleration()
+                            }},
+                    }}
+            };
+            auto accelerationModelMap = createAccelerationModelsMap(bodies,
+                                                                    accelerationMap,
+                                                                    std::vector<std::string>{"Vehicle"},
+                                                                    std::vector<std::string>{"Sun"});
+            auto accelerationModel = accelerationModelMap.at("Vehicle").at("Sun").at(0);
+    
+    
+            // Compute radiation pressure acceleration for different Sun positions.
+            Eigen::Vector3d sunCenteredVehiclePosition;
+            std::shared_ptr<Ephemeris> vehicleEphemeris = bodies.at("Vehicle")->getEphemeris();
+    
+            for (unsigned int i = 0; i < testTimes.size(); i++)
+            {
+                auto currentTime = testTimes[i];
+                
+                // Update environment and acceleration
+                bodies.at("Sun")->setStateFromEphemeris(currentTime);
+                bodies.at("Vehicle")->setStateFromEphemeris(currentTime);
+                bodies.at("Vehicle")->setCurrentRotationToLocalFrameFromEphemeris(currentTime);
+                bodies.at("Vehicle")->updateMass(currentTime);
+                bodies.at("Sun")->getRadiationSourceModel()->updateMembers(currentTime);
+                bodies.at("Vehicle")->getRadiationPressureTargetModel()->updateMembers(currentTime);
+                accelerationModel->updateMembers(currentTime);
+    
+                // Retrieve acceleration.
+                calculatedAcceleration.push_back(accelerationModel->getAcceleration());
+            }
+        }
+
+
+
+        /// Second calculation with constant rotational ephemeris and time-varying panel orientation
+        std::vector< Eigen::Vector3d > calculatedAccelerationTimeVaryingPanelOrientation;
+        {
+            // Define constant rotational ephemeris
+            Eigen::Vector7d rotationalStateVehicle;
+            rotationalStateVehicle.segment(0, 4) = linear_algebra::convertQuaternionToVectorFormat(
+                    Eigen::Quaterniond(Eigen::Matrix3d::Identity()));
+            rotationalStateVehicle.segment(4, 3) = Eigen::Vector3d::Zero();
+            bodies.at("Vehicle")->setRotationalEphemeris(
+                    std::make_shared<ConstantRotationalEphemeris>(rotationalStateVehicle, "ECLIPJ2000",
+                                                                  "VehicleFixed"));
+
+            // Define time-varying panel orientation.
+            double currentTime;
+
+            const auto rotationToInertialFrameFunction = [&]()
+            {
+                Eigen::Quaterniond rotationAngle =
+                        reference_frames::getInertialToPlanetocentricFrameTransformationQuaternion(
+                                basic_mathematics::computeModulo(
+                                        (currentTime - numberSecondsSinceEpoch[testCase]) * rotationalRate[testCase],
+                                        2.0 * mathematical_constants::PI));
+                Eigen::Quaterniond rotationAxis =
+                        reference_frames::getInertialToPlanetocentricFrameTransformationQuaternion(
+                                declinationPole[testCase],
+                                rightAscensionPole[testCase],
+                                primeMeridianLongitude[testCase]);
+
+                return (rotationAngle * rotationAxis).inverse();
+            };
+
+            // Create panels
+            std::vector<TargetPanel> panels{
+                    TargetPanel(2.0, [=] () { return rotationToInertialFrameFunction() * Eigen::Vector3d::UnitX(); },
+                                reflectionLawFromSpecularAndDiffuseReflectivity(0.0, 0.06)),
+                    TargetPanel(4.0, [=] () { return rotationToInertialFrameFunction() * -Eigen::Vector3d::UnitX(); },
+                                reflectionLawFromSpecularAndDiffuseReflectivity(0.1, 0.46)),
+            };
+            bodies.at("Vehicle")->setRadiationPressureTargetModel(
+                    std::make_shared<PaneledRadiationPressureTargetModel>(panels));
+
+            SelectedAccelerationMap accelerationMap{
+                    {"Vehicle", {
+                            {"Sun", {
+                                    radiationPressureAcceleration()
+                            }},
+                    }}
+            };
+            auto accelerationModelMap = createAccelerationModelsMap(bodies,
+                                                                    accelerationMap,
+                                                                    std::vector<std::string>{"Vehicle"},
+                                                                    std::vector<std::string>{"Sun"});
+            auto accelerationModelTimeVaryingPanelSurfaceNormal = accelerationModelMap.at("Vehicle").at("Sun").at(0);
+    
+    
+            // Compute radiation pressure acceleration for different Sun positions.
+            Eigen::Vector3d sunCenteredVehiclePosition;
+            std::shared_ptr<Ephemeris> vehicleEphemeris = bodies.at("Vehicle")->getEphemeris();
+
+            for (unsigned int i = 0; i < testTimes.size(); i++)
+            {
+                currentTime = testTimes[i];
+
+                // Update environment and acceleration
+                bodies.at("Sun")->setStateFromEphemeris(currentTime);
+                bodies.at("Vehicle")->setStateFromEphemeris(currentTime);
+                bodies.at("Vehicle")->setCurrentRotationToLocalFrameFromEphemeris(currentTime);
+                bodies.at("Vehicle")->updateMass(currentTime);
+                bodies.at("Sun")->getRadiationSourceModel()->updateMembers(currentTime);
+                bodies.at("Vehicle")->getRadiationPressureTargetModel()->updateMembers(currentTime);
+                accelerationModelTimeVaryingPanelSurfaceNormal->updateMembers(currentTime);
+
+                // Retrieve acceleration.
+                calculatedAccelerationTimeVaryingPanelOrientation.push_back(
+                        accelerationModelTimeVaryingPanelSurfaceNormal->getAcceleration());
+            }
+        }
+
+        for( unsigned int j = 0; j < testTimes.size() ; j++ )
+        {
+            for ( unsigned int i = 0 ; i < 3 ; i++ ){
+                BOOST_CHECK_SMALL( std::fabs(
+                                       calculatedAcceleration[j][i] - calculatedAccelerationTimeVaryingPanelOrientation[j][i] ), 3.0e-23 );
+            }
+        }
+    }
+}
+
 
 //! Test basic case for paneled target acceleration with paneled source
 BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_StaticallyPaneledSource_PaneledTarget_Basic )
