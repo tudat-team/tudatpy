@@ -164,18 +164,16 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_IsotropicPointSource_Can
 //! Test occultation for cannonball target acceleration with isotropic point source
 BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_IsotropicPointSource_CannonballTarget_Occultation )
 {
-    auto sourceModel = std::make_shared<IsotropicPointRadiationSourceModel>(
-        std::make_shared<ConstantLuminosityModel>(1));
-
-    const auto targetPosition = Eigen::Vector3d(10, 0, 0);
-    auto targetModel = std::make_shared<CannonballRadiationPressureTargetModel>(1, 1);
-
-    // Source and target keep their position, occulting body moves between tests
     {
         // Occulting body not interfering
         const double expectedReceivedFraction = 1.0;
 
         const auto occultingBodyPosition = Eigen::Vector3d(5, 5, 0);
+        const auto targetPosition = Eigen::Vector3d(10, 0, 0);
+
+        auto sourceModel = std::make_shared<IsotropicPointRadiationSourceModel>(
+            std::make_shared<ConstantLuminosityModel>(1));
+        const auto targetModel = std::make_shared<CannonballRadiationPressureTargetModel>(1, 1);
 
         auto sourceToTargetOccultationModel = std::make_shared<SingleOccultingBodyOccultationModel>(
             "", [=] () { return occultingBodyPosition; },
@@ -193,6 +191,7 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_IsotropicPointSource_Can
 
         sourceModel->updateMembers(TUDAT_NAN);
         targetModel->updateMembers(TUDAT_NAN);
+        sourceToTargetOccultationModel->updateMembers(TUDAT_NAN);
         accelerationModel.updateMembers(TUDAT_NAN);
 
         const auto actualAcceleration = accelerationModel.getAcceleration().norm();
@@ -203,10 +202,15 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_IsotropicPointSource_Can
     }
 
     {
-        // Occulting body interfering with source -> target
+        // Occulting body interfering with source -> target (target in umbra)
         const double expectedReceivedFraction = 0.0;
 
         const auto occultingBodyPosition = Eigen::Vector3d(5, 0, 0);
+        const auto targetPosition = Eigen::Vector3d(10, 0, 0);
+
+        auto sourceModel = std::make_shared<IsotropicPointRadiationSourceModel>(
+            std::make_shared<ConstantLuminosityModel>(1));
+        const auto targetModel = std::make_shared<CannonballRadiationPressureTargetModel>(1, 1);
 
         auto sourceToTargetOccultationModel = std::make_shared<SingleOccultingBodyOccultationModel>(
             "", [=] () { return occultingBodyPosition; },
@@ -224,6 +228,7 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_IsotropicPointSource_Can
 
         sourceModel->updateMembers(TUDAT_NAN);
         targetModel->updateMembers(TUDAT_NAN);
+        sourceToTargetOccultationModel->updateMembers(TUDAT_NAN);
         accelerationModel.updateMembers(TUDAT_NAN);
 
         const auto actualAcceleration = accelerationModel.getAcceleration().norm();
@@ -231,6 +236,57 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_IsotropicPointSource_Can
 
         BOOST_CHECK_CLOSE_FRACTION(actualAcceleration, 0, 1e-15);
         BOOST_CHECK_CLOSE_FRACTION(actualReceivedFraction, expectedReceivedFraction, 1e-15);
+    }
+
+    {
+        // Occulting body interfering with source -> target (target in penumbra)
+        const double expectedReceivedFraction = 0.4547;
+
+        const auto occultingBodyPosition = Eigen::Vector3d::Zero();
+        const auto occultingBodyRadius = 6378.137e3;
+
+        const Eigen::Vector3d targetDirection( 0.018, 1.0, 0.0 );
+        const Eigen::Vector3d targetPosition = (occultingBodyRadius + 1.0e3) * targetDirection.normalized();
+        const Eigen::Vector3d sourcePosition = -149598000.0e3 * Eigen::Vector3d::UnitX();
+
+        auto sourceModel = std::make_shared<IsotropicPointRadiationSourceModel>(
+            std::make_shared<IrradianceBasedLuminosityModel>(1367.0, physical_constants::ASTRONOMICAL_UNIT));
+        const auto targetModel = std::make_shared<CannonballRadiationPressureTargetModel>(5, 1.2);
+
+        auto sourceToTargetOccultationModel = std::make_shared<SingleOccultingBodyOccultationModel>(
+            "", [=] () { return occultingBodyPosition; },
+            std::make_shared<basic_astrodynamics::SphericalBodyShapeModel>(occultingBodyRadius));
+
+        IsotropicPointSourceRadiationPressureAcceleration unoccultedAccelerationModel(
+                sourceModel,
+                std::make_shared<basic_astrodynamics::SphericalBodyShapeModel>(6.96e8),
+                [=] () { return sourcePosition; },
+                targetModel,
+                [=] () { return targetPosition; },
+                [] () { return Eigen::Quaterniond::Identity(); },
+                [] () { return 42; },
+                std::make_shared<NoOccultingBodyOccultationModel>());
+
+        IsotropicPointSourceRadiationPressureAcceleration occultedAccelerationModel(
+                sourceModel,
+                std::make_shared<basic_astrodynamics::SphericalBodyShapeModel>(6.96e8),
+                [=] () { return sourcePosition; },
+                targetModel,
+                [=] () { return targetPosition; },
+                [] () { return Eigen::Quaterniond::Identity(); },
+                [] () { return 42; },
+                sourceToTargetOccultationModel);
+
+        sourceModel->updateMembers(TUDAT_NAN);
+        targetModel->updateMembers(TUDAT_NAN);
+        sourceToTargetOccultationModel->updateMembers(TUDAT_NAN);
+        unoccultedAccelerationModel.updateMembers(TUDAT_NAN);
+        occultedAccelerationModel.updateMembers(TUDAT_NAN);
+
+        const auto unoccultedAcceleration = unoccultedAccelerationModel.getAcceleration().norm();
+        const auto occultedAcceleration = occultedAccelerationModel.getAcceleration().norm();
+
+        BOOST_CHECK_CLOSE_FRACTION(occultedAcceleration / unoccultedAcceleration, expectedReceivedFraction, 1e-4);
     }
 }
 
