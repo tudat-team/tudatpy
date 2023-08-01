@@ -100,10 +100,21 @@ public:
      * @param irradianceAtDistanceFunction Function returning the irradiance [W/m²] at a given time
      * @param distance Distance from the source at which the irradiance was evaluated/measured
      */
-    IrradianceBasedLuminosityModel(
+    explicit IrradianceBasedLuminosityModel(
             const std::function<double(double)>& irradianceAtDistanceFunction,
             double distance)
             : irradianceAtDistanceFunction_(irradianceAtDistanceFunction), distance_(distance) {}
+
+    /*!
+     * Constructor.
+     *
+     * @param irradianceAtDistance Irradiance at the given distance [W/m²]
+     * @param distance Distance from the source at which the irradiance was evaluated/measured
+     */
+    explicit IrradianceBasedLuminosityModel(
+            double irradianceAtDistance,
+            double distance)
+            : IrradianceBasedLuminosityModel([=] (double) { return irradianceAtDistance; }, distance) {}
 
     double getLuminosity() const override;
 
