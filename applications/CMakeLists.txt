@@ -20,6 +20,11 @@ TUDAT_ADD_EXECUTABLE(application_lro_analysis
         ${Tudat_PROPAGATION_LIBRARIES}
         )
 
+TUDAT_ADD_EXECUTABLE(application_bepicolombo
+        "src/bepicolombo.cpp"
+        ${Tudat_PROPAGATION_LIBRARIES} tudat_liblro
+        )
+
 TUDAT_ADD_EXECUTABLE(application_spice
         "src/spice_exe.cpp"
         ${Tudat_PROPAGATION_LIBRARIES}
