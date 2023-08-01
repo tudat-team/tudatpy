@@ -64,7 +64,7 @@ Eigen::Vector3d IsotropicPointSourceRadiationPressureAcceleration::calculateAcce
             targetRotationFromGlobalToLocalFrame * (targetCenterPositionInGlobalFrame - sourceCenterPositionInGlobalFrame).normalized();
     // Calculate radiation pressure force due to source
     Eigen::Vector3d totalForceInTargetFrame =
-            targetModel_->evaluateRadiationPressureForce(sourceIrradiance, sourceToTargetDirectionInTargetFrame);
+            targetModel_->evaluateRadiationPressureForce(occultedSourceIrradiance, sourceToTargetDirectionInTargetFrame);
     // Calculate acceleration due to radiation pressure in global frame
     Eigen::Vector3d acceleration = targetRotationFromLocalToGlobalFrame * totalForceInTargetFrame / targetMassFunction_();
     return acceleration;
