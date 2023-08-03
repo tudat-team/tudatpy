@@ -72,6 +72,9 @@ bool isObservableOfIntegratedType( const ObservableType observableType )
     case relative_angular_position:
         isIntegratedType = false;
         break;
+    case relative_position_observable:
+        isIntegratedType = false;
+        break;
     case n_way_differenced_range:
         isIntegratedType = true;
         break;
@@ -194,6 +197,9 @@ std::string getObservableName( const ObservableType observableType, const int nu
     case relative_angular_position:
         observableName = "RelativeAngularPosition";
         break;
+    case relative_position_observable:
+        observableName = "RelativeCartesianPosition";
+        break;
     case n_way_differenced_range:
         observableName = getNWayString( numberOfLinkEnds ) + "WayDifferencedRange";
         break;
@@ -249,6 +255,10 @@ ObservableType getObservableType( const std::string& observableName )
     else if( observableName == "RelativeAngularPosition" )
     {
         observableType = relative_angular_position;
+    }
+    else if ( observableName == "RelativeCartesianPosition" )
+    {
+        observableType = relative_position_observable;
     }
     else
     {
@@ -378,6 +388,9 @@ int getObservableSize( const ObservableType observableType )
         break;
     case n_way_differenced_range:
         observableSize = 1;
+        break;
+    case relative_position_observable:
+        observableSize = 3;
         break;
     default:
        std::string errorMessage = "Error, did not recognize observable " + std::to_string( observableType )
@@ -592,6 +605,21 @@ std::vector< int > getLinkEndIndicesForLinkEndTypeAtObservable(
                 throw std::runtime_error( errorMessage );
         }
         break;
+    case relative_position_observable:
+        switch( linkEndType )
+        {
+            case observed_body:
+                linkEndIndices.push_back( 0 );
+                break;
+            case observer:
+                linkEndIndices.push_back( 1 );
+                break;
+            default:
+                std::string errorMessage = "Error, could not find link end type index for link end " + std::to_string( linkEndType ) + " of observable " +
+                        std::to_string( observableType );
+                throw std::runtime_error( errorMessage );
+        }
+        break;
     default:
         std::string errorMessage =
                 "Error, could not find link end type index for link end types of observable " +
@@ -641,6 +669,9 @@ LinkEndType getDefaultReferenceLinkEndType(
         break;
     case n_way_differenced_range:
         referenceLinkEndType = receiver;
+        break;
+    case relative_position_observable:
+        referenceLinkEndType = observed_body;
         break;
     default:
         throw std::runtime_error( "Error, default reference link end not defined for observable " +
@@ -695,6 +726,9 @@ int getNumberOfLinksInObservable(
         break;
     case relative_angular_position:
         numberOfLinks = 3;
+        break;
+    case relative_position_observable:
+        numberOfLinks = 0;
         break;
     default:
         throw std::runtime_error( "Error, number of links not defined for observable " +
@@ -757,11 +791,11 @@ std::vector< std::pair< int, int > > getLinkStateAndTimeIndicesForLinkEnd(
     {
     case one_way_range:
         if( ( linkEnds.at( transmitter ) == linkEndToCheck ) ||
-                ( ( linkEnds.at( transmitter ).stationName_ == linkEndToCheck.bodyName_ ) && ( linkEndToCheck.stationName_ == "" ) ) )
+                ( ( linkEnds.at( transmitter ).bodyName_ == linkEndToCheck.bodyName_ ) && ( linkEndToCheck.stationName_ == "" ) ) )
         {
             linkEndIndices.push_back( std::make_pair( 0, 1 ) );
         }
-        else if( linkEnds.at( receiver ) == linkEndToCheck || ( ( linkEnds.at( receiver ).stationName_ == linkEndToCheck.bodyName_ ) &&
+        else if( linkEnds.at( receiver ) == linkEndToCheck || ( ( linkEnds.at( receiver ).bodyName_ == linkEndToCheck.bodyName_ ) &&
                                                                 linkEndToCheck.stationName_ == "" ) )
         {
             linkEndIndices.push_back( std::make_pair( 1, 0 ) );
@@ -772,12 +806,12 @@ std::vector< std::pair< int, int > > getLinkStateAndTimeIndicesForLinkEnd(
         }
         break;
     case one_way_doppler:
-        if( ( linkEnds.at( transmitter ) == linkEndToCheck ) || ( ( linkEnds.at( transmitter ).stationName_ == linkEndToCheck.bodyName_ ) &&
+        if( ( linkEnds.at( transmitter ) == linkEndToCheck ) || ( ( linkEnds.at( transmitter ).bodyName_ == linkEndToCheck.bodyName_ ) &&
                                                                   ( linkEndToCheck.stationName_ == "" ) ) )
         {
             linkEndIndices.push_back( std::make_pair( 0, 1 ) );
         }
-        else if( linkEnds.at( receiver ) == linkEndToCheck || ( ( linkEnds.at( receiver ).stationName_ == linkEndToCheck.bodyName_ ) &&
+        else if( linkEnds.at( receiver ) == linkEndToCheck || ( ( linkEnds.at( receiver ).bodyName_ == linkEndToCheck.bodyName_ ) &&
                                                                 linkEndToCheck.stationName_ == "" ) )
         {
             linkEndIndices.push_back( std::make_pair( 1, 0 ) );
@@ -788,20 +822,20 @@ std::vector< std::pair< int, int > > getLinkStateAndTimeIndicesForLinkEnd(
         }
         break;
     case two_way_doppler:
-        if( ( linkEnds.at( transmitter ) == linkEndToCheck ) || ( ( linkEnds.at( transmitter ).stationName_ == linkEndToCheck.bodyName_ ) &&
+        if( ( linkEnds.at( transmitter ) == linkEndToCheck ) || ( ( linkEnds.at( transmitter ).bodyName_ == linkEndToCheck.bodyName_ ) &&
                                                                   ( linkEndToCheck.stationName_ == "" ) ) )
         {
             linkEndIndices.push_back( std::make_pair( 0, 1 ) );
         }
 
-        if( linkEnds.at( reflector1 ) == linkEndToCheck || ( ( linkEnds.at( reflector1 ).stationName_ == linkEndToCheck.bodyName_ ) &&
+        if( linkEnds.at( reflector1 ) == linkEndToCheck || ( ( linkEnds.at( reflector1 ).bodyName_ == linkEndToCheck.bodyName_ ) &&
                                                                 linkEndToCheck.stationName_ == "" ) )
         {
             linkEndIndices.push_back( std::make_pair( 2, 3 ) );
             linkEndIndices.push_back( std::make_pair( 1, 0 ) );
         }
 
-        if( linkEnds.at( receiver ) == linkEndToCheck || ( ( linkEnds.at( receiver ).stationName_ == linkEndToCheck.bodyName_ ) &&
+        if( linkEnds.at( receiver ) == linkEndToCheck || ( ( linkEnds.at( receiver ).bodyName_ == linkEndToCheck.bodyName_ ) &&
                                                                 linkEndToCheck.stationName_ == "" ) )
         {
             linkEndIndices.push_back( std::make_pair( 3, 2 ) );
@@ -813,13 +847,13 @@ std::vector< std::pair< int, int > > getLinkStateAndTimeIndicesForLinkEnd(
         }
         break;
     case one_way_differenced_range:
-        if( linkEnds.at( transmitter ) == linkEndToCheck || ( ( linkEnds.at( transmitter ).stationName_ == linkEndToCheck.bodyName_ ) &&
+        if( linkEnds.at( transmitter ) == linkEndToCheck || ( ( linkEnds.at( transmitter ).bodyName_ == linkEndToCheck.bodyName_ ) &&
                                                               linkEndToCheck.stationName_ == "" ) )
         {
             linkEndIndices.push_back( std::make_pair( 0, 1 ) );
             linkEndIndices.push_back( std::make_pair( 2, 3 ) );
         }
-        else if( linkEnds.at( receiver ) == linkEndToCheck || ( ( linkEnds.at( receiver ).stationName_ == linkEndToCheck.bodyName_ ) &&
+        else if( linkEnds.at( receiver ) == linkEndToCheck || ( ( linkEnds.at( receiver ).bodyName_ == linkEndToCheck.bodyName_ ) &&
                                                                 linkEndToCheck.stationName_ == "" ) )
         {
             linkEndIndices.push_back( std::make_pair( 1, 0 ) );
@@ -908,12 +942,12 @@ std::vector< std::pair< int, int > > getLinkStateAndTimeIndicesForLinkEnd(
         break;
     }
     case angular_position:
-        if( ( linkEnds.at( transmitter ) == linkEndToCheck ) || ( ( linkEnds.at( transmitter ).stationName_ == linkEndToCheck.bodyName_ ) &&
+        if( ( linkEnds.at( transmitter ) == linkEndToCheck ) || ( ( linkEnds.at( transmitter ).bodyName_ == linkEndToCheck.bodyName_ ) &&
                                                                   ( linkEndToCheck.stationName_ == "" ) ) )
         {
             linkEndIndices.push_back( std::make_pair( 0, 1 ) );
         }
-        else if( linkEnds.at( receiver ) == linkEndToCheck || ( ( linkEnds.at( receiver ).stationName_ == linkEndToCheck.bodyName_ ) &&
+        else if( linkEnds.at( receiver ) == linkEndToCheck || ( ( linkEnds.at( receiver ).bodyName_ == linkEndToCheck.bodyName_ ) &&
                                                                 linkEndToCheck.stationName_ == "" ) )
         {
             linkEndIndices.push_back( std::make_pair( 1, 0 ) );
@@ -957,6 +991,10 @@ std::vector< std::pair< int, int > > getLinkStateAndTimeIndicesForLinkEnd(
             throw std::runtime_error( "Error, parsed irrelevant angular position link end types for link end indices" );
         }
         break;
+    case relative_position_observable:
+
+        throw std::runtime_error( "Error, parsed irrelevant relative position observable link end types for link end indices" );
+        break;
     default:
 
         throw std::runtime_error( "Error, observable type " + std::to_string(
@@ -981,6 +1019,10 @@ std::map< LinkEndType, int > getSingleLinkStateEntryIndices( const ObservableTyp
              observableType == euler_angle_313_observable )
     {
         singleLinkStateEntries = observedBodyLinkStateEntries;
+    }
+    else if ( observableType == relative_position_observable )
+    {
+        singleLinkStateEntries = observedObserverBodiesLinkStateEntries;
     }
     else
     {
