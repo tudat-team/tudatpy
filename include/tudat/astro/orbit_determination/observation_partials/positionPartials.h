@@ -309,6 +309,75 @@ private:
 
 };
 
+//! Derived class for scaling three-dimensional position partial to relative position observable partial
+/*!
+*  Derived class for scaling three-dimensional position partial to relative position observable partial. Although the implementation
+*  is trivial for non-relativistic reference frames, it is included in the architecture pending future implementation
+*  of more rigorous reference frames.
+*/
+class RelativePositionObservationScaling: public DirectPositionPartialScaling< 3 >
+{
+public:
+
+    RelativePositionObservationScaling( ):
+            DirectPositionPartialScaling< 3 >( observation_models::relative_position_observable ){ }
+
+    //! Destructor
+    ~RelativePositionObservationScaling( ){ }
+
+    //! Update the scaling object to the current times and states (no functionality needed).
+    /*!
+     *  Update the scaling object to the current times and states (no functionality needed).
+     *  \param linkEndStates List of states at each link end during observation.
+     *  \param times List of times at each link end during observation.
+     *  \param fixedLinkEnd Link end at which observation time is defined, i.e. link end for which associated time
+     *  is kept constant when computing observable.
+     *  \param currentObservation Value of observation for which partial scaling is to be computed
+     */
+    void update( const std::vector< Eigen::Vector6d >& linkEndStates,
+                 const std::vector< double >& times,
+                 const observation_models::LinkEndType fixedLinkEnd,
+                 const Eigen::VectorXd currentObservation )
+    {
+        currentLinkEndType_ = fixedLinkEnd;
+    }
+
+    //! Function to retrieve the scaling factor for specific link end
+    /*!
+     * Function to retrieve the scaling factor for specific link end
+     * \param linkEndType Link end for which scaling factor is to be returned
+     * \return Position partial scaling factor at current link end
+     */
+    Eigen::Matrix< double, 3, 3 > getPositionScalingFactor(
+            const observation_models::LinkEndType linkEndType )
+    {
+        if ( linkEndType == observation_models::observed_body )
+        {
+            return Eigen::Matrix3d::Identity( );
+        }
+        else if ( linkEndType == observation_models::observer )
+        {
+            return - Eigen::Matrix3d::Identity( );
+        }
+    }
+
+    virtual Eigen::Matrix< double, 3, 1 > getLightTimePartialScalingFactor( )
+    {
+        throw std::runtime_error( "Error when calculating position partial scaling factor; term non-existent for position observables" );
+    }
+
+    observation_models::LinkEndType getCurrentLinkEndType( )
+    {
+        return currentLinkEndType_;
+    }
+
+private:
+
+    //! Fixed link end for last computation of update() function.
+    observation_models::LinkEndType currentLinkEndType_;
+
+};
+
 
 
 //! Derived class for scaling three-dimensional velocity partial to velocity observable partial
