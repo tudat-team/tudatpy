@@ -6,6 +6,10 @@
  *    under the terms of the Modified BSD license. You should have received
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
+ *
+ *    References:
+ *          K.F. Wakker (2015), "FUNDAMENTALS OF ASTRODYNAMICS", Institutional Repository, TU Delft,
+ *              http://resolver.tudelft.nl/uuid:3fc91471-8e47-4215-af43-718740e6694e
  */
 
 
@@ -53,6 +57,14 @@ public:
         rotationFromInertialToBodyFixedFrame_( rotationFromInertialToBodyFixedFrame ),
         rotationFromBodyFixedToTopoCentricFrame_( rotationFromBodyFixedToTopoCentricFrame ){ }
 
+    //! Function to compute the elevation given a vector wrt topocentric frame.
+    /*!
+     * Function to compute the elevation given a vector wrt topocentric frame. Elevation is computed according to
+     * Wakker (2015), section 11.3.
+     *
+     * @param vectorInTopoCentricFrame Vector in topocentric frame.
+     * @return Elevation.
+     */
     double calculateElevationAngle( const Eigen::Vector3d& vectorInTopoCentricFrame );
 
     //! Function to calculate the elevation angle from body-fixed point to given point.
@@ -66,6 +78,14 @@ public:
      */
     double calculateElevationAngle( const Eigen::Vector3d inertialVectorAwayFromStation, const double time );
 
+    //! Function to compute the azimuth given a vector wrt topocentric frame.
+    /*!
+     * Function to compute the azimuth given a vector wrt topocentric frame. Azimuth is computed according to
+     * Wakker (2015), section 11.3.
+     *
+     * @param vectorInTopoCentricFrame Vector in topocentric frame.
+     * @return Azimuth.
+     */
     double calculateAzimuthAngle( const Eigen::Vector3d& vectorInTopoCentricFrame );
 
     //! Function to calculate the azimuth angle from body-fixed point to given point.
