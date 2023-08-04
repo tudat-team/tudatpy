@@ -22,6 +22,8 @@
 
 #include "tudat/basics/testMacros.h"
 #include "tudat/astro/electromagnetism/radiationPressureTargetModel.h"
+#include "tudat/astro/electromagnetism/radiationSourceModel.h"
+#include "tudat/math/basic/coordinateConversions.h"
 
 
 namespace tudat
@@ -128,6 +130,79 @@ BOOST_AUTO_TEST_CASE( testPaneledRadiationPressureTargetModel_LateralCancellatio
     BOOST_CHECK_CLOSE(actualForce[1], 0, 1e-15);
     // Only -z force due to -z incident radiation
     BOOST_CHECK_LE(actualForce[2], 0);
+}
+
+//! Check if cannonball and paneled model agree for a single equivalent panel
+BOOST_AUTO_TEST_CASE( testRadiationPressureTargetModel_EquivalentSinglePanel )
+{
+    const auto radius = 4.2;
+    const auto coefficient = 1.6;
+
+    const double sourceIrradiance = 1000;
+    const Eigen::Vector3d sourceToTargetDirection = Eigen::Vector3d(4, 3, -1).normalized();
+
+    auto cannonballModel = CannonballRadiationPressureTargetModel(mathematical_constants::PI * radius * radius, coefficient);
+    auto paneledModel = PaneledRadiationPressureTargetModel({
+        TargetPanel(
+                mathematical_constants::PI * radius * radius,
+                -sourceToTargetDirection,
+                // This gives an equivalent coefficient of 1.6
+                reflectionLawFromSpecularAndDiffuseReflectivity(0.6, 0))
+    });
+
+    cannonballModel.updateMembers(TUDAT_NAN);
+    paneledModel.updateMembers(TUDAT_NAN);
+
+    const auto cannonballForce = cannonballModel.evaluateRadiationPressureForce(sourceIrradiance, sourceToTargetDirection);
+    const auto paneledForce = paneledModel.evaluateRadiationPressureForce(sourceIrradiance, sourceToTargetDirection);
+
+    TUDAT_CHECK_MATRIX_CLOSE(cannonballForce, paneledForce, 1e-10);
+}
+
+//! Check if cannonball and paneled model agree for an equivalent paneled sphere
+BOOST_AUTO_TEST_CASE( testRadiationPressureTargetModel_EquivalentSphere )
+{
+    const auto radius = 4.2;
+    // This gives approximately the equivalent force
+    const auto coefficient = 1.4444446;
+
+    const double sourceIrradiance = 1000;
+    const Eigen::Vector3d sourceToTargetDirection = Eigen::Vector3d(4, 3, -1).normalized();
+
+    auto cannonballModel = CannonballRadiationPressureTargetModel(mathematical_constants::PI * radius * radius, coefficient);
+
+    const int numberOfPanels = 20000;
+    const auto panelArea = 4 * mathematical_constants::PI * radius * radius / numberOfPanels;
+    const auto pairOfAngleVectors = generateEvenlySpacedPoints_Staggered(numberOfPanels);
+    const auto polarAngles = std::get<0>(pairOfAngleVectors);
+    const auto azimuthAngles = std::get<1>(pairOfAngleVectors);
+    const auto reflectionLaw =
+            reflectionLawFromSpecularAndDiffuseReflectivity(0, 1);
+
+    std::vector<PaneledRadiationPressureTargetModel::Panel> panels {};
+
+    for (unsigned int i = 0; i < numberOfPanels; ++i)
+    {
+        const auto polarAngle = polarAngles[i];
+        const auto azimuthAngle = azimuthAngles[i];
+
+        const Eigen::Vector3d relativeCenter = coordinate_conversions::convertSphericalToCartesian(
+                Eigen::Vector3d(radius, polarAngle, azimuthAngle));
+        const Eigen::Vector3d surfaceNormal = relativeCenter.normalized();
+
+        panels.emplace_back(panelArea, surfaceNormal, reflectionLaw);
+    }
+
+    auto paneledModel = PaneledRadiationPressureTargetModel(panels);
+
+    cannonballModel.updateMembers(TUDAT_NAN);
+    paneledModel.updateMembers(TUDAT_NAN);
+
+    const auto cannonballForce = cannonballModel.evaluateRadiationPressureForce(sourceIrradiance, sourceToTargetDirection);
+    const auto paneledForce = paneledModel.evaluateRadiationPressureForce(sourceIrradiance, sourceToTargetDirection);
+
+    // Large tolerance since equivalent coefficient is not very accurate
+    TUDAT_CHECK_MATRIX_CLOSE(cannonballForce, paneledForce, 1e-3);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
