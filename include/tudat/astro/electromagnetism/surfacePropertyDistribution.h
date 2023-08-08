@@ -101,7 +101,7 @@ public:
             maximumDegree_(cosineCoefficients.rows() - 1),
             maximumOrder_( cosineCoefficients.cols() - 1),
             sphericalHarmonicsCache_(maximumDegree_, maximumOrder_, false),
-            legendreCache_(*sphericalHarmonicsCache_.getLegendreCache())
+            legendreCache_(sphericalHarmonicsCache_.getLegendreCache())
             {
                 if((cosineCoefficients.rows() != sineCoefficients.rows()) ||
                     (cosineCoefficients.cols() != sineCoefficients.cols()))
@@ -109,6 +109,8 @@ public:
                     throw std::runtime_error(
                             "Error when creating spherical harmonics surface property distribution; sine and cosine sizes are incompatible" );
                 }
+
+                legendreCache_->setComputeFirstDerivatives(false);
             }
 
     double getValue(double latitude, double longitude) override;
@@ -151,7 +153,7 @@ private:
 
     basic_mathematics::SphericalHarmonicsCache sphericalHarmonicsCache_;
 
-    basic_mathematics::LegendreCache& legendreCache_;
+    std::shared_ptr<basic_mathematics::LegendreCache> legendreCache_;
 };
 
 /*!
