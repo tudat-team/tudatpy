@@ -173,13 +173,17 @@ public:
      * @param area Area of the panel [m²]
      * @param surfaceNormalFunction Function returning panel's normal vector in local (i.e. target-fixed) coordinates
      * @param reflectionLaw Reflection law governing how force magnitude and direction due to radiation
+     * @param trackedBodyName Body that is tracked by surface normal (its position needs to be updated before target
+     *     radiation pressure force evaluation)
      */
     explicit Panel(double area,
                    const std::function<Eigen::Vector3d()>& surfaceNormalFunction,
-                   const std::shared_ptr<ReflectionLaw>& reflectionLaw) :
+                   const std::shared_ptr<ReflectionLaw>& reflectionLaw,
+                   const std::string trackedBodyName = "") :
             surfaceNormalFunction_(surfaceNormalFunction),
             reflectionLaw_(reflectionLaw),
-            area_(area) {}
+            area_(area),
+            trackedBodyName_(trackedBodyName) {}
 
     /*!
      * Constructor.
@@ -187,11 +191,14 @@ public:
      * @param area Area of the panel [m²]
      * @param surfaceNormal Constant normal vector of the panel in local (i.e. target-fixed) coordinates
      * @param reflectionLaw Reflection law governing how force magnitude and direction due to radiation
+     * @param trackedBodyName Body that is tracked by surface normal (its position needs to be updated before target
+     *     radiation pressure force evaluation)
      */
     explicit Panel(double area,
                    const Eigen::Vector3d& surfaceNormal,
-                   const std::shared_ptr<ReflectionLaw>& reflectionLaw) :
-            Panel(area, [=] () { return surfaceNormal; }, reflectionLaw) {}
+                   const std::shared_ptr<ReflectionLaw>& reflectionLaw,
+                   const std::string trackedBodyName = "") :
+            Panel(area, [=] () { return surfaceNormal; }, reflectionLaw, trackedBodyName) {}
 
     double getArea() const
     {
@@ -208,6 +215,11 @@ public:
         return reflectionLaw_;
     }
 
+    const std::string& getTrackedBodyName() const
+    {
+        return trackedBodyName_;
+    }
+
 private:
     void updateMembers();
 
@@ -215,6 +227,8 @@ private:
     std::function<Eigen::Vector3d()> surfaceNormalFunction_;
     std::shared_ptr<ReflectionLaw> reflectionLaw_;
     double area_;
+
+    std::string trackedBodyName_; // needed for environment updater setup
 };
 
 } // tudat

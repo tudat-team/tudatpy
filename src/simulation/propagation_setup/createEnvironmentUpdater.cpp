@@ -398,12 +398,12 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                     break;
                 case radiation_pressure:
                 {
-                    singleAccelerationUpdateNeeds[ body_mass_update ].push_back(
-                            acceleratedBodyIterator->first);
-                    singleAccelerationUpdateNeeds[ radiation_source_model_update ].push_back(
-                            accelerationModelIterator->first);
-                    singleAccelerationUpdateNeeds[ radiation_pressure_target_model_update ].push_back(
-                            acceleratedBodyIterator->first);
+                    const auto sourceName = accelerationModelIterator->first;
+                    const auto targetName =  acceleratedBodyIterator->first;
+
+                    singleAccelerationUpdateNeeds[ body_mass_update ].push_back(targetName);
+                    singleAccelerationUpdateNeeds[ radiation_source_model_update ].push_back(sourceName);
+                    singleAccelerationUpdateNeeds[ radiation_pressure_target_model_update ].push_back(targetName);
 
                     auto radiationPressureAcceleration =
                             std::dynamic_pointer_cast<electromagnetism::RadiationPressureAcceleration>(
@@ -415,10 +415,9 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                                     radiationPressureAcceleration->getSourceModel());
                     if (paneledRadiationSourceModel != nullptr) {
                         // Only paneled source, not point source needs rotational state and has original source
-                        singleAccelerationUpdateNeeds[ body_rotational_state_update ].push_back(
-                                accelerationModelIterator->first);
+                        singleAccelerationUpdateNeeds[ body_rotational_state_update ].push_back(sourceName);
 
-                        std::string originalSourceName =
+                        const auto originalSourceName =
                                 paneledRadiationSourceModel->getOriginalSourceName();
                         singleAccelerationUpdateNeeds[ radiation_source_model_update ].push_back(originalSourceName);
                         singleAccelerationUpdateNeeds[ body_translational_state_update ].push_back(originalSourceName);
@@ -432,8 +431,17 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                                     radiationPressureAcceleration->getTargetModel());
                     if (paneledRadiationPressureTargetModel != nullptr) {
                         // Only paneled target, not cannonball target needs rotational state
-                        singleAccelerationUpdateNeeds[ body_rotational_state_update ].push_back(
-                                acceleratedBodyIterator->first );
+                        singleAccelerationUpdateNeeds[ body_rotational_state_update ].push_back(targetName );
+
+                        // Positions of bodies tracked by panel normal need to be updated
+                        for (const auto& panel : paneledRadiationPressureTargetModel->getPanels())
+                        {
+                            const auto bodyTrackedByPanel = panel.getTrackedBodyName();
+                            if (!bodyTrackedByPanel.empty())
+                            {
+                                singleAccelerationUpdateNeeds[ body_translational_state_update ].push_back(bodyTrackedByPanel);
+                            }
+                        }
                     }
 
                     // Update occulting body positions
