@@ -197,6 +197,31 @@ Eigen::Matrix3d computeRotationMatrixBetweenFrames(const std::string &originalFr
                                 originalFrame, newFrame, ephemerisTime ) );
 }
 
+//! Compute rotation matrix for state vector between two frames.
+Eigen::Matrix6d computeStateRotationMatrixBetweenFrames(const std::string &originalFrame,
+                                                          const std::string &newFrame,
+                                                          const double ephemerisTime) {
+    if( !( ephemerisTime == ephemerisTime )  )
+    {
+        throw std::invalid_argument( "Error when retrieving state rotation matrix from Spice, input time is " + std::to_string(ephemerisTime) );
+    }
+
+    double stateTransition[6][6];
+
+    // Calculate state transition matrix.
+    sxform_c(originalFrame.c_str(), newFrame.c_str(), ephemerisTime, stateTransition);
+
+    // Put rotation matrix in Eigen Matrix6d
+    Eigen::Matrix6d stateTransitionMatrix = Eigen::Matrix6d::Zero();
+    for (unsigned int i = 0; i < 6; i++) {
+        for (unsigned int j = 0; j < 6; j++) {
+            stateTransitionMatrix(i, j) = stateTransition[i][j];
+        }
+    }
+
+    return stateTransitionMatrix;
+}
+
 //! Computes time derivative of rotation matrix between two frames.
 Eigen::Matrix3d computeRotationMatrixDerivativeBetweenFrames(const std::string &originalFrame,
                                                              const std::string &newFrame,
