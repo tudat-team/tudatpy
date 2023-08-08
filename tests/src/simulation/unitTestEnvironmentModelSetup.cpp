@@ -1661,6 +1661,28 @@ BOOST_AUTO_TEST_CASE( test_surfacePropertyDistributionSetup_SecondDegreeZonalPer
     BOOST_CHECK_CLOSE(actualValue, 0.7192237282075249, 1e-13);
 }
 
+BOOST_AUTO_TEST_CASE( test_surfacePropertyDistributionSetup_SecondDegreeZonalPeriodic_KnockeEmissivity )
+{
+    using namespace tudat::electromagnetism;
+
+    spice_interface::loadStandardSpiceKernels();
+
+    auto surfacePropertyDistributionSettings = secondDegreeZonalPeriodicSurfacePropertyDistributionSettings(
+            SecondDegreeZonalPeriodicSurfacePropertyDistributionModel::emissivity_knocke);
+    auto surfacePropertyDistribution =
+            std::dynamic_pointer_cast<SecondDegreeZonalPeriodicSurfacePropertyDistribution>(
+                    createSurfacePropertyDistribution(surfacePropertyDistributionSettings, ""));
+
+    // Identical values to testSecondDegreeZonalPeriodicSurfacePropertyDistribution_Emissivity in unitTestSurfacePropertyDistribution
+    surfacePropertyDistribution->updateMembers(spice_interface::convertDateStringToEphemerisTime("2005 AUG 19 13:46:17"));
+    double actualValue = surfacePropertyDistribution->getValue(unit_conversions::convertDegreesToRadians(29.73));
+    BOOST_CHECK_CLOSE(actualValue, 0.7223209069278839, 1e-13);
+
+    surfacePropertyDistribution->updateMembers(spice_interface::convertDateStringToEphemerisTime("2012 DEC 21 17:26:17"));
+    actualValue = surfacePropertyDistribution->getValue(unit_conversions::convertDegreesToRadians(81.43));
+    BOOST_CHECK_CLOSE(actualValue, 0.4367772746818569, 1e-13);
+}
+
 BOOST_AUTO_TEST_CASE( test_radiationPressureTargetModelSetup_CannonballTarget )
 {
     const auto expectedArea = 42;
