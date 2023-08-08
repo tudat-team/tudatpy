@@ -76,6 +76,8 @@ std::shared_ptr<electromagnetism::RadiationPressureTargetModel> createRadiationP
             for (auto& panel : paneledTargetModelSettings->getPanels())
             {
                 std::function<Eigen::Vector3d()> surfaceNormalFunction;
+                std::string trackedBodyName;
+
                 if((panel.getSurfaceNormalFunction() && !panel.getBodyToTrack().empty()) || // both given
                         (!panel.getSurfaceNormalFunction() && panel.getBodyToTrack().empty())) // none given
                 {
@@ -89,7 +91,8 @@ std::shared_ptr<electromagnetism::RadiationPressureTargetModel> createRadiationP
                 }
                 else {
                     // Tracking a body means setting the surface normal towards the tracked body in the source local frame
-                    const auto bodyToTrack = bodies.at(panel.getBodyToTrack());
+                    trackedBodyName = panel.getBodyToTrack();
+                    const auto bodyToTrack = bodies.at(trackedBodyName);
                     const auto targetBody = bodies.at(body);
                     const auto sign = panel.isTowardsTrackedBody() ? +1 : -1;
 
@@ -113,7 +116,8 @@ std::shared_ptr<electromagnetism::RadiationPressureTargetModel> createRadiationP
                         reflectionLawFromSpecularAndDiffuseReflectivity(
                                 panel.getSpecularReflectivity(),
                                 panel.getDiffuseReflectivity(),
-                                panel.isWithInstantaneousReradiation()));
+                                panel.isWithInstantaneousReradiation()),
+                        trackedBodyName);
             }
 
             radiationPressureTargetModel = std::make_shared<PaneledRadiationPressureTargetModel>(
