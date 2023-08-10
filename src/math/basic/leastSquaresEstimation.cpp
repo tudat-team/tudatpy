@@ -131,9 +131,10 @@ Eigen::MatrixXd calculateConsiderParametersCovarianceContribution(
         const Eigen::MatrixXd& considerDesignMatrix,
         const Eigen::MatrixXd& considerCovariance )
 {
-    return ( normalisedCovarianceMatrix * multiplyDesignMatrixByDiagonalWeightMatrix( designMatrix, diagonalOfWeightMatrix ).transpose( ) )
-    * ( considerDesignMatrix * considerCovariance * considerDesignMatrix.transpose( ) )
-    * ( normalisedCovarianceMatrix * multiplyDesignMatrixByDiagonalWeightMatrix( designMatrix, diagonalOfWeightMatrix ).transpose( ) ).transpose( );
+    Eigen::MatrixXd covarianceTimesWeightedPartials = normalisedCovarianceMatrix
+            * multiplyDesignMatrixByDiagonalWeightMatrix( designMatrix, diagonalOfWeightMatrix ).transpose( );
+    return ( covarianceTimesWeightedPartials * considerDesignMatrix ) * considerCovariance
+    * ( considerDesignMatrix.transpose( ) * covarianceTimesWeightedPartials.transpose( ) );
 }
 
 //! Function to perform an iteration least squares estimation from information matrix, weights and residuals and a priori
