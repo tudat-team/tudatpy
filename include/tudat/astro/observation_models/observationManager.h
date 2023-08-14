@@ -260,7 +260,7 @@ public:
             // Compute observation
             currentObservation = selectedObservationModel->computeObservationsWithLinkEndData(
                         times[ i ], linkEndAssociatedWithTime, vectorOfTimes, vectorOfStates, ancilliarySettings );
-            double saveTime = times[ i ];
+            TimeType saveTime = times[ i ];
             while( observations.count( saveTime ) != 0 )
             {
                 saveTime += std::numeric_limits< double >::epsilon( ) * 10.0 * times[ i ];
