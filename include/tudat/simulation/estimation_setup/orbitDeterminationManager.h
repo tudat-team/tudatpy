@@ -420,6 +420,7 @@ public:
                     {
                         residuals.segment( observationIndices.first, observationIndices.second ) =
                                 ( currentObservations->getObservationsVector( ) - observationsWithPartials.first ).template cast< double >( );
+
                     }
 
                     // Set current observation partials in matrix of all partials
