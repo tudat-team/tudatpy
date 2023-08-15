@@ -54,7 +54,7 @@ public:
      * @return Radiation pressure force vector in local (i.e. target-fixed) coordinates [N]
      */
     virtual Eigen::Vector3d evaluateRadiationPressureForce(
-            double sourceIrradiance, Eigen::Vector3d sourceToTargetDirection) const = 0;
+            double sourceIrradiance, const Eigen::Vector3d& sourceToTargetDirection) const = 0;
     
     std::map<std::string, std::vector<std::string>> getSourceToTargetOccultingBodies() const
     {
@@ -92,7 +92,7 @@ public:
 
     Eigen::Vector3d evaluateRadiationPressureForce(
             double sourceIrradiance,
-            Eigen::Vector3d sourceToTargetDirection) const override;
+            const Eigen::Vector3d& sourceToTargetDirection) const override;
 
     double getArea() const
     {
@@ -143,7 +143,7 @@ public:
 
     Eigen::Vector3d evaluateRadiationPressureForce(
             double sourceIrradiance,
-            Eigen::Vector3d sourceToTargetDirection) const override;
+            const Eigen::Vector3d& sourceToTargetDirection) const override;
 
     const std::vector<Panel>& getPanels() const
     {
