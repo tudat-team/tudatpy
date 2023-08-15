@@ -780,8 +780,9 @@ struct CovarianceAnalysisOutput
 
         for( int i = 0; i < considerNormalizationFactors_.rows( ); i++ )
         {
-            unnormalizedPartials.block( 0, i, normalizedDesignMatrix_.rows( ), 1 ) =
-                    normalizedDesignMatrix_.block( 0, i, normalizedDesignMatrix_.rows( ), 1 ) * considerNormalizationFactors_( i );
+            unnormalizedPartials.block( 0, i, normalizedDesignMatrixConsiderParameters_.rows( ), 1 ) =
+                    normalizedDesignMatrixConsiderParameters_.block( 0, i, normalizedDesignMatrixConsiderParameters_.rows( ), 1 )
+                    * considerNormalizationFactors_( i );
         }
         return unnormalizedPartials;
     }

@@ -43,7 +43,8 @@ enum LinkEndType
     retransmitter4 = reflector4,
     receiver = 5,
     observed_body = 6,
-    transmitter2 = 7
+    transmitter2 = 7,
+    observer = 8
 };
 
 ////! Typedef for the identifier of a given link-end (body and reference points)
