@@ -123,8 +123,8 @@ BOOST_AUTO_TEST_CASE( test_PointingAnglesCalculator )
         std::cerr << "Az [deg]:" << testAzimuth / degreesToRadians << std::endl;
         std::cerr << "El [deg]:" << testElevation / degreesToRadians << std::endl;
 
-//        double expectedAzimuth = 90.0 * degreesToRadians;
-//        double expectedElevation = 60.0 * degreesToRadians;
+        double expectedAzimuth = 90.0 * degreesToRadians;
+        double expectedElevation = 60.0 * degreesToRadians;
 
         BOOST_CHECK_CLOSE_FRACTION( expectedAzimuth, testAzimuth, 3.0 * std::numeric_limits< double >::epsilon( ) );
         BOOST_CHECK_CLOSE_FRACTION( expectedElevation, testElevation, 3.0 * std::numeric_limits< double >::epsilon( ) );
@@ -132,7 +132,7 @@ BOOST_AUTO_TEST_CASE( test_PointingAnglesCalculator )
 
 }
 
-BOOST_AUTO_TEST_CASE( test_PointingAnglesCalculator )
+BOOST_AUTO_TEST_CASE( test_PointingAnglesCalculator2 )
 {
     // Define Earth shape model (sphere)
     std::shared_ptr< SphericalBodyShapeModel > bodyShape = std::make_shared< SphericalBodyShapeModel >( 6.371E6 );
@@ -277,7 +277,7 @@ BOOST_AUTO_TEST_CASE( test_PointingAnglesCalculator )
 
 }
 
-BOOST_AUTO_TEST_CASE( test_PointingAnglesCalculator2 )
+BOOST_AUTO_TEST_CASE( test_PointingAnglesCalculator3 )
 {
         std::cout.precision( 20 );
 
