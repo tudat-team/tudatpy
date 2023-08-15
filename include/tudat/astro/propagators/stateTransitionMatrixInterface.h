@@ -1053,14 +1053,15 @@ public:
 
             for( unsigned int i = 0; i < statePartialAdditionIndices.size( ); i++ )
             {
-    //            std::cout << "state partial addition indices: " << statePartialAdditionIndices.at( i ).first << " & " << statePartialAdditionIndices.at( i ).second << "\n\n";
-                combinedStateTransitionMatrix.block(
+                if ( statePartialAdditionIndices.at( i ).first >= singleArcStateSize_ )
+                {
+                    combinedStateTransitionMatrix.block(
                             statePartialAdditionIndices.at( i ).first, multiArcStateSize,
                             6, sensitivityMatrixSize_ ) +=
-                        combinedStateTransitionMatrix.block(
-                            statePartialAdditionIndices.at( i ).second, multiArcStateSize,
-                            6, sensitivityMatrixSize_ );
-
+                            combinedStateTransitionMatrix.block(
+                                    statePartialAdditionIndices.at( i ).second, multiArcStateSize,
+                                    6, sensitivityMatrixSize_ );
+                }
             }
     //        std::cout << "test4" << "\n\n";
         }
