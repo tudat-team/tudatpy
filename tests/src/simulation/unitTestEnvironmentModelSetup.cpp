@@ -1622,19 +1622,19 @@ BOOST_AUTO_TEST_CASE( test_surfacePropertyDistributionSetup_SphericalHarmonics_D
     BOOST_CHECK(surfacePropertyDistribution->getMaximumDegree() == 15);
     BOOST_CHECK(surfacePropertyDistribution->getMaximumOrder() == 15);
 
-    const auto expectedCosCoeff = -5.2535643e-08;
+    const auto expectedCosCoeff = -4.041203307692307e-08;
     const auto actualCosCoeff = surfacePropertyDistribution->getCosineCoefficients()(7, 6);
     BOOST_CHECK_CLOSE(actualCosCoeff, expectedCosCoeff, 1e-15);
     
-    const auto expectedSinCoeff = 6.4835704e-06;
+    const auto expectedSinCoeff = 4.987361846153846e-06;
     const auto actualSinCoeff = surfacePropertyDistribution->getSineCoefficients()(10, 3);
     BOOST_CHECK_CLOSE(actualSinCoeff, expectedSinCoeff, 1e-15);
 
-    const auto expectedValue1 = 0.18141667202246156;
+    const auto expectedValue1 = 0.1395512861711241;
     const auto actualValue1 = surfacePropertyDistribution->getValue(0.7, 0.42);
     BOOST_CHECK_CLOSE(actualValue1, expectedValue1, 1e-13);
 
-    const auto expectedValue2 = 0.2001460910686691;
+    const auto expectedValue2 = 0.15395853159128403;
     const auto actualValue2 = surfacePropertyDistribution->getValue(-1.5, 0.9);
     BOOST_CHECK_CLOSE(actualValue2, expectedValue2, 1e-15);
 }

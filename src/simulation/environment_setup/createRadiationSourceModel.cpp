@@ -6,6 +6,10 @@
  *    under the terms of the Modified BSD license. You should have received
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
+ *
+ *    References:
+ *      Ashwin R. Vasavada et al.. "Lunar equatorial surface temperatures and regolith properties from the Diviner Lunar
+ *          Radiometer Experiment".Journal of Geophysical Research: Planets 117, no.E12 (2012).
  */
 
 #include "tudat/simulation/environment_setup/createRadiationSourceModel.h"
@@ -52,6 +56,8 @@ SphericalHarmonicsSurfacePropertyDistributionSettings::SphericalHarmonicsSurface
                     -0.003354688, -0.00013212219, 4.5390329e-05, -2.6017423e-07, 7.6728373e-08, 3.466561e-08, -7.9035553e-10, 1.7610549e-11, -3.1363309e-13, -4.741638e-13, 5.5748058e-14, -1.390074e-14, -1.8879465e-15, -1.0161655e-16, 0.0, 0.0,
                     -0.0003644111, -9.7545225e-05, 1.5509838e-05, 4.0179933e-06, 1.6956168e-07, 1.7457361e-09, 7.2904379e-10, 2.9305495e-11, 1.3563638e-13, -3.3491741e-13, 4.1828106e-14, 4.4231192e-15, -2.2486444e-17, -2.6053296e-17, 1.6362147e-18, 0.0,
                     -0.00052703131, -0.00016753741, -2.3173518e-06, 1.9601325e-06, 1.3155985e-07, 8.7049262e-11, -1.5396847e-10, 3.0639418e-11, 3.3787168e-12, 1.8243357e-15, 5.1578908e-15, 6.2635779e-16, 7.1664911e-17, 4.9580752e-17, -6.7885954e-19, 1.5503219e-19;
+            // DLAM-1 was derived for 750 nm, for which the lunar albedo is 1.3x higher than for the average solar wavelength (Vasavada 2012)
+            cosineCoefficients_ /= 1.3;
 
             sineCoefficients_ = Eigen::MatrixXd(maximumDegree + 1, maximumOrder + 1);
             sineCoefficients_ << 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
@@ -70,6 +76,7 @@ SphericalHarmonicsSurfacePropertyDistributionSettings::SphericalHarmonicsSurface
                     0.0, 9.0551537e-05, 2.2609028e-07, 1.4402096e-07, 6.4197295e-09, 8.3422668e-09, 1.1672606e-09, 1.9050421e-10, 1.9903467e-11, 1.2764944e-12, 1.4391851e-14, 3.2500778e-15, 7.7976884e-16, 3.1218531e-17, 0.0, 0.0,
                     0.0, 0.00010450677, 6.4306586e-06, 2.1110565e-06, 1.553349e-07, 1.4467997e-08, 6.1351496e-10, 2.9127184e-12, 6.4443237e-12, 6.0953923e-13, 4.1457548e-14, 1.2466192e-15, 8.6235475e-18, 5.0954031e-17, 1.3625581e-17, 0.0,
                     0.0, 8.138564e-05, 2.2953268e-05, 1.1112276e-06, 7.8452563e-10, 3.3764876e-09, 9.4043359e-10, 6.7121496e-12, 1.1717653e-12, 4.985168e-14, 2.5320711e-15, 9.5636359e-16, 6.2521874e-17, 1.882182e-17, 4.7202048e-19, 2.5665136e-19;
+            sineCoefficients_ /= 1.3;
 
             break;
         }
