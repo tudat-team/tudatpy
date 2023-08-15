@@ -1,10 +1,10 @@
 add_subdirectory(src/astro)
-add_subdirectory(src/basics)
-add_subdirectory(src/interface)
-add_subdirectory(src/math)
-add_subdirectory(src/simulation)
-add_subdirectory(src/io)
-add_subdirectory(src/support)
+#add_subdirectory(src/basics)
+#add_subdirectory(src/interface)
+#add_subdirectory(src/math)
+#add_subdirectory(src/simulation)
+#add_subdirectory(src/io)
+#add_subdirectory(src/support)
 
 # Unzip compressed data and place in build tree.
 add_custom_target( unpack_test_data ALL)
