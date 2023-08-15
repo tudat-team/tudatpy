@@ -9,6 +9,7 @@
  *
  *    References
  *      Oliver Montenbruck, et al. Satellite Orbits. Springer Berlin Heidelberg, 2000.
+ *      Vallado, David A. and Wertz, James. Fundamentals of Astrodynamics and Applications, 4th ed..Microcosm Press, 2013.
  */
 
 #ifndef TUDAT_OCCULTATIONMODEL_H
@@ -191,10 +192,7 @@ private:
 // TODO Realistic two-body occultation (DOI: 10.1016/j.asr.2018.02.002)
 
 /*!
- * Evaluate whether two points have a line of sight with an occulting spherical body in between. There is a line of
- * sight if the apparent separation (distance between source and occulting body centers as seen from target) is larger
- * than the occulting body radius, or if the target is in front of the occulting body center (i.e. in the source side
- * of the plane through the occulting body center perpendicular to the source-occulting body vector).
+ * Evaluate whether two points have a line of sight with an occulting spherical body in between.
  *
  * Since point-to-point visibility is commutative, sourcePosition and targetPosition are exchangeable.
  *

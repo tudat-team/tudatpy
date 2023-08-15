@@ -127,24 +127,15 @@ bool evaluatePointToPointVisibilityWithOccultation(
         double occultingBodyRadius,
         const Eigen::Vector3d& targetPosition)
 {
-    // Geometry between source and occulting body as seen from target
-    const Eigen::Vector3d occultingBodyToTargetVector = occultingBodyPosition - targetPosition;
-    const Eigen::Vector3d sourceToTargetVector = occultedSourcePosition - targetPosition;
-    const double cosAngleBetweenOccultingBodyAndSource =
-            linear_algebra::computeCosineOfAngleBetweenVectors(sourceToTargetVector, occultingBodyToTargetVector);
-    const double angleBetweenOccultingBodyAndSource = acos(cosAngleBetweenOccultingBodyAndSource);
-    const double apparentSeparation = occultingBodyToTargetVector.norm() * sin(angleBetweenOccultingBodyAndSource);
-
-    // Geometry between source and target as seen from occulting body
+    // Vallado (2013), Sec. 5.3.3
     const Eigen::Vector3d sourceToOccultingBodyVector = occultedSourcePosition - occultingBodyPosition;
     const Eigen::Vector3d targetToOccultingBodyVector = targetPosition - occultingBodyPosition;
-    const double cosAngleBetweenSourceAndTarget =
-            linear_algebra::computeCosineOfAngleBetweenVectors(sourceToOccultingBodyVector, targetToOccultingBodyVector);
+    const double theta =
+            acos(linear_algebra::computeCosineOfAngleBetweenVectors(sourceToOccultingBodyVector, targetToOccultingBodyVector));
+    const double theta1 = acos(occultingBodyRadius / sourceToOccultingBodyVector.norm());
+    const double theta2 = acos(occultingBodyRadius / targetToOccultingBodyVector.norm());
 
-    // To be visible, the source must be in front or to the side of the occulting body as seen from target
-    const bool isSourceOutsideBodyRadiusSeenFromTarget = apparentSeparation > occultingBodyRadius;  // to the side?
-    const bool isTargetInFrontOfOccultingBodyCenterSeenFromSource = cosAngleBetweenSourceAndTarget > 0;  // in front?
-    const bool isSourceVisibleFromTarget = isSourceOutsideBodyRadiusSeenFromTarget || isTargetInFrontOfOccultingBodyCenterSeenFromSource;
+    const bool isSourceVisibleFromTarget = theta1 + theta2 > theta;
     return isSourceVisibleFromTarget;
 }
 

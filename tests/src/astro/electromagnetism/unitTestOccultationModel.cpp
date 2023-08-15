@@ -232,24 +232,6 @@ BOOST_AUTO_TEST_CASE( testEvaluateVisibilityWithOccultation )
             1,
             Eigen::Vector3d(0.5, 0, 0)
     ));
-
-    // Target inside occulting body but in front of its center
-    // (unrealistic but should be visible by convention)
-    BOOST_CHECK(evaluatePointToPointVisibilityWithOccultation(
-            Eigen::Vector3d(0, 0, 0),
-            Eigen::Vector3d(2, 0, 0),
-            1,
-            Eigen::Vector3d(1.5, 0, 0)
-    ));
-
-    // Target inside occulting body but behind its center
-    // (unrealistic but should not be visible by convention)
-    BOOST_CHECK(!evaluatePointToPointVisibilityWithOccultation(
-            Eigen::Vector3d(0, 0, 0),
-            Eigen::Vector3d(2, 0, 0),
-            1,
-            Eigen::Vector3d(2.5, 0, 0)
-    ));
 }
 
 // Test inverse cases of previous test to check commutativity
@@ -291,24 +273,6 @@ BOOST_AUTO_TEST_CASE( testEvaluateVisibilityWithOccultation_Commutativity )
     // Target in front of occulting body
     BOOST_CHECK(evaluatePointToPointVisibilityWithOccultation(
             Eigen::Vector3d(0.5, 0, 0),
-            Eigen::Vector3d(2, 0, 0),
-            1,
-            Eigen::Vector3d(0, 0, 0)
-    ));
-
-    // Target inside occulting body but in front of its center
-    // (unrealistic but should be visible by convention)
-    BOOST_CHECK(evaluatePointToPointVisibilityWithOccultation(
-            Eigen::Vector3d(1.5, 0, 0),
-            Eigen::Vector3d(2, 0, 0),
-            1,
-            Eigen::Vector3d(0, 0, 0)
-    ));
-
-    // Target inside occulting body but behind its center
-    // (unrealistic but should not be visible by convention)
-    BOOST_CHECK(!evaluatePointToPointVisibilityWithOccultation(
-            Eigen::Vector3d(2.5, 0, 0),
             Eigen::Vector3d(2, 0, 0),
             1,
             Eigen::Vector3d(0, 0, 0)
