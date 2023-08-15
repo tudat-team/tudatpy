@@ -421,8 +421,20 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                                 paneledRadiationSourceModel->getOriginalSourceName();
                         singleAccelerationUpdateNeeds[ radiation_source_model_update ].push_back(originalSourceName);
                         singleAccelerationUpdateNeeds[ body_translational_state_update ].push_back(originalSourceName);
+
                         // No original source rotational state update necessary because only isotropic point sources
                         // are supported
+
+                        auto paneledSourceRadiationPressureAcceleration =
+                            std::dynamic_pointer_cast<electromagnetism::PaneledSourceRadiationPressureAcceleration>(
+                                    radiationPressureAcceleration);
+
+                        auto originalSourceToSourceOccultingBodyNames =
+                                paneledSourceRadiationPressureAcceleration->getOriginalSourceToSourceOccultationModel()->getOccultingBodyNames();
+                        for (auto bodyName : originalSourceToSourceOccultingBodyNames)
+                        {
+                            singleAccelerationUpdateNeeds[ body_translational_state_update ].push_back(bodyName);
+                        }
                     }
 
                     // Update target rotation in case of paneled target
@@ -445,9 +457,9 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                     }
 
                     // Update occulting body positions
-                    auto occultingBodyNames =
+                    auto sourceToTargetOccultingBodyNames =
                             radiationPressureAcceleration->getSourceToTargetOccultationModel()->getOccultingBodyNames();
-                    for (auto bodyName : occultingBodyNames)
+                    for (auto bodyName : sourceToTargetOccultingBodyNames)
                     {
                         singleAccelerationUpdateNeeds[ body_translational_state_update ].push_back(bodyName);
                     }

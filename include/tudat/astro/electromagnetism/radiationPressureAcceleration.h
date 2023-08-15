@@ -222,6 +222,11 @@ public:
         return originalSourceModel_;
     }
 
+    std::shared_ptr<OccultationModel> getOriginalSourceToSourceOccultationModel() const
+    {
+        return originalSourceToSourceOccultationModel_;
+    }
+
     unsigned int getVisibleSourcePanelCount() const
     {
         return visibleSourcePanelCount;
