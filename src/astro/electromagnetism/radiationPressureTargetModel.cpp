@@ -30,7 +30,7 @@ void RadiationPressureTargetModel::updateMembers(const double currentTime)
 }
 
 Eigen::Vector3d CannonballRadiationPressureTargetModel::evaluateRadiationPressureForce(double sourceIrradiance,
-                                                                                       Eigen::Vector3d sourceToTargetDirection) const
+                                                                                       const Eigen::Vector3d& sourceToTargetDirection) const
 {
     // From Montenbruck (2000), Sec. 3.4
     const auto radiationPressure = sourceIrradiance / physical_constants::SPEED_OF_LIGHT;
@@ -41,7 +41,7 @@ Eigen::Vector3d CannonballRadiationPressureTargetModel::evaluateRadiationPressur
 
 Eigen::Vector3d PaneledRadiationPressureTargetModel::evaluateRadiationPressureForce(
         double sourceIrradiance,
-        Eigen::Vector3d sourceToTargetDirection) const
+        const Eigen::Vector3d& sourceToTargetDirection) const
 {
     Eigen::Vector3d force = Eigen::Vector3d::Zero();
     for (auto& panel : panels_)

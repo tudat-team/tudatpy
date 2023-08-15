@@ -68,8 +68,9 @@ Eigen::Vector3d SpecularDiffuseMixReflectionLaw::evaluateReactionVector(const Ei
     }
 
     // Montenbruck (2014) Eq. 5
-    const Eigen::Vector3d reactionFromIncidence = (absorptivity_ + diffuseReflectivity_) * incomingDirection;
-    const Eigen::Vector3d reactionFromReflection =
+    // Use auto here to force single lazy evaluation upon return
+    auto reactionFromIncidence = (absorptivity_ + diffuseReflectivity_) * incomingDirection;
+    auto reactionFromReflection =
             -(2. / 3 * diffuseReflectivity_ + 2 * specularReflectivity_ * cosBetweenNormalAndIncoming) * surfaceNormal;
 
     Eigen::Vector3d reactionFromInstantaneousReradiation;
