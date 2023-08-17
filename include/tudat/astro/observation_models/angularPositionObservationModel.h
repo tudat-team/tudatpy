@@ -113,6 +113,8 @@ public:
                     transmitterState.segment( 0, 3 ) - receiverState.segment( 0, 3 ) ).
                 template cast< ObservationScalarType >( );
 
+        Eigen::Matrix< ObservationScalarType, 3, 1 > relativePosition = transmitterState.segment( 0, 3 ) - receiverState.segment( 0, 3 );
+
         // Set link end times and states.
         linkEndTimes.clear( );
         linkEndStates.clear( );
@@ -131,8 +133,12 @@ public:
         }
 
         // Return observable
-        return ( Eigen::Matrix< ObservationScalarType, 2, 1 >( ) << sphericalRelativeCoordinates.z( ),
-                 mathematical_constants::PI / 2.0 - sphericalRelativeCoordinates.y( ) ).finished( );
+        double rightAscension = 2.0 * std::atan( relativePosition[ 1 ] /
+                ( std::sqrt( relativePosition[ 0 ] * relativePosition[ 0 ] + relativePosition[ 1 ] * relativePosition[ 1 ] ) + relativePosition[ 0 ] ) );
+        double declination = mathematical_constants::PI / 2.0 - std::acos( relativePosition[ 2 ] / relativePosition.norm( ) );
+//        return ( Eigen::Matrix< ObservationScalarType, 2, 1 >( ) << sphericalRelativeCoordinates.z( ),
+//                 mathematical_constants::PI / 2.0 - sphericalRelativeCoordinates.y( ) ).finished( );
+        return ( Eigen::Matrix< ObservationScalarType, 2, 1 >( ) << rightAscension, declination ).finished( );
     }
 
     //! Function to get the object to calculate light time.
