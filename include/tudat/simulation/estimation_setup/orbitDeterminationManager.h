@@ -1142,7 +1142,7 @@ protected:
                     createObservationManagerBase< ObservationScalarType, TimeType >(
                         observableType,
                         it.second,
-                        bodies, parametersToEstimate_,
+                        bodies, fullParameters_ /*parametersToEstimate_*/,
                         stateTransitionAndSensitivityMatrixInterface_, dependentVariablesInterface_ );
         }
 

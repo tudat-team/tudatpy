@@ -38,7 +38,8 @@ enum ObservableType
     euler_angle_313_observable = 7,
     velocity_observable = 8,
     relative_angular_position = 9,
-    n_way_differenced_range = 10
+    n_way_differenced_range = 10,
+    relative_position_observable = 11
 };
 
 
@@ -128,6 +129,11 @@ void checkObservationResidualDiscontinuities(
 static const std::map< LinkEndType, int > oneWayLinkStateEntries = {
     { transmitter, 0 },
     { receiver, 1 }
+};
+
+static const std::map< LinkEndType, int > observedObserverBodiesLinkStateEntries = {
+        { observed_body, 0 },
+        { observer, 1 }
 };
 
 

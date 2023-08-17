@@ -119,38 +119,53 @@ BOOST_AUTO_TEST_CASE( testRelativeAngularPositionPartials )
     relativeAngularPositionModel->computeObservationsWithLinkEndData(
             receiverObservationTime, receiver, linkEndTimesRelativeAngularPosition, linkEndStatesRelativeAngularPosition );
 
-    Eigen::Vector3d positionDifferenceMarsEarth = ( linkEndStatesRelativeAngularPosition[ 0 ] - linkEndStatesRelativeAngularPosition[ 2 ] ).segment( 0, 3 );
-    Eigen::Vector3d sphericalCoordinatesMars = coordinate_conversions::convertCartesianToSpherical( positionDifferenceMarsEarth );
-    double rightAscensionMars = sphericalCoordinatesMars.z( );
-    double declinationMars = mathematical_constants::PI / 2.0 - sphericalCoordinatesMars.y( );
+    Eigen::Vector3d positionMarsEarth = ( linkEndStatesRelativeAngularPosition[ 0 ] - linkEndStatesRelativeAngularPosition[ 2 ] ).segment( 0, 3 );
+//    Eigen::Vector3d sphericalCoordinatesMars = coordinate_conversions::convertCartesianToSpherical( positionMarsEarth );
+//    double rightAscensionMars = sphericalCoordinatesMars.z( );
+//    double declinationMars = mathematical_constants::PI / 2.0 - sphericalCoordinatesMars.y( );
+    double rightAscensionMars = 2.0 * std::atan( positionMarsEarth[ 1 ] /
+            ( std::sqrt( positionMarsEarth[ 0 ] * positionMarsEarth[ 0 ] + positionMarsEarth[ 1 ] * positionMarsEarth[ 1 ] ) + positionMarsEarth[ 0 ] ) );
+    double declinationMars = mathematical_constants::PI / 2.0 - std::acos( positionMarsEarth[ 2 ] / positionMarsEarth.norm( ) );
 
-    Eigen::Vector3d modifiedAbsolutePositionMars = linkEndStatesRelativeAngularPosition[ 0 ].segment( 0, 3 ) + ( Eigen::Vector3d( ) << 100.0, 0.0, 0.0 ).finished( );
-    Eigen::Vector3d modifiedRelativePositionMarsEarth = modifiedAbsolutePositionMars - linkEndStatesRelativeAngularPosition[ 2 ].segment( 0, 3 );
-    Eigen::Vector3d modifiedSphericalCoordinatesMars = coordinate_conversions::convertCartesianToSpherical( modifiedRelativePositionMarsEarth );
-    double modifiedRightAscensionMars = modifiedSphericalCoordinatesMars.z( );
-    double modifiedDeclinationMars = mathematical_constants::PI / 2.0 - modifiedSphericalCoordinatesMars.y( );
+    Eigen::Vector3d modifiedPositionMars = linkEndStatesRelativeAngularPosition[ 0 ].segment( 0, 3 ) + ( Eigen::Vector3d( ) << 100.0, 0.0, 0.0 ).finished( );
+    Eigen::Vector3d modifiedPositionMarsEarth = modifiedPositionMars - linkEndStatesRelativeAngularPosition[ 2 ].segment( 0, 3 );
+//    Eigen::Vector3d modifiedSphericalCoordinatesMars = coordinate_conversions::convertCartesianToSpherical( modifiedPositionMarsEarth );
+//    double modifiedRightAscensionMars = modifiedSphericalCoordinatesMars.z( );
+//    double modifiedDeclinationMars = mathematical_constants::PI / 2.0 - modifiedSphericalCoordinatesMars.y( );
+    double modifiedRightAscensionMars = 2.0 * std::atan( modifiedPositionMarsEarth[ 1 ] /
+            ( std::sqrt( modifiedPositionMarsEarth[ 0 ] * modifiedPositionMarsEarth[ 0 ] + modifiedPositionMarsEarth[ 1 ] * modifiedPositionMarsEarth[ 1 ] )
+            + modifiedPositionMarsEarth[ 0 ] ) );
+    double modifiedDeclinationMars = mathematical_constants::PI / 2.0 - std::acos( modifiedPositionMarsEarth[ 2 ] / modifiedPositionMarsEarth.norm( ) );
 
     double partialRightAscensionWrtX = ( modifiedRightAscensionMars - rightAscensionMars ) / 100.0;
     double partialDeclinationWrtX = ( modifiedDeclinationMars - declinationMars ) / 100.0;
     std::cout << "partialRightAscensionWrtX: " << partialRightAscensionWrtX << "\n\n";
     std::cout << "partialDeclinationWrtX: " << partialDeclinationWrtX << "\n\n";
 
-    modifiedAbsolutePositionMars = linkEndStatesRelativeAngularPosition[ 0 ].segment( 0, 3 ) + ( Eigen::Vector3d( ) << 0.0, 100.0, 0.0 ).finished( );
-    modifiedRelativePositionMarsEarth = modifiedAbsolutePositionMars - linkEndStatesRelativeAngularPosition[ 2 ].segment( 0, 3 );
-    modifiedSphericalCoordinatesMars = coordinate_conversions::convertCartesianToSpherical( modifiedRelativePositionMarsEarth );
-    modifiedRightAscensionMars = modifiedSphericalCoordinatesMars.z( );
-    modifiedDeclinationMars = mathematical_constants::PI / 2.0 - modifiedSphericalCoordinatesMars.y( );
+    modifiedPositionMars = linkEndStatesRelativeAngularPosition[ 0 ].segment( 0, 3 ) + ( Eigen::Vector3d( ) << 0.0, 100.0, 0.0 ).finished( );
+    modifiedPositionMarsEarth = modifiedPositionMars - linkEndStatesRelativeAngularPosition[ 2 ].segment( 0, 3 );
+//    modifiedSphericalCoordinatesMars = coordinate_conversions::convertCartesianToSpherical( modifiedPositionMarsEarth );
+//    modifiedRightAscensionMars = modifiedSphericalCoordinatesMars.z( );
+//    modifiedDeclinationMars = mathematical_constants::PI / 2.0 - modifiedSphericalCoordinatesMars.y( );
+    modifiedRightAscensionMars = 2.0 * std::atan( modifiedPositionMarsEarth[ 1 ] /
+            ( std::sqrt( modifiedPositionMarsEarth[ 0 ] * modifiedPositionMarsEarth[ 0 ] + modifiedPositionMarsEarth[ 1 ] * modifiedPositionMarsEarth[ 1 ] )
+            + modifiedPositionMarsEarth[ 0 ] ) );
+    modifiedDeclinationMars = mathematical_constants::PI / 2.0 - std::acos( modifiedPositionMarsEarth[ 2 ] / modifiedPositionMarsEarth.norm( ) );
 
     double partialRightAscensionWrtY = ( modifiedRightAscensionMars - rightAscensionMars ) / 100.0;
     double partialDeclinationWrtY = ( modifiedDeclinationMars - declinationMars ) / 100.0;
     std::cout << "partialRightAscensionWrtY: " << partialRightAscensionWrtY << "\n\n";
     std::cout << "partialDeclinationWrtY: " << partialDeclinationWrtY << "\n\n";
 
-    modifiedAbsolutePositionMars = linkEndStatesRelativeAngularPosition[ 0 ].segment( 0, 3 ) + ( Eigen::Vector3d( ) << 0.0, 0.0, 100.0 ).finished( );
-    modifiedRelativePositionMarsEarth = modifiedAbsolutePositionMars - linkEndStatesRelativeAngularPosition[ 2 ].segment( 0, 3 );
-    modifiedSphericalCoordinatesMars = coordinate_conversions::convertCartesianToSpherical( modifiedRelativePositionMarsEarth );
-    modifiedRightAscensionMars = modifiedSphericalCoordinatesMars.z( );
-    modifiedDeclinationMars = mathematical_constants::PI / 2.0 - modifiedSphericalCoordinatesMars.y( );
+    modifiedPositionMars = linkEndStatesRelativeAngularPosition[ 0 ].segment( 0, 3 ) + ( Eigen::Vector3d( ) << 0.0, 0.0, 100.0 ).finished( );
+    modifiedPositionMarsEarth = modifiedPositionMars - linkEndStatesRelativeAngularPosition[ 2 ].segment( 0, 3 );
+//    modifiedSphericalCoordinatesMars = coordinate_conversions::convertCartesianToSpherical( modifiedPositionMarsEarth );
+//    modifiedRightAscensionMars = modifiedSphericalCoordinatesMars.z( );
+//    modifiedDeclinationMars = mathematical_constants::PI / 2.0 - modifiedSphericalCoordinatesMars.y( );
+    modifiedRightAscensionMars = 2.0 * std::atan( modifiedPositionMarsEarth[ 1 ] /
+            ( std::sqrt( modifiedPositionMarsEarth[ 0 ] * modifiedPositionMarsEarth[ 0 ] + modifiedPositionMarsEarth[ 1 ] * modifiedPositionMarsEarth[ 1 ] )
+            + modifiedPositionMarsEarth[ 0 ] ) );
+    modifiedDeclinationMars = mathematical_constants::PI / 2.0 - std::acos( modifiedPositionMarsEarth[ 2 ] / modifiedPositionMarsEarth.norm( ) );
 
     double partialRightAscensionWrtZ = ( modifiedRightAscensionMars - rightAscensionMars ) / 100.0;
     double partialDeclinationWrtZ = ( modifiedDeclinationMars - declinationMars ) / 100.0;
@@ -164,8 +179,7 @@ BOOST_AUTO_TEST_CASE( testRelativeAngularPositionPartials )
             receiverObservationTime, receiver, linkEndTimesAngularPosition, linkEndStatesAngularPosition );
 
     //Eigen::Matrix< double, 2, 3 > partialsAngularPositionWrtPosition =
-    calculatePartialOfAngularPositionWrtLinkEndPosition(
-            - positionDifferenceMarsEarth,  false );
+    calculatePartialOfAngularPositionWrtLinkEndPosition( - positionMarsEarth,  false );
 
     // Define and create ground stations.
     std::vector< std::pair< std::string, std::string > > groundStations;
