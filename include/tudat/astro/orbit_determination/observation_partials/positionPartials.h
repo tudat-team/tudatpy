@@ -357,7 +357,12 @@ public:
         }
         else if ( linkEndType == observation_models::observer )
         {
-            return - Eigen::Matrix3d::Identity( );
+            return -Eigen::Matrix3d::Identity( );
+        }
+        else
+        {
+            throw std::runtime_error( "Error when getting relative position scaling factor, did not recognize reference link end " + observation_models::getLinkEndTypeString(
+                linkEndType ) );
         }
     }
 

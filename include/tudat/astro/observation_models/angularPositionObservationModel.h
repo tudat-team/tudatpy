@@ -107,11 +107,11 @@ public:
         ObservationScalarType lightTime = lightTimeCalculator_->calculateLightTimeWithLinkEndsStates(
                     receiverState, transmitterState, time, isTimeAtReception );
 
-        // Compute spherical relative position
-        Eigen::Matrix< ObservationScalarType, 3, 1 > sphericalRelativeCoordinates =
-                coordinate_conversions::convertCartesianToSpherical< ObservationScalarType >(
-                    transmitterState.segment( 0, 3 ) - receiverState.segment( 0, 3 ) ).
-                template cast< ObservationScalarType >( );
+//        // Compute spherical relative position
+//        Eigen::Matrix< ObservationScalarType, 3, 1 > sphericalRelativeCoordinates =
+//                coordinate_conversions::convertCartesianToSpherical< ObservationScalarType >(
+//                    transmitterState.segment( 0, 3 ) - receiverState.segment( 0, 3 ) ).
+//                template cast< ObservationScalarType >( );
 
         Eigen::Matrix< ObservationScalarType, 3, 1 > relativePosition = transmitterState.segment( 0, 3 ) - receiverState.segment( 0, 3 );
 
