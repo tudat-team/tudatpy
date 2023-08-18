@@ -37,9 +37,11 @@ class CovarianceAnalysisInput
 public:
     CovarianceAnalysisInput(
               const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > >& observationCollection,
-              const Eigen::MatrixXd inverseOfAprioriCovariance = Eigen::MatrixXd::Zero( 0, 0 ) ):
+              const Eigen::MatrixXd inverseOfAprioriCovariance = Eigen::MatrixXd::Zero( 0, 0 ),
+              const Eigen::MatrixXd considerCovariance = Eigen::MatrixXd::Zero( 0, 0 ) ):
         observationCollection_( observationCollection ),
         inverseOfAprioriCovariance_( inverseOfAprioriCovariance ),
+        considerCovariance_( considerCovariance ),
         reintegrateEquationsOnFirstIteration_( true ),
         reintegrateVariationalEquations_( true ),
         saveDesignMatrix_( true ),
@@ -47,6 +49,12 @@ public:
     {
         weightsMatrixDiagonals_ = Eigen::VectorXd::Zero( observationCollection->getTotalObservableSize( ) );
         setConstantWeightsMatrix( 1.0 );
+
+        considerParametersIncluded_ = false;
+        if ( considerCovariance.size( ) > 0 )
+        {
+            considerParametersIncluded_ = true;
+        }
     }
 
     virtual ~CovarianceAnalysisInput( ){ }
@@ -164,6 +172,53 @@ public:
         setConstantPerObservableAndLinkEndsWeights( weightPerObservableAndLinkEnds );
     }
 
+
+    void setTabulatedPerObservableAndLinkEndsWeights(
+            const std::map< observation_models::ObservableType,
+            std::map< observation_models::LinkEnds, Eigen::VectorXd > > weightsPerObservableAndLinkEnds )
+    {
+        std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds, std::vector< std::pair< int, int > > > > observationSetStartAndSize =
+                observationCollection_->getObservationSetStartAndSize( );
+
+        for( auto observableIterator : weightsPerObservableAndLinkEnds )
+        {
+            observation_models::ObservableType currentObservable = observableIterator.first;
+            if( observationSetStartAndSize.count( currentObservable) == 0 )
+            {
+                std::cerr<< "Warning when setting weights for data type "<< std::to_string( currentObservable) <<  ". " <<
+                         " No data of given type found." <<std::endl;
+            }
+            else
+            {
+                for( auto linkEndIterator : observableIterator.second )
+                {
+                    observation_models::LinkEnds currentLinkEnds = linkEndIterator.first;
+                    if( observationSetStartAndSize.at( currentObservable ).count( currentLinkEnds ) == 0 )
+                    {
+
+                        std::cerr<< "Warning when setting weights for data type " << std::to_string( currentObservable)<< " and link ends " <<
+                                 //static_cast< std::string >( currentLinkEnds ) +
+                                 ". No data of given type and link ends found." <<std::endl;
+                    }
+                    else
+                    {
+                        std::vector< std::pair< int, int > > indicesToUse = observationSetStartAndSize.at( currentObservable ).at( currentLinkEnds );
+                        for( unsigned int i = 0; i < indicesToUse.size( ); i++ )
+                        {
+                            if ( indicesToUse.at( i ).second != linkEndIterator.second.size( ) )
+                            {
+                                throw std::runtime_error( "Error when setting tabulated weights for data type " + std::to_string( currentObservable) +
+                                ", weights vector is inconsistent with the number of observations." );
+                            }
+                            weightsMatrixDiagonals_.segment( indicesToUse.at( i ).first, indicesToUse.at( i ).second ) =  linkEndIterator.second;
+                        }
+                    }
+                }
+            }
+
+        }
+    }
+
     //! Function to return the total data structure of observations and associated times/link ends/type (by reference)
     /*!
      * Function to return the total data structure of observations and associated times/link ends/type (by reference)
@@ -200,6 +255,17 @@ public:
         {
             return inverseOfAprioriCovariance_;
         }
+    }
+
+    //! Covariance matrix for consider parameters
+    //! Function to return the covariance matrix for consider parameters
+    /*!
+     * Function to return the covariance matrix for consider parameters
+     * \return Consider parameters covariance
+     */
+    Eigen::MatrixXd getConsiderCovariance( )
+    {
+        return considerCovariance_;
     }
 
 
@@ -265,6 +331,11 @@ public:
         this->printOutput_ = printOutput;
     }
 
+    bool areConsiderParametersIncluded( ) const
+    {
+        return considerParametersIncluded_;
+    }
+
 
 
 protected:
@@ -273,6 +344,9 @@ protected:
 
     //! A priori covariance matrix (unnormalized) of estimated parameters
     Eigen::MatrixXd inverseOfAprioriCovariance_;
+
+    //! Covariance matrix for consider parameters
+    Eigen::MatrixXd considerCovariance_;
 
     //! Weight matrix diagonals, sorted by link ends and observable type
     Eigen::VectorXd weightsMatrixDiagonals_;
@@ -288,6 +362,9 @@ protected:
 
     //! Boolean denoting whether to print output to th terminal when running the estimation.
     bool printOutput_;
+
+    //! Boolean denoting whether consider parameters are included in the covariance analysis
+    bool considerParametersIncluded_;
 };
 
 
@@ -386,13 +463,35 @@ public:
     EstimationInput(
             const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > >& observationCollection,
             const Eigen::MatrixXd inverseOfAprioriCovariance = Eigen::MatrixXd::Zero( 0, 0 ),
-            const std::shared_ptr< EstimationConvergenceChecker > convergenceChecker =
-            std::make_shared< EstimationConvergenceChecker >( ) ):
-        CovarianceAnalysisInput< ObservationScalarType, TimeType >( observationCollection, inverseOfAprioriCovariance ),
+            const std::shared_ptr< EstimationConvergenceChecker > convergenceChecker = std::make_shared< EstimationConvergenceChecker >( ),
+            const Eigen::MatrixXd considerCovariance = Eigen::MatrixXd::Zero( 0, 0 ),
+            const Eigen::VectorXd considerParametersDeviations = Eigen::VectorXd::Zero( 0 ) ):
+        CovarianceAnalysisInput< ObservationScalarType, TimeType >( observationCollection, inverseOfAprioriCovariance, considerCovariance ),
         saveResidualsAndParametersFromEachIteration_( true ),
         saveStateHistoryForEachIteration_( false ),
-        convergenceChecker_( convergenceChecker )
-    { }
+        convergenceChecker_( convergenceChecker ),
+        considerParametersDeviations_( considerParametersDeviations )
+    {
+        if ( this->areConsiderParametersIncluded( ) )
+        {
+            if ( considerParametersDeviations_.size( ) > 0 )
+            {
+                if ( considerCovariance.rows( ) != considerParametersDeviations_.size( ) )
+                {
+                    throw std::runtime_error("Error when defining consider covariance and consider parameters deviations, sizes are inconsistent.");
+                }
+                std::cerr << "Warning, considerParametersDeviations are provided as input. These should contain (statistical) deviations with respect to the *nominal*"
+                             "consider parameters values, and not their absolute values." << "\n\n";
+            }
+        }
+        else
+        {
+            if ( considerParametersDeviations_.size( ) > 0 )
+            {
+                throw std::runtime_error("Error, non-zero consider parameters deviations, but no consider covariance provided.");
+            }
+        }
+    }
 
     //! Destructor
     virtual ~EstimationInput( ){ }
@@ -466,8 +565,10 @@ public:
     //! Boolean denoting whether the state history is to be saved on each iteration.
     bool saveStateHistoryForEachIteration_;
 
-    std::shared_ptr< EstimationConvergenceChecker > convergenceChecker_;    
+    std::shared_ptr< EstimationConvergenceChecker > convergenceChecker_;
 
+    //! Vector of consider parameters deviations
+    Eigen::VectorXd considerParametersDeviations_;
 
 };
 
@@ -486,6 +587,16 @@ void scaleDesignMatrixWithWeights(
         Eigen::MatrixXd& designMatrix,
         const Eigen::VectorXd& weightsDiagonal );
 
+Eigen::MatrixXd normaliseUnnormaliseCovarianceMatrix(
+        const Eigen::MatrixXd& covarianceMatrix,
+        const Eigen::VectorXd& normalisationFactors,
+        const bool normalise );
+
+Eigen::MatrixXd normaliseUnnormaliseInverseCovarianceMatrix(
+        Eigen::MatrixXd& inverseCovarianceMatrix,
+        Eigen::VectorXd& normalisationFactors,
+        const bool normalise );
+
 
 template< typename ObservationScalarType = double, typename TimeType = double  >
 struct CovarianceAnalysisOutput
@@ -495,13 +606,52 @@ struct CovarianceAnalysisOutput
                              const Eigen::VectorXd& weightsMatrixDiagonal,
                              const Eigen::VectorXd& designMatrixTransformationDiagonal,
                              const Eigen::MatrixXd& inverseNormalizedCovarianceMatrix,
+                             const Eigen::MatrixXd& designMatrixConsiderParameters = Eigen::MatrixXd::Zero( 0, 0 ),
+                             const Eigen::VectorXd& considerNormalizationFactors = Eigen::VectorXd::Zero( 0 ),
+                             const Eigen::MatrixXd& considerCovarianceContribution = Eigen::MatrixXd::Zero( 0, 0 ),
                              const bool exceptionDuringPropagation = false ):
         normalizedDesignMatrix_( normalizedDesignMatrix ),
         weightsMatrixDiagonal_( weightsMatrixDiagonal ),
         designMatrixTransformationDiagonal_( designMatrixTransformationDiagonal ),
         inverseNormalizedCovarianceMatrix_( inverseNormalizedCovarianceMatrix ),
+        normalizedDesignMatrixConsiderParameters_( designMatrixConsiderParameters ),
+        considerNormalizationFactors_( considerNormalizationFactors ),
         exceptionDuringPropagation_( exceptionDuringPropagation )
-    { }
+    {
+        considerParametersIncluded_ = false;
+        if ( designMatrixConsiderParameters.size( ) > 0 && considerNormalizationFactors.size( ) > 0 && considerCovarianceContribution.size( ) > 0 )
+        {
+            considerParametersIncluded_ = true;
+        }
+
+        // Compute normalized covariance matrix
+        normalizedCovarianceMatrix_ = inverseNormalizedCovarianceMatrix_.inverse( );
+
+        // Compute unnormalised inverse covariance matrix
+        inverseUnnormalizedCovarianceMatrix_ = normaliseUnnormaliseInverseCovarianceMatrix(
+                inverseNormalizedCovarianceMatrix_, designMatrixTransformationDiagonal_, false );
+
+        // Compute unnormalised covariance matrix
+        unnormalizedCovarianceMatrix_ = normaliseUnnormaliseCovarianceMatrix(
+                normalizedCovarianceMatrix_, designMatrixTransformationDiagonal_, false );
+
+        normalizedCovarianceWithConsiderParameters_ = normalizedCovarianceMatrix_;
+        unnormalizedCovarianceWithConsiderParameters_ = unnormalizedCovarianceMatrix_;
+        considerCovarianceContribution_ = Eigen::MatrixXd::Zero( unnormalizedCovarianceMatrix_.rows( ), unnormalizedCovarianceMatrix_.cols( ) );
+        if ( considerParametersIncluded_ )
+        {
+            // Add contribution consider parameters to unnormalised covariance
+            normalizedCovarianceWithConsiderParameters_ += considerCovarianceContribution;
+
+            // Compute unnormalised covariance with consider parameters
+            unnormalizedCovarianceWithConsiderParameters_ = normaliseUnnormaliseCovarianceMatrix(
+                    normalizedCovarianceWithConsiderParameters_, designMatrixTransformationDiagonal_, false );
+
+            // Save unnormalised contribution to covariance from consider parameters
+            considerCovarianceContribution_ = normaliseUnnormaliseCovarianceMatrix(
+                    considerCovarianceContribution, designMatrixTransformationDiagonal_, false );
+        }
+    }
 
 
     Eigen::VectorXd getNormalizationTerms( )
@@ -521,24 +671,12 @@ struct CovarianceAnalysisOutput
      */
     Eigen::MatrixXd getUnnormalizedInverseCovarianceMatrix( )
     {
-
-        Eigen::MatrixXd inverseUnnormalizedCovarianceMatrix = getNormalizedInverseCovarianceMatrix( );
-
-        for( int i = 0; i < designMatrixTransformationDiagonal_.rows( ); i++ )
-        {
-            for( int j = 0; j < designMatrixTransformationDiagonal_.rows( ); j++ )
-            {
-                inverseUnnormalizedCovarianceMatrix( i, j ) *=
-                        designMatrixTransformationDiagonal_( i ) * designMatrixTransformationDiagonal_( j );
-            }
-        }
-
-        return inverseUnnormalizedCovarianceMatrix;
+        return inverseUnnormalizedCovarianceMatrix_;
     }
 
     Eigen::MatrixXd getNormalizedCovarianceMatrix( )
     {
-        return inverseNormalizedCovarianceMatrix_.inverse( );
+        return normalizedCovarianceMatrix_;
     }
 
     //! Function to retrieve the unnormalized estimation covariance matrix
@@ -548,18 +686,7 @@ struct CovarianceAnalysisOutput
      */
     Eigen::MatrixXd getUnnormalizedCovarianceMatrix( )
     {
-        Eigen::MatrixXd unnormalizedCovarianceMatrix = getNormalizedCovarianceMatrix( );
-
-        for( int i = 0; i < designMatrixTransformationDiagonal_.rows( ); i++ )
-        {
-            for( int j = 0; j < designMatrixTransformationDiagonal_.rows( ); j++ )
-            {
-                unnormalizedCovarianceMatrix( i, j ) /=
-                        designMatrixTransformationDiagonal_( i ) * designMatrixTransformationDiagonal_( j );
-            }
-        }
-
-        return unnormalizedCovarianceMatrix;
+        return unnormalizedCovarianceMatrix_;
     }
 
     //! Function to retrieve the matrix of unnormalized partial derivatives
@@ -586,22 +713,42 @@ struct CovarianceAnalysisOutput
         return normalizedDesignMatrix_;
     }
 
-
     Eigen::MatrixXd getNormalizedWeightedDesignMatrix( )
     {
         Eigen::MatrixXd weightedNormalizedDesignMatrix = normalizedDesignMatrix_;
-        scaleDesignMatrixWithWeights(
-                    weightedNormalizedDesignMatrix,
-                    weightsMatrixDiagonal_ );
+        scaleDesignMatrixWithWeights( weightedNormalizedDesignMatrix, weightsMatrixDiagonal_ );
         return weightedNormalizedDesignMatrix;
+    }
+
+    Eigen::MatrixXd getConsiderCovarianceContribution( )
+    {
+        return considerCovarianceContribution_;
+    }
+
+    Eigen::MatrixXd getNormalizedCovarianceWithConsiderParameters( )
+    {
+        return normalizedCovarianceWithConsiderParameters_;
+    }
+
+    Eigen::MatrixXd getUnnormalizedCovarianceWithConsiderParameters( )
+    {
+        return unnormalizedCovarianceWithConsiderParameters_;
+    }
+
+    Eigen::MatrixXd getNormalizedDesignMatrixConsiderParameters( )
+    {
+        return normalizedDesignMatrixConsiderParameters_;
+    }
+
+    Eigen::VectorXd getConsiderNormalizationFactors( )
+    {
+        return considerNormalizationFactors_;
     }
 
     Eigen::MatrixXd getUnnormalizedWeightedDesignMatrix( )
     {
         Eigen::MatrixXd weightedUnnormalizedDesignMatrix = getUnnormalizedDesignMatrix( );
-        scaleDesignMatrixWithWeights(
-                    weightedUnnormalizedDesignMatrix,
-                    weightsMatrixDiagonal_ );
+        scaleDesignMatrixWithWeights( weightedUnnormalizedDesignMatrix, weightsMatrixDiagonal_ );
         return weightedUnnormalizedDesignMatrix;
     }
 
@@ -626,6 +773,20 @@ struct CovarianceAnalysisOutput
         return getUnnormalizedCovarianceMatrix( ).cwiseQuotient( getFormalErrorVector( ) * getFormalErrorVector( ).transpose( ) );
     }
 
+    Eigen::MatrixXd getUnnormalizedDesignMatrixConsiderParameters( )
+    {
+        Eigen::MatrixXd unnormalizedPartials = Eigen::MatrixXd::Zero(
+                normalizedDesignMatrixConsiderParameters_.rows( ), normalizedDesignMatrixConsiderParameters_.cols( ) );
+
+        for( int i = 0; i < considerNormalizationFactors_.rows( ); i++ )
+        {
+            unnormalizedPartials.block( 0, i, normalizedDesignMatrixConsiderParameters_.rows( ), 1 ) =
+                    normalizedDesignMatrixConsiderParameters_.block( 0, i, normalizedDesignMatrixConsiderParameters_.rows( ), 1 )
+                    * considerNormalizationFactors_( i );
+        }
+        return unnormalizedPartials;
+    }
+
     //! Matrix of observation partials (normalixed) used in estimation (may be empty if so requested)
     Eigen::MatrixXd normalizedDesignMatrix_;
 
@@ -638,8 +799,35 @@ struct CovarianceAnalysisOutput
     //! Inverse of postfit normalized covariance matrix
     Eigen::MatrixXd inverseNormalizedCovarianceMatrix_;
 
+    //! Inverse of postfit unnormalized covariance matrix
+    Eigen::MatrixXd inverseUnnormalizedCovarianceMatrix_;
+
+    //! Postfit normalized covariance matrix
+    Eigen::MatrixXd normalizedCovarianceMatrix_;
+
+    //! Postfit unnormalized covariance matrix
+    Eigen::MatrixXd unnormalizedCovarianceMatrix_;
+
+    //! Postfit covariance contribution from consider parameters
+    Eigen::MatrixXd considerCovarianceContribution_;
+
+    //! Postfit normalised covariance matrix with consider parameters
+    Eigen::MatrixXd normalizedCovarianceWithConsiderParameters_;
+
+    //! Postfit unnormalised covariance matrix with consider parameters
+    Eigen::MatrixXd unnormalizedCovarianceWithConsiderParameters_;
+
+    //! Matrix of observation partials w.r.t. consider parameters (normalized)
+    Eigen::MatrixXd normalizedDesignMatrixConsiderParameters_;
+
+    //! Vector of values by which the columns of the unnormalized consider design matrix were divided to normalize its entries.
+    Eigen::VectorXd considerNormalizationFactors_;
+
     //! Boolean denoting whether an exception was caught during (re)propagation of equations of motion (and variational equations)
     bool exceptionDuringPropagation_;
+
+    //! Boolean denoting whether consider parameters are included
+    bool considerParametersIncluded_;
 };
 
 //! Data structure through which the output of the orbit determination is communicated
@@ -675,11 +863,14 @@ struct EstimationOutput: public CovarianceAnalysisOutput< ObservationScalarType,
                const int bestIteration,
                const std::vector< Eigen::VectorXd >& residualHistory = std::vector< Eigen::VectorXd >( ),
                const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& parameterHistory = std::vector< Eigen::VectorXd >( ),
+               const Eigen::MatrixXd& designMatrixConsiderParameters = Eigen::MatrixXd::Zero( 0, 0 ),
+               const Eigen::VectorXd& considerNormalizationFactors = Eigen::VectorXd::Zero( 0 ),
+               const Eigen::MatrixXd& covarianceConsiderContribution = Eigen::MatrixXd::Zero( 0, 0 ),
                const bool exceptionDuringInversion = false,
                const bool exceptionDuringPropagation = false ):
         CovarianceAnalysisOutput< ObservationScalarType, TimeType >( normalizedDesignMatrix, weightsMatrixDiagonal,
-                                 designMatrixTransformationDiagonal, inverseNormalizedCovarianceMatrix,
-                                 exceptionDuringPropagation ),
+                                 designMatrixTransformationDiagonal, inverseNormalizedCovarianceMatrix, designMatrixConsiderParameters,
+                                 considerNormalizationFactors, covarianceConsiderContribution, exceptionDuringPropagation ),
         parameterEstimate_( parameterEstimate ),
         residuals_( residuals ),
         bestIteration_( bestIteration ),

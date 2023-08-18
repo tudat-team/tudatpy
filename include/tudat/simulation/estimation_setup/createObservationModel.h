@@ -29,6 +29,7 @@
 #include "tudat/astro/observation_models/angularPositionObservationModel.h"
 #include "tudat/astro/observation_models/relativeAngularPositionObservationModel.h"
 #include "tudat/astro/observation_models/positionObservationModel.h"
+#include "tudat/astro/observation_models/relativePositionObservationModel.h"
 #include "tudat/astro/observation_models/eulerAngleObservationModel.h"
 #include "tudat/astro/observation_models/velocityObservationModel.h"
 #include "tudat/astro/observation_models/observationSimulator.h"
@@ -952,6 +953,14 @@ inline std::shared_ptr< ObservationModelSettings > positionObservableSettings(
 {
     return std::make_shared< ObservationModelSettings >(
                 position_observable, linkEnds, nullptr, biasSettings );
+}
+
+inline std::shared_ptr< ObservationModelSettings > relativePositionObservableSettings(
+        const LinkDefinition& linkEnds,
+        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr)
+{
+    return std::make_shared< ObservationModelSettings >(
+            relative_position_observable, linkEnds, nullptr, biasSettings );
 }
 
 inline std::shared_ptr< ObservationModelSettings > velocityObservableSettings(
@@ -2152,8 +2161,7 @@ public:
      * \param bodies List of body objects that comprises the environment
      * \return Observation model of required settings.
      */
-    static std::shared_ptr< observation_models::ObservationModel<
-    3, ObservationScalarType, TimeType > > createObservationModel(
+    static std::shared_ptr< observation_models::ObservationModel< 3, ObservationScalarType, TimeType > > createObservationModel(
             const std::shared_ptr< ObservationModelSettings > observationSettings,
             const simulation_setup::SystemOfBodies &bodies,
             ObservableType topLevelObservableType = undefined_observation_model )
@@ -2210,6 +2218,51 @@ public:
                                    bodies.at( linkEnds.at( observed_body ).bodyName_ ), std::placeholders::_1 ),
                         observationBias );
 
+            break;
+        }
+        case relative_position_observable:
+        {
+            // Check consistency input.
+            if( linkEnds.size( ) != 2 )
+            {
+                std::string errorMessage = "Error when making relative position observable model, " + std::to_string( linkEnds.size( ) ) + " link ends found";
+                throw std::runtime_error( errorMessage );
+            }
+
+            if( linkEnds.count( observed_body ) == 0 )
+            {
+                throw std::runtime_error( "Error when making relative position observable model, no observed_body found" );
+            }
+            if( linkEnds.count( observer ) == 0 )
+            {
+                throw std::runtime_error( "Error when making relative position observable model, no observer found" );
+            }
+
+            if( observationSettings->lightTimeCorrectionsList_.size( ) > 0 )
+            {
+                throw std::runtime_error( "Error when making relative position observable model, found light time corrections" );
+            }
+            if( linkEnds.at( observed_body ).stationName_ != "" )
+            {
+                throw std::runtime_error( "Error, cannot yet create position function for reference point" );
+            }
+
+            std::shared_ptr< ObservationBias< 3 > > observationBias;
+            if( observationSettings->biasSettings_ != nullptr )
+            {
+                observationBias = createObservationBiasCalculator< 3 >(
+                        linkEnds, observationSettings->observableType_, observationSettings->biasSettings_,bodies );
+            }
+
+            // Create observation model
+            observationModel = std::make_shared< RelativePositionObservationModel<
+                    ObservationScalarType, TimeType > >(
+                    linkEnds,
+                    std::bind( &simulation_setup::Body::getStateInBaseFrameFromEphemeris< ObservationScalarType, TimeType >,
+                               bodies.at( linkEnds.at( observed_body ).bodyName_ ), std::placeholders::_1 ),
+                    std::bind( &simulation_setup::Body::getStateInBaseFrameFromEphemeris< ObservationScalarType, TimeType >,
+                               bodies.at( linkEnds.at( observer ).bodyName_ ), std::placeholders::_1 ),
+                    observationBias );
             break;
         }
         case euler_angle_313_observable:
@@ -2517,6 +2570,10 @@ std::vector< std::vector< std::shared_ptr< observation_models::LightTimeCorrecti
                     relativeAngularPositionModel->getLightTimeCalculatorFirstTransmitter( )->getLightTimeCorrection( ) );
         currentLightTimeCorrections.push_back(
                     relativeAngularPositionModel->getLightTimeCalculatorSecondTransmitter( )->getLightTimeCorrection( ) );
+        break;
+    }
+    case observation_models::relative_position_observable:
+    {
         break;
     }
     default:

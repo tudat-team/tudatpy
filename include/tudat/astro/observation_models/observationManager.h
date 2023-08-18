@@ -260,11 +260,17 @@ public:
             // Compute observation
             currentObservation = selectedObservationModel->computeObservationsWithLinkEndData(
                         times[ i ], linkEndAssociatedWithTime, vectorOfTimes, vectorOfStates, ancilliarySettings );
-            observations[ times[ i ] ] = currentObservation;
+            TimeType saveTime = times[ i ];
+            while( observations.count( saveTime ) != 0 )
+            {
+                saveTime += std::numeric_limits< double >::epsilon( ) * 10.0 * times[ i ];
+            }
+            observations[ saveTime ] = currentObservation;
 
             // Compute observation partial
             currentObservationSize = currentObservation.rows( );
-            observationMatrices[ times[ i ] ] = determineObservationPartialMatrix(
+
+            observationMatrices[ saveTime ] = determineObservationPartialMatrix(
                         currentObservationSize, vectorOfStates, vectorOfTimes, linkEnds, currentObservation,
                         linkEndAssociatedWithTime, ancilliarySettings );
 

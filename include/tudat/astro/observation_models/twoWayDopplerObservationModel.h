@@ -56,7 +56,7 @@ public:
        uplinkDopplerCalculator_( uplinkDopplerCalculator ),
        downlinkDopplerCalculator_( downlinkDopplerCalculator )
     {
-        std::cout<<"Normalize: "<<normalizeWithSpeedOfLight<<std::endl;
+//        std::cout<<"Normalize: "<<normalizeWithSpeedOfLight<<std::endl;
         setNormalizeWithSpeedOfLight( normalizeWithSpeedOfLight );
         uplinkDopplerCalculator_->setNormalizeWithSpeedOfLight( true );
         downlinkDopplerCalculator_->setNormalizeWithSpeedOfLight( true );

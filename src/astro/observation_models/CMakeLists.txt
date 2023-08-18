@@ -40,6 +40,7 @@ set(observation_models_HEADERS
         "nWayRangeRateObservationModel.h"
         "relativeAngularPositionObservationModel.h"
         "positionObservationModel.h"
+        "relativePositionObservationModel.h"
         "velocityObservationModel.h"
         "twoWayDopplerObservationModel.h"
         "eulerAngleObservationModel.h"
