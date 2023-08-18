@@ -1105,7 +1105,7 @@ void setPropagatorSettingsMultiArcStatesInEstimatedDynamicalParameters(
         }
     }
 
-    for ( const auto itr : arcInitialTranslationalStatesVector )
+    for ( auto itr : arcInitialTranslationalStatesVector )
     {
         arcInitialTranslationalStates[ itr.first ] = StateType( 6 * itr.second.size( ) );
         for ( unsigned int k = 0 ; k < itr.second.size( ) ; k++ )
