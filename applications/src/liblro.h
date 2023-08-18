@@ -10,6 +10,7 @@
 void loadLROSpiceKernels();
 void saveSimulationResults(
         const std::shared_ptr<tudat::propagators::SingleArcSimulationResults<>>& propagationResults,
-        const std::string resultsFolder);
+        const std::string resultsFolder,
+        const bool saveHistory);
 
 #endif //TUDATBUNDLE_LIBLRO_H

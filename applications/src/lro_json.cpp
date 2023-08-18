@@ -38,7 +38,7 @@ int main(int argc, char* argv[])
     auto accelerations = createSimulationAccelerations(bodies);
     auto initialState = createSimulationInitialState();
     auto dynamicsSimulator = createAndRunSimulation(bodies, accelerations, initialState);
-    saveSimulationResults(dynamicsSimulator, settings.saveDir);
+    saveSimulationResults(dynamicsSimulator, settings.saveDir, settings.saveResults);
 
     return EXIT_SUCCESS;
 }
@@ -59,7 +59,7 @@ SystemOfBodies createSimulationBodies()
 
         if (settings.albedoDistributionMoon == "Constant")
         {
-            panelRadiosityModels.push_back(albedoPanelRadiosityModelSettings(0.19467246));
+            panelRadiosityModels.push_back(albedoPanelRadiosityModelSettings(0.19467246 / 1.3));
         }
         else if (settings.albedoDistributionMoon == "DLAM1")
         {
@@ -77,7 +77,7 @@ SystemOfBodies createSimulationBodies()
         }
         else if (settings.thermalTypeMoon == "AngleBased")
         {
-            panelRadiosityModels.push_back(angleBasedThermalPanelRadiosityModelSettings(100, 375, 0.95));
+            panelRadiosityModels.push_back(angleBasedThermalPanelRadiosityModelSettings(95, 385, 0.95));
         }
         else if (settings.thermalTypeMoon != "NoThermal")
         {
@@ -117,27 +117,54 @@ SystemOfBodies createSimulationBodies()
 
     // Create LRO
     bodySettings.addSettings("LRO");
-    bodySettings.at("LRO")->constantMass = 1208.0;
+    bodySettings.at("LRO")->constantMass = 1087.0;
     bodySettings.at("LRO")->rotationModelSettings =
             spiceRotationModelSettings(globalFrameOrientation, "LRO_SC_BUS", "LRO_SC_BUS");
     if (settings.targetType == "Cannonball") {
         bodySettings.at("LRO")->radiationPressureTargetModelSettings =
-                cannonballRadiationPressureTargetModelSettingsWithOccultationMap(11.52, 1.04, occultingBodiesForLRO);
+                cannonballRadiationPressureTargetModelSettingsWithOccultationMap(14.0, 1.0, occultingBodiesForLRO);
     }
     else if (settings.targetType == "Paneled")
     {
-        bodySettings.at("LRO")->radiationPressureTargetModelSettings = paneledRadiationPressureTargetModelSettingsWithOccultationMap({
-                TargetPanelSettings(2.82, 0.29, 0.22, settings.withInstantaneousReradiation, Eigen::Vector3d::UnitX()),
-                TargetPanelSettings(2.82, 0.39, 0.19, settings.withInstantaneousReradiation, -Eigen::Vector3d::UnitX()),
-                TargetPanelSettings(3.69, 0.32, 0.23, settings.withInstantaneousReradiation, Eigen::Vector3d::UnitY()),
-                TargetPanelSettings(3.69, 0.32, 0.18, settings.withInstantaneousReradiation, -Eigen::Vector3d::UnitY()),
-                TargetPanelSettings(5.14, 0.32, 0.18, settings.withInstantaneousReradiation, Eigen::Vector3d::UnitZ()),
-                TargetPanelSettings(5.14, 0.54, 0.15, settings.withInstantaneousReradiation, -Eigen::Vector3d::UnitZ()),
-                TargetPanelSettings(11.0, 0.05, 0.05, settings.withInstantaneousReradiation, "Sun"),
-                TargetPanelSettings(11.0, 0.05, 0.05, settings.withInstantaneousReradiation, "Sun", false),  // not officially given
-                TargetPanelSettings(1.0, 0.18, 0.28, settings.withInstantaneousReradiation, "Earth"),
-                TargetPanelSettings(1.0, 0.019, 0.0495, settings.withInstantaneousReradiation, "Earth", false),
-        }, occultingBodiesForLRO);
+        // Sun is only tracked for beta < 30 deg (Mazarico 2018)
+        bool trackSun = false;
+        for (const auto& month: {"MAR", "APR", "SEP", "OCT"})
+        {
+            if (settings.simulationStart.find(month) != std::string::npos) {
+                trackSun = true;
+            }
+        }
+
+        if (trackSun)
+        {
+            bodySettings.at("LRO")->radiationPressureTargetModelSettings = paneledRadiationPressureTargetModelSettingsWithOccultationMap({
+                    TargetPanelSettings(2.82, 0.29, 0.22, settings.withInstantaneousReradiation, Eigen::Vector3d::UnitX()),
+                    TargetPanelSettings(2.82, 0.39, 0.19, settings.withInstantaneousReradiation, -Eigen::Vector3d::UnitX()),
+                    TargetPanelSettings(3.69, 0.32, 0.23, settings.withInstantaneousReradiation, Eigen::Vector3d::UnitY()),
+                    TargetPanelSettings(3.69, 0.32, 0.18, settings.withInstantaneousReradiation, -Eigen::Vector3d::UnitY()),
+                    TargetPanelSettings(5.14, 0.32, 0.18, settings.withInstantaneousReradiation, Eigen::Vector3d::UnitZ()),
+                    TargetPanelSettings(5.14, 0.54, 0.15, settings.withInstantaneousReradiation, -Eigen::Vector3d::UnitZ()),
+                    TargetPanelSettings(11.0, 0.05, 0.05, settings.withInstantaneousReradiation, "Sun"),
+                    TargetPanelSettings(11.0, 0.30, 0.20, settings.withInstantaneousReradiation, "Sun", false),  // not officially given
+                    TargetPanelSettings(1.0, 0.18, 0.28, settings.withInstantaneousReradiation, "Earth"),
+                    TargetPanelSettings(1.0, 0.019, 0.0495, settings.withInstantaneousReradiation, "Earth", false),
+            }, occultingBodiesForLRO);
+        }
+        else
+        {
+            bodySettings.at("LRO")->radiationPressureTargetModelSettings = paneledRadiationPressureTargetModelSettingsWithOccultationMap({
+                    TargetPanelSettings(2.82, 0.29, 0.22, settings.withInstantaneousReradiation, Eigen::Vector3d::UnitX()),
+                    TargetPanelSettings(2.82, 0.39, 0.19, settings.withInstantaneousReradiation, -Eigen::Vector3d::UnitX()),
+                    TargetPanelSettings(3.69, 0.32, 0.23, settings.withInstantaneousReradiation, Eigen::Vector3d::UnitY()),
+                    TargetPanelSettings(3.69, 0.32, 0.18, settings.withInstantaneousReradiation, -Eigen::Vector3d::UnitY()),
+                    TargetPanelSettings(5.14, 0.32, 0.18, settings.withInstantaneousReradiation, Eigen::Vector3d::UnitZ()),
+                    TargetPanelSettings(5.14, 0.54, 0.15, settings.withInstantaneousReradiation, -Eigen::Vector3d::UnitZ()),
+                    TargetPanelSettings(11.0, 0.05, 0.05, settings.withInstantaneousReradiation, Eigen::Vector3d(-1, -1, 0).normalized()),
+                    TargetPanelSettings(11.0, 0.30, 0.20, settings.withInstantaneousReradiation, -Eigen::Vector3d(-1, -1, 0).normalized()),
+                    TargetPanelSettings(1.0, 0.18, 0.28, settings.withInstantaneousReradiation, "Earth"),
+                    TargetPanelSettings(1.0, 0.019, 0.0495, settings.withInstantaneousReradiation, "Earth", false),
+            }, occultingBodiesForLRO);
+        }
     }
     else
     {
@@ -158,7 +185,7 @@ AccelerationMap createSimulationAccelerations(const SystemOfBodies& bodies)
                         sphericalHarmonicAcceleration(100, 100)
                 }},
                 {"Earth", {
-                        sphericalHarmonicAcceleration(25, 25)
+                        pointMassGravityAcceleration(),
                 }},
                 {"Sun", {
                         pointMassGravityAcceleration(),
@@ -199,7 +226,7 @@ std::shared_ptr<propagators::SingleArcSimulationResults<>> createAndRunSimulatio
                     relativePositionDependentVariable("Sun", "Moon"),
                     relativePositionDependentVariable("Earth", "Moon"),
                     singleAccelerationDependentVariable(spherical_harmonic_gravity, "LRO", "Moon"),
-                    singleAccelerationDependentVariable(spherical_harmonic_gravity, "LRO", "Earth"),
+                    singleAccelerationDependentVariable(point_mass_gravity, "LRO", "Earth"),
                     singleAccelerationDependentVariable(point_mass_gravity, "LRO", "Sun"),
                     latitudeDependentVariable("LRO", "Moon"),
                     longitudeDependentVariable("LRO", "Moon"),
@@ -217,8 +244,6 @@ std::shared_ptr<propagators::SingleArcSimulationResults<>> createAndRunSimulatio
         dependentVariablesList.insert(dependentVariablesList.end(), {
                 singleAccelerationDependentVariable(radiation_pressure, "LRO", "Moon"),
                 receivedIrradianceDependentVariable("LRO", "Moon"),
-                visibleSourcePanelCountDependentVariable("LRO", "Moon"),
-                illuminatedSourcePanelCountDependentVariable("LRO", "Moon"),
                 visibleAndIlluminatedSourcePanelCountDependentVariable("LRO", "Moon"),
                 visibleSourceAreaDependentVariable("LRO", "Moon")
         });

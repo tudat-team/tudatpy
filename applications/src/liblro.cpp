@@ -51,32 +51,46 @@ void loadLROSpiceKernels()
 
 void saveSimulationResults(
         const std::shared_ptr<tudat::propagators::SingleArcSimulationResults<>>& propagationResults,
-        const std::string resultsFolder)
+        const std::string resultsFolder,
+        const bool saveHistory = true)
 {
     using namespace tudat::input_output;
 
-    auto stateHistory = propagationResults->getEquationsOfMotionNumericalSolution();
-    auto dependentVariableHistory = propagationResults->getDependentVariableHistory();
+    if (saveHistory)
+    {
+        auto stateHistory = propagationResults->getEquationsOfMotionNumericalSolution();
+        auto dependentVariableHistory = propagationResults->getDependentVariableHistory();
+        auto dependentVariableNames = propagationResults->getDependentVariableId();
+        auto stateNames = propagationResults->getProcessedStateIds();
+
+        writeDataMapToTextFile(stateHistory,
+                               "state_history.csv",
+                               resultsFolder,
+                               "",
+                               std::numeric_limits< double >::digits10,
+                               std::numeric_limits< double >::digits10,
+                               ",");
+
+        writeDataMapToTextFile(dependentVariableHistory,
+                               "dependent_variable_history.csv",
+                               resultsFolder,
+                               "",
+                               std::numeric_limits< double >::digits10,
+                               std::numeric_limits< double >::digits10,
+                               ",");
+
+        writeIdMapToTextFile(dependentVariableNames,
+                             "dependent_variable_names.csv",
+                             resultsFolder,
+                             ";");
+
+        writeIdMapToTextFile(stateNames,
+                             "state_names.csv",
+                             resultsFolder,
+                             ";");
+    }
+
     auto cpuTimeHistory = propagationResults->getCumulativeComputationTimeHistory();
-    auto dependentVariableNames = propagationResults->getDependentVariableId();
-    auto stateNames = propagationResults->getProcessedStateIds();
-
-    writeDataMapToTextFile(stateHistory,
-                           "state_history.csv",
-                           resultsFolder,
-                           "",
-                           std::numeric_limits< double >::digits10,
-                           std::numeric_limits< double >::digits10,
-                           ",");
-
-    writeDataMapToTextFile(dependentVariableHistory,
-                           "dependent_variable_history.csv",
-                           resultsFolder,
-                           "",
-                           std::numeric_limits< double >::digits10,
-                           std::numeric_limits< double >::digits10,
-                           ",");
-
     writeDataMapToTextFile(cpuTimeHistory,
                            "cpu_time.csv",
                            resultsFolder,
@@ -84,14 +98,4 @@ void saveSimulationResults(
                            std::numeric_limits< double >::digits10,
                            std::numeric_limits< double >::digits10,
                            ",");
-
-    writeIdMapToTextFile(dependentVariableNames,
-                         "dependent_variable_names.csv",
-                         resultsFolder,
-                         ";");
-
-    writeIdMapToTextFile(stateNames,
-                         "state_names.csv",
-                         resultsFolder,
-                         ";");
 }

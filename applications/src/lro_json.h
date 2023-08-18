@@ -58,6 +58,7 @@ struct Settings
     std::vector<int> numberOfPanelsPerRingMoon{};
     std::string thermalTypeMoon{};
     double stepSize{};
+    bool saveResults{};
 };
 
 Settings loadSettings(char* path)
@@ -88,6 +89,7 @@ Settings loadSettings(char* path)
     settings.thermalTypeMoon = settings_["thermal_type_moon"];
 
     settings.stepSize = settings_["step_size"];
+    settings.saveResults = settings_["save_results"];
 
     std::cout << settings << std::endl;
 
@@ -118,7 +120,8 @@ std::ostream& operator<<(std::ostream& os, const Settings& settings)
     os
         << std::endl
         << " - Thermal type (moon): "<<settings.thermalTypeMoon<<std::endl
-        << " - Step size: " << settings.stepSize << " s" << std::endl;
+        << " - Step size: " << settings.stepSize << " s" << std::endl
+        << " - Save results: " << settings.saveResults << std::endl;
     os << std::noboolalpha;
     return os;
 }
@@ -134,7 +137,7 @@ namespace simulation_constants
 {
     const auto globalFrameOrigin = "Moon";
     const auto globalFrameOrientation = "ECLIPJ2000";
-    const auto moonFrame = "MOON_PA";
+    const auto moonFrame = "MOON_ME";
 
     const std::vector<std::string> bodiesToPropagate{"LRO"};
     const std::vector<std::string> centralBodies{"Moon"};
