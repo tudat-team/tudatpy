@@ -136,28 +136,36 @@ BOOST_AUTO_TEST_CASE( testRelativeAngularPositionModel )
                                 linkEndTimes[ 2 ], std::numeric_limits< double >::epsilon( ) );
 
     // Manually compute light time
-    Eigen::Vector3d positionDifferenceFirstTransmitter = ( linkEndStates[ 0 ] - linkEndStates[ 2 ] ).segment( 0, 3 );
+    Eigen::Vector3d relativePositionTransmitter1 = ( linkEndStates[ 0 ] - linkEndStates[ 2 ] ).segment( 0, 3 );
     BOOST_CHECK_CLOSE_FRACTION(
-                positionDifferenceFirstTransmitter.norm( ) / physical_constants::SPEED_OF_LIGHT + lightTimeCorrectionFirstTransmitter,
+            relativePositionTransmitter1.norm( ) / physical_constants::SPEED_OF_LIGHT + lightTimeCorrectionFirstTransmitter,
                 linkEndTimes[ 2 ] - linkEndTimes[ 0 ],
                 std::numeric_limits< double >::epsilon( ) * 1000.0 );
                         // Poor tolerance due to rounding errors when subtracting times
 
-    Eigen::Vector3d positionDifferenceSecondTransmitter = ( linkEndStates[ 1 ] - linkEndStates[ 2 ] ).segment( 0, 3 );
+    Eigen::Vector3d relativePositionTransmitter2 = ( linkEndStates[ 1 ] - linkEndStates[ 2 ] ).segment( 0, 3 );
     BOOST_CHECK_CLOSE_FRACTION(
-            positionDifferenceSecondTransmitter.norm( ) / physical_constants::SPEED_OF_LIGHT + lightTimeCorrectionSecondTransmitter,
+            relativePositionTransmitter2.norm( ) / physical_constants::SPEED_OF_LIGHT + lightTimeCorrectionSecondTransmitter,
             linkEndTimes[ 2 ] - linkEndTimes[ 1 ],
             std::numeric_limits< double >::epsilon( ) * 1000.0 );
                         // Poor tolerance due to rounding errors when subtracting times
 
     // Check computed relative right ascension/declination from link end states
-    Eigen::Vector3d sphericalCoordinatesFirstTransmitter = coordinate_conversions::convertCartesianToSpherical( positionDifferenceFirstTransmitter );
-    double rightAscensionFirstTransmitter = sphericalCoordinatesFirstTransmitter.z( );
-    double declinationFirstTransmitter = mathematical_constants::PI / 2.0 - sphericalCoordinatesFirstTransmitter.y( );
+//    Eigen::Vector3d sphericalCoordinatesFirstTransmitter = coordinate_conversions::convertCartesianToSpherical( positionDifferenceFirstTransmitter );
+//    double rightAscensionFirstTransmitter = sphericalCoordinatesFirstTransmitter.z( );
+//    double declinationFirstTransmitter = mathematical_constants::PI / 2.0 - sphericalCoordinatesFirstTransmitter.y( );
+    double rightAscensionFirstTransmitter = 2.0 * std::atan( relativePositionTransmitter1[ 1 ] /
+            ( std::sqrt( relativePositionTransmitter1[0] * relativePositionTransmitter1[ 0 ] + relativePositionTransmitter1[ 1 ] * relativePositionTransmitter1[ 1 ] )
+            + relativePositionTransmitter1[ 0 ] ) );
+    double declinationFirstTransmitter = mathematical_constants::PI / 2.0 - std::acos( relativePositionTransmitter1[ 2 ] / relativePositionTransmitter1.norm( ) );
 
-    Eigen::Vector3d sphericalCoordinatesSecondTransmitter = coordinate_conversions::convertCartesianToSpherical( positionDifferenceSecondTransmitter );
-    double rightAscensionSecondTransmitter = sphericalCoordinatesSecondTransmitter.z( );
-    double declinationSecondTransmitter = mathematical_constants::PI / 2.0 - sphericalCoordinatesSecondTransmitter.y( );
+//    Eigen::Vector3d sphericalCoordinatesSecondTransmitter = coordinate_conversions::convertCartesianToSpherical( positionDifferenceSecondTransmitter );
+//    double rightAscensionSecondTransmitter = sphericalCoordinatesSecondTransmitter.z( );
+//    double declinationSecondTransmitter = mathematical_constants::PI / 2.0 - sphericalCoordinatesSecondTransmitter.y( );
+    double rightAscensionSecondTransmitter = 2.0 * std::atan( relativePositionTransmitter2[ 1 ] /
+            ( std::sqrt( relativePositionTransmitter2[0] * relativePositionTransmitter2[ 0 ] + relativePositionTransmitter2[ 1 ] * relativePositionTransmitter2[ 1 ] )
+            + relativePositionTransmitter2[ 0 ] ) );
+    double declinationSecondTransmitter = mathematical_constants::PI / 2.0 - std::acos( relativePositionTransmitter2[ 2 ] / relativePositionTransmitter2.norm( ) );
 
     BOOST_CHECK_CLOSE_FRACTION(
             ( rightAscensionSecondTransmitter -  rightAscensionFirstTransmitter ) + observationBias->getObservationBias(

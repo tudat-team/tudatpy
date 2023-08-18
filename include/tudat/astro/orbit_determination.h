@@ -32,6 +32,7 @@
 #include "orbit_determination/estimatable_parameters/coreFactor.h"
 #include "orbit_determination/estimatable_parameters/desaturationDeltaV.h"
 #include "orbit_determination/estimatable_parameters/directTidalTimeLag.h"
+#include "orbit_determination/estimatable_parameters/inverseTidalQualityFactor.h"
 #include "orbit_determination/estimatable_parameters/empiricalAccelerationCoefficients.h"
 #include "orbit_determination/estimatable_parameters/equivalencePrincipleViolationParameter.h"
 #include "orbit_determination/estimatable_parameters/estimatableParameter.h"

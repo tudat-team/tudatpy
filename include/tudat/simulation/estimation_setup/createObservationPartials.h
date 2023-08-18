@@ -266,10 +266,13 @@ public:
             observationPartials = createEulerAngleObservablePartials< ObservationScalarType >(
                         observationModel->getLinkEnds( ), bodies, parametersToEstimate, useBiasPartials );
             break;
-
         case observation_models::velocity_observable:
             observationPartials = createSingleLinkObservationPartials< ObservationScalarType, 3, TimeType >(
                         observationModel, bodies, parametersToEstimate, useBiasPartials );
+            break;
+        case observation_models::relative_position_observable:
+            observationPartials = createSingleLinkObservationPartials< ObservationScalarType, 3, TimeType >(
+                    observationModel, bodies, parametersToEstimate, useBiasPartials );
             break;
         default:
             std::string errorMessage =

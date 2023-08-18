@@ -308,6 +308,9 @@ public:
         case observation_models::velocity_observable:
             positionPartialScaler = std::make_shared< VelocityObservationScaling >( );
             break;
+        case observation_models::relative_position_observable:
+            positionPartialScaler = std::make_shared< RelativePositionObservationScaling >( );
+            break;
         default:
             throw std::runtime_error( "Error when creating partial scaler for " +
                                       observation_models::getObservableName( observableType, linkEnds.size( ) ) +

@@ -17,6 +17,53 @@ void scaleDesignMatrixWithWeights(
     }
 }
 
+Eigen::MatrixXd normaliseUnnormaliseCovarianceMatrix(
+        const Eigen::MatrixXd& covarianceMatrix,
+        const Eigen::VectorXd& normalisationFactors,
+        const bool normalise )
+{
+    Eigen::MatrixXd modifiedCovarianceMatrix = covarianceMatrix;
+    for( int i = 0; i < normalisationFactors.rows( ); i++ )
+    {
+        for( int j = 0; j < normalisationFactors.rows( ); j++ )
+        {
+            if ( normalise ) // normalise
+            {
+                modifiedCovarianceMatrix(i, j) *= normalisationFactors(i) * normalisationFactors(j);
+            }
+            else // unnormalise
+            {
+                modifiedCovarianceMatrix( i, j ) /= normalisationFactors( i ) * normalisationFactors( j );
+            }
+        }
+    }
+    return modifiedCovarianceMatrix;
+}
+
+Eigen::MatrixXd normaliseUnnormaliseInverseCovarianceMatrix(
+        Eigen::MatrixXd& inverseCovarianceMatrix,
+        Eigen::VectorXd& normalisationFactors,
+        const bool normalise )
+{
+    Eigen::MatrixXd modifiedInverseCovarianceMatrix = inverseCovarianceMatrix;
+    for( int i = 0; i < normalisationFactors.rows( ); i++ )
+    {
+        for( int j = 0; j < normalisationFactors.rows( ); j++ )
+        {
+            if ( normalise ) // normalise
+            {
+                modifiedInverseCovarianceMatrix(i, j) /= normalisationFactors(i) * normalisationFactors(j);
+            }
+            else // unnormalise
+            {
+                modifiedInverseCovarianceMatrix( i, j ) *= normalisationFactors( i ) * normalisationFactors( j );
+            }
+        }
+    }
+    return modifiedInverseCovarianceMatrix;
+}
+
+
 
 template class EstimationInput< double, double >;
 template struct EstimationOutput< double >;

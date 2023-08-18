@@ -39,8 +39,9 @@ enum ObservableType
     velocity_observable = 8,
     relative_angular_position = 9,
     n_way_differenced_range = 10,
-    dsn_one_way_averaged_doppler = 11,
-    dsn_n_way_averaged_doppler = 12
+    relative_position_observable = 11,
+    dsn_one_way_averaged_doppler = 12,
+    dsn_n_way_averaged_doppler = 13
 };
 
 
@@ -165,6 +166,11 @@ void checkObservationResidualDiscontinuities(
 static const std::map< LinkEndType, int > oneWayLinkStateEntries = {
     { transmitter, 0 },
     { receiver, 1 }
+};
+
+static const std::map< LinkEndType, int > observedObserverBodiesLinkStateEntries = {
+        { observed_body, 0 },
+        { observer, 1 }
 };
 
 

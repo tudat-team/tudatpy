@@ -136,17 +136,15 @@ BOOST_AUTO_TEST_CASE( testAngularPositionModel )
     // Check computed right ascension/declination from link end states
     Eigen::Vector3d sphericalRelativeCoordinates = coordinate_conversions::convertCartesianToSpherical(
                 positionDifference );
-    BOOST_CHECK_CLOSE_FRACTION(
-                sphericalRelativeCoordinates.z( ) + observationBias->getObservationBias(
-                    std::vector< double >( ), std::vector< Eigen::Vector6d >( ) ).x( ),
-                observationFromReceptionTime( 0 ),
-                std::numeric_limits< double >::epsilon( ) );
-    BOOST_CHECK_CLOSE_FRACTION(
-                mathematical_constants::PI / 2.0 - sphericalRelativeCoordinates.y( ) +
-                observationBias->getObservationBias(
-                    std::vector< double >( ), std::vector< Eigen::Vector6d>( ) ).y( ),
-                observationFromReceptionTime( 1 ),
-                std::numeric_limits< double >::epsilon( ) );
+    double rightAscension = 2.0 * std::atan( positionDifference[ 1 ] /
+            ( std::sqrt( positionDifference[ 0 ] * positionDifference[ 0 ] + positionDifference[ 1 ] * positionDifference[ 1 ] ) + positionDifference[ 0 ] ) );
+    double declination = mathematical_constants::PI / 2.0 - std::acos( positionDifference[ 2 ] / positionDifference.norm( ) );
+    BOOST_CHECK_CLOSE_FRACTION( rightAscension + observationBias->getObservationBias( std::vector< double >( ), std::vector< Eigen::Vector6d >( ) ).x( ),
+                                observationFromReceptionTime( 0 ),
+                                std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION( declination + observationBias->getObservationBias( std::vector< double >( ), std::vector< Eigen::Vector6d>( ) ).y( ),
+                                observationFromReceptionTime( 1 ),
+                                std::numeric_limits< double >::epsilon( ) );
 
     // Compute transmission time from light time.
     double transmitterObservationTime = receiverObservationTime - ( linkEndTimes[ 1 ] - linkEndTimes[ 0 ] );
