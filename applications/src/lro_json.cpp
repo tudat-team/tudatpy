@@ -48,7 +48,7 @@ SystemOfBodies createSimulationBodies()
     // Create planets
     auto bodySettings = getDefaultBodySettings({"Sun", "Earth", "Moon"}, globalFrameOrigin, globalFrameOrientation);
 
-    bodySettings.at("Moon")->shapeModelSettings = oblateSphericalBodyShapeSettings(1738.1e3, 0.0012);
+    bodySettings.at("Moon")->shapeModelSettings = sphericalBodyShapeSettings(1737.4e3);
     bodySettings.at("Moon")->rotationModelSettings =
             spiceRotationModelSettings(globalFrameOrientation, moonFrame, moonFrame);
     std::dynamic_pointer_cast<SphericalHarmonicsGravityFieldSettings>(
