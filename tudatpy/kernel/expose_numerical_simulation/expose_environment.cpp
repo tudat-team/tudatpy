@@ -611,19 +611,19 @@ void expose_environment(py::module &m) {
             .def_property_readonly("pointing_angles_calculator", &tgs::GroundStation::getPointingAnglesCalculator )
             .def_property_readonly("station_state", &tgs::GroundStation::getNominalStationState );
 
-
-    py::class_<tgs::PointingAnglesCalculator,
-            std::shared_ptr<tgs::PointingAnglesCalculator>>(m, "PointingAnglesCalculator")
-            .def("calculate_elevation_angle", &tgs::PointingAnglesCalculator::calculateElevationAngle,
-                 py::arg( "inertial_vector_to_target" ),
-                 py::arg( "time" ) )
-            .def("calculate_azimuth_angle", &tgs::PointingAnglesCalculator::calculateAzimuthAngle,
-                 py::arg( "inertial_vector_to_target" ),
-                 py::arg( "time" ) )
-            .def("convert_inertial_vector_to_topocentric",
-                 &tgs::PointingAnglesCalculator::convertVectorFromInertialToTopocentricFrame,
-                 py::arg( "inertial_vector" ),
-                 py::arg( "time" ) );
+//
+//    py::class_<tgs::PointingAnglesCalculator,
+//            std::shared_ptr<tgs::PointingAnglesCalculator>>(m, "PointingAnglesCalculator")
+//            .def("calculate_elevation_angle", &tgs::PointingAnglesCalculator::calculateElevationAngle,
+//                 py::arg( "inertial_vector_to_target" ),
+//                 py::arg( "time" ) )
+//            .def("calculate_azimuth_angle", &tgs::PointingAnglesCalculator::calculateAzimuthAngle,
+//                 py::arg( "inertial_vector_to_target" ),
+//                 py::arg( "time" ) )
+//            .def("convert_inertial_vector_to_topocentric",
+//                 &tgs::PointingAnglesCalculator::convertVectorFromInertialToTopocentricFrame,
+//                 py::arg( "inertial_vector" ),
+//                 py::arg( "time" ) );
 
 
     /*!
