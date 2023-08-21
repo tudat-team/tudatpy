@@ -604,16 +604,14 @@ int getObservableSize( const ObservableType observableType )
     case n_way_differenced_range:
         observableSize = 1;
         break;
-<<<<<<< HEAD
     case dsn_one_way_averaged_doppler:
         observableSize = 1;
         break;
     case dsn_n_way_averaged_doppler:
         observableSize = 1;
-=======
+        break;
     case relative_position_observable:
         observableSize = 3;
->>>>>>> develop
         break;
     default:
        std::string errorMessage = "Error, did not recognize observable " + std::to_string( observableType )
@@ -897,16 +895,14 @@ LinkEndType getDefaultReferenceLinkEndType(
     case n_way_differenced_range:
         referenceLinkEndType = receiver;
         break;
-<<<<<<< HEAD
     case dsn_one_way_averaged_doppler:
         referenceLinkEndType = receiver;
         break;
     case dsn_n_way_averaged_doppler:
         referenceLinkEndType = receiver;
-=======
+        break;
     case relative_position_observable:
         referenceLinkEndType = observed_body;
->>>>>>> develop
         break;
     default:
         throw std::runtime_error( "Error, default reference link end not defined for observable " +
@@ -1087,12 +1083,25 @@ std::vector< std::pair< int, int > > getLinkStateAndTimeIndicesForLinkEnd(
         }
         break;
     case one_way_differenced_range:
-<<<<<<< HEAD
-    case dsn_one_way_averaged_doppler:
-        if( linkEnds.at( transmitter ) == linkEndToCheck || ( ( linkEnds.at( transmitter ).stationName_ == linkEndToCheck.bodyName_ ) &&
-=======
         if( linkEnds.at( transmitter ) == linkEndToCheck || ( ( linkEnds.at( transmitter ).bodyName_ == linkEndToCheck.bodyName_ ) &&
->>>>>>> develop
+                                                              linkEndToCheck.stationName_ == "" ) )
+        {
+            linkEndIndices.push_back( std::make_pair( 0, 1 ) );
+            linkEndIndices.push_back( std::make_pair( 2, 3 ) );
+        }
+        else if( linkEnds.at( receiver ) == linkEndToCheck || ( ( linkEnds.at( receiver ).bodyName_ == linkEndToCheck.bodyName_ ) &&
+                                                                linkEndToCheck.stationName_ == "" ) )
+        {
+            linkEndIndices.push_back( std::make_pair( 1, 0 ) );
+            linkEndIndices.push_back( std::make_pair( 3, 2 ) );
+        }
+        else
+        {
+            throw std::runtime_error( "Error, parsed irrelevant " + std::to_string( observableType ) + " link end types for link end indices" );
+        }
+        break;
+    case dsn_one_way_averaged_doppler:
+        if( linkEnds.at( transmitter ) == linkEndToCheck || ( ( linkEnds.at( transmitter ).bodyName_ == linkEndToCheck.bodyName_ ) &&
                                                               linkEndToCheck.stationName_ == "" ) )
         {
             linkEndIndices.push_back( std::make_pair( 0, 1 ) );

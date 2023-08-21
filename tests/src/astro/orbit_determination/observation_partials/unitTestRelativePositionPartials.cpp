@@ -120,7 +120,7 @@ BOOST_AUTO_TEST_CASE( testRelativePositionStatePartials )
                 std::shared_ptr< ObservationPartial< 3 > > >::const_iterator partialIterator =
                 analyticalPartialSet.first.begin( ); partialIterator != analyticalPartialSet.first.end( ); partialIterator++ )
         {
-            partialList.push_back( partialIterator->second->calculatePartial( vectorOfStates, vectorOfTimes, linkEndIterator->first, currentObservation ) );
+            partialList.push_back( partialIterator->second->calculatePartial( vectorOfStates, vectorOfTimes, linkEndIterator->first, nullptr, currentObservation ) );
         }
 
         Eigen::MatrixXd expectedPartialsWrtObserverState = Eigen::MatrixXd::Zero( 3, 6 );

@@ -396,12 +396,12 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections(
             // Create ionospheric correction
 
             std::function< double ( Eigen::Vector3d, double ) > elevationFunction = std::bind(
-                    &ground_stations::PointingAnglesCalculator::calculateElevationAngle,
+                    &ground_stations::PointingAnglesCalculator::calculateElevationAngleFromInertialVector,
                     bodies.getBody( groundStation.bodyName_ )->getGroundStation(
                             groundStation.stationName_ )->getPointingAnglesCalculator( ),
                             std::placeholders::_1, std::placeholders::_2 );
             std::function< double ( Eigen::Vector3d, double ) > azimuthFunction = std::bind(
-                    &ground_stations::PointingAnglesCalculator::calculateAzimuthAngle,
+                    &ground_stations::PointingAnglesCalculator::calculateAzimuthAngleFromInertialVector,
                     bodies.getBody( groundStation.bodyName_ )->getGroundStation(
                             groundStation.stationName_ )->getPointingAnglesCalculator( ),
                             std::placeholders::_1, std::placeholders::_2 );
@@ -522,7 +522,7 @@ std::shared_ptr< TroposhericElevationMapping > createTroposphericElevationMappin
         case simplified_chao:
         {
             std::function< double ( Eigen::Vector3d, double ) > elevationFunction = std::bind(
-                    &ground_stations::PointingAnglesCalculator::calculateElevationAngle,
+                    &ground_stations::PointingAnglesCalculator::calculateElevationAngleFromInertialVector,
                     bodies.getBody( groundStation.bodyName_ )->getGroundStation(
                             groundStation.stationName_ )->getPointingAnglesCalculator( ),
                             std::placeholders::_1, std::placeholders::_2 );
@@ -535,7 +535,7 @@ std::shared_ptr< TroposhericElevationMapping > createTroposphericElevationMappin
         case niell:
         {
             std::function< double ( Eigen::Vector3d, double ) > elevationFunction = std::bind(
-                    &ground_stations::PointingAnglesCalculator::calculateElevationAngle,
+                    &ground_stations::PointingAnglesCalculator::calculateElevationAngleFromInertialVector,
                     bodies.getBody( groundStation.bodyName_ )->getGroundStation(
                             groundStation.stationName_ )->getPointingAnglesCalculator( ),
                             std::placeholders::_1, std::placeholders::_2 );
