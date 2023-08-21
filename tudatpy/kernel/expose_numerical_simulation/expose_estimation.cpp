@@ -202,7 +202,7 @@ std::shared_ptr< tom::SingleObservationSet< ObservationScalarType, TimeType > > 
             const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observations,
             const std::vector< TimeType > observationTimes,
             const tom::LinkEndType referenceLinkEnd,
-            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings < TimeType > > ancilliarySettings = nullptr )
+            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings = nullptr )
 {
     return std::make_shared< tom::SingleObservationSet< ObservationScalarType, TimeType > >(
             observableType, linkEnds, observations, observationTimes, referenceLinkEnd,
@@ -302,7 +302,7 @@ void expose_estimation(py::module &m) {
           py::arg("observations"),
           py::arg("reference_link_end" ),
           py::arg("ancilliary_settings_per_observatble" ) = std::map< tom::ObservableType,
-          std::shared_ptr< tom::ObservationAncilliarySimulationSettings < double > > >( ) );
+          std::shared_ptr< tom::ObservationAncilliarySimulationSettings > >( ) );
 
     m.def("compute_target_angles_and_range",
           &tss::getTargetAnglesAndRange,

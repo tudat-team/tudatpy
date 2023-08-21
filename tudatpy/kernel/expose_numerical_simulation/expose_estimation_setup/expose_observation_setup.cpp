@@ -440,9 +440,12 @@ void expose_observation_setup(py::module &m) {
     m.def("n_way_doppler_averaged_from_one_way_links",
           py::overload_cast<
           const std::vector< std::shared_ptr< tom::ObservationModelSettings > >,
-          const std::shared_ptr< tom::ObservationBiasSettings > >( &tom::nWayDifferencedRangeObservationSettings ),
+          const std::shared_ptr< tom::ObservationBiasSettings >,
+          const std::shared_ptr< tom::LightTimeConvergenceCriteria > >(
+              &tom::nWayDifferencedRangeObservationSettings ),
           py::arg("one_way_range_settings" ),
           py::arg("bias_settings") = nullptr,
+          py::arg("light_time_convergence_settings") = nullptr,
           get_docstring("n_way_doppler_averaged_from_one_way_links").c_str() );
 
 
@@ -550,7 +553,7 @@ void expose_observation_setup(py::module &m) {
 
     py::enum_< tom::ObservationAncilliarySimulationVariable >(m, "ObservationAncilliarySimulationVariable",
                                                get_docstring("ObservationAncilliarySimulationVariable").c_str() )
-            .value("retransmission_delays", tom::ObservationAncilliarySimulationVariable::retransmission_delays )
+            .value("link_ends_delays", tom::ObservationAncilliarySimulationVariable::link_ends_delays )
             .value("doppler_integration_time", tom::ObservationAncilliarySimulationVariable::doppler_integration_time )
             .export_values();
 
@@ -639,17 +642,17 @@ void expose_observation_setup(py::module &m) {
                                                          get_docstring("TabulatedObservationSimulationSettings").c_str() );
 
 
-    py::class_<tom::ObservationAncilliarySimulationSettings<double>,
-            std::shared_ptr<tom::ObservationAncilliarySimulationSettings<double>> >(
+    py::class_<tom::ObservationAncilliarySimulationSettings,
+            std::shared_ptr<tom::ObservationAncilliarySimulationSettings> >(
                 m, "ObservationAncilliarySimulationSettings",
                 get_docstring("ObservationAncilliarySimulationSettings").c_str() )
             .def("get_float_settings",
-                 &tom::ObservationAncilliarySimulationSettings<double>::getAncilliaryDoubleData,
+                 &tom::ObservationAncilliarySimulationSettings::getAncilliaryDoubleData,
                  py::arg("setting_type" ),
                  py::arg("throw_exception" ) = true,
                  get_docstring("ObservationAncilliarySimulationSettings.get_float_settings").c_str() )
             .def("get_float_list_settings",
-                 &tom::ObservationAncilliarySimulationSettings<double>::getAncilliaryDoubleVectorData,
+                 &tom::ObservationAncilliarySimulationSettings::getAncilliaryDoubleVectorData,
                  py::arg("setting_type" ),
                  py::arg("throw_exception" ) = true,
                  get_docstring("ObservationAncilliarySimulationSettings.get_float_list_settings").c_str() );
