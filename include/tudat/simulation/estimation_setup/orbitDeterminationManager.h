@@ -606,7 +606,7 @@ public:
         bool exceptionDuringPropagation = false;
         std::shared_ptr< propagators::SimulationResults< ObservationScalarType, TimeType > > simulationResults;
         std::pair< std::pair< Eigen::MatrixXd, Eigen::MatrixXd >, Eigen::VectorXd > designMatricesAndResiduals = performPreEstimationSteps(
-                estimationInput, fullParameterEstimate, false, 1, exceptionDuringPropagation, simulationResults );
+                estimationInput, fullParameterEstimate, false, 0, exceptionDuringPropagation, simulationResults );
         Eigen::MatrixXd designMatrixEstimatedParameters = designMatricesAndResiduals.first.first;
         Eigen::MatrixXd designMatrixConsiderParameters;
         if ( considerParametersIncluded_ )

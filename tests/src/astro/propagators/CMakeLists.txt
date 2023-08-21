@@ -81,6 +81,8 @@ TUDAT_ADD_TEST_CASE(MultiArcVariationalEquations PRIVATE_LINKS ${Tudat_ESTIMATIO
 
 TUDAT_ADD_TEST_CASE(HybridArcVariationalEquations PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
 
+TUDAT_ADD_TEST_CASE(HybridArcStateTransitionMatrixInterface PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
+
 #TUDAT_ADD_TEST_CASE(HybridArcMultiBodyVariationalEquations PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
 
 #TUDAT_ADD_TEST_CASE(HybridArcMultiBodyStateTransitionMatrixInterface PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
