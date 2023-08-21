@@ -614,10 +614,12 @@ void expose_environment(py::module &m) {
 
     py::class_<tgs::PointingAnglesCalculator,
             std::shared_ptr<tgs::PointingAnglesCalculator>>(m, "PointingAnglesCalculator")
-            .def("calculate_elevation_angle", &tgs::PointingAnglesCalculator::calculateElevationAngle,
+            .def("calculate_elevation_angle",
+                 py::overload_cast<const Eigen::Vector3d&, const double >( &tgs::PointingAnglesCalculator::calculateElevationAngleFromInertialVector ),
                  py::arg( "inertial_vector_to_target" ),
                  py::arg( "time" ) )
-            .def("calculate_azimuth_angle", &tgs::PointingAnglesCalculator::calculateAzimuthAngle,
+            .def("calculate_azimuth_angle",
+                py::overload_cast<const Eigen::Vector3d&, const double >( &tgs::PointingAnglesCalculator::calculateAzimuthAngleFromInertialVector ),
                  py::arg( "inertial_vector_to_target" ),
                  py::arg( "time" ) )
             .def("convert_inertial_vector_to_topocentric",

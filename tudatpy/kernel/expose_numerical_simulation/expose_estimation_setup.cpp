@@ -71,7 +71,7 @@ void expose_estimation_setup(py::module &m) {
             const std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > >&,
             const std::vector< TIME_TYPE >,
             const tom::LinkEndType,
-            const std::shared_ptr< tom::ObservationAncilliarySimulationSettings < TIME_TYPE > > >(
+            const std::shared_ptr< tom::ObservationAncilliarySimulationSettings > >(
         &tom::createManualObservationCollection< double, TIME_TYPE > ),
           py::arg("observable_type"),
           py::arg("link_ends"),
