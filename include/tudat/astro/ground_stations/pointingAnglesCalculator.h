@@ -76,7 +76,7 @@ public:
      *  \param time Time at which elevation angle is to be calculated.
      *  \return Elevation angle from reference point to input point (inertialVectorAwayFromStation)
      */
-    double calculateElevationAngle( const Eigen::Vector3d inertialVectorAwayFromStation, const double time );
+    double calculateElevationAngleFromInertialVector( const Eigen::Vector3d& inertialVectorAwayFromStation, const double time );
 
     //! Function to compute the azimuth given a vector wrt topocentric frame.
     /*!
@@ -97,7 +97,7 @@ public:
      *  \param time Time at which azimuth angle is to be calculated.
      *  \return Azimuth angle from reference point to input point (inertialVectorAwayFromStation)
      */
-    double calculateAzimuthAngle( const Eigen::Vector3d inertialVectorAwayFromStation, const double time );
+    double calculateAzimuthAngleFromInertialVector( const Eigen::Vector3d& inertialVectorAwayFromStation, const double time );
 
     //! Function to calculate the elevation and azimuth angles from body-fixed point to given point.
     /*!

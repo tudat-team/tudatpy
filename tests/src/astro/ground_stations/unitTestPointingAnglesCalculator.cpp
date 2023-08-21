@@ -117,8 +117,8 @@ BOOST_AUTO_TEST_CASE( test_PointingAnglesCalculator )
         Eigen::Vector3d testCartesianPoint = coordinate_conversions::convertSphericalToCartesian( testSphericalPoint );
 
         // Compute azimuth/elevation angles from PointingAnglesCalculator
-        double testAzimuth = pointAnglesCalculator->calculateAzimuthAngle( testCartesianPoint, 0.0 );
-        double testElevation = pointAnglesCalculator->calculateElevationAngle( testCartesianPoint, 0.0 );
+        double testAzimuth = pointAnglesCalculator->calculateAzimuthAngleFromInertialVector( testCartesianPoint, 0.0 );
+        double testElevation = pointAnglesCalculator->calculateElevationAngleFromInertialVector( testCartesianPoint, 0.0 );
 
         double expectedAzimuth = 0.0 * degreesToRadians;
         double expectedElevation = 60.0 * degreesToRadians;
@@ -181,11 +181,11 @@ BOOST_AUTO_TEST_CASE( test_PointingAnglesCalculatorHorizons )
 
     double horizonsElevationInDegrees = 17.443175;
     BOOST_CHECK_SMALL( horizonsElevationInDegrees - convertRadiansToDegrees(
-        pointingAngleCalculator->calculateElevationAngle( relativeState.segment(0, 3), observationTime ) ), 5.0E-3 );
+        pointingAngleCalculator->calculateElevationAngleFromInertialVector( relativeState.segment(0, 3), observationTime ) ), 5.0E-3 );
 
     double horizonsAzimuthInDegrees = 264.303204;
     BOOST_CHECK_SMALL( horizonsAzimuthInDegrees - ( convertRadiansToDegrees(
-        pointingAngleCalculator->calculateAzimuthAngle( relativeState.segment(0, 3), observationTime ) ) +360.0 ), 5.0E-3 );
+        pointingAngleCalculator->calculateAzimuthAngleFromInertialVector( relativeState.segment(0, 3), observationTime ) ) +360.0 ), 5.0E-3 );
 
 
 }
