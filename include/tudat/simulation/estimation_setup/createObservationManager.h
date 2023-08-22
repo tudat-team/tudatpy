@@ -544,6 +544,32 @@ std::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > cre
     return observationManager;
 }
 
+template< typename ObservationScalarType, typename TimeType >
+std::map< ObservableType, std::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > > createObservationManagersBase(
+    const std::vector< std::shared_ptr< observation_models::ObservationModelSettings > >& observationSettingsList,
+    const simulation_setup::SystemOfBodies &bodies,
+    const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > > fullParameters,
+    const std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionMatrixInterface,
+    const std::shared_ptr< propagators::DependentVariablesInterface< TimeType > > dependentVariablesInterface =
+    std::shared_ptr< propagators::DependentVariablesInterface< TimeType > >( ) )
+{
+    std::map< ObservableType, std::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > > observationManagers;
+    std::map< ObservableType, std::vector< std::shared_ptr< ObservationModelSettings > > > sortedObservationSettingsList =
+        sortObservationModelSettingsByType( observationSettingsList );
+
+    for( auto it : sortedObservationSettingsList )
+    {
+        // Call createObservationSimulator of required observation size
+        ObservableType observableType = it.first;
+
+        // Create observation manager for current observable.
+        observationManagers[ observableType ] = createObservationManagerBase< ObservationScalarType, TimeType >(
+            observableType, it.second, bodies, fullParameters,
+            stateTransitionMatrixInterface, dependentVariablesInterface );
+    }
+    return observationManagers;
+}
+
 }
 
 
