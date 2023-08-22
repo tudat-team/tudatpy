@@ -88,11 +88,15 @@ public:
      *  is kept constant (to input value)
      *  \return Pair of observable values and partial matrix
      */
-    virtual std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >, Eigen::MatrixXd >
-    computeObservationsWithPartials( const std::vector< TimeType >& times,
-                                     const LinkEnds linkEnds,
-                                     const LinkEndType linkEndAssociatedWithTime,
-                                     const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings ) = 0;
+    virtual void computeObservationsWithPartials(
+         const std::vector< TimeType >& times,
+         const LinkEnds linkEnds,
+         const LinkEndType linkEndAssociatedWithTime,
+         const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings,
+         Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& observationsVector,
+         Eigen::MatrixXd& partialsMatrix,
+         const bool calculateObservations = true,
+         const bool calculatePartials = true ) = 0;
 
     //! Function (ṕure virtual) to return the object used to simulate noise-free observations
     /*!
@@ -230,15 +234,19 @@ public:
      *  is kept constant (to input value)
      *  \return Pair of observable values and partial matrix
      */
-    std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >, Eigen::MatrixXd >
-    computeObservationsWithPartials( const std::vector< TimeType >& times,
+    void computeObservationsWithPartials( const std::vector< TimeType >& times,
                                      const LinkEnds linkEnds,
                                      const LinkEndType linkEndAssociatedWithTime,
-                                     const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings )
+                                     const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings,
+                                     Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& observationsVector,
+                                     Eigen::MatrixXd& partialsMatrix,
+                                     const bool calculateObservations = true,
+                                     const bool calculatePartials = true )
     {
+        std::cout<<"Starting function"<<std::endl;
         // Initialize return vectors.
         std::map< TimeType, Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > > observations;
-        std::map< TimeType, Eigen::Matrix< double, ObservationSize, Eigen::Dynamic > > observationMatrices;
+        std::map< TimeType, Eigen::Matrix< double, ObservationSize, Eigen::Dynamic > > partialsMatrices;
 
         // Get observation model.
         std::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType > > selectedObservationModel =
@@ -265,20 +273,41 @@ public:
             {
                 saveTime += std::numeric_limits< double >::epsilon( ) * 10.0 * times[ i ];
             }
-            observations[ saveTime ] = currentObservation;
+
+
 
             // Compute observation partial
             currentObservationSize = currentObservation.rows( );
 
-            observationMatrices[ saveTime ] = determineObservationPartialMatrix(
-                        currentObservationSize, vectorOfStates, vectorOfTimes, linkEnds, currentObservation,
-                        linkEndAssociatedWithTime, ancilliarySettings );
+            if( calculateObservations )
+            {
+                observations[ saveTime ] = currentObservation;
+            }
 
+            if( calculatePartials )
+            {
+                partialsMatrices[ saveTime ] = determineObservationPartialMatrix(
+                    currentObservationSize, vectorOfStates, vectorOfTimes, linkEnds, currentObservation,
+                    linkEndAssociatedWithTime, ancilliarySettings );
+            }
         }
 
-        return std::make_pair(
-                utilities::createConcatenatedEigenMatrixFromMapValues< TimeType, ObservationScalarType, ObservationSize, 1 >( observations ),
-                utilities::createConcatenatedEigenMatrixFromMapValues< TimeType, double, ObservationSize, Eigen::Dynamic >( observationMatrices ) );
+        std::cout<<"Create observations "<<calculateObservations<<std::endl;
+        if( calculateObservations )
+        {
+            observationsVector = utilities::createConcatenatedEigenMatrixFromMapValues<TimeType, ObservationScalarType, ObservationSize, 1>( observations );
+        }
+        std::cout<<"Created observations "<<observationsVector.rows( )<<" "<<observationsVector.cols( )<<std::endl;
+
+
+        std::cout<<"Create partials "<<calculatePartials<<std::endl;
+        if( calculatePartials )
+        {
+            partialsMatrix = utilities::createConcatenatedEigenMatrixFromMapValues<TimeType, double, ObservationSize, Eigen::Dynamic>( partialsMatrices );
+        }
+        std::cout<<"Created partials "<<partialsMatrix.rows( )<<" "<<partialsMatrix.cols( )<<std::endl;
+
+
     }
 
     //! Function to return the full list of observation partial objects
@@ -538,6 +567,7 @@ protected:
     std::shared_ptr< propagators::DependentVariablesInterface< TimeType > > dependentVariablesInterface_;
 
 };
+
 
 extern template class ObservationManagerBase< double, double >;
 extern template class ObservationManager< 1, double, double >;
