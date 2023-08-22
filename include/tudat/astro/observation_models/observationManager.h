@@ -113,7 +113,7 @@ protected:
     Eigen::MatrixXd getCombinedStateTransitionAndSensitivityMatrix( const double evaluationTime,
                                                                     const std::vector< std::string >& arcDefiningBodies = std::vector< std::string >( ) )
     {
-        return stateTransitionMatrixInterface_->getFullCombinedStateTransitionAndSensitivityMatrix( evaluationTime, arcDefiningBodies );
+        return stateTransitionMatrixInterface_->getFullCombinedStateTransitionAndSensitivityMatrix( evaluationTime, true, arcDefiningBodies );
     }
 
 

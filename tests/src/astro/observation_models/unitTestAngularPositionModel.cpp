@@ -134,8 +134,8 @@ BOOST_AUTO_TEST_CASE( testAngularPositionModel )
                         // Poor tolerance due to rounding errors when subtracting times
 
     // Check computed right ascension/declination from link end states
-    Eigen::Vector3d sphericalRelativeCoordinates = coordinate_conversions::convertCartesianToSpherical(
-                positionDifference );
+//    Eigen::Vector3d sphericalRelativeCoordinates = coordinate_conversions::convertCartesianToSpherical(
+//                positionDifference );
     double rightAscension = 2.0 * std::atan( positionDifference[ 1 ] /
             ( std::sqrt( positionDifference[ 0 ] * positionDifference[ 0 ] + positionDifference[ 1 ] * positionDifference[ 1 ] ) + positionDifference[ 0 ] ) );
     double declination = mathematical_constants::PI / 2.0 - std::acos( positionDifference[ 2 ] / positionDifference.norm( ) );
