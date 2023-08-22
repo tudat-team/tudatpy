@@ -392,12 +392,14 @@ void expose_estimation(py::module &m) {
                  &tp::CombinedStateTransitionAndSensitivityMatrixInterface::
                  getCombinedStateTransitionAndSensitivityMatrix,
                  py::arg("time"),
+                 py::arg("add_central_body_dependency") = true,
                  py::arg("arc_defining_bodies" ) = std::vector< std::string >( ),
                  get_docstring("CombinedStateTransitionAndSensitivityMatrixInterface.state_transition_sensitivity_at_epoch").c_str() )
             .def("full_state_transition_sensitivity_at_epoch",
                  &tp::CombinedStateTransitionAndSensitivityMatrixInterface::
                  getFullCombinedStateTransitionAndSensitivityMatrix,
                  py::arg("time"),
+                 py::arg("add_central_body_dependency") = true,
                  py::arg("arc_defining_bodies" ) = std::vector< std::string >( ),
                  get_docstring("CombinedStateTransitionAndSensitivityMatrixInterface.full_state_transition_sensitivity_at_epoch").c_str() )
             .def_property_readonly(
