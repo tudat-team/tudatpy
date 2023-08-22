@@ -172,7 +172,7 @@ namespace environment_setup {
 
         m.def("create_ground_station_ephemeris",
               py::overload_cast< const std::shared_ptr< tss::Body >, const std::string& >(
-                  &tss::createReferencePointEphemeris<double, TIME_TYPE > ),
+                  &tss::createReferencePointEphemeris< TIME_TYPE, double > ),
               py::arg("body"),
               py::arg("station_name") );
 
