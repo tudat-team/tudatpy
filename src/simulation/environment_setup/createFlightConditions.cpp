@@ -98,14 +98,6 @@ std::shared_ptr< aerodynamics::AtmosphericFlightConditions > createAtmosphericFl
                     " has no rotation model." );
     }
 
-    if( bodyWithFlightConditions->getAerodynamicCoefficientInterface( ) == nullptr )
-    {
-        throw std::runtime_error(
-                    "Error when making flight conditions, body " + nameOfBodyUndergoingAcceleration +
-                    " has no aerodynamic coefficients." );
-    }
-
-
     // Create aerodynamic angles calculator and set in flight conditions.
     std::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator =
             createAerodynamicAngleCalculator(
@@ -206,7 +198,7 @@ void addFlightConditions(
     }
     std::shared_ptr< Body > body = bodies.at( bodyName );
     std::shared_ptr< Body > centralBody = bodies.at( centralBodyName );
-    if( centralBody->getAtmosphereModel( ) == nullptr || body->getAerodynamicCoefficientInterface( ) == nullptr )
+    if( centralBody->getAtmosphereModel( ) == nullptr )
     {
         if( currentBodyFlightConditions == nullptr )
         {

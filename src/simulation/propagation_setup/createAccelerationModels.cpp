@@ -1680,8 +1680,8 @@ std::shared_ptr< gravitation::DirectTidalDissipationAcceleration > createDirectT
         throw std::runtime_error( "Error when creating direct tidal dissipation acceleration, input is inconsistent" );
     }
 
-    std::function< double( ) > gravitationalParaterFunctionOfBodyExertingTide;
-    std::function< double( ) > gravitationalParaterFunctionOfBodyUndergoingTide;
+    std::function< double( ) > gravitationalParameterFunctionOfBodyExertingTide;
+    std::function< double( ) > gravitationalParameterFunctionOfBodyUndergoingTide;
 
     if( tidalAccelerationSettings->useTideRaisedOnPlanet_ )
     {
@@ -1692,7 +1692,7 @@ std::shared_ptr< gravitation::DirectTidalDissipationAcceleration > createDirectT
         }
         else
         {
-            gravitationalParaterFunctionOfBodyUndergoingTide = std::bind(
+            gravitationalParameterFunctionOfBodyUndergoingTide = std::bind(
                         &GravityFieldModel::getGravitationalParameter, bodyUndergoingAcceleration->getGravityFieldModel( ) );
         }
     }
@@ -1705,7 +1705,7 @@ std::shared_ptr< gravitation::DirectTidalDissipationAcceleration > createDirectT
         }
         else
         {
-            gravitationalParaterFunctionOfBodyExertingTide = std::bind(
+            gravitationalParameterFunctionOfBodyExertingTide = std::bind(
                         &GravityFieldModel::getGravitationalParameter, bodyExertingAcceleration->getGravityFieldModel( ) );
         }
 
@@ -1717,7 +1717,7 @@ std::shared_ptr< gravitation::DirectTidalDissipationAcceleration > createDirectT
         }
         else
         {
-            gravitationalParaterFunctionOfBodyUndergoingTide = std::bind(
+            gravitationalParameterFunctionOfBodyUndergoingTide = std::bind(
                         &GravityFieldModel::getGravitationalParameter, bodyUndergoingAcceleration->getGravityFieldModel( ) );
         }
     }
@@ -1758,44 +1758,71 @@ std::shared_ptr< gravitation::DirectTidalDissipationAcceleration > createDirectT
         std::function< Eigen::Vector3d( ) > planetAngularVelocityVectorFunction =
                 std::bind( &Body::getCurrentAngularVelocityVectorInGlobalFrame, bodyExertingAcceleration );
 
-
-        return std::make_shared< DirectTidalDissipationAcceleration >(
-                    std::bind( &Body::getState, bodyUndergoingAcceleration ),
-                    std::bind( &Body::getState, bodyExertingAcceleration ),
-                    gravitationalParaterFunctionOfBodyUndergoingTide,
-                    planetAngularVelocityVectorFunction,
-                    tidalAccelerationSettings->k2LoveNumber_,
-                    tidalAccelerationSettings->timeLag_,
-                    referenceRadius,
-                    tidalAccelerationSettings->includeDirectRadialComponent_);
+        // Create direct tidal model from tidal time lag directly
+        if ( std::isnan( tidalAccelerationSettings->inverseTidalQualityFactor_ ) && std::isnan( tidalAccelerationSettings->tidalPeriod_ ) )
+        {
+            return std::make_shared< DirectTidalDissipationAcceleration >(
+                    std::bind( &Body::getState, bodyUndergoingAcceleration ), std::bind( &Body::getState, bodyExertingAcceleration ),
+                    gravitationalParameterFunctionOfBodyUndergoingTide, planetAngularVelocityVectorFunction,
+                    tidalAccelerationSettings->k2LoveNumber_, tidalAccelerationSettings->timeLag_,
+                    referenceRadius, tidalAccelerationSettings->includeDirectRadialComponent_);
+        }
+        // Create direct tidal model from Q and T
+        else
+        {
+            return std::make_shared< DirectTidalDissipationAcceleration >(
+                    std::bind( &Body::getState, bodyUndergoingAcceleration ), std::bind( &Body::getState, bodyExertingAcceleration ),
+                    gravitationalParameterFunctionOfBodyUndergoingTide, planetAngularVelocityVectorFunction,
+                    tidalAccelerationSettings->k2LoveNumber_, tidalAccelerationSettings->inverseTidalQualityFactor_,
+                    tidalAccelerationSettings->tidalPeriod_, referenceRadius, tidalAccelerationSettings->includeDirectRadialComponent_);
+        }
     }
+
     else if( !tidalAccelerationSettings->explicitLibraionalTideOnSatellite_ )
     {
-        return std::make_shared< DirectTidalDissipationAcceleration >(
-                    std::bind( &Body::getState, bodyUndergoingAcceleration ),
-                    std::bind( &Body::getState, bodyExertingAcceleration ),
-                    gravitationalParaterFunctionOfBodyExertingTide,
-                    gravitationalParaterFunctionOfBodyUndergoingTide,
-                    tidalAccelerationSettings->k2LoveNumber_,
-                    tidalAccelerationSettings->timeLag_,
-                    referenceRadius,
-                    tidalAccelerationSettings->includeDirectRadialComponent_);
+        // Create direct tidal model from tidal time lag directly
+        if ( std::isnan( tidalAccelerationSettings->inverseTidalQualityFactor_ ) && std::isnan( tidalAccelerationSettings->tidalPeriod_ ) )
+        {
+            return std::make_shared< DirectTidalDissipationAcceleration >(
+                    std::bind( &Body::getState, bodyUndergoingAcceleration ), std::bind( &Body::getState, bodyExertingAcceleration ),
+                    gravitationalParameterFunctionOfBodyExertingTide, gravitationalParameterFunctionOfBodyUndergoingTide,
+                    tidalAccelerationSettings->k2LoveNumber_, tidalAccelerationSettings->timeLag_,
+                    referenceRadius, tidalAccelerationSettings->includeDirectRadialComponent_);
+        }
+        // Create direct tidal model from Q and T
+        else
+        {
+            return std::make_shared< DirectTidalDissipationAcceleration >(
+                    std::bind( &Body::getState, bodyUndergoingAcceleration ), std::bind( &Body::getState, bodyExertingAcceleration ),
+                    gravitationalParameterFunctionOfBodyExertingTide, gravitationalParameterFunctionOfBodyUndergoingTide,
+                    tidalAccelerationSettings->k2LoveNumber_, tidalAccelerationSettings->inverseTidalQualityFactor_, tidalAccelerationSettings->tidalPeriod_,
+                    referenceRadius, tidalAccelerationSettings->includeDirectRadialComponent_);
+        }
     }
+
     else
     {
         std::function< Eigen::Vector3d( ) > moonAngularVelocityVectorFunction =
                 std::bind( &Body::getCurrentAngularVelocityVectorInGlobalFrame, bodyExertingAcceleration );
 
-        return std::make_shared< DirectTidalDissipationAcceleration >(
-                    std::bind( &Body::getState, bodyUndergoingAcceleration ),
-                    std::bind( &Body::getState, bodyExertingAcceleration ),
-                    gravitationalParaterFunctionOfBodyExertingTide,
-                    gravitationalParaterFunctionOfBodyUndergoingTide,
-                    moonAngularVelocityVectorFunction,
-                    tidalAccelerationSettings->k2LoveNumber_,
-                    tidalAccelerationSettings->timeLag_,
-                    referenceRadius,
-                    tidalAccelerationSettings->includeDirectRadialComponent_);
+        // Create direct tidal model from tidal time lag directly
+        if ( std::isnan( tidalAccelerationSettings->inverseTidalQualityFactor_ ) && std::isnan( tidalAccelerationSettings->tidalPeriod_ ) )
+        {
+            return std::make_shared< DirectTidalDissipationAcceleration >(
+                    std::bind( &Body::getState, bodyUndergoingAcceleration ), std::bind( &Body::getState, bodyExertingAcceleration ),
+                    gravitationalParameterFunctionOfBodyExertingTide, gravitationalParameterFunctionOfBodyUndergoingTide,
+                    moonAngularVelocityVectorFunction, tidalAccelerationSettings->k2LoveNumber_,
+                    tidalAccelerationSettings->timeLag_, referenceRadius, tidalAccelerationSettings->includeDirectRadialComponent_);
+        }
+        // Create direct tidal model from Q and T
+        else
+        {
+            return std::make_shared< DirectTidalDissipationAcceleration >(
+                    std::bind( &Body::getState, bodyUndergoingAcceleration ), std::bind( &Body::getState, bodyExertingAcceleration ),
+                    gravitationalParameterFunctionOfBodyExertingTide, gravitationalParameterFunctionOfBodyUndergoingTide,
+                    moonAngularVelocityVectorFunction, tidalAccelerationSettings->k2LoveNumber_, tidalAccelerationSettings->inverseTidalQualityFactor_,
+                    tidalAccelerationSettings->tidalPeriod_, referenceRadius, tidalAccelerationSettings->includeDirectRadialComponent_);
+        }
     }
 }
 

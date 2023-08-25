@@ -34,7 +34,8 @@ static std::map< ObservableType, std::string > observationTypes =
     { one_way_differenced_range, "oneWayDifferencedRange" },
     { n_way_range, "nWayRange" },
     { two_way_doppler, "twoWayDoppler" },
-    { relative_angular_position, "relativeAngularPosition" }
+    { relative_angular_position, "relativeAngularPosition" },
+    { relative_position_observable, "relativePositionObservable" }
 };
 
 //! Map of `ObservableType` string representations.
@@ -47,7 +48,8 @@ static std::map< std::string, ObservableType > observationTypesInverse =
     { "oneWayDifferencedRange", one_way_differenced_range },
     { "nWayRange", n_way_range },
     { "twoWayDoppler", two_way_doppler },
-    { "relativeAngularPosition", relative_angular_position }
+    { "relativeAngularPosition", relative_angular_position },
+    { "relativePositionObservable", relative_position_observable }
 };
 
 //! Convert `ObservableType` to `json`.
