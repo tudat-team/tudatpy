@@ -240,29 +240,30 @@ double AtmosphericFlightConditions::getAerodynamicCoefficientIndependentVariable
 void AtmosphericFlightConditions::updateAerodynamicCoefficientInput( )
 {
 
-    aerodynamicCoefficientIndependentVariables_.clear( );
-    if( aerodynamicCoefficientInterface_ == nullptr )
+    if( aerodynamicCoefficientInterface_ != nullptr )
     {
-        throw std::runtime_error( "Error when calcualting aerodynamic coefficient input, no coefficient interface is defined" );
-    }
-    // Calculate independent variables for aerodynamic coefficients.
-    for( unsigned int i = 0; i < aerodynamicCoefficientInterface_->getNumberOfIndependentVariables( ); i++ )
-    {
-        aerodynamicCoefficientIndependentVariables_.push_back(
-                    getAerodynamicCoefficientIndependentVariable(
-                        aerodynamicCoefficientInterface_->getIndependentVariableName( i ) ) );
-    }
-
-    controlSurfaceAerodynamicCoefficientIndependentVariables_.clear( );
-    for( unsigned int i = 0; i < aerodynamicCoefficientInterface_->getNumberOfControlSurfaces( ); i++ )
-    {
-        std::string currentControlSurface = aerodynamicCoefficientInterface_->getControlSurfaceName( i );
-        for( unsigned int j = 0; j < aerodynamicCoefficientInterface_->getNumberOfControlSurfaceIndependentVariables( currentControlSurface ); j++ )
+        aerodynamicCoefficientIndependentVariables_.clear( );
+        // Calculate independent variables for aerodynamic coefficients.
+        for ( unsigned int i = 0; i < aerodynamicCoefficientInterface_->getNumberOfIndependentVariables( ); i++ )
         {
-            controlSurfaceAerodynamicCoefficientIndependentVariables_[ currentControlSurface ].push_back(
-                        getAerodynamicCoefficientIndependentVariable(
-                            aerodynamicCoefficientInterface_->getControlSurfaceIndependentVariableName(
-                                currentControlSurface, j ), currentControlSurface ) );
+            aerodynamicCoefficientIndependentVariables_.push_back(
+                getAerodynamicCoefficientIndependentVariable(
+                    aerodynamicCoefficientInterface_->getIndependentVariableName( i )));
+        }
+
+        controlSurfaceAerodynamicCoefficientIndependentVariables_.clear( );
+        for ( unsigned int i = 0; i < aerodynamicCoefficientInterface_->getNumberOfControlSurfaces( ); i++ )
+        {
+            std::string currentControlSurface = aerodynamicCoefficientInterface_->getControlSurfaceName( i );
+            for ( unsigned int j = 0; j <
+                                      aerodynamicCoefficientInterface_->getNumberOfControlSurfaceIndependentVariables(
+                                          currentControlSurface ); j++ )
+            {
+                controlSurfaceAerodynamicCoefficientIndependentVariables_[ currentControlSurface ].push_back(
+                    getAerodynamicCoefficientIndependentVariable(
+                        aerodynamicCoefficientInterface_->getControlSurfaceIndependentVariableName(
+                            currentControlSurface, j ), currentControlSurface ));
+            }
         }
     }
 }

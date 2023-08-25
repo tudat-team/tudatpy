@@ -124,6 +124,19 @@ Eigen::MatrixXd calculateInverseOfUpdatedCovarianceMatrix(
                 Eigen::MatrixXd::Zero( designMatrix.cols( ), designMatrix.cols( ) ) );
 }
 
+Eigen::MatrixXd calculateConsiderParametersCovarianceContribution(
+        const Eigen::MatrixXd& normalisedCovarianceMatrix,
+        const Eigen::MatrixXd& designMatrix,
+        const Eigen::VectorXd& diagonalOfWeightMatrix,
+        const Eigen::MatrixXd& considerDesignMatrix,
+        const Eigen::MatrixXd& considerCovariance )
+{
+    Eigen::MatrixXd covarianceTimesWeightedPartials = normalisedCovarianceMatrix
+            * multiplyDesignMatrixByDiagonalWeightMatrix( designMatrix, diagonalOfWeightMatrix ).transpose( );
+    return ( covarianceTimesWeightedPartials * considerDesignMatrix ) * considerCovariance
+    * ( considerDesignMatrix.transpose( ) * covarianceTimesWeightedPartials.transpose( ) );
+}
+
 //! Function to perform an iteration least squares estimation from information matrix, weights and residuals and a priori
 //! information
 std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromDesignMatrix(
@@ -134,10 +147,21 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromD
         const bool checkConditionNumber,
         const double maximumAllowedConditionNumber,
         const Eigen::MatrixXd& constraintMultiplier,
-        const Eigen::VectorXd& constraintRightHandside )
+        const Eigen::VectorXd& constraintRightHandside,
+        const Eigen::MatrixXd& designMatrixConsiderParameters,
+        const Eigen::VectorXd& considerParametersDeviations )
 {
-    Eigen::VectorXd rightHandSide = designMatrix.transpose( ) *
-            ( diagonalOfWeightMatrix.cwiseProduct( observationResiduals ) );
+    Eigen::VectorXd rightHandSide = Eigen::VectorXd::Zero( observationResiduals.size( ) );
+    if ( considerParametersDeviations.size( ) > 0 && designMatrixConsiderParameters.size( ) > 0 )
+    {
+        rightHandSide = designMatrix.transpose( ) *
+                        ( diagonalOfWeightMatrix.cwiseProduct( observationResiduals + designMatrixConsiderParameters * considerParametersDeviations ) );
+    }
+    else
+    {
+        rightHandSide = designMatrix.transpose( ) * ( diagonalOfWeightMatrix.cwiseProduct( observationResiduals ) );
+    }
+
     Eigen::MatrixXd inverseOfCovarianceMatrix = calculateInverseOfUpdatedCovarianceMatrix(
                 designMatrix, diagonalOfWeightMatrix, inverseOfAPrioriCovarianceMatrix,
                 constraintMultiplier, constraintRightHandside );
@@ -153,8 +177,7 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromD
     }
 
     return std::make_pair( solveSystemOfEquationsWithSvd(
-                               inverseOfCovarianceMatrix, rightHandSide, checkConditionNumber, maximumAllowedConditionNumber ),
-                           inverseOfCovarianceMatrix );
+            inverseOfCovarianceMatrix, rightHandSide, checkConditionNumber, maximumAllowedConditionNumber ), inverseOfCovarianceMatrix );
 
 }
 
