@@ -105,6 +105,13 @@ Eigen::MatrixXd calculateInverseOfUpdatedCovarianceMatrix(
         const Eigen::MatrixXd& designMatrix,
         const Eigen::VectorXd& diagonalOfWeightMatrix );
 
+Eigen::MatrixXd calculateConsiderParametersCovarianceContribution(
+        const Eigen::MatrixXd& normalisedCovarianceMatrix,
+        const Eigen::MatrixXd& designMatrix,
+        const Eigen::VectorXd& diagonalOfWeightMatrix,
+        const Eigen::MatrixXd& considerDesignMatrix,
+        const Eigen::MatrixXd& considerCovariance );
+
 //! Function to perform an iteration least squares estimation from information matrix, weights and residuals and a priori
 //! information
 /*!
@@ -132,7 +139,9 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromD
         const bool checkConditionNumber = 1,
         const double maximumAllowedConditionNumber = 1.0E8,
         const Eigen::MatrixXd& constraintMultiplier = Eigen::MatrixXd( 0, 0 ),
-        const Eigen::VectorXd& constraintRightHandside = Eigen::VectorXd( 0 ) );
+        const Eigen::VectorXd& constraintRightHandside = Eigen::VectorXd( 0 ),
+        const Eigen::MatrixXd& designMatrixConsiderParameters = Eigen::MatrixXd( 0, 0 ),
+        const Eigen::VectorXd& considerParametersDeviations = Eigen::VectorXd( 0 ) );
 
 //! Function to perform an iteration of least squares estimation from information matrix, weights and residuals
 /*!

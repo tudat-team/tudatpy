@@ -45,6 +45,7 @@ void to_json( nlohmann::json& jsonObject,
     case angular_position:
     case relative_angular_position:
     case position_observable:
+    case relative_position_observable:
     case one_way_doppler:
     {
         std::shared_ptr< OneWayDopplerObservationSettings > oneWayDopplerObservationSettings =

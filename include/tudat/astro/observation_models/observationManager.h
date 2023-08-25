@@ -113,7 +113,7 @@ protected:
     Eigen::MatrixXd getCombinedStateTransitionAndSensitivityMatrix( const double evaluationTime,
                                                                     const std::vector< std::string >& arcDefiningBodies = std::vector< std::string >( ) )
     {
-        return stateTransitionMatrixInterface_->getFullCombinedStateTransitionAndSensitivityMatrix( evaluationTime, arcDefiningBodies );
+        return stateTransitionMatrixInterface_->getFullCombinedStateTransitionAndSensitivityMatrix( evaluationTime, true, arcDefiningBodies );
     }
 
 
@@ -260,12 +260,17 @@ public:
             // Compute observation
             currentObservation = selectedObservationModel->computeObservationsWithLinkEndData(
                         times[ i ], linkEndAssociatedWithTime, vectorOfTimes, vectorOfStates, ancilliarySettings );
-            observations[ times[ i ] ] = currentObservation;
+            TimeType saveTime = times[ i ];
+            while( observations.count( saveTime ) != 0 )
+            {
+                saveTime += std::numeric_limits< double >::epsilon( ) * 10.0 * times[ i ];
+            }
+            observations[ saveTime ] = currentObservation;
 
             // Compute observation partial
             currentObservationSize = currentObservation.rows( );
 //            std::cout << "before call to determineObservationPartialMatrix" << "\n\n";
-            observationMatrices[ times[ i ] ] = determineObservationPartialMatrix(
+            observationMatrices[ saveTime ] = determineObservationPartialMatrix(
                         currentObservationSize, vectorOfStates, vectorOfTimes, linkEnds, currentObservation,
                         linkEndAssociatedWithTime );
 //            std::cout << "after call to determineObservationPartialMatrix" << "\n\n";
