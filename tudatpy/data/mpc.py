@@ -74,29 +74,7 @@ class BatchMPC:
             temp.assign(X=lambda x: x.cos * rConst * np.cos(np.radians(x.Longitude)))
             .assign(Y=lambda x: x.cos * rConst * np.sin(np.radians(x.Longitude)))
             .assign(Z=lambda x: x.sin * rConst)
-            # # 
-            # #  remove this not necessary
-            # .assign(
-            #     lat=lambda x: EarthLocation.from_geocentric(x.X, x.Y, x.Z, unit=u.m)
-            #     .to_geodetic("WGS84")
-            #     .lat.rad
-            # )
-            # .assign(
-            #     lon=lambda x: EarthLocation.from_geocentric(x.X, x.Y, x.Z, unit=u.m)
-            #     .to_geodetic("WGS84")
-            #     .lon.rad
-            # )
-            # .assign(
-            #     height=lambda x: EarthLocation.from_geocentric(x.X, x.Y, x.Z, unit=u.m)
-            #     .to_geodetic("WGS84")
-            #     .height.to_value(u.m)
-            # )
         )
-
-        # TODO remove
-        print("\n\n\n")
-        print(temp)
-
         self.stationInfo = temp
 
     # getters and setters for the table
@@ -189,16 +167,10 @@ class BatchMPC:
         self._refresh_metadata()
 
     def to_tudat(self, bodies, station_body="Earth"):
-        # TODO convert time
-        # add station pos to observations
-        # tempStations = self.stationInfo.query("Code == @self.stations").loc[
-        #     :, ["Code", "X", "Y", "Z", "lat", "lon", "height"]
-        # ]
         tempStations = self.stationInfo.query("Code == @self.stations").loc[
             :, ["Code", "X", "Y", "Z"]
         ]
-        # TODO remove
-        print(tempStations)
+
 
         observations_table = pd.merge(
             left=self._table,
@@ -210,22 +182,8 @@ class BatchMPC:
 
         for body in self.MPCcodes:
             bodies.create_empty_body(str(body))
-            # TODO work out how to get stuff like mass in
-            # print(f"creating body : {body} | {type(body)}")
-            # bodies.get(str(body)).mass = 1
-            # do not add mass
 
         for idx in range(len(tempStations)):
-            # NOTE TODO GEODETIC VS GEOCENTRIC XYZ
-            # ground_station_settings = environment_setup.ground_station.basic_station(
-            #     station_name = tempStations.iloc[idx].Code,
-            #     station_nominal_position = [
-            #         tempStations.iloc[idx].height,
-            #         tempStations.iloc[idx].lat,
-            #         tempStations.iloc[idx].lon,
-            #     ],
-            #     station_position_element_type = element_conversion.geodetic_position_type
-            # )
             ground_station_settings = environment_setup.ground_station.basic_station(
                 station_name=tempStations.iloc[idx].Code,
                 station_nominal_position=[
@@ -233,7 +191,6 @@ class BatchMPC:
                     tempStations.iloc[idx].Y,
                     tempStations.iloc[idx].Z,
                 ],
-                # station_position_element_type
             )
 
             # TODO CHECK IF THE BODy ALREADy EXISTS
@@ -250,9 +207,6 @@ class BatchMPC:
             # .assign(code=lambda x: x.number.astype(str) + "_" + x.observatory)
             # .set_index("code")
         ).values
-        # TODO remove
-        print(f"{len(unique_link_combos)} unique link combinations found")
-        # print(unique_link_combos)
 
         linksDictionary = {}
         observation_set_list = []
