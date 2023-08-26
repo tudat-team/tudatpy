@@ -488,7 +488,7 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
             std::vector< std::string > propagatedBodies = translationalPropagatorSettings->bodiesToIntegrate_;
             std::vector< std::string > centralBodies = translationalPropagatorSettings->centralBodies_;
 
-            Eigen::VectorXd initialStates =  translationalPropagatorSettings->getInitialStates( );
+            Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > initialStates =  translationalPropagatorSettings->getInitialStates( );
             for( unsigned int i = 0; i < propagatedBodies.size( ); i++ )
             {
                 initialStateParameterSettings.push_back(
@@ -508,13 +508,13 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
             // Retrieve estimated and propagated translational states, and check equality.
             std::vector< std::string > propagatedBodies = rotationalPropagatorSettings->bodiesToIntegrate_;
 
-            Eigen::VectorXd initialStates =  rotationalPropagatorSettings->getInitialStates( );
+            Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > initialStates =  rotationalPropagatorSettings->getInitialStates( );
             for( unsigned int i = 0; i < propagatedBodies.size( ); i++ )
             {
                 initialStateParameterSettings.push_back(
                             std::make_shared< estimatable_parameters::InitialRotationalStateEstimatableParameterSettings<
                             InitialStateParameterType > >(
-                                propagatedBodies.at( i ), initialStates.segment( i * 7, 7 ), bodies.getFrameOrientation( ) ) );
+                                propagatedBodies.at( i ), initialStates.segment( i * 7, 7 ).template cast< InitialStateParameterType >( ), bodies.getFrameOrientation( ) ) );
             }
             break;
         }
@@ -524,7 +524,7 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
                     std::dynamic_pointer_cast< MassPropagatorSettings< InitialStateParameterType, TimeType > >( propagatorSettings );
 
             std::vector< std::string > propagatedBodies = massPropagatorSettings->bodiesWithMassToPropagate_;
-            Eigen::VectorXd initialStates =  massPropagatorSettings->getInitialStates( );
+            Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > initialStates =  massPropagatorSettings->getInitialStates( );
             for( unsigned int i = 0; i < propagatedBodies.size( ); i++ )
             {
                 initialStateParameterSettings.push_back(

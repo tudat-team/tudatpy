@@ -31,6 +31,60 @@ namespace tudat
 namespace simulation_setup
 {
 
+template< typename ObservationScalarType = double, typename TimeType = double,
+    typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
+void calculateResiduals(
+    const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > observationsCollection,
+    const std::map< observation_models::ObservableType,
+        std::shared_ptr< observation_models::ObservationSimulatorBase< ObservationScalarType, TimeType > > >& observationSimulator,
+    Eigen::VectorXd& residuals )
+{
+    residuals = Eigen::VectorXd::Zero( observationsCollection->getTotalObservableSize( ) );
+
+    typename observation_models::ObservationCollection< ObservationScalarType, TimeType >::SortedObservationSets
+        sortedObservations = observationsCollection->getObservations( );
+
+    // Iterate over all observable types in observationsAndTimes
+    for( auto observablesIterator : sortedObservations )
+    {
+        observation_models::ObservableType currentObservableType = observablesIterator.first;
+
+        // Iterate over all link ends for current observable type in observationsAndTimes
+        for( auto dataIterator : observablesIterator.second )
+        {
+            observation_models::LinkEnds currentLinkEnds = dataIterator.first;
+            for( unsigned int i = 0; i < dataIterator.second.size( ); i++ )
+            {
+                std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType, TimeType > > currentObservations =
+                    dataIterator.second.at( i );
+                std::pair< int, int > observationIndices = observationsCollection->getObservationSetStartAndSize( ).at(
+                    currentObservableType ).at( currentLinkEnds ).at( i );
+
+                // Compute estimated ranges and range partials from current parameter estimate.
+                Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > observationsVector;
+                observationSimulator.at( currentObservableType )->
+                    computeObservations(
+                    currentObservations->getObservationTimes( ), currentLinkEnds,
+                    currentObservations->getReferenceLinkEnd( ),
+                    currentObservations->getAncilliarySettings( ),
+                    observationsVector );
+
+                residuals.segment( observationIndices.first, observationIndices.second ) =
+                        ( currentObservations->getObservationsVector( ) - observationsVector ).template cast< double >( );
+
+            }
+        }
+
+        std::pair< int, int > observableStartAndSize = observationsCollection->getObservationTypeStartAndSize( ).at( currentObservableType );
+
+        observation_models::checkObservationResidualDiscontinuities(
+            residuals.block( observableStartAndSize.first, 0, observableStartAndSize.second, 1 ),
+            currentObservableType );
+
+    }
+}
+
+
 //! Function to calculate the observation partials matrix and residuals
 /*!
  *  This function calculates the observation partials matrix and residuals, based on the state transition matrix,
@@ -55,7 +109,6 @@ void calculateDesignMatrixAndResiduals(
     const bool calculateResiduals = true,
     const bool calculatePartials = true )
 {
-    std::cout<<"Calculating "<<calculateResiduals<<" "<<calculatePartials<<std::endl;
     if( calculatePartials && totalNumberParameters <= 0 )
     {
         throw std::runtime_error( "Error when computing observation partials; number of parameters is 0 or smaller: " + std::to_string( totalNumberParameters ) );
@@ -103,7 +156,6 @@ void calculateDesignMatrixAndResiduals(
                         partialsMatrix,
                         calculateResiduals,
                         calculatePartials );
-                std::cout<<"D"<<std::endl;
 
                 if( calculatePartials )
                 {
@@ -111,7 +163,6 @@ void calculateDesignMatrixAndResiduals(
                     designMatrix.block( observationIndices.first, 0, observationIndices.second,
                                         totalNumberParameters ) = partialsMatrix;
                 }
-                std::cout<<"E"<<std::endl;
 
                 // Compute residuals for current link ends and observable type.
                 if( calculateResiduals )
@@ -120,10 +171,6 @@ void calculateDesignMatrixAndResiduals(
                         ( currentObservations->getObservationsVector( ) - observationsVector ).template cast< double >( );
 
                 }
-                std::cout<<"F"<<std::endl;
-
-                std::cout<<"Comp post "<<std::endl;
-
             }
         }
 
@@ -135,8 +182,6 @@ void calculateDesignMatrixAndResiduals(
                 residuals.block( observableStartAndSize.first, 0, observableStartAndSize.second, 1 ),
                 currentObservableType );
         }
-        std::cout<<"Obs post "<<std::endl;
-
     }
 }
 
@@ -150,7 +195,6 @@ void calculateDesignMatrix(
     const int totalObservationSize,
     Eigen::MatrixXd& designMatrix )
 {
-    std::cout<<"Number of parameters A "<<totalNumberParameters<<std::endl;
     Eigen::VectorXd dummyVector;
     calculateDesignMatrixAndResiduals< ObservationScalarType, TimeType >(
         observationsCollection, observationManagers, totalNumberParameters, totalObservationSize, designMatrix, dummyVector, false, true );
@@ -167,8 +211,6 @@ void calculateResiduals(
     const int totalObservationSize,
     Eigen::VectorXd& residuals )
 {
-    std::cout<<"Number of parameters B "<<0<<std::endl;
-
     Eigen::VectorXd dummyMatrix;
     calculateDesignMatrixAndResiduals< ObservationScalarType, TimeType >(
         observationsCollection, observationManagers, 0, totalObservationSize, dummyMatrix, residuals, true, false );
@@ -540,7 +582,7 @@ public:
         int totalNumberOfObservations = estimationInput->getObservationCollection( )->getTotalObservableSize( );
 
         // Define full parameters values
-        Eigen::VectorXd parameterValues = parametersToEstimate_->template getFullParameterValues< ObservationScalarType >( );
+        ParameterVectorType parameterValues = parametersToEstimate_->template getFullParameterValues< ObservationScalarType >( );
         ParameterVectorType fullParameterEstimate;
         fullParameterEstimate.resize( totalNumberParameters_ );
         fullParameterEstimate.segment( 0, numberEstimatedParameters_ ) = parameterValues;
@@ -778,13 +820,9 @@ public:
             }
 
             // Update value of parameter vector
-//            std::cout << "before updating parameter vector" << "\n\n";
-//            std::cout << "oldParameterEstimate: " << oldParameterEstimate.transpose() << "\n\n";
-//            std::cout << "parameter addition: " << parameterAddition.transpose( ) << "\n\n";
             newParameterEstimate = oldParameterEstimate + parameterAddition;
             parametersToEstimate_->template resetParameterValues< ObservationScalarType >( newParameterEstimate );
             newParameterEstimate = parametersToEstimate_->template getFullParameterValues< ObservationScalarType >( );
-//            std::cout << "after updating parameter vector" << "\n\n";
 
             if( estimationInput->getSaveResidualsAndParametersFromEachIteration( ) )
             {
@@ -1089,7 +1127,7 @@ protected:
         }
         else
         {
-            considerParametersValues_ = Eigen::VectorXd::Zero( 0 );
+            considerParametersValues_ = Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >::Zero( 0 );
         }
 
     }
@@ -1202,14 +1240,11 @@ protected:
         Eigen::MatrixXd designMatrix;
         if ( calculateResiduals )
         {
-            std::cout<<"Number of parameters C "<<totalNumberParameters_<<std::endl;
             calculateDesignMatrixAndResiduals< ObservationScalarType, TimeType >(
                     estimationInput->getObservationCollection( ), observationManagers_, totalNumberParameters_, totalNumberOfObservations, designMatrix, residuals, true );
         }
         else
         {
-            std::cout<<"Number of parameters D "<<totalNumberParameters_<<std::endl;
-
             calculateDesignMatrix< ObservationScalarType, TimeType >(
                     estimationInput->getObservationCollection( ), observationManagers_, totalNumberParameters_, totalNumberOfObservations, designMatrix );
         }
