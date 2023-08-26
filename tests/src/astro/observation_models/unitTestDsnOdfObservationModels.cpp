@@ -166,7 +166,8 @@ void runSimulation(
     std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria =
             std::make_shared< LightTimeConvergenceCriteria >( true );
     for ( auto it = linkEndsPerObservable.begin(); it != linkEndsPerObservable.end(); ++it )
-    {
+    {lightTimeCorrectionSettings.push_back( tabulatedTroposphericCorrectionSettings( troposphericCorrectionFileNames ) );
+    lightTimeCorrectionSettings.push_back( tabulatedIonosphericCorrectionSettings( ionosphericCorrectionFileNames, spacecraftNamePerSpacecraftId ) );
         for ( unsigned int i = 0; i < it->second.size(); ++i )
         {
 //            observationModelSettingsList.push_back(
@@ -196,7 +197,7 @@ void runSimulation(
                     observationModelSettingsList, bodies );
 
     std::vector< std::shared_ptr< ObservationSimulationSettings< Time > > > observationSimulationSettings =
-            observation_models::createOdfObservationSimulationSettingsList< long double, Time >(
+            observation_models::getObservationSimulationSettingsFromObservations< long double, Time >(
                     observedObservationCollection );
 
 

@@ -561,7 +561,7 @@ OdfRawFileContents::OdfRawFileContents( const std::string& odfFile ):
     std::ifstream dataFile( odfFile, std::ios_base::binary);
     if ( !dataFile.good( ) )
     {
-        throw std::runtime_error( "Error when opening ODF file." );
+        throw std::runtime_error( "Error when opening ODF file, file " + odfFile +  " could not be opened." );
     }
 
     // Declare used variables

@@ -177,9 +177,10 @@ Eigen::Matrix3d getFrameBias(
     {
         iauBp00( referenceJulianDay, julianDaysSinceReference, rb, rp, rbp );
     }
-    return ( Eigen::Matrix3d( )<< rb[ 0 ][ 0 ], rb[ 0 ][ 1 ], rb[ 0 ][ 2 ],
-            rb[ 1 ][ 0 ], rb[ 1 ][ 1 ], rb[ 1 ][ 2 ],
-            rb[ 2 ][ 0 ], rb[ 2 ][ 1 ], rb[ 2 ][ 2 ] ).finished( );
+    return Eigen::Matrix3d::Identity( );
+//    return ( Eigen::Matrix3d( )<< rb[ 0 ][ 0 ], rb[ 0 ][ 1 ], rb[ 0 ][ 2 ],
+//            rb[ 1 ][ 0 ], rb[ 1 ][ 1 ], rb[ 1 ][ 2 ],
+//            rb[ 2 ][ 0 ], rb[ 2 ][ 1 ], rb[ 2 ][ 2 ] ).finished( );
 
 }
 

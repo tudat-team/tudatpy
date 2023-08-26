@@ -603,6 +603,54 @@ std::map< double, Eigen::VectorXd > getTargetAnglesAndRange(
         const bool transmittingToTarget );
 
 
+/*!
+ * Creates observation simulation settings to be used when simulating observations consistent with an observed observation
+ * collection.
+ *
+ * @param observedObservationCollection Observation collection of observed observations (i.e. from ODF file)
+ * @return Observation simulation settings for simulated observations.
+ */
+template< typename ObservationScalarType = double, typename TimeType = double >
+std::vector< std::shared_ptr< simulation_setup::ObservationSimulationSettings< TimeType > > > getObservationSimulationSettingsFromObservations(
+    std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > observedObservationCollection )
+{
+    std::vector< std::shared_ptr< simulation_setup::ObservationSimulationSettings< TimeType > > > observationSimulationSettings;
+
+    std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds, std::vector< std::shared_ptr<
+        observation_models::SingleObservationSet< ObservationScalarType, TimeType > > > > > observationSetList =
+        observedObservationCollection->getObservations( );
+
+    for ( auto observableTypeIterator = observationSetList.begin( ); observableTypeIterator != observationSetList.end( );
+          ++observableTypeIterator )
+    {
+        observation_models::ObservableType currentObservableType = observableTypeIterator->first;
+
+        for ( auto linkEndsIterator = observableTypeIterator->second.begin( );
+              linkEndsIterator != observableTypeIterator->second.end( ); ++linkEndsIterator )
+        {
+            observation_models::LinkEnds currentLinkEnds = linkEndsIterator->first;
+            std::vector< std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType, TimeType > > >
+                singleObservationSets = linkEndsIterator->second;
+
+            for ( unsigned int i = 0; i < singleObservationSets.size( ); ++i )
+            {
+                observationSimulationSettings.push_back(
+                    std::make_shared< simulation_setup::TabulatedObservationSimulationSettings< TimeType > >(
+                        currentObservableType, currentLinkEnds, singleObservationSets.at( i )->getObservationTimes( ),
+                        singleObservationSets.at( i )->getReferenceLinkEnd( ),
+                        std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > >( ),
+                        nullptr,
+                        singleObservationSets.at( i )->getAncilliarySettings( )
+                    )
+                );
+            }
+
+        }
+    }
+
+    return observationSimulationSettings;
+}
+
 }
 
 }

@@ -430,6 +430,7 @@ std::map< std::string, Eigen::Vector3d > getApproximateDsnGroundStationPositions
         { "DSS-24", ( Eigen::Vector3d( )<< -2354906.711, -4646840.095, +3669242.325 ).finished( ) },
         { "DSS-25", ( Eigen::Vector3d( )<< -2355022.014, -4646953.204, +3669040.567 ).finished( ) },
         { "DSS-26", ( Eigen::Vector3d( )<< -2354890.797, -4647166.328, +3668871.755 ).finished( ) },
+        { "DSS-27", ( Eigen::Vector3d( )<< -2349915.428, -4656756.406, +3660096.469 ).finished( ) },
         { "DSS-34", ( Eigen::Vector3d( )<< -4461147.093, +2682439.239, -3674393.133 ).finished( ) },
         { "DSS-35", ( Eigen::Vector3d( )<< -4461273.090, +2682568.925, -3674152.093 ).finished( ) },
         { "DSS-36", ( Eigen::Vector3d( )<< -4461168.415, +2682814.657, -3674083.901 ).finished( ) },

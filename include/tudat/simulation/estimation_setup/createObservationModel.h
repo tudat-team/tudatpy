@@ -2455,6 +2455,23 @@ std::vector< std::shared_ptr< ObservationSimulatorBase< ObservationScalarType, T
     return observationSimulators;
 }
 
+template< typename ObservationScalarType = double, typename TimeType = double >
+std::map< ObservableType, std::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > > > createSortedObservationSimulators(
+    const std::vector< std::shared_ptr< ObservationModelSettings > >& observationSettingsList,
+    const simulation_setup::SystemOfBodies& bodies )
+{
+    std::map< ObservableType, std::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > > > sortedObservationSimulators;
+
+    std::vector< std::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > > > observationSimulators =
+        createObservationSimulators< ObservationScalarType, TimeType >( observationSettingsList, bodies );
+    for( unsigned int i = 0; i < observationSimulators.size( ); i++ )
+    {
+        sortedObservationSimulators[ observationSimulators.at( i )->getObservableType( ) ] = observationSimulators.at( i );
+    }
+    return sortedObservationSimulators;
+
+}
+
 
 //! Typedef for list of light time corrections for a list of link ends
 typedef std::map< observation_models::LinkEnds,
