@@ -139,7 +139,7 @@ void from_json( const nlohmann::json& jsonObject, vector< ValueType >& myVector 
     else
     {
         std::cerr << "Expected an array." << std::endl;
-        throw nlohmann::detail::type_error::create( 0, "" );
+        throw nlohmann::detail::type_error::create( 0, "", &jsonObject );
     }
 }
 
@@ -213,7 +213,7 @@ void from_json( const nlohmann::json& jsonObject, Matrix< ScalarType, rows, cols
     }
     else
     {
-        throw nlohmann::detail::type_error::create( 0, "" );
+        throw nlohmann::detail::type_error::create( 0, "", &jsonObject );
     }
 
     nlohmann::json jsonArrayOfArrays;
@@ -247,7 +247,7 @@ void from_json( const nlohmann::json& jsonObject, Matrix< ScalarType, rows, cols
         else  // expected matrix
         {
             std::cerr << "Expected a matrix, received a vector." << std::endl;
-            throw nlohmann::detail::type_error::create( 0, "" );
+            throw nlohmann::detail::type_error::create( 0, "", &jsonObject );
         }
     }
 
@@ -257,7 +257,7 @@ void from_json( const nlohmann::json& jsonObject, Matrix< ScalarType, rows, cols
     {
         std::cerr << "Expected matrix of size " << rows << "x" << cols
                   << ", received matrix of size " << providedRows << "x" << providedCols << "." << std::endl;
-        throw nlohmann::detail::type_error::create( 0, "" );
+        throw nlohmann::detail::type_error::create( 0, "", &jsonObject );
     }
 
     matrix.resize( providedRows, providedCols );
@@ -266,7 +266,7 @@ void from_json( const nlohmann::json& jsonObject, Matrix< ScalarType, rows, cols
         if ( jsonArrayOfArrays.at( r ).size( ) != providedCols )
         {
             std::cerr << "Unconsistent matrix size: some rows have different number of columns." << std::endl;
-            throw nlohmann::detail::type_error::create( 0, "" );
+            throw nlohmann::detail::type_error::create( 0, "", &jsonObject );
         }
         for ( unsigned int c = 0; c < providedCols; ++c )
         {
@@ -317,4 +317,3 @@ inline void from_json( const nlohmann::json& jsonObject, Quaterniond& quaternion
 }  // namespace Eigen
 
 #endif // TUDAT_JSONINTERFACE_VALUECONVERSIONS_H
-
