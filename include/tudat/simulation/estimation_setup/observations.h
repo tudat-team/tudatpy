@@ -551,7 +551,7 @@ private:
 
                     observationSetStartAndSize_[ currentObservableType ][ currentLinkEnds ].push_back(
                                 std::make_pair( currentStartIndex, currentObservableVectorSize ) );
-                    concateatedObservationSetStartAndSize_.push_back( std::make_pair( currentStartIndex, currentObservableVectorSize ) );
+                    concatenatedObservationSetStartAndSize_.push_back( std::make_pair( currentStartIndex, currentObservableVectorSize ) );
                     currentStartIndex += currentObservableVectorSize;
                     currentObservableTypeSize += currentObservableVectorSize;
 
@@ -941,14 +941,17 @@ std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > >  cre
 
 
 template< typename ObservationScalarType = double, typename TimeType = double >
-std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > >  filterResidualOutliers(
+void filterResidualOutliers(
     const std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > observedData,
     const std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > residualData,
-    const std::map< ObservableType, double > residualCutoffValuePerObservable )
+    const std::map< ObservableType, double > residualCutoffValuePerObservable,
+    std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > filteredObservedData,
+    std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > filteredResidualData )
 {
     typename ObservationCollection< ObservationScalarType, TimeType >::SortedObservationSets observedObservationSets = observedData->getObservations( );
     typename ObservationCollection< ObservationScalarType, TimeType >::SortedObservationSets filteredObservedObservationSets;
     typename ObservationCollection< ObservationScalarType, TimeType >::SortedObservationSets residualObservationSets = residualData->getObservations( );
+    typename ObservationCollection< ObservationScalarType, TimeType >::SortedObservationSets filteredResidualObservationSets;
 
 
 
@@ -970,7 +973,6 @@ std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > >  fil
                     {
                         if ( currentObservationSet->getObservation( j ).array( ).abs( ).maxCoeff( ) > filterValue )
                         {
-//                            std::cout<< currentObservationSet->getObservation( j )<<std::endl;
                             indicesToRemove.push_back( j );
                         }
                     }
@@ -978,11 +980,15 @@ std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > >  fil
                     filteredObservedObservationSets[ observationIt.first ][ linkEndIt.first ].push_back(
                         observedObservationSets[ observationIt.first ][ linkEndIt.first ].at( i )->createFilteredObservationSet(
                             indicesToRemove ) );
+                    filteredResidualObservationSets[ observationIt.first ][ linkEndIt.first ].push_back(
+                        residualObservationSets[ observationIt.first ][ linkEndIt.first ].at( i )->createFilteredObservationSet(
+                            indicesToRemove ) );
                 }
             }
         }
     }
-    return std::make_shared< ObservationCollection< ObservationScalarType, TimeType > >( filteredObservedObservationSets );
+    filteredObservedData =  std::make_shared< ObservationCollection< ObservationScalarType, TimeType > >( filteredObservedObservationSets );
+    filteredResidualData =  std::make_shared< ObservationCollection< ObservationScalarType, TimeType > >( filteredResidualObservationSets );
 }
 
 } // namespace observation_models
