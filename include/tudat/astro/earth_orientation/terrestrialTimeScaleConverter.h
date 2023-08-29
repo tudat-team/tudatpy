@@ -14,7 +14,7 @@
 
 #include <functional>
 
-#include "tudat/math/interpolators/oneDimensionalInterpolator.h"
+#include "tudat/math/interpolators/createInterpolator.h"
 #include "tudat/basics/timeType.h"
 #include "tudat/astro/basic_astro/dateTime.h"
 #include "tudat/astro/earth_orientation/shortPeriodEarthOrientationCorrectionCalculator.h"
@@ -107,11 +107,27 @@ public:
             dailyUtcUt1CorrectionInterpolator =
             std::shared_ptr< interpolators::OneDimensionalInterpolator < double, double > >( ),
             const std::shared_ptr< ShortPeriodEarthOrientationCorrectionCalculator< double > >
-            shortPeriodUt1CorrectionCalculator = getDefaultUT1CorrectionCalculator( ) ):
+            shortPeriodUt1CorrectionCalculator = getDefaultUT1CorrectionCalculator( ),
+            const std::shared_ptr< interpolators::InterpolatorGenerationSettings< double > > tdbToTtInterpolatorSettings = nullptr ):
         dailyUtcUt1CorrectionInterpolator_( dailyUtcUt1CorrectionInterpolator ),
         shortPeriodUt1CorrectionCalculator_( shortPeriodUt1CorrectionCalculator ),
         previousEarthFixedPosition_( Eigen::Vector3d::Zero( ) )
-    { }
+    {
+        if( tdbToTtInterpolatorSettings != nullptr )
+        {
+            std::cout<<"Creating interpolator"<<std::endl;
+
+            std::function< double( const double ) > correctionFunction =
+                std::bind< double( const double, const double, const double, const double ) >(
+                    sofa_interface::getTDBminusTT, std::placeholders::_1, 0.0, 0.0, 0.0 );
+
+            std::shared_ptr< interpolators::OneDimensionalInterpolator< double, double > > correctionInterpolator =
+                interpolators::createOneDimensionalInterpolator< double, double >(
+                    correctionFunction, tdbToTtInterpolatorSettings );
+             tdbToTtInterpolators_[ std::make_tuple( 0.0, 0.0, 0.0 ) ] = correctionInterpolator;
+        }
+
+    }
 
     //! Function to convert a time value from the input to the output scale.
     /*!
@@ -269,7 +285,7 @@ public:
         {
         case basic_astrodynamics::tdb_scale:
             timesToUpdate.tdb = inputTimeValue;
-            tdbMinusTt = static_cast< TimeType >( sofa_interface::getTDBminusTT(
+            tdbMinusTt = static_cast< TimeType >( this->getTDBminusTT(
                         inputTimeValue, siteLongitude, distanceFromSpinAxis, distanceFromEquatorialPlane ) );
             timesToUpdate.tt = timesToUpdate.tdb - tdbMinusTt;
             timesToUpdate.tai = basic_astrodynamics::convertTTtoTAI< TimeType >( timesToUpdate.tt );
@@ -279,7 +295,7 @@ public:
 
         case basic_astrodynamics::tt_scale:
             timesToUpdate.tt = inputTimeValue;
-            tdbMinusTt = static_cast< TimeType >( sofa_interface::getTDBminusTT(
+            tdbMinusTt = static_cast< TimeType >( this->getTDBminusTT(
                         inputTimeValue, siteLongitude, distanceFromSpinAxis, distanceFromEquatorialPlane ) );
             timesToUpdate.tdb = timesToUpdate.tt + tdbMinusTt;
             timesToUpdate.tai = basic_astrodynamics::convertTTtoTAI< TimeType >( timesToUpdate.tt );
@@ -290,7 +306,7 @@ public:
         case basic_astrodynamics::tai_scale:
             timesToUpdate.tai = inputTimeValue;
             timesToUpdate.tt = basic_astrodynamics::convertTAItoTT< TimeType >( timesToUpdate.tai );
-            tdbMinusTt = static_cast< TimeType >( sofa_interface::getTDBminusTT(
+            tdbMinusTt = static_cast< TimeType >( this->getTDBminusTT(
                         timesToUpdate.tt, siteLongitude, distanceFromSpinAxis, distanceFromEquatorialPlane ) );
             timesToUpdate.tdb = timesToUpdate.tt + tdbMinusTt;
 
@@ -302,7 +318,7 @@ public:
             timesToUpdate.tai = sofa_interface::convertUTCtoTAI< TimeType >( timesToUpdate.utc );
 
             timesToUpdate.tt = basic_astrodynamics::convertTAItoTT< TimeType >( timesToUpdate.tai );
-            tdbMinusTt = static_cast< TimeType >( sofa_interface::getTDBminusTT(
+            tdbMinusTt = static_cast< TimeType >( this->getTDBminusTT(
                         timesToUpdate.tt, siteLongitude, distanceFromSpinAxis, distanceFromEquatorialPlane ) );
             timesToUpdate.tdb = timesToUpdate.tt + tdbMinusTt;
 
@@ -325,7 +341,7 @@ public:
                     static_cast< TimeType >( shortPeriodUt1CorrectionCalculator_->getCorrections( timesToUpdate.utc ) );
             timesToUpdate.tai = sofa_interface::convertUTCtoTAI< TimeType >( timesToUpdate.utc );
             timesToUpdate.tt = basic_astrodynamics::convertTAItoTT< TimeType >( timesToUpdate.tai );
-            tdbMinusTt = static_cast< TimeType >( sofa_interface::getTDBminusTT(
+            tdbMinusTt = static_cast< TimeType >( this->getTDBminusTT(
                         timesToUpdate.tt, siteLongitude, distanceFromSpinAxis, distanceFromEquatorialPlane ) );
             timesToUpdate.tdb = timesToUpdate.tt + tdbMinusTt;
 
@@ -336,7 +352,7 @@ public:
                         shortPeriodUt1CorrectionCalculator_->getCorrections( timesToUpdate.tt ) );
             timesToUpdate.tai = sofa_interface::convertUTCtoTAI< TimeType >( timesToUpdate.utc );
             timesToUpdate.tt = basic_astrodynamics::convertTAItoTT< TimeType >( timesToUpdate.tai );
-            tdbMinusTt = sofa_interface::getTDBminusTT(
+            tdbMinusTt = this->getTDBminusTT(
                         timesToUpdate.tt, siteLongitude, distanceFromSpinAxis, distanceFromEquatorialPlane );
             timesToUpdate.tdb = timesToUpdate.tt + tdbMinusTt;
 
@@ -373,6 +389,21 @@ public:
     }
 
 private:
+
+    double getTDBminusTT( const double ttOrTdbSinceJ2000, const double stationLongitude,
+                          const double distanceFromSpinAxis, const double distanceFromEquatorialPlane )
+    {
+        auto tupleToCheck = std::make_tuple( stationLongitude, distanceFromSpinAxis, distanceFromEquatorialPlane );
+        if( tdbToTtInterpolators_.count( tupleToCheck ) != 0 )
+        {
+            return tdbToTtInterpolators_.at( tupleToCheck )->interpolate( ttOrTdbSinceJ2000 );
+        }
+        else
+        {
+            return sofa_interface::getTDBminusTT(
+                ttOrTdbSinceJ2000, stationLongitude, distanceFromSpinAxis, distanceFromEquatorialPlane );
+        }
+    }
 
     //! Function to get current time list at requested numerical precision
     /*!
@@ -434,6 +465,8 @@ private:
 
     //! Value of ground station position used on last call to updateTimes< Time > function
     Eigen::Vector3d previousEarthFixedPositionSplit_;
+
+    std::map< std::tuple< double, double, double >, std::shared_ptr< interpolators::OneDimensionalInterpolator< double, double > > > tdbToTtInterpolators_;
 };
 
 //! Function to create the default Earth time scales conversion object

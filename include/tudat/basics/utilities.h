@@ -647,14 +647,14 @@ template < typename T > int sgn( const T& val )
 
 //! From https://stackoverflow.com/questions/27028226/python-linspace-in-c
 template<typename T>
-std::vector<T> linspace(T start_in, T end_in, int num_in)
+std::vector< T > linspace(T start_in, T end_in, int num_in)
 {
 
     std::vector<double> linspaced;
 
-    T start = static_cast<T>(start_in);
-    T end = static_cast<T>(end_in);
-    T num = static_cast<T>(num_in);
+    T start = static_cast< T >(start_in);
+    T end = static_cast< T >(end_in);
+    T num = static_cast< T >(num_in);
 
     if (num == 0) { return linspaced; }
     if (num == 1)
@@ -844,7 +844,13 @@ std::string to_string_with_precision(const T a_value, const int n = 6)
     out << std::fixed << a_value;
     return std::move(out).str();
 }
-
+template <typename T>
+std::vector< T > getStlVectorSegment( const std::vector< T > originalVector, const int startIndex, const int size )
+{
+    typename std::vector< T >::const_iterator first = originalVector.begin() + startIndex;
+    typename std::vector< T >::const_iterator last = originalVector.begin() + startIndex + size;
+    return std::vector< T >(first, last);
+}
 } // namespace utilities
 
 } // namespace tudat

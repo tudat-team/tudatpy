@@ -241,6 +241,35 @@ struct PerArcObservationSimulationSettings: public ObservationSimulationSettings
 };
 
 template< typename TimeType = double >
+std::shared_ptr< ObservationSimulationSettings< TimeType > > perturbObservationTime(
+    const std::shared_ptr< ObservationSimulationSettings< TimeType > > originalSettings, const double timePerturbation )
+{
+    std::shared_ptr< ObservationSimulationSettings< TimeType > > newSettings;
+
+    std::shared_ptr< TabulatedObservationSimulationSettings< TimeType > > originalTabulatedSettings =
+        std::dynamic_pointer_cast< TabulatedObservationSimulationSettings< TimeType > >( originalSettings );
+    if( std::dynamic_pointer_cast< TabulatedObservationSimulationSettings< TimeType > >( originalSettings ) != nullptr )
+    {
+        std::vector< TimeType > perturbedObservationTimes = originalTabulatedSettings->simulationTimes_;
+        std::transform(perturbedObservationTimes.begin(), perturbedObservationTimes.end(), perturbedObservationTimes.begin(),
+                  bind2nd(std::plus<double>(), timePerturbation));
+        newSettings = std::make_shared< TabulatedObservationSimulationSettings< TimeType > >(
+            originalTabulatedSettings->getObservableType( ),
+            originalTabulatedSettings->getLinkEnds( ),
+            perturbedObservationTimes,
+            originalTabulatedSettings->getReferenceLinkEndType( ),
+            originalTabulatedSettings->getViabilitySettingsList( ),
+            originalTabulatedSettings->getObservationNoiseFunction( ),
+            originalTabulatedSettings->getAncilliarySettings( ) );
+    }
+    else
+    {
+        throw std::runtime_error( "Error, could not perturb observation time; settings are not tabulated." );
+    }
+    return newSettings;
+}
+
+template< typename TimeType = double >
 inline std::shared_ptr< ObservationSimulationSettings< TimeType > > tabulatedObservationSimulationSettings(
         const observation_models::ObservableType observableType,
         const observation_models::LinkDefinition& linkEnds,
