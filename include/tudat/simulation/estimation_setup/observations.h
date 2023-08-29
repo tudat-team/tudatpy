@@ -941,17 +941,14 @@ std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > >  cre
 
 
 template< typename ObservationScalarType = double, typename TimeType = double >
-void filterResidualOutliers(
+std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > filterResidualOutliers(
     const std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > observedData,
     const std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > residualData,
-    const std::map< ObservableType, double > residualCutoffValuePerObservable,
-    std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > filteredObservedData,
-    std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > filteredResidualData )
+    const std::map< ObservableType, double > residualCutoffValuePerObservable )
 {
     typename ObservationCollection< ObservationScalarType, TimeType >::SortedObservationSets observedObservationSets = observedData->getObservations( );
     typename ObservationCollection< ObservationScalarType, TimeType >::SortedObservationSets filteredObservedObservationSets;
     typename ObservationCollection< ObservationScalarType, TimeType >::SortedObservationSets residualObservationSets = residualData->getObservations( );
-    typename ObservationCollection< ObservationScalarType, TimeType >::SortedObservationSets filteredResidualObservationSets;
 
 
 
@@ -980,15 +977,11 @@ void filterResidualOutliers(
                     filteredObservedObservationSets[ observationIt.first ][ linkEndIt.first ].push_back(
                         observedObservationSets[ observationIt.first ][ linkEndIt.first ].at( i )->createFilteredObservationSet(
                             indicesToRemove ) );
-                    filteredResidualObservationSets[ observationIt.first ][ linkEndIt.first ].push_back(
-                        residualObservationSets[ observationIt.first ][ linkEndIt.first ].at( i )->createFilteredObservationSet(
-                            indicesToRemove ) );
                 }
             }
         }
     }
-    filteredObservedData =  std::make_shared< ObservationCollection< ObservationScalarType, TimeType > >( filteredObservedObservationSets );
-    filteredResidualData =  std::make_shared< ObservationCollection< ObservationScalarType, TimeType > >( filteredResidualObservationSets );
+    return std::make_shared< ObservationCollection< ObservationScalarType, TimeType > >( filteredObservedObservationSets );
 }
 
 } // namespace observation_models
