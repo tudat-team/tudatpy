@@ -185,34 +185,25 @@ int main( )
     std::shared_ptr< observation_models::ObservationCollection< long double, Time > > residualObservationCollection =
         createResidualCollection( observedObservationCollection, computedObservationCollection );
 
-    {
-        std::cout<<"Perturb first"<<std::endl;
-        double timePerturbation = 5.0;
-        std::vector< std::shared_ptr< simulation_setup::ObservationSimulationSettings< Time > > > upPerturbedObservationSimulationSettings;
-        for( unsigned int i = 0; i < observationSimulationSettings.size( ); i++ )
-        {
-            upPerturbedObservationSimulationSettings.push_back( perturbObservationTime< Time >( observationSimulationSettings.at( i ), timePerturbation ) );
-        }
-        std::shared_ptr< observation_models::ObservationCollection< long double, Time > > computedUpperturbedObservationCollection =
-            simulateObservations( upPerturbedObservationSimulationSettings, observationSimulators, bodies );
+    std::cout<<"Filter observations"<<std::endl;
+    std::map< ObservableType, double > residualCutoffValuePerObservable;
+    residualCutoffValuePerObservable[ dsn_n_way_averaged_doppler ] = 0.05;
 
-        std::cout<<"Perturb second"<<std::endl;
-        std::vector< std::shared_ptr< simulation_setup::ObservationSimulationSettings< Time > > > downPerturbedObservationSimulationSettings;
-        for( unsigned int i = 0; i < observationSimulationSettings.size( ); i++ )
-        {
-            downPerturbedObservationSimulationSettings.push_back( perturbObservationTime< Time >( observationSimulationSettings.at( i ), -timePerturbation ) );
-        }
-        std::shared_ptr< observation_models::ObservationCollection< long double, Time > > computedDownperturbedObservationCollection =
-            simulateObservations( downPerturbedObservationSimulationSettings, observationSimulators, bodies );
+    std::shared_ptr< observation_models::ObservationCollection< long double, Time > > filteredResidualObservationCollection;
+    std::shared_ptr< observation_models::ObservationCollection< long double, Time > > filteredObservedObservationCollection;
 
-        Eigen::VectorXd observationDerivative = (
-            computedUpperturbedObservationCollection->getObservationVector( ).template cast< double >( ) -
-                computedDownperturbedObservationCollection->getObservationVector( ).template cast< double >( ) ) / ( 2.0 * timePerturbation );
+    filterResidualOutliers( observedObservationCollection, residualObservationCollection, residualCutoffValuePerObservable,
+                            filteredObservedObservationCollection, filteredResidualObservationCollection );
 
-        input_output::writeMatrixToFile( observationDerivative, "grailTestTimeDerivative.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TestResults/");
-    }
+    Eigen::VectorXd numericalTimeBiasPartials = getNumericalObservationTimePartial< long double, Time >(
+        observationSimulationSettings, observationSimulators, bodies, 5.0 );
 
-    std::vector< std::pair< int, int > > observationSetIndices = residualObservationCollection->getConcatenatedObservationSetStartAndSize( );
+
+    input_output::writeMatrixToFile( numericalTimeBiasPartials, "grailTestTimeDerivative.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TestResults/");
+
+    std::vector< double > timeBiases;
+    Eigen::VectorXd correctedResiduals;
+    estimateTimeBiasPerSet< long double, Time >( residualObservationCollection, numericalTimeBiasPartials, timeBiases, correctedResiduals );
 
 //
 //    std::cout<<"Filter observations"<<std::endl;
