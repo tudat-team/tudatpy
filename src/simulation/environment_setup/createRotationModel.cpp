@@ -479,7 +479,9 @@ std::shared_ptr< ephemerides::RotationalEphemeris > createRotationModel(
                         gcrsToItrsRotationSettings->getPolarMotionCorrectionSettings( )->conversionFactor_,
                         gcrsToItrsRotationSettings->getPolarMotionCorrectionSettings( )->minimumAmplitude_,
                         gcrsToItrsRotationSettings->getPolarMotionCorrectionSettings( )->amplitudesFiles_,
-                        gcrsToItrsRotationSettings->getPolarMotionCorrectionSettings( )->argumentMultipliersFile_ );
+                        gcrsToItrsRotationSettings->getPolarMotionCorrectionSettings( )->argumentMultipliersFile_,
+                        std::bind( &sofa_interface::calculateApproximateDelaunayFundamentalArgumentsWithGmst, std::placeholders::_1 ),
+                        gcrsToItrsRotationSettings->getShortTermInterpolatorSettings( ) );
 
             // Create full polar motion calculator
             std::shared_ptr< earth_orientation::PolarMotionCalculator > polarMotionCalculator =
@@ -489,7 +491,8 @@ std::shared_ptr< ephemerides::RotationalEphemeris > createRotationModel(
             // Create IAU 2006 precession/nutation calculator
             std::shared_ptr< earth_orientation::PrecessionNutationCalculator > precessionNutationCalculator =
                     std::make_shared< earth_orientation::PrecessionNutationCalculator >(
-                        gcrsToItrsRotationSettings->getNutationTheory( ), cipInGcrsCorrectionInterpolator );
+                        gcrsToItrsRotationSettings->getNutationTheory( ), cipInGcrsCorrectionInterpolator,
+                        gcrsToItrsRotationSettings->getCioInterpolatorSettings( ) );
 
             // Create UT1 correction (sub-diural frequencies) object
             std::shared_ptr< earth_orientation::ShortPeriodEarthOrientationCorrectionCalculator< double > >
@@ -498,7 +501,9 @@ std::shared_ptr< ephemerides::RotationalEphemeris > createRotationModel(
                         gcrsToItrsRotationSettings->getUt1CorrectionSettings( )->conversionFactor_,
                         gcrsToItrsRotationSettings->getUt1CorrectionSettings( )->minimumAmplitude_,
                         gcrsToItrsRotationSettings->getUt1CorrectionSettings( )->amplitudesFiles_,
-                        gcrsToItrsRotationSettings->getUt1CorrectionSettings( )->argumentMultipliersFile_ );
+                        gcrsToItrsRotationSettings->getUt1CorrectionSettings( )->argumentMultipliersFile_,
+                        std::bind( &sofa_interface::calculateApproximateDelaunayFundamentalArgumentsWithGmst, std::placeholders::_1 ),
+                        gcrsToItrsRotationSettings->getShortTermInterpolatorSettings( ) );
 
             std::shared_ptr< interpolators::OneDimensionalInterpolator < double, double > > dailyUtcUt1CorrectionInterpolator =
                     std::make_shared< interpolators::JumpDataLinearInterpolator< double, double > >(
@@ -507,7 +512,7 @@ std::shared_ptr< ephemerides::RotationalEphemeris > createRotationModel(
             // Create default time scale converter
             std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > terrestrialTimeScaleConverter =
                     std::make_shared< earth_orientation::TerrestrialTimeScaleConverter >
-                    (  dailyUtcUt1CorrectionInterpolator, ut1CorrectionSettings );
+                    (  dailyUtcUt1CorrectionInterpolator, ut1CorrectionSettings, gcrsToItrsRotationSettings->getTdbToTtInterpolatorSettings( ) );
 
             // Create rotation model
             std::shared_ptr< earth_orientation::EarthOrientationAnglesCalculator > earthOrientationCalculator =

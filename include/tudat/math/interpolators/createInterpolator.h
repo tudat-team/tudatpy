@@ -425,6 +425,23 @@ public:
 
 };
 
+template< typename IndependentType >
+class InterpolatorGenerationSettings
+{
+public:
+    InterpolatorGenerationSettings(
+        const std::shared_ptr< InterpolatorSettings > interpolatorSettings,
+        const IndependentType initialTime,
+        const IndependentType finalTime,
+        const IndependentType timeStep ):
+        interpolatorSettings_( interpolatorSettings ), initialTime_( initialTime ), finalTime_( finalTime ), timeStep_( timeStep ){ }
+
+    const std::shared_ptr< InterpolatorSettings > interpolatorSettings_;
+    const IndependentType initialTime_;
+    const IndependentType finalTime_;
+    const IndependentType timeStep_;
+};
+
 //! Class containing (the settings to create) the data needed for the interpolation and the settings to create the
 //! interpolator.
 /*!
@@ -587,6 +604,29 @@ std::shared_ptr< OneDimensionalInterpolator< IndependentType, DependentType > > 
                                              dataInterpolationSettings->interpolatorSettings_,
                                              defaultExtrapolationValue,
                                              firstDerivativeOfDependentVariables );
+}
+
+
+template< typename IndependentVariableType, typename DependentVariableType >
+std::shared_ptr< OneDimensionalInterpolator< IndependentVariableType, DependentVariableType > >
+createOneDimensionalInterpolator(
+    const std::function< DependentVariableType( const IndependentVariableType ) > generatingFunction,
+    const std::shared_ptr< InterpolatorGenerationSettings< IndependentVariableType > > interpolatorGenerationSettings,
+    const std::pair< DependentVariableType, DependentVariableType >& defaultExtrapolationValue =
+    std::make_pair( IdentityElement::getAdditionIdentity< DependentVariableType >( ),
+                    IdentityElement::getAdditionIdentity< DependentVariableType >( ) ),
+    const std::vector< DependentVariableType > firstDerivativeOfDependentVariables =
+    std::vector< DependentVariableType >( ) )
+{
+    std::map< IndependentVariableType, DependentVariableType > dataToInterpolate;
+    IndependentVariableType currentIndependentVariable = interpolatorGenerationSettings->initialTime_;
+    while( currentIndependentVariable < interpolatorGenerationSettings->finalTime_ )
+    {
+        dataToInterpolate[ currentIndependentVariable ] = generatingFunction( currentIndependentVariable );
+        currentIndependentVariable += interpolatorGenerationSettings->timeStep_;
+    }
+    return createOneDimensionalInterpolator< IndependentVariableType, DependentVariableType >(
+        dataToInterpolate, interpolatorGenerationSettings->interpolatorSettings_, defaultExtrapolationValue );
 }
 
 //! Function to create a multi-dimensional interpolator

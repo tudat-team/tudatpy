@@ -24,7 +24,7 @@
 #include "tudat/io/readTabulatedMediaCorrections.h"
 #include "tudat/io/readTabulatedWeatherData.h"
 #include "tudat/simulation/estimation_setup/processOdfFile.h"
-
+#include "tudat/simulation/estimation_setup/simulateObservations.h"
 #include <boost/date_time/gregorian/gregorian.hpp>
 
 #include "tudat/astro/ground_stations/transmittingFrequencies.h"
@@ -121,7 +121,7 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
                     observationModelSettingsList, bodies );
 
     std::vector< std::shared_ptr< ObservationSimulationSettings< Time > > > observationSimulationSettings =
-            observation_models::getObservationSimulationSettingsFromObservations< long double, Time >(
+            getObservationSimulationSettingsFromObservations< long double, Time >(
                     observedObservationCollection );
 
 

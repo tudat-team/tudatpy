@@ -651,6 +651,67 @@ std::vector< std::shared_ptr< simulation_setup::ObservationSimulationSettings< T
     return observationSimulationSettings;
 }
 
+template< typename ObservationScalarType = double, typename TimeType = double >
+Eigen::VectorXd getNumericalObservationTimePartial(
+    const std::vector< std::shared_ptr< simulation_setup::ObservationSimulationSettings< Time > > >& observationSimulationSettings,
+    const std::vector< std::shared_ptr< observation_models::ObservationSimulatorBase< long double, Time > > >& observationSimulators,
+    const SystemOfBodies& bodies,
+    const double timePerturbation )
+{
+    std::vector< std::shared_ptr< simulation_setup::ObservationSimulationSettings< Time > > > upPerturbedObservationSimulationSettings;
+    for( unsigned int i = 0; i < observationSimulationSettings.size( ); i++ )
+    {
+        upPerturbedObservationSimulationSettings.push_back( perturbObservationTime< Time >( observationSimulationSettings.at( i ), timePerturbation ) );
+    }
+    std::shared_ptr< observation_models::ObservationCollection< long double, Time > > computedUpperturbedObservationCollection =
+        simulateObservations( upPerturbedObservationSimulationSettings, observationSimulators, bodies );
+
+    std::vector< std::shared_ptr< simulation_setup::ObservationSimulationSettings< Time > > > downPerturbedObservationSimulationSettings;
+    for( unsigned int i = 0; i < observationSimulationSettings.size( ); i++ )
+    {
+        downPerturbedObservationSimulationSettings.push_back( perturbObservationTime< Time >( observationSimulationSettings.at( i ), -timePerturbation ) );
+    }
+    std::shared_ptr< observation_models::ObservationCollection< long double, Time > > computedDownperturbedObservationCollection =
+        simulateObservations( downPerturbedObservationSimulationSettings, observationSimulators, bodies );
+
+    return ( computedUpperturbedObservationCollection->getObservationVector( ).template cast< double >( ) -
+        computedDownperturbedObservationCollection->getObservationVector( ).template cast< double >( ) ) / ( 2.0 * timePerturbation );
+}
+
+template< typename ObservationScalarType = double, typename TimeType = double >
+void estimateTimeBiasAndPolynomialFirPerSet(
+    const std::shared_ptr< observation_models::ObservationCollection< long double, Time > > residualObservationCollection,
+    const Eigen::VectorXd& timePartials,
+    const int polynomialOrder,
+    Eigen::MatrixXd& polynomialCoefficients,
+    Eigen::VectorXd& correctedResiduals )
+{
+
+}
+
+template< typename ObservationScalarType = double, typename TimeType = double >
+void estimateTimeBiasPerSet(
+    const std::shared_ptr< observation_models::ObservationCollection< long double, Time > > residualObservationCollection,
+    const Eigen::VectorXd& timePartials,
+    std::vector< double >& timeBiases,
+    Eigen::VectorXd& correctedResiduals )
+{
+    std::vector< std::pair< int, int > > startEndIndices = residualObservationCollection->getConcatenatedObservationSetStartAndSize( );
+    Eigen::VectorXd residualVector = residualObservationCollection->getObservationVectorReference( );
+    correctedResiduals.resize( residualVector.rows( ), 1 );
+
+    for( unsigned int i = 0; i < startEndIndices.size( ); i++ )
+    {
+        Eigen::VectorXd currentPartials = timePartials.segment( startEndIndices.at( i ).first, startEndIndices.at( i ).second );
+        double currentTimeBias = ( ( currentPartials.transpose( ) * currentPartials ).inverse( ) *
+            ( currentPartials.transpose( ) * residualVector.segment( startEndIndices.at( i ).first, startEndIndices.at( i ).second ) ) )( 0 );
+        correctedResiduals.segment( startEndIndices.at( i ).first, startEndIndices.at( i ).second ) =
+            residualVector.segment( startEndIndices.at( i ).first, startEndIndices.at( i ).second ) -
+            currentTimeBias * currentPartials;
+        timeBiases.push_back( currentTimeBias );
+    }
+}
+
 }
 
 }

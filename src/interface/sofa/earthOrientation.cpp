@@ -21,7 +21,7 @@ namespace sofa_interface
 {
 
 //! Function to calculate CIP and CIO locator according to requested IAU conventions
-std::pair< Eigen::Vector2d, double > getPositionOfCipInGcrs(
+Eigen::Vector3d getPositionOfCipInGcrs(
         const double terrestrialTime, const double julianDaysEpochShift,
         const basic_astrodynamics::IAUConventions precessionNutationTheory )
 {
@@ -52,9 +52,7 @@ std::pair< Eigen::Vector2d, double > getPositionOfCipInGcrs(
     }
 
     // Set and return requested values.
-    Eigen::Vector2d cioPosition;
-    cioPosition << xAngle, yAngle;
-    return std::pair< Eigen::Vector2d, double >( cioPosition, originLocator );
+    return ( Eigen::Vector3d( ) << xAngle, yAngle, originLocator ).finished( );
 }
 
 //! Function to calculate GMST according to requested IAU conventions
@@ -154,9 +152,9 @@ double calculateEarthRotationAngleTemplated< Time >(
         const Time currentUt1 )
 {
 
-    int hoursSinceEpoch = currentUt1.getFullPeriods( ) * 3600 / TIME_NORMALIZATION_INTEGER_TERM;
-    int fullDaysSinceEpoch = currentUt1.getFullPeriods( ) * 3600 / TIME_NORMALIZATION_INTEGER_TERM / 24 ;
-    int hoursIntoCurrentDay = hoursSinceEpoch - 24 * fullDaysSinceEpoch;
+//    int hoursSinceEpoch = currentUt1.getFullPeriods( ) * 3600 / TIME_NORMALIZATION_INTEGER_TERM;
+//    int fullDaysSinceEpoch = currentUt1.getFullPeriods( ) * 3600 / TIME_NORMALIZATION_INTEGER_TERM / 24 ;
+//    int hoursIntoCurrentDay = hoursSinceEpoch - 24 * fullDaysSinceEpoch;
 
     return calculateEarthRotationAngle( currentUt1.secondsSinceNoon( ),
                                         basic_astrodynamics::JULIAN_DAY_ON_J2000 + currentUt1.fullDaysSinceEpoch( ) );
@@ -177,10 +175,10 @@ Eigen::Matrix3d getFrameBias(
     {
         iauBp00( referenceJulianDay, julianDaysSinceReference, rb, rp, rbp );
     }
-    return Eigen::Matrix3d::Identity( );
-//    return ( Eigen::Matrix3d( )<< rb[ 0 ][ 0 ], rb[ 0 ][ 1 ], rb[ 0 ][ 2 ],
-//            rb[ 1 ][ 0 ], rb[ 1 ][ 1 ], rb[ 1 ][ 2 ],
-//            rb[ 2 ][ 0 ], rb[ 2 ][ 1 ], rb[ 2 ][ 2 ] ).finished( );
+//    return Eigen::Matrix3d::Identity( );
+    return ( Eigen::Matrix3d( )<< rb[ 0 ][ 0 ], rb[ 0 ][ 1 ], rb[ 0 ][ 2 ],
+            rb[ 1 ][ 0 ], rb[ 1 ][ 1 ], rb[ 1 ][ 2 ],
+            rb[ 2 ][ 0 ], rb[ 2 ][ 1 ], rb[ 2 ][ 2 ] ).finished( );
 
 }
 
