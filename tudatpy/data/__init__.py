@@ -1,1 +1,1 @@
-from .mpc import *
+from . import mpc
