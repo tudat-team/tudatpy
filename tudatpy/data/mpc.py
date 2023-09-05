@@ -5,6 +5,7 @@ from ..kernel.numerical_simulation.estimation_setup import observation  # type:i
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.cm as cm
 import datetime
 
 from astroquery.mpc import MPC
@@ -18,13 +19,13 @@ class BatchMPC:
     def __init__(self) -> None:
         self._table: pd.DataFrame = pd.DataFrame()
         self._observatories: List[str] = []
-        self._satellite_observatories: List[str] = []
+        self._space_telescopes: List[str] = []
         self._bands: List[str] = []
         self._MPC_codes: List[str] = []
         self._size: int = 0
 
-        self._station_info: Union[pd.DataFrame, None] = None
-        self._satellite_observatories_MPC: List[str] = []
+        self._observatory_info: Union[pd.DataFrame, None] = None
+        self._MPC_space_telescopes: List[str] = []
 
         self._get_station_info()
         self._add_observatory_positions()
@@ -47,9 +48,9 @@ class BatchMPC:
         return self._observatories
 
     @property
-    def satellite_observatories(self) -> List[str]:
+    def space_telescopes(self) -> List[str]:
         """List of satellite_observatories in batch"""
-        return self._satellite_observatories
+        return self._space_telescopes
 
     @property
     def MPC_objects(self) -> List[str]:
@@ -79,12 +80,27 @@ class BatchMPC:
     def __len__(self):
         return self._size
 
+    def __add__(self, other):
+        temp = BatchMPC()
+
+        temp._table = (
+            pd.concat([self._table, other._table])
+            .sort_values("epoch")
+            .drop_duplicates()
+        )
+
+        temp._refresh_metadata()
+
+        return temp
+
     # helper functions
     def _refresh_metadata(self) -> None:
         """Update batch metadata"""
+        self._table.drop_duplicates()
+
         self._observatories = list(self._table.observatory.unique())
-        self._satellite_observatories = [
-            x for x in self._observatories if x in self._satellite_observatories_MPC
+        self._space_telescopes = [
+            x for x in self._observatories if x in self._MPC_space_telescopes
         ]
         self._bands = list(self._table.band.unique())
         self._MPC_codes = list(self._table.number.unique())
@@ -97,18 +113,17 @@ class BatchMPC:
         """Retrieve data on MPC listed observatories"""
         try:
             temp = MPC.get_observatory_codes().to_pandas()  # type: ignore
-            sats = list(temp.query("Longitude == None").Code.values)
-            print(sats)
-            self._station_info = temp
-            self._satellite_observatories_MPC = sats
+            # This query checks if Longitude is Nan: non-terretrial telescopes
+            sats = list(temp.query("Longitude != Longitude").Code.values)
+            self._observatory_info = temp
+            self._MPC_space_telescopes = sats
         except Exception as e:
             print("An error occured while retrieving observatory data")
             print(e)
 
     def _add_observatory_positions(self) -> None:
         """Add observatory cartesian postions to station data"""
-        temp = self._station_info
-        print(temp)
+        temp = self._observatory_info
 
         if temp is None:
             # This error will probably never occur
@@ -125,10 +140,10 @@ class BatchMPC:
             .assign(Y=lambda x: x.cos * r_earth * np.sin(np.radians(x.Longitude)))
             .assign(Z=lambda x: x.sin * r_earth)
         )
-        self._station_info = temp
+        self._observatory_info = temp
 
     # methods for data retrievels
-    def get_observations(self, MPCcodes: list) -> None:
+    def get_observations(self, MPCcodes: List[int]) -> None:
         # TODO docstring
         for code in MPCcodes:
             try:
@@ -175,6 +190,7 @@ class BatchMPC:
         # convert object mpc code to string
         obs["number"] = obs.number.astype(str)
         self._table = pd.concat([self._table, obs])
+        self._refresh_metadata()
 
     def from_astropy(
         self, table: astropy.table.QTable, in_degrees: bool = True, frame: str = "J2000"
@@ -243,14 +259,21 @@ class BatchMPC:
                  or the more conventional tudat seconds since j2000 in TDB if float,\
                      by default None
         """
+
+        # basic user input handling
         assert not isinstance(
             observatories, int
-        ), "stations parameter must be of type 'str' or 'list'"
+        ), "stations parameter must be of type 'str' or 'List[str]'"
 
         if isinstance(bands, str):
             bands = [bands]
         if isinstance(observatories, str):
             observatories = [observatories]
+
+        if (observatories is not None) and (observatories_exclude is not None):
+            txt = "Include or exclude observatories, not both at the same time."
+            raise ValueError(txt)
+
         if bands is not None:
             self._table = self._table.query("band == @bands")
         if observatories is not None:
@@ -263,21 +286,23 @@ class BatchMPC:
             elif isinstance(epoch_start, datetime.datetime):
                 self._table = self._table.query("epochUTC >= @epoch_start")
         if epoch_end is not None:
-            if isinstance(epoch_start, float) or isinstance(epoch_start, int):
-                self._table = self._table.query("epochJ2000secondsTDB <= @epoch_start")
-            elif isinstance(epoch_start, datetime.datetime):
-                self._table = self._table.query("epochUTC <= @epoch_start")
+            if isinstance(epoch_end, float) or isinstance(epoch_end, int):
+                self._table = self._table.query("epochJ2000secondsTDB <= @epoch_end")
+            elif isinstance(epoch_end, datetime.datetime):
+                self._table = self._table.query("epochUTC <= @epoch_end")
 
         self._refresh_metadata()
 
     def to_tudat(
         self,
         bodies: environment.SystemOfBodies,
-        included_satellites: Union[Dict[str, str], None] = None,  # keys= MPC
+        included_satellites: Union[Dict[str, str], None] = None,
+        # ^ keys= MPC
         station_body: str = "Earth",
-    ):
+    ) -> Tuple[estimation.ObservationCollection, Dict[str, observation.LinkDefinition]]:
         # TODO docstring
 
+        # start user input validation
         # Ensure that Earth is in the SystemOfBodies object
         try:
             bodies.get(station_body)
@@ -289,7 +314,7 @@ class BatchMPC:
         if included_satellites is not None:
             sat_obs_codes_included = list(included_satellites.keys())
             sat_obs_codes_excluded = list(
-                set(self._satellite_observatories) - set(sat_obs_codes_included)
+                set(self._space_telescopes) - set(sat_obs_codes_included)
             )
 
             # Ensure that the satellite is in the SystemOfBodies object
@@ -301,10 +326,12 @@ class BatchMPC:
                     raise e
         else:
             sat_obs_codes_included = []
-            sat_obs_codes_excluded = self.satellite_observatories
+            sat_obs_codes_excluded = self._space_telescopes
+
+        # end user input validation
 
         # get relevant stations positions
-        tempStations = self._station_info.query("Code == @self.observatories").loc[
+        tempStations = self._observatory_info.query("Code == @self.observatories").loc[
             :, ["Code", "X", "Y", "Z"]
         ]
 
@@ -333,7 +360,7 @@ class BatchMPC:
             station_name = tempStations.iloc[idx].Code
 
             # skip if it is a satellite observatory
-            if station_name in self._satellite_observatories:
+            if station_name in self._space_telescopes:
                 continue
 
             ground_station_settings = environment_setup.ground_station.basic_station(
@@ -418,45 +445,118 @@ class BatchMPC:
             observation_set_list.append(observation_set)
 
         observation_collection = estimation.ObservationCollection(observation_set_list)
-        return observation_collection, list(linksDictionary.values())
+        return observation_collection, linksDictionary
 
-    def plot_observations(self):
+    def plot_observations(self, objects=None, projection="aitoff"):
         fig, ax = plt.subplots(
-            1, 1, subplot_kw={"projection": "aitoff"}, figsize=(12, 6)
+            1, 1, subplot_kw={"projection": projection}, figsize=(15, 7)
         )
 
-        a = plt.scatter(
-            (self._table.RA),
-            (self._table.DEC),
-            s=3,
-            marker="x",
-            c=self._table.epochJ2000secondsTDB,
+        if objects is None:
+            objs = self.MPC_objects
+        else:
+            objs = objects
+
+        markers = ["o", "+", "^"]
+        for idx, obj in enumerate(objs):
+            tab = self._table.query("number == @obj")
+
+            a = plt.scatter(
+                np.unwrap(tab.RA),
+                np.unwrap(tab.DEC),
+                s=5,
+                marker=markers[int(idx % len(markers))],
+                c=tab.epochJ2000secondsTDB,
+                cmap=cm.Spectral,
+                label=obj,
+                vmin=self._table.query("number == @objs").epochJ2000secondsTDB.min(),
+                vmax=self._table.query("number == @objs").epochJ2000secondsTDB.max(),
+            )
+
+        ax.legend()
+        ax.set_xlabel(r"Right Ascension $[\deg]$")
+        ax.set_ylabel(r"Declination $[\deg]$")
+        plt.colorbar(
+            mappable=a,
+            ax=ax,
+           
         )
-        plt.colorbar(mappable=a, ax=ax)
         ax.grid()
+
+        fig.set_tight_layout(True)
+
         return fig
 
-    def summariseBatch(self):
-        print("Batch Summary:")
-        print(f"1. Batch includes {len(self._MPC_codes)} minor planets:")
-        print(self._MPC_codes)
-        # for u in self.MPCcodes:
-        #     print(f"{u} | {self.table.query("num")}")
-        # print(self.table)
-        print(f"2. Batch includes {len(self._observatories)} observatories:")
-        # for u in self.stations:
-        # print(f"{u} | {self.stationInfo.query("")}")
-        print(
-            self._station_info.query("Code == @self.stations").loc[
-                :, ["Code", "Name", "X", "Y", "Z"]
-            ]
-        )
-        print(
-            f"3. Batch ranges from dates {self.table.epochUTC.min()} to {self.table.epochUTC.max()}"
-        )
-        print(f"4. Batch includes {len(self._bands)} minor planets:")
-        print(self._bands)
+    def summary(self):
+        # TODO docstring
         print()
+        print("   Batch Summary:")
+        print(f"1. Batch includes {len(self._MPC_codes)} minor planets:")
+        print("  ", self.MPC_objects)
+        satObs = len(self._table.query("observatory == @self.space_telescopes"))
+        print(
+            f"2. Batch includes {self.size} observations, including {satObs} "
+            + "observations from space telescopes"
+        )
+        print(
+            f"3. The observations range from {self._table.epochUTC.min()} "
+            + f"to {self._table.epochUTC.max()}"
+        )
+        print(f"   In seconds TDB since J2000: {self.epoch_start} to {self.epoch_end}")
+        print(
+            f"   In Julian Days: "
+            + f"{self._table.epoch.min()}"
+            + f" to {self._table.epoch.max()}"
+        )
+        print(
+            f"4. The batch contains observations from {len(self.observatories)} "
+            + f"observatories, including {len(self.space_telescopes)} space telescopes"
+        )
+        print()
+
+    def observatories_table(
+        self,
+        only_in_batch: bool = True,
+        only_space_telescopes=False,
+        include_positions: bool = False,
+    ):
+        # TODO docstring
+        temp = self._observatory_info
+        temp2 = self._table
+        # temp2["observatory "] = temp2.observatory.astype(str)
+        # temp["Code"] = temp.Code.astype(str)
+
+        count_observations = (
+            temp2.groupby("observatory")
+            .count()
+            .rename(columns={"number": "count"})
+            .reset_index(drop=False)
+            .loc[:, ["observatory", "count"]]
+        )
+
+        temp = pd.merge(
+            left=temp,
+            right=count_observations,
+            left_on="Code",
+            right_on="observatory",
+            how="left",
+        )
+        if only_in_batch:
+            temp = temp.query("Code == @self.observatories")
+        if only_space_telescopes:
+            temp = temp.query("Code == @self._MPC_space_telescopes")
+        if not include_positions:
+            temp = temp.loc[:, ["Code", "Name", "count"]]
+        return temp
+
+
+def create_default_angular_observation_settings(
+    links_dict: Dict[str, observation.LinkDefinition]
+) -> List[observation.ObservationSettings]:
+    observation_settings_list = list()
+    for link in list(links_dict.values()):
+        observation_settings_list.append(observation.angular_position(link))
+    return observation_settings_list
 
 
 if __name__ == "__main__":
