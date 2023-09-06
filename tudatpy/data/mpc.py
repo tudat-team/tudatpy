@@ -320,11 +320,11 @@ class BatchMPC:
 
         Parameters
         ----------
-        bands : Union[List[str], str, None], optional
+        bands : Union[List[str], None], optional
             List of observation bands to keep in the batch, by default None
-        observatories : Union[List[str], str, None], optional
+        observatories : Union[List[str], None], optional
             List of observatories to keep in the batch, by default None
-        observatories_exclude : Union[List[str], str, None], optional
+        observatories_exclude : Union[List[str], None], optional
             List of observatories to remove from the batch, by default None
         epoch_start : Union[float, datetime.datetime, None], optional
             Start date to include observations from, can be in python datetime in utc\
