@@ -16,6 +16,31 @@ from typing import Union, Tuple, List, Dict
 
 
 class BatchMPC:
+    """This class provides an interface between observations
+    in the Minor Planet Centre database and Tudat.
+
+    Notes
+    ----------
+    Currently, transformations between reference frames are not implemented.
+    As such observations are only returned in the J2000 Frame.
+
+    Examples
+    ----------
+    Basic sequence of usage:
+
+    Initialise and retrieve data:
+
+    >>> MPCcodes = [1, 4] # Ceres and Vesta 
+    >>> batch = BatchMPC()
+    >>> batch.get_observations(MPCcodes)
+    >>> batch.filter(epoch_start=datetime.datetime(2016, 1, 1))
+
+    Transform to Tudat format:
+    >>> ...
+    >>> bodies = environment_setup.create_system_of_bodies(body_settings)
+    >>> observation_collection, links_dict = batch.to_tudat(bodies=bodies)
+    
+    """
     def __init__(self) -> None:
         self._table: pd.DataFrame = pd.DataFrame()
         self._observatories: List[str] = []
@@ -95,7 +120,7 @@ class BatchMPC:
 
     # helper functions
     def _refresh_metadata(self) -> None:
-        """Update batch metadata"""
+        """Internal. Update batch metadata"""
         self._table.drop_duplicates()
 
         self._observatories = list(self._table.observatory.unique())
@@ -110,7 +135,7 @@ class BatchMPC:
         self._epoch_end = self._table.epochJ2000secondsTDB.max()
 
     def _get_station_info(self) -> None:
-        """Retrieve data on MPC listed observatories"""
+        """Internal. Retrieve data on MPC listed observatories"""
         try:
             temp = MPC.get_observatory_codes().to_pandas()  # type: ignore
             # This query checks if Longitude is Nan: non-terretrial telescopes
@@ -122,7 +147,7 @@ class BatchMPC:
             print(e)
 
     def _add_observatory_positions(self) -> None:
-        """Add observatory cartesian postions to station data"""
+        """Internal. Add observatory cartesian postions to station data"""
         temp = self._observatory_info
 
         if temp is None:
@@ -144,8 +169,22 @@ class BatchMPC:
 
     # methods for data retrievels
     def get_observations(self, MPCcodes: List[int]) -> None:
-        # TODO docstring
+        """Retrieve all observations for a set of MPC listed objeccts.
+        This method uses astroquery to retrieve the observations from the MPC.
+        An internet connection is required, observations are cached for faster subsequent retrieval
+
+        Parameters
+        ----------
+        MPCcodes : List[int]
+            List of integer MPC object codes for minor planets or and comets.
+        """
+
+        if not isinstance(MPCcodes, list):
+            raise ValueError("MPCcodes parameter must be list of integers")
         for code in MPCcodes:
+            if not isinstance(code, int):
+                raise ValueError("All codes in the MPCcodes parameter must be integers")
+
             try:
                 obs = MPC.get_observations(code).to_pandas()  # type: ignore
 
@@ -174,7 +213,7 @@ class BatchMPC:
         self._refresh_metadata()
 
     def _add_table(self, table: pd.DataFrame, in_degrees: bool = True):
-        # TODO docstring
+        """Internal. Formats a manually entered table of observations, use from_astropy or from_pandas."""
         obs = table
         obs = obs.assign(
             epochJ2000secondsTDB=lambda x: (
@@ -195,7 +234,26 @@ class BatchMPC:
     def from_astropy(
         self, table: astropy.table.QTable, in_degrees: bool = True, frame: str = "J2000"
     ):
-        # TODO docstring
+        """Manually input an astropy table with observations into the batch. 
+        Usefull when manual filtering from astroquery is required
+        Table must contain the following columns:
+        number - MPC code of the minor planet\\
+        epoch - in julian days\\
+        RA - right ascension in either degrees or radians (degrees is default)\\
+        DEC - declination in either degrees or radians (degrees is default)\\
+        band - band of the observation (currently unused)\\
+        observatory - MPC code of the observatory
+
+        Parameters
+        ----------
+        table : astropy.table.QTable
+            Astropy table with the observations
+        in_degrees : bool, optional
+            if True RA and DEC are assumed in degrees, else radians, by default True
+        frame : str, optional
+            Reference frame. Please not that only J2000 is currently supported
+            , by default "J2000"
+        """
         if not (
             isinstance(table, astropy.table.QTable)
             or isinstance(table, astropy.table.Table)
@@ -217,7 +275,26 @@ class BatchMPC:
     def from_pandas(
         self, table: pd.DataFrame, in_degrees: bool = True, frame: str = "J2000"
     ):
-        # TODO docstring
+        """Manually input an pandas dataframe with observations into the batch. 
+        Usefull when manual filtering from astroquery is required
+        Table must contain the following columns:
+        number - MPC code of the minor planet\\
+        epoch - in julian days\\
+        RA - right ascension in either degrees or radians (degrees is default)\\
+        DEC - declination in either degrees or radians (degrees is default)\\
+        band - band of the observation (currently unused)\\
+        observatory - MPC code of the observatory
+
+        Parameters
+        ----------
+        table : astropy.table.QTable
+            Astropy table with the observations
+        in_degrees : bool, optional
+            if True RA and DEC are assumed in degrees, else radians, by default True
+        frame : str, optional
+            Reference frame. Please not that only J2000 is currently supported
+            , by default "J2000"
+        """
         if not isinstance(table, pd.DataFrame):
             raise ValueError("Table must be of type pandas.DataFrame")
         if frame != "J2000":
@@ -233,23 +310,22 @@ class BatchMPC:
 
     def filter(
         self,
-        bands: Union[List[str], str, None] = None,
-        observatories: Union[List[str], str, None] = None,
-        observatories_exclude: Union[List[str], str, None] = None,
+        bands: Union[List[str], None] = None,
+        observatories: Union[List[str], None] = None,
+        observatories_exclude: Union[List[str], None] = None,
         epoch_start: Union[float, datetime.datetime, None] = None,
         epoch_end: Union[float, datetime.datetime, None] = None,
     ):
-        # TODO docstring
-        """Filter out observations from the batch
+        """Filter out observations from the batch. This method modifies the batch in place.
 
         Parameters
         ----------
-        bands : Union[list, str, None], optional
-            observation bands to include see MPC for details, by default None
-        stations : Union[list, str, None], optional
-            A list of stations to keep, by default None
-        stations_exclude : Union[list, str, None], optional
-            A list of stations to remove, by default None
+        bands : Union[List[str], str, None], optional
+            List of observation bands to keep in the batch, by default None
+        observatories : Union[List[str], str, None], optional
+            List of observatories to keep in the batch, by default None
+        observatories_exclude : Union[List[str], str, None], optional
+            List of observatories to remove from the batch, by default None
         epoch_start : Union[float, datetime.datetime, None], optional
             Start date to include observations from, can be in python datetime in utc\
                  or the more conventional tudat seconds since j2000 in TDB if float,\
@@ -258,6 +334,13 @@ class BatchMPC:
             Final date to include observations from, can be in python datetime in utc\
                  or the more conventional tudat seconds since j2000 in TDB if float,\
                      by default None
+        Raises
+        ------
+        ValueError
+            Is raised if bands, observatories, or observatories_exclude are not list or None.
+        ValueError
+            Is raised if both observations_exclude and observatories are not None.
+
         """
 
         # basic user input handling
@@ -265,10 +348,18 @@ class BatchMPC:
             observatories, int
         ), "stations parameter must be of type 'str' or 'List[str]'"
 
-        if isinstance(bands, str):
-            bands = [bands]
-        if isinstance(observatories, str):
-            observatories = [observatories]
+        if not (isinstance(observatories, list) or (observatories is None)):
+            raise ValueError("observatories parameter must be list of strings or None")
+
+        if not (
+            isinstance(observatories_exclude, list) or (observatories_exclude is None)
+        ):
+            raise ValueError(
+                "observatories_exclude parameter must be list of strings or None"
+            )
+
+        if not (isinstance(bands, list) or (bands is None)):
+            raise ValueError("bands parameter must be list of strings or None")
 
         if (observatories is not None) and (observatories_exclude is not None):
             txt = "Include or exclude observatories, not both at the same time."
@@ -297,11 +388,62 @@ class BatchMPC:
         self,
         bodies: environment.SystemOfBodies,
         included_satellites: Union[Dict[str, str], None] = None,
-        # ^ keys= MPC
         station_body: str = "Earth",
     ) -> Tuple[estimation.ObservationCollection, Dict[str, observation.LinkDefinition]]:
-        # TODO docstring
+        """Converts the observations in the batch into a Tudat compatible format and
+          sets up the relevant Tudat infrastructure to support estimation.
+        This method does the following:\\
+            1. Creates an empty body for each minor planet with their MPC code as a 
+            name.\\
+            2. Adds this body to the system of bodies inputted to the method.\\
+            3. Retrieves the global position of the terrestrial observatories in 
+            the batch and adds these stations to the Tudat environment.\\
+            4. Creates link definitions between each unique terrestrial 
+            observatory/ minor planet combination in the batch.\\
+            5. (Optionally) creates a link definition between each 
+            space telescope / minor planet combination in the batch. 
+            This requires an addional input.\\
+            6. Creates a `SingleObservationSet` object for each unique link that 
+            includes all observations for that link.\\
+            7. Returns the observations and links
 
+
+        Parameters
+        ----------
+        bodies : environment.SystemOfBodies
+            SystemOfBodies containing at least the earth to allow for the placement of 
+            terrestrial telescopes
+        included_satellites : Union[Dict[str, str], None], optional
+            A dictionary that links the name of a space telescope used by the user with 
+            the observatory code in MPC. Used when utilising observations from space 
+            telescopes like TESS and WISE. The keys should be the MPC observatory 
+            codes. The values should be the bodies' in the user's code. The relevant 
+            observatory code can be retrieved using 
+            the .observatories_table() method, by default None
+        station_body : str, optional
+            Body to attach ground stations to. Does not need to be changed unless the 
+            `Earth` body has been renamed, by default "Earth"
+
+        Returns
+        -------
+        estimation.ObservationCollection
+            ObservationCollection with the observations found in the batch
+        Dict[str, observation.LinkDefinition]
+            Dictionary with the unique link definitions in a dictionary with key 
+            strings "MPCPlanet_MPCobservatory". For example: the key for 
+            the link Ceres-> Fabra Observatory would be "1_006".
+
+        Examples
+        ----------
+        Using Space Telescopes
+
+        Create dictionary to link name in tudat with mpc code in batch:
+
+        >> sats_dict = {"C57":"TESS"}
+        >> obs, links = batch1.to_tudat(bodies, included_satellites=sats_dict)
+
+
+        """
         # start user input validation
         # Ensure that Earth is in the SystemOfBodies object
         try:
@@ -390,10 +532,6 @@ class BatchMPC:
             MPC_number = combo[0]
             station_name = combo[1]
 
-            # TODO this should not happen, temporarily here for testing
-            if station_name in sat_obs_codes_excluded:
-                raise Exception
-
             # CREATE LINKS
             link_ends = dict()
 
@@ -447,9 +585,33 @@ class BatchMPC:
         observation_collection = estimation.ObservationCollection(observation_set_list)
         return observation_collection, linksDictionary
 
-    def plot_observations(self, objects=None, projection="aitoff"):
+    def plot_observations(
+        self,
+        objects: Union[List[str], None] = None,
+        projection: str = "aitoff",
+        figsize: Tuple[float] = (15.0, 7.0),
+    ):
+        """Generates a matplotlib figure with the observations' 
+        right ascension and declination over time.
+
+        Parameters
+        ----------
+        objects : Union[List[str], None], optional
+            List of specific MPC objects in batch to plot, None to plot all
+            , by default None
+        projection : str, optional
+            projection of the figure options are: 'aitoff', 'hammer', 
+            'lambert' and 'mollweide', by default "aitoff"
+        figsize : Tuple[float], optional
+            size of the matplotlib figure, by default (15, 7)
+
+        Returns
+        -------
+        Matplotlib figure
+            Matplotlib figure with the observations
+        """
         fig, ax = plt.subplots(
-            1, 1, subplot_kw={"projection": projection}, figsize=(15, 7)
+            1, 1, subplot_kw={"projection": projection}, figsize=figsize
         )
 
         if objects is None:
@@ -464,31 +626,33 @@ class BatchMPC:
             a = plt.scatter(
                 np.unwrap(tab.RA),
                 np.unwrap(tab.DEC),
-                s=5,
+                s=30,
                 marker=markers[int(idx % len(markers))],
                 c=tab.epochJ2000secondsTDB,
-                cmap=cm.Spectral,
-                label=obj,
+                cmap=cm.plasma,
+                label="MPC: " + obj,
                 vmin=self._table.query("number == @objs").epochJ2000secondsTDB.min(),
                 vmax=self._table.query("number == @objs").epochJ2000secondsTDB.max(),
             )
 
-        ax.legend()
+        ax.legend(markerscale=2)
         ax.set_xlabel(r"Right Ascension $[\deg]$")
         ax.set_ylabel(r"Declination $[\deg]$")
-        plt.colorbar(
-            mappable=a,
-            ax=ax,
-           
-        )
+
+        plt.colorbar(mappable=a, ax=ax, label="Time since J2000 [s]")
+
+        startUTC = self._table.query("number == @objs").epochUTC.min()
+        endUTC = self._table.query("number == @objs").epochUTC.max()
         ax.grid()
+        fig.suptitle(f"{self.size} observations between {startUTC} and {endUTC}")
 
         fig.set_tight_layout(True)
 
         return fig
 
     def summary(self):
-        # TODO docstring
+        """Produce a quick summary of the content of the batch
+        """
         print()
         print("   Batch Summary:")
         print(f"1. Batch includes {len(self._MPC_codes)} minor planets:")
@@ -519,12 +683,25 @@ class BatchMPC:
         only_in_batch: bool = True,
         only_space_telescopes=False,
         include_positions: bool = False,
-    ):
-        # TODO docstring
+    )->pd.DataFrame:
+        """Returns a pandas DataFrame with information about all MPC observatories
+
+        Parameters
+        ----------
+        only_in_batch : bool, optional
+            Filter out observatories that are not in the batch, by default True
+        only_space_telescopes : bool, optional
+            Filter out all observatories except space telescopes, by default False
+        include_positions : bool, optional
+            Include cartesian positions of the terrestrial telescopes, by default False
+
+        Returns
+        -------
+        pd.DataFrame
+            Dataframe with information about the observatories.
+        """
         temp = self._observatory_info
         temp2 = self._table
-        # temp2["observatory "] = temp2.observatory.astype(str)
-        # temp["Code"] = temp.Code.astype(str)
 
         count_observations = (
             temp2.groupby("observatory")
@@ -553,6 +730,20 @@ class BatchMPC:
 def create_default_angular_observation_settings(
     links_dict: Dict[str, observation.LinkDefinition]
 ) -> List[observation.ObservationSettings]:
+    """Create an ObservationSettings object with the default angular_position settings.
+    Usefull if no corrections need to be applied to the link dictionary provided by 
+    .to_tudat()
+
+    Parameters
+    ----------
+    links_dict : Dict[str, observation.LinkDefinition]
+        Dictionary of links provided by .to_tudat()
+
+    Returns
+    -------
+    List[observation.ObservationSettings]
+        List of ObservationSettings for the links.
+    """
     observation_settings_list = list()
     for link in list(links_dict.values()):
         observation_settings_list.append(observation.angular_position(link))
