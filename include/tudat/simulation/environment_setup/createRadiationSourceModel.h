@@ -31,8 +31,7 @@ namespace simulation_setup
 enum class RadiationSourceModelType
 {
     isotropic_point_source,
-    statically_paneled_source,
-    dynamically_paneled_source
+    extended_source
 };
 
 /*!
@@ -604,65 +603,11 @@ private:
 };
 
 /*!
- * Settings for a statically paneled radiation source model.
- *
- * @see StaticallyPaneledRadiationSourceModel
- */
-class StaticallyPaneledRadiationSourceModelSettings : public RadiationSourceModelSettings
-{
-public:
-    /*!
-     * Constructor.
-     *
-     * @param originalSourceName Name of the original source body
-     * @param panelRadiosityModelSettings Vector of settings for radiosity model of all panels
-     * @param numberOfPanels Number of panels for automatic source discretization
-     * @param originalSourceToSourceOccultingBodies Names of bodies to occult the original source as seen from this source
-     */
-    explicit StaticallyPaneledRadiationSourceModelSettings(
-            const std::string& originalSourceName,
-            const std::vector<std::shared_ptr<PanelRadiosityModelSettings>>& panelRadiosityModelSettings,
-            unsigned int numberOfPanels,
-            const std::vector<std::string>& originalSourceToSourceOccultingBodies = {}) :
-            RadiationSourceModelSettings(RadiationSourceModelType::statically_paneled_source),
-            originalSourceName_(originalSourceName),
-            panelRadiosityModelSettings_(panelRadiosityModelSettings),
-            numberOfPanels_(numberOfPanels),
-            originalSourceToSourceOccultingBodies_(originalSourceToSourceOccultingBodies) {}
-
-    std::string getOriginalSourceName() const
-    {
-        return originalSourceName_;
-    }
-
-    unsigned int getNumberOfPanels() const
-    {
-        return numberOfPanels_;
-    }
-
-    const std::vector<std::shared_ptr<PanelRadiosityModelSettings>>& getPanelRadiosityModelSettings() const
-    {
-        return panelRadiosityModelSettings_;
-    }
-
-    std::vector<std::string> getOriginalSourceToSourceOccultingBodies() const
-    {
-        return originalSourceToSourceOccultingBodies_;
-    }
-
-private:
-    std::string originalSourceName_;
-    std::vector<std::shared_ptr<PanelRadiosityModelSettings>> panelRadiosityModelSettings_;
-    unsigned int numberOfPanels_;
-    std::vector<std::string> originalSourceToSourceOccultingBodies_;
-};
-
-/*!
- * Settings for a dynamically paneled radiation source model.
+ * Settings for an extended (dynamically paneled) radiation source model.
  *
  * @see DynamicallyPaneledRadiationSourceModel
  */
-class DynamicallyPaneledRadiationSourceModelSettings : public RadiationSourceModelSettings
+class ExtendedRadiationSourceModelSettings : public RadiationSourceModelSettings
 {
 public:
     /*!
@@ -673,12 +618,12 @@ public:
      * @param numberOfPanelsPerRing Number of panels for each ring, excluding the central cap
      * @param originalSourceToSourceOccultingBodies Names of bodies to occult the original source as seen from this source
      */
-    explicit DynamicallyPaneledRadiationSourceModelSettings(
+    explicit ExtendedRadiationSourceModelSettings(
             const std::string& originalSourceName,
             const std::vector<std::shared_ptr<PanelRadiosityModelSettings>>& panelRadiosityModelSettings,
             const std::vector<int>& numberOfPanelsPerRing,
             const std::vector<std::string>& originalSourceToSourceOccultingBodies = {}) :
-            RadiationSourceModelSettings(RadiationSourceModelType::dynamically_paneled_source),
+            RadiationSourceModelSettings(RadiationSourceModelType::extended_source),
             originalSourceName_(originalSourceName),
             panelRadiosityModelSettings_(panelRadiosityModelSettings),
             numberOfPanelsPerRing_(numberOfPanelsPerRing),
@@ -866,67 +811,22 @@ inline std::shared_ptr<AngleBasedThermalPanelRadiosityModelSettings>
 }
 
 /*!
- * Create settings for a statically paneled radiation source model.
- *
- * @param originalSourceName Name of the original source body
- * @param panelRadiosityModels List of settings for radiosity models of all panels
- * @param numberOfPanels Number of panels for automatic source discretization
- * @param originalSourceToSourceOccultingBodies Names of bodies to occult the original source as seen from this source
- * @return Shared pointer to settings for a statically paneled radiation source model
- */
-inline std::shared_ptr<StaticallyPaneledRadiationSourceModelSettings>
-        staticallyPaneledRadiationSourceModelSettings(
-                const std::string& originalSourceName,
-                std::initializer_list<std::shared_ptr<PanelRadiosityModelSettings>> panelRadiosityModels,
-                unsigned int numberOfPanels,
-                const std::vector<std::string>& originalSourceToSourceOccultingBodies = {})
-{
-    return std::make_shared< StaticallyPaneledRadiationSourceModelSettings >(
-            originalSourceName,
-            std::vector<std::shared_ptr<PanelRadiosityModelSettings>>(panelRadiosityModels),
-            numberOfPanels, originalSourceToSourceOccultingBodies);
-}
-
-/*!
- * Create settings for a dynamically paneled radiation source model.
+ * Create settings for an extended (dynamically paneled) radiation source model.
  *
  * @param originalSourceName Name of the original source body
  * @param panelRadiosityModels List of settings for radiosity models of all panels
  * @param numberOfPanelsPerRing Number of panels for each ring, excluding the central cap
  * @param originalSourceToSourceOccultingBodies Names of bodies to occult the original source as seen from this source
- * @return Shared pointer to settings for a dynamically paneled radiation source model
+ * @return Shared pointer to settings for an extended radiation source model
  */
-inline std::shared_ptr<DynamicallyPaneledRadiationSourceModelSettings>
-        dynamicallyPaneledRadiationSourceModelSettings(
+inline std::shared_ptr<ExtendedRadiationSourceModelSettings>
+        extendedRadiationSourceModelSettings(
                 const std::string& originalSourceName,
                 std::initializer_list<std::shared_ptr<PanelRadiosityModelSettings>> panelRadiosityModels,
                 const std::vector<int>& numberOfPanelsPerRing,
                 const std::vector<std::string>& originalSourceToSourceOccultingBodies = {})
 {
-    return std::make_shared< DynamicallyPaneledRadiationSourceModelSettings >(
-            originalSourceName,
-            std::vector<std::shared_ptr<PanelRadiosityModelSettings>>(panelRadiosityModels),
-            numberOfPanelsPerRing, originalSourceToSourceOccultingBodies);
-}
-
-/*!
- * Create settings for a dynamically paneled radiation source model. The first ring has 6 panels, the second one 12.
- *
- * @param originalSourceName Name of the original source body
- * @param panelRadiosityModels List of settings for radiosity models of all panels
- * @param numberOfPanelsPerRing Number of panels for each ring, excluding the central cap
- * @param originalSourceToSourceOccultingBodies Names of bodies to occult the original source as seen from this source
- * @return Shared pointer to settings for a dynamically paneled radiation source model
- */
-inline std::shared_ptr<DynamicallyPaneledRadiationSourceModelSettings>
-        paneledRadiationSourceModelSettings(
-                const std::string& originalSourceName,
-                std::initializer_list<std::shared_ptr<PanelRadiosityModelSettings>> panelRadiosityModels,
-                const std::vector<std::string>& originalSourceToSourceOccultingBodies = {})
-{
-    // Ring configuration used in Knocke (1988)
-    std::vector<int> numberOfPanelsPerRing{6, 12};
-    return std::make_shared< DynamicallyPaneledRadiationSourceModelSettings >(
+    return std::make_shared< ExtendedRadiationSourceModelSettings >(
             originalSourceName,
             std::vector<std::shared_ptr<PanelRadiosityModelSettings>>(panelRadiosityModels),
             numberOfPanelsPerRing, originalSourceToSourceOccultingBodies);
