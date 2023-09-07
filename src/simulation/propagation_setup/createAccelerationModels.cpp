@@ -1187,6 +1187,14 @@ createRadiationPressureAccelerationModel(
     }
     else if (paneledRadiationSourceModel != nullptr)
     {
+        if( bodies.count( originalSourceName ) == 0 )
+        {
+            throw std::runtime_error( "Error when making radiation pressure acceleration, body " +
+                                      originalSourceName +
+                                      " (original source) was not found. This may happen when a default radiation source " +
+                                      "model is used.");
+        }
+
         const auto& originalSource = bodies.at(originalSourceName);
         auto originalIsotropicPointRadiationSourceModel =
                 std::dynamic_pointer_cast<electromagnetism::IsotropicPointRadiationSourceModel>(
