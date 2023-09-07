@@ -179,6 +179,17 @@ public:
         return isEqual;
     }
 
+
+    std::map< ObservationAncilliarySimulationVariable, double > getDoubleData( ) const
+    {
+        return doubleData_;
+    }
+
+    std::map< ObservationAncilliarySimulationVariable, std::vector< double > > getDoubleVectorData( ) const
+    {
+        return doubleVectorData_;
+    }
+
 protected:
 
     std::map< ObservationAncilliarySimulationVariable, double > doubleData_;

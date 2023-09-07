@@ -851,6 +851,18 @@ std::vector< T > getStlVectorSegment( const std::vector< T > originalVector, con
     typename std::vector< T >::const_iterator last = originalVector.begin() + startIndex + size;
     return std::vector< T >(first, last);
 }
+
+template< typename T, typename S >
+std::vector< T > staticCastVector( const std::vector< S > originalVector )
+{
+    std::vector< T > castVector;
+    for( unsigned int i = 0; i < originalVector.size( ); i++ )
+    {
+        castVector.push_back( static_cast< T >( originalVector.at( i ) ) );
+    }
+    return castVector;
+}
+
 } // namespace utilities
 
 } // namespace tudat

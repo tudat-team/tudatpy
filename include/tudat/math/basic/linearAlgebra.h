@@ -203,6 +203,8 @@ bool doesMatrixHaveNanEntries( const Eigen::Matrix< StateScalarType, NumberOfRow
     return areNanEntriesPresent;
 }
 
+double getVectorEntryMean( const Eigen::VectorXd& inputVector );
+
 //! Function to compute the root mean square value of the entries in an Eigen vector
 /*!
  *  Function to compute the root mean square (RMS) value of the entries in an Eigen vector

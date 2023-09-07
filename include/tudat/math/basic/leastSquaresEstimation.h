@@ -183,6 +183,12 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromD
         const bool checkConditionNumber = 1,
         const double maximumAllowedConditionNumber = 1.0E8 );
 
+
+Eigen::VectorXd evaluatePolynomial(
+    const Eigen::VectorXd& independentValues,
+    const Eigen::VectorXd& polynomialCoefficients,
+    const std::vector< double >& polynomialPowers );
+
 //! Function to fit a univariate polynomial through a set of data
 /*!
  *  Function to fit a univariate polynomial through a set of data. User must provide independent variables and observations
