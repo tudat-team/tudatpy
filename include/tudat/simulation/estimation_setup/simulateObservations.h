@@ -18,6 +18,7 @@
 #include "tudat/astro/observation_models/observationSimulator.h"
 #include "tudat/simulation/estimation_setup/observations.h"
 #include "tudat/basics/utilities.h"
+#include "tudat/math/basic/leastSquaresEstimation.h"
 #include "tudat/math/statistics/randomVariableGenerator.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/estimation_setup/createObservationModel.h"
@@ -678,16 +679,6 @@ Eigen::VectorXd getNumericalObservationTimePartial(
         computedDownperturbedObservationCollection->getObservationVector( ).template cast< double >( ) ) / ( 2.0 * timePerturbation );
 }
 
-template< typename ObservationScalarType = double, typename TimeType = double >
-void estimateTimeBiasAndPolynomialFirPerSet(
-    const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > residualObservationCollection,
-    const Eigen::VectorXd& timePartials,
-    const int polynomialOrder,
-    Eigen::MatrixXd& polynomialCoefficients,
-    Eigen::VectorXd& correctedResiduals )
-{
-
-}
 
 template< typename ObservationScalarType = double, typename TimeType = double >
 void estimateTimeBiasPerSet(
@@ -709,6 +700,69 @@ void estimateTimeBiasPerSet(
             residualVector.segment( startEndIndices.at( i ).first, startEndIndices.at( i ).second ) -
             currentTimeBias * currentPartials;
         timeBiases.push_back( currentTimeBias );
+    }
+}
+
+
+
+template< typename ObservationScalarType = double, typename TimeType = double >
+void estimateTimeBiasAndPolynomialFitPerSet(
+    const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > residualObservationCollection,
+    const Eigen::VectorXd& timePartials,
+    std::vector< double >& timeBiases,
+    std::vector< Eigen::VectorXd >& polynomialCoefficientsList,
+    Eigen::VectorXd& correctedResiduals )
+{
+    estimateTimeBiasPerSet( residualObservationCollection, timePartials, timeBiases, correctedResiduals );
+
+    std::vector< double > stlTimeVector = utilities::staticCastVector< double, TimeType >( residualObservationCollection->getConcatenatedTimeVector( ) );
+    Eigen::VectorXd timeVector = utilities::convertStlVectorToEigenVector< double >( stlTimeVector );
+
+    std::vector< std::pair< int, int > > startEndIndices = residualObservationCollection->getConcatenatedObservationSetStartAndSize( );
+
+//    for( unsigned int i = 0; i < startEndIndices.size( ); i++ )
+//    {
+//        Eigen::VectorXd currentTimes =
+//            timeVector.segment( startEndIndices.at( i ).first, startEndIndices.at( i ).second ).array( ) - timeVector( startEndIndices.at( i ).first );
+//        Eigen::VectorXd currentResiduals = correctedResiduals.segment( startEndIndices.at( i ).first, startEndIndices.at( i ).second );
+//        Eigen::VectorXd polynomialCoefficients = linear_algebra::getLeastSquaresPolynomialFit(
+//            currentTimes, currentResiduals, { 0, 1 } );
+//        polynomialCoefficientsList.push_back( polynomialCoefficients );
+//        Eigen::VectorXd polynomialValues = linear_algebra::evaluatePolynomial( currentTimes, polynomialCoefficients, { 0, 1, 2, 3 } );
+//        correctedResiduals.segment( startEndIndices.at( i ).first, startEndIndices.at( i ).second ) -= polynomialValues;
+//    }
+}
+
+template< typename ObservationScalarType = double, typename TimeType = double >
+void getResidualStatistics(
+    const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > residualObservationCollection,
+    const Eigen::VectorXd& residuals,
+    Eigen::VectorXd& startTimes,
+    Eigen::VectorXd& durations,
+    Eigen::VectorXd& meanValues,
+    Eigen::VectorXd& rmsValues )
+{
+    std::vector< double > stlTimeVector = utilities::staticCastVector< double, TimeType >( residualObservationCollection->getConcatenatedTimeVector( ) );
+    Eigen::VectorXd timeVector = utilities::convertStlVectorToEigenVector< double >( stlTimeVector );
+
+    std::vector< std::pair< int, int > > startEndIndices = residualObservationCollection->getConcatenatedObservationSetStartAndSize( );
+    startTimes = Eigen::VectorXd::Zero( startEndIndices.size( ) );
+    durations = Eigen::VectorXd::Zero( startEndIndices.size( ) );
+    meanValues = Eigen::VectorXd::Zero( startEndIndices.size( ) );
+    rmsValues = Eigen::VectorXd::Zero( startEndIndices.size( ) );
+
+    for( unsigned int i = 0; i < startEndIndices.size( ); i++ )
+    {
+        Eigen::VectorXd currentTimes =
+            timeVector.segment( startEndIndices.at( i ).first, startEndIndices.at( i ).second ).array( ) - timeVector( startEndIndices.at( i ).first );
+        Eigen::VectorXd currentResiduals = residuals.segment( startEndIndices.at( i ).first, startEndIndices.at( i ).second );
+
+        startTimes( i ) = timeVector( startEndIndices.at( i ).first );
+        durations( i ) = currentTimes( currentTimes.rows( ) - 1 ) - currentTimes( 0 );
+        meanValues( i ) = linear_algebra::getVectorEntryMean( currentResiduals );
+        rmsValues( i ) = linear_algebra::getVectorEntryRootMeanSquare( currentResiduals );
+
+
     }
 }
 

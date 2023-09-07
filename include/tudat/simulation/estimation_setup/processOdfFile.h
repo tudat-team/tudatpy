@@ -725,6 +725,76 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
             sortedObservationSets );
 }
 
+template< typename ObservationScalarType = double, typename TimeType = double >
+std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType, TimeType > > compressDopplerData(
+    const std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType, TimeType > > originalDopplerData,
+    const unsigned int compressionRatio )
+{
+
+    ObservationScalarType floatingCompressionRatio = mathematical_constants::getFloatingInteger< ObservationScalarType >( compressionRatio );
+
+    double currentCompressionTime = originalDopplerData->getAncilliarySettings( )->getAncilliaryDoubleData( doppler_integration_time );
+    double newCompressionTime = static_cast< ObservationScalarType >( compressionRatio ) * currentCompressionTime;
+
+    std::shared_ptr< ObservationAncilliarySimulationSettings > newAncilliarySettings =
+        std::make_shared< ObservationAncilliarySimulationSettings >( *(originalDopplerData->getAncilliarySettings( ) ) );
+    newAncilliarySettings->setAncilliaryDoubleData( doppler_integration_time, newCompressionTime );
+
+    std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > originalObservations = originalDopplerData->getObservationsReference( );
+    std::vector< TimeType > originalObservationTimes = originalDopplerData->getObservationTimesReference( );
+
+    std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > compressedObservations;
+    std::vector< TimeType > compressedObservationTimes;
+
+    for( unsigned int i = 0; i < originalObservations.size( ); i+= compressionRatio )
+    {
+        if( originalObservations.size( ) - i > compressionRatio )
+        {
+            Eigen::Matrix<ObservationScalarType, Eigen::Dynamic, 1> newObservable = originalObservations.at( i );
+            TimeType newTime = originalObservationTimes.at( i );
+
+            bool skipObservation = false;
+            for ( unsigned int j = 1; ( j < compressionRatio && !skipObservation ); j++ )
+            {
+                if (( originalObservationTimes.at( i + j ) - originalObservationTimes.at( i + j - 1 ) -
+                      currentCompressionTime ) <
+                    10.0 * std::numeric_limits<double>::epsilon( ) *
+                    static_cast< double >( originalObservationTimes.at( i + j )))
+                {
+                    newObservable += originalObservations.at( i + j );
+                    newTime += originalObservationTimes.at( i + j );
+                }
+                else
+                {
+                    std::cout<<"SKIP"<<std::endl;
+                    skipObservation = true;
+                }
+
+            }
+            if ( !skipObservation )
+            {
+                newObservable /= floatingCompressionRatio;
+                newTime = newTime / floatingCompressionRatio;
+
+                compressedObservations.push_back( newObservable );
+                compressedObservationTimes.push_back( newTime );
+            }
+        }
+    }
+
+    std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySimulationSettings =
+        std::make_shared< ObservationAncilliarySimulationSettings >( *( originalDopplerData->getAncilliarySettings( ) ) );
+    double originalIntegrationTime = ancilliarySimulationSettings->getAncilliaryDoubleData( doppler_integration_time );
+    ancilliarySimulationSettings->setAncilliaryDoubleData( doppler_integration_time, originalIntegrationTime * static_cast< double >( floatingCompressionRatio ) );
+    return std::make_shared< SingleObservationSet< ObservationScalarType, TimeType > >(
+        originalDopplerData->getObservableType( ),
+        originalDopplerData->getLinkEnds( ),
+        compressedObservations, compressedObservationTimes,
+        originalDopplerData->getReferenceLinkEnd( ),
+        std::vector< Eigen::VectorXd >( ),
+        originalDopplerData->getDependentVariableCalculator( ),
+        ancilliarySimulationSettings );
+}
 
 /*!
  * Function modifies the observable types used in the provided observation simulation settings.
