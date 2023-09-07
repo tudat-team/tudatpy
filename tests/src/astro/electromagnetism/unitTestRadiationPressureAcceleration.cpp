@@ -1255,10 +1255,10 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_DynamicallyPaneledSource
     const auto targetModelSettings = cannonballRadiationPressureTargetModelSettings(area, coefficient);
     const auto targetModel = createRadiationPressureTargetModel(targetModelSettings, "Vehicle", bodies);
 
-    const auto sourceModelSettings = dynamicallyPaneledRadiationSourceModelSettings("Sun", {
-                    albedoPanelRadiosityModelSettings(SecondDegreeZonalPeriodicSurfacePropertyDistributionModel::albedo_knocke),
-                    delayedThermalPanelRadiosityModelSettings(SecondDegreeZonalPeriodicSurfacePropertyDistributionModel::emissivity_knocke)
-            }, {6, 12});
+    const auto sourceModelSettings = extendedRadiationSourceModelSettings("Sun", {
+            albedoPanelRadiosityModelSettings(SecondDegreeZonalPeriodicSurfacePropertyDistributionModel::albedo_knocke),
+            delayedThermalPanelRadiosityModelSettings(SecondDegreeZonalPeriodicSurfacePropertyDistributionModel::emissivity_knocke)
+    }, {6, 12});
     const auto sourceModel =
             std::dynamic_pointer_cast<PaneledRadiationSourceModel>(createRadiationSourceModel(sourceModelSettings, globalFrameOrigin, bodies));
 

@@ -351,67 +351,25 @@ std::shared_ptr<electromagnetism::RadiationSourceModel> createRadiationSourceMod
         radiationSourceModel = std::make_shared<IsotropicPointRadiationSourceModel>(luminosityModel);
         break;
     }
-    case RadiationSourceModelType::statically_paneled_source:
+    case RadiationSourceModelType::extended_source:
     {
         auto paneledModelSettings =
-                std::dynamic_pointer_cast< StaticallyPaneledRadiationSourceModelSettings >(modelSettings);
+                std::dynamic_pointer_cast< ExtendedRadiationSourceModelSettings >(modelSettings);
 
         if(paneledModelSettings == nullptr)
         {
             throw std::runtime_error(
-                    "Error, expected statically paneled radiation source for body " + body );
+                    "Error, expected extended radiation source for body " + body );
         }
         if( paneledModelSettings->getOriginalSourceName().empty())
         {
             throw std::runtime_error(
-                    "Error, expected statically paneled radiation source to have an original source for body " + body);
-        }
-        if(paneledModelSettings->getNumberOfPanels() == 0)
-        {
-            throw std::runtime_error(
-                    "Error, expected statically paneled radiation source to have at least one panel for body " + body);
+                    "Error, expected extended radiation source to have an original source for body " + body);
         }
         if(paneledModelSettings->getPanelRadiosityModelSettings().empty())
         {
             throw std::runtime_error(
-                    "Error, expected statically paneled radiation source to have at least one panel radiosity model for body " + body);
-        }
-
-        auto sourceBody = bodies.getBody(body);
-
-        std::vector<std::unique_ptr<SourcePanelRadiosityModel>> radiosityModels;
-        for (auto& radiosityModelSetting : paneledModelSettings->getPanelRadiosityModelSettings())
-        {
-            radiosityModels.push_back(createPanelRadiosityModel(radiosityModelSetting, body));
-        }
-
-        radiationSourceModel = std::make_shared<StaticallyPaneledRadiationSourceModel>(
-                paneledModelSettings->getOriginalSourceName(),
-                sourceBody->getShapeModel(),
-                radiosityModels,
-                paneledModelSettings->getNumberOfPanels(),
-                paneledModelSettings->getOriginalSourceToSourceOccultingBodies());
-        break;
-    }
-    case RadiationSourceModelType::dynamically_paneled_source:
-    {
-        auto paneledModelSettings =
-                std::dynamic_pointer_cast< DynamicallyPaneledRadiationSourceModelSettings >(modelSettings);
-
-        if(paneledModelSettings == nullptr)
-        {
-            throw std::runtime_error(
-                    "Error, expected dynamically paneled radiation source for body " + body );
-        }
-        if( paneledModelSettings->getOriginalSourceName().empty())
-        {
-            throw std::runtime_error(
-                    "Error, expected dynamically paneled radiation source to have an original source for body " + body);
-        }
-        if(paneledModelSettings->getPanelRadiosityModelSettings().empty())
-        {
-            throw std::runtime_error(
-                    "Error, expected dynamically paneled radiation source to have at least one panel radiosity model for body " + body);
+                    "Error, expected extended radiation source to have at least one panel radiosity model for body " + body);
         }
 
         auto sourceBody = bodies.getBody(body);
