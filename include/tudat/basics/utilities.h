@@ -11,6 +11,7 @@
 #ifndef TUDAT_UTILITIES_H
 #define TUDAT_UTILITIES_H
 
+#include <unordered_map>
 #include <map>
 #include <vector>
 #include <iostream>
@@ -91,6 +92,25 @@ std::vector< VectorArgument > createVectorFromMapValues( const std::map< KeyType
 
     return outputVector;
 }
+
+template< typename VectorArgument, typename KeyType >
+std::vector< KeyType > createVectorFromUnorderedMapKeys( const std::unordered_map< KeyType, VectorArgument >& inputMap )
+{
+    // Create and size return vector.
+    std::vector< KeyType > outputVector;
+    outputVector.resize( inputMap.size( ) );
+
+    // Iterate over all map entries and create vector
+    int currentIndex = 0;
+    for( typename std::unordered_map< KeyType, VectorArgument >::const_iterator mapIterator = inputMap.begin( );
+         mapIterator != inputMap.end( ); mapIterator++, currentIndex++ )
+    {
+        outputVector[ currentIndex ] = mapIterator->first;
+    }
+
+    return outputVector;
+}
+
 
 //! Function to create a vector from the keys of a map
 /*!
