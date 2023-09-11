@@ -2057,6 +2057,16 @@ public:
         return bodyMap_.count( bodyName );
     }
 
+    bool doesBodyExist( const std::string& bodyName ) const
+    {
+        return ( this->count( bodyName ) != 0 );
+    }
+
+    std::vector< std::string > getListOfBodies( ) const
+    {
+        return utilities::createVectorFromUnorderedMapKeys( bodyMap_ );
+    }
+
     int getNumberOfBodies( ) const
     {
         return bodyMap_.size( );
