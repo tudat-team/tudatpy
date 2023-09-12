@@ -1047,9 +1047,7 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_StaticallyPaneledSource_
     // Original source, source and target keep their position, occulting bodies move between tests
     {
         // Two occulting bodies but not interfering with radiation
-        const unsigned int expectedVisibleSourcePanelCount = 1;
-        const unsigned int expectedIlluminatedSourcePanelCount = 1;
-        const unsigned int expectedVisibleAndIlluminatedSourcePanelCount = 1;
+        const unsigned int expectedVisibleAndEmittingSourcePanelCount = 1;
 
         const auto originalSourceToSourceOccultingBodyPosition = Eigen::Vector3d(-5, 0, 0);
         const auto sourceToTargetOccultingBodyPosition = Eigen::Vector3d(5, -5, 0);
@@ -1080,21 +1078,15 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_StaticallyPaneledSource_
         accelerationModel.updateMembers(TUDAT_NAN);
 
         const auto actualAcceleration = accelerationModel.getAcceleration().norm();
-        const auto actualVisibleSourcePanelCount = accelerationModel.getVisibleSourcePanelCount();
-        const auto actualIlluminatedSourcePanelCount = accelerationModel.getIlluminatedSourcePanelCount();
-        const auto actualVisibleAndIlluminatedSourcePanelCount = accelerationModel.getVisibleAndIlluminatedSourcePanelCount();
+        const auto actualVisibleAndEmittingSourcePanelCount = accelerationModel.getVisibleAndEmittingSourcePanelCount();
 
         BOOST_CHECK(actualAcceleration > 0);
-        BOOST_CHECK(actualVisibleSourcePanelCount == expectedVisibleSourcePanelCount);
-        BOOST_CHECK(actualIlluminatedSourcePanelCount == expectedIlluminatedSourcePanelCount);
-        BOOST_CHECK(actualVisibleAndIlluminatedSourcePanelCount == expectedVisibleAndIlluminatedSourcePanelCount);
+        BOOST_CHECK(actualVisibleAndEmittingSourcePanelCount == expectedVisibleAndEmittingSourcePanelCount);
     }
 
     {
         // Occulting body only interfering with original source -> source
-        const unsigned int expectedVisibleSourcePanelCount = 1;
-        const unsigned int expectedIlluminatedSourcePanelCount = 0;
-        const unsigned int expectedVisibleAndIlluminatedSourcePanelCount = 0;
+        const unsigned int expectedVisibleAndEmittingSourcePanelCount = 0;
 
         const auto originalSourceToSourceOccultingBodyPosition = Eigen::Vector3d(5, 0, 0);
         const auto sourceToTargetOccultingBodyPosition = Eigen::Vector3d(5, -5, 0);
@@ -1125,21 +1117,15 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_StaticallyPaneledSource_
         accelerationModel.updateMembers(TUDAT_NAN);
 
         const auto actualAcceleration = accelerationModel.getAcceleration().norm();
-        const auto actualVisibleSourcePanelCount = accelerationModel.getVisibleSourcePanelCount();
-        const auto actualIlluminatedSourcePanelCount = accelerationModel.getIlluminatedSourcePanelCount();
-        const auto actualVisibleAndIlluminatedSourcePanelCount = accelerationModel.getVisibleAndIlluminatedSourcePanelCount();
+        const auto actualVisibleAndEmittingSourcePanelCount = accelerationModel.getVisibleAndEmittingSourcePanelCount();
 
         BOOST_CHECK_CLOSE_FRACTION(actualAcceleration, 0, 1e-15);
-        BOOST_CHECK(actualVisibleSourcePanelCount == expectedVisibleSourcePanelCount);
-        BOOST_CHECK(actualIlluminatedSourcePanelCount == expectedIlluminatedSourcePanelCount);
-        BOOST_CHECK(actualVisibleAndIlluminatedSourcePanelCount == expectedVisibleAndIlluminatedSourcePanelCount);
+        BOOST_CHECK(actualVisibleAndEmittingSourcePanelCount == expectedVisibleAndEmittingSourcePanelCount);
     }
 
     {
         // Occulting body only interfering with source -> target
-        const unsigned int expectedVisibleSourcePanelCount = 0;
-        const unsigned int expectedIlluminatedSourcePanelCount = 1;
-        const unsigned int expectedVisibleAndIlluminatedSourcePanelCount = 0;
+        const unsigned int expectedVisibleAndEmittingSourcePanelCount = 0;
 
         const auto originalSourceToSourceOccultingBodyPosition = Eigen::Vector3d(-5, 0, 0);
         const auto sourceToTargetOccultingBodyPosition = Eigen::Vector3d(5, 5, 0);
@@ -1170,21 +1156,15 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_StaticallyPaneledSource_
         accelerationModel.updateMembers(TUDAT_NAN);
 
         const auto actualAcceleration = accelerationModel.getAcceleration().norm();
-        const auto actualVisibleSourcePanelCount = accelerationModel.getVisibleSourcePanelCount();
-        const auto actualIlluminatedSourcePanelCount = accelerationModel.getIlluminatedSourcePanelCount();
-        const auto actualVisibleAndIlluminatedSourcePanelCount = accelerationModel.getVisibleAndIlluminatedSourcePanelCount();
+        const auto actualVisibleAndEmittingSourcePanelCount = accelerationModel.getVisibleAndEmittingSourcePanelCount();
 
         BOOST_CHECK_CLOSE_FRACTION(actualAcceleration, 0, 1e-15);
-        BOOST_CHECK(actualVisibleSourcePanelCount == expectedVisibleSourcePanelCount);
-        BOOST_CHECK(actualIlluminatedSourcePanelCount == expectedIlluminatedSourcePanelCount);
-        BOOST_CHECK(actualVisibleAndIlluminatedSourcePanelCount == expectedVisibleAndIlluminatedSourcePanelCount);
+        BOOST_CHECK(actualVisibleAndEmittingSourcePanelCount == expectedVisibleAndEmittingSourcePanelCount);
     }
 
     {
         // Occulting bodies interfering with both original source -> source and source -> target
-        const unsigned int expectedVisibleSourcePanelCount = 0;
-        const unsigned int expectedIlluminatedSourcePanelCount = 0;
-        const unsigned int expectedVisibleAndIlluminatedSourcePanelCount = 0;
+        const unsigned int expectedVisibleAndEmittingSourcePanelCount = 0;
 
         const auto originalSourceToSourceOccultingBodyPosition = Eigen::Vector3d(5, 0, 0);
         const auto sourceToTargetOccultingBodyPosition = Eigen::Vector3d(5, 5, 0);
@@ -1215,14 +1195,10 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_StaticallyPaneledSource_
         accelerationModel.updateMembers(TUDAT_NAN);
 
         const auto actualAcceleration = accelerationModel.getAcceleration().norm();
-        const auto actualVisibleSourcePanelCount = accelerationModel.getVisibleSourcePanelCount();
-        const auto actualIlluminatedSourcePanelCount = accelerationModel.getIlluminatedSourcePanelCount();
-        const auto actualVisibleAndIlluminatedSourcePanelCount = accelerationModel.getVisibleAndIlluminatedSourcePanelCount();
+        const auto actualVisibleAndEmittingSourcePanelCount = accelerationModel.getVisibleAndEmittingSourcePanelCount();
 
         BOOST_CHECK_CLOSE_FRACTION(actualAcceleration, 0, 1e-15);
-        BOOST_CHECK(actualVisibleSourcePanelCount == expectedVisibleSourcePanelCount);
-        BOOST_CHECK(actualIlluminatedSourcePanelCount == expectedIlluminatedSourcePanelCount);
-        BOOST_CHECK(actualVisibleAndIlluminatedSourcePanelCount == expectedVisibleAndIlluminatedSourcePanelCount);
+        BOOST_CHECK(actualVisibleAndEmittingSourcePanelCount == expectedVisibleAndEmittingSourcePanelCount);
     }
 }
 

@@ -2429,9 +2429,7 @@ std::function< double( ) > getDoubleDependentVariableFunction(
 
             break;
         }
-        case visible_source_panel_count:
-        case illuminated_source_panel_count:
-        case visible_and_illuminated_source_panel_count:
+        case visible_and_emitting_source_panel_count:
         case visible_source_area:
         {
             auto radiationPressureAccelerationList = getAccelerationBetweenBodies(
@@ -2468,14 +2466,8 @@ std::function< double( ) > getDoubleDependentVariableFunction(
 
             switch (dependentVariable)
             {
-                case visible_source_panel_count:
-                    variableFunction = [=] () { return radiationPressureAcceleration->getVisibleSourcePanelCount(); };
-                    break;
-                case illuminated_source_panel_count:
-                    variableFunction = [=] () { return radiationPressureAcceleration->getIlluminatedSourcePanelCount(); };
-                    break;
-                case visible_and_illuminated_source_panel_count:
-                    variableFunction = [=] () { return radiationPressureAcceleration->getVisibleAndIlluminatedSourcePanelCount(); };
+                case visible_and_emitting_source_panel_count:
+                    variableFunction = [=] () { return radiationPressureAcceleration->getVisibleAndEmittingSourcePanelCount(); };
                     break;
                 case visible_source_area:
                     variableFunction = [=] () { return radiationPressureAcceleration->getVisibleSourceArea(); };

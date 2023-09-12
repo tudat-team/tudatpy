@@ -480,13 +480,7 @@ int getDependentVariableSize(
     case received_fraction:
         variableSize = 1;
         break;
-    case visible_source_panel_count:
-        variableSize = 1;
-        break;
-    case illuminated_source_panel_count:
-        variableSize = 1;
-        break;
-    case visible_and_illuminated_source_panel_count:
+    case visible_and_emitting_source_panel_count:
         variableSize = 1;
         break;
     case visible_source_area:

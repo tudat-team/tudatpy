@@ -135,10 +135,8 @@ enum PropagationDependentVariables
     body_inertia_tensor = 62,
     received_irradiance = 63,
     received_fraction = 64,
-    visible_source_panel_count = 65,
-    illuminated_source_panel_count = 66,
-    visible_and_illuminated_source_panel_count = 67,
-    visible_source_area = 68
+    visible_and_emitting_source_panel_count = 65,
+    visible_source_area = 66
 };
 
 // Functional base class for defining settings for dependent variables that are to be saved during propagation
@@ -1378,28 +1376,12 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > receivedFractionDe
 
 }
 
-inline std::shared_ptr< SingleDependentVariableSaveSettings > visibleSourcePanelCountDependentVariable(
+inline std::shared_ptr< SingleDependentVariableSaveSettings > visibleAndEmittingSourcePanelCountDependentVariable(
         const std::string& targetBody,
         const std::string& sourceBody)
 {
     return std::make_shared< SingleDependentVariableSaveSettings >(
-            visible_source_panel_count, targetBody, sourceBody);
-}
-
-inline std::shared_ptr< SingleDependentVariableSaveSettings > illuminatedSourcePanelCountDependentVariable(
-        const std::string& targetBody,
-        const std::string& sourceBody)
-{
-    return std::make_shared< SingleDependentVariableSaveSettings >(
-            illuminated_source_panel_count, targetBody, sourceBody);
-}
-
-inline std::shared_ptr< SingleDependentVariableSaveSettings > visibleAndIlluminatedSourcePanelCountDependentVariable(
-        const std::string& targetBody,
-        const std::string& sourceBody)
-{
-    return std::make_shared< SingleDependentVariableSaveSettings >(
-            visible_and_illuminated_source_panel_count, targetBody, sourceBody);
+            visible_and_emitting_source_panel_count, targetBody, sourceBody);
 }
 
 inline std::shared_ptr< SingleDependentVariableSaveSettings > visibleSourceAreaDependentVariable(

@@ -1096,9 +1096,7 @@ std::vector< std::string > > createEnvironmentUpdaterSettingsForDependentVariabl
     }
     case received_irradiance:
     case received_fraction:
-    case visible_source_panel_count:
-    case illuminated_source_panel_count:
-    case visible_and_illuminated_source_panel_count:
+    case visible_and_emitting_source_panel_count:
     case visible_source_area:
     {
         // TODO-DOMINIK will this update the corresponding acceleration models and also the environment models specified
