@@ -301,14 +301,8 @@ std::string getDependentVariableName(
     case received_fraction:
         variableName = "Received fraction of irradiance";
         break;
-    case visible_source_panel_count:
-        variableName = "Number of visible source panels";
-        break;
-    case illuminated_source_panel_count:
-        variableName = "Number of illuminated source panels";
-        break;
-    case visible_and_illuminated_source_panel_count:
-        variableName = "Number of visible and illuminated source panels";
+    case visible_and_emitting_source_panel_count:
+        variableName = "Number of visible and emitting source panels";
         break;
     case visible_source_area:
         variableName = "Visible area";
@@ -401,10 +395,8 @@ std::string getDependentVariableId(
             variableId += ", exerted by " + dependentVariableSettings->secondaryBody_;
         }
     }
-    else if ((dependentVariableSettings->dependentVariableType_ == visible_source_panel_count) ||
-            (dependentVariableSettings->dependentVariableType_ == illuminated_source_panel_count) ||
-            (dependentVariableSettings->dependentVariableType_ == visible_and_illuminated_source_panel_count) ||
-            (dependentVariableSettings->dependentVariableType_ == visible_source_area))
+    else if ((dependentVariableSettings->dependentVariableType_ == visible_and_emitting_source_panel_count) ||
+             (dependentVariableSettings->dependentVariableType_ == visible_source_area))
     {
         variableId += " of " + dependentVariableSettings->secondaryBody_
                 + " as seen from " + dependentVariableSettings->associatedBody_;
