@@ -100,9 +100,7 @@ Eigen::Vector3d PaneledSourceRadiationPressureAcceleration::calculateAcceleratio
 
     // For dependent variables
     double totalReceivedIrradiance = 0;
-    unsigned int visibleSourcePanelCounter = 0;
-    unsigned int illuminatedSourcePanelCounter = 0;
-    unsigned int visibleAndIlluminatedSourcePanelCounter = 0;
+    unsigned int visibleAndEmittingSourcePanelCounter = 0;
 
     // Calculate radiation pressure force due to all sub-sources in target frame
     Eigen::Vector3d totalForceInTargetFrame = Eigen::Vector3d::Zero();
@@ -132,25 +130,15 @@ Eigen::Vector3d PaneledSourceRadiationPressureAcceleration::calculateAcceleratio
         }
 
         totalReceivedIrradiance += occultedSourceIrradiance;
-        if (sourceToTargetReceivedFraction > 0)
-        {
-            visibleSourcePanelCounter += 1;
-        }
-        if (originalSourceToSourceReceivedFraction > 0)
-        {
-            illuminatedSourcePanelCounter += 1;
-        }
         if (sourceToTargetReceivedFraction > 0 && originalSourceToSourceReceivedFraction > 0)
         {
-            visibleAndIlluminatedSourcePanelCounter += 1;
+            visibleAndEmittingSourcePanelCounter += 1;
         }
     }
 
     // Update dependent variables
     receivedIrradiance = totalReceivedIrradiance;
-    visibleSourcePanelCount = visibleSourcePanelCounter;
-    illuminatedSourcePanelCount = illuminatedSourcePanelCounter;
-    visibleAndIlluminatedSourcePanelCount = visibleAndIlluminatedSourcePanelCounter;
+    visibleAndEmittingSourcePanelCount = visibleAndEmittingSourcePanelCounter;
 
     // Calculate acceleration due to radiation pressure in global frame
     Eigen::Vector3d acceleration = targetRotationFromLocalToGlobalFrame * totalForceInTargetFrame / targetMassFunction_();

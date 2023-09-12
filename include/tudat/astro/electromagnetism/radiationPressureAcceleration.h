@@ -208,9 +208,7 @@ public:
             originalSourceBodyShapeModel_(originalSourceBodyShapeModel),
             originalSourcePositionFunction_(originalSourcePositionFunction),
             originalSourceToSourceOccultationModel_(originalSourceToSourceOccultationModel),
-            visibleSourcePanelCount(-1),
-            illuminatedSourcePanelCount(-1),
-            visibleAndIlluminatedSourcePanelCount(-1) {}
+            visibleAndEmittingSourcePanelCount(-1) {}
 
     std::shared_ptr<RadiationSourceModel> getSourceModel() const override
     {
@@ -227,21 +225,14 @@ public:
         return originalSourceToSourceOccultationModel_;
     }
 
-    unsigned int getVisibleSourcePanelCount() const
+    unsigned int getVisibleAndEmittingSourcePanelCount() const
     {
-        return visibleSourcePanelCount;
+        return visibleAndEmittingSourcePanelCount;
     }
 
-    unsigned int getIlluminatedSourcePanelCount() const
-    {
-        return illuminatedSourcePanelCount;
-    }
-
-    unsigned int getVisibleAndIlluminatedSourcePanelCount() const
-    {
-        return visibleAndIlluminatedSourcePanelCount;
-    }
-
+    /*
+     * Visible area of a paneled source, calculated from sum of areas of visible panels (including non-emitting panels).
+     */
     double getVisibleSourceArea() const
     {
         return sourceModel_->getVisibleArea();
@@ -259,10 +250,8 @@ private:
     std::function<Eigen::Vector3d()> originalSourcePositionFunction_;
     std::shared_ptr<OccultationModel> originalSourceToSourceOccultationModel_;
 
-    // For dependent variables
-    unsigned int visibleSourcePanelCount;
-    unsigned int illuminatedSourcePanelCount;
-    unsigned int visibleAndIlluminatedSourcePanelCount;
+    // For dependent variable
+    unsigned int visibleAndEmittingSourcePanelCount;
 };
 
 } // tudat
