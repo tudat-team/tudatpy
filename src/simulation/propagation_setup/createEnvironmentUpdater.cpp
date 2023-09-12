@@ -1099,8 +1099,6 @@ std::vector< std::string > > createEnvironmentUpdaterSettingsForDependentVariabl
     case visible_and_emitting_source_panel_count:
     case visible_source_area:
     {
-        // TODO-DOMINIK will this update the corresponding acceleration models and also the environment models specified
-        //  in acceleration update for the associated body? (e.g., the radiation source model)
         // Update target position, this should also update the source position
         variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
         break;
