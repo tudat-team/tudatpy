@@ -165,7 +165,6 @@ void StaticallyPaneledRadiationSourceModel::generatePanels(
     {
         const auto polarAngle = polarAngles[i];
         const auto azimuthAngle = azimuthAngles[i];
-        //TODO-DOMINIK if oblate spheroid body, use actual position on surface, same for dynamic paneling
         const auto distanceFromSourceCenter = sourceBodyShapeModel_->getAverageRadius();
 
         // Calculate panel center relative to source center and surface normal in Cartesian coordinates
