@@ -1357,15 +1357,12 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > minimumConstellati
                bodyName, stationName, bodiesToCheck, elevationAngleLimit );
 }
 
-// TODO-DOMINIK add docstring
 inline std::shared_ptr< SingleDependentVariableSaveSettings > receivedIrradianceDependentVariable(
         const std::string& targetBody,
         const std::string& sourceBody )
 {
     return std::make_shared< SingleDependentVariableSaveSettings >(
             received_irradiance, targetBody, sourceBody );
-
-
 }
 inline std::shared_ptr< SingleDependentVariableSaveSettings > receivedFractionDependentVariable(
         const std::string& targetBody,
@@ -1373,7 +1370,6 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > receivedFractionDe
 {
     return std::make_shared< SingleDependentVariableSaveSettings >(
             received_fraction, targetBody, sourceBody );
-
 }
 
 inline std::shared_ptr< SingleDependentVariableSaveSettings > visibleAndEmittingSourcePanelCountDependentVariable(
