@@ -245,6 +245,9 @@ void expose_estimation(py::module &m) {
             .def_property_readonly( "constraints_size",
                                     &tep::EstimatableParameterSet<double>::getConstraintSize,
                                     get_docstring("EstimatableParameterSet.constraints_size").c_str() )
+            .def_property_readonly( "add_global_constraint",
+                                    &tep::EstimatableParameterSet<double>::addGlobalConstraint,
+                                    get_docstring("EstimatableParameterSet.add_global_constraint").c_str() )
             .def_property( "parameter_vector",
                            &tep::EstimatableParameterSet<double>::getFullParameterValues< double >,
                            &tep::EstimatableParameterSet<double>::resetParameterValues< double >,
