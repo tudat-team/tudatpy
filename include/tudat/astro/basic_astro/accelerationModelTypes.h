@@ -28,6 +28,7 @@
 #include "tudat/astro/basic_astro/empiricalAcceleration.h"
 #include "tudat/astro/propulsion/massRateFromThrust.h"
 #include "tudat/astro/electromagnetism/solarSailAcceleration.h"
+#include "tudat/astro/electromagnetism/yarkovskyAcceleration.h"
 
 namespace tudat
 {
@@ -65,7 +66,8 @@ enum AvailableAcceleration
     panelled_radiation_pressure_acceleration,
     momentum_wheel_desaturation_acceleration,
     solar_sail_acceleration,
-    custom_acceleration
+    custom_acceleration,
+    yarkovsky_acceleration
 };
 
 // Function to get a string representing a 'named identification' of an acceleration type
