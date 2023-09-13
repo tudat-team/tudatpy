@@ -8,23 +8,19 @@
  *    http://tudat.tudelft.nl/LICENSE.
  *
  *    References
- *          Pérez-Hernández, J. A., & Benet, L. (2022). Non-zero Yarkovsky acceleration for near-Earth 
- *          asteroid (99942) Apophis. Communications Earth & Environment, 3(1), Article 1. 
+ *          Pérez-Hernández, J. A., & Benet, L. (2022). Non-zero Yarkovsky acceleration for near-Earth
+ *          asteroid (99942) Apophis. Communications Earth & Environment, 3(1), Article 1.
  *          DOI: https://doi.org/10.1038/s43247-021-00337-x
  */
 
 #ifndef TUDAT_YARKOVSKYACCELERATION_H
 #define TUDAT_YARKOVSKYACCELERATION_H
 
-// FIXME: Remove unncecessary includes.
 #include <functional>
 #include <boost/lambda/lambda.hpp>
 
-#include "tudat/astro/basic_astro/orbitalElementConversions.h"
 #include "tudat/astro/basic_astro/accelerationModel.h"
-
-#include "tudat/astro/ephemerides/rotationalEphemeris.h"
-#include "tudat/astro/reference_frames/referenceFrameTransformations.h"
+#include "tudat/astro/basic_astro/physicalConstants.h"
 
 namespace tudat
 {
@@ -32,9 +28,12 @@ namespace tudat
 namespace electromagnetism
 {
 
-//! Class for calculating an Yarkovsky acceleration, based on (Pérez-Hernández & Benet, 2022). 
+//! Class for calculating an Yarkovsky acceleration, based on (Pérez-Hernández & Benet, 2022).
 /*!
- * FIXME: Add the documentation.
+ * Class for calculating an Yarkovsky acceleration, based on (Pérez-Hernández & Benet, 2022).
+ * The acceleration is only considered in the tangential direction and is proportional to
+ * a = A2 * (r0/rS)^2, where A2 is the Yarkovsky parameter, r0 = 1AU and rS is the heliocentric
+ * distance in AU.
  */
 class YarkovskyAcceleration: public basic_astrodynamics::AccelerationModel< Eigen::Vector3d >
 {
@@ -53,7 +52,7 @@ public:
             const std::function< Eigen::Vector6d( ) > centralBodyStateFunction =
             [ ]( ){ return Eigen::Vector6d::Zero( ); } ):
         bodyStateFunction_( bodyStateFunction ), centralBodyStateFunction_( centralBodyStateFunction )
-    { 
+    {
         updateMembers( 0.0 );
     }
 
@@ -72,17 +71,27 @@ public:
             // Calulate current relative state of accelerated body
             currentState_ = bodyStateFunction_( ) - centralBodyStateFunction_( );
 
-            currentYarkovskyDirection_ = currentState_.segment( 3, 3 ).normalized( );
-            currentYarkovskyMagnitude_ = 0.0; // FIXME: Implement Yarkovsky acceleration model.
+            // Get distance from central body
+            currentDistance_ = currentState_.segment( 0, 3 ).norm();
+
+            // Calculate the r0/rS term from (Pérez-Hernández & Benet, 2022)
+            auOverDistance_ = physical_constants::ASTRONOMICAL_UNIT / currentDistance_ ;
+
+            // Calculate the magnitude of the acceleration
+            currentYarkovskyMagnitude_ = yarkovskyParameter_ * auOverDistance_ * auOverDistance_  ;
 
             // Perform sanity check.
-            if( currentLocalAcclereration_ != currentLocalAcclereration_ )
+            if( currentYarkovskyMagnitude_ != currentYarkovskyMagnitude_ )
             {
                 throw std::runtime_error( "Error when computing Yarkovsky acceleration, result is NaN" );
             }
 
-            this->currentTime_ = currentTime;
+            // Find the direction (tangential to the orbit and thus parallel to the velocity)
+            currentYarkovskyDirection_ = currentState_.segment( 3, 3 ).normalized( );
+
+            // Update
             this->currentAcceleration_ = currentYarkovskyMagnitude_ * currentYarkovskyDirection_;
+            this->currentTime_ = currentTime;
         }
     }
 
@@ -97,17 +106,6 @@ public:
     {
         return currentState_;
     }
-
-    //! Function to retrieve current Yarkovsky acceleration in NTW frame.
-    /*!
-     * Function to retrieve current Yarkovsky acceleration in NTW frame.
-     * \return Current Yarkovsky acceleration in NTW frame.
-     */
-    Eigen::Vector3d getCurrentLocalAcceleration( )
-    {
-        return currentLocalAcclereration_;
-    }
-
 
 private:
 
@@ -129,8 +127,14 @@ private:
     //! Current direction of the Yarkovsky acceleration in inertial frame.
     Eigen::Vector3d currentYarkovskyDirection_;
 
-    //! Current magnitude of the Yarkovsky acceleration.
+    //! Current heliocentric distance
+    double currentDistance_;
+
+    //! Current magnitude of the Yarkovsky acceleration
     double currentYarkovskyMagnitude_;
+
+    //! (r0 / rS), where r0 = 1AU and rS = heliocentric distance in AU
+    double auOverDistance_;
 };
 
 }
