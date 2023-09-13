@@ -76,8 +76,8 @@ public:
             currentRotationFromRswToInertialFrame_ = Eigen::Quaterniond(
                         reference_frames::getInertialToRswSatelliteCenteredFrameRotationMatrix( currentState_ ) ).inverse( );
 
-            // FIXME: Implement Yarkovsky acceleration model.
-            currentLocalAcclereration_ = Eigen::Vector3d::Zero( );
+            currentYarkovskyDirection_ = currentState_.segment( 3, 3 ).normalized( );
+            currentYarkovskyMagnitude_ = 0.0; // FIXME: Implement Yarkovsky acceleration model.
 
             // Perform sanity check.
             if( currentLocalAcclereration_ != currentLocalAcclereration_ )
@@ -86,7 +86,7 @@ public:
             }
 
             this->currentTime_ = currentTime;
-            this->currentAcceleration_ = currentRotationFromRswToInertialFrame_ * currentLocalAcclereration_ ;
+            this->currentAcceleration_ = currentYarkovskyMagnitude_ * currentYarkovskyDirection_;
         }
     }
 
@@ -122,6 +122,8 @@ public:
         return currentLocalAcclereration_;
     }
 
+
+
     // //! Function to retrieve current true anomaly of accelerated body in its orbit about the central body.
     // /*!
     //  * Function to retrieve current true anomaly of accelerated body in its orbit about the central body.
@@ -156,6 +158,11 @@ private:
     //! Current Yarkovsky acceleration in NTW frame.
     Eigen::Vector3d currentLocalAcclereration_;
 
+    //! Current direction of the Yarkovsky acceleration in inertial frame.
+    Eigen::Vector3d currentYarkovskyDirection_;
+
+    //! Current magnitude of the Yarkovsky acceleration.
+    double currentYarkovskyMagnitude_;
 };
 
 }
