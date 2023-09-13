@@ -72,10 +72,6 @@ public:
             // Calulate current relative state of accelerated body
             currentState_ = bodyStateFunction_( ) - centralBodyStateFunction_( );
 
-            // Calculate current body-fixed state of accelerated body.
-            currentRotationFromRswToInertialFrame_ = Eigen::Quaterniond(
-                        reference_frames::getInertialToRswSatelliteCenteredFrameRotationMatrix( currentState_ ) ).inverse( );
-
             currentYarkovskyDirection_ = currentState_.segment( 3, 3 ).normalized( );
             currentYarkovskyMagnitude_ = 0.0; // FIXME: Implement Yarkovsky acceleration model.
 
@@ -102,16 +98,6 @@ public:
         return currentState_;
     }
 
-    //! Function to retrieve quaternion defining the rotation from NTW to inertial frame.
-    /*!
-     * Function to retrieve quaternion defining the rotation from NTW to inertial frame.
-     * \return Quaternion defining the rotation from NTW to inertial frame.
-     */
-    Eigen::Quaterniond getCurrentToInertialFrame( )
-    {
-        return currentRotationFromRswToInertialFrame_;
-    }
-
     //! Function to retrieve current Yarkovsky acceleration in NTW frame.
     /*!
      * Function to retrieve current Yarkovsky acceleration in NTW frame.
@@ -121,18 +107,6 @@ public:
     {
         return currentLocalAcclereration_;
     }
-
-
-
-    // //! Function to retrieve current true anomaly of accelerated body in its orbit about the central body.
-    // /*!
-    //  * Function to retrieve current true anomaly of accelerated body in its orbit about the central body.
-    //  * \return Current true anomaly of accelerated body in its orbit about the central body.
-    //  */
-    // double getCurrentTrueAnomaly( )
-    // {
-    //     return currentTrueAnomaly_;
-    // }
 
 
 private:
@@ -148,12 +122,6 @@ private:
 
     //! Current state of the body that is undergoing the Yarkovsky acceleration, relative to central body, in global frame.
     Eigen::Vector6d currentState_;
-
-    //! Quaternion defining the rotation from NTW to inertial frame.
-    Eigen::Quaterniond currentRotationFromRswToInertialFrame_;
-
-    // //! Current true anomaly of accelerated body in its orbit about the central body.
-    // double currentTrueAnomaly_;
 
     //! Current Yarkovsky acceleration in NTW frame.
     Eigen::Vector3d currentLocalAcclereration_;
