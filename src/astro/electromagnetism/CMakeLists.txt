@@ -32,6 +32,7 @@ set(electromagnetism_SOURCES
         "panelledRadiationPressure.cpp"
         "solarSailAcceleration.cpp"
         "solarSailForce.cpp"
+        "yarkovskyAcceleration.cpp"
         )
 
 # Add tests.
