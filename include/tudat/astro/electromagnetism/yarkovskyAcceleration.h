@@ -14,12 +14,9 @@
  */
 
 
-
-
-
-
 #ifndef TUDAT_YARKOVSKYACCELERATION_H
 #define TUDAT_YARKOVSKYACCELERATION_H
+
 #include <functional>
 #include <boost/lambda/lambda.hpp>
 #include "tudat/astro/basic_astro/accelerationModel.h"
@@ -111,6 +108,10 @@ private:
     //! Current state of the body that is undergoing the Yarkovsky acceleration, relative to central body, in global frame.
     Eigen::Vector6d currentState_;
 };
+
+
+//! Typedef for shared-pointer to YarkovskyAcceleration.
+typedef std::shared_ptr< YarkovskyAcceleration > YarkovskyAccelerationPointer;
 
 }
 }
