@@ -13,20 +13,33 @@
  *          DOI: https://doi.org/10.1038/s43247-021-00337-x
  */
 
+
+
+
+
+
 #ifndef TUDAT_YARKOVSKYACCELERATION_H
 #define TUDAT_YARKOVSKYACCELERATION_H
-
 #include <functional>
 #include <boost/lambda/lambda.hpp>
-
 #include "tudat/astro/basic_astro/accelerationModel.h"
 #include "tudat/astro/basic_astro/physicalConstants.h"
+#include "tudat/basics/basicTypedefs.h"
+
 
 namespace tudat
 {
-
 namespace electromagnetism
 {
+
+//! Compute Yarkovsky Acceleration using a simplified tangential model.
+/*!
+ * \param yarkovskyParameter Yarkovsky Parameter N2                                          [m/s^2]
+ * \param stateVector is the state vector pointing from the source to the body
+ *          undergoing the acceleration                                                         [m]
+ * \return Acceleration due to Yarkovsky effect.                                            [m/s^2]
+ */
+Eigen::Vector3d computeYarkovskyAcceleration( double yarkovskyParameter, const Eigen::Vector6d& stateVector );
 
 //! Class for calculating an Yarkovsky acceleration, based on (Pérez-Hernández & Benet, 2022).
 /*!
@@ -46,55 +59,33 @@ public:
      * \param bodyGravitationalParameterFunction Function that returns the state of the body.
      * \param centralBodyStateFunction Functon that returns the state of central body.
      */
-    YarkovskyAcceleration(
-            const double yarkovskyParameter,
-            const std::function< Eigen::Vector6d( ) > bodyStateFunction,
-            const std::function< Eigen::Vector6d( ) > centralBodyStateFunction =
-            [ ]( ){ return Eigen::Vector6d::Zero( ); } ):
-        bodyStateFunction_( bodyStateFunction ), centralBodyStateFunction_( centralBodyStateFunction )
+    YarkovskyAcceleration( const double yarkovskyParameter,
+                           const std::function< Eigen::Vector6d( ) >& bodyStateFunction,
+                           const std::function< Eigen::Vector6d( ) >& centralBodyStateFunction = []( ) { return Eigen::Vector6d::Zero( ); } )
+            : yarkovskyParameter_( yarkovskyParameter ), bodyStateFunction_( bodyStateFunction ),
+              centralBodyStateFunction_( centralBodyStateFunction )
     {
-        updateMembers( 0.0 );
     }
 
     //! Destructor
-    ~YarkovskyAcceleration( ){ }
+    ~YarkovskyAcceleration( ) override = default;
 
     //! Function to update constituent elements of Yarkovsky acceleration to current time
     /*!
      * Function to update constituent elements of Yarkovsky acceleration to current time
      * \param currentTime Time to which Yarkovsky acceleration elements are to be updated.
      */
-    void updateMembers( const double currentTime = TUDAT_NAN )
+    void updateMembers( const double currentTime ) override
     {
-        if( !( this->currentTime_ == currentTime ) )
-        {
-            // Calulate current relative state of accelerated body
+        if ( this->currentTime_ != currentTime ) {
+            // Calculate current relative state of accelerated body
             currentState_ = bodyStateFunction_( ) - centralBodyStateFunction_( );
 
-            // Get distance from central body
-            currentDistance_ = currentState_.segment( 0, 3 ).norm();
-
-            // Calculate the r0/rS term from (Pérez-Hernández & Benet, 2022)
-            auOverDistance_ = physical_constants::ASTRONOMICAL_UNIT / currentDistance_ ;
-
-            // Calculate the magnitude of the acceleration
-            currentYarkovskyMagnitude_ = yarkovskyParameter_ * auOverDistance_ * auOverDistance_  ;
-
-            // Perform sanity check.
-            if( currentYarkovskyMagnitude_ != currentYarkovskyMagnitude_ )
-            {
-                throw std::runtime_error( "Error when computing Yarkovsky acceleration, result is NaN" );
-            }
-
-            // Find the direction (tangential to the orbit and thus parallel to the velocity)
-            currentYarkovskyDirection_ = currentState_.segment( 3, 3 ).normalized( );
-
             // Update
-            this->currentAcceleration_ = currentYarkovskyMagnitude_ * currentYarkovskyDirection_;
+            this->currentAcceleration_ = computeYarkovskyAcceleration( yarkovskyParameter_, currentState_ );
             this->currentTime_ = currentTime;
         }
     }
-
 
     //! Function to retrieve current state of the body that is undergoing the Yarkovsky acceleration, relative to central body
     /*!
@@ -108,7 +99,6 @@ public:
     }
 
 private:
-
     //! Yarkovsky Parameter
     double yarkovskyParameter_;
 
@@ -120,25 +110,8 @@ private:
 
     //! Current state of the body that is undergoing the Yarkovsky acceleration, relative to central body, in global frame.
     Eigen::Vector6d currentState_;
-
-    //! Current Yarkovsky acceleration in NTW frame.
-    Eigen::Vector3d currentLocalAcclereration_;
-
-    //! Current direction of the Yarkovsky acceleration in inertial frame.
-    Eigen::Vector3d currentYarkovskyDirection_;
-
-    //! Current heliocentric distance
-    double currentDistance_;
-
-    //! Current magnitude of the Yarkovsky acceleration
-    double currentYarkovskyMagnitude_;
-
-    //! (r0 / rS), where r0 = 1AU and rS = heliocentric distance in AU
-    double auOverDistance_;
 };
 
 }
-
 }
-
 #endif // TUDAT_YARKOVSKYACCELERATION_H
