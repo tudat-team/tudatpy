@@ -8,7 +8,7 @@
 #    http://tudat.tudelft.nl/LICENSE.
 #
 
-# Set the source files.
+# Set the header files.
 set(electromagnetism_HEADERS
         "cannonBallRadiationPressureAcceleration.h"
         "cannonBallRadiationPressureForce.h"
@@ -19,9 +19,10 @@ set(electromagnetism_HEADERS
         "panelledRadiationPressure.h"
         "solarSailAcceleration.h"
         "solarSailForce.h"
+        "yarkovskyAcceleration.h"
         )
 
-# Set the header files.
+# Set the source files.
 set(electromagnetism_SOURCES
         "cannonBallRadiationPressureAcceleration.cpp"
         "cannonBallRadiationPressureForce.cpp"
