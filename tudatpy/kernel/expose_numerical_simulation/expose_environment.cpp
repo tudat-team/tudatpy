@@ -691,7 +691,11 @@ void expose_environment(py::module &m) {
                  get_docstring("SystemOfBodies.add_body").c_str())
             .def("remove_body", &tss::SystemOfBodies::deleteBody,
                  py::arg("body_name"),
-                 get_docstring("SystemOfBodies.remove_body").c_str());
+                 get_docstring("SystemOfBodies.remove_body").c_str())
+            .def("global_frame_orientation", &tss::SystemOfBodies::getFrameOrientation,
+                 get_docstring("SystemOfBodies.global_frame_orientation").c_str())
+            .def("global_frame_origin", &tss::SystemOfBodies::getFrameOrigin,
+                 get_docstring("SystemOfBodies.global_frame_origin").c_str());
 
 //            .def_property_readonly("number_of_bodies", &tss::SystemOfBodies::getNumberOfBodies,
 //                                   get_docstring("number_of_bodies").c_str() );
