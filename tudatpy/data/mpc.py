@@ -6,6 +6,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
+import matplotlib.dates as mdates
 import datetime
 
 from astroquery.mpc import MPC
@@ -637,8 +638,8 @@ class BatchMPC:
     def plot_observations(
         self,
         objects: Union[List[str], None] = None,
-        projection: str = "aitoff",
-        figsize: Tuple[float] = (15.0, 7.0),
+        projection: Union[str, None] = None,
+        figsize: Tuple[float] = (14.0, 7.0),
     ):
         """Generates a matplotlib figure with the observations'
         right ascension and declination over time.
@@ -669,26 +670,50 @@ class BatchMPC:
             objs = objects
 
         markers = ["o", "+", "^"]
+
+        vmin = mdates.date2num(self._table.query("number == @objs").epochUTC.min())
+        vmax = mdates.date2num(self._table.query("number == @objs").epochUTC.max())
+
         for idx, obj in enumerate(objs):
             tab = self._table.query("number == @obj")
 
             a = plt.scatter(
-                np.unwrap(tab.RA),
-                np.unwrap(tab.DEC),
+                (tab.RA) - np.pi if projection is not None else np.degrees(tab.RA),
+                (tab.DEC) if projection is not None else np.degrees(tab.DEC),
                 s=30,
                 marker=markers[int(idx % len(markers))],
-                c=tab.epochJ2000secondsTDB,
                 cmap=cm.plasma,
                 label="MPC: " + obj,
-                vmin=self._table.query("number == @objs").epochJ2000secondsTDB.min(),
-                vmax=self._table.query("number == @objs").epochJ2000secondsTDB.max(),
+                c=mdates.date2num(tab.epochUTC),
+                vmin=vmin,
+                vmax=vmax,
             )
 
         ax.legend(markerscale=2)
         ax.set_xlabel(r"Right Ascension $[\deg]$")
         ax.set_ylabel(r"Declination $[\deg]$")
 
-        plt.colorbar(mappable=a, ax=ax, label="Time since J2000 [s]")
+        yticks = [
+            f"{x}°"
+            for x in (np.degrees(np.array(ax.get_yticks().tolist())) + 90).astype(int)
+        ]
+        xticks = [
+            f"{x}°"
+            for x in (np.degrees(np.array(ax.get_xticks().tolist())) + 180).astype(int)
+        ]
+        if projection in ["aitoff", "hammer", "mollweide"]:
+            ax.set_yticklabels(yticks)
+            ax.set_xticklabels(xticks)
+        elif projection == "lambert":
+            ax.set_xticklabels(xticks)
+        else:
+            pass
+
+        ticks = np.linspace(vmin, vmax, 7)
+        labels = [mdates.num2date(t).strftime("%d %b %Y") for t in ticks]
+        cbar = plt.colorbar(mappable=a, ax=ax, label="Time", ticks=ticks)
+
+        cbar.ax.set_yticklabels(labels)
 
         startUTC = self._table.query("number == @objs").epochUTC.min()
         endUTC = self._table.query("number == @objs").epochUTC.max()
