@@ -1009,7 +1009,6 @@ public:
                         currentArc.second, false, arcDefiningBodies );
 
             // Set coupled block
-            std::cout << multiArcStateTransition.block( singleArcStateSize_, 0, originalMultiArcStateSize, singleArcStateSize_ ) << "\n\n";
             combinedStateTransitionMatrix.block( singleArcStateSize_, 0, originalMultiArcStateSize, singleArcStateSize_ ) =
                     multiArcStateTransition.block( singleArcStateSize_, 0, originalMultiArcStateSize, singleArcStateSize_ )
                     * singleArcStateTransitionAtArcStart.block( 0, 0, singleArcStateSize_, singleArcStateSize_ );
