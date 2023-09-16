@@ -273,14 +273,16 @@ namespace dependent_variable {
 //                 py::arg("component_index") = -1);
 
 
+        m.def("get_dependent_variable_id",
+              &tp::getDependentVariableId,
+              py::arg("dependent_variable_settings"),
+              get_docstring("get_dependent_variable_id").c_str());
+
+
         //////////////////////////////////////////////////////////////////////////////////////
         /// FREE FUNCTIONS ///////////////////////////////////////////////////////////////////
         //////////////////////////////////////////////////////////////////////////////////////
 
-//        m.def("create",
-//              &tp::createDependentVariableSaveSettings,
-//              py::arg("dependent_variable_list"),
-//              py::arg("print_variable_indices") = true);
 
         m.def("mach_number",
               &tp::machNumberDependentVariable,
