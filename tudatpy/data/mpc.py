@@ -6,6 +6,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
+import matplotlib.dates as mdates
 import datetime
 
 from astroquery.mpc import MPC
@@ -13,6 +14,8 @@ from astropy.time import Time
 import astropy
 
 from typing import Union, Tuple, List, Dict
+
+import copy
 
 
 class BatchMPC:
@@ -30,7 +33,7 @@ class BatchMPC:
 
     Initialise and retrieve data:
 
-    >>> MPCcodes = [1, 4] # Ceres and Vesta 
+    >>> MPCcodes = [1, 4] # Ceres and Vesta
     >>> batch = BatchMPC()
     >>> batch.get_observations(MPCcodes)
     >>> batch.filter(epoch_start=datetime.datetime(2016, 1, 1))
@@ -39,8 +42,9 @@ class BatchMPC:
     >>> ...
     >>> bodies = environment_setup.create_system_of_bodies(body_settings)
     >>> observation_collection, links_dict = batch.to_tudat(bodies=bodies)
-    
+
     """
+
     def __init__(self) -> None:
         self._table: pd.DataFrame = pd.DataFrame()
         self._observatories: List[str] = []
@@ -60,6 +64,24 @@ class BatchMPC:
 
         # for manual additions of table (from_pandas, from_astropy)
         self._req_cols = ["number", "epoch", "RA", "DEC", "band", "observatory"]
+
+    def __copy__(self):
+        new = BatchMPC()
+
+        new._table = copy.deepcopy(self._table)
+        new._refresh_metadata()
+
+        return new
+
+    def copy(self) -> "BatchMPC":
+        """Create a copy of the batch, equivalent to copy.copy(batchMPC())
+
+        Returns
+        -------
+        BatchMPC
+            Copy of batch.
+        """
+        return copy.copy(self)
 
     # getters to make everything read-only
     @property
@@ -315,8 +337,9 @@ class BatchMPC:
         observatories_exclude: Union[List[str], None] = None,
         epoch_start: Union[float, datetime.datetime, None] = None,
         epoch_end: Union[float, datetime.datetime, None] = None,
-    ):
-        """Filter out observations from the batch. This method modifies the batch in place.
+        in_place: bool = True,
+    ) -> Union[None, "BatchMPC"]:
+        """Filter out observations from the batch.
 
         Parameters
         ----------
@@ -334,6 +357,11 @@ class BatchMPC:
             Final date to include observations from, can be in python datetime in utc\
                  or the more conventional tudat seconds since j2000 in TDB if float,\
                      by default None
+        in_place : bool, optional
+            If true, modify the current batch object.\
+                  If false returns a new object that is\
+                      filtered, currect batch remains unmodified, by default True
+
         Raises
         ------
         ValueError
@@ -341,6 +369,10 @@ class BatchMPC:
         ValueError
             Is raised if both observations_exclude and observatories are not None.
 
+        Returns
+        -------
+        None or BatchMPC
+            Returns a new instance of BatchMPC that is filtered.
         """
 
         # basic user input handling
@@ -365,24 +397,41 @@ class BatchMPC:
             txt = "Include or exclude observatories, not both at the same time."
             raise ValueError(txt)
 
-        if bands is not None:
-            self._table = self._table.query("band == @bands")
-        if observatories is not None:
-            self._table = self._table.query("observatory == @observatories")
-        if observatories_exclude is not None:
-            self._table = self._table.query("observatory != @observatories_exclude")
-        if epoch_start is not None:
-            if isinstance(epoch_start, float) or isinstance(epoch_start, int):
-                self._table = self._table.query("epochJ2000secondsTDB >= @epoch_start")
-            elif isinstance(epoch_start, datetime.datetime):
-                self._table = self._table.query("epochUTC >= @epoch_start")
-        if epoch_end is not None:
-            if isinstance(epoch_end, float) or isinstance(epoch_end, int):
-                self._table = self._table.query("epochJ2000secondsTDB <= @epoch_end")
-            elif isinstance(epoch_end, datetime.datetime):
-                self._table = self._table.query("epochUTC <= @epoch_end")
+        if in_place:
+            if bands is not None:
+                self._table = self._table.query("band == @bands")
+            if observatories is not None:
+                self._table = self._table.query("observatory == @observatories")
+            if observatories_exclude is not None:
+                self._table = self._table.query("observatory != @observatories_exclude")
+            if epoch_start is not None:
+                if isinstance(epoch_start, float) or isinstance(epoch_start, int):
+                    self._table = self._table.query(
+                        "epochJ2000secondsTDB >= @epoch_start"
+                    )
+                elif isinstance(epoch_start, datetime.datetime):
+                    self._table = self._table.query("epochUTC >= @epoch_start")
+            if epoch_end is not None:
+                if isinstance(epoch_end, float) or isinstance(epoch_end, int):
+                    self._table = self._table.query(
+                        "epochJ2000secondsTDB <= @epoch_end"
+                    )
+                elif isinstance(epoch_end, datetime.datetime):
+                    self._table = self._table.query("epochUTC <= @epoch_end")
 
-        self._refresh_metadata()
+            self._refresh_metadata()
+            return None
+        else:
+            new = self.copy()
+            new.filter(
+                bands,
+                observatories,
+                observatories_exclude,
+                epoch_start,
+                epoch_end,
+                in_place=True,
+            )
+            return new
 
     def to_tudat(
         self,
@@ -449,12 +498,16 @@ class BatchMPC:
         try:
             bodies.get(station_body)
         except Exception as e:
-            print(f"Body {station_body} is not in bodies")
+            print(
+                f"Body {station_body} is not in bodies, if you have renamed Earth, "
+                + "set the station_body paramater to the new name."
+            )
             raise e
 
         # get satellites to include and exclude
         if included_satellites is not None:
             sat_obs_codes_included = list(included_satellites.keys())
+            # this appears unused but is used in a pandas query:
             sat_obs_codes_excluded = list(
                 set(self._space_telescopes) - set(sat_obs_codes_included)
             )
@@ -468,6 +521,7 @@ class BatchMPC:
                     raise e
         else:
             sat_obs_codes_included = []
+            # this appears unused but is used in a pandas query:
             sat_obs_codes_excluded = self._space_telescopes
 
         # end user input validation
@@ -489,12 +543,8 @@ class BatchMPC:
         observations_table = observations_table.query("Code != @sat_obs_codes_excluded")
 
         # add asteroid bodies to SystemOfBodies object
-        # TODO is there a better way to do this?
-        # bodies map is not exposed
         for body in self._MPC_codes:
-            try:
-                bodies.get(body)
-            except Exception as e:
+            if not bodies.does_body_exist(body):
                 bodies.create_empty_body(str(body))
 
         # add ground stations to the earth body
@@ -588,10 +638,10 @@ class BatchMPC:
     def plot_observations(
         self,
         objects: Union[List[str], None] = None,
-        projection: str = "aitoff",
-        figsize: Tuple[float] = (15.0, 7.0),
+        projection: Union[str, None] = None,
+        figsize: Tuple[float] = (14.0, 7.0),
     ):
-        """Generates a matplotlib figure with the observations' 
+        """Generates a matplotlib figure with the observations'
         right ascension and declination over time.
 
         Parameters
@@ -600,7 +650,7 @@ class BatchMPC:
             List of specific MPC objects in batch to plot, None to plot all
             , by default None
         projection : str, optional
-            projection of the figure options are: 'aitoff', 'hammer', 
+            projection of the figure options are: 'aitoff', 'hammer',
             'lambert' and 'mollweide', by default "aitoff"
         figsize : Tuple[float], optional
             size of the matplotlib figure, by default (15, 7)
@@ -620,26 +670,50 @@ class BatchMPC:
             objs = objects
 
         markers = ["o", "+", "^"]
+
+        vmin = mdates.date2num(self._table.query("number == @objs").epochUTC.min())
+        vmax = mdates.date2num(self._table.query("number == @objs").epochUTC.max())
+
         for idx, obj in enumerate(objs):
             tab = self._table.query("number == @obj")
 
             a = plt.scatter(
-                np.unwrap(tab.RA),
-                np.unwrap(tab.DEC),
+                (tab.RA) - np.pi if projection is not None else np.degrees(tab.RA),
+                (tab.DEC) if projection is not None else np.degrees(tab.DEC),
                 s=30,
                 marker=markers[int(idx % len(markers))],
-                c=tab.epochJ2000secondsTDB,
                 cmap=cm.plasma,
                 label="MPC: " + obj,
-                vmin=self._table.query("number == @objs").epochJ2000secondsTDB.min(),
-                vmax=self._table.query("number == @objs").epochJ2000secondsTDB.max(),
+                c=mdates.date2num(tab.epochUTC),
+                vmin=vmin,
+                vmax=vmax,
             )
 
         ax.legend(markerscale=2)
         ax.set_xlabel(r"Right Ascension $[\deg]$")
         ax.set_ylabel(r"Declination $[\deg]$")
 
-        plt.colorbar(mappable=a, ax=ax, label="Time since J2000 [s]")
+        yticks = [
+            f"{x}°"
+            for x in (np.degrees(np.array(ax.get_yticks().tolist())) + 90).astype(int)
+        ]
+        xticks = [
+            f"{x}°"
+            for x in (np.degrees(np.array(ax.get_xticks().tolist())) + 180).astype(int)
+        ]
+        if projection in ["aitoff", "hammer", "mollweide"]:
+            ax.set_yticklabels(yticks)
+            ax.set_xticklabels(xticks)
+        elif projection == "lambert":
+            ax.set_xticklabels(xticks)
+        else:
+            pass
+
+        ticks = np.linspace(vmin, vmax, 7)
+        labels = [mdates.num2date(t).strftime("%d %b %Y") for t in ticks]
+        cbar = plt.colorbar(mappable=a, ax=ax, label="Time", ticks=ticks)
+
+        cbar.ax.set_yticklabels(labels)
 
         startUTC = self._table.query("number == @objs").epochUTC.min()
         endUTC = self._table.query("number == @objs").epochUTC.max()
@@ -651,8 +725,7 @@ class BatchMPC:
         return fig
 
     def summary(self):
-        """Produce a quick summary of the content of the batch
-        """
+        """Produce a quick summary of the content of the batch"""
         print()
         print("   Batch Summary:")
         print(f"1. Batch includes {len(self._MPC_codes)} minor planets:")
@@ -683,7 +756,7 @@ class BatchMPC:
         only_in_batch: bool = True,
         only_space_telescopes=False,
         include_positions: bool = False,
-    )->pd.DataFrame:
+    ) -> pd.DataFrame:
         """Returns a pandas DataFrame with information about all MPC observatories
 
         Parameters
@@ -725,30 +798,3 @@ class BatchMPC:
         if not include_positions:
             temp = temp.loc[:, ["Code", "Name", "count"]]
         return temp
-
-
-def create_default_angular_observation_settings(
-    links_dict: Dict[str, observation.LinkDefinition]
-) -> List[observation.ObservationSettings]:
-    """Create an ObservationSettings object with the default angular_position settings.
-    Usefull if no corrections need to be applied to the link dictionary provided by 
-    .to_tudat()
-
-    Parameters
-    ----------
-    links_dict : Dict[str, observation.LinkDefinition]
-        Dictionary of links provided by .to_tudat()
-
-    Returns
-    -------
-    List[observation.ObservationSettings]
-        List of ObservationSettings for the links.
-    """
-    observation_settings_list = list()
-    for link in list(links_dict.values()):
-        observation_settings_list.append(observation.angular_position(link))
-    return observation_settings_list
-
-
-if __name__ == "__main__":
-    pass
