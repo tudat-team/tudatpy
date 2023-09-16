@@ -391,6 +391,7 @@ void loadStandardSpiceKernels(const std::vector<std::string> alternativeEphemeri
     {
 
         loadSpiceKernelInTudat(kernelPath + "/codes_300ast_20100725.bsp");
+        loadSpiceKernelInTudat(kernelPath + "/codes_300ast_20100725.tf");
         loadSpiceKernelInTudat(kernelPath + "/inpop19a_TDB_m100_p100_spice.bsp");
         loadSpiceKernelInTudat(kernelPath + "/NOE-4-2020.bsp");
         loadSpiceKernelInTudat(kernelPath + "/NOE-5-2021.bsp");
