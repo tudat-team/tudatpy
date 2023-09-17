@@ -27,148 +27,148 @@ namespace tudat
 namespace unit_tests
 {
 BOOST_AUTO_TEST_SUITE( test_estimation_input_output )
-//
-////! This test checks whether the input/output of the estimation (weights, a priori covariance, unscaled covariance) are
-////! correctly handed
-//BOOST_AUTO_TEST_CASE( test_EstimationInputAndOutput )
-//{
-//    int simulationType = 0;
-//
-//    Eigen::VectorXd parameterPerturbation = getDefaultInitialParameterPerturbation( );
-//
-//    // Define stringent a priori covariance
-//    Eigen::MatrixXd inverseAPrioriCovariance = 1.0E32 * Eigen::MatrixXd::Identity( 7, 7 );
-//
-//    // Define moderate a priori covariance
-//    Eigen::MatrixXd moderateInverseAPriopriCovariance = Eigen::MatrixXd::Zero( 7, 7 );
-//    for( unsigned int i = 0; i < 7; i++ )
-//    {
-//        moderateInverseAPriopriCovariance( i, i ) = 1.0 / ( 1.0E-6 * parameterPerturbation( i ) * parameterPerturbation( i ) );
-//    }
-//
-//    // Run estimation with strong a priori covariance
-//    std::pair< std::shared_ptr< EstimationOutput< double > >, Eigen::VectorXd > estimationOutputWithAprioriCovariance =
-//            executePlanetaryParameterEstimation< double, double >(
-//                simulationType, parameterPerturbation, inverseAPrioriCovariance );
-//
-//    // Run estimation with effectively zero covariance
-//    std::pair< std::shared_ptr< EstimationOutput< double > >, Eigen::VectorXd > estimationOutputWithSmallAprioriCovariance =
-//            executePlanetaryParameterEstimation< double, double >(
-//                simulationType, parameterPerturbation, 1.0E-64 * inverseAPrioriCovariance );
-//
-//    // Run estimation with moderate a priori covariance
-//    std::pair< std::shared_ptr< EstimationOutput< double > >, Eigen::VectorXd > estimationOutputWithModerateAprioriCovariance =
-//            executePlanetaryParameterEstimation< double, double >(
-//                simulationType, parameterPerturbation,  moderateInverseAPriopriCovariance );
-//
-//    // Run estimation without a priori covariance
-//    std::pair< std::shared_ptr< EstimationOutput< double > >, Eigen::VectorXd > estimationOutputWithoutAprioriCovariance =
-//            executePlanetaryParameterEstimation< double, double >(
-//                simulationType, parameterPerturbation );
-//
-//    // Run estimation without a priori covariance and increased weights
-//    double constantWeight = 100.0;
-//    std::pair< std::shared_ptr< EstimationOutput< double > >, Eigen::VectorXd > estimationOutputWithoutAprioriCovarianceAndWeakWeight =
-//            executePlanetaryParameterEstimation< double, double >(
-//                simulationType, parameterPerturbation, Eigen::MatrixXd::Zero( 7, 7 ), constantWeight);
-//
-//    // Retrieve estimation errors and a priori covariances
-//    Eigen::MatrixXd tightConstraintInverseCovariance  =
-//            estimationOutputWithAprioriCovariance.first->getUnnormalizedInverseCovarianceMatrix( );
-//    Eigen::MatrixXd weakConstraintInverseCovariance  =
-//            estimationOutputWithSmallAprioriCovariance.first->getUnnormalizedInverseCovarianceMatrix( );
-//    Eigen::MatrixXd moderateConstraintInverseCovariance  =
-//            estimationOutputWithModerateAprioriCovariance.first->getUnnormalizedInverseCovarianceMatrix( );
-//    Eigen::MatrixXd noConstraintInverseCovariance  =
-//            estimationOutputWithoutAprioriCovariance.first->getUnnormalizedInverseCovarianceMatrix( );
-//    Eigen::MatrixXd noConstraintInverseCovarianceWithWeakWeight  =
-//            estimationOutputWithoutAprioriCovarianceAndWeakWeight.first->getUnnormalizedInverseCovarianceMatrix( );
-//
-//    Eigen::VectorXd tightConstraintError  =
-//            estimationOutputWithAprioriCovariance.second;
-//    Eigen::VectorXd weakConstraintError  =
-//            estimationOutputWithSmallAprioriCovariance.second;
-//    Eigen::VectorXd moderateConstraintError  =
-//            estimationOutputWithModerateAprioriCovariance.second;
-//    Eigen::VectorXd noConstraintError  =
-//            estimationOutputWithoutAprioriCovariance.second;
-//    Eigen::VectorXd noConstraintWeakWeightError  =
-//            estimationOutputWithoutAprioriCovarianceAndWeakWeight.second;
-//
-//    // Check if (effectively) unconstrained solutions converge at expected level
-//    for( unsigned int i = 0; i < 3; i++ )
-//    {
-//        BOOST_CHECK_SMALL( std::fabs( weakConstraintError( i ) ), 1.0E-2 );
-//        BOOST_CHECK_SMALL( std::fabs( weakConstraintError( i + 3 ) ), 1.0E-7 );
-//
-//        BOOST_CHECK_SMALL( std::fabs( noConstraintError( i ) ), 1.0E-2 );
-//        BOOST_CHECK_SMALL( std::fabs( noConstraintError( i + 3 ) ), 1.0E-7 );
-//
-//        BOOST_CHECK_SMALL( std::fabs( noConstraintWeakWeightError( i ) ), 1.0E-2 );
-//        BOOST_CHECK_SMALL( std::fabs( noConstraintWeakWeightError( i + 3 ) ), 1.0E-7 );
-//    }
-//
-//    BOOST_CHECK_SMALL( std::fabs( weakConstraintError( 6 ) ), 500.0 );
-//    BOOST_CHECK_SMALL( std::fabs( noConstraintError( 6 ) ), 500.0 );
-//    BOOST_CHECK_SMALL( std::fabs( noConstraintWeakWeightError( 6 ) ), 500.0 );
-//
-//    for( unsigned int i = 0; i < 7; i++ )
-//    {
-//        // Check if moderately constrained solution has intermediate accuracy
-//        BOOST_CHECK_EQUAL( std::fabs( moderateConstraintError( i ) ) > std::fabs( noConstraintError( i ) ), true );
-//        BOOST_CHECK_EQUAL( std::fabs( moderateConstraintError( i ) ) < std::fabs( tightConstraintError( i ) ), true );
-//
-//        // Check if very tightly constrained solution has not differed from a priori error
-//        BOOST_CHECK_CLOSE_FRACTION( tightConstraintError( i ), parameterPerturbation( i ), 1.0E-8 );
-//
-//        for( unsigned int j = 0; j < 7; j++ )
-//        {
-//            // Check if weights are correctly processed into covarince
-//            BOOST_CHECK_CLOSE_FRACTION( constantWeight * noConstraintInverseCovariance( i, j ),
-//                                        noConstraintInverseCovarianceWithWeakWeight( i, j ), 1.0E-8 );
-//
-//            // Check if tight a priori constraints are processed correctly to a posteriori covariance
-//            if( i == j )
-//            {
-//                BOOST_CHECK_CLOSE_FRACTION(
-//                            tightConstraintInverseCovariance( i, j ), 1.0E32, 1.0E-10 );
-//            }
-//            else
-//            {
-//                BOOST_CHECK_SMALL( tightConstraintInverseCovariance( i, j ) / tightConstraintInverseCovariance( i, i ), 1.0E-10 );
-//
-//            }
-//        }
-//    }
-//}
-//
-////! Test whether the covariance is correctly computed as a function of time
-//BOOST_AUTO_TEST_CASE( test_CovarianceAsFunctionOfTime )
-//{
-//    std::pair< std::shared_ptr< EstimationOutput< double > >, std::shared_ptr< EstimationInput< double, double > > > podData;
-//
-//    // Simulate covariances directly by propagating to different final tomes
-//    std::map< int, Eigen::MatrixXd > manualCovarianes;
-//    for( unsigned int i = 1; i < 5; i++ )
-//    {
-//        executeEarthOrbiterParameterEstimation< double, double >(
-//                    podData, 1.0E7, i, 0, false );
-//        manualCovarianes[ i ] = podData.first->getUnnormalizedCovarianceMatrix( );
-//    }
-//
-//    // Use final calculations to compute covariance as a function of time
-//    std::map< double, Eigen::MatrixXd > automaticCovariances = simulation_setup::calculateCovarianceUsingDataUpToEpoch(
-//                podData.second, podData.first, 86400.0 - 1.0 );
-//
-//    // Check consistency
-//    int counter = 1;
-//    for( std::map< double, Eigen::MatrixXd >::const_iterator covarianceIterator = automaticCovariances.begin( );
-//         covarianceIterator != automaticCovariances.end( ); covarianceIterator++ )
-//    {
-//        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( covarianceIterator->second, manualCovarianes.at( counter ), 1.0E-8 );
-//        counter++;
-//    }
-//}
+
+//! This test checks whether the input/output of the estimation (weights, a priori covariance, unscaled covariance) are
+//! correctly handed
+BOOST_AUTO_TEST_CASE( test_EstimationInputAndOutput )
+{
+    int simulationType = 0;
+
+    Eigen::VectorXd parameterPerturbation = getDefaultInitialParameterPerturbation( );
+
+    // Define stringent a priori covariance
+    Eigen::MatrixXd inverseAPrioriCovariance = 1.0E32 * Eigen::MatrixXd::Identity( 7, 7 );
+
+    // Define moderate a priori covariance
+    Eigen::MatrixXd moderateInverseAPriopriCovariance = Eigen::MatrixXd::Zero( 7, 7 );
+    for( unsigned int i = 0; i < 7; i++ )
+    {
+        moderateInverseAPriopriCovariance( i, i ) = 1.0 / ( 1.0E-6 * parameterPerturbation( i ) * parameterPerturbation( i ) );
+    }
+
+    // Run estimation with strong a priori covariance
+    std::pair< std::shared_ptr< EstimationOutput< double > >, Eigen::VectorXd > estimationOutputWithAprioriCovariance =
+            executePlanetaryParameterEstimation< double, double >(
+                simulationType, parameterPerturbation, inverseAPrioriCovariance );
+
+    // Run estimation with effectively zero covariance
+    std::pair< std::shared_ptr< EstimationOutput< double > >, Eigen::VectorXd > estimationOutputWithSmallAprioriCovariance =
+            executePlanetaryParameterEstimation< double, double >(
+                simulationType, parameterPerturbation, 1.0E-64 * inverseAPrioriCovariance );
+
+    // Run estimation with moderate a priori covariance
+    std::pair< std::shared_ptr< EstimationOutput< double > >, Eigen::VectorXd > estimationOutputWithModerateAprioriCovariance =
+            executePlanetaryParameterEstimation< double, double >(
+                simulationType, parameterPerturbation,  moderateInverseAPriopriCovariance );
+
+    // Run estimation without a priori covariance
+    std::pair< std::shared_ptr< EstimationOutput< double > >, Eigen::VectorXd > estimationOutputWithoutAprioriCovariance =
+            executePlanetaryParameterEstimation< double, double >(
+                simulationType, parameterPerturbation );
+
+    // Run estimation without a priori covariance and increased weights
+    double constantWeight = 100.0;
+    std::pair< std::shared_ptr< EstimationOutput< double > >, Eigen::VectorXd > estimationOutputWithoutAprioriCovarianceAndWeakWeight =
+            executePlanetaryParameterEstimation< double, double >(
+                simulationType, parameterPerturbation, Eigen::MatrixXd::Zero( 7, 7 ), constantWeight);
+
+    // Retrieve estimation errors and a priori covariances
+    Eigen::MatrixXd tightConstraintInverseCovariance  =
+            estimationOutputWithAprioriCovariance.first->getUnnormalizedInverseCovarianceMatrix( );
+    Eigen::MatrixXd weakConstraintInverseCovariance  =
+            estimationOutputWithSmallAprioriCovariance.first->getUnnormalizedInverseCovarianceMatrix( );
+    Eigen::MatrixXd moderateConstraintInverseCovariance  =
+            estimationOutputWithModerateAprioriCovariance.first->getUnnormalizedInverseCovarianceMatrix( );
+    Eigen::MatrixXd noConstraintInverseCovariance  =
+            estimationOutputWithoutAprioriCovariance.first->getUnnormalizedInverseCovarianceMatrix( );
+    Eigen::MatrixXd noConstraintInverseCovarianceWithWeakWeight  =
+            estimationOutputWithoutAprioriCovarianceAndWeakWeight.first->getUnnormalizedInverseCovarianceMatrix( );
+
+    Eigen::VectorXd tightConstraintError  =
+            estimationOutputWithAprioriCovariance.second;
+    Eigen::VectorXd weakConstraintError  =
+            estimationOutputWithSmallAprioriCovariance.second;
+    Eigen::VectorXd moderateConstraintError  =
+            estimationOutputWithModerateAprioriCovariance.second;
+    Eigen::VectorXd noConstraintError  =
+            estimationOutputWithoutAprioriCovariance.second;
+    Eigen::VectorXd noConstraintWeakWeightError  =
+            estimationOutputWithoutAprioriCovarianceAndWeakWeight.second;
+
+    // Check if (effectively) unconstrained solutions converge at expected level
+    for( unsigned int i = 0; i < 3; i++ )
+    {
+        BOOST_CHECK_SMALL( std::fabs( weakConstraintError( i ) ), 1.0E-2 );
+        BOOST_CHECK_SMALL( std::fabs( weakConstraintError( i + 3 ) ), 1.0E-7 );
+
+        BOOST_CHECK_SMALL( std::fabs( noConstraintError( i ) ), 1.0E-2 );
+        BOOST_CHECK_SMALL( std::fabs( noConstraintError( i + 3 ) ), 1.0E-7 );
+
+        BOOST_CHECK_SMALL( std::fabs( noConstraintWeakWeightError( i ) ), 1.0E-2 );
+        BOOST_CHECK_SMALL( std::fabs( noConstraintWeakWeightError( i + 3 ) ), 1.0E-7 );
+    }
+
+    BOOST_CHECK_SMALL( std::fabs( weakConstraintError( 6 ) ), 500.0 );
+    BOOST_CHECK_SMALL( std::fabs( noConstraintError( 6 ) ), 500.0 );
+    BOOST_CHECK_SMALL( std::fabs( noConstraintWeakWeightError( 6 ) ), 500.0 );
+
+    for( unsigned int i = 0; i < 7; i++ )
+    {
+        // Check if moderately constrained solution has intermediate accuracy
+        BOOST_CHECK_EQUAL( std::fabs( moderateConstraintError( i ) ) > std::fabs( noConstraintError( i ) ), true );
+        BOOST_CHECK_EQUAL( std::fabs( moderateConstraintError( i ) ) < std::fabs( tightConstraintError( i ) ), true );
+
+        // Check if very tightly constrained solution has not differed from a priori error
+        BOOST_CHECK_CLOSE_FRACTION( tightConstraintError( i ), parameterPerturbation( i ), 1.0E-8 );
+
+        for( unsigned int j = 0; j < 7; j++ )
+        {
+            // Check if weights are correctly processed into covarince
+            BOOST_CHECK_CLOSE_FRACTION( constantWeight * noConstraintInverseCovariance( i, j ),
+                                        noConstraintInverseCovarianceWithWeakWeight( i, j ), 1.0E-8 );
+
+            // Check if tight a priori constraints are processed correctly to a posteriori covariance
+            if( i == j )
+            {
+                BOOST_CHECK_CLOSE_FRACTION(
+                            tightConstraintInverseCovariance( i, j ), 1.0E32, 1.0E-10 );
+            }
+            else
+            {
+                BOOST_CHECK_SMALL( tightConstraintInverseCovariance( i, j ) / tightConstraintInverseCovariance( i, i ), 1.0E-10 );
+
+            }
+        }
+    }
+}
+
+//! Test whether the covariance is correctly computed as a function of time
+BOOST_AUTO_TEST_CASE( test_CovarianceAsFunctionOfTime )
+{
+    std::pair< std::shared_ptr< EstimationOutput< double > >, std::shared_ptr< EstimationInput< double, double > > > podData;
+
+    // Simulate covariances directly by propagating to different final tomes
+    std::map< int, Eigen::MatrixXd > manualCovarianes;
+    for( unsigned int i = 1; i < 5; i++ )
+    {
+        executeEarthOrbiterParameterEstimation< double, double >(
+                    podData, 1.0E7, i, 0, false );
+        manualCovarianes[ i ] = podData.first->getUnnormalizedCovarianceMatrix( );
+    }
+
+    // Use final calculations to compute covariance as a function of time
+    std::map< double, Eigen::MatrixXd > automaticCovariances = simulation_setup::calculateCovarianceUsingDataUpToEpoch(
+                podData.second, podData.first, 86400.0 - 1.0 );
+
+    // Check consistency
+    int counter = 1;
+    for( std::map< double, Eigen::MatrixXd >::const_iterator covarianceIterator = automaticCovariances.begin( );
+         covarianceIterator != automaticCovariances.end( ); covarianceIterator++ )
+    {
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( covarianceIterator->second, manualCovarianes.at( counter ), 1.0E-8 );
+        counter++;
+    }
+}
 
 BOOST_AUTO_TEST_CASE( test_WeightDefinitions )
 
@@ -360,7 +360,6 @@ BOOST_AUTO_TEST_CASE( test_WeightDefinitions )
     {
         estimationInput->setConstantWeightsMatrix( 0.1 );
         Eigen::VectorXd totalWeights = estimationInput->getWeightsMatrixDiagonals( );
-        std::cout<<"Number of tests"<<totalWeights.rows( )<<std::endl;
 
         for( unsigned int i = 0; i < totalWeights.rows( ); i++ )
         {
@@ -379,7 +378,6 @@ BOOST_AUTO_TEST_CASE( test_WeightDefinitions )
 
         for( auto it : weightPerObservable )
         {
-            std::cout<<"Number of tests"<<observationTypeStartAndSize.at( it.first ).second<<std::endl;
             for( unsigned int i = 0; i < observationTypeStartAndSize.at( it.first ).second; i++ )
             {
                 BOOST_CHECK_CLOSE_FRACTION( totalWeights( observationTypeStartAndSize.at( it.first ).first + i ), it.second, std::numeric_limits< double >::epsilon( ) );
@@ -391,13 +389,12 @@ BOOST_AUTO_TEST_CASE( test_WeightDefinitions )
         Eigen::Vector2d angularPositionWeight;
         angularPositionWeight << 0.1, 0.2;
 
-        estimationInput->setConstantWeightsMatrix( 2.9 );
+        estimationInput->setConstantWeightsMatrix( 2.0 );
         estimationInput->setConstantSingleObservableVectorWeights(
             angular_position, angularPositionWeight );
         Eigen::VectorXd totalWeights = estimationInput->getWeightsMatrixDiagonals( );
 
         std::pair< int, int > startEndIndex = observationTypeStartAndSize.at( angular_position );
-        std::cout<<"Number of tests"<<startEndIndex.second<<std::endl;
 
         for( unsigned int i = 0; i < startEndIndex.first; i++ )
         {
