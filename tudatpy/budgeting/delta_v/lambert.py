@@ -15,7 +15,6 @@ import numpy as np
 # Tudat imports
 from tudatpy.kernel.astro import two_body_dynamics
 from tudatpy.kernel.interface import spice_interface
-from tudatpy.kernel.astro.time_conversion import DateTime
 from tudatpy.kernel.numerical_simulation import environment
 
 
