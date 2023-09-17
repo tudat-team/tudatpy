@@ -1,26 +1,13 @@
-''' 
-Copyright (c) 2010-2020, Delft University of Technology
-All rigths reserved
-
-This file is part of the Tudat. Redistribution and use in source and 
-binary forms, with or without modification, are permitted exclusively
-under the terms of the Modified BSD license. You should have received
-a copy of the license with this file. If not, please or visit:
-http://tudat.tudelft.nl/LICENSE.
-'''
-
 # General imports
 import numpy as np
 from tqdm import tqdm
 
 # Tudat imports
 from tudatpy.kernel import constants
-from tudatpy.kernel.astro.time_conversion import DateTime
+from tudatpy.kernel.astro import time_conversion
 from tudatpy.kernel.numerical_simulation import environment
-
-# Custom imports
-from lambert import calculate_lambert_arc_impulsive_DV
-from plot_porkchop import plot_porkchop
+from tudatpy.mission_design.porkchop import plot_porkchop
+from tudatpy.budgeting.delta_v.lambert import calculate_lambert_arc_impulsive_DV
 
 
 def calculate_DV_time_map(
@@ -28,10 +15,10 @@ def calculate_DV_time_map(
         global_frame_orientation: str,
         departure_body: str,
         target_body: str,
-        earliest_departure_time: DateTime,
-        latest_departure_time: DateTime,
-        earliest_arrival_time: DateTime,
-        latest_arrival_time: DateTime,
+        earliest_departure_time: time_conversion.DateTime,
+        latest_departure_time: time_conversion.DateTime,
+        earliest_arrival_time: time_conversion.DateTime,
+        latest_arrival_time: time_conversion.DateTime,
         time_resolution: float,
         function_to_calculate_DV: callable = calculate_lambert_arc_impulsive_DV
     ):
@@ -84,10 +71,10 @@ def porkchop(
         global_frame_orientation: str,
         departure_body: str,
         target_body: str,
-        earliest_departure_time: DateTime,
-        latest_departure_time: DateTime,
-        earliest_arrival_time: DateTime,
-        latest_arrival_time: DateTime,
+        earliest_departure_time: time_conversion.DateTime,
+        latest_departure_time: time_conversion.DateTime,
+        earliest_arrival_time: time_conversion.DateTime,
+        latest_arrival_time: time_conversion.DateTime,
         time_resolution: float,
         function_to_calculate_DV: callable = calculate_lambert_arc_impulsive_DV,
         # Plot arguments
