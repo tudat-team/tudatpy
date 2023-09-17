@@ -20,9 +20,7 @@ from matplotlib.colors import LinearSegmentedColormap
 
 # Tudat imports
 from tudatpy.kernel import constants
-
-# Timestamp to date conversion
-from utilities import elapsed_time_since_J2000_to_date
+from tudatpy.kernel.astro import time_conversion
 
 
 def plot_porkchop_of_single_field(
@@ -221,7 +219,7 @@ def plot_porkchop_of_single_field(
     x_ticks = np.linspace(departure_epochs.min(), departure_epochs.max(), nx)
     ax.xaxis.set_ticks(
         x_ticks,
-        [f'{elapsed_time_since_J2000_to_date(t)}' for t in x_ticks],
+        [f'{time_conversion.date_time_from_epoch(t).iso_string()[:10]}' for t in x_ticks],
         rotation=90
     )
     # Y axis
@@ -231,7 +229,7 @@ def plot_porkchop_of_single_field(
     y_ticks = np.linspace(arrival_epochs.min(), arrival_epochs.max(), ny)
     ax.yaxis.set_ticks(
         y_ticks,
-        [f'{elapsed_time_since_J2000_to_date(t)}' for t in y_ticks]
+        [f'{time_conversion.date_time_from_epoch(t).iso_string()[:10]}' for t in y_ticks]
     )
 
     # Grid
