@@ -6,11 +6,13 @@ from tqdm import tqdm
 from tudatpy.kernel import constants
 from tudatpy.kernel.astro import time_conversion
 from tudatpy.kernel.numerical_simulation import environment
+
+# Custom imports
 from tudatpy.mission_design.porkchop import plot_porkchop
-from tudatpy.budgeting.delta_v.lambert import calculate_lambert_arc_impulsive_DV
+from tudatpy.budgeting.delta_v.lambert import calculate_lambert_arc_impulsive_delta_v
 
 
-def calculate_DV_time_map(
+def calculate_delta_v_time_map(
         bodies: environment.SystemOfBodies,
         global_frame_orientation: str,
         departure_body: str,
@@ -20,7 +22,7 @@ def calculate_DV_time_map(
         earliest_arrival_time: time_conversion.DateTime,
         latest_arrival_time: time_conversion.DateTime,
         time_resolution: float,
-        function_to_calculate_DV: callable = calculate_lambert_arc_impulsive_DV
+        function_to_calculate_delta_v: callable = calculate_lambert_arc_impulsive_delta_v
     ):
 
     # Input validation
@@ -54,7 +56,7 @@ def calculate_DV_time_map(
         for i_arr in range(n_arr):
             # Calculate ΔV, only if the arrival epoch is greater than the departure epoch
             if arrival_epochs[i_arr] > departure_epochs[i_dep]:
-                ΔV[i_dep, i_arr, :] = function_to_calculate_DV(
+                ΔV[i_dep, i_arr, :] = function_to_calculate_delta_v(
                     bodies, global_frame_orientation,
                     departure_body,
                     target_body,
@@ -76,7 +78,7 @@ def porkchop(
         earliest_arrival_time: time_conversion.DateTime,
         latest_arrival_time: time_conversion.DateTime,
         time_resolution: float,
-        function_to_calculate_DV: callable = calculate_lambert_arc_impulsive_DV,
+        function_to_calculate_delta_v: callable = calculate_lambert_arc_impulsive_delta_v,
         # Plot arguments
         C3: bool = False,
         total: bool = False,
@@ -95,7 +97,7 @@ def porkchop(
     """
 
     # Calculate ΔV map
-    [departure_epochs, arrival_epochs, ΔV] = calculate_DV_time_map(
+    [departure_epochs, arrival_epochs, ΔV] = calculate_delta_v_time_map(
         bodies                   = bodies,
         global_frame_orientation = global_frame_orientation,
         departure_body           = departure_body,
@@ -105,7 +107,7 @@ def porkchop(
         earliest_arrival_time    = earliest_arrival_time,
         latest_arrival_time      = latest_arrival_time,
         time_resolution          = time_resolution,
-        function_to_calculate_DV = function_to_calculate_DV
+        function_to_calculate_delta_v = function_to_calculate_delta_v
     )
 
     # Plot porkchop
@@ -114,7 +116,7 @@ def porkchop(
         target_body      = target_body,
         departure_epochs = departure_epochs,
         arrival_epochs   = arrival_epochs, 
-        DV               = ΔV,
+        delta_v          = ΔV,
         C3               = C3,
         total            = total,
         threshold        = threshold,
