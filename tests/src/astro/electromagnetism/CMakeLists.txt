@@ -39,8 +39,8 @@ TUDAT_ADD_TEST_CASE(SolarSailAccelerationAndForce
 
 TUDAT_ADD_TEST_CASE(YarkovskyAcceleration
         PRIVATE_LINKS
-        tudat_electromagnetism
-        tudat_basic_astrodynamics)
+        ${Tudat_PROPAGATION_LIBRARIES}
+        )
 
 # Add unit tests.
 #add_executable(test_CannonBallRadiationPressureAccelerationAndForce "${SRCROOT}${ELECTROMAGNETISMDIR}/tests/unitTestCannonBallRadiationPressureAccelerationAndForce.cpp")
