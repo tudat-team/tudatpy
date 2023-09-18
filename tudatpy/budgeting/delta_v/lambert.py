@@ -18,14 +18,14 @@ from tudatpy.kernel.interface import spice_interface
 from tudatpy.kernel.numerical_simulation import environment
 
 
-def calculate_lambert_arc_impulsive_DV(
+def calculate_lambert_arc_impulsive_delta_v(
         bodies: environment.SystemOfBodies,
         global_frame_orientation: str,
         departure_body: str,
         target_body: str,
         departure_epoch: int,
         arrival_epoch: int,
-        central_body: str = 'Sun' ) -> float:
+        central_body: str = 'Sun' ) -> tuple[float]:
 
     """"
     This function solved Lambert's problem for a transfer from Earth (at departure epoch) to
