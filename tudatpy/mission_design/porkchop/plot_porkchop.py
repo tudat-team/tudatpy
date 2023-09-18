@@ -32,7 +32,7 @@ def plot_porkchop_of_single_field(
     delta_v: np.ndarray,
     C3: bool = False,
     threshold: float = 10,
-    upscale: bool = True,
+    upscale: bool = False,
     # Plot arguments
     filled_contours: bool = True,
     plot_out_of_range_field: bool = True,
@@ -109,6 +109,9 @@ def plot_porkchop_of_single_field(
         hspace=0.2,
         wspace=0.2
     )
+    
+    # Determine contour levels
+    levels = np.logspace(np.log10(field_within_range.min()), np.log10(field_within_range.max()), number_of_levels)
 
     # Filled contour
     if filled_contours:
@@ -122,7 +125,7 @@ def plot_porkchop_of_single_field(
             arrival_epochs,
             field_within_range,
             cmap=cmap,
-            levels=np.logspace(np.log10(field_within_range.min()), np.log10(field_within_range.max()), number_of_levels),
+            levels=levels,
             zorder=1.5)
     # Levels
     contour_lines = plt.contour(
@@ -131,7 +134,7 @@ def plot_porkchop_of_single_field(
         field,
         colors=line_color,
         linewidths=line_width,
-        levels=np.logspace(np.log10(field_within_range.min()), np.log10(field_within_range.max()), number_of_levels),
+        levels=levels,
         zorder=1.5)
     plt.clabel(
         contour_lines,
@@ -154,6 +157,7 @@ def plot_porkchop_of_single_field(
              pad=12.5,
              x=2.5
         )
+        cbar.ax.yaxis.set_ticks(levels)
         plt.sca(ax)
 
     # Global optimum
@@ -283,7 +287,7 @@ def plot_porkchop(
     C3: bool = False,
     total: bool = False,
     threshold: float = 10,
-    upscale: bool = True,
+    upscale: bool = False,
     # Plot arguments
     number_of_levels: int = 20,
     # Figure arguments
