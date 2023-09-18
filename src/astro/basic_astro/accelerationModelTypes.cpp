@@ -203,6 +203,10 @@ AvailableAcceleration getAccelerationModelType(
     {
         accelerationType = solar_sail_acceleration;
     }
+    else if (std::dynamic_pointer_cast<YarkovskyAcceleration>(accelerationModel) != nullptr)
+    {
+        accelerationType = yarkovsky_acceleration;
+    }
     else if( std::dynamic_pointer_cast< CustomAccelerationModel >( accelerationModel ) != nullptr )
     {
         accelerationType = custom_acceleration;
