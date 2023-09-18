@@ -2,6 +2,7 @@ from astroquery.jplhorizons import Horizons
 from astropy.time import Time, TimeDelta
 import astropy.units as u
 from astropy.table import vstack
+
 # import tqdm.tqdm as tqdm
 
 import math
@@ -18,17 +19,16 @@ import re
 
 class HorizonsQuery:
     query_limit = 90024
-    query_limit_array = 90024
 
     def __init__(
         self,
         query_id: str,
         location: str,
         query_type: str = "default",
-        epoch_list: Union[float, list, None] = None,
-        epoch_start: Union[float, datetime.datetime, None] = None,
-        epoch_end: Union[float, datetime.datetime, None] = None,
-        epoch_step: Union[int, str, None] = None,
+        epoch_list: Union[list, None] = None,
+        epoch_start: Union[datetime.datetime, float, None] = None,
+        epoch_end: Union[datetime.datetime, float, None] = None,
+        epoch_step: Union[str, None] = None,
         extended_query: bool = False,
     ) -> None:
         self.query_id = query_id
@@ -43,31 +43,24 @@ class HorizonsQuery:
         self.queries = []
         self.query_lengths = []
 
+        # ##############
         # error handling
-        # epoch range format:
+        # ##############
 
+        # epoch range format:
         # epoch_list is none rest is not none
-        # start end step format
         if epoch_list is None:
             if (epoch_start is None) or (epoch_end is None) or (epoch_step is None):
                 raise ValueError(
-                    "Must specify either a list of times in sec since J2000 \
-                                 or a combined start, end and step parameters"
+                    "Must specify either a list of times in sec since J2000 " +
+                    "or a combined start, end and step parameters"
                 )
             else:
                 ts_seconds, num_lines = self._interpret_timestep(
                     epoch_step, epoch_start, epoch_end
                 )
 
-                epoch_start_converted = self._format_time(epoch_start)
-                epoch_end_converted = self._format_time(epoch_end)
-                epoch_step_converted = self._convert_timestep(epoch_step)
-
-                epoch_def = dict(
-                    start=epoch_start_converted,
-                    stop=epoch_end_converted,
-                    step=epoch_step_converted,
-                )
+                self._validate_time_range(epoch_start, epoch_end)
 
                 if re.findall(r"\d+", epoch_step)[0] == epoch_step:
                     self.epoch_type = "partition"
@@ -76,33 +69,20 @@ class HorizonsQuery:
 
         # epoch list format:
         # start step end is none, list nnot none
-        elif (
-            (epoch_start is None)
-            and (epoch_end is None)
-            and (epoch_step is None)
-        ):
+        elif (epoch_start is None) and (epoch_end is None) and (epoch_step is None):
             if epoch_list is None:
                 raise ValueError(
-                    "Must specify either a list of times in sec since J2000 \
-                                 or a combined start, end and step parameters not both"
+                    "Must specify either a list of times in sec since J2000 "
+                    + "or a combined start, end and step parameters not both"
                 )
-
-            # if it is a singular int or float
-            if (
-                isinstance(epoch_list, float)
-                or isinstance(epoch_list, int)
-                or isinstance(epoch_list, datetime.datetime)
-            ):
-                epoch_def = [self._format_time(epoch_list)]
-                self.epoch_type = "list"
-            # if it is an actual list
             elif isinstance(epoch_list, list) or isinstance(epoch_list, tuple):
-                epoch_def = [self._format_time(x) for x in epoch_list]
+
                 self.epoch_type = "list"
                 num_lines = len(epoch_list)
+
             else:
                 raise ValueError(
-                    "epoch_list must be a list of/singular float int or datetime object"
+                    "epoch_list must be a list of times in sec since J2000"
                 )
         # no format
         else:
@@ -156,6 +136,16 @@ class HorizonsQuery:
 
         # query is smaller than limit -> one batch
         elif num_lines < HorizonsQuery.query_limit:
+            if self.epoch_type == "list":
+                # convert seconds since J2000 TDB to JD TDB
+                epoch_def = self._format_time_list(epoch_list)
+            else:
+                epoch_def = dict(
+                    start=self._format_time_range(epoch_start),
+                    stop=self._format_time_range(epoch_end),
+                    step=epoch_step,
+                )
+                
             self.queries.append(
                 Horizons(
                     id=self.query_id,
@@ -174,6 +164,7 @@ class HorizonsQuery:
             if self.epoch_type == "list":
                 num_splits = math.ceil(num_lines / HorizonsQuery.query_limit)
 
+                epoch_def = self._format_time_list(epoch_list)
                 splits = np.array_split(epoch_def, num_splits)
 
                 # makes a set of queries that are at the query limit, plus 1 smaller one
@@ -190,15 +181,14 @@ class HorizonsQuery:
                     )
                     self.query_lengths.append(len(split))
 
-            elif (self.epoch_type == "range") or (self.epoch_type == "partition"): 
-
+            elif (self.epoch_type == "range") or (self.epoch_type == "partition"):
                 start_astro = self._convert_time_to_astropy(epoch_start)
                 end_astro = self._convert_time_to_astropy(epoch_end)
 
                 ts_seconds = ts_seconds * u.second
 
                 max_query_step = TimeDelta(
-                    ((HorizonsQuery.query_limit-1) * ts_seconds), format="sec"
+                    ((HorizonsQuery.query_limit - 1) * ts_seconds), format="sec"
                 )
 
                 next_start = start_astro
@@ -207,20 +197,19 @@ class HorizonsQuery:
                 formatt = r"%Y-%m-%d %H:%M:%S.%f"
 
                 while next_limit < end_astro:
-                    query_len = math.ceil((next_limit-next_start) / ts_seconds)
+                    query_len = math.ceil((next_limit - next_start) / ts_seconds)
                     self.query_lengths.append(query_len)
 
                     if self.epoch_type == "partition":
                         epoch_step_batch = str(query_len)
                     else:
-                        epoch_step_batch = epoch_step_converted
+                        epoch_step_batch = epoch_step
 
                     epoch_def = dict(
                         start=next_start.strftime(formatt),
                         stop=next_limit.strftime(formatt),
                         step=epoch_step_batch,
                     )
-
 
                     self.queries.append(
                         Horizons(
@@ -237,13 +226,13 @@ class HorizonsQuery:
                     next_limit = next_start + max_query_step
 
                 # the final one:
-                query_len = math.ceil((next_limit-end_astro) / ts_seconds)
+                query_len = math.ceil((next_limit - end_astro) / ts_seconds)
                 self.query_lengths.append(query_len)
 
                 if self.epoch_type == "partition":
                     epoch_step_batch = str(query_len)
                 else:
-                    epoch_step_batch = epoch_step_converted
+                    epoch_step_batch = epoch_step
 
                 epoch_def = dict(
                     start=next_start.strftime(formatt),
@@ -262,13 +251,12 @@ class HorizonsQuery:
                     )
                 )
 
-
             else:
                 raise RuntimeError("Undefined behaviour, (extended)")
 
         else:
             raise RuntimeError("Undefined behaviour, (unknown error in init)")
-        
+
         self.num_queries = len(self.queries)
 
     @property
@@ -285,16 +273,54 @@ class HorizonsQuery:
         if isinstance(time, float) or isinstance(time, int):
             # convert to julian days
             time = (time / constants.JULIAN_DAY) + constants.JULIAN_DAY_ON_J2000
-            time_astro = Time(time, format="jd", scale="tdb")
+            time_astro = Time(time, format="jd", scale="tdb", precision=9)
         # time is python datetime
         else:
-            time_astro = Time(time, format="datetime", scale="tdb")
+            time_astro = Time(time, format="datetime", scale="tdb", precision=9)
 
         return time_astro
 
+    def _validate_time_range(self, start, end):
+        if not (
+            isinstance(start, float)
+            or isinstance(start, int)
+            or isinstance(start, datetime.datetime)
+        ):
+            raise TypeError(
+                "Incorrect start time given, must be datetime object or float seconds since J2000 TDB"
+            )
+        if not (
+            isinstance(end, float)
+            or isinstance(end, int)
+            or isinstance(end, datetime.datetime)
+        ):
+            raise TypeError(
+                "Incorrect start time given, must be datetime object or float seconds since J2000 TDB"
+            )
+
+    def _format_time_range(self, time: Union[float, datetime.datetime]):
+        # https://ssd.jpl.nasa.gov/horizons/manual.html#time
+        if isinstance(time, float) or isinstance(time, int):
+            # convert sec since J2000 TDB to JD TDB
+            formatt = r"%Y-%m-%d %H:%M:%S.%f"
+            return self._convert_time_to_astropy(time).strftime(formatt)
+        elif isinstance(time, datetime.datetime):
+            # using recommended 3 letter months may have compatibility issues with locales
+            formatt = r"%Y-%m-%d %H:%M:%S.%f"
+            return str(time.strftime(formatt))
+        else:
+            raise TypeError(
+                "Incorrect time value given, must be " + 
+                "datetime object or seconds since J2000 TDB"
+            )
+
+    def _format_time_list(self, times):
+        times = self._convert_time_to_astropy((np.array(times))).jd
+        return times
+
     def _interpret_timestep(
         self,
-        timestep: Union[str, int],
+        timestep: str,
         start: Union[datetime.datetime, float],
         end: Union[datetime.datetime, float],
     ):
@@ -328,7 +354,6 @@ class HorizonsQuery:
 
         duration = (end_astro - start_astro).sec
 
-
         if time_seconds is None:
             time_seconds = duration / numerical_part
             steps = numerical_part
@@ -338,33 +363,9 @@ class HorizonsQuery:
             steps = math.ceil(duration / time_seconds)
             return time_seconds, steps
 
-    def _format_time(self, time: Union[float, datetime.datetime]):
-        # https://ssd.jpl.nasa.gov/horizons/manual.html#time
-        if isinstance(time, float) or isinstance(time, int):
-            # convert sec since J2000 TDB to JD TDB
-            time = (
-                "JD " + str((time / constants.JULIAN_DAY) + constants.JULIAN_DAY_ON_J2000)
-            )
-            return time
-        elif isinstance(time, datetime.datetime):
-            # using recommended 3 letter months may have compatibility issues with locales
-            formatt = r"%Y-%m-%d %H:%M:%S.%f"
-            return str(time.strftime(formatt))
-        else:
-            raise ValueError(
-                "Incorrect time value given, must be datetime object or seconds since J2000"
-            )
-
-    def _convert_timestep(self, epoch_step):
-        if isinstance(epoch_step, int):
-            return str(epoch_step)
-        elif isinstance(epoch_step, str):
-            return epoch_step
-        else:
-            raise ValueError(
-                "Incorrect time step value given, must be either integer number "
-                + "partitions or str: '10h', '10m', '1d', '30 days', etc."
-            )
+    # ################
+    # END USER METHODS
+    # ################
 
     def vectors(
         self,
@@ -375,7 +376,7 @@ class HorizonsQuery:
         **kwargs,
     ):
         res_list = []
-        for query in (self.queries):
+        for query in self.queries:
             res = query.vectors(
                 refplane=refplane,
                 aberrations=aberations,  # args=args, kwargs=kwargs
@@ -390,7 +391,6 @@ class HorizonsQuery:
         else:
             return raw.to_pandas()
 
-
         # if len(raw["targetname"][0].split()) == 3:
         #     self._number, self._name, self._designation = raw["targetname"][0].split()
         # else:
@@ -399,6 +399,7 @@ class HorizonsQuery:
 
         # if full_output:
         #     return raw
+
     # def vectors(
     #     self,
     #     full_output=False,
