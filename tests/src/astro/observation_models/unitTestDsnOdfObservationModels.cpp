@@ -59,6 +59,7 @@ void runSimulation(
         std::pair< Time, Time > startAndEndTimesToProcess = std::make_pair< Time, Time >( TUDAT_NAN, TUDAT_NAN ) )
 {
 
+
     // Define bodies to use.
     std::vector< std::string > bodiesToCreate = { "Earth", "Sun", "Mercury", "Venus", "Mars" };
 
