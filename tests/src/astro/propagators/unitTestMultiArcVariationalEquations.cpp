@@ -71,10 +71,6 @@ executeMultiArcEarthMoonSimulation(
         const double arcDuration = 5.0E5,
         const double arcOverlap  = 5.0E3 )
 {
-
-    //Load spice kernels.
-    spice_interface::loadStandardSpiceKernels( );
-
     // Define
     std::vector< std::string > bodyNames;
     bodyNames.push_back( "Earth" );
@@ -294,6 +290,10 @@ executeMultiArcEarthMoonSimulation(
 
 BOOST_AUTO_TEST_CASE( testEarthMoonMultiArcVariationalEquationCalculation )
 {
+
+    //Load spice kernels.
+    spice_interface::loadStandardSpiceKernels( );
+
     std::pair< std::vector< Eigen::MatrixXd >, std::vector< Eigen::VectorXd > > currentOutput;
 
     std::vector< std::vector< std::string > > centralBodiesSet;
