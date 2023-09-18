@@ -883,6 +883,21 @@ std::vector< T > staticCastVector( const std::vector< S > originalVector )
     return castVector;
 }
 
+template <typename T>
+Eigen::Matrix< T, Eigen::Dynamic, 1 > getSuccesivelyConcatenatedVector(
+    const Eigen::Matrix< T, Eigen::Dynamic, 1 > baseVector, const unsigned int numberOfConcatenations )
+{
+    int singleSize = baseVector.rows( );
+    Eigen::Matrix< T, Eigen::Dynamic, 1 > concatenatedVector = Eigen::Matrix< T, Eigen::Dynamic, 1 >::Zero(
+        numberOfConcatenations * singleSize );
+    for( unsigned int i = 0; i < numberOfConcatenations; i++ )
+    {
+        concatenatedVector.segment( i * singleSize, singleSize ) = baseVector;
+    }
+    return concatenatedVector;
+}
+
+
 } // namespace utilities
 
 } // namespace tudat

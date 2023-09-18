@@ -535,7 +535,7 @@ createOneDimensionalInterpolator(
         if( lagrangeInterpolatorSettings != nullptr )
         {
                 createdInterpolator = std::make_shared< LagrangeInterpolator
-                        < IndependentVariableType, DependentVariableType, double > >(
+                        < IndependentVariableType, DependentVariableType > >(
                             dataToInterpolate, lagrangeInterpolatorSettings->getInterpolatorOrder( ),
                             interpolatorSettings->getSelectedLookupScheme( ),
                             lagrangeInterpolatorSettings->getLagrangeBoundaryHandling( ),

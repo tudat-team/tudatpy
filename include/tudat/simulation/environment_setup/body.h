@@ -158,8 +158,9 @@ protected:
      *  \param time Time at which state is to be computed
      *  \return Inertial state of frame origin at requested time
      */
-    Eigen::Matrix<long double, 6, 1> getBaseFrameLongDoubleState(const double time) {
-        return static_cast<long double>(stateMultiplier_) * std::move(stateFunction_(time)).template cast<long double>();
+    Eigen::Matrix<long double, 6, 1> getBaseFrameLongDoubleState(const double time)
+    {
+        return static_cast<long double>(stateMultiplier_) * stateFunction_(time).template cast<long double>();
     }
 
     //! Function through which the state of baseFrameId_ in the inertial frame can be determined
@@ -169,7 +170,8 @@ protected:
      *  \param time Time at which state is to be computed
      *  \return Inertial state of frame origin at requested time
      */
-    Eigen::Matrix<double, 6, 1> getBaseFrameDoubleState(const Time &time) {
+    Eigen::Matrix<double, 6, 1> getBaseFrameDoubleState(const Time &time)
+    {
         return static_cast<double>(stateMultiplier_) * stateFunction_(time).template cast<double>();
     }
 
@@ -180,7 +182,8 @@ protected:
      *  \param time Time at which state is to be computed
      *  \return Inertial state of frame origin at requested time
      */
-    Eigen::Matrix<long double, 6, 1> getBaseFrameLongDoubleState(const Time &time) {
+    Eigen::Matrix<long double, 6, 1> getBaseFrameLongDoubleState(const Time &time)
+    {
         return static_cast<long double>(stateMultiplier_) * std::move(stateFunction_(time)).template cast<long double>();
     }
 
@@ -650,7 +653,7 @@ public:
                 else
                 {
                     currentLongState_ =
-                            (bodyEphemeris_->getTemplatedStateFromEphemeris<StateScalarType, TimeType>(time) + ephemerisFrameToBaseFrame_->getBaseFrameState<TimeType, StateScalarType>(time)).template cast<long double>();
+                            (bodyEphemeris_->getTemplatedStateFromEphemeris<StateScalarType, TimeType>(time) + ephemerisFrameToBaseFrame_->getBaseFrameState<TimeType, StateScalarType>(time) ).template cast<long double>();
                     currentState_ = currentLongState_.template cast<double>();
                 }
             }
@@ -698,9 +701,12 @@ public:
     Eigen::Matrix<StateScalarType, 6, 1> getStateInBaseFrameFromEphemeris(const TimeType time)
     {
         setStateFromEphemeris<StateScalarType, TimeType>(time);
-        if (sizeof(StateScalarType) == 8) {
+        if (sizeof(StateScalarType) == 8)
+        {
             return currentState_.template cast<StateScalarType>();
-        } else {
+        }
+        else
+        {
             return currentLongState_.template cast<StateScalarType>();
         }
     }
@@ -2072,31 +2078,34 @@ public:
         return bodyMap_.size( );
     }
 
+    template< typename StateScalarType = double , typename TimeType = double >
     void createEmptyBody( const std::string bodyName, const bool processBody = true )
     {
         bodyMap_[ bodyName ] = std::make_shared< Body >( );
         bodyMap_[ bodyName ]->setBodyName( bodyName );
         if( processBody )
         {
-            processBodyFrameDefinitions( );           
+            processBodyFrameDefinitions< StateScalarType, TimeType >( );
         }
     }
 
+    template< typename StateScalarType = double , typename TimeType = double >
     void addBody( std::shared_ptr< Body > bodyToAdd, const std::string bodyName, const bool processBody = true )
     {
         bodyMap_[ bodyName ] = bodyToAdd;
         bodyMap_[ bodyName ]->setBodyName( bodyName );
         if( processBody )
         {
-            processBodyFrameDefinitions( );
+            processBodyFrameDefinitions< StateScalarType, TimeType >( );
         }
     }
 
     const std::unordered_map< std::string, std::shared_ptr< Body > >& getMap( ) const { return bodyMap_; }
 
+    template< typename StateScalarType = double , typename TimeType = double >
     void processBodyFrameDefinitions( ) const
     {
-        setGlobalFrameBodyEphemerides( bodyMap_, frameOrigin_, frameOrientation_);
+        setGlobalFrameBodyEphemerides< StateScalarType, TimeType >( bodyMap_, frameOrigin_, frameOrientation_);
 
 //        for( auto bodyIterator : bodyMap_ )
 //        {

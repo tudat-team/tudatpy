@@ -170,6 +170,257 @@ BOOST_AUTO_TEST_CASE( test_CovarianceAsFunctionOfTime )
     }
 }
 
+BOOST_AUTO_TEST_CASE( test_WeightDefinitions )
+
+{
+
+    //Load spice kernels.
+    spice_interface::loadStandardSpiceKernels( );
+
+    const double startTime = double( 1.0E7 );
+    const int numberOfDaysOfData = 3;
+
+    // Define bodies in simulation
+    std::vector< std::string > bodyNames;
+    bodyNames.push_back( "Earth" );
+    bodyNames.push_back( "Sun" );
+    bodyNames.push_back( "Moon" );
+    bodyNames.push_back( "Mars" );
+
+    // Specify initial time
+    double initialEphemerisTime = startTime;
+    double finalEphemerisTime = initialEphemerisTime + numberOfDaysOfData * 86400.0;
+
+    // Create bodies needed in simulation
+    BodyListSettings bodySettings =
+        getDefaultBodySettings( bodyNames, "Earth", "ECLIPJ2000" );
+    bodySettings.at( "Earth" )->rotationModelSettings = std::make_shared< SimpleRotationModelSettings >(
+        "ECLIPJ2000", "IAU_Earth",
+        spice_interface::computeRotationQuaternionBetweenFrames(
+            "ECLIPJ2000", "IAU_Earth", initialEphemerisTime ),
+        initialEphemerisTime, 2.0 * mathematical_constants::PI /
+                              ( physical_constants::JULIAN_DAY ) );
+
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+    bodies.createEmptyBody( "Vehicle" );
+    bodies.at( "Vehicle" )->setConstantBodyMass( 400.0 );
+
+
+    bodies.at( "Vehicle" )->setEphemeris( std::make_shared< TabulatedCartesianEphemeris< > >(
+        std::shared_ptr< interpolators::OneDimensionalInterpolator
+            < double, Eigen::Vector6d > >( ), "Earth", "ECLIPJ2000" ) );
+
+
+    // Creatre ground stations: same position, but different representation
+    std::vector< std::string > groundStationNames;
+    groundStationNames.push_back( "Station1" );
+    groundStationNames.push_back( "Station2" );
+    groundStationNames.push_back( "Station3" );
+
+    createGroundStation( bodies.at( "Earth" ), "Station1", ( Eigen::Vector3d( ) << 0.0, 0.35, 0.0 ).finished( ), geodetic_position );
+    createGroundStation( bodies.at( "Earth" ), "Station2", ( Eigen::Vector3d( ) << 0.0, -0.55, 2.0 ).finished( ), geodetic_position );
+    createGroundStation( bodies.at( "Earth" ), "Station3", ( Eigen::Vector3d( ) << 0.0, 0.05, 4.0 ).finished( ), geodetic_position );
+
+    // Set accelerations on Vehicle that are to be taken into account.
+    SelectedAccelerationMap accelerationMap;
+    std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
+    accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< SphericalHarmonicAccelerationSettings >( 8, 8 ) );
+    accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
+
+    // Set bodies for which initial state is to be estimated and integrated.
+    std::vector< std::string > bodiesToIntegrate;
+    std::vector< std::string > centralBodies;
+    bodiesToIntegrate.push_back( "Vehicle" );
+    centralBodies.push_back( "Earth" );
+
+    // Create acceleration models
+    AccelerationMap accelerationModelMap = createAccelerationModelsMap(
+        bodies, accelerationMap, bodiesToIntegrate, centralBodies );
+
+    // Set Keplerian elements for Asterix.
+    Eigen::Vector6d asterixInitialStateInKeplerianElements;
+    asterixInitialStateInKeplerianElements( semiMajorAxisIndex ) = 7200.0E3;
+    asterixInitialStateInKeplerianElements( eccentricityIndex ) = 0.05;
+    asterixInitialStateInKeplerianElements( inclinationIndex ) = unit_conversions::convertDegreesToRadians( 85.3 );
+    asterixInitialStateInKeplerianElements( argumentOfPeriapsisIndex )
+        = unit_conversions::convertDegreesToRadians( 235.7 );
+    asterixInitialStateInKeplerianElements( longitudeOfAscendingNodeIndex )
+        = unit_conversions::convertDegreesToRadians( 23.4 );
+    asterixInitialStateInKeplerianElements( trueAnomalyIndex ) = unit_conversions::convertDegreesToRadians( 139.87 );
+
+    double earthGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
+
+    // Set (perturbed) initial state.
+    Eigen::Matrix< double, 6, 1 > systemInitialState = convertKeplerianToCartesianElements(
+        asterixInitialStateInKeplerianElements, earthGravitationalParameter );
+
+    // Create propagator settings
+    std::shared_ptr< TranslationalStatePropagatorSettings< double, double > > propagatorSettings =
+        std::make_shared< TranslationalStatePropagatorSettings< double, double > >
+            ( centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialState,
+              double( finalEphemerisTime ), cowell );
+
+    // Create integrator settings
+    std::shared_ptr< IntegratorSettings< double > > integratorSettings =
+        std::make_shared< RungeKuttaVariableStepSizeSettings< double > >
+            ( double( initialEphemerisTime ), 40.0,
+              CoefficientSets::rungeKuttaFehlberg78,
+              40.0, 40.0, 1.0, 1.0 );
+
+    // Define parameters.
+    std::vector< LinkEnds > stationReceiverLinkEnds;
+    std::vector< LinkEnds > stationTransmitterLinkEnds;
+
+    for( unsigned int i = 0; i < groundStationNames.size( ); i++ )
+    {
+        LinkEnds linkEnds;
+        linkEnds[ transmitter ] = LinkEndId( "Earth", groundStationNames.at( i ) );
+        linkEnds[ receiver ] = LinkEndId( "Vehicle", "" );
+        stationTransmitterLinkEnds.push_back( linkEnds );
+
+        linkEnds.clear( );
+        linkEnds[ receiver ] = LinkEndId( "Earth", groundStationNames.at( i ) );
+        linkEnds[ transmitter ] = LinkEndId( "Vehicle", "" );
+        stationReceiverLinkEnds.push_back( linkEnds );
+    }
+
+    std::map< ObservableType, std::vector< LinkEnds > > linkEndsPerObservable;
+    linkEndsPerObservable[ one_way_range ].push_back( stationReceiverLinkEnds[ 0 ] );
+    linkEndsPerObservable[ one_way_range ].push_back( stationTransmitterLinkEnds[ 0 ] );
+    linkEndsPerObservable[ one_way_range ].push_back( stationReceiverLinkEnds[ 1 ] );
+
+    linkEndsPerObservable[ one_way_doppler ].push_back( stationReceiverLinkEnds[ 1 ] );
+    linkEndsPerObservable[ one_way_doppler ].push_back( stationTransmitterLinkEnds[ 2 ] );
+
+    linkEndsPerObservable[ angular_position ].push_back( stationReceiverLinkEnds[ 2 ] );
+    linkEndsPerObservable[ angular_position ].push_back( stationTransmitterLinkEnds[ 1 ] );
+
+    std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
+    parameterNames.push_back(
+        std::make_shared< InitialTranslationalStateEstimatableParameterSettings< double > >(
+            "Vehicle", systemInitialState, "Earth" ) );
+
+    // Create parameters
+    std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate =
+        createParametersToEstimate< double, double >( parameterNames, bodies );
+
+    std::vector< std::shared_ptr< ObservationModelSettings > > observationSettingsList;
+
+    for( std::map< ObservableType, std::vector< LinkEnds > >::iterator linkEndIterator = linkEndsPerObservable.begin( );
+         linkEndIterator != linkEndsPerObservable.end( ); linkEndIterator++ )
+    {
+        ObservableType currentObservable = linkEndIterator->first;
+
+
+        std::vector< LinkEnds > currentLinkEndsList = linkEndIterator->second;
+        for( unsigned int i = 0; i < currentLinkEndsList.size( ); i++ )
+        {
+            observationSettingsList.push_back(
+                std::make_shared< ObservationModelSettings >(
+                    currentObservable, currentLinkEndsList.at( i ) ) );
+        }
+    }
+
+    // Create orbit determination object.
+    OrbitDeterminationManager< double, double > orbitDeterminationManager =
+        OrbitDeterminationManager< double, double >(
+            bodies, parametersToEstimate, observationSettingsList,
+            integratorSettings, propagatorSettings );
+
+    std::vector< double > baseTimeList;
+    double observationTimeStart = initialEphemerisTime + 1000.0;
+    double  observationInterval = 20.0;
+    for( int i = 0; i < numberOfDaysOfData; i++ )
+    {
+        for( unsigned int j = 0; j < 500; j++ )
+        {
+            baseTimeList.push_back( observationTimeStart + static_cast< double >( i ) * 86400.0 +
+                                    static_cast< double >( j ) * observationInterval );
+        }
+    }
+
+    std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > measurementSimulationInput =
+        getObservationSimulationSettings< double >(
+            linkEndsPerObservable, baseTimeList, receiver );
+
+    // Simulate observations
+    std::shared_ptr< ObservationCollection< double, double > > simulatedObservations =
+        simulateObservations< double, double >(
+            measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
+
+
+    // Define estimation input
+    std::shared_ptr< EstimationInput< double, double  > > estimationInput =
+        std::make_shared< EstimationInput< double, double > >(
+            simulatedObservations );
+
+    std::map< ObservableType, std::pair< int, int > > observationTypeStartAndSize =
+        simulatedObservations->getObservationTypeStartAndSize( );
+
+    {
+        estimationInput->setConstantWeightsMatrix( 0.1 );
+        Eigen::VectorXd totalWeights = estimationInput->getWeightsMatrixDiagonals( );
+
+        for( unsigned int i = 0; i < totalWeights.rows( ); i++ )
+        {
+            BOOST_CHECK_CLOSE_FRACTION( totalWeights( i ), 0.1, std::numeric_limits< double >::epsilon( ) );
+        }
+    }
+
+    {
+        std::map<observation_models::ObservableType, double> weightPerObservable;
+        weightPerObservable[ one_way_range ] = 1.0 / ( 3.0 * 3.0 );
+        weightPerObservable[ angular_position ] = 1.0 / ( 1.0E-5 * 1.0E-5 );
+        weightPerObservable[ one_way_doppler ] = 1.0 / ( 1.0E-11 * 1.0E-11 * SPEED_OF_LIGHT * SPEED_OF_LIGHT );
+
+        estimationInput->setConstantPerObservableWeightsMatrix( weightPerObservable );
+        Eigen::VectorXd totalWeights = estimationInput->getWeightsMatrixDiagonals( );
+
+        for( auto it : weightPerObservable )
+        {
+            for( unsigned int i = 0; i < observationTypeStartAndSize.at( it.first ).second; i++ )
+            {
+                BOOST_CHECK_CLOSE_FRACTION( totalWeights( observationTypeStartAndSize.at( it.first ).first + i ), it.second, std::numeric_limits< double >::epsilon( ) );
+            }
+        }
+    }
+
+    {
+        Eigen::Vector2d angularPositionWeight;
+        angularPositionWeight << 0.1, 0.2;
+
+        estimationInput->setConstantWeightsMatrix( 2.0 );
+        estimationInput->setConstantSingleObservableVectorWeights(
+            angular_position, angularPositionWeight );
+        Eigen::VectorXd totalWeights = estimationInput->getWeightsMatrixDiagonals( );
+
+        std::pair< int, int > startEndIndex = observationTypeStartAndSize.at( angular_position );
+
+        for( unsigned int i = 0; i < startEndIndex.first; i++ )
+        {
+            BOOST_CHECK_CLOSE_FRACTION( totalWeights( i ), 2.0, std::numeric_limits< double >::epsilon( ) );
+        }
+
+        for( unsigned int i = 0; i < startEndIndex.second; i++ )
+        {
+            if( i % 2 == 0 )
+            {
+                BOOST_CHECK_CLOSE_FRACTION( totalWeights( startEndIndex.first + i ), angularPositionWeight( 0 ), std::numeric_limits< double >::epsilon( ) );
+            }
+            else
+            {
+                BOOST_CHECK_CLOSE_FRACTION( totalWeights( startEndIndex.first + i ), angularPositionWeight( 1 ), std::numeric_limits< double >::epsilon( ) );
+            }
+        }
+
+        for( unsigned int i = startEndIndex.first + startEndIndex.second; i < totalWeights.rows( ); i++ )
+        {
+            BOOST_CHECK_CLOSE_FRACTION( totalWeights( i ), 2.0, std::numeric_limits< double >::epsilon( ) );
+        }
+    }
+
+}
+
 BOOST_AUTO_TEST_SUITE_END( )
 
 }

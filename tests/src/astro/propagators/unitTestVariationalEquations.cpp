@@ -68,10 +68,6 @@ executeEarthMoonSimulation(
         const Eigen::Vector3d parameterPerturbation = Eigen::Vector3d::Zero( ),
         const bool propagateVariationalEquations = 1 )
 {
-
-    //Load spice kernels.
-    spice_interface::loadStandardSpiceKernels( );
-
     // Define
     std::vector< std::string > bodyNames;
     bodyNames.push_back( "Earth" );
@@ -230,6 +226,10 @@ executeEarthMoonSimulation(
  */
 BOOST_AUTO_TEST_CASE( testEarthMoonVariationalEquationCalculation )
 {
+
+    //Load spice kernels.
+    spice_interface::loadStandardSpiceKernels( );
+
     std::pair< std::vector< Eigen::MatrixXd >, std::vector< Eigen::VectorXd > > currentOutput;
 
     std::vector< std::vector< std::string > > centralBodiesSet;
@@ -349,8 +349,6 @@ executeOrbiterSimulation(
 {
     int numberOfParametersToEstimate = 10;
 
-    //Load spice kernels.
-    spice_interface::loadStandardSpiceKernels( );
     // Define bodies in simulation
     std::vector< std::string > bodyNames;
     bodyNames.push_back( "Earth" );
@@ -530,6 +528,9 @@ executeOrbiterSimulation(
  */
 BOOST_AUTO_TEST_CASE( testEarthOrbiterVariationalEquationCalculation )
 {
+    //Load spice kernels.
+    spice_interface::loadStandardSpiceKernels( );
+
     std::pair< std::vector< Eigen::MatrixXd >, std::vector< Eigen::VectorXd > > currentOutput;
 
     // Define variables for numerical differentiation
@@ -875,6 +876,8 @@ executePhobosRotationSimulation(
 
 BOOST_AUTO_TEST_CASE( testPhobosRotationVariationalEquationCalculation )
 {
+
+    //Load spice kernels.
     spice_interface::loadStandardSpiceKernels( );
 
     std::pair< std::vector< Eigen::MatrixXd >, std::vector< Eigen::VectorXd > > currentOutput;
@@ -1051,6 +1054,8 @@ BOOST_AUTO_TEST_CASE( testPhobosRotationVariationalEquationCalculation )
 
 BOOST_AUTO_TEST_CASE( testMassRateVariationalEquations )
 {
+
+    //Load spice kernels.
     spice_interface::loadStandardSpiceKernels( );
 
     // Set simulation time settings.

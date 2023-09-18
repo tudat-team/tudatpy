@@ -109,7 +109,7 @@ bool isSingleLegLightTimeSolutionConverged(
     bool isToleranceReached = false;
     // Check for convergence.
     if( std::fabs( newLightTimeCalculation - previousLightTimeCalculation ) <
-            convergenceCriteria->getFractionOfLightTimeTolerance< ObservationScalarType >( ) * newLightTimeCalculation )
+            convergenceCriteria->getFractionOfLightTimeTolerance< ObservationScalarType >( ) * newLightTimeCalculation && numberOfIterations > 20 )
     {
         // If convergence reached, but light-time corrections not iterated,
         // perform 1 more iteration to check for change in correction.
@@ -676,6 +676,16 @@ public:
     unsigned int getNumberOfIterations( )
     {
         return iterationCounter_;
+    }
+
+    std::function< StateType( const TimeType ) > getStateFunctionOfTransmittingBody( )
+    {
+        return stateFunctionOfTransmittingBody_;
+    }
+
+    std::function< StateType( const TimeType ) > getStateFunctionOfReceivingBody( )
+    {
+        return stateFunctionOfReceivingBody_;
     }
 
 protected:

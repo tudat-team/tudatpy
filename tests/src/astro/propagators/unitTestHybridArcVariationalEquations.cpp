@@ -71,9 +71,6 @@ executeHybridArcMarsAndOrbiterSensitivitySimulation(
         const double arcOverlap  = 5.0E3 )
 {
 
-    //Load spice kernels.
-    spice_interface::loadStandardSpiceKernels( );
-
     std::vector< std::string > bodyNames;
     bodyNames.push_back( "Sun" );
     bodyNames.push_back( "Mars" );
@@ -334,6 +331,10 @@ executeHybridArcMarsAndOrbiterSensitivitySimulation(
 
 BOOST_AUTO_TEST_CASE( testMarsAndOrbiterHybridArcVariationalEquationCalculation )
 {
+
+    //Load spice kernels.
+    spice_interface::loadStandardSpiceKernels( );
+
     std::pair< std::vector< Eigen::MatrixXd >, std::vector< Eigen::VectorXd > > currentOutput;
 
     // Define variables for numerical differentiation
