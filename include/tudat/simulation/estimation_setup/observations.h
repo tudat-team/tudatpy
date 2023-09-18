@@ -248,6 +248,11 @@ public:
         return observationSetStartAndSize_;
     }
 
+    std::map< ObservableType, std::map< LinkEnds, std::pair< int, int > > > getObservationTypeAndLinkEndStartAndSize( )
+    {
+        return observationTypeAndLinkEndStartAndSize_;
+    }
+
     std::map< ObservableType, std::map< int, std::vector< std::pair< int, int > > > > getObservationSetStartAndSizePerLinkEndIndex( )
     {
         return observationSetStartAndSizePerLinkEndIndex_;
@@ -399,6 +404,8 @@ private:
             for( auto linkEndIterator : observationIterator.second )
             {
                 LinkEnds currentLinkEnds = linkEndIterator.first;
+                int currentLinkEndStartIndex = currentStartIndex;
+                int currentLinkEndSize = 0;
                 for( unsigned int i = 0; i < linkEndIterator.second.size( ); i++ )
                 {
                     int currentNumberOfObservables = linkEndIterator.second.at( i )->getNumberOfObservables( );
@@ -408,10 +415,13 @@ private:
                                 std::make_pair( currentStartIndex, currentObservableVectorSize ) );
                     currentStartIndex += currentObservableVectorSize;
                     currentObservableTypeSize += currentObservableVectorSize;
+                    currentLinkEndSize += currentObservableVectorSize;
 
                     totalObservableSize_ += currentObservableVectorSize;
                     totalNumberOfObservables_ += currentNumberOfObservables;
                 }
+                observationTypeAndLinkEndStartAndSize_[ currentObservableType ][ currentLinkEnds ] = std::make_pair(
+                    currentLinkEndStartIndex, currentLinkEndSize );
             }
             observationTypeStartAndSize_[ currentObservableType ] = std::make_pair(
                         currentTypeStartIndex, currentObservableTypeSize );
@@ -503,6 +513,8 @@ private:
     std::map< ObservableType, std::map< LinkEnds, std::vector< std::pair< int, int > > > > observationSetStartAndSize_;
 
     std::map< ObservableType, std::map< int, std::vector< std::pair< int, int > > > > observationSetStartAndSizePerLinkEndIndex_;
+
+    std::map< ObservableType, std::map< LinkEnds, std::pair< int, int > > > observationTypeAndLinkEndStartAndSize_;
 
     std::map< ObservableType, std::pair< int, int > > observationTypeStartAndSize_;
 
