@@ -109,7 +109,7 @@ bool isSingleLegLightTimeSolutionConverged(
     bool isToleranceReached = false;
     // Check for convergence.
     if( std::fabs( newLightTimeCalculation - previousLightTimeCalculation ) <
-            convergenceCriteria->getFractionOfLightTimeTolerance< ObservationScalarType >( ) * newLightTimeCalculation && numberOfIterations > 20 )
+            convergenceCriteria->getFractionOfLightTimeTolerance< ObservationScalarType >( ) * newLightTimeCalculation )
     {
         // If convergence reached, but light-time corrections not iterated,
         // perform 1 more iteration to check for change in correction.
