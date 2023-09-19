@@ -60,6 +60,7 @@ class HorizonsQuery:
                     epoch_step, epoch_start, epoch_end
                 )
 
+                print(f"lines = {num_lines}")
                 self._validate_time_range(epoch_start, epoch_end)
 
                 if re.findall(r"\d+", epoch_step)[0] == epoch_step:
@@ -197,6 +198,8 @@ class HorizonsQuery:
                 formatt = r"%Y-%m-%d %H:%M:%S.%f"
 
                 while next_limit < end_astro:
+                    print(next_start)
+                    print(next_limit)
                     query_len = math.ceil((next_limit - next_start) / ts_seconds)
                     self.query_lengths.append(query_len)
 
@@ -226,7 +229,11 @@ class HorizonsQuery:
                     next_limit = next_start + max_query_step
 
                 # the final one:
-                query_len = math.ceil((next_limit - end_astro) / ts_seconds)
+                print(next_start, type(next_start))
+                print(next_limit, type(next_limit))
+                print(end_astro.strftime(formatt), type(end_astro))
+                print(epoch_end, type(epoch_end))
+                query_len = math.ceil((end_astro - next_start) / ts_seconds)
                 self.query_lengths.append(query_len)
 
                 if self.epoch_type == "partition":
@@ -270,7 +277,7 @@ class HorizonsQuery:
 
     def _convert_time_to_astropy(self, time):
         # time is tudat format: seconds since j2000 TDB
-        if isinstance(time, float) or isinstance(time, int):
+        if isinstance(time, float) or isinstance(time, int) or isinstance(time, np.ndarray):
             # convert to julian days
             time = (time / constants.JULIAN_DAY) + constants.JULIAN_DAY_ON_J2000
             time_astro = Time(time, format="jd", scale="tdb", precision=9)
@@ -357,7 +364,6 @@ class HorizonsQuery:
         if time_seconds is None:
             time_seconds = duration / numerical_part
             steps = numerical_part
-            print(time_seconds, steps, numerical_part)
             return time_seconds, steps
         else:
             steps = math.ceil(duration / time_seconds)
