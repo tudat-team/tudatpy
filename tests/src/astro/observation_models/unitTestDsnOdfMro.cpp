@@ -111,6 +111,7 @@ int main( )
     std::string dataDirectory = "/home/dominic/Tudat/Data/pds-geosciences.wustl.edu/mro/mro-m-rss-1-magr-v1/mrors_0xxx/odf/";
     std::vector< std::string > odfFiles = { "mromagr2008_300_1630xmmmv1.odf" };//, "mromagr2008_301_1615xmmmv1.odf", "mromagr2008_302_1605xmmmv1.odf"};
 
+    std::cout<<"Loading data "<<std::endl;
     // Laod raw ODF data
     std::vector< std::shared_ptr< input_output::OdfRawFileContents > > rawOdfDataVector;
     for ( std::string odfFile : odfFiles )
@@ -118,17 +119,20 @@ int main( )
         rawOdfDataVector.push_back( std::make_shared<OdfRawFileContents>( dataDirectory + odfFile ) );
     }
 
+    std::cout<<"Processing data "<<std::endl;
     // Process ODF file data
     std::shared_ptr< ProcessedOdfFileContents > processedOdfFileContents =
         std::make_shared< ProcessedOdfFileContents >(
             rawOdfDataVector, spacecraftName, true );
     observation_models::setOdfInformationInBodies( processedOdfFileContents, bodies );
 
+    std::cout<<"Creating observation collection "<<std::endl;
     // Create data structure that handles Observed Data in Tudat
     std::shared_ptr< observation_models::ObservationCollection< long double, Time > > observedObservationCollection =
         observation_models::createOdfObservedObservationCollection< long double, Time >(
             processedOdfFileContents, { dsn_n_way_averaged_doppler } );
 
+    std::cout<<"Number of observations: "<<observedObservationCollection->getTotalObservableSize( )<<std::endl;
     std::pair< Time, Time > timeBounds = observedObservationCollection->getTimeBounds( );
     Time initialTime = timeBounds.first - 3600.0;
     Time finalTime = timeBounds.second + 3600.0;
@@ -168,17 +172,33 @@ int main( )
         }
     }
 
+    std::cout<<"Create simulators"<<std::endl;
     std::vector< std::shared_ptr< ObservationSimulatorBase< long double, Time > > > observationSimulators =
         createObservationSimulators< long double, Time >( observationModelSettingsList, bodies );
 
     std::vector< std::shared_ptr< simulation_setup::ObservationSimulationSettings< Time > > > observationSimulationSettings =
         getObservationSimulationSettingsFromObservations( observedObservationCollection );
+    std::cout<<"Simulate observations"<<std::endl;
+
     std::shared_ptr< observation_models::ObservationCollection< long double, Time > > computedObservationCollection =
         simulateObservations( observationSimulationSettings, observationSimulators, bodies );
 
     std::cout<<"Create residuals"<<std::endl;
     std::shared_ptr< observation_models::ObservationCollection< long double, Time > > residualObservationCollection =
         createResidualCollection( observedObservationCollection, computedObservationCollection );
+
+    {
+        Eigen::VectorXd residuals = residualObservationCollection->getObservationVector( ).template cast< double >( );
+        input_output::writeMatrixToFile( residuals, "mroRawTestResiduals.dat", 16, "/home/dominic/Tudat/Data/MRO_TestResults/");
+
+        Eigen::VectorXd observationTimes = utilities::convertStlVectorToEigenVector(
+            residualObservationCollection->getConcatenatedTimeVector( ) ).template cast< double >( );
+        input_output::writeMatrixToFile( observationTimes, "mroRawTestTimes.dat", 16, "/home/dominic/Tudat/Data/MRO_TestResults/");
+
+        Eigen::VectorXd observationLinkEndsIds = utilities::convertStlVectorToEigenVector(
+            residualObservationCollection->getConcatenatedLinkEndIds( ) ).template cast< double >( );
+        input_output::writeMatrixToFile(observationLinkEndsIds , "mroRawTestLinkEnds.dat", 16, "/home/dominic/Tudat/Data/MRO_TestResults/");
+    }
 
     std::cout<<"Filter observations"<<std::endl;
     std::map< ObservableType, double > residualCutoffValuePerObservable;
@@ -212,83 +232,100 @@ int main( )
         input_output::writeMatrixToFile(observationLinkEndsIds , "mroTestLinkEnds.dat", 16, "/home/dominic/Tudat/Data/MRO_TestResults/");
     }
 
+    Eigen::VectorXd numericalTimeBiasPartials = getNumericalObservationTimePartial< long double, Time >(
+        filteredObservationSimulationSettings, observationSimulators, bodies, 5.0 );
+
+    input_output::writeMatrixToFile( numericalTimeBiasPartials, "mroTestTimeDerivative.dat", 16, "/home/dominic/Tudat/Data/MRO_TestResults/");
+
+    std::vector< double > timeBiases;
+    std::vector< Eigen::VectorXd > polynomialCoefficientsList;
+    Eigen::VectorXd correctedResiduals;
+    estimateTimeBiasPerSet< long double, Time >(
+        filteredResidualObservationCollection, numericalTimeBiasPartials, timeBiases, correctedResiduals );
+
+    input_output::writeMatrixToFile( correctedResiduals, "mroTestCorrectedResiduals.dat", 16, "/home/dominic/Tudat/Data/MRO_TestResults/");
+    for( unsigned int i = 0; i < timeBiases.size( ); i++ )
     {
-        // Set accelerations on Vehicle that are to be taken into account.
-        SelectedAccelerationMap accelerationMap;
-        std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
-        accelerationsOfVehicle[ "Sun" ].push_back( pointMassGravityAcceleration( ) );
-        accelerationsOfVehicle[ "Sun" ].push_back( cannonBallRadiationPressureAcceleration( ) );
-        accelerationsOfVehicle[ "Mercury" ].push_back( pointMassGravityAcceleration( ) );
-        accelerationsOfVehicle[ "Venus" ].push_back( pointMassGravityAcceleration( ) );
-        accelerationsOfVehicle[ "Earth" ].push_back( pointMassGravityAcceleration( ) );
-        accelerationsOfVehicle[ "Mars" ].push_back( sphericalHarmonicAcceleration( 32, 32 ) );
-        accelerationsOfVehicle[ "Mars" ].push_back( relativisticAccelerationCorrection(  ) );
-        accelerationsOfVehicle[ "Mars" ].push_back( aerodynamicAcceleration( ) );
-        accelerationsOfVehicle[ "Phobos" ].push_back( pointMassGravityAcceleration( ) );
-        accelerationsOfVehicle[ "Deimos" ].push_back( pointMassGravityAcceleration( ) );
-        accelerationsOfVehicle[ "Jupiter" ].push_back( pointMassGravityAcceleration( ) );
-        accelerationsOfVehicle[ "Saturn" ].push_back( pointMassGravityAcceleration( ) );
-        accelerationMap[ spacecraftName ] = accelerationsOfVehicle;
-
-        // Create acceleration models
-        AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-            bodies, accelerationMap, { spacecraftName }, { spacecraftCentralBody } );
-
-        std::shared_ptr< IntegratorSettings< Time > > integratorSettings = rungeKuttaFixedStepSettings< Time >(
-            Time( 30.0 ), rungeKutta87DormandPrince, RungeKuttaCoefficients::OrderEstimateToIntegrate::higher );
-
-        Eigen::Matrix< long double, 6, 1 > spacecraftInitialState = spice_interface::getBodyCartesianStateAtEpoch(
-            spacecraftName, spacecraftCentralBody, globalFrameOrientation, "None", initialTime ).template cast< long double >( );
-
-        std::shared_ptr< PropagationTerminationSettings > terminationSettings = propagationTimeTerminationSettings(
-            finalTime );
-
-        std::shared_ptr< TranslationalStatePropagatorSettings< long double, Time > > propagatorSettings = translationalStatePropagatorSettings<
-            long double, Time >( { spacecraftCentralBody },
-                                 accelerationModelMap,
-                                 { spacecraftName },
-                                 spacecraftInitialState,
-                                 initialTime,
-                                 integratorSettings,
-                                 terminationSettings,
-                                 cowell );
-
-
-        // Select parameters to estimate
-        std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames = getInitialStateParameterSettings< long double, Time >(
-            propagatorSettings, bodies );
-        parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( spacecraftName, radiation_pressure_coefficient ) );
-        parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( spacecraftName, constant_drag_coefficient ) );
-
-        // Create parameters
-        std::shared_ptr< estimatable_parameters::EstimatableParameterSet< long double > > parametersToEstimate =
-            createParametersToEstimate< long double, Time >( parameterNames, bodies );
-
-        std::cout<<"Starting propagation "<<std::endl;
-        // Create orbit determination object.
-        OrbitDeterminationManager< long double, Time > orbitDeterminationManager =
-            OrbitDeterminationManager< long double, Time >(
-                bodies, parametersToEstimate,
-                observationModelSettingsList, propagatorSettings, true );
-
-        // Define estimation input
-        std::shared_ptr< EstimationInput< long double, Time  > > estimationInput =
-            std::make_shared< EstimationInput< long double, Time > >(
-                filteredObservedObservationCollection );
-//        estimationInput->saveStateHistoryForEachIteration_ = true;
-
-        // Perform estimation
-        std::shared_ptr< EstimationOutput< long double, Time > > estimationOutput = orbitDeterminationManager.estimateParameters(
-            estimationInput );
-
-
-        {
-            input_output::writeMatrixToFile( estimationOutput->residuals_, "mroTestConvergedResiduals.dat", 16, "/home/dominic/Tudat/Data/MRO_TestResults/");
-        }
-
-
-
+        std::cout<<timeBiases.at( i )<<std::endl;
     }
+
+//    {
+//        // Set accelerations on Vehicle that are to be taken into account.
+//        SelectedAccelerationMap accelerationMap;
+//        std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
+//        accelerationsOfVehicle[ "Sun" ].push_back( pointMassGravityAcceleration( ) );
+//        accelerationsOfVehicle[ "Sun" ].push_back( cannonBallRadiationPressureAcceleration( ) );
+//        accelerationsOfVehicle[ "Mercury" ].push_back( pointMassGravityAcceleration( ) );
+//        accelerationsOfVehicle[ "Venus" ].push_back( pointMassGravityAcceleration( ) );
+//        accelerationsOfVehicle[ "Earth" ].push_back( pointMassGravityAcceleration( ) );
+//        accelerationsOfVehicle[ "Mars" ].push_back( sphericalHarmonicAcceleration( 32, 32 ) );
+//        accelerationsOfVehicle[ "Mars" ].push_back( relativisticAccelerationCorrection(  ) );
+//        accelerationsOfVehicle[ "Mars" ].push_back( aerodynamicAcceleration( ) );
+//        accelerationsOfVehicle[ "Phobos" ].push_back( pointMassGravityAcceleration( ) );
+//        accelerationsOfVehicle[ "Deimos" ].push_back( pointMassGravityAcceleration( ) );
+//        accelerationsOfVehicle[ "Jupiter" ].push_back( pointMassGravityAcceleration( ) );
+//        accelerationsOfVehicle[ "Saturn" ].push_back( pointMassGravityAcceleration( ) );
+//        accelerationMap[ spacecraftName ] = accelerationsOfVehicle;
+//
+//        // Create acceleration models
+//        AccelerationMap accelerationModelMap = createAccelerationModelsMap(
+//            bodies, accelerationMap, { spacecraftName }, { spacecraftCentralBody } );
+//
+//        std::shared_ptr< IntegratorSettings< Time > > integratorSettings = rungeKuttaFixedStepSettings< Time >(
+//            Time( 30.0 ), rungeKutta87DormandPrince, RungeKuttaCoefficients::OrderEstimateToIntegrate::higher );
+//
+//        Eigen::Matrix< long double, 6, 1 > spacecraftInitialState = spice_interface::getBodyCartesianStateAtEpoch(
+//            spacecraftName, spacecraftCentralBody, globalFrameOrientation, "None", initialTime ).template cast< long double >( );
+//
+//        std::shared_ptr< PropagationTerminationSettings > terminationSettings = propagationTimeTerminationSettings(
+//            finalTime );
+//
+//        std::shared_ptr< TranslationalStatePropagatorSettings< long double, Time > > propagatorSettings = translationalStatePropagatorSettings<
+//            long double, Time >( { spacecraftCentralBody },
+//                                 accelerationModelMap,
+//                                 { spacecraftName },
+//                                 spacecraftInitialState,
+//                                 initialTime,
+//                                 integratorSettings,
+//                                 terminationSettings,
+//                                 cowell );
+//
+//
+//        // Select parameters to estimate
+//        std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames = getInitialStateParameterSettings< long double, Time >(
+//            propagatorSettings, bodies );
+//        parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( spacecraftName, radiation_pressure_coefficient ) );
+//        parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( spacecraftName, constant_drag_coefficient ) );
+//
+//        // Create parameters
+//        std::shared_ptr< estimatable_parameters::EstimatableParameterSet< long double > > parametersToEstimate =
+//            createParametersToEstimate< long double, Time >( parameterNames, bodies );
+//
+//        std::cout<<"Starting propagation "<<std::endl;
+//        // Create orbit determination object.
+//        OrbitDeterminationManager< long double, Time > orbitDeterminationManager =
+//            OrbitDeterminationManager< long double, Time >(
+//                bodies, parametersToEstimate,
+//                observationModelSettingsList, propagatorSettings, true );
+//
+//        // Define estimation input
+//        std::shared_ptr< EstimationInput< long double, Time  > > estimationInput =
+//            std::make_shared< EstimationInput< long double, Time > >(
+//                filteredObservedObservationCollection );
+////        estimationInput->saveStateHistoryForEachIteration_ = true;
+//
+//        // Perform estimation
+//        std::shared_ptr< EstimationOutput< long double, Time > > estimationOutput = orbitDeterminationManager.estimateParameters(
+//            estimationInput );
+//
+//
+//        {
+//            input_output::writeMatrixToFile( estimationOutput->residuals_, "mroTestConvergedResiduals.dat", 16, "/home/dominic/Tudat/Data/MRO_TestResults/");
+//        }
+//
+//
+//
+//    }
 
 
 }

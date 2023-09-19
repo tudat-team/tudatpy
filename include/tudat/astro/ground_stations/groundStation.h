@@ -61,9 +61,7 @@ public:
     template< typename StateScalarType, typename TimeType >
     Eigen::Matrix< StateScalarType, 6, 1 > getStateInPlanetFixedFrame( const TimeType& time )
     {
-        return ( nominalStationState_->getCartesianStateInTime(
-                     static_cast< double >( time ) ) ).
-                template cast< StateScalarType >( );
+        return ( nominalStationState_->getCartesianStateInTime( static_cast< double >( time ) ) ).template cast< StateScalarType >( );
     }
 
     //! Function to return object to define and compute the state of the ground station.
