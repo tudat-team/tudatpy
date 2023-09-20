@@ -44,13 +44,13 @@ const double yarkovskyParameter = -2.899e-14 * AU / ( JD * JD );
 //! Test the implementation of the Yarkovsky Acceleration Model
 BOOST_AUTO_TEST_CASE( testYarkovskyAccelerationVerySimple )
 {
-    const Eigen::Vector6d state = { AU, 0.0, 0.0, 0.0, AU, 0.0 };
+    const Eigen::Vector6d state = { 0.5 * AU, 0.0, 0.0, 0.0, 5e4, 0.0 };
 
-    const Eigen::Vector3d expectedYarkovskyAcceleration = Eigen::Vector3d { 0.0, yarkovskyParameter, 0.0
-    };
     const Eigen::Vector3d computedYarkovskyAcceleration = electromagnetism::computeYarkovskyAcceleration(
             yarkovskyParameter,
             state );
+    const Eigen::Vector3d expectedYarkovskyAcceleration = 4 * Eigen::Vector3d { 0.0, yarkovskyParameter, 0.0
+    };
 
     TUDAT_CHECK_MATRIX_CLOSE( computedYarkovskyAcceleration, expectedYarkovskyAcceleration, 1.e-10 );
 }
@@ -94,11 +94,10 @@ BOOST_AUTO_TEST_CASE( testYarkovskyAccelerationModelClassUpdateMembers )
     TUDAT_CHECK_MATRIX_CLOSE( computedYarkovskyAcceleration, expectedYarkovskyAcceleration, 1.0e-10 )
 }
 
-//! Test the complete implementation of the yarkovsky Acceleration by comparing with Perez-Hernandez and Benet results
+//! Test the complete implementation of the yarkovsky Acceleration using the drift in semi-major axis for a circular orbit
 //! Reference: Pérez-Hernández, J. A., & Benet, L. (2022). Non-zero Yarkovsky acceleration for near-Earth asteroid (99942) Apophis. Communications Earth & Environment, 3(1), Article 1. https://doi.org/10.1038/s43247-021-00337-x
-//! Reference: Perez-Hernandez et al.: https://static-content.springer.com/esm/art%3A10.1038%2Fs43247-021-00337-x/MediaObjects/43247_2021_337_MOESM1_ESM.pdf
-//! Reference: Farnocchia, D., Chesley, S. R., Vokrouhlický, D., Milani, A., Spoto, F., & Bottke, W. F. (2013). Near Earth Asteroids with measurable Yarkovsky effect. Icarus, 224(1), 1–13. https://doi.org/10.1016/j.icarus.2013.02.004
-BOOST_AUTO_TEST_CASE( testYarkovskyAccelerationHernandez )
+//! For Circulaar Orbit
+BOOST_AUTO_TEST_CASE( testYarkovskyAccelerationCircular )
 {
     using namespace simulation_setup;
 
@@ -107,46 +106,55 @@ BOOST_AUTO_TEST_CASE( testYarkovskyAccelerationHernandez )
     // Simulation Setup Constants
     const std::string frameOrigin = "SSB";
     const std::string frameOrientation = "ECLIPJ2000";
-    const double simulationStartEpoch = 2459200.5;
-    const double simulationEndEpoch = 2459565.5;
-    const double fixedStepSize = 1.0;
+    const double simulationStartEpoch = 10.0 * physical_constants::JULIAN_DAY;
+    const double simulationDuration = 10.0 * physical_constants::JULIAN_DAY;
+    const double simulationEndEpoch = simulationStartEpoch + simulationDuration;
+    const double fixedStepSize = 100.0;
 
-    // Apophis
-    const std::string apophisName = "Apophis";
-    const double apophisMass = 0.0;
+    // Initial Conditions
+    const double initialSemiMajorAxis = 0.75 * AU;
+    const double initialEccentricity = 0.0;
+    const double initialInclination = 0.0;
+    const double initialRAAN = 0.0;
+    const double initialArgOfPeri = 0.0;
+    const double initialTrueAnomaly = 0.0;
 
+    // Bodies
     std::vector< std::string > bodiesToCreate { "Sun" };
     BodyListSettings bodySettings = getDefaultBodySettings( bodiesToCreate, frameOrigin, frameOrientation );
-
-    // Create Sun object
     SystemOfBodies bodies = createSystemOfBodies( bodySettings );
 
-    // Create Asteroid
-    bodies.createEmptyBody( "Apophis" );
-    bodies.at( apophisName )->setConstantBodyMass( apophisMass );
+    // Asteroid
+    bodies.createEmptyBody( "Asteroid" );
+    bodies.at( "Asteroid" )->setConstantBodyMass( 0.0 );
 
     // Define propagator settings variables.
-    std::vector< std::string > bodiesToPropagate { apophisName };
+    std::vector< std::string > bodiesToPropagate { "Asteroid" };
     std::vector< std::string > centralBodies { "Sun" };
 
     // Accelerations
-    std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfApophis = {
+    std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfAsteroid = {
             { "Sun", { pointMassGravityAcceleration( ), yarkovskyAcceleration( yarkovskyParameter ) }},
     };
 
+    const double sunGravitationalParameter = bodies.at( "Sun" )->getGravitationalParameter( );
+
     // Make the acceleration models
-    SelectedAccelerationMap accelerationSettings {{ apophisName, accelerationsOfApophis }};
+    SelectedAccelerationMap accelerationSettings {{ "Asteroid", accelerationsOfAsteroid }};
     basic_astrodynamics::AccelerationMap accelerationModels = createAccelerationModelsMap( bodies,
                                                                                            accelerationSettings,
                                                                                            bodiesToPropagate,
                                                                                            centralBodies );
 
     // Initial State
-    Eigen::VectorXd initialState = Eigen::Vector6d { -0.18034829, 0.94069106, 0.34573599, -0.0162659398, 4.39155,
-                                                     -0.000395204
-    };
-    initialState *= physical_constants::ASTRONOMICAL_UNIT;
-    initialState.tail( 3 ) /= physical_constants::JULIAN_DAY;
+    Eigen::VectorXd initialState = orbital_element_conversions::convertKeplerianToCartesianElements(
+            initialSemiMajorAxis,
+            initialEccentricity,
+            initialInclination,
+            initialRAAN,
+            initialArgOfPeri,
+            initialTrueAnomaly,
+            sunGravitationalParameter );
 
     // Termination Setting
     std::shared_ptr< propagators::PropagationTerminationSettings > terminationSettings = propagators::propagationTimeTerminationSettings(
@@ -174,15 +182,22 @@ BOOST_AUTO_TEST_CASE( testYarkovskyAccelerationHernandez )
     // State history
     std::map< double, Eigen::VectorXd > stateHist = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
 
-    const double sunGravitationalParameter = bodies.at( "Sun" )->getGravitationalParameter( );
-    Eigen::Vector6d keplerInitialState = orbital_element_conversions::convertCartesianToKeplerianElements( Eigen::Vector6d(
-            initialState ), sunGravitationalParameter );
+    // Calculate Expected Drift
     Eigen::Vector6d keplerFinalState = orbital_element_conversions::convertCartesianToKeplerianElements( Eigen::Vector6d(
             stateHist.at( simulationEndEpoch )), sunGravitationalParameter );
 
+    const double& a = initialSemiMajorAxis;
+    const double& e = initialEccentricity;
+
+    const double p = a * ( 1 - e * e ); // Semi-latus rectum
+    const double n = std::sqrt( sunGravitationalParameter / ( a * a * a )); // Mean motion
+
+    const double expectedSemiMajorAxisDrift =
+            ( 2 * yarkovskyParameter * ( 1 - e * e ) * AU * AU / ( n * p * p )) * simulationDuration;
+    const double calculatedSemiMajorAxisDrift = keplerFinalState[0] - initialSemiMajorAxis;
+
     // Check drift in semi-major axis
-    const double expectedFinalSemiMajorAxis = keplerInitialState[0] - 199.0;
-    BOOST_CHECK_CLOSE( expectedFinalSemiMajorAxis, keplerFinalState[0], 1e-10 );
+    BOOST_CHECK_CLOSE( expectedSemiMajorAxisDrift, calculatedSemiMajorAxisDrift, 1e-3 );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
