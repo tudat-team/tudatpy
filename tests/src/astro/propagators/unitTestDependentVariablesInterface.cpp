@@ -140,7 +140,7 @@ BOOST_AUTO_TEST_CASE( testSingleArcDependentVariablesInterface )
             std::make_shared< TranslationalStatePropagatorSettings< double > >(
             centralBodies, accelerationModelMap, bodiesToPropagate, initialState, simulationStartEpoch,
             integratorSettings, terminationSettings, cowell, dependentVariables );
-    propagatorSettings->getOutputSettings()->setCreateDependentVariablesInterface( true );
+    propagatorSettings->getOutputSettings()->setUpdateDependentVariableInterpolator( true );
 
     // Define single-arc dynamics simulator
     SingleArcDynamicsSimulator< > simulator = SingleArcDynamicsSimulator< >(
@@ -314,7 +314,7 @@ BOOST_AUTO_TEST_CASE( testMultiArcDependentVariablesInterface )
 
     std::shared_ptr< MultiArcPropagatorSettings< > > multiArcPropagatorSettings =
             std::make_shared<MultiArcPropagatorSettings<> >( propagatorSettingsList );
-    multiArcPropagatorSettings->getOutputSettings( )->setCreateDependentVariablesInterface( true );
+    multiArcPropagatorSettings->getOutputSettings( )->setUpdateDependentVariableInterpolator( true );
 
     // Define single-arc dynamics simulator
     MultiArcDynamicsSimulator< > simulator = MultiArcDynamicsSimulator< >(
