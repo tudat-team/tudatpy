@@ -216,7 +216,7 @@ public:
      */
     template< typename TimeType >
     std::pair< Eigen::Vector5d, TimeType > getRotationAnglesFromItrsToGcrs(
-            const double timeValue,
+            const TimeType timeValue,
             basic_astrodynamics::TimeScales timeScale = basic_astrodynamics::tt_scale )
     {
         // Compute required time values
