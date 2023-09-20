@@ -71,15 +71,13 @@ namespace tudat
             static const bool is_variational = false;
             static const int number_of_columns = 1;
 
-            SingleArcSimulationResults(const std::map <std::pair<int, int>, std::string> &dependentVariableIds,
-                                       const std::map< IntegratedStateType, std::vector< std::tuple< std::string, std::string, PropagatorType > > > integratedStateAndBodyList,
+            SingleArcSimulationResults(const std::map< IntegratedStateType, std::vector< std::tuple< std::string, std::string, PropagatorType > > > integratedStateAndBodyList,
                                        const std::shared_ptr <SingleArcPropagatorProcessingSettings> &outputSettings,
                                        const std::function< void ( std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >&,
                                                                    const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& ) > rawSolutionConversionFunction,
-                                       const std::shared_ptr< SingleArcDependentVariablesInterface< TimeType > > dependentVariableInterface = nullptr,
+                                       const std::shared_ptr< SingleArcDependentVariablesInterface< TimeType > > dependentVariableInterface,
                                        const bool sequentialPropagation = true ) :
                     SimulationResults<StateScalarType, TimeType>(),
-                    dependentVariableIds_(dependentVariableIds),
                     processedStateIds_(getProcessedStateStrings( integratedStateAndBodyList ) ),
                     propagatedStateIds_( getPropagatedStateStrings( integratedStateAndBodyList ) ),
                     integratedStateAndBodyList_( integratedStateAndBodyList ),
@@ -93,14 +91,7 @@ namespace tudat
                     propagationTerminationReason_(
                             std::make_shared<PropagationTerminationDetails>(propagation_never_run))
             {
-                if( outputSettings->getCreateDependentVariablesInterface( ) && ( dependentVariableInterface == nullptr ) )
-                {
-                    throw std::runtime_error( "Error, inconsistent dependent variable settings interface input (pointer is null) for single-arc results" );
-                }
-                else if( !outputSettings->getCreateDependentVariablesInterface( ) && ( dependentVariableInterface != nullptr ) )
-                {
-                    throw std::runtime_error( "Error, inconsistent dependent variable settings interface input (pointer is not null) for single-arc results" );
-                }
+                std::cout<<"Creating single arc: "<<dependentVariableInterface_<<std::endl;
             }
 
             //! Function that resets the state of this object, typically to signal that a new propagation is to be performed.
@@ -264,9 +255,40 @@ namespace tudat
             }
 
 
-            std::map <std::pair<int, int>, std::string> getDependentVariableId( ) 
+            std::map <std::pair<int, int>, std::string> getDependentVariableId( )  const
             {
-                return dependentVariableIds_;
+                if( dependentVariableInterface_ != nullptr )
+                {
+                    return dependentVariableInterface_->getDependentVariableIds( );
+                }
+                else
+                {
+                    return std::map <std::pair<int, int>, std::string>( );
+                }
+            }
+
+            std::map< std::pair< int, int >, std::shared_ptr< SingleDependentVariableSaveSettings > > getOrderedDependentVariableSettings( ) const
+            {
+                if( dependentVariableInterface_ != nullptr )
+                {
+                    return dependentVariableInterface_->getOrderedDependentVariableSettings( );
+                }
+                else
+                {
+                    return std::map< std::pair< int, int >, std::shared_ptr< SingleDependentVariableSaveSettings > >( );
+                }
+            }
+
+            std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > getOriginalDependentVariableSettings( ) const
+            {
+                if( dependentVariableInterface_ != nullptr )
+                {
+                    return dependentVariableInterface_->getDependentVariablesSettings( );
+                }
+                else
+                {
+                    return std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( );
+                }
             }
 
             std::map <std::pair<int, int>, std::string> getProcessedStateIds( )
@@ -371,9 +393,6 @@ namespace tudat
             //! Map of cumulative number of function evaluations that was saved during numerical propagation.
             std::map<TimeType, unsigned int> cumulativeNumberOfFunctionEvaluations_;
 
-            //! Map listing starting entry of dependent variables in output vector, along with associated ID.
-            std::map <std::pair<int, int>, std::string> dependentVariableIds_;
-
             std::map <std::pair<int, int>, std::string> processedStateIds_;
 
             std::map <std::pair<int, int>, std::string> propagatedStateIds_;
@@ -423,9 +442,12 @@ namespace tudat
             SingleArcVariationalSimulationResults( const std::shared_ptr <SingleArcSimulationResults< StateScalarType, TimeType > >  singleArcDynamicsResults,
                                                    const int stateTransitionMatrixSize,
                                                    const int sensitivityMatrixSize ):
-                    singleArcDynamicsResults_( singleArcDynamicsResults ), 
-                    stateTransitionMatrixSize_( stateTransitionMatrixSize ),
-                    sensitivityMatrixSize_( sensitivityMatrixSize ) { }
+            singleArcDynamicsResults_( singleArcDynamicsResults ),
+            stateTransitionMatrixSize_( stateTransitionMatrixSize ),
+            sensitivityMatrixSize_( sensitivityMatrixSize )
+            {
+
+            }
 
             void reset( ) 
             {
@@ -579,7 +601,7 @@ namespace tudat
 
             MultiArcSimulationResults(
                     const std::vector< std::shared_ptr< SingleArcResults< StateScalarType, TimeType > > > singleArcResults,
-                    const std::shared_ptr< MultiArcDependentVariablesInterface< TimeType > > dependentVariableInterface = nullptr ):
+                    const std::shared_ptr< MultiArcDependentVariablesInterface< TimeType > > dependentVariableInterface ):
                     singleArcResults_( singleArcResults ), propagationIsPerformed_( false ), solutionIsCleared_( false ),
                     dependentVariableInterface_( dependentVariableInterface ){ }
 
@@ -821,16 +843,12 @@ namespace tudat
         public:
             HybridArcSimulationResults(
                     const std::shared_ptr< SingleArcResults< StateScalarType, TimeType > > singleArcResults,
-                    const std::shared_ptr< MultiArcSimulationResults< SingleArcResults, StateScalarType, TimeType > > multiArcResults,
-                    const bool createDependentVariableInterface = false ):
+                    const std::shared_ptr< MultiArcSimulationResults< SingleArcResults, StateScalarType, TimeType > > multiArcResults ):
                     singleArcResults_( singleArcResults ), multiArcResults_( multiArcResults )
             {
-                if( createDependentVariableInterface )
-                {
-                    dependentVariableInterface_ = std::make_shared<HybridArcDependentVariablesInterface<TimeType> >(
-                            singleArcResults_->getSingleArcDependentVariablesInterface( ),
-                            multiArcResults_->getMultiArcDependentVariablesInterface( ));
-                }
+                dependentVariableInterface_ = std::make_shared<HybridArcDependentVariablesInterface<TimeType> >(
+                        singleArcResults_->getSingleArcDependentVariablesInterface( ),
+                        multiArcResults_->getMultiArcDependentVariablesInterface( ) );
             }
 
             ~HybridArcSimulationResults( ) 
