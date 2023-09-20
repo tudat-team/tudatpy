@@ -77,6 +77,9 @@ SystemOfBodies createEnvironment(
             bodiesToCreate, globalFrameOrigin, globalFrameOrientation );
     }
 
+    bodySettings.at( "Earth" )->rotationModelSettings = gcrsToItrsRotationModelSettings(
+        basic_astrodynamics::iau_2006, globalFrameOrientation );
+
     bodySettings.at( "Moon" )->ephemerisSettings->resetFrameOrigin( moonEphemerisOrigin );
 
     // Add spacecraft settings
@@ -133,7 +136,6 @@ void checkStateFunctionNumericalErrors(
     Eigen::Vector3ld limitTimes = std::numeric_limits< StateScalarType >::epsilon( ) *
                                   nominalState.segment( 0, 3 ).cwiseQuotient( nominalState.segment( 3, 3 ));
 
-    std::cout<<"Limits: "<<limitTimes.transpose( )<<std::endl;
     // Compute numerical position partial, and compute error w.r.t. computation for Delta t = 1 s
     Eigen::Vector3ld nominalPartial = Eigen::Vector3ld::Zero( );
     for ( int i = 0; i < timeExponents.size( ); i++ )
@@ -195,227 +197,47 @@ BOOST_AUTO_TEST_CASE( test_ObservationModelContinuity )
         "SSB", "SSB", true, 120.0, 10.0 );
 
     // Define link ends.
-    LinkEnds testLinkEnds;
-    testLinkEnds[ receiver ] = std::pair<std::string, std::string>( std::make_pair( "Earth", "Station1" ));
-    testLinkEnds[ transmitter ] = std::make_pair<std::string, std::string>( "GRAIL-A", "" );
+    LinkEnds centerOfMassLinkEnds;
+    centerOfMassLinkEnds[ receiver ] = std::pair<std::string, std::string>( std::make_pair( "Earth", "" ));
+    centerOfMassLinkEnds[ transmitter ] = std::make_pair<std::string, std::string>( "GRAIL-A", "" );
+
+    // Define link ends.
+    LinkEnds stationLinkEnds;
+    stationLinkEnds[ receiver ] = std::pair<std::string, std::string>( std::make_pair( "Earth", "Station1" ));
+    stationLinkEnds[ transmitter ] = std::make_pair<std::string, std::string>( "GRAIL-A", "" );
+
+    // Create observation settings
+    std::vector<std::shared_ptr<ObservationModelSettings> > centerOfMassObservationSettingsList;
+    centerOfMassObservationSettingsList.push_back( std::make_shared<ObservationModelSettings>( one_way_range, centerOfMassLinkEnds ));
+
+    std::vector<std::shared_ptr<ObservationModelSettings> > stationObservationSettingsList;
+    stationObservationSettingsList.push_back( std::make_shared<ObservationModelSettings>( one_way_range, stationLinkEnds ));
 
     Time testTime = initialTimeEnvironment + 86400.1;
-    // Create observation settings
-    std::vector<std::shared_ptr<ObservationModelSettings> > observationSettingsList;
-    observationSettingsList.push_back( std::make_shared<ObservationModelSettings>( one_way_range, testLinkEnds ));
-    
-    std::shared_ptr<LightTimeCalculator<long double, Time> > earthCenteredLightTimeCalculator =
-        getOneWayLightTimeCalculator( earthCenteredBodies, observationSettingsList );
-    std::shared_ptr<LightTimeCalculator<long double, Time> > barycentricLightTimeCalculator =
-        getOneWayLightTimeCalculator( barycentricBodies, observationSettingsList );
-    std::shared_ptr<LightTimeCalculator<long double, Time> > barycentricInterpolatedLightTimeCalculator =
-        getOneWayLightTimeCalculator( barycentricInterpolatedBodies, observationSettingsList );
-    std::shared_ptr<LightTimeCalculator<long double, Time> > earthCenteredInterpolatedLightTimeCalculator =
-        getOneWayLightTimeCalculator( earthCenteredInterpolatedBodies, observationSettingsList );
+    std::cout<<static_cast< double >( testTime )<<std::endl;
 
-    checkStateFunctionNumericalErrors< long double, Time >(
-        barycentricInterpolatedLightTimeCalculator->getStateFunctionOfTransmittingBody( ), testTime );
-    checkStateFunctionNumericalErrors< long double, Time >(
-        barycentricInterpolatedLightTimeCalculator->getStateFunctionOfReceivingBody( ), testTime );
+    // Check state function numerical consistency for observations between centers of mass
+    {
+        std::shared_ptr<LightTimeCalculator<long double, Time>  > lightTimeCalculator =
+            getOneWayLightTimeCalculator( barycentricInterpolatedBodies, centerOfMassObservationSettingsList );
+        checkStateFunctionNumericalErrors< long double, Time >(
+            lightTimeCalculator->getStateFunctionOfTransmittingBody( ), testTime );
+        checkStateFunctionNumericalErrors< long double, Time >(
+            lightTimeCalculator->getStateFunctionOfReceivingBody( ), testTime );
+    }
 
-    checkStateFunctionNumericalErrors< long double, Time >(
-        earthCenteredInterpolatedLightTimeCalculator->getStateFunctionOfTransmittingBody( ), testTime );
-//    checkStateFunctionNumericalErrors< long double, Time >(
-//        earthCenteredInterpolatedLightTimeCalculator->getStateFunctionOfReceivingBody( ), testTime );
-
-//
-//    {
-//
-//        Eigen::Vector6ld nominalPartial = Eigen::Vector6ld::Zero( );
-//        for ( int i = 0; i >= -11; i-- )
-//        {
-//            long double perturbationStep = std::pow( 10, i );
-//
-//            Eigen::Vector6ld upperturbedState =
-//                barycentricInterpolatedLightTimeCalculator->getStateFunctionOfTransmittingBody( )(
-//                    testTime + perturbationStep );
-//
-//            Eigen::Vector6ld downperturbedState =
-//                barycentricInterpolatedLightTimeCalculator->getStateFunctionOfTransmittingBody( )(
-//                    testTime - perturbationStep );
-//
-//            Eigen::Vector6ld currentPartial =  ( upperturbedState - downperturbedState ) / ( 2.0 * perturbationStep );
-//            if( i == 0 )
-//            {
-//                nominalPartial =  currentPartial;
-//            }
-//            else
-//            {
-//                TUDAT_CHECK_MATRIX_CLOSE_FRACTION( nominalPartial, currentPartial, 0.05 );
-//            }
-//        }
-//    }
-//
-//    {
-//        long double nominalPartial = 0.0L;
-//
-//        for ( int i = 0; i >= -9; i-- )
-//        {
-//            long double perturbationStep = std::pow( 10, i );
-//
-//            long double upperturbedLightTime =
-//                barycentricInterpolatedLightTimeCalculator->calculateLightTime( testTime + perturbationStep );
-//
-//            long double downperturbedLightTime = barycentricInterpolatedLightTimeCalculator->calculateLightTime( testTime - perturbationStep );
-//
-//            long double currentPartial = ( upperturbedLightTime - downperturbedLightTime ) / ( 2.0 * perturbationStep );
-//            if( i == 0 )
-//            {
-//                nominalPartial =  currentPartial;
-//            }
-//            else
-//            {
-//                BOOST_CHECK_CLOSE( nominalPartial, currentPartial, 0.05 );
-//            }
-//        }
-//    }
-}
+    // Check state function numerical consistency for observations from ground station
+    {
+        std::shared_ptr<LightTimeCalculator<long double, Time>  > lightTimeCalculator =
+            getOneWayLightTimeCalculator( barycentricInterpolatedBodies, stationObservationSettingsList );
+        checkStateFunctionNumericalErrors< long double, Time >(
+            lightTimeCalculator->getStateFunctionOfTransmittingBody( ), testTime );
+        checkStateFunctionNumericalErrors< long double, Time >(
+            lightTimeCalculator->getStateFunctionOfReceivingBody( ), testTime );
+    }
 
 }
 
 }
 
-
-//
-//    {
-//        for ( int i = -20; i <= 0; i++ )
-//        {
-//            long double perturbationStep = std::pow( 10, i );
-////
-////            Eigen::Vector6ld upperturbedState =
-////                barycentricBodies.at( "Earth" )->getStateInBaseFrameFromEphemeris< long double, Time >( testTime + perturbationStep );
-////
-////            Eigen::Vector6ld downperturbedState =
-////                barycentricBodies.at( "Earth" )->getStateInBaseFrameFromEphemeris< long double, Time >( testTime - perturbationStep );
-//
-//            Eigen::Vector6ld upperturbedState =
-//                barycentricInterpolatedBodies.at( "Earth" )->getEphemeris( )->getCartesianLongStateFromExtendedTime( testTime + perturbationStep );
-//
-//            Eigen::Vector6ld downperturbedState =
-//                barycentricInterpolatedBodies.at( "Earth" )->getEphemeris( )->getCartesianLongStateFromExtendedTime( testTime - perturbationStep );
-//
-//
-//
-//
-//            std::cout << i << " " << ( upperturbedState - downperturbedState ).transpose( )  / ( 2.0 * perturbationStep )<< std::endl;
-//        }
-//    }
-//
-//    std::shared_ptr< ephemerides::TabulatedCartesianEphemeris< long double, Time > > earthEphemeris = std::dynamic_pointer_cast<
-//        ephemerides::TabulatedCartesianEphemeris< long double, Time > >( barycentricInterpolatedBodies.at( "Moon" )->getEphemeris( ) );
-//
-//    std::cout<<earthEphemeris<<std::endl;
-//
-//    std::shared_ptr< interpolators::LagrangeInterpolator< Time, Eigen::Vector6ld > > stateInterpolator =
-//        std::dynamic_pointer_cast< interpolators::LagrangeInterpolator< Time, Eigen::Vector6ld > >(
-//            earthEphemeris->getInterpolator( ) );
-//
-//    std::cout<<stateInterpolator<<std::endl;
-//
-//    {
-//        for ( int i = -20; i <= 0; i++ )
-//        {
-//            long double perturbationStep = std::pow( 10, i );
-////
-////            Eigen::Vector6ld upperturbedState =
-////                barycentricBodies.at( "Earth" )->getStateInBaseFrameFromEphemeris< long double, Time >( testTime + perturbationStep );
-////
-////            Eigen::Vector6ld downperturbedState =
-////                barycentricBodies.at( "Earth" )->getStateInBaseFrameFromEphemeris< long double, Time >( testTime - perturbationStep );
-//
-//            Eigen::Vector6ld upperturbedState = stateInterpolator->interpolate( testTime + perturbationStep );
-//
-//            Eigen::Vector6ld downperturbedState = stateInterpolator->interpolate( testTime - perturbationStep );
-//
-//
-//
-//
-//            std::cout << i << " " << ( upperturbedState - downperturbedState ).transpose( ) / ( 2.0 * perturbationStep )<< std::endl;
-//        }
-//    }
-
-
-
-//
-//int main( )
-//{
-//    double initialTimeEnvironment = Time(107561, 2262.19) - 2.0 * 3600.0;
-//    double finalTimeEnvironment = Time(108258, 2771.19) + 2.0 * 3600.0;
-//
-//    // Load spice kernels
-//    spice_interface::loadStandardSpiceKernels( );
-//    spice_interface::loadSpiceKernelInTudat( "/home/dominic/Tudat/Data/GRAIL_Spice/grail_120301_120529_sci_v02.bsp" );
-//
-//    SystemOfBodies earthCenteredBodies = createEnvironment(
-//        initialTimeEnvironment, finalTimeEnvironment,
-//        "Earth", "Earth", false, TUDAT_NAN, TUDAT_NAN );
-////    SystemOfBodies earthCenteredInterpolatedBodies = createEnvironment(
-////        initialTimeEnvironment, finalTimeEnvironment,
-////        "Earth", "Earth", true, 120.0, 10.0 );
-//    SystemOfBodies barycentricBodies = createEnvironment(
-//        initialTimeEnvironment, finalTimeEnvironment,
-//        "Sun", "Earth", false, TUDAT_NAN, TUDAT_NAN );
-//    SystemOfBodies barycentricInterpolatedBodies = createEnvironment(
-//        initialTimeEnvironment, finalTimeEnvironment,
-//        "Sun", "Earth", true, 120.0, 10.0 );
-//
-//
-//    // Define link ends.
-//    LinkEnds testLinkEnds;
-//    testLinkEnds[ receiver ] = std::pair< std::string, std::string >( std::make_pair( "Earth", "" ) );
-//    testLinkEnds[ transmitter ] = std::make_pair< std::string, std::string >( "GRAIL-A", "" );
-//
-//    // Create observation settings
-//    std::vector< std::shared_ptr< ObservationModelSettings > > observationSettingsList;
-//    observationSettingsList.push_back( std::make_shared< ObservationModelSettings >( one_way_range, testLinkEnds ) );
-//
-//    std::shared_ptr< LightTimeCalculator< long double, Time > > earthCenteredLightTimeCalculator =
-//        getOneWayLightTimeCalculator( earthCenteredBodies, observationSettingsList );
-//    std::shared_ptr< LightTimeCalculator< long double, Time > > barycentricLightTimeCalculator =
-//        getOneWayLightTimeCalculator( barycentricBodies, observationSettingsList );
-//    std::shared_ptr< LightTimeCalculator< long double, Time > > barycentricInterpolatedLightTimeCalculator =
-//        getOneWayLightTimeCalculator( barycentricInterpolatedBodies, observationSettingsList );
-//
-////    std::shared_ptr< LightTimeCalculator< long double, Time > > earthCenteredInterpolatedLightTimeCalculator =
-////        getOneWayLightTimeCalculator( earthCenteredInterpolatedBodies, observationSettingsList );
-//
-//    Time testTime = initialTimeEnvironment + 86400.0;
-//
-//
-//    std::cout<<std::setprecision( 19 );
-//    double lightTimeBarycenter = barycentricLightTimeCalculator->calculateLightTime( testTime );
-//    double lightTimeEarth = earthCenteredLightTimeCalculator->calculateLightTime( testTime );
-//
-//    Time receptionTime = testTime;
-//
-//    typedef Eigen::Matrix< long double, 6, 1 > Vector6ld;
-//
-//    Vector6ld receiverStateEarth = earthCenteredLightTimeCalculator->getStateFunctionOfReceivingBody( )( receptionTime );
-//    Vector6ld transmitterStateEarth = earthCenteredLightTimeCalculator->getStateFunctionOfTransmittingBody( )( receptionTime - lightTimeEarth );
-//
-//    Vector6ld receiverStateBarycenter = barycentricLightTimeCalculator->getStateFunctionOfReceivingBody( )( receptionTime ) -
-//        barycentricBodies.at( "Earth" )->getStateInBaseFrameFromEphemeris< long double, Time >( receptionTime );
-//    Vector6ld transmitterStateBarycenter = barycentricLightTimeCalculator->getStateFunctionOfTransmittingBody( )( receptionTime - lightTimeBarycenter ) -
-//        barycentricBodies.at( "Earth" )->getStateInBaseFrameFromEphemeris< long double, Time >( receptionTime - lightTimeBarycenter );
-//
-//    Vector6ld receiverStateBarycenterUncorrected = barycentricLightTimeCalculator->getStateFunctionOfReceivingBody( )( receptionTime );
-//    Vector6ld transmitterStateBarycenterUncorrected = barycentricLightTimeCalculator->getStateFunctionOfTransmittingBody( )( receptionTime - lightTimeBarycenter );
-//
-//
-//    std::cout<<receiverStateEarth.transpose( )<<std::endl;
-//    std::cout<<receiverStateBarycenter.transpose( )<<std::endl;
-//    std::cout<<receiverStateEarth.transpose( )-receiverStateBarycenter.transpose( )<<std::endl<<std::endl;
-//
-//    std::cout<<transmitterStateEarth.transpose( )<<std::endl;
-//    std::cout<<transmitterStateBarycenter.transpose( )<<std::endl;
-//    std::cout<<transmitterStateEarth.transpose( ) - transmitterStateBarycenter.transpose( )<<std::endl<<std::endl;
-//
-//    std::cout<<lightTimeBarycenter - lightTimeEarth<<std::endl;
-//
-//
-//}
+}
