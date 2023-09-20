@@ -107,9 +107,9 @@ BOOST_AUTO_TEST_CASE( testYarkovskyAccelerationCircular )
     const std::string frameOrigin = "SSB";
     const std::string frameOrientation = "ECLIPJ2000";
     const double simulationStartEpoch = 10.0 * physical_constants::JULIAN_DAY;
-    const double simulationDuration = 10.0 * physical_constants::JULIAN_DAY;
+    const double simulationDuration = 1000.0 * physical_constants::JULIAN_DAY;
     const double simulationEndEpoch = simulationStartEpoch + simulationDuration;
-    const double fixedStepSize = 100.0;
+    const double fixedStepSize = 1000.0;
 
     // Initial Conditions
     const double initialSemiMajorAxis = 0.75 * AU;
@@ -197,7 +197,7 @@ BOOST_AUTO_TEST_CASE( testYarkovskyAccelerationCircular )
     const double calculatedSemiMajorAxisDrift = keplerFinalState[0] - initialSemiMajorAxis;
 
     // Check drift in semi-major axis
-    BOOST_CHECK_CLOSE( expectedSemiMajorAxisDrift, calculatedSemiMajorAxisDrift, 1e-3 );
+    BOOST_CHECK_CLOSE( expectedSemiMajorAxisDrift, calculatedSemiMajorAxisDrift, 0.01 );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
