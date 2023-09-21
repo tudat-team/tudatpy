@@ -83,6 +83,9 @@ std::string getAccelerationModelName( const AvailableAcceleration accelerationTy
     case solar_sail_acceleration:
         accelerationName = "solar sail acceleration";
         break;
+    case yarkovsky_acceleration:
+        accelerationName = "yarkovsky acceleration";
+        break;
     case custom_acceleration:
         accelerationName = "custom acceleration";
         break;
