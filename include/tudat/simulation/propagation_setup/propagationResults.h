@@ -91,7 +91,6 @@ namespace tudat
                     propagationTerminationReason_(
                             std::make_shared<PropagationTerminationDetails>(propagation_never_run))
             {
-                std::cout<<"Creating single arc: "<<dependentVariableInterface_<<std::endl;
             }
 
             //! Function that resets the state of this object, typically to signal that a new propagation is to be performed.
@@ -603,7 +602,13 @@ namespace tudat
                     const std::vector< std::shared_ptr< SingleArcResults< StateScalarType, TimeType > > > singleArcResults,
                     const std::shared_ptr< MultiArcDependentVariablesInterface< TimeType > > dependentVariableInterface ):
                     singleArcResults_( singleArcResults ), propagationIsPerformed_( false ), solutionIsCleared_( false ),
-                    dependentVariableInterface_( dependentVariableInterface ){ }
+                    dependentVariableInterface_( dependentVariableInterface )
+                    {
+                        if( dependentVariableInterface_ == nullptr )
+                        {
+                            throw std::runtime_error( "Error when creating MultiArcSimulationResults, dependentVariableInterface_ is NULL " );
+                        }
+                    }
 
             ~MultiArcSimulationResults( ) 
             {}
@@ -791,32 +796,30 @@ namespace tudat
 
             void updateDependentVariableInterface( )
             {
-                if( dependentVariableInterface_ != nullptr )
+                std::vector<std::shared_ptr<interpolators::OneDimensionalInterpolator<TimeType, Eigen::VectorXd> > > dependentVariablesInterpolators;
+                for ( unsigned int i = 0; i < arcStartTimes_.size( ); i++ )
                 {
-                    std::vector<std::shared_ptr<interpolators::OneDimensionalInterpolator<TimeType, Eigen::VectorXd> > > dependentVariablesInterpolators;
-                    for ( unsigned int i = 0; i < arcStartTimes_.size( ); i++ )
+                    if( singleArcResults_.at( i )->getDependentVariableHistory( ).size( ) > 0 )
                     {
-                        if ( dependentVariableInterface_->getDependentVariablesSettings( ).size( ) > 0 )
-                        {
-                            std::shared_ptr<interpolators::LagrangeInterpolator<TimeType, Eigen::VectorXd> > dependentVariablesInterpolator =
-                                    std::make_shared<interpolators::LagrangeInterpolator<TimeType, Eigen::VectorXd> >(
-                                            utilities::createVectorFromMapKeys<Eigen::VectorXd, TimeType>(
-                                                    singleArcResults_.at( i )->getDependentVariableHistory( )),
-                                            utilities::createVectorFromMapValues<Eigen::VectorXd, TimeType>(
-                                                    singleArcResults_.at( i )->getDependentVariableHistory( )), 8 );
-                            dependentVariablesInterpolators.push_back( dependentVariablesInterpolator );
-                        }
-                        else
-                        {
-                            dependentVariablesInterpolators.push_back(
-                                    std::shared_ptr<interpolators::OneDimensionalInterpolator<TimeType, Eigen::VectorXd> >( ));
-                        }
+                        std::shared_ptr<interpolators::LagrangeInterpolator<TimeType, Eigen::VectorXd> >
+                            dependentVariablesInterpolator =
+                            std::make_shared<interpolators::LagrangeInterpolator<TimeType, Eigen::VectorXd> >(
+                                utilities::createVectorFromMapKeys<Eigen::VectorXd, TimeType>(
+                                    singleArcResults_.at( i )->getDependentVariableHistory( )),
+                                utilities::createVectorFromMapValues<Eigen::VectorXd, TimeType>(
+                                    singleArcResults_.at( i )->getDependentVariableHistory( )), 8 );
+                        dependentVariablesInterpolators.push_back( dependentVariablesInterpolator );
+                    }
+                    else
+                    {
+                        dependentVariablesInterpolators.push_back( nullptr );
                     }
 
-                    // Update arc end times
-                    dependentVariableInterface_->updateDependentVariablesInterpolators(
-                            dependentVariablesInterpolators, arcStartTimes_, arcEndTimes_ );
                 }
+
+                // Update arc end times
+                dependentVariableInterface_->updateDependentVariablesInterpolators(
+                        dependentVariablesInterpolators, arcStartTimes_, arcEndTimes_ );
             }
 
         private:
