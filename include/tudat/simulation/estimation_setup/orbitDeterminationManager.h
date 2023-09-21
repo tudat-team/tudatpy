@@ -1101,7 +1101,7 @@ protected:
             integrateAndEstimateOrbit_ = false;
         }
 
-        propagatorSettings->getOutputSettingsBase( )->setCreateDependentVariablesInterface( true );
+        propagatorSettings->getOutputSettingsBase( )->setUpdateDependentVariableInterpolator( true );
         if( integrateAndEstimateOrbit_ )
         {
             variationalEquationsSolver_ = simulation_setup::createVariationalEquationsSolver< ObservationScalarType, TimeType >(
