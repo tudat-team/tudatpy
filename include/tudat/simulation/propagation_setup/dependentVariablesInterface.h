@@ -128,7 +128,7 @@ public:
      * Function to retrieve the dependent variables settings object.
      * \return dependent variables settings
      */
-    std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > getDependentVariablesSettings( )
+    std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > getDependentVariablesSettings( ) const
     {
         return dependentVariablesSettings_;
     }
@@ -173,9 +173,13 @@ public:
      */
     SingleArcDependentVariablesInterface(
             const std::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, Eigen::VectorXd > > dependentVariablesInterpolator,
-            const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesSettings ):
+            const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesSettings,
+            const std::map< std::pair< int, int >, std::string > dependentVariableIds,
+            const std::map< std::pair< int, int >, std::shared_ptr< SingleDependentVariableSaveSettings > > orderedDependentVariableSettings ):
             DependentVariablesInterface< TimeType >( dependentVariablesSettings ),
-            dependentVariablesInterpolator_( dependentVariablesInterpolator )
+            dependentVariablesInterpolator_( dependentVariablesInterpolator ),
+            dependentVariableIds_( dependentVariableIds ),
+            orderedDependentVariableSettings_( orderedDependentVariableSettings )
     {
         dependentVariables_ = Eigen::VectorXd::Zero( dependentVariablesSize_ );
     }
@@ -219,6 +223,15 @@ public:
         return dependentVariables_;
     }
 
+    std::map< std::pair< int, int >, std::string > getDependentVariableIds( ) const
+    {
+        return dependentVariableIds_;
+    }
+
+    std::map< std::pair< int, int >, std::shared_ptr< SingleDependentVariableSaveSettings > > getOrderedDependentVariableSettings( ) const
+    {
+        return orderedDependentVariableSettings_;
+    }
 
 private:
 
@@ -227,6 +240,10 @@ private:
 
     //! Interpolator returning the dependent variables as a function of time.
     std::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, Eigen::VectorXd > > dependentVariablesInterpolator_;
+
+    std::map< std::pair< int, int >, std::string > dependentVariableIds_;
+
+    std::map< std::pair< int, int >, std::shared_ptr< SingleDependentVariableSaveSettings > > orderedDependentVariableSettings_;
 
 };
 
