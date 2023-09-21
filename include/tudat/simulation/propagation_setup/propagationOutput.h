@@ -122,8 +122,14 @@ int getDependentVariableSaveSize(
 int getDependentVariableSize(
         const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings );
 
+std::pair< int, int > getDependentVariableShape(
+    const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings );
+
 bool isScalarDependentVariable(
         const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings );
+
+bool isMatrixDependentVariable(
+    const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings );
 
 //! Get the vector representation of a rotation matrix.
 /*!
@@ -2444,10 +2450,9 @@ template< typename TimeType = double, typename StateScalarType = double >
 std::pair< std::function< Eigen::VectorXd( ) >, std::map< std::pair< int, int >, std::string > > createDependentVariableListFunction(
         const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables,
         const simulation_setup::SystemOfBodies& bodies,
+        std::map< std::pair< int, int >, std::shared_ptr< SingleDependentVariableSaveSettings > >& orderedDependentVariables,
         const std::unordered_map< IntegratedStateType,
-        std::vector< std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > >& stateDerivativeModels =
-        std::unordered_map< IntegratedStateType,
-        std::vector< std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > >( ),
+        std::vector< std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > >& stateDerivativeModels,
         const std::map< propagators::IntegratedStateType, orbit_determination::StateDerivativePartialsMap >& stateDerivativePartials =
         std::map< propagators::IntegratedStateType, orbit_determination::StateDerivativePartialsMap >( ) )
 {
@@ -2488,9 +2493,13 @@ std::pair< std::function< Eigen::VectorXd( ) >, std::map< std::pair< int, int >,
     // Set list of variable ids/indices in correc otder.
     int totalVariableSize = 0;
     std::map< std::pair< int, int >, std::string > dependentVariableIds;
+
+    int variableCounter = 0;
     for( std::pair< std::string, int > vectorVariable: vectorVariableList )
     {
         dependentVariableIds[ { totalVariableSize, vectorVariable.second } ] = vectorVariable.first;
+        orderedDependentVariables[ { totalVariableSize, vectorVariable.second } ] = dependentVariables.at( variableCounter );
+        variableCounter++;
         totalVariableSize += vectorVariable.second;
     }
 

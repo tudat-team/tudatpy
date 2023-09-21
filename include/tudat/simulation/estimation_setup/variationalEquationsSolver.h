@@ -795,7 +795,8 @@ public:
 
         // Create object that will contain and process the propagation results
         variationalPropagationResults_ = std::make_shared< SingleArcVariationalSimulationResults< StateScalarType, TimeType>>(
-                dynamicsSimulator_->getSingleArcPropagationResults( ), this->stateTransitionMatrixSize_, this->parameterVectorSize_ - this->stateTransitionMatrixSize_ );
+                dynamicsSimulator_->getSingleArcPropagationResults( ),
+                this->stateTransitionMatrixSize_, this->parameterVectorSize_ - this->stateTransitionMatrixSize_ );
 
         // Integrate variational equations from initial state estimate.
         if( integrateEquationsOnCreation )
@@ -1219,7 +1220,8 @@ public:
                     arcWiseStateTransitionMatrixSize_.at( i ), arcWiseParameterVectorSize_.at( i ) - arcWiseStateTransitionMatrixSize_.at( i ) ) );
         }
         variationalPropagationResults_ = std::make_shared< MultiArcSimulationResults< SingleArcVariationalSimulationResults, StateScalarType, TimeType > >(
-                singleArcVariationalResults );
+                singleArcVariationalResults,
+                dynamicsSimulator_->getMultiArcPropagationResults( )->getMultiArcDependentVariablesInterface( ) );
 
 
         for( unsigned int i = 0; i < singleArcDynamicsSimulators.size( ); i++ )
