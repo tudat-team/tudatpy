@@ -1968,7 +1968,8 @@ public:
                         std::shared_ptr<MultiArcIntegratedStateProcessor<TimeType, StateScalarType> > > multiArcStateProcessors
                         = createMultiArcIntegratedStateProcessors( bodies_, propagationResults_->getArcStartTimes( ),
                                                                    singleArcIntegratedStatesProcessors );
-                for ( auto itr: multiArcStateProcessors ) {
+                for ( auto itr: multiArcStateProcessors )
+                {
                     itr.second->processIntegratedMultiArcStates(
                             propagationResults_->getConcatenatedEquationsOfMotionResults(
                                     multiArcPropagatorSettings_->getOutputSettings( )->getClearNumericalSolutions( )),
