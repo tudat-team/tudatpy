@@ -102,6 +102,15 @@ namespace tudat
                 onlyProcessedSolutionSet_ = false;
                 propagationTerminationReason_ = std::make_shared<PropagationTerminationDetails>(propagation_never_run);
             }
+            
+            void manuallySetSecondaryData( const std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType > > resultsToCopy )
+            {
+                dependentVariableHistory_ = resultsToCopy->getDependentVariableHistory( );
+                cumulativeComputationTimeHistory_ =  resultsToCopy->getCumulativeComputationTimeHistory( );
+                cumulativeNumberOfFunctionEvaluations_ =  resultsToCopy->getCumulativeNumberOfFunctionEvaluations( );
+                propagationTerminationReason_ = resultsToCopy->getPropagationTerminationReason( );
+                propagationIsPerformed_ = true;
+            }
 
             //! Function that sets new numerical results of a propagation, after the propagation of the dynamics
             void reset(
@@ -210,39 +219,39 @@ namespace tudat
                 return equationsOfMotionNumericalSolutionRaw_;
             }
 
-            std::map <TimeType, Eigen::VectorXd> &getDependentVariableHistory( ) 
+            std::map <TimeType, Eigen::VectorXd> &getDependentVariableHistory( )
             {
-                checkAvailabilityOfSolution( "dependent variable history" );
+                checkAvailabilityOfSolution( "dependent variable history", false );
                 return dependentVariableHistory_;
             }
 
-            std::map<TimeType, double> &getCumulativeComputationTimeHistory( ) 
+            std::map<TimeType, double> &getCumulativeComputationTimeHistory( )
             {
-                checkAvailabilityOfSolution( "cumulative computation time history" );
+                checkAvailabilityOfSolution( "cumulative computation time history", false );
                 return cumulativeComputationTimeHistory_;
             }
 
             double getTotalComputationRuntime( )
             {
-                checkAvailabilityOfSolution( "cumulative computation time history" );
+                checkAvailabilityOfSolution( "cumulative computation time history", false );
                 return std::max( cumulativeComputationTimeHistory_.begin( )->second,
                                  cumulativeComputationTimeHistory_.rbegin( )->second );
             }
 
-            std::map<TimeType, unsigned int> &getCumulativeNumberOfFunctionEvaluations( ) 
+            std::map<TimeType, unsigned int> &getCumulativeNumberOfFunctionEvaluations( )
             {
-                checkAvailabilityOfSolution( "cumulative number of function evaluations" );
+                checkAvailabilityOfSolution( "cumulative number of function evaluations", false );
                 return cumulativeNumberOfFunctionEvaluations_;
             }
 
             double getTotalNumberOfFunctionEvaluations( )
             {
-                checkAvailabilityOfSolution( "cumulative number of function evaluations" );
+                checkAvailabilityOfSolution( "cumulative number of function evaluations", false );
                 return std::max( cumulativeNumberOfFunctionEvaluations_.begin( )->second,
                                  cumulativeNumberOfFunctionEvaluations_.rbegin( )->second );
             }
 
-            std::shared_ptr <PropagationTerminationDetails> getPropagationTerminationReason( ) 
+            std::shared_ptr <PropagationTerminationDetails> getPropagationTerminationReason( )
             {
                 return propagationTerminationReason_;
             }
@@ -414,7 +423,7 @@ namespace tudat
             bool propagationIsPerformed_;
 
             bool solutionIsCleared_;
-            
+
             bool onlyProcessedSolutionSet_;
 
             //! Event that triggered the termination of the propagation
@@ -448,7 +457,7 @@ namespace tudat
 
             }
 
-            void reset( ) 
+            void reset( )
             {
                 clearSolutionMaps( );
                 singleArcDynamicsResults_->reset( );
@@ -469,6 +478,11 @@ namespace tudat
                         cumulativeComputationTimeHistory,
                         cumulativeNumberOfFunctionEvaluations,
                         propagationTerminationReason );
+            }
+
+            void manuallySetSecondaryData( const std::shared_ptr< SingleArcVariationalSimulationResults< StateScalarType, TimeType > > resultsToCopy )
+            {
+                singleArcDynamicsResults_->manuallySetSecondaryData( resultsToCopy->getDynamicsResults( ) );
             }
 
             //! Function to split the full numerical solution into the solution for state transition matrix, sensitivity matrix, and unprocessed dynamics solution
@@ -610,7 +624,7 @@ namespace tudat
                         }
                     }
 
-            ~MultiArcSimulationResults( ) 
+            ~MultiArcSimulationResults( )
             {}
 
             bool getPropagationIsPerformed( )
@@ -665,6 +679,19 @@ namespace tudat
                 {
                     arcStartTimes_.push_back( singleArcResults_.at( i )->getEquationsOfMotionNumericalSolution( ).begin( )->first );
                     arcEndTimes_.push_back( singleArcResults_.at( i )->getEquationsOfMotionNumericalSolution( ).rbegin( )->first );
+                }
+            }
+
+            void manuallySetSecondaryData( const std::shared_ptr< MultiArcSimulationResults< SingleArcResults, StateScalarType, TimeType > > resultsToCopy )
+            {
+                if( resultsToCopy->getSingleArcResults( ).size( ) != singleArcResults_.size( ) )
+                {
+                    throw std::runtime_error( "Error when manually resetting multi-arc secondary data; arc sizes are incompatible" );
+                }
+
+                for( unsigned int i = 0; i < resultsToCopy->getSingleArcResults( ).size( ); i++ )
+                {
+                    singleArcResults_.at( i )->manuallySetSecondaryData( resultsToCopy->getSingleArcResults( ).at( i ) );
                 }
             }
 
