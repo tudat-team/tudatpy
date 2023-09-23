@@ -261,7 +261,7 @@ BOOST_AUTO_TEST_CASE( testConsiderParameters )
     // Define estimation input with consider parameters
     Eigen::VectorXd considerParametersDeviations = 0.1 * considerParametersValues;
     std::shared_ptr< EstimationInput< double, double  > > estimationInput = std::make_shared< EstimationInput< double, double > >(
-            observationsAndTimes, Eigen::MatrixXd::Zero( 0, 0 ), std::make_shared< EstimationConvergenceChecker >( 1 ), considerCovariance, considerParametersDeviations );
+            observationsAndTimes, Eigen::MatrixXd::Zero( 0, 0 ), std::make_shared< EstimationConvergenceChecker >( 2 ), considerCovariance, considerParametersDeviations );
     std::shared_ptr< CovarianceAnalysisInput< double, double  > > covarianceInput = std::make_shared< CovarianceAnalysisInput< double, double > >(
             observationsAndTimes, Eigen::MatrixXd::Zero( 0, 0 ), considerCovariance );
 
@@ -340,7 +340,7 @@ BOOST_AUTO_TEST_CASE( testConsiderParameters )
             considerParametersDeviations.cwiseProduct( normalisationTermsConsider ) );
     Eigen::MatrixXd leftHandSide = computedNormalisedInvCovariance;
 
-    Eigen::VectorXd leastSquaresOutput = linear_algebra::solveSystemOfEquationsWithSvd( leftHandSide, rightHandSide, 1, 1.0e8 );
+    Eigen::VectorXd leastSquaresOutput = linear_algebra::solveSystemOfEquationsWithSvd( leftHandSide, rightHandSide, 1.0e8 );
     Eigen::VectorXd computedUpdatedParameters = leastSquaresOutput.cwiseQuotient( normalisationTerms ) + nominalParameters;
 
     // Check consistency

@@ -324,6 +324,7 @@ std::pair< std::shared_ptr< EstimationOutput< StateScalarType, TimeType > >, Eig
     }
     estimationInput->defineEstimationSettings( true, true, false, true, true );
     covarianceInput->defineCovarianceSettings( true, true, true, false );
+    estimationInput->applyFinalParameterCorrection_ = false;
 
     // Perform estimation
     std::shared_ptr< EstimationOutput< StateScalarType, TimeType > > estimationOutput = orbitDeterminationManager.estimateParameters(
@@ -674,10 +675,10 @@ std::pair< Eigen::VectorXd, bool > executeEarthOrbiterBiasEstimation(
 
     const int numberOfDaysOfData = 1;
 
-    int numberOfIterations = 3;
+    int numberOfIterations = 4;
     if ( estimateRangeBiases && estimateTimeBiases )
     {
-        numberOfIterations = 6;
+        numberOfIterations = 7;
     }
 
     //Load spice kernels.
