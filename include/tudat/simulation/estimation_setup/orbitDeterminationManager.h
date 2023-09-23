@@ -892,7 +892,6 @@ public:
                 terminateLoop = true;
                 applyParameterCorrection = estimationInput->applyFinalParameterCorrection_;
             }
-            std::cout<<"APPLY CORRECTION "<<applyParameterCorrection<<std::endl;
 
             if( applyParameterCorrection )
             {
@@ -901,7 +900,7 @@ public:
                 parametersToEstimate_->template resetParameterValues<ObservationScalarType>( newParameterEstimate );
                 newParameterEstimate = parametersToEstimate_->template getFullParameterValues<ObservationScalarType>( );
 
-                if ( estimationInput->getSaveResidualsAndParametersFromEachIteration( ))
+                if ( estimationInput->getSaveResidualsAndParametersFromEachIteration( ) )
                 {
                     parameterHistory.push_back( newParameterEstimate );
                 }

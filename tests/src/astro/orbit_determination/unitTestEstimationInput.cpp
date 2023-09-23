@@ -54,7 +54,7 @@ BOOST_AUTO_TEST_CASE( test_EstimationInputAndOutput )
     int numberOfSavedParameterVectors = estimationOutputWithAprioriCovariance.first->parameterHistory_.size( );
     int numberOfSavedResidualVectors = estimationOutputWithAprioriCovariance.first->residualHistory_.size( );
 
-    BOOST_CHECK_EQUAL( numberOfSavedParameterVectors, numberOfSavedResidualVectors + 1 );
+    BOOST_CHECK_EQUAL( numberOfSavedParameterVectors, numberOfSavedResidualVectors );
 
 
     // Run estimation with effectively zero covariance
