@@ -51,6 +51,12 @@ BOOST_AUTO_TEST_CASE( test_EstimationInputAndOutput )
             executePlanetaryParameterEstimation< double, double >(
                 simulationType, parameterPerturbation, inverseAPrioriCovariance );
 
+    int numberOfSavedParameterVectors = estimationOutputWithAprioriCovariance.first->parameterHistory_.size( );
+    int numberOfSavedResidualVectors = estimationOutputWithAprioriCovariance.first->residualHistory_.size( );
+
+    BOOST_CHECK_EQUAL( numberOfSavedParameterVectors, numberOfSavedResidualVectors + 1 );
+
+
     // Run estimation with effectively zero covariance
     std::pair< std::shared_ptr< EstimationOutput< double > >, Eigen::VectorXd > estimationOutputWithSmallAprioriCovariance =
             executePlanetaryParameterEstimation< double, double >(

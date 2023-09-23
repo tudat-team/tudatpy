@@ -21,6 +21,7 @@
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/astro/ephemerides/rotationalEphemeris.h"
 #include "tudat/astro/ephemerides/directionBasedRotationalEphemeris.h"
+#include "tudat/astro/ephemerides/tabulatedRotationalEphemeris.h"
 #include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/astro/basic_astro/unitConversions.h"
 #include "tudat/interface/sofa/earthOrientation.h"
