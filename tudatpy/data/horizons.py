@@ -396,11 +396,10 @@ class HorizonsQuery:
 
     def vectors(
         self,
-        full_output: bool = False,
         refplane: str = "ecliptic",
         aberations: str = "geometric",
-        *args,
-        **kwargs,
+        # *args,
+        # **kwargs,
     ):
         res_list = []
         for query in self.queries:
@@ -413,10 +412,57 @@ class HorizonsQuery:
 
         raw = vstack(res_list)
 
-        if full_output:
-            return raw
+        return raw
+
+    def carthesian(
+        self,
+        refplane: str = "ecliptic",
+        aberations: str = "geometric",
+        as_dataframe: bool = False,
+    ):
+        raw = self.vectors(refplane=refplane, aberations=aberations)
+
+        # A.D. 2019-Jan-05 22:40:00.0000
+        timeformatt = "A.D. %Y-%b-%d %H:%M:%S.%f"
+
+        tab = (
+            raw.to_pandas()
+            # format time first parse the time string and then into seconds since J2000
+            .assign(
+                epoch_dt=lambda x: pd.to_datetime(x.datetime_str, format=timeformatt)
+            )
+            .assign(
+                epochJ2000secondsTDB=lambda x: (
+                    (
+                        Time(x.epoch_dt, format="datetime64").jd1
+                        - constants.JULIAN_DAY_ON_J2000
+                    )
+                    * constants.JULIAN_DAY
+                )
+                + (
+                    (Time(x.epoch_dt, format="datetime64").jd2)
+                    * constants.JULIAN_DAY
+                )
+            )
+            .assign(x=lambda i: i.x * constants.ASTRONOMICAL_UNIT)
+            .assign(y=lambda i: i.y * constants.ASTRONOMICAL_UNIT)
+            .assign(z=lambda i: i.z * constants.ASTRONOMICAL_UNIT)
+            .assign(
+                vx=lambda i: i.vx * constants.ASTRONOMICAL_UNIT / constants.JULIAN_DAY
+            )
+            .assign(
+                vy=lambda i: i.vy * constants.ASTRONOMICAL_UNIT / constants.JULIAN_DAY
+            )
+            .assign(
+                vz=lambda i: i.vz * constants.ASTRONOMICAL_UNIT / constants.JULIAN_DAY
+            )
+            .loc[:, ["epochJ2000secondsTDB", "x", "y", "z", "vx", "vy", "vz"]]
+        )
+
+        if as_dataframe:
+            return tab
         else:
-            return raw.to_pandas()
+            return tab.to_numpy()
 
         # if len(raw["targetname"][0].split()) == 3:
         #     self._number, self._name, self._designation = raw["targetname"][0].split()
@@ -427,70 +473,21 @@ class HorizonsQuery:
         # if full_output:
         #     return raw
 
-    # def vectors(
-    #     self,
-    #     full_output=False,
-    #     refplane: str = "ecliptic",
-    #     aberations: str = "geometric",
-    #     *args,
-    #     **kwargs,
-    # ):
-    #     raw = self.query.vectors(
-    #         refplane=refplane,
-    #         aberrations=aberations,  # args=args, kwargs=kwargs
-    #     )
+    def create_ephemeris_tabulated(
+        self,
+        frame_origin,
+        frame_orientation,
+        refplane: str = "ecliptic",
+        aberations: str = "geometric",
+    ):
+        vector = self.vectors(
+            refplane=refplane, aberations=aberations
+        )
 
-    #     if len(raw["targetname"][0].split()) == 3:
-    #         self._number, self._name, self._designation = raw["targetname"][0].split()
-    #     else:
-    #         self._name = raw["targetname"][0]
-    #         self._number = raw["targetname"][0]
+        table = {x[0]: x[1:7] for x in vector}
 
-    #     if full_output:
-    #         return raw
-
-    #     tab = (
-    #         raw.to_pandas()
-    #         .assign(
-    #             epochJ2000secondsTDB=lambda x: (
-    #                 x.datetime_jd - constants.JULIAN_DAY_ON_J2000
-    #             )
-    #             * constants.JULIAN_DAY
-    #         )
-    #         .assign(x=lambda i: i.x * constants.ASTRONOMICAL_UNIT)
-    #         .assign(y=lambda i: i.y * constants.ASTRONOMICAL_UNIT)
-    #         .assign(z=lambda i: i.z * constants.ASTRONOMICAL_UNIT)
-    #         .assign(
-    #             vx=lambda i: i.vx * constants.ASTRONOMICAL_UNIT / constants.JULIAN_DAY
-    #         )
-    #         .assign(
-    #             vy=lambda i: i.vy * constants.ASTRONOMICAL_UNIT / constants.JULIAN_DAY
-    #         )
-    #         .assign(
-    #             vz=lambda i: i.vz * constants.ASTRONOMICAL_UNIT / constants.JULIAN_DAY
-    #         )
-    #         .loc[:, ["epochJ2000secondsTDB", "x", "y", "z", "vx", "vy", "vz"]]
-    #     )
-
-    #     return tab.to_numpy()
-
-    # def create_ephemeris_tabulated(
-    #     self,
-    #     frame_origin,
-    #     frame_orientation,
-    #     refplane: str = "ecliptic",
-    #     aberations: str = "geometric",
-    #     *args,
-    #     **kwargs,
-    # ):
-    #     vector = self.vectors(
-    #         refplane=refplane, aberations=aberations, args=args, kwargs=kwargs
-    #     )
-
-    #     table = {x[0]: x[1:7] for x in vector}
-
-    #     return environment_setup.ephemeris.tabulated(
-    #         body_state_history=table,
-    #         frame_origin=frame_origin,
-    #         frame_orientation=frame_orientation,
-    #     )
+        return environment_setup.ephemeris.tabulated(
+            body_state_history=table,
+            frame_origin=frame_origin,
+            frame_orientation=frame_orientation,
+        )
