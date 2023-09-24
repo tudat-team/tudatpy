@@ -8,8 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef TUDAT_SOURCESourcePanelRadiosityModel_H
-#define TUDAT_SOURCESourcePanelRadiosityModel_H
+#ifndef TUDAT_SOURCEPANELRADIOSITYMODEL_H
+#define TUDAT_SOURCEPANELRADIOSITYMODEL_H
 
 #include <memory>
 
@@ -26,7 +26,8 @@ namespace electromagnetism
 {
 
 /*!
- * Class modeling the radiosity emitted by a panel of a paneled radiation source.
+ * Class modeling the radiosity emitted by a panel of a paneled radiation source. Should not be subclassed directly, use
+ * InherentSourcePanelRadiosityModel or OriginalSourceDependentSourcePanelRadiosityModel instead.
  *
  * Implementation notice: SourcePanelRadiosityModels are cloned when using a dynamically paneled source. Their copy
  * constructors must ensure that class members are (not) shared between clones, as appropriate. For example, the
@@ -51,9 +52,7 @@ public:
     virtual double evaluateIrradianceAtPosition(
             double panelArea,
             const Eigen::Vector3d& panelSurfaceNormal,
-            const Eigen::Vector3d& targetPosition,
-            double originalSourceIrradiance,
-            const Eigen::Vector3d& originalSourceToSourceDirection) const = 0;
+            const Eigen::Vector3d& targetPosition) const = 0;
 
     /*!
      * Update class members.
@@ -63,9 +62,9 @@ public:
      * @param currentTime Current simulation time
      */
     void updateMembers(
-            const double panelLatitude,
-            const double panelLongitude,
-            const double currentTime);
+            double panelLatitude,
+            double panelLongitude,
+            double currentTime);
 
     /*!
      * Clone this object. Surface property distributions, e.g., for albedo and
@@ -74,6 +73,11 @@ public:
      * @return A clone of this object
      */
     virtual std::unique_ptr<SourcePanelRadiosityModel> clone() const = 0;
+
+    /*!
+     * Return whether the panel radiosity depends on an original source
+     */
+    virtual bool dependsOnOriginalSource() = 0;
 
 protected:
     virtual void updateMembers_(
@@ -96,9 +100,71 @@ protected:
 };
 
 /*!
+ * Class modeling panel radiosity that is independent of an original source. This is the case for observed fluxes or
+ * internal (e.g., tidal) heating.
+ */
+class InherentSourcePanelRadiosityModel : public SourcePanelRadiosityModel
+{
+public:
+    bool dependsOnOriginalSource() override
+    {
+        return false;
+    }
+};
+
+/*!
+ * Class modeling panel radiosity that depends on an original source. This is the case for albedo or thermal radiation,
+ * which require the irradiance and direction of the incident solar radiation.
+ */
+class OriginalSourceDependentSourcePanelRadiosityModel : public SourcePanelRadiosityModel
+{
+public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
+    explicit OriginalSourceDependentSourcePanelRadiosityModel(
+            const std::string& originalSourceName) :
+                originalSourceName_(originalSourceName) {}
+
+    bool dependsOnOriginalSource() override
+    {
+        return true;
+    }
+
+    const std::string& getOriginalSourceName() const
+    {
+        return originalSourceName_;
+    }
+
+    /*!
+     * Update properties relating to original source.
+     *
+     * @param originalSourceUnoccultedIrradiance Irradiance of original source at source center without occultation applied
+     * @param originalSourceOccultedIrradiance Irradiance of original source at source center with occultation applied
+     * @param originalSourceToPanelDirection Unit vector from original source to panel center (can be approximated by
+     *      panel center)
+     */
+    void updateOriginalSourceProperties(
+            double originalSourceUnoccultedIrradiance,
+            double originalSourceOccultedIrradiance,
+            const Eigen::Vector3d& originalSourceToPanelDirection)
+    {
+        originalSourceOccultedIrradiance_ = originalSourceOccultedIrradiance;
+        originalSourceUnoccultedIrradiance_ = originalSourceUnoccultedIrradiance;
+        originalSourceToPanelDirection_ = originalSourceToPanelDirection;
+    }
+
+protected:
+    std::string originalSourceName_; // needed for environment updater setup
+
+    double originalSourceUnoccultedIrradiance_{TUDAT_NAN};
+    double originalSourceOccultedIrradiance_{TUDAT_NAN};
+    Eigen::Vector3d originalSourceToPanelDirection_;
+};
+
+/*!
  * Panel radiosity model with constant Lambertian radiosity.
  */
-class ConstantSourcePanelRadiosityModel : public SourcePanelRadiosityModel
+class ConstantSourcePanelRadiosityModel : public InherentSourcePanelRadiosityModel
 {
 public:
     /*!
@@ -112,9 +178,7 @@ public:
     double evaluateIrradianceAtPosition(
             double panelArea,
             const Eigen::Vector3d& panelSurfaceNormal,
-            const Eigen::Vector3d& targetPosition,
-            double originalSourceIrradiance,
-            const Eigen::Vector3d& originalSourceToSourceDirection) const override;
+            const Eigen::Vector3d& targetPosition) const override;
 
     std::unique_ptr<SourcePanelRadiosityModel> clone() const override
     {
@@ -147,7 +211,7 @@ private:
  * can be implemented to take into account surface properties like different vegetation and ground types on Earth.
  * A separate panel radiosity model has to be created for these laws.
  */
-class AlbedoSourcePanelRadiosityModel : public SourcePanelRadiosityModel
+class AlbedoSourcePanelRadiosityModel : public OriginalSourceDependentSourcePanelRadiosityModel
 {
 public:
     /*!
@@ -156,13 +220,17 @@ public:
      * @param albedoDistribution Albedo distribution
      */
     explicit AlbedoSourcePanelRadiosityModel(
+            const std::string& originalSourceName,
             const std::shared_ptr<SurfacePropertyDistribution>& albedoDistribution) :
+            OriginalSourceDependentSourcePanelRadiosityModel(originalSourceName),
             albedoDistribution_(albedoDistribution),
-            reflectionLaw_(std::make_shared<LambertianReflectionLaw>(TUDAT_NAN)) {}
+            reflectionLaw_(std::make_shared<LambertianReflectionLaw>(TUDAT_NAN))
+    {}
 
+    // Copy constructor ensures that albedo distribution is shared but reflection law is unique per radiosity model
     AlbedoSourcePanelRadiosityModel(
             const AlbedoSourcePanelRadiosityModel& other)
-            : SourcePanelRadiosityModel(other),
+            : OriginalSourceDependentSourcePanelRadiosityModel(other),
               albedoDistribution_(other.albedoDistribution_),
               reflectionLaw_(std::make_shared<LambertianReflectionLaw>(*other.reflectionLaw_))
     {}
@@ -170,9 +238,7 @@ public:
     double evaluateIrradianceAtPosition(
             double panelArea,
             const Eigen::Vector3d& panelSurfaceNormal,
-            const Eigen::Vector3d& targetPosition,
-            double originalSourceIrradiance,
-            const Eigen::Vector3d& originalSourceToSourceDirection) const override;
+            const Eigen::Vector3d& targetPosition) const override;
 
     std::unique_ptr<SourcePanelRadiosityModel> clone() const override
     {
@@ -209,7 +275,7 @@ private:
  * reradiating it in a delayed fashion as longwave infrared radiation. For most bodies, and especially Earth, this is a
  * good assumption (Knocke, 1988).
  */
-class DelayedThermalSourcePanelRadiosityModel : public SourcePanelRadiosityModel
+class DelayedThermalSourcePanelRadiosityModel : public OriginalSourceDependentSourcePanelRadiosityModel
 {
 public:
     /*!
@@ -218,15 +284,16 @@ public:
      * @param emissivityDistribution Emissivity distribution
      */
     explicit DelayedThermalSourcePanelRadiosityModel(
+            const std::string& originalSourceName,
             const std::shared_ptr<SurfacePropertyDistribution>& emissivityDistribution) :
-            emissivityDistribution_(emissivityDistribution) {}
+            OriginalSourceDependentSourcePanelRadiosityModel(originalSourceName),
+            emissivityDistribution_(emissivityDistribution)
+    {}
 
     double evaluateIrradianceAtPosition(
             double panelArea,
             const Eigen::Vector3d& panelSurfaceNormal,
-            const Eigen::Vector3d& targetPosition,
-            double originalSourceIrradiance,
-            const Eigen::Vector3d& originalSourceToSourceDirection) const override;
+            const Eigen::Vector3d& targetPosition) const override;
 
     std::unique_ptr<SourcePanelRadiosityModel> clone() const override
     {
@@ -263,7 +330,7 @@ private:
  * emissivity. The radiation is maximum if the target is above the sub-solar point. At positions away from the sub-solar
  * point, the temperature drops, until it reaches minTemperature on the backside.
  */
-class AngleBasedThermalSourcePanelRadiosityModel : public SourcePanelRadiosityModel
+class AngleBasedThermalSourcePanelRadiosityModel : public OriginalSourceDependentSourcePanelRadiosityModel
 {
 public:
     /*!
@@ -274,19 +341,20 @@ public:
      * @param emissivityDistribution Emissivity distribution
      */
     explicit AngleBasedThermalSourcePanelRadiosityModel(
+            const std::string& originalSourceName,
             double minTemperature,
             double maxTemperature,
             const std::shared_ptr<SurfacePropertyDistribution>& emissivityDistribution) :
+            OriginalSourceDependentSourcePanelRadiosityModel(originalSourceName),
             minTemperature_(minTemperature),
             maxTemperature_(maxTemperature),
-            emissivityDistribution_(emissivityDistribution) {}
+            emissivityDistribution_(emissivityDistribution)
+    {}
 
     double evaluateIrradianceAtPosition(
             double panelArea,
             const Eigen::Vector3d& panelSurfaceNormal,
-            const Eigen::Vector3d& targetPosition,
-            double originalSourceIrradiance,
-            const Eigen::Vector3d& originalSourceToSourceDirection) const override;
+            const Eigen::Vector3d& targetPosition) const override;
 
 
     std::unique_ptr<SourcePanelRadiosityModel> clone() const override
@@ -329,4 +397,4 @@ private:
 } // tudat
 } // electromagnetism
 
-#endif //TUDAT_SOURCESourcePanelRadiosityModel_H
+#endif //TUDAT_SOURCEPANELRADIOSITYMODEL_H

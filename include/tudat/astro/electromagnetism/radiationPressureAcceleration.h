@@ -76,8 +76,6 @@ protected:
 
     virtual Eigen::Vector3d calculateAcceleration() = 0;
 
-    virtual void updateMembers_(const double currentTime) {};
-
     std::function<Eigen::Vector3d()> sourcePositionFunction_;
     std::shared_ptr<RadiationPressureTargetModel> targetModel_;
     std::function<Eigen::Vector3d()> targetPositionFunction_;
@@ -176,11 +174,7 @@ public:
     * @param targetPositionFunction Position function of the target body
     * @param targetRotationFromLocalToGlobalFrameFunction Local-to-global rotation function of the target body
     * @param targetMassFunction Mass function of the target body
-    * @param originalSourceModel Radiation source model of the original source body
-    * @param originalSourceBodyShapeModel Body shape model of the original source body
-    * @param originalSourcePositionFunction Position function of the original source body
     * @param sourceToTargetOccultationModel Occultation model between source and target
-    * @param originalSourceToSourceOccultationModel Occultation model between original source and source
     */
     PaneledSourceRadiationPressureAcceleration(
             const std::shared_ptr<PaneledRadiationSourceModel>& sourceModel,
@@ -190,11 +184,7 @@ public:
             const std::function<Eigen::Vector3d()>& targetPositionFunction,
             const std::function<Eigen::Quaterniond()>& targetRotationFromLocalToGlobalFrameFunction,
             const std::function<double()>& targetMassFunction,
-            const std::shared_ptr<IsotropicPointRadiationSourceModel>& originalSourceModel,
-            const std::shared_ptr<basic_astrodynamics::BodyShapeModel>& originalSourceBodyShapeModel,
-            const std::function<Eigen::Vector3d()>& originalSourcePositionFunction,
-            const std::shared_ptr<OccultationModel>& sourceToTargetOccultationModel,
-            const std::shared_ptr<OccultationModel>& originalSourceToSourceOccultationModel) :
+            const std::shared_ptr<OccultationModel>& sourceToTargetOccultationModel) :
             RadiationPressureAcceleration(
                     sourcePositionFunction,
                     targetModel,
@@ -204,25 +194,11 @@ public:
                     sourceToTargetOccultationModel),
             sourceModel_(sourceModel),
             sourceRotationFromLocalToGlobalFrameFunction_(sourceRotationFromLocalToGlobalFrameFunction),
-            originalSourceModel_(originalSourceModel),
-            originalSourceBodyShapeModel_(originalSourceBodyShapeModel),
-            originalSourcePositionFunction_(originalSourcePositionFunction),
-            originalSourceToSourceOccultationModel_(originalSourceToSourceOccultationModel),
             visibleAndEmittingSourcePanelCount(-1) {}
 
     std::shared_ptr<RadiationSourceModel> getSourceModel() const override
     {
         return sourceModel_;
-    }
-
-    const std::shared_ptr<IsotropicPointRadiationSourceModel>& getOriginalSourceModel() const
-    {
-        return originalSourceModel_;
-    }
-
-    std::shared_ptr<OccultationModel> getOriginalSourceToSourceOccultationModel() const
-    {
-        return originalSourceToSourceOccultationModel_;
     }
 
     unsigned int getVisibleAndEmittingSourcePanelCount() const
@@ -241,14 +217,8 @@ public:
 private:
     Eigen::Vector3d calculateAcceleration() override;
 
-    void updateMembers_(double currentTime) override;
-
     std::shared_ptr<PaneledRadiationSourceModel> sourceModel_;
     std::function<Eigen::Quaterniond()> sourceRotationFromLocalToGlobalFrameFunction_;
-    std::shared_ptr<IsotropicPointRadiationSourceModel> originalSourceModel_;
-    std::shared_ptr<basic_astrodynamics::BodyShapeModel> originalSourceBodyShapeModel_;
-    std::function<Eigen::Vector3d()> originalSourcePositionFunction_;
-    std::shared_ptr<OccultationModel> originalSourceToSourceOccultationModel_;
 
     // For dependent variable
     unsigned int visibleAndEmittingSourcePanelCount;

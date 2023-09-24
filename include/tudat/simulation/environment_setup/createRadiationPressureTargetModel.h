@@ -303,7 +303,6 @@ inline std::shared_ptr<CannonballRadiationPressureTargetModelSettings>
  * of occulting bodies.
  *
  * @param panels List of settings for panels comprising the paneled target
- * @param sourceToTargetOccultingBodies Names of bodies to occult the source as seen from the target
  * @param sourceToTargetOccultingBodies Map (source name -> list of occulting body names) of bodies
  *      to occult sources as seen from this target
  * @return Shared pointer to settings for a paneled radiation pressure target model

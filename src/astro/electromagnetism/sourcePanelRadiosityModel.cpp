@@ -45,9 +45,7 @@ void SourcePanelRadiosityModel::updateMembers(
 double ConstantSourcePanelRadiosityModel::evaluateIrradianceAtPosition(
         double panelArea,
         const Eigen::Vector3d& panelSurfaceNormal,
-        const Eigen::Vector3d& targetPosition,
-        double originalSourceIrradiance,
-        const Eigen::Vector3d& originalSourceToSourceDirection) const
+        const Eigen::Vector3d& targetPosition) const
 {
     const double cosBetweenNormalAndTarget = panelSurfaceNormal.dot(targetPosition.normalized());
     if (cosBetweenNormalAndTarget <= 0)
@@ -66,12 +64,10 @@ double ConstantSourcePanelRadiosityModel::evaluateIrradianceAtPosition(
 double AlbedoSourcePanelRadiosityModel::evaluateIrradianceAtPosition(
         double panelArea,
         const Eigen::Vector3d& panelSurfaceNormal,
-        const Eigen::Vector3d& targetPosition,
-        double originalSourceIrradiance,
-        const Eigen::Vector3d& originalSourceToSourceDirection) const
+        const Eigen::Vector3d& targetPosition) const
 {
     const Eigen::Vector3d targetDirection = targetPosition.normalized();
-    const double cosBetweenNormalAndOriginalSource = panelSurfaceNormal.dot(-originalSourceToSourceDirection);
+    const double cosBetweenNormalAndOriginalSource = panelSurfaceNormal.dot(-originalSourceToPanelDirection_);
     const double cosBetweenNormalAndTarget = panelSurfaceNormal.dot(targetDirection);
     if (cosBetweenNormalAndOriginalSource <= 0 || cosBetweenNormalAndTarget <= 0)
     {
@@ -79,12 +75,17 @@ double AlbedoSourcePanelRadiosityModel::evaluateIrradianceAtPosition(
         // This is checked by evaluateReflectedFraction as well, but check here to avoid unnecessary calculations/calls
         return 0;
     }
+    if (originalSourceOccultedIrradiance_ == 0)
+    {
+        // Panel is occulted
+        return 0;
+    }
 
-    const auto receivedIrradiance = cosBetweenNormalAndOriginalSource * originalSourceIrradiance;
+    const auto receivedIrradiance = cosBetweenNormalAndOriginalSource * originalSourceOccultedIrradiance_;
 
     // Reflected fraction is given in [1/sr] (i.e. per unit solid angle)
     const auto reflectedFraction =
-            reflectionLaw_->evaluateReflectedFraction(panelSurfaceNormal, originalSourceToSourceDirection, targetDirection);
+            reflectionLaw_->evaluateReflectedFraction(panelSurfaceNormal, originalSourceToPanelDirection_, targetDirection);
 
     // Determine irradiance from reflected radiosity based on source-to-target distance and emitting panel area
     const double distanceSourceToTargetSquared = targetPosition.squaredNorm();
@@ -107,9 +108,7 @@ void AlbedoSourcePanelRadiosityModel::updateMembers_(
 double DelayedThermalSourcePanelRadiosityModel::evaluateIrradianceAtPosition(
         double panelArea,
         const Eigen::Vector3d& panelSurfaceNormal,
-        const Eigen::Vector3d& targetPosition,
-        double originalSourceIrradiance,
-        const Eigen::Vector3d& originalSourceToSourceDirection) const
+        const Eigen::Vector3d& targetPosition) const
 {
     const double cosBetweenNormalAndTarget = panelSurfaceNormal.dot(targetPosition.normalized());
     if (cosBetweenNormalAndTarget <= 0)
@@ -119,7 +118,8 @@ double DelayedThermalSourcePanelRadiosityModel::evaluateIrradianceAtPosition(
     }
 
     // Exitance is only one quarter of original irradiance due to ratio of absorbing to emitting area (1:4)
-    const auto emittedExitance = emissivity * originalSourceIrradiance / 4;
+    // Use unocculted irradiance since thermal radiation is assumed to endure eclipses due to thermal inertia
+    const auto emittedExitance = emissivity * originalSourceUnoccultedIrradiance_ / 4;
 
     // Determine irradiance from exitance based on source-to-target distance and emitting panel area
     const double distanceSourceToTargetSquared = targetPosition.squaredNorm();
@@ -140,9 +140,7 @@ void DelayedThermalSourcePanelRadiosityModel::updateMembers_(
 double AngleBasedThermalSourcePanelRadiosityModel::evaluateIrradianceAtPosition(
         double panelArea,
         const Eigen::Vector3d& panelSurfaceNormal,
-        const Eigen::Vector3d& targetPosition,
-        double originalSourceIrradiance,
-        const Eigen::Vector3d& originalSourceToSourceDirection) const
+        const Eigen::Vector3d& targetPosition) const
 {
     const double cosBetweenNormalAndTarget = panelSurfaceNormal.dot(targetPosition.normalized());
     if (cosBetweenNormalAndTarget <= 0)
@@ -151,7 +149,7 @@ double AngleBasedThermalSourcePanelRadiosityModel::evaluateIrradianceAtPosition(
         return 0;
     }
 
-    const double cosBetweenNormalAndOriginalSource = panelSurfaceNormal.dot(-originalSourceToSourceDirection);
+    const double cosBetweenNormalAndOriginalSource = panelSurfaceNormal.dot(-originalSourceToPanelDirection_);
     const double positiveCosBetweenNormalAndOriginalSource = std::max(cosBetweenNormalAndOriginalSource, 0.);
 
     // Interpolate temperature using Lemoine (2013) Eq. 3
