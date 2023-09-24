@@ -39,10 +39,10 @@ class HorizonsQuery:
         epoch_step: Union[str, None] = None,
         extended_query: bool = False,
     ) -> None:
-        self.query_id = query_id
-        self.query_type = None if query_type == "default" else query_type
+        self._query_id = query_id
+        self._query_type = None if query_type == "default" else query_type
 
-        self._number = None
+        self._MPC_number = None
         self._name = None
         self._designation = None
 
@@ -50,6 +50,8 @@ class HorizonsQuery:
 
         self.queries = []
         self.query_lengths = []
+
+        self._target_full_name = None
 
         # ##############
         # error handling
@@ -163,9 +165,9 @@ class HorizonsQuery:
 
             self.queries.append(
                 Horizons(
-                    id=self.query_id,
+                    id=self._query_id,
                     location=location,
-                    id_type=self.query_type,
+                    id_type=self._query_type,
                     epochs=epoch_def,
                     # *args,
                     # **kwargs
@@ -186,9 +188,9 @@ class HorizonsQuery:
                 for _, split in enumerate(splits):
                     self.queries.append(
                         Horizons(
-                            id=self.query_id,
+                            id=self._query_id,
                             location=location,
-                            id_type=self.query_type,
+                            id_type=self._query_type,
                             epochs=list(split),
                             # *args,
                             # **kwargs
@@ -237,9 +239,9 @@ class HorizonsQuery:
 
                     self.queries.append(
                         Horizons(
-                            id=self.query_id,
+                            id=self._query_id,
                             location=location,
-                            id_type=self.query_type,
+                            id_type=self._query_type,
                             epochs=epoch_def,
                             # *args,
                             # **kwargs
@@ -266,9 +268,9 @@ class HorizonsQuery:
 
                 self.queries.append(
                     Horizons(
-                        id=self.query_id,
+                        id=self._query_id,
                         location=location,
-                        id_type=self.query_type,
+                        id_type=self._query_type,
                         epochs=epoch_def,
                         # *args,
                         # **kwargs
@@ -283,14 +285,82 @@ class HorizonsQuery:
 
         self.num_queries = len(self.queries)
 
+        self._object_type = None
+
+    def _infer_name(self):
+        if self._target_full_name is None:
+            self._name = None
+        else:
+            num_spaces = self._target_full_name.count(" ")
+            num_between_brackets = re.findall(
+                r"\((.*?)\)", self._target_full_name
+            )
+
+            # comet
+            if ("/" in self._target_full_name) and (
+                "S/2" not in self._target_full_name
+            ):
+                self._object_type = "comet"
+                temp = self._target_full_name.split("/")
+
+                self._name = temp[1]
+                self._designation = temp[0]
+            # planet/moon
+            elif (num_spaces == 1) and num_between_brackets[0].isnumeric():
+                self._object_type = "major"
+                temp = self._target_full_name.split(None, 1)
+                self._name = temp[0]
+                self._designation = num_between_brackets[0]
+            # spacecraft
+            elif "spacecraft" in self._target_full_name.lower():
+                self._object_type = "spacecraft"
+                self._name = re.findall(r"^[^\(]*", self._target_full_name)[0]
+                self._designation = (
+                    re.findall(r"\((.*?)\)", self._target_full_name)[1]
+                    .replace("(", "")
+                    .replace(")", "")
+                )
+            # asteroids
+            else:
+                self._object_type = "minorplanet"
+                temp = self._target_full_name.split(None, 1)
+                self._MPC_number = temp[0]
+                self._name = re.sub(r"\(.+?\)\s*", "", temp[1]).strip()
+                self._designation = (
+                    re.findall(r"\((.*?)\)", temp[1])[0]
+                    .replace("(", "")
+                    .replace(")", "")
+                )
+                # this is for unnamed asteroids
+                if len(self._name) == 0:
+                    self._name = self._designation
+
     @property
     def name(self):
-        if self._name is None:
-            return None
-        elif "Spacecraft" in self._name:
-            return self._number
-        else:
+        try:
+            self._infer_name()
             return self._name
+        except Exception as _:
+            print(
+                f"Unable to infer name, will use full designation instead: {self._target_full_name}"
+            )
+            return self._target_full_name
+
+    @property
+    def MPC_number(self):
+        try:
+            self._infer_name()
+            return self._MPC_number
+        except Exception as _:
+            return None
+
+    @property
+    def designation(self):
+        try:
+            self._infer_name()
+            return self._designation
+        except Exception as _:
+            return None
 
     def _convert_time_to_astropy(self, time):
         # time is tudat format: seconds since j2000 TDB
@@ -412,6 +482,8 @@ class HorizonsQuery:
 
         raw = vstack(res_list)
 
+        self._target_full_name = raw["targetname"][0]
+
         return raw
 
     def carthesian(
@@ -439,10 +511,7 @@ class HorizonsQuery:
                     )
                     * constants.JULIAN_DAY
                 )
-                + (
-                    (Time(x.epoch_dt, format="datetime64").jd2)
-                    * constants.JULIAN_DAY
-                )
+                + ((Time(x.epoch_dt, format="datetime64").jd2) * constants.JULIAN_DAY)
             )
             .assign(x=lambda i: i.x * constants.ASTRONOMICAL_UNIT)
             .assign(y=lambda i: i.y * constants.ASTRONOMICAL_UNIT)
@@ -464,15 +533,6 @@ class HorizonsQuery:
         else:
             return tab.to_numpy()
 
-        # if len(raw["targetname"][0].split()) == 3:
-        #     self._number, self._name, self._designation = raw["targetname"][0].split()
-        # else:
-        #     self._name = raw["targetname"][0]
-        #     self._number = raw["targetname"][0]
-
-        # if full_output:
-        #     return raw
-
     def create_ephemeris_tabulated(
         self,
         frame_origin,
@@ -480,9 +540,7 @@ class HorizonsQuery:
         refplane: str = "ecliptic",
         aberations: str = "geometric",
     ):
-        vector = self.vectors(
-            refplane=refplane, aberations=aberations
-        )
+        vector = self.vectors(refplane=refplane, aberations=aberations)
 
         table = {x[0]: x[1:7] for x in vector}
 
