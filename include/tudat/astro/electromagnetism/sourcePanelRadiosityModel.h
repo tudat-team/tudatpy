@@ -200,6 +200,46 @@ private:
 };
 
 /*!
+ * Panel radiosity model with Lambertian radiosity depending on panel latitude/longitude and time.
+ */
+class CustomInherentSourcePanelRadiosityModel : public InherentSourcePanelRadiosityModel
+{
+public:
+    /*!
+     * Constructor
+     *
+     * @param radiosityFunction Function returning radiosity depending on latitude, longitude, and time
+     */
+    explicit CustomInherentSourcePanelRadiosityModel(
+            const std::function<double(double, double, double)>& radiosityFunction) :
+        radiosityFunction_(radiosityFunction) {}
+
+    double evaluateIrradianceAtPosition(
+            double panelArea,
+            const Eigen::Vector3d& panelSurfaceNormal,
+            const Eigen::Vector3d& targetPosition) const override;
+
+    std::unique_ptr<SourcePanelRadiosityModel> clone() const override
+    {
+        return std::make_unique<CustomInherentSourcePanelRadiosityModel>(*this);
+    }
+
+private:
+    void updateMembers_(
+            double panelLatitude,
+            double panelLongitude,
+            double currentTime) override;
+
+    bool isTimeInvariant() override
+    {
+        return false;
+    }
+
+    std::function<double(double, double, double)> radiosityFunction_;
+    double radiosity_{TUDAT_NAN};
+};
+
+/*!
  * Panel radiosity model for albedo radiation. This model was introduced in Knocke (1988) for Earth thermal radiation,
  * assuming Lambertian reflectance.
  *

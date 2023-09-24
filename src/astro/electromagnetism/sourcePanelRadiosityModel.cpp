@@ -61,6 +61,33 @@ double ConstantSourcePanelRadiosityModel::evaluateIrradianceAtPosition(
     return irradiance;
 }
 
+double CustomInherentSourcePanelRadiosityModel::evaluateIrradianceAtPosition(
+        double panelArea,
+        const Eigen::Vector3d& panelSurfaceNormal,
+        const Eigen::Vector3d& targetPosition) const
+{
+    const double cosBetweenNormalAndTarget = panelSurfaceNormal.dot(targetPosition.normalized());
+    if (cosBetweenNormalAndTarget <= 0)
+    {
+        // Target is on backside of panel
+        return 0;
+    }
+
+    // Determine irradiance from exitance based on source-to-target distance and emitting panel area
+    const double distanceSourceToTargetSquared = targetPosition.squaredNorm();
+    const auto effectiveEmittingArea = cosBetweenNormalAndTarget * panelArea;
+    const auto irradiance = radiosity_ * effectiveEmittingArea / (PI * distanceSourceToTargetSquared);
+    return irradiance;
+}
+
+void CustomInherentSourcePanelRadiosityModel::updateMembers_(
+        double panelLatitude,
+        double panelLongitude,
+        double currentTime)
+{
+    radiosity_ = radiosityFunction_(panelLatitude, panelLongitude, currentTime);
+}
+
 double AlbedoSourcePanelRadiosityModel::evaluateIrradianceAtPosition(
         double panelArea,
         const Eigen::Vector3d& panelSurfaceNormal,
