@@ -23,6 +23,11 @@ TUDAT_ADD_EXECUTABLE(application_InnerSolarSystemPropagation
         ${Tudat_PROPAGATION_LIBRARIES}
         )
 
+TUDAT_ADD_EXECUTABLE(application_lageosRadiationPressureAcceleration
+        "lageosRadiationPressureAcceleration.cpp"
+        ${Tudat_PROPAGATION_LIBRARIES}
+        )
+
 TUDAT_ADD_EXECUTABLE(application_EarthOrbiterBasicStateEstimation
         "earthOrbiterBasicStateEstimation.cpp"
         ${Tudat_ESTIMATION_LIBRARIES}
