@@ -61,9 +61,9 @@ std::shared_ptr<RadiationSourceModelSettings> getDefaultRadiationSourceModelSett
     {
         // Model from Knocke (1988)
         radiationSourceModelSettings =
-                extendedRadiationSourceModelSettings("Sun", {
-                    albedoPanelRadiosityModelSettings(SecondDegreeZonalPeriodicSurfacePropertyDistributionModel::albedo_knocke),
-                    delayedThermalPanelRadiosityModelSettings(SecondDegreeZonalPeriodicSurfacePropertyDistributionModel::emissivity_knocke)
+                extendedRadiationSourceModelSettings({
+                    albedoPanelRadiosityModelSettings(SecondDegreeZonalPeriodicSurfacePropertyDistributionModel::albedo_knocke, "Sun"),
+                    delayedThermalPanelRadiosityModelSettings(SecondDegreeZonalPeriodicSurfacePropertyDistributionModel::emissivity_knocke, "Sun")
                 }, {6, 12});
     }
 

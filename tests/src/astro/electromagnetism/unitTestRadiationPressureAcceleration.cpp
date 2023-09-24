@@ -568,7 +568,8 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_IsotropicPointSource_Pan
                     bodies.at( "Sun" )->getPosition() - bodies.at( "Vehicle" )->getPosition();
             Eigen::Vector3d expectedVehicleToSunVectorNormalized = expectedVehicleToSunVector.normalized();
 
-            auto sourceIrradiance = radiationSourceModel->evaluateIrradianceAtPosition(bodies.at( "Vehicle" )->getPosition());
+            auto sourceIrradiance =
+                    radiationSourceModel->evaluateIrradianceAtPosition(bodies.at( "Vehicle" )->getPosition()).front().first;
             auto radiationPressure = sourceIrradiance / physical_constants::SPEED_OF_LIGHT;
 
             // Calculated accelerations.
@@ -979,15 +980,29 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_StaticallyPaneledSource_
             [](double) { return physical_constants::SPEED_OF_LIGHT; }, 1);
     auto originalSourceModel = std::make_shared<IsotropicPointRadiationSourceModel>(luminosityModel);
 
+    const std::map<std::string, std::shared_ptr<IsotropicPointRadiationSourceModel>>& originalSourceModels {
+        {"OrigSource", originalSourceModel}};
+    const std::map<std::string, std::shared_ptr<basic_astrodynamics::BodyShapeModel>>& originalSourceBodyShapeModels {
+        {"OrigSource", std::make_shared<basic_astrodynamics::SphericalBodyShapeModel>(1)}};
+    const std::map<std::string, std::function<Eigen::Vector3d()>>& originalSourcePositionFunctions {
+        {"OrigSource", [] { return Eigen::Vector3d::UnitX(); }}};
+    const std::map<std::string, std::shared_ptr<OccultationModel>>& originalSourceToSourceOccultationModels {
+        {"OrigSource", std::make_shared<NoOccultingBodyOccultationModel>()}};
+    auto sourcePanelRadiosityModelUpdater = std::make_unique<SourcePanelRadiosityModelUpdater>(
+            [] { return Eigen::Vector3d::Zero(); },
+            [] { return Eigen::Quaterniond::Identity(); },
+            originalSourceModels, originalSourceBodyShapeModels, originalSourcePositionFunctions, originalSourceToSourceOccultationModels);
+
     std::vector<std::unique_ptr<SourcePanelRadiosityModel>> radiosityModels;
     radiosityModels.push_back(std::make_unique<AlbedoSourcePanelRadiosityModel>(
-            std::make_shared<ConstantSurfacePropertyDistribution>(1)));
+            "OrigSource", std::make_shared<ConstantSurfacePropertyDistribution>(1)));
 
     // Source is a single panel pointing in +X with purely diffuse reflection
     std::vector<SourcePanel> panels;
     panels.emplace_back(
             2, Eigen::Vector3d::Zero(), Eigen::Vector3d::UnitX(), std::move(radiosityModels));
-    auto sourceModel = std::make_shared<StaticallyPaneledRadiationSourceModel>("", std::move(panels));
+    auto sourceModel = std::make_shared<StaticallyPaneledRadiationSourceModel>(
+            std::move(sourcePanelRadiosityModelUpdater), std::move(panels));
 
     std::vector<TargetPanel> targetPanels{
             TargetPanel(1, -Eigen::Vector3d::UnitX(),
@@ -1008,10 +1023,6 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_StaticallyPaneledSource_
             [] () { return Eigen::Vector3d::UnitX(); },
             [] () { return Eigen::Quaterniond::Identity(); },
             [] () { return 1; },
-            originalSourceModel,
-            std::make_shared<basic_astrodynamics::SphericalBodyShapeModel>(1),
-            [] () { return Eigen::Vector3d::UnitX(); },
-            std::make_shared<NoOccultingBodyOccultationModel>(),
             std::make_shared<NoOccultingBodyOccultationModel>());
 
     originalSourceModel->updateMembers(TUDAT_NAN);
@@ -1031,15 +1042,33 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_StaticallyPaneledSource_
     auto originalSourceModel = std::make_shared<IsotropicPointRadiationSourceModel>(
         std::make_shared<ConstantLuminosityModel>(1));
 
+    Eigen::Vector3d originalSourceToSourceOccultingBodyPosition;
+
     std::vector<std::unique_ptr<SourcePanelRadiosityModel>> radiosityModels;
-    radiosityModels.push_back(std::make_unique<AngleBasedThermalSourcePanelRadiosityModel>(
-            1000, 1000, std::make_shared<ConstantSurfacePropertyDistribution>(1)));
+    radiosityModels.push_back(std::make_unique<AlbedoSourcePanelRadiosityModel>(
+            "OrigSource", std::make_shared<ConstantSurfacePropertyDistribution>(1)));
+
+    const std::map<std::string, std::shared_ptr<IsotropicPointRadiationSourceModel>>& originalSourceModels {
+        {"OrigSource", originalSourceModel}};
+    const std::map<std::string, std::shared_ptr<basic_astrodynamics::BodyShapeModel>>& originalSourceBodyShapeModels {
+        {"OrigSource", std::make_shared<basic_astrodynamics::SphericalBodyShapeModel>(1)}};
+    const std::map<std::string, std::function<Eigen::Vector3d()>>& originalSourcePositionFunctions {
+        {"OrigSource", [=] { return originalSourcePosition; }}};
+    const std::map<std::string, std::shared_ptr<OccultationModel>>& originalSourceToSourceOccultationModels {
+        {"OrigSource", std::make_shared<SingleOccultingBodyOccultationModel>(
+            "", [&] () { return originalSourceToSourceOccultingBodyPosition; },
+            std::make_shared<basic_astrodynamics::SphericalBodyShapeModel>(1))}};
+    auto sourcePanelRadiosityModelUpdater = std::make_unique<SourcePanelRadiosityModelUpdater>(
+            [] { return Eigen::Vector3d::Zero(); },
+            [] { return Eigen::Quaterniond::Identity(); },
+            originalSourceModels, originalSourceBodyShapeModels, originalSourcePositionFunctions, originalSourceToSourceOccultationModels);
 
     // Source is a single panel pointing in +X
     std::vector<SourcePanel> panels;
     panels.emplace_back(
             1, Eigen::Vector3d::Zero(), Eigen::Vector3d::UnitX(), std::move(radiosityModels));
-    auto sourceModel = std::make_shared<StaticallyPaneledRadiationSourceModel>("", std::move(panels));
+    auto sourceModel = std::make_shared<StaticallyPaneledRadiationSourceModel>(
+            std::move(sourcePanelRadiosityModelUpdater), std::move(panels));
 
     const auto targetPosition = Eigen::Vector3d(10, 10, 0);
     auto targetModel = std::make_shared<CannonballRadiationPressureTargetModel>(1, 1);
@@ -1049,14 +1078,11 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_StaticallyPaneledSource_
         // Two occulting bodies but not interfering with radiation
         const unsigned int expectedVisibleAndEmittingSourcePanelCount = 1;
 
-        const auto originalSourceToSourceOccultingBodyPosition = Eigen::Vector3d(-5, 0, 0);
+        originalSourceToSourceOccultingBodyPosition = Eigen::Vector3d(-5, 0, 0);
         const auto sourceToTargetOccultingBodyPosition = Eigen::Vector3d(5, -5, 0);
 
         auto sourceToTargetOccultationModel = std::make_shared<SingleOccultingBodyOccultationModel>(
             "", [=] () { return sourceToTargetOccultingBodyPosition; },
-            std::make_shared<basic_astrodynamics::SphericalBodyShapeModel>(1));
-        auto originalSourceToSourceOccultationModel = std::make_shared<SingleOccultingBodyOccultationModel>(
-            "", [=] () { return originalSourceToSourceOccultingBodyPosition; },
             std::make_shared<basic_astrodynamics::SphericalBodyShapeModel>(1));
 
         PaneledSourceRadiationPressureAcceleration accelerationModel(
@@ -1067,10 +1093,7 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_StaticallyPaneledSource_
                 [=] () { return targetPosition; },
                 [] () { return Eigen::Quaterniond::Identity(); },
                 [] () { return 1; },
-                originalSourceModel,
-                std::make_shared<basic_astrodynamics::SphericalBodyShapeModel>(1),
-                [=] () { return originalSourcePosition; },
-                sourceToTargetOccultationModel, originalSourceToSourceOccultationModel);
+                sourceToTargetOccultationModel);
 
         originalSourceModel->updateMembers(TUDAT_NAN);
         sourceModel->updateMembers(TUDAT_NAN);
@@ -1088,14 +1111,11 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_StaticallyPaneledSource_
         // Occulting body only interfering with original source -> source
         const unsigned int expectedVisibleAndEmittingSourcePanelCount = 0;
 
-        const auto originalSourceToSourceOccultingBodyPosition = Eigen::Vector3d(5, 0, 0);
+        originalSourceToSourceOccultingBodyPosition = Eigen::Vector3d(5, 0, 0);
         const auto sourceToTargetOccultingBodyPosition = Eigen::Vector3d(5, -5, 0);
 
         auto sourceToTargetOccultationModel = std::make_shared<SingleOccultingBodyOccultationModel>(
             "", [=] () { return sourceToTargetOccultingBodyPosition; },
-            std::make_shared<basic_astrodynamics::SphericalBodyShapeModel>(1));
-        auto originalSourceToSourceOccultationModel = std::make_shared<SingleOccultingBodyOccultationModel>(
-            "", [=] () { return originalSourceToSourceOccultingBodyPosition; },
             std::make_shared<basic_astrodynamics::SphericalBodyShapeModel>(1));
 
         PaneledSourceRadiationPressureAcceleration accelerationModel(
@@ -1106,10 +1126,7 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_StaticallyPaneledSource_
                 [=] () { return targetPosition; },
                 [] () { return Eigen::Quaterniond::Identity(); },
                 [] () { return 1; },
-                originalSourceModel,
-                std::make_shared<basic_astrodynamics::SphericalBodyShapeModel>(1),
-                [=] () { return originalSourcePosition; },
-                sourceToTargetOccultationModel, originalSourceToSourceOccultationModel);
+                sourceToTargetOccultationModel);
 
         originalSourceModel->updateMembers(TUDAT_NAN);
         sourceModel->updateMembers(TUDAT_NAN);
@@ -1127,14 +1144,11 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_StaticallyPaneledSource_
         // Occulting body only interfering with source -> target
         const unsigned int expectedVisibleAndEmittingSourcePanelCount = 0;
 
-        const auto originalSourceToSourceOccultingBodyPosition = Eigen::Vector3d(-5, 0, 0);
+        originalSourceToSourceOccultingBodyPosition = Eigen::Vector3d(-5, 0, 0);
         const auto sourceToTargetOccultingBodyPosition = Eigen::Vector3d(5, 5, 0);
 
         auto sourceToTargetOccultationModel = std::make_shared<SingleOccultingBodyOccultationModel>(
             "", [=] () { return sourceToTargetOccultingBodyPosition; },
-            std::make_shared<basic_astrodynamics::SphericalBodyShapeModel>(1));
-        auto originalSourceToSourceOccultationModel = std::make_shared<SingleOccultingBodyOccultationModel>(
-            "", [=] () { return originalSourceToSourceOccultingBodyPosition; },
             std::make_shared<basic_astrodynamics::SphericalBodyShapeModel>(1));
 
         PaneledSourceRadiationPressureAcceleration accelerationModel(
@@ -1145,10 +1159,7 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_StaticallyPaneledSource_
                 [=] () { return targetPosition; },
                 [] () { return Eigen::Quaterniond::Identity(); },
                 [] () { return 1; },
-                originalSourceModel,
-                std::make_shared<basic_astrodynamics::SphericalBodyShapeModel>(1),
-                [=] () { return originalSourcePosition; },
-                sourceToTargetOccultationModel, originalSourceToSourceOccultationModel);
+                sourceToTargetOccultationModel);
 
         originalSourceModel->updateMembers(TUDAT_NAN);
         sourceModel->updateMembers(TUDAT_NAN);
@@ -1166,14 +1177,11 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_StaticallyPaneledSource_
         // Occulting bodies interfering with both original source -> source and source -> target
         const unsigned int expectedVisibleAndEmittingSourcePanelCount = 0;
 
-        const auto originalSourceToSourceOccultingBodyPosition = Eigen::Vector3d(5, 0, 0);
+        originalSourceToSourceOccultingBodyPosition = Eigen::Vector3d(5, 0, 0);
         const auto sourceToTargetOccultingBodyPosition = Eigen::Vector3d(5, 5, 0);
 
         auto sourceToTargetOccultationModel = std::make_shared<SingleOccultingBodyOccultationModel>(
             "", [=] () { return sourceToTargetOccultingBodyPosition; },
-            std::make_shared<basic_astrodynamics::SphericalBodyShapeModel>(1));
-        auto originalSourceToSourceOccultationModel = std::make_shared<SingleOccultingBodyOccultationModel>(
-            "", [=] () { return originalSourceToSourceOccultingBodyPosition; },
             std::make_shared<basic_astrodynamics::SphericalBodyShapeModel>(1));
 
         PaneledSourceRadiationPressureAcceleration accelerationModel(
@@ -1184,10 +1192,7 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_StaticallyPaneledSource_
                 [=] () { return targetPosition; },
                 [] () { return Eigen::Quaterniond::Identity(); },
                 [] () { return 1; },
-                originalSourceModel,
-                std::make_shared<basic_astrodynamics::SphericalBodyShapeModel>(1),
-                [=] () { return originalSourcePosition; },
-                sourceToTargetOccultationModel, originalSourceToSourceOccultationModel);
+                sourceToTargetOccultationModel);
 
         originalSourceModel->updateMembers(TUDAT_NAN);
         sourceModel->updateMembers(TUDAT_NAN);
@@ -1223,17 +1228,12 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_DynamicallyPaneledSource
     auto bodies = createSystemOfBodies(bodySettings);
     setGlobalFrameBodyEphemerides(bodies.getMap(), globalFrameOrigin, globalFrameOrientation);
 
-    const auto originalSourceModelSettings = bodySettings.at("Sun")->radiationSourceModelSettings;
-    const auto originalSourceModel =
-            std::dynamic_pointer_cast<IsotropicPointRadiationSourceModel>(createRadiationSourceModel(originalSourceModelSettings, "Sun", bodies));
-    const auto originalSourceBodyShapeModel = bodies.at("Sun")->getShapeModel();
-
     const auto targetModelSettings = cannonballRadiationPressureTargetModelSettings(area, coefficient);
     const auto targetModel = createRadiationPressureTargetModel(targetModelSettings, "Vehicle", bodies);
 
-    const auto sourceModelSettings = extendedRadiationSourceModelSettings("Sun", {
-            albedoPanelRadiosityModelSettings(SecondDegreeZonalPeriodicSurfacePropertyDistributionModel::albedo_knocke),
-            delayedThermalPanelRadiosityModelSettings(SecondDegreeZonalPeriodicSurfacePropertyDistributionModel::emissivity_knocke)
+    const auto sourceModelSettings = extendedRadiationSourceModelSettings({
+            albedoPanelRadiosityModelSettings(SecondDegreeZonalPeriodicSurfacePropertyDistributionModel::albedo_knocke, "Sun"),
+            delayedThermalPanelRadiosityModelSettings(SecondDegreeZonalPeriodicSurfacePropertyDistributionModel::emissivity_knocke, "Sun")
     }, {6, 12});
     const auto sourceModel =
             std::dynamic_pointer_cast<PaneledRadiationSourceModel>(createRadiationSourceModel(sourceModelSettings, globalFrameOrigin, bodies));
@@ -1268,8 +1268,6 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_DynamicallyPaneledSource
         const auto position = ephemeris->getCartesianPosition(t);
         const auto velocity = ephemeris->getCartesianVelocity(t);
 
-        const auto originalSourcePosition = bodies.at("Sun")->getPosition();
-
         PaneledSourceRadiationPressureAcceleration accelerationModel(
             sourceModel,
             [] () { return Eigen::Vector3d::Zero(); },
@@ -1278,11 +1276,7 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_DynamicallyPaneledSource
             [=] () { return position; },
             [] () { return Eigen::Quaterniond::Identity(); },
             [=] () { return bodyMass; },
-            originalSourceModel,
-            originalSourceBodyShapeModel,
-            [=] () { return originalSourcePosition; },
-            std::make_shared<NoOccultingBodyOccultationModel>(),
-            std::make_shared<NoOccultingBodyOccultationModel>()
+                std::make_shared<NoOccultingBodyOccultationModel>()
         );
 
         sourceModel->updateMembers(t);

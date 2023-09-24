@@ -350,9 +350,24 @@ SystemOfBodies createSystemOfBodies(
     }
 
     // Create radiation source model objects for each body (if required).
+    // Point sources are created first since paneled sources may depend on them as original sources
     for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
     {
-        if( orderedBodySettings.at( i ).second->radiationSourceModelSettings != nullptr )
+        auto radiationSourceModelSettings = orderedBodySettings.at( i ).second->radiationSourceModelSettings;
+        if( radiationSourceModelSettings != nullptr &&
+            radiationSourceModelSettings->getRadiationSourceModelType() == RadiationSourceModelType::isotropic_point_source )
+        {
+            bodyList.at( orderedBodySettings.at( i ).first )->setRadiationSourceModel(
+                        createRadiationSourceModel(
+                            orderedBodySettings.at( i ).second->radiationSourceModelSettings,
+                            orderedBodySettings.at( i ).first, bodyList ));
+        }
+    }
+    for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
+    {
+        auto radiationSourceModelSettings = orderedBodySettings.at( i ).second->radiationSourceModelSettings;
+        if( radiationSourceModelSettings != nullptr &&
+            radiationSourceModelSettings->getRadiationSourceModelType() == RadiationSourceModelType::extended_source )
         {
             bodyList.at( orderedBodySettings.at( i ).first )->setRadiationSourceModel(
                         createRadiationSourceModel(
