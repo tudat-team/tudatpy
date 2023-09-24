@@ -47,9 +47,7 @@ BOOST_AUTO_TEST_CASE( testConstantPanelRadiosityModel )
         const auto actualEmittedIrradiance = radiosityModel.evaluateIrradianceAtPosition(
                 1,
                 Eigen::Vector3d::UnitX(),
-                Eigen::Vector3d::UnitX(),
-                1,
-                -Eigen::Vector3d::UnitX());
+                Eigen::Vector3d::UnitX());
         BOOST_CHECK_CLOSE(expectedEmittedIrradiance, actualEmittedIrradiance, 1e-15);
     }
 
@@ -59,9 +57,7 @@ BOOST_AUTO_TEST_CASE( testConstantPanelRadiosityModel )
         const auto actualEmittedIrradiance = radiosityModel.evaluateIrradianceAtPosition(
                 1,
                 Eigen::Vector3d::UnitX(),
-                2 * Eigen::Vector3d(1, 0, 1).normalized(),
-                3,
-                -Eigen::Vector3d(1, 1, 0).normalized());
+                2 * Eigen::Vector3d(1, 0, 1).normalized());
         BOOST_CHECK_CLOSE(expectedEmittedIrradiance, actualEmittedIrradiance, 1e-10);
     }
 
@@ -71,9 +67,7 @@ BOOST_AUTO_TEST_CASE( testConstantPanelRadiosityModel )
         const auto actualEmittedIrradiance = radiosityModel.evaluateIrradianceAtPosition(
                 1,
                 Eigen::Vector3d::UnitX(),
-                3 * Eigen::Vector3d::UnitY(),
-                1,
-                -Eigen::Vector3d::UnitX());
+                3 * Eigen::Vector3d::UnitY());
         BOOST_CHECK_CLOSE(expectedEmittedIrradiance, actualEmittedIrradiance, 1e-15);
     }
 
@@ -83,8 +77,6 @@ BOOST_AUTO_TEST_CASE( testConstantPanelRadiosityModel )
         const auto actualEmittedIrradiance = radiosityModel.evaluateIrradianceAtPosition(
                 1,
                 Eigen::Vector3d::UnitX(),
-                -Eigen::Vector3d::UnitX(),
-                1,
                 -Eigen::Vector3d::UnitX());
         BOOST_CHECK_CLOSE(expectedEmittedIrradiance, actualEmittedIrradiance, 1e-15);
     }
@@ -93,42 +85,38 @@ BOOST_AUTO_TEST_CASE( testConstantPanelRadiosityModel )
 //! Test basic cases for albedo panel radiosity model
 BOOST_AUTO_TEST_CASE( testAlbedoPanelRadiosityModel )
 {
-    AlbedoSourcePanelRadiosityModel radiosityModel(
-            std::make_shared<ConstantSurfacePropertyDistribution>(1));
+    AlbedoSourcePanelRadiosityModel radiosityModel("", std::make_shared<ConstantSurfacePropertyDistribution>(1));
     radiosityModel.updateMembers(TUDAT_NAN, TUDAT_NAN, TUDAT_NAN);
 
     {
         // Target in front of panel, 1 away orthogonal to panel
         const auto expectedReflectedIrradiance = 1 / mathematical_constants::PI;
+        radiosityModel.updateOriginalSourceProperties(1, -Eigen::Vector3d::UnitX());
         const auto actualReflectedIrradiance = radiosityModel.evaluateIrradianceAtPosition(
                 1,
                 Eigen::Vector3d::UnitX(),
-                Eigen::Vector3d::UnitX(),
-                1,
-                -Eigen::Vector3d::UnitX());
+                Eigen::Vector3d::UnitX() );
         BOOST_CHECK_CLOSE(actualReflectedIrradiance, expectedReflectedIrradiance, 1e-15);
     }
 
     {
         // Target in front of panel, 1 away at 45° angle
         const auto expectedReflectedIrradiance = 1 / (mathematical_constants::PI * sqrt(2));
+        radiosityModel.updateOriginalSourceProperties(1, -Eigen::Vector3d::UnitX());
         const auto actualReflectedIrradiance = radiosityModel.evaluateIrradianceAtPosition(
                 1,
                 Eigen::Vector3d::UnitX(),
-                Eigen::Vector3d(1, 1, 0).normalized(),
-                1,
-                -Eigen::Vector3d::UnitX());
+                Eigen::Vector3d(1, 1, 0).normalized());
         BOOST_CHECK_CLOSE(actualReflectedIrradiance, expectedReflectedIrradiance, 1e-10);
     }
 
     {
         // Target behind panel
         const auto expectedReflectedIrradiance = 0;
+        radiosityModel.updateOriginalSourceProperties(1, -Eigen::Vector3d::UnitX());
         const auto actualReflectedIrradiance = radiosityModel.evaluateIrradianceAtPosition(
                 1,
                 Eigen::Vector3d::UnitX(),
-                -Eigen::Vector3d::UnitX(),
-                1,
                 -Eigen::Vector3d::UnitX());
         BOOST_CHECK_CLOSE(actualReflectedIrradiance, expectedReflectedIrradiance, 1e-15);
     }
@@ -136,11 +124,10 @@ BOOST_AUTO_TEST_CASE( testAlbedoPanelRadiosityModel )
     {
         // Original source behind panel
         const auto expectedReflectedIrradiance = 0;
+        radiosityModel.updateOriginalSourceProperties(1, Eigen::Vector3d::UnitX());
         const auto actualReflectedIrradiance = radiosityModel.evaluateIrradianceAtPosition(
                 1,
                 Eigen::Vector3d::UnitX(),
-                Eigen::Vector3d::UnitX(),
-                1,
                 Eigen::Vector3d::UnitX());
         BOOST_CHECK_CLOSE(actualReflectedIrradiance, expectedReflectedIrradiance, 1e-15);
     }
@@ -149,42 +136,38 @@ BOOST_AUTO_TEST_CASE( testAlbedoPanelRadiosityModel )
 //! Test basic cases for delayed thermal panel radiosity model
 BOOST_AUTO_TEST_CASE( testDelayedThermalPanelRadiosityModel )
 {
-    DelayedThermalSourcePanelRadiosityModel radiosityModel(
-            std::make_shared<ConstantSurfacePropertyDistribution>(1));
+    DelayedThermalSourcePanelRadiosityModel radiosityModel("", std::make_shared<ConstantSurfacePropertyDistribution>(1));
     radiosityModel.updateMembers(TUDAT_NAN, TUDAT_NAN, TUDAT_NAN);
 
     {
         // Target in front of panel, 1 away orthogonal to panel
         const auto expectedEmittedIrradiance = 1 / mathematical_constants::PI;
+        radiosityModel.updateOriginalSourceProperties(4, -Eigen::Vector3d::UnitX());
         const auto actualEmittedIrradiance = radiosityModel.evaluateIrradianceAtPosition(
                 1,
                 Eigen::Vector3d::UnitX(),
-                Eigen::Vector3d::UnitX(),
-                4,
-                -Eigen::Vector3d::UnitX());
+                Eigen::Vector3d::UnitX());
         BOOST_CHECK_CLOSE(expectedEmittedIrradiance, actualEmittedIrradiance, 1e-10);
     }
 
     {
         // Target at 45° angle with panel, 2 away orthogonal to panel
         const auto expectedEmittedIrradiance = 1 / (mathematical_constants::PI * sqrt(2) * 4);
+        radiosityModel.updateOriginalSourceProperties(4, -Eigen::Vector3d(1, 1, 0).normalized());
         const auto actualEmittedIrradiance = radiosityModel.evaluateIrradianceAtPosition(
                 1,
                 Eigen::Vector3d::UnitX(),
-                2 * Eigen::Vector3d(1, 0, 1).normalized(),
-                4,
-                -Eigen::Vector3d(1, 1, 0).normalized());
+                2 * Eigen::Vector3d(1, 0, 1).normalized());
         BOOST_CHECK_CLOSE(expectedEmittedIrradiance, actualEmittedIrradiance, 1e-10);
     }
 
     {
         // Target behind panel
         const auto expectedEmittedIrradiance = 0;
+        radiosityModel.updateOriginalSourceProperties(1, -Eigen::Vector3d::UnitX());
         const auto actualEmittedIrradiance = radiosityModel.evaluateIrradianceAtPosition(
                 1,
                 Eigen::Vector3d::UnitX(),
-                -Eigen::Vector3d::UnitX(),
-                1,
                 -Eigen::Vector3d::UnitX());
         BOOST_CHECK_CLOSE(expectedEmittedIrradiance, actualEmittedIrradiance, 1e-10);
     }
@@ -194,54 +177,51 @@ BOOST_AUTO_TEST_CASE( testDelayedThermalPanelRadiosityModel )
 BOOST_AUTO_TEST_CASE( testAngleBasedThermalPanelRadiosityModel )
 {
     // Based on Lemoine (2013)
-    AngleBasedThermalSourcePanelRadiosityModel radiosityModel(
-            100, 375, std::make_shared<ConstantSurfacePropertyDistribution>(1));
+    AngleBasedThermalSourcePanelRadiosityModel radiosityModel("",
+                                                              100, 375,
+                                                              std::make_shared<ConstantSurfacePropertyDistribution>(1));
     radiosityModel.updateMembers(TUDAT_NAN, TUDAT_NAN, TUDAT_NAN);
 
     {
         // Target in front of panel, 1 away orthogonal to panel
         const auto expectedEmittedIrradiance = 1121.3386912573242 / mathematical_constants::PI;
+        radiosityModel.updateOriginalSourceProperties(1, -Eigen::Vector3d::UnitX());
         const auto actualEmittedIrradiance = radiosityModel.evaluateIrradianceAtPosition(
                 1,
                 Eigen::Vector3d::UnitX(),
-                Eigen::Vector3d::UnitX(),
-                1,
-                -Eigen::Vector3d::UnitX());
+                Eigen::Vector3d::UnitX());
         BOOST_CHECK_CLOSE(expectedEmittedIrradiance, actualEmittedIrradiance, 1e-2);
     }
 
     {
         // Original source at 45° angle with panel, target in front of panel, 1 away orthogonal to panel
         const auto expectedEmittedIrradiance = 792.9061925949023 / mathematical_constants::PI;
+        radiosityModel.updateOriginalSourceProperties(1, -Eigen::Vector3d(1, 1, 0).normalized());
         const auto actualEmittedIrradiance = radiosityModel.evaluateIrradianceAtPosition(
                 1,
                 Eigen::Vector3d::UnitX(),
-                Eigen::Vector3d::UnitX(),
-                1,
-                -Eigen::Vector3d(1, 1, 0).normalized());
+                Eigen::Vector3d::UnitX());
         BOOST_CHECK_CLOSE(expectedEmittedIrradiance, actualEmittedIrradiance, 1e-2);
     }
 
     {
         // Original source at 45° angle with panel, target at 45° angle with panel, 2 away orthogonal to panel
         const auto expectedEmittedIrradiance = 792.9061925949023 / (mathematical_constants::PI * sqrt(2) * 4);
+        radiosityModel.updateOriginalSourceProperties(1, -Eigen::Vector3d(1, 1, 0).normalized());
         const auto actualEmittedIrradiance = radiosityModel.evaluateIrradianceAtPosition(
                 1,
                 Eigen::Vector3d::UnitX(),
-                2 * Eigen::Vector3d(1, 0, 1).normalized(),
-                1,
-                -Eigen::Vector3d(1, 1, 0).normalized());
+                2 * Eigen::Vector3d(1, 0, 1).normalized());
         BOOST_CHECK_CLOSE(expectedEmittedIrradiance, actualEmittedIrradiance, 1e-2);
     }
 
     {
         // Target behind panel
         const auto expectedEmittedIrradiance = 0;
+        radiosityModel.updateOriginalSourceProperties(1, -Eigen::Vector3d::UnitX());
         const auto actualEmittedIrradiance = radiosityModel.evaluateIrradianceAtPosition(
                 1,
                 Eigen::Vector3d::UnitX(),
-                -Eigen::Vector3d::UnitX(),
-                1,
                 -Eigen::Vector3d::UnitX());
         BOOST_CHECK_CLOSE(expectedEmittedIrradiance, actualEmittedIrradiance, 1e-2);
     }
@@ -249,11 +229,10 @@ BOOST_AUTO_TEST_CASE( testAngleBasedThermalPanelRadiosityModel )
     {
         // Original source behind panel
         const auto expectedReflectedIrradiance = 5.670374419 / mathematical_constants::PI;
+        radiosityModel.updateOriginalSourceProperties(1, Eigen::Vector3d::UnitX());
         const auto actualReflectedIrradiance = radiosityModel.evaluateIrradianceAtPosition(
                 1,
                 Eigen::Vector3d::UnitX(),
-                Eigen::Vector3d::UnitX(),
-                1,
                 Eigen::Vector3d::UnitX());
         BOOST_CHECK_CLOSE(actualReflectedIrradiance, expectedReflectedIrradiance, 1e-2);
     }

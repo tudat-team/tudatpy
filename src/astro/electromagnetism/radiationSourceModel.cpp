@@ -40,13 +40,10 @@ void RadiationSourceModel::updateMembers(const double currentTime)
 }
 
 double RadiationSourceModel::evaluateTotalIrradianceAtPosition(
-        const Eigen::Vector3d& targetPosition,
-        double originalSourceIrradiance,
-        const Eigen::Vector3d& originalSourceToSourceDirection)
+        const Eigen::Vector3d& targetPosition)
 {
     // Calculate irradiances due to all sub-sources
-    auto irradiances = evaluateIrradianceAtPosition(
-            targetPosition, originalSourceIrradiance, originalSourceToSourceDirection);
+    auto irradiances = evaluateIrradianceAtPosition(targetPosition);
 
     // Sum contributions of all sub-sources
     double totalIrradiance = 0;
@@ -63,17 +60,7 @@ double RadiationSourceModel::evaluateTotalIrradianceAtPosition(
 //*********************************************************************************************
 
 IrradianceWithSourceList IsotropicPointRadiationSourceModel::evaluateIrradianceAtPosition(
-        const Eigen::Vector3d& targetPosition,
-        double originalSourceIrradiance,
-        const Eigen::Vector3d& originalSourceToSourceDirection)
-{
-    // The radiation of an isotropic point source originates from the source center
-    return IrradianceWithSourceList {
-        std::make_pair(evaluateIrradianceAtPosition(targetPosition), Eigen::Vector3d::Zero()) };
-
-}
-
-double IsotropicPointRadiationSourceModel::evaluateIrradianceAtPosition(const Eigen::Vector3d& targetPosition) const
+        const Eigen::Vector3d& targetPosition)
 {
     double distanceSourceToTargetSquared = targetPosition.squaredNorm();
     auto luminosity = luminosityModel_->getLuminosity();
@@ -82,7 +69,8 @@ double IsotropicPointRadiationSourceModel::evaluateIrradianceAtPosition(const Ei
 
     // Since the source is isotropic, the radiation is uniformly distributed in all directions
     auto irradiance = luminosity / sphereArea;
-    return irradiance;
+    // The radiation of an isotropic point source originates from the source center
+    return IrradianceWithSourceList { std::make_pair(irradiance, Eigen::Vector3d::Zero()) };
 }
 
 void IsotropicPointRadiationSourceModel::updateMembers_(double currentTime)
@@ -95,9 +83,7 @@ void IsotropicPointRadiationSourceModel::updateMembers_(double currentTime)
 //*********************************************************************************************
 
 IrradianceWithSourceList PaneledRadiationSourceModel::evaluateIrradianceAtPosition(
-        const Eigen::Vector3d& targetPosition,
-        double originalSourceIrradiance,
-        const Eigen::Vector3d& originalSourceToSourceDirection)
+        const Eigen::Vector3d& targetPosition)
 {
     IrradianceWithSourceList irradiances{};
 
@@ -121,9 +107,7 @@ IrradianceWithSourceList PaneledRadiationSourceModel::evaluateIrradianceAtPositi
             irradiance += radiosityModel->evaluateIrradianceAtPosition(
                     panel.getArea(),
                     panel.getSurfaceNormal(),
-                    targetPositionRelativeToPanel,
-                    originalSourceIrradiance,
-                    originalSourceToSourceDirection);
+                    targetPositionRelativeToPanel);
         }
 
         if (irradiance > 0)
@@ -139,10 +123,11 @@ IrradianceWithSourceList PaneledRadiationSourceModel::evaluateIrradianceAtPositi
 
 void StaticallyPaneledRadiationSourceModel::updateMembers_(double currentTime)
 {
-    // No need to check if model has been updated this timestep, already done by RadiationSourceModel
+    sourcePanelRadiosityModelUpdater_->updateMembers(currentTime);
     for (auto& panel : panels_)
     {
         panel.updateMembers(currentTime);
+        sourcePanelRadiosityModelUpdater_->updatePanel(panel);
     }
 }
 
@@ -189,13 +174,11 @@ void StaticallyPaneledRadiationSourceModel::generatePanels(
 }
 
 DynamicallyPaneledRadiationSourceModel::DynamicallyPaneledRadiationSourceModel(
-        const std::string& originalSourceName,
         const std::shared_ptr<basic_astrodynamics::BodyShapeModel>& sourceBodyShapeModel,
+        std::unique_ptr<SourcePanelRadiosityModelUpdater> sourcePanelRadiosityModelUpdater,
         const std::vector<std::unique_ptr<SourcePanelRadiosityModel>>& baseRadiosityModels,
-        const std::vector<int>& numberOfPanelsPerRing,
-        const std::vector<std::string>& originalSourceToSourceOccultingBodies) :
-        PaneledRadiationSourceModel(
-                originalSourceName, sourceBodyShapeModel, originalSourceToSourceOccultingBodies),
+        const std::vector<int>& numberOfPanelsPerRing) :
+        PaneledRadiationSourceModel(sourceBodyShapeModel, std::move(sourcePanelRadiosityModelUpdater)),
         numberOfPanelsPerRing_(numberOfPanelsPerRing)
 {
     numberOfPanels = 1;
@@ -224,9 +207,7 @@ DynamicallyPaneledRadiationSourceModel::DynamicallyPaneledRadiationSourceModel(
 }
 
 IrradianceWithSourceList DynamicallyPaneledRadiationSourceModel::evaluateIrradianceAtPosition(
-        const Eigen::Vector3d& targetPosition,
-        double originalSourceIrradiance,
-        const Eigen::Vector3d& originalSourceToSourceDirection)
+        const Eigen::Vector3d& targetPosition)
 {
     // Generate center points of panels in spherical coordinates
     const auto panelProperties = generatePaneledSphericalCap_EqualProjectedAttenuatedArea(
@@ -250,10 +231,15 @@ IrradianceWithSourceList DynamicallyPaneledRadiationSourceModel::evaluateIrradia
 
         // Always update (independently of current time) because evaluation may come from different targets each call
         panels_[i].updateMembers(currentTime_);
+        sourcePanelRadiosityModelUpdater_->updatePanel(panels_[i]);
     }
 
-    return PaneledRadiationSourceModel::evaluateIrradianceAtPosition(
-            targetPosition, originalSourceIrradiance, originalSourceToSourceDirection);
+    return PaneledRadiationSourceModel::evaluateIrradianceAtPosition(targetPosition);
+}
+
+void DynamicallyPaneledRadiationSourceModel::updateMembers_(double currentTime)
+{
+    sourcePanelRadiosityModelUpdater_->updateMembers(currentTime);
 }
 
 void PaneledRadiationSourceModel::Panel::updateMembers(double currentTime)
@@ -261,6 +247,77 @@ void PaneledRadiationSourceModel::Panel::updateMembers(double currentTime)
     for (const auto& radiosityModel : radiosityModels_)
     {
         radiosityModel->updateMembers(latitude_, longitude_, currentTime);
+    }
+}
+
+void SourcePanelRadiosityModelUpdater::updateMembers(const double currentTime)
+{
+    // Update all properties that only depend on the source center, not on the panels
+    // This includes the direction and irradiance from the original source, since it is assumed far enough away from
+    // the source so that the panel position does not make a difference
+
+    if(currentTime_ != currentTime)
+    {
+        currentTime_ = currentTime;
+
+        Eigen::Vector3d sourceCenterPositionInGlobalFrame = sourcePositionFunction_(); // position of center of source (e.g. planet)
+        Eigen::Quaterniond sourceRotationFromLocalToGlobalFrame = sourceRotationFromLocalToGlobalFrameFunction_();
+        Eigen::Quaterniond sourceRotationFromGlobalToLocalFrame = sourceRotationFromLocalToGlobalFrame.inverse();
+
+        for ( const auto &kv : originalSourcePositionFunctions_ ) {
+            auto originalSourceName = kv.first;
+            auto originalSourcePositionFunction = kv.second;
+            Eigen::Vector3d originalSourceCenterPositionInGlobalFrame = originalSourcePositionFunction();
+
+            // Evaluate irradiances from original source at source center in original source frame (for albedo-reflected radiation)
+            // If other types than isotropic point sources are supported as original source, rotate to original source frame here
+            Eigen::Vector3d sourceCenterPositionInOriginalSourceFrame = sourceCenterPositionInGlobalFrame - originalSourceCenterPositionInGlobalFrame;
+            originalSourceUnoccultedIrradiances_[originalSourceName] =
+                    originalSourceModels_[originalSourceName]->evaluateIrradianceAtPosition(sourceCenterPositionInOriginalSourceFrame).front().first;
+
+            Eigen::Vector3d originalSourceToSourceDirectionInSourceFrame =
+                    sourceRotationFromGlobalToLocalFrame
+                    * -(originalSourceCenterPositionInGlobalFrame - sourceCenterPositionInGlobalFrame).normalized();
+            originalSourceToSourceCenterDirections_[originalSourceName] = originalSourceToSourceDirectionInSourceFrame;
+
+            originalSourceToSourceOccultationModels_[originalSourceName]->updateMembers(currentTime);
+        }
+    }
+}
+
+void SourcePanelRadiosityModelUpdater::updatePanel(
+        PaneledRadiationSourceModel::Panel& panel)
+{
+    // Update all properties that depend on the panels
+    Eigen::Vector3d sourceCenterPositionInGlobalFrame = sourcePositionFunction_(); // position of center of source (e.g. planet)
+    Eigen::Quaterniond sourceRotationFromLocalToGlobalFrame = sourceRotationFromLocalToGlobalFrameFunction_();
+
+    for(auto& radiosityModel : panel.getRadiosityModels())
+    {
+        if (!radiosityModel->dependsOnOriginalSource())
+        {
+            continue;
+        }
+
+        Eigen::Vector3d sourcePositionInGlobalFrame =
+                sourceCenterPositionInGlobalFrame + sourceRotationFromLocalToGlobalFrame * panel.getRelativeCenter();
+
+        auto* originalSourceDependentRadiosityModel =
+                static_cast<OriginalSourceDependentSourcePanelRadiosityModel*>(radiosityModel.get());
+        auto originalSourceName = originalSourceDependentRadiosityModel->getOriginalSourceName();
+        Eigen::Vector3d originalSourceCenterPositionInGlobalFrame = originalSourcePositionFunctions_[originalSourceName]();
+
+        auto originalSourceToSourceReceivedFraction =
+                originalSourceToSourceOccultationModels_[originalSourceName]->evaluateReceivedFractionFromExtendedSource(
+                originalSourceCenterPositionInGlobalFrame,
+                originalSourceBodyShapeModels_[originalSourceName],
+                sourcePositionInGlobalFrame);
+        auto originalSourceOccultedIrradiance =
+                originalSourceUnoccultedIrradiances_[originalSourceName] * originalSourceToSourceReceivedFraction;
+        originalSourceDependentRadiosityModel->updateOriginalSourceProperties(
+                originalSourceUnoccultedIrradiances_[originalSourceName],
+                originalSourceOccultedIrradiance,
+                originalSourceToSourceCenterDirections_[originalSourceName]);
     }
 }
 

@@ -399,7 +399,7 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                 case radiation_pressure:
                 {
                     const auto sourceName = accelerationModelIterator->first;
-                    const auto targetName =  acceleratedBodyIterator->first;
+                    const auto targetName = acceleratedBodyIterator->first;
 
                     singleAccelerationUpdateNeeds[ body_mass_update ].push_back(targetName);
                     singleAccelerationUpdateNeeds[ radiation_source_model_update ].push_back(sourceName);
@@ -417,21 +417,17 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                         // Only paneled source, not point source needs rotational state and has original source
                         singleAccelerationUpdateNeeds[ body_rotational_state_update ].push_back(sourceName);
 
-                        const auto originalSourceName =
-                                paneledRadiationSourceModel->getOriginalSourceName();
-                        singleAccelerationUpdateNeeds[ radiation_source_model_update ].push_back(originalSourceName);
-                        singleAccelerationUpdateNeeds[ body_translational_state_update ].push_back(originalSourceName);
+                        for (const auto& originalSourceName :
+                                paneledRadiationSourceModel->getSourcePanelRadiosityModelUpdater()->getOriginalSourceBodyNames())
+                        {
+                            singleAccelerationUpdateNeeds[ radiation_source_model_update ].push_back(originalSourceName);
+                            singleAccelerationUpdateNeeds[ body_translational_state_update ].push_back(originalSourceName);
+                            // No original source rotational state update necessary because only isotropic point sources
+                            // are supported, which are rotation-invariant
+                        }
 
-                        // No original source rotational state update necessary because only isotropic point sources
-                        // are supported
-
-                        auto paneledSourceRadiationPressureAcceleration =
-                            std::dynamic_pointer_cast<electromagnetism::PaneledSourceRadiationPressureAcceleration>(
-                                    radiationPressureAcceleration);
-
-                        auto originalSourceToSourceOccultingBodyNames =
-                                paneledSourceRadiationPressureAcceleration->getOriginalSourceToSourceOccultationModel()->getOccultingBodyNames();
-                        for (auto bodyName : originalSourceToSourceOccultingBodyNames)
+                        for (const auto& bodyName :
+                                paneledRadiationSourceModel->getSourcePanelRadiosityModelUpdater()->getOriginalSourceToSourceOccultingBodyNames())
                         {
                             singleAccelerationUpdateNeeds[ body_translational_state_update ].push_back(bodyName);
                         }

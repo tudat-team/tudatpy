@@ -29,6 +29,7 @@
 #include "tudat/simulation/propagation_setup/accelerationSettings.h"
 #include "tudat/simulation/propagation_setup/createAccelerationModels.h"
 #include "tudat/simulation/environment_setup/createFlightConditions.h"
+#include "tudat/simulation/environment_setup/createOccultationModel.h"
 
 
 namespace tudat
@@ -1122,13 +1123,6 @@ createRadiationPressureAccelerationModel(
     auto cannonballRadiationPressureTargetModel =
             std::dynamic_pointer_cast<electromagnetism::CannonballRadiationPressureTargetModel>(
                     target->getRadiationPressureTargetModel());
-    
-    std::string originalSourceName = "";
-    if (paneledRadiationSourceModel != nullptr)
-    {
-        // If originalSourceName is empty has already been checked in createRadiationSourceModel
-        originalSourceName = paneledRadiationSourceModel->getOriginalSourceName();
-    }
 
     // Get target rotation function
     std::function<Eigen::Quaterniond()> targetRotationFromLocalToGlobalFrameFunction;
@@ -1140,7 +1134,7 @@ createRadiationPressureAccelerationModel(
     }
     else
     {
-        targetRotationFromLocalToGlobalFrameFunction = std::bind( &Body::getCurrentRotationToGlobalFrame, target );
+        targetRotationFromLocalToGlobalFrameFunction = [target] { return target->getCurrentRotationToGlobalFrame(); };
     }
 
     // Find occulting bodies corresponding to this source
@@ -1170,7 +1164,7 @@ createRadiationPressureAccelerationModel(
                                       "act as occulting body.");
         }
     }
-    auto sourceToTargetOccultationModel = createOccultationModel(sourceToTargetOccultingBodies, targetName, bodies);
+    auto sourceToTargetOccultationModel = createOccultationModel(sourceToTargetOccultingBodies, bodies);
     
     // Create acceleration model
     if (isotropicPointRadiationSourceModel != nullptr)
@@ -1178,66 +1172,24 @@ createRadiationPressureAccelerationModel(
         return std::make_shared<IsotropicPointSourceRadiationPressureAcceleration>(
                 isotropicPointRadiationSourceModel,
                 source->getShapeModel(),
-                std::bind( &Body::getPosition, source ),
+                [source] { return source->getPosition(); },
                 target->getRadiationPressureTargetModel(),
-                std::bind( &Body::getPosition, target ),
+                [target] { return target->getPosition(); },
                 targetRotationFromLocalToGlobalFrameFunction,
-                std::bind( &Body::getBodyMass, target ),
+                [target] { return target->getBodyMass(); },
                 sourceToTargetOccultationModel);
     }
     else if (paneledRadiationSourceModel != nullptr)
     {
-        if( bodies.count( originalSourceName ) == 0 )
-        {
-            throw std::runtime_error( "Error when making radiation pressure acceleration, body " +
-                                      originalSourceName +
-                                      " (original source) was not found. This may happen when a default radiation source " +
-                                      "model is used.");
-        }
-
-        const auto& originalSource = bodies.at(originalSourceName);
-        auto originalIsotropicPointRadiationSourceModel =
-                std::dynamic_pointer_cast<electromagnetism::IsotropicPointRadiationSourceModel>(
-                        originalSource->getRadiationSourceModel());
-
-        if( originalIsotropicPointRadiationSourceModel == nullptr )
-        {
-            throw std::runtime_error( "Error when making radiation pressure acceleration, body " +
-                                      sourceName +
-                                      " (original source) has no isotropic point radiation source model." );
-        }
-
-        auto originalSourceToSourceOccultingBodies = paneledRadiationSourceModel->getOriginalSourceToSourceOccultingBodies();
-
-        // Check if occulting bodies are not original source or source
-        for (auto& occultingBodyName : originalSourceToSourceOccultingBodies)
-        {
-            if (occultingBodyName == originalSourceName)
-            {
-                throw std::runtime_error( "Error when making radiation pressure acceleration, original source body cannot "
-                                        "act as occulting body.");
-            }
-            if (occultingBodyName == sourceName)
-            {
-                throw std::runtime_error( "Error when making radiation pressure acceleration, source body cannot "
-                                        "act as occulting body.");
-            }
-        }
-        auto originalSourceToSourceOccultationModel = createOccultationModel(originalSourceToSourceOccultingBodies, sourceName, bodies);
-
         return std::make_shared<PaneledSourceRadiationPressureAcceleration>(
                 paneledRadiationSourceModel,
-                std::bind( &Body::getPosition, source ),
-                std::bind( &Body::getCurrentRotationToGlobalFrame, source ),
+                [source] { return source->getPosition(); },
+                [source] { return source->getCurrentRotationToGlobalFrame(); },
                 target->getRadiationPressureTargetModel(),
-                std::bind( &Body::getPosition, target ),
+                [target] { return target->getPosition(); },
                 targetRotationFromLocalToGlobalFrameFunction,
-                std::bind( &Body::getBodyMass, target ),
-                originalIsotropicPointRadiationSourceModel,
-                originalSource->getShapeModel(),
-                std::bind( &Body::getPosition, originalSource ),
-                sourceToTargetOccultationModel,
-                originalSourceToSourceOccultationModel);
+                [target] { return target->getBodyMass(); },
+                sourceToTargetOccultationModel);
     }
     else
     {
@@ -1245,50 +1197,6 @@ createRadiationPressureAccelerationModel(
                                   "for body " + sourceName +
                                   " is not supported." );
     }
-}
-
-std::shared_ptr<electromagnetism::OccultationModel> createOccultationModel(
-        const std::vector<std::string>& occultingBodies,
-        const std::string &targetName,
-        const SystemOfBodies& bodies)
-{
-    using namespace tudat::electromagnetism;
-
-    std::shared_ptr<OccultationModel> occultationModel;
-    switch(occultingBodies.size())
-    {
-        case 0:
-        {
-            occultationModel = std::make_shared<NoOccultingBodyOccultationModel>();
-            break;
-        }
-        case 1:
-        {
-            auto occultingBodyName = occultingBodies.front();
-            auto occultingBody = bodies.at(occultingBodyName);
-            occultationModel = std::make_shared<SingleOccultingBodyOccultationModel>(
-                    occultingBodyName,
-                    std::bind( &Body::getPosition, occultingBody),
-                    occultingBody->getShapeModel());
-            break;
-        }
-        default:
-        {
-            std::vector<std::function<Eigen::Vector3d()>> occultingBodyPositionFunctions{};
-            std::vector<std::shared_ptr<basic_astrodynamics::BodyShapeModel>> occultingBodyShapeModels;
-            for (const auto& occultingBodyName : occultingBodies)
-            {
-                auto occultingBody = bodies.at(occultingBodyName);
-                occultingBodyPositionFunctions.emplace_back(std::bind( &Body::getPosition, occultingBody));
-                occultingBodyShapeModels.push_back(occultingBody->getShapeModel());
-            }
-            occultationModel = std::make_shared<SimpleMultipleOccultingBodyOccultationModel>(
-                    occultingBodies, occultingBodyPositionFunctions, occultingBodyShapeModels);
-            break;
-        }
-    }
-
-    return occultationModel;
 }
 
 //! Function to create a cannonball radiation pressure acceleration model.

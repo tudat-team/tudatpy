@@ -56,6 +56,7 @@
 #include "tudat/simulation/environment_setup/createRotationModel.h"
 #include "tudat/simulation/environment_setup/createRadiationSourceModel.h"
 #include "tudat/simulation/environment_setup/createRadiationPressureTargetModel.h"
+#include "tudat/simulation/environment_setup/createSurfacePropertyDistribution.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
 
 namespace tudat
