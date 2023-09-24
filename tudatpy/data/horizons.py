@@ -7,6 +7,7 @@ from astropy.table import vstack
 
 import math
 import numpy as np
+import pandas as pd
 
 from typing import Union, List, Tuple
 import datetime
@@ -19,6 +20,13 @@ import re
 
 class HorizonsQuery:
     query_limit = 90024
+
+    # 50 is chosen to be conservative,
+    # best result i have seen is 77 (for ~18 digits per epoch).
+    # 50 is chosen to prevent scenarios where higher precision is used,
+    # to prevent undefined behaviour when very futuristic dates are used,
+    # and because it is a nice human friendly number.
+    query_limit_list = 50
 
     def __init__(
         self,
@@ -52,15 +60,14 @@ class HorizonsQuery:
         if epoch_list is None:
             if (epoch_start is None) or (epoch_end is None) or (epoch_step is None):
                 raise ValueError(
-                    "Must specify either a list of times in sec since J2000 " +
-                    "or a combined start, end and step parameters"
+                    "Must specify either a list of times in sec since J2000 "
+                    + "or a combined start, end and step parameters"
                 )
             else:
                 ts_seconds, num_lines = self._interpret_timestep(
                     epoch_step, epoch_start, epoch_end
                 )
 
-                print(f"lines = {num_lines}")
                 self._validate_time_range(epoch_start, epoch_end)
 
                 if re.findall(r"\d+", epoch_step)[0] == epoch_step:
@@ -77,7 +84,6 @@ class HorizonsQuery:
                     + "or a combined start, end and step parameters not both"
                 )
             elif isinstance(epoch_list, list) or isinstance(epoch_list, tuple):
-
                 self.epoch_type = "list"
                 num_lines = len(epoch_list)
 
@@ -123,20 +129,28 @@ class HorizonsQuery:
             raise ValueError(txt)
         elif (
             (not extended_query)
-            and (num_lines > HorizonsQuery.query_limit)
+            and (num_lines > HorizonsQuery.query_limit_list)
             and (self.epoch_type == "list")
         ):
             txt = (
-                "The query is larger than Horizon's limit of "
-                + f"{HorizonsQuery.query_limit} lines: ({num_lines}). "
-                + "Consider selecting fewer epochs to poll "
-                + "or use the 'extended_query' option."
+                "The query is larger than Horizon's input limit of "
+                + f"{HorizonsQuery.query_limit_list} lines: ({num_lines}). "
+                + "Consider selecting fewer epochs to poll, "
+                + f"using the range option for up to {HorizonsQuery.query_limit} "
+                + "epochs (or higher with the 'extended_query' option). "
+                + "Using the 'extended_query' option with lists may be slow for "
+                + "a high number of epochs (>200)."
             )
 
             raise ValueError(txt)
 
         # query is smaller than limit -> one batch
-        elif num_lines < HorizonsQuery.query_limit:
+        # seperate check for list as the num lines is smaller
+        elif (
+            (self.epoch_type != "list") and (num_lines < HorizonsQuery.query_limit)
+        ) or (
+            (self.epoch_type == "list") and (num_lines < HorizonsQuery.query_limit_list)
+        ):
             if self.epoch_type == "list":
                 # convert seconds since J2000 TDB to JD TDB
                 epoch_def = self._format_time_list(epoch_list)
@@ -146,7 +160,7 @@ class HorizonsQuery:
                     stop=self._format_time_range(epoch_end),
                     step=epoch_step,
                 )
-                
+
             self.queries.append(
                 Horizons(
                     id=self.query_id,
@@ -163,7 +177,7 @@ class HorizonsQuery:
         elif extended_query:
             # case where its a list -> split list
             if self.epoch_type == "list":
-                num_splits = math.ceil(num_lines / HorizonsQuery.query_limit)
+                num_splits = math.ceil(num_lines / HorizonsQuery.query_limit_list)
 
                 epoch_def = self._format_time_list(epoch_list)
                 splits = np.array_split(epoch_def, num_splits)
@@ -182,7 +196,16 @@ class HorizonsQuery:
                     )
                     self.query_lengths.append(len(split))
 
+            # Case where it is a range.
             elif (self.epoch_type == "range") or (self.epoch_type == "partition"):
+                if self.epoch_type == "partition":
+                    raise NotImplementedError(
+                        "Using number of divisions for time "
+                        + "range with extended queries is "
+                        + "currently unsupported, please use "
+                        + "timesteps like 15m instead."
+                    )
+
                 start_astro = self._convert_time_to_astropy(epoch_start)
                 end_astro = self._convert_time_to_astropy(epoch_end)
 
@@ -198,8 +221,6 @@ class HorizonsQuery:
                 formatt = r"%Y-%m-%d %H:%M:%S.%f"
 
                 while next_limit < end_astro:
-                    print(next_start)
-                    print(next_limit)
                     query_len = math.ceil((next_limit - next_start) / ts_seconds)
                     self.query_lengths.append(query_len)
 
@@ -228,11 +249,7 @@ class HorizonsQuery:
                     next_start = next_limit + ts_seconds
                     next_limit = next_start + max_query_step
 
-                # the final one:
-                print(next_start, type(next_start))
-                print(next_limit, type(next_limit))
-                print(end_astro.strftime(formatt), type(end_astro))
-                print(epoch_end, type(epoch_end))
+                # the final batch:
                 query_len = math.ceil((end_astro - next_start) / ts_seconds)
                 self.query_lengths.append(query_len)
 
@@ -277,7 +294,11 @@ class HorizonsQuery:
 
     def _convert_time_to_astropy(self, time):
         # time is tudat format: seconds since j2000 TDB
-        if isinstance(time, float) or isinstance(time, int) or isinstance(time, np.ndarray):
+        if (
+            isinstance(time, float)
+            or isinstance(time, int)
+            or isinstance(time, np.ndarray)
+        ):
             # convert to julian days
             time = (time / constants.JULIAN_DAY) + constants.JULIAN_DAY_ON_J2000
             time_astro = Time(time, format="jd", scale="tdb", precision=9)
@@ -317,8 +338,8 @@ class HorizonsQuery:
             return str(time.strftime(formatt))
         else:
             raise TypeError(
-                "Incorrect time value given, must be " + 
-                "datetime object or seconds since J2000 TDB"
+                "Incorrect time value given, must be "
+                + "datetime object or seconds since J2000 TDB"
             )
 
     def _format_time_list(self, times):
