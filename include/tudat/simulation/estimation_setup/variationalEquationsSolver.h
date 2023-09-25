@@ -795,7 +795,8 @@ public:
 
         // Create object that will contain and process the propagation results
         variationalPropagationResults_ = std::make_shared< SingleArcVariationalSimulationResults< StateScalarType, TimeType>>(
-                dynamicsSimulator_->getSingleArcPropagationResults( ), this->stateTransitionMatrixSize_, this->parameterVectorSize_ - this->stateTransitionMatrixSize_ );
+                dynamicsSimulator_->getSingleArcPropagationResults( ),
+                this->stateTransitionMatrixSize_, this->parameterVectorSize_ - this->stateTransitionMatrixSize_ );
 
         // Integrate variational equations from initial state estimate.
         if( integrateEquationsOnCreation )
@@ -1219,7 +1220,8 @@ public:
                     arcWiseStateTransitionMatrixSize_.at( i ), arcWiseParameterVectorSize_.at( i ) - arcWiseStateTransitionMatrixSize_.at( i ) ) );
         }
         variationalPropagationResults_ = std::make_shared< MultiArcSimulationResults< SingleArcVariationalSimulationResults, StateScalarType, TimeType > >(
-                singleArcVariationalResults );
+                singleArcVariationalResults,
+                dynamicsSimulator_->getMultiArcPropagationResults( )->getMultiArcDependentVariablesInterface( ) );
 
 
         for( unsigned int i = 0; i < singleArcDynamicsSimulators.size( ); i++ )
@@ -1356,7 +1358,8 @@ public:
     {
 
         // Propagate variational equations and equations of motion concurrently
-        if( integrateEquationsConcurrently ) {
+        if( integrateEquationsConcurrently )
+        {
             // Propagate dynamics and variational equations and store results in variationalPropagationResults_ object
             dynamicsSimulator_->template integrateEquationsOfMotion<MultiArcVariationalResults>(
                     variationalPropagationResults_, getInitialStateProvider( initialStateEstimate ));
@@ -1816,6 +1819,9 @@ public:
     void integrateVariationalAndDynamicalEquations(
             const VectorType& initialStateEstimate, const bool integrateEquationsConcurrently )
     {
+        // TODO: do process depdendent variables in original multi-arc solver, do not process dependent variables in
+        // extended solver. Also add dependent variables to original multi-arc solver.
+
         // Reset initial time and propagate multi-arc equations
         singleArcSolver_->integrateVariationalAndDynamicalEquations(
                     initialStateEstimate.block( 0, 0, singleArcDynamicsSize_, 1 ),
@@ -1841,8 +1847,15 @@ public:
         removeSingleArcBodiesFromMultiArcSolultion( numericalMultiArcSolution );
 
         originalMultiArcSolver_->getDynamicsSimulator( )->getMultiArcPropagationResults( )->restartPropagation();
+
         // Reset original multi-arc bodies' dynamics
-        originalMultiArcSolver_->getDynamicsSimulator( )->getMultiArcPropagationResults( )->manuallySetPropagationResults( numericalMultiArcSolution );
+        originalMultiArcSolver_->getDynamicsSimulator( )->getMultiArcPropagationResults( )->manuallySetPropagationResults(
+            numericalMultiArcSolution );
+        originalMultiArcSolver_->getDynamicsSimulator( )->getMultiArcPropagationResults( )->manuallySetSecondaryData(
+            multiArcSolver_->getDynamicsSimulator( )->getMultiArcPropagationResults( ) );
+
+
+
         originalMultiArcSolver_->getDynamicsSimulator( )->processNumericalEquationsOfMotionSolution( );
 
         // Create state transition matrix if not yet created.
@@ -1903,6 +1916,8 @@ public:
 
         // Reset original multi-arc bodies' dynamics
         originalMultiArcSolver_->getDynamicsSimulator( )->getMultiArcPropagationResults( )->manuallySetPropagationResults( numericalMultiArcSolution );
+        originalMultiArcSolver_->getDynamicsSimulator( )->getMultiArcPropagationResults( )->manuallySetSecondaryData(
+            multiArcSolver_->getDynamicsSimulator( )->getMultiArcPropagationResults( ) );
         originalMultiArcSolver_->getDynamicsSimulator( )->processNumericalEquationsOfMotionSolution( );
     }
 

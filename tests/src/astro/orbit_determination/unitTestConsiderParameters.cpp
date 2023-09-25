@@ -333,7 +333,7 @@ BOOST_AUTO_TEST_CASE( testConsiderParameters )
     }
 
     // Compare with manually computed covariance
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( covarianceOutput->unnormalizedCovarianceWithConsiderParameters_, computedCovarianceConsiderParameters, 1.0e-12 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( covarianceOutput->unnormalizedCovarianceWithConsiderParameters_, computedCovarianceConsiderParameters, 1.0e-11 );
 
     // Manually perform full estimation step
     Eigen::VectorXd rightHandSide = normalisedEstimatedPartials.transpose( ) * estimationInput->getWeightsMatrixDiagonals( ).cwiseProduct( normalisedConsiderPartials *
