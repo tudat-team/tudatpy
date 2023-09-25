@@ -44,9 +44,6 @@ Eigen::Vector6d getFinalIntegrationError(
     const double numberOfOrbits,
     const double eccentricity)
 {
-    //Load spice kernels.
-    spice_interface::loadStandardSpiceKernels( );
-
     // Define bodies in simulation.
     std::vector< std::string > bodyNames;
     bodyNames.push_back( "Earth" );
@@ -116,6 +113,10 @@ Eigen::Vector6d getFinalIntegrationError(
 //! where the time step is expected to behave well.
 BOOST_AUTO_TEST_CASE( testPureFixedMultiStageNumericalIntegratorOrder )
 {
+
+    //Load spice kernels.
+    spice_interface::loadStandardSpiceKernels( );
+
     // List of schemes for which to test
     std::vector< CoefficientSets > coefficients = {
         rungeKutta4Classic,
@@ -186,6 +187,10 @@ BOOST_AUTO_TEST_CASE( testPureFixedMultiStageNumericalIntegratorOrder )
 //! where the time step is expected to behave well.
 BOOST_AUTO_TEST_CASE( testFixedMultiStageNumericalIntegratorOrder )
 {
+
+    //Load spice kernels.
+    spice_interface::loadStandardSpiceKernels( );
+
     std::vector< CoefficientSets > coefficients = {
 //        heunEuler,
 //        rungeKuttaFehlberg12,
@@ -287,6 +292,10 @@ BOOST_AUTO_TEST_CASE( testFixedMultiStageNumericalIntegratorOrder )
 //! substantial tuning (for a 10th order method, a factor 2 in time step will result in a factor 1024 in error)
 BOOST_AUTO_TEST_CASE( testFixedBulirschStoerNumericalIntegratorOrder )
 {
+
+    //Load spice kernels.
+    spice_interface::loadStandardSpiceKernels( );
+
     std::vector<double> timeSteps = { 400.0, 350.0, 300.0, 250.0, 200.0 };
 
     // Run test for different sequences
