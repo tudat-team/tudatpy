@@ -111,6 +111,7 @@ Eigen::Vector3d PaneledSourceRadiationPressureAcceleration::calculateAcceleratio
                     targetRotationFromGlobalToLocalFrame * (targetCenterPositionInGlobalFrame - sourcePositionInGlobalFrame).normalized();
             totalForceInTargetFrame +=
                     targetModel_->evaluateRadiationPressureForce(occultedSourceIrradiance, sourceToTargetDirectionInTargetFrame);
+            totalReceivedIrradiance += occultedSourceIrradiance;
             visibleAndEmittingSourcePanelCounter += 1;
         }
     }
