@@ -41,6 +41,7 @@
 #include "tudat/astro/orbit_determination/estimatable_parameters/desaturationDeltaV.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/longitudeLibrationAmplitude.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/constantThrust.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/yarkovskyParameter.h"
 #include "tudat/astro/relativity/metric.h"
 #include "tudat/astro/basic_astro/accelerationModelTypes.h"
 #include "tudat/simulation/estimation_setup/estimatableParameterSettings.h"
@@ -205,6 +206,36 @@ std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAc
             for( unsigned int i = 0; i < tidalAccelerationModelList.size( ); i++ )
             {
                 accelerationModelList.push_back( tidalAccelerationModelList.at( i ) );
+            }
+
+        }
+        break;
+    }
+    case yarkovsky_parameter:
+    {
+        if( parameterSettings == nullptr )
+        {
+            throw std::runtime_error( "Error, expected Yarkovsky parameter settings." );
+        }
+        else
+        {
+            if( accelerationModelMap.at( parameterSettings->parameterType_.second.first ).count(
+                parameterSettings->parameterType_.second.second ) != 0 )
+
+            {
+                // Retrieve acceleration model.
+                std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > >
+                    accelerationModelListToCheck =
+                    accelerationModelMap.at( parameterSettings->parameterType_.second.first ).at(
+                        parameterSettings->parameterType_.second.second );
+                for( unsigned int i = 0; i < accelerationModelListToCheck.size( ); i++ )
+                {
+                    if( basic_astrodynamics::getAccelerationModelType( accelerationModelListToCheck[ i ] ) ==
+                        basic_astrodynamics::yarkovsky_acceleration )
+                    {
+                        accelerationModelList.push_back( accelerationModelListToCheck[ i ] );
+                    }
+                }
             }
 
         }
@@ -1162,6 +1193,51 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
                 }
                 doubleParameterToEstimate = std::make_shared< InverseTidalQualityFactor >(
                         associatedTidalAccelerationModels, currentBodyName, qualityFactorSettings->deformingBodies_ );
+            }
+            break;
+        }
+        case yarkovsky_parameter:
+        {
+            if( propagatorSettings == nullptr )
+            {
+                throw std::runtime_error( "Error when creating yarkovsky_parameter parameter, no propagatorSettings provided." );
+            }
+
+            // Check input consistency
+            std::shared_ptr< YarkovskyParameter > yarkovskyParameter =
+                std::dynamic_pointer_cast< YarkovskyParameter >( doubleParameterName );
+            if( yarkovskyParameter == nullptr )
+            {
+                throw std::runtime_error( "Error, expected inverse Yarkovsky parameter settings." );
+            }
+            else
+            {
+                std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > associatedAccelerationModels =
+                    getAccelerationModelsListForParametersFromBase< InitialStateParameterType, TimeType >( propagatorSettings, doubleParameterName );
+                std::vector< std::shared_ptr< electromagnetism::YarkovskyAcceleration > > associatedYarkovskyAccelerationModels;
+                for( unsigned int i = 0; i < associatedAccelerationModels.size( ); i++ )
+                {
+                    // Create parameter object
+                    if( std::dynamic_pointer_cast< electromagnetism::YarkovskyAcceleration >( associatedAccelerationModels.at( i ) )
+                        != nullptr )
+                    {
+                        associatedYarkovskyAccelerationModels.push_back(
+                            std::dynamic_pointer_cast< electromagnetism::YarkovskyAcceleration >( associatedAccelerationModels.at( i ) ) );
+                    }
+                    else
+                    {
+                        throw std::runtime_error(
+                            "Error, expected YarkovskyAcceleration in list when creating yarkovsky_parameter parameter" );
+                    }
+                }
+                if( associatedYarkovskyAccelerationModels.size( ) != 1 )
+                {
+                    throw std::runtime_error(
+                        "Error, expected single YarkovskyAcceleration in list when creating yarkovsky_parameter parameter, found " +
+                        std::to_string( associatedYarkovskyAccelerationModels.size( ) ) );
+                }
+                doubleParameterToEstimate = std::make_shared< YarkovskyParameter >(
+                    associatedYarkovskyAccelerationModels.at( 0 ), currentBodyName, doubleParameterName->parameterType_.second.second );
             }
             break;
         }

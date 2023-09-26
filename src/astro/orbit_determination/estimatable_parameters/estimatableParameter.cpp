@@ -141,6 +141,9 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
     case inverse_tidal_quality_factor:
         parameterDescription = " inverse of tidal quality factor ";
         break;
+    case yarkovsky_parameter:
+        parameterDescription = " Yarkovsky parameter A2 ";
+        break;
     default:
         std::string errorMessage = "Error when getting parameter string, did not recognize parameter " +
                 std::to_string( parameterType );
@@ -286,6 +289,9 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
         isDoubleParameter = false;
         break;
     case inverse_tidal_quality_factor:
+        isDoubleParameter = true;
+        break;
+    case yarkovsky_parameter:
         isDoubleParameter = true;
         break;
     default:

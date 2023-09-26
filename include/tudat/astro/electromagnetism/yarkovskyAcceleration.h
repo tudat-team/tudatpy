@@ -95,6 +95,21 @@ public:
         return currentState_;
     }
 
+    Eigen::Vector6d& getCurrentStateReference( )
+    {
+        return currentState_;
+    }
+
+    double getYarkovskyParameter( )
+    {
+        return yarkovskyParameter_;
+    }
+
+    void setYarkovskyParameter( const double yarkovskyParameter )
+    {
+        yarkovskyParameter_ = yarkovskyParameter;
+    }
+
 private:
     //! Yarkovsky Parameter
     double yarkovskyParameter_;

@@ -43,38 +43,27 @@ const double AU = physical_constants::ASTRONOMICAL_UNIT;
 const double JD = physical_constants::JULIAN_DAY;
 const double yarkovskyParameter = -2.899e-14 * AU / ( JD * JD ); // A2 for Apophis (Pérez-Hernández & Benet, 2022)
 
-//! Compute mean motion of the orbit
-double computeMeanMotion( const double semiMajorAxis, const double mu )
-{
-    return std::sqrt( mu / semiMajorAxis / semiMajorAxis / semiMajorAxis );
-}
-
-//! Computer orbital Period
-double computeOrbitalPeriod( const double semiMajorAxis, const double mu )
-{
-    return 2 * M_PI / computeMeanMotion( semiMajorAxis, mu );
-}
-
 //! Yarkovsky acceleration is A2 * (AU / rSun)^2 in the direction of the velocity vector (unit length)
 Eigen::Vector3d computeExpectedYarkovskyAcceleration( const double A2, const Eigen::Vector6d& state )
 {
     const double r0 = AU;
     const double rSun = state.head( 3 ).norm( );
-    const Eigen::Vector3d tHat = state.tail( 3 ).normalized( );
-    const Eigen::Vector3d acceleration = A2 * ( r0 * r0 ) / ( rSun * rSun ) * tHat;
+    const Eigen::Vector3d velocityUnitVector = state.tail( 3 ).normalized( );
+    const Eigen::Vector3d acceleration = A2 * ( r0 * r0 ) / ( rSun * rSun ) * velocityUnitVector;
     return acceleration;
 }
 
-//! Expected drift in semi-major axis (m/s) according to a.o. Perez-Hernandez & Benet (2022)
+//! Expected drift in semi-major axis (m/s) according to (for instance)( Perez-Hernandez & Benet (2022)
 double computeExpectedSemiMajorAxisDrift( const Eigen::Vector6d& keplerElements, const double mu )
 {
-    const double a = keplerElements[0];
-    const double e = keplerElements[1];
+    const double semiMajorAxis = keplerElements[0];
+    const double eccentricity = keplerElements[1];
 
-    const double p = a * ( 1 - e * e ); // Semi-latus rectum
-    const double n = computeMeanMotion( a, mu ); // Mean motion
+    const double semiLatusRectum = semiMajorAxis * ( 1.0 - eccentricity * eccentricity ); // Semi-latus rectum
+    const double meanMotion = basic_astrodynamics::computeKeplerMeanMotion( semiMajorAxis, mu ); // Mean motion
 
-    const double semiMajorAxisDrift = 2 * yarkovskyParameter * ( 1 - e * e ) * AU * AU / ( n * p * p );
+    const double semiMajorAxisDrift = 2.0 * yarkovskyParameter * ( 1.0 - eccentricity * eccentricity ) * AU * AU /
+        ( meanMotion * semiLatusRectum * semiLatusRectum );
     return semiMajorAxisDrift;
 }
 
@@ -89,7 +78,8 @@ BOOST_AUTO_TEST_CASE( testYarkovskyAccelerationVerySimple )
     const Eigen::Vector3d expectedYarkovskyAcceleration = computeExpectedYarkovskyAcceleration( yarkovskyParameter,
                                                                                                 state );
 
-    TUDAT_CHECK_MATRIX_CLOSE( computedYarkovskyAcceleration, expectedYarkovskyAcceleration, 1.e-10 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( computedYarkovskyAcceleration, expectedYarkovskyAcceleration,
+                                       ( 10.0 * std::numeric_limits< double >::epsilon( ) ) );
 }
 
 //! Test the implementation of the Yarkovsky Acceleration Model
@@ -102,16 +92,23 @@ BOOST_AUTO_TEST_CASE( testYarkovskyAccelerationSimple )
             yarkovskyParameter,
             state );
 
-    TUDAT_CHECK_MATRIX_CLOSE( computedYarkovskyAcceleration, expectedYarkovskyAcceleration, 1.0e-10 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( computedYarkovskyAcceleration, expectedYarkovskyAcceleration,
+                                       ( 10.0 * std::numeric_limits< double >::epsilon( ) ) );
 }
 
 Eigen::Vector6d bodyState = Eigen::Vector6d { AU, 0, 0, 12.0e5, 3.0e5, 4.0e5 };
 
-Eigen::Vector6d getBodyState( ) { return bodyState; }
+Eigen::Vector6d getBodyState( )
+{
+    return bodyState;
+}
 
 Eigen::Vector6d centralBodyState = Eigen::Vector6d::Zero( );
 
-Eigen::Vector6d getCentralBodyState( ) { return centralBodyState; }
+Eigen::Vector6d getCentralBodyState( )
+{
+    return centralBodyState;
+}
 
 //! Test the class implementation of the Yarkovsky Acceleration model (updateMembers)
 BOOST_AUTO_TEST_CASE( testYarkovskyAccelerationModelClassUpdateMembers )
@@ -126,7 +123,8 @@ BOOST_AUTO_TEST_CASE( testYarkovskyAccelerationModelClassUpdateMembers )
                                                                                                 bodyState );
     const Eigen::Vector3d computedYarkovskyAcceleration = yarkovskyAccelerationModel->getAcceleration( );
 
-    TUDAT_CHECK_MATRIX_CLOSE( computedYarkovskyAcceleration, expectedYarkovskyAcceleration, 1.0e-10 )
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( computedYarkovskyAcceleration, expectedYarkovskyAcceleration,
+                                       ( 10.0 * std::numeric_limits< double >::epsilon( ) ) );
 }
 
 //! Test the complete implementation of the yarkovsky Acceleration using the drift in semi-major axis for a circular orbit
@@ -136,7 +134,6 @@ BOOST_AUTO_TEST_CASE( testYarkovskyAccelerationCircular )
 {
     using namespace simulation_setup;
     spice_interface::loadStandardSpiceKernels( );
-    const double MU_SUN = spice_interface::getBodyGravitationalParameter( "Sun" );
 
     // Initial Conditions
     const double initialSemiMajorAxis = 0.75 * AU;
@@ -149,19 +146,21 @@ BOOST_AUTO_TEST_CASE( testYarkovskyAccelerationCircular )
     // Simulation Setup Constants
     const std::string frameOrigin = "SSB";
     const std::string frameOrientation = "ECLIPJ2000";
-    const double simulationStartEpoch = 0.0;
-    const double simulationDuration = computeOrbitalPeriod( initialSemiMajorAxis, MU_SUN );
-    const double simulationEndEpoch = simulationStartEpoch + simulationDuration;
-    const double fixedStepSize = 1000;
-
+    
     // Bodies
     std::vector< std::string > bodiesToCreate { "Sun" };
     BodyListSettings bodySettings = getDefaultBodySettings( bodiesToCreate, frameOrigin, frameOrientation );
     SystemOfBodies bodies = createSystemOfBodies( bodySettings );
 
+    // Define times
+    const double sunGravitationalParameter = bodies.at( "Sun" )->getGravitationalParameter( );
+    const double simulationStartEpoch = 0.0;
+    const double simulationDuration = basic_astrodynamics::computeKeplerOrbitalPeriod( initialSemiMajorAxis, sunGravitationalParameter );
+    const double simulationEndEpoch = simulationStartEpoch + simulationDuration;
+    const double fixedStepSize = 1000;
+
     // Asteroid
     bodies.createEmptyBody( "Asteroid" );
-    bodies.at( "Asteroid" )->setConstantBodyMass( 0.0 );
 
     // Define propagator settings variables.
     std::vector< std::string > bodiesToPropagate { "Asteroid" };
@@ -187,7 +186,7 @@ BOOST_AUTO_TEST_CASE( testYarkovskyAccelerationCircular )
             initialRAAN,
             initialArgOfPeri,
             initialTrueAnomaly,
-            MU_SUN );
+            sunGravitationalParameter );
 
     // Dependent Variables - Storing the semi-major axis (for drift test) and Yarkovsky acceleration
     std::vector< std::shared_ptr< propagators::SingleDependentVariableSaveSettings>> dependentVariablesToSave = {
@@ -222,17 +221,16 @@ BOOST_AUTO_TEST_CASE( testYarkovskyAccelerationCircular )
     propagators::SingleArcDynamicsSimulator< > dynamicsSimulator( bodies, propagatorSettings );
 
     // State histories
-    std::map< double, Eigen::VectorXd > stateHist = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
-    std::map< double, Eigen::VectorXd > depVarHist = dynamicsSimulator.getDependentVariableHistory( );
+    std::map< double, Eigen::VectorXd > stateHistory = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
+    std::map< double, Eigen::VectorXd > dependentVariableHistory = dynamicsSimulator.getDependentVariableHistory( );
 
-    // Map of semi-major axes and Yarkokvsky Accelerations;
-    std::map< double, double > semiMajorAxes;
+    // Map of Yarkokvsky Accelerations;
     std::map< double, Eigen::Vector3d > yarkovskyAccelerations;
 
-    for ( const auto& pair: depVarHist ) {
-        const Eigen::VectorXd& vector = pair.second;
-        yarkovskyAccelerations[pair.first] = vector.head( 3 ); // First three elements of the depVar vector
-        semiMajorAxes[pair.first] = vector[3]; // Fourth element of the depVar vector
+    for ( const auto& pair: dependentVariableHistory ) 
+    {
+        const Eigen::VectorXd& currentDependentVariables = pair.second;
+        yarkovskyAccelerations[pair.first] = currentDependentVariables.head( 3 ); // First three elements of the depVar vector
     }
 
     {
@@ -244,8 +242,10 @@ BOOST_AUTO_TEST_CASE( testYarkovskyAccelerationCircular )
         double time = 0.0;
 
         // Calculate Expected Yarkovsky acceleration
-        for ( const auto& pair: stateHist ) {
-            if ( pair.first > time + timeBetweenChecks ) {
+        for ( const auto& pair: stateHistory )
+        {
+            if ( pair.first > time + timeBetweenChecks )
+            {
                 time = pair.first;
                 state = pair.second.head( 6 );
                 velocity = state.tail( 3 );
@@ -253,32 +253,34 @@ BOOST_AUTO_TEST_CASE( testYarkovskyAccelerationCircular )
 
                 // Check correct acceleration
                 expectedYarkovskyAcceleration = computeExpectedYarkovskyAcceleration( yarkovskyParameter, state );
-                TUDAT_CHECK_MATRIX_CLOSE( expectedYarkovskyAcceleration, yarkovskyAcceleration, 1e-2 );
+                BOOST_CHECK_CLOSE_FRACTION(
+                    expectedYarkovskyAcceleration.norm( ), yarkovskyAcceleration.norm( ),
+                    ( 10.0 * std::numeric_limits< double >::epsilon( ) ) );
 
                 // Check parallel with velocity vector
-                BOOST_CHECK_CLOSE( std::abs( yarkovskyAcceleration.dot( velocity )),
+                BOOST_CHECK_CLOSE_FRACTION( std::abs( yarkovskyAcceleration.dot( velocity ) ),
                                    yarkovskyAcceleration.norm( ) * velocity.norm( ),
-                                   1e-10 );
+                                   ( 10.0 * std::numeric_limits< double >::epsilon( ) ) );
             }
         }
     }
 
     // Calculate Expected Drift
-    const Eigen::Vector6d initialKeplerElements = depVarHist[simulationStartEpoch].segment( 3, 6 );
-    const Eigen::Vector6d endKeplerElements = depVarHist[simulationEndEpoch].segment( 3, 6 );
+    const Eigen::Vector6d initialKeplerElements = dependentVariableHistory[simulationStartEpoch].segment( 3, 6 );
+    const Eigen::Vector6d endKeplerElements = dependentVariableHistory[simulationEndEpoch].segment( 3, 6 );
 
-    const double expectedStartSemiMajorAxisDrift = computeExpectedSemiMajorAxisDrift( initialKeplerElements, MU_SUN );
-    const double expectedEndSemiMajorAxisDrift = computeExpectedSemiMajorAxisDrift( endKeplerElements, MU_SUN );
+    const double expectedStartSemiMajorAxisDrift = computeExpectedSemiMajorAxisDrift( initialKeplerElements, sunGravitationalParameter );
+    const double expectedEndSemiMajorAxisDrift = computeExpectedSemiMajorAxisDrift( endKeplerElements, sunGravitationalParameter );
     const double expectedSemiMajorAxisDrift = ( expectedStartSemiMajorAxisDrift + expectedEndSemiMajorAxisDrift ) / 2.0;
 
-    // Calculate Simulated Drift
+    // Calculate Simulated Drift over exactly 1 period
     const double semiMajorAxisDrift = ( endKeplerElements[0] - initialSemiMajorAxis ) / simulationDuration;
 
-    // Check that the change of the drift is small in the simulation time frame
-    BOOST_CHECK_SMALL( expectedEndSemiMajorAxisDrift - expectedStartSemiMajorAxisDrift, 1.0e-4 );
+    // Check if semi-major axis drift is 'sufficiently' constant
+    BOOST_CHECK_SMALL( expectedEndSemiMajorAxisDrift - expectedStartSemiMajorAxisDrift, 1.0e-8 );
 
     // Check drift in semi-major axis
-    BOOST_CHECK_CLOSE( expectedSemiMajorAxisDrift, semiMajorAxisDrift, 1.0e-1 );
+    BOOST_CHECK_CLOSE_FRACTION( expectedSemiMajorAxisDrift, semiMajorAxisDrift, 1.0e-3 );
 
 }
 
