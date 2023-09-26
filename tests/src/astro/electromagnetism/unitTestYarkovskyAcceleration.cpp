@@ -230,12 +230,38 @@ BOOST_AUTO_TEST_CASE( testYarkovskyAccelerationCircular )
     std::map< double, Eigen::Vector3d > yarkovskyAccelerations;
 
     for ( const auto& pair: depVarHist ) {
-        const double& time = pair.first;
         const Eigen::VectorXd& vector = pair.second;
-        yarkovskyAccelerations[time] = vector.head( 3 ); // First three elements of the depVar vector
-        semiMajorAxes[time] = vector[3]; // Fourth element of the depVar vector
+        yarkovskyAccelerations[pair.first] = vector.head( 3 ); // First three elements of the depVar vector
+        semiMajorAxes[pair.first] = vector[3]; // Fourth element of the depVar vector
     }
 
+    {
+        Eigen::Vector3d expectedYarkovskyAcceleration;
+        Eigen::Vector3d yarkovskyAcceleration;
+        Eigen::Vector3d velocity;
+        Eigen::VectorXd state = Eigen::Vector6d::Zero( );
+        const double timeBetweenChecks = simulationDuration / 10.0; // 10 steps
+        double time = 0.0;
+
+        // Calculate Expected Yarkovsky acceleration
+        for ( const auto& pair: stateHist ) {
+            if ( pair.first > time + timeBetweenChecks ) {
+                time = pair.first;
+                state = pair.second.head( 6 );
+                velocity = state.tail( 3 );
+                yarkovskyAcceleration = yarkovskyAccelerations[time];
+
+                // Check correct acceleration
+                expectedYarkovskyAcceleration = computeExpectedYarkovskyAcceleration( yarkovskyParameter, state );
+                TUDAT_CHECK_MATRIX_CLOSE( expectedYarkovskyAcceleration, yarkovskyAcceleration, 1e-2 );
+
+                // Check parallel with velocity vector
+                BOOST_CHECK_CLOSE( std::abs( yarkovskyAcceleration.dot( velocity )),
+                                   yarkovskyAcceleration.norm( ) * velocity.norm( ),
+                                   1e-10 );
+            }
+        }
+    }
 
     // Calculate Expected Drift
     const Eigen::Vector6d initialKeplerElements = depVarHist[simulationStartEpoch].segment( 3, 6 );
@@ -254,10 +280,6 @@ BOOST_AUTO_TEST_CASE( testYarkovskyAccelerationCircular )
     // Check drift in semi-major axis
     BOOST_CHECK_CLOSE( expectedSemiMajorAxisDrift, semiMajorAxisDrift, 1.0e-1 );
 
-    // Check parallel with velocity vector
-    const Eigen::Vector3d endYarkovskyAcc = yarkovskyAccelerations[simulationEndEpoch];
-    const Eigen::Vector3d endVelocity = stateHist[simulationEndEpoch].tail( 3 );
-    BOOST_CHECK_SMALL( endYarkovskyAcc.cross( endVelocity ).norm( ), 1.0e-20 );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
