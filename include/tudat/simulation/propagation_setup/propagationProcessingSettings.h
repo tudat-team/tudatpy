@@ -458,6 +458,13 @@ public:
         multiArcSettings_->setIntegratedResult( setIntegratedResult );
     }
 
+    virtual void setUpdateDependentVariableInterpolator( const bool updateDependentVariableInterpolator )
+    {
+        this->updateDependentVariableInterpolator_ = updateDependentVariableInterpolator;
+        singleArcSettings_->setUpdateDependentVariableInterpolator( updateDependentVariableInterpolator );
+        multiArcSettings_->setUpdateDependentVariableInterpolator( updateDependentVariableInterpolator );
+    }
+
     void resetArcSettings( const bool printWarning = false )
     {
         if( !areArcSettingsSet_ )

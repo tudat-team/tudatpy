@@ -1722,16 +1722,15 @@ public:
                 singleArcDynamicsSimulators_.at( i )->createAndSetIntegratedStateProcessors( );
             }
 
-            std::vector< std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > > dependentVariablesSettings;
+            std::vector< std::shared_ptr< SingleArcDependentVariablesInterface< TimeType > > > singleArcInterfaces;
             for ( unsigned int i = 0 ; i < singleArcSettings.size( ) ; i++ )
             {
-                dependentVariablesSettings.push_back( multiArcPropagatorSettings_->getSingleArcSettings( ).at( i )->getDependentVariablesToSave( ) );
+                singleArcInterfaces.push_back( singleArcDynamicsSimulators_.at( i )->getSingleArcPropagationResults( )->getSingleArcDependentVariablesInterface( ) );
             }
 
             std::shared_ptr< MultiArcDependentVariablesInterface< TimeType > > dependentVariableInterface =
                 std::make_shared< MultiArcDependentVariablesInterface< TimeType > >(
-                        std::vector< std::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, Eigen::VectorXd > > >( ),
-                        dependentVariablesSettings, std::vector< double >( ), std::vector< double >( ) );
+                    singleArcInterfaces, std::vector< double >( ), std::vector< double >( ) );
 
             propagationResults_ = std::make_shared<MultiArcResults>( singleArcResults, dependentVariableInterface );
 
@@ -1969,7 +1968,8 @@ public:
                         std::shared_ptr<MultiArcIntegratedStateProcessor<TimeType, StateScalarType> > > multiArcStateProcessors
                         = createMultiArcIntegratedStateProcessors( bodies_, propagationResults_->getArcStartTimes( ),
                                                                    singleArcIntegratedStatesProcessors );
-                for ( auto itr: multiArcStateProcessors ) {
+                for ( auto itr: multiArcStateProcessors )
+                {
                     itr.second->processIntegratedMultiArcStates(
                             propagationResults_->getConcatenatedEquationsOfMotionResults(
                                     multiArcPropagatorSettings_->getOutputSettings( )->getClearNumericalSolutions( )),
@@ -2261,7 +2261,7 @@ public:
                         false );
             propagationResults_ = std::make_shared< HybridArcResults >(
                     singleArcDynamicsSimulator_->getSingleArcPropagationResults( ),
-                    multiArcDynamicsSimulator_->getMultiArcPropagationResults( ));
+                    multiArcDynamicsSimulator_->getMultiArcPropagationResults( ) );
         }
         else
         {
