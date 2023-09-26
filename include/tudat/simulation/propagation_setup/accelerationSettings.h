@@ -343,8 +343,7 @@ class YarkovskyAccelerationSettings : public AccelerationSettings
 
 //! @get_docstring(yarkovskyAcceleration)
 inline std::shared_ptr< AccelerationSettings> yarkovskyAcceleration(
-    const double yarkovskyParameter = 0.0
-    )
+    const double yarkovskyParameter )
 {
     return std::make_shared< YarkovskyAccelerationSettings >( yarkovskyParameter );
 }
