@@ -1203,42 +1203,32 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
                 throw std::runtime_error( "Error when creating yarkovsky_parameter parameter, no propagatorSettings provided." );
             }
 
-            // Check input consistency
-            std::shared_ptr< YarkovskyParameter > yarkovskyParameter =
-                std::dynamic_pointer_cast< YarkovskyParameter >( doubleParameterName );
-            if( yarkovskyParameter == nullptr )
+            std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > associatedAccelerationModels =
+                getAccelerationModelsListForParametersFromBase< InitialStateParameterType, TimeType >( propagatorSettings, doubleParameterName );
+            std::vector< std::shared_ptr< electromagnetism::YarkovskyAcceleration > > associatedYarkovskyAccelerationModels;
+            for( unsigned int i = 0; i < associatedAccelerationModels.size( ); i++ )
             {
-                throw std::runtime_error( "Error, expected inverse Yarkovsky parameter settings." );
-            }
-            else
-            {
-                std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > associatedAccelerationModels =
-                    getAccelerationModelsListForParametersFromBase< InitialStateParameterType, TimeType >( propagatorSettings, doubleParameterName );
-                std::vector< std::shared_ptr< electromagnetism::YarkovskyAcceleration > > associatedYarkovskyAccelerationModels;
-                for( unsigned int i = 0; i < associatedAccelerationModels.size( ); i++ )
+                // Create parameter object
+                if( std::dynamic_pointer_cast< electromagnetism::YarkovskyAcceleration >( associatedAccelerationModels.at( i ) )
+                    != nullptr )
                 {
-                    // Create parameter object
-                    if( std::dynamic_pointer_cast< electromagnetism::YarkovskyAcceleration >( associatedAccelerationModels.at( i ) )
-                        != nullptr )
-                    {
-                        associatedYarkovskyAccelerationModels.push_back(
-                            std::dynamic_pointer_cast< electromagnetism::YarkovskyAcceleration >( associatedAccelerationModels.at( i ) ) );
-                    }
-                    else
-                    {
-                        throw std::runtime_error(
-                            "Error, expected YarkovskyAcceleration in list when creating yarkovsky_parameter parameter" );
-                    }
+                    associatedYarkovskyAccelerationModels.push_back(
+                        std::dynamic_pointer_cast< electromagnetism::YarkovskyAcceleration >( associatedAccelerationModels.at( i ) ) );
                 }
-                if( associatedYarkovskyAccelerationModels.size( ) != 1 )
+                else
                 {
                     throw std::runtime_error(
-                        "Error, expected single YarkovskyAcceleration in list when creating yarkovsky_parameter parameter, found " +
-                        std::to_string( associatedYarkovskyAccelerationModels.size( ) ) );
+                        "Error, expected YarkovskyAcceleration in list when creating yarkovsky_parameter parameter" );
                 }
-                doubleParameterToEstimate = std::make_shared< YarkovskyParameter >(
-                    associatedYarkovskyAccelerationModels.at( 0 ), currentBodyName, doubleParameterName->parameterType_.second.second );
             }
+            if( associatedYarkovskyAccelerationModels.size( ) != 1 )
+            {
+                throw std::runtime_error(
+                    "Error, expected single YarkovskyAcceleration in list when creating yarkovsky_parameter parameter, found " +
+                    std::to_string( associatedYarkovskyAccelerationModels.size( ) ) );
+            }
+            doubleParameterToEstimate = std::make_shared< YarkovskyParameter >(
+                associatedYarkovskyAccelerationModels.at( 0 ), currentBodyName, doubleParameterName->parameterType_.second.second );
             break;
         }
         default:
