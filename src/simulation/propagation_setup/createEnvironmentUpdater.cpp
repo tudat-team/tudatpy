@@ -585,6 +585,8 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                     singleAccelerationUpdateNeeds[ radiation_pressure_interface_update ].push_back( acceleratedBodyIterator->first );
                     singleAccelerationUpdateNeeds[ body_mass_update ].push_back( acceleratedBodyIterator->first );
                     break;
+                case yarkovsky_acceleration:
+                        break;
                 case custom_acceleration:
                     break;
                 default:
