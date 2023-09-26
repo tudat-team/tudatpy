@@ -83,6 +83,9 @@ std::string getAccelerationModelName( const AvailableAcceleration accelerationTy
     case solar_sail_acceleration:
         accelerationName = "solar sail acceleration";
         break;
+    case yarkovsky_acceleration:
+        accelerationName = "yarkovsky acceleration";
+        break;
     case custom_acceleration:
         accelerationName = "custom acceleration";
         break;
@@ -202,6 +205,10 @@ AvailableAcceleration getAccelerationModelType(
     else if ( std::dynamic_pointer_cast< SolarSailAcceleration >( accelerationModel) != NULL )
     {
         accelerationType = solar_sail_acceleration;
+    }
+    else if (std::dynamic_pointer_cast<YarkovskyAcceleration>(accelerationModel) != nullptr)
+    {
+        accelerationType = yarkovsky_acceleration;
     }
     else if( std::dynamic_pointer_cast< CustomAccelerationModel >( accelerationModel ) != nullptr )
     {

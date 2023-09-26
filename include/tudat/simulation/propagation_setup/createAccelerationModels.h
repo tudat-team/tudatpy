@@ -523,6 +523,22 @@ std::shared_ptr< basic_astrodynamics::EmpiricalAcceleration > createEmpiricalAcc
         const std::string& nameOfBodyExertingAcceleration,
         const std::shared_ptr< AccelerationSettings > accelerationSettings );
 
+//! Function to create Yarkovsky acceleration model.
+/*!
+ *  Function to create Yarkovsky acceleration model
+ *  \param bodyUndergoingAcceleration Pointer to object of body that is being accelerated.
+ *  \param bodyExertingAcceleration Pointer to object of body wrt whic orbit of body undergoing the acceleration is calculated.
+ *  \param nameOfBodyUndergoingAcceleration Name of body that is being accelerated.
+ *  \param nameOfBodyExertingAcceleration Name of body wrt whic orbit of body undergoing the acceleration is calculated.
+ *  \param accelerationSettings Object containing additional settings for acceleration model, must be of type YarkovskyAccelerationSettings
+ *  \return Pointer to object for calculating Yarkovsky acceleration.
+ */
+std::shared_ptr< electromagnetism::YarkovskyAcceleration > createYarkovskyAcceleration(
+        const std::shared_ptr< Body > bodyUndergoingAcceleration,
+        const std::shared_ptr< Body > bodyExertingAcceleration,
+        const std::string& nameOfBodyUndergoingAcceleration,
+        const std::string& nameOfBodyExertingAcceleration,
+        const std::shared_ptr< AccelerationSettings > accelerationSettings );
 
 //! Function to create acceleration model object.
 /*!
