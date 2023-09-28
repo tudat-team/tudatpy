@@ -830,3 +830,133 @@ class HorizonsQuery:
             frame_origin=frame_origin,
             frame_orientation=frame_orientation,
         )
+
+
+class HorizonsBatch:
+    def __init__(
+        self,
+        query_id_list: List[str],
+        location: str,
+        epoch_list: Union[list, None] = None,
+        epoch_start: Union[datetime.datetime, float, None] = None,
+        epoch_end: Union[datetime.datetime, float, None] = None,
+        epoch_step: Union[str, None] = None,
+        extended_query: bool = False,
+    ) -> None:
+        """Query object to retrieve Horizons data for multiple bodies. 
+        See documentation for `HorizonsQuery` for more extensive documentation.
+        Note that the epochs requested must have data for all bodies queried.
+        This class is useful for quickly creating ephemerides for many objects at once.
+        For general purposes, use `HorizonsQuery instead`.
+
+        Parameters
+        ----------
+        query_id : str
+            List of query terms to retrieve data for, 
+            all queries behave as type default and the `query_type` behaviour
+            can not be set for the `HorizonsBatch` class.
+        location : str
+            Coordinate centre for the data with syntax `site@body`. 
+        epoch_start : Union[datetime.datetime, float, None], optional
+            Starting date to retrieve data for. 
+            Must be either a python datetime object or a float seconds since J2000 TDB.
+            Combined with `epoch_end` and 
+            `epoch_step` can be used to retrieve a range of data. 
+            If `epoch_list` is used, value must be None, by default None
+        epoch_end : Union[datetime.datetime, float, None], optional
+            Final date to retrieve data for. 
+            Must be either a python datetime object or a float seconds since J2000 TDB.
+            If the start stop, and step parameters dont result in an 
+            integer multiple of values,the final date is not used. 
+            Combined with `epoch_end` and 
+            `epoch_step` can be used to retrieve a range of data. 
+            If `epoch_list` is used, value must be None, by default None
+        epoch_step : Union[str, None], optional
+            Step for the range of epochs to retrieve data for. 
+            Can be be either a specific timestep such as `15m`,
+            or a number of partitions `10` for 10 equidistant steps within the range.
+            For the timestep, quantifiers `m` for minute, `h` for hour and `d` for day 
+            can be used. Seconds are not available, consider using the `epoch_list` 
+            parameter or a number of partitions instead. 
+            Month and Year are normally available in JPL Horizons but are restricted 
+            here because they may produce ambiguous results (leap years etc.).
+            If `epoch_list` is used, value must be None, by default None
+        epoch_list : Union[list, None], optional
+            List of times in seconds since J2000 TDB. Can be used 
+            to retrieve specific times instead of a range. 
+            Must be None if start, end and step are set, by default None
+        extended_query : bool, optional
+            Enables the retrieval of larger collections of data, by default False. 
+        """
+        self._query_objects = {}
+        self._query_id_list = query_id_list
+        self._names
+
+        for query_id in query_id_list:
+            if not isinstance(query_id, str):
+                raise TypeError("Ids in query_id_list must be of type str")
+            temp = HorizonsQuery(
+                query_id=query_id,
+                location=location,
+                epoch_list=epoch_list,
+                epoch_start=epoch_start,
+                epoch_end=epoch_end,
+                epoch_step=epoch_step,
+                extended_query=extended_query,
+            )
+
+            self._query_objects[query_id] = temp
+
+    @property
+    def names(self) -> Union[None, List[str]]:
+        """Retrieves a list of names of the query objects. Returns `None`
+        if `add_batch_ephemerides` has not been run yet."""
+        return self._names
+
+    def add_batch_ephemerides(
+        self,
+        body_settings: environment_setup.BodyListSettings,
+        frame_origin: str,
+        frame_orientation: str = "ECLIPJ2000",
+        aberations: str = "geometric",
+    ) -> None:
+        """Uses the data queried to add ephemerides of the bodies querried 
+        to the body_settings. The names of the bodies added can be retrieved 
+        using the names property.
+
+        Parameters
+        ----------
+        body_settings : environment_setup.BodyListSettings
+            Tudat body settings object.
+        frame_origin : str
+            Global frame origin, should match the queries' location parameter.
+        frame_orientation : str, optional
+            Reference Frame Orientation, equivalent to the astroquery refplane
+            parameter. Options are 'J2000' and 'ECLIPJ2000', by default "ECLIPJ2000".
+        aberations : str, optional
+            Aberations to be accounted for. Options are: 'geometric', 'astrometric' and
+            'apparent', by default "geometric".
+
+            See the Horizons System Manual for more info:
+
+            https://ssd.jpl.nasa.gov/horizons/manual.html#output
+
+        """
+
+        names = []
+
+        # add the body and its ephemerides to the body_settings
+        for query in self._query_objects.values():
+            eph = query.create_ephemeris_tabulated(
+                frame_origin=frame_origin,
+                frame_orientation=frame_orientation,
+                aberations=aberations,
+            )
+            name = query.name
+            names.append(name)
+
+            body_settings.add_empty_settings(name)
+            body_settings.get(name).ephemeris_settings = eph
+
+        # retrieve the names to a list
+        self._names = names
