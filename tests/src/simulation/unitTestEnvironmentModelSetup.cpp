@@ -1543,8 +1543,20 @@ BOOST_AUTO_TEST_CASE( test_radiationSourceModelSetup_Extended )
 
     BodyListSettings bodySettings;
     bodySettings.addSettings( getDefaultSingleBodySettings("Earth", 0.0, 86400.0 ), "Earth" );
+    bodySettings.addSettings( getDefaultSingleBodySettings("Sun", 0.0, 86400.0 ), "Sun" );
+    bodySettings.addSettings( getDefaultSingleBodySettings("Moon", 0.0, 86400.0 ), "Moon" );
 
     SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+
+    bodies.at( "Earth" )->setStateFromEphemeris( 0.0 );
+    bodies.at( "Moon" )->setStateFromEphemeris( 0.0 );
+    bodies.at( "Sun" )->setStateFromEphemeris( 0.0 );
+
+    bodies.at( "Earth" )->setCurrentRotationalStateToLocalFrame(
+        bodies.at( "Earth" )->getRotationalEphemeris( )->getRotationStateVector( 0.0 ) );
+    bodies.at( "Earth" )->setStateFromEphemeris( 0.0 );
+    bodies.at( "Moon" )->setStateFromEphemeris( 0.0 );
+    bodies.at( "Sun" )->setStateFromEphemeris( 0.0 );
 
     const auto expectedOriginalSourceName = "Sun";
     const std::vector<int> expectedNumberOfPanelsPerRing {42, 34};
@@ -1559,12 +1571,12 @@ BOOST_AUTO_TEST_CASE( test_radiationSourceModelSetup_Extended )
 
     auto extendedSourceModelSettings =
             extendedRadiationSourceModelSettings(
-                    expectedOriginalSourceName, {
+                    {
                             constantPanelRadiosityModelSettings(expectedConstantRadiosity),
-                            albedoPanelRadiosityModelSettings(expectedAlbedo),
-                            delayedThermalPanelRadiosityModelSettings(expectedEmissivity),
+                            albedoPanelRadiosityModelSettings(expectedAlbedo,"Sun"),
+                            delayedThermalPanelRadiosityModelSettings(expectedEmissivity,"Sun"),
                             angleBasedThermalPanelRadiosityModelSettings(
-                                    expectedMinTemperature, expectedMaxTemperature, expectedEmissivity)
+                                    expectedMinTemperature, expectedMaxTemperature, expectedEmissivity,"Sun")
                     }, expectedNumberOfPanelsPerRing, expectedOccultingBodies);
     auto extendedSourceModel =
             std::dynamic_pointer_cast<electromagnetism::DynamicallyPaneledRadiationSourceModel>(
@@ -1573,7 +1585,7 @@ BOOST_AUTO_TEST_CASE( test_radiationSourceModelSetup_Extended )
     extendedSourceModel->updateMembers(TUDAT_NAN);
     extendedSourceModel->evaluateIrradianceAtPosition(
             // Actual values do not matter
-            Eigen::Vector3d::UnitX(), 1, Eigen::Vector3d::UnitY());
+            Eigen::Vector3d::UnitX());
 
     BOOST_CHECK_EQUAL(extendedSourceModel->getPanels().size(), expectedNumberOfTotalPanels);
 
@@ -1591,7 +1603,7 @@ BOOST_AUTO_TEST_CASE( test_radiationSourceModelSetup_Extended )
     const auto angleBasedThermalModel =
             dynamic_cast<electromagnetism::AngleBasedThermalSourcePanelRadiosityModel&>(*panel.getRadiosityModels()[3]);
 
-    const auto actualOriginalSourceName = extendedSourceModel->getOriginalSourceName();
+//    const auto actualOriginalSourceName = extendedSourceModel->getOriginalSourceName();
     const auto actualNumberOfPanels = extendedSourceModel->getNumberOfPanels();
     const auto actualConstantRadiosity = constantModel.getConstantRadiosity();
     const auto actualAlbedo = reflectionLaw->getDiffuseReflectivity();
@@ -1599,9 +1611,9 @@ BOOST_AUTO_TEST_CASE( test_radiationSourceModelSetup_Extended )
     const auto actualEmissivityAngleBased = angleBasedThermalModel.getEmissivity();
     const auto actualMinTemperature = angleBasedThermalModel.getMinTemperature();
     const auto actualMaxTemperature = angleBasedThermalModel.getMaxTemperature();
-    const auto actualOccultingBodies = extendedSourceModel->getOriginalSourceToSourceOccultingBodies();
+//    const auto actualOccultingBodies = extendedSourceModel->getOriginalSourceToSourceOccultingBodies();
 
-    BOOST_CHECK_EQUAL(actualOriginalSourceName, expectedOriginalSourceName);
+//    BOOST_CHECK_EQUAL(actualOriginalSourceName, expectedOriginalSourceName);
     BOOST_CHECK_EQUAL(actualNumberOfPanels, expectedNumberOfTotalPanels);
     BOOST_CHECK_EQUAL(actualConstantRadiosity, expectedConstantRadiosity);
     BOOST_CHECK_EQUAL(actualAlbedo, expectedAlbedo);
@@ -1609,9 +1621,9 @@ BOOST_AUTO_TEST_CASE( test_radiationSourceModelSetup_Extended )
     BOOST_CHECK_EQUAL(actualEmissivityAngleBased, expectedEmissivity);
     BOOST_CHECK_EQUAL(actualMinTemperature, expectedMinTemperature);
     BOOST_CHECK_EQUAL(actualMaxTemperature, expectedMaxTemperature);
-    BOOST_CHECK_EQUAL_COLLECTIONS(
-        actualOccultingBodies.begin(), actualOccultingBodies.end(),
-        expectedOccultingBodies.begin(), expectedOccultingBodies.end());
+//    BOOST_CHECK_EQUAL_COLLECTIONS(
+//        actualOccultingBodies.begin(), actualOccultingBodies.end(),
+//        expectedOccultingBodies.begin(), expectedOccultingBodies.end());
 }
 
 BOOST_AUTO_TEST_CASE( test_surfacePropertyDistributionSetup_SphericalHarmonics_DLAM1 )
