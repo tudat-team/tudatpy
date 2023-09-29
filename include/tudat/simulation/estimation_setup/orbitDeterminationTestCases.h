@@ -324,6 +324,7 @@ std::pair< std::shared_ptr< EstimationOutput< StateScalarType, TimeType > >, Eig
     }
     estimationInput->defineEstimationSettings( true, true, false, true, true );
     covarianceInput->defineCovarianceSettings( true, true, true, false );
+    estimationInput->applyFinalParameterCorrection_ = false;
 
     // Perform estimation
     std::shared_ptr< EstimationOutput< StateScalarType, TimeType > > estimationOutput = orbitDeterminationManager.estimateParameters(
@@ -662,7 +663,7 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation(
 
 //! Test the estimation of observation biases.
 template< typename TimeType = double, typename StateScalarType  = double >
-std::pair< Eigen::VectorXd, bool > executeEarthOrbiterBiasEstimation(
+std::pair< Eigen::VectorXd, bool >  executeEarthOrbiterBiasEstimation(
         const bool estimateRangeBiases = true,
         const bool estimateTwoWayBiases = false,
         const bool useSingleBiasModel = true,
@@ -1232,15 +1233,15 @@ std::pair< Eigen::VectorXd, bool > executeEarthOrbiterBiasEstimation(
 //    weightPerObservable[ two_way_doppler ] = 1.0 / ( 1.0E-12 * 1.0E-12 * SPEED_OF_LIGHT * SPEED_OF_LIGHT );
 
     estimationInput->setConstantPerObservableWeightsMatrix( weightPerObservable );
-    estimationInput->defineEstimationSettings( true, false, false, true, false );
-    estimationInput->setConvergenceChecker(
-                std::make_shared< EstimationConvergenceChecker >( numberOfIterations ) );
+    estimationInput->defineEstimationSettings( true, false, false, true, true );
+    estimationInput->setConvergenceChecker( std::make_shared< EstimationConvergenceChecker >( numberOfIterations ) );
 
     // Perform estimation
     std::shared_ptr< EstimationOutput< StateScalarType > > estimationOutput = orbitDeterminationManager.estimateParameters(
                 estimationInput );
 
-    Eigen::VectorXd estimationError = estimationOutput->parameterEstimate_ - truthParameters;
+    Eigen::VectorXd estimationError = estimationOutput->parameterHistory_.at(
+        estimationOutput->parameterHistory_.size( ) - 1 ) - truthParameters;
 
     std::cout <<"initial error: "<< ( parameterPerturbation ).transpose( ) << std::endl<< std::endl;
     std::cout <<"estimation error: "<< ( estimationError ).transpose( ) << std::endl<< std::endl;
