@@ -57,15 +57,16 @@ std::shared_ptr<RadiationSourceModelSettings> getDefaultRadiationSourceModelSett
                 isotropicPointRadiationSourceModelSettings(
                         constantLuminosityModelSettings(celestial_body_constants::SUN_LUMINOSITY));
     }
-    else if( bodyName == "Earth" )
-    {
-        // Model from Knocke (1988)
-        radiationSourceModelSettings =
-                extendedRadiationSourceModelSettings({
-                    albedoPanelRadiosityModelSettings(SecondDegreeZonalPeriodicSurfacePropertyDistributionModel::albedo_knocke, "Sun"),
-                    delayedThermalPanelRadiosityModelSettings(SecondDegreeZonalPeriodicSurfacePropertyDistributionModel::emissivity_knocke, "Sun")
-                }, {6, 12});
-    }
+    // Do not use Earth default source model since they require Sun to be present
+//    else if( bodyName == "Earth" )
+//    {
+//        // Model from Knocke (1988)
+//        radiationSourceModelSettings =
+//                extendedRadiationSourceModelSettings({
+//                    albedoPanelRadiosityModelSettings(SecondDegreeZonalPeriodicSurfacePropertyDistributionModel::albedo_knocke, "Sun"),
+//                    delayedThermalPanelRadiosityModelSettings(SecondDegreeZonalPeriodicSurfacePropertyDistributionModel::emissivity_knocke, "Sun")
+//                }, {6, 12});
+//    }
 
     return radiationSourceModelSettings;
 }
