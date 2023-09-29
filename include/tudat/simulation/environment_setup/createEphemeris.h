@@ -1462,6 +1462,7 @@ std::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
  */
 std::pair< double, double > getSafeInterpolationInterval( const std::shared_ptr< ephemerides::Ephemeris > ephemerisModel );
 
+
 } // namespace simulation_setup
 
 } // namespace tudat
