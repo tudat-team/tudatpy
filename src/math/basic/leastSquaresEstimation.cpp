@@ -40,16 +40,15 @@ double getConditionNumberOfDecomposedMatrix( const Eigen::JacobiSVD< Eigen::Matr
 //! Solve system of equations with SVD decomposition, checking condition number in the process
 Eigen::VectorXd solveSystemOfEquationsWithSvd( const Eigen::MatrixXd matrixToInvert,
                                                const Eigen::VectorXd rightHandSideVector,
-                                               const bool checkConditionNumber,
-                                               const double maximumAllowedConditionNumber )
+                                               const double limitConditionNumberForWarning )
 {
     Eigen::JacobiSVD< Eigen::MatrixXd > svdDecomposition = matrixToInvert.jacobiSvd(
                 Eigen::ComputeThinU | Eigen::ComputeThinV );
-    if( checkConditionNumber )
+    if( limitConditionNumberForWarning == limitConditionNumberForWarning )
     {
         double conditionNumber = getConditionNumberOfDecomposedMatrix( svdDecomposition );
 
-        if( conditionNumber > maximumAllowedConditionNumber )
+        if( conditionNumber > limitConditionNumberForWarning )
         {
             std::cerr << "Warning when performing least squares, condition number is " << conditionNumber << std::endl;
         }
@@ -78,7 +77,8 @@ Eigen::MatrixXd calculateInverseOfUpdatedCovarianceMatrix(
         const Eigen::VectorXd& diagonalOfWeightMatrix,
         const Eigen::MatrixXd& inverseOfAPrioriCovarianceMatrix,
         const Eigen::MatrixXd& constraintMultiplier,
-        const Eigen::VectorXd& constraintRightHandside )
+        const Eigen::VectorXd& constraintRightHandside,
+        const double limitConditionNumberForWarning )
 {
     // Add constraints to inverse covariance matrix if required
     Eigen::MatrixXd inverseOfCovarianceMatrix =
@@ -117,7 +117,8 @@ Eigen::MatrixXd calculateInverseOfUpdatedCovarianceMatrix(
 //! Function to compute inverse of covariance matrix at current iteration
 Eigen::MatrixXd calculateInverseOfUpdatedCovarianceMatrix(
         const Eigen::MatrixXd& designMatrix,
-        const Eigen::VectorXd& diagonalOfWeightMatrix )
+        const Eigen::VectorXd& diagonalOfWeightMatrix,
+        const double limitConditionNumberForWarning )
 {
     return calculateInverseOfUpdatedCovarianceMatrix(
                 designMatrix, diagonalOfWeightMatrix,
@@ -144,8 +145,7 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromD
         const Eigen::VectorXd& observationResiduals,
         const Eigen::VectorXd& diagonalOfWeightMatrix,
         const Eigen::MatrixXd& inverseOfAPrioriCovarianceMatrix,
-        const bool checkConditionNumber,
-        const double maximumAllowedConditionNumber,
+        const double limitConditionNumberForWarning,
         const Eigen::MatrixXd& constraintMultiplier,
         const Eigen::VectorXd& constraintRightHandside,
         const Eigen::MatrixXd& designMatrixConsiderParameters,
@@ -177,7 +177,7 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromD
     }
 
     return std::make_pair( solveSystemOfEquationsWithSvd(
-            inverseOfCovarianceMatrix, rightHandSide, checkConditionNumber, maximumAllowedConditionNumber ), inverseOfCovarianceMatrix );
+            inverseOfCovarianceMatrix, rightHandSide, limitConditionNumberForWarning ), inverseOfCovarianceMatrix );
 
 }
 
@@ -186,25 +186,23 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromD
         const Eigen::MatrixXd& designMatrix,
         const Eigen::VectorXd& observationResiduals,
         const Eigen::VectorXd& diagonalOfWeightMatrix,
-        const bool checkConditionNumber,
-        const double maximumAllowedConditionNumber )
+        const double limitConditionNumberForWarning )
 {
     return performLeastSquaresAdjustmentFromDesignMatrix(
                 designMatrix, observationResiduals, diagonalOfWeightMatrix,
                 Eigen::MatrixXd::Zero( designMatrix.cols( ), designMatrix.cols( ) ),
-                checkConditionNumber, maximumAllowedConditionNumber );
+                limitConditionNumberForWarning );
 }
 
 //! Function to perform an iteration of least squares estimation from information matrix and residuals
 std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromDesignMatrix(
         const Eigen::MatrixXd& designMatrix,
         const Eigen::VectorXd& observationResiduals,
-        const bool checkConditionNumber,
-        const double maximumAllowedConditionNumber )
+        const double limitConditionNumberForWarning )
 {
     return performLeastSquaresAdjustmentFromDesignMatrix(
                 designMatrix, observationResiduals, Eigen::VectorXd::Constant( observationResiduals.size( ), 1, 1.0 ),
-                checkConditionNumber, maximumAllowedConditionNumber );
+                limitConditionNumberForWarning );
 }
 
 //! Function to fit a univariate polynomial through a set of data
