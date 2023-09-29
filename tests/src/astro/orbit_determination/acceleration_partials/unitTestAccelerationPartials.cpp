@@ -1500,6 +1500,98 @@ BOOST_AUTO_TEST_CASE( testThrustPartials )
 }
 
 
+BOOST_AUTO_TEST_CASE( testYarkovskyPartials )
+{
+    // Create empty bodies, earth and sun.
+    std::shared_ptr< Body > earth = std::make_shared< Body >( );
+    std::shared_ptr< Body > sun = std::make_shared< Body >( );
+
+    SystemOfBodies bodies;
+    bodies.addBody( earth, "Earth" );
+    bodies.addBody( sun, "Sun" );
+
+    // Load spice kernels.
+    spice_interface::loadStandardSpiceKernels( );
+
+    // Set current state of sun and earth.
+    sun->setState( getBodyCartesianStateAtEpoch( "Sun", "Sun", "J2000", "NONE", 1.0E6 ) );
+    earth->setState( getBodyCartesianStateAtEpoch(  "Earth", "Sun", "J2000", "NONE", 1.0E6 ) );
+
+    double yarkovskyParameter = 1.0E-6;
+    // Create acceleration due to sun on earth.
+    std::shared_ptr< YarkovskyAcceleration > yarkovskyAccelerationModel =
+        std::dynamic_pointer_cast< YarkovskyAcceleration >(
+            createAccelerationModel(
+            earth, sun, yarkovskyAcceleration( yarkovskyParameter ), "Earth", "Sun" ) );
+
+    // Create central gravity partial.
+    std::shared_ptr< AccelerationPartial > yarkovskyPartial =
+        createAnalyticalAccelerationPartial( yarkovskyAccelerationModel, std::make_pair( "Earth", earth ),
+                                             std::make_pair( "Sun", sun ), bodies );
+
+    // Create gravitational parameter object.
+    std::shared_ptr< EstimatableParameter< double > > yarkovskyParameterParameter = std::make_shared<
+        YarkovskyParameter >( yarkovskyAccelerationModel, "Earth", "Sun" );
+
+    // Calculate analytical partials.
+    yarkovskyPartial->update( 0.0 );
+    Eigen::MatrixXd partialWrtEarthPosition = Eigen::Matrix3d::Zero( );
+    yarkovskyPartial->wrtPositionOfAcceleratedBody( partialWrtEarthPosition.block( 0, 0, 3, 3 ) );
+    Eigen::MatrixXd partialWrtEarthVelocity = Eigen::Matrix3d::Zero( );
+    yarkovskyPartial->wrtVelocityOfAcceleratedBody( partialWrtEarthVelocity.block( 0, 0, 3, 3 ), 1, 0, 0 );
+    Eigen::MatrixXd partialWrtSunPosition = Eigen::Matrix3d::Zero( );
+    yarkovskyPartial->wrtPositionOfAcceleratingBody( partialWrtSunPosition.block( 0, 0, 3, 3 ) );
+    Eigen::MatrixXd partialWrtSunVelocity = Eigen::Matrix3d::Zero( );
+    yarkovskyPartial->wrtVelocityOfAcceleratingBody( partialWrtSunVelocity.block( 0, 0, 3, 3 ), 1, 0, 0 );
+    Eigen::Vector3d partialWrtSunYarkovskyParameter = yarkovskyPartial->wrtParameter(
+        yarkovskyParameterParameter );
+
+    // Declare numerical partials.
+    Eigen::Matrix3d testPartialWrtEarthPosition = Eigen::Matrix3d::Zero( );
+    Eigen::Matrix3d testPartialWrtEarthVelocity = Eigen::Matrix3d::Zero( );
+    Eigen::Matrix3d testPartialWrtSunPosition = Eigen::Matrix3d::Zero( );
+    Eigen::Matrix3d testPartialWrtSunVelocity = Eigen::Matrix3d::Zero( );
+
+    // Declare perturbations in position for numerical partial/
+    Eigen::Vector3d positionPerturbation;
+    positionPerturbation << 10000.0, 10000.0, 10000.0;
+    Eigen::Vector3d velocityPerturbation;
+    velocityPerturbation << 1.0, 1.0, 1.0;
+
+    // Create state access/modification functions for bodies.
+    std::function< void( Eigen::Vector6d ) > earthStateSetFunction =
+        std::bind( &Body::setState, earth, std::placeholders::_1 );
+    std::function< void( Eigen::Vector6d ) > sunStateSetFunction =
+        std::bind( &Body::setState, sun, std::placeholders::_1 );
+    std::function< Eigen::Vector6d ( ) > earthStateGetFunction =
+        std::bind( &Body::getState, earth );
+    std::function< Eigen::Vector6d ( ) > sunStateGetFunction =
+        std::bind( &Body::getState, sun );
+
+    // Calculate numerical partials.
+    testPartialWrtEarthPosition = calculateAccelerationWrtStatePartials(
+        earthStateSetFunction, yarkovskyAccelerationModel, earth->getState( ), positionPerturbation, 0 );
+    testPartialWrtEarthVelocity = calculateAccelerationWrtStatePartials(
+        earthStateSetFunction, yarkovskyAccelerationModel, earth->getState( ), velocityPerturbation, 3 );
+    testPartialWrtSunPosition = calculateAccelerationWrtStatePartials(
+        sunStateSetFunction, yarkovskyAccelerationModel, sun->getState( ), positionPerturbation, 0 );
+    testPartialWrtSunVelocity = calculateAccelerationWrtStatePartials(
+        sunStateSetFunction, yarkovskyAccelerationModel, sun->getState( ), velocityPerturbation, 3 );
+    Eigen::Vector3d testPartialWrtSunYarkovskyParameter = calculateAccelerationWrtParameterPartials(
+        yarkovskyParameterParameter, yarkovskyAccelerationModel, 1.0E-6 );
+
+    // Compare numerical and analytical results.
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtEarthPosition,
+                                       partialWrtEarthPosition, 1.0E-8 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtEarthVelocity,
+                                       partialWrtEarthVelocity, 1.0E-8 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtSunPosition,
+                                       partialWrtSunPosition, 1.0E-8 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtSunVelocity,
+                                       partialWrtSunVelocity, 1.0E-8 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtSunYarkovskyParameter,
+                                       partialWrtSunYarkovskyParameter, 1.0E-8 );
+}
 
 BOOST_AUTO_TEST_SUITE_END( )
 

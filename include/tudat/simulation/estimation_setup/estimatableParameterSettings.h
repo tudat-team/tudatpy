@@ -1369,6 +1369,12 @@ inline std::shared_ptr< EstimatableParameterSettings > scaledLongitudeLibrationA
     return std::make_shared< EstimatableParameterSettings >( bodyName, scaled_longitude_libration_amplitude );
 }
 
+inline std::shared_ptr< EstimatableParameterSettings > yarkovskyParameter( const std::string bodyName, const std::string centralBodyName )
+{
+    return std::make_shared< EstimatableParameterSettings >( bodyName, yarkovsky_parameter, centralBodyName );
+}
+
+
 } // namespace estimatable_parameters
 
 } // namespace tudat

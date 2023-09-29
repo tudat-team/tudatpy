@@ -283,6 +283,8 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
                     break;
                 case estimatable_parameters::arc_wise_time_observation_bias:
                     break;
+                case estimatable_parameters::yarkovsky_parameter:
+                    break;
                 default:
                     std::string errorMessage =
                             "Parameter " + std::to_string(
