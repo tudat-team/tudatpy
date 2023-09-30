@@ -55,6 +55,7 @@ TUDAT_ADD_TEST_CASE(ObservationViabilityCalculators PRIVATE_LINKS ${Tudat_ESTIMA
 
 TUDAT_ADD_TEST_CASE(PerArcObservationSimulation PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
 
+
 TUDAT_ADD_TEST_CASE(TimeBias PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
 
 # Example application: simulation of DSN observations with data from ODF files
@@ -72,5 +73,5 @@ TUDAT_ADD_TEST_CASE(SolarCoronaCorrection PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRA
 
 TUDAT_ADD_TEST_CASE(ObservationRoundingErrors PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
 
-#TUDAT_ADD_TEST_CASE(ObservationDependentVariables PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
+TUDAT_ADD_TEST_CASE(ObservationDependentVariables PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
 

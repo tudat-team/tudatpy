@@ -1,5 +1,5 @@
 #    Copyright (c) 2010-2019, Delft University of Technology
-#    All rigths reserved
+#    All rights reserved
 #
 #    This file is part of the Tudat. Redistribution and use in source and
 #    binary forms, with or without modification, are permitted exclusively
@@ -36,6 +36,12 @@ TUDAT_ADD_TEST_CASE(SolarSailAccelerationAndForce
         tudat_electromagnetism
         tudat_basic_astrodynamics
         )
+
+TUDAT_ADD_TEST_CASE(YarkovskyAcceleration
+        PRIVATE_LINKS
+        ${Tudat_PROPAGATION_LIBRARIES}
+        )
+
 # Add unit tests.
 #add_executable(test_CannonBallRadiationPressureAccelerationAndForce "${SRCROOT}${ELECTROMAGNETISMDIR}/tests/unitTestCannonBallRadiationPressureAccelerationAndForce.cpp")
 #setup_custom_test_program(test_CannonBallRadiationPressureAccelerationAndForce "${SRCROOT}${ELECTROMAGNETISMDIR}")

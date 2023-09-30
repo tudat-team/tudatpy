@@ -29,6 +29,7 @@
 #include "tudat/astro/orbit_determination/acceleration_partials/directTidalDissipationAccelerationPartial.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/panelledRadiationPressureAccelerationPartial.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/thrustAccelerationPartial.h"
+#include "tudat/astro/orbit_determination/acceleration_partials/yarkovskyAccelerationPartial.h"
 #include "tudat/astro/orbit_determination/observation_partials/rotationMatrixPartial.h"
 #include "tudat/simulation/estimation_setup/createCartesianStatePartials.h"
 #include "tudat/astro/basic_astro/accelerationModelTypes.h"
@@ -571,6 +572,26 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAc
             // Create partial-calculating object.
             accelerationPartial = std::make_shared< ThrustAccelerationPartial >(
                         thrustAcceleration, acceleratedBody.first, rotationMatrixPartials );
+        }
+        break;
+    }
+    case yarkovsky_acceleration:
+    {
+        // Check if identifier is consistent with type.
+        std::shared_ptr< YarkovskyAcceleration > yarkovskyAcceleration =
+            std::dynamic_pointer_cast< YarkovskyAcceleration >( accelerationModel );
+        if( yarkovskyAcceleration == nullptr )
+        {
+            throw std::runtime_error(
+                "Acceleration class type does not match acceleration type enum (yarkovsky_acceleration) set when making "
+                "acceleration partial." );
+        }
+        else
+        {
+            // Create partial-calculating object.
+            accelerationPartial = std::make_shared< YarkovskyAccelerationPartial >
+                ( yarkovskyAcceleration, acceleratedBody.first, acceleratingBody.first );
+
         }
         break;
     }

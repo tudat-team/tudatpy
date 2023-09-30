@@ -482,6 +482,54 @@ int getDependentVariableSize(
     return variableSize;
 }
 
+std::pair< int, int > getDependentVariableShape(
+    const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings )
+{
+    int dependentVariableSize = getDependentVariableSaveSize( dependentVariableSettings );
+    std::pair< int, int > dependentVariableShape;
+    switch ( dependentVariableSettings->dependentVariableType_ )
+    {
+    case inertial_to_body_fixed_rotation_matrix_variable:
+        dependentVariableShape = { 3, 3 };
+        break;
+    case intermediate_aerodynamic_rotation_matrix_variable:
+        dependentVariableShape = { 3, 3 };
+        break;
+    case tnw_to_inertial_frame_rotation_dependent_variable:
+        dependentVariableShape = { 3, 3 };
+        break;
+    case rsw_to_inertial_frame_rotation_dependent_variable:
+        dependentVariableShape = { 3, 3 };
+        break;
+    case acceleration_partial_wrt_body_translational_state:
+        dependentVariableShape = { 3, 3 };
+        break;
+    case body_inertia_tensor:
+        dependentVariableShape = { 3, 3 };
+        break;
+    default:
+        dependentVariableShape = { dependentVariableSize, 1 };
+        break;
+    }
+
+    if( isMatrixDependentVariable( dependentVariableSettings ) && dependentVariableShape.second == 1 )
+    {
+        throw std::runtime_error( "Error when finding shape of dependent variable: (" + getDependentVariableName( dependentVariableSettings ) +
+            "), dependent variable should be a matrix, but number of columns is equal to 1 " );
+    }
+
+    if( dependentVariableShape.first * dependentVariableShape.second != dependentVariableSize )
+    {
+        throw std::runtime_error( "Error when finding shape of dependent variable: (" + getDependentVariableName( dependentVariableSettings ) +
+                                  "), vector size (" + std::to_string( dependentVariableSize ) + ") and matrix size (" +
+                                  std::to_string( dependentVariableShape.first ) + ", " + std::to_string( dependentVariableShape.second ) + ") are incompatible" );
+    }
+    return dependentVariableShape;
+
+
+    return dependentVariableShape;
+}
+
 bool isScalarDependentVariable(
         const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings )
 {
@@ -502,6 +550,37 @@ bool isScalarDependentVariable(
                                   ", cannot be parsed" );
     }
 
+}
+
+
+bool isMatrixDependentVariable(
+    const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings )
+{
+    bool isMatrixVariable = false;
+    switch ( dependentVariableSettings->dependentVariableType_ )
+    {
+    case inertial_to_body_fixed_rotation_matrix_variable:
+        isMatrixVariable = true;
+        break;
+    case intermediate_aerodynamic_rotation_matrix_variable:
+        isMatrixVariable = true;
+        break;
+    case tnw_to_inertial_frame_rotation_dependent_variable:
+        isMatrixVariable = true;
+        break;
+    case rsw_to_inertial_frame_rotation_dependent_variable:
+        isMatrixVariable = true;
+        break;
+    case acceleration_partial_wrt_body_translational_state:
+        isMatrixVariable = true;
+        break;
+    case body_inertia_tensor:
+        isMatrixVariable = true;
+        break;
+    default:
+        break;
+    }
+    return isMatrixVariable;
 }
 
 Eigen::VectorXd getConstellationMinimumDistance(

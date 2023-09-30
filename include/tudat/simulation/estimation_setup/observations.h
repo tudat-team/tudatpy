@@ -57,6 +57,18 @@ public:
         ancilliarySettings_( ancilliarySettings ),
         numberOfObservations_( observations_.size( ) )
     {
+        if( dependentVariableCalculator_ != nullptr )
+        {
+            if( dependentVariableCalculator_->getObservableType( ) != observableType_ )
+            {
+                throw std::runtime_error( "Error when creating SingleObservationSet, ObservationDependentVariableCalculator has incompatible type " );
+            }
+
+            if( !( dependentVariableCalculator_->getLinkEnds( ) == linkEnds ) )
+            {
+                throw std::runtime_error( "Error when creating SingleObservationSet, ObservationDependentVariableCalculator has incompatible link ends " );
+            }
+        }
         if( observations_.size( ) != observationTimes_.size( ) )
         {
             throw std::runtime_error( "Error when making SingleObservationSet, input sizes are inconsistent." +

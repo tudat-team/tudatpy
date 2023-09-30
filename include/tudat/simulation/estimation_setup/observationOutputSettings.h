@@ -25,10 +25,13 @@ enum ObservationDependentVariables
     station_azimuth_angle,
     target_range,
     body_avoidance_angle_variable,
-    integration_time,
-    station_local_time,
-    limb_separation_angle
+    link_body_center_distance,
+    link_limb_distance,
+    link_angle_with_orbital_plane,
+    doppler_integration_time_dependent_variable,
+    retransmission_delays_dependent_variable
 };
+
 
 class ObservationDependentVariableSettings
 {
@@ -48,14 +51,15 @@ public:
 
 };
 
+
 enum IntegratedObservationPropertyHandling
 {
     interval_start,
     interval_end,
-    interval_start_and_end,
-    interval_center,
     interval_undefined
 };
+
+std::string getIntegrationHandlingString( const IntegratedObservationPropertyHandling integratedObservableHandling );
 
 class StationAngleObservationDependentVariableSettings: public ObservationDependentVariableSettings
 {
@@ -65,27 +69,28 @@ public:
             const observation_models::LinkEndId relevantLinkEnd,
             const observation_models::LinkEndType linkEndRole = observation_models::unidentified_link_end,
             const IntegratedObservationPropertyHandling integratedObservableHandling = interval_undefined,
-            const bool useIncomingLink = true ):
+            const observation_models::LinkEndType originatingLinkEndRole = observation_models::unidentified_link_end ):
         ObservationDependentVariableSettings( variableType ),
         relevantLinkEnd_( relevantLinkEnd ), linkEndRole_( linkEndRole ),
         integratedObservableHandling_( integratedObservableHandling ),
-        useIncomingLink_( useIncomingLink )
+        originatingLinkEndRole_( originatingLinkEndRole )
     {
 
     }
 
     std::string getIdentifier( )
     {
-        std::string identifier = "Station: (" + relevantLinkEnd_.bodyName_ + ", " + relevantLinkEnd_.stationName_ + ")";
+        std::string identifier = ", station: (" + relevantLinkEnd_.bodyName_ + ", " + relevantLinkEnd_.stationName_ + ")";
         if( linkEndRole_ != observation_models::unidentified_link_end )
         {
-            throw std::runtime_error( "Error, StationAngleObservationDependentVariableSettings ID not yet implemented for link end roles" );
+            identifier += " as " + observation_models::getLinkEndTypeString( linkEndRole_ );
         }
-
-        if( integratedObservableHandling_ != interval_undefined )
+        if( originatingLinkEndRole_ != observation_models::unidentified_link_end )
         {
-            throw std::runtime_error( "Error, StationAngleObservationDependentVariableSettings ID not yet implemented for integrated obs. handling" );
+            identifier += " link to " + observation_models::getLinkEndTypeString( originatingLinkEndRole_ );
         }
+        identifier += getIntegrationHandlingString( integratedObservableHandling_ );
+
         return identifier;
     }
 
@@ -95,7 +100,8 @@ public:
 
     IntegratedObservationPropertyHandling integratedObservableHandling_;
 
-    bool useIncomingLink_;
+    observation_models::LinkEndType originatingLinkEndRole_;
+
 };
 
 class InterlinkObservationDependentVariableSettings: public ObservationDependentVariableSettings
@@ -103,33 +109,37 @@ class InterlinkObservationDependentVariableSettings: public ObservationDependent
 public:
     InterlinkObservationDependentVariableSettings(
             const ObservationDependentVariables variableType,
-            const observation_models::LinkEndType startLinkEnd = observation_models::unidentified_link_end,
-            const observation_models::LinkEndType endLinkEnd = observation_models::unidentified_link_end ):
-        ObservationDependentVariableSettings( variableType ),
-        startLinkEnd_( startLinkEnd ), endLinkEnd_( endLinkEnd ){ }
+            const observation_models::LinkEndType startLinkEnd,
+            const observation_models::LinkEndType endLinkEnd,
+            const IntegratedObservationPropertyHandling integratedObservableHandling = interval_undefined,
+            const std::string relativeBody = "" ):
+    ObservationDependentVariableSettings( variableType ),
+        startLinkEnd_( startLinkEnd ), endLinkEnd_( endLinkEnd ),
+        integratedObservableHandling_( integratedObservableHandling ){ }
+
+    ~InterlinkObservationDependentVariableSettings( ){ }
+
+    std::string getIdentifier( )
+    {
+        std::string identifier = ", link from " + observation_models::getLinkEndTypeString( startLinkEnd_ ) +
+            observation_models::getLinkEndTypeString( endLinkEnd_ );
+        if( relativeBody_ != "" )
+        {
+            identifier += " with " + relativeBody_ + " as relative body";
+        }
+        identifier += getIntegrationHandlingString( integratedObservableHandling_ );
+
+        return identifier;
+    }
 
     observation_models::LinkEndType startLinkEnd_;
 
     observation_models::LinkEndType endLinkEnd_;
+
+    IntegratedObservationPropertyHandling integratedObservableHandling_;
+
+    std::string relativeBody_;
 };
-
-class BodyAvoidanceObservationDependentVariableSettings: public ObservationDependentVariableSettings
-{
-public:
-    BodyAvoidanceObservationDependentVariableSettings(
-            const std::string& bodyAvoidance,
-            const observation_models::LinkEndType startLinkEnd = observation_models::unidentified_link_end,
-            const observation_models::LinkEndType endLinkEnd = observation_models::unidentified_link_end ):
-        ObservationDependentVariableSettings( body_avoidance_angle_variable ),
-        startLinkEnd_( startLinkEnd ), endLinkEnd_( endLinkEnd ), bodyAvoidance_( bodyAvoidance ){ }
-
-    observation_models::LinkEndType startLinkEnd_;
-
-    observation_models::LinkEndType endLinkEnd_;
-
-    std::string bodyAvoidance_;
-};
-
 
 
 std::string getObservationDependentVariableName(
@@ -141,18 +151,31 @@ std::string getObservationDependentVariableId(
 bool isObservationDependentVariableVectorial(
         const std::shared_ptr< ObservationDependentVariableSettings > variableSettings );
 
+
+bool isObservationDependentVariableAncilliarySetting(
+    const std::shared_ptr< ObservationDependentVariableSettings > variableSettings );
+
+
 bool isObservationDependentVariableGroundStationProperty(
         const std::shared_ptr< ObservationDependentVariableSettings > variableSettings );
+
+bool isObservationDependentVariableSimpleLinkProperty(
+    const std::shared_ptr< ObservationDependentVariableSettings > variableSettings );
 
 int getObservationDependentVariableSize(
         const std::shared_ptr< ObservationDependentVariableSettings > variableSettings );
 
-bool checkStationAngleVariableForGivenLink(
+bool doesStationAngleVariableExistForGivenLink(
         const observation_models::ObservableType observableType,
         const observation_models::LinkEnds& linkEnds,
         const std::shared_ptr< StationAngleObservationDependentVariableSettings > variableSettings );
 
-bool checkObservationDependentVariableForGivenLink(
+bool doesInterlinkVariableExistForGivenLink(
+    const observation_models::ObservableType observableType,
+    const observation_models::LinkEnds& linkEnds,
+    const std::shared_ptr< InterlinkObservationDependentVariableSettings > variableSettings );
+
+bool doesObservationDependentVariableExistForGivenLink(
         const observation_models::ObservableType observableType,
         const observation_models::LinkEnds& linkEnds,
         const std::shared_ptr< ObservationDependentVariableSettings > variableSettings );

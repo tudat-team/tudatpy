@@ -323,6 +323,31 @@ inline std::shared_ptr< AccelerationSettings > empiricalAcceleration(
 	return std::make_shared< EmpiricalAccelerationSettings >( constantAcceleration, sineAcceleration, cosineAcceleration );
 }
 
+// Class to define settings for yarkovsky accelerations
+//! @get_docstring(YarkovskyAccelerationSettings.__docstring__)
+class YarkovskyAccelerationSettings : public AccelerationSettings
+{
+    // Constructor
+    /*
+     * Constructor
+     * \param yarkovskyParameter (A2) au d^{-1}
+     */
+    public:
+    YarkovskyAccelerationSettings( const double yarkovskyParameter = 0.0 ):
+    AccelerationSettings(basic_astrodynamics::yarkovsky_acceleration),
+    yarkovskyParameter_(yarkovskyParameter) { }
+
+    // Yarkovsky parameter (A2) au d^{-1}
+    double yarkovskyParameter_;
+};
+
+//! @get_docstring(yarkovskyAcceleration)
+inline std::shared_ptr< AccelerationSettings> yarkovskyAcceleration(
+    const double yarkovskyParameter )
+{
+    return std::make_shared< YarkovskyAccelerationSettings >( yarkovskyParameter );
+}
+
 // Interface class that allows single interpolator to be used for thrust direction and magnitude (which are separated in
 // thrust implementation)
 // TODO: not exposed

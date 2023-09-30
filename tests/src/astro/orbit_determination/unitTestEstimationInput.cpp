@@ -51,6 +51,12 @@ BOOST_AUTO_TEST_CASE( test_EstimationInputAndOutput )
             executePlanetaryParameterEstimation< double, double >(
                 simulationType, parameterPerturbation, inverseAPrioriCovariance );
 
+    int numberOfSavedParameterVectors = estimationOutputWithAprioriCovariance.first->parameterHistory_.size( );
+    int numberOfSavedResidualVectors = estimationOutputWithAprioriCovariance.first->residualHistory_.size( );
+
+    BOOST_CHECK_EQUAL( numberOfSavedParameterVectors, numberOfSavedResidualVectors );
+
+
     // Run estimation with effectively zero covariance
     std::pair< std::shared_ptr< EstimationOutput< double > >, Eigen::VectorXd > estimationOutputWithSmallAprioriCovariance =
             executePlanetaryParameterEstimation< double, double >(
@@ -378,7 +384,7 @@ BOOST_AUTO_TEST_CASE( test_WeightDefinitions )
 
         for( auto it : weightPerObservable )
         {
-            for( unsigned int i = 0; i < observationTypeStartAndSize.at( it.first ).second; i++ )
+            for( int i = 0; i < observationTypeStartAndSize.at( it.first ).second; i++ )
             {
                 BOOST_CHECK_CLOSE_FRACTION( totalWeights( observationTypeStartAndSize.at( it.first ).first + i ), it.second, std::numeric_limits< double >::epsilon( ) );
             }
@@ -396,12 +402,12 @@ BOOST_AUTO_TEST_CASE( test_WeightDefinitions )
 
         std::pair< int, int > startEndIndex = observationTypeStartAndSize.at( angular_position );
 
-        for( unsigned int i = 0; i < startEndIndex.first; i++ )
+        for( int i = 0; i < startEndIndex.first; i++ )
         {
             BOOST_CHECK_CLOSE_FRACTION( totalWeights( i ), 2.0, std::numeric_limits< double >::epsilon( ) );
         }
 
-        for( unsigned int i = 0; i < startEndIndex.second; i++ )
+        for( int i = 0; i < startEndIndex.second; i++ )
         {
             if( i % 2 == 0 )
             {

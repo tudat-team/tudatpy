@@ -19,6 +19,7 @@
 #include "tudat/simulation/estimation_setup/observations.h"
 #include "tudat/basics/utilities.h"
 #include "tudat/math/statistics/randomVariableGenerator.h"
+#include "tudat/math/statistics/multiVariateGaussianProbabilityDistributions.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/estimation_setup/createObservationModel.h"
 #include "tudat/simulation/estimation_setup/observationOutputSettings.h"
@@ -32,9 +33,87 @@ namespace simulation_setup
 
 extern int noiseSeed;
 
+int getDefaultNoiseSeed( );
+
 std::function< Eigen::VectorXd( const double ) > getNoiseFunctionForObservable(
         const std::function< double( const double ) > singleNoiseFunction,
         const observation_models::ObservableType observableType );
+
+
+struct ObservationNoiseModel
+{
+
+public:
+    ObservationNoiseModel( ): observationSize_( -1 ){ }
+
+    virtual ~ObservationNoiseModel( ){ }
+
+    virtual Eigen::VectorXd getObservationNoise(
+        const double& observationTime,
+        const Eigen::VectorXd& calculatedObservation,
+        const std::vector< Eigen::Vector6d >& vectorOfStates,
+        const std::vector< double >& vectorOfTimes ) = 0;
+
+    virtual void setObservationSize( const int observationSize )
+    {
+        observationSize_ = observationSize;
+    }
+
+    int getObservationSize( )
+    {
+        return observationSize_;
+    }
+
+protected:
+
+    int observationSize_;
+};
+
+struct UnivariateGaussianObservationNoiseModel: public ObservationNoiseModel
+{
+
+public:
+    UnivariateGaussianObservationNoiseModel(
+        const double noiseAmplitude,
+        const double noiseMean = 0.0,
+        const int gaussianNoiseSeed = getDefaultNoiseSeed( ) ):
+            ObservationNoiseModel( ),
+            noiseAmplitude_( noiseAmplitude ),
+            noiseMean_( noiseMean )
+        {
+            gaussianNoiseFunction_ = statistics::createBoostContinuousRandomVariableGeneratorFunction(
+                statistics::normal_boost_distribution, { noiseMean, noiseAmplitude }, gaussianNoiseSeed );
+        }
+
+    virtual ~UnivariateGaussianObservationNoiseModel( ){ }
+
+    Eigen::VectorXd getObservationNoise(
+        const double& observationTime,
+        const Eigen::VectorXd& calculatedObservation,
+        const std::vector< Eigen::Vector6d >& vectorOfStates,
+        const std::vector< double >& vectorOfTimes )
+    {
+        double currentNoise = gaussianNoiseFunction_( );
+        currentNoiseValue_.setConstant( currentNoise );
+        return currentNoiseValue_;
+    }
+
+    virtual void setObservationSize( const int observationSize )
+    {
+        observationSize_ = observationSize;
+        currentNoiseValue_ = Eigen::VectorXd::Zero( observationSize_ );
+    }
+
+protected:
+
+    Eigen::VectorXd currentNoiseValue_;
+
+    std::function< double( ) > gaussianNoiseFunction_;
+
+    double noiseAmplitude_;
+
+    double noiseMean_;
+};
 
 //! Base struct for defining times at which observations are to be simulated.
 /*!

@@ -636,7 +636,7 @@ public:
         Eigen::MatrixXd inverseNormalizedCovariance = linear_algebra::calculateInverseOfUpdatedCovarianceMatrix(
                 designMatrixEstimatedParameters.block( 0, 0, designMatrixEstimatedParameters.rows( ), numberEstimatedParameters_ ),
                 estimationInput->getWeightsMatrixDiagonals( ),
-                normalizedInverseAprioriCovarianceMatrix, constraintStateMultiplier, constraintRightHandSide );
+                normalizedInverseAprioriCovarianceMatrix, constraintStateMultiplier, constraintRightHandSide, estimationInput->getLimitConditionNumberForWarning( ) );
 
         // Compute contribution consider parameters
         Eigen::MatrixXd covarianceContributionConsiderParameters;
@@ -723,7 +723,7 @@ public:
         // Iterate until convergence (at least once)
         int bestIteration = -1;
         int numberOfIterations = 0;
-        do
+        while( true )
         {
             oldParameterEstimate = newParameterEstimate;
             newFullParameterEstimate.segment( 0, numberEstimatedParameters_ ) = newParameterEstimate;
@@ -784,10 +784,15 @@ public:
                 Eigen::VectorXd constraintRightHandSide;
                 parametersToEstimate_->getConstraints( constraintStateMultiplier, constraintRightHandSide );
 
+                double conditionNumberCheck = estimationInput->getLimitConditionNumberForWarning( );
+                if( numberOfIterations > 0 && estimationInput->conditionNumberWarningEachIteration_ == false )
+                {
+                    conditionNumberCheck = TUDAT_NAN;
+                }
                 // Perform LSQ inversion
                 leastSquaresOutput = std::move( linear_algebra::performLeastSquaresAdjustmentFromDesignMatrix(
                         designMatrixEstimatedParameters, residuals, estimationInput->getWeightsMatrixDiagonals( ),
-                        normalizedInverseAprioriCovarianceMatrix, 1, 1.0E8, constraintStateMultiplier, constraintRightHandSide,
+                        normalizedInverseAprioriCovarianceMatrix, conditionNumberCheck, constraintStateMultiplier, constraintRightHandSide,
                         designMatrixConsiderParameters, normalizedConsiderParametersDeviation ) );
 
                 if( constraintStateMultiplier.rows( ) > 0 )
@@ -819,32 +824,19 @@ public:
                 covarianceContributionConsiderParameters = Eigen::MatrixXd::Zero( 0, 0 );
             }
 
-            // Update value of parameter vector
-            newParameterEstimate = oldParameterEstimate + parameterAddition;
-            parametersToEstimate_->template resetParameterValues< ObservationScalarType >( newParameterEstimate );
-            newParameterEstimate = parametersToEstimate_->template getFullParameterValues< ObservationScalarType >( );
+            // Calculate mean residual for current iteration.
+            residualRms = linear_algebra::getVectorEntryRootMeanSquare( residuals );
+            rmsResidualHistory.push_back( residualRms );
 
             if( estimationInput->getSaveResidualsAndParametersFromEachIteration( ) )
             {
                 residualHistory.push_back( residuals );
-                if( numberOfIterations == 0 )
+                if ( numberOfIterations == 0 )
                 {
                     parameterHistory.push_back( oldParameterEstimate );
                 }
-                parameterHistory.push_back( newParameterEstimate );
             }
 
-            oldParameterEstimate = newParameterEstimate;
-
-            if( estimationInput->getPrintOutput( ) )
-            {
-                std::cout << "Parameter update" << parameterAddition.transpose( ) << std::endl;
-            }
-
-            // Calculate mean residual for current iteration.
-            residualRms = linear_algebra::getVectorEntryRootMeanSquare( residuals );
-
-            rmsResidualHistory.push_back( residualRms );
             if( estimationInput->getPrintOutput( ) )
             {
                 std::cout << "Current residual: " << residualRms << std::endl;
@@ -854,7 +846,7 @@ public:
             if( residualRms < bestResidual || !( bestResidual == bestResidual ) )
             {
                 bestResidual = residualRms;
-                bestParameterEstimate = std::move( oldParameterEstimate );
+                bestParameterEstimate = oldParameterEstimate;
                 bestResiduals = std::move( residuals );
                 if( estimationInput->getSaveDesignMatrix( ) )
                 {
@@ -881,7 +873,37 @@ public:
             numberOfIterations++;
 
             // Check for convergence
-        } while( estimationInput->getConvergenceChecker( )->isEstimationConverged( numberOfIterations, rmsResidualHistory ) == false );
+            bool applyParameterCorrection = true;
+            bool terminateLoop = false;
+            if(  estimationInput->getConvergenceChecker( )->isEstimationConverged( numberOfIterations, rmsResidualHistory ) )
+            {
+                terminateLoop = true;
+                applyParameterCorrection = estimationInput->applyFinalParameterCorrection_;
+            }
+
+            if( applyParameterCorrection )
+            {
+                // Update value of parameter vector
+                newParameterEstimate = oldParameterEstimate + parameterAddition;
+                parametersToEstimate_->template resetParameterValues<ObservationScalarType>( newParameterEstimate );
+                newParameterEstimate = parametersToEstimate_->template getFullParameterValues<ObservationScalarType>( );
+
+                if ( estimationInput->getSaveResidualsAndParametersFromEachIteration( ) )
+                {
+                    parameterHistory.push_back( newParameterEstimate );
+                }
+
+                if ( estimationInput->getPrintOutput( ) )
+                {
+                    std::cout << "Parameter update" << parameterAddition.transpose( ) << std::endl;
+                }
+            }
+
+            if( terminateLoop )
+            {
+                break;
+            }
+        }
 
         if( estimationInput->getPrintOutput( ) )
         {
@@ -1085,7 +1107,7 @@ protected:
             integrateAndEstimateOrbit_ = false;
         }
 
-        propagatorSettings->getOutputSettingsBase( )->setCreateDependentVariablesInterface( true );
+        propagatorSettings->getOutputSettingsBase( )->setUpdateDependentVariableInterpolator( true );
         if( integrateAndEstimateOrbit_ )
         {
             variationalEquationsSolver_ = simulation_setup::createVariationalEquationsSolver< ObservationScalarType, TimeType >(

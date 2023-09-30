@@ -38,10 +38,12 @@ public:
     CovarianceAnalysisInput(
               const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > >& observationCollection,
               const Eigen::MatrixXd inverseOfAprioriCovariance = Eigen::MatrixXd::Zero( 0, 0 ),
-              const Eigen::MatrixXd considerCovariance = Eigen::MatrixXd::Zero( 0, 0 ) ):
+              const Eigen::MatrixXd considerCovariance = Eigen::MatrixXd::Zero( 0, 0 ),
+              const double limitConditionNumberForWarning = 1.0E8 ):
         observationCollection_( observationCollection ),
         inverseOfAprioriCovariance_( inverseOfAprioriCovariance ),
         considerCovariance_( considerCovariance ),
+        limitConditionNumberForWarning_( limitConditionNumberForWarning ),
         reintegrateEquationsOnFirstIteration_( true ),
         reintegrateVariationalEquations_( true ),
         saveDesignMatrix_( true ),
@@ -416,8 +418,22 @@ public:
         return considerCovariance_;
     }
 
+    void setConsiderCovariance( const Eigen::MatrixXd& considerCovariance )
+    {
+        considerCovariance_ = considerCovariance;
+    }
 
-    //! Function to return the weight matrix diagonals, sorted by link ends and observable type (by reference)
+    double getLimitConditionNumberForWarning( )
+    {
+        return limitConditionNumberForWarning_;
+    }
+
+    void setLimitConditionNumberForWarning( const double limitConditionNumberForWarning)
+    {
+        limitConditionNumberForWarning_ = limitConditionNumberForWarning;
+    }
+
+      //! Function to return the weight matrix diagonals, sorted by link ends and observable type (by reference)
     /*!
      * Function to return the weight matrix diagonals, sorted by link ends and observable type (by reference)
      * \return Weight matrix diagonals, sorted by link ends and observable type (by reference)
@@ -495,6 +511,8 @@ protected:
 
     //! Covariance matrix for consider parameters
     Eigen::MatrixXd considerCovariance_;
+
+    double limitConditionNumberForWarning_;
 
     //! Weight matrix diagonals, sorted by link ends and observable type
     Eigen::VectorXd weightsMatrixDiagonals_;
@@ -591,6 +609,7 @@ protected:
 
     //!  Number of iterations without reduction of residual
     unsigned int numberOfIterationsWithoutImprovement_;
+
 };
 
 
@@ -613,12 +632,19 @@ public:
             const Eigen::MatrixXd inverseOfAprioriCovariance = Eigen::MatrixXd::Zero( 0, 0 ),
             const std::shared_ptr< EstimationConvergenceChecker > convergenceChecker = std::make_shared< EstimationConvergenceChecker >( ),
             const Eigen::MatrixXd considerCovariance = Eigen::MatrixXd::Zero( 0, 0 ),
-            const Eigen::VectorXd considerParametersDeviations = Eigen::VectorXd::Zero( 0 ) ):
-        CovarianceAnalysisInput< ObservationScalarType, TimeType >( observationCollection, inverseOfAprioriCovariance, considerCovariance ),
+            const Eigen::VectorXd considerParametersDeviations = Eigen::VectorXd::Zero( 0 ),
+            const double limitConditionNumberForWarning = 1.0E8,
+            const bool conditionNumberWarningEachIteration = true,
+            const bool applyFinalParameterCorrection = true ):
+        CovarianceAnalysisInput< ObservationScalarType, TimeType >(
+            observationCollection, inverseOfAprioriCovariance, considerCovariance, limitConditionNumberForWarning ),
         saveResidualsAndParametersFromEachIteration_( true ),
         saveStateHistoryForEachIteration_( false ),
         convergenceChecker_( convergenceChecker ),
-        considerParametersDeviations_( considerParametersDeviations )
+        considerParametersDeviations_( considerParametersDeviations ),
+        conditionNumberWarningEachIteration_( conditionNumberWarningEachIteration ),
+        applyFinalParameterCorrection_( applyFinalParameterCorrection )
+
     {
         if ( this->areConsiderParametersIncluded( ) )
         {
@@ -697,6 +723,8 @@ public:
     }
 
 
+
+
     //! Function to return the boolean denoting whether the state history is to be saved on each iteration.
     /*!
      * Function to return the boolean denoting whether the state history is to be saved on each iteration.
@@ -717,6 +745,11 @@ public:
 
     //! Vector of consider parameters deviations
     Eigen::VectorXd considerParametersDeviations_;
+
+    bool conditionNumberWarningEachIteration_;
+
+    bool applyFinalParameterCorrection_;
+
 
 };
 

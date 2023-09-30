@@ -50,16 +50,13 @@ double getConditionNumberOfDecomposedMatrix( const Eigen::JacobiSVD< Eigen::Matr
  * A*x = b for the vector x.
  * \param matrixToInvert Matrix A that is to be inverted to solve the equation
  * \param rightHandSideVector Vector on the righthandside of the matrix equation that is to be solved
- * \param checkConditionNumber Boolean to denote whether the condition number is checked when estimating (warning is printed
- * when value exceeds maximumAllowedConditionNumber)
- * \param maximumAllowedConditionNumber Maximum value of the condition number of the covariance matrix that is allowed
+ * \param limitConditionNumberForWarning Maximum value of the condition number of the covariance matrix that is allowed
  * (warning printed when exceeded)
  * \return Solution x of matrix equation A*x=b
  */
 Eigen::VectorXd solveSystemOfEquationsWithSvd( const Eigen::MatrixXd matrixToInvert,
                                                const Eigen::VectorXd rightHandSideVector,
-                                               const bool checkConditionNumber = 1,
-                                               const double maximumAllowedConditionNumber = 1.0E-8 );
+                                               const double limitConditionNumberForWarning = 1.0E8 );
 
 //! Function to multiply information matrix by diagonal weights matrix
 /*!
@@ -90,7 +87,8 @@ Eigen::MatrixXd calculateInverseOfUpdatedCovarianceMatrix(
         const Eigen::VectorXd& diagonalOfWeightMatrix,
         const Eigen::MatrixXd& inverseOfAPrioriCovarianceMatrix,
         const Eigen::MatrixXd& constraintMultiplier = Eigen::MatrixXd( 0, 0 ),
-        const Eigen::VectorXd& constraintRightHandside = Eigen::VectorXd( 0 ) );
+        const Eigen::VectorXd& constraintRightHandside = Eigen::VectorXd( 0 ),
+        const double limitConditionNumberForWarning = 1.0E8 );
 
 
 //! Function to compute inverse of covariance matrix at current iteration
@@ -103,7 +101,8 @@ Eigen::MatrixXd calculateInverseOfUpdatedCovarianceMatrix(
  */
 Eigen::MatrixXd calculateInverseOfUpdatedCovarianceMatrix(
         const Eigen::MatrixXd& designMatrix,
-        const Eigen::VectorXd& diagonalOfWeightMatrix );
+        const Eigen::VectorXd& diagonalOfWeightMatrix,
+        const double limitConditionNumberForWarning = 1.0E8 );
 
 Eigen::MatrixXd calculateConsiderParametersCovarianceContribution(
         const Eigen::MatrixXd& normalisedCovarianceMatrix,
@@ -124,9 +123,7 @@ Eigen::MatrixXd calculateConsiderParametersCovarianceContribution(
  * \param diagonalOfWeightMatrix Diagonal of observation weights matrix (assumes all weights to be uncorrelated)
  * \param inverseOfAPrioriCovarianceMatrix Inverse of a priori covariance matrix
  * (warning printed when exceeded)
- * \param checkConditionNumber Boolean to denote whether the condition number is checked when estimating (warning is printed
- * when value exceeds maximumAllowedConditionNumber)
- * \param maximumAllowedConditionNumber Maximum value of the condition number of the covariance matrix that is allowed
+ * \param limitConditionNumberForWarning Maximum value of the condition number of the covariance matrix that is allowed
  * \param constraintMultiplier Multiplier for estimated parameter that defines linear constraint
  * \param constraintRightHandside Right-hand side estimation linear constraint
  * \return Pair containing: (first: parameter adjustment, second: inverse covariance)
@@ -136,8 +133,7 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromD
         const Eigen::VectorXd& observationResiduals,
         const Eigen::VectorXd& diagonalOfWeightMatrix,
         const Eigen::MatrixXd& inverseOfAPrioriCovarianceMatrix,
-        const bool checkConditionNumber = 1,
-        const double maximumAllowedConditionNumber = 1.0E8,
+        const double limitConditionNumberForWarning = 1.0E8,
         const Eigen::MatrixXd& constraintMultiplier = Eigen::MatrixXd( 0, 0 ),
         const Eigen::VectorXd& constraintRightHandside = Eigen::VectorXd( 0 ),
         const Eigen::MatrixXd& designMatrixConsiderParameters = Eigen::MatrixXd( 0, 0 ),
@@ -151,9 +147,7 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromD
  * (columns)
  * \param observationResiduals Difference between measured and simulated observations
  * \param diagonalOfWeightMatrix Diagonal of observation weights matrix (assumes all weights to be uncorrelated)
- * \param checkConditionNumber Boolean to denote whether the condition number is checked when estimating (warning is printed
- * when value exceeds maximumAllowedConditionNumber)
- * \param maximumAllowedConditionNumber Maximum value of the condition number of the covariance matrix that is allowed
+ * \param limitConditionNumberForWarning Maximum value of the condition number of the covariance matrix that is allowed
  * (warning printed when exceeded)
  * \return Pair containing: (first: parameter adjustment, second: inverse covariance)
  */
@@ -161,8 +155,7 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromD
         const Eigen::MatrixXd& designMatrix,
         const Eigen::VectorXd& observationResiduals,
         const Eigen::VectorXd& diagonalOfWeightMatrix,
-        const bool checkConditionNumber = 1,
-        const double maximumAllowedConditionNumber = 1.0E8 );
+        const double limitConditionNumberForWarning = 1.0E8 );
 
 //! Function to perform an iteration of least squares estimation from information matrix and residuals
 /*!
@@ -171,17 +164,14 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromD
  * \param designMatrix Matrix containing partial derivatives of observations (rows) w.r.t. estimated parameters
  * (columns)
  * \param observationResiduals Difference between measured and simulated observations
- * \param checkConditionNumber Boolean to denote whether the condition number is checked when estimating (warning is printed
- * when value exceeds maximumAllowedConditionNumber)
- * \param maximumAllowedConditionNumber Maximum value of the condition number of the covariance matrix that is allowed
+ * \param limitConditionNumberForWarning Maximum value of the condition number of the covariance matrix that is allowed
  * (warning printed when exceeded)
  * \return Pair containing: (first: parameter adjustment, second: inverse covariance)
  */
 std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromDesignMatrix(
         const Eigen::MatrixXd& designMatrix,
         const Eigen::VectorXd& observationResiduals,
-        const bool checkConditionNumber = 1,
-        const double maximumAllowedConditionNumber = 1.0E8 );
+        const double limitConditionNumberForWarning = 1.0E8 );
 
 
 Eigen::VectorXd evaluatePolynomial(
