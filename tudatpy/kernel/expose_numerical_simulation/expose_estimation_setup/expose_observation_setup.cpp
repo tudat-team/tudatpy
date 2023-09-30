@@ -1077,10 +1077,10 @@ void expose_observation_setup(py::module &m) {
           py::arg("start_and_end_times_to_process") = std::make_pair< TIME_TYPE, TIME_TYPE >( TUDAT_NAN, TUDAT_NAN ),
           get_docstring("create_odf_observed_observation_collection").c_str() );
 
-    m.def("create_odf_observation_simulation_settings_list",
-          &tom::createOdfObservationSimulationSettingsList< double, TIME_TYPE >,
-          py::arg("observed_observation_collection"),
-          get_docstring("create_odf_observation_simulation_settings_list").c_str() );
+//    m.def("create_odf_observation_simulation_settings_list",
+//          &tom::createOdfObservationSimulationSettingsList< double, TIME_TYPE >,
+//          py::arg("observed_observation_collection"),
+//          get_docstring("create_odf_observation_simulation_settings_list").c_str() );
 
     m.def("change_simulation_settings_observable_types",
           &tom::changeObservableTypesOfObservationSimulationSettings< double, TIME_TYPE >,
