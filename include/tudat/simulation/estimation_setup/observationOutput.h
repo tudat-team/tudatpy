@@ -91,6 +91,15 @@ public:
     std::pair< int, int > getDependentVariableIndices(
             const std::shared_ptr< ObservationDependentVariableSettings > dependentVariables );
 
+    observation_models::ObservableType getObservableType( )
+    {
+        return observableType_;
+    }
+
+    observation_models::LinkDefinition getLinkEnds( )
+    {
+        return linkEnds_;
+    }
 private:
 
     observation_models::ObservableType observableType_;

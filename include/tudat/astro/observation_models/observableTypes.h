@@ -87,6 +87,8 @@ bool isObservableTypeMultiLink( const ObservableType observableType );
 
 bool isObservableOfIntegratedType( const ObservableType observableType );
 
+bool observableCanHaveRetransmissionDelay( const ObservableType observableType );
+
 bool linkEndIdDefinesSingleLink( const ObservableType observableType );
 
 //bool areObservableLinksContinuous( const ObservableType observableType );

@@ -67,11 +67,11 @@ std::pair< int, int > getLinkEndStateTimeIndices(
                                   linkEndId.stationName_ + ")" );
     }
 
-    std::vector< std::pair< int, int > > stateTimeIndex;
 
     // Filter list of indices by link end role
     if( linkEndRole != observation_models::unidentified_link_end )
     {
+        std::vector< std::pair< int, int > > stateTimeIndex;
         std::vector< int > linkEndIndices = observation_models::getLinkEndIndicesForLinkEndTypeAtObservable(
             observableType, linkEndRole, linkEnds.size( ) );
         for( unsigned int i = 0; i < currentStateTimeIndex.size( ); i++ )
@@ -85,14 +85,13 @@ std::pair< int, int > getLinkEndStateTimeIndices(
                 }
             }
         }
+        currentStateTimeIndex = stateTimeIndex;
     }
-
-    currentStateTimeIndex = stateTimeIndex;
-    stateTimeIndex.clear( );
 
     // Filter list of indices by originating link end role
     if( originatingLinkEndRole != observation_models::unidentified_link_end )
     {
+        std::vector< std::pair< int, int > > stateTimeIndex;
         std::vector< int > linkEndIndices = observation_models::getLinkEndIndicesForLinkEndTypeAtObservable(
             observableType, originatingLinkEndRole, linkEnds.size( ) );
         for( unsigned int i = 0; i < currentStateTimeIndex.size( ); i++ )
@@ -106,14 +105,13 @@ std::pair< int, int > getLinkEndStateTimeIndices(
                 }
             }
         }
+        currentStateTimeIndex = stateTimeIndex;
     }
-
-    currentStateTimeIndex = stateTimeIndex;
-    stateTimeIndex.clear( );
 
     // Check if observation is integrated
     if( observation_models::isObservableOfIntegratedType( observableType ) )
     {
+        std::vector< std::pair< int, int > > stateTimeIndex;
         if( currentStateTimeIndex.size( ) != 2 )
         {
             throw std::runtime_error( "Error when getting integrated observable state and time indices; 2 remaining indices required" );
@@ -130,6 +128,7 @@ std::pair< int, int > getLinkEndStateTimeIndices(
         {
             stateTimeIndex.push_back( currentStateTimeIndex.at( 1 ) );
         }
+        currentStateTimeIndex = stateTimeIndex;
     }
     else
     {
@@ -137,11 +136,9 @@ std::pair< int, int > getLinkEndStateTimeIndices(
         {
             throw std::runtime_error( "Error when getting observable state and time indices; 1 index required" );
         }
-
-        stateTimeIndex = currentStateTimeIndex;
     }
 
-    return stateTimeIndex.at( 0 );
+    return currentStateTimeIndex.at( 0 );
 }
 
 ObservationDependentVariableFunction getStationObservationAngleFunction(
@@ -266,13 +263,13 @@ ObservationDependentVariableFunction getInterlinkObservationVariableFunction(
     {
         if ( bodies.count( variableSettings->relativeBody_ ) != 0 )
         {
-            throw std::runtime_error( "Error when parsing body avoidance observation dependent variable w.r.t. " +
+            throw std::runtime_error( "Error when parsing link-body distance observation dependent variable w.r.t. " +
                                       variableSettings->relativeBody_ + ", body is not defined" );
         }
 
         if ( bodies.at( variableSettings->relativeBody_ )->getEphemeris( ) == nullptr )
         {
-            throw std::runtime_error( "Error when parsing body avoidance observation dependent variable w.r.t. " +
+            throw std::runtime_error( "Error when parsing link-body distance observation dependent variable w.r.t. " +
                                       variableSettings->relativeBody_ + ", body has no ephemeris" );
         }
 
@@ -313,6 +310,36 @@ ObservationDependentVariableFunction getInterlinkObservationVariableFunction(
         {
             return linkCenterFunction( linkEndTimes, linkEndStates, observationValue, ancilliarySimulationSettings ) -
                 ( Eigen::Vector1d( ) << shapeModel->getAverageRadius( ) ).finished( );
+        };
+        break;
+    }
+    case link_angle_with_orbital_plane:
+    {
+        if ( bodies.count( variableSettings->relativeBody_ ) != 0 )
+        {
+            throw std::runtime_error( "Error when parsing link-orbital plane angle observation dependent variable w.r.t. " +
+                                      variableSettings->relativeBody_ + ", body is not defined" );
+        }
+
+        if ( bodies.at( variableSettings->relativeBody_ )->getEphemeris( ) == nullptr )
+        {
+            throw std::runtime_error( "Error when parsing link-orbital plane angle observation dependent variable w.r.t. " +
+                                      variableSettings->relativeBody_ + ", body has no ephemeris" );
+        }
+
+        outputFunction = [ = ]( const std::vector<double> &linkEndTimes,
+                                const std::vector<Eigen::Matrix<double, 6, 1> > &linkEndStates,
+                                const Eigen::VectorXd &observationValue,
+                                const std::shared_ptr<observation_models::ObservationAncilliarySimulationSettings> ancilliarySimulationSettings )
+        {
+            Eigen::Vector3d vectorToTarget =
+                linkEndStates.at( linkEndIndicesToUse.second ).segment( 0, 3 ) -
+                linkEndStates.at( linkEndIndicesToUse.first ).segment( 0, 3 );
+            Eigen::Vector6d targetStateWrtCentralBody = linkEndStates.at( linkEndIndicesToUse.second ) -
+                bodies.at( variableSettings->relativeBody_ )->getStateInBaseFrameFromEphemeris<double, double>( linkEndIndicesToUse.second );
+            Eigen::Vector3d orbitNormal = targetStateWrtCentralBody.segment< 3 >( 0 ).cross( targetStateWrtCentralBody.segment< 3 >( 3 ) );
+            return ( Eigen::Vector1d( ) << linear_algebra::computeAngleBetweenVectors( orbitNormal, vectorToTarget ) ).finished( );
+
         };
         break;
     }
@@ -373,6 +400,115 @@ ObservationDependentVariableFunction getObservationVectorDependentVariableFuncti
             bodies, linkSettings, observableType, linkEnds );
         break;
     }
+    case body_avoidance_angle_variable:
+    {
+        std::shared_ptr< InterlinkObservationDependentVariableSettings > linkSettings =
+            std::dynamic_pointer_cast< InterlinkObservationDependentVariableSettings >(
+                variableSettings );
+        if( linkSettings == nullptr )
+        {
+            throw std::runtime_error( "Error in observation dependent variables, incorrect type found for body_avoidance_angle_variable" );
+        }
+
+        outputFunction = getInterlinkObservationVariableFunction(
+            bodies, linkSettings, observableType, linkEnds );
+        break;
+    }
+    case link_limb_distance:
+    {
+        std::shared_ptr< InterlinkObservationDependentVariableSettings > linkSettings =
+            std::dynamic_pointer_cast< InterlinkObservationDependentVariableSettings >(
+                variableSettings );
+        if( linkSettings == nullptr )
+        {
+            throw std::runtime_error( "Error in observation dependent variables, incorrect type found for link_limb_distance" );
+        }
+
+        outputFunction = getInterlinkObservationVariableFunction(
+            bodies, linkSettings, observableType, linkEnds );
+        break;
+    }
+    case link_body_center_distance:
+    {
+        std::shared_ptr< InterlinkObservationDependentVariableSettings > linkSettings =
+            std::dynamic_pointer_cast< InterlinkObservationDependentVariableSettings >(
+                variableSettings );
+        if( linkSettings == nullptr )
+        {
+            throw std::runtime_error( "Error in observation dependent variables, incorrect type found for link_body_center_distance" );
+        }
+
+        outputFunction = getInterlinkObservationVariableFunction(
+            bodies, linkSettings, observableType, linkEnds );
+        break;
+    }
+    case link_angle_with_orbital_plane:
+    {
+        std::shared_ptr< InterlinkObservationDependentVariableSettings > linkSettings =
+            std::dynamic_pointer_cast< InterlinkObservationDependentVariableSettings >(
+                variableSettings );
+        if( linkSettings == nullptr )
+        {
+            throw std::runtime_error( "Error in observation dependent variables, incorrect type found for link_angle_with_orbital_plane" );
+        }
+
+        outputFunction = getInterlinkObservationVariableFunction(
+            bodies, linkSettings, observableType, linkEnds );
+        break;
+    }
+    case doppler_integration_time_dependent_variable:
+    {
+        if( !observation_models::isObservableOfIntegratedType( observableType ) )
+        {
+            throw std::runtime_error( "Error in observation dependent variables, requested integration time for observable " + observation_models::getObservableName(
+                observableType, linkEnds.size( ) ) );
+        }
+
+        outputFunction = [ = ]( const std::vector<double> &linkEndTimes,
+                                const std::vector<Eigen::Matrix<double, 6, 1> > &linkEndStates,
+                                const Eigen::VectorXd &observationValue,
+                                const std::shared_ptr<observation_models::ObservationAncilliarySimulationSettings> ancilliarySimulationSettings )
+        {
+            return ( Eigen::VectorXd( 1 ) <<
+                ancilliarySimulationSettings->getAncilliaryDoubleData( observation_models::doppler_integration_time, true ) ).finished( );
+        };
+        break;
+    }
+    case retransmission_delays_dependent_variable:
+    {
+        if( !observation_models::observableCanHaveRetransmissionDelay( observableType ) )
+        {
+            throw std::runtime_error( "Error in observation dependent variables, requested retransmission time for observable " + observation_models::getObservableName(
+                observableType, linkEnds.size( ) ) );
+        }
+
+        int numberOfLinkEnds = linkEnds.size( );
+        Eigen::VectorXd zeroDelay = Eigen::VectorXd::Zero( numberOfLinkEnds - 1 );
+
+        outputFunction = [ = ]( const std::vector<double> &linkEndTimes,
+                                const std::vector<Eigen::Matrix<double, 6, 1> > &linkEndStates,
+                                const Eigen::VectorXd &observationValue,
+                                const std::shared_ptr<observation_models::ObservationAncilliarySimulationSettings> ancilliarySimulationSettings )
+        {
+            std::vector< double > retransmissionDelays = ancilliarySimulationSettings->getAncilliaryDoubleVectorData( observation_models::doppler_integration_time, false );
+            if( retransmissionDelays.size( ) > 0 )
+            {
+                if( static_cast< int >( retransmissionDelays.size( ) ) != numberOfLinkEnds - 1 )
+                {
+                    throw std::runtime_error( "Error in observation dependent variables, retransmission time size for observable " + observation_models::getObservableName(
+                        observableType, linkEnds.size( ) ) + " is of inconsistent size. Should be " + std::to_string( numberOfLinkEnds - 1 ) +
+                        " but is " + std::to_string( retransmissionDelays.size( ) ) );
+                }
+
+                return utilities::convertStlVectorToEigenVector( retransmissionDelays );
+            }
+            else
+            {
+                return zeroDelay;
+            }
+        };
+        break;
+    }
     default:
         throw std::runtime_error( "Error when parsing vector observation dependent variable, did not recognize variable" +
                                   getObservationDependentVariableId( variableSettings ) );
@@ -385,8 +521,8 @@ void ObservationDependentVariableCalculator::addDependentVariable(
         const SystemOfBodies& bodies )
 {
     // Check if the requested dependent variable can be used for given link
-//    if( doesObservationDependentVariableExistForGivenLink(
-//                observableType_, linkEnds_.linkEnds_, variableSettings ) )
+    if( doesObservationDependentVariableExistForGivenLink(
+                observableType_, linkEnds_.linkEnds_, variableSettings ) )
     {
         // Retrieve the current index in list of dependent variables and size of new parameter
         int currentIndex = totalDependentVariableSize_;

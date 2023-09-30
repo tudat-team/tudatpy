@@ -142,7 +142,7 @@ void testObservationPartials(
         const bool testParameterPartial = 1,
         const double positionPerturbationMultiplier = 1.0,
         const Eigen::VectorXd parameterPerturbationMultipliers = Eigen::VectorXd::Constant( 4, 1.0 ),
-        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings < double > > ancilliarySettings = nullptr )
+        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings = nullptr )
 {
 
     printEstimatableParameterEntries( fullEstimatableParameterSet );

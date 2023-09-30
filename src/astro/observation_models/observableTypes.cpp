@@ -164,6 +164,46 @@ bool isObservableOfIntegratedType( const ObservableType observableType )
     return isIntegratedType;
 }
 
+bool observableCanHaveRetransmissionDelay( const ObservableType observableType )
+{
+
+    bool canHaveDelay = false;
+    switch( observableType )
+    {
+    case one_way_range:
+        break;
+    case angular_position:
+        break;
+    case position_observable:
+        break;
+    case one_way_doppler:
+        break;
+    case one_way_differenced_range:
+        break;
+    case n_way_range:
+        canHaveDelay = true;
+        break;
+    case two_way_doppler:
+        canHaveDelay = true;
+        break;
+    case euler_angle_313_observable:
+        break;
+    case velocity_observable:
+        break;
+    case relative_angular_position:
+        break;
+    case relative_position_observable:
+        break;
+    case n_way_differenced_range:
+        canHaveDelay = true;
+        break;
+    default:
+        throw std::runtime_error( "Error when determining if observable type can have retransmission delay; observable " +
+                                  getObservableName( observableType ) + " not found" );
+    }
+    return canHaveDelay;
+}
+
 bool linkEndIdDefinesSingleLink( const ObservableType observableType )
 {
     if( isObservableOfIntegratedType( observableType ) || isObservableTypeMultiLink( observableType ) || !doesLinkEndTypeDefineId( observableType ) )

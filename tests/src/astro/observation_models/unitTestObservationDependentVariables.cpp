@@ -177,12 +177,12 @@ int main( )
     std::shared_ptr< ObservationDependentVariableSettings > azimuthAngleSettings1 =
             std::make_shared< StationAngleObservationDependentVariableSettings >(
                 station_azimuth_angle, LinkEndId( std::make_pair( "Earth", "Station1" ) ) );
-
-//    std::shared_ptr< ObservationDependentVariableSettings > elevationAngleSettings2 =
-//            std::make_shared< StationAngleObservationDependentVariableSettings >(
-//                station_elevation_angle, std::make_pair( "Earth", "Station2" ) );
+    std::shared_ptr< ObservationDependentVariableSettings > elevationAngleSettings2 =
+            std::make_shared< StationAngleObservationDependentVariableSettings >(
+                station_elevation_angle, LinkEndId( std::make_pair( "Earth", "Station2" ) ) );
 
     dependentVariableList.push_back( elevationAngleSettings1 );
+    dependentVariableList.push_back( elevationAngleSettings2 );
     dependentVariableList.push_back( azimuthAngleSettings1 );
 
     addDependentVariablesToObservationSimulationSettings(
