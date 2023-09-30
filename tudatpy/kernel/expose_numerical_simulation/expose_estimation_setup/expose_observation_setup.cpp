@@ -345,6 +345,13 @@ void expose_observation_setup(py::module &m) {
           py::arg("bias_settings") = nullptr,
           get_docstring("cartesian_position").c_str() );
 
+    m.def("relative_cartesian_position",
+          &tom::relativePositionObservableSettings,
+          py::arg("link_ends"),
+          py::arg("bias_settings") = nullptr,
+          get_docstring("cartesian_position").c_str() );
+
+
     m.def("cartesian_velocity",
           &tom::velocityObservableSettings,
           py::arg("link_ends"),
