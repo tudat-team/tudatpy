@@ -39,6 +39,7 @@ void addNoiseAndDependentVariableToObservation(
         Eigen::VectorXd& dependentVariables,
         const std::vector< Eigen::Vector6d >& vectorOfStates,
         const std::vector< double >& vectorOfTimes,
+        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings,
         const observation_models::ObservableType observableType,
         const std::function< Eigen::VectorXd( const double ) > noiseFunction = nullptr,
         const std::shared_ptr< ObservationDependentVariableCalculator > dependentVariableCalculator = nullptr  )
@@ -46,7 +47,7 @@ void addNoiseAndDependentVariableToObservation(
     if( dependentVariableCalculator != nullptr )
     {
         dependentVariables = dependentVariableCalculator->calculateDependentVariables(
-                    vectorOfTimes, vectorOfStates, calculatedObservation.template cast< double >( ) );
+                    vectorOfTimes, vectorOfStates, calculatedObservation.template cast< double >( ), ancilliarySettings );
     }
 
     // Add noise if needed.
@@ -105,7 +106,7 @@ std::tuple< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >, bool, Eig
     {
         addNoiseAndDependentVariableToObservation< ObservationSize , ObservationScalarType, TimeType >(
                     calculatedObservation, observationTime, dependentVariables,
-                    vectorOfStates, vectorOfTimes, observationModel->getObservableType( ),
+                    vectorOfStates, vectorOfTimes, ancilliarySettings, observationModel->getObservableType( ),
                     noiseFunction, dependentVariableCalculator );
     }
 
@@ -317,7 +318,7 @@ simulatePerArcSingleObservationSet(
             if( observationFeasible )
             {
                 addNoiseAndDependentVariableToObservation< ObservationSize , ObservationScalarType, TimeType >(
-                            currentObservation, it.first, currentDependentVariable, vectorOfStates, vectorOfTimes,
+                            currentObservation, it.first, currentDependentVariable, vectorOfStates, vectorOfTimes, ancilliarySettings,
                             observationModel->getObservableType( ),
                             observationsToSimulate->getObservationNoiseFunction( ),
                             observationsToSimulate->getDependentVariableCalculator( ) );

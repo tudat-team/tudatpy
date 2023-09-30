@@ -67,7 +67,7 @@ int main( )
         aerodynamics::longitude_dependent_atmosphere, aerodynamics::latitude_dependent_atmosphere,
         aerodynamics::altitude_dependent_atmosphere };
     // Create a tabulated atmosphere object.
-    std::map< int, std::string > tabulatedAtmosphereFiles;cout
+    std::map< int, std::string > tabulatedAtmosphereFiles;
     tabulatedAtmosphereFiles[ 0 ] = paths::getAtmosphereTablesPath( ) + "/MCDMeanAtmosphereTimeAverage/specificHeatRatio.dat";
     tabulatedAtmosphereFiles[ 1 ] = paths::getAtmosphereTablesPath( ) + "/MCDMeanAtmosphereTimeAverage/temperature.dat";
     tabulatedAtmosphereFiles[ 2 ] = paths::getAtmosphereTablesPath( ) + "/MCDMeanAtmosphereTimeAverage/density.dat";

@@ -174,11 +174,6 @@ private:
 void setSimpleRotationSettingsFromSpice(
         const BodyListSettings& bodySettings, const std::string& bodyName, const double  spiceEvaluation );
 
-void addEmptyTabulatedEphemeris(
-        const SystemOfBodies& bodies, const std::string& bodyName, const std::string& ephemerisOrigin = "" );
-
-void addEmptyTabulatedRotationalEphemeris(
-        const SystemOfBodies& bodies, const std::string& bodyName, const std::string& bodyFixedFrameName = ""  );
 
 //! Function that determines the order in which bodies are to be created
 /*!

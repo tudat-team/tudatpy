@@ -168,6 +168,7 @@ public:
         return basic_astrodynamics::convertDayMonthYearToDayOfYear( day_, month_, year_ );
     }
 
+
 protected:
 
 

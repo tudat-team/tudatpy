@@ -85,6 +85,10 @@ std::pair< std::vector< int >, std::vector< int > > getUndifferencedTimeAndState
  */
 int getObservableSize( const ObservableType observableType );
 
+bool doesLinkEndTypeDefineId( const ObservableType observableType );
+
+bool isObservableTypeMultiLink( const ObservableType observableType );
+
 bool isObservableOfIntegratedType( const ObservableType observableType );
 
 /*! Function indicating whether observable type requires transmitting ground station.
@@ -119,6 +123,10 @@ bool isRadiometricObservableType( const ObservableType observableType );
 bool isPhaseVelocityBasedObservableType( const ObservableType observableType );
 
 bool isGroupVelocityBasedObservableType( const ObservableType observableType );
+
+bool observableCanHaveRetransmissionDelay( const ObservableType observableType );
+
+bool linkEndIdDefinesSingleLink( const ObservableType observableType );
 
 //bool areObservableLinksContinuous( const ObservableType observableType );
 

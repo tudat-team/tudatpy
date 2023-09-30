@@ -88,15 +88,11 @@ public:
      *  is kept constant (to input value)
      *  \return Pair of observable values and partial matrix
      */
-    virtual void computeObservationsWithPartials(
-         const std::vector< TimeType >& times,
-         const LinkEnds linkEnds,
-         const LinkEndType linkEndAssociatedWithTime,
-         const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings,
-         Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& observationsVector,
-         Eigen::MatrixXd& partialsMatrix,
-         const bool calculateObservations = true,
-         const bool calculatePartials = true ) = 0;
+    virtual std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >, Eigen::MatrixXd >
+    computeObservationsWithPartials( const std::vector< TimeType >& times,
+                                     const LinkEnds linkEnds,
+                                     const LinkEndType linkEndAssociatedWithTime,
+                                     const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings ) = 0;
 
     //! Function (ṕure virtual) to return the object used to simulate noise-free observations
     /*!
@@ -452,9 +448,6 @@ protected:
                     // Partial w.r.t. observation time property
                     if ( isParameterObservationLinkTimeProperty( partialIterator->second->getParameterIdentifier( ).first ) )
                     {
-//                        partialMatrix.block( 0, currentIndexInfo.first, observationSize, currentIndexInfo.second ) +=
-//                                observationPartialWrtTimeProperty * singlePartialSet[ i ].first;
-
                         // Iterate (again) over all observation partials to retrieve those associated with given link ends states.
                         for( auto itr : currentLinkEndPartials )
                         {
@@ -493,7 +486,9 @@ protected:
                                     {
                                         throw std::runtime_error( "Error, required dependent variable interfaces, but none found when computing partials." );
                                     }
-                                    Eigen::VectorXd acceleration = dependentVariablesInterface_->getSingleDependentVariable( totalAccelerationVariable, times.at( indexLinkEndType ) );
+
+                                    Eigen::VectorXd acceleration = dependentVariablesInterface_->getSingleDependentVariable(
+                                        totalAccelerationVariable, times.at( indexLinkEndType ) );
                                     Eigen::Vector6d stateDerivativeVector = Eigen::Vector6d::Zero( );
                                     stateDerivativeVector.segment( 0, 3 ) = states.at( indexLinkEndType ).segment( 3, 3 );
                                     stateDerivativeVector.segment( 3, 3 ) = acceleration;

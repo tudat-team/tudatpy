@@ -1190,6 +1190,41 @@ std::shared_ptr< SolarSailAcceleration > createSolarSailAccelerationModel(
 
 }
 
+//! Function to create Yarkovsky acceleration model, based on the simplified model of https://doi.org/10.1038/s43247-021-00337-x.
+std::shared_ptr< electromagnetism::YarkovskyAcceleration > createYarkovskyAcceleration(
+        const std::shared_ptr< Body > bodyUndergoingAcceleration,
+        const std::shared_ptr< Body > bodyExertingAcceleration,
+        const std::string& nameOfBodyUndergoingAcceleration,
+        const std::string& nameOfBodyExertingAcceleration,
+        const  std::shared_ptr< AccelerationSettings > accelerationSettings )
+{
+
+    // Declare pointer to return object
+    std::shared_ptr< electromagnetism::YarkovskyAcceleration > accelerationModel;
+
+    // Dynamic cast acceleration settings to required type and check consistency.
+    std::shared_ptr< simulation_setup::YarkovskyAccelerationSettings > yarkovskySettings =
+            std::dynamic_pointer_cast< simulation_setup::YarkovskyAccelerationSettings >(
+                accelerationSettings );
+
+    if( yarkovskySettings == nullptr )
+    {
+        throw std::runtime_error( "Error, expected Yarkovsky acceleration settings when making acceleration model on " +
+                                  nameOfBodyUndergoingAcceleration + " due to " + nameOfBodyExertingAcceleration );
+    }
+    else
+    {
+        accelerationModel = std::make_shared< electromagnetism::YarkovskyAcceleration >(
+                    yarkovskySettings->yarkovskyParameter_,
+                    std::bind( &Body::getState, bodyUndergoingAcceleration ),
+                    std::bind( &Body::getState, bodyExertingAcceleration ) );
+        // }
+    }
+
+    return accelerationModel;
+}
+
+
 std::shared_ptr< basic_astrodynamics::CustomAccelerationModel > createCustomAccelerationModel(
         const std::shared_ptr< AccelerationSettings > accelerationSettings,
         const std::string& nameOfBodyUndergoingAcceleration )
@@ -1751,6 +1786,14 @@ std::shared_ptr< AccelerationModel< Eigen::Vector3d > > createAccelerationModel(
                     centralBody,
                     nameOfBodyUndergoingAcceleration,
                     nameOfBodyExertingAcceleration );
+        break;
+    case yarkovsky_acceleration:
+        accelerationModelPointer = createYarkovskyAcceleration(
+                    bodyUndergoingAcceleration,
+                    bodyExertingAcceleration,
+                    nameOfBodyUndergoingAcceleration,
+                    nameOfBodyExertingAcceleration,
+                    accelerationSettings );
         break;
     case custom_acceleration:
         accelerationModelPointer = createCustomAccelerationModel(

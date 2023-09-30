@@ -315,40 +315,42 @@ BOOST_AUTO_TEST_CASE( test_DissipationParameterEstimation )
         // Estimate initial states and tidal parameters
         std::shared_ptr< EstimationInput< double, double > > estimationInput = std::make_shared< EstimationInput< double, double > >( observationsAndTimes );
         estimationInput->setConvergenceChecker( std::make_shared< EstimationConvergenceChecker >( 3 ) );
-
+        estimationInput->applyFinalParameterCorrection_ = true;
+        estimationInput->defineEstimationSettings( 1, 1, 1, 0, 1, 0 );
         std::shared_ptr< EstimationOutput< double > > estimationOutput = orbitDeterminationManager.estimateParameters( estimationInput );
 
         // Check if parameters are correctly estimated
-        Eigen::VectorXd estimatedParametervalues = estimationOutput->parameterEstimate_;
+        Eigen::VectorXd estimatedParametervalues = estimationOutput->parameterHistory_.at( estimationOutput->parameterHistory_.size( ) - 1 );
+
         for( unsigned int i = 0; i < 3; i++ )
         {
-            BOOST_CHECK_SMALL( std::fabs( truthParameters( i ) - estimationOutput->parameterEstimate_( i ) ), 0.1 );
-            BOOST_CHECK_SMALL( std::fabs( truthParameters( i + 6 ) - estimationOutput->parameterEstimate_( i + 6 ) ), 0.1 );
-            BOOST_CHECK_SMALL( std::fabs( truthParameters( i + 3 ) - estimationOutput->parameterEstimate_( i + 3 ) ), 1.0E-6 );
-            BOOST_CHECK_SMALL( std::fabs( truthParameters( i + 9 ) - estimationOutput->parameterEstimate_( i + 9 ) ), 1.0E-6 );
+            BOOST_CHECK_SMALL( std::fabs( truthParameters( i ) - estimatedParametervalues( i ) ), 0.1 );
+            BOOST_CHECK_SMALL( std::fabs( truthParameters( i + 6 ) - estimatedParametervalues( i + 6 ) ), 0.1 );
+            BOOST_CHECK_SMALL( std::fabs( truthParameters( i + 3 ) - estimatedParametervalues( i + 3 ) ), 1.0E-6 );
+            BOOST_CHECK_SMALL( std::fabs( truthParameters( i + 9 ) - estimatedParametervalues( i + 9 ) ), 1.0E-6 );
         }
         if ( test < 2 )
         {
-            BOOST_CHECK_SMALL( std::fabs( truthParameters( 12 ) - estimationOutput->parameterEstimate_( 12 ) ), 0.1 );
-            BOOST_CHECK_SMALL( std::fabs( truthParameters( 13 ) - estimationOutput->parameterEstimate_( 13 ) ), 10.0 );
-            BOOST_CHECK_SMALL( std::fabs( truthParameters( 14 ) - estimationOutput->parameterEstimate_( 14 ) ), 1.0E-3 );
+            BOOST_CHECK_SMALL( std::fabs( truthParameters( 12 ) - estimatedParametervalues( 12 ) ), 0.1 );
+            BOOST_CHECK_SMALL( std::fabs( truthParameters( 13 ) - estimatedParametervalues( 13 ) ), 10.0 );
+            BOOST_CHECK_SMALL( std::fabs( truthParameters( 14 ) - estimatedParametervalues( 14 ) ), 1.0E-3 );
             if( test == 1 )
             {
-                BOOST_CHECK_SMALL( std::fabs( truthParameters( 15 ) - estimationOutput->parameterEstimate_( 15 ) ), 1.0E-2 );
+                BOOST_CHECK_SMALL( std::fabs( truthParameters( 15 ) - estimatedParametervalues( 15 ) ), 1.0E-2 );
             }
         }
         else
         {
-            BOOST_CHECK_SMALL( std::fabs( truthParameters( 12 ) - estimationOutput->parameterEstimate_( 12 ) ), 1.0e-6 );
-            BOOST_CHECK_SMALL( std::fabs( truthParameters( 13 ) - estimationOutput->parameterEstimate_( 13 ) ), 1.0e-4 );
-            BOOST_CHECK_SMALL( std::fabs( truthParameters( 14 ) - estimationOutput->parameterEstimate_( 14 ) ), 1.0E-7 );
+            BOOST_CHECK_SMALL( std::fabs( truthParameters( 12 ) - estimatedParametervalues( 12 ) ), 1.0e-6 );
+            BOOST_CHECK_SMALL( std::fabs( truthParameters( 13 ) - estimatedParametervalues( 13 ) ), 1.0e-4 );
+            BOOST_CHECK_SMALL( std::fabs( truthParameters( 14 ) - estimatedParametervalues( 14 ) ), 1.0E-7 );
             if( test == 1 )
             {
-                BOOST_CHECK_SMALL( std::fabs( truthParameters( 15 ) - estimationOutput->parameterEstimate_( 15 ) ), 1.0E-6 );
+                BOOST_CHECK_SMALL( std::fabs( truthParameters( 15 ) - estimatedParametervalues( 15 ) ), 1.0E-6 );
             }
         }
 
-        std::cout << "Parameter error: " << ( truthParameters -  estimationOutput->parameterEstimate_ ).transpose( ) << std::endl;
+        std::cout << "Parameter error: " << ( truthParameters -  estimatedParametervalues ).transpose( ) << std::endl;
     }
 }
 
