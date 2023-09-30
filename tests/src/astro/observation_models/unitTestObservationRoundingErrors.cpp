@@ -138,7 +138,7 @@ void checkStateFunctionNumericalErrors(
 
     // Compute numerical position partial, and compute error w.r.t. computation for Delta t = 1 s
     Eigen::Vector3ld nominalPartial = Eigen::Vector3ld::Zero( );
-    for ( int i = 0; i < timeExponents.size( ); i++ )
+    for ( unsigned int i = 0; i < timeExponents.size( ); i++ )
     {
         // Define time step
         long double perturbationStep = std::pow( 10, timeExponents.at( i ) );

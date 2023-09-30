@@ -287,18 +287,19 @@ BOOST_AUTO_TEST_CASE( test_RotationalDynamicsEstimationFromLanderData )
     // Check residual size (sub-mm over >1 AU)
     BOOST_CHECK_SMALL( std::fabs( estimationOutput->residualStandardDeviation_ ), 1.0E-3 );
 
+    Eigen::VectorXd finalParameterEstimate = parametersToEstimate->getFullParameterValues< double >( );
     // Check parameter errors
     for( unsigned int i = 0; i < 4; i++ )
     {
-        BOOST_CHECK_SMALL( std::fabs( estimationOutput->parameterEstimate_( i ) - truthParameters( i ) ), 1.0E-13 );
+        BOOST_CHECK_SMALL( std::fabs( finalParameterEstimate( i ) - truthParameters( i ) ), 1.0E-13 );
     }
     for( unsigned int i = 0; i < 3; i++ )
     {
-        BOOST_CHECK_SMALL( std::fabs( estimationOutput->parameterEstimate_( i + 4 ) - truthParameters( i + 4 ) ), 1.0E-17 );
+        BOOST_CHECK_SMALL( std::fabs( finalParameterEstimate( i + 4 ) - truthParameters( i + 4 ) ), 1.0E-17 );
     }
     for( unsigned int i = 0; i < 1; i++ )
     {
-        BOOST_CHECK_SMALL( std::fabs( estimationOutput->parameterEstimate_( i + 7 ) - truthParameters( i + 7 ) ), 1.0E-16 );
+        BOOST_CHECK_SMALL( std::fabs( finalParameterEstimate( i + 7 ) - truthParameters( i + 7 ) ), 1.0E-16 );
 
     }
     std::cout<<"True error: "<<( estimationOutput->parameterEstimate_ - truthParameters ).transpose( )<<std::endl;
@@ -376,7 +377,7 @@ BOOST_AUTO_TEST_CASE( test_RotationalTranslationalDynamicsEstimationFromLanderDa
     systemInitialState.segment( 0, 4 ) = linear_algebra::convertQuaternionToVectorFormat( nominalInitialRotation );
     systemInitialState( 6 ) = meanMotion * ( 1.0 + initialRotationRatePerturbation );
 
-    Eigen::Matrix3d phobosInertiaTensor = bodies.at( "Phobos" )->getBodyInertiaTensor( );
+//    Eigen::Matrix3d phobosInertiaTensor = bodies.at( "Phobos" )->getBodyInertiaTensor( );
 
     // Create torque models
     SelectedTorqueMap torqueMap;

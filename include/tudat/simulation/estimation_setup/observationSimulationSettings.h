@@ -407,7 +407,8 @@ std::vector< std::shared_ptr< ObservationSimulationSettings< TimeType > > > crea
 }
 
 template< typename TimeType = double >
-std::vector< std::shared_ptr< ObservationSimulationSettings< TimeType > > > perArcObservationSimulationSettingsList(
+std::vector< std::shared_ptr< ObservationSimulationSettings< TimeType > > >
+    perArcObservationSimulationSettingsList(
         const std::map< observation_models::ObservableType, std::vector< observation_models::LinkDefinition > > linkEndsPerObservable,
         const TimeType startTime, const TimeType endTime, const TimeType intervalBetweenObservations,
         const std::shared_ptr< observation_models::ObservationViabilitySettings > arcDefiningConstraint,
