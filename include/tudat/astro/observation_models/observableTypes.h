@@ -81,7 +81,13 @@ std::pair< std::vector< int >, std::vector< int > > getUndifferencedTimeAndState
  */
 int getObservableSize( const ObservableType observableType );
 
+bool doesLinkEndTypeDefineId( const ObservableType observableType );
+
+bool isObservableTypeMultiLink( const ObservableType observableType );
+
 bool isObservableOfIntegratedType( const ObservableType observableType );
+
+bool linkEndIdDefinesSingleLink( const ObservableType observableType );
 
 //bool areObservableLinksContinuous( const ObservableType observableType );
 

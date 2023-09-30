@@ -9,6 +9,7 @@
  */
 
 #include "tudat/simulation/estimation_setup/observationOutput.h"
+#include "tudat/astro/observation_models/observationViabilityCalculator.h"
 
 namespace tudat
 {
@@ -23,13 +24,7 @@ void checkObservationDependentVariableEnvironment(
 {
     if( isObservationDependentVariableGroundStationProperty( variableSettings ) )
     {
-        //        if( variableSettings->relevantLinkEnds_.size( ) != 1 )
-        //        {
-        //            throw std::runtime_error( "Error in observation dependent variables when creating function for " +
-        //                                      getObservationDependentVariableId( variableSettings ) +
-        //                                      ", only one input link end can be processed" );
-        //        }
-
+      
         std::string bodyName = variableSettings->relevantLinkEnd_.bodyName_;
         std::string stationName = variableSettings->relevantLinkEnd_.stationName_;
 
@@ -49,212 +44,335 @@ void checkObservationDependentVariableEnvironment(
     }
 }
 
-double getLinkEndRange(
-        const std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
-        const std::pair< int, int > linkEndIndices )
-{
-    return ( linkEndStates.at( linkEndIndices.first ).segment( 0, 3 ) -
-             linkEndStates.at( linkEndIndices.second ).segment( 0, 3 ) ).norm( );
-}
 
-DoubleObservationDependentVariableFunction getBodyAvoidanceFunction(
-        const SystemOfBodies& bodies,
-        const std::shared_ptr< BodyAvoidanceObservationDependentVariableSettings > variableSettings,
-        const observation_models::ObservableType observableType,
-        const observation_models::LinkDefinition linkEnds )
+std::pair< int, int > getLinkEndStateTimeIndices(
+    const observation_models::ObservableType observableType,
+    const observation_models::LinkDefinition linkEnds,
+    const observation_models::LinkEndId linkEndId,
+    const observation_models::LinkEndType linkEndRole,
+    const observation_models::LinkEndType originatingLinkEndRole,
+    const IntegratedObservationPropertyHandling integratedObservableHandling )
 {
+    // Get link-end indices consistent with settings
+    std::vector< std::pair< int, int > > currentStateTimeIndex =
+        observation_models::getLinkStateAndTimeIndicesForLinkEnd(
+            linkEnds.linkEnds_, observableType, linkEndId );
+
+    // If no indices are found, throw exception
+    if( currentStateTimeIndex.size( ) == 0 )
+    {
+        throw std::runtime_error( "Error in getting link and state ID for " +
+                                  observation_models::getObservableName( observableType ) +
+                                  " Could not find link end: (" + linkEndId.bodyName_ + ", " +
+                                  linkEndId.stationName_ + ")" );
+    }
+
+    std::vector< std::pair< int, int > > stateTimeIndex;
+
+    // Filter list of indices by link end role
+    if( linkEndRole != observation_models::unidentified_link_end )
+    {
+        std::vector< int > linkEndIndices = observation_models::getLinkEndIndicesForLinkEndTypeAtObservable(
+            observableType, linkEndRole, linkEnds.size( ) );
+        for( unsigned int i = 0; i < currentStateTimeIndex.size( ); i++ )
+        {
+            for( unsigned int j = 0; j < linkEndIndices.size( ); j++ )
+            {
+                // If link end index and transmission index are equal, retain current link
+                if( currentStateTimeIndex.at( i ).first == linkEndIndices.at( j ) )
+                {
+                    stateTimeIndex.push_back( currentStateTimeIndex.at( i ) );
+                }
+            }
+        }
+    }
+
+    currentStateTimeIndex = stateTimeIndex;
+    stateTimeIndex.clear( );
+
+    // Filter list of indices by originating link end role
+    if( originatingLinkEndRole != observation_models::unidentified_link_end )
+    {
+        std::vector< int > linkEndIndices = observation_models::getLinkEndIndicesForLinkEndTypeAtObservable(
+            observableType, originatingLinkEndRole, linkEnds.size( ) );
+        for( unsigned int i = 0; i < currentStateTimeIndex.size( ); i++ )
+        {
+            for( unsigned int j = 0; j < linkEndIndices.size( ); j++ )
+            {
+                // If originating link end index and transmission index are equal, retain current link
+                if( currentStateTimeIndex.at( i ).second == linkEndIndices.at( j ) )
+                {
+                    stateTimeIndex.push_back( currentStateTimeIndex.at( i ) );
+                }
+            }
+        }
+    }
+
+    currentStateTimeIndex = stateTimeIndex;
+    stateTimeIndex.clear( );
+
     // Check if observation is integrated
-    bool isObservableIntegrated = observation_models::isObservableOfIntegratedType( observableType );
-    if( isObservableIntegrated == 1 )
+    if( observation_models::isObservableOfIntegratedType( observableType ) )
     {
-        throw std::runtime_error( "Error in body-avoidance observation dependent variables for " +
-                                  getObservationDependentVariableId( variableSettings ) +
-                                  " Interface for integrated observables not yet implemented" );
+        if( currentStateTimeIndex.size( ) != 2 )
+        {
+            throw std::runtime_error( "Error when getting integrated observable state and time indices; 2 remaining indices required" );
+        }
+        else if( integratedObservableHandling == interval_undefined )
+        {
+            throw std::runtime_error( "Error when getting integrated observable state and time indices; choice of start or end of arc undefined" );
+        }
+        else if( integratedObservableHandling == interval_start )
+        {
+            stateTimeIndex.push_back( currentStateTimeIndex.at( 0 ) );
+        }
+        else if( integratedObservableHandling == interval_end )
+        {
+            stateTimeIndex.push_back( currentStateTimeIndex.at( 1 ) );
+        }
+    }
+    else
+    {
+        if( currentStateTimeIndex.size( ) != 1 )
+        {
+            throw std::runtime_error( "Error when getting observable state and time indices; 1 index required" );
+        }
+
+        stateTimeIndex = currentStateTimeIndex;
     }
 
-    int numberOfLinks = observation_models::getNumberOfLinksInObservable(
-                observableType, linkEnds.size( ) );
-
-    std::pair< int, int > linkEndIndices;
-    DoubleObservationDependentVariableFunction outputFunction;
-    if( numberOfLinks == 1 )
-    {
-        linkEndIndices = std::make_pair( 0, 1 );
-    }
-
-
-    outputFunction  = [=]( const std::vector< double >& linkEndTimes,
-            const std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
-            const Eigen::VectorXd& observationValue )
-    {
-        double averageTime = ( linkEndTimes.at( linkEndIndices.first ) +
-                               linkEndTimes.at( linkEndIndices.second ) ) / 2.0;
-        Eigen::Vector3d bodyToAvoid =
-                bodies.at( variableSettings->bodyAvoidance_ )->getStateInBaseFrameFromEphemeris< double, double >( averageTime ).segment< 3 >( 0 );
-        return observation_models::computeCosineBodyAvoidanceAngle( linkEndStates, linkEndIndices, bodyToAvoid );
-    };
-    return outputFunction;
+    return stateTimeIndex.at( 0 );
 }
 
-DoubleObservationDependentVariableFunction getTargetRangeFunction(
-        const std::shared_ptr< InterlinkObservationDependentVariableSettings > variableSettings,
-        const observation_models::ObservableType observableType,
-        const observation_models::LinkDefinition linkEnds )
-{
-    // Check if observation is integrated
-    bool isObservableIntegrated = observation_models::isObservableOfIntegratedType( observableType );
-    if( isObservableIntegrated == 1 )
-    {
-        throw std::runtime_error( "Error in target-range observation dependent variables for " +
-                                  getObservationDependentVariableId( variableSettings ) +
-                                  " Interface for integrated observables not yet implemented" );
-    }
-
-    int numberOfLinks = observation_models::getNumberOfLinksInObservable(
-                observableType, linkEnds.size( ) );
-
-    std::pair< int, int > linkEndIndices;
-    DoubleObservationDependentVariableFunction outputFunction;
-    if( numberOfLinks == 1 )
-    {
-        linkEndIndices = std::make_pair( 0, 1 );
-    }
-
-    outputFunction  = [=]( const std::vector< double >&,
-            const std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
-            const Eigen::VectorXd& observationValue )
-    { return getLinkEndRange( linkEndStates, linkEndIndices ); };
-    return outputFunction;
-}
-
-DoubleObservationDependentVariableFunction getStationObservationAngleFunction(
+ObservationDependentVariableFunction getStationObservationAngleFunction(
         const SystemOfBodies& bodies,
         const std::shared_ptr< StationAngleObservationDependentVariableSettings > variableSettings,
         const observation_models::ObservableType observableType,
         const observation_models::LinkDefinition linkEnds )
 {
+    // Check if relevant properties of environment exist
     checkObservationDependentVariableEnvironment( bodies, variableSettings );
 
     // Retrieve link-end ID for station
     std::string bodyName = variableSettings->relevantLinkEnd_.bodyName_;
     std::string stationName = variableSettings->relevantLinkEnd_.stationName_;
 
-    // Check if observation is integrated
-    bool isObservableIntegrated = observation_models::isObservableOfIntegratedType( observableType );
-    if( isObservableIntegrated == 1 )
-    {
-        throw std::runtime_error( "Error in station-angle observation dependent variables for " +
-                                  getObservationDependentVariableId( variableSettings ) +
-                                  " Interface for integrated observables not yet implemented" );
-    }
-
-    // Get link-end indices consistent with settings
-    std::vector< std::pair< int, int > > stateTimeIndex =
-            observation_models::getLinkStateAndTimeIndicesForLinkEnd(
-                linkEnds.linkEnds_, observableType, variableSettings->relevantLinkEnd_ );
-    if( stateTimeIndex.size( ) == 0 )
-    {
-        throw std::runtime_error( "Error in station-angle observation dependent variables for " +
-                                  getObservationDependentVariableId( variableSettings ) +
-                                  " Could not find link end: (" + variableSettings->relevantLinkEnd_.bodyName_ + ", " +
-                                  variableSettings->relevantLinkEnd_.stationName_ + ")" );
-    }
-
-    std::pair< int, int > linkEndIndicesToUse;
-    if( stateTimeIndex.size( ) == 1 )
-    {
-        linkEndIndicesToUse = stateTimeIndex.at( 0 );
-    }
-    else if( stateTimeIndex.size( ) > 1 )
-    {
-        throw std::runtime_error( "Error in station-angle observation dependent variables for " +
-                                  getObservationDependentVariableId( variableSettings ) +
-                                  " Interface not yet implemented for multiple viable link indices" );
-    }
-
+    std::pair< int, int > linkEndIndicesToUse = getLinkEndStateTimeIndices(
+        observableType, linkEnds, variableSettings->relevantLinkEnd_,
+        variableSettings->linkEndRole_, variableSettings->originatingLinkEndRole_,
+        variableSettings->integratedObservableHandling_ );
 
     // Retrieve pointing angles calculator for station, and setup output function
     std::shared_ptr< ground_stations::PointingAnglesCalculator > pointingAnglesCalculator =
             bodies.at( bodyName )->getGroundStationMap( ).at( stationName )->getPointingAnglesCalculator( );
-    DoubleObservationDependentVariableFunction outputFunction;
+    ObservationDependentVariableFunction outputFunction;
+
     if( variableSettings->variableType_ == station_elevation_angle )
     {
         outputFunction = [=]( const std::vector< double >& linkEndTimes,
                 const std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
-                const Eigen::VectorXd& observationValue )
-        { return ground_stations::calculateGroundStationElevationAngle(
-                        pointingAnglesCalculator, linkEndStates, linkEndTimes, linkEndIndicesToUse ); };
+                const Eigen::VectorXd& observationValue,
+                const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySimulationSettings )
+        {
+            return ( Eigen::VectorXd( 1 ) << ground_stations::calculateGroundStationElevationAngle(
+                        pointingAnglesCalculator, linkEndStates, linkEndTimes, linkEndIndicesToUse ) ).finished( );
+        };
     }
     else if( variableSettings->variableType_ == station_azimuth_angle )
     {
         outputFunction = [=]( const std::vector< double >& linkEndTimes,
                 const std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
-                const Eigen::VectorXd& observationValue )
-        { return ground_stations::calculateGroundStationAzimuthAngle(
-                        pointingAnglesCalculator, linkEndStates, linkEndTimes, linkEndIndicesToUse ); };
+                const Eigen::VectorXd& observationValue,
+                const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySimulationSettings )
+        {
+            return ( Eigen::VectorXd( 1 ) << ground_stations::calculateGroundStationAzimuthAngle(
+                        pointingAnglesCalculator, linkEndStates, linkEndTimes, linkEndIndicesToUse ) ).finished( );
+        };
     }
     return outputFunction;
 }
 
 
-DoubleObservationDependentVariableFunction getObservationDoubleDependentVariableFunction(
+ObservationDependentVariableFunction getInterlinkObservationVariableFunction(
+    const SystemOfBodies& bodies,
+    const std::shared_ptr< InterlinkObservationDependentVariableSettings > variableSettings,
+    const observation_models::ObservableType observableType,
+    const observation_models::LinkDefinition linkEnds )
+{
+    std::pair< int, int > linkEndIndicesToUse = getLinkEndStateTimeIndices(
+        observableType, linkEnds, linkEnds.at( variableSettings->startLinkEnd_ ),
+        variableSettings->startLinkEnd_, variableSettings->endLinkEnd_,
+        variableSettings->integratedObservableHandling_ );
+
+    ObservationDependentVariableFunction outputFunction;
+
+    switch( variableSettings->variableType_ )
+    {
+    case target_range:
+    {
+        if ( variableSettings->relativeBody_ != "" )
+        {
+            throw std::runtime_error(
+                "Error when parsing target range observation dependent variable, relative body must not be defined" );
+        }
+        outputFunction = [ = ]( const std::vector<double> &linkEndTimes,
+                                const std::vector<Eigen::Matrix<double, 6, 1> > &linkEndStates,
+                                const Eigen::VectorXd &observationValue,
+                                const std::shared_ptr<observation_models::ObservationAncilliarySimulationSettings> ancilliarySimulationSettings )
+        {
+            return ( Eigen::VectorXd( 1 ) << ( linkEndStates.at( linkEndIndicesToUse.first ).segment( 0, 3 ) -
+                                               linkEndStates.at( linkEndIndicesToUse.second ).segment( 0,
+                                                                                                       3 )).norm( )).finished( );
+        };
+        break;
+    }
+    case body_avoidance_angle_variable:
+    {
+        if ( bodies.count( variableSettings->relativeBody_ ) != 0 )
+        {
+            throw std::runtime_error( "Error when parsing body avoidance observation dependent variable w.r.t. " +
+                                      variableSettings->relativeBody_ + ", body is not defined" );
+        }
+
+        if ( bodies.at( variableSettings->relativeBody_ )->getEphemeris( ) == nullptr )
+        {
+            throw std::runtime_error( "Error when parsing body avoidance observation dependent variable w.r.t. " +
+                                      variableSettings->relativeBody_ + ", body has no ephemeris" );
+        }
+
+        outputFunction = [ = ]( const std::vector<double> &linkEndTimes,
+                                const std::vector<Eigen::Matrix<double, 6, 1> > &linkEndStates,
+                                const Eigen::VectorXd &observationValue,
+                                const std::shared_ptr<observation_models::ObservationAncilliarySimulationSettings> ancilliarySimulationSettings )
+        {
+            double cosineOfAvoidanceAngle = observation_models::computeCosineBodyAvoidanceAngle(
+                linkEndStates.at( linkEndIndicesToUse.first ).segment( 0, 3 ),
+                linkEndStates.at( linkEndIndicesToUse.second ).segment( 0, 3 ),
+                bodies.at( variableSettings->relativeBody_ )->getStateInBaseFrameFromEphemeris<double, double>(
+                    ( linkEndIndicesToUse.first + linkEndIndicesToUse.second ) / 2.0 ).segment( 0, 3 ));
+            if ( std::fabs( cosineOfAvoidanceAngle ) >= 1.0 )
+            {
+                return ( Eigen::Vector1d( )
+                    << utilities::sgn( cosineOfAvoidanceAngle ) * mathematical_constants::PI / 2.0 ).finished( );
+            }
+            else
+            {
+                return ( Eigen::Vector1d( ) << std::acos( cosineOfAvoidanceAngle )).finished( );
+            }
+        };
+        break;
+    }
+    case link_body_center_distance:
+    {
+        if ( bodies.count( variableSettings->relativeBody_ ) != 0 )
+        {
+            throw std::runtime_error( "Error when parsing body avoidance observation dependent variable w.r.t. " +
+                                      variableSettings->relativeBody_ + ", body is not defined" );
+        }
+
+        if ( bodies.at( variableSettings->relativeBody_ )->getEphemeris( ) == nullptr )
+        {
+            throw std::runtime_error( "Error when parsing body avoidance observation dependent variable w.r.t. " +
+                                      variableSettings->relativeBody_ + ", body has no ephemeris" );
+        }
+
+        outputFunction = [ = ]( const std::vector<double> &linkEndTimes,
+                                const std::vector<Eigen::Matrix<double, 6, 1> > &linkEndStates,
+                                const Eigen::VectorXd &observationValue,
+                                const std::shared_ptr<observation_models::ObservationAncilliarySimulationSettings> ancilliarySimulationSettings )
+        {
+            double minimumDistance = observation_models::computeMinimumLinkDistanceToPoint(
+                linkEndStates.at( linkEndIndicesToUse.first ).segment( 0, 3 ),
+                linkEndStates.at( linkEndIndicesToUse.second ).segment( 0, 3 ),
+                bodies.at( variableSettings->relativeBody_ )->getStateInBaseFrameFromEphemeris<double, double>(
+                    ( linkEndIndicesToUse.first + linkEndIndicesToUse.second ) / 2.0 ).segment( 0, 3 ));
+            return ( Eigen::Vector1d( ) << minimumDistance ).finished( );
+        };
+        break;
+    }
+    case link_limb_distance:
+    {
+        std::shared_ptr< InterlinkObservationDependentVariableSettings > bodyCenterDistanceSettings =
+            std::make_shared< InterlinkObservationDependentVariableSettings >(
+                link_body_center_distance,
+                variableSettings->startLinkEnd_, variableSettings->endLinkEnd_,
+                variableSettings->integratedObservableHandling_, variableSettings->relativeBody_ );
+        ObservationDependentVariableFunction linkCenterFunction = getInterlinkObservationVariableFunction(
+            bodies, variableSettings, observableType, linkEnds );
+
+        if ( bodies.at( variableSettings->relativeBody_ )->getShapeModel( ) == nullptr )
+        {
+            throw std::runtime_error( "Error when parsing body link limb distance observation dependent variable w.r.t. " +
+                                      variableSettings->relativeBody_ + ", body has no shape model" );
+        }
+        auto shapeModel = bodies.at( variableSettings->relativeBody_ )->getShapeModel( );
+        outputFunction = [ = ]( const std::vector<double> &linkEndTimes,
+                                const std::vector<Eigen::Matrix<double, 6, 1> > &linkEndStates,
+                                const Eigen::VectorXd &observationValue,
+                                const std::shared_ptr<observation_models::ObservationAncilliarySimulationSettings> ancilliarySimulationSettings )
+        {
+            return linkCenterFunction( linkEndTimes, linkEndStates, observationValue, ancilliarySimulationSettings ) -
+                ( Eigen::Vector1d( ) << shapeModel->getAverageRadius( ) ).finished( );
+        };
+        break;
+    }
+    default:
+        throw std::runtime_error( "Error when parsing interlink observation dependent variable, did not recognize variable" +
+                              getObservationDependentVariableId( variableSettings ) );
+    }
+    return outputFunction;
+}
+
+ObservationDependentVariableFunction getObservationVectorDependentVariableFunction(
         const SystemOfBodies& bodies,
         const std::shared_ptr< ObservationDependentVariableSettings > variableSettings,
         const observation_models::ObservableType observableType,
         const observation_models::LinkDefinition linkEnds )
 {
-
-    DoubleObservationDependentVariableFunction outputFunction;
+    ObservationDependentVariableFunction outputFunction;
     switch( variableSettings->variableType_ )
     {
     case station_elevation_angle:
     {
         std::shared_ptr< StationAngleObservationDependentVariableSettings > angleSettings =
-                std::dynamic_pointer_cast< StationAngleObservationDependentVariableSettings >(
-                    variableSettings );
+            std::dynamic_pointer_cast< StationAngleObservationDependentVariableSettings >(
+                variableSettings );
         if( angleSettings == nullptr )
         {
             throw std::runtime_error( "Error in observation dependent variables, incorrect type found for station_elevation_angle" );
         }
         outputFunction = getStationObservationAngleFunction(
-                    bodies, angleSettings, observableType, linkEnds );
+            bodies, angleSettings, observableType, linkEnds );
         break;
     }
     case station_azimuth_angle:
     {
         std::shared_ptr< StationAngleObservationDependentVariableSettings > angleSettings =
-                std::dynamic_pointer_cast< StationAngleObservationDependentVariableSettings >(
-                    variableSettings );
+            std::dynamic_pointer_cast< StationAngleObservationDependentVariableSettings >(
+                variableSettings );
         if( angleSettings == nullptr )
         {
             throw std::runtime_error( "Error in observation dependent variables, incorrect type found for station_azimuth_angle" );
         }
 
         outputFunction = getStationObservationAngleFunction(
-                    bodies, angleSettings, observableType, linkEnds );
+            bodies, angleSettings, observableType, linkEnds );
         break;
     }
     case target_range:
     {
+        std::shared_ptr< InterlinkObservationDependentVariableSettings > linkSettings =
+            std::dynamic_pointer_cast< InterlinkObservationDependentVariableSettings >(
+                variableSettings );
+        if( linkSettings == nullptr )
+        {
+            throw std::runtime_error( "Error in observation dependent variables, incorrect type found for target_range" );
+        }
 
+        outputFunction = getInterlinkObservationVariableFunction(
+            bodies, linkSettings, observableType, linkEnds );
+        break;
     }
-    default:
-        throw std::runtime_error( "Error when parsing double observation dependent variable, did not recognize variable" +
-                                  getObservationDependentVariableId( variableSettings ) );
-    }
-    return outputFunction;
-}
-
-VectorObservationDependentVariableFunction getObservationVectorDependentVariableFunction(
-        const SystemOfBodies& bodies,
-        const std::shared_ptr< ObservationDependentVariableSettings > variableSettings,
-        const observation_models::ObservableType observableType,
-        const observation_models::LinkDefinition linkEnds )
-{
-    VectorObservationDependentVariableFunction outputFunction;
-    switch( variableSettings->variableType_ )
-    {
-
     default:
         throw std::runtime_error( "Error when parsing vector observation dependent variable, did not recognize variable" +
                                   getObservationDependentVariableId( variableSettings ) );
@@ -266,56 +384,40 @@ void ObservationDependentVariableCalculator::addDependentVariable(
         const std::shared_ptr< ObservationDependentVariableSettings > variableSettings,
         const SystemOfBodies& bodies )
 {
-    if( checkObservationDependentVariableForGivenLink(
-                observableType_, linkEnds_.linkEnds_, variableSettings ) )
+    // Check if the requested dependent variable can be used for given link
+//    if( doesObservationDependentVariableExistForGivenLink(
+//                observableType_, linkEnds_.linkEnds_, variableSettings ) )
     {
-        ObservationDependentVariableAddFunction dependentVariableAddFunction;
-
+        // Retrieve the current index in list of dependent variables and size of new parameter
         int currentIndex = totalDependentVariableSize_;
         int parameterSize = getObservationDependentVariableSize( variableSettings );
 
-        if( parameterSize ==  1 )
+        // Create function to compute dependent variable
+        ObservationDependentVariableFunction observationDependentVariableFunction =
+                getObservationVectorDependentVariableFunction(
+                    bodies, variableSettings, observableType_, linkEnds_ );
+
+        // Create function to compute dependent variable and add to existing list
+        ObservationDependentVariableAddFunction dependentVariableAddFunction = [=](
+                Eigen::VectorXd& dependentVariables,
+                const std::vector< double >& linkEndTimes,
+                const std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
+                const Eigen::VectorXd& observable,
+                const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySimulationSettings )
         {
-            DoubleObservationDependentVariableFunction doubleFunction =
-                    getObservationDoubleDependentVariableFunction(
-                        bodies, variableSettings, observableType_, linkEnds_ );
-            dependentVariableAddFunction = [=](
-                    Eigen::VectorXd& dependentVariables,
-                    const std::vector< double >& linkEndTimes,
-                    const std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
-                    const Eigen::VectorXd& observable )
+            // Check if computation is not overriding existing values
+            for( int i = 0; i < parameterSize; i++ )
             {
-                if( dependentVariables( currentIndex ) == dependentVariables( currentIndex ) )
+                if( dependentVariables( currentIndex + i ) == dependentVariables( currentIndex + i ) )
                 {
                     throw std::runtime_error( "Error when saving observation dependent variables; overriding existing value" );
                 }
-                dependentVariables( currentIndex ) = doubleFunction(
-                            linkEndTimes, linkEndStates, observable );
-            };
-        }
-        else
-        {
-            VectorObservationDependentVariableFunction vectorFunction =
-                    getObservationVectorDependentVariableFunction(
-                        bodies, variableSettings, observableType_, linkEnds_ );
-            dependentVariableAddFunction = [=](
-                    Eigen::VectorXd& dependentVariables,
-                    const std::vector< double >& linkEndTimes,
-                    const std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
-                    const Eigen::VectorXd& observable )
-            {
-                for( int i = 0; i < parameterSize; i++ )
-                {
-                    if( dependentVariables( currentIndex + i ) == dependentVariables( currentIndex + i ) )
-                    {
-                        throw std::runtime_error( "Error when saving observation dependent variables; overriding existing value" );
-                    }
-                }
-                dependentVariables.segment( currentIndex, parameterSize ) = vectorFunction(
-                            linkEndTimes, linkEndStates, observable );
-            };
-        }
-
+            }
+            dependentVariables.segment( currentIndex, parameterSize ) = observationDependentVariableFunction(
+                        linkEndTimes, linkEndStates, observable, ancilliarySimulationSettings );
+        };
+        
+        // Add new dependent variable function and settings to list
         dependentVariableAddFunctions_.push_back( dependentVariableAddFunction );
         dependentVariableStartIndices_.push_back( totalDependentVariableSize_ );
         dependentVariableSizes_.push_back( parameterSize );
@@ -362,14 +464,15 @@ std::pair< int, int > ObservationDependentVariableCalculator::getDependentVariab
 Eigen::VectorXd ObservationDependentVariableCalculator::calculateDependentVariables(
         const std::vector< double >& linkEndTimes,
         const std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
-        const Eigen::VectorXd& observation )
+        const Eigen::VectorXd& observation,
+        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > observationAncilliarySimulationSettings )
 {
     Eigen::VectorXd dependentVariables = Eigen::VectorXd::Constant( totalDependentVariableSize_, TUDAT_NAN );
 
     for( unsigned int i = 0; i < dependentVariableAddFunctions_.size( ); i++ )
     {
         dependentVariableAddFunctions_.at( i )(
-                    dependentVariables, linkEndTimes, linkEndStates, observation );
+                    dependentVariables, linkEndTimes, linkEndStates, observation, observationAncilliarySimulationSettings );
 
     }
     return dependentVariables;

@@ -20,49 +20,44 @@ namespace tudat
 namespace simulation_setup
 {
 
-typedef std::function< double( const std::vector< double >& ,
-                               const std::vector< Eigen::Matrix< double, 6, 1 > >&,
-                               const Eigen::VectorXd& ) > DoubleObservationDependentVariableFunction;
-
 typedef std::function< Eigen::VectorXd( const std::vector< double >& ,
                                         const std::vector< Eigen::Matrix< double, 6, 1 > >&,
-                                        const Eigen::VectorXd& ) > VectorObservationDependentVariableFunction;
+                                        const Eigen::VectorXd&,
+                                        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ) >
+                                        ObservationDependentVariableFunction;
 
 typedef std::function< void( Eigen::VectorXd&,
                              const std::vector< double >&,
                              const std::vector< Eigen::Matrix< double, 6, 1 > >&,
-                             const Eigen::VectorXd& ) > ObservationDependentVariableAddFunction;
+                             const Eigen::VectorXd&,
+                             const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ) > ObservationDependentVariableAddFunction;
 
 void checkObservationDependentVariableEnvironment(
         const SystemOfBodies& bodies,
         const std::shared_ptr< ObservationDependentVariableSettings > variableSettings );
 
 
-DoubleObservationDependentVariableFunction getBodyAvoidanceFunction(
-        const SystemOfBodies& bodies,
-        const std::shared_ptr< BodyAvoidanceObservationDependentVariableSettings > variableSettings,
-        const observation_models::ObservableType observableType,
-        const observation_models::LinkDefinition linkEnds );
+std::pair< int, int > getLinkEndStateTimeIndices(
+    const observation_models::ObservableType observableType,
+    const observation_models::LinkDefinition linkEnds,
+    const observation_models::LinkEndId linkEndId,
+    const observation_models::LinkEndType linkEndRole = observation_models::unidentified_link_end,
+    const observation_models::LinkEndType originatingLinkEndRole = observation_models::unidentified_link_end,
+    const IntegratedObservationPropertyHandling integratedObservableHandling = interval_undefined );
 
-DoubleObservationDependentVariableFunction getTargetRangeFunction(
-        const SystemOfBodies& bodies,
-        const std::shared_ptr< InterlinkObservationDependentVariableSettings > variableSettings,
-        const observation_models::ObservableType observableType,
-        const observation_models::LinkDefinition linkEnds );
-
-DoubleObservationDependentVariableFunction getStationObservationAngleFunction(
+ObservationDependentVariableFunction getStationObservationAngleFunction(
         const SystemOfBodies& bodies,
         const std::shared_ptr< StationAngleObservationDependentVariableSettings > variableSettings,
         const observation_models::ObservableType observableType,
         const observation_models::LinkDefinition linkEnds );
 
-DoubleObservationDependentVariableFunction getObservationDoubleDependentVariableFunction(
+ObservationDependentVariableFunction getObservationDoubleDependentVariableFunction(
         const SystemOfBodies& bodies,
         const std::shared_ptr< ObservationDependentVariableSettings > variableSettings,
         const observation_models::ObservableType observableType,
         const observation_models::LinkDefinition linkEnds );
 
-VectorObservationDependentVariableFunction getObservationVectorDependentVariableFunction(
+ObservationDependentVariableFunction getObservationVectorDependentVariableFunction(
         const SystemOfBodies& bodies,
         const std::shared_ptr< ObservationDependentVariableSettings > variableSettings,
         const observation_models::ObservableType observableType,
@@ -82,7 +77,8 @@ public:
     Eigen::VectorXd calculateDependentVariables(
             const std::vector< double >& linkEndTimes,
             const std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
-            const Eigen::VectorXd& observation );
+            const Eigen::VectorXd& observation,
+            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > );
 
     void addDependentVariable(
             const std::shared_ptr< ObservationDependentVariableSettings > settings,
@@ -107,7 +103,8 @@ private:
             Eigen::VectorXd&,
             const std::vector< double >&,
             const std::vector< Eigen::Matrix< double, 6, 1 > >&,
-            const Eigen::VectorXd& ) > > dependentVariableAddFunctions_;
+            const Eigen::VectorXd&,
+            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ) > > dependentVariableAddFunctions_;
 
     std::vector< int > dependentVariableStartIndices_;
 

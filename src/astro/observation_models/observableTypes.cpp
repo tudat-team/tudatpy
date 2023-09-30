@@ -37,6 +37,85 @@ namespace observation_models
 //    return tudatCompatibleObservationsAndTimes;
 //}
 
+bool doesLinkEndTypeDefineId( const ObservableType observableType )
+{
+    bool linkEndTypeDefinesId = true;
+    switch( observableType )
+    {
+    case one_way_range:
+        break;
+    case angular_position:
+        break;
+    case position_observable:
+        break;
+    case one_way_doppler:
+        break;
+    case one_way_differenced_range:
+        break;
+    case n_way_range:
+        linkEndTypeDefinesId = false;
+        break;
+    case two_way_doppler:
+        linkEndTypeDefinesId = false;
+        break;
+    case euler_angle_313_observable:
+        break;
+    case velocity_observable:
+        break;
+    case relative_angular_position:
+        break;
+    case relative_position_observable:
+        break;
+    case n_way_differenced_range:
+        linkEndTypeDefinesId = false;
+        break;
+    default:
+        throw std::runtime_error( "Error when determining if link end type defines id; observable " +
+                                  getObservableName( observableType ) + " not found" );
+    }
+    return linkEndTypeDefinesId;
+}
+
+bool isObservableTypeMultiLink( const ObservableType observableType )
+{
+    bool isIntegratedTypeisMultiLink = false;
+    switch( observableType )
+    {
+    case one_way_range:
+        break;
+    case angular_position:
+        break;
+    case position_observable:
+        break;
+    case one_way_doppler:
+        break;
+    case one_way_differenced_range:
+        break;
+    case n_way_range:
+        isIntegratedTypeisMultiLink = true;
+        break;
+    case two_way_doppler:
+        isIntegratedTypeisMultiLink = true;
+        break;
+    case euler_angle_313_observable:
+        break;
+    case velocity_observable:
+        break;
+    case relative_angular_position:
+        isIntegratedTypeisMultiLink = true;
+        break;
+    case relative_position_observable:
+        break;
+    case n_way_differenced_range:
+        isIntegratedTypeisMultiLink = true;
+        break;
+    default:
+        throw std::runtime_error( "Error when determining if observable type is multilink; observable " +
+                                  getObservableName( observableType ) + " not found" );
+    }
+    return isIntegratedTypeisMultiLink;
+}
+
 bool isObservableOfIntegratedType( const ObservableType observableType )
 {
     bool isIntegratedType = true;
@@ -84,6 +163,19 @@ bool isObservableOfIntegratedType( const ObservableType observableType )
     }
     return isIntegratedType;
 }
+
+bool linkEndIdDefinesSingleLink( const ObservableType observableType )
+{
+    if( isObservableOfIntegratedType( observableType ) || isObservableTypeMultiLink( observableType ) || !doesLinkEndTypeDefineId( observableType ) )
+    {
+        return false;
+    }
+    else
+    {
+        return true;
+    }
+}
+
 
 //bool areObservableLinksContinuous( const ObservableType observableType )
 //{

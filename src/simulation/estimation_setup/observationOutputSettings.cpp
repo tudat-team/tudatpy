@@ -44,8 +44,10 @@ std::string getObservationDependentVariableName(
 std::string getObservationDependentVariableId(
         const std::shared_ptr< ObservationDependentVariableSettings > variableSettings )
 {
-    return getObservationDependentVariableName( variableSettings->variableType_ ) + ". " +
-            variableSettings->getIdentifier( );
+    throw std::runtime_error( "Error, observation dependent variable id not yet implemented" );
+    return "";
+//    getObservationDependentVariableName( variableSettings->variableType_ ) + ". " +
+//            variableSettings->getIdentifier( );
 }
 
 
@@ -70,10 +72,7 @@ bool isObservationDependentVariableVectorial(
     case integration_time:
         isVariableVectorial = false;
         break;
-    case station_local_time:
-        isVariableVectorial = false;
-        break;
-    case limb_separation_angle:
+    case link_body_center_distance:
         isVariableVectorial = false;
         break;
     default:
@@ -106,10 +105,7 @@ bool isObservationDependentVariableGroundStationProperty(
     case integration_time:
         isGroundStationProperty = false;
         break;
-    case station_local_time:
-        isGroundStationProperty = true;
-        break;
-    case limb_separation_angle:
+    case link_body_center_distance:
         isGroundStationProperty = false;
         break;
     default:
@@ -142,60 +138,60 @@ int getObservationDependentVariableSize(
     }
     return variableSize;
 }
-
-bool checkStationAngleVariableForGivenLink(
-        const observation_models::ObservableType observableType,
-        const observation_models::LinkEnds& linkEnds,
-        const std::shared_ptr< StationAngleObservationDependentVariableSettings > variableSettings )
-{
-    bool doesLinkHaveDependency = false;
-
-    if( linkEnds.size( ) > 1 )
-    {
-        std::vector< observation_models::LinkEndType > linkEndTypeList = getLinkEndTypesForGivenLinkEndId(
-                linkEnds, variableSettings->relevantLinkEnd_ );
-        if( linkEndTypeList.size( ) > 0 )
-        {
-            if( linkEndTypeList.size( ) > 1 )
-            {
-                throw std::runtime_error( "Error when checking for station angle; multiple link ends detected" );
-            }
-            else
-            {
-                doesLinkHaveDependency = true;
-            }
-        }
-    }
-    return doesLinkHaveDependency;
-}
-
-bool checkObservationDependentVariableForGivenLink(
-        const observation_models::ObservableType observableType,
-        const observation_models::LinkEnds& linkEnds,
-        const std::shared_ptr< ObservationDependentVariableSettings > variableSettings )
-{
-    bool doesLinkHaveDependency = false;
-    switch( variableSettings->variableType_ )
-    {
-    case station_elevation_angle:
-        doesLinkHaveDependency = checkStationAngleVariableForGivenLink(
-                   observableType, linkEnds, std::dynamic_pointer_cast< StationAngleObservationDependentVariableSettings >(
-                        variableSettings ) );
-        break;
-    case station_azimuth_angle:
-        doesLinkHaveDependency = checkStationAngleVariableForGivenLink(
-                   observableType, linkEnds, std::dynamic_pointer_cast< StationAngleObservationDependentVariableSettings >(
-                        variableSettings ) );
-        break;
-
-    default:
-        throw std::runtime_error( "Error when checking observation dependent variable. Type " +
-                                  getObservationDependentVariableId( variableSettings ) +
-                                  " not found when checking if variable exists for given link." );
-
-    }
-    return doesLinkHaveDependency;
-}
+//
+//bool doesStationAngleVariableExistForGivenLink(
+//        const observation_models::ObservableType observableType,
+//        const observation_models::LinkEnds& linkEnds,
+//        const std::shared_ptr< StationAngleObservationDependentVariableSettings > variableSettings )
+//{
+//    bool doesLinkHaveDependency = false;
+//
+//    if( linkEnds.size( ) > 1 )
+//    {
+//        std::vector< observation_models::LinkEndType > linkEndTypeList = getLinkEndTypesForGivenLinkEndId(
+//                linkEnds, variableSettings->relevantLinkEnd_ );
+//        if( linkEndTypeList.size( ) > 0 )
+//        {
+//            if( linkEndTypeList.size( ) > 1 )
+//            {
+//                throw std::runtime_error( "Error when checking for station angle; multiple link ends detected" );
+//            }
+//            else
+//            {
+//                doesLinkHaveDependency = true;
+//            }
+//        }
+//    }
+//    return doesLinkHaveDependency;
+//}
+//
+//bool doesObservationDependentVariableExistForGivenLink(
+//        const observation_models::ObservableType observableType,
+//        const observation_models::LinkEnds& linkEnds,
+//        const std::shared_ptr< ObservationDependentVariableSettings > variableSettings )
+//{
+//    bool doesLinkHaveDependency = false;
+//    switch( variableSettings->variableType_ )
+//    {
+//    case station_elevation_angle:
+//        doesLinkHaveDependency = doesStationAngleVariableExistForGivenLink(
+//                   observableType, linkEnds, std::dynamic_pointer_cast< StationAngleObservationDependentVariableSettings >(
+//                        variableSettings ) );
+//        break;
+//    case station_azimuth_angle:
+//        doesLinkHaveDependency = doesStationAngleVariableExistForGivenLink(
+//                   observableType, linkEnds, std::dynamic_pointer_cast< StationAngleObservationDependentVariableSettings >(
+//                        variableSettings ) );
+//        break;
+//
+//    default:
+//        throw std::runtime_error( "Error when checking observation dependent variable. Type " +
+//                                  getObservationDependentVariableId( variableSettings ) +
+//                                  " not found when checking if variable exists for given link." );
+//
+//    }
+//    return doesLinkHaveDependency;
+//}
 
 }
 
