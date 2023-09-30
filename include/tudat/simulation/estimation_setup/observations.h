@@ -368,6 +368,24 @@ public:
         return concatenatedLinkEndIdNames_;
     }
 
+    std::map< ObservableType, std::vector< LinkDefinition > > getLinkDefinitionsPerObservable( )
+    {
+        return linkDefinitionsPerObservable_;
+    }
+
+    std::vector< LinkDefinition > getLinkDefinitionsForSingleObservable(
+        const ObservableType observableType )
+    {
+        if( linkDefinitionsPerObservable_.count( observableType ) > 0 )
+        {
+            return linkDefinitionsPerObservable_.at( observableType );
+        }
+        else
+        {
+            return std::vector< LinkDefinition >( );
+        }
+    }
+
 
     std::map< ObservableType, std::map< int, std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > > > getSortedObservationSets( )
     {
@@ -448,6 +466,14 @@ private:
             for( auto linkEndIterator : observationIterator.second )
             {
                 LinkEnds currentLinkEnds = linkEndIterator.first;
+                LinkDefinition firstLinkDefinition;
+
+                if( linkEndIterator.second.size( ) > 0 )
+                {
+                    firstLinkDefinition = linkEndIterator.second.at( 0 )->getLinkEnds( );
+                    linkDefinitionsPerObservable_[ currentObservableType].push_back( firstLinkDefinition );
+                }
+
                 if( linkEndIds_.count( currentLinkEnds ) == 0 )
                 {
                     linkEndIds_[ currentLinkEnds ] = maximumStationId;
@@ -462,6 +488,12 @@ private:
 
                 for( unsigned int i = 0; i < linkEndIterator.second.size( ); i++ )
                 {
+                    LinkDefinition currentLinkDefinition = linkEndIterator.second.at( i )->getLinkEnds( );
+                    if( !( currentLinkDefinition == firstLinkDefinition ) )
+                    {
+                        throw std::runtime_error( "Error when creating ObservationCollection, link definitions of same link ends are not equal " );
+                    }
+
                     std::pair< int, int > startAndSize =
                             observationSetStartAndSize_.at( currentObservableType ).at( currentLinkEnds ).at( i );
                     Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > currentObservables =
@@ -505,6 +537,8 @@ private:
     std::vector< int > concatenatedLinkEndIds_;
 
     std::vector< LinkEnds > concatenatedLinkEndIdNames_;
+
+    std::map< ObservableType, std::vector< LinkDefinition > > linkDefinitionsPerObservable_;
 
     std::map< observation_models::LinkEnds, int > linkEndIds_;
 
