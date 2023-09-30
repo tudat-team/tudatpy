@@ -1353,6 +1353,21 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > minimumConstellati
                bodyName, stationName, bodiesToCheck, elevationAngleLimit );
 }
 
+inline std::shared_ptr< SingleDependentVariableSaveSettings > centerOfMassVariableSaveSettings(
+    const std::string& bodyName )
+{
+    return std::make_shared< SingleDependentVariableSaveSettings >(
+        body_center_of_mass, bodyName );
+}
+
+
+inline std::shared_ptr< SingleDependentVariableSaveSettings > inertiaTensorVariableSaveSettings(
+    const std::string& bodyName )
+{
+    return std::make_shared< SingleDependentVariableSaveSettings >(
+        body_inertia_tensor, bodyName );
+}
+
 } // namespace propagators
 
 } // namespace tudat
