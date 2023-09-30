@@ -1691,7 +1691,7 @@ std::tuple< int, double, double > getClosestStationSatelliteDistance(
         Eigen::Vector3d relativePosition =
                 bodies.at( bodyList.at( i ) )->getEphemeris( )->getCartesianPosition( time ) -
                 stationState.segment( 0, 3 );
-        double elevationAngle = groundStation->getPointingAnglesCalculator( )->calculateElevationAngle(
+        double elevationAngle = groundStation->getPointingAnglesCalculator( )->calculateElevationAngleFromInertialVector(
                     relativePosition, time );
         if( elevationAngle > 0.0 )
         {

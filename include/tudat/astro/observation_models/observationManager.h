@@ -88,12 +88,14 @@ public:
      *  is kept constant (to input value)
      *  \return Pair of observable values and partial matrix
      */
-    virtual std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >, Eigen::MatrixXd >
-    computeObservationsWithPartials( const std::vector< TimeType >& times,
-                                     const LinkEnds linkEnds,
-                                     const LinkEndType linkEndAssociatedWithTime,
-                                     const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings ) = 0;
-
+    virtual void computeObservationsWithPartials( const std::vector< TimeType >& times,
+                                          const LinkEnds linkEnds,
+                                          const LinkEndType linkEndAssociatedWithTime,
+                                          const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings,
+                                          Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& observationsVector,
+                                          Eigen::MatrixXd& partialsMatrix,
+                                          const bool calculateObservations = true,
+                                          const bool calculatePartials = true ) = 0;
     //! Function (ṕure virtual) to return the object used to simulate noise-free observations
     /*!
      * Function (ṕure virtual) to return the object used to simulate noise-free observations
