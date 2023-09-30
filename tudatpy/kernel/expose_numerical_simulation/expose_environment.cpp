@@ -628,6 +628,7 @@ void expose_environment(py::module &m) {
                  py::arg( "time" ) );
 
 
+
     /*!
      **************   BODY OBJECTS AND ASSOCIATED FUNCTIONALITY  ******************
      */
@@ -679,6 +680,13 @@ void expose_environment(py::module &m) {
                  py::arg("body_name"),
                  py::arg("process_body") = 1,
                  get_docstring("SystemOfBodies.create_empty_body").c_str())
+            .def("does_body_exist", &tss::SystemOfBodies::doesBodyExist,
+                 py::arg("body_name"),
+                 get_docstring("SystemOfBodies.does_body_exist").c_str())
+            .def("list_of_bodies", &tss::SystemOfBodies::getListOfBodies,
+                 get_docstring("SystemOfBodies.list_of_bodies").c_str())
+//            .def("get_body_dict", &tss::SystemOfBodies::getMap,
+//                 get_docstring("SystemOfBodies.get_body_dict").c_str())
             .def("add_body", &tss::SystemOfBodies::addBody,
                  py::arg("body_to_add"),
                  py::arg("body_name"),
@@ -686,7 +694,12 @@ void expose_environment(py::module &m) {
                  get_docstring("SystemOfBodies.add_body").c_str())
             .def("remove_body", &tss::SystemOfBodies::deleteBody,
                  py::arg("body_name"),
-                 get_docstring("SystemOfBodies.remove_body").c_str());
+                 get_docstring("SystemOfBodies.remove_body").c_str())
+            .def("global_frame_orientation", &tss::SystemOfBodies::getFrameOrientation,
+                 get_docstring("SystemOfBodies.global_frame_orientation").c_str())
+            .def("global_frame_origin", &tss::SystemOfBodies::getFrameOrigin,
+                 get_docstring("SystemOfBodies.global_frame_origin").c_str());
+
 //            .def_property_readonly("number_of_bodies", &tss::SystemOfBodies::getNumberOfBodies,
 //                                   get_docstring("number_of_bodies").c_str() );
 
