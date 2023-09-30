@@ -88,7 +88,7 @@ std::tuple< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >, bool, Eig
         std::vector< std::shared_ptr< observation_models::ObservationViabilityCalculator > >( ),
         const std::function< Eigen::VectorXd( const double ) > noiseFunction = nullptr,
         const std::shared_ptr< ObservationDependentVariableCalculator > dependentVariableCalculator = nullptr,
-        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings < TimeType > > ancilliarySettings = nullptr )
+        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings = nullptr )
 {
     // Simulate observable, and retrieve link end times and states
     std::vector< Eigen::Vector6d > vectorOfStates;
@@ -137,7 +137,7 @@ simulateObservationsWithCheck(
         std::vector< std::shared_ptr< observation_models::ObservationViabilityCalculator > >( ),
         const std::function< Eigen::VectorXd( const double ) > noiseFunction = nullptr,
         const std::shared_ptr< ObservationDependentVariableCalculator > dependentVariableCalculator = nullptr,
-        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings < TimeType > > ancilliarySettings = nullptr )
+        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings = nullptr )
 {
     std::map< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > observations;
     std::tuple< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >, bool, Eigen::VectorXd > simulatedObservation;
@@ -185,7 +185,7 @@ simulateObservationsWithCheckAndLinkEndIdOutput(
         std::vector< std::shared_ptr< observation_models::ObservationViabilityCalculator > >( ),
         const std::function< Eigen::VectorXd( const double ) > noiseFunction = nullptr,
         const std::shared_ptr< ObservationDependentVariableCalculator > dependentVariableCalculator = nullptr,
-        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings < TimeType > > ancilliarySettings = nullptr )
+        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings = nullptr )
 {
     std::tuple< std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >,
     std::vector< TimeType >, std::vector< Eigen::VectorXd > >  simulatedObservations =
@@ -233,7 +233,7 @@ simulatePerArcSingleObservationSet(
     // Initialize observation simulation
     LinkEndType referenceLinkEnd = observationsToSimulate->getReferenceLinkEndType( );
     TimeType currentObservationTime = observationsToSimulate->startTime_;
-    std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings < TimeType > > ancilliarySettings =
+    std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings =
             observationsToSimulate->getAncilliarySettings( );
 
 
@@ -519,7 +519,7 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
                         std::vector< TimeType > > > > observationsInput,
         const observation_models::LinkEndType referenceLinkEnd,
         const std::map< observation_models::ObservableType,
-        std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings < TimeType > > > ancilliarySettings = nullptr )
+        std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > > ancilliarySettings = nullptr )
 {
     // Declare return map.
     typename observation_models::ObservationCollection< ObservationScalarType, TimeType >::SortedObservationSets sortedObservations;
@@ -538,7 +538,7 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
             throw std::runtime_error("Error when setting observation collection from existing observations, size of observation times and observation values is inconsistent.");
         }
 
-        std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings < TimeType > > currentAncilliarySettings = nullptr;
+        std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > currentAncilliarySettings = nullptr;
         if( ancilliarySettings.count( observableType ) )
         {
             currentAncilliarySettings = ancilliarySettings.at( observableType );

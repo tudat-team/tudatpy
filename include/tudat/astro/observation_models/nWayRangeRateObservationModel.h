@@ -74,7 +74,7 @@ public:
     Eigen::Matrix< ObservationScalarType, 1, 1 > computeObservations(
             const TimeType time,
             const LinkEndType linkEndAssociatedWithTime,
-            const std::shared_ptr< ObservationAncilliarySimulationSettings< TimeType > > ancilliarySetings = nullptr ) const
+            const std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetings = nullptr ) const
     {
         if( ancilliarySetings == nullptr )
         {
@@ -103,7 +103,7 @@ public:
             const LinkEndType linkEndAssociatedWithTime,
             std::vector< double >& linkEndTimes,
             std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
-            const std::shared_ptr< ObservationAncilliarySimulationSettings< TimeType > > ancilliarySetings = nullptr )
+            const std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetings = nullptr )
     {
         std::vector< double > arcStartLinkEndTimes;
         std::vector< Eigen::Matrix< double, 6, 1 > > arcStartLinkEndStates;
