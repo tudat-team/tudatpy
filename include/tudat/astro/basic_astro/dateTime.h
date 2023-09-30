@@ -223,6 +223,7 @@ protected:
     }
 };
 
+
 template< typename TimeType >
 inline DateTime getCalendarDateFromTime( const TimeType &timeInput )
 {
@@ -249,6 +250,25 @@ inline DateTime getCalendarDateFromTime( const TimeType &timeInput )
     long double seconds = time.getSecondsIntoFullPeriod( ) - 60.0L * static_cast< long double >( minute );
 
     return DateTime( year, month, day, hour, minute, seconds );
+}
+
+
+template< typename TimeType >
+DateTime addSecondsToDateTime( const DateTime& dateTime, const TimeType timeToAdd )
+{
+    return getCalendarDateFromTime< Time >( dateTime.epoch< Time >( ) + timeToAdd );
+}
+
+template< typename TimeType >
+DateTime subtractSecondsFromDateTime( const DateTime& dateTime, const TimeType timeToSubtract )
+{
+    return getCalendarDateFromTime< Time >( dateTime.epoch< Time >( ) - timeToSubtract );
+}
+
+template< typename TimeType >
+TimeType getTimeDifferenceBetweenDateTimes( const DateTime& firstDateTime, const DateTime& secondDateTime )
+{
+    return firstDateTime.epoch< TimeType >( ) - secondDateTime.epoch< TimeType >( );
 }
 
 
