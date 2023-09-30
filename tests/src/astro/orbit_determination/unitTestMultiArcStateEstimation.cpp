@@ -269,6 +269,7 @@ Eigen::VectorXd  executeParameterEstimation(
 
     std::shared_ptr< EstimationOutput< StateScalarType, TimeType > > estimationOutput = orbitDeterminationManager.estimateParameters(
                 estimationInput );
+    Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > finalParameters = parametersToEstimate->template getFullParameterValues< StateScalarType >( );
 
     parametersToEstimate->resetParameterValues( estimationOutput->parameterHistory_.at( estimationOutput->bestIteration_ ) );
     std::shared_ptr< CovarianceAnalysisOutput< StateScalarType, TimeType > > covarianceOutput = orbitDeterminationManager.computeCovariance(
@@ -276,7 +277,7 @@ Eigen::VectorXd  executeParameterEstimation(
 
     compareEstimationAndCovarianceResults( estimationOutput, covarianceOutput );
 
-    return ( estimationOutput->parameterEstimate_ - truthParameters ).template cast< double >( );
+    return ( finalParameters - truthParameters ).template cast< double >( );
 }
 
 

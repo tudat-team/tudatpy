@@ -125,7 +125,7 @@ void readBinaryFileBlock( std::istream& file,
     int numberOfBits = NumberOfBytes * 8;
 
     char dataChar [NumberOfBytes];
-    file.read( (char*)dataChar, NumberOfBytes );
+    file.read( static_cast< char* >( dataChar ), NumberOfBytes );
 
     if ( !file.good( ) )
     {

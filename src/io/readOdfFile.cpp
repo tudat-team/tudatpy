@@ -633,7 +633,7 @@ OdfRawFileContents::OdfRawFileContents( const std::string& odfFile ):
             // Ramp group header
             if ( primaryKey == 2030 )
             {
-                if( secondaryKey < 0 || secondaryKey > 99 || logicalRecordLength != 1 )
+                if( secondaryKey > 99 || logicalRecordLength != 1 )
                 {
                     throw std::runtime_error( "Error when reading ODF file, ramp header invalid: primary key " +
                     std::to_string( primaryKey ) + ", secondary key " + std::to_string( secondaryKey ) +

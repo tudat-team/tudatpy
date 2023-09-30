@@ -65,10 +65,10 @@ TUDAT_ADD_TEST_CASE(TimeBiasEstimation
      ${Tudat_ESTIMATION_LIBRARIES}
      )
 
-#TUDAT_ADD_TEST_CASE(RotationalStateEstimation
-#    PRIVATE_LINKS
-#    ${Tudat_ESTIMATION_LIBRARIES}
-#    )
+TUDAT_ADD_TEST_CASE(RotationalStateEstimation
+    PRIVATE_LINKS
+    ${Tudat_ESTIMATION_LIBRARIES}
+    )
 
 TUDAT_ADD_TEST_CASE(ArcwiseEnvironmentParameters
     PRIVATE_LINKS
