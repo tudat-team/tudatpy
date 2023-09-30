@@ -130,6 +130,9 @@ namespace rotation_model {
               &tss::gcrsToItrsRotationModelSettings,
               py::arg("precession_nutation_theory") = tba::iau_2006,
               py::arg("base_frame") = "GCRS",
+              py::arg("cio_interpolation_settings") = nullptr,
+              py::arg("tdb_to_tt_interpolation_settings") = nullptr,
+              py::arg("short_term_eop_interpolation_settings") = nullptr,
               get_docstring("gcrs_to_itrs").c_str()
         );
 
