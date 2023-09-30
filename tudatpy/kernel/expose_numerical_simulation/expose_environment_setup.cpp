@@ -44,6 +44,7 @@ namespace ta = tudat::aerodynamics;
 namespace trf = tudat::reference_frames;
 namespace tg = tudat::gravitation;
 namespace tcc = tudat::coordinate_conversions;
+namespace tp = tudat::propagators;
 
 
 
@@ -153,7 +154,7 @@ namespace environment_setup {
               py::arg("body_settings"),
               get_docstring("create_system_of_bodies").c_str());
 
-        m.def("add_empty_tabulated_ephemeris", &tss::addEmptyTabulatedEphemeris,
+        m.def("add_empty_tabulated_ephemeris", &tp::addEmptyTabulatedEphemeris< double, TIME_TYPE >,
               py::arg("bodies"),
               py::arg("body_name"),
               py::arg("ephemeris_origin") = "",

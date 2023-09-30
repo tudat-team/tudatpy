@@ -110,8 +110,8 @@ void expose_propagator_setup(py::module &m) {
                           &tp::PropagatorProcessingSettings::setClearNumericalSolutions,
                           get_docstring("PropagatorProcessingSettings.clear_numerical_solution").c_str() )
             .def_property("create_dependent_variable_interface",
-                          &tp::PropagatorProcessingSettings::getCreateDependentVariablesInterface,
-                          &tp::PropagatorProcessingSettings::setCreateDependentVariablesInterface,
+                          &tp::PropagatorProcessingSettings::getUpdateDependentVariableInterpolator,
+                          &tp::PropagatorProcessingSettings::setUpdateDependentVariableInterpolator,
                           get_docstring("PropagatorProcessingSettings.create_dependent_variable_interface").c_str() );
 
     py::class_<tp::SingleArcPropagatorProcessingSettings,
