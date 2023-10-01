@@ -165,11 +165,18 @@ macro(INSTALL_PURE_PYTHON_MODULE_DIR module_dir_name)
     file(COPY ${module_dir_name}/ DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/${module_dir_name}/)
 endmacro()
 
+macro(INSTALL_PURE_PYTHON_SUBMODULE_DIR parent_module_dir_name module_dir_name)
+    install(DIRECTORY python_components_of_hybrid_modules/${module_dir_name}/ DESTINATION "${TUDATPY_INSTALL_PATH}/${parent_module_dir_name}/${module_dir_name}")
+    file(COPY python_components_of_hybrid_modules/${module_dir_name}/ DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/${parent_module_dir_name}/${module_dir_name}/)
+endmacro()
+
 INSTALL_PURE_PYTHON_MODULE_DIR(apps)
 INSTALL_PURE_PYTHON_MODULE_DIR(bodies)
 INSTALL_PURE_PYTHON_MODULE_DIR(plotting)
 INSTALL_PURE_PYTHON_MODULE_DIR(util)
 INSTALL_PURE_PYTHON_MODULE_DIR(io)
+
+INSTALL_PURE_PYTHON_SUBMODULE_DIR(trajectory_design porkchop)
 
 #install(FILES test.py "${CMAKE_CURRENT_BINARY_DIR}/_version.py")
 file(COPY ../tests DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/../)

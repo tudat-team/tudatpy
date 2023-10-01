@@ -1,3 +1,0 @@
-"""
-Tudat Mission Design Toolbox
-"""
