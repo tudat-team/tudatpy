@@ -1,5 +1,5 @@
 ''' 
-Copyright (c) 2010-2020, Delft University of Technology
+Copyright (c) 2010-2023, Delft University of Technology
 All rigths reserved
 
 This file is part of the Tudat. Redistribution and use in source and 
@@ -54,6 +54,16 @@ def plot_porkchop_of_single_field(
     save: bool = False,
     filename: str = 'porkchop.png',
     ) -> matplotlib.contour.QuadContourSet:
+    """
+    ΔV/C3 porkchop mission design plot of single time window-ΔV field.
+
+    Arguments
+    ---------
+
+    Output
+    ------
+    
+    """
 
     #--------------------------------------------------------------------
     #%% DATA PREPARATION
@@ -297,8 +307,26 @@ def plot_porkchop(
     save: bool = False,
     filename: str = 'porkchop.png',
     ) -> None:
+    """
+    ΔV/C3 porkchop mission design plot.
     
-    if total:
+    Arguments
+    ---------
+
+    Output
+    ------
+    
+    """
+
+    if (
+        # Plotting total ΔV or C3
+        total 
+        or 
+        # The ΔV array contains TOTAL ΔV for each departure
+        # and arrival date combination, instead of a tuple
+        # containing (departure ΔV, arrival ΔV)
+        delta_v.shape[2] == 1
+    ):
 
         # Plot departure ΔV or C3
         plot_porkchop_of_single_field(
@@ -331,7 +359,7 @@ def plot_porkchop(
             target_body             = target_body,
             departure_epochs        = departure_epochs,
             arrival_epochs          = arrival_epochs,
-            delta_v                      = delta_v[:, :, 0],
+            delta_v                 = delta_v[:, :, 0],
             C3                      = C3,
             threshold               = threshold,
             upscale                 = upscale,
