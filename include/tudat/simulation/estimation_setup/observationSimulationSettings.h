@@ -331,7 +331,7 @@ std::shared_ptr< ObservationSimulationSettings< TimeType > > perturbObservationT
     {
         std::vector< TimeType > perturbedObservationTimes = originalTabulatedSettings->simulationTimes_;
         std::transform(perturbedObservationTimes.begin(), perturbedObservationTimes.end(), perturbedObservationTimes.begin(),
-                  bind2nd(std::plus<double>(), timePerturbation));
+                  std::bind(std::plus<double>(), std::placeholders::_1, timePerturbation) );
         newSettings = std::make_shared< TabulatedObservationSimulationSettings< TimeType > >(
             originalTabulatedSettings->getObservableType( ),
             originalTabulatedSettings->getLinkEnds( ),

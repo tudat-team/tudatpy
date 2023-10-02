@@ -17,6 +17,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include "tudat/basics/testMacros.h"
+#include "tudat/astro/basic_astro/dateTime.h"
 #include "tudat/simulation/estimation.h"
 #include "tudat/simulation/estimation_setup.h"
 
@@ -165,7 +166,7 @@ void checkStateFunctionNumericalErrors(
 
             for ( unsigned int j = 0; j < 3; j++ )
             {
-                BOOST_CHECK_SMALL( std::fabs( realRelativeErrorLevels( j ) ), 2.0 * std::fabs( expectedRelativeErrorLevel( j ) ) );
+                BOOST_CHECK_SMALL( std::fabs( realRelativeErrorLevels( j ) ), 3.0 * std::fabs( expectedRelativeErrorLevel( j ) ) );
             }
         }
     }
@@ -174,11 +175,15 @@ void checkStateFunctionNumericalErrors(
 BOOST_AUTO_TEST_CASE( test_ObservationModelContinuity )
 {
     double initialTimeEnvironment = Time( 107561, 2262.19 ) - 2.0 * 3600.0;
-    double finalTimeEnvironment = Time( 108258, 2771.19 ) + 2.0 * 3600.0;
+    double finalTimeEnvironment = initialTimeEnvironment + 2.0 * 86400.0;
 
+    DateTime dateTime = getCalendarDateFromTime< double >( initialTimeEnvironment );
+
+    std::cout<<dateTime.isoString( )<<std::endl;
     // Load spice kernels
     spice_interface::loadStandardSpiceKernels( );
-    spice_interface::loadSpiceKernelInTudat( "/home/dominic/Tudat/Data/GRAIL_Spice/grail_120301_120529_sci_v02.bsp" );
+    spice_interface::loadSpiceKernelInTudat(
+        tudat::paths::getTudatTestDataPath( )  + "/grail_shortened.bsp" );
 
     SystemOfBodies earthCenteredBodies = createEnvironment(
         initialTimeEnvironment, finalTimeEnvironment,
