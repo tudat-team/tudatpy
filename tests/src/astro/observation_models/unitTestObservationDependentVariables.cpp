@@ -72,7 +72,7 @@ void compareAgainstReference(
 //                std::cout<<i<<" "<<computedDependentVariables.at( currentTime )<<" "<<
 //                         referenceDependentVariables.at( currentTime )<<std::endl;
 
-                for ( unsigned int j = 0; j < variableSize; j++ )
+                for ( int j = 0; j < variableSize; j++ )
                 {
                     BOOST_CHECK_SMALL( std::fabs(
                         computedDependentVariables.at( currentTime )( j ) -
@@ -179,7 +179,7 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
     std::vector< std::map< double, Eigen::VectorXd > > referenceReceiverDependentVariableResults;
     std::vector< std::map< double, Eigen::VectorXd > > referenceTransmitterDependentVariableResults;
 
-    for( unsigned int currentObservableTestCase = 0; currentObservableTestCase < 3; currentObservableTestCase++ )
+    for( unsigned int currentObservableTestCase = 0; currentObservableTestCase < 5; currentObservableTestCase++ )
     {
         int geometryType = -1;
         ObservableType currentObservableType;
@@ -208,9 +208,6 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
             currentObservableType = two_way_doppler;
             geometryType = 1;
         }
-        
-//            n_way_range = 5,
-//            two_way_doppler = 6,
 
 //            relative_angular_position = 9,
 
@@ -220,11 +217,6 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
 //            dsn_n_way_averaged_doppler = 13
 //            n_way_differenced_range = 10,
 
-//            position_observable = 2,
-//            velocity_observable = 8,
-//            relative_position_observable = 11,
-//            euler_angle_313_observable = 7,
-
         int numberOfLinkEndCases = -1;
         if( geometryType == 0 )
         {
@@ -232,13 +224,16 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
         }
         else if( geometryType == 1 )
         {
-            numberOfLinkEndCases = 4;
+            numberOfLinkEndCases = 6;
         }
 
         for( int currentLinkEndCase = 0; currentLinkEndCase < numberOfLinkEndCases; currentLinkEndCase++ )
         {
             bool compareAgainstReceiver = -1;
             LinkEndType referenceLinkEnd = unidentified_link_end;
+            IntegratedObservationPropertyHandling integratedObservableHandling = interval_undefined;
+            LinkEndType originatingLinkEndRole = unidentified_link_end;
+
             LinkEnds currentLinkEnds;
             switch( geometryType )
             {
@@ -249,11 +244,13 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
                 case 0:
                     currentLinkEnds = stationReceiverOneWayLinkEnds.at( 0 );
                     referenceLinkEnd = receiver;
+                    originatingLinkEndRole = transmitter;
                     compareAgainstReceiver = true;
                     break;
                 case 1:
                     currentLinkEnds = stationTransmitterOneWayLinkEnds.at( 0 );
                     referenceLinkEnd = transmitter;
+                    originatingLinkEndRole = receiver;
                     compareAgainstReceiver = false;
                     break;
                 default:
@@ -267,15 +264,39 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
                 {
                 case 0:
                     currentLinkEnds = stationReceiverTwoWayLinkEnds.at( 0 );
+                    referenceLinkEnd = receiver;
+                    originatingLinkEndRole = retransmitter;
+                    compareAgainstReceiver = true;
                     break;
                 case 1:
-                    currentLinkEnds = stationReceiverThreeWayLinkEnds.at( 0 );
+                    currentLinkEnds = stationReceiverTwoWayLinkEnds.at( 0 );
+                    referenceLinkEnd = transmitter;
+                    originatingLinkEndRole = retransmitter;
+                    compareAgainstReceiver = false;
                     break;
                 case 2:
                     currentLinkEnds = stationTransmitterThreeWayLinkEnds.at( 0 );
+                    referenceLinkEnd = transmitter;
+                    originatingLinkEndRole = retransmitter;
+                    compareAgainstReceiver = false;
                     break;
                 case 3:
+                    currentLinkEnds = stationReceiverThreeWayLinkEnds.at( 0 );
+                    referenceLinkEnd = receiver;
+                    originatingLinkEndRole = retransmitter;
+                    compareAgainstReceiver = true;
+                    break;
+                case 4:
                     currentLinkEnds = stationRetransmitterTwoWayLinkEnds.at( 0 );
+                    referenceLinkEnd = retransmitter;
+                    originatingLinkEndRole = receiver;
+                    compareAgainstReceiver = false;
+                    break;
+                case 5:
+                    currentLinkEnds = stationRetransmitterTwoWayLinkEnds.at( 0 );
+                    referenceLinkEnd = retransmitter;
+                    originatingLinkEndRole = transmitter;
+                    compareAgainstReceiver = true;
                     break;
                 default:
                     throw std::runtime_error( "Error in observation dependent variable unit test A " );
@@ -339,30 +360,32 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
                 }
             }
 
-            std::vector<std::shared_ptr<observation_models::ObservationViabilitySettings> > viabilitySettingsList;
-            viabilitySettingsList.push_back( elevationAngleViabilitySettings(
-                std::make_pair( "Earth", "Station1" ), 25.0 * mathematical_constants::PI / 180.0 ));
-            viabilitySettingsList.push_back( elevationAngleViabilitySettings(
-                std::make_pair( "Earth", "Station2" ), 25.0 * mathematical_constants::PI / 180.0 ));
-
-            addViabilityToObservationSimulationSettings(
-                measurementSimulationInput, viabilitySettingsList );
+//            std::vector<std::shared_ptr<ObservationViabilitySettings> > viabilitySettingsList;
+//            viabilitySettingsList.push_back( elevationAngleViabilitySettings(
+//                std::make_pair( "Earth", "Station1" ), 25.0 * mathematical_constants::PI / 180.0 ));
+//            viabilitySettingsList.push_back( elevationAngleViabilitySettings(
+//                std::make_pair( "Earth", "Station2" ), 25.0 * mathematical_constants::PI / 180.0 ));
+//
+//            addViabilityToObservationSimulationSettings(
+//                measurementSimulationInput, viabilitySettingsList );
 
             // Define settings for dependent variables
             std::vector<std::shared_ptr<ObservationDependentVariableSettings> > dependentVariableList;
 
             std::shared_ptr<ObservationDependentVariableSettings> elevationAngleSettings1 =
                 std::make_shared<StationAngleObservationDependentVariableSettings>(
-                    station_elevation_angle, LinkEndId( std::make_pair( "Earth", "Station1" )));
+                    station_elevation_angle, LinkEndId( std::make_pair( "Earth", "Station1" )),
+                    referenceLinkEnd, integratedObservableHandling, originatingLinkEndRole );
             std::shared_ptr<ObservationDependentVariableSettings> azimuthAngleSettings1 =
                 std::make_shared<StationAngleObservationDependentVariableSettings>(
-                    station_azimuth_angle, LinkEndId( std::make_pair( "Earth", "Station1" )));
+                    station_azimuth_angle, LinkEndId( std::make_pair( "Earth", "Station1" )),
+                    referenceLinkEnd, integratedObservableHandling, originatingLinkEndRole );
             std::shared_ptr<ObservationDependentVariableSettings> targetRangeSettings1 =
                 std::make_shared<InterlinkObservationDependentVariableSettings>(
-                    target_range, transmitter, receiver );
+                    target_range, referenceLinkEnd, originatingLinkEndRole );
             std::shared_ptr<ObservationDependentVariableSettings> targetInverseRangeSettings1 =
                 std::make_shared<InterlinkObservationDependentVariableSettings>(
-                    target_range, receiver, transmitter );
+                    target_range, originatingLinkEndRole, referenceLinkEnd );
 
             dependentVariableList.push_back( elevationAngleSettings1 );
             dependentVariableList.push_back( azimuthAngleSettings1 );
@@ -405,7 +428,7 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
                     referenceTransmitterDependentVariableResults.push_back( targetInverseRanges1 );
                 }
 
-                std::map<observation_models::LinkEnds, int>
+                std::map<LinkEnds, int>
                     linkEndIdentifiers = idealObservationsAndTimes->getLinkEndIdentifierMap( );
                 std::vector<int> linkEndIds = idealObservationsAndTimes->getConcatenatedLinkEndIds( );
 
