@@ -8,8 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 //
-//#define BOOST_TEST_DYN_LINK
-//#define BOOST_TEST_MAIN
+#define BOOST_TEST_DYN_LINK
+#define BOOST_TEST_MAIN
 
 #include <limits>
 #include <string>
@@ -19,11 +19,11 @@
 #include "tudat/basics/utilities.h"
 
 #include "tudat/simulation/estimation.h"
-//
-//namespace tudat
-//{
-//namespace unit_tests
-//{
+
+namespace tudat
+{
+namespace unit_tests
+{
 
 using namespace tudat;
 using namespace tudat::observation_models;
@@ -39,12 +39,55 @@ using namespace tudat::propagators;
 using namespace tudat::basic_astrodynamics;
 using namespace tudat::coordinate_conversions;
 using namespace tudat::statistics;
-//
-//BOOST_AUTO_TEST_SUITE( test_observation_dependent_variables )
-//
-////! Test whether observation noise is correctly added when simulating noisy observations
-//BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
-int main( )
+
+BOOST_AUTO_TEST_SUITE( test_observation_dependent_variables )
+
+
+void compareAgainstReference(
+    const std::shared_ptr<ObservationCollection< > > simulatedObservations,
+    const std::vector< std::shared_ptr< ObservationDependentVariableSettings > >& dependentVariableSettingsList,
+    const std::vector< std::map< double, Eigen::VectorXd > >& referenceReceiverDependentVariableResults,
+    const ObservableType observableType )
+{
+    BOOST_CHECK_EQUAL( dependentVariableSettingsList.size( ), referenceReceiverDependentVariableResults.size( ) );
+
+    for( unsigned int i = 0; i < dependentVariableSettingsList.size( ); i++ )
+    {
+        std::map<double, Eigen::VectorXd> computedDependentVariables = observation_models::getDependentVariableResultList(
+            simulatedObservations, dependentVariableSettingsList.at( i ), observableType );
+        std::map< double, Eigen::VectorXd > referenceDependentVariables = referenceReceiverDependentVariableResults.at( i );
+
+        BOOST_CHECK_EQUAL( computedDependentVariables.size( ), referenceDependentVariables.size( ) );
+
+        if( referenceDependentVariables.size( ) > 0 )
+        {
+            int variableSize = referenceDependentVariables.begin( )->second.rows( );
+            for ( auto it: referenceDependentVariables )
+            {
+
+                BOOST_CHECK(( computedDependentVariables.count( it.first ) > 0 ));
+
+                double currentTime = it.first;
+
+//                std::cout<<i<<" "<<computedDependentVariables.at( currentTime )<<" "<<
+//                         referenceDependentVariables.at( currentTime )<<std::endl;
+
+                for ( unsigned int j = 0; j < variableSize; j++ )
+                {
+                    BOOST_CHECK_SMALL( std::fabs(
+                        computedDependentVariables.at( currentTime )( j ) -
+                        referenceDependentVariables.at( currentTime )( j ) ),
+                                       std::numeric_limits<double>::epsilon( ) * referenceDependentVariables.at( currentTime ).norm( ) );
+                }
+
+            }
+        }
+    }
+}
+
+//! Test whether observation noise is correctly added when simulating noisy observations
+BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
+//int main( )
 {
     //Load spice kernels.
     spice_interface::loadStandardSpiceKernels( );
@@ -133,31 +176,34 @@ int main( )
     std::map<double, Eigen::VectorXd> referenceAzimuthAngles;
     std::map<double, Eigen::VectorXd> referenceTargetRanges;
 
-    for( unsigned int observableTestCase = 0; observableTestCase < 1; observableTestCase++ )
+    std::vector< std::map< double, Eigen::VectorXd > > referenceReceiverDependentVariableResults;
+    std::vector< std::map< double, Eigen::VectorXd > > referenceTransmitterDependentVariableResults;
+
+    for( unsigned int currentObservableTestCase = 0; currentObservableTestCase < 3; currentObservableTestCase++ )
     {
         int geometryType = -1;
         ObservableType currentObservableType;
-        if( observableTestCase == 0 )
+        if( currentObservableTestCase == 0 )
         {
             currentObservableType = one_way_range;
             geometryType = 0;
         }
-        else if( observableTestCase == 1 )
+        else if( currentObservableTestCase == 1 )
         {
             currentObservableType = angular_position;
             geometryType = 0;
         }
-        else if( observableTestCase == 2 )
+        else if( currentObservableTestCase == 2 )
         {
             currentObservableType = one_way_doppler;
             geometryType = 0;
         }
-        else if( observableTestCase == 3 )
+        else if( currentObservableTestCase == 3 )
         {
             currentObservableType = n_way_range;
             geometryType = 1;
         }
-        else if( observableTestCase == 4 )
+        else if( currentObservableTestCase == 4 )
         {
             currentObservableType = two_way_doppler;
             geometryType = 1;
@@ -182,7 +228,7 @@ int main( )
         int numberOfLinkEndCases = -1;
         if( geometryType == 0 )
         {
-            numberOfLinkEndCases = 1;
+            numberOfLinkEndCases = 2;
         }
         else if( geometryType == 1 )
         {
@@ -191,7 +237,8 @@ int main( )
 
         for( int currentLinkEndCase = 0; currentLinkEndCase < numberOfLinkEndCases; currentLinkEndCase++ )
         {
-
+            bool compareAgainstReceiver = -1;
+            LinkEndType referenceLinkEnd = unidentified_link_end;
             LinkEnds currentLinkEnds;
             switch( geometryType )
             {
@@ -201,9 +248,13 @@ int main( )
                 {
                 case 0:
                     currentLinkEnds = stationReceiverOneWayLinkEnds.at( 0 );
+                    referenceLinkEnd = receiver;
+                    compareAgainstReceiver = true;
                     break;
                 case 1:
                     currentLinkEnds = stationTransmitterOneWayLinkEnds.at( 0 );
+                    referenceLinkEnd = transmitter;
+                    compareAgainstReceiver = false;
                     break;
                 default:
                     throw std::runtime_error( "Error in observation dependent variable unit test A " );
@@ -284,7 +335,7 @@ int main( )
                 {
                     measurementSimulationInput.push_back(
                         std::make_shared<TabulatedObservationSimulationSettings<> >(
-                            currentObservable, currentLinkEndsList.at( i ), baseTimeList, receiver ));
+                            currentObservable, currentLinkEndsList.at( i ), baseTimeList, referenceLinkEnd ));
                 }
             }
 
@@ -313,34 +364,25 @@ int main( )
                 std::make_shared<InterlinkObservationDependentVariableSettings>(
                     target_range, receiver, transmitter );
 
-            std::shared_ptr<ObservationDependentVariableSettings> elevationAngleSettings2 =
-                std::make_shared<StationAngleObservationDependentVariableSettings>(
-                    station_elevation_angle, LinkEndId( std::make_pair( "Earth", "Station2" )));
-
             dependentVariableList.push_back( elevationAngleSettings1 );
             dependentVariableList.push_back( azimuthAngleSettings1 );
-            dependentVariableList.push_back( elevationAngleSettings2 );
+            dependentVariableList.push_back( targetRangeSettings1 );
+            dependentVariableList.push_back( targetInverseRangeSettings1 );
+
+
 
             addDependentVariablesToObservationSimulationSettings(
                 measurementSimulationInput, dependentVariableList, bodies );
-
-            addDependentVariablesToObservationSimulationSettings(
-                measurementSimulationInput, { targetRangeSettings1 }, bodies, currentObservableType, currentLinkEnds );
-            addDependentVariablesToObservationSimulationSettings(
-                measurementSimulationInput, { targetInverseRangeSettings1 }, bodies, currentObservableType, currentLinkEnds );
-
 
             // Simulate noise-free observations
             std::shared_ptr<ObservationCollection<> > idealObservationsAndTimes = simulateObservations<double, double>(
                 measurementSimulationInput, observationSimulators, bodies );
 
-            if ( observableTestCase == 0 )
+            if ( currentObservableTestCase == 0 )
             {
 
                 std::map<double, Eigen::VectorXd> elevationAngles1 = getDependentVariableResultList(
                     idealObservationsAndTimes, elevationAngleSettings1, currentObservableType );
-                std::map<double, Eigen::VectorXd> elevationAngles2 = getDependentVariableResultList(
-                    idealObservationsAndTimes, elevationAngleSettings2, currentObservableType );
                 std::map<double, Eigen::VectorXd> azimuthAngles1 = getDependentVariableResultList(
                     idealObservationsAndTimes, azimuthAngleSettings1, currentObservableType );
                 std::map<double, Eigen::VectorXd> targetRanges1 = getDependentVariableResultList(
@@ -348,24 +390,32 @@ int main( )
                 std::map<double, Eigen::VectorXd> targetInverseRanges1 = getDependentVariableResultList(
                     idealObservationsAndTimes, targetInverseRangeSettings1, currentObservableType );
 
-                referenceElevationAngles = elevationAngles1;
-                referenceAzimuthAngles = azimuthAngles1;
-                referenceTargetRanges = targetRanges1;
+                if( currentLinkEndCase == 0 )
+                {
+                    referenceReceiverDependentVariableResults.push_back( elevationAngles1 );
+                    referenceReceiverDependentVariableResults.push_back( azimuthAngles1 );
+                    referenceReceiverDependentVariableResults.push_back( targetRanges1 );
+                    referenceReceiverDependentVariableResults.push_back( targetInverseRanges1 );
+                }
+                else if( currentLinkEndCase == 1 )
+                {
+                    referenceTransmitterDependentVariableResults.push_back( elevationAngles1 );
+                    referenceTransmitterDependentVariableResults.push_back( azimuthAngles1 );
+                    referenceTransmitterDependentVariableResults.push_back( targetRanges1 );
+                    referenceTransmitterDependentVariableResults.push_back( targetInverseRanges1 );
+                }
 
                 std::map<observation_models::LinkEnds, int>
                     linkEndIdentifiers = idealObservationsAndTimes->getLinkEndIdentifierMap( );
                 std::vector<int> linkEndIds = idealObservationsAndTimes->getConcatenatedLinkEndIds( );
 
                 int numberOfLinkEnds1Observations = utilities::countNumberOfOccurencesInVector<int>(
-                    linkEndIds, linkEndIdentifiers.at( stationReceiverOneWayLinkEnds[ 0 ] ));
-                int numberOfLinkEnds2Observations = utilities::countNumberOfOccurencesInVector<int>(
-                    linkEndIds, linkEndIdentifiers.at( stationReceiverOneWayLinkEnds[ 1 ] ));
+                    linkEndIds, linkEndIdentifiers.at( currentLinkEnds ));
 
                 BOOST_CHECK_EQUAL( elevationAngles1.size( ), numberOfLinkEnds1Observations );
                 BOOST_CHECK_EQUAL( azimuthAngles1.size( ), numberOfLinkEnds1Observations );
                 BOOST_CHECK_EQUAL( targetRanges1.size( ), numberOfLinkEnds1Observations );
                 BOOST_CHECK_EQUAL( targetInverseRanges1.size( ), numberOfLinkEnds1Observations );
-                BOOST_CHECK_EQUAL( elevationAngles2.size( ), numberOfLinkEnds2Observations );
 
                 std::shared_ptr<ground_stations::PointingAnglesCalculator> pointingAnglesCalculator1 =
                     bodies.at( "Earth" )->getGroundStation( "Station1" )->getPointingAnglesCalculator( );
@@ -374,10 +424,7 @@ int main( )
 
                 std::shared_ptr<ObservationModel<1, double, double> > observationModel1 =
                     std::dynamic_pointer_cast<ObservationSimulator<1, double, double> >(
-                        observationSimulators.at( 0 ))->getObservationModel( stationReceiverOneWayLinkEnds[ 0 ] );
-                std::shared_ptr<ObservationModel<1, double, double> > observationModel2 =
-                    std::dynamic_pointer_cast<ObservationSimulator<1, double, double> >(
-                        observationSimulators.at( 0 ))->getObservationModel( stationReceiverOneWayLinkEnds[ 1 ] );
+                        observationSimulators.at( 0 ))->getObservationModel( currentLinkEnds );
 
                 std::vector<double> linkEndTimes;
                 std::vector<Eigen::Matrix<double, 6, 1> > linkEndStates;
@@ -391,15 +438,20 @@ int main( )
                     double targetInverseRange = targetInverseRanges1.at( currentTime )( 0 );
 
                     observationModel1->computeIdealObservationsWithLinkEndData(
-                        currentTime, receiver, linkEndTimes, linkEndStates );
+                        currentTime, referenceLinkEnd, linkEndTimes, linkEndStates );
                     Eigen::Vector3d vectorToTarget = ( linkEndStates.at( 0 ) - linkEndStates.at( 1 )).segment( 0, 3 );
+                    if( referenceLinkEnd == transmitter )
+                    {
+                        vectorToTarget *= -1.0;
+                    }
+                    double referenceTime = ( referenceLinkEnd == transmitter ) ? linkEndTimes.at( 0 ) : linkEndTimes.at( 1 );
 
                     double elevationAngle = pointingAnglesCalculator1->calculateElevationAngleFromInertialVector(
-                        vectorToTarget, linkEndTimes.at( 1 ));
+                        vectorToTarget, referenceTime );
                     BOOST_CHECK_SMALL(( elevationAngle - currentElevation ), std::numeric_limits<double>::epsilon( ));
 
                     double azimuthAngle = pointingAnglesCalculator1->calculateAzimuthAngleFromInertialVector(
-                        vectorToTarget, linkEndTimes.at( 1 ));
+                        vectorToTarget, referenceTime );
                     BOOST_CHECK_SMALL(( azimuthAngle - currentAzimuth ), std::numeric_limits<double>::epsilon( ));
 
                     BOOST_CHECK_SMALL(( targetRange - vectorToTarget.norm( )),
@@ -411,42 +463,24 @@ int main( )
 
                 }
             }
-            else if ( observableTestCase < 3 )
+            if( compareAgainstReceiver )
             {
-                std::map<double, Eigen::VectorXd> elevationAngles = getDependentVariableResultList(
-                    idealObservationsAndTimes, elevationAngleSettings1, currentObservableType );
-                std::map<double, Eigen::VectorXd> azimuthAngles = getDependentVariableResultList(
-                    idealObservationsAndTimes, azimuthAngleSettings1, currentObservableType );
-                std::map<double, Eigen::VectorXd> targetRanges = getDependentVariableResultList(
-                    idealObservationsAndTimes, targetRangeSettings1, currentObservableType );
-
-                for ( auto it: referenceElevationAngles )
-                {
-                    BOOST_CHECK(( elevationAngles.count( it.first ) > 0 ));
-                    BOOST_CHECK(( azimuthAngles.count( it.first ) > 0 ));
-                    BOOST_CHECK(( targetRanges.count( it.first ) > 0 ));
-
-                    double currentTime = it.first;
-
-                    BOOST_CHECK_SMALL( std::fabs(
-                        elevationAngles.at( currentTime )( 0 ) - referenceElevationAngles.at( currentTime )( 0 )),
-                                       std::numeric_limits<double>::epsilon( ));
-                    BOOST_CHECK_SMALL( std::fabs(
-                        azimuthAngles.at( currentTime )( 0 ) - referenceAzimuthAngles.at( currentTime )( 0 )),
-                                       std::numeric_limits<double>::epsilon( ));
-                    BOOST_CHECK_SMALL(
-                        std::fabs( targetRanges.at( currentTime )( 0 ) - referenceTargetRanges.at( currentTime )( 0 )),
-                        std::numeric_limits<double>::epsilon( ) * referenceTargetRanges.at( currentTime )( 0 ));
-
-                }
+                compareAgainstReference(
+                    idealObservationsAndTimes, dependentVariableList, referenceReceiverDependentVariableResults, currentObservableType );
             }
+            else
+            {
+                compareAgainstReference(
+                    idealObservationsAndTimes, dependentVariableList, referenceTransmitterDependentVariableResults, currentObservableType );
+            }
+
         }
     }
 }
-//
-//BOOST_AUTO_TEST_SUITE_END( )
-//
-//}
-//
-//}
-//
+
+BOOST_AUTO_TEST_SUITE_END( )
+
+}
+
+}
+
