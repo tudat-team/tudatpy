@@ -238,14 +238,7 @@ bool doesStationAngleVariableExistForGivenLink(
                 linkEnds, variableSettings->relevantLinkEnd_ );
         if( linkEndTypeList.size( ) > 0 )
         {
-            if( linkEndTypeList.size( ) > 1 )
-            {
-                throw std::runtime_error( "Error when checking for station angle; multiple link ends detected" );
-            }
-            else
-            {
-                doesLinkHaveDependency = true;
-            }
+            doesLinkHaveDependency = true;
         }
     }
     return doesLinkHaveDependency;
