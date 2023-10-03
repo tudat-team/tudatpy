@@ -101,6 +101,7 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
     std::vector< std::string > bodyNames;
     bodyNames.push_back( "Earth" );
     bodyNames.push_back( "Moon" );
+    bodyNames.push_back( "Mars" );
 
     // Specify initial time
     double initialEphemerisTime = double( 1.0E7 );
@@ -148,6 +149,14 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
     std::vector< LinkEnds > stationReceiverThreeWayLinkEnds;
     std::vector< LinkEnds > stationTransmitterThreeWayLinkEnds;
 
+    std::vector< LinkEnds > stationReceiverRelativeLinkEnds;
+    std::vector< LinkEnds > stationReceiverOppositeRelativeLinkEnds;
+
+
+//    std::vector< LinkEnds > stationTransmitterRelativeLinkEnds;
+//    std::vector< LinkEnds > stationTransmitter2RelativeLinkEnds;
+
+
     // Define link ends to/from ground stations to Me de    oon
     LinkEnds linkEnds;
     for( unsigned int i = 0; i < groundStationNames.size( ); i++ )
@@ -173,6 +182,31 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
         linkEnds[ retransmitter ] = LinkEndId( std::make_pair( "Earth", groundStationNames.at( i ) ) );
         linkEnds[ transmitter ] = LinkEndId( std::make_pair( "Moon", "" ) );
         stationRetransmitterTwoWayLinkEnds.push_back( linkEnds );
+
+        linkEnds.clear( );
+        linkEnds[ receiver ] = LinkEndId( std::make_pair( "Earth", groundStationNames.at( i ) ) );
+        linkEnds[ transmitter ] = LinkEndId( std::make_pair( "Moon", "" ) );
+        linkEnds[ transmitter2 ] = LinkEndId( std::make_pair( "Mars", "" ) );
+        stationReceiverRelativeLinkEnds.push_back( linkEnds );
+
+        linkEnds.clear( );
+        linkEnds[ receiver ] = LinkEndId( std::make_pair( "Earth", groundStationNames.at( i ) ) );
+        linkEnds[ transmitter2 ] = LinkEndId( std::make_pair( "Moon", "" ) );
+        linkEnds[ transmitter ] = LinkEndId( std::make_pair( "Mars", "" ) );
+        stationReceiverOppositeRelativeLinkEnds.push_back( linkEnds );
+
+
+//        linkEnds.clear( );
+//        linkEnds[ transmitter ] = LinkEndId( std::make_pair( "Earth", groundStationNames.at( i ) ) );
+//        linkEnds[ receiver ] = LinkEndId( std::make_pair( "Moon", "" ) );
+//        linkEnds[ transmitter2 ] = LinkEndId( std::make_pair( "Mars", "" ) );
+//        stationTransmitterRelativeLinkEnds.push_back( linkEnds );
+//
+//        linkEnds.clear( );
+//        linkEnds[ transmitter2 ] = LinkEndId( std::make_pair( "Earth", groundStationNames.at( i ) ) );
+//        linkEnds[ receiver ] = LinkEndId( std::make_pair( "Moon", "" ) );
+//        linkEnds[ transmitter ] = LinkEndId( std::make_pair( "Mars", "" ) );
+//        stationTransmitter2RelativeLinkEnds.push_back( linkEnds );
     }
 
     linkEnds.clear( );
@@ -187,6 +221,10 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
     linkEnds[ transmitter ] = LinkEndId( std::make_pair( "Earth", groundStationNames.at( 0 ) ) );
     stationTransmitterThreeWayLinkEnds.push_back( linkEnds );
 
+
+
+
+
     std::map<double, Eigen::VectorXd> referenceElevationAngles;
     std::map<double, Eigen::VectorXd> referenceAzimuthAngles;
     std::map<double, Eigen::VectorXd> referenceTargetRanges;
@@ -194,7 +232,7 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
     std::vector< std::map< double, Eigen::VectorXd > > referenceReceiverDependentVariableResults;
     std::vector< std::map< double, Eigen::VectorXd > > referenceTransmitterDependentVariableResults;
 
-    for( unsigned int currentObservableTestCase = 0; currentObservableTestCase < 8; currentObservableTestCase++ )
+    for( unsigned int currentObservableTestCase = 0; currentObservableTestCase < 9; currentObservableTestCase++ )
     {
         bool isDifferencedObservable = false;
         int geometryType = -1;
@@ -242,12 +280,16 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
             geometryType = 1;
             isDifferencedObservable = true;
         }
+        else if( currentObservableTestCase == 8 )
+        {
+            currentObservableType = relative_angular_position;
+            geometryType = 2;
+        }
 
 //            relative_angular_position = 9,
 
 //            dsn_one_way_averaged_doppler = 12,
 
-//            dsn_n_way_averaged_doppler = 13
 
         int numberOfLinkEndCases = -1;
         if( geometryType == 0 )
@@ -257,6 +299,10 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
         else if( geometryType == 1 )
         {
             numberOfLinkEndCases = 6;
+        }
+        else if( geometryType == 2 )
+        {
+            numberOfLinkEndCases = 2;
         }
 
         if( isDifferencedObservable )
@@ -348,7 +394,40 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
                     compareAgainstReceiver = true;
                     break;
                 default:
-                    throw std::runtime_error( "Error in observation dependent variable unit test A " );
+                    throw std::runtime_error( "Error in observation dependent variable unit test B " );
+                }
+                break;
+            }
+            case 2:
+            {
+                switch ( currentLinkEndCase )
+                {
+                case 0:
+                    currentLinkEnds = stationReceiverRelativeLinkEnds.at( 0 );
+                    referenceLinkEnd = receiver;
+                    originatingLinkEndRole = transmitter;
+                    compareAgainstReceiver = true;
+                    break;
+                case 1:
+                    currentLinkEnds = stationReceiverOppositeRelativeLinkEnds.at( 0 );
+                    referenceLinkEnd = receiver;
+                    originatingLinkEndRole = transmitter2;
+                    compareAgainstReceiver = true;
+                    break;
+//                case 2:
+//                    currentLinkEnds = stationTransmitterRelativeLinkEnds.at( 0 );
+//                    referenceLinkEnd = transmitter;
+//                    originatingLinkEndRole = receiver;
+//                    compareAgainstReceiver = false;
+//                    break;
+//                case 3:
+//                    currentLinkEnds = stationTransmitter2RelativeLinkEnds.at( 0 );
+//                    referenceLinkEnd = transmitter2;
+//                    originatingLinkEndRole = receiver;
+//                    compareAgainstReceiver = false;
+//                    break;
+                default:
+                    throw std::runtime_error( "Error in observation dependent variable unit test C " );
                 }
                 break;
             }
