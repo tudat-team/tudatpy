@@ -30,6 +30,7 @@
 #include "tudat/astro/orbit_determination/acceleration_partials/panelledRadiationPressureAccelerationPartial.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/thrustAccelerationPartial.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/yarkovskyAccelerationPartial.h"
+#include "tudat/astro/orbit_determination/acceleration_partials/customAccelerationPartial.h"
 #include "tudat/astro/orbit_determination/observation_partials/rotationMatrixPartial.h"
 #include "tudat/simulation/estimation_setup/createCartesianStatePartials.h"
 #include "tudat/astro/basic_astro/accelerationModelTypes.h"
@@ -544,8 +545,25 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAc
         break;
     }
     case custom_acceleration:
-        std::cerr<<"Warning, custom acceleration partials implicitly set to zero - depending on thrust guidance model, this may provide biased results for variational equations"<<std::endl;
+    {
+        // Check if identifier is consistent with type.
+        std::shared_ptr< CustomAccelerationModel > customAccelerationModel =
+            std::dynamic_pointer_cast< CustomAccelerationModel >( accelerationModel );
+        if( customAccelerationModel == nullptr )
+        {
+            throw std::runtime_error(
+                "Acceleration class type does not match acceleration type enum (custom_acceleration) set when making "
+                "acceleration partial." );
+        }
+        else
+        {
+            // Create partial-calculating object.
+            accelerationPartial = std::make_shared< CustomAccelerationPartial >
+                ( customAccelerationModel, acceleratedBody.first, acceleratingBody.first );
+
+        }
         break;
+    }
     case thrust_acceleration:
     {
         // Check if identifier is consistent with type.

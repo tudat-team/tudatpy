@@ -8,10 +8,10 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef TUDAT_YARKOVSKYACCELERATIONPARTIALS_H
-#define TUDAT_YARKOVSKYACCELERATIONPARTIALS_H
+#ifndef TUDAT_CUSTOMACCELERATIONPARTIALS_H
+#define TUDAT_CUSTOMACCELERATIONPARTIALS_H
 
-#include "tudat/astro/electromagnetism/yarkovskyAcceleration.h"
+#include "tudat/astro/basic_astro/customAccelerationModel.h"
 
 #include "tudat/astro/orbit_determination/acceleration_partials/accelerationPartial.h"
 
@@ -21,29 +21,36 @@ namespace tudat
 namespace acceleration_partials
 {
 
-Eigen::Matrix3d calculatePartialOfYarkovskyAccelerationWrtPositionOfAcceleratedBody(
-    const Eigen::Vector6d& relativeState,
-    const double yarkovskyParameter );
 
 
-Eigen::Matrix3d calculatePartialOfYarkovskyAccelerationWrtVelocityOfAcceleratedBody(
-    const Eigen::Vector6d& relativeState,
-    const double yarkovskyParameter );
-
-
-//! Class to calculate the partials of the yarkovsky acceleration w.r.t. parameters and states.
-class YarkovskyAccelerationPartial: public AccelerationPartial
+//! Class to calculate the partials of the custom acceleration w.r.t. parameters and states.
+class CustomAccelerationPartial: public AccelerationPartial
 {
 public:
 
-    YarkovskyAccelerationPartial(
-            const std::shared_ptr< electromagnetism::YarkovskyAcceleration > yarkovskyAcceleration,
+    CustomAccelerationPartial(
             const std::string acceleratedBody,
-            const std::string acceleratingBody ):
-        AccelerationPartial( acceleratedBody, acceleratingBody, basic_astrodynamics::yarkovsky_acceleration ),
-        yarkovskyAcceleration_( yarkovskyAcceleration )
+            const std::string acceleratingBody,
+            const std::shared_ptr< basic_astrodynamics::CustomAccelerationModel > customAcceleration,
+            const std::shared_ptr< estimatable_parameters::CustomAccelerationPartialCalculator > bodyUndergoingPositionPartial = nullptr,
+            const std::shared_ptr< estimatable_parameters::CustomAccelerationPartialCalculator > bodyExertingPositionPartial = nullptr,
+            const std::map< std::shared_ptr< estimatable_parameters::EstimatableParameter< double > >,
+                std::shared_ptr< estimatable_parameters::CustomAccelerationPartialCalculator > > customDoubleParameterPartials =
+            std::map< std::shared_ptr< estimatable_parameters::EstimatableParameter< double > >,
+                std::shared_ptr< estimatable_parameters::CustomAccelerationPartialCalculator > >( ),
+            const std::map< std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > >,
+                std::shared_ptr< estimatable_parameters::CustomAccelerationPartialCalculator > > customVectorParameterPartials =
+            std::map< std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > >,
+                std::shared_ptr< estimatable_parameters::CustomAccelerationPartialCalculator > > ( ) ):
+        AccelerationPartial( acceleratedBody, acceleratingBody, basic_astrodynamics::custom_acceleration ),
+        customAcceleration_( customAcceleration ),
+        bodyUndergoingPositionPartial_( bodyUndergoingPositionPartial ),
+        bodyExertingPositionPartial_( bodyExertingPositionPartial ),
+        customDoubleParameterPartials_( customDoubleParameterPartials ),
+        customVectorParameterPartials_( customVectorParameterPartials )
     {
-
+        currentPartialWrtUndergoingState_.setZero( );
+        currentPartialWrtExertingState_.setZero( );
     }
 
     //! Function for calculating the partial of the acceleration w.r.t. the position of body undergoing acceleration..
@@ -63,11 +70,11 @@ public:
     {
         if( addContribution )
         {
-            partialMatrix.block( startRow, startColumn, 3, 3 ) += currentPartialWrtPosition_;
+            partialMatrix.block( startRow, startColumn, 3, 3 ) += currentPartialWrtUndergoingState_.block( 0, 0, 3, 3 );
         }
         else
         {
-            partialMatrix.block( startRow, startColumn, 3, 3 ) -= currentPartialWrtPosition_;
+            partialMatrix.block( startRow, startColumn, 3, 3 ) -= currentPartialWrtUndergoingState_.block( 0, 0, 3, 3 );
         }
     }
 
@@ -87,11 +94,11 @@ public:
     {
         if( addContribution )
         {
-            partialMatrix.block( startRow, startColumn, 3, 3 ) -= currentPartialWrtPosition_;
+            partialMatrix.block( startRow, startColumn, 3, 3 ) += currentPartialWrtExertingState_.block( 0, 0, 3, 3 );
         }
         else
         {
-            partialMatrix.block( startRow, startColumn, 3, 3 ) += currentPartialWrtPosition_;
+            partialMatrix.block( startRow, startColumn, 3, 3 ) -= currentPartialWrtExertingState_.block( 0, 0, 3, 3 );
         }
     }
 
@@ -112,11 +119,11 @@ public:
     {
         if( addContribution )
         {
-            partialMatrix.block( startRow, startColumn, 3, 3 ) += currentPartialWrtVelocity_;
+            partialMatrix.block( startRow, startColumn, 3, 3 ) += currentPartialWrtUndergoingState_.block( 0, 3, 3, 3 );
         }
         else
         {
-            partialMatrix.block( startRow, startColumn, 3, 3 ) -= currentPartialWrtVelocity_;
+            partialMatrix.block( startRow, startColumn, 3, 3 ) -= currentPartialWrtUndergoingState_.block( 0, 3, 3, 3 );
         }
     }
 
@@ -136,11 +143,11 @@ public:
     {
         if( addContribution )
         {
-            partialMatrix.block( startRow, startColumn, 3, 3 ) -= currentPartialWrtVelocity_;
+            partialMatrix.block( startRow, startColumn, 3, 3 ) += currentPartialWrtExertingState_.block( 0, 3, 3, 3 );
         }
         else
         {
-            partialMatrix.block( startRow, startColumn, 3, 3 ) += currentPartialWrtVelocity_;
+            partialMatrix.block( startRow, startColumn, 3, 3 ) -= currentPartialWrtExertingState_.block( 0, 3, 3, 3 );
         }
     }
 
@@ -160,6 +167,12 @@ public:
         return 0;
     }
 
+    void createCustomParameterPartialFunction(
+        Eigen::MatrixXd& partialBlock,
+        const std::shared_ptr< estimatable_parameters::CustomAccelerationPartialCalculator > customPartialCalculator )
+    {
+        partialBlock = customPartialCalculator->computePartial( currentTime_, customAcceleration_->getAcceleration( ), customAcceleration_ );
+    }
     //! Function for setting up and retrieving a function returning a partial w.r.t. a double parameter.
     /*!
      *  Function for setting up and retrieving a function returning a partial w.r.t. a double parameter.
@@ -168,7 +181,18 @@ public:
      *  \return Pair of parameter partial function and number of columns in partial (0 for no dependency, 1 otherwise).
      */
     std::pair< std::function< void( Eigen::MatrixXd& ) >, int >
-    getParameterPartialFunction( std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter );
+    getParameterPartialFunction( std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
+    {
+        std::function< void( Eigen::MatrixXd& ) > partialFunction;
+        int parameterSize = 0;
+        if( customDoubleParameterPartials_.count( parameter )!= 0 )
+        {
+            partialFunction = std::bind( &CustomAccelerationPartial::createCustomParameterPartialFunction, this,
+                                         std::placeholders::_1, customDoubleParameterPartials_.at( parameter ) );
+            parameterSize = 1;
+        }
+        return std::make_pair( partialFunction, parameterSize );
+    }
 
     //! Function for setting up and retrieving a function returning a partial w.r.t. a vector parameter.
     /*!
@@ -181,7 +205,14 @@ public:
             std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
     {
         std::function< void( Eigen::MatrixXd& ) > partialFunction;
-        return std::make_pair( partialFunction, 0 );
+        int parameterSize = 0;
+        if( customVectorParameterPartials_.count( parameter )!= 0 )
+        {
+            partialFunction = std::bind( &CustomAccelerationPartial::createCustomParameterPartialFunction, this,
+                                         std::placeholders::_1, customVectorParameterPartials_.at( parameter ) );
+            parameterSize = parameter->getParameterSize( );
+        }
+        return std::make_pair( partialFunction, parameterSize );
     }
 
     //! Function for updating partial w.r.t. the bodies' positions
@@ -192,17 +223,21 @@ public:
      */
     void update( const double currentTime = TUDAT_NAN )
     {
-        yarkovskyAcceleration_->updateMembers( currentTime );
+        customAcceleration_->updateMembers( currentTime );
 
         if( !( currentTime_ == currentTime ) )
         {
-            currentPartialWrtPosition_ = calculatePartialOfYarkovskyAccelerationWrtPositionOfAcceleratedBody(
-                        yarkovskyAcceleration_->getCurrentState( ),
-                        yarkovskyAcceleration_->getYarkovskyParameter( ) );
+            if( bodyUndergoingPositionPartial_ != nullptr )
+            {
+                currentPartialWrtUndergoingState_ = bodyUndergoingPositionPartial_->computePartial(
+                    currentTime, customAcceleration_->getAcceleration( ), customAcceleration_ );
+            }
 
-            currentPartialWrtVelocity_ = calculatePartialOfYarkovskyAccelerationWrtVelocityOfAcceleratedBody(
-                yarkovskyAcceleration_->getCurrentState( ),
-                yarkovskyAcceleration_->getYarkovskyParameter( ) );
+            if( bodyExertingPositionPartial_ != nullptr )
+            {
+                currentPartialWrtExertingState_ = bodyExertingPositionPartial_->computePartial(
+                    currentTime, customAcceleration_->getAcceleration( ), customAcceleration_ );
+            }
 
             currentTime_ = currentTime;
         }
@@ -210,20 +245,21 @@ public:
 
 protected:
 
-    //! Function to calculate central gravity partial w.r.t. central body gravitational parameter.
-    void wrtYarkovskyParameter( Eigen::MatrixXd& yarkovskyPartial );
+    const std::shared_ptr< basic_astrodynamics::CustomAccelerationModel > customAcceleration_;
 
-    const std::shared_ptr< electromagnetism::YarkovskyAcceleration > yarkovskyAcceleration_;
+    std::shared_ptr< estimatable_parameters::CustomAccelerationPartialCalculator > bodyUndergoingPositionPartial_;
 
-    //! Current partial of central gravity acceleration w.r.t. position of body undergoing acceleration
-    /*!
-     *  Current partial of central gravity acceleration w.r.t. position of body undergoing acceleration
-     * ( = -partial of central gravity acceleration w.r.t. position of body exerting acceleration),
-     *  calculated and set by update( ) function.
-     */
-    Eigen::Matrix3d currentPartialWrtPosition_;
+    std::shared_ptr< estimatable_parameters::CustomAccelerationPartialCalculator > bodyExertingPositionPartial_;
 
-    Eigen::Matrix3d currentPartialWrtVelocity_;
+    std::map< std::shared_ptr< estimatable_parameters::EstimatableParameter< double > >,
+        std::shared_ptr< estimatable_parameters::CustomAccelerationPartialCalculator > > customDoubleParameterPartials_;
+
+    std::map< std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > >,
+        std::shared_ptr< estimatable_parameters::CustomAccelerationPartialCalculator > > customVectorParameterPartials_;
+
+    Eigen::Matrix< double, 3, 6 > currentPartialWrtUndergoingState_;
+
+    Eigen::Matrix< double, 3, 6 > currentPartialWrtExertingState_;
 
 
 };
@@ -232,4 +268,4 @@ protected:
 
 } // namespace tudat
 
-#endif // TUDAT_YARKOVSKYACCELERATIONPARTIALS_H
+#endif // TUDAT_CUSTOMACCELERATIONPARTIALS_H
