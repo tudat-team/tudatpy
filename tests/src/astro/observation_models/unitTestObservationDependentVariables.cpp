@@ -121,9 +121,14 @@ double computeLineSegmentToCenterOfMassDistance(
     return distance;
 }
 
-//! Test whether observation noise is correctly added when simulating noisy observations
+//! Test whether the observation dependent variables are computed correctly
+/*
+ *  In this test, the calculation of observation dependent variables is checked against theoretical expectiations,
+ *  for a link between an Earth ground station and a moon orbiter. The check is done for a one-way range observable,
+ *  with transmitter/receiver as station/spacecraft (and the other way around). It is then checked whether the
+ *  corresponding link in other observables yields identical results
+ */
 BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
-//int main( )
 {
     //Load spice kernels.
     spice_interface::loadStandardSpiceKernels( );
@@ -139,20 +144,14 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
 
     // Create bodies needed in simulation
     BodyListSettings bodySettings =
-            getDefaultBodySettings( bodyNames );
-    bodySettings.at( "Earth" )->rotationModelSettings = std::make_shared< SimpleRotationModelSettings >(
-                "ECLIPJ2000", "IAU_Earth",
-                spice_interface::computeRotationQuaternionBetweenFrames(
-                    "ECLIPJ2000", "IAU_Earth", initialEphemerisTime ),
-                initialEphemerisTime, 2.0 * mathematical_constants::PI /
-                ( physical_constants::JULIAN_DAY ) );
+            getDefaultBodySettings( bodyNames, "Earth" );
+
+    // Add spacecraft orbiting Moon in Keplerian orbit
     bodySettings.addSettings( "MoonOrbiter" );
-    bodySettings.resetFrames( "Earth" );
     Eigen::Vector6d keplerElements = Eigen::Vector6d::Zero( );
     keplerElements( 0 ) = 2.0E6;
     keplerElements( 1 ) = 0.1;
     keplerElements( 2 ) = 1.0;
-
     bodySettings.at( "MoonOrbiter" )->ephemerisSettings = keplerEphemerisSettings(
         keplerElements, 0.0, spice_interface::getBodyGravitationalParameter( "Moon" ), "Moon" );
 
@@ -164,11 +163,10 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
     std::vector< std::string > groundStationNames;
     groundStationNames.push_back( "Station1" );
     groundStationNames.push_back( "Station2" );
-
-
     createGroundStation( bodies.at( "Earth" ), "Station1", ( Eigen::Vector3d( ) << 0.0, 0.35, 0.0 ).finished( ), geodetic_position );
     createGroundStation( bodies.at( "Earth" ), "Station2", ( Eigen::Vector3d( ) << 0.0, -0.55, 1.0 ).finished( ), geodetic_position );
 
+    // Add relevant systems for DSN ovservable (X-band link; 3GHz transmission frequency)
     bodies.at( "Earth" )->getGroundStation( "Station1" )->setVehicleSystems( std::make_shared< system_models::VehicleSystems >( ) );
     bodies.at( "Earth" )->getGroundStation( "Station1" )->getVehicleSystems( )->setTransponderTurnaroundRatio( );
     bodies.at( "Earth" )->getGroundStation( "Station1" )->setTransmittingFrequencyCalculator( std::make_shared< ConstantFrequencyInterpolator >( 3.0E9 ) );
@@ -180,28 +178,30 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
     bodies.at( "MoonOrbiter" )->setVehicleSystems( std::make_shared< system_models::VehicleSystems >( ) );
     bodies.at( "MoonOrbiter" )->getVehicleSystems( )->setTransponderTurnaroundRatio( );
 
-    // Define parameters.
+    // Define relevant sets of link ends.
+
+    // Station to spacecraft (1-way)
     std::vector< LinkEnds > stationTransmitterOneWayLinkEnds;
+
+    // Spacecraft to station (1-way)
     std::vector< LinkEnds > stationReceiverOneWayLinkEnds;
 
+    // Station->spacecraft->station (2-way)
     std::vector< LinkEnds > stationReceiverTwoWayLinkEnds;
+
+    // Spacecraft->station->spacecraft (2-way)
     std::vector< LinkEnds > stationRetransmitterTwoWayLinkEnds;
-    std::vector< LinkEnds > stationReceiverThreeWayLinkEnds;
-    std::vector< LinkEnds > stationTransmitterThreeWayLinkEnds;
 
+    // Relative observation link ends: orbiter and Mars to station
     std::vector< LinkEnds > stationReceiverRelativeLinkEnds;
-    std::vector< LinkEnds > stationReceiverOppositeRelativeLinkEnds;
 
+    // Relative observation link ends: Mars and orbiter to station
+     std::vector< LinkEnds > stationReceiverOppositeRelativeLinkEnds;
 
-//    std::vector< LinkEnds > stationTransmitterRelativeLinkEnds;
-//    std::vector< LinkEnds > stationTransmitter2RelativeLinkEnds;
-
-
-    // Define link ends to/from ground stations to Me de    oon
+    // Define link ends to/from each of the two ground stations for above list
     LinkEnds linkEnds;
     for( unsigned int i = 0; i < groundStationNames.size( ); i++ )
     {
-
         linkEnds[ transmitter ] = LinkEndId( std::make_pair( "Earth", groundStationNames.at( i ) ) );
         linkEnds[ receiver ] = LinkEndId( std::make_pair( "MoonOrbiter", "" ) );
         stationTransmitterOneWayLinkEnds.push_back( linkEnds );
@@ -235,19 +235,14 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
         linkEnds[ transmitter ] = LinkEndId( std::make_pair( "Mars", "" ) );
         stationReceiverOppositeRelativeLinkEnds.push_back( linkEnds );
 
-
-//        linkEnds.clear( );
-//        linkEnds[ transmitter ] = LinkEndId( std::make_pair( "Earth", groundStationNames.at( i ) ) );
-//        linkEnds[ receiver ] = LinkEndId( std::make_pair( "MoonOrbiter", "" ) );
-//        linkEnds[ transmitter2 ] = LinkEndId( std::make_pair( "Mars", "" ) );
-//        stationTransmitterRelativeLinkEnds.push_back( linkEnds );
-//
-//        linkEnds.clear( );
-//        linkEnds[ transmitter2 ] = LinkEndId( std::make_pair( "Earth", groundStationNames.at( i ) ) );
-//        linkEnds[ receiver ] = LinkEndId( std::make_pair( "MoonOrbiter", "" ) );
-//        linkEnds[ transmitter ] = LinkEndId( std::make_pair( "Mars", "" ) );
-//        stationTransmitter2RelativeLinkEnds.push_back( linkEnds );
     }
+
+
+    // Station 2->spacecraft->station 1 (2-way)
+    std::vector< LinkEnds > stationReceiverThreeWayLinkEnds;
+
+    // Station 1->spacecraft->station 2 (2-way)
+    std::vector< LinkEnds > stationTransmitterThreeWayLinkEnds;
 
     linkEnds.clear( );
     linkEnds[ receiver ] = LinkEndId( std::make_pair( "Earth", groundStationNames.at( 0 ) ) );
@@ -261,21 +256,20 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
     linkEnds[ transmitter ] = LinkEndId( std::make_pair( "Earth", groundStationNames.at( 0 ) ) );
     stationTransmitterThreeWayLinkEnds.push_back( linkEnds );
 
-
-
-
-
-    std::map<double, Eigen::VectorXd> referenceElevationAngles;
-    std::map<double, Eigen::VectorXd> referenceAzimuthAngles;
-    std::map<double, Eigen::VectorXd> referenceTargetRanges;
-
+    // List of dependent variables, computed for 1st observation model, and check for each subsequent one
     std::vector< std::map< double, Eigen::VectorXd > > referenceReceiverDependentVariableResults;
     std::vector< std::map< double, Eigen::VectorXd > > referenceTransmitterDependentVariableResults;
 
+    // Run analysis for each observable (only compare against theory for 1st one)
     for( unsigned int currentObservableTestCase = 0; currentObservableTestCase < 9; currentObservableTestCase++ )
     {
+        // Check if observable is differenced
         bool isDifferencedObservable = false;
+
+        // Check geometry type: 0: 1-way; 1: 2-/3-way; 2: relative observation
         int geometryType = -1;
+
+        // Set current observable
         ObservableType currentObservableType;
         if( currentObservableTestCase == 0 )
         {
@@ -326,11 +320,7 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
             geometryType = 2;
         }
 
-//            relative_angular_position = 9,
-
-//            dsn_one_way_averaged_doppler = 12,
-
-
+        // For geometry type, set number of link end cases (each using different link ends and/or reference link end)
         int numberOfLinkEndCases = -1;
         if( geometryType == 0 )
         {
@@ -345,18 +335,24 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
             numberOfLinkEndCases = 2;
         }
 
+        // If differenced observable, check for both start and end
         if( isDifferencedObservable )
         {
             numberOfLinkEndCases *= 2;
         }
 
+        // Iterate over all link end settings
         for( int currentLinkEndCase = 0; currentLinkEndCase < numberOfLinkEndCases; currentLinkEndCase++ ) //numberOfLinkEndCases
         {
+            // Define to check against which one-way range the results should be compared
             bool compareAgainstReceiver = -1;
+
+            // Define properties of link to check
             LinkEndType referenceLinkEnd = unidentified_link_end;
             IntegratedObservationPropertyHandling integratedObservableHandling = interval_undefined;
             LinkEndType originatingLinkEndRole = unidentified_link_end;
 
+            // If observable is differenced, check for both interval start and end
             if( isDifferencedObservable )
             {
                 if( currentLinkEndCase < numberOfLinkEndCases / 2 )
@@ -369,6 +365,7 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
                 }
             }
 
+            // Set current link ends.
             LinkEnds currentLinkEnds;
             switch( geometryType )
             {
@@ -454,18 +451,6 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
                     originatingLinkEndRole = transmitter2;
                     compareAgainstReceiver = true;
                     break;
-//                case 2:
-//                    currentLinkEnds = stationTransmitterRelativeLinkEnds.at( 0 );
-//                    referenceLinkEnd = transmitter;
-//                    originatingLinkEndRole = receiver;
-//                    compareAgainstReceiver = false;
-//                    break;
-//                case 3:
-//                    currentLinkEnds = stationTransmitter2RelativeLinkEnds.at( 0 );
-//                    referenceLinkEnd = transmitter2;
-//                    originatingLinkEndRole = receiver;
-//                    compareAgainstReceiver = false;
-//                    break;
                 default:
                     throw std::runtime_error( "Error in observation dependent variable unit test C " );
                 }
@@ -473,18 +458,19 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
             }
             }
 
+            // Skip DSN n-way differenced observable if reference link end is not receiver
             if( !( currentObservableType == dsn_n_way_averaged_doppler && referenceLinkEnd != receiver ) )
             {
 
                 std::cout<<currentObservableTestCase<<" "<<currentLinkEnds.size( )<<" "<<geometryType<<" "<<currentLinkEndCase<<std::endl;
-                // Define (arbitrary) link ends for each observable
+
+                // Define link ends for current observable
                 std::map<ObservableType, std::vector<LinkEnds> > linkEndsPerObservable;
                 linkEndsPerObservable[ currentObservableType ].push_back( currentLinkEnds );
 
                 // Define observation settings for each observable/link ends combination
                 std::vector<std::shared_ptr<ObservationModelSettings> > observationSettingsList;
-                for ( std::map<ObservableType, std::vector<LinkEnds> >::iterator
-                          linkEndIterator = linkEndsPerObservable.begin( );
+                for ( std::map<ObservableType, std::vector<LinkEnds> >::iterator linkEndIterator = linkEndsPerObservable.begin( );
                       linkEndIterator != linkEndsPerObservable.end( ); linkEndIterator++ )
                 {
                     ObservableType currentObservable = linkEndIterator->first;
@@ -515,6 +501,7 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
                 std::vector<std::shared_ptr<ObservationSimulatorBase<double, double> > > observationSimulators =
                     createObservationSimulators( observationSettingsList, bodies );
 
+                // Define ancilliary settings
                 std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySettings = nullptr;
                 double integrationTime = 60.0;
                 double referenceTimeShift = 0.0;
@@ -530,6 +517,7 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
                     ancilliarySettings->setAncilliaryDoubleData( doppler_integration_time, integrationTime );
                 }
 
+                // For differenced observables; shift reference time by half the integration time
                 if( isDifferencedObservable )
                 {
                     if( integratedObservableHandling == interval_start )
@@ -573,15 +561,6 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
                     }
                 }
 
-    //            std::vector<std::shared_ptr<ObservationViabilitySettings> > viabilitySettingsList;
-    //            viabilitySettingsList.push_back( elevationAngleViabilitySettings(
-    //                std::make_pair( "Earth", "Station1" ), 25.0 * mathematical_constants::PI / 180.0 ));
-    //            viabilitySettingsList.push_back( elevationAngleViabilitySettings(
-    //                std::make_pair( "Earth", "Station2" ), 25.0 * mathematical_constants::PI / 180.0 ));
-    //
-    //            addViabilityToObservationSimulationSettings(
-    //                measurementSimulationInput, viabilitySettingsList );
-
                 // Define settings for dependent variables
                 std::vector<std::shared_ptr<ObservationDependentVariableSettings> > dependentVariableList;
 
@@ -618,7 +597,6 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
                     std::make_shared<InterlinkObservationDependentVariableSettings>(
                         link_angle_with_orbital_plane, referenceLinkEnd, originatingLinkEndRole, integratedObservableHandling, "Moon" );
 
-
                 dependentVariableList.push_back( elevationAngleSettings );
                 dependentVariableList.push_back( azimuthAngleSettings );
                 dependentVariableList.push_back( targetRangeSettings );
@@ -630,7 +608,6 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
                 dependentVariableList.push_back( moonAvoidanceAngleSettings );
                 dependentVariableList.push_back( orbitalPlaneAngleSettings );
 
-
                 addDependentVariablesToObservationSimulationSettings(
                     measurementSimulationInput, dependentVariableList, bodies );
 
@@ -638,9 +615,9 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
                 std::shared_ptr<ObservationCollection<> > idealObservationsAndTimes = simulateObservations<double, double>(
                     measurementSimulationInput, observationSimulators, bodies );
 
+                // If first case (one-way range) compare against theoretical expectations
                 if ( currentObservableTestCase == 0 )
                 {
-
                     std::map<double, Eigen::VectorXd> elevationAngles1 = getDependentVariableResultList(
                         idealObservationsAndTimes, elevationAngleSettings, currentObservableType );
                     std::map<double, Eigen::VectorXd> azimuthAngles1 = getDependentVariableResultList(
@@ -665,6 +642,7 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
                     std::map<double, Eigen::VectorXd> orbitalPlaneAngles = getDependentVariableResultList(
                         idealObservationsAndTimes, orbitalPlaneAngleSettings, currentObservableType );
 
+                    // Add data to reference cases against which subsequent observables will be compared
                     if( currentLinkEndCase == 0 )
                     {
                         referenceReceiverDependentVariableResults.push_back( elevationAngles1 );
@@ -693,30 +671,31 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
                         referenceTransmitterDependentVariableResults.push_back( orbitalPlaneAngles );
                     }
 
-                    std::map<LinkEnds, int>
-                        linkEndIdentifiers = idealObservationsAndTimes->getLinkEndIdentifierMap( );
-                    std::vector<int> linkEndIds = idealObservationsAndTimes->getConcatenatedLinkEndIds( );
+                    // Check size of dependent variable results vectors
+                    std::map< LinkEnds, int >  linkEndIdentifiers = idealObservationsAndTimes->getLinkEndIdentifierMap( );
+                    std::vector< int > linkEndIds = idealObservationsAndTimes->getConcatenatedLinkEndIds( );
 
                     int numberOfLinkEnds1Observations = utilities::countNumberOfOccurencesInVector<int>(
-                        linkEndIds, linkEndIdentifiers.at( currentLinkEnds ));
+                        linkEndIds, linkEndIdentifiers.at( currentLinkEnds ) );
 
                     BOOST_CHECK_EQUAL( elevationAngles1.size( ), numberOfLinkEnds1Observations );
                     BOOST_CHECK_EQUAL( azimuthAngles1.size( ), numberOfLinkEnds1Observations );
                     BOOST_CHECK_EQUAL( targetRanges1.size( ), numberOfLinkEnds1Observations );
-                    BOOST_CHECK_EQUAL( targetInverseRanges1.size( ), numberOfLinkEnds1Observations );
 
+                    // Retrieve pointing angles calculators
                     std::shared_ptr< PointingAnglesCalculator> pointingAnglesCalculator1 =
                         bodies.at( "Earth" )->getGroundStation( "Station1" )->getPointingAnglesCalculator( );
                     std::shared_ptr< PointingAnglesCalculator> pointingAnglesCalculator2 =
                         bodies.at( "Earth" )->getGroundStation( "Station2" )->getPointingAnglesCalculator( );
 
+                    // Retrieve observation model
                     std::shared_ptr<ObservationModel<1, double, double> > observationModel1 =
                         std::dynamic_pointer_cast<ObservationSimulator<1, double, double> >(
                             observationSimulators.at( 0 ))->getObservationModel( currentLinkEnds );
 
+                    // Iterate over all times
                     std::vector<double> linkEndTimes;
                     std::vector<Eigen::Matrix<double, 6, 1> > linkEndStates;
-
                     for ( auto it: elevationAngles1 )
                     {
                         double currentTime = it.first;
