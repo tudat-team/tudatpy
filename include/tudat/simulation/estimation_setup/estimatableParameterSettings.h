@@ -15,6 +15,7 @@
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
+#include "tudat/astro/basic_astro/accelerationModelTypes.h"
 
 namespace tudat
 {
@@ -57,6 +58,8 @@ public:
      *  Identifier for parameter, contains type of parameter and body of which parameter is a property.
      */
     EstimatebleParameterIdentifier parameterType_;
+
+    std::shared_ptr< CustomAccelerationPartialSettings > customPartialSettings_;
 
 };
 
