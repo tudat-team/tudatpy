@@ -1999,6 +1999,15 @@ public:
                         linkEnds.at( observation_models::retransmitter ).stationName_ )->getVehicleSystems( )->getTransponderTurnaroundRatio( );
             }
 
+            if( bodies.getBody( linkEnds.at( observation_models::transmitter ).bodyName_ )->getGroundStation(
+                linkEnds.at( observation_models::transmitter ).stationName_ )->getTransmittingFrequencyCalculator( ) == nullptr )
+            {
+                throw std::runtime_error(
+                    "Error when creating DSN N-way averaged Doppler observation model: transmitted frequency not  "
+                    "defined for link end station " + linkEnds.at( observation_models::transmitter ).bodyName_ + ", " +
+                        linkEnds.at( observation_models::transmitter ).stationName_ );
+            }
+
             observationModel = std::make_shared<
                     DsnNWayAveragedDopplerObservationModel< ObservationScalarType, TimeType > >(
                         linkEnds, arcStartObservationModel, arcEndObservationModel,
