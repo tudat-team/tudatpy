@@ -140,9 +140,9 @@ public:
     {
         if( !std::is_same< Time, TimeType >::value )
         {
-            throw std::runtime_error(
-                    "Error when defining DSN N-way averaged Doppler observation model: the selected time type "
-                    "is not valid, using it would lead to large numerical errors.");
+            std::cerr<<
+                    "Warning when defining DSN N-way averaged Doppler observation model: the selected time type "
+                    "is not valid, using it would lead to large numerical errors."<<std::endl;
         }
 
         if ( numberOfLinkEnds_ != 3 )
