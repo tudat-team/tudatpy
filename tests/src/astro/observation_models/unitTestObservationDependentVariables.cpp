@@ -75,8 +75,7 @@ void compareAgainstReference(
 
 //                double currentTime = it.first;
 
-//                std::cout<<i<<" "<<computedDependentVariables.at( currentTime )<<" "<<
-//                         referenceDependentVariables.at( currentTime )<<std::endl;
+//                std::cout<<i<<" "<<computedIterator->second<<" "<<referenceIterator->second<<std::endl;
 
                 for ( int j = 0; j < variableSize; j++ )
                 {
@@ -88,6 +87,38 @@ void compareAgainstReference(
             }
         }
     }
+}
+
+double computeLineSegmentToCenterOfMassDistance(
+    const Eigen::Vector3d lineSegmentStart,
+    const Eigen::Vector3d lineSegmentEnd,
+    const Eigen::Vector3d pointLocation )
+{
+    Eigen::Vector3d lineDirection = lineSegmentEnd - lineSegmentStart;
+    Eigen::Vector3d startToPoint = pointLocation - lineSegmentStart;
+    Eigen::Vector3d endToPoint = pointLocation - lineSegmentEnd;
+
+    double startInnerProduct = startToPoint.dot( lineDirection );
+    double endInnerProduct = endToPoint.dot( lineDirection );
+
+    double distance = TUDAT_NAN;
+    if( startInnerProduct * endInnerProduct > 0 )
+    {
+        if( startToPoint.norm( ) < endToPoint.norm( ) )
+        {
+            distance = startToPoint.norm( );
+        }
+        else
+        {
+            distance = endToPoint.norm( );
+        }
+    }
+    else
+    {
+        double angle = linear_algebra::computeAngleBetweenVectors( startToPoint, lineDirection );
+        distance = std::sin( angle ) * startToPoint.norm( );
+    }
+    return distance;
 }
 
 //! Test whether observation noise is correctly added when simulating noisy observations
@@ -105,19 +136,28 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
 
     // Specify initial time
     double initialEphemerisTime = double( 1.0E7 );
-    double finalEphemerisTime = double( 1.0E7 + 3.0 * physical_constants::JULIAN_DAY );
 
     // Create bodies needed in simulation
     BodyListSettings bodySettings =
-            getDefaultBodySettings( bodyNames, initialEphemerisTime - 3600.0, finalEphemerisTime + 3600.0 );
+            getDefaultBodySettings( bodyNames );
     bodySettings.at( "Earth" )->rotationModelSettings = std::make_shared< SimpleRotationModelSettings >(
                 "ECLIPJ2000", "IAU_Earth",
                 spice_interface::computeRotationQuaternionBetweenFrames(
                     "ECLIPJ2000", "IAU_Earth", initialEphemerisTime ),
                 initialEphemerisTime, 2.0 * mathematical_constants::PI /
                 ( physical_constants::JULIAN_DAY ) );
+    bodySettings.addSettings( "MoonOrbiter" );
+    bodySettings.resetFrames( "Earth" );
+    Eigen::Vector6d keplerElements = Eigen::Vector6d::Zero( );
+    keplerElements( 0 ) = 2.0E6;
+    keplerElements( 1 ) = 0.1;
+    keplerElements( 2 ) = 1.0;
+
+    bodySettings.at( "MoonOrbiter" )->ephemerisSettings = keplerEphemerisSettings(
+        keplerElements, 0.0, spice_interface::getBodyGravitationalParameter( "Moon" ), "Moon" );
 
     SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+
     
 
     // Creatre ground stations
@@ -137,8 +177,8 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
     bodies.at( "Earth" )->getGroundStation( "Station2" )->getVehicleSystems( )->setTransponderTurnaroundRatio( );
     bodies.at( "Earth" )->getGroundStation( "Station2" )->setTransmittingFrequencyCalculator( std::make_shared< ConstantFrequencyInterpolator >( 3.0E9 ) );
 
-    bodies.at( "Moon" )->setVehicleSystems( std::make_shared< system_models::VehicleSystems >( ) );
-    bodies.at( "Moon" )->getVehicleSystems( )->setTransponderTurnaroundRatio( );
+    bodies.at( "MoonOrbiter" )->setVehicleSystems( std::make_shared< system_models::VehicleSystems >( ) );
+    bodies.at( "MoonOrbiter" )->getVehicleSystems( )->setTransponderTurnaroundRatio( );
 
     // Define parameters.
     std::vector< LinkEnds > stationTransmitterOneWayLinkEnds;
@@ -163,61 +203,61 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
     {
 
         linkEnds[ transmitter ] = LinkEndId( std::make_pair( "Earth", groundStationNames.at( i ) ) );
-        linkEnds[ receiver ] = LinkEndId( std::make_pair( "Moon", "" ) );
+        linkEnds[ receiver ] = LinkEndId( std::make_pair( "MoonOrbiter", "" ) );
         stationTransmitterOneWayLinkEnds.push_back( linkEnds );
 
         linkEnds.clear( );
         linkEnds[ receiver ] = LinkEndId( std::make_pair( "Earth", groundStationNames.at( i ) ) );
-        linkEnds[ transmitter ] = LinkEndId( std::make_pair( "Moon", "" ) );
+        linkEnds[ transmitter ] = LinkEndId( std::make_pair( "MoonOrbiter", "" ) );
         stationReceiverOneWayLinkEnds.push_back( linkEnds );
 
         linkEnds.clear( );
         linkEnds[ receiver ] = LinkEndId( std::make_pair( "Earth", groundStationNames.at( i ) ) );
-        linkEnds[ retransmitter ] = LinkEndId( std::make_pair( "Moon", "" ) );
+        linkEnds[ retransmitter ] = LinkEndId( std::make_pair( "MoonOrbiter", "" ) );
         linkEnds[ transmitter ] = LinkEndId( std::make_pair( "Earth", groundStationNames.at( i ) ) );
         stationReceiverTwoWayLinkEnds.push_back( linkEnds );
 
         linkEnds.clear( );
-        linkEnds[ receiver ] = LinkEndId( std::make_pair( "Moon", "" ) );
+        linkEnds[ receiver ] = LinkEndId( std::make_pair( "MoonOrbiter", "" ) );
         linkEnds[ retransmitter ] = LinkEndId( std::make_pair( "Earth", groundStationNames.at( i ) ) );
-        linkEnds[ transmitter ] = LinkEndId( std::make_pair( "Moon", "" ) );
+        linkEnds[ transmitter ] = LinkEndId( std::make_pair( "MoonOrbiter", "" ) );
         stationRetransmitterTwoWayLinkEnds.push_back( linkEnds );
 
         linkEnds.clear( );
         linkEnds[ receiver ] = LinkEndId( std::make_pair( "Earth", groundStationNames.at( i ) ) );
-        linkEnds[ transmitter ] = LinkEndId( std::make_pair( "Moon", "" ) );
+        linkEnds[ transmitter ] = LinkEndId( std::make_pair( "MoonOrbiter", "" ) );
         linkEnds[ transmitter2 ] = LinkEndId( std::make_pair( "Mars", "" ) );
         stationReceiverRelativeLinkEnds.push_back( linkEnds );
 
         linkEnds.clear( );
         linkEnds[ receiver ] = LinkEndId( std::make_pair( "Earth", groundStationNames.at( i ) ) );
-        linkEnds[ transmitter2 ] = LinkEndId( std::make_pair( "Moon", "" ) );
+        linkEnds[ transmitter2 ] = LinkEndId( std::make_pair( "MoonOrbiter", "" ) );
         linkEnds[ transmitter ] = LinkEndId( std::make_pair( "Mars", "" ) );
         stationReceiverOppositeRelativeLinkEnds.push_back( linkEnds );
 
 
 //        linkEnds.clear( );
 //        linkEnds[ transmitter ] = LinkEndId( std::make_pair( "Earth", groundStationNames.at( i ) ) );
-//        linkEnds[ receiver ] = LinkEndId( std::make_pair( "Moon", "" ) );
+//        linkEnds[ receiver ] = LinkEndId( std::make_pair( "MoonOrbiter", "" ) );
 //        linkEnds[ transmitter2 ] = LinkEndId( std::make_pair( "Mars", "" ) );
 //        stationTransmitterRelativeLinkEnds.push_back( linkEnds );
 //
 //        linkEnds.clear( );
 //        linkEnds[ transmitter2 ] = LinkEndId( std::make_pair( "Earth", groundStationNames.at( i ) ) );
-//        linkEnds[ receiver ] = LinkEndId( std::make_pair( "Moon", "" ) );
+//        linkEnds[ receiver ] = LinkEndId( std::make_pair( "MoonOrbiter", "" ) );
 //        linkEnds[ transmitter ] = LinkEndId( std::make_pair( "Mars", "" ) );
 //        stationTransmitter2RelativeLinkEnds.push_back( linkEnds );
     }
 
     linkEnds.clear( );
     linkEnds[ receiver ] = LinkEndId( std::make_pair( "Earth", groundStationNames.at( 0 ) ) );
-    linkEnds[ retransmitter ] = LinkEndId( std::make_pair( "Moon", "" ) );
+    linkEnds[ retransmitter ] = LinkEndId( std::make_pair( "MoonOrbiter", "" ) );
     linkEnds[ transmitter ] = LinkEndId( std::make_pair( "Earth", groundStationNames.at( 1 ) ) );
     stationReceiverThreeWayLinkEnds.push_back( linkEnds );
 
     linkEnds.clear( );
     linkEnds[ receiver ] = LinkEndId( std::make_pair( "Earth", groundStationNames.at( 1 ) ) );
-    linkEnds[ retransmitter ] = LinkEndId( std::make_pair( "Moon", "" ) );
+    linkEnds[ retransmitter ] = LinkEndId( std::make_pair( "MoonOrbiter", "" ) );
     linkEnds[ transmitter ] = LinkEndId( std::make_pair( "Earth", groundStationNames.at( 0 ) ) );
     stationTransmitterThreeWayLinkEnds.push_back( linkEnds );
 
@@ -310,7 +350,7 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
             numberOfLinkEndCases *= 2;
         }
 
-        for( int currentLinkEndCase = 0; currentLinkEndCase < numberOfLinkEndCases; currentLinkEndCase++ )
+        for( int currentLinkEndCase = 0; currentLinkEndCase < numberOfLinkEndCases; currentLinkEndCase++ ) //numberOfLinkEndCases
         {
             bool compareAgainstReceiver = -1;
             LinkEndType referenceLinkEnd = unidentified_link_end;
@@ -436,7 +476,7 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
             if( !( currentObservableType == dsn_n_way_averaged_doppler && referenceLinkEnd != receiver ) )
             {
 
-                std::cout<<currentLinkEnds.size( )<<" "<<geometryType<<" "<<currentLinkEndCase<<std::endl;
+                std::cout<<currentObservableTestCase<<" "<<currentLinkEnds.size( )<<" "<<geometryType<<" "<<currentLinkEndCase<<std::endl;
                 // Define (arbitrary) link ends for each observable
                 std::map<ObservableType, std::vector<LinkEnds> > linkEndsPerObservable;
                 linkEndsPerObservable[ currentObservableType ].push_back( currentLinkEnds );
@@ -545,26 +585,50 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
                 // Define settings for dependent variables
                 std::vector<std::shared_ptr<ObservationDependentVariableSettings> > dependentVariableList;
 
-                std::shared_ptr<ObservationDependentVariableSettings> elevationAngleSettings1 =
+                std::shared_ptr<ObservationDependentVariableSettings> elevationAngleSettings =
                     std::make_shared<StationAngleObservationDependentVariableSettings>(
                         station_elevation_angle, LinkEndId( std::make_pair( "Earth", "Station1" )),
                         referenceLinkEnd, integratedObservableHandling, originatingLinkEndRole );
-                std::shared_ptr<ObservationDependentVariableSettings> azimuthAngleSettings1 =
+                std::shared_ptr<ObservationDependentVariableSettings> azimuthAngleSettings =
                     std::make_shared<StationAngleObservationDependentVariableSettings>(
                         station_azimuth_angle, LinkEndId( std::make_pair( "Earth", "Station1" )),
                         referenceLinkEnd, integratedObservableHandling, originatingLinkEndRole );
-                std::shared_ptr<ObservationDependentVariableSettings> targetRangeSettings1 =
+                std::shared_ptr<ObservationDependentVariableSettings> targetRangeSettings =
                     std::make_shared<InterlinkObservationDependentVariableSettings>(
                         target_range, referenceLinkEnd, originatingLinkEndRole, integratedObservableHandling );
-                std::shared_ptr<ObservationDependentVariableSettings> targetInverseRangeSettings1 =
+                std::shared_ptr<ObservationDependentVariableSettings> targetInverseRangeSettings =
                     std::make_shared<InterlinkObservationDependentVariableSettings>(
-                        target_range, originatingLinkEndRole, referenceLinkEnd, integratedObservableHandling );
+                        target_range, originatingLinkEndRole, referenceLinkEnd, integratedObservableHandling );                
+                std::shared_ptr<ObservationDependentVariableSettings> linkBodyCenterDistanceSettings =
+                    std::make_shared<InterlinkObservationDependentVariableSettings>(
+                        link_body_center_distance, referenceLinkEnd, originatingLinkEndRole, integratedObservableHandling, "Moon" );
+                std::shared_ptr<ObservationDependentVariableSettings> linkBodyCenterDistanceInverseSettings =
+                    std::make_shared<InterlinkObservationDependentVariableSettings>(
+                        link_body_center_distance, originatingLinkEndRole, referenceLinkEnd, integratedObservableHandling, "Moon" );
+                std::shared_ptr<ObservationDependentVariableSettings> linkLimbDistanceSettings =
+                    std::make_shared<InterlinkObservationDependentVariableSettings>(
+                        link_limb_distance, referenceLinkEnd, originatingLinkEndRole, integratedObservableHandling, "Moon" );
+                std::shared_ptr<ObservationDependentVariableSettings> linkLimbDistanceInverseSettings =
+                    std::make_shared<InterlinkObservationDependentVariableSettings>(
+                        link_limb_distance, originatingLinkEndRole, referenceLinkEnd, integratedObservableHandling, "Moon" );
+                std::shared_ptr<ObservationDependentVariableSettings> moonAvoidanceAngleSettings =
+                    std::make_shared<InterlinkObservationDependentVariableSettings>(
+                        body_avoidance_angle_variable, referenceLinkEnd, originatingLinkEndRole, integratedObservableHandling, "Moon" );
+                std::shared_ptr<ObservationDependentVariableSettings> orbitalPlaneAngleSettings =
+                    std::make_shared<InterlinkObservationDependentVariableSettings>(
+                        link_angle_with_orbital_plane, referenceLinkEnd, originatingLinkEndRole, integratedObservableHandling, "Moon" );
 
-                dependentVariableList.push_back( elevationAngleSettings1 );
-                dependentVariableList.push_back( azimuthAngleSettings1 );
-                dependentVariableList.push_back( targetRangeSettings1 );
-                dependentVariableList.push_back( targetInverseRangeSettings1 );
 
+                dependentVariableList.push_back( elevationAngleSettings );
+                dependentVariableList.push_back( azimuthAngleSettings );
+                dependentVariableList.push_back( targetRangeSettings );
+                dependentVariableList.push_back( targetInverseRangeSettings );
+                dependentVariableList.push_back( linkBodyCenterDistanceSettings );
+                dependentVariableList.push_back( linkBodyCenterDistanceInverseSettings );
+                dependentVariableList.push_back( linkLimbDistanceSettings );
+                dependentVariableList.push_back( linkLimbDistanceInverseSettings );
+                dependentVariableList.push_back( moonAvoidanceAngleSettings );
+                dependentVariableList.push_back( orbitalPlaneAngleSettings );
 
 
                 addDependentVariablesToObservationSimulationSettings(
@@ -578,13 +642,28 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
                 {
 
                     std::map<double, Eigen::VectorXd> elevationAngles1 = getDependentVariableResultList(
-                        idealObservationsAndTimes, elevationAngleSettings1, currentObservableType );
+                        idealObservationsAndTimes, elevationAngleSettings, currentObservableType );
                     std::map<double, Eigen::VectorXd> azimuthAngles1 = getDependentVariableResultList(
-                        idealObservationsAndTimes, azimuthAngleSettings1, currentObservableType );
+                        idealObservationsAndTimes, azimuthAngleSettings, currentObservableType );
+
                     std::map<double, Eigen::VectorXd> targetRanges1 = getDependentVariableResultList(
-                        idealObservationsAndTimes, targetRangeSettings1, currentObservableType );
+                        idealObservationsAndTimes, targetRangeSettings, currentObservableType );
                     std::map<double, Eigen::VectorXd> targetInverseRanges1 = getDependentVariableResultList(
-                        idealObservationsAndTimes, targetInverseRangeSettings1, currentObservableType );
+                        idealObservationsAndTimes, targetInverseRangeSettings, currentObservableType );
+
+                    std::map<double, Eigen::VectorXd> linkBodyDistances = getDependentVariableResultList(
+                        idealObservationsAndTimes, linkBodyCenterDistanceSettings, currentObservableType );
+                    std::map<double, Eigen::VectorXd> linkBodyInverseDistances = getDependentVariableResultList(
+                        idealObservationsAndTimes, linkBodyCenterDistanceInverseSettings, currentObservableType );
+
+                    std::map<double, Eigen::VectorXd> linkLimbDistances = getDependentVariableResultList(
+                        idealObservationsAndTimes, linkLimbDistanceSettings, currentObservableType );
+                    std::map<double, Eigen::VectorXd> linkLimbInverseDistances = getDependentVariableResultList(
+                        idealObservationsAndTimes, linkLimbDistanceInverseSettings, currentObservableType );
+                    std::map<double, Eigen::VectorXd> moonAvoidanceAngles = getDependentVariableResultList(
+                        idealObservationsAndTimes, moonAvoidanceAngleSettings, currentObservableType );
+                    std::map<double, Eigen::VectorXd> orbitalPlaneAngles = getDependentVariableResultList(
+                        idealObservationsAndTimes, orbitalPlaneAngleSettings, currentObservableType );
 
                     if( currentLinkEndCase == 0 )
                     {
@@ -592,6 +671,13 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
                         referenceReceiverDependentVariableResults.push_back( azimuthAngles1 );
                         referenceReceiverDependentVariableResults.push_back( targetRanges1 );
                         referenceReceiverDependentVariableResults.push_back( targetInverseRanges1 );
+                        referenceReceiverDependentVariableResults.push_back( linkBodyDistances );
+                        referenceReceiverDependentVariableResults.push_back( linkBodyInverseDistances );
+                        referenceReceiverDependentVariableResults.push_back( linkLimbDistances );
+                        referenceReceiverDependentVariableResults.push_back( linkLimbInverseDistances );
+                        referenceReceiverDependentVariableResults.push_back( moonAvoidanceAngles );
+                        referenceReceiverDependentVariableResults.push_back( orbitalPlaneAngles );
+
                     }
                     else if( currentLinkEndCase == 1 )
                     {
@@ -599,6 +685,12 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
                         referenceTransmitterDependentVariableResults.push_back( azimuthAngles1 );
                         referenceTransmitterDependentVariableResults.push_back( targetRanges1 );
                         referenceTransmitterDependentVariableResults.push_back( targetInverseRanges1 );
+                        referenceTransmitterDependentVariableResults.push_back( linkBodyDistances );
+                        referenceTransmitterDependentVariableResults.push_back( linkBodyInverseDistances );
+                        referenceTransmitterDependentVariableResults.push_back( linkLimbDistances );
+                        referenceTransmitterDependentVariableResults.push_back( linkLimbInverseDistances );
+                        referenceTransmitterDependentVariableResults.push_back( moonAvoidanceAngles );
+                        referenceTransmitterDependentVariableResults.push_back( orbitalPlaneAngles );
                     }
 
                     std::map<LinkEnds, int>
@@ -632,14 +724,39 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
                         double currentAzimuth = azimuthAngles1.at( currentTime )( 0 );
                         double targetRange = targetRanges1.at( currentTime )( 0 );
                         double targetInverseRange = targetInverseRanges1.at( currentTime )( 0 );
+                        double linkBodyDistance = linkBodyDistances.at( currentTime )( 0 );
+                        double linkBodyInverseDistance = linkBodyInverseDistances.at( currentTime )( 0 );
+                        double linkLimbDistance = linkLimbDistances.at( currentTime )( 0 );
+                        double linkLimbInverseDistance = linkLimbInverseDistances.at( currentTime )( 0 );
+                        double moonAvoidanceAngle = moonAvoidanceAngles.at( currentTime )( 0 );
+                        double orbitalPlaneAngle = orbitalPlaneAngles.at( currentTime )( 0 );
 
                         observationModel1->computeIdealObservationsWithLinkEndData(
                             currentTime, referenceLinkEnd, linkEndTimes, linkEndStates );
+
                         Eigen::Vector3d vectorToTarget = ( linkEndStates.at( 0 ) - linkEndStates.at( 1 )).segment( 0, 3 );
+                        Eigen::Vector6d moonState = spice_interface::getBodyCartesianStateAtEpoch(
+                            "Moon", "Earth", "ECLIPJ2000", "None", ( linkEndTimes.at( 0 ) + linkEndTimes.at( 1 ) )/ 2.0 );
+
+                        Eigen::Vector3d stationToMoon = moonState.segment< 3 >( 0 );
+                        Eigen::Vector6d moonToSpacecraft = -moonState;
+
                         if( referenceLinkEnd == transmitter )
                         {
                             vectorToTarget *= -1.0;
+                            stationToMoon -= linkEndStates.at( 0 ).segment< 3 >( 0 );
+                            moonToSpacecraft = linkEndStates.at( 1 ) - spice_interface::getBodyCartesianStateAtEpoch(
+                                "Moon", "Earth", "ECLIPJ2000", "None", linkEndTimes.at( 1 ) );
                         }
+                        else
+                        {
+                            stationToMoon -= linkEndStates.at( 1 ).segment< 3 >( 0 );
+                            moonToSpacecraft = linkEndStates.at( 0 ) - spice_interface::getBodyCartesianStateAtEpoch(
+                                "Moon", "Earth", "ECLIPJ2000", "None", linkEndTimes.at( 0 ) );
+                        }
+
+                        Eigen::Vector3d orbitalAngularMomentum = moonToSpacecraft.segment< 3 >( 0 ).cross( moonToSpacecraft.segment< 3 >( 3 ) );
+
                         double referenceTime = ( referenceLinkEnd == transmitter ) ? linkEndTimes.at( 0 ) : linkEndTimes.at( 1 );
 
                         double elevationAngle = pointingAnglesCalculator1->calculateElevationAngleFromInertialVector(
@@ -648,14 +765,34 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
 
                         double azimuthAngle = pointingAnglesCalculator1->calculateAzimuthAngleFromInertialVector(
                             vectorToTarget, referenceTime );
-                        BOOST_CHECK_SMALL(( azimuthAngle - currentAzimuth ), std::numeric_limits<double>::epsilon( ));
 
-                        BOOST_CHECK_SMALL(( targetRange - vectorToTarget.norm( )),
+                        double linkDistanceToMoon = computeLineSegmentToCenterOfMassDistance(
+                            linkEndStates.at( 0 ).segment< 3 >( 0 ), linkEndStates.at( 1 ).segment< 3 >( 0 ),
+                            moonState.segment< 3 >( 0 ) );
+
+                        double manualMoonAvoidanceAngle = linear_algebra::computeAngleBetweenVectors( stationToMoon, vectorToTarget );
+                        double manualOrbitalPlaneAngle = linear_algebra::computeAngleBetweenVectors( orbitalAngularMomentum, vectorToTarget ) - mathematical_constants::PI / 2.0;
+
+                        BOOST_CHECK_SMALL( std::fabs( azimuthAngle - currentAzimuth ), std::numeric_limits<double>::epsilon( ));
+
+                        BOOST_CHECK_SMALL( std::fabs( targetRange - vectorToTarget.norm( )),
                                           std::numeric_limits<double>::epsilon( ) * vectorToTarget.norm( ));
-                        BOOST_CHECK_SMALL(( targetInverseRange - targetRange ),
+                        BOOST_CHECK_SMALL( std::fabs( targetInverseRange - targetRange ),
                                           std::numeric_limits<double>::epsilon( ) * vectorToTarget.norm( ));
-                        BOOST_CHECK_SMALL(( targetInverseRange - vectorToTarget.norm( )),
+                        BOOST_CHECK_SMALL( std::fabs( targetInverseRange - vectorToTarget.norm( )),
                                           std::numeric_limits<double>::epsilon( ) * vectorToTarget.norm( ));
+
+                        BOOST_CHECK_SMALL( std::fabs( linkDistanceToMoon - linkBodyDistance ), 1.0E-4 );
+
+                        BOOST_CHECK_SMALL( std::fabs( linkBodyDistance - linkBodyInverseDistance ),
+                                          std::numeric_limits<double>::epsilon( ) * 1.0E7 );
+                        BOOST_CHECK_SMALL( std::fabs( linkLimbDistance - linkLimbInverseDistance ),
+                                          std::numeric_limits<double>::epsilon( ) * 1.0E7 );
+                        BOOST_CHECK_SMALL( std::fabs( linkBodyDistance - linkLimbDistance - spice_interface::getAverageRadius( "Moon" ) ),
+                                          std::numeric_limits<double>::epsilon( ) * 1.0E7 );
+                        BOOST_CHECK_SMALL( std::fabs( moonAvoidanceAngle - manualMoonAvoidanceAngle ), 1.0E-12 );
+                        BOOST_CHECK_SMALL( std::fabs( orbitalPlaneAngle - manualOrbitalPlaneAngle ), 1.0E-10 );
+
 
                     }
                 }
