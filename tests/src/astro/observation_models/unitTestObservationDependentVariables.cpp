@@ -39,6 +39,9 @@ using namespace tudat::propagators;
 using namespace tudat::basic_astrodynamics;
 using namespace tudat::coordinate_conversions;
 using namespace tudat::statistics;
+using namespace tudat::ground_stations;
+
+
 
 BOOST_AUTO_TEST_SUITE( test_observation_dependent_variables )
 
@@ -47,7 +50,8 @@ void compareAgainstReference(
     const std::shared_ptr<ObservationCollection< > > simulatedObservations,
     const std::vector< std::shared_ptr< ObservationDependentVariableSettings > >& dependentVariableSettingsList,
     const std::vector< std::map< double, Eigen::VectorXd > >& referenceReceiverDependentVariableResults,
-    const ObservableType observableType )
+    const ObservableType observableType,
+    const double expectedTimeOffset )
 {
     BOOST_CHECK_EQUAL( dependentVariableSettingsList.size( ), referenceReceiverDependentVariableResults.size( ) );
 
@@ -62,24 +66,25 @@ void compareAgainstReference(
         if( referenceDependentVariables.size( ) > 0 )
         {
             int variableSize = referenceDependentVariables.begin( )->second.rows( );
+            auto referenceIterator = referenceDependentVariables.begin( );
+            auto computedIterator = computedDependentVariables.begin( );
             for ( auto it: referenceDependentVariables )
             {
 
-                BOOST_CHECK(( computedDependentVariables.count( it.first ) > 0 ));
+                BOOST_CHECK_CLOSE_FRACTION( computedIterator->first - referenceIterator->first, expectedTimeOffset, 4.0 * std::numeric_limits< double >::epsilon( ) );
 
-                double currentTime = it.first;
+//                double currentTime = it.first;
 
 //                std::cout<<i<<" "<<computedDependentVariables.at( currentTime )<<" "<<
 //                         referenceDependentVariables.at( currentTime )<<std::endl;
 
                 for ( int j = 0; j < variableSize; j++ )
                 {
-                    BOOST_CHECK_SMALL( std::fabs(
-                        computedDependentVariables.at( currentTime )( j ) -
-                        referenceDependentVariables.at( currentTime )( j ) ),
-                                       std::numeric_limits<double>::epsilon( ) * referenceDependentVariables.at( currentTime ).norm( ) );
+                    BOOST_CHECK_SMALL( std::fabs( computedIterator->second( j ) - referenceIterator->second( j ) ),
+                                       std::numeric_limits<double>::epsilon( ) * referenceIterator->second.norm( ) );
                 }
-
+                referenceIterator++;
+                computedIterator++;
             }
         }
     }
@@ -118,11 +123,21 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
     std::vector< std::string > groundStationNames;
     groundStationNames.push_back( "Station1" );
     groundStationNames.push_back( "Station2" );
-    groundStationNames.push_back( "Station3" );//            relative_angular_position = 9,
 
 
     createGroundStation( bodies.at( "Earth" ), "Station1", ( Eigen::Vector3d( ) << 0.0, 0.35, 0.0 ).finished( ), geodetic_position );
     createGroundStation( bodies.at( "Earth" ), "Station2", ( Eigen::Vector3d( ) << 0.0, -0.55, 1.0 ).finished( ), geodetic_position );
+
+    bodies.at( "Earth" )->getGroundStation( "Station1" )->setVehicleSystems( std::make_shared< system_models::VehicleSystems >( ) );
+    bodies.at( "Earth" )->getGroundStation( "Station1" )->getVehicleSystems( )->setTransponderTurnaroundRatio( );
+    bodies.at( "Earth" )->getGroundStation( "Station1" )->setTransmittingFrequencyCalculator( std::make_shared< ConstantFrequencyInterpolator >( 3.0E9 ) );
+
+    bodies.at( "Earth" )->getGroundStation( "Station2" )->setVehicleSystems( std::make_shared< system_models::VehicleSystems >( ) );
+    bodies.at( "Earth" )->getGroundStation( "Station2" )->getVehicleSystems( )->setTransponderTurnaroundRatio( );
+    bodies.at( "Earth" )->getGroundStation( "Station2" )->setTransmittingFrequencyCalculator( std::make_shared< ConstantFrequencyInterpolator >( 3.0E9 ) );
+
+    bodies.at( "Moon" )->setVehicleSystems( std::make_shared< system_models::VehicleSystems >( ) );
+    bodies.at( "Moon" )->getVehicleSystems( )->setTransponderTurnaroundRatio( );
 
     // Define parameters.
     std::vector< LinkEnds > stationTransmitterOneWayLinkEnds;
@@ -133,7 +148,7 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
     std::vector< LinkEnds > stationReceiverThreeWayLinkEnds;
     std::vector< LinkEnds > stationTransmitterThreeWayLinkEnds;
 
-    // Define link ends to/from ground stations to Moon
+    // Define link ends to/from ground stations to Me de    oon
     LinkEnds linkEnds;
     for( unsigned int i = 0; i < groundStationNames.size( ); i++ )
     {
@@ -179,8 +194,9 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
     std::vector< std::map< double, Eigen::VectorXd > > referenceReceiverDependentVariableResults;
     std::vector< std::map< double, Eigen::VectorXd > > referenceTransmitterDependentVariableResults;
 
-    for( unsigned int currentObservableTestCase = 0; currentObservableTestCase < 5; currentObservableTestCase++ )
+    for( unsigned int currentObservableTestCase = 0; currentObservableTestCase < 8; currentObservableTestCase++ )
     {
+        bool isDifferencedObservable = false;
         int geometryType = -1;
         ObservableType currentObservableType;
         if( currentObservableTestCase == 0 )
@@ -208,14 +224,30 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
             currentObservableType = two_way_doppler;
             geometryType = 1;
         }
+        else if( currentObservableTestCase == 5 )
+        {
+            currentObservableType = one_way_differenced_range;
+            geometryType = 0;
+            isDifferencedObservable = true;
+        }
+        else if( currentObservableTestCase == 6 )
+        {
+            currentObservableType = n_way_differenced_range;
+            geometryType = 1;
+            isDifferencedObservable = true;
+        }
+        else if( currentObservableTestCase == 7 )
+        {
+            currentObservableType = dsn_n_way_averaged_doppler;
+            geometryType = 1;
+            isDifferencedObservable = true;
+        }
 
 //            relative_angular_position = 9,
 
 //            dsn_one_way_averaged_doppler = 12,
-//            one_way_differenced_range = 4,
 
 //            dsn_n_way_averaged_doppler = 13
-//            n_way_differenced_range = 10,
 
         int numberOfLinkEndCases = -1;
         if( geometryType == 0 )
@@ -227,6 +259,11 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
             numberOfLinkEndCases = 6;
         }
 
+        if( isDifferencedObservable )
+        {
+            numberOfLinkEndCases *= 2;
+        }
+
         for( int currentLinkEndCase = 0; currentLinkEndCase < numberOfLinkEndCases; currentLinkEndCase++ )
         {
             bool compareAgainstReceiver = -1;
@@ -234,12 +271,24 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
             IntegratedObservationPropertyHandling integratedObservableHandling = interval_undefined;
             LinkEndType originatingLinkEndRole = unidentified_link_end;
 
+            if( isDifferencedObservable )
+            {
+                if( currentLinkEndCase < numberOfLinkEndCases / 2 )
+                {
+                    integratedObservableHandling = interval_start;
+                }
+                else
+                {
+                    integratedObservableHandling = interval_end;
+                }
+            }
+
             LinkEnds currentLinkEnds;
             switch( geometryType )
             {
             case 0:
             {
-                switch ( currentLinkEndCase )
+                switch ( currentLinkEndCase % 2 )
                 {
                 case 0:
                     currentLinkEnds = stationReceiverOneWayLinkEnds.at( 0 );
@@ -260,7 +309,7 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
             }
             case 1:
             {
-                switch ( currentLinkEndCase )
+                switch ( currentLinkEndCase % 2 )
                 {
                 case 0:
                     currentLinkEnds = stationReceiverTwoWayLinkEnds.at( 0 );
@@ -304,197 +353,243 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
                 break;
             }
             }
-            std::cout<<currentLinkEnds.size( )<<" "<<geometryType<<" "<<currentLinkEndCase<<std::endl;
-            // Define (arbitrary) link ends for each observable
-            std::map<ObservableType, std::vector<LinkEnds> > linkEndsPerObservable;
-            linkEndsPerObservable[ currentObservableType ].push_back( currentLinkEnds );
 
-            // Define observation settings for each observable/link ends combination
-            std::vector<std::shared_ptr<ObservationModelSettings> > observationSettingsList;
-            for ( std::map<ObservableType, std::vector<LinkEnds> >::iterator
-                      linkEndIterator = linkEndsPerObservable.begin( );
-                  linkEndIterator != linkEndsPerObservable.end( ); linkEndIterator++ )
-            {
-                ObservableType currentObservable = linkEndIterator->first;
-                std::vector<LinkEnds> currentLinkEndsList = linkEndIterator->second;
-
-                for ( unsigned int i = 0; i < currentLinkEndsList.size( ); i++ )
-                {
-                    // Create observation settings
-                    observationSettingsList.push_back( std::make_shared<ObservationModelSettings>(
-                        currentObservable, currentLinkEndsList.at( i )));
-                }
-            }
-
-            // Create observation simulators
-            std::vector<std::shared_ptr<ObservationSimulatorBase<double, double> > > observationSimulators =
-                createObservationSimulators( observationSettingsList, bodies );
-
-            // Define osbervation times.
-            std::vector<double> baseTimeList;
-            double observationTimeStart = initialEphemerisTime + 1000.0;
-            double observationInterval = 10.0;
-            for ( unsigned int i = 0; i < 14; i++ )
-            {
-                for ( unsigned int j = 0; j < 4320; j++ )
-                {
-                    baseTimeList.push_back( observationTimeStart + static_cast< double >( i ) * 86400.0 +
-                                            static_cast< double >( j ) * observationInterval );
-                }
-            }
-
-            // Define observation simulation settings (observation type, link end, times and reference link end)
-            std::vector<std::shared_ptr<ObservationSimulationSettings<double> > > measurementSimulationInput;
-            for (
-                std::map<ObservableType, std::vector<LinkEnds> >::iterator
-                    linkEndIterator = linkEndsPerObservable.begin( );
-                linkEndIterator != linkEndsPerObservable.end( ); linkEndIterator++ )
-            {
-                ObservableType currentObservable = linkEndIterator->first;
-                std::vector<LinkEnds> currentLinkEndsList = linkEndIterator->second;
-                for ( unsigned int i = 0; i < currentLinkEndsList.size( ); i++ )
-                {
-                    measurementSimulationInput.push_back(
-                        std::make_shared<TabulatedObservationSimulationSettings<> >(
-                            currentObservable, currentLinkEndsList.at( i ), baseTimeList, referenceLinkEnd ));
-                }
-            }
-
-//            std::vector<std::shared_ptr<ObservationViabilitySettings> > viabilitySettingsList;
-//            viabilitySettingsList.push_back( elevationAngleViabilitySettings(
-//                std::make_pair( "Earth", "Station1" ), 25.0 * mathematical_constants::PI / 180.0 ));
-//            viabilitySettingsList.push_back( elevationAngleViabilitySettings(
-//                std::make_pair( "Earth", "Station2" ), 25.0 * mathematical_constants::PI / 180.0 ));
-//
-//            addViabilityToObservationSimulationSettings(
-//                measurementSimulationInput, viabilitySettingsList );
-
-            // Define settings for dependent variables
-            std::vector<std::shared_ptr<ObservationDependentVariableSettings> > dependentVariableList;
-
-            std::shared_ptr<ObservationDependentVariableSettings> elevationAngleSettings1 =
-                std::make_shared<StationAngleObservationDependentVariableSettings>(
-                    station_elevation_angle, LinkEndId( std::make_pair( "Earth", "Station1" )),
-                    referenceLinkEnd, integratedObservableHandling, originatingLinkEndRole );
-            std::shared_ptr<ObservationDependentVariableSettings> azimuthAngleSettings1 =
-                std::make_shared<StationAngleObservationDependentVariableSettings>(
-                    station_azimuth_angle, LinkEndId( std::make_pair( "Earth", "Station1" )),
-                    referenceLinkEnd, integratedObservableHandling, originatingLinkEndRole );
-            std::shared_ptr<ObservationDependentVariableSettings> targetRangeSettings1 =
-                std::make_shared<InterlinkObservationDependentVariableSettings>(
-                    target_range, referenceLinkEnd, originatingLinkEndRole );
-            std::shared_ptr<ObservationDependentVariableSettings> targetInverseRangeSettings1 =
-                std::make_shared<InterlinkObservationDependentVariableSettings>(
-                    target_range, originatingLinkEndRole, referenceLinkEnd );
-
-            dependentVariableList.push_back( elevationAngleSettings1 );
-            dependentVariableList.push_back( azimuthAngleSettings1 );
-            dependentVariableList.push_back( targetRangeSettings1 );
-            dependentVariableList.push_back( targetInverseRangeSettings1 );
-
-
-
-            addDependentVariablesToObservationSimulationSettings(
-                measurementSimulationInput, dependentVariableList, bodies );
-
-            // Simulate noise-free observations
-            std::shared_ptr<ObservationCollection<> > idealObservationsAndTimes = simulateObservations<double, double>(
-                measurementSimulationInput, observationSimulators, bodies );
-
-            if ( currentObservableTestCase == 0 )
+            if( !( currentObservableType == dsn_n_way_averaged_doppler && referenceLinkEnd != receiver ) )
             {
 
-                std::map<double, Eigen::VectorXd> elevationAngles1 = getDependentVariableResultList(
-                    idealObservationsAndTimes, elevationAngleSettings1, currentObservableType );
-                std::map<double, Eigen::VectorXd> azimuthAngles1 = getDependentVariableResultList(
-                    idealObservationsAndTimes, azimuthAngleSettings1, currentObservableType );
-                std::map<double, Eigen::VectorXd> targetRanges1 = getDependentVariableResultList(
-                    idealObservationsAndTimes, targetRangeSettings1, currentObservableType );
-                std::map<double, Eigen::VectorXd> targetInverseRanges1 = getDependentVariableResultList(
-                    idealObservationsAndTimes, targetInverseRangeSettings1, currentObservableType );
+                std::cout<<currentLinkEnds.size( )<<" "<<geometryType<<" "<<currentLinkEndCase<<std::endl;
+                // Define (arbitrary) link ends for each observable
+                std::map<ObservableType, std::vector<LinkEnds> > linkEndsPerObservable;
+                linkEndsPerObservable[ currentObservableType ].push_back( currentLinkEnds );
 
-                if( currentLinkEndCase == 0 )
+                // Define observation settings for each observable/link ends combination
+                std::vector<std::shared_ptr<ObservationModelSettings> > observationSettingsList;
+                for ( std::map<ObservableType, std::vector<LinkEnds> >::iterator
+                          linkEndIterator = linkEndsPerObservable.begin( );
+                      linkEndIterator != linkEndsPerObservable.end( ); linkEndIterator++ )
                 {
-                    referenceReceiverDependentVariableResults.push_back( elevationAngles1 );
-                    referenceReceiverDependentVariableResults.push_back( azimuthAngles1 );
-                    referenceReceiverDependentVariableResults.push_back( targetRanges1 );
-                    referenceReceiverDependentVariableResults.push_back( targetInverseRanges1 );
-                }
-                else if( currentLinkEndCase == 1 )
-                {
-                    referenceTransmitterDependentVariableResults.push_back( elevationAngles1 );
-                    referenceTransmitterDependentVariableResults.push_back( azimuthAngles1 );
-                    referenceTransmitterDependentVariableResults.push_back( targetRanges1 );
-                    referenceTransmitterDependentVariableResults.push_back( targetInverseRanges1 );
-                }
+                    ObservableType currentObservable = linkEndIterator->first;
+                    std::vector<LinkEnds> currentLinkEndsList = linkEndIterator->second;
 
-                std::map<LinkEnds, int>
-                    linkEndIdentifiers = idealObservationsAndTimes->getLinkEndIdentifierMap( );
-                std::vector<int> linkEndIds = idealObservationsAndTimes->getConcatenatedLinkEndIds( );
-
-                int numberOfLinkEnds1Observations = utilities::countNumberOfOccurencesInVector<int>(
-                    linkEndIds, linkEndIdentifiers.at( currentLinkEnds ));
-
-                BOOST_CHECK_EQUAL( elevationAngles1.size( ), numberOfLinkEnds1Observations );
-                BOOST_CHECK_EQUAL( azimuthAngles1.size( ), numberOfLinkEnds1Observations );
-                BOOST_CHECK_EQUAL( targetRanges1.size( ), numberOfLinkEnds1Observations );
-                BOOST_CHECK_EQUAL( targetInverseRanges1.size( ), numberOfLinkEnds1Observations );
-
-                std::shared_ptr<ground_stations::PointingAnglesCalculator> pointingAnglesCalculator1 =
-                    bodies.at( "Earth" )->getGroundStation( "Station1" )->getPointingAnglesCalculator( );
-                std::shared_ptr<ground_stations::PointingAnglesCalculator> pointingAnglesCalculator2 =
-                    bodies.at( "Earth" )->getGroundStation( "Station2" )->getPointingAnglesCalculator( );
-
-                std::shared_ptr<ObservationModel<1, double, double> > observationModel1 =
-                    std::dynamic_pointer_cast<ObservationSimulator<1, double, double> >(
-                        observationSimulators.at( 0 ))->getObservationModel( currentLinkEnds );
-
-                std::vector<double> linkEndTimes;
-                std::vector<Eigen::Matrix<double, 6, 1> > linkEndStates;
-
-                for ( auto it: elevationAngles1 )
-                {
-                    double currentTime = it.first;
-                    double currentElevation = elevationAngles1.at( currentTime )( 0 );
-                    double currentAzimuth = azimuthAngles1.at( currentTime )( 0 );
-                    double targetRange = targetRanges1.at( currentTime )( 0 );
-                    double targetInverseRange = targetInverseRanges1.at( currentTime )( 0 );
-
-                    observationModel1->computeIdealObservationsWithLinkEndData(
-                        currentTime, referenceLinkEnd, linkEndTimes, linkEndStates );
-                    Eigen::Vector3d vectorToTarget = ( linkEndStates.at( 0 ) - linkEndStates.at( 1 )).segment( 0, 3 );
-                    if( referenceLinkEnd == transmitter )
+                    for ( unsigned int i = 0; i < currentLinkEndsList.size( ); i++ )
                     {
-                        vectorToTarget *= -1.0;
+                        // Create observation settings
+                        if( currentObservableType == n_way_differenced_range )
+                        {
+                            observationSettingsList.push_back( std::make_shared<NWayDifferencedRangeObservationSettings>(
+                                currentLinkEndsList.at( i )));
+                        }
+                        else if( currentObservableType == dsn_n_way_averaged_doppler )
+                        {
+                            observationSettingsList.push_back( std::make_shared<DsnNWayAveragedDopplerObservationSettings>(
+                                currentLinkEndsList.at( i )));
+                        }
+                        else
+                        {
+                            observationSettingsList.push_back( std::make_shared<ObservationModelSettings>(
+                                currentObservable, currentLinkEndsList.at( i )));
+                        }
                     }
-                    double referenceTime = ( referenceLinkEnd == transmitter ) ? linkEndTimes.at( 0 ) : linkEndTimes.at( 1 );
-
-                    double elevationAngle = pointingAnglesCalculator1->calculateElevationAngleFromInertialVector(
-                        vectorToTarget, referenceTime );
-                    BOOST_CHECK_SMALL(( elevationAngle - currentElevation ), std::numeric_limits<double>::epsilon( ));
-
-                    double azimuthAngle = pointingAnglesCalculator1->calculateAzimuthAngleFromInertialVector(
-                        vectorToTarget, referenceTime );
-                    BOOST_CHECK_SMALL(( azimuthAngle - currentAzimuth ), std::numeric_limits<double>::epsilon( ));
-
-                    BOOST_CHECK_SMALL(( targetRange - vectorToTarget.norm( )),
-                                      std::numeric_limits<double>::epsilon( ) * vectorToTarget.norm( ));
-                    BOOST_CHECK_SMALL(( targetInverseRange - targetRange ),
-                                      std::numeric_limits<double>::epsilon( ) * vectorToTarget.norm( ));
-                    BOOST_CHECK_SMALL(( targetInverseRange - vectorToTarget.norm( )),
-                                      std::numeric_limits<double>::epsilon( ) * vectorToTarget.norm( ));
-
                 }
-            }
-            if( compareAgainstReceiver )
-            {
-                compareAgainstReference(
-                    idealObservationsAndTimes, dependentVariableList, referenceReceiverDependentVariableResults, currentObservableType );
-            }
-            else
-            {
-                compareAgainstReference(
-                    idealObservationsAndTimes, dependentVariableList, referenceTransmitterDependentVariableResults, currentObservableType );
+
+                // Create observation simulators
+                std::vector<std::shared_ptr<ObservationSimulatorBase<double, double> > > observationSimulators =
+                    createObservationSimulators( observationSettingsList, bodies );
+
+                std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySettings = nullptr;
+                double integrationTime = 60.0;
+                double referenceTimeShift = 0.0;
+                if( currentObservableType == dsn_n_way_averaged_doppler )
+                {
+                    ancilliarySettings =
+                    getDsnNWayAveragedDopplerAncillarySettings(
+                        std::vector< FrequencyBands >{ x_band, x_band }, x_band, 7.0e9, integrationTime );
+                }
+                else if( isDifferencedObservable )
+                {
+                    ancilliarySettings = std::make_shared< ObservationAncilliarySimulationSettings >( );
+                    ancilliarySettings->setAncilliaryDoubleData( doppler_integration_time, integrationTime );
+                }
+
+                if( isDifferencedObservable )
+                {
+                    if( integratedObservableHandling == interval_start )
+                    {
+                        referenceTimeShift = integrationTime / 2.0;
+                    }
+                    else if( integratedObservableHandling == interval_end )
+                    {
+                        referenceTimeShift = -integrationTime / 2.0;
+                    }
+                }
+
+                // Define osbervation times.
+                std::vector<double> baseTimeList;
+                double observationTimeStart = initialEphemerisTime + 1000.0;
+                double observationInterval = 100.0;
+                for ( unsigned int i = 0; i < 3; i++ )
+                {
+                    for ( unsigned int j = 0; j < 432; j++ )
+                    {
+                        baseTimeList.push_back( observationTimeStart + referenceTimeShift + static_cast< double >( i ) * 86400.0 +
+                                                static_cast< double >( j ) * observationInterval );
+                    }
+                }
+
+                // Define observation simulation settings (observation type, link end, times and reference link end)
+                std::vector<std::shared_ptr<ObservationSimulationSettings<double> > > measurementSimulationInput;
+
+                for ( std::map<ObservableType, std::vector<LinkEnds> >::iterator linkEndIterator = linkEndsPerObservable.begin( );
+                      linkEndIterator != linkEndsPerObservable.end( ); linkEndIterator++ )
+                {
+                    ObservableType currentObservable = linkEndIterator->first;
+                    std::vector<LinkEnds> currentLinkEndsList = linkEndIterator->second;
+                    for ( unsigned int i = 0; i < currentLinkEndsList.size( ); i++ )
+                    {
+                        measurementSimulationInput.push_back(
+                            std::make_shared<TabulatedObservationSimulationSettings<> >(
+                                currentObservable, currentLinkEndsList.at( i ), baseTimeList, referenceLinkEnd,
+                                std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > >( ), nullptr,
+                                ancilliarySettings ) );
+                    }
+                }
+
+    //            std::vector<std::shared_ptr<ObservationViabilitySettings> > viabilitySettingsList;
+    //            viabilitySettingsList.push_back( elevationAngleViabilitySettings(
+    //                std::make_pair( "Earth", "Station1" ), 25.0 * mathematical_constants::PI / 180.0 ));
+    //            viabilitySettingsList.push_back( elevationAngleViabilitySettings(
+    //                std::make_pair( "Earth", "Station2" ), 25.0 * mathematical_constants::PI / 180.0 ));
+    //
+    //            addViabilityToObservationSimulationSettings(
+    //                measurementSimulationInput, viabilitySettingsList );
+
+                // Define settings for dependent variables
+                std::vector<std::shared_ptr<ObservationDependentVariableSettings> > dependentVariableList;
+
+                std::shared_ptr<ObservationDependentVariableSettings> elevationAngleSettings1 =
+                    std::make_shared<StationAngleObservationDependentVariableSettings>(
+                        station_elevation_angle, LinkEndId( std::make_pair( "Earth", "Station1" )),
+                        referenceLinkEnd, integratedObservableHandling, originatingLinkEndRole );
+                std::shared_ptr<ObservationDependentVariableSettings> azimuthAngleSettings1 =
+                    std::make_shared<StationAngleObservationDependentVariableSettings>(
+                        station_azimuth_angle, LinkEndId( std::make_pair( "Earth", "Station1" )),
+                        referenceLinkEnd, integratedObservableHandling, originatingLinkEndRole );
+                std::shared_ptr<ObservationDependentVariableSettings> targetRangeSettings1 =
+                    std::make_shared<InterlinkObservationDependentVariableSettings>(
+                        target_range, referenceLinkEnd, originatingLinkEndRole, integratedObservableHandling );
+                std::shared_ptr<ObservationDependentVariableSettings> targetInverseRangeSettings1 =
+                    std::make_shared<InterlinkObservationDependentVariableSettings>(
+                        target_range, originatingLinkEndRole, referenceLinkEnd, integratedObservableHandling );
+
+                dependentVariableList.push_back( elevationAngleSettings1 );
+                dependentVariableList.push_back( azimuthAngleSettings1 );
+                dependentVariableList.push_back( targetRangeSettings1 );
+                dependentVariableList.push_back( targetInverseRangeSettings1 );
+
+
+
+                addDependentVariablesToObservationSimulationSettings(
+                    measurementSimulationInput, dependentVariableList, bodies );
+
+                // Simulate noise-free observations
+                std::shared_ptr<ObservationCollection<> > idealObservationsAndTimes = simulateObservations<double, double>(
+                    measurementSimulationInput, observationSimulators, bodies );
+
+                if ( currentObservableTestCase == 0 )
+                {
+
+                    std::map<double, Eigen::VectorXd> elevationAngles1 = getDependentVariableResultList(
+                        idealObservationsAndTimes, elevationAngleSettings1, currentObservableType );
+                    std::map<double, Eigen::VectorXd> azimuthAngles1 = getDependentVariableResultList(
+                        idealObservationsAndTimes, azimuthAngleSettings1, currentObservableType );
+                    std::map<double, Eigen::VectorXd> targetRanges1 = getDependentVariableResultList(
+                        idealObservationsAndTimes, targetRangeSettings1, currentObservableType );
+                    std::map<double, Eigen::VectorXd> targetInverseRanges1 = getDependentVariableResultList(
+                        idealObservationsAndTimes, targetInverseRangeSettings1, currentObservableType );
+
+                    if( currentLinkEndCase == 0 )
+                    {
+                        referenceReceiverDependentVariableResults.push_back( elevationAngles1 );
+                        referenceReceiverDependentVariableResults.push_back( azimuthAngles1 );
+                        referenceReceiverDependentVariableResults.push_back( targetRanges1 );
+                        referenceReceiverDependentVariableResults.push_back( targetInverseRanges1 );
+                    }
+                    else if( currentLinkEndCase == 1 )
+                    {
+                        referenceTransmitterDependentVariableResults.push_back( elevationAngles1 );
+                        referenceTransmitterDependentVariableResults.push_back( azimuthAngles1 );
+                        referenceTransmitterDependentVariableResults.push_back( targetRanges1 );
+                        referenceTransmitterDependentVariableResults.push_back( targetInverseRanges1 );
+                    }
+
+                    std::map<LinkEnds, int>
+                        linkEndIdentifiers = idealObservationsAndTimes->getLinkEndIdentifierMap( );
+                    std::vector<int> linkEndIds = idealObservationsAndTimes->getConcatenatedLinkEndIds( );
+
+                    int numberOfLinkEnds1Observations = utilities::countNumberOfOccurencesInVector<int>(
+                        linkEndIds, linkEndIdentifiers.at( currentLinkEnds ));
+
+                    BOOST_CHECK_EQUAL( elevationAngles1.size( ), numberOfLinkEnds1Observations );
+                    BOOST_CHECK_EQUAL( azimuthAngles1.size( ), numberOfLinkEnds1Observations );
+                    BOOST_CHECK_EQUAL( targetRanges1.size( ), numberOfLinkEnds1Observations );
+                    BOOST_CHECK_EQUAL( targetInverseRanges1.size( ), numberOfLinkEnds1Observations );
+
+                    std::shared_ptr< PointingAnglesCalculator> pointingAnglesCalculator1 =
+                        bodies.at( "Earth" )->getGroundStation( "Station1" )->getPointingAnglesCalculator( );
+                    std::shared_ptr< PointingAnglesCalculator> pointingAnglesCalculator2 =
+                        bodies.at( "Earth" )->getGroundStation( "Station2" )->getPointingAnglesCalculator( );
+
+                    std::shared_ptr<ObservationModel<1, double, double> > observationModel1 =
+                        std::dynamic_pointer_cast<ObservationSimulator<1, double, double> >(
+                            observationSimulators.at( 0 ))->getObservationModel( currentLinkEnds );
+
+                    std::vector<double> linkEndTimes;
+                    std::vector<Eigen::Matrix<double, 6, 1> > linkEndStates;
+
+                    for ( auto it: elevationAngles1 )
+                    {
+                        double currentTime = it.first;
+                        double currentElevation = elevationAngles1.at( currentTime )( 0 );
+                        double currentAzimuth = azimuthAngles1.at( currentTime )( 0 );
+                        double targetRange = targetRanges1.at( currentTime )( 0 );
+                        double targetInverseRange = targetInverseRanges1.at( currentTime )( 0 );
+
+                        observationModel1->computeIdealObservationsWithLinkEndData(
+                            currentTime, referenceLinkEnd, linkEndTimes, linkEndStates );
+                        Eigen::Vector3d vectorToTarget = ( linkEndStates.at( 0 ) - linkEndStates.at( 1 )).segment( 0, 3 );
+                        if( referenceLinkEnd == transmitter )
+                        {
+                            vectorToTarget *= -1.0;
+                        }
+                        double referenceTime = ( referenceLinkEnd == transmitter ) ? linkEndTimes.at( 0 ) : linkEndTimes.at( 1 );
+
+                        double elevationAngle = pointingAnglesCalculator1->calculateElevationAngleFromInertialVector(
+                            vectorToTarget, referenceTime );
+                        BOOST_CHECK_SMALL(( elevationAngle - currentElevation ), std::numeric_limits<double>::epsilon( ));
+
+                        double azimuthAngle = pointingAnglesCalculator1->calculateAzimuthAngleFromInertialVector(
+                            vectorToTarget, referenceTime );
+                        BOOST_CHECK_SMALL(( azimuthAngle - currentAzimuth ), std::numeric_limits<double>::epsilon( ));
+
+                        BOOST_CHECK_SMALL(( targetRange - vectorToTarget.norm( )),
+                                          std::numeric_limits<double>::epsilon( ) * vectorToTarget.norm( ));
+                        BOOST_CHECK_SMALL(( targetInverseRange - targetRange ),
+                                          std::numeric_limits<double>::epsilon( ) * vectorToTarget.norm( ));
+                        BOOST_CHECK_SMALL(( targetInverseRange - vectorToTarget.norm( )),
+                                          std::numeric_limits<double>::epsilon( ) * vectorToTarget.norm( ));
+
+                    }
+                }
+                if( compareAgainstReceiver )
+                {
+                    compareAgainstReference(
+                        idealObservationsAndTimes, dependentVariableList, referenceReceiverDependentVariableResults, currentObservableType, referenceTimeShift );
+                }
+                else
+                {
+                    compareAgainstReference(
+                        idealObservationsAndTimes, dependentVariableList, referenceTransmitterDependentVariableResults, currentObservableType, referenceTimeShift );
+                }
             }
 
         }
