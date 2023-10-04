@@ -35,12 +35,123 @@
 #include "tudat/simulation/estimation_setup/createCartesianStatePartials.h"
 #include "tudat/astro/basic_astro/accelerationModelTypes.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/tidalLoveNumberPartialInterface.h"
+#include "tudat/simulation/propagation_setup/environmentUpdater.h"
 
 namespace tudat
 {
 
 namespace simulation_setup
 {
+
+template< typename ParameterScalarType >
+std::shared_ptr< estimatable_parameters::CustomAccelerationPartialCalculator > createCustomAccelerationPartial(
+    const std::shared_ptr< estimatable_parameters::CustomAccelerationPartialSettings > customPartialSettings,
+    const std::shared_ptr< estimatable_parameters::EstimatableParameter< ParameterScalarType > > parameter,
+    const SystemOfBodies& bodies )
+{
+    std::shared_ptr< estimatable_parameters::CustomAccelerationPartialCalculator > customPartialCalculator = nullptr;
+    std::shared_ptr< estimatable_parameters::NumericalAccelerationPartialSettings > numericalCustomPartialSettings =
+        std::dynamic_pointer_cast< estimatable_parameters::NumericalAccelerationPartialSettings >( customPartialSettings );
+    if( numericalCustomPartialSettings!= nullptr )
+    {
+        if( parameter->getParameterName( ).first != estimatable_parameters::initial_body_state )
+        {
+            throw std::runtime_error( "Error, only initial cartesian state supported for custom numerical acceleration partial" );
+        }
+        std::string bodyName = parameter->getParameterName( ).second.first;
+        if( bodies.count( bodyName ) == 0 )
+        {
+            throw std::runtime_error( "Error when creating custom numerical acceleration partial. Could not find body " + bodyName );
+        }
+
+        std::function< Eigen::Vector6d( ) > bodyStateGetFunction = std::bind( &Body::getState, bodies.at( bodyName ) );
+        std::function< void( const Eigen::Vector6d& ) > bodyStateSetFunction = std::bind( &Body::setState, bodies.at( bodyName ), std::placeholders::_1 );
+
+        std::function< void( const double ) > environmentUpdateFunction = std::bind(
+            &propagators::EnvironmentUpdater< double, double >::updateEnvironment,
+                std::make_shared< propagators::EnvironmentUpdater< double, double > >(
+                    bodies, numericalCustomPartialSettings->environmentUpdateSettings_ ),
+                std::placeholders::_1,
+                std::unordered_map< propagators::IntegratedStateType, Eigen::VectorXd >( ),
+                std::vector< propagators::IntegratedStateType >( ) );
+
+        customPartialCalculator = std::make_shared< estimatable_parameters::NumericalAccelerationPartialWrtStateCalculator >(
+            numericalCustomPartialSettings->parameterPerturbation_,
+            bodyStateGetFunction,
+            bodyStateSetFunction,
+            environmentUpdateFunction );
+    }
+    else
+    {
+        throw std::runtime_error( "Error when creating custom acceleration partial, only numerical partial is supported" );
+    }
+    return customPartialCalculator;
+}
+
+template< typename ParameterScalarType >
+std::shared_ptr< estimatable_parameters::CustomSingleAccelerationPartialCalculatorSet > createCustomAccelerationPartial(
+    const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterScalarType > > parameterSet,
+    const std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > accelerationModel,
+    const std::pair< std::string, std::shared_ptr< simulation_setup::Body > > acceleratedBody,
+    const std::pair< std::string, std::shared_ptr< simulation_setup::Body > > acceleratingBody,
+    const SystemOfBodies& bodies )
+{
+    basic_astrodynamics::AvailableAcceleration accelerationType = getAccelerationModelType( accelerationModel );
+
+    std::shared_ptr< estimatable_parameters::CustomSingleAccelerationPartialCalculatorSet > partialCalculatorSet =
+        std::make_shared< estimatable_parameters::CustomSingleAccelerationPartialCalculatorSet >( );
+    for( unsigned int i = 0; i < parameterSet->getEstimatedInitialStateParameters( ).size( ); i++ )
+    {
+        std::shared_ptr< estimatable_parameters::CustomAccelerationPartialSettings > customPartialSettings =
+            parameterSet->getEstimatedInitialStateParameters( ).at( i )->getCustomPartialSettings( );
+        if( customPartialSettings != nullptr )
+        {
+            std::cout<<"Matches "<<
+                                 customPartialSettings->accelerationMatches( acceleratedBody.first, acceleratingBody.first, accelerationType )<<std::endl;
+            if( customPartialSettings->accelerationMatches( acceleratedBody.first, acceleratingBody.first, accelerationType ) )
+            {
+                switch( parameterSet->getEstimatedInitialStateParameters( ).at( i )->getParameterName( ).first )
+                {
+                case estimatable_parameters::initial_body_state:
+                {
+                    partialCalculatorSet->customInitialStatePartials_[ parameterSet->getEstimatedInitialStateParameters( ).at( i )->getParameterName( ) ] =
+                        createCustomAccelerationPartial(
+                            parameterSet->getEstimatedInitialStateParameters( ).at( i )->getCustomPartialSettings( ),
+                            parameterSet->getEstimatedInitialStateParameters( ).at( i ),
+                            bodies );
+
+                    break;
+                }
+                default:
+                    throw std::runtime_error( "Error when creating custom partial calculator for " +
+                                              parameterSet->getEstimatedInitialStateParameters( ).at( i )->getParameterDescription( ) +
+                                              ", parameter not supported for this option" );
+                }
+            }
+        }
+    }
+
+    for( unsigned int i = 0; i < parameterSet->getEstimatedDoubleParameters( ).size( ); i++ )
+    {
+        if( parameterSet->getEstimatedDoubleParameters( ).at( i )->getCustomPartialSettings( ) != nullptr )
+        {
+            throw std::runtime_error( "Error when creating custom partial calculator for " +
+                                      parameterSet->getEstimatedDoubleParameters( ).at( i )->getParameterDescription( ) +
+                                      ", parameter not supported for this option" );
+        }
+    }
+
+    for( unsigned int i = 0; i < parameterSet->getEstimatedVectorParameters( ).size( ); i++ )
+    {
+        if( parameterSet->getEstimatedVectorParameters( ).at( i )->getCustomPartialSettings( ) != nullptr )
+        {
+            throw std::runtime_error( "Error when creating custom partial calculator for " +
+                                      parameterSet->getEstimatedVectorParameters( ).at( i )->getParameterDescription( ) +
+                                      ", parameter not supported for this option" );
+        }
+    }
+    return partialCalculatorSet;
+}
 
 //! Function to create a list of objects that can be used to compute partials of tidal gravity field variations
 /*!
@@ -80,10 +191,19 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAc
     using namespace aerodynamics;
     using namespace acceleration_partials;
 
-    std::shared_ptr< acceleration_partials::AccelerationPartial > accelerationPartial = nullptr;
-
     // Identify current acceleration model type
     AvailableAcceleration accelerationType = getAccelerationModelType( accelerationModel );
+
+    std::shared_ptr< acceleration_partials::AccelerationPartial > accelerationPartial = nullptr;
+
+    std::shared_ptr< estimatable_parameters::CustomSingleAccelerationPartialCalculatorSet >
+        customPartialCalculator = createCustomAccelerationPartial(
+            parametersToEstimate, accelerationModel, acceleratedBody, acceleratingBody, bodies );
+    if( ( customPartialCalculator->getNumberOfCustomPartials( ) > 0 ) && ( accelerationType != custom_acceleration ) )
+    {
+        throw std::runtime_error( "Error, custom acceleration partials only supported for custom acceleration (at present)" );
+    }
+
     switch( accelerationType )
     {
     case point_mass_gravity:
@@ -559,7 +679,7 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAc
         {
             // Create partial-calculating object.
             accelerationPartial = std::make_shared< CustomAccelerationPartial >
-                ( customAccelerationModel, acceleratedBody.first, acceleratingBody.first );
+                ( acceleratedBody.first, acceleratingBody.first, customAccelerationModel, customPartialCalculator );
 
         }
         break;
