@@ -52,6 +52,9 @@ std::shared_ptr< estimatable_parameters::CustomAccelerationPartialCalculator > c
     std::shared_ptr< estimatable_parameters::CustomAccelerationPartialCalculator > customPartialCalculator = nullptr;
     std::shared_ptr< estimatable_parameters::NumericalAccelerationPartialSettings > numericalCustomPartialSettings =
         std::dynamic_pointer_cast< estimatable_parameters::NumericalAccelerationPartialSettings >( customPartialSettings );
+    std::shared_ptr< estimatable_parameters::AnalyticalAccelerationPartialSettings > analyticalCustomPartialSettings =
+        std::dynamic_pointer_cast< estimatable_parameters::AnalyticalAccelerationPartialSettings >( customPartialSettings );
+
     if( numericalCustomPartialSettings!= nullptr )
     {
         if( parameter->getParameterName( ).first != estimatable_parameters::initial_body_state )
@@ -81,6 +84,18 @@ std::shared_ptr< estimatable_parameters::CustomAccelerationPartialCalculator > c
             bodyStateSetFunction,
             environmentUpdateFunction );
     }
+    else if( analyticalCustomPartialSettings!= nullptr )
+    {
+        if( parameter->getParameterName( ).first != estimatable_parameters::initial_body_state )
+        {
+            throw std::runtime_error( "Error, only initial cartesian state supported for custom numerical acceleration partial" );
+        }
+
+        customPartialCalculator = std::make_shared< estimatable_parameters::AnalyticalAccelerationPartialCalculator >(
+            analyticalCustomPartialSettings->accelerationPartialFunction_,
+            parameter->getParameterSize( ),
+            parameter->getParameterDescription( ) );
+    }
     else
     {
         throw std::runtime_error( "Error when creating custom acceleration partial, only numerical partial is supported" );
@@ -106,8 +121,6 @@ std::shared_ptr< estimatable_parameters::CustomSingleAccelerationPartialCalculat
             parameterSet->getEstimatedInitialStateParameters( ).at( i )->getCustomPartialSettings( );
         if( customPartialSettings != nullptr )
         {
-            std::cout<<"Matches "<<
-                                 customPartialSettings->accelerationMatches( acceleratedBody.first, acceleratingBody.first, accelerationType )<<std::endl;
             if( customPartialSettings->accelerationMatches( acceleratedBody.first, acceleratingBody.first, accelerationType ) )
             {
                 switch( parameterSet->getEstimatedInitialStateParameters( ).at( i )->getParameterName( ).first )

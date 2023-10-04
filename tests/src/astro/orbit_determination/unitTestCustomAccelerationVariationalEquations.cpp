@@ -56,14 +56,24 @@ Eigen::Vector3d customAccelerationFunction(
     Eigen::Vector3d acceleration = Eigen::Vector3d::Ones( ) * std::exp( -relativeState.segment( 0, 3 ).norm( ) / scaleDistance );
     return acceleration;
 }
-//
-//Eigen::MatrixXd getCustomAccelerationPartialFunction(
-//    const SystemOfBodies& bodies )
-//{
-//    double scaleDistance = 1.0E6;
-//    Eigen::Vector6d relativeState = bodies.at( "Vehicle" )->getState( ) - bodies.at( "Earth" )->getState( );
-//    return Eigen::Matrix< double, 3, 6 >::Zero( );
-//}
+
+Eigen::MatrixXd getCustomAccelerationPartialFunction(
+    const SystemOfBodies& bodies,
+    const double time,
+    const Eigen::Vector3d& acceleration )
+{
+    double scaleDistance = 1.0E6;
+    Eigen::Vector6d relativeState = bodies.at( "Vehicle" )->getState( ) - bodies.at( "Earth" )->getState( );
+    Eigen::Matrix< double, 3, 6 > partial = Eigen::Matrix< double, 3, 6 >::Zero( );
+    double positionNorm = relativeState.segment( 0, 3 ).norm( );
+    for( unsigned int i = 0; i < 3; i ++ )
+    {
+        partial.block( i, 0, 1, 3 ) = -relativeState.segment( 0, 3 ).transpose( ) / ( positionNorm * scaleDistance ) *
+            std::exp( -positionNorm / scaleDistance );
+    }
+
+    return partial;
+}
 
 BOOST_AUTO_TEST_CASE( test_CustomAccelerationEstimation )
 {
@@ -145,7 +155,7 @@ BOOST_AUTO_TEST_CASE( test_CustomAccelerationEstimation )
     std::shared_ptr< IntegratorSettings< double > > integratorSettings =
         rungeKuttaFixedStepSettings( 90.0, CoefficientSets::rungeKuttaFehlberg78 );
 
-    for( int testCase = 0; testCase < 2; testCase ++ )
+    for( int testCase = 0; testCase < 3; testCase ++ )
     {
 
         std::shared_ptr<TranslationalStatePropagatorSettings<double> > propagatorSettings =
@@ -168,6 +178,13 @@ BOOST_AUTO_TEST_CASE( test_CustomAccelerationEstimation )
             parameterNames.at( 0 )->customPartialSettings_ =
                 std::make_shared<NumericalAccelerationPartialSettings>( Eigen::Vector6d::Ones( ) * 10.0,
                                                                         "Vehicle", "Vehicle", custom_acceleration );
+        }
+        else if( testCase == 2 )
+        {
+            parameterNames.at( 0 )->customPartialSettings_ =
+                std::make_shared<AnalyticalAccelerationPartialSettings>(
+                    std::bind( &getCustomAccelerationPartialFunction, bodies, std::placeholders::_1, std::placeholders::_2 ),
+                    "Vehicle", "Vehicle", custom_acceleration );
         }
 
         // Create parameters
@@ -269,7 +286,11 @@ BOOST_AUTO_TEST_CASE( test_CustomAccelerationEstimation )
         {
             BOOST_CHECK_SMALL( 1.0 / maximumError, 50.0 );
         }
-        else
+        else if( testCase == 1 )
+        {
+            BOOST_CHECK_SMALL( maximumError, 1.0E-6 );
+        }
+        else if( testCase == 2 )
         {
             BOOST_CHECK_SMALL( maximumError, 1.0E-6 );
         }
