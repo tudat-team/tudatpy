@@ -197,14 +197,14 @@ class AnalyticalAccelerationPartialSettings: public CustomAccelerationPartialSet
 public:
 
     AnalyticalAccelerationPartialSettings(
-        const std::function< Eigen::Matrix< double, 3, Eigen::Dynamic >( const double, Eigen::Vector3d ) > accelerationPartialFunction,
-        const Eigen::VectorXd& parameterPerturbation,
+        const std::function< Eigen::MatrixXd( const double, const Eigen::Vector3d& ) > accelerationPartialFunction,
         const std::string bodyUndergoingAcceleration,
         const std::string bodyExertingAcceleration,
         const basic_astrodynamics::AvailableAcceleration accelerationType ):
-        CustomAccelerationPartialSettings( bodyUndergoingAcceleration, bodyExertingAcceleration, accelerationType ){ }
+        CustomAccelerationPartialSettings( bodyUndergoingAcceleration, bodyExertingAcceleration, accelerationType ),
+    accelerationPartialFunction_( accelerationPartialFunction ){ }
 
-    std::function< Eigen::Matrix< double, 3, Eigen::Dynamic >( const double, Eigen::Vector3d ) > accelerationPartialFunction_;
+    std::function< Eigen::MatrixXd( const double, const Eigen::Vector3d& ) > accelerationPartialFunction_;
 };
 
 //! Base class for a parameter that is to be estimated.
@@ -347,8 +347,8 @@ public:
 
     virtual ~CustomAccelerationPartialCalculator( ){ }
 
-    virtual Eigen::Matrix< double, 3, Eigen::Dynamic > computePartial(
-        const double currentTime, const Eigen::Vector3d currentAcceleration,
+    virtual Eigen::MatrixXd computePartial(
+        const double currentTime, const Eigen::Vector3d& currentAcceleration,
         const std::shared_ptr< basic_astrodynamics::AccelerationModel3d > accelerationModel ) = 0;
 
 protected:
@@ -427,8 +427,8 @@ public:
 
     }
 
-    Eigen::Matrix< double, 3, Eigen::Dynamic > computePartial(
-        const double currentTime, const Eigen::Vector3d currentAcceleration,
+    Eigen::MatrixXd computePartial(
+        const double currentTime, const Eigen::Vector3d& currentAcceleration,
         const std::shared_ptr< basic_astrodynamics::AccelerationModel3d > accelerationModel )
     {
         currentPartial_.setZero( );
@@ -486,26 +486,30 @@ protected:
     Eigen::Matrix< double, 3, 6 > currentPartial_;
 };
 
-template< typename ParameterScalarType >
 class AnalyticalAccelerationPartialCalculator: public CustomAccelerationPartialCalculator
 {
 public:
 
     AnalyticalAccelerationPartialCalculator(
-        const std::function< Eigen::Matrix< double, 3, Eigen::Dynamic >( const double, Eigen::Vector3d ) > accelerationPartialFunction,
-        const std::shared_ptr< estimatable_parameters::EstimatableParameter< ParameterScalarType > > parameter ):
-        accelerationPartialFunction_( accelerationPartialFunction ), parameter_( parameter ){ }
+        const std::function<Eigen::MatrixXd( const double, const Eigen::Vector3d & )> accelerationPartialFunction,
+        const int parameterSize,
+        const std::string parameterName ) :
+        accelerationPartialFunction_( accelerationPartialFunction ), parameterSize_( parameterSize ),
+        parameterName_( parameterName )
+    {
+    }
 
-    Eigen::Matrix< double, 3, Eigen::Dynamic > computePartial(
-        const double currentTime, const Eigen::Vector3d currentAcceleration,
-        const std::shared_ptr< basic_astrodynamics::AccelerationModel3d > accelerationModel )
+    Eigen::MatrixXd computePartial(
+        const double currentTime, const Eigen::Vector3d &currentAcceleration,
+        const std::shared_ptr<basic_astrodynamics::AccelerationModel3d> accelerationModel )
     {
         Eigen::MatrixXd currentAccelerationPartial = accelerationPartialFunction_( currentTime, currentAcceleration );
-        if( currentAccelerationPartial.cols( ) != parameter_->getParameterSize( ) )
+        if ( currentAccelerationPartial.cols( ) != parameterSize_)
         {
             throw std::runtime_error( "Error when making numerical acceleration partial for parameter " +
-                                      parameter_->getParameterDescription( ) + ", sizes are inconsistent: " +
-                                      std::to_string( currentAccelerationPartial.cols( ) ) + ", " + std::to_string( parameter_->getParameterSize( ) ) );
+                                      parameterName_ + ", sizes are inconsistent: " +
+                                      std::to_string( currentAccelerationPartial.cols( )) + ", " +
+                                      std::to_string( parameterSize_));
         }
         return currentAccelerationPartial;
     }
@@ -513,9 +517,11 @@ public:
 protected:
 
 
-    std::function< Eigen::Matrix< double, 3, Eigen::Dynamic >( const double, Eigen::Vector3d ) > accelerationPartialFunction_;
+    std::function<Eigen::MatrixXd( const double, const Eigen::Vector3d & )> accelerationPartialFunction_;
 
-    std::shared_ptr< estimatable_parameters::EstimatableParameter< ParameterScalarType > > parameter_;
+    int parameterSize_;
+
+    std::string parameterName_;
 };
 
 class CustomSingleAccelerationPartialCalculatorSet
