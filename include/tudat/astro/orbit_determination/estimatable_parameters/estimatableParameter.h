@@ -161,6 +161,16 @@ public:
     std::string bodyExertingAcceleration_;
 
     basic_astrodynamics::AvailableAcceleration accelerationType_;
+
+    bool accelerationMatches(
+        const std::string bodyUndergoingAcceleration,
+        const std::string bodyExertingAcceleration,
+        const basic_astrodynamics::AvailableAcceleration accelerationType )
+    {
+        return ( accelerationType_ == accelerationType ) &&
+        ( bodyUndergoingAcceleration_ == bodyUndergoingAcceleration ) &&
+        ( bodyExertingAcceleration_ == bodyExertingAcceleration );
+    }
 };
 
 class NumericalAccelerationPartialSettings: public CustomAccelerationPartialSettings
@@ -329,8 +339,6 @@ protected:
 };
 
 
-
-
 class CustomAccelerationPartialCalculator
 {
 public:
@@ -423,7 +431,8 @@ public:
         const double currentTime, const Eigen::Vector3d currentAcceleration,
         const std::shared_ptr< basic_astrodynamics::AccelerationModel3d > accelerationModel )
     {
-        bodyStatePerturbations_.setZero( );
+        currentPartial_.setZero( );
+
         Eigen::Vector6d nominalState = bodyStateGetFunction_( );
         Eigen::Vector6d perturbedState;
 
@@ -458,10 +467,10 @@ public:
             downperturbedAcceleration = accelerationModel->getAcceleration( );
 
             // Compute partial
-            bodyStatePerturbations_.block( 0, i, 3, 1 ) =
+            currentPartial_.block( 0, i, 3, 1 ) =
                 ( upperturbedAcceleration - downperturbedAcceleration ) / ( 2.0 * bodyStatePerturbations_( i ) );
         }
-        return bodyStatePerturbations_;
+        return currentPartial_;
     }
 
 protected:
@@ -507,6 +516,26 @@ protected:
     std::function< Eigen::Matrix< double, 3, Eigen::Dynamic >( const double, Eigen::Vector3d ) > accelerationPartialFunction_;
 
     std::shared_ptr< estimatable_parameters::EstimatableParameter< ParameterScalarType > > parameter_;
+};
+
+class CustomSingleAccelerationPartialCalculatorSet
+{
+public:
+    CustomSingleAccelerationPartialCalculatorSet( ){ }
+
+    std::map< estimatable_parameters::EstimatebleParameterIdentifier,
+        std::shared_ptr< estimatable_parameters::CustomAccelerationPartialCalculator > > customInitialStatePartials_;
+
+    std::map< std::shared_ptr< estimatable_parameters::EstimatableParameter< double > >,
+        std::shared_ptr< estimatable_parameters::CustomAccelerationPartialCalculator > > customDoubleParameterPartials_;
+
+    std::map< std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > >,
+        std::shared_ptr< estimatable_parameters::CustomAccelerationPartialCalculator > > customVectorParameterPartials_;
+
+    int getNumberOfCustomPartials( )
+    {
+        return customInitialStatePartials_.size( ) + customDoubleParameterPartials_.size( ) + customVectorParameterPartials_.size( );
+    }
 };
 
 
