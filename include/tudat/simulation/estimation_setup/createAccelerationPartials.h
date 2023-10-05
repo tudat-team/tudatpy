@@ -210,13 +210,17 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAc
     std::shared_ptr< acceleration_partials::AccelerationPartial > accelerationPartial = nullptr;
 
     std::shared_ptr< estimatable_parameters::CustomSingleAccelerationPartialCalculatorSet >
+        customPartialCalculator;
+    if( parametersToEstimate != nullptr )
+    {
         customPartialCalculator = createCustomAccelerationPartial(
             parametersToEstimate, accelerationModel, acceleratedBody, acceleratingBody, bodies );
-    if( ( customPartialCalculator->getNumberOfCustomPartials( ) > 0 ) && ( accelerationType != custom_acceleration ) )
-    {
-        throw std::runtime_error( "Error, custom acceleration partials only supported for custom acceleration (at present)" );
-    }
 
+        if( ( customPartialCalculator->getNumberOfCustomPartials( ) > 0 ) && ( accelerationType != custom_acceleration ) )
+        {
+            throw std::runtime_error( "Error, custom acceleration partials only supported for custom acceleration (at present)" );
+        }
+    }
     switch( accelerationType )
     {
     case point_mass_gravity:
