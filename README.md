@@ -51,13 +51,13 @@ cd tudat-bundle
 git submodule update --init --recursive
 ````
 
-3. [Optional] Switch `tudat` & `tudatpy` to their desired branches using
+3. Switch `tudat` & `tudatpy` to their desired branches using
 
 ````
 cd <tudat/tudatpy>
 git checkout <branch-name>
 ````
-Be advised that the branch from with the Conda packages are built, and that is being maintained the most, is `develop`.
+Be advised that the branch from with the Conda packages are built, and that is being maintained the most, is `develop` (and you will likely want to use this one for both tudat and tudatpy).
 See [here](https://github.com/tudat-team/tudatpy/tree/develop) for tudatpy develop branch, and [here](https://github.com/tudat-team/tudat/tree/develop) for tudat develop branch.
 
 It is then recommended to switch to the `develop` branch using the commands above.
@@ -67,14 +67,6 @@ It is then recommended to switch to the `develop` branch using the commands abov
 ````
 conda env create -f environment.yaml
 ````
-
-> **Note**
->  Are you a Mac user with a M1 processor (a osx-arm64 system)? Then, edit the channels of the `environment.yaml` file as follows, before creating the environment:
->  ````
->  channels:
->  - https://conda.anaconda.org/conda-forge/osx-arm64
->  - https://conda.anaconda.org/tudat-team/osx-arm64
->  ````
 
 There are two directions you can go from here. CLion or the command line.
 
@@ -107,6 +99,11 @@ There are two directions you can go from here. CLion or the command line.
 -DBoost_NO_BOOST_CMAKE=ON
 ```
 
+The `CONDA_PREFIX` may be determined by activating the environment installed in step 4 and printing its value:
+````
+conda activate tudat-bundle && echo $CONDA_PREFIX
+````
+
 [**Optional**] Also add the following line to the `File > Settings > Build, Execution, Deployment > CMake > CMake options` text box to to build tudatpy with the tests.
 ````
 -DTUDAT_BUILD_TESTS="${build_tests:-1}"
@@ -116,13 +113,6 @@ The following line can also be edited if you wish to build tudatpy with its debu
 ````
 -DCMAKE_BUILD_TYPE=RelWithDebInfo
 ````
-
-
-> **Note** \
-> The `CONDA_PREFIX` may be determined with by activating the environment installed in step 4 and printing its value:
-> ````
-> conda activate tudat-bundle && echo $CONDA_PREFIX
-> ````
 
 [**Optional**] Add `-j<n>` to `File > Settings > Build, Execution, Deployment > CMake > Build options` to use multiple
 processors. It is likely that if you use all of your processors, your build will freeze your PC indefinitely. It is
