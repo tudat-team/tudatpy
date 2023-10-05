@@ -63,8 +63,8 @@ def main(projects, config):
                 api_prefix=project_api,
                 target_src=project_src,
                 dest=dest)
-        elif project_type == "cpp":
-            generate_cpp_documented(
-                api_prefix=project_api,
-                target_src=project_src,
-                dest=dest)
+        #elif project_type == "cpp":
+        #    generate_cpp_documented(
+        #        api_prefix=project_api,
+        #        target_src=project_src,
+        #        dest=dest)
