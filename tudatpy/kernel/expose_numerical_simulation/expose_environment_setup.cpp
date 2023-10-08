@@ -21,6 +21,7 @@
 #include "expose_environment_setup/expose_rotation_model_setup.h"
 #include "expose_environment_setup/expose_shape_setup.h"
 #include "expose_environment_setup/expose_shape_deformation_setup.h"
+#include "expose_environment_setup/expose_rigid_body_setup.h"
 
 #include "tudatpy/docstrings.h"
 #include "tudatpy/scalarTypes.h"
@@ -28,10 +29,8 @@
 #include <tudat/simulation/environment_setup.h>
 #include <tudat/astro/reference_frames/referenceFrameTransformations.h>
 
-//#include <pybind11/chrono.h>
 #include <pybind11/eigen.h>
 #include <pybind11/functional.h>
-//#include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <pybind11/complex.h>
@@ -45,6 +44,7 @@ namespace ta = tudat::aerodynamics;
 namespace trf = tudat::reference_frames;
 namespace tg = tudat::gravitation;
 namespace tcc = tudat::coordinate_conversions;
+namespace tp = tudat::propagators;
 
 
 
@@ -71,7 +71,8 @@ namespace environment_setup {
                 .def_readwrite("aerodynamic_coefficient_settings", &tss::BodySettings::aerodynamicCoefficientSettings, get_docstring("BodySettings.aerodynamic_coefficient_settings").c_str())
                 .def_readwrite("gravity_field_variation_settings", &tss::BodySettings::gravityFieldVariationSettings, get_docstring("BodySettings.gravity_field_variation_settings").c_str())
                 .def_readwrite("shape_deformation_settings", &tss::BodySettings::bodyDeformationSettings, get_docstring("BodySettings.shape_deformation_settings").c_str())
-                .def_readwrite("ground_station_settings", &tss::BodySettings::groundStationSettings, get_docstring("BodySettings.ground_station_settings").c_str());
+                .def_readwrite("ground_station_settings", &tss::BodySettings::groundStationSettings, get_docstring("BodySettings.ground_station_settings").c_str())
+                .def_readwrite("rigid_body_settings", &tss::BodySettings::rigidBodyPropertiesSettings, get_docstring("BodySettings.rigidBodyPropertiesSettings").c_str());
 
 
         py::class_<tss::BodyListSettings,
@@ -126,6 +127,24 @@ namespace environment_setup {
               py::arg("time_step") = 300.0,
               get_docstring("get_default_single_body_settings_time_limited").c_str());
 
+        m.def("get_default_single_alternate_body_settings",
+              py::overload_cast<const std::string&, const std::string&, const std::string&>(
+                  &tss::getDefaultSingleAlternateNameBodySettings),
+              py::arg("body_name"),
+              py::arg("source_body_name"),
+              py::arg("base_frame_orientation") = "ECLIPJ2000",
+              get_docstring("get_default_single_alternate_body_settings").c_str());
+
+        m.def("get_default_single_alternate_body_settings_time_limited",
+              py::overload_cast< const std::string&, const std::string&, const double, const double, const std::string&, const double >(
+                  &tss::getDefaultSingleAlternateNameBodySettings),
+              py::arg("body_name"),
+              py::arg("source_body_name"),
+              py::arg("initial_time"),
+              py::arg("final_time"),
+              py::arg("base_frame_orientation") = "ECLIPJ2000",
+              py::arg("time_step") = 300.0,
+              get_docstring("get_default_single_alternate_body_settings_time_limited").c_str());
 
         m.def("create_simplified_system_of_bodies", &tss::createSimplifiedSystemOfBodies,
               py::arg("initial_time") = 0,
@@ -135,7 +154,7 @@ namespace environment_setup {
               py::arg("body_settings"),
               get_docstring("create_system_of_bodies").c_str());
 
-        m.def("add_empty_tabulated_ephemeris", &tss::addEmptyTabulatedEphemeris,
+        m.def("add_empty_tabulated_ephemeris", &tp::addEmptyTabulatedEphemeris< double, TIME_TYPE >,
               py::arg("bodies"),
               py::arg("body_name"),
               py::arg("ephemeris_origin") = "",
@@ -152,6 +171,12 @@ namespace environment_setup {
         m.def("create_body_ephemeris", &tss::createBodyEphemeris< double, TIME_TYPE >,
               py::arg("ephemeris_settings"), py::arg("body_name"));
 
+        m.def("create_ground_station_ephemeris",
+              py::overload_cast< const std::shared_ptr< tss::Body >, const std::string& >(
+                  &tss::createReferencePointEphemeris< TIME_TYPE, double > ),
+              py::arg("body"),
+              py::arg("station_name") );
+
         m.def("get_safe_interpolation_interval", &tss::getSafeInterpolationInterval,
               py::arg("ephemeris_model"));
 
@@ -162,8 +187,12 @@ namespace environment_setup {
               get_docstring("add_aerodynamic_coefficient_interface").c_str());
 
         m.def("create_aerodynamic_coefficient_interface",
+              &tss::createAerodynamicCoefficientInterfaceDeprecated,
+              py::arg("coefficient_settings"), py::arg("body") );
+
+        m.def("create_aerodynamic_coefficient_interface",
               &tss::createAerodynamicCoefficientInterface,
-              py::arg("coefficient_settings"), py::arg("body"),
+              py::arg("coefficient_settings"), py::arg("body"), py::arg("bodies"),
               get_docstring("create_aerodynamic_coefficient_interface").c_str());
 
         m.def("add_radiation_pressure_interface",
@@ -176,6 +205,10 @@ namespace environment_setup {
               py::arg("bodies"), py::arg("body_name"), py::arg("rotation_model_settings"),
               get_docstring("add_rotation_model").c_str());
 
+        m.def("add_mass_properties_model",
+              &tss::addRigidBodyProperties,
+              py::arg("bodies"), py::arg("body_name"), py::arg("mass_property_settings"),
+              get_docstring("add_mass_properties_model").c_str());
 
         m.def("add_engine_model",
               &tss::addEngineModel,
@@ -267,6 +300,9 @@ namespace environment_setup {
 
         auto ground_station_setup = m.def_submodule("ground_station");
         ground_station::expose_ground_station_setup(ground_station_setup);
+
+        auto rigid_body_setup = m.def_submodule("rigid_body");
+        rigid_body::expose_rigid_body_setup(rigid_body_setup);
 
 //        auto system_model_setup = m.def_submodule("system_models");
 //        gravity_field_variation::expose_system_model_setup(system_model_setup);

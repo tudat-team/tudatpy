@@ -133,6 +133,7 @@ void expose_acceleration_setup(py::module &m) {
             .value("panelled_radiation_pressure_acceleration_type", tba::AvailableAcceleration::panelled_radiation_pressure_acceleration, get_docstring("AvailableAcceleration.panelled_radiation_pressure_acceleration_type").c_str())
             .value("quasi_impulsive_shots_acceleration_type", tba::AvailableAcceleration::momentum_wheel_desaturation_acceleration, get_docstring("AvailableAcceleration.momentum_wheel_desaturation_acceleration_type").c_str())
             .value("solar_sail_acceleration_type", tba::AvailableAcceleration::solar_sail_acceleration, get_docstring("AvailableAcceleration.solar_sail_acceleration_type").c_str())
+            .value("custom_acceleration_type", tba::AvailableAcceleration::custom_acceleration, get_docstring("AvailableAcceleration.custom_acceleration").c_str())
             .export_values();
 
     //////////////////////////////////////////////////////////////////////////////
@@ -230,6 +231,9 @@ void expose_acceleration_setup(py::module &m) {
      m.def("polyhedron_gravity", &tss::polyhedronAcceleration,
           get_docstring("polyhedron_gravity").c_str());
 
+    m.def("ring_gravity", &tss::ringAcceleration,
+          get_docstring("ring_gravity").c_str());
+
     m.def("relativistic_correction", &tss::relativisticAccelerationCorrection,
           py::arg( "use_schwarzschild" ) = false,
           py::arg( "use_lense_thirring" ) = false,
@@ -243,6 +247,10 @@ void expose_acceleration_setup(py::module &m) {
           py::arg( "sine_acceleration" ) = Eigen::Vector3d::Zero( ),
           py::arg( "cosine_acceleration" ) = Eigen::Vector3d::Zero( ),
           get_docstring("empirical").c_str());
+
+    m.def("yarkovsky", &tss::yarkovskyAcceleration,
+          py::arg( "yarkovsky_parameter" ),
+          get_docstring("yarkovsky").c_str());
 
     m.def("custom",
           &tss::customAccelerationSettingsDeprecated,
@@ -258,6 +266,15 @@ void expose_acceleration_setup(py::module &m) {
     m.def("direct_tidal_dissipation_acceleration", &tss::directTidalDissipationAcceleration,
           py::arg("k2_love_number"),
           py::arg("time_lag"),
+          py::arg("include_direct_radial_component") = true,
+          py::arg("use_tide_raised_on_planet") = true,
+          py::arg("explicit_libraional_tide_on_satellite" ) = false,
+          get_docstring("direct_tidal_dissipation_acceleration").c_str());
+
+    m.def("direct_tidal_dissipation_acceleration", &tss::directTidalDissipationAccelerationFromInvQ,
+          py::arg("k2_love_number"),
+          py::arg("inverse_tidal_quality_factor"),
+          py::arg("tidal_period"),
           py::arg("include_direct_radial_component") = true,
           py::arg("use_tide_raised_on_planet") = true,
           py::arg("explicit_libraional_tide_on_satellite" ) = false,
