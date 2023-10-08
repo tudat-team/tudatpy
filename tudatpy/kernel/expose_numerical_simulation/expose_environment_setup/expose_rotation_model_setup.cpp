@@ -122,6 +122,7 @@ namespace rotation_model {
               &tss::spiceRotationModelSettings,
               py::arg("base_frame"),
               py::arg("target_frame"),
+              py::arg("spice_frame_name") = "",
               get_docstring("spice").c_str()
         );
 
@@ -129,6 +130,9 @@ namespace rotation_model {
               &tss::gcrsToItrsRotationModelSettings,
               py::arg("precession_nutation_theory") = tba::iau_2006,
               py::arg("base_frame") = "GCRS",
+              py::arg("cio_interpolation_settings") = nullptr,
+              py::arg("tdb_to_tt_interpolation_settings") = nullptr,
+              py::arg("short_term_eop_interpolation_settings") = nullptr,
               get_docstring("gcrs_to_itrs").c_str()
         );
 
@@ -192,6 +196,8 @@ namespace rotation_model {
 
         m.def("mars_high_accuracy",
               &tss::getHighAccuracyMarsRotationModel,
+                py::arg("base_frame") = "ECLIPJ2000",
+                py::arg("target_frame") = "Mars_Fixed",
               get_docstring("mars_high_accuracy").c_str()
         );
 
