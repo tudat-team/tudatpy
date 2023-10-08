@@ -273,14 +273,24 @@ namespace dependent_variable {
 //                 py::arg("component_index") = -1);
 
 
+        m.def("get_dependent_variable_id",
+              &tp::getDependentVariableId,
+              py::arg("dependent_variable_settings"),
+              get_docstring("get_dependent_variable_id").c_str());
+
+        m.def("get_dependent_variable_size",
+              &tp::getDependentVariableSaveSize,
+              py::arg("dependent_variable_settings"),
+              get_docstring("get_dependent_variable_size").c_str());
+
+        m.def("get_dependent_variable_shape",
+              &tp::getDependentVariableShape,
+              py::arg("dependent_variable_settings"),
+              get_docstring("get_dependent_variable_shape").c_str());
         //////////////////////////////////////////////////////////////////////////////////////
         /// FREE FUNCTIONS ///////////////////////////////////////////////////////////////////
         //////////////////////////////////////////////////////////////////////////////////////
 
-//        m.def("create",
-//              &tp::createDependentVariableSaveSettings,
-//              py::arg("dependent_variable_list"),
-//              py::arg("print_variable_indices") = true);
 
         m.def("mach_number",
               &tp::machNumberDependentVariable,
@@ -309,11 +319,13 @@ namespace dependent_variable {
         m.def("temperature",
               &tp::localTemperatureDependentVariable,
               py::arg("body"),
+              py::arg("body_with_atmosphere"),
               get_docstring("temperature").c_str());
 
         m.def("dynamic_pressure",
               &tp::localDynamicPressureDependentVariable,
               py::arg("body"),
+              py::arg("body_with_atmosphere"),
               get_docstring("dynamic_pressure").c_str());
 
 //        m.def("local_aerodynamic_heat_rate",
@@ -324,6 +336,7 @@ namespace dependent_variable {
         m.def("local_aerodynamic_g_load",
               &tp::totalAerodynamicGLoadDependentVariable,
               py::arg("body"),
+              py::arg("body_with_atmosphere"),
               get_docstring("local_aerodynamic_g_load").c_str());
 
         m.def("relative_speed",
@@ -652,11 +665,6 @@ namespace dependent_variable {
               py::arg("emitting_body"),
               get_docstring("radiation_pressure_coefficient").c_str());
 
-//        m.def("stagnation_point_heat_flux",
-//              &tp::stagnationPointHeatFluxDependentVariable,
-//              py::arg("body"),
-//              get_docstring("stagnation_point_heat_flux").c_str());
-
         m.def("total_mass_rate",
               &tp::totalMassRateDependentVariable,
               py::arg("body"),
@@ -699,6 +707,16 @@ namespace dependent_variable {
               py::arg("bodies_to_check"),
               py::arg("minimum_elevation_angle"),
               get_docstring("minimum_visible_station_body_distances").c_str());
+
+        m.def("center_of_mass",
+              &tp::centerOfMassVariableSaveSettings,
+              py::arg("body"),
+              get_docstring("center_of_mass").c_str());
+
+        m.def("inertia_tensor",
+              &tp::inertiaTensorVariableSaveSettings,
+              py::arg("body"),
+              get_docstring("inertia_tensor").c_str());
 
 
     }

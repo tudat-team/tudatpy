@@ -110,8 +110,8 @@ void expose_propagator_setup(py::module &m) {
                           &tp::PropagatorProcessingSettings::setClearNumericalSolutions,
                           get_docstring("PropagatorProcessingSettings.clear_numerical_solution").c_str() )
             .def_property("create_dependent_variable_interface",
-                          &tp::PropagatorProcessingSettings::getCreateDependentVariablesInterface,
-                          &tp::PropagatorProcessingSettings::setCreateDependentVariablesInterface,
+                          &tp::PropagatorProcessingSettings::getUpdateDependentVariableInterpolator,
+                          &tp::PropagatorProcessingSettings::setUpdateDependentVariableInterpolator,
                           get_docstring("PropagatorProcessingSettings.create_dependent_variable_interface").c_str() );
 
     py::class_<tp::SingleArcPropagatorProcessingSettings,
@@ -545,6 +545,13 @@ void expose_propagator_setup(py::module &m) {
                                                 get_docstring(
                                                     "PropagationHybridTerminationSettings").c_str());
 
+    py::class_<
+            tp::NonSequentialPropagationTerminationSettings,
+            std::shared_ptr<tp::NonSequentialPropagationTerminationSettings>,
+            tp::PropagationTerminationSettings>(m, "NonSequentialPropagationTerminationSettings",
+                                                get_docstring(
+                                                        "NonSequentialPropagationTerminationSettings").c_str());
+
     //                .def(py::init<
     //                             const std::shared_ptr<tp::SingleDependentVariableSaveSettings>,
     //                             const double,
@@ -587,6 +594,12 @@ void expose_propagator_setup(py::module &m) {
           py::arg("termination_settings"),
           py::arg("fulfill_single_condition"),
           get_docstring("hybrid_termination").c_str());
+
+    m.def("non_sequential_termination",
+          &tp::nonSequentialPropagationTerminationSettings,
+          py::arg("forward_termination_settings"),
+          py::arg("backward_termination_settings"),
+          get_docstring("non_sequential_termination").c_str());
 
     m.def("add_dependent_variable_settings",
           &tp::addDepedentVariableSettings< double >,

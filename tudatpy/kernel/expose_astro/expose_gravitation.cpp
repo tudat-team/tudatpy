@@ -8,6 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+#include "tudatpy/docstrings.h"
+
 #include "expose_gravitation.h"
 
 #include <tudat/astro/gravitation.h>
@@ -21,41 +23,55 @@ namespace py = pybind11;
 namespace tg = tudat::gravitation;
 namespace tbm = tudat::basic_mathematics;
 
+namespace tudat
+{
+namespace gravitation
+{
+std::tuple<Eigen::MatrixXd, Eigen::MatrixXd, double> getDegreeTwoSphericalHarmonicCoefficientsPy(
+    const Eigen::Matrix3d inertiaTensor, const double bodyGravitationalParameter, const double referenceRadius,
+    const bool useNormalizedCoefficients )
+{
+    return tg::getDegreeTwoSphericalHarmonicCoefficients( inertiaTensor, bodyGravitationalParameter, referenceRadius, 2,
+                                                          useNormalizedCoefficients );
+}
+}
+}
+
 namespace tudatpy {
 namespace astro {
 namespace gravitation {
+
+
 
 void expose_gravitation(py::module &m) {
 
     m.def("legendre_normalization_factor",
           &tbm::calculateLegendreGeodesyNormalizationFactor,
           py::arg("degree"),
-          py::arg("order") );
+          py::arg("order"),
+          get_docstring("legendre_normalization_factor").c_str());
 
     m.def("normalize_spherical_harmonic_coefficients",
           py::overload_cast< const Eigen::MatrixXd&, const Eigen::MatrixXd& >(
               &tbm::convertUnnormalizedToGeodesyNormalizedCoefficients ),
           py::arg("unnormalized_cosine_coefficients"),
-          py::arg("unnormalized_sine_coefficients") );
+          py::arg("unnormalized_sine_coefficients"),
+          get_docstring("normalize_spherical_harmonic_coefficients").c_str());
 
     m.def("unnormalize_spherical_harmonic_coefficients",
           py::overload_cast< const Eigen::MatrixXd&, const Eigen::MatrixXd& >(
               &tbm::convertGeodesyNormalizedToUnnormalizedCoefficients ),
           py::arg("normalized_cosine_coefficients"),
-          py::arg("normalized_sine_coefficients") );
+          py::arg("normalized_sine_coefficients"),
+          get_docstring("unnormalize_spherical_harmonic_coefficients").c_str());
 
     m.def("spherical_harmonic_coefficients_from_inertia",
-          py::overload_cast<
-          const Eigen::Matrix3d,
-          const double,
-          const double,
-          const int,
-          const bool >( &tg::getDegreeTwoSphericalHarmonicCoefficients ),
+          tg::getDegreeTwoSphericalHarmonicCoefficientsPy,
           py::arg("inertia_tensor"),
           py::arg("gravitational_parameter"),
           py::arg("reference_radius"),
-          py::arg("maximum_output_degree") = 2,
-          py::arg("output_normalized_coefficients") = true );
+          py::arg("output_normalized_coefficients") = true,
+          get_docstring("spherical_harmonic_coefficients_from_inertia").c_str());
 }
 
 

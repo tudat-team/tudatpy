@@ -41,6 +41,18 @@ namespace integrator {
     void expose_integrator_setup(py::module &m) {
 
 // ENUMS
+        py::enum_<tni::MinimumIntegrationTimeStepHandling>(m, "MinimumIntegrationTimeStepHandling", get_docstring("MinimumIntegrationTimeStepHandling").c_str())
+            .value("throw_exception_below_minimum", tni::MinimumIntegrationTimeStepHandling::throw_exception_below_minimum,
+                get_docstring("MinimumIntegrationTimeStepHandling.throw_exception_below_minimum").c_str())
+            .value("set_to_minimum_step_silently", tni::MinimumIntegrationTimeStepHandling::set_to_minimum_step_silently,
+                   get_docstring("MinimumIntegrationTimeStepHandling.set_to_minimum_step_silently").c_str())
+            .value("set_to_minimum_step_single_warning", tni::MinimumIntegrationTimeStepHandling::set_to_minimum_step_single_warning,
+                   get_docstring("MinimumIntegrationTimeStepHandling.set_to_minimum_step_single_warning").c_str())
+            .value("set_to_minimum_step_every_time_warning", tni::MinimumIntegrationTimeStepHandling::set_to_minimum_step_every_time_warning,
+                   get_docstring("MinimumIntegrationTimeStepHandling.set_to_minimum_step_every_time_warning").c_str())
+            .export_values();
+
+
             py::enum_<tni::AvailableIntegrators>(m, "AvailableIntegrators", get_docstring("AvailableIntegrators").c_str())
               //       .value("euler_type", tni::AvailableIntegrators::euler)
               //       .value("runge_kutta_4_type", tni::AvailableIntegrators::rungeKutta4)
@@ -117,18 +129,6 @@ namespace integrator {
                     tni::IntegratorSettings<TIME_TYPE>,
                     std::shared_ptr<tni::IntegratorSettings<TIME_TYPE>>>(m, "IntegratorSettings",
                                                                       get_docstring("IntegratorSettings").c_str())
-//                .def(py::init<
-//                             const tni::AvailableIntegrators,
-//                             const double,
-//                             const double,
-//                             const int,
-//                             const bool>(),
-//                     py::arg("integrator_type"),
-//                     py::arg("initial_time"),
-//                     py::arg("initial_time_step"),
-//                     py::arg("save_frequency") = 1,
-//                        // TODO: Discuss length of this argument: assess_propagation_termination_condition_during_integration_substeps.
-//                     py::arg("assess_propagation_termination_condition_during_integration_substeps") = false)
                     .def_readwrite("initial_time", &tni::IntegratorSettings<TIME_TYPE>::initialTimeDeprecated_);
 
             py::class_<tni::RungeKuttaFixedStepSizeSettings<TIME_TYPE>,
@@ -164,13 +164,229 @@ namespace integrator {
                     tni::IntegratorSettings<TIME_TYPE>>(m, "AdamsBashforthMoultonSettings",
                                                      get_docstring("AdamsBashforthMoultonSettings").c_str());
 
+        py::class_<
+            tni::IntegratorStepSizeControlSettings,
+            std::shared_ptr<tni::IntegratorStepSizeControlSettings>>(m, "IntegratorStepSizeControlSettings",
+                                                                 get_docstring("IntegratorStepSizeControlSettings").c_str())
+            .def_readwrite("safety_factor", &tni::IntegratorStepSizeControlSettings::safetyFactorForNextStepSize_)
+            .def_readwrite("minimum_step_decrease", &tni::IntegratorStepSizeControlSettings::minimumFactorDecreaseForNextStepSize_)
+            .def_readwrite("maximum_step_decrease", &tni::IntegratorStepSizeControlSettings::maximumFactorDecreaseForNextStepSize_);
+
+        py::class_<
+            tni::IntegratorStepSizeValidationSettings,
+            std::shared_ptr<tni::IntegratorStepSizeValidationSettings>>(m, "IntegratorStepSizeValidationSettings",
+                                                                     get_docstring("IntegratorStepSizeValidationSettings").c_str())
+            .def_readwrite("minimum_step", &tni::IntegratorStepSizeValidationSettings::minimumStep_)
+            .def_readwrite("maximum_step", &tni::IntegratorStepSizeValidationSettings::maximumStep_)
+            .def_readwrite("minimum_step_handling", &tni::IntegratorStepSizeValidationSettings::minimumIntegrationTimeStepHandling_);
+
+
 
 // FACTORY FUNCTIONS
             m.def("print_butcher_tableau",
                   &tni::printButcherTableau,
                   get_docstring("print_butcher_tableau").c_str());
 
-            m.def("euler",
+        m.def("step_size_validation",
+              &tni::stepSizeValidationSettings,
+              py::arg("minimum_step"),
+              py::arg("maximum_step"),
+              py::arg("minimum_step_size_handling") = tni::throw_exception_below_minimum,
+              py::arg("accept_infinity_step") = false,
+              py::arg("accept_nan_step") = false,
+              get_docstring("step_size_validation").c_str());
+
+        m.def("step_size_control_elementwise_scalar_tolerance",
+              &tni::perElementIntegratorStepSizeControlSettings< double >,
+              py::arg("relative_error_tolerance"),
+              py::arg("absolute_error_tolerance"),
+              py::arg("safety_factor") = 0.8,
+              py::arg("minimum_factor_increase") = 0.1,
+              py::arg("maximum_factor_increase") = 4.0,
+              get_docstring("step_size_control_elementwise_scalar_tolerance").c_str());
+
+        m.def("step_size_control_elementwise_matrix_tolerance",
+              &tni::perElementIntegratorStepSizeControlSettings< Eigen::MatrixXd >,
+              py::arg("relative_error_tolerance"),
+              py::arg("absolute_error_tolerance"),
+              py::arg("safety_factor") = 0.8,
+              py::arg("minimum_factor_increase") = 0.1,
+              py::arg("maximum_factor_increase") = 4.0,
+              get_docstring("step_size_control_elementwise_matrix_tolerance").c_str());
+
+        m.def("step_size_control_blockwise_scalar_tolerance",
+              &tni::perBlockIntegratorStepSizeControlSettings< double >,
+              py::arg("block_indices"),
+              py::arg("relative_error_tolerance"),
+              py::arg("absolute_error_tolerance"),
+              py::arg("safety_factor") = 0.8,
+              py::arg("minimum_factor_increase") = 0.1,
+              py::arg("maximum_factor_increase") = 4.0,
+              get_docstring("step_size_control_blockwise_scalar_tolerance").c_str());
+
+        m.def("step_size_control_blockwise_matrix_tolerance",
+              &tni::perBlockIntegratorStepSizeControlSettings< Eigen::MatrixXd >,
+              py::arg("block_indices"),
+              py::arg("relative_error_tolerance"),
+              py::arg("absolute_error_tolerance"),
+              py::arg("safety_factor") = 0.8,
+              py::arg("minimum_factor_increase") = 0.1,
+              py::arg("maximum_factor_increase") = 4.0,
+              get_docstring("step_size_control_blockwise_matrix_tolerance").c_str());
+
+        m.def("standard_cartesian_state_element_blocks",
+              &tni::getStandardCartesianStatesElementsToCheck,
+              py::arg("number_of_rows"),
+              py::arg("number_of_columns"),
+              get_docstring("standard_cartesian_state_element_blocks").c_str());
+
+        m.def("standard_rotational_state_element_blocks",
+              &tni::getStandardRotationalStatesElementsToCheck,
+              py::arg("number_of_rows"),
+              py::arg("number_of_columns") );
+
+        m.def("step_size_control_custom_blockwise_scalar_tolerance",
+              &tni::perBlockFromFunctionIntegratorStepSizeControlSettings< double >,
+              py::arg("block_indices_function"),
+              py::arg("relative_error_tolerance"),
+              py::arg("absolute_error_tolerance"),
+              py::arg("safety_factor") = 0.8,
+              py::arg("minimum_factor_increase") = 0.1,
+              py::arg("maximum_factor_increase") = 4.0,
+              get_docstring("step_size_control_custom_blockwise_scalar_tolerance").c_str());
+
+        m.def("step_size_control_custom_blockwise_matrix_tolerance",
+              &tni::perBlockFromFunctionIntegratorStepSizeControlSettings< Eigen::MatrixXd >,
+              py::arg("block_indices_function"),
+              py::arg("relative_error_tolerance"),
+              py::arg("absolute_error_tolerance"),
+              py::arg("safety_factor") = 0.8,
+              py::arg("minimum_factor_increase") = 0.1,
+              py::arg("maximum_factor_increase") = 4.0,
+              get_docstring("step_size_control_custom_blockwise_matrix_tolerance").c_str());
+
+        m.def("runge_kutta_fixed_step",
+              &tni::rungeKuttaFixedStepSettings<TIME_TYPE>,
+              py::arg("time_step"),
+              py::arg("coefficient_set"),
+              py::arg("order_to_use") = tni::RungeKuttaCoefficients::OrderEstimateToIntegrate::lower,
+              py::arg("assess_termination_on_minor_steps") = false,
+              get_docstring("runge_kutta_fixed_step").c_str());
+
+        m.def("runge_kutta_variable_step",
+              &tni::multiStageVariableStepSizeSettings<TIME_TYPE>,
+              py::arg("initial_time_step"),
+              py::arg("coefficient_set"),
+              py::arg("step_size_control_settings"),
+              py::arg("step_size_validation_settings"),
+              py::arg("assess_termination_on_minor_steps") = false,
+              get_docstring("runge_kutta_variable_step").c_str());
+
+        m.def("bulirsch_stoer_variable_step",
+              &tni::bulirschStoerVariableStepIntegratorSettings<TIME_TYPE>,
+              py::arg("initial_time_step"),
+              py::arg("extrapolation_sequence"),
+              py::arg("maximum_number_of_steps"),
+              py::arg("step_size_control_settings"),
+              py::arg("step_size_validation_settings"),
+              py::arg("assess_termination_on_minor_steps") = false,
+              get_docstring("bulirsch_stoer_variable_step").c_str());
+
+        m.def("bulirsch_stoer_fixed_step",
+              &tni::bulirschStoerFixedStepIntegratorSettings<TIME_TYPE>,
+              py::arg("time_step"),
+              py::arg("extrapolation_sequence"),
+              py::arg("maximum_number_of_steps"),
+              py::arg("assess_termination_on_minor_steps") = false,
+              get_docstring("bulirsch_stoer_fixed_step").c_str());
+
+        m.def("adams_bashforth_moulton",
+              &tni::adamsBashforthMoultonSettings<TIME_TYPE>,
+              py::arg("initial_time_step"),
+              py::arg("minimum_step_size"),
+              py::arg("maximum_step_size"),
+              py::arg("relative_error_tolerance") = 1.0E-12,
+              py::arg("absolute_error_tolerance") = 1.0E-12,
+              py::arg("minimum_order") = 6,
+              py::arg("maximum_order") = 11,
+              py::arg("assess_termination_on_minor_steps") = false,
+              py::arg("bandwidth") = 200.0,
+              get_docstring("adams_bashforth_moulton").c_str());
+
+        m.def("adams_bashforth_moulton_fixed_order",
+              &tni::adamsBashforthMoultonSettingsFixedOrder<TIME_TYPE>,
+              py::arg("initial_time_step"),
+              py::arg("minimum_step_size"),
+              py::arg("maximum_step_size"),
+              py::arg("relative_error_tolerance") = 1.0E-12,
+              py::arg("absolute_error_tolerance") = 1.0E-12,
+              py::arg("order") = 6,
+              py::arg("assess_termination_on_minor_steps") = false,
+              py::arg("bandwidth") = 200.0,
+              get_docstring("adams_bashforth_moulton_fixed_order").c_str());
+
+        m.def("adams_bashforth_moulton_fixed_step",
+              &tni::adamsBashforthMoultonSettingsFixedStep<TIME_TYPE>,
+              py::arg("time_step"),
+              py::arg("relative_error_tolerance") = 1.0E-12,
+              py::arg("absolute_error_tolerance") = 1.0E-12,
+              py::arg("minimum_order") = 6,
+              py::arg("maximum_order") = 11,
+              py::arg("assess_termination_on_minor_steps") = false,
+              py::arg("bandwidth") = 200.0,
+              get_docstring("adams_bashforth_moulton_fixed_step").c_str());
+
+        m.def("adams_bashforth_moulton_fixed_step_fixed_order",
+              &tni::adamsBashforthMoultonSettingsFixedStepFixedOrder<TIME_TYPE>,
+              py::arg("time_step"),
+              py::arg("order") = 6,
+              py::arg("assess_termination_on_minor_steps") = false,
+              get_docstring("adams_bashforth_moulton_fixed_step_fixed_order").c_str());
+
+        /*!
+         * DEPRECATED -------------------------------------------------------------------------
+         *
+         */
+
+
+        m.def("runge_kutta_variable_step_size_vector_tolerances",
+              &tni::rungeKuttaVariableStepSettingsVectorTolerances<TIME_TYPE>,
+              py::arg("initial_time_step"),
+              py::arg("coefficient_set"),
+              py::arg("minimum_step_size"),
+              py::arg("maximum_step_size"),
+              py::arg("relative_error_tolerance"),
+              py::arg("absolute_error_tolerance"),
+              py::arg("assess_termination_on_minor_steps") = false,
+              py::arg("safety_factor") = 0.8,
+              py::arg("maximum_factor_increase") = 4.0,
+              py::arg("minimum_factor_increase") = 0.1,
+              py::arg("throw_exception_if_minimum_step_exceeded") = true,
+              get_docstring("runge_kutta_variable_step_size_vector_tolerances").c_str());
+
+        m.def("runge_kutta_variable_step_size",
+              &tni::rungeKuttaVariableStepSettingsScalarTolerances<TIME_TYPE>,
+              py::arg("initial_time_step"),
+              py::arg("coefficient_set"),
+              py::arg("minimum_step_size"),
+              py::arg("maximum_step_size"),
+              py::arg("relative_error_tolerance"),
+              py::arg("absolute_error_tolerance"),
+              py::arg("assess_termination_on_minor_steps") = false,
+              py::arg("safety_factor") = 0.8,
+              py::arg("maximum_factor_increase") = 4.0,
+              py::arg("minimum_factor_increase") = 0.1,
+              py::arg("throw_exception_if_minimum_step_exceeded") = true,
+              get_docstring("runge_kutta_variable_step_size").c_str());
+
+
+
+        /*!
+         * DEPRECATED UNDOCUMENTED -------------------------------------------------------------------------
+         *
+         */
+
+        m.def("euler",
                   &tni::eulerSettingsDeprecated<TIME_TYPE>,
                   py::arg("initial_time"),
                   py::arg("initial_time_step"),
@@ -179,9 +395,7 @@ namespace integrator {
             m.def("euler",
                   &tni::eulerSettings<TIME_TYPE>,
                   py::arg("initial_time_step"),
-                  py::arg("assess_termination_on_minor_steps") = false,
-                  get_docstring("euler").c_str());
-
+                  py::arg("assess_termination_on_minor_steps") = false );
 
             m.def("runge_kutta_4",
                   &tni::rungeKutta4SettingsDeprecated<TIME_TYPE>,
@@ -192,8 +406,7 @@ namespace integrator {
             m.def("runge_kutta_4",
                   &tni::rungeKutta4Settings<TIME_TYPE>,
                   py::arg("initial_time_step"),
-                  py::arg("assess_termination_on_minor_steps") = false,
-                  get_docstring("runge_kutta_4").c_str());
+                  py::arg("assess_termination_on_minor_steps") = false );
 
             m.def("runge_kutta_fixed_step_size",
                   &tni::rungeKuttaFixedStepSettingsDeprecated<TIME_TYPE>,
@@ -208,8 +421,7 @@ namespace integrator {
                   py::arg("initial_time_step"),
                   py::arg("coefficient_set"),
                   py::arg("order_to_use") = tni::RungeKuttaCoefficients::OrderEstimateToIntegrate::lower,
-                  py::arg("assess_termination_on_minor_steps") = false,
-                  get_docstring("runge_kutta_fixed_step_size").c_str());
+                  py::arg("assess_termination_on_minor_steps") = false );
 
             m.def("runge_kutta_variable_step_size",
                   &tni::rungeKuttaVariableStepSettingsScalarTolerancesDeprecated<TIME_TYPE>,
@@ -226,20 +438,6 @@ namespace integrator {
                   py::arg("minimum_factor_increase") = 0.1,
                   py::arg("throw_exception_if_minimum_step_exceeded") = true);
 
-            m.def("runge_kutta_variable_step_size",
-                  &tni::rungeKuttaVariableStepSettingsScalarTolerances<TIME_TYPE>,
-                  py::arg("initial_time_step"),
-                  py::arg("coefficient_set"),
-                  py::arg("minimum_step_size"),
-                  py::arg("maximum_step_size"),
-                  py::arg("relative_error_tolerance"),
-                  py::arg("absolute_error_tolerance"),
-                  py::arg("assess_termination_on_minor_steps") = false,
-                  py::arg("safety_factor") = 0.8,
-                  py::arg("maximum_factor_increase") = 4.0,
-                  py::arg("minimum_factor_increase") = 0.1,
-                  py::arg("throw_exception_if_minimum_step_exceeded") = true,
-                  get_docstring("runge_kutta_variable_step_size").c_str());
 
             m.def("runge_kutta_variable_step_size_vector_tolerances",
                   &tni::rungeKuttaVariableStepSettingsVectorTolerancesDeprecated<TIME_TYPE>,
@@ -256,20 +454,6 @@ namespace integrator {
                   py::arg("minimum_factor_increase") = 0.1,
                   py::arg("throw_exception_if_minimum_step_exceeded") = true);
 
-            m.def("runge_kutta_variable_step_size_vector_tolerances",
-                  &tni::rungeKuttaVariableStepSettingsVectorTolerances<TIME_TYPE>,
-                  py::arg("initial_time_step"),
-                  py::arg("coefficient_set"),
-                  py::arg("minimum_step_size"),
-                  py::arg("maximum_step_size"),
-                  py::arg("relative_error_tolerance"),
-                  py::arg("absolute_error_tolerance"),
-                  py::arg("assess_termination_on_minor_steps") = false,
-                  py::arg("safety_factor") = 0.8,
-                  py::arg("maximum_factor_increase") = 4.0,
-                  py::arg("minimum_factor_increase") = 0.1,
-                  py::arg("throw_exception_if_minimum_step_exceeded") = true,
-                  get_docstring("runge_kutta_variable_step_size_vector_tolerances").c_str());
 
             m.def("bulirsch_stoer",
                   &tni::bulirschStoerIntegratorSettingsDeprecated<TIME_TYPE>,
@@ -287,7 +471,7 @@ namespace integrator {
                   py::arg("minimum_factor_increase") = 0.1);
 
             m.def("bulirsch_stoer",
-                  &tni::bulirschStoerIntegratorSettings<TIME_TYPE>,
+                  &tni::bulirschStoerIntegratorSettingsDeprecatedNew<TIME_TYPE>,
                   py::arg("initial_time_step"),
                   py::arg("extrapolation_sequence"),
                   py::arg("maximum_number_of_steps"),
@@ -300,7 +484,6 @@ namespace integrator {
                   py::arg("maximum_factor_increase") = 10.0,
                   py::arg("minimum_factor_increase") = 0.1,
                   get_docstring("bulirsch_stoer").c_str());
-
 
             m.def("adams_bashforth_moulton",
                   &tni::adamsBashforthMoultonSettingsDeprecated<TIME_TYPE>,
@@ -315,19 +498,9 @@ namespace integrator {
                   py::arg("assess_termination_on_minor_steps") = false,
                   py::arg("bandwidth") = 200.0);
 
-            m.def("adams_bashforth_moulton",
-                  &tni::adamsBashforthMoultonSettings<TIME_TYPE>,
-                  py::arg("initial_time_step"),
-                  py::arg("minimum_step_size"),
-                  py::arg("maximum_step_size"),
-                  py::arg("relative_error_tolerance") = 1.0E-12,
-                  py::arg("absolute_error_tolerance") = 1.0E-12,
-                  py::arg("minimum_order") = 6,
-                  py::arg("maximum_order") = 11,
-                  py::arg("assess_termination_on_minor_steps") = false,
-                  py::arg("bandwidth") = 200.0,
-                  get_docstring("adams_bashforth_moulton").c_str());
-        }
+
+    }
+
 
 }// namespace integrator
 }// namespace propagation_setup

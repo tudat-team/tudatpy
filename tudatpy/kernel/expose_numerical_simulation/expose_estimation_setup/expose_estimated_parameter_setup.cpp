@@ -59,6 +59,7 @@ void expose_estimated_parameter_setup(py::module &m) {
             .value("desaturation_delta_v_values_type", tep::EstimatebleParametersEnum::desaturation_delta_v_values)
             .value("constant_time_drift_observation_bias_type", tep::EstimatebleParametersEnum::constant_time_drift_observation_bias)
             .value("arc_wise_time_drift_observation_bias_type", tep::EstimatebleParametersEnum::arc_wise_time_drift_observation_bias)
+            .value("inverse_tidal_quality_factor_type", tep::EstimatebleParametersEnum::inverse_tidal_quality_factor)
             .export_values();
 
     py::class_<tep::EstimatableParameterSettings,
@@ -299,6 +300,20 @@ void expose_estimated_parameter_setup(py::module &m) {
           py::arg("deforming_body"),
           get_docstring("direct_tidal_dissipation_time_lag", 1).c_str() );
 
+    m.def("inverse_tidal_quality_factor",
+          py::overload_cast< const std::string&, const std::string& >(
+                  &tep::inverseTidalQualityFactor ),
+          py::arg("body"),
+          py::arg("deforming_body"),
+          get_docstring("inverse_tidal_quality_factor", 0).c_str() );
+
+    m.def("inverse_tidal_quality_factor",
+          py::overload_cast< const std::string&, const std::vector< std::string >& >(
+                  &tep::inverseTidalQualityFactor ),
+          py::arg("body"),
+          py::arg("deforming_body"),
+          get_docstring("inverse_tidal_quality_factor", 1).c_str() );
+
     m.def("order_invariant_k_love_number",
           py::overload_cast< const std::string&,
           const int,
@@ -368,6 +383,16 @@ void expose_estimated_parameter_setup(py::module &m) {
           get_docstring("order_varying_k_love_number", 2).c_str() );
 
 
+    m.def("scaled_longitude_libration_amplitude",
+          &tep::scaledLongitudeLibrationAmplitude,
+          py::arg("body_name"),
+          get_docstring("scaled_longitude_libration_amplitude").c_str() );
+
+    m.def("yarkovsky_parameter",
+          &tep::yarkovskyParameter,
+          py::arg("body_name"),
+          py::arg("central_body_name") = "Sun",
+          get_docstring("yarkovsky_parameter").c_str() );
     // ###############  Global (GR) Model Parameters ################################
 
     m.def("ppn_parameter_gamma",
