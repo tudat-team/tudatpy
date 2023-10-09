@@ -217,7 +217,7 @@ int main( )
     std::shared_ptr< observation_models::ObservationCollection< long double, Time > > filteredResidualObservationCollection =
         createResidualCollection( filteredObservedObservationCollection, filteredComputedObservationCollection );
 
-
+SystemOfB
 
     {
         Eigen::VectorXd residuals = filteredResidualObservationCollection->getObservationVector( ).template cast< double >( );
