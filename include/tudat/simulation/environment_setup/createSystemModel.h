@@ -22,6 +22,95 @@ namespace tudat
 namespace simulation_setup
 {
 
+enum BodyPanelPropertyType
+{
+    body_panel_reflection_law
+};
+
+class BodyPanelPropertySettings
+{
+public:
+
+    virtual ~BodyPanelPropertySettings( ){ }
+
+    virtual BodyPanelPropertyType getBodyPanelPropertyType( ) = 0;
+
+};
+
+class BodyPanelGeometry
+{
+public:
+
+    BodyPanelGeometry( const std::string& frameOrientation ):
+        frameOrientation_( frameOrientation ){ }
+
+    virtual ~BodyPanelGeometry( ){ }
+
+    std::string frameOrientation_;
+};
+
+class FrameFixedBodyPanelGeometry: public BodyPanelGeometry
+{
+public:
+
+    FrameFixedBodyPanelGeometry(
+        const Eigen::Vector3d& surfaceNormal,
+        const double area,
+        const std::string& frameOrientation ):BodyPanelGeometry( frameOrientation ),
+        surfaceNormal_( surfaceNormal ), area_( area ){ }
+
+    Eigen::Vector3d surfaceNormal_;
+
+    double area_;
+};
+
+class FrameVariableBodyPanelGeometry: public BodyPanelGeometry
+{
+public:
+
+    FrameVariableBodyPanelGeometry(
+        const std::function< Eigen::Vector3d( ) >& surfaceNormalFunction,
+        const double area,
+        const std::string& frameOrientation ):
+        BodyPanelGeometry( frameOrientation ), surfaceNormalFunction_( surfaceNormalFunction ), area_( area ),
+        bodyToTrack_( std::make_pair( nullptr, 0 ) ){ }
+
+    FrameVariableBodyPanelGeometry(
+        const std::string& bodyToTrack,
+        const bool towardsTrackedBody,
+        const double area,
+        const std::string& frameOrientation ):
+        BodyPanelGeometry( frameOrientation ), surfaceNormalFunction_( nullptr ), area_( area ),
+        bodyToTrack_( std::make_pair( bodyToTrack, towardsTrackedBody ) ){ }
+
+    std::function< Eigen::Vector3d( ) > surfaceNormalFunction_;
+
+    double area_;
+
+    std::pair< std::string, bool > bodyToTrack_;
+
+};
+
+
+class BodyPanelSettings
+{
+public:
+    BodyPanelSettings(
+        const std::shared_ptr< BodyPanelGeometry > panelGeometry,
+        const std::shared_ptr< BodyPanelPropertySettings > panelPropertySettings,
+        const std::string panelTypeId = "" ):
+        panelGeometry_( panelGeometry )
+    {
+        panelProperties_[ panelPropertySettings->getBodyPanelPropertyType( ) ] = panelPropertySettings;
+        panelTypeId_ = panelTypeId;
+    }
+
+    std::shared_ptr< BodyPanelGeometry > panelGeometry_;
+
+    std::map< BodyPanelPropertyType, std::shared_ptr< BodyPanelPropertySettings > > panelProperties_;
+
+    std::string panelTypeId_;
+};
 
 void addEngineModel(
         const std::string& bodyName,
