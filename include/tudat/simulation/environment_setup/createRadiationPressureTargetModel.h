@@ -19,7 +19,7 @@
 
 #include "tudat/astro/electromagnetism/radiationPressureTargetModel.h"
 #include "tudat/simulation/environment_setup/body.h"
-
+#include "tudat/simulation/environment_setup/createSystemModel.h"
 
 namespace tudat
 {
@@ -142,6 +142,31 @@ private:
     std::vector<Panel> panels_;
 };
 
+class BodyPanelReflectionLawSettings: public BodyPanelPropertySettings
+{
+public:
+
+    BodyPanelReflectionLawSettings(
+    const double specularReflectivity,
+    const double diffuseReflectivity,
+    const bool withInstantaneousReradiation ):
+        specularReflectivity_(specularReflectivity),
+        diffuseReflectivity_(diffuseReflectivity),
+        withInstantaneousReradiation_(withInstantaneousReradiation){ }
+
+    ~BodyPanelReflectionLawSettings( ){ }
+
+    virtual BodyPanelPropertyType getBodyPanelPropertyType( )
+    {
+        return body_panel_reflection_law;
+    }
+
+    double specularReflectivity_;
+
+    double diffuseReflectivity_;
+
+    bool withInstantaneousReradiation_;
+};
 /*!
  * Settings for a single panel of a paneled radiation pressure target model.
  *

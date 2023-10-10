@@ -72,7 +72,8 @@ enum EstimatebleParametersEnum
     arc_wise_time_drift_observation_bias,
     constant_time_observation_bias,
     arc_wise_time_observation_bias,
-    inverse_tidal_quality_factor
+    inverse_tidal_quality_factor,
+    yarkovsky_parameter
 };
 
 std::string getParameterTypeString( const EstimatebleParametersEnum parameterType );
