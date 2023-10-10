@@ -71,6 +71,7 @@ Tudat/interface/spice/Kernels/
 /.idea/*
 /cmake-build-debug/*
 /cmake-build*
+*.vscode
 
 
 # Rever

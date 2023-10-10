@@ -57,6 +57,7 @@ std::shared_ptr<RadiationSourceModelSettings> getDefaultRadiationSourceModelSett
                 isotropicPointRadiationSourceModelSettings(
                         constantLuminosityModelSettings(celestial_body_constants::SUN_LUMINOSITY));
     }
+    // Do not use Earth default source model since they require Sun to be present
 //    else if( bodyName == "Earth" )
 //    {
 //        // Model from Knocke (1988)
