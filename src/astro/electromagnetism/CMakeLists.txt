@@ -8,7 +8,7 @@
 #    http://tudat.tudelft.nl/LICENSE.
 #
 
-# Set the source files.
+# Set the header files.
 set(electromagnetism_HEADERS
         "cannonBallRadiationPressureAcceleration.h"
         "cannonBallRadiationPressureForce.h"
@@ -27,9 +27,10 @@ set(electromagnetism_HEADERS
         "reflectionLaw.h"
         "occultationModel.h"
         "surfacePropertyDistribution.h"
+        "yarkovskyAcceleration.h"
         )
 
-# Set the header files.
+# Set the source files.
 set(electromagnetism_SOURCES
         "cannonBallRadiationPressureAcceleration.cpp"
         "cannonBallRadiationPressureForce.cpp"
@@ -47,6 +48,7 @@ set(electromagnetism_SOURCES
         "reflectionLaw.cpp"
         "occultationModel.cpp"
         "surfacePropertyDistribution.cpp"
+        "yarkovskyAcceleration.cpp"
         )
 
 # Add tests.
