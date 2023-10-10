@@ -166,18 +166,48 @@ macro(INSTALL_PURE_PYTHON_MODULE_DIR module_dir_name)
     file(COPY ${module_dir_name}/ DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/${module_dir_name}/)
 endmacro()
 
-macro(INSTALL_PURE_PYTHON_SUBMODULE_DIR parent_module_dir_name module_dir_name)
-    install(DIRECTORY python_components_of_hybrid_modules/${module_dir_name}/ DESTINATION "${TUDATPY_INSTALL_PATH}/${parent_module_dir_name}/${module_dir_name}")
-    file(COPY python_components_of_hybrid_modules/${module_dir_name}/ DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/${parent_module_dir_name}/${module_dir_name}/)
-endmacro()
-
 INSTALL_PURE_PYTHON_MODULE_DIR(apps)
 INSTALL_PURE_PYTHON_MODULE_DIR(bodies)
 INSTALL_PURE_PYTHON_MODULE_DIR(plotting)
 INSTALL_PURE_PYTHON_MODULE_DIR(util)
 INSTALL_PURE_PYTHON_MODULE_DIR(io)
 
-INSTALL_PURE_PYTHON_SUBMODULE_DIR(trajectory_design porkchop)
+# Add Python components to kernel modules
+macro(INSTALL_PYTHON_COMPONENTS_OF_HYBRID_MODULE module_dir_name)
+    install(DIRECTORY kernel_hybrid/${module_dir_name}/ DESTINATION "${TUDATPY_INSTALL_PATH}/${module_dir_name}")
+    file(COPY kernel_hybrid/${module_dir_name}/ DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/${module_dir_name}/)
+endmacro()
+
+# INSTALL_PYTHON_COMPONENTS_OF_HYBRID_MODULE(utils)
+INSTALL_PYTHON_COMPONENTS_OF_HYBRID_MODULE(astro)
+INSTALL_PYTHON_COMPONENTS_OF_HYBRID_MODULE(trajectory_design)
+INSTALL_PYTHON_COMPONENTS_OF_HYBRID_MODULE(constants)
+INSTALL_PYTHON_COMPONENTS_OF_HYBRID_MODULE(interface)
+# INSTALL_PYTHON_COMPONENTS_OF_HYBRID_MODULE(io)
+INSTALL_PYTHON_COMPONENTS_OF_HYBRID_MODULE(math)
+INSTALL_PYTHON_COMPONENTS_OF_HYBRID_MODULE(numerical_simulation)
+
+# Expose hybrid C++/Python modules
+macro(EXPOSE_HYBRID_MODULES modules)
+    foreach(module ${modules})
+#        add_custom_command(TARGET kernel POST_BUILD
+#                COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_LIST_DIR}/setup_hybrid_modules.py ${module}
+#                WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+        execute_process(
+                COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_LIST_DIR}/setup_hybrid_modules.py ${module}
+                WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+    endforeach()
+endmacro()
+EXPOSE_HYBRID_MODULES(
+        # utils
+        astro
+        trajectory_design
+        constants
+        interface
+        # io
+        math
+        numerical_simulation
+)
 
 #install(FILES test.py "${CMAKE_CURRENT_BINARY_DIR}/_version.py")
 file(COPY ../tests DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/../)
