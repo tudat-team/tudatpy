@@ -43,12 +43,16 @@ disclaimer = lambda module_name: f"""# THE FOLLOWING IMPORT STATEMENT HAS BEEN A
 # 
 # We circumvent the issue by automatically creating an *empty* Python module for each
 # kernel module and submodule, and exposing the kernel module or submodule from the
-# Python module by adding the import statement below to the Python module's `__init__.py`. 
+# Python module by adding the import statement below to the Python module's `__init__.py` (this file). 
 # This workaround was proposed in [this comment](https://github.com/pybind/pybind11/issues/2639#issuecomment-721238757).
 # 
-# An added benefit of this method is that it makes it possible to add Python extensions to
-# the kernel modules by implementing them in `tudatpy/kernel_hybrid/{module_name.replace('.', '/')}`, 
-# which is not possible with the `def_submodule` function of pybind11.
+# An added benefit of this method is that it makes it possible to write Python extensions 
+# and add them to the kernel modules simply by placing them inside the newly created Python 
+# module (at the same level as this file), which is not possible with the `def_submodule` 
+# function of pybind11.
+# This is automatically done at compile-time, by moving the Python extensions of this module 
+# from `tudatpy/kernel_hybrid/{module_name.replace('.', '/')}` to this module (the module
+# corresponding to this `__init__.py` file: `tudatpy.{module_name}`). 
 """
 
 def expose_hybrid_module(module):
@@ -57,15 +61,15 @@ def expose_hybrid_module(module):
     """
 
     module_path  = module.__name__
-    module_name  = module_path[len('kernel.'):]
+    module_name  = module_path[len('tudatpy.kernel.'):]
     module_depth = max(len(module_name.split('.')) - 3, 0)
 
     # Hybrid module path
-    hybrid_module_path = Path(f"{module_name.replace('.', '/')}")
+    hybrid_module_path = Path(f"tudatpy/{module_name.replace('.', '/')}")
     hybrid_module_path.mkdir(parents=True, exist_ok=True)
 
     # __init__.py
-    import_statement = f"from ..{'.'*module_depth}.{module_path} import *"
+    import_statement = f"from {module_path} import *"
     disclaimer_text  = disclaimer(module_name)
     init_file_path   = hybrid_module_path / '__init__.py'
 
@@ -110,7 +114,7 @@ def recursively_find_children(module):
 if __name__ == '__main__':
 
     # Import Tudat kernel
-    import kernel
+    import tudatpy.kernel as kernel
 
     parser = argparse.ArgumentParser(description='Expose hybrid kernel modules.')
     parser.add_argument('modules', metavar='module', type=str, nargs='+',
@@ -118,13 +122,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     for module_name in args.modules:
-        import os
-        import sys
-        print('\n=============================================\n\n')
-        print(sys.version)
-        print(os.getcwd(), os.listdir('.'))
-        print(kernel.__file__, dir(kernel), kernel.__loader__._path)
-        
+
         message = f"EXPOSING MODULE: {module_name}"
         message_width = 100
         print(f"\n{' ' + message + ' ':=^100}")
