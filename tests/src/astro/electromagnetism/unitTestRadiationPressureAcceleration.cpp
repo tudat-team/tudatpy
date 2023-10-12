@@ -48,7 +48,6 @@ namespace unit_tests
 {
 
 using namespace tudat::electromagnetism;
-using TargetPanel = PaneledRadiationPressureTargetModel::Panel;
 using SourcePanel = PaneledRadiationSourceModel::Panel;
 
 BOOST_AUTO_TEST_SUITE(test_radiation_pressure_acceleration)
@@ -297,12 +296,12 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_IsotropicPointSource_Pan
     auto luminosityModel = std::make_shared<IrradianceBasedLuminosityModel>(
             [](double) { return physical_constants::SPEED_OF_LIGHT; }, 1);
     auto sourceModel = std::make_shared<IsotropicPointRadiationSourceModel>(luminosityModel);
-    std::vector<PaneledRadiationPressureTargetModel::Panel> panels{
-            TargetPanel(1, -Eigen::Vector3d::UnitX(),
+    std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > panels{
+            std::make_shared< system_models::VehicleExteriorPanel >(1, -Eigen::Vector3d::UnitX(),
                         reflectionLawFromAbsorptivityAndDiffuseReflectivity(1, 0)),
-            TargetPanel(2, -Eigen::Vector3d::UnitY(),
+            std::make_shared< system_models::VehicleExteriorPanel >(2, -Eigen::Vector3d::UnitY(),
                         reflectionLawFromSpecularAndDiffuseReflectivity(0, 1)),
-            TargetPanel(3, Eigen::Vector3d::UnitX(), // never pointing towards source in these tests
+            std::make_shared< system_models::VehicleExteriorPanel >(3, Eigen::Vector3d::UnitX(), // never pointing towards source in these tests
                         reflectionLawFromAbsorptivityAndDiffuseReflectivity(0.3, 0.4))
     };
     auto targetModel = std::make_shared<PaneledRadiationPressureTargetModel>(panels);
@@ -464,32 +463,32 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_IsotropicPointSource_Pan
         bodies.processBodyFrameDefinitions( );
 
 
-        std::vector<TargetPanel> panels;
+        std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > panels;
         if ( testCase == 0 || testCase == 1 || testCase == 2 )
         {
             // Define panels properties for test cases with constant rotational model.
             panels = {
-                    TargetPanel(2.0, Eigen::Vector3d::UnitZ(),
+                    std::make_shared< system_models::VehicleExteriorPanel >(2.0, Eigen::Vector3d::UnitZ(),
                                 reflectionLawFromSpecularAndDiffuseReflectivity(0.0, 0.06)),
-                    TargetPanel(4.0, Eigen::Vector3d::UnitZ(),
+                    std::make_shared< system_models::VehicleExteriorPanel >(4.0, Eigen::Vector3d::UnitZ(),
                                 reflectionLawFromSpecularAndDiffuseReflectivity(0.1, 0.46)),
-                    TargetPanel(6.0, -Eigen::Vector3d::UnitZ(),
+                    std::make_shared< system_models::VehicleExteriorPanel >(6.0, -Eigen::Vector3d::UnitZ(),
                                 reflectionLawFromSpecularAndDiffuseReflectivity(0.0, 0.06)),
-                    TargetPanel(9.9, Eigen::Vector3d::UnitX(),
+                    std::make_shared< system_models::VehicleExteriorPanel >(9.9, Eigen::Vector3d::UnitX(),
                                 reflectionLawFromSpecularAndDiffuseReflectivity(0.0, 0.06)),
-                    TargetPanel(2.3, Eigen::Vector3d::UnitX(),
+                    std::make_shared< system_models::VehicleExteriorPanel >(2.3, Eigen::Vector3d::UnitX(),
                                 reflectionLawFromSpecularAndDiffuseReflectivity(0.1, 0.46)),
-                    TargetPanel(9.9, -Eigen::Vector3d::UnitX(),
+                    std::make_shared< system_models::VehicleExteriorPanel >(9.9, -Eigen::Vector3d::UnitX(),
                                 reflectionLawFromSpecularAndDiffuseReflectivity(0.0, 0.06)),
-                    TargetPanel(2.3, -Eigen::Vector3d::UnitX(),
+                    std::make_shared< system_models::VehicleExteriorPanel >(2.3, -Eigen::Vector3d::UnitX(),
                                 reflectionLawFromSpecularAndDiffuseReflectivity(0.1, 0.46)),
-                    TargetPanel(4.6, Eigen::Vector3d::UnitY(),
+                    std::make_shared< system_models::VehicleExteriorPanel >(4.6, Eigen::Vector3d::UnitY(),
                                 reflectionLawFromSpecularAndDiffuseReflectivity(0.0, 0.06)),
-                    TargetPanel(2.7, Eigen::Vector3d::UnitY(),
+                    std::make_shared< system_models::VehicleExteriorPanel >(2.7, Eigen::Vector3d::UnitY(),
                                 reflectionLawFromSpecularAndDiffuseReflectivity(0.1, 0.46)),
-                    TargetPanel(5.8, -Eigen::Vector3d::UnitY(),
+                    std::make_shared< system_models::VehicleExteriorPanel >(5.8, -Eigen::Vector3d::UnitY(),
                                 reflectionLawFromSpecularAndDiffuseReflectivity(0.0, 0.06)),
-                    TargetPanel(2.7, -Eigen::Vector3d::UnitY(),
+                    std::make_shared< system_models::VehicleExteriorPanel >(2.7, -Eigen::Vector3d::UnitY(),
                                 reflectionLawFromSpecularAndDiffuseReflectivity(0.1, 0.46)),
             };
         }
@@ -497,13 +496,13 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_IsotropicPointSource_Pan
         {
             // Define panels properties for test cases with constant rotational model (simpler boxes-and-wings model).
             panels = {
-                    TargetPanel(9.9, Eigen::Vector3d::UnitX(),
+                    std::make_shared< system_models::VehicleExteriorPanel >(9.9, Eigen::Vector3d::UnitX(),
                                 reflectionLawFromSpecularAndDiffuseReflectivity(0.0, 0.06)),
-                    TargetPanel(2.3, Eigen::Vector3d::UnitX(),
+                    std::make_shared< system_models::VehicleExteriorPanel >(2.3, Eigen::Vector3d::UnitX(),
                                 reflectionLawFromSpecularAndDiffuseReflectivity(0.1, 0.46)),
-                    TargetPanel(9.9, -Eigen::Vector3d::UnitX(),
+                    std::make_shared< system_models::VehicleExteriorPanel >(9.9, -Eigen::Vector3d::UnitX(),
                                 reflectionLawFromSpecularAndDiffuseReflectivity(0.0, 0.06)),
-                    TargetPanel(2.3, -Eigen::Vector3d::UnitX(),
+                    std::make_shared< system_models::VehicleExteriorPanel >(2.3, -Eigen::Vector3d::UnitX(),
                                 reflectionLawFromSpecularAndDiffuseReflectivity(0.1, 0.46)),
             };
         }
@@ -516,9 +515,9 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_IsotropicPointSource_Pan
         std::vector< double > diffuseReflectivities;
         for (auto& panel : panels)
         {
-            areas.push_back(panel.getArea());
-            panelSurfaceNormals.push_back(panel.getSurfaceNormal());
-            auto reflectionLaw = std::dynamic_pointer_cast<SpecularDiffuseMixReflectionLaw>(panel.getReflectionLaw());
+            areas.push_back(panel->getPanelArea());
+            panelSurfaceNormals.push_back(panel->getFrameFixedSurfaceNormal( )( ) );
+            auto reflectionLaw = std::dynamic_pointer_cast<SpecularDiffuseMixReflectionLaw>(panel->getReflectionLaw());
             specularReflectivities.push_back(reflectionLaw->getSpecularReflectivity());
             diffuseReflectivities.push_back(reflectionLaw->getDiffuseReflectivity());
         }
@@ -836,10 +835,10 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_IsotropicPointSource_Pan
                     rotationalRate[testCase], numberSecondsSinceEpoch[testCase], "ECLIPJ2000", "VehicleFixed"));
     
             // Create panels
-            std::vector<TargetPanel> panels{
-                    TargetPanel(2.0, Eigen::Vector3d::UnitX(),
+            std::vector<std::shared_ptr< system_models::VehicleExteriorPanel >> panels{
+                    std::make_shared< system_models::VehicleExteriorPanel >(2.0, Eigen::Vector3d::UnitX(),
                                 reflectionLawFromSpecularAndDiffuseReflectivity(0.0, 0.06)),
-                    TargetPanel(4.0, -Eigen::Vector3d::UnitX(),
+                    std::make_shared< system_models::VehicleExteriorPanel >(4.0, -Eigen::Vector3d::UnitX(),
                                 reflectionLawFromSpecularAndDiffuseReflectivity(0.1, 0.46)),
             };
             bodies.at("Vehicle")->setRadiationPressureTargetModel(
@@ -915,10 +914,10 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_IsotropicPointSource_Pan
             };
 
             // Create panels
-            std::vector<TargetPanel> panels{
-                    TargetPanel(2.0, [=] () { return rotationToInertialFrameFunction() * Eigen::Vector3d::UnitX(); },
+            std::vector<std::shared_ptr< system_models::VehicleExteriorPanel >> panels{
+                    std::make_shared< system_models::VehicleExteriorPanel >([=] () { return rotationToInertialFrameFunction() * Eigen::Vector3d::UnitX(); }, 2.0, "",
                                 reflectionLawFromSpecularAndDiffuseReflectivity(0.0, 0.06)),
-                    TargetPanel(4.0, [=] () { return rotationToInertialFrameFunction() * -Eigen::Vector3d::UnitX(); },
+                    std::make_shared< system_models::VehicleExteriorPanel >([=] () { return rotationToInertialFrameFunction() * -Eigen::Vector3d::UnitX(); }, 4.0, "",
                                 reflectionLawFromSpecularAndDiffuseReflectivity(0.1, 0.46)),
             };
             bodies.at("Vehicle")->setRadiationPressureTargetModel(
@@ -1004,10 +1003,10 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_StaticallyPaneledSource_
     auto sourceModel = std::make_shared<StaticallyPaneledRadiationSourceModel>(
             std::move(sourcePanelRadiosityModelUpdater), std::move(panels));
 
-    std::vector<TargetPanel> targetPanels{
-            TargetPanel(1, -Eigen::Vector3d::UnitX(),
+    std::vector<std::shared_ptr< system_models::VehicleExteriorPanel >> targetPanels{
+            std::make_shared< system_models::VehicleExteriorPanel >(1, -Eigen::Vector3d::UnitX(),
                         reflectionLawFromAbsorptivityAndDiffuseReflectivity(1, 0)),
-            TargetPanel(3, Eigen::Vector3d::UnitX(), // never pointing towards source in these tests
+            std::make_shared< system_models::VehicleExteriorPanel >(3, Eigen::Vector3d::UnitX(), // never pointing towards source in these tests
                         reflectionLawFromAbsorptivityAndDiffuseReflectivity(0.3, 0.4))
     };
     auto targetModel = std::make_shared<PaneledRadiationPressureTargetModel>(targetPanels);

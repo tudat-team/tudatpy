@@ -315,14 +315,12 @@ BOOST_AUTO_TEST_CASE( test_ephemerisSetup )
             currentTime += 600.0;
         }
 
-        std::cout<<"Size "<<tabulatedStates.size( )<<std::endl;
         // Create tabulated ephemeris.
         std::shared_ptr< EphemerisSettings > tabulatedEphemerisSettings =
                 std::make_shared< TabulatedEphemerisSettings >(
                     tabulatedStates, "Earth", "J2000" );
         std::shared_ptr< ephemerides::Ephemeris > tabulatedEphemeris =
                 createBodyEphemeris( tabulatedEphemerisSettings, "Moon" );
-        std::cout<<"Created"<<std::endl;
         // Manually create tabulated ephemeris.
         std::shared_ptr< ephemerides::Ephemeris > manualTabulatedEphemeris =
                 std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
@@ -347,7 +345,6 @@ BOOST_AUTO_TEST_CASE( test_ephemerisSetup )
 //! Test set up of gravity field model environment models.
 BOOST_AUTO_TEST_CASE( test_defaultGravityFieldSetup )
 {
-    std::cout<<"Test"<<std::endl;
     // Load Spice kernel
     spice_interface::loadStandardSpiceKernels( );
 
@@ -1751,36 +1748,64 @@ BOOST_AUTO_TEST_CASE( test_radiationPressureTargetModelSetup_PaneledTarget )
     bodySettings.at("Vehicle")->ephemerisSettings = constantEphemerisSettings(
             (Eigen::Vector6d() << 1, 1, 0, 0, 0, 0).finished().normalized() * physical_constants::ASTRONOMICAL_UNIT,
             "Sun");
+
+    std::vector< std::shared_ptr< BodyPanelSettings > > panelSettingsList = {
+        std::make_shared< BodyPanelSettings >(
+            std::make_shared< FrameFixedBodyPanelGeometrySettings >(
+                expectedSurfaceNormalPanel1, expectedAreaPanel1 ),
+            std::make_shared< SpecularDiffuseBodyPanelReflectionLawSettings >(
+                expectedSpecularReflectivityPanel1, expectedDiffuseReflectivityPanel1, expectedWithInstantaneousReradiationPanel1 ) ),
+        std::make_shared< BodyPanelSettings >(
+            std::make_shared< FrameFixedBodyPanelGeometrySettings >(
+                2.0 * expectedSurfaceNormalPanel2, expectedAreaPanel2 ),
+            std::make_shared< SpecularDiffuseBodyPanelReflectionLawSettings >(
+                expectedSpecularReflectivityPanel2, expectedDiffuseReflectivityPanel2, expectedWithInstantaneousReradiationPanel2 ) ),
+        std::make_shared< BodyPanelSettings >(
+            std::make_shared< FrameVariableBodyPanelGeometrySettings >(
+                "Sun", true, expectedAreaPanel2 ),
+            std::make_shared< SpecularDiffuseBodyPanelReflectionLawSettings >(
+                expectedSpecularReflectivityPanel2, expectedDiffuseReflectivityPanel2, expectedWithInstantaneousReradiationPanel2 ) ),
+        std::make_shared< BodyPanelSettings >(
+            std::make_shared< FrameVariableBodyPanelGeometrySettings >(
+                "Sun", false, expectedAreaPanel2 ),
+            std::make_shared< SpecularDiffuseBodyPanelReflectionLawSettings >(
+                expectedSpecularReflectivityPanel2, expectedDiffuseReflectivityPanel2, expectedWithInstantaneousReradiationPanel2 ) )
+    };
+
+    bodySettings.at("Vehicle")->bodyExteriorPanelSettings_ = std::make_shared< BodyPanelledGeometrySettings >( panelSettingsList );
+
     const auto bodies = createSystemOfBodies(bodySettings);
 
     auto paneledRadiationPressureTargetSettings =
-            paneledRadiationPressureTargetModelSettings({
-                    TargetPanelSettings(
-                            expectedAreaPanel1,
-                            expectedSpecularReflectivityPanel1,
-                            expectedDiffuseReflectivityPanel1,
-                            expectedWithInstantaneousReradiationPanel1,
-                            expectedSurfaceNormalPanel1),
-                    TargetPanelSettings(
-                            expectedAreaPanel2,
-                            expectedSpecularReflectivityPanel2,
-                            expectedDiffuseReflectivityPanel2,
-                            expectedWithInstantaneousReradiationPanel2,
-                            2 * expectedSurfaceNormalPanel2), // setup should normalize this vector
-                    TargetPanelSettings(
-                            expectedAreaPanel2,
-                            expectedSpecularReflectivityPanel2,
-                            expectedDiffuseReflectivityPanel2,
-                            expectedWithInstantaneousReradiationPanel2,
-                            "Sun"), // towards Sun
-                    TargetPanelSettings(
-                            expectedAreaPanel2,
-                            expectedSpecularReflectivityPanel2,
-                            expectedDiffuseReflectivityPanel2,
-                            expectedWithInstantaneousReradiationPanel2,
-                            "Sun", // away from Sun
-                            false)});
-    auto paneledRadiationPressureTarget =
+        std::make_shared< RadiationPressureTargetModelSettings >( paneled_target );
+//            paneledRadiationPressureTargetModelSettings({
+//                    TargetPanelSettings(
+//                            expectedAreaPanel1,
+//                            expectedSpecularReflectivityPanel1,
+//                            expectedDiffuseReflectivityPanel1,
+//                            expectedWithInstantaneousReradiationPanel1,
+//                            expectedSurfaceNormalPanel1),
+//                    TargetPanelSettings(
+//                            expectedAreaPanel2,
+//                            expectedSpecularReflectivityPanel2,
+//                            expectedDiffuseReflectivityPanel2,
+//                            expectedWithInstantaneousReradiationPanel2,
+//                            2 * expectedSurfaceNormalPanel2), // setup should normalize this vector
+//                    TargetPanelSettings(
+//                            expectedAreaPanel2,
+//                            expectedSpecularReflectivityPanel2,
+//                            expectedDiffuseReflectivityPanel2,
+//                            expectedWithInstantaneousReradiationPanel2,
+//                            "Sun"), // towards Sun
+//                    TargetPanelSettings(
+//                            expectedAreaPanel2,
+//                            expectedSpecularReflectivityPanel2,
+//                            expectedDiffuseReflectivityPanel2,
+//                            expectedWithInstantaneousReradiationPanel2,
+//                            "Sun", // away from Sun
+//                            false)});
+
+    std::shared_ptr<electromagnetism::PaneledRadiationPressureTargetModel> paneledRadiationPressureTarget =
             std::dynamic_pointer_cast<electromagnetism::PaneledRadiationPressureTargetModel>(
                     createRadiationPressureTargetModel(
                             paneledRadiationPressureTargetSettings, "Vehicle", bodies));
@@ -1790,19 +1815,19 @@ BOOST_AUTO_TEST_CASE( test_radiationPressureTargetModelSetup_PaneledTarget )
     bodies.at( "Vehicle" )->setCurrentRotationToLocalFrameFromEphemeris( 0. );
     paneledRadiationPressureTarget->updateMembers( 0. );
 
-    BOOST_CHECK_EQUAL(paneledRadiationPressureTarget->getPanels().size(), 4);
+    BOOST_CHECK_EQUAL(paneledRadiationPressureTarget->getBodyFixedPanels().size(), 4);
 
-    const auto panel1 = paneledRadiationPressureTarget->getPanels()[0];
-    const auto panel2 = paneledRadiationPressureTarget->getPanels()[1];
-    const auto panel3 = paneledRadiationPressureTarget->getPanels()[2];
-    const auto panel4 = paneledRadiationPressureTarget->getPanels()[3];
+    const auto panel1 = paneledRadiationPressureTarget->getBodyFixedPanels()[0];
+    const auto panel2 = paneledRadiationPressureTarget->getBodyFixedPanels()[1];
+    const auto panel3 = paneledRadiationPressureTarget->getBodyFixedPanels()[2];
+    const auto panel4 = paneledRadiationPressureTarget->getBodyFixedPanels()[3];
     const auto panel1ReflectionLaw =
-            std::dynamic_pointer_cast<electromagnetism::SpecularDiffuseMixReflectionLaw>(panel1.getReflectionLaw());
+            std::dynamic_pointer_cast<electromagnetism::SpecularDiffuseMixReflectionLaw>(panel1->getReflectionLaw());
     const auto panel2ReflectionLaw =
-            std::dynamic_pointer_cast<electromagnetism::SpecularDiffuseMixReflectionLaw>(panel2.getReflectionLaw());
+            std::dynamic_pointer_cast<electromagnetism::SpecularDiffuseMixReflectionLaw>(panel2->getReflectionLaw());
 
-    BOOST_CHECK_CLOSE(panel1.getArea(), expectedAreaPanel1, 1e-10);
-    BOOST_CHECK_CLOSE(panel2.getArea(), expectedAreaPanel2, 1e-10);
+    BOOST_CHECK_CLOSE(panel1->getPanelArea(), expectedAreaPanel1, 1e-10);
+    BOOST_CHECK_CLOSE(panel2->getPanelArea(), expectedAreaPanel2, 1e-10);
     BOOST_CHECK_CLOSE(panel1ReflectionLaw->getSpecularReflectivity(), expectedSpecularReflectivityPanel1, 1e-10);
     BOOST_CHECK_CLOSE(panel2ReflectionLaw->getSpecularReflectivity(), expectedSpecularReflectivityPanel2, 1e-10);
     BOOST_CHECK_CLOSE(panel1ReflectionLaw->getDiffuseReflectivity(), expectedDiffuseReflectivityPanel1, 1e-10);
@@ -1811,10 +1836,10 @@ BOOST_AUTO_TEST_CASE( test_radiationPressureTargetModelSetup_PaneledTarget )
     BOOST_CHECK_CLOSE(panel2ReflectionLaw->getAbsorptivity(), expectedAbsorptivityPanel2, 1e-10);
     BOOST_CHECK(panel1ReflectionLaw->isWithInstantaneousReradiation() == expectedWithInstantaneousReradiationPanel1);
     BOOST_CHECK(panel2ReflectionLaw->isWithInstantaneousReradiation() == expectedWithInstantaneousReradiationPanel2);
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(panel1.getSurfaceNormal(), expectedSurfaceNormalPanel1, 1e-10);
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(panel2.getSurfaceNormal(), expectedSurfaceNormalPanel2, 1e-10);
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(panel3.getSurfaceNormal(), expectedSurfaceNormalPanel3, 1e-10);
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(panel4.getSurfaceNormal(), expectedSurfaceNormalPanel4, 1e-10);
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(panel1->getFrameFixedSurfaceNormal( )( ), expectedSurfaceNormalPanel1, 1e-10);
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(panel2->getFrameFixedSurfaceNormal( )( ), expectedSurfaceNormalPanel2, 1e-10);
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(panel3->getFrameFixedSurfaceNormal( )( ), expectedSurfaceNormalPanel3, 1e-10);
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(panel4->getFrameFixedSurfaceNormal( )( ), expectedSurfaceNormalPanel4, 1e-10);
 }
 
 

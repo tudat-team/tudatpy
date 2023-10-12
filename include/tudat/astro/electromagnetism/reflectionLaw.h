@@ -189,7 +189,7 @@ inline std::shared_ptr<SpecularDiffuseMixReflectionLaw> reflectionLawFromAbsorpt
         double specularReflectivity,
         bool withInstantaneousReradiation = false)
 {
-    const auto diffuseReflectivity = 1 - absorptivity - specularReflectivity;
+    const auto diffuseReflectivity = 1.0 - absorptivity - specularReflectivity;
     return std::make_shared<SpecularDiffuseMixReflectionLaw>(
             absorptivity,
             specularReflectivity,
@@ -202,7 +202,7 @@ inline std::shared_ptr<SpecularDiffuseMixReflectionLaw> reflectionLawFromAbsorpt
         double diffuseReflectivity,
         bool withInstantaneousReradiation = false)
 {
-    const auto specularReflectivity = 1 - absorptivity - diffuseReflectivity;
+    const auto specularReflectivity = 1.0 - absorptivity - diffuseReflectivity;
     return std::make_shared<SpecularDiffuseMixReflectionLaw>(
             absorptivity,
             specularReflectivity,
@@ -215,7 +215,7 @@ inline std::shared_ptr<SpecularDiffuseMixReflectionLaw> reflectionLawFromSpecula
         double diffuseReflectivity,
         bool withInstantaneousReradiation = false)
 {
-    const auto absorptivity = 1 - specularReflectivity - diffuseReflectivity;
+    const auto absorptivity = 1.0 - specularReflectivity - diffuseReflectivity;
     return std::make_shared<SpecularDiffuseMixReflectionLaw>(
             absorptivity,
             specularReflectivity,

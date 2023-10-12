@@ -32,7 +32,6 @@ namespace unit_tests
 {
 
 using namespace tudat::electromagnetism;
-using TargetPanel = PaneledRadiationPressureTargetModel::Panel;
 
 BOOST_AUTO_TEST_SUITE(test_radiation_pressure_target_model)
 
@@ -90,10 +89,10 @@ BOOST_AUTO_TEST_CASE( testPaneledRadiationPressureTargetModel_PointingAway )
 
     const auto reflectionLaw = std::make_shared<SpecularDiffuseMixReflectionLaw>(0.2, 0.4, 0.4);
     PaneledRadiationPressureTargetModel targetModel({
-            TargetPanel(1, Eigen::Vector3d(1, 0, -1).normalized(), reflectionLaw),
-            TargetPanel(1, Eigen::Vector3d(-1, 0, -2).normalized(), reflectionLaw),
-            TargetPanel(1, Eigen::Vector3d(0, 1, -3).normalized(), reflectionLaw),
-            TargetPanel(1, Eigen::Vector3d(0, -1, -4).normalized(), reflectionLaw)
+            std::make_shared< system_models::VehicleExteriorPanel >( Eigen::Vector3d(1, 0, -1).normalized(), 1.0, "", reflectionLaw),
+            std::make_shared< system_models::VehicleExteriorPanel >( Eigen::Vector3d(-1, 0, -2).normalized(), 1.0, "", reflectionLaw),
+            std::make_shared< system_models::VehicleExteriorPanel >( Eigen::Vector3d(0, 1, -3).normalized(), 1.0, "", reflectionLaw),
+            std::make_shared< system_models::VehicleExteriorPanel >( Eigen::Vector3d(0, -1, -4).normalized(), 1.0, "", reflectionLaw)
     });
     targetModel.updateMembers(TUDAT_NAN);
 
@@ -112,10 +111,10 @@ BOOST_AUTO_TEST_CASE( testPaneledRadiationPressureTargetModel_LateralCancellatio
     // Purely diffuse Lambertian radiation so radiation pressure force is along normal of each panel
     const auto reflectionLaw = std::make_shared<SpecularDiffuseMixReflectionLaw>(0, 0, 1);
     PaneledRadiationPressureTargetModel targetModel({
-            TargetPanel(1, Eigen::Vector3d(1, 0, 1).normalized(), reflectionLaw),
-            TargetPanel(1, Eigen::Vector3d(-1, 0, 1).normalized(), reflectionLaw),
-            TargetPanel(1, Eigen::Vector3d(0, 1, 1).normalized(), reflectionLaw),
-            TargetPanel(1, Eigen::Vector3d(0, -1, 1).normalized(), reflectionLaw)
+            std::make_shared< system_models::VehicleExteriorPanel >(Eigen::Vector3d(1, 0, 1).normalized(), 1.0, "", reflectionLaw),
+            std::make_shared< system_models::VehicleExteriorPanel >(Eigen::Vector3d(-1, 0, 1).normalized(), 1.0, "", reflectionLaw),
+            std::make_shared< system_models::VehicleExteriorPanel >(Eigen::Vector3d(0, 1, 1).normalized(), 1.0, "", reflectionLaw),
+            std::make_shared< system_models::VehicleExteriorPanel >(Eigen::Vector3d(0, -1, 1).normalized(), 1.0, "", reflectionLaw)
     });
     targetModel.updateMembers(TUDAT_NAN);
 
@@ -142,11 +141,10 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureTargetModel_EquivalentSinglePanel )
     const Eigen::Vector3d sourceToTargetDirection = Eigen::Vector3d(4, 3, -1).normalized();
 
     auto cannonballModel = CannonballRadiationPressureTargetModel(mathematical_constants::PI * radius * radius, coefficient);
-    auto paneledModel = PaneledRadiationPressureTargetModel({
-        TargetPanel(
-                mathematical_constants::PI * radius * radius,
+    auto paneledModel = PaneledRadiationPressureTargetModel({ std::make_shared< system_models::VehicleExteriorPanel >(
                 -sourceToTargetDirection,
-                // This gives an equivalent coefficient of 1.6
+                mathematical_constants::PI * radius * radius, "",
+        // This gives an equivalent coefficient of 1.6
                 reflectionLawFromSpecularAndDiffuseReflectivity(0.6, 0))
     });
 
@@ -179,7 +177,7 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureTargetModel_EquivalentSphere )
     const auto reflectionLaw =
             reflectionLawFromSpecularAndDiffuseReflectivity(0, 1);
 
-    std::vector<PaneledRadiationPressureTargetModel::Panel> panels {};
+    std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > panels {};
 
     for (unsigned int i = 0; i < numberOfPanels; ++i)
     {
@@ -190,7 +188,7 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureTargetModel_EquivalentSphere )
                 Eigen::Vector3d(radius, polarAngle, azimuthAngle));
         const Eigen::Vector3d surfaceNormal = relativeCenter.normalized();
 
-        panels.emplace_back(panelArea, surfaceNormal, reflectionLaw);
+        panels.emplace_back( std::make_shared< system_models::VehicleExteriorPanel >( surfaceNormal, panelArea, "", reflectionLaw ) );
     }
 
     auto paneledModel = PaneledRadiationPressureTargetModel(panels);
