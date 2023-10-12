@@ -18,8 +18,8 @@ from numbers import Number
 from tudatpy.kernel import constants
 from tudatpy.kernel.astro import time_conversion
 from tudatpy.kernel.numerical_simulation import environment
-from tudatpy.trajectory_design.porkchop import plot_porkchop
-from tudatpy.trajectory_design.porkchop.lambert import calculate_lambert_arc_impulsive_delta_v
+from tudatpy.trajectory_design.porkchop._plot_porkchop import plot_porkchop
+from tudatpy.trajectory_design.porkchop._lambert import calculate_lambert_arc_impulsive_delta_v
 
 
 def determine_shape_of_delta_v(
@@ -29,8 +29,8 @@ def determine_shape_of_delta_v(
         target_body: str,
         departure_epoch: float,
         arrival_epoch: float,
-        function_to_calculate_delta_v: calculate_lambert_arc_impulsive_delta_v
-    ):
+        function_to_calculate_delta_v: callable = calculate_lambert_arc_impulsive_delta_v
+):
     """
     Determine whether `function_to_calculate_delta_v` returns ΔV as
     
@@ -89,8 +89,8 @@ def calculate_delta_v_time_map(
         earliest_arrival_time: time_conversion.DateTime,
         latest_arrival_time: time_conversion.DateTime,
         time_resolution: float,
-        function_to_calculate_delta_v: calculate_lambert_arc_impulsive_delta_v
-    ):
+        function_to_calculate_delta_v: callable = calculate_lambert_arc_impulsive_delta_v
+):
     """
     Creates an array containing the ΔV of all coordinates of the grid of departure/arrival epochs.
 
@@ -116,13 +116,13 @@ def calculate_delta_v_time_map(
         (latest_arrival_time.epoch() - earliest_arrival_time.epoch()) / (time_resolution * constants.JULIAN_DAY)
     )
     departure_epochs = np.linspace(
-        earliest_departure_time.epoch(), 
+        earliest_departure_time.epoch(),
         latest_departure_time.epoch(),
         n_dep
     )
     arrival_epochs = np.linspace(
-        earliest_arrival_time.epoch(), 
-        latest_arrival_time.epoch(), 
+        earliest_arrival_time.epoch(),
+        latest_arrival_time.epoch(),
         n_arr
     )
 
@@ -165,7 +165,7 @@ def porkchop(
         earliest_arrival_time: time_conversion.DateTime,
         latest_arrival_time: time_conversion.DateTime,
         time_resolution: float,
-        function_to_calculate_delta_v: calculate_lambert_arc_impulsive_delta_v,
+        function_to_calculate_delta_v: callable = calculate_lambert_arc_impulsive_delta_v,
         # Plot arguments
         C3: bool = False,
         total: bool = False,
@@ -178,7 +178,7 @@ def porkchop(
         show: bool = True,
         save: bool = False,
         filename: str = 'porkchop.png',
-    ) -> None:
+) -> None:
     """Tudat ΔV/C3 porkchop mission design plot.
     
     Arguments
@@ -208,7 +208,7 @@ def porkchop(
         departure_body   = departure_body,
         target_body      = target_body,
         departure_epochs = departure_epochs,
-        arrival_epochs   = arrival_epochs, 
+        arrival_epochs   = arrival_epochs,
         delta_v          = ΔV,
         C3               = C3,
         total            = total,
@@ -219,8 +219,8 @@ def porkchop(
         # Figure arguments
         percent_margin   = percent_margin,
         figsize          = figsize,
-        show             = show, 
-        save             = save, 
+        show             = show,
+        save             = save,
         filename         = filename,
     )
 
