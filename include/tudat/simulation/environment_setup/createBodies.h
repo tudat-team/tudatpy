@@ -27,6 +27,7 @@
 #include "tudat/simulation/environment_setup/createRadiationSourceModel.h"
 #include "tudat/simulation/environment_setup/createRadiationPressureTargetModel.h"
 #include "tudat/simulation/environment_setup/createFlightConditions.h"
+#include "tudat/simulation/environment_setup/createSystemModel.h"
 #include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
 
 namespace tudat
@@ -76,6 +77,8 @@ struct BodySettings
     std::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings;
 
     std::shared_ptr< RigidBodyPropertiesSettings > rigidBodyPropertiesSettings;
+
+    std::shared_ptr< BodyPanelledGeometrySettings > bodyExteriorPanelSettings_;
 
     //! Settings for variations of the gravity field of the body.
     std::vector< std::shared_ptr< GravityFieldVariationSettings > > gravityFieldVariationSettings;
@@ -275,6 +278,18 @@ SystemOfBodies createSystemOfBodies(
         }
     }
 
+    // Create rotation model objects for each body (if required).
+    for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
+    {
+        if( orderedBodySettings.at( i ).second->bodyExteriorPanelSettings_ != nullptr )
+        {
+            addBodyExteriorPanelledShape( orderedBodySettings.at( i ).second->bodyExteriorPanelSettings_ ,
+                                          orderedBodySettings.at( i ).first, bodyList );
+        }
+    }
+    std::vector< std::shared_ptr< BodyPanelSettings > > bodyExteriorPanelSettings_;
+
+
     // Create gravity field model objects for each body (if required).
     for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
     {
@@ -309,6 +324,7 @@ SystemOfBodies createSystemOfBodies(
                                           orderedBodySettings.at( i ).first, bodyList ) );
         }
     }
+
 
     // Create aerodynamic coefficient interface objects for each body (if required).
     for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )

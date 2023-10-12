@@ -29,32 +29,49 @@ void RadiationPressureTargetModel::updateMembers(const double currentTime)
     }
 }
 
-Eigen::Vector3d CannonballRadiationPressureTargetModel::evaluateRadiationPressureForce(double sourceIrradiance,
-                                                                                       const Eigen::Vector3d& sourceToTargetDirection) const
+Eigen::Vector3d CannonballRadiationPressureTargetModel::evaluateRadiationPressureForce(
+    const double sourceIrradiance,
+    const Eigen::Vector3d& sourceToTargetDirectionLocalFrame) const
 {
     // From Montenbruck (2000), Sec. 3.4
     const auto radiationPressure = sourceIrradiance / physical_constants::SPEED_OF_LIGHT;
     const auto forceMagnitude = coefficient_ * area_ * radiationPressure;
-    Eigen::Vector3d force = forceMagnitude * sourceToTargetDirection;
+    Eigen::Vector3d force = forceMagnitude * sourceToTargetDirectionLocalFrame;
     return force;
 }
 
 Eigen::Vector3d PaneledRadiationPressureTargetModel::evaluateRadiationPressureForce(
         double sourceIrradiance,
-        const Eigen::Vector3d& sourceToTargetDirection) const
+        const Eigen::Vector3d& sourceToTargetDirectionLocalFrame) const
 {
     Eigen::Vector3d force = Eigen::Vector3d::Zero();
-    for (auto& panel : panels_)
+    auto segmentFixedPanelsIterator = segmentFixedPanels_.begin( );
+    for( unsigned int i = 0; i < segmentFixedPanels_.size( ) + 1; i++ )
     {
-        const auto surfaceNormal = panel.getSurfaceNormal();
-        const double cosBetweenNormalAndIncoming = (-sourceToTargetDirection).dot(surfaceNormal);
-        if (cosBetweenNormalAndIncoming > 0)
+        Eigen::Quaterniond currentOrientation = Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) );
+        if( i > 0 )
         {
-            const double effectiveArea = panel.getArea() * cosBetweenNormalAndIncoming;
-            const auto radiationPressure = sourceIrradiance / physical_constants::SPEED_OF_LIGHT;
-            const auto reactionVector =
-                    panel.getReflectionLaw()->evaluateReactionVector(surfaceNormal, sourceToTargetDirection);
-            force += radiationPressure * effectiveArea * reactionVector;
+            currentOrientation = segmentFixedToBodyFixedRotations_.at( segmentFixedPanelsIterator->first )( );
+        }
+
+        const std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > >& currentPanels_ =
+            ( i == 0 ) ? bodyFixedPanels_ : segmentFixedPanels_.at( segmentFixedPanelsIterator->first );
+        for( unsigned int j = 0; j < currentPanels_.size( ); j++ )
+        {
+            const auto surfaceNormal = currentOrientation * currentPanels_.at( j )->getFrameFixedSurfaceNormal( )( );
+            const double cosBetweenNormalAndIncoming = (-sourceToTargetDirectionLocalFrame).dot(surfaceNormal);
+            if (cosBetweenNormalAndIncoming > 0)
+            {
+                const double effectiveArea = currentPanels_.at( j )->getPanelArea() * cosBetweenNormalAndIncoming;
+                const auto radiationPressure = sourceIrradiance / physical_constants::SPEED_OF_LIGHT;
+                const auto reactionVector =
+                    currentPanels_.at( j )->getReflectionLaw()->evaluateReactionVector(surfaceNormal, sourceToTargetDirectionLocalFrame);
+                force += radiationPressure * effectiveArea * reactionVector;
+            }
+        }
+        if( i > 0 )
+        {
+            segmentFixedPanelsIterator++;
         }
     }
     return force;
@@ -62,16 +79,13 @@ Eigen::Vector3d PaneledRadiationPressureTargetModel::evaluateRadiationPressureFo
 
 void PaneledRadiationPressureTargetModel::updateMembers_(double currentTime)
 {
-    for (auto& panel : panels_)
-    {
-        panel.updateMembers();
-    }
-}
 
-void PaneledRadiationPressureTargetModel::Panel::updateMembers()
-{
-    // Evaluate only once per timestep since surface normal function could be expensive to evaluate
-    surfaceNormal_ = surfaceNormalFunction_();
 }
+//
+//void PaneledRadiationPressureTargetModel::Panel::updateMembers()
+//{
+//    // Evaluate only once per timestep since surface normal function could be expensive to evaluate
+//    surfaceNormal_ = surfaceNormalFunction_();
+//}
 } // tudat
 } // electromagnetism

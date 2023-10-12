@@ -17,9 +17,10 @@
 
 #include <Eigen/Core>
 
+#include "tudat/astro/electromagnetism/reflectionLaw.h"
 #include "tudat/astro/electromagnetism/radiationPressureTargetModel.h"
 #include "tudat/simulation/environment_setup/body.h"
-#include "tudat/simulation/environment_setup/createSystemModel.h"
+//#include "tudat/simulation/environment_setup/createSystemModel.h"
 
 namespace tudat
 {
@@ -29,7 +30,7 @@ namespace simulation_setup
 /*!
  * Types of radiation pressure target models.
  */
-enum class RadiationPressureTargetModelType
+enum RadiationPressureTargetModelType
 {
     cannonball_target,
     paneled_target
@@ -108,182 +109,204 @@ private:
 
     double coefficient_;
 };
+//
+///*!
+// * Settings for a paneled radiation pressure target model.
+// *
+// * @see PaneledRadiationPressureTargetModel
+// */
+//class PaneledRadiationPressureTargetModelSettings : public RadiationPressureTargetModelSettings
+//{
+//public:
+////    class Panel;
+//
+//    /*!
+//     * Constructor.
+//     *
+//     * @param panels Vector of settings for panels comprising the paneled target
+//     * @param sourceToTargetOccultingBodies Map (source name -> list of occulting body names) of bodies
+//     *      to occult sources as seen from this target
+//     */
+//    explicit PaneledRadiationPressureTargetModelSettings(
+//            const std::vector<Panel>& panels,
+//            const std::map<std::string, std::vector<std::string>>& sourceToTargetOccultingBodies) :
+//            RadiationPressureTargetModelSettings(
+//                    RadiationPressureTargetModelType::paneled_target, sourceToTargetOccultingBodies),
+//            panels_(panels) {}
+//
+//    const std::vector<Panel>& getPanels() const
+//    {
+//        return panels_;
+//    }
+//
+//private:
+//    std::vector<Panel> panels_;
+//};
 
-/*!
- * Settings for a paneled radiation pressure target model.
- *
- * @see PaneledRadiationPressureTargetModel
- */
-class PaneledRadiationPressureTargetModelSettings : public RadiationPressureTargetModelSettings
+enum BodyPanelReflectionLawType
 {
-public:
-    class Panel;
-
-    /*!
-     * Constructor.
-     *
-     * @param panels Vector of settings for panels comprising the paneled target
-     * @param sourceToTargetOccultingBodies Map (source name -> list of occulting body names) of bodies
-     *      to occult sources as seen from this target
-     */
-    explicit PaneledRadiationPressureTargetModelSettings(
-            const std::vector<Panel>& panels,
-            const std::map<std::string, std::vector<std::string>>& sourceToTargetOccultingBodies) :
-            RadiationPressureTargetModelSettings(
-                    RadiationPressureTargetModelType::paneled_target, sourceToTargetOccultingBodies),
-            panels_(panels) {}
-
-    const std::vector<Panel>& getPanels() const
-    {
-        return panels_;
-    }
-
-private:
-    std::vector<Panel> panels_;
+    specular_diffuse_reflection_law
 };
 
-class BodyPanelReflectionLawSettings: public BodyPanelPropertySettings
+class BodyPanelReflectionLawSettings
 {
 public:
-
     BodyPanelReflectionLawSettings(
-    const double specularReflectivity,
-    const double diffuseReflectivity,
-    const bool withInstantaneousReradiation ):
-        specularReflectivity_(specularReflectivity),
-        diffuseReflectivity_(diffuseReflectivity),
-        withInstantaneousReradiation_(withInstantaneousReradiation){ }
+        const BodyPanelReflectionLawType bodyPanelReflectionLawType ):
+        bodyPanelReflectionLawType_( bodyPanelReflectionLawType ){ }
 
-    ~BodyPanelReflectionLawSettings( ){ }
+    virtual ~BodyPanelReflectionLawSettings( ){ }
 
-    virtual BodyPanelPropertyType getBodyPanelPropertyType( )
-    {
-        return body_panel_reflection_law;
-    }
-
-    double specularReflectivity_;
-
-    double diffuseReflectivity_;
-
-    bool withInstantaneousReradiation_;
+    BodyPanelReflectionLawType bodyPanelReflectionLawType_;
 };
-/*!
- * Settings for a single panel of a paneled radiation pressure target model.
- *
- * @see PaneledRadiationPressureTargetModel::Panel
- */
-class PaneledRadiationPressureTargetModelSettings::Panel
+
+class SpecularDiffuseBodyPanelReflectionLawSettings: public BodyPanelReflectionLawSettings
 {
 public:
-    /*!
-     * Constructor for a panel with a given surface normal vector.
-     *
-     * @param area Area of the panel [m²]
-     * @param specularReflectivity Specular reflectivity coefficient of the panel [-]
-     * @param diffuseReflectivity Diffuse reflectivity coefficient of the panel [-]
-     * @param withInstantaneousReradiation Whether to instantaneously reradiate absorbed radiation
-     * @param surfaceNormalFunction Function returning the surface normal vector of the panel [-]
-     */
-    explicit Panel(double area,
-                   double specularReflectivity,
-                   double diffuseReflectivity,
-                   bool withInstantaneousReradiation,
-                   const std::function<Eigen::Vector3d()>& surfaceNormalFunction) :
-            area_(area),
+
+    SpecularDiffuseBodyPanelReflectionLawSettings(
+        const double specularReflectivity,
+        const double diffuseReflectivity,
+        const bool withInstantaneousReradiation ):
+            BodyPanelReflectionLawSettings( specular_diffuse_reflection_law ),
             specularReflectivity_(specularReflectivity),
             diffuseReflectivity_(diffuseReflectivity),
-            withInstantaneousReradiation_(withInstantaneousReradiation),
-            surfaceNormalFunction_(surfaceNormalFunction)  {}
-
-    /*!
-    * Constructor for a panel with a given surface normal vector.
-    *
-    * @param area Area of the panel [m²]
-    * @param specularReflectivity Specular reflectivity coefficient of the panel [-]
-    * @param diffuseReflectivity Diffuse reflectivity coefficient of the panel [-]
-    * @param withInstantaneousReradiation Whether to instantaneously reradiate absorbed radiation
-    * @param surfaceNormal Surface normal vector of the panel [-]
-    */
-    explicit Panel(double area,
-                   double specularReflectivity,
-                   double diffuseReflectivity,
-                   bool withInstantaneousReradiation,
-                   const Eigen::Vector3d& surfaceNormal) :
-            Panel(area,
-                  specularReflectivity,
-                  diffuseReflectivity,
-                  withInstantaneousReradiation,
-                  [=] () { return surfaceNormal; }) {}
-
-    /*!
-    * Constructor for a panel tracking a body (e.g., a solar panel tracking the Sun, or an antenna tracking Earth).
-     *
-    * @param area Area of the panel [m²]
-    * @param specularReflectivity Specular reflectivity coefficient of the panel [-]
-    * @param diffuseReflectivity Diffuse reflectivity coefficient of the panel [-]
-    * @param withInstantaneousReradiation Whether to instantaneously reradiate absorbed radiation
-    * @param bodyToTrack Name of the body to track
-    * @param towardsTrackedBody Whether the panel points towards or away from tracked body
-    */
-    explicit Panel(double area,
-                   double specularReflectivity,
-                   double diffuseReflectivity,
-                   bool withInstantaneousReradiation,
-                   const std::string& bodyToTrack,
-                   const bool towardsTrackedBody = true) :
-            area_(area),
-            specularReflectivity_(specularReflectivity),
-            diffuseReflectivity_(diffuseReflectivity),
-            withInstantaneousReradiation_(withInstantaneousReradiation),
-            bodyToTrack_(bodyToTrack),
-            towardsTrackedBody_(towardsTrackedBody) {}
-
-    double getArea() const
+            withInstantaneousReradiation_(withInstantaneousReradiation)
     {
-        return area_;
+        absorptivity_ = 1.0 - ( specularReflectivity_ + diffuseReflectivity_ );
     }
 
-    const std::function<Eigen::Vector3d()>& getSurfaceNormalFunction() const
-    {
-        return surfaceNormalFunction_;
-    }
+    ~SpecularDiffuseBodyPanelReflectionLawSettings( ){ }
 
-    double getSpecularReflectivity() const
-    {
-        return specularReflectivity_;
-    }
-
-    double getDiffuseReflectivity() const
-    {
-        return diffuseReflectivity_;
-    }
-
-    bool isWithInstantaneousReradiation() const
-    {
-        return withInstantaneousReradiation_;
-    }
-
-    const std::string &getBodyToTrack() const
-    {
-        return bodyToTrack_;
-    }
-
-    bool isTowardsTrackedBody() const
-    {
-        return towardsTrackedBody_;
-    }
-
-private:
-    double area_;
     double specularReflectivity_;
+
     double diffuseReflectivity_;
+
+    double absorptivity_;
+
     bool withInstantaneousReradiation_;
-    std::function<Eigen::Vector3d()> surfaceNormalFunction_;
-    std::string bodyToTrack_;
-    bool towardsTrackedBody_{true};
 };
 
-typedef PaneledRadiationPressureTargetModelSettings::Panel TargetPanelSettings;
+std::shared_ptr< electromagnetism::ReflectionLaw > createReflectionLaw(
+    const std::shared_ptr< BodyPanelReflectionLawSettings > reflectionLawSettings );
+//
+///*!
+// * Settings for a single panel of a paneled radiation pressure target model.
+// *
+// * @see PaneledRadiationPressureTargetModel::Panel
+// */
+//class PaneledRadiationPressureTargetModelSettings::Panel
+//{
+//public:
+//    /*!
+//     * Constructor for a panel with a given surface normal vector.
+//     *
+//     * @param area Area of the panel [m²]
+//     * @param specularReflectivity Specular reflectivity coefficient of the panel [-]
+//     * @param diffuseReflectivity Diffuse reflectivity coefficient of the panel [-]
+//     * @param withInstantaneousReradiation Whether to instantaneously reradiate absorbed radiation
+//     * @param surfaceNormalFunction Function returning the surface normal vector of the panel [-]
+//     */
+//    explicit Panel(double area,
+//                   double specularReflectivity,
+//                   double diffuseReflectivity,
+//                   bool withInstantaneousReradiation,
+//                   const std::function<Eigen::Vector3d()>& surfaceNormalFunction) :
+//            area_(area),
+//            specularReflectivity_(specularReflectivity),
+//            diffuseReflectivity_(diffuseReflectivity),
+//            withInstantaneousReradiation_(withInstantaneousReradiation),
+//            surfaceNormalFunction_(surfaceNormalFunction)  {}
+//
+//    /*!
+//    * Constructor for a panel with a given surface normal vector.
+//    *
+//    * @param area Area of the panel [m²]
+//    * @param specularReflectivity Specular reflectivity coefficient of the panel [-]
+//    * @param diffuseReflectivity Diffuse reflectivity coefficient of the panel [-]
+//    * @param withInstantaneousReradiation Whether to instantaneously reradiate absorbed radiation
+//    * @param surfaceNormal Surface normal vector of the panel [-]
+//    */
+//    explicit Panel(double area,
+//                   double specularReflectivity,
+//                   double diffuseReflectivity,
+//                   bool withInstantaneousReradiation,
+//                   const Eigen::Vector3d& surfaceNormal) :
+//            Panel(area,
+//                  specularReflectivity,
+//                  diffuseReflectivity,
+//                  withInstantaneousReradiation,
+//                  [=] () { return surfaceNormal; }) {}
+//
+//    /*!
+//    * Constructor for a panel tracking a body (e.g., a solar panel tracking the Sun, or an antenna tracking Earth).
+//     *
+//    * @param area Area of the panel [m²]
+//    * @param specularReflectivity Specular reflectivity coefficient of the panel [-]
+//    * @param diffuseReflectivity Diffuse reflectivity coefficient of the panel [-]
+//    * @param withInstantaneousReradiation Whether to instantaneously reradiate absorbed radiation
+//    * @param bodyToTrack Name of the body to track
+//    * @param towardsTrackedBody Whether the panel points towards or away from tracked body
+//    */
+//    explicit Panel(double area,
+//                   double specularReflectivity,
+//                   double diffuseReflectivity,
+//                   bool withInstantaneousReradiation,
+//                   const std::string& bodyToTrack,
+//                   const bool towardsTrackedBody = true) :
+//            area_(area),
+//            specularReflectivity_(specularReflectivity),
+//            diffuseReflectivity_(diffuseReflectivity),
+//            withInstantaneousReradiation_(withInstantaneousReradiation),
+//            bodyToTrack_(bodyToTrack),
+//            towardsTrackedBody_(towardsTrackedBody) {}
+//
+//    double getArea() const
+//    {
+//        return area_;
+//    }
+//
+//    const std::function<Eigen::Vector3d()>& getSurfaceNormalFunction() const
+//    {
+//        return surfaceNormalFunction_;
+//    }
+//
+//    double getSpecularReflectivity() const
+//    {
+//        return specularReflectivity_;
+//    }
+//
+//    double getDiffuseReflectivity() const
+//    {
+//        return diffuseReflectivity_;
+//    }
+//
+//    bool isWithInstantaneousReradiation() const
+//    {
+//        return withInstantaneousReradiation_;
+//    }
+//
+//    const std::string &getBodyToTrack() const
+//    {
+//        return bodyToTrack_;
+//    }
+//
+//    bool isTowardsTrackedBody() const
+//    {
+//        return towardsTrackedBody_;
+//    }
+//
+//private:
+//    double area_;
+//    double specularReflectivity_;
+//    double diffuseReflectivity_;
+//    bool withInstantaneousReradiation_;
+//    std::function<Eigen::Vector3d()> surfaceNormalFunction_;
+//    std::string bodyToTrack_;
+//    bool towardsTrackedBody_{true};
+//};
+
+//typedef PaneledRadiationPressureTargetModelSettings::Panel TargetPanelSettings;
 
 /*!
  * Create settings for a cannonball radiation pressure target model. Each source can have its own set
@@ -332,13 +355,13 @@ inline std::shared_ptr<CannonballRadiationPressureTargetModelSettings>
  *      to occult sources as seen from this target
  * @return Shared pointer to settings for a paneled radiation pressure target model
  */
-inline std::shared_ptr<PaneledRadiationPressureTargetModelSettings>
+inline std::shared_ptr< RadiationPressureTargetModelSettings >
         paneledRadiationPressureTargetModelSettingsWithOccultationMap(
-            std::initializer_list<PaneledRadiationPressureTargetModelSettings::Panel> panels,
+//            std::initializer_list<PaneledRadiationPressureTargetModelSettings::Panel> panels,
             const std::map<std::string, std::vector<std::string>>& sourceToTargetOccultingBodies)
 {
-    return std::make_shared<PaneledRadiationPressureTargetModelSettings>(
-            std::vector<PaneledRadiationPressureTargetModelSettings::Panel>(panels),
+    return std::make_shared<RadiationPressureTargetModelSettings>(
+            paneled_target,
             sourceToTargetOccultingBodies);
 }
 
@@ -351,13 +374,15 @@ inline std::shared_ptr<PaneledRadiationPressureTargetModelSettings>
  * @param originalSourceToSourceOccultingBodies Names of bodies to occult the source as seen from this target
  * @return Shared pointer to settings for a paneled radiation pressure target model
  */
-inline std::shared_ptr<PaneledRadiationPressureTargetModelSettings>
+inline std::shared_ptr<RadiationPressureTargetModelSettings>
         paneledRadiationPressureTargetModelSettings(
-            std::initializer_list<PaneledRadiationPressureTargetModelSettings::Panel> panels,
+//            std::initializer_list<PaneledRadiationPressureTargetModelSettings::Panel> panels,
             const std::vector<std::string>& sourceToTargetOccultingBodies = {})
 {
     const std::map<std::string, std::vector<std::string>> occultingBodiesMap {{"", sourceToTargetOccultingBodies}};
-    return paneledRadiationPressureTargetModelSettingsWithOccultationMap(panels, occultingBodiesMap);
+    return std::make_shared<RadiationPressureTargetModelSettings>(
+        paneled_target,
+        occultingBodiesMap);
 }
 
 /*!
