@@ -15,6 +15,8 @@
 
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/environment_setup/thrustSettings.h"
+#include "tudat/simulation/environment_setup/createRadiationPressureTargetModel.h"
+#include "tudat/simulation/environment_setup/createRotationModel.h"
 
 namespace tudat
 {
@@ -22,65 +24,50 @@ namespace tudat
 namespace simulation_setup
 {
 
-enum BodyPanelPropertyType
-{
-    body_panel_reflection_law
-};
-
-class BodyPanelPropertySettings
+class BodyPanelGeometrySettings
 {
 public:
 
-    virtual ~BodyPanelPropertySettings( ){ }
-
-    virtual BodyPanelPropertyType getBodyPanelPropertyType( ) = 0;
-
-};
-
-class BodyPanelGeometry
-{
-public:
-
-    BodyPanelGeometry( const std::string& frameOrientation ):
+    BodyPanelGeometrySettings( const std::string& frameOrientation = "" ):
         frameOrientation_( frameOrientation ){ }
 
-    virtual ~BodyPanelGeometry( ){ }
+    virtual ~BodyPanelGeometrySettings( ){ }
 
     std::string frameOrientation_;
 };
 
-class FrameFixedBodyPanelGeometry: public BodyPanelGeometry
+class FrameFixedBodyPanelGeometrySettings: public BodyPanelGeometrySettings
 {
 public:
 
-    FrameFixedBodyPanelGeometry(
+    FrameFixedBodyPanelGeometrySettings(
         const Eigen::Vector3d& surfaceNormal,
         const double area,
-        const std::string& frameOrientation ):BodyPanelGeometry( frameOrientation ),
-        surfaceNormal_( surfaceNormal ), area_( area ){ }
+        const std::string& frameOrientation = "" ):BodyPanelGeometrySettings( frameOrientation ),
+        surfaceNormal_( surfaceNormal.normalized( ) ), area_( area ){ }
 
     Eigen::Vector3d surfaceNormal_;
 
     double area_;
 };
 
-class FrameVariableBodyPanelGeometry: public BodyPanelGeometry
+class FrameVariableBodyPanelGeometrySettings: public BodyPanelGeometrySettings
 {
 public:
 
-    FrameVariableBodyPanelGeometry(
+    FrameVariableBodyPanelGeometrySettings(
         const std::function< Eigen::Vector3d( ) >& surfaceNormalFunction,
         const double area,
-        const std::string& frameOrientation ):
-        BodyPanelGeometry( frameOrientation ), surfaceNormalFunction_( surfaceNormalFunction ), area_( area ),
-        bodyToTrack_( std::make_pair( nullptr, 0 ) ){ }
+        const std::string& frameOrientation = "" ):
+        BodyPanelGeometrySettings( frameOrientation ), surfaceNormalFunction_( surfaceNormalFunction ), area_( area ),
+        bodyToTrack_( std::make_pair( "", 0 ) ){ }
 
-    FrameVariableBodyPanelGeometry(
+    FrameVariableBodyPanelGeometrySettings(
         const std::string& bodyToTrack,
         const bool towardsTrackedBody,
         const double area,
-        const std::string& frameOrientation ):
-        BodyPanelGeometry( frameOrientation ), surfaceNormalFunction_( nullptr ), area_( area ),
+        const std::string& frameOrientation = "" ):
+        BodyPanelGeometrySettings( frameOrientation ), surfaceNormalFunction_( nullptr ), area_( area ),
         bodyToTrack_( std::make_pair( bodyToTrack, towardsTrackedBody ) ){ }
 
     std::function< Eigen::Vector3d( ) > surfaceNormalFunction_;
@@ -96,20 +83,32 @@ class BodyPanelSettings
 {
 public:
     BodyPanelSettings(
-        const std::shared_ptr< BodyPanelGeometry > panelGeometry,
-        const std::shared_ptr< BodyPanelPropertySettings > panelPropertySettings,
+        const std::shared_ptr< BodyPanelGeometrySettings > panelGeometry,
+        const std::shared_ptr< BodyPanelReflectionLawSettings > reflectionLawSettings,
         const std::string panelTypeId = "" ):
-        panelGeometry_( panelGeometry )
-    {
-        panelProperties_[ panelPropertySettings->getBodyPanelPropertyType( ) ] = panelPropertySettings;
-        panelTypeId_ = panelTypeId;
-    }
+        panelGeometry_( panelGeometry ),
+        reflectionLawSettings_( reflectionLawSettings ),
+        panelTypeId_( panelTypeId ){ }
 
-    std::shared_ptr< BodyPanelGeometry > panelGeometry_;
+    std::shared_ptr< BodyPanelGeometrySettings > panelGeometry_;
 
-    std::map< BodyPanelPropertyType, std::shared_ptr< BodyPanelPropertySettings > > panelProperties_;
+    std::shared_ptr< BodyPanelReflectionLawSettings > reflectionLawSettings_;
 
     std::string panelTypeId_;
+};
+
+class BodyPanelledGeometrySettings
+{
+public:
+    BodyPanelledGeometrySettings(
+        const std::vector< std::shared_ptr< BodyPanelSettings > >&  panelSettingsList,
+        const std::map< std::string, std::shared_ptr< RotationModelSettings > >& partRotationModelSettings  =
+            std::map< std::string, std::shared_ptr< RotationModelSettings > >( )):
+        panelSettingsList_( panelSettingsList ), partRotationModelSettings_( partRotationModelSettings ){ }
+
+    std::vector< std::shared_ptr< BodyPanelSettings > >  panelSettingsList_;
+
+    std::map< std::string, std::shared_ptr< RotationModelSettings > > partRotationModelSettings_;
 };
 
 void addEngineModel(
@@ -126,6 +125,15 @@ void addVariableDirectionEngineModel(
         const simulation_setup::SystemOfBodies& bodies,
         const std::function< Eigen::Vector3d( const double ) > bodyFixedThrustDirection );
 
+std::pair< std::shared_ptr< system_models::VehicleExteriorPanel >, std::string > createBodyExteriorPanel(
+    const std::shared_ptr< BodyPanelSettings > panelSettings,
+    const std::string& bodyName,
+    const simulation_setup::SystemOfBodies& bodies );
+
+void addBodyExteriorPanelledShape(
+    const std::shared_ptr< BodyPanelledGeometrySettings > panelSettings,
+    const std::string& bodyName,
+    const simulation_setup::SystemOfBodies& bodies );
 
 } // namespace simulation_setup
 

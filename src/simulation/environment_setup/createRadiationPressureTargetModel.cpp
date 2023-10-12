@@ -23,6 +23,35 @@ namespace tudat
 namespace simulation_setup
 {
 
+
+std::shared_ptr< electromagnetism::ReflectionLaw > createReflectionLaw(
+    const std::shared_ptr< BodyPanelReflectionLawSettings > reflectionLawSettings )
+{
+    std::shared_ptr< electromagnetism::ReflectionLaw > reflectionLaw;
+    switch ( reflectionLawSettings->bodyPanelReflectionLawType_ )
+    {
+    case specular_diffuse_reflection_law:
+    {
+        std::shared_ptr< SpecularDiffuseBodyPanelReflectionLawSettings > specularDiffuseReflectionLawSettings =
+            std::dynamic_pointer_cast< SpecularDiffuseBodyPanelReflectionLawSettings >( reflectionLawSettings );
+        if( specularDiffuseReflectionLawSettings == nullptr )
+        {
+            throw std::runtime_error( "Error when creating specular-diffuse reflection law; settings are incompatible" );
+        }
+        reflectionLaw = std::make_shared< electromagnetism::SpecularDiffuseMixReflectionLaw >(
+            specularDiffuseReflectionLawSettings->absorptivity_,
+            specularDiffuseReflectionLawSettings->specularReflectivity_,
+            specularDiffuseReflectionLawSettings->diffuseReflectivity_,
+            specularDiffuseReflectionLawSettings->withInstantaneousReradiation_ );
+        break;
+    }
+    default:
+        throw std::runtime_error( "Error when creating panel reflection law; type not recognzied " +
+                                  std::to_string( static_cast< int>( reflectionLawSettings->bodyPanelReflectionLawType_ ) ) );
+    }
+    return reflectionLaw;
+}
+
 std::shared_ptr<electromagnetism::RadiationPressureTargetModel> createRadiationPressureTargetModel(
         const std::shared_ptr<RadiationPressureTargetModelSettings>& modelSettings,
         const std::string& body,
@@ -62,66 +91,39 @@ std::shared_ptr<electromagnetism::RadiationPressureTargetModel> createRadiationP
         }
         case RadiationPressureTargetModelType::paneled_target:
         {
-            auto paneledTargetModelSettings =
-                    std::dynamic_pointer_cast< PaneledRadiationPressureTargetModelSettings >(modelSettings);
-
-            if(paneledTargetModelSettings == nullptr)
+            if( bodies.at( body )->getVehicleSystems( ) == nullptr )
             {
-                throw std::runtime_error(
-                        "Error, expected paneled radiation pressure target for body " + body );
+                throw std::runtime_error( "Error, requested panelled radiation pressure model for " + body + ", but no system models found" );
             }
 
-            // Create panels from panel settings
-            std::vector<PaneledRadiationPressureTargetModel::Panel> panels;
-            for (auto& panel : paneledTargetModelSettings->getPanels())
+            std::map< std::string, std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > > sortedBodyPanelMap =
+                bodies.at( body )->getVehicleSystems()->getVehicleExteriorPanels( );
+            if( sortedBodyPanelMap.size( ) == 0 )
             {
-                std::function<Eigen::Vector3d()> surfaceNormalFunction;
-                std::string trackedBodyName;
-
-                if((panel.getSurfaceNormalFunction() && !panel.getBodyToTrack().empty()) || // both given
-                        (!panel.getSurfaceNormalFunction() && panel.getBodyToTrack().empty())) // none given
-                {
-                    throw std::runtime_error(
-                            "Error, must specify either surface normal or body to track for all "
-                            "paneled radiation pressure target panels for body " + body );
-                }
-                else if (panel.getSurfaceNormalFunction())
-                {
-                    surfaceNormalFunction = [=] () { return panel.getSurfaceNormalFunction()().normalized(); };
-                }
-                else {
-                    // Tracking a body means setting the surface normal towards the tracked body in the source local frame
-                    trackedBodyName = panel.getBodyToTrack();
-                    const auto bodyToTrack = bodies.at(trackedBodyName);
-                    const auto targetBody = bodies.at(body);
-                    const auto sign = panel.isTowardsTrackedBody() ? +1 : -1;
-
-                    // Construct surface normal function always pointing towards/away from tracked body
-                    surfaceNormalFunction = [=] () {
-                        const Eigen::Quaterniond rotationFromPropagationToLocalFrame =
-                                targetBody->getCurrentRotationToLocalFrame();
-                        const Eigen::Vector3d relativeSourcePositionInPropagationFrame =
-                                bodyToTrack->getPosition() - targetBody->getPosition();
-                        const Eigen::Vector3d relativeSourcePositionInLocalFrame =
-                                rotationFromPropagationToLocalFrame * relativeSourcePositionInPropagationFrame;
-                        Eigen::Vector3d surfaceNormal = sign * relativeSourcePositionInLocalFrame.normalized();
-                        return surfaceNormal;
-                    };
-                }
-
-                // Create panel with specular/diffuse-mix reflection law
-                panels.emplace_back(
-                        panel.getArea(),
-                        surfaceNormalFunction,
-                        reflectionLawFromSpecularAndDiffuseReflectivity(
-                                panel.getSpecularReflectivity(),
-                                panel.getDiffuseReflectivity(),
-                                panel.isWithInstantaneousReradiation()),
-                        trackedBodyName);
+                throw std::runtime_error( "Error, requested panelled radiation pressure model for " + body + ", no panels defined" );
             }
+
+            std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > bodyFixedPanels;
+            std::map< std::string, std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > > segmentFixedPanels;
+            std::map< std::string, std::function< Eigen::Quaterniond( ) > > segmentFixedToBodyFixedRotations;
+
+            for( auto it : sortedBodyPanelMap )
+            {
+                if( it.first != "" )
+                {
+                    segmentFixedPanels[ it.first ] = it.second;
+                    segmentFixedToBodyFixedRotations[ it.first ] = std::bind(
+                        &system_models::VehicleSystems::getPartRotationToBaseFrame, bodies.at( body )->getVehicleSystems(), it.first );
+                }
+                else
+                {
+                    bodyFixedPanels = it.second;
+                }
+            }
+
 
             radiationPressureTargetModel = std::make_shared<PaneledRadiationPressureTargetModel>(
-                panels, sourceToTargetOccultingBodies);
+                bodyFixedPanels, segmentFixedPanels, segmentFixedToBodyFixedRotations, sourceToTargetOccultingBodies);
             break;
         }
         default:

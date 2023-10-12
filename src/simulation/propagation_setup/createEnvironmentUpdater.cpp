@@ -160,6 +160,18 @@ void checkValidityOfRequiredEnvironmentUpdates(
                     }
                     break;
                 }
+                case body_segment_orientation_update:
+                {
+                    std::shared_ptr< system_models::VehicleSystems > systemModels = bodies.at(
+                        updateIterator->second.at( i ) )->getVehicleSystems( );
+                    if( systemModels == nullptr )
+                    {
+                        throw std::runtime_error(
+                            "Error when making environment model update settings, could not find vehicle systems of body "
+                            + updateIterator->second.at( i ) );
+                    }
+                    break;
+                }
                 }
             }
         }
@@ -437,17 +449,34 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                     auto paneledRadiationPressureTargetModel =
                             std::dynamic_pointer_cast<electromagnetism::PaneledRadiationPressureTargetModel>(
                                     radiationPressureAcceleration->getTargetModel());
-                    if (paneledRadiationPressureTargetModel != nullptr) {
+                    if (paneledRadiationPressureTargetModel != nullptr)
+                    {
                         // Only paneled target, not cannonball target needs rotational state
                         singleAccelerationUpdateNeeds[ body_rotational_state_update ].push_back(targetName );
 
                         // Positions of bodies tracked by panel normal need to be updated
-                        for (const auto& panel : paneledRadiationPressureTargetModel->getPanels())
+                        for( unsigned int j = 0; j < paneledRadiationPressureTargetModel->getBodyFixedPanels( ).size( ); j++ )
                         {
-                            const auto bodyTrackedByPanel = panel.getTrackedBodyName();
-                            if (!bodyTrackedByPanel.empty())
+                            std::string bodyTrackedByPanel = paneledRadiationPressureTargetModel->getBodyFixedPanels( ).at( j )->getTrackedBody( );
+                            if( bodyTrackedByPanel != bodyTrackedByPanel )
                             {
-                                singleAccelerationUpdateNeeds[ body_translational_state_update ].push_back(bodyTrackedByPanel);
+                                singleAccelerationUpdateNeeds[ body_translational_state_update ].push_back( bodyTrackedByPanel );
+                            }
+                        }
+
+                        if( paneledRadiationPressureTargetModel->getSegmentFixedPanels( ).size( ) > 0 )
+                        {
+                            singleAccelerationUpdateNeeds[ body_segment_orientation_update ].push_back(targetName);
+                        }
+                        for( auto it : paneledRadiationPressureTargetModel->getSegmentFixedPanels( ) )
+                        {
+                            for( unsigned int j = 0; j < it.second.size( ); j++ )
+                            {
+                                std::string bodyTrackedByPanel = it.second.at( j )->getTrackedBody( );
+                                if( bodyTrackedByPanel != bodyTrackedByPanel )
+                                {
+                                    singleAccelerationUpdateNeeds[ body_translational_state_update ].push_back(bodyTrackedByPanel);
+                                }
                             }
                         }
                     }

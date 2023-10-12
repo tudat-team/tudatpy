@@ -762,6 +762,30 @@ private:
                                             ->getRadiationPressureTargetModel(), std::placeholders::_1 ) ) );
                         break;
                     }
+                    case body_segment_orientation_update:
+                    {
+                        // Check if current body has radiation pressure target model set.
+                        if( bodyList_.at( currentBodies.at( i ) )->getVehicleSystems() == nullptr )
+                        {
+                            throw std::runtime_error(
+                                "Request body segment orientation update of " + currentBodies.at( i ) +
+                                ", but body has no vehicle systems" );
+                        }
+                        // If vehicle has radiation pressure target model, add its update function to update list.
+                        updateTimeFunctionList[ body_segment_orientation_update ].push_back(
+                            std::make_pair(
+                                currentBodies.at( i ), std::bind(
+                                    &system_models::VehicleSystems::updatePartOrientations,
+                                    bodyList_.at( currentBodies.at( i ) )
+                                        ->getVehicleSystems(), std::placeholders::_1 ) ) );
+
+                        resetFunctionVector_.push_back(
+                            boost::make_tuple(
+                                body_segment_orientation_update, currentBodies.at( i ),
+                                std::bind( &system_models::VehicleSystems::resetTime,
+                                           bodyList_.at( currentBodies.at( i ) )->getVehicleSystems( ) ) ) );
+                        break;
+                    }
                     case radiation_pressure_interface_update:
                     {
                         // RP-OLD
