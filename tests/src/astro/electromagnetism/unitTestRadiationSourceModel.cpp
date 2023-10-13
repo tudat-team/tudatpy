@@ -149,7 +149,7 @@ BOOST_AUTO_TEST_CASE( testStaticallyPaneledRadiationSourceModel_Albedo )
         fullAlbedoRadiosityModel.push_back(std::make_unique<AlbedoSourcePanelRadiosityModel>(
                 "OrigSource", std::make_shared<ConstantSurfacePropertyDistribution>(1)));
 
-        std::vector<PaneledRadiationSourceModel::Panel> panels;
+        std::vector<RadiationSourcePanel> panels;
         panels.emplace_back(1,
                             expectedSourcePosition,
                             Eigen::Vector3d(1, 0, 0).normalized(),
@@ -193,7 +193,7 @@ BOOST_AUTO_TEST_CASE( testStaticallyPaneledRadiationSourceModel_Albedo )
         fullAlbedoRadiosityModel.push_back(std::make_unique<AlbedoSourcePanelRadiosityModel>(
                 "OrigSource", std::make_shared<ConstantSurfacePropertyDistribution>(1)));
 
-        std::vector<PaneledRadiationSourceModel::Panel> panels;
+        std::vector<RadiationSourcePanel> panels;
         panels.emplace_back(1,
                             expectedSourcePosition,
                             Eigen::Vector3d(1, 0, 0).normalized(),
@@ -257,7 +257,7 @@ BOOST_AUTO_TEST_CASE( testStaticallyPaneledRadiationSourceModel_Albedo )
         halfAlbedoRadiosityModel4.push_back(std::make_unique<AlbedoSourcePanelRadiosityModel>(
                 "OrigSource", std::make_shared<ConstantSurfacePropertyDistribution>(0.5)));
 
-        std::vector<PaneledRadiationSourceModel::Panel> panels;
+        std::vector<RadiationSourcePanel> panels;
         panels.emplace_back(1,
                             expectedSourcePositionPanel1,
                             Eigen::Vector3d(1, 0, 1).normalized(),
@@ -443,7 +443,7 @@ BOOST_AUTO_TEST_CASE( testPaneledRadiationSourceModelPanel )
         const auto expectedLatitude = PI / 2;
 
         std::vector<std::unique_ptr<SourcePanelRadiosityModel>> emptyRadiosityModels {};
-        const auto panel = PaneledRadiationSourceModel::Panel(
+        const auto panel = RadiationSourcePanel(
                 1,
                 Eigen::Vector3d(0, 0, 100),
                 Eigen::Vector3d(0, 0, 1),
@@ -459,7 +459,7 @@ BOOST_AUTO_TEST_CASE( testPaneledRadiationSourceModelPanel )
         const auto expectedLatitude = -PI / 2;
 
         std::vector<std::unique_ptr<SourcePanelRadiosityModel>> emptyRadiosityModels {};
-        const auto panel = PaneledRadiationSourceModel::Panel(
+        const auto panel = RadiationSourcePanel(
                 1,
                 Eigen::Vector3d(0, 0, -100),
                 Eigen::Vector3d(00, 0, -1),
@@ -476,7 +476,7 @@ BOOST_AUTO_TEST_CASE( testPaneledRadiationSourceModelPanel )
         const auto expectedLongitude = -PI / 4;
 
         std::vector<std::unique_ptr<SourcePanelRadiosityModel>> emptyRadiosityModels {};
-        const auto panel = PaneledRadiationSourceModel::Panel(
+        const auto panel = RadiationSourcePanel(
                 1,
                 Eigen::Vector3d(100, -100, 0),
                 Eigen::Vector3d(1, -1, 0).normalized(),
