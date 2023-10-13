@@ -84,7 +84,7 @@ public:
             }
         }
 
-        if( !std::is_sorted( observations_.begin( ), observations_.end( ) ) )
+        if( !std::is_sorted( observationTimes_.begin( ), observationTimes_.end( ) ) )
         {
             std::map< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > observationsMap;
             for( unsigned int i = 0; i < observations_.size( ); i++ )
