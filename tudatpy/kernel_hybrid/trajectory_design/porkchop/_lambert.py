@@ -28,24 +28,32 @@ def calculate_lambert_arc_impulsive_delta_v(
         central_body: str = 'Sun' ) -> tuple[float]:
 
     """"
-    This function solved Lambert's problem for a transfer from Earth (at departure epoch) to
-    a target body (at arrival epoch), with the states of Earth and the target body defined
-    by ephemerides stored inside the SystemOfBodies object (bodies). Note that this solver
-    assumes that the transfer departs/arrives to/from the center of mass of Earth and the target body
+    This function solved Lambert's problem for a transfer from the `departure_body` (at departure epoch) 
+    to a `target_body` (at arrival epoch), with the states of the `departure_body` and the `target_body` 
+    defined by ephemerides stored inside the `bodies` (`SystemOfBodies` instance). Note that this solver
+    assumes that the transfer departs/arrives to/from the center of mass of the departure and the target body.
 
     Parameters
     ----------
-    bodies : Body objects defining the physical simulation environment
+    bodies: environment.SystemOfBodies
+        Body objects defining the physical simulation environment
+    global_frame_orientation: str
+        Orientation of the global reference frame at J2000
+    departure_body: str
+        The name of the body from which the transfer is to be computed
+    target_body: str
+        The name of the body to which the transfer is to be computed
+    departure_epoch: int
+        Epoch at which the departure from the `target_body`'s center of mass is to take place
+    arrival_epoch: int
+        Epoch at which the arrival at he target body's center of mass is to take place
 
-    target_body : The name (string) of the body to which the Lambert arc is to be computed
-
-    departure_epoch : Epoch at which the departure from Earth's center of mass is to take place
-
-    arrival_epoch : Epoch at which the arrival at he target body's center of mass is to take place
-
-    Return
+    Output
     ------
-    ΔV required for insertion into the Lambert transfer arc and capture by the arrival body
+    ΔV_launch: float
+        ΔV required for insertion into the Lambert transfer arc
+    ΔV_arrival: float
+        ΔV required for capture by the arrival body
     """
 
     # Gravitational parameter of the Sun
