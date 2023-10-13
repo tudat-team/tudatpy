@@ -69,6 +69,7 @@ public:
                 throw std::runtime_error( "Error when creating SingleObservationSet, ObservationDependentVariableCalculator has incompatible link ends " );
             }
         }
+
         if( observations_.size( ) != observationTimes_.size( ) )
         {
             throw std::runtime_error( "Error when making SingleObservationSet, input sizes are inconsistent." +
@@ -80,6 +81,26 @@ public:
             if( observations.at( i ).rows( ) != observations.at( i - 1 ).rows( ) )
             {
                 throw std::runtime_error( "Error when making SingleObservationSet, input observables not of consistent size." );
+            }
+        }
+
+        if( !std::is_sorted( observations_.begin( ), observations_.end( ) ) )
+        {
+            std::map< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > observationsMap;
+            for( unsigned int i = 0; i < observations_.size( ); i++ )
+            {
+                observationsMap[ observationTimes_.at( i ) ] = observations_.at( i );
+            }
+            observationTimes_ = utilities::createVectorFromMapKeys( observationsMap );
+            observations_ = utilities::createVectorFromMapValues( observationsMap );
+            if( observationsDependentVariables_.size( ) > 0 )
+            {
+                std::map< TimeType, Eigen::VectorXd > observationsDependentVariablesMap;
+                for( unsigned int i = 0; i < observationsDependentVariables_.size( ); i++ )
+                {
+                    observationsDependentVariablesMap[ observationTimes_.at( i ) ] = observationsDependentVariables_.at( i );
+                }
+                observationsDependentVariables_ = utilities::createVectorFromMapValues( observationsDependentVariablesMap );
             }
         }
     }
