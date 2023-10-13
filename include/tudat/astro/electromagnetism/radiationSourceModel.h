@@ -135,6 +135,119 @@ private:
     std::shared_ptr<LuminosityModel> luminosityModel_;
 };
 
+
+/*!
+ * Class modeling a single panel on a paneled source.
+ *
+ * A panel can be given manually or automatically generated, and only contains geometric properties. All
+ * radiation-related functionality is delegated to radiosity models. The irradiance at a position due to one panel is
+ * the sum of the contributions of all radiosity models of that panel. A panel can have a single radiosity model (e.g.,
+ * only albedo) or multiple (albedo and thermal).
+ */
+class RadiationSourcePanel
+{
+public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
+    /*!
+     * Constructor.
+     *
+     * @param area Area of the panel [m²]
+     * @param relativeCenter Center of the panel relative to the source center, in source-fixed Cartesian coordinates [m]
+     * @param surfaceNormal Surface normal vector of the panel [-]
+     * @param radiosityModels List of radiosity models of the panel
+     */
+    RadiationSourcePanel(
+        double area,
+        const Eigen::Vector3d& relativeCenter,
+        const Eigen::Vector3d& surfaceNormal,
+        std::vector<std::unique_ptr<SourcePanelRadiosityModel>> radiosityModels) :
+        area_(area),
+        relativeCenter_(relativeCenter),
+        surfaceNormal_(surfaceNormal),
+        radiosityModels_(std::move(radiosityModels))
+    {
+        Eigen::Vector3d relativeCenterInSphericalCoords =
+            coordinate_conversions::convertCartesianToSpherical(relativeCenter);
+        latitude_ = M_PI_2 - relativeCenterInSphericalCoords[1];
+        longitude_ = relativeCenterInSphericalCoords[2];
+    }
+
+    /*!
+    * Update class members.
+    *
+    * @param currentTime Current simulation time
+    */
+    void updateMembers(double currentTime);
+
+    double getArea() const
+    {
+        return area_;
+    }
+
+    void setArea(double area)
+    {
+        area_ = area;
+    }
+
+    const Eigen::Vector3d& getRelativeCenter() const
+    {
+        return relativeCenter_;
+    }
+
+    /*!
+     * Set relative center with pre-computed polar/azimuth angles.
+     */
+    void setRelativeCenter(
+        const Eigen::Vector3d& relativeCenter,
+        const double polarAngle,
+        const double azimuthAngle)
+    {
+        relativeCenter_ = relativeCenter;
+        latitude_ = M_PI_2 - polarAngle;
+        longitude_ = azimuthAngle;
+    }
+
+    const Eigen::Vector3d& getSurfaceNormal() const
+    {
+        return surfaceNormal_;
+    }
+
+    void setSurfaceNormal(const Eigen::Vector3d& surfaceNormal)
+    {
+        surfaceNormal_ = surfaceNormal;
+    }
+
+    double getLatitude() const
+    {
+        return latitude_;
+    }
+
+    double getLongitude() const
+    {
+        return longitude_;
+    }
+
+    const std::vector<std::unique_ptr<SourcePanelRadiosityModel>>& getRadiosityModels() const
+    {
+        return radiosityModels_;
+    }
+
+    std::vector<std::unique_ptr<SourcePanelRadiosityModel>>& getRadiosityModels()
+    {
+        return radiosityModels_;
+    }
+
+private:
+    double area_;
+    double latitude_{};
+    double longitude_{};
+    Eigen::Vector3d relativeCenter_;
+    Eigen::Vector3d surfaceNormal_;
+    std::vector<std::unique_ptr<SourcePanelRadiosityModel>> radiosityModels_;
+};
+
+
 //*********************************************************************************************
 //   Paneled radiation source
 //*********************************************************************************************
@@ -153,7 +266,6 @@ private:
 class PaneledRadiationSourceModel : public RadiationSourceModel
 {
 public:
-    class Panel;
 
     /*!
      * Constructor for a shape-aware paneled source. The shape model is necessary for automatic panel generation.
@@ -180,7 +292,7 @@ public:
      *
      * @return Panels comprising this paneled source
      */
-    virtual const std::vector<Panel>& getPanels() const = 0;
+    virtual const std::vector<RadiationSourcePanel>& getPanels() const = 0;
 
     /*!
     * Get the number of panels comprising this paneled source. For dynamically generated paneling, this may be
@@ -229,7 +341,7 @@ public:
      */
     explicit StaticallyPaneledRadiationSourceModel(
             std::unique_ptr<SourcePanelRadiosityModelUpdater> sourcePanelRadiosityModelUpdater,
-            std::vector<Panel> panels) :
+            std::vector<RadiationSourcePanel> panels) :
             PaneledRadiationSourceModel(std::move(sourcePanelRadiosityModelUpdater)),
             numberOfPanels(panels.size()),
             panels_(std::move(panels)) {}
@@ -252,7 +364,7 @@ public:
         generatePanels(baseRadiosityModels);
     }
 
-    const std::vector<Panel>& getPanels() const override
+    const std::vector<RadiationSourcePanel>& getPanels() const override
     {
         return panels_;
     }
@@ -270,7 +382,7 @@ private:
 
     unsigned int numberOfPanels;
 
-    std::vector<Panel> panels_;
+    std::vector<RadiationSourcePanel> panels_;
 };
 
 /*!
@@ -299,7 +411,7 @@ public:
 
     IrradianceWithSourceList evaluateIrradianceAtPosition(const Eigen::Vector3d& targetPosition) override;
 
-    const std::vector<Panel>& getPanels() const override
+    const std::vector<RadiationSourcePanel>& getPanels() const override
     {
         return panels_;
     }
@@ -316,118 +428,7 @@ private:
 
     const std::vector<int> numberOfPanelsPerRing_;
 
-    std::vector<Panel> panels_;
-};
-
-/*!
- * Class modeling a single panel on a paneled source.
- *
- * A panel can be given manually or automatically generated, and only contains geometric properties. All
- * radiation-related functionality is delegated to radiosity models. The irradiance at a position due to one panel is
- * the sum of the contributions of all radiosity models of that panel. A panel can have a single radiosity model (e.g.,
- * only albedo) or multiple (albedo and thermal).
- */
-class PaneledRadiationSourceModel::Panel
-{
-public:
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-
-    /*!
-     * Constructor.
-     *
-     * @param area Area of the panel [m²]
-     * @param relativeCenter Center of the panel relative to the source center, in source-fixed Cartesian coordinates [m]
-     * @param surfaceNormal Surface normal vector of the panel [-]
-     * @param radiosityModels List of radiosity models of the panel
-     */
-    explicit Panel(
-            double area,
-            const Eigen::Vector3d& relativeCenter,
-            const Eigen::Vector3d& surfaceNormal,
-            std::vector<std::unique_ptr<SourcePanelRadiosityModel>> radiosityModels) :
-            area_(area),
-            relativeCenter_(relativeCenter),
-            surfaceNormal_(surfaceNormal),
-            radiosityModels_(std::move(radiosityModels))
-    {
-        Eigen::Vector3d relativeCenterInSphericalCoords =
-                coordinate_conversions::convertCartesianToSpherical(relativeCenter);
-        latitude_ = M_PI_2 - relativeCenterInSphericalCoords[1];
-        longitude_ = relativeCenterInSphericalCoords[2];
-    }
-
-    /*!
-    * Update class members.
-    *
-    * @param currentTime Current simulation time
-    */
-    void updateMembers(double currentTime);
-
-    double getArea() const
-    {
-        return area_;
-    }
-
-    void setArea(double area)
-    {
-        area_ = area;
-    }
-
-    const Eigen::Vector3d& getRelativeCenter() const
-    {
-        return relativeCenter_;
-    }
-
-    /*!
-     * Set relative center with pre-computed polar/azimuth angles.
-     */
-    void setRelativeCenter(
-            const Eigen::Vector3d& relativeCenter,
-            const double polarAngle,
-            const double azimuthAngle)
-    {
-        relativeCenter_ = relativeCenter;
-        latitude_ = M_PI_2 - polarAngle;
-        longitude_ = azimuthAngle;
-    }
-
-    const Eigen::Vector3d& getSurfaceNormal() const
-    {
-        return surfaceNormal_;
-    }
-
-    void setSurfaceNormal(const Eigen::Vector3d& surfaceNormal)
-    {
-        surfaceNormal_ = surfaceNormal;
-    }
-
-    double getLatitude() const
-    {
-        return latitude_;
-    }
-
-    double getLongitude() const
-    {
-        return longitude_;
-    }
-
-    const std::vector<std::unique_ptr<SourcePanelRadiosityModel>>& getRadiosityModels() const
-    {
-        return radiosityModels_;
-    }
-
-    std::vector<std::unique_ptr<SourcePanelRadiosityModel>>& getRadiosityModels()
-    {
-        return radiosityModels_;
-    }
-
-private:
-    double area_;
-    double latitude_{};
-    double longitude_{};
-    Eigen::Vector3d relativeCenter_;
-    Eigen::Vector3d surfaceNormal_;
-    std::vector<std::unique_ptr<SourcePanelRadiosityModel>> radiosityModels_;
+    std::vector<RadiationSourcePanel> panels_;
 };
 
 class SourcePanelRadiosityModelUpdater
@@ -474,7 +475,7 @@ public:
      */
     void updateMembers(double currentTime);
 
-    void updatePanel(PaneledRadiationSourceModel::Panel& panel);
+    void updatePanel(RadiationSourcePanel& panel);
 
     const std::vector<std::string>& getOriginalSourceBodyNames() const
     {
