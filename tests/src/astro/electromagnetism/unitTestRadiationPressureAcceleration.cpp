@@ -48,7 +48,6 @@ namespace unit_tests
 {
 
 using namespace tudat::electromagnetism;
-using SourcePanel = PaneledRadiationSourceModel::Panel;
 
 BOOST_AUTO_TEST_SUITE(test_radiation_pressure_acceleration)
 
@@ -997,7 +996,7 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_StaticallyPaneledSource_
             "OrigSource", std::make_shared<ConstantSurfacePropertyDistribution>(1)));
 
     // Source is a single panel pointing in +X with purely diffuse reflection
-    std::vector<SourcePanel> panels;
+    std::vector<RadiationSourcePanel> panels;
     panels.emplace_back(
             2, Eigen::Vector3d::Zero(), Eigen::Vector3d::UnitX(), std::move(radiosityModels));
     auto sourceModel = std::make_shared<StaticallyPaneledRadiationSourceModel>(
@@ -1063,7 +1062,7 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_StaticallyPaneledSource_
             originalSourceModels, originalSourceBodyShapeModels, originalSourcePositionFunctions, originalSourceToSourceOccultationModels);
 
     // Source is a single panel pointing in +X
-    std::vector<SourcePanel> panels;
+    std::vector<RadiationSourcePanel> panels;
     panels.emplace_back(
             1, Eigen::Vector3d::Zero(), Eigen::Vector3d::UnitX(), std::move(radiosityModels));
     auto sourceModel = std::make_shared<StaticallyPaneledRadiationSourceModel>(

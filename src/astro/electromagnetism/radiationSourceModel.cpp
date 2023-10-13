@@ -242,7 +242,7 @@ void DynamicallyPaneledRadiationSourceModel::updateMembers_(double currentTime)
     sourcePanelRadiosityModelUpdater_->updateMembers(currentTime);
 }
 
-void PaneledRadiationSourceModel::Panel::updateMembers(double currentTime)
+void RadiationSourcePanel::updateMembers(double currentTime)
 {
     for (const auto& radiosityModel : radiosityModels_)
     {
@@ -286,7 +286,7 @@ void SourcePanelRadiosityModelUpdater::updateMembers(const double currentTime)
 }
 
 void SourcePanelRadiosityModelUpdater::updatePanel(
-        PaneledRadiationSourceModel::Panel& panel)
+        RadiationSourcePanel& panel)
 {
     // Update all properties that depend on the panels
     Eigen::Vector3d sourceCenterPositionInGlobalFrame = sourcePositionFunction_(); // position of center of source (e.g. planet)
