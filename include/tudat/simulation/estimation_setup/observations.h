@@ -239,9 +239,9 @@ private:
 
     const LinkDefinition linkEnds_;
 
-    const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > observations_;
+    std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > observations_;
 
-    const std::vector< TimeType > observationTimes_;
+    std::vector< TimeType > observationTimes_;
 
     const LinkEndType referenceLinkEnd_;
 
