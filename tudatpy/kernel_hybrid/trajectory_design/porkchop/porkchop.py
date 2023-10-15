@@ -24,7 +24,6 @@ from tudatpy.trajectory_design.porkchop._lambert import calculate_lambert_arc_im
 
 def determine_shape_of_delta_v(
         bodies: environment.SystemOfBodies,
-        global_frame_orientation: str,
         departure_body: str,
         target_body: str,
         departure_epoch: float,
@@ -41,8 +40,6 @@ def determine_shape_of_delta_v(
     ----------
     bodies: environment.SystemOfBodies
         Body objects defining the physical simulation environment
-    global_frame_orientation: str
-        Orientation of the global reference frame at J2000
     departure_body: str
         The name of the body from which the transfer is to be computed
     target_body: str
@@ -62,7 +59,7 @@ def determine_shape_of_delta_v(
     """
 
     ΔV_sample = function_to_calculate_delta_v(
-        bodies, global_frame_orientation,
+        bodies,
         departure_body,
         target_body,
         departure_epoch,
@@ -94,7 +91,6 @@ def determine_shape_of_delta_v(
 
 def calculate_delta_v_time_map(
         bodies: environment.SystemOfBodies,
-        global_frame_orientation: str,
         departure_body: str,
         target_body: str,
         earliest_departure_time: time_conversion.DateTime,
@@ -111,8 +107,6 @@ def calculate_delta_v_time_map(
     ----------
     bodies: environment.SystemOfBodies
         Body objects defining the physical simulation environment
-    global_frame_orientation: str
-        Orientation of the global reference frame at J2000
     departure_body: str
         The name of the body from which the transfer is to be computed
     target_body: str
@@ -140,12 +134,6 @@ def calculate_delta_v_time_map(
         Array containing the ΔV of all coordinates of the grid of departure/arrival epochs
     """
 
-    # Input validation
-    supported_global_frame_orientations = ['J2000', 'ECLIPJ2000']
-    assert global_frame_orientation in supported_global_frame_orientations, \
-        f'\n    The `global_frame_orientation` provided ("{global_frame_orientation}") is not supported by Tudat.\n' \
-        f'\n    Please provide a `global_frame_orientation` in {supported_global_frame_orientations}'
-
     # Departure and arrival epoch discretizations
     n_dep = int(
         (latest_departure_time.epoch() - earliest_departure_time.epoch()) / (time_resolution * constants.JULIAN_DAY)
@@ -166,7 +154,7 @@ def calculate_delta_v_time_map(
 
     # Determine the shape of the ΔV returned by the user-provided `function_to_calculate_delta_v`
     ΔV_shape = determine_shape_of_delta_v(
-        bodies, global_frame_orientation,
+        bodies,
         departure_body,
         target_body,
         departure_epochs[0],
@@ -182,7 +170,7 @@ def calculate_delta_v_time_map(
             # Calculate ΔV, only if the arrival epoch is greater than the departure epoch
             if arrival_epochs[i_arr] > departure_epochs[i_dep]:
                 ΔV[i_dep, i_arr, :] = function_to_calculate_delta_v(
-                    bodies, global_frame_orientation,
+                    bodies,
                     departure_body,
                     target_body,
                     departure_epochs[i_dep],
@@ -195,7 +183,6 @@ def calculate_delta_v_time_map(
 def porkchop(
         # ΔV calculation arguments
         bodies: environment.SystemOfBodies,
-        global_frame_orientation: str,
         departure_body: str,
         target_body: str,
         earliest_departure_time: time_conversion.DateTime,
@@ -224,8 +211,6 @@ def porkchop(
     ----------
     bodies: environment.SystemOfBodies
         Body objects defining the physical simulation environment
-    global_frame_orientation: str
-        Orientation of the global reference frame at J2000
     departure_body: str
         The name of the body from which the transfer is to be computed
     target_body: str
@@ -276,7 +261,6 @@ def porkchop(
     # Calculate ΔV map
     [departure_epochs, arrival_epochs, ΔV] = calculate_delta_v_time_map(
         bodies                        = bodies,
-        global_frame_orientation      = global_frame_orientation,
         departure_body                = departure_body,
         target_body                   = target_body,
         earliest_departure_time       = earliest_departure_time,
