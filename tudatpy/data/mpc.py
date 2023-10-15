@@ -204,8 +204,10 @@ class BatchMPC:
         if not isinstance(MPCcodes, list):
             raise ValueError("MPCcodes parameter must be list of integers")
         for code in MPCcodes:
-            if not isinstance(code, int):
-                raise ValueError("All codes in the MPCcodes parameter must be integers")
+            if not (isinstance(code, int) or isinstance(code, str)):
+                raise ValueError(
+                    "All codes in the MPCcodes parameter must be integers or string"
+                )
 
             try:
                 obs = MPC.get_observations(code).to_pandas()  # type: ignore
