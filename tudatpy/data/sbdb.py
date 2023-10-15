@@ -15,6 +15,9 @@ class SBDBquery:
             MPC code for the object.
         """
         self.query = SBDB.query(MPCcode)
+
+    def __str__(self) -> str:
+        return SBDB.schematic(self.query)
     
     @property
     def name(self):
