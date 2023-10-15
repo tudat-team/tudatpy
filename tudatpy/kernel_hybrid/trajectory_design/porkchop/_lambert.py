@@ -14,13 +14,11 @@ import numpy as np
 
 # Tudat imports
 from tudatpy.kernel.astro import two_body_dynamics
-from tudatpy.kernel.interface import spice_interface
 from tudatpy.kernel.numerical_simulation import environment
 
 
 def calculate_lambert_arc_impulsive_delta_v(
         bodies: environment.SystemOfBodies,
-        global_frame_orientation: str,
         departure_body: str,
         target_body: str,
         departure_epoch: int,
@@ -28,8 +26,8 @@ def calculate_lambert_arc_impulsive_delta_v(
         central_body: str = 'Sun' ) -> tuple[float]:
 
     """"
-    This function solved Lambert's problem for a transfer from the `departure_body` (at departure epoch) 
-    to a `target_body` (at arrival epoch), with the states of the `departure_body` and the `target_body` 
+    This function solved Lambert's problem for a transfer from the `departure_body` (at departure epoch)
+    to a `target_body` (at arrival epoch), with the states of the `departure_body` and the `target_body`
     defined by ephemerides stored inside the `bodies` (`SystemOfBodies` instance). Note that this solver
     assumes that the transfer departs/arrives to/from the center of mass of the departure and the target body.
 
@@ -37,8 +35,6 @@ def calculate_lambert_arc_impulsive_delta_v(
     ----------
     bodies: environment.SystemOfBodies
         Body objects defining the physical simulation environment
-    global_frame_orientation: str
-        Orientation of the global reference frame at J2000
     departure_body: str
         The name of the body from which the transfer is to be computed
     target_body: str
@@ -60,18 +56,8 @@ def calculate_lambert_arc_impulsive_delta_v(
     central_body_gravitational_parameter = bodies.get_body(central_body).gravitational_parameter
 
     # Retrieve states of departure and arrival body
-    initial_state = spice_interface.get_body_cartesian_state_at_epoch(
-        target_body_name       = departure_body,
-        observer_body_name     = central_body,
-        reference_frame_name   = global_frame_orientation,
-        aberration_corrections = "NONE",
-        ephemeris_time         = departure_epoch)
-    final_state = spice_interface.get_body_cartesian_state_at_epoch(
-        target_body_name       = target_body,
-        observer_body_name     = central_body,
-        reference_frame_name   = global_frame_orientation,
-        aberration_corrections = "NONE",
-        ephemeris_time         = arrival_epoch)
+    initial_state = bodies.get_body(departure_body).state_in_base_frame_from_ephemeris(departure_epoch)
+    final_state = bodies.get_body(target_body).state_in_base_frame_from_ephemeris(arrival_epoch)
 
     # Retrieve initial and final positions for Lambert targeter
     departure_position = initial_state[:3]
@@ -80,10 +66,10 @@ def calculate_lambert_arc_impulsive_delta_v(
     # Create Lambert targeter
     lambertTargeter = two_body_dynamics.LambertTargeterIzzo(
         departure_position,
-        arrival_position, 
+        arrival_position,
         arrival_epoch - departure_epoch,
         central_body_gravitational_parameter)
-    
+
     # Obtain initial and final states
     departure_velocity = lambertTargeter.get_departure_velocity()
     arrival_velocity   = lambertTargeter.get_arrival_velocity()
