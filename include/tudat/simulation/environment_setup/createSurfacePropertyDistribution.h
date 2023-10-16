@@ -292,6 +292,22 @@ inline std::shared_ptr<SecondDegreeZonalPeriodicSurfacePropertyDistributionSetti
     return std::make_shared< SecondDegreeZonalPeriodicSurfacePropertyDistributionSettings >(model);
 }
 
+inline std::shared_ptr<SecondDegreeZonalPeriodicSurfacePropertyDistributionSettings>
+manualSecondDegreeZonalPeriodicSurfacePropertyDistributionSettings(
+    const double a0,
+    const double c0,
+    const double c1,
+    const double c2,
+    const double a2,
+    const double referenceEpoch,
+    const double period )
+{
+    return std::make_shared< SecondDegreeZonalPeriodicSurfacePropertyDistributionSettings >(
+        a0, c0, c1, c2, a2, referenceEpoch, period
+        );
+}
+
+
 /*!
  * Create surface property distribution from its settings.
  *

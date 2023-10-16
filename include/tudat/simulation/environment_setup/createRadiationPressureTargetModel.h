@@ -187,8 +187,18 @@ public:
     bool withInstantaneousReradiation_;
 };
 
+inline std::shared_ptr< BodyPanelReflectionLawSettings > specularDiffuseBodyPanelReflectionLawSettings(
+    const double specularReflectivity,
+    const double diffuseReflectivity,
+    const bool withInstantaneousReradiation )
+{
+    return std::make_shared< SpecularDiffuseBodyPanelReflectionLawSettings>(
+        specularReflectivity, diffuseReflectivity, withInstantaneousReradiation );
+}
+
 std::shared_ptr< electromagnetism::ReflectionLaw > createReflectionLaw(
-    const std::shared_ptr< BodyPanelReflectionLawSettings > reflectionLawSettings );
+    const std::shared_ptr<BodyPanelReflectionLawSettings> modelSettings );
+
 //
 ///*!
 // * Settings for a single panel of a paneled radiation pressure target model.
