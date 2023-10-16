@@ -637,7 +637,75 @@ class BatchMPC:
         observation_collection = estimation.ObservationCollection(observation_set_list)
         return observation_collection, linksDictionary
 
-    def plot_observations(
+    def plot_observations_temporal(
+        self,
+        objects: Union[List[str], None] = None,
+        figsize: Tuple[float] = (9.0, 6.0),
+    ):
+        """Generates a matplotlib figure with the declination and right ascension
+        over time.
+
+
+        Parameters
+        ----------
+        objects : Union[List[str], None], optional
+            List of specific MPC objects in batch to plot, None to plot all
+            , by default None
+        projection : str, optional
+            projection of the figure options are: 'aitoff', 'hammer',
+            'lambert' and 'mollweide', by default "aitoff"
+        figsize : Tuple[float], optional
+            size of the matplotlib figure, by default (15, 7)
+
+        Returns
+        -------
+        Matplotlib figure
+            Matplotlib figure with the observations
+        """
+        fig, (axRA, axDEC) = plt.subplots(2, 1, figsize=figsize, sharex=True)
+
+        if objects is None:
+            objs = self.MPC_objects
+        else:
+            objs = [str(o) for o in objects]
+
+        for obj in objs:
+            tab = self._table.query("number == @obj")
+
+            axRA.scatter(
+                tab.epochUTC,
+                np.degrees(tab.RA),
+                label="MPC: " + obj,
+                marker=".",
+                # linestyle=None,
+            )
+            axDEC.scatter(
+                tab.epochUTC,
+                np.degrees(tab.DEC),
+                label="MPC: " + obj,
+                marker=".",
+                # linestyle=None,
+            )
+
+        axRA.set_ylabel(r"Right Ascension $[\deg]$")
+        axDEC.set_ylabel(r"Declination $[\deg]$")
+        axDEC.set_xlabel(r"Time [year]")
+
+        axRA.grid()
+        axDEC.grid()
+        axRA.set_title("Right Ascension")
+        axDEC.set_title("Declination")
+        axRA.legend(bbox_to_anchor=(1.01, 1), loc="upper left")
+
+        buffer = 10
+        axRA.set_ylim(0 - buffer, 360 + buffer)
+        axDEC.set_ylim(-90 - buffer, 90 + buffer)
+
+        fig.set_tight_layout(True)
+
+        return fig
+
+    def plot_observations_sky(
         self,
         objects: Union[List[str], None] = None,
         projection: Union[str, None] = None,
@@ -669,7 +737,7 @@ class BatchMPC:
         if objects is None:
             objs = self.MPC_objects
         else:
-            objs = objects
+            objs = [str(o) for o in objects]
 
         markers = ["o", "+", "^"]
 
@@ -697,7 +765,7 @@ class BatchMPC:
 
         yticks = [
             f"{x}°"
-            for x in (np.degrees(np.array(ax.get_yticks().tolist())) + 90).astype(int)
+            for x in (np.degrees(np.array(ax.get_yticks().tolist()))).astype(int)
         ]
         xticks = [
             f"{x}°"
