@@ -45,7 +45,22 @@ class BatchMPC:
 
     """
 
-    def __init__(self) -> None:
+    def __init__(self, bodies: environment.SystemOfBodies, earth_name="Earth") -> None:
+        """Create an empty MPC batch.
+
+        Parameters
+        ----------
+        bodies : environment.SystemOfBodies
+            System of bodies object containing Earth used to retrieve the radius for object posi
+        earth_name : str, optional
+            Name of Earth in system of bodies, change only if you have renamed Earth
+            , by default "Earth"
+
+        Raises
+        ------
+        e
+            _description_
+        """
         self._table: pd.DataFrame = pd.DataFrame()
         self._observatories: List[str] = []
         self._space_telescopes: List[str] = []
@@ -57,7 +72,17 @@ class BatchMPC:
         self._MPC_space_telescopes: List[str] = []
 
         self._get_station_info()
-        self._add_observatory_positions()
+
+        # Check if earth is in body
+        try:
+            bodies.get(earth_name)
+        except Exception as e:
+            print(
+                f"Body {earth_name} is not in bodies, if you have renamed Earth, "
+                + "set the earth_name paramater to the new name."
+            )
+            raise e
+        self._add_observatory_positions(bodies, earth_name)
 
         self._epoch_start: float = 0.0
         self._epoch_end: float = 0.0
@@ -168,7 +193,9 @@ class BatchMPC:
             print("An error occured while retrieving observatory data")
             print(e)
 
-    def _add_observatory_positions(self) -> None:
+    def _add_observatory_positions(
+        self, bodies: environment.SystemOfBodies, earth_name
+    ) -> None:
         """Internal. Add observatory cartesian postions to station data"""
         temp = self._observatory_info
 
@@ -178,8 +205,7 @@ class BatchMPC:
                   This is likely due to a failure in retrieving the observatories."""
             raise ValueError(txt)
 
-        # TODO replace with tudat constant:
-        r_earth = 6378137.0
+        r_earth = bodies.get(earth_name).shape_model.average_radius
 
         # Add geocentric cartesian positions
         temp = (
@@ -367,7 +393,8 @@ class BatchMPC:
         Raises
         ------
         ValueError
-            Is raised if bands, observatories, or observatories_exclude are not list or None.
+            Is raised if bands, observatories, or observatories_exclude are not list or 
+            None.
         ValueError
             Is raised if both observations_exclude and observatories are not None.
 
@@ -438,7 +465,7 @@ class BatchMPC:
     def to_tudat(
         self,
         bodies: environment.SystemOfBodies,
-        included_satellites: Union[Dict[str, str], None] = None,
+        included_satellites: Union[Dict[str, str], None],
         station_body: str = "Earth",
     ) -> Tuple[estimation.ObservationCollection, Dict[str, observation.LinkDefinition]]:
         """Converts the observations in the batch into a Tudat compatible format and
@@ -578,7 +605,6 @@ class BatchMPC:
             observations_table.loc[:, ["number", "observatory"]].drop_duplicates()
         ).values
 
-        linksDictionary = {}
         observation_set_list = []
         for combo in unique_link_combos:
             MPC_number = combo[0]
@@ -599,7 +625,6 @@ class BatchMPC:
                     sat_name
                 )
                 link_definition = observation.link_definition(link_ends)
-                linksDictionary[f"{MPC_number}_{sat_name}"] = link_definition
             else:
                 # link for a ground station
                 link_ends[
@@ -608,7 +633,6 @@ class BatchMPC:
                     station_body, station_name
                 )
                 link_definition = observation.link_definition(link_ends)
-                linksDictionary[f"{MPC_number}_{station_name}"] = link_definition
 
             # get observations, angles and times for this specific link
             observations_for_this_link = observations_table.query(
@@ -635,7 +659,7 @@ class BatchMPC:
             observation_set_list.append(observation_set)
 
         observation_collection = estimation.ObservationCollection(observation_set_list)
-        return observation_collection, linksDictionary
+        return observation_collection
 
     def plot_observations_temporal(
         self,
