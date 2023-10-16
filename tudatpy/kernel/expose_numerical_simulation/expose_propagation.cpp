@@ -267,6 +267,12 @@ void expose_propagation(py::module &m)
             .def_property_readonly("dependent_variable_ids",
                                    &tp::SingleArcSimulationResults<double, TIME_TYPE>::getDependentVariableId,
                                    get_docstring("SingleArcSimulationResults.dependent_variable_ids").c_str() )
+            .def_property_readonly("ordered_dependent_variable_settings",
+                                   &tp::SingleArcSimulationResults<double, TIME_TYPE>::getOrderedDependentVariableSettings,
+                                   get_docstring("SingleArcSimulationResults.ordered_dependent_variable_settings").c_str() )
+            .def_property_readonly("unordered_dependent_variable_settings",
+                                   &tp::SingleArcSimulationResults<double, TIME_TYPE>::getOriginalDependentVariableSettings,
+                                   get_docstring("SingleArcSimulationResults.unordered_dependent_variable_settings").c_str() )
             .def_property_readonly("processed_state_ids",
                                    &tp::SingleArcSimulationResults<double, TIME_TYPE>::getProcessedStateIds,
                                    get_docstring("SingleArcSimulationResults.state_ids").c_str() )
@@ -377,6 +383,14 @@ void expose_propagation(py::module &m)
             tpr::ThrustMagnitudeWrapper >(m, "ConstantThrustMagnitudeWrapper" )
             .def_property("constant_thrust_magnitude", &tpr::ConstantThrustMagnitudeWrapper::getConstantThrustForceMagnitude,
                           &tpr::ConstantThrustMagnitudeWrapper::resetConstantThrustForceMagnitude );
+
+
+    py::class_<
+        tpr::CustomThrustMagnitudeWrapper,
+        std::shared_ptr< tpr::CustomThrustMagnitudeWrapper >,
+        tpr::ThrustMagnitudeWrapper >(m, "CustomThrustMagnitudeWrapper" )
+        .def_property("custom_thrust_magnitude", nullptr,
+                      &tpr::CustomThrustMagnitudeWrapper::resetThrustMagnitudeFunction );
 }
 }// namespace propagation
 }// namespace numerical_simulation

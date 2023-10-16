@@ -278,7 +278,15 @@ namespace dependent_variable {
               py::arg("dependent_variable_settings"),
               get_docstring("get_dependent_variable_id").c_str());
 
+        m.def("get_dependent_variable_size",
+              &tp::getDependentVariableSaveSize,
+              py::arg("dependent_variable_settings"),
+              get_docstring("get_dependent_variable_size").c_str());
 
+        m.def("get_dependent_variable_shape",
+              &tp::getDependentVariableShape,
+              py::arg("dependent_variable_settings"),
+              get_docstring("get_dependent_variable_shape").c_str());
         //////////////////////////////////////////////////////////////////////////////////////
         /// FREE FUNCTIONS ///////////////////////////////////////////////////////////////////
         //////////////////////////////////////////////////////////////////////////////////////
@@ -699,6 +707,16 @@ namespace dependent_variable {
               py::arg("bodies_to_check"),
               py::arg("minimum_elevation_angle"),
               get_docstring("minimum_visible_station_body_distances").c_str());
+
+        m.def("center_of_mass",
+              &tp::centerOfMassVariableSaveSettings,
+              py::arg("body"),
+              get_docstring("center_of_mass").c_str());
+
+        m.def("inertia_tensor",
+              &tp::inertiaTensorVariableSaveSettings,
+              py::arg("body"),
+              get_docstring("inertia_tensor").c_str());
 
 
     }
