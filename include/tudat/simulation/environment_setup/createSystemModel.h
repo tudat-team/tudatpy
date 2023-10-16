@@ -78,6 +78,34 @@ public:
 
 };
 
+inline std::shared_ptr< BodyPanelGeometrySettings > frameFixedPanelGeometry(
+    const Eigen::Vector3d& surfaceNormal,
+    const double area,
+    const std::string& frameOrientation = "" )
+{
+    return std::make_shared< FrameFixedBodyPanelGeometrySettings >(
+        surfaceNormal, area, frameOrientation );
+}
+
+inline std::shared_ptr< BodyPanelGeometrySettings > timeVaryingPanelGeometry(
+    const std::function< Eigen::Vector3d( ) >& surfaceNormalFunction,
+    const double area,
+    const std::string& frameOrientation = "" )
+{
+    return std::make_shared< FrameVariableBodyPanelGeometrySettings >(
+        surfaceNormalFunction, area, frameOrientation );
+}
+
+inline std::shared_ptr< BodyPanelGeometrySettings > bodyTrackingPanelGeometry(
+    const std::string& bodyToTrack,
+    const bool towardsTrackedBody,
+    const double area,
+    const std::string& frameOrientation = "" )
+{
+    return std::make_shared< FrameVariableBodyPanelGeometrySettings >(
+        bodyToTrack, towardsTrackedBody, area, frameOrientation );
+}
+
 
 class BodyPanelSettings
 {
@@ -97,6 +125,15 @@ public:
     std::string panelTypeId_;
 };
 
+
+inline std::shared_ptr< BodyPanelSettings > bodyPanelSettings(
+    const std::shared_ptr< BodyPanelGeometrySettings > panelGeometry,
+    const std::shared_ptr< BodyPanelReflectionLawSettings > reflectionLawSettings = nullptr,
+    const std::string panelTypeId = "" )
+{
+    return std::make_shared< BodyPanelSettings >( panelGeometry, reflectionLawSettings, panelTypeId );
+}
+
 class BodyPanelledGeometrySettings
 {
 public:
@@ -106,10 +143,27 @@ public:
             std::map< std::string, std::shared_ptr< RotationModelSettings > >( )):
         panelSettingsList_( panelSettingsList ), partRotationModelSettings_( partRotationModelSettings ){ }
 
+    void addPanelRotationSettings(
+        const std::shared_ptr< RotationModelSettings > rotationSettings,
+        const std::string partName )
+    {
+        partRotationModelSettings_[ partName ] = rotationSettings;
+    }
+
     std::vector< std::shared_ptr< BodyPanelSettings > >  panelSettingsList_;
 
     std::map< std::string, std::shared_ptr< RotationModelSettings > > partRotationModelSettings_;
 };
+
+
+inline std::shared_ptr< BodyPanelledGeometrySettings > bodyPanelledGeometry(
+    const std::vector< std::shared_ptr< BodyPanelSettings > >&  panelSettingsList,
+    const std::map< std::string, std::shared_ptr< RotationModelSettings > >& partRotationModelSettings  =
+    std::map< std::string, std::shared_ptr< RotationModelSettings > >( ) )
+{
+    return std::make_shared< BodyPanelledGeometrySettings >( panelSettingsList, partRotationModelSettings );
+}
+
 
 void addEngineModel(
         const std::string& bodyName,

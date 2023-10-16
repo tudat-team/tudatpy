@@ -548,6 +548,17 @@ inline std::shared_ptr<AlbedoPanelRadiosityModelSettings>
             originalSourceName);
 }
 
+inline std::shared_ptr<AlbedoPanelRadiosityModelSettings>
+albedoPanelRadiosityModelSettingsGeneric(
+    const std::shared_ptr<SurfacePropertyDistributionSettings>& albedoDistribution,
+    const std::string& originalSourceName)
+{
+
+    return std::make_shared< AlbedoPanelRadiosityModelSettings >(
+        albedoDistribution,
+        originalSourceName);
+}
+
 /*!
  * Create settings for a delayed thermal panel radiosity model with same emissivity at any point on surface.
  *
@@ -582,6 +593,17 @@ inline std::shared_ptr<DelayedThermalPanelRadiosityModelSettings>
             secondDegreeZonalPeriodicSurfacePropertyDistributionSettings(emissivityModel),
             originalSourceName);
 }
+
+inline std::shared_ptr<DelayedThermalPanelRadiosityModelSettings>
+delayedThermalPanelRadiosityModelSettingsGeneric(
+    const std::shared_ptr<SurfacePropertyDistributionSettings>& emissivityDistribution,
+    const std::string& originalSourceName)
+{
+    return std::make_shared< DelayedThermalPanelRadiosityModelSettings >(
+        emissivityDistribution,
+        originalSourceName);
+}
+
 
 /*!
  * Create settings for an angle-based thermal panel radiosity model with same emissivity at any point on surface.
