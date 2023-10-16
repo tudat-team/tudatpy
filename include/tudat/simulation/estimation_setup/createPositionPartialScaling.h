@@ -179,31 +179,35 @@ public:
             break;
         }
         case observation_models::n_way_differenced_range:
+        case observation_models::dsn_n_way_averaged_doppler:
         {
             if( std::dynamic_pointer_cast< NWayRangeScaling >( firstPositionPartialScaling ) == nullptr )
             {
-                throw std::runtime_error( "Error when creating n-way differenced range partial scaling object, first range partial is of incompatible type" );
+                throw std::runtime_error( "Error when creating " + observation_models::getObservableName( differencedObservableType ) +
+                    " partial scaling object, first range partial is of incompatible type" );
             }
             if( std::dynamic_pointer_cast< NWayRangeScaling >( secondPositionPartialScaling ) == nullptr )
             {
-                throw std::runtime_error( "Error when creating n-way differenced range partial scaling object, second range partial is of incompatible type" );
+                throw std::runtime_error( "Error when creating " + observation_models::getObservableName( differencedObservableType ) +
+                    " partial scaling object, second range partial is of incompatible type" );
             }
 
             int numberOfLinkEnds = std::dynamic_pointer_cast< NWayRangeScaling >( firstPositionPartialScaling )->getNumberOfLinkEnds( );
             if( std::dynamic_pointer_cast< NWayRangeScaling >( firstPositionPartialScaling )->getNumberOfLinkEnds( ) !=
                     std::dynamic_pointer_cast< NWayRangeScaling >( secondPositionPartialScaling )->getNumberOfLinkEnds( ) )
             {
-                throw std::runtime_error( "Error when creating n-way differenced range partial scaling object, first and second range partials are incompatible" );
+                throw std::runtime_error( "Error when creating " + observation_models::getObservableName( differencedObservableType ) +
+                    " partial scaling object, first and second range partials are incompatible" );
             }
             positionPartialScaler = std::make_shared< DifferencedObservablePartialScaling >(
                         firstPositionPartialScaling, secondPositionPartialScaling,
-                        observation_models::getUndifferencedTimeAndStateIndices( observation_models::n_way_differenced_range, numberOfLinkEnds ) );
+                        observation_models::getUndifferencedTimeAndStateIndices( differencedObservableType, numberOfLinkEnds ) );
             break;
         }
         default:
             throw std::runtime_error( "Error when creating differenced observable partial scaler for " +
                                       observation_models::getObservableName( differencedObservableType ) +
-                                      ", type not yet rezognized. " );
+                                      ", type not recognized. " );
         }
         return positionPartialScaler;
     }
@@ -232,7 +236,7 @@ public:
         default:
             throw std::runtime_error( "Error when creating partial scaler for " +
                                       observation_models::getObservableName( observableType, linkEnds.size( ) ) +
-                                      ", type not yet rezognized. " );
+                                      ", type not recognized. " );
         }
 
         return positionPartialScaler;
@@ -276,7 +280,7 @@ public:
         default:
             throw std::runtime_error( "Error when creating differenced observable partial scaler for " +
                                       observation_models::getObservableName( differencedObservableType ) +
-                                      ", type not yet rezognized. " );
+                                      ", type not recognized. " );
         }
         return positionPartialScaler;
     }

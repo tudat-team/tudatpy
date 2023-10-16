@@ -53,7 +53,7 @@ namespace sofa_interface
  *  (i.e. determining which Sofa function to call)
  *  \return Pair of first: Vector of entries X, Y (in that order) CIP values and second: CIO locator.
  */
-std::pair< Eigen::Vector2d, double > getPositionOfCipInGcrs(
+Eigen::Vector3d getPositionOfCipInGcrs(
         const double terrestrialTime, const double referenceJulianDay = basic_astrodynamics::JULIAN_DAY_ON_J2000,
         const basic_astrodynamics::IAUConventions precessionNutationTheory = basic_astrodynamics::iau_2000_b );
 

@@ -78,14 +78,14 @@ public:
      *  is kept constant (to input value)
      *  \param linkEndTimes List of times at each link end during observation.
      *  \param linkEndStates List of states at each link end during observation.
-     *  \return Ideal one-way Doppler observable.
+     *  \return Ideal one-way Doppler ObservationAncilliarySimulationSettings<observable.
      */
     Eigen::Matrix< ObservationScalarType, 1, 1 > computeIdealObservationsWithLinkEndData(
             const TimeType time,
             const LinkEndType linkEndAssociatedWithTime,
             std::vector< double >& linkEndTimes,
             std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
-            const std::shared_ptr< ObservationAncilliarySimulationSettings< TimeType > > ancilliarySetings = nullptr )
+            const std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetings = nullptr )
     {
         std::vector< double > uplinkLinkEndTimes;
         std::vector< Eigen::Matrix< double, 6, 1 > > uplinkLinkEndStates;

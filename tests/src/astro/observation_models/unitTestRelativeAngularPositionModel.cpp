@@ -107,12 +107,12 @@ BOOST_AUTO_TEST_CASE( testRelativeAngularPositionModel )
 
     // Manually create and compute light time corrections
     std::shared_ptr< LightTimeCorrection > lightTimeCorrectionCalculatorFirstTransmitter =
-            createLightTimeCorrections( lightTimeCorrectionSettings.at( 0 ), bodies, linkEnds[ transmitter ], linkEnds[ receiver ] );
+            createLightTimeCorrections( lightTimeCorrectionSettings.at( 0 ), bodies, linkEnds, transmitter, receiver );
     double lightTimeCorrectionFirstTransmitter = lightTimeCorrectionCalculatorFirstTransmitter->calculateLightTimeCorrection(
                 linkEndStates.at( 0 ), linkEndStates.at( 2 ), linkEndTimes.at( 0 ), linkEndTimes.at( 2 ) );
 
     std::shared_ptr< LightTimeCorrection > lightTimeCorrectionCalculatorSecondTransmitter =
-            createLightTimeCorrections( lightTimeCorrectionSettings.at( 0 ), bodies, linkEnds[ transmitter2 ], linkEnds[ receiver ] );
+            createLightTimeCorrections( lightTimeCorrectionSettings.at( 0 ), bodies, linkEnds, transmitter2, receiver );
     double lightTimeCorrectionSecondTransmitter = lightTimeCorrectionCalculatorSecondTransmitter->calculateLightTimeCorrection(
             linkEndStates.at( 1 ), linkEndStates.at( 2 ), linkEndTimes.at( 1 ), linkEndTimes.at( 2 ) );
 

@@ -25,6 +25,8 @@
 #include "tudat/math/basic/basicMathematicsFunctions.h"
 #include "tudat/astro/reference_frames/referenceFrameTransformations.h"
 #include "tudat/astro/basic_astro/orbitalElementConversions.h"
+#include "tudat/astro/basic_astro/physicalConstants.h"
+
 namespace tudat
 {
 
@@ -668,6 +670,319 @@ Eigen::Vector3d getBodyFixedSphericalPosition(
                                                orientationFunctionOfCentralBody ) );
     sphericalPosition( 1 ) = mathematical_constants::PI / 2.0 - sphericalPosition( 1 );
     return sphericalPosition;
+}
+
+Eigen::Matrix3d getItrf2014ToArbitraryItrfRotationMatrix( const std::string& targetFrame )
+{
+    double d = 0.0, r1 = 0.0, r2 = 0.0, r3 = 0.0;
+
+    if ( targetFrame == "ITRF2008" )
+    {
+        d = -0.02;
+    }
+    else if( targetFrame == "ITRF2005" )
+    {
+        d = 0.92;
+    }
+    else if( targetFrame == "ITRF2000" )
+    {
+        d = 2.12;
+    }
+    else if( targetFrame == "ITRF97" || targetFrame == "ITRF96" || targetFrame == "ITRF94" )
+    {
+        d = 3.80;
+        r3 = 0.26;
+    }
+    else if( targetFrame == "ITRF93" )
+    {
+        d = 4.29;
+        r1 = -2.81;
+        r2 = -3.38;
+        r3 = 0.40;
+    }
+    else if ( targetFrame == "ITRF92" )
+    {
+        d = 3.09;
+        r3 = 0.26;
+    }
+    else if ( targetFrame == "ITRF91" )
+    {
+        d = 4.49;
+        r3 = 0.26;
+    }
+    else if ( targetFrame == "ITRF90" )
+    {
+        d = 4.79;
+        r3 = 0.26;
+    }
+    else if ( targetFrame == "ITRF89" )
+    {
+        d = 8.19;
+        r3 = 0.26;
+    }
+    else if ( targetFrame == "ITRF88" )
+    {
+        d = 11.29;
+        r1 = 0.10;
+        r3 = 0.26;
+    }
+    else
+    {
+        throw std::runtime_error("Error when converting between ITRF frames: the selected frame (" + targetFrame +
+            ") is not valid." );
+    }
+
+    // Convert units
+    double masToRad = mathematical_constants::PI / 180.0 / 3600.0 * 1e-3;
+    d *= 1e-9;
+    r1 *= masToRad;
+    r2 *= masToRad;
+    r3 *= masToRad;
+
+    return ( 1.0 + d ) * Eigen::Matrix3d::Identity() + ( Eigen::Matrix3d() << 0.0, -r3, r2, r3, 0.0, -r1, -r2, r1, 0 ).finished();
+}
+
+Eigen::Matrix3d getItrf2014ToArbitraryItrfRotationMatrixDerivative( const std::string& targetFrame )
+{
+    double d_d = 0.0, r1_d = 0.0, r2_d = 0.0, r3_d = 0.0;
+
+    if ( targetFrame == "ITRF2008" || targetFrame == "ITRF2005" )
+    {
+        d_d = 0.03;
+    }
+    else if( targetFrame == "ITRF2000" )
+    {
+        d_d = 0.11;
+    }
+    else if( targetFrame == "ITRF97" || targetFrame == "ITRF96" || targetFrame == "ITRF94" )
+    {
+        d_d = 0.12;
+    }
+    else if( targetFrame == "ITRF93" )
+    {
+        d_d = 0.12;
+        r1_d = -0.11;
+        r2_d = -0.19;
+        r3_d = 0.07;
+    }
+    else if ( targetFrame == "ITRF92" || targetFrame == "ITRF91" || targetFrame == "ITRF90" || targetFrame == "ITRF89"
+        || targetFrame == "ITRF88" )
+    {
+        d_d = 0.12;
+        r3_d = 0.02;
+    }
+    else
+    {
+        throw std::runtime_error("Error when converting between ITRF frames: the selected frame (" + targetFrame +
+            ") is not valid." );
+    }
+
+    // Convert units
+    double masToRad = mathematical_constants::PI / 180.0 / 3600.0 * 1e-3;
+    d_d *= 1e-9 / physical_constants::JULIAN_YEAR;
+    r1_d *= masToRad / physical_constants::JULIAN_YEAR;
+    r2_d *= masToRad / physical_constants::JULIAN_YEAR;
+    r3_d *= masToRad / physical_constants::JULIAN_YEAR;
+
+    return d_d * Eigen::Matrix3d::Identity() + ( Eigen::Matrix3d() << 0.0, -r3_d, r2_d, r3_d, 0.0, -r1_d, -r2_d, r1_d, 0 ).finished();
+}
+
+Eigen::Vector6d getItrf2014ToArbitraryItrfTranslation( const std::string& targetFrame )
+{
+    double t1 = 0.0, t2 = 0.0, t3 = 0.0, t1_d = 0.0, t2_d = 0.0, t3_d = 0.0;
+
+    if ( targetFrame == "ITRF2008" )
+    {
+        t1 = 1.6;
+        t2 = 1.9;
+        t3 = 2.4;
+        t3_d = -0.1;
+    }
+    else if( targetFrame == "ITRF2005" )
+    {
+        t1 = 2.6;
+        t2 = 1.0;
+        t3 = -2.3;
+        t1_d = -0.3;
+        t3_d = -0.1;
+    }
+    else if( targetFrame == "ITRF2000" )
+    {
+        t1 = 0.7;
+        t2 = 1.2;
+        t3 = -26.1;
+        t1_d = 0.1;
+        t2_d = 0.1;
+        t3_d = -1.9;
+    }
+    else if( targetFrame == "ITRF97" || targetFrame == "ITRF96" || targetFrame == "ITRF94" )
+    {
+        t1 = 7.4;
+        t2 = -0.5;
+        t3 = -62.8;
+        t1_d = 0.1;
+        t2_d = -0.5;
+        t3_d = -3.3;
+    }
+    else if( targetFrame == "ITRF93" )
+    {
+        t1 = -50.4;
+        t2 = 3.3;
+        t3 = -60.2;
+        t1_d = -2.8;
+        t2_d = -0.1;
+        t3_d = -2.5;
+    }
+    else if ( targetFrame == "ITRF92" )
+    {
+        t1 = 15.4;
+        t2 = 1.5;
+        t3 = -70.8;
+        t1_d = 0.1;
+        t2_d = -0.5;
+        t3_d = -3.3;
+    }
+    else if ( targetFrame == "ITRF91" )
+    {
+        t1 = 27.4;
+        t2 = 15.5;
+        t3 = -76.8;
+        t1_d = 0.1;
+        t2_d = -0.5;
+        t3_d = -3.3;
+    }
+    else if ( targetFrame == "ITRF90" )
+    {
+        t1 = 25.4;
+        t2 = 3.3;
+        t3 = -92.8;
+        t1_d = 0.1;
+        t2_d = 11.5;
+        t3_d = -3.3;
+    }
+    else if ( targetFrame == "ITRF89" )
+    {
+        t1 = 30.4;
+        t2 = 35.5;
+        t3 = -130.8;
+        t1_d = 0.1;
+        t2_d = 11.5;
+        t3_d = -3.3;
+    }
+    else if ( targetFrame == "ITRF88" )
+    {
+        t1 = 25.4;
+        t2 = -0.5;
+        t3 = -154.8;
+        t1_d = 0.1;
+        t2_d = 11.5;
+        t3_d = -3.3;
+    }
+    else
+    {
+        throw std::runtime_error("Error when converting between ITRF frames: the selected frame (" + targetFrame +
+            ") is not valid." );
+    }
+
+    // Convert units
+    t1 *= 1e-3;
+    t2 *= 1e-3;
+    t3 *= 1e-3;
+    t1_d *= 1e-3 / physical_constants::JULIAN_YEAR;
+    t2_d *= 1e-3 / physical_constants::JULIAN_YEAR;
+    t3_d *= 1e-3 / physical_constants::JULIAN_YEAR;
+
+    return ( Eigen::Vector6d() << t1, t2, t3, t1_d, t2_d, t3_d ).finished();
+}
+
+Eigen::Vector6d convertGroundStationStateItrf2014ToArbitraryItrf(
+        const Eigen::Vector6d& groundStationStateAtEpoch,
+        double epoch,
+        const std::string& targetFrame )
+{
+    double itrf2014ReferenceEpoch = 10.0 * physical_constants::JULIAN_YEAR;
+
+    Eigen::Vector6d groundStationStateAtReferenceEpoch = groundStationStateAtEpoch;
+    groundStationStateAtReferenceEpoch.segment( 0, 3 ) += groundStationStateAtReferenceEpoch.segment( 3, 3 ) * (
+            itrf2014ReferenceEpoch - epoch );
+
+    Eigen::Matrix6d rotationMatrix = Eigen::Matrix6d::Zero( );
+    rotationMatrix.block( 0, 0, 3, 3 ) = getItrf2014ToArbitraryItrfRotationMatrix( targetFrame );
+    rotationMatrix.block( 3, 0, 3, 3 ) = getItrf2014ToArbitraryItrfRotationMatrixDerivative( targetFrame );
+    rotationMatrix.block( 3, 3, 3, 3 ) = getItrf2014ToArbitraryItrfRotationMatrix( targetFrame );
+
+    Eigen::Vector6d groundStationItrf2014StateAtReferenceEpoch = getItrf2014ToArbitraryItrfTranslation( targetFrame ) +
+            rotationMatrix * groundStationStateAtReferenceEpoch;
+
+    Eigen::Vector6d groundStationItrf2014StateAtEpoch = groundStationItrf2014StateAtReferenceEpoch;
+    groundStationItrf2014StateAtEpoch.segment( 0, 3 ) -= groundStationItrf2014StateAtEpoch.segment( 3, 3 ) * (
+            itrf2014ReferenceEpoch - epoch );
+
+    return groundStationItrf2014StateAtEpoch;
+}
+
+Eigen::Vector6d convertGroundStationStateArbitraryItrfToItrf2014(
+        const Eigen::Vector6d& groundStationStateAtEpoch,
+        double epoch,
+        const std::string& baseFrame )
+{
+    double itrf2014ReferenceEpoch = 10.0 * physical_constants::JULIAN_YEAR;
+
+    Eigen::Vector6d groundStationStateAtReferenceEpoch = groundStationStateAtEpoch;
+    groundStationStateAtReferenceEpoch.segment( 0, 3 ) += groundStationStateAtReferenceEpoch.segment( 3, 3 ) * (
+            itrf2014ReferenceEpoch - epoch );
+
+    Eigen::Matrix6d rotationMatrix = Eigen::Matrix6d::Zero( );
+    Eigen::Matrix3d itrf2014ToArbitraryItrfRotationMatrixInverse = getItrf2014ToArbitraryItrfRotationMatrix( baseFrame ).inverse( );
+    rotationMatrix.block( 0, 0, 3, 3 ) = itrf2014ToArbitraryItrfRotationMatrixInverse;
+    rotationMatrix.block( 3, 0, 3, 3 ) =
+            - itrf2014ToArbitraryItrfRotationMatrixInverse *
+            getItrf2014ToArbitraryItrfRotationMatrixDerivative( baseFrame ) *
+            itrf2014ToArbitraryItrfRotationMatrixInverse;
+    rotationMatrix.block( 3, 3, 3, 3 ) = itrf2014ToArbitraryItrfRotationMatrixInverse;
+
+    Eigen::Vector6d groundStationItrf2014StateAtReferenceEpoch =
+            rotationMatrix * ( groundStationStateAtReferenceEpoch - getItrf2014ToArbitraryItrfTranslation( baseFrame ) );
+
+    groundStationItrf2014StateAtReferenceEpoch.segment(3,3) = itrf2014ToArbitraryItrfRotationMatrixInverse *
+            ( groundStationStateAtReferenceEpoch.segment(3,3) - getItrf2014ToArbitraryItrfTranslation( baseFrame ).segment(3,3) -
+            getItrf2014ToArbitraryItrfRotationMatrixDerivative( baseFrame ) *
+            groundStationItrf2014StateAtReferenceEpoch.segment(0,3) );
+
+    Eigen::Vector6d groundStationItrf2014StateAtEpoch = groundStationItrf2014StateAtReferenceEpoch;
+    groundStationItrf2014StateAtEpoch.segment( 0, 3 ) -= groundStationItrf2014StateAtEpoch.segment( 3, 3 ) * (
+            itrf2014ReferenceEpoch - epoch );
+
+    return groundStationItrf2014StateAtEpoch;
+}
+
+Eigen::Vector6d convertGroundStationStateBetweenItrfFrames(
+        const Eigen::Vector6d& groundStationStateAtEpoch,
+        double epoch,
+        const std::string& baseFrame,
+        const std::string& targetFrame )
+{
+    Eigen::Vector6d groundStationStateTargetFrame;
+
+    if ( baseFrame == "ITRF2014" )
+    {
+        groundStationStateTargetFrame = convertGroundStationStateItrf2014ToArbitraryItrf(
+                groundStationStateAtEpoch, epoch, targetFrame );
+    }
+    else if ( targetFrame == "ITRF2014" )
+    {
+        groundStationStateTargetFrame = convertGroundStationStateArbitraryItrfToItrf2014(
+                groundStationStateAtEpoch, epoch, baseFrame );
+    }
+    else
+    {
+        groundStationStateTargetFrame = convertGroundStationStateArbitraryItrfToItrf2014(
+                groundStationStateAtEpoch, epoch, baseFrame );
+        groundStationStateTargetFrame = convertGroundStationStateItrf2014ToArbitraryItrf(
+                groundStationStateTargetFrame, epoch, targetFrame );
+    }
+
+    return groundStationStateTargetFrame;
 }
 
 } // namespace reference_frames

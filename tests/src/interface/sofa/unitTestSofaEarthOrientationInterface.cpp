@@ -71,11 +71,11 @@ BOOST_AUTO_TEST_CASE( testSofaPrecessionNutation )
         }
 
         // Calculate X, Y pole position and CIO locator and compare against cookbook results.
-        std::pair< Eigen::Vector2d, double > cipInGcrs =
+        Eigen::Vector3d cipInGcrs =
                 getPositionOfCipInGcrs( testJulianDay2, testJulianDay1, iauConventions );
-        BOOST_CHECK_SMALL( expectedPolePosition.x( ) - ( cipInGcrs.first.x( ) + dXTest ), 5.0E-11 );
-        BOOST_CHECK_SMALL( expectedPolePosition.y( ) - ( cipInGcrs.first.y( ) + dYTest ), 5.0E-11 );
-        BOOST_CHECK_SMALL( expectedCioLocator - cipInGcrs.second, 2.0E-12 );
+        BOOST_CHECK_SMALL( expectedPolePosition.x( ) - ( cipInGcrs( 0 ) + dXTest ), 5.0E-11 );
+        BOOST_CHECK_SMALL( expectedPolePosition.y( ) - ( cipInGcrs( 1 ) + dYTest ), 5.0E-11 );
+        BOOST_CHECK_SMALL( expectedCioLocator - cipInGcrs( 2 ), 2.0E-12 );
 
     }
 
