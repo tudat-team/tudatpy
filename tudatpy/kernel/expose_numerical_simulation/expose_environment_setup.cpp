@@ -22,6 +22,7 @@
 #include "expose_environment_setup/expose_shape_setup.h"
 #include "expose_environment_setup/expose_shape_deformation_setup.h"
 #include "expose_environment_setup/expose_rigid_body_setup.h"
+#include "expose_environment_setup/expose_vehicle_systems_setup.h"
 
 #include "tudatpy/docstrings.h"
 #include "tudatpy/scalarTypes.h"
@@ -303,6 +304,10 @@ namespace environment_setup {
 
         auto rigid_body_setup = m.def_submodule("rigid_body");
         rigid_body::expose_rigid_body_setup(rigid_body_setup);
+
+        auto vehicle_systems_setup = m.def_submodule("vehicle_systems");
+        vehicle_systems::expose_vehicle_systems_setup(vehicle_systems_setup);
+
 
 //        auto system_model_setup = m.def_submodule("system_models");
 //        gravity_field_variation::expose_system_model_setup(system_model_setup);

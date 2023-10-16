@@ -91,6 +91,176 @@ namespace radiation_pressure {
               get_docstring("panelled").c_str()
               );
 
+
+
+
+
+///////////////////////////////////////////////////////////
+///////////   LUMINOSITY MODELS
+///////////////////////////////////////////////////////////
+
+        m.def("constant_luminosity",
+              &tss::constantLuminosityModelSettings,
+              py::arg("luminosity"),
+              get_docstring("constant_luminosity").c_str()
+        );
+
+        m.def("irradiance_based_luminosity",
+              &tss::irradianceBasedLuminosityModelSettings,
+              py::arg("irradiance_function_at_reference_distance"),
+              py::arg("irradiance_based_luminosity"),
+              get_docstring("constant_luminosity").c_str()
+        );
+
+
+///////////////////////////////////////////////////////////
+///////////   SURFACE PROPERTY MODELS
+///////////////////////////////////////////////////////////
+
+
+        m.def("constant_surface_property_distribution",
+              &tss::constantSurfacePropertyDistributionSettings,
+              py::arg("constant_value"),
+              get_docstring("constant_surface_property_distribution").c_str()
+        );
+
+        m.def("spherical_harmonic_surface_property_distribution",
+              py::overload_cast< const Eigen::MatrixXd&, const Eigen::MatrixXd& >(
+                  &tss::sphericalHarmonicsSurfacePropertyDistributionSettings ),
+              py::arg("cosine_coefficients"),
+              py::arg("sine_coefficients"),
+              get_docstring("constant_surface_property_distribution").c_str()
+        );
+
+        m.def("predefined_spherical_harmonic_surface_property_distribution",
+              py::overload_cast< tss::SphericalHarmonicsSurfacePropertyDistributionModel >(
+                  &tss::sphericalHarmonicsSurfacePropertyDistributionSettings ),
+              py::arg("predefined_model"),
+              get_docstring("predefined_spherical_harmonic_surface_property_distribution").c_str()
+        );
+
+
+        m.def("knocke_type_surface_property_distribution",
+                  &tss::manualSecondDegreeZonalPeriodicSurfacePropertyDistributionSettings,
+              py::arg("constant_contribution"),
+              py::arg("constant_degree_one_contribution"),
+              py::arg("cosine_periodic_degree_one_contribution"),
+              py::arg("sine_periodic_degree_one_contribution"),
+              py::arg("constant_degree_two_contribution"),
+              py::arg("reference_epoch"),
+              py::arg("period"),
+              get_docstring("knocke_type_property_distribution").c_str()
+        );
+
+
+        m.def("predefined_knocke_type_surface_property_distribution",
+              py::overload_cast< tss::SecondDegreeZonalPeriodicSurfacePropertyDistributionModel >(
+                  &tss::secondDegreeZonalPeriodicSurfacePropertyDistributionSettings ),
+              py::arg("predefined_model"),
+              get_docstring("predefined_knocke_type_property_distribution").c_str()
+        );
+
+
+///////////////////////////////////////////////////////////
+///////////   PANEL RADIOSITY MODELS
+///////////////////////////////////////////////////////////
+
+
+        m.def("constant_panel_radiosity",
+              &tss::constantPanelRadiosityModelSettings,
+              py::arg("constant_radiosoty"),
+              get_docstring("constant_panel_radiosity").c_str()
+        );
+
+        m.def("albedo_constant_surface_radiosity",
+              py::overload_cast< double, const std::string& >( &tss::albedoPanelRadiosityModelSettings ),
+              py::arg("constant_albedo"),
+              py::arg("original_source_name"),
+              get_docstring("constant_albedo_panel_radiosity").c_str()
+        );
+
+        m.def("albedo_variable_surface_radiosity",
+              &tss::albedoPanelRadiosityModelSettingsGeneric,
+              py::arg("albedo_distribution_model"),
+              py::arg("original_source_name"),
+              get_docstring("constant_albedo_panel_radiosity").c_str()
+        );
+
+        m.def("thermal_emission_blackbody_constant_emissivity",
+              py::overload_cast< double, const std::string& >( &tss::delayedThermalPanelRadiosityModelSettings ),
+              py::arg("constant_emissivity"),
+              py::arg("original_source_name"),
+              get_docstring("thermal_emission_delayed_radiosity_constant_emissivity").c_str()
+        );
+
+        m.def("thermal_emission_blackbody_variable_emissivity",
+              &tss::delayedThermalPanelRadiosityModelSettingsGeneric,
+              py::arg("emissivity_distribution_model"),
+              py::arg("original_source_name"),
+              get_docstring("thermal_emission_delayed_radiosity_constant_emissivity").c_str()
+        );
+
+        m.def("thermal_emission_angle_based_radiosity",
+              &tss::angleBasedThermalPanelRadiosityModelSettings,
+              py::arg("minimum_temperature"),
+              py::arg("maximum_temperature"),
+              py::arg("constant_emissivity"),
+              py::arg("original_source_name"),
+              get_docstring("thermal_emission_delayed_radiosity_constant_emissivity").c_str()
+        );
+
+
+///////////////////////////////////////////////////////////
+///////////   PANEL REFLECTION MODELS
+///////////////////////////////////////////////////////////
+
+
+        m.def("specular_diffuse_body_panel_reflection",
+              &tss::specularDiffuseBodyPanelReflectionLawSettings,
+              py::arg("specular_reflectivity"),
+              py::arg("diffuse_reflectivity"),
+              py::arg("with_instantaneous_reradiation"),
+            get_docstring("specular_diffuse_body_panel_reflection").c_str()
+        );
+
+
+///////////////////////////////////////////////////////////
+///////////   RADIATION SOURCE MODELS
+///////////////////////////////////////////////////////////
+
+
+        m.def("isotropic_radiation_source",
+              &tss::isotropicPointRadiationSourceModelSettings,
+              py::arg("luminosity_model"),
+              get_docstring("isotropic_radiation_source").c_str()
+              );
+
+        m.def("panelled_extended_radiation_source",
+              &tss::extendedRadiationSourceModelSettingsWithOccultationMap,
+              py::arg("panel_radiosity_settings"),
+              py::arg("number_of_panels_per_ring"),
+              py::arg("original_source_occulting_bodies"),
+              get_docstring("panelled_extended_radiation_source").c_str()
+              );
+
+
+///////////////////////////////////////////////////////////
+///////////   RADIATION TARGET MODELS
+///////////////////////////////////////////////////////////
+
+        m.def("cannonball_radiation_target",
+                  &tss::cannonballRadiationPressureTargetModelSettingsWithOccultationMap,
+              py::arg("reference_area"),
+              py::arg("radiation_pressure_coefficient"),
+              py::arg("per_source_occulting_bodies") = std::map<std::string, std::vector<std::string>>( ),
+              get_docstring("cannonball_radiation_target").c_str()
+        );
+
+        m.def("panelled_radiation_target",
+              &tss::paneledRadiationPressureTargetModelSettingsWithOccultationMap,
+              get_docstring("panelled_radiation_target").c_str()
+        );
+
     }
 
 }// namespace radiation_pressure
