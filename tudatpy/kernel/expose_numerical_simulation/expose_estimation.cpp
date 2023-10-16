@@ -202,7 +202,7 @@ std::shared_ptr< tom::SingleObservationSet< ObservationScalarType, TimeType > > 
             const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observations,
             const std::vector< TimeType > observationTimes,
             const tom::LinkEndType referenceLinkEnd,
-            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings < TimeType > > ancilliarySettings = nullptr )
+            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings = nullptr )
 {
     return std::make_shared< tom::SingleObservationSet< ObservationScalarType, TimeType > >(
             observableType, linkEnds, observations, observationTimes, referenceLinkEnd,
@@ -302,7 +302,7 @@ void expose_estimation(py::module &m) {
           py::arg("observations"),
           py::arg("reference_link_end" ),
           py::arg("ancilliary_settings_per_observatble" ) = std::map< tom::ObservableType,
-          std::shared_ptr< tom::ObservationAncilliarySimulationSettings < double > > >( ) );
+          std::shared_ptr< tom::ObservationAncilliarySimulationSettings > >( ) );
 
     m.def("compute_target_angles_and_range",
           &tss::getTargetAnglesAndRange,
@@ -343,6 +343,13 @@ void expose_estimation(py::module &m) {
                                    get_docstring("ObservationCollection.observation_vector_size").c_str() )
             .def_property_readonly("sorted_observation_sets", &tom::ObservationCollection<double, TIME_TYPE>::getSortedObservationSets,
                                    get_docstring("ObservationCollection.sorted_observation_sets").c_str() )
+            .def_property_readonly("link_ends_per_observable_type", &tom::ObservationCollection<double, TIME_TYPE>::getLinkEndsPerObservableType,
+                                   get_docstring("ObservationCollection.link_ends_per_observable_type").c_str() )
+            .def_property_readonly("link_definitions_per_observable", &tom::ObservationCollection<double, TIME_TYPE>::getLinkDefinitionsPerObservable,
+                                   get_docstring("ObservationCollection.link_definitions_per_observable").c_str() )
+            .def("get_link_definitions_for_observables", &tom::ObservationCollection<double, TIME_TYPE>::getLinkDefinitionsForSingleObservable,
+                 py::arg( "observable_type" ),
+                 get_docstring("ObservationCollection.get_link_definitions_for_observables").c_str() )
             .def("get_single_link_and_type_observations", &tom::ObservationCollection<double, TIME_TYPE>::getSingleLinkAndTypeObservationSets,
                                    py::arg( "observable_type" ),
                                    py::arg( "link_definition" ),
@@ -502,30 +509,53 @@ void expose_estimation(py::module &m) {
             .def(py::init<
                  const std::shared_ptr< tom::ObservationCollection<double, TIME_TYPE> >&,
                  const Eigen::MatrixXd,
-                 const Eigen::MatrixXd >( ),
+                 const Eigen::MatrixXd,
+                 const double >( ),
                  py::arg( "observations_and_times" ),
                  py::arg( "inverse_apriori_covariance" ) = Eigen::MatrixXd::Zero( 0, 0 ),
                  py::arg( "consider_covariance" ) = Eigen::MatrixXd::Zero( 0, 0 ),
+                 py::arg( "limit_condition_number_for_warning" ) = 1.0E8,
                  get_docstring("CovarianceAnalysisInput.ctor").c_str() )
             .def( "set_constant_weight",
                   &tss::CovarianceAnalysisInput<double, TIME_TYPE>::setConstantWeightsMatrix,
                   py::arg( "weight" ),
                   get_docstring("CovarianceAnalysisInput.set_constant_weight").c_str() )
+            .def( "set_constant_single_observable_weight",
+                  &tss::CovarianceAnalysisInput<double, TIME_TYPE>::setConstantSingleObservableWeights,
+                  py::arg( "observable_type" ),
+                  py::arg( "weight" ),
+                  get_docstring("CovarianceAnalysisInput.set_constant_single_observable_weight").c_str() )
+            .def( "set_constant_single_observable_vector_weight",
+                  &tss::CovarianceAnalysisInput<double, TIME_TYPE>::setConstantSingleObservableVectorWeights,
+                  py::arg( "observable_type" ),
+                  py::arg( "weight" ),
+                  get_docstring("CovarianceAnalysisInput.set_constant_single_observable_vector_weight").c_str() )
+            .def( "set_constant_single_observable_and_link_end_weight",
+                  &tss::CovarianceAnalysisInput<double, TIME_TYPE>::setConstantSingleObservableAndLinkEndsWeights,
+                  py::arg( "observable_type" ),
+                  py::arg( "link_ends" ),
+                  py::arg( "weight" ),
+                  get_docstring("CovarianceAnalysisInput.set_constant_single_observable_and_link_end_vector_weight").c_str() )
+            .def( "set_constant_single_observable_and_link_end_vector_weight",
+                  &tss::CovarianceAnalysisInput<double, TIME_TYPE>::setConstantSingleObservableAndLinkEndsVectorWeights,
+                  py::arg( "observable_type" ),
+                  py::arg( "link_ends" ),
+                  py::arg( "weight" ),
+                  get_docstring("CovarianceAnalysisInput.set_constant_single_observable_and_link_end_vector_weight").c_str() )
+            .def( "set_total_single_observable_and_link_end_vector_weight",
+                  &tss::CovarianceAnalysisInput<double, TIME_TYPE>::setTabulatedSingleObservableAndLinkEndsWeights,
+                  py::arg( "observable_type" ),
+                  py::arg( "link_ends" ),
+                  py::arg( "weight_vector" ),
+                  get_docstring("CovarianceAnalysisInput.set_constant_single_observable_and_link_end_vector_weight").c_str() )
             .def( "set_constant_weight_per_observable",
                   &tss::CovarianceAnalysisInput<double, TIME_TYPE>::setConstantPerObservableWeightsMatrix,
                   py::arg( "weight_per_observable" ),
                   get_docstring("CovarianceAnalysisInput.set_constant_weight_per_observable").c_str() )
-            .def( "set_constant_weight_per_observable",
-                  &tss::CovarianceAnalysisInput<double, TIME_TYPE>::setTabulatedPerObservableAndLinkEndsWeights,
+            .def( "set_constant_vector_weight_per_observable",
+                  &tss::CovarianceAnalysisInput<double, TIME_TYPE>::setConstantPerObservableVectorWeightsMatrix,
                   py::arg( "weight_per_observable" ),
                   get_docstring("CovarianceAnalysisInput.set_constant_weight_per_observable").c_str() )
-			.def( "set_constant_weight_per_observable_and_link_end",
-                  py::overload_cast< const tom::ObservableType, const tom::LinkEnds&, const double >(
-                          &tss::CovarianceAnalysisInput<double, TIME_TYPE>::setConstantPerObservableAndLinkEndsWeights ),
-                  py::arg( "observable_type" ),
-                  py::arg( "link_ends" ),
-                  py::arg( "weight_per_observable" ),
-                  get_docstring("CovarianceAnalysisInput.set_constant_weight_per_observable_and_link_end").c_str() )
             .def( "define_covariance_settings",
                   &tss::CovarianceAnalysisInput<double, TIME_TYPE>::defineCovarianceSettings,
                   py::arg( "reintegrate_equations_on_first_iteration" ) = true,
@@ -547,12 +577,18 @@ void expose_estimation(py::module &m) {
                  const Eigen::MatrixXd,
                  std::shared_ptr< tss::EstimationConvergenceChecker >,
                  const Eigen::MatrixXd,
-                 const Eigen::VectorXd >( ),
+                 const Eigen::VectorXd,
+                 const double,
+                 const bool,
+                 const bool >( ),
                  py::arg( "observations_and_times" ),
                  py::arg( "inverse_apriori_covariance" ) = Eigen::MatrixXd::Zero( 0, 0 ),
                  py::arg( "convergence_checker" ) = std::make_shared< tss::EstimationConvergenceChecker >( ),
                  py::arg( "consider_covariance" ) = Eigen::MatrixXd::Zero( 0, 0 ),
                  py::arg( "consider_parameters_deviations" ) = Eigen::VectorXd::Zero( 0 ),
+                 py::arg( "limit_condition_number_for_warning" ) = 1.0E8,
+                 py::arg( "condition_number_warning_each_iteration" ) = true,
+                 py::arg( "apply_final_parameter_correction" ) = true,
                  get_docstring("EstimationInput.ctor").c_str() )
             .def( "define_estimation_settings",
                   &tss::EstimationInput<double, TIME_TYPE>::defineEstimationSettings,
@@ -637,7 +673,10 @@ void expose_estimation(py::module &m) {
                                    get_docstring("EstimationOutput.simulation_results_per_iteration").c_str() )
             .def_readonly("final_residuals",
                           &tss::EstimationOutput<double, TIME_TYPE>::residuals_,
-                          get_docstring("EstimationOutput.final_residuals").c_str() );
+                          get_docstring("EstimationOutput.final_residuals").c_str() )
+            .def_readonly("best_iteration",
+                          &tss::EstimationOutput<double, TIME_TYPE>::bestIteration_,
+                          get_docstring("EstimationOutput.best_iteration").c_str() );
 
     m.attr("PodOutput") = m.attr("EstimationOutput");
 

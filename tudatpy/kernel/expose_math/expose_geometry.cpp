@@ -49,7 +49,9 @@ void expose_geometry(py::module &m) {
                  py::arg("rear_angle"),
                  py::arg("side_radius") )
             .def_property_readonly("middle_radius", &tgs::Capsule::getMiddleRadius)
-            .def_property_readonly("volume", &tgs::Capsule::getVolume);
+            .def_property_readonly("volume", &tgs::Capsule::getVolume)
+            .def_property_readonly("length", &tgs::Capsule::getLength);
+
 
 
 };
