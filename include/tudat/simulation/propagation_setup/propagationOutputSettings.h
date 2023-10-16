@@ -1384,8 +1384,22 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > visibleSourceAreaD
         const std::string& targetBody,
         const std::string& sourceBody)
 {
+    return std::make_shared<SingleDependentVariableSaveSettings>(
+        visible_source_area, targetBody, sourceBody );
+}
+
+inline std::shared_ptr< SingleDependentVariableSaveSettings > centerOfMassVariableSaveSettings(
+    const std::string& bodyName )
+{
     return std::make_shared< SingleDependentVariableSaveSettings >(
-            visible_source_area, targetBody, sourceBody);
+        body_center_of_mass, bodyName );
+}
+
+inline std::shared_ptr< SingleDependentVariableSaveSettings > inertiaTensorVariableSaveSettings(
+    const std::string& bodyName )
+{
+    return std::make_shared< SingleDependentVariableSaveSettings >(
+        body_inertia_tensor, bodyName );
 }
 
 } // namespace propagators

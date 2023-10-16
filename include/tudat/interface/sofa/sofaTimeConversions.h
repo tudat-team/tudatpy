@@ -190,6 +190,31 @@ double getTDBminusTT( const double ttOrTdbSinceJ2000, const double stationLongit
  */
 double getTDBminusTT( const double ttOrTdbSinceJ2000, const Eigen::Vector3d& stationCartesianPosition );
 
+//! Determine the number of seconds that have passed in the current year.
+/*!
+ * Determine the number of seconds that have passed in the current year.
+ * @param secondsSinceEpoch Seconds since reference epoch.
+ * @param epochSinceJulianDayZero Reference epoch in julian days.
+ * @return Seconds since beginning of calendar year
+ */
+template< typename TimeScalarType = double >
+TimeScalarType convertSecondsSinceEpochToSecondsOfYear(
+        const TimeScalarType secondsSinceEpoch,
+        const TimeScalarType epochSinceJulianDayZero = basic_astrodynamics::getJulianDayOnJ2000< TimeScalarType >( ) )
+{
+    // Get calendar date
+    int year, month, day;
+    double fractionOfDay;
+    iauJd2cal( static_cast< double >( epochSinceJulianDayZero ),
+               static_cast< double >( secondsSinceEpoch ) / physical_constants::JULIAN_DAY, &year, &month, &day, &fractionOfDay );
+
+    // Get time since start of the calendar year
+    double timeStartOfYear = basic_astrodynamics::convertCalendarDateToJulianDaysSinceEpoch(
+            year, 1, 1, 0, 0, 0.0, epochSinceJulianDayZero ) * physical_constants::JULIAN_DAY;
+
+    return secondsSinceEpoch - static_cast< TimeScalarType >( timeStartOfYear );
+}
+
 } // namespace sofa_interfaces
 
 } // namespace tudat

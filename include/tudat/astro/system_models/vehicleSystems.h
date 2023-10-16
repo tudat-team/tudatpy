@@ -20,6 +20,7 @@
 #include "tudat/astro/ephemerides/rotationalEphemeris.h"
 #include "tudat/astro/system_models/engineModel.h"
 #include "tudat/astro/system_models/vehicleExteriorPanels.h"
+#include "tudat/astro/observation_models/observationFrequencies.h"
 
 namespace tudat
 {
@@ -226,6 +227,36 @@ public:
         vehiclePartOrientation_ = vehiclePartOrientation;
     }
 
+    void setTransponderTurnaroundRatio(
+             std::function< double (
+                     observation_models::FrequencyBands uplinkBand,
+                     observation_models::FrequencyBands downlinkBand ) > transponderRatioFunction = &observation_models::getDsnDefaultTurnaroundRatios )
+    {
+        transponderTurnaroundRatio_ = transponderRatioFunction;
+    }
+
+    void setTransponderTurnaroundRatio(
+            std::map< std::pair< observation_models::FrequencyBands, observation_models::FrequencyBands >, double >&
+                    transponderRatioPerUplinkAndDownlinkFrequencyBand )
+    {
+        transponderTurnaroundRatio_ = [=] (
+                observation_models::FrequencyBands uplinkBand,
+                observation_models::FrequencyBands downlinkBand )
+        {
+            return transponderRatioPerUplinkAndDownlinkFrequencyBand.at( std::make_pair( uplinkBand, downlinkBand ) );
+        };
+    }
+
+    std::function< double ( observation_models::FrequencyBands uplinkBand, observation_models::FrequencyBands downlinkBand ) >
+            getTransponderTurnaroundRatio( )
+    {
+        if( transponderTurnaroundRatio_ == nullptr )
+        {
+            throw std::runtime_error( "Error when retrieving transponder turnaround ratio from vehicle systems: "
+                                      "turnaround ratio function is not defined." );
+        }
+        return transponderTurnaroundRatio_;
+    }
 
 private:
 
@@ -253,6 +284,7 @@ private:
     //! Wall emissivity of the vehicle (used for heating computations)
     double wallEmissivity_;
 
+    std::function< double ( observation_models::FrequencyBands uplinkBand, observation_models::FrequencyBands downlinkBand ) > transponderTurnaroundRatio_;
 };
 
 } // namespace system_models

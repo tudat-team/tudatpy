@@ -64,6 +64,11 @@ public:
      */
     virtual int getObservationSize( ) = 0;
 
+    virtual void computeObservations( const std::vector< TimeType >& times,
+                              const LinkEnds linkEnds,
+                              const LinkEndType linkEndAssociatedWithTime,
+                              const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings,
+                              Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& observationsVector ) = 0;
 
 protected:
 
@@ -131,6 +136,49 @@ public:
     getObservationModels( )
     {
         return observationModels_;
+    }
+
+    void computeObservations( const std::vector< TimeType >& times,
+                                          const LinkEnds linkEnds,
+                                          const LinkEndType linkEndAssociatedWithTime,
+                                          const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings,
+                                          Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& observationsVector )
+    {
+        // Initialize return vectors.
+        std::map< TimeType, Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > > observations;
+
+        // Get observation model.
+        std::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType > > selectedObservationModel =
+            this->getObservationModel( linkEnds );
+
+        // Initialize vectors of states and times of link ends to be used in calculations.
+        std::vector< Eigen::Vector6d > vectorOfStates;
+        std::vector< double > vectorOfTimes;
+
+        Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > currentObservation;
+
+        // Iterate over all observation times
+//        int currentObservationSize;
+        for( unsigned int i = 0; i < times.size( ); i++ )
+        {
+            vectorOfTimes.clear( );
+            vectorOfStates.clear( );
+
+            // Compute observation
+            currentObservation = selectedObservationModel->computeObservationsWithLinkEndData(
+                times[ i ], linkEndAssociatedWithTime, vectorOfTimes, vectorOfStates, ancilliarySettings );
+            TimeType saveTime = times[ i ];
+            while( observations.count( saveTime ) != 0 )
+            {
+                saveTime += std::numeric_limits< double >::epsilon( ) * 10.0 * times[ i ];
+            }
+
+            // Compute observation partial
+//            currentObservationSize = currentObservation.rows( );
+            observations[ saveTime ] = currentObservation;
+        }
+
+        observationsVector = utilities::createConcatenatedEigenMatrixFromMapValues<TimeType, ObservationScalarType, ObservationSize, 1>( observations );
     }
 
 protected:
