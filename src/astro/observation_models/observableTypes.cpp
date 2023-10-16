@@ -37,6 +37,85 @@ namespace observation_models
 //    return tudatCompatibleObservationsAndTimes;
 //}
 
+bool doesLinkEndTypeDefineId( const ObservableType observableType )
+{
+    bool linkEndTypeDefinesId = true;
+    switch( observableType )
+    {
+    case one_way_range:
+        break;
+    case angular_position:
+        break;
+    case position_observable:
+        break;
+    case one_way_doppler:
+        break;
+    case one_way_differenced_range:
+        break;
+    case n_way_range:
+        linkEndTypeDefinesId = false;
+        break;
+    case two_way_doppler:
+        linkEndTypeDefinesId = false;
+        break;
+    case euler_angle_313_observable:
+        break;
+    case velocity_observable:
+        break;
+    case relative_angular_position:
+        break;
+    case relative_position_observable:
+        break;
+    case n_way_differenced_range:
+        linkEndTypeDefinesId = false;
+        break;
+    default:
+        throw std::runtime_error( "Error when determining if link end type defines id; observable " +
+                                  getObservableName( observableType ) + " not found" );
+    }
+    return linkEndTypeDefinesId;
+}
+
+bool isObservableTypeMultiLink( const ObservableType observableType )
+{
+    bool isIntegratedTypeisMultiLink = false;
+    switch( observableType )
+    {
+    case one_way_range:
+        break;
+    case angular_position:
+        break;
+    case position_observable:
+        break;
+    case one_way_doppler:
+        break;
+    case one_way_differenced_range:
+        break;
+    case n_way_range:
+        isIntegratedTypeisMultiLink = true;
+        break;
+    case two_way_doppler:
+        isIntegratedTypeisMultiLink = true;
+        break;
+    case euler_angle_313_observable:
+        break;
+    case velocity_observable:
+        break;
+    case relative_angular_position:
+        isIntegratedTypeisMultiLink = true;
+        break;
+    case relative_position_observable:
+        break;
+    case n_way_differenced_range:
+        isIntegratedTypeisMultiLink = true;
+        break;
+    default:
+        throw std::runtime_error( "Error when determining if observable type is multilink; observable " +
+                                  getObservableName( observableType ) + " not found" );
+    }
+    return isIntegratedTypeisMultiLink;
+}
+
 bool isObservableOfIntegratedType( const ObservableType observableType )
 {
     bool isIntegratedType = true;
@@ -78,12 +157,243 @@ bool isObservableOfIntegratedType( const ObservableType observableType )
     case n_way_differenced_range:
         isIntegratedType = true;
         break;
+    case dsn_one_way_averaged_doppler:
+        isIntegratedType = true;
+        break;
+    case dsn_n_way_averaged_doppler:
+        isIntegratedType = true;
+        break;
     default:
         throw std::runtime_error( "Error when determining if observable type is integrated; observable " +
                                   getObservableName( observableType ) + " not found" );
     }
     return isIntegratedType;
 }
+
+bool requiresTransmittingStation( const ObservableType observableType )
+{
+    bool requiresTransmittingStation = true;
+    switch( observableType )
+    {
+    case one_way_range:
+    case angular_position:
+    case position_observable:
+    case one_way_doppler:
+    case one_way_differenced_range:
+    case n_way_range:
+    case two_way_doppler:
+    case euler_angle_313_observable:
+    case velocity_observable:
+    case relative_angular_position:
+    case n_way_differenced_range:
+    case dsn_one_way_averaged_doppler:
+        requiresTransmittingStation = false;
+        break;
+    case dsn_n_way_averaged_doppler:
+        requiresTransmittingStation = true;
+        break;
+    default:
+        throw std::runtime_error( "Error when determining if observable type requires transmitting station: observable " +
+                                  getObservableName( observableType ) + " not found." );
+    }
+    return requiresTransmittingStation;
+}
+
+bool requiresFirstReceivingStation( const ObservableType observableType )
+{
+    bool requiresFirstReceivingStation = true;
+    switch( observableType )
+    {
+    case one_way_range:
+    case angular_position:
+    case position_observable:
+    case one_way_doppler:
+    case one_way_differenced_range:
+    case n_way_range:
+    case two_way_doppler:
+    case euler_angle_313_observable:
+    case velocity_observable:
+    case relative_angular_position:
+    case n_way_differenced_range:
+    case dsn_n_way_averaged_doppler:
+        requiresFirstReceivingStation = false;
+        break;
+    case dsn_one_way_averaged_doppler:
+        requiresFirstReceivingStation = true;
+        break;
+    default:
+        throw std::runtime_error( "Error when determining if observable type requires first receiving station: observable " +
+                                  getObservableName( observableType ) + " not found." );
+    }
+    return requiresFirstReceivingStation;
+}
+
+bool requiresSecondReceivingStation( const ObservableType observableType )
+{
+    bool requiresSecondReceivingStation = true;
+    switch( observableType )
+    {
+    case one_way_range:
+    case angular_position:
+    case position_observable:
+    case one_way_doppler:
+    case one_way_differenced_range:
+    case n_way_range:
+    case two_way_doppler:
+    case euler_angle_313_observable:
+    case velocity_observable:
+    case relative_angular_position:
+    case n_way_differenced_range:
+    case dsn_n_way_averaged_doppler:
+    case dsn_one_way_averaged_doppler:
+        requiresSecondReceivingStation = false;
+        break;
+    default:
+        throw std::runtime_error( "Error when determining if observable type requires second receiving station: observable " +
+                                  getObservableName( observableType ) + " not found." );
+    }
+    return requiresSecondReceivingStation;
+}
+
+bool isRadiometricObservableType( const ObservableType observableType )
+{
+    bool isRadiometric;
+    switch( observableType )
+    {
+    case one_way_range:
+    case one_way_doppler:
+    case one_way_differenced_range:
+    case n_way_range:
+    case two_way_doppler:
+    case n_way_differenced_range:
+    case dsn_n_way_averaged_doppler:
+    case dsn_one_way_averaged_doppler:
+        isRadiometric = true;
+        break;
+    case angular_position:
+    case position_observable:
+    case euler_angle_313_observable:
+    case velocity_observable:
+    case relative_angular_position:
+        isRadiometric = false;
+        break;
+    default:
+        throw std::runtime_error( "Error when determining if observable type is radiometric: observable " +
+                                  getObservableName( observableType ) + " not found." );
+    }
+    return isRadiometric;
+}
+
+bool isPhaseVelocityBasedObservableType( const ObservableType observableType )
+{
+    bool isPhaseVelocityBased;
+    switch( observableType )
+    {
+    case one_way_doppler:
+    case one_way_differenced_range:
+    case two_way_doppler:
+    case n_way_differenced_range:
+    case dsn_n_way_averaged_doppler:
+    case dsn_one_way_averaged_doppler:
+        isPhaseVelocityBased = true;
+        break;
+    case one_way_range:
+    case n_way_range:
+    case angular_position:
+    case position_observable:
+    case euler_angle_313_observable:
+    case velocity_observable:
+    case relative_angular_position:
+        isPhaseVelocityBased = false;
+        break;
+    default:
+        throw std::runtime_error( "Error when determining if observable type is radiometric: observable " +
+                                  getObservableName( observableType ) + " not found." );
+    }
+    return isPhaseVelocityBased;
+}
+
+bool isGroupVelocityBasedObservableType( const ObservableType observableType )
+{
+    bool isGroupVelocityBased;
+    switch( observableType )
+    {
+    case one_way_range:
+    case n_way_range:
+        isGroupVelocityBased = true;
+        break;
+    case two_way_doppler:
+    case n_way_differenced_range:
+    case dsn_n_way_averaged_doppler:
+    case dsn_one_way_averaged_doppler:
+    case one_way_doppler:
+    case one_way_differenced_range:
+    case angular_position:
+    case position_observable:
+    case euler_angle_313_observable:
+    case velocity_observable:
+    case relative_angular_position:
+        isGroupVelocityBased = false;
+        break;
+    default:
+        throw std::runtime_error( "Error when determining if observable type is radiometric: observable " +
+                                  getObservableName( observableType ) + " not found." );
+    }
+    return isGroupVelocityBased;
+}
+
+bool observableCanHaveRetransmissionDelay( const ObservableType observableType )
+{
+
+    bool canHaveDelay = false;
+    switch( observableType )
+    {
+    case one_way_range:
+        break;
+    case angular_position:
+        break;
+    case position_observable:
+        break;
+    case one_way_doppler:
+        break;
+    case one_way_differenced_range:
+        break;
+    case n_way_range:
+        canHaveDelay = true;
+        break;
+    case two_way_doppler:
+        canHaveDelay = true;
+        break;
+    case euler_angle_313_observable:
+        break;
+    case velocity_observable:
+        break;
+    case relative_angular_position:
+        break;
+    case relative_position_observable:
+        break;
+    case n_way_differenced_range:
+        canHaveDelay = true;
+        break;
+    default:
+        throw std::runtime_error( "Error when determining if observable type can have retransmission delay; observable " +
+                                  getObservableName( observableType ) + " not found" );
+    }
+    return canHaveDelay;
+}
+
+bool linkEndIdDefinesSingleLink( const ObservableType observableType )
+{
+    if( isObservableOfIntegratedType( observableType ) || isObservableTypeMultiLink( observableType ) || !doesLinkEndTypeDefineId( observableType ) )
+    {
+        return false;
+    }
+    else
+    {
+        return true;
+    }
+}
+
 
 //bool areObservableLinksContinuous( const ObservableType observableType )
 //{
@@ -203,6 +513,12 @@ std::string getObservableName( const ObservableType observableType, const int nu
     case n_way_differenced_range:
         observableName = getNWayString( numberOfLinkEnds ) + "WayDifferencedRange";
         break;
+    case dsn_one_way_averaged_doppler:
+        observableName = "DsnOneWayAveragedDoppler";
+        break;
+    case dsn_n_way_averaged_doppler:
+        observableName = "Dsn" + getNWayString( numberOfLinkEnds ) + "WayAveragedDoppler";
+        break;
     default:
         std::string errorMessage =
                 "Error, could not find observable type " + std::to_string( observableType ) +
@@ -215,7 +531,7 @@ std::string getObservableName( const ObservableType observableType, const int nu
     return observableName;
 }
 
-//! Function to get the observable type.ssociated with the name (string) of observable.
+//! Function to get the observable type associated with the name (string) of observable.
 ObservableType getObservableType( const std::string& observableName )
 {
     ObservableType observableType;
@@ -280,6 +596,7 @@ ObservableType getUndifferencedObservableType( const ObservableType differencedO
         undifferencedObservableType = one_way_range;
         break;
     case n_way_differenced_range:
+    case dsn_n_way_averaged_doppler:
         undifferencedObservableType = n_way_range;
         break;
     case relative_angular_position:
@@ -315,6 +632,35 @@ ObservableType getDifferencedObservableType( const ObservableType undifferencedO
     return differencedObservableType;
 }
 
+ObservableType getBaseObservableType( const ObservableType observableType )
+{
+    ObservableType baseObservableType = undefined_observation_model;
+    switch( observableType )
+    {
+    case one_way_range:
+    case n_way_range:
+        baseObservableType = one_way_range;
+        break;
+    case one_way_doppler:
+    case one_way_differenced_range:
+    case two_way_doppler:
+    case n_way_differenced_range:
+    case dsn_one_way_averaged_doppler:
+    case dsn_n_way_averaged_doppler:
+        baseObservableType = one_way_doppler;
+        break;
+    case angular_position:
+    case relative_angular_position:
+        baseObservableType = angular_position;
+        break;
+    default:
+        throw std::runtime_error( "Error when getting base observable type for " + getObservableName( observableType ) +
+            ", no such type exists" );
+
+    }
+    return baseObservableType;
+}
+
 std::pair< std::vector< int >, std::vector< int > > getUndifferencedTimeAndStateIndices(
         const ObservableType differencedObservableType,
         const int numberOfLinkEnds )
@@ -329,6 +675,7 @@ std::pair< std::vector< int >, std::vector< int > > getUndifferencedTimeAndState
         secondIndices = { 2, 3 };
         break;
     case n_way_differenced_range:
+    case dsn_n_way_averaged_doppler:
     {
         int numberOfLinkEndTimesStates = 2 + ( numberOfLinkEnds - 2 ) * 2;
         for( int i = 0; i < numberOfLinkEndTimesStates; i++ )
@@ -387,6 +734,12 @@ int getObservableSize( const ObservableType observableType )
         observableSize = 2;
         break;
     case n_way_differenced_range:
+        observableSize = 1;
+        break;
+    case dsn_one_way_averaged_doppler:
+        observableSize = 1;
+        break;
+    case dsn_n_way_averaged_doppler:
         observableSize = 1;
         break;
     case relative_position_observable:
@@ -464,6 +817,7 @@ std::vector< int > getLinkEndIndicesForLinkEndTypeAtObservable(
         }
         break;
     case one_way_differenced_range:
+    case dsn_one_way_averaged_doppler:
         switch( linkEndType )
         {
         case transmitter:
@@ -479,7 +833,8 @@ std::vector< int > getLinkEndIndicesForLinkEndTypeAtObservable(
                     "Error, could not find link end type index for link end " +
                     std::to_string( linkEndType ) + " of observable " +
                     std::to_string( observableType );
-            throw std::runtime_error( errorMessage );        }
+            throw std::runtime_error( errorMessage );
+        }
         break;
     case angular_position:
         switch( linkEndType )
@@ -561,9 +916,11 @@ std::vector< int > getLinkEndIndicesForLinkEndTypeAtObservable(
         }
         break;
     case n_way_differenced_range:
+    case dsn_n_way_averaged_doppler:
         if( numberOfLinkEnds < 2 )
         {
-            throw std::runtime_error( "Error when getting n way range link end indices, not enough link ends" );
+            throw std::runtime_error( "Error when getting " + std::to_string( observableType ) +
+                " link end indices, not enough link ends" );
         }
         if( linkEndType == transmitter )
         {
@@ -670,6 +1027,12 @@ LinkEndType getDefaultReferenceLinkEndType(
     case n_way_differenced_range:
         referenceLinkEndType = receiver;
         break;
+    case dsn_one_way_averaged_doppler:
+        referenceLinkEndType = receiver;
+        break;
+    case dsn_n_way_averaged_doppler:
+        referenceLinkEndType = receiver;
+        break;
     case relative_position_observable:
         referenceLinkEndType = observed_body;
         break;
@@ -698,6 +1061,9 @@ int getNumberOfLinksInObservable(
     case one_way_differenced_range:
         numberOfLinks = 1;
         break;
+    case dsn_one_way_averaged_doppler:
+        numberOfLinks = 1;
+        break;
     case n_way_range:
         if( numberOfLinkEnds < 0 )
         {
@@ -706,9 +1072,11 @@ int getNumberOfLinksInObservable(
         numberOfLinks = numberOfLinkEnds - 1;
         break;
     case n_way_differenced_range:
+    case dsn_n_way_averaged_doppler:
         if( numberOfLinkEnds < 0 )
         {
-            throw std::runtime_error( "Error when determining number of links for n-way differenced range: number of link ends not provided" );
+            throw std::runtime_error( "Error when determining number of links for " + std::to_string( observableType ) +
+                ": number of link ends not provided." );
         }
         numberOfLinks = numberOfLinkEnds - 1;
         break;
@@ -861,7 +1229,25 @@ std::vector< std::pair< int, int > > getLinkStateAndTimeIndicesForLinkEnd(
         }
         else
         {
-            throw std::runtime_error( "Error, parsed irrelevant 1-way differenced link end types for link end indices" );
+            throw std::runtime_error( "Error, parsed irrelevant " + std::to_string( observableType ) + " link end types for link end indices" );
+        }
+        break;
+    case dsn_one_way_averaged_doppler:
+        if( linkEnds.at( transmitter ) == linkEndToCheck || ( ( linkEnds.at( transmitter ).bodyName_ == linkEndToCheck.bodyName_ ) &&
+                                                              linkEndToCheck.stationName_ == "" ) )
+        {
+            linkEndIndices.push_back( std::make_pair( 0, 1 ) );
+            linkEndIndices.push_back( std::make_pair( 2, 3 ) );
+        }
+        else if( linkEnds.at( receiver ) == linkEndToCheck || ( ( linkEnds.at( receiver ).bodyName_ == linkEndToCheck.bodyName_ ) &&
+                                                                linkEndToCheck.stationName_ == "" ) )
+        {
+            linkEndIndices.push_back( std::make_pair( 1, 0 ) );
+            linkEndIndices.push_back( std::make_pair( 3, 2 ) );
+        }
+        else
+        {
+            throw std::runtime_error( "Error, parsed irrelevant " + std::to_string( observableType ) + " link end types for link end indices" );
         }
         break;
     case n_way_range:
@@ -898,6 +1284,7 @@ std::vector< std::pair< int, int > > getLinkStateAndTimeIndicesForLinkEnd(
         break;
     }
     case n_way_differenced_range:
+    case dsn_n_way_averaged_doppler:
     {
         int undifferenceNumberOfEntries = 2 * ( linkEnds.size( ) - 1 );
         std::vector< int > matchingLinkEndIndices = getNWayLinkEndIndicesFromLinkEndId( linkEndToCheck, linkEnds );
@@ -937,7 +1324,8 @@ std::vector< std::pair< int, int > > getLinkStateAndTimeIndicesForLinkEnd(
         }
         else
         {
-            throw std::runtime_error( "Error, parsed irrelevant n-way differenced range link end types for link end indices" );
+            throw std::runtime_error( "Error, parsed irrelevant " + std::to_string( observableType ) +
+                " link end types for link end indices" );
         }
         break;
     }

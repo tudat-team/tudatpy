@@ -166,6 +166,9 @@ private:
     std::shared_ptr< ground_stations::PointingAnglesCalculator > pointingAngleCalculator_;
 };
 
+double computeMinimumLinkDistanceToPoint( const Eigen::Vector3d& observingBody,
+                                          const Eigen::Vector3d& transmittingBody,
+                                          const Eigen::Vector3d& relativePoint );
 
 double computeCosineBodyAvoidanceAngle( const Eigen::Vector3d& observingBody,
                                         const Eigen::Vector3d& transmittingBody,

@@ -83,7 +83,7 @@ public:
                     const LinkEndType linkEndAssociatedWithTime,
                     std::vector< double >& linkEndTimes,
                     std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
-            const std::shared_ptr< ObservationAncilliarySimulationSettings< TimeType > > ancilliarySetings = nullptr  )
+            const std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetings = nullptr  )
     {
         linkEndTimes.clear( );
         linkEndStates.clear( );
@@ -101,14 +101,14 @@ public:
         {
         case receiver:
             observation = lightTimeCalculator_->calculateLightTimeWithLinkEndsStates(
-                        receiverState, transmitterState, time, 1 );
+                        receiverState, transmitterState, time, 1, ancilliarySetings );
             transmissionTime = time - observation;
             receptionTime = time;
             break;
 
         case transmitter:
             observation = lightTimeCalculator_->calculateLightTimeWithLinkEndsStates(
-                        receiverState, transmitterState, time, 0 );
+                        receiverState, transmitterState, time, 0, ancilliarySetings );
             transmissionTime = time;
             receptionTime = time + observation;
             break;

@@ -205,6 +205,19 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromD
                 limitConditionNumberForWarning );
 }
 
+Eigen::VectorXd evaluatePolynomial(
+    const Eigen::VectorXd& independentValues,
+    const Eigen::VectorXd& polynomialCoefficients,
+    const std::vector< double >& polynomialPowers )
+{
+    Eigen::VectorXd polynomial = Eigen::VectorXd::Zero( independentValues.rows( ) );
+    for( unsigned int i = 0; i < polynomialPowers.size( ); i++ )
+    {
+        polynomial += polynomialCoefficients( i ) * independentValues.array( ).pow( polynomialPowers.at( i ) ).matrix( );
+    }
+    return polynomial;
+}
+
 //! Function to fit a univariate polynomial through a set of data
 Eigen::VectorXd getLeastSquaresPolynomialFit(
         const Eigen::VectorXd& independentValues,
