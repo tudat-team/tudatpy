@@ -119,13 +119,16 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Expose hybrid kernel modules.')
     parser.add_argument('modules', metavar='module', type=str, nargs='+',
                         help='a list of hybrid kernel modules to expose')
+    parser.add_argument('-v', '--verbose', action=argparse.BooleanOptionalAction,
+                        help='whether to announce the module and submodule being exposed')
     args = parser.parse_args()
 
     for module_name in args.modules:
 
-        message = f"EXPOSING MODULE: {module_name}"
-        message_width = 100
-        print(f"\n{' ' + message + ' ':=^100}")
+        if args.verbose:
+            message = f"EXPOSING MODULE: {module_name}"
+            message_width = 100
+            print(f"\n{' ' + message + ' ':=^100}")
 
         # Identify and expose module
         module = getattr(kernel, module_name)
@@ -135,4 +138,5 @@ if __name__ == '__main__':
             # Expose module
             expose_hybrid_module(submodule)
             # Report completion
-            print(f"{'-':>40} {submodule_name}")
+            if args.verbose:
+                print(f"{'-':>40} {submodule_name}")
