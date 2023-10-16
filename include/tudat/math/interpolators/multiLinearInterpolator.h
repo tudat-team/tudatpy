@@ -196,12 +196,20 @@ public:
         }
 
         // Determine the nearest lower neighbours.
-        std::vector< int > nearestLowerIndices;
+        std::vector< unsigned int > nearestLowerIndices;
         nearestLowerIndices.resize( NumberOfDimensions );
         for ( unsigned int i = 0; i < NumberOfDimensions; i++ )
         {
             nearestLowerIndices[ i ] = lookUpSchemes_[ i ]->findNearestLowerNeighbour(
                         localIndependentValuesToInterpolate[ i ] );
+
+            // If newNearestLowerIndex is the last element of independentValues_, execute extrapolation with
+            // the last and second to last elements of independentValues_.
+            if ( nearestLowerIndices[ i ] == independentValues_[ i ].size( ) - 1 )
+            {
+                nearestLowerIndices[ i ] -= 1;
+            }
+
         }
 
         // Initialize function evaluation indices to -1 for debugging purposes.
@@ -287,7 +295,7 @@ private:
             const unsigned int currentDimension,
             const std::vector< IndependentVariableType >& independentValuesToInterpolate,
             boost::array< unsigned int, NumberOfDimensions > currentArrayIndices,
-            const std::vector< int >& nearestLowerIndices )
+            const std::vector< unsigned int >& nearestLowerIndices )
     {
         IndependentVariableType upperFraction, lowerFraction;
         DependentVariableType upperContribution, lowerContribution;

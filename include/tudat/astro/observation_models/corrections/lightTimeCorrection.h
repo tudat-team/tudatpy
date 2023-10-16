@@ -13,6 +13,7 @@
 
 #include "tudat/basics/basicTypedefs.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
+#include "tudat/astro/observation_models/observationModel.h"
 
 namespace tudat
 {
@@ -24,9 +25,17 @@ namespace observation_models
 enum LightTimeCorrectionType
 {
     first_order_relativistic,
-    function_wrapper_light_time_correction
+    function_wrapper_light_time_correction,
+    tabulated_tropospheric,
+    saastamoinen_tropospheric,
+    tabulated_ionospheric,
+    jakowski_vtec_ionospheric,
+    inverse_power_series_solar_corona
 };
 
+bool requiresMultiLegIterations( const LightTimeCorrectionType& lightTimeCorrectionType );
+
+std::string getLightTimeCorrectionName( const LightTimeCorrectionType& lightTimeCorrectionType );
 
 //! Base class for computing deviations from the light-time w.r.t. straight-line propagation at constant velocity (c).
 /*!
@@ -60,11 +69,35 @@ public:
      * \param receptionTime Time of singal reception
      * \return Light-time correction
      */
-    virtual double calculateLightTimeCorrection(
+    double calculateLightTimeCorrection(
             const Eigen::Vector6d& transmitterState,
             const Eigen::Vector6d& receiverState,
             const double transmissionTime,
-            const double receptionTime ) = 0;
+            const double receptionTime,
+            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings = nullptr )
+    {
+        std::vector< Eigen::Vector6d > linkEndsStates = { transmitterState, receiverState };
+        std::vector< double > linkEndsTimes = { transmissionTime, receptionTime };
+
+        return calculateLightTimeCorrectionWithMultiLegLinkEndStates( linkEndsStates, linkEndsTimes, 0,
+                                                                      ancillarySettings );
+    }
+
+     //! Pure virtual function to compute the light-time correction
+     /*!
+      * Pure virtual function to compute the light-time correction, function is to be implemented in derived class
+      * for specific correction model.
+      * @param linkEndsStates List of states at each link end during observation.
+      * @param linkEndsTimes List of times at each link end during observation.
+      * @param currentMultiLegTransmitterIndex Index in the linkEndsStates and linkEndsTimes of the transmitter in the current link.
+      * @param ancillarySettings Observation ancillary simulation settings.
+      * @return
+      */
+    virtual double calculateLightTimeCorrectionWithMultiLegLinkEndStates(
+            const std::vector< Eigen::Vector6d >& linkEndsStates,
+            const std::vector< double >& linkEndsTimes,
+            const unsigned int currentMultiLegTransmitterIndex = 0,
+            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings = nullptr ) = 0;
 
     //! Pure virtual function to compute the partial derivative of the light-time correction w.r.t. observation time
     /*!
@@ -146,6 +179,30 @@ public:
     }
 
 protected:
+
+    void getTransmissionReceptionTimesAndStates(
+            const std::vector< Eigen::Vector6d >& linkEndsStatesInput,
+            const std::vector< double >& linkEndsTimesInput,
+            const unsigned int currentMultiLegTransmitterIndex,
+            Eigen::Vector6d& transmitterStateOutput,
+            Eigen::Vector6d& receiverStateOutput,
+            double& transmissionTimeOutput,
+            double& receptionTimeOutput )
+    {
+        const unsigned int currentMultiLegReceiverIndex = currentMultiLegTransmitterIndex + 1;
+
+        if ( currentMultiLegReceiverIndex >= linkEndsStatesInput.size( ) || currentMultiLegReceiverIndex >= linkEndsTimesInput.size( ) )
+        {
+            throw std::runtime_error(
+                    "Error when getting receiver and transmitter states and times in LightTimeCorrection: "
+                    "specified transmitter index is invalid" );
+        }
+
+        transmitterStateOutput = linkEndsStatesInput.at( currentMultiLegTransmitterIndex );
+        receiverStateOutput = linkEndsStatesInput.at( currentMultiLegReceiverIndex );
+        transmissionTimeOutput = linkEndsTimesInput.at( currentMultiLegTransmitterIndex );
+        receptionTimeOutput = linkEndsTimesInput.at( currentMultiLegReceiverIndex );
+    }
 
     //! Type of light-time correction represented by instance of class.
     LightTimeCorrectionType lightTimeCorrectionType_;

@@ -1108,7 +1108,7 @@ struct EstimationOutput: public CovarianceAnalysisOutput< ObservationScalarType,
         else
         {
             std::cerr << "Warning, requesting parameter history, but history not saved." << std::endl;
-            return Eigen::MatrixXd::Zero( 0, 0 );
+            return Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, Eigen::Dynamic >::Zero( 0, 0 );
         }
     }
 
@@ -1158,6 +1158,11 @@ struct EstimationOutput: public CovarianceAnalysisOutput< ObservationScalarType,
     std::vector< std::shared_ptr< propagators::SimulationResults< ObservationScalarType, TimeType > > >  getSimulationResults( )
     {
         return simulationResultsPerIteration_;
+    }
+
+    std::shared_ptr< propagators::SimulationResults< ObservationScalarType, TimeType > > getBestIterationSimulationResults( )
+    {
+        return simulationResultsPerIteration_.at( bestIteration_ );
     }
 
 

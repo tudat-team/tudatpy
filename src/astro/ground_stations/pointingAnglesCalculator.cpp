@@ -26,8 +26,8 @@ double PointingAnglesCalculator::calculateElevationAngle( const Eigen::Vector3d&
 }
 
 //! Function to calculate the elevation angle from body-fixed point to given point.
-double PointingAnglesCalculator::calculateElevationAngle(
-        const Eigen::Vector3d inertialVectorAwayFromStation,
+double PointingAnglesCalculator::calculateElevationAngleFromInertialVector(
+        const Eigen::Vector3d& inertialVectorAwayFromStation,
         const double time )
 {
     // Transform vector to local topocentric frame.
@@ -46,8 +46,8 @@ double PointingAnglesCalculator::calculateAzimuthAngle( const Eigen::Vector3d& v
 }
 
 //! Function to calculate the azimuth angle from body-fixed point to given point.
-double PointingAnglesCalculator::calculateAzimuthAngle( const Eigen::Vector3d inertialVectorAwayFromStation,
-                                const double time )
+double PointingAnglesCalculator::calculateAzimuthAngleFromInertialVector(
+    const Eigen::Vector3d& inertialVectorAwayFromStation, const double time )
 {
     // Transform vector to local topocentric frame.
     Eigen::Vector3d vectorInTopoCentricFrame = convertVectorFromInertialToTopocentricFrame(
@@ -92,7 +92,7 @@ double calculateGroundStationElevationAngle(
     double stationTime = linkEndTimes.at( linkEndIndices.first );
     Eigen::Vector3d targetRelativeState = ( linkEndStates.at( linkEndIndices.second ) -
             linkEndStates.at( linkEndIndices.first ) ).segment( 0, 3 );
-    return angleCalculator->calculateElevationAngle( targetRelativeState, stationTime );
+    return angleCalculator->calculateElevationAngleFromInertialVector( targetRelativeState, stationTime );
 }
 
 double calculateGroundStationAzimuthAngle(
@@ -104,7 +104,7 @@ double calculateGroundStationAzimuthAngle(
     double stationTime = linkEndTimes.at( linkEndIndices.first );
     Eigen::Vector3d targetRelativeState = ( linkEndStates.at( linkEndIndices.second ) -
             linkEndStates.at( linkEndIndices.first ) ).segment( 0, 3 );
-    return angleCalculator->calculateAzimuthAngle( targetRelativeState, stationTime );
+    return angleCalculator->calculateAzimuthAngleFromInertialVector( targetRelativeState, stationTime );
 }
 
 
