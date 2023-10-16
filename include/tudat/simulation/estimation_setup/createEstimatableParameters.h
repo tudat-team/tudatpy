@@ -789,6 +789,11 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::Matrix
         }
     }
 
+    if( parameterSettings->customPartialSettings_ != nullptr )
+    {
+        initialStateParameterToEstimate->setCustomPartialSettings( parameterSettings->customPartialSettings_ );
+    }
+
     return initialStateParameterToEstimate;
 }
 
@@ -1236,6 +1241,11 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
             throw std::runtime_error( "Warning, this double parameter has not yet been implemented when making parameters" );
             break;
         }
+    }
+
+    if( doubleParameterName->customPartialSettings_ != nullptr )
+    {
+        doubleParameterToEstimate->setCustomPartialSettings( doubleParameterName->customPartialSettings_ );
     }
 
     return doubleParameterToEstimate;
@@ -1962,6 +1972,11 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
 
             break;
         }
+    }
+
+    if( vectorParameterName->customPartialSettings_ != nullptr )
+    {
+        vectorParameterToEstimate->setCustomPartialSettings( vectorParameterName->customPartialSettings_ );
     }
 
     return vectorParameterToEstimate;
