@@ -51,16 +51,18 @@ public:
      * Calculate radiation pressure force from incident radiation using geometrical/optical target properties.
      *
      * @param sourceIrradiance Incident irradiance magnitude [W/m²]
-     * @param sourceToTargetDirectionLocalFrame Direction of incoming radiation in local (i.e. target-fixed) coordinates
+     * @param sourceToTargetDirectionLocalFrame Direction of incoming radiation
      * @return Radiation pressure force vector in local (i.e. target-fixed) coordinates [N]
      */
     virtual Eigen::Vector3d evaluateRadiationPressureForce(
-            const double sourceIrradiance, const Eigen::Vector3d& sourceToTargetDirectionLocalFrame) const = 0;
+            const double sourceIrradiance, const Eigen::Vector3d& sourceToTargetDirection) const = 0;
     
     std::map<std::string, std::vector<std::string>> getSourceToTargetOccultingBodies() const
     {
         return sourceToTargetOccultingBodies_;
     }
+
+    virtual bool forceFunctionRequiresLocalFrameInputs( ) = 0;
 
 protected:
     virtual void updateMembers_(const double currentTime) {};
@@ -93,7 +95,7 @@ public:
 
     Eigen::Vector3d evaluateRadiationPressureForce(
             double sourceIrradiance,
-            const Eigen::Vector3d& sourceToTargetDirectionLocalFrame) const override;
+            const Eigen::Vector3d& sourceToTargetDirection ) const override;
 
     double getArea() const
     {
@@ -103,6 +105,11 @@ public:
     double getCoefficient() const
     {
         return coefficient_;
+    }
+
+    bool forceFunctionRequiresLocalFrameInputs( )
+    {
+        return false;
     }
 
 private:
@@ -161,6 +168,11 @@ public:
     std::map< std::string, std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > > getSegmentFixedPanels( )
     {
         return segmentFixedPanels_;
+    }
+
+    bool forceFunctionRequiresLocalFrameInputs( )
+    {
+        return true;
     }
 
 private:

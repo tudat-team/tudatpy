@@ -31,12 +31,12 @@ void RadiationPressureTargetModel::updateMembers(const double currentTime)
 
 Eigen::Vector3d CannonballRadiationPressureTargetModel::evaluateRadiationPressureForce(
     const double sourceIrradiance,
-    const Eigen::Vector3d& sourceToTargetDirectionLocalFrame) const
+    const Eigen::Vector3d& sourceToTargetDirection) const
 {
     // From Montenbruck (2000), Sec. 3.4
     const auto radiationPressure = sourceIrradiance / physical_constants::SPEED_OF_LIGHT;
     const auto forceMagnitude = coefficient_ * area_ * radiationPressure;
-    Eigen::Vector3d force = forceMagnitude * sourceToTargetDirectionLocalFrame;
+    Eigen::Vector3d force = forceMagnitude * sourceToTargetDirection;
     return force;
 }
 

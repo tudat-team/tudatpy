@@ -59,6 +59,11 @@ public:
         return receivedIrradiance;
     }
 
+    std::function<double()>  getTargetMassFunction()
+    {
+        return targetMassFunction_;
+    }
+
 protected:
     RadiationPressureAcceleration(const std::function<Eigen::Vector3d()>& sourcePositionFunction,
                                   const std::shared_ptr<RadiationPressureTargetModel>& targetModel,
@@ -140,7 +145,12 @@ private:
     Eigen::Vector3d calculateAcceleration() override;
 
     std::shared_ptr<IsotropicPointRadiationSourceModel> sourceModel_;
+
     std::shared_ptr<basic_astrodynamics::BodyShapeModel> sourceBodyShapeModel_;
+
+    Eigen::Vector3d sourceCenterPositionInGlobalFrame_;
+    Eigen::Vector3d targetCenterPositionInGlobalFrame_;
+    Eigen::Vector3d targetCenterPositionInSourceFrame_;
 
     // For dependent variable
     double sourceToTargetReceivedFraction;
