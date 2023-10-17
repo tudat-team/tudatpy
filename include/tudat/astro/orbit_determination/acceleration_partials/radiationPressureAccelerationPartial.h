@@ -68,6 +68,24 @@ public:
                                                  radiationPressureInterface ) ),
         acceleratedBodyMassFunction_( massFunction ){ }
 
+    CannonBallRadiationPressurePartial(
+        const std::shared_ptr< electromagnetism::CannonballRadiationPressureTargetModel > cannonballTargetModel,
+        const std::shared_ptr< electromagnetism::IsotropicPointSourceRadiationPressureAcceleration > sourceModel,
+        const std::string& acceleratedBody, const std::string& acceleratingBody ):
+        AccelerationPartial( acceleratedBody, acceleratingBody,
+                             basic_astrodynamics::cannon_ball_radiation_pressure ),
+        sourceBodyState_( radiationPressureInterface->getSourcePositionFunction( ) ),
+        acceleratedBodyState_( radiationPressureInterface->getTargetPositionFunction( ) ),
+        areaFunction_( std::bind( &electromagnetism::CannonballRadiationPressureTargetModel::getArea, cannonballTargetModel ) ),
+        radiationPressureCoefficientFunction_(
+            std::bind( &electromagnetism::CannonballRadiationPressureTargetModel::getCoefficient,
+                       cannonballTargetModel ) ),
+        radiationPressureFunction_( std::bind( &electromagnetism::RadiationPressureInterface::getCurrentRadiationPressure,
+                                               radiationPressureInterface ) ),
+        acceleratedBodyMassFunction_( std::bind( &electromagnetism::RadiationPressureAcceleration::getTargetMassFunction, sourceModel ) ){ }
+    {
+
+    }
     //! Destructor.
     ~CannonBallRadiationPressurePartial( ){ }
 
