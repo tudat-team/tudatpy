@@ -70,13 +70,13 @@ namespace vehicle_systems {
               py::arg("panel_type_id") = "",
               get_docstring("frame_fixed_geometry").c_str());
 
-        py::class_<tss::BodyPanelledGeometrySettings,
-            std::shared_ptr<tss::BodyPanelledGeometrySettings>>(m, "BodyPanelledGeometrySettings",
-                                                     get_docstring("BodyPanelledGeometrySettings").c_str());
+        py::class_<tss::FullPanelledBodySettings,
+            std::shared_ptr<tss::FullPanelledBodySettings>>(m, "FullPanelledBodySettings",
+                                                     get_docstring("FullPanelledBodySettings").c_str());
 
 
-        m.def("body_panelled_geometry_settings",
-              &tss::bodyPanelledGeometry,
+        m.def("full_panelled_body_settings",
+              &tss::fullPanelledBodySettings,
               py::arg("panel_settings"),
               py::arg("part_rotation_model_settings") = std::map< std::string, std::shared_ptr< tss::RotationModelSettings > >( ),
               get_docstring("frame_fixed_geometry").c_str() );
