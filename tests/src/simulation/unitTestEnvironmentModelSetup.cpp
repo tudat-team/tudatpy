@@ -1772,7 +1772,7 @@ BOOST_AUTO_TEST_CASE( test_radiationPressureTargetModelSetup_PaneledTarget )
                 expectedSpecularReflectivityPanel2, expectedDiffuseReflectivityPanel2, expectedWithInstantaneousReradiationPanel2 ) )
     };
 
-    bodySettings.at("Vehicle")->bodyExteriorPanelSettings_ = std::make_shared< BodyPanelledGeometrySettings >( panelSettingsList );
+    bodySettings.at("Vehicle")->bodyExteriorPanelSettings_ = std::make_shared< FullPanelledBodySettings >( panelSettingsList );
 
     const auto bodies = createSystemOfBodies(bodySettings);
 

@@ -78,7 +78,7 @@ struct BodySettings
 
     std::shared_ptr< RigidBodyPropertiesSettings > rigidBodyPropertiesSettings;
 
-    std::shared_ptr< BodyPanelledGeometrySettings > bodyExteriorPanelSettings_;
+    std::shared_ptr< FullPanelledBodySettings > bodyExteriorPanelSettings_;
 
     //! Settings for variations of the gravity field of the body.
     std::vector< std::shared_ptr< GravityFieldVariationSettings > > gravityFieldVariationSettings;
