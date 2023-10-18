@@ -134,10 +134,10 @@ inline std::shared_ptr< BodyPanelSettings > bodyPanelSettings(
     return std::make_shared< BodyPanelSettings >( panelGeometry, reflectionLawSettings, panelTypeId );
 }
 
-class BodyPanelledGeometrySettings
+class FullPanelledBodySettings
 {
 public:
-    BodyPanelledGeometrySettings(
+    FullPanelledBodySettings(
         const std::vector< std::shared_ptr< BodyPanelSettings > >&  panelSettingsList,
         const std::map< std::string, std::shared_ptr< RotationModelSettings > >& partRotationModelSettings  =
             std::map< std::string, std::shared_ptr< RotationModelSettings > >( )):
@@ -156,13 +156,54 @@ public:
 };
 
 
-inline std::shared_ptr< BodyPanelledGeometrySettings > bodyPanelledGeometry(
+inline std::shared_ptr< FullPanelledBodySettings > fullPanelledBodySettings(
     const std::vector< std::shared_ptr< BodyPanelSettings > >&  panelSettingsList,
     const std::map< std::string, std::shared_ptr< RotationModelSettings > >& partRotationModelSettings  =
     std::map< std::string, std::shared_ptr< RotationModelSettings > >( ) )
 {
-    return std::make_shared< BodyPanelledGeometrySettings >( panelSettingsList, partRotationModelSettings );
+    return std::make_shared< FullPanelledBodySettings >( panelSettingsList, partRotationModelSettings );
 }
+
+inline std::shared_ptr< FullPanelledBodySettings > bodyWingPanelledGeometry(
+    const double length,
+    const double width,
+    const double height,
+    const double totalSolarArrayArea,
+    const double busSpecularReflectivity,
+    const double busDiffuseReflectivity,
+    const double solarArraySpecularReflectivity,
+    const double solarArrayDiffuseReflectivity,
+    const bool busInstantaneousReradiation = true,
+    const bool solarArrayInstantaneousReradiation = true )
+{
+    std::vector< std::shared_ptr< BodyPanelGeometrySettings > > panelGeometrySettingsList =
+        std::vector< std::shared_ptr< BodyPanelGeometrySettings > >(
+            { frameFixedPanelGeometry( Eigen::Vector3d::UnitX( ), width * height ),
+              frameFixedPanelGeometry( -Eigen::Vector3d::UnitX( ), width * height ),
+              frameFixedPanelGeometry( Eigen::Vector3d::UnitY( ), length * height ),
+              frameFixedPanelGeometry( -Eigen::Vector3d::UnitY( ), length * height ),
+              frameFixedPanelGeometry( Eigen::Vector3d::UnitZ( ), length * width  ),
+              frameFixedPanelGeometry( -Eigen::Vector3d::UnitZ( ), length * width ),
+              bodyTrackingPanelGeometry( "Sun", true, totalSolarArrayArea ),
+              bodyTrackingPanelGeometry( "Sun", false, totalSolarArrayArea ) } );
+    std::vector< std::shared_ptr< BodyPanelSettings > > panelSettings;
+    for( unsigned int i = 0; i < 6; i++ )
+    {
+        panelSettings.push_back(
+            bodyPanelSettings( panelGeometrySettingsList.at( i ), specularDiffuseBodyPanelReflectionLawSettings(
+                busSpecularReflectivity, busDiffuseReflectivity, busInstantaneousReradiation ), "Bus" ) );
+    }
+
+    for( unsigned int i = 0; i < 2; i++ )
+    {
+        panelSettings.push_back(
+            bodyPanelSettings( panelGeometrySettingsList.at( i + 6 ), specularDiffuseBodyPanelReflectionLawSettings(
+                solarArraySpecularReflectivity, solarArrayDiffuseReflectivity, solarArrayInstantaneousReradiation ), "SolarPanel" ) );
+    }
+
+    return fullPanelledBodySettings( panelSettings );
+}
+
 
 
 void addEngineModel(
@@ -185,7 +226,7 @@ std::pair< std::shared_ptr< system_models::VehicleExteriorPanel >, std::string >
     const simulation_setup::SystemOfBodies& bodies );
 
 void addBodyExteriorPanelledShape(
-    const std::shared_ptr< BodyPanelledGeometrySettings > panelSettings,
+    const std::shared_ptr< FullPanelledBodySettings > panelSettings,
     const std::string& bodyName,
     const simulation_setup::SystemOfBodies& bodies );
 

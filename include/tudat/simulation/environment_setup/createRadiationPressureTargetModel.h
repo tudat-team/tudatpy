@@ -190,7 +190,7 @@ public:
 inline std::shared_ptr< BodyPanelReflectionLawSettings > specularDiffuseBodyPanelReflectionLawSettings(
     const double specularReflectivity,
     const double diffuseReflectivity,
-    const bool withInstantaneousReradiation )
+    const bool withInstantaneousReradiation = true )
 {
     return std::make_shared< SpecularDiffuseBodyPanelReflectionLawSettings>(
         specularReflectivity, diffuseReflectivity, withInstantaneousReradiation );

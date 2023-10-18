@@ -64,6 +64,16 @@ public:
         return targetMassFunction_;
     }
 
+    std::function<Eigen::Vector3d()> getSourcePositionFunction( )
+    {
+        return sourcePositionFunction_;
+    }
+
+    std::function<Eigen::Vector3d()> getTargetPositionFunction( )
+    {
+        return targetPositionFunction_;
+    }
+
 protected:
     RadiationPressureAcceleration(const std::function<Eigen::Vector3d()>& sourcePositionFunction,
                                   const std::shared_ptr<RadiationPressureTargetModel>& targetModel,

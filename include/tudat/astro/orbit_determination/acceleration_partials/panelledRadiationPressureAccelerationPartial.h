@@ -27,11 +27,11 @@ public:
      * \param acceleratingBody Name of the body exerting acceleration.
      */
     PanelledRadiationPressurePartial(
-            const std::shared_ptr< electromagnetism::PanelledRadiationPressureAcceleration > radiationPressureAcceleration,
-            const std::shared_ptr< electromagnetism::PanelledRadiationPressureInterface > radiationPressureInterface,
+        const std::shared_ptr< electromagnetism::IsotropicPointSourceRadiationPressureAcceleration > radiationPressureAcceleration,
+            const std::shared_ptr< electromagnetism::PaneledRadiationPressureTargetModel > panelledTargetModel,
             const std::string& acceleratedBody, const std::string& acceleratingBody ):
         AccelerationPartial( acceleratedBody, acceleratingBody, basic_astrodynamics::panelled_radiation_pressure_acceleration ),
-        radiationPressureAcceleration_( radiationPressureAcceleration ), radiationPressureInterface_( radiationPressureInterface )
+        radiationPressureAcceleration_( radiationPressureAcceleration ), panelledTargetModel_( panelledTargetModel )
     { }
 
     //! Destructor.
@@ -148,10 +148,10 @@ public:
 private:
 
     //! Pointer to the panelled radiation pressure acceleration model.
-    std::shared_ptr< electromagnetism::PanelledRadiationPressureAcceleration > radiationPressureAcceleration_;
+    std::shared_ptr< electromagnetism::IsotropicPointSourceRadiationPressureAcceleration > radiationPressureAcceleration_;
 
     //! Pointer to the panelled radiation pressure interface.
-    std::shared_ptr< electromagnetism::PanelledRadiationPressureInterface > radiationPressureInterface_;
+    std::shared_ptr< electromagnetism::PaneledRadiationPressureTargetModel > panelledTargetModel_;
 
     //! Current partial of acceleration w.r.t. position of body undergoing acceleration (equal to minus partial w.r.t.
     //! position of body exerting acceleration).

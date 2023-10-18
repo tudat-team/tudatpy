@@ -154,7 +154,7 @@ std::pair< std::shared_ptr< system_models::VehicleExteriorPanel >, std::string >
 
 
 void addBodyExteriorPanelledShape(
-    const std::shared_ptr< BodyPanelledGeometrySettings > panelSettings,
+    const std::shared_ptr< FullPanelledBodySettings > panelSettings,
     const std::string& bodyName,
     const simulation_setup::SystemOfBodies& bodies )
 {
