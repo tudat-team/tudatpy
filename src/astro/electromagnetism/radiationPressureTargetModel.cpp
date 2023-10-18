@@ -34,10 +34,8 @@ Eigen::Vector3d CannonballRadiationPressureTargetModel::evaluateRadiationPressur
     const Eigen::Vector3d& sourceToTargetDirection) const
 {
     // From Montenbruck (2000), Sec. 3.4
-    const auto radiationPressure = sourceIrradiance / physical_constants::SPEED_OF_LIGHT;
-    const auto forceMagnitude = coefficient_ * area_ * radiationPressure;
-    Eigen::Vector3d force = forceMagnitude * sourceToTargetDirection;
-    return force;
+    radiationPressure_ = sourceIrradiance / physical_constants::SPEED_OF_LIGHT;
+    return coefficient_ * area_ * radiationPressure_ * sourceToTargetDirection;
 }
 
 Eigen::Vector3d PaneledRadiationPressureTargetModel::evaluateRadiationPressureForce(

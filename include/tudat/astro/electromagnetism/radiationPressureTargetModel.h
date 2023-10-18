@@ -91,7 +91,8 @@ public:
         double area, double coefficient,
         const std::map<std::string, std::vector<std::string>>& sourceToTargetOccultingBodies = {}) :
         RadiationPressureTargetModel(sourceToTargetOccultingBodies),
-        area_(area), coefficient_(coefficient) {}
+        area_(area), coefficient_(coefficient),
+        radiationPressure_( TUDAT_NAN ){}
 
     Eigen::Vector3d evaluateRadiationPressureForce(
             double sourceIrradiance,
@@ -107,14 +108,22 @@ public:
         return coefficient_;
     }
 
+    double getRadiationPressure() const
+    {
+        return radiationPressure_;
+    }
+
+
     bool forceFunctionRequiresLocalFrameInputs( )
     {
         return false;
     }
 
 private:
+
     double area_;
     double coefficient_;
+    mutable double radiationPressure_;
 };
 
 /*!
