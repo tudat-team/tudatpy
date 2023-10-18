@@ -45,21 +45,8 @@ class BatchMPC:
 
     """
 
-    def __init__(self, bodies: environment.SystemOfBodies, earth_name="Earth") -> None:
+    def __init__(self) -> None:
         """Create an empty MPC batch.
-
-        Parameters
-        ----------
-        bodies : environment.SystemOfBodies
-            System of bodies object containing Earth used to retrieve the radius for object posi
-        earth_name : str, optional
-            Name of Earth in system of bodies, change only if you have renamed Earth
-            , by default "Earth"
-
-        Raises
-        ------
-        e
-            _description_
         """
         self._table: pd.DataFrame = pd.DataFrame()
         self._observatories: List[str] = []
@@ -72,17 +59,6 @@ class BatchMPC:
         self._MPC_space_telescopes: List[str] = []
 
         self._get_station_info()
-
-        # Check if earth is in body
-        try:
-            bodies.get(earth_name)
-        except Exception as e:
-            print(
-                f"Body {earth_name} is not in bodies, if you have renamed Earth, "
-                + "set the earth_name paramater to the new name."
-            )
-            raise e
-        self._add_observatory_positions(bodies, earth_name)
 
         self._epoch_start: float = 0.0
         self._epoch_end: float = 0.0
@@ -483,7 +459,7 @@ class BatchMPC:
             This requires an addional input.\\
             6. Creates a `SingleObservationSet` object for each unique link that 
             includes all observations for that link.\\
-            7. Returns the observations and links
+            7. Returns the observations
 
 
         Parameters
@@ -506,10 +482,6 @@ class BatchMPC:
         -------
         estimation.ObservationCollection
             ObservationCollection with the observations found in the batch
-        Dict[str, observation.LinkDefinition]
-            Dictionary with the unique link definitions in a dictionary with key 
-            strings "MPCPlanet_MPCobservatory". For example: the key for 
-            the link Ceres-> Fabra Observatory would be "1_006".
 
         Examples
         ----------
@@ -518,7 +490,7 @@ class BatchMPC:
         Create dictionary to link name in tudat with mpc code in batch:
 
         >> sats_dict = {"C57":"TESS"}
-        >> obs, links = batch1.to_tudat(bodies, included_satellites=sats_dict)
+        >> obs = batch1.to_tudat(bodies, included_satellites=sats_dict)
 
 
         """
@@ -532,6 +504,9 @@ class BatchMPC:
                 + "set the station_body paramater to the new name."
             )
             raise e
+        
+        # Add positions of the observatories
+        self._add_observatory_positions(bodies, station_body)
 
         # get satellites to include and exclude
         if included_satellites is not None:
@@ -851,7 +826,8 @@ class BatchMPC:
         only_space_telescopes=False,
         include_positions: bool = False,
     ) -> pd.DataFrame:
-        """Returns a pandas DataFrame with information about all MPC observatories
+        """Returns a pandas DataFrame with information about all MPC observatories,
+        Carthesian positions are only available after running the `to_tudat()` method.
 
         Parameters
         ----------
