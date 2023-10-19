@@ -244,7 +244,7 @@ private:
  * @param constantValue Constant value
  * @return Shared pointer to settings for a constant surface property distribution.
  */
-inline std::shared_ptr<ConstantSurfacePropertyDistributionSettings>
+inline std::shared_ptr<SurfacePropertyDistributionSettings>
         constantSurfacePropertyDistributionSettings(double constantValue)
 {
     return std::make_shared< ConstantSurfacePropertyDistributionSettings >(constantValue);
@@ -257,7 +257,7 @@ inline std::shared_ptr<ConstantSurfacePropertyDistributionSettings>
  * @param sineCoefficients Sine spherical harmonic coefficients (not normalized)
  * @return Shared pointer to settings for a spherical harmonics surface property distribution.
  */
-inline std::shared_ptr<SphericalHarmonicsSurfacePropertyDistributionSettings>
+inline std::shared_ptr<SurfacePropertyDistributionSettings>
         sphericalHarmonicsSurfacePropertyDistributionSettings(
                 const Eigen::MatrixXd& cosineCoefficients,
                 const Eigen::MatrixXd& sineCoefficients)
@@ -272,7 +272,7 @@ inline std::shared_ptr<SphericalHarmonicsSurfacePropertyDistributionSettings>
  * @param model Spherical harmonics model to be used
  * @return Shared pointer to settings for a spherical harmonics surface property distribution.
  */
-inline std::shared_ptr<SphericalHarmonicsSurfacePropertyDistributionSettings>
+inline std::shared_ptr<SurfacePropertyDistributionSettings>
         sphericalHarmonicsSurfacePropertyDistributionSettings(
                 SphericalHarmonicsSurfacePropertyDistributionModel model)
 {
@@ -285,7 +285,7 @@ inline std::shared_ptr<SphericalHarmonicsSurfacePropertyDistributionSettings>
  * @param model Model to be used
  * @return Shared pointer to settings for a second-degree zonal surface property distribution.
  */
-inline std::shared_ptr<SecondDegreeZonalPeriodicSurfacePropertyDistributionSettings>
+inline std::shared_ptr<SurfacePropertyDistributionSettings>
         secondDegreeZonalPeriodicSurfacePropertyDistributionSettings(
                 SecondDegreeZonalPeriodicSurfacePropertyDistributionModel model)
 {
