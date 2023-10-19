@@ -328,7 +328,7 @@ std::shared_ptr< electromagnetism::ReflectionLaw > createReflectionLaw(
  *      to occult sources as seen from this target
  * @return Shared pointer to settings for a cannonball radiation pressure target model
  */
-inline std::shared_ptr<CannonballRadiationPressureTargetModelSettings>
+inline std::shared_ptr<RadiationPressureTargetModelSettings>
         cannonballRadiationPressureTargetModelSettingsWithOccultationMap(
             double area, double coefficient,
             const std::map<std::string, std::vector<std::string>>& sourceToTargetOccultingBodies)
@@ -346,7 +346,7 @@ inline std::shared_ptr<CannonballRadiationPressureTargetModelSettings>
  * @param sourceToTargetOccultingBodies Names of bodies to occult the source as seen from this target
  * @return Shared pointer to settings for a cannonball radiation pressure target model
  */
-inline std::shared_ptr<CannonballRadiationPressureTargetModelSettings>
+inline std::shared_ptr<RadiationPressureTargetModelSettings>
         cannonballRadiationPressureTargetModelSettings(
             double area, double coefficient,
             const std::vector<std::string>& sourceToTargetOccultingBodies = {})
