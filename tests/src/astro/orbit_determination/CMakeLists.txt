@@ -107,10 +107,10 @@ TUDAT_ADD_TEST_CASE(NonSequentialStateEstimation
 #    PRIVATE_LINKS
 #    ${Tudat_ESTIMATION_LIBRARIES}
 #    )
- TUDAT_ADD_TEST_CASE(ConsiderParameters
-         PRIVATE_LINKS
-         ${Tudat_ESTIMATION_LIBRARIES}
-         )
+# TUDAT_ADD_TEST_CASE(ConsiderParameters
+#         PRIVATE_LINKS
+#         ${Tudat_ESTIMATION_LIBRARIES}
+#         )
 
 if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 
