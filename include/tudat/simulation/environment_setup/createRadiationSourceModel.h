@@ -184,7 +184,7 @@ private:
  * @param luminosity Luminosity of this source
  * @return Shared pointer to settings for a constant luminosity model.
  */
-inline std::shared_ptr<ConstantLuminosityModelSettings>
+inline std::shared_ptr<LuminosityModelSettings>
         constantLuminosityModelSettings(double luminosity)
 {
     return std::make_shared< ConstantLuminosityModelSettings >(luminosity);
@@ -197,7 +197,7 @@ inline std::shared_ptr<ConstantLuminosityModelSettings>
  * @param distance Distance from the source at which the irradiance was evaluated/measured
  * @return Shared pointer to settings for an irradiance-based luminosity model.
  */
-inline std::shared_ptr<IrradianceBasedLuminosityModelSettings>
+inline std::shared_ptr<LuminosityModelSettings>
         irradianceBasedLuminosityModelSettings(double irradianceAtDistance, double distance)
 {
     return std::make_shared< IrradianceBasedLuminosityModelSettings >(
@@ -211,7 +211,7 @@ inline std::shared_ptr<IrradianceBasedLuminosityModelSettings>
  * @param luminosityModel Luminosity of this source
  * @return Shared pointer to settings for an isotropic point radiation source model.
  */
-inline std::shared_ptr<IsotropicPointRadiationSourceModelSettings>
+inline std::shared_ptr<RadiationSourceModelSettings>
         isotropicPointRadiationSourceModelSettings(const std::shared_ptr<LuminosityModelSettings>& luminosityModel)
 {
     return std::make_shared< IsotropicPointRadiationSourceModelSettings >(luminosityModel);
@@ -491,7 +491,7 @@ private:
  * @param constantRadiosity Constant radiosity
  * @return Shared pointer to settings for a constant panel radiosity model
  */
-inline std::shared_ptr<ConstantPanelRadiosityModelSettings>
+inline std::shared_ptr<PanelRadiosityModelSettings>
         constantPanelRadiosityModelSettings(double constantRadiosity)
 {
     return std::make_shared< ConstantPanelRadiosityModelSettings >(constantRadiosity);
@@ -504,7 +504,7 @@ inline std::shared_ptr<ConstantPanelRadiosityModelSettings>
  * @param originalSourceName Name of the original source
  * @return Shared pointer to settings for an albedo panel radiosity model
  */
-inline std::shared_ptr<AlbedoPanelRadiosityModelSettings> albedoPanelRadiosityModelSettings(
+inline std::shared_ptr<PanelRadiosityModelSettings> albedoPanelRadiosityModelSettings(
         double albedo,
         const std::string& originalSourceName)
 {
@@ -520,7 +520,7 @@ inline std::shared_ptr<AlbedoPanelRadiosityModelSettings> albedoPanelRadiosityMo
  * @param originalSourceName Name of the original source
  * @return Shared pointer to settings for an albedo panel radiosity model
  */
-inline std::shared_ptr<AlbedoPanelRadiosityModelSettings>
+inline std::shared_ptr<PanelRadiosityModelSettings>
         albedoPanelRadiosityModelSettings(
                 SphericalHarmonicsSurfacePropertyDistributionModel albedoModel,
                 const std::string& originalSourceName)
@@ -538,7 +538,7 @@ inline std::shared_ptr<AlbedoPanelRadiosityModelSettings>
  * @param originalSourceName Name of the original source
  * @return Shared pointer to settings for an albedo panel radiosity model
  */
-inline std::shared_ptr<AlbedoPanelRadiosityModelSettings>
+inline std::shared_ptr<PanelRadiosityModelSettings>
         albedoPanelRadiosityModelSettings(
                 SecondDegreeZonalPeriodicSurfacePropertyDistributionModel albedoModel,
                 const std::string& originalSourceName)
@@ -548,7 +548,7 @@ inline std::shared_ptr<AlbedoPanelRadiosityModelSettings>
             originalSourceName);
 }
 
-inline std::shared_ptr<AlbedoPanelRadiosityModelSettings>
+inline std::shared_ptr<PanelRadiosityModelSettings>
 albedoPanelRadiosityModelSettingsGeneric(
     const std::shared_ptr<SurfacePropertyDistributionSettings>& albedoDistribution,
     const std::string& originalSourceName)
@@ -566,7 +566,7 @@ albedoPanelRadiosityModelSettingsGeneric(
  * @param originalSourceName Name of the original source
  * @return Shared pointer to settings for a delayed thermal panel radiosity model
  */
-inline std::shared_ptr<DelayedThermalPanelRadiosityModelSettings>
+inline std::shared_ptr<PanelRadiosityModelSettings>
         delayedThermalPanelRadiosityModelSettings(
                 double emissivity,
                 const std::string& originalSourceName)
@@ -584,7 +584,7 @@ inline std::shared_ptr<DelayedThermalPanelRadiosityModelSettings>
  * @param originalSourceName Name of the original source
  * @return Shared pointer to settings for a delayed thermal panel radiosity model
  */
-inline std::shared_ptr<DelayedThermalPanelRadiosityModelSettings>
+inline std::shared_ptr<PanelRadiosityModelSettings>
         delayedThermalPanelRadiosityModelSettings(
                 SecondDegreeZonalPeriodicSurfacePropertyDistributionModel emissivityModel,
                 const std::string& originalSourceName)
@@ -594,7 +594,7 @@ inline std::shared_ptr<DelayedThermalPanelRadiosityModelSettings>
             originalSourceName);
 }
 
-inline std::shared_ptr<DelayedThermalPanelRadiosityModelSettings>
+inline std::shared_ptr<PanelRadiosityModelSettings>
 delayedThermalPanelRadiosityModelSettingsGeneric(
     const std::shared_ptr<SurfacePropertyDistributionSettings>& emissivityDistribution,
     const std::string& originalSourceName)
@@ -614,7 +614,7 @@ delayedThermalPanelRadiosityModelSettingsGeneric(
  * @param originalSourceName Name of the original source
  * @return Shared pointer to settings for an angle-based panel radiosity model
  */
-inline std::shared_ptr<AngleBasedThermalPanelRadiosityModelSettings>
+inline std::shared_ptr<PanelRadiosityModelSettings>
         angleBasedThermalPanelRadiosityModelSettings(
                 double minTemperature,
                 double maxTemperature,
@@ -637,7 +637,7 @@ inline std::shared_ptr<AngleBasedThermalPanelRadiosityModelSettings>
  *      to occult original sources as seen from this source
  * @return Shared pointer to settings for an extended radiation source model
  */
-inline std::shared_ptr<ExtendedRadiationSourceModelSettings>
+inline std::shared_ptr<RadiationSourceModelSettings>
         extendedRadiationSourceModelSettingsWithOccultationMap(
                 std::vector<std::shared_ptr<PanelRadiosityModelSettings>> panelRadiosityModels,
                 const std::vector<int>& numberOfPanelsPerRing,
@@ -655,7 +655,7 @@ inline std::shared_ptr<ExtendedRadiationSourceModelSettings>
  * @param originalSourceToSourceOccultingBodies Names of bodies to occult original sources as seen from this source
  * @return Shared pointer to settings for an extended radiation source model
  */
-inline std::shared_ptr<ExtendedRadiationSourceModelSettings>
+inline std::shared_ptr<RadiationSourceModelSettings>
         extendedRadiationSourceModelSettings(
                 std::vector<std::shared_ptr<PanelRadiosityModelSettings>> panelRadiosityModels,
                 const std::vector<int>& numberOfPanelsPerRing,
