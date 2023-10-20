@@ -35,13 +35,16 @@ Eigen::Vector3d CannonballRadiationPressureTargetModel::evaluateRadiationPressur
 {
     // From Montenbruck (2000), Sec. 3.4
     radiationPressure_ = sourceIrradiance / physical_constants::SPEED_OF_LIGHT;
-    return coefficient_ * area_ * radiationPressure_ * sourceToTargetDirection;
+//    std::cout<<"Current radiation pressure "<<std::setprecision( 16 )<<currentTime_<<" "<<radiationPressure_<<" "
+//    <<( area_ * radiationPressure_ * sourceToTargetDirection ).transpose( )<<std::endl;
+    return currentCoefficient_ * area_ * radiationPressure_ * sourceToTargetDirection;
 }
 
 Eigen::Vector3d PaneledRadiationPressureTargetModel::evaluateRadiationPressureForce(
         double sourceIrradiance,
         const Eigen::Vector3d& sourceToTargetDirectionLocalFrame) const
 {
+    radiationPressure_ = sourceIrradiance / physical_constants::SPEED_OF_LIGHT;
     Eigen::Vector3d force = Eigen::Vector3d::Zero();
     auto segmentFixedPanelsIterator = segmentFixedPanels_.begin( );
     for( unsigned int i = 0; i < segmentFixedPanels_.size( ) + 1; i++ )
@@ -61,10 +64,9 @@ Eigen::Vector3d PaneledRadiationPressureTargetModel::evaluateRadiationPressureFo
             if (cosBetweenNormalAndIncoming > 0)
             {
                 const double effectiveArea = currentPanels_.at( j )->getPanelArea() * cosBetweenNormalAndIncoming;
-                const auto radiationPressure = sourceIrradiance / physical_constants::SPEED_OF_LIGHT;
                 const auto reactionVector =
                     currentPanels_.at( j )->getReflectionLaw()->evaluateReactionVector(surfaceNormal, sourceToTargetDirectionLocalFrame);
-                force += radiationPressure * effectiveArea * reactionVector;
+                force += radiationPressure_ * effectiveArea * reactionVector;
             }
         }
         if( i > 0 )

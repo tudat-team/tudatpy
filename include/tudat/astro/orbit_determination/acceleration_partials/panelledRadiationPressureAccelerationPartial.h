@@ -30,7 +30,7 @@ public:
         const std::shared_ptr< electromagnetism::IsotropicPointSourceRadiationPressureAcceleration > radiationPressureAcceleration,
             const std::shared_ptr< electromagnetism::PaneledRadiationPressureTargetModel > panelledTargetModel,
             const std::string& acceleratedBody, const std::string& acceleratingBody ):
-        AccelerationPartial( acceleratedBody, acceleratingBody, basic_astrodynamics::panelled_radiation_pressure_acceleration ),
+        AccelerationPartial( acceleratedBody, acceleratingBody, basic_astrodynamics::radiation_pressure ),
         radiationPressureAcceleration_( radiationPressureAcceleration ), panelledTargetModel_( panelledTargetModel )
     { }
 

@@ -41,7 +41,7 @@ class RadiationPressureTargetModel
 public:
     explicit RadiationPressureTargetModel(
         const std::map<std::string, std::vector<std::string>>& sourceToTargetOccultingBodies = {}) :
-        sourceToTargetOccultingBodies_(sourceToTargetOccultingBodies) {}
+        sourceToTargetOccultingBodies_(sourceToTargetOccultingBodies), radiationPressure_( TUDAT_NAN ) {}
 
     virtual ~RadiationPressureTargetModel() = default;
 
@@ -64,12 +64,19 @@ public:
 
     virtual bool forceFunctionRequiresLocalFrameInputs( ) = 0;
 
+    double getRadiationPressure() const
+    {
+        return radiationPressure_;
+    }
+
 protected:
     virtual void updateMembers_(const double currentTime) {};
 
     double currentTime_{TUDAT_NAN};
     // Only needed to transfer occultation settings from body setup to acceleration setup
     std::map<std::string, std::vector<std::string>> sourceToTargetOccultingBodies_;
+
+    mutable double radiationPressure_;
 };
 
 /*!
@@ -91,8 +98,15 @@ public:
         double area, double coefficient,
         const std::map<std::string, std::vector<std::string>>& sourceToTargetOccultingBodies = {}) :
         RadiationPressureTargetModel(sourceToTargetOccultingBodies),
-        area_(area), coefficient_(coefficient),
-        radiationPressure_( TUDAT_NAN ){}
+        area_(area), coefficientFunction_( nullptr ),
+        currentCoefficient_(coefficient){ }
+
+    CannonballRadiationPressureTargetModel(
+        double area, std::function< double( const double ) > coefficientFunction,
+        const std::map<std::string, std::vector<std::string>>& sourceToTargetOccultingBodies = {}) :
+        RadiationPressureTargetModel(sourceToTargetOccultingBodies),
+        area_(area), coefficientFunction_( coefficientFunction),
+        currentCoefficient_( TUDAT_NAN ){ }
 
     Eigen::Vector3d evaluateRadiationPressureForce(
             double sourceIrradiance,
@@ -105,14 +119,23 @@ public:
 
     double getCoefficient() const
     {
-        return coefficient_;
+        return currentCoefficient_;
     }
 
-    double getRadiationPressure() const
+    void resetCoefficient( const double coefficient )
     {
-        return radiationPressure_;
+        currentCoefficient_ = coefficient;
     }
 
+    std::function< double( const double ) > getCoefficientFunction( )
+    {
+        return coefficientFunction_;
+    }
+
+    void resetCoefficientFunction( const std::function< double( const double ) > coefficientFunction )
+    {
+        coefficientFunction_ = coefficientFunction;
+    }
 
     bool forceFunctionRequiresLocalFrameInputs( )
     {
@@ -121,9 +144,20 @@ public:
 
 private:
 
+    virtual void updateMembers_(const double currentTime)
+    {
+        if( coefficientFunction_ != nullptr )
+        {
+            currentCoefficient_ = coefficientFunction_( currentTime );
+        }
+        radiationPressure_ = 0.0;
+    };
+
     double area_;
-    double coefficient_;
-    mutable double radiationPressure_;
+
+    std::function< double( const double ) > coefficientFunction_;
+
+    double currentCoefficient_;
 };
 
 /*!
