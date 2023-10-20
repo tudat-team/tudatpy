@@ -26,7 +26,6 @@
 #include "tudat/astro/relativity/relativisticAccelerationCorrection.h"
 #include "tudat/astro/basic_astro/empiricalAcceleration.h"
 #include "tudat/astro/propulsion/massRateFromThrust.h"
-#include "tudat/astro/electromagnetism/solarSailAcceleration.h"
 #include "tudat/astro/electromagnetism/radiationPressureAcceleration.h"
 #include "tudat/astro/electromagnetism/yarkovskyAcceleration.h"
 
