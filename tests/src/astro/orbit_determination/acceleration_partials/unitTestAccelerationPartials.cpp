@@ -206,24 +206,18 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAccelerationPartials )
             std::bind( &Body::getState, sun );
     std::function< Eigen::Vector6d( ) > vehicleStateGetFunction =
             std::bind( &Body::getState, vehicle );
+    bodies.at( "Sun" )->setRadiationSourceModel(
+        createRadiationSourceModel(
+            getDefaultRadiationSourceModelSettings( "Sun", TUDAT_NAN, TUDAT_NAN ), "Sun", bodies ) );
 
     // Create radiation pressure properties of vehicle
-    std::shared_ptr< RadiationPressureInterface > radiationPressureInterface =
-            createRadiationPressureInterface( std::make_shared< CannonBallRadiationPressureInterfaceSettings >(
-                                                  "Sun", mathematical_constants::PI * 0.3 * 0.3, 1.2 ), "Vehicle", bodies );
-    radiationPressureInterface->updateInterface( 0.0 );
-    vehicle->setRadiationPressureInterface( "Sun", radiationPressureInterface );
+    std::shared_ptr<CannonballRadiationPressureTargetModel > radiationPressureInterface =
+        std::make_shared< CannonballRadiationPressureTargetModel >( mathematical_constants::PI * 0.3 * 0.3, 1.2 );
+    vehicle->setRadiationPressureTargetModel( radiationPressureInterface );
 
     // Create acceleration model.
-    std::shared_ptr< CannonBallRadiationPressureAcceleration > accelerationModel =
-            std::make_shared< CannonBallRadiationPressureAcceleration >(
-                std::bind( &Body::getPosition, sun ),
-                std::bind( &Body::getPosition, vehicle ),
-                std::bind( &RadiationPressureInterface::getCurrentRadiationPressure,
-                           radiationPressureInterface ),
-                std::bind( &RadiationPressureInterface::getRadiationPressureCoefficient, radiationPressureInterface ),
-                std::bind( &RadiationPressureInterface::getArea, radiationPressureInterface ),
-                std::bind( &Body::getBodyMass, vehicle ) );
+    std::shared_ptr< RadiationPressureAcceleration > accelerationModel =
+        createRadiationPressureAccelerationModel( bodies.at( "Vehicle" ), bodies.at( "Sun" ), "Vehicle", "Sun", bodies );
 
     // Create partial-calculating object.
     std::shared_ptr< AccelerationPartial > accelerationPartial =
@@ -351,7 +345,7 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAccelerationPartials )
 
     // Calculate numerical partials.
     std::function< void( ) > updateFunction =
-            std::bind( &RadiationPressureInterface::updateInterface, radiationPressureInterface, 0.0 );
+            std::bind( &RadiationPressureTargetModel::updateMembers, radiationPressureInterface, 0.0 );
     testPartialWrtSunPosition = calculateAccelerationWrtStatePartials(
                 sunStateSetFunction, accelerationModel, sun->getState( ), positionPerturbation, 0, updateFunction );
     testPartialWrtVehiclePosition = calculateAccelerationWrtStatePartials(
@@ -367,6 +361,8 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAccelerationPartials )
     // Compare numerical and analytical results.
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtSunPosition,
                                        partialWrtSunPosition, 1.0E-8 );
+
+    std::cout<<testPartialWrtSunPosition<<std::endl<<partialWrtSunPosition<<std::endl;
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtSunVelocity,
                                        partialWrtSunVelocity, std::numeric_limits< double >::epsilon( ) );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtVehiclePosition,

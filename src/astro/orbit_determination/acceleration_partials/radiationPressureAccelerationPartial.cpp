@@ -27,6 +27,13 @@ Eigen::Vector3d computePartialOfCannonBallRadiationPressureAccelerationWrtRadiat
     return -radiationPressure * area / bodyMass * vectorToSource;
 }
 
+void CannonBallRadiationPressurePartial::wrtRadiationPressureCoefficient( Eigen::MatrixXd& partial )
+{
+    partial = computePartialOfCannonBallRadiationPressureAccelerationWrtRadiationPressureCoefficient(
+        radiationPressureFunction_( ), areaFunction_( ), acceleratedBodyMassFunction_( ),
+        ( sourceBodyState_( ) - acceleratedBodyState_( ) ).normalized( ) );
+}
+
 //! Function for setting up and retrieving a function returning a partial w.r.t. a double parameter.
 std::pair< std::function< void( Eigen::MatrixXd& ) >, int > CannonBallRadiationPressurePartial::getParameterPartialFunction(
         std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )

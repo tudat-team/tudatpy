@@ -12,7 +12,6 @@
 #define TUDAT_ELECTROMAGNETISM_H
 
 #include "electromagnetism/basicElectroMagnetism.h"
-#include "electromagnetism/cannonBallRadiationPressureAcceleration.h"
 #include "electromagnetism/cannonBallRadiationPressureForce.h"
 #include "electromagnetism/lorentzStaticMagneticAcceleration.h"
 #include "electromagnetism/lorentzStaticMagneticForce.h"
