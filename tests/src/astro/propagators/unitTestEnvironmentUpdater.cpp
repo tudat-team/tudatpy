@@ -468,11 +468,13 @@ BOOST_AUTO_TEST_CASE( test_NonConservativeForceEnvironmentUpdate )
         std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > environmentModelsToUpdate =
                 createEnvironmentUpdaterSettings< double >( propagatorSettings, bodies );
 
-        BOOST_CHECK_EQUAL( environmentModelsToUpdate.size( ), 3 );
+        BOOST_CHECK_EQUAL( environmentModelsToUpdate.size( ), 4 );
         BOOST_CHECK_EQUAL( environmentModelsToUpdate.count( body_translational_state_update ), 1 );
         BOOST_CHECK_EQUAL( environmentModelsToUpdate.at( body_translational_state_update ).size( ), 1 );
-//        BOOST_CHECK_EQUAL( environmentModelsToUpdate.count( radiation_pressure_interface_update ), 1 );
-//        BOOST_CHECK_EQUAL( environmentModelsToUpdate.at( radiation_pressure_interface_update ).size( ), 1 );
+        BOOST_CHECK_EQUAL( environmentModelsToUpdate.count( radiation_source_model_update ), 1 );
+        BOOST_CHECK_EQUAL( environmentModelsToUpdate.at( radiation_source_model_update ).size( ), 1 );
+        BOOST_CHECK_EQUAL( environmentModelsToUpdate.count( radiation_pressure_target_model_update ), 1 );
+        BOOST_CHECK_EQUAL( environmentModelsToUpdate.at( radiation_pressure_target_model_update ).size( ), 1 );
         BOOST_CHECK_EQUAL( environmentModelsToUpdate.count( body_mass_update ), 1 );
         BOOST_CHECK_EQUAL( environmentModelsToUpdate.at( body_mass_update ).size( ), 1 );
 
@@ -546,11 +548,13 @@ BOOST_AUTO_TEST_CASE( test_NonConservativeForceEnvironmentUpdate )
                 createEnvironmentUpdaterSettings< double >( propagatorSettings, bodies );
 
         // Test update settings
-        BOOST_CHECK_EQUAL( environmentModelsToUpdate.size( ), 5 );
+        BOOST_CHECK_EQUAL( environmentModelsToUpdate.size( ), 6 );
         BOOST_CHECK_EQUAL( environmentModelsToUpdate.count( body_translational_state_update ), 1 );
         BOOST_CHECK_EQUAL( environmentModelsToUpdate.at( body_translational_state_update ).size( ), 2 );
-//        BOOST_CHECK_EQUAL( environmentModelsToUpdate.count( radiation_pressure_interface_update ), 1 );
-//        BOOST_CHECK_EQUAL( environmentModelsToUpdate.at( radiation_pressure_interface_update ).size( ), 1 );
+        BOOST_CHECK_EQUAL( environmentModelsToUpdate.count( radiation_source_model_update ), 1 );
+        BOOST_CHECK_EQUAL( environmentModelsToUpdate.at( radiation_source_model_update ).size( ), 1 );
+        BOOST_CHECK_EQUAL( environmentModelsToUpdate.count( radiation_pressure_target_model_update ), 1 );
+        BOOST_CHECK_EQUAL( environmentModelsToUpdate.at( radiation_pressure_target_model_update ).size( ), 1 );
         BOOST_CHECK_EQUAL( environmentModelsToUpdate.count( body_mass_update ), 1 );
         BOOST_CHECK_EQUAL( environmentModelsToUpdate.at( body_mass_update ).size( ), 1 );
         BOOST_CHECK_EQUAL( environmentModelsToUpdate.count( body_rotational_state_update ), 1 );
