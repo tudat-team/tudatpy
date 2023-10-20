@@ -2165,15 +2165,22 @@ std::function< double( ) > getDoubleDependentVariableFunction(
         }
         case radiation_pressure_coefficient_dependent_variable:
         {
-            // RP-OLD
-            if( bodies.at( bodyWithProperty )->getRadiationPressureInterfaces( ).count( secondaryBody ) == 0 )
+            if( bodies.at( bodyWithProperty )->getRadiationPressureTargetModel( ) == nullptr )
             {
-                std::string errorMessage = "Error, no radiation pressure interfaces when requesting radiation pressure output of " +
+                std::string errorMessage = "Error, no radiation pressure interface when requesting radiation pressure output of " +
                         bodyWithProperty + "w.r.t." + secondaryBody;
                 throw std::runtime_error( errorMessage );
             }
-            variableFunction = std::bind( &electromagnetism::RadiationPressureInterface::getRadiationPressureCoefficient,
-                                          bodies.at( bodyWithProperty )->getRadiationPressureInterfaces( ).at( secondaryBody ) );
+            else if( std::dynamic_pointer_cast< electromagnetism::CannonballRadiationPressureTargetModel >(
+                bodies.at( bodyWithProperty )-> getRadiationPressureTargetModel( ) ) == nullptr )
+            {
+                std::string errorMessage = "Error, no cannonball radiation pressure interface when requesting radiation pressure output of " +
+                                           bodyWithProperty + "w.r.t." + secondaryBody;
+                throw std::runtime_error( errorMessage );
+            }
+            variableFunction = std::bind( &electromagnetism::CannonballRadiationPressureTargetModel::getCoefficient,
+                                          std::dynamic_pointer_cast< electromagnetism::CannonballRadiationPressureTargetModel >(
+                                              bodies.at( bodyWithProperty )-> getRadiationPressureTargetModel( ) ) );
             break;
         }
         case gravity_field_potential_dependent_variable:

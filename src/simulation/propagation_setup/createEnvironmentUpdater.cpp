@@ -1066,9 +1066,9 @@ std::vector< std::string > > createEnvironmentUpdaterSettingsForDependentVariabl
     case current_body_mass_dependent_variable:
         variablesToUpdate[ body_mass_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
         break;
-//    case radiation_pressure_coefficient_dependent_variable:
-//        variablesToUpdate[ radiation_pressure_interface_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
-//        break;
+    case radiation_pressure_coefficient_dependent_variable:
+        variablesToUpdate[ radiation_pressure_target_model_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
+        break;
     case custom_dependent_variable:
         break;
     case gravity_field_potential_dependent_variable:
