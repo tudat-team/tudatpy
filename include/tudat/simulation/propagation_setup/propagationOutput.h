@@ -1738,14 +1738,14 @@ std::function< double( ) > getDoubleDependentVariableFunction(
             break;
         case radiation_pressure_dependent_variable:
             // RP-OLD
-            if( bodies.at( bodyWithProperty )->getRadiationPressureInterfaces( ).count( secondaryBody ) == 0 )
+            if( bodies.at( bodyWithProperty )->getRadiationPressureTargetModel( ) == nullptr )
             {
-                std::string errorMessage = "Error, no radiation pressure interfaces when requesting radiation pressure output of " +
+                std::string errorMessage = "Error, no radiation pressure target model when requesting radiation pressure output of " +
                         bodyWithProperty + "w.r.t." + secondaryBody;
                 throw std::runtime_error( errorMessage );
             }
-            variableFunction = std::bind( &electromagnetism::RadiationPressureInterface::getCurrentRadiationPressure,
-                                          bodies.at( bodyWithProperty )->getRadiationPressureInterfaces( ).at( secondaryBody ) );
+            variableFunction = std::bind( &electromagnetism::RadiationPressureTargetModel::getRadiationPressure,
+                                          bodies.at( bodyWithProperty )->getRadiationPressureTargetModel( ) );
             break;
         case relative_distance_dependent_variable:
         {

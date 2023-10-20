@@ -179,176 +179,176 @@ std::shared_ptr< electromagnetism::RadiationPressureInterface > createRadiationP
         }
         break;
     }
-    case panelled_radiation_pressure_interface:
-    {
-        // Check type consistency.
-        std::shared_ptr< PanelledRadiationPressureInterfaceSettings > panelledSettings =
-                std::dynamic_pointer_cast< PanelledRadiationPressureInterfaceSettings >(
-                    radiationPressureInterfaceSettings );
-        if( panelledSettings == NULL )
-        {
-            throw std::runtime_error( "Error when making panelled radiation interface, type does not match object" );
-        }
-
-        // Retrieve source body and check consistency.
-        if( bodies.count( radiationPressureInterfaceSettings->getSourceBody( ) ) == 0 )
-        {
-            throw std::runtime_error( "Error when making panelled radiation interface, source not found.");
-        }
-
-        std::shared_ptr< Body > sourceBody =
-                bodies.at( radiationPressureInterfaceSettings->getSourceBody( ) );
-
-        // Get required data for occulting bodies.
-        std::vector< std::string > occultingBodies = panelledSettings->getOccultingBodies( );
-        std::vector< std::function< Eigen::Vector3d( ) > > occultingBodyPositions;
-        std::vector< double > occultingBodyRadii;
-        getOccultingBodiesInformation( bodies, occultingBodies, occultingBodyPositions, occultingBodyRadii );
-
-        // Retrieve radius of source if occultations are used.
-        double sourceRadius;
-        if( occultingBodyPositions.size( ) > 0 )
-        {
-            std::shared_ptr< basic_astrodynamics::BodyShapeModel > sourceShapeModel =
-                    sourceBody->getShapeModel( );
-
-            if( sourceShapeModel == NULL )
-            {
-                throw std::runtime_error(
-                            "Error when making occulted body, source body " + radiationPressureInterfaceSettings->getSourceBody( ) +
-                            " does not have a shape" );
-            }
-            else
-            {
-                sourceRadius = sourceShapeModel->getAverageRadius( );
-            }
-        }
-        else
-        {
-            sourceRadius = 0.0;
-        }
-
-        // Create function returning radiated power.
-        std::function< double( ) > radiatedPowerFunction;
-        if( defaultRadiatedPowerValues.count(
-                    radiationPressureInterfaceSettings->getSourceBody( ) ) == 0 )
-        {
-            throw std::runtime_error( "Error, no radiated power found for " +
-                                      radiationPressureInterfaceSettings->getSourceBody( ) );
-        }
-        else
-        {
-            radiatedPowerFunction = [ = ]( ){ return defaultRadiatedPowerValues.at(
-                            radiationPressureInterfaceSettings->getSourceBody( ) ); };
-        }
-
-        std::vector< std::function< Eigen::Vector3d( const double ) > > localFrameSurfaceNormalFunctions = panelledSettings->getSurfaceNormalsInBodyFixedFrameFunctions();
-
-
-        // Create radiation pressure interface.
-        radiationPressureInterface =
-                std::make_shared< electromagnetism::PanelledRadiationPressureInterface >(
-                    radiatedPowerFunction,
-                    std::bind( &Body::getPosition, sourceBody ),
-                    std::bind( &Body::getPosition, bodies.at( bodyName ) ),
-                    localFrameSurfaceNormalFunctions,
-                    panelledSettings->getEmissivities( ),
-                    panelledSettings->getAreas( ),
-                    panelledSettings->getDiffusionCoefficients( ),
-                    std::bind( &Body::getCurrentRotationToGlobalFrame, bodies.at( bodyName ) ),
-                    occultingBodyPositions, occultingBodyRadii,
-                    sourceRadius );
-        break;
-    }
-    case solar_sailing_radiation_pressure_interface:
-    {
-        // Check type consistency.
-        std::shared_ptr< SolarSailRadiationInterfaceSettings > solarSailRadiationSettings =
-                std::dynamic_pointer_cast< SolarSailRadiationInterfaceSettings >( radiationPressureInterfaceSettings );
-
-        if( solarSailRadiationSettings == nullptr )
-        {
-            throw std::runtime_error( "Error when making solar sail radiation interface, type does not match object" );
-        }
-
-        // Retrieve source body and check consistency.
-        if( bodies.count( radiationPressureInterfaceSettings->getSourceBody( ) ) == 0 )
-        {
-            throw std::runtime_error( "Error when making solar sail radiation interface, source not found.");
-        }
-        std::shared_ptr< Body > sourceBody = bodies.at( radiationPressureInterfaceSettings->getSourceBody( ) );
-
-
-        // Get required data for occulting bodies.
-        std::vector< std::string > occultingBodies = solarSailRadiationSettings->getOccultingBodies( );
-        std::vector< std::function< Eigen::Vector3d( ) > > occultingBodyPositions;
-        std::vector< double > occultingBodyRadii;
-        getOccultingBodiesInformation(
-            bodies, occultingBodies, occultingBodyPositions, occultingBodyRadii );
-
-        // Retrieve radius of source if occultations are used.
-        double sourceRadius;
-        if( occultingBodyPositions.size( ) > 0 )
-        {
-            std::shared_ptr< basic_astrodynamics::BodyShapeModel > sourceShapeModel =
-                sourceBody->getShapeModel( );
-
-            if( sourceShapeModel == nullptr )
-            {
-                throw std::runtime_error( "Error when making occulted body, source body " +
-                                         radiationPressureInterfaceSettings->getSourceBody( ) +
-                                         " does not have a shape" );
-            }
-            else
-            {
-                sourceRadius = sourceShapeModel->getAverageRadius( );
-            }
-        }
-        else
-        {
-            sourceRadius = 0.0;
-        }
-
-
-        // Get required data for central bodies.
-        std::string centralBody = solarSailRadiationSettings->getCentralBody();
-        std::function< Eigen::Vector3d( ) > centralBodyPosition;
-        std::function< Eigen::Vector3d( ) > centralBodyVelocity;
-        getCentralBodyInformation( bodies, centralBody, centralBodyPosition, centralBodyVelocity );
-
-        // Create function returning radiated power.
-        std::function< double( ) > radiatedPowerFunction;
-        if( defaultRadiatedPowerValues.count(
-                radiationPressureInterfaceSettings->getSourceBody( ) ) == 0 )
-        {
-            throw std::runtime_error( "Error, no radiated power found for " +
-                                     radiationPressureInterfaceSettings->getSourceBody( ) );
-        }
-        else
-        {
-            radiatedPowerFunction = [ = ]( ){ return defaultRadiatedPowerValues.at( radiationPressureInterfaceSettings->getSourceBody( ) );};
-        }
-
-        // Create solar sailing radiation pressure interface.
-        radiationPressureInterface =
-            std::make_shared< electromagnetism::SolarSailingRadiationPressureInterface >(
-                radiatedPowerFunction,
-                std::bind( &Body::getPosition, sourceBody ),
-                std::bind( &Body::getPosition, bodies.at( bodyName ) ),
-                std::bind( &Body::getVelocity, bodies.at( bodyName ) ),
-                solarSailRadiationSettings->getArea( ),
-                solarSailRadiationSettings->getConeAngle(),
-                solarSailRadiationSettings->getClockAngle(),
-                solarSailRadiationSettings->getFrontEmissivityCoefficient(),
-                solarSailRadiationSettings->getBackEmissivityCoefficient(),
-                solarSailRadiationSettings->getFrontLambertianCoefficient(),
-                solarSailRadiationSettings->getBackLambertianCoefficient(),
-                solarSailRadiationSettings->getReflectivityCoefficient(),
-                solarSailRadiationSettings->getSpecularReflectionCoefficient(),
-                occultingBodyPositions, centralBodyVelocity,
-                occultingBodyRadii, sourceRadius);
-        break;
-    }
+//    case panelled_radiation_pressure_interface:
+//    {
+//        // Check type consistency.
+//        std::shared_ptr< PanelledRadiationPressureInterfaceSettings > panelledSettings =
+//                std::dynamic_pointer_cast< PanelledRadiationPressureInterfaceSettings >(
+//                    radiationPressureInterfaceSettings );
+//        if( panelledSettings == NULL )
+//        {
+//            throw std::runtime_error( "Error when making panelled radiation interface, type does not match object" );
+//        }
+//
+//        // Retrieve source body and check consistency.
+//        if( bodies.count( radiationPressureInterfaceSettings->getSourceBody( ) ) == 0 )
+//        {
+//            throw std::runtime_error( "Error when making panelled radiation interface, source not found.");
+//        }
+//
+//        std::shared_ptr< Body > sourceBody =
+//                bodies.at( radiationPressureInterfaceSettings->getSourceBody( ) );
+//
+//        // Get required data for occulting bodies.
+//        std::vector< std::string > occultingBodies = panelledSettings->getOccultingBodies( );
+//        std::vector< std::function< Eigen::Vector3d( ) > > occultingBodyPositions;
+//        std::vector< double > occultingBodyRadii;
+//        getOccultingBodiesInformation( bodies, occultingBodies, occultingBodyPositions, occultingBodyRadii );
+//
+//        // Retrieve radius of source if occultations are used.
+//        double sourceRadius;
+//        if( occultingBodyPositions.size( ) > 0 )
+//        {
+//            std::shared_ptr< basic_astrodynamics::BodyShapeModel > sourceShapeModel =
+//                    sourceBody->getShapeModel( );
+//
+//            if( sourceShapeModel == NULL )
+//            {
+//                throw std::runtime_error(
+//                            "Error when making occulted body, source body " + radiationPressureInterfaceSettings->getSourceBody( ) +
+//                            " does not have a shape" );
+//            }
+//            else
+//            {
+//                sourceRadius = sourceShapeModel->getAverageRadius( );
+//            }
+//        }
+//        else
+//        {
+//            sourceRadius = 0.0;
+//        }
+//
+//        // Create function returning radiated power.
+//        std::function< double( ) > radiatedPowerFunction;
+//        if( defaultRadiatedPowerValues.count(
+//                    radiationPressureInterfaceSettings->getSourceBody( ) ) == 0 )
+//        {
+//            throw std::runtime_error( "Error, no radiated power found for " +
+//                                      radiationPressureInterfaceSettings->getSourceBody( ) );
+//        }
+//        else
+//        {
+//            radiatedPowerFunction = [ = ]( ){ return defaultRadiatedPowerValues.at(
+//                            radiationPressureInterfaceSettings->getSourceBody( ) ); };
+//        }
+//
+//        std::vector< std::function< Eigen::Vector3d( const double ) > > localFrameSurfaceNormalFunctions = panelledSettings->getSurfaceNormalsInBodyFixedFrameFunctions();
+//
+//
+//        // Create radiation pressure interface.
+//        radiationPressureInterface =
+//                std::make_shared< electromagnetism::PanelledRadiationPressureInterface >(
+//                    radiatedPowerFunction,
+//                    std::bind( &Body::getPosition, sourceBody ),
+//                    std::bind( &Body::getPosition, bodies.at( bodyName ) ),
+//                    localFrameSurfaceNormalFunctions,
+//                    panelledSettings->getEmissivities( ),
+//                    panelledSettings->getAreas( ),
+//                    panelledSettings->getDiffusionCoefficients( ),
+//                    std::bind( &Body::getCurrentRotationToGlobalFrame, bodies.at( bodyName ) ),
+//                    occultingBodyPositions, occultingBodyRadii,
+//                    sourceRadius );
+//        break;
+//    }
+//    case solar_sailing_radiation_pressure_interface:
+//    {
+//        // Check type consistency.
+//        std::shared_ptr< SolarSailRadiationInterfaceSettings > solarSailRadiationSettings =
+//                std::dynamic_pointer_cast< SolarSailRadiationInterfaceSettings >( radiationPressureInterfaceSettings );
+//
+//        if( solarSailRadiationSettings == nullptr )
+//        {
+//            throw std::runtime_error( "Error when making solar sail radiation interface, type does not match object" );
+//        }
+//
+//        // Retrieve source body and check consistency.
+//        if( bodies.count( radiationPressureInterfaceSettings->getSourceBody( ) ) == 0 )
+//        {
+//            throw std::runtime_error( "Error when making solar sail radiation interface, source not found.");
+//        }
+//        std::shared_ptr< Body > sourceBody = bodies.at( radiationPressureInterfaceSettings->getSourceBody( ) );
+//
+//
+//        // Get required data for occulting bodies.
+//        std::vector< std::string > occultingBodies = solarSailRadiationSettings->getOccultingBodies( );
+//        std::vector< std::function< Eigen::Vector3d( ) > > occultingBodyPositions;
+//        std::vector< double > occultingBodyRadii;
+//        getOccultingBodiesInformation(
+//            bodies, occultingBodies, occultingBodyPositions, occultingBodyRadii );
+//
+//        // Retrieve radius of source if occultations are used.
+//        double sourceRadius;
+//        if( occultingBodyPositions.size( ) > 0 )
+//        {
+//            std::shared_ptr< basic_astrodynamics::BodyShapeModel > sourceShapeModel =
+//                sourceBody->getShapeModel( );
+//
+//            if( sourceShapeModel == nullptr )
+//            {
+//                throw std::runtime_error( "Error when making occulted body, source body " +
+//                                         radiationPressureInterfaceSettings->getSourceBody( ) +
+//                                         " does not have a shape" );
+//            }
+//            else
+//            {
+//                sourceRadius = sourceShapeModel->getAverageRadius( );
+//            }
+//        }
+//        else
+//        {
+//            sourceRadius = 0.0;
+//        }
+//
+//
+//        // Get required data for central bodies.
+//        std::string centralBody = solarSailRadiationSettings->getCentralBody();
+//        std::function< Eigen::Vector3d( ) > centralBodyPosition;
+//        std::function< Eigen::Vector3d( ) > centralBodyVelocity;
+//        getCentralBodyInformation( bodies, centralBody, centralBodyPosition, centralBodyVelocity );
+//
+//        // Create function returning radiated power.
+//        std::function< double( ) > radiatedPowerFunction;
+//        if( defaultRadiatedPowerValues.count(
+//                radiationPressureInterfaceSettings->getSourceBody( ) ) == 0 )
+//        {
+//            throw std::runtime_error( "Error, no radiated power found for " +
+//                                     radiationPressureInterfaceSettings->getSourceBody( ) );
+//        }
+//        else
+//        {
+//            radiatedPowerFunction = [ = ]( ){ return defaultRadiatedPowerValues.at( radiationPressureInterfaceSettings->getSourceBody( ) );};
+//        }
+//
+//        // Create solar sailing radiation pressure interface.
+//        radiationPressureInterface =
+//            std::make_shared< electromagnetism::SolarSailingRadiationPressureInterface >(
+//                radiatedPowerFunction,
+//                std::bind( &Body::getPosition, sourceBody ),
+//                std::bind( &Body::getPosition, bodies.at( bodyName ) ),
+//                std::bind( &Body::getVelocity, bodies.at( bodyName ) ),
+//                solarSailRadiationSettings->getArea( ),
+//                solarSailRadiationSettings->getConeAngle(),
+//                solarSailRadiationSettings->getClockAngle(),
+//                solarSailRadiationSettings->getFrontEmissivityCoefficient(),
+//                solarSailRadiationSettings->getBackEmissivityCoefficient(),
+//                solarSailRadiationSettings->getFrontLambertianCoefficient(),
+//                solarSailRadiationSettings->getBackLambertianCoefficient(),
+//                solarSailRadiationSettings->getReflectivityCoefficient(),
+//                solarSailRadiationSettings->getSpecularReflectionCoefficient(),
+//                occultingBodyPositions, centralBodyVelocity,
+//                occultingBodyRadii, sourceRadius);
+//        break;
+//    }
     default:
         throw std::runtime_error(
                     "Error, radiation pressure type" + std::to_string(
