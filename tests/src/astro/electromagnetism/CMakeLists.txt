@@ -19,23 +19,6 @@ TUDAT_ADD_TEST_CASE(LorentzStaticMagneticAccelerationAndForce
         tudat_electromagnetism
         tudat_basic_astrodynamics
         )
-#
-#TUDAT_ADD_TEST_CASE(RadiationPressureInterface
-#        PRIVATE_LINKS
-#        tudat_electromagnetism
-#        tudat_basic_astrodynamics
-#        )
-#
-#TUDAT_ADD_TEST_CASE(PanelledRadiationPressure
-#        PRIVATE_LINKS
-#        ${Tudat_PROPAGATION_LIBRARIES}
-#        )
-#
-#TUDAT_ADD_TEST_CASE(SolarSailAccelerationAndForce
-#        PRIVATE_LINKS
-#        tudat_electromagnetism
-#        tudat_basic_astrodynamics
-#        )
 
 TUDAT_ADD_TEST_CASE(RadiationSourceModel
         PRIVATE_LINKS

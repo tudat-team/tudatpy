@@ -12,13 +12,10 @@
 #define TUDAT_ELECTROMAGNETISM_H
 
 #include "electromagnetism/basicElectroMagnetism.h"
-#include "electromagnetism/cannonBallRadiationPressureForce.h"
 #include "electromagnetism/lorentzStaticMagneticAcceleration.h"
 #include "electromagnetism/lorentzStaticMagneticForce.h"
 #include "electromagnetism/panelledRadiationPressure.h"
 #include "electromagnetism/radiationPressureInterface.h"
-#include "electromagnetism/solarSailAcceleration.h"
-#include "electromagnetism/solarSailForce.h"
 
 #include "electromagnetism/radiationSourceModel.h"
 #include "electromagnetism/luminosityModel.h"
