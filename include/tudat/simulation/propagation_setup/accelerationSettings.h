@@ -13,7 +13,6 @@
 
 #include <functional>
 #include <memory>
-#include "tudat/astro/electromagnetism/cannonBallRadiationPressureAcceleration.h"
 #include "tudat/astro/electromagnetism/solarSailAcceleration.h"
 #include "tudat/astro/gravitation/centralGravityModel.h"
 #include "tudat/astro/gravitation/sphericalHarmonicsGravityModel.h"

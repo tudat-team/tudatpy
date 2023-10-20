@@ -122,20 +122,20 @@ void checkValidityOfRequiredEnvironmentUpdates(
 
                     break;
                 }
-                // RP-OLD
-                case radiation_pressure_interface_update:
-                {
-                    std::map< std::string, std::shared_ptr< electromagnetism::RadiationPressureInterface > >
-                            radiationPressureInterfaces = bodies.at(
-                                updateIterator->second.at( i ) )->getRadiationPressureInterfaces( );
-                    if( radiationPressureInterfaces.size( ) == 0 )
-                    {
-                        throw std::runtime_error(
-                                    "Error when making environment model update settings, could not find radiation pressure interface of body "
-                                    + updateIterator->second.at( i ) );
-                    }
-                    break;
-                }
+//                // RP-OLD
+//                case radiation_pressure_interface_update:
+//                {
+//                    std::map< std::string, std::shared_ptr< electromagnetism::RadiationPressureInterface > >
+//                            radiationPressureInterfaces = bodies.at(
+//                                updateIterator->second.at( i ) )->getRadiationPressureInterfaces( );
+//                    if( radiationPressureInterfaces.size( ) == 0 )
+//                    {
+//                        throw std::runtime_error(
+//                                    "Error when making environment model update settings, could not find radiation pressure interface of body "
+//                                    + updateIterator->second.at( i ) );
+//                    }
+//                    break;
+//                }
                 case radiation_source_model_update:
                 {
                     std::shared_ptr< electromagnetism::RadiationSourceModel > radiationSourceModel = bodies.at(
@@ -491,42 +491,42 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
 
                     break;
                 }
-                case cannon_ball_radiation_pressure:
-                {
-                    // RP-OLD
-                    std::shared_ptr< electromagnetism::RadiationPressureInterface > radiationPressureInterface;
-                    try
-                    {
-                        radiationPressureInterface =
-                            bodies.at( acceleratedBodyIterator->first )->getRadiationPressureInterfaces( ).at(
-                                accelerationModelIterator->first );
-                    }
-                    catch( std::runtime_error& caughtException )
-                    {
-                            throw std::runtime_error(
-                                    "Error, could not identify relevant radiation pressure interface when setting environment update settings: "
-                                      + std::string( caughtException.what( ) ) );
-                    }
-
-                    singleAccelerationUpdateNeeds[ radiation_pressure_interface_update ].push_back(
-                                acceleratedBodyIterator->first );
-                    singleAccelerationUpdateNeeds[ body_mass_update ].push_back(
-                                acceleratedBodyIterator->first );
-                    for( unsigned int i = 0; i < radiationPressureInterface->getOccultingBodies( ).size( ); i++ )
-                    {
-                        singleAccelerationUpdateNeeds[ body_translational_state_update ].push_back(
-                                    radiationPressureInterface->getOccultingBodies( ).at( i ) );
-                    }
-                    break;
-                }
-                case panelled_radiation_pressure_acceleration:
-                    singleAccelerationUpdateNeeds[ radiation_pressure_interface_update ].push_back(
-                                acceleratedBodyIterator->first );
-                    singleAccelerationUpdateNeeds[ body_mass_update ].push_back(
-                                acceleratedBodyIterator->first );
-                    singleAccelerationUpdateNeeds[ body_rotational_state_update ].push_back(
-                                acceleratedBodyIterator->first );
-                    break;
+//                case cannon_ball_radiation_pressure:
+//                {
+//                    // RP-OLD
+//                    std::shared_ptr< electromagnetism::RadiationPressureInterface > radiationPressureInterface;
+//                    try
+//                    {
+//                        radiationPressureInterface =
+//                            bodies.at( acceleratedBodyIterator->first )->getRadiationPressureInterfaces( ).at(
+//                                accelerationModelIterator->first );
+//                    }
+//                    catch( std::runtime_error& caughtException )
+//                    {
+//                            throw std::runtime_error(
+//                                    "Error, could not identify relevant radiation pressure interface when setting environment update settings: "
+//                                      + std::string( caughtException.what( ) ) );
+//                    }
+//
+//                    singleAccelerationUpdateNeeds[ radiation_pressure_interface_update ].push_back(
+//                                acceleratedBodyIterator->first );
+//                    singleAccelerationUpdateNeeds[ body_mass_update ].push_back(
+//                                acceleratedBodyIterator->first );
+//                    for( unsigned int i = 0; i < radiationPressureInterface->getOccultingBodies( ).size( ); i++ )
+//                    {
+//                        singleAccelerationUpdateNeeds[ body_translational_state_update ].push_back(
+//                                    radiationPressureInterface->getOccultingBodies( ).at( i ) );
+//                    }
+//                    break;
+//                }
+//                case panelled_radiation_pressure_acceleration:
+//                    singleAccelerationUpdateNeeds[ radiation_pressure_interface_update ].push_back(
+//                                acceleratedBodyIterator->first );
+//                    singleAccelerationUpdateNeeds[ body_mass_update ].push_back(
+//                                acceleratedBodyIterator->first );
+//                    singleAccelerationUpdateNeeds[ body_rotational_state_update ].push_back(
+//                                acceleratedBodyIterator->first );
+//                    break;
                 case spherical_harmonic_gravity:
                     singleAccelerationUpdateNeeds[ body_rotational_state_update ].push_back(
                                 accelerationModelIterator->first );
@@ -704,10 +704,6 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                 case empirical_acceleration:
                     break;
                 case momentum_wheel_desaturation_acceleration:
-                    break;
-                case solar_sail_acceleration:
-                    singleAccelerationUpdateNeeds[ radiation_pressure_interface_update ].push_back( acceleratedBodyIterator->first );
-                    singleAccelerationUpdateNeeds[ body_mass_update ].push_back( acceleratedBodyIterator->first );
                     break;
                 case yarkovsky_acceleration:
                         break;
@@ -1038,11 +1034,11 @@ std::vector< std::string > > createEnvironmentUpdaterSettingsForDependentVariabl
     case control_surface_deflection_dependent_variable:
         variablesToUpdate[ vehicle_flight_conditions_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
         break;
-    case radiation_pressure_dependent_variable:
-        variablesToUpdate[ radiation_pressure_interface_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
-        variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
-        variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->secondaryBody_ );
-        break;
+//    case radiation_pressure_dependent_variable:
+//        variablesToUpdate[ radiation_pressure_interface_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
+//        variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
+//        variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->secondaryBody_ );
+//        break;
     case periapsis_altitude_dependent_variable:
         variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
         variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->secondaryBody_ );
@@ -1070,9 +1066,9 @@ std::vector< std::string > > createEnvironmentUpdaterSettingsForDependentVariabl
     case current_body_mass_dependent_variable:
         variablesToUpdate[ body_mass_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
         break;
-    case radiation_pressure_coefficient_dependent_variable:
-        variablesToUpdate[ radiation_pressure_interface_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
-        break;
+//    case radiation_pressure_coefficient_dependent_variable:
+//        variablesToUpdate[ radiation_pressure_interface_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
+//        break;
     case custom_dependent_variable:
         break;
     case gravity_field_potential_dependent_variable:
@@ -1246,20 +1242,20 @@ std::vector< std::string > > createFullEnvironmentUpdaterSettings(
                     push_back( bodyIterator.first );
         }
 
-        // RP-OLD
-        // Get body radiation pressure interface(s) (one per source)
-        std::map< std::string,
-                std::shared_ptr< RadiationPressureInterface > > radiationPressureInterfaces
-                = bodyIterator.second->getRadiationPressureInterfaces( );
+//        // RP-OLD
+//        // Get body radiation pressure interface(s) (one per source)
+//        std::map< std::string,
+//                std::shared_ptr< RadiationPressureInterface > > radiationPressureInterfaces
+//                = bodyIterator.second->getRadiationPressureInterfaces( );
 
-        // Add each interface update function to update list.
-        for( std::map< std::string, std::shared_ptr< RadiationPressureInterface > >::iterator
-             iterator = radiationPressureInterfaces.begin( );
-             iterator != radiationPressureInterfaces.end( ); iterator++ )
-        {
-            singleAccelerationUpdateNeeds[ radiation_pressure_interface_update ].
-                    push_back( bodyIterator.first );
-        }
+//        // Add each interface update function to update list.
+//        for( std::map< std::string, std::shared_ptr< RadiationPressureInterface > >::iterator
+//             iterator = radiationPressureInterfaces.begin( );
+//             iterator != radiationPressureInterfaces.end( ); iterator++ )
+//        {
+//            singleAccelerationUpdateNeeds[ radiation_pressure_interface_update ].
+//                    push_back( bodyIterator.first );
+//        }
 
         // If body has radiation source model, add its update to update list
         if( bodyIterator.second->getRadiationSourceModel() != nullptr )

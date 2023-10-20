@@ -180,7 +180,7 @@ std::vector< std::shared_ptr< orbit_determination::TidalLoveNumberPartialInterfa
 
 
 template< typename InitialStateParameterType = double >
-std::shared_ptr< acceleration_partials::AccelerationPartial > createRadiationPressureAccelerationModel(
+std::shared_ptr< acceleration_partials::AccelerationPartial > createRadiationPressureAccelerationPartial(
     std::shared_ptr< electromagnetism::RadiationPressureAcceleration > radiationPressureAccelerationModel,
     const std::pair< std::string, std::shared_ptr< simulation_setup::Body > > acceleratedBody,
     const std::pair< std::string, std::shared_ptr< simulation_setup::Body > > acceleratingBody,
@@ -640,39 +640,39 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAc
         }
         break;
     }
-    // RP-OLD
-    case cannon_ball_radiation_pressure:
-    {
-        // Check if identifier is consistent with type.
-        std::shared_ptr< CannonBallRadiationPressureAcceleration > radiationPressureAcceleration =
-                std::dynamic_pointer_cast< CannonBallRadiationPressureAcceleration >( accelerationModel );
-        if( radiationPressureAcceleration == nullptr )
-        {
-            throw std::runtime_error( "Acceleration class type does not match acceleration type (cannon_ball_radiation_pressure) "
-                                      "when making acceleration partial." );
-        }
-        else
-        {
-            std::map< std::string, std::shared_ptr< RadiationPressureInterface > > radiationPressureInterfaces =
-                    acceleratedBody.second->getRadiationPressureInterfaces( );
-
-            if( radiationPressureInterfaces.count( acceleratingBody.first ) == 0 )
-            {
-                throw std::runtime_error( "No radiation pressure coefficient interface found when making acceleration partial." );
-            }
-            else
-            {
-                std::shared_ptr< RadiationPressureInterface > radiationPressureInterface =
-                        radiationPressureInterfaces.at( acceleratingBody.first );
-
-                // Create partial-calculating object.
-                accelerationPartial = std::make_shared< CannonBallRadiationPressurePartial >
-                        ( radiationPressureInterface, radiationPressureAcceleration->getMassFunction( ),
-                          acceleratedBody.first, acceleratingBody.first );
-            }
-        }
-        break;
-    }
+//    // RP-OLD
+//    case cannon_ball_radiation_pressure:
+//    {
+//        // Check if identifier is consistent with type.
+//        std::shared_ptr< CannonBallRadiationPressureAcceleration > radiationPressureAcceleration =
+//                std::dynamic_pointer_cast< CannonBallRadiationPressureAcceleration >( accelerationModel );
+//        if( radiationPressureAcceleration == nullptr )
+//        {
+//            throw std::runtime_error( "Acceleration class type does not match acceleration type (cannon_ball_radiation_pressure) "
+//                                      "when making acceleration partial." );
+//        }
+//        else
+//        {
+//            std::map< std::string, std::shared_ptr< RadiationPressureInterface > > radiationPressureInterfaces =
+//                    acceleratedBody.second->getRadiationPressureInterfaces( );
+//
+//            if( radiationPressureInterfaces.count( acceleratingBody.first ) == 0 )
+//            {
+//                throw std::runtime_error( "No radiation pressure coefficient interface found when making acceleration partial." );
+//            }
+//            else
+//            {
+//                std::shared_ptr< RadiationPressureInterface > radiationPressureInterface =
+//                        radiationPressureInterfaces.at( acceleratingBody.first );
+//
+//                // Create partial-calculating object.
+//                accelerationPartial = std::make_shared< CannonBallRadiationPressurePartial >
+//                        ( radiationPressureInterface, radiationPressureAcceleration->getMassFunction( ),
+//                          acceleratedBody.first, acceleratingBody.first );
+//            }
+//        }
+//        break;
+//    }
     case aerodynamic:
     {
         // Check if identifier is consistent with type.
@@ -778,7 +778,7 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAc
         else
         {
             // Create partial-calculating object.
-            accelerationPartial = createRadiationPressureAccelerationModel(
+            accelerationPartial = createRadiationPressureAccelerationPartial(
                 radiationPressureAccelerationModel, acceleratedBody, acceleratingBody, bodies, parametersToEstimate );
 
         }
