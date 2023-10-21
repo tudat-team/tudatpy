@@ -38,13 +38,15 @@ Eigen::Vector3d IsotropicPointSourceRadiationPressureAcceleration::calculateAcce
     sourceCenterPositionInGlobalFrame_ = sourcePositionFunction_();
     targetCenterPositionInGlobalFrame_ = targetPositionFunction_();
     targetCenterPositionInSourceFrame_ = targetCenterPositionInGlobalFrame_ - sourceCenterPositionInGlobalFrame_;
-
+    currentTargetMass_ = targetMassFunction_();
     // Evaluate irradiances at target position in source frame
     // No rotation to source frame is necessary because isotropic sources are rotation-invariant
     sourceToTargetReceivedFraction = sourceToTargetOccultationModel_->evaluateReceivedFractionFromExtendedSource(
             sourceCenterPositionInGlobalFrame_, sourceBodyShapeModel_, targetCenterPositionInGlobalFrame_ );
     receivedIrradiance =
         sourceModel_->evaluateIrradianceAtPosition( targetCenterPositionInSourceFrame_).front().first * sourceToTargetReceivedFraction;
+
+    std::cout<<"Irradiance "<<receivedIrradiance<<std::endl;..
 
     if (receivedIrradiance <= 0)
     {
@@ -54,19 +56,19 @@ Eigen::Vector3d IsotropicPointSourceRadiationPressureAcceleration::calculateAcce
 
     if( targetModel_->forceFunctionRequiresLocalFrameInputs( ) )
     {
-        Eigen::Quaterniond targetRotationFromLocalToGlobalFrame = targetRotationFromLocalToGlobalFrameFunction_();
-        Eigen::Quaterniond targetRotationFromGlobalToLocalFrame = targetRotationFromLocalToGlobalFrame.inverse();
+        targetRotationFromLocalToGlobalFrame_ = targetRotationFromLocalToGlobalFrameFunction_( );
+        targetRotationFromGlobalToLocalFrame_ = targetRotationFromLocalToGlobalFrame_.inverse( );
 
         // Calculate acceleration due to radiation pressure in global frame
-        return targetRotationFromLocalToGlobalFrame *
+        return targetRotationFromLocalToGlobalFrame_ *
             targetModel_->evaluateRadiationPressureForce(
-            receivedIrradiance, targetRotationFromGlobalToLocalFrame * targetCenterPositionInSourceFrame_.normalized() ) /
-            targetMassFunction_();
+            receivedIrradiance, targetRotationFromGlobalToLocalFrame_ * targetCenterPositionInSourceFrame_.normalized() ) /
+            currentTargetMass_;
     }
     else
     {
         return targetModel_->evaluateRadiationPressureForce(
-                   receivedIrradiance, targetCenterPositionInSourceFrame_.normalized() ) / targetMassFunction_();
+                   receivedIrradiance, targetCenterPositionInSourceFrame_.normalized() ) / currentTargetMass_;
     }
 }
 

@@ -28,11 +28,41 @@ public:
      */
     PanelledRadiationPressurePartial(
         const std::shared_ptr< electromagnetism::IsotropicPointSourceRadiationPressureAcceleration > radiationPressureAcceleration,
-            const std::shared_ptr< electromagnetism::PaneledRadiationPressureTargetModel > panelledTargetModel,
+        const std::shared_ptr< electromagnetism::PaneledRadiationPressureTargetModel > panelledTargetModel,
             const std::string& acceleratedBody, const std::string& acceleratingBody ):
         AccelerationPartial( acceleratedBody, acceleratingBody, basic_astrodynamics::radiation_pressure ),
-        radiationPressureAcceleration_( radiationPressureAcceleration ), panelledTargetModel_( panelledTargetModel )
-    { }
+        radiationPressureAcceleration_( radiationPressureAcceleration ), panelledTargetModel_( panelledTargetModel ),
+        numberOfBodyFixedPanels_( panelledTargetModel_->getBodyFixedPanels( ).size( ) )
+    {
+        for( unsigned int i = 0; i < numberOfBodyFixedPanels_; i++ )
+        {
+            if( panelledTargetModel_->getBodyFixedPanels( ).at( i )->getTrackedBody( ) != "" )
+            {
+                trackedTargetPerPanel_[ i ] = panelledTargetModel_->getBodyFixedPanels( ).at( i )->getTrackedBody( );
+                if(std::find(trackedTargetList_.begin(), trackedTargetList_.end(),
+                             panelledTargetModel_->getBodyFixedPanels( ).at( i )->getTrackedBody( ) ) == trackedTargetList_.end( ) )
+                {
+                    trackedTargetList_.push_back( panelledTargetModel_->getBodyFixedPanels( ).at( i )->getTrackedBody( ) );
+                }
+            }
+        }
+
+        for( auto it : panelledTargetModel_->getSegmentFixedPanels( ) )
+        {
+            for( unsigned int i = 0; i < it.second.size( ); i++ )
+            {
+                if( it.second.at( i )->getTrackedBody( ) != "" )
+                {
+                    trackedTargetPerSegmentPanel_[ it.first ][ i ] = it.second.at( i )->getTrackedBody( );
+                    if(std::find(trackedTargetList_.begin(), trackedTargetList_.end(),
+                                 it.second.at( i )->getTrackedBody( ) ) == trackedTargetList_.end( ) )
+                    {
+                        trackedTargetList_.push_back( it.second.at( i )->getTrackedBody( ) );
+                    }
+                }
+            }
+        }
+    }
 
     //! Destructor.
     ~PanelledRadiationPressurePartial( ){ }
@@ -153,9 +183,18 @@ private:
     //! Pointer to the panelled radiation pressure interface.
     std::shared_ptr< electromagnetism::PaneledRadiationPressureTargetModel > panelledTargetModel_;
 
+    unsigned int numberOfBodyFixedPanels_;
+
+    std::map< int, std::string > trackedTargetPerPanel_;
+
+    std::map< std::string, std::map< int, std::string > > trackedTargetPerSegmentPanel_;
+
+    std::vector< std::string > trackedTargetList_;
+
     //! Current partial of acceleration w.r.t. position of body undergoing acceleration (equal to minus partial w.r.t.
     //! position of body exerting acceleration).
     Eigen::Matrix3d currentPartialWrtPosition_;
+
 };
 
 }
