@@ -151,6 +151,36 @@ public:
         return sourceToTargetReceivedFraction;
     }
 
+    Eigen::Vector3d getSourcePosition( )
+    {
+        return sourceCenterPositionInGlobalFrame_;
+    }
+
+    Eigen::Vector3d getTargetPosition( )
+    {
+        return targetCenterPositionInGlobalFrame_;
+    }
+
+    Eigen::Vector3d getTargetPositionWrtSource( )
+    {
+        return targetCenterPositionInSourceFrame_;
+    }
+
+    double getCurrentTargetMass( )
+    {
+        return currentTargetMass_;
+    }
+
+    Eigen::Quaterniond getTargetRotationFromLocalToGlobalFrame( )
+    {
+        return targetRotationFromLocalToGlobalFrame_;
+    }
+
+    Eigen::Quaterniond getTargetRotationFromGlobalToLocalFrame( )
+    {
+        return targetRotationFromGlobalToLocalFrame_;
+    }
+
 private:
     Eigen::Vector3d calculateAcceleration() override;
 
@@ -162,8 +192,13 @@ private:
     Eigen::Vector3d targetCenterPositionInGlobalFrame_;
     Eigen::Vector3d targetCenterPositionInSourceFrame_;
 
+    double currentTargetMass_;
+
     // For dependent variable
     double sourceToTargetReceivedFraction;
+
+    Eigen::Quaterniond targetRotationFromLocalToGlobalFrame_;
+    Eigen::Quaterniond targetRotationFromGlobalToLocalFrame_;
 };
 
 /*!

@@ -88,6 +88,19 @@ Eigen::Vector3d SpecularDiffuseMixReflectionLaw::evaluateReactionVector(const Ei
     return reactionFromIncidence + reactionFromReflection + reactionFromInstantaneousReradiation;
 }
 
+Eigen::Matrix3d SpecularDiffuseMixReflectionLaw::evaluateReactionVectorDerivativeWrtTargetPosition(
+    const Eigen::Vector3d& surfaceNormal,
+    const Eigen::Vector3d& incomingDirection,
+    const double cosineOfAngleBetweenVectors,
+    const Eigen::Vector3d& currentReactionVector,
+    const Eigen::Matrix3d& sourceUnitVectorPartial,
+    const Eigen::Matrix< double, 1, 3 >& cosineAnglePartial )
+{
+    return currentReactionVector * cosineAnglePartial / cosineOfAngleBetweenVectors +
+           cosineOfAngleBetweenVectors * ( (absorptivity_ + diffuseReflectivity_) * sourceUnitVectorPartial +
+                                           2.0 * specularReflectivity_ * surfaceNormal * cosineAnglePartial );
+}
+
 void SpecularDiffuseMixReflectionLaw::validateCoefficients() const
 {
     auto sumOfCoeffs = absorptivity_ + specularReflectivity_ + diffuseReflectivity_;

@@ -70,6 +70,14 @@ public:
     virtual Eigen::Vector3d evaluateReactionVector(
             const Eigen::Vector3d& surfaceNormal,
             const Eigen::Vector3d& incomingDirection) const = 0;
+
+    virtual Eigen::Matrix3d evaluateReactionVectorDerivativeWrtTargetPosition(
+        const Eigen::Vector3d& surfaceNormal,
+        const Eigen::Vector3d& incomingDirection,
+        const double cosineOfAngleBetweenVectors,
+        const Eigen::Vector3d& currentReactionVector,
+        const Eigen::Matrix3d& sourceUnitVectorPartial,
+        const Eigen::Matrix< double, 1, 3 >& cosineAnglePartial ) = 0;
 };
 
 /*!
@@ -113,8 +121,16 @@ public:
             const Eigen::Vector3d& observerDirection) const override;
 
     Eigen::Vector3d evaluateReactionVector(
-            const Eigen::Vector3d& surfaceNormal,
-            const Eigen::Vector3d& incomingDirection) const override;
+        const Eigen::Vector3d& surfaceNormal,
+        const Eigen::Vector3d& incomingDirection) const override;
+
+    Eigen::Matrix3d evaluateReactionVectorDerivativeWrtTargetPosition(
+        const Eigen::Vector3d& surfaceNormal,
+        const Eigen::Vector3d& incomingDirection,
+        const double cosineOfAngleBetweenVectors,
+        const Eigen::Vector3d& currentReactionVector,
+        const Eigen::Matrix3d& sourceUnitVectorPartial,
+        const Eigen::Matrix< double, 1, 3 >& cosineAnglePartial ) override;
 
     double getAbsorptivity() const
     {
