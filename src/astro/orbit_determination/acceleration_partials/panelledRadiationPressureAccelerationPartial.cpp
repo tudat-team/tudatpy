@@ -70,7 +70,7 @@ void PanelledRadiationPressurePartial::update( const double currentTime )
             currentPartialWrtPosition_ = rotationToInertialFrame * currentPartialWrtPosition_ * rotationToInertialFrame.transpose( );
             currentPartialWrtPosition_ /= currentMass;
 
-            currentPartialWrtPosition_ += currentAcceleration / currentRadiationPressure * currentRadiationPressurePositionPartial_;
+            currentPartialWrtPosition_ += currentAcceleration / currentRadiationPressure * currentRadiationPressurePositionPartial_ * rotationToInertialFrame.transpose( );
 
 //            std::cout<<"Total partial: "<<currentPartialWrtPosition_<<std::endl;
 
