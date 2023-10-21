@@ -44,6 +44,9 @@ Eigen::Vector3d PaneledRadiationPressureTargetModel::evaluateRadiationPressureFo
         double sourceIrradiance,
         const Eigen::Vector3d& sourceToTargetDirectionLocalFrame)
 {
+    std::cout<<"Computing radiation pressure force"<<std::setprecision( 16 )<<std::endl<<
+    sourceIrradiance<<" "<<
+    sourceToTargetDirectionLocalFrame.transpose( )<<" ";
     radiationPressure_ = sourceIrradiance / physical_constants::SPEED_OF_LIGHT;
     Eigen::Vector3d force = Eigen::Vector3d::Zero();
     auto segmentFixedPanelsIterator = segmentFixedPanels_.begin( );
@@ -62,12 +65,14 @@ Eigen::Vector3d PaneledRadiationPressureTargetModel::evaluateRadiationPressureFo
         for( unsigned int j = 0; j < currentPanels_.size( ); j++ )
         {
             surfaceNormals_[ counter ] = currentOrientation * currentPanels_.at( j )->getFrameFixedSurfaceNormal( )( );
-            const double cosBetweenNormalAndIncoming = (-sourceToTargetDirectionLocalFrame).dot(surfaceNormals_[ counter ]);
-            if (cosBetweenNormalAndIncoming > 0)
+            surfacePanelCosines_[ counter ] = (-sourceToTargetDirectionLocalFrame).dot(surfaceNormals_[ counter ]);
+            if (surfacePanelCosines_[ counter ] > 0)
             {
-                const double effectiveArea = currentPanels_.at( j )->getPanelArea() * cosBetweenNormalAndIncoming;
-                const auto reactionVector =
+                const double effectiveArea = currentPanels_.at( j )->getPanelArea() * surfacePanelCosines_[ counter ];
+                auto reactionVector =
                     currentPanels_.at( j )->getReflectionLaw()->evaluateReactionVector(surfaceNormals_[ counter ], sourceToTargetDirectionLocalFrame);
+//                reactionVector = ( Eigen::Vector3d( ) << 0.6855829496241485, 0.4897021068743918, 1.205338984228498 ).finished( );
+//                std::cout<<"Reaction: "<<reactionVector.transpose( )<<std::endl;
                 panelForces_[ i ] = radiationPressure_ * effectiveArea * reactionVector;
                 force += panelForces_[ counter ];
             }
@@ -82,6 +87,7 @@ Eigen::Vector3d PaneledRadiationPressureTargetModel::evaluateRadiationPressureFo
             segmentFixedPanelsIterator++;
         }
     }
+    std::cout<<force.transpose( )<<std::endl<<std::endl;
     return force;
 }
 

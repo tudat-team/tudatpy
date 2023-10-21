@@ -45,8 +45,7 @@ Eigen::Vector3d IsotropicPointSourceRadiationPressureAcceleration::calculateAcce
             sourceCenterPositionInGlobalFrame_, sourceBodyShapeModel_, targetCenterPositionInGlobalFrame_ );
     receivedIrradiance =
         sourceModel_->evaluateIrradianceAtPosition( targetCenterPositionInSourceFrame_).front().first * sourceToTargetReceivedFraction;
-
-    std::cout<<"Irradiance "<<receivedIrradiance<<std::endl;..
+//    std::cout<<"Irradiance "<<receivedIrradiance<<std::endl;
 
     if (receivedIrradiance <= 0)
     {
