@@ -96,7 +96,7 @@ Eigen::Matrix3d SpecularDiffuseMixReflectionLaw::evaluateReactionVectorDerivativ
     const Eigen::Matrix3d& sourceUnitVectorPartial,
     const Eigen::Matrix< double, 1, 3 >& cosineAnglePartial )
 {
-    return currentReactionVector * cosineAnglePartial / cosineOfAngleBetweenVectors +
+    return currentReactionVector * cosineAnglePartial / cosineOfAngleBetweenVectors -
            cosineOfAngleBetweenVectors * ( (absorptivity_ + diffuseReflectivity_) * sourceUnitVectorPartial +
                                            2.0 * specularReflectivity_ * surfaceNormal * cosineAnglePartial );
 }

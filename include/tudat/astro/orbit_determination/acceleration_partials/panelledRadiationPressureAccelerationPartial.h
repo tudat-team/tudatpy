@@ -174,6 +174,10 @@ public:
         return std::make_pair( partialFunction, 0 );
     }
 
+    Eigen::Matrix< double, 1, 3 > getCurrentCosineAnglePartial( )
+    {
+        return currentCosineAnglePartial_;
+    }
 
 private:
 
@@ -194,6 +198,13 @@ private:
     //! Current partial of acceleration w.r.t. position of body undergoing acceleration (equal to minus partial w.r.t.
     //! position of body exerting acceleration).
     Eigen::Matrix3d currentPartialWrtPosition_;
+
+    Eigen::Matrix3d currentSourceUnitVectorPartial_;
+
+    Eigen::Matrix< double, 1, 3 > currentRadiationPressurePositionPartial_;
+
+    Eigen::Matrix< double, 1, 3 > currentCosineAnglePartial_;
+
 
 };
 
