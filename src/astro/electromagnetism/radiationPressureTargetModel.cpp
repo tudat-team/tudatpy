@@ -35,8 +35,6 @@ Eigen::Vector3d CannonballRadiationPressureTargetModel::evaluateRadiationPressur
 {
     // From Montenbruck (2000), Sec. 3.4
     radiationPressure_ = sourceIrradiance / physical_constants::SPEED_OF_LIGHT;
-//    std::cout<<"Current radiation pressure "<<std::setprecision( 16 )<<currentTime_<<" "<<radiationPressure_<<" "
-//    <<( area_ * radiationPressure_ * sourceToTargetDirection ).transpose( )<<std::endl;
     return currentCoefficient_ * area_ * radiationPressure_ * sourceToTargetDirection;
 }
 
@@ -49,9 +47,10 @@ Eigen::Vector3d PaneledRadiationPressureTargetModel::evaluateRadiationPressureFo
     auto segmentFixedPanelsIterator = segmentFixedPanels_.begin( );
 
     int counter = 0;
+    Eigen::Quaterniond currentOrientation;
     for( unsigned int i = 0; i < segmentFixedPanels_.size( ) + 1; i++ )
     {
-        Eigen::Quaterniond currentOrientation = Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) );
+        currentOrientation = Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) );
         if( i > 0 )
         {
             currentOrientation = segmentFixedToBodyFixedRotations_.at( segmentFixedPanelsIterator->first )( );
@@ -65,12 +64,8 @@ Eigen::Vector3d PaneledRadiationPressureTargetModel::evaluateRadiationPressureFo
             surfacePanelCosines_[ counter ] = (-sourceToTargetDirectionLocalFrame).dot(surfaceNormals_[ counter ]);
             if (surfacePanelCosines_[ counter ] > 0)
             {
-                const double effectiveArea = currentPanels_.at( j )->getPanelArea() * surfacePanelCosines_[ counter ];
-                auto reactionVector =
-                    currentPanels_.at( j )->getReflectionLaw()->evaluateReactionVector(surfaceNormals_[ counter ], sourceToTargetDirectionLocalFrame);
-//                reactionVector = ( Eigen::Vector3d( ) << 0.6855829496241485, 0.4897021068743918, 1.205338984228498 ).finished( );
-//                std::cout<<"Reaction: "<<reactionVector.transpose( )<<std::endl;
-                panelForces_[ counter ] = radiationPressure_ * effectiveArea * reactionVector;
+                panelForces_[ counter ] = radiationPressure_ * currentPanels_.at( j )->getPanelArea() * surfacePanelCosines_[ counter ] *
+                    currentPanels_.at( j )->getReflectionLaw()->evaluateReactionVector(surfaceNormals_[ counter ], sourceToTargetDirectionLocalFrame );
                 force += panelForces_[ counter ];
             }
             else
@@ -91,11 +86,6 @@ void PaneledRadiationPressureTargetModel::updateMembers_(double currentTime)
 {
 
 }
-//
-//void PaneledRadiationPressureTargetModel::Panel::updateMembers()
-//{
-//    // Evaluate only once per timestep since surface normal function could be expensive to evaluate
-//    surfaceNormal_ = surfaceNormalFunction_();
-//}
+
 } // tudat
 } // electromagnetism
