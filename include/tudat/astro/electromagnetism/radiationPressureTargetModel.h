@@ -197,6 +197,7 @@ public:
         }
 
         panelForces_.resize( totalNumberOfPanels_ );
+        surfacePanelCosines_.resize( totalNumberOfPanels_ );
         surfaceNormals_.resize( totalNumberOfPanels_ );
     }
 
@@ -222,6 +223,11 @@ public:
     std::vector< Eigen::Vector3d >& getSurfaceNormals( )
     {
         return surfaceNormals_;
+    }
+
+    std::vector< double >& getSurfacePanelCosines( )
+    {
+        return surfacePanelCosines_;
     }
 
     std::vector< Eigen::Vector3d >& getPanelForces( )
@@ -254,6 +260,8 @@ private:
     int totalNumberOfPanels_;
     
     std::vector< Eigen::Vector3d > surfaceNormals_;
+
+    std::vector< double > surfacePanelCosines_;
 
     std::vector< Eigen::Vector3d > panelForces_;
 
