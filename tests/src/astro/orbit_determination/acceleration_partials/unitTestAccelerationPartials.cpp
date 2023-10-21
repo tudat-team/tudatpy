@@ -1232,12 +1232,12 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureAccelerationPartials )
     //    panelSettingsList.push_back( std::make_shared< BodyPanelSettings >(
     //        std::make_shared< FrameFixedBodyPanelGeometrySettings >( -Eigen::Vector3d::UnitX( ), 1.0 ),
     //        std::make_shared< SpecularDiffuseBodyPanelReflectionLawSettings >( 0.5, 0.1, true ) ) );
-    //    panelSettingsList.push_back( std::make_shared< BodyPanelSettings >(
-    //        std::make_shared< FrameFixedBodyPanelGeometrySettings >( -Eigen::Vector3d::UnitY( ), 3.254 ),
-    //        std::make_shared< SpecularDiffuseBodyPanelReflectionLawSettings >( 0.4, 0.2, true ) ) );
-    panelSettingsList.push_back( std::make_shared< BodyPanelSettings >(
-        std::make_shared< FrameFixedBodyPanelGeometrySettings >( -Eigen::Vector3d::UnitZ( ), 8.654 ),
-        std::make_shared< SpecularDiffuseBodyPanelReflectionLawSettings >( 0.2, 0.3, true ) ) );
+        panelSettingsList.push_back( std::make_shared< BodyPanelSettings >(
+            std::make_shared< FrameFixedBodyPanelGeometrySettings >( -Eigen::Vector3d::UnitY( ), 3.254 ),
+            std::make_shared< SpecularDiffuseBodyPanelReflectionLawSettings >( 0.4, 0.2, true ) ) );
+//    panelSettingsList.push_back( std::make_shared< BodyPanelSettings >(
+//        std::make_shared< FrameFixedBodyPanelGeometrySettings >( -Eigen::Vector3d::UnitZ( ), 8.654 ),
+//        std::make_shared< SpecularDiffuseBodyPanelReflectionLawSettings >( 0.2, 0.3, true ) ) );
 //    panelSettingsList.push_back( std::make_shared< BodyPanelSettings >(
 //        std::make_shared< FrameFixedBodyPanelGeometrySettings >( Eigen::Vector3d::UnitX( ), 1.346  ),
 //        std::make_shared< SpecularDiffuseBodyPanelReflectionLawSettings >( 0.25, 0.15, true ) ) );
@@ -1285,7 +1285,7 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureAccelerationPartials )
     accelerationPartial->update( 0.0 );
     Eigen::MatrixXd partialWrtSunPosition = Eigen::Matrix3d::Zero( );
     accelerationPartial->wrtPositionOfAcceleratingBody( partialWrtSunPosition.block( 0, 0, 3, 3 ) );
-    std::cout<<"analytical partial "<<std::endl<<partialWrtSunPosition<<std::endl;
+
     Eigen::MatrixXd partialWrtSunVelocity = Eigen::Matrix3d::Zero( );
     accelerationPartial->wrtVelocityOfAcceleratingBody( partialWrtSunVelocity.block( 0, 0, 3, 3 ) );
 
