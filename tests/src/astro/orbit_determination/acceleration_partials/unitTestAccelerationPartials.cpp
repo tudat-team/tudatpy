@@ -23,6 +23,7 @@
 
 #include "tudat/astro/aerodynamics/exponentialAtmosphere.h"
 #include "tudat/astro/basic_astro/sphericalStateConversions.h"
+#include "tudat/astro/ephemerides/customRotationalEphemeris.h"
 #include "tudat/astro/gravitation/centralGravityModel.h"
 #include "tudat/astro/system_models/vehicleSystems.h"
 #include "tudat/interface/spice/spiceInterface.h"
@@ -1212,7 +1213,9 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureAccelerationPartials )
     vehicle->setState(
                 ( Eigen::Vector6d( ) << 1.4E11, 1.0E11, 1.1E11, 0.0, 0.0, 0.0 ).finished( ) );//getBodyCartesianStateAtEpoch(  "Earth", "SSB", "J2000", "NONE", 1.0E6 ) );
     vehicle->setRotationalEphemeris(
-                std::make_shared< tudat::ephemerides::SimpleRotationalEphemeris >( 0.2, 0.4, -0.2, 1.0E-5, 0.0, "ECLIPJ2000", "VehicleFixed" ) );
+        std::make_shared< ephemerides::CustomRotationalEphemeris >(
+            [=](const double){return Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ); }, "ECLIPJ2000", "VehicleFixed" ) );
+//                std::make_shared< tudat::ephemerides::SimpleRotationalEphemeris >( 0.2, 0.4, -0.2, 1.0E-5, 0.0, "ECLIPJ2000", "VehicleFixed" ) );
     vehicle->setCurrentRotationalStateToLocalFrameFromEphemeris( 0.0 );
 
     // Create links to set and get state functions of bodies.
@@ -1226,15 +1229,15 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureAccelerationPartials )
             std::bind( &Body::getState, vehicle );
 
     std::vector< std::shared_ptr< BodyPanelSettings > > panelSettingsList;
-//    panelSettingsList.push_back( std::make_shared< BodyPanelSettings >(
-//        std::make_shared< FrameFixedBodyPanelGeometrySettings >( -Eigen::Vector3d::UnitX( ), 1.0 ),
-//        std::make_shared< SpecularDiffuseBodyPanelReflectionLawSettings >( 0.5, 0.1, true ) ) );
-//    panelSettingsList.push_back( std::make_shared< BodyPanelSettings >(
-//        std::make_shared< FrameFixedBodyPanelGeometrySettings >( -Eigen::Vector3d::UnitY( ), 3.254 ),
-//        std::make_shared< SpecularDiffuseBodyPanelReflectionLawSettings >( 0.4, 0.2, true ) ) );
+    //    panelSettingsList.push_back( std::make_shared< BodyPanelSettings >(
+    //        std::make_shared< FrameFixedBodyPanelGeometrySettings >( -Eigen::Vector3d::UnitX( ), 1.0 ),
+    //        std::make_shared< SpecularDiffuseBodyPanelReflectionLawSettings >( 0.5, 0.1, true ) ) );
+    //    panelSettingsList.push_back( std::make_shared< BodyPanelSettings >(
+    //        std::make_shared< FrameFixedBodyPanelGeometrySettings >( -Eigen::Vector3d::UnitY( ), 3.254 ),
+    //        std::make_shared< SpecularDiffuseBodyPanelReflectionLawSettings >( 0.4, 0.2, true ) ) );
     panelSettingsList.push_back( std::make_shared< BodyPanelSettings >(
         std::make_shared< FrameFixedBodyPanelGeometrySettings >( -Eigen::Vector3d::UnitZ( ), 8.654 ),
-        std::make_shared< SpecularDiffuseBodyPanelReflectionLawSettings >( 0.0, 1.0, true ) ) );
+        std::make_shared< SpecularDiffuseBodyPanelReflectionLawSettings >( 0.2, 0.3, true ) ) );
 //    panelSettingsList.push_back( std::make_shared< BodyPanelSettings >(
 //        std::make_shared< FrameFixedBodyPanelGeometrySettings >( Eigen::Vector3d::UnitX( ), 1.346  ),
 //        std::make_shared< SpecularDiffuseBodyPanelReflectionLawSettings >( 0.25, 0.15, true ) ) );
@@ -1320,10 +1323,10 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureAccelerationPartials )
         updateFunction1( 0.0 );
     };
 
-    testPartialWrtSunPosition = calculateAccelerationWrtStatePartials(
-                sunStateSetFunction, accelerationModel, sun->getState( ), positionPerturbation, 0, updateFunction );
-//    testPartialWrtVehiclePosition = calculateAccelerationWrtStatePartials(
-//                vehicleStateSetFunction, accelerationModel, vehicle->getState( ), positionPerturbation, 0, updateFunction );
+//    testPartialWrtSunPosition = calculateAccelerationWrtStatePartials(
+//                sunStateSetFunction, accelerationModel, sun->getState( ), positionPerturbation, 0, updateFunction );
+    testPartialWrtVehiclePosition = calculateAccelerationWrtStatePartials(
+                vehicleStateSetFunction, accelerationModel, vehicle->getState( ), positionPerturbation, 0, updateFunction );
 //    testPartialWrtSunVelocity = calculateAccelerationWrtStatePartials(
 //                sunStateSetFunction, accelerationModel, sun->getState( ),velocityPerturbation, 3, updateFunction );
 //    testPartialWrtVehicleVelocity = calculateAccelerationWrtStatePartials(
@@ -1331,6 +1334,7 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureAccelerationPartials )
     //    testPartialWrtEmissivities = calculateAccelerationWrtParameterPartials(
     //                panelEmissivitiesParameter, accelerationModel, emissivityPerturbations );
 
+    std::cout<<"Partials "<<std::endl<<testPartialWrtVehiclePosition<<std::endl<<std::endl<<partialWrtVehiclePosition<<std::endl;
     // Compare numerical and analytical results.
 //    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtSunPosition,
 //                                       partialWrtSunPosition, 1.0e-6 );
