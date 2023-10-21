@@ -29,7 +29,6 @@ void PanelledRadiationPressurePartial::update( const double currentTime )
         {
             currentSourceUnitVectorPartial_ =  -1.0 / distanceToSource * (
                         Eigen::Matrix3d::Identity( ) - bodyFixedUnitVectorToSource * bodyFixedUnitVectorToSource.transpose( ) );
-            std::cout<<"Unit vector partial "<<currentSourceUnitVectorPartial_<<std::endl;
             currentRadiationPressurePositionPartial_ =
                     2.0 * currentRadiationPressure * bodyFixedUnitVectorToSource.transpose( ) / ( distanceToSource );
 
@@ -70,9 +69,9 @@ void PanelledRadiationPressurePartial::update( const double currentTime )
                 Eigen::Matrix3d( radiationPressureAcceleration_->getTargetRotationFromLocalToGlobalFrame( ) );
             currentPartialWrtPosition_ = rotationToInertialFrame * currentPartialWrtPosition_ * rotationToInertialFrame.transpose( );
             currentPartialWrtPosition_ /= currentMass;
-            std::cout<<"Total partial: "<<currentPartialWrtPosition_<<std::endl;
 
             currentPartialWrtPosition_ += currentAcceleration / currentRadiationPressure * currentRadiationPressurePositionPartial_;
+
 //            std::cout<<"Total partial: "<<currentPartialWrtPosition_<<std::endl;
 
         }
