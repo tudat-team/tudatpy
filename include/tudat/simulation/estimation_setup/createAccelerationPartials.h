@@ -199,11 +199,14 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createRadiationPre
               std::dynamic_pointer_cast< IsotropicPointSourceRadiationPressureAcceleration >( radiationPressureAccelerationModel ),
               acceleratedBody.first, acceleratingBody.first );
     }
-//    else if( std::dynamic_pointer_cast< PaneledRadiationPressureTargetModel >( radiationPressureAccelerationModel->getTargetModel( ) ) != nullptr &&
-//             std::dynamic_pointer_cast< IsotropicPointSourceRadiationPressureAcceleration >( radiationPressureAccelerationModel ) != nullptr )
-//    {
-//
-//    }
+    else if( std::dynamic_pointer_cast< PaneledRadiationPressureTargetModel >( radiationPressureAccelerationModel->getTargetModel( ) ) != nullptr &&
+             std::dynamic_pointer_cast< IsotropicPointSourceRadiationPressureAcceleration >( radiationPressureAccelerationModel ) != nullptr )
+    {
+        accelerationPartial = std::make_shared< acceleration_partials::PanelledRadiationPressurePartial >(
+            std::dynamic_pointer_cast< IsotropicPointSourceRadiationPressureAcceleration >( radiationPressureAccelerationModel ),
+            std::dynamic_pointer_cast< PaneledRadiationPressureTargetModel >( radiationPressureAccelerationModel->getTargetModel( ) ),
+            acceleratedBody.first, acceleratingBody.first );
+    }
     else
     {
         std::shared_ptr< estimatable_parameters::CustomSingleAccelerationPartialCalculatorSet >
