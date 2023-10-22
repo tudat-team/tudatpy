@@ -30,7 +30,7 @@ public:
     RadiationPressureAccelerationPartial(
             const std::string acceleratedBody,
             const std::string acceleratingBody,
-            const std::shared_ptr< electromagnetism::RadiationPressureAcceleration > radiationPressureAcceleration,
+            const std::shared_ptr< electromagnetism::PaneledSourceRadiationPressureAcceleration > radiationPressureAcceleration,
             const std::shared_ptr< estimatable_parameters::CustomSingleAccelerationPartialCalculatorSet > customAccelerationPartialSet = nullptr ):
         AccelerationPartial( acceleratedBody, acceleratingBody, basic_astrodynamics::custom_acceleration ),
         radiationPressureAcceleration_( radiationPressureAcceleration ),
@@ -248,7 +248,7 @@ public:
 
 protected:
 
-    std::shared_ptr< electromagnetism::RadiationPressureAcceleration > radiationPressureAcceleration_;
+    std::shared_ptr< electromagnetism::PaneledSourceRadiationPressureAcceleration > radiationPressureAcceleration_;
 
     std::shared_ptr< estimatable_parameters::CustomSingleAccelerationPartialCalculatorSet > customAccelerationPartialSet_;
 
