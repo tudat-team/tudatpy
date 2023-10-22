@@ -234,7 +234,8 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createRadiationPre
 
         // Create partial-calculating object.
         accelerationPartial = std::make_shared< acceleration_partials::RadiationPressureAccelerationPartial >
-            ( acceleratedBody.first, acceleratingBody.first, radiationPressureAccelerationModel, customPartialCalculator );
+            ( acceleratedBody.first, acceleratingBody.first,
+              std::dynamic_pointer_cast< PaneledSourceRadiationPressureAcceleration >( radiationPressureAccelerationModel ), customPartialCalculator );
 
     }
     return accelerationPartial;
