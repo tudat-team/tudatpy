@@ -181,7 +181,7 @@ BOOST_AUTO_TEST_CASE( testCentralGravityPartials )
                                        partialWrtSunGravitationalParameter, std::numeric_limits< double >::epsilon(  ) );
 }
 
-BOOST_AUTO_TEST_CASE( testRadiationPressureAccelerationPartials )
+BOOST_AUTO_TEST_CASE( testCannonballRadiationPressureAccelerationPartials )
 {
     // Create empty bodies, earth and sun.
     std::shared_ptr< Body > vehicle = std::make_shared< Body >( );
@@ -364,7 +364,6 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAccelerationPartials )
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtSunPosition,
                                        partialWrtSunPosition, 1.0E-8 );
 
-    std::cout<<testPartialWrtSunPosition<<std::endl<<partialWrtSunPosition<<std::endl;
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtSunVelocity,
                                        partialWrtSunVelocity, std::numeric_limits< double >::epsilon( ) );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtVehiclePosition,
@@ -1463,29 +1462,22 @@ BOOST_AUTO_TEST_CASE( testThrustPartials )
         partialWrtEngine2Thrust( 2 ) = 0.0;
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtEngine2Thrust, partialWrtEngine2Thrust, 1.0E-9 );
 
-        std::cout<<"Partial w.r.t. mass (analytical): "<<partialWrtMass.transpose( )<<std::endl;
-        std::cout<<"Partial w.r.t. mass (numerical): "<<testPartialWrtMass.transpose( )<<std::endl<<std::endl;
-
-        std::cout<<"Partial w.r.t. engine 1 thrust (analytical): "<<partialWrtEngine1Thrust.transpose( )<<std::endl;
-        std::cout<<"Partial w.r.t. engine 1 thrust (numerical): "<<testPartialWrtEngine1Thrust.transpose( )<<std::endl<<std::endl;
-
-        std::cout<<"Partial w.r.t. engine 2 thrust (analytical): "<<partialWrtEngine2Thrust.transpose( )<<std::endl;
-        std::cout<<"Partial w.r.t. engine 2 thrust (numerical): "<<testPartialWrtEngine2Thrust.transpose( )<<std::endl<<std::endl;
-        std::cout<<std::endl<<std::endl;
-
+        bool isPartialChecked = false;
         if( i == 0 )
         {
             for( int j = 0; j < 3; j++ )
             {
                 BOOST_CHECK_EQUAL( partialWrtEngine2Thrust( j ), 0.0 );
+                isPartialChecked = true;
             }
         }
-//        std::cout<<testPartialWrtEngine1Thrust<<std::endl<<std::endl;
-//        std::cout<<partialWrtEngine1Thrust<<std::endl<<std::endl<<std::endl;
+        else
+        {
+            TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtMass, testPartialWrtMass, 1.0E-4 );
+            TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtEngine1Thrust, testPartialWrtEngine1Thrust, 1.0E-4 );
+            TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtEngine2Thrust, testPartialWrtEngine2Thrust, 1.0E-4 );
 
-//        std::cout<<testPartialWrtEngine2Thrust<<std::endl<<std::endl;
-//        std::cout<<partialWrtEngine2Thrust<<std::endl<<std::endl<<std::endl;
-
+        }
     }
 }
 
