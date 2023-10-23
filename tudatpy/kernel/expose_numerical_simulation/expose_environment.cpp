@@ -8,6 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+#include "tudatpy/scalarTypes.h"
 #include "expose_environment.h"
 #include <tudat/basics/deprecationWarnings.h>
 
@@ -676,7 +677,7 @@ void expose_environment(py::module &m) {
             .def("get_body", &tss::SystemOfBodies::getBody,
                  py::arg("body_name"),
                  get_docstring("SystemOfBodies.get_body").c_str())
-            .def("create_empty_body", &tss::SystemOfBodies::createEmptyBody,
+            .def("create_empty_body", &tss::SystemOfBodies::createEmptyBody< double, TIME_TYPE >,
                  py::arg("body_name"),
                  py::arg("process_body") = 1,
                  get_docstring("SystemOfBodies.create_empty_body").c_str())
@@ -687,7 +688,7 @@ void expose_environment(py::module &m) {
                  get_docstring("SystemOfBodies.list_of_bodies").c_str())
 //            .def("get_body_dict", &tss::SystemOfBodies::getMap,
 //                 get_docstring("SystemOfBodies.get_body_dict").c_str())
-            .def("add_body", &tss::SystemOfBodies::addBody,
+            .def("add_body", &tss::SystemOfBodies::addBody< double, TIME_TYPE >,
                  py::arg("body_to_add"),
                  py::arg("body_name"),
                  py::arg("process_body") = 1,
