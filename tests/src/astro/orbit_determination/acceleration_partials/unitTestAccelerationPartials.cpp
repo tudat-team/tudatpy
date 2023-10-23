@@ -1602,7 +1602,7 @@ BOOST_AUTO_TEST_CASE( testThrustPartials )
                 isPartialChecked = true;
             }
         }
-        else
+        if( !isPartialChecked )
         {
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtMass, testPartialWrtMass, 1.0E-4 );
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtEngine1Thrust, testPartialWrtEngine1Thrust, 1.0E-4 );
