@@ -28,11 +28,6 @@ RadiationPressureAccelerationPartial::RadiationPressureAccelerationPartial(
     currentPartialWrtUndergoingState_.setZero( );
     currentPartialWrtExertingState_.setZero( );
 
-    std::cout<<"Initial state partials "<<std::endl;
-    for( auto it : customAccelerationPartialSet->customInitialStatePartials_ )
-    {
-        std::cout<<"Entries: "<<it.first.first<<" "<<it.first.second.first<<" "<<it.first.second.second<<std::endl;
-    }
     estimatable_parameters::EstimatebleParameterIdentifier undergoingBodyIdentifier =
         std::make_pair( estimatable_parameters::initial_body_state, std::make_pair( acceleratedBody, "" ) );
     if( customAccelerationPartialSet->customInitialStatePartials_.count( undergoingBodyIdentifier ) > 0 )
@@ -52,10 +47,8 @@ void RadiationPressureAccelerationPartial::update( const double currentTime )
 {
     radiationPressureAcceleration_->updateMembers( currentTime );
 
-    std::cout<<currentTime<<" "<<currentTime_<<std::endl;
     if( !( currentTime_ == currentTime ) )
     {
-        std::cout<<"Partials "<<bodyUndergoingPositionPartial_<<" "<<bodyExertingPositionPartial_<<std::endl;
         if( bodyUndergoingPositionPartial_ != nullptr )
         {
             currentPartialWrtUndergoingState_ = bodyUndergoingPositionPartial_->computePartial(

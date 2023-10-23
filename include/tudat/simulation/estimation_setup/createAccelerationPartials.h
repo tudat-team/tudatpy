@@ -179,6 +179,10 @@ std::vector< std::shared_ptr< orbit_determination::TidalLoveNumberPartialInterfa
         const std::string& acceleratingBodyName );
 
 
+std::shared_ptr< estimatable_parameters::NumericalAccelerationPartialSettings > getDefaultPanelledSurfaceRadiationPressurePartialSettings(
+    const std::string bodyUndergoingAcceleration,
+    const std::string bodyExertingAcceleration );
+
 template< typename InitialStateParameterType = double >
 std::shared_ptr< acceleration_partials::AccelerationPartial > createRadiationPressureAccelerationPartial(
     std::shared_ptr< electromagnetism::RadiationPressureAcceleration > radiationPressureAccelerationModel,
@@ -216,16 +220,16 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createRadiationPre
             throw std::runtime_error( "Error when creating custom partials for non-isotropic source radiation pressure; no estimated parameters found" );
         }
 
-        customPartialCalculator = createCustomAccelerationPartial< InitialStateParameterType >(
-            parametersToEstimate, radiationPressureAccelerationModel, acceleratedBody, acceleratingBody, bodies );
         if( customPartialCalculator == nullptr )
         {
             for( unsigned  int i = 0; i < parametersToEstimate->getEstimatedInitialStateParameters( ).size( ); i++ )
             {
-                parametersToEstimate->getEstimatedInitialStateParameters( ).at( i )->setCustomPartialSettings(
-                    std::make_shared< estimatable_parameters::NumericalAccelerationPartialSettings >(
-                        ( Eigen::VectorXd( 6 ) << 10.0, 10.0, 10.0, 1.0E-3, 1.0E-3, 1.0E-3 ).finished( ),
-                        acceleratedBody.first, acceleratingBody.first, basic_astrodynamics::radiation_pressure ) );
+                if( parametersToEstimate->getEstimatedInitialStateParameters( ).at( i )->getCustomPartialSettings( ) == nullptr )
+                {
+                    parametersToEstimate->getEstimatedInitialStateParameters( ).at( i )->setCustomPartialSettings(
+                        getDefaultPanelledSurfaceRadiationPressurePartialSettings( acceleratedBody.first, acceleratingBody.first ) );
+                }
+
             }
             customPartialCalculator = createCustomAccelerationPartial< InitialStateParameterType >(
                 parametersToEstimate, radiationPressureAccelerationModel, acceleratedBody, acceleratingBody, bodies );
