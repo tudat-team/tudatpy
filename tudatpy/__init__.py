@@ -1,4 +1,4 @@
-from ._version import *
+from tudatpy._version import *
 from tudatpy.kernel import constants
 from tudatpy.kernel import astro
 from tudatpy.kernel import interface
