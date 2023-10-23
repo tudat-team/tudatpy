@@ -92,12 +92,31 @@ namespace radiation_pressure {
               );
 
 
+///////////////////////////////////////////////////////////
+///////////   ENUMS
+///////////////////////////////////////////////////////////
 
+        enum class SecondDegreeZonalPeriodicSurfacePropertyDistributionModel
+        {
+            custom,
+            albedo_knocke, /**< Knocke Earth albedo model: Knocke, Philip et al. "Earth radiation pressure effects on satellites." Astrodynamics Conference. American Institute of Aeronautics and Astronautics, 1988. */
+            emissivity_knocke /**< Knocke Earth emissivity model: Knocke, Philip et al. "Earth radiation pressure effects on satellites." Astrodynamics Conference. American Institute of Aeronautics and Astronautics, 1988. */
+        };
 
+        py::enum_<tss::SecondDegreeZonalPeriodicSurfacePropertyDistributionModel>(m, "SecondDegreeZonalPeriodicSurfacePropertyDistributionModel")
+            .value("custom", tss::SecondDegreeZonalPeriodicSurfacePropertyDistributionModel::custom)
+            .value("albedo_knocke", tss::SecondDegreeZonalPeriodicSurfacePropertyDistributionModel::albedo_knocke)
+            .value("emissivity_knocke", tss::SecondDegreeZonalPeriodicSurfacePropertyDistributionModel::emissivity_knocke)
+            .export_values();
 
 ///////////////////////////////////////////////////////////
 ///////////   LUMINOSITY MODELS
 ///////////////////////////////////////////////////////////
+
+        py::class_<tss::LuminosityModelSettings,
+            std::shared_ptr<tss::LuminosityModelSettings>>(
+            m, "LuminosityModelSettings",
+            get_docstring("LuminosityModelSettings").c_str());
 
         m.def("constant_luminosity",
               &tss::constantLuminosityModelSettings,
@@ -116,6 +135,12 @@ namespace radiation_pressure {
 ///////////////////////////////////////////////////////////
 ///////////   SURFACE PROPERTY MODELS
 ///////////////////////////////////////////////////////////
+
+
+        py::class_<tss::SurfacePropertyDistributionSettings,
+            std::shared_ptr<tss::SurfacePropertyDistributionSettings>>(
+            m, "SurfacePropertyDistributionSettings",
+            get_docstring("SurfacePropertyDistributionSettings").c_str());
 
 
         m.def("constant_surface_property_distribution",
@@ -166,6 +191,11 @@ namespace radiation_pressure {
 ///////////////////////////////////////////////////////////
 
 
+        py::class_<tss::PanelRadiosityModelSettings,
+            std::shared_ptr<tss::PanelRadiosityModelSettings>>(
+            m, "PanelRadiosityModelSettings",
+            get_docstring("PanelRadiosityModelSettings").c_str());
+
         m.def("constant_panel_radiosity",
               &tss::constantPanelRadiosityModelSettings,
               py::arg("constant_radiosoty"),
@@ -214,6 +244,11 @@ namespace radiation_pressure {
 ///////////   PANEL REFLECTION MODELS
 ///////////////////////////////////////////////////////////
 
+        py::class_<tss::BodyPanelReflectionLawSettings,
+            std::shared_ptr<tss::BodyPanelReflectionLawSettings>>(
+            m, "BodyPanelReflectionLawSettings",
+            get_docstring("BodyPanelReflectionLawSettings").c_str());
+
 
         m.def("specular_diffuse_body_panel_reflection",
               &tss::specularDiffuseBodyPanelReflectionLawSettings,
@@ -229,6 +264,13 @@ namespace radiation_pressure {
 ///////////////////////////////////////////////////////////
 
 
+        py::class_<tss::RadiationSourceModelSettings,
+            std::shared_ptr<tss::RadiationSourceModelSettings>>(
+            m, "RadiationSourceModelSettings",
+            get_docstring("RadiationSourceModelSettings").c_str());
+
+
+
         m.def("isotropic_radiation_source",
               &tss::isotropicPointRadiationSourceModelSettings,
               py::arg("luminosity_model"),
@@ -239,7 +281,7 @@ namespace radiation_pressure {
               &tss::extendedRadiationSourceModelSettingsWithOccultationMap,
               py::arg("panel_radiosity_settings"),
               py::arg("number_of_panels_per_ring"),
-              py::arg("original_source_occulting_bodies"),
+              py::arg("original_source_occulting_bodies" ) = std::map<std::string, std::vector<std::string>>(),
               get_docstring("panelled_extended_radiation_source").c_str()
               );
 
@@ -247,6 +289,12 @@ namespace radiation_pressure {
 ///////////////////////////////////////////////////////////
 ///////////   RADIATION TARGET MODELS
 ///////////////////////////////////////////////////////////
+
+        py::class_<tss::RadiationPressureTargetModelSettings,
+            std::shared_ptr<tss::RadiationPressureTargetModelSettings>>(
+            m, "RadiationPressureTargetModelSettings",
+            get_docstring("RadiationPressureTargetModelSettings").c_str());
+
 
         m.def("cannonball_radiation_target",
                   &tss::cannonballRadiationPressureTargetModelSettingsWithOccultationMap,
