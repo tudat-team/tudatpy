@@ -181,6 +181,10 @@ DynamicallyPaneledRadiationSourceModel::DynamicallyPaneledRadiationSourceModel(
         PaneledRadiationSourceModel(sourceBodyShapeModel, std::move(sourcePanelRadiosityModelUpdater)),
         numberOfPanelsPerRing_(numberOfPanelsPerRing)
 {
+    if( sourceBodyShapeModel == nullptr )
+    {
+        throw std::runtime_error( "Error when creating dynamically panelled radiation source model; no shape model defined" );
+    }
     numberOfPanels = 1;
     for (const auto& numberOfPanelsInCurrentRing : numberOfPanelsPerRing)
     {
