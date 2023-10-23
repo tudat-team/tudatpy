@@ -73,7 +73,9 @@ namespace environment_setup {
                 .def_readwrite("gravity_field_variation_settings", &tss::BodySettings::gravityFieldVariationSettings, get_docstring("BodySettings.gravity_field_variation_settings").c_str())
                 .def_readwrite("shape_deformation_settings", &tss::BodySettings::bodyDeformationSettings, get_docstring("BodySettings.shape_deformation_settings").c_str())
                 .def_readwrite("ground_station_settings", &tss::BodySettings::groundStationSettings, get_docstring("BodySettings.ground_station_settings").c_str())
-                .def_readwrite("rigid_body_settings", &tss::BodySettings::rigidBodyPropertiesSettings, get_docstring("BodySettings.rigidBodyPropertiesSettings").c_str());
+                .def_readwrite("rigid_body_settings", &tss::BodySettings::rigidBodyPropertiesSettings, get_docstring("BodySettings.rigidBodyPropertiesSettings").c_str())
+                .def_readwrite("radiation_pressure_target_settings", &tss::BodySettings::radiationPressureTargetModelSettings, get_docstring("BodySettings.rigidBodyPropertiesSettings").c_str())
+                .def_readwrite("radiation_source_settings", &tss::BodySettings::radiationSourceModelSettings, get_docstring("BodySettings.rigidBodyPropertiesSettings").c_str());
 
 
         py::class_<tss::BodyListSettings,
