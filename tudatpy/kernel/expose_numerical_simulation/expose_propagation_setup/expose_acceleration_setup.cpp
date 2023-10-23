@@ -134,6 +134,7 @@ void expose_acceleration_setup(py::module &m) {
             .value("quasi_impulsive_shots_acceleration_type", tba::AvailableAcceleration::momentum_wheel_desaturation_acceleration, get_docstring("AvailableAcceleration.momentum_wheel_desaturation_acceleration_type").c_str())
             .value("solar_sail_acceleration_type", tba::AvailableAcceleration::solar_sail_acceleration, get_docstring("AvailableAcceleration.solar_sail_acceleration_type").c_str())
             .value("custom_acceleration_type", tba::AvailableAcceleration::custom_acceleration, get_docstring("AvailableAcceleration.custom_acceleration").c_str())
+            .value("radiation_pressure_type", tba::AvailableAcceleration::radiation_pressure, get_docstring("AvailableAcceleration.radiation_pressure_type").c_str())
             .export_values();
 
     //////////////////////////////////////////////////////////////////////////////
@@ -213,6 +214,8 @@ void expose_acceleration_setup(py::module &m) {
     m.def("panelled_radiation_pressure", &tss::panelledRadiationPressureAcceleration,
           get_docstring("panelled_radiation_pressure").c_str());
 
+    m.def("radiation_pressure", &tss::radiationPressureAcceleration,
+          get_docstring("radiation_pressure").c_str());
 
     m.def("spherical_harmonic_gravity", &tss::sphericalHarmonicAcceleration,
           py::arg( "maximum_degree" ),
