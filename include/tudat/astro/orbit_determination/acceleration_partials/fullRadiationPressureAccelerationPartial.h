@@ -31,28 +31,7 @@ public:
             const std::string acceleratedBody,
             const std::string acceleratingBody,
             const std::shared_ptr< electromagnetism::PaneledSourceRadiationPressureAcceleration > radiationPressureAcceleration,
-            const std::shared_ptr< estimatable_parameters::CustomSingleAccelerationPartialCalculatorSet > customAccelerationPartialSet = nullptr ):
-        AccelerationPartial( acceleratedBody, acceleratingBody, basic_astrodynamics::custom_acceleration ),
-        radiationPressureAcceleration_( radiationPressureAcceleration ),
-        customAccelerationPartialSet_( customAccelerationPartialSet )
-    {
-        currentPartialWrtUndergoingState_.setZero( );
-        currentPartialWrtExertingState_.setZero( );
-
-        estimatable_parameters::EstimatebleParameterIdentifier undergoingBodyIdentifier =
-            std::make_pair( estimatable_parameters::initial_body_state, std::make_pair( acceleratedBody, "" ) );
-        if( customAccelerationPartialSet->customInitialStatePartials_.count( undergoingBodyIdentifier ) > 0 )
-        {
-            bodyUndergoingPositionPartial_ = customAccelerationPartialSet->customInitialStatePartials_.at( undergoingBodyIdentifier );
-        }
-
-        estimatable_parameters::EstimatebleParameterIdentifier exertingBodyIdentifier =
-            std::make_pair( estimatable_parameters::initial_body_state, std::make_pair( acceleratingBody, "" ) );
-        if( customAccelerationPartialSet->customInitialStatePartials_.count( exertingBodyIdentifier ) > 0 && ( exertingBodyIdentifier != undergoingBodyIdentifier ) )
-        {
-            bodyExertingPositionPartial_ = customAccelerationPartialSet->customInitialStatePartials_.at( exertingBodyIdentifier );
-        }
-    }
+            const std::shared_ptr< estimatable_parameters::CustomSingleAccelerationPartialCalculatorSet > customAccelerationPartialSet = nullptr );
 
     //! Function for calculating the partial of the acceleration w.r.t. the position of body undergoing acceleration..
     /*!
@@ -224,27 +203,7 @@ public:
      *  position partial is computed and set.
      *  \param currentTime Time at which partials are to be calculated
      */
-    void update( const double currentTime = TUDAT_NAN )
-    {
-        radiationPressureAcceleration_->updateMembers( currentTime );
-
-        if( !( currentTime_ == currentTime ) )
-        {
-            if( bodyUndergoingPositionPartial_ != nullptr )
-            {
-                currentPartialWrtUndergoingState_ = bodyUndergoingPositionPartial_->computePartial(
-                    currentTime, radiationPressureAcceleration_->getAcceleration( ), radiationPressureAcceleration_ );
-            }
-
-            if( bodyExertingPositionPartial_ != nullptr )
-            {
-                currentPartialWrtExertingState_ = bodyExertingPositionPartial_->computePartial(
-                    currentTime, radiationPressureAcceleration_->getAcceleration( ), radiationPressureAcceleration_ );
-            }
-
-            currentTime_ = currentTime;
-        }
-    }
+    void update( const double currentTime = TUDAT_NAN );
 
 protected:
 

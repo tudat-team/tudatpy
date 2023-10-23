@@ -43,6 +43,7 @@ Eigen::Vector3d IsotropicPointSourceRadiationPressureAcceleration::calculateAcce
     // No rotation to source frame is necessary because isotropic sources are rotation-invariant
     sourceToTargetReceivedFraction = sourceToTargetOccultationModel_->evaluateReceivedFractionFromExtendedSource(
             sourceCenterPositionInGlobalFrame_, sourceBodyShapeModel_, targetCenterPositionInGlobalFrame_ );
+
     receivedIrradiance =
         sourceModel_->evaluateIrradianceAtPosition( targetCenterPositionInSourceFrame_).front().first * sourceToTargetReceivedFraction;
 //    std::cout<<"Irradiance "<<receivedIrradiance<<std::endl;

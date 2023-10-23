@@ -36,6 +36,8 @@ std::shared_ptr< AtmosphereSettings > getDefaultAtmosphereModelSettings(
         const double initialTime,
         const double finalTime );
 
+std::shared_ptr<RadiationSourceModelSettings> getKnockeEarthRadiationPressureSettings( );
+
 //! Function to create default settings for a body's radiation source model.
 /*!
  *  Function to create default settings for a body's radiation source model. Currently set to no
