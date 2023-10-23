@@ -172,7 +172,7 @@ INSTALL_PURE_PYTHON_MODULE_DIR(plotting)
 INSTALL_PURE_PYTHON_MODULE_DIR(util)
 INSTALL_PURE_PYTHON_MODULE_DIR(io)
 
-# Install the Python components of kernel modules
+# Create hybrid C++/Python modules
 macro(CREATE_HYBRID_CPP_PYTHON_MODULE module_dir_name)
     install(DIRECTORY kernel_hybrid/${module_dir_name}/ DESTINATION "${TUDATPY_INSTALL_PATH}/${module_dir_name}")
     file(COPY kernel_hybrid/${module_dir_name}/ DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/${module_dir_name}/)
