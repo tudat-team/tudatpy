@@ -219,8 +219,26 @@ private:
     const double angularFrequency;
 };
 
-} // tudat
+class CustomSurfacePropertyDistribution : public SurfacePropertyDistribution
+{
+public:
+    CustomSurfacePropertyDistribution(
+        const std::function< double( const double, const double, const double ) > customFunction ):
+        customFunction_( customFunction ){ }
+
+    double getValue(double latitude, double longitude)
+    {
+        return customFunction_( latitude, longitude, currentTime_ );
+    }
+
+    bool isTimeInvariant( ){ return false; }
+
+private:
+    std::function< double( const double, const double, const double ) > customFunction_;
+};
+
 } // electromagnetism
 
+} // tudat
 
 #endif //TUDAT_SURFACEPROPERTYDISTRIBUTION_H

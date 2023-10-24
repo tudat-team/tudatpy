@@ -25,6 +25,8 @@ namespace tudat
 namespace electromagnetism
 {
 
+double computeLuminosityFromIrradiance( const double irradiance, const double distance );
+
 /*!
  * Class modeling the luminosity, or emitted electromagnetic power, of a radiation source.
  *
@@ -81,55 +83,35 @@ private:
     double luminosity_;
 };
 
-
-/*!
- * Class modeling luminosity of a radiation source based on the irradiance at a given distance.
- *
- * This luminosity is useful to model variations in the Sun luminosity based on the solar irradiance measured
- * at Earth distance.
- *
- * The source is assumed to be isotropic such that the irradiance given would be found at any position with the
- * same distance from the source.
- */
-class IrradianceBasedLuminosityModel : public LuminosityModel
+class VariableLuminosityModel : public LuminosityModel
 {
 public:
     /*!
      * Constructor.
      *
-     * @param irradianceAtDistanceFunction Function returning the irradiance [W/m²] at a given time
-     * @param distance Distance from the source at which the irradiance was evaluated/measured
+     * @param luminosity Constant luminosity of the source [W]
      */
-    explicit IrradianceBasedLuminosityModel(
-            const std::function<double(double)>& irradianceAtDistanceFunction,
-            double distance)
-            : irradianceAtDistanceFunction_(irradianceAtDistanceFunction), distance_(distance) {}
+    explicit VariableLuminosityModel( const std::function< double( const double ) > luminosityFunction ) :
+        luminosityFunction_( luminosityFunction ), luminosity_( TUDAT_NAN ) {}
 
-    /*!
-     * Constructor.
-     *
-     * @param irradianceAtDistance Irradiance at the given distance [W/m²]
-     * @param distance Distance from the source at which the irradiance was evaluated/measured
-     */
-    explicit IrradianceBasedLuminosityModel(
-            double irradianceAtDistance,
-            double distance)
-            : IrradianceBasedLuminosityModel([=] (double) { return irradianceAtDistance; }, distance) {}
-
-    double getLuminosity() const override;
+    double getLuminosity() const override
+    {
+        return luminosity_;
+    }
 
 private:
-    void updateMembers_(double currentTime) override;
 
-    //! Function returning the irradiance [W/m²] at a given time
-    std::function<double(double)> irradianceAtDistanceFunction_;
+    virtual void updateMembers_(const double currentTime)  override
+    {
+        luminosity_ = luminosityFunction_( currentTime );
+    }
 
-    //! Irradiance from the last evaluation of irradianceAtDistanceFunction_ [W/m²]
-    double irradianceAtDistance_{};
+    //! Constant luminosity of the source [W]
+    const std::function< double( const double ) > luminosityFunction_;
 
-    //! Distance from the source at which the irradiance was evaluated/measured
-    double distance_;
+    double luminosity_;
 };
+
 
 } // tudat
 } // electromagnetism
