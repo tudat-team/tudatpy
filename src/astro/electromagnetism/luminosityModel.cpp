@@ -21,6 +21,11 @@ namespace tudat
 namespace electromagnetism
 {
 
+double computeLuminosityFromIrradiance( const double irradiance, const double distance )
+{
+    return 4.0 * mathematical_constants::PI * distance * distance * irradiance;
+}
+
 void LuminosityModel::updateMembers(double currentTime)
 {
     if(currentTime_ != currentTime)
@@ -30,18 +35,5 @@ void LuminosityModel::updateMembers(double currentTime)
     }
 }
 
-double IrradianceBasedLuminosityModel::getLuminosity() const
-{
-    // The source is assumed to be isotropic
-    auto sphereArea = 4 * mathematical_constants::PI * distance_ * distance_;
-    auto luminosity = irradianceAtDistance_ * sphereArea;
-    return luminosity;
-}
-
-void IrradianceBasedLuminosityModel::updateMembers_(const double currentTime)
-{
-    // Evaluate only once per timestep since irradiance function could be expensive to evaluate
-    irradianceAtDistance_ = irradianceAtDistanceFunction_(currentTime);
-}
 } // tudat
 } // electromagnetism

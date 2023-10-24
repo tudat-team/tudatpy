@@ -55,19 +55,18 @@ std::shared_ptr<electromagnetism::LuminosityModel> createLuminosityModel(
             );
             break;
         }
-        case LuminosityModelType::irradiance_based_radiant_power:
+        case LuminosityModelType::time_variable_isotropic_radiant_power :
         {
-            auto irradianceBasedLuminosityModelSettings =
-                    std::dynamic_pointer_cast< IrradianceBasedLuminosityModelSettings >(modelSettings);
-            if(irradianceBasedLuminosityModelSettings == nullptr)
+            auto variableLuminosityModelSettings =
+                std::dynamic_pointer_cast< TimeVariableLuminosityModelSettings >(modelSettings);
+            if(variableLuminosityModelSettings == nullptr)
             {
                 throw std::runtime_error(
-                        "Error, expected irradiance-based luminosity model for body " + body );
+                    "Error, expected time-variable luminosity model for body " + body );
             }
 
-            luminosityModel = std::make_shared<IrradianceBasedLuminosityModel>(
-                irradianceBasedLuminosityModelSettings->getIrradianceAtDistanceFunction(),
-                irradianceBasedLuminosityModelSettings->getDistance()
+            luminosityModel = std::make_shared<VariableLuminosityModel>(
+                variableLuminosityModelSettings->getLuminosityFuntion( )
             );
             break;
         }

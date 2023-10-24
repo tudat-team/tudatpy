@@ -66,7 +66,7 @@ private:
 enum class LuminosityModelType
 {
     constant_radiant_power,
-    irradiance_based_radiant_power
+    time_variable_isotropic_radiant_power
 };
 
 /*!
@@ -117,40 +117,26 @@ private:
     double luminosity_;
 };
 
-/*!
- * Settings for an irradiance-based luminosity model.
- *
- * @see IrradianceBasedLuminosityModel
- */
-class IrradianceBasedLuminosityModelSettings : public LuminosityModelSettings
+class TimeVariableLuminosityModelSettings : public LuminosityModelSettings
 {
 public:
     /*!
      * Constructor.
      *
-     * @param irradianceAtDistanceFunction Function returning the irradiance at a given time [W/m²]
-     * @param distance Distance from the source at which the irradiance was evaluated/measured
+     * @param luminosity Constant luminosity of the source [W]
      */
-    explicit IrradianceBasedLuminosityModelSettings(
-            const std::function<double(double)>& irradianceAtDistanceFunction,
-            const double distance) :
-            LuminosityModelSettings(LuminosityModelType::irradiance_based_radiant_power),
-            irradianceAtDistanceFunction_(irradianceAtDistanceFunction),
-            distance_(distance) {}
+    explicit TimeVariableLuminosityModelSettings(
+        const std::function< double( const double ) > luminosityFunction) :
+        LuminosityModelSettings(LuminosityModelType::time_variable_isotropic_radiant_power),
+        luminosityFunction_(luminosityFunction) {}
 
-    const std::function<double(double)>& getIrradianceAtDistanceFunction() const
+    std::function< double( const double ) > getLuminosityFuntion() const
     {
-        return irradianceAtDistanceFunction_;
-    }
-
-    double getDistance() const
-    {
-        return distance_;
+        return luminosityFunction_;
     }
 
 private:
-    std::function<double(double)> irradianceAtDistanceFunction_;
-    double distance_;
+    std::function< double( const double ) > luminosityFunction_;
 };
 
 /*!
@@ -200,9 +186,24 @@ inline std::shared_ptr<LuminosityModelSettings>
 inline std::shared_ptr<LuminosityModelSettings>
         irradianceBasedLuminosityModelSettings(double irradianceAtDistance, double distance)
 {
-    return std::make_shared< IrradianceBasedLuminosityModelSettings >(
-            [=] (double) { return irradianceAtDistance; },
-            distance);
+    return std::make_shared< ConstantLuminosityModelSettings >(
+        electromagnetism::computeLuminosityFromIrradiance( irradianceAtDistance, distance ) );
+}
+
+inline std::shared_ptr<LuminosityModelSettings>
+timeVariableLuminosityModelSettings(const std::function< double( const double ) > luminosityFunction )
+{
+    return std::make_shared< TimeVariableLuminosityModelSettings >(luminosityFunction);
+}
+
+
+inline std::shared_ptr<LuminosityModelSettings>
+timeVariableIrradianceBasedLuminosityModelSettings(const std::function< double( const double ) >  irradianceAtDistanceFunction, double distance)
+{
+    return std::make_shared< TimeVariableLuminosityModelSettings >(
+        [=](const double time){ return electromagnetism::computeLuminosityFromIrradiance(
+            irradianceAtDistanceFunction( time ), distance ); }
+        );
 }
 
 /*!
@@ -540,7 +541,7 @@ inline std::shared_ptr<PanelRadiosityModelSettings>
  */
 inline std::shared_ptr<PanelRadiosityModelSettings>
         albedoPanelRadiosityModelSettings(
-                SecondDegreeZonalPeriodicSurfacePropertyDistributionModel albedoModel,
+                KnockeTypeSurfacePropertyDistributionModel albedoModel,
                 const std::string& originalSourceName)
 {
     return std::make_shared< AlbedoPanelRadiosityModelSettings >(
@@ -586,7 +587,7 @@ inline std::shared_ptr<PanelRadiosityModelSettings>
  */
 inline std::shared_ptr<PanelRadiosityModelSettings>
         delayedThermalPanelRadiosityModelSettings(
-                SecondDegreeZonalPeriodicSurfacePropertyDistributionModel emissivityModel,
+                KnockeTypeSurfacePropertyDistributionModel emissivityModel,
                 const std::string& originalSourceName)
 {
     return std::make_shared< DelayedThermalPanelRadiosityModelSettings >(
