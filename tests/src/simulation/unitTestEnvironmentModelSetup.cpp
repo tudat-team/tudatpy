@@ -1657,7 +1657,7 @@ BOOST_AUTO_TEST_CASE( test_surfacePropertyDistributionSetup_SecondDegreeZonalPer
     spice_interface::loadStandardSpiceKernels();
 
     auto surfacePropertyDistributionSettings = secondDegreeZonalPeriodicSurfacePropertyDistributionSettings(
-            SecondDegreeZonalPeriodicSurfacePropertyDistributionModel::albedo_knocke);
+            KnockeTypeSurfacePropertyDistributionModel::albedo_knocke);
     auto surfacePropertyDistribution =
             std::dynamic_pointer_cast<SecondDegreeZonalPeriodicSurfacePropertyDistribution>(
                     createSurfacePropertyDistribution(surfacePropertyDistributionSettings, ""));
@@ -1679,7 +1679,7 @@ BOOST_AUTO_TEST_CASE( test_surfacePropertyDistributionSetup_SecondDegreeZonalPer
     spice_interface::loadStandardSpiceKernels();
 
     auto surfacePropertyDistributionSettings = secondDegreeZonalPeriodicSurfacePropertyDistributionSettings(
-            SecondDegreeZonalPeriodicSurfacePropertyDistributionModel::emissivity_knocke);
+            KnockeTypeSurfacePropertyDistributionModel::emissivity_knocke);
     auto surfacePropertyDistribution =
             std::dynamic_pointer_cast<SecondDegreeZonalPeriodicSurfacePropertyDistribution>(
                     createSurfacePropertyDistribution(surfacePropertyDistributionSettings, ""));

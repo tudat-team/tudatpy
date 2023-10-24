@@ -57,8 +57,7 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_Unity )
     const auto expectedAcceleration = Eigen::Vector3d::UnitX();
 
     // Set distance to speed of light to cancel to unity radiation pressure
-    auto luminosityModel = std::make_shared<IrradianceBasedLuminosityModel>(
-            [](double) { return physical_constants::SPEED_OF_LIGHT; }, 1);
+    auto luminosityModel = std::make_shared<ConstantLuminosityModel>(computeLuminosityFromIrradiance( 1.0, 1.0 ));
     auto sourceModel = std::make_shared<IsotropicPointRadiationSourceModel>(luminosityModel);
     auto targetModel = std::make_shared<CannonballRadiationPressureTargetModel>(1, 1);
     IsotropicPointSourceRadiationPressureAcceleration accelerationModel(
@@ -87,8 +86,8 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_GOCE )
     const Eigen::Vector3d expectedAcceleration = Eigen::Vector3d(1, 1, 0).normalized() * 5.2e-9;
     const double expectedReceivedFraction = 1.0;
 
-    auto luminosityModel = std::make_shared<IrradianceBasedLuminosityModel>(
-            [](double) { return 1371; }, physical_constants::ASTRONOMICAL_UNIT);
+    auto luminosityModel = std::make_shared<ConstantLuminosityModel>(
+        computeLuminosityFromIrradiance( 1371.0, physical_constants::ASTRONOMICAL_UNIT ) );
     auto sourceModel = std::make_shared<IsotropicPointRadiationSourceModel>(luminosityModel);
     auto targetModel = std::make_shared<CannonballRadiationPressureTargetModel>(1, 1.2);
     IsotropicPointSourceRadiationPressureAcceleration accelerationModel(
@@ -248,7 +247,8 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_IsotropicPointSource_Can
         const Eigen::Vector3d sourcePosition = -149598000.0e3 * Eigen::Vector3d::UnitX();
 
         auto sourceModel = std::make_shared<IsotropicPointRadiationSourceModel>(
-            std::make_shared<IrradianceBasedLuminosityModel>(1367.0, physical_constants::ASTRONOMICAL_UNIT));
+            std::make_shared<ConstantLuminosityModel>(
+                computeLuminosityFromIrradiance( 1367.0, physical_constants::ASTRONOMICAL_UNIT ) ));
         const auto targetModel = std::make_shared<CannonballRadiationPressureTargetModel>(5, 1.2);
 
         auto sourceToTargetOccultationModel = std::make_shared<SingleOccultingBodyOccultationModel>(
@@ -292,8 +292,8 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_IsotropicPointSource_Can
 BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_IsotropicPointSource_PaneledTarget_Basic )
 {
     // Set distance to speed of light to cancel to unity radiation pressure
-    auto luminosityModel = std::make_shared<IrradianceBasedLuminosityModel>(
-            [](double) { return physical_constants::SPEED_OF_LIGHT; }, 1);
+    auto luminosityModel = std::make_shared<ConstantLuminosityModel>(
+        computeLuminosityFromIrradiance( physical_constants::SPEED_OF_LIGHT, 1.0 ) );
     auto sourceModel = std::make_shared<IsotropicPointRadiationSourceModel>(luminosityModel);
     std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > panels{
             std::make_shared< system_models::VehicleExteriorPanel >(1, -Eigen::Vector3d::UnitX(),
@@ -974,8 +974,8 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_IsotropicPointSource_Pan
 BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_StaticallyPaneledSource_PaneledTarget_Basic )
 {
     // Set distance to speed of light to cancel to unity radiation pressure
-    auto luminosityModel = std::make_shared<IrradianceBasedLuminosityModel>(
-            [](double) { return physical_constants::SPEED_OF_LIGHT; }, 1);
+    auto luminosityModel = std::make_shared<ConstantLuminosityModel>(
+        computeLuminosityFromIrradiance( physical_constants::SPEED_OF_LIGHT, 1.0 ) );
     auto originalSourceModel = std::make_shared<IsotropicPointRadiationSourceModel>(luminosityModel);
 
     const std::map<std::string, std::shared_ptr<IsotropicPointRadiationSourceModel>>& originalSourceModels {
@@ -1230,8 +1230,8 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_DynamicallyPaneledSource
     const auto targetModel = createRadiationPressureTargetModel(targetModelSettings, "Vehicle", bodies);
 
     const auto sourceModelSettings = extendedRadiationSourceModelSettings({
-            albedoPanelRadiosityModelSettings(SecondDegreeZonalPeriodicSurfacePropertyDistributionModel::albedo_knocke, "Sun"),
-            delayedThermalPanelRadiosityModelSettings(SecondDegreeZonalPeriodicSurfacePropertyDistributionModel::emissivity_knocke, "Sun")
+            albedoPanelRadiosityModelSettings(KnockeTypeSurfacePropertyDistributionModel::albedo_knocke, "Sun"),
+            delayedThermalPanelRadiosityModelSettings(KnockeTypeSurfacePropertyDistributionModel::emissivity_knocke, "Sun")
     }, {6, 12});
     const auto sourceModel =
             std::dynamic_pointer_cast<PaneledRadiationSourceModel>(createRadiationSourceModel(sourceModelSettings, globalFrameOrigin, bodies));
