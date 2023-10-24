@@ -80,33 +80,33 @@ namespace radiation_pressure {
               get_docstring("cannonball").c_str()
               );
 
-        m.def("panelled",
-              &tss::panelledRadiationPressureInterfaceSettings,
-              py::arg("source_body"),
-              py::arg("emissivities"),
-              py::arg("areas"),
-              py::arg("diffusion_coefficients"),
-              py::arg("surface_normals_in_body_fixed_frame"),
-              py::arg("occulting_bodies") = std::vector<std::string>(),
-              get_docstring("panelled").c_str()
-              );
+//        m.def("panelled",
+//              &tss::panelledRadiationPressureInterfaceSettings,
+//              py::arg("source_body"),
+//              py::arg("emissivities"),
+//              py::arg("areas"),
+//              py::arg("diffusion_coefficients"),
+//              py::arg("surface_normals_in_body_fixed_frame"),
+//              py::arg("occulting_bodies") = std::vector<std::string>(),
+//              get_docstring("panelled").c_str()
+//              );
 
 
 ///////////////////////////////////////////////////////////
 ///////////   ENUMS
 ///////////////////////////////////////////////////////////
 
-        enum class SecondDegreeZonalPeriodicSurfacePropertyDistributionModel
+        enum class KnockeTypeSurfacePropertyDistributionModel
         {
             custom,
             albedo_knocke, /**< Knocke Earth albedo model: Knocke, Philip et al. "Earth radiation pressure effects on satellites." Astrodynamics Conference. American Institute of Aeronautics and Astronautics, 1988. */
             emissivity_knocke /**< Knocke Earth emissivity model: Knocke, Philip et al. "Earth radiation pressure effects on satellites." Astrodynamics Conference. American Institute of Aeronautics and Astronautics, 1988. */
         };
 
-        py::enum_<tss::SecondDegreeZonalPeriodicSurfacePropertyDistributionModel>(m, "SecondDegreeZonalPeriodicSurfacePropertyDistributionModel")
-            .value("custom", tss::SecondDegreeZonalPeriodicSurfacePropertyDistributionModel::custom)
-            .value("albedo_knocke", tss::SecondDegreeZonalPeriodicSurfacePropertyDistributionModel::albedo_knocke)
-            .value("emissivity_knocke", tss::SecondDegreeZonalPeriodicSurfacePropertyDistributionModel::emissivity_knocke)
+        py::enum_<tss::KnockeTypeSurfacePropertyDistributionModel>(m, "KnockeTypeSurfacePropertyDistributionModel")
+            .value("custom", tss::KnockeTypeSurfacePropertyDistributionModel::custom)
+            .value("albedo_knocke", tss::KnockeTypeSurfacePropertyDistributionModel::albedo_knocke)
+            .value("emissivity_knocke", tss::KnockeTypeSurfacePropertyDistributionModel::emissivity_knocke)
             .export_values();
 
 ///////////////////////////////////////////////////////////
@@ -124,10 +124,23 @@ namespace radiation_pressure {
               get_docstring("constant_luminosity").c_str()
         );
 
-        m.def("irradiance_based_luminosity",
+        m.def("irradiance_based_constant_luminosity",
               &tss::irradianceBasedLuminosityModelSettings,
-              py::arg("irradiance_function_at_reference_distance"),
-              py::arg("irradiance_based_luminosity"),
+              py::arg("constant_irradiance"),
+              py::arg("reference_distance"),
+              get_docstring("constant_luminosity").c_str()
+        );
+
+        m.def("time_variable_luminosity",
+              &tss::timeVariableLuminosityModelSettings,
+              py::arg("luminosity_function"),
+              get_docstring("constant_luminosity").c_str()
+        );
+
+        m.def("irradiance_based_time_variable_luminosity",
+              &tss::timeVariableIrradianceBasedLuminosityModelSettings,
+              py::arg("irradiance_function"),
+              py::arg("reference_distance"),
               get_docstring("constant_luminosity").c_str()
         );
 
@@ -179,11 +192,19 @@ namespace radiation_pressure {
 
 
         m.def("predefined_knocke_type_surface_property_distribution",
-              py::overload_cast< tss::SecondDegreeZonalPeriodicSurfacePropertyDistributionModel >(
+              py::overload_cast< tss::KnockeTypeSurfacePropertyDistributionModel >(
                   &tss::secondDegreeZonalPeriodicSurfacePropertyDistributionSettings ),
               py::arg("predefined_model"),
               get_docstring("predefined_knocke_type_property_distribution").c_str()
         );
+
+        m.def("custom_surface_property_distribution",
+                  &tss::customSurfacePropertyDistributionSettings,
+              py::arg("custom_function"),
+              get_docstring("custom_surface_property_distribution").c_str()
+        );
+
+
 
 
 ///////////////////////////////////////////////////////////
@@ -196,22 +217,22 @@ namespace radiation_pressure {
             m, "PanelRadiosityModelSettings",
             get_docstring("PanelRadiosityModelSettings").c_str());
 
-        m.def("constant_panel_radiosity",
+        m.def("constant_radiosity",
               &tss::constantPanelRadiosityModelSettings,
-              py::arg("constant_radiosoty"),
+              py::arg("radiosity"),
               get_docstring("constant_panel_radiosity").c_str()
         );
 
-        m.def("albedo_constant_surface_radiosity",
+        m.def("constant_albedo_surface_radiosity",
               py::overload_cast< double, const std::string& >( &tss::albedoPanelRadiosityModelSettings ),
               py::arg("constant_albedo"),
               py::arg("original_source_name"),
               get_docstring("constant_albedo_panel_radiosity").c_str()
         );
 
-        m.def("albedo_variable_surface_radiosity",
+        m.def("variable_albedo_surface_radiosity",
               &tss::albedoPanelRadiosityModelSettingsGeneric,
-              py::arg("albedo_distribution_model"),
+              py::arg("albedo_distribution_settings"),
               py::arg("original_source_name"),
               get_docstring("constant_albedo_panel_radiosity").c_str()
         );
