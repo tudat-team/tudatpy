@@ -53,8 +53,8 @@ BOOST_AUTO_TEST_CASE( testIsotropicPointRadiationSourceModel )
 
     auto targetPosition = Eigen::Vector3d(physical_constants::ASTRONOMICAL_UNIT, 0, 0);
 
-    auto luminosityModel = std::make_shared<IrradianceBasedLuminosityModel>(
-            [=](double) { return expectedIrradiance; }, physical_constants::ASTRONOMICAL_UNIT);
+    auto luminosityModel = std::make_shared<ConstantLuminosityModel>(
+        computeLuminosityFromIrradiance( expectedIrradiance, physical_constants::ASTRONOMICAL_UNIT ) );
     auto radiationSourceModel = std::make_shared<IsotropicPointRadiationSourceModel>(luminosityModel);
     radiationSourceModel->updateMembers(TUDAT_NAN);
 
@@ -158,7 +158,8 @@ BOOST_AUTO_TEST_CASE( testStaticallyPaneledRadiationSourceModel_Albedo )
         // Original source such that at source, original source irradiance = 1 and original source to source = (-1, 0, 0)
         const std::map<std::string, std::shared_ptr<IsotropicPointRadiationSourceModel>>& originalSourceModels {
             {"OrigSource", std::make_shared<IsotropicPointRadiationSourceModel>(
-                    std::make_shared<IrradianceBasedLuminosityModel>(1, 1))}};
+                    std::make_shared<ConstantLuminosityModel>(computeLuminosityFromIrradiance( 1.0, 1.0 )))}};
+
         const std::map<std::string, std::shared_ptr<basic_astrodynamics::BodyShapeModel>>& originalSourceBodyShapeModels {
             {"OrigSource", nullptr}};
         const std::map<std::string, std::function<Eigen::Vector3d()>>& originalSourcePositionFunctions {
@@ -202,7 +203,7 @@ BOOST_AUTO_TEST_CASE( testStaticallyPaneledRadiationSourceModel_Albedo )
         // Original source such that at source, original source irradiance = 1 and original source to source = (-1, 0, 0)
         const std::map<std::string, std::shared_ptr<IsotropicPointRadiationSourceModel>>& originalSourceModels {
             {"OrigSource", std::make_shared<IsotropicPointRadiationSourceModel>(
-                    std::make_shared<IrradianceBasedLuminosityModel>(1, 1))}};
+                std::make_shared<ConstantLuminosityModel>(computeLuminosityFromIrradiance( 1.0, 1.0 )))}};
         const std::map<std::string, std::shared_ptr<basic_astrodynamics::BodyShapeModel>>& originalSourceBodyShapeModels {
             {"OrigSource", nullptr}};
         const std::map<std::string, std::function<Eigen::Vector3d()>>& originalSourcePositionFunctions {
@@ -278,7 +279,7 @@ BOOST_AUTO_TEST_CASE( testStaticallyPaneledRadiationSourceModel_Albedo )
         // Original source such that at source, original source irradiance = 1 and original source to source = (0, 0, -1)
         const std::map<std::string, std::shared_ptr<IsotropicPointRadiationSourceModel>>& originalSourceModels {
             {"OrigSource", std::make_shared<IsotropicPointRadiationSourceModel>(
-                    std::make_shared<IrradianceBasedLuminosityModel>(1, 1))}};
+                std::make_shared<ConstantLuminosityModel>(computeLuminosityFromIrradiance( 1.0, 1.0 )))}};
         const std::map<std::string, std::shared_ptr<basic_astrodynamics::BodyShapeModel>>& originalSourceBodyShapeModels {
             {"OrigSource", nullptr}};
         const std::map<std::string, std::function<Eigen::Vector3d()>>& originalSourcePositionFunctions {

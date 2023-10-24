@@ -28,7 +28,8 @@ enum class SurfacePropertyDistributionType
 {
     constant,
     spherical_harmonics,
-    second_degree_zonal_periodic
+    second_degree_zonal_periodic,
+    custom_surface_distribution
 };
 
 /*!
@@ -138,7 +139,7 @@ private:
     Eigen::MatrixXd sineCoefficients_;
 };
 
-enum class SecondDegreeZonalPeriodicSurfacePropertyDistributionModel
+enum class KnockeTypeSurfacePropertyDistributionModel
 {
     custom,
     albedo_knocke, /**< Knocke Earth albedo model: Knocke, Philip et al. "Earth radiation pressure effects on satellites." Astrodynamics Conference. American Institute of Aeronautics and Astronautics, 1988. */
@@ -174,7 +175,7 @@ public:
             const double referenceEpoch,
             const double period) :
             SurfacePropertyDistributionSettings(SurfacePropertyDistributionType::second_degree_zonal_periodic),
-            model_(SecondDegreeZonalPeriodicSurfacePropertyDistributionModel::custom),
+            model_(KnockeTypeSurfacePropertyDistributionModel::custom),
             a0(a0),
             c0(c0),
             c1(c1),
@@ -189,7 +190,7 @@ public:
     * @param model Model to be used
     */
     explicit SecondDegreeZonalPeriodicSurfacePropertyDistributionSettings(
-            SecondDegreeZonalPeriodicSurfacePropertyDistributionModel model);
+            KnockeTypeSurfacePropertyDistributionModel model);
 
     double getA0() const
     {
@@ -227,7 +228,7 @@ public:
     }
 
 private:
-    SecondDegreeZonalPeriodicSurfacePropertyDistributionModel model_;
+    KnockeTypeSurfacePropertyDistributionModel model_;
 
     double a0;
     double c0;
@@ -238,6 +239,24 @@ private:
     double period;
 };
 
+
+class CustomSurfacePropertyDistributionSettings : public SurfacePropertyDistributionSettings
+{
+public:
+    explicit CustomSurfacePropertyDistributionSettings(
+        const std::function< double( const double, const double, const double ) > customFunction ) :
+        SurfacePropertyDistributionSettings(SurfacePropertyDistributionType::custom_surface_distribution),
+        customFunction_( customFunction ){ }
+
+    std::function< double( const double, const double, const double ) > getCustomFunction( )
+    {
+        return customFunction_;
+    }
+
+private:
+    std::function< double( const double, const double, const double ) > customFunction_;
+
+};
 /*!
  * Create settings for constant surface property distribution.
  *
@@ -287,7 +306,7 @@ inline std::shared_ptr<SurfacePropertyDistributionSettings>
  */
 inline std::shared_ptr<SurfacePropertyDistributionSettings>
         secondDegreeZonalPeriodicSurfacePropertyDistributionSettings(
-                SecondDegreeZonalPeriodicSurfacePropertyDistributionModel model)
+                KnockeTypeSurfacePropertyDistributionModel model)
 {
     return std::make_shared< SecondDegreeZonalPeriodicSurfacePropertyDistributionSettings >(model);
 }
@@ -307,6 +326,12 @@ manualSecondDegreeZonalPeriodicSurfacePropertyDistributionSettings(
         );
 }
 
+inline std::shared_ptr<SurfacePropertyDistributionSettings>
+customSurfacePropertyDistributionSettings(
+    const std::function< double( const double, const double, const double ) > customFunction )
+{
+    return std::make_shared< CustomSurfacePropertyDistributionSettings >(customFunction);
+}
 
 /*!
  * Create surface property distribution from its settings.
