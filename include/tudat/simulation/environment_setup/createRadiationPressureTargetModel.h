@@ -196,6 +196,13 @@ inline std::shared_ptr< BodyPanelReflectionLawSettings > specularDiffuseBodyPane
         specularReflectivity, diffuseReflectivity, withInstantaneousReradiation );
 }
 
+inline std::shared_ptr< BodyPanelReflectionLawSettings > lambertainBodyPanelReflectionLawSettings(
+    const double reflectivity )
+{
+    return std::make_shared< SpecularDiffuseBodyPanelReflectionLawSettings>(
+        0.0, reflectivity, false );
+}
+
 std::shared_ptr< electromagnetism::ReflectionLaw > createReflectionLaw(
     const std::shared_ptr<BodyPanelReflectionLawSettings> modelSettings );
 
