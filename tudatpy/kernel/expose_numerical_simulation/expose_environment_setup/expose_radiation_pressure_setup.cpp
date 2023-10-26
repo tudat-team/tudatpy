@@ -96,18 +96,21 @@ namespace radiation_pressure {
 ///////////   ENUMS
 ///////////////////////////////////////////////////////////
 
-        enum class KnockeTypeSurfacePropertyDistributionModel
-        {
-            custom,
-            albedo_knocke, /**< Knocke Earth albedo model: Knocke, Philip et al. "Earth radiation pressure effects on satellites." Astrodynamics Conference. American Institute of Aeronautics and Astronautics, 1988. */
-            emissivity_knocke /**< Knocke Earth emissivity model: Knocke, Philip et al. "Earth radiation pressure effects on satellites." Astrodynamics Conference. American Institute of Aeronautics and Astronautics, 1988. */
-        };
-
         py::enum_<tss::KnockeTypeSurfacePropertyDistributionModel>(m, "KnockeTypeSurfacePropertyDistributionModel")
             .value("custom", tss::KnockeTypeSurfacePropertyDistributionModel::custom)
             .value("albedo_knocke", tss::KnockeTypeSurfacePropertyDistributionModel::albedo_knocke)
             .value("emissivity_knocke", tss::KnockeTypeSurfacePropertyDistributionModel::emissivity_knocke)
             .export_values();
+
+        py::enum_<tss::SphericalHarmonicsSurfacePropertyDistributionModel>(m, "SphericalHarmonicsSurfacePropertyDistributionModel")
+            .value("albedo_dlam1", tss::SphericalHarmonicsSurfacePropertyDistributionModel::albedo_dlam1)
+            .export_values();
+
+        enum class SphericalHarmonicsSurfacePropertyDistributionModel
+        {
+            custom,
+            albedo_dlam1 /**< DLAM-1 lunar albedo model: Floberghagen, R. et al. "Lunar Albedo Force Modeling and its Effect on Low Lunar Orbit and Gravity Field Determination". ASR 23. 4(1999): 733-738. */
+        };
 
 ///////////////////////////////////////////////////////////
 ///////////   LUMINOSITY MODELS
@@ -128,20 +131,20 @@ namespace radiation_pressure {
               &tss::irradianceBasedLuminosityModelSettings,
               py::arg("constant_irradiance"),
               py::arg("reference_distance"),
-              get_docstring("constant_luminosity").c_str()
+              get_docstring("irradiance_based_constant_luminosity").c_str()
         );
 
         m.def("time_variable_luminosity",
               &tss::timeVariableLuminosityModelSettings,
               py::arg("luminosity_function"),
-              get_docstring("constant_luminosity").c_str()
+              get_docstring("time_variable_luminosity").c_str()
         );
 
         m.def("irradiance_based_time_variable_luminosity",
               &tss::timeVariableIrradianceBasedLuminosityModelSettings,
               py::arg("irradiance_function"),
               py::arg("reference_distance"),
-              get_docstring("constant_luminosity").c_str()
+              get_docstring("irradiance_based_time_variable_luminosity").c_str()
         );
 
 
@@ -167,7 +170,7 @@ namespace radiation_pressure {
                   &tss::sphericalHarmonicsSurfacePropertyDistributionSettings ),
               py::arg("cosine_coefficients"),
               py::arg("sine_coefficients"),
-              get_docstring("constant_surface_property_distribution").c_str()
+              get_docstring("spherical_harmonic_surface_property_distribution").c_str()
         );
 
         m.def("predefined_spherical_harmonic_surface_property_distribution",
@@ -187,7 +190,7 @@ namespace radiation_pressure {
               py::arg("constant_degree_two_contribution"),
               py::arg("reference_epoch"),
               py::arg("period"),
-              get_docstring("knocke_type_property_distribution").c_str()
+              get_docstring("knocke_type_surface_property_distribution").c_str()
         );
 
 
@@ -195,7 +198,7 @@ namespace radiation_pressure {
               py::overload_cast< tss::KnockeTypeSurfacePropertyDistributionModel >(
                   &tss::secondDegreeZonalPeriodicSurfacePropertyDistributionSettings ),
               py::arg("predefined_model"),
-              get_docstring("predefined_knocke_type_property_distribution").c_str()
+              get_docstring("predefined_knocke_type_surface_property_distribution").c_str()
         );
 
         m.def("custom_surface_property_distribution",
@@ -220,35 +223,35 @@ namespace radiation_pressure {
         m.def("constant_radiosity",
               &tss::constantPanelRadiosityModelSettings,
               py::arg("radiosity"),
-              get_docstring("constant_panel_radiosity").c_str()
+              get_docstring("constant_radiosity").c_str()
         );
 
         m.def("constant_albedo_surface_radiosity",
               py::overload_cast< double, const std::string& >( &tss::albedoPanelRadiosityModelSettings ),
               py::arg("constant_albedo"),
               py::arg("original_source_name"),
-              get_docstring("constant_albedo_panel_radiosity").c_str()
+              get_docstring("constant_albedo_surface_radiosity").c_str()
         );
 
         m.def("variable_albedo_surface_radiosity",
               &tss::albedoPanelRadiosityModelSettingsGeneric,
               py::arg("albedo_distribution_settings"),
               py::arg("original_source_name"),
-              get_docstring("constant_albedo_panel_radiosity").c_str()
+              get_docstring("variable_albedo_surface_radiosity").c_str()
         );
 
         m.def("thermal_emission_blackbody_constant_emissivity",
               py::overload_cast< double, const std::string& >( &tss::delayedThermalPanelRadiosityModelSettings ),
               py::arg("constant_emissivity"),
               py::arg("original_source_name"),
-              get_docstring("thermal_emission_delayed_radiosity_constant_emissivity").c_str()
+              get_docstring("thermal_emission_blackbody_constant_emissivity").c_str()
         );
 
         m.def("thermal_emission_blackbody_variable_emissivity",
               &tss::delayedThermalPanelRadiosityModelSettingsGeneric,
               py::arg("emissivity_distribution_model"),
               py::arg("original_source_name"),
-              get_docstring("thermal_emission_delayed_radiosity_constant_emissivity").c_str()
+              get_docstring("thermal_emission_blackbody_variable_emissivity").c_str()
         );
 
         m.def("thermal_emission_angle_based_radiosity",
@@ -257,7 +260,7 @@ namespace radiation_pressure {
               py::arg("maximum_temperature"),
               py::arg("constant_emissivity"),
               py::arg("original_source_name"),
-              get_docstring("thermal_emission_delayed_radiosity_constant_emissivity").c_str()
+              get_docstring("thermal_emission_angle_based_radiosity").c_str()
         );
 
 
@@ -279,6 +282,11 @@ namespace radiation_pressure {
             get_docstring("specular_diffuse_body_panel_reflection").c_str()
         );
 
+        m.def("lambertian_body_panel_reflection",
+              &tss::lambertainBodyPanelReflectionLawSettings,
+              py::arg("reflectivity"),
+              get_docstring("lambertian_body_panel_reflection").c_str()
+        );
 
 ///////////////////////////////////////////////////////////
 ///////////   RADIATION SOURCE MODELS

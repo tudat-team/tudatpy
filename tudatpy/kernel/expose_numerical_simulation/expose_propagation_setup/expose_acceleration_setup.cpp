@@ -85,12 +85,6 @@ inline std::shared_ptr< AccelerationSettings > thrustAccelerationRemoved3(
 }
 
 
-//! @get_docstring(cannonBallRadiationPressureAcceleration)
-inline std::shared_ptr< AccelerationSettings > panelledRadiationPressureAcceleration( )
-{
-    return std::make_shared< AccelerationSettings >( basic_astrodynamics::panelled_radiation_pressure_acceleration );
-}
-
 //! @get_docstring(customAccelerationSettings)
 inline std::shared_ptr< AccelerationSettings > customAccelerationSettings(
         const std::function< Eigen::Vector3d( const double ) > accelerationFunction )
@@ -130,9 +124,7 @@ void expose_acceleration_setup(py::module &m) {
             .value("empirical_acceleration_type", tba::AvailableAcceleration::empirical_acceleration, get_docstring("AvailableAcceleration.empirical_acceleration_type").c_str())
             .value("direct_tidal_dissipation_in_central_body_acceleration_type", tba::AvailableAcceleration::direct_tidal_dissipation_in_central_body_acceleration, get_docstring("AvailableAcceleration.direct_tidal_dissipation_in_central_body_acceleration_type").c_str())
             .value("direct_tidal_dissipation_in_orbiting_body_acceleration_type", tba::AvailableAcceleration::direct_tidal_dissipation_in_orbiting_body_acceleration, get_docstring("AvailableAcceleration.direct_tidal_dissipation_in_orbiting_body_acceleration_type").c_str())
-            .value("panelled_radiation_pressure_acceleration_type", tba::AvailableAcceleration::panelled_radiation_pressure_acceleration, get_docstring("AvailableAcceleration.panelled_radiation_pressure_acceleration_type").c_str())
             .value("quasi_impulsive_shots_acceleration_type", tba::AvailableAcceleration::momentum_wheel_desaturation_acceleration, get_docstring("AvailableAcceleration.momentum_wheel_desaturation_acceleration_type").c_str())
-            .value("solar_sail_acceleration_type", tba::AvailableAcceleration::solar_sail_acceleration, get_docstring("AvailableAcceleration.solar_sail_acceleration_type").c_str())
             .value("custom_acceleration_type", tba::AvailableAcceleration::custom_acceleration, get_docstring("AvailableAcceleration.custom_acceleration").c_str())
             .value("radiation_pressure_type", tba::AvailableAcceleration::radiation_pressure, get_docstring("AvailableAcceleration.radiation_pressure_type").c_str())
             .export_values();
@@ -210,9 +202,6 @@ void expose_acceleration_setup(py::module &m) {
 
     m.def("cannonball_radiation_pressure", &tss::cannonBallRadiationPressureAcceleration,
           get_docstring("cannonball_radiation_pressure").c_str());
-
-    m.def("panelled_radiation_pressure", &tss::panelledRadiationPressureAcceleration,
-          get_docstring("panelled_radiation_pressure").c_str());
 
     m.def("radiation_pressure", &tss::radiationPressureAcceleration,
           get_docstring("radiation_pressure").c_str());
