@@ -122,8 +122,9 @@ protected:
  *  (either directly or through some algorithm).
  */
 template< typename TimeType = double >
-struct ObservationSimulationSettings
+class ObservationSimulationSettings
 {
+public:
     //! Constructor, defines link end type.
     /*!
      *  Constructor, defines link end type from which observations are to be simulated.
@@ -246,8 +247,9 @@ protected:
  *  at the times stored in this struct. Some may be discarded due to the use of vaibility settins
  */
 template< typename TimeType = double >
-struct TabulatedObservationSimulationSettings: public ObservationSimulationSettings< TimeType >
+class TabulatedObservationSimulationSettings: public ObservationSimulationSettings< TimeType >
 {
+public:
     //! Constructor
     /*!
      * Constructor
@@ -275,9 +277,9 @@ struct TabulatedObservationSimulationSettings: public ObservationSimulationSetti
 };
 
 template< typename TimeType = double >
-struct PerArcObservationSimulationSettings: public ObservationSimulationSettings< TimeType >
+class PerArcObservationSimulationSettings: public ObservationSimulationSettings< TimeType >
 {
-
+public:
     PerArcObservationSimulationSettings(
             const observation_models::ObservableType observableType,
             const observation_models::LinkDefinition& linkEnds,
@@ -688,6 +690,11 @@ std::vector< std::shared_ptr< ObservationSimulationSettings< TimeType > > >  get
     }
     return getObservationSimulationSettings( linkDefsPerObservable, observationTimes, referenceLinkEnd );
 }
+
+extern template class ObservationSimulationSettings< double >;
+extern template class TabulatedObservationSimulationSettings< double >;
+extern template class PerArcObservationSimulationSettings< double >;
+
 
 }
 

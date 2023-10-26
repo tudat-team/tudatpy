@@ -192,8 +192,7 @@ public:
         for( std::map< basic_astrodynamics::EmpiricalAccelerationFunctionalShapes, std::vector< int > >::const_iterator
              indexIterator = accelerationIndices_.begin( ); indexIterator != accelerationIndices_.end( ); indexIterator++ )
         {
-            parameterDescription += "(";
-            basic_astrodynamics::getEmpiricalAccelerationFunctionalShapeString( indexIterator->first ) + ": index ";
+            parameterDescription += "("+ basic_astrodynamics::getEmpiricalAccelerationFunctionalShapeString( indexIterator->first ) + ": index ";
             for( unsigned int i = 0; i < indexIterator->second.size( ); i++ )
             {
                 parameterDescription += std::to_string( indexIterator->second.at( i ) );
