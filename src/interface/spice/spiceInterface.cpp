@@ -274,7 +274,7 @@ std::pair<Eigen::Quaterniond, Eigen::Matrix3d> computeRotationQuaternionAndRotat
 std::vector<double> getBodyProperties(const std::string &body, const std::string &property,
                                       const int maximumNumberOfValues) {
     // Delcare variable in which raw result is to be put by Spice function.
-    double* propertyArray = new double(maximumNumberOfValues);
+    double* propertyArray = new double[maximumNumberOfValues];
 
     // Call Spice function to retrieve property.
     SpiceInt numberOfReturnedParameters;
