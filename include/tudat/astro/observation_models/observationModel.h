@@ -562,7 +562,7 @@ protected:
             }
         }
 
-        for ( unsigned int j = 0 ; j < indexRefLinkEndTimeBias.size( ) ; j++ )
+        for ( unsigned int j = 0 ; j < static_cast< unsigned int >( indexRefLinkEndTimeBias.size( ) ); j++ )
         {
             if ( indexRefLinkEndTimeBias[ j ] != observation_models::getLinkEndIndicesForLinkEndTypeAtObservable(
                     observableType_, linkEndAssociatedWithTime, linkEnds_.size( ) ).at( 0 ) )

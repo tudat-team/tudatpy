@@ -289,8 +289,8 @@ public:
         {
             derivHistory_.pop_back( );
         }
-        unsigned int sizeStateHistory = stateHistory_.size( );
-        unsigned int sizeDerivativeHistory = derivHistory_.size( );
+        unsigned int sizeStateHistory = static_cast< unsigned int >( stateHistory_.size( ) );
+        unsigned int sizeDerivativeHistory = static_cast< unsigned int >( derivHistory_.size( ) );
         unsigned int possibleOrder = std::min( sizeStateHistory, sizeDerivativeHistory );
 
         StateType correctedState;
