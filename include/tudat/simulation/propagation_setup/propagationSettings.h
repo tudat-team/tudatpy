@@ -508,7 +508,7 @@ public:
      */
     int getNmberOfArcs( )
     {
-        return singleArcSettings_.size( );
+        return static_cast< int >( singleArcSettings_.size( ) );
     }
 
     //! Function get the list of initial states for each arc in propagation.

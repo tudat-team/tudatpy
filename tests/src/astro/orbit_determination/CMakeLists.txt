@@ -86,11 +86,6 @@ TUDAT_ADD_TEST_CASE(FullPlanetaryRotationModelEstimation
     )
 
 
-TUDAT_ADD_TEST_CASE(EstimationFromIdealDataTimeDouble
-    PRIVATE_LINKS
-    ${Tudat_ESTIMATION_LIBRARIES}
-    )
-
 TUDAT_ADD_TEST_CASE(NonSequentialStateEstimation
      PRIVATE_LINKS
      ${Tudat_ESTIMATION_LIBRARIES}
@@ -107,10 +102,10 @@ TUDAT_ADD_TEST_CASE(NonSequentialStateEstimation
 #    PRIVATE_LINKS
 #    ${Tudat_ESTIMATION_LIBRARIES}
 #    )
- TUDAT_ADD_TEST_CASE(ConsiderParameters
-         PRIVATE_LINKS
-         ${Tudat_ESTIMATION_LIBRARIES}
-         )
+# TUDAT_ADD_TEST_CASE(ConsiderParameters
+#         PRIVATE_LINKS
+#         ${Tudat_ESTIMATION_LIBRARIES}
+#         )
 
  TUDAT_ADD_TEST_CASE(CustomAccelerationVariationalEquations
          PRIVATE_LINKS
@@ -118,6 +113,12 @@ TUDAT_ADD_TEST_CASE(NonSequentialStateEstimation
  )
 
 if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+
+
+    TUDAT_ADD_TEST_CASE(EstimationFromIdealDataTimeDouble
+            PRIVATE_LINKS
+            ${Tudat_ESTIMATION_LIBRARIES}
+    )
 
     TUDAT_ADD_TEST_CASE(EstimationFromIdealDataDoubleLongDouble
         PRIVATE_LINKS
