@@ -480,7 +480,7 @@ std::vector< std::shared_ptr< GroundStationSettings > > getDsnStationSettings( )
 
     for( auto it : dsnStationPositionsItrf93 )
     {
-        Eigen::Vector3d stationVelocityItrf93;
+        Eigen::Vector3d stationVelocityItrf93 = Eigen::Vector3d::Constant( TUDAT_NAN );
         if( it.first[ 4 ] == '1' || it.first[ 4 ] == '2' )
         {
             stationVelocityItrf93 = goldstoneStationVelocity;

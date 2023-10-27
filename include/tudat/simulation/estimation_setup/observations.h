@@ -69,6 +69,7 @@ public:
                 throw std::runtime_error( "Error when creating SingleObservationSet, ObservationDependentVariableCalculator has incompatible link ends " );
             }
         }
+
         if( observations_.size( ) != observationTimes_.size( ) )
         {
             throw std::runtime_error( "Error when making SingleObservationSet, input sizes are inconsistent." +
@@ -80,6 +81,30 @@ public:
             if( observations.at( i ).rows( ) != observations.at( i - 1 ).rows( ) )
             {
                 throw std::runtime_error( "Error when making SingleObservationSet, input observables not of consistent size." );
+            }
+        }
+
+        if( !std::is_sorted( observationTimes_.begin( ), observationTimes_.end( ) ) )
+        {
+            std::multimap< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > observationsMap;
+            for( unsigned int i = 0; i < observations_.size( ); i++ )
+            {
+                observationsMap.insert( { observationTimes_.at( i ), observations_.at( i ) } );
+            }
+            observationTimes_ = utilities::createVectorFromMultiMapKeys( observationsMap );
+            observations_ = utilities::createVectorFromMultiMapValues( observationsMap );
+            if( observationsDependentVariables_.size( ) > 0 )
+            {
+                std::map< TimeType, Eigen::VectorXd > observationsDependentVariablesMap;
+                for( unsigned int i = 0; i < observationsDependentVariables_.size( ); i++ )
+                {
+                    observationsDependentVariablesMap[ observationTimes_.at( i ) ] = observationsDependentVariables_.at( i );
+                }
+                observationsDependentVariables_ = utilities::createVectorFromMapValues( observationsDependentVariablesMap );
+            }
+            if( static_cast< int >( observations_.size( ) ) != numberOfObservations_ )
+            {
+                throw std::runtime_error( "Error when making SingleObservationSet, number of observations is incompatible after time ordering" );
             }
         }
     }
@@ -218,9 +243,9 @@ private:
 
     const LinkDefinition linkEnds_;
 
-    const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > observations_;
+    std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > observations_;
 
-    const std::vector< TimeType > observationTimes_;
+    std::vector< TimeType > observationTimes_;
 
     const LinkEndType referenceLinkEnd_;
 

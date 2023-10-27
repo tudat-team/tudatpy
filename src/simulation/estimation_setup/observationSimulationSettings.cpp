@@ -55,6 +55,9 @@ Eigen::VectorXd getIdenticallyAndIndependentlyDistributedNoise(
 }
 
 
+template class ObservationSimulationSettings< double >;
+template class TabulatedObservationSimulationSettings< double >;
+template class PerArcObservationSimulationSettings< double >;
 
 }
 

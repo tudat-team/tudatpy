@@ -79,7 +79,11 @@ int computeNearestLeftNeighborUsingBinarySearch(
     // Declare local variables.
     // Declare bounds of vector of sorted data and current position.
     int leftLimitOfVectorOfSortedData = 0;
-    int rightLimitOfVectorOfSortedData = vectorOfSortedData.size( ) - 1;
+    if( vectorOfSortedData.size( ) <= 0 )
+    {
+        throw std::runtime_error( "Error when getting nearest neighbour, no input data." );
+    }
+    int rightLimitOfVectorOfSortedData = static_cast< int >( vectorOfSortedData.size( ) ) - 1;
     int currentPositionInVectorOfSortedData;
 
     // Check if data is sorted in ascending order.

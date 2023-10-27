@@ -334,7 +334,7 @@ public:
 
 
     PerBlockIntegratorStepSizeController(
-        const std::function< std::vector< std::tuple< int, int, int, int > >( const int, const int ) >& blocksToCheckFunction,
+        const std::function< std::vector< std::tuple< int, int, int, int > >( const int, const int ) > blocksToCheckFunction,
         const StateType relativeErrorTolerance,
         const StateType absoluteErrorTolerance,
         const double safetyFactorForNextStepSize,
@@ -351,7 +351,7 @@ public:
     }
 
     PerBlockIntegratorStepSizeController(
-        const std::function< std::vector< std::tuple< int, int, int, int > >( const int, const int ) >& blocksToCheckFunction,
+        const std::function< std::vector< std::tuple< int, int, int, int > >( const int, const int ) > blocksToCheckFunction,
         const double relativeErrorTolerance,
         const double absoluteErrorTolerance,
         const double safetyFactorForNextStepSize,
