@@ -166,7 +166,7 @@ public:
      */
     int getNumberOfLighTimeCorrectionPartialsFunctions( )
     {
-        return lighTimeCorrectionPartialsFunctions_.size( );
+        return static_cast< int >( lighTimeCorrectionPartialsFunctions_.size( ) );
     }
 
     virtual bool useLinkIndependentPartials( )

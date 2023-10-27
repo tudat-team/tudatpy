@@ -1205,7 +1205,7 @@ public:
      */
     std::map< std::pair< int, int >, std::string > getDependentVariableIds( )
     {
-        return propagationResults_->dependentVariableIds_;
+        return propagationResults_->getDependentVariableId( );
     }
 
     //! Function return whether the propagation is sequential or not (forward and backward leg).
@@ -2282,7 +2282,9 @@ public:
      *  \param propagatorSettings Propagator settings for dynamics (must be of multi arc type)
      *  \param arcStartTimes Times at which the separate arcs start, for the multi-arc case
      *  \param areEquationsOfMotionToBeIntegrated Boolean to denote whether equations of motion should be integrated at
-     *  the end of the contructor or not.
+     *  the end of the contructor or not.extern template class MultiArcDynamicsSimulator< double, double >;
+
+
      *  \param clearNumericalSolutions Boolean to determine whether to clear the raw numerical solution member variables
      *  after propagation and resetting ephemerides (default true).
      *  \param setIntegratedResult Boolean to determine whether to automatically use the integrated results to set
@@ -2306,21 +2308,21 @@ public:
                                             areEquationsOfMotionToBeIntegrated, addSingleArcBodiesToMultiArcDynamics ){ }
 
 
-    HybridArcDynamicsSimulator(
-            const simulation_setup::SystemOfBodies& bodies,
-            const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > singleArcIntegratorSettings,
-            const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > multiArcIntegratorSettings,
-            const std::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
-            const std::vector< double > arcStartTimes,
-            const bool areEquationsOfMotionToBeIntegrated = true,
-            const bool clearNumericalSolutions = true,
-            const bool setIntegratedResult = true,
-            const bool addSingleArcBodiesToMultiArcDynamics = false,
-            const bool updateDependentVariableInterpolator = false ):
-        HybridArcDynamicsSimulator( bodies, validateDeprecatedHybridArcSettings(
-                                        singleArcIntegratorSettings, multiArcIntegratorSettings, propagatorSettings, arcStartTimes,
-                                        clearNumericalSolutions, setIntegratedResult ),
-                                    areEquationsOfMotionToBeIntegrated, addSingleArcBodiesToMultiArcDynamics, updateDependentVariableInterpolator ){ }
+//    HybridArcDynamicsSimulator(
+//            const simulation_setup::SystemOfBodies& bodies,
+//            const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > singleArcIntegratorSettings,
+//            const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > multiArcIntegratorSettings,
+//            const std::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
+//            const std::vector< double > arcStartTimes,
+//            const bool areEquationsOfMotionToBeIntegrated = true,
+//            const bool clearNumericalSolutions = true,
+//            const bool setIntegratedResult = true,
+//            const bool addSingleArcBodiesToMultiArcDynamics = false,
+//            const bool updateDependentVariableInterpolator = false ):
+//        HybridArcDynamicsSimulator( bodies, validateDeprecatedHybridArcSettings(
+//                                        singleArcIntegratorSettings, multiArcIntegratorSettings, propagatorSettings, arcStartTimes,
+//                                        clearNumericalSolutions, setIntegratedResult ),
+//                                    areEquationsOfMotionToBeIntegrated, addSingleArcBodiesToMultiArcDynamics, updateDependentVariableInterpolator ){ }
     //! Destructor
     ~HybridArcDynamicsSimulator( ){ }
 
@@ -2515,6 +2517,9 @@ std::shared_ptr< PropagatorSettings< StateScalarType > > validateDeprecatePropag
     }
 }
 
+extern template class SingleArcDynamicsSimulator< double, double >;
+extern template class MultiArcDynamicsSimulator< double, double >;
+extern template class HybridArcDynamicsSimulator< double, double >;
 
 
 

@@ -71,7 +71,7 @@ public:
             throw std::runtime_error( errorMessage );
         }
 
-        numberOfIndependentVariables_ = independentVariableNames_.size( );
+        numberOfIndependentVariables_ = static_cast< unsigned int >( independentVariableNames_.size( ) );
     }
 
     //! Destructor

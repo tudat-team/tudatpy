@@ -488,7 +488,7 @@ public:
      */
     int getNumberOfPanels( )
     {
-        return surfaceNormalsInPropagationFrame_.size( );
+        return static_cast< int >( surfaceNormalsInPropagationFrame_.size( ) );
     }
 
 
