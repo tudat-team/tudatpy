@@ -41,7 +41,7 @@ tba::DateTime timePointToDateTime(const std::chrono::system_clock::time_point da
 
     using namespace std::chrono;
     microseconds timeInMicroSeconds = duration_cast<microseconds>(datetime.time_since_epoch());
-    auto fractional_seconds = timeInMicroSeconds.count() % 1000000;
+    long long fractional_seconds = timeInMicroSeconds.count() % 1000000LL;
 
     return tba::DateTime( local_tm.tm_year + 1900, local_tm.tm_mon + 1, local_tm.tm_mday,
         local_tm.tm_hour, local_tm.tm_min, static_cast< long double >( local_tm.tm_sec ) +
@@ -91,9 +91,26 @@ namespace tudat
 
 namespace earth_orientation
 {
-std::shared_ptr< TerrestrialTimeScaleConverter >  createDefaultTimeConverterPy( )
+std::shared_ptr<TerrestrialTimeScaleConverter> createDefaultTimeConverterPy( )
 {
     return createDefaultTimeConverter( );
+}
+
+}
+
+namespace basic_astrodynamics
+{
+
+template< typename TimeType >
+DateTime addSecondsToDateTime( const DateTime& dateTime, const TimeType timeToAdd )
+{
+    return getCalendarDateFromTime< Time >( dateTime.epoch< Time >( ) + timeToAdd );
+}
+
+template< typename TimeType >
+DateTime addDaysToDateTime( const DateTime& dateTime, const TimeType daysToAdd )
+{
+    return getCalendarDateFromTime< Time >( dateTime.epoch< Time >( ) + daysToAdd * mathematical_constants::getFloatingInteger< TimeType >( 86400 ) );
 }
 
 }
@@ -121,6 +138,23 @@ void expose_time_conversion(py::module &m) {
           py::arg("datetime"),
           get_docstring("datetime_to_python").c_str()
     );
+
+    m.def("add_seconds_to_datetime",
+          &tba::addSecondsToDateTime< TIME_TYPE >,
+          py::arg("datetime"),
+          py::arg("seconds_to_add"),
+          get_docstring("add_seconds_to_datetime").c_str()
+    );
+
+    m.def("add_days_to_datetime",
+          &tba::addDaysToDateTime< TIME_TYPE >,
+          py::arg("datetime"),
+          py::arg("days_to_add"),
+          get_docstring("add_days_to_datetime").c_str()
+    );
+
+
+
 
 
 
