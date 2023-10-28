@@ -219,7 +219,9 @@ protected:
         if ( seconds_ > 60.0L || seconds_ < 0.0L || ( seconds_ != seconds_ ))
         {
             throw std::runtime_error(
-                "Error when creating Tudat DateTime, input seconds was " + std::to_string( seconds_ ));
+                "Error when creating Tudat DateTime, input seconds was " + std::to_string( seconds_ ) +
+                ", full date time was " + std::to_string( year_ ) + ", " + std::to_string( month_ ) + ", " + std::to_string( day_ ) + ", " +
+                std::to_string( hour_ ) + ", " + std::to_string( minute_ ) + ", " + std::to_string( seconds_ ) );
         }
     }
 };
@@ -261,10 +263,14 @@ DateTime addSecondsToDateTime( const DateTime& dateTime, const TimeType timeToAd
 }
 
 template< typename TimeType >
-DateTime subtractSecondsFromDateTime( const DateTime& dateTime, const TimeType timeToSubtract )
+DateTime addDaysToDateTime( const DateTime& dateTime, const TimeType daysToAdd )
 {
-    return getCalendarDateFromTime< Time >( dateTime.epoch< Time >( ) - timeToSubtract );
+    return getCalendarDateFromTime< Time >( dateTime.epoch< Time >( ) + daysToAdd * mathematical_constants::getFloatingInteger< TimeType >( 86400 ) );
 }
+
+
+
+
 
 template< typename TimeType >
 TimeType getTimeDifferenceBetweenDateTimes( const DateTime& firstDateTime, const DateTime& secondDateTime )
