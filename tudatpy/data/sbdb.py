@@ -30,9 +30,26 @@ class SBDBquery:
         return self.query["object"]["shortname"]
     
     @property
-    def spicename(self):
-        """Returns spice kernel number for the codes_300ast_20100725.bsp spice kernel"""
+    def spkid(self):
+        """Returns the JPL SPKID, the related codes_300_spkid method returns a modified ID for the Tudat standard kernel"""
         return self.query["object"]["spkid"]
+    
+    @property
+    def codes_300_spkid(self):
+        """Returns spice kernel number for the codes_300ast_20100725.bsp spice kernel"""
+        spkid = self.spkid[0] + self.spkid[2:]
+        if spkid == "2000001":
+            return "Ceres"
+        elif spkid == "2000004":
+            return "Vesta"
+        elif spkid == "2000021":
+            return "Lutetia"
+        elif spkid == "2000216":
+            return "Kleopatra"
+        elif spkid == "2000433":
+            return "Eros"
+        else:
+            return spkid
     
     @property
     def gravitational_parameter(self):
