@@ -98,23 +98,6 @@ std::shared_ptr<TerrestrialTimeScaleConverter> createDefaultTimeConverterPy( )
 
 }
 
-namespace basic_astrodynamics
-{
-
-template< typename TimeType >
-DateTime addSecondsToDateTime( const DateTime& dateTime, const TimeType timeToAdd )
-{
-    return getCalendarDateFromTime< Time >( dateTime.epoch< Time >( ) + timeToAdd );
-}
-
-template< typename TimeType >
-DateTime addDaysToDateTime( const DateTime& dateTime, const TimeType daysToAdd )
-{
-    return getCalendarDateFromTime< Time >( dateTime.epoch< Time >( ) + daysToAdd * mathematical_constants::getFloatingInteger< TimeType >( 86400 ) );
-}
-
-}
-
 }
 
 namespace tudatpy {
@@ -146,12 +129,12 @@ void expose_time_conversion(py::module &m) {
           get_docstring("add_seconds_to_datetime").c_str()
     );
 
-    m.def("add_days_to_datetime",
-          &tba::addDaysToDateTime< TIME_TYPE >,
-          py::arg("datetime"),
-          py::arg("days_to_add"),
-          get_docstring("add_days_to_datetime").c_str()
-    );
+//    m.def("add_days_to_datetime",
+//          &tba::addDaysToDateTime< TIME_TYPE >,
+//          py::arg("datetime"),
+//          py::arg("days_to_add"),
+//          get_docstring("add_days_to_datetime").c_str()
+//    );
 
 
 
