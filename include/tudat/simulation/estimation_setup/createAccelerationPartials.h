@@ -86,10 +86,10 @@ std::shared_ptr< estimatable_parameters::CustomAccelerationPartialCalculator > c
     }
     else if( analyticalCustomPartialSettings!= nullptr )
     {
-        if( parameter->getParameterName( ).first != estimatable_parameters::initial_body_state )
-        {
-            throw std::runtime_error( "Error, only initial cartesian state supported for custom numerical acceleration partial" );
-        }
+//        if( parameter->getParameterName( ).first != estimatable_parameters::initial_body_state )
+//        {
+//            throw std::runtime_error( "Error, only initial cartesian state supported for custom numerical acceleration partial" );
+//        }
 
         customPartialCalculator = std::make_shared< estimatable_parameters::AnalyticalAccelerationPartialCalculator >(
             analyticalCustomPartialSettings->accelerationPartialFunction_,
@@ -135,6 +135,7 @@ std::shared_ptr< estimatable_parameters::CustomSingleAccelerationPartialCalculat
 
                     break;
                 }
+
                 default:
                     throw std::runtime_error( "Error when creating custom partial calculator for " +
                                               parameterSet->getEstimatedInitialStateParameters( ).at( i )->getParameterDescription( ) +
@@ -156,11 +157,32 @@ std::shared_ptr< estimatable_parameters::CustomSingleAccelerationPartialCalculat
 
     for( unsigned int i = 0; i < parameterSet->getEstimatedVectorParameters( ).size( ); i++ )
     {
-        if( parameterSet->getEstimatedVectorParameters( ).at( i )->getCustomPartialSettings( ) != nullptr )
+
+        std::shared_ptr< estimatable_parameters::CustomAccelerationPartialSettings > customPartialSettings =
+            parameterSet->getEstimatedVectorParameters( ).at( i )->getCustomPartialSettings( );
+        if( customPartialSettings != nullptr )
         {
-            throw std::runtime_error( "Error when creating custom partial calculator for " +
-                                      parameterSet->getEstimatedVectorParameters( ).at( i )->getParameterDescription( ) +
-                                      ", parameter not supported for this option" );
+            if( customPartialSettings->accelerationMatches( acceleratedBody.first, acceleratingBody.first, accelerationType ) )
+            {
+                switch( parameterSet->getEstimatedVectorParameters( ).at( i )->getParameterName( ).first )
+                {
+                case estimatable_parameters::custom_estimated_parameter:
+                {
+                    partialCalculatorSet->customVectorParameterPartials_[ parameterSet->getEstimatedVectorParameters( ).at( i )->getParameterName( ) ] =
+                        createCustomAccelerationPartial(
+                            parameterSet->getEstimatedVectorParameters( ).at( i )->getCustomPartialSettings( ),
+                            parameterSet->getEstimatedVectorParameters( ).at( i ),
+                            bodies );
+
+                    break;
+                }
+
+                default:
+                    throw std::runtime_error( "Error when creating custom partial calculator for " +
+                                              parameterSet->getEstimatedVectorParameters( ).at( i )->getParameterDescription( ) +
+                                              ", parameter not supported for this option" );
+                }
+            }
         }
     }
     return partialCalculatorSet;
