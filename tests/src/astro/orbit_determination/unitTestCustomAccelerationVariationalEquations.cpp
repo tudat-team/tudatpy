@@ -47,22 +47,24 @@ using namespace tudat::ground_stations;
 using namespace tudat::observation_models;
 
 
-Eigen::Vector3d customAccelerationFunction(
+Eigen::Vector3d getCustomAccelerationFunction(
     const SystemOfBodies& bodies,
-    const double time )
+    const double time,
+    const double scaleDistance,
+    const double coefficient )
 {
-    double scaleDistance = 1.0E6;
     Eigen::Vector6d relativeState = bodies.at( "Vehicle" )->getState( ) - bodies.at( "Earth" )->getState( );
-    Eigen::Vector3d acceleration = Eigen::Vector3d::Ones( ) * std::exp( -relativeState.segment( 0, 3 ).norm( ) / scaleDistance );
+    Eigen::Vector3d acceleration = coefficient * Eigen::Vector3d::Ones( ) * std::exp( -relativeState.segment( 0, 3 ).norm( ) / scaleDistance );
     return acceleration;
 }
 
 Eigen::MatrixXd getCustomAccelerationPartialFunction(
     const SystemOfBodies& bodies,
     const double time,
-    const Eigen::Vector3d& acceleration )
+    const Eigen::Vector3d& acceleration,
+    const double scaleDistance,
+    const double coefficient )
 {
-    double scaleDistance = 1.0E6;
     Eigen::Vector6d relativeState = bodies.at( "Vehicle" )->getState( ) - bodies.at( "Earth" )->getState( );
     Eigen::Matrix< double, 3, 6 > partial = Eigen::Matrix< double, 3, 6 >::Zero( );
     double positionNorm = relativeState.segment( 0, 3 ).norm( );
@@ -72,11 +74,78 @@ Eigen::MatrixXd getCustomAccelerationPartialFunction(
             std::exp( -positionNorm / scaleDistance );
     }
 
-    return partial;
+    return coefficient * partial;
 }
+
+Eigen::MatrixXd getCustomAccelerationPartialFunctionWrtParameter(
+    const SystemOfBodies& bodies,
+    const double time,
+    const Eigen::Vector3d& acceleration,
+    const double scaleDistance,
+    const double coefficient )
+{
+    return acceleration / coefficient;
+}
+
+
+class TestAccelerationModel
+{
+public:
+    TestAccelerationModel(
+        const SystemOfBodies& bodies,
+        const double accelerationParameter,
+        const double coefficient ):
+        bodies_( bodies ),
+        accelerationParameter_( accelerationParameter ),
+        coefficient_( coefficient ){ }
+
+    Eigen::Vector3d customAccelerationFunction(
+        const double time )
+    {
+        return getCustomAccelerationFunction( bodies_, time, accelerationParameter_, coefficient_ );
+    }
+
+    Eigen::MatrixXd customAccelerationPartialFunction(
+        const double time,
+        const Eigen::Vector3d& acceleration )
+    {
+        return getCustomAccelerationPartialFunction( bodies_, time, acceleration, accelerationParameter_, coefficient_ );
+    }
+
+    Eigen::MatrixXd customAccelerationPartialFunctionWrtParameter(
+        const double time,
+        const Eigen::Vector3d& acceleration )
+    {
+        return getCustomAccelerationPartialFunctionWrtParameter( bodies_, time, acceleration, accelerationParameter_, coefficient_ );
+    }
+
+    Eigen::VectorXd getParameterValue( )
+    {
+        return ( Eigen::VectorXd( 1 ) << coefficient_ ).finished( );
+    }
+
+    void setParameterValue( const Eigen::VectorXd& parameterValue )
+    {
+        if( parameterValue.rows( ) != 1 )
+        {
+            throw std::runtime_error( "Error in custom parameter, size is consistent" );
+        }
+        coefficient_ = parameterValue( 0 );
+    }
+
+protected:
+    SystemOfBodies bodies_;
+
+    double accelerationParameter_;
+
+    double coefficient_;
+};
 
 BOOST_AUTO_TEST_CASE( test_CustomAccelerationEstimation )
 {
+    double scaleDistance = 1.0E6;
+    double coefficient = 0.2;
+
     //Load spice kernels.
     spice_interface::loadStandardSpiceKernels( );
 
@@ -87,7 +156,7 @@ BOOST_AUTO_TEST_CASE( test_CustomAccelerationEstimation )
 
     // Specify initial time
     double initialEphemerisTime = double( 1.0E7 );
-    double finalEphemerisTime = initialEphemerisTime + 1.0 * 86400.0;
+    double finalEphemerisTime = initialEphemerisTime + 86400.0;
 
     // Create bodies needed in simulation
     BodyListSettings bodySettings =
@@ -96,6 +165,8 @@ BOOST_AUTO_TEST_CASE( test_CustomAccelerationEstimation )
     SystemOfBodies bodies = createSystemOfBodies( bodySettings );
     bodies.createEmptyBody( "Vehicle" );
     bodies.at( "Vehicle" )->setConstantBodyMass( 400.0 );
+
+    TestAccelerationModel testAccelerationModel( bodies, scaleDistance, coefficient );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////            CREATE ACCELERATIONS          //////////////////////////////////////////////////////
@@ -107,7 +178,7 @@ BOOST_AUTO_TEST_CASE( test_CustomAccelerationEstimation )
     accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< AccelerationSettings >(
                                                      basic_astrodynamics::point_mass_gravity ) );
     accelerationsOfVehicle[ "Vehicle" ].push_back( std::make_shared< CustomAccelerationSettings >(
-        std::bind( &customAccelerationFunction, bodies, std::placeholders::_1 ) ) );
+        std::bind( &TestAccelerationModel::customAccelerationFunction, &testAccelerationModel, std::placeholders::_1 ) ) );
 //    accelerationsOfVehicle[ "Sun" ].push_back( std::make_shared< AccelerationSettings >(
 //                                                     basic_astrodynamics::point_mass_gravity ) );
     accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
@@ -155,7 +226,7 @@ BOOST_AUTO_TEST_CASE( test_CustomAccelerationEstimation )
     std::shared_ptr< IntegratorSettings< double > > integratorSettings =
         rungeKuttaFixedStepSettings( 90.0, CoefficientSets::rungeKuttaFehlberg78 );
 
-    for( int testCase = 0; testCase < 3; testCase ++ )
+    for( int testCase = 0; testCase < 4; testCase ++ )
     {
 
         std::shared_ptr<TranslationalStatePropagatorSettings<double> > propagatorSettings =
@@ -183,7 +254,23 @@ BOOST_AUTO_TEST_CASE( test_CustomAccelerationEstimation )
         {
             parameterNames.at( 0 )->customPartialSettings_ =
                 std::make_shared<AnalyticalAccelerationPartialSettings>(
-                    std::bind( &getCustomAccelerationPartialFunction, bodies, std::placeholders::_1, std::placeholders::_2 ),
+                    std::bind( &TestAccelerationModel::customAccelerationPartialFunction, &testAccelerationModel, std::placeholders::_1, std::placeholders::_2 ),
+                    "Vehicle", "Vehicle", custom_acceleration );
+        }
+        else if( testCase == 3 )
+        {
+            parameterNames.push_back(
+                std::make_shared< CustomEstimatableParameterSettings >(
+                    "CustomModel", 1,
+                    std::bind( &TestAccelerationModel::getParameterValue, &testAccelerationModel ),
+                    std::bind( &TestAccelerationModel::setParameterValue, &testAccelerationModel, std::placeholders::_1 ) ) );
+            parameterNames.at( 0 )->customPartialSettings_ =
+                std::make_shared<AnalyticalAccelerationPartialSettings>(
+                    std::bind( &TestAccelerationModel::customAccelerationPartialFunction, &testAccelerationModel, std::placeholders::_1, std::placeholders::_2 ),
+                    "Vehicle", "Vehicle", custom_acceleration );
+            parameterNames.at( 1 )->customPartialSettings_ =
+                std::make_shared<AnalyticalAccelerationPartialSettings>(
+                    std::bind( &TestAccelerationModel::customAccelerationPartialFunctionWrtParameter, &testAccelerationModel, std::placeholders::_1, std::placeholders::_2 ),
                     "Vehicle", "Vehicle", custom_acceleration );
         }
 
@@ -201,6 +288,9 @@ BOOST_AUTO_TEST_CASE( test_CustomAccelerationEstimation )
         std::map<double, Eigen::MatrixXd>
             stateTransitionMatrixHistory = variationalEquationsSolver.getStateTransitionMatrixSolution( );
 
+        std::map<double, Eigen::MatrixXd>
+            sensitivityMatrixHistory = variationalEquationsSolver.getSensitivityMatrixSolution( );
+
         double positionPerturbation = 10.0;
         double velocityPerturbation = 1.0E-2;
 
@@ -209,6 +299,7 @@ BOOST_AUTO_TEST_CASE( test_CustomAccelerationEstimation )
         Eigen::VectorXd perturbedInitialState;
         std::map<double, Eigen::VectorXd> upperturbedStateHistory, downperturbedStateHistory;
         std::map<double, Eigen::MatrixXd> numericalStateTransitionMatrixHistory;
+        std::map<double, Eigen::MatrixXd> numericalSensitivityMatrixHistory;
 
         for ( unsigned int i = 0; i < 6; i++ )
         {
@@ -258,6 +349,74 @@ BOOST_AUTO_TEST_CASE( test_CustomAccelerationEstimation )
             }
         }
 
+        propagatorSettings->resetInitialStates( unperturbedInitialState );
+
+        if( testCase == 3 )
+        {
+            std::cout<<std::endl<<std::endl;
+            double paramaterPerturbation = 0.001;
+            Eigen::VectorXd nominalParameters = parametersToEstimate->getFullParameterValues< double >( );
+
+            Eigen::VectorXd upperturbedParameters = nominalParameters;
+            upperturbedParameters( 6 ) += paramaterPerturbation;
+            parametersToEstimate->resetParameterValues( upperturbedParameters );
+
+            SingleArcDynamicsSimulator<> upperturbedDynamicsSimulator( bodies, propagatorSettings );
+            upperturbedStateHistory = upperturbedDynamicsSimulator.getEquationsOfMotionNumericalSolution( );
+
+            Eigen::VectorXd downperturbedParameters = nominalParameters;
+            downperturbedParameters( 6 ) -= paramaterPerturbation;
+            parametersToEstimate->resetParameterValues( downperturbedParameters );
+
+            SingleArcDynamicsSimulator<> downperturbedDynamicsSimulator( bodies, propagatorSettings );
+            downperturbedStateHistory = downperturbedDynamicsSimulator.getEquationsOfMotionNumericalSolution( );
+
+            double maximumSensivitiyError = 0.0;
+
+            for ( auto it: upperturbedStateHistory )
+            {
+                if ( downperturbedStateHistory.count( it.first ) == 0 )
+                {
+                    throw std::runtime_error( "Error in custom acceleration partial test, state size is inconsistent" );
+                }
+                if ( stateTransitionMatrixHistory.count( it.first ) == 0 )
+                {
+                    throw std::runtime_error(
+                        "Error in custom acceleration partial test, variational equations size is inconsistent" );
+                }
+
+
+
+                numericalSensitivityMatrixHistory[ it.first ] =
+                    ( upperturbedStateHistory.at( it.first ) - downperturbedStateHistory.at( it.first )) /
+                    ( 2.0 * paramaterPerturbation );
+
+                auto matrix1 = numericalSensitivityMatrixHistory[ it.first ];
+                auto matrix2 = sensitivityMatrixHistory.at( it.first );
+
+                if( it.first == upperturbedStateHistory.begin( )->first )
+                {
+                    for ( unsigned int i = 0; i < 3; i++ )
+                    {
+                        BOOST_CHECK_EQUAL( matrix1( i ), 0.0 );
+                        BOOST_CHECK_EQUAL( matrix2( i ), 0.0 );
+                    }
+                }
+
+                double blockNorm = matrix2.norm( );
+                for ( unsigned int i = 0; i < 3; i++ )
+                {
+                    double entryDifference = matrix1( i ) - matrix2( i );
+
+                    if ( std::fabs( entryDifference ) / blockNorm > maximumSensivitiyError )
+                    {
+                        maximumSensivitiyError = std::fabs( entryDifference ) / blockNorm;
+                    }
+                }
+            }
+            BOOST_CHECK_SMALL( maximumSensivitiyError, 1.0E-5 );
+
+        }
 
         double maximumError = 0.0;
         for ( auto it: numericalStateTransitionMatrixHistory )
@@ -273,7 +432,6 @@ BOOST_AUTO_TEST_CASE( test_CustomAccelerationEstimation )
                     int columnBlock = ( k < 3 ) ? 0 : 1;
                     double entryDifference = matrix1( j, k ) - matrix2( j, k );
                     double blockNorm = matrix1.block( rowBlock * 3, columnBlock * 3, 3, 3 ).norm( );
-//                    BOOST_CHECK_SMALL( std::fabs( entryDifference ), blockNorm * 1.0E-6 );
 
                     if ( std::fabs( entryDifference ) / blockNorm > maximumError )
                     {
@@ -294,7 +452,6 @@ BOOST_AUTO_TEST_CASE( test_CustomAccelerationEstimation )
         {
             BOOST_CHECK_SMALL( maximumError, 1.0E-6 );
         }
-        std::cout << maximumError << std::endl;
     }
 }
 

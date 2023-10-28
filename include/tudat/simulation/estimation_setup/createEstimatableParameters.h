@@ -1963,6 +1963,24 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
             }
             break;
         }
+        case custom_estimated_parameter:
+        {
+            std::shared_ptr< CustomEstimatableParameterSettings > customParameterSettings =
+                std::dynamic_pointer_cast< CustomEstimatableParameterSettings >( vectorParameterName );
+            if( customParameterSettings == nullptr )
+            {
+                throw std::runtime_error( "Error, expected variable custom parameter settings " );
+            }
+            else
+            {
+                vectorParameterToEstimate = std::make_shared< CustomEstimatableParameter >
+                    ( customParameterSettings->parameterType_.second.second,
+                      customParameterSettings->parameterSize_,
+                      customParameterSettings->getParameterFunction_,
+                      customParameterSettings->setParameterFunction_ );
+            }
+            break;
+        }
         default:
             std::string errorMessage = "Warning, this vector parameter (" +
                     std::to_string( vectorParameterName->parameterType_.first ) +
