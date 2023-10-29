@@ -103,6 +103,7 @@ YACMA_PYTHON_MODULE(kernel
         kernel/expose_numerical_simulation/expose_environment_setup/expose_rotation_model_setup.cpp
         kernel/expose_numerical_simulation/expose_environment_setup/expose_shape_setup.cpp
         kernel/expose_numerical_simulation/expose_environment_setup/expose_ground_station_setup.cpp
+        kernel/expose_numerical_simulation/expose_environment_setup/expose_rigid_body_setup.cpp
 
 
         kernel/expose_numerical_simulation/expose_propagation_setup.cpp
@@ -160,16 +161,80 @@ install(TARGETS kernel
 install(FILES ${TUDATPY_PYTHON_FILES} "${CMAKE_CURRENT_BINARY_DIR}/_version.py"
         DESTINATION ${TUDATPY_INSTALL_PATH})
 
+# Install the Python modules.
 macro(INSTALL_PURE_PYTHON_MODULE_DIR module_dir_name)
     install(DIRECTORY ${module_dir_name}/ DESTINATION "${TUDATPY_INSTALL_PATH}/${module_dir_name}")
     file(COPY ${module_dir_name}/ DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/${module_dir_name}/)
 endmacro()
-
 INSTALL_PURE_PYTHON_MODULE_DIR(apps)
 INSTALL_PURE_PYTHON_MODULE_DIR(bodies)
 INSTALL_PURE_PYTHON_MODULE_DIR(plotting)
 INSTALL_PURE_PYTHON_MODULE_DIR(util)
 INSTALL_PURE_PYTHON_MODULE_DIR(io)
+
+# Create hybrid C++/Python modules
+macro(CREATE_HYBRID_CPP_PYTHON_MODULE module_dir_name)
+    install(DIRECTORY kernel_hybrid/${module_dir_name}/ DESTINATION "${TUDATPY_INSTALL_PATH}/${module_dir_name}")
+    file(COPY kernel_hybrid/${module_dir_name}/ DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/${module_dir_name}/)
+endmacro()
+# CREATE_HYBRID_CPP_PYTHON_MODULE(utils)
+CREATE_HYBRID_CPP_PYTHON_MODULE(astro)
+CREATE_HYBRID_CPP_PYTHON_MODULE(trajectory_design)
+CREATE_HYBRID_CPP_PYTHON_MODULE(constants)
+CREATE_HYBRID_CPP_PYTHON_MODULE(interface)
+# CREATE_HYBRID_CPP_PYTHON_MODULE(io)
+CREATE_HYBRID_CPP_PYTHON_MODULE(math)
+CREATE_HYBRID_CPP_PYTHON_MODULE(numerical_simulation)
+
+# TODO: Automatic exposure of hybrid C++/Python modules
+# This involves solving the dependencies which conda
+# uses for the builds. The tudat-feedstock contains the
+# recipes used to build tudatpy.
+# To build tudatpy, conda creates first machine images
+# in which to run the build:
+#   - Linux (Docker)
+#   - OSX
+#   - Windows
+# When attempting to build tudatpy using the automatic
+# kernel exposure below, the build processes fail with a
+# `module not found: numpy` error.
+#
+# The cause of this error is that the python interpreter
+# called here (PYTHON_EXECUTABLE) is badly configured.
+# This means somewhere along the build
+#
+# SOLUTIONS ATTEMPTED
+# - build.sh
+#   - FAILED: Adding conda install statement before make
+#
+# POSSIBLE SOLUTIONS:
+# - meta.yaml
+#   - `requirements` may not be correctly set up
+# -----------------------------------------------------
+#file(COPY ${CMAKE_CURRENT_LIST_DIR}/setup_hybrid_modules.py DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/../)
+#macro(EXPOSE_HYBRID_MODULES)
+#    foreach(module ${ARGN})
+#        # Might be more robust to use a combination of
+#        #    - add_custom_command
+#        #    - add_custom_target
+#        #    - add_dependencies
+#        # See: https://stackoverflow.com/a/44225986
+#        add_custom_command(TARGET kernel POST_BUILD
+#                COMMAND ${PYTHON_EXECUTABLE} setup_hybrid_modules.py ${module}
+#                WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../
+#                DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/kernel.so)
+#    endforeach()
+#endmacro()
+#EXPOSE_HYBRID_MODULES(
+#        # utils
+#        astro
+#        trajectory_design
+#        constants
+#        interface
+#        # io
+#        math
+#        numerical_simulation
+#)
 
 #install(FILES test.py "${CMAKE_CURRENT_BINARY_DIR}/_version.py")
 file(COPY ../tests DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/../)

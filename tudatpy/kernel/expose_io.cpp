@@ -14,10 +14,14 @@
 
 #include "tudat/io/readHistoryFromFile.h"
 #include "tudat/io/missileDatcomData.h"
+#include "tudat/io/solarActivityData.h"
+#include "tudat/io/readOdfFile.h"
+#include "tudat/io/readTabulatedWeatherData.h"
 
 #include <pybind11/stl.h>
 
 namespace py = pybind11;
+namespace tio = tudat::input_output;
 
 namespace tudatpy {
 
@@ -145,6 +149,38 @@ void expose_io(py::module &m) {
             .value("clb", tudat::input_output::MissileDatcomData::StaticCoefficientNames::clb, get_docstring("StaticCoefficientNames.clb").c_str())
             .export_values();
 
+      py::class_<
+            tio::solar_activity::SolarActivityData,
+            std::shared_ptr< tio::solar_activity::SolarActivityData > >(
+                    m, "SolarActivityData", get_docstring("SolarActivityData").c_str() );
+
+      py::class_<
+            tio::OdfRawFileContents,
+            std::shared_ptr< tio::OdfRawFileContents > >(
+                    m, "OdfRawFileContents", get_docstring("OdfRawFileContents").c_str( ) )
+            .def("write_to_text_file",
+                 &tio::OdfRawFileContents::writeOdfToTextFile,
+                 py::arg("output_file"),
+                 get_docstring("OdfRawFileContents.write_to_text_file").c_str() );
+
+      m.def("read_odf_file",
+          &tio::readOdfFile,
+          py::arg( "file_name" ),
+          get_docstring("read_odf_file").c_str() );
+
+      m.def("set_dsn_weather_data_in_ground_stations",
+          py::overload_cast<
+              tudat::simulation_setup::SystemOfBodies&,
+              const std::vector< std::string >&,
+              std::shared_ptr< tudat::interpolators::InterpolatorSettings >,
+              const std::map< int, std::vector< std::string > >&,
+              const std::string& >( &tio::setDsnWeatherDataInGroundStations ),
+          py::arg( "bodies" ),
+          py::arg( "weather_file_names" ),
+          py::arg( "interpolator_settings" ) = tudat::interpolators::linearInterpolation( ),
+          py::arg( "ground_stations_per_complex" ) = tudat::simulation_setup::getDefaultDsnStationNamesPerComplex( ),
+          py::arg( "body_with_ground_stations_name" ) = "Earth",
+          get_docstring("set_dsn_weather_data_in_ground_stations").c_str() );
 };
 
 }// namespace io

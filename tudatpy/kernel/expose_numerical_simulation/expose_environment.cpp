@@ -8,6 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+#include "tudatpy/scalarTypes.h"
 #include "expose_environment.h"
 #include <tudat/basics/deprecationWarnings.h>
 
@@ -138,6 +139,20 @@ void expose_environment(py::module &m) {
                         get_docstring("AerodynamicCoefficientsIndependentVariables.undefined_independent_variable").c_str())
             .export_values();
 
+
+    py::enum_<ta::AerodynamicCoefficientFrames>(m, "AerodynamicCoefficientFrames",
+                                                               get_docstring("AerodynamicCoefficientFrames").c_str())
+        .value("positive_body_fixed_frame_coefficients", ta::AerodynamicCoefficientFrames::body_fixed_frame_coefficients,
+               get_docstring("AerodynamicCoefficientFrames.positive_body_fixed_frame_coefficients").c_str())
+        .value("negative_body_fixed_frame_coefficients", ta::AerodynamicCoefficientFrames::negative_body_fixed_frame_coefficients,
+               get_docstring("AerodynamicCoefficientFrames.negative_body_fixed_frame_coefficients").c_str())
+        .value("positive_aerodynamic_frame_coefficients", ta::AerodynamicCoefficientFrames::positive_aerodynamic_frame_coefficients,
+               get_docstring("AerodynamicCoefficientFrames.positive_aerodynamic_frame_coefficients").c_str())
+        .value("negative_aerodynamic_frame_coefficients", ta::AerodynamicCoefficientFrames::negative_aerodynamic_frame_coefficients,
+               get_docstring("AerodynamicCoefficientFrames.negative_aerodynamic_frame_coefficients").c_str())
+        .export_values();
+
+
     py::class_<ta::AerodynamicCoefficientInterface,
             std::shared_ptr<ta::AerodynamicCoefficientInterface>>(m, "AerodynamicCoefficientInterface" )
             .def_property_readonly("reference_area", &ta::AerodynamicCoefficientInterface::getReferenceArea )
@@ -160,7 +175,8 @@ void expose_environment(py::module &m) {
             .def("update_full_coefficients", &ta::AerodynamicCoefficientInterface::updateFullCurrentCoefficients,
                  py::arg( "independent_variables" ),
                  py::arg( "control_surface_independent_variables" ),
-                 py::arg( "time") );
+                 py::arg( "time"),
+                 py::arg( "check_force_contribution" ) = true );
 
     py::class_<ta::ControlSurfaceIncrementAerodynamicInterface,
             std::shared_ptr<ta::ControlSurfaceIncrementAerodynamicInterface>>(
@@ -233,17 +249,23 @@ void expose_environment(py::module &m) {
 
 
     py::class_<tsm::VehicleSystems,
-            std::shared_ptr<tsm::VehicleSystems>>(m, "VehicleSystems" )
+            std::shared_ptr<tsm::VehicleSystems>>(m, "VehicleSystems", get_docstring("VehicleSystems").c_str() )
             .def(py::init< >() )
             .def("set_control_surface_deflection",
                  &tsm::VehicleSystems::setCurrentControlSurfaceDeflection,
                  py::arg("control_surface_id"),
-                 py::arg("deflection_angle"))
+                 py::arg("deflection_angle"),
+                 get_docstring("VehicleSystems.set_control_surface_deflection").c_str() )
+            .def("get_control_surface_deflection",
+                 &tsm::VehicleSystems::getCurrentControlSurfaceDeflection,
+                  py::arg("control_surface_id"),
+                  get_docstring("VehicleSystems.get_control_surface_deflection").c_str() )
             .def("get_engine_model",
                  &tsm::VehicleSystems::getEngineModel,
-                 py::arg("engine_name"));
+                 py::arg("engine_name"),
+                 get_docstring("VehicleSystems.get_engine_model").c_str() );
 
-    py::class_<tsm::EngineModel,
+        py::class_<tsm::EngineModel,
             std::shared_ptr<tsm::EngineModel>>(m, "EngineModel" )
             .def_property_readonly("thrust_magnitude_calculator",
                                    &tsm::EngineModel::getThrustMagnitudeWrapper );
@@ -593,16 +615,19 @@ void expose_environment(py::module &m) {
 
     py::class_<tgs::PointingAnglesCalculator,
             std::shared_ptr<tgs::PointingAnglesCalculator>>(m, "PointingAnglesCalculator")
-            .def("calculate_elevation_angle", &tgs::PointingAnglesCalculator::calculateElevationAngle,
+            .def("calculate_elevation_angle",
+                 py::overload_cast<const Eigen::Vector3d&, const double >( &tgs::PointingAnglesCalculator::calculateElevationAngleFromInertialVector ),
                  py::arg( "inertial_vector_to_target" ),
                  py::arg( "time" ) )
-            .def("calculate_azimuth_angle", &tgs::PointingAnglesCalculator::calculateAzimuthAngle,
+            .def("calculate_azimuth_angle",
+                py::overload_cast<const Eigen::Vector3d&, const double >( &tgs::PointingAnglesCalculator::calculateAzimuthAngleFromInertialVector ),
                  py::arg( "inertial_vector_to_target" ),
                  py::arg( "time" ) )
             .def("convert_inertial_vector_to_topocentric",
                  &tgs::PointingAnglesCalculator::convertVectorFromInertialToTopocentricFrame,
                  py::arg( "inertial_vector" ),
                  py::arg( "time" ) );
+
 
 
     /*!
@@ -634,9 +659,9 @@ void expose_environment(py::module &m) {
             .def_property("gravity_field_model", &tss::Body::getGravityFieldModel, &tss::Body::setGravityFieldModel, get_docstring("Body.gravity_field_model").c_str())
             .def_property("aerodynamic_coefficient_interface", &tss::Body::getAerodynamicCoefficientInterface,
                           &tss::Body::setAerodynamicCoefficientInterface, get_docstring("Body.aerodynamic_coefficient_interface").c_str())
-            .def_property("flight_conditions", &tss::Body::getFlightConditions, &tss::Body::setFlightConditions)
+            .def_property("flight_conditions", &tss::Body::getFlightConditions, &tss::Body::setFlightConditions, get_docstring("Body.flight_conditions").c_str())
             .def_property("rotation_model", &tss::Body::getRotationalEphemeris, &tss::Body::setRotationalEphemeris, get_docstring("Body.rotation_model").c_str())
-            .def_property("system_models", &tss::Body::getVehicleSystems, &tss::Body::setVehicleSystems)
+            .def_property("system_models", &tss::Body::getVehicleSystems, &tss::Body::setVehicleSystems, get_docstring("Body.system_models").c_str())
             .def_property_readonly("gravitational_parameter", &tss::Body::getGravitationalParameter, get_docstring("Body.gravitational_parameter").c_str())
             .def("get_ground_station", &tss::Body::getGroundStation, py::arg("station_name"))
             .def_property_readonly("ground_station_list", &tss::Body::getGroundStationMap );
@@ -652,18 +677,30 @@ void expose_environment(py::module &m) {
             .def("get_body", &tss::SystemOfBodies::getBody,
                  py::arg("body_name"),
                  get_docstring("SystemOfBodies.get_body").c_str())
-            .def("create_empty_body", &tss::SystemOfBodies::createEmptyBody,
+            .def("create_empty_body", &tss::SystemOfBodies::createEmptyBody< double, TIME_TYPE >,
                  py::arg("body_name"),
                  py::arg("process_body") = 1,
                  get_docstring("SystemOfBodies.create_empty_body").c_str())
-            .def("add_body", &tss::SystemOfBodies::addBody,
+            .def("does_body_exist", &tss::SystemOfBodies::doesBodyExist,
+                 py::arg("body_name"),
+                 get_docstring("SystemOfBodies.does_body_exist").c_str())
+            .def("list_of_bodies", &tss::SystemOfBodies::getListOfBodies,
+                 get_docstring("SystemOfBodies.list_of_bodies").c_str())
+//            .def("get_body_dict", &tss::SystemOfBodies::getMap,
+//                 get_docstring("SystemOfBodies.get_body_dict").c_str())
+            .def("add_body", &tss::SystemOfBodies::addBody< double, TIME_TYPE >,
                  py::arg("body_to_add"),
                  py::arg("body_name"),
                  py::arg("process_body") = 1,
                  get_docstring("SystemOfBodies.add_body").c_str())
             .def("remove_body", &tss::SystemOfBodies::deleteBody,
                  py::arg("body_name"),
-                 get_docstring("SystemOfBodies.remove_body").c_str());
+                 get_docstring("SystemOfBodies.remove_body").c_str())
+            .def("global_frame_orientation", &tss::SystemOfBodies::getFrameOrientation,
+                 get_docstring("SystemOfBodies.global_frame_orientation").c_str())
+            .def("global_frame_origin", &tss::SystemOfBodies::getFrameOrigin,
+                 get_docstring("SystemOfBodies.global_frame_origin").c_str());
+
 //            .def_property_readonly("number_of_bodies", &tss::SystemOfBodies::getNumberOfBodies,
 //                                   get_docstring("number_of_bodies").c_str() );
 
