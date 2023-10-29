@@ -5,7 +5,6 @@ from ..kernel.numerical_simulation import propagation_setup
 from ..kernel.numerical_simulation.propagation_setup.dependent_variable import SingleDependentVariableSaveSettings, get_dependent_variable_id
 import os
 from typing import List, Dict, Union
-from tudatpy.util import result2array
 
 def result2array(result: Dict[float, np.array]):
     """Initial prototype function to convert dict result from DynamicsSimulator
