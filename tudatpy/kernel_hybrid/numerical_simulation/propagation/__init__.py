@@ -30,3 +30,5 @@
 # and add them to the kernel modules simply by placing them inside this module!
 
 from tudatpy.kernel.numerical_simulation.propagation import *
+
+from tudatpy.numerical_simulation.propagation.dependent_variable_dictionary import create_dependent_variable_dictionary, DependentVariableDictionary
