@@ -22,7 +22,7 @@ from tudatpy.kernel.numerical_simulation.propagation_setup.dependent_variable im
     get_dependent_variable_shape
 
 
-class SimulationVariableDict(dict):
+class DependentVariableDictionary(dict):
     """
     Dictionary-like class designed to store and retrieve dependent variable time histories
     using dependent variable settings objects (instances of `VariableSettings`-derived
@@ -52,7 +52,7 @@ class SimulationVariableDict(dict):
         bodies, propagator_settings
     )
 
-    # Create SimulationVariableDict
+    # Create DependentVariableDictionary
     dep_vars_dict = result2dict(dynamics_simulator)
     
     # Retrieve the time history (in `dict[epoch: value]` form) of the total acceleration experienced by Delft-C3
@@ -67,10 +67,10 @@ class SimulationVariableDict(dict):
     ]
     ```
 
-    How are time histories saved in a `SimulationVariableDict`?
+    How are time histories saved in a `DependentVariableDictionary`?
     -----------------------------------------------------------
 
-    A `SimulationVariableDict` maps which maps dependent variables, identified by either their
+    A `DependentVariableDictionary` maps which maps dependent variables, identified by either their
     corresponding dependent variable settings object (an instance of a `VariableSettings`-derived 
     class) or its string ID, to their time histories.
 
@@ -79,16 +79,26 @@ class SimulationVariableDict(dict):
 
         dict[epoch: np.ndarray[A, B]]
     
-    Practical examples:
+    **Important**: in `(A, B)`, we remove singleton/trivial dimensions (dimensions, `A` or `B`, of size 1). 
+    In the case of scalar dependent variables, the value associated to each epoch is a `np.ndarray` of shape `(1,)`. 
+    In the case of vectorial dependent variables, it is a **row** vector of size `(A,)`. This is done by using 
+    `np.squeeze` to remove any dimensions of size 1. Practical examples:
     
-    * `[1, 1]` (a number, most likely a `float`) for a scalar dependent variable
-    * `[3, 1]` for a vectorial dependent variable
-    * `[3, 3]` for a matrix dependent variable, etc.
+    Dimensions of dependent variable values associated to each epoch based on their type:
+
+    +-----------+-------------+ 
+    | Data Type | Shape       | 
+    +===========+=============+ 
+    | Scalar    | `(1,)`      |
+    | Vectorial | `(3,)`      | 
+    | Matrix    | `(A, B)`    |
+    | Tensor    | `(A, B, C)` |
+    +===========+=============+
     """
 
     def __read_key(self, key: VariableSettings):
         """
-        Read a `SimulationVariableDict` key, as follows:
+        Read a `DependentVariableDictionary` key, as follows:
 
         * If the `key` is an instance of a `VariableSettings`-derived class, return the
           object's string ID, obtained using `get_dependent_variable_id`.
@@ -105,7 +115,7 @@ class SimulationVariableDict(dict):
         
         # Else, ensure it is a string, or else raise a TypeError
         if not isinstance(key, str): raise TypeError(
-            'SimulationVariableDict keys must be either instances of `VariableSettings`-derived classes, '
+            'DependentVariableDictionary keys must be either instances of `VariableSettings`-derived classes, '
             'or dependent variable string IDs (see `numerical_simulation.propagation_setup.dependent_variable.get_dependent_variable_id`).'
         )
 
@@ -113,7 +123,7 @@ class SimulationVariableDict(dict):
 
     def __init__(self, mapping=None, /, **kwargs):
         """
-        Create a `SimulationVariableDict` from either a dictionary (`mapping`), or a series of 
+        Create a `DependentVariableDictionary` from either a dictionary (`mapping`), or a series of 
         keyword-value pairs (`kwargs`).
         """
         if mapping is not None:
@@ -134,7 +144,7 @@ class SimulationVariableDict(dict):
         self.time_history = np.array(
             # List of keys (epochs) of the time history of the
             list(self[
-                # first dependent variable stored in the `SimulationVariableDict`
+                # first dependent variable stored in the `DependentVariableDictionary`
                 list(self.keys())[0]
             ].keys()))
 
@@ -144,7 +154,7 @@ class SimulationVariableDict(dict):
         the dependent variable settings object corresponding to the dependent variable
         or its string ID.
 
-        Check the documentation of `SimulationVariableDict.__read_key` for further details.
+        Check the documentation of `DependentVariableDictionary.__read_key` for further details.
         """
         return super().__setitem__(self.__read_key(__key), __value)
 
@@ -154,7 +164,7 @@ class SimulationVariableDict(dict):
         the dependent variable settings object corresponding to the dependent variable
         or its string ID.
 
-        Check the documentation of `SimulationVariableDict.__read_key` for further details.
+        Check the documentation of `DependentVariableDictionary.__read_key` for further details.
 
         Output
         ------
@@ -166,7 +176,7 @@ class SimulationVariableDict(dict):
 
     def __repr__(self) -> str:
         """
-        Return a string summary of the contents of a `SimulationVariableDict` for print.
+        Return a string summary of the contents of a `DependentVariableDictionary` for print.
         """
         
         width = max([len(ID) for ID in self.keys()])+5
@@ -179,14 +189,28 @@ class SimulationVariableDict(dict):
             f'{"="*width}\n'
 
         return representation_string
+    
+    def asarray(self, key: VariableSettings) -> np.ndarray:
+        """
+        Return the time history of a given dependent variable as a NumPy array.
+
+        Arguments
+        ---------
+        - key: dependent variable settings object or string ID of the dependent variable
+
+        Output
+        ------
+        - time_history: time history of the dependent variable, returned as a NumPy array
+        """
+        return np.array(list(self[key].values()))
 
 
-def result2dict(
+def create_dependent_variable_dictionary(
         dynamics_simulator: numerical_simulation.SingleArcSimulator
-    ) -> SimulationVariableDict:
+    ) -> DependentVariableDictionary:
     """
-    Construct a dictionary-like object (`SimulationVariableDict`) which maps which maps dependent variables
-    to their time histories. See the documentation of `SimulationVariableDict` to learn more about how
+    Construct a dictionary-like object (`DependentVariableDictionary`) which maps which maps dependent variables
+    to their time histories. See the documentation of `DependentVariableDictionary` to learn more about how
     time histories are saved, and how the time history of a given dependent variable can be retrieved.
 
     Arguments
@@ -195,7 +219,7 @@ def result2dict(
 
     Output
     ------
-    - dependent_variable_dictionary: `SimulationVariableDict` of propagation
+    - dependent_variable_dictionary: `DependentVariableDictionary` of propagation
     """
 
     #--------------------------------------------------------------------
@@ -233,11 +257,11 @@ def result2dict(
                 i:i+m, :
             ].T.reshape((n, A, B))
         )
-
+    
     # Construct dependent variable dictionary
-    dependent_variable_dictionary = SimulationVariableDict({
+    dependent_variable_dictionary = DependentVariableDictionary({
         dependent_variable: {
-            epoch: dependent_variable_matrices[i_depv][i_epoch] 
+            epoch: dependent_variable_matrices[i_depv][i_epoch].squeeze()
             for i_epoch, epoch in enumerate(time_history)
         }
         for i_depv, dependent_variable in enumerate(dependent_variable_settings.values())
