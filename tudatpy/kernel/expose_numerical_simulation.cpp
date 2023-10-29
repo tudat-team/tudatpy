@@ -22,6 +22,7 @@
 #include "expose_numerical_simulation/expose_propagation.h"
 
 #include "tudat/basics/timeType.h"
+#include "tudat/astro/basic_astro/dateTime.h"
 
 #include <pybind11/operators.h>
 #include <pybind11/stl.h>
@@ -32,8 +33,11 @@ namespace tss = tudat::simulation_setup;
 namespace tni = tudat::numerical_integrators;
 namespace tep = tudat::estimatable_parameters;
 namespace tom = tudat::observation_models;
+namespace tba = tudat::basic_astrodynamics;
 
 namespace tudatpy {
+
+
 namespace numerical_simulation {
 
 void expose_numerical_simulation(py::module &m) {
@@ -113,6 +117,8 @@ void expose_numerical_simulation(py::module &m) {
             .def(py::self >= py::self)
             .def(double() >= py::self)
             .def(py::self >= double());
+
+
 
     m.def("create_variational_equations_solver",
           &tss::createVariationalEquationsSolver<double,TIME_TYPE>,

@@ -46,8 +46,8 @@ void expose_estimation_setup(py::module &m) {
           &tss::createParametersToEstimate< double >,
           py::arg("parameter_settings"),
           py::arg("bodies"),
-          py::arg("propagator_settings") =
-                  std::shared_ptr< tp::PropagatorSettings< double > >( ),
+          py::arg("propagator_settings") = nullptr,
+          py::arg("consider_parameters_names") = std::vector< std::shared_ptr< tep::EstimatableParameterSettings > >( ),
           get_docstring("create_parameter_set").c_str() );
 
 
@@ -64,15 +64,24 @@ void expose_estimation_setup(py::module &m) {
           get_docstring("create_observation_simulators").c_str() );
 
 
-//    m.def("single_type_observation_collection",
-//          &tom::createManualObservationCollection< >,
-//          py::arg("observable_type"),
-//          py::arg("link_ends"),
-//          py::arg("observations_list"),
-//          py::arg("times_list"),
-//          py::arg("reference_link_end" ),
-//          py::arg("ancilliary_settings" ) = nullptr,
-//          get_docstring("single_type_observaion_collection").c_str() );
+    m.def("single_type_observation_collection",
+          py::overload_cast<
+            const tom::ObservableType,
+            const tom::LinkDefinition&,
+            const std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > >&,
+            const std::vector< TIME_TYPE >,
+            const tom::LinkEndType,
+            const std::shared_ptr< tom::ObservationAncilliarySimulationSettings > >(
+        &tom::createManualObservationCollection< double, TIME_TYPE > ),
+          py::arg("observable_type"),
+          py::arg("link_ends"),
+          py::arg("observations_list"),
+          py::arg("times_list"),
+          py::arg("reference_link_end" ),
+          py::arg("ancilliary_settings" ) = nullptr,
+          get_docstring("single_type_observaion_collection").c_str() );
+
+
 
     // ************** Modules ***************
 
