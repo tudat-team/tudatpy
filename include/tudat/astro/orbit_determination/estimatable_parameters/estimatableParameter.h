@@ -208,6 +208,29 @@ public:
     std::function< Eigen::MatrixXd( const double, const Eigen::Vector3d& ) > accelerationPartialFunction_;
 };
 
+
+inline std::shared_ptr< CustomAccelerationPartialSettings > analyticalAccelerationPartialSettings(
+    const std::function< Eigen::MatrixXd( const double, const Eigen::Vector3d& ) > accelerationPartialFunction,
+    const std::string bodyUndergoingAcceleration,
+    const std::string bodyExertingAcceleration,
+    const basic_astrodynamics::AvailableAcceleration accelerationType )
+{
+    return std::make_shared< AnalyticalAccelerationPartialSettings >(
+        accelerationPartialFunction, bodyUndergoingAcceleration, bodyExertingAcceleration, accelerationType );
+}
+
+inline std::shared_ptr< CustomAccelerationPartialSettings > numericalAccelerationPartialSettings(
+    const Eigen::VectorXd& parameterPerturbation,
+    const std::string bodyUndergoingAcceleration,
+    const std::string bodyExertingAcceleration,
+    const basic_astrodynamics::AvailableAcceleration accelerationType,
+    const std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >& environmentUpdateSettings  =
+    std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >( ) )
+{
+    return std::make_shared< NumericalAccelerationPartialSettings >(
+        parameterPerturbation, bodyUndergoingAcceleration, bodyExertingAcceleration, accelerationType, environmentUpdateSettings );
+}
+
 //! Base class for a parameter that is to be estimated.
 /*!
  *  Base class for a parameter that is to be estimated. A separate derived class is to be made for each type of parameter
