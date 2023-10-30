@@ -708,6 +708,16 @@ namespace dependent_variable {
               py::arg("minimum_elevation_angle"),
               get_docstring("minimum_visible_station_body_distances").c_str());
 
+        m.def("center_of_mass",
+              &tp::centerOfMassVariableSaveSettings,
+              py::arg("body"),
+              get_docstring("center_of_mass").c_str());
+
+        m.def("inertia_tensor",
+              &tp::inertiaTensorVariableSaveSettings,
+              py::arg("body"),
+              get_docstring("inertia_tensor").c_str());
+
 
     }
 

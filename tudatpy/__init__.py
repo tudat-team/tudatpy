@@ -1,12 +1,12 @@
-from ._version import *
-from .kernel import constants
-from .kernel import astro
-from .kernel import interface
-from .kernel import math
-from .kernel import utils
-from .kernel import numerical_simulation
-from .kernel import trajectory_design
-#from .kernel import io
+from tudatpy._version import *
+from tudatpy.kernel import constants
+from tudatpy.kernel import astro
+from tudatpy.kernel import interface
+from tudatpy.kernel import math
+from tudatpy.kernel import utils
+from tudatpy.kernel import numerical_simulation
+from tudatpy.kernel import trajectory_design
+#from tudatpy.kernel import io
 
 __all__ = [
     '__version__',
