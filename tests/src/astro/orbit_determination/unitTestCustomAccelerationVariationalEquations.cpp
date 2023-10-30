@@ -141,7 +141,7 @@ protected:
     double coefficient_;
 };
 
-BOOST_AUTO_TEST_CASE( test_CustomAccelerationEstimation )
+BOOST_AUTO_TEST_CASE( test_CustomAccelerationPartials )
 {
     double scaleDistance = 1.0E6;
     double coefficient = 0.2;
@@ -454,6 +454,182 @@ BOOST_AUTO_TEST_CASE( test_CustomAccelerationEstimation )
         }
     }
 }
+
+
+BOOST_AUTO_TEST_CASE( test_CustomAccelerationEstimation )
+{
+    double scaleDistance = 1.0E6;
+    double coefficient = 0.2;
+
+    //Load spice kernels.
+    spice_interface::loadStandardSpiceKernels( );
+
+    // Define bodies in simulation
+    std::vector< std::string > bodyNames;
+    bodyNames.push_back( "Earth" );
+    bodyNames.push_back( "Sun" );
+
+    // Specify initial time
+    double initialEphemerisTime = double( 1.0E7 );
+    double finalEphemerisTime = initialEphemerisTime + 86400.0;
+
+    // Create bodies needed in simulation
+    BodyListSettings bodySettings =
+        getDefaultBodySettings( bodyNames, "Earth" );
+
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+    bodies.createEmptyBody( "Vehicle" );
+    bodies.at( "Vehicle" )->setConstantBodyMass( 400.0 );
+
+    TestAccelerationModel testAccelerationModel( bodies, scaleDistance, coefficient );
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////            CREATE ACCELERATIONS          //////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    // Set accelerations on Vehicle that are to be taken into account.
+    SelectedAccelerationMap accelerationMap;
+    std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
+    accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< AccelerationSettings >(
+        basic_astrodynamics::point_mass_gravity ) );
+    accelerationsOfVehicle[ "Vehicle" ].push_back( std::make_shared< CustomAccelerationSettings >(
+        std::bind( &TestAccelerationModel::customAccelerationFunction, &testAccelerationModel, std::placeholders::_1 ) ) );
+
+    accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
+
+    // Set bodies for which initial state is to be estimated and integrated.
+    std::vector< std::string > bodiesToIntegrate;
+    std::vector< std::string > centralBodies;
+    bodiesToIntegrate.push_back( "Vehicle" );
+    centralBodies.push_back( "Earth" );
+
+    // Create acceleration models
+    AccelerationMap accelerationModelMap = createAccelerationModelsMap(
+        bodies, accelerationMap, bodiesToIntegrate, centralBodies );
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////             CREATE PROPAGATION SETTINGS            ////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    // Set Keplerian elements for Asterix.
+    Eigen::Vector6d asterixInitialStateInKeplerianElements;
+    asterixInitialStateInKeplerianElements( semiMajorAxisIndex ) = 7200.0E3;
+    asterixInitialStateInKeplerianElements( eccentricityIndex ) = 0.05;
+    asterixInitialStateInKeplerianElements( inclinationIndex ) = unit_conversions::convertDegreesToRadians( 85.3 );
+    asterixInitialStateInKeplerianElements( argumentOfPeriapsisIndex ) = unit_conversions::convertDegreesToRadians( 235.7 );
+    asterixInitialStateInKeplerianElements( longitudeOfAscendingNodeIndex ) = unit_conversions::convertDegreesToRadians( 23.4 );
+    asterixInitialStateInKeplerianElements( trueAnomalyIndex ) = unit_conversions::convertDegreesToRadians( 139.87 );
+
+    double earthGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
+
+    // Set (perturbed) initial state.
+    Eigen::Matrix< double, 6, 1 > systemInitialState = convertKeplerianToCartesianElements(
+        asterixInitialStateInKeplerianElements, earthGravitationalParameter );
+
+    // Create propagator settings
+    std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
+
+    // Create integrator settings
+    std::shared_ptr< IntegratorSettings< double > > integratorSettings =
+        rungeKuttaFixedStepSettings( 90.0, CoefficientSets::rungeKuttaFehlberg78 );
+
+    std::shared_ptr<TranslationalStatePropagatorSettings<double> > propagatorSettings =
+        std::make_shared<TranslationalStatePropagatorSettings<double> >(
+            centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialState, initialEphemerisTime,
+            integratorSettings,
+            std::make_shared<PropagationTimeTerminationSettings>( finalEphemerisTime ),
+            cowell, dependentVariables );
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////    DEFINE PARAMETERS THAT ARE TO BE ESTIMATED      ////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    // Define list of parameters to estimate.
+    std::vector<std::shared_ptr<EstimatableParameterSettings> > parameterNames;
+    parameterNames = getInitialStateParameterSettings<double>( propagatorSettings, bodies );
+    parameterNames.push_back(
+        std::make_shared< CustomEstimatableParameterSettings >(
+            "CustomModel", 1,
+            std::bind( &TestAccelerationModel::getParameterValue, &testAccelerationModel ),
+            std::bind( &TestAccelerationModel::setParameterValue, &testAccelerationModel, std::placeholders::_1 ) ) );
+
+    parameterNames.at( 0 )->customPartialSettings_ =
+        std::make_shared<AnalyticalAccelerationPartialSettings>(
+            std::bind( &TestAccelerationModel::customAccelerationPartialFunction, &testAccelerationModel, std::placeholders::_1, std::placeholders::_2 ),
+            "Vehicle", "Vehicle", custom_acceleration );
+    parameterNames.at( 1 )->customPartialSettings_ =
+        std::make_shared<AnalyticalAccelerationPartialSettings>(
+            std::bind( &TestAccelerationModel::customAccelerationPartialFunctionWrtParameter, &testAccelerationModel, std::placeholders::_1, std::placeholders::_2 ),
+            "Vehicle", "Vehicle", custom_acceleration );
+
+    // Create parameters
+    std::shared_ptr<estimatable_parameters::EstimatableParameterSet<double> > parametersToEstimate =
+        createParametersToEstimate( parameterNames, bodies );
+
+    LinkEnds observationLinkEnds;
+    observationLinkEnds[ observed_body ] = LinkEndId( "Vehicle" );
+
+    LinkDefinition linkDefinition( observationLinkEnds );
+    std::vector< std::shared_ptr< ObservationModelSettings > > observationSettingsList;
+    observationSettingsList.push_back( std::make_shared< ObservationModelSettings >(
+                position_observable, linkDefinition ) );
+
+    OrbitDeterminationManager< double, double > estimator( bodies, parametersToEstimate, observationSettingsList, propagatorSettings );
+
+
+    std::vector< double > observationTimes;
+    double currentTime = initialEphemerisTime + 1800.0;
+    double observationTimeStep = 60.0;
+    while( currentTime < finalEphemerisTime - 1800.0 )
+    {
+        observationTimes.push_back( currentTime );
+        currentTime += observationTimeStep;
+    }
+    std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > measurementSimulationInput;
+    measurementSimulationInput.push_back(
+        std::make_shared< TabulatedObservationSimulationSettings< > >(
+            position_observable, linkDefinition, observationTimes, observed_body ) );
+
+    // Simulate observations
+    std::shared_ptr< ObservationCollection< > > observationsAndTimes = simulateObservations< double, double >(
+        measurementSimulationInput, estimator.getObservationSimulators( ), bodies );
+
+    // Perturb parameter estimate
+    Eigen::Matrix< double, Eigen::Dynamic, 1 > initialParameterEstimate =
+        parametersToEstimate->template getFullParameterValues< double >( );
+    Eigen::Matrix< double, Eigen::Dynamic, 1 > truthParameters = initialParameterEstimate;
+    int numberOfParameters = initialParameterEstimate.rows( );
+    initialParameterEstimate( 0 ) += 1.0;
+    initialParameterEstimate( 1 ) += 1.0;
+    initialParameterEstimate( 2 ) += 1.0;
+//    initialParameterEstimate( 6 ) += 0.5;
+
+
+    parametersToEstimate->resetParameterValues( initialParameterEstimate );
+
+    // Define estimation input
+    std::shared_ptr< EstimationInput< double, double  > > estimationInput =
+        std::make_shared< EstimationInput< double, double > >(
+            observationsAndTimes );
+    estimationInput->setConvergenceChecker(
+        std::make_shared< EstimationConvergenceChecker >( 5 ) );
+
+    // Perform estimation
+    std::shared_ptr< EstimationOutput< double > > estimationOutput = estimator.estimateParameters(
+        estimationInput );
+    Eigen::VectorXd finalError = truthParameters - parametersToEstimate->template getFullParameterValues< double >( );
+    std::cout<<finalError<<std::endl;
+    for( int i = 0; i < 3; i++ )
+    {
+        BOOST_CHECK_SMALL( std::fabs( finalError( i ) ), 1.0E-6 );
+        BOOST_CHECK_SMALL( std::fabs( finalError( i + 3 ) ), 1.0E-9 );
+    }
+    BOOST_CHECK_SMALL( std::fabs( finalError( 6 ) ), 1.0E-10 );
+
+
+}
+
 
 BOOST_AUTO_TEST_SUITE_END( )
 
