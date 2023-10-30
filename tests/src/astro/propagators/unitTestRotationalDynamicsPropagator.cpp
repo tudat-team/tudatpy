@@ -1175,7 +1175,7 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagationWithVaryinInertiaTe
         }
 
         Eigen::Vector3d cosineCorrectionWrtStart = cosineCorrection - nominalCosineCorrection;
-        Eigen::Vector3d sineCorrectionWrtStart = sineCorrection - nominalSineCorrection;
+        Eigen::Vector2d sineCorrectionWrtStart = sineCorrection - nominalSineCorrection;
         Eigen::Matrix3d inertiaCorrectionWrtStart = inertiaTensor - nominalInertiaTensor;
 
         Eigen::Matrix3d computedInertiaCorrectionWrtStart = gravitation::getInertiaTensor(
