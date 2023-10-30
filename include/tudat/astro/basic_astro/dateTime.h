@@ -124,7 +124,8 @@ public:
         verifySeconds( );
     }
 
-    std::string isoString( const bool addT = false )
+    std::string isoString( const bool addT = false,
+                           const int numberOfFractionalSecondDigits = 15 )
     {
 
         std::string yearString = std::to_string( year_ );
@@ -135,7 +136,7 @@ public:
         std::string secondString = utilities::paddedZeroIntString( static_cast< int >( seconds_ ), 2 );
         long double fractionalSeconds = seconds_ - mathematical_constants::getFloatingInteger<long double>(
             static_cast< int >( seconds_ ));
-        std::string fractionalSecondString = utilities::to_string_with_precision< long double >( fractionalSeconds, 17 );
+        std::string fractionalSecondString = utilities::to_string_with_precision< long double >( fractionalSeconds, numberOfFractionalSecondDigits );
 
         secondString += fractionalSecondString.substr( 1, fractionalSecondString.length( ) - 1 );
         std::string separationCharacter = addT ? "T" : " ";
