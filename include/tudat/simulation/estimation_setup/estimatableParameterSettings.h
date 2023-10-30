@@ -1408,7 +1408,7 @@ inline std::shared_ptr< EstimatableParameterSettings > customParameterSettings(
     const std::function< Eigen::VectorXd( ) > getParameterFunction,
     const std::function< void( const Eigen::VectorXd& ) > setParameterFunction )
 {
-    std::make_shared<CustomEstimatableParameterSettings>(
+    return std::make_shared<CustomEstimatableParameterSettings>(
         customId, parameterSize, getParameterFunction, setParameterFunction );
 }
 
