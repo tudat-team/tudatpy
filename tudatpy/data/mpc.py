@@ -46,6 +46,8 @@ class BatchMPC:
     """
 
     def __init__(self) -> None:
+        """Create an empty MPC batch.
+        """
         self._table: pd.DataFrame = pd.DataFrame()
         self._observatories: List[str] = []
         self._space_telescopes: List[str] = []
@@ -57,7 +59,6 @@ class BatchMPC:
         self._MPC_space_telescopes: List[str] = []
 
         self._get_station_info()
-        self._add_observatory_positions()
 
         self._epoch_start: float = 0.0
         self._epoch_end: float = 0.0
@@ -168,7 +169,9 @@ class BatchMPC:
             print("An error occured while retrieving observatory data")
             print(e)
 
-    def _add_observatory_positions(self) -> None:
+    def _add_observatory_positions(
+        self, bodies: environment.SystemOfBodies, earth_name
+    ) -> None:
         """Internal. Add observatory cartesian postions to station data"""
         temp = self._observatory_info
 
@@ -178,8 +181,7 @@ class BatchMPC:
                   This is likely due to a failure in retrieving the observatories."""
             raise ValueError(txt)
 
-        # TODO replace with tudat constant:
-        r_earth = 6378137.0
+        r_earth = bodies.get(earth_name).shape_model.average_radius
 
         # Add geocentric cartesian positions
         temp = (
@@ -202,10 +204,12 @@ class BatchMPC:
         """
 
         if not isinstance(MPCcodes, list):
-            raise ValueError("MPCcodes parameter must be list of integers")
+            raise ValueError("MPCcodes parameter must be list of integers/strings")
         for code in MPCcodes:
-            if not isinstance(code, int):
-                raise ValueError("All codes in the MPCcodes parameter must be integers")
+            if not (isinstance(code, int) or isinstance(code, str)):
+                raise ValueError(
+                    "All codes in the MPCcodes parameter must be integers or string"
+                )
 
             try:
                 obs = MPC.get_observations(code).to_pandas()  # type: ignore
@@ -365,7 +369,8 @@ class BatchMPC:
         Raises
         ------
         ValueError
-            Is raised if bands, observatories, or observatories_exclude are not list or None.
+            Is raised if bands, observatories, or observatories_exclude are not list or 
+            None.
         ValueError
             Is raised if both observations_exclude and observatories are not None.
 
@@ -436,7 +441,7 @@ class BatchMPC:
     def to_tudat(
         self,
         bodies: environment.SystemOfBodies,
-        included_satellites: Union[Dict[str, str], None] = None,
+        included_satellites: Union[Dict[str, str], None],
         station_body: str = "Earth",
     ) -> Tuple[estimation.ObservationCollection, Dict[str, observation.LinkDefinition]]:
         """Converts the observations in the batch into a Tudat compatible format and
@@ -454,7 +459,7 @@ class BatchMPC:
             This requires an addional input.\\
             6. Creates a `SingleObservationSet` object for each unique link that 
             includes all observations for that link.\\
-            7. Returns the observations and links
+            7. Returns the observations
 
 
         Parameters
@@ -477,10 +482,6 @@ class BatchMPC:
         -------
         estimation.ObservationCollection
             ObservationCollection with the observations found in the batch
-        Dict[str, observation.LinkDefinition]
-            Dictionary with the unique link definitions in a dictionary with key 
-            strings "MPCPlanet_MPCobservatory". For example: the key for 
-            the link Ceres-> Fabra Observatory would be "1_006".
 
         Examples
         ----------
@@ -489,7 +490,7 @@ class BatchMPC:
         Create dictionary to link name in tudat with mpc code in batch:
 
         >> sats_dict = {"C57":"TESS"}
-        >> obs, links = batch1.to_tudat(bodies, included_satellites=sats_dict)
+        >> obs = batch1.to_tudat(bodies, included_satellites=sats_dict)
 
 
         """
@@ -503,6 +504,9 @@ class BatchMPC:
                 + "set the station_body paramater to the new name."
             )
             raise e
+        
+        # Add positions of the observatories
+        self._add_observatory_positions(bodies, station_body)
 
         # get satellites to include and exclude
         if included_satellites is not None:
@@ -576,7 +580,6 @@ class BatchMPC:
             observations_table.loc[:, ["number", "observatory"]].drop_duplicates()
         ).values
 
-        linksDictionary = {}
         observation_set_list = []
         for combo in unique_link_combos:
             MPC_number = combo[0]
@@ -597,7 +600,6 @@ class BatchMPC:
                     sat_name
                 )
                 link_definition = observation.link_definition(link_ends)
-                linksDictionary[f"{MPC_number}_{sat_name}"] = link_definition
             else:
                 # link for a ground station
                 link_ends[
@@ -606,7 +608,6 @@ class BatchMPC:
                     station_body, station_name
                 )
                 link_definition = observation.link_definition(link_ends)
-                linksDictionary[f"{MPC_number}_{station_name}"] = link_definition
 
             # get observations, angles and times for this specific link
             observations_for_this_link = observations_table.query(
@@ -633,9 +634,77 @@ class BatchMPC:
             observation_set_list.append(observation_set)
 
         observation_collection = estimation.ObservationCollection(observation_set_list)
-        return observation_collection, linksDictionary
+        return observation_collection
 
-    def plot_observations(
+    def plot_observations_temporal(
+        self,
+        objects: Union[List[str], None] = None,
+        figsize: Tuple[float] = (9.0, 6.0),
+    ):
+        """Generates a matplotlib figure with the declination and right ascension
+        over time.
+
+
+        Parameters
+        ----------
+        objects : Union[List[str], None], optional
+            List of specific MPC objects in batch to plot, None to plot all
+            , by default None
+        projection : str, optional
+            projection of the figure options are: 'aitoff', 'hammer',
+            'lambert' and 'mollweide', by default "aitoff"
+        figsize : Tuple[float], optional
+            size of the matplotlib figure, by default (15, 7)
+
+        Returns
+        -------
+        Matplotlib figure
+            Matplotlib figure with the observations
+        """
+        fig, (axRA, axDEC) = plt.subplots(2, 1, figsize=figsize, sharex=True)
+
+        if objects is None:
+            objs = self.MPC_objects
+        else:
+            objs = [str(o) for o in objects]
+
+        for obj in objs:
+            tab = self._table.query("number == @obj")
+
+            axRA.scatter(
+                tab.epochUTC,
+                np.degrees(tab.RA),
+                label="MPC: " + obj,
+                marker=".",
+                # linestyle=None,
+            )
+            axDEC.scatter(
+                tab.epochUTC,
+                np.degrees(tab.DEC),
+                label="MPC: " + obj,
+                marker=".",
+                # linestyle=None,
+            )
+
+        axRA.set_ylabel(r"Right Ascension $[\deg]$")
+        axDEC.set_ylabel(r"Declination $[\deg]$")
+        axDEC.set_xlabel(r"Time [year]")
+
+        axRA.grid()
+        axDEC.grid()
+        axRA.set_title("Right Ascension")
+        axDEC.set_title("Declination")
+        axRA.legend(bbox_to_anchor=(1.01, 1), loc="upper left")
+
+        buffer = 10
+        axRA.set_ylim(0 - buffer, 360 + buffer)
+        axDEC.set_ylim(-90 - buffer, 90 + buffer)
+
+        fig.set_tight_layout(True)
+
+        return fig
+
+    def plot_observations_sky(
         self,
         objects: Union[List[str], None] = None,
         projection: Union[str, None] = None,
@@ -667,7 +736,7 @@ class BatchMPC:
         if objects is None:
             objs = self.MPC_objects
         else:
-            objs = objects
+            objs = [str(o) for o in objects]
 
         markers = ["o", "+", "^"]
 
@@ -695,7 +764,7 @@ class BatchMPC:
 
         yticks = [
             f"{x}°"
-            for x in (np.degrees(np.array(ax.get_yticks().tolist())) + 90).astype(int)
+            for x in (np.degrees(np.array(ax.get_yticks().tolist()))).astype(int)
         ]
         xticks = [
             f"{x}°"
@@ -757,7 +826,8 @@ class BatchMPC:
         only_space_telescopes=False,
         include_positions: bool = False,
     ) -> pd.DataFrame:
-        """Returns a pandas DataFrame with information about all MPC observatories
+        """Returns a pandas DataFrame with information about all MPC observatories,
+        Carthesian positions are only available after running the `to_tudat()` method.
 
         Parameters
         ----------
