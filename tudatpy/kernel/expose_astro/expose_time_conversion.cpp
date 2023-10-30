@@ -302,6 +302,7 @@ void expose_time_conversion(py::module &m) {
         .def("iso_string",
              &tba::DateTime::isoString,
              py::arg("add_T") = false,
+             py::arg("number_of_digits_seconds") = 15,
              get_docstring("DateTime.iso_string").c_str( ) )
         .def("day_of_year",
              &tba::DateTime::dayOfYear,

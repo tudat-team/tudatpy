@@ -643,7 +643,7 @@ class HorizonsQuery:
         aberations: str = "geometric",
     ) -> astropy.table.Table:
         """Retrieve Horizons Vectors api data in raw astropy format.
-        For general purposes, use the `.carthesian()` method instead.
+        For general purposes, use the `.cartesian()` method instead.
 
         Parameters
         ----------
@@ -709,12 +709,12 @@ class HorizonsQuery:
 
         return raw
 
-    def carthesian(
+    def cartesian(
         self,
         frame_orientation: str = "ECLIPJ2000",
         aberations: str = "geometric",
     ) -> np.ndarray:
-        """Retrieve the carthesian state using the Horizons Vector API.
+        """Retrieve the cartesian state using the Horizons Vector API.
 
         Parameters
         ----------
@@ -737,7 +737,7 @@ class HorizonsQuery:
         -------
         np.ndarray
             returns an n by 7 array with the time in seconds since J2000 TDB, 
-            and the carthesian position and velocities.
+            and the cartesian position and velocities.
         """
         raw = self.vectors(frame_orientation=frame_orientation, aberations=aberations)
 
@@ -819,7 +819,7 @@ class HorizonsQuery:
             raise ValueError(
                 "refplane parameter must be one of: " + '"ECLIPJ2000", "J2000"'
             )
-        vector = self.carthesian(
+        vector = self.cartesian(
             frame_orientation=frame_orientation, aberations=aberations
         )
 
