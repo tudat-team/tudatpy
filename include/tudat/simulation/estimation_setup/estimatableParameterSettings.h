@@ -15,6 +15,7 @@
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
+#include "tudat/astro/basic_astro/accelerationModelTypes.h"
 
 namespace tudat
 {
@@ -57,6 +58,8 @@ public:
      *  Identifier for parameter, contains type of parameter and body of which parameter is a property.
      */
     EstimatebleParameterIdentifier parameterType_;
+
+    std::shared_ptr< CustomAccelerationPartialSettings > customPartialSettings_;
 
 };
 
@@ -985,6 +988,31 @@ public:
 
 };
 
+class CustomEstimatableParameterSettings: public EstimatableParameterSettings
+{
+public:
+
+    CustomEstimatableParameterSettings(
+        const std::string& customId,
+        const int parameterSize,
+        const std::function< Eigen::VectorXd( ) > getParameterFunction,
+        const std::function< void( const Eigen::VectorXd& ) > setParameterFunction ):
+        EstimatableParameterSettings( "", custom_estimated_parameter, customId ),
+        parameterSize_( parameterSize ),
+        getParameterFunction_( getParameterFunction ),
+        setParameterFunction_( setParameterFunction )
+    {
+
+    }
+
+    int parameterSize_;
+
+    std::function< Eigen::VectorXd( ) > getParameterFunction_;
+
+    std::function< void( const Eigen::VectorXd& ) > setParameterFunction_;
+
+};
+
 
 inline std::shared_ptr< EstimatableParameterSettings > gravitationalParameter( const std::string bodyName )
 {
@@ -1373,6 +1401,18 @@ inline std::shared_ptr< EstimatableParameterSettings > yarkovskyParameter( const
 {
     return std::make_shared< EstimatableParameterSettings >( bodyName, yarkovsky_parameter, centralBodyName );
 }
+
+inline std::shared_ptr< EstimatableParameterSettings > customParameterSettings(
+    const std::string& customId,
+    const int parameterSize,
+    const std::function< Eigen::VectorXd( ) > getParameterFunction,
+    const std::function< void( const Eigen::VectorXd& ) > setParameterFunction )
+{
+    return std::make_shared<CustomEstimatableParameterSettings>(
+        customId, parameterSize, getParameterFunction, setParameterFunction );
+}
+
+
 
 
 } // namespace estimatable_parameters

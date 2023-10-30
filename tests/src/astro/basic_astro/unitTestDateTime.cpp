@@ -179,7 +179,7 @@ BOOST_AUTO_TEST_CASE( testIsoInitialization )
     for( unsigned int i = 0; i < testStrings.size( ); i++ )
     {
         DateTime dateTime = dateTimeFromIsoString( testStrings.at( i ) );
-        std::string reconstuctedString = dateTime.isoString( true );
+        std::string reconstuctedString = dateTime.isoString( true, 17 );
 
         // TODO: fix test for long doubles with 64-bit precision
         if (sizeof(long double) > 8)

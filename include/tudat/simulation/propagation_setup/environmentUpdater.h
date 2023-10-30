@@ -804,7 +804,8 @@ private:
     std::vector< boost::tuple< EnvironmentModelsToUpdate, std::string, std::function< void( const double ) > > >
     updateFunctionVector_;
     
-    //! List of time-dependent functions to call to reset the time of the environment (to NaN signal recomputation for next
+    //! List of time-dependent functions to call to reset the time of the environment (to NaN s
+    //! ignal recomputation for next
     //! time step).
     std::vector< boost::tuple< EnvironmentModelsToUpdate, std::string, std::function< void( ) > > > resetFunctionVector_;
     
