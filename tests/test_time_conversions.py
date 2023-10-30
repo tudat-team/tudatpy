@@ -10,7 +10,7 @@ def test_datetime_conversions():
 
     python_datetime = datetime.fromisoformat('2023-06-20T00:05:23.281765')
     tudat_datetime = time_conversion.datetime_to_tudat( python_datetime )
-    tudat_datetime_string = tudat_datetime.iso_string( False )
+    tudat_datetime_string = tudat_datetime.iso_string( False, 12 )
     python_datetime_reconstructed = time_conversion.datetime_to_python( tudat_datetime )
 
     while (tudat_datetime_string[-1] == '0'):
