@@ -789,6 +789,11 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::Matrix
         }
     }
 
+    if( parameterSettings->customPartialSettings_ != nullptr )
+    {
+        initialStateParameterToEstimate->setCustomPartialSettings( parameterSettings->customPartialSettings_ );
+    }
+
     return initialStateParameterToEstimate;
 }
 
@@ -1235,6 +1240,11 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
             throw std::runtime_error( "Warning, this double parameter has not yet been implemented when making parameters" );
             break;
         }
+    }
+
+    if( doubleParameterName->customPartialSettings_ != nullptr )
+    {
+        doubleParameterToEstimate->setCustomPartialSettings( doubleParameterName->customPartialSettings_ );
     }
 
     return doubleParameterToEstimate;
@@ -1953,6 +1963,24 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
             }
             break;
         }
+        case custom_estimated_parameter:
+        {
+            std::shared_ptr< CustomEstimatableParameterSettings > customParameterSettings =
+                std::dynamic_pointer_cast< CustomEstimatableParameterSettings >( vectorParameterName );
+            if( customParameterSettings == nullptr )
+            {
+                throw std::runtime_error( "Error, expected variable custom parameter settings " );
+            }
+            else
+            {
+                vectorParameterToEstimate = std::make_shared< CustomEstimatableParameter >
+                    ( customParameterSettings->parameterType_.second.second,
+                      customParameterSettings->parameterSize_,
+                      customParameterSettings->getParameterFunction_,
+                      customParameterSettings->setParameterFunction_ );
+            }
+            break;
+        }
         default:
             std::string errorMessage = "Warning, this vector parameter (" +
                     std::to_string( vectorParameterName->parameterType_.first ) +
@@ -1961,6 +1989,11 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
 
             break;
         }
+    }
+
+    if( vectorParameterName->customPartialSettings_ != nullptr )
+    {
+        vectorParameterToEstimate->setCustomPartialSettings( vectorParameterName->customPartialSettings_ );
     }
 
     return vectorParameterToEstimate;
