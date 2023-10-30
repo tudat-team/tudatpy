@@ -388,6 +388,11 @@ void expose_estimated_parameter_setup(py::module &m) {
           py::arg("body_name"),
           get_docstring("scaled_longitude_libration_amplitude").c_str() );
 
+    m.def("yarkovsky_parameter",
+          &tep::yarkovskyParameter,
+          py::arg("body_name"),
+          py::arg("central_body_name") = "Sun",
+          get_docstring("yarkovsky_parameter").c_str() );
     // ###############  Global (GR) Model Parameters ################################
 
     m.def("ppn_parameter_gamma",

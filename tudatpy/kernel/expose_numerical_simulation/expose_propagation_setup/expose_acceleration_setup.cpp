@@ -248,6 +248,10 @@ void expose_acceleration_setup(py::module &m) {
           py::arg( "cosine_acceleration" ) = Eigen::Vector3d::Zero( ),
           get_docstring("empirical").c_str());
 
+    m.def("yarkovsky", &tss::yarkovskyAcceleration,
+          py::arg( "yarkovsky_parameter" ),
+          get_docstring("yarkovsky").c_str());
+
     m.def("custom",
           &tss::customAccelerationSettingsDeprecated,
           py::arg( "acceleration_function" ) );

@@ -383,6 +383,14 @@ void expose_propagation(py::module &m)
             tpr::ThrustMagnitudeWrapper >(m, "ConstantThrustMagnitudeWrapper" )
             .def_property("constant_thrust_magnitude", &tpr::ConstantThrustMagnitudeWrapper::getConstantThrustForceMagnitude,
                           &tpr::ConstantThrustMagnitudeWrapper::resetConstantThrustForceMagnitude );
+
+
+    py::class_<
+        tpr::CustomThrustMagnitudeWrapper,
+        std::shared_ptr< tpr::CustomThrustMagnitudeWrapper >,
+        tpr::ThrustMagnitudeWrapper >(m, "CustomThrustMagnitudeWrapper" )
+        .def_property("custom_thrust_magnitude", nullptr,
+                      &tpr::CustomThrustMagnitudeWrapper::resetThrustMagnitudeFunction );
 }
 }// namespace propagation
 }// namespace numerical_simulation
