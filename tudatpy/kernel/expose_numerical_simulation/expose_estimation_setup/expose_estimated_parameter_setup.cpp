@@ -16,6 +16,7 @@
 
 namespace tep = tudat::estimatable_parameters;
 namespace tss = tudat::simulation_setup;
+namespace tp = tudat::propagators;
 
 namespace tudatpy {
 namespace numerical_simulation {
@@ -65,7 +66,7 @@ void expose_estimated_parameter_setup(py::module &m) {
 
     py::class_<tep::CustomAccelerationPartialSettings,
         std::shared_ptr<tep::CustomAccelerationPartialSettings>>(m, "CustomAccelerationPartialSettings",
-                                                            get_docstring("CustomAccelerationPartialSettings").c_str() )
+                                                            get_docstring("CustomAccelerationPartialSettings").c_str() );
 
 
     m.def("custom_analytical_partial",
@@ -82,7 +83,7 @@ void expose_estimated_parameter_setup(py::module &m) {
           py::arg("body_undergoing_acceleration"),
           py::arg("body_exerting_acceleration"),
           py::arg("acceleration_type"),
-          py::arg("environment_updates") = std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >( ),
+          py::arg("environment_updates") = std::map< tp::EnvironmentModelsToUpdate, std::vector< std::string > >( ),
           get_docstring("custom_numerical_partial").c_str() );
 
     py::class_<tep::EstimatableParameterSettings,
@@ -425,7 +426,7 @@ void expose_estimated_parameter_setup(py::module &m) {
           py::arg("custom_id"),
           py::arg("parameter_name"),
           py::arg("get_parameter_function"),
-          py::arg("set_parameter_function").
+          py::arg("set_parameter_function"),
           get_docstring("custom_parameter").c_str() );
 
 
