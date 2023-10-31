@@ -38,18 +38,10 @@ tba::DateTime timePointToDateTime(const std::chrono::system_clock::time_point da
 {
     std::time_t tt = std::chrono::system_clock::to_time_t(datetime);
     std::tm local_tm = *localtime(&tt);
-    std::cout<<"Input time decomposed "
-    <<local_tm.tm_year + 1900<<" "<<local_tm.tm_mon + 1<<" "<<local_tm.tm_mday<<" "
-    <<local_tm.tm_hour <<" "<<local_tm.tm_min + 1<<" "<<local_tm.tm_sec<<std::endl;
 
     using namespace std::chrono;
     microseconds timeInMicroSeconds = duration_cast<microseconds>(datetime.time_since_epoch());
-    microseconds timeInSeconds = duration_cast<seconds>(datetime.time_since_epoch());
-
-
     long long fractional_seconds = timeInMicroSeconds.count() % 1000000LL;
-    std::cout<<"Microseconds "<<timeInMicroSeconds.count()<<" "<<fractional_seconds<<std::endl;
-    std::cout<<"Seconds "<<timeInSeconds.count()<<std::endl;
 
     return tba::DateTime( local_tm.tm_year + 1900, local_tm.tm_mon + 1, local_tm.tm_mday,
         local_tm.tm_hour, local_tm.tm_min, static_cast< long double >( local_tm.tm_sec ) +
