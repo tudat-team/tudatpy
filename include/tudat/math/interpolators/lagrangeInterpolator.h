@@ -186,7 +186,7 @@ public:
                                       std::to_string( numberOfStages_ ) );
         }
 
-        numberOfIndependentValues_ = dataMap.size( );
+        numberOfIndependentValues_ = static_cast< int >( dataMap.size( ) );
 
         // Verify that the initialization variables are not empty.
         if ( dataMap.size( ) == 0 )

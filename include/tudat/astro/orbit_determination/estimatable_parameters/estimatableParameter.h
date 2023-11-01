@@ -75,7 +75,8 @@ enum EstimatebleParametersEnum
     constant_time_observation_bias,
     arc_wise_time_observation_bias,
     inverse_tidal_quality_factor,
-    yarkovsky_parameter
+    yarkovsky_parameter,
+    custom_estimated_parameter
 };
 
 std::string getParameterTypeString( const EstimatebleParametersEnum parameterType );
@@ -206,6 +207,29 @@ public:
 
     std::function< Eigen::MatrixXd( const double, const Eigen::Vector3d& ) > accelerationPartialFunction_;
 };
+
+
+inline std::shared_ptr< CustomAccelerationPartialSettings > analyticalAccelerationPartialSettings(
+    const std::function< Eigen::MatrixXd( const double, const Eigen::Vector3d& ) > accelerationPartialFunction,
+    const std::string bodyUndergoingAcceleration,
+    const std::string bodyExertingAcceleration,
+    const basic_astrodynamics::AvailableAcceleration accelerationType )
+{
+    return std::make_shared< AnalyticalAccelerationPartialSettings >(
+        accelerationPartialFunction, bodyUndergoingAcceleration, bodyExertingAcceleration, accelerationType );
+}
+
+inline std::shared_ptr< CustomAccelerationPartialSettings > numericalAccelerationPartialSettings(
+    const Eigen::VectorXd& parameterPerturbation,
+    const std::string bodyUndergoingAcceleration,
+    const std::string bodyExertingAcceleration,
+    const basic_astrodynamics::AvailableAcceleration accelerationType,
+    const std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >& environmentUpdateSettings  =
+    std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >( ) )
+{
+    return std::make_shared< NumericalAccelerationPartialSettings >(
+        parameterPerturbation, bodyUndergoingAcceleration, bodyExertingAcceleration, accelerationType, environmentUpdateSettings );
+}
 
 //! Base class for a parameter that is to be estimated.
 /*!
@@ -338,6 +362,85 @@ protected:
 
 };
 
+class CustomEstimatableParameter: public EstimatableParameter< Eigen::VectorXd >
+{
+
+public:
+    //! Constructor.
+    /*!
+     *  Constructor taking parameter name and associated body. All parameters are identified by a these two variables.
+     *  Any additional information that may be required for uniquely defining a parameter is to be defined in the derived class.
+     *  \param parameterName Enum value defining the type of the parameter.
+     *  \param associatedBody Name of body associated with patameters
+     *  \param pointOnBodyId Reference point on body associated with parameter (empty by default).
+     */
+    CustomEstimatableParameter(
+        const std::string& customId,
+        const int parameterSize,
+        const std::function< Eigen::VectorXd( ) > getParameterFunction,
+        const std::function< void( const Eigen::VectorXd& ) > setParameterFunction ):
+        EstimatableParameter< Eigen::VectorXd >( custom_estimated_parameter, "", customId ),
+        parameterSize_( parameterSize ),
+        getParameterFunction_( getParameterFunction ),
+        setParameterFunction_( setParameterFunction ){ }
+
+    //! Virtual destructor.
+    ~CustomEstimatableParameter( ) { }
+
+    //! Pure virtual function to retrieve the value of the parameter
+    /*!
+     *  Pure virtual function to retrieve the value of the parameter
+     *  \return Current value of parameter.
+     */
+    Eigen::VectorXd getParameterValue( )
+    {
+        Eigen::VectorXd currentParameter = getParameterFunction_( );
+        if( currentParameter.rows( ) != parameterSize_ )
+        {
+            throw std::runtime_error( "Error, when getting cutom parameter value, size is incompatible " +
+                                          std::to_string( currentParameter.rows( ) ) + ", " +
+                                          std::to_string( parameterSize_ ) );
+        }
+        return currentParameter;
+    }
+
+    //! Pure virtual function to (re)set the value of the parameter.
+    /*!
+     *  Pure virtual function to (re)set the value of the parameter.
+     *  \param parameterValue to which the parameter is to be set.
+     */
+    void setParameterValue( const Eigen::VectorXd parameterValue )
+    {
+        if( parameterValue.rows( ) != parameterSize_ )
+        {
+            throw std::runtime_error( "Error, when getting cutom parameter value, size is incompatible " +
+                                      std::to_string( parameterValue.rows( ) ) + ", " +
+                                      std::to_string( parameterSize_ ) );
+        }
+        setParameterFunction_( parameterValue );
+    }
+
+    //! Function to retrieve the size of the parameter
+    /*!
+     *  Pure virtual function to retrieve the size of the parameter (i.e. 1 for double parameters)
+     *  \return Size of parameter value.
+     */
+    int getParameterSize( )
+    {
+        return parameterSize_;
+    }
+
+
+
+protected:
+
+    int parameterSize_;
+
+    std::function< Eigen::VectorXd( ) > getParameterFunction_;
+
+    std::function< void( const Eigen::VectorXd& ) > setParameterFunction_;
+
+};
 
 class CustomAccelerationPartialCalculator
 {
@@ -358,50 +461,6 @@ protected:
 //
 //    basic_astrodynamics::AvailableAcceleration accelerationType_;
 };
-//
-//
-//template< typename ParameterScalarType >
-//class NumericalAccelerationPartialCalculator: public CustomAccelerationPartialCalculator
-//{
-//public:
-//    NumericalAccelerationPartialCalculator(
-//        const Eigen::VectorXd& parameterPerturbation,
-//        const std::shared_ptr< estimatable_parameters::EstimatableParameter< ParameterScalarType > > parameter ):
-//        parameterPerturbation_( parameterPerturbation ),
-//        parameter_( parameter )
-//        {
-//            if( parameterPerturbation_.rows( ) != parameter_->getParameterSize( ) )
-//            {
-//                throw std::runtime_error( "Error when making numerical acceleration partial for parameter " +
-//                    parameter->getParameterDescription( ) + ", sizes are inconsistent: " +
-//                    std::to_string( parameterPerturbation_.rows( ) ) + ", " + std::to_string( parameter->getParameterSize( ) ) );
-//            }
-//            currentPartial_ = Eigen::MatrixXd::Zero( 3, parameterPerturbation_.rows( ) );
-//        }
-//
-//    ~NumericalAccelerationPartialCalculator( ){ }
-//
-//    Eigen::Matrix< double, 3, Eigen::Dynamic > computePartial(
-//        const double currentTime, const Eigen::Vector3d currentAcceleration,
-//        const std::shared_ptr< basic_astrodynamics::AccelerationModel3d > accelerationModel )
-//    {
-////        if constexpr ( std::is_same< double, ParameterScalarType >::value == true )
-////        {
-////            currentPartial_.setZero( );
-////            double originalParameterValue = parameter_->getParameterValue( );
-////
-////            parameter_->setParameterValue( originalParameterValue )
-////        }
-//    }
-//protected:
-//
-//    Eigen::VectorXd parameterPerturbation_;
-//
-//    std::shared_ptr< estimatable_parameters::EstimatableParameter< ParameterScalarType > > parameter_;
-//
-//    Eigen::Matrix< double, 3, Eigen::Dynamic > currentPartial_;
-//
-//};
 
 
 class NumericalAccelerationPartialWrtStateCalculator: public CustomAccelerationPartialCalculator
@@ -532,10 +591,10 @@ public:
     std::map< estimatable_parameters::EstimatebleParameterIdentifier,
         std::shared_ptr< estimatable_parameters::CustomAccelerationPartialCalculator > > customInitialStatePartials_;
 
-    std::map< std::shared_ptr< estimatable_parameters::EstimatableParameter< double > >,
+    std::map< estimatable_parameters::EstimatebleParameterIdentifier,
         std::shared_ptr< estimatable_parameters::CustomAccelerationPartialCalculator > > customDoubleParameterPartials_;
 
-    std::map< std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > >,
+    std::map< estimatable_parameters::EstimatebleParameterIdentifier,
         std::shared_ptr< estimatable_parameters::CustomAccelerationPartialCalculator > > customVectorParameterPartials_;
 
     int getNumberOfCustomPartials( )

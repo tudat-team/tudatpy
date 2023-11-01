@@ -2108,7 +2108,7 @@ public:
 
     int count( const std::string& bodyName ) const
     {
-        return bodyMap_.count( bodyName );
+        return static_cast< int >( bodyMap_.count( bodyName ) );
     }
 
     bool doesBodyExist( const std::string& bodyName ) const
@@ -2123,7 +2123,7 @@ public:
 
     int getNumberOfBodies( ) const
     {
-        return bodyMap_.size( );
+        return static_cast< int >( bodyMap_.size( ) );
     }
 
     template< typename StateScalarType = double , typename TimeType = double >

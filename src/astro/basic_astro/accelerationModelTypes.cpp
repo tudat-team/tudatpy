@@ -29,10 +29,6 @@ std::string getAccelerationModelName( const AvailableAcceleration accelerationTy
     case aerodynamic:
         accelerationName = "aerodynamic ";
         break;
-    case cannon_ball_radiation_pressure:
-        // RP-OLD
-        accelerationName = "cannonball radiation pressure ";
-        break;
     case spherical_harmonic_gravity:
         accelerationName = "spherical harmonic gravity ";
         break;
@@ -114,12 +110,6 @@ AvailableAcceleration getAccelerationModelType(
     {
         accelerationType = point_mass_gravity;
     }
-//    else if( std::dynamic_pointer_cast< CannonBallRadiationPressureAcceleration >(
-//                 accelerationModel ) != nullptr )
-//    {
-//        // RP-OLD
-//        accelerationType = cannon_ball_radiation_pressure;
-//    }
     else if( std::dynamic_pointer_cast< ThirdBodyCentralGravityAcceleration >(
                  accelerationModel ) != nullptr )
     {

@@ -13,7 +13,6 @@
 #define TUDAT_ACCELERATIONMODELTYPES_H
 
 #include "tudat/astro/basic_astro/customAccelerationModel.h"
-#include "tudat/astro/electromagnetism/panelledRadiationPressure.h"
 #include "tudat/astro/gravitation/centralGravityModel.h"
 #include "tudat/astro/gravitation/sphericalHarmonicsGravityModel.h"
 #include "tudat/astro/gravitation/mutualSphericalHarmonicGravityModel.h"

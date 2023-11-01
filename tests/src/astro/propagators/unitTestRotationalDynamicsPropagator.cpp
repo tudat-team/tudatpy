@@ -1144,7 +1144,7 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagationWithVaryinInertiaTe
 
     Eigen::Matrix3d nominalInertiaTensor;
     Eigen::Vector3d nominalCosineCorrection;
-    Eigen::Vector3d nominalSineCorrection;
+    Eigen::Vector2d nominalSineCorrection;
 
     std::shared_ptr< gravitation::SphericalHarmonicsGravityField > phobosGravityField =
         std::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >(
@@ -1163,7 +1163,7 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagationWithVaryinInertiaTe
         Eigen::Vector3d secondDegreeTorque = it.second.segment( 9, 3 );
         Eigen::Vector3d totalTorque = it.second.segment( 12, 3 );
         Eigen::Vector3d cosineCorrection = it.second.segment( 15, 3 );
-        Eigen::Vector3d sineCorrection = it.second.segment( 18, 2 );
+        Eigen::Vector2d sineCorrection = it.second.segment( 18, 2 );
         Eigen::Vector3d relativePosition = it.second.segment( 20, 3 );
         Eigen::Vector3d angularVelocity = stateHistory.at( it.first ).segment( 4, 3 );
 
@@ -1175,7 +1175,7 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagationWithVaryinInertiaTe
         }
 
         Eigen::Vector3d cosineCorrectionWrtStart = cosineCorrection - nominalCosineCorrection;
-        Eigen::Vector3d sineCorrectionWrtStart = sineCorrection - nominalSineCorrection;
+        Eigen::Vector2d sineCorrectionWrtStart = sineCorrection - nominalSineCorrection;
         Eigen::Matrix3d inertiaCorrectionWrtStart = inertiaTensor - nominalInertiaTensor;
 
         Eigen::Matrix3d computedInertiaCorrectionWrtStart = gravitation::getInertiaTensor(
