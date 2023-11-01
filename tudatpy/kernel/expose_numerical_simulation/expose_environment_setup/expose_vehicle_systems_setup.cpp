@@ -41,7 +41,7 @@ namespace vehicle_systems {
               py::arg("surface_normal"),
               py::arg("area"),
               py::arg("frame_orientation") = "",
-              get_docstring("frame_fixed_geometry").c_str());
+              get_docstring("frame_fixed_panel_geometry").c_str());
 
         m.def("body_tracking_panel_geometry",
               &tss::bodyTrackingPanelGeometry,
