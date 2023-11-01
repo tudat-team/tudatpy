@@ -48,7 +48,7 @@ def test_tudatpy_kernel_module_exposure():
             exposed_module = import_module(submodule.__name__.replace('kernel.', ''))
 
             # Assert both modules contain the same methods
-            assert all([method in module_methods(kernel_module) for method in module_methods(exposed_module)])
+            assert all([method in module_methods(exposed_module) for method in module_methods(kernel_module)])
 
             # Assert both modules contain the same variables
-            assert all([variable in module_variables(kernel_module) for variable in module_variables(exposed_module)])
+            assert all([variable in module_variables(exposed_module) for variable in module_variables(kernel_module)])
