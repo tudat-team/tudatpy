@@ -157,35 +157,30 @@ install(TARGETS kernel
         LIBRARY DESTINATION ${TUDATPY_INSTALL_PATH}
         )
 
-# Install the Python files.
+# Install Python files.
 install(FILES ${TUDATPY_PYTHON_FILES} "${CMAKE_CURRENT_BINARY_DIR}/_version.py"
         DESTINATION ${TUDATPY_INSTALL_PATH})
 
-# Install the Python modules.
-macro(INSTALL_PURE_PYTHON_MODULE_DIR module_dir_name)
-    install(DIRECTORY ${module_dir_name}/ DESTINATION "${TUDATPY_INSTALL_PATH}/${module_dir_name}")
+# Install hybrid C++/Python modules
+macro(INSTALL_HYBRID_CPP_PYTHON_MODULE module_dir_name)
+    install(DIRECTORY kernel_hybrid/${module_dir_name}/ DESTINATION "${TUDATPY_INSTALL_PATH}/${module_dir_name}")
     file(COPY ${module_dir_name}/ DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/${module_dir_name}/)
 endmacro()
-INSTALL_PURE_PYTHON_MODULE_DIR(apps)
-INSTALL_PURE_PYTHON_MODULE_DIR(bodies)
-INSTALL_PURE_PYTHON_MODULE_DIR(plotting)
-INSTALL_PURE_PYTHON_MODULE_DIR(data)
-INSTALL_PURE_PYTHON_MODULE_DIR(util)
-INSTALL_PURE_PYTHON_MODULE_DIR(io)
 
-# Create hybrid C++/Python modules
-macro(CREATE_HYBRID_CPP_PYTHON_MODULE module_dir_name)
-    install(DIRECTORY kernel_hybrid/${module_dir_name}/ DESTINATION "${TUDATPY_INSTALL_PATH}/${module_dir_name}")
-    file(COPY kernel_hybrid/${module_dir_name}/ DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/${module_dir_name}/)
-endmacro()
-# CREATE_HYBRID_CPP_PYTHON_MODULE(utils)
-CREATE_HYBRID_CPP_PYTHON_MODULE(astro)
-CREATE_HYBRID_CPP_PYTHON_MODULE(trajectory_design)
-CREATE_HYBRID_CPP_PYTHON_MODULE(constants)
-CREATE_HYBRID_CPP_PYTHON_MODULE(interface)
-# CREATE_HYBRID_CPP_PYTHON_MODULE(io)
-CREATE_HYBRID_CPP_PYTHON_MODULE(math)
-CREATE_HYBRID_CPP_PYTHON_MODULE(numerical_simulation)
+# Hybrid modules
+INSTALL_HYBRID_CPP_PYTHON_MODULE(astro)
+INSTALL_HYBRID_CPP_PYTHON_MODULE(trajectory_design)
+INSTALL_HYBRID_CPP_PYTHON_MODULE(constants)
+INSTALL_HYBRID_CPP_PYTHON_MODULE(interface)
+INSTALL_HYBRID_CPP_PYTHON_MODULE(math)
+INSTALL_HYBRID_CPP_PYTHON_MODULE(numerical_simulation)
+# Pure Python modules
+INSTALL_HYBRID_CPP_PYTHON_MODULE(apps)
+INSTALL_HYBRID_CPP_PYTHON_MODULE(bodies)
+INSTALL_HYBRID_CPP_PYTHON_MODULE(plotting)
+INSTALL_HYBRID_CPP_PYTHON_MODULE(data)
+INSTALL_HYBRID_CPP_PYTHON_MODULE(util)
+INSTALL_HYBRID_CPP_PYTHON_MODULE(io)
 
 # TODO: Automatic exposure of hybrid C++/Python modules
 # This involves solving the dependencies which conda
