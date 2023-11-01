@@ -11,8 +11,8 @@ import pandas as pd
 from typing import Union, List, Tuple
 import datetime
 
-from ..kernel import constants
-from ..kernel.numerical_simulation import environment_setup
+from tudatpy import constants
+from tudatpy.numerical_simulation import environment_setup
 
 import re
 
