@@ -1359,7 +1359,7 @@ protected:
 
 };
 
-//extern template class OrbitDeterminationManager< double, double >;
+extern template class OrbitDeterminationManager< double, double >;
 
 
 

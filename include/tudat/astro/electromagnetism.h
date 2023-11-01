@@ -14,7 +14,6 @@
 #include "electromagnetism/basicElectroMagnetism.h"
 #include "electromagnetism/lorentzStaticMagneticAcceleration.h"
 #include "electromagnetism/lorentzStaticMagneticForce.h"
-#include "electromagnetism/panelledRadiationPressure.h"
 #include "electromagnetism/radiationPressureInterface.h"
 
 #include "electromagnetism/radiationSourceModel.h"

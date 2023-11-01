@@ -262,7 +262,6 @@ protected:
     double currentTime_;
 };
 
-
 } // namespace electromagnetism
 
 } // namespace tudat

@@ -86,13 +86,13 @@ public:
 
         if( !std::is_sorted( observationTimes_.begin( ), observationTimes_.end( ) ) )
         {
-            std::map< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > observationsMap;
+            std::multimap< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > observationsMap;
             for( unsigned int i = 0; i < observations_.size( ); i++ )
             {
-                observationsMap[ observationTimes_.at( i ) ] = observations_.at( i );
+                observationsMap.insert( { observationTimes_.at( i ), observations_.at( i ) } );
             }
-            observationTimes_ = utilities::createVectorFromMapKeys( observationsMap );
-            observations_ = utilities::createVectorFromMapValues( observationsMap );
+            observationTimes_ = utilities::createVectorFromMultiMapKeys( observationsMap );
+            observations_ = utilities::createVectorFromMultiMapValues( observationsMap );
             if( observationsDependentVariables_.size( ) > 0 )
             {
                 std::map< TimeType, Eigen::VectorXd > observationsDependentVariablesMap;
@@ -101,6 +101,10 @@ public:
                     observationsDependentVariablesMap[ observationTimes_.at( i ) ] = observationsDependentVariables_.at( i );
                 }
                 observationsDependentVariables_ = utilities::createVectorFromMapValues( observationsDependentVariablesMap );
+            }
+            if( static_cast< int >( observations_.size( ) ) != numberOfObservations_ )
+            {
+                throw std::runtime_error( "Error when making SingleObservationSet, number of observations is incompatible after time ordering" );
             }
         }
     }

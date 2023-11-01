@@ -1451,62 +1451,6 @@ BOOST_AUTO_TEST_CASE( test_earthRotationModelSetup )
         }
     }
 }
-//#endif
-//
-//
-////! Test set up of radiation pressure interfacel environment models.
-//// RP-OLD
-//BOOST_AUTO_TEST_CASE( test_radiationPressureInterfaceSetup )
-//{
-//    // Load Spice kernels
-//    spice_interface::loadStandardSpiceKernels( );
-//
-//    // Define body settings.
-//    BodyListSettings bodySettings;
-//    bodySettings.addSettings( getDefaultSingleBodySettings( "Earth", 0.0, 1.0E7 ), "Earth" );
-//    bodySettings.addSettings( getDefaultSingleBodySettings( "Sun", 0.0, 1.0E7 ), "Sun" );
-//
-//    // Get settings for vehicle
-//    double area = 2.34;
-//    double coefficient = 1.2;
-//    Eigen::Vector6d initialKeplerElements =
-//            ( Eigen::Vector6d( ) << 12000.0E3, 0.13, 0.3, 0.0, 0.0, 0.0 ).finished( );
-//    bodySettings.addSettings( "Vehicle" );
-//    bodySettings.at( "Vehicle" )->radiationPressureSettings[ "Sun" ] =
-//            std::make_shared< CannonBallRadiationPressureInterfaceSettings >( "Sun", area, coefficient );
-//    bodySettings.at( "Vehicle" )->ephemerisSettings =
-//            std::make_shared< KeplerEphemerisSettings >(
-//                initialKeplerElements,
-//                0.0, spice_interface::getBodyGravitationalParameter( "Earth" ), "Earth", "ECLIPJ2000" );
-//
-//    // Create bodies
-//    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
-//
-//
-//    BOOST_CHECK_EQUAL( bodies.at( "Vehicle" )->getRadiationPressureInterfaces( ).size( ), 1 );
-//    BOOST_CHECK_EQUAL( bodies.at( "Vehicle" )->getRadiationPressureInterfaces( ).count( "Sun" ), 1 );
-//
-//    double testTime = 0.5E7;
-//
-//    // Update environment to current time.
-//    bodies.at( "Sun" )->setStateFromEphemeris< double, double >( testTime );
-//    bodies.at( "Earth" )->setStateFromEphemeris< double, double >( testTime );
-//    bodies.at( "Vehicle" )->setStateFromEphemeris< double, double >( testTime );
-//
-//    std::shared_ptr< electromagnetism::RadiationPressureInterface > vehicleRadiationPressureInterface =
-//            bodies.at( "Vehicle" )->getRadiationPressureInterfaces( ).at( "Sun" );
-//
-//    vehicleRadiationPressureInterface->updateInterface( testTime );
-//    double sourceDistance = ( ( bodies.at( "Vehicle" )->getState( ) -  bodies.at( "Sun" )->getState( ) ).
-//                              segment( 0, 3 ) ).norm( );
-//    double expectedRadiationPressure = electromagnetism::calculateRadiationPressure(
-//                defaultRadiatedPowerValues.at( "Sun" ), sourceDistance );
-//
-//    BOOST_CHECK_CLOSE_FRACTION( expectedRadiationPressure,
-//                                vehicleRadiationPressureInterface->getCurrentRadiationPressure( ),
-//                                std::numeric_limits< double >::epsilon( ) );
-//
-//}
 
 
 BOOST_AUTO_TEST_CASE( test_radiationSourceModelSetup_IsotropicPoint )
