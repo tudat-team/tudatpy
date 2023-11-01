@@ -64,6 +64,19 @@ void addRadiationPressureInterface(
                     radiationPressureSettings, bodyName, bodies ) );
 }
 
+void addRadiationPressureTargetModel(
+    const SystemOfBodies& bodies, const std::string bodyName,
+    const std::shared_ptr< RadiationPressureTargetModelSettings > radiationPressureSettings )
+{
+    if( bodies.count( bodyName ) == 0 )
+    {
+        throw std::runtime_error( "Error when setting radiation pressure target model for body "+ bodyName + ", body is not found in system of bodies" );
+    }
+    bodies.at( bodyName )->setRadiationPressureTargetModel(
+        createRadiationPressureTargetModel( radiationPressureSettings, bodyName, bodies ) );
+
+}
+
 void addRotationModel(
         const SystemOfBodies& bodies, const std::string bodyName,
         const std::shared_ptr< RotationModelSettings > rotationModelSettings )
