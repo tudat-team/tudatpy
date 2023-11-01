@@ -16,6 +16,7 @@
 
 namespace tep = tudat::estimatable_parameters;
 namespace tss = tudat::simulation_setup;
+namespace tp = tudat::propagators;
 
 namespace tudatpy {
 namespace numerical_simulation {
@@ -62,10 +63,36 @@ void expose_estimated_parameter_setup(py::module &m) {
             .value("inverse_tidal_quality_factor_type", tep::EstimatebleParametersEnum::inverse_tidal_quality_factor)
             .export_values();
 
+
+    py::class_<tep::CustomAccelerationPartialSettings,
+        std::shared_ptr<tep::CustomAccelerationPartialSettings>>(m, "CustomAccelerationPartialSettings",
+                                                            get_docstring("CustomAccelerationPartialSettings").c_str() );
+
+
+    m.def("custom_analytical_partial",
+          &tep::analyticalAccelerationPartialSettings,
+          py::arg("analytical_partial_function"),
+          py::arg("body_undergoing_acceleration"),
+          py::arg("body_exerting_acceleration"),
+          py::arg("acceleration_type"),
+          get_docstring("custom_analytical_partial").c_str() );
+
+    m.def("custom_numerical_partial",
+          &tep::numericalAccelerationPartialSettings,
+          py::arg("parameter_perturbation"),
+          py::arg("body_undergoing_acceleration"),
+          py::arg("body_exerting_acceleration"),
+          py::arg("acceleration_type"),
+          py::arg("environment_updates") = std::map< tp::EnvironmentModelsToUpdate, std::vector< std::string > >( ),
+          get_docstring("custom_numerical_partial").c_str() );
+
     py::class_<tep::EstimatableParameterSettings,
             std::shared_ptr<tep::EstimatableParameterSettings>>(m, "EstimatableParameterSettings",
-                                                                get_docstring("EstimatableParameterSettings").c_str() );
-            // .def(py::init<
+                                                                get_docstring("EstimatableParameterSettings").c_str() )
+        .def_readwrite("custom_partial_settings", &tep::EstimatableParameterSettings::customPartialSettings_ );
+
+
+    // .def(py::init<
             //      const std::string,
             //      const tep::EstimatebleParametersEnum,
             //      const std::string>(),
@@ -393,6 +420,16 @@ void expose_estimated_parameter_setup(py::module &m) {
           py::arg("body_name"),
           py::arg("central_body_name") = "Sun",
           get_docstring("yarkovsky_parameter").c_str() );
+
+    m.def("custom_parameter",
+          &tep::customParameterSettings,
+          py::arg("custom_id"),
+          py::arg("parameter_name"),
+          py::arg("get_parameter_function"),
+          py::arg("set_parameter_function"),
+          get_docstring("custom_parameter").c_str() );
+
+
     // ###############  Global (GR) Model Parameters ################################
 
     m.def("ppn_parameter_gamma",

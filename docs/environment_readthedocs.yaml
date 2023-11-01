@@ -1,7 +1,8 @@
 name: tudatpy-docs-readthedocs
 channels:
   - conda-forge
-  #- tudat-team
+  - tudat-team/label/dev
+  - tudat-team
 dependencies:
   # All standard tudat-bundle deps are needed for sphinx-documentation for tudatpy.
   - python=3.8
