@@ -76,7 +76,7 @@ namespace environment_setup {
                 .def_readwrite("radiation_pressure_target_settings", &tss::BodySettings::radiationPressureTargetModelSettings, get_docstring("BodySettings.rigidBodyPropertiesSettings").c_str())
                 .def_readwrite("radiation_source_settings", &tss::BodySettings::radiationSourceModelSettings, get_docstring("BodySettings.rigidBodyPropertiesSettings").c_str())
                 .def_readwrite("vehicle_shape_settings", &tss::BodySettings::bodyExteriorPanelSettings_, get_docstring("BodySettings.vehicle_shape_settings").c_str())
-                .def_readwrite("radiation_pressure_settings", &tss::BodySettings::radiationPressureSettings, get_docstring("BodySettings.radiation_pressure_settings").c_str())
+                .def_readwrite("radiation_pressure_settings", &tss::BodySettings::radiationPressureSettings, get_docstring("BodySettings.radiation_pressure_settings").c_str());
 
 
         py::class_<tss::BodyListSettings,
