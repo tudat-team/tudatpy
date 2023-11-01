@@ -31,6 +31,7 @@
 #include "tudat/astro/orbit_determination/acceleration_partials/thrustAccelerationPartial.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/yarkovskyAccelerationPartial.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/customAccelerationPartial.h"
+#include "tudat/astro/orbit_determination/acceleration_partials/fullRadiationPressureAccelerationPartial.h"
 #include "tudat/astro/orbit_determination/observation_partials/rotationMatrixPartial.h"
 #include "tudat/simulation/estimation_setup/createCartesianStatePartials.h"
 #include "tudat/astro/basic_astro/accelerationModelTypes.h"
@@ -199,6 +200,73 @@ std::vector< std::shared_ptr< orbit_determination::TidalLoveNumberPartialInterfa
         const SystemOfBodies& bodies,
         const std::string& acceleratingBodyName );
 
+
+std::shared_ptr< estimatable_parameters::NumericalAccelerationPartialSettings > getDefaultPanelledSurfaceRadiationPressurePartialSettings(
+    const std::string bodyUndergoingAcceleration,
+    const std::string bodyExertingAcceleration );
+
+template< typename InitialStateParameterType = double >
+std::shared_ptr< acceleration_partials::AccelerationPartial > createRadiationPressureAccelerationPartial(
+    std::shared_ptr< electromagnetism::RadiationPressureAcceleration > radiationPressureAccelerationModel,
+    const std::pair< std::string, std::shared_ptr< simulation_setup::Body > > acceleratedBody,
+    const std::pair< std::string, std::shared_ptr< simulation_setup::Body > > acceleratingBody,
+    const simulation_setup::SystemOfBodies& bodies,
+    const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialStateParameterType > >
+    parametersToEstimate )
+{
+    using namespace electromagnetism;
+    std::shared_ptr< acceleration_partials::AccelerationPartial > accelerationPartial = nullptr;
+
+    if( std::dynamic_pointer_cast< CannonballRadiationPressureTargetModel >( radiationPressureAccelerationModel->getTargetModel( ) ) != nullptr &&
+        std::dynamic_pointer_cast< IsotropicPointSourceRadiationPressureAcceleration >( radiationPressureAccelerationModel ) != nullptr )
+    {
+        accelerationPartial = std::make_shared< acceleration_partials::CannonBallRadiationPressurePartial >
+            ( std::dynamic_pointer_cast< CannonballRadiationPressureTargetModel >( radiationPressureAccelerationModel->getTargetModel( ) ),
+              std::dynamic_pointer_cast< IsotropicPointSourceRadiationPressureAcceleration >( radiationPressureAccelerationModel ),
+              acceleratedBody.first, acceleratingBody.first );
+    }
+    else if( std::dynamic_pointer_cast< PaneledRadiationPressureTargetModel >( radiationPressureAccelerationModel->getTargetModel( ) ) != nullptr &&
+             std::dynamic_pointer_cast< IsotropicPointSourceRadiationPressureAcceleration >( radiationPressureAccelerationModel ) != nullptr )
+    {
+        accelerationPartial = std::make_shared< acceleration_partials::PanelledRadiationPressurePartial >(
+            std::dynamic_pointer_cast< IsotropicPointSourceRadiationPressureAcceleration >( radiationPressureAccelerationModel ),
+            std::dynamic_pointer_cast< PaneledRadiationPressureTargetModel >( radiationPressureAccelerationModel->getTargetModel( ) ),
+            acceleratedBody.first, acceleratingBody.first );
+    }
+    else
+    {
+        std::shared_ptr< estimatable_parameters::CustomSingleAccelerationPartialCalculatorSet >
+            customPartialCalculator;
+        if( parametersToEstimate == nullptr )
+        {
+            throw std::runtime_error( "Error when creating custom partials for non-isotropic source radiation pressure; no estimated parameters found" );
+        }
+
+        if( customPartialCalculator == nullptr )
+        {
+            for( unsigned  int i = 0; i < parametersToEstimate->getEstimatedInitialStateParameters( ).size( ); i++ )
+            {
+                if( parametersToEstimate->getEstimatedInitialStateParameters( ).at( i )->getCustomPartialSettings( ) == nullptr )
+                {
+                    parametersToEstimate->getEstimatedInitialStateParameters( ).at( i )->setCustomPartialSettings(
+                        getDefaultPanelledSurfaceRadiationPressurePartialSettings( acceleratedBody.first, acceleratingBody.first ) );
+                }
+
+            }
+            customPartialCalculator = createCustomAccelerationPartial< InitialStateParameterType >(
+                parametersToEstimate, radiationPressureAccelerationModel, acceleratedBody, acceleratingBody, bodies );
+
+        }
+
+        // Create partial-calculating object.
+        accelerationPartial = std::make_shared< acceleration_partials::RadiationPressureAccelerationPartial >
+            ( acceleratedBody.first, acceleratingBody.first,
+              std::dynamic_pointer_cast< PaneledSourceRadiationPressureAcceleration >( radiationPressureAccelerationModel ), customPartialCalculator );
+
+    }
+    return accelerationPartial;
+}
+
 //! Function to create a single acceleration partial derivative object.
 /*!
  *  Function to create a single acceleration partial derivative object.
@@ -238,9 +306,11 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAc
         customPartialCalculator = createCustomAccelerationPartial(
             parametersToEstimate, accelerationModel, acceleratedBody, acceleratingBody, bodies );
 
-        if( ( customPartialCalculator->getNumberOfCustomPartials( ) > 0 ) && ( accelerationType != custom_acceleration ) )
+        if( ( customPartialCalculator->getNumberOfCustomPartials( ) > 0 ) &&
+            ( accelerationType != custom_acceleration ) &&
+            ( accelerationType != radiation_pressure ) )
         {
-            throw std::runtime_error( "Error, custom acceleration partials only supported for custom acceleration (at present)" );
+            throw std::runtime_error( "Error, custom acceleration partials only supported for custom and radiation pressure acceleration (at present)" );
         }
     }
     switch( accelerationType )
@@ -600,38 +670,6 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAc
         }
         break;
     }
-    case cannon_ball_radiation_pressure:
-    {
-        // Check if identifier is consistent with type.
-        std::shared_ptr< CannonBallRadiationPressureAcceleration > radiationPressureAcceleration =
-                std::dynamic_pointer_cast< CannonBallRadiationPressureAcceleration >( accelerationModel );
-        if( radiationPressureAcceleration == nullptr )
-        {
-            throw std::runtime_error( "Acceleration class type does not match acceleration type (cannon_ball_radiation_pressure) "
-                                      "when making acceleration partial." );
-        }
-        else
-        {
-            std::map< std::string, std::shared_ptr< RadiationPressureInterface > > radiationPressureInterfaces =
-                    acceleratedBody.second->getRadiationPressureInterfaces( );
-
-            if( radiationPressureInterfaces.count( acceleratingBody.first ) == 0 )
-            {
-                throw std::runtime_error( "No radiation pressure coefficient interface found when making acceleration partial." );
-            }
-            else
-            {
-                std::shared_ptr< RadiationPressureInterface > radiationPressureInterface =
-                        radiationPressureInterfaces.at( acceleratingBody.first );
-
-                // Create partial-calculating object.
-                accelerationPartial = std::make_shared< CannonBallRadiationPressurePartial >
-                        ( radiationPressureInterface, radiationPressureAcceleration->getMassFunction( ),
-                          acceleratedBody.first, acceleratingBody.first );
-            }
-        }
-        break;
-    }
     case aerodynamic:
     {
         // Check if identifier is consistent with type.
@@ -719,6 +757,26 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAc
             // Create partial-calculating object.
             accelerationPartial = std::make_shared< CustomAccelerationPartial >
                 ( acceleratedBody.first, acceleratingBody.first, customAccelerationModel, customPartialCalculator );
+
+        }
+        break;
+    }
+    case radiation_pressure:
+    {
+        // Check if identifier is consistent with type.
+        std::shared_ptr< RadiationPressureAcceleration > radiationPressureAccelerationModel =
+            std::dynamic_pointer_cast< RadiationPressureAcceleration >( accelerationModel );
+        if( radiationPressureAccelerationModel == nullptr )
+        {
+            throw std::runtime_error(
+                "Acceleration class type does not match acceleration type enum (radiation_pressure) set when making "
+                "acceleration partial." );
+        }
+        else
+        {
+            // Create partial-calculating object.
+            accelerationPartial = createRadiationPressureAccelerationPartial(
+                radiationPressureAccelerationModel, acceleratedBody, acceleratingBody, bodies, parametersToEstimate );
 
         }
         break;

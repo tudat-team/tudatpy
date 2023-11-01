@@ -16,6 +16,8 @@
 #include <map>
 #include <iostream>
 
+#include "tudat/math/basic/mathematicalConstants.h"
+
 namespace tudat
 {
 

@@ -474,6 +474,18 @@ int getDependentVariableSize(
     case body_inertia_tensor:
         variableSize = 9;
         break;
+    case received_irradiance:
+        variableSize = 1;
+        break;
+    case received_fraction:
+        variableSize = 1;
+        break;
+    case visible_and_emitting_source_panel_count:
+        variableSize = 1;
+        break;
+    case visible_source_area:
+        variableSize = 1;
+        break;
     default:
         std::string errorMessage = "Error, did not recognize dependent variable size of type: " +
                 std::to_string( dependentVariableSettings->dependentVariableType_ );

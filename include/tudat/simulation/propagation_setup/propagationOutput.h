@@ -1737,14 +1737,14 @@ std::function< double( ) > getDoubleDependentVariableFunction(
                                               bodies.at( bodyWithProperty )->getFlightConditions( ) ) );
             break;
         case radiation_pressure_dependent_variable:
-            if( bodies.at( bodyWithProperty )->getRadiationPressureInterfaces( ).count( secondaryBody ) == 0 )
+            if( bodies.at( bodyWithProperty )->getRadiationPressureTargetModel( ) == nullptr )
             {
-                std::string errorMessage = "Error, no radiation pressure interfaces when requesting radiation pressure output of " +
+                std::string errorMessage = "Error, no radiation pressure target model when requesting radiation pressure output of " +
                         bodyWithProperty + "w.r.t." + secondaryBody;
                 throw std::runtime_error( errorMessage );
             }
-            variableFunction = std::bind( &electromagnetism::RadiationPressureInterface::getCurrentRadiationPressure,
-                                          bodies.at( bodyWithProperty )->getRadiationPressureInterfaces( ).at( secondaryBody ) );
+            variableFunction = std::bind( &electromagnetism::RadiationPressureTargetModel::getRadiationPressure,
+                                          bodies.at( bodyWithProperty )->getRadiationPressureTargetModel( ) );
             break;
         case relative_distance_dependent_variable:
         {
@@ -2164,14 +2164,22 @@ std::function< double( ) > getDoubleDependentVariableFunction(
         }
         case radiation_pressure_coefficient_dependent_variable:
         {
-            if( bodies.at( bodyWithProperty )->getRadiationPressureInterfaces( ).count( secondaryBody ) == 0 )
+            if( bodies.at( bodyWithProperty )->getRadiationPressureTargetModel( ) == nullptr )
             {
-                std::string errorMessage = "Error, no radiation pressure interfaces when requesting radiation pressure output of " +
+                std::string errorMessage = "Error, no radiation pressure interface when requesting radiation pressure output of " +
                         bodyWithProperty + "w.r.t." + secondaryBody;
                 throw std::runtime_error( errorMessage );
             }
-            variableFunction = std::bind( &electromagnetism::RadiationPressureInterface::getRadiationPressureCoefficient,
-                                          bodies.at( bodyWithProperty )->getRadiationPressureInterfaces( ).at( secondaryBody ) );
+            else if( std::dynamic_pointer_cast< electromagnetism::CannonballRadiationPressureTargetModel >(
+                bodies.at( bodyWithProperty )-> getRadiationPressureTargetModel( ) ) == nullptr )
+            {
+                std::string errorMessage = "Error, no cannonball radiation pressure interface when requesting radiation pressure output of " +
+                                           bodyWithProperty + "w.r.t." + secondaryBody;
+                throw std::runtime_error( errorMessage );
+            }
+            variableFunction = std::bind( &electromagnetism::CannonballRadiationPressureTargetModel::getCoefficient,
+                                          std::dynamic_pointer_cast< electromagnetism::CannonballRadiationPressureTargetModel >(
+                                              bodies.at( bodyWithProperty )-> getRadiationPressureTargetModel( ) ) );
             break;
         }
         case gravity_field_potential_dependent_variable:
@@ -2375,6 +2383,109 @@ std::function< double( ) > getDoubleDependentVariableFunction(
                                            " w.r.t. " + secondaryBody +
                                            ": acceleration model does not have the computation of potential implemented.";
                 throw std::runtime_error( errorMessage );
+            }
+
+            break;
+        }
+        case received_irradiance:
+        {
+            auto radiationPressureAccelerationList = getAccelerationBetweenBodies(
+                dependentVariableSettings->associatedBody_,
+                dependentVariableSettings->secondaryBody_,
+                stateDerivativeModels, basic_astrodynamics::radiation_pressure );
+
+            if (radiationPressureAccelerationList.empty())
+            {
+                std::string errorMessage = "Error, radiation pressure acceleration with target " +
+                        dependentVariableSettings->associatedBody_ + " and source " +
+                        dependentVariableSettings->secondaryBody_  +
+                       " not found";
+                throw std::runtime_error(errorMessage);
+            }
+
+            auto radiationPressureAcceleration =
+                    std::dynamic_pointer_cast<electromagnetism::RadiationPressureAcceleration>(
+                            radiationPressureAccelerationList.front());
+
+            variableFunction = [=] () { return radiationPressureAcceleration->getReceivedIrradiance(); };
+
+            break;
+        }
+        case received_fraction:
+        {
+            auto radiationPressureAccelerationList = getAccelerationBetweenBodies(
+                dependentVariableSettings->associatedBody_,
+                dependentVariableSettings->secondaryBody_,
+                stateDerivativeModels, basic_astrodynamics::radiation_pressure );
+
+            if (radiationPressureAccelerationList.empty())
+            {
+                std::string errorMessage = "Error, radiation pressure acceleration with target " +
+                        dependentVariableSettings->associatedBody_ + " and source " +
+                        dependentVariableSettings->secondaryBody_  +
+                       " not found";
+                throw std::runtime_error(errorMessage);
+            }
+
+            auto radiationPressureAcceleration =
+                    std::dynamic_pointer_cast<electromagnetism::IsotropicPointSourceRadiationPressureAcceleration>(
+                            radiationPressureAccelerationList.front());
+            if (radiationPressureAcceleration == nullptr)
+            {
+                throw std::runtime_error("Error, source body " + dependentVariableSettings->secondaryBody_ +
+                    " does not have an isotropic point source, which is required for the received fraction dependent " +
+                    "variable");
+            }
+
+            variableFunction = [=] () { return radiationPressureAcceleration->getSourceToTargetReceivedFraction(); };
+
+            break;
+        }
+        case visible_and_emitting_source_panel_count:
+        case visible_source_area:
+        {
+            auto radiationPressureAccelerationList = getAccelerationBetweenBodies(
+                dependentVariableSettings->associatedBody_,
+                dependentVariableSettings->secondaryBody_,
+                stateDerivativeModels, basic_astrodynamics::radiation_pressure );
+
+            if (radiationPressureAccelerationList.empty())
+            {
+                std::string errorMessage = "Error, radiation pressure acceleration with target " +
+                        dependentVariableSettings->associatedBody_ + " and source " +
+                        dependentVariableSettings->secondaryBody_  +
+                       " not found";
+                throw std::runtime_error(errorMessage);
+            }
+
+            auto radiationPressureAcceleration =
+                    std::dynamic_pointer_cast<electromagnetism::PaneledSourceRadiationPressureAcceleration>(
+                            radiationPressureAccelerationList.front());
+            if (radiationPressureAcceleration == nullptr)
+            {
+                if (dependentVariable == visible_source_area) {
+                    throw std::runtime_error("Error, source body " + dependentVariableSettings->secondaryBody_ +
+                         " does not have a paneled source, which is required for the visible source area "+
+                         "dependent variable");
+                }
+                else
+                {
+                    throw std::runtime_error("Error, source body " + dependentVariableSettings->secondaryBody_ +
+                         " does not have a paneled source, which is required for the visible/illuminated source "+
+                         "panel count dependent variable");
+                }
+            }
+
+            switch (dependentVariable)
+            {
+                case visible_and_emitting_source_panel_count:
+                    variableFunction = [=] () { return radiationPressureAcceleration->getVisibleAndEmittingSourcePanelCount(); };
+                    break;
+                case visible_source_area:
+                    variableFunction = [=] () { return radiationPressureAcceleration->getVisibleSourceArea(); };
+                    break;
+                default:
+                    break;
             }
 
             break;
