@@ -1,6 +1,6 @@
-from ..kernel.numerical_simulation import environment_setup  # type:ignore
-from ..kernel.numerical_simulation import estimation, environment  # type:ignore
-from ..kernel.numerical_simulation.estimation_setup import observation  # type:ignore
+from tudatpy.numerical_simulation import environment_setup  # type:ignore
+from tudatpy.numerical_simulation import estimation, environment  # type:ignore
+from tudatpy.numerical_simulation.estimation_setup import observation  # type:ignore
 
 import pandas as pd
 import numpy as np
