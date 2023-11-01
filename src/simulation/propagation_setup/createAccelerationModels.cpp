@@ -1737,21 +1737,6 @@ std::shared_ptr< AccelerationModel< Eigen::Vector3d > > createAccelerationModel(
                     nameOfBodyExertingAcceleration,
                     bodies);
         break;
-    case cannon_ball_radiation_pressure:
-        accelerationModelPointer = createCannonballRadiationPressureAcceleratioModel(
-                    bodyUndergoingAcceleration,
-                    bodyExertingAcceleration,
-                    nameOfBodyUndergoingAcceleration,
-                    nameOfBodyExertingAcceleration,
-                    bodies);
-        break;
-//    case panelled_radiation_pressure_acceleration:
-//        accelerationModelPointer = createPanelledRadiationPressureAcceleration(
-//                    bodyUndergoingAcceleration,
-//                    bodyExertingAcceleration,
-//                    nameOfBodyUndergoingAcceleration,
-//                    nameOfBodyExertingAcceleration );
-//        break;
     case thrust_acceleration:
         accelerationModelPointer = createThrustAcceleratioModel(
                     accelerationSettings, bodies,
