@@ -99,6 +99,11 @@ void addRadiationPressureInterface(
         const SystemOfBodies& bodies, const std::string bodyName,
         const std::shared_ptr< RadiationPressureInterfaceSettings > radiationPressureSettings );
 
+void addRadiationPressureTargetModel(
+    const SystemOfBodies& bodies, const std::string bodyName,
+    const std::shared_ptr< RadiationPressureTargetModelSettings > radiationPressureSettings );
+
+
 void addRotationModel(
         const SystemOfBodies& bodies, const std::string bodyName,
         const std::shared_ptr< RotationModelSettings > rotationModelSettings );
