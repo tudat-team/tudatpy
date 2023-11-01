@@ -1208,6 +1208,10 @@ createCannonballRadiationPressureAcceleratioModel(
     const std::string& nameOfBodyExertingAcceleration,
     const SystemOfBodies& bodies )
 {
+    std::cerr<<"Warning, you are using the deprecated (as of tudatpy v0.8) version of the cannonball radiation pressure model"<<
+               ", the interface you are using will be dropped from v0.9 onwards. To learn how to convert your code to the new interfaces"<<
+               ", and be able to use the powerful new radiation pressure framework, see "<<
+               "https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/translational/radiation_pressure_acceleration.html#backwards-compatibility"<<std::endl;
     // Retrieve radiation pressure interface
     if( bodyUndergoingAcceleration->getRadiationPressureInterfaces( ).count(
         nameOfBodyExertingAcceleration ) == 0 )
