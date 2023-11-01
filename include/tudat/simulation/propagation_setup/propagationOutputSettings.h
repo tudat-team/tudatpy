@@ -1364,6 +1364,7 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > receivedIrradiance
     return std::make_shared< SingleDependentVariableSaveSettings >(
             received_irradiance, targetBody, sourceBody );
 }
+
 inline std::shared_ptr< SingleDependentVariableSaveSettings > receivedFractionDependentVariable(
         const std::string& targetBody,
         const std::string& sourceBody )
