@@ -43,30 +43,26 @@ class CannonBallRadiationPressurePartial: public AccelerationPartial
 {
 public:
 
-    //! Constructor.
-    /*!
-     * Constructor.
-     * \param radiationPressureInterface Interface object for properties of radiation pressure computation (i.e. reference
-     * area, pressure magnitude, etc.)
-     * \param massFunction Function returning the mass of the body undergoing the acceleration.
-     * \param acceleratedBody Name of the body undergoing acceleration.
-     * \param acceleratingBody Name of the body exerting acceleration.
-     */
     CannonBallRadiationPressurePartial(
-            const std::shared_ptr< electromagnetism::RadiationPressureInterface > radiationPressureInterface,
-            const std::function< double( ) > massFunction,
-            const std::string& acceleratedBody, const std::string& acceleratingBody ):
+        const std::shared_ptr< electromagnetism::CannonballRadiationPressureTargetModel > cannonballTargetModel,
+        const std::shared_ptr< electromagnetism::IsotropicPointSourceRadiationPressureAcceleration > accelerationModel,
+        const std::string& acceleratedBody, const std::string& acceleratingBody ):
         AccelerationPartial( acceleratedBody, acceleratingBody,
                              basic_astrodynamics::cannon_ball_radiation_pressure ),
-        sourceBodyState_( radiationPressureInterface->getSourcePositionFunction( ) ),
-        acceleratedBodyState_( radiationPressureInterface->getTargetPositionFunction( ) ),
-        areaFunction_( std::bind( &electromagnetism::RadiationPressureInterface::getArea, radiationPressureInterface ) ),
-        radiationPressureCoefficientFunction_(
-            std::bind( &electromagnetism::RadiationPressureInterface::getRadiationPressureCoefficient,
-                         radiationPressureInterface ) ),
-        radiationPressureFunction_( std::bind( &electromagnetism::RadiationPressureInterface::getCurrentRadiationPressure,
-                                                 radiationPressureInterface ) ),
-        acceleratedBodyMassFunction_( massFunction ){ }
+        sourceBodyState_( accelerationModel->getSourcePositionFunction() ),
+        acceleratedBodyState_( accelerationModel->getTargetPositionFunction( ) ),
+        areaFunction_( std::bind( &electromagnetism::CannonballRadiationPressureTargetModel::getArea, cannonballTargetModel ) ),
+        radiationPressureCoefficientFunction_(  std::bind( &electromagnetism::CannonballRadiationPressureTargetModel::getCoefficient,
+                                                           cannonballTargetModel ) ),
+        radiationPressureFunction_( std::bind( &electromagnetism::CannonballRadiationPressureTargetModel::getRadiationPressure,
+                                               cannonballTargetModel ) ),
+        acceleratedBodyMassFunction_( accelerationModel->getTargetMassFunction() ),
+        accelerationUpdateFunction_( std::bind( &basic_astrodynamics::AccelerationModel3d::updateMembers, accelerationModel, std::placeholders::_1 ) ),
+        cannonballTargetModel_( cannonballTargetModel ),
+        accelerationModel_( accelerationModel )
+    {
+
+    }
 
     //! Destructor.
     ~CannonBallRadiationPressurePartial( ){ }
@@ -190,12 +186,7 @@ public:
      * Function to compute the partial derivative w.r.t. a constant radiation pressure coefficient
      * \param partial Partial derivative w.r.t. a constant radiation pressure coefficient (returned by reference)
      */
-    void wrtRadiationPressureCoefficient( Eigen::MatrixXd& partial )
-    {
-        partial = computePartialOfCannonBallRadiationPressureAccelerationWrtRadiationPressureCoefficient(
-                    radiationPressureFunction_( ), areaFunction_( ), acceleratedBodyMassFunction_( ),
-                    ( sourceBodyState_( ) - acceleratedBodyState_( ) ).normalized( ) );
-    }
+    void wrtRadiationPressureCoefficient( Eigen::MatrixXd& partial );
 
     //! Function to compute the partial derivative w.r.t. an arcwise radiation pressure coefficient
     /*!
@@ -238,8 +229,14 @@ public:
      */
     void update( const double currentTime = 0.0 )
     {
+//        std::cout<<"Computing pre "<<currentTime<<" "<<currentTime_<<std::endl;
+
         if( !( currentTime_ == currentTime ) )
         {
+//            std::cout<<"Computing post "<<currentTime<<" "<<currentTime_<<std::endl;
+
+            accelerationUpdateFunction_( currentTime );
+
             // Compute helper quantities.
             Eigen::Vector3d rangeVector = ( acceleratedBodyState_( ) - sourceBodyState_( ) );
             double range = rangeVector.norm( );
@@ -275,9 +272,14 @@ private:
     //! Function returning the mass of the body undergoing the acceleration.
     std::function< double( ) > acceleratedBodyMassFunction_;
 
+    std::function< void( const double ) > accelerationUpdateFunction_;
+
     //! Current partial of acceleration w.r.t. position of body undergoing acceleration (equal to minus partial w.r.t.
     //! position of body exerting acceleration).
     Eigen::Matrix3d currentPartialWrtPosition_;
+
+    std::shared_ptr< electromagnetism::CannonballRadiationPressureTargetModel > cannonballTargetModel_;
+    std::shared_ptr< electromagnetism::IsotropicPointSourceRadiationPressureAcceleration > accelerationModel_;
 };
 
 } // namespace acceleration_partials

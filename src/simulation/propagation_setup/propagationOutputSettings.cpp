@@ -295,6 +295,18 @@ std::string getDependentVariableName(
     case body_inertia_tensor:
         variableName = "Body inertia tensor";
         break;
+    case received_irradiance:
+        variableName = "Received irradiance";
+        break;
+    case received_fraction:
+        variableName = "Received fraction of irradiance";
+        break;
+    case visible_and_emitting_source_panel_count:
+        variableName = "Number of visible and emitting source panels";
+        break;
+    case visible_source_area:
+        variableName = "Visible area";
+        break;
     default:
         std::string errorMessage = "Error, dependent variable " +
                 std::to_string( propagationDependentVariables ) +
@@ -382,6 +394,18 @@ std::string getDependentVariableId(
         {
             variableId += ", exerted by " + dependentVariableSettings->secondaryBody_;
         }
+    }
+    else if ((dependentVariableSettings->dependentVariableType_ == visible_and_emitting_source_panel_count) ||
+             (dependentVariableSettings->dependentVariableType_ == visible_source_area))
+    {
+        variableId += " of " + dependentVariableSettings->secondaryBody_
+                + " as seen from " + dependentVariableSettings->associatedBody_;
+    }
+    else if ((dependentVariableSettings->dependentVariableType_ == received_irradiance) ||
+            (dependentVariableSettings->dependentVariableType_ == received_fraction))
+    {
+        variableId += " at " + dependentVariableSettings->associatedBody_
+                + " due to " + dependentVariableSettings->secondaryBody_;
     }
     else
     {

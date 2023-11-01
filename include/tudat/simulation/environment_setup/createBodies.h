@@ -24,7 +24,10 @@
 #include "tudat/simulation/environment_setup/createGroundStations.h"
 #include "tudat/simulation/environment_setup/createRotationModel.h"
 #include "tudat/simulation/environment_setup/createRadiationPressureInterface.h"
+#include "tudat/simulation/environment_setup/createRadiationSourceModel.h"
+#include "tudat/simulation/environment_setup/createRadiationPressureTargetModel.h"
 #include "tudat/simulation/environment_setup/createFlightConditions.h"
+#include "tudat/simulation/environment_setup/createSystemModel.h"
 #include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
 
 namespace tudat
@@ -60,13 +63,22 @@ struct BodySettings
     std::shared_ptr< BodyShapeSettings > shapeModelSettings;
 
     //! Settings for the radiations pressure interfaces that the body is to contain (source body as key).
+    // RP-OLD
     std::map< std::string,
     std::shared_ptr< RadiationPressureInterfaceSettings > > radiationPressureSettings;
+
+    //! Settings for the radiation source model that the body is to contain.
+    std::shared_ptr< RadiationSourceModelSettings > radiationSourceModelSettings;
+
+    //! Settings for the radiation pressure target model that the body is to contain.
+    std::shared_ptr< RadiationPressureTargetModelSettings > radiationPressureTargetModelSettings;
 
     //! Settings for the aerodynamic coefficients that the body is to contain.
     std::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings;
 
     std::shared_ptr< RigidBodyPropertiesSettings > rigidBodyPropertiesSettings;
+
+    std::shared_ptr< FullPanelledBodySettings > bodyExteriorPanelSettings_;
 
     //! Settings for variations of the gravity field of the body.
     std::vector< std::shared_ptr< GravityFieldVariationSettings > > gravityFieldVariationSettings;
@@ -82,9 +94,15 @@ void addAerodynamicCoefficientInterface(
         const SystemOfBodies& bodies, const std::string bodyName,
         const std::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings );
 
+// RP-OLD
 void addRadiationPressureInterface(
         const SystemOfBodies& bodies, const std::string bodyName,
         const std::shared_ptr< RadiationPressureInterfaceSettings > radiationPressureSettings );
+
+void addRadiationPressureTargetModel(
+    const SystemOfBodies& bodies, const std::string bodyName,
+    const std::shared_ptr< RadiationPressureTargetModelSettings > radiationPressureSettings );
+
 
 void addRotationModel(
         const SystemOfBodies& bodies, const std::string bodyName,
@@ -265,6 +283,18 @@ SystemOfBodies createSystemOfBodies(
         }
     }
 
+    // Create rotation model objects for each body (if required).
+    for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
+    {
+        if( orderedBodySettings.at( i ).second->bodyExteriorPanelSettings_ != nullptr )
+        {
+            addBodyExteriorPanelledShape( orderedBodySettings.at( i ).second->bodyExteriorPanelSettings_ ,
+                                          orderedBodySettings.at( i ).first, bodyList );
+        }
+    }
+    std::vector< std::shared_ptr< BodyPanelSettings > > bodyExteriorPanelSettings_;
+
+
     // Create gravity field model objects for each body (if required).
     for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
     {
@@ -300,6 +330,7 @@ SystemOfBodies createSystemOfBodies(
         }
     }
 
+
     // Create aerodynamic coefficient interface objects for each body (if required).
     for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
     {
@@ -314,6 +345,7 @@ SystemOfBodies createSystemOfBodies(
 
 
     // Create radiation pressure coefficient objects for each body (if required).
+    // RP-OLD
     for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
     {
         std::map< std::string, std::shared_ptr< RadiationPressureInterfaceSettings > >
@@ -331,6 +363,45 @@ SystemOfBodies createSystemOfBodies(
                             orderedBodySettings.at( i ).first, bodyList ) );
         }
 
+    }
+
+    // Create radiation source model objects for each body (if required).
+    // Point sources are created first since paneled sources may depend on them as original sources
+    for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
+    {
+        auto radiationSourceModelSettings = orderedBodySettings.at( i ).second->radiationSourceModelSettings;
+        if( radiationSourceModelSettings != nullptr &&
+            radiationSourceModelSettings->getRadiationSourceModelType() == RadiationSourceModelType::isotropic_point_source )
+        {
+            bodyList.at( orderedBodySettings.at( i ).first )->setRadiationSourceModel(
+                        createRadiationSourceModel(
+                            orderedBodySettings.at( i ).second->radiationSourceModelSettings,
+                            orderedBodySettings.at( i ).first, bodyList ));
+        }
+    }
+    for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
+    {
+        auto radiationSourceModelSettings = orderedBodySettings.at( i ).second->radiationSourceModelSettings;
+        if( radiationSourceModelSettings != nullptr &&
+            radiationSourceModelSettings->getRadiationSourceModelType() == RadiationSourceModelType::extended_source )
+        {
+            bodyList.at( orderedBodySettings.at( i ).first )->setRadiationSourceModel(
+                        createRadiationSourceModel(
+                            orderedBodySettings.at( i ).second->radiationSourceModelSettings,
+                            orderedBodySettings.at( i ).first, bodyList ));
+        }
+    }
+
+    // Create radiation pressure target model objects for each body (if required).
+    for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
+    {
+        if( orderedBodySettings.at( i ).second->radiationPressureTargetModelSettings != nullptr )
+        {
+            bodyList.at( orderedBodySettings.at( i ).first )->setRadiationPressureTargetModel(
+                        createRadiationPressureTargetModel(
+                            orderedBodySettings.at( i ).second->radiationPressureTargetModelSettings,
+                            orderedBodySettings.at( i ).first, bodyList ) );
+        }
     }
 
     for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
