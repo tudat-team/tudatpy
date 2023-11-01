@@ -988,6 +988,31 @@ public:
 
 };
 
+class CustomEstimatableParameterSettings: public EstimatableParameterSettings
+{
+public:
+
+    CustomEstimatableParameterSettings(
+        const std::string& customId,
+        const int parameterSize,
+        const std::function< Eigen::VectorXd( ) > getParameterFunction,
+        const std::function< void( const Eigen::VectorXd& ) > setParameterFunction ):
+        EstimatableParameterSettings( "", custom_estimated_parameter, customId ),
+        parameterSize_( parameterSize ),
+        getParameterFunction_( getParameterFunction ),
+        setParameterFunction_( setParameterFunction )
+    {
+
+    }
+
+    int parameterSize_;
+
+    std::function< Eigen::VectorXd( ) > getParameterFunction_;
+
+    std::function< void( const Eigen::VectorXd& ) > setParameterFunction_;
+
+};
+
 
 inline std::shared_ptr< EstimatableParameterSettings > gravitationalParameter( const std::string bodyName )
 {
@@ -1376,6 +1401,18 @@ inline std::shared_ptr< EstimatableParameterSettings > yarkovskyParameter( const
 {
     return std::make_shared< EstimatableParameterSettings >( bodyName, yarkovsky_parameter, centralBodyName );
 }
+
+inline std::shared_ptr< EstimatableParameterSettings > customParameterSettings(
+    const std::string& customId,
+    const int parameterSize,
+    const std::function< Eigen::VectorXd( ) > getParameterFunction,
+    const std::function< void( const Eigen::VectorXd& ) > setParameterFunction )
+{
+    return std::make_shared<CustomEstimatableParameterSettings>(
+        customId, parameterSize, getParameterFunction, setParameterFunction );
+}
+
+
 
 
 } // namespace estimatable_parameters

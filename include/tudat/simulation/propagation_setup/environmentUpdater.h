@@ -786,43 +786,6 @@ private:
                                            bodyList_.at( currentBodies.at( i ) )->getVehicleSystems( ) ) ) );
                         break;
                     }
-//                    case radiation_pressure_interface_update:
-//                    {
-//                        // RP-OLD
-//                        // Get body radiation pressure interface(s) (one per source)
-//                        std::map< std::string, std::shared_ptr< electromagnetism
-//                                ::RadiationPressureInterface > >
-//                                radiationPressureInterfaces =
-//                                bodyList_.at( currentBodies.at( i ) )->getRadiationPressureInterfaces( );
-//
-//                        if( radiationPressureInterfaces.size( ) == 0 )
-//                        {
-//                            throw std::runtime_error(
-//                                        "Request radiation pressure update of " + currentBodies.at( i ) +
-//                                        ", but body has no radiation pressure interfaces" );
-//                        }
-//                        else if( radiationPressureInterfaces.size( ) > 1 )
-//                        {
-//                            std::cerr << "Warning, requested radiation pressure update of " << currentBodies.at( i ) <<
-//                                         ", but body has multiple radiation pressure interfaces: updating all." << std::endl;
-//                        }
-//
-//                        // Add each interface update function to update list.
-//                        for( std::map< std::string,
-//                             std::shared_ptr< electromagnetism::RadiationPressureInterface > >
-//                             ::iterator iterator = radiationPressureInterfaces.begin( );
-//                             iterator != radiationPressureInterfaces.end( ); iterator++ )
-//                        {
-//                            updateTimeFunctionList[ radiation_pressure_interface_update ].push_back(
-//                                        std::make_pair( currentBodies.at( i ),
-//                                                        std::bind(
-//                                                            &electromagnetism
-//                                                            ::RadiationPressureInterface
-//                                                            ::updateInterface,
-//                                                            iterator->second, std::placeholders::_1 ) ) );
-//                        }
-//                        break;
-//                    }
                     }
                 }
             }
