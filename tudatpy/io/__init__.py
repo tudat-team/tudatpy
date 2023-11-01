@@ -1,4 +1,12 @@
-from ._support import *
+from tudatpy.data._support import *
+
+# Deprecation warning
+from warnings import warn
+warn(
+    "Importing from the `tudatpy.io` module is deprecated since tudatpy 0.7 " 
+    "and will raise an error two minor versions hence. To eliminate this warning "
+    "import from `tudatpy.data` instead.",
+DeprecationWarning, 2)
 
 __all__ = [
     "save2txt",
