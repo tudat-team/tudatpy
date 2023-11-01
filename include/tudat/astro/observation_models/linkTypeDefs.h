@@ -175,7 +175,7 @@ struct LinkDefinition
 
     std::map< LinkEndType, LinkEndId > linkEnds_;
 
-    unsigned int size( ) const { return linkEnds_.size( ); }
+    unsigned int size( ) const { return static_cast< unsigned int >( linkEnds_.size( ) ); }
 
     friend bool operator==( const LinkDefinition& linkEnds1, const LinkDefinition& linkEnds2 )
     {

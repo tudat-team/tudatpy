@@ -63,7 +63,8 @@ Eigen::MatrixXd normaliseUnnormaliseInverseCovarianceMatrix(
     return modifiedInverseCovarianceMatrix;
 }
 
-
+template class CovarianceAnalysisInput< double, double >;
+template struct CovarianceAnalysisOutput< double >;
 
 template class EstimationInput< double, double >;
 template struct EstimationOutput< double >;

@@ -29,7 +29,6 @@ set(electromagnetism_HEADERS
 set(electromagnetism_SOURCES
         "lorentzStaticMagneticForce.cpp"
         "lorentzStaticMagneticAcceleration.cpp"
-        "radiationPressureInterface.cpp"
         "radiationSourceModel.cpp"
         "luminosityModel.cpp"
         "sourcePanelRadiosityModel.cpp"
