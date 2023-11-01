@@ -525,8 +525,8 @@ namespace dependent_variable {
 
         m.def("radiation_pressure",
               &tp::radiationPressureDependentVariable,
-              py::arg("body"),
-              py::arg("radiating_body"),
+              py::arg("target_body"),
+              py::arg("source_body"),
               get_docstring("radiation_pressure").c_str());
 
         m.def("total_gravity_field_variation_acceleration",
@@ -717,6 +717,21 @@ namespace dependent_variable {
               &tp::inertiaTensorVariableSaveSettings,
               py::arg("body"),
               get_docstring("inertia_tensor").c_str());
+
+        m.def("received_irradiance",
+              &tp::receivedIrradianceDependentVariable,
+              py::arg("target_body"),
+              py::arg("source_body"),
+              get_docstring("received_irradiance").c_str());
+
+        m.def("received_irradiance_shadow_function",
+              &tp::receivedFractionDependentVariable,
+              py::arg("target_body"),
+              py::arg("source_body"),
+              get_docstring("received_irradiance_shadow_function").c_str());
+
+
+
 
 
     }
