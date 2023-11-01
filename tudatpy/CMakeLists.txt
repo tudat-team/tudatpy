@@ -170,24 +170,49 @@ endmacro()
 INSTALL_PURE_PYTHON_MODULE_DIR(apps)
 INSTALL_PURE_PYTHON_MODULE_DIR(bodies)
 INSTALL_PURE_PYTHON_MODULE_DIR(plotting)
+INSTALL_PURE_PYTHON_MODULE_DIR(data)
 INSTALL_PURE_PYTHON_MODULE_DIR(util)
 INSTALL_PURE_PYTHON_MODULE_DIR(io)
+
+# Create hybrid C++/Python modules
+macro(CREATE_HYBRID_CPP_PYTHON_MODULE module_dir_name)
+    install(DIRECTORY kernel_hybrid/${module_dir_name}/ DESTINATION "${TUDATPY_INSTALL_PATH}/${module_dir_name}")
+    file(COPY kernel_hybrid/${module_dir_name}/ DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/${module_dir_name}/)
+endmacro()
+# CREATE_HYBRID_CPP_PYTHON_MODULE(utils)
+CREATE_HYBRID_CPP_PYTHON_MODULE(astro)
+CREATE_HYBRID_CPP_PYTHON_MODULE(trajectory_design)
+CREATE_HYBRID_CPP_PYTHON_MODULE(constants)
+CREATE_HYBRID_CPP_PYTHON_MODULE(interface)
+# CREATE_HYBRID_CPP_PYTHON_MODULE(io)
+CREATE_HYBRID_CPP_PYTHON_MODULE(math)
+CREATE_HYBRID_CPP_PYTHON_MODULE(numerical_simulation)
+
+# TODO: Automatic exposure of hybrid C++/Python modules
+# This involves solving the dependencies which conda
+# uses for the builds. The tudat-feedstock contains the
+# recipes used to build tudatpy.
+# To build tudatpy, conda creates first machine images
+# in which to run the build:
+#   - Linux (Docker)
+#   - OSX
+#   - Windows
+# When attempting to build tudatpy using the automatic
+# kernel exposure below, the build processes fail with a
+# `module not found: numpy` error.
 #
-## Install the Python components of kernel modules
-#macro(INSTALL_PYTHON_COMPONENTS_OF_HYBRID_MODULE module_dir_name)
-#    install(DIRECTORY kernel_hybrid/${module_dir_name}/ DESTINATION "${TUDATPY_INSTALL_PATH}/${module_dir_name}")
-#    file(COPY kernel_hybrid/${module_dir_name}/ DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/${module_dir_name}/)
-#endmacro()
-## INSTALL_PYTHON_COMPONENTS_OF_HYBRID_MODULE(utils)
-##INSTALL_PYTHON_COMPONENTS_OF_HYBRID_MODULE(astro)
-#INSTALL_PYTHON_COMPONENTS_OF_HYBRID_MODULE(trajectory_design)
-##INSTALL_PYTHON_COMPONENTS_OF_HYBRID_MODULE(constants)
-##INSTALL_PYTHON_COMPONENTS_OF_HYBRID_MODULE(interface)
-## INSTALL_PYTHON_COMPONENTS_OF_HYBRID_MODULE(io)
-##INSTALL_PYTHON_COMPONENTS_OF_HYBRID_MODULE(math)
-##INSTALL_PYTHON_COMPONENTS_OF_HYBRID_MODULE(numerical_simulation)
+# The cause of this error is that the python interpreter
+# called here (PYTHON_EXECUTABLE) is badly configured.
+# This means somewhere along the build
 #
-## Expose hybrid C++/Python modules
+# SOLUTIONS ATTEMPTED
+# - build.sh
+#   - FAILED: Adding conda install statement before make
+#
+# POSSIBLE SOLUTIONS:
+# - meta.yaml
+#   - `requirements` may not be correctly set up
+# -----------------------------------------------------
 #file(COPY ${CMAKE_CURRENT_LIST_DIR}/setup_hybrid_modules.py DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/../)
 #macro(EXPOSE_HYBRID_MODULES)
 #    foreach(module ${ARGN})
