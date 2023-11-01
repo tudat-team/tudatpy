@@ -868,22 +868,22 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
         }
         case radiation_pressure_coefficient:
         {
-            if( currentBody->getRadiationPressureInterfaces( ).size( ) == 0 )
+            if( currentBody->getRadiationPressureTargetModel( ) == nullptr )
             {
-                std::string errorMessage = "Error, no radiation pressure interfaces found in body " +
+                std::string errorMessage = "Error, no radiation pressure target model found in body " +
                         currentBodyName + " when making Cr parameter.";
                 throw std::runtime_error( errorMessage );
             }
-            else if( currentBody->getRadiationPressureInterfaces( ).size( ) > 1 )
+            else if( std::dynamic_pointer_cast< electromagnetism::CannonballRadiationPressureTargetModel >( currentBody->getRadiationPressureTargetModel( ) ) == nullptr )
             {
-                std::string errorMessage = "Error, multiple radiation pressure interfaces found in body " +
-                        currentBodyName + " when making Cr parameter.";
+                std::string errorMessage = "Error, no cannonball radiation pressure target model found in body " +
+                                           currentBodyName + " when making Cr parameter.";
                 throw std::runtime_error( errorMessage );
             }
             else
             {
                 doubleParameterToEstimate = std::make_shared< RadiationPressureCoefficient >(
-                            currentBody->getRadiationPressureInterfaces( ).begin( )->second,
+                    std::dynamic_pointer_cast< electromagnetism::CannonballRadiationPressureTargetModel >( currentBody->getRadiationPressureTargetModel( ) ),
                             currentBodyName );
             }
             break;
@@ -1667,7 +1667,6 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
             }
             break;
         }
-
         case arc_wise_radiation_pressure_coefficient:
         {
             // Check input consistency
@@ -1680,24 +1679,24 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
             }
             else
             {
-                if( currentBody->getRadiationPressureInterfaces( ).size( ) == 0 )
+                if( currentBody->getRadiationPressureTargetModel( ) == nullptr )
                 {
                     std::string errorMessage = "Error, no radiation pressure interfaces found in body " +
-                            currentBodyName + " when making Cr parameter.";
+                            currentBodyName + " when making arcwise Cr parameter.";
                     throw std::runtime_error( errorMessage );
                 }
-                else if( currentBody->getRadiationPressureInterfaces( ).size( ) > 1 )
+                else if( std::dynamic_pointer_cast< electromagnetism::CannonballRadiationPressureTargetModel >( currentBody->getRadiationPressureTargetModel( ) ) == nullptr )
                 {
-                    std::string errorMessage = "Error, multiple radiation pressure interfaces found in body " +
-                            currentBodyName + " when making Cr parameter.";
+                    std::string errorMessage = "Error, no cannonball radiation pressure target model found in body " +
+                                               currentBodyName + " when making arcwise Cr parameter.";
                     throw std::runtime_error( errorMessage );
                 }
                 else
                 {
                     vectorParameterToEstimate = std::make_shared< ArcWiseRadiationPressureCoefficient >(
-                                currentBody->getRadiationPressureInterfaces( ).begin( )->second,
-                                radiationPressureCoefficientSettings->arcStartTimeList_,
-                                currentBodyName );
+                        std::dynamic_pointer_cast< electromagnetism::CannonballRadiationPressureTargetModel >( currentBody->getRadiationPressureTargetModel( ) ),
+                        radiationPressureCoefficientSettings->arcStartTimeList_,
+                        currentBodyName );
                 }
                 break;
             }

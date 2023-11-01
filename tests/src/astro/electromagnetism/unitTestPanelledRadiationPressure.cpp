@@ -5,13 +5,9 @@
 
 #include "tudat/astro/basic_astro/orbitalElementConversions.h"
 #include "tudat/basics/testMacros.h"
-
 #include "tudat/astro/basic_astro/accelerationModel.h"
-
 #include "tudat/interface/spice/spiceInterface.h"
 
-
-#include "tudat/astro/electromagnetism/panelledRadiationPressure.h"
 #include "tudat/astro/ephemerides/keplerEphemeris.h"
 #include "tudat/astro/ephemerides/simpleRotationalEphemeris.h"
 #include "tudat/astro/ephemerides/constantRotationalEphemeris.h"

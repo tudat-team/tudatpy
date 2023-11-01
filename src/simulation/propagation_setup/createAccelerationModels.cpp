@@ -29,6 +29,7 @@
 #include "tudat/simulation/propagation_setup/accelerationSettings.h"
 #include "tudat/simulation/propagation_setup/createAccelerationModels.h"
 #include "tudat/simulation/environment_setup/createFlightConditions.h"
+#include "tudat/simulation/environment_setup/createOccultationModel.h"
 
 
 namespace tudat
@@ -1082,112 +1083,160 @@ std::shared_ptr< aerodynamics::AerodynamicAcceleration > createAerodynamicAccele
                         aerodynamicCoefficients->getForceCoefficientsFrame( ) ) );
 }
 
-//! Function to create a cannonball radiation pressure acceleration model.
-std::shared_ptr< CannonBallRadiationPressureAcceleration >
-createCannonballRadiationPressureAcceleratioModel(
+std::shared_ptr< RadiationPressureAcceleration >
+createRadiationPressureAccelerationModel(
         const std::shared_ptr< Body > bodyUndergoingAcceleration,
         const std::shared_ptr< Body > bodyExertingAcceleration,
         const std::string& nameOfBodyUndergoingAcceleration,
-        const std::string& nameOfBodyExertingAcceleration )
+        const std::string& nameOfBodyExertingAcceleration,
+        const SystemOfBodies& bodies)
 {
-    // Retrieve radiation pressure interface
-    if( bodyUndergoingAcceleration->getRadiationPressureInterfaces( ).count(
-                nameOfBodyExertingAcceleration ) == 0 )
+    // using namespace tudat::electromagnetism;
+
+    // Create references to bodies in radiation pressure terms
+    const auto& sourceName = nameOfBodyExertingAcceleration;
+    const auto& targetName = nameOfBodyUndergoingAcceleration;
+    const auto& source = bodyExertingAcceleration;
+    const auto& target = bodyUndergoingAcceleration;
+
+    if( source->getRadiationSourceModel() == nullptr )
     {
-        throw std::runtime_error(
-                    "Error when making radiation pressure, no radiation pressure interface found  in " +
-                    nameOfBodyUndergoingAcceleration +
-                    " for body " + nameOfBodyExertingAcceleration );
+        throw std::runtime_error( "Error when making radiation pressure acceleration, body " +
+                                  sourceName +
+                                  " has no radiation source model." );
     }
-    std::shared_ptr< RadiationPressureInterface > radiationPressureInterface =
-            bodyUndergoingAcceleration->getRadiationPressureInterfaces( ).at(
-                nameOfBodyExertingAcceleration );
-
-    // Create acceleration model.
-    return std::make_shared< CannonBallRadiationPressureAcceleration >(
-                std::bind( &Body::getPosition, bodyExertingAcceleration ),
-                std::bind( &Body::getPosition, bodyUndergoingAcceleration ),
-                std::bind( &RadiationPressureInterface::getCurrentRadiationPressure, radiationPressureInterface ),
-                std::bind( &RadiationPressureInterface::getRadiationPressureCoefficient, radiationPressureInterface ),
-                std::bind( &RadiationPressureInterface::getArea, radiationPressureInterface ),
-                std::bind( &Body::getBodyMass, bodyUndergoingAcceleration ) );
-
-}
-
-//! Function to create a panelled radiation pressure acceleration model.
-std::shared_ptr< electromagnetism::PanelledRadiationPressureAcceleration > createPanelledRadiationPressureAcceleration(
-        const std::shared_ptr< Body > bodyUndergoingAcceleration,
-        const std::shared_ptr< Body > bodyExertingAcceleration,
-        const std::string& nameOfBodyUndergoingAcceleration,
-        const std::string& nameOfBodyExertingAcceleration )
-{
-    using namespace tudat::electromagnetism;
-
-    // Declare pointer to return object.
-    std::shared_ptr< PanelledRadiationPressureAcceleration > accelerationModel;
-
-    // Get radiation pressure interface from body undergoing acceleration, containing data on how body responds to radiation pressure.
-    std::shared_ptr< PanelledRadiationPressureInterface > radiationPressureInterface =
-            std::dynamic_pointer_cast< PanelledRadiationPressureInterface >(
-                bodyUndergoingAcceleration->getRadiationPressureInterfaces( ).at( nameOfBodyExertingAcceleration ) );
-
-    if( radiationPressureInterface == NULL )
+    if( target->getRadiationPressureTargetModel() == nullptr )
     {
-        throw std::runtime_error(
-                    "Error, body undergoing acceleration, " + nameOfBodyUndergoingAcceleration +
-                    " possesses no radiation pressure coefficient interface when making panelled radiation pressure acceleration due to " +
-                    nameOfBodyExertingAcceleration );
+        throw std::runtime_error( "Error when making radiation pressure acceleration, body " +
+                                  targetName +
+                                  " has no radiation pressure target model." );
+    }
+
+    // Cast source and target models for type checks
+    auto isotropicPointRadiationSourceModel =
+            std::dynamic_pointer_cast<electromagnetism::IsotropicPointRadiationSourceModel>(
+                    source->getRadiationSourceModel());
+    auto paneledRadiationSourceModel =
+            std::dynamic_pointer_cast<electromagnetism::PaneledRadiationSourceModel>(
+                    source->getRadiationSourceModel());
+    auto cannonballRadiationPressureTargetModel =
+            std::dynamic_pointer_cast<electromagnetism::CannonballRadiationPressureTargetModel>(
+                    target->getRadiationPressureTargetModel());
+
+    // Get target rotation function
+    std::function<Eigen::Quaterniond()> targetRotationFromLocalToGlobalFrameFunction;
+    if (cannonballRadiationPressureTargetModel != nullptr) {
+        // Cannonball target is rotation-invariant and can use identity rotation
+        // Enables use of cannonball target without target body rotation model
+        // TODO-DOMINIK maybe move to RP acceleration subclass so that cannonball does not need target rotation, then move into if below
+        targetRotationFromLocalToGlobalFrameFunction = [] () { return Eigen::Quaterniond::Identity(); };
     }
     else
     {
-        // Create acceleration model.
-        accelerationModel = std::make_shared< PanelledRadiationPressureAcceleration >(
-                    radiationPressureInterface, std::bind( &Body::getBodyMass, bodyUndergoingAcceleration ) );
+        targetRotationFromLocalToGlobalFrameFunction = [target] { return target->getCurrentRotationToGlobalFrame(); };
     }
-    return accelerationModel;
+
+    // Find occulting bodies corresponding to this source
+    auto targetOccultingBodiesMap = target->getRadiationPressureTargetModel()->getSourceToTargetOccultingBodies();
+    std::vector<std::string> sourceToTargetOccultingBodies = {};
+    if (targetOccultingBodiesMap.count(sourceName) > 0)
+    {
+        sourceToTargetOccultingBodies = targetOccultingBodiesMap.at(sourceName);
+    }
+    else if (targetOccultingBodiesMap.count("") > 0)
+    {
+        // Use the same occulting bodies for all sources of this target
+        sourceToTargetOccultingBodies = targetOccultingBodiesMap.at("");
+    }
+
+    // Check if occulting bodies are not source or target
+    for (auto& occultingBodyName : sourceToTargetOccultingBodies)
+    {
+        if (occultingBodyName == sourceName)
+        {
+            throw std::runtime_error( "Error when making radiation pressure acceleration, source body cannot "
+                                      "act as occulting body.");
+        }
+        if (occultingBodyName == targetName)
+        {
+            throw std::runtime_error( "Error when making radiation pressure acceleration, target body cannot "
+                                      "act as occulting body.");
+        }
+    }
+    auto sourceToTargetOccultationModel = createOccultationModel(sourceToTargetOccultingBodies, bodies);
+    
+    // Create acceleration model
+    if (isotropicPointRadiationSourceModel != nullptr)
+    {
+        return std::make_shared<IsotropicPointSourceRadiationPressureAcceleration>(
+                isotropicPointRadiationSourceModel,
+                source->getShapeModel(),
+                [source] { return source->getPosition(); },
+                target->getRadiationPressureTargetModel(),
+                [target] { return target->getPosition(); },
+                targetRotationFromLocalToGlobalFrameFunction,
+                [target] { return target->getBodyMass(); },
+                sourceToTargetOccultationModel);
+    }
+    else if (paneledRadiationSourceModel != nullptr)
+    {
+        return std::make_shared<PaneledSourceRadiationPressureAcceleration>(
+                paneledRadiationSourceModel,
+                [source] { return source->getPosition(); },
+                [source] { return source->getCurrentRotationToGlobalFrame(); },
+                target->getRadiationPressureTargetModel(),
+                [target] { return target->getPosition(); },
+                targetRotationFromLocalToGlobalFrameFunction,
+                [target] { return target->getBodyMass(); },
+                sourceToTargetOccultationModel);
+    }
+    else
+    {
+        throw std::runtime_error( "Error when making radiation pressure acceleration, radiation source model "
+                                  "for body " + sourceName +
+                                  " is not supported." );
+    }
 }
 
-//! Function to create a solar sail radiation pressure acceleration model.
-std::shared_ptr< SolarSailAcceleration > createSolarSailAccelerationModel(
+//! Function to create a cannonball radiation pressure acceleration model.
+// RP-OLD
+std::shared_ptr< AccelerationModel3d >
+createCannonballRadiationPressureAcceleratioModel(
     const std::shared_ptr< Body > bodyUndergoingAcceleration,
     const std::shared_ptr< Body > bodyExertingAcceleration,
-    const std::shared_ptr< Body > centralBody,
     const std::string& nameOfBodyUndergoingAcceleration,
-    const std::string& nameOfBodyExertingAcceleration )
+    const std::string& nameOfBodyExertingAcceleration,
+    const SystemOfBodies& bodies )
 {
-    // Retrieve radiation pressure interface.
+    std::cerr<<"Warning, you are using the deprecated (as of tudatpy v0.8) version of the cannonball radiation pressure model"<<
+               ", the interface you are using will be dropped from v0.9 onwards. To learn how to convert your code to the new interfaces"<<
+               ", and be able to use the powerful new radiation pressure framework, see "<<
+               "https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/translational/radiation_pressure_acceleration.html#backwards-compatibility"<<std::endl;
+    // Retrieve radiation pressure interface
     if( bodyUndergoingAcceleration->getRadiationPressureInterfaces( ).count(
-            nameOfBodyExertingAcceleration ) == 0 )
+        nameOfBodyExertingAcceleration ) == 0 )
     {
         throw std::runtime_error(
             "Error when making radiation pressure, no radiation pressure interface found  in " +
             nameOfBodyUndergoingAcceleration +
             " for body " + nameOfBodyExertingAcceleration );
     }
+    std::shared_ptr< RadiationPressureInterface > radiationPressureInterface =
+        bodyUndergoingAcceleration->getRadiationPressureInterfaces( ).at(
+            nameOfBodyExertingAcceleration );
 
-    // Get radiation pressure interface from body undergoing acceleration, containing data on how body responds to radiation pressure.
-    std::shared_ptr< SolarSailingRadiationPressureInterface > radiationPressureInterface =
-            std::dynamic_pointer_cast< SolarSailingRadiationPressureInterface >(
-                bodyUndergoingAcceleration->getRadiationPressureInterfaces( ).at( nameOfBodyExertingAcceleration ) );
+    std::map<std::string, std::vector<std::string> > occultingBodies;
+    occultingBodies[ nameOfBodyExertingAcceleration ] = radiationPressureInterface->getOccultingBodies( );
+    std::shared_ptr< CannonballRadiationPressureTargetModel > cannonBallTargetModel =
+        std::make_shared< CannonballRadiationPressureTargetModel >(
+            radiationPressureInterface->getArea( ),
+            radiationPressureInterface->getRadiationPressureCoefficient( ),
+            occultingBodies );
+    bodyUndergoingAcceleration->setRadiationPressureTargetModel( cannonBallTargetModel );
 
-    // Create and return solar sailing acceleration model.
-    return std::make_shared< SolarSailAcceleration >(
-                std::bind( &Body::getPosition, bodyExertingAcceleration ),
-                std::bind( &Body::getPosition, bodyUndergoingAcceleration ),
-                std::bind( &Body::getVelocity, bodyUndergoingAcceleration ),
-                std::bind( &Body::getVelocity, centralBody ),
-                std::bind( &SolarSailingRadiationPressureInterface::getCurrentRadiationPressure, radiationPressureInterface ),
-                std::bind( &SolarSailingRadiationPressureInterface::getCurrentConeAngle, radiationPressureInterface ),
-                std::bind( &SolarSailingRadiationPressureInterface::getCurrentClockAngle, radiationPressureInterface ),
-                std::bind( &SolarSailingRadiationPressureInterface::getFrontEmissivityCoefficient, radiationPressureInterface ),
-                std::bind( &SolarSailingRadiationPressureInterface::getBackEmissivityCoefficient, radiationPressureInterface ),
-                std::bind( &SolarSailingRadiationPressureInterface::getFrontLambertianCoefficient, radiationPressureInterface ),
-                std::bind( &SolarSailingRadiationPressureInterface::getBackLambertianCoefficient, radiationPressureInterface ),
-                std::bind( &SolarSailingRadiationPressureInterface::getReflectivityCoefficient, radiationPressureInterface ),
-                std::bind( &SolarSailingRadiationPressureInterface::getSpecularReflectionCoefficient, radiationPressureInterface ),
-                std::bind( &RadiationPressureInterface::getArea, radiationPressureInterface ),
-                std::bind( &Body::getBodyMass, bodyUndergoingAcceleration ) );
-
+    return createRadiationPressureAccelerationModel(
+        bodyUndergoingAcceleration, bodyExertingAcceleration, nameOfBodyUndergoingAcceleration, nameOfBodyExertingAcceleration,
+        bodies );
 }
 
 //! Function to create Yarkovsky acceleration model, based on the simplified model of https://doi.org/10.1038/s43247-021-00337-x.
@@ -1720,19 +1769,21 @@ std::shared_ptr< AccelerationModel< Eigen::Vector3d > > createAccelerationModel(
                     nameOfBodyUndergoingAcceleration,
                     nameOfBodyExertingAcceleration );
         break;
+    case radiation_pressure:
+        accelerationModelPointer = createRadiationPressureAccelerationModel(
+                    bodyUndergoingAcceleration,
+                    bodyExertingAcceleration,
+                    nameOfBodyUndergoingAcceleration,
+                    nameOfBodyExertingAcceleration,
+                    bodies);
+        break;
     case cannon_ball_radiation_pressure:
         accelerationModelPointer = createCannonballRadiationPressureAcceleratioModel(
-                    bodyUndergoingAcceleration,
-                    bodyExertingAcceleration,
-                    nameOfBodyUndergoingAcceleration,
-                    nameOfBodyExertingAcceleration );
-        break;
-    case panelled_radiation_pressure_acceleration:
-        accelerationModelPointer = createPanelledRadiationPressureAcceleration(
-                    bodyUndergoingAcceleration,
-                    bodyExertingAcceleration,
-                    nameOfBodyUndergoingAcceleration,
-                    nameOfBodyExertingAcceleration );
+            bodyUndergoingAcceleration,
+            bodyExertingAcceleration,
+            nameOfBodyUndergoingAcceleration,
+            nameOfBodyExertingAcceleration,
+            bodies);
         break;
     case thrust_acceleration:
         accelerationModelPointer = createThrustAcceleratioModel(
@@ -1778,14 +1829,6 @@ std::shared_ptr< AccelerationModel< Eigen::Vector3d > > createAccelerationModel(
                     nameOfBodyUndergoingAcceleration,
                     nameOfBodyExertingAcceleration,
                     accelerationSettings );
-        break;
-    case solar_sail_acceleration:
-        accelerationModelPointer = createSolarSailAccelerationModel(
-                    bodyUndergoingAcceleration,
-                    bodyExertingAcceleration,
-                    centralBody,
-                    nameOfBodyUndergoingAcceleration,
-                    nameOfBodyExertingAcceleration );
         break;
     case yarkovsky_acceleration:
         accelerationModelPointer = createYarkovskyAcceleration(

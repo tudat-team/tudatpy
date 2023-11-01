@@ -132,7 +132,11 @@ enum PropagationDependentVariables
     aerodynamic_control_surface_force_coefficients_increment_dependent_variable = 59,
     aerodynamic_control_surface_moment_coefficients_increment_dependent_variable = 60,
     body_center_of_mass = 61,
-    body_inertia_tensor = 62
+    body_inertia_tensor = 62,
+    received_irradiance = 63,
+    received_fraction = 64,
+    visible_and_emitting_source_panel_count = 65,
+    visible_source_area = 66
 };
 
 // Functional base class for defining settings for dependent variables that are to be saved during propagation
@@ -1353,13 +1357,44 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > minimumConstellati
                bodyName, stationName, bodiesToCheck, elevationAngleLimit );
 }
 
+inline std::shared_ptr< SingleDependentVariableSaveSettings > receivedIrradianceDependentVariable(
+        const std::string& targetBody,
+        const std::string& sourceBody )
+{
+    return std::make_shared< SingleDependentVariableSaveSettings >(
+            received_irradiance, targetBody, sourceBody );
+}
+
+inline std::shared_ptr< SingleDependentVariableSaveSettings > receivedFractionDependentVariable(
+        const std::string& targetBody,
+        const std::string& sourceBody )
+{
+    return std::make_shared< SingleDependentVariableSaveSettings >(
+            received_fraction, targetBody, sourceBody );
+}
+
+inline std::shared_ptr< SingleDependentVariableSaveSettings > visibleAndEmittingSourcePanelCountDependentVariable(
+        const std::string& targetBody,
+        const std::string& sourceBody)
+{
+    return std::make_shared< SingleDependentVariableSaveSettings >(
+            visible_and_emitting_source_panel_count, targetBody, sourceBody);
+}
+
+inline std::shared_ptr< SingleDependentVariableSaveSettings > visibleSourceAreaDependentVariable(
+        const std::string& targetBody,
+        const std::string& sourceBody)
+{
+    return std::make_shared<SingleDependentVariableSaveSettings>(
+        visible_source_area, targetBody, sourceBody );
+}
+
 inline std::shared_ptr< SingleDependentVariableSaveSettings > centerOfMassVariableSaveSettings(
     const std::string& bodyName )
 {
     return std::make_shared< SingleDependentVariableSaveSettings >(
         body_center_of_mass, bodyName );
 }
-
 
 inline std::shared_ptr< SingleDependentVariableSaveSettings > inertiaTensorVariableSaveSettings(
     const std::string& bodyName )
