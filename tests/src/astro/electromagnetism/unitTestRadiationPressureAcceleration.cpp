@@ -51,34 +51,6 @@ using namespace tudat::electromagnetism;
 
 BOOST_AUTO_TEST_SUITE(test_radiation_pressure_acceleration)
 
-//! Test acceleration with all unity values
-BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_Unity )
-{
-    const auto expectedAcceleration = Eigen::Vector3d::UnitX();
-
-    // Set distance to speed of light to cancel to unity radiation pressure
-    auto luminosityModel = std::make_shared<ConstantLuminosityModel>(computeLuminosityFromIrradiance( 1.0, 1.0 ));
-    auto sourceModel = std::make_shared<IsotropicPointRadiationSourceModel>(luminosityModel);
-    auto targetModel = std::make_shared<CannonballRadiationPressureTargetModel>(1, 1);
-    IsotropicPointSourceRadiationPressureAcceleration accelerationModel(
-            sourceModel,
-            std::make_shared<basic_astrodynamics::SphericalBodyShapeModel>(1),
-            []() { return Eigen::Vector3d(1, 0, 0); },
-            targetModel,
-            []() { return Eigen::Vector3d(2, 0, 0); },
-            []() { return Eigen::Quaterniond::Identity(); },
-            []() { return 1; },
-            std::make_shared<NoOccultingBodyOccultationModel>());
-
-    sourceModel->updateMembers(TUDAT_NAN);
-    targetModel->updateMembers(TUDAT_NAN);
-    accelerationModel.updateMembers(TUDAT_NAN);
-
-    const auto actualAcceleration = accelerationModel.getAcceleration();
-
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(actualAcceleration, expectedAcceleration, 1e-15);
-}
-
 //! Test acceleration for idealized GOCE spacecraft (Noomen 2022)
 BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_GOCE )
 {

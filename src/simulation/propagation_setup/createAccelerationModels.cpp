@@ -1198,6 +1198,42 @@ createRadiationPressureAccelerationModel(
     }
 }
 
+//! Function to create a cannonball radiation pressure acceleration model.
+// RP-OLD
+std::shared_ptr< AccelerationModel3d >
+createCannonballRadiationPressureAcceleratioModel(
+    const std::shared_ptr< Body > bodyUndergoingAcceleration,
+    const std::shared_ptr< Body > bodyExertingAcceleration,
+    const std::string& nameOfBodyUndergoingAcceleration,
+    const std::string& nameOfBodyExertingAcceleration,
+    const SystemOfBodies& bodies )
+{
+    // Retrieve radiation pressure interface
+    if( bodyUndergoingAcceleration->getRadiationPressureInterfaces( ).count(
+        nameOfBodyExertingAcceleration ) == 0 )
+    {
+        throw std::runtime_error(
+            "Error when making radiation pressure, no radiation pressure interface found  in " +
+            nameOfBodyUndergoingAcceleration +
+            " for body " + nameOfBodyExertingAcceleration );
+    }
+    std::shared_ptr< RadiationPressureInterface > radiationPressureInterface =
+        bodyUndergoingAcceleration->getRadiationPressureInterfaces( ).at(
+            nameOfBodyExertingAcceleration );
+
+    std::map<std::string, std::vector<std::string> > occultingBodies;
+    occultingBodies[ nameOfBodyExertingAcceleration ] = radiationPressureInterface->getOccultingBodies( );
+    std::shared_ptr< CannonballRadiationPressureTargetModel > cannonBallTargetModel =
+        std::make_shared< CannonballRadiationPressureTargetModel >(
+            radiationPressureInterface->getArea( ),
+            radiationPressureInterface->getRadiationPressureCoefficient( ),
+            occultingBodies );
+    bodyUndergoingAcceleration->setRadiationPressureTargetModel( cannonBallTargetModel );
+
+    return createRadiationPressureAccelerationModel(
+        bodyUndergoingAcceleration, bodyExertingAcceleration, nameOfBodyUndergoingAcceleration, nameOfBodyExertingAcceleration,
+        bodies );
+}
 
 //! Function to create Yarkovsky acceleration model, based on the simplified model of https://doi.org/10.1038/s43247-021-00337-x.
 std::shared_ptr< electromagnetism::YarkovskyAcceleration > createYarkovskyAcceleration(
@@ -1736,6 +1772,14 @@ std::shared_ptr< AccelerationModel< Eigen::Vector3d > > createAccelerationModel(
                     nameOfBodyUndergoingAcceleration,
                     nameOfBodyExertingAcceleration,
                     bodies);
+        break;
+    case cannon_ball_radiation_pressure:
+        accelerationModelPointer = createCannonballRadiationPressureAcceleratioModel(
+            bodyUndergoingAcceleration,
+            bodyExertingAcceleration,
+            nameOfBodyUndergoingAcceleration,
+            nameOfBodyExertingAcceleration,
+            bodies);
         break;
     case thrust_acceleration:
         accelerationModelPointer = createThrustAcceleratioModel(
