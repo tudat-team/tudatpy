@@ -400,26 +400,6 @@ createRadiationPressureAccelerationModel(
         const std::string& nameOfBodyExertingAcceleration,
         const SystemOfBodies& bodies );
 
-//! Function to create a cannonball radiation pressure acceleration model.
-/*!
- *  Function to create a cannonball radiation pressure automatically creates all required
- *  links to environment models, vehicle properies and frame conversions
- *  \param bodyUndergoingAcceleration Pointer to object of body that is being accelerated.
- *  \param bodyExertingAcceleration Pointer to object of body that is exerting the acceleration,
- *  i.e. body emitting the radiation.
- *  \param nameOfBodyUndergoingAcceleration Name of object of body that is being accelerated.
- *  \param nameOfBodyExertingAcceleration Name of object of body that is exerting the acceleration.
- *  \return Pointer to object for calculating cannonball radiation pressures acceleration.
- */
-std::shared_ptr< basic_astrodynamics::AccelerationModel3d >
-createCannonballRadiationPressureAcceleratioModel(
-        const std::shared_ptr< Body > bodyUndergoingAcceleration,
-        const std::shared_ptr< Body > bodyExertingAcceleration,
-        const std::string& nameOfBodyUndergoingAcceleration,
-        const std::string& nameOfBodyExertingAcceleration,
-        const SystemOfBodies& bodies );
-
-
 
 //! Function to create a thrust acceleration model.
 /*!
