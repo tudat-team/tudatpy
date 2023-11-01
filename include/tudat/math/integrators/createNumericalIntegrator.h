@@ -247,7 +247,8 @@ std::shared_ptr< IntegratorStepSizeController< TimeStepType, StateType > > creat
         {
 
             stepSizeController = std::make_shared<PerElementIntegratorStepSizeController<TimeStepType, StateType> >(
-                perElementSettings->relativeErrorTolerance_, perElementSettings->absoluteErrorTolerance_,
+                perElementSettings->relativeErrorTolerance_,
+                perElementSettings->absoluteErrorTolerance_,
                 perElementSettings->safetyFactorForNextStepSize_, integratorOrder + 1,
                 perElementSettings->minimumFactorDecreaseForNextStepSize_,
                 perElementSettings->maximumFactorDecreaseForNextStepSize_ );
@@ -288,7 +289,7 @@ std::shared_ptr< IntegratorStepSizeController< TimeStepType, StateType > > creat
             stepSizeController = std::make_shared<PerBlockIntegratorStepSizeController<TimeStepType, StateType> >(
                 perBlockSettings->blocksToCheckFunction_,
                 perBlockMatrixSettings->relativeErrorTolerance_.template cast< typename StateType::Scalar >( ),
-                    perBlockMatrixSettings->absoluteErrorTolerance_.template cast< typename StateType::Scalar >( ),
+                perBlockMatrixSettings->absoluteErrorTolerance_.template cast< typename StateType::Scalar >( ),
                 perBlockMatrixSettings->safetyFactorForNextStepSize_, integratorOrder + 1,
                 perBlockMatrixSettings->minimumFactorDecreaseForNextStepSize_,
                 perBlockMatrixSettings->maximumFactorDecreaseForNextStepSize_ );
