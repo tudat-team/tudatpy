@@ -40,7 +40,7 @@ namespace vehicle_systems {
               &tss::frameFixedPanelGeometry,
               py::arg("surface_normal"),
               py::arg("area"),
-              py::arg("frame_orientation"),
+              py::arg("frame_orientation") = "",
               get_docstring("frame_fixed_geometry").c_str());
 
         m.def("body_tracking_panel_geometry",
@@ -48,15 +48,15 @@ namespace vehicle_systems {
               py::arg("body_to_track"),
               py::arg("towards_tracked_body"),
               py::arg("area"),
-              py::arg("frame_orientation"),
-              get_docstring("frame_fixed_geometry").c_str());
+              py::arg("frame_orientation") = "",
+              get_docstring("body_tracking_panel_geometry").c_str());
 
         m.def("time_varying_panel_geometry",
               &tss::timeVaryingPanelGeometry,
               py::arg("surface_normal_function"),
               py::arg("area"),
               py::arg("frame_orientation"),
-              get_docstring("frame_fixed_geometry").c_str());
+              get_docstring("time_varying_panel_geometry").c_str());
 
         py::class_<tss::BodyPanelSettings,
             std::shared_ptr<tss::BodyPanelSettings>>(m, "BodyPanelSettings",
@@ -68,7 +68,7 @@ namespace vehicle_systems {
               py::arg("panel_geometry"),
               py::arg("panel_reflection_law") = nullptr,
               py::arg("panel_type_id") = "",
-              get_docstring("frame_fixed_geometry").c_str());
+              get_docstring("body_panel_settings").c_str());
 
         py::class_<tss::FullPanelledBodySettings,
             std::shared_ptr<tss::FullPanelledBodySettings>>(m, "FullPanelledBodySettings",
@@ -79,7 +79,21 @@ namespace vehicle_systems {
               &tss::fullPanelledBodySettings,
               py::arg("panel_settings"),
               py::arg("part_rotation_model_settings") = std::map< std::string, std::shared_ptr< tss::RotationModelSettings > >( ),
-              get_docstring("frame_fixed_geometry").c_str() );
+              get_docstring("full_panelled_body_settings").c_str() );
+
+        m.def("box_wing_panelled_body_settings",
+              &tss::bodyWingPanelledGeometry,
+              py::arg("length"),
+              py::arg("width"),
+              py::arg("height"),
+              py::arg("solar_array_area"),
+              py::arg("box_specular_reflectivity"),
+              py::arg("box_diffuse_reflectivity"),
+              py::arg("solar_array_specular_reflectivity"),
+              py::arg("solar_array_diffuse_reflectivity"),
+              py::arg("box_instantaneous_reradiation ") = true,
+              py::arg("solar_array_instantaneous_reradiation ") = true,
+              get_docstring("box_wing_panelled_body_settings").c_str() );
     }
 
 }// namespace vehicle_systems
