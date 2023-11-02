@@ -1,6 +1,6 @@
 # This file, by virtue of the import statement below, merges
 # the Tudat kernel module `tudatpy.kernel.astro.gravitation` with
-# its Python extensions defined in `tudatpy/kernel_hybrid/astro/gravitation`.
+# its Python extensions defined in `tudatpy/astro/gravitation`.
 # 
 # This allows the import of all the C++ and Python submodules of the 
 # `astro.gravitation` kernel module directly from tudatpy:

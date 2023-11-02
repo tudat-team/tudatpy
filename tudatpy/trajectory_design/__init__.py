@@ -1,6 +1,6 @@
 # This file, by virtue of the import statement below, merges
 # the Tudat kernel module `tudatpy.kernel.trajectory_design` with
-# its Python extensions defined in `tudatpy/kernel_hybrid/trajectory_design`.
+# its Python extensions defined in `tudatpy/trajectory_design`.
 # 
 # This allows the import of all the C++ and Python submodules of the 
 # `trajectory_design` kernel module directly from tudatpy:

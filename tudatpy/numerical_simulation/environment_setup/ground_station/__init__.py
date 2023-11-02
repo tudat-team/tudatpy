@@ -1,6 +1,6 @@
 # This file, by virtue of the import statement below, merges
 # the Tudat kernel module `tudatpy.kernel.numerical_simulation.environment_setup.ground_station` with
-# its Python extensions defined in `tudatpy/kernel_hybrid/numerical_simulation/environment_setup/ground_station`.
+# its Python extensions defined in `tudatpy/numerical_simulation/environment_setup/ground_station`.
 # 
 # This allows the import of all the C++ and Python submodules of the 
 # `numerical_simulation.environment_setup.ground_station` kernel module directly from tudatpy:

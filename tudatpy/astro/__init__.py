@@ -1,6 +1,6 @@
 # This file, by virtue of the import statement below, merges
 # the Tudat kernel module `tudatpy.kernel.astro` with
-# its Python extensions defined in `tudatpy/kernel_hybrid/astro`.
+# its Python extensions defined in `tudatpy/astro`.
 # 
 # This allows the import of all the C++ and Python submodules of the 
 # `astro` kernel module directly from tudatpy:

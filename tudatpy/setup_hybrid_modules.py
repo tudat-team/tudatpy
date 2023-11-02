@@ -24,7 +24,7 @@ disclaimer = lambda module_name: f"""# THE FOLLOWING IMPORT STATEMENT HAS BEEN A
 #
 # This file, by virtue of the import statement below, merges
 # the Tudat kernel module `tudatpy.kernel.{module_name}` with
-# its Python extensions defined in `tudatpy/kernel_hybrid/{module_name.replace('.', '/')}`.
+# its Python extensions defined in `tudatpy/{module_name.replace('.', '/')}`.
 # 
 # This allows the import of all the C++ and Python submodules of the 
 # `{module_name}` kernel module directly from tudatpy:
@@ -51,7 +51,7 @@ disclaimer = lambda module_name: f"""# THE FOLLOWING IMPORT STATEMENT HAS BEEN A
 # module (at the same level as this file), which is not possible with the `def_submodule` 
 # function of pybind11.
 # This is automatically done at compile-time, by moving the Python extensions of this module 
-# from `tudatpy/kernel_hybrid/{module_name.replace('.', '/')}` to this module (the module
+# from `tudatpy/{module_name.replace('.', '/')}` to this module (the module
 # corresponding to this `__init__.py` file: `tudatpy.{module_name}`). 
 """
 
