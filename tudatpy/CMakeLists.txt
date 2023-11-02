@@ -163,7 +163,7 @@ install(FILES ${TUDATPY_PYTHON_FILES} "${CMAKE_CURRENT_BINARY_DIR}/_version.py"
 
 # Install hybrid C++/Python modules
 macro(INSTALL_HYBRID_CPP_PYTHON_MODULE module_dir_name)
-    install(DIRECTORY kernel_hybrid/${module_dir_name}/ DESTINATION "${TUDATPY_INSTALL_PATH}/${module_dir_name}")
+    install(DIRECTORY ${module_dir_name}/ DESTINATION "${TUDATPY_INSTALL_PATH}/${module_dir_name}")
     file(COPY ${module_dir_name}/ DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/${module_dir_name}/)
 endmacro()
 

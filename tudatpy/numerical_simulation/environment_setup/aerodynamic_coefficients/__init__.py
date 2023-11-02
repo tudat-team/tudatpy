@@ -1,6 +1,6 @@
 # This file, by virtue of the import statement below, merges
 # the Tudat kernel module `tudatpy.kernel.numerical_simulation.environment_setup.aerodynamic_coefficients` with
-# its Python extensions defined in `tudatpy/kernel_hybrid/numerical_simulation/environment_setup/aerodynamic_coefficients`.
+# its Python extensions defined in `tudatpy/numerical_simulation/environment_setup/aerodynamic_coefficients`.
 # 
 # This allows the import of all the C++ and Python submodules of the 
 # `numerical_simulation.environment_setup.aerodynamic_coefficients` kernel module directly from tudatpy:

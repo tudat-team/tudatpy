@@ -1,6 +1,6 @@
 # This file, by virtue of the import statement below, merges
 # the Tudat kernel module `tudatpy.kernel.math.numerical_integrators` with
-# its Python extensions defined in `tudatpy/kernel_hybrid/math/numerical_integrators`.
+# its Python extensions defined in `tudatpy/math/numerical_integrators`.
 # 
 # This allows the import of all the C++ and Python submodules of the 
 # `math.numerical_integrators` kernel module directly from tudatpy:

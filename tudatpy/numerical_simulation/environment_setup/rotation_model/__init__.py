@@ -1,6 +1,6 @@
 # This file, by virtue of the import statement below, merges
 # the Tudat kernel module `tudatpy.kernel.numerical_simulation.environment_setup.rotation_model` with
-# its Python extensions defined in `tudatpy/kernel_hybrid/numerical_simulation/environment_setup/rotation_model`.
+# its Python extensions defined in `tudatpy/numerical_simulation/environment_setup/rotation_model`.
 # 
 # This allows the import of all the C++ and Python submodules of the 
 # `numerical_simulation.environment_setup.rotation_model` kernel module directly from tudatpy:

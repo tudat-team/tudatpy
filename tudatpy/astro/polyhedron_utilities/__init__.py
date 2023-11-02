@@ -1,6 +1,6 @@
 # This file, by virtue of the import statement below, merges
 # the Tudat kernel module `tudatpy.kernel.astro.polyhedron_utilities` with
-# its Python extensions defined in `tudatpy/kernel_hybrid/astro/polyhedron_utilities`.
+# its Python extensions defined in `tudatpy/astro/polyhedron_utilities`.
 # 
 # This allows the import of all the C++ and Python submodules of the 
 # `astro.polyhedron_utilities` kernel module directly from tudatpy:

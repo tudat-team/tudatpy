@@ -1,6 +1,6 @@
 # This file, by virtue of the import statement below, merges
 # the Tudat kernel module `tudatpy.kernel.math.geometry` with
-# its Python extensions defined in `tudatpy/kernel_hybrid/math/geometry`.
+# its Python extensions defined in `tudatpy/math/geometry`.
 # 
 # This allows the import of all the C++ and Python submodules of the 
 # `math.geometry` kernel module directly from tudatpy:

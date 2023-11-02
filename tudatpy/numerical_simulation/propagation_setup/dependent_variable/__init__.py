@@ -1,6 +1,6 @@
 # This file, by virtue of the import statement below, merges
 # the Tudat kernel module `tudatpy.kernel.numerical_simulation.propagation_setup.dependent_variable` with
-# its Python extensions defined in `tudatpy/kernel_hybrid/numerical_simulation/propagation_setup/dependent_variable`.
+# its Python extensions defined in `tudatpy/numerical_simulation/propagation_setup/dependent_variable`.
 # 
 # This allows the import of all the C++ and Python submodules of the 
 # `numerical_simulation.propagation_setup.dependent_variable` kernel module directly from tudatpy:

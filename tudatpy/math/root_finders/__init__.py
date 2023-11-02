@@ -1,6 +1,6 @@
 # This file, by virtue of the import statement below, merges
 # the Tudat kernel module `tudatpy.kernel.math.root_finders` with
-# its Python extensions defined in `tudatpy/kernel_hybrid/math/root_finders`.
+# its Python extensions defined in `tudatpy/math/root_finders`.
 # 
 # This allows the import of all the C++ and Python submodules of the 
 # `math.root_finders` kernel module directly from tudatpy:

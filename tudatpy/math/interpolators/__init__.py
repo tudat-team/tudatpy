@@ -1,6 +1,6 @@
 # This file, by virtue of the import statement below, merges
 # the Tudat kernel module `tudatpy.kernel.math.interpolators` with
-# its Python extensions defined in `tudatpy/kernel_hybrid/math/interpolators`.
+# its Python extensions defined in `tudatpy/math/interpolators`.
 # 
 # This allows the import of all the C++ and Python submodules of the 
 # `math.interpolators` kernel module directly from tudatpy:

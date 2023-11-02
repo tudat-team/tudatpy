@@ -1,6 +1,6 @@
 # This file, by virtue of the import statement below, merges
 # the Tudat kernel module `tudatpy.kernel.astro.time_conversion` with
-# its Python extensions defined in `tudatpy/kernel_hybrid/astro/time_conversion`.
+# its Python extensions defined in `tudatpy/astro/time_conversion`.
 # 
 # This allows the import of all the C++ and Python submodules of the 
 # `astro.time_conversion` kernel module directly from tudatpy:
