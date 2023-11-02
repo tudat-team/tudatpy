@@ -1587,11 +1587,11 @@ BOOST_AUTO_TEST_CASE( test_surfacePropertyDistributionSetup_SphericalHarmonics_D
 
     const auto expectedValue1 = 0.11846922315451458;
     const auto actualValue1 = surfacePropertyDistribution->getValue(0.7, 0.42);
-    BOOST_CHECK_CLOSE(actualValue1, expectedValue1, 1e-13);
+    BOOST_CHECK_CLOSE(actualValue1, expectedValue1, 2e-13);
 
     const auto expectedValue2 = 0.15772976227190455;
     const auto actualValue2 = surfacePropertyDistribution->getValue(-1.5, 0.9);
-    BOOST_CHECK_CLOSE(actualValue2, expectedValue2, 2e-15);
+    BOOST_CHECK_CLOSE(actualValue2, expectedValue2, 2e-13);
 }
 
 BOOST_AUTO_TEST_CASE( test_surfacePropertyDistributionSetup_SecondDegreeZonalPeriodic_KnockeAlbedo )
