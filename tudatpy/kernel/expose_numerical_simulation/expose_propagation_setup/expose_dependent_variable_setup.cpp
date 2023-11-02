@@ -730,6 +730,11 @@ namespace dependent_variable {
               py::arg("source_body"),
               get_docstring("received_irradiance_shadow_function").c_str());
 
+        m.def("visible_radiation_source_area",
+              &tp::visibleSourceAreaDependentVariable,
+              py::arg("target_body"),
+              py::arg("source_body"),
+              get_docstring("received_irradiance_shadow_function").c_str());
 
 
 
