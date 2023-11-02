@@ -369,7 +369,7 @@ std::pair<std::vector<double>, std::vector<double>> generateEvenlySpacedPoints_S
     {
         // Numerator and denominator of the atan argument seem to be switched in the given equation, which produced
         // points that are skewed towards the poles
-        double polarAngle = M_PI_2 - atan(z / sqrt(1 - z*z));
+        double polarAngle = mathematical_constants::PI / 2.0 - atan(z / sqrt(1 - z*z));
         double azimuthAngle;
         if (j == 1)
         {
