@@ -92,13 +92,6 @@ void expose_estimated_parameter_setup(py::module &m) {
         .def_readwrite("custom_partial_settings", &tep::EstimatableParameterSettings::customPartialSettings_ );
 
 
-    // .def(py::init<
-            //      const std::string,
-            //      const tep::EstimatebleParametersEnum,
-            //      const std::string>(),
-            //      py::arg("associated_body"),
-            //      py::arg("parameter_type"),
-            //      py::arg("point_on_body_id") = "");
 
 
 
@@ -424,7 +417,7 @@ void expose_estimated_parameter_setup(py::module &m) {
     m.def("custom_parameter",
           &tep::customParameterSettings,
           py::arg("custom_id"),
-          py::arg("parameter_name"),
+          py::arg("parameter_size"),
           py::arg("get_parameter_function"),
           py::arg("set_parameter_function"),
           get_docstring("custom_parameter").c_str() );
