@@ -342,23 +342,66 @@ public:
 
     virtual void throwExceptionIfNotFullyDefined( ){ }
 
-    std::shared_ptr< CustomAccelerationPartialSettings > getCustomPartialSettings( )
+    std::vector< std::shared_ptr< CustomAccelerationPartialSettings > > getCustomPartialSettings( )
     {
         return customPartialSettings_;
     }
 
-    void setCustomPartialSettings( const std::shared_ptr< CustomAccelerationPartialSettings > customPartialSettings )
+    bool hasCustomAccelerationPartialSettings( const std::string bodyUndergoingAcceleration,
+                                               const std::string bodyExertingAcceleration,
+                                               const basic_astrodynamics::AvailableAcceleration accelerationType )
     {
-        customPartialSettings_ = customPartialSettings;
+        bool hasCustomSettings = false;
+        for( unsigned int i = 0; i < customPartialSettings_.size( ); i++ )
+        {
+            if( customPartialSettings_.at( i )->accelerationMatches( bodyUndergoingAcceleration, bodyExertingAcceleration, accelerationType ) == true )
+            {
+                hasCustomSettings = true;
+            }
+        }
+        return hasCustomSettings;
     }
 
+    void addCustomPartialSettings( const std::shared_ptr< CustomAccelerationPartialSettings > customPartialSettings )
+    {
+        customPartialSettings_.push_back( customPartialSettings );
+        checkCustomPartialSettings( );
+    }
+
+    void setCustomPartialSettings( const std::vector< std::shared_ptr< CustomAccelerationPartialSettings > > customPartialSettings )
+    {
+        customPartialSettings_ = customPartialSettings;
+        checkCustomPartialSettings( );
+    }
 
 protected:
 
     //! Identifier of parameter.
     EstimatebleParameterIdentifier parameterName_;
 
-    std::shared_ptr< CustomAccelerationPartialSettings > customPartialSettings_;
+    std::vector< std::shared_ptr< CustomAccelerationPartialSettings > > customPartialSettings_;
+
+    void checkCustomPartialSettings( )
+    {
+        for( unsigned int i = 0; i < customPartialSettings_.size( ); i++ )
+        {
+            for( unsigned int j = i + 1; j < customPartialSettings_.size( ); j++ )
+            {
+                if( customPartialSettings_.at( i )->accelerationMatches(
+                    customPartialSettings_.at( j )->bodyUndergoingAcceleration_,
+                    customPartialSettings_.at( j )->bodyExertingAcceleration_,
+                    customPartialSettings_.at( j )->accelerationType_  ) )
+                {
+                    throw std::runtime_error( "Error, found multiple custom partials for acceleration on (" +
+                                                  customPartialSettings_.at( j )->bodyUndergoingAcceleration_ +") due to (" +
+                                                  customPartialSettings_.at( j )->bodyExertingAcceleration_ + ") of type: " +
+                                                  basic_astrodynamics::getAccelerationModelName( customPartialSettings_.at( j )->accelerationType_ ) );
+                }
+            }
+
+        }
+    }
+
 
 };
 
