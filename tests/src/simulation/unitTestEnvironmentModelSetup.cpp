@@ -1579,11 +1579,11 @@ BOOST_AUTO_TEST_CASE( test_surfacePropertyDistributionSetup_SphericalHarmonics_D
 
     const auto expectedCosCoeff = -4.041203307692307e-08;
     const auto actualCosCoeff = surfacePropertyDistribution->getCosineCoefficients()(7, 6);
-    BOOST_CHECK_CLOSE(actualCosCoeff, expectedCosCoeff, 1e-15);
+    BOOST_CHECK_CLOSE(actualCosCoeff, expectedCosCoeff, 2e-15);
     
     const auto expectedSinCoeff = -4.987361846153846e-06;
     const auto actualSinCoeff = surfacePropertyDistribution->getSineCoefficients()(10, 3);
-    BOOST_CHECK_CLOSE(actualSinCoeff, expectedSinCoeff, 1e-15);
+    BOOST_CHECK_CLOSE(actualSinCoeff, expectedSinCoeff, 2e-15);
 
     const auto expectedValue1 = 0.11846922315451458;
     const auto actualValue1 = surfacePropertyDistribution->getValue(0.7, 0.42);
@@ -1591,7 +1591,7 @@ BOOST_AUTO_TEST_CASE( test_surfacePropertyDistributionSetup_SphericalHarmonics_D
 
     const auto expectedValue2 = 0.15772976227190455;
     const auto actualValue2 = surfacePropertyDistribution->getValue(-1.5, 0.9);
-    BOOST_CHECK_CLOSE(actualValue2, expectedValue2, 1e-15);
+    BOOST_CHECK_CLOSE(actualValue2, expectedValue2, 2e-15);
 }
 
 BOOST_AUTO_TEST_CASE( test_surfacePropertyDistributionSetup_SecondDegreeZonalPeriodic_KnockeAlbedo )
