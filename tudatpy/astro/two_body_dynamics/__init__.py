@@ -1,6 +1,6 @@
 # This file, by virtue of the import statement below, merges
 # the Tudat kernel module `tudatpy.kernel.astro.two_body_dynamics` with
-# its Python extensions defined in `tudatpy/kernel_hybrid/astro/two_body_dynamics`.
+# its Python extensions defined in `tudatpy/astro/two_body_dynamics`.
 # 
 # This allows the import of all the C++ and Python submodules of the 
 # `astro.two_body_dynamics` kernel module directly from tudatpy:

@@ -1,6 +1,6 @@
 # This file, by virtue of the import statement below, merges
 # the Tudat kernel module `tudatpy.kernel.astro.frame_conversion` with
-# its Python extensions defined in `tudatpy/kernel_hybrid/astro/frame_conversion`.
+# its Python extensions defined in `tudatpy/astro/frame_conversion`.
 # 
 # This allows the import of all the C++ and Python submodules of the 
 # `astro.frame_conversion` kernel module directly from tudatpy:

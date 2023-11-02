@@ -1,6 +1,6 @@
 # This file, by virtue of the import statement below, merges
 # the Tudat kernel module `tudatpy.kernel.numerical_simulation.environment_setup.shape` with
-# its Python extensions defined in `tudatpy/kernel_hybrid/numerical_simulation/environment_setup/shape`.
+# its Python extensions defined in `tudatpy/numerical_simulation/environment_setup/shape`.
 # 
 # This allows the import of all the C++ and Python submodules of the 
 # `numerical_simulation.environment_setup.shape` kernel module directly from tudatpy:
