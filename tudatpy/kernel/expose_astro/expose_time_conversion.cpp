@@ -86,6 +86,16 @@ TimeScalarType convertCalendarDateToJulianDayPy(
     return dateTime.julianDay< TimeScalarType >( );
 }
 
+template< typename TimeScalarType = double >
+TimeScalarType convertCalendarDateToJulianDaySinceEpochPy(
+    const std::chrono::system_clock::time_point calendarDate,
+    const TimeScalarType epochSinceJulianDayZero = getJulianDayOnJ2000< TimeScalarType >( ) )
+{
+    tba::DateTime dateTime = timePointToDateTime( calendarDate );
+    return dateTime.julianDay< TimeScalarType >( ) - epochSinceJulianDayZero;
+}
+
+
 namespace tudat
 {
 
@@ -148,8 +158,9 @@ void expose_time_conversion(py::module &m) {
           );
 
     m.def("calendar_date_to_julian_day_since_epoch",
-          &convertCalendarDateToJulianDayPy< double >,
+          &convertCalendarDateToJulianDaySinceEpochPy< double >,
           py::arg("calendar_date"),
+          py::arg("days_since_julian_day_zero") = tba::JULIAN_DAY_ON_J2000,
           get_docstring("calendar_date_to_julian_day_since_epoch").c_str()
           );
 
@@ -162,14 +173,14 @@ void expose_time_conversion(py::module &m) {
     m.def("julian_day_to_seconds_since_epoch",
           &tba::convertJulianDayToSecondsSinceEpoch< double >,
           py::arg("julian_day"),
-          py::arg("epoch_since_julian_day_zero") = tba::JULIAN_DAY_ON_J2000,
+          py::arg("days_since_julian_day_zero") = tba::JULIAN_DAY_ON_J2000,
           get_docstring("julian_day_to_seconds_since_epoch").c_str()
           );
 
     m.def("seconds_since_epoch_to_julian_day",
           &tba::convertSecondsSinceEpochToJulianDay< double >,
           py::arg("seconds_since_epoch"),
-          py::arg("epoch_since_julian_day_zero") = tba::JULIAN_DAY_ON_J2000,
+          py::arg("days_since_julian_day_zero") = tba::JULIAN_DAY_ON_J2000,
           get_docstring("seconds_since_epoch_to_julian_day").c_str()
           );
 
