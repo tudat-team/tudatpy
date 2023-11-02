@@ -118,11 +118,11 @@ std::shared_ptr< estimatable_parameters::CustomSingleAccelerationPartialCalculat
         std::make_shared< estimatable_parameters::CustomSingleAccelerationPartialCalculatorSet >( );
     for( unsigned int i = 0; i < parameterSet->getEstimatedInitialStateParameters( ).size( ); i++ )
     {
-        std::shared_ptr< estimatable_parameters::CustomAccelerationPartialSettings > customPartialSettings =
+        std::vector< std::shared_ptr< estimatable_parameters::CustomAccelerationPartialSettings > > customPartialSettings =
             parameterSet->getEstimatedInitialStateParameters( ).at( i )->getCustomPartialSettings( );
-        if( customPartialSettings != nullptr )
+        for( unsigned int j = 0; j < customPartialSettings.size( ); j++ )
         {
-            if( customPartialSettings->accelerationMatches( acceleratedBody.first, acceleratingBody.first, accelerationType ) )
+            if( customPartialSettings.at( j )->accelerationMatches( acceleratedBody.first, acceleratingBody.first, accelerationType ) )
             {
                 switch( parameterSet->getEstimatedInitialStateParameters( ).at( i )->getParameterName( ).first )
                 {
@@ -130,7 +130,7 @@ std::shared_ptr< estimatable_parameters::CustomSingleAccelerationPartialCalculat
                 {
                     partialCalculatorSet->customInitialStatePartials_[ parameterSet->getEstimatedInitialStateParameters( ).at( i )->getParameterName( ) ] =
                         createCustomAccelerationPartial(
-                            parameterSet->getEstimatedInitialStateParameters( ).at( i )->getCustomPartialSettings( ),
+                            customPartialSettings.at( j ),
                             parameterSet->getEstimatedInitialStateParameters( ).at( i ),
                             bodies );
 
@@ -148,7 +148,7 @@ std::shared_ptr< estimatable_parameters::CustomSingleAccelerationPartialCalculat
 
     for( unsigned int i = 0; i < parameterSet->getEstimatedDoubleParameters( ).size( ); i++ )
     {
-        if( parameterSet->getEstimatedDoubleParameters( ).at( i )->getCustomPartialSettings( ) != nullptr )
+        if( parameterSet->getEstimatedDoubleParameters( ).at( i )->getCustomPartialSettings( ).size( ) > 0 )
         {
             throw std::runtime_error( "Error when creating custom partial calculator for " +
                                       parameterSet->getEstimatedDoubleParameters( ).at( i )->getParameterDescription( ) +
@@ -159,11 +159,11 @@ std::shared_ptr< estimatable_parameters::CustomSingleAccelerationPartialCalculat
     for( unsigned int i = 0; i < parameterSet->getEstimatedVectorParameters( ).size( ); i++ )
     {
 
-        std::shared_ptr< estimatable_parameters::CustomAccelerationPartialSettings > customPartialSettings =
+        std::vector< std::shared_ptr< estimatable_parameters::CustomAccelerationPartialSettings > > customPartialSettings =
             parameterSet->getEstimatedVectorParameters( ).at( i )->getCustomPartialSettings( );
-        if( customPartialSettings != nullptr )
+        for( unsigned int j = 0; j < customPartialSettings.size( ); j++ )
         {
-            if( customPartialSettings->accelerationMatches( acceleratedBody.first, acceleratingBody.first, accelerationType ) )
+            if( customPartialSettings.at( j )->accelerationMatches( acceleratedBody.first, acceleratingBody.first, accelerationType ) )
             {
                 switch( parameterSet->getEstimatedVectorParameters( ).at( i )->getParameterName( ).first )
                 {
@@ -171,7 +171,7 @@ std::shared_ptr< estimatable_parameters::CustomSingleAccelerationPartialCalculat
                 {
                     partialCalculatorSet->customVectorParameterPartials_[ parameterSet->getEstimatedVectorParameters( ).at( i )->getParameterName( ) ] =
                         createCustomAccelerationPartial(
-                            parameterSet->getEstimatedVectorParameters( ).at( i )->getCustomPartialSettings( ),
+                            customPartialSettings.at( j ),
                             parameterSet->getEstimatedVectorParameters( ).at( i ),
                             bodies );
 
@@ -246,9 +246,10 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createRadiationPre
         {
             for( unsigned  int i = 0; i < parametersToEstimate->getEstimatedInitialStateParameters( ).size( ); i++ )
             {
-                if( parametersToEstimate->getEstimatedInitialStateParameters( ).at( i )->getCustomPartialSettings( ) == nullptr )
+                if( !parametersToEstimate->getEstimatedInitialStateParameters( ).at( i )->hasCustomAccelerationPartialSettings(
+                    acceleratedBody.first, acceleratingBody.first, basic_astrodynamics::radiation_pressure ) )
                 {
-                    parametersToEstimate->getEstimatedInitialStateParameters( ).at( i )->setCustomPartialSettings(
+                    parametersToEstimate->getEstimatedInitialStateParameters( ).at( i )->addCustomPartialSettings(
                         getDefaultPanelledSurfaceRadiationPressurePartialSettings( acceleratedBody.first, acceleratingBody.first ) );
                 }
 

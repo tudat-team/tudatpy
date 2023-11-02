@@ -59,7 +59,7 @@ public:
      */
     EstimatebleParameterIdentifier parameterType_;
 
-    std::shared_ptr< CustomAccelerationPartialSettings > customPartialSettings_;
+    std::vector< std::shared_ptr< CustomAccelerationPartialSettings > > customPartialSettings_;
 
 };
 
