@@ -324,7 +324,10 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_IsotropicPointSource_Pan
 
         const auto actualAcceleration = accelerationModel.getAcceleration();
 
-        TUDAT_CHECK_MATRIX_CLOSE_FRACTION(actualAcceleration, expectedAcceleration, 1e-15);
+        for( unsigned int i = 0; i < 3; i++ )
+        {
+            BOOST_CHECK_SMALL( std::fabs( actualAcceleration( i ) - expectedAcceleration( i ) ), ( 1.0E-15 * expectedAcceleration.norm( ) ) );
+        }
     }
 
     {
