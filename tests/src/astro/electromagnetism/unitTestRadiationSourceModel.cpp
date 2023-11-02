@@ -533,8 +533,8 @@ BOOST_AUTO_TEST_CASE( testGenerateEvenlySpacedPoints_Spiraling_Values )
 
     for (int i = 0; i < n; ++i)
     {
-        BOOST_CHECK_CLOSE(polarAngles[i], actualPolarAngles[i], 2.0e-15);
-        BOOST_CHECK_CLOSE(azimuthAngles[i], actualAzimuthAngles[i], 2.0e-15);
+        BOOST_CHECK_CLOSE_FRACTION(polarAngles[i], actualPolarAngles[i], 1.0e-15);
+        BOOST_CHECK_CLOSE_FRACTION(azimuthAngles[i], actualAzimuthAngles[i], 1.0e-15);
     }
 }
 
