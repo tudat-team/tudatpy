@@ -1,6 +1,6 @@
 # This file, by virtue of the import statement below, merges
 # the Tudat kernel module `tudatpy.kernel.numerical_simulation.environment_setup.radiation_pressure` with
-# its Python extensions defined in `tudatpy/kernel_hybrid/numerical_simulation/environment_setup/radiation_pressure`.
+# its Python extensions defined in `tudatpy/numerical_simulation/environment_setup/radiation_pressure`.
 # 
 # This allows the import of all the C++ and Python submodules of the 
 # `numerical_simulation.environment_setup.radiation_pressure` kernel module directly from tudatpy:

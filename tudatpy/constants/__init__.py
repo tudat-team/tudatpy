@@ -1,6 +1,6 @@
 # This file, by virtue of the import statement below, merges
 # the Tudat kernel module `tudatpy.kernel.constants` with
-# its Python extensions defined in `tudatpy/kernel_hybrid/constants`.
+# its Python extensions defined in `tudatpy/constants`.
 # 
 # This allows the import of all the C++ and Python submodules of the 
 # `constants` kernel module directly from tudatpy:

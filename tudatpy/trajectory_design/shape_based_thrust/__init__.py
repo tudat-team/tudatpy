@@ -1,6 +1,6 @@
 # This file, by virtue of the import statement below, merges
 # the Tudat kernel module `tudatpy.kernel.trajectory_design.shape_based_thrust` with
-# its Python extensions defined in `tudatpy/kernel_hybrid/trajectory_design/shape_based_thrust`.
+# its Python extensions defined in `tudatpy/trajectory_design/shape_based_thrust`.
 # 
 # This allows the import of all the C++ and Python submodules of the 
 # `trajectory_design.shape_based_thrust` kernel module directly from tudatpy:
