@@ -169,7 +169,7 @@ public:
     {
         Eigen::Vector3d relativeCenterInSphericalCoords =
             coordinate_conversions::convertCartesianToSpherical(relativeCenter);
-        latitude_ = M_PI_2 - relativeCenterInSphericalCoords[1];
+        latitude_ = mathematical_constants::PI / 2.0 - relativeCenterInSphericalCoords[1];
         longitude_ = relativeCenterInSphericalCoords[2];
     }
 
@@ -204,7 +204,7 @@ public:
         const double azimuthAngle)
     {
         relativeCenter_ = relativeCenter;
-        latitude_ = M_PI_2 - polarAngle;
+        latitude_ = mathematical_constants::PI / 2.0 - polarAngle;
         longitude_ = azimuthAngle;
     }
 

@@ -137,14 +137,14 @@ public:
         coefficientFunction_ = coefficientFunction;
     }
 
-    bool forceFunctionRequiresLocalFrameInputs( )
+    bool forceFunctionRequiresLocalFrameInputs( ) override
     {
         return false;
     }
 
 private:
 
-    virtual void updateMembers_(const double currentTime)
+    virtual void updateMembers_(const double currentTime) override
     {
         if( coefficientFunction_ != nullptr )
         {
@@ -215,7 +215,7 @@ public:
         return segmentFixedPanels_;
     }
 
-    bool forceFunctionRequiresLocalFrameInputs( )
+    bool forceFunctionRequiresLocalFrameInputs( ) override
     {
         return true;
     }
