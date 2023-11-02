@@ -789,7 +789,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::Matrix
         }
     }
 
-    if( parameterSettings->customPartialSettings_ != nullptr )
+    if( parameterSettings->customPartialSettings_.size( ) != 0 )
     {
         initialStateParameterToEstimate->setCustomPartialSettings( parameterSettings->customPartialSettings_ );
     }
@@ -1242,7 +1242,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
         }
     }
 
-    if( doubleParameterName->customPartialSettings_ != nullptr )
+    if( doubleParameterName->customPartialSettings_.size( ) != 0 )
     {
         doubleParameterToEstimate->setCustomPartialSettings( doubleParameterName->customPartialSettings_ );
     }
@@ -1990,7 +1990,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
         }
     }
 
-    if( vectorParameterName->customPartialSettings_ != nullptr )
+    if( vectorParameterName->customPartialSettings_.size( ) != 0 )
     {
         vectorParameterToEstimate->setCustomPartialSettings( vectorParameterName->customPartialSettings_ );
     }
