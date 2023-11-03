@@ -74,6 +74,9 @@ std::string getAccelerationModelName( const AvailableAcceleration accelerationTy
     case radiation_pressure:
         accelerationName  = "radiation pressure acceleration";
         break;
+    case cannon_ball_radiation_pressure:
+        accelerationName  = "cannonball radiation pressure acceleration (deprecated)";
+        break;
     case momentum_wheel_desaturation_acceleration:
         accelerationName  = "momentum wheen desaturation acceleration ";
         break;
