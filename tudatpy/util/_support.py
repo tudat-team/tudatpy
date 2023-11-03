@@ -1,8 +1,8 @@
 import numpy as np
-from ..kernel.math import interpolators
-from ..kernel import numerical_simulation
-from ..kernel.numerical_simulation import propagation_setup
-from ..kernel.numerical_simulation.propagation_setup.dependent_variable import SingleDependentVariableSaveSettings, get_dependent_variable_id
+from tudatpy.math import interpolators
+from tudatpy import numerical_simulation
+from tudatpy.numerical_simulation import propagation_setup
+from tudatpy.numerical_simulation.propagation_setup.dependent_variable import SingleDependentVariableSaveSettings, get_dependent_variable_id
 import os
 from typing import List, Dict, Union
 
