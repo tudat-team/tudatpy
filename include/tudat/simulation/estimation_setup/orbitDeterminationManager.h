@@ -1149,7 +1149,7 @@ protected:
         }
         else
         {
-            considerParametersValues_ = Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >::Zero( 0 );
+            considerParametersValues_ = ParameterVectorType::Zero( 0 );
         }
 
     }
@@ -1359,7 +1359,7 @@ protected:
 
 };
 
-//extern template class OrbitDeterminationManager< double, double >;
+extern template class OrbitDeterminationManager< double, double >;
 
 
 

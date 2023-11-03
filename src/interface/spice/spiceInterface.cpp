@@ -125,7 +125,7 @@ Eigen::Vector3d getBodyCartesianPositionAtEpoch(const std::string &targetBodyNam
 
 //! Get Cartesian state of a satellite from its two-line element set at a specified epoch.
 Vector6d getCartesianStateFromTleAtEpoch(double epoch, std::shared_ptr<ephemerides::Tle> tle) {
-    if( !( epoch == epoch ) || (epoch < 0) )
+    if( !( epoch == epoch ))
     {
         throw std::invalid_argument( "Error when retrieving TLE from Spice, input time is " + std::to_string(epoch) );
     }
@@ -195,6 +195,31 @@ Eigen::Matrix3d computeRotationMatrixBetweenFrames(const std::string &originalFr
 {
     return Eigen::Matrix3d( computeRotationQuaternionBetweenFrames(
                                 originalFrame, newFrame, ephemerisTime ) );
+}
+
+//! Compute rotation matrix for state vector between two frames.
+Eigen::Matrix6d computeStateRotationMatrixBetweenFrames(const std::string &originalFrame,
+                                                          const std::string &newFrame,
+                                                          const double ephemerisTime) {
+    if( !( ephemerisTime == ephemerisTime )  )
+    {
+        throw std::invalid_argument( "Error when retrieving state rotation matrix from Spice, input time is " + std::to_string(ephemerisTime) );
+    }
+
+    double stateTransition[6][6];
+
+    // Calculate state transition matrix.
+    sxform_c(originalFrame.c_str(), newFrame.c_str(), ephemerisTime, stateTransition);
+
+    // Put rotation matrix in Eigen Matrix6d
+    Eigen::Matrix6d stateTransitionMatrix = Eigen::Matrix6d::Zero();
+    for (unsigned int i = 0; i < 6; i++) {
+        for (unsigned int j = 0; j < 6; j++) {
+            stateTransitionMatrix(i, j) = stateTransition[i][j];
+        }
+    }
+
+    return stateTransitionMatrix;
 }
 
 //! Computes time derivative of rotation matrix between two frames.
@@ -274,7 +299,7 @@ std::pair<Eigen::Quaterniond, Eigen::Matrix3d> computeRotationQuaternionAndRotat
 std::vector<double> getBodyProperties(const std::string &body, const std::string &property,
                                       const int maximumNumberOfValues) {
     // Delcare variable in which raw result is to be put by Spice function.
-    double* propertyArray = new double(maximumNumberOfValues);
+    double* propertyArray = new double[maximumNumberOfValues];
 
     // Call Spice function to retrieve property.
     SpiceInt numberOfReturnedParameters;

@@ -29,9 +29,6 @@ std::string getAccelerationModelName( const AvailableAcceleration accelerationTy
     case aerodynamic:
         accelerationName = "aerodynamic ";
         break;
-    case cannon_ball_radiation_pressure:
-        accelerationName = "cannonball radiation pressure ";
-        break;
     case spherical_harmonic_gravity:
         accelerationName = "spherical harmonic gravity ";
         break;
@@ -74,14 +71,14 @@ std::string getAccelerationModelName( const AvailableAcceleration accelerationTy
     case direct_tidal_dissipation_in_orbiting_body_acceleration:
         accelerationName  = "direct tidal dissipation in orbiting body ";
         break;
-    case panelled_radiation_pressure_acceleration:
-        accelerationName  = "panelled radiation pressure acceleration ";
+    case radiation_pressure:
+        accelerationName  = "radiation pressure acceleration";
+        break;
+    case cannon_ball_radiation_pressure:
+        accelerationName  = "cannonball radiation pressure acceleration (deprecated)";
         break;
     case momentum_wheel_desaturation_acceleration:
         accelerationName  = "momentum wheen desaturation acceleration ";
-        break;
-    case solar_sail_acceleration:
-        accelerationName = "solar sail acceleration";
         break;
     case yarkovsky_acceleration:
         accelerationName = "yarkovsky acceleration";
@@ -115,11 +112,6 @@ AvailableAcceleration getAccelerationModelType(
                 accelerationModel ) != nullptr )
     {
         accelerationType = point_mass_gravity;
-    }
-    else if( std::dynamic_pointer_cast< CannonBallRadiationPressureAcceleration >(
-                 accelerationModel ) != nullptr )
-    {
-        accelerationType = cannon_ball_radiation_pressure;
     }
     else if( std::dynamic_pointer_cast< ThirdBodyCentralGravityAcceleration >(
                  accelerationModel ) != nullptr )
@@ -198,13 +190,9 @@ AvailableAcceleration getAccelerationModelType(
             accelerationType = direct_tidal_dissipation_in_orbiting_body_acceleration;
         }
     }
-    else if( std::dynamic_pointer_cast< PanelledRadiationPressureAcceleration >( accelerationModel ) != NULL )
+    else if( std::dynamic_pointer_cast< RadiationPressureAcceleration >( accelerationModel ) != NULL )
     {
-        accelerationType = panelled_radiation_pressure_acceleration;
-    }
-    else if ( std::dynamic_pointer_cast< SolarSailAcceleration >( accelerationModel) != NULL )
-    {
-        accelerationType = solar_sail_acceleration;
+        accelerationType = radiation_pressure;
     }
     else if (std::dynamic_pointer_cast<YarkovskyAcceleration>(accelerationModel) != nullptr)
     {
@@ -261,6 +249,16 @@ std::vector< std::shared_ptr< AccelerationModel3d > > getAccelerationModelsOfTyp
         if( getAccelerationModelType( fullList.at( i ) ) == modelType )
         {
             accelerationList.push_back( fullList.at( i  ) );
+        }
+        else if( std::dynamic_pointer_cast< electromagnetism::IsotropicPointSourceRadiationPressureAcceleration >( fullList.at( i ) ) != nullptr &&
+            modelType == cannon_ball_radiation_pressure )
+        {
+            std::shared_ptr< electromagnetism::IsotropicPointSourceRadiationPressureAcceleration  > radiationPressureAcceleration =
+                std::dynamic_pointer_cast< electromagnetism::IsotropicPointSourceRadiationPressureAcceleration >( fullList.at( i ) );
+            if( std::dynamic_pointer_cast< electromagnetism::CannonballRadiationPressureTargetModel >( radiationPressureAcceleration->getTargetModel( ) ) != nullptr )
+            {
+                accelerationList.push_back( fullList.at( i ) );
+            }
         }
     }
     return accelerationList;

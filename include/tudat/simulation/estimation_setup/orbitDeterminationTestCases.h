@@ -618,7 +618,7 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation(
         if( useFullParameterSet )
         {
             parameterPerturbation( 6 ) = 0.05;
-            parameterPerturbation( 7 ) = 0.05;
+//            parameterPerturbation( 7 ) = 0.05;
         }
         initialParameterEstimate += parameterPerturbation;
     }

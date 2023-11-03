@@ -473,7 +473,8 @@ protected:
                                     {
                                         if ( itrLinkEnds.second.bodyName_ == nameBody )
                                         {
-                                            indexLinkEndType = getLinkEndIndicesForLinkEndTypeAtObservable( this->observableType_, itrLinkEnds.first, linkEnds.size( ) ).at( 0 );
+                                            indexLinkEndType =
+                                                static_cast< int >( getLinkEndIndicesForLinkEndTypeAtObservable( this->observableType_, itrLinkEnds.first, linkEnds.size( ) ).at( 0 ) );
                                         }
                                     }
 

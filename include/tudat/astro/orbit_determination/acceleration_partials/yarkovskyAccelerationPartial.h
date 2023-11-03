@@ -36,7 +36,6 @@ class YarkovskyAccelerationPartial: public AccelerationPartial
 {
 public:
 
-
     YarkovskyAccelerationPartial(
             const std::shared_ptr< electromagnetism::YarkovskyAcceleration > yarkovskyAcceleration,
             const std::string acceleratedBody,

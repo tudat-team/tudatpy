@@ -13,8 +13,6 @@
 #define TUDAT_ACCELERATIONMODELTYPES_H
 
 #include "tudat/astro/basic_astro/customAccelerationModel.h"
-#include "tudat/astro/electromagnetism/cannonBallRadiationPressureAcceleration.h"
-#include "tudat/astro/electromagnetism/panelledRadiationPressure.h"
 #include "tudat/astro/gravitation/centralGravityModel.h"
 #include "tudat/astro/gravitation/sphericalHarmonicsGravityModel.h"
 #include "tudat/astro/gravitation/mutualSphericalHarmonicGravityModel.h"
@@ -27,7 +25,7 @@
 #include "tudat/astro/relativity/relativisticAccelerationCorrection.h"
 #include "tudat/astro/basic_astro/empiricalAcceleration.h"
 #include "tudat/astro/propulsion/massRateFromThrust.h"
-#include "tudat/astro/electromagnetism/solarSailAcceleration.h"
+#include "tudat/astro/electromagnetism/radiationPressureAcceleration.h"
 #include "tudat/astro/electromagnetism/yarkovskyAcceleration.h"
 
 namespace tudat
@@ -63,9 +61,8 @@ enum AvailableAcceleration
     empirical_acceleration,
     direct_tidal_dissipation_in_central_body_acceleration,
     direct_tidal_dissipation_in_orbiting_body_acceleration,
-    panelled_radiation_pressure_acceleration,
+    radiation_pressure,
     momentum_wheel_desaturation_acceleration,
-    solar_sail_acceleration,
     custom_acceleration,
     yarkovsky_acceleration
 };

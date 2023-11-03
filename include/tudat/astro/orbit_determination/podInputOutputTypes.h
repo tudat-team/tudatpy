@@ -324,7 +324,7 @@ public:
             std::map< observation_models::LinkEnds, Eigen::VectorXd > > weightsPerObservableAndLinkEnds )
     {
         std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds, std::pair< int, int > > > observationLinkEndStartAndSize =
-                observationCollection_->observationTypeAndLinkEndStartAndSize_( );
+                observationCollection_->getObservationTypeAndLinkEndStartAndSize( );
 
         for( auto observableIterator : weightsPerObservableAndLinkEnds )
         {
@@ -1203,6 +1203,8 @@ struct EstimationOutput: public CovarianceAnalysisOutput< ObservationScalarType,
 
 };
 
+extern template class CovarianceAnalysisInput< double, double >;
+extern template struct CovarianceAnalysisOutput< double >;
 
 extern template class EstimationInput< double, double >;
 extern template struct EstimationOutput< double >;
