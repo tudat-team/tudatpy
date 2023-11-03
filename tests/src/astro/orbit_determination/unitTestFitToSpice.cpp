@@ -69,8 +69,8 @@ int main( )
         SystemOfBodies bodies = createSystemOfBodies( bodySettings );
 
         // Create radiation pressure settings
-        double referenceAreaRadiation = 4.0;
-        double radiationPressureCoefficient = 1.2;
+        double referenceAreaRadiation = 16.0;
+        double radiationPressureCoefficient = 1.5;
         std::vector<std::string> occultingBodies;
         occultingBodies.push_back( "Mars" );
         std::shared_ptr<RadiationPressureInterfaceSettings> asterixRadiationPressureSettings =
@@ -85,18 +85,18 @@ int main( )
 
         // Set accelerations between bodies that are to be taken into account.
         SelectedAccelerationMap accelerationMap;
-        std::map<std::string, std::vector<std::shared_ptr<AccelerationSettings> > > accelerationsOfGrail;
-        accelerationsOfGrail[ "Sun" ].push_back( std::make_shared<AccelerationSettings>( point_mass_gravity ));
-        accelerationsOfGrail[ "Sun" ].push_back(
+        std::map<std::string, std::vector<std::shared_ptr<AccelerationSettings> > > accelerationsOfSpacecraft;
+        accelerationsOfSpacecraft[ "Sun" ].push_back( std::make_shared<AccelerationSettings>( point_mass_gravity ));
+        accelerationsOfSpacecraft[ "Sun" ].push_back(
             std::make_shared<AccelerationSettings>( cannon_ball_radiation_pressure ));
-        accelerationsOfGrail[ "Earth" ].push_back( std::make_shared<AccelerationSettings>( point_mass_gravity ));
-        accelerationsOfGrail[ "Mars" ].push_back( std::make_shared<SphericalHarmonicAccelerationSettings>( 64, 64 ));
-        accelerationsOfGrail[ "Mars" ].push_back( empiricalAcceleration( ));
-        accelerationsOfGrail[ "Moon" ].push_back( std::make_shared<AccelerationSettings>( point_mass_gravity ));
-        accelerationsOfGrail[ "Jupiter" ].push_back( std::make_shared<AccelerationSettings>( point_mass_gravity ));
-        accelerationsOfGrail[ "Saturn" ].push_back( std::make_shared<AccelerationSettings>( point_mass_gravity ));
+        accelerationsOfSpacecraft[ "Earth" ].push_back( std::make_shared<AccelerationSettings>( point_mass_gravity ));
+        accelerationsOfSpacecraft[ "Mars" ].push_back( std::make_shared<SphericalHarmonicAccelerationSettings>( 64, 64 ));
+        accelerationsOfSpacecraft[ "Mars" ].push_back( empiricalAcceleration( ));
+        accelerationsOfSpacecraft[ "Moon" ].push_back( std::make_shared<AccelerationSettings>( point_mass_gravity ));
+        accelerationsOfSpacecraft[ "Jupiter" ].push_back( std::make_shared<AccelerationSettings>( point_mass_gravity ));
+        accelerationsOfSpacecraft[ "Saturn" ].push_back( std::make_shared<AccelerationSettings>( point_mass_gravity ));
 
-        accelerationMap[ "MGS" ] = accelerationsOfGrail;
+        accelerationMap[ "MGS" ] = accelerationsOfSpacecraft;
 
         // Set bodies for which initial state is to be estimated and integrated.
         std::vector<std::string> bodiesToEstimate = { "MGS" };
@@ -112,17 +112,17 @@ int main( )
 
             std::map<basic_astrodynamics::EmpiricalAccelerationComponents,
                 std::vector<basic_astrodynamics::EmpiricalAccelerationFunctionalShapes> > empiricalComponentsToEstimate;
-            empiricalComponentsToEstimate[ radial_empirical_acceleration_component ].push_back( constant_empirical );
-            empiricalComponentsToEstimate[ radial_empirical_acceleration_component ].push_back( sine_empirical );
-            empiricalComponentsToEstimate[ radial_empirical_acceleration_component ].push_back( cosine_empirical );
-
+//            empiricalComponentsToEstimate[ radial_empirical_acceleration_component ].push_back( constant_empirical );
+//            empiricalComponentsToEstimate[ radial_empirical_acceleration_component ].push_back( sine_empirical );
+//            empiricalComponentsToEstimate[ radial_empirical_acceleration_component ].push_back( cosine_empirical );
+//
             empiricalComponentsToEstimate[ along_track_empirical_acceleration_component ].push_back( constant_empirical );
-            empiricalComponentsToEstimate[ along_track_empirical_acceleration_component ].push_back( sine_empirical );
-            empiricalComponentsToEstimate[ along_track_empirical_acceleration_component ].push_back( cosine_empirical );
-
-            empiricalComponentsToEstimate[ across_track_empirical_acceleration_component ].push_back( constant_empirical );
-            empiricalComponentsToEstimate[ across_track_empirical_acceleration_component ].push_back( sine_empirical );
-            empiricalComponentsToEstimate[ across_track_empirical_acceleration_component ].push_back( cosine_empirical );
+//            empiricalComponentsToEstimate[ along_track_empirical_acceleration_component ].push_back( sine_empirical );
+//            empiricalComponentsToEstimate[ along_track_empirical_acceleration_component ].push_back( cosine_empirical );
+//
+//            empiricalComponentsToEstimate[ across_track_empirical_acceleration_component ].push_back( constant_empirical );
+//            empiricalComponentsToEstimate[ across_track_empirical_acceleration_component ].push_back( sine_empirical );
+//            empiricalComponentsToEstimate[ across_track_empirical_acceleration_component ].push_back( cosine_empirical );
 
             additionalParameterNames.push_back( std::make_shared<EmpiricalAccelerationEstimatableParameterSettings>(
                 "MGS", "Mars", empiricalComponentsToEstimate ));

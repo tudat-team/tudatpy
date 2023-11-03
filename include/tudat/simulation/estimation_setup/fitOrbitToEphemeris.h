@@ -47,7 +47,7 @@ std::shared_ptr< EstimationOutput< > > createBestFitToCurrentEphemeris(
     const TimeType dataPointInterval,
     const std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > additionalParameterNames =
     std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > >( ),
-    const int numberOfIterations = 2 )
+    const int numberOfIterations = 3 )
 {
     using namespace observation_models;
     using namespace estimatable_parameters;

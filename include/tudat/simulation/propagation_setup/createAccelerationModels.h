@@ -21,8 +21,7 @@
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/astro/aerodynamics/aerodynamicAcceleration.h"
 #include "tudat/simulation/propagation_setup/accelerationSettings.h"
-#include "tudat/astro/electromagnetism/cannonBallRadiationPressureAcceleration.h"
-#include "tudat/astro/electromagnetism/solarSailAcceleration.h"
+#include "tudat/astro/electromagnetism/radiationPressureAcceleration.h"
 #include "tudat/astro/gravitation/thirdBodyPerturbation.h"
 #include "tudat/astro/basic_astro/empiricalAcceleration.h"
 #include "tudat/astro/ephemerides/frameManager.h"
@@ -382,57 +381,25 @@ createAerodynamicAcceleratioModel(
         const std::string& nameOfBodyUndergoingAcceleration,
         const std::string& nameOfBodyExertingAcceleration );
 
-//! Function to create a cannonball radiation pressure acceleration model.
+//! Function to create a radiation pressure acceleration model.
 /*!
- *  Function to create a cannonball radiation pressure automatically creates all required
- *  links to environment models, vehicle properies and frame conversions
+ *  Function to create a radiation pressure automatically creates all required
+ *  links to environment models, vehicle properties and frame conversions
  *  \param bodyUndergoingAcceleration Pointer to object of body that is being accelerated.
  *  \param bodyExertingAcceleration Pointer to object of body that is exerting the acceleration,
  *  i.e. body emitting the radiation.
  *  \param nameOfBodyUndergoingAcceleration Name of object of body that is being accelerated.
  *  \param nameOfBodyExertingAcceleration Name of object of body that is exerting the acceleration.
- *  \return Pointer to object for calculating cannonball radiation pressures acceleration.
+ *  \return Pointer to object for calculating radiation pressure acceleration.
  */
-std::shared_ptr< electromagnetism::CannonBallRadiationPressureAcceleration >
-createCannonballRadiationPressureAcceleratioModel(
+std::shared_ptr< electromagnetism::RadiationPressureAcceleration >
+createRadiationPressureAccelerationModel(
         const std::shared_ptr< Body > bodyUndergoingAcceleration,
         const std::shared_ptr< Body > bodyExertingAcceleration,
         const std::string& nameOfBodyUndergoingAcceleration,
-        const std::string& nameOfBodyExertingAcceleration );
+        const std::string& nameOfBodyExertingAcceleration,
+        const SystemOfBodies& bodies );
 
-//! Function to create a panelled radiation pressure acceleration model.
-/*!
- *  Function to create a panelled radiation pressure automatically creates all required
- *  links to environment models, vehicle properies and frame conversions
- *  \param bodyUndergoingAcceleration Pointer to object of body that is being accelerated.
- *  \param bodyExertingAcceleration Pointer to object of body that is exerting the acceleration,
- *  i.e. body emitting the radiation.
- *  \param nameOfBodyUndergoingAcceleration Name of object of body that is being accelerated.
- *  \param nameOfBodyExertingAcceleration Name of object of body that is exerting the acceleration.
- *  \return Pointer to object for calculating cannonball radiation pressures acceleration.
- */
-std::shared_ptr< electromagnetism::PanelledRadiationPressureAcceleration > createPanelledRadiationPressureAcceleration(
-        const std::shared_ptr< Body > bodyUndergoingAcceleration,
-        const std::shared_ptr< Body > bodyExertingAcceleration,
-        const std::string& nameOfBodyUndergoingAcceleration,
-        const std::string& nameOfBodyExertingAcceleration );
-
-//! Function to create a non-ideal solar pressure radiation acceleration.
-/*!
- * Function to create a non-ideal solar pressure radiation acceleration.
- *  \param bodyUndergoingAcceleration Pointer to object of body that is being accelerated.
- *  \param bodyExertingAcceleration Pointer to object of body that is exerting the acceleration.
- *  \param centralBody Pointer to object of central body.
- *  \param nameOfBodyUndergoingAcceleration Name of body that is being accelerated.
- *  \param nameOfBodyExertingAcceleration Name of body that is exerting the acceleration.
- *  \return Solar sail acceleration model pointer.
- */
-std::shared_ptr< electromagnetism::SolarSailAcceleration >
-createSolarSailAccelerationModel(const std::shared_ptr< Body > bodyUndergoingAcceleration,
-                                 const std::shared_ptr< Body > bodyExertingAcceleration,
-                                 const std::shared_ptr< Body > centralBody,
-                                 const std::string& nameOfBodyUndergoingAcceleration,
-                                 const std::string& nameOfBodyExertingAcceleration);
 
 //! Function to create a thrust acceleration model.
 /*!

@@ -215,7 +215,7 @@ public:
         momentCoefficientsFrame_( momentCoefficientsFrame ),
         momentContributionInterface_( nullptr )
     {
-        numberOfIndependentVariables_ = independentVariableNames.size( );
+        numberOfIndependentVariables_ = static_cast< unsigned int >( independentVariableNames.size( ) );
         referenceLengths_ = Eigen::Vector3d::Constant( referenceLength_ );
     }
 
@@ -491,7 +491,7 @@ public:
      */
     unsigned int getNumberOfControlSurfaces( )
     {
-        return controlSurfaceIncrementInterfaces_.size( );
+        return static_cast< unsigned int >( controlSurfaceIncrementInterfaces_.size( ) );
     }
 
     //! Function to return the number of independent variables for a given control surface.

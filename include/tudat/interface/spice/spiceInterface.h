@@ -78,6 +78,10 @@ Eigen::Matrix3d computeRotationMatrixBetweenFrames(const std::string &originalFr
                                                    const std::string &newFrame,
                                                    const double ephemerisTime);
 
+Eigen::Matrix6d computeStateRotationMatrixBetweenFrames(const std::string &originalFrame,
+                                                   const std::string &newFrame,
+                                                   const double ephemerisTime);
+
 //! @get_docstring(compute_rotation_matrix_derivative_between_frames)
 Eigen::Matrix3d computeRotationMatrixDerivativeBetweenFrames(const std::string &originalFrame,
                                                              const std::string &newFrame,
