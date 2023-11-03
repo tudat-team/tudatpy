@@ -89,7 +89,7 @@ TimeScalarType convertCalendarDateToJulianDayPy(
 template< typename TimeScalarType = double >
 TimeScalarType convertCalendarDateToJulianDaySinceEpochPy(
     const std::chrono::system_clock::time_point calendarDate,
-    const TimeScalarType epochSinceJulianDayZero = getJulianDayOnJ2000< TimeScalarType >( ) )
+    const TimeScalarType epochSinceJulianDayZero = tba::getJulianDayOnJ2000< TimeScalarType >( ) )
 {
     tba::DateTime dateTime = timePointToDateTime( calendarDate );
     return dateTime.julianDay< TimeScalarType >( ) - epochSinceJulianDayZero;
