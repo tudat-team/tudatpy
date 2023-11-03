@@ -242,7 +242,7 @@
      set(CMAKE_CXX_FLAGS_RELEASE "-O2 -DNDEBUG")
      set(CMAKE_CXX_FLAGS_DEBUG "-Og -g")
 
-     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wextra -Wno-unused-parameter -Wno-unused-variable -Woverloaded-virtual -Wold-style-cast -Wnon-virtual-dtor -Wunused-but-set-variable -Wsign-compare")
+     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wextra -Wno-unused-parameter -Wno-unused-variable -Wno-array-bounds -Woverloaded-virtual -Wold-style-cast -Wnon-virtual-dtor -Wunused-but-set-variable -Wsign-compare")
 
      # MinGW fixes
      if (MINGW AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.9)
@@ -303,7 +303,6 @@
  endif ()
 
  set(CMAKE_POSITION_INDEPENDENT_CODE ON)
- message(STATUS "Building with flags: ${CMAKE_CXX_FLAGS}.")
 
 
  if (MSVC)
@@ -348,6 +347,8 @@
                  "C2557" # Comparing signed to unsigned
                  "C2722" # List init syntax is c++1z feature
                  "C3280" # Declaration hides variable
+                 "C4244" # 'argument' : conversion from 'type1' to 'type2',
+                 "C4267" # 'var' : conversion from 'size_t' to 'type',
                  )
      endif ()
      if (CMAKE_C_COMPILER_ID MATCHES "Clang")
@@ -364,8 +365,14 @@
 if (MSVC)
   message(STATUS "Setting /bigobj")
   add_compile_options(/bigobj)
+else()
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
 endif ()
 
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
-# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftemplate-backtrace-limit=0")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftemplate-backtrace-limit=0")
+
+string(TOUPPER ${CMAKE_BUILD_TYPE} CMAKE_BUILD_TYPE_UPPER)
+message(STATUS "Building with flags: ${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_${CMAKE_BUILD_TYPE_UPPER}}.")
+
