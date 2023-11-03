@@ -1,7 +1,8 @@
 import pandas as pd
 import numpy as np
 import os
-from ..kernel.io import *
+from tudatpy.kernel.io import *
+
 
 def save2txt(solution, filename, directory="./"):
     """Save a vector or matrix history to a file.
