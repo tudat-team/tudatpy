@@ -10,6 +10,7 @@
 
 #include <iostream>
 #include <cmath>
+#include <memory>
 
 
 #include <boost/lambda/lambda.hpp>
@@ -22,6 +23,7 @@
 
 #include "tudat/simulation/environment_setup/createBodies.h"
 #include "tudat/astro/basic_astro/sphericalBodyShapeModel.h"
+#include "tudat/astro/electromagnetism/radiationSourceModel.h"
 #include "tudat/astro/ephemerides/simpleRotationalEphemeris.h"
 #include "tudat/interface/spice/spiceRotationalEphemeris.h"
 
@@ -34,6 +36,7 @@ namespace simulation_setup
 using namespace ephemerides;
 using namespace gravitation;
 using namespace basic_astrodynamics;
+using namespace electromagnetism;
 
 void addAerodynamicCoefficientInterface(
         const SystemOfBodies& bodies, const std::string bodyName,
@@ -47,6 +50,7 @@ void addAerodynamicCoefficientInterface(
                 createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, bodyName, bodies ) );
 }
 
+// RP-OLD
 void addRadiationPressureInterface(
         const SystemOfBodies& bodies, const std::string bodyName,
         const std::shared_ptr< RadiationPressureInterfaceSettings > radiationPressureSettings )
@@ -58,6 +62,19 @@ void addRadiationPressureInterface(
     bodies.at( bodyName )->setRadiationPressureInterface(
                 radiationPressureSettings->getSourceBody( ), createRadiationPressureInterface(
                     radiationPressureSettings, bodyName, bodies ) );
+}
+
+void addRadiationPressureTargetModel(
+    const SystemOfBodies& bodies, const std::string bodyName,
+    const std::shared_ptr< RadiationPressureTargetModelSettings > radiationPressureSettings )
+{
+    if( bodies.count( bodyName ) == 0 )
+    {
+        throw std::runtime_error( "Error when setting radiation pressure target model for body "+ bodyName + ", body is not found in system of bodies" );
+    }
+    bodies.at( bodyName )->setRadiationPressureTargetModel(
+        createRadiationPressureTargetModel( radiationPressureSettings, bodyName, bodies ) );
+
 }
 
 void addRotationModel(
@@ -194,6 +211,10 @@ simulation_setup::SystemOfBodies createSimplifiedSystemOfBodies(const double sec
 
     // Earth's shape model
     bodies.getBody( "Earth" )->setShapeModel( std::make_shared< SphericalBodyShapeModel >(celestial_body_constants::EARTH_EQUATORIAL_RADIUS ) );
+
+    // Sun's radiation source model
+    bodies.getBody( "Sun" )->setRadiationSourceModel( std::make_shared< IsotropicPointRadiationSourceModel >(
+            std::make_shared< ConstantLuminosityModel >( celestial_body_constants::SUN_LUMINOSITY )));
 
     // Calculate position of rotation axis at initialTime, with respect to J2000 frame. Values from:
     // "Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2009", B.A. Archinal et al.(2011)

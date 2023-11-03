@@ -14,8 +14,10 @@
 #define DEFAULT_MOON_GRAVITY_FIELD_SETTINGS std::make_shared< FromFileSphericalHarmonicsGravityFieldSettings >( gggrx1200, 200 )
 #define DEFAULT_MARS_GRAVITY_FIELD_SETTINGS std::make_shared< FromFileSphericalHarmonicsGravityFieldSettings >( jgmro120d )
 
+#include "tudat/simulation/environment_setup/defaultBodies.h"
 #include "tudat/interface/spice/spiceInterface.h"
 #include "tudat/io/basicInputOutput.h"
+#include "tudat/astro/basic_astro/celestialBodyConstants.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
 #include "tudat/astro/reference_frames/referenceFrameTransformations.h"
 
@@ -41,6 +43,42 @@ std::shared_ptr< AtmosphereSettings > getDefaultAtmosphereModelSettings(
     }
 
     return atmosphereSettings;
+}
+
+std::shared_ptr<RadiationSourceModelSettings> getKnockeEarthRadiationPressureSettings( )
+{
+    // Model from Knocke (1988)
+    return extendedRadiationSourceModelSettings({
+                albedoPanelRadiosityModelSettings(KnockeTypeSurfacePropertyDistributionModel::albedo_knocke, "Sun"),
+                delayedThermalPanelRadiosityModelSettings(KnockeTypeSurfacePropertyDistributionModel::emissivity_knocke, "Sun")
+            }, {6, 12});
+}
+//! Function to create default settings for a body's radiation source model.
+std::shared_ptr<RadiationSourceModelSettings> getDefaultRadiationSourceModelSettings(
+        const std::string &bodyName,
+        const double initialTime,
+        const double finalTime)
+{
+    std::shared_ptr<RadiationSourceModelSettings> radiationSourceModelSettings;
+
+    if( bodyName == "Sun" )
+    {
+        radiationSourceModelSettings =
+                isotropicPointRadiationSourceModelSettings(
+                        constantLuminosityModelSettings(celestial_body_constants::SUN_LUMINOSITY));
+    }
+    // Do not use Earth default source model since they require Sun to be present
+//    else if( bodyName == "Earth" )
+//    {
+//        // Model from Knocke (1988)
+//        radiationSourceModelSettings =
+//                extendedRadiationSourceModelSettings({
+//                    albedoPanelRadiosityModelSettings(KnockeTypeSurfacePropertyDistributionModel::albedo_knocke, "Sun"),
+//                    delayedThermalPanelRadiosityModelSettings(KnockeTypeSurfacePropertyDistributionModel::emissivity_knocke, "Sun")
+//                }, {6, 12});
+//    }
+
+    return radiationSourceModelSettings;
 }
 
 //! Function to create default settings for a body's ephemeris.
@@ -328,6 +366,8 @@ std::shared_ptr< BodySettings > getDefaultSingleAlternateNameBodySettings(
     // Get default settings for each of the environment models in the body.
     singleBodySettings->atmosphereSettings = getDefaultAtmosphereModelSettings(
         originatingName, initialTime, finalTime );
+    singleBodySettings->radiationSourceModelSettings = getDefaultRadiationSourceModelSettings(
+                bodyName, initialTime, finalTime );
     singleBodySettings->rotationModelSettings = getDefaultRotationModelSettings(
         bodyName, initialTime, finalTime, baseFrameOrientation, originatingName );
 
@@ -480,7 +520,7 @@ std::vector< std::shared_ptr< GroundStationSettings > > getDsnStationSettings( )
 
     for( auto it : dsnStationPositionsItrf93 )
     {
-        Eigen::Vector3d stationVelocityItrf93;
+        Eigen::Vector3d stationVelocityItrf93 = Eigen::Vector3d::Constant( TUDAT_NAN );
         if( it.first[ 4 ] == '1' || it.first[ 4 ] == '2' )
         {
             stationVelocityItrf93 = goldstoneStationVelocity;

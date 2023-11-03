@@ -120,7 +120,11 @@ public:
         stepSizeController_( nullptr ),
         stepSizeValidator_( nullptr )
     {
-        maximumStepIndex_ = sequence_.size( ) - 1;
+        if( sequence_.size( ) <= 0 )
+        {
+            throw std::runtime_error( "Error when creating BS integrator, sequence is empty." );
+        }
+        maximumStepIndex_ = static_cast< unsigned int >( sequence_.size( ) ) - 1;
         subSteps_.resize( maximumStepIndex_ + 1 );
 
         integratedStates_.resize( maximumStepIndex_ + 1  );

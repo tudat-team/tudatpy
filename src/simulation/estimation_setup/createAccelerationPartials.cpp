@@ -75,6 +75,15 @@ std::vector< std::shared_ptr< orbit_determination::TidalLoveNumberPartialInterfa
 }
 
 
+std::shared_ptr< estimatable_parameters::NumericalAccelerationPartialSettings > getDefaultPanelledSurfaceRadiationPressurePartialSettings(
+    const std::string bodyUndergoingAcceleration,
+    const std::string bodyExertingAcceleration )
+{
+    return std::make_shared< estimatable_parameters::NumericalAccelerationPartialSettings >(
+        ( Eigen::VectorXd( 6 ) << 100.0, 100.0, 100.0, 1.0E-3, 1.0E-3, 1.0E-3 ).finished( ),
+        bodyUndergoingAcceleration, bodyExertingAcceleration, basic_astrodynamics::radiation_pressure );
+}
+
 }
 
 }
