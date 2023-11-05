@@ -36,7 +36,12 @@ class SBDBquery:
     
     @property
     def codes_300_spkid(self):
-        """Returns spice kernel number for the codes_300ast_20100725.bsp spice kernel"""
+        """Returns spice kernel number for the codes_300ast_20100725.bsp spice kernel. 
+
+        Some Objects may return a name instead of a number.
+        These are objects specifically specified by name in the codes_300ast_20100725.bsp kernel.
+        
+        See https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/asteroids/aa_summaries.txt for a list of exceptions"""
         spkid = self.spkid[0] + self.spkid[2:]
         if spkid == "2000001":
             return "Ceres"
