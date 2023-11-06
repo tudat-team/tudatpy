@@ -83,6 +83,12 @@ void expose_interpolators(py::module &m) {
             std::shared_ptr<ti::InterpolatorSettings>>(m, "InterpolatorSettings",
                                                        get_docstring("InterpolatorSettings").c_str());
 
+    py::class_<ti::InterpolatorGenerationSettings<TIME_TYPE>,
+        std::shared_ptr<ti::InterpolatorGenerationSettings<TIME_TYPE>>>(m, "InterpolatorGenerationSettings",
+                                                   get_docstring("InterpolatorGenerationSettings").c_str());
+
+
+
     py::class_<
             ti::LagrangeInterpolatorSettings,
             std::shared_ptr<ti::LagrangeInterpolatorSettings>,
