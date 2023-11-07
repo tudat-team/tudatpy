@@ -46,8 +46,7 @@ class BatchMPC:
     """
 
     def __init__(self) -> None:
-        """Create an empty MPC batch.
-        """
+        """Create an empty MPC batch."""
         self._table: pd.DataFrame = pd.DataFrame()
         self._observatories: List[str] = []
         self._space_telescopes: List[str] = []
@@ -504,7 +503,7 @@ class BatchMPC:
                 + "set the station_body paramater to the new name."
             )
             raise e
-        
+
         # Add positions of the observatories
         self._add_observatory_positions(bodies, station_body)
 
@@ -823,7 +822,8 @@ class BatchMPC:
     def observatories_table(
         self,
         only_in_batch: bool = True,
-        only_space_telescopes=False,
+        only_space_telescopes: bool = False,
+        exclude_space_telescopes: bool = False,
         include_positions: bool = False,
     ) -> pd.DataFrame:
         """Returns a pandas DataFrame with information about all MPC observatories,
@@ -835,8 +835,11 @@ class BatchMPC:
             Filter out observatories that are not in the batch, by default True
         only_space_telescopes : bool, optional
             Filter out all observatories except space telescopes, by default False
+        only_space_telescopes : bool, optional
+            Filter out all space telescopes, by default False
         include_positions : bool, optional
-            Include cartesian positions of the terrestrial telescopes, by default False
+            Include cartesian positions of the terrestrial telescopes only available
+            after running to_tudat(), by default False
 
         Returns
         -------
@@ -865,6 +868,8 @@ class BatchMPC:
             temp = temp.query("Code == @self.observatories")
         if only_space_telescopes:
             temp = temp.query("Code == @self._MPC_space_telescopes")
+        if exclude_space_telescopes:
+            temp = temp.query("Code != @self._MPC_space_telescopes")
         if not include_positions:
             temp = temp.loc[:, ["Code", "Name", "count"]]
         return temp
