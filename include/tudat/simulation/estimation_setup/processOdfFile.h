@@ -766,7 +766,6 @@ std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType
                 }
                 else
                 {
-                    std::cout<<"SKIP"<<std::endl;
                     skipObservation = true;
                 }
 

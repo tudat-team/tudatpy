@@ -112,17 +112,17 @@ int main( )
 
             std::map<basic_astrodynamics::EmpiricalAccelerationComponents,
                 std::vector<basic_astrodynamics::EmpiricalAccelerationFunctionalShapes> > empiricalComponentsToEstimate;
-//            empiricalComponentsToEstimate[ radial_empirical_acceleration_component ].push_back( constant_empirical );
-//            empiricalComponentsToEstimate[ radial_empirical_acceleration_component ].push_back( sine_empirical );
-//            empiricalComponentsToEstimate[ radial_empirical_acceleration_component ].push_back( cosine_empirical );
-//
+            empiricalComponentsToEstimate[ radial_empirical_acceleration_component ].push_back( constant_empirical );
+            empiricalComponentsToEstimate[ radial_empirical_acceleration_component ].push_back( sine_empirical );
+            empiricalComponentsToEstimate[ radial_empirical_acceleration_component ].push_back( cosine_empirical );
+
             empiricalComponentsToEstimate[ along_track_empirical_acceleration_component ].push_back( constant_empirical );
-//            empiricalComponentsToEstimate[ along_track_empirical_acceleration_component ].push_back( sine_empirical );
-//            empiricalComponentsToEstimate[ along_track_empirical_acceleration_component ].push_back( cosine_empirical );
-//
-//            empiricalComponentsToEstimate[ across_track_empirical_acceleration_component ].push_back( constant_empirical );
-//            empiricalComponentsToEstimate[ across_track_empirical_acceleration_component ].push_back( sine_empirical );
-//            empiricalComponentsToEstimate[ across_track_empirical_acceleration_component ].push_back( cosine_empirical );
+            empiricalComponentsToEstimate[ along_track_empirical_acceleration_component ].push_back( sine_empirical );
+            empiricalComponentsToEstimate[ along_track_empirical_acceleration_component ].push_back( cosine_empirical );
+
+            empiricalComponentsToEstimate[ across_track_empirical_acceleration_component ].push_back( constant_empirical );
+            empiricalComponentsToEstimate[ across_track_empirical_acceleration_component ].push_back( sine_empirical );
+            empiricalComponentsToEstimate[ across_track_empirical_acceleration_component ].push_back( cosine_empirical );
 
             additionalParameterNames.push_back( std::make_shared<EmpiricalAccelerationEstimatableParameterSettings>(
                 "MGS", "Mars", empiricalComponentsToEstimate ));
@@ -130,9 +130,9 @@ int main( )
 
         std::shared_ptr<EstimationOutput<> > estimationOutput =
             createBestFitToCurrentEphemeris( bodies, accelerationModelMap, bodiesToEstimate, centralBodies,
-                                             numerical_integrators::rungeKuttaFixedStepSettings( 120.0,
+                                             numerical_integrators::rungeKuttaFixedStepSettings( 60.0,
                                                                                                  numerical_integrators::rungeKuttaFehlberg78 ),
-                                             initialTime, finalTime, 600.0, additionalParameterNames );
+                                             initialTime, finalTime, 120.0, additionalParameterNames );
     }
 
 

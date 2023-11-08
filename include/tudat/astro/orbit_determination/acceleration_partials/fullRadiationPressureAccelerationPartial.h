@@ -172,6 +172,22 @@ public:
                                          customAccelerationPartialSet_->customDoubleParameterPartials_.at( parameter->getParameterName() ) );
             parameterSize = 1;
         }
+        else if( parameter->getParameterName( ).first == estimatable_parameters::radiation_pressure_coefficient &&
+            parameter->getParameterName( ).second.first == acceleratedBody_ )
+        {
+            if ( std::dynamic_pointer_cast<electromagnetism::CannonballRadiationPressureTargetModel>(
+                radiationPressureAcceleration_->getTargetModel( ) ) != nullptr )
+            {
+                partialFunction = std::bind( &RadiationPressureAccelerationPartial::wrtRadiationPressureCoefficient,
+                                             this, std::placeholders::_1, std::dynamic_pointer_cast<electromagnetism::CannonballRadiationPressureTargetModel>(
+                        radiationPressureAcceleration_->getTargetModel( ) ) );
+            }
+            else
+            {
+                throw std::runtime_error( "Error in radiation pressure partial for " + acceleratedBody_ + ", requested partial w.r.t. Cr, but no cannonball target found" );
+            }
+            parameterSize = 1;
+        }
         return std::make_pair( partialFunction, parameterSize );
     }
 
@@ -187,13 +203,13 @@ public:
     {
         std::function< void( Eigen::MatrixXd& ) > partialFunction;
         int parameterSize = 0;
-        if( customAccelerationPartialSet_->customVectorParameterPartials_.count( parameter->getParameterName() )!= 0 )
-        {
-            partialFunction = std::bind( &RadiationPressureAccelerationPartial::createCustomParameterPartialFunction, this,
-                                         std::placeholders::_1,
-                                         customAccelerationPartialSet_->customVectorParameterPartials_.at( parameter->getParameterName() ) );
-            parameterSize = parameter->getParameterSize( );
-        }
+//        if( customAccelerationPartialSet_->customVectorParameterPartials_.count( parameter->getParameterName() )!= 0 )
+//        {
+//            partialFunction = std::bind( &RadiationPressureAccelerationPartial::createCustomParameterPartialFunction, this,
+//                                         std::placeholders::_1,
+//                                         customAccelerationPartialSet_->customVectorParameterPartials_.at( parameter->getParameterName() ) );
+//            parameterSize = parameter->getParameterSize( );
+//        }
         return std::make_pair( partialFunction, parameterSize );
     }
 
@@ -206,6 +222,9 @@ public:
     void update( const double currentTime = TUDAT_NAN );
 
 protected:
+
+    void wrtRadiationPressureCoefficient(
+        Eigen::MatrixXd& partial, std::shared_ptr< electromagnetism::CannonballRadiationPressureTargetModel > targetModel );
 
     std::shared_ptr< electromagnetism::PaneledSourceRadiationPressureAcceleration > radiationPressureAcceleration_;
 
