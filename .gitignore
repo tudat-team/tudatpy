@@ -40,7 +40,7 @@ rever/
 /.docs-output
 
 # Cache
-*.pyc
+**/**.pyc
 
 # JSON
 json.json
