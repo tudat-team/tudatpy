@@ -195,7 +195,7 @@ public:
         }
     }
 
-    //! Set constant vector weight for all observables of given type and link ends
+    //! Set constant vector weight for alweightsMatrixDiagonals_l observables of given type and link ends
     void setTabulatedSingleObservableAndLinkEndsWeights(
         const observation_models::ObservableType currentObservable,
         const observation_models::LinkEnds currentLinkEnds,
@@ -441,6 +441,11 @@ public:
     Eigen::VectorXd getWeightsMatrixDiagonals( )
     {
         return weightsMatrixDiagonals_;
+    }
+
+    void setWeightsMatrixDiagonals( const Eigen::VectorXd& weightsMatrixDiagonals )
+    {
+        weightsMatrixDiagonals_ = weightsMatrixDiagonals;
     }
 
     //! Function to return the boolean denoting whether the dynamics and variational equations are reintegrated on first iteration

@@ -795,6 +795,7 @@ std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeT
     return splitSingleObervationSet;
 }
 
+
 template< typename ObservationScalarType = double, typename TimeType = double,
     typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
 std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > splitObservationSetsIntoArcs(
@@ -820,6 +821,7 @@ std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > spli
     }
     return std::make_shared< ObservationCollection< ObservationScalarType, TimeType > >( splitObservationSets );
 }
+
 
 template< typename ObservationScalarType = double, typename TimeType = double,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >

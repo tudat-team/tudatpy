@@ -17,6 +17,7 @@
 #include "tudat/basics/testMacros.h"
 #include "tudat/simulation/estimation.h"
 #include "tudat/simulation/estimation_setup.h"
+#include "tudat/simulation/estimation_setup/createEstimatableParameters.h"
 
 #include "tudat/io/readOdfFile.h"
 #include "tudat/io/readTabulatedMediaCorrections.h"
@@ -36,17 +37,27 @@ using namespace tudat::observation_models;
 using namespace tudat::simulation_setup;
 using namespace tudat::numerical_integrators;
 using namespace tudat::basic_astrodynamics;
+using namespace tudat::reference_frames;
 
 using namespace tudat;
 
 int main( )
 {
-    double initialTimeEnvironment = Time(107561, 2262.19) - 2.0 * 3600.0;
-    double finalTimeEnvironment = Time(108258, 2771.19) + 2.0 * 3600.0;
+    double initialTimeEnvironment = DateTime( 2012, 03, 02, 0, 0, 0.0 ).epoch< double >();
+    double finalTimeEnvironment = DateTime( 2012, 05, 29, 0, 0, 0.0 ).epoch< double >();
+
+//    DateTime initialDateTime = basic_astrodynamics::getCalendarDateFromTime< double >( initialTimeEnvironment );
+//    DateTime finalDateTime = basic_astrodynamics::getCalendarDateFromTime< double >( finalTimeEnvironment );
+
+    /****************************************************************************************
+     ************************** CREATE EVIRONMENT
+     *****************************************************************************************/
 
     // Load spice kernels
     spice_interface::loadStandardSpiceKernels( );
     spice_interface::loadSpiceKernelInTudat( "/home/dominic/Tudat/Data/GRAIL_Spice/grail_120301_120529_sci_v02.bsp" );
+    spice_interface::loadSpiceKernelInTudat( get_spice_kernels_path( ) + + "/moon_de440_200625.tf");
+    spice_interface::loadSpiceKernelInTudat( get_spice_kernels_path( ) + + "/moon_pa_de440_200625.bpc");
 
     // Create settings for default bodies
     std::vector< std::string > bodiesToCreate = { "Earth", "Sun", "Mercury", "Venus", "Mars", "Jupiter", "Saturn", "Moon" };
@@ -66,7 +77,27 @@ int main( )
         std::make_shared< interpolators::InterpolatorGenerationSettings< double > >(
             interpolators::cubicSplineInterpolation( ), initialTimeEnvironment, finalTimeEnvironment, 60.0 ));
     bodySettings.at( "Earth" )->groundStationSettings = getDsnStationSettings( );
+    bodySettings.at( "Moon" )->rotationModelSettings = spiceRotationModelSettings(
+        bodySettings.getFrameOrientation( ), "MOON_PA_DE440", "MOON_PA_DE440" );
+    bodySettings.at( "Moon" )->gravityFieldSettings =
+        std::make_shared< FromFileSphericalHarmonicsGravityFieldSettings >( gggrx1200, 500 );
+    std::dynamic_pointer_cast< SphericalHarmonicsGravityFieldSettings >(
+        bodySettings.at( "Moon" )->gravityFieldSettings )->resetAssociatedReferenceFrame( "MOON_PA_DE440" );
+    bodySettings.at( "Moon" )->gravityFieldVariationSettings.push_back(
+        fixedSingleDegreeLoveNumberGravityFieldVariationSettings( "Earth", 0.02405, 2 ) );
+    bodySettings.at( "Moon" )->gravityFieldVariationSettings.push_back(
+        fixedSingleDegreeLoveNumberGravityFieldVariationSettings( "Sun", 0.02405, 2 ) );
     bodySettings.at( "Moon" )->ephemerisSettings->resetFrameOrigin( "Earth" );
+
+    std::vector< std::shared_ptr< PanelRadiosityModelSettings > > panelRadiosityModels;
+    panelRadiosityModels.push_back(angleBasedThermalPanelRadiosityModelSettings( 95.0, 385.0, 0.95, "Sun" ) );
+    panelRadiosityModels.push_back(albedoPanelRadiosityModelSettings( SphericalHarmonicsSurfacePropertyDistributionModel::albedo_dlam1, "Sun" ) );
+
+    std::map< std::string, std::vector< std::string > > originalSourceToSourceOccultingBodies;
+    originalSourceToSourceOccultingBodies[ "Sun" ].push_back( "Earth" );
+    bodySettings.at( "Moon" )->radiationSourceModelSettings =
+        extendedRadiationSourceModelSettingsWithOccultationMap(
+            panelRadiosityModels, { 4, 8, 12, 16  }, originalSourceToSourceOccultingBodies );
 
     // Add spacecraft settings
     std::string spacecraftName = "GRAIL-A";
@@ -75,36 +106,29 @@ int main( )
     bodySettings.at( spacecraftName )->ephemerisSettings =
         std::make_shared< InterpolatedSpiceEphemerisSettings >(
                 initialTimeEnvironment, finalTimeEnvironment, 10.0, spacecraftCentralBody, globalFrameOrientation );
-//    107560 * 3600.0 , 107579.0 * 3600.0, 10.0, spacecraftCentralBody, globalFrameOrientation );
-
-
-//        std::make_shared< DirectSpiceEphemerisSettings >( spacecraftCentralBody, "J2000" );
 
     // Create spacecraft
-    bodySettings.at( spacecraftName )->constantMass = 1200.0;
+    bodySettings.at( spacecraftName )->constantMass = 150.0;
 
     // Create radiation pressure settings
-    double referenceAreaRadiation = 10.0;
-    double radiationPressureCoefficient = 1.2;
-    std::vector< std::string > occultingBodies = { "Mars" };
-    bodySettings.at( spacecraftName )->radiationPressureSettings[ "Sun" ] =
-        cannonBallRadiationPressureSettings( "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
+    double referenceAreaRadiation = 5.0;
+    double radiationPressureCoefficient = 1.5;
+    std::map< std::string, std::vector< std::string > > sourceToTargetOccultingBodies;
+    sourceToTargetOccultingBodies[ "Sun" ].push_back( "Moon" );
+    bodySettings.at( spacecraftName )->radiationPressureTargetModelSettings = cannonballRadiationPressureTargetModelSettingsWithOccultationMap(
+        referenceAreaRadiation, radiationPressureCoefficient, sourceToTargetOccultingBodies );
 
     // Create bodies
     SystemOfBodies bodies = createSystemOfBodies< long double, Time >( bodySettings );
 
+
+    /****************************************************************************************
+     ************************** LOAD ODF FILES
+     *****************************************************************************************/
+
     // Define ODF data paths
     std::string dataDirectory = "/home/dominic/Tudat/Data/GRAIL_ODF/";
-    std::vector< std::string > odfFiles = { "gralugf2012_100_0540smmmv1.odf", "gralugf2012_101_0235smmmv1.odf",
-                                            "gralugf2012_102_0358smmmv1.odf", "gralugf2012_103_0145smmmv1.odf",
-                                            "gralugf2012_105_0352smmmv1.odf", "gralugf2012_107_0405smmmv1.odf",
-                                            "gralugf2012_108_0450smmmv1.odf", "gralugf2012_109_1227smmmv1.odf",
-                                            "gralugf2012_111_1332smmmv1.odf", "gralugf2012_114_0900smmmv1.odf" };
-//                                            "gralugf2012_117_0300smmmv1.odf", "gralugf2012_119_0545smmmv1.odf",
-//                                            "gralugf2012_121_0155smmmv1.odf", "gralugf2012_122_1113smmmv1.odf",
-//                                            "gralugf2012_123_0607smmmv1.odf", "gralugf2012_124_0253smmmv1.odf",
-//                                            "gralugf2012_125_0400smmmv1.odf", "gralugf2012_126_0203smmmv1.odf",
-//                                            "gralugf2012_128_0233smmmv1.odf"};
+    std::vector< std::string > odfFiles = { "gralugf2012_097_0235smmmv1.odf" };
 
     // Laod raw ODF data
     std::vector< std::shared_ptr< input_output::OdfRawFileContents > > rawOdfDataVector;
@@ -120,12 +144,31 @@ int main( )
     observation_models::setOdfInformationInBodies( processedOdfFileContents, bodies );
 
     // Create data structure that handles Observed Data in Tudat
-    std::shared_ptr< observation_models::ObservationCollection< long double, Time > > observedObservationCollection =
+    std::shared_ptr< observation_models::ObservationCollection< long double, Time > > observedUncompressedObservationCollection =
         splitObservationSetsIntoArcs< long double, Time >( observation_models::createOdfObservedObservationCollection< long double, Time >(
             processedOdfFileContents, { dsn_n_way_averaged_doppler } ), 60.0, 10 );
 
+    std::map< LinkEnds, std::vector< std::shared_ptr< observation_models::SingleObservationSet< long double, Time > > > > uncompressedObservationSets =
+        observedUncompressedObservationCollection->getObservations( ).at( dsn_n_way_averaged_doppler );
+    std::vector< std::shared_ptr< observation_models::SingleObservationSet< long double, Time > > > compressedObservationSets;
+    for( auto it : uncompressedObservationSets )
+    {
+        for( unsigned int i = 0; i < it.second.size( ); i++ )
+        {
+            compressedObservationSets.push_back( compressDopplerData< long double, Time >( it.second.at( i ), 60 ) );
+        }
+    }
 
-        std::map< int, observation_models::LinkEnds > linkEndIds = observedObservationCollection->getInverseLinkEndIdentifierMap( );
+    std::shared_ptr< observation_models::ObservationCollection< long double, Time > > observedObservationCollection =
+        std::make_shared< observation_models::ObservationCollection< long double, Time > >( compressedObservationSets );
+
+
+    /****************************************************************************************
+     ************************** PRINT DATA SUMMARY
+     *****************************************************************************************/
+
+
+    std::map< int, observation_models::LinkEnds > linkEndIds = observedObservationCollection->getInverseLinkEndIdentifierMap( );
     for( auto it : linkEndIds )
     {
         std::cout<<it.first<<", ("<<it.second[ transmitter ].bodyName_<<", "<<it.second[ transmitter ].stationName_<<"); "
@@ -141,12 +184,15 @@ int main( )
     Time initialTime = timeBounds.first - 3600.0;
     Time finalTime = timeBounds.second + 3600.0;
 
-    std::cout<<initialTime<<" "<<finalTime<<std::endl;
+    std::cout<<"Initial time: "<<basic_astrodynamics::getCalendarDateFromTime( initialTime ).isoString( false, 3 )<<std::endl;
+    std::cout<<"Final time: "<<basic_astrodynamics::getCalendarDateFromTime( finalTime ).isoString( false, 3 )<<std::endl;
+
+    /****************************************************************************************
+     ************************** CREATE OBSERVATION MODEL SETTINGS
+     *****************************************************************************************/
 
     // Define observation model settings
     std::vector< std::shared_ptr< observation_models::ObservationModelSettings > > observationModelSettingsList;
-
-
 
     std::vector< std::shared_ptr< observation_models::LightTimeCorrectionSettings > > lightTimeCorrectionSettings;
     lightTimeCorrectionSettings.push_back( firstOrderRelativisticLightTimeCorrectionSettings( { "Sun" } ) );
@@ -156,7 +202,6 @@ int main( )
         {"/home/dominic/Tudat/Data/GRAIL_Ancilliary/gralugf2012_092_2012_122.ion", "/home/dominic/Tudat/Data/GRAIL_Ancilliary/gralugf2012_122_2012_153.ion"};
     std::map< int, std::string > spacecraftNamePerSpacecraftId;
     spacecraftNamePerSpacecraftId[ 177 ] = "GRAIL-A";
-    spacecraftNamePerSpacecraftId[ 181 ] = "GRAIL-B";
 
     lightTimeCorrectionSettings.push_back( tabulatedTroposphericCorrectionSettings( troposphericCorrectionFileNames ) );
     lightTimeCorrectionSettings.push_back( tabulatedIonosphericCorrectionSettings( ionosphericCorrectionFileNames, spacecraftNamePerSpacecraftId ) );
@@ -181,98 +226,162 @@ int main( )
     std::vector< std::shared_ptr< ObservationSimulatorBase< long double, Time > > > observationSimulators =
         createObservationSimulators< long double, Time >( observationModelSettingsList, bodies );
 
+
+    /****************************************************************************************
+     ************************** SIMULATE OBSERVATIONS AND COMPUTE RESIDUALS
+     *****************************************************************************************/
+
     std::vector< std::shared_ptr< simulation_setup::ObservationSimulationSettings< Time > > > observationSimulationSettings =
         getObservationSimulationSettingsFromObservations( observedObservationCollection );
     std::shared_ptr< observation_models::ObservationCollection< long double, Time > > computedObservationCollection =
         simulateObservations( observationSimulationSettings, observationSimulators, bodies );
 
-    std::cout<<"Create residuals"<<std::endl;
     std::shared_ptr< observation_models::ObservationCollection< long double, Time > > residualObservationCollection =
         createResidualCollection( observedObservationCollection, computedObservationCollection );
 
-    std::cout<<"Filter observations"<<std::endl;
+    /****************************************************************************************
+    ************************** FILTER OBSERVATIONS
+    *****************************************************************************************/
+
     std::map< ObservableType, double > residualCutoffValuePerObservable;
     residualCutoffValuePerObservable[ dsn_n_way_averaged_doppler ] = 0.05;
 
     std::shared_ptr< observation_models::ObservationCollection< long double, Time > > filteredObservedObservationCollection =
         filterResidualOutliers( observedObservationCollection, residualObservationCollection, residualCutoffValuePerObservable );
 
-    std::cout<<"Filtered size: "<<observedObservationCollection->getTotalObservableSize( )<<" "<<filteredObservedObservationCollection->getTotalObservableSize( )<<std::endl;
 
-
-    std::cout<<"Computed filtered observations"<<std::endl;
     std::vector< std::shared_ptr< simulation_setup::ObservationSimulationSettings< Time > > > filteredObservationSimulationSettings =
         getObservationSimulationSettingsFromObservations( filteredObservedObservationCollection );
     std::shared_ptr< observation_models::ObservationCollection< long double, Time > > filteredComputedObservationCollection =
         simulateObservations( filteredObservationSimulationSettings, observationSimulators, bodies );
 
-    std::cout<<"Create filtered residuals"<<std::endl;
     std::shared_ptr< observation_models::ObservationCollection< long double, Time > > filteredResidualObservationCollection =
         createResidualCollection( filteredObservedObservationCollection, filteredComputedObservationCollection );
-
-    Eigen::VectorXd numericalTimeBiasPartials = getNumericalObservationTimePartial< long double, Time >(
-        filteredObservationSimulationSettings, observationSimulators, bodies, 5.0 );
-
-
-    input_output::writeMatrixToFile( numericalTimeBiasPartials, "grailTestTimeDerivative.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TestResults/");
-
-    std::vector< double > timeBiases;
-    std::vector< Eigen::VectorXd > polynomialCoefficientsList;
-    Eigen::VectorXd correctedResiduals;
-    estimateTimeBiasAndPolynomialFitPerSet< long double, Time >(
-        filteredResidualObservationCollection, numericalTimeBiasPartials, timeBiases, polynomialCoefficientsList, correctedResiduals );
-
-    Eigen::VectorXd startTimes;
-    Eigen::VectorXd durations;
-    Eigen::VectorXd meanValues;
-    Eigen::VectorXd rmsValues;
-
-    getResidualStatistics(
-        filteredResidualObservationCollection, correctedResiduals, startTimes, durations, meanValues, rmsValues );
-
-//    for( unsigned int i = 0; i < timeBiases.size( ); i++ )
-//    {
-//        std::cout<<startTimes( i )<<" "<<durations( i )<<" "<<meanValues( i )<<" "<<rmsValues( i )<<" "<<timeBiases.at( i )<<" "<<polynomialCoefficientsList.at( i ).transpose( )<<std::endl;
-//    }
-    input_output::writeMatrixToFile( startTimes, "grailTestStartTimes.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TestResults/");
-    input_output::writeMatrixToFile( durations, "grailTestDurations.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TestResults/");
-    input_output::writeMatrixToFile( meanValues, "grailMeanValues.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TestResults/");
-    input_output::writeMatrixToFile( rmsValues, "grailRmsValues.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TestResults/");
-    input_output::writeMatrixToFile( utilities::convertStlVectorToEigenVector( timeBiases ), "grailTimeBiases.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TestResults/");
-//    input_output::writeMatrixToFile( utilities::convertStlVectorToEigenMatrix( polynomialCoefficientsList ), "grailBiases.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TestResults/");
-
-    //
-//    std::cout<<"Filter observations"<<std::endl;
-//    std::map< ObservableType, double > residualCutoffValuePerObservable;
-//    residualCutoffValuePerObservable[ dsn_n_way_averaged_doppler ] = 0.3;
-//    std::shared_ptr< observation_models::ObservationCollection< long double, Time > > filteredObservedObservationCollection =
-//        filterResidualOutliers( observedObservationCollection, residualObservationCollection, residualCutoffValuePerObservable );
-//
-//
-//    std::cout<<"Computed filtered observations"<<std::endl;
-//    std::vector< std::shared_ptr< simulation_setup::ObservationSimulationSettings< Time > > > filteredObservationSimulationSettings =
-//        getObservationSimulationSettingsFromObservations( filteredObservedObservationCollection );
-//    std::shared_ptr< observation_models::ObservationCollection< long double, Time > > filteredComputedObservationCollection =
-//        simulateObservations( filteredObservationSimulationSettings, observationSimulators, bodies );
-//
-//    std::cout<<"Create filtered residuals"<<std::endl;
-//    std::shared_ptr< observation_models::ObservationCollection< long double, Time > > filteredResidualObservationCollection =
-//        createResidualCollection( filteredObservedObservationCollection, filteredComputedObservationCollection );
-
-
-
     {
         Eigen::VectorXd residuals = filteredResidualObservationCollection->getObservationVector( ).template cast< double >( );
-        input_output::writeMatrixToFile( residuals, "grailTestResiduals.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TestResults/");
+        input_output::writeMatrixToFile( residuals, "grailTestResiduals.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TestResults_30s_timebias/");
 
-        input_output::writeMatrixToFile( correctedResiduals, "grailTestCorrectedResiduals.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TestResults/");
+//        input_output::writeMatrixToFile( correctedResiduals, "grailTestCorrectedResiduals.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TestResults/");
 
         Eigen::VectorXd observationTimes = utilities::convertStlVectorToEigenVector(
             filteredResidualObservationCollection->getConcatenatedTimeVector( ) ).template cast< double >( );
-        input_output::writeMatrixToFile( observationTimes, "grailTestTimes.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TestResults/");
+        input_output::writeMatrixToFile( observationTimes, "grailTestTimes.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TestResults_30s_timebias/");
 
         Eigen::VectorXd observationLinkEndsIds = utilities::convertStlVectorToEigenVector(
             filteredResidualObservationCollection->getConcatenatedLinkEndIds( ) ).template cast< double >( );
-        input_output::writeMatrixToFile(observationLinkEndsIds , "grailTestLinkEnds.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TestResults/");
+        input_output::writeMatrixToFile(observationLinkEndsIds , "grailTestLinkEnds.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TestResults_30s_timebias/");
+    }
+    
+    {
+        // Set accelerations between bodies that are to be taken into account.
+        SelectedAccelerationMap accelerationMap;
+        std::map<std::string, std::vector<std::shared_ptr<AccelerationSettings> > > accelerationsOfSpacecraft;
+        accelerationsOfSpacecraft[ "Sun" ].push_back( std::make_shared<AccelerationSettings>( point_mass_gravity ));
+        accelerationsOfSpacecraft[ "Sun" ].push_back( std::make_shared<AccelerationSettings>( radiation_pressure ));
+        accelerationsOfSpacecraft[ "Earth" ].push_back( std::make_shared<AccelerationSettings>( point_mass_gravity ));
+        accelerationsOfSpacecraft[ "Moon" ].push_back( std::make_shared<SphericalHarmonicAccelerationSettings>( 256, 256 ));
+//        accelerationsOfSpacecraft[ "Moon" ].push_back( std::make_shared<AccelerationSettings>( radiation_pressure ));
+        accelerationsOfSpacecraft[ "Moon" ].push_back( empiricalAcceleration( ));
+        accelerationsOfSpacecraft[ "Mars" ].push_back( std::make_shared<AccelerationSettings>( point_mass_gravity ));
+        accelerationsOfSpacecraft[ "Jupiter" ].push_back( std::make_shared<AccelerationSettings>( point_mass_gravity ));
+        accelerationsOfSpacecraft[ "Saturn" ].push_back( std::make_shared<AccelerationSettings>( point_mass_gravity ));
+
+        accelerationMap[ "GRAIL-A" ] =accelerationsOfSpacecraft;
+
+        // Set bodies for which initial state is to be estimated and integrated.
+        std::vector<std::string> bodiesToEstimate = { "GRAIL-A" };
+        std::vector<std::string> centralBodies = { "Moon" };
+
+        AccelerationMap accelerationModelMap = createAccelerationModelsMap(
+            bodies, accelerationMap, bodiesToEstimate, centralBodies );
+
+        Eigen::VectorXd initialState = getInitialStatesOfBodies( bodiesToEstimate, centralBodies, bodies, initialTime );
+
+        std::shared_ptr< TranslationalStatePropagatorSettings< long double, Time > > propagatorSettings =
+            std::make_shared< TranslationalStatePropagatorSettings< long double, Time > >
+                ( centralBodies, accelerationModelMap, bodiesToEstimate, initialState.template cast< long double >( ), Time( initialTime ),
+                  numerical_integrators::rungeKuttaFixedStepSettings< Time >( 30.0,
+                                                                      numerical_integrators::rungeKuttaFehlberg78 ),
+                  std::make_shared< PropagationTimeTerminationSettings >( finalTime ) );
+
+        std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames =
+            getInitialStateParameterSettings< long double, Time >( propagatorSettings, bodies );
+
+        std::vector<std::shared_ptr<estimatable_parameters::EstimatableParameterSettings> > additionalParameterNames;
+
+        parameterNames.push_back( estimatable_parameters::radiationPressureCoefficient( "GRAIL-A" ));
+
+        std::map<basic_astrodynamics::EmpiricalAccelerationComponents,
+            std::vector<basic_astrodynamics::EmpiricalAccelerationFunctionalShapes> > empiricalComponentsToEstimate;
+        empiricalComponentsToEstimate[ radial_empirical_acceleration_component ].push_back( constant_empirical );
+        empiricalComponentsToEstimate[ radial_empirical_acceleration_component ].push_back( sine_empirical );
+        empiricalComponentsToEstimate[ radial_empirical_acceleration_component ].push_back( cosine_empirical );
+
+        empiricalComponentsToEstimate[ along_track_empirical_acceleration_component ].push_back( constant_empirical );
+        empiricalComponentsToEstimate[ along_track_empirical_acceleration_component ].push_back( sine_empirical );
+        empiricalComponentsToEstimate[ along_track_empirical_acceleration_component ].push_back( cosine_empirical );
+
+        empiricalComponentsToEstimate[ across_track_empirical_acceleration_component ].push_back( constant_empirical );
+        empiricalComponentsToEstimate[ across_track_empirical_acceleration_component ].push_back( sine_empirical );
+        empiricalComponentsToEstimate[ across_track_empirical_acceleration_component ].push_back( cosine_empirical );
+
+        parameterNames.push_back( std::make_shared<EmpiricalAccelerationEstimatableParameterSettings>(
+            "GRAIL-A", "Moon", empiricalComponentsToEstimate ));
+        for( auto it : linkEndIds )
+        {
+            parameterNames.push_back( timeObservationBias( it.second, dsn_n_way_averaged_doppler ) );
+        }
+
+        std::shared_ptr< estimatable_parameters::EstimatableParameterSet< long double > > parametersToEstimate =
+            createParametersToEstimate< long double, Time >( parameterNames, bodies, propagatorSettings );
+
+        OrbitDeterminationManager< long double, Time > orbitDeterminationManager = OrbitDeterminationManager< long double, Time >(
+            bodies, parametersToEstimate, observationModelSettingsList, propagatorSettings );
+
+        std::shared_ptr< EstimationInput< long double, Time > > estimationInput = std::make_shared< EstimationInput< long double, Time > >(
+            filteredObservedObservationCollection );
+        estimationInput->setConvergenceChecker( std::make_shared< EstimationConvergenceChecker >( 4 ) );
+        estimationInput->defineEstimationSettings(
+            0, 1, 0, 1, 1, 1 );
+        std::shared_ptr< EstimationOutput< long double, Time > > estimationOutput = orbitDeterminationManager.estimateParameters( estimationInput );
+
+        input_output::writeMatrixToFile(estimationOutput->residuals_ , "grailPostFitResiduals.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TestResults_30s_timebias/");
+
+        auto estimatedStateHistory =
+            std::dynamic_pointer_cast< SingleArcVariationalSimulationResults< long double, Time > >( estimationOutput->getSimulationResults( ).back( ) )->getDynamicsResults( )->getEquationsOfMotionNumericalSolution( );
+
+        std::map< double, Eigen::VectorXd > finalStateHistory;
+        std::map< double, Eigen::VectorXd > finalStateDifference;
+        std::map< double, Eigen::VectorXd > finalStateDifferenceRsw;
+        for( auto it : estimatedStateHistory )
+        {
+            finalStateHistory[ it.first ] = it.second.cast< double >( );
+            Eigen::Matrix3d rotationMatrix = getInertialToRswSatelliteCenteredFrameRotationMatrix( it.second.cast< double >( ) );
+            Eigen::VectorXd stateDifference  = it.second.cast< double >( ) - spice_interface::getBodyCartesianStateAtEpoch(
+                "GRAIL-A", "Moon", globalFrameOrientation, "None", it.first );
+            Eigen::VectorXd rswStateDifference = Eigen::Vector6d::Zero( );
+            rswStateDifference.segment( 0, 3 ) = rotationMatrix * stateDifference.segment( 0, 3 );
+            rswStateDifference.segment( 3, 3 ) = rotationMatrix * stateDifference.segment( 3, 3 );
+
+            finalStateDifference[ it.first ] = stateDifference;
+            finalStateDifferenceRsw[ it.first ] = rswStateDifference;
+        }
+
+        input_output::writeMatrixToFile(estimationOutput->getCorrelationMatrix( ) , "grailTestCorrelations.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TestResults_30s_timebias/");
+
+        input_output::writeDataMapToTextFile( finalStateDifference,
+                                              "stateDifference.dat",
+                                              "/home/dominic/Tudat/Data/GRAIL_TestResults_30s_timebias/",
+                                              "", std::numeric_limits< double >::digits10,  std::numeric_limits< double >::digits10,  "," );
+
+        input_output::writeDataMapToTextFile( finalStateDifferenceRsw,
+                                              "stateDifferenceRsw.dat",
+                                              "/home/dominic/Tudat/Data/GRAIL_TestResults_30s_timebias/",
+                                              "", std::numeric_limits< double >::digits10,  std::numeric_limits< double >::digits10,  "," );
+
+
+
+
+
     }
 }
