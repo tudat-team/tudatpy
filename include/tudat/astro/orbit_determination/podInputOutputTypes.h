@@ -443,6 +443,10 @@ public:
         return weightsMatrixDiagonals_;
     }
 
+    void setWeightsMatrixDiagonals( const Eigen::VectorXd& weightsMatrixDiagonals )
+    {
+        weightsMatrixDiagonals_ = weightsMatrixDiagonals;
+    }
     //! Function to return the boolean denoting whether the dynamics and variational equations are reintegrated on first iteration
     /*!
      * Function to return the boolean denoting whether the dynamics and variational equations are to be reintegrated on first
