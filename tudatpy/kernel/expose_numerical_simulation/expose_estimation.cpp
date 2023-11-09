@@ -563,9 +563,9 @@ void expose_estimation(py::module &m) {
                   py::arg( "save_design_matrix" ) = true,
                   py::arg( "print_output_to_terminal" ) = true,
                   get_docstring("CovarianceAnalysisInput.define_covariance_settings").c_str() )
-            .def_property_readonly("weight_matrix_diagonal",
+            .def_property("weight_matrix_diagonal",
                                    &tss::CovarianceAnalysisInput<double, TIME_TYPE>::getWeightsMatrixDiagonals,
-//                                   &tss::CovarianceAnalysisInput<double, TIME_TYPE>::setWeightsMatrixDiagonals,
+                                   &tss::CovarianceAnalysisInput<double, TIME_TYPE>::setWeightsMatrixDiagonals,
                                    get_docstring("CovarianceAnalysisInput.weight_matrix_diagonal").c_str() );
 
     py::class_<
