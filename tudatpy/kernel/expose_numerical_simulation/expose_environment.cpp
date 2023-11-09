@@ -19,6 +19,7 @@
 #include <tudat/astro/gravitation.h>
 #include "tudat/astro/ground_stations/groundStation.h"
 #include "tudat/simulation/environment_setup/body.h"
+#include "tudat/simulation/environment_setup/createGroundStations.h"
 
 
 #include <pybind11/chrono.h>
@@ -378,7 +379,11 @@ void expose_environment(py::module &m) {
                  get_docstring("Ephemeris.cartesian_position").c_str())
             .def("cartesian_velocity", &te::Ephemeris::getCartesianVelocity,
                  py::arg("current_time"),
-                 get_docstring("Ephemeris.cartesian_velocity").c_str());
+                 get_docstring("Ephemeris.cartesian_velocity").c_str())
+            .def_property_readonly("frame_origin", &te::Ephemeris::getReferenceFrameOrigin,
+                 get_docstring("Ephemeris.frame_origin").c_str())
+            .def_property_readonly("frame_orientation", &te::Ephemeris::getReferenceFrameOrientation,
+                 get_docstring("Ephemeris.frame_orientation").c_str());
 
 
     py::class_<te::ConstantEphemeris,
@@ -462,6 +467,11 @@ void expose_environment(py::module &m) {
                  py::arg("frame_orientation") = "J2000",
                  py::arg("tle") = nullptr,
                  py::arg("use_sdp") = false);
+
+    m.def( "create_ground_station_ephemeris",
+           py::overload_cast< const std::shared_ptr< tss::Body >, const std::string& >( &tss::createReferencePointEphemeris< TIME_TYPE, double > ),
+               "body_with_ground_station",
+               "station_name" );
 
     /*!
      **************   ROTATION MODELS  ******************
