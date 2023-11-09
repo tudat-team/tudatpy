@@ -13,7 +13,7 @@
 #                 METHODS                 
 # ----------------------------------------
 from tudatpy.kernel.numerical_simulation.estimation_setup.observation import \
-     313_euler_angles, \
+     euler_angles_313, \
      absolute_bias, \
      add_dependent_variables_to_all, \
      add_dependent_variables_to_observable, \
