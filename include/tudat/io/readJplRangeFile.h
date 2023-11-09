@@ -7,6 +7,13 @@
 
 #include <iostream>
 #include <fstream>
+#include <string>
+#include <vector>
+
+#include "tudat/io/basicInputOutput.h"
+#include "tudat/basics/timeType.h"
+#include "tudat/astro/basic_astro/timeConversions.h"
+#include <boost/algorithm/string.hpp>
 
 
 namespace tudat
@@ -14,11 +21,13 @@ namespace tudat
 namespace input_output
 {
 
-class JPLRangeFileContents
+int getMonthIndex( std::string monthName );
+
+class JplRangeDataBlock
 {
 public:
-    JPLRangeFileContents( const std::string& rangeFileName );
-private:
+    JplRangeDataBlock( std::string line );
+
     unsigned int spacecraftId_;
     unsigned int transmittingStationId_;
     unsigned int receivingStationId_;
@@ -30,9 +39,26 @@ private:
     unsigned int utcSecond_;
     double roundTripLightTime_;
     double measurementAccuracy_;
+    std::vector< std::string > splitBlock_;
+
+private:
+
+};
 
 
+class JplRangeFileContents
+{
+public:
+    JplRangeFileContents( const std::string& rangeFileName );
 
+    std::string getFileName( )
+    {
+        return fileName_;
+    }
+
+private:
+    std::string fileName_;
+    std::vector< std::shared_ptr< JplRangeDataBlock>> dataBlocks_;
 
 };
 
