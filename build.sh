@@ -32,8 +32,10 @@ cmake -DCMAKE_PREFIX_PATH="$CONDA_PREFIX" \
   -DTUDAT_BUILD_TESTS="${BUILD_TESTS}" \
   ..
 
-# build step
+# if required by user, clean
 if [ "${CLEAN_BUILD}" = "true" ]; then
-    cmake --build clean
+    cmake --build . --target clean -j"${NUMBER_OF_PROCESSORS}"
+    printf "\nClean finished\n\n"
 fi
+# build
 cmake --build . -j"${NUMBER_OF_PROCESSORS}"
