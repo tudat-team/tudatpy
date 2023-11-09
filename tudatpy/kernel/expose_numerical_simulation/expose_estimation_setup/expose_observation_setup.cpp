@@ -364,11 +364,11 @@ void expose_observation_setup(py::module &m) {
           py::arg("bias_settings") = nullptr,
           get_docstring("cartesian_velocity").c_str() );
 
-    m.def("313_euler_angles",
+    m.def("euler_angles_313",
           &tom::eulerAngle313ObservableSettings,
           py::arg("link_ends"),
           py::arg("bias_settings") = nullptr,
-          get_docstring("313_euler_angles").c_str() );
+          get_docstring("euler_angles_313").c_str() );
 
 
     m.def("one_way_doppler_instantaneous",
