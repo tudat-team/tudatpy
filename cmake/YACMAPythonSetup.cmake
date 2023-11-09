@@ -24,7 +24,7 @@ if(_YACMA_PYTHON_MODULE_NEED_LINK)
 else()
     # NOTE: we need to determine the include dir on our own.
     if(NOT YACMA_PYTHON_INCLUDE_DIR)
-        execute_process(COMMAND ${PYTHON_EXECUTABLE} -c "from __future__ import print_function\nimport sysconfig\nprint(sysconfig.get_python_inc())"
+        execute_process(COMMAND ${PYTHON_EXECUTABLE} -c "from __future__ import print_function\nimport sysconfig\nprint(sysconfig.get_path('purelib'))"
                 OUTPUT_VARIABLE _YACMA_PYTHON_INCLUDE_DIR OUTPUT_STRIP_TRAILING_WHITESPACE)
         if(_YACMA_PYTHON_INCLUDE_DIR)
             set(YACMA_PYTHON_INCLUDE_DIR "${_YACMA_PYTHON_INCLUDE_DIR}" CACHE PATH "Path to the Python include dir.")
