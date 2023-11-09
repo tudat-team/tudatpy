@@ -12,7 +12,11 @@ dependencies:
   - python
   - pybind11
   - pybind11-abi
+  # Python dependencies
   - numpy
-  - pandas # for tudat.io
-  - matplotlib # for tudat.plotting
   - pytest
+  - pandas     # for tudatpy.io
+  - matplotlib # for tudatpy.plotting
+  - tqdm       # for tudatpy.trajectory_design.porkchop
+  - astropy    # for tudatpy.data.mpc
+  - astroquery # for tudatpy.data.mpc
