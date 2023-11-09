@@ -5,7 +5,8 @@ build_dir="cmake-build-release-wsl"
 export build_dir
 
 # build kernel
-bash build.sh -j10
+bash build.sh -j10          # regular build
+#bash build.sh -j10 -c true  # clean build
 
 # expose kernel modules
 cd tudatpy
