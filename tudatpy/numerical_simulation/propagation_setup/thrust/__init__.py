@@ -17,9 +17,13 @@
 # is an issue with the `def_submodule` function of pybind11. The issue is discussed
 # [here](https://github.com/pybind/pybind11/issues/2639). 
 # 
-# We circumvent the issue by automatically creating an *empty* Python module for each
-# kernel module and submodule, and exposing the kernel module or submodule from the
-# Python module by adding the import statement below to the Python module's `__init__.py` (this file). 
+# We circumvent the issue by, for each module and submodule, 
+# 
+#     1. Creating a Python module (an empty directory with an `__init__.py` file) 
+#        inside `tudatpy` with the same name
+#     2. Adding the import statement below to the Python module's `__init__.py` 
+#        (this file), thereby making the kernel module or submodule from the Python module.
+# 
 # This workaround was proposed in [this comment](https://github.com/pybind/pybind11/issues/2639#issuecomment-721238757).
 # 
 # An added benefit of this method is that it makes it possible to write Python extensions 
@@ -30,3 +34,4 @@
 # and add them to the kernel modules simply by placing them inside this module!
 
 from tudatpy.kernel.numerical_simulation.propagation_setup.thrust import *
+from tudatpy.numerical_simulation.propagation_setup.thrust._import_all_kernel_members import *
