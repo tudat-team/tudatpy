@@ -158,7 +158,7 @@ class DependentVariableDictionary(dict):
         """
         return super().__setitem__(self.__read_key(__key), __value)
 
-    def __getitem__(self, __key: VariableSettings) -> dict[float: np.ndarray]:
+    def __getitem__(self, __key: VariableSettings) -> Dict[float: np.ndarray]:
         """
         Retrieve the time history corresponding to a dependent variable, identified either by
         the dependent variable settings object corresponding to the dependent variable

@@ -450,7 +450,7 @@ void expose_estimation(py::module &m) {
           py::arg("initial_covariance"),
           py::arg("state_transition_interface"),
           py::arg("output_times"),
-          get_docstring("propagate_covariance").c_str() );
+          get_docstring("propagate_covariance_split_output").c_str() );
 
     m.def("propagate_covariance",
           py::overload_cast<
