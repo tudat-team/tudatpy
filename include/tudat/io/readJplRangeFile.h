@@ -9,6 +9,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <memory>
 
 #include "tudat/io/basicInputOutput.h"
 #include "tudat/basics/timeType.h"
@@ -21,12 +22,13 @@ namespace tudat
 namespace input_output
 {
 
-int getMonthIndex( std::string monthName );
+unsigned int getMonthIndex( std::string monthName );
+
 
 class JplRangeDataBlock
 {
 public:
-    JplRangeDataBlock( std::string line );
+    explicit JplRangeDataBlock( std::string line );
 
     unsigned int spacecraftId_;
     unsigned int transmittingStationId_;
@@ -38,8 +40,8 @@ public:
     unsigned int utcMinute_;
     unsigned int utcSecond_;
     double roundTripLightTime_;
-    double measurementAccuracy_;
-    std::vector< std::string > splitBlock_;
+    double transmissionDelay_ = 0.0;
+    std::vector< std::string > splitRawBlock_;
 
 private:
 
@@ -49,18 +51,35 @@ private:
 class JplRangeFileContents
 {
 public:
-    JplRangeFileContents( const std::string& rangeFileName );
+    explicit JplRangeFileContents( const std::string& rangeFileName );
 
-    std::string getFileName( )
-    {
-        return fileName_;
-    }
+    void readHeader( std::ifstream& dataFile );
 
-private:
+    void readDataBlocks( std::ifstream& dataFile );
+
+    void checkFileFormat( );
+
+    void removeTransponderDelay();
+
+
+public:
     std::string fileName_;
+    std::string fileTitle_;
+    std::string fileHeaderInfo_;
+    bool formatSupported_ = true;
+    char commentSymbol_ = '#';
     std::vector< std::shared_ptr< JplRangeDataBlock>> dataBlocks_;
 
+private:
+    std::set< std::string > supportedFileTitles = { "Mars Pathfinder Ranging Data", "Viking lander range data","MESSENGER range data", "Mars Global Surveyor range data", "Mars Odyssey range data", "Mars Reconnaissance Orbiter range data" "Manual Ranging Data" };
+
 };
+
+
+inline std::shared_ptr< JplRangeFileContents > readJplRangeFile( std::string& fileName )
+{
+    return std::make_shared< JplRangeFileContents >( fileName );
+}
 
 }
 }
