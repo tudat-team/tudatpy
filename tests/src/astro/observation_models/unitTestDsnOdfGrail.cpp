@@ -217,7 +217,7 @@ int main( )
             {
                 observationModelSettingsList.push_back(
                     observation_models::dsnNWayAveragedDopplerObservationSettings(
-                        it->second.at( i ), lightTimeCorrectionSettings, nullptr,
+                        it->second.at( i ), lightTimeCorrectionSettings, std::make_shared< ConstantTimeBiasSettings >( 0.0, receiver ),
                         std::make_shared< LightTimeConvergenceCriteria >( true ) ) );
             }
         }
@@ -297,13 +297,18 @@ int main( )
 
         Eigen::VectorXd initialState = getInitialStatesOfBodies( bodiesToEstimate, centralBodies, bodies, initialTime );
 
+        std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave;
+        dependentVariablesToSave.push_back(
+            std::make_shared< propagators::SingleDependentVariableSaveSettings >( propagators::total_acceleration_dependent_variable, bodiesToEstimate.at( 0 ) ) );
         std::shared_ptr< TranslationalStatePropagatorSettings< long double, Time > > propagatorSettings =
             std::make_shared< TranslationalStatePropagatorSettings< long double, Time > >
                 ( centralBodies, accelerationModelMap, bodiesToEstimate, initialState.template cast< long double >( ), Time( initialTime ),
                   numerical_integrators::rungeKuttaFixedStepSettings< Time >( 30.0,
                                                                       numerical_integrators::rungeKuttaFehlberg78 ),
-                  std::make_shared< PropagationTimeTerminationSettings >( finalTime ) );
+                  std::make_shared< PropagationTimeTerminationSettings >( finalTime ), cowell, dependentVariablesToSave );
 
+
+I was wondering if it is possible to have one body undergoing and exerting the same torque.
         std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames =
             getInitialStateParameterSettings< long double, Time >( propagatorSettings, bodies );
 
@@ -336,7 +341,7 @@ int main( )
             createParametersToEstimate< long double, Time >( parameterNames, bodies, propagatorSettings );
 
         OrbitDeterminationManager< long double, Time > orbitDeterminationManager = OrbitDeterminationManager< long double, Time >(
-            bodies, parametersToEstimate, observationModelSettingsList, propagatorSettings );
+            bodies, parametersToEstimate, observationModelSettingsList, propagatorSettings, true );
 
         std::shared_ptr< EstimationInput< long double, Time > > estimationInput = std::make_shared< EstimationInput< long double, Time > >(
             filteredObservedObservationCollection );
