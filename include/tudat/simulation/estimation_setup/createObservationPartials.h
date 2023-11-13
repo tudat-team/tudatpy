@@ -595,6 +595,7 @@ std::shared_ptr< PositionPartialScaling > > createDifferencedObservablePartials(
     // Create bias partials
     std::map< int, std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > >
             vectorParametersToEstimate =  parametersToEstimate->getVectorParameters( );
+    std::cout<<"NUMBER OF VECTOR PARAMETERS "<<vectorParametersToEstimate.size( )<<std::endl;
     for( std::map< int, std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd  > > >::iterator
          parameterIterator =
          vectorParametersToEstimate.begin( ); parameterIterator != vectorParametersToEstimate.end( ); parameterIterator++ )
@@ -604,7 +605,7 @@ std::shared_ptr< PositionPartialScaling > > createDifferencedObservablePartials(
         if( isParameterObservationLinkProperty( parameterIterator->second->getParameterName( ).first ) && useBiasPartials )
         {
             currentDifferencedObservationPartial = createObservationPartialWrtLinkProperty< ObservationSize >(
-                        linkEnds, undifferencedObservableType, parameterIterator->second );
+                        linkEnds, differencedObservableType, parameterIterator->second );
         }
 
         // Check if partial is non-nullptr (i.e. whether dependency exists between current doppler and current parameter)
