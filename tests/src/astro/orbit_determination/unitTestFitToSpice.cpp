@@ -8,8 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 //
-//#define BOOST_TEST_DYN_LINK
-//#define BOOST_TEST_MAIN
+#define BOOST_TEST_DYN_LINK
+#define BOOST_TEST_MAIN
 
 #include <string>
 #include <thread>
@@ -19,13 +19,13 @@
 #include <boost/test/unit_test.hpp>
 
 #include "tudat/simulation/estimation_setup/fitOrbitToEphemeris.h"
-//
-//
-//namespace tudat
-//{
-//namespace unit_tests
-//{
-//BOOST_AUTO_TEST_SUITE( test_fit_to_spice )
+
+
+namespace tudat
+{
+namespace unit_tests
+{
+BOOST_AUTO_TEST_SUITE( test_fit_to_spice )
 
 //Using declarations.
 using namespace tudat;
@@ -34,19 +34,17 @@ using namespace tudat::orbit_determination;
 using namespace tudat::estimatable_parameters;
 using namespace tudat::simulation_setup;
 using namespace tudat::basic_astrodynamics;
-//
-//BOOST_AUTO_TEST_CASE( test_FitToSpice )
-//{
-int main( )
+
+BOOST_AUTO_TEST_CASE( test_FitToSpice )
 {
     //Load spice kernels.
     spice_interface::loadStandardSpiceKernels( );
 
     spice_interface::loadSpiceKernelInTudat(
-        tudat::paths::get_spice_kernels_path( )  + "/mgs_map1_ipng_mgs95j.bsp" );
+        paths::getTudatTestDataPath( )  + "/dsn_n_way_doppler_observation_model/mgs_map1_ipng_mgs95j.bsp" );
 
     double initialTime = DateTime( 1999, 3, 10, 0, 0, 0.0 ).epoch< double >( );
-    double finalTime = DateTime( 1999, 3, 12, 0, 0, 0.0 ).epoch< double >( );
+    double finalTime = DateTime( 1999, 3, 11, 0, 0, 0.0 ).epoch< double >( );
 
     std::vector< std::string > bodyNames;
     bodyNames.push_back( "Earth" );
@@ -62,6 +60,7 @@ int main( )
     bodySettings.at( "MGS" )->ephemerisSettings = std::make_shared< InterpolatedSpiceEphemerisSettings >(
         initialTime - 3600.0, finalTime + 3600.0, 30.0, "Mars" );
 
+    double noParametersResidual = TUDAT_NAN;
     for( unsigned int i = 0; i < 2; i++ )
     {
 
@@ -131,15 +130,33 @@ int main( )
         std::shared_ptr<EstimationOutput<> > estimationOutput =
             createBestFitToCurrentEphemeris< double, double >(
                 bodies, accelerationModelMap, bodiesToEstimate, centralBodies,
-                numerical_integrators::rungeKuttaFixedStepSettings( 60.0, numerical_integrators::rungeKuttaFehlberg78 ),
-                initialTime, finalTime, 120.0, additionalParameterNames );
+                numerical_integrators::rungeKuttaFixedStepSettings( 120.0, numerical_integrators::rungeKuttaFehlberg78 ),
+                initialTime, finalTime, 120.0, additionalParameterNames, 2 );
+        double currentResidual = estimationOutput->residualStandardDeviation_;
+        if( i == 0 )
+        {
+            noParametersResidual = currentResidual;
+            BOOST_CHECK_SMALL(
+                linear_algebra::getVectorEntryRootMeanSquare( estimationOutput->residualHistory_.at( 1 ) ) /
+                linear_algebra::getVectorEntryRootMeanSquare( estimationOutput->residualHistory_.at( 0 ) ), 0.2 );
+
+        }
+        else
+        {
+            BOOST_CHECK_SMALL( currentResidual / noParametersResidual, 0.2 );
+            BOOST_CHECK_SMALL(
+                linear_algebra::getVectorEntryRootMeanSquare( estimationOutput->residualHistory_.at( 1 ) ) /
+                linear_algebra::getVectorEntryRootMeanSquare( estimationOutput->residualHistory_.at( 0 ) ), 0.02 );
+
+        }
+
     }
 
 
 }
-//
-//BOOST_AUTO_TEST_SUITE_END( )
-//
-//}
-//
-//}
+
+BOOST_AUTO_TEST_SUITE_END( )
+
+}
+
+}
