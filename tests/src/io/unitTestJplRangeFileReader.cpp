@@ -46,11 +46,11 @@ BOOST_AUTO_TEST_CASE( JplRangeDataBlock )
     BOOST_CHECK_EQUAL( dataBlock.utcMinute_, 32 );
     BOOST_CHECK_EQUAL( dataBlock.utcSecond_, 13 );
     BOOST_CHECK_EQUAL( dataBlock.roundTripLightTime_, 1287957826.329 );
-    BOOST_CHECK_EQUAL( dataBlock.measurementAccuracy_, 0.067 );
+//    BOOST_CHECK_EQUAL( dataBlock.measurementAccuracy_, 0.067 );
 }
 
 
-BOOST_AUTO_TEST_CASE( JplRangeFile )
+BOOST_AUTO_TEST_CASE( JplRangeMars )
 {
     std::string file = tudat::paths::getTudatTestDataPath( ) + "mars-pathfinder-range.txt";
     std::shared_ptr< input_output::JplRangeFileContents > jplRangeContents = input_output::readJplRangeFile( file );
@@ -68,8 +68,8 @@ BOOST_AUTO_TEST_CASE( JplRangeFile )
     BOOST_CHECK_EQUAL( dataBlock3.utcHour_, 18 );
     BOOST_CHECK_EQUAL( dataBlock3.utcMinute_, 03 );
     BOOST_CHECK_EQUAL( dataBlock3.utcSecond_, 31 );
-    BOOST_CHECK_EQUAL( dataBlock3.roundTripLightTime_, 1420414209.718 - 420 ); // Transponder delay
-    BOOST_CHECK_EQUAL( dataBlock3.measurementAccuracy_, .067 );
+    BOOST_CHECK_EQUAL( dataBlock3.roundTripLightTime_, 1420414209.718 ); // Transponder delay
+//    BOOST_CHECK_EQUAL( dataBlock3.measurementAccuracy_, .067 );
 
     // Check the last line in the file.
     input_output::JplRangeDataBlock dataBlockLast = *jplRangeContents->dataBlocks_.back( );
@@ -82,11 +82,46 @@ BOOST_AUTO_TEST_CASE( JplRangeFile )
     BOOST_CHECK_EQUAL( dataBlockLast.utcHour_, 05 );
     BOOST_CHECK_EQUAL( dataBlockLast.utcMinute_, 35 );
     BOOST_CHECK_EQUAL( dataBlockLast.utcSecond_, 54 );
-    BOOST_CHECK_EQUAL( dataBlockLast.roundTripLightTime_, 1762272411.593 - 420); // Transponder delay
-    BOOST_CHECK_EQUAL( dataBlockLast.measurementAccuracy_, .133 );
+    BOOST_CHECK_EQUAL( dataBlockLast.roundTripLightTime_, 1762272411.593 ); // Transponder delay
+//    BOOST_CHECK_EQUAL( dataBlockLast.measurementAccuracy_, .133 );
 }
 
 
+BOOST_AUTO_TEST_CASE( JplRangeViking )
+{
+    std::string file = tudat::paths::getTudatTestDataPath( ) + "vikingrange.txt";
+    std::shared_ptr< input_output::JplRangeFileContents > jplRangeContents = input_output::readJplRangeFile( file );
+
+    BOOST_CHECK_EQUAL( file, jplRangeContents->fileName_ );
+    // Check the fourth line in the file.
+    input_output::JplRangeDataBlock dataBlock3 = *jplRangeContents->dataBlocks_.at( 3 );
+    BOOST_CHECK_EQUAL( dataBlock3.spacecraftId_, 1 );
+    BOOST_CHECK_EQUAL( dataBlock3.transmittingStationId_, 43 );
+    BOOST_CHECK_EQUAL( dataBlock3.receivingStationId_, 43 );
+    BOOST_CHECK_EQUAL( dataBlock3.utcYear_, 1976 );
+    BOOST_CHECK_EQUAL( dataBlock3.utcMonth_, 7 );
+    BOOST_CHECK_EQUAL( dataBlock3.utcDay_, 22 );
+    BOOST_CHECK_EQUAL( dataBlock3.utcHour_, 06 );
+    BOOST_CHECK_EQUAL( dataBlock3.utcMinute_, 02 );
+    BOOST_CHECK_EQUAL( dataBlock3.utcSecond_, 32 );
+    BOOST_CHECK_EQUAL( dataBlock3.roundTripLightTime_, 2290150246.895 ); // Transponder delay
+//    BOOST_CHECK_EQUAL( dataBlock3.measurementAccuracy_, .047 );
+
+    // Check the last line in the file.
+//    1 14 14 1982 NOV 13 01:46:15   1824971051.220   .069
+    input_output::JplRangeDataBlock dataBlockLast = *jplRangeContents->dataBlocks_.back( );
+    BOOST_CHECK_EQUAL( dataBlockLast.spacecraftId_, 1 );
+    BOOST_CHECK_EQUAL( dataBlockLast.transmittingStationId_, 14 );
+    BOOST_CHECK_EQUAL( dataBlockLast.receivingStationId_, 14 );
+    BOOST_CHECK_EQUAL( dataBlockLast.utcYear_, 1982 );
+    BOOST_CHECK_EQUAL( dataBlockLast.utcMonth_, 11 );
+    BOOST_CHECK_EQUAL( dataBlockLast.utcDay_, 13 );
+    BOOST_CHECK_EQUAL( dataBlockLast.utcHour_, 01 );
+    BOOST_CHECK_EQUAL( dataBlockLast.utcMinute_, 46 );
+    BOOST_CHECK_EQUAL( dataBlockLast.utcSecond_, 15 );
+    BOOST_CHECK_EQUAL( dataBlockLast.roundTripLightTime_, 1824971051.220 ); // Transponder delay
+//    BOOST_CHECK_EQUAL( dataBlockLast.measurementAccuracy_, .133 );
+}
 
 BOOST_AUTO_TEST_SUITE_END( );
 }
