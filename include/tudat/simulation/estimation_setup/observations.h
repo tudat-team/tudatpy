@@ -403,6 +403,11 @@ public:
         return observationSetStartAndSize_;
     }
 
+    std::map< ObservableType, std::map< LinkEnds, std::vector< std::pair< int, int > > > >& getObservationSetStartAndSizeReference( )
+    {
+        return observationSetStartAndSize_;
+    }
+
     std::vector< std::pair< int, int > > getConcatenatedObservationSetStartAndSize( )
     {
         return concatenatedObservationSetStartAndSize_;
@@ -431,6 +436,11 @@ public:
     }
 
     SortedObservationSets getObservations( )
+    {
+        return observationSetList_;
+    }
+
+    const SortedObservationSets& getObservationsReference ( ) const
     {
         return observationSetList_;
     }
@@ -998,31 +1008,167 @@ inline std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType >
     return std::make_shared< ObservationCollection< ObservationScalarType, TimeType > >( singleObservationSets );
 }
 
+//
+//template< typename ObservationScalarType = double, typename TimeType = double >
+//std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > >  createResidualCollection(
+//    const std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > observedData,
+//    const std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > computedData )
+//{
+////    std::map< ObservableType, std::map< LinkEnds, std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > > >
+//    typename ObservationCollection< ObservationScalarType, TimeType >::SortedObservationSets observedObservationSets = observedData->getObservations( );
+//    typename ObservationCollection< ObservationScalarType, TimeType >::SortedObservationSets computedObservationSets = computedData->getObservations( );
+//    typename ObservationCollection< ObservationScalarType, TimeType >::SortedObservationSets residualObservationSets;
+//
+//    for( auto observationIt : observedObservationSets )
+//    {
+//        for( auto linkEndIt : observationIt.second )
+//        {
+//            for( unsigned int i = 0; i < linkEndIt.second.size( ); i++ )
+//            {
+//                residualObservationSets[ observationIt.first ][ linkEndIt.first ].push_back(
+//                    createResidualObservationSet( linkEndIt.second.at( i ), computedObservationSets.at( observationIt.first ).at( linkEndIt.first ).at( i ) ) );
+//            }
+//        }
+//    }
+//    return std::make_shared< ObservationCollection< ObservationScalarType, TimeType > >( residualObservationSets );
+//}
 
 template< typename ObservationScalarType = double, typename TimeType = double >
-std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > >  createResidualCollection(
-    const std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > observedData,
-    const std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > computedData )
+std::map< observation_models::ObservableType, std::vector< std::pair< LinkEnds, std::vector< std::vector< int > > > > >
+    getObservationCollectionEntriesToFiler(
+        const std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > dataToFiler,
+        const Eigen::VectorXd& residualVector,
+        const std::map< ObservableType, double > residualCutoffValuePerObservable )
 {
-//    std::map< ObservableType, std::map< LinkEnds, std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > > >
-    typename ObservationCollection< ObservationScalarType, TimeType >::SortedObservationSets observedObservationSets = observedData->getObservations( );
-    typename ObservationCollection< ObservationScalarType, TimeType >::SortedObservationSets computedObservationSets = computedData->getObservations( );
-    typename ObservationCollection< ObservationScalarType, TimeType >::SortedObservationSets residualObservationSets;
-
-    for( auto observationIt : observedObservationSets )
+    // Check if input data is compatible
+    if( residualVector.rows( ) != dataToFiler->getTotalObservableSize( ) )
     {
-        for( auto linkEndIt : observationIt.second )
+        throw std::runtime_error( "Error when filtering observations, input size is incompatible" );
+    }
+
+    // Retrieve observations to filter
+    typename ObservationCollection< ObservationScalarType, TimeType >::SortedObservationSets observationSetsToFilter = dataToFiler->getObservations( );
+
+    // Create data structure with filtered results
+    std::map< observation_models::ObservableType, std::vector< std::pair< LinkEnds, std::vector< std::vector< int > > > > > filterEntries;
+
+    // Iterate over all observable types
+    for( auto observationIt : observationSetsToFilter )
+    {
+        observation_models::ObservableType observableType = observationIt.first;
+
+        // Get filter value for current observable
+        double filterValue = residualCutoffValuePerObservable.at( observationIt.first );
+
+        // Iterate over all link ends
+        std::vector< std::pair< LinkEnds, std::vector< std::vector< int > > > > currentObservableEntriesToFilter;
+        for ( auto linkEndIt: observationIt.second )
         {
-            for( unsigned int i = 0; i < linkEndIt.second.size( ); i++ )
+            observation_models::LinkEnds linkEnds = linkEndIt.first;
+
+            // Iterate over all observations with current link ends and type
+            std::vector< std::vector< int > > currentLinkEndsEntriesToFiler;
+            for ( unsigned int i = 0; i < linkEndIt.second.size( ); i++ )
             {
-                residualObservationSets[ observationIt.first ][ linkEndIt.first ].push_back(
-                    createResidualObservationSet( linkEndIt.second.at( i ), computedObservationSets.at( observationIt.first ).at( linkEndIt.first ).at( i ) ) );
+                std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > currentObservationSet =
+                    observationSetsToFilter.at( observationIt.first ).at( linkEndIt.first ).at( i );
+
+                // Get residuals for current set
+                std::pair< int, int > fullVectorStartAndSize =
+                    dataToFiler->getObservationSetStartAndSizeReference( ).at( observableType ).at( linkEnds ).at( i );
+                Eigen::VectorXd currentSetResiduals = residualVector.segment( fullVectorStartAndSize.first, fullVectorStartAndSize.second );
+
+                int currentObservableSize = getObservableSize( observableType );
+
+                // Check if data is compatible
+                if( currentSetResiduals.rows( ) != currentObservableSize * currentObservationSet->getNumberOfObservables( ) )
+                {
+                    throw std::runtime_error( "Error when filtering observations, input size of single observation set for " +
+                        getObservableName( observableType ) +", " + getLinkEndsString( linkEnds ) + ", set " +
+                        std::to_string( i ) + " is incompatible" );
+                }
+
+                std::vector< int > indicesToRemove;
+                for( unsigned int j = 0; j < currentObservationSet->getObservationTimes( ).size( ); j++ )
+                {
+                    bool removeObservation = false;
+                    for( int k = 0; k < currentObservableSize; k++ )
+                    {
+                        std::cout<<"Check "<<currentSetResiduals( j * currentObservableSize + k )<<" "<<filterValue<<std::endl;
+                        if( currentSetResiduals( j * currentObservableSize + k ) > filterValue )
+                        {
+                            std::cout<<"REMOVE ******************************************"<<std::endl;
+
+                            removeObservation = true;
+                        }
+                    }
+                    if( removeObservation )
+                    {
+                        indicesToRemove.push_back( j );
+                    }
+                }
+                currentLinkEndsEntriesToFiler.push_back( indicesToRemove );
+            }
+            currentObservableEntriesToFilter.push_back( std::make_pair( linkEnds, currentLinkEndsEntriesToFiler ) );
+        }
+        filterEntries[ observableType ] = currentObservableEntriesToFilter;
+    }
+    return filterEntries;
+}
+
+template< typename ObservationScalarType = double, typename TimeType = double >
+std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > filterData(
+    const std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > observationCollection,
+    const std::map< observation_models::ObservableType, std::vector< std::pair< LinkEnds, std::vector< std::vector< int > > > > >& filterEntries )
+{
+    typename ObservationCollection< ObservationScalarType, TimeType >::SortedObservationSets filteredObservedObservationSets;
+    const std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > filteredObservationCollection;
+
+    for( auto observableIt : filterEntries )
+    {
+        ObservableType observableType = observableIt.first;
+        for( unsigned int i = 0; i < observableIt.second.size( ); i++ )
+        {
+            LinkEnds currentLinkEnds = observableIt.second.at( i ).first;
+            std::vector< std::vector< int > > linkEndListEntriesToRemove = observableIt.second.at( i ).second;
+
+            std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > observedSets =
+                observationCollection->getObservationsReference( ).at( observableType ).at( currentLinkEnds );
+            if( observedSets.size( ) != linkEndListEntriesToRemove.size( ) )
+            {
+                throw std::runtime_error( "Error when filtering observations, number of observation sets and filter list for " +
+                                          getObservableName( observableType ) +", " + getLinkEndsString( currentLinkEnds ) + " is incompatible" );
+            }
+            for( unsigned int j = 0; j < observedSets.size( ); j++ )
+            {
+                filteredObservedObservationSets[ observableType ][ currentLinkEnds ].push_back(
+                    observedSets.at( j )->createFilteredObservationSet(
+                        linkEndListEntriesToRemove.at( j ) ) );
             }
         }
     }
-    return std::make_shared< ObservationCollection< ObservationScalarType, TimeType > >( residualObservationSets );
+    return std::make_shared< ObservationCollection< ObservationScalarType, TimeType > >( filteredObservedObservationSets );
 }
 
+template< typename ObservationScalarType = double, typename TimeType = double >
+void filterObservedAndComputedData(
+    const std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > observedDataCollection,
+    const std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > computedDataCollection,
+    std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > >& observedFilteredDataCollection,
+    std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > >& computedFilteredDataCollection,
+    const std::map< ObservableType, double > residualCutoffValuePerObservable )
+{
+    Eigen::VectorXd residualVector =
+        ( observedDataCollection->getObservationVector( ) - computedDataCollection->getObservationVector( ) ).template cast< double >( );
+
+    std::map< observation_models::ObservableType, std::vector< std::pair< LinkEnds, std::vector< std::vector< int > > > > > filterEntries =
+        getObservationCollectionEntriesToFiler( observedDataCollection, residualVector, residualCutoffValuePerObservable );
+
+    observedFilteredDataCollection = filterData( observedDataCollection, filterEntries );
+    computedFilteredDataCollection = filterData( computedDataCollection, filterEntries );
+}
+
+//////////////////// DEPRECATEC
 
 template< typename ObservationScalarType = double, typename TimeType = double >
 std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > filterResidualOutliers(
@@ -1033,8 +1179,6 @@ std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > filt
     typename ObservationCollection< ObservationScalarType, TimeType >::SortedObservationSets observedObservationSets = observedData->getObservations( );
     typename ObservationCollection< ObservationScalarType, TimeType >::SortedObservationSets filteredObservedObservationSets;
     typename ObservationCollection< ObservationScalarType, TimeType >::SortedObservationSets residualObservationSets = residualData->getObservations( );
-
-
 
     for( auto observationIt : residualObservationSets )
     {
