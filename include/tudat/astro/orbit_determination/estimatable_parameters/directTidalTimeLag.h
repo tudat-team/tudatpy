@@ -110,6 +110,26 @@ public:
         return bodiesCausingDeformation_;
     }
 
+    //! Function to retrieve parameter description.
+    /*!
+    * Function to retrieve parameter description.
+    * \return Description direct tidal time lag parameter.
+    */
+    std::string getParameterDescription( )
+    {
+        std::string parameterDescription =
+                getParameterTypeString( parameterName_.first ) + "of " + parameterName_.second.first + " due to ";
+        for ( unsigned int i = 0 ; i < bodiesCausingDeformation_.size( ) ; i++ )
+        {
+            parameterDescription += bodiesCausingDeformation_[ i ];
+            if ( i != bodiesCausingDeformation_.size( ) - 1 )
+            {
+                parameterDescription += " & ";
+            }
+        }
+        return parameterDescription;
+    }
+
 
 private:
 

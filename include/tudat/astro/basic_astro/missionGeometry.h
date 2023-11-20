@@ -10,6 +10,9 @@
  *    References
  *      Montebruck O, Gill E. Satellite Orbits, Corrected Third Printing, Springer, 2005.
  *      Bate R. Fundamentals of astro, Courier Dover Publications, 1971.
+ *      Rui Zhang, et al. "Study of satellite shadow function model considering the overlapping parts of Earth shadow
+ *          and Moon shadow and its application to GPS satellite orbit determination".
+ *          Advances in Space Research 63. 9(2019): 2912–2929.
  *
  *    Notes
  *      In future, it might make sense to create a new MissionGeometry/ sub-directory if a lot more
@@ -61,12 +64,12 @@ bool isOrbitRetrograde( const Eigen::Vector6d& keplerElements );
 //! Compute the shadow function.
 /*!
  * Returns the value of of the shadow function. Returns 0 if the satellite is in umbra, 1 if the
- * satellite is fully exposed and a value between 0 and 1 if the satellite is in penumbra.
+ * satellite is fully exposed and a value between 0 and 1 if the satellite is in penumbra or antumbra.
  *
  * The point of view is from the satellite. The occulting body (for example the Earth) is the body
  * that blocks the light from the occulting body (for example the Sun).
  *
- * Reference: Section 3.4 from ( Montebruck O, Gill E., 2005).
+ * Reference: Section 3.4 from ( Montebruck O, Gill E., 2005) and Fig. 5 from (Zhang et al., 2019).
  *
  * \param occultedBodyPosition Vector containing Cartesian coordinates of the occulted body.
  * \param occultedBodyRadius Mean radius of occulted body.

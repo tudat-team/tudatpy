@@ -68,10 +68,6 @@ executeEarthMoonSimulation(
         const Eigen::Vector3d parameterPerturbation = Eigen::Vector3d::Zero( ),
         const bool propagateVariationalEquations = 1 )
 {
-
-    //Load spice kernels.
-    spice_interface::loadStandardSpiceKernels( );
-
     // Define
     std::vector< std::string > bodyNames;
     bodyNames.push_back( "Earth" );
@@ -230,6 +226,10 @@ executeEarthMoonSimulation(
  */
 BOOST_AUTO_TEST_CASE( testEarthMoonVariationalEquationCalculation )
 {
+
+    //Load spice kernels.
+    spice_interface::loadStandardSpiceKernels( );
+
     std::pair< std::vector< Eigen::MatrixXd >, std::vector< Eigen::VectorXd > > currentOutput;
 
     std::vector< std::vector< std::string > > centralBodiesSet;
@@ -349,8 +349,6 @@ executeOrbiterSimulation(
 {
     int numberOfParametersToEstimate = 10;
 
-    //Load spice kernels.
-    spice_interface::loadStandardSpiceKernels( );
     // Define bodies in simulation
     std::vector< std::string > bodyNames;
     bodyNames.push_back( "Earth" );
@@ -374,11 +372,11 @@ executeOrbiterSimulation(
     double aerodynamicCoefficient = 1.2;
     std::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings =
             std::make_shared< ConstantAerodynamicCoefficientSettings >(
-                referenceArea, aerodynamicCoefficient * ( Eigen::Vector3d( ) << 1.2, -0.1, -0.4 ).finished( ), 1, 1 );
+                referenceArea, aerodynamicCoefficient * ( Eigen::Vector3d( ) << 1.2, -0.1, -0.4 ).finished( ), negative_aerodynamic_frame_coefficients );
 
     // Create and set aerodynamic coefficients object
     bodies.at( "Vehicle" )->setAerodynamicCoefficientInterface(
-                createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Vehicle" ) );
+                createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Vehicle", bodies ) );
 
     // Create radiation pressure settings
     double referenceAreaRadiation = 4.0;
@@ -530,6 +528,9 @@ executeOrbiterSimulation(
  */
 BOOST_AUTO_TEST_CASE( testEarthOrbiterVariationalEquationCalculation )
 {
+    //Load spice kernels.
+    spice_interface::loadStandardSpiceKernels( );
+
     std::pair< std::vector< Eigen::MatrixXd >, std::vector< Eigen::VectorXd > > currentOutput;
 
     // Define variables for numerical differentiation
@@ -637,8 +638,7 @@ executePhobosRotationSimulation(
 
 
     phobosInertiaTensor *= ( 11.27E3 * 11.27E3 * 1.0659E16 );
-    bodies.at( "Phobos" )->setBodyInertiaTensor(
-                phobosInertiaTensor, ( 0.3615 + 0.4265 + 0.5024 ) / 3.0 );
+
 
     double phobosGravitationalParameter = 1.0659E16 * physical_constants::GRAVITATIONAL_CONSTANT;
     double phobosReferenceRadius = 11.27E3;
@@ -653,8 +653,7 @@ executePhobosRotationSimulation(
     bodies.at( "Phobos" )->setGravityFieldModel(
                 std::make_shared< gravitation::SphericalHarmonicsGravityField >(
                     phobosGravitationalParameter, phobosReferenceRadius, phobosCosineGravityFieldCoefficients,
-                    phobosSineGravityFieldCoefficients, "Phobos_Fixed",
-                    std::bind( &Body::setBodyInertiaTensorFromGravityFieldAndExistingMeanMoment, bodies.at( "Phobos" ), true ) ) );
+                    phobosSineGravityFieldCoefficients, "Phobos_Fixed", phobosScaledMeanMomentOfInertia ) );
 
     Eigen::Vector6d phobosKeplerElements = Eigen::Vector6d::Zero( );
     double phobosSemiMajorAxis = 9376.0E3;
@@ -877,6 +876,8 @@ executePhobosRotationSimulation(
 
 BOOST_AUTO_TEST_CASE( testPhobosRotationVariationalEquationCalculation )
 {
+
+    //Load spice kernels.
     spice_interface::loadStandardSpiceKernels( );
 
     std::pair< std::vector< Eigen::MatrixXd >, std::vector< Eigen::VectorXd > > currentOutput;
@@ -1053,6 +1054,8 @@ BOOST_AUTO_TEST_CASE( testPhobosRotationVariationalEquationCalculation )
 
 BOOST_AUTO_TEST_CASE( testMassRateVariationalEquations )
 {
+
+    //Load spice kernels.
     spice_interface::loadStandardSpiceKernels( );
 
     // Set simulation time settings.

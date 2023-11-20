@@ -678,6 +678,86 @@ Eigen::Vector3d getBodyFixedSphericalPosition(
         const std::function< Eigen::Vector3d( ) > positionFunctionOfRelativeBody,
         const std::function< Eigen::Quaterniond( ) > orientationFunctionOfCentralBody );
 
+/*! Compute the rotation matrix between ITRF2014 and another ITRF frame.
+ *
+ * Compute the rotation matrix between ITRF2014 and another ITRF frame. According to the IERS convetions of 2010, Eq.
+ * 4.2, Eq. 4.4, Tab. 4.1.
+ *
+ * @param targetFrame Desired frame
+ * @return Rotation matrix
+ */
+Eigen::Matrix3d getItrf2014ToArbitraryItrfRotationMatrix( const std::string& targetFrame );
+
+/*! Compute the derivative of the rotation matrix between ITRF2014 and another ITRF frame.
+ *
+ * Compute the rotation matrix derivative between ITRF2014 and another ITRF frame. According to the IERS convetions of ´
+ * 2010, Eq. 4.2, Eq. 4.4, Tab. 4.1.
+ *
+ * @param targetFrame Desired frame
+ * @return Rotation matrix derivative
+ */
+Eigen::Matrix3d getItrf2014ToArbitraryItrfRotationMatrixDerivative( const std::string& targetFrame );
+
+/*! Compute the translation vector between ITRF2014 and another ITRF frame.
+ *
+ * Compute the translation vector between ITRF2014 and another ITRF frame. According to the IERS convetions of ´
+ * 2010, Eq. 4.2, Eq. 4.4, Tab. 4.1.
+ *
+ * @param targetFrame Desired frame
+ * @return Translation vector
+ */
+Eigen::Vector6d getItrf2014ToArbitraryItrfTranslation( const std::string& targetFrame );
+
+/*! Function to convert the state of a ground station from ITRF2014 to another ITRS realization.
+ *
+ * Function to convert the state of a ground station from ITRF2014 to another ITRS realization. Conversion is executed
+ * according to the IERS convetions of 2010, Eq. 4.2, Eq. 4.4, Tab. 4.1. The ground station is assumed to have a constant
+ * velocity.
+ *
+ * @param groundStationStateAtEpoch State of the ground station.
+ * @param epoch Epoch for which the state of the ground station is valid.
+ * @param targetFrame Desired frame
+ * @return Ground station state at specified epoch with respect to targetFrame.
+ */
+Eigen::Vector6d convertGroundStationStateItrf2014ToArbitraryItrf(
+        const Eigen::Vector6d& groundStationStateAtEpoch,
+        double epoch,
+        const std::string& targetFrame );
+
+/*! Function to convert the state of a ground station from some ITRS realization to ITRF2014.
+ *
+ * Function to convert the state of a ground station from some ITRS realization to ITRF2014. Conversion is executed
+ * according to the IERS convetions of 2010, Eq. 4.2, Eq. 4.4, Tab. 4.1. The ground station is assumed to have a constant
+ * velocity.
+ *
+ * @param groundStationStateAtEpoch State of the ground station.
+ * @param epoch Epoch for which the state of the ground station is valid.
+ * @param baseFrame Frame with resoect to which the specified state is defined.
+ * @return Ground station state at specified epoch with respect to ITRF2014.
+ */
+Eigen::Vector6d convertGroundStationStateArbitraryItrfToItrf2014(
+        const Eigen::Vector6d& groundStationStateAtEpoch,
+        double epoch,
+        const std::string& baseFrame );
+
+/*! Function to convert between two ITRF frames.
+ *
+ * Function to convert between two ITRF frames. Conversion is executed
+ * according to the IERS convetions of 2010, Eq. 4.2, Eq. 4.4, Tab. 4.1. The ground station is assumed to have a constant
+ * velocity.
+ *
+ * @param groundStationStateAtEpoch State of the ground station.
+ * @param epoch Epoch for which the state of the ground station is valid.
+ * @param baseFrame Frame with resoect to which the input state is defined.
+ * @param targetFrame Frame with resoect to which the output state is defined.
+ * @return Ground station state at specified epoch with respect to targetFrame.
+ */
+Eigen::Vector6d convertGroundStationStateBetweenItrfFrames(
+        const Eigen::Vector6d& groundStationStateAtEpoch,
+        double epoch,
+        const std::string& baseFrame,
+        const std::string& targetFrame );
+
 } // namespace reference_frames
 
 } // namespace tudat

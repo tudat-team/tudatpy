@@ -248,8 +248,6 @@ Eigen::VectorXd getZeroProperModeRotationalState(
     double newFinalTime;
     for( unsigned int i = 0; i < dissipationTimes.size( ); i++ )
     {
-        std::cout<<"Getting zero proper mode, iteration "<<i<<std::endl;
-
         // Set damping for current iteration
         dissipativeTorque->setDampingMatrixFunction(
                     getDissipationMatrix( dissipationTimes.at( i ), inertiaTensor ) );

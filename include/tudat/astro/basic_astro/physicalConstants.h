@@ -45,6 +45,8 @@ T constexpr compile_time_pow(T base, U exponent) {
 //! Standard gravitational acceleration at sea-level.
 constexpr static double SEA_LEVEL_GRAVITATIONAL_ACCELERATION = 9.80665;
 
+//! Julian day in seconds (NASA, 2012), as integer
+constexpr static int JULIAN_DAY_INT = 86400;
 
 //! Julian day in seconds (NASA, 2012).
 constexpr static double JULIAN_DAY = 86400.0;

@@ -144,6 +144,15 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
     case arc_wise_polynomial_clock_corrections:
         parameterDescription = "arc-wise polynomial clock corrections ";
         break;
+    case inverse_tidal_quality_factor:
+        parameterDescription = " inverse of tidal quality factor ";
+        break;
+    case yarkovsky_parameter:
+        parameterDescription = " Yarkovsky parameter A2 ";
+        break;
+    case custom_estimated_parameter:
+        parameterDescription = " Custom parameter ";
+        break;
     default:
         std::string errorMessage = "Error when getting parameter string, did not recognize parameter " +
                 std::to_string( parameterType );
@@ -292,6 +301,15 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
         isDoubleParameter = false;
         break;
     case arc_wise_polynomial_clock_corrections:
+        isDoubleParameter = false;
+        break;
+    case inverse_tidal_quality_factor:
+        isDoubleParameter = true;
+        break;
+    case yarkovsky_parameter:
+        isDoubleParameter = true;
+        break;
+    case custom_estimated_parameter:
         isDoubleParameter = false;
         break;
     default:
