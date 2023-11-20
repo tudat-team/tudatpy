@@ -94,6 +94,11 @@ void Body::setIsBodyInPropagation( const bool isBodyInPropagation )
         rotationalEphemeris_->setIsBodyInPropagation( isBodyInPropagation );
     }
 
+    if( massProperties_ != nullptr )
+    {
+        massProperties_->setIsBodyInPropagation( isBodyInPropagation );
+    }
+
     if( !isBodyInPropagation )
     {
         isStateSet_ = false;

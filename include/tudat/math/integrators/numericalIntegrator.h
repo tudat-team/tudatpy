@@ -282,6 +282,7 @@ StateType NumericalIntegrator< IndependentVariableType, StateType, StateDerivati
     int loopCounter = 0;
     while ( !atIntegrationIntervalEnd )
     {
+//        std::cout<<"Steps "<<stepSize<<" "<<
         // Check if the remaining interval is smaller than the step size.
         if ( std::fabs( static_cast< TimeStepType >( intervalEnd - getCurrentIndependentVariable( ) ) )
              <= std::fabs( stepSize ) *

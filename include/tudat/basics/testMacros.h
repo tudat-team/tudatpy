@@ -26,7 +26,7 @@
 //! Default message to display for matrix checks. If you define this, then that format will be used
 #ifndef _TUDAT_CHECK_MATRIX_MESSAGE
 #define _TUDAT_CHECK_MATRIX_MESSAGE                                                             \
-"Element [%d, %d] not within expected tolerance (delta %e): expected %f, was %f, tolerance %e %s."
+"Element [%d, %d] not within expected tolerance (delta %e): expected %e, was %e, tolerance %e %s."
 #endif
 
 //! Creates error message used by TUDAT_CHECK_MATRIX_CLOSE and TUDAT_CHECK_MATRIX_CLOSE_FRACTION.

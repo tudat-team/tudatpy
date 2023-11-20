@@ -21,6 +21,7 @@
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/astro/ephemerides/rotationalEphemeris.h"
 #include "tudat/astro/ephemerides/directionBasedRotationalEphemeris.h"
+#include "tudat/astro/ephemerides/tabulatedRotationalEphemeris.h"
 #include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/astro/basic_astro/unitConversions.h"
 #include "tudat/interface/sofa/earthOrientation.h"
@@ -132,6 +133,33 @@ protected:
     std::string targetFrame_;
 
 };
+
+class SpiceRotationModelSettings: public RotationModelSettings
+{
+public:
+
+    SpiceRotationModelSettings( const std::string& originalFrame,
+                                const std::string& targetFrame,
+                                const std::string& spiceFrameName ):
+        RotationModelSettings( spice_rotation_model, originalFrame, targetFrame ),
+        spiceFrameName_( spiceFrameName ){ }
+
+    std::string getSpiceFrameName( )
+    {
+        return spiceFrameName_;
+    }
+
+    void setSpiceFrameName( const std::string& spiceFrameName )
+    {
+        spiceFrameName_ = spiceFrameName;
+    }
+
+
+private:
+    std::string spiceFrameName_;
+
+};
+
 
 //RotationModelSettings derived class for defining settings of a simple rotational ephemeris.
 class SimpleRotationModelSettings: public RotationModelSettings
@@ -270,7 +298,8 @@ public:
         RotationModelSettings( gcrs_to_itrs_rotation_model, baseFrameName, "ITRS" ),
         inputTimeScale_( inputTimeScale ), nutationTheory_( nutationTheory ), eopFile_( eopFile ),
         eopFileFormat_( "C04" ), ut1CorrectionSettings_( ut1CorrectionSettings ),
-        polarMotionCorrectionSettings_( polarMotionCorrectionSettings ){ }
+        polarMotionCorrectionSettings_( polarMotionCorrectionSettings ),
+        cioInterpolatorSettings_( nullptr ){ }
 
     //Destructor
     ~GcrsToItrsRotationModelSettings( ){ }
@@ -334,6 +363,41 @@ public:
         return polarMotionCorrectionSettings_;
     }
 
+    std::shared_ptr< interpolators::InterpolatorGenerationSettings< double > > getCioInterpolatorSettings( )
+    {
+        return cioInterpolatorSettings_;
+    }
+
+    void setCioInterpolatorSettings(
+        const std::shared_ptr< interpolators::InterpolatorGenerationSettings< double > > cioInterpolatorSettings )
+    {
+        cioInterpolatorSettings_ = cioInterpolatorSettings;
+    }
+
+
+    std::shared_ptr< interpolators::InterpolatorGenerationSettings< double > > getTdbToTtInterpolatorSettings( )
+    {
+        return tdbToTtInterpolatorSettings_;
+    }
+
+    void setTdbToTtInterpolatorSettings(
+        const std::shared_ptr< interpolators::InterpolatorGenerationSettings< double > > tdbToTtInterpolatorSettings )
+    {
+        tdbToTtInterpolatorSettings_ = tdbToTtInterpolatorSettings;
+    }
+
+
+    std::shared_ptr< interpolators::InterpolatorGenerationSettings< double > > getShortTermInterpolatorSettings( )
+    {
+        return shortTermInterpolatorSettings_;
+    }
+
+    void setShortTermInterpolatorSettings(
+        const std::shared_ptr< interpolators::InterpolatorGenerationSettings< double > > shortTermInterpolatorSettings )
+    {
+        shortTermInterpolatorSettings_ = shortTermInterpolatorSettings;
+    }
+
 private:
 
     //Time scale in which input to the rotation model class is provided
@@ -354,6 +418,11 @@ private:
     //Settings for short-period polar motion variations
     std::shared_ptr< EopCorrectionSettings > polarMotionCorrectionSettings_;
 
+    std::shared_ptr< interpolators::InterpolatorGenerationSettings< double > > cioInterpolatorSettings_;
+
+    std::shared_ptr< interpolators::InterpolatorGenerationSettings< double > > tdbToTtInterpolatorSettings_;
+
+    std::shared_ptr< interpolators::InterpolatorGenerationSettings< double > > shortTermInterpolatorSettings_;
 };
 //#endif
 
@@ -999,21 +1068,29 @@ inline std::shared_ptr< RotationModelSettings > customRotationModelSettings(
 //! @get_docstring(spiceRotationModelSettings)
 inline std::shared_ptr< RotationModelSettings > spiceRotationModelSettings(
         const std::string& originalFrame,
-        const std::string& targetFrame
+        const std::string& targetFrame,
+        const std::string& spiceFrameName
         )
 {
-    return std::make_shared< RotationModelSettings >(
-                spice_rotation_model, originalFrame, targetFrame );
+    return std::make_shared< SpiceRotationModelSettings >(
+                originalFrame, targetFrame, spiceFrameName );
 }
 
 //! @get_docstring(gcrsToItrsRotationModelSettings)
 inline std::shared_ptr< RotationModelSettings > gcrsToItrsRotationModelSettings(
         const basic_astrodynamics::IAUConventions nutationTheory = basic_astrodynamics::iau_2006,
-        const std::string baseFrameName = "GCRS" )
+        const std::string baseFrameName = "GCRS",
+        const std::shared_ptr< interpolators::InterpolatorGenerationSettings< double > > cioInterpolatorSettings = nullptr,
+        const std::shared_ptr< interpolators::InterpolatorGenerationSettings< double > > tdbToTtInterpolatorSettings = nullptr,
+        const std::shared_ptr< interpolators::InterpolatorGenerationSettings< double > > shortTermInterpolatorSettings = nullptr )
 {
-    return std::make_shared< GcrsToItrsRotationModelSettings >(
-                nutationTheory, baseFrameName
-                );
+    std::shared_ptr< GcrsToItrsRotationModelSettings > rotationSettings =  std::make_shared< GcrsToItrsRotationModelSettings >(
+                nutationTheory, baseFrameName );
+    rotationSettings->setCioInterpolatorSettings( cioInterpolatorSettings );
+    rotationSettings->setTdbToTtInterpolatorSettings( tdbToTtInterpolatorSettings );
+    rotationSettings->setShortTermInterpolatorSettings( shortTermInterpolatorSettings );
+
+    return rotationSettings;
 }
 
 //! @get_docstring(synchronousRotationModelSettings)

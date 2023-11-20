@@ -16,7 +16,7 @@ void getFullVariationalEquationsSolutionHistory(
     for( unsigned int i = 0; i < evaluationTimes.size( ); i++ )
     {
         fullVariationalEquationsSolutionHistory[ evaluationTimes.at( i ) ] =
-                stateTransitionInterface->getFullCombinedStateTransitionAndSensitivityMatrix( evaluationTimes.at( i )  );
+                stateTransitionInterface->getFullCombinedStateTransitionAndSensitivityMatrix( evaluationTimes.at( i ), false  );
     }
 }
 

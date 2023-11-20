@@ -8,6 +8,13 @@ namespace simulation_setup
 
 int noiseSeed = 0;
 
+int getDefaultNoiseSeed( )
+{
+    int seedToUse = noiseSeed;
+    noiseSeed++;
+    return seedToUse;
+}
+
 std::function< Eigen::VectorXd( const double ) > getNoiseFunctionForObservable(
         const std::function< double( const double ) > singleNoiseFunction,
         const observation_models::ObservableType observableType )
@@ -48,6 +55,9 @@ Eigen::VectorXd getIdenticallyAndIndependentlyDistributedNoise(
 }
 
 
+template class ObservationSimulationSettings< double >;
+template class TabulatedObservationSimulationSettings< double >;
+template class PerArcObservationSimulationSettings< double >;
 
 }
 

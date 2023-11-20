@@ -16,8 +16,12 @@
 
 #include <memory>
 
+#include "tudat/astro/electromagnetism/reflectionLaw.h"
+#include "tudat/astro/ephemerides/rotationalEphemeris.h"
 #include "tudat/astro/system_models/engineModel.h"
 #include "tudat/astro/system_models/timingSystem.h"
+#include "tudat/astro/system_models/vehicleExteriorPanels.h"
+#include "tudat/astro/observation_models/observationFrequencies.h"
 
 namespace tudat
 {
@@ -40,7 +44,7 @@ public:
      * \param dryMass Total dry mass of the vehicle (not defined; NaN by default).
      */
     VehicleSystems( const double dryMass = TUDAT_NAN ):
-        dryMass_( dryMass ){ }
+        currentOrientationTime_( TUDAT_NAN ), dryMass_( dryMass ){ }
 
     //! Destructor
     ~VehicleSystems( ){ }
@@ -177,7 +181,104 @@ public:
         return wallEmissivity_;
     }
 
+    void resetTime( )
+    {
+        currentOrientationTime_ = TUDAT_NAN;
+    }
+
+    void updatePartOrientations( const double time )
+    {
+        if( !(time == currentOrientationTime_ ) )
+        {
+            for( auto it : vehiclePartOrientation_ )
+            {
+                currentVehiclePartRotationToBodyFixedFrame_[ it.first ] = it.second->getRotationToBaseFrame( time );
+            }
+            currentOrientationTime_ = time;
+        }
+    }
+
+    Eigen::Quaterniond getPartRotationToBaseFrame( const std::string& partName )
+    {
+        if( currentOrientationTime_ == TUDAT_NAN )
+        {
+            throw std::runtime_error( "Error when retrieving orientation of body part " + partName + ", current time is NaN" );
+        }
+        else if( currentVehiclePartRotationToBodyFixedFrame_.count( partName ) == 0 )
+        {
+            if( vehiclePartOrientation_.count( partName ) == 0 )
+            {
+                throw std::runtime_error(
+                    "Error when retrieving orientation of body part " + partName + ", part rotation model not defined" );
+            }
+            else
+            {
+                throw std::runtime_error(
+                    "Error when retrieving orientation of body part " + partName + ", part not updated" );
+            }
+        }
+
+        return currentVehiclePartRotationToBodyFixedFrame_.at( partName );
+    }
+
+    void setVehicleExteriorPanels(
+        const std::map< std::string, std::vector< std::shared_ptr< VehicleExteriorPanel > > > vehicleExteriorPanels )
+    {
+        vehicleExteriorPanels_ = vehicleExteriorPanels;
+    }
+
+    std::map< std::string, std::vector< std::shared_ptr< VehicleExteriorPanel > > > getVehicleExteriorPanels( )
+    {
+        return vehicleExteriorPanels_;
+    }
+
+    void setVehiclePartOrientation(
+        const std::map< std::string, std::shared_ptr< ephemerides::RotationalEphemeris > > vehiclePartOrientation )
+    {
+        vehiclePartOrientation_ = vehiclePartOrientation;
+    }
+
+    void setTransponderTurnaroundRatio(
+             std::function< double (
+                     observation_models::FrequencyBands uplinkBand,
+                     observation_models::FrequencyBands downlinkBand ) > transponderRatioFunction = &observation_models::getDsnDefaultTurnaroundRatios )
+    {
+        transponderTurnaroundRatio_ = transponderRatioFunction;
+    }
+
+    void setTransponderTurnaroundRatio(
+            std::map< std::pair< observation_models::FrequencyBands, observation_models::FrequencyBands >, double >&
+                    transponderRatioPerUplinkAndDownlinkFrequencyBand )
+    {
+        transponderTurnaroundRatio_ = [=] (
+                observation_models::FrequencyBands uplinkBand,
+                observation_models::FrequencyBands downlinkBand )
+        {
+            return transponderRatioPerUplinkAndDownlinkFrequencyBand.at( std::make_pair( uplinkBand, downlinkBand ) );
+        };
+    }
+
+    std::function< double ( observation_models::FrequencyBands uplinkBand, observation_models::FrequencyBands downlinkBand ) >
+            getTransponderTurnaroundRatio( )
+    {
+        if( transponderTurnaroundRatio_ == nullptr )
+        {
+            throw std::runtime_error( "Error when retrieving transponder turnaround ratio from vehicle systems: "
+                                      "turnaround ratio function is not defined." );
+        }
+        return transponderTurnaroundRatio_;
+    }
+
 private:
+
+
+    std::map< std::string, std::shared_ptr< ephemerides::RotationalEphemeris > > vehiclePartOrientation_;
+
+    std::map< std::string, std::vector< std::shared_ptr< VehicleExteriorPanel > > > vehicleExteriorPanels_;
+
+    double currentOrientationTime_;
+
+    std::map< std::string, Eigen::Quaterniond > currentVehiclePartRotationToBodyFixedFrame_;
 
     //! Named list of engine models in the vehicle
     std::map< std::string, std::shared_ptr< EngineModel > > engineModels_;
@@ -196,6 +297,7 @@ private:
     //! Wall emissivity of the vehicle (used for heating computations)
     double wallEmissivity_;
 
+    std::function< double ( observation_models::FrequencyBands uplinkBand, observation_models::FrequencyBands downlinkBand ) > transponderTurnaroundRatio_;
 };
 
 } // namespace system_models

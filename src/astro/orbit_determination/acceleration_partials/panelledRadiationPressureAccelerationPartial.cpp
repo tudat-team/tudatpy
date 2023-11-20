@@ -14,52 +14,65 @@ void PanelledRadiationPressurePartial::update( const double currentTime )
 {
     if( !( currentTime_ == currentTime ) )
     {
-        Eigen::Vector3d unitVectorToSource = radiationPressureAcceleration_->getCurrentVectorToSource( );
-        double distanceToSource = radiationPressureAcceleration_->getCurrentDistanceToSource( );
+        Eigen::Vector3d inertialVectorFromSource = radiationPressureAcceleration_->getTargetPositionWrtSource( );
+        Eigen::Vector3d bodyFixedUnitVectorToSource =
+            - ( radiationPressureAcceleration_->getTargetRotationFromGlobalToLocalFrame( ) *
+                inertialVectorFromSource.normalized( ) );
+        double distanceToSource = inertialVectorFromSource.norm( );
         Eigen::Vector3d currentAcceleration = radiationPressureAcceleration_->getAcceleration( );
-        double currentRadiationPressure = radiationPressureAcceleration_->getCurrentRadiationPressure( );
-        double currentMass = radiationPressureAcceleration_->getCurrentMass( );
+        double currentRadiationPressure = panelledTargetModel_->getRadiationPressure( );
+        double currentMass = radiationPressureAcceleration_->getCurrentTargetMass( );
 
         currentPartialWrtPosition_.setZero( );
 
-        if( currentRadiationPressure > 0.0 && currentAcceleration.norm( ) > 0.0 )
+        if( currentRadiationPressure > 0.0  )
         {
-            Eigen::Matrix3d currentSourceUnitVectorPartial =  -1.0 / distanceToSource * (
-                        Eigen::Matrix3d::Identity( ) - unitVectorToSource * unitVectorToSource.transpose( ) );
-            Eigen::Matrix< double, 1, 3 > currentRadiationPressurePositionPartial =
-                    2.0 * currentRadiationPressure * unitVectorToSource.transpose( ) / ( distanceToSource );
+            currentSourceUnitVectorPartial_ =  -1.0 / distanceToSource * (
+                        Eigen::Matrix3d::Identity( ) - bodyFixedUnitVectorToSource * bodyFixedUnitVectorToSource.transpose( ) );
+            currentRadiationPressurePositionPartial_ =
+                    2.0 * currentRadiationPressure * bodyFixedUnitVectorToSource.transpose( ) / ( distanceToSource );
 
-            Eigen::Matrix< double, 1, 3 > currentCosineAnglePartial = Eigen::Matrix< double, 1, 3 >::Zero( );
-            Eigen::Vector3d currentPanelAcceleration = Eigen::Vector3d::Zero( );
+            currentCosineAnglePartial_ = Eigen::Matrix< double, 1, 3 >::Zero( );
+            Eigen::Vector3d currentPanelReactionVector = Eigen::Vector3d::Zero( );
             Eigen::Vector3d currentPanelNormal = Eigen::Vector3d::Zero( );
+            Eigen::Matrix3d currentPanelPartialContribution = Eigen::Matrix3d::Zero( );
 
 
             double currentPanelArea = 0.0, currentPanelEmissivity = 0.0, cosineOfPanelInclination = 0.0;
 
-            for( int i = 0; i < radiationPressureInterface_->getNumberOfPanels( ); i++ )
+            for( int i = 0; i < panelledTargetModel_->getTotalNumberOfPanels( ); i++ )
             {
-                currentPanelNormal = radiationPressureInterface_->getCurrentSurfaceNormal( i );
-                cosineOfPanelInclination = currentPanelNormal.dot( unitVectorToSource );
+                currentPanelNormal = panelledTargetModel_->getSurfaceNormals( ).at( i );
+                cosineOfPanelInclination = panelledTargetModel_->getSurfacePanelCosines( ).at( i );
 
+                currentPanelPartialContribution.setZero( );
                 if( cosineOfPanelInclination > 0.0 )
                 {
-                    currentCosineAnglePartial = currentPanelNormal.transpose( ) * currentSourceUnitVectorPartial;
+                    currentCosineAnglePartial_ = currentPanelNormal.transpose( ) * currentSourceUnitVectorPartial_;
 
-                    currentPanelAcceleration = radiationPressureAcceleration_->getCurrentPanelAcceleration( i );
-                    currentPanelArea = radiationPressureInterface_->getArea( i );
-                    currentPanelEmissivity = radiationPressureInterface_->getEmissivity( i );
+                    currentPanelArea = panelledTargetModel_->getBodyFixedPanels( ).at( i )->getPanelArea( );
+                    currentPanelReactionVector = panelledTargetModel_->getPanelForces( ).at( i ) / ( currentRadiationPressure * currentPanelArea );
 
-                    currentPartialWrtPosition_ +=
-                            currentPanelAcceleration * currentCosineAnglePartial / cosineOfPanelInclination;
-                    currentPartialWrtPosition_ -=
-                            currentRadiationPressure / currentMass * currentPanelArea * cosineOfPanelInclination * (
-                                ( 1.0 - currentPanelEmissivity ) * currentSourceUnitVectorPartial +
-                                2.0 * currentPanelEmissivity * currentPanelNormal * currentCosineAnglePartial );
+                    currentPanelPartialContribution += panelledTargetModel_->getFullPanels( ).at( i )->getReflectionLaw( )->
+                        evaluateReactionVectorDerivativeWrtTargetPosition(
+                            currentPanelNormal, -bodyFixedUnitVectorToSource, cosineOfPanelInclination, currentPanelReactionVector,
+                            currentSourceUnitVectorPartial_, currentCosineAnglePartial_ );
+
+                    currentPanelPartialContribution *= currentRadiationPressure * currentPanelArea;
+
 
                 }
+                currentPartialWrtPosition_ += currentPanelPartialContribution;
             }
 
-            currentPartialWrtPosition_ += currentAcceleration / currentRadiationPressure * currentRadiationPressurePositionPartial;
+            Eigen::Matrix3d rotationToInertialFrame =
+                Eigen::Matrix3d( radiationPressureAcceleration_->getTargetRotationFromLocalToGlobalFrame( ) );
+            currentPartialWrtPosition_ = rotationToInertialFrame * currentPartialWrtPosition_ * rotationToInertialFrame.transpose( );
+            currentPartialWrtPosition_ /= currentMass;
+
+            currentPartialWrtPosition_ += currentAcceleration / currentRadiationPressure *
+                ( currentRadiationPressurePositionPartial_ * rotationToInertialFrame.transpose( ) );
+
         }
         currentTime_ = currentTime;
 
