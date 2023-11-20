@@ -128,7 +128,7 @@ BOOST_AUTO_TEST_CASE( JunoRead )
                                                                                        '#',
                                                                                        ",: \t" );
 
-    std::map< std::shared_ptr< tio::TxtFieldType >, double > dataBlock3 = fileContents->dataVector_.at( 3 );
+    std::map< std::shared_ptr< tio::TxtFieldType >, double > dataBlock3 = fileContents->dataVector_.at( 0 );
 
     BOOST_CHECK_EQUAL( dataBlock3[tft::spacecraftIdentifier], 61 );
     BOOST_CHECK_EQUAL( dataBlock3[tft::dsnTransmittingStation], 55 );
@@ -139,7 +139,7 @@ BOOST_AUTO_TEST_CASE( JunoRead )
     BOOST_CHECK_EQUAL( dataBlock3[tft::utcHour], 13 );
     BOOST_CHECK_EQUAL( dataBlock3[tft::utcMinute], 45 );
     BOOST_CHECK_EQUAL( dataBlock3[tft::utcSecond], 6 );
-    BOOST_CHECK_EQUAL( dataBlock3[tft::roundTripLightTimeMicroSec], 6355.0487233317 );
+    BOOST_CHECK_EQUAL( dataBlock3[tft::roundTripLightTimeSec], 6355.0487233317 );
     BOOST_CHECK_EQUAL( dataBlock3[tft::lightTimeMeasurementAccuracyMicroSec], 0.0 );
     BOOST_CHECK_EQUAL( dataBlock3[tft::planetNumber], 5 );
     BOOST_CHECK_EQUAL( dataBlock3[tft::tbdTimeJ2000], 525574396.542800 );
