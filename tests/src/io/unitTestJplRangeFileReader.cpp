@@ -19,6 +19,10 @@
 #include "tudat/basics/testMacros.h"
 #include "tudat/io/readJplRangeFile.h"
 
+// Temporary
+#include "tudat/io/readGenericTxtFile.h"
+#include "tudat/io/mapTextFileReader.h"
+
 
 namespace tudat
 {
@@ -122,6 +126,8 @@ BOOST_AUTO_TEST_CASE( JplRangeViking )
     BOOST_CHECK_EQUAL( dataBlockLast.roundTripLightTime_, 1824971051.220 ); // Transponder delay
 //    BOOST_CHECK_EQUAL( dataBlockLast.measurementAccuracy_, .133 );
 }
+
+
 
 BOOST_AUTO_TEST_SUITE_END( );
 }
