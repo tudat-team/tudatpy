@@ -31,6 +31,9 @@ set(io_SOURCES
         "aerodynamicCoefficientReader.cpp"
         "tabulatedAtmosphereReader.cpp"
         "util.cpp"
+        "readOdfFile.cpp"
+        "readTabulatedMediaCorrections.cpp"
+        "readTabulatedWeatherData.cpp"
         )
 
 # Add header files.
@@ -66,6 +69,10 @@ set(io_HEADERS
         "readHistoryFromFile.h"
         "tabulatedAtmosphereReader.h"
         "util.h"
+        "readOdfFile.h"
+        "readBinaryFile.h"
+        "readTabulatedMediaCorrections.h"
+        "readTabulatedWeatherData.h"
         )
 
 # Add library.

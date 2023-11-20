@@ -193,21 +193,6 @@ public:
 
 private:
 
-    //! Current body-fixed (w.r.t body exerting acceleration) position of body undergoing acceleration
-    /*!
-     *  Current body-fixed (w.r.t body exerting acceleration) position of body undergoing acceleration,
-     *  set by update( time ) function.
-     */
-    Eigen::Vector3d bodyFixedPosition_;
-
-    //! Current spherical coordinate of body undergoing acceleration
-    /*!
-     *  Current spherical coordinate of body undergoing acceleration, in reference frame fixed to body exerting acceleration.
-     *  Order of components is radial distance (from center of body), latitude, longitude. Note that the the second entry
-     *  differs from the direct output of the cartesian -> spherical coordinates, which produces a colatitude.
-     */
-    Eigen::Vector3d bodyFixedSphericalPosition_;
-
     //! The current partial of the acceleration wrt the position of the body undergoing the acceleration.
     /*!
      *  The current partial of the acceleration wrt the position of the body undergoing the acceleration.

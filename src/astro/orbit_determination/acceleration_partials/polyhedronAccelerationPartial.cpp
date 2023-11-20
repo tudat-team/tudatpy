@@ -55,12 +55,6 @@ void PolyhedronGravityPartial::update( const double currentTime )
 
         // Calculate Cartesian position in frame fixed to body exerting acceleration
         Eigen::Matrix3d currentRotationToBodyFixedFrame_ = fromBodyFixedToIntegrationFrameRotation_( ).inverse( );
-        bodyFixedPosition_ = currentRotationToBodyFixedFrame_ *
-                ( positionFunctionOfAcceleratedBody_( ) - positionFunctionOfAcceleratingBody_( ) );
-
-        // Calculate spherical position in frame fixed to body exerting acceleration
-        bodyFixedSphericalPosition_ = convertCartesianToSpherical( bodyFixedPosition_ );
-        bodyFixedSphericalPosition_( 1 ) = mathematical_constants::PI / 2.0 - bodyFixedSphericalPosition_( 1 );
 
         // Calculate partial of acceleration wrt position of body undergoing acceleration.
         currentBodyFixedPartialWrtPosition_ = basic_mathematics::calculatePolyhedronHessianOfGravitationalPotential(

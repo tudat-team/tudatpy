@@ -100,61 +100,6 @@ Time getTTMinusTai< Time>( )
 }
 
 
-//! Function to convert julian day to gregorian calendar date.
-boost::gregorian::date convertJulianDayToCalendarDate( const double julianDay )
-{
-    // Declare temporary variables.
-    int L, M, N, P, Q;
-
-    // Declare date variables.
-    int day, month, year;
-
-    // Execute algorithm.
-    double shiftedJulianDay = julianDay + 0.5;
-    if( shiftedJulianDay > 2299160 )    // after Oct 4, 1582
-    {
-        L = shiftedJulianDay + 68569;
-        M = (4 * L) / 146097;
-        L = L - ((146097 * M + 3) / 4);
-        N = (4000 * (L + 1)) / 1461001;
-        L = L - ((1461 * N) / 4) + 31;
-        P = (80 * L) / 2447;
-        day = int(L - (2447 * P) / 80);
-        L = P / 11;
-        month = int(P + 2 - 12 * L);
-        year = int(100 * (M - 49) + N + L);
-    }
-    else
-    {
-        P = shiftedJulianDay + 1402;
-        Q = (P - 1) / 1461;
-        L = P - 1461 * Q;
-        M = (L - 1) / 365 - L / 1461;
-        N = L - 365 * M + 30;
-        P = (80 * N) / 2447;
-        day = int(N - (2447 * P) / 80);
-        N = P / 11;
-        month = int( P + 2 - 12 * N );
-        year = int( 4 * Q + M + N - 4716 );
-        if(year <= 0)
-        {
-            --year;
-        }
-    }
-    // catch century/non-400 non-leap years
-    if( year > 1599 && !( year % 100 )
-            && ( year % 400 ) && month == 2 && day == 29 )
-    {
-        month = 3;
-        day = 1;
-    }
-
-    // Create and return date object
-
-    return boost::gregorian::date( year, month, static_cast< double >( day ) );
-}
-
-
 //! Function to determine whether the given year is a leap year (i.e. has 366 days)
 bool isLeapYear( const int year )
 {
