@@ -1052,7 +1052,6 @@ std::shared_ptr< ObservationPartial< ObservationSize > > createObservationPartia
     }
     case estimatable_parameters::constant_time_observation_bias:
     {
-        std::cout<<"Time bias "<<useBiasPartials<<std::endl;
         if( useBiasPartials )
         {
             // Check input consistency
@@ -1064,16 +1063,11 @@ std::shared_ptr< ObservationPartial< ObservationSize > > createObservationPartia
             }
             else
             {
-                std::cout<<observableType<<" "<<constantTimeBias->getObservableType( )<<std::endl;
-                std::cout<<observation_models::getLinkEndsString( linkEnds )<<std::endl;
-                std::cout<<observation_models::getLinkEndsString( constantTimeBias->getLinkEnds( ) )<<std::endl;
-
                 // Check dependency between parameter and link properties.
                 if( linkEnds == constantTimeBias->getLinkEnds( ) && observableType == constantTimeBias->getObservableType( ) )
                 {
                     observationPartial = std::make_shared< ObservationPartialWrtConstantTimeBias< ObservationSize > >(
                             observableType, linkEnds, constantTimeBias->getLinkEndIndex( ) );
-                    std::cout<<"CREATED PARTIAL"<<std::endl;
                 }
             }
         }
