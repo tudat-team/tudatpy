@@ -235,41 +235,45 @@ int main( )
         getObservationSimulationSettingsFromObservations( observedObservationCollection );
     std::shared_ptr< observation_models::ObservationCollection< long double, Time > > computedObservationCollection =
         simulateObservations( observationSimulationSettings, observationSimulators, bodies );
+//
 
-    std::shared_ptr< observation_models::ObservationCollection< long double, Time > > residualObservationCollection =
-        createResidualCollection( observedObservationCollection, computedObservationCollection );
 
     /****************************************************************************************
     ************************** FILTER OBSERVATIONS
     *****************************************************************************************/
 
     std::map< ObservableType, double > residualCutoffValuePerObservable;
-    residualCutoffValuePerObservable[ dsn_n_way_averaged_doppler ] = 0.05;
+    residualCutoffValuePerObservable[ dsn_n_way_averaged_doppler ] = 0.002;
 
-    std::shared_ptr< observation_models::ObservationCollection< long double, Time > > filteredObservedObservationCollection =
-        filterResidualOutliers( observedObservationCollection, residualObservationCollection, residualCutoffValuePerObservable );
+    std::shared_ptr< ObservationCollection< long double, Time > > filteredObservedObservationCollection;
+    std::shared_ptr< ObservationCollection< long double, Time > > filteredComputedObservationCollection;
+    filterObservedAndComputedData( observedObservationCollection, computedObservationCollection,
+                                   filteredObservedObservationCollection, filteredComputedObservationCollection, residualCutoffValuePerObservable );
 
+    std::cout<<( observedObservationCollection==nullptr )<<" "
+             <<( computedObservationCollection==nullptr )<<" "
+             <<( filteredObservedObservationCollection==nullptr )<<" "
+             <<( filteredComputedObservationCollection==nullptr )<<std::endl;
 
-    std::vector< std::shared_ptr< simulation_setup::ObservationSimulationSettings< Time > > > filteredObservationSimulationSettings =
-        getObservationSimulationSettingsFromObservations( filteredObservedObservationCollection );
-    std::shared_ptr< observation_models::ObservationCollection< long double, Time > > filteredComputedObservationCollection =
-        simulateObservations( filteredObservationSimulationSettings, observationSimulators, bodies );
+    std::cout<<observedObservationCollection->getTotalObservableSize( )<<" "
+    <<computedObservationCollection->getTotalObservableSize( )<<" "
+    <<filteredObservedObservationCollection->getTotalObservableSize( )<<" "
+    <<filteredComputedObservationCollection->getTotalObservableSize( )<<std::endl;
+    Eigen::VectorXd filteredObservationResiduials = ( filteredObservedObservationCollection->getObservationVector( ) -
+        filteredComputedObservationCollection->getObservationVector( ) ).cast< double >( );
 
-    std::shared_ptr< observation_models::ObservationCollection< long double, Time > > filteredResidualObservationCollection =
-        createResidualCollection( filteredObservedObservationCollection, filteredComputedObservationCollection );
     {
-        Eigen::VectorXd residuals = filteredResidualObservationCollection->getObservationVector( ).template cast< double >( );
-        input_output::writeMatrixToFile( residuals, "grailTestResiduals.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TestResults_30s_timebias/");
+        input_output::writeMatrixToFile( filteredObservationResiduials, "grailTestResiduals.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TestResults_30s_timebias_filter/");
 
 //        input_output::writeMatrixToFile( correctedResiduals, "grailTestCorrectedResiduals.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TestResults/");
 
         Eigen::VectorXd observationTimes = utilities::convertStlVectorToEigenVector(
-            filteredResidualObservationCollection->getConcatenatedTimeVector( ) ).template cast< double >( );
-        input_output::writeMatrixToFile( observationTimes, "grailTestTimes.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TestResults_30s_timebias/");
+            filteredObservedObservationCollection->getConcatenatedTimeVector( ) ).template cast< double >( );
+        input_output::writeMatrixToFile( observationTimes, "grailTestTimes.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TestResults_30s_timebias_filter/");
 
         Eigen::VectorXd observationLinkEndsIds = utilities::convertStlVectorToEigenVector(
-            filteredResidualObservationCollection->getConcatenatedLinkEndIds( ) ).template cast< double >( );
-        input_output::writeMatrixToFile(observationLinkEndsIds , "grailTestLinkEnds.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TestResults_30s_timebias/");
+            filteredObservedObservationCollection->getConcatenatedLinkEndIds( ) ).template cast< double >( );
+        input_output::writeMatrixToFile(observationLinkEndsIds , "grailTestLinkEnds.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TestResults_30s_timebias_filter/");
     }
     
     {
@@ -308,13 +312,10 @@ int main( )
                   std::make_shared< PropagationTimeTerminationSettings >( finalTime ), cowell, dependentVariablesToSave );
 
 
-I was wondering if it is possible to have one body undergoing and exerting the same torque.
         std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames =
             getInitialStateParameterSettings< long double, Time >( propagatorSettings, bodies );
 
-        std::vector<std::shared_ptr<estimatable_parameters::EstimatableParameterSettings> > additionalParameterNames;
-
-        parameterNames.push_back( estimatable_parameters::radiationPressureCoefficient( "GRAIL-A" ));
+        parameterNames.push_back( estimatable_parameters::radiationPressureCoefficient( "GRAIL-A" ) );
 
         std::map<basic_astrodynamics::EmpiricalAccelerationComponents,
             std::vector<basic_astrodynamics::EmpiricalAccelerationFunctionalShapes> > empiricalComponentsToEstimate;
@@ -332,10 +333,10 @@ I was wondering if it is possible to have one body undergoing and exerting the s
 
         parameterNames.push_back( std::make_shared<EmpiricalAccelerationEstimatableParameterSettings>(
             "GRAIL-A", "Moon", empiricalComponentsToEstimate ));
-        for( auto it : linkEndIds )
-        {
-            parameterNames.push_back( timeObservationBias( it.second, dsn_n_way_averaged_doppler ) );
-        }
+//        for( auto it : linkEndIds )
+//        {
+//            parameterNames.push_back( timeObservationBias( it.second, dsn_n_way_averaged_doppler ) );
+//        }
 
         std::shared_ptr< estimatable_parameters::EstimatableParameterSet< long double > > parametersToEstimate =
             createParametersToEstimate< long double, Time >( parameterNames, bodies, propagatorSettings );
@@ -350,7 +351,7 @@ I was wondering if it is possible to have one body undergoing and exerting the s
             0, 1, 0, 1, 1, 1 );
         std::shared_ptr< EstimationOutput< long double, Time > > estimationOutput = orbitDeterminationManager.estimateParameters( estimationInput );
 
-        input_output::writeMatrixToFile(estimationOutput->residuals_ , "grailPostFitResiduals.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TestResults_30s_timebias/");
+        input_output::writeMatrixToFile(estimationOutput->residuals_ , "grailPostFitResiduals.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TestResults_30s_timebias_filter/");
 
         auto estimatedStateHistory =
             std::dynamic_pointer_cast< SingleArcVariationalSimulationResults< long double, Time > >( estimationOutput->getSimulationResults( ).back( ) )->getDynamicsResults( )->getEquationsOfMotionNumericalSolution( );
@@ -372,16 +373,16 @@ I was wondering if it is possible to have one body undergoing and exerting the s
             finalStateDifferenceRsw[ it.first ] = rswStateDifference;
         }
 
-        input_output::writeMatrixToFile(estimationOutput->getCorrelationMatrix( ) , "grailTestCorrelations.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TestResults_30s_timebias/");
+        input_output::writeMatrixToFile(estimationOutput->getCorrelationMatrix( ) , "grailTestCorrelations.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TestResults_30s_timebias_filter/");
 
         input_output::writeDataMapToTextFile( finalStateDifference,
                                               "stateDifference.dat",
-                                              "/home/dominic/Tudat/Data/GRAIL_TestResults_30s_timebias/",
+                                              "/home/dominic/Tudat/Data/GRAIL_TestResults_30s_timebias_filter/",
                                               "", std::numeric_limits< double >::digits10,  std::numeric_limits< double >::digits10,  "," );
 
         input_output::writeDataMapToTextFile( finalStateDifferenceRsw,
                                               "stateDifferenceRsw.dat",
-                                              "/home/dominic/Tudat/Data/GRAIL_TestResults_30s_timebias/",
+                                              "/home/dominic/Tudat/Data/GRAIL_TestResults_30s_timebias_filter/",
                                               "", std::numeric_limits< double >::digits10,  std::numeric_limits< double >::digits10,  "," );
 
 
