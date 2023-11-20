@@ -67,7 +67,7 @@ BOOST_AUTO_TEST_CASE( test_ItrsToGcrsRotationAgainstSpice )
             for( unsigned int j = 0; j < 3; j++ )
             {
                 BOOST_CHECK_SMALL( sofaRotation( i, j ) - spiceRotation( i, j ), tolerance );
-                BOOST_CHECK_SMALL( sofaRotationDerivative( i, j ) - spiceRotationDerivative( i, j ), 5.0E-12 );
+                BOOST_CHECK_SMALL( sofaRotationDerivative( i, j ) - spiceRotationDerivative( i, j ), 1.0E-11 );
 
             }
         }

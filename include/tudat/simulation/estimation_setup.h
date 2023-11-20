@@ -18,6 +18,7 @@
 #include "estimation_setup/createEulerAngleObservationPartials.h"
 #include "estimation_setup/createLightTimeCalculator.h"
 #include "estimation_setup/createLightTimeCorrection.h"
+#include "estimation_setup/createAtmosphericLightTimeCorrection.h"
 #include "estimation_setup/createLightTimeCorrectionPartials.h"
 #include "estimation_setup/createNumericalSimulator.h"
 #include "estimation_setup/createNWayRangePartials.h"
@@ -32,5 +33,6 @@
 #include "estimation_setup/orbitDeterminationTestCases.h"
 #include "estimation_setup/podProcessing.h"
 #include "estimation_setup/variationalEquationsSolver.h"
+#include "estimation_setup/processOdfFile.h"
 
 #endif // TUDAT_ESTIMATION_SETUP_H

@@ -116,6 +116,30 @@ BOOST_AUTO_TEST_CASE( testShadowFunctionForPartialShadow )
     BOOST_CHECK_CLOSE_FRACTION( 0.4547, shadowFunction, 0.001 );
 }
 
+BOOST_AUTO_TEST_CASE( testShadowFunctionForAnnularEclipse_Centered )
+{
+    // Satellite is in antumbra and eclipse is annular. According to analytical derivations on paper the shadow function
+    // should be around 0.485156.
+
+    const Eigen::Vector3d occultedBodyPosition = Eigen::Vector3d(1, 0, 0);
+    const Eigen::Vector3d occultingBodyPosition = Eigen::Vector3d(2, 0, 0);
+    const double occultedBodyRadius = 2;
+    const double occultingBodyRadius = 1;
+
+    const Eigen::Vector3d satellitePosition = Eigen::Vector3d(4, 0, 0);
+
+    // Compute shadow function
+    const double shadowFunction = mission_geometry::computeShadowFunction(
+                occultedBodyPosition,
+                occultedBodyRadius,
+                occultingBodyPosition,
+                occultingBodyRadius,
+                satellitePosition);
+
+    // Test values.
+    BOOST_CHECK_CLOSE_FRACTION( 0.485156, shadowFunction, 0.001 );
+}
+
 //! Unit test for computation of radius of sphere of influence (Earth with respect to Sun).
 BOOST_AUTO_TEST_CASE( testSphereOfInfluenceEarth )
 {

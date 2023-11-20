@@ -107,7 +107,7 @@ BOOST_AUTO_TEST_CASE( testOneWayRangeModel )
     // Manually create and compute light time corrections
     std::shared_ptr< LightTimeCorrection > lightTimeCorrectionCalculator =
             createLightTimeCorrections(
-                lightTimeCorrectionSettings.at( 0 ), bodies, linkEnds[ transmitter ], linkEnds[ receiver ] );
+                lightTimeCorrectionSettings.at( 0 ), bodies, linkEnds, transmitter, receiver );
     double lightTimeCorrection = lightTimeCorrectionCalculator->calculateLightTimeCorrection(
                 linkEndStates.at( 0 ), linkEndStates.at( 1 ), linkEndTimes.at( 0 ), linkEndTimes.at( 1 ) );
 

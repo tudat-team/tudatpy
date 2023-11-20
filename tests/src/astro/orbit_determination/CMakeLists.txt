@@ -65,10 +65,10 @@ TUDAT_ADD_TEST_CASE(TimeBiasEstimation
      ${Tudat_ESTIMATION_LIBRARIES}
      )
 
-#TUDAT_ADD_TEST_CASE(RotationalStateEstimation
-#    PRIVATE_LINKS
-#    ${Tudat_ESTIMATION_LIBRARIES}
-#    )
+TUDAT_ADD_TEST_CASE(RotationalStateEstimation
+    PRIVATE_LINKS
+    ${Tudat_ESTIMATION_LIBRARIES}
+    )
 
 TUDAT_ADD_TEST_CASE(ArcwiseEnvironmentParameters
     PRIVATE_LINKS
@@ -86,10 +86,36 @@ TUDAT_ADD_TEST_CASE(FullPlanetaryRotationModelEstimation
     )
 
 
-TUDAT_ADD_TEST_CASE(EstimationFromIdealDataTimeDouble
-    PRIVATE_LINKS
-    ${Tudat_ESTIMATION_LIBRARIES}
-    )
+TUDAT_ADD_TEST_CASE(NonSequentialStateEstimation
+     PRIVATE_LINKS
+     ${Tudat_ESTIMATION_LIBRARIES}
+     )
+
+# Example application: estimation of Doppler observations from ODF/DSN data
+#TUDAT_ADD_TEST_CASE(EstimationFromDsnData
+#    PRIVATE_LINKS
+#    ${Tudat_ESTIMATION_LIBRARIES}
+#    )
+
+# Example application: estimation of position observables from SPICE data
+#TUDAT_ADD_TEST_CASE(EstimationFromSpiceData
+#    PRIVATE_LINKS
+#    ${Tudat_ESTIMATION_LIBRARIES}
+#    )
+ TUDAT_ADD_TEST_CASE(ConsiderParameters
+         PRIVATE_LINKS
+         ${Tudat_ESTIMATION_LIBRARIES}
+         )
+
+ TUDAT_ADD_TEST_CASE(CustomAccelerationVariationalEquations
+         PRIVATE_LINKS
+         ${Tudat_ESTIMATION_LIBRARIES}
+ )
+
+ TUDAT_ADD_TEST_CASE(FitToSpice
+         PRIVATE_LINKS
+         ${Tudat_ESTIMATION_LIBRARIES}
+ )
 
  TUDAT_ADD_TEST_CASE(ClockParameterEstimation
          PRIVATE_LINKS
@@ -99,10 +125,16 @@ TUDAT_ADD_TEST_CASE(EstimationFromIdealDataTimeDouble
 
  if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 
+
+    TUDAT_ADD_TEST_CASE(EstimationFromIdealDataTimeDouble
+            PRIVATE_LINKS
+            ${Tudat_ESTIMATION_LIBRARIES}
+    )
+
     TUDAT_ADD_TEST_CASE(EstimationFromIdealDataDoubleLongDouble
         PRIVATE_LINKS
         ${Tudat_ESTIMATION_LIBRARIES}
-        )    
+        )
 
     TUDAT_ADD_TEST_CASE(EstimationFromIdealDataTimeLongDouble
         PRIVATE_LINKS

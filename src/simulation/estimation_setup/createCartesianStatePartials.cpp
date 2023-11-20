@@ -157,6 +157,8 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
                     break;
                 case estimatable_parameters::direct_dissipation_tidal_time_lag:
                     break;
+                case estimatable_parameters::inverse_tidal_quality_factor:
+                    break;
                 default:
 
                     std::string errorMessage =
@@ -280,6 +282,10 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
                 case estimatable_parameters::constant_time_observation_bias:
                     break;
                 case estimatable_parameters::arc_wise_time_observation_bias:
+                    break;
+                case estimatable_parameters::yarkovsky_parameter:
+                    break;
+                case estimatable_parameters::custom_estimated_parameter:
                     break;
                 default:
                     std::string errorMessage =

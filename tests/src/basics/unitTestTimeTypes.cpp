@@ -15,6 +15,8 @@
 
 #include "tudat/basics/testMacros.h"
 #include "tudat/basics/timeType.h"
+#include "tudat/astro/basic_astro/dateTime.h"
+
 #include "tudat/math/basic/mathematicalConstants.h"
 
 namespace tudat
@@ -25,6 +27,7 @@ namespace unit_tests
 BOOST_AUTO_TEST_SUITE( test_time_type )
 
 using namespace mathematical_constants;
+using namespace basic_astrodynamics;
 
 //! Test if Time objects cast to the expected precision
 BOOST_AUTO_TEST_CASE( testTimeBasicCasts )
@@ -114,17 +117,16 @@ BOOST_AUTO_TEST_CASE( testArithmeticOperations )
         long double numberOfSeconds1 = 2566.8309405984728595902;
         int correctionPeriods1 = numberOfSeconds1 / TIME_NORMALIZATION_INTEGER_TERM;
         Time inputTime1( numberOfDays1, numberOfSeconds1 );
+        long double inputLongDouble1 = static_cast< long double >( numberOfDays1 ) * TIME_NORMALIZATION_TERM + numberOfSeconds1;
 
-        int numberOfDays2 = 2;
+        int numberOfDays2 = 29709787;
         long double numberOfSeconds2 = 1432.48492385475949349;
         int correctionPeriods2 = numberOfSeconds1 / TIME_NORMALIZATION_INTEGER_TERM;
         Time inputTime2( numberOfDays2, numberOfSeconds2 );
-
+        long double inputLongDouble2 = static_cast< long double >( numberOfDays2 ) * TIME_NORMALIZATION_TERM + numberOfSeconds2;
         int correctionPeriods = ( numberOfSeconds1 + numberOfSeconds2 ) / TIME_NORMALIZATION_INTEGER_TERM;
         int correctionPeriodsDifference = ( numberOfSeconds1 - numberOfSeconds2 ) / TIME_NORMALIZATION_INTEGER_TERM + 1;
 
-        std::cout<<correctionPeriodsDifference<<" "<<static_cast< double >( numberOfSeconds1 - numberOfSeconds2 ) /
-                   static_cast< double >( TIME_NORMALIZATION_INTEGER_TERM )<<std::endl;
         Time outputTime;
 
         // Test Time additions
@@ -167,6 +169,29 @@ BOOST_AUTO_TEST_CASE( testArithmeticOperations )
                                         static_cast< long double > ( correctionPeriods ) * TIME_NORMALIZATION_TERM,
                                         outputTime.getSecondsIntoFullPeriod( ),
                                         std::numeric_limits< long double >::epsilon( ) );
+
+            // Check whether addition between doubles and Time retains accuracy of Time
+            outputTime = inputTime1 + inputLongDouble2;
+            BOOST_CHECK_EQUAL( numberOfDays1 + numberOfDays2 + correctionPeriods, outputTime.getFullPeriods( ) );
+            BOOST_CHECK_CLOSE_FRACTION( numberOfSeconds1 + ( inputLongDouble2 - static_cast< long double >( numberOfDays2 ) * TIME_NORMALIZATION_TERM ) -
+                                        static_cast< long double > ( correctionPeriods ) * TIME_NORMALIZATION_TERM,
+                                        outputTime.getSecondsIntoFullPeriod( ),
+                                        std::numeric_limits< long double >::epsilon( ) );
+
+            outputTime = inputLongDouble2 + inputTime1;
+            BOOST_CHECK_EQUAL( numberOfDays1 + numberOfDays2 + correctionPeriods, outputTime.getFullPeriods( ) );
+            BOOST_CHECK_CLOSE_FRACTION( numberOfSeconds1 + ( inputLongDouble2 - static_cast< long double >( numberOfDays2 ) * TIME_NORMALIZATION_TERM ) -
+                                        static_cast< long double > ( correctionPeriods ) * TIME_NORMALIZATION_TERM,
+                                        outputTime.getSecondsIntoFullPeriod( ),
+                                        std::numeric_limits< long double >::epsilon( ) );
+
+            outputTime = inputTime1;
+            outputTime += inputLongDouble2;
+            BOOST_CHECK_EQUAL( numberOfDays1 + numberOfDays2 + correctionPeriods, outputTime.getFullPeriods( ) );
+            BOOST_CHECK_CLOSE_FRACTION( numberOfSeconds1 + ( inputLongDouble2 - static_cast< long double >( numberOfDays2 ) * TIME_NORMALIZATION_TERM ) -
+                                        static_cast< long double > ( correctionPeriods ) * TIME_NORMALIZATION_TERM,
+                                        outputTime.getSecondsIntoFullPeriod( ),
+                                        std::numeric_limits< long double >::epsilon( ) );
         }
 
         // Test subtractions of Time objects
@@ -185,7 +210,19 @@ BOOST_AUTO_TEST_CASE( testArithmeticOperations )
                                         outputTime.getSecondsIntoFullPeriod( ),
                                         std::numeric_limits< long double >::epsilon( ) );
 
+        }
+
+        // Test subtraction between doubles and Time
+        {
             outputTime = inputTime2 - numberOfSeconds1;
+            BOOST_CHECK_EQUAL( numberOfDays2 - correctionPeriodsDifference, outputTime.getFullPeriods( ) );
+            BOOST_CHECK_CLOSE_FRACTION( numberOfSeconds2 - numberOfSeconds1 +
+                                        static_cast< long double > ( correctionPeriodsDifference ) * TIME_NORMALIZATION_TERM,
+                                        outputTime.getSecondsIntoFullPeriod( ),
+                                        std::numeric_limits< long double >::epsilon( ) );
+
+            outputTime = inputTime2;
+            outputTime -= numberOfSeconds1;
             BOOST_CHECK_EQUAL( numberOfDays2 - correctionPeriodsDifference, outputTime.getFullPeriods( ) );
             BOOST_CHECK_CLOSE_FRACTION( numberOfSeconds2 - numberOfSeconds1 +
                                         static_cast< long double > ( correctionPeriodsDifference ) * TIME_NORMALIZATION_TERM,
@@ -195,6 +232,28 @@ BOOST_AUTO_TEST_CASE( testArithmeticOperations )
             outputTime = numberOfSeconds2 - inputTime1;
             BOOST_CHECK_EQUAL( -numberOfDays1 - correctionPeriodsDifference, outputTime.getFullPeriods( ) );
             BOOST_CHECK_CLOSE_FRACTION( numberOfSeconds2 - numberOfSeconds1 +
+                                        static_cast< long double > ( correctionPeriodsDifference ) * TIME_NORMALIZATION_TERM,
+                                        outputTime.getSecondsIntoFullPeriod( ),
+                                        std::numeric_limits< long double >::epsilon( ) );
+
+            outputTime = inputTime2 - inputLongDouble1;
+            BOOST_CHECK_EQUAL( numberOfDays2 - numberOfDays1 - correctionPeriodsDifference, outputTime.getFullPeriods( ) );
+            BOOST_CHECK_CLOSE_FRACTION( numberOfSeconds2 - ( inputLongDouble1 - static_cast< long double >( numberOfDays1 ) * TIME_NORMALIZATION_TERM ) +
+                                        static_cast< long double > ( correctionPeriodsDifference ) * TIME_NORMALIZATION_TERM,
+                                        outputTime.getSecondsIntoFullPeriod( ),
+                                        std::numeric_limits< long double >::epsilon( ) );
+
+            outputTime = inputTime2;
+            outputTime -= inputLongDouble1;
+            BOOST_CHECK_EQUAL( numberOfDays2 - numberOfDays1 - correctionPeriodsDifference, outputTime.getFullPeriods( ) );
+            BOOST_CHECK_CLOSE_FRACTION( numberOfSeconds2 - ( inputLongDouble1 - static_cast< long double >( numberOfDays1 ) * TIME_NORMALIZATION_TERM ) +
+                                        static_cast< long double > ( correctionPeriodsDifference ) * TIME_NORMALIZATION_TERM,
+                                        outputTime.getSecondsIntoFullPeriod( ),
+                                        std::numeric_limits< long double >::epsilon( ) );
+
+            outputTime = inputLongDouble2 - inputTime1;
+            BOOST_CHECK_EQUAL( numberOfDays2 - numberOfDays1 - correctionPeriodsDifference, outputTime.getFullPeriods( ) );
+            BOOST_CHECK_CLOSE_FRACTION( ( inputLongDouble2 - static_cast< long double >( numberOfDays2 ) * TIME_NORMALIZATION_TERM ) - numberOfSeconds1 +
                                         static_cast< long double > ( correctionPeriodsDifference ) * TIME_NORMALIZATION_TERM,
                                         outputTime.getSecondsIntoFullPeriod( ),
                                         std::numeric_limits< long double >::epsilon( ) );
@@ -292,7 +351,7 @@ BOOST_AUTO_TEST_CASE( testArithmeticOperations )
         BOOST_CHECK_EQUAL( multipliedTime.getFullPeriods( ), 16 );
         BOOST_CHECK_CLOSE_FRACTION( multipliedTime.getSecondsIntoFullPeriod( ),
                                     PI * 3.0,
-                                    2.0 * std::numeric_limits< double >::epsilon( ) );
+                                    TIME_NORMALIZATION_TERM * std::numeric_limits< double >::epsilon( ) );
 
         multipliedTime = 2.0 * testTime;
         BOOST_CHECK_EQUAL( multipliedTime.getFullPeriods( ), 10 );
@@ -304,7 +363,7 @@ BOOST_AUTO_TEST_CASE( testArithmeticOperations )
         BOOST_CHECK_EQUAL( multipliedTime.getFullPeriods( ), 16 );
         BOOST_CHECK_CLOSE_FRACTION( multipliedTime.getSecondsIntoFullPeriod( ),
                                     PI * 3.0,
-                                    2.0 * std::numeric_limits< double >::epsilon( ) );
+                                    TIME_NORMALIZATION_TERM * std::numeric_limits< double >::epsilon( ) );
 
 
     }
@@ -366,6 +425,15 @@ BOOST_AUTO_TEST_CASE( testComparisonOperators )
         BOOST_CHECK( testTimeLongDouble  == testTime );
         BOOST_CHECK( testTimeLongDouble  == testTime );
 
+        BOOST_CHECK( !( testTime2 == testTime ) );
+        BOOST_CHECK( !( testTime2 == testTimeDouble ) );
+        BOOST_CHECK( !( testTime2 == testTimeLongDouble ) );
+        BOOST_CHECK( !( testTime2 == testTime ) );
+
+        BOOST_CHECK( !( testTimeDouble  == testTime2 ) );
+        BOOST_CHECK( !( testTimeLongDouble  == testTime2 ) );
+        BOOST_CHECK( !( testTimeLongDouble  == testTime2 ) );
+
         // Check not-equals comparison
         BOOST_CHECK( testTime2 != testTimeDouble );
         BOOST_CHECK( testTime2 != testTimeLongDouble );
@@ -373,39 +441,71 @@ BOOST_AUTO_TEST_CASE( testComparisonOperators )
 
         BOOST_CHECK( testTimeDouble  != testTime2 );
         BOOST_CHECK( testTimeLongDouble  != testTime2 );
+        BOOST_CHECK( testTime != testTime2 );
 
-        // Check (strict) greater/less than
+        // Check strict greater than
         BOOST_CHECK( testTime2 > testTimeDouble );
         BOOST_CHECK( testTime2 > testTimeLongDouble );
         BOOST_CHECK( testTime2 > testTime );
 
+        BOOST_CHECK( !( testTimeDouble > testTime2 ) );
+        BOOST_CHECK( !( testTimeLongDouble > testTime2 ) );
+        BOOST_CHECK( !( testTime > testTime2 ) );
+
+        BOOST_CHECK( testTimeDouble2 > testTime );
+        BOOST_CHECK( testTimeLongDouble2  > testTime );
+
+        BOOST_CHECK( !( testTime > testTimeDouble2 ) );
+        BOOST_CHECK( !( testTime > testTimeLongDouble2 ) );
+
+        // Check strict less than
+        BOOST_CHECK( testTime < testTimeDouble2 );
+        BOOST_CHECK( testTime < testTimeLongDouble2 );
+        BOOST_CHECK( testTime < testTime2 );
+
+        BOOST_CHECK( !( testTimeDouble2 < testTime ) );
+        BOOST_CHECK( !( testTimeLongDouble2 < testTime ) );
+        BOOST_CHECK( !( testTime2 < testTime ) );
 
         BOOST_CHECK( testTimeDouble < testTime2 );
         BOOST_CHECK( testTimeLongDouble  < testTime2 );
+
+        BOOST_CHECK( !( testTime2 < testTimeDouble ) );
+        BOOST_CHECK( !( testTime2 < testTimeLongDouble ) );
+
+        // Check greater than or equal to
+        BOOST_CHECK( testTime >= testTime );
 
         BOOST_CHECK( testTime2 >= testTimeDouble );
         BOOST_CHECK( testTime2 >= testTimeLongDouble );
         BOOST_CHECK( testTime2 >= testTime );
 
-        BOOST_CHECK( testTime >= testTime );
+        BOOST_CHECK( !( testTimeDouble >= testTime2 ) );
+        BOOST_CHECK( !( testTimeLongDouble >= testTime2 ) );
+        BOOST_CHECK( !( testTime >= testTime2 ) );
 
-        BOOST_CHECK( testTimeDouble <= testTime2 );
-        BOOST_CHECK( testTimeLongDouble  <= testTime2 );
+        BOOST_CHECK( testTimeDouble2 >= testTime );
+        BOOST_CHECK( testTimeLongDouble2  >= testTime );
 
-        // Check (strict) greater/less than (opposite direction)
-        BOOST_CHECK( testTime < testTimeDouble2 );
-        BOOST_CHECK( testTime < testTimeLongDouble2 );
-        BOOST_CHECK( testTime < testTime2 );
+        BOOST_CHECK( !( testTime >= testTimeDouble2 ) );
+        BOOST_CHECK( !( testTime >= testTimeLongDouble2 ) );
 
-        BOOST_CHECK( testTimeDouble2 > testTime );
-        BOOST_CHECK( testTimeLongDouble2  > testTime );
+        // Check less than or equal to
+        BOOST_CHECK( testTime <= testTime );
 
         BOOST_CHECK( testTime <= testTimeDouble2 );
         BOOST_CHECK( testTime <= testTimeLongDouble2 );
         BOOST_CHECK( testTime <= testTime2 );
 
-        BOOST_CHECK( testTimeDouble2 >= testTime );
-        BOOST_CHECK( testTimeLongDouble2  >= testTime );
+        BOOST_CHECK( !( testTimeDouble2 <= testTime ) );
+        BOOST_CHECK( !( testTimeLongDouble2 <= testTime ) );
+        BOOST_CHECK( !( testTime2 <= testTime ) );
+
+        BOOST_CHECK( testTimeDouble <= testTime2 );
+        BOOST_CHECK( testTimeLongDouble  <= testTime2 );
+
+        BOOST_CHECK( !( testTime2 <= testTimeDouble ) );
+        BOOST_CHECK( !( testTime2 <= testTimeLongDouble ) );
 
         // Check if comparison picks up small differences
         long double currentFullSeconds = testTime2.getSecondsIntoFullPeriod( );
@@ -421,6 +521,7 @@ BOOST_AUTO_TEST_CASE( testComparisonOperators )
         BOOST_CHECK( testTime2 < testTimeLongDouble2Rounded );
     }
 }
+
 
 BOOST_AUTO_TEST_SUITE_END( )
 

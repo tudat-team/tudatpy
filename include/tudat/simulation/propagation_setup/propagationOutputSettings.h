@@ -130,7 +130,13 @@ enum PropagationDependentVariables
     aerodynamic_control_surface_free_force_coefficients_dependent_variable = 57,
     aerodynamic_control_surface_free_moment_coefficients_dependent_variable = 58,
     aerodynamic_control_surface_force_coefficients_increment_dependent_variable = 59,
-    aerodynamic_control_surface_moment_coefficients_increment_dependent_variable = 60
+    aerodynamic_control_surface_moment_coefficients_increment_dependent_variable = 60,
+    body_center_of_mass = 61,
+    body_inertia_tensor = 62,
+    received_irradiance = 63,
+    received_fraction = 64,
+    visible_and_emitting_source_panel_count = 65,
+    visible_source_area = 66
 };
 
 // Functional base class for defining settings for dependent variables that are to be saved during propagation
@@ -1119,46 +1125,47 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > radiationPressureD
 
 //! @get_docstring(localTemperatureDependentVariable)
 inline std::shared_ptr< SingleDependentVariableSaveSettings > localTemperatureDependentVariable(
-        const std::string& associatedBody )
+        const std::string& associatedBody,
+        const std::string& bodyWithAtmosphere  )
 {
 	return std::make_shared< SingleDependentVariableSaveSettings >(
-			local_temperature_dependent_variable, associatedBody );
+			local_temperature_dependent_variable, associatedBody, bodyWithAtmosphere );
 }
 
 //! @get_docstring(localDynamicPressureDependentVariable)
 inline std::shared_ptr< SingleDependentVariableSaveSettings > localDynamicPressureDependentVariable(
-		const std::string& associatedBody
-)
+		const std::string& associatedBody,
+        const std::string& bodyWithAtmosphere )
 {
 	return std::make_shared< SingleDependentVariableSaveSettings >(
-			local_dynamic_pressure_dependent_variable, associatedBody );
+			local_dynamic_pressure_dependent_variable, associatedBody, bodyWithAtmosphere );
 }
 
 //! @get_docstring(localAerodynamicHeatRateDependentVariable)
 inline std::shared_ptr< SingleDependentVariableSaveSettings > localAerodynamicHeatRateDependentVariable(
-		const std::string& associatedBody
-)
+		const std::string& associatedBody,
+        const std::string& bodyWithAtmosphere )
 {
 	return std::make_shared< SingleDependentVariableSaveSettings >(
-			local_aerodynamic_heat_rate_dependent_variable, associatedBody );
+			local_aerodynamic_heat_rate_dependent_variable, associatedBody, bodyWithAtmosphere );
 }
 
 //! @get_docstring(totalAerodynamicGLoadDependentVariable)
 inline std::shared_ptr< SingleDependentVariableSaveSettings > totalAerodynamicGLoadDependentVariable(
-		const std::string& associatedBody
-)
+		const std::string& associatedBody,
+        const std::string& bodyWithAtmosphere )
 {
 	return std::make_shared< SingleDependentVariableSaveSettings >(
-			total_aerodynamic_g_load_variable, associatedBody );
+			total_aerodynamic_g_load_variable, associatedBody, bodyWithAtmosphere );
 }
 
 //! @get_docstring(stagnationPointHeatFluxDependentVariable)
 inline std::shared_ptr< SingleDependentVariableSaveSettings > stagnationPointHeatFluxDependentVariable(
-		const std::string& associatedBody
-)
+		const std::string& associatedBody,
+        const std::string& bodyWithAtmosphere )
 {
 	return std::make_shared< SingleDependentVariableSaveSettings >(
-			stagnation_point_heat_flux_dependent_variable, associatedBody );
+			stagnation_point_heat_flux_dependent_variable, associatedBody, bodyWithAtmosphere );
 }
 
 //! @get_docstring(totalMassRateDependentVariable)
@@ -1348,6 +1355,52 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > minimumConstellati
 {
     return std::make_shared< MinimumConstellationStationDistanceDependentVariableSaveSettings >(
                bodyName, stationName, bodiesToCheck, elevationAngleLimit );
+}
+
+inline std::shared_ptr< SingleDependentVariableSaveSettings > receivedIrradianceDependentVariable(
+        const std::string& targetBody,
+        const std::string& sourceBody )
+{
+    return std::make_shared< SingleDependentVariableSaveSettings >(
+            received_irradiance, targetBody, sourceBody );
+}
+
+inline std::shared_ptr< SingleDependentVariableSaveSettings > receivedFractionDependentVariable(
+        const std::string& targetBody,
+        const std::string& sourceBody )
+{
+    return std::make_shared< SingleDependentVariableSaveSettings >(
+            received_fraction, targetBody, sourceBody );
+}
+
+inline std::shared_ptr< SingleDependentVariableSaveSettings > visibleAndEmittingSourcePanelCountDependentVariable(
+        const std::string& targetBody,
+        const std::string& sourceBody)
+{
+    return std::make_shared< SingleDependentVariableSaveSettings >(
+            visible_and_emitting_source_panel_count, targetBody, sourceBody);
+}
+
+inline std::shared_ptr< SingleDependentVariableSaveSettings > visibleSourceAreaDependentVariable(
+        const std::string& targetBody,
+        const std::string& sourceBody)
+{
+    return std::make_shared<SingleDependentVariableSaveSettings>(
+        visible_source_area, targetBody, sourceBody );
+}
+
+inline std::shared_ptr< SingleDependentVariableSaveSettings > centerOfMassVariableSaveSettings(
+    const std::string& bodyName )
+{
+    return std::make_shared< SingleDependentVariableSaveSettings >(
+        body_center_of_mass, bodyName );
+}
+
+inline std::shared_ptr< SingleDependentVariableSaveSettings > inertiaTensorVariableSaveSettings(
+    const std::string& bodyName )
+{
+    return std::make_shared< SingleDependentVariableSaveSettings >(
+        body_inertia_tensor, bodyName );
 }
 
 } // namespace propagators

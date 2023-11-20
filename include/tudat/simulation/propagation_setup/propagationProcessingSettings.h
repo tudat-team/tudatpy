@@ -38,10 +38,10 @@ public:
     PropagatorProcessingSettings(
             const bool clearNumericalSolutions = false,
             const bool setIntegratedResult = false,
-            const bool createDependentVariablesInterface = false ):
+            const bool updateDependentVariableInterpolator = false ):
         clearNumericalSolutions_( clearNumericalSolutions ),
         setIntegratedResult_( setIntegratedResult ),
-        createDependentVariablesInterface_( createDependentVariablesInterface )
+        updateDependentVariableInterpolator_( updateDependentVariableInterpolator )
     { }
 
     virtual ~PropagatorProcessingSettings( ){ }
@@ -56,9 +56,9 @@ public:
         return setIntegratedResult_;
     }
 
-    bool getCreateDependentVariablesInterface( )
+    bool getUpdateDependentVariableInterpolator( )
     {
-        return createDependentVariablesInterface_;
+        return updateDependentVariableInterpolator_;
     }
 
     virtual void setClearNumericalSolutions( const bool clearNumericalSolutions )
@@ -71,9 +71,9 @@ public:
         setIntegratedResult_ = setIntegratedResult;
     }
 
-    virtual void setCreateDependentVariablesInterface( const bool createDependentVariablesInterface )
+    virtual void setUpdateDependentVariableInterpolator( const bool updateDependentVariableInterpolator )
     {
-         createDependentVariablesInterface_ = createDependentVariablesInterface;
+         updateDependentVariableInterpolator_ = updateDependentVariableInterpolator;
     }
 
     virtual bool printAnyOutput( ) = 0;
@@ -86,7 +86,7 @@ protected:
 
     bool clearNumericalSolutions_;
     bool setIntegratedResult_;
-    bool createDependentVariablesInterface_;
+    bool updateDependentVariableInterpolator_;
 };
 
 //! Base class for defining output and processing settings for single-arc propagation.
@@ -103,8 +103,8 @@ public:
             const double resultsSaveFrequencyInSeconds = TUDAT_NAN,
             const std::shared_ptr< PropagationPrintSettings > printSettings =
             std::make_shared< PropagationPrintSettings >( ),
-            const bool createDependentVariablesInterface = false ):
-            PropagatorProcessingSettings( clearNumericalSolutions, setIntegratedResult, createDependentVariablesInterface ),
+            const bool updateDependentVariableInterpolator = false ):
+            PropagatorProcessingSettings( clearNumericalSolutions, setIntegratedResult, updateDependentVariableInterpolator ),
             resultsSaveFrequencyInSteps_( resultsSaveFrequencyInSteps ),
             resultsSaveFrequencyInSeconds_( resultsSaveFrequencyInSeconds ),
             printSettings_( printSettings ),
@@ -217,8 +217,8 @@ public:
             const bool setIntegratedResult = false,
             const bool printFirstArcOnly = false,
             const bool printCurrentArcIndex = false,
-            const bool createDependentVariablesInterface = false ):
-        PropagatorProcessingSettings( clearNumericalSolutions, setIntegratedResult, createDependentVariablesInterface ),
+            const bool updateDependentVariableInterpolator = false ):
+        PropagatorProcessingSettings( clearNumericalSolutions, setIntegratedResult, updateDependentVariableInterpolator ),
         consistentSingleArcPrintSettings_( consistentSingleArcPrintSettings ),
         useIdenticalSettings_( true ),
         printFirstArcOnly_( printFirstArcOnly ),
@@ -233,8 +233,8 @@ public:
             const bool setIntegratedResult = false,
             const bool printFirstArcOnly = false,
             const bool printCurrentArcIndex = false,
-            const bool createDependentVariablesInterface = false ):
-        PropagatorProcessingSettings( clearNumericalSolutions, setIntegratedResult, createDependentVariablesInterface ),
+            const bool updateDependentVariableInterpolator = false ):
+        PropagatorProcessingSettings( clearNumericalSolutions, setIntegratedResult, updateDependentVariableInterpolator ),
         consistentSingleArcPrintSettings_( nullptr ),
         useIdenticalSettings_( false ),
         printFirstArcOnly_( printFirstArcOnly ),
@@ -427,8 +427,8 @@ public:
             const bool clearNumericalSolutions = false,
             const bool setIntegratedResult = false,
             const bool printStateTypeStart = false,
-            const bool createDependentVariablesInterface = false ):
-        PropagatorProcessingSettings( clearNumericalSolutions, setIntegratedResult, createDependentVariablesInterface ),
+            const bool updateDependentVariableInterpolator = false ):
+        PropagatorProcessingSettings( clearNumericalSolutions, setIntegratedResult, updateDependentVariableInterpolator ),
         consistentArcPrintSettings_( consistentArcPrintSettings ),
         useIdenticalSettings_( true ),
         printStateTypeStart_( printStateTypeStart ){ }
@@ -437,8 +437,8 @@ public:
             const bool clearNumericalSolutions = false,
             const bool setIntegratedResult = false,
             const bool printStateTypeStart = false,
-            const bool createDependentVariablesInterface = false ):
-        PropagatorProcessingSettings( clearNumericalSolutions, setIntegratedResult, createDependentVariablesInterface ),
+            const bool updateDependentVariableInterpolator = false ):
+        PropagatorProcessingSettings( clearNumericalSolutions, setIntegratedResult, updateDependentVariableInterpolator ),
         useIdenticalSettings_( false ),
         printStateTypeStart_( printStateTypeStart ){ }
 
@@ -456,6 +456,13 @@ public:
         this->setIntegratedResult_ = setIntegratedResult;
         singleArcSettings_->setIntegratedResult( setIntegratedResult );
         multiArcSettings_->setIntegratedResult( setIntegratedResult );
+    }
+
+    virtual void setUpdateDependentVariableInterpolator( const bool updateDependentVariableInterpolator )
+    {
+        this->updateDependentVariableInterpolator_ = updateDependentVariableInterpolator;
+        singleArcSettings_->setUpdateDependentVariableInterpolator( updateDependentVariableInterpolator );
+        multiArcSettings_->setUpdateDependentVariableInterpolator( updateDependentVariableInterpolator );
     }
 
     void resetArcSettings( const bool printWarning = false )

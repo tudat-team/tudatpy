@@ -247,7 +247,7 @@ protected:
 
     //! Model describing the shape of the body w.r.t. which the flight is taking place.
     const std::shared_ptr< basic_astrodynamics::BodyShapeModel > shapeModel_;
-
+    
     //! Name of central body (i.e. body with the atmosphere)
     std::string centralBody_;
 

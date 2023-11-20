@@ -16,6 +16,8 @@
 
 #include <Eigen/Core>
 
+#include "tudat/simulation/environment_setup.h"
+#include "tudat/astro/observation_models.h"
 #include "tudat/astro/orbit_determination/observation_partials/oneWayRangePartial.h"
 #include "tudat/astro/orbit_determination/observation_partials/observationPartial.h"
 #include "tudat/basics/utilities.h"
@@ -83,7 +85,10 @@ public:
     DifferencedObservablePartial(
             const std::shared_ptr< ObservationPartial< ObservationSize > > firstPartial,
             const std::shared_ptr< ObservationPartial< ObservationSize > > secondPartial,
-            const std::function< double( const std::vector< double >&, const observation_models::LinkEndType ) > scalingFactorFunction,
+            const std::function< double(
+                    const observation_models::LinkEndType, const std::vector< Eigen::Vector6d >&,
+                    const std::vector< double >&, const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings >,
+                    const bool ) > scalingFactorFunction,
             const std::pair< std::vector< int >, std::vector< int > >& undifferencedTimeAndStateIndices ):
         ObservationPartial< ObservationSize >( firstPartial->getParameterIdentifier( ) ),
         firstPartial_( firstPartial ),
@@ -117,6 +122,7 @@ public:
             const std::vector< Eigen::Vector6d >& states,
             const std::vector< double >& times,
             const observation_models::LinkEndType linkEndOfFixedTime,
+            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings = nullptr,
             const Eigen::Matrix< double, ObservationSize, 1 >& currentObservation = Eigen::Matrix< double, ObservationSize, 1 >::Constant( TUDAT_NAN ) )
     {
         using namespace observation_partials;
@@ -142,28 +148,31 @@ public:
         std::vector< std::pair< Eigen::Matrix< double, ObservationSize, Eigen::Dynamic >, double > > firstPartials;
         if( firstPartial_ != nullptr )
         {
-            firstPartials = firstPartial_->calculatePartial( firstStates, firstTimes, linkEndOfFixedTime );
+            firstPartials = firstPartial_->calculatePartial( firstStates, firstTimes, linkEndOfFixedTime, ancillarySettings );
         }
         std::vector< std::pair< Eigen::Matrix< double, ObservationSize, Eigen::Dynamic >, double > > secondPartials;
         if( secondPartial_ != nullptr )
         {
-            secondPartials = secondPartial_->calculatePartial( secondStates, secondTimes, linkEndOfFixedTime );
+            secondPartials = secondPartial_->calculatePartial( secondStates, secondTimes, linkEndOfFixedTime, ancillarySettings );
         }
 
         std::vector< std::pair< Eigen::Matrix< double, ObservationSize, Eigen::Dynamic >, double > > differencedPartials;
-        double scalingFactor = scalingFactorFunction_( times, linkEndOfFixedTime );
+        double firstPartialScalingFactor = scalingFactorFunction_(
+                linkEndOfFixedTime, states, times, ancillarySettings, true );
+        double secondPartialScalingFactor = scalingFactorFunction_(
+                linkEndOfFixedTime, states, times, ancillarySettings, false );
 
         // Scale partials by arc duration
         for( unsigned int i = 0; i < firstPartials.size( ); i++ )
         {
             differencedPartials.push_back(
-                        std::make_pair( -firstPartials[ i ].first * scalingFactor, firstPartials[ i ].second ) );
+                        std::make_pair( - firstPartials[ i ].first * firstPartialScalingFactor, firstPartials[ i ].second ) );
         }
 
         for( unsigned int i = 0; i < secondPartials.size( ); i++ )
         {
             differencedPartials.push_back(
-                        std::make_pair( secondPartials[ i ].first * scalingFactor, secondPartials[ i ].second ) );
+                        std::make_pair( secondPartials[ i ].first * secondPartialScalingFactor, secondPartials[ i ].second ) );
         }
 
         return differencedPartials;
@@ -177,7 +186,10 @@ protected:
     //! Partial object for arc end range observation
     std::shared_ptr< ObservationPartial< ObservationSize > > secondPartial_;
 
-    std::function< double( const std::vector< double >&, const observation_models::LinkEndType ) > scalingFactorFunction_;
+    const std::function< double(
+            const observation_models::LinkEndType, const std::vector< Eigen::Vector6d >&,
+            const std::vector< double >&, const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings >,
+            const bool ) > scalingFactorFunction_;
 
     const std::pair< std::vector< int >, std::vector< int > > undifferencedTimeAndStateIndices_;
 };

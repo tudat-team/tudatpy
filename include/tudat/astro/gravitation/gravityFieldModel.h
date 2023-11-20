@@ -106,6 +106,16 @@ public:
         throw std::runtime_error( "Computation of Laplacian of gravity potential not implemented for selected gravity field model." );
     }
 
+    virtual Eigen::Vector3d getCenterOfMass( )
+    {
+        return Eigen::Vector3d::Zero( );
+    }
+
+    virtual Eigen::Matrix3d getInertiaTensor( )
+    {
+        return Eigen::Matrix3d::Zero( );
+    }
+
 protected:
 
     //! Gravitational parameter.

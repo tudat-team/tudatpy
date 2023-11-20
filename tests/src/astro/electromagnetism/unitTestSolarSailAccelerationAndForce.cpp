@@ -38,7 +38,6 @@
 #include "tudat/basics/testMacros.h"
 
 #include "tudat/astro/electromagnetism/solarSailForce.h"
-#include "tudat/astro/electromagnetism/solarSailAcceleration.h"
 #include "tudat/astro/electromagnetism/cannonBallRadiationPressureForce.h"
 #include "tudat/astro/electromagnetism/cannonBallRadiationPressureAcceleration.h"
 #include "tudat/astro/basic_astro/unitConversions.h"

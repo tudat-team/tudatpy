@@ -19,6 +19,7 @@
 #include "tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/mutualSphericalHarmonicGravityPartial.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/polyhedronAccelerationPartial.h"
+#include "tudat/astro/orbit_determination/acceleration_partials/ringAccelerationPartial.h"
 
 #include "tudat/astro/orbit_determination/acceleration_partials/accelerationPartial.h"
 
@@ -58,6 +59,10 @@ basic_astrodynamics::AvailableAcceleration getAccelerationTypeOfThirdBodyGravity
     else if( std::dynamic_pointer_cast< PolyhedronGravityPartial >( directGravityPartial ) != nullptr )
     {
         accelerationType = third_body_polyhedron_gravity;
+    }
+    else if( std::dynamic_pointer_cast< RingGravityPartial >( directGravityPartial ) != nullptr )
+    {
+        accelerationType = third_body_ring_gravity;
     }
 
     else
@@ -549,6 +554,11 @@ inline std::string getCentralBodyNameFromThirdBodyAccelerationPartial(
         else if( accelerationPartial->getAccelerationType( ) == basic_astrodynamics::third_body_polyhedron_gravity )
         {
             centralBody = std::dynamic_pointer_cast< ThirdBodyGravityPartial< PolyhedronGravityPartial > >(
+                        accelerationPartial )->getCentralBodyName( );
+        }
+        else if( accelerationPartial->getAccelerationType( ) == basic_astrodynamics::third_body_ring_gravity )
+        {
+            centralBody = std::dynamic_pointer_cast< ThirdBodyGravityPartial< RingGravityPartial > >(
                         accelerationPartial )->getCentralBodyName( );
         }
         else

@@ -17,6 +17,7 @@ set(estimation_HEADERS
         createLightTimeCalculator.h
         createAccelerationPartials.h
         createLightTimeCorrection.h
+        createAtmosphericLightTimeCorrection.h
         createObservationManager.h
         orbitDeterminationManager.h
         createLightTimeCorrectionPartials.h
@@ -41,6 +42,7 @@ set(estimation_HEADERS
         createDirectObservationPartials.h
         createPositionPartialScaling.h
         createClockPartials.h
+        processOdfFile.h
         )
 
 # Add header files.
@@ -51,6 +53,7 @@ set(estimation_SOURCES
         createObservationManager.cpp
         createEstimatableParameters.cpp
         createLightTimeCorrection.cpp
+        createAtmosphericLightTimeCorrection.cpp
         createLightTimeCorrectionPartials.cpp
         orbitDeterminationManager.cpp
         createCartesianStatePartials.cpp
@@ -65,6 +68,7 @@ set(estimation_SOURCES
         observationOutput.cpp
         simulateObservations.cpp
         createClockPartials.cpp
+        processOdfFile.cpp
         )
 
 # Add library.

@@ -276,17 +276,46 @@ std::shared_ptr< ephemerides::Ephemeris > createReferencePointEphemeris(
 
     // Create list of state/rotation functions that are to be used
     std::map< int, std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType& ) > > stationEphemerisVector;
-    stationEphemerisVector[ 2 ] = std::bind( &simulation_setup::Body::getStateInBaseFrameFromEphemeris
-                                               < StateScalarType, TimeType >, bodyWithReferencePoint, std::placeholders::_1 );
+    stationEphemerisVector[ 2 ] = std::bind( &simulation_setup::Body::getStateInBaseFrameFromEphemeris< StateScalarType, TimeType >,
+        bodyWithReferencePoint, std::placeholders::_1 );
     stationEphemerisVector[ 0 ] = referencePointStateFunction;
 
     std::map< int, std::function< StateType( const TimeType, const StateType& ) > > stationRotationVector;
-    stationRotationVector[ 1 ] =  std::bind( &ephemerides::transformStateToInertialOrientation
-                                               < StateScalarType, TimeType >, std::placeholders::_2, std::placeholders::_1, bodyRotationModel );
+    stationRotationVector[ 1 ] =  std::bind( &ephemerides::transformStateToInertialOrientation< StateScalarType, TimeType >,
+        std::placeholders::_2, std::placeholders::_1, bodyRotationModel );
 
     // Create and return ephemeris
     return std::make_shared< ephemerides::CompositeEphemeris< TimeType, StateScalarType > >(
                 stationEphemerisVector, stationRotationVector, "SSB", "ECLIPJ2000" );
+}
+
+template< typename TimeType = double, typename StateScalarType = double >
+std::shared_ptr< ephemerides::Ephemeris > createReferencePointEphemeris(
+    const std::shared_ptr< simulation_setup::Body > bodyWithLinkEnd,
+    const std::string& stationName )
+{
+
+    std::shared_ptr< ephemerides::Ephemeris > stationEphemeris;
+    if( stationName != "" )
+    {
+        if ( bodyWithLinkEnd->getGroundStationMap( ).count( stationName ) == 0 )
+        {
+            std::string errorMessage = "Error when making ephemeris for station " + bodyWithLinkEnd->getBodyName() + ", " +
+                stationName + ", station not found.";
+            throw std::runtime_error( errorMessage );
+        }
+
+        // Retrieve function to calculate state of transmitter S/C
+        stationEphemeris = createReferencePointEphemeris<TimeType, StateScalarType>(
+            bodyWithLinkEnd,
+            std::bind( &ground_stations::GroundStation::getStateInPlanetFixedFrame<StateScalarType, TimeType>,
+                       bodyWithLinkEnd->getGroundStation( stationName ), std::placeholders::_1 ));
+    }
+    else
+    {
+        throw std::runtime_error( "Error when making ground station ephemeris, no station ID specified" );
+    }
+    return stationEphemeris;
 }
 
 
@@ -325,24 +354,20 @@ std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType& ) > getLi
 
     std::function< StateType( const TimeType& ) > linkEndCompleteEphemerisFunction;
 
+    if( linkEndId.bodyName_ != bodyWithLinkEnd->getBodyName( ) )
+    {
+        throw std::runtime_error( "Error when making ground station ephemeris function, input body names are inconsistent" );
+    }
+
     // Checking transmitter if a reference point is to be used
     if( linkEndId.stationName_ != "" )
     {
-        if( bodyWithLinkEnd->getGroundStationMap( ).count( linkEndId.stationName_ ) == 0 )
-        {
-            std::string errorMessage = "Error when making ephemeris function for " + linkEndId.bodyName_ + ", " +
-                    linkEndId.stationName_ + ", station not found.";
-            throw std::runtime_error( errorMessage );
-        }
 
         // Retrieve function to calculate state of transmitter S/C
         linkEndCompleteEphemerisFunction =
                 std::bind( &ephemerides::Ephemeris::getTemplatedStateFromEphemeris< StateScalarType,TimeType >,
                              createReferencePointEphemeris< TimeType, StateScalarType >(
-                                 bodyWithLinkEnd,
-                                 std::bind( &ground_stations::GroundStation::getStateInPlanetFixedFrame
-                                              < StateScalarType, TimeType >,
-                                              bodyWithLinkEnd->getGroundStation( linkEndId.stationName_ ), std::placeholders::_1 ) ), std::placeholders::_1 );
+                                 bodyWithLinkEnd, linkEndId.stationName_ ), std::placeholders::_1 );
 
     }
     // Else, create state function for center of mass
@@ -369,8 +394,18 @@ std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > getLin
 {
     if( bodies.count( linkEndId.bodyName_ ) == 0  )
     {
-        std::string errorMessage = "Error when making ephemeris function for " + linkEndId.bodyName_ + ", " +
-                linkEndId.stationName_ + ", body not found.";
+        std::string errorMessage;
+        if ( linkEndId.stationName_ != "" )
+        {
+            errorMessage = "Error when making ephemeris function for body " + linkEndId.bodyName_ + ", station " +
+                    linkEndId.stationName_ + ": body not found.";
+        }
+        else
+        {
+            errorMessage = "Error when making ephemeris function for body " + linkEndId.bodyName_ + ": body not found.";
+        }
+
+
         throw std::runtime_error( errorMessage );
     }
     return getLinkEndCompleteEphemerisFunction< TimeType, StateScalarType >( bodies.at( linkEndId.bodyName_ ), linkEndId );
