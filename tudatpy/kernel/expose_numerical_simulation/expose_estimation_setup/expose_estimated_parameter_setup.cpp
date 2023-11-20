@@ -18,6 +18,42 @@ namespace tep = tudat::estimatable_parameters;
 namespace tss = tudat::simulation_setup;
 namespace tp = tudat::propagators;
 
+namespace tudat
+{
+namespace estimatable_parameters
+{
+inline std::shared_ptr< EstimatableParameterSettings > empiricalAccelerationMagnitudesFull(
+    const std::string associatedBody,
+    const std::string centralBody )
+{
+    std::map< basic_astrodynamics::EmpiricalAccelerationComponents,
+        std::vector< basic_astrodynamics::EmpiricalAccelerationFunctionalShapes > > componentsToEstimate;
+    componentsToEstimate[ basic_astrodynamics::radial_empirical_acceleration_component ].push_back(
+        basic_astrodynamics::constant_empirical );
+    componentsToEstimate[ basic_astrodynamics::radial_empirical_acceleration_component ].push_back(
+        basic_astrodynamics::sine_empirical );
+    componentsToEstimate[ basic_astrodynamics::radial_empirical_acceleration_component ].push_back(
+        basic_astrodynamics::cosine_empirical );
+    componentsToEstimate[ basic_astrodynamics::along_track_empirical_acceleration_component ].push_back(
+        basic_astrodynamics::constant_empirical );
+    componentsToEstimate[ basic_astrodynamics::along_track_empirical_acceleration_component ].push_back(
+        basic_astrodynamics::sine_empirical );
+    componentsToEstimate[ basic_astrodynamics::along_track_empirical_acceleration_component ].push_back(
+        basic_astrodynamics::cosine_empirical );
+    componentsToEstimate[ basic_astrodynamics::across_track_empirical_acceleration_component ].push_back(
+        basic_astrodynamics::constant_empirical );
+    componentsToEstimate[ basic_astrodynamics::across_track_empirical_acceleration_component ].push_back(
+        basic_astrodynamics::sine_empirical );
+    componentsToEstimate[ basic_astrodynamics::across_track_empirical_acceleration_component ].push_back(
+        basic_astrodynamics::cosine_empirical );
+
+    return std::make_shared< EmpiricalAccelerationEstimatableParameterSettings >(
+        associatedBody, centralBody, componentsToEstimate );
+}
+
+
+}
+}
 namespace tudatpy {
 namespace numerical_simulation {
 namespace estimation_setup {
@@ -134,6 +170,12 @@ void expose_estimated_parameter_setup(py::module &m) {
           py::arg("body"),
           py::arg("centralBody"),
           get_docstring("constant_empirical_acceleration_terms").c_str() );
+
+    m.def("full_empirical_acceleration_terms",
+          &tep::empiricalAccelerationMagnitudesFull,
+          py::arg("body"),
+          py::arg("centralBody"),
+          get_docstring("empirical_accelerations").c_str() );
 
     m.def("empirical_accelerations",
           &tep::empiricalAccelerationMagnitudes,
