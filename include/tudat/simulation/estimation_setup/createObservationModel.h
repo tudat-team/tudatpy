@@ -1600,8 +1600,6 @@ std::shared_ptr< ObservationBias< ObservationSize > > createObservationBiasCalcu
                     }
                 }
 
-                std::cout<<"Bias creation "<<timingSystem<<clockInducedBiasSettings->bodyName_<<", "<<clockInducedBiasSettings->stationName_<<std::endl;
-
 
                 // Create combined bias object
                 observationBias = std::make_shared< ClockInducedRangeBias< ObservationSize > >(
