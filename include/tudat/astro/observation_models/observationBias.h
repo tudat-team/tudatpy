@@ -1189,10 +1189,16 @@ public:
 
     ClockInducedRangeBias(
             const std::shared_ptr< system_models::TimingSystem > timingSystem,
-            const int linkEndIndexForTime,
+            const std::vector< int > linkEndIndicesForTime,
             const observation_models::LinkEndId linkEndId ):
-            timingSystem_( timingSystem ), linkEndIndexForTime_( linkEndIndexForTime ),
-            signMultiplier_( linkEndIndexForTime == 1 ? 1.0 : -1.0 ), linkEndId_( linkEndId ){ }
+            timingSystem_( timingSystem ), linkEndIndicesForTime_( linkEndIndicesForTime ),
+            linkEndId_( linkEndId ), onesVector_( Eigen::Matrix< double, ObservationSize, 1 >::Ones( )  )
+    {
+        for( unsigned int i = 0; i < linkEndIndicesForTime_.size( ); i++ )
+        {
+            signMultipliers_.push_back( ( linkEndIndicesForTime_.at( i ) % 2 == 1 ? 1.0 : -1.0 ) );
+        }
+    }
 
     //! Destructor
     ~ClockInducedRangeBias( ){ }
@@ -1203,8 +1209,13 @@ public:
             const Eigen::Matrix< double, ObservationSize, 1 >& currentObservableValue =
             ( Eigen::Matrix< double, ObservationSize, 1 >( ) << TUDAT_NAN ).finished( ) )
     {
-        return signMultiplier_ * Eigen::Matrix< double, ObservationSize, 1 >::Ones( ) * timingSystem_->getCompleteClockError(
-            linkEndTimes.at( linkEndIndexForTime_ ) ) * physical_constants::SPEED_OF_LIGHT;
+        double currentBias = 0.0;
+        for( unsigned int i = 0; i < linkEndIndicesForTime_.size( ); i++ )
+        {
+            currentBias += signMultipliers_.at( i ) * timingSystem_->getCompleteClockError(
+                linkEndTimes.at( linkEndIndicesForTime_.at( i ) ) );
+        }
+        return currentBias * onesVector_ * physical_constants::SPEED_OF_LIGHT;
     }
 
     std::shared_ptr< system_models::TimingSystem > getTimingSystem( )
@@ -1223,11 +1234,13 @@ private:
 
     //! Link end index from which the 'current time' is determined (e.g. entry from linkEndTimes used in getObservationBias
     //! function.
-    int linkEndIndexForTime_;
+    std::vector< int > linkEndIndicesForTime_;
 
-    double signMultiplier_;
+    std::vector< double > signMultipliers_;
 
     LinkEndId linkEndId_;
+
+    Eigen::Matrix< double, ObservationSize, 1 > onesVector_;
 };
 
 

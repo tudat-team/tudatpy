@@ -167,6 +167,9 @@ std::vector< LinkEndType > getLinkEndTypesForGivenLinkEndId(
         const LinkEnds& linkEnds,
         const LinkEndId linkEndToCheck );
 
+std::vector< int > getLinkEndIndicesForLinkEndIdAtObservable(
+        const ObservableType observableType, const LinkEnds& linkEnds, const LinkEndId linkEndToCheck );
+
 void checkObservationResidualDiscontinuities(
         Eigen::Block< Eigen::VectorXd > observationBlock,
         const ObservableType observableType );
