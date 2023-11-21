@@ -56,6 +56,7 @@ public:
             const std::vector< Eigen::Vector6d >& states,
             const std::vector< double >& times,
             const observation_models::LinkEndType linkEndOfFixedTime = observation_models::receiver,
+            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings = nullptr,
             const Eigen::Matrix< double, 1, 1 >& currentObservation =
             Eigen::Matrix< double, 1, 1 >::Constant( TUDAT_NAN )  )
     {
