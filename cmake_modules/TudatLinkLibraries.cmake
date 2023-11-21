@@ -69,6 +69,7 @@ list(APPEND Tudat_PROPAGATION_LIBRARIES
         Tudat::tudat_reference_frames
         Tudat::tudat_statistics
         Tudat::tudat_propagators
+        ${TUDAT_EXTERNAL_INTERFACE_LIBRARIES}
         Tudat::tudat_basic_astrodynamics
         Tudat::tudat_numerical_quadrature
         Tudat::tudat_interpolators
@@ -77,7 +78,6 @@ list(APPEND Tudat_PROPAGATION_LIBRARIES
         Tudat::tudat_input_output
         Tudat::tudat_basics
         Tudat::tudat_data
-        ${TUDAT_EXTERNAL_INTERFACE_LIBRARIES}
         #        ${TUDAT_EXTERNAL_LIBRARIES}
         )
 
@@ -108,6 +108,7 @@ if (TUDAT_BUILD_WITH_ESTIMATION_TOOLS)
             Tudat::tudat_reference_frames
             Tudat::tudat_statistics
             Tudat::tudat_propagators
+            ${TUDAT_EXTERNAL_INTERFACE_LIBRARIES}
             Tudat::tudat_basic_astrodynamics
             Tudat::tudat_numerical_quadrature
             Tudat::tudat_interpolators
@@ -116,7 +117,6 @@ if (TUDAT_BUILD_WITH_ESTIMATION_TOOLS)
             Tudat::tudat_input_output
             Tudat::tudat_basics
             Tudat::tudat_data
-            ${TUDAT_EXTERNAL_INTERFACE_LIBRARIES}
             )
 
 else ()
