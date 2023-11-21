@@ -595,7 +595,6 @@ std::shared_ptr< PositionPartialScaling > > createDifferencedObservablePartials(
     // Create bias partials
     std::map< int, std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > >
             vectorParametersToEstimate =  parametersToEstimate->getVectorParameters( );
-    std::cout<<"NUMBER OF VECTOR PARAMETERS "<<vectorParametersToEstimate.size( )<<std::endl;
     for( std::map< int, std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd  > > >::iterator
          parameterIterator =
          vectorParametersToEstimate.begin( ); parameterIterator != vectorParametersToEstimate.end( ); parameterIterator++ )

@@ -1094,11 +1094,8 @@ std::map< observation_models::ObservableType, std::vector< std::pair< LinkEnds, 
                     bool removeObservation = false;
                     for( int k = 0; k < currentObservableSize; k++ )
                     {
-                        std::cout<<"Check "<<currentSetResiduals( j * currentObservableSize + k )<<" "<<filterValue<<std::endl;
                         if( currentSetResiduals( j * currentObservableSize + k ) > filterValue )
                         {
-                            std::cout<<"REMOVE ******************************************"<<std::endl;
-
                             removeObservation = true;
                         }
                     }
