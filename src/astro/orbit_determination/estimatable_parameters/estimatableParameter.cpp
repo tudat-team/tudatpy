@@ -75,6 +75,9 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
     case ground_station_position:
         parameterDescription = "ground station position ";
         break;
+    case reference_point_position:
+        parameterDescription = "reference point position ";
+        break;
     case equivalence_principle_lpi_violation_parameter:
         parameterDescription = " equivalence principle violation parameter ";
         break;
@@ -232,6 +235,9 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
         isDoubleParameter = true;
         break;
     case ground_station_position:
+        isDoubleParameter = false;
+        break;
+    case reference_point_position:
         isDoubleParameter = false;
         break;
     case equivalence_principle_lpi_violation_parameter:
