@@ -1519,7 +1519,6 @@ std::shared_ptr< ObservationBias< ObservationSize > > createObservationBiasCalcu
         std::vector< std::shared_ptr< ObservationBias< ObservationSize > > > observationBiasList;
         for( unsigned int i = 0; i < multiBiasSettings->biasSettingsList_.size( ); i++ )
         {
-            std::cout<<"Multiple biases "<<i<<" "<<multiBiasSettings->biasSettingsList_.size( )<<std::endl;
             observationBiasList.push_back( createObservationBiasCalculator< ObservationSize >(
                                                linkEnds, observableType, multiBiasSettings->biasSettingsList_.at( i ) , bodies ) );
         }
@@ -1531,9 +1530,9 @@ std::shared_ptr< ObservationBias< ObservationSize > > createObservationBiasCalcu
     }
     case clock_induced_bias:
     {
-        if( observableType != one_way_range )
+        if( observableType != one_way_range && observableType != n_way_range )
         {
-            throw std::runtime_error( "Error, clock-induced observation bias currently only supported for one-way range" );
+            throw std::runtime_error( "Error, clock-induced observation bias currently only supported for one- and n-way range" );
         }
         else
         {
@@ -1541,69 +1540,62 @@ std::shared_ptr< ObservationBias< ObservationSize > > createObservationBiasCalcu
             std::shared_ptr< TiminigSystemBiasSettings > clockInducedBiasSettings = std::dynamic_pointer_cast<
                     TiminigSystemBiasSettings >( biasSettings );
 
-            std::vector< LinkEndType >  relevantLinkEndTypes = getLinkEndTypesForGivenLinkEndId(
-                    linkEnds.linkEnds_, LinkEndId( clockInducedBiasSettings->bodyName_, clockInducedBiasSettings->stationName_ ) );
-            if( relevantLinkEndTypes.size( ) > 1 )
-            {
-                throw std::runtime_error( "Error when making clock-induced bias, found multiple relevant link ends" );
-            }
-            else if( relevantLinkEndTypes.size( ) == 1 )
-            {
-                if( clockInducedBiasSettings == nullptr )
-                {
-                    throw std::runtime_error( "Error when making clock-induced bias, settings are inconsistent" );
-                }
+            std::vector< int > relevantLinkEndIndices = getLinkEndIndicesForLinkEndIdAtObservable(
+                    observableType, linkEnds.linkEnds_, LinkEndId( clockInducedBiasSettings->bodyName_, clockInducedBiasSettings->stationName_ ) );
 
-                std::shared_ptr< system_models::TimingSystem > timingSystem;
-                if( bodies.count( clockInducedBiasSettings->bodyName_ ) == 0 )
+            if( clockInducedBiasSettings == nullptr )
+            {
+                throw std::runtime_error( "Error when making clock-induced bias, settings are inconsistent" );
+            }
+
+            std::shared_ptr< system_models::TimingSystem > timingSystem;
+            if( bodies.count( clockInducedBiasSettings->bodyName_ ) == 0 )
+            {
+                throw std::runtime_error( "Error when getting timing system of body " + clockInducedBiasSettings->bodyName_ +
+                    " for observation bias, no such body exists." );
+            }
+            else
+            {
+                if( clockInducedBiasSettings->stationName_ == "" )
                 {
-                    throw std::runtime_error( "Error when getting timing system of body " + clockInducedBiasSettings->bodyName_ +
-                        " for observation bias, no such body exists." );
-                }
-                else
-                {
-                    if( clockInducedBiasSettings->stationName_ == "" )
+                    if( bodies.at( clockInducedBiasSettings->bodyName_ )->getVehicleSystems( ) == nullptr )
                     {
-                        if( bodies.at( clockInducedBiasSettings->bodyName_ )->getVehicleSystems( ) == nullptr )
-                        {
-                            throw std::runtime_error( "Error when getting timing system of body " + clockInducedBiasSettings->bodyName_ +
-                                                      " for observation bias, body has no vehicle systems." );
-                        }
-                        else
-                        {
-                            timingSystem = bodies.at( clockInducedBiasSettings->bodyName_ )->getVehicleSystems( )->getTimingSystem( );
-                            if( timingSystem == nullptr )
-                            {
-                                throw std::runtime_error( "Error when getting timing system of body " + clockInducedBiasSettings->bodyName_ +
-                                                          " for observation bias, body has no timing system." );
-                            }
-                        }
+                        throw std::runtime_error( "Error when getting timing system of body " + clockInducedBiasSettings->bodyName_ +
+                                                  " for observation bias, body has no vehicle systems." );
                     }
                     else
                     {
-                        if( bodies.at( clockInducedBiasSettings->bodyName_ )->getGroundStationMap( ).count( clockInducedBiasSettings->stationName_ ) == 0 )
+                        timingSystem = bodies.at( clockInducedBiasSettings->bodyName_ )->getVehicleSystems( )->getTimingSystem( );
+                        if( timingSystem == nullptr )
+                        {
+                            throw std::runtime_error( "Error when getting timing system of body " + clockInducedBiasSettings->bodyName_ +
+                                                      " for observation bias, body has no timing system." );
+                        }
+                    }
+                }
+                else
+                {
+                    if( bodies.at( clockInducedBiasSettings->bodyName_ )->getGroundStationMap( ).count( clockInducedBiasSettings->stationName_ ) == 0 )
+                    {
+                        throw std::runtime_error( "Error when getting timing system of body " + clockInducedBiasSettings->bodyName_ +
+                                                  " and station " + clockInducedBiasSettings->stationName_ +
+                                                  " no such station exists" );
+                    }
+                    else
+                    {
+                        timingSystem = bodies.at( clockInducedBiasSettings->bodyName_ )->getGroundStation( clockInducedBiasSettings->stationName_ )->getTimingSystem( );
+                        if( timingSystem == nullptr )
                         {
                             throw std::runtime_error( "Error when getting timing system of body " + clockInducedBiasSettings->bodyName_ +
                                                       " and station " + clockInducedBiasSettings->stationName_ +
-                                                      " no such station exists" );
-                        }
-                        else
-                        {
-                            timingSystem = bodies.at( clockInducedBiasSettings->bodyName_ )->getGroundStation( clockInducedBiasSettings->stationName_ )->getTimingSystem( );
-                            if( timingSystem == nullptr )
-                            {
-                                throw std::runtime_error( "Error when getting timing system of body " + clockInducedBiasSettings->bodyName_ +
-                                                          " and station " + clockInducedBiasSettings->stationName_ +
-                                                          " station has no timing system" );
-                            }
+                                                      " station has no timing system" );
                         }
                     }
                 }
 
-
                 // Create combined bias object
                 observationBias = std::make_shared< ClockInducedRangeBias< ObservationSize > >(
-                        timingSystem, relevantLinkEndTypes.at( 0 ) == transmitter ? 0 : 1,
+                        timingSystem, relevantLinkEndIndices,
                         LinkEndId( clockInducedBiasSettings->bodyName_, clockInducedBiasSettings->stationName_ ) );
             }
         }
