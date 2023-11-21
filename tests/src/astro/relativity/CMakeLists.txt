@@ -12,6 +12,6 @@ TUDAT_ADD_TEST_CASE(RelativisticAccelerationCorrection PRIVATE_LINKS ${Tudat_PRO
 
 if( TUDAT_BUILD_WITH_ESTIMATION_TOOLS )
 
-    TUDAT_ADD_TEST_CASE(ShapiroTimeDelay PRIVATE_LINKS tudat_relativity tudat_gravitation tudat_observation_models tudat_ephemerides)
+    TUDAT_ADD_TEST_CASE(ShapiroTimeDelay PRIVATE_LINKS tudat_relativity tudat_gravitation tudat_observation_models tudat_ephemerides tudat_statistics)
 
 endif( )

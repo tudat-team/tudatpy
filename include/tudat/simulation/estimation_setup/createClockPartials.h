@@ -195,6 +195,18 @@ public:
                 }
                 break;
             }
+            case observation_models::n_way_range:
+            {
+                std::map< int, std::shared_ptr< TimingPartial > > timingPartialList = createTimingPartialWrtClockProperty(
+                    linkEnds, observableType, parameterToEstimate, clockInducedBiases );
+                if( timingPartialList.size( ) > 0 )
+                {
+                    observationPartial = std::make_shared< RangePartialWrtClockParameter >(
+                        parameterToEstimate->getParameterName( ), timingPartialList, getTimingPartialMultipliers( observableType ) );
+
+                }
+                break;
+            }
             default:
                 break;
         }
