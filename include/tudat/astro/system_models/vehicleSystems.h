@@ -278,7 +278,7 @@ public:
         const std::string referencePoint, const TimeType& time )
     {
         Eigen::Matrix< StateScalarType, 6, 1 > pointLocation = Eigen::Matrix< StateScalarType, 6, 1 >::Zero( );
-        pointLocation.segment( 0, 3 ) = bodyFixedReferencePoint_.at( referencePoint );
+        pointLocation.segment( 0, 3 ) = bodyFixedReferencePoint_.at( referencePoint ).template cast< StateScalarType >( );
         return pointLocation;
     }
 
