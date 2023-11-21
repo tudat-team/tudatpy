@@ -117,6 +117,11 @@ TUDAT_ADD_TEST_CASE(NonSequentialStateEstimation
          ${Tudat_ESTIMATION_LIBRARIES}
  )
 
+ TUDAT_ADD_TEST_CASE(VehicleReferencePointEstimation
+         PRIVATE_LINKS
+         ${Tudat_ESTIMATION_LIBRARIES}
+ )
+
 if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 
 

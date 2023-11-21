@@ -1279,6 +1279,14 @@ inline std::shared_ptr< EstimatableParameterSettings > groundStationPosition(
     return std::make_shared< EstimatableParameterSettings >( body, ground_station_position, groundStationName );
 }
 
+inline std::shared_ptr< EstimatableParameterSettings > referencePointPosition(
+    const std::string& body,
+    const std::string& groundStationName )
+{
+    return std::make_shared< EstimatableParameterSettings >( body, reference_point_position, groundStationName );
+}
+
+
 inline std::shared_ptr< EstimatableParameterSettings > directTidalDissipationLagTime(
         const std::string& body,
         const std::vector< std::string >& deformingBodies )
