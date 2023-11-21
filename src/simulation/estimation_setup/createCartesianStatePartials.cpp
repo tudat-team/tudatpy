@@ -275,6 +275,36 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
                                     currentBody->getRotationalEphemeris( ) );
                     }
                     break;
+                case estimatable_parameters::reference_point_position:
+
+                    // Check if current link end station is same station as that of which position is to be estimated.
+                    if( linkEndIterator->second.stationName_ == parameterToEstimate->getParameterName( ).second.second )
+                    {
+                        if( currentBody->getRotationalEphemeris( ) == nullptr )
+                        {
+                            throw std::runtime_error(
+                                "Error, body's rotation model is not found in body " + currentBodyName +
+                                " when making position w.r.t. reference point position partial" );
+                        }
+
+                        if( currentBody->getVehicleSystems( ) == nullptr )
+                        {
+                            throw std::runtime_error(
+                                "Error, vehicle system model is not found in body " + currentBodyName +
+                                " when making position w.r.t. reference point position partial" );
+                        }
+                        else if( !currentBody->getVehicleSystems( )->doesReferencePointExist( parameterToEstimate->getParameterName( ).second.second ) )
+                        {
+                            throw std::runtime_error(
+                                "Error, reference point " + parameterToEstimate->getParameterName( ).second.second +
+                                " is not found when making position w.r.t. reference point position partial" );
+                        }
+
+                        // Create partial object.
+                        partialMap[ linkEndIterator->first ] = std::make_shared< CartesianPartialWrtBodyFixedPosition >(
+                            currentBody->getRotationalEphemeris( ) );
+                    }
+                    break;
                 case estimatable_parameters::constant_time_drift_observation_bias:
                     break;
                 case estimatable_parameters::arc_wise_time_drift_observation_bias:

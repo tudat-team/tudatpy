@@ -1993,7 +1993,7 @@ public:
                 {
                     throw std::runtime_error(
                             "Error when creating DSN N-way averaged Doppler observation model: vehicle systems are not "
-                            "defined for retransmitter link end station " + linkEnds.at( observation_models::retransmitter ).stationName_ + "." );
+                            "defined for retransmitter link end ID " + linkEnds.at( observation_models::retransmitter ).stationName_ + "." );
                 }
                 turnaroundRatioFunction = bodies.getBody( linkEnds.at( observation_models::retransmitter ).bodyName_ )->getGroundStation(
                         linkEnds.at( observation_models::retransmitter ).stationName_ )->getVehicleSystems( )->getTransponderTurnaroundRatio( );
