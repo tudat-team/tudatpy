@@ -1219,6 +1219,35 @@ inline std::shared_ptr< EstimatableParameterSettings > constantEmpiricalAccelera
                 associatedBody, centralBody, componentsToEstimate );
 }
 
+inline std::shared_ptr< EstimatableParameterSettings > empiricalAccelerationMagnitudesFull(
+    const std::string associatedBody,
+    const std::string centralBody )
+{
+    std::map< basic_astrodynamics::EmpiricalAccelerationComponents,
+        std::vector< basic_astrodynamics::EmpiricalAccelerationFunctionalShapes > > componentsToEstimate;
+    componentsToEstimate[ basic_astrodynamics::radial_empirical_acceleration_component ].push_back(
+        basic_astrodynamics::constant_empirical );
+    componentsToEstimate[ basic_astrodynamics::radial_empirical_acceleration_component ].push_back(
+        basic_astrodynamics::sine_empirical );
+    componentsToEstimate[ basic_astrodynamics::radial_empirical_acceleration_component ].push_back(
+        basic_astrodynamics::cosine_empirical );
+    componentsToEstimate[ basic_astrodynamics::along_track_empirical_acceleration_component ].push_back(
+        basic_astrodynamics::constant_empirical );
+    componentsToEstimate[ basic_astrodynamics::along_track_empirical_acceleration_component ].push_back(
+        basic_astrodynamics::sine_empirical );
+    componentsToEstimate[ basic_astrodynamics::along_track_empirical_acceleration_component ].push_back(
+        basic_astrodynamics::cosine_empirical );
+    componentsToEstimate[ basic_astrodynamics::across_track_empirical_acceleration_component ].push_back(
+        basic_astrodynamics::constant_empirical );
+    componentsToEstimate[ basic_astrodynamics::across_track_empirical_acceleration_component ].push_back(
+        basic_astrodynamics::sine_empirical );
+    componentsToEstimate[ basic_astrodynamics::across_track_empirical_acceleration_component ].push_back(
+        basic_astrodynamics::cosine_empirical );
+
+    return std::make_shared< EmpiricalAccelerationEstimatableParameterSettings >(
+        associatedBody, centralBody, componentsToEstimate );
+}
+
 
 inline std::shared_ptr< EstimatableParameterSettings > empiricalAccelerationMagnitudes(
         const std::string associatedBody,
