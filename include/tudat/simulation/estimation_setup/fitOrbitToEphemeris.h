@@ -36,7 +36,8 @@ namespace simulation_setup
 {
 
 template< typename TimeType = double, typename StateScalarType = double >
-std::shared_ptr< observation_models::ObservationCollection< StateScalarType, TimeType > > simulatePseudoObservations(
+std::pair< std::vector< std::shared_ptr< observation_models::ObservationModelSettings > >,
+std::shared_ptr< observation_models::ObservationCollection< StateScalarType, TimeType > > > simulatePseudoObservations(
     const SystemOfBodies& bodies,
     const std::vector< std::string >& bodiesToPropagate,
     const std::vector< std::string >& centralBodies,
@@ -78,7 +79,8 @@ std::shared_ptr< observation_models::ObservationCollection< StateScalarType, Tim
 
     std::shared_ptr< observation_models::ObservationCollection< StateScalarType, TimeType > > observationCollection =
         simulateObservations< StateScalarType, TimeType >( measurementSimulationInput, { observationSimulator }, bodies );
-    return observationCollection;
+
+    return std::make_pair( observationModelSettingsList, observationCollection );
 }
 
 template< typename TimeType = double, typename StateScalarType = double >
@@ -115,13 +117,17 @@ std::shared_ptr< EstimationOutput< > > createBestFitToCurrentEphemeris(
     std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate =
         createParametersToEstimate< StateScalarType, TimeType >( parameterNames, bodies, propagatorSettings );
 
-    std::shared_ptr< observation_models::ObservationCollection< > > observationCollection =
-        simulatePseudoObservations( bodies, bodiesToPropagate, centralBodies, initialTime, finalTime, dataPointInterval  );
 
-    std::vector< std::shared_ptr< simulation_setup::ObservationSimulationSettings< TimeType > > > observationModelSettingsList =
-        getObservationSimulationSettingsFromObservations( observationCollection );
+    std::pair< std::vector< std::shared_ptr< observation_models::ObservationModelSettings > >,
+        std::shared_ptr< observation_models::ObservationCollection< StateScalarType, TimeType > > >
+        observationCollectionAndModelSettings = simulatePseudoObservations(
+            bodies, bodiesToPropagate, centralBodies, initialTime, finalTime, dataPointInterval  );
+    std::shared_ptr< observation_models::ObservationCollection< > > observationCollection = observationCollectionAndModelSettings.second;
 
-    OrbitDeterminationManager< > orbitDeterminationManager = OrbitDeterminationManager< >(
+    std::vector< std::shared_ptr< observation_models::ObservationModelSettings > > observationModelSettingsList =
+        observationCollectionAndModelSettings.first;
+
+    OrbitDeterminationManager< StateScalarType, TimeType > orbitDeterminationManager = OrbitDeterminationManager< StateScalarType, TimeType >(
         bodies, parametersToEstimate, observationModelSettingsList, propagatorSettings );
 
     std::shared_ptr< EstimationInput< > > estimationInput = std::make_shared< EstimationInput< > >(
