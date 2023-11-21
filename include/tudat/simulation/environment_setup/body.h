@@ -583,6 +583,8 @@ public:
     {
         if( !isStateSet_ )
         {
+            std::vector< double > test;
+            test.at( 0 );
             throw std::runtime_error( "Error when retrieving state from body " + bodyName_ + ", state of body is not yet defined" );
         }
         else
@@ -2213,6 +2215,13 @@ std::string getGlobalFrameOrigin(const SystemOfBodies &bodies);
  */
 void setAreBodiesInPropagation(const SystemOfBodies &bodies,
                                const bool areBodiesInPropagation);
+
+bool isReferencePointGroundStation( const std::shared_ptr< Body > body,
+                                    const std::string& referencePointName );
+
+bool isReferencePointGroundStation( const SystemOfBodies &bodies,
+                                    const std::string& bodyName,
+                                    const std::string& referencePointName );
 
 //! Function to compute the acceleration of a body, using its ephemeris and finite differences
 /*!

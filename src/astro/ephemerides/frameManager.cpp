@@ -153,7 +153,8 @@ void ReferenceFrameManager::setEphemerides(
         if( ephemerisIterator->second->getReferenceFrameOrientation( ) != firstFrameOrientation )
         {
             throw std::runtime_error(
-                        "Error, multiple reference frame orientations of ephemerides currently not supported" );
+                        "Error, multiple reference frame orientations of ephemerides currently not supported" +
+                        firstFrameOrientation + ", " + ephemerisIterator->second->getReferenceFrameOrientation( ) );
         }
     }
 }
