@@ -41,8 +41,8 @@ public:
      * \param associatedBody Name of body containing the radiationPressureInterface object
      */
     RadiationPressureCoefficient(
-            std::shared_ptr< electromagnetism::CannonballRadiationPressureTargetModel > radiationPressureInterface,
-            std::string& associatedBody ):
+            const std::shared_ptr< electromagnetism::CannonballRadiationPressureTargetModel > radiationPressureInterface,
+            const std::string& associatedBody ):
         EstimatableParameter< double >( radiation_pressure_coefficient, associatedBody ),
         radiationPressureInterface_( radiationPressureInterface )
     {

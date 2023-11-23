@@ -549,9 +549,8 @@ void setOdfInformationInBodies(
     setTransmittingFrequenciesInGroundStations( processedOdfFileContents, bodies.getBody( bodyWithGroundStations ) );
 
     // Set turnaround ratios in spacecraft body
-    std::shared_ptr< system_models::VehicleSystems > vehicleSystems = std::make_shared< system_models::VehicleSystems >( );
+    std::shared_ptr< system_models::VehicleSystems > vehicleSystems =  bodies.getBody( processedOdfFileContents->getSpacecraftName( ) )->getVehicleSystems( );
     vehicleSystems->setTransponderTurnaroundRatio( getTurnaroundRatio );
-    bodies.getBody( processedOdfFileContents->getSpacecraftName( ) )->setVehicleSystems( vehicleSystems );
 }
 
 } // namespace observation_models

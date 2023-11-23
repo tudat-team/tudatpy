@@ -1429,6 +1429,10 @@ BOOST_AUTO_TEST_CASE( testPanelledSurfaceRadiationPressureAccelerationPartials )
         createAnalyticalAccelerationPartial( accelerationModel, std::make_pair( "Vehicle", vehicle ),
                                              std::make_pair( "Earth", earth ), bodies, parametersToEstimate );
 
+    std::string vehicleName = "Vehicle";
+    std::shared_ptr< EstimatableParameter< double > > radiationPressureCoefficient =
+        std::make_shared< RadiationPressureCoefficient >( radiationPressureInterface, vehicleName );
+
     // Calculate analytical partials.
     double currentTime = 0.0;
     accelerationPartial->update( currentTime );
@@ -1440,12 +1444,15 @@ BOOST_AUTO_TEST_CASE( testPanelledSurfaceRadiationPressureAccelerationPartials )
     accelerationPartial->wrtPositionOfAcceleratedBody( partialWrtVehiclePosition.block( 0, 0, 3, 3 ) );
     Eigen::MatrixXd partialWrtVehicleVelocity = Eigen::Matrix3d::Zero( );
     accelerationPartial->wrtVelocityOfAcceleratedBody( partialWrtVehicleVelocity.block( 0, 0, 3, 3 ), 1, 0, 0 );
+    Eigen::Vector3d partialWrtRadiationPressureCoefficient = accelerationPartial->wrtParameter(
+        radiationPressureCoefficient );
 
     // Declare numerical partials.
     Eigen::Matrix3d testPartialWrtVehiclePosition = Eigen::Matrix3d::Zero( );
     Eigen::Matrix3d testPartialWrtVehicleVelocity = Eigen::Matrix3d::Zero( );
     Eigen::Matrix3d testPartialWrtEarthPosition = Eigen::Matrix3d::Zero( );
     Eigen::Matrix3d testPartialWrtEarthVelocity = Eigen::Matrix3d::Zero( );
+    Eigen::Vector3d testPartialWrtRadiationPressureCoefficient = Eigen::Vector3d::Zero( );
 
     // Declare perturbations in position for numerical partial/
     Eigen::Vector3d positionPerturbation;
@@ -1464,6 +1471,8 @@ BOOST_AUTO_TEST_CASE( testPanelledSurfaceRadiationPressureAccelerationPartials )
         earthStateSetFunction, accelerationModel, earth->getState( ),velocityPerturbation, 3, updateFunction );
     testPartialWrtVehicleVelocity = calculateAccelerationWrtStatePartials(
         vehicleStateSetFunction, accelerationModel, vehicle->getState( ), velocityPerturbation, 3, updateFunction );
+    testPartialWrtRadiationPressureCoefficient = calculateAccelerationWrtParameterPartials(
+        radiationPressureCoefficient, accelerationModel, 1.0E-2, updateFunction );
 
 
     // Compare numerical and analytical results.
@@ -1475,6 +1484,8 @@ BOOST_AUTO_TEST_CASE( testPanelledSurfaceRadiationPressureAccelerationPartials )
                                        partialWrtVehiclePosition, 1.0E-5 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtVehicleVelocity,
                                        partialWrtVehicleVelocity, std::numeric_limits< double >::epsilon( ) );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtRadiationPressureCoefficient,
+                                       partialWrtRadiationPressureCoefficient, 1.0E-12 );
 }
 
 
