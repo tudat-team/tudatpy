@@ -1008,30 +1008,30 @@ inline std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType >
     return std::make_shared< ObservationCollection< ObservationScalarType, TimeType > >( singleObservationSets );
 }
 
-//
-//template< typename ObservationScalarType = double, typename TimeType = double >
-//std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > >  createResidualCollection(
-//    const std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > observedData,
-//    const std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > computedData )
-//{
-////    std::map< ObservableType, std::map< LinkEnds, std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > > >
-//    typename ObservationCollection< ObservationScalarType, TimeType >::SortedObservationSets observedObservationSets = observedData->getObservations( );
-//    typename ObservationCollection< ObservationScalarType, TimeType >::SortedObservationSets computedObservationSets = computedData->getObservations( );
-//    typename ObservationCollection< ObservationScalarType, TimeType >::SortedObservationSets residualObservationSets;
-//
-//    for( auto observationIt : observedObservationSets )
-//    {
-//        for( auto linkEndIt : observationIt.second )
-//        {
-//            for( unsigned int i = 0; i < linkEndIt.second.size( ); i++ )
-//            {
-//                residualObservationSets[ observationIt.first ][ linkEndIt.first ].push_back(
-//                    createResidualObservationSet( linkEndIt.second.at( i ), computedObservationSets.at( observationIt.first ).at( linkEndIt.first ).at( i ) ) );
-//            }
-//        }
-//    }
-//    return std::make_shared< ObservationCollection< ObservationScalarType, TimeType > >( residualObservationSets );
-//}
+
+template< typename ObservationScalarType = double, typename TimeType = double >
+std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > >  createResidualCollection(
+    const std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > observedData,
+    const std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > computedData )
+{
+//    std::map< ObservableType, std::map< LinkEnds, std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > > >
+    typename ObservationCollection< ObservationScalarType, TimeType >::SortedObservationSets observedObservationSets = observedData->getObservations( );
+    typename ObservationCollection< ObservationScalarType, TimeType >::SortedObservationSets computedObservationSets = computedData->getObservations( );
+    typename ObservationCollection< ObservationScalarType, TimeType >::SortedObservationSets residualObservationSets;
+
+    for( auto observationIt : observedObservationSets )
+    {
+        for( auto linkEndIt : observationIt.second )
+        {
+            for( unsigned int i = 0; i < linkEndIt.second.size( ); i++ )
+            {
+                residualObservationSets[ observationIt.first ][ linkEndIt.first ].push_back(
+                    createResidualObservationSet( linkEndIt.second.at( i ), computedObservationSets.at( observationIt.first ).at( linkEndIt.first ).at( i ) ) );
+            }
+        }
+    }
+    return std::make_shared< ObservationCollection< ObservationScalarType, TimeType > >( residualObservationSets );
+}
 
 template< typename ObservationScalarType = double, typename TimeType = double >
 std::map< observation_models::ObservableType, std::vector< std::pair< LinkEnds, std::vector< std::vector< int > > > > >

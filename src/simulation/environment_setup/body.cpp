@@ -185,11 +185,11 @@ bool isReferencePointGroundStation( const std::shared_ptr< Body > body,
     {
         if( body->getVehicleSystems( ) == nullptr )
         {
-            throw std::runtime_error( "Error when finding reference point " + referencePointName + ", point is not a ground station, and no system models found" );
+            throw std::runtime_error( "Error when finding reference point " + referencePointName + " on " + body->getBodyName( ) + " , point is not a ground station, and no system models found" );
         }
         else if( !body->getVehicleSystems( )->doesReferencePointExist( referencePointName ) )
         {
-            throw std::runtime_error( "Error when finding reference point " + referencePointName + ", point is not a ground station, and not a system reference point" );
+            throw std::runtime_error( "Error when finding reference point " + referencePointName + " on " + body->getBodyName( ) + ", point is not a ground station, and not a system reference point" );
         }
         else
         {

@@ -1653,7 +1653,10 @@ public:
      * \return Ground station object that is retrieved
      */
     std::shared_ptr<ground_stations::GroundStation> getGroundStation(const std::string &stationName) const {
-        if (groundStationMap.count(stationName) == 0) {
+        if (groundStationMap.count(stationName) == 0)
+        {
+            std::vector< double > a;
+            a.at( 0 );
             throw std::runtime_error("Error, station " + stationName + " does not exist");
         }
 
