@@ -254,7 +254,7 @@ BOOST_AUTO_TEST_CASE( test_ReferencePointEstimation )
 
     // Perform estimation
     std::shared_ptr< EstimationOutput< double > > estimationOutput = orbitDeterminationManager.estimateParameters(
-        estimationInput );<<
+        estimationInput );
 
     Eigen::VectorXd estimationError = estimationOutput->parameterEstimate_ - truthParameters;
     std::cout <<"estimation error: "<< ( estimationError ).transpose( ) << std::endl;

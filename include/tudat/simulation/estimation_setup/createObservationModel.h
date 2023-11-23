@@ -1944,7 +1944,7 @@ public:
 
             std::shared_ptr< NWayRangeObservationModel< ObservationScalarType, TimeType > > arcStartObservationModel;
             std::shared_ptr< NWayRangeObservationModel< ObservationScalarType, TimeType > > arcEndObservationModel;
-//            try
+            try
             {
                 std::shared_ptr< ObservationModelSettings > nWayRangeObservationSettings =
                         dsnNWayAveragedDopplerObservationSettings->getNWayRangeObservationSettings( );
@@ -1958,12 +1958,12 @@ public:
                             ObservationModelCreator< 1, ObservationScalarType, TimeType >::createObservationModel(
                                 nWayRangeObservationSettings, bodies, topLevelObservableType ) );
             }
-//            catch( const std::exception& caughtException )
-//            {
-//                std::string exceptionText = std::string( caughtException.what( ) );
-//                throw std::runtime_error( "Error when creating DSN N-way averaged Doppler observation model, error: " +
-//                exceptionText );
-//            }
+            catch( const std::exception& caughtException )
+            {
+                std::string exceptionText = std::string( caughtException.what( ) );
+                throw std::runtime_error( "Error when creating DSN N-way averaged Doppler observation model, error: " +
+                exceptionText );
+            }
 
             std::shared_ptr< ObservationBias< 1 > > observationBias;
             if( observationSettings->biasSettings_ != nullptr )
