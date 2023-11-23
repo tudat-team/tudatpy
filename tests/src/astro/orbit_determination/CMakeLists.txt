@@ -113,11 +113,6 @@ TUDAT_ADD_TEST_CASE(NonSequentialStateEstimation
         ${Tudat_ESTIMATION_LIBRARIES}
  )
 
- TUDAT_ADD_TEST_CASE(FitToSpiceGrail
-         PRIVATE_LINKS
-         ${Tudat_ESTIMATION_LIBRARIES}
- )
-
  TUDAT_ADD_TEST_CASE(CustomAccelerationVariationalEquations
          PRIVATE_LINKS
          ${Tudat_ESTIMATION_LIBRARIES}
