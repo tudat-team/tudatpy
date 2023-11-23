@@ -1944,7 +1944,7 @@ public:
 
             std::shared_ptr< NWayRangeObservationModel< ObservationScalarType, TimeType > > arcStartObservationModel;
             std::shared_ptr< NWayRangeObservationModel< ObservationScalarType, TimeType > > arcEndObservationModel;
-            try
+//            try
             {
                 std::shared_ptr< ObservationModelSettings > nWayRangeObservationSettings =
                         dsnNWayAveragedDopplerObservationSettings->getNWayRangeObservationSettings( );
@@ -1958,12 +1958,12 @@ public:
                             ObservationModelCreator< 1, ObservationScalarType, TimeType >::createObservationModel(
                                 nWayRangeObservationSettings, bodies, topLevelObservableType ) );
             }
-            catch( const std::exception& caughtException )
-            {
-                std::string exceptionText = std::string( caughtException.what( ) );
-                throw std::runtime_error( "Error when creating DSN N-way averaged Doppler observation model, error: " +
-                exceptionText );
-            }
+//            catch( const std::exception& caughtException )
+//            {
+//                std::string exceptionText = std::string( caughtException.what( ) );
+//                throw std::runtime_error( "Error when creating DSN N-way averaged Doppler observation model, error: " +
+//                exceptionText );
+//            }
 
             std::shared_ptr< ObservationBias< 1 > > observationBias;
             if( observationSettings->biasSettings_ != nullptr )
@@ -1974,7 +1974,8 @@ public:
 
             std::function< double ( observation_models::FrequencyBands, observation_models::FrequencyBands ) > turnaroundRatioFunction;
             // Check if retransmitter is a body
-            if ( linkEnds.at( observation_models::retransmitter ).stationName_ == "" )
+            if ( linkEnds.at( observation_models::retransmitter ).stationName_ == "" || !simulation_setup::isReferencePointGroundStation(
+                bodies, linkEnds.at( observation_models::retransmitter ).bodyName_, linkEnds.at( observation_models::retransmitter ).stationName_ ) )
             {
                 if ( bodies.getBody( linkEnds.at( observation_models::retransmitter ).bodyName_ )->getVehicleSystems( ) == nullptr )
                 {

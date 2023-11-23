@@ -273,6 +273,12 @@ public:
         bodyFixedReferencePoint_[ referencePoint ] = location;
     }
 
+    std::map< std::string, Eigen::Vector3d > getBodyFixedReferencePoints( )
+    {
+        return bodyFixedReferencePoint_;
+    }
+
+
     template< typename StateScalarType, typename TimeType >
     Eigen::Matrix< StateScalarType, 6, 1 > getReferencePointStateInBodyFixedFrame(
         const std::string referencePoint, const TimeType& time )
