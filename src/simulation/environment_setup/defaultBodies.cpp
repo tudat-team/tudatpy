@@ -51,7 +51,7 @@ std::shared_ptr<RadiationSourceModelSettings> getKnockeEarthRadiationPressureSet
     return extendedRadiationSourceModelSettings({
                 albedoPanelRadiosityModelSettings(KnockeTypeSurfacePropertyDistributionModel::albedo_knocke, "Sun"),
                 delayedThermalPanelRadiosityModelSettings(KnockeTypeSurfacePropertyDistributionModel::emissivity_knocke, "Sun")
-            }, {6, 10, 14, 18});
+            }, {6, 12});
 }
 //! Function to create default settings for a body's radiation source model.
 std::shared_ptr<RadiationSourceModelSettings> getDefaultRadiationSourceModelSettings(
