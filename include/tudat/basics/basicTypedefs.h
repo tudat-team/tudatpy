@@ -33,7 +33,7 @@ typedef Eigen::Matrix< float, 6, 1 > Vector6f;
 typedef Eigen::Matrix< double, 6, 1 > Vector6d;
 
 //! Typedef for Vector3ld.
-typedef Eigen::Matrix< long double, 6, 1 > Vector3ld;
+typedef Eigen::Matrix< long double, 3, 1 > Vector3ld;
 
 //! Typedef for Vector6ld.
 typedef Eigen::Matrix< long double, 6, 1 > Vector6ld;
