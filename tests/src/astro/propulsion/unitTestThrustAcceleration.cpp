@@ -414,7 +414,7 @@ BOOST_AUTO_TEST_CASE( testDirectionBasedRotationWithThrustAcceleration )
             }
             if( it.first < 50.0 )
             {
-                std::cout<<"Testt "<<test<<" Time "<<it.first<<std::endl;
+//                std::cout<<"Test "<<test<<" Time "<<it.first<<std::endl;
             }
             BOOST_CHECK_CLOSE_FRACTION( bodyFixedThrustVector( nonZeroIndex ), thrustMagnitude1 / bodyMass,
                                         5.0 * std::numeric_limits< double >::epsilon( ) );
