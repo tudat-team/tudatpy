@@ -420,7 +420,7 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
                 Eigen::Matrix3d rswToInertialRotationMatrix =
                         propagators::getMatrixFromVectorRotationRepresentation( currentDependentVariables.segment( 60, 9 ) );
                 Eigen::Vector3d customVariable1 = currentDependentVariables.segment( 69, 3 );
-                Eigen::Vector3d customVariable2 = currentDependentVariables.segment( 72, 1 );
+                Eigen::Vector1d customVariable2 = currentDependentVariables.segment( 72, 1 );
 
                 double earthGravitationalPotential = variableIterator->second( 73 );
                 double moonGravitationalPotential = variableIterator->second( 74 );
