@@ -231,8 +231,10 @@ BOOST_AUTO_TEST_CASE( testTidalDissipationInPlanetAndSatellite )
                     getBodyGravitationalParameter( "Jupiter" ), getAverageRadius( "Jupiter" ) / intialKeplerElements( 0 ),
                     intialKeplerElements( 1 ), meanMotion );
 
-        BOOST_CHECK_CLOSE_FRACTION( elementRates.first, theoreticalSemiMajorAxisRateFromJupiterTide, 2.0E-3 );
-        BOOST_CHECK_CLOSE_FRACTION( elementRates.second, theoreticaEccentricityRateFromJupiterTide, 1.0E-1 );
+        //BOOST_CHECK_CLOSE_FRACTION( elementRates.first, theoreticalSemiMajorAxisRateFromJupiterTide, 2.0E-3 );
+        BOOST_CHECK( std::fabs(elementRates.first - theoreticalSemiMajorAxisRateFromJupiterTide) < std::fabs(std::min(elementRates.first, theoreticalSemiMajorAxisRateFromJupiterTide) * 2.0E-3 ));
+        //BOOST_CHECK_CLOSE_FRACTION( elementRates.second, theoreticaEccentricityRateFromJupiterTide, 1.0E-1 );
+        BOOST_CHECK( std::fabs(elementRates.second - theoreticaEccentricityRateFromJupiterTide) < std::fabs(std::min(elementRates.second, theoreticaEccentricityRateFromJupiterTide) * 1.0E-1 ));
     }
 
 
@@ -270,8 +272,10 @@ BOOST_AUTO_TEST_CASE( testTidalDissipationInPlanetAndSatellite )
             toleranceMultiplier = 20.0;
         }
 
-        BOOST_CHECK_CLOSE_FRACTION( elementRates.first, theoreticalSemiMajorAxisRateFromIoTide, toleranceMultiplier * 1.0E-3 );
-        BOOST_CHECK_CLOSE_FRACTION( elementRates.second, theoreticaEccentricityRateFromIoTide, toleranceMultiplier * 1.0E-3 );
+        //BOOST_CHECK_CLOSE_FRACTION( elementRates.first, theoreticalSemiMajorAxisRateFromIoTide, toleranceMultiplier * 1.0E-3 );
+        BOOST_CHECK( std::fabs(elementRates.first - theoreticalSemiMajorAxisRateFromIoTide) < std::fabs(std::min(elementRates.first, theoreticalSemiMajorAxisRateFromIoTide) * toleranceMultiplier * 1.0E-3 ));
+        //BOOST_CHECK_CLOSE_FRACTION( elementRates.second, theoreticaEccentricityRateFromIoTide, toleranceMultiplier * 1.0E-3 );
+        BOOST_CHECK( std::fabs(elementRates.second - theoreticaEccentricityRateFromIoTide) < std::fabs(std::min(elementRates.second, theoreticaEccentricityRateFromIoTide) * toleranceMultiplier * 1.0E-3 ));
 
         // Artificially increase time lag to make effect observable over integration tiem of 1 year.
         satelliteTimeLag *= 5.0;
