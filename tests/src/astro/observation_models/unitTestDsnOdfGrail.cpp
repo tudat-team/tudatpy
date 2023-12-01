@@ -225,8 +225,8 @@ int main( )
             {
                 observationModelSettingsList.push_back(
                     observation_models::dsnNWayAveragedDopplerObservationSettings(
-                        it->second.at( i ), lightTimeCorrectionSettings, nullptr,
-                        std::make_shared< LightTimeConvergenceCriteria >( true ) ) );
+                        it->second.at( i ), lightTimeCorrectionSettings, constantAbsoluteBias( Eigen::Vector1d::Zero( ) ),
+                        std::make_shared< LightTimeConvergenceCriteria >( true )  ) );
             }
         }
     }
@@ -252,7 +252,7 @@ int main( )
     *****************************************************************************************/
 
     std::map< ObservableType, double > residualCutoffValuePerObservable;
-    residualCutoffValuePerObservable[ dsn_n_way_averaged_doppler ] = 0.05;
+    residualCutoffValuePerObservable[ dsn_n_way_averaged_doppler ] = 0.010;
 
     std::shared_ptr< observation_models::ObservationCollection< long double, Time > > filteredObservedObservationCollection =
         filterResidualOutliers( observedObservationCollection, residualObservationCollection, residualCutoffValuePerObservable );
@@ -267,17 +267,17 @@ int main( )
         createResidualCollection( filteredObservedObservationCollection, filteredComputedObservationCollection );
     {
         Eigen::VectorXd residuals = filteredResidualObservationCollection->getObservationVector( ).template cast< double >( );
-        input_output::writeMatrixToFile( residuals, "grailTestResiduals.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TestResults_30s_nominal/");
+        input_output::writeMatrixToFile( residuals, "grailTestResiduals.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TestResults_30s_bias/");
 
 //        input_output::writeMatrixToFile( correctedResiduals, "grailTestCorrectedResiduals.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TestResults/");
 
         Eigen::VectorXd observationTimes = utilities::convertStlVectorToEigenVector(
             filteredResidualObservationCollection->getConcatenatedTimeVector( ) ).template cast< double >( );
-        input_output::writeMatrixToFile( observationTimes, "grailTestTimes.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TestResults_30s_nominal/");
+        input_output::writeMatrixToFile( observationTimes, "grailTestTimes.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TestResults_30s_bias/");
 
         Eigen::VectorXd observationLinkEndsIds = utilities::convertStlVectorToEigenVector(
             filteredResidualObservationCollection->getConcatenatedLinkEndIds( ) ).template cast< double >( );
-        input_output::writeMatrixToFile(observationLinkEndsIds , "grailTestLinkEnds.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TestResults_30s_nominal/");
+        input_output::writeMatrixToFile(observationLinkEndsIds , "grailTestLinkEnds.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TestResults_30s_bias/");
     }
 
     {
@@ -312,6 +312,7 @@ int main( )
                                                                               numerical_integrators::rungeKuttaFehlberg78 ),
                   std::make_shared< PropagationTimeTerminationSettings >( finalTime ) );
 
+
         std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames =
             getInitialStateParameterSettings< long double, Time >( propagatorSettings, bodies );
 
@@ -337,6 +338,18 @@ int main( )
             "GRAIL-A", "Moon", empiricalComponentsToEstimate ));
 //        parameterNames.push_back( std::make_shared<EstimatableParameterSettings>( "GRAIL-A", reference_point_position, "Antenna" ) );
 
+        std::map < ObservableType, std::vector< LinkEnds > > linkEndsPerObservable =
+            filteredComputedObservationCollection->getLinkEndsPerObservableType( );
+        for( auto it : linkEndsPerObservable )
+        {
+            for( unsigned int i = 0; i < it.second.size( ); i++ )
+            {
+//                if( it.second.at( i ).at( transmitter ) != it.second.at( i ).at( receiver ) )
+                {
+                    parameterNames.push_back( observationBias( it.second.at( i ), it.first ) );
+                }
+            }
+        }
         std::shared_ptr< estimatable_parameters::EstimatableParameterSet< long double > > parametersToEstimate =
             createParametersToEstimate< long double, Time >( parameterNames, bodies, propagatorSettings );
 
@@ -359,7 +372,7 @@ int main( )
             0, 1, 0, 1, 1, 1 );
         std::shared_ptr< EstimationOutput< long double, Time > > estimationOutput = orbitDeterminationManager.estimateParameters( estimationInput );
 
-        input_output::writeMatrixToFile(estimationOutput->residuals_ , "grailPostFitResiduals.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TestResults_30s_nominal/");
+        input_output::writeMatrixToFile(estimationOutput->residuals_ , "grailPostFitResiduals.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TestResults_30s_bias/");
 
         auto estimatedStateHistory =
             std::dynamic_pointer_cast< SingleArcVariationalSimulationResults< long double, Time > >( estimationOutput->getSimulationResults( ).back( ) )->getDynamicsResults( )->getEquationsOfMotionNumericalSolution( );
@@ -381,16 +394,16 @@ int main( )
             finalStateDifferenceRsw[ it.first ] = rswStateDifference;
         }
 
-        input_output::writeMatrixToFile(estimationOutput->getCorrelationMatrix( ) , "grailTestCorrelations.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TestResults_30s_nominal/");
+        input_output::writeMatrixToFile(estimationOutput->getCorrelationMatrix( ) , "grailTestCorrelations.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TestResults_30s_bias/");
 
         input_output::writeDataMapToTextFile( finalStateDifference,
                                               "stateDifference.dat",
-                                              "/home/dominic/Tudat/Data/GRAIL_TestResults_30s_nominal/",
+                                              "/home/dominic/Tudat/Data/GRAIL_TestResults_30s_bias/",
                                               "", std::numeric_limits< double >::digits10,  std::numeric_limits< double >::digits10,  "," );
 
         input_output::writeDataMapToTextFile( finalStateDifferenceRsw,
                                               "stateDifferenceRsw.dat",
-                                              "/home/dominic/Tudat/Data/GRAIL_TestResults_30s_nominal/",
+                                              "/home/dominic/Tudat/Data/GRAIL_TestResults_30s_bias/",
                                               "", std::numeric_limits< double >::digits10,  std::numeric_limits< double >::digits10,  "," );
 
 
