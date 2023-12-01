@@ -246,16 +246,16 @@ BOOST_AUTO_TEST_CASE( test_CustomAccelerationPartials )
         parameterNames = getInitialStateParameterSettings<double>( propagatorSettings, bodies );
         if( testCase == 1 )
         {
-            parameterNames.at( 0 )->customPartialSettings_ =
+            parameterNames.at( 0 )->customPartialSettings_.push_back(
                 std::make_shared<NumericalAccelerationPartialSettings>( Eigen::Vector6d::Ones( ) * 10.0,
-                                                                        "Vehicle", "Vehicle", custom_acceleration );
+                                                                        "Vehicle", "Vehicle", custom_acceleration ) );
         }
         else if( testCase == 2 )
         {
-            parameterNames.at( 0 )->customPartialSettings_ =
+            parameterNames.at( 0 )->customPartialSettings_.push_back(
                 std::make_shared<AnalyticalAccelerationPartialSettings>(
                     std::bind( &TestAccelerationModel::customAccelerationPartialFunction, &testAccelerationModel, std::placeholders::_1, std::placeholders::_2 ),
-                    "Vehicle", "Vehicle", custom_acceleration );
+                    "Vehicle", "Vehicle", custom_acceleration ) );
         }
         else if( testCase == 3 )
         {
@@ -264,14 +264,14 @@ BOOST_AUTO_TEST_CASE( test_CustomAccelerationPartials )
                     "CustomModel", 1,
                     std::bind( &TestAccelerationModel::getParameterValue, &testAccelerationModel ),
                     std::bind( &TestAccelerationModel::setParameterValue, &testAccelerationModel, std::placeholders::_1 ) ) );
-            parameterNames.at( 0 )->customPartialSettings_ =
+            parameterNames.at( 0 )->customPartialSettings_.push_back(
                 std::make_shared<AnalyticalAccelerationPartialSettings>(
                     std::bind( &TestAccelerationModel::customAccelerationPartialFunction, &testAccelerationModel, std::placeholders::_1, std::placeholders::_2 ),
-                    "Vehicle", "Vehicle", custom_acceleration );
-            parameterNames.at( 1 )->customPartialSettings_ =
+                    "Vehicle", "Vehicle", custom_acceleration ) );
+            parameterNames.at( 1 )->customPartialSettings_.push_back(
                 std::make_shared<AnalyticalAccelerationPartialSettings>(
                     std::bind( &TestAccelerationModel::customAccelerationPartialFunctionWrtParameter, &testAccelerationModel, std::placeholders::_1, std::placeholders::_2 ),
-                    "Vehicle", "Vehicle", custom_acceleration );
+                    "Vehicle", "Vehicle", custom_acceleration ) );
         }
 
         // Create parameters
@@ -562,14 +562,14 @@ BOOST_AUTO_TEST_CASE( test_CustomAccelerationEstimation )
             std::bind( &TestAccelerationModel::getParameterValue, &testAccelerationModel ),
             std::bind( &TestAccelerationModel::setParameterValue, &testAccelerationModel, std::placeholders::_1 ) ) );
 
-    parameterNames.at( 0 )->customPartialSettings_ =
+    parameterNames.at( 0 )->customPartialSettings_.push_back(
         std::make_shared<AnalyticalAccelerationPartialSettings>(
             std::bind( &TestAccelerationModel::customAccelerationPartialFunction, &testAccelerationModel, std::placeholders::_1, std::placeholders::_2 ),
-            "Vehicle", "Vehicle", custom_acceleration );
-    parameterNames.at( 1 )->customPartialSettings_ =
+            "Vehicle", "Vehicle", custom_acceleration ) );
+    parameterNames.at( 1 )->customPartialSettings_.push_back(
         std::make_shared<AnalyticalAccelerationPartialSettings>(
             std::bind( &TestAccelerationModel::customAccelerationPartialFunctionWrtParameter, &testAccelerationModel, std::placeholders::_1, std::placeholders::_2 ),
-            "Vehicle", "Vehicle", custom_acceleration );
+            "Vehicle", "Vehicle", custom_acceleration ) );
 
     // Create parameters
     std::shared_ptr<estimatable_parameters::EstimatableParameterSet<double> > parametersToEstimate =
