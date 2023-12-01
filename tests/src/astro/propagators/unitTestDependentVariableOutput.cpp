@@ -1681,6 +1681,8 @@ BOOST_AUTO_TEST_CASE( test_GravitationalPotentialAndLaplacianSaving )
                         earthGravitationalLaplacianOfPotential + 1,
                         earthGravityModel->getLaplacianOfPotential( earthBodyFixedCartesianPosition ) + 1,
                         1e-15 );*/
+                std::cout<<"Laplacian "<<earthGravitationalLaplacianOfPotential<<" "<<earthGravityModel->getLaplacianOfPotential( earthBodyFixedCartesianPosition )<<" "
+                <<earthGravitationalLaplacianOfPotential - earthGravityModel->getLaplacianOfPotential( earthBodyFixedCartesianPosition )<<std::endl;
                 BOOST_CHECK( std::fabs( earthGravitationalLaplacianOfPotential - earthGravityModel->getLaplacianOfPotential( earthBodyFixedCartesianPosition ) )
                             < std::fabs( std::min( earthGravitationalLaplacianOfPotential, earthGravityModel->getLaplacianOfPotential( earthBodyFixedCartesianPosition ) ) * 1e-15 ) );
 
@@ -1689,6 +1691,8 @@ BOOST_AUTO_TEST_CASE( test_GravitationalPotentialAndLaplacianSaving )
                         moonGravitationalLaplacianOfPotential + 1,
                         moonGravityModel->getLaplacianOfPotential( moonBodyFixedCartesianPosition ) + 1,
                         1e-15 );*/
+                std::cout<<"Laplacian "<<moonGravitationalLaplacianOfPotential<<" "<<moonGravityModel->getLaplacianOfPotential( moonBodyFixedCartesianPosition )<<" "
+                <<moonGravitationalLaplacianOfPotential - moonGravityModel->getLaplacianOfPotential( moonBodyFixedCartesianPosition )<<std::endl;
                 BOOST_CHECK( std::fabs( moonGravitationalLaplacianOfPotential - moonGravityModel->getLaplacianOfPotential( moonBodyFixedCartesianPosition ) )
                             < std::fabs( std::min( moonGravitationalLaplacianOfPotential, moonGravityModel->getLaplacianOfPotential( moonBodyFixedCartesianPosition ) ) * 1e-15 ) );
             }
