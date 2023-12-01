@@ -42,7 +42,6 @@ set(estimation_HEADERS
         createDirectObservationPartials.h
         createPositionPartialScaling.h
         processOdfFile.h
-        processJplRangeFile.h
         )
 
 # Add header files.
@@ -68,7 +67,6 @@ set(estimation_SOURCES
         observationOutput.cpp
         simulateObservations.cpp
         processOdfFile.cpp
-        processJplRangeFile.cpp
         )
 
 # Add library.
