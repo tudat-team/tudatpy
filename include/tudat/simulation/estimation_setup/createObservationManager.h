@@ -43,6 +43,7 @@ void performObservationParameterEstimationClosureForSingleModelSet(
         const LinkEnds linkEnds,
         const ObservableType observableType )
 {
+    std::cout<<"Performing closure "<<getLinkEndsString( linkEnds )<<" "<<std::endl;
     ObservationBiasTypes biasType = getObservationBiasType( observationBias );
 
     // Check if bias type is multi-type
