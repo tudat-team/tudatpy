@@ -210,7 +210,8 @@ BOOST_AUTO_TEST_CASE( testGravityComputation )
         if ( testPotential )
         {
             computedPotential = gravityField.getGravitationalPotential( bodyFixedPosition );
-            BOOST_CHECK_CLOSE_FRACTION( expectedPotential, computedPotential, tolerance );
+            //BOOST_CHECK_CLOSE_FRACTION( expectedPotential, computedPotential, tolerance );
+            BOOST_CHECK( std::fabs( expectedPotential - computedPotential ) < std::fabs( std::min( expectedPotential, computedPotential ) * tolerance ) );
         }
         if ( testGradient )
         {
@@ -226,7 +227,8 @@ BOOST_AUTO_TEST_CASE( testGravityComputation )
                 computedLaplacian += 0.1;
                 expectedLaplacian += 0.1;
             }
-            BOOST_CHECK_CLOSE_FRACTION( expectedLaplacian, computedLaplacian, tolerance );
+            //BOOST_CHECK_CLOSE_FRACTION( expectedLaplacian, computedLaplacian, tolerance );
+            BOOST_CHECK( std::fabs( expectedLaplacian - computedLaplacian ) < std::fabs( std::min( expectedLaplacian, computedLaplacian ) * tolerance ) );
 
         }
         if ( testHessian )
