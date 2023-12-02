@@ -59,7 +59,7 @@ enum class TrackingDataType
 
 // Some conversion helper function
 template< typename T >
-T caseInsensitiveFromMap(const std::string &strValue, const std::map<std::string, T> &upperCaseMapping)
+T caseInsensitiveFromMap(const std::string& strValue, const std::map<std::string, T>& upperCaseMapping)
 {
   std::string upperCaseStrValue = boost::to_upper_copy(strValue);
   const auto iter = upperCaseMapping.find(upperCaseStrValue);
@@ -78,7 +78,7 @@ public:
   explicit TrackingFileFieldConverter(TrackingDataType trackingDataType) : doubleDataType_(trackingDataType) {}
   virtual ~TrackingFileFieldConverter() = default;
 
-  virtual double toDouble(std::string &rawField) const
+  virtual double toDouble(std::string& rawField) const
   {
     try {
       return std::stod(rawField);
@@ -99,7 +99,7 @@ class TrackingFileMonthFieldConverter : public TrackingFileFieldConverter
 {
 public:
   TrackingFileMonthFieldConverter(TrackingDataType trackingDataType) : TrackingFileFieldConverter(trackingDataType) {}
-  double toDouble(std::string &rawField) const
+  double toDouble(std::string& rawField) const
   {
     std::map<std::string, double> monthsMap{{"JAN", 1.},
                                             {"FEB", 2.},
@@ -124,7 +124,7 @@ class TrackingFileFieldMultiplyingConverter : public TrackingFileFieldConverter
 public:
   TrackingFileFieldMultiplyingConverter(TrackingDataType trackingDataType, double multiplier)
       : TrackingFileFieldConverter(trackingDataType), multiplier_(multiplier) {}
-  double toDouble(std::string &rawField) const
+  double toDouble(std::string& rawField) const
   {
     return multiplier_ * TrackingFileFieldConverter::toDouble(rawField);
   }
@@ -178,16 +178,14 @@ std::map<TrackingFileField, std::shared_ptr<TrackingFileFieldConverter>> trackin
     },
 };
 
-class TxtFileContents
+class TrackingTxtFileContents
 {
 public:
-  TxtFileContents() = default;
-
-  TxtFileContents(std::string fileName,
-                  std::vector<TrackingFileField> columnTypes,
-                  char commentSymbol = '#',
-                  std::string valueSeparators = ",: \t")
-      : fileName_(std::move(fileName)), columnTypes_(std::move(columnTypes)), commentSymbol_(commentSymbol),
+  TrackingTxtFileContents(std::string fileName,
+                          std::vector<TrackingFileField> columnTypes,
+                          char commentSymbol = '#',
+                          std::string valueSeparators = ",: \t")
+      : fileName_(std::move(fileName)), columnFieldTypes_(std::move(columnTypes)), commentSymbol_(commentSymbol),
         valueSeparators_(std::move(valueSeparators))
   {
     parseData();
@@ -203,7 +201,7 @@ public:
     convertDataMap();
   }
 
-  void readRawDataMap(std::ifstream &dataFile)
+  void readRawDataMap(std::ifstream& dataFile)
   {
     std::string currentLine;
 
@@ -214,7 +212,7 @@ public:
     }
   }
 
-  void addLineToRawDataMap(std::string &rawLine)
+  void addLineToRawDataMap(std::string& rawLine)
   {
     size_t numColumns = getNumColumns();
 
@@ -235,7 +233,7 @@ public:
 
     // Populate the dataMap_ with a new row on each of the vectors
     for (std::size_t i = 0; i < numColumns; ++i) {
-      TrackingFileField currentFieldType = columnTypes_.at(i);
+      TrackingFileField currentFieldType = columnFieldTypes_.at(i);
       std::string currentValue = currentSplitRawLine_.at(i);
       rawDataMap_[currentFieldType].push_back(currentValue);
     }
@@ -244,45 +242,47 @@ public:
   // This might be the place where conversion to different types can be implemented. Now, only double is considered
   void convertDataMap()
   {
-    for (TrackingFileField columnType : columnTypes_) {
+    for (TrackingFileField columnType : columnFieldTypes_) {
       std::vector<std::string> rawVector = rawDataMap_[columnType];
       std::shared_ptr<TrackingFileFieldConverter> converter = trackingFileFieldConverterMap[columnType];
-      std::vector<double> dataVector;
+      TrackingDataType dataType = converter->getTrackingDataType();
 
+      std::vector<double> dataVector;
       for (std::string rawValue : rawVector) {
         dataVector.push_back(converter->toDouble(rawValue));
       }
+      doubleDataMap_[dataType] = dataVector;
     }
   }
 
-  void addMetaData(TrackingFileField fieldType, const std::string &value)
+  void addMetaData(TrackingFileField fieldType, const std::string& value)
   {
     metaDataMap_[fieldType] = value;
   }
 
 // Getters
 public:
-  size_t getNumColumns() const { return columnTypes_.size(); }
+  size_t getNumColumns() const { return columnFieldTypes_.size(); }
+  const std::vector<TrackingFileField>& getRawColumnTypes() { return columnFieldTypes_; }
 
-  std::vector<TrackingFileField> getRawColumnTypes() { return columnTypes_; }
-
-  std::vector<TrackingDataType> getDataColumnTypes()
+  const std::vector<TrackingDataType>& getDataColumnTypes()
   {
-    std::vector<TrackingDataType> dataColumnTypes;
-    for (auto &pair : doubleDataMap_) {
-      dataColumnTypes.push_back(pair.first);
+    columnDataTypes_.clear();
+    for (auto& pair : doubleDataMap_) {
+      columnDataTypes_.push_back(pair.first);
     }
-    return dataColumnTypes;
+    return columnDataTypes_;
   }
 
-  auto getRawDataMap() { return rawDataMap_; }
-  auto getDoubleDataMap() { return doubleDataMap_; }
-  auto getMetaDataMap() { return metaDataMap_; }
+  const auto& getRawDataMap() { return rawDataMap_; }
+  const auto& getDoubleDataMap() { return doubleDataMap_; }
+  const auto& getMetaDataMap() { return metaDataMap_; }
 
 private:
   std::string fileName_ = "None";
   std::string separators_ = ":, \t";
-  std::vector<TrackingFileField> columnTypes_;
+  std::vector<TrackingFileField> columnFieldTypes_;
+  std::vector<TrackingDataType> columnDataTypes_;
   char commentSymbol_;
   std::string valueSeparators_;
 
@@ -296,6 +296,20 @@ private:
 private:
   std::vector<std::string> currentSplitRawLine_;
 };
+
+static inline std::unique_ptr<TrackingTxtFileContents> createTrackingTxtFileContents(const std::string& fileName,
+                                                                                     std::vector<TrackingFileField>& columnTypes,
+                                                                                     char commentSymbol = '#',
+                                                                                     const std::string& valueSeparators = ",: \t")
+{
+  return std::make_unique<TrackingTxtFileContents>(fileName, columnTypes, commentSymbol, valueSeparators);
+}
+
+} // namespace input_output
+} // namespace tudat
+
+#endif // TUDAT_READ_GENERIC_TXT_FILE_H
+
 
 // FIXME: IMPORTANT!
 //  // Todo: Look at options for reading (this belongs in processedTrackingTxt)
@@ -311,20 +325,6 @@ private:
 //  // TODO: Make private
 
 
-
-//static inline std::unique_ptr<TxtFileContents> createTxtFileContents(const std::string &fileName,
-//                                                                     std::vector<TrackingDataType> &columnTypes,
-//                                                                     char commentSymbol = '#',
-//                                                                     const std::string &valueSeparators = ",: \t")
-//{
-//  return std::make_unique<TxtFileContents>(fileName, columnTypes, commentSymbol, valueSeparators);
-//}
-
 // Todo: this belongs in  process...
 // template< typename TimeType, typename ObservableType >
 // std::shared_ptr< SingleObservationSet < TimeTyope, ObservableType > >
-
-} // namespace input_output
-} // namespace tudat
-
-#endif // TUDAT_READ_GENERIC_TXT_FILE_H

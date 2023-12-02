@@ -23,9 +23,7 @@
 
 // Temporary
 #include "tudat/io/readTrackingTxtFile.h"
-#include "tudat/io/mapTextFileReader.h"
-
-
+#include "tudat/simulation/estimation_setup/processTrackingTxtFile.h"
 
 namespace tio = tudat::input_output;
 
@@ -34,19 +32,29 @@ namespace tudat
 namespace unit_tests
 {
 
-template< typename T >
-static void printVec(const std::vector<T> &vector)
-{
-  std::cout << "[ ";
-  for (const T &val : vector) {
-    std::cout << val << ", ";
-  }
-  std::cout << "]\n";
 
+template<typename Os, typename Arr>
+Os& operator<<(Os& os, const Arr& v)
+{
+  os << "[ ";
+  for (const auto& i : v)
+    os << i << ' ';
+  return os << ']';
 }
 
+//template< typename T >
+//static void printVec(const std::vector<T> &vector)
+//{
+//  std::cout << "[ ";
+//  for (const T &val : vector) {
+//    std::cout << val << ", ";
+//  }
+//  std::cout << "]\n";
+//
+//}
+
 // Here, we implement a function that specifies a standard format for a file.
-std::unique_ptr< tio::TxtFileContents > readVikingRangeFile( const std::string& fileName )
+std::unique_ptr<tio::TrackingTxtFileContents> readVikingRangeFile(const std::string &fileName)
 {
   std::vector<tio::TrackingFileField> columnTypes({
                                                       tio::TrackingFileField::spacecraft_id,
@@ -61,31 +69,36 @@ std::unique_ptr< tio::TxtFileContents > readVikingRangeFile( const std::string& 
                                                       tio::TrackingFileField::round_trip_light_time_microseconds,
                                                       tio::TrackingFileField::light_time_measurement_delay_microseconds
                                                   });
-  auto vikingFile = std::make_unique<tio::TxtFileContents>(fileName, columnTypes);
+  auto vikingFile = createTrackingTxtFileContents(fileName, columnTypes);
   vikingFile->addMetaData(tio::TrackingFileField::file_title, "Viking lander range data");
 
   return vikingFile;
 }
 
 // Setting some path variables for the test files
-const std::string vikingRangePath = tudat::paths::getTudatTestDataPath( ) + "vikingrange.txt";
-const std::string marsPathfinderRangePath = tudat::paths::getTudatTestDataPath( ) + "mars-pathfinder-range.txt";
-const std::string junoRangePath = tudat::paths::getTudatTestDataPath( ) + "juno_range.txt";
+const std::string vikingRangePath = tudat::paths::getTudatTestDataPath() + "vikingrange.txt";
+const std::string marsPathfinderRangePath = tudat::paths::getTudatTestDataPath() + "mars-pathfinder-range.txt";
+const std::string junoRangePath = tudat::paths::getTudatTestDataPath() + "juno_range.txt";
 
-BOOST_AUTO_TEST_SUITE( test_generic_txt_file_reader );
+BOOST_AUTO_TEST_SUITE(test_generic_txt_file_reader);
 
 
 BOOST_AUTO_TEST_CASE(JplRangeDataCustomFunction)
 {
-  std::shared_ptr<tio::TxtFileContents> vikingFile = readVikingRangeFile(vikingRangePath);
+  std::shared_ptr<tio::TrackingTxtFileContents> vikingFile = readVikingRangeFile(vikingRangePath);
 
   auto rawDataMap = vikingFile->getRawDataMap();
   auto dataMap = vikingFile->getDoubleDataMap();
   std::vector<tio::TrackingDataType> dataColumnTypes = vikingFile->getDataColumnTypes();
   for (auto columnType : vikingFile->getRawColumnTypes()) {
-    printVec(rawDataMap[columnType]);
+    std::cout << rawDataMap[columnType] << '\n';
   }
+
   std::cout << "DATA:\n";
+  std::cout << dataColumnTypes.size() << std::endl;
+  for (auto columnType : dataColumnTypes) {
+    std::cout << dataMap[columnType] << '\n';
+  }
 //  BOOST_CHECK_EQUAL(dataColumnTypes[0], tio::TrackingDataType::spacecraft_id);
 
   //  std::map<std::shared_ptr<tio::TxtFileFieldType>, double> dataBlock3 = vikingFile->dataVector_.at(3);
@@ -137,7 +150,7 @@ BOOST_AUTO_TEST_CASE(JplRangeDataCustomFunction)
 //                                                                        tft::roundTripLightTimeMicroSec,
 //                                                                        tft::lightTimeMeasurementAccuracyMicroSec
 //  };
-//  std::shared_ptr< tio::TxtFileContents > fileContents = tio::createTxtFileContents( vikingRangePath,
+//  std::shared_ptr< tio::TrackingTxtFileContents > fileContents = tio::createTxtFileContents( vikingRangePath,
 //                                                                                     fieldTypeVector,
 //                                                                                     '#',
 //                                                                                     ",: \t" );
@@ -175,7 +188,7 @@ BOOST_AUTO_TEST_CASE(JplRangeDataCustomFunction)
 //                                                                        tft::zPlanetFrame, tft::vXPlanetFrame,
 //                                                                        tft::vYPlanetFrame, tft::vZPlanetFrame
 //  };
-//  std::shared_ptr< tio::TxtFileContents > fileContents = tio::createTxtFileContents( junoRangePath,
+//  std::shared_ptr< tio::TrackingTxtFileContents > fileContents = tio::createTxtFileContents( junoRangePath,
 //                                                                                     fieldTypeVector,
 //                                                                                     '#',
 //                                                                                     ",: \t" );
@@ -206,6 +219,6 @@ BOOST_AUTO_TEST_CASE(JplRangeDataCustomFunction)
 //  BOOST_CHECK_EQUAL( fileContents->dataVector_.size( ), 4 );
 
 
-BOOST_AUTO_TEST_SUITE_END( );
+BOOST_AUTO_TEST_SUITE_END();
 }
 }
