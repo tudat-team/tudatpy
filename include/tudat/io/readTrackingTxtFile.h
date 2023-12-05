@@ -170,11 +170,11 @@ std::map<TrackingFileField, std::shared_ptr<TrackingFileFieldConverter>> trackin
     {TrackingFileField::second, std::make_shared<TrackingFileFieldConverter>(TrackingDataType::second)},
     {
         TrackingFileField::round_trip_light_time_microseconds,
-        std::make_shared<TrackingFileFieldMultiplyingConverter>(TrackingDataType::two_way_light_time, 1.e6)
+        std::make_shared<TrackingFileFieldMultiplyingConverter>(TrackingDataType::two_way_light_time, 1.e-6)
     },
     {
         TrackingFileField::light_time_measurement_delay_microseconds,
-        std::make_shared<TrackingFileFieldMultiplyingConverter>(TrackingDataType::light_time_measurement_delay, 1.e6)
+        std::make_shared<TrackingFileFieldMultiplyingConverter>(TrackingDataType::light_time_measurement_delay, 1.e-6)
     },
 };
 
@@ -263,6 +263,7 @@ public:
 // Getters
 public:
   size_t getNumColumns() const { return columnFieldTypes_.size(); }
+  size_t getNumRows() const { return rawDataMap_.at(columnFieldTypes_[0]).size(); }
   const std::vector<TrackingFileField>& getRawColumnTypes() { return columnFieldTypes_; }
 
   const std::vector<TrackingDataType>& getDataColumnTypes()
