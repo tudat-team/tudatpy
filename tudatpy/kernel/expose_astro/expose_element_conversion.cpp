@@ -64,6 +64,15 @@ void expose_element_conversion(py::module &m) {
     /*!
      **************   KEPLER ELEMENTS  ******************
      */
+    m.def("convert_position_elements",
+          &tcc::convertPositionElements,
+          py::arg("originalElements"),
+          py::arg("original_elemet_types"),
+          py::arg("new_element_types"),
+          py::arg("shape_model"),
+          py::arg("tolerance"),
+            get_docstring("convert_position_elements").c_str());
+
 
     m.def("cartesian_to_keplerian",
           &toec::convertCartesianToKeplerianElements< double >,

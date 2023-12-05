@@ -53,6 +53,7 @@ namespace trf = tudat::reference_frames;
 namespace tss = tudat::simulation_setup;
 namespace ti = tudat::interpolators;
 namespace tsm = tudat::system_models;
+namespace tom = tudat::observation_models;
 
 
 namespace tudat
@@ -257,6 +258,12 @@ void expose_environment(py::module &m) {
                  py::arg("control_surface_id"),
                  py::arg("deflection_angle"),
                  get_docstring("VehicleSystems.set_control_surface_deflection").c_str() )
+            .def("set_transponder_turnaround_ratio",
+                 py::overload_cast<
+                         std::map< std::pair< tom::FrequencyBands, tom::FrequencyBands >, double >&>(
+                         &tsm::VehicleSystems::setTransponderTurnaroundRatio),
+                 py::arg("transponder_ratio_per_uplink_and_downlink_frequency_band"),
+                 get_docstring("VehicleSystems.set_transponder_turnaround_ratio").c_str() )
             .def("get_control_surface_deflection",
                  &tsm::VehicleSystems::getCurrentControlSurfaceDeflection,
                   py::arg("control_surface_id"),
@@ -619,8 +626,36 @@ void expose_environment(py::module &m) {
 
     py::class_<tgs::GroundStation,
             std::shared_ptr<tgs::GroundStation>>(m, "GroundStation")
+            .def("set_transmitting_frequency_calculator",
+                 &tgs::GroundStation::setTransmittingFrequencyCalculator,
+                 py::arg("transmitting_frequency_calculator"))
+            .def("set_water_vapor_partial_pressure_function",
+                 &tgs::GroundStation::setWaterVaporPartialPressureFunction,
+                 py::arg("water_vapor_partial_pressure_function"))
+            .def("set_temperature_function",
+                 &tgs::GroundStation::setTemperatureFunction,
+                 py::arg("temperature_function"))
+            .def("set_pressure_function",
+                 &tgs::GroundStation::setPressureFunction,
+                 py::arg("pressure_function"))
+            .def("set_relative_humidity_function",
+                 &tgs::GroundStation::setRelativeHumidityFunction,
+                 py::arg("relative_humidity_function"))
+            .def_property_readonly("temperature_function", &tgs::GroundStation::getTemperatureFunction)
+            .def_property_readonly("pressure_function", &tgs::GroundStation::getPressureFunction)
+            .def_property_readonly("relative_humidity_function", &tgs::GroundStation::getRelativeHumidityFunction)
             .def_property_readonly("pointing_angles_calculator", &tgs::GroundStation::getPointingAnglesCalculator )
             .def_property_readonly("station_state", &tgs::GroundStation::getNominalStationState );
+
+
+    py::class_<tgs::StationFrequencyInterpolator,
+            std::shared_ptr<tgs::StationFrequencyInterpolator>>(m, "StationFrequencyInterpolator", get_docstring("StationFrequencyInterpolator").c_str() );
+
+    py::class_<tgs::ConstantFrequencyInterpolator,
+            std::shared_ptr<tgs::ConstantFrequencyInterpolator>,
+            tgs::StationFrequencyInterpolator>(m, "ConstantFrequencyInterpolator")
+            .def(py::init< double >(),
+                py::arg("frequency"));
 
 
     py::class_<tgs::PointingAnglesCalculator,

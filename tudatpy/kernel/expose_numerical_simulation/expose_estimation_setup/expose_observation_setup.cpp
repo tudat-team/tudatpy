@@ -145,6 +145,26 @@ void addDependentVariablesToObservationSimulationSettingsPy(
                 observationSimulationSettings, dependentVariableList, bodies, observableType, linkEnds );
 }
 
+void addAncilliarySettingsToObservationSimulationSettingsPy(
+        const std::vector< std::shared_ptr< ObservationSimulationSettings< TIME_TYPE > > >& observationSimulationSettings,
+        const std::shared_ptr< tom::ObservationAncilliarySimulationSettings >& ancilliarySettings,
+        const tom::ObservableType observableType )
+{
+    tss::addAncilliarySettingsToObservationSimulationSettings< TIME_TYPE, const tom::ObservableType  >(
+            observationSimulationSettings, ancilliarySettings, observableType );
+}
+
+void addAncilliarySettingsToObservationSimulationSettingsPy(
+        const std::vector< std::shared_ptr< ObservationSimulationSettings< TIME_TYPE > > >& observationSimulationSettings,
+        const std::shared_ptr< tom::ObservationAncilliarySimulationSettings >& ancilliarySettings,
+        const tom::ObservableType observableType,
+        const tom::LinkDefinition& linkEnds)
+{
+    tss::addAncilliarySettingsToObservationSimulationSettings< TIME_TYPE, const tom::ObservableType, const tom::LinkDefinition&  >(
+            observationSimulationSettings, ancilliarySettings, observableType, linkEnds );
+}
+
+
 }
 
 }
@@ -512,7 +532,7 @@ void expose_observation_setup(py::module &m) {
           get_docstring("dsn_tabulated_tropospheric_light_time_correction").c_str() );
 
     m.def("saastamoinen_tropospheric_light_time_correction",
-          &tom::tabulatedTroposphericCorrectionSettings,
+          &tom::saastamoinenTroposphericCorrectionSettings,
           py::arg("body_with_atmosphere_name") = "Earth",
           py::arg("mapping_model") =  tom::TroposphericMappingModel::niell,
           py::arg("water_vapor_partial_pressure_model") =  tom::WaterVaporPartialPressureModel::tabulated,
@@ -748,7 +768,6 @@ void expose_observation_setup(py::module &m) {
                  py::arg("throw_exception" ) = true,
                  get_docstring("ObservationAncilliarySimulationSettings.get_float_list_settings").c_str() );
 
-
     m.def("doppler_ancilliary_settings",
           &tom::getAveragedDopplerAncilliarySettings,
           py::arg("integration_time") = 60.0,
@@ -757,6 +776,7 @@ void expose_observation_setup(py::module &m) {
     m.def("two_way_range_ancilliary_settings",
           &tom::getTwoWayRangeAncilliarySettings,
           py::arg("retransmission_delay") = 0.0,
+          //py::arg("frequency_band") = tom::FrequencyBands::x_band,
           get_docstring("two_way_range_ancilliary_settings").c_str() );
 
     m.def("two_way_doppler_ancilliary_settings",
@@ -768,12 +788,14 @@ void expose_observation_setup(py::module &m) {
     m.def("n_way_range_ancilliary_settings",
           &tom::getNWayRangeAncilliarySettings,
           py::arg("link_end_delays") = std::vector< double >( ),
+          py::arg("frequency_bands") = std::vector< tom::FrequencyBands >( ),
           get_docstring("n_way_range_ancilliary_settings").c_str() );
 
     m.def("n_way_doppler_ancilliary_settings",
           &tom::getNWayAveragedDopplerAncilliarySettings,
           py::arg("integration_time") = 60.0,
           py::arg("link_end_delays") = std::vector< double >( ),
+          py::arg("frequency_bands") = std::vector< tom::FrequencyBands >( ),
           get_docstring("n_way_doppler_ancilliary_settings").c_str() );
 
     m.def("dsn_n_way_doppler_ancilliary_settings",
@@ -793,6 +815,7 @@ void expose_observation_setup(py::module &m) {
           py::arg("reference_link_end_type" ) = tom::receiver,
           py::arg("viability_settings" ) = std::vector< std::shared_ptr< tom::ObservationViabilitySettings > >( ),
           py::arg("noise_function" ) = nullptr,
+          py::arg("ancilliary_settings" ) = nullptr,
           get_docstring("tabulated_simulation_settings").c_str() );
 
 
@@ -940,6 +963,30 @@ void expose_observation_setup(py::module &m) {
           get_docstring("add_viability_check_to_observable_for_link_ends").c_str() );
 
 
+    m.def("add_ancilliary_settings_to_observable",
+          py::overload_cast<
+          const std::vector< std::shared_ptr< tss::ObservationSimulationSettings< TIME_TYPE > > >&,
+          const std::shared_ptr< tom::ObservationAncilliarySimulationSettings >&,
+          const tom::ObservableType>(
+            &tss::addAncilliarySettingsToObservationSimulationSettingsPy ),
+          py::arg("observation_simulation_settings_list"),
+          py::arg("ancilliary_settings" ),
+          py::arg("observable_type"),
+          get_docstring("add_ancilliary_settings_to_observable").c_str() );
+
+
+    m.def("add_ancilliary_settings_to_observable_for_link_ends",
+          py::overload_cast<
+                  const std::vector< std::shared_ptr< tss::ObservationSimulationSettings< TIME_TYPE > > >&,
+                  const std::shared_ptr< tom::ObservationAncilliarySimulationSettings >&,
+                  const tom::ObservableType,
+                  const tom::LinkDefinition& >(
+                  &tss::addAncilliarySettingsToObservationSimulationSettingsPy ),
+          py::arg("observation_simulation_settings_list"),
+          py::arg("ancilliary_settings" ),
+          py::arg("observable_type"),
+          py::arg("link_ends"),
+          get_docstring("add_ancilliary_settings_to_observable_for_link_ends").c_str() );
 
 
     py::class_<tss::ObservationDependentVariableSettings,
