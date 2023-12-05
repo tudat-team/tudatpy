@@ -19,11 +19,13 @@
 #include <utility>
 #include "tudat/basics/testMacros.h"
 #include "tudat/io/basicInputOutput.h"
+#include "tudat/simulation/estimation_setup/observations.h"
 
 
 // Temporary
 #include "tudat/io/readTrackingTxtFile.h"
 #include "tudat/simulation/estimation_setup/processTrackingTxtFile.h"
+#include "tudat/astro/observation_models/linkTypeDefs.h"
 
 namespace tio = tudat::input_output;
 
@@ -32,29 +34,18 @@ namespace tudat
 namespace unit_tests
 {
 
-
-template<typename Os, typename Arr>
-Os& operator<<(Os& os, const Arr& v)
+template< typename T >
+void printArr(const T& arr)
 {
-  os << "[ ";
-  for (const auto& i : v)
-    os << i << ' ';
-  return os << ']';
+  std::cout << "[ ";
+  for (const auto& i : arr) {
+    std::cout << i << ' ';
+  }
+  std::cout << "]\n";
 }
 
-//template< typename T >
-//static void printVec(const std::vector<T> &vector)
-//{
-//  std::cout << "[ ";
-//  for (const T &val : vector) {
-//    std::cout << val << ", ";
-//  }
-//  std::cout << "]\n";
-//
-//}
-
 // Here, we implement a function that specifies a standard format for a file.
-std::unique_ptr<tio::TrackingTxtFileContents> readVikingRangeFile(const std::string &fileName)
+std::unique_ptr<tio::TrackingTxtFileContents> readVikingRangeFile(const std::string& fileName)
 {
   std::vector<tio::TrackingFileField> columnTypes({
                                                       tio::TrackingFileField::spacecraft_id,
@@ -90,34 +81,29 @@ BOOST_AUTO_TEST_CASE(JplRangeDataCustomFunction)
   auto rawDataMap = vikingFile->getRawDataMap();
   auto dataMap = vikingFile->getDoubleDataMap();
   std::vector<tio::TrackingDataType> dataColumnTypes = vikingFile->getDataColumnTypes();
-  for (auto columnType : vikingFile->getRawColumnTypes()) {
-    std::cout << rawDataMap[columnType] << '\n';
-  }
 
-  std::cout << "DATA:\n";
-  std::cout << dataColumnTypes.size() << std::endl;
+  std::map<tio::TrackingDataType, double> dataBlock3;
   for (auto columnType : dataColumnTypes) {
-    std::cout << dataMap[columnType] << '\n';
+    dataBlock3[columnType] = dataMap.at(columnType)[3];
   }
-//  BOOST_CHECK_EQUAL(dataColumnTypes[0], tio::TrackingDataType::spacecraft_id);
 
-  //  std::map<std::shared_ptr<tio::TxtFileFieldType>, double> dataBlock3 = vikingFile->dataVector_.at(3);
-//
-//    BOOST_CHECK_EQUAL( vikingFile->metaDataMap_.at( tio::fileTitle ), "Viking lander range data" );
-//    BOOST_REQUIRE_THROW( tio::fileTitle->toDouble( "Title" ), std::runtime_error );
-//
-//    BOOST_CHECK_EQUAL( dataBlock3[tio::spacecraftIdentifier], 1 );
-//    BOOST_CHECK_EQUAL( dataBlock3[tio::dsnTransmittingStation], 43 );
-//    BOOST_CHECK_EQUAL( dataBlock3[tio::dsnReceivingStation], 43 );
-//    BOOST_CHECK_EQUAL( dataBlock3[tio::utcYear], 1976 );
-//    BOOST_CHECK_EQUAL( dataBlock3[tio::utcMonth], 7 );
-//    BOOST_CHECK_EQUAL( dataBlock3[tio::utcDay], 22 );
-//    BOOST_CHECK_EQUAL( dataBlock3[tio::utcHour], 6 );
-//    BOOST_CHECK_EQUAL( dataBlock3[tio::utcMinute], 2 );
-//    BOOST_CHECK_EQUAL( dataBlock3[tio::utcSecond], 32 );
-//    BOOST_CHECK_EQUAL( dataBlock3[tio::roundTripLightTimeMicroSec], 2290150246.895 );
-//    BOOST_CHECK_EQUAL( dataBlock3[tio::lightTimeMeasurementAccuracyMicroSec], 0.047 );
+  BOOST_CHECK_EQUAL(dataBlock3[tio::TrackingDataType::spacecraft_id], 1);
+  BOOST_CHECK_EQUAL(dataBlock3[tio::TrackingDataType::dsn_transmitting_station_id], 43);
+  BOOST_CHECK_EQUAL(dataBlock3[tio::TrackingDataType::dsn_receiving_station_id], 43);
+  BOOST_CHECK_EQUAL(dataBlock3[tio::TrackingDataType::year], 1976);
+  BOOST_CHECK_EQUAL(dataBlock3[tio::TrackingDataType::month], 7);
+  BOOST_CHECK_EQUAL(dataBlock3[tio::TrackingDataType::day], 22);
+  BOOST_CHECK_EQUAL(dataBlock3[tio::TrackingDataType::hour], 6);
+  BOOST_CHECK_EQUAL(dataBlock3[tio::TrackingDataType::minute], 2);
+  BOOST_CHECK_EQUAL(dataBlock3[tio::TrackingDataType::second], 32);
+  BOOST_CHECK_EQUAL(dataBlock3[tio::TrackingDataType::two_way_light_time], 2290.150246895);
 
+  // FIXME: this is incorrect!
+  observation_models::LinkEnds linkEnds{{observation_models::reflector, observation_models::linkEndId("viking")}};
+
+  std::map<observation_models::ObservableType, observation_models::LinkEnds> observableTypes = {{observation_models::n_way_range, linkEnds}};
+//  std::shared_ptr<observation_models::ObservationCollection<double, double>>
+//      observationCollection = observation_models::createTrackingTxtFileObservationCollection(vikingFile, observableTypes);
 }
 
 
