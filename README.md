@@ -28,6 +28,8 @@ is not tracked by Git. If the API is also built, more untracked directories will
   - At the opposite, please follow [this guide](https://docs.microsoft.com/en-us/windows/wsl/wsl2-mount-disk) to access Windows file trough WSL.
   - [This guide from Microsoft](https://docs.microsoft.com/en-us/windows/wsl/setup/environment) contains more information on the possibilities given trough WSL.
 - Anaconda/Miniconda installation ([Installing Anaconda](https://tudat-space.readthedocs.io/en/latest/_src_first_steps/tudat_py.html#installing-anaconda))
+- CMake installation
+  - Inside the Ubuntu terminal, install CMake by calling `sudo apt install cmake`.
 
 ## Setup
 
@@ -63,6 +65,8 @@ See [here](https://github.com/tudat-team/tudatpy/tree/develop) for tudatpy devel
 It is then recommended to switch to the `develop` branch using the commands above.
 
 4. Install the contained `environment.yaml` file to satisfy dependencies
+
+It is possible that the creation of the environment will 'time out'. A likely reason for this is that the packages required cannot be found by the current channel, `conda-forge`. It is then advisable to add the channel `anaconda` to ensure a proper creation of the environment.
 
 ````
 conda env create -f environment.yaml
