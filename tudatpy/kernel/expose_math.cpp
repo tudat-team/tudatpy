@@ -12,6 +12,7 @@
 #include "expose_math/expose_numerical_integrators.h"
 #include "expose_math/expose_root_finders.h"
 #include "expose_math/expose_geometry.h"
+#include "expose_math/expose_statistics.h"
 
 #include <pybind11/eigen.h>
 #include <pybind11/functional.h>
@@ -37,6 +38,9 @@ void expose_math(py::module &m) {
 
   auto geometry = m.def_submodule("geometry");
   expose_geometry(geometry);
+
+  auto statistics = m.def_submodule("statistics");
+  expose_statistics(statistics);
 
 }
 };
