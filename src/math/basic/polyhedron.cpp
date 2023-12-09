@@ -67,7 +67,7 @@ void calculatePolyhedronVerticesCoordinatesRelativeToFieldPoint (
         const Eigen::MatrixXd& verticesCoordinates)
 {
     const unsigned int numberOfVertices = verticesCoordinates.rows();
-    verticesCoordinatesRelativeToFieldPoint.resize(numberOfVertices, 3);
+    verticesCoordinatesRelativeToFieldPoint.setZero(numberOfVertices, 3);
 
     const Eigen::MatrixXd bodyFixedPositionMatrix = bodyFixedPosition.transpose();
 
@@ -84,7 +84,7 @@ void calculatePolyhedronPerFacetFactor (
         const Eigen::MatrixXi& verticesDefiningEachFacet)
 {
     const unsigned int numberOfFacets = verticesDefiningEachFacet.rows();
-    perFacetFactor.resize(numberOfFacets);
+    perFacetFactor.setZero(numberOfFacets);
 
     for ( unsigned int facet = 0; facet < numberOfFacets; ++facet )
     {
@@ -115,7 +115,7 @@ void calculatePolyhedronPerEdgeFactor (
         const Eigen::MatrixXi& verticesDefiningEachEdge)
 {
     const unsigned int numberOfEdges = verticesDefiningEachEdge.rows();
-    perEdgeFactor.resize(numberOfEdges);
+    perEdgeFactor.setZero(numberOfEdges);
 
     for ( unsigned int edge = 0; edge < numberOfEdges; ++edge )
     {
