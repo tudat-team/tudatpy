@@ -169,6 +169,9 @@ void expose_observation_setup(py::module &m) {
             .value("reflector3", tom::LinkEndType::reflector3 )
             .value("reflector4", tom::LinkEndType::reflector4 )
             .value("receiver", tom::LinkEndType::receiver )
+
+            .value("transmitter2", tom::LinkEndType::transmitter2 )
+
             .value("observed_body", tom::LinkEndType::observed_body )
             .export_values();
 
@@ -551,6 +554,13 @@ void expose_observation_setup(py::module &m) {
             std::shared_ptr<tom::ObservationBiasSettings>>(
                 m, "ObservationBiasSettings",
                 get_docstring("ObservationBiasSettings").c_str() );
+
+    m.def("clock_induced_bias",
+          &tom::clockInducedBias,
+          py::arg("body_name"),
+          py::arg("station_name"),
+          get_docstring("clock_induced_bias").c_str() );
+
 
     m.def("absolute_bias",
           &tom::constantAbsoluteBias,
