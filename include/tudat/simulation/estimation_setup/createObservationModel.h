@@ -374,6 +374,13 @@ public:
     const std::string stationName_;
 };
 
+inline std::shared_ptr< ObservationBiasSettings > clockInducedBias(
+        const std::string& bodyName, const std::string& stationName  )
+{
+    return std::make_shared< TiminigSystemBiasSettings >(
+            bodyName, stationName );
+}
+
 inline std::shared_ptr< ObservationBiasSettings > constantAbsoluteBias(
         const Eigen::VectorXd& observationBias )
 {

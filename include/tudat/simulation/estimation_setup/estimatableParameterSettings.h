@@ -1202,6 +1202,25 @@ inline std::shared_ptr< EstimatableParameterSettings > arcwiseTimeObservationBia
             linkEnds, observableType, arcStartTimes, linkEndForTime );
 }
 
+inline std::shared_ptr< EstimatableParameterSettings > globalPolynomialClockCorrections(
+        const std::string& associatedBody,
+        const std::string& associatedStation,
+        const std::vector< int > correctionPowers )
+{
+    return std::make_shared< GlobalPolynomialClockCorrectionsParameterSettings >(
+            associatedBody, associatedStation, correctionPowers );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > multiArcPolynomialClockCorrections(
+        const std::string& associatedBody,
+        const std::string& associatedStation,
+        const std::vector< int > correctionPowers,
+        const std::vector< int > arcIndices )
+{
+    return std::make_shared< MultiArcPolynomialClockCorrectionsParameterSettings >(
+            associatedBody, associatedStation, correctionPowers, arcIndices );
+}
+
 inline std::shared_ptr< EstimatableParameterSettings > constantEmpiricalAccelerationMagnitudes(
         const std::string associatedBody,
         const std::string centralBody )

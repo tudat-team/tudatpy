@@ -38,6 +38,27 @@ double evaluatePolynomialSquareRootSum( const std::map< double, double >& amplit
     return std::sqrt( result );
 }
 
+// In the sum, must now take into account frequency nodes
+double evaluatePolynomialSquareRootSumBetweenFrequencyNodes( const std::map< double, double >& amplitudesAtUnitFrequencyPerPower, const std::vector<double> frequencyNodes, const double frequency )
+{
+    const std::vector<double>::const_iterator it = std::find_if(frequencyNodes.begin(), frequencyNodes.end(), [frequency] (double element) { return (frequency < element); });
+    const int index = std::distance(frequencyNodes.begin(), it);
+
+    double result = 0.0;
+    int counter = 0;
+    for( std::map< double, double >::const_iterator powerIterator = amplitudesAtUnitFrequencyPerPower.begin( );
+         powerIterator != amplitudesAtUnitFrequencyPerPower.end( ); powerIterator++ )
+    {
+        //result += powerIterator->second * std::pow( frequency, powerIterator->first );
+        if(counter == index-1 ){
+            result = powerIterator->second * std::pow( frequency, powerIterator->first );
+        }
+        counter++;
+    }
+    return std::sqrt( result );
+}
+
+
 std::function< double( const double ) > createSpectralDensityFunctionFromTabulatedData(
         const std::map< double, double > spectralDensityMap )
 {
@@ -139,6 +160,16 @@ std::pair< std::vector< double >, double > generatePowerLawNoise(
 {
     return generateAmplitudeSpectrumNoise( maximumFrequency, numberOfFrequencySamples,
                                            std::bind( &evaluatePolynomialSquareRootSum, powersAndUnitAmplitudes, std::placeholders::_1 ), seed );
+}
+
+
+std::pair< std::vector< double >, double > generatePowerLawNoise(
+        const double maximumFrequency, const int numberOfFrequencySamples, const std::map< double, double >& powersAndUnitAmplitudes,
+        const std::vector<double> frequencyNodes,
+        const double seed )
+{
+    return generateAmplitudeSpectrumNoise( maximumFrequency, numberOfFrequencySamples,
+                                           std::bind( &evaluatePolynomialSquareRootSumBetweenFrequencyNodes, powersAndUnitAmplitudes, frequencyNodes, std::placeholders::_1 ), seed );
 }
 
 //! Function to generate power law noise by discretizing in frequency domain.
