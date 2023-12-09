@@ -20,6 +20,7 @@
 #include "tudat/astro/ground_stations/groundStation.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/environment_setup/createGroundStations.h"
+#include "kernel/expose_astro/expose_timing_system.h"
 
 
 #include <pybind11/chrono.h>
@@ -264,7 +265,10 @@ void expose_environment(py::module &m) {
             .def("get_engine_model",
                  &tsm::VehicleSystems::getEngineModel,
                  py::arg("engine_name"),
-                 get_docstring("VehicleSystems.get_engine_model").c_str() );
+                 get_docstring("VehicleSystems.get_engine_model").c_str() )
+            .def("set_timing_system",
+                 &tsm::VehicleSystems::setTimingSystem,
+                 py::arg("timing_system"));
 
         py::class_<tsm::EngineModel,
             std::shared_ptr<tsm::EngineModel>>(m, "EngineModel" )
@@ -620,7 +624,8 @@ void expose_environment(py::module &m) {
     py::class_<tgs::GroundStation,
             std::shared_ptr<tgs::GroundStation>>(m, "GroundStation")
             .def_property_readonly("pointing_angles_calculator", &tgs::GroundStation::getPointingAnglesCalculator )
-            .def_property_readonly("station_state", &tgs::GroundStation::getNominalStationState );
+            .def_property_readonly("station_state", &tgs::GroundStation::getNominalStationState )
+            .def("set_timing_system", &tgs::GroundStation::setTimingSystem, py::arg("timing_system"));
 
 
     py::class_<tgs::PointingAnglesCalculator,
@@ -675,7 +680,8 @@ void expose_environment(py::module &m) {
             .def_property("rigid_body_properties", &tss::Body::getMassProperties, &tss::Body::setMassProperties, get_docstring("Body.rigid_body_properties").c_str())
             .def_property_readonly("gravitational_parameter", &tss::Body::getGravitationalParameter, get_docstring("Body.gravitational_parameter").c_str())
             .def("get_ground_station", &tss::Body::getGroundStation, py::arg("station_name"))
-            .def_property_readonly("ground_station_list", &tss::Body::getGroundStationMap );
+            .def_property_readonly("ground_station_list", &tss::Body::getGroundStationMap )
+            .def("set_vehicle_system", &tss::Body::setVehicleSystems, py::arg("vehicle_system"));
 
 
 
