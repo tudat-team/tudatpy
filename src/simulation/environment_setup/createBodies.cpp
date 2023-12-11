@@ -10,6 +10,7 @@
 
 #include <iostream>
 #include <cmath>
+#include <memory>
 
 
 #include <boost/lambda/lambda.hpp>
@@ -22,6 +23,7 @@
 
 #include "tudat/simulation/environment_setup/createBodies.h"
 #include "tudat/astro/basic_astro/sphericalBodyShapeModel.h"
+#include "tudat/astro/electromagnetism/radiationSourceModel.h"
 #include "tudat/astro/ephemerides/simpleRotationalEphemeris.h"
 #include "tudat/interface/spice/spiceRotationalEphemeris.h"
 
@@ -34,6 +36,7 @@ namespace simulation_setup
 using namespace ephemerides;
 using namespace gravitation;
 using namespace basic_astrodynamics;
+using namespace electromagnetism;
 
 void addAerodynamicCoefficientInterface(
         const SystemOfBodies& bodies, const std::string bodyName,
@@ -44,9 +47,10 @@ void addAerodynamicCoefficientInterface(
         throw std::runtime_error( "Error when setting aerodynamic coefficients for body "+ bodyName + ", body is not found in system of bodies" );
     }
     bodies.at( bodyName )->setAerodynamicCoefficientInterface(
-                createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, bodyName) );
+                createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, bodyName, bodies ) );
 }
 
+// RP-OLD
 void addRadiationPressureInterface(
         const SystemOfBodies& bodies, const std::string bodyName,
         const std::shared_ptr< RadiationPressureInterfaceSettings > radiationPressureSettings )
@@ -60,6 +64,19 @@ void addRadiationPressureInterface(
                     radiationPressureSettings, bodyName, bodies ) );
 }
 
+void addRadiationPressureTargetModel(
+    const SystemOfBodies& bodies, const std::string bodyName,
+    const std::shared_ptr< RadiationPressureTargetModelSettings > radiationPressureSettings )
+{
+    if( bodies.count( bodyName ) == 0 )
+    {
+        throw std::runtime_error( "Error when setting radiation pressure target model for body "+ bodyName + ", body is not found in system of bodies" );
+    }
+    bodies.at( bodyName )->setRadiationPressureTargetModel(
+        createRadiationPressureTargetModel( radiationPressureSettings, bodyName, bodies ) );
+
+}
+
 void addRotationModel(
         const SystemOfBodies& bodies, const std::string bodyName,
         const std::shared_ptr< RotationModelSettings > rotationModelSettings )
@@ -70,6 +87,41 @@ void addRotationModel(
     }
     bodies.at( bodyName )->setRotationalEphemeris( createRotationModel(
                     rotationModelSettings, bodyName, bodies ) );
+}
+
+void addGravityFieldModel(
+    const SystemOfBodies& bodies, const std::string bodyName,
+    const std::shared_ptr< GravityFieldSettings > gravityFieldSettings,
+    const std::vector< std::shared_ptr< GravityFieldVariationSettings > >& gravityFieldVariationSettings )
+{
+    if( bodies.count( bodyName ) == 0 )
+    {
+        throw std::runtime_error( "Error when setting gravity field model for body "+ bodyName + ", body is not found in system of bodies" );
+    }
+    bodies.at( bodyName )->setGravityFieldModel( createGravityFieldModel(
+        gravityFieldSettings, bodyName, bodies, gravityFieldVariationSettings ) );
+
+    if( gravityFieldVariationSettings.size( ) > 0 )
+    {
+       bodies.at( bodyName )->setGravityFieldVariationSet(
+            createGravityFieldModelVariationsSet(
+                bodyName, bodies, gravityFieldVariationSettings ) );
+    }
+
+    bodies.at( bodyName )->updateConstantEphemerisDependentMemberQuantities( );
+
+}
+
+void addRigidBodyProperties(
+    const SystemOfBodies& bodies, const std::string bodyName,
+    const std::shared_ptr< RigidBodyPropertiesSettings > rigidBodyProperties )
+{
+    if( bodies.count( bodyName ) == 0 )
+    {
+        throw std::runtime_error( "Error when setting mass properties for body "+ bodyName + ", body is not found in system of bodies" );
+    }
+    bodies.at( bodyName )->setMassProperties( createRigidBodyProperties(
+        rigidBodyProperties, bodyName, bodies ) );
 }
 
 void setSimpleRotationSettingsFromSpice(
@@ -94,34 +146,6 @@ void setSimpleRotationSettingsFromSpice(
                 spiceEvaluationTime, rotationRateAtReferenceTime );
 }
 
-void addEmptyTabulatedEphemeris(
-        const SystemOfBodies& bodies, const std::string& bodyName, const std::string& ephemerisOrigin )
-{
-    if( bodies.count( bodyName ) ==  0 )
-    {
-        throw std::runtime_error( "Error when setting empty tabulated ephemeris for body " + bodyName + ", no such body found" );
-    }
-    std::string ephemerisOriginToUse = ( ephemerisOrigin == "" ) ? bodies.getFrameOrigin( ) : ephemerisOrigin;
-    bodies.at( bodyName )->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
-                                            std::shared_ptr< interpolators::OneDimensionalInterpolator
-                                            < double, Eigen::Vector6d > >( ), ephemerisOriginToUse, bodies.getFrameOrientation( ) ) );
-
-    bodies.processBodyFrameDefinitions( );
-}
-
-void addEmptyTabulatedRotationalEphemeris(
-        const SystemOfBodies& bodies, const std::string& bodyName, const std::string& bodyFixedFrameName )
-{
-    if( bodies.count( bodyName ) ==  0 )
-    {
-        throw std::runtime_error( "Error when setting empty tabulated rotational ephemeris for body " + bodyName + ", no such body found" );
-    }
-    std::string bodyFixedFrameNameToUse = ( bodyFixedFrameName == "" ) ? ( bodyName + "_fixed" ) : bodyFixedFrameName;
-
-    bodies.at( bodyName )->setRotationalEphemeris( std::make_shared< ephemerides::TabulatedRotationalEphemeris< > >(
-                                            std::shared_ptr< interpolators::OneDimensionalInterpolator
-                                            < double, Eigen::Vector7d > >( ), bodies.getFrameOrientation( ), bodyFixedFrameNameToUse ) );
-}
 
 
 //! Function that determines the order in which bodies are to be created
@@ -187,6 +211,10 @@ simulation_setup::SystemOfBodies createSimplifiedSystemOfBodies(const double sec
 
     // Earth's shape model
     bodies.getBody( "Earth" )->setShapeModel( std::make_shared< SphericalBodyShapeModel >(celestial_body_constants::EARTH_EQUATORIAL_RADIUS ) );
+
+    // Sun's radiation source model
+    bodies.getBody( "Sun" )->setRadiationSourceModel( std::make_shared< IsotropicPointRadiationSourceModel >(
+            std::make_shared< ConstantLuminosityModel >( celestial_body_constants::SUN_LUMINOSITY )));
 
     // Calculate position of rotation axis at initialTime, with respect to J2000 frame. Values from:
     // "Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2009", B.A. Archinal et al.(2011)

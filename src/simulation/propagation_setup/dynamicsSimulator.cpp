@@ -9,18 +9,22 @@
 // */
 
 //#include "tudat/simulation/propagation_setup/createStateDerivativeModel.h"
-//#include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
+#include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
 //#include "tudat/basics/timeType.h"
 
-//namespace tudat
-//{
+namespace tudat
+{
 
-//namespace propagators
-//{
+namespace propagators
+{
+
+template class SingleArcDynamicsSimulator< double, double >;
+template class MultiArcDynamicsSimulator< double, double >;
+template class HybridArcDynamicsSimulator< double, double >;
 
 
 
-//}
+}
 
-//}
+}
 

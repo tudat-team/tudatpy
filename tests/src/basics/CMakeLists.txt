@@ -8,6 +8,6 @@
 #    http://tudat.tudelft.nl/LICENSE.
 #
 
-TUDAT_ADD_TEST_CASE(TimeTypes)
+TUDAT_ADD_TEST_CASE(TimeTypes PRIVATE_LINKS tudat_basic_astrodynamics)
 
 TUDAT_ADD_TEST_CASE(TudatTypeTraits PRIVATE_LINKS tudat_basics)

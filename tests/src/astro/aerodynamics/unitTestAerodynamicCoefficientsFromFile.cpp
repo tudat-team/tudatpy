@@ -106,9 +106,9 @@ BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientsFromFile )
 
         std::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings =
                 simulation_setup::readTabulatedAerodynamicCoefficientsFromFiles(
-                    forceCoefficientFiles, momentCoefficientFiles, 60.734, 600.0, 60.734, Eigen::Vector3d::Zero( ),
+                    forceCoefficientFiles, momentCoefficientFiles, 60.734, 600.0,
         { aerodynamics::mach_number_dependent, aerodynamics::angle_of_attack_dependent },
-                    true, true );
+                    negative_aerodynamic_frame_coefficients, negative_aerodynamic_frame_coefficients, Eigen::Vector3d::Zero( ) );
         if( i == 1 )
         {
             aerodynamicCoefficientSettings->addControlSurfaceSettings(
@@ -125,9 +125,10 @@ BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientsFromFile )
             { aerodynamics::mach_number_dependent, aerodynamics::angle_of_attack_dependent, aerodynamics::control_surface_deflection_dependent } ),
                         "TestSurface" );
         }
+        aerodynamicCoefficientSettings->setAddForceContributionToMoments( false );
 
         bodies.at( "SpacePlane" )->setAerodynamicCoefficientInterface(
-                    createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "SpacePlane" ) );
+                    createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "SpacePlane", bodies ) );
 
         bodies.at( "SpacePlane" )->setConstantBodyMass( 50.0E3 );
 

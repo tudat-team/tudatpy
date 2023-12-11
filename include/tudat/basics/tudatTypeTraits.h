@@ -154,6 +154,16 @@ struct is_direct_gravity_partial< acceleration_partials::PolyhedronGravityPartia
     static const bool value = true;
 };
 
+namespace acceleration_partials
+{
+class RingGravityPartial;
+}
+
+template< >
+struct is_direct_gravity_partial< acceleration_partials::RingGravityPartial > {
+    static const bool value = true;
+};
+
 template< typename T >
 struct is_direct_gravity_acceleration {
     static const bool value = false;
@@ -199,6 +209,28 @@ template< >
 struct is_direct_gravity_acceleration< gravitation::PolyhedronGravitationalAccelerationModel > {
     static const bool value = true;
 };
+
+namespace gravitation
+{
+class RingGravitationalAccelerationModel;
+}
+
+template< >
+struct is_direct_gravity_acceleration< gravitation::RingGravitationalAccelerationModel > {
+    static const bool value = true;
+};
+
+template< typename VariableType, typename std::enable_if< is_eigen_matrix< VariableType >::value, int >::type = 0 >
+static int getEigenCompileTimeNumberORows( )
+{
+    return VariableType::RowsAtCompileTime;
+}
+
+template< typename VariableType, typename std::enable_if< is_eigen_matrix< VariableType >::value, int >::type = 0 >
+static int getEigenCompileTimeNumberOfCols( )
+{
+    return VariableType::ColsAtCompileTime;
+}
 
 } // namespace tudat
 

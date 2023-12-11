@@ -72,12 +72,12 @@ public:
 
     int getNumberOfNodes( )
     {
-        return nodes_.size( );
+        return static_cast< int >( nodes_.size( ) );
     }
 
     int getNumberOfLegs( )
     {
-        return legs_.size( );
+        return static_cast< int >( legs_.size( ) );
     }
 
     std::vector< std::shared_ptr< TransferLeg > > getLegs( )

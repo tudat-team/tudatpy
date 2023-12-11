@@ -432,6 +432,70 @@ private:
 
 };
 
+//! Class for stopping the propagation when one or all of a given set of stopping conditions is reached.
+class NonSequentialPropagationTerminationCondition: public PropagationTerminationCondition
+{
+public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param forwardPropagationTerminationCondition Termination condition for forward propagation that is checked when calling
+     * checkStopCondition is called.
+     * \param backwardPropagationTerminationCondition Termination condition for backward propagation that is checked when calling
+     * checkStopCondition is called.
+     * \param checkTerminationToExactCondition Boolean to denote whether the propagation is to terminate exactly on the final
+     * condition, or whether it is to terminate on the first step where it is violated.
+     */
+    NonSequentialPropagationTerminationCondition(
+            const std::shared_ptr< PropagationTerminationCondition > forwardPropagationTerminationCondition,
+            const std::shared_ptr< PropagationTerminationCondition > backwardPropagationTerminationCondition ):
+            PropagationTerminationCondition( non_sequential_stopping_condition, forwardPropagationTerminationCondition->getcheckTerminationToExactCondition( ) ),
+            forwardPropagationTerminationCondition_( forwardPropagationTerminationCondition ),
+            backwardPropagationTerminationCondition_( backwardPropagationTerminationCondition )
+    { }
+
+    //! Function to check whether the propagation is to be be stopped
+    /*!
+     * Function to check whether the propagation is to be be stopped, i.e. one or all (depending on value of
+     * fulfillSingleCondition_) of the stopping conditions are fulfilled.
+     * \param time Current time in propagation
+     * \param cpuTime Current CPU time in propagation
+     * \return True if propagation is to be stopped, false otherwise.
+     */
+    bool checkStopCondition( const double time, const double cpuTime );
+
+    //! Function to retrieve termination condition for forward propagation that is checked when calling checkStopCondition is called.
+    /*!
+     *  Function to retrieve termination condition for forward propagation that is checked when calling checkStopCondition is called.
+     *  \return List of termination conditions that is checked for forward propagation when calling checkStopCondition is called.
+     */
+    std::shared_ptr< PropagationTerminationCondition > getForwardPropagationTerminationCondition( )
+    {
+        return forwardPropagationTerminationCondition_;
+    }
+
+    //! Function to retrieve termination condition for backward propagation that is checked when calling checkStopCondition is called.
+    /*!
+     *  Function to retrieve termination condition for backward propagation that is checked when calling checkStopCondition is called.
+     *  \return List of termination conditions that is checked for backward propagation when calling checkStopCondition is called.
+     */
+    std::shared_ptr< PropagationTerminationCondition > getBackwardPropagationTerminationCondition( )
+    {
+        return backwardPropagationTerminationCondition_;
+    }
+
+
+private:
+
+    //! Termination condition for forward propagation that is checked when calling checkStopCondition is called.
+    std::shared_ptr< PropagationTerminationCondition > forwardPropagationTerminationCondition_;
+
+    //! Termination condition for backward propagation that is checked when calling checkStopCondition is called.
+    std::shared_ptr< PropagationTerminationCondition > backwardPropagationTerminationCondition_;
+
+};
+
 //! Function to create propagation termination conditions from associated settings
 /*!
  * Function to create propagation termination conditions from associated settings
@@ -533,6 +597,21 @@ std::shared_ptr< PropagationTerminationCondition > createPropagationTerminationC
         propagationTerminationCondition = std::make_shared< HybridPropagationTerminationCondition >(
                     propagationTerminationConditionList, hybridTerminationSettings->fulfillSingleCondition_,
                     hybridTerminationSettings->checkTerminationToExactCondition_ );
+        break;
+    }
+    case non_sequential_stopping_condition:
+    {
+        std::shared_ptr< NonSequentialPropagationTerminationSettings > nonSequentialTerminationSettings =
+                std::dynamic_pointer_cast< NonSequentialPropagationTerminationSettings >( terminationSettings );
+
+        std::shared_ptr< PropagationTerminationCondition > forwardTerminationCondition = createPropagationTerminationConditions(
+                nonSequentialTerminationSettings->forwardTerminationSettings_,
+                bodies, initialTimeStep, stateDerivativeModels, stateDerivativePartials );
+        std::shared_ptr< PropagationTerminationCondition > backwardTerminationCondition = createPropagationTerminationConditions(
+                nonSequentialTerminationSettings->backwardTerminationSettings_,
+                bodies, - initialTimeStep, stateDerivativeModels, stateDerivativePartials );
+        propagationTerminationCondition = std::make_shared< NonSequentialPropagationTerminationCondition >(
+                forwardTerminationCondition, backwardTerminationCondition );
         break;
     }
     default:

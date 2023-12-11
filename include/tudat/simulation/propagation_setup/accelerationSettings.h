@@ -13,8 +13,6 @@
 
 #include <functional>
 #include <memory>
-#include "tudat/astro/electromagnetism/cannonBallRadiationPressureAcceleration.h"
-#include "tudat/astro/electromagnetism/solarSailAcceleration.h"
 #include "tudat/astro/gravitation/centralGravityModel.h"
 #include "tudat/astro/gravitation/sphericalHarmonicsGravityModel.h"
 #include "tudat/astro/gravitation/thirdBodyPerturbation.h"
@@ -84,6 +82,12 @@ inline std::shared_ptr< AccelerationSettings > cannonBallRadiationPressureAccele
 {
     return std::make_shared< AccelerationSettings >( basic_astrodynamics::cannon_ball_radiation_pressure );
 }
+
+inline std::shared_ptr< AccelerationSettings > radiationPressureAcceleration()
+{
+    return std::make_shared< AccelerationSettings >( basic_astrodynamics::radiation_pressure );
+}
+
 
 // Class for providing settings for spherical harmonics acceleration model.
 /*
@@ -198,6 +202,11 @@ inline std::shared_ptr< AccelerationSettings > mutualSphericalHarmonicAccelerati
 inline std::shared_ptr< AccelerationSettings > polyhedronAcceleration( )
 {
     return std::make_shared< AccelerationSettings >( basic_astrodynamics::polyhedron_gravity );
+}
+
+inline std::shared_ptr< AccelerationSettings > ringAcceleration( )
+{
+    return std::make_shared< AccelerationSettings >( basic_astrodynamics::ring_gravity );
 }
 
 // Class to provide settings for typical relativistic corrections to the dynamics of an orbiter.
@@ -316,6 +325,31 @@ inline std::shared_ptr< AccelerationSettings > empiricalAcceleration(
 		)
 {
 	return std::make_shared< EmpiricalAccelerationSettings >( constantAcceleration, sineAcceleration, cosineAcceleration );
+}
+
+// Class to define settings for yarkovsky accelerations
+//! @get_docstring(YarkovskyAccelerationSettings.__docstring__)
+class YarkovskyAccelerationSettings : public AccelerationSettings
+{
+    // Constructor
+    /*
+     * Constructor
+     * \param yarkovskyParameter (A2) au d^{-1}
+     */
+    public:
+    YarkovskyAccelerationSettings( const double yarkovskyParameter = 0.0 ):
+    AccelerationSettings(basic_astrodynamics::yarkovsky_acceleration),
+    yarkovskyParameter_(yarkovskyParameter) { }
+
+    // Yarkovsky parameter (A2) au d^{-1}
+    double yarkovskyParameter_;
+};
+
+//! @get_docstring(yarkovskyAcceleration)
+inline std::shared_ptr< AccelerationSettings> yarkovskyAcceleration(
+    const double yarkovskyParameter )
+{
+    return std::make_shared< YarkovskyAccelerationSettings >( yarkovskyParameter );
 }
 
 // Interface class that allows single interpolator to be used for thrust direction and magnitude (which are separated in
@@ -616,7 +650,9 @@ public:
         AccelerationSettings(
             ( useTideRaisedOnPlanet ? basic_astrodynamics::direct_tidal_dissipation_in_central_body_acceleration :
                                       basic_astrodynamics::direct_tidal_dissipation_in_orbiting_body_acceleration ) ),
-        k2LoveNumber_( k2LoveNumber ), timeLag_( timeLag ), includeDirectRadialComponent_( includeDirectRadialComponent ),
+        k2LoveNumber_( k2LoveNumber ), timeLag_( timeLag ),
+        inverseTidalQualityFactor_( TUDAT_NAN ), tidalPeriod_( TUDAT_NAN ),
+        includeDirectRadialComponent_( includeDirectRadialComponent ),
         useTideRaisedOnPlanet_( useTideRaisedOnPlanet ), explicitLibraionalTideOnSatellite_( explicitLibraionalTideOnSatellite )
     {
         if( explicitLibraionalTideOnSatellite_ && useTideRaisedOnPlanet_ )
@@ -625,11 +661,43 @@ public:
         }
     }
 
+    // Constructor
+    /*
+     * Constructor
+     * \param k2LoveNumber Static k2 Love number of the satellite
+     * \param inverseTidalQualityFactor Inverse of tidal quality factor Q
+     * \param period Tidal period to be considered to compute the tidal time lag
+     * \param includeDirectRadialComponent  True if term independent of time lag is to be included, false otherwise
+     * \param useTideRaisedOnPlanet True if acceleration model is to model tide raised on planet by satellite, false if vice
+     * versa
+     */
+    DirectTidalDissipationAccelerationSettings( const double k2LoveNumber, const double inverseTidalQualityFactor,
+                                                const double period,
+                                                const bool includeDirectRadialComponent = true,
+                                                const bool useTideRaisedOnPlanet = true,
+                                                const bool explicitLibraionalTideOnSatellite = false ):
+            AccelerationSettings(
+                    ( useTideRaisedOnPlanet ? basic_astrodynamics::direct_tidal_dissipation_in_central_body_acceleration :
+                      basic_astrodynamics::direct_tidal_dissipation_in_orbiting_body_acceleration ) ),
+            k2LoveNumber_( k2LoveNumber ),
+            timeLag_( period * std::atan( inverseTidalQualityFactor ) / ( 2.0 * mathematical_constants::PI ) ),
+            inverseTidalQualityFactor_( inverseTidalQualityFactor ),
+            tidalPeriod_( period ),
+            includeDirectRadialComponent_( includeDirectRadialComponent ),
+            useTideRaisedOnPlanet_( useTideRaisedOnPlanet ),
+            explicitLibraionalTideOnSatellite_( explicitLibraionalTideOnSatellite ){ }
+
     // Static k2 Love number of the satellite
     double k2LoveNumber_;
 
     // Time lag of tidal bulge on satellite
     double timeLag_;
+
+    // Inverse of tidal quality factor of the satellite (set to NaN if tidal lag is a direct input of the model)
+    double inverseTidalQualityFactor_;
+
+    // Period to be consider for the tides (set to Nan if tidal lag is a direct input of the model)
+    double tidalPeriod_;
 
     // True if term independent of time lag is to be included, false otherwise
     bool includeDirectRadialComponent_;
@@ -653,6 +721,19 @@ inline std::shared_ptr< AccelerationSettings > directTidalDissipationAcceleratio
 																		includeDirectRadialComponent,
                                                                         useTideRaisedOnPlanet,
                                                                            explicitLibraionalTideOnSatellite);
+}
+
+//! @get_docstring(directTidalDissipationAccelerationFromInvQ)
+inline std::shared_ptr< AccelerationSettings > directTidalDissipationAccelerationFromInvQ(
+        const double k2LoveNumber, const double inverseTidalQualityFactor,
+        const double tidalPeriod,
+        const bool includeDirectRadialComponent = true,
+        const bool useTideRaisedOnPlanet = true,
+        const bool explicitLibraionalTideOnSatellite = false
+)
+{
+    return std::make_shared< DirectTidalDissipationAccelerationSettings >(
+            k2LoveNumber, inverseTidalQualityFactor, tidalPeriod, includeDirectRadialComponent, useTideRaisedOnPlanet, explicitLibraionalTideOnSatellite);
 }
 
 // Class for providing acceleration settings for a momentum wheel desaturation acceleration model.
