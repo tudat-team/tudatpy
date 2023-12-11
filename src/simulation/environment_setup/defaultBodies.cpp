@@ -14,9 +14,12 @@
 #define DEFAULT_MOON_GRAVITY_FIELD_SETTINGS std::make_shared< FromFileSphericalHarmonicsGravityFieldSettings >( gggrx1200, 200 )
 #define DEFAULT_MARS_GRAVITY_FIELD_SETTINGS std::make_shared< FromFileSphericalHarmonicsGravityFieldSettings >( jgmro120d )
 
+#include "tudat/simulation/environment_setup/defaultBodies.h"
 #include "tudat/interface/spice/spiceInterface.h"
 #include "tudat/io/basicInputOutput.h"
+#include "tudat/astro/basic_astro/celestialBodyConstants.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
+#include "tudat/astro/reference_frames/referenceFrameTransformations.h"
 
 namespace tudat
 {
@@ -42,13 +45,50 @@ std::shared_ptr< AtmosphereSettings > getDefaultAtmosphereModelSettings(
     return atmosphereSettings;
 }
 
+std::shared_ptr<RadiationSourceModelSettings> getKnockeEarthRadiationPressureSettings( )
+{
+    // Model from Knocke (1988)
+    return extendedRadiationSourceModelSettings({
+                albedoPanelRadiosityModelSettings(KnockeTypeSurfacePropertyDistributionModel::albedo_knocke, "Sun"),
+                delayedThermalPanelRadiosityModelSettings(KnockeTypeSurfacePropertyDistributionModel::emissivity_knocke, "Sun")
+            }, {6, 12});
+}
+//! Function to create default settings for a body's radiation source model.
+std::shared_ptr<RadiationSourceModelSettings> getDefaultRadiationSourceModelSettings(
+        const std::string &bodyName,
+        const double initialTime,
+        const double finalTime)
+{
+    std::shared_ptr<RadiationSourceModelSettings> radiationSourceModelSettings;
+
+    if( bodyName == "Sun" )
+    {
+        radiationSourceModelSettings =
+                isotropicPointRadiationSourceModelSettings(
+                        constantLuminosityModelSettings(celestial_body_constants::SUN_LUMINOSITY));
+    }
+    // Do not use Earth default source model since they require Sun to be present
+//    else if( bodyName == "Earth" )
+//    {
+//        // Model from Knocke (1988)
+//        radiationSourceModelSettings =
+//                extendedRadiationSourceModelSettings({
+//                    albedoPanelRadiosityModelSettings(KnockeTypeSurfacePropertyDistributionModel::albedo_knocke, "Sun"),
+//                    delayedThermalPanelRadiosityModelSettings(KnockeTypeSurfacePropertyDistributionModel::emissivity_knocke, "Sun")
+//                }, {6, 12});
+//    }
+
+    return radiationSourceModelSettings;
+}
+
 //! Function to create default settings for a body's ephemeris.
 std::shared_ptr< EphemerisSettings > getDefaultEphemerisSettings(
         const std::string& bodyName,
-        const std::string baseFrameOrientation )
+        const std::string& baseFrameOrientation,
+        const std::string& originatingNameBodyName )
 {
-    std::string bodyNameToUse = bodyName;
-    if( bodyName == "Uranus" || bodyName == "Neptune" || bodyName == "Pluto" )
+    std::string bodyNameToUse = ( originatingNameBodyName == "" ) ? bodyName : originatingNameBodyName;
+    if( originatingNameBodyName == "Uranus" || originatingNameBodyName == "Neptune" || originatingNameBodyName == "Pluto" )
     {
         bodyNameToUse += "_BARYCENTER";
     }
@@ -62,11 +102,12 @@ std::shared_ptr< EphemerisSettings > getDefaultEphemerisSettings(
         const std::string& bodyName,
         const double initialTime,
         const double finalTime,
-        const std::string baseFrameOrientation,
+        const std::string& baseFrameOrientation,
+        const std::string& originatingNameBodyName,
         const double timeStep )
 {
-    std::string bodyNameToUse = bodyName;
-    if( bodyName == "Uranus" || bodyName == "Neptune" || bodyName == "Pluto" )
+    std::string bodyNameToUse = ( originatingNameBodyName == "" ) ? bodyName : originatingNameBodyName;
+    if( originatingNameBodyName == "Uranus" || originatingNameBodyName == "Neptune" || originatingNameBodyName == "Pluto" )
     {
         bodyNameToUse += "_BARYCENTER";
     }
@@ -190,14 +231,20 @@ std::shared_ptr< RotationModelSettings > getDefaultRotationModelSettings(
         const std::string& bodyName,
         const double initialTime,
         const double finalTime,
-        const std::string baseFrameOrientation )
+        const std::string& baseFrameOrientation,
+        const std::string& spiceBodyName )
 {
     TUDAT_UNUSED_PARAMETER( initialTime );
     TUDAT_UNUSED_PARAMETER( finalTime );
 
+    std::string spiceFrameName = "IAU_" + bodyName;
+    if( spiceBodyName != "" )
+    {
+        spiceFrameName = "IAU_" + spiceBodyName;
+    }
     // Create settings for a rotation model taken directly from Spice.
-    return std::make_shared< RotationModelSettings >(
-                spice_rotation_model, baseFrameOrientation, "IAU_" + bodyName );
+    return std::make_shared< SpiceRotationModelSettings >(
+                baseFrameOrientation, "IAU_" + bodyName, spiceFrameName );
 
 }
 
@@ -208,7 +255,9 @@ double marsTimeDependentPhaseAngleCorrectionFunction( const double secondsSinceJ
 }
 
 // Mars orientation parameter solution from the MRO120D gravity field (A.S. Konopliv et al. 2016)
-std::shared_ptr< RotationModelSettings > getHighAccuracyMarsRotationModel( )
+std::shared_ptr< RotationModelSettings > getHighAccuracyMarsRotationModel(
+    const std::string& baseFrameOrientation,
+    const std::string& targetFrameOrientation )
 {
     std::shared_ptr< RotationModelSettings > rotationModelSettings;
 
@@ -271,7 +320,7 @@ std::shared_ptr< RotationModelSettings > getHighAccuracyMarsRotationModel( )
                 convertDegreesToRadians( 350.891985307 ) / physical_constants::JULIAN_DAY,
                 0.07,
                 convertDegreesToRadians( -1.5 ) / physical_constants::JULIAN_DAY,
-                "ECLIPJ2000", "Mars_Fixed", "Sun",
+                baseFrameOrientation, targetFrameOrientation, "Sun",
                 nutationCorrectionSettings,
                 meanMotionTimeDependentPhaseNutationCorrections, timeDependentPhaseCorrectionFunctions, rotationRateCorrections,
                 xPolarMotionCoefficients, yPolarMotionCoefficients );
@@ -300,33 +349,57 @@ std::shared_ptr< BodySettings > getDefaultSingleBodySettings(
         const std::string& baseFrameOrientation,
         const double timeStep )
 {
+    return  getDefaultSingleAlternateNameBodySettings(
+        bodyName, bodyName, initialTime, finalTime, baseFrameOrientation, timeStep );
+}
+
+std::shared_ptr< BodySettings > getDefaultSingleAlternateNameBodySettings(
+    const std::string& bodyName,
+    const std::string& originatingName,
+    const double initialTime,
+    const double finalTime,
+    const std::string& baseFrameOrientation,
+    const double timeStep )
+{
     std::shared_ptr< BodySettings > singleBodySettings = std::make_shared< BodySettings >( );
 
     // Get default settings for each of the environment models in the body.
     singleBodySettings->atmosphereSettings = getDefaultAtmosphereModelSettings(
+        originatingName, initialTime, finalTime );
+    singleBodySettings->radiationSourceModelSettings = getDefaultRadiationSourceModelSettings(
                 bodyName, initialTime, finalTime );
     singleBodySettings->rotationModelSettings = getDefaultRotationModelSettings(
-                bodyName, initialTime, finalTime, baseFrameOrientation );
+        bodyName, initialTime, finalTime, baseFrameOrientation, originatingName );
 
-    if( ( !( initialTime == initialTime ) && ( finalTime == finalTime ) ) ||
-            ( ( initialTime == initialTime ) && !( finalTime == finalTime ) ) )
+    if( !( std::isnan( initialTime ) == std::isnan( finalTime ) ) )
     {
-        throw std::runtime_error( "Error when getting default body settings, only one input time is NaN" );
+        throw std::runtime_error( "Error when getting default body settings, some but not all input times are NaN" );
     }
-    else if( !( initialTime == initialTime ) )
+    else if( std::isnan( initialTime ) )
     {
         singleBodySettings->ephemerisSettings = getDefaultEphemerisSettings(
-                    bodyName, baseFrameOrientation );
+            originatingName, baseFrameOrientation, originatingName );
     }
     else
     {
+        if( std::isnan( timeStep ) )
+        {
+            throw std::runtime_error( "Error when getting default body settings, time step is NaN" );
+        }
+
         singleBodySettings->ephemerisSettings = getDefaultEphemerisSettings(
-                    bodyName, initialTime, finalTime, baseFrameOrientation, timeStep );
+        originatingName, initialTime, finalTime, baseFrameOrientation, originatingName, timeStep );
     }
+
     singleBodySettings->gravityFieldSettings = getDefaultGravityFieldSettings(
-                bodyName, initialTime, finalTime );
+        originatingName, initialTime, finalTime );
+    if( std::dynamic_pointer_cast< SphericalHarmonicsGravityFieldSettings >( singleBodySettings->gravityFieldSettings ) != nullptr )
+    {
+        std::dynamic_pointer_cast< SphericalHarmonicsGravityFieldSettings >( singleBodySettings->gravityFieldSettings )->resetAssociatedReferenceFrame(
+            singleBodySettings->rotationModelSettings->getTargetFrame( ) );
+    }
     singleBodySettings->shapeModelSettings = getDefaultBodyShapeSettings(
-                bodyName, initialTime, finalTime );
+        originatingName, initialTime, finalTime );
 
     return singleBodySettings;
 }
@@ -337,6 +410,15 @@ std::shared_ptr< BodySettings > getDefaultSingleBodySettings(
 {
     return getDefaultSingleBodySettings(
                 bodyName, TUDAT_NAN, TUDAT_NAN, baseFrameOrientation );
+}
+
+std::shared_ptr< BodySettings > getDefaultSingleAlternateNameBodySettings(
+    const std::string& bodyName,
+    const std::string& originatingName,
+    const std::string& baseFrameOrientation )
+{
+    return getDefaultSingleAlternateNameBodySettings(
+        bodyName, originatingName, TUDAT_NAN, TUDAT_NAN, baseFrameOrientation );
 }
 
 //! Function to create default settings from which to create a set of body objects.
@@ -379,15 +461,16 @@ BodyListSettings getDefaultBodySettings(
     return BodyListSettings( settingsMap, baseFrameOrigin, baseFrameOrientation );
 }
 
-std::vector< std::shared_ptr< GroundStationSettings > > getDsnStationSettings( )
+std::map< std::string, Eigen::Vector3d > getApproximateDsnGroundStationPositions( )
 {
-    std::map< std::string, Eigen::Vector3d > dsnStationPositions = {
+    std::map< std::string, Eigen::Vector3d > dsnStationPositionsItrf93 = {
         { "DSS-13", ( Eigen::Vector3d( )<< -2351112.659, -4655530.636, +3660912.728 ).finished( ) },
         { "DSS-14", ( Eigen::Vector3d( )<< -2353621.420, -4641341.472, +3677052.318 ).finished( ) },
         { "DSS-15", ( Eigen::Vector3d( )<< -2353538.958, -4641649.429, +3676669.984 ).finished( ) },
         { "DSS-24", ( Eigen::Vector3d( )<< -2354906.711, -4646840.095, +3669242.325 ).finished( ) },
         { "DSS-25", ( Eigen::Vector3d( )<< -2355022.014, -4646953.204, +3669040.567 ).finished( ) },
         { "DSS-26", ( Eigen::Vector3d( )<< -2354890.797, -4647166.328, +3668871.755 ).finished( ) },
+        { "DSS-27", ( Eigen::Vector3d( )<< -2349915.428, -4656756.406, +3660096.469 ).finished( ) },
         { "DSS-34", ( Eigen::Vector3d( )<< -4461147.093, +2682439.239, -3674393.133 ).finished( ) },
         { "DSS-35", ( Eigen::Vector3d( )<< -4461273.090, +2682568.925, -3674152.093 ).finished( ) },
         { "DSS-36", ( Eigen::Vector3d( )<< -4461168.415, +2682814.657, -3674083.901 ).finished( ) },
@@ -398,36 +481,71 @@ std::vector< std::shared_ptr< GroundStationSettings > > getDsnStationSettings( )
         { "DSS-63", ( Eigen::Vector3d( )<< +4849092.518, -360180.3480, +4115109.251 ).finished( ) },
         { "DSS-65", ( Eigen::Vector3d( )<< +4849339.634, -360427.6630, +4114750.733 ).finished( ) } };
 
-    std::shared_ptr< GroundStationMotionSettings > goldstoneStationMotion =
-            std::make_shared< LinearGroundStationMotionSettings >(
-                ( Eigen::Vector3d( )<< -0.0180, 0.0065, -0.0038 ).finished( ) / physical_constants::JULIAN_YEAR,
-                3.0 * physical_constants::JULIAN_YEAR );
-    std::shared_ptr< GroundStationMotionSettings > canberraStationMotion =
-            std::make_shared< LinearGroundStationMotionSettings >(
-                ( Eigen::Vector3d( )<< -0.0335, -0.0041, 0.0392 ).finished( ) / physical_constants::JULIAN_YEAR,
-                3.0 * physical_constants::JULIAN_YEAR );
-    std::shared_ptr< GroundStationMotionSettings > madridStationMotion =
-            std::make_shared< LinearGroundStationMotionSettings >(
-                ( Eigen::Vector3d( )<< -0.0100, -0.0242, 0.0156  ).finished( ) / physical_constants::JULIAN_YEAR,
-                3.0 * physical_constants::JULIAN_YEAR );
+    return dsnStationPositionsItrf93;
+}
+
+
+Eigen::Vector3d getApproximateGroundStationPosition( std::string stationName )
+{
+    Eigen::Vector3d groundStationPosition;
+
+    std::map< std::string, Eigen::Vector3d > dsnMap = getApproximateDsnGroundStationPositions( );
+    if ( dsnMap.count( stationName ) != 0 )
+    {
+        groundStationPosition = dsnMap.at( stationName );
+    }
+    else
+    {
+        throw std::runtime_error( "Error when retrieving approximate ground station position: station name " + stationName +
+            "not recognized." );
+    }
+
+    return groundStationPosition;
+}
+
+std::vector< std::shared_ptr< GroundStationSettings > > getDsnStationSettings( )
+{
+    // DSS positions: at 2003.0 with respect to ITRF93
+    double stationPositionsReferenceEpoch = 3.0 * physical_constants::JULIAN_YEAR;
+    std::map< std::string, Eigen::Vector3d > dsnStationPositionsItrf93 = getApproximateDsnGroundStationPositions( );
+
+    Eigen::Vector3d goldstoneStationVelocity( -0.0180, 0.0065, -0.0038 );
+    goldstoneStationVelocity /= physical_constants::JULIAN_YEAR;
+    Eigen::Vector3d canberraStationVelocity( -0.0335, -0.0041, 0.0392 );
+    canberraStationVelocity /= physical_constants::JULIAN_YEAR;
+    Eigen::Vector3d madridStationVelocity( -0.0100, -0.0242, 0.0156 );
+    madridStationVelocity /= physical_constants::JULIAN_YEAR;
+
     std::vector< std::shared_ptr< GroundStationSettings > > stationSettingsList;
 
-    for( auto it : dsnStationPositions )
+    for( auto it : dsnStationPositionsItrf93 )
     {
-        std::shared_ptr< GroundStationSettings > stationSettings  =
-                std::make_shared< GroundStationSettings >( it.first, it.second );
+        Eigen::Vector3d stationVelocityItrf93 = Eigen::Vector3d::Constant( TUDAT_NAN );
         if( it.first[ 4 ] == '1' || it.first[ 4 ] == '2' )
         {
-            stationSettings->addStationMotionSettings( goldstoneStationMotion );
+            stationVelocityItrf93 = goldstoneStationVelocity;
         }
         else if( it.first[ 4 ] == '3' || it.first[ 4 ] == '4' )
         {
-            stationSettings->addStationMotionSettings( canberraStationMotion );
+            stationVelocityItrf93 = canberraStationVelocity;
         }
         else if( it.first[ 4 ] == '5' || it.first[ 4 ] == '6' )
         {
-            stationSettings->addStationMotionSettings( madridStationMotion );
+            stationVelocityItrf93 = madridStationVelocity;
         }
+
+        // Convert ground station state to ITRF2014
+        Eigen::Vector6d stationStateItrf2014 = reference_frames::convertGroundStationStateArbitraryItrfToItrf2014(
+                ( Eigen::Vector6d( ) << it.second, stationVelocityItrf93 ).finished(),
+                stationPositionsReferenceEpoch,
+                "ITRF93" );
+
+        std::shared_ptr< GroundStationMotionSettings > stationMotion = std::make_shared< LinearGroundStationMotionSettings >(
+                stationStateItrf2014.segment( 3, 3 ), stationPositionsReferenceEpoch );
+
+        std::shared_ptr< GroundStationSettings > stationSettings  = std::make_shared< GroundStationSettings >(
+                it.first, stationStateItrf2014.segment( 0, 3 ) );
+        stationSettings->addStationMotionSettings( stationMotion );
         stationSettingsList.push_back( stationSettings );
     }
 

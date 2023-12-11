@@ -21,6 +21,8 @@
 
 #include <boost/random/mersenne_twister.hpp>
 
+#include "tudat/basics/utilities.h"
+
 namespace tudat
 {
 
@@ -72,10 +74,10 @@ ScalarType computeModulo( const ScalarType dividend, const ScalarType divisor )
  * \param numberOfDivisors Number of times divisor goes into dividend (returned by reference).
  */
 template< typename ScalarType >
-inline void computeModuloAndRemainder( const ScalarType dividend, const ScalarType divisor,
+constexpr void computeModuloAndRemainder( const ScalarType dividend, const ScalarType divisor,
                                        ScalarType& moduloValue, int& numberOfDivisors )
 {
-    numberOfDivisors = std::floor( dividend / divisor );
+    numberOfDivisors = utilities::constexpr_int_floor< ScalarType >( dividend / divisor );
     moduloValue = dividend - divisor * static_cast< ScalarType >( numberOfDivisors );
 }
 

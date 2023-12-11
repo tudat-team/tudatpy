@@ -87,11 +87,11 @@ BOOST_AUTO_TEST_CASE( testassessTerminationOnMinorStepsRKFixedStepSize )
         double aerodynamicCoefficient = 1.2;
         std::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings =
                 std::make_shared< ConstantAerodynamicCoefficientSettings >(
-                    referenceArea, aerodynamicCoefficient * Eigen::Vector3d::UnitX( ), 1, 1 );
+                    referenceArea, aerodynamicCoefficient * Eigen::Vector3d::UnitX( ), negative_aerodynamic_frame_coefficients );
 
         // Create and set aerodynamic coefficients object
         bodies.at( "Asterix" )->setAerodynamicCoefficientInterface(
-                    createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Asterix" ) );
+                    createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Asterix", bodies ) );
 
         // Create radiation pressure settings
         double referenceAreaRadiation = 4.0;
@@ -247,11 +247,11 @@ BOOST_AUTO_TEST_CASE( testassessTerminationOnMinorStepsRKVariableStepSize )
         double aerodynamicCoefficient = 1.2;
         std::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings =
                 std::make_shared< ConstantAerodynamicCoefficientSettings >(
-                    referenceArea, aerodynamicCoefficient * Eigen::Vector3d::UnitX( ), 1, 1 );
+                    referenceArea, aerodynamicCoefficient * Eigen::Vector3d::UnitX( ), negative_aerodynamic_frame_coefficients );
 
         // Create and set aerodynamic coefficients object
         bodies.at( "Asterix" )->setAerodynamicCoefficientInterface(
-                    createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Asterix" ) );
+                    createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Asterix", bodies ) );
 
         // Create radiation pressure settings
         double referenceAreaRadiation = 4.0;

@@ -23,6 +23,9 @@ set(acceleration_partials_SOURCES
   "panelledRadiationPressureAccelerationPartial.cpp"
   "thrustAccelerationPartial.cpp"
   "polyhedronAccelerationPartial.cpp"
+  "ringAccelerationPartial.cpp"
+  "yarkovskyAccelerationPartial.cpp"
+  "fullRadiationPressureAccelerationPartial.cpp"
 )
 
 # Set the header files.
@@ -43,6 +46,9 @@ set(acceleration_partials_HEADERS
   "panelledRadiationPressureAccelerationPartial.h"
   "thrustAccelerationPartial.h"
   "polyhedronAccelerationPartial.h"
+  "ringAccelerationPartial.h"
+  "yarkovskyAccelerationPartial.h"
+  "fullRadiationPressureAccelerationPartial.h"
 )
 
 TUDAT_ADD_LIBRARY("acceleration_partials"

@@ -18,6 +18,7 @@
 #include "tudat/astro/observation_models/observationSimulator.h"
 #include "tudat/simulation/estimation_setup/observations.h"
 #include "tudat/basics/utilities.h"
+#include "tudat/math/basic/leastSquaresEstimation.h"
 #include "tudat/math/statistics/randomVariableGenerator.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/estimation_setup/createObservationModel.h"
@@ -38,6 +39,7 @@ void addNoiseAndDependentVariableToObservation(
         Eigen::VectorXd& dependentVariables,
         const std::vector< Eigen::Vector6d >& vectorOfStates,
         const std::vector< double >& vectorOfTimes,
+        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings,
         const observation_models::ObservableType observableType,
         const std::function< Eigen::VectorXd( const double ) > noiseFunction = nullptr,
         const std::shared_ptr< ObservationDependentVariableCalculator > dependentVariableCalculator = nullptr  )
@@ -45,7 +47,7 @@ void addNoiseAndDependentVariableToObservation(
     if( dependentVariableCalculator != nullptr )
     {
         dependentVariables = dependentVariableCalculator->calculateDependentVariables(
-                    vectorOfTimes, vectorOfStates, calculatedObservation.template cast< double >( ) );
+                    vectorOfTimes, vectorOfStates, calculatedObservation.template cast< double >( ), ancilliarySettings );
     }
 
     // Add noise if needed.
@@ -87,7 +89,7 @@ std::tuple< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >, bool, Eig
         std::vector< std::shared_ptr< observation_models::ObservationViabilityCalculator > >( ),
         const std::function< Eigen::VectorXd( const double ) > noiseFunction = nullptr,
         const std::shared_ptr< ObservationDependentVariableCalculator > dependentVariableCalculator = nullptr,
-        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings < TimeType > > ancilliarySettings = nullptr )
+        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings = nullptr )
 {
     // Simulate observable, and retrieve link end times and states
     std::vector< Eigen::Vector6d > vectorOfStates;
@@ -104,7 +106,7 @@ std::tuple< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >, bool, Eig
     {
         addNoiseAndDependentVariableToObservation< ObservationSize , ObservationScalarType, TimeType >(
                     calculatedObservation, observationTime, dependentVariables,
-                    vectorOfStates, vectorOfTimes, observationModel->getObservableType( ),
+                    vectorOfStates, vectorOfTimes, ancilliarySettings, observationModel->getObservableType( ),
                     noiseFunction, dependentVariableCalculator );
     }
 
@@ -136,7 +138,7 @@ simulateObservationsWithCheck(
         std::vector< std::shared_ptr< observation_models::ObservationViabilityCalculator > >( ),
         const std::function< Eigen::VectorXd( const double ) > noiseFunction = nullptr,
         const std::shared_ptr< ObservationDependentVariableCalculator > dependentVariableCalculator = nullptr,
-        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings < TimeType > > ancilliarySettings = nullptr )
+        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings = nullptr )
 {
     std::map< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > observations;
     std::tuple< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >, bool, Eigen::VectorXd > simulatedObservation;
@@ -184,7 +186,7 @@ simulateObservationsWithCheckAndLinkEndIdOutput(
         std::vector< std::shared_ptr< observation_models::ObservationViabilityCalculator > >( ),
         const std::function< Eigen::VectorXd( const double ) > noiseFunction = nullptr,
         const std::shared_ptr< ObservationDependentVariableCalculator > dependentVariableCalculator = nullptr,
-        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings < TimeType > > ancilliarySettings = nullptr )
+        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings = nullptr )
 {
     std::tuple< std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >,
     std::vector< TimeType >, std::vector< Eigen::VectorXd > >  simulatedObservations =
@@ -232,7 +234,7 @@ simulatePerArcSingleObservationSet(
     // Initialize observation simulation
     LinkEndType referenceLinkEnd = observationsToSimulate->getReferenceLinkEndType( );
     TimeType currentObservationTime = observationsToSimulate->startTime_;
-    std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings < TimeType > > ancilliarySettings =
+    std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings =
             observationsToSimulate->getAncilliarySettings( );
 
 
@@ -316,7 +318,7 @@ simulatePerArcSingleObservationSet(
             if( observationFeasible )
             {
                 addNoiseAndDependentVariableToObservation< ObservationSize , ObservationScalarType, TimeType >(
-                            currentObservation, it.first, currentDependentVariable, vectorOfStates, vectorOfTimes,
+                            currentObservation, it.first, currentDependentVariable, vectorOfStates, vectorOfTimes, ancilliarySettings,
                             observationModel->getObservableType( ),
                             observationsToSimulate->getObservationNoiseFunction( ),
                             observationsToSimulate->getDependentVariableCalculator( ) );
@@ -518,7 +520,9 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
                         std::vector< TimeType > > > > observationsInput,
         const observation_models::LinkEndType referenceLinkEnd,
         const std::map< observation_models::ObservableType,
-        std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings < TimeType > > > ancilliarySettings = nullptr )
+            std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > > ancilliarySettings =
+                    std::map< observation_models::ObservableType,
+                    std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > >( ) )
 {
     // Declare return map.
     typename observation_models::ObservationCollection< ObservationScalarType, TimeType >::SortedObservationSets sortedObservations;
@@ -537,7 +541,7 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
             throw std::runtime_error("Error when setting observation collection from existing observations, size of observation times and observation values is inconsistent.");
         }
 
-        std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings < TimeType > > currentAncilliarySettings = nullptr;
+        std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > currentAncilliarySettings = nullptr;
         if( ancilliarySettings.count( observableType ) )
         {
             currentAncilliarySettings = ancilliarySettings.at( observableType );
@@ -600,6 +604,169 @@ std::map< double, Eigen::VectorXd > getTargetAnglesAndRange(
         const std::vector< double > times,
         const bool transmittingToTarget );
 
+
+/*!
+ * Creates observation simulation settings to be used when simulating observations consistent with an observed observation
+ * collection.
+ *
+ * @param observedObservationCollection Observation collection of observed observations (i.e. from ODF file)
+ * @return Observation simulation settings for simulated observations.
+ */
+template< typename ObservationScalarType = double, typename TimeType = double >
+std::vector< std::shared_ptr< simulation_setup::ObservationSimulationSettings< TimeType > > > getObservationSimulationSettingsFromObservations(
+    std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > observedObservationCollection )
+{
+    std::vector< std::shared_ptr< simulation_setup::ObservationSimulationSettings< TimeType > > > observationSimulationSettings;
+
+    std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds, std::vector< std::shared_ptr<
+        observation_models::SingleObservationSet< ObservationScalarType, TimeType > > > > > observationSetList =
+        observedObservationCollection->getObservations( );
+
+    for ( auto observableTypeIterator = observationSetList.begin( ); observableTypeIterator != observationSetList.end( );
+          ++observableTypeIterator )
+    {
+        observation_models::ObservableType currentObservableType = observableTypeIterator->first;
+
+        for ( auto linkEndsIterator = observableTypeIterator->second.begin( );
+              linkEndsIterator != observableTypeIterator->second.end( ); ++linkEndsIterator )
+        {
+            observation_models::LinkEnds currentLinkEnds = linkEndsIterator->first;
+            std::vector< std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType, TimeType > > >
+                singleObservationSets = linkEndsIterator->second;
+
+            for ( unsigned int i = 0; i < singleObservationSets.size( ); ++i )
+            {
+                observationSimulationSettings.push_back(
+                    std::make_shared< simulation_setup::TabulatedObservationSimulationSettings< TimeType > >(
+                        currentObservableType, currentLinkEnds, singleObservationSets.at( i )->getObservationTimes( ),
+                        singleObservationSets.at( i )->getReferenceLinkEnd( ),
+                        std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > >( ),
+                        nullptr,
+                        singleObservationSets.at( i )->getAncilliarySettings( )
+                    )
+                );
+            }
+
+        }
+    }
+
+    return observationSimulationSettings;
+}
+
+
+template< typename ObservationScalarType = double, typename TimeType = double >
+Eigen::VectorXd getNumericalObservationTimePartial(
+    const std::vector< std::shared_ptr< simulation_setup::ObservationSimulationSettings< TimeType > > >& observationSimulationSettings,
+    const std::vector< std::shared_ptr< observation_models::ObservationSimulatorBase< ObservationScalarType, TimeType > > >& observationSimulators,
+    const SystemOfBodies& bodies,
+    const double timePerturbation )
+{
+    std::vector< std::shared_ptr< simulation_setup::ObservationSimulationSettings< TimeType > > > upPerturbedObservationSimulationSettings;
+    for( unsigned int i = 0; i < observationSimulationSettings.size( ); i++ )
+    {
+        upPerturbedObservationSimulationSettings.push_back( perturbObservationTime< TimeType >( observationSimulationSettings.at( i ), timePerturbation ) );
+    }
+    std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > computedUpperturbedObservationCollection =
+        simulateObservations( upPerturbedObservationSimulationSettings, observationSimulators, bodies );
+
+    std::vector< std::shared_ptr< simulation_setup::ObservationSimulationSettings< TimeType > > > downPerturbedObservationSimulationSettings;
+    for( unsigned int i = 0; i < observationSimulationSettings.size( ); i++ )
+    {
+        downPerturbedObservationSimulationSettings.push_back( perturbObservationTime< TimeType >( observationSimulationSettings.at( i ), -timePerturbation ) );
+    }
+    std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > computedDownperturbedObservationCollection =
+        simulateObservations( downPerturbedObservationSimulationSettings, observationSimulators, bodies );
+
+    return ( computedUpperturbedObservationCollection->getObservationVector( ).template cast< double >( ) -
+        computedDownperturbedObservationCollection->getObservationVector( ).template cast< double >( ) ) / ( 2.0 * timePerturbation );
+}
+
+
+template< typename ObservationScalarType = double, typename TimeType = double >
+void estimateTimeBiasPerSet(
+    const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > residualObservationCollection,
+    const Eigen::VectorXd& timePartials,
+    std::vector< double >& timeBiases,
+    Eigen::VectorXd& correctedResiduals )
+{
+    std::vector< std::pair< int, int > > startEndIndices = residualObservationCollection->getConcatenatedObservationSetStartAndSize( );
+    Eigen::VectorXd residualVector = residualObservationCollection->getObservationVectorReference( ).template cast< double >( );
+    correctedResiduals.resize( residualVector.rows( ), 1 );
+
+    for( unsigned int i = 0; i < startEndIndices.size( ); i++ )
+    {
+        Eigen::VectorXd currentPartials = timePartials.segment( startEndIndices.at( i ).first, startEndIndices.at( i ).second );
+        double currentTimeBias = ( ( currentPartials.transpose( ) * currentPartials ).inverse( ) *
+            ( currentPartials.transpose( ) * residualVector.segment( startEndIndices.at( i ).first, startEndIndices.at( i ).second ) ) )( 0 );
+        correctedResiduals.segment( startEndIndices.at( i ).first, startEndIndices.at( i ).second ) =
+            residualVector.segment( startEndIndices.at( i ).first, startEndIndices.at( i ).second ) -
+            currentTimeBias * currentPartials;
+        timeBiases.push_back( currentTimeBias );
+    }
+}
+
+
+
+template< typename ObservationScalarType = double, typename TimeType = double >
+void estimateTimeBiasAndPolynomialFitPerSet(
+    const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > residualObservationCollection,
+    const Eigen::VectorXd& timePartials,
+    std::vector< double >& timeBiases,
+    std::vector< Eigen::VectorXd >& polynomialCoefficientsList,
+    Eigen::VectorXd& correctedResiduals )
+{
+    estimateTimeBiasPerSet( residualObservationCollection, timePartials, timeBiases, correctedResiduals );
+
+    std::vector< double > stlTimeVector = utilities::staticCastVector< double, TimeType >( residualObservationCollection->getConcatenatedTimeVector( ) );
+    Eigen::VectorXd timeVector = utilities::convertStlVectorToEigenVector< double >( stlTimeVector );
+
+    std::vector< std::pair< int, int > > startEndIndices = residualObservationCollection->getConcatenatedObservationSetStartAndSize( );
+
+//    for( unsigned int i = 0; i < startEndIndices.size( ); i++ )
+//    {
+//        Eigen::VectorXd currentTimes =
+//            timeVector.segment( startEndIndices.at( i ).first, startEndIndices.at( i ).second ).array( ) - timeVector( startEndIndices.at( i ).first );
+//        Eigen::VectorXd currentResiduals = correctedResiduals.segment( startEndIndices.at( i ).first, startEndIndices.at( i ).second );
+//        Eigen::VectorXd polynomialCoefficients = linear_algebra::getLeastSquaresPolynomialFit(
+//            currentTimes, currentResiduals, { 0, 1 } );
+//        polynomialCoefficientsList.push_back( polynomialCoefficients );
+//        Eigen::VectorXd polynomialValues = linear_algebra::evaluatePolynomial( currentTimes, polynomialCoefficients, { 0, 1, 2, 3 } );
+//        correctedResiduals.segment( startEndIndices.at( i ).first, startEndIndices.at( i ).second ) -= polynomialValues;
+//    }
+}
+
+template< typename ObservationScalarType = double, typename TimeType = double >
+void getResidualStatistics(
+    const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > residualObservationCollection,
+    const Eigen::VectorXd& residuals,
+    Eigen::VectorXd& startTimes,
+    Eigen::VectorXd& durations,
+    Eigen::VectorXd& meanValues,
+    Eigen::VectorXd& rmsValues )
+{
+    std::vector< double > stlTimeVector = utilities::staticCastVector< double, TimeType >( residualObservationCollection->getConcatenatedTimeVector( ) );
+    Eigen::VectorXd timeVector = utilities::convertStlVectorToEigenVector< double >( stlTimeVector );
+
+    std::vector< std::pair< int, int > > startEndIndices = residualObservationCollection->getConcatenatedObservationSetStartAndSize( );
+    startTimes = Eigen::VectorXd::Zero( startEndIndices.size( ) );
+    durations = Eigen::VectorXd::Zero( startEndIndices.size( ) );
+    meanValues = Eigen::VectorXd::Zero( startEndIndices.size( ) );
+    rmsValues = Eigen::VectorXd::Zero( startEndIndices.size( ) );
+
+    for( unsigned int i = 0; i < startEndIndices.size( ); i++ )
+    {
+        Eigen::VectorXd currentTimes =
+            timeVector.segment( startEndIndices.at( i ).first, startEndIndices.at( i ).second ).array( ) - timeVector( startEndIndices.at( i ).first );
+        Eigen::VectorXd currentResiduals = residuals.segment( startEndIndices.at( i ).first, startEndIndices.at( i ).second );
+
+        startTimes( i ) = timeVector( startEndIndices.at( i ).first );
+        durations( i ) = currentTimes( currentTimes.rows( ) - 1 ) - currentTimes( 0 );
+        meanValues( i ) = linear_algebra::getVectorEntryMean( currentResiduals );
+        rmsValues( i ) = linear_algebra::getVectorEntryRootMeanSquare( currentResiduals );
+
+
+    }
+}
 
 }
 

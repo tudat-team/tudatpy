@@ -25,6 +25,10 @@ set(environment_HEADERS
         createGravityFieldVariations.h
         createAtmosphereModel.h
         createFlightConditions.h
+        createRadiationSourceModel.h
+        createRadiationPressureTargetModel.h
+        createOccultationModel.h
+        createSurfacePropertyDistribution.h
         createSystemModel.h
         createThrustModelGuidance.h
         thrustSettings.h
@@ -50,6 +54,10 @@ set(environment_SOURCES
         createSystemModel.cpp
         createThrustModelGuidance.cpp
         thrustSettings.cpp
+        createRadiationSourceModel.cpp
+        createRadiationPressureTargetModel.cpp
+        createOccultationModel.cpp
+        createSurfacePropertyDistribution.cpp
         )
 
 # Add library.
@@ -59,5 +67,3 @@ TUDAT_ADD_LIBRARY("environment_setup"
 #        PRIVATE_LINKS "${Boost_LIBRARIES}"
 #        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}" ${CSpice_INCLUDE_DIRS} ${Sofa_INCLUDE_DIRS}
         )
-
-

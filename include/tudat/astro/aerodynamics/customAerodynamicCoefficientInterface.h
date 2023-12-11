@@ -74,16 +74,15 @@ public:
             momentCoefficientFunction,
             const double referenceLength,
             const double referenceArea,
-            const double lateralReferenceLength,
             const Eigen::Vector3d& momentReferencePoint,
             const std::vector< AerodynamicCoefficientsIndependentVariables >
             independentVariableNames,
-            const bool areCoefficientsInAerodynamicFrame = true,
-            const bool areCoefficientsInNegativeAxisDirection = true ):
-        AerodynamicCoefficientInterface( referenceLength, referenceArea, lateralReferenceLength,
+            const AerodynamicCoefficientFrames forceCoefficientsFrame = negative_aerodynamic_frame_coefficients,
+            const AerodynamicCoefficientFrames momentCoefficientsFrame = body_fixed_frame_coefficients ):
+        AerodynamicCoefficientInterface( referenceLength, referenceArea,
                                          momentReferencePoint, independentVariableNames,
-                                         areCoefficientsInAerodynamicFrame,
-                                         areCoefficientsInNegativeAxisDirection )
+                                         forceCoefficientsFrame,
+                                         momentCoefficientsFrame )
     {
         coefficientFunction_ = std::bind(
                     &concatenateForceAndMomentCoefficients, forceCoefficientFunction, momentCoefficientFunction, std::placeholders::_1 );
@@ -116,16 +115,15 @@ public:
             coefficientFunction,
             const double referenceLength,
             const double referenceArea,
-            const double lateralReferenceLength,
             const Eigen::Vector3d& momentReferencePoint,
             const std::vector< AerodynamicCoefficientsIndependentVariables >
             independentVariableNames,
-            const bool areCoefficientsInAerodynamicFrame = true,
-            const bool areCoefficientsInNegativeAxisDirection = true ):
-        AerodynamicCoefficientInterface( referenceLength, referenceArea, lateralReferenceLength,
+            const AerodynamicCoefficientFrames forceCoefficientsFrame = negative_aerodynamic_frame_coefficients,
+            const AerodynamicCoefficientFrames momentCoefficientsFrame = body_fixed_frame_coefficients ):
+        AerodynamicCoefficientInterface( referenceLength, referenceArea,
                                          momentReferencePoint, independentVariableNames,
-                                         areCoefficientsInAerodynamicFrame,
-                                         areCoefficientsInNegativeAxisDirection ),
+                                         forceCoefficientsFrame,
+                                         momentCoefficientsFrame ),
         coefficientFunction_( coefficientFunction ){ }
 
     //! Compute the aerodynamic coefficients at current flight condition.
