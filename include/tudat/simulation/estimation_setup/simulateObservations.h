@@ -653,6 +653,7 @@ std::vector< std::shared_ptr< simulation_setup::ObservationSimulationSettings< T
     return observationSimulationSettings;
 }
 
+
 template< typename ObservationScalarType = double, typename TimeType = double >
 Eigen::VectorXd getNumericalObservationTimePartial(
     const std::vector< std::shared_ptr< simulation_setup::ObservationSimulationSettings< TimeType > > >& observationSimulationSettings,

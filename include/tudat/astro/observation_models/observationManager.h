@@ -492,6 +492,10 @@ protected:
 
                                     Eigen::VectorXd acceleration = dependentVariablesInterface_->getSingleDependentVariable(
                                         totalAccelerationVariable, times.at( indexLinkEndType ) );
+                                    if( acceleration.rows( ) == 0 )
+                                    {
+                                        throw std::runtime_error( "Error when getting link time property partial; could not find acceleration of " + nameBody );
+                                    }
                                     Eigen::Vector6d stateDerivativeVector = Eigen::Vector6d::Zero( );
                                     stateDerivativeVector.segment( 0, 3 ) = states.at( indexLinkEndType ).segment( 3, 3 );
                                     stateDerivativeVector.segment( 3, 3 ) = acceleration;

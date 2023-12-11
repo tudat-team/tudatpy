@@ -1974,7 +1974,8 @@ public:
 
             std::function< double ( observation_models::FrequencyBands, observation_models::FrequencyBands ) > turnaroundRatioFunction;
             // Check if retransmitter is a body
-            if ( linkEnds.at( observation_models::retransmitter ).stationName_ == "" )
+            if ( linkEnds.at( observation_models::retransmitter ).stationName_ == "" || !simulation_setup::isReferencePointGroundStation(
+                bodies, linkEnds.at( observation_models::retransmitter ).bodyName_, linkEnds.at( observation_models::retransmitter ).stationName_ ) )
             {
                 if ( bodies.getBody( linkEnds.at( observation_models::retransmitter ).bodyName_ )->getVehicleSystems( ) == nullptr )
                 {
@@ -1993,10 +1994,19 @@ public:
                 {
                     throw std::runtime_error(
                             "Error when creating DSN N-way averaged Doppler observation model: vehicle systems are not "
-                            "defined for retransmitter link end station " + linkEnds.at( observation_models::retransmitter ).stationName_ + "." );
+                            "defined for retransmitter link end ID " + linkEnds.at( observation_models::retransmitter ).stationName_ + "." );
                 }
                 turnaroundRatioFunction = bodies.getBody( linkEnds.at( observation_models::retransmitter ).bodyName_ )->getGroundStation(
                         linkEnds.at( observation_models::retransmitter ).stationName_ )->getVehicleSystems( )->getTransponderTurnaroundRatio( );
+            }
+
+            if( bodies.getBody( linkEnds.at( observation_models::transmitter ).bodyName_ )->getGroundStation(
+                linkEnds.at( observation_models::transmitter ).stationName_ )->getTransmittingFrequencyCalculator( ) == nullptr )
+            {
+                throw std::runtime_error(
+                    "Error when creating DSN N-way averaged Doppler observation model: transmitted frequency not  "
+                    "defined for link end station " + linkEnds.at( observation_models::transmitter ).bodyName_ + ", " +
+                        linkEnds.at( observation_models::transmitter ).stationName_ );
             }
 
             observationModel = std::make_shared<
@@ -2414,7 +2424,8 @@ std::shared_ptr< ObservationSimulator< ObservationSize, ObservationScalarType, T
  *  \return List of objects that simulate the observables according to the provided settings.
  */
 template< typename ObservationScalarType = double, typename TimeType = double >
-std::vector< std::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > > > createObservationSimulators(
+std::vector< std::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > > >
+    createObservationSimulators(
         const std::vector< std::shared_ptr< ObservationModelSettings > >& observationSettingsList,
         const simulation_setup::SystemOfBodies& bodies )
 {
