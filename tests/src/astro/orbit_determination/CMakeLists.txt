@@ -102,12 +102,24 @@ TUDAT_ADD_TEST_CASE(NonSequentialStateEstimation
 #    PRIVATE_LINKS
 #    ${Tudat_ESTIMATION_LIBRARIES}
 #    )
+
  TUDAT_ADD_TEST_CASE(ConsiderParameters
          PRIVATE_LINKS
          ${Tudat_ESTIMATION_LIBRARIES}
          )
 
+ TUDAT_ADD_TEST_CASE(FitToSpice
+        PRIVATE_LINKS
+        ${Tudat_ESTIMATION_LIBRARIES}
+ )
+
  TUDAT_ADD_TEST_CASE(CustomAccelerationVariationalEquations
+         PRIVATE_LINKS
+         ${Tudat_ESTIMATION_LIBRARIES}
+ )
+
+
+ TUDAT_ADD_TEST_CASE(VehicleReferencePointEstimation
          PRIVATE_LINKS
          ${Tudat_ESTIMATION_LIBRARIES}
  )

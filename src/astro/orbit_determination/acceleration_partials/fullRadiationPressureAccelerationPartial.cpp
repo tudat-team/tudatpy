@@ -65,6 +65,16 @@ void RadiationPressureAccelerationPartial::update( const double currentTime )
     }
 }
 
+void RadiationPressureAccelerationPartial::wrtRadiationPressureCoefficient(
+    Eigen::MatrixXd& partial, std::shared_ptr< electromagnetism::CannonballRadiationPressureTargetModel > targetModel )
+{
+    if( targetModel->getCoefficient( ) == 0.0 )
+    {
+        throw std::runtime_error( "Error in full radiation pressure partial w.r.t. Cr, partial is only implemented for non-zero coefficient" );
+    }
+    partial = radiationPressureAcceleration_->getAcceleration( ) / targetModel->getCoefficient( );
+}
+
 }
 
 }

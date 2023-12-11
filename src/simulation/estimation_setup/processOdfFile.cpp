@@ -104,7 +104,7 @@ std::vector< std::string > ProcessedOdfFileContents::getGroundStationsNames( )
             for ( auto linkEndTypeIt = linkEnd.begin( ); linkEndTypeIt != linkEnd.end( ); ++linkEndTypeIt )
             {
                 // Check if linkEndId is a ground station
-                if ( linkEndTypeIt->second.stationName_ != "" )
+                if ( linkEndTypeIt->second.stationName_ != "" && linkEndTypeIt->second.bodyName_ != spacecraftName_ )
                 {
                     if ( !std::count( groundStations.begin( ), groundStations.end( ), linkEndTypeIt->second.stationName_)  )
                     {
@@ -174,7 +174,7 @@ observation_models::LinkEnds getLinkEndsFromOdfBlock (
 
     if ( currentObservableId == 11 )
     {
-        linkEnds[ observation_models::transmitter ] = observation_models::LinkEndId ( spacecraftName );
+        linkEnds[ observation_models::transmitter ] = observation_models::LinkEndId ( spacecraftName, "Antenna" );
         linkEnds[ observation_models::receiver ] = observation_models::LinkEndId ( "Earth", getStationNameFromStationId(
                 0, dataBlock->getCommonDataBlock( )->receivingStationId_ ) );
     }
@@ -183,7 +183,7 @@ observation_models::LinkEnds getLinkEndsFromOdfBlock (
         linkEnds[ observation_models::transmitter ] = observation_models::LinkEndId (
                 "Earth", getStationNameFromStationId( dataBlock->getCommonDataBlock( )->transmittingStationNetworkId_,
                                                       dataBlock->getCommonDataBlock( )->transmittingStationId_ ) );
-        linkEnds[ observation_models::reflector1 ] = observation_models::LinkEndId ( spacecraftName );
+        linkEnds[ observation_models::reflector1 ] = observation_models::LinkEndId ( spacecraftName, "Antenna" );
         linkEnds[ observation_models::receiver ] = observation_models::LinkEndId (
                 "Earth", getStationNameFromStationId( 0, dataBlock->getCommonDataBlock( )->receivingStationId_ ) );
     }
@@ -192,7 +192,7 @@ observation_models::LinkEnds getLinkEndsFromOdfBlock (
         linkEnds[ observation_models::transmitter ] = observation_models::LinkEndId (
                 "Earth", getStationNameFromStationId( dataBlock->getCommonDataBlock( )->transmittingStationNetworkId_,
                                                       dataBlock->getCommonDataBlock( )->transmittingStationId_ ) );
-        linkEnds[ observation_models::reflector1 ] = observation_models::LinkEndId ( spacecraftName );
+        linkEnds[ observation_models::reflector1 ] = observation_models::LinkEndId ( spacecraftName, "Antenna" );
         linkEnds[ observation_models::receiver ] = observation_models::LinkEndId (
                 "Earth", getStationNameFromStationId( 0, dataBlock->getCommonDataBlock( )->receivingStationId_ ) );
     }
@@ -549,9 +549,8 @@ void setOdfInformationInBodies(
     setTransmittingFrequenciesInGroundStations( processedOdfFileContents, bodies.getBody( bodyWithGroundStations ) );
 
     // Set turnaround ratios in spacecraft body
-    std::shared_ptr< system_models::VehicleSystems > vehicleSystems = std::make_shared< system_models::VehicleSystems >( );
+    std::shared_ptr< system_models::VehicleSystems > vehicleSystems =  bodies.getBody( processedOdfFileContents->getSpacecraftName( ) )->getVehicleSystems( );
     vehicleSystems->setTransponderTurnaroundRatio( getTurnaroundRatio );
-    bodies.getBody( processedOdfFileContents->getSpacecraftName( ) )->setVehicleSystems( vehicleSystems );
 }
 
 } // namespace observation_models

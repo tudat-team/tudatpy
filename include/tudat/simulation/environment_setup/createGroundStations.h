@@ -292,24 +292,54 @@ std::shared_ptr< ephemerides::Ephemeris > createReferencePointEphemeris(
 template< typename TimeType = double, typename StateScalarType = double >
 std::shared_ptr< ephemerides::Ephemeris > createReferencePointEphemeris(
     const std::shared_ptr< simulation_setup::Body > bodyWithLinkEnd,
-    const std::string& stationName )
+    const std::string& referencePointName )
 {
-
     std::shared_ptr< ephemerides::Ephemeris > stationEphemeris;
-    if( stationName != "" )
+    if( referencePointName != "" )
     {
-        if ( bodyWithLinkEnd->getGroundStationMap( ).count( stationName ) == 0 )
+        std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType& ) > referencePointStateFunction;
+
+        bool isPointGroundStation = simulation_setup::isReferencePointGroundStation( bodyWithLinkEnd, referencePointName );
+
+        if( isPointGroundStation )
         {
-            std::string errorMessage = "Error when making ephemeris for station " + bodyWithLinkEnd->getBodyName() + ", " +
-                stationName + ", station not found.";
-            throw std::runtime_error( errorMessage );
+            if ( bodyWithLinkEnd->getGroundStationMap( ).count( referencePointName ) == 0 )
+            {
+                std::string errorMessage = "Error when making ephemeris for station " + bodyWithLinkEnd->getBodyName() + ", " +
+                    referencePointName + ", station not found.";
+                throw std::runtime_error( errorMessage );
+            }
+            else
+            {
+                referencePointStateFunction = std::bind( &ground_stations::GroundStation::getStateInPlanetFixedFrame<StateScalarType, TimeType>,
+                                                         bodyWithLinkEnd->getGroundStation( referencePointName ), std::placeholders::_1 );
+            }
+        }
+        else
+        {
+            if ( bodyWithLinkEnd->getVehicleSystems( ) == nullptr )
+            {
+                std::string errorMessage = "Error when making ephemeris for reference point " + bodyWithLinkEnd->getBodyName() + ", " +
+                                           referencePointName + ", no vehicle systems found ";
+                throw std::runtime_error( errorMessage );
+            }
+            else if( bodyWithLinkEnd->getVehicleSystems( )->doesReferencePointExist( referencePointName ) == false )
+            {
+                std::string errorMessage = "Error when making ephemeris for reference point " + bodyWithLinkEnd->getBodyName() + ", " +
+                                           referencePointName + ", reference point not found in vehicle systems. ";
+                throw std::runtime_error( errorMessage );
+            }
+            else
+            {
+                referencePointStateFunction = std::bind(
+                    &system_models::VehicleSystems::getReferencePointStateInBodyFixedFrame< StateScalarType, TimeType >,
+                    bodyWithLinkEnd->getVehicleSystems( ), referencePointName, std::placeholders::_1 );
+            }
         }
 
         // Retrieve function to calculate state of transmitter S/C
         stationEphemeris = createReferencePointEphemeris<TimeType, StateScalarType>(
-            bodyWithLinkEnd,
-            std::bind( &ground_stations::GroundStation::getStateInPlanetFixedFrame<StateScalarType, TimeType>,
-                       bodyWithLinkEnd->getGroundStation( stationName ), std::placeholders::_1 ));
+            bodyWithLinkEnd, referencePointStateFunction );
     }
     else
     {

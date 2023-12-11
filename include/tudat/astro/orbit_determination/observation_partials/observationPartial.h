@@ -888,7 +888,6 @@ std::shared_ptr< ObservationPartial< ObservationSize > > createObservationPartia
         const std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameterToEstimate,
         const bool useBiasPartials = true )
 {
-//    std::cout << "TEST createObservationPartialWrtLinkProperty" << "\n\n";
 //    std::cout << "observableType: " << observableType << "\n\n";
 
     std::shared_ptr< ObservationPartial< ObservationSize > > observationPartial;
