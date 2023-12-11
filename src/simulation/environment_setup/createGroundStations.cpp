@@ -204,7 +204,7 @@ std::vector< double >  getTargetElevationAngles(
         groundStationStateFunction( times.at( i ) );
         relativePosition = ( targetBody->getStateInBaseFrameFromEphemeris( times.at( i ) ) -
                 groundStationStateFunction( times.at( i ) ) ).segment( 0, 3 );
-        elevationAngles.push_back( pointingAnglesCalculator->calculateElevationAngle( relativePosition, times.at( i ) ) );
+        elevationAngles.push_back( pointingAnglesCalculator->calculateElevationAngleFromInertialVector( relativePosition, times.at( i ) ) );
     }
     return elevationAngles;
 }

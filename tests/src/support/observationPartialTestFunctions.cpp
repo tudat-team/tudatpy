@@ -120,6 +120,12 @@ SystemOfBodies setupEnvironment( const std::vector< std::pair< std::string, std:
                         marsRotationModel->getRotationStateVector( 0.0 ), "ECLIPJ2000", "IAU_Mars" ) );
     }
 
+    // Create DSN stations
+    std::vector< std::shared_ptr< GroundStationSettings > > dsnSettings = getDsnStationSettings( );
+    for ( unsigned int i = 0; i < dsnSettings.size( ); ++i )
+    {
+        createGroundStation( bodies.at( "Earth" ), dsnSettings.at( i ) );
+    }
 
     // Define and create ground stations.
     std::map< std::pair< std::string, std::string >, Eigen::Vector3d > groundStationsToCreate;
@@ -442,7 +448,8 @@ std::vector< std::vector< double > > getAnalyticalPartialEvaluationTimes(
         }
 
         // Swap entries for consistency with test
-        if( observableType == observation_models::n_way_differenced_range && i == 1 )
+        if( ( observableType == observation_models::n_way_differenced_range && i == 1 ) ||
+            ( observableType == observation_models::dsn_n_way_averaged_doppler && i == 0 ) )
         {
             iter_swap(currentPartialTimes.begin( ) + 1, currentPartialTimes.begin( ) + 2);
         }
@@ -523,7 +530,8 @@ std::vector< std::vector< double > > getAnalyticalPartialEvaluationTimes(
         }
 
         // Swap entries for consistency with test
-        if( observableType == observation_models::n_way_differenced_range && i == 1 )
+        if( ( observableType == observation_models::n_way_differenced_range && i == 1 ) ||
+            ( observableType == observation_models::dsn_n_way_averaged_doppler && i == 0 ) )
         {
             iter_swap(currentPartialTimes.begin( ) + 1, currentPartialTimes.begin( ) + 2);
         }
@@ -574,7 +582,8 @@ std::vector< std::vector< double > > getAnalyticalPartialEvaluationTimes(
         }
 
         // Swap entries for consistency with test
-        if( observableType == observation_models::n_way_differenced_range && i == 1 )
+        if( ( observableType == observation_models::n_way_differenced_range && i == 1 ) ||
+            ( observableType == observation_models::dsn_n_way_averaged_doppler && i == 0 ) )
         {
             iter_swap(currentPartialTimes.begin( ) + 1, currentPartialTimes.begin( ) + 2);
         }

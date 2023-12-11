@@ -1141,7 +1141,7 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAcceleration )
             Eigen::Matrix3d currentRotationFromAerodynamicToBodyFixedFrame =
                     getMatrixFromVectorRotationRepresentation( variableIterator->second.segment( 45, 9 ) );
 
-            vehicelCoefficientInterface->updateCurrentCoefficients( { currentMachNumber, currentAngleOfAttack, currentAngleOfSideSlip } );
+            vehicelCoefficientInterface->updateFullCurrentCoefficients( { currentMachNumber, currentAngleOfAttack, currentAngleOfSideSlip } );
             aerodynamicCoefficients = vehicelCoefficientInterface->getCurrentForceCoefficients( );
 
 

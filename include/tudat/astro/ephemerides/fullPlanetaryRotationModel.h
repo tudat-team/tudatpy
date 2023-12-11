@@ -277,7 +277,6 @@ public:
                             const std::shared_ptr< PlanetaryOrientationAngleCalculator > planetaryOrientationAnglesCalculator,
                             const std::string& baseFrameOrientation = "",
                             const std::string& targetFrameOrientation = "" ):
-
         RotationalEphemeris( baseFrameOrientation, targetFrameOrientation ),
         planetaryOrientationAnglesCalculator_( planetaryOrientationAnglesCalculator )
 

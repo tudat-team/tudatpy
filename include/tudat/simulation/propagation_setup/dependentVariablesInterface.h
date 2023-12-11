@@ -42,22 +42,9 @@ public:
      * Constructor
      * \param dependentVariablesSettings Vector of single dependent variable settings
      */
-    DependentVariablesInterface(
-            const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesSettings ):
-            dependentVariablesSettings_( dependentVariablesSettings )
+    DependentVariablesInterface( )
     {
-        dependentVariablesSize_ = 0;
 
-        dependentVariablesIdsAndIndices_.clear( );
-
-        for ( unsigned int i= 0 ; i < dependentVariablesSettings_.size( ) ; i++ )
-        {
-            dependentVariablesTypes_.push_back( dependentVariablesSettings_[ i ]->dependentVariableType_ );
-
-            dependentVariablesIdsAndIndices_[ getDependentVariableId( dependentVariablesSettings_[ i ] ) ] = dependentVariablesSize_;
-
-            dependentVariablesSize_ += getDependentVariableSaveSize( dependentVariablesSettings_[ i ] );
-        }
     }
 
     //! Destructor.
@@ -71,45 +58,156 @@ public:
      */
     virtual Eigen::VectorXd getDependentVariables( const TimeType evaluationTime ) = 0;
 
+    virtual Eigen::VectorXd getSingleDependentVariable(
+        const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings,
+        const TimeType evaluationTime ) = 0;
+//
+//    //! Function to get the value of a single dependent variable at a given time, from the dependent variable ID.
+//    virtual Eigen::VectorXd getSingleDependentVariable(
+//        const std::string dependentVariableId,
+//        const int dependentVariableSize,
+//        const TimeType evaluationTime ) = 0;
+
+protected:
+
+
+};
+
+//! Interface object of interpolation of numerically propagated dependent variables for single-arc propagation/estimation.
+template< typename TimeType = double >
+class SingleArcDependentVariablesInterface : public DependentVariablesInterface< TimeType >
+{
+public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param dependentVariablesInterpolator Interpolator returning the dependent variables values as a function of time.
+     * \param dependentVariablesSettings Vector of single dependent variables settings
+     */
+    SingleArcDependentVariablesInterface(
+            const std::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, Eigen::VectorXd > > dependentVariablesInterpolator,
+            const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesSettings,
+            const std::map< std::pair< int, int >, std::string > dependentVariableIds,
+            const std::map< std::pair< int, int >, std::shared_ptr< SingleDependentVariableSaveSettings > > orderedDependentVariableSettings ):
+            dependentVariablesSettings_( dependentVariablesSettings ),
+            dependentVariablesInterpolator_( dependentVariablesInterpolator ),
+            dependentVariableIds_( dependentVariableIds ),
+            orderedDependentVariableSettings_( orderedDependentVariableSettings )
+    {
+        dependentVariablesSize_ = 0;
+        dependentVariablesIdsAndIndices_.clear( );
+
+        for ( unsigned int i= 0 ; i < dependentVariablesSettings_.size( ) ; i++ )
+        {
+            dependentVariablesTypes_.push_back( dependentVariablesSettings_[ i ]->dependentVariableType_ );
+            dependentVariablesIdsAndIndices_[ getDependentVariableId( dependentVariablesSettings_[ i ] ) ] = dependentVariablesSize_;
+            dependentVariablesSize_ += getDependentVariableSaveSize( dependentVariablesSettings_[ i ] );
+        }
+        dependentVariables_ = Eigen::VectorXd::Zero( dependentVariablesSize_ );
+
+        if( dependentVariablesInterpolator_ != nullptr )
+        {
+            dependentVariablesInterpolator_->resetBoundaryHandling( interpolators::throw_exception_at_boundary );
+        }
+    }
+
+    //! Destructor.
+    ~SingleArcDependentVariablesInterface( ){ }
+
+    //! Function to reset the dependent variables interpolator
+    /*!
+     * Function to reset the dependent variables interpolator
+     * \param dependentVariablesInterpolator New interpolator returning the dependent variables values as a function of time.
+     */
+    void updateDependentVariablesInterpolator(
+            const std::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, Eigen::VectorXd > > dependentVariablesInterpolator )
+    {
+        dependentVariablesInterpolator_ = dependentVariablesInterpolator;
+        if( dependentVariablesInterpolator_ != nullptr )
+        {
+            dependentVariablesInterpolator_->resetBoundaryHandling( interpolators::throw_exception_at_boundary );
+        }
+    }
+
+    //! Function to get the interpolator returning the dependent variables as a function of time.
+    /*!
+     * Function to get the interpolator returning the dependent variables as a function of time.
+     * \return Interpolator returning the dependent variable as a function of time.
+     */
+    std::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, Eigen::VectorXd > > getDependentVariablesInterpolator( )
+    {
+        return dependentVariablesInterpolator_;
+    }
+
+    std::map< std::pair< int, int >, std::string > getDependentVariableIds( ) const
+    {
+        return dependentVariableIds_;
+    }
+
+    std::map< std::pair< int, int >, std::shared_ptr< SingleDependentVariableSaveSettings > > getOrderedDependentVariableSettings( ) const
+    {
+        return orderedDependentVariableSettings_;
+    }
+
+    //! Function to get the concatenated dependent variables values at a given time.
+    /*!
+     *  Function to get the concatenated dependent variables values at a given time.
+     *  \param evaluationTime Time at which to evaluate dependent variables interpolator
+     *  \return Dependent variables values
+     */
+    Eigen::VectorXd getDependentVariables( const TimeType evaluationTime )
+    {
+        dependentVariables_.setZero( );
+
+        // Set dependent variable.
+        if( dependentVariablesInterpolator_ != nullptr )
+        {
+            dependentVariables_ = dependentVariablesInterpolator_->interpolate( evaluationTime );
+        }
+        return dependentVariables_;
+    }
+
     //! Function to get the value of a single dependent variable at a given time.
     Eigen::VectorXd getSingleDependentVariable(
-            const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings,
-            const TimeType evaluationTime )
+        const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings,
+        const TimeType evaluationTime )
     {
-        Eigen::VectorXd dependentVariable = Eigen::VectorXd( getDependentVariableSaveSize( dependentVariableSettings ) );
+        Eigen::VectorXd dependentVariable = Eigen::VectorXd( 0 );
 
         // Retrieve ID and index of dependent variable of interest.
         std::string dependentVariableId = getDependentVariableId( dependentVariableSettings );
-        int dependentVariableIndex = dependentVariablesIdsAndIndices_.find( dependentVariableId )->second;
+        if( dependentVariablesIdsAndIndices_.count( dependentVariableId ) > 0 )
+        {
+            int dependentVariableIndex = dependentVariablesIdsAndIndices_.find( dependentVariableId )->second;
 
-        // Retrieve full vector of dependent variables at a given time.
-        Eigen::VectorXd fullDependentVariablesVector = getDependentVariables( evaluationTime );
+            // Retrieve full vector of dependent variables at a given time.
+            Eigen::VectorXd fullDependentVariablesVector = getDependentVariables( evaluationTime );
 
-        dependentVariable =
-                fullDependentVariablesVector.segment( dependentVariableIndex, getDependentVariableSaveSize( dependentVariableSettings ) );
-
+            dependentVariable = fullDependentVariablesVector.segment( dependentVariableIndex, getDependentVariableSaveSize( dependentVariableSettings ) );
+        }
         return dependentVariable;
     }
 
-    //! Function to get the value of a single dependent variable at a given time, from the dependent variable ID.
-    Eigen::VectorXd getSingleDependentVariable(
-            const std::string dependentVariableId,
-            const int dependentVariableSize,
-            const TimeType evaluationTime )
-    {
-        Eigen::VectorXd dependentVariable = Eigen::VectorXd( dependentVariableSize );
-
-        // Retrieve index of dependent variable of interest.
-        int dependentVariableIndex = dependentVariablesIdsAndIndices_.find( dependentVariableId )->second;
-
-        // Retrieve full vector of dependent variables at a given time.
-        Eigen::VectorXd fullDependentVariablesVector = getDependentVariables( evaluationTime );
-
-        dependentVariable =
-                fullDependentVariablesVector.segment( dependentVariableIndex, dependentVariableSize );
-
-        return dependentVariable;
-    }
+//    //! Function to get the value of a single dependent variable at a given time, from the dependent variable ID.
+//    Eigen::VectorXd getSingleDependentVariable(
+//        const std::string dependentVariableId,
+//        const int dependentVariableSize,
+//        const TimeType evaluationTime )
+//    {
+//        Eigen::VectorXd dependentVariable = Eigen::VectorXd( dependentVariableSize );
+//
+//        // Retrieve index of dependent variable of interest.
+//        int dependentVariableIndex = dependentVariablesIdsAndIndices_.find( dependentVariableId )->second;
+//
+//        // Retrieve full vector of dependent variables at a given time.
+//        Eigen::VectorXd fullDependentVariablesVector = getDependentVariables( evaluationTime );
+//
+//        dependentVariable =
+//            fullDependentVariablesVector.segment( dependentVariableIndex, dependentVariableSize );
+//
+//        return dependentVariable;
+//    }
 
 
 
@@ -128,7 +226,7 @@ public:
      * Function to retrieve the dependent variables settings object.
      * \return dependent variables settings
      */
-    std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > getDependentVariablesSettings( )
+    std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > getDependentVariablesSettings( ) const
     {
         return dependentVariablesSettings_;
     }
@@ -140,11 +238,21 @@ public:
         return dependentVariablesIdsAndIndices_;
     }
 
+private:
 
-protected:
 
     //! Vector of single dependent variable settings objects
     std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesSettings_;
+
+    //! Interpolator returning the dependent variables as a function of time.
+    std::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, Eigen::VectorXd > > dependentVariablesInterpolator_;
+
+    std::map< std::pair< int, int >, std::string > dependentVariableIds_;
+
+    std::map< std::pair< int, int >, std::shared_ptr< SingleDependentVariableSaveSettings > > orderedDependentVariableSettings_;
+
+    //! Predefined vector to use as return value when calling getDependentVariables.
+    Eigen::VectorXd dependentVariables_;
 
     //! Type of the dependent variables of interest
     std::vector< PropagationDependentVariables > dependentVariablesTypes_;
@@ -154,80 +262,6 @@ protected:
 
     //! Map containing the dependent variables Ids and indices
     std::map< std::string, int > dependentVariablesIdsAndIndices_;
-
-};
-
-//! Interface object of interpolation of numerically propagated dependent variables for single-arc propagation/estimation.
-template< typename TimeType = double >
-class SingleArcDependentVariablesInterface : public DependentVariablesInterface< TimeType >
-{
-public:
-
-    using DependentVariablesInterface< TimeType >::dependentVariablesSize_;
-
-    //! Constructor
-    /*!
-     * Constructor
-     * \param dependentVariablesInterpolator Interpolator returning the dependent variables values as a function of time.
-     * \param dependentVariablesSettings Vector of single dependent variables settings
-     */
-    SingleArcDependentVariablesInterface(
-            const std::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, Eigen::VectorXd > > dependentVariablesInterpolator,
-            const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesSettings ):
-            DependentVariablesInterface< TimeType >( dependentVariablesSettings ),
-            dependentVariablesInterpolator_( dependentVariablesInterpolator )
-    {
-        dependentVariables_ = Eigen::VectorXd::Zero( dependentVariablesSize_ );
-    }
-
-    //! Destructor.
-    ~SingleArcDependentVariablesInterface( ){ }
-
-    //! Function to reset the dependent variables interpolator
-    /*!
-     * Function to reset the dependent variables interpolator
-     * \param dependentVariablesInterpolator New interpolator returning the dependent variables values as a function of time.
-     */
-    void updateDependentVariablesInterpolator(
-            const std::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, Eigen::VectorXd > > dependentVariablesInterpolator )
-    {
-        dependentVariablesInterpolator_ = dependentVariablesInterpolator;
-    }
-
-    //! Function to get the interpolator returning the dependent variables as a function of time.
-    /*!
-     * Function to get the interpolator returning the dependent variables as a function of time.
-     * \return Interpolator returning the dependent variable as a function of time.
-     */
-    std::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, Eigen::VectorXd > > getDependentVariablesInterpolator( )
-    {
-        return dependentVariablesInterpolator_;
-    }
-
-    //! Function to get the concatenated dependent variables values at a given time.
-    /*!
-     *  Function to get the concatenated dependent variables values at a given time.
-     *  \param evaluationTime Time at which to evaluate dependent variables interpolator
-     *  \return Dependent variables values
-     */
-    Eigen::VectorXd getDependentVariables( const TimeType evaluationTime )
-    {
-        dependentVariables_.setZero( );
-
-        // Set dependent variable.
-        dependentVariables_ = dependentVariablesInterpolator_->interpolate( evaluationTime );
-        return dependentVariables_;
-    }
-
-
-private:
-
-    //! Predefined vector to use as return value when calling getDependentVariables.
-    Eigen::VectorXd dependentVariables_;
-
-    //! Interpolator returning the dependent variables as a function of time.
-    std::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, Eigen::VectorXd > > dependentVariablesInterpolator_;
-
 };
 
 
@@ -238,7 +272,6 @@ class MultiArcDependentVariablesInterface: public DependentVariablesInterface< T
 {
 public:
 
-    using DependentVariablesInterface< TimeType >::dependentVariablesSize_;
 
     //! Constructor
     /*!
@@ -249,13 +282,15 @@ public:
      * \param arcEndTimes Times at which the multiple arcs end
      */
     MultiArcDependentVariablesInterface(
-            const std::vector< std::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, Eigen::VectorXd > > > dependentVariablesInterpolators,
-            const std::vector< std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > > dependentVariablesSettings,
+            const std::vector< std::shared_ptr< SingleArcDependentVariablesInterface< TimeType > > > singleArcInterfaces,
             const std::vector< double >& arcStartTimes,
             const std::vector< double >& arcEndTimes ):
-            DependentVariablesInterface< TimeType >( dependentVariablesSettings.at( 0 ) )
+            DependentVariablesInterface< TimeType >( ),
+            singleArcInterfaces_( singleArcInterfaces ),
+            arcStartTimes_( arcStartTimes ),
+            arcEndTimes_( arcEndTimes )
     {
-        updateDependentVariablesInterpolators( dependentVariablesInterpolators, arcStartTimes, arcEndTimes );
+
     }
 
     //! Destructor
@@ -273,7 +308,6 @@ public:
             const std::vector< double >& arcStartTimes,
             const std::vector< double >& arcEndTimes  )
     {
-
         if( arcStartTimes.size( ) != arcEndTimes.size( ) )
         {
             throw std::runtime_error( "Error when updating MultiArcDependentVariablesInterface, incompatible time lists" );
@@ -284,12 +318,19 @@ public:
             throw std::runtime_error( "Error when updating MultiArcDependentVariablesInterface, incompatible interpolator lists" );
         }
 
-        dependentVariablesInterpolators_ = dependentVariablesInterpolators;
+        if( dependentVariablesInterpolators.size( ) != singleArcInterfaces_.size( ) )
+        {
+            throw std::runtime_error( "Error when updating MultiArcDependentVariablesInterface, size of interpolator lists is incompatible with number of arcs" );
+
+        }
+
         arcStartTimes_ = arcStartTimes;
         arcEndTimes_ = arcEndTimes;
 
-        numberArcs_ = arcStartTimes_.size( );
-
+        for( unsigned int i = 0; i < dependentVariablesInterpolators.size( ); i++ )
+        {
+            singleArcInterfaces_.at( i )->updateDependentVariablesInterpolator( dependentVariablesInterpolators.at( i ) );
+        }
         std::vector< double > arcSplitTimes = arcStartTimes_;
         arcSplitTimes.push_back( std::numeric_limits< double >::max( ) );
 
@@ -301,9 +342,9 @@ public:
      * Function to get the vector of interpolators returning the dependent variables as a function of time.
      * \return Vector of interpolators returning the dependent variables as a function of time.
      */
-    std::vector< std::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, Eigen::VectorXd > > > getDependentVariablesInterpolators( )
+    std::vector< std::shared_ptr< SingleArcDependentVariablesInterface< TimeType > > > getSingleArcInterfaces( )
     {
-        return dependentVariablesInterpolators_;
+        return singleArcInterfaces_;
     }
 
     //! Function to get the concatenated dependent variables values at a given time.
@@ -314,19 +355,34 @@ public:
      */
     Eigen::VectorXd getDependentVariables( const TimeType evaluationTime )
     {
-        Eigen::VectorXd dependentVariables = Eigen::VectorXd::Zero( dependentVariablesSize_ );
-
+        Eigen::VectorXd dependentVariables = Eigen::VectorXd::Zero( 0 );
         int currentArc = getCurrentArc( evaluationTime ).first;
 
         // Set dependent variables vector.
         if( currentArc >= 0 )
         {
-            dependentVariables.segment( 0, dependentVariablesSize_) = dependentVariablesInterpolators_.at( currentArc )->interpolate( evaluationTime );
+            dependentVariables = singleArcInterfaces_.at( currentArc )->getDependentVariables( evaluationTime );
         }
 
         return dependentVariables;
     }
 
+    //! Function to get the value of a single dependent variable at a given time.
+    Eigen::VectorXd getSingleDependentVariable(
+        const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings,
+        const TimeType evaluationTime )
+    {
+        Eigen::VectorXd dependentVariables = Eigen::VectorXd::Zero( 0 );
+        int currentArc = getCurrentArc( evaluationTime ).first;
+
+        // Set dependent variables vector.
+        if( currentArc >= 0 )
+        {
+            dependentVariables = singleArcInterfaces_.at( currentArc )->getSingleDependentVariable( dependentVariableSettings, evaluationTime );
+        }
+
+        return dependentVariables;
+    }
 
     //! Function to retrieve the current arc for a given time
     /*!
@@ -336,6 +392,11 @@ public:
      */
     std::pair< int, double > getCurrentArc( const TimeType evaluationTime )
     {
+        if( lookUpscheme_ == nullptr )
+        {
+            throw std::runtime_error( "Error when accessing multi-arc dependent variable interface; interface not yet set" );
+        }
+
         int currentArc =  lookUpscheme_->findNearestLowerNeighbour( evaluationTime );
         if( evaluationTime <= arcEndTimes_.at( currentArc ) && evaluationTime >= arcStartTimes_.at( currentArc ) )
         {
@@ -360,8 +421,7 @@ public:
 
 private:
 
-    //! List of interpolators returning the dependent variables as a function of time.
-    std::vector< std::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, Eigen::VectorXd > > > dependentVariablesInterpolators_;
+    std::vector< std::shared_ptr< SingleArcDependentVariablesInterface< TimeType > > > singleArcInterfaces_;
 
     //! Times at which the multiple arcs start
     std::vector< double > arcStartTimes_;
@@ -398,73 +458,9 @@ public:
     HybridArcDependentVariablesInterface(
             const std::shared_ptr< SingleArcDependentVariablesInterface< TimeType > > singleArcInterface,
             const std::shared_ptr< MultiArcDependentVariablesInterface< TimeType > > multiArcInterface ):
-            DependentVariablesInterface< TimeType >( multiArcInterface->getDependentVariablesSettings( ) ),
+            DependentVariablesInterface< TimeType >(  ),
             singleArcInterface_( singleArcInterface ), multiArcInterface_( multiArcInterface )
     {
-        singleArcDependentVariablesSize_ = 0;
-        multiArcDependentVariablesSize_ = 0;
-        numberArcs_ = 0;
-
-        if ( singleArcInterface_ != nullptr )
-        {
-            singleArcDependentVariablesIdsAndIndices_ = singleArcInterface_->getDependentVariablesIdsAndIndices( );
-            singleArcDependentVariablesSize_ = singleArcInterface_->getDependentVariablesize( );
-        }
-        std::map< std::string, int > multiArcDependentVariablesIdsAndIndices;
-        if ( multiArcInterface_ != nullptr )
-        {
-            multiArcDependentVariablesIdsAndIndices = multiArcInterface_->getDependentVariablesIdsAndIndices( );
-            multiArcDependentVariablesSize_ = multiArcInterface_->getDependentVariablesize( ) /*- singleArcDependentVariablesSize_*/;
-            numberArcs_ = multiArcInterface->getNumberOfArcs( );
-        }
-
-        // Check input consistency: verify that the same dependent variable is not saved twice (in both the single and multi-arc
-        // dependent variables interface)
-        if ( ( singleArcInterface != nullptr ) && ( multiArcInterface != nullptr ) )
-        {
-            for ( std::map< std::string, int >::iterator itr = multiArcDependentVariablesIdsAndIndices.begin( ) ;
-                  itr != multiArcDependentVariablesIdsAndIndices.end( ) ; itr++ )
-            {
-                if ( singleArcDependentVariablesIdsAndIndices_.count( itr->first ) != 0 )
-                {
-                    // Remove dependent variable from multi-arc dependent variables interface.
-                    idsAndIndicesMultiArcDependentVariablesToBeRemoved_[ itr->first ] = itr->second;
-
-                    std::cerr << "Warning when making hybrid dependent variables interface, dependent variable "
-                              << itr->first << " required by the multi-arc interface is already included in the single arc interface." << std::endl;
-                }
-            }
-        }
-
-        int sizeRemovedDependentVariables = 0;
-        int counterDependentVariable = 0;
-        for ( std::map< std::string, int >::iterator itr = multiArcDependentVariablesIdsAndIndices.begin( ) ;
-              itr != multiArcDependentVariablesIdsAndIndices.end( ) ; itr++ )
-        {
-            if ( idsAndIndicesMultiArcDependentVariablesToBeRemoved_.count( itr->first ) == 0 )
-            {
-                multiArcDependentVariablesIdsAndIndices_[ itr->first ] = itr->second - sizeRemovedDependentVariables;
-            }
-            else
-            {
-                sizeRemovedDependentVariables += getDependentVariableSaveSize(
-                        multiArcInterface_->getDependentVariablesSettings( )[ counterDependentVariable ] );
-                multiArcDependentVariablesSize_ -= getDependentVariableSaveSize(
-                        multiArcInterface_->getDependentVariablesSettings( )[ counterDependentVariable ] );
-            }
-            counterDependentVariable += 1;
-        }
-
-        hybridArcDependentVariablesSize_ = singleArcDependentVariablesSize_ + multiArcDependentVariablesSize_;
-
-//        // Reset dependent variables IDs and indices map.
-//        dependentVariablesIdsAndIndices_.clear( );
-//        dependentVariablesIdsAndIndices_ = singleArcDependentVariablesIdsAndIndices_;
-//        for ( std::map< std::string, int >::iterator itr = multiArcDependentVariablesIdsAndIndices_.begin( ) ;
-//              itr != multiArcDependentVariablesIdsAndIndices_.end( ) ; itr++ )
-//        {
-//            dependentVariablesIdsAndIndices_[ itr->first ] = itr->second + singleArcDependentVariablesSize_;
-//        }
     }
 
     //! Destructor
@@ -478,61 +474,34 @@ public:
      */
     Eigen::VectorXd getDependentVariables( const TimeType evaluationTime )
     {
-        Eigen::VectorXd dependentVariables = Eigen::VectorXd::Zero( hybridArcDependentVariablesSize_ );
+        throw std::runtime_error( "Error when retrieving interpolated dependent variables from hybrid-arc interface. This functionality is not supported as the definition is ambiguous. Retreieve the single- or multi-arc interface, and retrieve the dependent variable from there." );
+        return Eigen::VectorXd::Zero( 0 );
+    }
+
+    Eigen::VectorXd getSingleDependentVariable(
+        const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings,
+        const TimeType evaluationTime )
+    {
+        Eigen::VectorXd dependentVariables = Eigen::VectorXd::Zero( 0 );
 
         // Get single-arc dependent variables.
-        Eigen::VectorXd singleArcDependentVariables;
-        if ( singleArcInterface_ != nullptr )
-        {
-            singleArcDependentVariables = singleArcInterface_->getDependentVariables( evaluationTime );
-        }
-        else
-        {
-            singleArcDependentVariables = Eigen::VectorXd::Zero( 0 );
-        }
+        Eigen::VectorXd singleArcDependentVariables = singleArcInterface_->getSingleDependentVariable( dependentVariableSettings, evaluationTime );
 
         // Get multi-arc dependent variables.
-        Eigen::VectorXd multiArcDependentVariables = multiArcInterface_->getDependentVariables( evaluationTime );
-        std::pair< int, double >  currentArc = multiArcInterface_->getCurrentArc( evaluationTime );
+        Eigen::VectorXd multiArcDependentVariables = multiArcInterface_->getSingleDependentVariable( dependentVariableSettings, evaluationTime );
 
-
-//    if ( ( multiArcDependentVariables.size( ) ) != hybridArcDependentVariablesSize_ )
-//    {
-//        throw std::runtime_error( "Error when getting dependent variables from hybrid arc interfaces, size inconsistent "
-//                                  "with size of single- and multi-arc dependent variables." );
-//    }
-
-        dependentVariables.segment( 0, singleArcDependentVariablesSize_ ) = singleArcDependentVariables;
-
-        if( !( currentArc.first < 0 ) )
+        // Single-arc result takes preference over multi-arc result
+        if( singleArcDependentVariables.rows( ) > 0 )
         {
-            dependentVariables.segment( singleArcDependentVariablesSize_, multiArcDependentVariablesSize_ ) = multiArcDependentVariables;
-
-//        int currentMultiArcDependentVariableIndex = singleArcDependentVariablesSize_;
-//
-//        for ( std::map< std::string, int >::iterator itr = multiArcDependentVariablesIdsAndIndices_.begin( ) ;
-//              itr != multiArcDependentVariablesIdsAndIndices_.end( ) ; itr++ )
-//        {
-//            int sizeCurrentDependentVariable = 0;
-//            for ( unsigned int i = 0 ;
-//                  i < multiArcInterface_->getDependentVariablesSettings( ).size( ) ; i++ )
-//            {
-//                if ( itr->first == getDependentVariableId( multiArcInterface_->getDependentVariablesSettings( )[ i ] ) )
-//                {
-//                    sizeCurrentDependentVariable = getDependentVariableSaveSize( multiArcInterface_->getDependentVariablesSettings( )[ i ] );
-//                }
-//            }
-//
-//            dependentVariables.segment( currentMultiArcDependentVariableIndex, sizeCurrentDependentVariable ) =
-//                    multiArcDependentVariables.segment( itr->second, sizeCurrentDependentVariable );
-//
-//            currentMultiArcDependentVariableIndex += sizeCurrentDependentVariable;
-//        }
+            dependentVariables = singleArcDependentVariables;
+        }
+        else if( multiArcDependentVariables.rows( ) > 0 )
+        {
+            dependentVariables = multiArcDependentVariables;
         }
 
         return dependentVariables;
     }
-
 private:
 
     //! Object to retrieve dependent variable for single arc component
@@ -540,28 +509,6 @@ private:
 
     //! Object to retrieve dependent variable for multi arc component
     std::shared_ptr< MultiArcDependentVariablesInterface< TimeType > > multiArcInterface_;
-
-    //! Dependent variables IDs and indices for single-arc interface.
-    std::map< std::string, int > singleArcDependentVariablesIdsAndIndices_;
-
-    //! Dependent variables IDs and indices for multi-arc interface.
-    std::map< std::string, int > multiArcDependentVariablesIdsAndIndices_;
-
-    //! IDs and indices of dependent variables to be removed from multi-arc interface (in case already included in single arc
-    //! interface)
-    std::map< std::string, int > idsAndIndicesMultiArcDependentVariablesToBeRemoved_;
-
-    //! Size of single-arc dependent variables
-    int singleArcDependentVariablesSize_;
-
-    //! Size of multi-arc dependent variables.
-    int multiArcDependentVariablesSize_;
-
-    //! Size of hybrid arc dependent variables.
-    int hybridArcDependentVariablesSize_;
-
-    //! Number of arcs in multi-arc model.
-    int numberArcs_;
 };
 
 

@@ -17,6 +17,8 @@
  *        29th Feb, 2008, last accessed: 22nd March, 2012. 
  *      EGM 2008 gravity field model, http://earth-info.nga.mil/GandG/wgs84/gravitymod/egm2008/
  *        last accessed: 21 March, 2013.
+ *      IAU, NOMINAL VALUES FOR SELECTED SOLAR AND PLANETARY QUANTITIES: IAU 2015 RESOLUTION B3, 2016.
+ *        https://doi.org/10.3847/0004-6256/152/2/41
  *
  *    Notes
  *      All the gravitational constants given here are taken from NASA JPL's list of astrodynamic
@@ -123,6 +125,12 @@ const static double NEPTUNE_GRAVITATIONAL_PARAMETER = SUN_GRAVITATIONAL_PARAMETE
  * Gravitational constant of Pluto, derived from Sun/Pluto mass ratio [m^3 s^-2] (JPL, 2012).
  */
 const static double PLUTO_GRAVITATIONAL_PARAMETER = SUN_GRAVITATIONAL_PARAMETER / 1.35e8;
+
+//! Solar luminosity.
+/*!
+ * Solar luminosity (or radiant power) [W] (IAU, 2016).
+ */
+const static double SUN_LUMINOSITY = 3.828e26;
 
 //static std::map< int, std::string > planetNames =
 //{

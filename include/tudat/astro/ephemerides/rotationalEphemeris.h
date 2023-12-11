@@ -514,7 +514,8 @@ Eigen::Matrix< StateScalarType, 6, 1 > transformStateToInertialOrientation(
         const std::shared_ptr< RotationalEphemeris > rotationalEphemeris )
 {
     return transformStateToFrameFromRotations< StateScalarType >(
-                stateInLocalFrame, rotationalEphemeris->getRotationToBaseFrameTemplated< TimeType >( currentTime ),
+                stateInLocalFrame,
+                rotationalEphemeris->getRotationToBaseFrameTemplated< TimeType >( currentTime ),
                 rotationalEphemeris->getDerivativeOfRotationToBaseFrameTemplated< TimeType >( currentTime ) );
 
 }

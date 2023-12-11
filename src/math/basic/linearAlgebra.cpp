@@ -162,6 +162,19 @@ Eigen::Matrix3d calculatePartialOfNormalizedVector( const Eigen::Matrix3d& parti
              ( normOfVector * normOfVector * normOfVector ) ) * partialOfUnnormalizedVector;
 }
 
+double getVectorEntryMean( const Eigen::VectorXd& inputVector )
+{
+    // Calculate RMS for vector
+    double vectorMean = 0.0;
+    for( int i = 0; i < inputVector.rows( ); i++ )
+    {
+        vectorMean += inputVector( i );
+    }
+    vectorMean = vectorMean / inputVector.rows( );
+
+    return vectorMean;
+}
+
 //! Function to compute the root mean square value of the entries in an Eigen vector
 double getVectorEntryRootMeanSquare( const Eigen::VectorXd& inputVector )
 {
