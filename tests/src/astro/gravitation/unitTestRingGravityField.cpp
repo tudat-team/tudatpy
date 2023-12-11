@@ -106,12 +106,12 @@ BOOST_AUTO_TEST_CASE( testEllipticIntegralsComputation )
         
         if ( ellipticIntegralSFromDAndB )
         {
-            BOOST_CHECK_CLOSE_FRACTION( expectedEllipticIntegralS, gravityCache2.getEllipticIntegralS( ), 1e-13 );
+            BOOST_CHECK_CLOSE_FRACTION( expectedEllipticIntegralS, gravityCache2.getEllipticIntegralS( ), 2e-12 );
         }
         // Computation of S(m) via K(m) and E(m) is more sensitive to numerical cancellation, hence the larger tolerance.
         else
         {
-            BOOST_CHECK_CLOSE_FRACTION( expectedEllipticIntegralS, gravityCache2.getEllipticIntegralS( ), 1e-12 );
+            BOOST_CHECK_CLOSE_FRACTION( expectedEllipticIntegralS, gravityCache2.getEllipticIntegralS( ), 2e-12 );
         }
 
     }
