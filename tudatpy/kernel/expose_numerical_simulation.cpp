@@ -84,6 +84,9 @@ void expose_numerical_simulation(py::module &m) {
                  const long double>(),
                  py::arg("full_periods"),
                  py::arg("seconds_into_full_period") )
+            .def(py::init<
+                 const double>(),
+                 py::arg("seconds_into_full_period") )
             .def(py::self + py::self)
             .def(py::self + double())
             .def(double() + py::self)

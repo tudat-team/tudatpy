@@ -60,6 +60,7 @@ YACMA_PYTHON_MODULE(kernel
         kernel/expose_astro/expose_two_body_dynamics.cpp
         kernel/expose_astro/expose_fundamentals.cpp
         kernel/expose_astro/expose_polyhedron_utilities.cpp
+        kernel/expose_astro/expose_timing_system.cpp
 
         # kernel/trajectory_design
         kernel/expose_trajectory_design.cpp
@@ -85,6 +86,7 @@ YACMA_PYTHON_MODULE(kernel
         kernel/expose_math/expose_numerical_integrators.cpp
         kernel/expose_math/expose_root_finders.cpp
         kernel/expose_math/expose_geometry.cpp
+        kernel/expose_math/expose_statistics.cpp
 
         kernel/expose_numerical_simulation.cpp
 
