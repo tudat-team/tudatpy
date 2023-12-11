@@ -42,6 +42,7 @@
 #include "tudat/astro/orbit_determination/estimatable_parameters/longitudeLibrationAmplitude.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/constantThrust.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/yarkovskyParameter.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/referencePointPosition.h"
 #include "tudat/astro/relativity/metric.h"
 #include "tudat/astro/basic_astro/accelerationModelTypes.h"
 #include "tudat/simulation/estimation_setup/estimatableParameterSettings.h"
@@ -1616,6 +1617,25 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                                 groundStationState, vectorParameterName->parameterType_.second.first,
                                 vectorParameterName->parameterType_.second.second );
                 }
+            }
+            break;
+        }
+        case reference_point_position:
+        {
+            if( currentBody->getVehicleSystems( ) == nullptr )
+            {
+                std::string errorMessage =
+                    "Error, requested reference point position parameter of "
+                    + vectorParameterName->parameterType_.second.first + " "
+                    + vectorParameterName->parameterType_.second.second + " , but no system models found";
+                throw std::runtime_error( errorMessage );
+            }
+            else
+            {
+                vectorParameterToEstimate = std::make_shared< ReferencePointPosition  >(
+                    currentBody->getVehicleSystems( ),
+                    vectorParameterName->parameterType_.second.first,
+                    vectorParameterName->parameterType_.second.second );
             }
             break;
         }

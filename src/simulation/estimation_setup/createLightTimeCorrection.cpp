@@ -579,7 +579,8 @@ std::function< double ( std::vector< FrequencyBands >, double ) > createLinkFreq
 
         std::shared_ptr< system_models::VehicleSystems > vehicleSystems;
         // Check if retransmitter is a body
-        if ( retransmitterLinkEndsIt->second.stationName_ == "" )
+        if ( retransmitterLinkEndsIt->second.stationName_ == "" || !simulation_setup::isReferencePointGroundStation(
+            bodies, retransmitterLinkEndsIt->second.bodyName_, retransmitterLinkEndsIt->second.stationName_ ) )
         {
             vehicleSystems = bodies.getBody( retransmitterLinkEndsIt->second.bodyName_ )->getVehicleSystems( );
         }
