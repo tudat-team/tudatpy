@@ -157,17 +157,18 @@ void expose_time_conversion(py::module &m) {
           get_docstring("calendar_date_to_julian_day").c_str()
           );
 
-    m.def("calendar_date_to_julian_day_since_epoch",
-          &convertCalendarDateToJulianDaySinceEpochPy< double >,
-          py::arg("calendar_date"),
-          py::arg("days_since_julian_day_zero") = tba::JULIAN_DAY_ON_J2000,
-          get_docstring("calendar_date_to_julian_day_since_epoch").c_str()
-          );
 
     m.def("julian_day_to_calendar_date",
           &convertJulianDayToCalendarDatePy,
           py::arg("julian_day"),
           get_docstring("julian_day_to_calendar_date").c_str()
+    );
+
+    m.def("calendar_date_to_days_since_epoch",
+          &convertCalendarDateToJulianDaySinceEpochPy< double >,
+          py::arg("calendar_date"),
+          py::arg("days_since_julian_day_zero") = tba::JULIAN_DAY_ON_J2000,
+          get_docstring("calendar_date_to_days_since_epoch").c_str()
           );
 
     m.def("julian_day_to_seconds_since_epoch",
@@ -360,6 +361,15 @@ void expose_time_conversion(py::module &m) {
           &tba::getCalendarDateFromTime< TIME_TYPE >,
           py::arg("iso_datetime"),
           get_docstring("date_time_from_iso_string").c_str() );
+
+
+    /////////////// DEPRECATED
+
+    m.def("calendar_date_to_julian_day_since_epoch",
+          &convertCalendarDateToJulianDaySinceEpochPy< double >,
+          py::arg("calendar_date"),
+          py::arg("days_since_julian_day_zero") = tba::JULIAN_DAY_ON_J2000
+    );
 
 
 
