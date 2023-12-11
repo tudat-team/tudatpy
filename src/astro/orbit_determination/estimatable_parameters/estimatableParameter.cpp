@@ -75,6 +75,9 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
     case ground_station_position:
         parameterDescription = "ground station position ";
         break;
+    case reference_point_position:
+        parameterDescription = "reference point position ";
+        break;
     case equivalence_principle_lpi_violation_parameter:
         parameterDescription = " equivalence principle violation parameter ";
         break;
@@ -137,6 +140,15 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
         break;
     case arc_wise_time_observation_bias:
         parameterDescription = "arc-wise time observation bias ";
+        break;
+    case inverse_tidal_quality_factor:
+        parameterDescription = " inverse of tidal quality factor ";
+        break;
+    case yarkovsky_parameter:
+        parameterDescription = " Yarkovsky parameter A2 ";
+        break;
+    case custom_estimated_parameter:
+        parameterDescription = " Custom parameter ";
         break;
     default:
         std::string errorMessage = "Error when getting parameter string, did not recognize parameter " +
@@ -225,6 +237,9 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
     case ground_station_position:
         isDoubleParameter = false;
         break;
+    case reference_point_position:
+        isDoubleParameter = false;
+        break;
     case equivalence_principle_lpi_violation_parameter:
         isDoubleParameter = true;
         break;
@@ -280,6 +295,15 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
         isDoubleParameter = false;
         break;
     case arc_wise_time_observation_bias:
+        isDoubleParameter = false;
+        break;
+    case inverse_tidal_quality_factor:
+        isDoubleParameter = true;
+        break;
+    case yarkovsky_parameter:
+        isDoubleParameter = true;
+        break;
+    case custom_estimated_parameter:
         isDoubleParameter = false;
         break;
     default:

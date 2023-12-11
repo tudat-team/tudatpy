@@ -15,6 +15,7 @@ set(ground_stations_SOURCES
         "pointingAnglesCalculator.cpp"        
         "basicTidalBodyDeformation.cpp"
         "iers2010SolidTidalBodyDeformation.cpp"
+        "transmittingFrequencies.cpp"
         )
 
 # Set the header files.
@@ -25,6 +26,7 @@ set(ground_stations_HEADERS
         "basicTidalBodyDeformation.h"
         "bodyDeformationModel.h"
         "iers2010SolidTidalBodyDeformation.h"
+        "transmittingFrequencies.h"
         )
 
 TUDAT_ADD_LIBRARY("ground_stations"

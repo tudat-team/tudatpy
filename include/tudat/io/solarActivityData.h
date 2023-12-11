@@ -189,7 +189,7 @@ struct SolarActivityContainer
 
     std::shared_ptr< SolarActivityData > getSolarActivityDataAtJulianDay( const double julianDay )
     {
-        int nearestJulianDay = lookUpScheme_->getIndependentVariableValue(
+        double nearestJulianDay = lookUpScheme_->getIndependentVariableValue(
                     lookUpScheme_->findNearestLowerNeighbour( julianDay ) );
         return solarActivityDataMap_.at( nearestJulianDay );
     }

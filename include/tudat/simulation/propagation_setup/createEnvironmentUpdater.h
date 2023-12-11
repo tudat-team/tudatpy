@@ -57,7 +57,8 @@ void removePropagatedStatesFomEnvironmentUpdates(
  */
 std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >
 createRotationalEquationsOfMotionEnvironmentUpdaterSettings(
-        const basic_astrodynamics::TorqueModelMap& torqueModels, const simulation_setup::SystemOfBodies& bodies );
+        const basic_astrodynamics::TorqueModelMap& torqueModels, const simulation_setup::SystemOfBodies& bodies,
+        const std::vector< std::string > bodiesToIntegrate );
 
 //! Get list of required environment model update settings from translational acceleration models.
 /*!
@@ -200,7 +201,8 @@ std::vector< std::string > > createEnvironmentUpdaterSettings(
     {
         environmentModelsToUpdate = createRotationalEquationsOfMotionEnvironmentUpdaterSettings(
                     std::dynamic_pointer_cast< RotationalStatePropagatorSettings< StateScalarType, TimeType > >( propagatorSettings )->getTorqueModelsMap( ),
-                    bodies );
+                    bodies,
+                    std::dynamic_pointer_cast< RotationalStatePropagatorSettings< StateScalarType, TimeType > >( propagatorSettings )->bodiesToIntegrate_ );
         break;
     }
         // Retrieve environment model settings for mass rate model
@@ -223,6 +225,7 @@ std::vector< std::string > > createEnvironmentUpdaterSettings(
     }
     }
 
+
     std::map< propagators::EnvironmentModelsToUpdate,
             std::vector< std::string > > environmentModelsToUpdateForDependentVariables =
             createEnvironmentUpdaterSettings( propagatorSettings->getDependentVariablesToSave( ), bodies );
@@ -233,6 +236,7 @@ std::vector< std::string > > createEnvironmentUpdaterSettings(
             createEnvironmentUpdaterSettings( propagatorSettings->getTerminationSettings( ), bodies );
     addEnvironmentUpdates( environmentModelsToUpdate, environmentModelsToUpdateForTerminationConditions );
 
+
     // Remove variables from environment updates that are numerically propagated.
     if( !isPartOfMultiTypePropagation )
     {
@@ -240,7 +244,6 @@ std::vector< std::string > > createEnvironmentUpdaterSettings(
                     environmentModelsToUpdate, getIntegratedTypeAndBodyList( propagatorSettings ) );
         checkValidityOfRequiredEnvironmentUpdates( environmentModelsToUpdate, bodies );
     }
-
 
     return environmentModelsToUpdate;
 

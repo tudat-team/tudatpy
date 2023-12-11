@@ -15,6 +15,7 @@
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
+#include "tudat/astro/basic_astro/accelerationModelTypes.h"
 
 namespace tudat
 {
@@ -57,6 +58,8 @@ public:
      *  Identifier for parameter, contains type of parameter and body of which parameter is a property.
      */
     EstimatebleParameterIdentifier parameterType_;
+
+    std::vector< std::shared_ptr< CustomAccelerationPartialSettings > > customPartialSettings_;
 
 };
 
@@ -107,6 +110,29 @@ public:
         EstimatableParameterSettings( associatedBody, parameterType ), blockIndices_( blockIndices ),
         minimumDegree_( -1 ), minimumOrder_( -1 ), maximumDegree_( -1 ), maximumOrder_( -1 )
     {
+        for( unsigned int i = 0; i < blockIndices.size( ); i++ )
+        {
+            if( blockIndices.at( i ).first == 0 )
+            {
+                throw std::runtime_error( "Error, cannot estimate degree 0 spherical harmonic gravity field coefficient, estimation gravitational parameter instead" );
+            }
+
+            if( blockIndices.at( i ).first < 0 )
+            {
+                throw std::runtime_error( "Error, cannot estimate negative degree spherical harmonic gravity field coefficients, but found degree " + std::to_string( blockIndices.at( i ).first ) );
+            }
+
+            if( blockIndices.at( i ).second == 0 && parameterType == spherical_harmonics_sine_coefficient_block )
+            {
+                throw std::runtime_error( "Error when making spherical harmonic sine parameter settings, found order set to 0, but degree 0 spherical harmonic sine coefficients do not exist" );
+            }
+
+            if( blockIndices.at( i ).second > blockIndices.at( i ).first )
+            {
+                throw std::runtime_error( "Error when making spherical harmonic sine parameter settings, found coefficient with order > degree, which does not exist" );
+            }
+        }
+
         if( ( parameterType != spherical_harmonics_cosine_coefficient_block ) &&
                 ( parameterType != spherical_harmonics_sine_coefficient_block ) )
         {
@@ -141,6 +167,31 @@ public:
                 ( parameterType != spherical_harmonics_sine_coefficient_block ) )
         {
             throw std::runtime_error( "Error when making spherical harmonic parameter settings, input parameter type is inconsistent." );
+        }
+
+        if( minimumOrder == 0 && parameterType == spherical_harmonics_sine_coefficient_block )
+        {
+            throw std::runtime_error( "Error when making spherical harmonic sine parameter settings, minimum order is set to 0, but degree 0 spherical harmonic sine coefficients do not exist" );
+        }
+
+        if( maximumDegree < minimumDegree )
+        {
+            throw std::runtime_error( "Error when making spherical harmonic parameter settings, maximum degree is smaller than minimum degree" );
+        }
+
+        if( maximumOrder < minimumOrder )
+        {
+            throw std::runtime_error( "Error when making spherical harmonic parameter settings, maximum order is smaller than minimum order" );
+        }
+
+        if( minimumDegree == 0 )
+        {
+            throw std::runtime_error( "Error, cannot estimate degree 0 spherical harmonic gravity field coefficient, estimation gravitational parameter instead" );
+        }
+
+        if( minimumDegree < 0 )
+        {
+            throw std::runtime_error( "Error, cannot estimate negative degree spherical harmonic gravity field coefficients, but minimum degree is set to " + std::to_string( minimumDegree ) );
         }
 
         blockIndices_ = getSphericalHarmonicBlockIndices( minimumDegree, minimumOrder, maximumDegree, maximumOrder );
@@ -893,6 +944,75 @@ public:
 
 };
 
+//! Class to define settings for estimating the inverse of the tidal quality factor of a direct tidal acceleration model
+/*!
+ *  Class to define settings for estimating the inverse of the tidal quality factor of a direct tidal acceleration model, it links to one or more
+ *  objects of type DirectTidalDissipationAcceleration. The user can provide a list of bodies cause deformation, and the
+ *  associated DirectTidalDissipationAcceleration objects will be used. If the list of bodies causing deformation is left empty,
+ *  all DirectTidalDissipationAcceleration objects for the given body undergoing deformation will be used
+ */
+class InverseTidalQualityFactorEstimatableParameterSettings: public EstimatableParameterSettings
+{
+public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param associatedBody Body being deformed
+     * \param deformingBody Body causing deformed
+     */
+    InverseTidalQualityFactorEstimatableParameterSettings( const std::string& associatedBody,
+                                                           const std::string& deformingBody ):
+            EstimatableParameterSettings( associatedBody, inverse_tidal_quality_factor )
+    {
+        if( deformingBody != "" )
+        {
+            deformingBodies_.push_back( deformingBody );
+        }
+    }
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param associatedBody Body being deformed
+     * \param deformingBodies Names of bodies causing tidal deformation
+     */
+    InverseTidalQualityFactorEstimatableParameterSettings( const std::string& associatedBody,
+                                                           const std::vector< std::string >& deformingBodies ):
+            EstimatableParameterSettings( associatedBody, inverse_tidal_quality_factor ),
+            deformingBodies_( deformingBodies ){ }
+
+
+    //! Names of bodies causing tidal deformation
+    std::vector< std::string > deformingBodies_;
+
+};
+
+class CustomEstimatableParameterSettings: public EstimatableParameterSettings
+{
+public:
+
+    CustomEstimatableParameterSettings(
+        const std::string& customId,
+        const int parameterSize,
+        const std::function< Eigen::VectorXd( ) > getParameterFunction,
+        const std::function< void( const Eigen::VectorXd& ) > setParameterFunction ):
+        EstimatableParameterSettings( "", custom_estimated_parameter, customId ),
+        parameterSize_( parameterSize ),
+        getParameterFunction_( getParameterFunction ),
+        setParameterFunction_( setParameterFunction )
+    {
+
+    }
+
+    int parameterSize_;
+
+    std::function< Eigen::VectorXd( ) > getParameterFunction_;
+
+    std::function< void( const Eigen::VectorXd& ) > setParameterFunction_;
+
+};
+
 
 inline std::shared_ptr< EstimatableParameterSettings > gravitationalParameter( const std::string bodyName )
 {
@@ -1071,6 +1191,35 @@ inline std::shared_ptr< EstimatableParameterSettings > constantEmpiricalAccelera
                 associatedBody, centralBody, componentsToEstimate );
 }
 
+inline std::shared_ptr< EstimatableParameterSettings > empiricalAccelerationMagnitudesFull(
+    const std::string associatedBody,
+    const std::string centralBody )
+{
+    std::map< basic_astrodynamics::EmpiricalAccelerationComponents,
+        std::vector< basic_astrodynamics::EmpiricalAccelerationFunctionalShapes > > componentsToEstimate;
+    componentsToEstimate[ basic_astrodynamics::radial_empirical_acceleration_component ].push_back(
+        basic_astrodynamics::constant_empirical );
+    componentsToEstimate[ basic_astrodynamics::radial_empirical_acceleration_component ].push_back(
+        basic_astrodynamics::sine_empirical );
+    componentsToEstimate[ basic_astrodynamics::radial_empirical_acceleration_component ].push_back(
+        basic_astrodynamics::cosine_empirical );
+    componentsToEstimate[ basic_astrodynamics::along_track_empirical_acceleration_component ].push_back(
+        basic_astrodynamics::constant_empirical );
+    componentsToEstimate[ basic_astrodynamics::along_track_empirical_acceleration_component ].push_back(
+        basic_astrodynamics::sine_empirical );
+    componentsToEstimate[ basic_astrodynamics::along_track_empirical_acceleration_component ].push_back(
+        basic_astrodynamics::cosine_empirical );
+    componentsToEstimate[ basic_astrodynamics::across_track_empirical_acceleration_component ].push_back(
+        basic_astrodynamics::constant_empirical );
+    componentsToEstimate[ basic_astrodynamics::across_track_empirical_acceleration_component ].push_back(
+        basic_astrodynamics::sine_empirical );
+    componentsToEstimate[ basic_astrodynamics::across_track_empirical_acceleration_component ].push_back(
+        basic_astrodynamics::cosine_empirical );
+
+    return std::make_shared< EmpiricalAccelerationEstimatableParameterSettings >(
+        associatedBody, centralBody, componentsToEstimate );
+}
+
 
 inline std::shared_ptr< EstimatableParameterSettings > empiricalAccelerationMagnitudes(
         const std::string associatedBody,
@@ -1130,6 +1279,14 @@ inline std::shared_ptr< EstimatableParameterSettings > groundStationPosition(
     return std::make_shared< EstimatableParameterSettings >( body, ground_station_position, groundStationName );
 }
 
+inline std::shared_ptr< EstimatableParameterSettings > referencePointPosition(
+    const std::string& body,
+    const std::string& groundStationName )
+{
+    return std::make_shared< EstimatableParameterSettings >( body, reference_point_position, groundStationName );
+}
+
+
 inline std::shared_ptr< EstimatableParameterSettings > directTidalDissipationLagTime(
         const std::string& body,
         const std::vector< std::string >& deformingBodies )
@@ -1140,6 +1297,22 @@ inline std::shared_ptr< EstimatableParameterSettings > directTidalDissipationLag
 
 
 inline std::shared_ptr< EstimatableParameterSettings > directTidalDissipationLagTime(
+        const std::string& body,
+        const std::string& deformingBody)
+{
+    return directTidalDissipationLagTime( body, std::vector< std::string >( { deformingBody } ) );
+}
+
+
+inline std::shared_ptr< EstimatableParameterSettings > inverseTidalQualityFactor(
+        const std::string& body,
+        const std::vector< std::string >& deformingBodies )
+{
+    return std::make_shared< InverseTidalQualityFactorEstimatableParameterSettings >(
+            body, deformingBodies);
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > inverseTidalQualityFactor(
         const std::string& body,
         const std::string& deformingBody)
 {
@@ -1254,6 +1427,30 @@ inline std::shared_ptr< EstimatableParameterSettings > quasiImpulsiveShots(
     return std::make_shared< EstimatableParameterSettings >(
                 associatedBody, desaturation_delta_v_values );
 }
+
+
+inline std::shared_ptr< EstimatableParameterSettings > scaledLongitudeLibrationAmplitude( const std::string bodyName )
+{
+    return std::make_shared< EstimatableParameterSettings >( bodyName, scaled_longitude_libration_amplitude );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > yarkovskyParameter( const std::string bodyName, const std::string centralBodyName )
+{
+    return std::make_shared< EstimatableParameterSettings >( bodyName, yarkovsky_parameter, centralBodyName );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > customParameterSettings(
+    const std::string& customId,
+    const int parameterSize,
+    const std::function< Eigen::VectorXd( ) > getParameterFunction,
+    const std::function< void( const Eigen::VectorXd& ) > setParameterFunction )
+{
+    return std::make_shared<CustomEstimatableParameterSettings>(
+        customId, parameterSize, getParameterFunction, setParameterFunction );
+}
+
+
+
 
 } // namespace estimatable_parameters
 

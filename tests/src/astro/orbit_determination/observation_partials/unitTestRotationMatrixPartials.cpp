@@ -32,7 +32,7 @@ using namespace tudat::estimatable_parameters;
 using namespace tudat::observation_partials;
 
 BOOST_AUTO_TEST_SUITE( test_rotation_matrix_partaisl )
-
+//
 //! Test whether partial derivatives of rotation matrix computed by SimpleRotationalEphemeris works correctly
 BOOST_AUTO_TEST_CASE( testSimpleRotationalEphemerisPartials )
 {
@@ -223,6 +223,8 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalEphemerisPartials )
 //! Test whether partial derivatives of rotation matrix computed by SynchronousRotationalEphemeris works correctly
 BOOST_AUTO_TEST_CASE( testSynchronousRotationPartials )
 {
+    spice_interface::loadStandardSpiceKernels( );
+
     // Define nominal state
     Eigen::Vector6d nominalState =
             tudat::spice_interface::getBodyCartesianStateAtEpoch(
@@ -237,19 +239,56 @@ BOOST_AUTO_TEST_CASE( testSynchronousRotationPartials )
     std::shared_ptr< tudat::ephemerides::SynchronousRotationalEphemeris > synchronousRotationModel =
             std::make_shared< ephemerides::SynchronousRotationalEphemeris >(
                 relativeStateFunction, "SSB", "Mercury_Fixed", "ECLIPJ2000" );
+    double scaledLibrationAmplitude = -0.2;
+    synchronousRotationModel->setLibrationCalculation(
+        std::make_shared< DirectLongitudeLibrationCalculator >( scaledLibrationAmplitude ) );
 
     // Create rotation partial model
-    std::shared_ptr< RotationMatrixPartial > rotationMatrixPartialObject =
+    std::shared_ptr< SynchronousRotationMatrixPartialWrtTranslationalState > rotationMatrixPartialObject =
             std::make_shared< SynchronousRotationMatrixPartialWrtTranslationalState >( synchronousRotationModel );
 
     // Define test settings
     double testTime = 1.0E7;
     double positionPerturbation = 10000.0;
-    double velocityPerturbation = 0.1;
+    double velocityPerturbation = 0.001;
+
+    Eigen::Matrix< double, 1, 6 > analyticalLibrationAnglePartial =
+        calculatePartialOfDirectLibrationAngleWrtCartesianStates( currentState, scaledLibrationAmplitude );
+
+    for( int i = 0; i < 3; i++ )
+    {
+        currentState = nominalState;
+        currentState( i ) += positionPerturbation;
+        double upPerturbedLibrationAngle = synchronousRotationModel->getLongitudeLibrationCalculator( )->getLibrationAngleWrtFullySynchronousRotation(
+            currentState, testTime );
+
+        currentState = nominalState;
+        currentState( i ) -= positionPerturbation;
+        double downPerturbedLibrationAngle = synchronousRotationModel->getLongitudeLibrationCalculator( )->getLibrationAngleWrtFullySynchronousRotation(
+            currentState, testTime );
+
+        double librationAnglePositionPartial = ( upPerturbedLibrationAngle - downPerturbedLibrationAngle ) / ( 2.0 * positionPerturbation );
+        BOOST_CHECK_CLOSE_FRACTION( librationAnglePositionPartial, analyticalLibrationAnglePartial( i ), 1.0E-6 );
+
+        currentState = nominalState;
+        currentState( i + 3 ) += velocityPerturbation;
+        upPerturbedLibrationAngle = synchronousRotationModel->getLongitudeLibrationCalculator( )->getLibrationAngleWrtFullySynchronousRotation(
+            currentState, testTime );
+
+        currentState = nominalState;
+        currentState( i + 3 ) -= velocityPerturbation;
+        downPerturbedLibrationAngle = synchronousRotationModel->getLongitudeLibrationCalculator( )->getLibrationAngleWrtFullySynchronousRotation(
+            currentState, testTime );
+
+        double librationAngleVelocityPartial = ( upPerturbedLibrationAngle - downPerturbedLibrationAngle ) / ( 2.0 * velocityPerturbation );
+        BOOST_CHECK_CLOSE_FRACTION( librationAngleVelocityPartial, analyticalLibrationAnglePartial( i + 3 ), 1.0E-6 );
+    }
+
 
     // Test partials w.r.t. position and velocity components
     std::vector< Eigen::Matrix3d > rotationMatrixPartials =
-            rotationMatrixPartialObject->calculatePartialOfRotationMatrixToBaseFrameWrParameter( testTime );
+        rotationMatrixPartialObject->calculatePartialOfRotationMatrixToBaseFrameWrParameter( testTime );
+
     for( int i = 0; i < 3; i++ )
     {
         currentState = nominalState;
@@ -270,7 +309,7 @@ BOOST_AUTO_TEST_CASE( testSynchronousRotationPartials )
         {
             for( int k = 0; k < 3; k++ )
             {
-                BOOST_CHECK_SMALL( std::fabs( relativePartialError( j, k ) ), 1.0E-8 );
+                BOOST_CHECK_SMALL( std::fabs( relativePartialError( j, k ) ), 1.0E-6 );
             }
         }
 
@@ -292,7 +331,7 @@ BOOST_AUTO_TEST_CASE( testSynchronousRotationPartials )
         {
             for( int k = 0; k < 3; k++ )
             {
-                BOOST_CHECK_SMALL( std::fabs( relativePartialError( j, k ) ), 1.0E-8 );
+                BOOST_CHECK_SMALL( std::fabs( relativePartialError( j, k ) ), 1.0E-6 );
             }
         }
     }

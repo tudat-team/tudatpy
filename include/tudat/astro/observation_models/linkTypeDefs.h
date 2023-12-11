@@ -43,7 +43,8 @@ enum LinkEndType
     retransmitter4 = reflector4,
     receiver = 5,
     observed_body = 6,
-    transmitter2 = 7
+    transmitter2 = 7,
+    observer = 8
 };
 
 ////! Typedef for the identifier of a given link-end (body and reference points)
@@ -174,7 +175,7 @@ struct LinkDefinition
 
     std::map< LinkEndType, LinkEndId > linkEnds_;
 
-    unsigned int size( ) const { return linkEnds_.size( ); }
+    unsigned int size( ) const { return static_cast< unsigned int >( linkEnds_.size( ) ); }
 
     friend bool operator==( const LinkDefinition& linkEnds1, const LinkDefinition& linkEnds2 )
     {

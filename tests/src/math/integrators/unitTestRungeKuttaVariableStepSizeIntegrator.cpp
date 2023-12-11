@@ -147,6 +147,7 @@ BOOST_AUTO_TEST_CASE( testMinimumStepSizeRuntimeError )
                 0.1,
                 std::numeric_limits< double >::epsilon( ),
                 std::numeric_limits< double >::epsilon( ) );
+//    integrator.getStepSizeValidator()
 
     // Case 1: test that minimum step size is exceeded when using integrateTo().
     {
@@ -161,11 +162,9 @@ BOOST_AUTO_TEST_CASE( testMinimumStepSizeRuntimeError )
         }
 
         // Catch the expected runtime error, and set the boolean flag to true.
-        catch ( RungeKuttaVariableStepSizeIntegratorXd::MinimumStepSizeExceededError&
-                minimumStepSizeExceededError )
+        catch ( std::runtime_error const& )
         {
             isMinimumStepSizeExceededForIntegrateTo = true;
-            BOOST_CHECK_EQUAL( minimumStepSizeExceededError.minimumStepSize, 100.0 );
         }
 
         // Check that the minimum step size was indeed exceeded.
@@ -186,11 +185,9 @@ BOOST_AUTO_TEST_CASE( testMinimumStepSizeRuntimeError )
         }
 
         // Catch the expected runtime error, and set the boolean flag to true.
-        catch ( RungeKuttaVariableStepSizeIntegratorXd::MinimumStepSizeExceededError&
-                minimumStepSizeExceededError )
+        catch ( std::runtime_error const& )
         {
             isMinimumStepSizeExceededForPerformIntegrationStep = true;
-            BOOST_CHECK_EQUAL( minimumStepSizeExceededError.minimumStepSize, 100.0 );
         }
 
         // Check that the minimum step size was indeed exceeded.

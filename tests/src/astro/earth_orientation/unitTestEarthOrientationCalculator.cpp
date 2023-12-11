@@ -182,14 +182,14 @@ BOOST_AUTO_TEST_CASE( testEarthOrientationAngleFunctionsAgainstSofa )
     double era = 0.2324515536620879;
 
     // Use Tudat functions to compute precession/nutation parameters
-    std::pair< Eigen::Vector2d, double > positionOfCipInGcrs = sofa_interface::getPositionOfCipInGcrs(
+    Eigen::Vector3d positionOfCipInGcrs = sofa_interface::getPositionOfCipInGcrs(
                 terrestrialTimeSecondsSinceJ2000Inaccruate, basic_astrodynamics::JULIAN_DAY_ON_J2000,
                 basic_astrodynamics::iau_2006 );
 
     // Compare SOFA values against Tudat function output
-    BOOST_CHECK_SMALL( std::fabs( uncorrectedX - positionOfCipInGcrs.first( 0 ) ), 1.0E-15 );
-    BOOST_CHECK_SMALL( std::fabs( uncorrectedY - positionOfCipInGcrs.first( 1 ) ), 1.0E-15 );
-    BOOST_CHECK_SMALL( std::fabs( s - positionOfCipInGcrs.second ), 1.0E-15 );
+    BOOST_CHECK_SMALL( std::fabs( uncorrectedX - positionOfCipInGcrs( 0 ) ), 1.0E-15 );
+    BOOST_CHECK_SMALL( std::fabs( uncorrectedY - positionOfCipInGcrs( 1 ) ), 1.0E-15 );
+    BOOST_CHECK_SMALL( std::fabs( s - positionOfCipInGcrs( 2 ) ), 1.0E-15 );
 
     Eigen::Vector2d tudatXYCorrection = createStandardEarthOrientationCalculator( )->getPrecessionNutationCalculator( )->getDailyCorrectionInterpolator( )->interpolate(
                 terrestrialTimeSecondsSinceJ2000Inaccruate );

@@ -21,12 +21,19 @@ namespace observation_models
 {
 
 //! Function to calculate first order relativistic light time correction due to set of gravitating point masses.
-double FirstOrderLightTimeCorrectionCalculator::calculateLightTimeCorrection(
-        const Eigen::Vector6d& transmitterState,
-        const Eigen::Vector6d& receiverState,
-        const double transmissionTime,
-        const double receptionTime )
+double FirstOrderLightTimeCorrectionCalculator::calculateLightTimeCorrectionWithMultiLegLinkEndStates(
+        const std::vector< Eigen::Vector6d >& linkEndsStates,
+        const std::vector< double >& linkEndsTimes,
+        const unsigned int currentMultiLegTransmitterIndex,
+        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings )
 {
+    // Retrieve state and time of receiver and transmitter
+    Eigen::Vector6d transmitterState, receiverState;
+    double transmissionTime, receptionTime;
+    getTransmissionReceptionTimesAndStates(
+            linkEndsStates, linkEndsTimes, currentMultiLegTransmitterIndex, transmitterState, receiverState,
+            transmissionTime, receptionTime );
+
     // Retrieve ppn parameter gamma.
     double ppnParameterGamma = ppnParameterGammaFunction_( );
 

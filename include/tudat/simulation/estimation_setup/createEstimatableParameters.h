@@ -31,6 +31,7 @@
 #include "tudat/astro/orbit_determination/estimatable_parameters/equivalencePrincipleViolationParameter.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/tidalLoveNumber.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/directTidalTimeLag.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/inverseTidalQualityFactor.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/meanMomentOfInertiaParameter.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/desaturationDeltaV.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/periodicSpinVariation.h"
@@ -40,6 +41,8 @@
 #include "tudat/astro/orbit_determination/estimatable_parameters/desaturationDeltaV.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/longitudeLibrationAmplitude.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/constantThrust.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/yarkovskyParameter.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/referencePointPosition.h"
 #include "tudat/astro/relativity/metric.h"
 #include "tudat/astro/basic_astro/accelerationModelTypes.h"
 #include "tudat/simulation/estimation_setup/estimatableParameterSettings.h"
@@ -137,7 +140,7 @@ std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAc
         }
         break;
     }
-        // Direct tidal time lags need to be linked to direct tidal acceleration
+    // Direct tidal time lags need to be linked to direct tidal acceleration
     case direct_dissipation_tidal_time_lag:
     {
         std::shared_ptr< DirectTidalTimeLagEstimatableParameterSettings > dissipationTimeLagSettings =
@@ -184,6 +187,58 @@ std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAc
                     }
                 }
             }
+        }
+        break;
+    }
+    // Inverse tidal quality factor to be linked to direct tidal acceleration
+    case inverse_tidal_quality_factor:
+    {
+        std::shared_ptr< InverseTidalQualityFactorEstimatableParameterSettings > qualityFactorSettings =
+                std::dynamic_pointer_cast< InverseTidalQualityFactorEstimatableParameterSettings >( parameterSettings );
+        std::string currentBodyName =  parameterSettings ->parameterType_.second.first;
+        if( qualityFactorSettings == nullptr )
+        {
+            throw std::runtime_error( "Error, expected inverse tidal quality factor parameter settings." );
+        }
+        else
+        {
+            std::vector< std::shared_ptr< gravitation::DirectTidalDissipationAcceleration > > tidalAccelerationModelList =
+                    gravitation::getTidalDissipationAccelerationModels( accelerationModelMap, currentBodyName, qualityFactorSettings->deformingBodies_ );
+            for( unsigned int i = 0; i < tidalAccelerationModelList.size( ); i++ )
+            {
+                accelerationModelList.push_back( tidalAccelerationModelList.at( i ) );
+            }
+
+        }
+        break;
+    }
+    case yarkovsky_parameter:
+    {
+        if( parameterSettings == nullptr )
+        {
+            throw std::runtime_error( "Error, expected Yarkovsky parameter settings." );
+        }
+        else
+        {
+            if( accelerationModelMap.at( parameterSettings->parameterType_.second.first ).count(
+                parameterSettings->parameterType_.second.second ) != 0 )
+
+            {
+                // Retrieve acceleration model.
+                std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > >
+                    accelerationModelListToCheck =
+                    accelerationModelMap.at( parameterSettings->parameterType_.second.first ).at(
+                        parameterSettings->parameterType_.second.second );
+                for( unsigned int i = 0; i < accelerationModelListToCheck.size( ); i++ )
+                {
+                    if( basic_astrodynamics::getAccelerationModelType( accelerationModelListToCheck[ i ] ) ==
+                        basic_astrodynamics::yarkovsky_acceleration )
+                    {
+                        accelerationModelList.push_back( accelerationModelListToCheck[ i ] );
+                    }
+                }
+            }
+
         }
         break;
     }
@@ -465,7 +520,7 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
             std::vector< std::string > propagatedBodies = translationalPropagatorSettings->bodiesToIntegrate_;
             std::vector< std::string > centralBodies = translationalPropagatorSettings->centralBodies_;
 
-            Eigen::VectorXd initialStates =  translationalPropagatorSettings->getInitialStates( );
+            Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > initialStates =  translationalPropagatorSettings->getInitialStates( );
             for( unsigned int i = 0; i < propagatedBodies.size( ); i++ )
             {
                 initialStateParameterSettings.push_back(
@@ -485,13 +540,13 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
             // Retrieve estimated and propagated translational states, and check equality.
             std::vector< std::string > propagatedBodies = rotationalPropagatorSettings->bodiesToIntegrate_;
 
-            Eigen::VectorXd initialStates =  rotationalPropagatorSettings->getInitialStates( );
+            Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > initialStates =  rotationalPropagatorSettings->getInitialStates( );
             for( unsigned int i = 0; i < propagatedBodies.size( ); i++ )
             {
                 initialStateParameterSettings.push_back(
                             std::make_shared< estimatable_parameters::InitialRotationalStateEstimatableParameterSettings<
                             InitialStateParameterType > >(
-                                propagatedBodies.at( i ), initialStates.segment( i * 7, 7 ), bodies.getFrameOrientation( ) ) );
+                                propagatedBodies.at( i ), initialStates.segment( i * 7, 7 ).template cast< InitialStateParameterType >( ), bodies.getFrameOrientation( ) ) );
             }
             break;
         }
@@ -501,7 +556,7 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
                     std::dynamic_pointer_cast< MassPropagatorSettings< InitialStateParameterType, TimeType > >( propagatorSettings );
 
             std::vector< std::string > propagatedBodies = massPropagatorSettings->bodiesWithMassToPropagate_;
-            Eigen::VectorXd initialStates =  massPropagatorSettings->getInitialStates( );
+            Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > initialStates =  massPropagatorSettings->getInitialStates( );
             for( unsigned int i = 0; i < propagatedBodies.size( ); i++ )
             {
                 initialStateParameterSettings.push_back(
@@ -735,6 +790,11 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::Matrix
         }
     }
 
+    if( parameterSettings->customPartialSettings_.size( ) != 0 )
+    {
+        initialStateParameterToEstimate->setCustomPartialSettings( parameterSettings->customPartialSettings_ );
+    }
+
     return initialStateParameterToEstimate;
 }
 
@@ -809,22 +869,22 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
         }
         case radiation_pressure_coefficient:
         {
-            if( currentBody->getRadiationPressureInterfaces( ).size( ) == 0 )
+            if( currentBody->getRadiationPressureTargetModel( ) == nullptr )
             {
-                std::string errorMessage = "Error, no radiation pressure interfaces found in body " +
+                std::string errorMessage = "Error, no radiation pressure target model found in body " +
                         currentBodyName + " when making Cr parameter.";
                 throw std::runtime_error( errorMessage );
             }
-            else if( currentBody->getRadiationPressureInterfaces( ).size( ) > 1 )
+            else if( std::dynamic_pointer_cast< electromagnetism::CannonballRadiationPressureTargetModel >( currentBody->getRadiationPressureTargetModel( ) ) == nullptr )
             {
-                std::string errorMessage = "Error, multiple radiation pressure interfaces found in body " +
-                        currentBodyName + " when making Cr parameter.";
+                std::string errorMessage = "Error, no cannonball radiation pressure target model found in body " +
+                                           currentBodyName + " when making Cr parameter.";
                 throw std::runtime_error( errorMessage );
             }
             else
             {
                 doubleParameterToEstimate = std::make_shared< RadiationPressureCoefficient >(
-                            currentBody->getRadiationPressureInterfaces( ).begin( )->second,
+                    std::dynamic_pointer_cast< electromagnetism::CannonballRadiationPressureTargetModel >( currentBody->getRadiationPressureTargetModel( ) ),
                             currentBodyName );
             }
             break;
@@ -929,11 +989,18 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
                 std::string errorMessage = "Error, body is nullptr when making mean moment of inertia parameter.";
                 throw std::runtime_error( errorMessage );
             }
+            else if( std::dynamic_pointer_cast< SphericalHarmonicsGravityField >( currentBody->getGravityFieldModel( ) ) == nullptr )
+            {
+                std::string errorMessage = "Error, body gravity field is not spherical harmonic when making mean moment of inertia parameter.";
+                throw std::runtime_error( errorMessage );
+            }
             else
             {
+                auto gravityFieldModel =
+                        std::dynamic_pointer_cast< SphericalHarmonicsGravityField >( currentBody->getGravityFieldModel( ) );
                 doubleParameterToEstimate = std::make_shared< MeanMomentOfInertiaParameter >
-                        ( std::bind( &simulation_setup::Body::getScaledMeanMomentOfInertia, currentBody ),
-                          std::bind( &simulation_setup::Body::setScaledMeanMomentOfInertia, currentBody, std::placeholders::_1 ),
+                        ( std::bind( &SphericalHarmonicsGravityField::getScaledMeanMomentOfInertia, gravityFieldModel ),
+                          std::bind( &SphericalHarmonicsGravityField::setScaledMeanMomentOfInertia, gravityFieldModel, std::placeholders::_1 ),
                           currentBodyName );
             }
             break;
@@ -1096,10 +1163,89 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
 
             break;
         }
+        case inverse_tidal_quality_factor:
+        {
+            if( propagatorSettings == nullptr )
+            {
+                throw std::runtime_error( "Error when creating inverse_tidal_quality_factor parameter, no propagatorSettings provided." );
+            }
+
+            // Check input consistency
+            std::shared_ptr< InverseTidalQualityFactorEstimatableParameterSettings > qualityFactorSettings =
+                    std::dynamic_pointer_cast< InverseTidalQualityFactorEstimatableParameterSettings >( doubleParameterName );
+            if( qualityFactorSettings == nullptr )
+            {
+                throw std::runtime_error( "Error, expected inverse tidal quality factor parameter settings." );
+            }
+            else
+            {
+                std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > associatedAccelerationModels =
+                        getAccelerationModelsListForParametersFromBase< InitialStateParameterType, TimeType >( propagatorSettings, doubleParameterName );
+                std::vector< std::shared_ptr< DirectTidalDissipationAcceleration > > associatedTidalAccelerationModels;
+                for( unsigned int i = 0; i < associatedAccelerationModels.size( ); i++ )
+                {
+                    // Create parameter object
+                    if( std::dynamic_pointer_cast< DirectTidalDissipationAcceleration >( associatedAccelerationModels.at( i ) )
+                        != nullptr )
+                    {
+                        associatedTidalAccelerationModels.push_back(
+                                std::dynamic_pointer_cast< DirectTidalDissipationAcceleration >( associatedAccelerationModels.at( i ) ) );
+                    }
+                    else
+                    {
+                        throw std::runtime_error(
+                                "Error, expected DirectTidalDissipationAcceleration in list when creating inverse_tidal_quality_factor parameter" );
+                    }
+                }
+                doubleParameterToEstimate = std::make_shared< InverseTidalQualityFactor >(
+                        associatedTidalAccelerationModels, currentBodyName, qualityFactorSettings->deformingBodies_ );
+            }
+            break;
+        }
+        case yarkovsky_parameter:
+        {
+            if( propagatorSettings == nullptr )
+            {
+                throw std::runtime_error( "Error when creating yarkovsky_parameter parameter, no propagatorSettings provided." );
+            }
+
+            std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > associatedAccelerationModels =
+                getAccelerationModelsListForParametersFromBase< InitialStateParameterType, TimeType >( propagatorSettings, doubleParameterName );
+            std::vector< std::shared_ptr< electromagnetism::YarkovskyAcceleration > > associatedYarkovskyAccelerationModels;
+            for( unsigned int i = 0; i < associatedAccelerationModels.size( ); i++ )
+            {
+                // Create parameter object
+                if( std::dynamic_pointer_cast< electromagnetism::YarkovskyAcceleration >( associatedAccelerationModels.at( i ) )
+                    != nullptr )
+                {
+                    associatedYarkovskyAccelerationModels.push_back(
+                        std::dynamic_pointer_cast< electromagnetism::YarkovskyAcceleration >( associatedAccelerationModels.at( i ) ) );
+                }
+                else
+                {
+                    throw std::runtime_error(
+                        "Error, expected YarkovskyAcceleration in list when creating yarkovsky_parameter parameter" );
+                }
+            }
+            if( associatedYarkovskyAccelerationModels.size( ) != 1 )
+            {
+                throw std::runtime_error(
+                    "Error, expected single YarkovskyAcceleration in list when creating yarkovsky_parameter parameter, found " +
+                    std::to_string( associatedYarkovskyAccelerationModels.size( ) ) );
+            }
+            doubleParameterToEstimate = std::make_shared< YarkovskyParameter >(
+                associatedYarkovskyAccelerationModels.at( 0 ), currentBodyName, doubleParameterName->parameterType_.second.second );
+            break;
+        }
         default:
             throw std::runtime_error( "Warning, this double parameter has not yet been implemented when making parameters" );
             break;
         }
+    }
+
+    if( doubleParameterName->customPartialSettings_.size( ) != 0 )
+    {
+        doubleParameterToEstimate->setCustomPartialSettings( doubleParameterName->customPartialSettings_ );
     }
 
     return doubleParameterToEstimate;
@@ -1474,6 +1620,25 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
             }
             break;
         }
+        case reference_point_position:
+        {
+            if( currentBody->getVehicleSystems( ) == nullptr )
+            {
+                std::string errorMessage =
+                    "Error, requested reference point position parameter of "
+                    + vectorParameterName->parameterType_.second.first + " "
+                    + vectorParameterName->parameterType_.second.second + " , but no system models found";
+                throw std::runtime_error( errorMessage );
+            }
+            else
+            {
+                vectorParameterToEstimate = std::make_shared< ReferencePointPosition  >(
+                    currentBody->getVehicleSystems( ),
+                    vectorParameterName->parameterType_.second.first,
+                    vectorParameterName->parameterType_.second.second );
+            }
+            break;
+        }
         case empirical_acceleration_coefficients:
         {
             if( propagatorSettings == nullptr )
@@ -1522,7 +1687,6 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
             }
             break;
         }
-
         case arc_wise_radiation_pressure_coefficient:
         {
             // Check input consistency
@@ -1535,24 +1699,24 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
             }
             else
             {
-                if( currentBody->getRadiationPressureInterfaces( ).size( ) == 0 )
+                if( currentBody->getRadiationPressureTargetModel( ) == nullptr )
                 {
                     std::string errorMessage = "Error, no radiation pressure interfaces found in body " +
-                            currentBodyName + " when making Cr parameter.";
+                            currentBodyName + " when making arcwise Cr parameter.";
                     throw std::runtime_error( errorMessage );
                 }
-                else if( currentBody->getRadiationPressureInterfaces( ).size( ) > 1 )
+                else if( std::dynamic_pointer_cast< electromagnetism::CannonballRadiationPressureTargetModel >( currentBody->getRadiationPressureTargetModel( ) ) == nullptr )
                 {
-                    std::string errorMessage = "Error, multiple radiation pressure interfaces found in body " +
-                            currentBodyName + " when making Cr parameter.";
+                    std::string errorMessage = "Error, no cannonball radiation pressure target model found in body " +
+                                               currentBodyName + " when making arcwise Cr parameter.";
                     throw std::runtime_error( errorMessage );
                 }
                 else
                 {
                     vectorParameterToEstimate = std::make_shared< ArcWiseRadiationPressureCoefficient >(
-                                currentBody->getRadiationPressureInterfaces( ).begin( )->second,
-                                radiationPressureCoefficientSettings->arcStartTimeList_,
-                                currentBodyName );
+                        std::dynamic_pointer_cast< electromagnetism::CannonballRadiationPressureTargetModel >( currentBody->getRadiationPressureTargetModel( ) ),
+                        radiationPressureCoefficientSettings->arcStartTimeList_,
+                        currentBodyName );
                 }
                 break;
             }
@@ -1818,6 +1982,24 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
             }
             break;
         }
+        case custom_estimated_parameter:
+        {
+            std::shared_ptr< CustomEstimatableParameterSettings > customParameterSettings =
+                std::dynamic_pointer_cast< CustomEstimatableParameterSettings >( vectorParameterName );
+            if( customParameterSettings == nullptr )
+            {
+                throw std::runtime_error( "Error, expected variable custom parameter settings " );
+            }
+            else
+            {
+                vectorParameterToEstimate = std::make_shared< CustomEstimatableParameter >
+                    ( customParameterSettings->parameterType_.second.second,
+                      customParameterSettings->parameterSize_,
+                      customParameterSettings->getParameterFunction_,
+                      customParameterSettings->setParameterFunction_ );
+            }
+            break;
+        }
         default:
             std::string errorMessage = "Warning, this vector parameter (" +
                     std::to_string( vectorParameterName->parameterType_.first ) +
@@ -1828,7 +2010,51 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
         }
     }
 
+    if( vectorParameterName->customPartialSettings_.size( ) != 0 )
+    {
+        vectorParameterToEstimate->setCustomPartialSettings( vectorParameterName->customPartialSettings_ );
+    }
+
     return vectorParameterToEstimate;
+}
+
+
+//! Function checking whether the direct tidal parameters to be estimated are not incompatible
+//! Tidal time lag and inverse of tidal quality factor cannot be simultaneously estimated for the same body and deforming bodies.
+template< typename InitialStateParameterType = double >
+bool checkCompatibilityDirectTidalParameters(
+        const std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > >& parameterNames )
+{
+    using namespace tudat::estimatable_parameters;
+
+    bool compatibleParameters = true;
+    for ( unsigned int i = 0; i < parameterNames.size( ); i++ )
+    {
+        if ( parameterNames[ i ]->parameterType_.first == direct_dissipation_tidal_time_lag )
+        {
+            std::string associatedBody = parameterNames[ i ]->parameterType_.second.first;
+            std::vector< std::string > deformingBodies = std::dynamic_pointer_cast< DirectTidalTimeLagEstimatableParameterSettings >( parameterNames[ i ] )->deformingBodies_;
+
+            for ( unsigned int j = 0 ; j < parameterNames.size( ) ; j++ )
+            {
+                if ( i != j )
+                {
+                    if ( parameterNames[ j ]->parameterType_.first == inverse_tidal_quality_factor )
+                    {
+                        std::string associatedBody2 = parameterNames[ j ]->parameterType_.second.first;
+                        std::vector< std::string > deformingBodies2 =
+                                std::dynamic_pointer_cast< InverseTidalQualityFactorEstimatableParameterSettings >( parameterNames[ j ] )->deformingBodies_;
+
+                        if ( ( associatedBody == associatedBody2 ) && ( deformingBodies == deformingBodies2 ) )
+                        {
+                            compatibleParameters = false;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return compatibleParameters;
 }
 
 //! Function to create the interface object for estimating any number/type of parameters.
@@ -1847,7 +2073,9 @@ std::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialStatePa
         const std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > >& parameterNames,
         const SystemOfBodies& bodies,
         const std::shared_ptr< propagators::PropagatorSettings< InitialStateParameterType > > propagatorSettings =
-        std::shared_ptr< propagators::PropagatorSettings< InitialStateParameterType > >( ) )
+        std::shared_ptr< propagators::PropagatorSettings< InitialStateParameterType > >( ),
+        const std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > >& considerParameterNames =
+                std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > >( ) )
 
 {
     using namespace tudat::estimatable_parameters;
@@ -1856,6 +2084,13 @@ std::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialStatePa
             initialDynamicalParametersToEstimate;
     std::vector< std::shared_ptr< EstimatableParameter< double > > > doubleParametersToEstimate;
     std::vector< std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > > vectorParametersToEstimate;
+
+    // Check that tidal parameters are not inconsistent
+    if ( !checkCompatibilityDirectTidalParameters( parameterNames ) )
+    {
+        throw std::runtime_error( "Error, tidal time lag and inverse tidal quality factor cannot be simultaneously estimated"
+                                  " for the same bodies." );
+    }
 
     // Iterate over all parameters.
     bool vectorParameterIsFound = 0;
@@ -1902,8 +2137,14 @@ std::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialStatePa
         }
     }
 
+    std::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > considerParameters;
+    if ( !considerParameterNames.empty( ) )
+    {
+        considerParameters = createParametersToEstimate( considerParameterNames, bodies, propagatorSettings );
+    }
+
     return std::make_shared< EstimatableParameterSet< InitialStateParameterType > >(
-                doubleParametersToEstimate, vectorParametersToEstimate, initialDynamicalParametersToEstimate );
+                doubleParametersToEstimate, vectorParametersToEstimate, initialDynamicalParametersToEstimate, considerParameters );
 }
 
 //! Function to get the multi-arc parameter equivalent of a single-arc initial state parameter

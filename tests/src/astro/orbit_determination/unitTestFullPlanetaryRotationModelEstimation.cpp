@@ -219,15 +219,20 @@ BOOST_AUTO_TEST_CASE( test_FullPlanetaryRotationalParameters )
         // Create estimation input
         std::shared_ptr< EstimationInput< double, double > > estimationInput = std::make_shared< EstimationInput< double, double > >(
                     observationsAndTimes, inverseAprioriCovariance );
+        estimationInput->applyFinalParameterCorrection_ = true;
         estimationInput->defineEstimationSettings( false, false );
         estimationInput->setConvergenceChecker(
-                    std::make_shared< EstimationConvergenceChecker >( 3 ) );
+                    std::make_shared< EstimationConvergenceChecker >( 4 ) );
 
         // Perform state estimation
         std::shared_ptr< EstimationOutput< double, double > > estimationOutput = orbitDeterminationManager.estimateParameters(
                     estimationInput );
-        
-        
+
+        int numberOfSavedParameterVectors = estimationOutput->parameterHistory_.size( );
+        int numberOfSavedResidualVectors = estimationOutput->residualHistory_.size( );
+
+        BOOST_CHECK_EQUAL( numberOfSavedParameterVectors, numberOfSavedResidualVectors + 1 );
+
         // Retrieve estimated parameter, and compare against true values
         Eigen::VectorXd parameterError = estimationOutput->parameterEstimate_ - truthParameters;
         if ( testCase == 0 ) {

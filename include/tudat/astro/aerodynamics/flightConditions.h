@@ -120,6 +120,15 @@ public:
         return scalarFlightConditions_.at( longitude_flight_condition );
     }
 
+    double getCurrentLatitude( )
+    {
+        if( isScalarFlightConditionComputed_.at( latitude_flight_condition ) == 0 )
+        {
+            computeLatitudeAndLongitude( );
+        }
+        return scalarFlightConditions_.at( latitude_flight_condition );
+    }
+
     //! Function to retrieve (and compute if necessary) the current geodetic latitude
     /*!
      * Function to retrieve (and compute if necessary) the current geodetic latitude
@@ -247,7 +256,7 @@ protected:
 
     //! Model describing the shape of the body w.r.t. which the flight is taking place.
     const std::shared_ptr< basic_astrodynamics::BodyShapeModel > shapeModel_;
-
+    
     //! Name of central body (i.e. body with the atmosphere)
     std::string centralBody_;
 

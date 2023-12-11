@@ -82,7 +82,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForPointMassCentralBodies )
         // Create bodies needed in simulation
         SystemOfBodies bodies = createSystemOfBodies(
                     getDefaultBodySettings( bodyNames, initialEphemerisTime - buffer, finalEphemerisTime + buffer ) );
-        
+
 
         // Set accelerations between bodies that are to be taken into account.
         SelectedAccelerationMap accelerationMap;
@@ -630,19 +630,23 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForHighEccentricities )
                     asterixInitialStateInKeplerianElements,
                     earthGravitationalParameter );
 
+        std::shared_ptr< IntegratorSettings< > > integratorSettings =
+            std::make_shared< MultiStageVariableStepSizeSettings< > >
+                ( fixedStepSize,  rungeKuttaFehlberg78,
+                  std::make_shared< PerElementIntegratorStepSizeControlSettings< double > >( 1.0E-14, 1.0E-14 ),
+                  std::make_shared< IntegratorStepSizeValidationSettings >( 1.0E-4, 3600.0, set_to_minimum_step_silently ) );
+
+
         TranslationalPropagatorType propagatorType = encke;
         std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
                 std::make_shared< TranslationalStatePropagatorSettings< double > >
-                ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, simulationEndEpoch, propagatorType);
+                ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, 0.0,
+                  integratorSettings, std::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ), propagatorType);
 
-        std::shared_ptr< IntegratorSettings< > > integratorSettings =
-                std::make_shared< RungeKuttaVariableStepSizeSettings< > >
-                ( 0.0, fixedStepSize,
-                  rungeKuttaFehlberg78, 1.0E-4, 3600.0, 1.0E-14, 1.0E-14 );
 
         // Create simulation object and propagate dynamics.
         SingleArcDynamicsSimulator< > dynamicsSimulator(
-                    bodies, integratorSettings, propagatorSettings, true, false, false );
+                    bodies, propagatorSettings );
         std::map< double, Eigen::VectorXd > integrationResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
 
         // Check if orbit is properly propagated
