@@ -117,6 +117,12 @@ namespace atmosphere {
               py::arg("space_weather_file" ) = tudat::paths::getSpaceWeatherDataPath( ) + "/sw19571001.txt",
               get_docstring("nrlmsise00").c_str());
 
+        m.def("mars_dtm",
+              &tss::marsDtmAtmosphereSettings,
+              py::arg("mars_dtm_file" ),
+              py::arg("polar_radius" ),
+              get_docstring("mars_dtm").c_str());
+
         m.def("tabulated",
               &tss::tabulatedAtmosphereSettings,
               py::arg("atmosphere_data_file" ),
