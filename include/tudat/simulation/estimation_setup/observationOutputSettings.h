@@ -115,13 +115,14 @@ public:
             const std::string relativeBody = "" ):
     ObservationDependentVariableSettings( variableType ),
         startLinkEnd_( startLinkEnd ), endLinkEnd_( endLinkEnd ),
-        integratedObservableHandling_( integratedObservableHandling ){ }
+        integratedObservableHandling_( integratedObservableHandling ),
+        relativeBody_( relativeBody ){ }
 
     ~InterlinkObservationDependentVariableSettings( ){ }
 
     std::string getIdentifier( )
     {
-        std::string identifier = ", link from " + observation_models::getLinkEndTypeString( startLinkEnd_ ) +
+        std::string identifier = ", link from " + observation_models::getLinkEndTypeString( startLinkEnd_ ) + " to " +
             observation_models::getLinkEndTypeString( endLinkEnd_ );
         if( relativeBody_ != "" )
         {

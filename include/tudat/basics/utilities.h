@@ -897,6 +897,19 @@ Eigen::Matrix< T, Eigen::Dynamic, 1 > getSuccesivelyConcatenatedVector(
     return concatenatedVector;
 }
 
+template <typename T>
+int countNumberOfOccurencesInVector( const std::vector< T >& vector, const T& value )
+{
+    int counter = 0;
+    for( unsigned int i = 0; i < vector.size( ); i++ )
+    {
+        if( vector.at( i ) == value )
+        {
+            counter++;
+        }
+    }
+    return counter;
+}
 
 } // namespace utilities
 

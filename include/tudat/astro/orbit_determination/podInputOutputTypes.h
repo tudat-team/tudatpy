@@ -38,12 +38,11 @@ public:
     CovarianceAnalysisInput(
               const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > >& observationCollection,
               const Eigen::MatrixXd inverseOfAprioriCovariance = Eigen::MatrixXd::Zero( 0, 0 ),
-              const Eigen::MatrixXd considerCovariance = Eigen::MatrixXd::Zero( 0, 0 ),
-              const double limitConditionNumberForWarning = 1.0E8 ):
+              const Eigen::MatrixXd considerCovariance = Eigen::MatrixXd::Zero( 0, 0 ) ):
         observationCollection_( observationCollection ),
         inverseOfAprioriCovariance_( inverseOfAprioriCovariance ),
         considerCovariance_( considerCovariance ),
-        limitConditionNumberForWarning_( limitConditionNumberForWarning ),
+        limitConditionNumberForWarning_( 1.0E8 ),
         reintegrateEquationsOnFirstIteration_( true ),
         reintegrateVariationalEquations_( true ),
         saveDesignMatrix_( true ),
@@ -195,7 +194,7 @@ public:
         }
     }
 
-    //! Set constant vector weight for all observables of given type and link ends
+    //! Set constant vector weight for alweightsMatrixDiagonals_l observables of given type and link ends
     void setTabulatedSingleObservableAndLinkEndsWeights(
         const observation_models::ObservableType currentObservable,
         const observation_models::LinkEnds currentLinkEnds,
@@ -447,6 +446,7 @@ public:
     {
         weightsMatrixDiagonals_ = weightsMatrixDiagonals;
     }
+
     //! Function to return the boolean denoting whether the dynamics and variational equations are reintegrated on first iteration
     /*!
      * Function to return the boolean denoting whether the dynamics and variational equations are to be reintegrated on first
@@ -491,12 +491,14 @@ public:
     void defineCovarianceSettings( const bool reintegrateEquationsOnFirstIteration = 1,
                                    const bool reintegrateVariationalEquations = 1,
                                    const bool saveDesignMatrix = 1,
-                                   const bool printOutput = 1 )
+                                   const bool printOutput = 1,
+                                   const double limitConditionNumberForWarning = 1.0E8 )
     {
         this->reintegrateEquationsOnFirstIteration_ = reintegrateEquationsOnFirstIteration;
         this->reintegrateVariationalEquations_ = reintegrateVariationalEquations;
         this->saveDesignMatrix_ = saveDesignMatrix;
         this->printOutput_ = printOutput;
+        this->limitConditionNumberForWarning_ = limitConditionNumberForWarning;
     }
 
     bool areConsiderParametersIncluded( ) const
@@ -637,16 +639,14 @@ public:
             const std::shared_ptr< EstimationConvergenceChecker > convergenceChecker = std::make_shared< EstimationConvergenceChecker >( ),
             const Eigen::MatrixXd considerCovariance = Eigen::MatrixXd::Zero( 0, 0 ),
             const Eigen::VectorXd considerParametersDeviations = Eigen::VectorXd::Zero( 0 ),
-            const double limitConditionNumberForWarning = 1.0E8,
-            const bool conditionNumberWarningEachIteration = true,
             const bool applyFinalParameterCorrection = true ):
         CovarianceAnalysisInput< ObservationScalarType, TimeType >(
-            observationCollection, inverseOfAprioriCovariance, considerCovariance, limitConditionNumberForWarning ),
+            observationCollection, inverseOfAprioriCovariance, considerCovariance ),
         saveResidualsAndParametersFromEachIteration_( true ),
         saveStateHistoryForEachIteration_( false ),
         convergenceChecker_( convergenceChecker ),
         considerParametersDeviations_( considerParametersDeviations ),
-        conditionNumberWarningEachIteration_( conditionNumberWarningEachIteration ),
+        conditionNumberWarningEachIteration_( true ),
         applyFinalParameterCorrection_( applyFinalParameterCorrection )
 
     {
@@ -693,7 +693,9 @@ public:
                                    const bool saveDesignMatrix = 1,
                                    const bool printOutput = 1,
                                    const bool saveResidualsAndParametersFromEachIteration = 1,
-                                   const bool saveStateHistoryForEachIteration = 0 )
+                                   const bool saveStateHistoryForEachIteration = 0,
+                                   const double limitConditionNumberForWarning = 1.0E8,
+                                   const bool conditionNumberWarningEachIteration = true )
     {
         this->reintegrateEquationsOnFirstIteration_ = reintegrateEquationsOnFirstIteration;
         this->reintegrateVariationalEquations_ = reintegrateVariationalEquations;
@@ -701,6 +703,8 @@ public:
         this->printOutput_ = printOutput;
         this->saveResidualsAndParametersFromEachIteration_ = saveResidualsAndParametersFromEachIteration;
         this->saveStateHistoryForEachIteration_ = saveStateHistoryForEachIteration;
+        this->limitConditionNumberForWarning_ = limitConditionNumberForWarning;
+        this->conditionNumberWarningEachIteration_ = conditionNumberWarningEachIteration;
     }
 
 

@@ -73,7 +73,7 @@ std::string getObservationDependentVariableName(
     }
     case link_angle_with_orbital_plane:
     {
-        dependentVariableName = "Angle between link vector and orbit normal vector ";
+        dependentVariableName = "Angle between link vector and orbital plane ";
         break;
     }
     case doppler_integration_time_dependent_variable:
@@ -89,7 +89,7 @@ std::string getObservationDependentVariableName(
     default:
         throw std::runtime_error( "Error when checking observation dependent variable. Type " +
                                   std::to_string( variableType ) +
-                                  " not found when checking fif variable is vectorial." );
+                                  " not found when retrieving variable name." );
     }
     return dependentVariableName;
 }
@@ -97,7 +97,7 @@ std::string getObservationDependentVariableName(
 std::string getObservationDependentVariableId(
         const std::shared_ptr< ObservationDependentVariableSettings > variableSettings )
 {
-    return getObservationDependentVariableName( variableSettings->variableType_ ) + ". " +
+    return getObservationDependentVariableName( variableSettings->variableType_ ) +
             variableSettings->getIdentifier( );
 }
 
@@ -126,10 +126,16 @@ bool isObservationDependentVariableVectorial(
     case link_body_center_distance:
         isVariableVectorial = false;
         break;
+    case link_limb_distance:
+        isVariableVectorial = false;
+        break;
+    case link_angle_with_orbital_plane:
+        isVariableVectorial = false;
+        break;
     default:
         throw std::runtime_error( "Error when checking observation dependent variable. Type " +
                                   getObservationDependentVariableId( variableSettings ) +
-                                  " not found when checking fif variable is vectorial." );
+                                  " not found when checking if variable is vectorial." );
 
     }
     return isVariableVectorial;
@@ -238,14 +244,7 @@ bool doesStationAngleVariableExistForGivenLink(
                 linkEnds, variableSettings->relevantLinkEnd_ );
         if( linkEndTypeList.size( ) > 0 )
         {
-            if( linkEndTypeList.size( ) > 1 )
-            {
-                throw std::runtime_error( "Error when checking for station angle; multiple link ends detected" );
-            }
-            else
-            {
-                doesLinkHaveDependency = true;
-            }
+            doesLinkHaveDependency = true;
         }
     }
     return doesLinkHaveDependency;

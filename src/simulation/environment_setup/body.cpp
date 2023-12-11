@@ -173,6 +173,39 @@ void setAreBodiesInPropagation( const SystemOfBodies& bodies,
     }
 }
 
+bool isReferencePointGroundStation( const std::shared_ptr< Body > body,
+                                    const std::string& referencePointName )
+{
+    bool isReferencePointGroundStation = false;
+    if( body->getGroundStationMap( ).count( referencePointName ) > 0 )
+    {
+        isReferencePointGroundStation = true;
+    }
+    else
+    {
+        if( body->getVehicleSystems( ) == nullptr )
+        {
+            throw std::runtime_error( "Error when finding reference point " + referencePointName + " on " + body->getBodyName( ) + " , point is not a ground station, and no system models found" );
+        }
+        else if( !body->getVehicleSystems( )->doesReferencePointExist( referencePointName ) )
+        {
+            throw std::runtime_error( "Error when finding reference point " + referencePointName + " on " + body->getBodyName( ) + ", point is not a ground station, and not a system reference point" );
+        }
+        else
+        {
+            isReferencePointGroundStation = false;
+        }
+    }
+    return isReferencePointGroundStation;
+}
+
+bool isReferencePointGroundStation( const SystemOfBodies &bodies,
+                                    const std::string& bodyName,
+                                    const std::string& referencePointName )
+{
+    return isReferencePointGroundStation( bodies.at( bodyName ), referencePointName );
+}
+
 
 } // namespace simulation_setup
 
