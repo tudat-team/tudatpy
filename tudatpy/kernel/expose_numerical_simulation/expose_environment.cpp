@@ -342,6 +342,7 @@ void expose_environment(py::module &m) {
             .def("update_conditions", &ta::FlightConditions::updateConditions, py::arg("current_time") )
             .def_property_readonly("aerodynamic_angle_calculator", &ta::FlightConditions::getAerodynamicAngleCalculator, get_docstring("FlightConditions.aerodynamic_angle_calculator").c_str())
             .def_property_readonly("longitude", &ta::FlightConditions::getCurrentLongitude, get_docstring("FlightConditions.longitude").c_str())
+            .def_property_readonly("latitude", &ta::FlightConditions::getCurrentLatitude, get_docstring("FlightConditions.latitude").c_str())
             .def_property_readonly("geodetic_latitude", &ta::FlightConditions::getCurrentGeodeticLatitude, get_docstring("FlightConditions.latitude").c_str())
             .def_property_readonly("time", &ta::FlightConditions::getCurrentTime, get_docstring("FlightConditions.time").c_str())
             .def_property_readonly("body_centered_body_fixed_state", &ta::FlightConditions::getCurrentBodyCenteredBodyFixedState, get_docstring("FlightConditions.body_centered_body_fixed_state").c_str())
