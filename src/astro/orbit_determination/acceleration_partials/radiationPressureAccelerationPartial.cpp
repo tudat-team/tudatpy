@@ -29,7 +29,7 @@ Eigen::Vector3d computePartialOfCannonBallRadiationPressureAccelerationWrtRadiat
 
 void CannonBallRadiationPressurePartial::wrtRadiationPressureCoefficient( Eigen::MatrixXd& partial )
 {
-    partial = computePartialOfCannonBallRadiationPressureAccelerationWrtRadiationPressureCoefficient(
+    partial += computePartialOfCannonBallRadiationPressureAccelerationWrtRadiationPressureCoefficient(
         radiationPressureFunction_( ), areaFunction_( ), acceleratedBodyMassFunction_( ),
         ( sourceBodyState_( ) - acceleratedBodyState_( ) ).normalized( ) );
 }
