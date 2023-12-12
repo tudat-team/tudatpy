@@ -108,11 +108,10 @@ BOOST_AUTO_TEST_CASE(JplRangeDataCustomFunction)
 
   std::cout << "TEMP!\n";
 
-  std::map<observation_models::ObservableType, observation_models::LinkEnds> observableTypes = {{observation_models::n_way_range, linkEnds}};
-  auto processedVikingFile = std::make_shared<observation_models::ProcessedTrackingTxtFileContents>(rawVikingFile, spacecraftName);
-  std::shared_ptr<observation_models::ObservationCollection<double, double>>
-      observationCollection = observation_models::createTrackingTxtFileObservationCollection(processedVikingFile, observableTypes);
+  std::shared_ptr<observation_models::ProcessedTrackingTxtFileContents> processedVikingFile = std::make_shared<observation_models::ProcessedTrackingTxtFileContents>(rawVikingFile, spacecraftName);
+//  auto observationCollection = observation_models::createTrackingTxtFileObservationCollection<double, double>(processedVikingFile);
 
+  auto observationCollection = observation_models::createTrackingTxtFileObservationCollection<double, double>(processedVikingFile,std::vector<observation_models::ObservableType>(),observation_models::ObservationAncilliarySimulationSettings());
   std::cout << "Size " << observationCollection->getTotalObservableSize() << "\n";
 
   std::cout << " " << observationCollection->getTotalObservableSize() << "\n";
@@ -288,5 +287,7 @@ BOOST_AUTO_TEST_CASE(testProcessTrackingFile)
 
 
 BOOST_AUTO_TEST_SUITE_END();
+
+
 }
 }
