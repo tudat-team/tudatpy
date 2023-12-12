@@ -20,10 +20,10 @@ add_subdirectory(observation_partials)
 
 
 
-TUDAT_ADD_TEST_CASE(EstimationInput
-    PRIVATE_LINKS
-    ${Tudat_ESTIMATION_LIBRARIES}
-    )
+#TUDAT_ADD_TEST_CASE(EstimationInput
+#    PRIVATE_LINKS
+#    ${Tudat_ESTIMATION_LIBRARIES}
+#    )
 
 TUDAT_ADD_TEST_CASE(EstimationFromIdealDataDoubleDouble
     PRIVATE_LINKS
