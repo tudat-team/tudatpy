@@ -52,8 +52,8 @@ enum class TrackingDataType
   time_scale_data,
   file_name,
   light_time_measurement_delay,
-  dsn_transmitting_station_id,
-  dsn_receiving_station_id,
+  dsn_transmitting_station_nr,
+  dsn_receiving_station_nr,
   spacecraft_id
 };
 
@@ -147,19 +147,19 @@ enum class TrackingFileField
   light_time_measurement_delay_microseconds,
   light_time_measurement_delay_seconds,
   spacecraft_id,
-  dsn_transmitting_station_id,
-  dsn_receiving_station_id,
+  dsn_transmitting_station_nr,
+  dsn_receiving_station_nr,
 };
 
 std::map<TrackingFileField, std::shared_ptr<TrackingFileFieldConverter>> trackingFileFieldConverterMap = {
     {TrackingFileField::spacecraft_id, std::make_shared<TrackingFileFieldConverter>(TrackingDataType::spacecraft_id)},
     {
-        TrackingFileField::dsn_transmitting_station_id,
-        std::make_shared<TrackingFileFieldConverter>(TrackingDataType::dsn_transmitting_station_id)
+        TrackingFileField::dsn_transmitting_station_nr,
+        std::make_shared<TrackingFileFieldConverter>(TrackingDataType::dsn_transmitting_station_nr)
     },
     {
-        TrackingFileField::dsn_receiving_station_id,
-        std::make_shared<TrackingFileFieldConverter>(TrackingDataType::dsn_receiving_station_id)
+        TrackingFileField::dsn_receiving_station_nr,
+        std::make_shared<TrackingFileFieldConverter>(TrackingDataType::dsn_receiving_station_nr)
     },
     {TrackingFileField::year, std::make_shared<TrackingFileFieldConverter>(TrackingDataType::year)},
     {TrackingFileField::month, std::make_shared<TrackingFileFieldConverter>(TrackingDataType::month)},
@@ -318,7 +318,7 @@ static inline std::unique_ptr<TrackingTxtFileContents> createTrackingTxtFileCont
 //
 //  // TODO: Maybe something to add metadata (delay, ...)
 //  template< typename TimeType >
-//  std::vector<TimeType> getTimes()
+//  std::vector<TimeType> getObservationTimes()
 //  {
 //    if (timeIsDecomposedDateTime_) {
 //    }
