@@ -28,6 +28,7 @@
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 
 namespace tio = tudat::input_output;
+namespace tss = tudat::simulation_setup;
 
 namespace tudat
 {
@@ -49,8 +50,8 @@ std::unique_ptr<tio::TrackingTxtFileContents> readVikingRangeFile(const std::str
 {
   std::vector<tio::TrackingFileField> columnTypes({
                                                       tio::TrackingFileField::spacecraft_id,
-                                                      tio::TrackingFileField::dsn_transmitting_station_id,
-                                                      tio::TrackingFileField::dsn_receiving_station_id,
+                                                      tio::TrackingFileField::dsn_transmitting_station_nr,
+                                                      tio::TrackingFileField::dsn_receiving_station_nr,
                                                       tio::TrackingFileField::year,
                                                       tio::TrackingFileField::month_three_letter,
                                                       tio::TrackingFileField::day,
@@ -76,11 +77,12 @@ BOOST_AUTO_TEST_SUITE(test_generic_txt_file_reader);
 
 BOOST_AUTO_TEST_CASE(JplRangeDataCustomFunction)
 {
-  std::shared_ptr<tio::TrackingTxtFileContents> vikingFile = readVikingRangeFile(vikingRangePath);
+  std::shared_ptr<tio::TrackingTxtFileContents> rawVikingFile = readVikingRangeFile(vikingRangePath);
 
-  auto rawDataMap = vikingFile->getRawDataMap();
-  auto dataMap = vikingFile->getDoubleDataMap();
-  std::vector<tio::TrackingDataType> dataColumnTypes = vikingFile->getDataColumnTypes();
+  std::string spacecraftName = "Viking";
+  auto rawDataMap = rawVikingFile->getRawDataMap();
+  auto dataMap = rawVikingFile->getDoubleDataMap();
+  std::vector<tio::TrackingDataType> dataColumnTypes = rawVikingFile->getDataColumnTypes();
 
   std::map<tio::TrackingDataType, double> dataBlock3;
   for (auto columnType : dataColumnTypes) {
@@ -88,8 +90,8 @@ BOOST_AUTO_TEST_CASE(JplRangeDataCustomFunction)
   }
 
   BOOST_CHECK_EQUAL(dataBlock3[tio::TrackingDataType::spacecraft_id], 1);
-  BOOST_CHECK_EQUAL(dataBlock3[tio::TrackingDataType::dsn_transmitting_station_id], 43);
-  BOOST_CHECK_EQUAL(dataBlock3[tio::TrackingDataType::dsn_receiving_station_id], 43);
+  BOOST_CHECK_EQUAL(dataBlock3[tio::TrackingDataType::dsn_transmitting_station_nr], 43);
+  BOOST_CHECK_EQUAL(dataBlock3[tio::TrackingDataType::dsn_receiving_station_nr], 43);
   BOOST_CHECK_EQUAL(dataBlock3[tio::TrackingDataType::year], 1976);
   BOOST_CHECK_EQUAL(dataBlock3[tio::TrackingDataType::month], 7);
   BOOST_CHECK_EQUAL(dataBlock3[tio::TrackingDataType::day], 22);
@@ -98,12 +100,92 @@ BOOST_AUTO_TEST_CASE(JplRangeDataCustomFunction)
   BOOST_CHECK_EQUAL(dataBlock3[tio::TrackingDataType::second], 32);
   BOOST_CHECK_EQUAL(dataBlock3[tio::TrackingDataType::two_way_light_time], 2290.150246895);
 
+
   // FIXME: this is incorrect!
-  observation_models::LinkEnds linkEnds{{observation_models::reflector, observation_models::linkEndId("viking")}};
+  observation_models::LinkEnds linkEnds{{observation_models::transmitter, observation_models::linkEndId("Earth", "Graz")},
+                                        {observation_models::reflector, observation_models::linkEndId("viking")},
+                                        {observation_models::receiver, observation_models::linkEndId("Earth", "Graz")}};
+
+  std::cout << "TEMP!\n";
 
   std::map<observation_models::ObservableType, observation_models::LinkEnds> observableTypes = {{observation_models::n_way_range, linkEnds}};
-//  std::shared_ptr<observation_models::ObservationCollection<double, double>>
-//      observationCollection = observation_models::createTrackingTxtFileObservationCollection(vikingFile, observableTypes);
+  auto processedVikingFile = std::make_shared<observation_models::ProcessedTrackingTxtFileContents>(rawVikingFile, spacecraftName);
+  std::shared_ptr<observation_models::ObservationCollection<double, double>>
+      observationCollection = observation_models::createTrackingTxtFileObservationCollection(processedVikingFile, observableTypes);
+
+  std::cout << "Size " << observationCollection->getTotalObservableSize() << "\n";
+
+  std::cout << " " << observationCollection->getTotalObservableSize() << "\n";
+
+}
+
+
+// Based on the odf filereader test
+BOOST_AUTO_TEST_CASE(testProcessTrackingFile)
+{
+
+  spice_interface::loadStandardSpiceKernels();
+
+  // presets
+  std::string spacecraftName = "Viking";
+
+  // Create system of bodies
+  std::vector<std::string> bodiesToCreate = {"Earth"};
+  tss::BodyListSettings bodySettings = tss::getDefaultBodySettings(bodiesToCreate);
+  bodySettings.at("Earth")->groundStationSettings = tss::getDsnStationSettings();
+
+  tss::SystemOfBodies bodies = createSystemOfBodies(bodySettings);
+
+  // Load Tracking file
+  std::shared_ptr<tio::TrackingTxtFileContents> rawTrackingTxtContents = readVikingRangeFile(vikingRangePath);
+
+  // Process Tracking file
+  std::shared_ptr<observation_models::ProcessedTrackingTxtFileContents> processedTrackingTxtFileContents =
+      std::make_shared<observation_models::ProcessedTrackingTxtFileContents>(rawTrackingTxtContents, spacecraftName);
+
+  const auto& observationTimes = processedTrackingTxtFileContents->getObservationTimes();
+  std::pair<double, double> startAndEndTime = processedTrackingTxtFileContents->getStartAndEndTime();
+  double startTime = startAndEndTime.first;
+  double endTime = startAndEndTime.second;
+
+  printArr(observationTimes);
+
+  // Compare start and end time with values in LBL file
+  for (unsigned int i = 0; i < 2; ++i) {
+    double time, expectedFractionOfDay;
+    int expectedYear, expectedMonth, expectedDay;
+    // Expected start time: 2009-05-01T12:41:18.000 UTC
+    if (i == 0) {
+      time = startTime;
+      expectedYear = 2009;
+      expectedMonth = 5;
+      expectedDay = 1;
+      expectedFractionOfDay = 12.0 / 24.0 + 41.0 / (24.0 * 60.0) + 18.0 / (24.0 * 3600.0);
+    }
+      // Expected end time: 2009-05-01T22:44:35.000
+    else {
+      time = endTime;
+      expectedYear = 2009;
+      expectedMonth = 5;
+      expectedDay = 1;
+      expectedFractionOfDay = 22.0 / 24.0 + 44.0 / (24.0 * 60.0) + 35.0 / (24.0 * 3600.0);
+    }
+
+    // Get UTC time
+    earth_orientation::TerrestrialTimeScaleConverter timeScaleConverter = earth_orientation::TerrestrialTimeScaleConverter();
+    double timeUtc = timeScaleConverter.getCurrentTime<double>(basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, time);
+
+    // Get UTC calendar date
+    int year, month, day;
+    double fractionOfDay;
+    iauJd2cal(basic_astrodynamics::JULIAN_DAY_ON_J2000, timeUtc / physical_constants::JULIAN_DAY, &year, &month, &day, &fractionOfDay);
+
+    BOOST_CHECK_EQUAL (year, expectedYear);
+    BOOST_CHECK_EQUAL (month, expectedMonth);
+    BOOST_CHECK_EQUAL (day, expectedDay);
+    BOOST_CHECK_CLOSE_FRACTION(fractionOfDay, expectedFractionOfDay, 1e-10);
+  }
+
 }
 
 
