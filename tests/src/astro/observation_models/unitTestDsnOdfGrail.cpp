@@ -65,7 +65,7 @@ int main( )
 
     // Create settings for default bodies
     std::vector< std::string > bodiesToCreate = { "Earth", "Sun", "Mercury", "Venus", "Mars", "Jupiter", "Saturn", "Moon" };
-    std::string globalFrameOrigin = "Earth";
+    std::string globalFrameOrigin = "SSB";
     std::string globalFrameOrientation = "J2000";
     BodyListSettings bodySettings = getDefaultBodySettings(
         bodiesToCreate, initialTimeEnvironment, finalTimeEnvironment, globalFrameOrigin, globalFrameOrientation, 120.0 );
@@ -267,17 +267,17 @@ int main( )
         createResidualCollection( filteredObservedObservationCollection, filteredComputedObservationCollection );
     {
         Eigen::VectorXd residuals = filteredResidualObservationCollection->getObservationVector( ).template cast< double >( );
-        input_output::writeMatrixToFile( residuals, "grailTestResiduals.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TestResults_30s_bias/");
+        input_output::writeMatrixToFile( residuals, "grailTestResiduals.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TestResults_30s_lrp_noradial/");
 
 //        input_output::writeMatrixToFile( correctedResiduals, "grailTestCorrectedResiduals.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TestResults/");
 
         Eigen::VectorXd observationTimes = utilities::convertStlVectorToEigenVector(
             filteredResidualObservationCollection->getConcatenatedTimeVector( ) ).template cast< double >( );
-        input_output::writeMatrixToFile( observationTimes, "grailTestTimes.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TestResults_30s_bias/");
+        input_output::writeMatrixToFile( observationTimes, "grailTestTimes.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TestResults_30s_lrp_noradial/");
 
         Eigen::VectorXd observationLinkEndsIds = utilities::convertStlVectorToEigenVector(
             filteredResidualObservationCollection->getConcatenatedLinkEndIds( ) ).template cast< double >( );
-        input_output::writeMatrixToFile(observationLinkEndsIds , "grailTestLinkEnds.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TestResults_30s_bias/");
+        input_output::writeMatrixToFile(observationLinkEndsIds , "grailTestLinkEnds.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TestResults_30s_lrp_noradial/");
     }
 
     {
@@ -288,7 +288,7 @@ int main( )
         accelerationsOfSpacecraft[ "Sun" ].push_back( std::make_shared<AccelerationSettings>( radiation_pressure ));
         accelerationsOfSpacecraft[ "Earth" ].push_back( std::make_shared<AccelerationSettings>( point_mass_gravity ));
         accelerationsOfSpacecraft[ "Moon" ].push_back( std::make_shared<SphericalHarmonicAccelerationSettings>( 256, 256 ));
-//        accelerationsOfSpacecraft[ "Moon" ].push_back( std::make_shared<AccelerationSettings>( radiation_pressure ));
+        accelerationsOfSpacecraft[ "Moon" ].push_back( std::make_shared<AccelerationSettings>( radiation_pressure ));
         accelerationsOfSpacecraft[ "Moon" ].push_back( empiricalAcceleration( ));
         accelerationsOfSpacecraft[ "Mars" ].push_back( std::make_shared<AccelerationSettings>( point_mass_gravity ));
         accelerationsOfSpacecraft[ "Jupiter" ].push_back( std::make_shared<AccelerationSettings>( point_mass_gravity ));
@@ -338,18 +338,18 @@ int main( )
             "GRAIL-A", "Moon", empiricalComponentsToEstimate ));
 //        parameterNames.push_back( std::make_shared<EstimatableParameterSettings>( "GRAIL-A", reference_point_position, "Antenna" ) );
 
-        std::map < ObservableType, std::vector< LinkEnds > > linkEndsPerObservable =
-            filteredComputedObservationCollection->getLinkEndsPerObservableType( );
-        for( auto it : linkEndsPerObservable )
-        {
-            for( unsigned int i = 0; i < it.second.size( ); i++ )
-            {
+//        std::map < ObservableType, std::vector< LinkEnds > > linkEndsPerObservable =
+//            filteredComputedObservationCollection->getLinkEndsPerObservableType( );
+//        for( auto it : linkEndsPerObservable )
+//        {
+//            for( unsigned int i = 0; i < it.second.size( ); i++ )
+//            {
 //                if( it.second.at( i ).at( transmitter ) != it.second.at( i ).at( receiver ) )
-                {
-                    parameterNames.push_back( observationBias( it.second.at( i ), it.first ) );
-                }
-            }
-        }
+//                {
+//                    parameterNames.push_back( observationBias( it.second.at( i ), it.first ) );
+//                }
+//            }
+//        }
         std::shared_ptr< estimatable_parameters::EstimatableParameterSet< long double > > parametersToEstimate =
             createParametersToEstimate< long double, Time >( parameterNames, bodies, propagatorSettings );
 
@@ -372,7 +372,7 @@ int main( )
             0, 1, 0, 1, 1, 1 );
         std::shared_ptr< EstimationOutput< long double, Time > > estimationOutput = orbitDeterminationManager.estimateParameters( estimationInput );
 
-        input_output::writeMatrixToFile(estimationOutput->residuals_ , "grailPostFitResiduals.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TestResults_30s_bias/");
+        input_output::writeMatrixToFile(estimationOutput->residuals_ , "grailPostFitResiduals.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TestResults_30s_lrp_noradial/");
 
         auto estimatedStateHistory =
             std::dynamic_pointer_cast< SingleArcVariationalSimulationResults< long double, Time > >( estimationOutput->getSimulationResults( ).back( ) )->getDynamicsResults( )->getEquationsOfMotionNumericalSolution( );
@@ -394,16 +394,16 @@ int main( )
             finalStateDifferenceRsw[ it.first ] = rswStateDifference;
         }
 
-        input_output::writeMatrixToFile(estimationOutput->getCorrelationMatrix( ) , "grailTestCorrelations.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TestResults_30s_bias/");
+        input_output::writeMatrixToFile(estimationOutput->getCorrelationMatrix( ) , "grailTestCorrelations.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TestResults_30s_lrp_noradial/");
 
         input_output::writeDataMapToTextFile( finalStateDifference,
                                               "stateDifference.dat",
-                                              "/home/dominic/Tudat/Data/GRAIL_TestResults_30s_bias/",
+                                              "/home/dominic/Tudat/Data/GRAIL_TestResults_30s_lrp_noradial/",
                                               "", std::numeric_limits< double >::digits10,  std::numeric_limits< double >::digits10,  "," );
 
         input_output::writeDataMapToTextFile( finalStateDifferenceRsw,
                                               "stateDifferenceRsw.dat",
-                                              "/home/dominic/Tudat/Data/GRAIL_TestResults_30s_bias/",
+                                              "/home/dominic/Tudat/Data/GRAIL_TestResults_30s_lrp_noradial/",
                                               "", std::numeric_limits< double >::digits10,  std::numeric_limits< double >::digits10,  "," );
 
 
