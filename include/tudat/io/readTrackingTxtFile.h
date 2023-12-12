@@ -24,6 +24,8 @@
 
 #include "tudat/io/fieldType.h"
 #include "tudat/astro/basic_astro.h"
+#include "tudat/astro/observation_models/observableTypes.h"
+
 
 // TODO: Split into header and source file
 
@@ -71,11 +73,12 @@ T caseInsensitiveFromMap(const std::string& strValue, const std::map<std::string
 
 // Define the Converters from string Tracking Fields to their appropriate type
 // Currently only doubles are implemented
-// TODO: Maybe pass the type as an argument to the conversion and the invoke a specific function and a specific vector?
 class TrackingFileFieldConverter
 {
 public:
-  explicit TrackingFileFieldConverter(TrackingDataType trackingDataType) : doubleDataType_(trackingDataType) {}
+  explicit TrackingFileFieldConverter(TrackingDataType trackingDataType)
+      : doubleDataType_(trackingDataType) {}
+
   virtual ~TrackingFileFieldConverter() = default;
 
   virtual double toDouble(std::string& rawField) const
