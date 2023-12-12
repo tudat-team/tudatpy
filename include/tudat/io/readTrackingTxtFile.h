@@ -26,15 +26,9 @@
 #include "tudat/astro/basic_astro.h"
 #include "tudat/astro/observation_models/observableTypes.h"
 
-
 // TODO: Split into header and source file
 
-namespace tudat
-{
-namespace input_output
-{
-
-// A TrackingDataType is a unique form of data that can be used by tudat to derive the observables
+// A TrackingDataType is a unique form of data that can be used by Tudat to derive the observables
 // A TrackingFileField is an identifier that specifies a specific type of column data in an input file (with a specific format)
 // A TrackingFileFieldConverter is an interface that can convert a raw string input field to its associated double value as expected for the TrackingDataType
 // For example:
@@ -42,6 +36,25 @@ namespace input_output
 // - The corresponding TrackingFileField will be TrackingFileField::round_trip_light_time_microseconds
 // - Tudat wants to refer to the data by TrackingDataType::two_way_light_time in seconds
 // - The converter
+
+namespace tudat
+{
+namespace input_output
+{
+
+//! Utility function to get a value from a string map where the keys are all uppercase
+template< typename T >
+T upperCaseFromMap(const std::string& strValue, const std::map<std::string, T>& upperCaseMapping)
+{
+  std::string upperCaseStrValue = boost::to_upper_copy(strValue);
+  const auto iter = upperCaseMapping.find(upperCaseStrValue);
+  if (iter != upperCaseMapping.cend()) {
+    return iter->second;
+  }
+  throw std::runtime_error("Invalid key found in map while converting tracking data");
+}
+
+//! Enum describing a unique data type that can later be used to process the information.
 enum class TrackingDataType
 {
   year,
@@ -59,20 +72,29 @@ enum class TrackingDataType
   spacecraft_id
 };
 
-// Some conversion helper function
-template< typename T >
-T caseInsensitiveFromMap(const std::string& strValue, const std::map<std::string, T>& upperCaseMapping)
+//! Enum describing a unique data type and format that can be present in a column of a file. Note that multiple `TrackingFileField`
+//! types can represent the same type of `TrackingDataType`
+enum class TrackingFileField
 {
-  std::string upperCaseStrValue = boost::to_upper_copy(strValue);
-  const auto iter = upperCaseMapping.find(upperCaseStrValue);
-  if (iter != upperCaseMapping.cend()) {
-    return iter->second;
-  }
-  throw std::runtime_error("Invalid key found in map while converting tracking data");
-}
+  year,
+  month,
+  month_three_letter,
+  day,
+  hour,
+  minute,
+  second,
+  round_trip_light_time_microseconds,
+  time_scale,
+  file_title,
+  light_time_measurement_delay_microseconds,
+  light_time_measurement_delay_seconds,
+  spacecraft_id,
+  dsn_transmitting_station_nr,
+  dsn_receiving_station_nr,
+};
 
-// Define the Converters from string Tracking Fields to their appropriate type
-// Currently only doubles are implemented
+//! Simple converter class that can convert a string data field to a double. One can inherit from this and overload the
+//! `toDouble()` method to extend the supported formats
 class TrackingFileFieldConverter
 {
 public:
@@ -97,7 +119,7 @@ private:
   TrackingDataType doubleDataType_;
 };
 
-// A converter specifically for month fields in three-letter representation ("jan", "Jan", ...)
+//! A converter specifically for month fields in three-letter representation ("jan", "Jan", ...)
 class TrackingFileMonthFieldConverter : public TrackingFileFieldConverter
 {
 public:
@@ -117,11 +139,11 @@ public:
                                             {"NOV", 11.},
                                             {"DEC", 12.}};
 
-    return caseInsensitiveFromMap(rawField, monthsMap);
+    return upperCaseFromMap(rawField, monthsMap);
   }
 };
 
-// Converter that will convert the raw string to double and then apply a scalar multiplier as specified
+//! Converter that will convert the raw string to double and then apply a scalar multiplier as specified
 class TrackingFileFieldMultiplyingConverter : public TrackingFileFieldConverter
 {
 public:
@@ -135,25 +157,7 @@ private:
   double multiplier_;
 };
 
-enum class TrackingFileField
-{
-  year,
-  month,
-  month_three_letter,
-  day,
-  hour,
-  minute,
-  second,
-  round_trip_light_time_microseconds,
-  time_scale,
-  file_title,
-  light_time_measurement_delay_microseconds,
-  light_time_measurement_delay_seconds,
-  spacecraft_id,
-  dsn_transmitting_station_nr,
-  dsn_receiving_station_nr,
-};
-
+//! Mapping the `TrackingFileField` to the correct converter, including the `TrackingDataType` it will represent
 std::map<TrackingFileField, std::shared_ptr<TrackingFileFieldConverter>> trackingFileFieldConverterMap = {
     {TrackingFileField::spacecraft_id, std::make_shared<TrackingFileFieldConverter>(TrackingDataType::spacecraft_id)},
     {
@@ -181,6 +185,7 @@ std::map<TrackingFileField, std::shared_ptr<TrackingFileFieldConverter>> trackin
     },
 };
 
+//! Class to extract the raw data from a file with the appropriate conversion to doubles
 class TrackingTxtFileContents
 {
 public:
@@ -242,7 +247,7 @@ public:
     }
   }
 
-  // This might be the place where conversion to different types can be implemented. Now, only double is considered
+  // Todo: This might be the place where conversion to different types can be implemented. Now, only double is considered
   void convertDataMap()
   {
     for (TrackingFileField columnType : columnFieldTypes_) {
@@ -258,6 +263,7 @@ public:
     }
   }
 
+  // Todo: This might be unnecessary, as it could be implemented as `AncillarySettings` in the observations
   void addMetaData(TrackingFileField fieldType, const std::string& value)
   {
     metaDataMap_[fieldType] = value;
@@ -313,22 +319,3 @@ static inline std::unique_ptr<TrackingTxtFileContents> createTrackingTxtFileCont
 } // namespace tudat
 
 #endif // TUDAT_READ_GENERIC_TXT_FILE_H
-
-
-// FIXME: IMPORTANT!
-//  // Todo: Look at options for reading (this belongs in processedTrackingTxt)
-//  bool timeIsDecomposedDateTime_;
-//
-//  // TODO: Maybe something to add metadata (delay, ...)
-//  template< typename TimeType >
-//  std::vector<TimeType> getObservationTimes()
-//  {
-//    if (timeIsDecomposedDateTime_) {
-//    }
-//  }
-//  // TODO: Make private
-
-
-// Todo: this belongs in  process...
-// template< typename TimeType, typename ObservableType >
-// std::shared_ptr< SingleObservationSet < TimeTyope, ObservableType > >
