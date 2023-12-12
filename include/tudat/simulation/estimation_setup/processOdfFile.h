@@ -795,6 +795,25 @@ std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType
         ancilliarySimulationSettings );
 }
 
+template< typename ObservationScalarType = double, typename TimeType = double >
+std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > createCompressedDopplerCollection(
+    const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > originalDopplerData,
+    const unsigned int compressionRatio )
+{
+    std::map< LinkEnds, std::vector< std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType, TimeType > > > > uncompressedObservationSets =
+        originalDopplerData->getObservations( ).at( dsn_n_way_averaged_doppler );
+    std::vector< std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType, TimeType > > > compressedObservationSets;
+    for( auto it : uncompressedObservationSets )
+    {
+        for( unsigned int i = 0; i < it.second.size( ); i++ )
+        {
+            compressedObservationSets.push_back( compressDopplerData< ObservationScalarType, TimeType >( it.second.at( i ), compressionRatio ) );
+        }
+    }
+
+    return std::make_shared< observation_models::ObservationCollection< ObservationScalarType, TimeType > >( compressedObservationSets );
+}
+
 /*!
  * Function modifies the observable types used in the provided observation simulation settings.
  * It can be used to replace a real observable (extracted from the ODF data, e.g. n-way Doppler) with an idealized
