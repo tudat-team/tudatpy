@@ -74,6 +74,11 @@ public:
         return targetPositionFunction_;
     }
 
+    double getCurrentRadiationPressure( )
+    {
+        return currentRadiationPressure_;
+    }
+
 protected:
     RadiationPressureAcceleration(const std::function<Eigen::Vector3d()>& sourcePositionFunction,
                                   const std::shared_ptr<RadiationPressureTargetModel>& targetModel,
@@ -87,9 +92,10 @@ protected:
             targetRotationFromLocalToGlobalFrameFunction_(targetRotationFromLocalToGlobalFrameFunction),
             targetMassFunction_(targetMassFunction),
             sourceToTargetOccultationModel_(sourceToTargetOccultationModel),
-            receivedIrradiance(TUDAT_NAN) {}
+            receivedIrradiance(TUDAT_NAN),
+            currentRadiationPressure_(TUDAT_NAN){}
 
-    virtual Eigen::Vector3d calculateAcceleration() = 0;
+    virtual void computeAcceleration( ) = 0;
 
     std::function<Eigen::Vector3d()> sourcePositionFunction_;
     std::shared_ptr<RadiationPressureTargetModel> targetModel_;
@@ -100,6 +106,7 @@ protected:
 
     // For dependent variable
     double receivedIrradiance;
+    double currentRadiationPressure_;
 };
 
 /*!
@@ -182,7 +189,7 @@ public:
     }
 
 private:
-    Eigen::Vector3d calculateAcceleration() override;
+    void computeAcceleration() override;
 
     std::shared_ptr<IsotropicPointRadiationSourceModel> sourceModel_;
 
@@ -270,7 +277,7 @@ public:
     }
 
 private:
-    Eigen::Vector3d calculateAcceleration() override;
+    void computeAcceleration() override;
 
     std::shared_ptr<PaneledRadiationSourceModel> sourceModel_;
     std::function<Eigen::Quaterniond()> sourceRotationFromLocalToGlobalFrameFunction_;

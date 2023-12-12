@@ -73,6 +73,7 @@ void RadiationPressureAccelerationPartial::wrtRadiationPressureCoefficient(
         throw std::runtime_error( "Error in full radiation pressure partial w.r.t. Cr, partial is only implemented for non-zero coefficient" );
     }
     partial = radiationPressureAcceleration_->getAcceleration( ) / targetModel->getCoefficient( );
+
 }
 
 }
