@@ -27,6 +27,7 @@
 #include "tudat/simulation/estimation_setup/processTrackingTxtFile.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 
+// Some simplifications for shorter lines
 namespace tio = tudat::input_output;
 namespace tss = tudat::simulation_setup;
 
@@ -35,6 +36,7 @@ namespace tudat
 namespace unit_tests
 {
 
+//! Temporary utility function to print arrays to std::cout
 template< typename T >
 void printArr(const T& arr)
 {
@@ -45,7 +47,18 @@ void printArr(const T& arr)
   std::cout << "]\n";
 }
 
-// Here, we implement a function that specifies a standard format for a file.
+// Utility function to get a single block from a datMap that maps keys to vectors
+template< typename K, typename V >
+std::map<K, V> extractBlockFromVectorMap(const std::map<K, std::vector<V>>& vectorMap, int blockIndex)
+{
+  std::map<K, V> singleBlock;
+  for (const auto& pair : vectorMap) {
+    singleBlock[pair.first] = pair.second[blockIndex];
+  }
+  return singleBlock;
+}
+
+//! A function that specifies a standard format for a file. A user can also do this if they often read the same file format
 std::unique_ptr<tio::TrackingTxtFileContents> readVikingRangeFile(const std::string& fileName)
 {
   std::vector<tio::TrackingFileField> columnTypes({
@@ -63,7 +76,6 @@ std::unique_ptr<tio::TrackingTxtFileContents> readVikingRangeFile(const std::str
                                                   });
   auto vikingFile = createTrackingTxtFileContents(fileName, columnTypes);
   vikingFile->addMetaData(tio::TrackingFileField::file_title, "Viking lander range data");
-
   return vikingFile;
 }
 
@@ -72,22 +84,18 @@ const std::string vikingRangePath = tudat::paths::getTudatTestDataPath() + "viki
 const std::string marsPathfinderRangePath = tudat::paths::getTudatTestDataPath() + "mars-pathfinder-range.txt";
 const std::string junoRangePath = tudat::paths::getTudatTestDataPath() + "juno_range.txt";
 
-BOOST_AUTO_TEST_SUITE(test_generic_txt_file_reader);
+BOOST_AUTO_TEST_SUITE(test_tracking_txt_file_reader);
 
-
-BOOST_AUTO_TEST_CASE(JplRangeDataCustomFunction)
+BOOST_AUTO_TEST_CASE(VikingRangeDataCustomFunction)
 {
+
   std::shared_ptr<tio::TrackingTxtFileContents> rawVikingFile = readVikingRangeFile(vikingRangePath);
 
   std::string spacecraftName = "Viking";
+
   auto rawDataMap = rawVikingFile->getRawDataMap();
   auto dataMap = rawVikingFile->getDoubleDataMap();
-  std::vector<tio::TrackingDataType> dataColumnTypes = rawVikingFile->getDataColumnTypes();
-
-  std::map<tio::TrackingDataType, double> dataBlock3;
-  for (auto columnType : dataColumnTypes) {
-    dataBlock3[columnType] = dataMap.at(columnType)[3];
-  }
+  auto dataBlock3 = extractBlockFromVectorMap(dataMap, 3);
 
   BOOST_CHECK_EQUAL(dataBlock3[tio::TrackingDataType::spacecraft_id], 1);
   BOOST_CHECK_EQUAL(dataBlock3[tio::TrackingDataType::dsn_transmitting_station_nr], 43);
@@ -100,185 +108,137 @@ BOOST_AUTO_TEST_CASE(JplRangeDataCustomFunction)
   BOOST_CHECK_EQUAL(dataBlock3[tio::TrackingDataType::second], 32);
   BOOST_CHECK_EQUAL(dataBlock3[tio::TrackingDataType::two_way_light_time], 2290.150246895);
 
-
-  std::shared_ptr<observation_models::ProcessedTrackingTxtFileContents> processedVikingFile = std::make_shared<observation_models::ProcessedTrackingTxtFileContents>(rawVikingFile, spacecraftName);
+  std::shared_ptr<observation_models::ProcessedTrackingTxtFileContents>
+      processedVikingFile = std::make_shared<observation_models::ProcessedTrackingTxtFileContents>(rawVikingFile, spacecraftName);
   auto observationCollection = observation_models::createTrackingTxtFileObservationCollection<double, double>(processedVikingFile);
 
-  std::cout << "Size " << observationCollection->getTotalObservableSize() << "\n";
-  std::cout << " " << observationCollection->getTotalObservableSize() << "\n";
-
+  BOOST_CHECK_EQUAL(observationCollection->getTotalObservableSize(), 1258);
 }
 
-
-// Based on the odf filereader test
-BOOST_AUTO_TEST_CASE(testProcessTrackingFile)
+BOOST_AUTO_TEST_CASE(marsPathfinderRangeSimpleReading)
 {
+  std::vector<tio::TrackingFileField> fieldTypeVector{
+      tio::TrackingFileField::spacecraft_id,
+      tio::TrackingFileField::dsn_transmitting_station_nr,
+      tio::TrackingFileField::dsn_receiving_station_nr,
+      tio::TrackingFileField::year,
+      tio::TrackingFileField::month_three_letter,
+      tio::TrackingFileField::day,
+      tio::TrackingFileField::hour,
+      tio::TrackingFileField::minute,
+      tio::TrackingFileField::second,
+      tio::TrackingFileField::round_trip_light_time_microseconds,
+      tio::TrackingFileField::light_time_measurement_accuracy_microseconds,
+  };
 
-  spice_interface::loadStandardSpiceKernels();
+  auto rawTrackingFile = createTrackingTxtFileContents(marsPathfinderRangePath, fieldTypeVector, '#', ",: \t");
+  auto dataMap = rawTrackingFile->getDoubleDataMap();
+  auto dataBlock4 = extractBlockFromVectorMap(dataMap, 4);
 
-  // presets
-  std::string spacecraftName = "Viking";
+  BOOST_CHECK_EQUAL(dataBlock4[tio::TrackingDataType::spacecraft_id], 3);
+  BOOST_CHECK_EQUAL(dataBlock4[tio::TrackingDataType::dsn_transmitting_station_nr], 65);
+  BOOST_CHECK_EQUAL(dataBlock4[tio::TrackingDataType::dsn_receiving_station_nr], 65);
+  BOOST_CHECK_EQUAL(dataBlock4[tio::TrackingDataType::year], 1997);
+  BOOST_CHECK_EQUAL(dataBlock4[tio::TrackingDataType::month], 7);
+  BOOST_CHECK_EQUAL(dataBlock4[tio::TrackingDataType::day], 25);
+  BOOST_CHECK_EQUAL(dataBlock4[tio::TrackingDataType::hour], 18);
+  BOOST_CHECK_EQUAL(dataBlock4[tio::TrackingDataType::minute], 17);
+  BOOST_CHECK_EQUAL(dataBlock4[tio::TrackingDataType::second], 02);
+  BOOST_CHECK_EQUAL(dataBlock4[tio::TrackingDataType::two_way_light_time], 1420.476556473);
+  BOOST_CHECK_EQUAL(dataBlock4[tio::TrackingDataType::light_time_measurement_accuracy], 6.7e-8);
 
-  // Create system of bodies
-  std::vector<std::string> bodiesToCreate = {"Earth"};
-  tss::BodyListSettings bodySettings = tss::getDefaultBodySettings(bodiesToCreate);
-  bodySettings.at("Earth")->groundStationSettings = tss::getDsnStationSettings();
-
-  tss::SystemOfBodies bodies = createSystemOfBodies(bodySettings);
-
-  // Load Tracking file
-  std::shared_ptr<tio::TrackingTxtFileContents> rawTrackingTxtContents = readVikingRangeFile(vikingRangePath);
-
-  // Process Tracking file
-  std::shared_ptr<observation_models::ProcessedTrackingTxtFileContents> processedTrackingTxtFileContents =
-      std::make_shared<observation_models::ProcessedTrackingTxtFileContents>(rawTrackingTxtContents, spacecraftName);
-
-  const auto& observationTimes = processedTrackingTxtFileContents->getObservationTimes();
-  std::pair<double, double> startAndEndTime = processedTrackingTxtFileContents->getStartAndEndTime();
-  double startTime = startAndEndTime.first;
-  double endTime = startAndEndTime.second;
-
-  printArr(observationTimes);
-
-  // Compare start and end time with values in LBL file
-  for (unsigned int i = 0; i < 2; ++i) {
-    double time, expectedFractionOfDay;
-    int expectedYear, expectedMonth, expectedDay;
-    // Expected start time: 2009-05-01T12:41:18.000 UTC
-    if (i == 0) {
-      time = startTime;
-      expectedYear = 2009;
-      expectedMonth = 5;
-      expectedDay = 1;
-      expectedFractionOfDay = 12.0 / 24.0 + 41.0 / (24.0 * 60.0) + 18.0 / (24.0 * 3600.0);
-    }
-      // Expected end time: 2009-05-01T22:44:35.000
-    else {
-      time = endTime;
-      expectedYear = 2009;
-      expectedMonth = 5;
-      expectedDay = 1;
-      expectedFractionOfDay = 22.0 / 24.0 + 44.0 / (24.0 * 60.0) + 35.0 / (24.0 * 3600.0);
-    }
-
-    // Get UTC time
-    earth_orientation::TerrestrialTimeScaleConverter timeScaleConverter = earth_orientation::TerrestrialTimeScaleConverter();
-    double timeUtc = timeScaleConverter.getCurrentTime<double>(basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, time);
-
-    // Get UTC calendar date
-    int year, month, day;
-    double fractionOfDay;
-    iauJd2cal(basic_astrodynamics::JULIAN_DAY_ON_J2000, timeUtc / physical_constants::JULIAN_DAY, &year, &month, &day, &fractionOfDay);
-
-    BOOST_CHECK_EQUAL (year, expectedYear);
-    BOOST_CHECK_EQUAL (month, expectedMonth);
-    BOOST_CHECK_EQUAL (day, expectedDay);
-    BOOST_CHECK_CLOSE_FRACTION(fractionOfDay, expectedFractionOfDay, 1e-10);
-  }
-
+  BOOST_CHECK_EQUAL(rawTrackingFile->getNumColumns(), 11);
 }
 
+//
+BOOST_AUTO_TEST_CASE(junoSimpleReading)
+{
+  std::vector<tio::TrackingFileField> fieldTypeVector{
+      tio::TrackingFileField::spacecraft_id,
+      tio::TrackingFileField::dsn_transmitting_station_nr,
+      tio::TrackingFileField::dsn_receiving_station_nr,
+      tio::TrackingFileField::year,
+      tio::TrackingFileField::month,
+      tio::TrackingFileField::day,
+      tio::TrackingFileField::hour,
+      tio::TrackingFileField::minute,
+      tio::TrackingFileField::second,
+      tio::TrackingFileField::round_trip_light_time_seconds,
+      tio::TrackingFileField::light_time_measurement_delay_microseconds,
+      tio::TrackingFileField::planet_nr,
+      tio::TrackingFileField::tdb_seconds_j2000,
+      tio::TrackingFileField::x_planet_frame_km,
+      tio::TrackingFileField::y_planet_frame_km,
+      tio::TrackingFileField::z_planet_frame_km,
+      tio::TrackingFileField::vx_planet_frame_kms,
+      tio::TrackingFileField::vy_planet_frame_kms,
+      tio::TrackingFileField::vz_planet_frame_kms
+  };
 
-//BOOST_AUTO_TEST_CASE( JplRangeDataCustomClass )
-//{
-//  auto vikingFile = readVikingRangeFile( vikingRangePath );
-//  std::map< std::shared_ptr< tio::TxtFieldType >, double > dataBlock3 = vikingFile->dataVector_.at( 3 );
-//
-//  BOOST_CHECK_EQUAL( dataBlock3[tft::spacecraftIdentifier], 1 );
-//  BOOST_CHECK_EQUAL( dataBlock3[tft::dsnTransmittingStation], 43 );
-//  BOOST_CHECK_EQUAL( dataBlock3[tft::dsnReceivingStation], 43 );
-//  BOOST_CHECK_EQUAL( dataBlock3[tft::utcYear], 1976 );
-//  BOOST_CHECK_EQUAL( dataBlock3[tft::utcMonth], 7 );
-//  BOOST_CHECK_EQUAL( dataBlock3[tft::utcDay], 22 );
-//  BOOST_CHECK_EQUAL( dataBlock3[tft::utcHour], 6 );
-//  BOOST_CHECK_EQUAL( dataBlock3[tft::utcMinute], 2 );
-//  BOOST_CHECK_EQUAL( dataBlock3[tft::utcSecond], 32 );
-//  BOOST_CHECK_EQUAL( dataBlock3[tft::roundTripLightTimeMicroSec], 2290150246.895 );
-//  BOOST_CHECK_EQUAL( dataBlock3[tft::lightTimeMeasurementAccuracyMicroSec], 0.047 );
-//}
-//
-//
-//BOOST_AUTO_TEST_CASE( GenericTxtFile )
-//{
-//  std::vector< std::shared_ptr< tio::TxtFieldType > > fieldTypeVector { tft::spacecraftIdentifier,
-//                                                                        tft::dsnTransmittingStation,
-//                                                                        tft::dsnReceivingStation, tft::utcYear,
-//                                                                        tft::utcMonth, tft::utcDay, tft::utcHour,
-//                                                                        tft::utcMinute, tft::utcSecond,
-//                                                                        tft::roundTripLightTimeMicroSec,
-//                                                                        tft::lightTimeMeasurementAccuracyMicroSec
-//  };
-//  std::shared_ptr< tio::TrackingTxtFileContents > fileContents = tio::createTxtFileContents( vikingRangePath,
-//                                                                                     fieldTypeVector,
-//                                                                                     '#',
-//                                                                                     ",: \t" );
-//
-//  std::map< std::shared_ptr< tio::TxtFieldType >, double > dataBlock3 = fileContents->dataVector_.at( 3 );
-//
-//  BOOST_CHECK_EQUAL( dataBlock3[tft::spacecraftIdentifier], 1 );
-//  BOOST_CHECK_EQUAL( dataBlock3[tft::dsnTransmittingStation], 43 );
-//  BOOST_CHECK_EQUAL( dataBlock3[tft::dsnReceivingStation], 43 );
-//  BOOST_CHECK_EQUAL( dataBlock3[tft::utcYear], 1976 );
-//  BOOST_CHECK_EQUAL( dataBlock3[tft::utcMonth], 7 );
-//  BOOST_CHECK_EQUAL( dataBlock3[tft::utcDay], 22 );
-//  BOOST_CHECK_EQUAL( dataBlock3[tft::utcHour], 6 );
-//  BOOST_CHECK_EQUAL( dataBlock3[tft::utcMinute], 2 );
-//  BOOST_CHECK_EQUAL( dataBlock3[tft::utcSecond], 32 );
-//  BOOST_CHECK_EQUAL( dataBlock3[tft::roundTripLightTimeMicroSec], 2290150246.895 );
-//  BOOST_CHECK_EQUAL( dataBlock3[tft::lightTimeMeasurementAccuracyMicroSec], 0.047 );
-//
-//  BOOST_CHECK_EQUAL( fileContents->getNumColumns( ), 11 );
-//  BOOST_CHECK_EQUAL( fileContents->dataVector_.size( ), 1258 );
-//}
-//
-//
-//BOOST_AUTO_TEST_CASE( JunoRead )
-//{
-//  std::vector< std::shared_ptr< tio::TxtFieldType > > fieldTypeVector { tft::spacecraftIdentifier,
-//                                                                        tft::dsnTransmittingStation,
-//                                                                        tft::dsnReceivingStation, tft::utcYear,
-//                                                                        tft::utcMonth, tft::utcDay, tft::utcHour,
-//                                                                        tft::utcMinute, tft::utcSecond,
-//                                                                        tft::roundTripLightTimeSec,
-//                                                                        tft::lightTimeMeasurementDelayMicroSec,
-//                                                                        tft::planetNumber, tft::tbdTimeJ2000,
-//                                                                        tft::xPlanetFrame, tft::yPlanetFrame,
-//                                                                        tft::zPlanetFrame, tft::vXPlanetFrame,
-//                                                                        tft::vYPlanetFrame, tft::vZPlanetFrame
-//  };
-//  std::shared_ptr< tio::TrackingTxtFileContents > fileContents = tio::createTxtFileContents( junoRangePath,
-//                                                                                     fieldTypeVector,
-//                                                                                     '#',
-//                                                                                     ",: \t" );
-//
-//  std::map< std::shared_ptr< tio::TxtFieldType >, double > dataBlock3 = fileContents->dataVector_.at( 0 );
-//
-//  BOOST_CHECK_EQUAL( dataBlock3[tft::spacecraftIdentifier], 61 );
-//  BOOST_CHECK_EQUAL( dataBlock3[tft::dsnTransmittingStation], 55 );
-//  BOOST_CHECK_EQUAL( dataBlock3[tft::dsnReceivingStation], 55 );
-//  BOOST_CHECK_EQUAL( dataBlock3[tft::utcYear], 2016 );
-//  BOOST_CHECK_EQUAL( dataBlock3[tft::utcMonth], 8 );
-//  BOOST_CHECK_EQUAL( dataBlock3[tft::utcDay], 27 );
-//  BOOST_CHECK_EQUAL( dataBlock3[tft::utcHour], 13 );
-//  BOOST_CHECK_EQUAL( dataBlock3[tft::utcMinute], 45 );
-//  BOOST_CHECK_EQUAL( dataBlock3[tft::utcSecond], 6 );
-//  BOOST_CHECK_EQUAL( dataBlock3[tft::roundTripLightTimeSec], 6355.0487233317 );
-//  BOOST_CHECK_EQUAL( dataBlock3[tft::lightTimeMeasurementAccuracyMicroSec], 0.0 );
-//  BOOST_CHECK_EQUAL( dataBlock3[tft::planetNumber], 5 );
-//  BOOST_CHECK_EQUAL( dataBlock3[tft::tbdTimeJ2000], 525574396.542800 );
-//  BOOST_CHECK_EQUAL( dataBlock3[tft::xPlanetFrame], 976.985733 );
-//  BOOST_CHECK_EQUAL( dataBlock3[tft::yPlanetFrame], 68435.520227 );
-//  BOOST_CHECK_EQUAL( dataBlock3[tft::zPlanetFrame], 32772.692214 );
-//  BOOST_CHECK_EQUAL( dataBlock3[tft::vXPlanetFrame], 0.727110 );
-//  BOOST_CHECK_EQUAL( dataBlock3[tft::vYPlanetFrame], 26.571899 );
-//  BOOST_CHECK_EQUAL( dataBlock3[tft::vZPlanetFrame], -51.299726 );
-//
-//  BOOST_CHECK_EQUAL( fileContents->getNumColumns( ), 19 );
-//  BOOST_CHECK_EQUAL( fileContents->dataVector_.size( ), 4 );
+  auto rawTrackingFile = createTrackingTxtFileContents(junoRangePath, fieldTypeVector, '#', ",: \t");
+  auto dataMap = rawTrackingFile->getDoubleDataMap();
+  auto dataBlock0 = extractBlockFromVectorMap(dataMap, 0);
 
+  BOOST_CHECK_EQUAL(dataBlock0[tio::TrackingDataType::spacecraft_id], 61);
+  BOOST_CHECK_EQUAL(dataBlock0[tio::TrackingDataType::dsn_transmitting_station_nr], 55);
+  BOOST_CHECK_EQUAL(dataBlock0[tio::TrackingDataType::dsn_receiving_station_nr], 55);
+  BOOST_CHECK_EQUAL(dataBlock0[tio::TrackingDataType::year], 2016);
+  BOOST_CHECK_EQUAL(dataBlock0[tio::TrackingDataType::month], 8);
+  BOOST_CHECK_EQUAL(dataBlock0[tio::TrackingDataType::day], 27);
+  BOOST_CHECK_EQUAL(dataBlock0[tio::TrackingDataType::hour], 13);
+  BOOST_CHECK_EQUAL(dataBlock0[tio::TrackingDataType::minute], 45);
+  BOOST_CHECK_EQUAL(dataBlock0[tio::TrackingDataType::second], 6);
+  BOOST_CHECK_EQUAL(dataBlock0[tio::TrackingDataType::two_way_light_time], 6355.0487233317);
+  BOOST_CHECK_EQUAL(dataBlock0[tio::TrackingDataType::light_time_measurement_accuracy], 0.0);
+  BOOST_CHECK_EQUAL(dataBlock0[tio::TrackingDataType::planet_nr], 5);
+  BOOST_CHECK_CLOSE(dataBlock0[tio::TrackingDataType::tdb_time_j2000], 525574396.542800, 1e-4);
+  BOOST_CHECK_CLOSE(dataBlock0[tio::TrackingDataType::x_planet_frame], 976985.733, 1e-4);
+  BOOST_CHECK_CLOSE(dataBlock0[tio::TrackingDataType::y_planet_frame], 68435520.227, 1e-4);
+  BOOST_CHECK_CLOSE(dataBlock0[tio::TrackingDataType::z_planet_frame], 32772692.214, 1e-4);
+  BOOST_CHECK_CLOSE(dataBlock0[tio::TrackingDataType::vx_planet_frame], 0727.110, 1e-4);
+  BOOST_CHECK_CLOSE(dataBlock0[tio::TrackingDataType::vy_planet_frame], 26571.899, 1e-4);
+  BOOST_CHECK_CLOSE(dataBlock0[tio::TrackingDataType::vz_planet_frame], -51299.726, 1e-4);
+
+  BOOST_CHECK_EQUAL(rawTrackingFile->getNumColumns(), 19);
+}
+
+// Todo: Add a rigorous test with the observationcollection
+//// Based on the odf file reader test
+//BOOST_AUTO_TEST_CASE(testProcessTrackingFile)
+//{
+//
+//  spice_interface::loadStandardSpiceKernels();
+//
+//  // presets
+//  std::string spacecraftName = "Viking";
+//
+//  // Create system of bodies
+//  std::vector<std::string> bodiesToCreate = {"Earth"};
+//  tss::BodyListSettings bodySettings = tss::getDefaultBodySettings(bodiesToCreate);
+//  bodySettings.at("Earth")->groundStationSettings = tss::getDsnStationSettings();
+//
+//  tss::SystemOfBodies bodies = createSystemOfBodies(bodySettings);
+//
+//  // Load Tracking file
+//  std::shared_ptr<tio::TrackingTxtFileContents> rawTrackingTxtContents = readVikingRangeFile(vikingRangePath);
+//
+//  // Process Tracking file
+//  std::shared_ptr<observation_models::ProcessedTrackingTxtFileContents> processedTrackingTxtFileContents =
+//      std::make_shared<observation_models::ProcessedTrackingTxtFileContents>(rawTrackingTxtContents, spacecraftName);
+//
+//  // Todo:
+//  //  Implement Tests for the observation collection
+//
+//  // Check Time
+//  std::pair<double, double> startAndEndTime = processedTrackingTxtFileContents->getStartAndEndTime();
+//  double startTime = startAndEndTime.first;
+//  double endTime = startAndEndTime.second;
+//
+//  // Extract Observation Collection
+//  auto observationCollection = createTrackingTxtFileObservationCollection(processedTrackingTxtFileContents);
+//}
 
 BOOST_AUTO_TEST_SUITE_END();
-
 
 }
 }

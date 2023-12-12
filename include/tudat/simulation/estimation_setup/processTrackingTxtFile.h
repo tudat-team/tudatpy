@@ -172,7 +172,7 @@ public:
               {observation_models::reflector, observation_models::LinkEndId(spacecraftName_, "Antenna")},
               {observation_models::receiver, observation_models::LinkEndId("Earth", getStationNameFromStationId("DSS", dsnReceiverIds[i]))},
           };
-          linkEndsVector_[i] = currentLinkEnds;
+          linkEndsVector_.push_back(currentLinkEnds);
         }
         break;
       }
@@ -187,11 +187,10 @@ public:
     }
   }
 
+  // Todo: It would be better if the observables are already extracted here, instead of in the separate function
   void updateObservations()
   {
-    TODO_IMPLEMENT;
     const auto& observableTypes = getObservableTypes();
-
   }
 
   void updateObservableTypes()
@@ -233,22 +232,26 @@ private:
 
 // Getters
 public:
+  bool is_initialised() const
+  {
+    return initialised_;
+  }
 
-  const std::vector<ObservableType>& getObservableTypes()
+  const std::vector<ObservableType>& getObservableTypes() const
   {
     return observableTypes_;
   }
 
-  const std::vector<double>& getObservationTimes()
+  const std::vector<double>& getObservationTimes() const
   {
     return observationTimes_;
   }
 
-  const std::vector<LinkEnds>& getLinkEndsVector()
+  const std::vector<LinkEnds>& getLinkEndsVector() const
   {
     return linkEndsVector_;
   }
-  const std::set<LinkEnds>& getLinkEndsSet()
+  const std::set<LinkEnds>& getLinkEndsSet() const
   {
     return linkEndsSet_;
   }
@@ -268,11 +271,10 @@ private:
   std::vector<LinkEnds> linkEndsVector_;
   std::set<LinkEnds> linkEndsSet_;
   bool initialised_;
-
 };
 
-// Create observation collection
 // TODO: This assumes the ancillary settings are the same for all the observables. For txt files this will usually be the case
+//! Function to create an observation collection from the processed Tracking file data
 template< typename ObservationScalarType = double, typename TimeType = double >
 std::shared_ptr<observation_models::ObservationCollection<ObservationScalarType, TimeType> >
 createTrackingTxtFileObservationCollection(
@@ -281,6 +283,10 @@ createTrackingTxtFileObservationCollection(
     const ObservationAncilliarySimulationSettings& ancillarySettings = ObservationAncilliarySimulationSettings(),
     std::pair<TimeType, TimeType> startAndEndTimesToProcess = std::make_pair<TimeType, TimeType>(TUDAT_NAN, TUDAT_NAN))
 {
+
+  if (!processedTrackingTxtFileContents->is_initialised()) {
+    throw std::runtime_error("Error while processing tracking txt file: processedTrackingTxtFileContents was never initialised.");
+  }
 
   const auto& dataMap = processedTrackingTxtFileContents->getDoubleDataMap();
 
@@ -309,9 +315,10 @@ createTrackingTxtFileObservationCollection(
       ObservableType& currentObservableType = pair.second;
 
       if (containsAll(observableTypesToProcess, std::vector<ObservableType>{pair.second})) {
-        Eigen::Matrix<ObservationScalarType, Eigen::Dynamic, 1> currentObservable;
+        size_t currentSize = currentTrackingDataTypes.size();
+        Eigen::Matrix<ObservationScalarType, Eigen::Dynamic, 1> currentObservable(currentSize);
 
-        for (size_t j = 0; j < currentTrackingDataTypes.size(); ++j) {
+        for (size_t j = 0; j < currentSize; ++j) {
           currentObservable[j] = dataMap.at(currentTrackingDataTypes[j])[i];
         }
         observationTimesMap[currentObservableType][currentLinkEnds].push_back(allObservationTimes[i]);
@@ -327,7 +334,7 @@ createTrackingTxtFileObservationCollection(
           currentLinkEnds,
           observablesMap[currentObservableType][currentLinkEnds],
           observationTimesMap[currentObservableType][currentLinkEnds],
-          observation_models::receiver, // Todo: Not sure why this is (copied from odfFiles)
+          observation_models::receiver, // Todo: Not sure how this is used (copied from odfFiles)
           std::vector<Eigen::VectorXd>(),
           nullptr,
           std::make_shared<ObservationAncilliarySimulationSettings>(ancillarySettings)));
