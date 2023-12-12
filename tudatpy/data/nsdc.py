@@ -1348,8 +1348,8 @@ def process_file(filename,analyse, standard_orientation):
             observatories.append(observatory)
     if analyse == True:
         times, RADEC, moons, observatories, diflist, rms, means, stddevs = remove_outliers(times, RADEC, moons, observatories, bodies,standard_orientation, 3, True)
-    # if (abs(means[0]) < stddevs[0] and abs(means[1]) <stddevs[1]):
-    #     save_to_csv(times, RADEC, moons, observatories, studyname, diflist, 'ObservationsProcessed/ProcessedForThesisWeights/')
+    if (abs(means[0]) < stddevs[0] and abs(means[1]) <stddevs[1]):
+        save_to_csv(times, RADEC, moons, observatories, studyname, diflist, 'ObservationsProcessed/ProcessedForThesisWeights/')
     return
 
 
