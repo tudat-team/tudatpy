@@ -34,7 +34,6 @@ set(io_SOURCES
         "readOdfFile.cpp"
         "readTabulatedMediaCorrections.cpp"
         "readTabulatedWeatherData.cpp"
-        "readJplRangeFile.cpp"
         )
 
 # Add header files.
@@ -74,7 +73,6 @@ set(io_HEADERS
         "readBinaryFile.h"
         "readTabulatedMediaCorrections.h"
         "readTabulatedWeatherData.h"
-        "readJplRangeFile.h"
         )
 
 # Add library.
