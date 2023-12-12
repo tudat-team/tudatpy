@@ -101,19 +101,10 @@ BOOST_AUTO_TEST_CASE(JplRangeDataCustomFunction)
   BOOST_CHECK_EQUAL(dataBlock3[tio::TrackingDataType::two_way_light_time], 2290.150246895);
 
 
-  // FIXME: this is incorrect!
-  observation_models::LinkEnds linkEnds{{observation_models::transmitter, observation_models::linkEndId("Earth", "Graz")},
-                                        {observation_models::reflector, observation_models::linkEndId("viking")},
-                                        {observation_models::receiver, observation_models::linkEndId("Earth", "Graz")}};
-
-  std::cout << "TEMP!\n";
-
   std::shared_ptr<observation_models::ProcessedTrackingTxtFileContents> processedVikingFile = std::make_shared<observation_models::ProcessedTrackingTxtFileContents>(rawVikingFile, spacecraftName);
-//  auto observationCollection = observation_models::createTrackingTxtFileObservationCollection<double, double>(processedVikingFile);
+  auto observationCollection = observation_models::createTrackingTxtFileObservationCollection<double, double>(processedVikingFile);
 
-  auto observationCollection = observation_models::createTrackingTxtFileObservationCollection<double, double>(processedVikingFile,std::vector<observation_models::ObservableType>(),observation_models::ObservationAncilliarySimulationSettings());
   std::cout << "Size " << observationCollection->getTotalObservableSize() << "\n";
-
   std::cout << " " << observationCollection->getTotalObservableSize() << "\n";
 
 }
