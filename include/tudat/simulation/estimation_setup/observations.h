@@ -591,7 +591,6 @@ public:
         return linkEndsPerObservableType;
     }
 
-
 private:
 
     void setObservationSetIndices( )

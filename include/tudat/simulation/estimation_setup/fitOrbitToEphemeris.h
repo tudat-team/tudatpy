@@ -48,7 +48,7 @@ std::shared_ptr< observation_models::ObservationCollection< StateScalarType, Tim
     using namespace observation_models;
 
     std::vector< TimeType > observationTimes;
-    double currentTime = initialTime;
+    TimeType currentTime = initialTime;
     while( currentTime < finalTime )
     {
         observationTimes.push_back( currentTime );

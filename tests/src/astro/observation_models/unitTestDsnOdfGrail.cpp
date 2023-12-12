@@ -312,6 +312,7 @@ int main( )
                                                                               numerical_integrators::rungeKuttaFehlberg78 ),
                   std::make_shared< PropagationTimeTerminationSettings >( finalTime ) );
 
+        propagatorSettings->getPrintSettings( )->setResultsPrintFrequencyInSteps( 3600 / 30 );
 
         std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames =
             getInitialStateParameterSettings< long double, Time >( propagatorSettings, bodies );
