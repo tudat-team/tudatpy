@@ -54,7 +54,7 @@ T upperCaseFromMap(const std::string& strValue, const std::map<std::string, T>& 
   throw std::runtime_error("Invalid key found in map while converting tracking data");
 }
 
-//! Enum describing a unique data type that can later be used to process the information.
+//! Enum describing a unique data type that can later be used to process the information. These are in SI units
 enum class TrackingDataType
 {
   year,
@@ -63,19 +63,29 @@ enum class TrackingDataType
   hour,
   minute,
   second,
-  two_way_light_time,
   time_scale_data,
   file_name,
+  two_way_light_time,
   light_time_measurement_delay,
+  light_time_measurement_accuracy,
   dsn_transmitting_station_nr,
   dsn_receiving_station_nr,
-  spacecraft_id
+  spacecraft_id,
+  planet_nr,
+  tdb_time_j2000,
+  x_planet_frame,
+  y_planet_frame,
+  z_planet_frame,
+  vx_planet_frame,
+  vy_planet_frame,
+  vz_planet_frame,
 };
 
 //! Enum describing a unique data type and format that can be present in a column of a file. Note that multiple `TrackingFileField`
 //! types can represent the same type of `TrackingDataType`
 enum class TrackingFileField
 {
+  ignore = -1,
   year,
   month,
   month_three_letter,
@@ -84,13 +94,23 @@ enum class TrackingFileField
   minute,
   second,
   round_trip_light_time_microseconds,
+  round_trip_light_time_seconds,
   time_scale,
   file_title,
   light_time_measurement_delay_microseconds,
   light_time_measurement_delay_seconds,
+  light_time_measurement_accuracy_microseconds,
   spacecraft_id,
   dsn_transmitting_station_nr,
   dsn_receiving_station_nr,
+  planet_nr,
+  tdb_seconds_j2000,
+  x_planet_frame_km,
+  y_planet_frame_km,
+  z_planet_frame_km,
+  vx_planet_frame_kms,
+  vy_planet_frame_kms,
+  vz_planet_frame_kms,
 };
 
 //! Simple converter class that can convert a string data field to a double. One can inherit from this and overload the
@@ -113,7 +133,7 @@ public:
               + "\".\n");
     }
   }
-  TrackingDataType getTrackingDataType() { return doubleDataType_; }
+  const TrackingDataType& getTrackingDataType() { return doubleDataType_; }
 
 private:
   TrackingDataType doubleDataType_;
@@ -175,6 +195,7 @@ std::map<TrackingFileField, std::shared_ptr<TrackingFileFieldConverter>> trackin
     {TrackingFileField::hour, std::make_shared<TrackingFileFieldConverter>(TrackingDataType::hour)},
     {TrackingFileField::minute, std::make_shared<TrackingFileFieldConverter>(TrackingDataType::minute)},
     {TrackingFileField::second, std::make_shared<TrackingFileFieldConverter>(TrackingDataType::second)},
+    {TrackingFileField::round_trip_light_time_seconds, std::make_shared<TrackingFileFieldConverter>(TrackingDataType::two_way_light_time)},
     {
         TrackingFileField::round_trip_light_time_microseconds,
         std::make_shared<TrackingFileFieldMultiplyingConverter>(TrackingDataType::two_way_light_time, 1.e-6)
@@ -183,6 +204,18 @@ std::map<TrackingFileField, std::shared_ptr<TrackingFileFieldConverter>> trackin
         TrackingFileField::light_time_measurement_delay_microseconds,
         std::make_shared<TrackingFileFieldMultiplyingConverter>(TrackingDataType::light_time_measurement_delay, 1.e-6)
     },
+    {
+        TrackingFileField::light_time_measurement_accuracy_microseconds,
+        std::make_shared<TrackingFileFieldMultiplyingConverter>(TrackingDataType::light_time_measurement_accuracy, 1.e-6)
+    },
+    {TrackingFileField::planet_nr, std::make_shared<TrackingFileFieldConverter>(TrackingDataType::planet_nr)},
+    {TrackingFileField::tdb_seconds_j2000, std::make_shared<TrackingFileFieldConverter>(TrackingDataType::tdb_time_j2000)},
+    {TrackingFileField::x_planet_frame_km, std::make_shared<TrackingFileFieldMultiplyingConverter>(TrackingDataType::x_planet_frame, 1.e3)},
+    {TrackingFileField::y_planet_frame_km, std::make_shared<TrackingFileFieldMultiplyingConverter>(TrackingDataType::y_planet_frame, 1.e3)},
+    {TrackingFileField::z_planet_frame_km, std::make_shared<TrackingFileFieldMultiplyingConverter>(TrackingDataType::z_planet_frame, 1.e3)},
+    {TrackingFileField::vx_planet_frame_kms, std::make_shared<TrackingFileFieldMultiplyingConverter>(TrackingDataType::vx_planet_frame, 1.e3)},
+    {TrackingFileField::vy_planet_frame_kms, std::make_shared<TrackingFileFieldMultiplyingConverter>(TrackingDataType::vy_planet_frame, 1.e3)},
+    {TrackingFileField::vz_planet_frame_kms, std::make_shared<TrackingFileFieldMultiplyingConverter>(TrackingDataType::vz_planet_frame, 1.e3)},
 };
 
 //! Class to extract the raw data from a file with the appropriate conversion to doubles
@@ -251,9 +284,10 @@ public:
   void convertDataMap()
   {
     for (TrackingFileField columnType : columnFieldTypes_) {
-      std::vector<std::string> rawVector = rawDataMap_[columnType];
-      std::shared_ptr<TrackingFileFieldConverter> converter = trackingFileFieldConverterMap[columnType];
-      TrackingDataType dataType = converter->getTrackingDataType();
+      const std::vector<std::string>& rawVector = rawDataMap_.at(columnType);
+      std::shared_ptr<TrackingFileFieldConverter> converter = trackingFileFieldConverterMap.at(columnType);
+
+      const TrackingDataType& dataType = converter->getTrackingDataType();
 
       std::vector<double> dataVector;
       for (std::string rawValue : rawVector) {
