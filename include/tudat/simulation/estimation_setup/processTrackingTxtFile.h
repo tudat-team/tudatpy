@@ -14,91 +14,98 @@
 #ifndef TUDAT_PROCESSTRACKINGTXTFILE_H
 #define TUDAT_PROCESSTRACKINGTXTFILE_H
 
-// TEMPORARY -- REMOVE THIS
-#define TODO_IMPLEMENT std::cerr << __FILE__ << "(" << __LINE__ << "): " << "ERROR! Function not yet implemented\n"
-
 #include "tudat/basics/utilities.h"
 #include "tudat/io/readTrackingTxtFile.h"
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/io/basicInputOutput.h"
-//#include "tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h"
 #include "tudat/astro/basic_astro/timeConversions.h"
-//#include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/astro/ground_stations/transmittingFrequencies.h"
 #include "tudat/simulation/estimation_setup/observations.h"
 #include "tudat/simulation/estimation_setup/observationSimulationSettings.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/math/interpolators/lookupScheme.h"
-//#include "tudat/math/quadrature/trapezoidQuadrature.h"
+
+// TODO:
+//  Ancillary settings (frequency, time scale, ...)
+//  Format checks
+//  Unit Checks
+//  Add time conversions
+
+
 
 namespace tudat
 {
 namespace observation_models
 {
 
-using ttdt = tudat::input_output::TrackingDataType;
-
-// Function to check if a container contains all elements of another container
+//! Utility function to check if a container contains all elements of another container
 template< typename T, typename U >
 bool containsAll(const T& referenceArray, const U searchArray)
 {
   return std::includes(referenceArray.begin(), referenceArray.end(), searchArray.begin(), searchArray.end());
 }
 
-// Function to apply the convert function to vectors of arguments
+//! Utility function to apply the convert function to vectors of arguments
 template< typename ConvertFunc, typename FirstArg, typename... Args >
 std::vector<double> convertVectors(ConvertFunc convertFunc, const std::vector<FirstArg>& firstArg, const std::vector<Args>& ... args)
 {
   std::vector<double> result;
-
-  // Assuming all vectors have the same size
-  size_t N = firstArg.size();
-
+  size_t N = firstArg.size(); // Assuming all vectors have the same size
   for (size_t i = 0; i < N; ++i) {
     result.push_back(convertFunc(firstArg[i], args[i]...));
   }
-
   return result;
 }
 
-// Additional Helper functions
+//! Utility function to convert a vector to a set
+template< typename T >
+std::set<T> vectorToSet(std::vector<T> vector)
+{
+  std::set<T> set;
+  for (T& elem : vector) {
+    set.insert(elem);
+  }
+  return set;
+}
+
+//! Utility function to get the ground station id
 std::string getStationNameFromStationId(const std::string networkPrefix, const int stationId)
 {
   return networkPrefix + std::to_string(stationId);
 }
 
-// This map contains all the tracking data types that correspond to an observable
+//! Map containing all the tracking data types that correspond to an observable. If a specific set of TrackingDataTypes (keys)
+//! Is present in the file, the corresponding ObservableType (value) can later be added to the  ObservationCollection
 std::map<std::vector<input_output::TrackingDataType>, ObservableType> dataTypeToObservableMap = {
-    {{ttdt::two_way_light_time}, n_way_range},
+    {{input_output::TrackingDataType::two_way_light_time}, n_way_range},
     // Todo: More to be implemented
 };
 
-// Get a vector of all the observableTypes that the provided dataTypes contain
-std::vector<ObservableType> findAvailableObservableTypes(std::vector<ttdt> availableDataTypes)
+//! Function to extract a vector of all the observableTypes that can be deduced from a list of DataTypes
+std::vector<ObservableType> findAvailableObservableTypes(std::vector<input_output::TrackingDataType> availableDataTypes)
 {
-
   std::vector<ObservableType> availableObservableTypes;
   for (const auto& pair : dataTypeToObservableMap) {
-    std::vector<ttdt> requiredDataTypeSet = pair.first;
+    std::vector<input_output::TrackingDataType> requiredDataTypeSet = pair.first;
     if (containsAll(availableDataTypes, requiredDataTypeSet))
       availableObservableTypes.push_back(pair.second);
   }
   return availableObservableTypes;
 }
 
-// Create ancillary settings
+//! Function to create ancillary settings
 template< typename TimeType = double >
 ObservationAncilliarySimulationSettings createOdfAncillarySettings(
     std::shared_ptr<input_output::TrackingTxtFileContents> trackingTxtFileContents)
 {
-  // Currently not implemented
+  // Todo: This is currently not implemented
   return ObservationAncilliarySimulationSettings();
 }
 
-// Class containing the processed file contents for a Tracking txt data file
+//! Class containing the processed file contents for a Tracking txt data file
 class ProcessedTrackingTxtFileContents
 {
-
+//  Constructors
 public:
   ProcessedTrackingTxtFileContents(std::shared_ptr<input_output::TrackingTxtFileContents> rawTrackingTxtContents, std::string spacecraftName)
       : rawTrackingTxtFileContents_(rawTrackingTxtContents), spacecraftName_(spacecraftName)
@@ -122,13 +129,14 @@ public:
     return startEndTime;
   }
 
-//  Update  information from the raw file data
+// Update  information from the raw file data
 public:
 
-  // TODO: Make sure it is TDB!
-  // This will (re)calculate the times from the file and return the vector
+  //! Method to (re)calculate the times from the Tracking file
   void updateObservationTimes()
   {
+    // TODO: The timescale is currently not considered. Need to find a solution to make that consistent
+
     observationTimes_.clear();
     const auto& dataMap = rawTrackingTxtFileContents_->getDoubleDataMap();
     const auto& numDataRows = rawTrackingTxtFileContents_->getNumRows();
@@ -137,12 +145,12 @@ public:
     switch (timeRepresentation) {
       case day_time: {
         observationTimes_ = convertVectors(tudat::basic_astrodynamics::convertCalendarDateToJulianDay<double>,
-                                           dataMap.at(ttdt::year),
-                                           dataMap.at(ttdt::month),
-                                           dataMap.at(ttdt::day),
-                                           dataMap.at(ttdt::hour),
-                                           dataMap.at(ttdt::minute),
-                                           dataMap.at(ttdt::second));
+                                           dataMap.at(input_output::TrackingDataType::year),
+                                           dataMap.at(input_output::TrackingDataType::month),
+                                           dataMap.at(input_output::TrackingDataType::day),
+                                           dataMap.at(input_output::TrackingDataType::hour),
+                                           dataMap.at(input_output::TrackingDataType::minute),
+                                           dataMap.at(input_output::TrackingDataType::second));
         break;
       }
       default: {
@@ -151,10 +159,10 @@ public:
     }
   }
 
+  //! Method to create a vector of the linkEnds for each of the lines in the file (different ground stations might be used)
   void updateLinkEnds()
   {
     linkEndsVector_.clear();
-    linkEndsSet_.clear();
     const auto& dataMap = rawTrackingTxtFileContents_->getDoubleDataMap();
     const auto& numDataRows = rawTrackingTxtFileContents_->getNumRows();
     LinkEndsRepresentation linkEndsRepresentation = getLinkEndsRepresentation();
@@ -163,8 +171,8 @@ public:
 
       // TODO: make a cleaner implementation to allow adding different ways of providing the link ends easily
       case dsn_transmitting_receiving_station_nr: {
-        const auto& dsnTransmitterIds = dataMap.at(ttdt::dsn_transmitting_station_nr);
-        const auto& dsnReceiverIds = dataMap.at(ttdt::dsn_receiving_station_nr);
+        const auto& dsnTransmitterIds = dataMap.at(input_output::TrackingDataType::dsn_transmitting_station_nr);
+        const auto& dsnReceiverIds = dataMap.at(input_output::TrackingDataType::dsn_receiving_station_nr);
 
         for (size_t i = 0; i < numDataRows; ++i) {
           LinkEnds currentLinkEnds{
@@ -182,9 +190,7 @@ public:
     }
 
     // Creating a set with all the various linkEnds
-    for (LinkEnds& linkEnds : linkEndsVector_) {
-      linkEndsSet_.insert(linkEnds);
-    }
+    linkEndsSet_ = vectorToSet(linkEndsVector_);
   }
 
   // Todo: It would be better if the observables are already extracted here, instead of in the separate function
@@ -214,7 +220,15 @@ private:
   TimeRepresentation getTimeRepresentation()
   {
     auto const& availableDataTypes = rawTrackingTxtFileContents_->getDataColumnTypes();
-    if (containsAll(availableDataTypes, std::vector<ttdt>{ttdt::year, ttdt::month, ttdt::day, ttdt::hour, ttdt::minute, ttdt::second})) {
+    if (containsAll(availableDataTypes,
+                    std::vector<input_output::TrackingDataType>{
+                        input_output::TrackingDataType::year,
+                        input_output::TrackingDataType::month,
+                        input_output::TrackingDataType::day,
+                        input_output::TrackingDataType::hour,
+                        input_output::TrackingDataType::minute,
+                        input_output::TrackingDataType::second
+                    })) {
       return day_time;
     }
     throw std::runtime_error("Error while processing tracking txt file: Time representation not recognised or implemented.");
@@ -223,7 +237,11 @@ private:
   LinkEndsRepresentation getLinkEndsRepresentation()
   {
     auto const& availableDataTypes = rawTrackingTxtFileContents_->getDataColumnTypes();
-    if (containsAll(availableDataTypes, std::vector<ttdt>{ttdt::dsn_transmitting_station_nr, ttdt::dsn_receiving_station_nr})) {
+    if (containsAll(availableDataTypes,
+                    std::vector<input_output::TrackingDataType>{
+                        input_output::TrackingDataType::dsn_transmitting_station_nr,
+                        input_output::TrackingDataType::dsn_receiving_station_nr
+                    })) {
       return dsn_transmitting_receiving_station_nr;
     }
     throw std::runtime_error("Error while processing tracking txt file: Link Ends representation not recognised or implemented.");
@@ -258,7 +276,7 @@ public:
 
   // TODO:
   //  Instead of this, process the data in the updateObservations functions!
-  const std::map<ttdt, std::vector<double>>& getDoubleDataMap()
+  const std::map<input_output::TrackingDataType, std::vector<double>>& getDoubleDataMap()
   {
     return rawTrackingTxtFileContents_->getDoubleDataMap();
   }
@@ -311,7 +329,7 @@ createTrackingTxtFileObservationCollection(
     LinkEnds& currentLinkEnds = linkEndsVector[i];
 
     for (auto& pair : dataTypeToObservableMap) {
-      std::vector<ttdt> currentTrackingDataTypes = pair.first;
+      std::vector<input_output::TrackingDataType> currentTrackingDataTypes = pair.first;
       ObservableType& currentObservableType = pair.second;
 
       if (containsAll(observableTypesToProcess, std::vector<ObservableType>{pair.second})) {
@@ -343,14 +361,6 @@ createTrackingTxtFileObservationCollection(
 
   return std::make_shared<observation_models::ObservationCollection<ObservationScalarType, TimeType> >(observationSets);
 }
-
-// TODO:
-//  Ancillary settings (frequency, time scale, ...)
-//  Format checks
-//  Unit Checks
-//  Add time conversions
-
-
 
 } // namespace observation_models
 } // namespace tudat
