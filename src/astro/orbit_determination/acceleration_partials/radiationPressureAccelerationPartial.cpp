@@ -17,12 +17,13 @@ namespace tudat
 namespace acceleration_partials
 {
 
+
 //! Calculates partial derivative of cannon ball radiation pressure acceleration wrt radiation pressure coefficient.
 Eigen::Vector3d computePartialOfCannonBallRadiationPressureAccelerationWrtRadiationPressureCoefficient(
-        const double radiationPressure,
-        const double area,
-        const double bodyMass,
-        const Eigen::Vector3d& vectorToSource )
+    const double radiationPressure,
+    const double area,
+    const double bodyMass,
+    const Eigen::Vector3d& vectorToSource )
 {
     return -radiationPressure * area / bodyMass * vectorToSource;
 }
