@@ -334,6 +334,19 @@ void expose_estimation(py::module &m) {
           py::arg("is_station_transmitting"),
           get_docstring("compute_target_angles_and_range").c_str() );
 
+    m.def("create_residual_collection",
+          &tom::createResidualCollection< double, TIME_TYPE >,
+          py::arg("observed_data"),
+          py::arg("computed_data" ),
+          get_docstring("create_residual_collection").c_str() );
+
+    m.def("create_filtered_observation_collection",
+          &tom::filterResidualOutliers< double, TIME_TYPE >,
+          py::arg("observed_data"),
+          py::arg("residual_data" ),
+          py::arg("cutoff_value_per_observable" ),
+          get_docstring("create_filtered_residual_collection").c_str() );
+
     py::class_< tom::ObservationCollection<double, TIME_TYPE>,
             std::shared_ptr<tom::ObservationCollection<double, TIME_TYPE>>>(m, "ObservationCollection",
                                                            get_docstring("ObservationCollection").c_str() )
@@ -359,6 +372,8 @@ void expose_estimation(py::module &m) {
                                    get_docstring("ObservationCollection.link_ends_per_observable_type").c_str() )
             .def_property_readonly("link_definitions_per_observable", &tom::ObservationCollection<double, TIME_TYPE>::getLinkDefinitionsPerObservable,
                                    get_docstring("ObservationCollection.link_definitions_per_observable").c_str() )
+            .def_property_readonly("time_bounds", &tom::ObservationCollection<double, TIME_TYPE>::getTimeBounds,
+                                   get_docstring("ObservationCollection.time_bounds").c_str() )
             .def("get_link_definitions_for_observables", &tom::ObservationCollection<double, TIME_TYPE>::getLinkDefinitionsForSingleObservable,
                  py::arg( "observable_type" ),
                  get_docstring("ObservationCollection.get_link_definitions_for_observables").c_str() )
