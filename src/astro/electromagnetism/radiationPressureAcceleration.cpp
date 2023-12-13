@@ -26,14 +26,12 @@ void RadiationPressureAcceleration::updateMembers(const double currentTime)
     if(currentTime_ != currentTime)
     {
         currentTime_ = currentTime;
-
         sourceToTargetOccultationModel_->updateMembers(currentTime);
-
-        currentAcceleration_ = calculateAcceleration();
+        computeAcceleration( );
     }
 }
 
-Eigen::Vector3d IsotropicPointSourceRadiationPressureAcceleration::calculateAcceleration()
+void IsotropicPointSourceRadiationPressureAcceleration::computeAcceleration()
 {
     sourceCenterPositionInGlobalFrame_ = sourcePositionFunction_();
     targetCenterPositionInGlobalFrame_ = targetPositionFunction_();
@@ -51,28 +49,35 @@ Eigen::Vector3d IsotropicPointSourceRadiationPressureAcceleration::calculateAcce
     if (receivedIrradiance <= 0)
     {
         // Some body is occluding source as seen from target
-        return Eigen::Vector3d::Zero();
-    }
-
-    if( targetModel_->forceFunctionRequiresLocalFrameInputs( ) )
-    {
-        targetRotationFromLocalToGlobalFrame_ = targetRotationFromLocalToGlobalFrameFunction_( );
-        targetRotationFromGlobalToLocalFrame_ = targetRotationFromLocalToGlobalFrame_.inverse( );
-
-        // Calculate acceleration due to radiation pressure in global frame
-        return targetRotationFromLocalToGlobalFrame_ *
-            targetModel_->evaluateRadiationPressureForce(
-            receivedIrradiance, targetRotationFromGlobalToLocalFrame_ * targetCenterPositionInSourceFrame_.normalized() ) /
-            currentTargetMass_;
+        currentAcceleration_ = Eigen::Vector3d::Zero();
+        currentRadiationPressure_ = 0.0;
     }
     else
     {
-        return targetModel_->evaluateRadiationPressureForce(
-                   receivedIrradiance, targetCenterPositionInSourceFrame_.normalized() ) / currentTargetMass_;
+
+        if ( targetModel_->forceFunctionRequiresLocalFrameInputs( ))
+        {
+            targetRotationFromLocalToGlobalFrame_ = targetRotationFromLocalToGlobalFrameFunction_( );
+            targetRotationFromGlobalToLocalFrame_ = targetRotationFromLocalToGlobalFrame_.inverse( );
+
+            // Calculate acceleration due to radiation pressure in global frame
+            currentAcceleration_ = targetRotationFromLocalToGlobalFrame_ *
+                                   targetModel_->evaluateRadiationPressureForce(
+                                       receivedIrradiance, targetRotationFromGlobalToLocalFrame_ *
+                                                           targetCenterPositionInSourceFrame_.normalized( )) /
+                                   currentTargetMass_;
+        }
+        else
+        {
+            currentAcceleration_ = targetModel_->evaluateRadiationPressureForce(
+                receivedIrradiance, targetCenterPositionInSourceFrame_.normalized( )) / currentTargetMass_;
+
+        }
+        currentRadiationPressure_ = targetModel_->getRadiationPressure( );
     }
 }
 
-Eigen::Vector3d PaneledSourceRadiationPressureAcceleration::calculateAcceleration()
+void PaneledSourceRadiationPressureAcceleration::computeAcceleration()
 {
     // Could use class member to avoid allocation every call, but profiling shows allocation is by far
     // dominated by algebraic operations
@@ -125,8 +130,7 @@ Eigen::Vector3d PaneledSourceRadiationPressureAcceleration::calculateAcceleratio
     visibleAndEmittingSourcePanelCount = visibleAndEmittingSourcePanelCounter;
 
     // Calculate acceleration due to radiation pressure in global frame
-    Eigen::Vector3d acceleration = targetRotationFromLocalToGlobalFrame * totalForceInTargetFrame / targetMassFunction_();
-    return acceleration;
+    currentAcceleration_ = targetRotationFromLocalToGlobalFrame * totalForceInTargetFrame / targetMassFunction_();
 }
 
 } // tudat
