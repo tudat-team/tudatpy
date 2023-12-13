@@ -84,6 +84,9 @@ void expose_numerical_simulation(py::module &m) {
                  const long double>(),
                  py::arg("full_periods"),
                  py::arg("seconds_into_full_period") )
+            .def("to_float",
+                 &tudat::Time::getSeconds< double >,
+                 get_docstring("Time.to_float").c_str() )
             .def(py::self + py::self)
             .def(py::self + double())
             .def(double() + py::self)
@@ -242,7 +245,7 @@ void expose_numerical_simulation(py::module &m) {
                  py::arg("propagator_settings"),
                  py::arg("estimated_parameters"),
                  py::arg("integrate_equations_concurrently") = true,
-                 py::arg("variational_only_integrator_settings") = std::shared_ptr< tudat::numerical_integrators::IntegratorSettings< double > >( ),
+                 py::arg("variational_only_integrator_settings") = std::shared_ptr< tudat::numerical_integrators::IntegratorSettings< TIME_TYPE > >( ),
                  py::arg("clear_numerical_solutions") = false,
                  py::arg("integrate_on_creation") = true,
                  py::arg("set_integrated_result") = false,
