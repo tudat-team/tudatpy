@@ -309,6 +309,21 @@ void expose_estimation(py::module &m) {
           py::arg("time_step"),
           get_docstring("create_pseudo_observations_and_models").c_str() );
 
+    m.def("create_best_fit_to_ephemeris",
+          &tss::createBestFitToCurrentEphemeris<TIME_TYPE, double>,
+          py::arg("bodies"),
+          py::arg("acceleration_models"),
+          py::arg("observed_bodies" ),
+          py::arg("central_bodies" ),
+          py::arg("integrator_settings" ),
+          py::arg("initial_time"),
+          py::arg("final_time"),
+          py::arg("data_point_interval"),
+          py::arg("additional_parameter_names") = std::vector< std::shared_ptr< tep::EstimatableParameterSettings > >( ),
+          py::arg("number_of_iterations") = 3,
+          py::arg("reintegrate_variational_equations") = true,
+          get_docstring("create_best_fit_to_ephemeris").c_str() );
+
     m.def("set_existing_observations",
           &tss::setExistingObservations<double, TIME_TYPE>,
           py::arg("observations"),
@@ -353,6 +368,8 @@ void expose_estimation(py::module &m) {
             .def(py::init< std::vector< std::shared_ptr< tom::SingleObservationSet< double, TIME_TYPE > > > >(),
                  py::arg("observation_sets") )
             .def_property_readonly("concatenated_times", &tom::ObservationCollection<double, TIME_TYPE>::getConcatenatedTimeVector,
+                                   get_docstring("ObservationCollection.concatenated_times").c_str() )
+            .def_property_readonly("concatenated_float_times", &tom::ObservationCollection<double, TIME_TYPE>::getConcatenatedDoubleTimeVector,
                                    get_docstring("ObservationCollection.concatenated_times").c_str() )
             .def_property_readonly("concatenated_observations", &tom::ObservationCollection<double, TIME_TYPE>::getObservationVector,
                                    get_docstring("ObservationCollection.concatenated_observations").c_str() )
