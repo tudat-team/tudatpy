@@ -69,8 +69,8 @@ public:
         }
     }
 
-    void setAncilliaryDoubleVectorData( const ObservationAncilliarySimulationVariable& variableType,
-                                        const std::vector< double >& variable )
+    void setAncilliaryDoubleVectorData(const ObservationAncilliarySimulationVariable& variableType,
+                                              const std::vector< double >& variable )
     {
         switch( variableType )
         {
@@ -208,27 +208,31 @@ inline std::shared_ptr< ObservationAncilliarySimulationSettings > getAveragedDop
 }
 
 inline std::shared_ptr< ObservationAncilliarySimulationSettings > getNWayRangeAncilliarySettings(
-        const std::vector< double > linkEndsDelays = std::vector< double >( ) )
+        const std::vector< double > linkEndsDelays = std::vector< double >( ),
+        const std::vector< FrequencyBands >& frequencyBands = std::vector< FrequencyBands >( ) )
 {
     std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySettings =
             std::make_shared< ObservationAncilliarySimulationSettings >( );
     ancilliarySettings->setAncilliaryDoubleVectorData( link_ends_delays, linkEndsDelays );
+    ancilliarySettings->setAncilliaryDoubleVectorData( frequency_bands, convertFrequencyBandsToDoubleVector( frequencyBands ) );
     return ancilliarySettings;
 }
 
 inline std::shared_ptr< ObservationAncilliarySimulationSettings > getNWayAveragedDopplerAncilliarySettings(
         const double integrationTime = 60.0,
-        const std::vector< double > linkEndsDelays = std::vector< double >( ) )
+        const std::vector< double > linkEndsDelays = std::vector< double >( ),
+        const std::vector< FrequencyBands >& frequencyBands = std::vector< FrequencyBands >( ))
 {
     std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySettings =
             std::make_shared< ObservationAncilliarySimulationSettings >( );
     ancilliarySettings->setAncilliaryDoubleData( doppler_integration_time, integrationTime );
     ancilliarySettings->setAncilliaryDoubleVectorData( link_ends_delays, linkEndsDelays );
+    ancilliarySettings->setAncilliaryDoubleVectorData( frequency_bands, convertFrequencyBandsToDoubleVector( frequencyBands ) );
     return ancilliarySettings;
 }
 
 inline std::shared_ptr< ObservationAncilliarySimulationSettings > getTwoWayRangeAncilliarySettings(
-        const double retransmissionTime )
+        const double retransmissionTime)
 {
     return getNWayRangeAncilliarySettings( std::vector< double >( { retransmissionTime } ) );
 }
