@@ -373,6 +373,11 @@ public:
         return concatenatedTimes_;
     }
 
+    std::vector< double > getConcatenatedDoubleTimeVector( )
+    {
+        return utilities::staticCastVector< double, TimeType >( concatenatedTimes_ );
+    }
+
     std::pair< TimeType, TimeType > getTimeBounds( )
     {
         return std::make_pair ( *std::min_element( concatenatedTimes_.begin( ), concatenatedTimes_.end( ) ),
