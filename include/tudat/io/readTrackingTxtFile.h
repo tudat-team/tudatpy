@@ -34,7 +34,7 @@
 // For example:
 // - You are reading a file with a column that shows the round trip light time in microseconds
 // - The corresponding TrackingFileField will be TrackingFileField::round_trip_light_time_microseconds
-// - Tudat wants to refer to the data by TrackingDataType::two_way_light_time in seconds
+// - Tudat wants to refer to the data by TrackingDataType::n_way_light_time in seconds
 // - The converter
 
 namespace tudat
@@ -65,7 +65,7 @@ enum class TrackingDataType
   second,
   time_scale_data,
   file_name,
-  two_way_light_time,
+  n_way_light_time,
   light_time_measurement_delay,
   light_time_measurement_accuracy,
   dsn_transmitting_station_nr,
@@ -195,10 +195,10 @@ static const std::map<TrackingFileField, std::shared_ptr<TrackingFileFieldConver
     {TrackingFileField::hour, std::make_shared<TrackingFileFieldConverter>(TrackingDataType::hour)},
     {TrackingFileField::minute, std::make_shared<TrackingFileFieldConverter>(TrackingDataType::minute)},
     {TrackingFileField::second, std::make_shared<TrackingFileFieldConverter>(TrackingDataType::second)},
-    {TrackingFileField::round_trip_light_time_seconds, std::make_shared<TrackingFileFieldConverter>(TrackingDataType::two_way_light_time)},
+    {TrackingFileField::round_trip_light_time_seconds, std::make_shared<TrackingFileFieldConverter>(TrackingDataType::n_way_light_time)},
     {
         TrackingFileField::round_trip_light_time_microseconds,
-        std::make_shared<TrackingFileFieldMultiplyingConverter>(TrackingDataType::two_way_light_time, 1.e-6)
+        std::make_shared<TrackingFileFieldMultiplyingConverter>(TrackingDataType::n_way_light_time, 1.e-6)
     },
     {
         TrackingFileField::light_time_measurement_delay_microseconds,
