@@ -70,6 +70,8 @@ enum class TrackingDataType
   light_time_measurement_accuracy,
   dsn_transmitting_station_nr,
   dsn_receiving_station_nr,
+  observation_body, // In case observations corrected for body center.
+  observed_body, // In case observations corrected for body center.
   spacecraft_id,
   planet_nr,
   tdb_time_j2000,
@@ -80,6 +82,9 @@ enum class TrackingDataType
   vy_planet_frame,
   vz_planet_frame,
   residual_de405,
+  spacecraft_transponder_delay,
+  uplink_frequency,
+  downlink_frequency,
 };
 
 //! Enum describing a unique data type and format that can be present in a column of a file. Note that multiple `TrackingFileField`
@@ -97,7 +102,6 @@ enum class TrackingFileField
   round_trip_light_time_microseconds,
   round_trip_light_time_seconds,
   time_scale,
-  file_title,
   light_time_measurement_delay_microseconds,
   light_time_measurement_delay_seconds,
   light_time_measurement_accuracy_microseconds,
@@ -218,7 +222,10 @@ static const std::map<TrackingFileField, std::shared_ptr<TrackingFileFieldConver
     {TrackingFileField::vx_planet_frame_kms, std::make_shared<TrackingFileFieldMultiplyingConverter>(TrackingDataType::vx_planet_frame, 1.e3)},
     {TrackingFileField::vy_planet_frame_kms, std::make_shared<TrackingFileFieldMultiplyingConverter>(TrackingDataType::vy_planet_frame, 1.e3)},
     {TrackingFileField::vz_planet_frame_kms, std::make_shared<TrackingFileFieldMultiplyingConverter>(TrackingDataType::vz_planet_frame, 1.e3)},
-    {TrackingFileField::residual_de405_microseconds, std::make_shared<TrackingFileFieldMultiplyingConverter>(TrackingDataType::residual_de405, 1.e-6)},
+    {
+        TrackingFileField::residual_de405_microseconds,
+        std::make_shared<TrackingFileFieldMultiplyingConverter>(TrackingDataType::residual_de405, 1.e-6)
+    },
 };
 
 //! Class to extract the raw data from a file with the appropriate conversion to doubles
@@ -243,7 +250,10 @@ public:
 
   void convertDataMap();
 
-  void addMetaData(TrackingFileField fieldType, const std::string& value);
+  void addMetaData(TrackingDataType dataType, double value) { metaDataMapDouble_[dataType] = value; }
+
+  void addMetaData(TrackingDataType dataType, const std::string& value) { metaDataMapStr_[dataType] = value; }
+
 
 // Getters
 public:
@@ -262,7 +272,10 @@ public:
 
   const auto& getRawDataMap() { return rawDataMap_; }
   const auto& getDoubleDataMap() { return doubleDataMap_; }
-  const auto& getMetaDataMap() { return metaDataMap_; }
+  const std::vector<double>& getDoubleDataColumn(TrackingDataType dataType);
+  const auto& getMetaDataMap() { return metaDataMapDouble_; }
+  double  getMetaDataDouble(TrackingDataType dataType) { return metaDataMapDouble_.at(dataType); }
+  const std::string&  getMetaDataStr(TrackingDataType dataType) { return metaDataMapStr_.at(dataType); }
 
 private:
   std::string fileName_ = "None";
@@ -273,10 +286,12 @@ private:
   std::string valueSeparators_;
 
   std::map<TrackingFileField, std::vector<std::string>> rawDataMap_;
-  std::map<TrackingFileField, std::string> metaDataMap_;
+  std::map<TrackingDataType, double> metaDataMapDouble_;
+  std::map<TrackingDataType, std::string> metaDataMapStr_;
 
   std::map<TrackingDataType, std::vector<int>> intDataMap_;
   std::map<TrackingDataType, std::vector<double>> doubleDataMap_;
+
 
 // Utility variables
 private:
