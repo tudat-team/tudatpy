@@ -177,6 +177,8 @@ private:
   double multiplier_;
 };
 
+
+
 //! Mapping the `TrackingFileField` to the correct converter, including the `TrackingDataType` it will represent
 std::map<TrackingFileField, std::shared_ptr<TrackingFileFieldConverter>> trackingFileFieldConverterMap = {
     {TrackingFileField::spacecraft_id, std::make_shared<TrackingFileFieldConverter>(TrackingDataType::spacecraft_id)},
@@ -232,15 +234,7 @@ public:
     parseData();
   }
 
-  void parseData()
-  {
-    std::ifstream dataFile(fileName_);
-    if (!dataFile.good()) {
-      throw std::runtime_error("Error when opening Jpl Range file, file " + fileName_ + " could not be opened.");
-    }
-    readRawDataMap(dataFile);
-    convertDataMap();
-  }
+  void parseData();
 
   void readRawDataMap(std::ifstream& dataFile)
   {
