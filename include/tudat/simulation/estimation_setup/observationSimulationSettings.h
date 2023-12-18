@@ -209,6 +209,12 @@ public:
         return dependentVariableCalculator_;
     }
 
+    void setAncilliarySettings(
+            std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings >& ancilliarySettings )
+    {
+        ancilliarySettings_ = ancilliarySettings;
+    }
+
 
     std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > getAncilliarySettings( )
     {
@@ -358,11 +364,12 @@ inline std::shared_ptr< ObservationSimulationSettings< TimeType > > tabulatedObs
         const observation_models::LinkEndType linkEndType = observation_models::receiver,
         const std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > >& viabilitySettingsList =
         std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > >( ),
-        const std::function< Eigen::VectorXd( const double ) > observationNoiseFunction = nullptr  )
+        const std::function< Eigen::VectorXd( const double ) > observationNoiseFunction = nullptr,
+        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings = nullptr)
 {
     return std::make_shared< TabulatedObservationSimulationSettings< TimeType > >(
                 observableType, linkEnds, simulationTimes, linkEndType, viabilitySettingsList,
-                observationNoiseFunction );
+                observationNoiseFunction, ancilliarySettings );
 }
 
 template< typename TimeType = double >
@@ -505,6 +512,15 @@ void addGaussianNoiseToSingleObservationSimulationSettings(
 }
 
 template< typename TimeType = double >
+void addAncilliarySettingsToSingleObservationSimulationSettings(
+        const std::shared_ptr< ObservationSimulationSettings< TimeType > >& observationSimulationSettings,
+        std::shared_ptr<observation_models::ObservationAncilliarySimulationSettings> &ancilliarySettings)
+{
+    observationSimulationSettings->setAncilliarySettings(
+            const_cast<std::shared_ptr<observation_models::ObservationAncilliarySimulationSettings> &>(ancilliarySettings));
+}
+
+template< typename TimeType = double >
 void modifyObservationSimulationSettings(
         const std::vector< std::shared_ptr< ObservationSimulationSettings< TimeType > > >& observationSimulationSettings,
         const std::function< void( const std::shared_ptr< ObservationSimulationSettings< TimeType > > ) > modificationFunction )
@@ -600,6 +616,21 @@ void addDependentVariablesToObservationSimulationSettings(
                        std::placeholders::_1, dependentVariableList, bodies );
     modifyObservationSimulationSettings(
                 observationSimulationSettings, modificationFunction, args ... );
+}
+
+template< typename TimeType = double, typename... ArgTypes  >
+void addAncilliarySettingsToObservationSimulationSettings(
+        const std::vector< std::shared_ptr< ObservationSimulationSettings< TimeType > > >& observationSimulationSettings,
+        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings >& ancilliarySettings,
+        ArgTypes... args)
+{
+
+    std::function< void(  std::shared_ptr< ObservationSimulationSettings< TimeType > > ) > modificationFunction =
+            std::bind( &addAncilliarySettingsToSingleObservationSimulationSettings< TimeType >,
+                       std::placeholders::_1, ancilliarySettings );
+    modifyObservationSimulationSettings(
+            observationSimulationSettings, modificationFunction, args ... );
+
 }
 
 
