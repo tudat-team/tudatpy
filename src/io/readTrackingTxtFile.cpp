@@ -79,9 +79,10 @@ void TrackingTxtFileContents::convertDataMap()
   }
 }
 
-void TrackingTxtFileContents::addMetaData(TrackingFileField fieldType, const std::string& value)
+
+const std::vector<double>& TrackingTxtFileContents::getDoubleDataColumn(TrackingDataType dataType)
 {
-  metaDataMap_[fieldType] = value;
+  return doubleDataMap_.at(dataType);
 }
 
 } // namespace input_output

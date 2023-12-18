@@ -78,7 +78,7 @@ std::unique_ptr<tio::TrackingTxtFileContents> readVikingRangeFile(const std::str
                                                       tio::TrackingFileField::light_time_measurement_delay_microseconds
                                                   });
   auto vikingFile = createTrackingTxtFileContents(fileName, columnTypes);
-  vikingFile->addMetaData(tio::TrackingFileField::file_title, "Viking lander range data");
+  vikingFile->addMetaData(tio::TrackingDataType::file_name, "Viking lander range data");
   return vikingFile;
 }
 
@@ -136,6 +136,10 @@ BOOST_AUTO_TEST_CASE(marsPathfinderRangeSimpleReading)
   };
 
   auto rawTrackingFile = createTrackingTxtFileContents(marsPathfinderRangePath, fieldTypeVector, '#', ",: \t");
+  rawTrackingFile->addMetaData(tio::TrackingDataType::spacecraft_transponder_delay, 420.e-6);
+  rawTrackingFile->addMetaData(tio::TrackingDataType::uplink_frequency, 7.2e9);
+  rawTrackingFile->addMetaData(tio::TrackingDataType::downlink_frequency, 8.4e9);
+
   auto dataMap = rawTrackingFile->getDoubleDataMap();
   auto dataBlock4 = extractBlockFromVectorMap(dataMap, 4);
 
@@ -152,6 +156,7 @@ BOOST_AUTO_TEST_CASE(marsPathfinderRangeSimpleReading)
   BOOST_CHECK_EQUAL(dataBlock4[tio::TrackingDataType::light_time_measurement_accuracy], 6.7e-8);
 
   BOOST_CHECK_EQUAL(rawTrackingFile->getNumColumns(), 11);
+  BOOST_CHECK_EQUAL(rawTrackingFile->getMetaDataDouble(tio::TrackingDataType::spacecraft_transponder_delay), 420.e-6);
 }
 
 //
@@ -221,6 +226,10 @@ BOOST_AUTO_TEST_CASE(marinerSimpleReading)
   };
 
   auto rawTrackingFile = createTrackingTxtFileContents(marinerRangePath, fieldTypeVector, '#', ",: \t");
+  rawTrackingFile->addMetaData(input_output::TrackingDataType::observation_body, "Earth");
+  rawTrackingFile->addMetaData(input_output::TrackingDataType::observed_body, "Mars");
+
+
   auto dataMap = rawTrackingFile->getDoubleDataMap();
   auto dataBlockLast = extractBlockFromVectorMap(dataMap, -1);
 
@@ -237,6 +246,9 @@ BOOST_AUTO_TEST_CASE(marinerSimpleReading)
   BOOST_CHECK_CLOSE(dataBlockLast[tio::TrackingDataType::residual_de405], -0.226e-6, 1e-10);
 
   BOOST_CHECK_EQUAL(rawTrackingFile->getNumColumns(), 9);
+
+  BOOST_CHECK_EQUAL(rawTrackingFile->getMetaDataStr(input_output::TrackingDataType::observation_body), "Earth");
+  BOOST_CHECK_EQUAL(rawTrackingFile->getMetaDataStr(input_output::TrackingDataType::observed_body), "Mars");
 }
 
 // Todo: Add a rigorous test with the observationcollection
