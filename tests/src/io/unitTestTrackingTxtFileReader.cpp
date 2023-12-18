@@ -106,7 +106,7 @@ BOOST_AUTO_TEST_CASE(VikingRangeDataCustomFunction)
   BOOST_CHECK_EQUAL(dataBlock3[tio::TrackingDataType::hour], 6);
   BOOST_CHECK_EQUAL(dataBlock3[tio::TrackingDataType::minute], 2);
   BOOST_CHECK_EQUAL(dataBlock3[tio::TrackingDataType::second], 32);
-  BOOST_CHECK_EQUAL(dataBlock3[tio::TrackingDataType::two_way_light_time], 2290.150246895);
+  BOOST_CHECK_EQUAL(dataBlock3[tio::TrackingDataType::n_way_light_time], 2290.150246895);
 
   std::shared_ptr<observation_models::ProcessedTrackingTxtFileContents>
       processedVikingFile = std::make_shared<observation_models::ProcessedTrackingTxtFileContents>(rawVikingFile, spacecraftName);
@@ -144,7 +144,7 @@ BOOST_AUTO_TEST_CASE(marsPathfinderRangeSimpleReading)
   BOOST_CHECK_EQUAL(dataBlock4[tio::TrackingDataType::hour], 18);
   BOOST_CHECK_EQUAL(dataBlock4[tio::TrackingDataType::minute], 17);
   BOOST_CHECK_EQUAL(dataBlock4[tio::TrackingDataType::second], 02);
-  BOOST_CHECK_EQUAL(dataBlock4[tio::TrackingDataType::two_way_light_time], 1420.476556473);
+  BOOST_CHECK_EQUAL(dataBlock4[tio::TrackingDataType::n_way_light_time], 1420.476556473);
   BOOST_CHECK_EQUAL(dataBlock4[tio::TrackingDataType::light_time_measurement_accuracy], 6.7e-8);
 
   BOOST_CHECK_EQUAL(rawTrackingFile->getNumColumns(), 11);
@@ -188,7 +188,7 @@ BOOST_AUTO_TEST_CASE(junoSimpleReading)
   BOOST_CHECK_EQUAL(dataBlock0[tio::TrackingDataType::hour], 13);
   BOOST_CHECK_EQUAL(dataBlock0[tio::TrackingDataType::minute], 45);
   BOOST_CHECK_EQUAL(dataBlock0[tio::TrackingDataType::second], 6);
-  BOOST_CHECK_EQUAL(dataBlock0[tio::TrackingDataType::two_way_light_time], 6355.0487233317);
+  BOOST_CHECK_EQUAL(dataBlock0[tio::TrackingDataType::n_way_light_time], 6355.0487233317);
   BOOST_CHECK_EQUAL(dataBlock0[tio::TrackingDataType::light_time_measurement_accuracy], 0.0);
   BOOST_CHECK_EQUAL(dataBlock0[tio::TrackingDataType::planet_nr], 5);
   BOOST_CHECK_CLOSE(dataBlock0[tio::TrackingDataType::tdb_time_j2000], 525574396.542800, 1e-4);
