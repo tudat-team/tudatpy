@@ -34,6 +34,7 @@ set(io_SOURCES
         "readOdfFile.cpp"
         "readTabulatedMediaCorrections.cpp"
         "readTabulatedWeatherData.cpp"
+        "readTrackingTxtFile.cpp"
         )
 
 # Add header files.
@@ -73,6 +74,7 @@ set(io_HEADERS
         "readBinaryFile.h"
         "readTabulatedMediaCorrections.h"
         "readTabulatedWeatherData.h"
+        "readTrackingTxtFile.h"
         )
 
 # Add library.
