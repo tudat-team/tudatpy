@@ -177,10 +177,8 @@ private:
   double multiplier_;
 };
 
-
-
 //! Mapping the `TrackingFileField` to the correct converter, including the `TrackingDataType` it will represent
-std::map<TrackingFileField, std::shared_ptr<TrackingFileFieldConverter>> trackingFileFieldConverterMap = {
+static const std::map<TrackingFileField, std::shared_ptr<TrackingFileFieldConverter>> trackingFileFieldConverterMap = {
     {TrackingFileField::spacecraft_id, std::make_shared<TrackingFileFieldConverter>(TrackingDataType::spacecraft_id)},
     {
         TrackingFileField::dsn_transmitting_station_nr,
@@ -236,66 +234,13 @@ public:
 
   void parseData();
 
-  void readRawDataMap(std::ifstream& dataFile)
-  {
-    std::string currentLine;
+  void readRawDataMap(std::ifstream& dataFile);
 
-    while (std::getline(dataFile, currentLine)) {
-      if (!currentLine.empty() && currentLine.at(0) != commentSymbol_) {
-        addLineToRawDataMap(currentLine);
-      }
-    }
-  }
+  void addLineToRawDataMap(std::string& rawLine);
 
-  void addLineToRawDataMap(std::string& rawLine)
-  {
-    size_t numColumns = getNumColumns();
+  void convertDataMap();
 
-    // Trim the line and split based on the separators
-    boost::algorithm::trim(rawLine);
-    boost::algorithm::split(currentSplitRawLine_,
-                            rawLine,
-                            boost::is_any_of(valueSeparators_),
-                            boost::algorithm::token_compress_on);
-
-    // Check if the expected number of columns is present in this line
-    if (currentSplitRawLine_.size() != numColumns) {
-      unsigned int columnsFound = currentSplitRawLine_.size();
-      throw std::runtime_error(
-          "The current line in file " + fileName_ + " has " + std::to_string(columnsFound) + " columns but "
-              + std::to_string(numColumns) + " columns were expected.\nRaw line:" + rawLine);
-    }
-
-    // Populate the dataMap_ with a new row on each of the vectors
-    for (std::size_t i = 0; i < numColumns; ++i) {
-      TrackingFileField currentFieldType = columnFieldTypes_.at(i);
-      std::string currentValue = currentSplitRawLine_.at(i);
-      rawDataMap_[currentFieldType].push_back(currentValue);
-    }
-  }
-
-  // Todo: This might be the place where conversion to different types can be implemented. Now, only double is considered
-  void convertDataMap()
-  {
-    for (TrackingFileField columnType : columnFieldTypes_) {
-      const std::vector<std::string>& rawVector = rawDataMap_.at(columnType);
-      std::shared_ptr<TrackingFileFieldConverter> converter = trackingFileFieldConverterMap.at(columnType);
-
-      const TrackingDataType& dataType = converter->getTrackingDataType();
-
-      std::vector<double> dataVector;
-      for (std::string rawValue : rawVector) {
-        dataVector.push_back(converter->toDouble(rawValue));
-      }
-      doubleDataMap_[dataType] = dataVector;
-    }
-  }
-
-  // Todo: This might be unnecessary, as it could be implemented as `AncillarySettings` in the observations
-  void addMetaData(TrackingFileField fieldType, const std::string& value)
-  {
-    metaDataMap_[fieldType] = value;
-  }
+  void addMetaData(TrackingFileField fieldType, const std::string& value);
 
 // Getters
 public:
