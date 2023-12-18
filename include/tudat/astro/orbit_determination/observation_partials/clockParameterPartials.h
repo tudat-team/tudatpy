@@ -66,8 +66,6 @@ public:
         for( timingPartialIterator_ = timingPartials_.begin( ); timingPartialIterator_ != timingPartials_.end( ); timingPartialIterator_++ )
         {
             currentTime = times.at( timingPartialIterator_->first );
-
-
             partialSet.push_back( std::make_pair(
                                       physical_constants::SPEED_OF_LIGHT * timingPartialIterator_->second.second *
                                       timingPartialIterator_->second.first->getPartialOfClockErrorWrtParameter( currentTime ), currentTime ) );
