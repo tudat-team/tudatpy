@@ -63,7 +63,7 @@ enum class TrackingDataType
   hour,
   minute,
   second,
-  time_scale_data,
+  observation_time_scale,
   file_name,
   n_way_light_time,
   light_time_measurement_delay,
@@ -79,6 +79,7 @@ enum class TrackingDataType
   vx_planet_frame,
   vy_planet_frame,
   vz_planet_frame,
+  residual_de405,
 };
 
 //! Enum describing a unique data type and format that can be present in a column of a file. Note that multiple `TrackingFileField`
@@ -111,6 +112,7 @@ enum class TrackingFileField
   vx_planet_frame_kms,
   vy_planet_frame_kms,
   vz_planet_frame_kms,
+  residual_de405_microseconds,
 };
 
 //! Simple converter class that can convert a string data field to a double. One can inherit from this and overload the
@@ -216,6 +218,7 @@ static const std::map<TrackingFileField, std::shared_ptr<TrackingFileFieldConver
     {TrackingFileField::vx_planet_frame_kms, std::make_shared<TrackingFileFieldMultiplyingConverter>(TrackingDataType::vx_planet_frame, 1.e3)},
     {TrackingFileField::vy_planet_frame_kms, std::make_shared<TrackingFileFieldMultiplyingConverter>(TrackingDataType::vy_planet_frame, 1.e3)},
     {TrackingFileField::vz_planet_frame_kms, std::make_shared<TrackingFileFieldMultiplyingConverter>(TrackingDataType::vz_planet_frame, 1.e3)},
+    {TrackingFileField::residual_de405_microseconds, std::make_shared<TrackingFileFieldMultiplyingConverter>(TrackingDataType::residual_de405, 1.e-6)},
 };
 
 //! Class to extract the raw data from a file with the appropriate conversion to doubles

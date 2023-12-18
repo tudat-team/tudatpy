@@ -53,7 +53,10 @@ std::map<K, V> extractBlockFromVectorMap(const std::map<K, std::vector<V>>& vect
 {
   std::map<K, V> singleBlock;
   for (const auto& pair : vectorMap) {
-    singleBlock[pair.first] = pair.second[blockIndex];
+    if (blockIndex < 0) {
+      blockIndex += pair.second.size();
+    }
+    singleBlock[pair.first] = pair.second.at(blockIndex);
   }
   return singleBlock;
 }
@@ -83,6 +86,7 @@ std::unique_ptr<tio::TrackingTxtFileContents> readVikingRangeFile(const std::str
 const std::string vikingRangePath = tudat::paths::getTudatTestDataPath() + "vikingrange.txt";
 const std::string marsPathfinderRangePath = tudat::paths::getTudatTestDataPath() + "mars-pathfinder-range.txt";
 const std::string junoRangePath = tudat::paths::getTudatTestDataPath() + "juno_range.txt";
+const std::string marinerRangePath = tudat::paths::getTudatTestDataPath() + "mariner9obs.txt";
 
 BOOST_AUTO_TEST_SUITE(test_tracking_txt_file_reader);
 
@@ -200,6 +204,39 @@ BOOST_AUTO_TEST_CASE(junoSimpleReading)
   BOOST_CHECK_CLOSE(dataBlock0[tio::TrackingDataType::vz_planet_frame], -51299.726, 1e-4);
 
   BOOST_CHECK_EQUAL(rawTrackingFile->getNumColumns(), 19);
+}
+
+BOOST_AUTO_TEST_CASE(marinerSimpleReading)
+{
+  std::vector<tio::TrackingFileField> fieldTypeVector{
+      tio::TrackingFileField::year,
+      tio::TrackingFileField::month,
+      tio::TrackingFileField::day,
+      tio::TrackingFileField::hour,
+      tio::TrackingFileField::minute,
+      tio::TrackingFileField::second,
+      tio::TrackingFileField::round_trip_light_time_microseconds,
+      tio::TrackingFileField::light_time_measurement_accuracy_microseconds,
+      tio::TrackingFileField::residual_de405_microseconds
+  };
+
+  auto rawTrackingFile = createTrackingTxtFileContents(marinerRangePath, fieldTypeVector, '#', ",: \t");
+  auto dataMap = rawTrackingFile->getDoubleDataMap();
+  auto dataBlockLast = extractBlockFromVectorMap(dataMap, -1);
+
+//  1972 10 12 00:06:02  2610383946.989   0.475  -0.226
+
+  BOOST_CHECK_EQUAL(dataBlockLast[tio::TrackingDataType::year], 1972);
+  BOOST_CHECK_EQUAL(dataBlockLast[tio::TrackingDataType::month], 10);
+  BOOST_CHECK_EQUAL(dataBlockLast[tio::TrackingDataType::day], 12);
+  BOOST_CHECK_EQUAL(dataBlockLast[tio::TrackingDataType::hour], 0);
+  BOOST_CHECK_EQUAL(dataBlockLast[tio::TrackingDataType::minute], 6);
+  BOOST_CHECK_EQUAL(dataBlockLast[tio::TrackingDataType::second], 2);
+  BOOST_CHECK_EQUAL(dataBlockLast[tio::TrackingDataType::n_way_light_time], 2610.383946989);
+  BOOST_CHECK_CLOSE(dataBlockLast[tio::TrackingDataType::light_time_measurement_accuracy], 0.475e-6, 1e-10);
+  BOOST_CHECK_CLOSE(dataBlockLast[tio::TrackingDataType::residual_de405], -0.226e-6, 1e-10);
+
+  BOOST_CHECK_EQUAL(rawTrackingFile->getNumColumns(), 9);
 }
 
 // Todo: Add a rigorous test with the observationcollection
