@@ -873,7 +873,7 @@ std::vector< T > getStlVectorSegment( const std::vector< T > originalVector, con
 }
 
 template< typename T, typename S >
-std::vector< T > staticCastVector( const std::vector< S > originalVector )
+std::vector< T > staticCastVector( const std::vector< S >& originalVector )
 {
     std::vector< T > castVector;
     for( unsigned int i = 0; i < originalVector.size( ); i++ )
@@ -881,6 +881,17 @@ std::vector< T > staticCastVector( const std::vector< S > originalVector )
         castVector.push_back( static_cast< T >( originalVector.at( i ) ) );
     }
     return castVector;
+}
+
+template< typename T, typename S, typename U >
+std::map< T, U > staticCastMapKeys( const std::map< S, U >& originalMap )
+{
+    std::map< T, U > castMap;
+    for( auto it : originalMap )
+    {
+        castMap[ static_cast< T >( it.first) ] = it.second;
+    }
+    return castMap;
 }
 
 template <typename T>
