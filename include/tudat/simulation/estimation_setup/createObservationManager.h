@@ -375,6 +375,25 @@ void performObservationParameterEstimationClosureForSingleModelSet(
     }
 }
 
+
+template< int ObservationSize, typename TimeType >
+void performTimeBiasPartialClosure(
+    const std::shared_ptr< observation_partials::TimeBiasPartial< ObservationSize > > timeBiasPartial,
+    const std::shared_ptr< propagators::DependentVariablesInterface< TimeType > > dependentVariablesInterface )
+{
+    std::string bodyName = timeBiasPartial->getPartialLinkEndId( ).bodyName_;
+    std::shared_ptr< propagators::SingleDependentVariableSaveSettings > totalAccelerationVariable
+        = std::make_shared< propagators::SingleDependentVariableSaveSettings >( propagators::total_acceleration_dependent_variable, bodyName );
+    std::function< Eigen::VectorXd( const double ) > accelerationPartialFunction =
+        [=](const double time)
+        {
+            return dependentVariablesInterface->getSingleDependentVariable(
+                totalAccelerationVariable, time );
+        };
+    timeBiasPartial->setBodyAccelerationFunction( accelerationPartialFunction );
+
+}
+
 //! Function to perform the closure between observation models and estimated parameters.
 /*!
  *  Function to perform the closure between observation models and estimated parameters. Estimated parameter objects are typically
@@ -385,7 +404,8 @@ template< int ObservationSize = 1, typename ObservationScalarType = double, type
 void performObservationParameterEstimationClosure(
         std::shared_ptr< ObservationSimulator< ObservationSize, ObservationScalarType, TimeType > > observationSimulator ,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > >
-        parametersToEstimate )
+        parametersToEstimate,
+        std::shared_ptr< propagators::DependentVariablesInterface< TimeType > > dependentVariablesInterface = nullptr )
 {
     // Retrieve observation models and parameter
     std::map< LinkEnds, std::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType > > >
@@ -395,10 +415,17 @@ void performObservationParameterEstimationClosure(
 
     // Retrieve estimated bias parameters.
     std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > > vectorBiasParameters;
+    std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > > vectorTimeBiasParameters;
+
     for( unsigned int i = 0; i < vectorParameters.size( ); i++ )
     {
         if( ( estimatable_parameters::isParameterObservationLinkProperty( vectorParameters.at( i )->getParameterName( ).first ) ) ||
                 ( estimatable_parameters::isParameterObservationLinkTimeProperty( vectorParameters.at( i )->getParameterName( ).first ) ) )
+        {
+            vectorBiasParameters.push_back( vectorParameters.at( i ) );
+        }
+
+        if( estimatable_parameters::isParameterObservationLinkTimeProperty( vectorParameters.at( i )->getParameterName( ).first ) )
         {
             vectorBiasParameters.push_back( vectorParameters.at( i ) );
         }
@@ -421,6 +448,12 @@ void performObservationParameterEstimationClosure(
                             observationSimulator->getObservableType( ) );
             }
         }
+    }
+
+    for( unsigned int i = 0; i < vectorTimeBiasParameters.size( ); i++ )
+    {
+        std::shared_ptr< observation_partials::TimeBiasPartial< ObservationSize > > timeBiasPartial = getTimeBiasPartial( vectorTimeBiasParameters.at( i ) );
+        performTimeBiasPartialClosure( timeBiasPartial, dependentVariablesInterface );
     }
 }
 
@@ -456,7 +489,7 @@ std::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > cre
                 observableType, observationModelSettingsList, bodies );
 
     performObservationParameterEstimationClosure(
-                observationSimulator, parametersToEstimate );
+                observationSimulator, parametersToEstimate, dependentVariablesInterface );
 
     // Create observation partials for all link ends/parameters
     std::map< LinkEnds, std::pair< std::map< std::pair< int, int >,
