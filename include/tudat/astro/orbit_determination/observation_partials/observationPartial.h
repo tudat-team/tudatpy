@@ -493,6 +493,75 @@ private:
 
 };
 
+template< int ObservationSize >
+class TimeBiasPartial
+{
+public:
+
+    TimeBiasPartial(
+        const observation_models::LinkEnds linkEnds,
+        const observation_models::ObservableType observableType,
+        const observation_models::LinkEndId partialLinkEndId,
+        const std::map< observation_models::LinkEndType, int > partialIndexPerLinkEndType,
+        const std::shared_ptr< observation_partials::ObservationPartial< ObservationSize > > observationWrtLinkEndStatePartial, ):
+            linkEnds_( linkEnds ), observableType_( observableType ), partialLinkEndId_( partialLinkEndId ),
+            partialIndexPerLinkEndType_( partialIndexPerLinkEndType ),
+            observationWrtLinkEndStatePartial_( observationWrtLinkEndStatePartial ){ }
+
+    Eigen::VectorXd getObservationPartialWrtObservationTime(
+        const std::vector< Eigen::Vector6d >& states,
+        const std::vector< double >& times,
+        const observation_models::LinkEndType linkEndOfFixedTime = observation_models::receiver,
+        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings = nullptr,
+        const Eigen::Matrix< double, ObservationSize, 1 >& currentObservation =
+        Eigen::Matrix< double, ObservationSize, 1 >::Constant( TUDAT_NAN ) )
+    {
+        std::vector< std::pair< Eigen::Matrix< double, ObservationSize, Eigen::Dynamic >, double > > statePartials =
+            observationWrtLinkEndStatePartial_->calculatePartial(
+            states, times, linkEndOfFixedTime, ancillarySettings, currentObservation );
+
+        int partialIndexToUse = partialIndexPerLinkEndType_.at( linkEndOfFixedTime );
+
+        std::vector< int > stateIndicesToUse = observation_models::getLinkEndIndicesForLinkEndTypeAtObservable(
+            observableType_, linkEndOfFixedTime, linkEnds_.size( ) );
+        if( stateIndicesToUse.size( ) != 1 )
+        {
+            throw std::runtime_error( "Error when retrieving state index to use for time bias partial, found " +
+                std::to_string( stateIndicesToUse.size( ) ) + " state indices for reference link end " + std::to_string( linkEndOfFixedTime ) );
+        }
+        int stateIndexToUse = stateIndicesToUse.at( 0 );
+        double currentTime = statePartials.at( partialIndexToUse ).second;
+        Eigen::Vector6d stateDerivative = Eigen::Vector6d::Zero( );
+        stateDerivative.segment( 0, 3 ) = states.at( stateIndexToUse ).segment( 3, 3 );
+        stateDerivative.segment( 3, 3 ) = bodyAccelerationFunction_( times.at( stateIndexToUse ) );
+        return statePartials.at( partialIndexToUse ).first * stateDerivative;
+    }
+
+    void setBodyAccelerationFunction( const std::function< Eigen::VectorXd( const double ) >  bodyAccelerationFunction )
+    {
+        bodyAccelerationFunction_ = bodyAccelerationFunction;
+    }
+
+    observation_models::LinkEndId getPartialLinkEndId( )
+    {
+        return partialLinkEndId_;
+    }
+
+protected:
+
+    observation_models::LinkEnds linkEnds_;
+
+    observation_models::ObservableType observableType_;
+
+    observation_models::LinkEndId partialLinkEndId_;
+
+    std::map< observation_models::LinkEndType, int > partialIndexPerLinkEndType_;
+
+    std::shared_ptr< observation_partials::ObservationPartial< ObservationSize > > observationWrtLinkEndStatePartial_;
+
+    std::function< Eigen::VectorXd( const double ) > bodyAccelerationFunction_;
+};
+
 //! Class for computing the derivative of any observable w.r.t. a constant time drift bias
 /*!
  *  Class for computing the derivative of any observable w.r.t. a constant time drift bias. Note that this partial is
@@ -1104,6 +1173,7 @@ std::shared_ptr< ObservationPartial< ObservationSize > > createObservationPartia
 
     return observationPartial;
 }
+
 
 }
 

@@ -867,6 +867,7 @@ private:
     std::vector< double > referenceEpochs_;
 };
 
+
 //! Interface class for the estimation of a constant time bias.
 /*!
  *  Interface class for the estimation of a constant time bias (at given link ends and observable
