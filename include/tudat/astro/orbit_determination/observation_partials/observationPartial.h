@@ -508,7 +508,7 @@ public:
             partialIndexPerLinkEndType_( partialIndexPerLinkEndType ),
             observationWrtLinkEndStatePartial_( observationWrtLinkEndStatePartial ){ }
 
-    Eigen::VectorXd getObservationPartialWrtObservationTime(
+    std::pair< double, Eigen::MatrixXd > getObservationPartialWrtObservationTime(
         const std::vector< Eigen::Vector6d >& states,
         const std::vector< double >& times,
         const observation_models::LinkEndType linkEndOfFixedTime = observation_models::receiver,
@@ -534,7 +534,7 @@ public:
         Eigen::Vector6d stateDerivative = Eigen::Vector6d::Zero( );
         stateDerivative.segment( 0, 3 ) = states.at( stateIndexToUse ).segment( 3, 3 );
         stateDerivative.segment( 3, 3 ) = bodyAccelerationFunction_( times.at( stateIndexToUse ) );
-        return statePartials.at( partialIndexToUse ).first * stateDerivative;
+        return std::make_pair( times.at( stateIndexToUse ), statePartials.at( partialIndexToUse ).first * stateDerivative );
     }
 
     void setBodyAccelerationFunction( const std::function< Eigen::VectorXd( const double ) >  bodyAccelerationFunction )
@@ -546,6 +546,12 @@ public:
     {
         return partialLinkEndId_;
     }
+
+    observation_models::LinkEnds getLinkEnds( )
+    {
+        return linkEnds_;
+    }
+
 
 protected:
 
@@ -581,13 +587,11 @@ public:
      * \param linkEndIndex Link end index from which the 'current time' is determined
      * \param referenceEpoch Reference epoch at which the time drift is initialised.
      */
-    ObservationPartialWrtConstantTimeDriftBias( const observation_models::ObservableType observableType,
-                                                const observation_models::LinkEnds& linkEnds,
-                                                const int linkEndIndex,
+    ObservationPartialWrtConstantTimeDriftBias( const std::shared_ptr< TimeBiasPartial< ObservationSize > > timeBiasPartial,
                                                 const double referenceEpoch ):
             ObservationPartial< ObservationSize >(
-                    std::make_pair( estimatable_parameters::constant_time_drift_observation_bias, linkEnds.begin( )->second.getDualStringLinkEnd( )  ) ),
-            observableType_( observableType ), linkEnds_( linkEnds ), linkEndIndex_( linkEndIndex ), referenceEpoch_( referenceEpoch )
+                    std::make_pair( estimatable_parameters::constant_time_drift_observation_bias, timeBiasPartial->getLinkEnds( ).begin( )->second.getDualStringLinkEnd( )  ) ),
+            timeBiasPartial_( timeBiasPartial ), referenceEpoch_( referenceEpoch )
     {  }
 
     //! Destructor
@@ -612,23 +616,16 @@ public:
                 Eigen::Matrix< double, ObservationSize, 1 >::Constant( TUDAT_NAN ) )
     {
         Eigen::Matrix< double, ObservationSize, 1 > observationTime;
-        for ( unsigned int i = 0 ; i < ObservationSize ; i++ )
-        {
-            observationTime( i, 0 ) = times.at( linkEndIndex_ ) - referenceEpoch_;
-        }
-        return { std::make_pair( observationTime, times.at( linkEndIndex_ ) ) };
+
+        std::pair< double, Eigen::VectorXd > unscaledPartial = timeBiasPartial_->getObservationPartialWrtObservationTime(
+            states, times, linkEndOfFixedTime, ancillarySettings, currentObservation );
+        double timeInterval = unscaledPartial.first - referenceEpoch_;
+        return { std::make_pair( unscaledPartial.first, unscaledPartial.second * timeInterval ) };
     }
 
 private:
 
-    //! Observable type for which the bias is active.
-    observation_models::ObservableType observableType_;
-
-    //!  Observation link ends for which the bias is active.
-    observation_models::LinkEnds linkEnds_;
-
-    //! Link end index from which the 'current time' is determined
-    int linkEndIndex_;
+    std::shared_ptr< TimeBiasPartial< ObservationSize > > timeBiasPartial_;
 
     //! Reference epoch at which the time drift is initialised.
     double referenceEpoch_;

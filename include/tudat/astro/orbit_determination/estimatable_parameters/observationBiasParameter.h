@@ -421,6 +421,39 @@ private:
     std::shared_ptr< interpolators::LookUpScheme< double > > lookupScheme_;
 };
 
+class TimeBiasParameterBase: public EstimatableParameter< Eigen::VectorXd >
+{
+public:
+
+    TimeBiasParameterBase( const EstimatebleParametersEnum parameterName,
+                          const std::string& associatedBody,
+                          const std::string& pointOnBodyId = ""  ):
+        EstimatableParameter< Eigen::VectorXd >( parameterName, associatedBody, pointOnBodyId )
+    {
+        if( !isParameterObservationLinkTimeProperty( parameterName ) )
+        {
+            throw std::runtime_error( "Error when creating TimeBiasParameterBase, parameter " + std::to_string( parameterName ) + " not supported" );
+        }
+    }
+
+    ~TimeBiasParameterBase( ){ }
+
+    void setBodyAccelerationFunction( const std::function< Eigen::VectorXd( const double ) >  bodyAccelerationFunction )
+    {
+        bodyAccelerationFunction_ = bodyAccelerationFunction;
+    }
+
+    std::function< Eigen::VectorXd( const double ) > getBodyAccelerationFunction( )
+    {
+        return bodyAccelerationFunction_;
+    }
+
+
+protected:
+
+    std::function< Eigen::VectorXd( const double ) > bodyAccelerationFunction_;
+
+};
 
 //! Interface class for the estimation of a constant time drift bias.
 /*!
@@ -430,7 +463,7 @@ private:
  *  used in the simulations for the observation bias. This is due to the fact that the ConstantTimeDriftBias class is
  *  templated by the observable size, while this class is not.
  */
-class ConstantTimeDriftBiasParameter: public EstimatableParameter< Eigen::VectorXd >
+class ConstantTimeDriftBiasParameter: public TimeBiasParameterBase
 {
     
 public:
@@ -452,7 +485,7 @@ public:
             const observation_models::LinkEnds linkEnds,
             const observation_models::ObservableType observableType,
             const double referenceEpoch ):
-        EstimatableParameter< Eigen::VectorXd >( constant_time_drift_observation_bias, linkEnds.begin( )->second.bodyName_ ),
+        TimeBiasParameterBase( constant_time_drift_observation_bias, linkEnds.begin( )->second.bodyName_ ),
         getCurrentBias_( getCurrentBias ), resetCurrentBias_( resetCurrentBias ), linkEndIndex_( linkEndIndex ),
         linkEnds_( linkEnds ), observableType_( observableType ), referenceEpoch_( referenceEpoch ){ }
     
@@ -621,7 +654,7 @@ private:
 *  simulations for the observation bias. This is due to the fact that the ArcWiseTimeDriftBias class
 *  is templated by the observable size, while this class is not.
 */
-class ArcWiseTimeDriftBiasParameter: public EstimatableParameter< Eigen::VectorXd >
+class ArcWiseTimeDriftBiasParameter: public TimeBiasParameterBase
 {
     
 public:
@@ -645,7 +678,7 @@ public:
             const observation_models::LinkEnds linkEnds,
             const observation_models::ObservableType observableType,
             const std::vector< double > referenceEpochs ):
-        EstimatableParameter< Eigen::VectorXd >( arc_wise_time_drift_observation_bias, linkEnds.begin( )->second.bodyName_ ),
+        TimeBiasParameterBase( arc_wise_time_drift_observation_bias, linkEnds.begin( )->second.bodyName_ ),
         arcStartTimes_( arcStartTimes ), getBiasList_( getBiasList ), resetBiasList_( resetBiasList ),
         linkEndIndex_( linkEndIndex ), linkEnds_( linkEnds ), observableType_( observableType ), referenceEpochs_( referenceEpochs )
     {
@@ -876,7 +909,7 @@ private:
  *  used in the simulations for the observation bias. This is due to the fact that the ConstantTimeBias class is
  *  templated by the observable size, while this class is not.
  */
-class ConstantTimeBiasParameter: public EstimatableParameter< Eigen::VectorXd >
+class ConstantTimeBiasParameter: public TimeBiasParameterBase
 {
 
 public:
@@ -896,7 +929,7 @@ public:
             const int linkEndIndex,
             const observation_models::LinkEnds linkEnds,
             const observation_models::ObservableType observableType ):
-            EstimatableParameter< Eigen::VectorXd >( constant_time_observation_bias, linkEnds.begin( )->second.bodyName_ ),
+            TimeBiasParameterBase( constant_time_observation_bias, linkEnds.begin( )->second.bodyName_ ),
             getCurrentBias_( getCurrentBias ), resetCurrentBias_( resetCurrentBias ), linkEndIndex_( linkEndIndex ),
             linkEnds_( linkEnds ), observableType_( observableType ){ }
 
@@ -1052,7 +1085,7 @@ private:
 *  simulations for the observation bias. This is due to the fact that the ArcWiseTimeBias class
 *  is templated by the observable size, while this class is not.
 */
-class ArcWiseTimeBiasParameter: public EstimatableParameter< Eigen::VectorXd >
+class ArcWiseTimeBiasParameter: public TimeBiasParameterBase
 {
 
 public:
@@ -1074,7 +1107,7 @@ public:
             const int linkEndIndex,
             const observation_models::LinkEnds linkEnds,
             const observation_models::ObservableType observableType ):
-            EstimatableParameter< Eigen::VectorXd >( arc_wise_time_observation_bias, linkEnds.begin( )->second.bodyName_ ),
+            TimeBiasParameterBase( arc_wise_time_observation_bias, linkEnds.begin( )->second.bodyName_ ),
             arcStartTimes_( arcStartTimes ), getBiasList_( getBiasList ), resetBiasList_( resetBiasList ),
             linkEndIndex_( linkEndIndex ), linkEnds_( linkEnds ), observableType_( observableType )
     {
