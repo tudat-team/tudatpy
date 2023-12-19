@@ -399,6 +399,12 @@ bool isParameterObservationLinkTimeProperty( const EstimatebleParametersEnum par
         case arc_wise_time_observation_bias:
             flag = true;
             break;
+        case constant_time_drift_observation_bias:
+            flag = true;
+            break;
+        case arc_wise_time_drift_observation_bias:
+            flag = true;
+            break;
         default:
             flag = false;
             break;

@@ -482,6 +482,7 @@ protected:
                                     {
                                         throw std::runtime_error( "Error when retrieving partial for time bias; could not find associated link end index.");
                                     }
+
                                     std::shared_ptr< propagators::SingleDependentVariableSaveSettings > totalAccelerationVariable
                                             = std::make_shared< propagators::SingleDependentVariableSaveSettings >( propagators::total_acceleration_dependent_variable, nameBody );
 
