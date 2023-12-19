@@ -376,12 +376,12 @@ void performObservationParameterEstimationClosureForSingleModelSet(
 }
 
 
-template< int ObservationSize, typename TimeType >
+template< typename TimeType >
 void performTimeBiasPartialClosure(
-    const std::shared_ptr< observation_partials::TimeBiasPartial< ObservationSize > > timeBiasPartial,
+    const std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > timeBiasPartial,
     const std::shared_ptr< propagators::DependentVariablesInterface< TimeType > > dependentVariablesInterface )
 {
-    std::string bodyName = timeBiasPartial->getPartialLinkEndId( ).bodyName_;
+    std::string bodyName = timeBiasPartial->getParameterName( ).second.first;
     std::shared_ptr< propagators::SingleDependentVariableSaveSettings > totalAccelerationVariable
         = std::make_shared< propagators::SingleDependentVariableSaveSettings >( propagators::total_acceleration_dependent_variable, bodyName );
     std::function< Eigen::VectorXd( const double ) > accelerationPartialFunction =
@@ -390,7 +390,16 @@ void performTimeBiasPartialClosure(
             return dependentVariablesInterface->getSingleDependentVariable(
                 totalAccelerationVariable, time );
         };
-    timeBiasPartial->setBodyAccelerationFunction( accelerationPartialFunction );
+    if( std::dynamic_pointer_cast< estimatable_parameters::TimeBiasParameterBase >( timeBiasPartial ) != nullptr )
+    {
+        std::dynamic_pointer_cast< estimatable_parameters::TimeBiasParameterBase >( timeBiasPartial )->setBodyAccelerationFunction(
+            accelerationPartialFunction );
+    }
+    else
+    {
+        throw std::runtime_error( "Error when setting time bias parameter closure, type is not supported for parameter " +
+            std::to_string( timeBiasPartial->getParameterName( ).first ) + ", " + timeBiasPartial->getParameterName( ).second.first );
+    }
 
 }
 
@@ -427,7 +436,7 @@ void performObservationParameterEstimationClosure(
 
         if( estimatable_parameters::isParameterObservationLinkTimeProperty( vectorParameters.at( i )->getParameterName( ).first ) )
         {
-            vectorBiasParameters.push_back( vectorParameters.at( i ) );
+            vectorTimeBiasParameters.push_back( vectorParameters.at( i ) );
         }
     }
 
@@ -452,8 +461,7 @@ void performObservationParameterEstimationClosure(
 
     for( unsigned int i = 0; i < vectorTimeBiasParameters.size( ); i++ )
     {
-        std::shared_ptr< observation_partials::TimeBiasPartial< ObservationSize > > timeBiasPartial = getTimeBiasPartial( vectorTimeBiasParameters.at( i ) );
-        performTimeBiasPartialClosure( timeBiasPartial, dependentVariablesInterface );
+        performTimeBiasPartialClosure( vectorTimeBiasParameters.at( i ), dependentVariablesInterface );
     }
 }
 
