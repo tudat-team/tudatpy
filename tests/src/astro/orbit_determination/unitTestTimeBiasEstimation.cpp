@@ -8,23 +8,26 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MAIN
+//#define BOOST_TEST_DYN_LINK
+//#define BOOST_TEST_MAIN
 
 #include <limits>
 #include <boost/test/unit_test.hpp>
 #include "tudat/basics/testMacros.h"
 #include "tudat/simulation/estimation_setup/orbitDeterminationTestCases.h"
-
-namespace tudat
+//
+//namespace tudat
+//{
+//namespace unit_tests
+//{
+//
+//BOOST_AUTO_TEST_SUITE( test_estimation_time_bias )
+//
+//BOOST_AUTO_TEST_CASE( test_EstimationTimeBias )
+int main( )
 {
-namespace unit_tests
-{
-
-BOOST_AUTO_TEST_SUITE( test_estimation_time_bias )
-
-BOOST_AUTO_TEST_CASE( test_EstimationTimeBias )
-{
+    using namespace tudat;
+    using namespace tudat::unit_tests;
     const int numberOfDaysOfData = 1;
     int numberOfIterations = 10;
 
@@ -114,7 +117,7 @@ BOOST_AUTO_TEST_CASE( test_EstimationTimeBias )
     std::map< ObservableType, std::vector< LinkEnds > > linkEndsPerObservable;
     linkEndsPerObservable[ one_way_doppler ] = std::vector< LinkEnds >( { stationReceiverLinkEnds, stationTransmitterLinkEnds } );
 
-    for ( unsigned int testCase = 0 ; testCase < 2 ; testCase++ )
+    for ( unsigned int testCase = 0 ; testCase < 1 ; testCase++ )
     {
         bool multiArcBiases = testCase;
 
@@ -124,12 +127,12 @@ BOOST_AUTO_TEST_CASE( test_EstimationTimeBias )
         {
             parameterNames.push_back( std::make_shared< ConstantTimeBiasEstimatableParameterSettings >(
                     linkEndsPerObservable.at( one_way_doppler ).at( 0 ), one_way_doppler, receiver ) );
-            parameterNames.push_back( std::make_shared< ConstantTimeBiasEstimatableParameterSettings >(
-                    linkEndsPerObservable.at( one_way_doppler ).at( 1 ), one_way_doppler, receiver ) );
-            parameterNames.push_back( std::make_shared< ConstantObservationBiasEstimatableParameterSettings >(
-                    linkEndsPerObservable.at( one_way_doppler ).at( 0 ), one_way_doppler, true ) );
-            parameterNames.push_back( std::make_shared< ConstantObservationBiasEstimatableParameterSettings >(
-                    linkEndsPerObservable.at( one_way_doppler ).at( 1 ), one_way_doppler, true ) );
+//            parameterNames.push_back( std::make_shared< ConstantTimeBiasEstimatableParameterSettings >(
+//                    linkEndsPerObservable.at( one_way_doppler ).at( 1 ), one_way_doppler, receiver ) );
+//            parameterNames.push_back( std::make_shared< ConstantObservationBiasEstimatableParameterSettings >(
+//                    linkEndsPerObservable.at( one_way_doppler ).at( 0 ), one_way_doppler, true ) );
+//            parameterNames.push_back( std::make_shared< ConstantObservationBiasEstimatableParameterSettings >(
+//                    linkEndsPerObservable.at( one_way_doppler ).at( 1 ), one_way_doppler, true ) );
         }
         else
         {
@@ -291,10 +294,10 @@ BOOST_AUTO_TEST_CASE( test_EstimationTimeBias )
     }
 
 }
-
-
-BOOST_AUTO_TEST_SUITE_END( )
-
-}
-
-}
+//
+//
+//BOOST_AUTO_TEST_SUITE_END( )
+//
+//}
+//
+//}

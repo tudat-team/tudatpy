@@ -32,6 +32,7 @@
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/astro/observation_models/twoWayDopplerObservationModel.h"
 #include "tudat/simulation/estimation_setup/createLightTimeCorrectionPartials.h"
+#include "tudat/simulation/estimation_setup/createObsevationBiasPartial.h"
 
 namespace tudat
 {

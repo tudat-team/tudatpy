@@ -36,6 +36,7 @@
 #include "tudat/simulation/estimation_setup/createLightTimeCorrectionPartials.h"
 #include "tudat/simulation/estimation_setup/createPositionPartialScaling.h"
 #include "tudat/simulation/estimation_setup/createObservationModel.h"
+#include "tudat/simulation/estimation_setup/createObsevationBiasPartial.h"
 
 namespace tudat
 {
@@ -168,6 +169,7 @@ std::shared_ptr< ObservationPartial< ObservationSize > > createObservationPartia
     // Return observation partial object (nullptr if no dependency exists).
     return observationPartial;
 }
+
 
 
 //! Function to generate observation partials and associated scaler for single link ends.
@@ -331,8 +333,11 @@ createSingleLinkObservationPartials(
         }
         else if( useBiasPartials )
         {
+            std::function< std::shared_ptr< ObservationPartial< ObservationSize > >( const std::string& ) > partialWrtStateCreationFunction =
+                std::bind( &createObservationPartialWrtBodyPosition< ObservationSize >,
+                           oneWayLinkEnds, bodies, std::placeholders::_1, positionScaling, lightTimeCorrectionPartialObjects  );
             currentObservationPartial = createObservationPartialWrtLinkProperty< ObservationSize >(
-                        oneWayLinkEnds, observableType, parameterIterator->second, useBiasPartials );
+                        oneWayLinkEnds, observableType, parameterIterator->second, useBiasPartials, observationPartials, partialWrtStateCreationFunction );
         }
 
         // Check if partial is non-nullptr (i.e. whether dependency exists between current observable and current parameter)
