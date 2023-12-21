@@ -502,13 +502,15 @@ public:
         const observation_models::LinkEnds linkEnds,
         const observation_models::ObservableType observableType,
         const observation_models::LinkEndId partialLinkEndId,
-        const std::map< observation_models::LinkEndType, int > partialIndexPerLinkEndType,
-        const std::shared_ptr< observation_partials::ObservationPartial< ObservationSize > > observationWrtLinkEndStatePartial, ):
+        const int partialIndexToUse,
+        const std::shared_ptr< observation_partials::ObservationPartial< ObservationSize > > observationWrtLinkEndStatePartial,
+        const std::function< Eigen::VectorXd( const double ) >  bodyAccelerationFunction ):
             linkEnds_( linkEnds ), observableType_( observableType ), partialLinkEndId_( partialLinkEndId ),
-            partialIndexPerLinkEndType_( partialIndexPerLinkEndType ),
-            observationWrtLinkEndStatePartial_( observationWrtLinkEndStatePartial ){ }
+            partialIndexToUse_( partialIndexToUse ),
+            observationWrtLinkEndStatePartial_( observationWrtLinkEndStatePartial ),
+            bodyAccelerationFunction_( bodyAccelerationFunction ){ }
 
-    std::pair< double, Eigen::MatrixXd > getObservationPartialWrtObservationTime(
+    std::pair< Eigen::Matrix< double, ObservationSize, Eigen::Dynamic >, double > getObservationPartialWrtObservationTime(
         const std::vector< Eigen::Vector6d >& states,
         const std::vector< double >& times,
         const observation_models::LinkEndType linkEndOfFixedTime = observation_models::receiver,
@@ -516,11 +518,19 @@ public:
         const Eigen::Matrix< double, ObservationSize, 1 >& currentObservation =
         Eigen::Matrix< double, ObservationSize, 1 >::Constant( TUDAT_NAN ) )
     {
+        if( bodyAccelerationFunction_ == nullptr )
+        {
+            throw std::runtime_error( "Error when computing time bias partial, closure not performed" );
+        }
         std::vector< std::pair< Eigen::Matrix< double, ObservationSize, Eigen::Dynamic >, double > > statePartials =
             observationWrtLinkEndStatePartial_->calculatePartial(
             states, times, linkEndOfFixedTime, ancillarySettings, currentObservation );
 
-        int partialIndexToUse = partialIndexPerLinkEndType_.at( linkEndOfFixedTime );
+        if( statePartials.size( ) != 1 )
+        {
+            throw std::runtime_error( "Error when computing time bias partial, found " +
+                                      std::to_string( statePartials.size( ) ) + " partials" );
+        }
 
         std::vector< int > stateIndicesToUse = observation_models::getLinkEndIndicesForLinkEndTypeAtObservable(
             observableType_, linkEndOfFixedTime, linkEnds_.size( ) );
@@ -530,17 +540,17 @@ public:
                 std::to_string( stateIndicesToUse.size( ) ) + " state indices for reference link end " + std::to_string( linkEndOfFixedTime ) );
         }
         int stateIndexToUse = stateIndicesToUse.at( 0 );
-        double currentTime = statePartials.at( partialIndexToUse ).second;
+        double currentTime = statePartials.at( partialIndexToUse_ ).second;
         Eigen::Vector6d stateDerivative = Eigen::Vector6d::Zero( );
         stateDerivative.segment( 0, 3 ) = states.at( stateIndexToUse ).segment( 3, 3 );
         stateDerivative.segment( 3, 3 ) = bodyAccelerationFunction_( times.at( stateIndexToUse ) );
-        return std::make_pair( times.at( stateIndexToUse ), statePartials.at( partialIndexToUse ).first * stateDerivative );
+        return std::make_pair( statePartials.at( partialIndexToUse_ ).first * stateDerivative, times.at( stateIndexToUse ) );
     }
-
-    void setBodyAccelerationFunction( const std::function< Eigen::VectorXd( const double ) >  bodyAccelerationFunction )
-    {
-        bodyAccelerationFunction_ = bodyAccelerationFunction;
-    }
+//
+//    void setBodyAccelerationFunction( const std::function< Eigen::VectorXd( const double ) >  bodyAccelerationFunction )
+//    {
+//        bodyAccelerationFunction_ = bodyAccelerationFunction;
+//    }
 
     observation_models::LinkEndId getPartialLinkEndId( )
     {
@@ -561,7 +571,7 @@ protected:
 
     observation_models::LinkEndId partialLinkEndId_;
 
-    std::map< observation_models::LinkEndType, int > partialIndexPerLinkEndType_;
+    int partialIndexToUse_;
 
     std::shared_ptr< observation_partials::ObservationPartial< ObservationSize > > observationWrtLinkEndStatePartial_;
 
@@ -615,12 +625,10 @@ public:
             const Eigen::Matrix< double, ObservationSize, 1 >& currentObservation =
                 Eigen::Matrix< double, ObservationSize, 1 >::Constant( TUDAT_NAN ) )
     {
-        Eigen::Matrix< double, ObservationSize, 1 > observationTime;
-
-        std::pair< double, Eigen::VectorXd > unscaledPartial = timeBiasPartial_->getObservationPartialWrtObservationTime(
+        std::pair< Eigen::Matrix< double, ObservationSize, Eigen::Dynamic >, double > unscaledPartial = timeBiasPartial_->getObservationPartialWrtObservationTime(
             states, times, linkEndOfFixedTime, ancillarySettings, currentObservation );
-        double timeInterval = unscaledPartial.first - referenceEpoch_;
-        return { std::make_pair( unscaledPartial.first, unscaledPartial.second * timeInterval ) };
+        double timeInterval = unscaledPartial.second - referenceEpoch_;
+        return { std::make_pair( unscaledPartial.first * timeInterval, unscaledPartial.second ) };
     }
 
 private:
@@ -745,13 +753,16 @@ public:
      * \param linkEnds Observation link ends for which the bias is active.
      * \param linkEndIndex Link end index from which the 'current time' is determined
      */
-    ObservationPartialWrtConstantTimeBias( const observation_models::ObservableType observableType,
-                                           const observation_models::LinkEnds& linkEnds,
-                                           const int linkEndIndex ):
+    ObservationPartialWrtConstantTimeBias( const std::shared_ptr< TimeBiasPartial< ObservationSize > > timeBiasPartial ):
             ObservationPartial< ObservationSize >(
-                    std::make_pair( estimatable_parameters::constant_time_observation_bias, linkEnds.begin( )->second.getDualStringLinkEnd( )  ) ),
-            observableType_( observableType ), linkEnds_( linkEnds ), linkEndIndex_( linkEndIndex )
-    {  }
+                    std::make_pair( estimatable_parameters::constant_time_observation_bias, timeBiasPartial->getLinkEnds( ).begin( )->second.getDualStringLinkEnd( )  ) ),
+            timeBiasPartial_( timeBiasPartial )
+    {
+        if( timeBiasPartial == nullptr )
+        {
+            throw std::runtime_error( "Error, time bias partial not yet created." );
+        }
+    }
 
     //! Destructor
     ~ObservationPartialWrtConstantTimeBias( ){ }
@@ -774,24 +785,13 @@ public:
             const Eigen::Matrix< double, ObservationSize, 1 >& currentObservation =
                 Eigen::Matrix< double, ObservationSize, 1 >::Constant( TUDAT_NAN ) )
     {
-        Eigen::Matrix< double, ObservationSize, 1 > observationTime;
-        for ( unsigned int i = 0 ; i < ObservationSize ; i++ )
-        {
-            observationTime( i, 0 ) = - 1.0;
-        }
-        return { std::make_pair( observationTime, times.at( linkEndIndex_ ) ) };
+        return { timeBiasPartial_->getObservationPartialWrtObservationTime(
+            states, times, linkEndOfFixedTime, ancillarySettings, currentObservation ) };
     }
 
 private:
 
-    //! Observable type for which the bias is active.
-    observation_models::ObservableType observableType_;
-
-    //!  Observation link ends for which the bias is active.
-    observation_models::LinkEnds linkEnds_;
-
-    //! Link end index from which the 'current time' is determined
-    int linkEndIndex_;
+    std::shared_ptr< TimeBiasPartial< ObservationSize > > timeBiasPartial_;
 };
 
 
@@ -936,240 +936,6 @@ typedef std::map< std::pair< int, int >, std::shared_ptr< ObservationPartial< 2 
  */
 typedef std::map< std::pair< int, int >, std::shared_ptr< ObservationPartial< 3 > > > SingleLinkObservationThreePartialList;
 
-
-//! Function to create partials of observation w.r.t. a link property.
-/*!
- *  Function to create partials of observation w.r.t. a link property, e.g. a parameter that does not influence either link end's
- *  dynamics, only the observable itself, such as observation biases and clock parameters.
- *  \param linkEnds Link ends of observable for which partial is to be made.
- *  \param observableType Type of observable for which partial is to be made.
- *  \param parameterToEstimate Parameter w.r.t. which the partial is to be taken
- *  \param useBiasPartials Boolean to denote whether this function should create partials w.r.t. observation bias parameters
- *  \return Object that computes the partial of the observation w.r.t. parameterToEstimate (nullptr if no dependency).
- */
-template< int ObservationSize >
-std::shared_ptr< ObservationPartial< ObservationSize > > createObservationPartialWrtLinkProperty(
-        const observation_models::LinkEnds& linkEnds,
-        const observation_models::ObservableType observableType,
-        const std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameterToEstimate,
-        const bool useBiasPartials = true )
-{
-//    std::cout << "observableType: " << observableType << "\n\n";
-
-    std::shared_ptr< ObservationPartial< ObservationSize > > observationPartial;
-
-    // Check parameter type
-    switch( parameterToEstimate->getParameterName( ).first )
-    {
-    case estimatable_parameters::constant_additive_observation_bias:
-    {
-        if( useBiasPartials )
-        {
-            // Check input consistency
-            std::shared_ptr< estimatable_parameters::ConstantObservationBiasParameter > constantBias =
-                    std::dynamic_pointer_cast< estimatable_parameters::ConstantObservationBiasParameter >(
-                        parameterToEstimate );
-            if( constantBias == nullptr )
-            {
-                throw std::runtime_error( "Error when making partial w.r.t. observation bias, type is inconsistent" );
-            }
-            else
-            {
-                // Check dependency between parameter and link properties.
-                if( linkEnds == constantBias->getLinkEnds( ) && observableType == constantBias->getObservableType( ) )
-                {
-                    observationPartial = std::make_shared< ObservationPartialWrtConstantAbsoluteBias< ObservationSize > >(
-                                observableType, linkEnds );
-                }
-            }
-        }
-        break;
-    }
-    case estimatable_parameters::arcwise_constant_additive_observation_bias:
-    {
-        if( useBiasPartials )
-        {
-            // Check input consistency
-            std::shared_ptr< estimatable_parameters::ArcWiseObservationBiasParameter > arcwiseBias =
-                    std::dynamic_pointer_cast< estimatable_parameters::ArcWiseObservationBiasParameter >(
-                        parameterToEstimate );
-            if( arcwiseBias == nullptr )
-            {
-                throw std::runtime_error( "Error when making partial w.r.t. arcwise observation bias, type is inconsistent" );
-            }
-            else
-            {
-                // Check dependency between parameter and link properties.
-                if( linkEnds == arcwiseBias->getLinkEnds( ) && observableType == arcwiseBias->getObservableType( ) )
-                {
-                    observationPartial = std::make_shared< ObservationPartialWrtArcWiseAbsoluteBias< ObservationSize > >(
-                                observableType, linkEnds,
-                                arcwiseBias->getLookupScheme( ),
-                                arcwiseBias->getLinkEndIndex( ),
-                                arcwiseBias->getArcStartTimes( ).size( ) );
-                }
-            }
-        }
-        break;
-    }
-    case estimatable_parameters::constant_relative_observation_bias:
-    {
-        if( useBiasPartials )
-        {
-            // Check input consistency
-            std::shared_ptr< estimatable_parameters::ConstantObservationBiasParameter > constantBias =
-                    std::dynamic_pointer_cast< estimatable_parameters::ConstantObservationBiasParameter >(
-                        parameterToEstimate );
-            if( constantBias == nullptr )
-            {
-                throw std::runtime_error( "Error when making partial w.r.t. observation bias, type is inconsistent" );
-            }
-            else
-            {
-                // Check dependency between parameter and link properties.
-                if( linkEnds == constantBias->getLinkEnds( ) && observableType == constantBias->getObservableType( ) )
-                {
-                    observationPartial = std::make_shared< ObservationPartialWrtConstantRelativeBias< ObservationSize > >(
-                                observableType, linkEnds );
-
-                }
-            }
-        }
-        break;
-    }
-    case estimatable_parameters::arcwise_constant_relative_observation_bias:
-    {
-        if( useBiasPartials )
-        {
-            // Check input consistency
-            std::shared_ptr< estimatable_parameters::ArcWiseObservationBiasParameter > arcwiseBias =
-                    std::dynamic_pointer_cast< estimatable_parameters::ArcWiseObservationBiasParameter >(
-                        parameterToEstimate );
-            if( arcwiseBias == nullptr )
-            {
-                throw std::runtime_error( "Error when making partial w.r.t. arcwise relative observation bias, type is inconsistent" );
-            }
-            else
-            {
-                // Check dependency between parameter and link properties.
-                if( linkEnds == arcwiseBias->getLinkEnds( ) && observableType == arcwiseBias->getObservableType( ) )
-                {
-                    observationPartial = std::make_shared< ObservationPartialWrtArcWiseRelativeBias< ObservationSize > >(
-                                observableType, linkEnds,
-                                arcwiseBias->getLookupScheme( ),
-                                arcwiseBias->getLinkEndIndex( ),
-                                arcwiseBias->getArcStartTimes( ).size( ) );
-                }
-            }
-        }
-        break;
-    }
-    case estimatable_parameters::constant_time_drift_observation_bias:
-    {
-        if( useBiasPartials )
-        {
-            // Check input consistency
-            std::shared_ptr< estimatable_parameters::ConstantTimeDriftBiasParameter > constantTimeDriftBias =
-                    std::dynamic_pointer_cast< estimatable_parameters::ConstantTimeDriftBiasParameter >(
-                            parameterToEstimate );
-            if( constantTimeDriftBias == nullptr )
-            {
-                throw std::runtime_error( "Error when making partial w.r.t. time drift bias, type is inconsistent" );
-            }
-            else
-            {
-                // Check dependency between parameter and link properties.
-                if( linkEnds == constantTimeDriftBias->getLinkEnds( ) && observableType == constantTimeDriftBias->getObservableType( ) )
-                {
-                    observationPartial = std::make_shared< ObservationPartialWrtConstantTimeDriftBias< ObservationSize > >(
-                            observableType, linkEnds, constantTimeDriftBias->getLinkEndIndex( ), constantTimeDriftBias->getReferenceEpoch( ) );
-                }
-            }
-        }
-        break;
-    }
-    case estimatable_parameters::arc_wise_time_drift_observation_bias:
-    {
-        if( useBiasPartials )
-        {
-            // Check input consistency
-            std::shared_ptr< estimatable_parameters::ArcWiseTimeDriftBiasParameter > arcwiseTimeDriftBias =
-                    std::dynamic_pointer_cast< estimatable_parameters::ArcWiseTimeDriftBiasParameter >( parameterToEstimate );
-            if ( arcwiseTimeDriftBias == nullptr )
-            {
-                throw std::runtime_error( "Error when making partial w.r.t. arcwise time drift bias, type is inconsistent" );
-            }
-            else
-            {
-                // Check dependency between parameter and link properties.
-                if ( linkEnds == arcwiseTimeDriftBias->getLinkEnds( ) && observableType == arcwiseTimeDriftBias->getObservableType( ) )
-                {
-                    observationPartial = std::make_shared< ObservationPartialWrtArcWiseTimeDriftBias< ObservationSize > >(
-                            observableType, linkEnds,
-                            arcwiseTimeDriftBias->getLookupScheme( ),
-                            arcwiseTimeDriftBias->getLinkEndIndex( ),
-                            arcwiseTimeDriftBias->getArcStartTimes( ).size( ),
-                            arcwiseTimeDriftBias->getReferenceEpochs( ) );
-                }
-            }
-        }
-        break;
-    }
-    case estimatable_parameters::constant_time_observation_bias:
-    {
-        if( useBiasPartials )
-        {
-            // Check input consistency
-            std::shared_ptr< estimatable_parameters::ConstantTimeBiasParameter > constantTimeBias =
-                    std::dynamic_pointer_cast< estimatable_parameters::ConstantTimeBiasParameter >( parameterToEstimate );
-            if( constantTimeBias == nullptr )
-            {
-                throw std::runtime_error( "Error when making partial w.r.t. time bias, type is inconsistent" );
-            }
-            else
-            {
-                // Check dependency between parameter and link properties.
-                if( linkEnds == constantTimeBias->getLinkEnds( ) && observableType == constantTimeBias->getObservableType( ) )
-                {
-                    observationPartial = std::make_shared< ObservationPartialWrtConstantTimeBias< ObservationSize > >(
-                            observableType, linkEnds, constantTimeBias->getLinkEndIndex( ) );
-                }
-            }
-        }
-        break;
-    }
-    case estimatable_parameters::arc_wise_time_observation_bias:
-    {
-        if( useBiasPartials )
-        {
-            // Check input consistency
-            std::shared_ptr< estimatable_parameters::ArcWiseTimeBiasParameter > arcwiseTimeBias =
-                    std::dynamic_pointer_cast< estimatable_parameters::ArcWiseTimeBiasParameter >( parameterToEstimate );
-            if ( arcwiseTimeBias == nullptr )
-            {
-                throw std::runtime_error( "Error when making partial w.r.t. arcwise time bias, type is inconsistent" );
-            }
-            else
-            {
-                // Check dependency between parameter and link properties.
-                if ( linkEnds == arcwiseTimeBias->getLinkEnds( ) && observableType == arcwiseTimeBias->getObservableType( ) )
-                {
-                    observationPartial = std::make_shared< ObservationPartialWrtArcWiseTimeBias< ObservationSize > >(
-                            observableType, linkEnds,
-                            arcwiseTimeBias->getLookupScheme( ),
-                            arcwiseTimeBias->getLinkEndIndex( ),
-                            arcwiseTimeBias->getArcStartTimes( ).size( ) );
-                }
-            }
-        }
-        break;
-    }
-    default:
-        break;
-    }
-
-    return observationPartial;
-}
 
 
 }
