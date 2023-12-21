@@ -24,6 +24,7 @@
 #include "tudat/astro/orbit_determination/observation_partials/nWayRangePartial.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/observableTypes.h"
+#include "tudat/simulation/estimation_setup/createObsevationBiasPartial.h"
 
 namespace tudat
 {

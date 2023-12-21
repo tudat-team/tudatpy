@@ -19,6 +19,7 @@
 #include "tudat/simulation/estimation_setup/createEulerAngleObservationPartials.h"
 #include "tudat/simulation/estimation_setup/createDirectObservationPartials.h"
 #include "tudat/simulation/propagation_setup/dependentVariablesInterface.h"
+#include "tudat/simulation/estimation_setup/createObsevationBiasPartial.h"
 
 namespace tudat
 {
