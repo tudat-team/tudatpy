@@ -926,12 +926,16 @@ public:
     ConstantTimeBiasParameter(
             const std::function< Eigen::VectorXd( ) > getCurrentBias,
             const std::function< void( const Eigen::VectorXd& ) > resetCurrentBias,
-            const int linkEndIndex,
+            const observation_models::LinkEndType linkEndForTime,
             const observation_models::LinkEnds linkEnds,
             const observation_models::ObservableType observableType ):
             TimeBiasParameterBase( constant_time_observation_bias, linkEnds.begin( )->second.bodyName_ ),
-            getCurrentBias_( getCurrentBias ), resetCurrentBias_( resetCurrentBias ), linkEndIndex_( linkEndIndex ),
-            linkEnds_( linkEnds ), observableType_( observableType ){ }
+            getCurrentBias_( getCurrentBias ), resetCurrentBias_( resetCurrentBias ), linkEndForTime_( linkEndForTime ),
+            linkEnds_( linkEnds ), observableType_( observableType )
+            {
+                linkEndIndex_ = observation_models::getLinkEndIndicesForLinkEndTypeAtObservable(
+                    observableType_, linkEndForTime_, linkEnds_.size( ) ).at( 0 );
+            }
 
     //! Destructor
     ~ConstantTimeBiasParameter( ) { }
@@ -1029,6 +1033,18 @@ public:
         return linkEnds_;
     }
 
+    observation_models::LinkEndId getLinkEndId( )
+    {
+        return linkEnds_.at( linkEndForTime_ );
+    }
+
+    observation_models::LinkEndType getReferenceLinkEnd( )
+    {
+        return linkEndForTime_;
+    }
+
+
+
     //! Function to retrieve the observable type for which the bias is active.
     /*!
      * Function to retrieve the observable type ends for which the bias is active.
@@ -1067,14 +1083,16 @@ private:
     //! Function to reset the current time drift
     std::function< void( const Eigen::VectorXd& ) > resetCurrentBias_;
 
-    //! Link end index from which the 'current time' is determined
-    int linkEndIndex_;
+    observation_models::LinkEndType linkEndForTime_;
 
     //! Observation link ends for which the bias is active.
     observation_models::LinkEnds linkEnds_;
 
     //! Observable type for which the bias is active.
     observation_models::ObservableType observableType_;
+
+    //! Link end index from which the 'current time' is determined
+    int linkEndIndex_;
 };
 
 //! Interface class for the estimation of an arc-wise time bias.
