@@ -35,3 +35,5 @@
 
 from tudatpy.kernel.numerical_simulation.environment_setup.ephemeris import *
 from tudatpy.numerical_simulation.environment_setup.ephemeris._import_all_kernel_members import *
+
+from tudatpy.numerical_simulation.environment_setup.ephemeris.horizons import JPL_HorizonsEphemerisSettings
