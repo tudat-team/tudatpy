@@ -85,6 +85,17 @@ public:
         return Eigen::MatrixXd::Zero( ObservationSize, 3 );
     }
 
+    virtual Eigen::Matrix< double, ObservationSize, 3 > getFixedTimePositionScalingFactor( const observation_models::LinkEndType linkEndType )
+    {
+        throw std::runtime_error( "Error, fixed-time position partial not yet implemented for observable " + std::to_string( observableType_ ) );
+    }
+
+    virtual Eigen::Matrix< double, ObservationSize, 3 > getFixedTimeVelocityScalingFactor( const observation_models::LinkEndType linkEndType )
+    {
+        return Eigen::MatrixXd::Zero( ObservationSize, 3 );
+    }
+
+
     virtual Eigen::Matrix< double, ObservationSize, 1 > getLightTimePartialScalingFactor( ) = 0;
 
     observation_models::ObservableType getObservableType( )
@@ -544,20 +555,13 @@ public:
         Eigen::Vector6d stateDerivative = Eigen::Vector6d::Zero( );
         stateDerivative.segment( 0, 3 ) = states.at( stateIndexToUse ).segment( 3, 3 );
         stateDerivative.segment( 3, 3 ) = bodyAccelerationFunction_( times.at( stateIndexToUse ) );
-//
-//       std::cout<<"Time: "<<std::setprecision( 12 )<<times.at( stateIndexToUse )<<" "<<stateIndexToUse<<std::endl;
-//       std::cout<<"Partial w.r.t. state: "<<std::endl<<statePartials.at( partialIndexToUse_ ).first<<std::endl;
-//       std::cout<<"State derivative: "<<std::endl<<stateDerivative.transpose( )<<std::endl;
-//       std::cout<<"Time bias partial "<<std::endl<<1.0<<std::endl;
-//       std::cout<<"Total partial "<<std::endl<<statePartials.at( partialIndexToUse_ ).first * stateDerivative<<std::endl<<std::endl;
 
-        return std::make_pair( statePartials.at( partialIndexToUse_ ).first * stateDerivative, times.at( stateIndexToUse ) );
+        double correctionPartial =
+            ( ( states.at( 0 ) - states.at( 1 ) ).segment< 3 >( 0 ) ).normalized( ).dot( states.at( 1 ).segment< 3 >( 3 ) );
+        std::cout<<statePartials.at( partialIndexToUse_ ).first * stateDerivative<<std::endl;
+        std::cout<<correctionPartial<<std::endl<<std::endl;
+        return std::make_pair( statePartials.at( partialIndexToUse_ ).first * stateDerivative + ( Eigen::VectorXd( 1) << correctionPartial ).finished( ), times.at( stateIndexToUse ) );
     }
-//
-//    void setBodyAccelerationFunction( const std::function< Eigen::VectorXd( const double ) >  bodyAccelerationFunction )
-//    {
-//        bodyAccelerationFunction_ = bodyAccelerationFunction;
-//    }
 
     observation_models::LinkEndId getPartialLinkEndId( )
     {
