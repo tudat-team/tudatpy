@@ -539,11 +539,18 @@ public:
             throw std::runtime_error( "Error when retrieving state index to use for time bias partial, found " +
                 std::to_string( stateIndicesToUse.size( ) ) + " state indices for reference link end " + std::to_string( linkEndOfFixedTime ) );
         }
-        int stateIndexToUse = stateIndicesToUse.at( 0 );
+        int stateIndexToUse = 0;//stateIndicesToUse.at( 0 );
         double currentTime = statePartials.at( partialIndexToUse_ ).second;
         Eigen::Vector6d stateDerivative = Eigen::Vector6d::Zero( );
         stateDerivative.segment( 0, 3 ) = states.at( stateIndexToUse ).segment( 3, 3 );
         stateDerivative.segment( 3, 3 ) = bodyAccelerationFunction_( times.at( stateIndexToUse ) );
+//
+//       std::cout<<"Time: "<<std::setprecision( 12 )<<times.at( stateIndexToUse )<<" "<<stateIndexToUse<<std::endl;
+//       std::cout<<"Partial w.r.t. state: "<<std::endl<<statePartials.at( partialIndexToUse_ ).first<<std::endl;
+//       std::cout<<"State derivative: "<<std::endl<<stateDerivative.transpose( )<<std::endl;
+//       std::cout<<"Time bias partial "<<std::endl<<1.0<<std::endl;
+//       std::cout<<"Total partial "<<std::endl<<statePartials.at( partialIndexToUse_ ).first * stateDerivative<<std::endl<<std::endl;
+
         return std::make_pair( statePartials.at( partialIndexToUse_ ).first * stateDerivative, times.at( stateIndexToUse ) );
     }
 //
