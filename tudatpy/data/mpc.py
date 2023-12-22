@@ -149,7 +149,8 @@ class BatchMPC:
         self._space_telescopes = [
             x for x in self._observatories if x in self._MPC_space_telescopes
         ]
-        self._bands = list(self._table.band.unique())
+        if "bands" in self._table.columns:
+            self._bands = list(self._table.band.unique())
         self._MPC_codes = list(self._table.number.unique())
         self._size = len(self._table)
 
@@ -228,7 +229,11 @@ class BatchMPC:
                 )
 
                 # convert object mpc code to string
-                obs["number"] = obs.number.astype(str)
+                if "comettype" in obs.columns:
+                    # for the case where we have a comet
+                    obs["number"] = obs.desig
+                else:
+                    obs["number"] = obs.number.astype(str)
                 self._table = pd.concat([self._table, obs])
 
             except Exception as e:
@@ -442,7 +447,7 @@ class BatchMPC:
         bodies: environment.SystemOfBodies,
         included_satellites: Union[Dict[str, str], None],
         station_body: str = "Earth",
-    ) -> Tuple[estimation.ObservationCollection, Dict[str, observation.LinkDefinition]]:
+    ) -> estimation.ObservationCollection:
         """Converts the observations in the batch into a Tudat compatible format and
           sets up the relevant Tudat infrastructure to support estimation.
         This method does the following:\\
