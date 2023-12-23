@@ -20,6 +20,7 @@
 
 #include "tudat/astro/orbit_determination/estimatable_parameters/initialTranslationalState.h"
 #include "tudat/astro/orbit_determination/observation_partials/observationPartial.h"
+#include "tudat/astro/orbit_determination/observation_partials/observationBiasPartial.h"
 
 namespace tudat
 {
@@ -264,13 +265,18 @@ std::shared_ptr< ObservationPartial< ObservationSize > > createObservationPartia
                 // Check dependency between parameter and link properties.
                 if( linkEnds == constantTimeBias->getLinkEnds( ) && observableType == constantTimeBias->getObservableType( ) )
                 {
-                    std::shared_ptr< ObservationPartial< ObservationSize > > observationWrtLinkEndStatePartial = getPartialWrtBodyTranslationalState(
-                        observationPartials,  constantTimeBias->getLinkEndId( ).bodyName_, partialWrtStateCreationFunction );
+                    std::shared_ptr< ObservationPartial< ObservationSize > > observationWrtTransmitterStatePartial = getPartialWrtBodyTranslationalState(
+                        observationPartials, linkEnds.at( observation_models::transmitter ).bodyName_, partialWrtStateCreationFunction );
+                    std::shared_ptr< ObservationPartial< ObservationSize > > observationWrtReceiverStatePartial = getPartialWrtBodyTranslationalState(
+                        observationPartials, linkEnds.at( observation_models::receiver ).bodyName_, partialWrtStateCreationFunction );
+
 
                     std::shared_ptr< TimeBiasPartial< ObservationSize > > timeBiasPartial= std::make_shared< TimeBiasPartial< ObservationSize > >(
                        linkEnds, observableType,
-                       constantTimeBias->getLinkEndId( ), 0,
-                        observationWrtLinkEndStatePartial,
+                       constantTimeBias->getLinkEndId( ),
+                       constantTimeBias->getReferenceLinkEnd( ),
+                       observationWrtTransmitterStatePartial,
+                       observationWrtReceiverStatePartial,
                        constantTimeBias->getBodyAccelerationFunction( ) );
 //                    partialWrtParameterBodyState
                     observationPartial = std::make_shared< ObservationPartialWrtConstantTimeBias< ObservationSize > >( timeBiasPartial );
