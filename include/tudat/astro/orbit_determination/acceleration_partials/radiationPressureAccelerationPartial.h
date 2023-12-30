@@ -23,20 +23,6 @@ namespace tudat
 namespace acceleration_partials
 {
 
-//! Calculates partial derivative of cannon ball radiation pressure acceleration wrt radiation pressure coefficient.
-/*!
- * Calculates partial derivative of cannon ball radiation pressure acceleration wrt radiation pressure coefficient.
- * \param radiationPressure Current radiation pressure (in N/m^2)
- * \param area (Reference) area for radiation pressure acceleration.
- * \param bodyMass Mass of body undergoing acceleration.
- * \param vectorToSource Vector from body undergoing acceleration to source of radiation.
- * \return Partial derivative of cannon ball radiation pressure acceleration wrt radiation pressure coefficient.
- */
-Eigen::Vector3d computePartialOfCannonBallRadiationPressureAccelerationWrtRadiationPressureCoefficient(
-        const double radiationPressure,
-        const double area,
-        const double bodyMass,
-        const Eigen::Vector3d& vectorToSource );
 
 //! Class to calculate the partials of the cannnonball radiation pressure acceleration w.r.t. parameters and states.
 class CannonBallRadiationPressurePartial: public AccelerationPartial
@@ -54,8 +40,8 @@ public:
         areaFunction_( std::bind( &electromagnetism::CannonballRadiationPressureTargetModel::getArea, cannonballTargetModel ) ),
         radiationPressureCoefficientFunction_(  std::bind( &electromagnetism::CannonballRadiationPressureTargetModel::getCoefficient,
                                                            cannonballTargetModel ) ),
-        radiationPressureFunction_( std::bind( &electromagnetism::CannonballRadiationPressureTargetModel::getRadiationPressure,
-                                               cannonballTargetModel ) ),
+        radiationPressureFunction_( std::bind( &electromagnetism::RadiationPressureAcceleration::getCurrentRadiationPressure,
+                                               accelerationModel ) ),
         acceleratedBodyMassFunction_( accelerationModel->getTargetMassFunction() ),
         accelerationUpdateFunction_( std::bind( &basic_astrodynamics::AccelerationModel3d::updateMembers, accelerationModel, std::placeholders::_1 ) ),
         cannonballTargetModel_( cannonballTargetModel ),
