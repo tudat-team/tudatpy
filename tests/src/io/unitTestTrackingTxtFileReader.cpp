@@ -47,6 +47,20 @@ void printArr(const T& arr)
   std::cout << "]\n";
 }
 
+//! Utility function to print link Ends
+std::ostream& operator<<(std::ostream& os, const observation_models::LinkEnds& linkEnds)
+{
+  os << "LinkEnds{\n";
+  for (auto& linkEnd : linkEnds) {
+    os << "\t{type: " << std::to_string(linkEnd.first)
+       << ", body: " << linkEnd.second.getBodyName()
+       << ", station: " << linkEnd.second.getStationName()
+       << "}\n";
+  }
+  os << "}";
+  return os;
+}
+
 // Utility function to get a single block from a datMap that maps keys to vectors
 template< typename K, typename V >
 std::map<K, V> extractBlockFromVectorMap(const std::map<K, std::vector<V>>& vectorMap, int blockIndex)
@@ -229,7 +243,6 @@ BOOST_AUTO_TEST_CASE(marinerSimpleReading)
   rawTrackingFile->addMetaData(input_output::TrackingDataType::observation_body, "Earth");
   rawTrackingFile->addMetaData(input_output::TrackingDataType::observed_body, "Mars");
 
-
   auto dataMap = rawTrackingFile->getDoubleDataMap();
   auto dataBlockLast = extractBlockFromVectorMap(dataMap, -1);
 
@@ -251,41 +264,51 @@ BOOST_AUTO_TEST_CASE(marinerSimpleReading)
   BOOST_CHECK_EQUAL(rawTrackingFile->getMetaDataStr(input_output::TrackingDataType::observed_body), "Mars");
 }
 
-// Todo: Add a rigorous test with the observationcollection
-//// Based on the odf file reader test
-//BOOST_AUTO_TEST_CASE(testProcessTrackingFile)
-//{
-//
-//  spice_interface::loadStandardSpiceKernels();
-//
-//  // presets
-//  std::string spacecraftName = "Viking";
-//
-//  // Create system of bodies
-//  std::vector<std::string> bodiesToCreate = {"Earth"};
-//  tss::BodyListSettings bodySettings = tss::getDefaultBodySettings(bodiesToCreate);
-//  bodySettings.at("Earth")->groundStationSettings = tss::getDsnStationSettings();
-//
-//  tss::SystemOfBodies bodies = createSystemOfBodies(bodySettings);
-//
-//  // Load Tracking file
-//  std::shared_ptr<tio::TrackingTxtFileContents> rawTrackingTxtContents = readVikingRangeFile(vikingRangePath);
-//
-//  // Process Tracking file
-//  std::shared_ptr<observation_models::ProcessedTrackingTxtFileContents> processedTrackingTxtFileContents =
-//      std::make_shared<observation_models::ProcessedTrackingTxtFileContents>(rawTrackingTxtContents, spacecraftName);
-//
-//  // Todo:
-//  //  Implement Tests for the observation collection
-//
-//  // Check Time
-//  std::pair<double, double> startAndEndTime = processedTrackingTxtFileContents->getStartAndEndTime();
-//  double startTime = startAndEndTime.first;
-//  double endTime = startAndEndTime.second;
-//
-//  // Extract Observation Collection
-//  auto observationCollection = createTrackingTxtFileObservationCollection(processedTrackingTxtFileContents);
-//}
+BOOST_AUTO_TEST_CASE(TestVikingRangeDataObservationCollection)
+{
+  using namespace observation_models;
+
+  // Load the observations from the Viking file
+  std::shared_ptr<tio::TrackingTxtFileContents> rawVikingFile = readVikingRangeFile(vikingRangePath);
+  auto observationCollection = observation_models::createTrackingTxtFileObservationCollection<double, double>(rawVikingFile, "Viking");
+
+  // Check size of observations
+  BOOST_CHECK_EQUAL(observationCollection->getTotalObservableSize(), 1258);
+
+  // Check if n-way-range is present in the collection
+  const auto& observationTypeStartSize = observationCollection->getObservationTypeStartAndSize();
+  BOOST_CHECK(observationTypeStartSize.find(n_way_range) != observationTypeStartSize.end());
+
+  //  Checking the first element with station 63 - 63 in the Viking file
+  const LinkDefinition linkDefDsn63({
+                                        {transmitter, LinkEndId("Earth", "DSS-63")},
+                                        {reflector, LinkEndId("Viking", "Antenna")},
+                                        {receiver, LinkEndId("Earth", "DSS-63")},
+                                    });
+
+  auto observationsAndTimesDsn63 = observationCollection->getSingleLinkObservationsAndTimes(n_way_range, linkDefDsn63);
+  auto observationsDsn63 = observationsAndTimesDsn63.first;
+  auto timesDsn63 = observationsAndTimesDsn63.second;
+
+  BOOST_CHECK_CLOSE(observationsDsn63(0, 0), 2371.564782809, 1e-12);
+  BOOST_CHECK_CLOSE(timesDsn63[0], 2442999.2528009 - basic_astrodynamics::JULIAN_DAY_ON_J2000, 1e-8);
+
+
+//  const auto& concatenatedObservations = observationCollection->getObservationVectorReference();
+//  std::vector<double> observationTimes = observationCollection->getConcatenatedTimeVector();
+//  std::cout << observationTimes[0] << "\t" << concatenatedObservations(0, 0) << "\n";
+
+//  std::vector<int> linkEndIds = observationCollection->getConcatenatedLinkEndIds();
+//  std::map<int, observation_models::LinkEnds> linkEndIdMap = observationCollection->getInverseLinkEndIdentifierMap();
+//  for (auto& pair : linkEndIdMap) {
+//    std::cout << pair.first << " - " << pair.second;
+//  }
+}
+
+BOOST_AUTO_TEST_CASE(TestJuiceFile)
+{
+
+}
 
 BOOST_AUTO_TEST_SUITE_END();
 

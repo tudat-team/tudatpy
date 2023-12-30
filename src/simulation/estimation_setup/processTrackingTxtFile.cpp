@@ -39,7 +39,7 @@ void ProcessedTrackingTxtFileContents::updateObservationTimes()
 
   switch (timeRepresentation) {
     case day_time: {
-      observationTimes_ = convertVectors(tudat::basic_astrodynamics::convertCalendarDateToJulianDay<double>,
+      observationTimes_ = convertVectors(convertCalendarDateToJulianDaySinceJ2000<double>,
                                          dataMap.at(input_output::TrackingDataType::year),
                                          dataMap.at(input_output::TrackingDataType::month),
                                          dataMap.at(input_output::TrackingDataType::day),
@@ -70,9 +70,9 @@ void ProcessedTrackingTxtFileContents::updateLinkEnds()
 
       for (size_t i = 0; i < numDataRows; ++i) {
         LinkEnds currentLinkEnds{
-            {transmitter, LinkEndId("Earth", getStationNameFromStationId("DSS", dsnTransmitterIds[i]))},
+            {transmitter, LinkEndId("Earth", getStationNameFromStationId("DSS-", static_cast<int>(dsnTransmitterIds[i])))},
             {reflector, LinkEndId(spacecraftName_, "Antenna")},
-            {receiver, LinkEndId("Earth", getStationNameFromStationId("DSS", dsnReceiverIds[i]))},
+            {receiver, LinkEndId("Earth", getStationNameFromStationId("DSS-", static_cast<int>(dsnReceiverIds[i])))},
         };
         linkEndsVector_.push_back(currentLinkEnds);
       }
