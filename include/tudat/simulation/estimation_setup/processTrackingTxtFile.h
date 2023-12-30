@@ -38,6 +38,20 @@ namespace tudat
 namespace observation_models
 {
 
+//! Utility function that might belong elsewhere
+template< typename TimeScalarType = double >
+TimeScalarType convertCalendarDateToJulianDaySinceJ2000(const int calendarYear,
+                                                        const int calendarMonth,
+                                                        const int calendarDay,
+                                                        const int calendarHour,
+                                                        const int calendarMinutes,
+                                                        const TimeScalarType calendarSeconds)
+{
+  return basic_astrodynamics::convertCalendarDateToJulianDaysSinceEpoch<TimeScalarType>
+      (calendarYear, calendarMonth, calendarDay, calendarHour, calendarMinutes,
+       calendarSeconds, basic_astrodynamics::JULIAN_DAY_ON_J2000);
+}
+
 //! Utility function to check if a container contains all elements of another container
 template< typename T, typename U >
 bool containsAll(const T& referenceArray, const U searchArray)
@@ -200,7 +214,6 @@ private:
   bool initialised_;
 };
 
-// TODO: This assumes the ancillary settings are the same for all the observables. For txt files this will usually be the case
 //! Function to create an observation collection from the processed Tracking file data
 template< typename ObservationScalarType = double, typename TimeType = double >
 std::shared_ptr<observation_models::ObservationCollection<ObservationScalarType, TimeType> >
@@ -269,6 +282,20 @@ createTrackingTxtFileObservationCollection(
   }
 
   return std::make_shared<ObservationCollection<ObservationScalarType, TimeType> >(observationSets);
+}
+
+//! Function to create an observation collection from the raw Tracking file data
+template< typename ObservationScalarType = double, typename TimeType = double >
+std::shared_ptr<observation_models::ObservationCollection<ObservationScalarType, TimeType> >
+createTrackingTxtFileObservationCollection(
+    std::shared_ptr<input_output::TrackingTxtFileContents> rawTrackingTxtFileContents,
+    std::string spacecraftName,
+    std::vector<ObservableType> observableTypesToProcess = std::vector<ObservableType>(),
+    const ObservationAncilliarySimulationSettings& ancillarySettings = ObservationAncilliarySimulationSettings(),
+    std::pair<TimeType, TimeType> startAndEndTimesToProcess = std::make_pair<TimeType, TimeType>(TUDAT_NAN, TUDAT_NAN))
+{
+  auto processedTrackingTxtFileContents = std::make_shared<observation_models::ProcessedTrackingTxtFileContents>(rawTrackingTxtFileContents, spacecraftName);
+  return createTrackingTxtFileObservationCollection(processedTrackingTxtFileContents, observableTypesToProcess, ancillarySettings, startAndEndTimesToProcess);
 }
 
 } // namespace observation_models
