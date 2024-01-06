@@ -38,6 +38,10 @@ void ProcessedTrackingTxtFileContents::updateObservationTimes()
   TimeRepresentation timeRepresentation = getTimeRepresentation();
 
   switch (timeRepresentation) {
+    case tdb_seconds_j2000: {
+      observationTimes_ = dataMap.at(input_output::TrackingDataType::tdb_time_j2000);
+      break;
+    }
     case day_time: {
       observationTimes_ = convertVectors(convertCalendarDateToJulianDaySinceJ2000<double>,
                                          dataMap.at(input_output::TrackingDataType::year),
@@ -58,6 +62,7 @@ void ProcessedTrackingTxtFileContents::updateLinkEnds()
 {
   linkEndsVector_.clear();
   const auto& dataMap = rawTrackingTxtFileContents_->getDoubleDataMap();
+  const auto& metaDataStrMap = rawTrackingTxtFileContents_->getMetaDataStrMap();
   const auto& numDataRows = rawTrackingTxtFileContents_->getNumRows();
   LinkEndsRepresentation linkEndsRepresentation = getLinkEndsRepresentation();
 
@@ -78,6 +83,34 @@ void ProcessedTrackingTxtFileContents::updateLinkEnds()
       }
       break;
     }
+
+    case vlbi_station: {
+
+      // TODO: Different if in the metadata!
+      //    Take data from actual info, not hardcoded!
+
+      if (metaDataStrMap.count(input_output::TrackingDataType::vlbi_station_name)) {
+        std::string vlbi_station_name = metaDataStrMap.at(input_output::TrackingDataType::vlbi_station_name);
+        LinkEnds constantLinkEnds{
+            {transmitter, LinkEndId(spacecraftName_, "Antenna")},
+            {receiver, LinkEndId("Earth", vlbi_station_name)}, // FIXME!
+        };
+        for (size_t i = 0; i < numDataRows; ++i) {
+          linkEndsVector_.push_back(constantLinkEnds);
+        }
+      } else if (dataMap.count(input_output::TrackingDataType::dsn_receiving_station_nr)) {
+        for (size_t i = 0; i < numDataRows; ++i) {
+          std::string vlbi_station_name = metaDataStrMap.at(input_output::TrackingDataType::vlbi_station_name);
+          LinkEnds currentLinkEnds{
+              {transmitter, LinkEndId(spacecraftName_, "Antenna")},
+              {receiver, LinkEndId("Earth", vlbi_station_name)}, // FIXME!
+          };
+          linkEndsVector_.push_back(currentLinkEnds);
+        }
+      }
+      break;
+    }
+
     default: {
       throw std::runtime_error("Error while processing tracking txt file: LinkEnds representation not recognised or implemented.");
     }
@@ -95,6 +128,11 @@ void ProcessedTrackingTxtFileContents::updateObservations()
 ProcessedTrackingTxtFileContents::TimeRepresentation ProcessedTrackingTxtFileContents::getTimeRepresentation()
 {
   auto const& availableDataTypes = rawTrackingTxtFileContents_->getDataColumnTypes();
+
+  if (containsAll(availableDataTypes, std::vector<input_output::TrackingDataType>{input_output::TrackingDataType::tdb_time_j2000})) {
+    return tdb_seconds_j2000;
+  }
+
   if (containsAll(availableDataTypes,
                   std::vector<input_output::TrackingDataType>{
                       input_output::TrackingDataType::year,
@@ -111,13 +149,18 @@ ProcessedTrackingTxtFileContents::TimeRepresentation ProcessedTrackingTxtFileCon
 
 ProcessedTrackingTxtFileContents::LinkEndsRepresentation ProcessedTrackingTxtFileContents::getLinkEndsRepresentation()
 {
-  auto const& availableDataTypes = rawTrackingTxtFileContents_->getDataColumnTypes();
+  auto const& availableDataTypes = rawTrackingTxtFileContents_->getAllAvailableDataTypes();
+
   if (containsAll(availableDataTypes,
                   std::vector<input_output::TrackingDataType>{
                       input_output::TrackingDataType::dsn_transmitting_station_nr,
                       input_output::TrackingDataType::dsn_receiving_station_nr
                   })) {
     return dsn_transmitting_receiving_station_nr;
+  }
+
+  if (containsAll(availableDataTypes, std::vector<input_output::TrackingDataType>{input_output::TrackingDataType::vlbi_station_name})) {
+    return vlbi_station;
   }
   throw std::runtime_error("Error while processing tracking txt file: Link Ends representation not recognised or implemented.");
 }

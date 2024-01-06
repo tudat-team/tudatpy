@@ -19,7 +19,7 @@ void TrackingTxtFileContents::parseData()
 {
   std::ifstream dataFile(fileName_);
   if (!dataFile.good()) {
-    throw std::runtime_error("Error when opening Jpl Range file, file " + fileName_ + " could not be opened.");
+    throw std::runtime_error("Error when opening Tracking txt file, file " + fileName_ + " could not be opened.");
   }
   readRawDataMap(dataFile);
   convertDataMap();
@@ -50,9 +50,13 @@ void TrackingTxtFileContents::addLineToRawDataMap(std::string& rawLine)
   // Check if the expected number of columns is present in this line
   if (currentSplitRawLine_.size() != numColumns) {
     unsigned int columnsFound = currentSplitRawLine_.size();
+    for (auto a : currentSplitRawLine_) {
+      std::cout << a << "\n";
+    }
     throw std::runtime_error(
         "The current line in file " + fileName_ + " has " + std::to_string(columnsFound) + " columns but "
             + std::to_string(numColumns) + " columns were expected.\nRaw line:" + rawLine);
+
   }
 
   // Populate the dataMap_ with a new row on each of the vectors
@@ -79,10 +83,32 @@ void TrackingTxtFileContents::convertDataMap()
   }
 }
 
-
 const std::vector<double>& TrackingTxtFileContents::getDoubleDataColumn(TrackingDataType dataType)
 {
   return doubleDataMap_.at(dataType);
+}
+
+const std::vector<TrackingDataType> TrackingTxtFileContents::getMetaDataTypes()
+{
+  std::vector<TrackingDataType> metaDataTypes;
+
+  for (auto pair : metaDataMapDouble_) {
+    metaDataTypes.push_back(pair.first);
+  }
+
+  for (auto pair : metaDataMapStr_) {
+    metaDataTypes.push_back(pair.first);
+  }
+
+  return metaDataTypes;
+}
+
+const std::vector<TrackingDataType> TrackingTxtFileContents::getAllAvailableDataTypes()
+{
+  auto columnTypes = getDataColumnTypes();
+  auto metaTypes = getMetaDataTypes();
+  columnTypes.insert(columnTypes.end(), metaTypes.begin(), metaTypes.end());
+  return columnTypes;
 }
 
 } // namespace input_output

@@ -86,6 +86,7 @@ std::set<T> vectorToSet(std::vector<T> vector)
 //! Is present in the file, the corresponding ObservableType (value) can later be added to the  ObservationCollection
 static const std::map<std::vector<input_output::TrackingDataType>, ObservableType> dataTypeToObservableMap = {
     {{input_output::TrackingDataType::n_way_light_time}, n_way_range},
+    {{input_output::TrackingDataType::doppler_measured_frequency}, one_way_doppler}, // FIXME: not sure if this is the correct thing to store
     // Todo: More to be implemented
 };
 
@@ -107,7 +108,7 @@ class ProcessedTrackingTxtFileContents
 //  Constructors
 public:
   ProcessedTrackingTxtFileContents(std::shared_ptr<input_output::TrackingTxtFileContents> rawTrackingTxtContents, std::string spacecraftName)
-      : rawTrackingTxtFileContents_(rawTrackingTxtContents), spacecraftName_(spacecraftName)
+      : rawTrackingTxtFileContents_(rawTrackingTxtContents), spacecraftName_(spacecraftName), initialised_(false)
   {
     initialise();
   }
@@ -148,7 +149,7 @@ public:
   }
 
   //! Utility function to get the ground station id
-  std::string getStationNameFromStationId(const std::string networkPrefix, const int stationId)
+  static std::string getStationNameFromStationId(const std::string networkPrefix, const int stationId)
   {
     return networkPrefix + std::to_string(stationId);
   }
@@ -159,11 +160,13 @@ private:
   enum TimeRepresentation
   {
     day_time,
+    tdb_seconds_j2000,
   };
 
   enum LinkEndsRepresentation
   {
     dsn_transmitting_receiving_station_nr,
+    vlbi_station,
   };
 
   TimeRepresentation getTimeRepresentation();
@@ -211,7 +214,7 @@ private:
   std::vector<ObservableType> observableTypes_;
   std::vector<LinkEnds> linkEndsVector_;
   std::set<LinkEnds> linkEndsSet_;
-  bool initialised_;
+  bool initialised_ = false;
 };
 
 //! Function to create an observation collection from the processed Tracking file data
@@ -229,16 +232,20 @@ createTrackingTxtFileObservationCollection(
   }
 
   const auto& dataMap = processedTrackingTxtFileContents->getDoubleDataMap();
-
-  // Check expected sizes
-  if (observableTypesToProcess.empty()) {
-    observableTypesToProcess = processedTrackingTxtFileContents->getObservableTypes();
-  }
   std::set<LinkEnds> linkEndsToProcess = processedTrackingTxtFileContents->getLinkEndsSet();
+
+  // Check observable types to process. If empty, process all available, if impossible, throw error
+  std::vector<ObservableType> availableObservableTypes = processedTrackingTxtFileContents->getObservableTypes();
+  if (observableTypesToProcess.empty()) {
+    observableTypesToProcess = availableObservableTypes;
+  }
+  if (!containsAll(availableObservableTypes, observableTypesToProcess))
+  {
+    throw std::runtime_error("Error while processing Tracking txt file. Not enough information to extract requested observables");
+  }
 
   std::map<ObservableType, std::map<LinkEnds, std::vector<std::shared_ptr<SingleObservationSet<ObservationScalarType, TimeType> > > > >
       observationSets;
-
   std::map<ObservableType, std::map<LinkEnds, std::vector<TimeType>>> observationTimesMap;
   std::map<ObservableType, std::map<LinkEnds, std::vector<Eigen::Matrix<ObservationScalarType, Eigen::Dynamic, 1> >>> observablesMap;
 
@@ -247,6 +254,8 @@ createTrackingTxtFileObservationCollection(
   std::vector<LinkEnds> linkEndsVector = processedTrackingTxtFileContents->getLinkEndsVector();
   std::set<LinkEnds> linkEndsSet = processedTrackingTxtFileContents->getLinkEndsSet();
 
+  // Prepare maps that order all observations per observable type and link ends
+  // This is necessary for files where the linkends are not always the same
   for (size_t i = 0; i < allObservationTimes.size(); ++i) {
     LinkEnds& currentLinkEnds = linkEndsVector[i];
 
@@ -263,10 +272,12 @@ createTrackingTxtFileObservationCollection(
         }
         observationTimesMap[currentObservableType][currentLinkEnds].push_back(allObservationTimes[i]);
         observablesMap[currentObservableType][currentLinkEnds].push_back(currentObservable);
+
       }
     }
   }
 
+  // Fill the observation collection
   for (ObservableType& currentObservableType : observableTypesToProcess) {
     for (const LinkEnds& currentLinkEnds : linkEndsSet) {
       observationSets[currentObservableType][currentLinkEnds].push_back(std::make_shared<SingleObservationSet<ObservationScalarType, TimeType> >(
@@ -294,8 +305,12 @@ createTrackingTxtFileObservationCollection(
     const ObservationAncilliarySimulationSettings& ancillarySettings = ObservationAncilliarySimulationSettings(),
     std::pair<TimeType, TimeType> startAndEndTimesToProcess = std::make_pair<TimeType, TimeType>(TUDAT_NAN, TUDAT_NAN))
 {
-  auto processedTrackingTxtFileContents = std::make_shared<observation_models::ProcessedTrackingTxtFileContents>(rawTrackingTxtFileContents, spacecraftName);
-  return createTrackingTxtFileObservationCollection(processedTrackingTxtFileContents, observableTypesToProcess, ancillarySettings, startAndEndTimesToProcess);
+  auto processedTrackingTxtFileContents = std::make_shared<observation_models::ProcessedTrackingTxtFileContents>(rawTrackingTxtFileContents,
+                                                                                                                 spacecraftName);
+  return createTrackingTxtFileObservationCollection(processedTrackingTxtFileContents,
+                                                    observableTypesToProcess,
+                                                    ancillarySettings,
+                                                    startAndEndTimesToProcess);
 }
 
 } // namespace observation_models
