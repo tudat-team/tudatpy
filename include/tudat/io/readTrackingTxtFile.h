@@ -25,6 +25,7 @@
 #include "tudat/io/fieldType.h"
 #include "tudat/astro/basic_astro.h"
 #include "tudat/astro/observation_models/observableTypes.h"
+#include "tudat/interface/spice/spiceInterface.h"
 
 // TODO: Split into header and source file
 
@@ -75,6 +76,7 @@ enum class TrackingDataType
   spacecraft_id,
   planet_nr,
   tdb_time_j2000,
+  tdb_spacecraft_j2000,
   x_planet_frame,
   y_planet_frame,
   z_planet_frame,
@@ -85,6 +87,13 @@ enum class TrackingDataType
   spacecraft_transponder_delay,
   uplink_frequency,
   downlink_frequency,
+  signal_to_noise,
+  spectral_max,
+  doppler_measured_frequency,
+  doppler_base_frequency,
+  doppler_noise,
+  doppler_bandwidth,
+  vlbi_station_name,
 };
 
 //! Enum describing a unique data type and format that can be present in a column of a file. Note that multiple `TrackingFileField`
@@ -99,6 +108,7 @@ enum class TrackingFileField
   hour,
   minute,
   second,
+  utc_datetime_string,
   round_trip_light_time_microseconds,
   round_trip_light_time_seconds,
   time_scale,
@@ -109,6 +119,7 @@ enum class TrackingFileField
   dsn_transmitting_station_nr,
   dsn_receiving_station_nr,
   planet_nr,
+  tdb_spacecraft_seconds_j2000,
   tdb_seconds_j2000,
   x_planet_frame_km,
   y_planet_frame_km,
@@ -117,6 +128,10 @@ enum class TrackingFileField
   vy_planet_frame_kms,
   vz_planet_frame_kms,
   residual_de405_microseconds,
+  signal_to_noise_ratio,
+  normalised_spectral_max,
+  doppler_measured_frequency_hz,
+  doppler_noise_hz,
 };
 
 //! Simple converter class that can convert a string data field to a double. One can inherit from this and overload the
@@ -183,6 +198,19 @@ private:
   double multiplier_;
 };
 
+
+//! Converter that will convert the raw string to double and then apply a scalar multiplier as specified
+class TrackingFileFieldUTCTimeConverter : public TrackingFileFieldConverter
+{
+public:
+  TrackingFileFieldUTCTimeConverter(TrackingDataType trackingDataType)
+      : TrackingFileFieldConverter(trackingDataType) {}
+  double toDouble(std::string& rawField) const
+  {
+    return spice_interface::convertDateStringToEphemerisTime(rawField);
+  }
+};
+
 //! Mapping the `TrackingFileField` to the correct converter, including the `TrackingDataType` it will represent
 static const std::map<TrackingFileField, std::shared_ptr<TrackingFileFieldConverter>> trackingFileFieldConverterMap = {
     {TrackingFileField::spacecraft_id, std::make_shared<TrackingFileFieldConverter>(TrackingDataType::spacecraft_id)},
@@ -215,7 +243,7 @@ static const std::map<TrackingFileField, std::shared_ptr<TrackingFileFieldConver
         std::make_shared<TrackingFileFieldMultiplyingConverter>(TrackingDataType::light_time_measurement_accuracy, 1.e-6)
     },
     {TrackingFileField::planet_nr, std::make_shared<TrackingFileFieldConverter>(TrackingDataType::planet_nr)},
-    {TrackingFileField::tdb_seconds_j2000, std::make_shared<TrackingFileFieldConverter>(TrackingDataType::tdb_time_j2000)},
+    {TrackingFileField::tdb_spacecraft_seconds_j2000, std::make_shared<TrackingFileFieldConverter>(TrackingDataType::tdb_spacecraft_j2000)},
     {TrackingFileField::x_planet_frame_km, std::make_shared<TrackingFileFieldMultiplyingConverter>(TrackingDataType::x_planet_frame, 1.e3)},
     {TrackingFileField::y_planet_frame_km, std::make_shared<TrackingFileFieldMultiplyingConverter>(TrackingDataType::y_planet_frame, 1.e3)},
     {TrackingFileField::z_planet_frame_km, std::make_shared<TrackingFileFieldMultiplyingConverter>(TrackingDataType::z_planet_frame, 1.e3)},
@@ -226,6 +254,11 @@ static const std::map<TrackingFileField, std::shared_ptr<TrackingFileFieldConver
         TrackingFileField::residual_de405_microseconds,
         std::make_shared<TrackingFileFieldMultiplyingConverter>(TrackingDataType::residual_de405, 1.e-6)
     },
+    {TrackingFileField::signal_to_noise_ratio, std::make_shared<TrackingFileFieldConverter>(TrackingDataType::signal_to_noise)},
+    {TrackingFileField::normalised_spectral_max , std::make_shared<TrackingFileFieldConverter>(TrackingDataType::spectral_max)},
+    {TrackingFileField::doppler_measured_frequency_hz , std::make_shared<TrackingFileFieldConverter>(TrackingDataType::doppler_measured_frequency)},
+    {TrackingFileField::doppler_noise_hz , std::make_shared<TrackingFileFieldConverter>(TrackingDataType::doppler_noise)},
+    {TrackingFileField::utc_datetime_string, std::make_shared<TrackingFileFieldUTCTimeConverter>(TrackingDataType::tdb_time_j2000)}
 };
 
 //! Class to extract the raw data from a file with the appropriate conversion to doubles
@@ -273,10 +306,10 @@ public:
   const auto& getRawDataMap() { return rawDataMap_; }
   const auto& getDoubleDataMap() { return doubleDataMap_; }
   const std::vector<double>& getDoubleDataColumn(TrackingDataType dataType);
-  const auto& getMetaDataMap() { return metaDataMapDouble_; }
-  double  getMetaDataDouble(TrackingDataType dataType) { return metaDataMapDouble_.at(dataType); }
-  const std::string&  getMetaDataStr(TrackingDataType dataType) { return metaDataMapStr_.at(dataType); }
-
+  const auto&  getMetaDataDoubleMap() { return metaDataMapDouble_;}
+  const auto&  getMetaDataStrMap() { return metaDataMapStr_; }
+  const std::vector<TrackingDataType> getMetaDataTypes();
+  const std::vector<TrackingDataType> getAllAvailableDataTypes();
 private:
   std::string fileName_ = "None";
   std::string separators_ = ":, \t";
