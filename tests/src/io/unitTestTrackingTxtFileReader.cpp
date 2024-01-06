@@ -35,6 +35,8 @@ namespace tudat
 {
 namespace unit_tests
 {
+using namespace observation_models;
+
 
 //! Temporary utility function to print arrays to std::cout
 template< typename T >
@@ -96,11 +98,27 @@ std::unique_ptr<tio::TrackingTxtFileContents> readVikingRangeFile(const std::str
   return vikingFile;
 }
 
+//! A function that specifies a standard format for a file. A user can also do this if they often read the same file format
+std::unique_ptr<tio::TrackingTxtFileContents> readJuiceFdetsFile(const std::string& fileName)
+{
+  std::vector<tio::TrackingFileField> columnTypes({
+                                                      tio::TrackingFileField::utc_datetime_string,
+                                                      tio::TrackingFileField::signal_to_noise_ratio,
+                                                      tio::TrackingFileField::normalised_spectral_max,
+                                                      tio::TrackingFileField::doppler_measured_frequency_hz,
+                                                      tio::TrackingFileField::doppler_noise_hz,
+                                                  });
+  auto rawFileContents = createTrackingTxtFileContents(fileName, columnTypes, '#', ", \t");
+  rawFileContents->addMetaData(tio::TrackingDataType::file_name, "JUICE Fdets Test File");
+  return rawFileContents;
+}
+
 // Setting some path variables for the test files
 const std::string vikingRangePath = tudat::paths::getTudatTestDataPath() + "vikingrange.txt";
 const std::string marsPathfinderRangePath = tudat::paths::getTudatTestDataPath() + "mars-pathfinder-range.txt";
 const std::string junoRangePath = tudat::paths::getTudatTestDataPath() + "juno_range.txt";
 const std::string marinerRangePath = tudat::paths::getTudatTestDataPath() + "mariner9obs.txt";
+const std::string juiceFdetsDopplerPath = tudat::paths::getTudatTestDataPath() + "Fdets.jui2023.04.26.Hb.0006.r2i.txt";
 
 BOOST_AUTO_TEST_SUITE(test_tracking_txt_file_reader);
 
@@ -170,7 +188,8 @@ BOOST_AUTO_TEST_CASE(marsPathfinderRangeSimpleReading)
   BOOST_CHECK_EQUAL(dataBlock4[tio::TrackingDataType::light_time_measurement_accuracy], 6.7e-8);
 
   BOOST_CHECK_EQUAL(rawTrackingFile->getNumColumns(), 11);
-  BOOST_CHECK_EQUAL(rawTrackingFile->getMetaDataDouble(tio::TrackingDataType::spacecraft_transponder_delay), 420.e-6);
+  const auto& metaDataDoubleMap =rawTrackingFile->getMetaDataDoubleMap();
+  BOOST_CHECK_EQUAL(metaDataDoubleMap.at(tio::TrackingDataType::spacecraft_transponder_delay), 420.e-6);
 }
 
 //
@@ -189,7 +208,7 @@ BOOST_AUTO_TEST_CASE(junoSimpleReading)
       tio::TrackingFileField::round_trip_light_time_seconds,
       tio::TrackingFileField::light_time_measurement_delay_microseconds,
       tio::TrackingFileField::planet_nr,
-      tio::TrackingFileField::tdb_seconds_j2000,
+      tio::TrackingFileField::tdb_spacecraft_seconds_j2000,
       tio::TrackingFileField::x_planet_frame_km,
       tio::TrackingFileField::y_planet_frame_km,
       tio::TrackingFileField::z_planet_frame_km,
@@ -214,7 +233,7 @@ BOOST_AUTO_TEST_CASE(junoSimpleReading)
   BOOST_CHECK_EQUAL(dataBlock0[tio::TrackingDataType::n_way_light_time], 6355.0487233317);
   BOOST_CHECK_EQUAL(dataBlock0[tio::TrackingDataType::light_time_measurement_accuracy], 0.0);
   BOOST_CHECK_EQUAL(dataBlock0[tio::TrackingDataType::planet_nr], 5);
-  BOOST_CHECK_CLOSE(dataBlock0[tio::TrackingDataType::tdb_time_j2000], 525574396.542800, 1e-4);
+  BOOST_CHECK_CLOSE(dataBlock0[tio::TrackingDataType::tdb_spacecraft_j2000], 525574396.542800, 1e-4);
   BOOST_CHECK_CLOSE(dataBlock0[tio::TrackingDataType::x_planet_frame], 976985.733, 1e-4);
   BOOST_CHECK_CLOSE(dataBlock0[tio::TrackingDataType::y_planet_frame], 68435520.227, 1e-4);
   BOOST_CHECK_CLOSE(dataBlock0[tio::TrackingDataType::z_planet_frame], 32772692.214, 1e-4);
@@ -260,17 +279,17 @@ BOOST_AUTO_TEST_CASE(marinerSimpleReading)
 
   BOOST_CHECK_EQUAL(rawTrackingFile->getNumColumns(), 9);
 
-  BOOST_CHECK_EQUAL(rawTrackingFile->getMetaDataStr(input_output::TrackingDataType::observation_body), "Earth");
-  BOOST_CHECK_EQUAL(rawTrackingFile->getMetaDataStr(input_output::TrackingDataType::observed_body), "Mars");
+  const auto& metaDataStrMap = rawTrackingFile->getMetaDataStrMap();
+  BOOST_CHECK_EQUAL(metaDataStrMap.at(input_output::TrackingDataType::observation_body), "Earth");
+  BOOST_CHECK_EQUAL(metaDataStrMap.at(input_output::TrackingDataType::observed_body), "Mars");
 }
 
 BOOST_AUTO_TEST_CASE(TestVikingRangeDataObservationCollection)
 {
-  using namespace observation_models;
 
   // Load the observations from the Viking file
   std::shared_ptr<tio::TrackingTxtFileContents> rawVikingFile = readVikingRangeFile(vikingRangePath);
-  auto observationCollection = observation_models::createTrackingTxtFileObservationCollection<double, double>(rawVikingFile, "Viking");
+  auto observationCollection = observation_models::createTrackingTxtFileObservationCollection<double, double>(rawVikingFile, "Viking", {n_way_range});
 
   // Check size of observations
   BOOST_CHECK_EQUAL(observationCollection->getTotalObservableSize(), 1258);
@@ -307,6 +326,33 @@ BOOST_AUTO_TEST_CASE(TestVikingRangeDataObservationCollection)
 
 BOOST_AUTO_TEST_CASE(TestJuiceFile)
 {
+  spice_interface::loadStandardSpiceKernels();
+
+  std::shared_ptr<tio::TrackingTxtFileContents> rawFdetsDopplerFile = readJuiceFdetsFile(juiceFdetsDopplerPath);
+  rawFdetsDopplerFile->addMetaData(tio::TrackingDataType::doppler_base_frequency, 8420.0e6);
+  rawFdetsDopplerFile->addMetaData(tio::TrackingDataType::doppler_bandwidth, 2.0e3);
+  rawFdetsDopplerFile->addMetaData(tio::TrackingDataType::vlbi_station_name, "Hb");
+
+
+  // CHECK THE RAW FILE
+  BOOST_CHECK_EQUAL(rawFdetsDopplerFile->getNumColumns(), 5);
+
+  auto dataMap = rawFdetsDopplerFile->getDoubleDataMap();
+  auto dataBlockLast = extractBlockFromVectorMap(dataMap, -1);
+
+
+  BOOST_CHECK_EQUAL(dataBlockLast[tio::TrackingDataType::tdb_time_j2000], 735687970.0 + 32.184 + 37);
+  //  BOOST_CHECK_EQUAL(dataBlockLast[tio::TrackingDataType::tdb_time_j2000], basic_astrodynamics::convertTTtoTAI(735687970.0));
+
+  BOOST_CHECK_EQUAL(dataBlockLast[tio::TrackingDataType::signal_to_noise], 6.766652540970647242e+05);
+  BOOST_CHECK_EQUAL(dataBlockLast[tio::TrackingDataType::spectral_max], 5.754946258897545704e+03);
+  BOOST_CHECK_EQUAL(dataBlockLast[tio::TrackingDataType::doppler_measured_frequency], 5977954.253958693705);
+  BOOST_CHECK_EQUAL(dataBlockLast[tio::TrackingDataType::doppler_noise], -1.3803018149815216e-02);
+
+
+  // Process file
+  auto processedFdetsDopplerFile = std::make_shared<ProcessedTrackingTxtFileContents>(rawFdetsDopplerFile, "JUICE");
+  auto observationCollection = observation_models::createTrackingTxtFileObservationCollection<double, double>(processedFdetsDopplerFile);
 
 }
 
