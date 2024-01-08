@@ -1,9 +1,20 @@
 #!/usr/bin/env bash
 
+# allow input for number of processors used
+while getopts j:c: flag
+do
+    case "${flag}" in
+        j) number_of_processors=${OPTARG};;
+        c) clean_build=${OPTARG};;
+    esac
+done
+
 # env control arguments
 BUILD_DIR="${build_dir:-build}"
 RUN_TESTS="${run_tests:-0}"
 BUILD_TESTS="${build_tests:-0}"
+NUMBER_OF_PROCESSORS=${number_of_processors:-1}
+CLEAN_BUILD=${clean_build:-0}
 
 # build directory
 mkdir "${BUILD_DIR}"
@@ -21,5 +32,10 @@ cmake -DCMAKE_PREFIX_PATH="$CONDA_PREFIX" \
   -DTUDAT_BUILD_TESTS="${BUILD_TESTS}" \
   ..
 
-# build step
-cmake --build .
+# if required by user, clean
+if [ "${CLEAN_BUILD}" = "true" ]; then
+    cmake --build . --target clean -j"${NUMBER_OF_PROCESSORS}"
+    printf "\nClean finished\n\n"
+fi
+# build
+cmake --build . -j"${NUMBER_OF_PROCESSORS}"
