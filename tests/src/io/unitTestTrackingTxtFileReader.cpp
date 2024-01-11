@@ -37,7 +37,6 @@ namespace unit_tests
 {
 using namespace observation_models;
 
-
 //! Temporary utility function to print arrays to std::cout
 template< typename T >
 void printArr(const T& arr)
@@ -80,20 +79,20 @@ std::map<K, V> extractBlockFromVectorMap(const std::map<K, std::vector<V>>& vect
 //! A function that specifies a standard format for a file. A user can also do this if they often read the same file format
 std::unique_ptr<tio::TrackingTxtFileContents> readVikingRangeFile(const std::string& fileName)
 {
-  std::vector<tio::TrackingFileField> columnTypes({
-                                                      tio::TrackingFileField::spacecraft_id,
-                                                      tio::TrackingFileField::dsn_transmitting_station_nr,
-                                                      tio::TrackingFileField::dsn_receiving_station_nr,
-                                                      tio::TrackingFileField::year,
-                                                      tio::TrackingFileField::month_three_letter,
-                                                      tio::TrackingFileField::day,
-                                                      tio::TrackingFileField::hour,
-                                                      tio::TrackingFileField::minute,
-                                                      tio::TrackingFileField::second,
-                                                      tio::TrackingFileField::round_trip_light_time_microseconds,
-                                                      tio::TrackingFileField::light_time_measurement_delay_microseconds
-                                                  });
-  auto vikingFile = createTrackingTxtFileContents(fileName, columnTypes);
+  std::vector<std::string> columnTypes({
+                                           "spacecraft_id",
+                                           "dsn_transmitting_station_nr",
+                                           "dsn_receiving_station_nr",
+                                           "year",
+                                           "month_three_letter",
+                                           "day",
+                                           "hour",
+                                           "minute",
+                                           "second",
+                                           "round_trip_light_time_microseconds",
+                                           "light_time_measurement_delay_microseconds"
+                                       });
+  auto vikingFile = tio::createTrackingTxtFileContents(fileName, columnTypes);
   vikingFile->addMetaData(tio::TrackingDataType::file_name, "Viking lander range data");
   return vikingFile;
 }
@@ -101,14 +100,10 @@ std::unique_ptr<tio::TrackingTxtFileContents> readVikingRangeFile(const std::str
 //! A function that specifies a standard format for a file. A user can also do this if they often read the same file format
 std::unique_ptr<tio::TrackingTxtFileContents> readJuiceFdetsFile(const std::string& fileName)
 {
-  std::vector<tio::TrackingFileField> columnTypes({
-                                                      tio::TrackingFileField::utc_datetime_string,
-                                                      tio::TrackingFileField::signal_to_noise_ratio,
-                                                      tio::TrackingFileField::normalised_spectral_max,
-                                                      tio::TrackingFileField::doppler_measured_frequency_hz,
-                                                      tio::TrackingFileField::doppler_noise_hz,
-                                                  });
-  auto rawFileContents = createTrackingTxtFileContents(fileName, columnTypes, '#', ", \t");
+  std::vector<std::string>
+      columnTypes({"utc_datetime_string", "signal_to_noise_ratio", "normalised_spectral_max", "doppler_measured_frequency_hz", "doppler_noise_hz",});
+
+  auto rawFileContents = tio::createTrackingTxtFileContents(fileName, columnTypes, '#', ", \t");
   rawFileContents->addMetaData(tio::TrackingDataType::file_name, "JUICE Fdets Test File");
   return rawFileContents;
 }
@@ -153,21 +148,21 @@ BOOST_AUTO_TEST_CASE(VikingRangeDataCustomFunction)
 
 BOOST_AUTO_TEST_CASE(marsPathfinderRangeSimpleReading)
 {
-  std::vector<tio::TrackingFileField> fieldTypeVector{
-      tio::TrackingFileField::spacecraft_id,
-      tio::TrackingFileField::dsn_transmitting_station_nr,
-      tio::TrackingFileField::dsn_receiving_station_nr,
-      tio::TrackingFileField::year,
-      tio::TrackingFileField::month_three_letter,
-      tio::TrackingFileField::day,
-      tio::TrackingFileField::hour,
-      tio::TrackingFileField::minute,
-      tio::TrackingFileField::second,
-      tio::TrackingFileField::round_trip_light_time_microseconds,
-      tio::TrackingFileField::light_time_measurement_accuracy_microseconds,
+  std::vector<std::string> fieldTypeVector{
+      "spacecraft_id",
+      "dsn_transmitting_station_nr",
+      "dsn_receiving_station_nr",
+      "year",
+      "month_three_letter",
+      "day",
+      "hour",
+      "minute",
+      "second",
+      "round_trip_light_time_microseconds",
+      "light_time_measurement_accuracy_microseconds",
   };
 
-  auto rawTrackingFile = createTrackingTxtFileContents(marsPathfinderRangePath, fieldTypeVector, '#', ",: \t");
+  auto rawTrackingFile = tio::createTrackingTxtFileContents(marsPathfinderRangePath, fieldTypeVector, '#', ",: \t");
   rawTrackingFile->addMetaData(tio::TrackingDataType::spacecraft_transponder_delay, 420.e-6);
   rawTrackingFile->addMetaData(tio::TrackingDataType::uplink_frequency, 7.2e9);
   rawTrackingFile->addMetaData(tio::TrackingDataType::downlink_frequency, 8.4e9);
@@ -188,36 +183,36 @@ BOOST_AUTO_TEST_CASE(marsPathfinderRangeSimpleReading)
   BOOST_CHECK_EQUAL(dataBlock4[tio::TrackingDataType::light_time_measurement_accuracy], 6.7e-8);
 
   BOOST_CHECK_EQUAL(rawTrackingFile->getNumColumns(), 11);
-  const auto& metaDataDoubleMap =rawTrackingFile->getMetaDataDoubleMap();
+  const auto& metaDataDoubleMap = rawTrackingFile->getMetaDataDoubleMap();
   BOOST_CHECK_EQUAL(metaDataDoubleMap.at(tio::TrackingDataType::spacecraft_transponder_delay), 420.e-6);
 }
 
 //
 BOOST_AUTO_TEST_CASE(junoSimpleReading)
 {
-  std::vector<tio::TrackingFileField> fieldTypeVector{
-      tio::TrackingFileField::spacecraft_id,
-      tio::TrackingFileField::dsn_transmitting_station_nr,
-      tio::TrackingFileField::dsn_receiving_station_nr,
-      tio::TrackingFileField::year,
-      tio::TrackingFileField::month,
-      tio::TrackingFileField::day,
-      tio::TrackingFileField::hour,
-      tio::TrackingFileField::minute,
-      tio::TrackingFileField::second,
-      tio::TrackingFileField::round_trip_light_time_seconds,
-      tio::TrackingFileField::light_time_measurement_delay_microseconds,
-      tio::TrackingFileField::planet_nr,
-      tio::TrackingFileField::tdb_spacecraft_seconds_j2000,
-      tio::TrackingFileField::x_planet_frame_km,
-      tio::TrackingFileField::y_planet_frame_km,
-      tio::TrackingFileField::z_planet_frame_km,
-      tio::TrackingFileField::vx_planet_frame_kms,
-      tio::TrackingFileField::vy_planet_frame_kms,
-      tio::TrackingFileField::vz_planet_frame_kms
+  std::vector<std::string> fieldTypeVector{
+      "spacecraft_id",
+      "dsn_transmitting_station_nr",
+      "dsn_receiving_station_nr",
+      "year",
+      "month",
+      "day",
+      "hour",
+      "minute",
+      "second",
+      "round_trip_light_time_seconds",
+      "light_time_measurement_delay_microseconds",
+      "planet_nr",
+      "tdb_spacecraft_seconds_j2000",
+      "x_planet_frame_km",
+      "y_planet_frame_km",
+      "z_planet_frame_km",
+      "vx_planet_frame_kms",
+      "vy_planet_frame_kms",
+      "vz_planet_frame_kms"
   };
 
-  auto rawTrackingFile = createTrackingTxtFileContents(junoRangePath, fieldTypeVector, '#', ",: \t");
+  auto rawTrackingFile = tio::createTrackingTxtFileContents(junoRangePath, fieldTypeVector, '#', ",: \t");
   auto dataMap = rawTrackingFile->getDoubleDataMap();
   auto dataBlock0 = extractBlockFromVectorMap(dataMap, 0);
 
@@ -246,24 +241,26 @@ BOOST_AUTO_TEST_CASE(junoSimpleReading)
 
 BOOST_AUTO_TEST_CASE(marinerSimpleReading)
 {
-  std::vector<tio::TrackingFileField> fieldTypeVector{
-      tio::TrackingFileField::year,
-      tio::TrackingFileField::month,
-      tio::TrackingFileField::day,
-      tio::TrackingFileField::hour,
-      tio::TrackingFileField::minute,
-      tio::TrackingFileField::second,
-      tio::TrackingFileField::round_trip_light_time_microseconds,
-      tio::TrackingFileField::light_time_measurement_accuracy_microseconds,
-      tio::TrackingFileField::residual_de405_microseconds
+  std::vector<std::string> fieldTypeVector{
+      "year",
+      "month",
+      "day",
+      "hour",
+      "minute",
+      "second",
+      "round_trip_light_time_microseconds",
+      "light_time_measurement_accuracy_microseconds",
+      "residual_de405_microseconds"
+//      "test"
   };
 
-  auto rawTrackingFile = createTrackingTxtFileContents(marinerRangePath, fieldTypeVector, '#', ",: \t");
+  auto rawTrackingFile = tio::createTrackingTxtFileContents(marinerRangePath, fieldTypeVector, '#', ",: \t");
   rawTrackingFile->addMetaData(input_output::TrackingDataType::observation_body, "Earth");
   rawTrackingFile->addMetaData(input_output::TrackingDataType::observed_body, "Mars");
 
   auto dataMap = rawTrackingFile->getDoubleDataMap();
   auto dataBlockLast = extractBlockFromVectorMap(dataMap, -1);
+
 
 //  1972 10 12 00:06:02  2610383946.989   0.475  -0.226
 
@@ -339,7 +336,6 @@ BOOST_AUTO_TEST_CASE(TestJuiceFile)
 
   auto dataMap = rawFdetsDopplerFile->getDoubleDataMap();
   auto dataBlockLast = extractBlockFromVectorMap(dataMap, -1);
-
 
   BOOST_CHECK_EQUAL(dataBlockLast[tio::TrackingDataType::tdb_time_j2000], 735687970.0 + 32.184 + 37);
   //  BOOST_CHECK_EQUAL(dataBlockLast[tio::TrackingDataType::tdb_time_j2000], basic_astrodynamics::convertTTtoTAI(735687970.0));
