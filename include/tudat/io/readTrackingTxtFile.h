@@ -34,7 +34,7 @@
 // A TrackingFileFieldConverter is an interface that can convert a raw string input field to its associated double value as expected for the TrackingDataType
 // For example:
 // - You are reading a file with a column that shows the round trip light time in microseconds
-// - The corresponding TrackingFileField will be TrackingFileField::round_trip_light_time_microseconds
+// - The corresponding TrackingFileField will be "round_trip_light_time_microseconds
 // - Tudat wants to refer to the data by TrackingDataType::n_way_light_time in seconds
 // - The converter
 
@@ -94,44 +94,6 @@ enum class TrackingDataType
   doppler_noise,
   doppler_bandwidth,
   vlbi_station_name,
-};
-
-//! Enum describing a unique data type and format that can be present in a column of a file. Note that multiple `TrackingFileField`
-//! types can represent the same type of `TrackingDataType`
-enum class TrackingFileField
-{
-  ignore = -1,
-  year,
-  month,
-  month_three_letter,
-  day,
-  hour,
-  minute,
-  second,
-  utc_datetime_string,
-  round_trip_light_time_microseconds,
-  round_trip_light_time_seconds,
-  time_scale,
-  light_time_measurement_delay_microseconds,
-  light_time_measurement_delay_seconds,
-  light_time_measurement_accuracy_microseconds,
-  spacecraft_id,
-  dsn_transmitting_station_nr,
-  dsn_receiving_station_nr,
-  planet_nr,
-  tdb_spacecraft_seconds_j2000,
-  tdb_seconds_j2000,
-  x_planet_frame_km,
-  y_planet_frame_km,
-  z_planet_frame_km,
-  vx_planet_frame_kms,
-  vy_planet_frame_kms,
-  vz_planet_frame_kms,
-  residual_de405_microseconds,
-  signal_to_noise_ratio,
-  normalised_spectral_max,
-  doppler_measured_frequency_hz,
-  doppler_noise_hz,
 };
 
 //! Simple converter class that can convert a string data field to a double. One can inherit from this and overload the
@@ -198,7 +160,6 @@ private:
   double multiplier_;
 };
 
-
 //! Converter that will convert the raw string to double and then apply a scalar multiplier as specified
 class TrackingFileFieldUTCTimeConverter : public TrackingFileFieldConverter
 {
@@ -212,53 +173,41 @@ public:
 };
 
 //! Mapping the `TrackingFileField` to the correct converter, including the `TrackingDataType` it will represent
-static const std::map<TrackingFileField, std::shared_ptr<TrackingFileFieldConverter>> trackingFileFieldConverterMap = {
-    {TrackingFileField::spacecraft_id, std::make_shared<TrackingFileFieldConverter>(TrackingDataType::spacecraft_id)},
+static const std::map<std::string, std::shared_ptr<TrackingFileFieldConverter>> trackingFileFieldConverterMap = {
+    {"spacecraft_id", std::make_shared<TrackingFileFieldConverter>(TrackingDataType::spacecraft_id)},
+    {"dsn_transmitting_station_nr", std::make_shared<TrackingFileFieldConverter>(TrackingDataType::dsn_transmitting_station_nr)},
+    {"dsn_receiving_station_nr", std::make_shared<TrackingFileFieldConverter>(TrackingDataType::dsn_receiving_station_nr)},
+    {"year", std::make_shared<TrackingFileFieldConverter>(TrackingDataType::year)},
+    {"month", std::make_shared<TrackingFileFieldConverter>(TrackingDataType::month)},
+    {"month_three_letter", std::make_shared<TrackingFileMonthFieldConverter>(TrackingDataType::month)},
+    {"day", std::make_shared<TrackingFileFieldConverter>(TrackingDataType::day)},
+    {"hour", std::make_shared<TrackingFileFieldConverter>(TrackingDataType::hour)},
+    {"minute", std::make_shared<TrackingFileFieldConverter>(TrackingDataType::minute)},
+    {"second", std::make_shared<TrackingFileFieldConverter>(TrackingDataType::second)},
+    {"round_trip_light_time_seconds", std::make_shared<TrackingFileFieldConverter>(TrackingDataType::n_way_light_time)},
+    {"round_trip_light_time_microseconds", std::make_shared<TrackingFileFieldMultiplyingConverter>(TrackingDataType::n_way_light_time, 1.e-6)},
     {
-        TrackingFileField::dsn_transmitting_station_nr,
-        std::make_shared<TrackingFileFieldConverter>(TrackingDataType::dsn_transmitting_station_nr)
-    },
-    {
-        TrackingFileField::dsn_receiving_station_nr,
-        std::make_shared<TrackingFileFieldConverter>(TrackingDataType::dsn_receiving_station_nr)
-    },
-    {TrackingFileField::year, std::make_shared<TrackingFileFieldConverter>(TrackingDataType::year)},
-    {TrackingFileField::month, std::make_shared<TrackingFileFieldConverter>(TrackingDataType::month)},
-    {TrackingFileField::month_three_letter, std::make_shared<TrackingFileMonthFieldConverter>(TrackingDataType::month)},
-    {TrackingFileField::day, std::make_shared<TrackingFileFieldConverter>(TrackingDataType::day)},
-    {TrackingFileField::hour, std::make_shared<TrackingFileFieldConverter>(TrackingDataType::hour)},
-    {TrackingFileField::minute, std::make_shared<TrackingFileFieldConverter>(TrackingDataType::minute)},
-    {TrackingFileField::second, std::make_shared<TrackingFileFieldConverter>(TrackingDataType::second)},
-    {TrackingFileField::round_trip_light_time_seconds, std::make_shared<TrackingFileFieldConverter>(TrackingDataType::n_way_light_time)},
-    {
-        TrackingFileField::round_trip_light_time_microseconds,
-        std::make_shared<TrackingFileFieldMultiplyingConverter>(TrackingDataType::n_way_light_time, 1.e-6)
-    },
-    {
-        TrackingFileField::light_time_measurement_delay_microseconds,
+        "light_time_measurement_delay_microseconds",
         std::make_shared<TrackingFileFieldMultiplyingConverter>(TrackingDataType::light_time_measurement_delay, 1.e-6)
     },
     {
-        TrackingFileField::light_time_measurement_accuracy_microseconds,
+        "light_time_measurement_accuracy_microseconds",
         std::make_shared<TrackingFileFieldMultiplyingConverter>(TrackingDataType::light_time_measurement_accuracy, 1.e-6)
     },
-    {TrackingFileField::planet_nr, std::make_shared<TrackingFileFieldConverter>(TrackingDataType::planet_nr)},
-    {TrackingFileField::tdb_spacecraft_seconds_j2000, std::make_shared<TrackingFileFieldConverter>(TrackingDataType::tdb_spacecraft_j2000)},
-    {TrackingFileField::x_planet_frame_km, std::make_shared<TrackingFileFieldMultiplyingConverter>(TrackingDataType::x_planet_frame, 1.e3)},
-    {TrackingFileField::y_planet_frame_km, std::make_shared<TrackingFileFieldMultiplyingConverter>(TrackingDataType::y_planet_frame, 1.e3)},
-    {TrackingFileField::z_planet_frame_km, std::make_shared<TrackingFileFieldMultiplyingConverter>(TrackingDataType::z_planet_frame, 1.e3)},
-    {TrackingFileField::vx_planet_frame_kms, std::make_shared<TrackingFileFieldMultiplyingConverter>(TrackingDataType::vx_planet_frame, 1.e3)},
-    {TrackingFileField::vy_planet_frame_kms, std::make_shared<TrackingFileFieldMultiplyingConverter>(TrackingDataType::vy_planet_frame, 1.e3)},
-    {TrackingFileField::vz_planet_frame_kms, std::make_shared<TrackingFileFieldMultiplyingConverter>(TrackingDataType::vz_planet_frame, 1.e3)},
-    {
-        TrackingFileField::residual_de405_microseconds,
-        std::make_shared<TrackingFileFieldMultiplyingConverter>(TrackingDataType::residual_de405, 1.e-6)
-    },
-    {TrackingFileField::signal_to_noise_ratio, std::make_shared<TrackingFileFieldConverter>(TrackingDataType::signal_to_noise)},
-    {TrackingFileField::normalised_spectral_max , std::make_shared<TrackingFileFieldConverter>(TrackingDataType::spectral_max)},
-    {TrackingFileField::doppler_measured_frequency_hz , std::make_shared<TrackingFileFieldConverter>(TrackingDataType::doppler_measured_frequency)},
-    {TrackingFileField::doppler_noise_hz , std::make_shared<TrackingFileFieldConverter>(TrackingDataType::doppler_noise)},
-    {TrackingFileField::utc_datetime_string, std::make_shared<TrackingFileFieldUTCTimeConverter>(TrackingDataType::tdb_time_j2000)}
+    {"planet_nr", std::make_shared<TrackingFileFieldConverter>(TrackingDataType::planet_nr)},
+    {"tdb_spacecraft_seconds_j2000", std::make_shared<TrackingFileFieldConverter>(TrackingDataType::tdb_spacecraft_j2000)},
+    {"x_planet_frame_km", std::make_shared<TrackingFileFieldMultiplyingConverter>(TrackingDataType::x_planet_frame, 1.e3)},
+    {"y_planet_frame_km", std::make_shared<TrackingFileFieldMultiplyingConverter>(TrackingDataType::y_planet_frame, 1.e3)},
+    {"z_planet_frame_km", std::make_shared<TrackingFileFieldMultiplyingConverter>(TrackingDataType::z_planet_frame, 1.e3)},
+    {"vx_planet_frame_kms", std::make_shared<TrackingFileFieldMultiplyingConverter>(TrackingDataType::vx_planet_frame, 1.e3)},
+    {"vy_planet_frame_kms", std::make_shared<TrackingFileFieldMultiplyingConverter>(TrackingDataType::vy_planet_frame, 1.e3)},
+    {"vz_planet_frame_kms", std::make_shared<TrackingFileFieldMultiplyingConverter>(TrackingDataType::vz_planet_frame, 1.e3)},
+    {"residual_de405_microseconds", std::make_shared<TrackingFileFieldMultiplyingConverter>(TrackingDataType::residual_de405, 1.e-6)},
+    {"signal_to_noise_ratio", std::make_shared<TrackingFileFieldConverter>(TrackingDataType::signal_to_noise)},
+    {"normalised_spectral_max", std::make_shared<TrackingFileFieldConverter>(TrackingDataType::spectral_max)},
+    {"doppler_measured_frequency_hz", std::make_shared<TrackingFileFieldConverter>(TrackingDataType::doppler_measured_frequency)},
+    {"doppler_noise_hz", std::make_shared<TrackingFileFieldConverter>(TrackingDataType::doppler_noise)},
+    {"utc_datetime_string", std::make_shared<TrackingFileFieldUTCTimeConverter>(TrackingDataType::tdb_time_j2000)}
 };
 
 //! Class to extract the raw data from a file with the appropriate conversion to doubles
@@ -266,7 +215,7 @@ class TrackingTxtFileContents
 {
 public:
   TrackingTxtFileContents(std::string fileName,
-                          std::vector<TrackingFileField> columnTypes,
+                          std::vector<std::string> columnTypes,
                           char commentSymbol = '#',
                           std::string valueSeparators = ",: \t")
       : fileName_(std::move(fileName)), columnFieldTypes_(std::move(columnTypes)), commentSymbol_(commentSymbol),
@@ -292,7 +241,7 @@ public:
 public:
   size_t getNumColumns() const { return columnFieldTypes_.size(); }
   size_t getNumRows() const { return rawDataMap_.at(columnFieldTypes_[0]).size(); }
-  const std::vector<TrackingFileField>& getRawColumnTypes() { return columnFieldTypes_; }
+  const std::vector<std::string>& getRawColumnTypes() { return columnFieldTypes_; }
 
   const std::vector<TrackingDataType>& getDataColumnTypes()
   {
@@ -306,19 +255,19 @@ public:
   const auto& getRawDataMap() { return rawDataMap_; }
   const auto& getDoubleDataMap() { return doubleDataMap_; }
   const std::vector<double>& getDoubleDataColumn(TrackingDataType dataType);
-  const auto&  getMetaDataDoubleMap() { return metaDataMapDouble_;}
-  const auto&  getMetaDataStrMap() { return metaDataMapStr_; }
+  const auto& getMetaDataDoubleMap() { return metaDataMapDouble_; }
+  const auto& getMetaDataStrMap() { return metaDataMapStr_; }
   const std::vector<TrackingDataType> getMetaDataTypes();
   const std::vector<TrackingDataType> getAllAvailableDataTypes();
 private:
   std::string fileName_ = "None";
   std::string separators_ = ":, \t";
-  std::vector<TrackingFileField> columnFieldTypes_;
+  std::vector<std::string> columnFieldTypes_;
   std::vector<TrackingDataType> columnDataTypes_;
   char commentSymbol_;
   std::string valueSeparators_;
 
-  std::map<TrackingFileField, std::vector<std::string>> rawDataMap_;
+  std::map<std::string, std::vector<std::string>> rawDataMap_;
   std::map<TrackingDataType, double> metaDataMapDouble_;
   std::map<TrackingDataType, std::string> metaDataMapStr_;
 
@@ -332,7 +281,7 @@ private:
 };
 
 static inline std::unique_ptr<TrackingTxtFileContents> createTrackingTxtFileContents(const std::string& fileName,
-                                                                                     std::vector<TrackingFileField>& columnTypes,
+                                                                                     std::vector<std::string>& columnTypes,
                                                                                      char commentSymbol = '#',
                                                                                      const std::string& valueSeparators = ",: \t")
 {

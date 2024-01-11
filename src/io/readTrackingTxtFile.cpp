@@ -61,7 +61,7 @@ void TrackingTxtFileContents::addLineToRawDataMap(std::string& rawLine)
 
   // Populate the dataMap_ with a new row on each of the vectors
   for (std::size_t i = 0; i < numColumns; ++i) {
-    TrackingFileField currentFieldType = columnFieldTypes_.at(i);
+    std::string currentFieldType = columnFieldTypes_.at(i);
     std::string currentValue = currentSplitRawLine_.at(i);
     rawDataMap_[currentFieldType].push_back(currentValue);
   }
@@ -69,9 +69,14 @@ void TrackingTxtFileContents::addLineToRawDataMap(std::string& rawLine)
 
 void TrackingTxtFileContents::convertDataMap()
 {
-  for (TrackingFileField columnType : columnFieldTypes_) {
-    const std::vector<std::string>& rawVector = rawDataMap_.at(columnType);
+  for (std::string columnType : columnFieldTypes_) {
+    if (!trackingFileFieldConverterMap.count(columnType)) {
+      std::cout << "Warning: '" << columnType << "' is not recognised as a column type by Tudat. The data is available in the raw format.\n";
+      continue;
+    }
+
     std::shared_ptr<TrackingFileFieldConverter> converter = trackingFileFieldConverterMap.at(columnType);
+    const std::vector<std::string>& rawVector = rawDataMap_.at(columnType);
 
     const TrackingDataType& dataType = converter->getTrackingDataType();
 
