@@ -202,6 +202,11 @@ AvailableAcceleration getAccelerationModelType(
     {
         accelerationType = custom_acceleration;
     }
+    else if( std::dynamic_pointer_cast< relativity::EinsteinInfeldHoffmannAcceleration >( accelerationModel ) != nullptr )
+    {
+        accelerationType = einstein_infeld_hoffmann_acceleration;
+    }
+
     else
     {
         throw std::runtime_error(
@@ -263,6 +268,7 @@ std::vector< std::shared_ptr< AccelerationModel3d > > getAccelerationModelsOfTyp
     }
     return accelerationList;
 }
+
 
 //! Function to check whether an acceleration type is a direct gravitational acceleration
 bool isAccelerationDirectGravitational( const AvailableAcceleration accelerationType )

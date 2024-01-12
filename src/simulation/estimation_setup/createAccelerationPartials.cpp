@@ -74,6 +74,34 @@ std::vector< std::shared_ptr< orbit_determination::TidalLoveNumberPartialInterfa
     return loveNumberInterfaces;
 }
 
+std::map< std::string, std::shared_ptr< acceleration_partials::AccelerationPartial > > createEihAccelerationPartials(
+    const std::map< std::string, std::shared_ptr< relativity::EinsteinInfeldHoffmannAcceleration > > eihAccelerations )
+{
+    std::map< std::string, std::shared_ptr< acceleration_partials::AccelerationPartial > > partialsList;
+    if( eihAccelerations.size( ) > 0 )
+    {
+        std::shared_ptr<relativity::EinsteinInfeldHoffmannEquations> eihEquations = eihAccelerations.begin( )->second->getEihEquations( );
+
+
+        for( auto it : eihAccelerations )
+        {
+            if( it.second->getEihEquations( ) != eihEquations )
+            {
+                throw std::runtime_error( "Error when making acceleration partials, different governing EIH equations found" );
+            }
+        }
+
+        std::shared_ptr< acceleration_partials::EihEquationsPartials > eihPartials = std::make_shared< acceleration_partials::EihEquationsPartials >(
+            eihEquations );
+
+        for( auto it : eihAccelerations )
+        {
+            partialsList[ it.first ] = std::make_shared< acceleration_partials::EihAccelerationPartial >(
+                eihPartials, it.first );
+        }
+    }
+    return partialsList;
+}
 
 std::shared_ptr< estimatable_parameters::NumericalAccelerationPartialSettings > getDefaultPanelledSurfaceRadiationPressurePartialSettings(
     const std::string bodyUndergoingAcceleration,
