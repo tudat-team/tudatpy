@@ -93,6 +93,25 @@ std::vector< VectorArgument > createVectorFromMapValues( const std::map< KeyType
     return outputVector;
 }
 
+template< typename VectorArgument, typename KeyType >
+std::vector< KeyType > createVectorFromUnorderedMapKeys( const std::unordered_map< KeyType, VectorArgument >& inputMap )
+{
+    // Create and size return vector.
+    std::vector< KeyType > outputVector;
+    outputVector.resize( inputMap.size( ) );
+
+    // Iterate over all map entries and create vector
+    int currentIndex = 0;
+    for( typename std::unordered_map< KeyType, VectorArgument >::const_iterator mapIterator = inputMap.begin( );
+         mapIterator != inputMap.end( ); mapIterator++, currentIndex++ )
+    {
+        outputVector[ currentIndex ] = mapIterator->first;
+    }
+
+    return outputVector;
+}
+
+
 //! Function to create a vector from the keys of a map
 /*!
  *  Function to create a vector from the keys of a map. The output vector is in the order of the map entries, i.e. as provided by a forward iterator.
@@ -110,24 +129,6 @@ std::vector< KeyType > createVectorFromMapKeys( const std::map< KeyType, VectorA
     // Iterate over all map entries and create vector
     int currentIndex = 0;
     for( typename std::map< KeyType, VectorArgument >::const_iterator mapIterator = inputMap.begin( );
-         mapIterator != inputMap.end( ); mapIterator++, currentIndex++ )
-    {
-        outputVector[ currentIndex ] = mapIterator->first;
-    }
-
-    return outputVector;
-}
-
-template< typename VectorArgument, typename KeyType >
-std::vector< KeyType > createVectorFromUnorderedMapKeys( const std::unordered_map< KeyType, VectorArgument >& inputMap )
-{
-    // Create and size return vector.
-    std::vector< KeyType > outputVector;
-    outputVector.resize( inputMap.size( ) );
-
-    // Iterate over all map entries and create vector
-    int currentIndex = 0;
-    for( typename std::unordered_map< KeyType, VectorArgument >::const_iterator mapIterator = inputMap.begin( );
          mapIterator != inputMap.end( ); mapIterator++, currentIndex++ )
     {
         outputVector[ currentIndex ] = mapIterator->first;
@@ -666,14 +667,14 @@ template < typename T > int sgn( const T& val )
 
 //! From https://stackoverflow.com/questions/27028226/python-linspace-in-c
 template<typename T>
-std::vector<T> linspace(T start_in, T end_in, int num_in)
+std::vector< T > linspace(T start_in, T end_in, int num_in)
 {
 
     std::vector<double> linspaced;
 
-    T start = static_cast<T>(start_in);
-    T end = static_cast<T>(end_in);
-    T num = static_cast<T>(num_in);
+    T start = static_cast< T >(start_in);
+    T end = static_cast< T >(end_in);
+    T num = static_cast< T >(num_in);
 
     if (num == 0) { return linspaced; }
     if (num == 1)
@@ -862,6 +863,52 @@ std::string to_string_with_precision(const T a_value, const int n = 6)
     out.precision(n);
     out << std::fixed << a_value;
     return std::move(out).str();
+}
+template <typename T>
+std::vector< T > getStlVectorSegment( const std::vector< T > originalVector, const int startIndex, const int size )
+{
+    typename std::vector< T >::const_iterator first = originalVector.begin() + startIndex;
+    typename std::vector< T >::const_iterator last = originalVector.begin() + startIndex + size;
+    return std::vector< T >(first, last);
+}
+
+template< typename T, typename S >
+std::vector< T > staticCastVector( const std::vector< S > originalVector )
+{
+    std::vector< T > castVector;
+    for( unsigned int i = 0; i < originalVector.size( ); i++ )
+    {
+        castVector.push_back( static_cast< T >( originalVector.at( i ) ) );
+    }
+    return castVector;
+}
+
+template <typename T>
+Eigen::Matrix< T, Eigen::Dynamic, 1 > getSuccesivelyConcatenatedVector(
+    const Eigen::Matrix< T, Eigen::Dynamic, 1 > baseVector, const unsigned int numberOfConcatenations )
+{
+    int singleSize = baseVector.rows( );
+    Eigen::Matrix< T, Eigen::Dynamic, 1 > concatenatedVector = Eigen::Matrix< T, Eigen::Dynamic, 1 >::Zero(
+        numberOfConcatenations * singleSize );
+    for( unsigned int i = 0; i < numberOfConcatenations; i++ )
+    {
+        concatenatedVector.segment( i * singleSize, singleSize ) = baseVector;
+    }
+    return concatenatedVector;
+}
+
+template <typename T>
+int countNumberOfOccurencesInVector( const std::vector< T >& vector, const T& value )
+{
+    int counter = 0;
+    for( unsigned int i = 0; i < vector.size( ); i++ )
+    {
+        if( vector.at( i ) == value )
+        {
+            counter++;
+        }
+    }
+    return counter;
 }
 
 template<typename T>

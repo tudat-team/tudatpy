@@ -61,7 +61,7 @@ public:
      */
     int getNumberOfCompositeFunctionComponents( )
     {
-        return compositeFunctionComponents_.size( );
+        return static_cast< int >( compositeFunctionComponents_.size( ) );
     }
 
     double evaluateCompositeFunctionCurrentValue (const double independentVariable );

@@ -45,7 +45,7 @@ template< typename StateScalarType, typename TimeType >
 class EnvironmentUpdater
 {
 public:
-    
+
     //! Constructor
     /*!
      * Constructor, provides the required settings for updating the environment.
@@ -73,7 +73,7 @@ public:
         // integration time step.
         setUpdateFunctions( updateSettings );
     }
-    
+
     //! Function to update the environment to the current state and time.
     /*!
      * Function to update the environment to the current state and time. This function calls the
@@ -123,9 +123,9 @@ public:
             updateFunctionVector_.at( i ).template get< 2 >( )( currentTime );
         }
     }
-    
+
 private:
-    
+
     //! Function to set numerically integrated states in environment.
     /*!
      * Function to set numerically integrated states in environment.  Note that these states must
@@ -172,7 +172,7 @@ private:
                 // Set mass for bodies provided as input.
                 std::vector< std::tuple< std::string, std::string, PropagatorType > > bodiesWithIntegratedMass =
                         integratedStates_.at( body_mass_state );
-                
+
                 for( unsigned int i = 0; i < bodiesWithIntegratedMass.size( ); i++ )
                 {
                     bodyList_.at( std::get< 0 >( bodiesWithIntegratedMass[ i ] ) )
@@ -216,7 +216,7 @@ private:
                 {
                     bodyList_.at( std::get< 0 >( bodiesWithIntegratedStates[ i ] ) )->
                             template setStateFromEphemeris< StateScalarType, TimeType >( currentTime );
-                    
+
                 }
                 break;
             }
@@ -240,7 +240,7 @@ private:
                 {
                     bodyList_.at( std::get< 0 >( bodiesWithIntegratedStates[ i ] ) )->
                             updateMass( currentTime );
-                    
+
                 }
                 break;
             }
@@ -250,7 +250,7 @@ private:
             }
         }
     }
-    
+
     //! Function to set the order in which the updateFunctionVector_ is to be updated.
     /*!
      *  Function to set the order in which the updateFunctionVector_ is to be updated. Order is determined recursively in
@@ -260,7 +260,7 @@ private:
     void setUpdateFunctionOrder( const int iterationNumber = 0 )
     {
         bool rerunUpdateOrder = 0;
-        
+
         // Iterate over all update functions
         for( unsigned int i = 0; i < updateFunctionVector_.size( ); i++ )
         {
@@ -281,7 +281,7 @@ private:
                     unsigned int vehicleTranslationalUpdateIndex = 0;
                     unsigned int vehicleRotationalUpdateIndex = i;
                     unsigned int flightCoditionsUpdateIndex = 0;
-                    
+
                     bool centralTranslationalUpdateIndexSet = false;
                     bool centralRotationalUpdateIndexSet = false;
                     bool vehicleTranslationalUpdateIndexSet = false;
@@ -485,14 +485,14 @@ private:
         {
             throw std::runtime_error( "Error when finding update order; stuck in infinite loop" );
         }
-        
+
         // Rerun function if needed.
         if( rerunUpdateOrder )
         {
             setUpdateFunctionOrder( iterationNumber + 1 );
         }
     }
-    
+
     //! Function to set the update functions for the environment from the required update settings.
     /*!
      * Function to set the update functions for the environment from the required update settings.
@@ -503,7 +503,7 @@ private:
     {
         std::map< EnvironmentModelsToUpdate,
                 std::vector< std::pair< std::string, std::function< void( const double ) > > > > updateTimeFunctionList;
-        
+
         // Iterate over all required updates and set associated update function in lists
         for( std::map< EnvironmentModelsToUpdate,
              std::vector< std::string > >::const_iterator updateIterator =
@@ -522,16 +522,16 @@ private:
                                     "Error when setting environment update functions, could not find body " +
                                     currentBodies.at( i ) );
                     }
-                    
+
                     // Find type of environment.
                     switch( updateIterator->first )
                     {
-                    
+
                     // If requested body is not propagated, add to list.
                     case body_translational_state_update:
                     {
                         bool addUpdate = 1;
-                        
+
                         // Check if mass is propagated
                         if( integratedStates_.count( translational_state ) > 0 )
                         {
@@ -546,7 +546,7 @@ private:
                                 addUpdate = 0;
                             }
                         }
-                        
+
                         // Add state update function to list.
                         if( addUpdate == 1 )
                         {
@@ -555,10 +555,10 @@ private:
                                         &simulation_setup::Body
                                         ::setStateFromEphemeris< StateScalarType, TimeType >,
                                         bodyList_.at( currentBodies.at( i ) ), std::placeholders::_1 );
-                            
+
                             updateTimeFunctionList[ body_translational_state_update ].push_back(
                                         std::make_pair( currentBodies.at( i ), stateSetFunction ) );
-                            
+
                             resetFunctionVector_.push_back(
                                         boost::make_tuple(
                                             body_translational_state_update, currentBodies.at( i ),
@@ -569,7 +569,7 @@ private:
                     }
                     case body_rotational_state_update:
                     {
-                        
+
                         bool addUpdate = 1;
                         if( integratedStates_.count( rotational_state ) > 0 )
                         {
@@ -582,10 +582,10 @@ private:
                                 addUpdate = 0;
                             }
                         }
-                        
+
                         if( addUpdate == 1 )
                         {
-                            
+
                             // Check if rotational ephemeris exists
                             if(  ( bodyList_.at( currentBodies.at( i ) )->getRotationalEphemeris( ) != nullptr )
                                  //                                 ||
@@ -615,14 +615,14 @@ private:
                                             ", but body has no rotational ephemeris" );
                             }
                         }
-                        
+
                         break;
-                        
+
                     }
                     case body_mass_update:
                     {
                         bool addUpdate = 1;
-                        
+
                         // Check if translational state is propagated
                         if( integratedStates_.count( body_mass_state ) > 0 )
                         {
@@ -637,7 +637,7 @@ private:
                                 addUpdate = 0;
                             }
                         }
-                        
+
                         if( addUpdate )
                         {
                             if( bodyList_.at( currentBodies.at( i ) )->getMassProperties( ) == nullptr )
@@ -671,7 +671,7 @@ private:
                     }
                     case spherical_harmonic_gravity_field_update:
                     {
-                        
+
                         // Check if body has time-dependent sh field
                         std::shared_ptr< gravitation::TimeDependentSphericalHarmonicsGravityField >
                                 gravityField = std::dynamic_pointer_cast
@@ -694,7 +694,7 @@ private:
                             throw std::runtime_error( "Request sh update of " + currentBodies.at( i ) +
                                                       ", but body has no sh model" );
                         }
-                        
+
                         break;
                     }
                     case vehicle_flight_conditions_update:
@@ -710,7 +710,7 @@ private:
                                                 &aerodynamics::FlightConditions::updateConditions,
                                                 bodyList_.at( currentBodies.at( i ) )
                                                 ->getFlightConditions( ), std::placeholders::_1 ) ) );
-                            
+
                             resetFunctionVector_.push_back(
                                         boost::make_tuple(
                                             vehicle_flight_conditions_update, currentBodies.at( i ),
@@ -726,48 +726,71 @@ private:
                         }
                         break;
                     }
-                        
-                    case radiation_pressure_interface_update:
+                    case radiation_source_model_update:
                     {
-                        // Get body radiation pressure interface(s) (one per source)
-                        std::map< std::string, std::shared_ptr< electromagnetism
-                                ::RadiationPressureInterface > >
-                                radiationPressureInterfaces =
-                                bodyList_.at( currentBodies.at( i ) )->getRadiationPressureInterfaces( );
-                        
-                        if( radiationPressureInterfaces.size( ) == 0 )
+                        // Check if current body has radiation source model set.
+                        if( bodyList_.at( currentBodies.at( i ) )->getRadiationSourceModel() == nullptr )
                         {
                             throw std::runtime_error(
-                                        "Request radiation pressure update of " + currentBodies.at( i ) +
-                                        ", but body has no radiation pressure interfaces" );
+                                        "Request radiation source model update of " + currentBodies.at( i ) +
+                                        ", but body has no radiation source model" );
                         }
-                        else if( radiationPressureInterfaces.size( ) > 1 )
+                        // If vehicle has radiation source model, add its update function to update list.
+                        updateTimeFunctionList[ radiation_source_model_update ].push_back(
+                                    std::make_pair(
+                                        currentBodies.at( i ), std::bind(
+                                            &electromagnetism::RadiationSourceModel::updateMembers,
+                                            bodyList_.at( currentBodies.at( i ) )
+                                            ->getRadiationSourceModel(), std::placeholders::_1 ) ) );
+                        break;
+                    }
+                    case radiation_pressure_target_model_update:
+                    {
+                        // Check if current body has radiation pressure target model set.
+                        if( bodyList_.at( currentBodies.at( i ) )->getRadiationPressureTargetModel() == nullptr )
                         {
-                            std::cerr << "Warning, requested radiation pressure update of " << currentBodies.at( i ) <<
-                                         ", but body has multiple radiation pressure interfaces: updating all." << std::endl;
+                            throw std::runtime_error(
+                                        "Request radiation pressure target model update of " + currentBodies.at( i ) +
+                                        ", but body has no radiation pressure target model" );
                         }
-                        
-                        // Add each interface update function to update list.
-                        for( std::map< std::string,
-                             std::shared_ptr< electromagnetism::RadiationPressureInterface > >
-                             ::iterator iterator = radiationPressureInterfaces.begin( );
-                             iterator != radiationPressureInterfaces.end( ); iterator++ )
+                        // If vehicle has radiation pressure target model, add its update function to update list.
+                        updateTimeFunctionList[ radiation_pressure_target_model_update ].push_back(
+                                    std::make_pair(
+                                        currentBodies.at( i ), std::bind(
+                                            &electromagnetism::RadiationPressureTargetModel::updateMembers,
+                                            bodyList_.at( currentBodies.at( i ) )
+                                            ->getRadiationPressureTargetModel(), std::placeholders::_1 ) ) );
+                        break;
+                    }
+                    case body_segment_orientation_update:
+                    {
+                        // Check if current body has radiation pressure target model set.
+                        if( bodyList_.at( currentBodies.at( i ) )->getVehicleSystems() == nullptr )
                         {
-                            updateTimeFunctionList[ radiation_pressure_interface_update ].push_back(
-                                        std::make_pair( currentBodies.at( i ),
-                                                        std::bind(
-                                                            &electromagnetism
-                                                            ::RadiationPressureInterface
-                                                            ::updateInterface,
-                                                            iterator->second, std::placeholders::_1 ) ) );
+                            throw std::runtime_error(
+                                "Request body segment orientation update of " + currentBodies.at( i ) +
+                                ", but body has no vehicle systems" );
                         }
+                        // If vehicle has radiation pressure target model, add its update function to update list.
+                        updateTimeFunctionList[ body_segment_orientation_update ].push_back(
+                            std::make_pair(
+                                currentBodies.at( i ), std::bind(
+                                    &system_models::VehicleSystems::updatePartOrientations,
+                                    bodyList_.at( currentBodies.at( i ) )
+                                        ->getVehicleSystems(), std::placeholders::_1 ) ) );
+
+                        resetFunctionVector_.push_back(
+                            boost::make_tuple(
+                                body_segment_orientation_update, currentBodies.at( i ),
+                                std::bind( &system_models::VehicleSystems::resetTime,
+                                           bodyList_.at( currentBodies.at( i ) )->getVehicleSystems( ) ) ) );
                         break;
                     }
                     }
                 }
             }
         }
-        
+
         // Create list of update functions.
         for( std::map< EnvironmentModelsToUpdate, std::vector< std::pair< std::string,
              std::function< void( const double ) > > > >::iterator updateTimeIterator  = updateTimeFunctionList.begin( );
@@ -780,15 +803,15 @@ private:
                                                updateTimeIterator->second.at( i ).second ) );
             }
         }
-        
+
         // Set update order of functions.
         setUpdateFunctionOrder( );
     }
-    
+
     //! List of body objects, this list encompasses all environment object in the simulation.
     simulation_setup::SystemOfBodies bodyList_;
-    
-    
+
+
     //! list of identifiers for the numerically integrated states
     /*!
      * This map provides the list of identifiers for the numerically
@@ -799,23 +822,23 @@ private:
      */
     std::map< IntegratedStateType, std::vector< std::tuple< std::string, std::string, PropagatorType > > >
     integratedStates_;
-    
+
     //! List of time-dependent functions to call to update the environment.
     std::vector< boost::tuple< EnvironmentModelsToUpdate, std::string, std::function< void( const double ) > > >
     updateFunctionVector_;
-    
+
     //! List of time-dependent functions to call to reset the time of the environment (to NaN signal recomputation for next
     //! time step).
     std::vector< boost::tuple< EnvironmentModelsToUpdate, std::string, std::function< void( ) > > > resetFunctionVector_;
-    
-    
-    
-    
+
+
+
+
     //! Predefined state history iterator for computational efficiency.
     typename std::unordered_map< IntegratedStateType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >::const_iterator
     integratedStateIterator_;
-    
-    
+
+
 };
 
 extern template class EnvironmentUpdater< double, double >;

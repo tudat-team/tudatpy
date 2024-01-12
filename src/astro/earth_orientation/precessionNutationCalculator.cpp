@@ -29,18 +29,36 @@ namespace earth_orientation
 PrecessionNutationCalculator::PrecessionNutationCalculator(
         basic_astrodynamics::IAUConventions precessionNutationTheory,
         std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector2d > >
-        dailyCorrectionInterpolator ):
+        dailyCorrectionInterpolator,
+        const std::shared_ptr< interpolators::InterpolatorGenerationSettings< double > > angleInterpolatorSettings ):
     precessionNutationTheory_( precessionNutationTheory ),
     dailyCorrectionInterpolator_( dailyCorrectionInterpolator )
 {
-    // Link selected SOFA function wrapper for direct calculation of precession-nutation.
-    nominalCipPositionFunction_ =
+    if( angleInterpolatorSettings != nullptr )
+    {
+
+        std::function< Eigen::Vector3d( const double ) > angleFunction  = std::bind( &sofa_interface::getPositionOfCipInGcrs,
+                   std::placeholders::_1, basic_astrodynamics::JULIAN_DAY_ON_J2000, precessionNutationTheory );
+        std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector3d > > angleInterpolator =
+            interpolators::createOneDimensionalInterpolator< double, Eigen::Vector3d >(
+                angleFunction, angleInterpolatorSettings );
+        typedef interpolators::OneDimensionalInterpolator< double, Eigen::Vector3d > LocalInterpolator;
+        nominalCipPositionFunction_ = std::bind(
+            static_cast< Eigen::Vector3d( LocalInterpolator::* )( const double ) >
+            ( &LocalInterpolator::interpolate ), angleInterpolator, std::placeholders::_1 );
+
+    }
+    else
+    {
+        // Link selected SOFA function wrapper for direct calculation of precession-nutation.
+        nominalCipPositionFunction_ =
             std::bind( sofa_interface::getPositionOfCipInGcrs,
-                         std::placeholders::_1, basic_astrodynamics::JULIAN_DAY_ON_J2000, precessionNutationTheory );
+                       std::placeholders::_1, basic_astrodynamics::JULIAN_DAY_ON_J2000, precessionNutationTheory );
+    }
 }
 
 //! Function to calculate the position of CIP in GCRS (CIO-based precession-nutation) and CIO-locator.
-std::pair< Eigen::Vector2d, double > PrecessionNutationCalculator::getPositionOfCipInGcrs(
+Eigen::Vector3d PrecessionNutationCalculator::getPositionOfCipInGcrs(
         const double terrestrialTime )
 {
     // Calculate current UTC from SOFA.
@@ -51,19 +69,17 @@ std::pair< Eigen::Vector2d, double > PrecessionNutationCalculator::getPositionOf
 }
 
 //! Function to calculate the position of CIP in GCRS (CIO-based precession-nutation) and CIO-locator.
-std::pair< Eigen::Vector2d, double > PrecessionNutationCalculator::getPositionOfCipInGcrs(
+Eigen::Vector3d PrecessionNutationCalculator::getPositionOfCipInGcrs(
         const double terrestrialTime,
         const double utc )
 {
     // Calculate nominal precession-nutation values.
-    std::pair< Eigen::Vector2d, double > nominalCipPosition = nominalCipPositionFunction_( terrestrialTime );
+    Eigen::Vector3d nominalCipPosition = nominalCipPositionFunction_( terrestrialTime );
 
     // Retrieve measured corrections to model.
-    Eigen::Vector2d iersCorrections = dailyCorrectionInterpolator_->interpolate( utc );
-
+    nominalCipPosition.segment( 0, 2 ) += dailyCorrectionInterpolator_->interpolate( utc );
     // Add nominal values and corrections and return.
-    return std::pair< Eigen::Vector2d, double >(
-                nominalCipPosition.first + iersCorrections, nominalCipPosition.second );
+    return nominalCipPosition;
 }
 
 }

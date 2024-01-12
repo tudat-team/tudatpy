@@ -13,8 +13,6 @@
 
 #include <functional>
 #include <memory>
-#include "tudat/astro/electromagnetism/cannonBallRadiationPressureAcceleration.h"
-#include "tudat/astro/electromagnetism/solarSailAcceleration.h"
 #include "tudat/astro/gravitation/centralGravityModel.h"
 #include "tudat/astro/gravitation/sphericalHarmonicsGravityModel.h"
 #include "tudat/astro/gravitation/thirdBodyPerturbation.h"
@@ -90,6 +88,12 @@ inline std::shared_ptr< AccelerationSettings > cannonBallRadiationPressureAccele
 {
     return std::make_shared< AccelerationSettings >( basic_astrodynamics::cannon_ball_radiation_pressure );
 }
+
+inline std::shared_ptr< AccelerationSettings > radiationPressureAcceleration()
+{
+    return std::make_shared< AccelerationSettings >( basic_astrodynamics::radiation_pressure );
+}
+
 
 // Class for providing settings for spherical harmonics acceleration model.
 /*
@@ -331,6 +335,31 @@ inline std::shared_ptr< AccelerationSettings > empiricalAcceleration(
 		)
 {
 	return std::make_shared< EmpiricalAccelerationSettings >( constantAcceleration, sineAcceleration, cosineAcceleration );
+}
+
+// Class to define settings for yarkovsky accelerations
+//! @get_docstring(YarkovskyAccelerationSettings.__docstring__)
+class YarkovskyAccelerationSettings : public AccelerationSettings
+{
+    // Constructor
+    /*
+     * Constructor
+     * \param yarkovskyParameter (A2) au d^{-1}
+     */
+    public:
+    YarkovskyAccelerationSettings( const double yarkovskyParameter = 0.0 ):
+    AccelerationSettings(basic_astrodynamics::yarkovsky_acceleration),
+    yarkovskyParameter_(yarkovskyParameter) { }
+
+    // Yarkovsky parameter (A2) au d^{-1}
+    double yarkovskyParameter_;
+};
+
+//! @get_docstring(yarkovskyAcceleration)
+inline std::shared_ptr< AccelerationSettings> yarkovskyAcceleration(
+    const double yarkovskyParameter )
+{
+    return std::make_shared< YarkovskyAccelerationSettings >( yarkovskyParameter );
 }
 
 // Interface class that allows single interpolator to be used for thrust direction and magnitude (which are separated in
