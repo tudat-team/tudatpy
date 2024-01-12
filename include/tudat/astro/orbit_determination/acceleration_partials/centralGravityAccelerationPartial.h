@@ -21,6 +21,10 @@ namespace tudat
 namespace acceleration_partials
 {
 
+Eigen::Matrix3d calculatePartialOfPointMassGravityWrtPositionOfAcceleratedBody(
+    const Eigen::Vector3d& relativePosition,
+    const double gravitationalParameter );
+
 //! Calculates partial derivative of point mass gravitational acceleration wrt the position of body undergoing acceleration.
 /*!
  *  Calculates partial derivative of point mass gravitational acceleration wrt the position of body undergoing acceleration.
