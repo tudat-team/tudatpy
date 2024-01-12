@@ -29,6 +29,7 @@ enum BodyShapeTypes
     spherical,
     spherical_spice,
     oblate_spheroid,
+    oblate_spice,
     polyhedron_shape,
     hybrid_shape
 };
@@ -331,6 +332,11 @@ inline std::shared_ptr< BodyShapeSettings > oblateSphericalBodyShapeSettings( co
 																			  const double flattening )
 {
 	return std::make_shared< OblateSphericalBodyShapeSettings >( equatorialRadius, flattening );
+}
+
+inline std::shared_ptr< BodyShapeSettings > fromSpiceOblateSphericalBodyShapeSettings( )
+{
+	return std::make_shared< BodyShapeSettings >( oblate_spice );
 }
 
 inline std::shared_ptr< BodyShapeSettings > polyhedronBodyShapeSettings(

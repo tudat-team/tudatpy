@@ -42,6 +42,7 @@ public:
         observationCollection_( observationCollection ),
         inverseOfAprioriCovariance_( inverseOfAprioriCovariance ),
         considerCovariance_( considerCovariance ),
+        limitConditionNumberForWarning_( 1.0E8 ),
         reintegrateEquationsOnFirstIteration_( true ),
         reintegrateVariationalEquations_( true ),
         saveDesignMatrix_( true ),
@@ -70,6 +71,167 @@ public:
                     observationCollection_->getTotalObservableSize( ), constantWeight );
     }
 
+    //! Set constant scalar weight for all observables of given type
+    void setConstantSingleObservableWeights(
+        const observation_models::ObservableType currentObservable,
+        const double weight )
+    {
+        std::map< observation_models::ObservableType, std::pair< int, int > > observationTypeStartAndSize =
+            observationCollection_->getObservationTypeStartAndSize( );
+
+        if( observationTypeStartAndSize.count( currentObservable) == 0 )
+        {
+            std::cerr<< "Warning when setting weights for data type "<< std::to_string( currentObservable) <<  ". " <<
+                     " No data of given type found." <<std::endl;
+        }
+        else
+        {
+            std::pair< int, int > indicesToUse = observationTypeStartAndSize.at( currentObservable );
+
+                weightsMatrixDiagonals_.segment( indicesToUse.first, indicesToUse.second ) =
+                    Eigen::VectorXd::Constant( indicesToUse.second, weight );
+        }
+    }
+
+    //! Set constant vector weight for all observables of given type
+    void setConstantSingleObservableVectorWeights(
+        const observation_models::ObservableType currentObservable,
+        const Eigen::VectorXd weight )
+    {
+        std::map< observation_models::ObservableType, std::pair< int, int > > observationTypeStartAndSize =
+            observationCollection_->getObservationTypeStartAndSize( );
+
+        if( observationTypeStartAndSize.count( currentObservable) == 0 )
+        {
+            std::cerr<< "Warning when setting weights for data type "<< std::to_string( currentObservable) <<  ". " <<
+                     " No data of given type found." <<std::endl;
+        }
+        else
+        {
+            std::pair< int, int > indicesToUse = observationTypeStartAndSize.at( currentObservable );
+
+            int observableSize = observation_models::getObservableSize( currentObservable );
+            if( observableSize != weight.rows( ) )
+            {
+                throw std::runtime_error( "Error when setting weight vector for observable, size should be " +
+                                          std::to_string( observableSize ) + " but is " + std::to_string( weight.rows( ) ) );
+            }
+            int numberOfObservations =  indicesToUse.second / observableSize;
+
+            weightsMatrixDiagonals_.segment( indicesToUse.first, indicesToUse.second ) =
+                utilities::getSuccesivelyConcatenatedVector( weight, numberOfObservations );
+        }
+    }
+
+    //! Set constant scalar weight for all observables of given type and link ends
+    void setConstantSingleObservableAndLinkEndsWeights(
+        const observation_models::ObservableType currentObservable,
+        const observation_models::LinkEnds currentLinkEnds,
+        const double weight )
+    {
+        std::map< observation_models::ObservableType,
+            std::map< observation_models::LinkEnds, std::pair< int, int > > >  observationLinkEndStartAndSize =
+            observationCollection_->getObservationTypeAndLinkEndStartAndSize( );
+
+        if( observationLinkEndStartAndSize.count( currentObservable) == 0 )
+        {
+            std::cerr<< "Warning when setting weights for data type "<< std::to_string( currentObservable) <<  ". " <<
+                     " No data of given type found." <<std::endl;
+        }
+        else if( observationLinkEndStartAndSize.at( currentObservable ).count( currentLinkEnds ) == 0 )
+        {
+
+            std::cerr<< "Warning when setting weights for data type " << std::to_string( currentObservable)<< " and link ends " <<
+                     ". No data of given type and link ends found." <<std::endl;
+        }
+        else
+        {
+            std::pair< int, int > indicesToUse = observationLinkEndStartAndSize.at( currentObservable ).at( currentLinkEnds );
+            weightsMatrixDiagonals_.segment( indicesToUse.first,
+                                             indicesToUse.second ) =
+                Eigen::VectorXd::Constant( indicesToUse.second, weight );
+        }
+    }
+
+    //! Set constant vector weight for all observables of given type and link ends
+    void setConstantSingleObservableAndLinkEndsVectorWeights(
+        const observation_models::ObservableType currentObservable,
+        const observation_models::LinkEnds currentLinkEnds,
+        const Eigen::VectorXd weight )
+    {
+        std::map< observation_models::ObservableType,
+            std::map< observation_models::LinkEnds, std::pair< int, int > > >  observationLinkEndStartAndSize =
+            observationCollection_->getObservationTypeAndLinkEndStartAndSize( );
+
+        if( observationLinkEndStartAndSize.count( currentObservable) == 0 )
+        {
+            std::cerr<< "Warning when setting weights for data type "<< std::to_string( currentObservable) <<  ". " <<
+                     " No data of given type found." <<std::endl;
+        }
+        else if( observationLinkEndStartAndSize.at( currentObservable ).count( currentLinkEnds ) == 0 )
+        {
+
+            std::cerr<< "Warning when setting weights for data type " << std::to_string( currentObservable)<< " and link ends " <<
+                     ". No data of given type and link ends found." <<std::endl;
+        }
+        else
+        {
+            std::pair< int, int > indicesToUse =
+                observationLinkEndStartAndSize.at( currentObservable ).at( currentLinkEnds );
+
+            int observableSize = observation_models::getObservableSize( currentObservable );
+            if( observableSize != weight.rows( ) )
+            {
+                throw std::runtime_error( "Error when setting weight vector for observable, size should be " +
+                                          std::to_string( observableSize ) + " but is " + std::to_string( weight.rows( ) ) );
+            }
+            int numberOfObservations = indicesToUse.second / observableSize;
+
+
+            weightsMatrixDiagonals_.segment( indicesToUse.first,
+                                             indicesToUse.second ) =
+                utilities::getSuccesivelyConcatenatedVector( weight, numberOfObservations );
+        }
+    }
+
+    //! Set constant vector weight for alweightsMatrixDiagonals_l observables of given type and link ends
+    void setTabulatedSingleObservableAndLinkEndsWeights(
+        const observation_models::ObservableType currentObservable,
+        const observation_models::LinkEnds currentLinkEnds,
+        const Eigen::VectorXd weight )
+    {
+        std::map< observation_models::ObservableType,
+            std::map< observation_models::LinkEnds, std::pair< int, int > > >  observationLinkEndStartAndSize =
+            observationCollection_->getObservationTypeAndLinkEndStartAndSize( );
+
+        if( observationLinkEndStartAndSize.count( currentObservable) == 0 )
+        {
+            std::cerr<< "Warning when setting weights for data type "<< std::to_string( currentObservable) <<  ". " <<
+                     " No data of given type found." <<std::endl;
+        }
+        else if( observationLinkEndStartAndSize.at( currentObservable ).count( currentLinkEnds ) == 0 )
+        {
+
+            std::cerr<< "Warning when setting weights for data type " << std::to_string( currentObservable)<< " and link ends " <<
+                     ". No data of given type and link ends found." <<std::endl;
+        }
+        else
+        {
+            std::pair< int, int > indicesToUse =
+                observationLinkEndStartAndSize.at( currentObservable ).at( currentLinkEnds );
+
+            if( indicesToUse.second != weight.rows( ) )
+            {
+                throw std::runtime_error( "Error when setting total weight vector for observable and link ends, size should be " +
+                                          std::to_string( indicesToUse.second ) + " but is " + std::to_string( weight.rows( ) ) );
+            }
+
+            weightsMatrixDiagonals_.segment( indicesToUse.first,
+                                             indicesToUse.second ) = weight;
+        }
+    }
+
+
     //! Function to set a values for observation weights, constant per observable type
     /*!
      * Function to set a values for observation weights, constant per observable type
@@ -78,24 +240,20 @@ public:
     void setConstantPerObservableWeightsMatrix(
             const std::map< observation_models::ObservableType, double > weightPerObservable )
     {
-        std::map< observation_models::ObservableType, std::pair< int, int > > observationTypeStartAndSize =
-                observationCollection_->getObservationTypeStartAndSize( );
-
         for( auto observableIterator : weightPerObservable )
         {
-            observation_models::ObservableType currentObservable = observableIterator.first;
-            if( observationTypeStartAndSize.count( observableIterator.first ) == 0 )
-            {
-                std::cerr<<"Warning when setting weights for data type " <<std::to_string( observableIterator.first )<< ". "<<
-                           " No data of given type found."<<std::endl;
-            }
-            else
-            {
-                weightsMatrixDiagonals_.segment( observationTypeStartAndSize.at( currentObservable ).first,
-                                                 observationTypeStartAndSize.at( currentObservable ).second ) =
-                        Eigen::VectorXd::Constant( observationTypeStartAndSize.at( currentObservable ).second, observableIterator.second );
-            }
+            setConstantSingleObservableWeights(
+                    observableIterator.first, observableIterator.second );
+        }
+    }
 
+    void setConstantPerObservableVectorWeightsMatrix(
+        const std::map< observation_models::ObservableType, Eigen::VectorXd > weightPerObservable )
+    {
+        for( auto observableIterator : weightPerObservable )
+        {
+            setConstantSingleObservableVectorWeights(
+                observableIterator.first, observableIterator.second );
         }
     }
 
@@ -108,46 +266,32 @@ public:
             const std::map< observation_models::ObservableType,
             std::map< observation_models::LinkEnds, double > > weightPerObservableAndLinkEnds )
     {
-        std::map< observation_models::ObservableType,
-                std::map< observation_models::LinkEnds, std::vector< std::pair< int, int > > > >  observationSetStartAndSize =
-                observationCollection_->getObservationSetStartAndSize( );
-
         for( auto observableIterator : weightPerObservableAndLinkEnds )
         {
             observation_models::ObservableType currentObservable = observableIterator.first;
-            if( observationSetStartAndSize.count( currentObservable) == 0 )
+            for( auto linkEndIterator : observableIterator.second )
             {
-                std::cerr<< "Warning when setting weights for data type "<< std::to_string( currentObservable) <<  ". " <<
-                            " No data of given type found." <<std::endl;
+                observation_models::LinkEnds currentLinkEnds = linkEndIterator.first;
+                setConstantSingleObservableAndLinkEndsWeights( currentObservable, currentLinkEnds, linkEndIterator.second );
             }
-            else
-            {
-                for( auto linkEndIterator : observableIterator.second )
-                {
-                    observation_models::LinkEnds currentLinkEnds = linkEndIterator.first;
-                    if( observationSetStartAndSize.at( currentObservable ).count( currentLinkEnds ) == 0 )
-                    {
-
-                        std::cerr<< "Warning when setting weights for data type " << std::to_string( currentObservable)<< " and link ends " <<
-                                    //static_cast< std::string >( currentLinkEnds ) +
-                                    ". No data of given type and link ends found." <<std::endl;
-                    }
-                    else
-                    {
-                        std::vector< std::pair< int, int > > indicesToUse =
-                                observationSetStartAndSize.at( currentObservable ).at( currentLinkEnds );
-                        for( unsigned int i = 0; i < indicesToUse.size( ); i++ )
-                        {
-                            weightsMatrixDiagonals_.segment( indicesToUse.at( i ).first,
-                                                             indicesToUse.at( i ).second ) =
-                                    Eigen::VectorXd::Constant( indicesToUse.at( i ).second, linkEndIterator.second );
-                        }
-                    }
-                }
-            }
-
         }
     }
+
+    void setConstantPerObservableAndLinkEndsVectorWeights(
+        const std::map< observation_models::ObservableType,
+            std::map< observation_models::LinkEnds, Eigen::VectorXd > > weightPerObservableAndLinkEnds )
+    {
+        for( auto observableIterator : weightPerObservableAndLinkEnds )
+        {
+            observation_models::ObservableType currentObservable = observableIterator.first;
+            for( auto linkEndIterator : observableIterator.second )
+            {
+                observation_models::LinkEnds currentLinkEnds = linkEndIterator.first;
+                setConstantSingleObservableAndLinkEndsVectorWeights( currentObservable, currentLinkEnds, linkEndIterator.second );
+            }
+        }
+    }
+
     void setConstantPerObservableAndLinkEndsWeights(
             const observation_models::ObservableType observableType,
             const std::vector< observation_models::LinkEnds >& linkEnds,
@@ -161,29 +305,30 @@ public:
         setConstantPerObservableAndLinkEndsWeights( weightPerObservableAndLinkEnds );
     }
 
-
-    void setConstantPerObservableAndLinkEndsWeights(
-            const observation_models::ObservableType observableType,
-            const observation_models::LinkEnds& linkEnds,
-            const double weight )
+    void setConstantPerObservableAndLinkEndsVectorWeights(
+        const observation_models::ObservableType observableType,
+        const std::vector< observation_models::LinkEnds >& linkEnds,
+        const Eigen::VectorXd weight )
     {
-        std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds, double > > weightPerObservableAndLinkEnds;
-        weightPerObservableAndLinkEnds[ observableType ][ linkEnds ] =  weight;
-        setConstantPerObservableAndLinkEndsWeights( weightPerObservableAndLinkEnds );
+        std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds, Eigen::VectorXd > > weightPerObservableAndLinkEnds;
+        for( unsigned int i = 0; i < linkEnds.size( ); i++ )
+        {
+            weightPerObservableAndLinkEnds[ observableType ][ linkEnds.at( i ) ] =  weight;
+        }
+        setConstantPerObservableAndLinkEndsVectorWeights( weightPerObservableAndLinkEnds );
     }
-
 
     void setTabulatedPerObservableAndLinkEndsWeights(
             const std::map< observation_models::ObservableType,
             std::map< observation_models::LinkEnds, Eigen::VectorXd > > weightsPerObservableAndLinkEnds )
     {
-        std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds, std::vector< std::pair< int, int > > > > observationSetStartAndSize =
-                observationCollection_->getObservationSetStartAndSize( );
+        std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds, std::pair< int, int > > > observationLinkEndStartAndSize =
+                observationCollection_->getObservationTypeAndLinkEndStartAndSize( );
 
         for( auto observableIterator : weightsPerObservableAndLinkEnds )
         {
             observation_models::ObservableType currentObservable = observableIterator.first;
-            if( observationSetStartAndSize.count( currentObservable) == 0 )
+            if( observationLinkEndStartAndSize.count( currentObservable) == 0 )
             {
                 std::cerr<< "Warning when setting weights for data type "<< std::to_string( currentObservable) <<  ". " <<
                          " No data of given type found." <<std::endl;
@@ -193,7 +338,7 @@ public:
                 for( auto linkEndIterator : observableIterator.second )
                 {
                     observation_models::LinkEnds currentLinkEnds = linkEndIterator.first;
-                    if( observationSetStartAndSize.at( currentObservable ).count( currentLinkEnds ) == 0 )
+                    if( observationLinkEndStartAndSize.at( currentObservable ).count( currentLinkEnds ) == 0 )
                     {
 
                         std::cerr<< "Warning when setting weights for data type " << std::to_string( currentObservable)<< " and link ends " <<
@@ -202,21 +347,25 @@ public:
                     }
                     else
                     {
-                        std::vector< std::pair< int, int > > indicesToUse = observationSetStartAndSize.at( currentObservable ).at( currentLinkEnds );
-                        for( unsigned int i = 0; i < indicesToUse.size( ); i++ )
-                        {
-                            if ( indicesToUse.at( i ).second != linkEndIterator.second.size( ) )
-                            {
-                                throw std::runtime_error( "Error when setting tabulated weights for data type " + std::to_string( currentObservable) +
-                                ", weights vector is inconsistent with the number of observations." );
-                            }
-                            weightsMatrixDiagonals_.segment( indicesToUse.at( i ).first, indicesToUse.at( i ).second ) =  linkEndIterator.second;
-                        }
+                        setTabulatedSingleObservableAndLinkEndsWeights( currentObservable, currentLinkEnds, linkEndIterator.second );
                     }
                 }
             }
 
         }
+    }
+
+    void setTabulatedPerObservableAndLinkEndsWeights(
+        const observation_models::ObservableType observableType,
+        const std::vector< observation_models::LinkEnds >& linkEnds,
+        const Eigen::VectorXd weights )
+    {
+        std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds, Eigen::VectorXd > > weightsPerObservableAndLinkEnds;
+        for( unsigned int i = 0; i < linkEnds.size( ); i++ )
+        {
+            weightsPerObservableAndLinkEnds[ observableType ][ linkEnds.at( i ) ] =  weights;
+        }
+        setTabulatedPerObservableAndLinkEndsWeights( weightsPerObservableAndLinkEnds );
     }
 
     //! Function to return the total data structure of observations and associated times/link ends/type (by reference)
@@ -268,8 +417,22 @@ public:
         return considerCovariance_;
     }
 
+    void setConsiderCovariance( const Eigen::MatrixXd& considerCovariance )
+    {
+        considerCovariance_ = considerCovariance;
+    }
 
-    //! Function to return the weight matrix diagonals, sorted by link ends and observable type (by reference)
+    double getLimitConditionNumberForWarning( )
+    {
+        return limitConditionNumberForWarning_;
+    }
+
+    void setLimitConditionNumberForWarning( const double limitConditionNumberForWarning)
+    {
+        limitConditionNumberForWarning_ = limitConditionNumberForWarning;
+    }
+
+      //! Function to return the weight matrix diagonals, sorted by link ends and observable type (by reference)
     /*!
      * Function to return the weight matrix diagonals, sorted by link ends and observable type (by reference)
      * \return Weight matrix diagonals, sorted by link ends and observable type (by reference)
@@ -277,6 +440,11 @@ public:
     Eigen::VectorXd getWeightsMatrixDiagonals( )
     {
         return weightsMatrixDiagonals_;
+    }
+
+    void setWeightsMatrixDiagonals( const Eigen::VectorXd& weightsMatrixDiagonals )
+    {
+        weightsMatrixDiagonals_ = weightsMatrixDiagonals;
     }
 
     //! Function to return the boolean denoting whether the dynamics and variational equations are reintegrated on first iteration
@@ -323,12 +491,14 @@ public:
     void defineCovarianceSettings( const bool reintegrateEquationsOnFirstIteration = 1,
                                    const bool reintegrateVariationalEquations = 1,
                                    const bool saveDesignMatrix = 1,
-                                   const bool printOutput = 1 )
+                                   const bool printOutput = 1,
+                                   const double limitConditionNumberForWarning = 1.0E8 )
     {
         this->reintegrateEquationsOnFirstIteration_ = reintegrateEquationsOnFirstIteration;
         this->reintegrateVariationalEquations_ = reintegrateVariationalEquations;
         this->saveDesignMatrix_ = saveDesignMatrix;
         this->printOutput_ = printOutput;
+        this->limitConditionNumberForWarning_ = limitConditionNumberForWarning;
     }
 
     bool areConsiderParametersIncluded( ) const
@@ -347,6 +517,8 @@ protected:
 
     //! Covariance matrix for consider parameters
     Eigen::MatrixXd considerCovariance_;
+
+    double limitConditionNumberForWarning_;
 
     //! Weight matrix diagonals, sorted by link ends and observable type
     Eigen::VectorXd weightsMatrixDiagonals_;
@@ -443,6 +615,7 @@ protected:
 
     //!  Number of iterations without reduction of residual
     unsigned int numberOfIterationsWithoutImprovement_;
+
 };
 
 
@@ -465,12 +638,17 @@ public:
             const Eigen::MatrixXd inverseOfAprioriCovariance = Eigen::MatrixXd::Zero( 0, 0 ),
             const std::shared_ptr< EstimationConvergenceChecker > convergenceChecker = std::make_shared< EstimationConvergenceChecker >( ),
             const Eigen::MatrixXd considerCovariance = Eigen::MatrixXd::Zero( 0, 0 ),
-            const Eigen::VectorXd considerParametersDeviations = Eigen::VectorXd::Zero( 0 ) ):
-        CovarianceAnalysisInput< ObservationScalarType, TimeType >( observationCollection, inverseOfAprioriCovariance, considerCovariance ),
+            const Eigen::VectorXd considerParametersDeviations = Eigen::VectorXd::Zero( 0 ),
+            const bool applyFinalParameterCorrection = true ):
+        CovarianceAnalysisInput< ObservationScalarType, TimeType >(
+            observationCollection, inverseOfAprioriCovariance, considerCovariance ),
         saveResidualsAndParametersFromEachIteration_( true ),
         saveStateHistoryForEachIteration_( false ),
         convergenceChecker_( convergenceChecker ),
-        considerParametersDeviations_( considerParametersDeviations )
+        considerParametersDeviations_( considerParametersDeviations ),
+        conditionNumberWarningEachIteration_( true ),
+        applyFinalParameterCorrection_( applyFinalParameterCorrection )
+
     {
         if ( this->areConsiderParametersIncluded( ) )
         {
@@ -515,7 +693,9 @@ public:
                                    const bool saveDesignMatrix = 1,
                                    const bool printOutput = 1,
                                    const bool saveResidualsAndParametersFromEachIteration = 1,
-                                   const bool saveStateHistoryForEachIteration = 0 )
+                                   const bool saveStateHistoryForEachIteration = 0,
+                                   const double limitConditionNumberForWarning = 1.0E8,
+                                   const bool conditionNumberWarningEachIteration = true )
     {
         this->reintegrateEquationsOnFirstIteration_ = reintegrateEquationsOnFirstIteration;
         this->reintegrateVariationalEquations_ = reintegrateVariationalEquations;
@@ -523,6 +703,8 @@ public:
         this->printOutput_ = printOutput;
         this->saveResidualsAndParametersFromEachIteration_ = saveResidualsAndParametersFromEachIteration;
         this->saveStateHistoryForEachIteration_ = saveStateHistoryForEachIteration;
+        this->limitConditionNumberForWarning_ = limitConditionNumberForWarning;
+        this->conditionNumberWarningEachIteration_ = conditionNumberWarningEachIteration;
     }
 
 
@@ -549,6 +731,8 @@ public:
     }
 
 
+
+
     //! Function to return the boolean denoting whether the state history is to be saved on each iteration.
     /*!
      * Function to return the boolean denoting whether the state history is to be saved on each iteration.
@@ -569,6 +753,11 @@ public:
 
     //! Vector of consider parameters deviations
     Eigen::VectorXd considerParametersDeviations_;
+
+    bool conditionNumberWarningEachIteration_;
+
+    bool applyFinalParameterCorrection_;
+
 
 };
 
@@ -780,8 +969,9 @@ struct CovarianceAnalysisOutput
 
         for( int i = 0; i < considerNormalizationFactors_.rows( ); i++ )
         {
-            unnormalizedPartials.block( 0, i, normalizedDesignMatrix_.rows( ), 1 ) =
-                    normalizedDesignMatrix_.block( 0, i, normalizedDesignMatrix_.rows( ), 1 ) * considerNormalizationFactors_( i );
+            unnormalizedPartials.block( 0, i, normalizedDesignMatrixConsiderParameters_.rows( ), 1 ) =
+                    normalizedDesignMatrixConsiderParameters_.block( 0, i, normalizedDesignMatrixConsiderParameters_.rows( ), 1 )
+                    * considerNormalizationFactors_( i );
         }
         return unnormalizedPartials;
     }
@@ -926,7 +1116,7 @@ struct EstimationOutput: public CovarianceAnalysisOutput< ObservationScalarType,
         else
         {
             std::cerr << "Warning, requesting parameter history, but history not saved." << std::endl;
-            return Eigen::MatrixXd::Zero( 0, 0 );
+            return Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, Eigen::Dynamic >::Zero( 0, 0 );
         }
     }
 
@@ -978,6 +1168,11 @@ struct EstimationOutput: public CovarianceAnalysisOutput< ObservationScalarType,
         return simulationResultsPerIteration_;
     }
 
+    std::shared_ptr< propagators::SimulationResults< ObservationScalarType, TimeType > > getBestIterationSimulationResults( )
+    {
+        return simulationResultsPerIteration_.at( bestIteration_ );
+    }
+
 
     //! Vector of estimated parameter values.
     Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > parameterEstimate_;
@@ -1016,6 +1211,8 @@ struct EstimationOutput: public CovarianceAnalysisOutput< ObservationScalarType,
 
 };
 
+extern template class CovarianceAnalysisInput< double, double >;
+extern template struct CovarianceAnalysisOutput< double >;
 
 extern template class EstimationInput< double, double >;
 extern template struct EstimationOutput< double >;

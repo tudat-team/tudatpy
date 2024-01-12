@@ -20,25 +20,23 @@ namespace observation_models
 {
 
 inline double getDifferencedNWayRangeScalingFactor(
+        const observation_models::LinkEndType referenceLinkEnd,
+        const std::vector< Eigen::Vector6d >& linkEndStates,
         const std::vector< double >& linkEndTimes,
-        const observation_models::LinkEndType referenceLinkEnd )
+        const std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings,
+        const bool isFirstPartial )
 {
-    int numberOfEntries = linkEndTimes.size( ) / 2;
-    double arcDuration = TUDAT_NAN;
-    if ( referenceLinkEnd == observation_models::transmitter )
+    double integrationTime;
+    try
     {
-        arcDuration = linkEndTimes[ numberOfEntries ] - linkEndTimes[ 0 ];
+        integrationTime = ancillarySettings->getAncilliaryDoubleData( doppler_integration_time, true );
     }
-    else if ( referenceLinkEnd == observation_models::receiver )
+    catch( std::runtime_error& caughtException )
     {
-        arcDuration = linkEndTimes[ 2 * numberOfEntries - 1 ] - linkEndTimes[ numberOfEntries - 1 ];
+        throw std::runtime_error( "Error when retrieving integration time for one-way averaged Doppler observable: " +
+                        std::string( caughtException.what( ) ) );
     }
-    else
-    {
-        throw std::runtime_error( "Error when getting differenced n-way range scaling factor; link end " +
-                                  getLinkEndTypeString( referenceLinkEnd ) + " not recognized." );
-    }
-    return 1.0 / arcDuration;
+    return 1.0 / integrationTime;
 }
 
 
@@ -74,27 +72,13 @@ public:
     Eigen::Matrix< ObservationScalarType, 1, 1 > computeObservations(
             const TimeType time,
             const LinkEndType linkEndAssociatedWithTime,
-            const std::shared_ptr< ObservationAncilliarySimulationSettings< TimeType > > ancilliarySetings = nullptr ) const
+            const std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetings = nullptr ) const
     {
-        if( ancilliarySetings == nullptr )
-        {
-            throw std::runtime_error( "Error when simulating n-way averaged Doppler observable; no ancilliary settings found. Ancilliary settings are requiured for integration time" );
-        }
+        std::vector< double > linkEndTimes;
+        std::vector< Eigen::Matrix< double, 6, 1 > > linkEndStates;
 
-        TimeType integrationTime;
-        try
-        {
-            integrationTime = ancilliarySetings->getAncilliaryDoubleData( doppler_integration_time, true );
-        }
-        catch( std::runtime_error& caughtException )
-        {
-            throw std::runtime_error( "Error when retrieving integration time for one-way averaged Doppler observable: " +
-                            std::string( caughtException.what( ) ) );
-        }
-
-        return ( arcEndObservationModel_->computeObservations( time, linkEndAssociatedWithTime ) -
-                arcStartObservationModel_->computeObservations( time - integrationTime, linkEndAssociatedWithTime ) ) /
-                static_cast< ObservationScalarType >( integrationTime );
+        return computeIdealObservationsWithLinkEndData(
+                time, linkEndAssociatedWithTime, linkEndTimes, linkEndStates, ancilliarySetings );
     }
 
 
@@ -103,7 +87,7 @@ public:
             const LinkEndType linkEndAssociatedWithTime,
             std::vector< double >& linkEndTimes,
             std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
-            const std::shared_ptr< ObservationAncilliarySimulationSettings< TimeType > > ancilliarySetings = nullptr )
+            const std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetings = nullptr )
     {
         std::vector< double > arcStartLinkEndTimes;
         std::vector< Eigen::Matrix< double, 6, 1 > > arcStartLinkEndStates;

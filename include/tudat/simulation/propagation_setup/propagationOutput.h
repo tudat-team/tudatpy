@@ -122,8 +122,14 @@ int getDependentVariableSaveSize(
 int getDependentVariableSize(
         const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings );
 
+std::pair< int, int > getDependentVariableShape(
+    const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings );
+
 bool isScalarDependentVariable(
         const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings );
+
+bool isMatrixDependentVariable(
+    const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings );
 
 //! Get the vector representation of a rotation matrix.
 /*!
@@ -1731,14 +1737,14 @@ std::function< double( ) > getDoubleDependentVariableFunction(
                                               bodies.at( bodyWithProperty )->getFlightConditions( ) ) );
             break;
         case radiation_pressure_dependent_variable:
-            if( bodies.at( bodyWithProperty )->getRadiationPressureInterfaces( ).count( secondaryBody ) == 0 )
+            if( bodies.at( bodyWithProperty )->getRadiationPressureTargetModel( ) == nullptr )
             {
-                std::string errorMessage = "Error, no radiation pressure interfaces when requesting radiation pressure output of " +
+                std::string errorMessage = "Error, no radiation pressure target model when requesting radiation pressure output of " +
                         bodyWithProperty + "w.r.t." + secondaryBody;
                 throw std::runtime_error( errorMessage );
             }
-            variableFunction = std::bind( &electromagnetism::RadiationPressureInterface::getCurrentRadiationPressure,
-                                          bodies.at( bodyWithProperty )->getRadiationPressureInterfaces( ).at( secondaryBody ) );
+            variableFunction = std::bind( &electromagnetism::RadiationPressureTargetModel::getRadiationPressure,
+                                          bodies.at( bodyWithProperty )->getRadiationPressureTargetModel( ) );
             break;
         case relative_distance_dependent_variable:
         {
@@ -2158,14 +2164,22 @@ std::function< double( ) > getDoubleDependentVariableFunction(
         }
         case radiation_pressure_coefficient_dependent_variable:
         {
-            if( bodies.at( bodyWithProperty )->getRadiationPressureInterfaces( ).count( secondaryBody ) == 0 )
+            if( bodies.at( bodyWithProperty )->getRadiationPressureTargetModel( ) == nullptr )
             {
-                std::string errorMessage = "Error, no radiation pressure interfaces when requesting radiation pressure output of " +
+                std::string errorMessage = "Error, no radiation pressure interface when requesting radiation pressure output of " +
                         bodyWithProperty + "w.r.t." + secondaryBody;
                 throw std::runtime_error( errorMessage );
             }
-            variableFunction = std::bind( &electromagnetism::RadiationPressureInterface::getRadiationPressureCoefficient,
-                                          bodies.at( bodyWithProperty )->getRadiationPressureInterfaces( ).at( secondaryBody ) );
+            else if( std::dynamic_pointer_cast< electromagnetism::CannonballRadiationPressureTargetModel >(
+                bodies.at( bodyWithProperty )-> getRadiationPressureTargetModel( ) ) == nullptr )
+            {
+                std::string errorMessage = "Error, no cannonball radiation pressure interface when requesting radiation pressure output of " +
+                                           bodyWithProperty + "w.r.t." + secondaryBody;
+                throw std::runtime_error( errorMessage );
+            }
+            variableFunction = std::bind( &electromagnetism::CannonballRadiationPressureTargetModel::getCoefficient,
+                                          std::dynamic_pointer_cast< electromagnetism::CannonballRadiationPressureTargetModel >(
+                                              bodies.at( bodyWithProperty )-> getRadiationPressureTargetModel( ) ) );
             break;
         }
         case gravity_field_potential_dependent_variable:
@@ -2373,6 +2387,109 @@ std::function< double( ) > getDoubleDependentVariableFunction(
 
             break;
         }
+        case received_irradiance:
+        {
+            auto radiationPressureAccelerationList = getAccelerationBetweenBodies(
+                dependentVariableSettings->associatedBody_,
+                dependentVariableSettings->secondaryBody_,
+                stateDerivativeModels, basic_astrodynamics::radiation_pressure );
+
+            if (radiationPressureAccelerationList.empty())
+            {
+                std::string errorMessage = "Error, radiation pressure acceleration with target " +
+                        dependentVariableSettings->associatedBody_ + " and source " +
+                        dependentVariableSettings->secondaryBody_  +
+                       " not found";
+                throw std::runtime_error(errorMessage);
+            }
+
+            auto radiationPressureAcceleration =
+                    std::dynamic_pointer_cast<electromagnetism::RadiationPressureAcceleration>(
+                            radiationPressureAccelerationList.front());
+
+            variableFunction = [=] () { return radiationPressureAcceleration->getReceivedIrradiance(); };
+
+            break;
+        }
+        case received_fraction:
+        {
+            auto radiationPressureAccelerationList = getAccelerationBetweenBodies(
+                dependentVariableSettings->associatedBody_,
+                dependentVariableSettings->secondaryBody_,
+                stateDerivativeModels, basic_astrodynamics::radiation_pressure );
+
+            if (radiationPressureAccelerationList.empty())
+            {
+                std::string errorMessage = "Error, radiation pressure acceleration with target " +
+                        dependentVariableSettings->associatedBody_ + " and source " +
+                        dependentVariableSettings->secondaryBody_  +
+                       " not found";
+                throw std::runtime_error(errorMessage);
+            }
+
+            auto radiationPressureAcceleration =
+                    std::dynamic_pointer_cast<electromagnetism::IsotropicPointSourceRadiationPressureAcceleration>(
+                            radiationPressureAccelerationList.front());
+            if (radiationPressureAcceleration == nullptr)
+            {
+                throw std::runtime_error("Error, source body " + dependentVariableSettings->secondaryBody_ +
+                    " does not have an isotropic point source, which is required for the received fraction dependent " +
+                    "variable");
+            }
+
+            variableFunction = [=] () { return radiationPressureAcceleration->getSourceToTargetReceivedFraction(); };
+
+            break;
+        }
+        case visible_and_emitting_source_panel_count:
+        case visible_source_area:
+        {
+            auto radiationPressureAccelerationList = getAccelerationBetweenBodies(
+                dependentVariableSettings->associatedBody_,
+                dependentVariableSettings->secondaryBody_,
+                stateDerivativeModels, basic_astrodynamics::radiation_pressure );
+
+            if (radiationPressureAccelerationList.empty())
+            {
+                std::string errorMessage = "Error, radiation pressure acceleration with target " +
+                        dependentVariableSettings->associatedBody_ + " and source " +
+                        dependentVariableSettings->secondaryBody_  +
+                       " not found";
+                throw std::runtime_error(errorMessage);
+            }
+
+            auto radiationPressureAcceleration =
+                    std::dynamic_pointer_cast<electromagnetism::PaneledSourceRadiationPressureAcceleration>(
+                            radiationPressureAccelerationList.front());
+            if (radiationPressureAcceleration == nullptr)
+            {
+                if (dependentVariable == visible_source_area) {
+                    throw std::runtime_error("Error, source body " + dependentVariableSettings->secondaryBody_ +
+                         " does not have a paneled source, which is required for the visible source area "+
+                         "dependent variable");
+                }
+                else
+                {
+                    throw std::runtime_error("Error, source body " + dependentVariableSettings->secondaryBody_ +
+                         " does not have a paneled source, which is required for the visible/illuminated source "+
+                         "panel count dependent variable");
+                }
+            }
+
+            switch (dependentVariable)
+            {
+                case visible_and_emitting_source_panel_count:
+                    variableFunction = [=] () { return radiationPressureAcceleration->getVisibleAndEmittingSourcePanelCount(); };
+                    break;
+                case visible_source_area:
+                    variableFunction = [=] () { return radiationPressureAcceleration->getVisibleSourceArea(); };
+                    break;
+                default:
+                    break;
+            }
+
+            break;
+        }
         case custom_dependent_variable:
         {
             std::shared_ptr< CustomDependentVariableSaveSettings > customVariableSettings =
@@ -2444,10 +2561,9 @@ template< typename TimeType = double, typename StateScalarType = double >
 std::pair< std::function< Eigen::VectorXd( ) >, std::map< std::pair< int, int >, std::string > > createDependentVariableListFunction(
         const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables,
         const simulation_setup::SystemOfBodies& bodies,
+        std::map< std::pair< int, int >, std::shared_ptr< SingleDependentVariableSaveSettings > >& orderedDependentVariables,
         const std::unordered_map< IntegratedStateType,
-        std::vector< std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > >& stateDerivativeModels =
-        std::unordered_map< IntegratedStateType,
-        std::vector< std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > >( ),
+        std::vector< std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > >& stateDerivativeModels,
         const std::map< propagators::IntegratedStateType, orbit_determination::StateDerivativePartialsMap >& stateDerivativePartials =
         std::map< propagators::IntegratedStateType, orbit_determination::StateDerivativePartialsMap >( ) )
 {
@@ -2488,9 +2604,13 @@ std::pair< std::function< Eigen::VectorXd( ) >, std::map< std::pair< int, int >,
     // Set list of variable ids/indices in correc otder.
     int totalVariableSize = 0;
     std::map< std::pair< int, int >, std::string > dependentVariableIds;
+
+    int variableCounter = 0;
     for( std::pair< std::string, int > vectorVariable: vectorVariableList )
     {
         dependentVariableIds[ { totalVariableSize, vectorVariable.second } ] = vectorVariable.first;
+        orderedDependentVariables[ { totalVariableSize, vectorVariable.second } ] = dependentVariables.at( variableCounter );
+        variableCounter++;
         totalVariableSize += vectorVariable.second;
     }
 
