@@ -129,7 +129,6 @@ public:
         return scalarFlightConditions_.at( latitude_flight_condition );
     }
 
-
     //! Function to retrieve (and compute if necessary) the current geodetic latitude
     /*!
      * Function to retrieve (and compute if necessary) the current geodetic latitude
