@@ -20,7 +20,7 @@ void PanelledRadiationPressurePartial::update( const double currentTime )
                 inertialVectorFromSource.normalized( ) );
         double distanceToSource = inertialVectorFromSource.norm( );
         Eigen::Vector3d currentAcceleration = radiationPressureAcceleration_->getAcceleration( );
-        double currentRadiationPressure = panelledTargetModel_->getRadiationPressure( );
+        double currentRadiationPressure = radiationPressureAcceleration_->getCurrentRadiationPressure();
         double currentMass = radiationPressureAcceleration_->getCurrentTargetMass( );
 
         currentPartialWrtPosition_.setZero( );
