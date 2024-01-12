@@ -15,6 +15,7 @@
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
+#include "tudat/astro/basic_astro/accelerationModelTypes.h"
 
 namespace tudat
 {
@@ -57,6 +58,8 @@ public:
      *  Identifier for parameter, contains type of parameter and body of which parameter is a property.
      */
     EstimatebleParameterIdentifier parameterType_;
+
+    std::vector< std::shared_ptr< CustomAccelerationPartialSettings > > customPartialSettings_;
 
 };
 
@@ -985,6 +988,31 @@ public:
 
 };
 
+class CustomEstimatableParameterSettings: public EstimatableParameterSettings
+{
+public:
+
+    CustomEstimatableParameterSettings(
+        const std::string& customId,
+        const int parameterSize,
+        const std::function< Eigen::VectorXd( ) > getParameterFunction,
+        const std::function< void( const Eigen::VectorXd& ) > setParameterFunction ):
+        EstimatableParameterSettings( "", custom_estimated_parameter, customId ),
+        parameterSize_( parameterSize ),
+        getParameterFunction_( getParameterFunction ),
+        setParameterFunction_( setParameterFunction )
+    {
+
+    }
+
+    int parameterSize_;
+
+    std::function< Eigen::VectorXd( ) > getParameterFunction_;
+
+    std::function< void( const Eigen::VectorXd& ) > setParameterFunction_;
+
+};
+
 
 inline std::shared_ptr< EstimatableParameterSettings > gravitationalParameter( const std::string bodyName )
 {
@@ -1163,6 +1191,35 @@ inline std::shared_ptr< EstimatableParameterSettings > constantEmpiricalAccelera
                 associatedBody, centralBody, componentsToEstimate );
 }
 
+inline std::shared_ptr< EstimatableParameterSettings > empiricalAccelerationMagnitudesFull(
+    const std::string associatedBody,
+    const std::string centralBody )
+{
+    std::map< basic_astrodynamics::EmpiricalAccelerationComponents,
+        std::vector< basic_astrodynamics::EmpiricalAccelerationFunctionalShapes > > componentsToEstimate;
+    componentsToEstimate[ basic_astrodynamics::radial_empirical_acceleration_component ].push_back(
+        basic_astrodynamics::constant_empirical );
+    componentsToEstimate[ basic_astrodynamics::radial_empirical_acceleration_component ].push_back(
+        basic_astrodynamics::sine_empirical );
+    componentsToEstimate[ basic_astrodynamics::radial_empirical_acceleration_component ].push_back(
+        basic_astrodynamics::cosine_empirical );
+    componentsToEstimate[ basic_astrodynamics::along_track_empirical_acceleration_component ].push_back(
+        basic_astrodynamics::constant_empirical );
+    componentsToEstimate[ basic_astrodynamics::along_track_empirical_acceleration_component ].push_back(
+        basic_astrodynamics::sine_empirical );
+    componentsToEstimate[ basic_astrodynamics::along_track_empirical_acceleration_component ].push_back(
+        basic_astrodynamics::cosine_empirical );
+    componentsToEstimate[ basic_astrodynamics::across_track_empirical_acceleration_component ].push_back(
+        basic_astrodynamics::constant_empirical );
+    componentsToEstimate[ basic_astrodynamics::across_track_empirical_acceleration_component ].push_back(
+        basic_astrodynamics::sine_empirical );
+    componentsToEstimate[ basic_astrodynamics::across_track_empirical_acceleration_component ].push_back(
+        basic_astrodynamics::cosine_empirical );
+
+    return std::make_shared< EmpiricalAccelerationEstimatableParameterSettings >(
+        associatedBody, centralBody, componentsToEstimate );
+}
+
 
 inline std::shared_ptr< EstimatableParameterSettings > empiricalAccelerationMagnitudes(
         const std::string associatedBody,
@@ -1221,6 +1278,14 @@ inline std::shared_ptr< EstimatableParameterSettings > groundStationPosition(
 {
     return std::make_shared< EstimatableParameterSettings >( body, ground_station_position, groundStationName );
 }
+
+inline std::shared_ptr< EstimatableParameterSettings > referencePointPosition(
+    const std::string& body,
+    const std::string& groundStationName )
+{
+    return std::make_shared< EstimatableParameterSettings >( body, reference_point_position, groundStationName );
+}
+
 
 inline std::shared_ptr< EstimatableParameterSettings > directTidalDissipationLagTime(
         const std::string& body,
@@ -1368,6 +1433,24 @@ inline std::shared_ptr< EstimatableParameterSettings > scaledLongitudeLibrationA
 {
     return std::make_shared< EstimatableParameterSettings >( bodyName, scaled_longitude_libration_amplitude );
 }
+
+inline std::shared_ptr< EstimatableParameterSettings > yarkovskyParameter( const std::string bodyName, const std::string centralBodyName )
+{
+    return std::make_shared< EstimatableParameterSettings >( bodyName, yarkovsky_parameter, centralBodyName );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > customParameterSettings(
+    const std::string& customId,
+    const int parameterSize,
+    const std::function< Eigen::VectorXd( ) > getParameterFunction,
+    const std::function< void( const Eigen::VectorXd& ) > setParameterFunction )
+{
+    return std::make_shared<CustomEstimatableParameterSettings>(
+        customId, parameterSize, getParameterFunction, setParameterFunction );
+}
+
+
+
 
 } // namespace estimatable_parameters
 

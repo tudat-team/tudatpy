@@ -15,7 +15,7 @@
 #include <memory>
 #include <functional>
 
-#include "tudat/math/interpolators/oneDimensionalInterpolator.h"
+#include "tudat/math/interpolators/createInterpolator.h"
 #include "tudat/interface/sofa/earthOrientation.h"
 
 namespace tudat
@@ -44,8 +44,8 @@ public:
      */
     PrecessionNutationCalculator(
             const basic_astrodynamics::IAUConventions precessionNutationTheory,
-            const std::shared_ptr< interpolators::OneDimensionalInterpolator < double, Eigen::Vector2d > >
-            dailyCorrectionInterpolator );
+            const std::shared_ptr< interpolators::OneDimensionalInterpolator < double, Eigen::Vector2d > > dailyCorrectionInterpolator,
+            const std::shared_ptr< interpolators::InterpolatorGenerationSettings< double > > angleInterpolatorSettings = nullptr );
 
     //! Function to calculate the position of CIP in GCRS (CIO-based precession-nutation) and CIO-locator.
     /*!
@@ -55,7 +55,7 @@ public:
      *  \param terrestrialTime TT at which calculation is to be performed.
      *  \return Pair of CIP position in GCRS (X and Y) and CIO-locator (s).
      */
-    std::pair< Eigen::Vector2d, double > getPositionOfCipInGcrs(
+    Eigen::Vector3d getPositionOfCipInGcrs(
             const double terrestrialTime );
 
     //! Function to calculate the position of CIP in GCRS (CIO-based precession-nutation) and CIO-locator.
@@ -66,7 +66,7 @@ public:
      *  \param utc UTC at which calculation is to be performed.
      *  \return Pair of CIP position in GCRS (X and Y) and CIO-locator (s).
      */
-    std::pair< Eigen::Vector2d, double > getPositionOfCipInGcrs(
+    Eigen::Vector3d getPositionOfCipInGcrs(
             const double terrestrialTime,
             const double utc );
 
@@ -110,7 +110,7 @@ private:
      *  Function pointer returning the nominal CIP position in the GCRS (X and Y, see IERS Conventions 2010),
      *  first pair argument, and CIO locator (s, see IERS Conventions 2010), second pair argument.
      */
-    std::function< std::pair< Eigen::Vector2d, double > ( const double ) > nominalCipPositionFunction_;
+    std::function< Eigen::Vector3d ( const double ) > nominalCipPositionFunction_;
 
 };
 

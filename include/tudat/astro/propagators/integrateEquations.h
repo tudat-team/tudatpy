@@ -503,7 +503,7 @@ void integrateEquationsFromIntegrator(
 
     // Set initial time step
     TimeStepType timeStep = integrator->getNextStepSize( );
-    TimeType previousTime = currentTime;
+//    TimeType previousTime = currentTime;
 
     // Initialize steps since last save (to output maps) and print (to terminal)
     int stepsSinceLastSave = 1;
@@ -559,7 +559,7 @@ void integrateEquationsFromIntegrator(
                     }
                 }
 
-                previousTime = currentTime;
+//                previousTime = currentTime;
 
                 // Perform integration step.
                 newState = integrator->performIntegrationStep( timeStep );

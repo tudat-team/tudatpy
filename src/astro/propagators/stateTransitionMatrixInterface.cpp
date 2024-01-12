@@ -28,12 +28,20 @@ void SingleArcCombinedStateTransitionAndSensitivityMatrixInterface::updateMatrix
 {
     stateTransitionMatrixInterpolator_ = stateTransitionMatrixInterpolator;
     sensitivityMatrixInterpolator_ = sensitivityMatrixInterpolator;
-    statePartialAdditionIndices_ = statePartialAdditionIndices;
+
+    // Re-order state partial addition indices to match ephemeris update order (inverted in variational equations object)
+    statePartialAdditionIndices_.clear( );
+    for ( int i = statePartialAdditionIndices.size( ) - 1; i >= 0 ; i-- )
+    {
+        statePartialAdditionIndices_.push_back( statePartialAdditionIndices[ i ] );
+    }
 }
 
 //! Function to get the concatenated state transition and sensitivity matrix at a given time.
 Eigen::MatrixXd SingleArcCombinedStateTransitionAndSensitivityMatrixInterface::getCombinedStateTransitionAndSensitivityMatrix(
-        const double evaluationTime, const std::vector< std::string >& arcDefiningBodies )
+        const double evaluationTime,
+        const bool addCentralBodyDependency,
+        const std::vector< std::string >& arcDefiningBodies )
 {
     combinedStateTransitionMatrix_.setZero( );
 
@@ -48,14 +56,16 @@ Eigen::MatrixXd SingleArcCombinedStateTransitionAndSensitivityMatrixInterface::g
                 sensitivityMatrixInterpolator_->interpolate( evaluationTime );
     }
 
-    for( unsigned int i = 0; i < statePartialAdditionIndices_.size( ); i++ )
+    if ( addCentralBodyDependency )
     {
-        combinedStateTransitionMatrix_.block(
+        for( unsigned int i = 0; i < statePartialAdditionIndices_.size( ); i++ )
+        {
+            combinedStateTransitionMatrix_.block(
                     statePartialAdditionIndices_.at( i ).first, 0, 6, stateTransitionMatrixSize_ + sensitivityMatrixSize_ ) +=
-                combinedStateTransitionMatrix_.block(
-                    statePartialAdditionIndices_.at( i ).second, 0, 6, stateTransitionMatrixSize_ + sensitivityMatrixSize_ );
+                    combinedStateTransitionMatrix_.block(
+                            statePartialAdditionIndices_.at( i ).second, 0, 6, stateTransitionMatrixSize_ + sensitivityMatrixSize_ );
+        }
     }
-
 
     return combinedStateTransitionMatrix_;
 }

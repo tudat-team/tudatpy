@@ -24,6 +24,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <utility>
 
 #include <Eigen/Core>
 
@@ -408,6 +409,24 @@ void writeMatrixToFile(
 
   outputFile_.close();
 }
+
+//! Write map of state/dependent variable IDs to text file.
+/*!
+ * Write state/dependent variable IDs from a map to text file. Such a map is, for example,
+ * stored in propagation results and also contains variable start index and length (for vector-
+ * valued variables). Note that variable names can include commas, making them unsuitable
+ * as delimiters.
+ *
+ * \param idMap Map with data.
+ * \param outputFilename Output filename.
+ * \param outputDirectory Output directory. This can be passed as a string as
+ * well. It will be created if it does not exist.
+ * \param delimiter Delimiter character, to delimit data entries in file.
+ */
+void writeIdMapToTextFile(const std::map< std::pair< int, int >, std::string > &idMap,
+                          const std::string &outputFilename,
+                          const boost::filesystem::path &outputDirectory,
+                          const std::string &delimiter = "\t");
 
 //! Typedef for double-KeyType, double-ValueType map.
 /*!

@@ -54,7 +54,7 @@ std::vector< DependentVariableType > solveTridiagonalMatrixEquation(
         const std::vector< DependentVariableType >& rightHandSide )
 {
     // Check whether input diagonals are correct size.
-    unsigned int matrixSize = rightHandSide.size( );
+    unsigned int matrixSize = static_cast< unsigned int >( rightHandSide.size( ) );
     if( matrixSize < 2 )
     {
         throw std::runtime_error( "Error, RHS must be at least size 2 for tridiagonal matrix solution" );
@@ -298,8 +298,14 @@ public:
 
         // Determine the lower entry in the table corresponding to the target independent variable
         // value.
-        int lowerEntry_ = lookUpScheme_->findNearestLowerNeighbour(
-                    targetIndependentVariableValue );
+        unsigned int lowerEntry_ = lookUpScheme_->findNearestLowerNeighbour( targetIndependentVariableValue );
+
+        // If lowerEntry_ is the last element of independentValues_, execute extrapolation with
+        // the last and second to last elements of independentValues_.
+        if ( lowerEntry_ == independentValues_.size( ) - 1 )
+        {
+            lowerEntry_ -= 1;
+        }
 
         // Get independent variable values bounding interval in which requested value lies.
         IndependentVariableType lowerValue, upperValue;
@@ -340,7 +346,7 @@ private:
     void calculateSecondDerivatives( )
     {
         // Get length of vector.
-        numberOfDataPoints_ = independentValues_.size( );
+        numberOfDataPoints_ = static_cast< unsigned int >( independentValues_.size( ) );
 
         // Sub-diagonal of tri-diagonal matrix.
         std::vector< ScalarType > aCoefficients_;
