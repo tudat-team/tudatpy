@@ -50,7 +50,7 @@ Eigen::Vector2d PolarMotionCalculator::getPositionOfCipInItrs(
     poleOffsetsInItrs += dailyIersValueInterpolator_->interpolate( utcSinceEpoch );
 
     // Add short period motion
-    poleOffsetsInItrs += shortPeriodPolarMotionCalculator_->getCorrections(
+    poleOffsetsInItrs += shortPeriodPolarMotionCalculator_->getCorrectionsFromFundamentalArgument(
                 fundamentalArguments );
 
     return poleOffsetsInItrs;

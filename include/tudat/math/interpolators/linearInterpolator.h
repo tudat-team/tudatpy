@@ -228,8 +228,14 @@ public:
         }
 
         // Lookup nearest lower index.
-        int newNearestLowerIndex = lookUpScheme_->findNearestLowerNeighbour(
-                    independentVariableValue );
+        unsigned int newNearestLowerIndex = lookUpScheme_->findNearestLowerNeighbour( independentVariableValue );
+
+        // If newNearestLowerIndex is the last element of independentValues_, execute extrapolation with
+        // the last and second to last elements of independentValues_.
+        if ( newNearestLowerIndex == independentValues_.size( ) - 1 )
+        {
+            newNearestLowerIndex -= 1;
+        }
 
         // Perform linear interpolation.
         interpolatedValue = dependentValues_[ newNearestLowerIndex ] +

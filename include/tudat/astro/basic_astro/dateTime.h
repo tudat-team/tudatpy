@@ -124,7 +124,8 @@ public:
         verifySeconds( );
     }
 
-    std::string isoString( const bool addT = false )
+    std::string isoString( const bool addT = false,
+                           const int numberOfFractionalSecondDigits = 15 )
     {
 
         std::string yearString = std::to_string( year_ );
@@ -135,7 +136,7 @@ public:
         std::string secondString = utilities::paddedZeroIntString( static_cast< int >( seconds_ ), 2 );
         long double fractionalSeconds = seconds_ - mathematical_constants::getFloatingInteger<long double>(
             static_cast< int >( seconds_ ));
-        std::string fractionalSecondString = utilities::to_string_with_precision< long double >( fractionalSeconds, 17 );
+        std::string fractionalSecondString = utilities::to_string_with_precision< long double >( fractionalSeconds, numberOfFractionalSecondDigits );
 
         secondString += fractionalSecondString.substr( 1, fractionalSecondString.length( ) - 1 );
         std::string separationCharacter = addT ? "T" : " ";
@@ -167,6 +168,7 @@ public:
     {
         return basic_astrodynamics::convertDayMonthYearToDayOfYear( day_, month_, year_ );
     }
+
 
 protected:
 
@@ -218,10 +220,13 @@ protected:
         if ( seconds_ > 60.0L || seconds_ < 0.0L || ( seconds_ != seconds_ ))
         {
             throw std::runtime_error(
-                "Error when creating Tudat DateTime, input seconds was " + std::to_string( seconds_ ));
+                "Error when creating Tudat DateTime, input seconds was " + std::to_string( seconds_ ) +
+                ", full date time was " + std::to_string( year_ ) + ", " + std::to_string( month_ ) + ", " + std::to_string( day_ ) + ", " +
+                std::to_string( hour_ ) + ", " + std::to_string( minute_ ) + ", " + std::to_string( seconds_ ) );
         }
     }
 };
+
 
 template< typename TimeType >
 inline DateTime getCalendarDateFromTime( const TimeType &timeInput )
@@ -249,6 +254,29 @@ inline DateTime getCalendarDateFromTime( const TimeType &timeInput )
     long double seconds = time.getSecondsIntoFullPeriod( ) - 60.0L * static_cast< long double >( minute );
 
     return DateTime( year, month, day, hour, minute, seconds );
+}
+
+
+template< typename TimeType >
+DateTime addSecondsToDateTime( const DateTime& dateTime, const TimeType timeToAdd )
+{
+    return getCalendarDateFromTime< Time >( dateTime.epoch< Time >( ) + timeToAdd );
+}
+
+template< typename TimeType >
+DateTime addDaysToDateTime( const DateTime& dateTime, const TimeType daysToAdd )
+{
+    return getCalendarDateFromTime< Time >( dateTime.epoch< Time >( ) + daysToAdd * mathematical_constants::getFloatingInteger< TimeType >( 86400 ) );
+}
+
+
+
+
+
+template< typename TimeType >
+TimeType getTimeDifferenceBetweenDateTimes( const DateTime& firstDateTime, const DateTime& secondDateTime )
+{
+    return firstDateTime.epoch< TimeType >( ) - secondDateTime.epoch< TimeType >( );
 }
 
 

@@ -75,7 +75,7 @@ public:
     { }
 
     //! Constructor.
-    /*!
+    /*!throw_exception_at_boundary
      *  Constructor.
      *  \param boundaryHandling Boundary handling method in case independent variable is outside the
      *      specified range.
@@ -183,6 +183,11 @@ public:
     BoundaryInterpolationType getBoundaryHandling( )
     {
         return boundaryHandling_;
+    }
+
+    void resetBoundaryHandling( const BoundaryInterpolationType boundaryHandling )
+    {
+        boundaryHandling_ = boundaryHandling;
     }
 
     std::pair< DependentVariableType, DependentVariableType > getDefaultExtrapolationValue( )

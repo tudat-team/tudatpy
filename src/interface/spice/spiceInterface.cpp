@@ -125,7 +125,7 @@ Eigen::Vector3d getBodyCartesianPositionAtEpoch(const std::string &targetBodyNam
 
 //! Get Cartesian state of a satellite from its two-line element set at a specified epoch.
 Vector6d getCartesianStateFromTleAtEpoch(double epoch, std::shared_ptr<ephemerides::Tle> tle) {
-    if( !( epoch == epoch ) || (epoch < 0) )
+    if( !( epoch == epoch ))
     {
         throw std::invalid_argument( "Error when retrieving TLE from Spice, input time is " + std::to_string(epoch) );
     }
@@ -195,6 +195,31 @@ Eigen::Matrix3d computeRotationMatrixBetweenFrames(const std::string &originalFr
 {
     return Eigen::Matrix3d( computeRotationQuaternionBetweenFrames(
                                 originalFrame, newFrame, ephemerisTime ) );
+}
+
+//! Compute rotation matrix for state vector between two frames.
+Eigen::Matrix6d computeStateRotationMatrixBetweenFrames(const std::string &originalFrame,
+                                                          const std::string &newFrame,
+                                                          const double ephemerisTime) {
+    if( !( ephemerisTime == ephemerisTime )  )
+    {
+        throw std::invalid_argument( "Error when retrieving state rotation matrix from Spice, input time is " + std::to_string(ephemerisTime) );
+    }
+
+    double stateTransition[6][6];
+
+    // Calculate state transition matrix.
+    sxform_c(originalFrame.c_str(), newFrame.c_str(), ephemerisTime, stateTransition);
+
+    // Put rotation matrix in Eigen Matrix6d
+    Eigen::Matrix6d stateTransitionMatrix = Eigen::Matrix6d::Zero();
+    for (unsigned int i = 0; i < 6; i++) {
+        for (unsigned int j = 0; j < 6; j++) {
+            stateTransitionMatrix(i, j) = stateTransition[i][j];
+        }
+    }
+
+    return stateTransitionMatrix;
 }
 
 //! Computes time derivative of rotation matrix between two frames.
@@ -274,7 +299,7 @@ std::pair<Eigen::Quaterniond, Eigen::Matrix3d> computeRotationQuaternionAndRotat
 std::vector<double> getBodyProperties(const std::string &body, const std::string &property,
                                       const int maximumNumberOfValues) {
     // Delcare variable in which raw result is to be put by Spice function.
-    double* propertyArray = new double(maximumNumberOfValues);
+    double* propertyArray = new double[maximumNumberOfValues];
 
     // Call Spice function to retrieve property.
     SpiceInt numberOfReturnedParameters;
@@ -322,6 +347,35 @@ double getAverageRadius(const std::string &body) {
             / 3.0;
 }
 
+//! Get the (arithmetic) mean of the two equatorial axes of the tri-axial ellipsoid shape.
+double getAverageEquatorialRadius( const std::string& body )
+{
+    // Declare variable in which raw result is to be put by Spice function.
+    double radii[3];
+
+    // Call Spice function to retrieve gravitational parameter.
+    SpiceInt numberOfReturnedParameters;
+    bodvrd_c( body.c_str(), "RADII", 3, &numberOfReturnedParameters, radii );
+
+    // Compute average and convert from km to m.
+    return unit_conversions::convertKilometersToMeters< double >(
+            radii[0] + radii[1] ) / 2.0;
+}
+
+//! Get the polar radius of the tri-axial ellipsoid shape.
+double getPolarRadius( const std::string& body )
+{
+    // Declare variable in which raw result is to be put by Spice function.
+    double radii[3];
+
+    // Call Spice function to retrieve gravitational parameter.
+    SpiceInt numberOfReturnedParameters;
+    bodvrd_c( body.c_str(), "RADII", 3, &numberOfReturnedParameters, radii );
+
+    // Compute average and convert from km to m.
+    return unit_conversions::convertKilometersToMeters< double >(radii[2] );
+}
+
 //! Convert a body name to its NAIF identification number.
 int convertBodyNameToNaifId(const std::string &bodyName) {
     // Convert body name to NAIF ID number.
@@ -331,6 +385,18 @@ int convertBodyNameToNaifId(const std::string &bodyName) {
 
     // Convert SpiceInt (typedef for long) to int and return.
     return static_cast<int>(bodyNaifId);
+}
+
+//! Convert a NAIF identification number to its body name.
+std::string convertNaifIdToBodyName( int bodyNaifId )
+{
+    // Maximum SPICE name length is 32. Therefore, a name length of 33 is used (+1 for null terminator)
+    SpiceChar bodyName[33];
+
+    bodc2s_c( bodyNaifId, 33, bodyName );
+
+    // Convert SpiceChar to std::string
+    return static_cast< std::string >( bodyName );
 }
 
 //! Check if a certain property of a body is in the kernel pool.
@@ -391,6 +457,7 @@ void loadStandardSpiceKernels(const std::vector<std::string> alternativeEphemeri
     {
 
         loadSpiceKernelInTudat(kernelPath + "/codes_300ast_20100725.bsp");
+        loadSpiceKernelInTudat(kernelPath + "/codes_300ast_20100725.tf");
         loadSpiceKernelInTudat(kernelPath + "/inpop19a_TDB_m100_p100_spice.bsp");
         loadSpiceKernelInTudat(kernelPath + "/NOE-4-2020.bsp");
         loadSpiceKernelInTudat(kernelPath + "/NOE-5-2021.bsp");

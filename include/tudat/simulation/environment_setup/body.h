@@ -25,6 +25,8 @@
 #include "tudat/astro/basic_astro/bodyShapeModel.h"
 #include "tudat/astro/basic_astro/timeConversions.h"
 #include "tudat/astro/electromagnetism/radiationPressureInterface.h"
+#include "tudat/astro/electromagnetism/radiationSourceModel.h"
+#include "tudat/astro/electromagnetism/radiationPressureTargetModel.h"
 #include "tudat/astro/ephemerides/ephemeris.h"
 #include "tudat/astro/ephemerides/rotationalEphemeris.h"
 #include "tudat/astro/ephemerides/tabulatedEphemeris.h"
@@ -158,8 +160,9 @@ protected:
      *  \param time Time at which state is to be computed
      *  \return Inertial state of frame origin at requested time
      */
-    Eigen::Matrix<long double, 6, 1> getBaseFrameLongDoubleState(const double time) {
-        return static_cast<long double>(stateMultiplier_) * std::move(stateFunction_(time)).template cast<long double>();
+    Eigen::Matrix<long double, 6, 1> getBaseFrameLongDoubleState(const double time)
+    {
+        return static_cast<long double>(stateMultiplier_) * stateFunction_(time).template cast<long double>();
     }
 
     //! Function through which the state of baseFrameId_ in the inertial frame can be determined
@@ -169,7 +172,8 @@ protected:
      *  \param time Time at which state is to be computed
      *  \return Inertial state of frame origin at requested time
      */
-    Eigen::Matrix<double, 6, 1> getBaseFrameDoubleState(const Time &time) {
+    Eigen::Matrix<double, 6, 1> getBaseFrameDoubleState(const Time &time)
+    {
         return static_cast<double>(stateMultiplier_) * stateFunction_(time).template cast<double>();
     }
 
@@ -180,7 +184,8 @@ protected:
      *  \param time Time at which state is to be computed
      *  \return Inertial state of frame origin at requested time
      */
-    Eigen::Matrix<long double, 6, 1> getBaseFrameLongDoubleState(const Time &time) {
+    Eigen::Matrix<long double, 6, 1> getBaseFrameLongDoubleState(const Time &time)
+    {
         return static_cast<long double>(stateMultiplier_) * std::move(stateFunction_(time)).template cast<long double>();
     }
 
@@ -578,6 +583,8 @@ public:
     {
         if( !isStateSet_ )
         {
+            std::vector< double > test;
+            test.at( 0 );
             throw std::runtime_error( "Error when retrieving state from body " + bodyName_ + ", state of body is not yet defined" );
         }
         else
@@ -650,7 +657,7 @@ public:
                 else
                 {
                     currentLongState_ =
-                            (bodyEphemeris_->getTemplatedStateFromEphemeris<StateScalarType, TimeType>(time) + ephemerisFrameToBaseFrame_->getBaseFrameState<TimeType, StateScalarType>(time)).template cast<long double>();
+                            (bodyEphemeris_->getTemplatedStateFromEphemeris<StateScalarType, TimeType>(time) + ephemerisFrameToBaseFrame_->getBaseFrameState<TimeType, StateScalarType>(time) ).template cast<long double>();
                     currentState_ = currentLongState_.template cast<double>();
                 }
             }
@@ -698,9 +705,12 @@ public:
     Eigen::Matrix<StateScalarType, 6, 1> getStateInBaseFrameFromEphemeris(const TimeType time)
     {
         setStateFromEphemeris<StateScalarType, TimeType>(time);
-        if (sizeof(StateScalarType) == 8) {
+        if (sizeof(StateScalarType) == 8)
+        {
             return currentState_.template cast<StateScalarType>();
-        } else {
+        }
+        else
+        {
             return currentLongState_.template cast<StateScalarType>();
         }
     }
@@ -1251,7 +1261,30 @@ public:
             const std::string &radiatingBody,
             const std::shared_ptr<electromagnetism::RadiationPressureInterface>
             radiationPressureInterface) {
+        // RP-OLD
         radiationPressureInterfaces_[radiatingBody] = radiationPressureInterface;
+    }
+
+    //! Function to set the radiation source model of the body.
+    /*!
+     *  Function to set the radiation source model of the body.
+     *  \param radiationSourceModel Radiation source model of the body.
+     */
+    void setRadiationSourceModel(
+            const std::shared_ptr<electromagnetism::RadiationSourceModel> radiationSourceModel)
+    {
+        radiationSourceModel_ = radiationSourceModel;
+    }
+
+    //! Function to set the radiation pressure target model of the body.
+    /*!
+     *  Function to set the radiation pressure target model of the body.
+     *  \param radiationPressureTargetModel Radiation pressure target model of the body.
+     */
+    void setRadiationPressureTargetModel(
+            const std::shared_ptr<electromagnetism::RadiationPressureTargetModel> radiationPressureTargetModel)
+    {
+        radiationPressureTargetModel_ = radiationPressureTargetModel;
     }
 
     //! Function to set object containing all variations in the gravity field of this body.
@@ -1357,7 +1390,28 @@ public:
      */
     std::map<std::string, std::shared_ptr<electromagnetism::RadiationPressureInterface>>
     getRadiationPressureInterfaces() {
+        // RP-OLD
         return radiationPressureInterfaces_;
+    }
+
+    //! Function to retrieve the radiation source model of the body.
+    /*!
+     *  Function to retrieve the radiation source model of the body.
+     *  \return Radiation source model of the body.
+     */
+    const std::shared_ptr<electromagnetism::RadiationSourceModel> getRadiationSourceModel() const
+    {
+        return radiationSourceModel_;
+    }
+
+    //! Function to retrieve the radiation pressure target model of the body.
+    /*!
+     *  Function to retrieve the radiation pressure target model of the body.
+     *  \return Radiation pressure target model of the body.
+     */
+    const std::shared_ptr<electromagnetism::RadiationPressureTargetModel> getRadiationPressureTargetModel() const
+    {
+        return radiationPressureTargetModel_;
     }
 
     //! Function to retrieve a single object describing variation in the gravity field of this body.
@@ -1599,7 +1653,10 @@ public:
      * \return Ground station object that is retrieved
      */
     std::shared_ptr<ground_stations::GroundStation> getGroundStation(const std::string &stationName) const {
-        if (groundStationMap.count(stationName) == 0) {
+        if (groundStationMap.count(stationName) == 0)
+        {
+            std::vector< double > a;
+            a.at( 0 );
             throw std::runtime_error("Error, station " + stationName + " does not exist");
         }
 
@@ -1756,13 +1813,15 @@ private:
     std::shared_ptr< RigidBodyProperties > massProperties_;
 
     //! List of radiation pressure models for the body, with the sources bodies as key
+    // RP-OLD
     std::map<std::string, std::shared_ptr<electromagnetism::RadiationPressureInterface>>
-    radiationPressureInterfaces_;
+            radiationPressureInterfaces_;
 
-    //! Predefined iterator for efficiency purposes.
-    std::map<std::string,
-    std::shared_ptr<electromagnetism::RadiationPressureInterface>>::iterator
-    radiationPressureIterator_;
+    //! Radiation source model of the body.
+    std::shared_ptr<electromagnetism::RadiationSourceModel> radiationSourceModel_;
+
+    //! Radiation pressure target model of the body.
+    std::shared_ptr<electromagnetism::RadiationPressureTargetModel> radiationPressureTargetModel_;
 
     //! List of ground station objects on Body
     std::map<std::string, std::shared_ptr<ground_stations::GroundStation>> groundStationMap;
@@ -2054,39 +2113,52 @@ public:
 
     int count( const std::string& bodyName ) const
     {
-        return bodyMap_.count( bodyName );
+        return static_cast< int >( bodyMap_.count( bodyName ) );
+    }
+
+    bool doesBodyExist( const std::string& bodyName ) const
+    {
+        return ( this->count( bodyName ) != 0 );
+    }
+
+    std::vector< std::string > getListOfBodies( ) const
+    {
+        return utilities::createVectorFromUnorderedMapKeys( bodyMap_ );
     }
 
     int getNumberOfBodies( ) const
     {
-        return bodyMap_.size( );
+        return static_cast< int >( bodyMap_.size( ) );
     }
 
+    template< typename StateScalarType = double , typename TimeType = double >
     void createEmptyBody( const std::string bodyName, const bool processBody = true )
     {
         bodyMap_[ bodyName ] = std::make_shared< Body >( );
         bodyMap_[ bodyName ]->setBodyName( bodyName );
         if( processBody )
         {
-            processBodyFrameDefinitions( );           
+            processBodyFrameDefinitions< StateScalarType, TimeType >( );
         }
     }
 
+    template< typename StateScalarType = double , typename TimeType = double >
     void addBody( std::shared_ptr< Body > bodyToAdd, const std::string bodyName, const bool processBody = true )
     {
         bodyMap_[ bodyName ] = bodyToAdd;
         bodyMap_[ bodyName ]->setBodyName( bodyName );
         if( processBody )
         {
-            processBodyFrameDefinitions( );
+            processBodyFrameDefinitions< StateScalarType, TimeType >( );
         }
     }
 
     const std::unordered_map< std::string, std::shared_ptr< Body > >& getMap( ) const { return bodyMap_; }
 
+    template< typename StateScalarType = double , typename TimeType = double >
     void processBodyFrameDefinitions( ) const
     {
-        setGlobalFrameBodyEphemerides( bodyMap_, frameOrigin_, frameOrientation_);
+        setGlobalFrameBodyEphemerides< StateScalarType, TimeType >( bodyMap_, frameOrigin_, frameOrientation_);
 
 //        for( auto bodyIterator : bodyMap_ )
 //        {
@@ -2146,6 +2218,13 @@ std::string getGlobalFrameOrigin(const SystemOfBodies &bodies);
  */
 void setAreBodiesInPropagation(const SystemOfBodies &bodies,
                                const bool areBodiesInPropagation);
+
+bool isReferencePointGroundStation( const std::shared_ptr< Body > body,
+                                    const std::string& referencePointName );
+
+bool isReferencePointGroundStation( const SystemOfBodies &bodies,
+                                    const std::string& bodyName,
+                                    const std::string& referencePointName );
 
 //! Function to compute the acceleration of a body, using its ephemeris and finite differences
 /*!

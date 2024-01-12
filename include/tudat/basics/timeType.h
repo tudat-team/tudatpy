@@ -160,7 +160,7 @@ public:
      */
     friend Time operator+( const double& timeToAdd1, const Time& timeToAdd2 )
     {
-        return Time( timeToAdd2.fullPeriods_, timeToAdd2.secondsIntoFullPeriod_ + static_cast< long double >( timeToAdd1 ) );
+        return Time( timeToAdd1 ) + timeToAdd2;
     }
 
     //! Addition operator for long double variable with Time object.
@@ -172,7 +172,7 @@ public:
      */
     friend Time operator+( const long double& timeToAdd1, const Time& timeToAdd2 )
     {
-        return Time( timeToAdd2.fullPeriods_, timeToAdd2.secondsIntoFullPeriod_ + timeToAdd1 );
+        return Time( timeToAdd1 ) + timeToAdd2;
     }
 
     //! Addition operator for Time object with double variable
@@ -224,8 +224,7 @@ public:
      */
     friend Time operator-( const Time& timeToSubtract1, const double timeToSubtract2 )
     {
-        return Time( timeToSubtract1.fullPeriods_,
-                     timeToSubtract1.secondsIntoFullPeriod_ - static_cast< long double >( timeToSubtract2 ) );
+        return timeToSubtract1 - Time( timeToSubtract2 );
     }
 
     //! Subtraction operator for double from Time object
@@ -237,7 +236,7 @@ public:
      */
     friend Time operator-( const Time& timeToSubtract1, const long double timeToSubtract2 )
     {
-        return Time( timeToSubtract1.fullPeriods_, timeToSubtract1.secondsIntoFullPeriod_ - timeToSubtract2 );
+        return timeToSubtract1 - Time( timeToSubtract2 );
     }
 
     //! Subtraction operator for Time object from double
@@ -249,8 +248,7 @@ public:
      */
     friend Time operator-( const double timeToSubtract1, const Time& timeToSubtract2 )
     {
-        return Time( -timeToSubtract2.fullPeriods_,
-                     static_cast< long double >( timeToSubtract1 ) - timeToSubtract2.secondsIntoFullPeriod_ );
+        return Time( timeToSubtract1 ) - timeToSubtract2;
     }
 
     //! Subtraction operator for Time object from long double
@@ -262,7 +260,7 @@ public:
      */
     friend Time operator-( const long double timeToSubtract1, const Time& timeToSubtract2 )
     {
-        return Time( -timeToSubtract2.fullPeriods_, timeToSubtract1 - timeToSubtract2.secondsIntoFullPeriod_ );
+        return Time( timeToSubtract1 ) - timeToSubtract2;
     }
 
 
@@ -393,8 +391,8 @@ public:
      */
     void operator+=( const double timeToAdd )
     {
-        secondsIntoFullPeriod_ += static_cast< long double >( timeToAdd );
-        normalizeMembers( );
+        Time timeTimeToAdd = Time( timeToAdd );
+        *this += timeTimeToAdd;
     }
 
     //! Add and assign operator for adding a double
@@ -404,8 +402,8 @@ public:
      */
     void operator+=( const long double timeToAdd )
     {
-        secondsIntoFullPeriod_ += timeToAdd;
-        normalizeMembers( );
+        Time timeTimeToAdd = Time( timeToAdd );
+        *this += timeTimeToAdd;
     }
 
     //! Subtract and assign operator for adding a Time
@@ -427,8 +425,8 @@ public:
      */
     void operator-=( const double timeToSubtract )
     {
-        secondsIntoFullPeriod_ -= static_cast< long double >( timeToSubtract );
-        normalizeMembers( );
+        Time timeTimeToSubtract = Time( timeToSubtract );
+        *this -= timeTimeToSubtract;
     }
 
     //! Subtract and assign operator for adding a long double
@@ -438,8 +436,8 @@ public:
      */
     void operator-=( const long double timeToSubtract )
     {
-        secondsIntoFullPeriod_ -= timeToSubtract;
-        normalizeMembers( );
+        Time timeTimeToSubtract = Time( timeToSubtract );
+        *this -= timeTimeToSubtract;
     }
 
     //! Multiply and assign operator for multiplying by double
@@ -449,14 +447,7 @@ public:
      */
     void operator*=( const double timeToMultiply )
     {
-        long double newPeriods = static_cast< long double >( timeToMultiply ) * static_cast< long double >( fullPeriods_ );
-        long double roundedNewPeriods = std::floor( newPeriods );
-
-        fullPeriods_ = static_cast< int >( std::round( roundedNewPeriods ) );
-        secondsIntoFullPeriod_ *= static_cast< long double >( timeToMultiply );
-        secondsIntoFullPeriod_ += ( newPeriods - roundedNewPeriods ) * TIME_NORMALIZATION_TERM;
-
-        normalizeMembers( );
+        *this *= static_cast< long double >( timeToMultiply );
     }
 
     //! Multiply and assign operator for multiplying by long double
@@ -483,14 +474,7 @@ public:
      */
     void operator/=( const double timeToDivide )
     {
-        long double newPeriods = static_cast< long double >( timeToDivide ) / static_cast< long double >( fullPeriods_ );
-        long double roundedNewPeriods = std::floor( newPeriods );
-
-        fullPeriods_ = static_cast< int >( std::round( roundedNewPeriods ) );
-        secondsIntoFullPeriod_ *= timeToDivide;
-        secondsIntoFullPeriod_ += ( newPeriods - roundedNewPeriods );
-
-        normalizeMembers( );
+        *this /= static_cast< long double >( timeToDivide );
     }
 
     //! Divided and assign operator for dividing by long double
@@ -686,7 +670,7 @@ public:
      */
     friend bool operator>= ( const Time& timeToCompare1, const Time& timeToCompare2 )
     {
-        if( timeToCompare1.getFullPeriods( ) >= timeToCompare2.getFullPeriods( ) )
+        if( timeToCompare1.getFullPeriods( ) > timeToCompare2.getFullPeriods( ) )
         {
             return true;
         }
