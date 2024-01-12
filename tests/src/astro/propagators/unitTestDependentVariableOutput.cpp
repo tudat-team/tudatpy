@@ -1670,7 +1670,7 @@ BOOST_AUTO_TEST_CASE( test_GravitationalPotentialAndLaplacianSaving )
                         moonGravitationalPotential,
                         moonGravityModel->getGravitationalPotential( moonBodyFixedCartesianPosition ),
                         1e-15 );*/
-                std::cout<<"Moon potential "<<moonGravitationalPotential<<" "<<moonGravityModel->getGravitationalPotential( moonBodyFixedCartesianPosition )<<std::endl;
+                std::cout<<"Moon potential "<<moonGravitationalPotential<<" "<<moonGravityModel->getGravitationalPotential( moonBodyFixedCartesianPosition ) - moonGravitationalPotential<<std::endl;
                 BOOST_CHECK( std::fabs( moonGravitationalPotential - moonGravityModel->getGravitationalPotential( moonBodyFixedCartesianPosition ) )
                             < std::fabs( std::min( moonGravitationalPotential, moonGravityModel->getGravitationalPotential( moonBodyFixedCartesianPosition ) ) * 1e-15 ) );
 
