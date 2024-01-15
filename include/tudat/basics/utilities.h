@@ -14,6 +14,7 @@
 #include <unordered_map>
 #include <map>
 #include <vector>
+#include <set>
 #include <iostream>
 #include <stdexcept>
 #include <sstream>
@@ -910,6 +911,44 @@ int countNumberOfOccurencesInVector( const std::vector< T >& vector, const T& va
     }
     return counter;
 }
+
+
+//! Check if one container contains all elements of another container
+template< typename T, typename U >
+bool containsAll(const T& referenceArray, const U searchArray)
+{
+  return std::includes(referenceArray.begin(), referenceArray.end(), searchArray.begin(), searchArray.end());
+}
+
+//! Convert a vector to a set
+template< typename T >
+std::set<T> vectorToSet(std::vector<T> vector)
+{
+  std::set<T> set;
+  for (T& elem : vector) {
+    set.insert(elem);
+  }
+  return set;
+}
+
+//! Apply a function that takes multiple arguments to operate on all the rows of vectors.
+/*!
+ * \param convertFunc function that will convert each row of the vectors to the output
+ * \param firstArg at least one vector must be provided
+ * \param args any number of vectors. the total arguments must be compatible with the required arguments for convertFunc
+ */
+template< typename ConvertFunc, typename FirstArg, typename... Args >
+std::vector<double> convertVectors(ConvertFunc convertFunc, const std::vector<FirstArg>& firstArg, const std::vector<Args>& ... args)
+{
+  std::vector<double> result;
+  size_t N = firstArg.size(); // Assuming all vectors have the same size
+  for (size_t i = 0; i < N; ++i) {
+    result.push_back(convertFunc(firstArg[i], args[i]...));
+  }
+  return result;
+}
+
+
 
 } // namespace utilities
 
