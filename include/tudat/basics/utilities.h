@@ -912,7 +912,6 @@ int countNumberOfOccurencesInVector( const std::vector< T >& vector, const T& va
     return counter;
 }
 
-
 //! Check if one container contains all elements of another container
 template< typename T, typename U >
 bool containsAll(const T& referenceArray, const U searchArray)
@@ -948,7 +947,17 @@ std::vector<double> convertVectors(ConvertFunc convertFunc, const std::vector<Fi
   return result;
 }
 
+template<typename T>
+std::vector< std::vector< T > > getTwoDimensionalVector( const int firstDimension, const int secondDimension, const T initializationValue )
+{
+    return std::vector< std::vector< T > >(firstDimension, std::vector<T>(secondDimension, initializationValue));
+}
 
+template<typename T>
+std::vector< std::vector< std::vector< T > > > getThreeDimensionalVector( const int firstDimension, const int secondDimension, const int thirdDimension, const T initializationValue )
+{
+    return std::vector< std::vector< std::vector< T > > >(firstDimension, std::vector< std::vector<T> >(secondDimension, std::vector<T>( thirdDimension, initializationValue) ) );
+}
 
 } // namespace utilities
 

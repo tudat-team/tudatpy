@@ -659,6 +659,22 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                         break;
                 case custom_acceleration:
                     break;
+                case einstein_infeld_hoffmann_acceleration:
+                {
+                    std::shared_ptr< relativity::EinsteinInfeldHoffmannAcceleration > eihAcceleration =
+                        std::dynamic_pointer_cast< relativity::EinsteinInfeldHoffmannAcceleration >(
+                            accelerationModelIterator->second.at( i ) );
+                    if( eihAcceleration == nullptr )
+                    {
+                        throw std::runtime_error( "Error when getting environment updates for EIH acceleration, acceleration object is incompatible" );
+                    }
+                    std::vector< std::string > bodiesExertingEihAcceleration = eihAcceleration->getBodiesExertingAcceleration( );
+                    for( unsigned int j = 0; j < bodiesExertingEihAcceleration.size( ); j++ )
+                    {
+                        singleAccelerationUpdateNeeds[ body_translational_state_update ].push_back( bodiesExertingEihAcceleration.at( j ) );
+                    }
+                    break;
+                }
                 default:
                     throw std::runtime_error( std::string( "Error when setting acceleration model update needs, model type not recognized: " ) +
                                               std::to_string( currentAccelerationModelType ) );
