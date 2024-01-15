@@ -19,7 +19,7 @@ void TrackingTxtFileContents::parseData()
 {
   std::ifstream dataFile(fileName_);
   if (!dataFile.good()) {
-    throw std::runtime_error("Error when opening Tracking txt file, file " + fileName_ + " could not be opened.");
+    throw std::runtime_error("Error when opening Tracking txt file: file " + fileName_ + " could not be opened.");
   }
   readRawDataMap(dataFile);
   convertDataMap();

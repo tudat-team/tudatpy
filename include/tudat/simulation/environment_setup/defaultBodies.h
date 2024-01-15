@@ -240,6 +240,8 @@ inline std::map< int, std::vector< std::string > > getDefaultDsnStationNamesPerC
     return stationsPerComplex;
 }
 
+
+
 /*!
  * Returns the approximate position of the specified ground station. Currently only implemented for DSN stations.
  *
@@ -247,6 +249,11 @@ inline std::map< int, std::vector< std::string > > getDefaultDsnStationNamesPerC
  * @return Ground station position.
  */
 Eigen::Vector3d getApproximateGroundStationPosition( std::string stationName );
+
+//! Get ground station positions from file
+std::map< std::string, Eigen::Vector3d > getApproximateDsnGroundStationPositionsFromFile(std::string fileName, char commentSymbol='$', std::string separators = "\t");
+
+Eigen::Vector3d getApproximateGroundStationPositionFromFile( std::string stationName );
 
 /*!
  * Returns the settings for DSN ground stations. The settings are specified according to table 2 and 3 of DSN 810-005,
@@ -256,6 +263,7 @@ Eigen::Vector3d getApproximateGroundStationPosition( std::string stationName );
  * @return Vector of ground station settings.
  */
 std::vector< std::shared_ptr< GroundStationSettings > > getDsnStationSettings( );
+
 
 } // namespace simulation_setup
 

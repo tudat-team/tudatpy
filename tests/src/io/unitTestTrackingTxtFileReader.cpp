@@ -307,7 +307,7 @@ BOOST_AUTO_TEST_CASE(TestVikingRangeDataObservationCollection)
   auto timesDsn63 = observationsAndTimesDsn63.second;
 
   BOOST_CHECK_CLOSE(observationsDsn63(0, 0), 2371.564782809, 1e-12);
-  BOOST_CHECK_CLOSE(timesDsn63[0], 2442999.2528009 - basic_astrodynamics::JULIAN_DAY_ON_J2000, 1e-8);
+  BOOST_CHECK_CLOSE(timesDsn63[0], -738352558.000000 , 1e-8);  // "1976-08-08T18:04:02.000" FIXME: should it be (+ 32.184 + 15)?
 
 
 //  const auto& concatenatedObservations = observationCollection->getObservationVectorReference();
@@ -337,8 +337,10 @@ BOOST_AUTO_TEST_CASE(TestJuiceFile)
   auto dataMap = rawFdetsDopplerFile->getDoubleDataMap();
   auto dataBlockLast = extractBlockFromVectorMap(dataMap, -1);
 
-  BOOST_CHECK_EQUAL(dataBlockLast[tio::TrackingDataType::tdb_time_j2000], 735687970.0 + 32.184 + 37);
-  //  BOOST_CHECK_EQUAL(dataBlockLast[tio::TrackingDataType::tdb_time_j2000], basic_astrodynamics::convertTTtoTAI(735687970.0));
+  double tdbMismatch = dataBlockLast[tio::TrackingDataType::tdb_time_j2000] - (735687970.0 + 32.184 + 37.0) -
+      sofa_interface::getTDBminusTT(dataBlockLast[tio::TrackingDataType::tdb_time_j2000], Eigen::Vector3d::Zero());
+
+  BOOST_CHECK_SMALL(tdbMismatch, 1.0E-5);
 
   BOOST_CHECK_EQUAL(dataBlockLast[tio::TrackingDataType::signal_to_noise], 6.766652540970647242e+05);
   BOOST_CHECK_EQUAL(dataBlockLast[tio::TrackingDataType::spectral_max], 5.754946258897545704e+03);
@@ -351,6 +353,13 @@ BOOST_AUTO_TEST_CASE(TestJuiceFile)
   auto observationCollection = observation_models::createTrackingTxtFileObservationCollection<double, double>(processedFdetsDopplerFile);
 
 }
+
+BOOST_AUTO_TEST_CASE(GroundStationLocations)
+{
+  std::cout << "Temporary Test\n";
+  printArr(simulation_setup::getApproximateGroundStationPositionFromFile("HOBART12"));
+}
+
 
 BOOST_AUTO_TEST_SUITE_END();
 

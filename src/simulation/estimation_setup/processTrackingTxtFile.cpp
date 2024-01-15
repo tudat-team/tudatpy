@@ -22,10 +22,16 @@ std::vector<ObservableType> findAvailableObservableTypes(std::vector<input_outpu
   std::vector<ObservableType> availableObservableTypes;
   for (const auto& pair : dataTypeToObservableMap) {
     std::vector<input_output::TrackingDataType> requiredDataTypeSet = pair.first;
-    if (containsAll(availableDataTypes, requiredDataTypeSet))
+    if (utilities::containsAll(availableDataTypes, requiredDataTypeSet))
       availableObservableTypes.push_back(pair.second);
   }
   return availableObservableTypes;
+}
+
+void ProcessedTrackingTxtFileContents::updateObservations()
+{
+  const auto& observableTypes = getObservableTypes();
+  linkEndsSet_ = utilities::vectorToSet(linkEndsVector_);
 }
 
 void ProcessedTrackingTxtFileContents::updateObservationTimes()
@@ -43,13 +49,21 @@ void ProcessedTrackingTxtFileContents::updateObservationTimes()
       break;
     }
     case day_time: {
-      observationTimes_ = convertVectors(convertCalendarDateToJulianDaySinceJ2000<double>,
-                                         dataMap.at(input_output::TrackingDataType::year),
-                                         dataMap.at(input_output::TrackingDataType::month),
-                                         dataMap.at(input_output::TrackingDataType::day),
-                                         dataMap.at(input_output::TrackingDataType::hour),
-                                         dataMap.at(input_output::TrackingDataType::minute),
-                                         dataMap.at(input_output::TrackingDataType::second));
+
+      std::vector<double> observationJulianDaysSinceJ2000 = utilities::convertVectors(
+          basic_astrodynamics::convertCalendarDateToJulianDaySinceJ2000<double>,
+          dataMap.at(input_output::TrackingDataType::year),
+          dataMap.at(input_output::TrackingDataType::month),
+          dataMap.at(input_output::TrackingDataType::day),
+          dataMap.at(input_output::TrackingDataType::hour),
+          dataMap.at(input_output::TrackingDataType::minute),
+          dataMap.at(input_output::TrackingDataType::second)
+      );
+
+      for (double julianDaySinceJ2000 : observationJulianDaysSinceJ2000) {
+        observationTimes_.push_back(julianDaySinceJ2000 * physical_constants::JULIAN_DAY); // FIXME: I think this is wrong
+      }
+
       break;
     }
     default: {
@@ -117,31 +131,26 @@ void ProcessedTrackingTxtFileContents::updateLinkEnds()
   }
 
   // Creating a set with all the various linkEnds
-  linkEndsSet_ = vectorToSet(linkEndsVector_);
-}
-
-void ProcessedTrackingTxtFileContents::updateObservations()
-{
-  const auto& observableTypes = getObservableTypes();
+  linkEndsSet_ = utilities::vectorToSet(linkEndsVector_);
 }
 
 ProcessedTrackingTxtFileContents::TimeRepresentation ProcessedTrackingTxtFileContents::getTimeRepresentation()
 {
   auto const& availableDataTypes = rawTrackingTxtFileContents_->getDataColumnTypes();
 
-  if (containsAll(availableDataTypes, std::vector<input_output::TrackingDataType>{input_output::TrackingDataType::tdb_time_j2000})) {
+  if (utilities::containsAll(availableDataTypes, std::vector<input_output::TrackingDataType>{input_output::TrackingDataType::tdb_time_j2000})) {
     return tdb_seconds_j2000;
   }
 
-  if (containsAll(availableDataTypes,
-                  std::vector<input_output::TrackingDataType>{
-                      input_output::TrackingDataType::year,
-                      input_output::TrackingDataType::month,
-                      input_output::TrackingDataType::day,
-                      input_output::TrackingDataType::hour,
-                      input_output::TrackingDataType::minute,
-                      input_output::TrackingDataType::second
-                  })) {
+  if (utilities::containsAll(availableDataTypes,
+                             std::vector<input_output::TrackingDataType>{
+                                 input_output::TrackingDataType::year,
+                                 input_output::TrackingDataType::month,
+                                 input_output::TrackingDataType::day,
+                                 input_output::TrackingDataType::hour,
+                                 input_output::TrackingDataType::minute,
+                                 input_output::TrackingDataType::second
+                             })) {
     return day_time;
   }
   throw std::runtime_error("Error while processing tracking txt file: Time representation not recognised or implemented.");
@@ -151,15 +160,15 @@ ProcessedTrackingTxtFileContents::LinkEndsRepresentation ProcessedTrackingTxtFil
 {
   auto const& availableDataTypes = rawTrackingTxtFileContents_->getAllAvailableDataTypes();
 
-  if (containsAll(availableDataTypes,
-                  std::vector<input_output::TrackingDataType>{
-                      input_output::TrackingDataType::dsn_transmitting_station_nr,
-                      input_output::TrackingDataType::dsn_receiving_station_nr
-                  })) {
+  if (utilities::containsAll(availableDataTypes,
+                             std::vector<input_output::TrackingDataType>{
+                                 input_output::TrackingDataType::dsn_transmitting_station_nr,
+                                 input_output::TrackingDataType::dsn_receiving_station_nr
+                             })) {
     return dsn_transmitting_receiving_station_nr;
   }
 
-  if (containsAll(availableDataTypes, std::vector<input_output::TrackingDataType>{input_output::TrackingDataType::vlbi_station_name})) {
+  if (utilities::containsAll(availableDataTypes, std::vector<input_output::TrackingDataType>{input_output::TrackingDataType::vlbi_station_name})) {
     return vlbi_station;
   }
   throw std::runtime_error("Error while processing tracking txt file: Link Ends representation not recognised or implemented.");
