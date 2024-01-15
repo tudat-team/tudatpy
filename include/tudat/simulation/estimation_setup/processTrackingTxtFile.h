@@ -10,7 +10,6 @@
  *    References: 820-013, TRK-2-18 Tracking System Interfaces Orbit Data File Interface, Revision E, 2008, JPL/DSN
  */
 
-
 #ifndef TUDAT_PROCESSTRACKINGTXTFILE_H
 #define TUDAT_PROCESSTRACKINGTXTFILE_H
 
@@ -25,68 +24,16 @@
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/math/interpolators/lookupScheme.h"
 
-// TODO:
-//  Ancillary settings (frequency, time scale, ...)
-//  Format checks
-//  Unit Checks
-//  Add time conversions
-
-
-
 namespace tudat
 {
 namespace observation_models
 {
 
-//! Utility function that might belong elsewhere
-template< typename TimeScalarType = double >
-TimeScalarType convertCalendarDateToJulianDaySinceJ2000(const int calendarYear,
-                                                        const int calendarMonth,
-                                                        const int calendarDay,
-                                                        const int calendarHour,
-                                                        const int calendarMinutes,
-                                                        const TimeScalarType calendarSeconds)
-{
-  return basic_astrodynamics::convertCalendarDateToJulianDaysSinceEpoch<TimeScalarType>
-      (calendarYear, calendarMonth, calendarDay, calendarHour, calendarMinutes,
-       calendarSeconds, basic_astrodynamics::JULIAN_DAY_ON_J2000);
-}
-
-//! Utility function to check if a container contains all elements of another container
-template< typename T, typename U >
-bool containsAll(const T& referenceArray, const U searchArray)
-{
-  return std::includes(referenceArray.begin(), referenceArray.end(), searchArray.begin(), searchArray.end());
-}
-
-//! Utility function to apply the convert function to vectors of arguments
-template< typename ConvertFunc, typename FirstArg, typename... Args >
-std::vector<double> convertVectors(ConvertFunc convertFunc, const std::vector<FirstArg>& firstArg, const std::vector<Args>& ... args)
-{
-  std::vector<double> result;
-  size_t N = firstArg.size(); // Assuming all vectors have the same size
-  for (size_t i = 0; i < N; ++i) {
-    result.push_back(convertFunc(firstArg[i], args[i]...));
-  }
-  return result;
-}
-
-//! Utility function to convert a vector to a set
-template< typename T >
-std::set<T> vectorToSet(std::vector<T> vector)
-{
-  std::set<T> set;
-  for (T& elem : vector) {
-    set.insert(elem);
-  }
-  return set;
-}
-
 //! Map containing all the tracking data types that correspond to an observable. If a specific set of TrackingDataTypes (keys)
 //! Is present in the file, the corresponding ObservableType (value) can later be added to the  ObservationCollection
 static const std::map<std::vector<input_output::TrackingDataType>, ObservableType> dataTypeToObservableMap = {
     {{input_output::TrackingDataType::n_way_light_time}, n_way_range},
-    {{input_output::TrackingDataType::doppler_measured_frequency}, one_way_doppler}, // FIXME: not sure if this is the correct thing to store
+    {{input_output::TrackingDataType::doppler_measured_frequency}, one_way_doppler},
     // Todo: More to be implemented
 };
 
@@ -122,7 +69,6 @@ public:
     initialised_ = true;
   }
 
-
 // Update  information from the raw file data
 public:
 
@@ -140,7 +86,6 @@ public:
   //! Method to create a vector of the linkEnds for each of the lines in the file (different ground stations might be used)
   void updateLinkEnds();
 
-  // TODO: It would be better if the observables are already extracted here, instead of in the separate function
   void updateObservations();
 
   void updateObservableTypes()
@@ -199,6 +144,10 @@ public:
   {
     return linkEndsSet_;
   }
+  int getNumRows() const
+  {
+    return rawTrackingTxtFileContents_->getNumRows();
+  }
 
   // TODO:
   //  Instead of this, process the data in the updateObservations functions!
@@ -239,8 +188,7 @@ createTrackingTxtFileObservationCollection(
   if (observableTypesToProcess.empty()) {
     observableTypesToProcess = availableObservableTypes;
   }
-  if (!containsAll(availableObservableTypes, observableTypesToProcess))
-  {
+  if (!utilities::containsAll(availableObservableTypes, observableTypesToProcess)) {
     throw std::runtime_error("Error while processing Tracking txt file. Not enough information to extract requested observables");
   }
 
@@ -263,7 +211,7 @@ createTrackingTxtFileObservationCollection(
       std::vector<input_output::TrackingDataType> currentTrackingDataTypes = pair.first;
       const ObservableType& currentObservableType = pair.second;
 
-      if (containsAll(observableTypesToProcess, std::vector<ObservableType>{pair.second})) {
+      if (utilities::containsAll(observableTypesToProcess, std::vector<ObservableType>{pair.second})) {
         size_t currentSize = currentTrackingDataTypes.size();
         Eigen::Matrix<ObservationScalarType, Eigen::Dynamic, 1> currentObservable(currentSize);
 
