@@ -239,6 +239,20 @@ TimeScalarType convertCalendarDateToJulianDay( const int calendarYear,
               calendarSeconds, mathematical_constants::getFloatingInteger< TimeScalarType >( 0.0 ) );
 }
 
+//! Compute Julian day since J2000 from given date and time
+template< typename TimeScalarType = double >
+TimeScalarType convertCalendarDateToJulianDaySinceJ2000(const int calendarYear,
+                                                        const int calendarMonth,
+                                                        const int calendarDay,
+                                                        const int calendarHour,
+                                                        const int calendarMinutes,
+                                                        const TimeScalarType calendarSeconds)
+{
+  return basic_astrodynamics::convertCalendarDateToJulianDaysSinceEpoch<TimeScalarType>
+      (calendarYear, calendarMonth, calendarDay, calendarHour, calendarMinutes,
+       calendarSeconds, basic_astrodynamics::JULIAN_DAY_ON_J2000);
+}
+
 //! Function to convert julian day to modified julian day.
 /*!
  *  Function to convert julian day to modified julian day.
