@@ -71,6 +71,12 @@ inline std::shared_ptr< AccelerationSettings > pointMassGravityAcceleration( )
     return std::make_shared< AccelerationSettings >( basic_astrodynamics::point_mass_gravity );
 }
 
+inline std::shared_ptr< AccelerationSettings > einsteinInfledHoffmannGravityAcceleration( )
+{
+    return std::make_shared< AccelerationSettings >( basic_astrodynamics::einstein_infeld_hoffmann_acceleration );
+}
+
+
 //! @get_docstring(aerodynamicAcceleration)
 inline std::shared_ptr< AccelerationSettings > aerodynamicAcceleration( )
 {
@@ -106,9 +112,11 @@ public:
      *  \param maximumOrder Maximum order
      */
     SphericalHarmonicAccelerationSettings( const int maximumDegree,
-                                           const int maximumOrder ):
+                                           const int maximumOrder,
+                                           const bool removePointMass = false ):
         AccelerationSettings( basic_astrodynamics::spherical_harmonic_gravity ),
-        maximumDegree_( maximumDegree ), maximumOrder_( maximumOrder ){ }
+        maximumDegree_( maximumDegree ), maximumOrder_( maximumOrder ),
+        removePointMass_( removePointMass ){ }
 
 
     // Maximum degree that is to be used for spherical harmonic acceleration
@@ -116,6 +124,8 @@ public:
 
     // Maximum order that is to be used for spherical harmonic acceleration
     int maximumOrder_;
+
+    bool removePointMass_;
 };
 
 //! @get_docstring(sphericalHarmonicAcceleration)
