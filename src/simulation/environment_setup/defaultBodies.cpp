@@ -1,5 +1,5 @@
 /*    Copyright (c) 2010-2019, Delft University of Technology
- *    All rigths reserved
+ *    All rights reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
  *    binary forms, with or without modification, are permitted exclusively
@@ -18,7 +18,6 @@
 #include "tudat/interface/spice/spiceInterface.h"
 #include "tudat/io/basicInputOutput.h"
 #include "tudat/astro/basic_astro/celestialBodyConstants.h"
-#include "tudat/simulation/environment_setup/defaultBodies.h"
 #include "tudat/astro/reference_frames/referenceFrameTransformations.h"
 
 namespace tudat
@@ -429,6 +428,7 @@ BodyListSettings getDefaultBodySettings(
 std::map<std::string, Eigen::Vector3d> getApproximateDsnGroundStationPositions()
 {
   std::map<std::string, Eigen::Vector3d> dsnStationPositionsItrf93 = {
+      {"DSS-12", (Eigen::Vector3d() << -2350443.812, -4651980.837, +3665630.988).finished()}, // https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/stations/a_old_versions/dsnstns.cmt
       {"DSS-13", (Eigen::Vector3d() << -2351112.659, -4655530.636, +3660912.728).finished()},
       {"DSS-14", (Eigen::Vector3d() << -2353621.420, -4641341.472, +3677052.318).finished()},
       {"DSS-15", (Eigen::Vector3d() << -2353538.958, -4641649.429, +3676669.984).finished()},
@@ -439,14 +439,15 @@ std::map<std::string, Eigen::Vector3d> getApproximateDsnGroundStationPositions()
       {"DSS-34", (Eigen::Vector3d() << -4461147.093, +2682439.239, -3674393.133).finished()},
       {"DSS-35", (Eigen::Vector3d() << -4461273.090, +2682568.925, -3674152.093).finished()},
       {"DSS-36", (Eigen::Vector3d() << -4461168.415, +2682814.657, -3674083.901).finished()},
+      {"DSS-42", (Eigen::Vector3d() << -4460981.016, +2682413.525, -3674582.072).finished()}, // https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/stations/a_old_versions/dsnstns.cmt
       {"DSS-43", (Eigen::Vector3d() << -4460894.917, +2682361.507, -3674748.152).finished()},
       {"DSS-45", (Eigen::Vector3d() << -4460935.578, +2682765.661, -3674380.982).finished()},
       {"DSS-54", (Eigen::Vector3d() << +4849434.488, -360723.8999, +4114618.835).finished()},
       {"DSS-55", (Eigen::Vector3d() << +4849525.256, -360606.0932, +4114495.084).finished()},
+      {"DSS-61", (Eigen::Vector3d() << +4849245.211, -0360278.166, +4114884.445).finished()}, // https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/stations/a_old_versions/dsnstns.cmt
       {"DSS-63", (Eigen::Vector3d() << +4849092.518, -360180.3480, +4115109.251).finished()},
       {"DSS-65", (Eigen::Vector3d() << +4849339.634, -360427.6630, +4114750.733).finished()},
-      {"Hb", (Eigen::Vector3d() << -3949990.106, +2522421.118, -4311708.734).finished()},
-      {"Ke", (Eigen::Vector3d() << -4147354.683, +4581542.378, -1573303.165).finished()},
+
   };
 
   return dsnStationPositionsItrf93;
@@ -467,37 +468,53 @@ Eigen::Vector3d getApproximateGroundStationPosition(std::string stationName)
   return groundStationPosition;
 }
 
-std::map<std::string, Eigen::Vector3d> getApproximateGroundStationPositionsFromFile(std::string fileName,
-                                                                                    char commentSymbol='$',
-                                                                                    std::string separators="\t")
-{
-  std::ifstream file(fileName);
-  if (!file.good()) {
-    throw std::runtime_error("Error when opening file: " + fileName + " could not be opened.");
-  }
-  std::string currentLine;
-  std::vector<std::string> currentSplitLine;
-  std::map<std::string, Eigen::Vector3d> namesAndPositions;
-  while (std::getline(file, currentLine)) {
-    if (!currentLine.empty() && currentLine.at(0) != commentSymbol) {
-      boost::algorithm::split(currentSplitLine,
-                              currentLine,
-                              boost::is_any_of(separators),
-                              boost::algorithm::token_compress_on);
-      namesAndPositions[currentSplitLine[0]] = Eigen::Vector3d(std::stod(currentSplitLine[1]),
-                                                               std::stod(currentSplitLine[2]),
-                                                               std::stod(currentSplitLine[3]));
-    }
-  }
 
-  return namesAndPositions;
+
+const static std::string pysctrackGroundStationPosFile = tudat::paths::getTudatTestDataPath() + "glo.sit";
+const static std::string pysctrackGroundStationVelFile = tudat::paths::getTudatTestDataPath() + "glo.vel";
+const static std::string pysctrackGroundStationCodesFile = tudat::paths::getTudatTestDataPath() + "ns_codes.dat";
+const static std::map<std::string, Eigen::Vector3d> approximateGroundStationPositionsFromFile = utilities::getMapFromFile<std::string, Eigen::Vector3d>(pysctrackGroundStationPosFile, '$', " \t");
+const static std::map<std::string, Eigen::Vector3d> approximateGroundStationPositionsDsn = getApproximateDsnGroundStationPositions(); // TODO: remove once I can edit the file
+const static std::map<std::string, Eigen::Vector3d> approximateGroundStationVelocitiesFromFile = utilities::getMapFromFile<std::string, Eigen::Vector3d>(pysctrackGroundStationVelFile, '$', " \t");
+static std::map<std::string, std::string> groundStationCodesFromFile = utilities::getMapFromFile<std::string, std::string>(pysctrackGroundStationCodesFile, '*', " \t");
+
+const std::map<std::string, Eigen::Vector3d>& getApproximateGroundStationPositionsFromFile()
+{
+  return approximateGroundStationPositionsFromFile;
 }
 
-const std::string pysctrackGroundStationPosFile = tudat::paths::getTudatTestDataPath() + "glo.sit";
-static std::map<std::string, Eigen::Vector3d> approximateGroundStationPositionsFromFile = getApproximateGroundStationPositionsFromFile(pysctrackGroundStationPosFile);
-Eigen::Vector3d getApproximateGroundStationPositionFromFile( std::string stationName )
+Eigen::Vector3d getApproximateGroundStationPositionFromFile(std::string stationName )
 {
+  stationName = getGroundStationCodeFromFile(stationName);
+  if (approximateGroundStationPositionsDsn.count(stationName))
+  { // TODO: TEMPORARY - Remove this - add the ground stations to the file instead.
+    return approximateGroundStationPositionsDsn.at(stationName);
+  }
+
+  if (!approximateGroundStationPositionsFromFile.count(stationName)) {
+    throw std::runtime_error("Position of " + stationName + " unknown.");
+  }
   return approximateGroundStationPositionsFromFile.at(stationName);
+}
+
+Eigen::Vector3d getApproximateGroundStationVelocityFromFile(std::string stationName )
+{
+  return approximateGroundStationVelocitiesFromFile.at(stationName);
+}
+
+const std::map<std::string,std::string>& getGroundStationCodesFromFile()
+{
+  return groundStationCodesFromFile;
+}
+
+
+template<>
+std::string getGroundStationCodeFromFile<std::string>(std::string shortStationName)
+{
+  if (!groundStationCodesFromFile.count(shortStationName)) {
+    return shortStationName;
+  }
+  return groundStationCodesFromFile.at(shortStationName);
 }
 
 std::vector<std::shared_ptr<GroundStationSettings> > getDsnStationSettings()
