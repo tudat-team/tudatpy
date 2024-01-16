@@ -139,10 +139,8 @@ BOOST_AUTO_TEST_CASE(VikingRangeDataCustomFunction)
   BOOST_CHECK_EQUAL(dataBlock3[tio::TrackingDataType::second], 32);
   BOOST_CHECK_EQUAL(dataBlock3[tio::TrackingDataType::n_way_light_time], 2290.150246895);
 
-  std::shared_ptr<observation_models::ProcessedTrackingTxtFileContents>
-      processedVikingFile = std::make_shared<observation_models::ProcessedTrackingTxtFileContents>(rawVikingFile, spacecraftName);
-  auto observationCollection = observation_models::createTrackingTxtFileObservationCollection<double, double>(processedVikingFile);
 
+  auto observationCollection = observation_models::createTrackingTxtFileObservationCollection<double, double>(rawVikingFile, spacecraftName);
   BOOST_CHECK_EQUAL(observationCollection->getTotalObservableSize(), 1258);
 }
 
@@ -262,8 +260,7 @@ BOOST_AUTO_TEST_CASE(marinerSimpleReading)
   auto dataBlockLast = extractBlockFromVectorMap(dataMap, -1);
 
 
-//  1972 10 12 00:06:02  2610383946.989   0.475  -0.226
-
+  //  1972 10 12 00:06:02  2610383946.989   0.475  -0.226
   BOOST_CHECK_EQUAL(dataBlockLast[tio::TrackingDataType::year], 1972);
   BOOST_CHECK_EQUAL(dataBlockLast[tio::TrackingDataType::month], 10);
   BOOST_CHECK_EQUAL(dataBlockLast[tio::TrackingDataType::day], 12);
@@ -307,18 +304,7 @@ BOOST_AUTO_TEST_CASE(TestVikingRangeDataObservationCollection)
   auto timesDsn63 = observationsAndTimesDsn63.second;
 
   BOOST_CHECK_CLOSE(observationsDsn63(0, 0), 2371.564782809, 1e-12);
-  BOOST_CHECK_CLOSE(timesDsn63[0], -738352558.000000 , 1e-8);  // "1976-08-08T18:04:02.000" FIXME: should it be (+ 32.184 + 15)?
-
-
-//  const auto& concatenatedObservations = observationCollection->getObservationVectorReference();
-//  std::vector<double> observationTimes = observationCollection->getConcatenatedTimeVector();
-//  std::cout << observationTimes[0] << "\t" << concatenatedObservations(0, 0) << "\n";
-
-//  std::vector<int> linkEndIds = observationCollection->getConcatenatedLinkEndIds();
-//  std::map<int, observation_models::LinkEnds> linkEndIdMap = observationCollection->getInverseLinkEndIdentifierMap();
-//  for (auto& pair : linkEndIdMap) {
-//    std::cout << pair.first << " - " << pair.second;
-//  }
+  BOOST_CHECK_CLOSE(timesDsn63[0], -738352558.0 + 32.184 + 15, 1e-8);  // "1976-08-08T18:04:02.000"
 }
 
 BOOST_AUTO_TEST_CASE(TestJuiceFile)
@@ -328,7 +314,7 @@ BOOST_AUTO_TEST_CASE(TestJuiceFile)
   std::shared_ptr<tio::TrackingTxtFileContents> rawFdetsDopplerFile = readJuiceFdetsFile(juiceFdetsDopplerPath);
   rawFdetsDopplerFile->addMetaData(tio::TrackingDataType::doppler_base_frequency, 8420.0e6);
   rawFdetsDopplerFile->addMetaData(tio::TrackingDataType::doppler_bandwidth, 2.0e3);
-  rawFdetsDopplerFile->addMetaData(tio::TrackingDataType::vlbi_station_name, "Hb");
+  rawFdetsDopplerFile->addMetaData(tio::TrackingDataType::vlbi_station_name, "HOBART12");
 
 
   // CHECK THE RAW FILE
@@ -347,19 +333,23 @@ BOOST_AUTO_TEST_CASE(TestJuiceFile)
   BOOST_CHECK_EQUAL(dataBlockLast[tio::TrackingDataType::doppler_measured_frequency], 5977954.253958693705);
   BOOST_CHECK_EQUAL(dataBlockLast[tio::TrackingDataType::doppler_noise], -1.3803018149815216e-02);
 
-
-  // Process file
-  auto processedFdetsDopplerFile = std::make_shared<ProcessedTrackingTxtFileContents>(rawFdetsDopplerFile, "JUICE");
-  auto observationCollection = observation_models::createTrackingTxtFileObservationCollection<double, double>(processedFdetsDopplerFile);
+  auto observationCollection = observation_models::createTrackingTxtFileObservationCollection<double, double>(rawFdetsDopplerFile, "JUICE");
 
 }
 
 BOOST_AUTO_TEST_CASE(GroundStationLocations)
 {
-  std::cout << "Temporary Test\n";
-  printArr(simulation_setup::getApproximateGroundStationPositionFromFile("HOBART12"));
-}
+  std::map<std::string, Eigen::Vector3d> stationPosMap = simulation_setup::getApproximateGroundStationPositionsFromFile();
+  std::map<std::string, std::string> stationCodeMap = simulation_setup::getGroundStationCodesFromFile();
 
+  Eigen::Vector3d hobartPos = simulation_setup::getApproximateGroundStationPositionFromFile("HOBART12");
+  Eigen::Vector3d hobartVel = simulation_setup::getApproximateGroundStationVelocityFromFile("HOBART12");
+
+
+  BOOST_TEST(hobartPos == stationPosMap["HOBART12"], boost::test_tools::per_element());
+  BOOST_TEST(hobartPos == Eigen::Vector3d(-3949990.106, 2522421.118, -4311708.734), boost::test_tools::per_element());
+  BOOST_TEST(hobartVel == Eigen::Vector3d(-39.90, 9.00, 39.90), boost::test_tools::per_element());
+}
 
 BOOST_AUTO_TEST_SUITE_END();
 
