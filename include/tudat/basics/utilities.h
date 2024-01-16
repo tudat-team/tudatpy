@@ -18,10 +18,12 @@
 #include <iostream>
 #include <stdexcept>
 #include <sstream>
+#include <fstream>
 #include <iomanip>
 
 #include <functional>
 #include <boost/multi_array.hpp>
+#include <boost/algorithm/string.hpp>
 #include <memory>
 
 #include <Eigen/Core>
@@ -946,6 +948,16 @@ std::vector<double> convertVectors(ConvertFunc convertFunc, const std::vector<Fi
   }
   return result;
 }
+
+
+template<typename T, typename U>
+std::map<T, U> getMapFromFile(std::string fileName, char commentSymbol='#', std::string separators="\t");
+
+template<>
+std::map<std::string, Eigen::Vector3d> getMapFromFile<std::string, Eigen::Vector3d>(std::string fileName, char commentSymbol, std::string separators);
+
+template<>
+std::map<std::string, std::string> getMapFromFile<std::string, std::string>(std::string fileName, char commentSymbol, std::string separators);
 
 template<typename T>
 std::vector< std::vector< T > > getTwoDimensionalVector( const int firstDimension, const int secondDimension, const T initializationValue )
