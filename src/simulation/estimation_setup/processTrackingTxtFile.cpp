@@ -36,7 +36,6 @@ void ProcessedTrackingTxtFileContents::updateObservations()
 
 void ProcessedTrackingTxtFileContents::updateObservationTimes()
 {
-  // TODO: The timescale is currently not considered. Need to find a solution to make that consistent
 
   observationTimes_.clear();
   const auto& dataMap = rawTrackingTxtFileContents_->getDoubleDataMap();
@@ -48,8 +47,7 @@ void ProcessedTrackingTxtFileContents::updateObservationTimes()
       observationTimes_ = dataMap.at(input_output::TrackingDataType::tdb_time_j2000);
       break;
     }
-    case day_time: {
-
+    case calendar_day_time: {
       std::vector<double> observationJulianDaysSinceJ2000 = utilities::convertVectors(
           basic_astrodynamics::convertCalendarDateToJulianDaySinceJ2000<double>,
           dataMap.at(input_output::TrackingDataType::year),
@@ -60,9 +58,11 @@ void ProcessedTrackingTxtFileContents::updateObservationTimes()
           dataMap.at(input_output::TrackingDataType::second)
       );
 
+      std::vector<double> observationTimesUtc;
       for (double julianDaySinceJ2000 : observationJulianDaysSinceJ2000) {
-        observationTimes_.push_back(julianDaySinceJ2000 * physical_constants::JULIAN_DAY); // FIXME: I think this is wrong
+        observationTimesUtc.push_back(julianDaySinceJ2000 * physical_constants::JULIAN_DAY);
       }
+      observationTimes_ = computeObservationTimesTdbFromJ2000(observationTimesUtc);
 
       break;
     }
@@ -70,6 +70,25 @@ void ProcessedTrackingTxtFileContents::updateObservationTimes()
       throw std::runtime_error("Error while processing tracking txt file: Time representation not recognised or implemented.");
     }
   }
+}
+
+std::vector<double> ProcessedTrackingTxtFileContents::computeObservationTimesTdbFromJ2000(std::vector<double> observationTimesUtc)
+{
+  earth_orientation::TerrestrialTimeScaleConverter timeScaleConverter = earth_orientation::TerrestrialTimeScaleConverter();
+  if (linkEndsVector_.size() != observationTimesUtc.size()) {
+    throw std::runtime_error("Error while processing tracking data: vector of linkEnds and observationTimes not of equal size");
+  }
+
+  std::vector<Eigen::Vector3d> groundStationPositions;
+  for (const auto& linkEnds : linkEndsVector_) {
+    std::string currentGroundStation = linkEnds.at(receiver).getStationName(); // TODO: what if transmitter and receiver different?
+    groundStationPositions.push_back(simulation_setup::getApproximateGroundStationPositionFromFile(currentGroundStation));
+  }
+  std::vector<double> observationTimesTdb = timeScaleConverter.getCurrentTimes(basic_astrodynamics::utc_scale,
+                                                                               basic_astrodynamics::tdb_scale,
+                                                                               observationTimesUtc,
+                                                                               groundStationPositions);
+  return observationTimesTdb;
 }
 
 void ProcessedTrackingTxtFileContents::updateLinkEnds()
@@ -88,10 +107,12 @@ void ProcessedTrackingTxtFileContents::updateLinkEnds()
       const auto& dsnReceiverIds = dataMap.at(input_output::TrackingDataType::dsn_receiving_station_nr);
 
       for (size_t i = 0; i < numDataRows; ++i) {
+        std::string transmitterName = simulation_setup::getGroundStationCodeFromFile(dsnTransmitterIds[i]);
+        std::string receiverName = simulation_setup::getGroundStationCodeFromFile(dsnReceiverIds[i]);
         LinkEnds currentLinkEnds{
-            {transmitter, LinkEndId("Earth", getStationNameFromStationId("DSS-", static_cast<int>(dsnTransmitterIds[i])))},
+            {transmitter, LinkEndId("Earth", transmitterName)},
             {reflector, LinkEndId(spacecraftName_, "Antenna")},
-            {receiver, LinkEndId("Earth", getStationNameFromStationId("DSS-", static_cast<int>(dsnReceiverIds[i])))},
+            {receiver, LinkEndId("Earth", receiverName)},
         };
         linkEndsVector_.push_back(currentLinkEnds);
       }
@@ -99,9 +120,6 @@ void ProcessedTrackingTxtFileContents::updateLinkEnds()
     }
 
     case vlbi_station: {
-
-      // TODO: Different if in the metadata!
-      //    Take data from actual info, not hardcoded!
 
       if (metaDataStrMap.count(input_output::TrackingDataType::vlbi_station_name)) {
         std::string vlbi_station_name = metaDataStrMap.at(input_output::TrackingDataType::vlbi_station_name);
@@ -151,7 +169,7 @@ ProcessedTrackingTxtFileContents::TimeRepresentation ProcessedTrackingTxtFileCon
                                  input_output::TrackingDataType::minute,
                                  input_output::TrackingDataType::second
                              })) {
-    return day_time;
+    return calendar_day_time;
   }
   throw std::runtime_error("Error while processing tracking txt file: Time representation not recognised or implemented.");
 }
