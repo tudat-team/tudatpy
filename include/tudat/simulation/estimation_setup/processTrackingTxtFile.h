@@ -54,17 +54,20 @@ class ProcessedTrackingTxtFileContents
 {
 //  Constructors
 public:
-  ProcessedTrackingTxtFileContents(std::shared_ptr<input_output::TrackingTxtFileContents> rawTrackingTxtContents, std::string spacecraftName)
-      : rawTrackingTxtFileContents_(rawTrackingTxtContents), spacecraftName_(spacecraftName), initialised_(false)
+  ProcessedTrackingTxtFileContents(std::shared_ptr<input_output::TrackingTxtFileContents> rawTrackingTxtContents,
+                                   std::string spacecraftName,
+                                   const std::map<std::string, Eigen::Vector3d>& earthFixedGroundStationPositions)
+      : rawTrackingTxtFileContents_(rawTrackingTxtContents), spacecraftName_(spacecraftName),
+        earthFixedGroundStationPositions_(earthFixedGroundStationPositions), initialised_(false)
   {
     initialise();
   }
 
   void initialise()
   {
+    updateLinkEnds(); // Needs to be first
     updateObservationTimes();
     updateObservations();
-    updateLinkEnds();
     updateObservableTypes();
     initialised_ = true;
   }
@@ -80,11 +83,10 @@ public:
     return startEndTime;
   }
 
-  //! Method to (re)calculate the times from the Tracking file
-  void updateObservationTimes();
-
   //! Method to create a vector of the linkEnds for each of the lines in the file (different ground stations might be used)
   void updateLinkEnds();
+  //! Method to (re)calculate the times from the Tracking file
+  void updateObservationTimes();
 
   void updateObservations();
 
@@ -92,6 +94,8 @@ public:
   {
     observableTypes_ = findAvailableObservableTypes(rawTrackingTxtFileContents_->getDataColumnTypes());
   }
+
+  std::vector<double> computeObservationTimesTdbFromJ2000(std::vector<double> observationTimesUtc);
 
   //! Utility function to get the ground station id
   static std::string getStationNameFromStationId(const std::string networkPrefix, const int stationId)
@@ -104,7 +108,7 @@ private:
 
   enum TimeRepresentation
   {
-    day_time,
+    calendar_day_time,
     tdb_seconds_j2000,
   };
 
@@ -163,6 +167,7 @@ private:
   std::vector<ObservableType> observableTypes_;
   std::vector<LinkEnds> linkEndsVector_;
   std::set<LinkEnds> linkEndsSet_;
+  std::map<std::string, Eigen::Vector3d> earthFixedGroundStationPositions_;
   bool initialised_ = false;
 };
 
@@ -172,6 +177,7 @@ std::shared_ptr<observation_models::ObservationCollection<ObservationScalarType,
 createTrackingTxtFileObservationCollection(
     std::shared_ptr<observation_models::ProcessedTrackingTxtFileContents> processedTrackingTxtFileContents,
     std::vector<ObservableType> observableTypesToProcess = std::vector<ObservableType>(),
+    std::map<std::string, Eigen::Vector3d> earthFixedGroundStationPositions = simulation_setup::getApproximateGroundStationPositionsFromFile(),
     const ObservationAncilliarySimulationSettings& ancillarySettings = ObservationAncilliarySimulationSettings(),
     std::pair<TimeType, TimeType> startAndEndTimesToProcess = std::make_pair<TimeType, TimeType>(TUDAT_NAN, TUDAT_NAN))
 {
@@ -250,13 +256,16 @@ createTrackingTxtFileObservationCollection(
     std::shared_ptr<input_output::TrackingTxtFileContents> rawTrackingTxtFileContents,
     std::string spacecraftName,
     std::vector<ObservableType> observableTypesToProcess = std::vector<ObservableType>(),
+    std::map<std::string, Eigen::Vector3d> earthFixedGroundStationPositions = simulation_setup::getApproximateGroundStationPositionsFromFile(),
     const ObservationAncilliarySimulationSettings& ancillarySettings = ObservationAncilliarySimulationSettings(),
     std::pair<TimeType, TimeType> startAndEndTimesToProcess = std::make_pair<TimeType, TimeType>(TUDAT_NAN, TUDAT_NAN))
 {
   auto processedTrackingTxtFileContents = std::make_shared<observation_models::ProcessedTrackingTxtFileContents>(rawTrackingTxtFileContents,
-                                                                                                                 spacecraftName);
+                                                                                                                 spacecraftName,
+                                                                                                                 earthFixedGroundStationPositions);
   return createTrackingTxtFileObservationCollection(processedTrackingTxtFileContents,
                                                     observableTypesToProcess,
+                                                    earthFixedGroundStationPositions,
                                                     ancillarySettings,
                                                     startAndEndTimesToProcess);
 }
