@@ -96,7 +96,7 @@ BOOST_AUTO_TEST_CASE( testSettingAndGettingParameters )
 //! Test computation of potential, gradient of potential, hessian of potential and laplacian of potential.
 BOOST_AUTO_TEST_CASE( testGravityComputation )
 {
-    const double tolerance = 1.0E-12;
+    const double tolerance = 1.0E-14;
 
     // Define cuboid polyhedron dimensions
     const double w = 10.0; // width
@@ -228,7 +228,6 @@ BOOST_AUTO_TEST_CASE( testGravityComputation )
                 expectedLaplacian += 0.1;
             }
             //BOOST_CHECK_CLOSE_FRACTION( expectedLaplacian, computedLaplacian, tolerance );
-            std::cout<<"Laplacian: "<<expectedLaplacian<<" "<<computedLaplacian<<" "<<expectedLaplacian - computedLaplacian<<" "<<tolerance<<std::endl;
             BOOST_CHECK( std::fabs( expectedLaplacian - computedLaplacian ) < std::fabs( std::min( expectedLaplacian, computedLaplacian ) * 100.0 * tolerance ) );
 
         }
