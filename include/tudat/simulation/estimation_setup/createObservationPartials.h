@@ -605,7 +605,7 @@ std::shared_ptr< PositionPartialScaling > > createDifferencedObservablePartials(
         if( isParameterObservationLinkProperty( parameterIterator->second->getParameterName( ).first ) && useBiasPartials )
         {
             currentDifferencedObservationPartial = createObservationPartialWrtLinkProperty< ObservationSize >(
-                        linkEnds, undifferencedObservableType, parameterIterator->second );
+                        linkEnds, undifferencedObservableType, parameterIterator->second, bodies );
         }
 
         // Check if partial is non-nullptr (i.e. whether dependency exists between current doppler and current parameter)

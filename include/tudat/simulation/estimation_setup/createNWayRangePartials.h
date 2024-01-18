@@ -158,7 +158,7 @@ std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialSca
         if( isParameterObservationLinkProperty( parameterIterator->second->getParameterName( ).first ) && useBiasPartials )
         {
             currentNWayRangePartial = createObservationPartialWrtLinkProperty< 1 >(
-                        nWayRangeLinkEnds, observation_models::n_way_range, parameterIterator->second );
+                        nWayRangeLinkEnds, observation_models::n_way_range, parameterIterator->second, bodies );
         }
 
         // Check if partial is non-nullptr
