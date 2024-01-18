@@ -42,8 +42,8 @@ public:
         const observation_models::LinkEndType referenceLinkEnd,
         const std::shared_ptr< observation_partials::DirectObservationPartial< ObservationSize > > transmitterWrtLinkEndStatePartial,
         const std::shared_ptr< observation_partials::DirectObservationPartial< ObservationSize > > receiverWrtLinkEndStatePartial,
-        const std::function< Eigen::VectorXd( const double ) > transmitterAccelerationFunction,
-        const std::function< Eigen::VectorXd( const double ) > receiverAccelerationFunction ):
+        const std::function< Eigen::Vector3d( const double ) > transmitterAccelerationFunction,
+        const std::function< Eigen::Vector3d( const double ) > receiverAccelerationFunction ):
             linkEnds_( linkEnds ), observableType_( observableType ), referenceLinkEnd_( referenceLinkEnd ),
             transmitterWrtLinkEndStatePartial_( transmitterWrtLinkEndStatePartial ),
             receiverWrtLinkEndStatePartial_( receiverWrtLinkEndStatePartial ),
@@ -96,8 +96,10 @@ public:
             receiverStateDerivative.segment( 0, 3 ) = states.at( 1 ).segment( 3, 3 );
             receiverStateDerivative.segment( 3, 3 ) = receiverAccelerationFunction_( times.at( 1 ) );
 
-            return std::make_pair( transmitterStatePartials.at( 0 ) * transmitterStateDerivative +
-                                   receiverStatePartials.at( 0 ) * receiverStateDerivative,
+            std::cout<<transmitterStatePartials.at( 0 ).first * transmitterStateDerivative<<std::endl<<","<<std::endl<<
+                       receiverStatePartials.at( 0 ).first * receiverStateDerivative<<std::endl<<std::endl;
+            return std::make_pair( transmitterStatePartials.at( 0 ).first * transmitterStateDerivative +
+                                   receiverStatePartials.at( 0 ).first * receiverStateDerivative,
                                    referenceTime );
         }
     }
@@ -120,9 +122,9 @@ protected:
 
     std::shared_ptr< observation_partials::DirectObservationPartial< ObservationSize > > receiverWrtLinkEndStatePartial_;
 
-    std::function< Eigen::VectorXd( const double ) > transmitterAccelerationFunction_;
+    std::function< Eigen::Vector3d( const double ) > transmitterAccelerationFunction_;
 
-    std::function< Eigen::VectorXd( const double ) > receiverAccelerationFunction_;
+    std::function< Eigen::Vector3d( const double ) > receiverAccelerationFunction_;
 };
 
 //! Class for computing the derivative of any observable w.r.t. a constant time drift bias

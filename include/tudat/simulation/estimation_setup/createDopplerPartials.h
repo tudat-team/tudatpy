@@ -235,7 +235,7 @@ std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialSca
         if( isParameterObservationLinkProperty( parameterIterator->second->getParameterName( ).first ) && useBiasPartials )
         {
             currentTwoWayDopplerPartial = createObservationPartialWrtLinkProperty< 1 >(
-                        twoWayDopplerLinkEnds, observation_models::two_way_doppler, parameterIterator->second );
+                        twoWayDopplerLinkEnds, observation_models::two_way_doppler, parameterIterator->second, bodies );
         }
 
         // Check if partial is non-nullptr (i.e. whether dependency exists between current doppler and current parameter)

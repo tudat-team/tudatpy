@@ -83,6 +83,7 @@ std::shared_ptr< ObservationPartial< ObservationSize > > createObservationPartia
     const observation_models::LinkEnds& linkEnds,
     const observation_models::ObservableType observableType,
     const std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameterToEstimate,
+    const simulation_setup::SystemOfBodies& bodies,
     const bool useBiasPartials = true,
     const std::map< std::pair< int, int >, std::shared_ptr< ObservationPartial< ObservationSize > > >& observationPartials =
         std::map< std::pair< int, int >, std::shared_ptr< ObservationPartial< ObservationSize > > >( ),
@@ -265,19 +266,28 @@ std::shared_ptr< ObservationPartial< ObservationSize > > createObservationPartia
                 // Check dependency between parameter and link properties.
                 if( linkEnds == constantTimeBias->getLinkEnds( ) && observableType == constantTimeBias->getObservableType( ) )
                 {
-                    std::shared_ptr< ObservationPartial< ObservationSize > > observationWrtTransmitterStatePartial = getPartialWrtBodyTranslationalState(
-                        observationPartials, linkEnds.at( observation_models::transmitter ).bodyName_, partialWrtStateCreationFunction );
-                    std::shared_ptr< ObservationPartial< ObservationSize > > observationWrtReceiverStatePartial = getPartialWrtBodyTranslationalState(
-                        observationPartials, linkEnds.at( observation_models::receiver ).bodyName_, partialWrtStateCreationFunction );
+                    std::shared_ptr< DirectObservationPartial< ObservationSize > > observationWrtTransmitterStatePartial =
+                        std::dynamic_pointer_cast< DirectObservationPartial< ObservationSize > >(
+                        getPartialWrtBodyTranslationalState(
+                        observationPartials, linkEnds.at( observation_models::transmitter ).bodyName_, partialWrtStateCreationFunction ) );
+                    std::shared_ptr< DirectObservationPartial< ObservationSize > > observationWrtReceiverStatePartial =
+                        std::dynamic_pointer_cast< DirectObservationPartial< ObservationSize > >(
+                        getPartialWrtBodyTranslationalState(
+                        observationPartials, linkEnds.at( observation_models::receiver ).bodyName_, partialWrtStateCreationFunction ) );
 
+                    std::shared_ptr< ephemerides::ReferenceFrameManager > frameManager = createFrameManager( bodies.getMap( ) );
+                    std::shared_ptr< ephemerides::Ephemeris > transmitterInertialEphemeris =
+                        frameManager->getEphemeris( bodies.getFrameOrigin( ), linkEnds.at( observation_models::transmitter ).bodyName_ );
+                    std::shared_ptr< ephemerides::Ephemeris > receiverInertialEphemeris =
+                        frameManager->getEphemeris( bodies.getFrameOrigin( ), linkEnds.at( observation_models::receiver ).bodyName_ );
 
                     std::shared_ptr< TimeBiasPartial< ObservationSize > > timeBiasPartial= std::make_shared< TimeBiasPartial< ObservationSize > >(
                        linkEnds, observableType,
-                       constantTimeBias->getLinkEndId( ),
                        constantTimeBias->getReferenceLinkEnd( ),
                        observationWrtTransmitterStatePartial,
                        observationWrtReceiverStatePartial,
-                       constantTimeBias->getBodyAccelerationFunction( ) );
+                       std::bind( &ephemerides::Ephemeris::getCartesianAcceleration, transmitterInertialEphemeris, std::placeholders::_1, 30.0 ),
+                       std::bind( &ephemerides::Ephemeris::getCartesianAcceleration, receiverInertialEphemeris, std::placeholders::_1, 30.0 ) );
 //                    partialWrtParameterBodyState
                     observationPartial = std::make_shared< ObservationPartialWrtConstantTimeBias< ObservationSize > >( timeBiasPartial );
                 }
