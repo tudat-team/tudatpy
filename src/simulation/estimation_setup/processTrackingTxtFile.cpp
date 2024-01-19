@@ -111,7 +111,7 @@ void ProcessedTrackingTxtFileContents::updateLinkEnds()
         std::string receiverName = simulation_setup::getGroundStationCodeFromFile(dsnReceiverIds[i]);
         LinkEnds currentLinkEnds{
             {transmitter, LinkEndId("Earth", transmitterName)},
-            {reflector, LinkEndId(spacecraftName_, "Antenna")},
+            {reflector, LinkEndId(spacecraftName_, "")},
             {receiver, LinkEndId("Earth", receiverName)},
         };
         linkEndsVector_.push_back(currentLinkEnds);
@@ -124,7 +124,7 @@ void ProcessedTrackingTxtFileContents::updateLinkEnds()
       if (metaDataStrMap.count(input_output::TrackingDataType::vlbi_station_name)) {
         std::string vlbi_station_name = metaDataStrMap.at(input_output::TrackingDataType::vlbi_station_name);
         LinkEnds constantLinkEnds{
-            {transmitter, LinkEndId(spacecraftName_, "Antenna")},
+            {transmitter, LinkEndId(spacecraftName_, "")},
             {receiver, LinkEndId("Earth", vlbi_station_name)}, // FIXME!
         };
         for (size_t i = 0; i < numDataRows; ++i) {
