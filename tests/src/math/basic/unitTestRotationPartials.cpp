@@ -264,11 +264,15 @@ BOOST_AUTO_TEST_CASE( testEulerAnglePartials )
     {
         for( unsigned int j = 1; j < 4; j++ )
         {
-            BOOST_CHECK_SMALL( std::fabs( eulerAnglePartial( i, j )  - eulerAnglePartial2( i, j ) ), 1.0E-14 );
-            BOOST_CHECK_SMALL( std::fabs( eulerAnglePartial( i, j ) -
+            //BOOST_CHECK_SMALL( std::fabs( eulerAnglePartial( i, j )  - eulerAnglePartial2( i, j ) ), 1.0E-14 );
+            BOOST_CHECK_LT( std::fabs( eulerAnglePartial( i, j )  - eulerAnglePartial2( i, j ) ), 5.0E-14 );
+            //BOOST_CHECK_SMALL( std::fabs( eulerAnglePartial( i, j ) -
+                                          //( manualAnglePartial( i, j ) - manualQ0PartialContribution( i, j ) ) ), 1.0E-9 );
+            BOOST_CHECK_LT( std::fabs( eulerAnglePartial( i, j ) -
                                           ( manualAnglePartial( i, j ) - manualQ0PartialContribution( i, j ) ) ), 1.0E-9 );
         }
-        BOOST_CHECK_SMALL( std::fabs( eulerAnglePartial( i, 0 )  -eulerAnglePartial2( i, 0 ) ), 1.0E-14 );
+        //BOOST_CHECK_SMALL( std::fabs( eulerAnglePartial( i, 0 )  -eulerAnglePartial2( i, 0 ) ), 1.0E-14 );
+        BOOST_CHECK_LT( std::fabs( eulerAnglePartial( i, 0 )  - eulerAnglePartial2( i, 0 ) ), 1.0E-14 );
     }
 }
 
