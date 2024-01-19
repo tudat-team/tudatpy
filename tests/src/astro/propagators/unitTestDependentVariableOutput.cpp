@@ -1639,46 +1639,58 @@ BOOST_AUTO_TEST_CASE( test_GravitationalPotentialAndLaplacianSaving )
             if ( gravityModelsId == 0 )
             {
                 // Check central body gravitational potential - not sure why the tolerance needs to be so large
-                BOOST_CHECK_CLOSE_FRACTION(
+                /*BOOST_CHECK_CLOSE_FRACTION(
                         earthGravitationalPotential,
                         earthGravityModel->getGravitationalPotential( earthBodyFixedCartesianPosition ),
-                        1e-7 );
+                        1e-7 );*/
+                BOOST_CHECK( std::fabs( earthGravitationalPotential - earthGravityModel->getGravitationalPotential( earthBodyFixedCartesianPosition ) )
+                            < std::fabs( std::min( earthGravitationalPotential, earthGravityModel->getGravitationalPotential( earthBodyFixedCartesianPosition ) ) * 1e-7 ) );
 
                 // Check 3rd body gravitational potential - not sure why the tolerance needs to be so large
-                BOOST_CHECK_CLOSE_FRACTION(
+                /*BOOST_CHECK_CLOSE_FRACTION(
                         moonGravitationalPotential,
                         moonGravityModel->getGravitationalPotential( moonBodyFixedCartesianPosition ),
-                        1e-11 );
+                        1e-11 );*/
+                BOOST_CHECK( std::fabs( moonGravitationalPotential - moonGravityModel->getGravitationalPotential( moonBodyFixedCartesianPosition ) )
+                            < std::fabs( std::min( moonGravitationalPotential, moonGravityModel->getGravitationalPotential( moonBodyFixedCartesianPosition ) ) * 1e-11 ) );
             }
             // Polyhedron
             else
             {
                 // Check central body gravitational potential
-                BOOST_CHECK_CLOSE_FRACTION(
+                /*BOOST_CHECK_CLOSE_FRACTION(
                         earthGravitationalPotential,
                         earthGravityModel->getGravitationalPotential( earthBodyFixedCartesianPosition ),
-                        1e-15 );
+                        1e-15 );*/
+                BOOST_CHECK( std::fabs( earthGravitationalPotential - earthGravityModel->getGravitationalPotential( earthBodyFixedCartesianPosition ) )
+                            < std::fabs( std::min( earthGravitationalPotential, earthGravityModel->getGravitationalPotential( earthBodyFixedCartesianPosition ) ) * 1e-15 ) );
 
                 // Check 3rd body gravitational potential
-                BOOST_CHECK_CLOSE_FRACTION(
+                /*BOOST_CHECK_CLOSE_FRACTION(
                         moonGravitationalPotential,
                         moonGravityModel->getGravitationalPotential( moonBodyFixedCartesianPosition ),
-                        1e-15 );
+                        1e-15 );*/
+                BOOST_CHECK( std::fabs( moonGravitationalPotential - moonGravityModel->getGravitationalPotential( moonBodyFixedCartesianPosition ) )
+                            < std::fabs( std::min( moonGravitationalPotential, moonGravityModel->getGravitationalPotential( moonBodyFixedCartesianPosition ) ) * 1e-15 ) );
 
                 double earthGravitationalLaplacianOfPotential = variableIterator->second( 8 );
                 double moonGravitationalLaplacianOfPotential = variableIterator->second( 9 );
 
                 // Check central body gravitational potential: adding 1 because value is very close to 0
-                BOOST_CHECK_CLOSE_FRACTION(
+                /*BOOST_CHECK_CLOSE_FRACTION(
                         earthGravitationalLaplacianOfPotential + 1,
                         earthGravityModel->getLaplacianOfPotential( earthBodyFixedCartesianPosition ) + 1,
-                        1e-15 );
+                        1e-15 );*/
+                BOOST_CHECK( std::fabs( earthGravitationalLaplacianOfPotential - earthGravityModel->getLaplacianOfPotential( earthBodyFixedCartesianPosition ) )
+                            < std::fabs( std::min( earthGravitationalLaplacianOfPotential, earthGravityModel->getLaplacianOfPotential( earthBodyFixedCartesianPosition ) ) * 1e-15 ) );
 
                 // Check 3rd body gravitational potential: adding 1 because value is very close to 0
-                BOOST_CHECK_CLOSE_FRACTION(
+                /*BOOST_CHECK_CLOSE_FRACTION(
                         moonGravitationalLaplacianOfPotential + 1,
                         moonGravityModel->getLaplacianOfPotential( moonBodyFixedCartesianPosition ) + 1,
-                        1e-15 );
+                        1e-15 );*/
+                BOOST_CHECK( std::fabs( moonGravitationalLaplacianOfPotential - moonGravityModel->getLaplacianOfPotential( moonBodyFixedCartesianPosition ) )
+                            < std::fabs( std::min( moonGravitationalLaplacianOfPotential, moonGravityModel->getLaplacianOfPotential( moonBodyFixedCartesianPosition ) ) * 1e-15 ) );
             }
         }
     }
