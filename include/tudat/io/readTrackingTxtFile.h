@@ -164,7 +164,7 @@ private:
 class TrackingFileFieldUTCTimeConverter : public TrackingFileFieldConverter
 {
 public:
-  TrackingFileFieldUTCTimeConverter(TrackingDataType trackingDataType)
+  TrackingFileFieldUTCTimeConverter(TrackingDataType trackingDataType = TrackingDataType::tdb_time_j2000)
       : TrackingFileFieldConverter(trackingDataType) {}
   double toDouble(std::string& rawField) const
   {

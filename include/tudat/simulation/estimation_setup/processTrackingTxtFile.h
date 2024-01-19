@@ -54,8 +54,8 @@ class ProcessedTrackingTxtFileContents
 {
 //  Constructors
 public:
-  ProcessedTrackingTxtFileContents(std::shared_ptr<input_output::TrackingTxtFileContents> rawTrackingTxtContents,
-                                   std::string spacecraftName,
+  ProcessedTrackingTxtFileContents(const std::shared_ptr<input_output::TrackingTxtFileContents> rawTrackingTxtContents,
+                                   const std::string spacecraftName,
                                    const std::map<std::string, Eigen::Vector3d>& earthFixedGroundStationPositions)
       : rawTrackingTxtFileContents_(rawTrackingTxtContents), spacecraftName_(spacecraftName),
         earthFixedGroundStationPositions_(earthFixedGroundStationPositions), initialised_(false)
