@@ -96,10 +96,8 @@ public:
             receiverStateDerivative.segment( 0, 3 ) = states.at( 1 ).segment( 3, 3 );
             receiverStateDerivative.segment( 3, 3 ) = receiverAccelerationFunction_( times.at( 1 ) );
 
-            std::cout<<transmitterStatePartials.at( 0 ).first * transmitterStateDerivative<<std::endl<<","<<std::endl<<
-                       receiverStatePartials.at( 0 ).first * receiverStateDerivative<<std::endl<<std::endl;
-            return std::make_pair( transmitterStatePartials.at( 0 ).first * transmitterStateDerivative +
-                                   receiverStatePartials.at( 0 ).first * receiverStateDerivative,
+            return std::make_pair( -( transmitterStatePartials.at( 0 ).first * transmitterStateDerivative +
+                                      receiverStatePartials.at( 0 ).first * receiverStateDerivative ),
                                    referenceTime );
         }
     }
