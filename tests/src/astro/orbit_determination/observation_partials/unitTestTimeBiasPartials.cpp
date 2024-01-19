@@ -56,6 +56,7 @@ BOOST_AUTO_TEST_CASE( testTimeBiasPartials )
 
     // Create bodies needed in simulation
     BodyListSettings bodySettings = getDefaultBodySettings( bodyNames, "Earth", "ECLIPJ2000" );
+//    bodySettings.at( "Earth" )->rotationModelSettings = simpleRotationModelSettings( "ECLIPJ2000", "IAU_Earth", Eigen::Matrix3d::Identity( ), 0.0, 0.0 );
     SystemOfBodies bodies = createSystemOfBodies( bodySettings );
     bodies.createEmptyBody( "Vehicle" );
     bodies.at( "Vehicle" )->setEphemeris( std::make_shared< TabulatedCartesianEphemeris< > >(
@@ -210,10 +211,11 @@ BOOST_AUTO_TEST_CASE( testTimeBiasPartials )
             baseTimeList, currentLinkEnds, receiver, nullptr, observations, partials, false, true );
         std::cout<<partials<<std::endl;
 
-        double timeBiasPerturbation = 0.2;
+        double timeBiasPerturbation = 1.0;
         Eigen::VectorXd originalParameters = parametersToEstimate->getFullParameterValues< double >( );
 
         Eigen::VectorXd perturbedParameters = originalParameters;
+        std::cout<<"PARAMETERS: "<<originalParameters.transpose( )<<std::endl;
         perturbedParameters( 6 ) += timeBiasPerturbation;
         parametersToEstimate->resetParameterValues( perturbedParameters );
         std::shared_ptr< ObservationCollection< double, double > > upperturbedSimulatedObservations = simulateObservations< double, double >(
@@ -228,7 +230,7 @@ BOOST_AUTO_TEST_CASE( testTimeBiasPartials )
         Eigen::MatrixXd numericalPartials = ( upperturbedSimulatedObservations->getObservationVector( ) - downperturbedSimulatedObservations->getObservationVector( ) ) /
             ( 2.0 * timeBiasPerturbation );
         std::cout<<std::endl<<std::endl<<numericalPartials<<std::endl;
-        std::cout<<std::endl<<std::endl<<numericalPartials.cwiseQuotient( partials.block( 0, 6, 10, 1 ) )-Eigen::VectorXd::Constant( numericalPartials.rows( ), 1 )<<std::endl;
+        std::cout<<std::endl<<std::endl<<numericalPartials.cwiseQuotient( partials.block( 0, 6, 1, 1 ) )-Eigen::VectorXd::Constant( numericalPartials.rows( ), 1 )<<std::endl;
 
     }
 
