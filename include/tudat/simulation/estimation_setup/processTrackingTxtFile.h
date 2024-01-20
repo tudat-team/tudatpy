@@ -33,21 +33,22 @@ namespace observation_models
 //! Is present in the file, the corresponding ObservableType (value) can later be added to the  ObservationCollection
 static const std::map<std::vector<input_output::TrackingDataType>, ObservableType> dataTypeToObservableMap = {
     {{input_output::TrackingDataType::n_way_light_time}, n_way_range},
-    {{input_output::TrackingDataType::doppler_measured_frequency}, one_way_doppler},
+//    {{input_output::TrackingDataType::doppler_measured_frequency}, one_way_doppler},
     // Todo: More to be implemented
 };
+
+
 
 //! Function to extract a vector of all the observableTypes that can be deduced from a list of DataTypes
 std::vector<ObservableType> findAvailableObservableTypes(std::vector<input_output::TrackingDataType> availableDataTypes);
 
-//! Function to create ancillary settings
-template< typename TimeType = double >
-ObservationAncilliarySimulationSettings createTrackingAncillarySettings(
-    std::shared_ptr<input_output::TrackingTxtFileContents> trackingTxtFileContents)
-{
-  // TODO: Currently not used
-  return ObservationAncilliarySimulationSettings();
-}
+////! Function to create ancillary settings
+//template< typename TimeType = double >
+//ObservationAncilliarySimulationSettings createTrackingAncillarySettings(
+//    std::shared_ptr<input_output::TrackingTxtFileContents> trackingTxtFileContents)
+//{
+//  return ObservationAncilliarySimulationSettings();
+//}
 
 //! Class containing the processed file contents for a Tracking txt data file
 class ProcessedTrackingTxtFileContents
@@ -98,7 +99,8 @@ public:
   std::vector<double> computeObservationTimesTdbFromJ2000(std::vector<double> observationTimesUtc);
 
   //! Utility function to get the ground station id
-  static std::string getStationNameFromStationId(const std::string networkPrefix, const int stationId)
+  //! TODO: This is temporary until the functionality to read from file is implemented
+  static std::string getStationNameFromStationId(const int stationId, const std::string networkPrefix="DSS-")
   {
     return networkPrefix + std::to_string(stationId);
   }
@@ -171,15 +173,24 @@ private:
   bool initialised_ = false;
 };
 
-//! Function to create an observation collection from the processed Tracking file data
+/*!
+ * Function to create an observation collection from the processed Tracking file data
+ * @param processedTrackingTxtFileContents
+ * @param observableTypesToProcess
+ * @param earthFixedGroundStationPositions
+ * @param ancillarySettings
+ * @param startAndEndTimesToProcess
+ * @return
+ */
 template< typename ObservationScalarType = double, typename TimeType = double >
 std::shared_ptr<observation_models::ObservationCollection<ObservationScalarType, TimeType> >
 createTrackingTxtFileObservationCollection(
-    std::shared_ptr<observation_models::ProcessedTrackingTxtFileContents> processedTrackingTxtFileContents,
+    const std::shared_ptr<observation_models::ProcessedTrackingTxtFileContents> processedTrackingTxtFileContents,
     std::vector<ObservableType> observableTypesToProcess = std::vector<ObservableType>(),
-    std::map<std::string, Eigen::Vector3d> earthFixedGroundStationPositions = simulation_setup::getApproximateGroundStationPositionsFromFile(),
+    const std::map<std::string, Eigen::Vector3d> earthFixedGroundStationPositions = simulation_setup::getApproximateDsnGroundStationPositions(),
+//    const std::map<std::string, Eigen::Vector3d> earthFixedGroundStationPositions = simulation_setup::getApproximateGroundStationPositionsFromFile(),
     const ObservationAncilliarySimulationSettings& ancillarySettings = ObservationAncilliarySimulationSettings(),
-    std::pair<TimeType, TimeType> startAndEndTimesToProcess = std::make_pair<TimeType, TimeType>(TUDAT_NAN, TUDAT_NAN))
+    const std::pair<TimeType, TimeType> startAndEndTimesToProcess = std::make_pair<TimeType, TimeType>(TUDAT_NAN, TUDAT_NAN))
 {
 
   if (!processedTrackingTxtFileContents->is_initialised()) {
@@ -249,14 +260,24 @@ createTrackingTxtFileObservationCollection(
   return std::make_shared<ObservationCollection<ObservationScalarType, TimeType> >(observationSets);
 }
 
-//! Function to create an observation collection from the raw Tracking file data
+/*!
+ * Function to create an observation collection from the raw Tracking file data
+ * @param rawTrackingTxtFileContents The raw tracking file contents
+ * @param spacecraftName Name of the spacecraft
+ * @param observableTypesToProcess Vector of observable types that need to be in the collection
+ * @param earthFixedGroundStationPositions map of ground station positions
+ * @param ancillarySettings
+ * @param startAndEndTimesToProcess
+ * @return
+ */
 template< typename ObservationScalarType = double, typename TimeType = double >
 std::shared_ptr<observation_models::ObservationCollection<ObservationScalarType, TimeType> >
 createTrackingTxtFileObservationCollection(
     std::shared_ptr<input_output::TrackingTxtFileContents> rawTrackingTxtFileContents,
     std::string spacecraftName,
     std::vector<ObservableType> observableTypesToProcess = std::vector<ObservableType>(),
-    std::map<std::string, Eigen::Vector3d> earthFixedGroundStationPositions = simulation_setup::getApproximateGroundStationPositionsFromFile(),
+    std::map<std::string, Eigen::Vector3d> earthFixedGroundStationPositions = simulation_setup::getApproximateDsnGroundStationPositions(),
+//    std::map<std::string, Eigen::Vector3d> earthFixedGroundStationPositions = simulation_setup::getApproximateGroundStationPositionsFromFile(),
     const ObservationAncilliarySimulationSettings& ancillarySettings = ObservationAncilliarySimulationSettings(),
     std::pair<TimeType, TimeType> startAndEndTimesToProcess = std::make_pair<TimeType, TimeType>(TUDAT_NAN, TUDAT_NAN))
 {
