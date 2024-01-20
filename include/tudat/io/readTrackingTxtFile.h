@@ -27,8 +27,6 @@
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/interface/spice/spiceInterface.h"
 
-// TODO: Split into header and source file
-
 // A TrackingDataType is a unique form of data that can be used by Tudat to derive the observables
 // A TrackingFileField is an identifier that specifies a specific type of column data in an input file (with a specific format)
 // A TrackingFileFieldConverter is an interface that can convert a raw string input field to its associated double value as expected for the TrackingDataType
@@ -43,17 +41,7 @@ namespace tudat
 namespace input_output
 {
 
-//! Utility function to get a value from a string map where the keys are all uppercase
-template< typename T >
-T upperCaseFromMap(const std::string& strValue, const std::map<std::string, T>& upperCaseMapping)
-{
-  std::string upperCaseStrValue = boost::to_upper_copy(strValue);
-  const auto iter = upperCaseMapping.find(upperCaseStrValue);
-  if (iter != upperCaseMapping.cend()) {
-    return iter->second;
-  }
-  throw std::runtime_error("Invalid key found in map while converting tracking data");
-}
+
 
 //! Enum describing a unique data type that can later be used to process the information. These are in SI units
 enum class TrackingDataType
@@ -96,8 +84,7 @@ enum class TrackingDataType
   vlbi_station_name,
 };
 
-//! Simple converter class that can convert a string data field to a double. One can inherit from this and overload the
-//! `toDouble()` method to extend the supported formats
+//!Simple converter class that can convert a string data field to a double. One can inherit from this and overload the `toDouble()` method to extend the supported formats
 class TrackingFileFieldConverter
 {
 public:
@@ -142,7 +129,7 @@ public:
                                             {"NOV", 11.},
                                             {"DEC", 12.}};
 
-    return upperCaseFromMap(rawField, monthsMap);
+    return utilities::upperCaseFromMap(rawField, monthsMap);
   }
 };
 
@@ -259,6 +246,7 @@ public:
   const auto& getMetaDataStrMap() { return metaDataMapStr_; }
   const std::vector<TrackingDataType> getMetaDataTypes();
   const std::vector<TrackingDataType> getAllAvailableDataTypes();
+
 private:
   std::string fileName_ = "None";
   std::string separators_ = ":, \t";
@@ -266,20 +254,25 @@ private:
   std::vector<TrackingDataType> columnDataTypes_;
   char commentSymbol_;
   std::string valueSeparators_;
-
   std::map<std::string, std::vector<std::string>> rawDataMap_;
   std::map<TrackingDataType, double> metaDataMapDouble_;
   std::map<TrackingDataType, std::string> metaDataMapStr_;
-
   std::map<TrackingDataType, std::vector<int>> intDataMap_;
   std::map<TrackingDataType, std::vector<double>> doubleDataMap_;
-
 
 // Utility variables
 private:
   std::vector<std::string> currentSplitRawLine_;
 };
 
+/*!
+ * Function to create a read out a tracking data file to raw contents
+ * @param fileName
+ * @param columnTypes column types (string). If known to Tudat, this will define a tracking data type, otherwise, it is not processed and kept as raw data.
+ * @param commentSymbol lines that start with this symbol are ignored
+ * @param valueSeparators String of characters that separate columns. E.g. ",:" means that every , and : in the file will create a new column
+ * @return TrackingFileContents
+ */
 static inline std::unique_ptr<TrackingTxtFileContents> createTrackingTxtFileContents(const std::string& fileName,
                                                                                      std::vector<std::string>& columnTypes,
                                                                                      char commentSymbol = '#',

@@ -959,6 +959,23 @@ std::map<std::string, Eigen::Vector3d> getMapFromFile<std::string, Eigen::Vector
 template<>
 std::map<std::string, std::string> getMapFromFile<std::string, std::string>(std::string fileName, char commentSymbol, std::string separators);
 
+//! Utility function to get a value from a string map where the keys are all uppercase
+/*!
+ * @param strValue string value of which the value needs to be found. This can be a combination of upper and lower case letters
+ * @param upperCaseMapping map with upper case string keys
+ * @return
+ */
+template< typename T >
+T upperCaseFromMap(const std::string& strValue, const std::map<std::string, T>& upperCaseMapping)
+{
+  std::string upperCaseStrValue = boost::to_upper_copy(strValue);
+  const auto iter = upperCaseMapping.find(upperCaseStrValue);
+  if (iter != upperCaseMapping.cend()) {
+    return iter->second;
+  }
+  throw std::runtime_error("Invalid key found in map while converting tracking data");
+}
+
 template<typename T>
 std::vector< std::vector< T > > getTwoDimensionalVector( const int firstDimension, const int secondDimension, const T initializationValue )
 {
