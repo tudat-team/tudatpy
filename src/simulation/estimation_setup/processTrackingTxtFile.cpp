@@ -17,7 +17,13 @@ namespace tudat
 namespace observation_models
 {
 
-std::vector<ObservableType> findAvailableObservableTypes(std::vector<input_output::TrackingDataType> availableDataTypes)
+//! Function to extract which observable types could be extracted from the provided data
+/*!
+ *
+ * @param availableDataTypes
+ * @return
+ */
+std::vector<ObservableType> findAvailableObservableTypes(const std::vector<input_output::TrackingDataType> availableDataTypes)
 {
   std::vector<ObservableType> availableObservableTypes;
   for (const auto& pair : dataTypeToObservableMap) {
@@ -82,7 +88,7 @@ std::vector<double> ProcessedTrackingTxtFileContents::computeObservationTimesTdb
   std::vector<Eigen::Vector3d> groundStationPositions;
   for (const auto& linkEnds : linkEndsVector_) {
     std::string currentGroundStation = linkEnds.at(receiver).getStationName(); // TODO: what if transmitter and receiver different?
-    groundStationPositions.push_back(simulation_setup::getApproximateGroundStationPositionFromFile(currentGroundStation));
+    groundStationPositions.push_back(earthFixedGroundStationPositions_.at(currentGroundStation));
   }
   std::vector<double> observationTimesTdb = timeScaleConverter.getCurrentTimes(basic_astrodynamics::utc_scale,
                                                                                basic_astrodynamics::tdb_scale,
@@ -107,8 +113,8 @@ void ProcessedTrackingTxtFileContents::updateLinkEnds()
       const auto& dsnReceiverIds = dataMap.at(input_output::TrackingDataType::dsn_receiving_station_nr);
 
       for (size_t i = 0; i < numDataRows; ++i) {
-        std::string transmitterName = simulation_setup::getGroundStationCodeFromFile(dsnTransmitterIds[i]);
-        std::string receiverName = simulation_setup::getGroundStationCodeFromFile(dsnReceiverIds[i]);
+        std::string transmitterName = getStationNameFromStationId(dsnTransmitterIds[i]);
+        std::string receiverName = getStationNameFromStationId(dsnReceiverIds[i]);
         LinkEnds currentLinkEnds{
             {transmitter, LinkEndId("Earth", transmitterName)},
             {reflector, LinkEndId(spacecraftName_, "")},
@@ -119,29 +125,29 @@ void ProcessedTrackingTxtFileContents::updateLinkEnds()
       break;
     }
 
-    case vlbi_station: {
-
-      if (metaDataStrMap.count(input_output::TrackingDataType::vlbi_station_name)) {
-        std::string vlbi_station_name = metaDataStrMap.at(input_output::TrackingDataType::vlbi_station_name);
-        LinkEnds constantLinkEnds{
-            {transmitter, LinkEndId(spacecraftName_, "")},
-            {receiver, LinkEndId("Earth", vlbi_station_name)}, // FIXME!
-        };
-        for (size_t i = 0; i < numDataRows; ++i) {
-          linkEndsVector_.push_back(constantLinkEnds);
-        }
-      } else if (dataMap.count(input_output::TrackingDataType::dsn_receiving_station_nr)) {
-        for (size_t i = 0; i < numDataRows; ++i) {
-          std::string vlbi_station_name = metaDataStrMap.at(input_output::TrackingDataType::vlbi_station_name);
-          LinkEnds currentLinkEnds{
-              {transmitter, LinkEndId(spacecraftName_, "Antenna")},
-              {receiver, LinkEndId("Earth", vlbi_station_name)}, // FIXME!
-          };
-          linkEndsVector_.push_back(currentLinkEnds);
-        }
-      }
-      break;
-    }
+//    case vlbi_station: {
+//
+//      if (metaDataStrMap.count(input_output::TrackingDataType::vlbi_station_name)) {
+//        std::string vlbi_station_name = metaDataStrMap.at(input_output::TrackingDataType::vlbi_station_name);
+//        LinkEnds constantLinkEnds{
+//            {transmitter, LinkEndId(spacecraftName_, "")},
+//            {receiver, LinkEndId("Earth", vlbi_station_name)}, // FIXME!
+//        };
+//        for (size_t i = 0; i < numDataRows; ++i) {
+//          linkEndsVector_.push_back(constantLinkEnds);
+//        }
+//      } else if (dataMap.count(input_output::TrackingDataType::dsn_receiving_station_nr)) {
+//        for (size_t i = 0; i < numDataRows; ++i) {
+//          std::string vlbi_station_name = metaDataStrMap.at(input_output::TrackingDataType::vlbi_station_name);
+//          LinkEnds currentLinkEnds{
+//              {transmitter, LinkEndId(spacecraftName_, "Antenna")},
+//              {receiver, LinkEndId("Earth", vlbi_station_name)}, // FIXME!
+//          };
+//          linkEndsVector_.push_back(currentLinkEnds);
+//        }
+//      }
+//      break;
+//    }
 
     default: {
       throw std::runtime_error("Error while processing tracking txt file: LinkEnds representation not recognised or implemented.");
