@@ -249,27 +249,27 @@ inline std::map< int, std::vector< std::string > > getDefaultDsnStationNamesPerC
  * @return Ground station position.
  */
 Eigen::Vector3d getApproximateGroundStationPosition( std::string stationName );
+//
+////! Get map of approximate ground station positions
+//const std::map<std::string, Eigen::Vector3d>& getApproximateGroundStationPositionsFromFile();
+//
+////! Get approximate ground station position
+//Eigen::Vector3d getApproximateGroundStationPositionFromFile( std::string stationName );
+//
+////! Get approximate ground station velocity
+//Eigen::Vector3d getApproximateGroundStationVelocityFromFile(std::string stationName );
+//
+//const std::map<std::string,std::string>& getGroundStationCodesFromFile();
+//
+////! Get long name or return original
+//template<typename T>
+//std::string getGroundStationCodeFromFile(T shortStationName){
+//  return "DSS-" + std::to_string(static_cast<int>(shortStationName)); // TODO : TEMPORARY - Remove this - Add these to the file instead
+////  return getGroundStationCodeFromFile(std::to_string(static_cast<int>(shortStationName)));
+//}
 
-//! Get map of approximate ground station positions
-const std::map<std::string, Eigen::Vector3d>& getApproximateGroundStationPositionsFromFile();
-
-//! Get approximate ground station position
-Eigen::Vector3d getApproximateGroundStationPositionFromFile( std::string stationName );
-
-//! Get approximate ground station velocity
-Eigen::Vector3d getApproximateGroundStationVelocityFromFile(std::string stationName );
-
-const std::map<std::string,std::string>& getGroundStationCodesFromFile();
-
-//! Get long name or return original
-template<typename T>
-std::string getGroundStationCodeFromFile(T shortStationName){
-  return "DSS-" + std::to_string(static_cast<int>(shortStationName)); // TODO : TEMPORARY - Remove this - Add these to the file instead
-//  return getGroundStationCodeFromFile(std::to_string(static_cast<int>(shortStationName)));
-}
-
-template<>
-std::string getGroundStationCodeFromFile<std::string>(std::string shortStationName);
+//template<>
+//std::string getGroundStationCodeFromFile<std::string>(std::string shortStationName);
 
 /*!
  * Returns the settings for DSN ground stations. The settings are specified according to table 2 and 3 of DSN 810-005,

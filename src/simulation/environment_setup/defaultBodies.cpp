@@ -470,52 +470,51 @@ Eigen::Vector3d getApproximateGroundStationPosition(std::string stationName)
 
 
 
-const static std::string pysctrackGroundStationPosFile = tudat::paths::getTudatTestDataPath() + "glo.sit";
-const static std::string pysctrackGroundStationVelFile = tudat::paths::getTudatTestDataPath() + "glo.vel";
-const static std::string pysctrackGroundStationCodesFile = tudat::paths::getTudatTestDataPath() + "ns_codes.dat";
-const static std::map<std::string, Eigen::Vector3d> approximateGroundStationPositionsFromFile = utilities::getMapFromFile<std::string, Eigen::Vector3d>(pysctrackGroundStationPosFile, '$', " \t");
-const static std::map<std::string, Eigen::Vector3d> approximateGroundStationPositionsDsn = getApproximateDsnGroundStationPositions(); // TODO: remove once I can edit the file
-const static std::map<std::string, Eigen::Vector3d> approximateGroundStationVelocitiesFromFile = utilities::getMapFromFile<std::string, Eigen::Vector3d>(pysctrackGroundStationVelFile, '$', " \t");
-static std::map<std::string, std::string> groundStationCodesFromFile = utilities::getMapFromFile<std::string, std::string>(pysctrackGroundStationCodesFile, '*', " \t");
-
-const std::map<std::string, Eigen::Vector3d>& getApproximateGroundStationPositionsFromFile()
-{
-  return approximateGroundStationPositionsFromFile;
-}
-
-Eigen::Vector3d getApproximateGroundStationPositionFromFile(std::string stationName )
-{
-  stationName = getGroundStationCodeFromFile(stationName);
-  if (approximateGroundStationPositionsDsn.count(stationName))
-  { // TODO: TEMPORARY - Remove this - add the ground stations to the file instead.
-    return approximateGroundStationPositionsDsn.at(stationName);
-  }
-
-  if (!approximateGroundStationPositionsFromFile.count(stationName)) {
-    throw std::runtime_error("Position of " + stationName + " unknown.");
-  }
-  return approximateGroundStationPositionsFromFile.at(stationName);
-}
-
-Eigen::Vector3d getApproximateGroundStationVelocityFromFile(std::string stationName )
-{
-  return approximateGroundStationVelocitiesFromFile.at(stationName);
-}
-
-const std::map<std::string,std::string>& getGroundStationCodesFromFile()
-{
-  return groundStationCodesFromFile;
-}
-
-
-template<>
-std::string getGroundStationCodeFromFile<std::string>(std::string shortStationName)
-{
-  if (!groundStationCodesFromFile.count(shortStationName)) {
-    return shortStationName;
-  }
-  return groundStationCodesFromFile.at(shortStationName);
-}
+//const static std::string pysctrackGroundStationPosFile = tudat::paths::getTudatTestDataPath() + "glo.sit";
+//const static std::string pysctrackGroundStationVelFile = tudat::paths::getTudatTestDataPath() + "glo.vel";
+//const static std::string pysctrackGroundStationCodesFile = tudat::paths::getTudatTestDataPath() + "ns_codes.dat";
+//const static std::map<std::string, Eigen::Vector3d> approximateGroundStationPositionsFromFile = utilities::getMapFromFile<std::string, Eigen::Vector3d>(pysctrackGroundStationPosFile, '$', " \t");
+//const static std::map<std::string, Eigen::Vector3d> approximateGroundStationPositionsDsn = getApproximateDsnGroundStationPositions(); // TODO: remove once I can edit the file
+//const static std::map<std::string, Eigen::Vector3d> approximateGroundStationVelocitiesFromFile = utilities::getMapFromFile<std::string, Eigen::Vector3d>(pysctrackGroundStationVelFile, '$', " \t");
+//static std::map<std::string, std::string> groundStationCodesFromFile = utilities::getMapFromFile<std::string, std::string>(pysctrackGroundStationCodesFile, '*', " \t");
+//
+//const std::map<std::string, Eigen::Vector3d>& getApproximateGroundStationPositionsFromFile()
+//{
+//  return approximateGroundStationPositionsFromFile;
+//}
+//
+//Eigen::Vector3d getApproximateGroundStationPositionFromFile(std::string stationName )
+//{
+//  stationName = getGroundStationCodeFromFile(stationName);
+//  if (approximateGroundStationPositionsDsn.count(stationName))
+//  { // TODO: TEMPORARY - Remove this - add the ground stations to the file instead.
+//    return approximateGroundStationPositionsDsn.at(stationName);
+//  }
+//
+//  if (!approximateGroundStationPositionsFromFile.count(stationName)) {
+//    throw std::runtime_error("Position of " + stationName + " unknown.");
+//  }
+//  return approximateGroundStationPositionsFromFile.at(stationName);
+//}
+//
+//Eigen::Vector3d getApproximateGroundStationVelocityFromFile(std::string stationName )
+//{
+//  return approximateGroundStationVelocitiesFromFile.at(stationName);
+//}
+//
+//const std::map<std::string,std::string>& getGroundStationCodesFromFile()
+//{
+//  return groundStationCodesFromFile;
+//}
+//
+//template<>
+//std::string getGroundStationCodeFromFile<std::string>(std::string shortStationName)
+//{
+//  if (!groundStationCodesFromFile.count(shortStationName)) {
+//    return shortStationName;
+//  }
+//  return groundStationCodesFromFile.at(shortStationName);
+//}
 
 std::vector<std::shared_ptr<GroundStationSettings> > getDsnStationSettings()
 {
