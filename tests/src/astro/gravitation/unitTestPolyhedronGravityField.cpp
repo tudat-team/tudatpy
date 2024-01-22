@@ -228,6 +228,7 @@ BOOST_AUTO_TEST_CASE( testGravityComputation )
                 expectedLaplacian += 0.1;
             }
             //BOOST_CHECK_CLOSE_FRACTION( expectedLaplacian, computedLaplacian, tolerance );
+            std::cout<<std::fabs( expectedLaplacian - computedLaplacian )<<" "<<expectedLaplacian<<" "<<computedLaplacian<<" "<<tolerance<<std::endl;
             BOOST_CHECK( std::fabs( expectedLaplacian - computedLaplacian ) < std::fabs( std::min( expectedLaplacian, computedLaplacian ) * tolerance ) );
 
         }
