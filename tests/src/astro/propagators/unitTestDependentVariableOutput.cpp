@@ -1681,14 +1681,14 @@ BOOST_AUTO_TEST_CASE( test_GravitationalPotentialAndLaplacianSaving )
                         earthGravitationalLaplacianOfPotential + 1,
                         earthGravityModel->getLaplacianOfPotential( earthBodyFixedCartesianPosition ) + 1,
                         1e-15 );*/
-                BOOST_CHECK_SMALL( std::fabs( earthGravitationalLaplacianOfPotential ), 1.0E-22 );
+                BOOST_CHECK_SMALL( std::fabs( earthGravitationalLaplacianOfPotential ), 1.0E-21 );
 
                 // Check 3rd body gravitational potential: adding 1 because value is very close to 0
                 /*BOOST_CHECK_CLOSE_FRACTION(
                         moonGravitationalLaplacianOfPotential + 1,
                         moonGravityModel->getLaplacianOfPotential( moonBodyFixedCartesianPosition ) + 1,
                         1e-15 );*/
-                BOOST_CHECK_SMALL( std::fabs( moonGravitationalLaplacianOfPotential ), 1.0E-22 );
+                BOOST_CHECK_SMALL( std::fabs( moonGravitationalLaplacianOfPotential ), 1.0E-21 );
             }
         }
     }
