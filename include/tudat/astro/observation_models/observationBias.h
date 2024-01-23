@@ -58,7 +58,7 @@ class ObservationBias
 public:
 
     //! Constructor
-    ObservationBias( ){ }
+    ObservationBias( const bool hasTimeBias = false ): hasTimeBias_( hasTimeBias ){ }
 
     //! Destructor
     virtual ~ObservationBias( ){ }
@@ -79,6 +79,17 @@ public:
             const Eigen::Matrix< double, ObservationSize, 1 >& currentObservableValue =
             Eigen::Matrix< double, ObservationSize, 1 >::Constant( TUDAT_NAN ) ) = 0;
 
+    virtual double getTimeBias(
+        const double nominalObservationTime,
+        const LinkEndType referenceLinkEnd )
+    {
+        if( hasTimeBias_ )
+        {
+            throw std::runtime_error( "Error when getting time bias, value should be non-zero, but none is implemented." );
+        }
+        return 0.0;
+    }
+
     //! Function to return the size of the associated observation
     /*!
      * Function to return the size of the associated observation
@@ -88,6 +99,15 @@ public:
     {
         return ObservationSize;
     }
+
+    bool getHasTimeBias( )
+    {
+        return hasTimeBias_;
+    }
+
+protected:
+
+    bool hasTimeBias_;
 };
 
 //! Class for a constant absolute observation bias of a given size
@@ -606,7 +626,16 @@ public:
      * \param biasList List of bias objects that are to be combined.
      */
     MultiTypeObservationBias( const std::vector< std::shared_ptr< ObservationBias< ObservationSize > > > biasList ):
-        biasList_( biasList ){ }
+        biasList_( biasList )
+    {
+        for( unsigned int i = 0; i < biasList_.size( ); i++ )
+        {
+            if( biasList_.at( i )->getHasTimeBias( ) )
+            {
+                this->hasTimeBias_ = true;
+            }
+        }
+    }
 
     //! Destructor
     ~MultiTypeObservationBias( ){ }
@@ -630,6 +659,24 @@ public:
             totalBias += biasList_.at( i )->getObservationBias( linkEndTimes, linkEndStates, currentObservableValue );
         }
         return totalBias;
+    }
+
+    double getTimeBias(
+        const double nominalObservationTime,
+        const LinkEndType referenceLinkEnd )
+    {
+        double timeBias = 0.0;
+        if( this->hasTimeBias_ )
+        {
+            for ( unsigned int i = 0; i < biasList_.size( ); i++ )
+            {
+                if ( biasList_.at( i )->getHasTimeBias( ) )
+                {
+                    timeBias += biasList_.at( i )->getTimeBias( nominalObservationTime, referenceLinkEnd );
+                }
+            }
+        }
+        return timeBias;
     }
 
     //! Function to retrieve the list of bias objects that are to be combined.
@@ -929,7 +976,7 @@ public:
      * \param linkEndIndexForTime Link end index from which the 'current time' is determined
      */
     ConstantTimeBias( const double timeBias,
-                      const int linkEndIndexForTime ):
+                      const int linkEndIndexForTime ): ObservationBias< ObservationSize >( true ),
             timeBias_( timeBias ), linkEndIndexForTime_( linkEndIndexForTime ){ }
 
     //! Destructor
@@ -952,16 +999,13 @@ public:
         return Eigen::Matrix< double, ObservationSize, 1 >::Zero( );
     }
 
-
-    //! Function retrieve the constant (entry-wise) time bias.
-    /*!
-     * Function retrieve the constant (entry-wise) time bias.
-     * \return The constant (entry-wise) time bias.
-     */
-    double getConstantTimeBias( const double time ) const
+    double getTimeBias(
+        const double nominalObservationTime,
+        const LinkEndType referenceLinkEnd )
     {
         return timeBias_;
     }
+
 
     //! Function to reset the constant (entry-wise) time bias.
     /*!
@@ -1035,7 +1079,7 @@ public:
     ArcWiseTimeBias(
             const std::vector< double >& arcStartTimes,
             const std::vector< double >& timeBiases,
-            const int linkEndIndexForTime ):
+            const int linkEndIndexForTime ): ObservationBias< ObservationSize >( true ),
             arcStartTimes_( arcStartTimes ), timeBiases_( timeBiases ), linkEndIndexForTime_( linkEndIndexForTime )
     {
         if( arcStartTimes_.size( ) != timeBiases_.size( ) )
@@ -1070,14 +1114,11 @@ public:
         return Eigen::Matrix< double, ObservationSize, 1 >::Zero( );
     }
 
-    //! Function retrieve the current time observation bias.
-    /*!
-     * Function retrieve the current time observation bias.
-     * \return Arc-wise time observation bias.
-     */
-    double getArcWiseTimeBias( const double time ) const
+    double getTimeBias(
+        const double nominalObservationTime,
+        const LinkEndType referenceLinkEnd )
     {
-        return timeBiases_.at( lookupScheme_->findNearestLowerNeighbour( time ) );
+        return timeBiases_.at( lookupScheme_->findNearestLowerNeighbour( nominalObservationTime ) );
     }
 
     //! Function retrieve the constant (entry-wise) time bias as a variable-size vector.
