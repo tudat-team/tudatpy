@@ -331,13 +331,17 @@ createSingleLinkObservationPartials(
                         oneWayLinkEnds, bodies, parameterIterator->second, positionScaling,
                         lightTimeCorrectionPartialObjects );
         }
-        else if( useBiasPartials )
+        else
         {
             std::function< std::shared_ptr< ObservationPartial< ObservationSize > >( const std::string& ) > partialWrtStateCreationFunction =
                 std::bind( &createObservationPartialWrtBodyPosition< ObservationSize >,
                            oneWayLinkEnds, bodies, std::placeholders::_1, positionScaling, lightTimeCorrectionPartialObjects  );
+            std::cout<<"Partial w.r.t. link end property pre "<<parameterIterator->second->getParameterName( ).first<<" "<<( partialWrtStateCreationFunction == nullptr )<<std::endl;
+
             currentObservationPartial = createObservationPartialWrtLinkProperty< ObservationSize >(
                         oneWayLinkEnds, observableType, parameterIterator->second, bodies, useBiasPartials, observationPartials, partialWrtStateCreationFunction );
+            std::cout<<"Partial w.r.t. link end property post "<<parameterIterator->second->getParameterName( ).first<<" "<<currentObservationPartial<<std::endl;
+
         }
 
         // Check if partial is non-nullptr (i.e. whether dependency exists between current observable and current parameter)
