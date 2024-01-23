@@ -1368,6 +1368,32 @@ protected:
 
 };
 
+template< int ObservationSize, typename ObservationScalarType = double, typename TimeType = double >
+void computePartialsFromEstimator(
+    const OrbitDeterminationManager< ObservationScalarType, TimeType >& orbitDeterminationManager,
+    const observation_models::LinkEnds& linkEnds,
+    const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings,
+    const observation_models::ObservableType observableType,
+    const std::vector< TimeType >& times,
+    Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& observationsVector,
+    const int numberOfParameters,
+    Eigen::MatrixXd& partials )
+{
+    // Extract observation model
+    std::cout<<"Number of simulators "<<orbitDeterminationManager.getObservationSimulators( ).size( )<<std::endl;
+    std::shared_ptr< observation_models::ObservationModel< ObservationSize, ObservationScalarType, TimeType > > observationModel =
+    std::dynamic_pointer_cast< observation_models::ObservationSimulator< ObservationSize, ObservationScalarType, TimeType > >( orbitDeterminationManager.getObservationSimulators( ).at( 0 ) )->getObservationModels( ).at(
+        linkEnds );
+
+    // Compute analytical partials
+    auto observationManager = std::dynamic_pointer_cast< observation_models::ObservationManager< ObservationSize, ObservationScalarType, TimeType > >( orbitDeterminationManager.getObservationManager(
+        observableType ) );
+    partials = Eigen::MatrixXd::Zero( observationsVector.rows( ), numberOfParameters );
+    observationManager->computeObservationsWithPartials(
+        times, linkEnds, observation_models::receiver, ancilliarySettings, observationsVector, partials, false, true );
+
+}
+
 extern template class OrbitDeterminationManager< double, double >;
 
 

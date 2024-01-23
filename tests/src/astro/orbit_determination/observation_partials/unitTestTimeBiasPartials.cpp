@@ -105,9 +105,22 @@ BOOST_AUTO_TEST_CASE( testTimeBiasPartials )
     testLinkEnds[ receiver ] = LinkEndId( "Earth", "Station" );
     testLinkEnds[ transmitter ] = LinkEndId( "Vehicle", "" );
 
-    for( unsigned int observableCase = 1; observableCase < 2; observableCase++ )
+    for( unsigned int observableCase = 2; observableCase < 3; observableCase++ )
     {
         ObservableType currentObservable = undefined_observation_model;
+
+
+//            one_way_doppler = 3,
+//            one_way_differenced_range = 4,
+//            n_way_range = 5,
+//            two_way_doppler = 6,
+//            euler_angle_313_observable = 7,
+//            relative_angular_position = 9,
+//            n_way_differenced_range = 10,
+//            relative_position_observable = 11,
+//            dsn_one_way_averaged_doppler = 12,
+//            dsn_n_way_averaged_doppler = 13
+
         switch( observableCase )
         {
         case 0:
@@ -116,12 +129,22 @@ BOOST_AUTO_TEST_CASE( testTimeBiasPartials )
         case 1:
             currentObservable = angular_position;
             break;
+        case 2:
+            currentObservable = one_way_differenced_range;
+            break;
+//        case 2:
+//            currentObservable = position_observable;
+//            break;
+//        case 3:
+//            currentObservable = velocity_observable;
+//            break;
         default:
             throw std::runtime_error( "Error when testing time bias partials; observable not implemented" );
         }
         for ( unsigned int testCase = 0 ; testCase < 1 ; testCase++ )
         {
             std::cout<<observableCase<<" "<<testCase<<std::endl;
+
             bool multiArcBiases = testCase;
 
             // Add bias parameters to estimation
@@ -176,26 +199,39 @@ BOOST_AUTO_TEST_CASE( testTimeBiasPartials )
             }
 
             // Define observation simulation times
+
             std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > measurementSimulationInput;
             measurementSimulationInput.push_back( std::make_shared< TabulatedObservationSimulationSettings< double > >(
                 currentObservable, testLinkEnds, baseTimeList, receiver ) );
+
+            std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings;
+            if( currentObservable == one_way_differenced_range )
+            {
+                ancilliarySettings = std::make_shared< ObservationAncilliarySimulationSettings >( );
+                ancilliarySettings->setAncilliaryDoubleData( doppler_integration_time, 60.0 );
+                measurementSimulationInput.at( 0 )->setAncilliarySettings( ancilliarySettings );
+            }
 
             // Simulate observations
             std::shared_ptr< ObservationCollection< double, double > > simulatedObservations = simulateObservations< double, double >(
                 measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
             Eigen::VectorXd observations = simulatedObservations->getObservationVector( );
 
-            // Extract observation model
-            std::cout<<"Number of simulators "<<orbitDeterminationManager.getObservationSimulators( ).size( )<<std::endl;
-            std::shared_ptr< ObservationModel< 2, double, double > > observationModel =
-                std::dynamic_pointer_cast< ObservationSimulator< 2, double, double > >( orbitDeterminationManager.getObservationSimulators( ).at( 0 ) )->getObservationModels( ).at(
-                testLinkEnds );
-
-            // Compute analytical partials
-            auto observationManager = std::dynamic_pointer_cast< ObservationManager< 2, double, double > >( orbitDeterminationManager.getObservationManager( currentObservable ) );
-            Eigen::MatrixXd partials = Eigen::MatrixXd::Zero( baseTimeList.size( ), 7 );
-            observationManager->computeObservationsWithPartials(
-                baseTimeList, testLinkEnds, receiver, nullptr, observations, partials, false, true );
+            Eigen::MatrixXd partials;
+            switch( currentObservable )
+            {
+            case one_way_differenced_range:
+            case one_way_range:
+                computePartialsFromEstimator< 1, double, double >( orbitDeterminationManager, testLinkEnds, ancilliarySettings, currentObservable,
+                                                                   baseTimeList, observations, parametersToEstimate->getParameterSetSize( ), partials );
+                break;
+            case angular_position:
+                computePartialsFromEstimator< 2, double, double >( orbitDeterminationManager, testLinkEnds, ancilliarySettings, currentObservable,
+                                                                   baseTimeList, observations, parametersToEstimate->getParameterSetSize( ), partials );
+                break;
+            default:
+                throw std::runtime_error( "Error when testing time bias partials; observable partial size not defined" );
+            }
 
             // Get nominal parameter values
             Eigen::VectorXd originalParameters = parametersToEstimate->getFullParameterValues< double >( );
