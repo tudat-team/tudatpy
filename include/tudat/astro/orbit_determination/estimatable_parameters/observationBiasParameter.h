@@ -953,7 +953,7 @@ public:
         }
         else
         {
-            return Eigen::VectorXd::Constant( getParameterSize( ), TUDAT_NAN );
+            return Eigen::VectorXd::Constant( 1, TUDAT_NAN );
         }
     }
 
