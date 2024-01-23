@@ -56,7 +56,6 @@ BOOST_AUTO_TEST_CASE( testTimeBiasPartials )
 
     // Create bodies needed in simulation
     BodyListSettings bodySettings = getDefaultBodySettings( bodyNames, "Earth", "ECLIPJ2000" );
-//    bodySettings.at( "Earth" )->rotationModelSettings = simpleRotationModelSettings( "ECLIPJ2000", "IAU_Earth", Eigen::Matrix3d::Identity( ), 0.0, 0.0 );
     SystemOfBodies bodies = createSystemOfBodies( bodySettings );
     bodies.createEmptyBody( "Vehicle" );
     bodies.at( "Vehicle" )->setEphemeris( std::make_shared< TabulatedCartesianEphemeris< > >(
@@ -92,148 +91,146 @@ BOOST_AUTO_TEST_CASE( testTimeBiasPartials )
     double earthGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
     Eigen::Vector6d initialState = convertKeplerianToCartesianElements( initialKeplerianState, earthGravitationalParameter );
 
-    std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
-    dependentVariables.push_back( std::make_shared< SingleDependentVariableSaveSettings >(
-        total_acceleration_dependent_variable, "Vehicle" ) );
-
     // Create propagator settings
     std::shared_ptr< TranslationalStatePropagatorSettings< double, double > > propagatorSettings =
         std::make_shared< TranslationalStatePropagatorSettings< double, double > >
-        ( centralBodies, accelerationModelMap, bodiesToIntegrate, initialState, finalTime, cowell, dependentVariables );
+        ( centralBodies, accelerationModelMap, bodiesToIntegrate, initialState, finalTime  );
 
     // Create integrator settings
     std::shared_ptr< IntegratorSettings< double > > integratorSettings = std::make_shared< RungeKuttaVariableStepSizeSettings< double > >(
         initialTime, 120.0, CoefficientSets::rungeKuttaFehlberg78, 120.0, 120.0, 1.0, 1.0 );
 
-//    // Define link ends.
-//    LinkEnds stationTransmitterLinkEnds;
-//    stationTransmitterLinkEnds[ transmitter ] = LinkEndId( "Earth", "Station" );
-//    stationTransmitterLinkEnds[ receiver ] = LinkEndId( "Vehicle", "" );
+    // Define link ends.
+    LinkEnds testLinkEnds;
+    testLinkEnds[ receiver ] = LinkEndId( "Earth", "Station" );
+    testLinkEnds[ transmitter ] = LinkEndId( "Vehicle", "" );
 
-    LinkEnds stationReceiverLinkEnds;
-    stationReceiverLinkEnds[ receiver ] = LinkEndId( "Earth", "Station" );
-    stationReceiverLinkEnds[ transmitter ] = LinkEndId( "Vehicle", "" );
-
-    std::map< ObservableType, std::vector< LinkEnds > > linkEndsPerObservable;
-    linkEndsPerObservable[ one_way_range ] = std::vector< LinkEnds >( { stationReceiverLinkEnds } );//, stationTransmitterLinkEnds } );
-
-    for ( unsigned int testCase = 0 ; testCase < 1 ; testCase++ )
+    for( unsigned int observableCase = 1; observableCase < 2; observableCase++ )
     {
-        bool multiArcBiases = testCase;
-
-        std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
-        parameterNames.push_back( std::make_shared< InitialTranslationalStateEstimatableParameterSettings< double > >( "Vehicle", initialState, "Earth" ) );
-        if ( !multiArcBiases )
+        ObservableType currentObservable = undefined_observation_model;
+        switch( observableCase )
         {
-            parameterNames.push_back( std::make_shared< ConstantTimeBiasEstimatableParameterSettings >(
-                linkEndsPerObservable.at( one_way_range ).at( 0 ), one_way_range, receiver ) );
-//            parameterNames.push_back( std::make_shared< ConstantTimeBiasEstimatableParameterSettings >(
-//                linkEndsPerObservable.at( one_way_range ).at( 1 ), one_way_range, receiver ) );
-//            parameterNames.push_back( std::make_shared< ConstantObservationBiasEstimatableParameterSettings >(
-//                linkEndsPerObservable.at( one_way_range ).at( 0 ), one_way_range, true ) );
-//            parameterNames.push_back( std::make_shared< ConstantObservationBiasEstimatableParameterSettings >(
-//                linkEndsPerObservable.at( one_way_range ).at( 1 ), one_way_range, true ) );
+        case 0:
+            currentObservable = one_way_range;
+            break;
+        case 1:
+            currentObservable = angular_position;
+            break;
+        default:
+            throw std::runtime_error( "Error when testing time bias partials; observable not implemented" );
         }
-        else
+        for ( unsigned int testCase = 0 ; testCase < 1 ; testCase++ )
         {
-            parameterNames.push_back( std::make_shared< ArcWiseTimeBiasEstimatableParameterSettings >(
-                linkEndsPerObservable.at( one_way_range ).at( 0 ), one_way_range, arcs, receiver ) );
-            parameterNames.push_back( std::make_shared< ArcWiseTimeBiasEstimatableParameterSettings >(
-                linkEndsPerObservable.at( one_way_range ).at( 1 ), one_way_range, arcs, receiver ) );
-            parameterNames.push_back( std::make_shared< ArcWiseConstantObservationBiasEstimatableParameterSettings >(
-                linkEndsPerObservable.at( one_way_range ).at( 0 ), one_way_range, arcs, receiver, true ) );
-            parameterNames.push_back( std::make_shared< ArcWiseConstantObservationBiasEstimatableParameterSettings >(
-                linkEndsPerObservable.at( one_way_range ).at( 1 ), one_way_range, arcs, receiver, true ) );
-        }
+            std::cout<<observableCase<<" "<<testCase<<std::endl;
+            bool multiArcBiases = testCase;
 
-        // Create parameters
-        std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate =
-            createParametersToEstimate< double, double >( parameterNames, bodies );
-        printEstimatableParameterEntries( parametersToEstimate );
-
-        std::vector< std::shared_ptr< ObservationModelSettings > > observationSettingsList;
-        for( auto linkEndIterator : linkEndsPerObservable )
-        {
-            ObservableType currentObservable = linkEndIterator.first;
-
-            std::vector< LinkEnds > currentLinkEndsList = linkEndIterator.second;
-            for( unsigned int i = 0; i < currentLinkEndsList.size( ); i++ )
+            // Add bias parameters to estimation
+            std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
+            parameterNames.push_back( std::make_shared< InitialTranslationalStateEstimatableParameterSettings< double > >( "Vehicle", initialState, "Earth" ) );
+            if ( !multiArcBiases )
             {
-                std::shared_ptr< ObservationBiasSettings > biasSettings;
-                if ( !multiArcBiases )
-                {
-                    std::vector< std::shared_ptr< ObservationBiasSettings > > biasSettingsList;
-                    biasSettingsList.push_back( std::make_shared< ConstantTimeBiasSettings >( 0.0, receiver ) );
-                    biasSettingsList.push_back( std::make_shared< ConstantObservationBiasSettings >( Eigen::Vector1d::Zero( ), true ) );
-                    biasSettings = std::make_shared< MultipleObservationBiasSettings >( biasSettingsList );
-                }
-                else
-                {
-                    std::vector< std::shared_ptr< ObservationBiasSettings > > biasSettingsList;
-                    biasSettingsList.push_back( std::make_shared< ArcWiseTimeBiasSettings >( arcs, timeBiasesPerArc, receiver ) );
-                    biasSettingsList.push_back( std::make_shared< ArcWiseConstantObservationBiasSettings >( arcs, biasesPerArc, receiver, true ) );
-                    biasSettings = std::make_shared< MultipleObservationBiasSettings >( biasSettingsList );
-                }
-                observationSettingsList.push_back( std::make_shared< ObservationModelSettings >(
-                    currentObservable, currentLinkEndsList.at( i ), std::shared_ptr< LightTimeCorrectionSettings >( ), biasSettings ) );
+                parameterNames.push_back( std::make_shared< ConstantTimeBiasEstimatableParameterSettings >(
+                    testLinkEnds, currentObservable, receiver ) );
+            }
+            else
+            {
+                parameterNames.push_back( std::make_shared< ArcWiseTimeBiasEstimatableParameterSettings >(
+                    testLinkEnds, currentObservable, arcs, receiver ) );
+            }
+
+            // Create parameters
+            std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate =
+                createParametersToEstimate< double, double >( parameterNames, bodies );
+            printEstimatableParameterEntries( parametersToEstimate );
+
+            // Define bias settings for observation model
+            std::shared_ptr< ObservationBiasSettings > biasSettings;
+            if ( !multiArcBiases )
+            {
+                std::vector< std::shared_ptr< ObservationBiasSettings > > biasSettingsList;
+                biasSettingsList.push_back( std::make_shared< ConstantTimeBiasSettings >( 0.0, receiver ) );
+                biasSettings = std::make_shared< MultipleObservationBiasSettings >( biasSettingsList );
+            }
+            else
+            {
+                std::vector< std::shared_ptr< ObservationBiasSettings > > biasSettingsList;
+                biasSettingsList.push_back( std::make_shared< ArcWiseTimeBiasSettings >( arcs, timeBiasesPerArc, receiver ) );
+                biasSettings = std::make_shared< MultipleObservationBiasSettings >( biasSettingsList );
+            }
+            // Define observation model settings
+            std::vector< std::shared_ptr< ObservationModelSettings > > observationSettingsList;
+            observationSettingsList.push_back( std::make_shared< ObservationModelSettings >(
+                currentObservable, testLinkEnds, std::shared_ptr< LightTimeCorrectionSettings >( ), biasSettings ) );
+
+            // Create orbit determination object.
+            OrbitDeterminationManager< double, double > orbitDeterminationManager = OrbitDeterminationManager< double, double >(
+                bodies, parametersToEstimate, observationSettingsList, integratorSettings, propagatorSettings );
+
+            // Define list of observation times
+            std::vector< double > baseTimeList;
+            double observationInterval = 600.0;
+            int numberOfObservations = 10;
+            for( unsigned int j = 0; j < numberOfObservations; j++ )
+            {
+                baseTimeList.push_back( ( initialTime + 600.0 ) + static_cast< double >( j ) * observationInterval );
+            }
+
+            // Define observation simulation times
+            std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > measurementSimulationInput;
+            measurementSimulationInput.push_back( std::make_shared< TabulatedObservationSimulationSettings< double > >(
+                currentObservable, testLinkEnds, baseTimeList, receiver ) );
+
+            // Simulate observations
+            std::shared_ptr< ObservationCollection< double, double > > simulatedObservations = simulateObservations< double, double >(
+                measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
+            Eigen::VectorXd observations = simulatedObservations->getObservationVector( );
+
+            // Extract observation model
+            std::cout<<"Number of simulators "<<orbitDeterminationManager.getObservationSimulators( ).size( )<<std::endl;
+            std::shared_ptr< ObservationModel< 2, double, double > > observationModel =
+                std::dynamic_pointer_cast< ObservationSimulator< 2, double, double > >( orbitDeterminationManager.getObservationSimulators( ).at( 0 ) )->getObservationModels( ).at(
+                testLinkEnds );
+
+            // Compute analytical partials
+            auto observationManager = std::dynamic_pointer_cast< ObservationManager< 2, double, double > >( orbitDeterminationManager.getObservationManager( currentObservable ) );
+            Eigen::MatrixXd partials = Eigen::MatrixXd::Zero( baseTimeList.size( ), 7 );
+            observationManager->computeObservationsWithPartials(
+                baseTimeList, testLinkEnds, receiver, nullptr, observations, partials, false, true );
+
+            // Get nominal parameter values
+            Eigen::VectorXd originalParameters = parametersToEstimate->getFullParameterValues< double >( );
+
+            for( unsigned int parameterIndex = 6; parameterIndex < parametersToEstimate->getParameterSetSize( ); parameterIndex++ )
+            {
+                // Define perturbation for numerical partial
+                double timeBiasPerturbation = 1.0;
+
+                // Perturb bias value up and recompute observations
+                Eigen::VectorXd perturbedParameters = originalParameters;
+                perturbedParameters( parameterIndex ) += timeBiasPerturbation;
+                parametersToEstimate->resetParameterValues( perturbedParameters );
+                std::shared_ptr< ObservationCollection< double, double > > upperturbedSimulatedObservations = simulateObservations< double, double >(
+                    measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
+
+                // Perturb bias value down and recompute observations
+                perturbedParameters = originalParameters;
+                perturbedParameters( parameterIndex ) -= timeBiasPerturbation;
+                parametersToEstimate->resetParameterValues( perturbedParameters );
+                std::shared_ptr< ObservationCollection< double, double > > downperturbedSimulatedObservations = simulateObservations< double, double >(
+                    measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
+
+                // Reset to nominal values
+                parametersToEstimate->resetParameterValues( perturbedParameters );
+
+                // Compute numerical partials
+                Eigen::MatrixXd numericalPartials = ( upperturbedSimulatedObservations->getObservationVector( ) - downperturbedSimulatedObservations->getObservationVector( ) ) /
+                    ( 2.0 * timeBiasPerturbation );
+
+                std::cout<<numericalPartials<<std::endl<<std::endl<<partials<<std::endl<<std::endl;
+                std::cout<<std::endl<<std::endl<<numericalPartials.cwiseQuotient( partials.block( 0, parameterIndex, partials.rows( ), 1 ) )-Eigen::VectorXd::Constant( numericalPartials.rows( ), 1 )<<std::endl;
             }
         }
-
-        // Create orbit determination object.
-        OrbitDeterminationManager< double, double > orbitDeterminationManager = OrbitDeterminationManager< double, double >(
-            bodies, parametersToEstimate, observationSettingsList, integratorSettings, propagatorSettings );
-
-        std::vector< double > baseTimeList;
-        double observationInterval = 600.0;
-        for( unsigned int j = 0; j < 10; j++ )
-        {
-            baseTimeList.push_back( ( initialTime + 600.0 ) + static_cast< double >( j ) * observationInterval );
-        }
-        std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > measurementSimulationInput;
-        LinkEnds currentLinkEnds = linkEndsPerObservable.at( one_way_range ).at( 0 );
-                measurementSimulationInput.push_back( std::make_shared< TabulatedObservationSimulationSettings< double > >(
-                    one_way_range, currentLinkEnds, baseTimeList, receiver ) );
-
-        // Simulate observations
-        std::shared_ptr< ObservationCollection< double, double > > simulatedObservations = simulateObservations< double, double >(
-            measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
-
-
-
-        std::shared_ptr< ObservationModel< 1, double, double > > observationModel =
-            std::dynamic_pointer_cast< ObservationSimulator< 1, double, double > >( orbitDeterminationManager.getObservationSimulators( ).at( 0 ) )->getObservationModels( ).at(
-            linkEndsPerObservable.at( one_way_range ).at( 0 ) );
-        std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > timeBiasParameter = parametersToEstimate->getEstimatedVectorParameters( ).at( 0 );
-        auto observationManager = std::dynamic_pointer_cast< ObservationManager< 1, double, double > >( orbitDeterminationManager.getObservationManager( one_way_range ) );
-        Eigen::MatrixXd partials = Eigen::MatrixXd::Zero( baseTimeList.size( ), 7 );
-        Eigen::VectorXd observations = simulatedObservations->getObservationVector( );
-        observationManager->computeObservationsWithPartials(
-            baseTimeList, currentLinkEnds, receiver, nullptr, observations, partials, false, true );
-        std::cout<<partials<<std::endl;
-
-        double timeBiasPerturbation = 1.0;
-        Eigen::VectorXd originalParameters = parametersToEstimate->getFullParameterValues< double >( );
-
-        Eigen::VectorXd perturbedParameters = originalParameters;
-        std::cout<<"PARAMETERS: "<<originalParameters.transpose( )<<std::endl;
-        perturbedParameters( 6 ) += timeBiasPerturbation;
-        parametersToEstimate->resetParameterValues( perturbedParameters );
-        std::shared_ptr< ObservationCollection< double, double > > upperturbedSimulatedObservations = simulateObservations< double, double >(
-            measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
-
-        perturbedParameters = originalParameters;
-        perturbedParameters( 6 ) -= timeBiasPerturbation;
-        parametersToEstimate->resetParameterValues( perturbedParameters );
-        std::shared_ptr< ObservationCollection< double, double > > downperturbedSimulatedObservations = simulateObservations< double, double >(
-            measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
-
-        Eigen::MatrixXd numericalPartials = ( upperturbedSimulatedObservations->getObservationVector( ) - downperturbedSimulatedObservations->getObservationVector( ) ) /
-            ( 2.0 * timeBiasPerturbation );
-        std::cout<<std::endl<<std::endl<<numericalPartials<<std::endl;
-        std::cout<<std::endl<<std::endl<<numericalPartials.cwiseQuotient( partials.block( 0, 6, 1, 1 ) )-Eigen::VectorXd::Constant( numericalPartials.rows( ), 1 )<<std::endl;
-
     }
-
 }
 
 
