@@ -980,11 +980,8 @@ public:
      */
     Eigen::VectorXd getTemplateFreeConstantObservationBias( )
     {
-        Eigen::VectorXd bias = Eigen::VectorXd( ObservationSize );
-        for ( unsigned int j = 0 ; j < bias.size( ) ; j++ )
-        {
-            bias[ j ] = timeBias_;
-        }
+        Eigen::VectorXd bias = Eigen::VectorXd( 1 );
+        bias[ 0 ] = timeBias_;
         return bias;
     }
 

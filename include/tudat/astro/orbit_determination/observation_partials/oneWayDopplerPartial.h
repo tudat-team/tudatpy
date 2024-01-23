@@ -259,6 +259,8 @@ public:
      */
     Eigen::Matrix< double, 1, 3 > getPositionScalingFactor( const observation_models::LinkEndType linkEndType );
 
+    Eigen::Matrix< double, 1, 3 > getFixedTimePositionScalingFactor( const observation_models::LinkEndType linkEndType );
+
     //! Function to retrieve the velocity scaling factor for specific link end
     /*!
      * Function to retrieve the velocity scaling factor for specific link end
@@ -266,6 +268,8 @@ public:
      * \return Velocity partial scaling factor at current link end
      */
     Eigen::Matrix< double, 1, 3 > getVelocityScalingFactor( const observation_models::LinkEndType linkEndType );
+
+    Eigen::Matrix< double, 1, 3 > getFixedTimeVelocityScalingFactor( const observation_models::LinkEndType linkEndType );
 
     //! Function to get the fixed link end for last computation of update() function.
     /*!
