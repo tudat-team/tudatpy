@@ -105,7 +105,7 @@ BOOST_AUTO_TEST_CASE( testTimeBiasPartials )
     testLinkEnds[ receiver ] = LinkEndId( "Earth", "Station" );
     testLinkEnds[ transmitter ] = LinkEndId( "Vehicle", "" );
 
-    for( unsigned int observableCase = 2; observableCase < 3; observableCase++ )
+    for( unsigned int observableCase = 0; observableCase < 2; observableCase++ )
     {
         ObservableType currentObservable = undefined_observation_model;
 
@@ -212,22 +212,19 @@ BOOST_AUTO_TEST_CASE( testTimeBiasPartials )
                 measurementSimulationInput.at( 0 )->setAncilliarySettings( ancilliarySettings );
             }
 
-            // Simulate observations
-            std::shared_ptr< ObservationCollection< double, double > > simulatedObservations = simulateObservations< double, double >(
-                measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
-            Eigen::VectorXd observations = simulatedObservations->getObservationVector( );
-
+            // Compute observations and partials
+            Eigen::VectorXd observations;
             Eigen::MatrixXd partials;
             switch( currentObservable )
             {
             case one_way_differenced_range:
             case one_way_range:
-                computePartialsFromEstimator< 1, double, double >( orbitDeterminationManager, testLinkEnds, ancilliarySettings, currentObservable,
-                                                                   baseTimeList, observations, parametersToEstimate->getParameterSetSize( ), partials );
+                orbitDeterminationManager.computePartialsAndObservations< 1 >(
+                    testLinkEnds, ancilliarySettings, currentObservable, receiver, baseTimeList, observations, partials );
                 break;
             case angular_position:
-                computePartialsFromEstimator< 2, double, double >( orbitDeterminationManager, testLinkEnds, ancilliarySettings, currentObservable,
-                                                                   baseTimeList, observations, parametersToEstimate->getParameterSetSize( ), partials );
+                orbitDeterminationManager.computePartialsAndObservations< 2 >(
+                    testLinkEnds, ancilliarySettings, currentObservable, receiver, baseTimeList, observations, partials );
                 break;
             default:
                 throw std::runtime_error( "Error when testing time bias partials; observable partial size not defined" );
