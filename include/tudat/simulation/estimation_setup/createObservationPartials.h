@@ -352,29 +352,29 @@ public:
         {
         case one_way_differenced_range:
         {
-            if( firstPartial != nullptr )
-            {
-                if( std::dynamic_pointer_cast< DirectObservationPartial< 1 > >( firstPartial ) == nullptr )
-                {
-                    throw std::runtime_error( "Error when creating one-way differenced range partial; first input object type is incompatible" );
-                }
-                else if( std::dynamic_pointer_cast< DirectObservationPartial< 1 > >( firstPartial )->getObservableType( ) != one_way_range )
-                {
-                    throw std::runtime_error( "Error when creating one-way differenced range partial; first input observable type is incompatible" );
-                }
-            }
-
-            if( secondPartial != nullptr )
-            {
-                if( std::dynamic_pointer_cast< DirectObservationPartial< 1 > >( secondPartial ) == nullptr )
-                {
-                    throw std::runtime_error( "Error when creating one-way differenced range partial; second input object type is incompatible" );
-                }
-                else if( std::dynamic_pointer_cast< DirectObservationPartial< 1 > >( secondPartial )->getObservableType( ) != one_way_range )
-                {
-                    throw std::runtime_error( "Error when creating one-way differenced range partial; second input observable type is incompatible" );
-                }
-            }
+//            if( firstPartial != nullptr )
+//            {
+//                if( std::dynamic_pointer_cast< DirectObservationPartial< 1 > >( firstPartial ) == nullptr )
+//                {
+//                    throw std::runtime_error( "Error when creating one-way differenced range partial; first input object type is incompatible" );
+//                }
+//                else if( std::dynamic_pointer_cast< DirectObservationPartial< 1 > >( firstPartial )->getObservableType( ) != one_way_range )
+//                {
+//                    throw std::runtime_error( "Error when creating one-way differenced range partial; first input observable type is incompatible" );
+//                }
+//            }
+//
+//            if( secondPartial != nullptr )
+//            {
+//                if( std::dynamic_pointer_cast< DirectObservationPartial< 1 > >( secondPartial ) == nullptr )
+//                {
+//                    throw std::runtime_error( "Error when creating one-way differenced range partial; second input object type is incompatible" );
+//                }
+//                else if( std::dynamic_pointer_cast< DirectObservationPartial< 1 > >( secondPartial )->getObservableType( ) != one_way_range )
+//                {
+//                    throw std::runtime_error( "Error when creating one-way differenced range partial; second input observable type is incompatible" );
+//                }
+//            }
             differencedPartial = std::make_shared< DifferencedObservablePartial< 1 > >(
                         firstPartial, secondPartial, &observation_models::getDifferencedOneWayRangeScalingFactor,
                         getUndifferencedTimeAndStateIndices( one_way_differenced_range, linkEnds.size( ) ) );
@@ -602,11 +602,13 @@ std::shared_ptr< PositionPartialScaling > > createDifferencedObservablePartials(
     {
 
         std::shared_ptr< ObservationPartial< ObservationSize > > currentDifferencedObservationPartial;
-        if( isParameterObservationLinkProperty( parameterIterator->second->getParameterName( ).first ) && useBiasPartials )
-        {
-            currentDifferencedObservationPartial = createObservationPartialWrtLinkProperty< ObservationSize >(
-                        linkEnds, undifferencedObservableType, parameterIterator->second, bodies );
-        }
+//        if( isParameterObservationLinkProperty( parameterIterator->second->getParameterName( ).first ) && useBiasPartials )
+//        {
+//            currentDifferencedObservationPartial = createObservationPartialWrtLinkProperty< ObservationSize >(
+//                        linkEnds, undifferencedObservableType, parameterIterator->second, bodies );
+//        }
+
+        std::cout<<"Differenced observation partial "<<currentDifferencedObservationPartial<<std::endl;
 
         // Check if partial is non-nullptr (i.e. whether dependency exists between current doppler and current parameter)
         if( currentDifferencedObservationPartial != nullptr )
