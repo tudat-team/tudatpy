@@ -252,7 +252,6 @@ std::shared_ptr< ObservationPartial< ObservationSize > > createObservationPartia
 //    }
     case estimatable_parameters::constant_time_observation_bias:
     {
-        std::cout<<"Attempting constant time bias partial "<<( partialWrtStateCreationFunction == nullptr )<<std::endl;
 //        if( useBiasPartials )
         {
             // Check input consistency
@@ -264,10 +263,17 @@ std::shared_ptr< ObservationPartial< ObservationSize > > createObservationPartia
             }
             else
             {
-                std::cout<<( linkEnds == constantTimeBias->getLinkEnds( ) )<<" "<<observableType<<" "<<constantTimeBias->getObservableType( )<<std::endl;
-
-                    // Check dependency between parameter and link properties.
-                if( linkEnds == constantTimeBias->getLinkEnds( ) )//&& observableType == constantTimeBias->getObservableType( ) )
+                // Check dependency between parameter and link properties.
+                bool matchObservationType = false;
+                if( observableType == constantTimeBias->getObservableType( ) )
+                {
+                    matchObservationType = true;
+                }
+                if( useBiasPartials == false && observableType == getUndifferencedObservableType( constantTimeBias->getObservableType( ) ) )
+                {
+                    matchObservationType = true;
+                }
+                if( linkEnds == constantTimeBias->getLinkEnds( ) && matchObservationType )
                 {
                     std::shared_ptr< DirectObservationPartial< ObservationSize > > observationWrtTransmitterStatePartial =
                         std::dynamic_pointer_cast< DirectObservationPartial< ObservationSize > >(
