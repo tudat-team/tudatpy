@@ -105,13 +105,12 @@ BOOST_AUTO_TEST_CASE( testTimeBiasPartials )
     testLinkEnds[ receiver ] = LinkEndId( "Earth", "Station" );
     testLinkEnds[ transmitter ] = LinkEndId( "Vehicle", "" );
 
-    for( unsigned int observableCase = 2; observableCase < 3; observableCase++ )
+    for( unsigned int observableCase = 0; observableCase < 3; observableCase++ )
     {
         ObservableType currentObservable = undefined_observation_model;
 
 
 //            one_way_doppler = 3,
-//            one_way_differenced_range = 4,
 //            n_way_range = 5,
 //            two_way_doppler = 6,
 //            euler_angle_313_observable = 7,
