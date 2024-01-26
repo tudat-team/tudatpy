@@ -697,6 +697,38 @@ std::pair< std::vector< int >, std::vector< int > > getUndifferencedTimeAndState
 }
 
 
+std::pair< LinkEnds, LinkEnds > getUndifferencedLinkEnds( const ObservableType differencedObservableType, const LinkEnds& differencedLinkEnds )
+{
+    std::pair< LinkEnds, LinkEnds > linkEndsPair;
+    switch( differencedObservableType )
+    {
+    case one_way_differenced_range:
+    case n_way_differenced_range:
+    case dsn_n_way_averaged_doppler:
+        linkEndsPair = { differencedLinkEnds, differencedLinkEnds };
+        break;
+    case relative_angular_position:
+    {
+        LinkEnds firstLinkEnds;
+        firstLinkEnds[ transmitter ] = differencedLinkEnds.at( transmitter );
+        firstLinkEnds[ receiver ] = differencedLinkEnds.at( receiver );
+
+        LinkEnds secondLinkEnds;
+        secondLinkEnds[ transmitter ] = differencedLinkEnds.at( transmitter2 );
+        secondLinkEnds[ receiver ] = differencedLinkEnds.at( receiver );
+        linkEndsPair = { firstLinkEnds, secondLinkEnds };
+        break;
+    }
+    default:
+        throw std::runtime_error( "Error when getting undifferenced link ends for " + getObservableName(
+            differencedObservableType ) + ", no such type exists" );
+
+    }
+    return linkEndsPair;
+}
+
+
+
 //! Function to get the size of an observable of a given type.
 int getObservableSize( const ObservableType observableType )
 {

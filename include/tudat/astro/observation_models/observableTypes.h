@@ -77,6 +77,8 @@ std::pair< std::vector< int >, std::vector< int > > getUndifferencedTimeAndState
         const ObservableType differencedObservableType,
         const int numberOfLinkEnds );
 
+std::pair< LinkEnds, LinkEnds > getUndifferencedLinkEnds( const ObservableType differencedObservableType, const LinkEnds& differencedLinkEnds );
+
 //! Function to get the size of an observable of a given type.
 /*!
  * Function to get the size of an observable of a given type.
