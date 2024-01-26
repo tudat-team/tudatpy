@@ -352,7 +352,7 @@ public:
         {
         case one_way_differenced_range:
         {
-            if( !isParameterObservationLinkTimeProperty( firstPartial->getParameterIdentifier( ).first ) )
+            if( !isParameterObservationLinkTimeProperty( getDifferencedPartialParameterIdentifier( firstPartial, secondPartial ).first ) )
             {
                 if( firstPartial != nullptr )
                 {
@@ -469,29 +469,33 @@ public:
         {
         case relative_angular_position:
         {
-            if( firstPartial != nullptr )
+            if( !isParameterObservationLinkTimeProperty( getDifferencedPartialParameterIdentifier( firstPartial, secondPartial ).first ) )
             {
-                if( std::dynamic_pointer_cast< DirectObservationPartial< 2 > >( firstPartial ) == nullptr )
+                if( firstPartial != nullptr )
                 {
-                    throw std::runtime_error( "Error when creating relative angular position partial; first input object type is incompatible" );
+                    if( std::dynamic_pointer_cast< DirectObservationPartial< 2 > >( firstPartial ) == nullptr )
+                    {
+                        throw std::runtime_error( "Error when creating relative angular position partial; first input object type is incompatible" );
+                    }
+                    else if( std::dynamic_pointer_cast< DirectObservationPartial< 2 > >( firstPartial )->getObservableType( ) != angular_position )
+                    {
+                        throw std::runtime_error( "Error when creating relative angular position partial; first input observable type is incompatible" );
+                    }
                 }
-                else if( std::dynamic_pointer_cast< DirectObservationPartial< 2 > >( firstPartial )->getObservableType( ) != angular_position )
+
+                if( secondPartial != nullptr )
                 {
-                    throw std::runtime_error( "Error when creating relative angular position partial; first input observable type is incompatible" );
+                    if( std::dynamic_pointer_cast< DirectObservationPartial< 2 > >( secondPartial ) == nullptr )
+                    {
+                        throw std::runtime_error( "Error when creating relative angular position partial; second input object type is incompatible" );
+                    }
+                    else if( std::dynamic_pointer_cast< DirectObservationPartial< 2 > >( secondPartial )->getObservableType( ) != angular_position )
+                    {
+                        throw std::runtime_error( "Error when creating relative angular position partial; second input observable type is incompatible" );
+                    }
                 }
             }
 
-            if( secondPartial != nullptr )
-            {
-                if( std::dynamic_pointer_cast< DirectObservationPartial< 2 > >( secondPartial ) == nullptr )
-                {
-                    throw std::runtime_error( "Error when creating relative angular position partial; second input object type is incompatible" );
-                }
-                else if( std::dynamic_pointer_cast< DirectObservationPartial< 2 > >( secondPartial )->getObservableType( ) != angular_position )
-                {
-                    throw std::runtime_error( "Error when creating relative angular position partial; second input observable type is incompatible" );
-                }
-            }
             differencedPartial = std::make_shared< DifferencedObservablePartial< 2 > >(
                     firstPartial, secondPartial, &getRelativeAngularPositionScalingFactor,
                     getUndifferencedTimeAndStateIndices( relative_angular_position, linkEnds.size( ) ) );

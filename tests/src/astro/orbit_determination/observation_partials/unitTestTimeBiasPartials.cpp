@@ -8,25 +8,41 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MAIN
+//#define BOOST_TEST_DYN_LINK
+//#define BOOST_TEST_MAIN
 
 #include <limits>
 #include <boost/test/unit_test.hpp>
 #include "tudat/basics/testMacros.h"
 #include "tudat/simulation/estimation_setup/orbitDeterminationTestCases.h"
 
+//
+//namespace tudat
+//{
+//namespace unit_tests
+//{
 
-namespace tudat
-{
-namespace unit_tests
-{
+using namespace tudat;
+using namespace tudat::observation_models;
+using namespace tudat::orbit_determination;
+using namespace tudat::estimatable_parameters;
+using namespace tudat::interpolators;
+using namespace tudat::numerical_integrators;
+using namespace tudat::spice_interface;
+using namespace tudat::simulation_setup;
+using namespace tudat::orbital_element_conversions;
+using namespace tudat::ephemerides;
+using namespace tudat::propagators;
+using namespace tudat::basic_astrodynamics;
+using namespace tudat::coordinate_conversions;
+using namespace tudat::physical_constants;
 
-
-BOOST_AUTO_TEST_SUITE( test_time_bias_partials )
-
-//! Test partial derivatives of angular position observable, using general test suite of observation partials.
-BOOST_AUTO_TEST_CASE( testTimeBiasPartials )
+//
+//BOOST_AUTO_TEST_SUITE( test_time_bias_partials )
+//
+////! Test partial derivatives of angular position observable, using general test suite of observation partials.
+//BOOST_AUTO_TEST_CASE( testTimeBiasPartials )
+int main( )
 {
     const int numberOfDaysOfData = 1;
     int numberOfIterations = 10;
@@ -60,6 +76,9 @@ BOOST_AUTO_TEST_CASE( testTimeBiasPartials )
     bodies.createEmptyBody( "Vehicle" );
     bodies.at( "Vehicle" )->setEphemeris( std::make_shared< TabulatedCartesianEphemeris< > >(
         std::shared_ptr< interpolators::OneDimensionalInterpolator < double, Eigen::Vector6d > >( ), "Earth", "ECLIPJ2000" ) );
+    bodies.createEmptyBody( "Vehicle2" );
+    bodies.at( "Vehicle2" )->setEphemeris( std::make_shared< TabulatedCartesianEphemeris< > >(
+        std::shared_ptr< interpolators::OneDimensionalInterpolator < double, Eigen::Vector6d > >( ), "Earth", "ECLIPJ2000" ) );
 
 
     // Create ground station
@@ -70,11 +89,14 @@ BOOST_AUTO_TEST_CASE( testTimeBiasPartials )
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
     accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
     accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
+    accelerationMap[ "Vehicle2" ] = accelerationsOfVehicle;
 
     // Set bodies for which initial state is to be estimated and integrated.
     std::vector< std::string > bodiesToIntegrate;
     std::vector< std::string > centralBodies;
     bodiesToIntegrate.push_back( "Vehicle" );
+    bodiesToIntegrate.push_back( "Vehicle2" );
+    centralBodies.push_back( "Earth" );
     centralBodies.push_back( "Earth" );
 
     // Create acceleration models
@@ -89,7 +111,12 @@ BOOST_AUTO_TEST_CASE( testTimeBiasPartials )
     initialKeplerianState( longitudeOfAscendingNodeIndex ) = unit_conversions::convertDegreesToRadians( 23.4 );
     initialKeplerianState( trueAnomalyIndex ) = unit_conversions::convertDegreesToRadians( 139.87 );
     double earthGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
-    Eigen::Vector6d initialState = convertKeplerianToCartesianElements( initialKeplerianState, earthGravitationalParameter );
+    Eigen::Vector6d initialState1 = convertKeplerianToCartesianElements( initialKeplerianState, earthGravitationalParameter );
+
+    initialKeplerianState( trueAnomalyIndex ) -= unit_conversions::convertDegreesToRadians( 10.0 );
+    Eigen::Vector6d initialState2 = convertKeplerianToCartesianElements( initialKeplerianState, earthGravitationalParameter );
+    Eigen::VectorXd initialState = Eigen::VectorXd::Zero( 12 );
+    initialState << initialState1, initialState2;
 
     // Create propagator settings
     std::shared_ptr< TranslationalStatePropagatorSettings< double, double > > propagatorSettings =
@@ -101,23 +128,36 @@ BOOST_AUTO_TEST_CASE( testTimeBiasPartials )
         initialTime, 120.0, CoefficientSets::rungeKuttaFehlberg78, 120.0, 120.0, 1.0, 1.0 );
 
     // Define link ends.
-    LinkEnds testLinkEnds;
-    testLinkEnds[ receiver ] = LinkEndId( "Earth", "Station" );
-    testLinkEnds[ transmitter ] = LinkEndId( "Vehicle", "" );
+    LinkEnds oneWayLinkEnds;
+    oneWayLinkEnds[ receiver ] = LinkEndId( "Earth", "Station" );
+    oneWayLinkEnds[ transmitter ] = LinkEndId( "Vehicle", "" );
 
-    for( unsigned int observableCase = 0; observableCase < 3; observableCase++ )
+    LinkEnds twoWayLinkEnds;
+    twoWayLinkEnds[ receiver ] = LinkEndId( "Earth", "Station" );
+    twoWayLinkEnds[ retransmitter ] = LinkEndId( "Vehicle", "" );
+    twoWayLinkEnds[ transmitter ] = LinkEndId( "Vehicle2", "" );
+
+    LinkEnds differencedTransmitterLinkEnds;
+    differencedTransmitterLinkEnds[ receiver ] = LinkEndId( "Earth", "Station" );
+    differencedTransmitterLinkEnds[ transmitter ] = LinkEndId( "Vehicle", "" );
+    differencedTransmitterLinkEnds[ transmitter2 ] = LinkEndId( "Vehicle2", "" );
+
+
+    LinkEnds differencedTransmitterLinkEndsInverse;
+    differencedTransmitterLinkEndsInverse[ receiver ] = LinkEndId( "Earth", "Station" );
+    differencedTransmitterLinkEndsInverse[ transmitter2 ] = LinkEndId( "Vehicle", "" );
+    differencedTransmitterLinkEndsInverse[ transmitter ] = LinkEndId( "Vehicle2", "" );
+
+    for( unsigned int observableCase = 0; observableCase < 6; observableCase++ )
     {
         ObservableType currentObservable = undefined_observation_model;
+        LinkEnds testLinkEnds = oneWayLinkEnds;
+        LinkEndType referenceLinkEnd = receiver;
 
 
 //            one_way_doppler = 3,
-//            n_way_range = 5,
 //            two_way_doppler = 6,
-//            euler_angle_313_observable = 7,
-//            relative_angular_position = 9,
 //            n_way_differenced_range = 10,
-//            relative_position_observable = 11,
-//            dsn_one_way_averaged_doppler = 12,
 //            dsn_n_way_averaged_doppler = 13
 
         switch( observableCase )
@@ -130,6 +170,18 @@ BOOST_AUTO_TEST_CASE( testTimeBiasPartials )
             break;
         case 2:
             currentObservable = one_way_differenced_range;
+            break;
+        case 3:
+            currentObservable = relative_angular_position;
+            testLinkEnds = differencedTransmitterLinkEnds;
+            break;
+        case 4:
+            currentObservable = relative_angular_position;
+            testLinkEnds = differencedTransmitterLinkEndsInverse;
+            break;
+        case 5:
+            currentObservable = n_way_range;
+            testLinkEnds = twoWayLinkEnds;
             break;
 //        case 2:
 //            currentObservable = position_observable;
@@ -148,16 +200,18 @@ BOOST_AUTO_TEST_CASE( testTimeBiasPartials )
 
             // Add bias parameters to estimation
             std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
-            parameterNames.push_back( std::make_shared< InitialTranslationalStateEstimatableParameterSettings< double > >( "Vehicle", initialState, "Earth" ) );
+            parameterNames.push_back( std::make_shared< InitialTranslationalStateEstimatableParameterSettings< double > >( "Vehicle", initialState1, "Earth" ) );
+            parameterNames.push_back( std::make_shared< InitialTranslationalStateEstimatableParameterSettings< double > >( "Vehicle2", initialState2, "Earth" ) );
+
             if ( !multiArcBiases )
             {
                 parameterNames.push_back( std::make_shared< ConstantTimeBiasEstimatableParameterSettings >(
-                    testLinkEnds, currentObservable, receiver ) );
+                    testLinkEnds, currentObservable, referenceLinkEnd ) );
             }
             else
             {
                 parameterNames.push_back( std::make_shared< ArcWiseTimeBiasEstimatableParameterSettings >(
-                    testLinkEnds, currentObservable, arcs, receiver ) );
+                    testLinkEnds, currentObservable, arcs, referenceLinkEnd ) );
             }
 
             // Create parameters
@@ -170,13 +224,13 @@ BOOST_AUTO_TEST_CASE( testTimeBiasPartials )
             if ( !multiArcBiases )
             {
                 std::vector< std::shared_ptr< ObservationBiasSettings > > biasSettingsList;
-                biasSettingsList.push_back( std::make_shared< ConstantTimeBiasSettings >( 0.0, receiver ) );
+                biasSettingsList.push_back( std::make_shared< ConstantTimeBiasSettings >( 0.0, referenceLinkEnd ) );
                 biasSettings = std::make_shared< MultipleObservationBiasSettings >( biasSettingsList );
             }
             else
             {
                 std::vector< std::shared_ptr< ObservationBiasSettings > > biasSettingsList;
-                biasSettingsList.push_back( std::make_shared< ArcWiseTimeBiasSettings >( arcs, timeBiasesPerArc, receiver ) );
+                biasSettingsList.push_back( std::make_shared< ArcWiseTimeBiasSettings >( arcs, timeBiasesPerArc, referenceLinkEnd ) );
                 biasSettings = std::make_shared< MultipleObservationBiasSettings >( biasSettingsList );
             }
             // Define observation model settings
@@ -192,7 +246,7 @@ BOOST_AUTO_TEST_CASE( testTimeBiasPartials )
             std::vector< double > baseTimeList;
             double observationInterval = 600.0;
             int numberOfObservations = 10;
-            for( unsigned int j = 0; j < numberOfObservations; j++ )
+            for( int j = 0; j < numberOfObservations; j++ )
             {
                 baseTimeList.push_back( ( initialTime + 600.0 ) + static_cast< double >( j ) * observationInterval );
             }
@@ -201,7 +255,7 @@ BOOST_AUTO_TEST_CASE( testTimeBiasPartials )
 
             std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > measurementSimulationInput;
             measurementSimulationInput.push_back( std::make_shared< TabulatedObservationSimulationSettings< double > >(
-                currentObservable, testLinkEnds, baseTimeList, receiver ) );
+                currentObservable, testLinkEnds, baseTimeList, referenceLinkEnd ) );
 
             std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings;
             if( currentObservable == one_way_differenced_range )
@@ -218,12 +272,14 @@ BOOST_AUTO_TEST_CASE( testTimeBiasPartials )
             {
             case one_way_differenced_range:
             case one_way_range:
+            case position_observable:
                 orbitDeterminationManager.computePartialsAndObservations< 1 >(
-                    testLinkEnds, ancilliarySettings, currentObservable, receiver, baseTimeList, observations, partials );
+                    testLinkEnds, ancilliarySettings, currentObservable, referenceLinkEnd, baseTimeList, observations, partials );
                 break;
             case angular_position:
+            case relative_angular_position:
                 orbitDeterminationManager.computePartialsAndObservations< 2 >(
-                    testLinkEnds, ancilliarySettings, currentObservable, receiver, baseTimeList, observations, partials );
+                    testLinkEnds, ancilliarySettings, currentObservable, referenceLinkEnd, baseTimeList, observations, partials );
                 break;
             default:
                 throw std::runtime_error( "Error when testing time bias partials; observable partial size not defined" );
@@ -232,7 +288,7 @@ BOOST_AUTO_TEST_CASE( testTimeBiasPartials )
             // Get nominal parameter values
             Eigen::VectorXd originalParameters = parametersToEstimate->getFullParameterValues< double >( );
 
-            for( unsigned int parameterIndex = 6; parameterIndex < parametersToEstimate->getParameterSetSize( ); parameterIndex++ )
+            for( int parameterIndex = 12; parameterIndex < parametersToEstimate->getParameterSetSize( ); parameterIndex++ )
             {
                 // Define perturbation for numerical partial
                 double timeBiasPerturbation = 1.0;
@@ -265,12 +321,12 @@ BOOST_AUTO_TEST_CASE( testTimeBiasPartials )
     }
 }
 
-
-BOOST_AUTO_TEST_SUITE_END( )
-
-} // namespace unit_tests
-
-} // namespace tudat
+//
+//BOOST_AUTO_TEST_SUITE_END( )
+//
+//} // namespace unit_tests
+//
+//} // namespace tudat
 
 
 
