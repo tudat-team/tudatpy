@@ -269,11 +269,34 @@ std::shared_ptr< ObservationPartial< ObservationSize > > createObservationPartia
                 {
                     matchObservationType = true;
                 }
-                if( useBiasPartials == false && observableType == getUndifferencedObservableType( constantTimeBias->getObservableType( ) ) )
+                else if( useBiasPartials == false && observableType == getUndifferencedObservableType( constantTimeBias->getObservableType( ) ) )
                 {
                     matchObservationType = true;
                 }
-                if( linkEnds == constantTimeBias->getLinkEnds( ) && matchObservationType )
+
+                bool matchLinkEnds = false;
+                if(  linkEnds == constantTimeBias->getLinkEnds( ) )
+                {
+                    matchLinkEnds = true;
+                }
+                else if( useBiasPartials == false )
+                {
+                    std::pair< observation_models::LinkEnds, observation_models::LinkEnds > linkEndsPair =
+                        observation_models::getUndifferencedLinkEnds( constantTimeBias->getObservableType( ), constantTimeBias->getLinkEnds( ) );
+                    if(  linkEnds == linkEndsPair.first )
+                    {
+                        matchLinkEnds = true;
+                    }
+                    else if( linkEnds == linkEndsPair.second )
+                    {
+                        matchLinkEnds = true;
+                    }
+
+                }
+                std::cout<<"Link ends: "<<observation_models::getLinkEndsString( linkEnds )<<std::endl;
+                std::cout<<"Link ends: "<<observation_models::getLinkEndsString( constantTimeBias->getLinkEnds( ) )<<std::endl;
+
+                if( matchLinkEnds && matchObservationType )
                 {
                     std::shared_ptr< DirectObservationPartial< ObservationSize > > observationWrtTransmitterStatePartial =
                         std::dynamic_pointer_cast< DirectObservationPartial< ObservationSize > >(
