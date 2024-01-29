@@ -911,6 +911,18 @@ int countNumberOfOccurencesInVector( const std::vector< T >& vector, const T& va
     return counter;
 }
 
+template<typename T>
+std::vector< std::vector< T > > getTwoDimensionalVector( const int firstDimension, const int secondDimension, const T initializationValue )
+{
+    return std::vector< std::vector< T > >(firstDimension, std::vector<T>(secondDimension, initializationValue));
+}
+
+template<typename T>
+std::vector< std::vector< std::vector< T > > > getThreeDimensionalVector( const int firstDimension, const int secondDimension, const int thirdDimension, const T initializationValue )
+{
+    return std::vector< std::vector< std::vector< T > > >(firstDimension, std::vector< std::vector<T> >(secondDimension, std::vector<T>( thirdDimension, initializationValue) ) );
+}
+
 } // namespace utilities
 
 } // namespace tudat

@@ -10,6 +10,9 @@
 
 TUDAT_ADD_TEST_CASE(RelativisticAccelerationCorrection PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES})
 
+TUDAT_ADD_TEST_CASE(EihAcceleration PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES})
+
+
 if( TUDAT_BUILD_WITH_ESTIMATION_TOOLS )
 
     TUDAT_ADD_TEST_CASE(ShapiroTimeDelay PRIVATE_LINKS tudat_relativity tudat_gravitation tudat_observation_models tudat_ephemerides)
