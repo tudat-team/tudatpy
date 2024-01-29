@@ -416,7 +416,7 @@ createSphericalHarmonicsGravityAcceleration(
                                sphericalHarmonicsSettings->maximumOrder_ );
 
             std::function< Eigen::MatrixXd( ) > cosineCoefficientFunction;
-            if( !useDegreeZeroTerm )
+            if( !useDegreeZeroTerm || sphericalHarmonicsSettings->removePointMass_ )
             {
                 cosineCoefficientFunction =
                         std::bind( &setDegreeAndOrderCoefficientToZero, originalCosineCoefficientFunction );
@@ -1855,6 +1855,115 @@ std::shared_ptr< AccelerationModel< Eigen::Vector3d > > createAccelerationModel(
     return accelerationModelPointer;
 }
 
+
+void addEihAccelerations(
+    const SystemOfBodies& bodies,
+    const std::map< std::string, std::vector< std::string > > orderedEihBodies,
+    const std::map< std::string, std::string >& centralBodies,
+    basic_astrodynamics::AccelerationMap& accelerationMap )
+{
+    std::vector< std::string > eihExertingBodies;
+    std::vector< std::string > eihUndergoingBodies;
+    std::vector< std::vector< std::string > > eihBodyListToCheck;
+
+    for( auto it : centralBodies )
+    {
+        if( it.second != "SSB" )
+        {
+            throw std::runtime_error( "Error when creating EIH accelerations, implementation currently requires central body equal to SSB" );
+        }
+    }
+    if( bodies.getFrameOrigin( ) != "SSB" )
+    {
+        throw std::runtime_error( "Error when creating EIH accelerations, implementation currently requires global frame origin to be equal to SSB" );
+    }
+
+    // Create list of bodies exerting acceleration, and bodies involved in the acceleration of each body
+    for( auto it : orderedEihBodies )
+    {
+        eihUndergoingBodies.push_back( it.first );
+        eihBodyListToCheck.push_back( it.second );
+        eihBodyListToCheck.at( eihBodyListToCheck.size( ) - 1 ).push_back( it.first );
+    }
+
+    // Create sorted list of bodies involved in first body's accelerations, and check against duplicates
+    std::vector< std::string > firstBodyInvolvedBodies = eihBodyListToCheck.at( 0 );
+    std::sort( firstBodyInvolvedBodies.begin( ), firstBodyInvolvedBodies.end( ) );
+    bool duplicateEntriesExist = std::adjacent_find(firstBodyInvolvedBodies.begin(), firstBodyInvolvedBodies.end()) != firstBodyInvolvedBodies.end();
+    if( duplicateEntriesExist )
+    {
+        throw std::runtime_error( "Error when creating EIH equations, acceleration settings for " +
+                                  eihUndergoingBodies.at( 0 ) + " duplicate entries found for involved bodies" );
+    }
+
+    // Check if all bodies require the same accelerating bodies
+    for( unsigned int i = 1; i < eihBodyListToCheck.size( ); i++ )
+    {
+        if( eihBodyListToCheck.at( 0 ).size( ) != eihBodyListToCheck.at( i ).size( ) )
+        {
+            throw std::runtime_error( "Error when creating EIH equations, acceleration settings for " +
+                                      eihUndergoingBodies.at( 0 ) + " and " +
+                                      eihUndergoingBodies.at( i ) + " are incompatible (different number of bodies exerting EIH acceleration found)" );
+        }
+        std::vector< std::string > currentBodyInvolvedBodies = eihBodyListToCheck.at( i );
+        std::sort( currentBodyInvolvedBodies.begin( ), currentBodyInvolvedBodies.end( ) );
+
+        for( unsigned int j = 0; j < firstBodyInvolvedBodies.size( ); j++ )
+        {
+            if( firstBodyInvolvedBodies.at( j ) != currentBodyInvolvedBodies.at( j ) )
+            {
+                throw std::runtime_error( "Error when creating EIH equations, acceleration settings for " +
+                                          eihExertingBodies.at( 0 ) + " and " +
+                                          eihExertingBodies.at( i ) + " are incompatible (ordered list of involved bodies are different)" );
+            }
+        }
+    }
+
+
+    eihExertingBodies = eihUndergoingBodies;
+    for( unsigned int j = 0; j < firstBodyInvolvedBodies.size( ); j++ )
+    {
+        if( std::find( eihExertingBodies.begin( ),
+                       eihExertingBodies.end( ),
+                       firstBodyInvolvedBodies.at( j ) ) == eihExertingBodies.end( ) )
+        {
+            eihExertingBodies.push_back( firstBodyInvolvedBodies.at( j ) );
+        }
+    }
+
+
+    std::vector< std::function< double( ) > > gravitationalParameterFunction;
+    std::vector< std::function< Eigen::Matrix< double, 6, 1 >( ) > > bodyStateFunctions;
+    for( unsigned int i = 0; i < eihExertingBodies.size( ); i++ )
+    {
+        gravitationalParameterFunction.push_back( std::bind( &Body::getGravitationalParameter, bodies.at( eihExertingBodies.at( i ) ) ) );
+        bodyStateFunctions.push_back( std::bind( &Body::getState, bodies.at( eihExertingBodies.at( i ) ) ) );
+
+    }
+
+    std::shared_ptr< relativity::EinsteinInfeldHoffmannEquations > eihEquations =
+        std::make_shared< relativity::EinsteinInfeldHoffmannEquations >(
+            eihUndergoingBodies, eihExertingBodies,
+            gravitationalParameterFunction,
+            bodyStateFunctions,
+            std::bind( &relativity::PPNParameterSet::getParameterGamma, relativity::ppnParameterSet ),
+            std::bind( &relativity::PPNParameterSet::getParameterBeta, relativity::ppnParameterSet ) );
+
+    for( unsigned int i = 0; i < eihUndergoingBodies.size( ); i++ )
+    {
+        std::vector< std::string > currentEihExertingAccelerations = eihExertingBodies;
+        std::vector< std::string >::iterator entryToRemove = std::find(
+            currentEihExertingAccelerations.begin(), currentEihExertingAccelerations.end(), eihUndergoingBodies.at( i ) );
+        if (entryToRemove != currentEihExertingAccelerations.end())
+        {
+            currentEihExertingAccelerations.erase( entryToRemove );
+        }
+
+        accelerationMap[ eihUndergoingBodies.at( i ) ][ "" ].push_back( std::make_shared< relativity::EinsteinInfeldHoffmannAcceleration >(
+            eihEquations, eihUndergoingBodies.at( i ), eihExertingBodies ) );
+    }
+}
+
 //! Function to put SelectedAccelerationMap in correct order, to ensure correct model creation
 SelectedAccelerationList orderSelectedAccelerationMap( const SelectedAccelerationMap& selectedAccelerationsPerBody )
 {
@@ -1950,131 +2059,151 @@ SelectedAccelerationList orderSelectedAccelerationMap( const SelectedAcceleratio
     return orderedAccelerationsPerBody;
 }
 
+inline basic_astrodynamics::AccelerationMap createAccelerationModelsMap(
+    const SystemOfBodies& bodies,
+    const SelectedAccelerationMap& selectedAccelerationPerBody,
+    const std::map< std::string, std::string >& centralBodies )
+{
+    // Declare return map.
+    basic_astrodynamics::AccelerationMap accelerationModelMap;
+    std::map< std::string, std::vector< std::string > > orderedEihBodies;
 
-////! Function to create a set of acceleration models from a map of bodies and acceleration model types.
-//basic_astrodynamics::AccelerationMap createAccelerationModelsMap(
-//        const SystemOfBodies& bodies,
-//        const SelectedAccelerationMap& selectedAccelerationPerBody,
-//        const std::map< std::string, std::string >& centralBodies )
-//{
-//    // Declare return map.
-//    basic_astrodynamics::AccelerationMap accelerationModelMap;
+    // Put selectedAccelerationPerBody in correct order
+    SelectedAccelerationList orderedAccelerationPerBody =
+        orderSelectedAccelerationMap( selectedAccelerationPerBody );
 
-//    // Put selectedAccelerationPerBody in correct order
-//    SelectedAccelerationList orderedAccelerationPerBody =
-//            orderSelectedAccelerationMap( selectedAccelerationPerBody );
+    // Iterate over all bodies which are undergoing acceleration
+    for( SelectedAccelerationList::const_iterator bodyIterator =
+        orderedAccelerationPerBody.begin( ); bodyIterator != orderedAccelerationPerBody.end( );
+         bodyIterator++ )
+    {
+        std::shared_ptr< Body > currentCentralBody;
 
-//    // Iterate over all bodies which are undergoing acceleration
-//    for( SelectedAccelerationList::const_iterator bodyIterator =
-//         orderedAccelerationPerBody.begin( ); bodyIterator != orderedAccelerationPerBody.end( );
-//         bodyIterator++ )
-//    {
-//        std::shared_ptr< Body > currentCentralBody;
+        // Retrieve name of body undergoing acceleration.
+        std::string bodyUndergoingAcceleration = bodyIterator->first;
 
-//        // Retrieve name of body undergoing acceleration.
-//        std::string bodyUndergoingAcceleration = bodyIterator->first;
+        // Retrieve name of current central body.
+        std::string currentCentralBodyName = centralBodies.at( bodyUndergoingAcceleration );
 
-//        // Retrieve name of current central body.
-//        std::string currentCentralBodyName = centralBodies.at( bodyUndergoingAcceleration );
+        if( !ephemerides::isFrameInertial( currentCentralBodyName ) )
+        {
+            if( bodies.count( currentCentralBodyName ) == 0 )
+            {
+                throw std::runtime_error(
+                    std::string( "Error, could not find non-inertial central body ") +
+                    currentCentralBodyName + " of " + bodyUndergoingAcceleration +
+                    " when making acceleration model." );
+            }
+            else
+            {
+                currentCentralBody = bodies.at( currentCentralBodyName );
+            }
+        }
 
-//        if( !ephemerides::isFrameInertial( currentCentralBodyName ) )
-//        {
-//            if( bodies.count( currentCentralBodyName ) == 0 )
-//            {
-//                throw std::runtime_error(
-//                            std::string( "Error, could not find non-inertial central body ") +
-//                            currentCentralBodyName + " of " + bodyUndergoingAcceleration +
-//                            " when making acceleration model." );
-//            }
-//            else
-//            {
-//                currentCentralBody = bodies.at( currentCentralBodyName );
-//            }
-//        }
+        // Check if body undergoing acceleration is included in bodies
+        if( bodies.count( bodyUndergoingAcceleration ) ==  0 )
+        {
+            throw std::runtime_error(
+                std::string( "Error when making acceleration models, requested forces" ) +
+                "acting on body " + bodyUndergoingAcceleration  +
+                ", but no such body found in map of bodies" );
+        }
 
-//        // Check if body undergoing acceleration is included in bodies
-//        if( bodies.count( bodyUndergoingAcceleration ) ==  0 )
-//        {
-//            throw std::runtime_error(
-//                        std::string( "Error when making acceleration models, requested forces" ) +
-//                        "acting on body " + bodyUndergoingAcceleration  +
-//                        ", but no such body found in map of bodies" );
-//        }
+        // Declare map of acceleration models acting on current body.
+        basic_astrodynamics::SingleBodyAccelerationMap mapOfAccelerationsForBody;
 
-//        // Declare map of acceleration models acting on current body.
-//        basic_astrodynamics::SingleBodyAccelerationMap mapOfAccelerationsForBody;
+        // Retrieve list of required acceleration model types and bodies exerting accelerationd on
+        // current body.
+        std::vector< std::pair< std::string, std::shared_ptr< AccelerationSettings > > >
+            accelerationsForBody = bodyIterator->second;
 
-//        // Retrieve list of required acceleration model types and bodies exerting accelerationd on
-//        // current body.
-//        std::vector< std::pair< std::string, std::shared_ptr< AccelerationSettings > > >
-//                accelerationsForBody = bodyIterator->second;
+        std::vector< std::pair< std::string, std::shared_ptr< AccelerationSettings > > > thrustAccelerationSettings;
 
-//        std::vector< std::pair< std::string, std::shared_ptr< AccelerationSettings > > > thrustAccelerationSettings;
+        std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > currentAcceleration;
 
-//        std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > currentAcceleration;
-//        // Iterate over all bodies exerting an acceleration
-//        for( unsigned int i = 0; i < accelerationsForBody.size( ); i++ )
-//        {
-//            // Retrieve name of body exerting acceleration.
-//            std::string bodyExertingAcceleration = accelerationsForBody.at( i ).first;
+        // Iterate over all bodies exerting an acceleration
+        for( unsigned int i = 0; i < accelerationsForBody.size( ); i++ )
+        {
+            // Retrieve name of body exerting acceleration.
+            std::string bodyExertingAcceleration = accelerationsForBody.at( i ).first;
 
-//            // Check if body exerting acceleration is included in bodies
-//            if( bodies.count( bodyExertingAcceleration ) ==  0 )
-//            {
-//                throw std::runtime_error(
-//                            std::string( "Error when making acceleration models, requested forces ")
-//                            + "acting on body " + bodyUndergoingAcceleration  + " due to body " +
-//                            bodyExertingAcceleration +
-//                            ", but no such body found in map of bodies" );
-//            }
+            // Check if body exerting acceleration is included in bodies
+            if( bodies.count( bodyExertingAcceleration ) ==  0 )
+            {
+                throw std::runtime_error(
+                    std::string( "Error when making acceleration models, requested forces ")
+                    + "acting on body " + bodyUndergoingAcceleration  + " due to body " +
+                    bodyExertingAcceleration +
+                    ", but no such body found in map of bodies" );
+            }
 
-//            if( !( accelerationsForBody.at( i ).second->accelerationType_ == basic_astrodynamics::thrust_acceleration ) )
-//            {
-//                currentAcceleration = createAccelerationModel( bodies.at( bodyUndergoingAcceleration ),
-//                                                               bodies.at( bodyExertingAcceleration ),
-//                                                               accelerationsForBody.at( i ).second,
-//                                                               bodyUndergoingAcceleration,
-//                                                               bodyExertingAcceleration,
-//                                                               currentCentralBody,
-//                                                               currentCentralBodyName,
-//                                                               bodies );
+            if( ( accelerationsForBody.at( i ).second->accelerationType_ == basic_astrodynamics::thrust_acceleration ) )
+            {
+                thrustAccelerationSettings.push_back( accelerationsForBody.at( i ) );
+            }
+            else if( ( accelerationsForBody.at( i ).second->accelerationType_ == basic_astrodynamics::einstein_infeld_hoffmann_acceleration ) )
+            {
+                if( orderedEihBodies.count( bodyUndergoingAcceleration ) > 0 )
+                {
+                    if( std::find( orderedEihBodies.at( bodyUndergoingAcceleration ).begin( ),
+                                   orderedEihBodies.at( bodyUndergoingAcceleration ).end( ),
+                                   bodyExertingAcceleration ) !=
+                        orderedEihBodies.at( bodyUndergoingAcceleration ).end( ) )
+                    {
+                        throw std::runtime_error( "Error when parsing EIH acceleration settings, found combinatin of bodies " +
+                                                  bodyUndergoingAcceleration + ", " + bodyExertingAcceleration  + " multiple times." );
+                    }
+                }
 
-
-//                // Create acceleration model.
-//                mapOfAccelerationsForBody[ bodyExertingAcceleration ].push_back(
-//                            currentAcceleration );
-//            }
-//            else
-//            {
-//                thrustAccelerationSettings.push_back( accelerationsForBody.at( i ) );
-//            }
-
-//        }
-
-//        for( unsigned int i = 0; i < thrustAccelerationSettings.size( ); i++ )
-//        {
-//            currentAcceleration = createAccelerationModel( bodies.at( bodyUndergoingAcceleration ),
-//                                                           bodies.at( thrustAccelerationSettings.at( i ).first ),
-//                                                           thrustAccelerationSettings.at( i ).second,
-//                                                           bodyUndergoingAcceleration,
-//                                                           thrustAccelerationSettings.at( i ).first,
-//                                                           currentCentralBody,
-//                                                           currentCentralBodyName,
-//                                                           bodies );
+                orderedEihBodies[ bodyUndergoingAcceleration ].push_back( bodyExertingAcceleration );
+            }
+            else
+            {
+                currentAcceleration = createAccelerationModel( bodies.at( bodyUndergoingAcceleration ),
+                                                               bodies.at( bodyExertingAcceleration ),
+                                                               accelerationsForBody.at( i ).second,
+                                                               bodyUndergoingAcceleration,
+                                                               bodyExertingAcceleration,
+                                                               currentCentralBody,
+                                                               currentCentralBodyName,
+                                                               bodies );
 
 
-//            // Create acceleration model.
-//            mapOfAccelerationsForBody[ thrustAccelerationSettings.at( i ).first  ].push_back(
-//                        currentAcceleration );
-//        }
+                // Create acceleration model.
+                mapOfAccelerationsForBody[ bodyExertingAcceleration ].push_back(
+                    currentAcceleration );
+            }
+        }
+
+        // Create thrust accelerations last
+        for( unsigned int i = 0; i < thrustAccelerationSettings.size( ); i++ )
+        {
+            currentAcceleration = createAccelerationModel( bodies.at( bodyUndergoingAcceleration ),
+                                                           bodies.at( thrustAccelerationSettings.at( i ).first ),
+                                                           thrustAccelerationSettings.at( i ).second,
+                                                           bodyUndergoingAcceleration,
+                                                           thrustAccelerationSettings.at( i ).first,
+                                                           currentCentralBody,
+                                                           currentCentralBodyName,
+                                                           bodies );
 
 
-//        // Put acceleration models on current body in return map.
-//        accelerationModelMap[ bodyUndergoingAcceleration ] = mapOfAccelerationsForBody;
-//    }
+            // Create acceleration model.
+            mapOfAccelerationsForBody[ thrustAccelerationSettings.at( i ).first  ].push_back(
+                currentAcceleration );
+        }
+        // Put acceleration models on current body in return map.
+        accelerationModelMap[ bodyUndergoingAcceleration ] = mapOfAccelerationsForBody;
+    }
 
-//    return accelerationModelMap;
-//}
+    if( orderedEihBodies.size( ) > 0 )
+    {
+        addEihAccelerations(
+            bodies, orderedEihBodies, centralBodies, accelerationModelMap );
+    }
+
+    return accelerationModelMap;
+}
 
 //! Function to create acceleration models from a map of bodies and acceleration model types.
 basic_astrodynamics::AccelerationMap createAccelerationModelsMap(

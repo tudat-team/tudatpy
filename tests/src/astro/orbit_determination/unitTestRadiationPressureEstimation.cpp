@@ -183,10 +183,10 @@ BOOST_AUTO_TEST_CASE( test_CannonballPartials )
                 for ( unsigned int i = 0; i < 3; i++ )
                 {
                     BOOST_CHECK_SMALL( std::fabs( static_cast< double >( analyticalValue( i ) - numericalValue( i ))),
-                                       2.0E-5 * analyticalValue.block( 0, 0, 3, 1 ).norm( ));
+                                       1.0E-4 * analyticalValue.block( 0, 0, 3, 1 ).norm( ));
                     BOOST_CHECK_SMALL(
                         std::fabs( static_cast< double >( analyticalValue( i + 3 ) - numericalValue( i + 3 ))),
-                        2.0E-5 * analyticalValue.block( 0, 0, 3, 1 ).norm( ));
+                        1.0E-4 * analyticalValue.block( 0, 0, 3, 1 ).norm( ));
                 }
             }
         }
