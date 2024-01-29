@@ -463,7 +463,7 @@ protected:
  *  used in the simulations for the observation bias. This is due to the fact that the ConstantTimeDriftBias class is
  *  templated by the observable size, while this class is not.
  */
-class ConstantTimeDriftBiasParameter: public TimeBiasParameterBase
+class ConstantTimeDriftBiasParameter: public EstimatableParameter< Eigen::VectorXd >
 {
     
 public:
@@ -485,7 +485,7 @@ public:
             const observation_models::LinkEnds linkEnds,
             const observation_models::ObservableType observableType,
             const double referenceEpoch ):
-        TimeBiasParameterBase( constant_time_drift_observation_bias, linkEnds.begin( )->second.bodyName_ ),
+        EstimatableParameter< Eigen::VectorXd >( constant_time_drift_observation_bias, linkEnds.begin( )->second.bodyName_ ),
         getCurrentBias_( getCurrentBias ), resetCurrentBias_( resetCurrentBias ), linkEndIndex_( linkEndIndex ),
         linkEnds_( linkEnds ), observableType_( observableType ), referenceEpoch_( referenceEpoch ){ }
     
@@ -654,7 +654,7 @@ private:
 *  simulations for the observation bias. This is due to the fact that the ArcWiseTimeDriftBias class
 *  is templated by the observable size, while this class is not.
 */
-class ArcWiseTimeDriftBiasParameter: public TimeBiasParameterBase
+class ArcWiseTimeDriftBiasParameter: public EstimatableParameter< Eigen::VectorXd >
 {
     
 public:
@@ -678,7 +678,7 @@ public:
             const observation_models::LinkEnds linkEnds,
             const observation_models::ObservableType observableType,
             const std::vector< double > referenceEpochs ):
-        TimeBiasParameterBase( arc_wise_time_drift_observation_bias, linkEnds.begin( )->second.bodyName_ ),
+        EstimatableParameter< Eigen::VectorXd >( arc_wise_time_drift_observation_bias, linkEnds.begin( )->second.bodyName_ ),
         arcStartTimes_( arcStartTimes ), getBiasList_( getBiasList ), resetBiasList_( resetBiasList ),
         linkEndIndex_( linkEndIndex ), linkEnds_( linkEnds ), observableType_( observableType ), referenceEpochs_( referenceEpochs )
     {
