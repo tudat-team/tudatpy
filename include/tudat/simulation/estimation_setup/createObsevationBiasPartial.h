@@ -205,57 +205,57 @@ std::shared_ptr< ObservationPartial< ObservationSize > > createObservationPartia
         }
         break;
     }
-//    case estimatable_parameters::constant_time_drift_observation_bias:
-//    {
-//        if( useObservationBiasPartials )
-//        {
-//            // Check input consistency
-//            std::shared_ptr< estimatable_parameters::ConstantTimeDriftBiasParameter > constantTimeDriftBias =
-//                std::dynamic_pointer_cast< estimatable_parameters::ConstantTimeDriftBiasParameter >(
-//                    parameterToEstimate );
-//            if( constantTimeDriftBias == nullptr )
-//            {
-//                throw std::runtime_error( "Error when making partial w.r.t. time drift bias, type is inconsistent" );
-//            }
-//            else
-//            {
-//                // Check dependency between parameter and link properties.
-//                if( linkEnds == constantTimeDriftBias->getLinkEnds( ) && observableType == constantTimeDriftBias->getObservableType( ) )
-//                {
-//                    observationPartial = std::make_shared< ObservationPartialWrtConstantTimeDriftBias< ObservationSize > >(
-//                        observableType, linkEnds, constantTimeDriftBias->getLinkEndIndex( ), constantTimeDriftBias->getReferenceEpoch( ) );
-//                }
-//            }
-//        }
-//        break;
-//    }
-//    case estimatable_parameters::arc_wise_time_drift_observation_bias:
-//    {
-//        if( useObservationBiasPartials )
-//        {
-//            // Check input consistency
-//            std::shared_ptr< estimatable_parameters::ArcWiseTimeDriftBiasParameter > arcwiseTimeDriftBias =
-//                std::dynamic_pointer_cast< estimatable_parameters::ArcWiseTimeDriftBiasParameter >( parameterToEstimate );
-//            if ( arcwiseTimeDriftBias == nullptr )
-//            {
-//                throw std::runtime_error( "Error when making partial w.r.t. arcwise time drift bias, type is inconsistent" );
-//            }
-//            else
-//            {
-//                // Check dependency between parameter and link properties.
-//                if ( linkEnds == arcwiseTimeDriftBias->getLinkEnds( ) && observableType == arcwiseTimeDriftBias->getObservableType( ) )
-//                {
-//                    observationPartial = std::make_shared< ObservationPartialWrtArcWiseTimeDriftBias< ObservationSize > >(
-//                        observableType, linkEnds,
-//                        arcwiseTimeDriftBias->getLookupScheme( ),
-//                        arcwiseTimeDriftBias->getLinkEndIndex( ),
-//                        arcwiseTimeDriftBias->getArcStartTimes( ).size( ),
-//                        arcwiseTimeDriftBias->getReferenceEpochs( ) );
-//                }
-//            }
-//        }
-//        break;
-//    }
+    case estimatable_parameters::constant_time_drift_observation_bias:
+    {
+        if( useObservationBiasPartials )
+        {
+            // Check input consistency
+            std::shared_ptr< estimatable_parameters::ConstantTimeDriftBiasParameter > constantTimeDriftBias =
+                std::dynamic_pointer_cast< estimatable_parameters::ConstantTimeDriftBiasParameter >(
+                    parameterToEstimate );
+            if( constantTimeDriftBias == nullptr )
+            {
+                throw std::runtime_error( "Error when making partial w.r.t. time drift bias, type is inconsistent" );
+            }
+            else
+            {
+                // Check dependency between parameter and link properties.
+                if( linkEnds == constantTimeDriftBias->getLinkEnds( ) && observableType == constantTimeDriftBias->getObservableType( ) )
+                {
+                    observationPartial = std::make_shared< ObservationPartialWrtConstantTimeDriftBias< ObservationSize > >(
+                        observableType, linkEnds, constantTimeDriftBias->getLinkEndIndex( ), constantTimeDriftBias->getReferenceEpoch( ) );
+                }
+            }
+        }
+        break;
+    }
+    case estimatable_parameters::arc_wise_time_drift_observation_bias:
+    {
+        if( useObservationBiasPartials   )
+        {
+            // Check input consistency
+            std::shared_ptr< estimatable_parameters::ArcWiseTimeDriftBiasParameter > arcwiseTimeDriftBias =
+                std::dynamic_pointer_cast< estimatable_parameters::ArcWiseTimeDriftBiasParameter >( parameterToEstimate );
+            if ( arcwiseTimeDriftBias == nullptr )
+            {
+                throw std::runtime_error( "Error when making partial w.r.t. arcwise time drift bias, type is inconsistent" );
+            }
+            else
+            {
+                // Check dependency between parameter and link properties.
+                if ( linkEnds == arcwiseTimeDriftBias->getLinkEnds( ) && observableType == arcwiseTimeDriftBias->getObservableType( ) )
+                {
+                    observationPartial = std::make_shared< ObservationPartialWrtArcWiseTimeDriftBias< ObservationSize > >(
+                        observableType, linkEnds,
+                        arcwiseTimeDriftBias->getLookupScheme( ),
+                        arcwiseTimeDriftBias->getLinkEndIndex( ),
+                        arcwiseTimeDriftBias->getArcStartTimes( ).size( ),
+                        arcwiseTimeDriftBias->getReferenceEpochs( ) );
+                }
+            }
+        }
+        break;
+    }
     case estimatable_parameters::constant_time_observation_bias:
     {
         if( useTimeBiasPartials )
