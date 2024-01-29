@@ -321,7 +321,7 @@ public:
         // Check if bias is empty
         if( observationBiasCalculator_ != nullptr )
         {
-            isBiasnullptr_ = 0;
+            isBiasNullptr_ = 0;
             if( observationBiasCalculator_->getObservationSize( ) != ObservationSize )
             {
                 throw std::runtime_error( "Error when making observation model, bias size is inconsistent" );
@@ -329,11 +329,8 @@ public:
         }
         else
         {
-            isBiasnullptr_ = 1;
+            isBiasNullptr_ = 1;
         }
-
-        // Check if time biases are included and retrieve time biases functions
-        retrieveTimeBiasesFunctions( );
     }
 
     //! Virtual destructor
@@ -395,23 +392,25 @@ public:
             std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
             const std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetings = nullptr )
     {
-        // Add time bias if necessary
-        TimeType observationTime = computeBiasedObservationTime( time );
-
         // Check if any non-ideal models are set.
-        if( isBiasnullptr_ )
+        if( isBiasNullptr_ )
         {
             return computeIdealObservationsWithLinkEndData(
-                        observationTime /*time*/, linkEndAssociatedWithTime, linkEndTimes, linkEndStates, ancilliarySetings );
+                time, linkEndAssociatedWithTime, linkEndTimes, linkEndStates, ancilliarySetings );
         }
         else
         {
-            // Check that time biases are associated with the time reference time link.
-            checkReferenceLinkEndForTimeBiases( linkEndAssociatedWithTime );
+            // Add time bias if necessary
+            TimeType observationTime = time;
+
+            if( this->observationBiasCalculator_->getHasTimeBias( ) )
+            {
+                observationTime -= this->observationBiasCalculator_->getTimeBias( observationTime, linkEndAssociatedWithTime );
+            }
 
             // Compute ideal observable
             Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > currentObservation = computeIdealObservationsWithLinkEndData(
-                    observationTime /*time*/, linkEndAssociatedWithTime, linkEndTimes, linkEndStates, ancilliarySetings );
+                    observationTime, linkEndAssociatedWithTime, linkEndTimes, linkEndStates, ancilliarySetings );
 
             // Add correction
             return currentObservation + this->observationBiasCalculator_->getObservationBias(
@@ -454,7 +453,7 @@ public:
             const std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetings = nullptr )
     {
         // Check if any non-ideal models are set.
-        if( isBiasnullptr_ )
+        if( isBiasNullptr_ )
         {
             return computeIdealObservationsWithLinkEndData(
                         time, linkEndAssociatedWithTime, linkEndTimes_, linkEndStates_, ancilliarySetings );
@@ -462,11 +461,16 @@ public:
         else
         {
             // Add time bias if necessary
-            TimeType observationTime = computeBiasedObservationTime( time );
+            TimeType observationTime = time;
+
+            if( this->observationBiasCalculator_->getHasTimeBias( ) )
+            {
+                observationTime -= this->observationBiasCalculator_->getTimeBias( observationTime, linkEndAssociatedWithTime );
+            }
 
             // Compute ideal observable
             Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > currentObservation = computeIdealObservationsWithLinkEndData(
-                    observationTime /*time*/, linkEndAssociatedWithTime, linkEndTimes_, linkEndStates_, ancilliarySetings );
+                    observationTime, linkEndAssociatedWithTime, linkEndTimes_, linkEndStates_, ancilliarySetings );
 
             // Add correction
             return currentObservation + this->observationBiasCalculator_->getObservationBias(
@@ -500,20 +504,6 @@ public:
         }
     }
 
-    TimeType computeBiasedObservationTime( const double observationTime )
-    {
-        double updatedObservationTime = observationTime;
-        if ( !isTimeBiasNullptr_ )
-        {
-            for ( unsigned int i = 0 ; i < getTimeBiasFunctions_.size( ) ; i++ )
-            {
-                updatedObservationTime -= getTimeBiasFunctions_[ i ]( observationTime );
-            }
-        }
-
-        return updatedObservationTime;
-    }
-
     //! Function to return the size of the observable
     /*!
      *  Function to return the size of the observable
@@ -537,86 +527,6 @@ public:
 
 protected:
 
-    void checkReferenceLinkEndForTimeBiases( const LinkEndType linkEndAssociatedWithTime ) const
-    {
-        std::vector< int > indexRefLinkEndTimeBias;
-        std::shared_ptr< observation_models::ObservationBias< ObservationSize > > biasCalculator = this->observationBiasCalculator_;
-        if ( std::dynamic_pointer_cast< observation_models::ConstantTimeBias< ObservationSize > >( biasCalculator ) != nullptr )
-        {
-            indexRefLinkEndTimeBias.push_back( std::dynamic_pointer_cast< observation_models::ConstantTimeBias< ObservationSize > >( biasCalculator )->getLinkEndIndexForTime( ) );
-        }
-        else if ( std::dynamic_pointer_cast< observation_models::ArcWiseTimeBias< ObservationSize > >( biasCalculator ) != nullptr )
-        {
-            indexRefLinkEndTimeBias.push_back( std::dynamic_pointer_cast< observation_models::ArcWiseTimeBias< ObservationSize > >( biasCalculator )->getLinkEndIndexForTime( ) );
-        }
-        else if ( std::dynamic_pointer_cast< observation_models::MultiTypeObservationBias< ObservationSize > >( biasCalculator ) != nullptr )
-        {
-            std::vector< std::shared_ptr< observation_models::ObservationBias< ObservationSize > > > biasList =
-                    std::dynamic_pointer_cast< observation_models::MultiTypeObservationBias< ObservationSize > >( biasCalculator )->getBiasList( );
-            for ( unsigned int j = 0 ; j < biasList.size( ) ; j++ )
-            {
-                if ( std::dynamic_pointer_cast< observation_models::ConstantTimeBias< ObservationSize > >( biasList[ j ] ) != nullptr )
-                {
-                    indexRefLinkEndTimeBias.push_back( std::dynamic_pointer_cast< observation_models::ConstantTimeBias< ObservationSize > >( biasList[ j ] )->getLinkEndIndexForTime( ) );
-                }
-                else if ( std::dynamic_pointer_cast< observation_models::ArcWiseTimeBias< ObservationSize > >( biasList[ j ] ) != nullptr )
-                {
-                    indexRefLinkEndTimeBias.push_back( std::dynamic_pointer_cast< observation_models::ArcWiseTimeBias< ObservationSize > >( biasList[ j ] )->getLinkEndIndexForTime( ) );
-                }
-            }
-        }
-
-        for ( unsigned int j = 0 ; j < static_cast< unsigned int >( indexRefLinkEndTimeBias.size( ) ); j++ )
-        {
-            if ( indexRefLinkEndTimeBias[ j ] != observation_models::getLinkEndIndicesForLinkEndTypeAtObservable(
-                    observableType_, linkEndAssociatedWithTime, linkEnds_.size( ) ).at( 0 ) )
-            {
-                throw std::runtime_error( "Error when setting time biases, ref link end is different from time ref link in observation simulation settings." );
-            }
-        }
-    }
-
-    void retrieveTimeBiasesFunctions( )
-    {
-        isTimeBiasNullptr_ = true;
-
-        if ( std::dynamic_pointer_cast< MultiTypeObservationBias< ObservationSize > >( this->observationBiasCalculator_) != nullptr )
-        {
-            std::vector< std::shared_ptr< ObservationBias< ObservationSize > > > biasList =
-                    std::dynamic_pointer_cast< MultiTypeObservationBias< ObservationSize > >( this->observationBiasCalculator_)->getBiasList( );
-            for ( unsigned int i = 0 ; i < biasList.size( ) ; i++ )
-            {
-                if ( std::dynamic_pointer_cast< ConstantTimeBias< ObservationSize > >( biasList[ i ] ) != nullptr )
-                {
-                    isTimeBiasNullptr_ = false;
-                    getTimeBiasFunctions_.push_back(
-                            std::bind( &observation_models::ConstantTimeBias< ObservationSize >::getConstantTimeBias,
-                                       std::dynamic_pointer_cast< ConstantTimeBias< ObservationSize > >( biasList[ i ] ), std::placeholders::_1 ) );
-                }
-
-                else if ( std::dynamic_pointer_cast< ArcWiseTimeBias< ObservationSize > >( biasList[ i ] ) != nullptr )
-                {
-                    isTimeBiasNullptr_ = false;
-                    getTimeBiasFunctions_.push_back(
-                            std::bind( &observation_models::ArcWiseTimeBias< ObservationSize >::getArcWiseTimeBias,
-                                       std::dynamic_pointer_cast< ArcWiseTimeBias< ObservationSize > >( biasList[ i ] ), std::placeholders::_1 ) );
-                }
-            }
-        }
-        else if ( std::dynamic_pointer_cast< ConstantTimeBias< ObservationSize > >( this->observationBiasCalculator_ ) != nullptr )
-        {
-            isTimeBiasNullptr_ = false;
-            getTimeBiasFunctions_.push_back( std::bind( &observation_models::ConstantTimeBias< ObservationSize >::getConstantTimeBias,
-                                                        std::dynamic_pointer_cast< ConstantTimeBias< ObservationSize > >( this->observationBiasCalculator_ ), std::placeholders::_1 ) );
-        }
-        else if ( std::dynamic_pointer_cast< ArcWiseTimeBias< ObservationSize > >( this->observationBiasCalculator_ ) != nullptr )
-        {
-            isTimeBiasNullptr_ = false;
-            getTimeBiasFunctions_.push_back( std::bind( &observation_models::ArcWiseTimeBias< ObservationSize >::getArcWiseTimeBias,
-                                                        std::dynamic_pointer_cast< ArcWiseTimeBias< ObservationSize > >( this->observationBiasCalculator_ ), std::placeholders::_1 ) );
-        }
-    }
-
     //! Type of observable, used for derived class type identification without explicit casts.
     ObservableType observableType_;
 
@@ -630,7 +540,7 @@ protected:
     std::shared_ptr< ObservationBias< ObservationSize > > observationBiasCalculator_;
 
     //! Boolean set by constructor to denote whether observationBiasCalculator_ is nullptr.
-    bool isBiasnullptr_;
+    bool isBiasNullptr_;
 
 
     //! Pre-define list of times used when calling function returning link-end states/times from interface function.
@@ -639,11 +549,6 @@ protected:
     //! Pre-define list of states used when calling function returning link-end states/times from interface function.
     std::vector< Eigen::Matrix< double, 6, 1 > > linkEndStates_;
 
-    //! Boolean set by constructor denoting whether time biases are included.
-    bool isTimeBiasNullptr_;
-
-    //! List of time biases functions, if any.
-    std::vector< std::function< double( const double ) > > getTimeBiasFunctions_;
 
 };
 
