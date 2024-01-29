@@ -71,11 +71,17 @@ ObservableType getUndifferencedObservableType( const ObservableType differencedO
 
 ObservableType getDifferencedObservableType( const ObservableType undifferencedObservableType );
 
+ObservableType getUnconcatenatedObservableType( const ObservableType observableType );
+
 ObservableType getBaseObservableType( const ObservableType observableType );
 
 std::pair< std::vector< int >, std::vector< int > > getUndifferencedTimeAndStateIndices(
         const ObservableType differencedObservableType,
         const int numberOfLinkEnds );
+
+std::pair< LinkEnds, LinkEnds > getUndifferencedLinkEnds( const ObservableType differencedObservableType, const LinkEnds& differencedLinkEnds );
+
+std::vector< LinkEnds > getUnconcatenatedLinkEnds( const ObservableType concatenatedObservableType, const LinkEnds& concatenatedLinkEnds );
 
 //! Function to get the size of an observable of a given type.
 /*!

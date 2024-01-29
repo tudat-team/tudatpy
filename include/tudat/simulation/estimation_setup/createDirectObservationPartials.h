@@ -36,6 +36,7 @@
 #include "tudat/simulation/estimation_setup/createLightTimeCorrectionPartials.h"
 #include "tudat/simulation/estimation_setup/createPositionPartialScaling.h"
 #include "tudat/simulation/estimation_setup/createObservationModel.h"
+#include "tudat/simulation/estimation_setup/createObsevationBiasPartial.h"
 
 namespace tudat
 {
@@ -170,6 +171,7 @@ std::shared_ptr< ObservationPartial< ObservationSize > > createObservationPartia
 }
 
 
+
 //! Function to generate observation partials and associated scaler for single link ends.
 /*!
  *  Function to generate observation partials and associated scaler for all parameters that are to be estimated,
@@ -193,7 +195,8 @@ createSingleLinkObservationPartials(
         const std::shared_ptr< observation_models::ObservationModel< ObservationSize, ParameterType, TimeType > > observationModel,
         const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
-        const bool useBiasPartials = true )
+        const bool isPartialForDifferencedObservable = false,
+        const bool isPartialForConcatenatedObservable = false )
 {
     observation_models::LinkEnds oneWayLinkEnds = observationModel->getLinkEnds( );
     observation_models::ObservableType observableType = observationModel->getObservableType( );
@@ -329,10 +332,14 @@ createSingleLinkObservationPartials(
                         oneWayLinkEnds, bodies, parameterIterator->second, positionScaling,
                         lightTimeCorrectionPartialObjects );
         }
-        else if( useBiasPartials )
+        else
         {
+            std::function< std::shared_ptr< ObservationPartial< ObservationSize > >( const std::string& ) > partialWrtStateCreationFunction =
+                std::bind( &createObservationPartialWrtBodyPosition< ObservationSize >,
+                           oneWayLinkEnds, bodies, std::placeholders::_1, positionScaling, lightTimeCorrectionPartialObjects  );
             currentObservationPartial = createObservationPartialWrtLinkProperty< ObservationSize >(
-                        oneWayLinkEnds, observableType, parameterIterator->second, useBiasPartials );
+                        oneWayLinkEnds, observableType, parameterIterator->second, bodies, isPartialForDifferencedObservable, isPartialForConcatenatedObservable,
+                        observationPartials, partialWrtStateCreationFunction );
         }
 
         // Check if partial is non-nullptr (i.e. whether dependency exists between current observable and current parameter)
