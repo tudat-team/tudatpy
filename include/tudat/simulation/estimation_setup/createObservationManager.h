@@ -507,7 +507,7 @@ std::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > cre
     {
         observationPartialsAndScaler =
                 createObservablePartialsList(
-                    observationSimulator->getObservationModels( ), bodies, parametersToEstimate, true, dependentVariablesInterface );
+                    observationSimulator->getObservationModels( ), bodies, parametersToEstimate, false, false, dependentVariablesInterface );
     }
 
     // Split position partial scaling and observation partial objects.
