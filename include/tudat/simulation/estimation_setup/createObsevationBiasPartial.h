@@ -18,6 +18,7 @@
 
 #include <Eigen/Core>
 
+#include "tudat/simulation/environment_setup/body.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/initialTranslationalState.h"
 #include "tudat/astro/orbit_determination/observation_partials/observationPartial.h"
 #include "tudat/astro/orbit_determination/observation_partials/observationBiasPartial.h"
@@ -84,21 +85,26 @@ std::shared_ptr< ObservationPartial< ObservationSize > > createObservationPartia
     const observation_models::ObservableType observableType,
     const std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameterToEstimate,
     const simulation_setup::SystemOfBodies& bodies,
-    const bool useBiasPartials = true,
+    const bool isPartialForDifferencedObservable = false,
+    const bool isPartialForConcatenatedObservable = false,
     const std::map< std::pair< int, int >, std::shared_ptr< ObservationPartial< ObservationSize > > >& observationPartials =
         std::map< std::pair< int, int >, std::shared_ptr< ObservationPartial< ObservationSize > > >( ),
     const std::function< std::shared_ptr< ObservationPartial< ObservationSize > >( const std::string& ) > partialWrtStateCreationFunction = nullptr )
 {
-//    std::cout << "observableType: " << observableType << "\n\n";
-
     std::shared_ptr< ObservationPartial< ObservationSize > > observationPartial;
+
+    bool useObservationBiasPartials = !( isPartialForDifferencedObservable || isPartialForConcatenatedObservable );
+    bool useTimeBiasPartials =  true;
+
+//    std::cout<<"Flags: "<<isPartialForDifferencedObservable<<" "<<isPartialForConcatenatedObservable<<std::endl;
+//    std::cout<<"Flags: "<<useObservationBiasPartials<<" "<<useTimeBiasPartials<<std::endl;
 
     // Check parameter type
     switch( parameterToEstimate->getParameterName( ).first )
     {
     case estimatable_parameters::constant_additive_observation_bias:
     {
-        if( useBiasPartials )
+        if( useObservationBiasPartials )
         {
             // Check input consistency
             std::shared_ptr< estimatable_parameters::ConstantObservationBiasParameter > constantBias =
@@ -122,7 +128,7 @@ std::shared_ptr< ObservationPartial< ObservationSize > > createObservationPartia
     }
     case estimatable_parameters::arcwise_constant_additive_observation_bias:
     {
-        if( useBiasPartials )
+        if( useObservationBiasPartials )
         {
             // Check input consistency
             std::shared_ptr< estimatable_parameters::ArcWiseObservationBiasParameter > arcwiseBias =
@@ -149,7 +155,7 @@ std::shared_ptr< ObservationPartial< ObservationSize > > createObservationPartia
     }
     case estimatable_parameters::constant_relative_observation_bias:
     {
-        if( useBiasPartials )
+        if( useObservationBiasPartials )
         {
             // Check input consistency
             std::shared_ptr< estimatable_parameters::ConstantObservationBiasParameter > constantBias =
@@ -174,7 +180,7 @@ std::shared_ptr< ObservationPartial< ObservationSize > > createObservationPartia
     }
     case estimatable_parameters::arcwise_constant_relative_observation_bias:
     {
-        if( useBiasPartials )
+        if( useObservationBiasPartials )
         {
             // Check input consistency
             std::shared_ptr< estimatable_parameters::ArcWiseObservationBiasParameter > arcwiseBias =
@@ -201,7 +207,7 @@ std::shared_ptr< ObservationPartial< ObservationSize > > createObservationPartia
     }
 //    case estimatable_parameters::constant_time_drift_observation_bias:
 //    {
-//        if( useBiasPartials )
+//        if( useObservationBiasPartials )
 //        {
 //            // Check input consistency
 //            std::shared_ptr< estimatable_parameters::ConstantTimeDriftBiasParameter > constantTimeDriftBias =
@@ -225,7 +231,7 @@ std::shared_ptr< ObservationPartial< ObservationSize > > createObservationPartia
 //    }
 //    case estimatable_parameters::arc_wise_time_drift_observation_bias:
 //    {
-//        if( useBiasPartials )
+//        if( useObservationBiasPartials )
 //        {
 //            // Check input consistency
 //            std::shared_ptr< estimatable_parameters::ArcWiseTimeDriftBiasParameter > arcwiseTimeDriftBias =
@@ -252,7 +258,7 @@ std::shared_ptr< ObservationPartial< ObservationSize > > createObservationPartia
 //    }
     case estimatable_parameters::constant_time_observation_bias:
     {
-//        if( useBiasPartials )
+        if( useTimeBiasPartials )
         {
             // Check input consistency
             std::shared_ptr< estimatable_parameters::ConstantTimeBiasParameter > constantTimeBias =
@@ -265,36 +271,73 @@ std::shared_ptr< ObservationPartial< ObservationSize > > createObservationPartia
             {
                 // Check dependency between parameter and link properties.
                 bool matchObservationType = false;
+//                std::cout<<"Obs A"<<observableType<<" "<<constantTimeBias->getObservableType( )<<std::endl;
+//                std::cout<<"Obs B"<<isPartialForDifferencedObservable<<" "<<observableType<<" "<<getUndifferencedObservableType( constantTimeBias->getObservableType( ) )<<std::endl;
+
                 if( observableType == constantTimeBias->getObservableType( ) )
                 {
+//                    std::cout<<"Match A"<<std::endl;
                     matchObservationType = true;
                 }
-                else if( useBiasPartials == false && observableType == getUndifferencedObservableType( constantTimeBias->getObservableType( ) ) )
+                else if( isPartialForDifferencedObservable && observableType == getUndifferencedObservableType( constantTimeBias->getObservableType( ) ) )
                 {
+//                    std::cout<<"Match B"<<std::endl;
+                    matchObservationType = true;
+                }
+                else if( isPartialForConcatenatedObservable && observableType == getUnconcatenatedObservableType( constantTimeBias->getObservableType( ) ) )
+                {
+//                    std::cout<<"Match C"<<std::endl;
                     matchObservationType = true;
                 }
 
                 bool matchLinkEnds = false;
+//                std::cout<<"Obs C"<<observation_models::getLinkEndsString( linkEnds )<<" "<<
+//                    observation_models::getLinkEndsString( constantTimeBias->getLinkEnds( ) )<<std::endl;
+//                std::cout<<"Obs D"<<isPartialForDifferencedObservable<<std::endl;
                 if(  linkEnds == constantTimeBias->getLinkEnds( ) )
                 {
+//                    std::cout<<"Match C"<<std::endl;
+
                     matchLinkEnds = true;
                 }
-                else if( useBiasPartials == false )
+                else if( isPartialForDifferencedObservable )
                 {
                     std::pair< observation_models::LinkEnds, observation_models::LinkEnds > linkEndsPair =
                         observation_models::getUndifferencedLinkEnds( constantTimeBias->getObservableType( ), constantTimeBias->getLinkEnds( ) );
+//                    std::cout<<"Obs C"<<observation_models::getLinkEndsString( linkEndsPair.first )<<" "<<
+//                             observation_models::getLinkEndsString( linkEndsPair.second )<<std::endl;
                     if(  linkEnds == linkEndsPair.first )
                     {
+//                        std::cout<<"Match D"<<std::endl;
                         matchLinkEnds = true;
                     }
                     else if( linkEnds == linkEndsPair.second )
                     {
+//                        std::cout<<"Match E"<<std::endl;
                         matchLinkEnds = true;
                     }
-
                 }
-                std::cout<<"Link ends: "<<observation_models::getLinkEndsString( linkEnds )<<std::endl;
-                std::cout<<"Link ends: "<<observation_models::getLinkEndsString( constantTimeBias->getLinkEnds( ) )<<std::endl;
+                else if( isPartialForConcatenatedObservable )
+                {
+                    std::vector< observation_models::LinkEnds > linkEndsList =
+                        observation_models::getUnconcatenatedLinkEnds( constantTimeBias->getObservableType( ), constantTimeBias->getLinkEnds( ) );
+                    for( unsigned int i = 0; i < linkEndsList.size( ); i++ )
+                    {
+//                        std::cout<<"Match F: "<<observation_models::getLinkEndsString( linkEnds )<<std::endl;
+//                        std::cout<<"Match F: "<<observation_models::getLinkEndsString( linkEndsList.at( i ) )<<std::endl<<std::endl;
+
+                        if(  linkEnds == linkEndsList.at( i ) )
+                        {
+                            matchLinkEnds = true;
+                        }
+                    }
+                }
+
+//                std::cout<<"Match cases: "<<matchLinkEnds<<std::endl;
+//                std::cout<<"Match cases: "<<matchObservationType<<std::endl;
+//
+//                std::cout<<"Link ends: "<<observation_models::getLinkEndsString( linkEnds )<<std::endl;
+//                std::cout<<"Link ends: "<<observation_models::getLinkEndsString( constantTimeBias->getLinkEnds( ) )<<std::endl<<std::endl;
 
                 if( matchLinkEnds && matchObservationType )
                 {
@@ -329,7 +372,7 @@ std::shared_ptr< ObservationPartial< ObservationSize > > createObservationPartia
     }
 //    case estimatable_parameters::arc_wise_time_observation_bias:
 //    {
-//        if( useBiasPartials )
+//        if( useTimeBiasPartials )
 //        {
 //            // Check input consistency
 //            std::shared_ptr< estimatable_parameters::ArcWiseTimeBiasParameter > arcwiseTimeBias =

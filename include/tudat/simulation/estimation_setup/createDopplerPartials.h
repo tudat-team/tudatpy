@@ -64,8 +64,7 @@ std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialSca
         const std::shared_ptr< observation_models::ObservationModel< 1, ParameterType, TimeType > > observationModel,
         const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
-        const bool useBiasPartials = true  )
-
+        const bool isPartialForDifferencedObservable = false )
 {    
     std::shared_ptr< observation_models::TwoWayDopplerObservationModel< ParameterType, TimeType > >  twoWayObservationModel =
             std::dynamic_pointer_cast< observation_models::TwoWayDopplerObservationModel< ParameterType, TimeType > >(
@@ -232,11 +231,13 @@ std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialSca
     {
 
         std::shared_ptr< ObservationPartial< 1 > > currentTwoWayDopplerPartial;
-        if( isParameterObservationLinkProperty( parameterIterator->second->getParameterName( ).first ) && useBiasPartials )
+        if( isParameterObservationLinkProperty( parameterIterator->second->getParameterName( ).first ) )
         {
             currentTwoWayDopplerPartial = createObservationPartialWrtLinkProperty< 1 >(
-                        twoWayDopplerLinkEnds, observation_models::two_way_doppler, parameterIterator->second, bodies );
+                        twoWayDopplerLinkEnds, observation_models::two_way_doppler, parameterIterator->second, bodies,
+                        isPartialForDifferencedObservable );
         }
+
 
         // Check if partial is non-nullptr (i.e. whether dependency exists between current doppler and current parameter)
         if( currentTwoWayDopplerPartial != nullptr )
