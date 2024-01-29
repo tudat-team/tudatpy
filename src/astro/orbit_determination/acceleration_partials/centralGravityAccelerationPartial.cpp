@@ -17,6 +17,21 @@ namespace tudat
 namespace acceleration_partials
 {
 
+Eigen::Matrix3d calculatePartialOfPointMassGravityWrtPositionOfAcceleratedBody(
+    const Eigen::Vector3d& relativePosition,
+    const double gravitationalParameter )
+{
+    // Calculate partial (Montenbruck & Gill, Eq. 7.56)
+    double relativePositionNorm = relativePosition.norm( );
+    double invSquareOfPositionNorm = 1.0 / ( relativePositionNorm * relativePositionNorm );
+    double invCubeOfPositionNorm = invSquareOfPositionNorm / relativePositionNorm;
+    Eigen::Matrix3d partialMatrix = -gravitationalParameter *
+                                    ( Eigen::Matrix3d::Identity( ) * invCubeOfPositionNorm -
+                                      ( 3.0 * invSquareOfPositionNorm * invCubeOfPositionNorm ) * relativePosition * relativePosition.transpose( ) );
+
+    return partialMatrix;
+}
+
 //! Calculates partial derivative of point mass gravitational acceleration wrt the position of body undergoing acceleration.
 Eigen::Matrix3d calculatePartialOfPointMassGravityWrtPositionOfAcceleratedBody(
         const Eigen::Vector3d& acceleratedBodyPosition,
@@ -25,16 +40,8 @@ Eigen::Matrix3d calculatePartialOfPointMassGravityWrtPositionOfAcceleratedBody(
 {
     // Calculate relative position
     Eigen::Vector3d relativePosition = acceleratedBodyPosition - acceleratingBodyPositions;
+    return calculatePartialOfPointMassGravityWrtPositionOfAcceleratedBody( relativePosition, gravitationalParameter );
 
-    // Calculate partial (Montenbruck & Gill, Eq. 7.56)
-    double relativePositionNorm = relativePosition.norm( );
-    double invSquareOfPositionNorm = 1.0 / ( relativePositionNorm * relativePositionNorm );
-    double invCubeOfPositionNorm = invSquareOfPositionNorm / relativePositionNorm;
-    Eigen::Matrix3d partialMatrix = -gravitationalParameter *
-            ( Eigen::Matrix3d::Identity( ) * invCubeOfPositionNorm -
-              ( 3.0 * invSquareOfPositionNorm * invCubeOfPositionNorm ) * relativePosition * relativePosition.transpose( ) );
-
-    return partialMatrix;
 }
 
 //! Calculates partial derivative of point mass gravitational acceleration wrt gravitational parameter of the central body.
