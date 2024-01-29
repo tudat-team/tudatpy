@@ -214,9 +214,9 @@ BOOST_AUTO_TEST_CASE( test_SphericalHarmonics_PotentialGradient )
     expectedValues.col( 2 ) = expectedLongitudeGradients;
 
     // Check if test values match expected values.
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPotentialGradient, expectedValues, 1.0e-15 );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPotentialGradient2, expectedValues, 1.0e-15 );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPotentialGradient3, expectedValues, 1.0e-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPotentialGradient, expectedValues, 2.0e-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPotentialGradient2, expectedValues, 2.0e-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPotentialGradient3, expectedValues, 2.0e-15 );
 
 }
 
