@@ -243,11 +243,16 @@ namespace environment_setup {
               py::arg("body_fixed_thrust_direction_function"),
               get_docstring("add_variable_direction_engine_model").c_str());
 
-
         m.def("add_flight_conditions",
               &tss::addFlightConditions,
               py::arg("bodies"), py::arg("body_name"), py::arg("central_body_name"),
               get_docstring("add_flight_conditions").c_str());
+
+        m.def("convert_ground_station_state_between_itrf_frames",
+              &trf::convertGroundStationStateBetweenItrfFrames,
+              py::arg("ground_station_state"), py::arg("epoch"),
+              py::arg("base_frame"), py::arg("target_frame"),
+              get_docstring("convert_ground_station_state_between_frames").c_str());
 
         m.def("add_ground_station",
               py::overload_cast<
