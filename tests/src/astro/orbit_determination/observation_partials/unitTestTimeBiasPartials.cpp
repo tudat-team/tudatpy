@@ -65,8 +65,8 @@ BOOST_AUTO_TEST_CASE( testTimeBiasPartials )
 
         std::vector< double > arcs;
         arcs.push_back( initialTime );
-        arcs.push_back( initialTime + 8.0 * 3600.0 );
-        arcs.push_back( initialTime + 16.0 * 3600.0 );
+        arcs.push_back( initialTime + 2100.0 );
+        arcs.push_back( initialTime + 4100.0 );
 
         std::vector< double > timeBiasesPerArc = { 0.0, 0.0, 0.0 };
 
@@ -227,7 +227,7 @@ BOOST_AUTO_TEST_CASE( testTimeBiasPartials )
             default:
                 throw std::runtime_error( "Error when testing time bias partials; observable not implemented" );
             }
-            for ( unsigned int testCase = 0 ; testCase < 1 ; testCase++ )
+            for ( unsigned int testCase = 0 ; testCase < 2 ; testCase++ )
             {
                 bool multiArcBiases = testCase;
 

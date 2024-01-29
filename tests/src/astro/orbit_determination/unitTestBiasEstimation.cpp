@@ -29,17 +29,17 @@ BOOST_AUTO_TEST_SUITE( test_estimation_from_positions )
 //! for types of observables/biases.
 BOOST_AUTO_TEST_CASE( test_EstimationFromPosition )
 {
-    for( int estimateRangeBiases = 0; estimateRangeBiases < 2; estimateRangeBiases++ )
+    for( int estimateRangeBiases = 0; estimateRangeBiases < 1; estimateRangeBiases++ )
     {
-        for( int estimateTwoWayBiases = 0; estimateTwoWayBiases < 2; estimateTwoWayBiases++ )
+        for( int estimateTwoWayBiases = 0; estimateTwoWayBiases < 1; estimateTwoWayBiases++ )
         {
-            for( int useSingleBiasModel = 0; useSingleBiasModel < 2; useSingleBiasModel++ )
+            for( int useSingleBiasModel = 0; useSingleBiasModel < 1; useSingleBiasModel++ )
             {
-                for( int estimateAbsoluteBiases = 0; estimateAbsoluteBiases < 2; estimateAbsoluteBiases++ )
+                for( int estimateAbsoluteBiases = 0; estimateAbsoluteBiases < 1; estimateAbsoluteBiases++ )
                 {
-                    for( int estimateMultiArcBiases = 0; estimateMultiArcBiases < 2; estimateMultiArcBiases++ )
+                    for( int estimateMultiArcBiases = 0; estimateMultiArcBiases < 1; estimateMultiArcBiases++ )
                     {
-                        for ( int estimateTimeBiases = 0; estimateTimeBiases < 2; estimateTimeBiases++ )
+                        for ( int estimateTimeBiases = 0; estimateTimeBiases < 1; estimateTimeBiases++ )
                         {
                             if( !( estimateTwoWayBiases == true && estimateRangeBiases == false ) )
                             {

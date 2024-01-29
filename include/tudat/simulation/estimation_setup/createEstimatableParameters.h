@@ -1448,8 +1448,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                         timeBiasSettings->arcStartTimes_,
                         std::function< std::vector< Eigen::VectorXd >( ) >( ),
                         std::function< void( const std::vector< Eigen::VectorXd >& ) >( ),
-                        observation_models::getLinkEndIndicesForLinkEndTypeAtObservable(
-                                timeBiasSettings->observableType_, timeBiasSettings->linkEndForTime_, timeBiasSettings->linkEnds_.size( ) ).at( 0 ),
+                        timeBiasSettings->linkEndForTime_,
                         timeBiasSettings->linkEnds_, timeBiasSettings->observableType_ );
             }
             break;

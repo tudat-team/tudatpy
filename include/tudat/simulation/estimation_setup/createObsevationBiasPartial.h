@@ -271,49 +271,36 @@ std::shared_ptr< ObservationPartial< ObservationSize > > createObservationPartia
             {
                 // Check dependency between parameter and link properties.
                 bool matchObservationType = false;
-//                std::cout<<"Obs A"<<observableType<<" "<<constantTimeBias->getObservableType( )<<std::endl;
-//                std::cout<<"Obs B"<<isPartialForDifferencedObservable<<" "<<observableType<<" "<<getUndifferencedObservableType( constantTimeBias->getObservableType( ) )<<std::endl;
 
                 if( observableType == constantTimeBias->getObservableType( ) )
                 {
-//                    std::cout<<"Match A"<<std::endl;
                     matchObservationType = true;
                 }
                 else if( isPartialForDifferencedObservable && observableType == getUndifferencedObservableType( constantTimeBias->getObservableType( ) ) )
                 {
-//                    std::cout<<"Match B"<<std::endl;
                     matchObservationType = true;
                 }
                 else if( isPartialForConcatenatedObservable && observableType == getUnconcatenatedObservableType( constantTimeBias->getObservableType( ) ) )
                 {
-//                    std::cout<<"Match C"<<std::endl;
                     matchObservationType = true;
                 }
 
                 bool matchLinkEnds = false;
-//                std::cout<<"Obs C"<<observation_models::getLinkEndsString( linkEnds )<<" "<<
-//                    observation_models::getLinkEndsString( constantTimeBias->getLinkEnds( ) )<<std::endl;
-//                std::cout<<"Obs D"<<isPartialForDifferencedObservable<<std::endl;
+
                 if(  linkEnds == constantTimeBias->getLinkEnds( ) )
                 {
-//                    std::cout<<"Match C"<<std::endl;
-
                     matchLinkEnds = true;
                 }
                 else if( isPartialForDifferencedObservable )
                 {
                     std::pair< observation_models::LinkEnds, observation_models::LinkEnds > linkEndsPair =
                         observation_models::getUndifferencedLinkEnds( constantTimeBias->getObservableType( ), constantTimeBias->getLinkEnds( ) );
-//                    std::cout<<"Obs C"<<observation_models::getLinkEndsString( linkEndsPair.first )<<" "<<
-//                             observation_models::getLinkEndsString( linkEndsPair.second )<<std::endl;
                     if(  linkEnds == linkEndsPair.first )
                     {
-//                        std::cout<<"Match D"<<std::endl;
                         matchLinkEnds = true;
                     }
                     else if( linkEnds == linkEndsPair.second )
                     {
-//                        std::cout<<"Match E"<<std::endl;
                         matchLinkEnds = true;
                     }
                 }
@@ -323,21 +310,12 @@ std::shared_ptr< ObservationPartial< ObservationSize > > createObservationPartia
                         observation_models::getUnconcatenatedLinkEnds( constantTimeBias->getObservableType( ), constantTimeBias->getLinkEnds( ) );
                     for( unsigned int i = 0; i < linkEndsList.size( ); i++ )
                     {
-//                        std::cout<<"Match F: "<<observation_models::getLinkEndsString( linkEnds )<<std::endl;
-//                        std::cout<<"Match F: "<<observation_models::getLinkEndsString( linkEndsList.at( i ) )<<std::endl<<std::endl;
-
                         if(  linkEnds == linkEndsList.at( i ) )
                         {
                             matchLinkEnds = true;
                         }
                     }
                 }
-
-//                std::cout<<"Match cases: "<<matchLinkEnds<<std::endl;
-//                std::cout<<"Match cases: "<<matchObservationType<<std::endl;
-//
-//                std::cout<<"Link ends: "<<observation_models::getLinkEndsString( linkEnds )<<std::endl;
-//                std::cout<<"Link ends: "<<observation_models::getLinkEndsString( constantTimeBias->getLinkEnds( ) )<<std::endl<<std::endl;
 
                 if( matchLinkEnds && matchObservationType )
                 {
@@ -370,32 +348,101 @@ std::shared_ptr< ObservationPartial< ObservationSize > > createObservationPartia
         }
         break;
     }
-//    case estimatable_parameters::arc_wise_time_observation_bias:
-//    {
-//        if( useTimeBiasPartials )
-//        {
-//            // Check input consistency
-//            std::shared_ptr< estimatable_parameters::ArcWiseTimeBiasParameter > arcwiseTimeBias =
-//                std::dynamic_pointer_cast< estimatable_parameters::ArcWiseTimeBiasParameter >( parameterToEstimate );
-//            if ( arcwiseTimeBias == nullptr )
-//            {
-//                throw std::runtime_error( "Error when making partial w.r.t. arcwise time bias, type is inconsistent" );
-//            }
-//            else
-//            {
-//                // Check dependency between parameter and link properties.
-//                if ( linkEnds == arcwiseTimeBias->getLinkEnds( ) && observableType == arcwiseTimeBias->getObservableType( ) )
-//                {
-//                    observationPartial = std::make_shared< ObservationPartialWrtArcWiseTimeBias< ObservationSize > >(
-//                        observableType, linkEnds,
-//                        arcwiseTimeBias->getLookupScheme( ),
-//                        arcwiseTimeBias->getLinkEndIndex( ),
-//                        arcwiseTimeBias->getArcStartTimes( ).size( ) );
-//                }
-//            }
-//        }
-//        break;
-//    }
+    case estimatable_parameters::arc_wise_time_observation_bias:
+    {
+        if( useTimeBiasPartials )
+        {
+            // Check input consistency
+            std::shared_ptr< estimatable_parameters::ArcWiseTimeBiasParameter > arcwiseTimeBias =
+                std::dynamic_pointer_cast< estimatable_parameters::ArcWiseTimeBiasParameter >( parameterToEstimate );
+            if( arcwiseTimeBias == nullptr )
+            {
+                throw std::runtime_error( "Error when making partial w.r.t. time bias, type is inconsistent" );
+            }
+            else
+            {
+                // Check dependency between parameter and link properties.
+                bool matchObservationType = false;
+
+                if( observableType == arcwiseTimeBias->getObservableType( ) )
+                {
+                    matchObservationType = true;
+                }
+                else if( isPartialForDifferencedObservable && observableType == getUndifferencedObservableType( arcwiseTimeBias->getObservableType( ) ) )
+                {
+                    matchObservationType = true;
+                }
+                else if( isPartialForConcatenatedObservable && observableType == getUnconcatenatedObservableType( arcwiseTimeBias->getObservableType( ) ) )
+                {
+                    matchObservationType = true;
+                }
+
+                bool matchLinkEnds = false;
+
+                if(  linkEnds == arcwiseTimeBias->getLinkEnds( ) )
+                {
+                    matchLinkEnds = true;
+                }
+                else if( isPartialForDifferencedObservable )
+                {
+                    std::pair< observation_models::LinkEnds, observation_models::LinkEnds > linkEndsPair =
+                        observation_models::getUndifferencedLinkEnds( arcwiseTimeBias->getObservableType( ), arcwiseTimeBias->getLinkEnds( ) );
+                    if(  linkEnds == linkEndsPair.first )
+                    {
+                        matchLinkEnds = true;
+                    }
+                    else if( linkEnds == linkEndsPair.second )
+                    {
+                        matchLinkEnds = true;
+                    }
+                }
+                else if( isPartialForConcatenatedObservable )
+                {
+                    std::vector< observation_models::LinkEnds > linkEndsList =
+                        observation_models::getUnconcatenatedLinkEnds( arcwiseTimeBias->getObservableType( ), arcwiseTimeBias->getLinkEnds( ) );
+                    for( unsigned int i = 0; i < linkEndsList.size( ); i++ )
+                    {
+                        if(  linkEnds == linkEndsList.at( i ) )
+                        {
+                            matchLinkEnds = true;
+                        }
+                    }
+                }
+
+                if( matchLinkEnds && matchObservationType )
+                {
+                    std::shared_ptr< DirectObservationPartial< ObservationSize > > observationWrtTransmitterStatePartial =
+                        std::dynamic_pointer_cast< DirectObservationPartial< ObservationSize > >(
+                            getPartialWrtBodyTranslationalState(
+                                observationPartials, linkEnds.at( observation_models::transmitter ).bodyName_, partialWrtStateCreationFunction ) );
+                    std::shared_ptr< DirectObservationPartial< ObservationSize > > observationWrtReceiverStatePartial =
+                        std::dynamic_pointer_cast< DirectObservationPartial< ObservationSize > >(
+                            getPartialWrtBodyTranslationalState(
+                                observationPartials, linkEnds.at( observation_models::receiver ).bodyName_, partialWrtStateCreationFunction ) );
+
+                    std::shared_ptr< ephemerides::ReferenceFrameManager > frameManager = createFrameManager( bodies.getMap( ) );
+                    std::shared_ptr< ephemerides::Ephemeris > transmitterInertialEphemeris =
+                        frameManager->getEphemeris( bodies.getFrameOrigin( ), linkEnds.at( observation_models::transmitter ).bodyName_ );
+                    std::shared_ptr< ephemerides::Ephemeris > receiverInertialEphemeris =
+                        frameManager->getEphemeris( bodies.getFrameOrigin( ), linkEnds.at( observation_models::receiver ).bodyName_ );
+
+                    std::shared_ptr< TimeBiasPartial< ObservationSize > > timeBiasPartial= std::make_shared< TimeBiasPartial< ObservationSize > >(
+                        linkEnds, observableType,
+                        arcwiseTimeBias->getReferenceLinkEnd( ),
+                        observationWrtTransmitterStatePartial,
+                        observationWrtReceiverStatePartial,
+                        std::bind( &ephemerides::Ephemeris::getCartesianAcceleration, transmitterInertialEphemeris, std::placeholders::_1, 30.0 ),
+                        std::bind( &ephemerides::Ephemeris::getCartesianAcceleration, receiverInertialEphemeris, std::placeholders::_1, 30.0 ) );
+
+                    observationPartial = std::make_shared< ObservationPartialWrtArcWiseTimeBias< ObservationSize > >(
+                        timeBiasPartial, arcwiseTimeBias->getLookupScheme( ),
+                        arcwiseTimeBias->getLinkEndIndex( ),
+                        arcwiseTimeBias->getArcStartTimes( ).size( ) );
+                }
+            }
+        }
+        break;
+    }
     default:
         throw std::runtime_error( "Error when making partial w.r.t. link property, parameter " + std::to_string( parameterToEstimate->getParameterName( ).first ) + " not found." );
     }
