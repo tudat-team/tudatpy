@@ -1131,11 +1131,7 @@ public:
         std::vector< Eigen::VectorXd > templateFreeObservationBiases;
         for( unsigned int i = 0; i < timeBiases_.size( ); i++ )
         {
-            Eigen::VectorXd biases = Eigen::VectorXd( ObservationSize );
-            for ( unsigned int j = 0 ; j < ObservationSize ; j++ )
-            {
-                biases[ j ] = timeBiases_.at( i );
-            }
+            Eigen::VectorXd biases = ( Eigen::Vector1d( ) << timeBiases_.at( i ) ).finished( );
             templateFreeObservationBiases.push_back( biases );
         }
         return templateFreeObservationBiases;
@@ -1154,7 +1150,7 @@ public:
         {
             for( unsigned int i = 0; i < timeBiases.size( ); i++ )
             {
-                if( ! ( timeBiases.at( i ).rows( ) == ObservationSize ) )
+                if( ( timeBiases.at( i ).rows( ) != 1 ) )
                 {
                     throw std::runtime_error( "Error when resetting arc-wise time bias, single entry size is inconsistent" );
                 }
