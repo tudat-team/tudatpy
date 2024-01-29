@@ -25,23 +25,23 @@ void OneWayRangeScaling::update( const std::vector< Eigen::Vector6d >& linkEndSt
 {
     // Compute Euclidean distance vector
     Eigen::Vector3d rangeVector = linkEndStates[ 1 ].segment( 0, 3 ) - linkEndStates[ 0 ].segment( 0, 3 );
-    Eigen::Matrix< double, 1, 3 > rangeVectorNormalized = rangeVector.transpose( ) / rangeVector.norm( );
+    fixedLinkEndScalingFactor_ = rangeVector.transpose( ) / rangeVector.norm( );
 
     // Compute scaling for receiver reference
     if( fixedLinkEnd == observation_models::receiver )
     {
-        referenceLightTimeCorrectionScaling_ = 1.0 / ( 1.0 - rangeVectorNormalized.transpose( ).dot( linkEndStates[ 0 ].segment( 3, 3 ) ) /
+        referenceLightTimeCorrectionScaling_ = 1.0 / ( 1.0 - fixedLinkEndScalingFactor_.transpose( ).dot( linkEndStates[ 0 ].segment( 3, 3 ) ) /
                 physical_constants::SPEED_OF_LIGHT );
-        referenceScalingFactor_ =  rangeVectorNormalized * referenceLightTimeCorrectionScaling_;
+        referenceScalingFactor_ =  fixedLinkEndScalingFactor_ * referenceLightTimeCorrectionScaling_;
     }
 
     // Compute scaling for transmitter reference
     else if( fixedLinkEnd == observation_models::transmitter )
     {
         referenceLightTimeCorrectionScaling_ =
-                1.0 / ( 1.0 - rangeVectorNormalized.transpose( ).dot( linkEndStates[ 1 ].segment( 3, 3 ) ) /
+                1.0 / ( 1.0 - fixedLinkEndScalingFactor_.transpose( ).dot( linkEndStates[ 1 ].segment( 3, 3 ) ) /
                 physical_constants::SPEED_OF_LIGHT );
-        referenceScalingFactor_ =  rangeVectorNormalized * referenceLightTimeCorrectionScaling_;
+        referenceScalingFactor_ =  fixedLinkEndScalingFactor_ * referenceLightTimeCorrectionScaling_;
     }
 
 
