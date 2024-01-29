@@ -332,8 +332,7 @@ createSingleLinkObservationPartials(
                         oneWayLinkEnds, bodies, parameterIterator->second, positionScaling,
                         lightTimeCorrectionPartialObjects );
         }
-        else if( ( isPartialForDifferencedObservable || isPartialForConcatenatedObservable ) ||
-                    isParameterObservationLinkTimeProperty( parameterIterator->second->getParameterName( ).first ) )
+        else
         {
             std::function< std::shared_ptr< ObservationPartial< ObservationSize > >( const std::string& ) > partialWrtStateCreationFunction =
                 std::bind( &createObservationPartialWrtBodyPosition< ObservationSize >,
