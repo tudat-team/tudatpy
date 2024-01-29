@@ -139,12 +139,12 @@ void expose_time_conversion(py::module &m) {
           get_docstring("add_seconds_to_datetime").c_str()
     );
 
-//    m.def("add_days_to_datetime",
-//          &tba::addDaysToDateTime< TIME_TYPE >,
-//          py::arg("datetime"),
-//          py::arg("days_to_add"),
-//          get_docstring("add_days_to_datetime").c_str()
-//    );
+    m.def("add_days_to_datetime",
+          &tba::addDaysToDateTime< TIME_TYPE >,
+          py::arg("datetime"),
+          py::arg("days_to_add"),
+          get_docstring("add_days_to_datetime").c_str()
+    );
 
 
 

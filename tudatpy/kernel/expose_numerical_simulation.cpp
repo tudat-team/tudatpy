@@ -132,9 +132,16 @@ void expose_numerical_simulation(py::module &m) {
           get_docstring("create_dynamics_simulator").c_str() );
 
 
+
+    py::class_<
+        tp::DynamicsSimulator<double, TIME_TYPE>,
+        std::shared_ptr<tp::DynamicsSimulator<double, TIME_TYPE>>>(
+        m,"DynamicsSimulator", get_docstring("DynamicsSimulator").c_str());
+
     py::class_<
             tp::SingleArcDynamicsSimulator<double, TIME_TYPE>,
-            std::shared_ptr<tp::SingleArcDynamicsSimulator<double, TIME_TYPE>>>(
+            std::shared_ptr<tp::SingleArcDynamicsSimulator<double, TIME_TYPE>>,
+            tp::DynamicsSimulator< double, TIME_TYPE> >(
                 m,"SingleArcSimulator", get_docstring("SingleArcSimulator").c_str())
             .def(py::init<
                  const tudat::simulation_setup::SystemOfBodies &,
@@ -155,7 +162,6 @@ void expose_numerical_simulation(py::module &m) {
                  py::arg("print_number_of_function_evaluations") = false,
                  py::arg("print_dependent_variable_data") = true,
                  py::arg("print_state_data") = true)
-
             .def_property_readonly("state_history",
                                    &tp::SingleArcDynamicsSimulator<double, TIME_TYPE>::getEquationsOfMotionNumericalSolution)
             .def_property_readonly("unprocessed_state_history",
@@ -166,12 +172,6 @@ void expose_numerical_simulation(py::module &m) {
                                    &tp::SingleArcDynamicsSimulator<double, TIME_TYPE>::getCumulativeComputationTimeHistory)
             .def_property_readonly("cumulative_number_of_function_evaluations",
                                    &tp::SingleArcDynamicsSimulator<double, TIME_TYPE>::getCumulativeNumberOfFunctionEvaluations)
-            //          .def("manually_set_and_process_raw_numerical_equations_of_motion_solution",
-            //               &tp::SingleArcDynamicsSimulator<double, TIME_TYPE>::manuallySetAndProcessRawNumericalEquationsOfMotionSolution,
-            //               py::arg("equations_of_motion_numerical_solution"),
-            //               py::arg("dependent_variable_history"),
-            //               py::arg("process_solution"),
-            //               get_docstring("manually_set_and_process_raw_numerical_equations_of_motion_solution").c_str())
             .def_property_readonly("integrator_settings",
                                    &tp::SingleArcDynamicsSimulator<double, TIME_TYPE>::getIntegratorSettings,
                                    get_docstring("SingleArcSimulator.integrator_settings").c_str())
@@ -184,44 +184,28 @@ void expose_numerical_simulation(py::module &m) {
             .def_property_readonly("propagation_results",
                                    &tp::SingleArcDynamicsSimulator<double, TIME_TYPE>::getPropagationResults,
                                    get_docstring("SingleArcSimulator.propagation_results").c_str())
-            //          .def_property_readonly("dynamics_state_derivative",
-            //                                 &tp::SingleArcDynamicsSimulator<double, TIME_TYPE>::getDynamicsStateDerivative,
-            //                                 get_docstring("dynamics_state_derivative").c_str())
-            //          .def_property_readonly("propagation_termination_condition",
-            //                                 &tp::SingleArcDynamicsSimulator<double, TIME_TYPE>::getPropagationTerminationCondition,
-            //                                 get_docstring("propagation_termination_condition").c_str())
-            //          .def_property_readonly("integrated_state_processors",
-            //                                 &tp::SingleArcDynamicsSimulator<double, TIME_TYPE>::getIntegratedStateProcessors,
-            //                                 get_docstring("integrated_state_processors").c_str())
             .def_property_readonly("propagation_termination_details",
                                    &tp::SingleArcDynamicsSimulator<double, TIME_TYPE>::getPropagationTerminationReason)
             .def_property_readonly("integration_completed_successfully",
                                    &tp::SingleArcDynamicsSimulator<double, TIME_TYPE>::integrationCompletedSuccessfully);
-    //          .def_property_readonly("dependent_variable_ids",
-    //                                 &tp::SingleArcDynamicsSimulator<double, TIME_TYPE>::getDependentVariableIds,
-    //                                 get_docstring("SingleArcSimulator.dependent_variable_ids").c_str());
-    //          .def_property_readonly("initial_propagation_time",
-    //                                 &tp::SingleArcDynamicsSimulator<double, TIME_TYPE>::getInitialPropagationTime,
-    //                                 get_docstring("initial_propagation_time").c_str());
-    //          .def("reset_initial_propagation_time",
-    //               &tp::SingleArcDynamicsSimulator<double, TIME_TYPE>::resetInitialPropagationTime,
-    //               py::arg("new_initial_propagation_time"),
-    //               get_docstring("reset_initial_propagation_time").c_str())
-    //          .def_property_readonly("dependent_variables_functions",
-    //                                 &tp::SingleArcDynamicsSimulator<double, TIME_TYPE>::getDependentVariablesFunctions,
-    //                                 get_docstring("dependent_variables_functions").c_str())
-    //          .def("reset_propagation_termination_conditions",
-    //               &tp::SingleArcDynamicsSimulator<double, TIME_TYPE>::resetPropagationTerminationConditions,
-    //               get_docstring("reset_propagation_termination_conditions").c_str())
-    //          .def("process_numerical_equations_of_motion_solution",
-    //               &tp::SingleArcDynamicsSimulator<double, TIME_TYPE>::processNumericalEquationsOfMotionSolution,
-    //               get_docstring("process_numerical_equations_of_motion_solution").c_str())
-    //          .def("suppress_dependent_variable_terminal_printing",
-    //               &tp::SingleArcDynamicsSimulator<double, TIME_TYPE>::suppressDependentVariableDataPrinting,
-    //               get_docstring("suppress_dependent_variable_terminal_printing").c_str())
-    //          .def("enable_dependent_variable_terminal_printing",
-    //               &tp::SingleArcDynamicsSimulator<double, TIME_TYPE>::enableDependentVariableDataPrinting,
-    //               get_docstring("enable_dependent_variable_terminal_printing").c_str());
+
+    py::class_<
+        tp::MultiArcDynamicsSimulator<double, TIME_TYPE>,
+        std::shared_ptr<tp::MultiArcDynamicsSimulator<double, TIME_TYPE>>,
+        tp::DynamicsSimulator< double, TIME_TYPE>>(
+        m,"MultiArcDynamicsSimulator", get_docstring("MultiArcDynamicsSimulator").c_str())
+            .def_property_readonly("propagation_results",
+                                   &tp::MultiArcDynamicsSimulator<double, TIME_TYPE>::getMultiArcPropagationResults,
+                                   get_docstring("MultiArcDynamicsSimulator.propagation_results").c_str());
+
+    py::class_<
+        tp::HybridArcDynamicsSimulator<double, TIME_TYPE>,
+        std::shared_ptr<tp::HybridArcDynamicsSimulator<double, TIME_TYPE>>,
+        tp::DynamicsSimulator< double, TIME_TYPE>>(
+        m,"HybridArcDynamicsSimulator", get_docstring("HybridArcDynamicsSimulator").c_str())
+            .def_property_readonly("propagation_results",
+                                   &tp::HybridArcDynamicsSimulator<double, TIME_TYPE>::getHybridArcPropagationResults,
+                                   get_docstring("HybridArcDynamicsSimulator.propagation_results").c_str());
 
 
     //TODO: Remove variationalOnlyIntegratorSettings
