@@ -1122,13 +1122,15 @@ public:
             const std::vector< double > arcStartTimes,
             const std::function< std::vector< Eigen::VectorXd >( ) > getBiasList,
             const std::function< void( const std::vector< Eigen::VectorXd >& ) > resetBiasList,
-            const int linkEndIndex,
+            const observation_models::LinkEndType linkEndForTime,
             const observation_models::LinkEnds linkEnds,
             const observation_models::ObservableType observableType ):
             TimeBiasParameterBase( arc_wise_time_observation_bias, linkEnds.begin( )->second.bodyName_ ),
             arcStartTimes_( arcStartTimes ), getBiasList_( getBiasList ), resetBiasList_( resetBiasList ),
-            linkEndIndex_( linkEndIndex ), linkEnds_( linkEnds ), observableType_( observableType )
+            linkEndForTime_( linkEndForTime ), linkEnds_( linkEnds ), observableType_( observableType )
     {
+        linkEndIndex_ = observation_models::getLinkEndIndicesForLinkEndTypeAtObservable(
+            observableType_, linkEndForTime_, linkEnds_.size( ) ).at( 0 );
         observableSize_ = observation_models::getObservableSize( observableType );
         numberOfArcs_ = arcStartTimes.size( );
     }
@@ -1147,10 +1149,10 @@ public:
         {
             std::vector< Eigen::VectorXd > observationBiases = getBiasList_( );
             Eigen::VectorXd currentParameterSet = Eigen::VectorXd::Zero(
-                    observableSize_ * observationBiases.size( ) );
+                    observationBiases.size( ) );
             for( unsigned int i = 0; i < observationBiases.size( ); i++ )
             {
-                currentParameterSet.segment( i * observableSize_, observableSize_ ) = observationBiases.at( i );
+                currentParameterSet.segment( i, 1 ) = observationBiases.at( i );
             }
             return currentParameterSet;
         }
@@ -1178,7 +1180,7 @@ public:
 
             for( int i = 0; i < numberOfArcs_; i++ )
             {
-                observationBiases.push_back( parameterValue.segment( i * observableSize_, observableSize_ ) );
+                observationBiases.push_back( parameterValue.segment( i, 1 ) );
             }
             resetBiasList_( observationBiases );
         }
@@ -1211,7 +1213,7 @@ public:
      */
     int getParameterSize( )
     {
-        return 1 * numberOfArcs_;
+        return numberOfArcs_;
     }
 
     //! Function to reset the get/set function of the observation bias list
@@ -1302,6 +1304,17 @@ public:
         lookupScheme_ = lookupScheme;
     }
 
+    observation_models::LinkEndId getLinkEndId( )
+    {
+        return linkEnds_.at( linkEndForTime_ );
+    }
+
+    observation_models::LinkEndType getReferenceLinkEnd( )
+    {
+        return linkEndForTime_;
+    }
+
+
 protected:
 
 private:
@@ -1317,6 +1330,8 @@ private:
 
     //! Link end index from which the 'current time' is determined
     int linkEndIndex_;
+
+    observation_models::LinkEndType linkEndForTime_;
 
     //! Observation link ends for which the bias is active.
     observation_models::LinkEnds linkEnds_;

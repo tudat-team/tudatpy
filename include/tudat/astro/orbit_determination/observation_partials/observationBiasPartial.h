@@ -313,7 +313,7 @@ public:
      */
     ObservationPartialWrtConstantTimeBias( const std::shared_ptr< TimeBiasPartial< ObservationSize > > timeBiasPartial ):
             ObservationPartial< ObservationSize >(
-                    std::make_pair( estimatable_parameters::constant_time_observation_bias, timeBiasPartial->getLinkEnds( ).begin( )->second.getDualStringLinkEnd( )  ) ),
+                    std::make_pair( estimatable_parameters::constant_time_observation_bias, timeBiasPartial->getLinkEnds( ).begin( )->second.getDualStringLinkEnd( ) ) ),
             timeBiasPartial_( timeBiasPartial )
     {
         if( timeBiasPartial == nullptr )
@@ -374,16 +374,16 @@ public:
      * \param linkEndIndex Link end index from which the 'current time' is determined
      * \param numberOfArcs Number of arcs for which biases are defined
      */
-    ObservationPartialWrtArcWiseTimeBias( const observation_models::ObservableType observableType,
-                                               const observation_models::LinkEnds& linkEnds,
-                                               const std::shared_ptr< interpolators::LookUpScheme< double > > arcLookupScheme,
-                                               const int linkEndIndex,
-                                               const int numberOfArcs ):
-            ObservationPartial< ObservationSize >( std::make_pair( estimatable_parameters::arc_wise_time_observation_bias, linkEnds.begin( )->second.getDualStringLinkEnd( )  ) ),
-            observableType_( observableType ), linkEnds_( linkEnds ), arcLookupScheme_( arcLookupScheme ),
+    ObservationPartialWrtArcWiseTimeBias( const std::shared_ptr< TimeBiasPartial< ObservationSize > > timeBiasPartial,
+                                          const std::shared_ptr< interpolators::LookUpScheme< double > > arcLookupScheme,
+                                          const int linkEndIndex,
+                                          const int numberOfArcs ):
+            ObservationPartial< ObservationSize >( std::make_pair( estimatable_parameters::arc_wise_time_observation_bias,
+                                                                   timeBiasPartial->getLinkEnds( ).begin( )->second.getDualStringLinkEnd( ) ) ),
+            timeBiasPartial_( timeBiasPartial ), arcLookupScheme_( arcLookupScheme ),
             linkEndIndex_( linkEndIndex ), numberOfArcs_( numberOfArcs )
     {
-        totalPartial_ = Eigen::VectorXd::Zero( 1 * numberOfArcs_ );
+        totalPartial_ = Eigen::MatrixXd::Zero( ObservationSize, numberOfArcs_ );
     }
 
     //! Destructor
@@ -407,27 +407,18 @@ public:
             const Eigen::Matrix< double, ObservationSize, 1 >& currentObservation =
                 Eigen::Matrix< double, ObservationSize, 1 >::Zero( ) )
     {
-        int currentIndex = arcLookupScheme_->findNearestLowerNeighbour( times.at( linkEndIndex_ ) );
-
-        Eigen::Matrix< double, ObservationSize, 1 > observationTime;
-        for ( unsigned int i = 0 ; i < ObservationSize ; i++ )
-        {
-            observationTime( i, 0 ) = - 1.0;
-        }
-
         totalPartial_.setZero( );
-        totalPartial_.segment( currentIndex * ObservationSize, ObservationSize ) = observationTime;
+        int currentIndex = arcLookupScheme_->findNearestLowerNeighbour( times.at( 1 ) );
 
-        return { std::make_pair( totalPartial_, times.at( linkEndIndex_ ) ) };
+        std::pair< Eigen::Matrix< double, ObservationSize, Eigen::Dynamic >, double > timeBiasPartialPair = timeBiasPartial_->getObservationPartialWrtObservationTime(
+            states, times, linkEndOfFixedTime, ancillarySettings, currentObservation );
+        totalPartial_.block( 0, currentIndex, ObservationSize, 1 ) = timeBiasPartialPair.first;
+        return { std::make_pair( totalPartial_, timeBiasPartialPair.second ) };
     }
 
 private:
 
-    //! Observable type for which the bias is active.
-    observation_models::ObservableType observableType_;
-
-    //!  Observation link ends for which the bias is active.
-    observation_models::LinkEnds linkEnds_;
+    std::shared_ptr< TimeBiasPartial< ObservationSize > > timeBiasPartial_;
 
     //! Object used to determine the index from observationBiases_ to be used, based on the current time.
     std::shared_ptr< interpolators::LookUpScheme< double > > arcLookupScheme_;
@@ -439,7 +430,7 @@ private:
     int numberOfArcs_;
 
     //! Pre-allocated partial vector
-    Eigen::VectorXd totalPartial_;
+    Eigen::Matrix< double, ObservationSize, Eigen::Dynamic > totalPartial_;
 
 };
 
