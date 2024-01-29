@@ -447,74 +447,9 @@ protected:
             {
                 for( unsigned int i = 0; i < singlePartialSet.size( ); i++ )
                 {
-                    // Partial w.r.t. observation time property
-                    if ( isParameterObservationLinkTimeProperty( partialIterator->second->getParameterIdentifier( ).first ) )
-                    {
-                        // Iterate (again) over all observation partials to retrieve those associated with given link ends states.
-                        for( auto itr : currentLinkEndPartials )
-                        {
-                            // Get observation partial start and size indices in parameter vector.
-                            std::pair< int, int > indexInfo = itr.first;
-
-                            if( indexInfo.first < stateTransitionMatrixSize_ )
-                            {
-                                // Calculate partials of observation w.r.t. link end states, with associated observation times
-                                // (single partial can consist of multiple partial matrices, associated at different times)
-                                std::vector< std::pair< Eigen::Matrix< double, ObservationSize, Eigen::Dynamic >, double > > linkEndStatePartialSet =
-                                        itr.second->calculatePartial(
-                                                states, times, linkEndAssociatedWithTime, ancilliarySettings,
-                                                currentObservation.template cast< double >( ) );
-
-                                for( unsigned int j = 0; j < linkEndStatePartialSet.size( ); j++ )
-                                {
-                                    std::string nameBody = itr.second->getParameterIdentifier( ).second.first;
-                                    int indexLinkEndType = -1;
-                                    for ( auto itrLinkEnds : linkEnds )
-                                    {
-                                        if ( itrLinkEnds.second.bodyName_ == nameBody )
-                                        {
-                                            indexLinkEndType =
-                                                static_cast< int >( getLinkEndIndicesForLinkEndTypeAtObservable( this->observableType_, itrLinkEnds.first, linkEnds.size( ) ).at( 0 ) );
-                                        }
-                                    }
-
-                                    if( indexLinkEndType < 0 )
-                                    {
-                                        throw std::runtime_error( "Error when retrieving partial for time bias; could not find associated link end index.");
-                                    }
-                                    std::shared_ptr< propagators::SingleDependentVariableSaveSettings > totalAccelerationVariable
-                                            = std::make_shared< propagators::SingleDependentVariableSaveSettings >( propagators::total_acceleration_dependent_variable, nameBody );
-
-                                    if( dependentVariablesInterface_ == nullptr )
-                                    {
-                                        throw std::runtime_error( "Error, required dependent variable interfaces, but none found when computing partials." );
-                                    }
-
-                                    Eigen::VectorXd acceleration = dependentVariablesInterface_->getSingleDependentVariable(
-                                        totalAccelerationVariable, times.at( indexLinkEndType ) );
-                                    if( acceleration.rows( ) == 0 )
-                                    {
-                                        throw std::runtime_error( "Error when getting link time property partial; could not find acceleration of " + nameBody );
-                                    }
-                                    Eigen::Vector6d stateDerivativeVector = Eigen::Vector6d::Zero( );
-                                    stateDerivativeVector.segment( 0, 3 ) = states.at( indexLinkEndType ).segment( 3, 3 );
-                                    stateDerivativeVector.segment( 3, 3 ) = acceleration;
-
-                                    Eigen::MatrixXd partialWrtStateDerivative = ( linkEndStatePartialSet[ j ].first ) * stateDerivativeVector;
-                                    partialMatrix.block( 0, currentIndexInfo.first, observationSize, currentIndexInfo.second ) +=
-                                            partialWrtStateDerivative * singlePartialSet[ i ].first;
-                                }
-                            }
-                        }
-                    }
-
-                    // Partial w.r.t. observation bias
-                    else
-                    {
-                        // Add direct partial of observation w.r.t. parameter.
-                        partialMatrix.block( 0, currentIndexInfo.first, observationSize, currentIndexInfo.second ) +=
-                                singlePartialSet[ i ].first;
-                    }
+                    // Add direct partial of observation w.r.t. parameter.
+                    partialMatrix.block( 0, currentIndexInfo.first, observationSize, currentIndexInfo.second ) +=
+                            singlePartialSet[ i ].first;
                 }
             }
         }

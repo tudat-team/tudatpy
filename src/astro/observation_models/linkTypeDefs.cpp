@@ -356,6 +356,7 @@ bool isLinkEndPresent(
     return linkEndIsPresent;
 }
 
+
 } // namespace observation_models
 
 } // namespace tudat
