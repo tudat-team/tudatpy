@@ -144,11 +144,13 @@ public:
      * \param linkEndIndex Link end index from which the 'current time' is determined
      * \param referenceEpoch Reference epoch at which the time drift is initialised.
      */
-    ObservationPartialWrtConstantTimeDriftBias( const std::shared_ptr< TimeBiasPartial< ObservationSize > > timeBiasPartial,
+    ObservationPartialWrtConstantTimeDriftBias( const observation_models::ObservableType observableType,
+                                                const observation_models::LinkEnds& linkEnds,
+                                                const int linkEndIndex,
                                                 const double referenceEpoch ):
-            ObservationPartial< ObservationSize >(
-                    std::make_pair( estimatable_parameters::constant_time_drift_observation_bias, timeBiasPartial->getLinkEnds( ).begin( )->second.getDualStringLinkEnd( )  ) ),
-            timeBiasPartial_( timeBiasPartial ), referenceEpoch_( referenceEpoch )
+        ObservationPartial< ObservationSize >(
+            std::make_pair( estimatable_parameters::constant_time_drift_observation_bias, linkEnds.begin( )->second.getDualStringLinkEnd( )  ) ),
+        observableType_( observableType ), linkEnds_( linkEnds ), linkEndIndex_( linkEndIndex ), referenceEpoch_( referenceEpoch )
     {  }
 
     //! Destructor
@@ -165,22 +167,31 @@ public:
      *  \return Vector of pairs containing partial values and associated times.
      */
     std::vector< std::pair< Eigen::Matrix< double, ObservationSize, Eigen::Dynamic >, double > > calculatePartial(
-            const std::vector< Eigen::Vector6d >& states,
-            const std::vector< double >& times,
-            const observation_models::LinkEndType linkEndOfFixedTime = observation_models::receiver,
-            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings = nullptr,
-            const Eigen::Matrix< double, ObservationSize, 1 >& currentObservation =
-                Eigen::Matrix< double, ObservationSize, 1 >::Constant( TUDAT_NAN ) )
+        const std::vector< Eigen::Vector6d >& states,
+        const std::vector< double >& times,
+        const observation_models::LinkEndType linkEndOfFixedTime = observation_models::receiver,
+        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings = nullptr,
+        const Eigen::Matrix< double, ObservationSize, 1 >& currentObservation =
+        Eigen::Matrix< double, ObservationSize, 1 >::Constant( TUDAT_NAN ) )
     {
-        std::pair< Eigen::Matrix< double, ObservationSize, Eigen::Dynamic >, double > unscaledPartial = timeBiasPartial_->getObservationPartialWrtObservationTime(
-            states, times, linkEndOfFixedTime, ancillarySettings, currentObservation );
-        double timeInterval = unscaledPartial.second - referenceEpoch_;
-        return { std::make_pair( unscaledPartial.first * timeInterval, unscaledPartial.second ) };
+        Eigen::Matrix< double, ObservationSize, 1 > observationTime;
+        for ( unsigned int i = 0 ; i < ObservationSize ; i++ )
+        {
+            observationTime( i, 0 ) = times.at( linkEndIndex_ ) - referenceEpoch_;
+        }
+        return { std::make_pair( observationTime, times.at( linkEndIndex_ ) ) };
     }
 
 private:
 
-    std::shared_ptr< TimeBiasPartial< ObservationSize > > timeBiasPartial_;
+    //! Observable type for which the bias is active.
+    observation_models::ObservableType observableType_;
+
+    //!  Observation link ends for which the bias is active.
+    observation_models::LinkEnds linkEnds_;
+
+    //! Link end index from which the 'current time' is determined
+    int linkEndIndex_;
 
     //! Reference epoch at which the time drift is initialised.
     double referenceEpoch_;
@@ -210,14 +221,14 @@ public:
      * \param referenceEpochs Reference epochs (for each arc) at which the time drifts are initialised
      */
     ObservationPartialWrtArcWiseTimeDriftBias( const observation_models::ObservableType observableType,
-                                          const observation_models::LinkEnds& linkEnds,
-                                          const std::shared_ptr< interpolators::LookUpScheme< double > > arcLookupScheme,
-                                          const int linkEndIndex,
-                                          const int numberOfArcs,
-                                          const std::vector< double > referenceEpochs ):
-            ObservationPartial< ObservationSize >( std::make_pair( estimatable_parameters::arc_wise_time_drift_observation_bias, linkEnds.begin( )->second.getDualStringLinkEnd( )  ) ),
-            observableType_( observableType ), linkEnds_( linkEnds ), arcLookupScheme_( arcLookupScheme ),
-            linkEndIndex_( linkEndIndex ), numberOfArcs_( numberOfArcs ), referenceEpochs_( referenceEpochs )
+                                               const observation_models::LinkEnds& linkEnds,
+                                               const std::shared_ptr< interpolators::LookUpScheme< double > > arcLookupScheme,
+                                               const int linkEndIndex,
+                                               const int numberOfArcs,
+                                               const std::vector< double > referenceEpochs ):
+        ObservationPartial< ObservationSize >( std::make_pair( estimatable_parameters::arc_wise_time_drift_observation_bias, linkEnds.begin( )->second.getDualStringLinkEnd( )  ) ),
+        observableType_( observableType ), linkEnds_( linkEnds ), arcLookupScheme_( arcLookupScheme ),
+        linkEndIndex_( linkEndIndex ), numberOfArcs_( numberOfArcs ), referenceEpochs_( referenceEpochs )
     {
         totalPartial_ = Eigen::VectorXd::Zero( ObservationSize * numberOfArcs_ );
     }
@@ -236,12 +247,12 @@ public:
      *  \return Vector of pairs containing partial values and associated times.
      */
     std::vector< std::pair< Eigen::Matrix< double, ObservationSize, Eigen::Dynamic >, double > > calculatePartial(
-            const std::vector< Eigen::Vector6d >& states,
-            const std::vector< double >& times,
-            const observation_models::LinkEndType linkEndOfFixedTime = observation_models::receiver,
-            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings = nullptr,
-            const Eigen::Matrix< double, ObservationSize, 1 >& currentObservation =
-                Eigen::Matrix< double, ObservationSize, 1 >::Zero( ) )
+        const std::vector< Eigen::Vector6d >& states,
+        const std::vector< double >& times,
+        const observation_models::LinkEndType linkEndOfFixedTime = observation_models::receiver,
+        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings = nullptr,
+        const Eigen::Matrix< double, ObservationSize, 1 >& currentObservation =
+        Eigen::Matrix< double, ObservationSize, 1 >::Zero( ) )
     {
         int currentIndex = arcLookupScheme_->findNearestLowerNeighbour( times.at( linkEndIndex_ ) );
 
