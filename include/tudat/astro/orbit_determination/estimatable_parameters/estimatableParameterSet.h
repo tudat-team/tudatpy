@@ -241,8 +241,6 @@ public:
         // Retrieve vector parameter values.
         for( unsigned int i = 0; i < estimatedVectorParameters_.size( ); i++ )
         {
-            std::cout<<totalParameterSetSize_<<" "<<currentStartIndex<<" "<<estimatedVectorParameters_[ i ]->getParameterSize( )<<std::endl;
-            std::cout<<estimatedVectorParameters_[ i ]->getParameterValue( ).template cast< ParameterScalar >( )<<std::endl;
             parameterValues.segment( currentStartIndex, estimatedVectorParameters_[ i ]->getParameterSize( ) ) =
                     estimatedVectorParameters_[ i ]->getParameterValue( ).template cast< ParameterScalar >( );
             currentStartIndex += estimatedVectorParameters_[ i ]->getParameterSize( );

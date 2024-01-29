@@ -632,6 +632,24 @@ ObservableType getDifferencedObservableType( const ObservableType undifferencedO
     return differencedObservableType;
 }
 
+ObservableType getUnconcatenatedObservableType( const ObservableType observableType )
+{
+    ObservableType unconcatenatedObservableType = undefined_observation_model;
+    switch( observableType )
+    {
+    case n_way_differenced_range:
+    case n_way_range:
+    case dsn_n_way_averaged_doppler:
+        unconcatenatedObservableType = one_way_range;
+        break;
+    default:
+        throw std::runtime_error( "Error when getting unconcatenated observable type for " + getObservableName(
+            observableType ) + ", no such type exists" );
+
+    }
+    return unconcatenatedObservableType;
+}
+
 ObservableType getBaseObservableType( const ObservableType observableType )
 {
     ObservableType baseObservableType = undefined_observation_model;
@@ -726,6 +744,38 @@ std::pair< LinkEnds, LinkEnds > getUndifferencedLinkEnds( const ObservableType d
     }
     return linkEndsPair;
 }
+
+
+std::vector< LinkEnds > getUnconcatenatedLinkEnds( const ObservableType concatenatedObservableType, const LinkEnds& concatenatedLinkEnds )
+{
+    std::vector< LinkEnds >  linkEndsList;
+    switch( concatenatedObservableType )
+    {
+    case n_way_differenced_range:
+    case n_way_range:
+    case dsn_n_way_averaged_doppler:
+    {
+        auto linkEndIterator = concatenatedLinkEnds.begin( );
+        for( unsigned int i = 0; i < concatenatedLinkEnds.size( ) - 1; i++ )
+        {
+            LinkEnds currentOneWayLinkEnds;
+            currentOneWayLinkEnds[ transmitter ] = linkEndIterator->second;
+            linkEndIterator++;
+            currentOneWayLinkEnds[ receiver ] = linkEndIterator->second;
+            linkEndsList.push_back( currentOneWayLinkEnds );
+
+        }
+        break;
+    }
+    default:
+        throw std::runtime_error( "Error when getting unconcatenated link ends for " + getObservableName(
+            concatenatedObservableType ) + ", no such type exists" );
+
+    }
+    return linkEndsList;
+}
+
+
 
 
 
