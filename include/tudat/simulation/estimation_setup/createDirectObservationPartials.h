@@ -195,7 +195,8 @@ createSingleLinkObservationPartials(
         const std::shared_ptr< observation_models::ObservationModel< ObservationSize, ParameterType, TimeType > > observationModel,
         const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
-        const bool useBiasPartials = true )
+        const bool isPartialForDifferencedObservable = false,
+        const bool isPartialForConcatenatedObservable = false )
 {
     observation_models::LinkEnds oneWayLinkEnds = observationModel->getLinkEnds( );
     observation_models::ObservableType observableType = observationModel->getObservableType( );
@@ -331,13 +332,15 @@ createSingleLinkObservationPartials(
                         oneWayLinkEnds, bodies, parameterIterator->second, positionScaling,
                         lightTimeCorrectionPartialObjects );
         }
-        else if( useBiasPartials || isParameterObservationLinkTimeProperty( parameterIterator->second->getParameterName( ).first ) )
+        else if( ( isPartialForDifferencedObservable || isPartialForConcatenatedObservable ) ||
+                    isParameterObservationLinkTimeProperty( parameterIterator->second->getParameterName( ).first ) )
         {
             std::function< std::shared_ptr< ObservationPartial< ObservationSize > >( const std::string& ) > partialWrtStateCreationFunction =
                 std::bind( &createObservationPartialWrtBodyPosition< ObservationSize >,
                            oneWayLinkEnds, bodies, std::placeholders::_1, positionScaling, lightTimeCorrectionPartialObjects  );
             currentObservationPartial = createObservationPartialWrtLinkProperty< ObservationSize >(
-                        oneWayLinkEnds, observableType, parameterIterator->second, bodies, useBiasPartials, observationPartials, partialWrtStateCreationFunction );
+                        oneWayLinkEnds, observableType, parameterIterator->second, bodies, isPartialForDifferencedObservable, isPartialForConcatenatedObservable,
+                        observationPartials, partialWrtStateCreationFunction );
         }
 
         // Check if partial is non-nullptr (i.e. whether dependency exists between current observable and current parameter)

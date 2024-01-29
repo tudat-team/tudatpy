@@ -55,7 +55,7 @@ std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialSca
         const std::shared_ptr< observation_models::ObservationModel< 1, ParameterType, TimeType > > observationModel,
         const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
-        const bool useBiasPartials = true )
+        const bool isPartialForDifferencedObservable )
 {
     using namespace observation_models;
 
@@ -102,7 +102,7 @@ std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialSca
                 createSingleLinkObservationPartials< ParameterType, 1, TimeType >
                 ( std::make_shared< OneWayRangeObservationModel< ParameterType, TimeType > >(
                       currentLinkEnds, nWayRangeObservationModel->getLightTimeCalculators( ).at( i ) ),
-                  bodies, parametersToEstimate, false );
+                  bodies, parametersToEstimate, false, true );
     }
 
     // Retrieve sorted (by parameter index and link index) one-way range partials and (by link index) opne-way range partials
@@ -126,10 +126,10 @@ std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialSca
                 parameterIdList[ parameterIterator->first ] = parameterIterator->second->getParameterIdentifier( );
             }
 
-            else if( parameterIdList.at( parameterIterator->first ) != parameterIterator->second->getParameterIdentifier( ) )
-            {
-                throw std::runtime_error( "Error when making n way range partial, parameter indices are inconsistent" );
-            }
+//            else if( parameterIdList.at( parameterIterator->first ) != parameterIterator->second->getParameterIdentifier( ) )
+//            {
+//                throw std::runtime_error( "Error when making n way range partial, parameter indices are inconsistent" );
+//            }
         }
     }
 
@@ -155,7 +155,9 @@ std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialSca
     {
 
         std::shared_ptr< ObservationPartial< 1 > > currentNWayRangePartial;
-        if( isParameterObservationLinkProperty( parameterIterator->second->getParameterName( ).first ) && useBiasPartials )
+        if( isParameterObservationLinkProperty( parameterIterator->second->getParameterName( ).first ) &&
+            !isParameterObservationLinkTimeProperty( parameterIterator->second->getParameterName( ).first ) &&
+        !isPartialForDifferencedObservable )
         {
             currentNWayRangePartial = createObservationPartialWrtLinkProperty< 1 >(
                         nWayRangeLinkEnds, observation_models::n_way_range, parameterIterator->second, bodies );
