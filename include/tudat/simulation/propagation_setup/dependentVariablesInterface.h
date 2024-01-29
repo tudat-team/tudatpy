@@ -186,6 +186,10 @@ public:
 
             dependentVariable = fullDependentVariablesVector.segment( dependentVariableIndex, getDependentVariableSaveSize( dependentVariableSettings ) );
         }
+        else
+        {
+            throw std::runtime_error( "Error, dependent variable " + dependentVariableId + " not found when retrieving parameter." );
+        }
         return dependentVariable;
     }
 

@@ -24,6 +24,7 @@ set(acceleration_partials_SOURCES
   "thrustAccelerationPartial.cpp"
   "polyhedronAccelerationPartial.cpp"
   "ringAccelerationPartial.cpp"
+  "einsteinInfeldHoffmannPartials.cpp"
   "yarkovskyAccelerationPartial.cpp"
   "fullRadiationPressureAccelerationPartial.cpp"
 )
@@ -47,6 +48,7 @@ set(acceleration_partials_HEADERS
   "thrustAccelerationPartial.h"
   "polyhedronAccelerationPartial.h"
   "ringAccelerationPartial.h"
+  "einsteinInfeldHoffmannPartials.h"
   "yarkovskyAccelerationPartial.h"
   "fullRadiationPressureAccelerationPartial.h"
 )
