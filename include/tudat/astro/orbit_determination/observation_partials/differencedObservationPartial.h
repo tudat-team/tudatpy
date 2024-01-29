@@ -68,6 +68,24 @@ public:
     std::function< void( const observation_models::LinkEndType ) > customCheckFunction_;
 };
 
+template< int ObservationSize >
+estimatable_parameters::EstimatebleParameterIdentifier getDifferencedPartialParameterIdentifier(
+    const std::shared_ptr< ObservationPartial< ObservationSize > > firstPartial,
+    const std::shared_ptr< ObservationPartial< ObservationSize > > secondPartial )
+{
+    if( firstPartial != nullptr )
+    {
+        return firstPartial->getParameterIdentifier( );
+    }
+    else if( secondPartial != nullptr )
+    {
+        return secondPartial->getParameterIdentifier( );
+    }
+    else
+    {
+        throw std::runtime_error( "Error when getting differenced parameter partial identified; both partials are null." );
+    }
+}
 //! Class to compute the partial derivatives of a one-way range-rate (differenced) observation
 template< int ObservationSize >
 class DifferencedObservablePartial: public ObservationPartial< ObservationSize >
@@ -90,7 +108,7 @@ public:
                     const std::vector< double >&, const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings >,
                     const bool ) > scalingFactorFunction,
             const std::pair< std::vector< int >, std::vector< int > >& undifferencedTimeAndStateIndices ):
-        ObservationPartial< ObservationSize >( firstPartial->getParameterIdentifier( ) ),
+        ObservationPartial< ObservationSize >( getDifferencedPartialParameterIdentifier< ObservationSize >( firstPartial, secondPartial ) ),
         firstPartial_( firstPartial ),
         secondPartial_( secondPartial ),
         scalingFactorFunction_( scalingFactorFunction ),
@@ -98,10 +116,10 @@ public:
     {
         if( firstPartial_ != nullptr && secondPartial_ != nullptr )
         {
-            if( firstPartial_->getParameterIdentifier( ) != secondPartial_->getParameterIdentifier( ) )
-            {
-                throw std::runtime_error( "Error when creating differenced observable partial; first and second parameter identifiers are no equal" );
-            }
+//            if( firstPartial_->getParameterIdentifier( ) != secondPartial_->getParameterIdentifier( ) )
+//            {
+//                throw std::runtime_error( "Error when creating differenced observable partial; first and second parameter identifiers are no equal" );
+//            }
         }
     }
 

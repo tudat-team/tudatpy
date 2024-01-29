@@ -240,6 +240,11 @@ Eigen::Matrix< double, 1, 3 > OneWayDopplerScaling::getPositionScalingFactor( co
     return scalingFactor;
 }
 
+Eigen::Matrix< double, 1, 3 > OneWayDopplerScaling::getFixedTimePositionScalingFactor( const observation_models::LinkEndType linkEndType )
+{
+    return getPositionScalingFactor( linkEndType );
+}
+
 //! Function to retrieve the velocity scaling factor for specific link end
 Eigen::Matrix< double, 1, 3 > OneWayDopplerScaling::getVelocityScalingFactor( const observation_models::LinkEndType linkEndType )
 {
@@ -258,6 +263,11 @@ Eigen::Matrix< double, 1, 3 > OneWayDopplerScaling::getVelocityScalingFactor( co
     }
 
     return scalingFactor;
+}
+
+Eigen::Matrix< double, 1, 3 > OneWayDopplerScaling::getFixedTimeVelocityScalingFactor( const observation_models::LinkEndType linkEndType )
+{
+    return getVelocityScalingFactor( linkEndType );
 }
 
 //! Function to get the size of the direct dependency of proper time rate on parameter
