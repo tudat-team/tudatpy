@@ -180,6 +180,15 @@ public:
         return observationsVector;
     }
 
+
+    std::pair< TimeType, TimeType > getTimeBounds( )
+    {
+        std::cout<<"Observation times "<<observationTimes_.size( )<<std::endl;
+        std::cout<<"Min/max "<<*std::min_element( observationTimes_.begin( ), observationTimes_.end( ) )<<" "<<*std::max_element( observationTimes_.begin( ), observationTimes_.end( ) )<<std::endl;
+        return std::make_pair ( *std::min_element( observationTimes_.begin( ), observationTimes_.end( ) ),
+                                *std::max_element( observationTimes_.begin( ), observationTimes_.end( ) ) );
+    }
+
     std::map< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > getObservationsHistory( )
     {
         return utilities::createMapFromVectors< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >(
@@ -575,6 +584,25 @@ public:
         return observationSetListIndexSorted;
     }
 
+    std::map< ObservableType, std::map< int, std::vector< std::pair< double, double > > > > getSortedObservationSetsTimeBounds( )
+    {
+        std::map< ObservableType, std::map< int, std::vector< std::pair< double, double > > > > observationSetTimeBounds;
+        for( auto it1 : observationSetList_ )
+        {
+            for( auto it2 : it1.second )
+            {
+                int currentLinkEndId = linkEndIds_[ it2.first ];
+                for( unsigned int i = 0; i < it2.second.size( ); i++ )
+                {
+                    std::pair< TimeType, TimeType > timeBounds = it2.second.at( i )->getTimeBounds( );
+                    observationSetTimeBounds[ it1.first ][ currentLinkEndId  ].push_back(
+                        { static_cast< double >( timeBounds.first ), static_cast< double >( timeBounds.second ) } );
+                }
+            }
+        }
+        return observationSetTimeBounds;
+    }
+
     std::map < ObservableType, std::vector< LinkEnds > > getLinkEndsPerObservableType( )
     {
         std::map < ObservableType, std::vector< LinkEnds > > linkEndsPerObservableType;
@@ -795,7 +823,7 @@ std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeT
                                   arcSplitIndices.at( i ).first, arcSplitIndices.at( i ).second );
         }
 
-        splitSingleObervationSet.push_back(
+        std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > newObservationSet =
             std::make_shared< SingleObservationSet< ObservationScalarType, TimeType > >(
                 originalObservationSet->getObservableType( ),
                 originalObservationSet->getLinkEnds( ),
@@ -804,7 +832,11 @@ std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeT
                 originalObservationSet->getReferenceLinkEnd( ),
                 currentSplitDependentVariables,
                 originalObservationSet->getDependentVariableCalculator( ),
-                originalObservationSet->getAncilliarySettings( ) ) );
+                originalObservationSet->getAncilliarySettings( ) );
+        if( newObservationSet->getObservationTimes( ).size( ) > 0 )
+        {
+            splitSingleObervationSet.push_back( newObservationSet );
+        }
     }
     return splitSingleObervationSet;
 }
