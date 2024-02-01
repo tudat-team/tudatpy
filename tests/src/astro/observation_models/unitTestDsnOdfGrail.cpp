@@ -156,20 +156,19 @@ int main( )
         splitObservationSetsIntoArcs< long double, Time >( observation_models::createOdfObservedObservationCollection< long double, Time >(
             processedOdfFileContents, { dsn_n_way_averaged_doppler } ), 60.0, 10 );
 
-    std::map< LinkEnds, std::vector< std::shared_ptr< observation_models::SingleObservationSet< long double, Time > > > > uncompressedObservationSets =
-        observedUncompressedObservationCollection->getObservations( ).at( dsn_n_way_averaged_doppler );
-    std::vector< std::shared_ptr< observation_models::SingleObservationSet< long double, Time > > > compressedObservationSets;
-    for( auto it : uncompressedObservationSets )
-    {
-        for( unsigned int i = 0; i < it.second.size( ); i++ )
-        {
-            compressedObservationSets.push_back( compressDopplerData< long double, Time >( it.second.at( i ), 60 ) );
-        }
-    }
+//    std::map< LinkEnds, std::vector< std::shared_ptr< observation_models::SingleObservationSet< long double, Time > > > > uncompressedObservationSets =
+//        observedUncompressedObservationCollection->getObservations( ).at( dsn_n_way_averaged_doppler );
+//    std::vector< std::shared_ptr< observation_models::SingleObservationSet< long double, Time > > > compressedObservationSets;
+//    for( auto it : uncompressedObservationSets )
+//    {
+//        for( unsigned int i = 0; i < it.second.size( ); i++ )
+//        {
+//            compressedObservationSets.push_back( compressDopplerData< long double, Time >( it.second.at( i ), 60 ) );
+//        }
+//    }
 
     std::shared_ptr< observation_models::ObservationCollection< long double, Time > > observedObservationCollection =
-        std::make_shared< observation_models::ObservationCollection< long double, Time > >( compressedObservationSets );
-
+        createCompressedDopplerCollection( observedUncompressedObservationCollection, 60.0 );
 
     /****************************************************************************************
      ************************** PRINT DATA SUMMARY
@@ -267,17 +266,17 @@ int main( )
         createResidualCollection( filteredObservedObservationCollection, filteredComputedObservationCollection );
     {
         Eigen::VectorXd residuals = filteredResidualObservationCollection->getObservationVector( ).template cast< double >( );
-        input_output::writeMatrixToFile( residuals, "grailTestResiduals.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TestResults_30s_lrp_noradial/");
+        input_output::writeMatrixToFile( residuals, "grailTestResiduals.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TestResults_time_bias2/");
 
 //        input_output::writeMatrixToFile( correctedResiduals, "grailTestCorrectedResiduals.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TestResults/");
 
         Eigen::VectorXd observationTimes = utilities::convertStlVectorToEigenVector(
             filteredResidualObservationCollection->getConcatenatedTimeVector( ) ).template cast< double >( );
-        input_output::writeMatrixToFile( observationTimes, "grailTestTimes.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TestResults_30s_lrp_noradial/");
+        input_output::writeMatrixToFile( observationTimes, "grailTestTimes.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TestResults_time_bias2/");
 
         Eigen::VectorXd observationLinkEndsIds = utilities::convertStlVectorToEigenVector(
             filteredResidualObservationCollection->getConcatenatedLinkEndIds( ) ).template cast< double >( );
-        input_output::writeMatrixToFile(observationLinkEndsIds , "grailTestLinkEnds.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TestResults_30s_lrp_noradial/");
+        input_output::writeMatrixToFile(observationLinkEndsIds , "grailTestLinkEnds.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TestResults_time_bias2/");
     }
 
     {
@@ -337,25 +336,63 @@ int main( )
 
         parameterNames.push_back( std::make_shared<EmpiricalAccelerationEstimatableParameterSettings>(
             "GRAIL-A", "Moon", empiricalComponentsToEstimate ));
+        parameterNames.push_back( groundStationPosition( "Earth", "DSS-24") );
+        parameterNames.push_back( groundStationPosition( "Earth", "DSS-27") );
+        parameterNames.push_back( groundStationPosition( "Earth", "DSS-34") );
+        parameterNames.push_back( groundStationPosition( "Earth", "DSS-45") );
+        parameterNames.push_back( groundStationPosition( "Earth", "DSS-54") );
+
 //        parameterNames.push_back( std::make_shared<EstimatableParameterSettings>( "GRAIL-A", reference_point_position, "Antenna" ) );
 
 //        std::map < ObservableType, std::vector< LinkEnds > > linkEndsPerObservable =
 //            filteredComputedObservationCollection->getLinkEndsPerObservableType( );
-//        for( auto it : linkEndsPerObservable )
+        std::map< ObservableType, std::map< int, std::vector< std::pair< double, double > > > > observationTimeBounds =
+            filteredObservedObservationCollection->getSortedObservationSetsTimeBounds( );
+//        std::map< ObservableType, std::map< LinkEnds, std::vector< double > > > timeBiasArcs;
+
+//        for( auto it : observationTimeBounds )
 //        {
-//            for( unsigned int i = 0; i < it.second.size( ); i++ )
+//            std::map< int, std::vector< std::pair< double, double > > > timeList = it.second;
+//            for( auto it2 : timeList )
 //            {
-//                if( it.second.at( i ).at( transmitter ) != it.second.at( i ).at( receiver ) )
+//                std::cout<<"A"<<it2.first<<std::endl;
+//                std::cout<<"B"<<it2.second.size( )<<std::endl;
+//                LinkEnds currentLinkEnds = filteredObservedObservationCollection->getInverseLinkEndIdentifierMap( ).at( it2.first );
+//                std::cout<<"C"<<std::endl;
+//                std::vector< double > arcTimes;
+//                arcTimes.push_back( it2.second.at( 0 ).first - 3600.0 );
+//                std::cout<<"D"<<std::endl;
+//                for( unsigned int timeIndex = 1; timeIndex < it2.second.size( ); timeIndex++ )
 //                {
-//                    parameterNames.push_back( observationBias( it.second.at( i ), it.first ) );
+//                    arcTimes.push_back( ( it2.second.at( timeIndex ).first + it2.second.at( timeIndex - 1 ).second ) / 2.0 );
 //                }
+//                std::cout<<"E"<<std::endl;
+//                parameterNames.push_back( arcwiseTimeObservationBias( currentLinkEnds, it.first, arcTimes ) );
+//                timeBiasArcs[ it.first ][ currentLinkEnds ] = arcTimes;
 //            }
 //        }
+
+        std::vector< std::shared_ptr< observation_models::ObservationModelSettings > > realObservationModelSettingsList;
+        for ( auto it = linkEndsPerObservable.begin(); it != linkEndsPerObservable.end(); ++it )
+        {
+            for ( unsigned int i = 0; i < it->second.size( ); ++i )
+            {
+                if ( it->first == observation_models::dsn_n_way_averaged_doppler )
+                {
+//                    std::vector< double > biasArcTimes = timeBiasArcs[ it->first ][ it->second.at( i ) ];
+                    realObservationModelSettingsList.push_back(
+                        observation_models::dsnNWayAveragedDopplerObservationSettings(
+                            it->second.at( i ), lightTimeCorrectionSettings, nullptr, //arcWiseTimeBias( biasArcTimes, receiver ),
+                            std::make_shared< LightTimeConvergenceCriteria >( true )  ) );
+                }
+            }
+        }
+
         std::shared_ptr< estimatable_parameters::EstimatableParameterSet< long double > > parametersToEstimate =
             createParametersToEstimate< long double, Time >( parameterNames, bodies, propagatorSettings );
 
         OrbitDeterminationManager< long double, Time > orbitDeterminationManager = OrbitDeterminationManager< long double, Time >(
-            bodies, parametersToEstimate, observationModelSettingsList, propagatorSettings );
+            bodies, parametersToEstimate, realObservationModelSettingsList, propagatorSettings );
 
         Eigen::VectorXd truthParameters = parametersToEstimate->getFullParameterValues< double >( );
         int numberOfParameters = truthParameters.rows( );
@@ -370,10 +407,10 @@ int main( )
             filteredObservedObservationCollection );//, inverseAprioriCovariance );
         estimationInput->setConvergenceChecker( std::make_shared< EstimationConvergenceChecker >( 4 ) );
         estimationInput->defineEstimationSettings(
-            0, 1, 0, 1, 1, 1 );
+            0, 0, 0, 1, 1, 1 );
         std::shared_ptr< EstimationOutput< long double, Time > > estimationOutput = orbitDeterminationManager.estimateParameters( estimationInput );
 
-        input_output::writeMatrixToFile(estimationOutput->residuals_ , "grailPostFitResiduals.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TestResults_30s_lrp_noradial/");
+        input_output::writeMatrixToFile(estimationOutput->residuals_ , "grailPostFitResiduals.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TestResults_time_bias2/");
 
         auto estimatedStateHistory =
             std::dynamic_pointer_cast< SingleArcVariationalSimulationResults< long double, Time > >( estimationOutput->getSimulationResults( ).back( ) )->getDynamicsResults( )->getEquationsOfMotionNumericalSolution( );
@@ -395,16 +432,18 @@ int main( )
             finalStateDifferenceRsw[ it.first ] = rswStateDifference;
         }
 
-        input_output::writeMatrixToFile(estimationOutput->getCorrelationMatrix( ) , "grailTestCorrelations.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TestResults_30s_lrp_noradial/");
+        input_output::writeMatrixToFile(estimationOutput->getCorrelationMatrix( ) , "grailTestCorrelations.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TestResults_time_bias2/");
+        input_output::writeMatrixToFile(estimationOutput->getUnnormalizedDesignMatrix( ), "unnormalizedDesignMatrix.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TestResults_time_bias2/");
+        input_output::writeMatrixToFile(estimationOutput->getNormalizedDesignMatrix( ), "normalizedDesignMatrix.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TestResults_time_bias2/");
 
         input_output::writeDataMapToTextFile( finalStateDifference,
                                               "stateDifference.dat",
-                                              "/home/dominic/Tudat/Data/GRAIL_TestResults_30s_lrp_noradial/",
+                                              "/home/dominic/Tudat/Data/GRAIL_TestResults_time_bias2/",
                                               "", std::numeric_limits< double >::digits10,  std::numeric_limits< double >::digits10,  "," );
 
         input_output::writeDataMapToTextFile( finalStateDifferenceRsw,
                                               "stateDifferenceRsw.dat",
-                                              "/home/dominic/Tudat/Data/GRAIL_TestResults_30s_lrp_noradial/",
+                                              "/home/dominic/Tudat/Data/GRAIL_TestResults_time_bias2/",
                                               "", std::numeric_limits< double >::digits10,  std::numeric_limits< double >::digits10,  "," );
 
 
