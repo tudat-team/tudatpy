@@ -44,7 +44,6 @@
 #include "tudat/astro/orbit_determination/estimatable_parameters/yarkovskyParameter.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/referencePointPosition.h"
 #include "tudat/astro/relativity/metric.h"
-#include "tudat/astro/basic_astro/accelerationModelTypes.h"
 #include "tudat/simulation/estimation_setup/estimatableParameterSettings.h"
 #include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
 #include "tudat/simulation/environment_setup/body.h"

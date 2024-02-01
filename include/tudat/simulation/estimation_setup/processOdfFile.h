@@ -807,7 +807,12 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
     {
         for( unsigned int i = 0; i < it.second.size( ); i++ )
         {
-            compressedObservationSets.push_back( compressDopplerData< ObservationScalarType, TimeType >( it.second.at( i ), compressionRatio ) );
+            std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType, TimeType > > compressedDataSet =
+                compressDopplerData< ObservationScalarType, TimeType >( it.second.at( i ), compressionRatio );
+            if( compressedDataSet->getObservationTimes( ).size( ) )
+            {
+                compressedObservationSets.push_back( compressedDataSet );
+            }
         }
     }
 
