@@ -44,9 +44,9 @@ void expose_rigid_body_setup(py::module &m) {
 //
     py::class_<tss::RigidBodyPropertiesSettings, std::shared_ptr<tss::RigidBodyPropertiesSettings>>(
         m, "RigidBodyPropertiesSettings",
-        get_docstring("RigidBodyPropertiesSettings").c_str())
-        .def_property_readonly("body_mass_property_type", &tss::RigidBodyPropertiesSettings::getRigidBodyPropertiesType,
-                               get_docstring("RigidBodyPropertiesSettings.body_mass_property_type").c_str());
+        get_docstring("RigidBodyPropertiesSettings").c_str());
+      //   .def_property_readonly("body_mass_property_type", &tss::RigidBodyPropertiesSettings::getRigidBodyPropertiesType,
+      //                          get_docstring("RigidBodyPropertiesSettings.body_mass_property_type").c_str());
 
 
     m.def("constant_rigid_body_properties",
