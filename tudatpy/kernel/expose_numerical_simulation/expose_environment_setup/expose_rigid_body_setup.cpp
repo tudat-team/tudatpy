@@ -52,8 +52,8 @@ void expose_rigid_body_setup(py::module &m) {
     m.def("constant_rigid_body_properties",
           tss::constantRigidBodyPropertiesSettings,
           py::arg("mass"),
-          py::arg("center_of_mass") = Eigen::Vector3d::Constant( TUDAT_NAN ),
-          py::arg("inertia_tensor") = Eigen::Matrix3d::Constant( TUDAT_NAN ),
+          py::arg("center_of_mass") = nullptr,
+          py::arg("inertia_tensor") = nullptr,
           get_docstring("constant_rigid_body_properties").c_str()
     );
 
