@@ -240,11 +240,21 @@ bool doesStationAngleVariableExistForGivenLink(
 
     if( linkEnds.size( ) > 1 )
     {
-        std::vector< observation_models::LinkEndType > linkEndTypeList = getLinkEndTypesForGivenLinkEndId(
-                linkEnds, variableSettings->relevantLinkEnd_ );
-        if( linkEndTypeList.size( ) > 0 )
+        if( variableSettings->isLinkEndDefined_ )
         {
-            doesLinkHaveDependency = true;
+            std::vector<observation_models::LinkEndType> linkEndTypeList = getLinkEndTypesForGivenLinkEndId(
+                linkEnds, variableSettings->relevantLinkEnd_ );
+            if ( linkEndTypeList.size( ) > 0 )
+            {
+                doesLinkHaveDependency = true;
+            }
+        }
+        else
+        {
+            if( linkEnds.count( variableSettings->linkEndRole_ ) > 0 )
+            {
+                doesLinkHaveDependency = true;
+            }
         }
     }
     return doesLinkHaveDependency;
