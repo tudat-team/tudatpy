@@ -211,12 +211,13 @@ public:
     ProcessedOdfFileContents(
             const std::shared_ptr< input_output::OdfRawFileContents > rawOdfData,
             const std::string spacecraftName,
+            const std::string antennaName = "",
             bool verbose = true,
             const std::map< std::string, Eigen::Vector3d >& earthFixedGroundStationPositions =
                     simulation_setup::getApproximateDsnGroundStationPositions( ) ):
         ProcessedOdfFileContents(
                 std::vector< std::shared_ptr< input_output::OdfRawFileContents > >{ rawOdfData },
-                spacecraftName, verbose, earthFixedGroundStationPositions )
+                spacecraftName, antennaName, verbose, earthFixedGroundStationPositions )
     { }
 
     /*!
@@ -232,11 +233,13 @@ public:
     ProcessedOdfFileContents(
             std::vector< std::shared_ptr< input_output::OdfRawFileContents > > rawOdfDataVector,
             const std::string spacecraftName,
-            bool verbose = true,
+            const std::string antennaName = "",
+            const bool verbose = true,
             const std::map< std::string, Eigen::Vector3d >& earthFixedGroundStationPositions =
                     simulation_setup::getApproximateDsnGroundStationPositions( ) ):
             rawOdfData_( rawOdfDataVector ),
             spacecraftName_( spacecraftName ),
+            antennaName_( antennaName ),
             approximateEarthFixedGroundStationPositions_ ( earthFixedGroundStationPositions ),
             verbose_( verbose )
     {
@@ -390,6 +393,8 @@ private:
     // Name of the spacecraft
     const std::string spacecraftName_;
 
+    const std::string antennaName_;
+
     // Map containing approximate position of ground stations
     const std::map< std::string, Eigen::Vector3d > approximateEarthFixedGroundStationPositions_;
 
@@ -442,6 +447,7 @@ private:
 inline std::shared_ptr< ProcessedOdfFileContents > processOdfData(
         const std::vector< std::string >& odfFileNames,
         const std::string& spacecraftName,
+        const std::string& antennaName = "",
         const bool verbose = true,
         const std::map< std::string, Eigen::Vector3d >& earthFixedGroundStationPositions =
                 simulation_setup::getApproximateDsnGroundStationPositions( ) )
@@ -453,42 +459,45 @@ inline std::shared_ptr< ProcessedOdfFileContents > processOdfData(
     }
 
     return std::make_shared< ProcessedOdfFileContents >(
-            rawOdfDataVector, spacecraftName, verbose, earthFixedGroundStationPositions );
+            rawOdfDataVector, spacecraftName, antennaName, verbose, earthFixedGroundStationPositions );
 }
 
 inline std::shared_ptr< ProcessedOdfFileContents > processOdfData(
         const std::string& odfFileName,
         const std::string& spacecraftName,
+        const std::string& antennaName = "",
         const bool verbose = true,
         const std::map< std::string, Eigen::Vector3d >& earthFixedGroundStationPositions =
                 simulation_setup::getApproximateDsnGroundStationPositions( ) )
 {
     return processOdfData(
             std::vector< std::string >{ odfFileName },
-            spacecraftName, verbose, earthFixedGroundStationPositions );
+            spacecraftName, antennaName, verbose, earthFixedGroundStationPositions );
 }
 
 inline std::shared_ptr< ProcessedOdfFileContents > processOdfData(
         const std::vector< std::shared_ptr< input_output::OdfRawFileContents > >& odfFiles,
         const std::string& spacecraftName,
+        const std::string& antennaName = "",
         const bool verbose = true,
         const std::map< std::string, Eigen::Vector3d >& earthFixedGroundStationPositions =
                 simulation_setup::getApproximateDsnGroundStationPositions( ) )
 {
     return std::make_shared< ProcessedOdfFileContents >(
-            odfFiles, spacecraftName, verbose, earthFixedGroundStationPositions );
+            odfFiles, spacecraftName, antennaName, verbose, earthFixedGroundStationPositions );
 }
 
 inline std::shared_ptr< ProcessedOdfFileContents > processOdfData(
         const std::shared_ptr< input_output::OdfRawFileContents > odfFile,
         const std::string& spacecraftName,
+        const std::string& antennaName = "",
         const bool verbose = true,
         const std::map< std::string, Eigen::Vector3d >& earthFixedGroundStationPositions =
                 simulation_setup::getApproximateDsnGroundStationPositions( ) )
 {
     return processOdfData(
             std::vector< std::shared_ptr< input_output::OdfRawFileContents > >{ odfFile },
-            spacecraftName, verbose, earthFixedGroundStationPositions );
+            spacecraftName, antennaName, verbose, earthFixedGroundStationPositions );
 }
 
 /*!
@@ -500,7 +509,8 @@ inline std::shared_ptr< ProcessedOdfFileContents > processOdfData(
  */
 observation_models::LinkEnds getLinkEndsFromOdfBlock (
         const std::shared_ptr< input_output::OdfDataBlock > dataBlock,
-        std::string spacecraftName );
+        std::string spacecraftName,
+        std::string antennaName );
 
 /*!
  * Creates the ancillary settings for the observations indexed by dataIndex in the provided processed ODF data.
