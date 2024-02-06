@@ -693,19 +693,45 @@ std::vector< T > linspace(T start_in, T end_in, int num_in)
     return linspaced;
 }
 
-template< typename KeyType, typename ScalarType >
-std::map< KeyType, Eigen::Matrix< ScalarType, Eigen::Dynamic, 1 > > sliceMatrixHistory(
+template< typename KeyType, typename ScalarType, typename NewKeyType = KeyType >
+std::map< NewKeyType, Eigen::Matrix< ScalarType, Eigen::Dynamic, 1 > > sliceMatrixHistory(
         const std::map< KeyType, Eigen::Matrix< ScalarType, Eigen::Dynamic, 1 > >& fullHistory,
         const std::pair< int, int > sliceStartIndexAndSize )
 {
-    std::map< KeyType, Eigen::Matrix< ScalarType, Eigen::Dynamic, 1 > > slicedHistory;
+    std::map< NewKeyType, Eigen::Matrix< ScalarType, Eigen::Dynamic, 1 > > slicedHistory;
 
     for( auto mapIterator : fullHistory )
     {
-        slicedHistory[ mapIterator.first ] = mapIterator.second.segment(
+        slicedHistory[ static_cast< NewKeyType >( mapIterator.first ) ] = mapIterator.second.segment(
                     sliceStartIndexAndSize.first, sliceStartIndexAndSize.second );
     }
     return slicedHistory;
+}
+
+template< typename KeyType, typename ScalarType >
+Eigen::Matrix< ScalarType, Eigen::Dynamic, Eigen::Dynamic > convertVectorHistoryToMatrix(
+    const std::map< KeyType, Eigen::Matrix< ScalarType, Eigen::Dynamic, 1 > >& vectorHistory )
+{
+    int numberOfRows = vectorHistory.size( );
+    int numberOfColumns = 0;
+    if( numberOfRows > 0 )
+    {
+        numberOfColumns = vectorHistory.begin( )->second.rows( );
+    }
+    Eigen::Matrix< ScalarType, Eigen::Dynamic, Eigen::Dynamic > concatenatedMatrix =
+        Eigen::Matrix< ScalarType, Eigen::Dynamic, Eigen::Dynamic >::Zero( numberOfRows, numberOfColumns );
+    int counter = 0;
+    for( auto it : vectorHistory )
+    {
+        Eigen::Matrix< ScalarType, Eigen::Dynamic, 1 > currentVector = it.second;
+        if( currentVector.rows( ) != numberOfColumns )
+        {
+            throw std::runtime_error( "Error when converting vector history to matrix, size is incompatible" );
+        }
+        concatenatedMatrix.block( counter, 0, 1, numberOfColumns ) = currentVector.transpose( );
+        counter++;
+    }
+    return concatenatedMatrix;
 }
 
 template< typename KeyType, typename ValueType >

@@ -166,7 +166,8 @@ std::pair< double, double > ProcessedOdfFileContents::getStartAndEndTime( )
 
 observation_models::LinkEnds getLinkEndsFromOdfBlock (
         const std::shared_ptr< input_output::OdfDataBlock > dataBlock,
-        std::string spacecraftName )
+        std::string spacecraftName,
+        std::string antennaName )
 {
     int currentObservableId = dataBlock->getObservableSpecificDataBlock( )->dataType_;
 
@@ -174,7 +175,7 @@ observation_models::LinkEnds getLinkEndsFromOdfBlock (
 
     if ( currentObservableId == 11 )
     {
-        linkEnds[ observation_models::transmitter ] = observation_models::LinkEndId ( spacecraftName, "Antenna" );
+        linkEnds[ observation_models::transmitter ] = observation_models::LinkEndId ( spacecraftName, antennaName );
         linkEnds[ observation_models::receiver ] = observation_models::LinkEndId ( "Earth", getStationNameFromStationId(
                 0, dataBlock->getCommonDataBlock( )->receivingStationId_ ) );
     }
@@ -455,7 +456,7 @@ void ProcessedOdfFileContents::extractRawOdfOrbitData(
         }
 
         observation_models::LinkEnds linkEnds = getLinkEndsFromOdfBlock(
-                rawDataBlocks.at( i ), spacecraftName_ );
+                rawDataBlocks.at( i ), spacecraftName_, antennaName_ );
 
         // Check if observation is valid and should be processed
         if ( isObservationValid( rawDataBlocks.at( i ), linkEnds, currentObservableType ) )
