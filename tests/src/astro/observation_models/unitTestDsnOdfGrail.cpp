@@ -81,6 +81,7 @@ int main( )
         std::make_shared< interpolators::InterpolatorGenerationSettings< double > >(
             interpolators::cubicSplineInterpolation( ), initialTimeEnvironment, finalTimeEnvironment, 60.0 ));
     bodySettings.at( "Earth" )->groundStationSettings = getDsnStationSettings( );
+    bodySettings.at( "Earth" )->bodyDeformationSettings.push_back( iers2010TidalBodyShapeDeformation( ) );
     bodySettings.at( "Moon" )->rotationModelSettings = spiceRotationModelSettings(
         bodySettings.getFrameOrientation( ), "MOON_PA_DE440", "MOON_PA_DE440" );
     bodySettings.at( "Moon" )->gravityFieldSettings =
@@ -148,7 +149,7 @@ int main( )
     // Process ODF file data
     std::shared_ptr< ProcessedOdfFileContents > processedOdfFileContents =
         std::make_shared< ProcessedOdfFileContents >(
-            rawOdfDataVector, spacecraftName, true );
+            rawOdfDataVector, spacecraftName, "Antenna", true );
     observation_models::setOdfInformationInBodies( processedOdfFileContents, bodies );
 
     // Create data structure that handles Observed Data in Tudat
