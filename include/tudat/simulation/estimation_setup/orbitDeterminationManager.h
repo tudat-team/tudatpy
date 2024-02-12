@@ -935,6 +935,30 @@ public:
         return estimationOutput;
     }
 
+
+    template< int ObservationSize >
+    void computePartialsAndObservations(
+        const observation_models::LinkEnds& linkEnds,
+        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings,
+        const observation_models::ObservableType observableType,
+        const observation_models::LinkEndType referenceLinkEnd,
+        const std::vector< TimeType >& times,
+        Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& observationsVector,
+        Eigen::MatrixXd& partials )
+    {
+        std::shared_ptr< observation_models::ObservationManager< ObservationSize, ObservationScalarType, TimeType > > observationManager =
+            std::dynamic_pointer_cast< observation_models::ObservationManager< ObservationSize, ObservationScalarType, TimeType > >( observationManagers_.at(
+            observableType ) );
+
+        // Extract observation model
+        std::shared_ptr< observation_models::ObservationModel< ObservationSize, ObservationScalarType, TimeType > > observationModel =
+                observationManager->getObservationModel( linkEnds );
+
+        // Compute analytical partials
+        observationManager->computeObservationsWithPartials(
+            times, linkEnds, referenceLinkEnd, ancilliarySettings, observationsVector, partials, true, true );
+
+    }
     //! Function to reset the current parameter estimate.
     /*!
      *  Function to reset the current parameter estimate; reintegrates the variational equations and equations of motion with new estimate.
@@ -1367,6 +1391,7 @@ protected:
     bool considerParametersIncluded_;
 
 };
+
 
 extern template class OrbitDeterminationManager< double, double >;
 

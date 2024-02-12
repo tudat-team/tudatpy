@@ -632,6 +632,24 @@ ObservableType getDifferencedObservableType( const ObservableType undifferencedO
     return differencedObservableType;
 }
 
+ObservableType getUnconcatenatedObservableType( const ObservableType observableType )
+{
+    ObservableType unconcatenatedObservableType = undefined_observation_model;
+    switch( observableType )
+    {
+    case n_way_differenced_range:
+    case n_way_range:
+    case dsn_n_way_averaged_doppler:
+        unconcatenatedObservableType = one_way_range;
+        break;
+    default:
+        throw std::runtime_error( "Error when getting unconcatenated observable type for " + getObservableName(
+            observableType ) + ", no such type exists" );
+
+    }
+    return unconcatenatedObservableType;
+}
+
 ObservableType getBaseObservableType( const ObservableType observableType )
 {
     ObservableType baseObservableType = undefined_observation_model;
@@ -695,6 +713,70 @@ std::pair< std::vector< int >, std::vector< int > > getUndifferencedTimeAndState
     }
     return std::make_pair( firstIndices, secondIndices );
 }
+
+
+std::pair< LinkEnds, LinkEnds > getUndifferencedLinkEnds( const ObservableType differencedObservableType, const LinkEnds& differencedLinkEnds )
+{
+    std::pair< LinkEnds, LinkEnds > linkEndsPair;
+    switch( differencedObservableType )
+    {
+    case one_way_differenced_range:
+    case n_way_differenced_range:
+    case dsn_n_way_averaged_doppler:
+        linkEndsPair = { differencedLinkEnds, differencedLinkEnds };
+        break;
+    case relative_angular_position:
+    {
+        LinkEnds firstLinkEnds;
+        firstLinkEnds[ transmitter ] = differencedLinkEnds.at( transmitter );
+        firstLinkEnds[ receiver ] = differencedLinkEnds.at( receiver );
+
+        LinkEnds secondLinkEnds;
+        secondLinkEnds[ transmitter ] = differencedLinkEnds.at( transmitter2 );
+        secondLinkEnds[ receiver ] = differencedLinkEnds.at( receiver );
+        linkEndsPair = { firstLinkEnds, secondLinkEnds };
+        break;
+    }
+    default:
+        throw std::runtime_error( "Error when getting undifferenced link ends for " + getObservableName(
+            differencedObservableType ) + ", no such type exists" );
+
+    }
+    return linkEndsPair;
+}
+
+
+std::vector< LinkEnds > getUnconcatenatedLinkEnds( const ObservableType concatenatedObservableType, const LinkEnds& concatenatedLinkEnds )
+{
+    std::vector< LinkEnds >  linkEndsList;
+    switch( concatenatedObservableType )
+    {
+    case n_way_differenced_range:
+    case n_way_range:
+    case dsn_n_way_averaged_doppler:
+    {
+        auto linkEndIterator = concatenatedLinkEnds.begin( );
+        for( unsigned int i = 0; i < concatenatedLinkEnds.size( ) - 1; i++ )
+        {
+            LinkEnds currentOneWayLinkEnds;
+            currentOneWayLinkEnds[ transmitter ] = linkEndIterator->second;
+            linkEndIterator++;
+            currentOneWayLinkEnds[ receiver ] = linkEndIterator->second;
+            linkEndsList.push_back( currentOneWayLinkEnds );
+
+        }
+        break;
+    }
+    default:
+        throw std::runtime_error( "Error when getting unconcatenated link ends for " + getObservableName(
+            concatenatedObservableType ) + ", no such type exists" );
+
+    }
+    return linkEndsList;
+}
+
+
+
 
 
 //! Function to get the size of an observable of a given type.

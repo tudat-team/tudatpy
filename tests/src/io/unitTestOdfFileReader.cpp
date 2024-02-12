@@ -130,8 +130,7 @@ BOOST_AUTO_TEST_CASE( testSingleOdfFileReader )
     BOOST_CHECK_EQUAL ( rangeDataBlock->getSpacecraftId( ), 236 );
     //BOOST_CHECK_EQUAL ( rangeDataBlock->reservedBlock_, 1 );
     BOOST_CHECK_EQUAL ( int(rangeDataBlock->reservedBlock_), 1 );
-    //BOOST_CHECK_EQUAL ( rangeDataBlock->getReferenceFrequency( ), 7177004669.452 );
-    BOOST_CHECK_EQUAL ( std::round( 1000.0 * rangeDataBlock->getReferenceFrequency( ) ), 7177004669452 );
+    BOOST_CHECK_EQUAL ( static_cast< unsigned long long >( std::round( 1000.0 * rangeDataBlock->getReferenceFrequency( ) ) ), 7177004669452LL );
     BOOST_CHECK_EQUAL ( rangeDataBlock->uplinkCoderInPhaseTimeOffset_, 774 );
     BOOST_CHECK_EQUAL ( rangeDataBlock->compositeTwo_, 400000 );
     BOOST_CHECK_EQUAL ( rangeDataBlock->getTransmittingStationUplinkDelay( ), 0 );
