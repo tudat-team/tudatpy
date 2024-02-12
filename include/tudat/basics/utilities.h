@@ -914,7 +914,12 @@ int countNumberOfOccurencesInVector( const std::vector< T >& vector, const T& va
     return counter;
 }
 
-//! Check if one container contains all elements of another container
+/*!
+ * Check if one container contains all elements of another container
+ * @param referenceArray The array that is expected to contain all the elements of the searchArray
+ * @param searchArray The array of elements that will be searched in the reference array
+ * @return true if all elements from searchArray are in referenceArray
+ */
 template< typename T, typename U >
 bool containsAll(const T& referenceArray, const U searchArray)
 {
@@ -932,8 +937,8 @@ std::set<T> vectorToSet(std::vector<T> vector)
   return set;
 }
 
-//! Apply a function that takes multiple arguments to operate on all the rows of vectors.
 /*!
+ * Apply a function that takes multiple arguments to operate on all the rows of vectors.
  * \param convertFunc function that will convert each row of the vectors to the output
  * \param firstArg at least one vector must be provided
  * \param args any number of vectors. the total arguments must be compatible with the required arguments for convertFunc
@@ -959,11 +964,11 @@ std::map<std::string, Eigen::Vector3d> getMapFromFile<std::string, Eigen::Vector
 template<>
 std::map<std::string, std::string> getMapFromFile<std::string, std::string>(std::string fileName, char commentSymbol, std::string separators);
 
-//! Utility function to get a value from a string map where the keys are all uppercase
 /*!
+ * Utility function to get a value from a string map where the keys are all uppercase
  * @param strValue string value of which the value needs to be found. This can be a combination of upper and lower case letters
  * @param upperCaseMapping map with upper case string keys
- * @return
+ * @return value in the map
  */
 template< typename T >
 T upperCaseFromMap(const std::string& strValue, const std::map<std::string, T>& upperCaseMapping)

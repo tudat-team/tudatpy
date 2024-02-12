@@ -17,43 +17,44 @@ namespace tudat
 namespace observation_models
 {
 
-//! Function to extract which observable types could be extracted from the provided data
-/*!
- *
- * @param availableDataTypes
- * @return
- */
 std::vector<ObservableType> findAvailableObservableTypes(const std::vector<input_output::TrackingDataType> availableDataTypes)
 {
+  // Initialise container for available types
   std::vector<ObservableType> availableObservableTypes;
-  for (const auto& pair : dataTypeToObservableMap) {
-    std::vector<input_output::TrackingDataType> requiredDataTypeSet = pair.first;
+
+  // Loop over map with observables and their required data types. Add observabletype to vector if those data types are present
+  for (const auto& pair : observableRequiredDataTypesMap) {
+    std::vector<input_output::TrackingDataType> requiredDataTypeSet = pair.second;
     if (utilities::containsAll(availableDataTypes, requiredDataTypeSet))
-      availableObservableTypes.push_back(pair.second);
+      availableObservableTypes.push_back(pair.first);
   }
   return availableObservableTypes;
 }
 
-void ProcessedTrackingTxtFileContents::updateObservations()
-{
-  const auto& observableTypes = getObservableTypes();
-  linkEndsSet_ = utilities::vectorToSet(linkEndsVector_);
-}
+//void ProcessedTrackingTxtFileContents::updateObservations()
+//{
+//  const auto& observableTypes = getObservableTypes();
+//  linkEndsSet_ = utilities::vectorToSet(linkEndsVector_);
+//}
 
 void ProcessedTrackingTxtFileContents::updateObservationTimes()
 {
-
+  // Clear any previous values
   observationTimes_.clear();
+
+  // Get data map and time representation
   const auto& dataMap = rawTrackingTxtFileContents_->getDoubleDataMap();
   const auto& numDataRows = rawTrackingTxtFileContents_->getNumRows();
   TimeRepresentation timeRepresentation = getTimeRepresentation();
 
+  // Depending on the time representation, convert further to tdb seconds since j2000
   switch (timeRepresentation) {
     case tdb_seconds_j2000: {
       observationTimes_ = dataMap.at(input_output::TrackingDataType::tdb_time_j2000);
       break;
     }
     case calendar_day_time: {
+      // Convert dates to Julian days since J2000
       std::vector<double> observationJulianDaysSinceJ2000 = utilities::convertVectors(
           basic_astrodynamics::convertCalendarDateToJulianDaySinceJ2000<double>,
           dataMap.at(input_output::TrackingDataType::year),
@@ -63,15 +64,17 @@ void ProcessedTrackingTxtFileContents::updateObservationTimes()
           dataMap.at(input_output::TrackingDataType::minute),
           dataMap.at(input_output::TrackingDataType::second)
       );
-
+      // Convert to seconds and add to utc times
       std::vector<double> observationTimesUtc;
       for (double julianDaySinceJ2000 : observationJulianDaysSinceJ2000) {
         observationTimesUtc.push_back(julianDaySinceJ2000 * physical_constants::JULIAN_DAY);
       }
+      // Convert to TDB
       observationTimes_ = computeObservationTimesTdbFromJ2000(observationTimesUtc);
 
       break;
     }
+    // Throw error if representation not implemented
     default: {
       throw std::runtime_error("Error while processing tracking txt file: Time representation not recognised or implemented.");
     }
@@ -80,16 +83,22 @@ void ProcessedTrackingTxtFileContents::updateObservationTimes()
 
 std::vector<double> ProcessedTrackingTxtFileContents::computeObservationTimesTdbFromJ2000(std::vector<double> observationTimesUtc)
 {
+  // Get the time scale converter
   earth_orientation::TerrestrialTimeScaleConverter timeScaleConverter = earth_orientation::TerrestrialTimeScaleConverter();
+
+  // Check if there is one LinkEnds per observation time
   if (linkEndsVector_.size() != observationTimesUtc.size()) {
     throw std::runtime_error("Error while processing tracking data: vector of linkEnds and observationTimes not of equal size");
   }
 
+  // Ge a vector of ground station positions
   std::vector<Eigen::Vector3d> groundStationPositions;
   for (const auto& linkEnds : linkEndsVector_) {
     std::string currentGroundStation = linkEnds.at(receiver).getStationName(); // TODO: what if transmitter and receiver different?
     groundStationPositions.push_back(earthFixedGroundStationPositions_.at(currentGroundStation));
   }
+
+  // Convert to TDB using the GS positions
   std::vector<double> observationTimesTdb = timeScaleConverter.getCurrentTimes(basic_astrodynamics::utc_scale,
                                                                                basic_astrodynamics::tdb_scale,
                                                                                observationTimesUtc,
@@ -99,12 +108,19 @@ std::vector<double> ProcessedTrackingTxtFileContents::computeObservationTimesTdb
 
 void ProcessedTrackingTxtFileContents::updateLinkEnds()
 {
+  // Clear any previous values
   linkEndsVector_.clear();
+
+  // Get information from raw data file
   const auto& dataMap = rawTrackingTxtFileContents_->getDoubleDataMap();
   const auto& metaDataStrMap = rawTrackingTxtFileContents_->getMetaDataStrMap();
   const auto& numDataRows = rawTrackingTxtFileContents_->getNumRows();
+
+  // Deduce linkends representation
   LinkEndsRepresentation linkEndsRepresentation = getLinkEndsRepresentation();
 
+  // Create a vector of LinkEnds based on how they are represented
+  // This currently only implements the DSN transmitter and receiver
   switch (linkEndsRepresentation) {
 
     // TODO: make a cleaner implementation to allow adding different ways of providing the link ends easily
@@ -149,18 +165,23 @@ void ProcessedTrackingTxtFileContents::updateLinkEnds()
 //      break;
 //    }
 
+    // Throw error if representation not implemented
     default: {
       throw std::runtime_error("Error while processing tracking txt file: LinkEnds representation not recognised or implemented.");
     }
   }
 
-  // Creating a set with all the various linkEnds
+  // Creating a set with all the distinct LinkEnds
   linkEndsSet_ = utilities::vectorToSet(linkEndsVector_);
 }
 
 ProcessedTrackingTxtFileContents::TimeRepresentation ProcessedTrackingTxtFileContents::getTimeRepresentation()
 {
+
+  // Get all the data types from the raw file contents
   auto const& availableDataTypes = rawTrackingTxtFileContents_->getDataColumnTypes();
+
+  // Return representation based on available data types
 
   if (utilities::containsAll(availableDataTypes, std::vector<input_output::TrackingDataType>{input_output::TrackingDataType::tdb_time_j2000})) {
     return tdb_seconds_j2000;
@@ -177,12 +198,17 @@ ProcessedTrackingTxtFileContents::TimeRepresentation ProcessedTrackingTxtFileCon
                              })) {
     return calendar_day_time;
   }
+
+  // Throw an error if no match is found
   throw std::runtime_error("Error while processing tracking txt file: Time representation not recognised or implemented.");
 }
 
 ProcessedTrackingTxtFileContents::LinkEndsRepresentation ProcessedTrackingTxtFileContents::getLinkEndsRepresentation()
 {
+  // Get all the available data columns
   auto const& availableDataTypes = rawTrackingTxtFileContents_->getAllAvailableDataTypes();
+
+  // Porvide link Ends representation based on available columns
 
   if (utilities::containsAll(availableDataTypes,
                              std::vector<input_output::TrackingDataType>{
@@ -195,6 +221,8 @@ ProcessedTrackingTxtFileContents::LinkEndsRepresentation ProcessedTrackingTxtFil
   if (utilities::containsAll(availableDataTypes, std::vector<input_output::TrackingDataType>{input_output::TrackingDataType::vlbi_station_name})) {
     return vlbi_station;
   }
+
+  // Trhow error if no match is found
   throw std::runtime_error("Error while processing tracking txt file: Link Ends representation not recognised or implemented.");
 }
 

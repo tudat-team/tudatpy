@@ -38,7 +38,9 @@ void TrackingTxtFileContents::readRawDataMap(std::ifstream& dataFile)
 
 void TrackingTxtFileContents::addLineToRawDataMap(std::string& rawLine)
 {
+
   size_t numColumns = getNumColumns();
+  std::vector<std::string> currentSplitRawLine_;
 
   // Trim the line and split based on the separators
   boost::algorithm::trim(rawLine);
@@ -69,17 +71,21 @@ void TrackingTxtFileContents::addLineToRawDataMap(std::string& rawLine)
 
 void TrackingTxtFileContents::convertDataMap()
 {
+  // Loop over all the column types to convert them to doubles
   for (std::string columnType : columnFieldTypes_) {
+
+    // If the columnType (requested by the user) does not have a known converter in tudat, it is skipped here and only stored as raw string
     if (!trackingFileFieldConverterMap.count(columnType)) {
       std::cout << "Warning: '" << columnType << "' is not recognised as a column type by Tudat. The data is available in the raw format.\n";
       continue;
     }
 
+    // Get the raw vector, correct converter and target data type represented by the doubles
     std::shared_ptr<TrackingFileFieldConverter> converter = trackingFileFieldConverterMap.at(columnType);
     const std::vector<std::string>& rawVector = rawDataMap_.at(columnType);
-
     const TrackingDataType& dataType = converter->getTrackingDataType();
 
+    // Convert and store double vector
     std::vector<double> dataVector;
     for (std::string rawValue : rawVector) {
       dataVector.push_back(converter->toDouble(rawValue));
