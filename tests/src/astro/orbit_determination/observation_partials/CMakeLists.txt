@@ -93,3 +93,8 @@ TUDAT_ADD_TEST_CASE(RelativePositionPartials
      tudat_test_support
      ${Tudat_ESTIMATION_LIBRARIES}
      )
+ TUDAT_ADD_TEST_CASE(TimeBiasPartials
+         PRIVATE_LINKS
+         tudat_test_support
+         ${Tudat_ESTIMATION_LIBRARIES}
+ )
