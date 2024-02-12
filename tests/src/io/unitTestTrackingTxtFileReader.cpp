@@ -21,8 +21,6 @@
 #include "tudat/io/basicInputOutput.h"
 #include "tudat/simulation/estimation_setup/observations.h"
 
-
-// Temporary
 #include "tudat/io/readTrackingTxtFile.h"
 #include "tudat/simulation/estimation_setup/processTrackingTxtFile.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
@@ -30,12 +28,12 @@
 // Some simplifications for shorter lines
 namespace tio = tudat::input_output;
 namespace tss = tudat::simulation_setup;
+namespace tom = tudat::observation_models;
 
 namespace tudat
 {
 namespace unit_tests
 {
-using namespace observation_models;
 
 //! Temporary utility function to print arrays to std::cout
 template< typename T >
@@ -48,7 +46,7 @@ void printArr(const T& arr)
   std::cout << "]\n";
 }
 
-//! Utility function to print link Ends
+//! Temporary utility function to print link Ends
 std::ostream& operator<<(std::ostream& os, const observation_models::LinkEnds& linkEnds)
 {
   os << "LinkEnds{\n";
@@ -62,7 +60,7 @@ std::ostream& operator<<(std::ostream& os, const observation_models::LinkEnds& l
   return os;
 }
 
-// Utility function to get a single block from a datMap that maps keys to vectors
+//! Utility function to get a single block from a datMap that maps keys to vectors
 template< typename K, typename V >
 std::map<K, V> extractBlockFromVectorMap(const std::map<K, std::vector<V>>& vectorMap, int blockIndex)
 {
@@ -76,7 +74,7 @@ std::map<K, V> extractBlockFromVectorMap(const std::map<K, std::vector<V>>& vect
   return singleBlock;
 }
 
-//! A function that specifies a standard format for a file. A user can also do this if they often read the same file format
+//! Function that specifies a standard format for the Viking file. A user can also do this if they often read the same file format
 std::unique_ptr<tio::TrackingTxtFileContents> readVikingRangeFile(const std::string& fileName)
 {
   std::vector<std::string> columnTypes({
@@ -97,7 +95,7 @@ std::unique_ptr<tio::TrackingTxtFileContents> readVikingRangeFile(const std::str
   return vikingFile;
 }
 
-//! A function that specifies a standard format for a file. A user can also do this if they often read the same file format
+//! Function that specifies a standard format for a JUICE Fdets file. A user can also do this if they often read the same file format
 std::unique_ptr<tio::TrackingTxtFileContents> readJuiceFdetsFile(const std::string& fileName)
 {
   std::vector<std::string>
@@ -115,11 +113,13 @@ const std::string junoRangePath = tudat::paths::getTudatTestDataPath() + "juno_r
 const std::string marinerRangePath = tudat::paths::getTudatTestDataPath() + "mariner9obs.txt";
 const std::string juiceFdetsDopplerPath = tudat::paths::getTudatTestDataPath() + "Fdets.jui2023.04.26.Hb.0006.r2i.txt";
 
+
+//! Starting the entire test suite
 BOOST_AUTO_TEST_SUITE(test_tracking_txt_file_reader);
 
+//! Test raw reading from file with custom `readVikingRangeFile` function for Viking data
 BOOST_AUTO_TEST_CASE(VikingRangeDataCustomFunction)
 {
-
   std::shared_ptr<tio::TrackingTxtFileContents> rawVikingFile = readVikingRangeFile(vikingRangePath);
 
   std::string spacecraftName = "Viking";
@@ -139,11 +139,12 @@ BOOST_AUTO_TEST_CASE(VikingRangeDataCustomFunction)
   BOOST_CHECK_EQUAL(dataBlock3[tio::TrackingDataType::second], 32);
   BOOST_CHECK_EQUAL(dataBlock3[tio::TrackingDataType::n_way_light_time], 2290.150246895);
 
-
+  //! Incidentally, check if the correct number of observations are transferred into an observation collection
   auto observationCollection = observation_models::createTrackingTxtFileObservationCollection<double, double>(rawVikingFile, spacecraftName);
   BOOST_CHECK_EQUAL(observationCollection->getTotalObservableSize(), 1258);
 }
 
+//! Test raw reading from file without custom reading function for the MarsPathFinder data
 BOOST_AUTO_TEST_CASE(marsPathfinderRangeSimpleReading)
 {
   std::vector<std::string> fieldTypeVector{
@@ -185,7 +186,7 @@ BOOST_AUTO_TEST_CASE(marsPathfinderRangeSimpleReading)
   BOOST_CHECK_EQUAL(metaDataDoubleMap.at(tio::TrackingDataType::spacecraft_transponder_delay), 420.e-6);
 }
 
-//
+//! Test simple raw reading with Juno data
 BOOST_AUTO_TEST_CASE(junoSimpleReading)
 {
   std::vector<std::string> fieldTypeVector{
@@ -237,6 +238,7 @@ BOOST_AUTO_TEST_CASE(junoSimpleReading)
   BOOST_CHECK_EQUAL(rawTrackingFile->getNumColumns(), 19);
 }
 
+//! Test raw reading and adding metadata with Mariner data
 BOOST_AUTO_TEST_CASE(marinerSimpleReading)
 {
   std::vector<std::string> fieldTypeVector{
@@ -249,7 +251,6 @@ BOOST_AUTO_TEST_CASE(marinerSimpleReading)
       "round_trip_light_time_microseconds",
       "light_time_measurement_accuracy_microseconds",
       "residual_de405_microseconds"
-//      "test"
   };
 
   auto rawTrackingFile = tio::createTrackingTxtFileContents(marinerRangePath, fieldTypeVector, '#', ",: \t");
@@ -278,28 +279,29 @@ BOOST_AUTO_TEST_CASE(marinerSimpleReading)
   BOOST_CHECK_EQUAL(metaDataStrMap.at(input_output::TrackingDataType::observed_body), "Mars");
 }
 
+//! Test observation collection and time conversions with Viking Data
 BOOST_AUTO_TEST_CASE(TestVikingRangeDataObservationCollection)
 {
 
   // Load the observations from the Viking file
   std::shared_ptr<tio::TrackingTxtFileContents> rawVikingFile = readVikingRangeFile(vikingRangePath);
-  auto observationCollection = observation_models::createTrackingTxtFileObservationCollection<double, double>(rawVikingFile, "Viking", {n_way_range});
+  auto observationCollection = observation_models::createTrackingTxtFileObservationCollection<double, double>(rawVikingFile, "Viking", {tom::n_way_range});
 
   // Check size of observations
   BOOST_CHECK_EQUAL(observationCollection->getTotalObservableSize(), 1258);
 
   // Check if n-way-range is present in the collection
   const auto& observationTypeStartSize = observationCollection->getObservationTypeStartAndSize();
-  BOOST_CHECK(observationTypeStartSize.find(n_way_range) != observationTypeStartSize.end());
+  BOOST_CHECK(observationTypeStartSize.find(tom::n_way_range) != observationTypeStartSize.end());
 
   //  Checking the first element with station 63 - 63 in the Viking file
-  const LinkDefinition linkDefDsn63({
-                                        {transmitter, LinkEndId("Earth", "DSS-63")},
-                                        {reflector, LinkEndId("Viking", "")},
-                                        {receiver, LinkEndId("Earth", "DSS-63")},
+  const tom::LinkDefinition linkDefDsn63({
+                                        {tom::transmitter, tom::LinkEndId("Earth", "DSS-63")},
+                                        {tom::reflector, tom::LinkEndId("Viking", "")},
+                                        {tom::receiver, tom::LinkEndId("Earth", "DSS-63")},
                                     });
 
-  auto observationsAndTimesDsn63 = observationCollection->getSingleLinkObservationsAndTimes(n_way_range, linkDefDsn63);
+  auto observationsAndTimesDsn63 = observationCollection->getSingleLinkObservationsAndTimes(tom::n_way_range, linkDefDsn63);
   auto observationsDsn63 = observationsAndTimesDsn63.first;
   auto timesDsn63 = observationsAndTimesDsn63.second;
 
@@ -337,6 +339,8 @@ BOOST_AUTO_TEST_CASE(TestVikingRangeDataObservationCollection)
 //
 //}
 
+//! Test reading of ground station locations
+// TODO: This might need to be moved to another file
 BOOST_AUTO_TEST_CASE(GroundStationLocations)
 {
 
@@ -360,6 +364,7 @@ BOOST_AUTO_TEST_CASE(GroundStationLocations)
   BOOST_TEST(hobartVel == Eigen::Vector3d(-39.90, 9.00, 39.90), boost::test_tools::per_element());
 }
 
+// End test suite
 BOOST_AUTO_TEST_SUITE_END();
 
 }
