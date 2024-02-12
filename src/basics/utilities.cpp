@@ -61,7 +61,13 @@ boost::array< boost::multi_array< double, 3 >::index, 3 > getMultiArrayIndexArra
     return currentIndices;
 }
 
-//! Function to extract a map from string to 3d vector from a file. The first 4 columns and the rest is ignored.
+/*!
+ * Function to extract a map from string to 3d vector from a file. The first 4 columns are used and the rest is ignored if present
+ * @param fileName path to file of interest
+ * @param commentSymbol Lines starting with this character are ignored
+ * @param separators String of characters that mark a new column
+ * @return map with string to 3d vector
+ */
 template< >
 std::map<std::string, Eigen::Vector3d> getMapFromFile<std::string, Eigen::Vector3d>(std::string fileName,
                                                                                     char commentSymbol,
@@ -98,6 +104,13 @@ std::map<std::string, Eigen::Vector3d> getMapFromFile<std::string, Eigen::Vector
   return namesAndPositions;
 }
 
+/*!
+ * Function to extract a map from string to 3d vector from a file. The first 4 columns are used and the rest is ignored if present
+ * @param fileName path to file of interest
+ * @param commentSymbol Lines starting with this character are ignored
+ * @param separators String of characters that mark a new column
+ * @return map with string to 3d vector
+ */
 template< >
 std::map<std::string, std::string> getMapFromFile<std::string, std::string>(std::string fileName, char commentSymbol, std::string separators)
 {

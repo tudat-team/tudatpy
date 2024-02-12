@@ -27,23 +27,22 @@
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/interface/spice/spiceInterface.h"
 
-// A TrackingDataType is a unique form of data that can be used by Tudat to derive the observables
-// A TrackingFileField is an identifier that specifies a specific type of column data in an input file (with a specific format)
-// A TrackingFileFieldConverter is an interface that can convert a raw string input field to its associated double value as expected for the TrackingDataType
-// For example:
-// - You are reading a file with a column that shows the round trip light time in microseconds
-// - The corresponding TrackingFileField will be "round_trip_light_time_microseconds
-// - Tudat wants to refer to the data by TrackingDataType::n_way_light_time in seconds
-// - The converter
+/*!
+ * Tool to read out files that are structured with tracking measurements in rows and data types in columns
+ * A TrackingDataType is a unique form of data that can be used by Tudat to derive the observables
+ * A TrackingFileFieldConverter is an interface that can convert a raw string input field to its associated double value as expected for the TrackingDataType
+ * Reading a trackingFile can be done by specifying a list of trackingFileFields, each corresponding to such a converter.
+ */
 
 namespace tudat
 {
 namespace input_output
 {
 
-
-
-//! Enum describing a unique data type that can later be used to process the information. These are in SI units
+/*!
+ * Enum describing a unique data type that can later be used to process the information.
+ * These are in SI units
+ */
 enum class TrackingDataType
 {
   year,
@@ -84,15 +83,29 @@ enum class TrackingDataType
   vlbi_station_name,
 };
 
-//!Simple converter class that can convert a string data field to a double. One can inherit from this and overload the `toDouble()` method to extend the supported formats
+/*!
+ * Simple converter class that can convert a string data field to a double.
+ * One can inherit from this and overload the `toDouble()` method to extend the supported formats
+ */
 class TrackingFileFieldConverter
 {
 public:
+
+  /*!
+   * Constructor
+   * @param trackingDataType the SI data type of the double representation
+   */
   explicit TrackingFileFieldConverter(TrackingDataType trackingDataType)
       : doubleDataType_(trackingDataType) {}
 
+  //! Destructor
   virtual ~TrackingFileFieldConverter() = default;
 
+  /*!
+   * Default toDouble implementation.
+   * @param rawField string input as read from the file
+   * @return value converted to double
+   */
   virtual double toDouble(std::string& rawField) const
   {
     try {
@@ -103,9 +116,12 @@ public:
               + "\".\n");
     }
   }
+
+  //! Getter for doubleDataType_
   const TrackingDataType& getTrackingDataType() { return doubleDataType_; }
 
 private:
+  //! Data type of the double that this converter will return
   TrackingDataType doubleDataType_;
 };
 
@@ -113,7 +129,18 @@ private:
 class TrackingFileMonthFieldConverter : public TrackingFileFieldConverter
 {
 public:
+
+  /*!
+   * Constructor
+   * @param trackingDataType Data type of the double representation (SI)
+   */
   TrackingFileMonthFieldConverter(TrackingDataType trackingDataType) : TrackingFileFieldConverter(trackingDataType) {}
+
+  /*!
+   * Implementation to convert the months in three letter string to their double representation
+   * @param rawField string representing a month (3 letter in lower or upper case)
+   * @return double representing a whole number between 1 and 12
+   */
   double toDouble(std::string& rawField) const
   {
     std::map<std::string, double> monthsMap{{"JAN", 1.},
@@ -137,17 +164,30 @@ public:
 class TrackingFileFieldMultiplyingConverter : public TrackingFileFieldConverter
 {
 public:
+
+  /*!
+   * Constructor
+   * @param trackingDataType Data type of the double representation (SI)
+   * @param multiplier The multiplier applied to the direct conversion from string to double. e.g. this can be a scaling factor to convert units
+   */
   TrackingFileFieldMultiplyingConverter(TrackingDataType trackingDataType, double multiplier)
       : TrackingFileFieldConverter(trackingDataType), multiplier_(multiplier) {}
+
+  /*!
+   * Convert string to double and apply given multiplication factor.
+   * @param rawField string
+   * @return double representation
+   */
   double toDouble(std::string& rawField) const
   {
     return multiplier_ * TrackingFileFieldConverter::toDouble(rawField);
   }
 private:
+
   double multiplier_;
 };
 
-//! Converter that will convert the raw string to double and then apply a scalar multiplier as specified
+//! Converter that will convert the raw string to a ephemeris time representation (TDB) since J2000.
 class TrackingFileFieldUTCTimeConverter : public TrackingFileFieldConverter
 {
 public:
@@ -197,10 +237,22 @@ static const std::map<std::string, std::shared_ptr<TrackingFileFieldConverter>> 
     {"utc_datetime_string", std::make_shared<TrackingFileFieldUTCTimeConverter>(TrackingDataType::tdb_time_j2000)}
 };
 
-//! Class to extract the raw data from a file with the appropriate conversion to doubles
+/*!
+ * Class to extract the raw data from a file with the appropriate conversion to doubles. Data fields that do not have an
+ * appropriate converter are simply stored as raw strings.
+ */
 class TrackingTxtFileContents
 {
 public:
+
+  /*!
+   * Constructor
+   * @param fileName Path to file that should be read
+   * @param columnTypes vector of strings representing the column types. These should be part of `trackingFileFieldConverterMap` to be usefule for tudat
+   * Strings that aren't part of that will only be stored as raw fields in this object.
+   * @param commentSymbol Lines starting with this symbol are ignored
+   * @param valueSeparators string with characters representing separation between columns. ",: " means space , or : mark a new column
+   */
   TrackingTxtFileContents(std::string fileName,
                           std::vector<std::string> columnTypes,
                           char commentSymbol = '#',
@@ -211,14 +263,31 @@ public:
     parseData();
   }
 
+  //! Main parsing sequence to read and process the file
   void parseData();
 
+  /*!
+   * Read out the raw data map from a filestream
+   * @param dataFile filestream
+   */
   void readRawDataMap(std::ifstream& dataFile);
 
+  /*!
+   * Process a single raw line from the file and add it to the data maps
+   * @param rawLine single line from the file as a string
+   */
   void addLineToRawDataMap(std::string& rawLine);
 
+  /*!
+   * Use the appropriate converters to convert the raw data to the correct double representations
+   */
   void convertDataMap();
 
+  /*!
+   * Add a trackingdatatype that is constant for the entire file as metadata
+   * @param dataType TrackingDataType of interest
+   * @param value double or string value that belongs to the trackingDataType.
+   */
   void addMetaData(TrackingDataType dataType, double value) { metaDataMapDouble_[dataType] = value; }
 
   void addMetaData(TrackingDataType dataType, const std::string& value) { metaDataMapStr_[dataType] = value; }
@@ -226,10 +295,16 @@ public:
 
 // Getters
 public:
+  //! Number of columns expected in the file
   size_t getNumColumns() const { return columnFieldTypes_.size(); }
+
+  //! Number of rows read out in the raw data map
   size_t getNumRows() const { return rawDataMap_.at(columnFieldTypes_[0]).size(); }
+
+  //! Getter for the field types defined by the user
   const std::vector<std::string>& getRawColumnTypes() { return columnFieldTypes_; }
 
+  //! Get the TrackingDataTypes present in the converted data map
   const std::vector<TrackingDataType>& getDataColumnTypes()
   {
     columnDataTypes_.clear();
@@ -239,30 +314,58 @@ public:
     return columnDataTypes_;
   }
 
+  //! Getter for `rawDataMap_`
   const auto& getRawDataMap() { return rawDataMap_; }
+
+  //! Getter for `doubleDataMap_`
   const auto& getDoubleDataMap() { return doubleDataMap_; }
+
+  /*!
+   * Get the entire converted column for a specific TrackingDataType
+   * @param dataType TrackingDataType of interest that should be extracted from the datamap
+   * @return column of data points for the requested data type
+   */
   const std::vector<double>& getDoubleDataColumn(TrackingDataType dataType);
+
+  //! Getter for `metaDataMapDouble_`
   const auto& getMetaDataDoubleMap() { return metaDataMapDouble_; }
+
+  //! Getter for `metaDataMapStr_`
   const auto& getMetaDataStrMap() { return metaDataMapStr_; }
+
+  //! Get a vector of all data types that are present as meta data (valid for the entire file)
   const std::vector<TrackingDataType> getMetaDataTypes();
+
+  //! Get all available data types (either as metadata or individually per row)
   const std::vector<TrackingDataType> getAllAvailableDataTypes();
 
 private:
+  //! Path of the file name of interest
   std::string fileName_ = "None";
-  std::string separators_ = ":, \t";
-  std::vector<std::string> columnFieldTypes_;
-  std::vector<TrackingDataType> columnDataTypes_;
-  char commentSymbol_;
-  std::string valueSeparators_;
-  std::map<std::string, std::vector<std::string>> rawDataMap_;
-  std::map<TrackingDataType, double> metaDataMapDouble_;
-  std::map<TrackingDataType, std::string> metaDataMapStr_;
-  std::map<TrackingDataType, std::vector<int>> intDataMap_;
-  std::map<TrackingDataType, std::vector<double>> doubleDataMap_;
 
-// Utility variables
-private:
-  std::vector<std::string> currentSplitRawLine_;
+  //! Vector of strings representing the field types of columns. If known by tudat (`trackingFileFieldConverterMap`), they indicate a converter, otherwise values are stored raw
+  std::vector<std::string> columnFieldTypes_;
+
+  //! Vector of data types for the columns that have a double converter
+  std::vector<TrackingDataType> columnDataTypes_;
+
+  //! Symbol that marks a comment line in the data file. These lines are ignored
+  char commentSymbol_;
+
+  //! String of separator characters that mark a gap between two columns
+  std::string valueSeparators_ = ":, \t";
+
+  //! Map to link a columnfieldtype (as provided by the user) to a vector of values (read from file)
+  std::map<std::string, std::vector<std::string>> rawDataMap_;
+
+  //! Map of meta data (valid for the entire file) with values as doubles
+  std::map<TrackingDataType, double> metaDataMapDouble_;
+
+  //! Map of meta data (valid for the entire file) with values as strings
+  std::map<TrackingDataType, std::string> metaDataMapStr_;
+
+  //! Map containing the converted double values for the columns where a valid converter was known to tudat
+  std::map<TrackingDataType, std::vector<double>> doubleDataMap_;
 };
 
 /*!
