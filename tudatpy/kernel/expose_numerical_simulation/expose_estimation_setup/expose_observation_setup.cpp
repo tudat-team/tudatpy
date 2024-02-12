@@ -1039,6 +1039,31 @@ void expose_observation_setup(py::module &m) {
           get_docstring("add_dependent_variables_to_observable_for_link_ends").c_str() );
 
     /////////////////////////////////////////////////////////////////////////////////////////////////
+    // DEPENDENT VARIABLES
+    /////////////////////////////////////////////////////////////////////////////////////////////////
+
+    py::enum_< tss::IntegratedObservationPropertyHandling >(
+        m, "IntegratedObservationPropertyHandling", get_docstring("IntegratedObservationPropertyHandling").c_str() )
+        .value("interval_start", tss::IntegratedObservationPropertyHandling::interval_start )
+        .value("interval_end", tss::IntegratedObservationPropertyHandling::interval_end )
+        .value("interval_undefined", tss::IntegratedObservationPropertyHandling::interval_undefined ).export_values();
+
+    m.def("azimuth_at_link_end_type",
+              &tss::azimuthAngleAtLinkEndTypeDependentVariable,
+          py::arg("link_end_type"),
+          py::arg("integrated_observation_handling") = tss::interval_undefined,
+          py::arg("originating_link_end_role") = tom::unidentified_link_end,
+          get_docstring("azimuth_at_link_end_type").c_str() );
+
+    m.def("elevation_at_link_end_type",
+          &tss::elevationAngleAtLinkEndTypeDependentVariable,
+          py::arg("link_end_type"),
+          py::arg("integrated_observation_handling") = tss::interval_undefined,
+          py::arg("originating_link_end_role") = tom::unidentified_link_end,
+          get_docstring("elevation_at_link_end_type").c_str() );
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////
     // FREQUENCIES
     /////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -1083,7 +1108,13 @@ void expose_observation_setup(py::module &m) {
                  get_docstring("ProcessedOdfFileContents.get_ignored_ground_stations").c_str( ) )
              .def_property_readonly("raw_odf_data",
                  &tom::ProcessedOdfFileContents::getRawOdfData,
-                 get_docstring("ProcessedOdfFileContents.raw_odf_data").c_str( ) );
+                 get_docstring("ProcessedOdfFileContents.raw_odf_data").c_str( ) )
+            .def("define_antenna_id",
+                  py::overload_cast< const std::string&, const std::string&>(
+                      &tom::ProcessedOdfFileContents::defineSpacecraftAntennaId ),
+                 py::arg("spacecraft_name"),
+                 py::arg("antenna_name"),
+                 get_docstring("ProcessedOdfFileContents.define_antenna_id").c_str( ) );
 
     m.def("process_odf_data_multiple_files",
           py::overload_cast<
