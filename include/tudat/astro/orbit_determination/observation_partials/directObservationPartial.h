@@ -102,25 +102,51 @@ public:
             currentState_  = states[ currentIndex ];
             currentTime_ = times[ currentIndex ];
 
-            if( positionPartialScaler_->isVelocityScalingNonZero( ) )
+            if( !fixLinkEndTime_ )
             {
-                // Scale position partials
-                returnPartial.push_back(
-                            std::make_pair(
-                                positionPartialScaler_->getPositionScalingFactor( positionPartialIterator_->first ) *
-                                ( positionPartialIterator_->second->calculatePartialOfPosition(
-                                      currentState_ , currentTime_ ) ) +
-                                positionPartialScaler_->getVelocityScalingFactor( positionPartialIterator_->first ) *
-                                ( positionPartialIterator_->second->calculatePartialOfVelocity(
-                                      currentState_ , currentTime_ ) ), currentTime_ ) );
+                if( positionPartialScaler_->isVelocityScalingNonZero( ) )
+                {
+                    // Scale position partials
+                    returnPartial.push_back(
+                                std::make_pair(
+                                    positionPartialScaler_->getPositionScalingFactor( positionPartialIterator_->first ) *
+                                    ( positionPartialIterator_->second->calculatePartialOfPosition(
+                                          currentState_ , currentTime_ ) ) +
+                                    positionPartialScaler_->getVelocityScalingFactor( positionPartialIterator_->first ) *
+                                    ( positionPartialIterator_->second->calculatePartialOfVelocity(
+                                          currentState_ , currentTime_ ) ), currentTime_ ) );
+                }
+                else
+                {
+                    returnPartial.push_back(
+                                std::make_pair(
+                                    positionPartialScaler_->getPositionScalingFactor( positionPartialIterator_->first ) *
+                                    ( positionPartialIterator_->second->calculatePartialOfPosition(
+                                          currentState_ , currentTime_ ) ), currentTime_ ) );
+                }
             }
             else
             {
-                returnPartial.push_back(
-                            std::make_pair(
-                                positionPartialScaler_->getPositionScalingFactor( positionPartialIterator_->first ) *
-                                ( positionPartialIterator_->second->calculatePartialOfPosition(
-                                      currentState_ , currentTime_ ) ), currentTime_ ) );
+                if( positionPartialScaler_->isVelocityScalingNonZero( ) )
+                {
+                    // Scale position partials
+                    returnPartial.push_back(
+                        std::make_pair(
+                            positionPartialScaler_->getFixedTimePositionScalingFactor( positionPartialIterator_->first ) *
+                            ( positionPartialIterator_->second->calculatePartialOfPosition(
+                                currentState_ , currentTime_ ) ) +
+                            positionPartialScaler_->getFixedTimeVelocityScalingFactor( positionPartialIterator_->first ) *
+                            ( positionPartialIterator_->second->calculatePartialOfVelocity(
+                                currentState_ , currentTime_ ) ), currentTime_ ) );
+                }
+                else
+                {
+                    returnPartial.push_back(
+                        std::make_pair(
+                            positionPartialScaler_->getFixedTimePositionScalingFactor( positionPartialIterator_->first ) *
+                            ( positionPartialIterator_->second->calculatePartialOfPosition(
+                                currentState_ , currentTime_ ) ), currentTime_ ) );
+                }
             }
         }
 
@@ -179,6 +205,11 @@ public:
         return positionPartialScaler_->getObservableType( );
     }
 
+    void setFixLinkEndTime( const bool fixLinkEndTime )
+    {
+        fixLinkEndTime_ = fixLinkEndTime;
+    }
+
 protected:
 
     //! Scaling object used for mapping partials of positions to partials of observable
@@ -207,6 +238,8 @@ protected:
     std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > currentLinkTimeCorrectionPartial_;
 
     std::map< observation_models::LinkEndType, int > stateEntryIndices_;
+
+    bool fixLinkEndTime_ = false;
 
 };
 

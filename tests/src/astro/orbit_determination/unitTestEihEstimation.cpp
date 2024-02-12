@@ -43,8 +43,6 @@ BOOST_AUTO_TEST_CASE( testEihEstimation )
 {
     // Load Spice kernels.
     spice_interface::loadStandardSpiceKernels( );
-    spice_interface::loadSpiceKernelInTudat( "/home/dominic/Downloads/codes_300ast_20100725.bsp" );
-    spice_interface::loadSpiceKernelInTudat( "/home/dominic/Downloads/codes_300ast_20100725.tf" );
 
     // Set simulation end epoch.
     const double simulationStartEpoch = 0.0 * tudat::physical_constants::JULIAN_YEAR;

@@ -1428,9 +1428,9 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                 vectorParameterToEstimate = std::make_shared< ConstantTimeBiasParameter >(
                         std::function< Eigen::VectorXd( ) >( ),
                         std::function< void( const Eigen::VectorXd& ) >( ),
-                        observation_models::getLinkEndIndicesForLinkEndTypeAtObservable(
-                                biasSettings->observableType_, biasSettings->linkEndForTime_, biasSettings->linkEnds_.size( ) ).at( 0 ),
-                        biasSettings->linkEnds_, biasSettings->observableType_ );
+                        biasSettings->linkEndForTime_,
+                        biasSettings->linkEnds_,
+                        biasSettings->observableType_ );
             }
             break;
         }
@@ -1448,8 +1448,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                         timeBiasSettings->arcStartTimes_,
                         std::function< std::vector< Eigen::VectorXd >( ) >( ),
                         std::function< void( const std::vector< Eigen::VectorXd >& ) >( ),
-                        observation_models::getLinkEndIndicesForLinkEndTypeAtObservable(
-                                timeBiasSettings->observableType_, timeBiasSettings->linkEndForTime_, timeBiasSettings->linkEnds_.size( ) ).at( 0 ),
+                        timeBiasSettings->linkEndForTime_,
                         timeBiasSettings->linkEnds_, timeBiasSettings->observableType_ );
             }
             break;
