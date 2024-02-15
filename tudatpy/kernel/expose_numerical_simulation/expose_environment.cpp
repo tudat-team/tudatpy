@@ -342,6 +342,7 @@ void expose_environment(py::module &m) {
             .def("update_conditions", &ta::FlightConditions::updateConditions, py::arg("current_time") )
             .def_property_readonly("aerodynamic_angle_calculator", &ta::FlightConditions::getAerodynamicAngleCalculator, get_docstring("FlightConditions.aerodynamic_angle_calculator").c_str())
             .def_property_readonly("longitude", &ta::FlightConditions::getCurrentLongitude, get_docstring("FlightConditions.longitude").c_str())
+            .def_property_readonly("latitude", &ta::FlightConditions::getCurrentLatitude, get_docstring("FlightConditions.latitude").c_str())
             .def_property_readonly("geodetic_latitude", &ta::FlightConditions::getCurrentGeodeticLatitude, get_docstring("FlightConditions.latitude").c_str())
             .def_property_readonly("time", &ta::FlightConditions::getCurrentTime, get_docstring("FlightConditions.time").c_str())
             .def_property_readonly("body_centered_body_fixed_state", &ta::FlightConditions::getCurrentBodyCenteredBodyFixedState, get_docstring("FlightConditions.body_centered_body_fixed_state").c_str())
@@ -479,20 +480,27 @@ void expose_environment(py::module &m) {
 
 
     py::class_<te::RotationalEphemeris,
-            std::shared_ptr<te::RotationalEphemeris>>(m, "RotationalEphemeris")
+            std::shared_ptr<te::RotationalEphemeris>>(m, "RotationalEphemeris", get_docstring("RotationalEphemeris").c_str())
             .def("body_fixed_to_inertial_rotation", &te::RotationalEphemeris::getRotationMatrixToBaseFrame,
-                 py::arg( "time" ) )
+                 py::arg( "time" ),
+                 get_docstring("RotationalEphemeris.body_fixed_to_inertial_rotation").c_str() )
             .def("time_derivative_body_fixed_to_inertial_rotation", &te::RotationalEphemeris::getDerivativeOfRotationToBaseFrame,
-                 py::arg( "time" ) )
+                 py::arg( "time" ),
+                 get_docstring("RotationalEphemeris.time_derivative_body_fixed_to_inertial_rotation").c_str()  )
             .def("inertial_to_body_fixed_rotation", &te::RotationalEphemeris::getRotationMatrixToTargetFrame,
-                 py::arg( "time" ) )
+                 py::arg( "time" ),
+                 get_docstring("RotationalEphemeris.inertial_to_body_fixed_rotation").c_str()  )
             .def("time_derivative_inertial_to_body_fixed_rotation", &te::RotationalEphemeris::getDerivativeOfRotationToTargetFrame,
-                 py::arg( "time" ) )
+                 py::arg( "time" ),
+                 get_docstring("RotationalEphemeris.time_derivative_inertial_to_body_fixed_rotation").c_str()  )
             .def("angular_velocity_in_body_fixed_frame", &te::RotationalEphemeris::getRotationalVelocityVectorInTargetFrame,
-                 py::arg( "time" ) )
+                 py::arg( "time" ),
+                 get_docstring("RotationalEphemeris.angular_velocity_in_body_fixed_frame").c_str()  )
             .def("angular_velocity_in_inertial_frame", &te::RotationalEphemeris::getRotationalVelocityVectorInBaseFrame,
-                 py::arg( "time" ) )
-            .def_property_readonly("body_fixed_frame_name", &te::RotationalEphemeris::getTargetFrameOrientation );
+                 py::arg( "time" ),
+                 get_docstring("RotationalEphemeris.angular_velocity_in_inertial_frame").c_str()  )
+            .def_property_readonly("body_fixed_frame_name", &te::RotationalEphemeris::getTargetFrameOrientation,
+                                   get_docstring("RotationalEphemeris.body_fixed_frame_name").c_str()  );
 
 
     m.def("transform_to_inertial_orientation",
