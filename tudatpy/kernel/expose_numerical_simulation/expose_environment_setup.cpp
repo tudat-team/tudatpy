@@ -201,8 +201,7 @@ namespace environment_setup {
 
         m.def("add_radiation_pressure_interface",
               &tss::addRadiationPressureInterface,
-              py::arg("bodies"), py::arg("body_name"), py::arg("radiation_pressure_settings"),
-              get_docstring("add_radiation_pressure_interface").c_str());
+              py::arg("bodies"), py::arg("body_name"), py::arg("radiation_pressure_settings"));
 
 
         m.def("add_radiation_pressure_target_model",
@@ -215,10 +214,16 @@ namespace environment_setup {
               py::arg("bodies"), py::arg("body_name"), py::arg("rotation_model_settings"),
               get_docstring("add_rotation_model").c_str());
 
+
         m.def("add_mass_properties_model",
               &tss::addRigidBodyProperties,
-              py::arg("bodies"), py::arg("body_name"), py::arg("mass_property_settings"),
-              get_docstring("add_mass_properties_model").c_str());
+              py::arg("bodies"), py::arg("body_name"), py::arg("mass_property_settings"));
+
+        m.def("add_rigid_body_properties",
+              &tss::addRigidBodyProperties,
+              py::arg("bodies"), py::arg("body_name"), py::arg("rigid_body_property_settings"),
+              get_docstring("add_rigid_body_properties").c_str());
+
 
         m.def("add_engine_model",
               &tss::addEngineModel,
