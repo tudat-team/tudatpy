@@ -134,10 +134,6 @@ void expose_ephemerides(py::module &m) {
       .value("interpolated_tle_ephemeris", tss::interpolated_tle_ephemeris)
       .value("custom_ephemeris", tss::custom_ephemeris);
 
-  py::class_<te::RotationalEphemeris,
-             std::shared_ptr<te::RotationalEphemeris>>
-      RotationalEphemeris_(m, "RotationalEphemeris");
-
   //////////////////////////////////////////////////////////////////////////////
   // constantEphemeris.h
   //////////////////////////////////////////////////////////////////////////////
