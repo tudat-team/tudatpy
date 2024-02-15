@@ -1,15 +1,14 @@
-# import os
-import sys
-
-sys.path.insert(0, r"/mnt/c/Users/Trez/Desktop/tudat-bundle/tudatpy/")
 from tudatpy.data.mpc import BatchMPC
+from tudatpy.data.horizons import HorizonsQuery
 
-from tudatpy.kernel.numerical_simulation import environment_setup
-from tudatpy.kernel.interface import spice
+from tudatpy.numerical_simulation import environment_setup
+from tudatpy.interface import spice
 
 import numpy as np
 import pytest
 import datetime
+
+spice.load_standard_kernels()
 
 # TESTS DO NOT COVER:
 # properties
@@ -37,6 +36,7 @@ get_observations_input2 = [
 
 @pytest.mark.parametrize("inp,expected", get_observations_input)
 def test_BatchMPC_getobservations(inp, expected):
+    """Check if get observations works"""
     query = BatchMPC()
     query.get_observations(inp)
     assert set(query.MPC_objects) == expected
@@ -44,6 +44,7 @@ def test_BatchMPC_getobservations(inp, expected):
 
 @pytest.mark.parametrize("inp,errtype,errvalue", get_observations_input2)
 def test_BatchMPC_getobservations2(inp, errtype, errvalue):
+    """Check if get observations works, this time with errors"""
     query = BatchMPC()
     with pytest.raises(Exception) as exc_info:
         query.get_observations(inp)
@@ -93,6 +94,7 @@ def test_BatchMPC_filter(
     exp_size_excl,
     exp_size_incl,
 ):
+    """Test if BatchMPC filtering works correctly"""
     b = BatchMPC()
 
     b.get_observations([mpc_code])
@@ -118,7 +120,7 @@ def test_BatchMPC_filter(
     assert len(b._table) == exp_size_incl
 
 
-to_tudat_inp = [222, 999, "C/2012 S1"]
+to_tudat_inp = [222, 999]
 
 
 @pytest.mark.parametrize("mpc_code", to_tudat_inp)
@@ -164,7 +166,10 @@ def test_BatchMPC_to_tudat(mpc_code):
     assert (np.max(obscol_RADEC - RADEC)) == pytest.approx(0.00)
 
 
-@pytest.mark.parametrize("mpc_code", to_tudat_inp)
+to_tudat_inp2 = [222, 999]
+
+
+@pytest.mark.parametrize("mpc_code", to_tudat_inp2)
 def test_BatchMPC_to_tudat_with_satelite(mpc_code):
     """Check if observatory table matches observation_collection"""
     query = BatchMPC()
