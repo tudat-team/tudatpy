@@ -260,7 +260,7 @@ void expose_acceleration_setup(py::module &m) {
           py::arg("time_lag"),
           py::arg("include_direct_radial_component") = true,
           py::arg("use_tide_raised_on_planet") = true,
-          py::arg("explicit_libraional_tide_on_satellite" ) = false,
+          py::arg("explicit_librational_tide_on_satellite" ) = false,
           get_docstring("direct_tidal_dissipation_acceleration").c_str());
 
 //     m.def("direct_tidal_dissipation_acceleration", &tss::directTidalDissipationAccelerationFromInvQ,
