@@ -17,6 +17,8 @@
 namespace tep = tudat::estimatable_parameters;
 namespace tss = tudat::simulation_setup;
 namespace tp = tudat::propagators;
+namespace tba = tudat::basic_astrodynamics;
+
 
 namespace tudatpy {
 namespace numerical_simulation {
@@ -63,6 +65,17 @@ void expose_estimated_parameter_setup(py::module &m) {
             .value("inverse_tidal_quality_factor_type", tep::EstimatebleParametersEnum::inverse_tidal_quality_factor)
             .export_values();
 
+    py::enum_<tba::EmpiricalAccelerationComponents >(m, "EmpiricalAccelerationComponents", get_docstring("EmpiricalAccelerationComponents").c_str() )
+            .value("radial_empirical_acceleration_component", tba::EmpiricalAccelerationComponents::radial_empirical_acceleration_component)
+            .value("along_track_empirical_acceleration_component", tba::EmpiricalAccelerationComponents::along_track_empirical_acceleration_component)
+            .value("across_track_empirical_acceleration_component", tba::EmpiricalAccelerationComponents::across_track_empirical_acceleration_component)
+            .export_values();
+
+    py::enum_<tba::EmpiricalAccelerationFunctionalShapes >(m, "EmpiricalAccelerationFunctionalShapes", get_docstring("EmpiricalAccelerationFunctionalShapes").c_str() )
+            .value("constant_empirical", tba::EmpiricalAccelerationFunctionalShapes::constant_empirical)
+            .value("sine_empirical", tba::EmpiricalAccelerationFunctionalShapes::sine_empirical)
+            .value("cosine_empirical", tba::EmpiricalAccelerationFunctionalShapes::cosine_empirical)
+            .export_values();
 
     py::class_<tep::CustomAccelerationPartialSettings,
         std::shared_ptr<tep::CustomAccelerationPartialSettings>>(m, "CustomAccelerationPartialSettings",
@@ -134,6 +147,12 @@ void expose_estimated_parameter_setup(py::module &m) {
           py::arg("body"),
           py::arg("centralBody"),
           get_docstring("constant_empirical_acceleration_terms").c_str() );
+
+    m.def("full_empirical_acceleration_terms",
+          &tep::empiricalAccelerationMagnitudesFull,
+          py::arg("body"),
+          py::arg("centralBody"),
+          get_docstring("empirical_accelerations").c_str() );
 
     m.def("empirical_accelerations",
           &tep::empiricalAccelerationMagnitudes,
