@@ -1,4 +1,7 @@
 from tudatpy.data.horizons import HorizonsQuery
+from tudatpy.numerical_simulation.environment_setup.ephemeris import jpl_horizons
+from tudatpy.numerical_simulation import environment_setup
+
 
 from tudatpy.interface import spice
 from contextlib import nullcontext as does_not_raise
@@ -245,3 +248,31 @@ def test_JPL_methods(
         query.MPC_number
         query.designation
         query.name
+
+
+@pytest.mark.parametrize("query_id,location,frame_orientation,frame_origin", targets)
+def test_hybrid_function_wrapper(query_id, location, frame_orientation, frame_origin):
+    """Coverage test for the hybrid function, no comparisons just seeing if it runs"""
+    juice_eph_settings = jpl_horizons(
+        horizons_query=query_id,
+        horizons_location=location,
+        frame_origin=frame_origin,  # tudat frame origin and orientation
+        frame_orientation=frame_orientation,
+        epoch_start=datetime.datetime(2020, 1, 1),
+        epoch_end=datetime.datetime(2023, 1, 1),
+        epoch_step="1d",
+        extended_query=True,
+    )
+
+    bodies_to_create = [
+        "Earth",
+    ]
+    global_frame_origin = frame_origin
+    global_frame_orientation = frame_orientation
+    body_settings = environment_setup.get_default_body_settings(
+        bodies_to_create, global_frame_origin, global_frame_orientation
+    )
+
+    body_settings.add_empty_settings("Eros")
+
+    body_settings.get("Eros").ephemeris_settings = juice_eph_settings
