@@ -41,7 +41,7 @@ class BatchMPC:
     Transform to Tudat format:
     >>> ...
     >>> bodies = environment_setup.create_system_of_bodies(body_settings)
-    >>> observation_collection, links_dict = batch.to_tudat(bodies=bodies)
+    >>> observation_collection = batch.to_tudat(bodies=bodies, included_satellites=None)
 
     """
 
