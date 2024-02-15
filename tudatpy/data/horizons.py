@@ -16,9 +16,12 @@ from tudatpy.numerical_simulation import environment_setup
 
 import re
 
+# NOTE when updating, also update tudatpy.numerical_simulation.environment_setup.ephemeris.horizons
 
 class HorizonsQuery:
-    """This class provides an interface to JPL's Horizon System.
+    """This class provides an interface to JPL's Horizon System. 
+    JPL Horizons provides access to highly accurate ephemerides for many solar system objects,
+    including asteriuds, comets, planets, moons and select spacecraft.
     The class extends astroquery's to cater to the needs of Tudat users,
     while maintaining compatibility with all of astroquery's features.
 
@@ -835,10 +838,40 @@ class HorizonsQuery:
     def ephemerides(
         self,
         reference_system: str = "J2000",
-        extra_precision=False,
+        extra_precision: bool = False,
         *args,
         **kwargs,
-    ):
+    ) -> astropy.table.Table:
+        """Implements the JPL Horizons ephemerides API and returns it in raw Astropy table format.
+        Ephemerides API provides time-interpolated observer parameters such as right ascension and declination.
+        Note that this means that values provided are not actual observations.
+
+        A number of quantities are retrieved, their definitions can be found here:
+        https://ssd.jpl.nasa.gov/horizons/manual.html#obsquan.
+        By default all available quantities are retrieved.
+
+        More parameters can be passed directly to the astroquery call. These can be passed as kwargs: kwargs=("refraction":True).
+        Check the astroquery documentation for an overview:
+        https://astroquery.readthedocs.io/en/latest/api/astroquery.jplhorizons.HorizonsClass.html#astroquery.jplhorizons.HorizonsClass.ephemerides
+
+
+        Parameters
+        ----------
+        reference_system : str, optional
+            Coordinate reference system, value must be one of `ICRF`/`J2000` or B1950, by default "J2000"
+        extra_precision : bool, optional
+            Enables extra precision in right ascension and declination values, by default False
+
+        Returns
+        -------
+        astropy.table.Table
+            Unprocessed output in astropy table format.
+
+        Raises
+        ------
+        ValueError
+            If time query has incorrect format or an incorrect reference system is chosen
+        """
         if reference_system not in ["ICRF", "J2000", "B1950"]:
             raise ValueError(
                 "`reference_system` must be one of: `J2000`(=`ICRF`), `ICRF`, `B1950`"
@@ -848,11 +881,11 @@ class HorizonsQuery:
 
         res_list = []
         for query in self.queries:
-            # EPHEMERIDES ONLY TAKES UT (UTC)
+            # EPHEMERIDES ONLY TAKES UT TIME (UTC)
             # temporarily transform from TDB to UTC:
-            print(type(query.epochs))
+            # NOTE the conversion back and forth is accurate to 1e-5 seconds
+
             if isinstance(query.epochs, dict):
-                print(query.epochs)
                 query.epochs["start"] = Time(
                     query.epochs["start"], format="iso", scale="tdb"
                 ).utc.iso
@@ -861,12 +894,15 @@ class HorizonsQuery:
                 ).utc.iso
             elif isinstance(query.epochs, list) or isinstance(query.epochs, np.ndarray):
                 query.epochs = [
-                    (Time(x, format="jd", scale="tdb").utc.jd1 + Time(x, format="jd", scale="tdb").utc.jd2) for x in query.epochs
+                    (
+                        Time(x, format="jd", scale="tdb").utc.jd1
+                        + Time(x, format="jd", scale="tdb").utc.jd2
+                    )
+                    for x in query.epochs
                 ]
             else:
                 raise ValueError("query epoch has incorrect format")
 
-            print(query.epochs)
             res = query.ephemerides(
                 refsystem=reference_system,
                 extra_precision=extra_precision,
@@ -881,29 +917,26 @@ class HorizonsQuery:
 
             res["datetime_str"] = actual_time_tdb.strftime(timeformatt)
 
-            # TODO ROUND THIS OR TAKE THE NEW DATETIME STR AND OUTPUT TO JD?
             new_actual_time_tdb = Time.strptime(
                 res["datetime_str"], format_string=timeformatt
             )
 
             res["datetime_jd"] = new_actual_time_tdb.jd1 + new_actual_time_tdb.jd2
             res["epochJ2000secondsTDB"] = (
-                ((new_actual_time_tdb.jd1 - constants.JULIAN_DAY_ON_J2000) * constants.JULIAN_DAY)  + (new_actual_time_tdb.jd2 * constants.JULIAN_DAY)
-            )
+                (new_actual_time_tdb.jd1 - constants.JULIAN_DAY_ON_J2000)
+                * constants.JULIAN_DAY
+            ) + (new_actual_time_tdb.jd2 * constants.JULIAN_DAY)
 
             res_list.append(res)
 
             # convert back
-
             if isinstance(query.epochs, dict):
-                print(query.epochs)
                 query.epochs["start"] = Time(
                     query.epochs["start"], format="iso", scale="utc"
                 ).tdb.iso
                 query.epochs["stop"] = Time(
                     query.epochs["stop"], format="iso", scale="utc"
                 ).tdb.iso
-                print(query.epochs)
             elif isinstance(query.epochs, list):
                 query.epochs = [
                     Time(x, format="jd", scale="utc").tdb.jd for x in query.epochs
@@ -911,11 +944,58 @@ class HorizonsQuery:
             else:
                 raise ValueError("query epoch has incorrect format")
 
-            print(query.epochs)
-
         raw = vstack(res_list)
 
         return raw
+
+    def interpolated_observations(
+        self,
+        degrees: bool = False,
+        reference_system: str = "J2000",
+        extra_precision: bool = True,
+        *args,
+        **kwargs,
+    ) -> np.ndarray:
+        """Retrieves interpolated Right Ascension and Declination from the Horizons ephemerides API.
+        Note that these values are not real observations but instead interpolated
+        values based on the Horizons ephemeris system.
+
+        Parameters
+        ----------
+        degrees : bool, optional
+            return values in degrees if True, radians if False, by default false
+        reference_system : str, optional
+            Coordinate reference system, value must be one of `ICRF`/`J2000` or B1950, by default "J2000"
+        extra_precision : bool, optional
+            Enables extra precision in Right Ascension and Declination values, by default False
+
+        Returns
+        -------
+        np.ndarray
+            Numpy array (N, 3) with time in seconds since J2000 TDB and the Right Ascension and Declination.
+
+        Raises
+        ------
+        ValueError
+            If time query has incorrect format or an incorrect reference system is chosen
+        """
+
+        kwargs["quantities"] = 1  # this gets only RA + DEC
+        raw = self.ephemerides(
+            reference_system=reference_system,
+            extra_precision=extra_precision,
+            *args,
+            **kwargs,
+        )
+
+        res = raw.to_pandas().loc[:, ["epochJ2000secondsTDB", "RA", "DEC"]]
+
+        if not degrees:
+            res[["RA", "DEC"]] = res[["RA", "DEC"]].apply(np.radians)
+
+        res = res.to_numpy()
+
+        return res
 
 
 class HorizonsBatch:
@@ -1023,9 +1103,9 @@ class HorizonsBatch:
             Aberations to be accounted for. Options are: 'geometric', 'astrometric' and
             'apparent', by default "geometric".
 
-            See the Horizons System Manual for more info:
+        See the Horizons System Manual for more info:
 
-            https://ssd.jpl.nasa.gov/horizons/manual.html#output
+        https://ssd.jpl.nasa.gov/horizons/manual.html#output
 
         """
 
@@ -1046,6 +1126,3 @@ class HorizonsBatch:
 
         # retrieve the names to a list
         self._names = names
-
-
-
