@@ -206,3 +206,35 @@ def test_BatchMPC_to_tudat_with_satelite(mpc_code):
     # max error between the two should be zero
     assert (np.max(obscol_times - times)) == pytest.approx(0.00)
     assert (np.max(obscol_RADEC - RADEC)) == pytest.approx(0.00)
+
+
+def test_compare_mpc_horizons_eph():
+    """Compares true observations from BatchMPC to interpolated simulated RA/DEC from JPL Horizons"""
+    batch = BatchMPC()
+    batch.get_observations([433])
+    batch.filter(
+        epoch_start=datetime.datetime(2017, 1, 1),
+        epoch_end=datetime.datetime(2022, 1, 1),
+        observatories=["T08"],
+    )
+    batch_times = batch.table.epochJ2000secondsTDB.to_list()
+
+    eros = HorizonsQuery(
+        query_id="433;", location="T08@399", epoch_list=batch_times, extended_query=True
+    )
+
+    radec_horizons = eros.interpolated_observations(degrees=False)
+    radec_mpc = batch.table.loc[:, ["epochJ2000secondsTDB", "RA", "DEC"]].reset_index(
+        drop=True
+    )
+
+    diff = (radec_horizons - radec_mpc).to_numpy()
+    diff = np.abs(diff).max(axis=0)
+
+    time_diff = diff[0]
+    RA_diff = diff[1]
+    DEC_diff = diff[2]
+
+    assert time_diff < 1e-3
+    assert RA_diff < 1e-5
+    assert DEC_diff < 1e-5
