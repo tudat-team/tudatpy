@@ -1,6 +1,3 @@
-import sys
-
-sys.path.insert(0, r"/mnt/c/Users/Trez/Desktop/tudat-bundle/tudatpy/")
 from tudatpy.data.horizons import HorizonsQuery, HorizonsBatch
 from tudatpy.numerical_simulation.environment_setup.ephemeris import jpl_horizons
 from tudatpy.numerical_simulation import environment_setup
