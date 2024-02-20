@@ -1,4 +1,7 @@
-from tudatpy.data.horizons import HorizonsQuery
+import sys
+
+sys.path.insert(0, r"/mnt/c/Users/Trez/Desktop/tudat-bundle/tudatpy/")
+from tudatpy.data.horizons import HorizonsQuery, HorizonsBatch
 from tudatpy.numerical_simulation.environment_setup.ephemeris import jpl_horizons
 from tudatpy.numerical_simulation import environment_setup
 
@@ -13,7 +16,8 @@ import datetime
 
 spice.load_standard_kernels()
 
-# 81% test coverage, Horizons Batch not tested
+# 87% test coverage for tudatpy/data/horizons.py. Remaineder is rare user input validation
+# 100% test coverage for tudatpy/numerical_simulation/environment_setup/ephemeris/horizons_wrapper.py.
 
 
 def test_compare_horizons_spice(pos_tolerance=1e3, vel_tolerance=1e-3):
@@ -276,3 +280,48 @@ def test_hybrid_function_wrapper(query_id, location, frame_orientation, frame_or
     body_settings.add_empty_settings("Eros")
 
     body_settings.get("Eros").ephemeris_settings = juice_eph_settings
+
+
+@pytest.mark.parametrize("query_id,location,frame_orientation,frame_origin", targets)
+@pytest.mark.parametrize(
+    "epoch_start,epoch_end,epoch_step,epoch_list,extended_query,expectation",
+    user_input_short,
+)
+def test_horizons_batch(
+    query_id,
+    location,
+    frame_orientation,
+    frame_origin,
+    epoch_start,
+    epoch_end,
+    epoch_step,
+    epoch_list,
+    extended_query,
+    expectation,
+):
+    batch = HorizonsBatch(
+        query_id_list=[query_id, "123", "456"],
+        location=location,
+        epoch_list=epoch_list,
+        epoch_start=epoch_start,
+        epoch_end=epoch_end,
+        epoch_step=epoch_step,
+        extended_query=extended_query,
+    )
+
+    bodies_to_create = [
+        "Earth",
+    ]
+    global_frame_origin = frame_origin
+    global_frame_orientation = frame_orientation
+    body_settings = environment_setup.get_default_body_settings(
+        bodies_to_create, global_frame_origin, global_frame_orientation
+    )
+
+    batch.add_batch_ephemerides(
+        body_settings=body_settings,
+        frame_origin=frame_origin,
+        frame_orientation=frame_orientation,
+    )
+
+    batch.names
