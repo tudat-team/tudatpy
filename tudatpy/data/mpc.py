@@ -704,7 +704,7 @@ class BatchMPC:
         axRA.set_ylim(0 - buffer, 360 + buffer)
         axDEC.set_ylim(-90 - buffer, 90 + buffer)
 
-        fig.set_tight_layout(True)
+        fig.set_layout_engine("tight")
 
         return fig
 
@@ -793,7 +793,7 @@ class BatchMPC:
         ax.grid()
         fig.suptitle(f"{self.size} observations between {startUTC} and {endUTC}")
 
-        fig.set_tight_layout(True)
+        fig.set_layout_engine("tight")
 
         return fig
 
