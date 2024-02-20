@@ -1,6 +1,8 @@
 from astroquery.jplsbdb import SBDB as astroquerySBDB
 from astropy import units as u
 from typing import Any, Union
+import math
+from tudatpy.constants import GRAVITATIONAL_CONSTANT
 
 
 class SBDBquery:
@@ -49,7 +51,7 @@ class SBDBquery:
     def codes_300_spkid(self):
         """Returns spice kernel number for the codes_300ast_20100725.bsp spice kernel.
 
-        Some Objects may return a name instead of a number.
+        Some objects may return a name instead of a number.
         These are objects specifically specified by name in the codes_300ast_20100725.bsp kernel.
 
         See https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/asteroids/aa_summaries.txt for a list of exceptions
@@ -99,3 +101,37 @@ class SBDBquery:
             raise ValueError(
                 f"Gravitational parameter is not available for object {self.name}"
             )
+
+    def estimated_spherical_mass(self, density:float):
+        """Calculate a very simple mass by estimating the object's mass using a given density. 
+        Will raise an error if the body's diameter is not available on SBDB.
+
+        Parameters
+        ----------
+        density : float
+            Density of the object in `kg m^-3`
+
+        Returns
+        -------
+        float
+            Simplified estimation for the object's mass
+        """
+        volume = (math.pi / 6) * self.diameter**3
+        mass = volume * density
+        return mass
+
+    def estimated_spherical_gravitational_parameter(self, density:float):
+        """Calculate a very simple gravitational parameter by estimating the object's mass using a given density. 
+        Will raise an error if the body's diameter is not available on SBDB.
+
+        Parameters
+        ----------
+        density : float
+            Density of the object in `kg m^-3`
+
+        Returns
+        -------
+        float
+            Simplified estimation for the object's gravitational parameter
+        """
+        return GRAVITATIONAL_CONSTANT * self.estimated_spherical_mass(density)

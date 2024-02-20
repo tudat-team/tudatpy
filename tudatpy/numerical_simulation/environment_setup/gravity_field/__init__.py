@@ -35,4 +35,4 @@
 
 from tudatpy.kernel.numerical_simulation.environment_setup.gravity_field import *
 from tudatpy.numerical_simulation.environment_setup.gravity_field._import_all_kernel_members import *
-from tudatpy.numerical_simulation.environment_setup.gravity_field.sbdb_wrapper import central_sbdb
+from tudatpy.numerical_simulation.environment_setup.gravity_field.sbdb_wrapper import central_sbdb, central_sbdb_density
