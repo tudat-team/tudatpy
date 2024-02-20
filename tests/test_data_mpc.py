@@ -8,17 +8,18 @@ import numpy as np
 import pytest
 import datetime
 
+from astroquery.mpc import MPC as astroquery_MPC
+
+
 spice.load_standard_kernels()
 
-# TESTS DO NOT COVER:
-# properties
-# plot_observations_temporal()
-# plot_observations_sky()
-# summary()
-
-# TESTS DO NOT CHECK:
+# coverage = 88%
+# TESTS DO NOT CHECK/VALIDATE:
 # positions of observatories.
 
+# Parameterised inputs
+mpc_codes_test = [222, 999, 1234]
+mpc_codes_test2 = [3]
 
 get_observations_input = [
     ([999, 222], {"999", "222"}),
@@ -32,26 +33,6 @@ get_observations_input2 = [
         "All codes in the MPCcodes parameter must be integers or string",
     ),
 ]
-
-
-@pytest.mark.parametrize("inp,expected", get_observations_input)
-def test_BatchMPC_getobservations(inp, expected):
-    """Check if get observations works"""
-    query = BatchMPC()
-    query.get_observations(inp)
-    assert set(query.MPC_objects) == expected
-
-
-@pytest.mark.parametrize("inp,errtype,errvalue", get_observations_input2)
-def test_BatchMPC_getobservations2(inp, errtype, errvalue):
-    """Check if get observations works, this time with errors"""
-    query = BatchMPC()
-    with pytest.raises(Exception) as exc_info:
-        query.get_observations(inp)
-
-    assert exc_info.type is errtype
-    assert str(exc_info.value) == errvalue
-
 
 filter_test_input = [
     (
@@ -79,6 +60,23 @@ filter_test_input = [
 ]
 
 
+@pytest.mark.parametrize("inp,expected", get_observations_input)
+def test_BatchMPC_getobservations(inp, expected):
+    query = BatchMPC()
+    query.get_observations(inp)
+    assert set(query.MPC_objects) == expected
+
+
+@pytest.mark.parametrize("inp,errtype,errvalue", get_observations_input2)
+def test_BatchMPC_getobservations2(inp, errtype, errvalue):
+    query = BatchMPC()
+    with pytest.raises(Exception) as exc_info:
+        query.get_observations(inp)
+
+    assert exc_info.type is errtype
+    assert str(exc_info.value) == errvalue
+
+
 @pytest.mark.parametrize(
     "mpc_code,datestart,datestop,obs_exlude,obs_include,exp_size_start,exp_size_stop,exp_size_excl,exp_size_incl",
     filter_test_input,
@@ -94,7 +92,6 @@ def test_BatchMPC_filter(
     exp_size_excl,
     exp_size_incl,
 ):
-    """Test if BatchMPC filtering works correctly"""
     b = BatchMPC()
 
     b.get_observations([mpc_code])
@@ -120,10 +117,7 @@ def test_BatchMPC_filter(
     assert len(b._table) == exp_size_incl
 
 
-to_tudat_inp = [222, 999]
-
-
-@pytest.mark.parametrize("mpc_code", to_tudat_inp)
+@pytest.mark.parametrize("mpc_code", mpc_codes_test)
 def test_BatchMPC_to_tudat(mpc_code):
     """Check if observatory table matches observation_collection"""
     query = BatchMPC()
@@ -166,10 +160,7 @@ def test_BatchMPC_to_tudat(mpc_code):
     assert (np.max(obscol_RADEC - RADEC)) == pytest.approx(0.00)
 
 
-to_tudat_inp2 = [222, 999]
-
-
-@pytest.mark.parametrize("mpc_code", to_tudat_inp2)
+@pytest.mark.parametrize("mpc_code", mpc_codes_test)
 def test_BatchMPC_to_tudat_with_satelite(mpc_code):
     """Check if observatory table matches observation_collection"""
     query = BatchMPC()
@@ -243,3 +234,59 @@ def test_compare_mpc_horizons_eph():
     assert time_diff < 1e-3
     assert RA_diff < 1e-5
     assert DEC_diff < 1e-5
+
+
+@pytest.mark.parametrize("mpc_code", mpc_codes_test2)
+def test_mpc_coverage(mpc_code):
+    batch_base = BatchMPC()
+    batch_base.get_observations([mpc_code])
+    batch_base.filter(
+        epoch_start=datetime.datetime(2021, 1, 1),
+        epoch_end=datetime.datetime(2022, 1, 1),
+    )
+
+    # properties
+    batch_base.table
+    batch_base.observatories
+    batch_base.space_telescopes
+    batch_base.MPC_objects
+    batch_base.size
+    batch_base.bands
+    batch_base.epoch_start
+    batch_base.epoch_end
+    len(batch_base)
+
+    # addition
+    batch2 = BatchMPC()
+    batch2.get_observations([1])
+    batch2.filter(
+        epoch_start=datetime.datetime(2021, 1, 1),
+        epoch_end=datetime.datetime(2022, 1, 1),
+    )
+    batch3 = batch_base + batch2
+
+    # copy
+    batch3copy = batch3.copy()
+
+    # from_pandas + from_astropy
+    batch4 = BatchMPC()
+    batch5 = BatchMPC()
+
+    batch4.from_astropy(astroquery_MPC.get_observations(mpc_code))
+    batch5.from_pandas(batch_base._table)  # type: ignore
+
+    # plotting
+    batch_base.plot_observations_temporal()
+    batch_base.plot_observations_sky()
+    batch_base.plot_observations_sky(projection="hammer")
+    batch_base.plot_observations_sky(projection="mollweide")
+    batch_base.plot_observations_sky(projection="lambert")
+
+    # obs_table
+    batch_base.observatories_table(only_in_batch=False)
+    batch_base.observatories_table(only_space_telescopes=True)
+    batch_base.observatories_table(exclude_space_telescopes=True)
+    batch_base.observatories_table(include_positions=True)
+
+    # summary
+    batch_base.summary()
