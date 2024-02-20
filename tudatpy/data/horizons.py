@@ -1056,7 +1056,7 @@ class HorizonsBatch:
         """
         self._query_objects = {}
         self._query_id_list = query_id_list
-        self._names
+        self._names = []
 
         for query_id in query_id_list:
             if not isinstance(query_id, str):
