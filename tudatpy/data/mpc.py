@@ -1,6 +1,8 @@
 from tudatpy.numerical_simulation import environment_setup  # type:ignore
 from tudatpy.numerical_simulation import estimation, environment  # type:ignore
 from tudatpy.numerical_simulation.estimation_setup import observation  # type:ignore
+from tudatpy.numerical_simulation.environment_setup import add_gravity_field_model # type:ignore
+from tudatpy.numerical_simulation.environment_setup.gravity_field import central_sbdb
 
 import pandas as pd
 import numpy as np
@@ -61,6 +63,8 @@ class BatchMPC:
 
         self._epoch_start: float = 0.0
         self._epoch_end: float = 0.0
+
+        self._bodies_created = {}
 
         # for manual additions of table (from_pandas, from_astropy)
         self._req_cols = ["number", "epoch", "RA", "DEC", "band", "observatory"]
@@ -123,6 +127,11 @@ class BatchMPC:
     def epoch_end(self) -> float:
         """Epoch of latest observation in batch in seconds since J2000 TDB"""
         return self._epoch_end
+
+    @property
+    def bodies_created(self) -> dict:
+        """Dictionary with the bodies created by to_tudat and details."""
+        return self._bodies_created
 
     def __len__(self):
         return self._size
@@ -192,7 +201,7 @@ class BatchMPC:
         self._observatory_info = temp
 
     # methods for data retrievels
-    def get_observations(self, MPCcodes: List[int]) -> None:
+    def get_observations(self, MPCcodes: List[Union[str, int]]) -> None:
         """Retrieve all observations for a set of MPC listed objeccts.
         This method uses astroquery to retrieve the observations from the MPC.
         An internet connection is required, observations are cached for faster subsequent retrieval
@@ -447,6 +456,7 @@ class BatchMPC:
         bodies: environment.SystemOfBodies,
         included_satellites: Union[Dict[str, str], None],
         station_body: str = "Earth",
+        add_sbdb_gravity_model: bool = False,
     ) -> estimation.ObservationCollection:
         """Converts the observations in the batch into a Tudat compatible format and
           sets up the relevant Tudat infrastructure to support estimation.
@@ -481,6 +491,11 @@ class BatchMPC:
         station_body : str, optional
             Body to attach ground stations to. Does not need to be changed unless the 
             `Earth` body has been renamed, by default "Earth"
+        station_body : bool, optional
+            Adds a central_sbdb gravity model to the object, generated using JPL's small body database. 
+            This option is only available for a limited number of bodies and raises an error if unavailable. 
+            See tudatpy.numerical_simulation.environment_setup.gravity_field.central_sbdb for more info.
+            Enabled if True, by default False
 
         Returns
         -------
@@ -554,6 +569,12 @@ class BatchMPC:
         for body in self._MPC_codes:
             if not bodies.does_body_exist(body):
                 bodies.create_empty_body(str(body))
+                # save the name of the body added
+                self._bodies_created[str(body)] = "empty body"
+
+                if add_sbdb_gravity_model:
+                    add_gravity_field_model(bodies, str(body), central_sbdb(str(body)))
+                    self._bodies_created[str(body)] = "empty body + sbdb gravity"
 
         # add ground stations to the earth body
         for idx in range(len(tempStations)):
