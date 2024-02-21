@@ -335,6 +335,7 @@ namespace radiation_pressure {
 
         m.def("panelled_radiation_target",
               &tss::paneledRadiationPressureTargetModelSettingsWithOccultationMap,
+              py::arg("source_to_target_occulting_bodies") = std::map<std::string, std::vector<std::string>>( ),
               get_docstring("panelled_radiation_target").c_str()
         );
 
