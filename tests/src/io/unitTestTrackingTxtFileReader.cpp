@@ -75,7 +75,7 @@ std::map<K, V> extractBlockFromVectorMap(const std::map<K, std::vector<V>>& vect
 }
 
 //! Function that specifies a standard format for the Viking file. A user can also do this if they often read the same file format
-std::unique_ptr<tio::TrackingTxtFileContents> readVikingRangeFile(const std::string& fileName)
+std::shared_ptr<tio::TrackingTxtFileContents> readVikingRangeFile(const std::string& fileName)
 {
   std::vector<std::string> columnTypes({
                                            "spacecraft_id",
@@ -96,7 +96,7 @@ std::unique_ptr<tio::TrackingTxtFileContents> readVikingRangeFile(const std::str
 }
 
 //! Function that specifies a standard format for a JUICE Fdets file. A user can also do this if they often read the same file format
-std::unique_ptr<tio::TrackingTxtFileContents> readJuiceFdetsFile(const std::string& fileName)
+std::shared_ptr<tio::TrackingTxtFileContents> readJuiceFdetsFile(const std::string& fileName)
 {
   std::vector<std::string>
       columnTypes({"utc_datetime_string", "signal_to_noise_ratio", "normalised_spectral_max", "doppler_measured_frequency_hz", "doppler_noise_hz",});
@@ -140,7 +140,7 @@ BOOST_AUTO_TEST_CASE(VikingRangeDataCustomFunction)
   BOOST_CHECK_EQUAL(dataBlock3[tio::TrackingDataType::n_way_light_time], 2290.150246895);
 
   //! Incidentally, check if the correct number of observations are transferred into an observation collection
-  auto observationCollection = observation_models::createTrackingTxtFileObservationCollection<double, double>(rawVikingFile, spacecraftName);
+  auto observationCollection = observation_models::createTrackingTxtFileObservationCollection<double, double>(rawVikingFile, spacecraftName, {tom::n_way_range});
   BOOST_CHECK_EQUAL(observationCollection->getTotalObservableSize(), 1258);
 }
 
@@ -305,7 +305,7 @@ BOOST_AUTO_TEST_CASE(TestVikingRangeDataObservationCollection)
   auto observationsDsn63 = observationsAndTimesDsn63.first;
   auto timesDsn63 = observationsAndTimesDsn63.second;
 
-  BOOST_CHECK_CLOSE(observationsDsn63(0, 0), 2371.564782809, 1e-12);
+  BOOST_CHECK_CLOSE(observationsDsn63(0, 0), 355488617772.27313, 1e-12); // Round trip light time = 2371.564782809 seconds
   BOOST_CHECK_CLOSE(timesDsn63[0], -738352558.0 + 32.184 + 15, 1e-8);  // "1976-08-08T18:04:02.000"
 }
 
