@@ -31,11 +31,35 @@ std::vector<ObservableType> findAvailableObservableTypes(const std::vector<input
   return availableObservableTypes;
 }
 
-//void ProcessedTrackingTxtFileContents::updateObservations()
-//{
-//  const auto& observableTypes = getObservableTypes();
-//  linkEndsSet_ = utilities::vectorToSet(linkEndsVector_);
-//}
+void ProcessedTrackingTxtFileContents::updateObservations()
+{
+  // Update the observableTypes that one can expect to process
+  updateObservableTypes();
+  observationMap_.clear();
+
+  // Retrieve the raw double data
+  auto doubleDataMap = rawTrackingTxtFileContents_->getDoubleDataMap();
+
+  for (const ObservableType observableType : observableTypes_) {
+
+    // Convert the raw data to required observables
+    std::vector<double> observableValues;
+    switch (observableType) {
+      case n_way_range: {
+        auto lightTimeRangeConversion = [](double lightTime) { return lightTime * physical_constants::SPEED_OF_LIGHT / 2; }; //TODO: Fix hard-coded 2
+        observableValues = utilities::convertVectors(lightTimeRangeConversion, doubleDataMap.at(input_output::TrackingDataType::n_way_light_time));
+        break;
+      }
+      default: {
+        throw std::runtime_error("Error while processing tracking txt file. ObservableType conversion not implemented");
+      }
+    }
+
+    // Store observables
+    observationMap_[observableType] = observableValues;
+  }
+
+}
 
 void ProcessedTrackingTxtFileContents::updateObservationTimes()
 {
@@ -74,7 +98,7 @@ void ProcessedTrackingTxtFileContents::updateObservationTimes()
 
       break;
     }
-    // Throw error if representation not implemented
+      // Throw error if representation not implemented
     default: {
       throw std::runtime_error("Error while processing tracking txt file: Time representation not recognised or implemented.");
     }
@@ -165,7 +189,7 @@ void ProcessedTrackingTxtFileContents::updateLinkEnds()
 //      break;
 //    }
 
-    // Throw error if representation not implemented
+      // Throw error if representation not implemented
     default: {
       throw std::runtime_error("Error while processing tracking txt file: LinkEnds representation not recognised or implemented.");
     }

@@ -85,8 +85,8 @@ public:
   {
     updateLinkEnds();
     updateObservationTimes();
-    // updateObservations();
     updateObservableTypes();
+    updateObservations();
     initialised_ = true;
   }
 
@@ -109,7 +109,7 @@ public:
 
   //! Method to update the observations
   // TODO: Currently not implemented. This should contain some of the things that are currently done in `createTrackingTxtFileObservationCollection`
-  // void updateObservations();
+  void updateObservations();
 
   //! Update the available observableTypes described by the processed data file
   void updateObservableTypes()
@@ -187,11 +187,9 @@ public:
     return rawTrackingTxtFileContents_->getNumRows();
   }
 
-  //! Temporary function to get the doubleDataMap directly from the raw tracking file contents
-  //! TODO: Instead of this, process the data in the updateObservations functions!
-  const std::map<input_output::TrackingDataType, std::vector<double>>& getDoubleDataMap()
+  const std::map<ObservableType, std::vector<double>> getObservationMap() const
   {
-    return rawTrackingTxtFileContents_->getDoubleDataMap();
+    return observationMap_;
   }
 
 private:
@@ -203,6 +201,9 @@ private:
 
   //! Vector of TDB observation times
   std::vector<double> observationTimes_;
+
+  //! Map of observations
+  std::map<ObservableType, std::vector<double>> observationMap_;
 
   //! Vector of observable types that can be derived from the tracking data
   std::vector<ObservableType> observableTypes_;
@@ -246,8 +247,11 @@ createTrackingTxtFileObservationCollection(
   }
 
   // Get the double map and set of distinct LinkEnds
-  const auto& dataMap = processedTrackingTxtFileContents->getDoubleDataMap();
+//  const auto& dataMap = processedTrackingTxtFileContents->getDoubleDataMap(); // FIXME: REMOVE
+
+  const auto& allObservationsMap = processedTrackingTxtFileContents->getObservationMap();
   std::set<LinkEnds> linkEndsToProcess = processedTrackingTxtFileContents->getLinkEndsSet();
+
 
   // Check observable types to process. If empty, process all available, if impossible, throw error
   std::vector<ObservableType> availableObservableTypes = processedTrackingTxtFileContents->getObservableTypes();
@@ -275,20 +279,17 @@ createTrackingTxtFileObservationCollection(
     // Get link ends of this observation
     LinkEnds& currentLinkEnds = linkEndsVector[i];
 
-    // Loop over the available observable types
-    for (const ObservableType& currentObservableType : availableObservableTypes)
+   // Loop over the available observable types
+    for (const ObservableType& currentObservableType : observableTypesToProcess)
     {
-      // Get vector of appropriate trackin data columns for this observable
+      // Get vector of appropriate tracking data columns for this observable
       std::vector<input_output::TrackingDataType> currentTrackingDataTypes = observableRequiredDataTypesMap.at(currentObservableType);
 
       // Prepare a container to store the data columns
-      size_t currentSize = currentTrackingDataTypes.size();
-      Eigen::Matrix<ObservationScalarType, Eigen::Dynamic, 1> currentObservable(currentSize);
+      Eigen::Matrix<ObservationScalarType, Eigen::Dynamic, 1> currentObservable(1);
+      currentObservable(0) = allObservationsMap.at(currentObservableType)[i];
 
-      // Fill with appropriate data and add to the observablesMap
-      for (size_t j = 0; j < currentSize; ++j) {
-        currentObservable[j] = dataMap.at(currentTrackingDataTypes[j])[i];
-      }
+      // Store in correct maps
       observationTimesMap[currentObservableType][currentLinkEnds].push_back(allObservationTimes[i]);
       observablesMap[currentObservableType][currentLinkEnds].push_back(currentObservable);
     }
@@ -326,10 +327,10 @@ createTrackingTxtFileObservationCollection(
 template< typename ObservationScalarType = double, typename TimeType = double >
 std::shared_ptr<observation_models::ObservationCollection<ObservationScalarType, TimeType> >
 createTrackingTxtFileObservationCollection(
-    std::shared_ptr<input_output::TrackingTxtFileContents> rawTrackingTxtFileContents,
-    std::string spacecraftName,
-    std::vector<ObservableType> observableTypesToProcess = std::vector<ObservableType>(),
-    std::map<std::string, Eigen::Vector3d> earthFixedGroundStationPositions = simulation_setup::getApproximateDsnGroundStationPositions(),
+    const std::shared_ptr<input_output::TrackingTxtFileContents> rawTrackingTxtFileContents,
+    const std::string spacecraftName,
+    const std::vector<ObservableType> observableTypesToProcess = std::vector<ObservableType>(),
+    const std::map<std::string, Eigen::Vector3d> earthFixedGroundStationPositions = simulation_setup::getApproximateDsnGroundStationPositions(),
 //    std::map<std::string, Eigen::Vector3d> earthFixedGroundStationPositions = simulation_setup::getApproximateGroundStationPositionsFromFile(),
     const ObservationAncilliarySimulationSettings& ancillarySettings = ObservationAncilliarySimulationSettings(),
     std::pair<TimeType, TimeType> startAndEndTimesToProcess = std::make_pair<TimeType, TimeType>(TUDAT_NAN, TUDAT_NAN))
