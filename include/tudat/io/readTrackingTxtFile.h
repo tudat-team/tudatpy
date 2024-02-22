@@ -253,15 +253,17 @@ public:
    * @param commentSymbol Lines starting with this symbol are ignored
    * @param valueSeparators string with characters representing separation between columns. ",: " means space , or : mark a new column
    */
-  TrackingTxtFileContents(std::string fileName,
-                          std::vector<std::string> columnTypes,
-                          char commentSymbol = '#',
-                          std::string valueSeparators = ",: \t")
+  TrackingTxtFileContents(const std::string fileName,
+                          const std::vector<std::string> columnTypes,
+                          const char commentSymbol = '#',
+                          const std::string valueSeparators = ",: \t")
       : fileName_(std::move(fileName)), columnFieldTypes_(std::move(columnTypes)), commentSymbol_(commentSymbol),
         valueSeparators_(std::move(valueSeparators))
   {
     parseData();
   }
+
+private:
 
   //! Main parsing sequence to read and process the file
   void parseData();
@@ -283,6 +285,9 @@ public:
    */
   void convertDataMap();
 
+// Getters
+public:
+
   /*!
    * Add a trackingdatatype that is constant for the entire file as metadata
    * @param dataType TrackingDataType of interest
@@ -292,9 +297,6 @@ public:
 
   void addMetaData(TrackingDataType dataType, const std::string& value) { metaDataMapStr_[dataType] = value; }
 
-
-// Getters
-public:
   //! Number of columns expected in the file
   size_t getNumColumns() const { return columnFieldTypes_.size(); }
 
@@ -376,12 +378,12 @@ private:
  * @param valueSeparators String of characters that separate columns. E.g. ",:" means that every , and : in the file will create a new column
  * @return TrackingFileContents
  */
-static inline std::unique_ptr<TrackingTxtFileContents> createTrackingTxtFileContents(const std::string& fileName,
+static inline std::shared_ptr<TrackingTxtFileContents> createTrackingTxtFileContents(const std::string& fileName,
                                                                                      std::vector<std::string>& columnTypes,
                                                                                      char commentSymbol = '#',
                                                                                      const std::string& valueSeparators = ",: \t")
 {
-  return std::make_unique<TrackingTxtFileContents>(fileName, columnTypes, commentSymbol, valueSeparators);
+  return std::make_shared<TrackingTxtFileContents>(fileName, columnTypes, commentSymbol, valueSeparators);
 }
 
 } // namespace input_output
