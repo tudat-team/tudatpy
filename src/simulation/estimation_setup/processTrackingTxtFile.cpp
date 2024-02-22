@@ -43,10 +43,11 @@ void ProcessedTrackingTxtFileContents::updateObservations()
   for (const ObservableType observableType : observableTypes_) {
 
     // Convert the raw data to required observables
+    // TODO: This function could also take into account the metadata
     std::vector<double> observableValues;
     switch (observableType) {
       case n_way_range: {
-        auto lightTimeRangeConversion = [](double lightTime) { return lightTime * physical_constants::SPEED_OF_LIGHT / 2; }; //TODO: Fix hard-coded 2
+        auto lightTimeRangeConversion = [](double lightTime) { return lightTime * physical_constants::SPEED_OF_LIGHT; }; //TODO: Fix hard-coded 2
         observableValues = utilities::convertVectors(lightTimeRangeConversion, doubleDataMap.at(input_output::TrackingDataType::n_way_light_time));
         break;
       }
