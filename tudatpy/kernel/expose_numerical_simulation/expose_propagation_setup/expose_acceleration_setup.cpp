@@ -119,13 +119,14 @@ void expose_acceleration_setup(py::module &m) {
             .value("spherical_harmonic_gravity_type", tba::AvailableAcceleration::spherical_harmonic_gravity, get_docstring("AvailableAcceleration.spherical_harmonic_gravity_type").c_str())
             .value("mutual_spherical_harmonic_gravity_type", tba::AvailableAcceleration::mutual_spherical_harmonic_gravity, get_docstring("AvailableAcceleration.mutual_spherical_harmonic_gravity_type").c_str())
             .value("polyhedron_gravity_type", tba::AvailableAcceleration::polyhedron_gravity, get_docstring("AvailableAcceleration.polyhedron_gravity_type").c_str())
+            .value("ring_gravity_type", tba::AvailableAcceleration::ring_gravity, get_docstring("AvailableAcceleration.ring_gravity_type").c_str())
             .value("thrust_acceleration_type", tba::AvailableAcceleration::thrust_acceleration, get_docstring("AvailableAcceleration.thrust_acceleration_type").c_str())
             .value("relativistic_correction_acceleration_type", tba::AvailableAcceleration::relativistic_correction_acceleration, get_docstring("AvailableAcceleration.relativistic_correction_acceleration_type").c_str())
             .value("empirical_acceleration_type", tba::AvailableAcceleration::empirical_acceleration, get_docstring("AvailableAcceleration.empirical_acceleration_type").c_str())
             .value("direct_tidal_dissipation_in_central_body_acceleration_type", tba::AvailableAcceleration::direct_tidal_dissipation_in_central_body_acceleration, get_docstring("AvailableAcceleration.direct_tidal_dissipation_in_central_body_acceleration_type").c_str())
             .value("direct_tidal_dissipation_in_orbiting_body_acceleration_type", tba::AvailableAcceleration::direct_tidal_dissipation_in_orbiting_body_acceleration, get_docstring("AvailableAcceleration.direct_tidal_dissipation_in_orbiting_body_acceleration_type").c_str())
-            .value("quasi_impulsive_shots_acceleration_type", tba::AvailableAcceleration::momentum_wheel_desaturation_acceleration, get_docstring("AvailableAcceleration.momentum_wheel_desaturation_acceleration_type").c_str())
-            .value("custom_acceleration_type", tba::AvailableAcceleration::custom_acceleration, get_docstring("AvailableAcceleration.custom_acceleration").c_str())
+            .value("quasi_impulsive_shots_acceleration_type", tba::AvailableAcceleration::momentum_wheel_desaturation_acceleration, get_docstring("AvailableAcceleration.quasi_impulsive_shots_acceleration_type").c_str())
+            .value("custom_acceleration_type", tba::AvailableAcceleration::custom_acceleration, get_docstring("AvailableAcceleration.custom_acceleration_type").c_str())
             .value("radiation_pressure_type", tba::AvailableAcceleration::radiation_pressure, get_docstring("AvailableAcceleration.radiation_pressure_type").c_str())
             .export_values();
 
