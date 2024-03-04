@@ -28,6 +28,7 @@ enum BodyDeformationTypes
     basic_solid_body,
     tabulated_variation,
     periodic_variation,
+    polynomial_variation,
     iers_2010
 };
 
