@@ -61,6 +61,88 @@ boost::array< boost::multi_array< double, 3 >::index, 3 > getMultiArrayIndexArra
     return currentIndices;
 }
 
+/*!
+ * Function to extract a map from string to 3d vector from a file. The first 4 columns are used and the rest is ignored if present
+ * @param fileName path to file of interest
+ * @param commentSymbol Lines starting with this character are ignored
+ * @param separators String of characters that mark a new column
+ * @return map with string to 3d vector
+ */
+template< >
+std::map<std::string, Eigen::Vector3d> getMapFromFile<std::string, Eigen::Vector3d>(std::string fileName,
+                                                                                    char commentSymbol,
+                                                                                    std::string separators)
+{
+  std::ifstream file(fileName);
+  if (!file.good()) {
+    throw std::runtime_error("Error when opening file: " + fileName + " could not be opened.");
+  }
+  std::string currentLine;
+  std::vector<std::string> currentSplitLine;
+  std::map<std::string, Eigen::Vector3d> namesAndPositions;
+  while (std::getline(file, currentLine)) {
+    if (!currentLine.empty() && currentLine.at(0) != commentSymbol) {
+      boost::algorithm::trim(currentLine);
+      boost::algorithm::split(currentSplitLine,
+                              currentLine,
+                              boost::is_any_of(separators),
+                              boost::algorithm::token_compress_on);
+      try {
+        namesAndPositions[currentSplitLine.at(0)] = Eigen::Vector3d(std::stod(currentSplitLine.at(1)),
+                                                                    std::stod(currentSplitLine.at(2)),
+                                                                    std::stod(currentSplitLine.at(3)));
+      } catch (...) {
+        continue;
+      }// Ignore lines that cannot be read
+
+      if (namesAndPositions.empty()) {
+        throw std::runtime_error("Error when reading file: " + fileName + "has no lines in acceptable format.");
+      }
+    }
+  }
+
+  return namesAndPositions;
+}
+
+/*!
+ * Function to extract a map from string to 3d vector from a file. The first 4 columns are used and the rest is ignored if present
+ * @param fileName path to file of interest
+ * @param commentSymbol Lines starting with this character are ignored
+ * @param separators String of characters that mark a new column
+ * @return map with string to 3d vector
+ */
+template< >
+std::map<std::string, std::string> getMapFromFile<std::string, std::string>(std::string fileName, char commentSymbol, std::string separators)
+{
+  std::ifstream file(fileName);
+  if (!file.good()) {
+    throw std::runtime_error("Error when opening file: " + fileName + " could not be opened.");
+  }
+  std::string currentLine;
+  std::vector<std::string> currentSplitLine;
+  std::map<std::string, std::string> namesAndPositions;
+  while (std::getline(file, currentLine)) {
+    if (!currentLine.empty() && currentLine.at(0) != commentSymbol) {
+      boost::algorithm::trim(currentLine);
+      boost::algorithm::split(currentSplitLine,
+                              currentLine,
+                              boost::is_any_of(separators),
+                              boost::algorithm::token_compress_on);
+      try {
+        namesAndPositions[currentSplitLine.at(0)] = currentSplitLine.at(1);
+      } catch (...) {
+        continue;
+      }// Ignore lines that cannot be read
+
+      if (namesAndPositions.empty()) {
+        throw std::runtime_error("Error when reading file: " + fileName + "has no lines in acceptable format.");
+      }
+    }
+  }
+
+  return namesAndPositions;
+}
+
 }
 
 }

@@ -42,6 +42,7 @@ set(estimation_HEADERS
         createDirectObservationPartials.h
         createPositionPartialScaling.h
         processOdfFile.h
+        processTrackingTxtFile.h
         )
 
 # Add header files.
@@ -67,6 +68,7 @@ set(estimation_SOURCES
         observationOutput.cpp
         simulateObservations.cpp
         processOdfFile.cpp
+        processTrackingTxtFile.cpp
         )
 
 # Add library.
