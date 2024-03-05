@@ -214,6 +214,14 @@ namespace environment_setup {
               py::arg("bodies"), py::arg("body_name"), py::arg("rotation_model_settings"),
               get_docstring("add_rotation_model").c_str());
 
+        m.def("add_gravity_field_model",
+              &tss::addGravityFieldModel,
+              py::arg("bodies"),
+              py::arg("body_name"),
+              py::arg("gravity_field_settings"),
+              py::arg("gravity_field_variation_settings") = std::vector<std::shared_ptr<tss::GravityFieldVariationSettings>>(),
+              get_docstring("add_gravity_field_model")
+                  .c_str());
 
         m.def("add_mass_properties_model",
               &tss::addRigidBodyProperties,
