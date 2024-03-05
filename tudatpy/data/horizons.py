@@ -16,27 +16,31 @@ from tudatpy.numerical_simulation import environment_setup
 
 import re
 
+# NOTE when updating, also update tudatpy.numerical_simulation.environment_setup.ephemeris.horizons
 
 class HorizonsQuery:
     """This class provides an interface to JPL's Horizon System. 
+    JPL Horizons provides access to highly accurate ephemerides for many solar system objects,
+    including asteriuds, comets, planets, moons and select spacecraft.
     The class extends astroquery's to cater to the needs of Tudat users,
     while maintaining compatibility with all of astroquery's features.
 
     There are some notable differences:
 
     Time input has been simplified to reduce ambiguities:
-    - List of times are given in seconds since J2000 TDB. 
+    - List of times are given in seconds since J2000 TDB.
     - Start can be given in datetime format or seconds since J2000 TDB.
     - Timesteps like months and years are not permitted.
 
     And some additional features:
-    - Extended query allows data retrieval limits 
+    - Extended query allows data retrieval limits
     to be broken by automatically splitting up a query into multiple subqueries
     and combining the data.
     - Ephemeris settings can automatically be generated using Vectors API.
 
 
     """
+
     query_limit = 90024
 
     # 50 is chosen to be conservative,
@@ -736,7 +740,7 @@ class HorizonsQuery:
         Returns
         -------
         np.ndarray
-            returns an n by 7 array with the time in seconds since J2000 TDB, 
+            returns an n by 7 array with the time in seconds since J2000 TDB,
             and the cartesian position and velocities.
         """
         raw = self.vectors(frame_orientation=frame_orientation, aberations=aberations)
@@ -831,6 +835,168 @@ class HorizonsQuery:
             frame_orientation=frame_orientation,
         )
 
+    def ephemerides(
+        self,
+        reference_system: str = "J2000",
+        extra_precision: bool = False,
+        *args,
+        **kwargs,
+    ) -> astropy.table.Table:
+        """Implements the JPL Horizons ephemerides API and returns it in raw Astropy table format.
+        Ephemerides API provides time-interpolated observer parameters such as right ascension and declination.
+        Note that this means that values provided are not actual observations.
+
+        A number of quantities are retrieved, their definitions can be found here:
+        https://ssd.jpl.nasa.gov/horizons/manual.html#obsquan.
+        By default all available quantities are retrieved.
+
+        More parameters can be passed directly to the astroquery call. These can be passed as kwargs: kwargs=("refraction":True).
+        Check the astroquery documentation for an overview:
+        https://astroquery.readthedocs.io/en/latest/api/astroquery.jplhorizons.HorizonsClass.html#astroquery.jplhorizons.HorizonsClass.ephemerides
+
+
+        Parameters
+        ----------
+        reference_system : str, optional
+            Coordinate reference system, value must be one of `ICRF`/`J2000` or B1950, by default "J2000"
+        extra_precision : bool, optional
+            Enables extra precision in right ascension and declination values, by default False
+
+        Returns
+        -------
+        astropy.table.Table
+            Unprocessed output in astropy table format.
+
+        Raises
+        ------
+        ValueError
+            If time query has incorrect format or an incorrect reference system is chosen
+        """
+        if reference_system not in ["ICRF", "J2000", "B1950"]:
+            raise ValueError(
+                "`reference_system` must be one of: `J2000`(=`ICRF`), `ICRF`, `B1950`"
+            )
+        if reference_system == "J2000":
+            reference_system = "ICRF"
+
+        res_list = []
+        for query in self.queries:
+            # EPHEMERIDES ONLY TAKES UT TIME (UTC)
+            # temporarily transform from TDB to UTC:
+            # NOTE the conversion back and forth is accurate to 1e-5 seconds
+
+            if isinstance(query.epochs, dict):
+                query.epochs["start"] = Time(
+                    query.epochs["start"], format="iso", scale="tdb"
+                ).utc.iso
+                query.epochs["stop"] = Time(
+                    query.epochs["stop"], format="iso", scale="tdb"
+                ).utc.iso
+            elif isinstance(query.epochs, list) or isinstance(query.epochs, np.ndarray):
+                query.epochs = [
+                    (
+                        Time(x, format="jd", scale="tdb").utc.jd1
+                        + Time(x, format="jd", scale="tdb").utc.jd2
+                    )
+                    for x in query.epochs
+                ]
+            else:
+                raise ValueError("query epoch has incorrect format")
+
+            res = query.ephemerides(
+                refsystem=reference_system,
+                extra_precision=extra_precision,
+                *args,
+                **kwargs,
+            )
+
+            timeformatt = "%Y-%b-%d %H:%M:%S.%f"
+            actual_time_tdb = Time.strptime(
+                res["datetime_str"], format_string=timeformatt, scale="utc"
+            ).tdb
+
+            res["datetime_str"] = actual_time_tdb.strftime(timeformatt)
+
+            new_actual_time_tdb = Time.strptime(
+                res["datetime_str"], format_string=timeformatt
+            )
+
+            res["datetime_jd"] = new_actual_time_tdb.jd1 + new_actual_time_tdb.jd2
+            res["epochJ2000secondsTDB"] = (
+                (new_actual_time_tdb.jd1 - constants.JULIAN_DAY_ON_J2000)
+                * constants.JULIAN_DAY
+            ) + (new_actual_time_tdb.jd2 * constants.JULIAN_DAY)
+
+            res_list.append(res)
+
+            # convert back
+            if isinstance(query.epochs, dict):
+                query.epochs["start"] = Time(
+                    query.epochs["start"], format="iso", scale="utc"
+                ).tdb.iso
+                query.epochs["stop"] = Time(
+                    query.epochs["stop"], format="iso", scale="utc"
+                ).tdb.iso
+            elif isinstance(query.epochs, list):
+                query.epochs = [
+                    Time(x, format="jd", scale="utc").tdb.jd for x in query.epochs
+                ]
+            else:
+                raise ValueError("query epoch has incorrect format")
+
+        raw = vstack(res_list)
+
+        return raw
+
+    def interpolated_observations(
+        self,
+        degrees: bool = False,
+        reference_system: str = "J2000",
+        extra_precision: bool = True,
+        *args,
+        **kwargs,
+    ) -> np.ndarray:
+        """Retrieves interpolated Right Ascension and Declination from the Horizons ephemerides API.
+        Note that these values are not real observations but instead interpolated
+        values based on the Horizons ephemeris system.
+
+        Parameters
+        ----------
+        degrees : bool, optional
+            return values in degrees if True, radians if False, by default false
+        reference_system : str, optional
+            Coordinate reference system, value must be one of `ICRF`/`J2000` or B1950, by default "J2000"
+        extra_precision : bool, optional
+            Enables extra precision in Right Ascension and Declination values, by default False
+
+        Returns
+        -------
+        np.ndarray
+            Numpy array (N, 3) with time in seconds since J2000 TDB and the Right Ascension and Declination.
+
+        Raises
+        ------
+        ValueError
+            If time query has incorrect format or an incorrect reference system is chosen
+        """
+
+        kwargs["quantities"] = 1  # this gets only RA + DEC
+        raw = self.ephemerides(
+            reference_system=reference_system,
+            extra_precision=extra_precision,
+            *args,
+            **kwargs,
+        )
+
+        res = raw.to_pandas().loc[:, ["epochJ2000secondsTDB", "RA", "DEC"]]
+
+        if not degrees:
+            res[["RA", "DEC"]] = res[["RA", "DEC"]].apply(np.radians)
+
+        res = res.to_numpy()
+
+        return res
+
 
 class HorizonsBatch:
     def __init__(
@@ -843,7 +1009,7 @@ class HorizonsBatch:
         epoch_step: Union[str, None] = None,
         extended_query: bool = False,
     ) -> None:
-        """Query object to retrieve Horizons data for multiple bodies. 
+        """Query object to retrieve Horizons data for multiple bodies.
         See documentation for `HorizonsQuery` for more extensive documentation.
         Note that the epochs requested must have data for all bodies queried.
         This class is useful for quickly creating ephemerides for many objects at once.
@@ -852,45 +1018,45 @@ class HorizonsBatch:
         Parameters
         ----------
         query_id : str
-            List of query terms to retrieve data for, 
+            List of query terms to retrieve data for,
             all queries behave as type default and the `query_type` behaviour
             can not be set for the `HorizonsBatch` class.
         location : str
-            Coordinate centre for the data with syntax `site@body`. 
+            Coordinate centre for the data with syntax `site@body`.
         epoch_start : Union[datetime.datetime, float, None], optional
-            Starting date to retrieve data for. 
+            Starting date to retrieve data for.
             Must be either a python datetime object or a float seconds since J2000 TDB.
-            Combined with `epoch_end` and 
-            `epoch_step` can be used to retrieve a range of data. 
+            Combined with `epoch_end` and
+            `epoch_step` can be used to retrieve a range of data.
             If `epoch_list` is used, value must be None, by default None
         epoch_end : Union[datetime.datetime, float, None], optional
-            Final date to retrieve data for. 
+            Final date to retrieve data for.
             Must be either a python datetime object or a float seconds since J2000 TDB.
-            If the start stop, and step parameters dont result in an 
-            integer multiple of values,the final date is not used. 
-            Combined with `epoch_end` and 
-            `epoch_step` can be used to retrieve a range of data. 
+            If the start stop, and step parameters dont result in an
+            integer multiple of values,the final date is not used.
+            Combined with `epoch_end` and
+            `epoch_step` can be used to retrieve a range of data.
             If `epoch_list` is used, value must be None, by default None
         epoch_step : Union[str, None], optional
-            Step for the range of epochs to retrieve data for. 
+            Step for the range of epochs to retrieve data for.
             Can be be either a specific timestep such as `15m`,
             or a number of partitions `10` for 10 equidistant steps within the range.
-            For the timestep, quantifiers `m` for minute, `h` for hour and `d` for day 
-            can be used. Seconds are not available, consider using the `epoch_list` 
-            parameter or a number of partitions instead. 
-            Month and Year are normally available in JPL Horizons but are restricted 
+            For the timestep, quantifiers `m` for minute, `h` for hour and `d` for day
+            can be used. Seconds are not available, consider using the `epoch_list`
+            parameter or a number of partitions instead.
+            Month and Year are normally available in JPL Horizons but are restricted
             here because they may produce ambiguous results (leap years etc.).
             If `epoch_list` is used, value must be None, by default None
         epoch_list : Union[list, None], optional
-            List of times in seconds since J2000 TDB. Can be used 
-            to retrieve specific times instead of a range. 
+            List of times in seconds since J2000 TDB. Can be used
+            to retrieve specific times instead of a range.
             Must be None if start, end and step are set, by default None
         extended_query : bool, optional
-            Enables the retrieval of larger collections of data, by default False. 
+            Enables the retrieval of larger collections of data, by default False.
         """
         self._query_objects = {}
         self._query_id_list = query_id_list
-        self._names
+        self._names = []
 
         for query_id in query_id_list:
             if not isinstance(query_id, str):
@@ -920,8 +1086,8 @@ class HorizonsBatch:
         frame_orientation: str = "ECLIPJ2000",
         aberations: str = "geometric",
     ) -> None:
-        """Uses the data queried to add ephemerides of the bodies querried 
-        to the body_settings. The names of the bodies added can be retrieved 
+        """Uses the data queried to add ephemerides of the bodies querried
+        to the body_settings. The names of the bodies added can be retrieved
         using the names property.
 
         Parameters
@@ -937,9 +1103,9 @@ class HorizonsBatch:
             Aberations to be accounted for. Options are: 'geometric', 'astrometric' and
             'apparent', by default "geometric".
 
-            See the Horizons System Manual for more info:
+        See the Horizons System Manual for more info:
 
-            https://ssd.jpl.nasa.gov/horizons/manual.html#output
+        https://ssd.jpl.nasa.gov/horizons/manual.html#output
 
         """
 
