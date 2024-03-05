@@ -14,13 +14,16 @@
 #include <unordered_map>
 #include <map>
 #include <vector>
+#include <set>
 #include <iostream>
 #include <stdexcept>
 #include <sstream>
+#include <fstream>
 #include <iomanip>
 
 #include <functional>
 #include <boost/multi_array.hpp>
+#include <boost/algorithm/string.hpp>
 #include <memory>
 
 #include <Eigen/Core>
@@ -909,6 +912,73 @@ int countNumberOfOccurencesInVector( const std::vector< T >& vector, const T& va
         }
     }
     return counter;
+}
+
+/*!
+ * Check if one container contains all elements of another container
+ * @param referenceArray The array that is expected to contain all the elements of the searchArray
+ * @param searchArray The array of elements that will be searched in the reference array
+ * @return true if all elements from searchArray are in referenceArray
+ */
+template< typename T, typename U >
+bool containsAll(const T& referenceArray, const U searchArray)
+{
+  return std::includes(referenceArray.begin(), referenceArray.end(), searchArray.begin(), searchArray.end());
+}
+
+//! Convert a vector to a set
+template< typename T >
+std::set<T> vectorToSet(std::vector<T> vector)
+{
+  std::set<T> set;
+  for (T& elem : vector) {
+    set.insert(elem);
+  }
+  return set;
+}
+
+/*!
+ * Apply a function that takes multiple arguments to operate on all the rows of vectors.
+ * \param convertFunc function that will convert each row of the vectors to the output
+ * \param firstArg at least one vector must be provided
+ * \param args any number of vectors. the total arguments must be compatible with the required arguments for convertFunc
+ */
+template< typename ConvertFunc, typename FirstArg, typename... Args >
+std::vector<double> convertVectors(ConvertFunc convertFunc, const std::vector<FirstArg>& firstArg, const std::vector<Args>& ... args)
+{
+  std::vector<double> result;
+  size_t N = firstArg.size(); // Assuming all vectors have the same size
+  for (size_t i = 0; i < N; ++i) {
+    result.push_back(convertFunc(firstArg[i], args[i]...));
+  }
+  return result;
+}
+
+
+template<typename T, typename U>
+std::map<T, U> getMapFromFile(std::string fileName, char commentSymbol='#', std::string separators="\t");
+
+template<>
+std::map<std::string, Eigen::Vector3d> getMapFromFile<std::string, Eigen::Vector3d>(std::string fileName, char commentSymbol, std::string separators);
+
+template<>
+std::map<std::string, std::string> getMapFromFile<std::string, std::string>(std::string fileName, char commentSymbol, std::string separators);
+
+/*!
+ * Utility function to get a value from a string map where the keys are all uppercase
+ * @param strValue string value of which the value needs to be found. This can be a combination of upper and lower case letters
+ * @param upperCaseMapping map with upper case string keys
+ * @return value in the map
+ */
+template< typename T >
+T upperCaseFromMap(const std::string& strValue, const std::map<std::string, T>& upperCaseMapping)
+{
+  std::string upperCaseStrValue = boost::to_upper_copy(strValue);
+  const auto iter = upperCaseMapping.find(upperCaseStrValue);
+  if (iter != upperCaseMapping.cend()) {
+    return iter->second;
+  }
+  throw std::runtime_error("Invalid key found in map while converting tracking data");
 }
 
 template<typename T>
