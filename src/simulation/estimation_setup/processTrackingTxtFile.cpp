@@ -41,14 +41,23 @@ void ProcessedTrackingTxtFileContents::updateObservations()
   auto doubleDataMap = rawTrackingTxtFileContents_->getDoubleDataMap();
 
   for (const ObservableType observableType : observableTypes_) {
+    std::vector<double> observableValues;
 
     // Convert the raw data to required observables
     // TODO: This function could also take into account the metadata
-    std::vector<double> observableValues;
     switch (observableType) {
       case n_way_range: {
-        auto lightTimeRangeConversion = [](double lightTime) { return lightTime * physical_constants::SPEED_OF_LIGHT; }; //TODO: Fix hard-coded 2
-        observableValues = utilities::convertVectors(lightTimeRangeConversion, doubleDataMap.at(input_output::TrackingDataType::n_way_light_time));
+        auto lightTimeRangeConversion = [](double lightTime, double lightTimeDelay) {
+          return (lightTime) * physical_constants::SPEED_OF_LIGHT;
+        };
+        const std::vector<double>& lightTimes = doubleDataMap.at(input_output::TrackingDataType::n_way_light_time);
+        std::vector<double> lightTimeDelays(lightTimes.size(), 0.0);
+
+        if (doubleDataMap.find(input_output::TrackingDataType::light_time_measurement_delay) != doubleDataMap.end()) {
+          lightTimeDelays = doubleDataMap.at(input_output::TrackingDataType::light_time_measurement_delay);
+        }
+
+        observableValues = utilities::convertVectors(lightTimeRangeConversion, lightTimes, lightTimeDelays);
         break;
       }
       default: {

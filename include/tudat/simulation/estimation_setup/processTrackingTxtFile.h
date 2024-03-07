@@ -348,6 +348,41 @@ createTrackingTxtFileObservationCollection(
                                                     startAndEndTimesToProcess);
 }
 
+
+///*!
+// * Sets the transmitting function objects defined via the Tracking file in the relevant ground stations.
+// *
+// * @param processedOdfFileContents Processed Tracking file object.
+// * @param bodyWithGroundStations Body in which the ground stations are defined
+// */
+//inline void setTransmittingFrequenciesInGroundStations(
+//    std::shared_ptr< ProcessedTrackingTxtFileContents > processedTrackingFileContents,
+//    std::shared_ptr< simulation_setup::Body > bodyWithGroundStations )
+//{
+//  for( auto it : processedTrackingFileContents->getRampInterpolators( ))
+//  {
+//    bodyWithGroundStations->getGroundStation( it->first )->setTransmittingFrequencyCalculator( it->second );
+//  }
+//}
+//
+//
+///*!
+// * Sets the ODF information required for simulating observations into the system of bodies. This includes:
+// *      - Setting the transmitting frequencies objects in the ground stations
+// *      - Setting the turnaround ratio in the spacecraft
+// *
+// * @param processedOdfFileContents Processed ODF file contents.
+// * @param bodies System of bodies.
+// * @param bodyWithGroundStations Name of the body in which the ground stations are located. Default is "Earth".
+// * @param getTurnaroundRatio Function returning the turnaround ratio as a function of the uplink and downlink bands.
+// */
+//void setOdfInformationInBodies(
+//    const std::shared_ptr< ProcessedOdfFileContents > processedOdfFileContents,
+//    simulation_setup::SystemOfBodies& bodies,
+//    const std::string& bodyWithGroundStations = "Earth",
+//    const std::function< double ( FrequencyBands uplinkBand, FrequencyBands downlinkBand ) > getTurnaroundRatio = &getDsnDefaultTurnaroundRatios );
+
+
 } // namespace observation_models
 } // namespace tudat
 
