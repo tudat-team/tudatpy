@@ -28,7 +28,7 @@ namespace simulation_setup
 
 //  Default values for radiation pressure.
 static const std::map< std::string, double > defaultRadiatedPowerValues =
-{ { "Sun",  3.839E26 } };
+{ { "Sun",  3.828E26 } };
 
 //  List of radiation pressure model types.
 //! @get_docstring(RadiationPressureType.__docstring__)
