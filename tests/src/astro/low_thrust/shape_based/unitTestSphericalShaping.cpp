@@ -84,6 +84,10 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_earth_mars_transfer )
                     departureVelocityFunction, arrivalVelocityFunction,
                     rootFinderSettings, 1.0e-6, 1.0e-1);
         }
+        else
+        {
+            throw std::runtime_error( "Error, creationType not recognized" );
+        }
 
         sphericalShapingLegPointer->updateLegParameters((
                 Eigen::Vector3d( )<< julianDate, julianDate + timeOfFlight, numberOfRevolutions ).finished( ) );
