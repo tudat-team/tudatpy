@@ -173,6 +173,10 @@ struct LinkDefinition
         return linkEnds_[ linkEndType ];
     }
 
+    std::map< LinkEndType, LinkEndId > getLinkEnds() const {
+        return linkEnds_;
+    }
+
     std::map< LinkEndType, LinkEndId > linkEnds_;
 
     unsigned int size( ) const { return static_cast< unsigned int >( linkEnds_.size( ) ); }
