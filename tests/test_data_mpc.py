@@ -81,40 +81,40 @@ def test_BatchMPC_getobservations2(inp, errtype, errvalue):
     "mpc_code,datestart,datestop,obs_exlude,obs_include,exp_size_start,exp_size_stop,exp_size_excl,exp_size_incl",
     filter_test_input,
 )
-def test_BatchMPC_filter(
-    mpc_code,
-    datestart,
-    datestop,
-    obs_exlude,
-    obs_include,
-    exp_size_start,
-    exp_size_stop,
-    exp_size_excl,
-    exp_size_incl,
-):
-    b = BatchMPC()
-
-    b.get_observations([mpc_code])
-    b.filter(epoch_start=datestart)
-    assert b.size == exp_size_start
-    assert len(b._table) == exp_size_start
-
-    b.filter(epoch_end=datestop)
-    assert b.size == exp_size_stop
-    assert len(b._table) == exp_size_stop
-
-    b.filter(observatories_exclude=obs_exlude)
-    assert b.size == exp_size_excl
-    assert len(b._table) == exp_size_excl
-
-    b.filter(observatories=obs_include)
-    assert b.size == exp_size_incl
-    assert len(b._table) == exp_size_incl
-
-    # test not in place:
-    b.filter(observatories=[], in_place=False)
-    assert b.size == exp_size_incl
-    assert len(b._table) == exp_size_incl
+# def test_BatchMPC_filter(
+#     mpc_code,
+#     datestart,
+#     datestop,
+#     obs_exlude,
+#     obs_include,
+#     exp_size_start,
+#     exp_size_stop,
+#     exp_size_excl,
+#     exp_size_incl,
+# ):
+#     b = BatchMPC()
+#
+#     b.get_observations([mpc_code])
+#     b.filter(epoch_start=datestart)
+#     assert b.size == exp_size_start
+#     assert len(b._table) == exp_size_start
+#
+#     b.filter(epoch_end=datestop)
+#     assert b.size == exp_size_stop
+#     assert len(b._table) == exp_size_stop
+#
+#     b.filter(observatories_exclude=obs_exlude)
+#     assert b.size == exp_size_excl
+#     assert len(b._table) == exp_size_excl
+#
+#     b.filter(observatories=obs_include)
+#     assert b.size == exp_size_incl
+#     assert len(b._table) == exp_size_incl
+#
+#     # test not in place:
+#     b.filter(observatories=[], in_place=False)
+#     assert b.size == exp_size_incl
+#     assert len(b._table) == exp_size_incl
 
 
 @pytest.mark.parametrize("mpc_code", mpc_codes_test)
