@@ -22,5 +22,7 @@ __all__ = [
     "read_matrix_history_from_file",
     "missile_DATCOM_data",
     "DynamicCoefficientNames",
-    "StaticCoefficientNames"
+    "StaticCoefficientNames",
+    "read_tracking_txt_file",
+    "TrackingTxtFileContents",
 ]
