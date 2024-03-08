@@ -81,6 +81,7 @@ enum class TrackingDataType
   doppler_noise,
   doppler_bandwidth,
   vlbi_station_name,
+  time_tag_delay,
 };
 
 /*!
@@ -211,6 +212,10 @@ static const std::map<std::string, std::shared_ptr<TrackingFileFieldConverter>> 
     {"hour", std::make_shared<TrackingFileFieldConverter>(TrackingDataType::hour)},
     {"minute", std::make_shared<TrackingFileFieldConverter>(TrackingDataType::minute)},
     {"second", std::make_shared<TrackingFileFieldConverter>(TrackingDataType::second)},
+    {
+        "time_tag_delay_microseconds",
+        std::make_shared<TrackingFileFieldMultiplyingConverter>(TrackingDataType::time_tag_delay, 1.e-6)
+    },
     {"round_trip_light_time_seconds", std::make_shared<TrackingFileFieldConverter>(TrackingDataType::n_way_light_time)},
     {"round_trip_light_time_microseconds", std::make_shared<TrackingFileFieldMultiplyingConverter>(TrackingDataType::n_way_light_time, 1.e-6)},
     {
@@ -257,8 +262,8 @@ public:
                           const std::vector<std::string> columnTypes,
                           const char commentSymbol = '#',
                           const std::string valueSeparators = ",: \t")
-      : fileName_(std::move(fileName)), columnFieldTypes_(std::move(columnTypes)), commentSymbol_(commentSymbol),
-        valueSeparators_(std::move(valueSeparators))
+      : fileName_(fileName), columnFieldTypes_(columnTypes), commentSymbol_(commentSymbol),
+        valueSeparators_(valueSeparators)
   {
     parseData();
   }
@@ -323,11 +328,19 @@ public:
   const auto& getDoubleDataMap() { return doubleDataMap_; }
 
   /*!
+   * Get the entire converted column for a specific TrackingDataType, or a vector of the correct size with a default val
+   * @param dataType TrackingDataType of interest that should be extracted from the datamap
+   * @param defaultVal Default double value in case the dataType is not found
+   * @return column of data points for the requested data type
+   */
+  const std::vector<double> getDoubleDataColumn(TrackingDataType dataType, double defaultVal);
+
+  /*!
    * Get the entire converted column for a specific TrackingDataType
    * @param dataType TrackingDataType of interest that should be extracted from the datamap
    * @return column of data points for the requested data type
    */
-  const std::vector<double>& getDoubleDataColumn(TrackingDataType dataType);
+  const std::vector<double> getDoubleDataColumn(TrackingDataType dataType);
 
   //! Getter for `metaDataMapDouble_`
   const auto& getMetaDataDoubleMap() { return metaDataMapDouble_; }
