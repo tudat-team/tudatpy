@@ -17,6 +17,7 @@
 #include "tudat/io/solarActivityData.h"
 #include "tudat/io/readOdfFile.h"
 #include "tudat/io/readTabulatedWeatherData.h"
+#include "tudat/io/readTrackingTxtFile.h"
 
 #include <pybind11/stl.h>
 
@@ -180,7 +181,77 @@ void expose_io(py::module &m) {
           py::arg( "interpolator_settings" ) = tudat::interpolators::linearInterpolation( ),
           py::arg( "ground_stations_per_complex" ) = tudat::simulation_setup::getDefaultDsnStationNamesPerComplex( ),
           py::arg( "body_with_ground_stations_name" ) = "Earth",
-          get_docstring("set_dsn_weather_data_in_ground_stations").c_str() );
+          get_docstring("set_dsn_weather_data_in_ground_stations").c_str( ) );
+
+      m.def("read_tracking_txt_file",
+            &tio::createTrackingTxtFileContents,
+            py::arg("file_name"),
+            py::arg("column_types"),
+            py::arg("comment_symbol") = '#',
+            py::arg("value_separators") = ",:\t ",
+            get_docstring("read_tracking_txt_file").c_str( ) );
+
+      py::class_<tudat::input_output::TrackingTxtFileContents,
+            std::shared_ptr<tudat::input_output::TrackingTxtFileContents>>(
+                  m, "TrackingTxtFileContents",get_docstring("TrackingTxtFileContents").c_str() )
+            .def(py::init<const std::string, const std::vector<std::string>, const char, const std::string>(),
+                  py::arg("file_name"),
+                  py::arg("column_types"),
+                  py::arg("comment_symbol") = '#',
+                  py::arg("value_separators") = ",:\t ",
+                  get_docstring("TrackingTxtFileContents").c_str( ) )
+            .def_property_readonly("column_field_types",
+                  &tio::TrackingTxtFileContents::getRawColumnTypes,
+                  get_docstring("TrackingTxtFileContents.column_field_types").c_str( ) )
+            .def_property_readonly("double_datamap",
+                  &tio::TrackingTxtFileContents::getDoubleDataMap,
+                  get_docstring("TrackingTxtFileContents.double_datamap").c_str( ) )
+            .def_property_readonly("raw_datamap",
+                  &tio::TrackingTxtFileContents::getRawDataMap,
+                  get_docstring("TrackingTxtFileContents.raw_datamap").c_str( ) )
+            .def_property_readonly("num_rows",
+                  &tio::TrackingTxtFileContents::getNumRows,
+                  get_docstring("TrackingTxtFileContents.num_rows").c_str( ) );
+
+      py::enum_<tudat::input_output::TrackingDataType>(m, "TrackingDataType",
+                                                       get_docstring("TrackingDataType").c_str())
+            .value("year", tudat::input_output::TrackingDataType::year, get_docstring("TrackingDataType.year").c_str())
+            .value("month", tudat::input_output::TrackingDataType::month, get_docstring("TrackingDataType.month").c_str())
+            .value("day", tudat::input_output::TrackingDataType::day, get_docstring("TrackingDataType.day").c_str())
+            .value("hour", tudat::input_output::TrackingDataType::hour, get_docstring("TrackingDataType.hour").c_str())
+            .value("minute", tudat::input_output::TrackingDataType::minute, get_docstring("TrackingDataType.minute").c_str())
+            .value("second", tudat::input_output::TrackingDataType::second, get_docstring("TrackingDataType.second").c_str())
+            .value("observation_time_scale", tudat::input_output::TrackingDataType::observation_time_scale, get_docstring("TrackingDataType.observation_time_scale").c_str())
+            .value("file_name", tudat::input_output::TrackingDataType::file_name, get_docstring("TrackingDataType.file_name").c_str())
+            .value("n_way_light_time", tudat::input_output::TrackingDataType::n_way_light_time, get_docstring("TrackingDataType.n_way_light_time").c_str())
+            .value("light_time_measurement_delay", tudat::input_output::TrackingDataType::light_time_measurement_delay, get_docstring("TrackingDataType.light_time_measurement_delay").c_str())
+            .value("light_time_measurement_accuracy", tudat::input_output::TrackingDataType::light_time_measurement_accuracy, get_docstring("TrackingDataType.light_time_measurement_accuracy").c_str())
+            .value("dsn_transmitting_station_nr", tudat::input_output::TrackingDataType::dsn_transmitting_station_nr, get_docstring("TrackingDataType.dsn_transmitting_station_nr").c_str())
+            .value("dsn_receiving_station_nr", tudat::input_output::TrackingDataType::dsn_receiving_station_nr, get_docstring("TrackingDataType.dsn_receiving_station_nr").c_str())
+            .value("observation_body", tudat::input_output::TrackingDataType::observation_body, get_docstring("TrackingDataType.observation_body").c_str())
+            .value("observed_body", tudat::input_output::TrackingDataType::observed_body, get_docstring("TrackingDataType.observed_body").c_str())
+            .value("spacecraft_id", tudat::input_output::TrackingDataType::spacecraft_id, get_docstring("TrackingDataType.spacecraft_id").c_str())
+            .value("planet_nr", tudat::input_output::TrackingDataType::planet_nr, get_docstring("TrackingDataType.planet_nr").c_str())
+            .value("tdb_time_j2000", tudat::input_output::TrackingDataType::tdb_time_j2000, get_docstring("TrackingDataType.tdb_time_j2000").c_str())
+            .value("tdb_spacecraft_j2000", tudat::input_output::TrackingDataType::tdb_spacecraft_j2000, get_docstring("TrackingDataType.tdb_spacecraft_j2000").c_str())
+            .value("x_planet_frame", tudat::input_output::TrackingDataType::x_planet_frame, get_docstring("TrackingDataType.x_planet_frame").c_str())
+            .value("y_planet_frame", tudat::input_output::TrackingDataType::y_planet_frame, get_docstring("TrackingDataType.y_planet_frame").c_str())
+            .value("z_planet_frame", tudat::input_output::TrackingDataType::z_planet_frame, get_docstring("TrackingDataType.z_planet_frame").c_str())
+            .value("vx_planet_frame", tudat::input_output::TrackingDataType::vx_planet_frame, get_docstring("TrackingDataType.vx_planet_frame").c_str())
+            .value("vy_planet_frame", tudat::input_output::TrackingDataType::vy_planet_frame, get_docstring("TrackingDataType.vy_planet_frame").c_str())
+            .value("vz_planet_frame", tudat::input_output::TrackingDataType::vz_planet_frame, get_docstring("TrackingDataType.vz_planet_frame").c_str())
+            .value("residual_de405", tudat::input_output::TrackingDataType::residual_de405, get_docstring("TrackingDataType.residual_de405").c_str())
+            .value("spacecraft_transponder_delay", tudat::input_output::TrackingDataType::spacecraft_transponder_delay, get_docstring("TrackingDataType.spacecraft_transponder_delay").c_str())
+            .value("uplink_frequency", tudat::input_output::TrackingDataType::uplink_frequency, get_docstring("TrackingDataType.uplink_frequency").c_str())
+            .value("downlink_frequency", tudat::input_output::TrackingDataType::downlink_frequency, get_docstring("TrackingDataType.downlink_frequency").c_str())
+            .value("signal_to_noise", tudat::input_output::TrackingDataType::signal_to_noise, get_docstring("TrackingDataType.signal_to_noise").c_str())
+            .value("spectral_max", tudat::input_output::TrackingDataType::spectral_max, get_docstring("TrackingDataType.spectral_max").c_str())
+            .value("doppler_measured_frequency", tudat::input_output::TrackingDataType::doppler_measured_frequency, get_docstring("TrackingDataType.doppler_measured_frequency").c_str())
+            .value("doppler_base_frequency", tudat::input_output::TrackingDataType::doppler_base_frequency, get_docstring("TrackingDataType.doppler_base_frequency").c_str())
+            .value("doppler_noise", tudat::input_output::TrackingDataType::doppler_noise, get_docstring("TrackingDataType.doppler_noise").c_str())
+            .value("doppler_bandwidth", tudat::input_output::TrackingDataType::doppler_bandwidth, get_docstring("TrackingDataType.doppler_bandwidth").c_str())
+            .value("vlbi_station_name", tudat::input_output::TrackingDataType::vlbi_station_name, get_docstring("TrackingDataType.vlbi_station_name").c_str())
+            .export_values();
 };
 
 }// namespace io
