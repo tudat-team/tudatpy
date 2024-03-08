@@ -221,6 +221,7 @@ void expose_io(py::module &m) {
             .value("hour", tudat::input_output::TrackingDataType::hour, get_docstring("TrackingDataType.hour").c_str())
             .value("minute", tudat::input_output::TrackingDataType::minute, get_docstring("TrackingDataType.minute").c_str())
             .value("second", tudat::input_output::TrackingDataType::second, get_docstring("TrackingDataType.second").c_str())
+            .value("time_tag_delay", tudat::input_output::TrackingDataType::time_tag_delay, get_docstring("TrackingDataType.time_tag_delay").c_str())
             .value("observation_time_scale", tudat::input_output::TrackingDataType::observation_time_scale, get_docstring("TrackingDataType.observation_time_scale").c_str())
             .value("file_name", tudat::input_output::TrackingDataType::file_name, get_docstring("TrackingDataType.file_name").c_str())
             .value("n_way_light_time", tudat::input_output::TrackingDataType::n_way_light_time, get_docstring("TrackingDataType.n_way_light_time").c_str())
