@@ -88,7 +88,7 @@ std::shared_ptr<tio::TrackingTxtFileContents> readVikingRangeFile(const std::str
                                            "minute",
                                            "second",
                                            "round_trip_light_time_microseconds",
-                                           "light_time_measurement_delay_microseconds"
+                                           "light_time_measurement_accuracy_microseconds"
                                        });
   auto vikingFile = tio::createTrackingTxtFileContents(fileName, columnTypes);
   vikingFile->addMetaData(tio::TrackingDataType::file_name, "Viking lander range data");
@@ -305,7 +305,7 @@ BOOST_AUTO_TEST_CASE(TestVikingRangeDataObservationCollection)
   auto observationsDsn63 = observationsAndTimesDsn63.first;
   auto timesDsn63 = observationsAndTimesDsn63.second;
 
-  BOOST_CHECK_CLOSE(observationsDsn63(0, 0), 710977235544.5463, 1e-12); // Round trip light time = 2371.564782809 seconds
+  BOOST_CHECK_CLOSE(observationsDsn63(0, 0), 710977235544.5463, 1e-12); // Round trip light time = 2371.564782809 seconds (don't relax from 1e-12)
   BOOST_CHECK_CLOSE(timesDsn63[0], -738352558.0 + 32.184 + 15, 1e-8);  // "1976-08-08T18:04:02.000"
 }
 
