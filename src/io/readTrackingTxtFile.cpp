@@ -94,20 +94,34 @@ void TrackingTxtFileContents::convertDataMap()
   }
 }
 
-const std::vector<double>& TrackingTxtFileContents::getDoubleDataColumn(TrackingDataType dataType)
+const std::vector<double> TrackingTxtFileContents::getDoubleDataColumn(TrackingDataType dataType, double defaultVal)
 {
-  return doubleDataMap_.at(dataType);
+  if (doubleDataMap_.find(dataType) != doubleDataMap_.end()) {
+    return doubleDataMap_.at(dataType);
+  } else if (metaDataMapDouble_.find(dataType) != metaDataMapDouble_.end()) {
+    return std::vector<double>(getNumRows(), metaDataMapDouble_[dataType]);
+  } else if (!std::isnan(defaultVal)) {
+    return std::vector<double>(getNumRows(), defaultVal);
+  } else {
+    throw std::runtime_error("Error while working with trackinig data. Required datatype not found");
+  }
+}
+
+const std::vector<double> TrackingTxtFileContents::getDoubleDataColumn(TrackingDataType dataType)
+{
+  // Call the version with default value, using a default value that triggers an error
+  return getDoubleDataColumn(dataType, std::numeric_limits<double>::quiet_NaN());
 }
 
 const std::vector<TrackingDataType> TrackingTxtFileContents::getMetaDataTypes()
 {
   std::vector<TrackingDataType> metaDataTypes;
 
-  for (auto pair : metaDataMapDouble_) {
+  for (const auto& pair : metaDataMapDouble_) {
     metaDataTypes.push_back(pair.first);
   }
 
-  for (auto pair : metaDataMapStr_) {
+  for (const auto& pair : metaDataMapStr_) {
     metaDataTypes.push_back(pair.first);
   }
 
