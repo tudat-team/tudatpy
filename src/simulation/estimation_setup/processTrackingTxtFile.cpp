@@ -37,18 +37,20 @@ void ProcessedTrackingTxtFileContents::updateObservations()
   updateObservableTypes();
   observationMap_.clear();
 
-  // Retrieve the raw double data
-  auto doubleDataMap = rawTrackingTxtFileContents_->getDoubleDataMap();
-
   for (const ObservableType observableType : observableTypes_) {
+    std::vector<double> observableValues;
 
     // Convert the raw data to required observables
     // TODO: This function could also take into account the metadata
-    std::vector<double> observableValues;
     switch (observableType) {
       case n_way_range: {
-        auto lightTimeRangeConversion = [](double lightTime) { return lightTime * physical_constants::SPEED_OF_LIGHT; }; //TODO: Fix hard-coded 2
-        observableValues = utilities::convertVectors(lightTimeRangeConversion, doubleDataMap.at(input_output::TrackingDataType::n_way_light_time));
+        auto lightTimeRangeConversion = [](double lightTime, double lightTimeDelay) {
+          return (lightTime - lightTimeDelay) * physical_constants::SPEED_OF_LIGHT;
+        };
+
+        std::vector<double> lightTimes = rawTrackingTxtFileContents_->getDoubleDataColumn(input_output::TrackingDataType::n_way_light_time);
+        std::vector<double> lightTimeDelays = rawTrackingTxtFileContents_->getDoubleDataColumn(input_output::TrackingDataType::light_time_measurement_delay, 0.0);
+        observableValues = utilities::convertVectors(lightTimeRangeConversion, lightTimes, lightTimeDelays);
         break;
       }
       default: {
@@ -68,26 +70,25 @@ void ProcessedTrackingTxtFileContents::updateObservationTimes()
   observationTimes_.clear();
 
   // Get data map and time representation
-  const auto& dataMap = rawTrackingTxtFileContents_->getDoubleDataMap();
   const auto& numDataRows = rawTrackingTxtFileContents_->getNumRows();
   TimeRepresentation timeRepresentation = getTimeRepresentation();
 
   // Depending on the time representation, convert further to tdb seconds since j2000
   switch (timeRepresentation) {
     case tdb_seconds_j2000: {
-      observationTimes_ = dataMap.at(input_output::TrackingDataType::tdb_time_j2000);
+      observationTimes_ = rawTrackingTxtFileContents_->getDoubleDataColumn(input_output::TrackingDataType::tdb_time_j2000);
       break;
     }
     case calendar_day_time: {
       // Convert dates to Julian days since J2000
       std::vector<double> observationJulianDaysSinceJ2000 = utilities::convertVectors(
           basic_astrodynamics::convertCalendarDateToJulianDaySinceJ2000<double>,
-          dataMap.at(input_output::TrackingDataType::year),
-          dataMap.at(input_output::TrackingDataType::month),
-          dataMap.at(input_output::TrackingDataType::day),
-          dataMap.at(input_output::TrackingDataType::hour),
-          dataMap.at(input_output::TrackingDataType::minute),
-          dataMap.at(input_output::TrackingDataType::second)
+          rawTrackingTxtFileContents_->getDoubleDataColumn(input_output::TrackingDataType::year),
+          rawTrackingTxtFileContents_->getDoubleDataColumn(input_output::TrackingDataType::month),
+          rawTrackingTxtFileContents_->getDoubleDataColumn(input_output::TrackingDataType::day),
+          rawTrackingTxtFileContents_->getDoubleDataColumn(input_output::TrackingDataType::hour),
+          rawTrackingTxtFileContents_->getDoubleDataColumn(input_output::TrackingDataType::minute),
+          rawTrackingTxtFileContents_->getDoubleDataColumn(input_output::TrackingDataType::second)
       );
       // Convert to seconds and add to utc times
       std::vector<double> observationTimesUtc;
@@ -103,6 +104,12 @@ void ProcessedTrackingTxtFileContents::updateObservationTimes()
     default: {
       throw std::runtime_error("Error while processing tracking txt file: Time representation not recognised or implemented.");
     }
+  }
+
+  // Get the delays in the time tag (or set to 0.0 if not specified)
+  std::vector<double> timeTagDelays = rawTrackingTxtFileContents_->getDoubleDataColumn(input_output::TrackingDataType::time_tag_delay, 0.0);
+  for (size_t idx=0; idx < observationTimes_.size() ; ++idx){
+    observationTimes_[idx] -= timeTagDelays[idx];
   }
 }
 
@@ -137,7 +144,6 @@ void ProcessedTrackingTxtFileContents::updateLinkEnds()
   linkEndsVector_.clear();
 
   // Get information from raw data file
-  const auto& dataMap = rawTrackingTxtFileContents_->getDoubleDataMap();
   const auto& metaDataStrMap = rawTrackingTxtFileContents_->getMetaDataStrMap();
   const auto& numDataRows = rawTrackingTxtFileContents_->getNumRows();
 
@@ -150,8 +156,8 @@ void ProcessedTrackingTxtFileContents::updateLinkEnds()
 
     // TODO: make a cleaner implementation to allow adding different ways of providing the link ends easily
     case dsn_transmitting_receiving_station_nr: {
-      const auto& dsnTransmitterIds = dataMap.at(input_output::TrackingDataType::dsn_transmitting_station_nr);
-      const auto& dsnReceiverIds = dataMap.at(input_output::TrackingDataType::dsn_receiving_station_nr);
+      const auto& dsnTransmitterIds = rawTrackingTxtFileContents_->getDoubleDataColumn(input_output::TrackingDataType::dsn_transmitting_station_nr);
+      const auto& dsnReceiverIds = rawTrackingTxtFileContents_->getDoubleDataColumn(input_output::TrackingDataType::dsn_receiving_station_nr);
 
       for (size_t i = 0; i < numDataRows; ++i) {
         std::string transmitterName = getStationNameFromStationId(dsnTransmitterIds[i]);
