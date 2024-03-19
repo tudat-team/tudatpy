@@ -86,6 +86,31 @@ else()
     option(TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS "Build tudat with extended precision propagation tools." OFF)
 endif()
 
+# Build as part of a GitHub Actions workflow
+# Option enables the use of ccache by MSVC
+# see https://github.com/ccache/ccache/wiki/MS-Visual-Studio
+option(TUDAT_BUILD_GITHUB_ACTIONS "Build as part of GitHub Actions workflow." OFF)
+if (TUDAT_BUILD_GITHUB_ACTIONS AND MSVC)
+    find_program(ccache_exe ccache)
+    if(ccache_exe)
+        message(STATUS "CONFIGURING MSVC FOR CCACHE")
+        file(COPY_FILE ${ccache_exe} ${CMAKE_BINARY_DIR}/cl.exe ONLY_IF_DIFFERENT)
+
+        # By default Visual Studio generators will use /Zi which is not compatible
+        # with ccache, so tell Visual Studio to use /Z7 instead.
+        message(STATUS "Setting MSVC debug information format to 'Embedded'")
+        set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<$<CONFIG:Debug,RelWithDebInfo>:Embedded>")
+
+        set(CMAKE_VS_GLOBALS
+        "CLToolExe=cl.exe"
+        "CLToolPath=${CMAKE_BINARY_DIR}"
+        "TrackFileAccess=false"
+        "UseMultiToolTask=true"
+        "DebugInformationFormat=OldStyle"
+        )
+    endif()
+endif()
+
 message(STATUS "******************** BUILD CONFIGURATION ********************")
 message(STATUS "TUDAT_BUILD_TESTS                                     ${TUDAT_BUILD_TESTS}")
 message(STATUS "TUDAT_BUILD_WITH_PROPAGATION_TESTS                    ${TUDAT_BUILD_WITH_PROPAGATION_TESTS}")

@@ -117,12 +117,11 @@ jobs:
       run: cmd /c "curl -fsSL https://raw.githubusercontent.com/tudat-team/tudat-resources-feedstock/master/recipe/post-link.bat | cmd"
 
 
-    - name: Set reusable strings
-      # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
-      id: strings
-      shell: bash -l {0}
-      run: |
-        echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
+    - name: Setup ccache 
+      # This third party action will setup ccache on the runner and restore any previously saved cache. Caches are saved automatically by the action after a build.
+      uses: hendrikmuhs/ccache-action@v1.2.12
+      with:
+        key: ${{ matrix.os }}-${{ matrix.type }}
 
 
     - name: Configure CMake
@@ -130,21 +129,24 @@ jobs:
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
       shell: bash -l {0}
       run: >
-        cmake -B "${{ steps.strings.outputs.build-output-dir }}"
-        -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
-        -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
-        -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+        cmake -B "${{ github.workspace }}/build"
         -S "${{ github.workspace }}"
+        -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+        -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
+        -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+        -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
+        -DCMAKE_C_COMPILER_LAUNCHER=ccache
+        -DTUDAT_BUILD_GITHUB_ACTIONS=ON
 
 
     - name: Build
       # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator). Use multiple cpu cores available in the runner.
       shell: bash -l {0}
-      run: cmake --build "${{ steps.strings.outputs.build-output-dir }}" --config "${{ matrix.build_type }}" -j4
+      run: cmake --build "${{ github.workspace }}/build" --config "${{ matrix.build_type }}" -j4
 
 
     - name: Test
-      working-directory: ${{ steps.strings.outputs.build-output-dir }}
+      working-directory: "${{ github.workspace }}/build"
       # Execute tests defined by the CMake configuration. Note that --build-config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
       # Prevent the action from failing if any of the tests fail by using `|| true`. This is placed temporarily because currently, some tests fail on MacOS, and if the action fails, the cache is not updated, which prevents testing of the cache feature on MacOS.
