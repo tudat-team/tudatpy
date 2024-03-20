@@ -173,7 +173,8 @@ namespace environment_setup {
                                 8));
 
         m.def("create_body_ephemeris", &tss::createBodyEphemeris< double, TIME_TYPE >,
-              py::arg("ephemeris_settings"), py::arg("body_name"));
+              py::arg("ephemeris_settings"), py::arg("body_name"),
+              get_docstring("create_body_ephemeris").c_str());
 
         m.def("create_ground_station_ephemeris",
               py::overload_cast< const std::shared_ptr< tss::Body >, const std::string& >(
