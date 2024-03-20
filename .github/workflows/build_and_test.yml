@@ -1,4 +1,6 @@
 # This workflow builds and tests the tudat source code on Windows, Linux, and MacOS using GitHub Actions. It is triggered upon push and pull requests to master, develop, and feature branches.
+# This Github actions workflow automates the build and test process of the tudat source code on Windows, Linux, and MacOS. The workflow is triggered upon push and pull requests to master, develop, and feature branches. The workflow is built on top of the GitHub starter workflow for CMake on multiple platforms.
+# ccache is used to cache previous compilation results to speed up the build process across s
 # The workflow is built on top of the GitHub starter workflow for CMake on multiple platforms https://github.com/actions/starter-workflows/blob/main/ci/cmake-multi-platform.yml
 
 
@@ -117,7 +119,7 @@ jobs:
       run: cmd /c "curl -fsSL https://raw.githubusercontent.com/tudat-team/tudat-resources-feedstock/master/recipe/post-link.bat | cmd"
 
 
-    - name: Cache previous compilation results using ccache
+    - name: Restore cached compilation results
       # This third party action will setup ccache on the runner and restore any previously saved cache. Caches are saved automatically by the action after a build.
       uses: hendrikmuhs/ccache-action@v1.2.12
       with:
