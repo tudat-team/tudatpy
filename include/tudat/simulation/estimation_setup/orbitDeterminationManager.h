@@ -689,6 +689,12 @@ public:
         // Get number of observations
         int totalNumberOfObservations = estimationInput->getObservationCollection( )->getTotalObservableSize( );
 
+        if( estimationInput->getWeightsMatrixDiagonals( ).rows( ) != totalNumberOfObservations )
+        {
+            throw std::runtime_error( "Error when estimating parameters, size of weights diagonal (" +
+                std::to_string( estimationInput->getWeightsMatrixDiagonals( ).rows( ) ) + ") is not compatible with number of observations (" +
+                std::to_string( totalNumberOfObservations ) + ")" );
+        }
         // Declare variables to be returned (i.e. results from best iteration)
         double bestResidual = TUDAT_NAN;
         ParameterVectorType bestParameterEstimate = ParameterVectorType::Constant( numberEstimatedParameters_, TUDAT_NAN );
@@ -697,6 +703,7 @@ public:
         Eigen::MatrixXd bestDesignMatrixEstimatedParameters = Eigen::MatrixXd::Constant( totalNumberOfObservations, totalNumberParameters_, TUDAT_NAN );
         Eigen::VectorXd bestWeightsMatrixDiagonal = Eigen::VectorXd::Constant( totalNumberOfObservations, TUDAT_NAN );
         Eigen::MatrixXd bestInverseNormalizedCovarianceMatrix = Eigen::MatrixXd::Constant( numberEstimatedParameters_, numberEstimatedParameters_, TUDAT_NAN );
+
 
         Eigen::VectorXd bestConsiderTransformationData;
         Eigen::MatrixXd bestDesignMatrixConsiderParameters, bestConsiderCovarianceContribution;
