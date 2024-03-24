@@ -134,9 +134,9 @@ The following line can also be edited if you wish to build tudatpy with its debu
 -DCMAKE_BUILD_TYPE=RelWithDebInfo
 ````
 
-As building can take a while, you can build using multiple processors by appending `-j4` to the `cmake --build .` command as seen below, where 4 can be any number that you think your machine can handle. Do note that this can take up a few GB of RAM per processor used, so be aware of the other processes on your machine to avoid freezing or crashing. 
+As building can take a while, you can build using multiple processors by appending by modifying your [build.sh](build.sh) script. For instance, you can modify the existing line defining the ``NUMBER_OF_PROCESSORS`` to the following, to use 2 threads for compilation. Note that a single thread may use up to 4 GB of RAM, and using too many parallel threads will make the compilation run out of RAM and terminate.
 ````
-cmake --build . -j4
+NUMBER_OF_PROCESSORS=${number_of_processors:-2}
 ````
 
 6. Run the [build.sh](build.sh) script.
