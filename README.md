@@ -110,7 +110,7 @@ conda activate tudat-bundle && echo $CONDA_PREFIX
 
 [**Optional**] Also add the following line to the `File > Settings > Build, Execution, Deployment > CMake > CMake options` text box to to build tudatpy with the tests.
 ````
--DTUDAT_BUILD_TESTS="${build_tests:-1}"
+-DTUDAT_BUILD_TESTS=ON
 ````
 
 The following line can also be edited if you wish to build tudatpy with its debug info (switching from `Release` to `RelWithDebInfo`; note that `Debug` is also available):
