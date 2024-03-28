@@ -33,8 +33,3 @@ from tudatpy.kernel.interface.spice import \
      load_kernel, \
      load_standard_deprecated_kernels, \
      load_standard_kernels
-# ----------------------------------------
-#                 OBJECTS                 
-# ----------------------------------------
-from tudatpy.kernel.interface.spice import \
-     SpiceEphemeris
