@@ -407,7 +407,7 @@ std::shared_ptr< TerminationCondition< DataType > > createTerminationCondition(
     {
         terminationConditionList.push_back(
                     std::make_shared< RootFunctionTerminationCondition< DataType > >(
-                        absoluteIndependentVariableTolerance ) );
+                        rootFunctionTolerance ) );
     }
 
     if( terminationConditionList.size( ) == 1 )
