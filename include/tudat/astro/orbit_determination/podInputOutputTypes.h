@@ -71,6 +71,11 @@ public:
                     observationCollection_->getTotalObservableSize( ), constantWeight );
     }
 
+    void setWeightsFromObservationCollection( )
+    {
+        weightsMatrixDiagonals_ = observationCollection_->getWeightsFromSingleObservationSets( );
+    }
+
     //! Set constant scalar weight for all observables of given type
     void setConstantSingleObservableWeights(
         const observation_models::ObservableType currentObservable,
