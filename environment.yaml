@@ -16,3 +16,4 @@ dependencies:
   - pandas # for tudat.io
   - matplotlib # for tudat.plotting
   - pytest
+  - astroquery
