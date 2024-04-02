@@ -194,29 +194,29 @@ namespace spice {
               &tudat::spice_interface::clearSpiceKernels,
               get_docstring("clear_kernels").c_str());
 
-      py::class_<tudat::ephemerides::SpiceEphemeris,
-            std::shared_ptr<tudat::ephemerides::SpiceEphemeris>>(m, "SpiceEphemeris",
-                                    get_docstring("SpiceEphemeris").c_str())
-            .def(py::init<
-                  const std::string &,
-                  const std::string &,
-                  const bool,
-                  const bool,
-                  const bool,
-                  const std::string &,
-                  const double>(),
-                  py::arg("target_body_name"),
-                  py::arg("observer_body_name"),
-                  py::arg("correct_for_stellar_aberration") = false,
-                  py::arg("correct_for_light_time_aberration") = true,
-                  py::arg("converge_light_time_aberration") = false,
-                  py::arg("reference_frame_name") = "ECLIPJ2000",
-                  py::arg("reference_julian_day") = tba::JULIAN_DAY_ON_J2000,
-                  get_docstring("SpiceEphemeris.ctor").c_str())
-            .def("get_cartesian_state",
-                  &tudat::ephemerides::SpiceEphemeris::getCartesianState,
-                  py::arg("seconds_since_epoch"),
-                  get_docstring("SpiceEphemeris.get_cartesian_state").c_str());
+//      py::class_<tudat::ephemerides::SpiceEphemeris,
+//            std::shared_ptr<tudat::ephemerides::SpiceEphemeris>>(m, "SpiceEphemeris",
+//                                    get_docstring("SpiceEphemeris").c_str())
+//            .def(py::init<
+//                  const std::string &,
+//                  const std::string &,
+//                  const bool,
+//                  const bool,
+//                  const bool,
+//                  const std::string &,
+//                  const double>(),
+//                  py::arg("target_body_name"),
+//                  py::arg("observer_body_name"),
+//                  py::arg("correct_for_stellar_aberration") = false,
+//                  py::arg("correct_for_light_time_aberration") = true,
+//                  py::arg("converge_light_time_aberration") = false,
+//                  py::arg("reference_frame_name") = "ECLIPJ2000",
+//                  py::arg("reference_julian_day") = tba::JULIAN_DAY_ON_J2000,
+//                  get_docstring("SpiceEphemeris.ctor").c_str())
+//            .def("get_cartesian_state",
+//                  &tudat::ephemerides::SpiceEphemeris::getCartesianState,
+//                  py::arg("seconds_since_epoch"),
+//                  get_docstring("SpiceEphemeris.get_cartesian_state").c_str());
 
     };
 
