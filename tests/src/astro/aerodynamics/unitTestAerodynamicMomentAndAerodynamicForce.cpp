@@ -1191,7 +1191,21 @@ BOOST_AUTO_TEST_CASE( testCombinedAerodynamicForceAndMoment )
                     // Check force contribution to moment calculation
                     for( unsigned int index = 0; index < 3; index++ )
                     {
-                            BOOST_CHECK_SMALL(
+                        if( std::fabs( directMomentContribution( index ) - testForceContribution( index )) >
+                            10.0 * std::numeric_limits<double>::epsilon( ) * testForceContribution.norm( ) )
+                        {
+                            std::cout<<"Error output "<<std::endl;
+                            std::cout<< directMomentContribution.transpose( )<<std::endl;
+                            std::cout<< testForceContribution.transpose( )<<std::endl;
+
+                            std::cout << index << " "
+                                      << std::fabs( directMomentContribution( index ) - testForceContribution( index ))
+                                      << " "
+                                      << 10.0 * std::numeric_limits<double>::epsilon( ) * testForceContribution.norm( )
+                                      << std::endl;
+                        }
+
+                        BOOST_CHECK_SMALL(
                                 std::fabs( directMomentContribution( index ) - testForceContribution( index )),
                                 10.0 * std::numeric_limits<double>::epsilon( ) * testForceContribution.norm( ));
                     }
