@@ -2,7 +2,7 @@ from . import mpc
 from . import horizons
 from . import sbdb
 from ._support import *
-from ._biases import get_biases_EFCC18
+from ._biases import get_biases_EFCC18, get_weights_VFCC17
 
 __all__ = [
     # Data retrieval
@@ -11,6 +11,7 @@ __all__ = [
     "sbdb",
     # Utilities from _biases
     "get_biases_EFCC18",
+    "get_weights_VFCC17",
     # Utilities from _support
     "save2txt",
     "save_time_history_to_file",
