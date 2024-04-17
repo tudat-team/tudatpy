@@ -244,8 +244,60 @@ def get_weights_VFCC17(
     mpc_table: Union[pd.DataFrame, None] = None,
     return_full_table=False,
 ) -> Union[np.ndarray, pd.DataFrame]:
+    """Retrieves observation weights using the weighting scheme presented in
+    "Statistical analysis of astrometric errors for the most productive
+    asteroid surveys" by Veres et al. (2017). Input may be provided using
+    either a full MPC table (e.g. from BatchMPC) or using the individual
+    variables.
 
-    # Input handling.
+    Observation types: "x", "X", "V", "v", "W", "w", "R", "r", "Q", "q", "O",
+    are not described by the paper and receive a placeholder weight of 1/100
+    if provided.
+
+    Parameters
+    ----------
+    MPC_codes : Union[pd.Series, list, np.ndarray, None], optional
+        Iterable with the MPC target codes, e.g. 433 for Eros. Size must match
+        other iterables, by default None
+    epochUTC : Union[pd.Series, list, np.ndarray, None], optional
+        Iterable with UTC times. Size must match other iterables, by default None
+    observation_type : Union[pd.Series, list, np.ndarray, None], optional
+        Iterable with the observation types in MPC format.
+        See the NOTE2 section of the MPC format description for the exact encoding:
+        https://minorplanetcenter.net/iau/info/OpticalObs.html.
+        Size must match other iterables, by default None
+    observatory : Union[pd.Series, list, np.ndarray, None], optional
+        Iterable with the MPC target codes, e.g. 433 for Eros.
+        Size must match other iterables, by default None
+    star_catalog : Union[pd.Series, list, np.ndarray, None], optional
+        Iterable with the star catalog codes.
+        See the MPC catalog codes page for the exact encoding:
+        https://www.minorplanetcenter.net/iau/info/CatalogueCodes.html.
+        Size must match other iterables, by default None
+    mpc_table : Union[pd.DataFrame, None], optional
+        Table retrieved by calling the mpc.BatchMPC.table property.
+        Set None when using iterable input.
+        Set others None when using table, by default None
+    return_full_table : bool, optional
+        Return the table with all intermediate calculations if True,
+        return a numpy array if False, by default False
+
+    Returns
+    -------
+    np.ndarray
+        If `return_full_table` is False, numpy array with weights with same size as input.
+    pd.DataFrame
+        If `return_full_table` is True, pandas table with all intermediate calculations.
+
+    Raises
+    ------
+    ValueError
+        MPC_codes, epochUTC, observation_type, observatory and star_catalog must all
+        be not None and the same size. mpc_table must be None.
+        If table input is used, the remaining input parameters must be done.
+    """
+
+    # Input handling
     if (
         (mpc_table is None)
         and (epochUTC is not None)
@@ -284,8 +336,9 @@ def get_weights_VFCC17(
 
     # create col for Julian Day and the inverted weight
     table = table.assign(epochJD=lambda x: Time(x.epochUTC).jd1 + Time(x.epochUTC).jd2)
-    # table = table.assign(epochJDint=lambda x: Time(x.epochUTC).jd1.astype(int))
-    table = table.assign(inv_w=lambda x: 1000)
+    # NOTE 1000 is a placeholder. The following observation types are not processed and receive the placeholder value:
+    # first_discoveries = ["x", "X"], roaming = ["V", "v", "W", "w"], radar = ["R", "r", "Q", "q"], offset = ["O"]
+    table = table.assign(inv_w=lambda _: 1000)
 
     # get an approximate timezone based on the observatory code's longitude
     observatories_table = MPC.get_observatory_codes().to_pandas()
@@ -306,8 +359,10 @@ def get_weights_VFCC17(
     # the time JD.50 will then be the approximate midnight at that timezone.
     # if we then take the int, we can group by this number to get all observations that night.
     table = table.assign(epochJD_tz_int=lambda x: np.floor(x.epochJD + x.jd_tz))
-    table = table.assign(epochJD_tz_int2=lambda x: np.round(x.epochJD + x.jd_tz, 2))
-    table = table.assign(epochJD_int=lambda x: np.round(x.epochJD, 2))
+    # table = table.assign(epochJD_tz_int2=lambda x: np.round(x.epochJD + x.jd_tz, 2))
+
+    # Below are the weights applied as described per table in:
+    # https://www.sciencedirect.com/science/article/pii/S0019103517301987
 
     # NON-CCD
     # ###################
@@ -397,9 +452,6 @@ def get_weights_VFCC17(
     # Table 4 conditions:
     # NOTE these are the LCO observatories described in the paper
     LCO_original = [
-        "E10",
-        "F65",
-        "K91",
         "K92",
         "K93",
         "Q63",
@@ -409,6 +461,9 @@ def get_weights_VFCC17(
         "W85",
         "W86",
         "W87",
+        "K91",
+        "E10",
+        "F65",
     ]
     # NOTE these are additional LCO observatories, mostly online after publication
     # Aqawan and Clamshell (0.4m) style observatories have not been included due to their previous omssion in the paper.
@@ -482,13 +537,14 @@ def get_weights_VFCC17(
     table = table.assign(weight_pre=lambda x: 1 / np.square(x.inv_w))
 
     # Reduce weight if there are more than 4 observations that night:
-    # For satellites, this is done per julian day.
+    # NOTE For satellites, this is done per julian day.
+    # calculate number of observations on one night at one observatory for one target:
     table = table.assign(
         observations_on_epoch=lambda x: x.groupby(
             ["epochJD_tz_int", "observatory", "number"]
         ).epochUTC.transform("count")
     )
-    # sqrt(N/4) if N > 4 else 1
+    # divide weight by sqrt(N/4) if N > 4 else 1
     table = table.assign(
         mult_obs_deweight=lambda x: np.maximum(
             np.sqrt(x.observations_on_epoch / 4), 1.0
