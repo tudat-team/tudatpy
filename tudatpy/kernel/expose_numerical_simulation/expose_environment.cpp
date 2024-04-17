@@ -706,7 +706,7 @@ void expose_environment(py::module &m) {
                               &tss::Body::setBodyInertiaTensor))
             .def("state_in_base_frame_from_ephemeris",
                  &tss::Body::getStateInBaseFrameFromEphemeris<double, double>, py::arg("time"))
-            .def_property_readonly("ephemeris", &tss::Body::getEphemeris, get_docstring("Body.ephemeris").c_str())
+            .def_property("ephemeris", &tss::Body::getEphemeris, &tss::Body::setEphemeris, get_docstring("Body.ephemeris").c_str())
             .def_property("atmosphere_model", &tss::Body::getAtmosphereModel, &tss::Body::setAtmosphereModel, get_docstring("Body.atmosphere_model").c_str())
             .def_property("shape_model", &tss::Body::getShapeModel, &tss::Body::setShapeModel, get_docstring("Body.shape_model").c_str())
             .def_property("gravity_field_model", &tss::Body::getGravityFieldModel, &tss::Body::setGravityFieldModel, get_docstring("Body.gravity_field_model").c_str())
