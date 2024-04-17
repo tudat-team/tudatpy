@@ -230,15 +230,20 @@ class BatchMPC:
             self._EFCC18_applied = True
 
     # methods for data retrievels
-    def get_observations(self, MPCcodes: List[Union[str, int]]) -> None:
+    def get_observations(self, MPCcodes: List[Union[str, int]], drop_misc_observations:bool=True) -> None:
         """Retrieve all observations for a set of MPC listed objeccts.
         This method uses astroquery to retrieve the observations from the MPC.
-        An internet connection is required, observations are cached for faster subsequent retrieval
+        An internet connection is required, observations are cached for faster subsequent retrieval.
+        Removes duplicate and irrelevant observation data by default (see `drop_misc_observations`).
 
         Parameters
         ----------
         MPCcodes : List[int]
             List of integer MPC object codes for minor planets or and comets.
+        drop_misc_observations : List[int]
+            Drops observations made by method: radar and offset (natural satellites).
+            Drops observations made by roaming observers.
+            Drops duplicate listings to denote first observation.
         """
 
         if not isinstance(MPCcodes, list):
@@ -266,12 +271,22 @@ class BatchMPC:
                     .assign(epochUTC=lambda x: Time(x.epoch, format="jd").to_datetime())
                 )
 
+                # drop miscellenous observations:
+                if drop_misc_observations:
+                    first_discoveries = ["x", "X"]
+                    roaming = ["V", "v", "W", "w"]
+                    radar = ["R", "r", "Q", "q"]
+                    offset = ["O"]
+                    observation_types_to_drop = first_discoveries + roaming + radar + offset
+                    obs = obs.query("note2 != @observation_types_to_drop")
+
                 # convert object mpc code to string
                 if "comettype" in obs.columns:
                     # for the case where we have a comet
-                    obs["number"] = obs.desig
+                    obs.loc[:, "number"] = obs.desig
                 else:
-                    obs["number"] = obs.number.astype(str)
+                    obs.loc[:, "number"] = obs.number.astype(str)
+
                 self._table = pd.concat([self._table, obs])
 
             except Exception as e:
