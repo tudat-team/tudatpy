@@ -40,7 +40,7 @@ namespace observation_models
 //};
 static const std::map<ObservableType, std::vector<input_output::TrackingDataType>> observableRequiredDataTypesMap = {
     {n_way_range, {input_output::TrackingDataType::n_way_light_time}},
-    // {one_way_doppler, {input_output::TrackingDataType::doppler_measured_frequency}},
+    {two_way_doppler, {input_output::TrackingDataType::doppler_measured_frequency}},
     // Todo: More to be implemented
 };
 
@@ -84,8 +84,8 @@ public:
   void initialise()
   {
     updateLinkEnds();
-    updateObservationTimes();
-    updateObservableTypes();
+    updateObservationTimes(); // updateLinkEnds must come first
+    updateAvailableObservableTypes();
     updateObservations();
     initialised_ = true;
   }
@@ -112,7 +112,7 @@ public:
   void updateObservations();
 
   //! Update the available observableTypes described by the processed data file
-  void updateObservableTypes()
+  void updateAvailableObservableTypes()
   {
     observableTypes_ = findAvailableObservableTypes(rawTrackingTxtFileContents_->getDataColumnTypes());
   }
@@ -219,6 +219,9 @@ private:
 
   //! Boolean verifying that the initialisation is complete
   bool initialised_ = false;
+
+  //! Create link ends representation
+  std::map<LinkEndType, input_output::TrackingDataType> linkEndsRepresentation_;
 };
 
 /*!
@@ -236,7 +239,6 @@ createTrackingTxtFileObservationCollection(
     const std::shared_ptr<observation_models::ProcessedTrackingTxtFileContents> processedTrackingTxtFileContents,
     std::vector<ObservableType> observableTypesToProcess = std::vector<ObservableType>(),
     const std::map<std::string, Eigen::Vector3d> earthFixedGroundStationPositions = simulation_setup::getApproximateDsnGroundStationPositions(),
-    // const std::map<std::string, Eigen::Vector3d> earthFixedGroundStationPositions = simulation_setup::getApproximateGroundStationPositionsFromFile(), // TODO: get ground stations from file
     const ObservationAncilliarySimulationSettings& ancillarySettings = ObservationAncilliarySimulationSettings(),
     const std::pair<TimeType, TimeType> startAndEndTimesToProcess = std::make_pair<TimeType, TimeType>(TUDAT_NAN, TUDAT_NAN))
 {
@@ -282,8 +284,6 @@ createTrackingTxtFileObservationCollection(
    // Loop over the available observable types
     for (const ObservableType& currentObservableType : observableTypesToProcess)
     {
-      // Get vector of appropriate tracking data columns for this observable
-      std::vector<input_output::TrackingDataType> currentTrackingDataTypes = observableRequiredDataTypesMap.at(currentObservableType);
 
       // Prepare a container to store the data columns
       Eigen::Matrix<ObservationScalarType, Eigen::Dynamic, 1> currentObservable(1);
