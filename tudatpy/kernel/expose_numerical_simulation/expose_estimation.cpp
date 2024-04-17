@@ -533,6 +533,9 @@ void expose_estimation(py::module &m) {
                   &tss::CovarianceAnalysisInput<double, TIME_TYPE>::setConstantWeightsMatrix,
                   py::arg( "weight" ),
                   get_docstring("CovarianceAnalysisInput.set_constant_weight").c_str() )
+            .def( "set_weights_from_observation_collection",
+                  &tss::CovarianceAnalysisInput<double, TIME_TYPE>::setWeightsFromObservationCollection,
+                  get_docstring("CovarianceAnalysisInput.set_weights_from_observation_collection").c_str() )
             .def( "set_constant_single_observable_weight",
                   &tss::CovarianceAnalysisInput<double, TIME_TYPE>::setConstantSingleObservableWeights,
                   py::arg( "observable_type" ),
