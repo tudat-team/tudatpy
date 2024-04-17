@@ -309,35 +309,40 @@ BOOST_AUTO_TEST_CASE(TestVikingRangeDataObservationCollection)
   BOOST_CHECK_CLOSE(timesDsn63[0], -738352558.0 + 32.184 + 15, 1e-8);  // "1976-08-08T18:04:02.000"
 }
 
-//BOOST_AUTO_TEST_CASE(TestJuiceFile)
-//{
-//  spice_interface::loadStandardSpiceKernels();
-//
-//  std::shared_ptr<tio::TrackingTxtFileContents> rawFdetsDopplerFile = readJuiceFdetsFile(juiceFdetsDopplerPath);
-//  rawFdetsDopplerFile->addMetaData(tio::TrackingDataType::doppler_base_frequency, 8420.0e6);
-//  rawFdetsDopplerFile->addMetaData(tio::TrackingDataType::doppler_bandwidth, 2.0e3);
-//  rawFdetsDopplerFile->addMetaData(tio::TrackingDataType::vlbi_station_name, "HOBART12");
-//
-//
-//  // CHECK THE RAW FILE
-//  BOOST_CHECK_EQUAL(rawFdetsDopplerFile->getNumColumns(), 5);
-//
-//  auto dataMap = rawFdetsDopplerFile->getDoubleDataMap();
-//  auto dataBlockLast = extractBlockFromVectorMap(dataMap, -1);
-//
-//  double tdbMismatch = dataBlockLast[tio::TrackingDataType::tdb_time_j2000] - (735687970.0 + 32.184 + 37.0) -
-//      sofa_interface::getTDBminusTT(dataBlockLast[tio::TrackingDataType::tdb_time_j2000], Eigen::Vector3d::Zero());
-//
-//  BOOST_CHECK_SMALL(tdbMismatch, 1.0E-5);
-//
-//  BOOST_CHECK_EQUAL(dataBlockLast[tio::TrackingDataType::signal_to_noise], 6.766652540970647242e+05);
-//  BOOST_CHECK_EQUAL(dataBlockLast[tio::TrackingDataType::spectral_max], 5.754946258897545704e+03);
-//  BOOST_CHECK_EQUAL(dataBlockLast[tio::TrackingDataType::doppler_measured_frequency], 5977954.253958693705);
-//  BOOST_CHECK_EQUAL(dataBlockLast[tio::TrackingDataType::doppler_noise], -1.3803018149815216e-02);
-//
-//  auto observationCollection = observation_models::createTrackingTxtFileObservationCollection<double, double>(rawFdetsDopplerFile, "JUICE");
-//
-//}
+BOOST_AUTO_TEST_CASE(TestJuiceFile)
+{
+  spice_interface::loadStandardSpiceKernels();
+
+  std::shared_ptr<tio::TrackingTxtFileContents> rawFdetsDopplerFile = readJuiceFdetsFile(juiceFdetsDopplerPath);
+  rawFdetsDopplerFile->addMetaData(tio::TrackingDataType::doppler_base_frequency, 8420.0e6);
+  rawFdetsDopplerFile->addMetaData(tio::TrackingDataType::doppler_bandwidth, 2.0e3);
+  rawFdetsDopplerFile->addMetaData(tio::TrackingDataType::vlbi_station_name, "HOBART12");
+
+
+  // CHECK THE RAW FILE
+  BOOST_CHECK_EQUAL(rawFdetsDopplerFile->getNumColumns(), 5);
+
+  auto dataMap = rawFdetsDopplerFile->getDoubleDataMap();
+  auto dataBlockLast = extractBlockFromVectorMap(dataMap, -1);
+
+  double tdbMismatch = dataBlockLast[tio::TrackingDataType::tdb_time_j2000] - (735687970.0 + 32.184 + 37.0) -
+      sofa_interface::getTDBminusTT(dataBlockLast[tio::TrackingDataType::tdb_time_j2000], Eigen::Vector3d::Zero());
+
+  BOOST_CHECK_SMALL(tdbMismatch, 1.0E-5);
+
+  BOOST_CHECK_EQUAL(dataBlockLast[tio::TrackingDataType::signal_to_noise], 6.766652540970647242e+05);
+  BOOST_CHECK_EQUAL(dataBlockLast[tio::TrackingDataType::spectral_max], 5.754946258897545704e+03);
+  BOOST_CHECK_EQUAL(dataBlockLast[tio::TrackingDataType::doppler_measured_frequency], 5977954.253958693705);
+  BOOST_CHECK_EQUAL(dataBlockLast[tio::TrackingDataType::doppler_noise], -1.3803018149815216e-02);
+
+  // Check the VLBI Station name
+  const auto& metaDataStrMap = rawFdetsDopplerFile->getMetaDataStrMap();
+  BOOST_CHECK_EQUAL(metaDataStrMap.at(tio::TrackingDataType::vlbi_station_name), "HOBART12");
+
+  auto observationCollection = observation_models::createTrackingTxtFileObservationCollection<double, double>(rawFdetsDopplerFile, "JUICE");
+  BOOST_CHECK_EQUAL(observationCollection->getTotalObservableSize(), 120);
+
+}
 
 //! Test reading of ground station locations
 // TODO: This might need to be moved to another file
