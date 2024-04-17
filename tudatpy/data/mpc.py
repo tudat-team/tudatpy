@@ -3,7 +3,7 @@ from tudatpy.numerical_simulation import estimation, environment  # type:ignore
 from tudatpy.numerical_simulation.estimation_setup import observation  # type:ignore
 from tudatpy.numerical_simulation.environment_setup import add_gravity_field_model
 from tudatpy.numerical_simulation.environment_setup.gravity_field import central_sbdb
-from tudatpy.data._biases import get_biases_EFCC18
+from tudatpy.data._biases import get_biases_EFCC18, get_weights_VFCC17
 
 import pandas as pd
 import numpy as np
@@ -567,6 +567,9 @@ class BatchMPC:
 
 
         """
+        # collect weights
+        self._table = get_weights_VFCC17(mpc_table=self.table, return_full_table=True)
+
         # apply EFCC18 star catalog corrections:
         if apply_star_catalog_debias:
             self._apply_EFCC18(**debias_kwargs)
@@ -710,6 +713,12 @@ class BatchMPC:
                 :, ["epochJ2000secondsTDB"]
             ].to_numpy()[:, 0]
 
+            observation_weights = observations_for_this_link.loc[
+                :, ["weight"]
+            ].to_numpy()[:, 0]
+
+            observation_weights = np.concatenate([observation_weights, observation_weights]).flatten()
+
             # create a set of obs for this link
             observation_set = estimation.single_observation_set(
                 observation.angular_position_type,
@@ -718,6 +727,7 @@ class BatchMPC:
                 observation_times,
                 observation.receiver,
             )
+            observation_set.weights_vector = observation_weights
 
             observation_set_list.append(observation_set)
 
