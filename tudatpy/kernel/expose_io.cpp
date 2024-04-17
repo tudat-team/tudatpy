@@ -200,6 +200,18 @@ void expose_io(py::module &m) {
                   py::arg("comment_symbol") = '#',
                   py::arg("value_separators") = ",:\t ",
                   get_docstring("TrackingTxtFileContents").c_str( ) )
+            .def("add_metadata_val",
+                  py::overload_cast<tio::TrackingDataType, double>(&tio::TrackingTxtFileContents::addMetaData),
+                  py::arg("tracking_data_type"),
+                  py::arg("value"),
+                  get_docstring("add_metadata_val").c_str())
+            .def("get_available_datatypes",
+                  &tio::TrackingTxtFileContents::getAllAvailableDataTypes,
+                  get_docstring("TrackingTxtFileContents.get_available_datatypes").c_str( ) )
+            .def("add_metadata_str", py::overload_cast<tio::TrackingDataType, const std::string&>(&tio::TrackingTxtFileContents::addMetaData),
+                  py::arg("tracking_data_type"),
+                  py::arg("str_value"),
+                  get_docstring("add_metadata_val").c_str())
             .def_property_readonly("column_field_types",
                   &tio::TrackingTxtFileContents::getRawColumnTypes,
                   get_docstring("TrackingTxtFileContents.column_field_types").c_str( ) )
@@ -212,6 +224,7 @@ void expose_io(py::module &m) {
             .def_property_readonly("num_rows",
                   &tio::TrackingTxtFileContents::getNumRows,
                   get_docstring("TrackingTxtFileContents.num_rows").c_str( ) );
+
 
       py::enum_<tudat::input_output::TrackingDataType>(m, "TrackingDataType",
                                                        get_docstring("TrackingDataType").c_str())
