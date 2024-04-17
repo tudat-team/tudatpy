@@ -230,7 +230,9 @@ class BatchMPC:
             self._EFCC18_applied = True
 
     # methods for data retrievels
-    def get_observations(self, MPCcodes: List[Union[str, int]], drop_misc_observations:bool=True) -> None:
+    def get_observations(
+        self, MPCcodes: List[Union[str, int]], drop_misc_observations: bool = True
+    ) -> None:
         """Retrieve all observations for a set of MPC listed objeccts.
         This method uses astroquery to retrieve the observations from the MPC.
         An internet connection is required, observations are cached for faster subsequent retrieval.
@@ -277,7 +279,9 @@ class BatchMPC:
                     roaming = ["V", "v", "W", "w"]
                     radar = ["R", "r", "Q", "q"]
                     offset = ["O"]
-                    observation_types_to_drop = first_discoveries + roaming + radar + offset
+                    observation_types_to_drop = (
+                        first_discoveries + roaming + radar + offset
+                    )
                     obs = obs.query("note2 != @observation_types_to_drop")
 
                 # convert object mpc code to string
@@ -501,13 +505,15 @@ class BatchMPC:
         included_satellites: Union[Dict[str, str], None],
         station_body: str = "Earth",
         add_sbdb_gravity_model: bool = False,
+        apply_weights_VFCC17: bool = True,
         apply_star_catalog_debias: bool = True,
         debias_kwargs: dict = dict(),
     ) -> estimation.ObservationCollection:
         """Converts the observations in the batch into a Tudat compatible format and
           sets up the relevant Tudat infrastructure to support estimation.
         This method does the following:\\
-            1. (By Default) Applies star catalog debiasing.
+            1. (By Default) Applies star catalog debiasing and estimation
+            weight calculation.\\
             2. Creates an empty body for each minor planet with their MPC code as a 
             name.\\
             3. Adds this body to the system of bodies inputted to the method.\\
@@ -520,6 +526,8 @@ class BatchMPC:
             This requires an addional input.\\
             7. Creates a `SingleObservationSet` object for each unique link that 
             includes all observations for that link.\\
+            8. (By Default) Add the relevant weights to the `SingleObservationSet`
+            per observation.\\
             8. Returns the observations
 
 
@@ -543,6 +551,9 @@ class BatchMPC:
             This option is only available for a limited number of bodies and raises an error if unavailable. 
             See tudatpy.numerical_simulation.environment_setup.gravity_field.central_sbdb for more info.
             Enabled if True, by default False
+        apply_weights_VFCC17 : bool, optional
+            Applies the weighting scheme as described in: "Statistical analysis of astrometric errors
+            for the most productive asteroid surveys" by Veres et al. (2017), by default True
         apply_star_catalog_debias : bool, optional
             Applies star catalog debiasing as described in: "Star catalog position and proper motion corrections 
             in asteroid astrometry II: The Gaia era" by Eggl et al. (2018), by default True
@@ -567,8 +578,12 @@ class BatchMPC:
 
 
         """
-        # collect weights
-        self._table = get_weights_VFCC17(mpc_table=self.table, return_full_table=True)
+        # Calculate observation weights and update table:
+        if apply_weights_VFCC17:
+            self._table = get_weights_VFCC17(  # type: ignore
+                mpc_table=self.table,
+                return_full_table=True,
+            )
 
         # apply EFCC18 star catalog corrections:
         if apply_star_catalog_debias:
@@ -713,12 +728,6 @@ class BatchMPC:
                 :, ["epochJ2000secondsTDB"]
             ].to_numpy()[:, 0]
 
-            observation_weights = observations_for_this_link.loc[
-                :, ["weight"]
-            ].to_numpy()[:, 0]
-
-            observation_weights = np.concatenate([observation_weights, observation_weights]).flatten()
-
             # create a set of obs for this link
             observation_set = estimation.single_observation_set(
                 observation.angular_position_type,
@@ -727,7 +736,16 @@ class BatchMPC:
                 observation_times,
                 observation.receiver,
             )
-            observation_set.weights_vector = observation_weights
+
+            # apply weights:
+            if apply_weights_VFCC17:
+                observation_weights = observations_for_this_link.loc[
+                    :, ["weight"]
+                ].to_numpy()[:, 0]
+                observation_weights = np.concatenate(
+                    [observation_weights, observation_weights]
+                ).flatten()
+                observation_set.weights_vector = observation_weights
 
             observation_set_list.append(observation_set)
 
