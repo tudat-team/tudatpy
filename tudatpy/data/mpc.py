@@ -546,7 +546,7 @@ class BatchMPC:
         apply_star_catalog_debias : bool, optional
             Applies star catalog debiasing as described in: "Star catalog position and proper motion corrections 
             in asteroid astrometry II: The Gaia era" by Eggl et al. (2018), by default True
-        apply_star_catalog_debias : bool, optional
+        debias_kwargs : dict, optional
             Additional options when applying star catalog debiasing. A different debias file 
             can be set here. Options are set as kwargs using a dictionary, see data._biases.get_biases_EFCC18() 
             for more info, by default dict()
