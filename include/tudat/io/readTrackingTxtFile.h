@@ -61,6 +61,7 @@ enum class TrackingDataType
   observation_body, // In case observations corrected for body center.
   observed_body, // In case observations corrected for body center.
   spacecraft_id,
+  spacecraft_name,
   planet_nr,
   tdb_time_j2000,
   tdb_spacecraft_j2000,
@@ -196,6 +197,10 @@ public:
       : TrackingFileFieldConverter(trackingDataType) {}
   double toDouble(std::string& rawField) const
   {
+    if (!spice_interface::getTotalCountOfKernelsLoaded())
+    {
+      throw std::runtime_error("Cannot convert UTC string without spice kernels");
+    }
     return spice_interface::convertDateStringToEphemerisTime(rawField);
   }
 };
