@@ -11,6 +11,7 @@ from astropy.units import Quantity
 import astropy.units as u
 from astropy.time import Time
 
+from astroquery.mpc import MPC
 
 BIAS_LOWRES_FILE = os.path.join(
     os.path.expanduser("~"),
