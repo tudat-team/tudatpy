@@ -34,7 +34,6 @@ std::vector<ObservableType> findAvailableObservableTypes(const std::vector<input
 void ProcessedTrackingTxtFileContents::updateObservations()
 {
   // Update the observableTypes that one can expect to process
-  updateObservableTypes();
   observationMap_.clear();
 
   for (const ObservableType observableType : observableTypes_) {
@@ -51,6 +50,16 @@ void ProcessedTrackingTxtFileContents::updateObservations()
         std::vector<double> lightTimes = rawTrackingTxtFileContents_->getDoubleDataColumn(input_output::TrackingDataType::n_way_light_time);
         std::vector<double> lightTimeDelays = rawTrackingTxtFileContents_->getDoubleDataColumn(input_output::TrackingDataType::light_time_measurement_delay, 0.0);
         observableValues = utilities::convertVectors(lightTimeRangeConversion, lightTimes, lightTimeDelays);
+        break;
+      }
+      // FIXME: USE CORRECT OBSERVABLE TYPE
+      case two_way_doppler: {
+        std::vector<double> measuredFrequencies = rawTrackingTxtFileContents_->getDoubleDataColumn(input_output::TrackingDataType::doppler_measured_frequency);
+        std::vector<double> basebandFrequencies = rawTrackingTxtFileContents_->getDoubleDataColumn(input_output::TrackingDataType::doppler_base_frequency);
+
+        // TODO Calculate the correct observable
+        auto sum = [](double a, double b) { return a + b; };
+        observableValues = utilities::convertVectors(sum, measuredFrequencies, basebandFrequencies);
         break;
       }
       default: {
@@ -108,14 +117,14 @@ void ProcessedTrackingTxtFileContents::updateObservationTimes()
 
   // Get the delays in the time tag (or set to 0.0 if not specified)
   std::vector<double> timeTagDelays = rawTrackingTxtFileContents_->getDoubleDataColumn(input_output::TrackingDataType::time_tag_delay, 0.0);
-  for (size_t idx=0; idx < observationTimes_.size() ; ++idx){
+  for (size_t idx = 0; idx < observationTimes_.size(); ++idx) {
     observationTimes_[idx] -= timeTagDelays[idx];
   }
 }
 
 std::vector<double> ProcessedTrackingTxtFileContents::computeObservationTimesTdbFromJ2000(std::vector<double> observationTimesUtc)
 {
-  // Get the time scale converter
+  // Get the timescale converter
   earth_orientation::TerrestrialTimeScaleConverter timeScaleConverter = earth_orientation::TerrestrialTimeScaleConverter();
 
   // Check if there is one LinkEnds per observation time
@@ -160,8 +169,8 @@ void ProcessedTrackingTxtFileContents::updateLinkEnds()
       const auto& dsnReceiverIds = rawTrackingTxtFileContents_->getDoubleDataColumn(input_output::TrackingDataType::dsn_receiving_station_nr);
 
       for (size_t i = 0; i < numDataRows; ++i) {
-        std::string transmitterName = getStationNameFromStationId(dsnTransmitterIds[i]);
-        std::string receiverName = getStationNameFromStationId(dsnReceiverIds[i]);
+        std::string transmitterName = getStationNameFromStationId(dsnTransmitterIds.at(i));
+        std::string receiverName = getStationNameFromStationId(dsnReceiverIds.at(i));
         LinkEnds currentLinkEnds{
             {transmitter, LinkEndId("Earth", transmitterName)},
             {reflector, LinkEndId(spacecraftName_, "")},
@@ -172,29 +181,21 @@ void ProcessedTrackingTxtFileContents::updateLinkEnds()
       break;
     }
 
-//    case vlbi_station: {
-//
-//      if (metaDataStrMap.count(input_output::TrackingDataType::vlbi_station_name)) {
-//        std::string vlbi_station_name = metaDataStrMap.at(input_output::TrackingDataType::vlbi_station_name);
-//        LinkEnds constantLinkEnds{
-//            {transmitter, LinkEndId(spacecraftName_, "")},
-//            {receiver, LinkEndId("Earth", vlbi_station_name)}, // FIXME!
-//        };
-//        for (size_t i = 0; i < numDataRows; ++i) {
-//          linkEndsVector_.push_back(constantLinkEnds);
-//        }
-//      } else if (dataMap.count(input_output::TrackingDataType::dsn_receiving_station_nr)) {
-//        for (size_t i = 0; i < numDataRows; ++i) {
-//          std::string vlbi_station_name = metaDataStrMap.at(input_output::TrackingDataType::vlbi_station_name);
-//          LinkEnds currentLinkEnds{
-//              {transmitter, LinkEndId(spacecraftName_, "Antenna")},
-//              {receiver, LinkEndId("Earth", vlbi_station_name)}, // FIXME!
-//          };
-//          linkEndsVector_.push_back(currentLinkEnds);
-//        }
-//      }
-//      break;
-//    }
+    case vlbi_station: {
+
+      // FIXME: This is a temporary solution
+      std::string vlbiStationName = rawTrackingTxtFileContents_->getMetaDataStrMap().at(input_output::TrackingDataType::vlbi_station_name);
+
+      for (size_t i = 0; i < numDataRows; ++i) {
+        LinkEnds currentLinkEnds{
+            {transmitter, LinkEndId("Earth", vlbiStationName)},
+            {reflector, LinkEndId(spacecraftName_, "")},
+            {receiver, LinkEndId("Earth", vlbiStationName)},
+        };
+        linkEndsVector_.push_back(currentLinkEnds);
+      }
+      break;
+    }
 
       // Throw error if representation not implemented
     default: {
@@ -253,7 +254,7 @@ ProcessedTrackingTxtFileContents::LinkEndsRepresentation ProcessedTrackingTxtFil
     return vlbi_station;
   }
 
-  // Trhow error if no match is found
+  // Throw error if no match is found
   throw std::runtime_error("Error while processing tracking txt file: Link Ends representation not recognised or implemented.");
 }
 
