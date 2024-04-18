@@ -578,13 +578,6 @@ class BatchMPC:
 
 
         """
-        # Calculate observation weights and update table:
-        if apply_weights_VFCC17:
-            self._table = get_weights_VFCC17(  # type: ignore
-                mpc_table=self.table,
-                return_full_table=True,
-            )
-
         # apply EFCC18 star catalog corrections:
         if apply_star_catalog_debias:
             self._apply_EFCC18(**debias_kwargs)
@@ -593,6 +586,15 @@ class BatchMPC:
         else:
             RA_col = "RA"
             DEC_col = "DEC"
+
+        # Calculate observation weights and update table:
+        if apply_weights_VFCC17:
+            temp_table = get_weights_VFCC17(  # type: ignore
+                mpc_table=self.table,
+                return_full_table=True,
+            )
+        else:
+            temp_table = self.table.copy()
 
         # start user input validation
         # Ensure that Earth is in the SystemOfBodies object
@@ -637,7 +639,7 @@ class BatchMPC:
 
         # add station positions to the observations
         observations_table = pd.merge(
-            left=self._table,
+            left=temp_table,  # type: ignore
             right=tempStations,
             left_on="observatory",
             right_on="Code",
