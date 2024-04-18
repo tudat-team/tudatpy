@@ -652,6 +652,7 @@ class BatchMPC:
                 mpc_table=self.table,
                 return_full_table=True,
             )
+
             self._table.loc[:, "weight"] = temp_table.loc[:, "weight"].values
         else:
             temp_table = self.table.copy()
