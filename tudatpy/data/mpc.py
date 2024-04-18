@@ -431,6 +431,8 @@ class BatchMPC:
     def filter(
         self,
         bands: Union[List[str], None] = None,
+        catalogs: Union[List[str], None] = None,
+        observation_types: Union[List[str], None] = None,
         observatories: Union[List[str], None] = None,
         observatories_exclude: Union[List[str], None] = None,
         epoch_start: Union[float, datetime.datetime, None] = None,
@@ -443,6 +445,15 @@ class BatchMPC:
         ----------
         bands : Union[List[str], None], optional
             List of observation bands to keep in the batch, by default None
+        catalogs : Union[List[str], None], optional
+            List of star catalogs to keep in the batch. See 
+            https://www.minorplanetcenter.net/iau/info/CatalogueCodes.html
+            for the exact encodings used by MPC, by default None
+        observation_types : Union[List[str], None], optional
+            List of observation types to keep in the batch, e.g. CCD,
+            Photographic etc. See the Note2 section of the MPC format description:
+            https://www.minorplanetcenter.net/iau/info/OpticalObs.html
+            for the exact encoding, by default None
         observatories : Union[List[str], None], optional
             List of observatories to keep in the batch, by default None
         observatories_exclude : Union[List[str], None], optional
@@ -482,6 +493,14 @@ class BatchMPC:
         if not (isinstance(observatories, list) or (observatories is None)):
             raise ValueError("observatories parameter must be list of strings or None")
 
+        if not (isinstance(catalogs, list) or (catalogs is None)):
+            raise ValueError("catalogs parameter must be list of strings or None")
+
+        if not (isinstance(observation_types, list) or (observation_types is None)):
+            raise ValueError(
+                "observation_types parameter must be list of strings or None"
+            )
+
         if not (
             isinstance(observatories_exclude, list) or (observatories_exclude is None)
         ):
@@ -499,6 +518,10 @@ class BatchMPC:
         if in_place:
             if bands is not None:
                 self._table = self._table.query("band == @bands")
+            if catalogs is not None:
+                self._table = self._table.query("catalog == @catalogs")
+            if observation_types is not None:
+                self._table = self._table.query("note2 == @observation_types")
             if observatories is not None:
                 self._table = self._table.query("observatory == @observatories")
             if observatories_exclude is not None:
@@ -523,11 +546,13 @@ class BatchMPC:
         else:
             new = self.copy()
             new.filter(
-                bands,
-                observatories,
-                observatories_exclude,
-                epoch_start,
-                epoch_end,
+                bands=bands,
+                catalogs=catalogs,
+                observation_types=observation_types,
+                observatories=observatories,
+                observatories_exclude=observatories_exclude,
+                epoch_start=epoch_start,
+                epoch_end=epoch_end,
                 in_place=True,
             )
             return new
