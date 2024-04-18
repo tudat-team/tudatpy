@@ -68,6 +68,7 @@ class BatchMPC:
         self._bodies_created = {}
 
         self._EFCC18_applied = False
+        self._custom_weights_set = False
 
         # for manual additions of table (from_pandas, from_astropy)
         self._req_cols = ["number", "epoch", "RA", "DEC", "band", "observatory"]
@@ -395,6 +396,38 @@ class BatchMPC:
 
         self._add_table(table=table, in_degrees=in_degrees)
 
+    def set_weights(
+        self,
+        weights: Union[list, np.ndarray, pd.Series],
+    ):
+        """Manually set weights per observation. Weights are passed to
+        observation collection when `.to_tudat()` is called. Set the
+        `apply_weights_VFCC17` parameter in `.to_tudat()` to `False` to avoid
+        overwriting. The order of the weights should match the order found in
+        the `.table` parameter.
+
+        Parameters
+        ----------
+        weights : Union[list, np.ndarray, pd.Series]
+            Iterable with weights per observation.
+
+        Raises
+        ------
+        ValueError
+            If the size of weights does not match the number of observations in
+            the batch table.
+        """
+        if len(weights) != len(self.table):
+            raise ValueError(
+                "Weights vector must have same length as number of observations (BatchMPC.table)."
+            )
+        if isinstance(weights, pd.Series):
+            # this is to avoid errors with indexing in pandas.
+            weights = weights.to_numpy()
+
+        self._table.loc["weight"] = weights
+        self._custom_weights_set = True
+
     def filter(
         self,
         bands: Union[List[str], None] = None,
@@ -553,7 +586,8 @@ class BatchMPC:
             Enabled if True, by default False
         apply_weights_VFCC17 : bool, optional
             Applies the weighting scheme as described in: "Statistical analysis of astrometric errors
-            for the most productive asteroid surveys" by Veres et al. (2017), by default True
+            for the most productive asteroid surveys" by Veres et al. (2017). Overwrites custom weights
+            set through the `.set_weights()` method if True, by default True
         apply_star_catalog_debias : bool, optional
             Applies star catalog debiasing as described in: "Star catalog position and proper motion corrections 
             in asteroid astrometry II: The Gaia era" by Eggl et al. (2018), by default True
@@ -593,8 +627,7 @@ class BatchMPC:
                 mpc_table=self.table,
                 return_full_table=True,
             )
-
-            self._table["weight"] = temp_table.weight
+            self._table.loc[:, "weight"] = temp_table.loc[:, "weight"].values
         else:
             temp_table = self.table.copy()
 
@@ -741,8 +774,8 @@ class BatchMPC:
                 observation.receiver,
             )
 
-            # apply weights:
-            if apply_weights_VFCC17:
+            # apply weights if apply_weights is True or set_weights() has been used.
+            if apply_weights_VFCC17 or self._custom_weights_set:
                 observation_weights = observations_for_this_link.loc[
                     :, ["weight"]
                 ].to_numpy()[:, 0]
