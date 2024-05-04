@@ -55,7 +55,7 @@ namespace tio = tudat::input_output;
 //BOOST_AUTO_TEST_CASE(testSimpleCase)
 
 
-const static std::string juiceDataFile = tudat::paths::getTudatTestDataPath() + "Fdets.jui2023.09.14.Hb.r2i.txt";
+const static std::string juiceDataFile = "/home/simon/lib/tudat-bundle/tudatpy/examples/estimation/data/Fdets.jui2023.09.14.Hb.r2i.txt";
 
 std::shared_ptr<tio::TrackingTxtFileContents> readJuiceFdetsFile(const std::string& fileName)
 {
