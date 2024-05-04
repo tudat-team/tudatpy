@@ -1579,31 +1579,17 @@ public:
     {
         using namespace observation_models;
 
-        CHECKPOINT;
-
-        try
-        {
-            unsigned int size = observationSettings->linkEnds_.size();
-            std::cout << "TEST Size: " << size << std::endl;
-        }
-        catch(const std::exception& e)
-        {
-            std::cerr << e.what() << '\n';
-        }
-        
 
         std::shared_ptr< observation_models::ObservationModel<
                 1, ObservationScalarType, TimeType > > observationModel;
         LinkEnds linkEnds = observationSettings->linkEnds_.linkEnds_;
 
-        CHECKPOINT;
 
         if ( topLevelObservableType == undefined_observation_model )
         {
             topLevelObservableType = observationSettings->observableType_;
         }
 
-        CHECKPOINT;
 
         // Check type of observation model.
         switch( observationSettings->observableType_ )
@@ -1727,7 +1713,6 @@ public:
 
         case two_way_doppler:
         {
-            CHECKPOINT;
             // Check consistency input.
             if( linkEnds.size( ) != 3 )
             {
@@ -1760,25 +1745,20 @@ public:
             }
 
             // Create observation model
-            CHECKPOINT;
             LinkDefinition uplinkLinkEnds;
             uplinkLinkEnds[ transmitter ] = linkEnds.at( transmitter );
             uplinkLinkEnds[ receiver ] = linkEnds.at( reflector1 );
 
-            CHECKPOINT;
             LinkDefinition downlinkLinkEnds;
             downlinkLinkEnds[ transmitter ] = linkEnds.at( reflector1 );
             downlinkLinkEnds[ receiver ] = linkEnds.at( receiver );
 
-            CHECKPOINT;
             std::shared_ptr< TwoWayDopplerObservationSettings > twoWayDopplerSettings =
                     std::dynamic_pointer_cast< TwoWayDopplerObservationSettings >( observationSettings );
 
 
-            CHECKPOINT;
             if( twoWayDopplerSettings == nullptr )
             {
-                CHECKPOINT;
                 observationModel = std::make_shared< TwoWayDopplerObservationModel<
                         ObservationScalarType, TimeType > >(
                             linkEnds,
@@ -1794,7 +1774,6 @@ public:
             }
             else
             {
-                CHECKPOINT;
                 observationModel = std::make_shared< TwoWayDopplerObservationModel<
                         ObservationScalarType, TimeType > >(
                             linkEnds,
@@ -2067,27 +2046,31 @@ public:
         case doppler_measured_frequency: {
             // FIXME: There is currently a lot of copy-paste involved in creating this. Maybe this could be done in a more elegant way?
 
-            CHECKPOINT;
 
             // FIXME: Correct doppler model
             std::shared_ptr< TwoWayDopplerObservationModel< ObservationScalarType, TimeType > > twoWayDopplerModel;
             try
             {
-                CHECKPOINT;
-                std::shared_ptr< TwoWayDopplerObservationSettings > twoWayDopplerSettings =
-                    std::dynamic_pointer_cast< TwoWayDopplerObservationSettings >( observationSettings );
 
-                CHECKPOINT;
+                // std::shared_ptr< TwoWayDopplerObservationSettings > twoWayDopplerSettings =
+                //     std::dynamic_pointer_cast< TwoWayDopplerObservationSettings >( observationSettings );
 
+
+                // twoWayDopplerModel =
+                //         std::dynamic_pointer_cast< TwoWayDopplerObservationModel< ObservationScalarType, TimeType > >(
+                //             ObservationModelCreator< 1, ObservationScalarType, TimeType >::createObservationModel(
+                //                 twoWayDopplerSettings, bodies, two_way_doppler ) );
+
+                const std::shared_ptr< ObservationModelSettings > simpleTwoWayDopplerSettings =
+                        std::make_shared< ObservationModelSettings >( two_way_doppler, linkEnds );
+                
                 twoWayDopplerModel =
                         std::dynamic_pointer_cast< TwoWayDopplerObservationModel< ObservationScalarType, TimeType > >(
                             ObservationModelCreator< 1, ObservationScalarType, TimeType >::createObservationModel(
-                                twoWayDopplerSettings, bodies, two_way_doppler ) );
-                CHECKPOINT;
+                                simpleTwoWayDopplerSettings, bodies ) );
             }
             catch( const std::exception& caughtException )
             {
-                CHECKPOINT;
                 std::string exceptionText = std::string( caughtException.what( ) );
                 throw std::runtime_error( "Error when creating Doppler Measured Frequency observation model, error: " +
                 exceptionText );
@@ -2097,7 +2080,6 @@ public:
             std::shared_ptr< ObservationBias< 1 > > observationBias;
             if( observationSettings->biasSettings_ != nullptr )
             {
-                CHECKPOINT;
                 observationBias = createObservationBiasCalculator(
                         linkEnds, observationSettings->observableType_, observationSettings->biasSettings_, bodies );
             }
@@ -2109,7 +2091,6 @@ public:
             if ( linkEnds.at( observation_models::retransmitter ).stationName_ == "" || !simulation_setup::isReferencePointGroundStation(
                 bodies, linkEnds.at( observation_models::retransmitter ).bodyName_, linkEnds.at( observation_models::retransmitter ).stationName_ ) )
             {
-                CHECKPOINT;
                 if ( bodies.getBody( linkEnds.at( observation_models::retransmitter ).bodyName_ )->getVehicleSystems( ) == nullptr )
                 {
                     throw std::runtime_error(
@@ -2122,7 +2103,6 @@ public:
             // If retransmitter is a ground station of the body
             else
             {
-                CHECKPOINT;
                 if ( bodies.getBody( linkEnds.at( observation_models::retransmitter ).bodyName_ )->getGroundStation(
                         linkEnds.at( observation_models::retransmitter ).stationName_ )->getVehicleSystems( ) == nullptr )
                 {
@@ -2138,14 +2118,13 @@ public:
             if( bodies.getBody( linkEnds.at( observation_models::transmitter ).bodyName_ )->getGroundStation(
                 linkEnds.at( observation_models::transmitter ).stationName_ )->getTransmittingFrequencyCalculator( ) == nullptr )
             {
-                CHECKPOINT;
                 throw std::runtime_error(
                     "Error when creating Doppler Measured Frequency observation model: transmitted frequency not  "
                     "defined for link end station " + linkEnds.at( observation_models::transmitter ).bodyName_ + ", " +
                         linkEnds.at( observation_models::transmitter ).stationName_ );
             }
 
-            CHECKPOINT;
+            
             observationModel = std::make_shared<
                     DopplerMeasuredFrequencyObservationModel< ObservationScalarType, TimeType > >(
                         linkEnds, twoWayDopplerModel,
@@ -2163,7 +2142,6 @@ public:
             throw std::runtime_error( errorMessage );
         }
 
-        CHECKPOINT;
         return observationModel;
     }
 
