@@ -112,7 +112,7 @@ public:
         if (ancillarySettings == nullptr)
         {
             throw std::runtime_error(
-                "Error when simulating n-way DSN averaged Doppler observable; no ancillary settings found. ");
+                "Error when simulating Doppler Measured Frequency observable; no ancillary settings found. ");
         }
 
         std::vector< FrequencyBands > frequencyBands;

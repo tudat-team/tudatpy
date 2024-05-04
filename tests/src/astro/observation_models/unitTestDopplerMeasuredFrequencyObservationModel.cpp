@@ -28,6 +28,10 @@
 #include "tudat/simulation/environment_setup/createBodies.h"
 #include "tudat/simulation/environment_setup/createGroundStations.h"
 #include "tudat/astro/basic_astro/unitConversions.h"
+#include "tudat/interface/spice/spiceInterface.h"
+
+#include "tudat/astro/ground_stations/transmittingFrequencies.h"
+#include "tudat/io/readTrackingTxtFile.h"
 
 //namespace tudat
 //{
@@ -43,10 +47,26 @@ using namespace tudat::orbital_element_conversions;
 using namespace tudat::coordinate_conversions;
 using namespace tudat::unit_conversions;
 
+namespace tio = tudat::input_output;
+
 
 //BOOST_AUTO_TEST_SUITE(test_doppler_measured_frequency)
 
 //BOOST_AUTO_TEST_CASE(testSimpleCase)
+
+
+const static std::string juiceDataFile = tudat::paths::getTudatTestDataPath() + "Fdets.jui2023.09.14.Hb.r2i.txt";
+
+std::shared_ptr<tio::TrackingTxtFileContents> readJuiceFdetsFile(const std::string& fileName)
+{
+    std::vector<std::string>
+        columnTypes({ "utc_datetime_string", "signal_to_noise_ratio", "normalised_spectral_max", "doppler_measured_frequency_hz", "doppler_noise_hz", });
+
+    auto rawFileContents = tio::createTrackingTxtFileContents(fileName, columnTypes, '#', ", \t");
+    rawFileContents->addMetaData(tio::TrackingDataType::file_name, "JUICE Fdets Test File");
+    return rawFileContents;
+}
+
 
 int main()
 {
@@ -55,98 +75,89 @@ int main()
     spice_interface::loadStandardSpiceKernels();
 
     // Define bodies to use.
-    std::vector< std::string > bodiesToCreate = { "Earth", "Sun", "Mars" };
+    std::vector< std::string > bodiesToCreate = { "Earth", "Sun", "Jupiter" };
+    std::string globalFrameOrigin = "Sun";
+    std::string globalFrameOrientation = "J2000";
 
-    // Specify initial time
-    double initialEphemerisTime = 0.0;
+
+    // Specify simulation time settings
+    std::string initialEphemerisDateString = "2023-09-14T06:18:05.000"; // FDETS FILE START
+    double initialEphemerisTime = convertDateStringToEphemerisTime(initialEphemerisDateString);
     double finalEphemerisTime = initialEphemerisTime + 7.0 * 86400.0;
     double maximumTimeStep = 3600.0;
     double buffer = 10.0 * maximumTimeStep;
 
+    double initialTimeEnvironment = initialEphemerisTime - buffer;
+    double finalTimeEnvironment = finalEphemerisTime + buffer;
+
     // Create bodies settings needed in simulation
-    BodyListSettings defaultBodySettings = getDefaultBodySettings(bodiesToCreate, initialEphemerisTime - buffer, finalEphemerisTime + buffer);
-
-    // Create bodies
-    SystemOfBodies bodies = createSystemOfBodies(defaultBodySettings);
-
-    // Create ground stations
-    const Eigen::Vector3d stationCartesianPosition(1917032.190, 6029782.349, -801376.113);
-    createGroundStation(bodies.at("Earth"), "Station1", stationCartesianPosition, cartesian_position);
-
-    // // Set station with unrealistic position to force stronger proper time effect
-    // const Eigen::Vector3d stationCartesianPosition2(4324532.0, 157372.0, -9292843.0);
-    // createGroundStation(bodies.at("Earth"), "Station2", stationCartesianPosition2, cartesian_position);
+    BodyListSettings bodySettings = getDefaultBodySettings(
+        bodiesToCreate, initialTimeEnvironment, finalTimeEnvironment, globalFrameOrigin, globalFrameOrientation);
 
     // Create Spacecraft
-    Eigen::Vector6d spacecraftOrbitalElements;
-    spacecraftOrbitalElements(semiMajorAxisIndex) = 10000.0E3;
-    spacecraftOrbitalElements(eccentricityIndex) = 0.33;
-    spacecraftOrbitalElements(inclinationIndex) = convertDegreesToRadians(65.3);
-    spacecraftOrbitalElements(argumentOfPeriapsisIndex) = convertDegreesToRadians(235.7);
-    spacecraftOrbitalElements(longitudeOfAscendingNodeIndex) = convertDegreesToRadians(23.4);
-    spacecraftOrbitalElements(trueAnomalyIndex) = convertDegreesToRadians(0.0);
-    double earthGravitationalParameter = bodies.at("Earth")->getGravityFieldModel()->getGravitationalParameter();
+    const std::string spacecraftName = "JUICE";
+    bodiesToCreate.push_back(spacecraftName);
+    bodySettings.addSettings(spacecraftName);
+    bodySettings.get(spacecraftName)->ephemerisSettings = directSpiceEphemerisSettings("Sun", "J2000", false);
 
-    bodies.createEmptyBody("Spacecraft");;
-    bodies.at("Spacecraft")->setEphemeris(createBodyEphemeris(std::make_shared< KeplerEphemerisSettings >(spacecraftOrbitalElements, 0.0, earthGravitationalParameter, "Earth"), "Spacecraft"));
+    // Create bodies
+    SystemOfBodies bodies = createSystemOfBodies(bodySettings);
+
+    // Create ground station
+    std::string stationName = "HOBART12";
+    const Eigen::Vector3d stationCartesianPosition = Eigen::Vector3d(-3949990.106, 2522421.118, -4311708.734);
+    createGroundStation(bodies.at("Earth"), stationName, stationCartesianPosition, cartesian_position);
+
+
+    // Set turnaround ratios in spacecraft (ground station)
+    std::shared_ptr< system_models::VehicleSystems > vehicleSystems = std::make_shared< system_models::VehicleSystems >();
+    vehicleSystems->setTransponderTurnaroundRatio(&getDsnDefaultTurnaroundRatios);
+    bodies.at(spacecraftName)->setVehicleSystems(vehicleSystems);
+
     bodies.processBodyFrameDefinitions();
 
 
     // Define link ends for observations.
     LinkEnds linkEnds;
-    linkEnds[transmitter] = std::make_pair< std::string, std::string >("Earth", "");
-    linkEnds[retransmitter] = std::make_pair< std::string, std::string >("Mars", "");
-    linkEnds[receiver] = std::make_pair< std::string, std::string >("Earth", "");
+    linkEnds[transmitter] = std::make_pair< std::string, std::string >("Earth", static_cast<std::string>(stationName));
+    linkEnds[retransmitter] = std::make_pair< std::string, std::string >(static_cast<std::string>(spacecraftName), "");
+    linkEnds[receiver] = std::make_pair< std::string, std::string >("Earth", static_cast<std::string>(stationName));
 
 
-    LinkEnds uplinkLinkEnds;
-    uplinkLinkEnds[transmitter] = std::make_pair< std::string, std::string >("Earth", "");
-    uplinkLinkEnds[receiver] = std::make_pair< std::string, std::string >("Mars", "");
+    std::shared_ptr< ground_stations::StationFrequencyInterpolator > transmittingFrequencyCalculator = std::make_shared< ground_stations::ConstantFrequencyInterpolator >(7.18E9);
 
-    LinkEnds downlinkLinkEnds;
-    downlinkLinkEnds[transmitter] = std::make_pair< std::string, std::string >("Mars", "");
-    downlinkLinkEnds[receiver] = std::make_pair< std::string, std::string >("Earth", "");
+    bodies.at("Earth")->getGroundStation(stationName)->setTransmittingFrequencyCalculator(transmittingFrequencyCalculator);
 
     // Create observation settings
-
-    std::shared_ptr< TwoWayDopplerObservationModel< double, double> > dopplerFrequencyObservationModel =
-        std::dynamic_pointer_cast<TwoWayDopplerObservationModel< double, double>>(
+    std::shared_ptr< DopplerMeasuredFrequencyObservationModel< double, double> > dopplerFrequencyObservationModel =
+        std::dynamic_pointer_cast<DopplerMeasuredFrequencyObservationModel< double, double>>(
             ObservationModelCreator< 1, double, double>::createObservationModel(
                 std::make_shared< ObservationModelSettings >(doppler_measured_frequency, linkEnds), bodies));
 
-    // std::shared_ptr< ObservationModel< 1, double, double > > uplinkDopplerObservationModel = ObservationModelCreator< 1, double, double>::createObservationModel(
-    //     std::make_shared< ObservationModelSettings >(one_way_doppler, uplinkLinkEnds), bodies);
-    // std::shared_ptr< ObservationModel< 1, double, double > > downlinkDopplerObservationModel = ObservationModelCreator< 1, double, double>::createObservationModel(std::make_shared< ObservationModelSettings >(one_way_doppler, downlinkLinkEnds), bodies);
-
-
-    // // Creare independent light time calculator objects
-    // std::shared_ptr< LightTimeCalculator< double, double > > uplinkLightTimeCalculator =
-    //     createLightTimeCalculator(linkEnds, transmitter, retransmitter, bodies);
-    // std::shared_ptr< LightTimeCalculator< double, double > > downlinkLightTimeCalculator =createLightTimeCalculator(linkEnds, retransmitter, receiver, bodies);
-
     // Test observable for both fixed link ends
-    for (unsigned testCase = 0; testCase < 3; testCase++)
-    {
 
-        double observationTime = (finalEphemerisTime + initialEphemerisTime) / 2.0;
-        std::vector< double > linkEndTimes;
-        std::vector< Eigen::Vector6d > linkEndStates;
+    double observationTime = initialEphemerisTime;
+    std::vector< double > linkEndTimes;
+    std::vector< Eigen::Vector6d > linkEndStates;
 
-        // Define link end
-        LinkEndType referenceLinkEnd = receiver;
-      
-        // Compute observables
-        double dopplerObservable = dopplerFrequencyObservationModel->computeObservationsWithLinkEndData(
-            observationTime, referenceLinkEnd, linkEndTimes, linkEndStates)(0); 
+    // Define link end
+    LinkEndType referenceLinkEnd = receiver;
 
-        std::cout << "TEST: Doppler observable: " << dopplerObservable << "std::endl";
-    }
+    // Ancillary Settings
+    std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings =
+        std::make_shared< ObservationAncilliarySimulationSettings >();
+    ancillarySettings->setAncilliaryDoubleVectorData(frequency_bands, { x_band, x_band });
+
+    // Compute observables
+    double dopplerObservable = dopplerFrequencyObservationModel->computeObservationsWithLinkEndData(
+        observationTime, referenceLinkEnd, linkEndTimes, linkEndStates, ancillarySettings)(0);
+
+    std::cout << "TEST: Doppler observable: " << dopplerObservable << std::endl;
+
     // std::dynamic_pointer_cast<OneWayDopplerObservationModel< double, double>>(
     //     uplinkDopplerObservationModel)->setNormalizeWithSpeedOfLight(0);
     // std::dynamic_pointer_cast<OneWayDopplerObservationModel< double, double>>(
     //     downlinkDopplerObservationModel)->setNormalizeWithSpeedOfLight(0);
-
-
 
 }
 
