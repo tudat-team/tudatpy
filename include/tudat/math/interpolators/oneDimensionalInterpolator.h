@@ -351,17 +351,15 @@ protected:
         case binarySearch:
         {
             // Create binary search look up scheme.
-            lookUpScheme_ = std::shared_ptr< LookUpScheme< IndependentVariableType > >
-                    ( new BinarySearchLookupScheme< IndependentVariableType >
-                      ( independentValues_ ) );
+            lookUpScheme_ = std::make_shared< BinarySearchLookupScheme< IndependentVariableType > >
+                      ( independentValues_ );
             break;
         }
         case huntingAlgorithm:
         {
             // Create hunting scheme, which uses an intial guess from previous look-ups.
-            lookUpScheme_ = std::shared_ptr< LookUpScheme< IndependentVariableType > >
-                    ( new HuntingAlgorithmLookupScheme< IndependentVariableType >
-                      ( independentValues_ ) );
+            lookUpScheme_ = std::make_shared< HuntingAlgorithmLookupScheme< IndependentVariableType > >
+                      ( independentValues_ );
             break;
         }
         default:
