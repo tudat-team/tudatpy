@@ -1,0 +1,143 @@
+#! /usr/bin/env bash
+
+usage () {
+    echo "Usage setup [-h] [build | install | uninstall] [SUBCOMMAND-OPTIONS]"
+    echo ""
+    echo "Options:"
+    echo "  -h | --help                 Show this message"
+    echo ""
+    echo "Subcommands:"
+    echo "  build                       Build Tudat and TudatPy"
+    echo "  install                     Install Tudat and TudatPy to conda environment"
+    echo "  uninstall                   Remove Tudat and TudatPy from conda environment"
+    echo ""
+}
+
+build_usage () {
+    echo "Usage setup build [OPTIONS]"
+    echo ""
+    echo "Options:"
+    echo "  -h | --help                 Show this message"
+    echo "  -j                          Number of processors to use [Default: 1]"
+    echo "  -c | --clean                Clean after build"
+    echo "  --build-dir                 Build directory [Default: build]"
+    echo "  --no-tests                  Don't build tests"
+    echo "  --cxx-std                   C++ standard for compilation [Default: 20]"
+}
+
+install_usage () {
+    echo "Usage setup install [-h]"
+}
+
+uninstall_usage() {
+    echo "Usage setup uninstall [-h]"
+}
+
+argument() {
+	if [[ $# -ge 2 && "${2:0:1}" != "-" ]]; then
+		echo "$2"
+	else
+		exit 1
+	fi
+}
+
+INSTALL_FLAG=0
+BUILD_FLAG=0
+UNINSTALL_FLAG=0
+NUMBER_OF_PROCESSORS=1
+CLEAN_BUILD=0
+BUILD_DIR=build
+BUILD_TESTS=1
+RUN_TESTS=1
+CXX_STANDARD=20
+
+while [ $# -gt 0 ]; do
+    case $1 in
+        -h | --help)
+            if [ $INSTALL_FLAG = "1" ]; then
+                install_usage
+            elif [ $BUILD_FLAG = "1" ]; then
+                build_usage
+            elif [ $UNINSTALL_FLAG = "1" ]; then
+                uninstall_usage
+            else
+                usage
+            fi
+            exit 0
+            ;;
+        -j)
+            NUMBER_OF_PROCESSORS=$(argument $@)
+            shift
+            ;;
+        -c | --clean)
+            CLEAN_BUILD=1;;
+        --build-dir)
+            BUILD_DIR=$(argument $@)
+            shift
+            ;;
+        --no-tests)
+            BUILD_TESTS=0;;
+        --cxx-std)
+            CXX_STANDARD=$(argument $@)
+            shift
+            ;;
+        install)
+            INSTALL_FLAG=1;;
+        build)
+            BUILD_FLAG=1;;
+        uninstall)
+            UNINSTALL_FLAG=1;;
+        *)
+            echo "Would raise an error"
+            exit 1
+            ;;
+    esac
+    shift
+done
+
+if [ $BUILD_FLAG = "1" ]; then
+    mkdir "${BUILD_DIR}"
+fi
+
+cd "${BUILD_DIR}" || {
+    echo "Failed to cd into build directory"
+    exit 1
+}
+
+# CMake configuration
+if [ $BUILD_FLAG = "1" ] || [ $INSTALL_FLAG = "1" ]; then
+    cmake -DCMAKE_PREFIX_PATH="$CONDA_PREFIX" \
+        -DCMAKE_INSTALL_PREFIX="$CONDA_PREFIX" \
+        -DCMAKE_CXX_STANDARD="${CXX_STANDARD}" \
+        -DBoost_NO_BOOST_CMAKE=ON \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DTUDAT_BUILD_TESTS="${BUILD_TESTS}" \
+    ..
+fi
+
+if [ $BUILD_FLAG = "1" ]; then
+    if [ $CLEAN_BUILD = "1" ]; then
+        cmake --build . --target clean -j"${NUMBER_OF_PROCESSORS}"
+        echo ""
+        echo "Clean finished"
+        echo ""
+        echo ""
+    else
+        cmake --build . -j"${NUMBER_OF_PROCESSORS}"
+    fi
+fi
+
+if [ $INSTALL_FLAG = "1" ]; then
+    cmake --install .
+fi
+
+
+if [ $UNINSTALL_FLAG = "1" ]; then
+    echo "Uninstalling tudat and tudatpy"
+    while IFS= read -r line; do
+        rm -f $line
+    done < install_manifest.txt
+    rm -rf "${CONDA_PREFIX}/include/tudat"
+    PYTHON_VERSION=${"$(python --version)":7:-2}
+    rm -rf "${CONDA_PREFIX}/lib/python${PYTHON_VERSION}/site-packages/tudatpy"
+fi
