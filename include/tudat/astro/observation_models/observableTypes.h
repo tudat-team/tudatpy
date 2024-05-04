@@ -41,7 +41,8 @@ enum ObservableType
     n_way_differenced_range = 10,
     relative_position_observable = 11,
     dsn_one_way_averaged_doppler = 12,
-    dsn_n_way_averaged_doppler = 13
+    dsn_n_way_averaged_doppler = 13,
+    doppler_measured_frequency = 14,
 };
 
 
