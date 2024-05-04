@@ -52,14 +52,8 @@ void ProcessedTrackingTxtFileContents::updateObservations()
         observableValues = utilities::convertVectors(lightTimeRangeConversion, lightTimes, lightTimeDelays);
         break;
       }
-      // FIXME: USE CORRECT OBSERVABLE TYPE
-      case two_way_doppler: {
-        std::vector<double> measuredFrequencies = rawTrackingTxtFileContents_->getDoubleDataColumn(input_output::TrackingDataType::doppler_measured_frequency);
-        std::vector<double> basebandFrequencies = rawTrackingTxtFileContents_->getDoubleDataColumn(input_output::TrackingDataType::doppler_base_frequency);
-
-        // TODO Calculate the correct observable
-        auto sum = [](double a, double b) { return a + b; };
-        observableValues = utilities::convertVectors(sum, measuredFrequencies, basebandFrequencies);
+      case doppler_measured_frequency: {
+        observableValues = rawTrackingTxtFileContents_->getDoubleDataColumn(input_output::TrackingDataType::doppler_measured_frequency);
         break;
       }
       default: {
