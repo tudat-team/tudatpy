@@ -1,7 +1,7 @@
 # tudat-bundle
 
 This repository facilitates parallel development between the `tudat` (C++) and the
-`tudatpy` (Python) library. 
+`tudatpy` (Python) library.
 Specific indications for documenting `tudat` or `tudapy` are reported in the `tudat-multidoc/README.md` file.
 
 
@@ -42,10 +42,10 @@ cd tudat-bundle
 ````
 
 > **Note** \
-> The `tudat-bundle` repository uses git submodules, which "allow you to keep a Git repository as a subdirectory of 
+> The `tudat-bundle` repository uses git submodules, which "allow you to keep a Git repository as a subdirectory of
 > another Git repository" (from [the Git guide](https://git-scm.com/book/en/v2/Git-Tools-Submodules)). In particular,
 > in the `tudat-bundle` there are four different subdirectories that are separate repositories: `tudat`, `tudatpy`,
-> `tudat-multidoc` and `tudat-multidoc/multidoc`. Each repository has its own branches and functions separately from 
+> `tudat-multidoc` and `tudat-multidoc/multidoc`. Each repository has its own branches and functions separately from
 > the others. This is the reason why the following two steps are needed.
 
 2. Clone the `tudat` & `tudatpy` submodules
@@ -73,7 +73,42 @@ It is possible that the creation of the environment will 'time out'. A likely re
 conda env create -f environment.yaml
 ````
 
-There are two directions you can go from here. CLion or the command line.
+There are two directions you can go from here: the command line or CLion.
+
+### Build & Install: Command line
+
+5. Activate the environment installed in step 4
+
+````
+conda activate tudat-bundle
+````
+
+6. Build Tudat and TudatPy
+
+```bash
+bash setup build
+```
+It is possible (but not needed) to modify the number of processors, the C++ version used
+by the compiler, the build type and some other parameters via flags. You can find more
+information by running
+
+```bash
+bash setup build --help
+```
+
+7. Install Tudat and TudatPy in your conda environment
+
+```bash
+bash setup install
+```
+
+This command will add your local installations of Tudat and TudatPy to your active
+conda environment, allowing you to use them as any other C++ or Python library. If you
+ever want to remove them from the environment, just execute
+
+```bash
+bash setup uninstall
+```
 
 ### Build: CLion
 > **Note**
@@ -122,14 +157,7 @@ recommended to start at `-j2` and work your way up with further builds, ensuring
 
 9. `Build > Build Project`
 
-### Build: Command line
-
-5. Activate the environment installed in step 4
-
-````
-conda activate tudat-bundle
-````
-
+<!--
 The following line can also be edited if you wish to build tudatpy with its debug info (switching from `Release` to `RelWithDebInfo`; note that `Debug` is also available):
 ````
 -DCMAKE_BUILD_TYPE=RelWithDebInfo
@@ -144,7 +172,7 @@ NUMBER_OF_PROCESSORS=${number_of_processors:-2}
 
 ````
 bash build.sh
-````
+```` -->
 
 ## Verify your build
 
@@ -162,7 +190,7 @@ ctest
 
 Desired result:
 ````
-.. 
+..
 100% tests passed, 0 tests failed out of 224
 Total Test time (real) = 490.77 sec
 ````
@@ -184,16 +212,15 @@ Desired result:
 =========================================== 6 passed in 1.78s ============================================
 ````
 
-## Use your build
+<!-- ## Use your build
 The path of the TudatPy kernel that has been manually compiled needs to be added before importing any `tudatpy.kernel` module.
 This can be done with the following two lines, with `<kernel_path>` being similar to `<tudat-bundle_path>/build/tudatpy`:
 ```
 import sys
 sys.path.insert(0, <kernel_path>)
-```
+``` -->
 
-## Notes
+<!-- ## Notes
 
 - [**All Users**] You can increase the number of cores used to compile `tudat` & `tudatpy` using the `-j<n>`
-  build argument, but **be aware** that the current complexity of the libraries can often result in your PC freezing indefinitely.
-
+  build argument, but **be aware** that the current complexity of the libraries can often result in your PC freezing indefinitely. -->
