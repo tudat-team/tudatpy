@@ -343,11 +343,11 @@ protected:
                     useValue = true;
                     if ( isAtBoundary == -1 )
                     {
-                        dependentVariable = IdentityElement::getNullIdentity< DependentVariableType >( dependentVariable );
+                        dependentVariable = IdentityElement::getNanIdentity< DependentVariableType >( dependentVariable );
                     }
                     else if ( isAtBoundary == 1 )
                     {
-                        dependentVariable = IdentityElement::getNullIdentity< DependentVariableType >( dependentVariable );
+                        dependentVariable = IdentityElement::getNanIdentity< DependentVariableType >( dependentVariable );
                     }
                     else
                     {
