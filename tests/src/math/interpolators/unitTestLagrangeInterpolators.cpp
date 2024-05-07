@@ -67,7 +67,7 @@ std::map< int, double > getPolynomialCoefficients( const int polynomialOrder)
 
     // Copy subset of allCoefficients map into currentCoefficients.
     std::map< int, double > currentCoefficients( allCoefficients.begin(),
-        boost::next( allCoefficients.begin(), polynomialOrder + 1 ) );
+        std::next( allCoefficients.begin(), polynomialOrder + 1 ) );
     return currentCoefficients;
 
 }

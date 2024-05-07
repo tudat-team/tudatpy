@@ -364,7 +364,8 @@ private:
             interpolatedValue = IdentityElement::getNanIdentity< DependentVariableType >( zeroEntry_ );
             break;
         case lagrange_no_boundary_interpolation:
-            throw std::runtime_error( "Error: Lagrange interpolator called outside permitted bounds, at " + std::to_string( targetIndependentVariableValue ) );
+            throw std::runtime_error( "Error: Lagrange interpolator called outside permitted bounds, at " + std::to_string(
+                static_cast< double >( targetIndependentVariableValue ) ) );
             break;
         default:
             throw std::runtime_error( "Error when handling Lagrange boundary case, option not implemented" );
