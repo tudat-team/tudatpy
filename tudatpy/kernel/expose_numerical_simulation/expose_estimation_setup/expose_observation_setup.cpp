@@ -364,7 +364,7 @@ void expose_observation_setup(py::module &m) {
           py::arg("light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
           py::arg("bias_settings") = nullptr,
           py::arg("light_time_convergence_settings") = std::make_shared< tom::LightTimeConvergenceCriteria >( ),
-          get_docstring("angular_position").c_str() );
+          get_docstring("relative_angular_position").c_str() );
 
     m.def("cartesian_position",
           &tom::positionObservableSettings,
