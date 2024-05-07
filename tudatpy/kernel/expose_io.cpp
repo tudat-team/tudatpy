@@ -10,7 +10,7 @@
 
 #include "expose_io.h"
 
-#include "tudatpy/docstrings.h"
+#include "docstrings.h"
 
 #include "tudat/io/readHistoryFromFile.h"
 #include "tudat/io/missileDatcomData.h"
