@@ -462,7 +462,7 @@ BOOST_AUTO_TEST_CASE( testPeriodicGravityFieldVariations )
                 {
                     expectedCosineCoefficientsCorrections.block( minimumDegree, minimumOrder, 2, 3 ) += cosineAmplitudes.at( j ) * std::cos(
                                 frequencies.at( j ) * ( testTime - referenceEpoch ) + phases.at( j ) );
-                    expectedSineCoefficientsCorrections.block( minimumDegree, minimumOrder, 2, 3 ) += sineAmplitudes.at( j ) * std::sin(
+                    expectedSineCoefficientsCorrections.block( minimumDegree, minimumOrder, 2, 3 ) += sineAmplitudes.at( j ) * std::cos(
                                 frequencies.at( j ) * ( testTime - referenceEpoch ) + phases.at( j ) );
                 }
 
@@ -494,9 +494,12 @@ BOOST_AUTO_TEST_CASE( testPeriodicGravityFieldVariations )
 
 
                 Eigen::MatrixXd expectedCosineCoefficientsCorrections = Eigen::MatrixXd::Zero( 5, 5 );
+                Eigen::MatrixXd expectedSineCoefficientsCorrections = Eigen::MatrixXd::Zero( 5, 5 );
 
                 expectedCosineCoefficientsCorrections.block( minimumDegree, minimumOrder, 2, 3 ) =
                         cosineAmplitudes.at( 0 );
+                expectedSineCoefficientsCorrections.block( minimumDegree, minimumOrder, 2, 3 ) =
+                    sineAmplitudes.at( 0 );
 
                 // Compare corrections against expected variations.
                 for( unsigned int i = 0; i < 5; i++ )
@@ -505,7 +508,8 @@ BOOST_AUTO_TEST_CASE( testPeriodicGravityFieldVariations )
                     {
                         BOOST_CHECK_SMALL( calculatedCosineCoefficientCorrections( i, j ) -
                                            expectedCosineCoefficientsCorrections( i, j ), 1.0E-18 );
-                        BOOST_CHECK_EQUAL( calculatedSineCoefficientCorrections( i, j ), 0.0 );
+                        BOOST_CHECK_SMALL( calculatedSineCoefficientCorrections( i, j ) -
+                                           expectedSineCoefficientsCorrections( i, j ), 1.0E-18 );
                     }
                 }
 
