@@ -125,14 +125,14 @@ public:
      *  \return Null identity of Eigen types.
      */
     template< typename VariableType, typename std::enable_if< is_eigen_matrix< VariableType >::value, int >::type = 0 >
-    static VariableType getNullIdentity( )
+    static VariableType getNanIdentity( )
     {
         return VariableType::Constant( ( VariableType::RowsAtCompileTime > 0 ) ? VariableType::RowsAtCompileTime : 0,
                                        ( VariableType::ColsAtCompileTime > 0 ) ? VariableType::ColsAtCompileTime : 0, TUDAT_NAN );
     }
 
     template< typename VariableType, typename std::enable_if< is_eigen_matrix< VariableType >::value, int >::type = 0 >
-    static VariableType getNullIdentity( const VariableType& variable )
+    static VariableType getNanIdentity( const VariableType& variable )
     {
         return VariableType::Constant( variable.rows( ), variable.cols( ), TUDAT_NAN );
     }
@@ -143,13 +143,13 @@ public:
      *  \return Null identity of floating point types.
      */
     template< typename VariableType, typename std::enable_if< std::is_floating_point< VariableType >::value, int >::type = 0 >
-    static VariableType getNullIdentity( )
+    static VariableType getNanIdentity( )
     {
         return TUDAT_NAN;
     }
 
     template< typename VariableType, typename std::enable_if< std::is_floating_point< VariableType >::value, int >::type = 0 >
-    static VariableType getNullIdentity( const VariableType& variable  )
+    static VariableType getNanIdentity( const VariableType& variable  )
     {
         return TUDAT_NAN;
     }

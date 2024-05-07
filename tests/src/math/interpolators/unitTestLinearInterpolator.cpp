@@ -181,7 +181,7 @@ BOOST_AUTO_TEST_CASE( test_linearInterpolation_boundary_case )
     double interpolatedValue = TUDAT_NAN, expectedValue = TUDAT_NAN;
     bool exceptionIsCaught = false;
 
-    for( unsigned int i = 0; i < 7; i++ )
+    for( unsigned int i = 0; i < 9; i++ )
     {
         LinearInterpolatorDouble linearInterpolator(
                     independentVariableValues, dependentVariableValues, huntingAlgorithm,
@@ -243,6 +243,15 @@ BOOST_AUTO_TEST_CASE( test_linearInterpolation_boundary_case )
 
             interpolatedValue = linearInterpolator.interpolate( valueAboveMaximumValue );
             BOOST_CHECK_CLOSE_FRACTION( interpolatedValue, 0.0, 1.0E-15 );
+        }
+        else if( ( static_cast< BoundaryInterpolationType >( i ) == use_nan_value ) ||
+                 ( static_cast< BoundaryInterpolationType >( i ) == use_nan_value_with_warning ) )
+        {
+            interpolatedValue = linearInterpolator.interpolate( valueBelowMinimumValue );
+            BOOST_CHECK_EQUAL( !( interpolatedValue == interpolatedValue ), true );
+
+            interpolatedValue = linearInterpolator.interpolate( valueAboveMaximumValue );
+            BOOST_CHECK_EQUAL( !( interpolatedValue == interpolatedValue ), true );
         }
     }
 }
@@ -317,6 +326,25 @@ BOOST_AUTO_TEST_CASE( test_linearInterpolation_boundary_case_extrapolation_defau
 
             interpolatedValue = linearInterpolator.interpolate( valueAboveMaximumValue );
             BOOST_CHECK_SMALL( ( interpolatedValue - Eigen::Vector3d::Zero( ) ).norm( ), 1.0E-15 );
+        }
+
+        for( unsigned int i = 7; i < 9; i++ )
+        {
+            LinearInterpolator< double, Eigen::Vector3d > linearInterpolator(
+                independentVariableValues, dependentVariableValues, huntingAlgorithm,
+                static_cast< BoundaryInterpolationType >( i ) );
+
+            interpolatedValue = linearInterpolator.interpolate( valueBelowMinimumValue );
+            for( unsigned int j = 0; j < 3; j++ )
+            {
+                BOOST_CHECK_EQUAL( !( interpolatedValue == interpolatedValue ), true );
+            }
+
+            interpolatedValue = linearInterpolator.interpolate( valueAboveMaximumValue );
+            for( unsigned int j = 0; j < 3; j++ )
+            {
+                BOOST_CHECK_EQUAL( !( interpolatedValue == interpolatedValue ), true );
+            }
         }
     }
 
