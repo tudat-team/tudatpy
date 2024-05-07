@@ -61,6 +61,10 @@ void expose_interpolators(py::module &m) {
                    get_docstring("BoundaryInterpolationType.extrapolate_at_boundary").c_str())
             .value("extrapolate_at_boundary_with_warning", ti::BoundaryInterpolationType::extrapolate_at_boundary_with_warning,
                    get_docstring("BoundaryInterpolationType.extrapolate_at_boundary_with_warning").c_str())
+            .value("use_nan_value", ti::BoundaryInterpolationType::use_nan_value,
+                   get_docstring("BoundaryInterpolationType.use_nan_value").c_str())
+            .value("use_nan_value_with_warning", ti::BoundaryInterpolationType::use_nan_value_with_warning,
+                   get_docstring("BoundaryInterpolationType.use_nan_value_with_warning").c_str())
 //            .value("use_default_value", ti::BoundaryInterpolationType::use_default_value)
 //            .value("use_default_value_with_warning", ti::BoundaryInterpolationType::use_default_value_with_warning)
             .export_values();
@@ -75,8 +79,14 @@ void expose_interpolators(py::module &m) {
     py::enum_<ti::LagrangeInterpolatorBoundaryHandling>(m, "LagrangeInterpolatorBoundaryHandling", get_docstring("LagrangeInterpolatorBoundaryHandling").c_str())
             .value("lagrange_cubic_spline_boundary_interpolation", ti::LagrangeInterpolatorBoundaryHandling::lagrange_no_boundary_interpolation,
                    get_docstring("LagrangeInterpolatorBoundaryHandling.lagrange_cubic_spline_boundary_interpolation").c_str() )
+            .value("lagrange_cubic_spline_boundary_interpolation_with_warning", ti::LagrangeInterpolatorBoundaryHandling::lagrange_cubic_spline_boundary_interpolation_with_warning,
+                   get_docstring("LagrangeInterpolatorBoundaryHandling.lagrange_cubic_spline_boundary_interpolation_with_warning").c_str() )
             .value("lagrange_no_boundary_interpolation", ti::LagrangeInterpolatorBoundaryHandling::lagrange_no_boundary_interpolation,
                    get_docstring("LagrangeInterpolatorBoundaryHandling.lagrange_no_boundary_interpolation").c_str() )
+            .value("lagrange_boundary_nan_interpolation", ti::LagrangeInterpolatorBoundaryHandling::lagrange_boundary_nan_interpolation,
+                   get_docstring("LagrangeInterpolatorBoundaryHandling.lagrange_boundary_nan_interpolation").c_str() )
+            .value("lagrange_boundary_nan_interpolation_with_warning", ti::LagrangeInterpolatorBoundaryHandling::lagrange_boundary_nan_interpolation_with_warning,
+                   get_docstring("LagrangeInterpolatorBoundaryHandling.lagrange_boundary_nan_interpolation_with_warning").c_str() )
             .export_values();
 
     py::class_<ti::InterpolatorSettings,
