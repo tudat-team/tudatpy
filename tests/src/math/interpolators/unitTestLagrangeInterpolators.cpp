@@ -72,6 +72,7 @@ std::map< int, double > getPolynomialCoefficients( const int polynomialOrder)
 
 }
 
+
 //! Create quasi-random vector of non-uniform independent variables
 /*!
  *  Create quasi-random vector of non-uniform independent variables
