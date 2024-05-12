@@ -43,17 +43,33 @@ void ProcessedTrackingTxtFileContents::updateObservations()
     // TODO: This function could also take into account the metadata
     switch (observableType) {
       case n_way_range: {
+        // Conversion function for n-way range
         auto lightTimeRangeConversion = [](double lightTime, double lightTimeDelay) {
           return (lightTime - lightTimeDelay) * physical_constants::SPEED_OF_LIGHT;
         };
 
+        // Extract columns from raw data and convert to observable values
         std::vector<double> lightTimes = rawTrackingTxtFileContents_->getDoubleDataColumn(input_output::TrackingDataType::n_way_light_time);
         std::vector<double> lightTimeDelays = rawTrackingTxtFileContents_->getDoubleDataColumn(input_output::TrackingDataType::light_time_measurement_delay, 0.0);
         observableValues = utilities::convertVectors(lightTimeRangeConversion, lightTimes, lightTimeDelays);
         break;
       }
       case doppler_measured_frequency: {
-        observableValues = rawTrackingTxtFileContents_->getDoubleDataColumn(input_output::TrackingDataType::doppler_measured_frequency);
+        // Conversion function for doppler measured frequency
+        auto dopplerFrequencyConversion = [](double dopplerFrequency, double dopplerBaseFrequency) {
+          return dopplerFrequency + dopplerBaseFrequency;
+        };
+        
+        // Extract columns from raw data and convert to observable values
+        std::vector<double> dopplerFrequencies = rawTrackingTxtFileContents_->getDoubleDataColumn(input_output::TrackingDataType::doppler_measured_frequency);
+        std::vector<double> dopplerBaseFrequencies = rawTrackingTxtFileContents_->getDoubleDataColumn(input_output::TrackingDataType::doppler_base_frequency);
+        
+        // Check if any of the base frequencies are zero
+        if (std::any_of(dopplerBaseFrequencies.begin(), dopplerBaseFrequencies.end(), [](double baseFrequency) { return baseFrequency == 0.0; })) {
+          std::cerr << "Warning when processing doppler_measured_frequency. Doppler base frequency is zero." << std::endl;
+        }
+
+        observableValues = utilities::convertVectors(dopplerFrequencyConversion, dopplerFrequencies, dopplerBaseFrequencies);
         break;
       }
       default: {
