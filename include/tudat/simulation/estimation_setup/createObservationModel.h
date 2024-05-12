@@ -1027,8 +1027,7 @@ inline std::shared_ptr< ObservationModelSettings > dopplerMeasuredFrequencyObser
         const std::vector< std::shared_ptr< LightTimeCorrectionSettings > >& lightTimeCorrectionsList = std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
         const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
         const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria
-        = std::make_shared< LightTimeConvergenceCriteria >( ),
-        const bool normalizeWithSpeedOfLight = false )
+        = std::make_shared< LightTimeConvergenceCriteria >( ))
 {
     return std::make_shared< ObservationModelSettings >(
                 doppler_measured_frequency,
@@ -2047,19 +2046,9 @@ public:
             // FIXME: There is currently a lot of copy-paste involved in creating this. Maybe this could be done in a more elegant way?
 
 
-            // FIXME: Correct doppler model
             std::shared_ptr< TwoWayDopplerObservationModel< ObservationScalarType, TimeType > > twoWayDopplerModel;
             try
             {
-
-                // std::shared_ptr< TwoWayDopplerObservationSettings > twoWayDopplerSettings =
-                //     std::dynamic_pointer_cast< TwoWayDopplerObservationSettings >( observationSettings );
-
-
-                // twoWayDopplerModel =
-                //         std::dynamic_pointer_cast< TwoWayDopplerObservationModel< ObservationScalarType, TimeType > >(
-                //             ObservationModelCreator< 1, ObservationScalarType, TimeType >::createObservationModel(
-                //                 twoWayDopplerSettings, bodies, two_way_doppler ) );
 
                 const std::shared_ptr< ObservationModelSettings > simpleTwoWayDopplerSettings =
                         std::make_shared< ObservationModelSettings >( two_way_doppler, linkEnds );
@@ -2830,6 +2819,10 @@ public:
             firstObservationModel = dsnNWayAveragedDopplerObservationModel->getArcStartObservationModel( );
             secondObservationModel = dsnNWayAveragedDopplerObservationModel->getArcEndObservationModel( );
             break;
+        }
+        case observation_models::doppler_measured_frequency:
+        {
+            throw std::runtime_error( "Error when extract undifferenced observation model. Doppler Measured Frequency model not implemented." );
         }
         default:
             std::string errorMessage =
