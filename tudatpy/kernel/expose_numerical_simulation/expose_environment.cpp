@@ -666,6 +666,20 @@ void expose_environment(py::module &m) {
                 py::arg("frequency"));
 
 
+    py::class_<tgs::PiecewiseLinearFrequencyInterpolator,
+            std::shared_ptr<tgs::PiecewiseLinearFrequencyInterpolator>,
+            tgs::StationFrequencyInterpolator>(m, "PiecewiseLinearFrequencyInterpolator")
+            .def(py::init< 
+                    const std::vector< double >& ,
+                    const std::vector< double >& ,
+                    const std::vector< double >&,
+                    const std::vector< double >& >(),
+                 py::arg("start_times"),
+                 py::arg("end_times"),
+                 py::arg("ramp_rates"),
+                 py::arg("start_frequencies") );
+
+
     py::class_<tgs::PointingAnglesCalculator,
             std::shared_ptr<tgs::PointingAnglesCalculator>>(m, "PointingAnglesCalculator")
             .def("calculate_elevation_angle",
