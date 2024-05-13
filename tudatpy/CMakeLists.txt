@@ -162,10 +162,13 @@ install(TARGETS kernel
 install(FILES ${TUDATPY_PYTHON_FILES} "${CMAKE_CURRENT_BINARY_DIR}/_version.py"
         DESTINATION ${TUDATPY_INSTALL_PATH})
 
-# Install hybrid C++/Python modules
 macro(INSTALL_HYBRID_CPP_PYTHON_MODULE module_dir_name)
+if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${module_dir_name})
     install(DIRECTORY ${module_dir_name}/ DESTINATION "${TUDATPY_INSTALL_PATH}/${module_dir_name}")
     file(COPY ${module_dir_name}/ DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/${module_dir_name}/)
+else()
+        message(WARNING "Not installing hybrid C++/Python module ${module_dir_name} because it cannot be found in ${CMAKE_CURRENT_SOURCE_DIR}")
+    endif()
 endmacro()
 
 # Hybrid modules
