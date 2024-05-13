@@ -38,6 +38,8 @@ rever/
 /.tudat-documented/
 /.tudatpy-documented/
 /.docs-output
+# VSCode
+.vscode/
 
 # Cache
 **/**.pyc
