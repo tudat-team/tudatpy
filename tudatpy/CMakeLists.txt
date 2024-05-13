@@ -163,10 +163,10 @@ install(FILES ${TUDATPY_PYTHON_FILES} "${CMAKE_CURRENT_BINARY_DIR}/_version.py"
         DESTINATION ${TUDATPY_INSTALL_PATH})
 
 macro(INSTALL_HYBRID_CPP_PYTHON_MODULE module_dir_name)
-if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${module_dir_name})
-    install(DIRECTORY ${module_dir_name}/ DESTINATION "${TUDATPY_INSTALL_PATH}/${module_dir_name}")
-    file(COPY ${module_dir_name}/ DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/${module_dir_name}/)
-else()
+    if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${module_dir_name})
+        install(DIRECTORY ${module_dir_name}/ DESTINATION "${TUDATPY_INSTALL_PATH}/${module_dir_name}")
+        file(COPY ${module_dir_name}/ DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/${module_dir_name}/)
+    else()
         message(WARNING "Not installing hybrid C++/Python module ${module_dir_name} because it cannot be found in ${CMAKE_CURRENT_SOURCE_DIR}")
     endif()
 endmacro()
@@ -185,6 +185,42 @@ INSTALL_HYBRID_CPP_PYTHON_MODULE(plotting)
 INSTALL_HYBRID_CPP_PYTHON_MODULE(data)
 INSTALL_HYBRID_CPP_PYTHON_MODULE(util)
 INSTALL_HYBRID_CPP_PYTHON_MODULE(io)
+
+#################################################
+# Generate stubs to enable kernel autocompletions
+#################################################
+
+# Find stubgen executable
+find_program(Stubgen_Executable NAMES stubgen)
+if(NOT Stubgen_Executable)
+    message(FATAL_ERROR "Could not find stubgen. Please make sure it's installed in the active conda environment.")
+endif()
+# Find rsync executable
+find_program(Rsync_Executable NAMES rsync)
+if(NOT Rsync_Executable)
+    message(FATAL_ERROR "Could not find rsync. Please make sure it's installed on your system.")
+endif()
+
+# Generate stubs
+add_custom_command(TARGET kernel POST_BUILD
+    COMMAND ${Stubgen_Executable} -p tudatpy.kernel -o . > /dev/null 2>&1
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../
+    COMMENT "Generating stubs..."
+)
+
+# Move stubs into tudatpy
+add_custom_command(TARGET kernel POST_BUILD
+    COMMAND ${Rsync_Executable} -avh --remove-source-files --ignore-times --exclude '/__init__.pyi' kernel/* . > /dev/null 2>&1
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+    COMMENT "Moving stubs into Python library..."
+)
+
+# Remove directory where stubgen generated the stubs
+add_custom_command(TARGET kernel POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E remove_directory "${CMAKE_CURRENT_BINARY_DIR}/kernel" > /dev/null 2>&1
+    COMMENT "Removing stub directory..."
+)
+#################################################
 
 #install(FILES test.py "${CMAKE_CURRENT_BINARY_DIR}/_version.py")
 file(COPY ../tests DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/../)
