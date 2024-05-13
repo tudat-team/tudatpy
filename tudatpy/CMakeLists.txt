@@ -195,11 +195,6 @@ find_program(Stubgen_Executable NAMES stubgen)
 if(NOT Stubgen_Executable)
     message(FATAL_ERROR "Could not find stubgen. Please make sure it's installed in the active conda environment.")
 endif()
-# Find rsync executable
-find_program(Rsync_Executable NAMES rsync)
-if(NOT Rsync_Executable)
-    message(FATAL_ERROR "Could not find rsync. Please make sure it's installed on your system.")
-endif()
 
 # Generate stubs
 add_custom_command(TARGET kernel POST_BUILD
@@ -210,12 +205,17 @@ add_custom_command(TARGET kernel POST_BUILD
 
 # Move stubs into tudatpy
 add_custom_command(TARGET kernel POST_BUILD
-    COMMAND ${Rsync_Executable} -avh --remove-source-files --ignore-times --exclude '/__init__.pyi' kernel/* . > /dev/null 2>&1
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-    COMMENT "Moving stubs into Python library..."
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_BINARY_DIR}/kernel ${CMAKE_CURRENT_BINARY_DIR} > /dev/null 2>&1
+    COMMENT "Moving stubs to tudatpy..."
 )
 
-# Remove directory where stubgen generated the stubs
+# Remove tudatpy/__init__.pyi
+add_custom_command(TARGET kernel POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E remove "${CMAKE_CURRENT_BINARY_DIR}/__init__.pyi" > /dev/null 2>&1
+    COMMENT "Removing __init__.pyi file..."
+)
+
+# Remove directory (tudatpy/kernel) where stubgen generated the stubs
 add_custom_command(TARGET kernel POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E remove_directory "${CMAKE_CURRENT_BINARY_DIR}/kernel" > /dev/null 2>&1
     COMMENT "Removing stub directory..."
