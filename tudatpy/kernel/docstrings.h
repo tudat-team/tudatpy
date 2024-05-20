@@ -3471,7 +3471,7 @@ The value :math:`\mathbf{x}_{0}` is returned for :math:`t<t_{0}` (and :math:`\ma
 
     } else if(name == "BoundaryInterpolationType.use_boundary_value_with_warning") {
          return R"(
-Same as ``use_boundary_value``, but a warning is printed
+Same as ``use_boundary_value``, but a warning is printed to the terminal
      )";
 
 
@@ -3483,7 +3483,19 @@ The interpolation scheme is extended beyond the range `t_{0}...t_{N}` without an
 
     } else if(name == "BoundaryInterpolationType.extrapolate_at_boundary_with_warning") {
          return R"(
-Same as ``extrapolate_at_boundary``, but with a warning printed.
+Same as ``extrapolate_at_boundary``, but a warning is printed to the terminal
+     )";
+
+
+    } else if(name == "BoundaryInterpolationType.use_nan_value") {
+         return R"(
+The program will return an interpolated value filled with NaN entries.
+     )";
+
+
+    } else if(name == "BoundaryInterpolationType.use_nan_value_with_warning") {
+         return R"(
+Same as ``use_nan_value``, but a warning is printed to the terminal
      )";
 
 
@@ -3540,9 +3552,27 @@ A cubic-spline interpolator is created from the first and last :math:`\max(m/2-1
      )";
 
 
+    } else if(name == "LagrangeInterpolatorBoundaryHandling.lagrange_cubic_spline_boundary_interpolation_with_warning") {
+         return R"(
+Same as ``lagrange_cubic_spline_boundary_interpolation``, but a warning is printed to the terminal
+     )";
+
+
     } else if(name == "LagrangeInterpolatorBoundaryHandling.lagrange_no_boundary_interpolation") {
          return R"(
-he program will terminate with an error message when the Lagrange interpolator is interrogated beyond its valid range
+The program will terminate with an exception when the Lagrange interpolator is interrogated beyond its valid range
+     )";
+
+
+    } else if(name == "LagrangeInterpolatorBoundaryHandling.lagrange_boundary_nan_interpolation") {
+         return R"(
+The program will return an interpolated value filled with NaN entries.
+     )";
+
+
+    } else if(name == "LagrangeInterpolatorBoundaryHandling.lagrange_boundary_nan_interpolation_with_warning") {
+         return R"(
+Same as ``lagrange_boundary_nan_interpolation``, but a warning is printed to the terminal
      )";
 
 
@@ -6213,8 +6243,8 @@ light_time_correction_settings : List[ :class:`LightTimeCorrectionSettings` ], d
 bias_settings : :class:`ObservationBiasSettings`, default = None
     Settings for the observation bias that is to be used for the observation, default is None (unbiased observation)
 
-light_time_convergence_settings : :class:`LightTimeConvergenceCriteria`, default = :func:`light_time_convergence_settings`()
-    Settings for convergence of the light-time (default settings defined in :func:`light_time_convergence_settings`)
+light_time_convergence_settings : :class:`LightTimeConvergenceCriteria`, default = :func:`light_time_convergence_settings`
+    Settings for convergence of the light-time 
 
 Returns
 -------
@@ -6259,8 +6289,8 @@ bias_settings : :class:`ObservationBiasSettings`, default = None
     Settings for the observation bias that is to be used for the observation, default is none (unbiased observation).
     Note that only one bias setting is applied to the n-way observable.
 
-light_time_convergence_settings : :class:`LightTimeConvergenceCriteria`, default = :func:`light_time_convergence_settings`()
-    Settings for convergence of the light-time (default settings defined in :func:`light_time_convergence_settings`)
+light_time_convergence_settings : :class:`LightTimeConvergenceCriteria`, default = :func:`light_time_convergence_settings`
+    Settings for convergence of the light-time 
 
 Returns
 -------
@@ -6335,8 +6365,8 @@ bias_settings : :class:`ObservationBiasSettings`, default = None
     Settings for the observation bias that is to be used for the observation, default is none (unbiased observation).
     Note that only one bias setting is applied to the n-way observable.
 
-light_time_convergence_settings : :class:`LightTimeConvergenceCriteria`, default = :func:`light_time_convergence_settings`()
-    Settings for convergence of the light-time (default settings defined in :func:`light_time_convergence_settings`)
+light_time_convergence_settings : :class:`LightTimeConvergenceCriteria`, default = :func:`light_time_convergence_settings`
+    Settings for convergence of the light-time 
 
 Returns
 -------
@@ -6419,8 +6449,8 @@ light_time_correction_settings : List[ :class:`LightTimeCorrectionSettings` ], d
 bias_settings : :class:`ObservationBiasSettings`, default = None
     Settings for the observation bias that is to be used for the observation, default is none (unbiased observation)
 
-light_time_convergence_settings : :class:`LightTimeConvergenceCriteria`, default = :func:`light_time_convergence_settings`()
-    Settings for convergence of the light-time (default settings defined in :func:`light_time_convergence_settings`)
+light_time_convergence_settings : :class:`LightTimeConvergenceCriteria`, default = :func:`light_time_convergence_settings`
+    Settings for convergence of the light-time 
 
 Returns
 -------
@@ -6443,7 +6473,7 @@ Factory function for creating settings for a relative angular position observabl
 
 Factory function for creating observation model settings of relative angular position type observables (as relative right ascension :math:`\Delta\alpha` and relative declination :math:`\Delta\delta`), 
 for a single link definition. The associated observation model creates an observable that is the difference of two :func:`~tudatpy.numerical_simulation.estimation_setup.observation.angular_position`
-observables :math:`\left(\mathbf{h}_{_{\text{ang.pos.}}}\right)_{2}` and :math:`\mathbf{h}_{_{\text{ang.pos.}}}\right)_{1}`. 
+observables :math:`\left(\mathbf{h}_{_{\text{ang.pos.}}}\right)_{2}` and :math:`\left(\mathbf{h}_{_{\text{ang.pos.}}}\right)_{1}`. 
 The resulting observable becomes :math:`\left(\mathbf{h}_{_{\text{ang.pos.}}}\right)_{2}-\left(\mathbf{h}_{_{\text{ang.pos.}}}\right)_{2}`
 
 
@@ -6462,8 +6492,8 @@ light_time_correction_settings : List[ :class:`LightTimeCorrectionSettings` ], d
 bias_settings : :class:`ObservationBiasSettings`, default = None
     Settings for the observation bias that is to be used for the observation, default is none (unbiased observation)
 
-light_time_convergence_settings : :class:`LightTimeConvergenceCriteria`, default = :func:`light_time_convergence_settings`()
-    Settings for convergence of the light-time (default settings defined in :func:`light_time_convergence_settings`)
+light_time_convergence_settings : :class:`LightTimeConvergenceCriteria`, default = :func:`light_time_convergence_settings`
+    Settings for convergence of the light-time 
 
 Returns
 -------
@@ -6525,8 +6555,8 @@ transmitter_proper_time_rate_settings : :class:`DopplerProperTimeRateSettings`, 
 receiver_proper_time_rate_settings : :class:`DopplerProperTimeRateSettings`, default = None
     Settings for computing the receiver proper time rate :math:`\frac{d\tau}{dt}`, default is none (:math:`\frac{d\tau}{dt}=1`)
 
-light_time_convergence_settings : :class:`LightTimeConvergenceCriteria`, default = :func:`light_time_convergence_settings`()
-    Settings for convergence of the light-time (default settings defined in :func:`light_time_convergence_settings`)
+light_time_convergence_settings : :class:`LightTimeConvergenceCriteria`, default = :func:`light_time_convergence_settings`
+    Settings for convergence of the light-time 
 
 normalized_with_speed_of_light : bool, default = false
     Option to non-dimensionalize the observable with speed of light :math:`c`
@@ -6589,8 +6619,8 @@ transmitter_proper_time_rate_settings : :class:`DopplerProperTimeRateSettings`, 
 receiver_proper_time_rate_settings : :class:`DopplerProperTimeRateSettings`, default = None
     Settings for computing the receiver proper time rate :math:`\frac{d\tau}{dt}`, default is none (:math:`\frac{d\tau}{dt}=1`)
 
-light_time_convergence_settings : :class:`LightTimeConvergenceCriteria`, default = :func:`light_time_convergence_settings`()
-    Settings for convergence of the light-time (default settings defined in :func:`light_time_convergence_settings`)
+light_time_convergence_settings : :class:`LightTimeConvergenceCriteria`, default = :func:`light_time_convergence_settings`
+    Settings for convergence of the light-time 
 
 normalized_with_speed_of_light : bool, default = false
     Option to non-dimensionalize the observable with speed of light :math:`c`
@@ -6635,8 +6665,8 @@ bias_settings : :class:`ObservationBiasSettings`, default = None
     Settings for the observation bias that is to be used for the full observation, default is none (unbiased observation). Note that,
     even if no bias is applied to the two-way observable, the constituent one-way observables may still be biased.
 
-light_time_convergence_settings : :class:`LightTimeConvergenceCriteria`, default = :func:`light_time_convergence_settings`()
-    Settings for convergence of the light-time (default settings defined in :func:`light_time_convergence_settings`)
+light_time_convergence_settings : :class:`LightTimeConvergenceCriteria`, default = :func:`light_time_convergence_settings`
+    Settings for convergence of the light-time 
 
 Returns
 -------
@@ -6684,8 +6714,8 @@ light_time_correction_settings : List[ :class:`LightTimeCorrectionSettings` ], d
 bias_settings : :class:`ObservationBiasSettings`, default = None
     Settings for the observation bias that is to be used for the observation, default is none (unbiased observation)
 
-light_time_convergence_settings : :class:`LightTimeConvergenceCriteria`, default = :func:`light_time_convergence_settings`()
-    Settings for convergence of the light-time (default settings defined in :func:`light_time_convergence_settings`)
+light_time_convergence_settings : :class:`LightTimeConvergenceCriteria`, default = :func:`light_time_convergence_settings`
+    Settings for convergence of the light-time 
 
 Returns
 -------
@@ -6727,8 +6757,8 @@ light_time_correction_settings : List[ :class:`LightTimeCorrectionSettings` ], d
 bias_settings : :class:`ObservationBiasSettings`, default = None
     Settings for the observation bias that is to be used for the observation, default is none (unbiased observation)
 
-light_time_convergence_settings : :class:`LightTimeConvergenceCriteria`, default = :func:`light_time_convergence_settings`()
-    Settings for convergence of the light-time (default settings defined in :func:`light_time_convergence_settings`)
+light_time_convergence_settings : :class:`LightTimeConvergenceCriteria`, default = :func:`light_time_convergence_settings`
+    Settings for convergence of the light-time 
 
 Returns
 -------
@@ -6801,8 +6831,8 @@ light_time_correction_settings : List[ :class:`LightTimeCorrectionSettings` ], d
 bias_settings : :class:`ObservationBiasSettings`, default = None
     Settings for the observation bias that is to be used for the observation, default is none (unbiased observation)
 
-light_time_convergence_settings : :class:`LightTimeConvergenceCriteria`, default = :func:`light_time_convergence_settings`()
-    Settings for convergence of the light-time (default settings defined in :func:`light_time_convergence_settings`)
+light_time_convergence_settings : :class:`LightTimeConvergenceCriteria`, default = :func:`light_time_convergence_settings`
+    Settings for convergence of the light-time 
 
 Returns
 -------
