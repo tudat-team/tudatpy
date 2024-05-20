@@ -69,7 +69,7 @@ if bool(os.getenv("READTHEDOCS")) is True:
     source_path = generate_documentation(api_declaration, '.')
 
 else:
-    sys.path.insert(0, os.path.abspath('../..'))
+    sys.path.insert(0, os.path.abspath('../../../build/tudatpy'))
 
 # -- General configuration ------------------------------------------------
 
