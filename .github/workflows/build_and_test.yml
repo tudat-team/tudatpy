@@ -71,7 +71,7 @@ jobs:
     - name: Setup conda environment using mamba
       # This step sets up a conda environment using mamba, a faster alternative to conda. It creates an empty conda environment with the name 'tudat' and activates it. The environment is created using the latest version of Mambaforge, a conda distribution that includes mamba.
       # setup minoconda version 3.0.4 has fix for
-      uses: conda-incubator/setup-miniconda@v3.0.4
+      uses: conda-incubator/setup-miniconda@v3
       with:
          miniforge-variant: Mambaforge
          miniforge-version: latest
