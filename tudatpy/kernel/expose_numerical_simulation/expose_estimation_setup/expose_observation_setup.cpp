@@ -1129,8 +1129,8 @@ void expose_observation_setup(py::module &m) {
     m.def("create_odf_observed_observation_collection",
           &tom::createOdfObservedObservationCollection< double, TIME_TYPE >,
           py::arg("processed_odf_file"),
-          py::arg("observable_types_to_process") = std::vector< tom::ObservableType >( ),
-          py::arg("start_and_end_times_to_process") = std::make_pair< TIME_TYPE, TIME_TYPE >( TUDAT_NAN, TUDAT_NAN ),
+          py::arg("observable_types_to_process"),
+          py::arg("start_and_end_times_to_process"),
           get_docstring("create_odf_observed_observation_collection").c_str() );
 
 //    m.def("create_odf_observation_simulation_settings_list",
@@ -1163,7 +1163,7 @@ void expose_observation_setup(py::module &m) {
         py::arg("observable_types_to_process") = std::vector<tom::ObservableType>(),
         py::arg("earth_fixed_ground_station_positions") = tss::getApproximateDsnGroundStationPositions(),
         py::arg("ancillary_settings") = tom::ObservationAncilliarySimulationSettings(),
-        py::arg("start_and_end_times_to_process") = std::make_pair<TIME_TYPE, TIME_TYPE>(TUDAT_NAN, TUDAT_NAN),
+        py::arg("start_and_end_times_to_process"),
         get_docstring("create_tracking_txtfile_observation_collection").c_str());
 
     m.def("observation_settings_from_collection",
