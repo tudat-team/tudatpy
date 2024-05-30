@@ -226,7 +226,7 @@ void expose_numerical_simulation(py::module &m) {
                  py::arg("propagator_settings"),
                  py::arg("estimated_parameters"),
                  py::arg("integrate_equations_concurrently") = true,
-                 py::arg("variational_only_integrator_settings") = std::shared_ptr< tudat::numerical_integrators::IntegratorSettings< double > >( ),
+                 py::arg("variational_only_integrator_settings") = std::shared_ptr< tudat::numerical_integrators::IntegratorSettings< TIME_TYPE > >( ),
                  py::arg("clear_numerical_solutions") = false,
                  py::arg("integrate_on_creation") = true,
                  py::arg("set_integrated_result") = false,
