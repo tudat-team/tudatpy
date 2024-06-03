@@ -204,6 +204,8 @@ add_custom_command(TARGET kernel POST_BUILD
 )
 
 # Move stubs into tudatpy
+# - TODO: replace by install directory just like tudatpy
+# - TODO: turn into macro that can becalled to include stubs from particular kernel submodules, just like tudatpy python modules are selected for install
 add_custom_command(TARGET kernel POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_BINARY_DIR}/kernel ${CMAKE_CURRENT_BINARY_DIR} > /dev/null 2>&1
     COMMENT "Moving stubs to tudatpy..."
