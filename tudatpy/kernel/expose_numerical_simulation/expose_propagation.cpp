@@ -214,7 +214,7 @@ void expose_propagation(py::module &m)
             .def_property_readonly(
                     "was_condition_met_when_stopping",
                     &tp::PropagationTerminationDetailsFromHybridCondition::getWasConditionMetWhenStopping,
-                    get_docstring("PropagationTerminationDetailsFromHybridCondition.termination_reason").c_str());
+                    get_docstring("PropagationTerminationDetailsFromHybridCondition.was_condition_met_when_stopping").c_str());
 
     py::class_<
             tp::DependentVariablesInterface<TIME_TYPE>,
