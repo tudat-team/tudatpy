@@ -345,7 +345,6 @@ private:
         const std::shared_ptr< OneDimensionalInterpolator< IndependentVariableType, DependentVariableType > > boundaryInterpolator,
         const IndependentVariableType& targetIndependentVariableValue )
     {
-        std::cout<<"Lagrange handling "<<lagrangeBoundaryHandling_<<std::endl;
         DependentVariableType interpolatedValue;
         switch( lagrangeBoundaryHandling_ )
         {
