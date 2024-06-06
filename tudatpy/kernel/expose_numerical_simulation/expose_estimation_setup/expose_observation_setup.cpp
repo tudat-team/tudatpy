@@ -16,6 +16,7 @@
 #include "tudat/simulation/estimation_setup/createObservationModel.h"
 #include "tudat/simulation/estimation_setup/observationSimulationSettings.h"
 #include "tudat/simulation/estimation_setup/processOdfFile.h"
+#include "tudat/simulation/estimation_setup/processTrackingTxtFile.h"
 
 #include "tudatpy/docstrings.h"
 #include "tudatpy/scalarTypes.h"
@@ -363,7 +364,7 @@ void expose_observation_setup(py::module &m) {
           py::arg("light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
           py::arg("bias_settings") = nullptr,
           py::arg("light_time_convergence_settings") = std::make_shared< tom::LightTimeConvergenceCriteria >( ),
-          get_docstring("angular_position").c_str() );
+          get_docstring("relative_angular_position").c_str() );
 
     m.def("cartesian_position",
           &tom::positionObservableSettings,
@@ -744,7 +745,15 @@ void expose_observation_setup(py::module &m) {
                          &tss::ObservationSimulationSettings<double>::getObservationNoiseFunction,
                          py::overload_cast< const std::function< double( const double ) >& >(
                               &tss::ObservationSimulationSettings<double>::setObservationNoiseFunction ),
-                         get_docstring("ObservationSimulationSettings.noise_function").c_str() );
+                         get_docstring("ObservationSimulationSettings.noise_function").c_str() )
+            .def_property("observable_type",
+                         &tss::ObservationSimulationSettings<double>::getObservableType,
+                         &tss::ObservationSimulationSettings<double>::setObservableType,
+                         get_docstring("ObservationSimulationSettings.observable_type").c_str() )
+            .def_property_readonly("link_ends",
+                         &tss::ObservationSimulationSettings<double>::getLinkEnds,
+                         get_docstring("ObservationSimulationSettings.link_ends").c_str() );
+
 
 
     py::class_<tss::TabulatedObservationSimulationSettings<double>,
@@ -1120,8 +1129,8 @@ void expose_observation_setup(py::module &m) {
     m.def("create_odf_observed_observation_collection",
           &tom::createOdfObservedObservationCollection< double, TIME_TYPE >,
           py::arg("processed_odf_file"),
-          py::arg("observable_types_to_process") = std::vector< tom::ObservableType >( ),
-          py::arg("start_and_end_times_to_process") = std::make_pair< TIME_TYPE, TIME_TYPE >( TUDAT_NAN, TUDAT_NAN ),
+          py::arg("observable_types_to_process"),
+          py::arg("start_and_end_times_to_process"),
           get_docstring("create_odf_observed_observation_collection").c_str() );
 
 //    m.def("create_odf_observation_simulation_settings_list",
@@ -1137,6 +1146,32 @@ void expose_observation_setup(py::module &m) {
                 { tom::dsn_one_way_averaged_doppler, tom::one_way_differenced_range } },
           get_docstring("change_simulation_settings_observable_types").c_str() );
 
+  /////////////////////////////////////////////////////////////////////////////////////////////////
+  // Tracking Txt OBSERVATIONS
+  /////////////////////////////////////////////////////////////////////////////////////////////////
+
+    m.def("create_tracking_txtfile_observation_collection",
+        py::overload_cast<
+            const std::shared_ptr<tudat::input_output::TrackingTxtFileContents>,
+            const std::string,
+            const std::vector<tom::ObservableType>,
+            const std::map<std::string, Eigen::Vector3d>,
+            const tom::ObservationAncilliarySimulationSettings&,
+            std::pair<TIME_TYPE, TIME_TYPE>>(&tom::createTrackingTxtFileObservationCollection<double, TIME_TYPE>),
+        py::arg("raw_tracking_txtfile_contents"),
+        py::arg("spacecraft_name"),
+        py::arg("observable_types_to_process") = std::vector<tom::ObservableType>(),
+        py::arg("earth_fixed_ground_station_positions") = tss::getApproximateDsnGroundStationPositions(),
+        py::arg("ancillary_settings") = tom::ObservationAncilliarySimulationSettings(),
+        py::arg("start_and_end_times_to_process"),
+        get_docstring("create_tracking_txtfile_observation_collection").c_str());
+
+    m.def("observation_settings_from_collection",
+          py::overload_cast<std::shared_ptr<tom::ObservationCollection<double, TIME_TYPE> >>(
+              &tss::getObservationSimulationSettingsFromObservations<double, TIME_TYPE>),
+          py::arg("observed_observation_collection"),
+          get_docstring("observation_settings_from_collection").c_str()
+    );
 
     //////////////////////////////////////////// DEPRECATED ////////////////////////////////////////////
 
