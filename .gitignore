@@ -15,6 +15,7 @@ boost-numpy-eigen-*-Linux.tar.Z
 boost-numpy-eigen-*-Linux.tar.gz
 *.o
 *.so
+**/.DS_Store
 
 # Common build output folders
 cmake-build-debug/
