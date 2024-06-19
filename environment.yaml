@@ -9,7 +9,7 @@ dependencies:
   - sofa-cmake
   - nrlmsise-00
   - cspice-cmake
-  - python=3.12
+  - python=3.11
   - pybind11
   - pybind11-abi
   # Python dependencies
