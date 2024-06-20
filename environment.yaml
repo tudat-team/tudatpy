@@ -4,7 +4,7 @@ channels:
   - tudat-team
 dependencies:
   - eigen
-  - boost-cpp
+  - boost-cpp=1.78.0
   - tudat-resources
   - sofa-cmake
   - nrlmsise-00
@@ -13,7 +13,8 @@ dependencies:
   - pybind11
   - pybind11-abi
   # Python dependencies
-  - numpy
+  - numpy<2.0.0
+  - mypy
   - pytest
   - pandas     # for tudatpy.io
   - matplotlib # for tudatpy.plotting
