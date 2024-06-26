@@ -351,9 +351,19 @@ def get_weights_VFCC17(
         .loc[:, ["Code", "approx_tz", "jd_tz"]]
     )
 
-    table = pd.merge(
-        left=table, right=observatories_table, left_on="observatory", right_on="Code"
-    ).drop("Code", axis=1)
+    # the reset_index + set_index is a cheeky way to keep the original table index 
+    # this prevents mismatches when adding weights to the tables in BatchMPC.to_tudat()
+    table = (
+        pd.merge(
+            how="left",
+            left=table.reset_index(),
+            right=observatories_table,
+            left_on="observatory",
+            right_on="Code",
+        )
+        .drop("Code", axis=1)
+        .set_index("index")
+    )
 
     # create column that modifies the JD with an approximate timezone.
     # the time JD.50 will then be the approximate midnight at that timezone.
