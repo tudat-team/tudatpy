@@ -425,7 +425,7 @@ class BatchMPC:
             # this is to avoid errors with indexing in pandas.
             weights = weights.to_numpy()
 
-        self._table.loc["weight"] = weights
+        self._table.loc[:, "weight"] = weights
         self._custom_weights_set = True
 
     def filter(
@@ -647,13 +647,12 @@ class BatchMPC:
             DEC_col = "DEC"
 
         # Calculate observation weights and update table:
-        if apply_weights_VFCC17:
-            temp_table: pd.DataFrame = get_weights_VFCC17(  # type:ignore
+        if apply_weights_VFCC17 and not self._custom_weights_set:
+            temp_table:pd.DataFrame = get_weights_VFCC17(  # type:ignore
                 mpc_table=self.table,
                 return_full_table=True,
             )
-
-            self._table.loc[:, "weight"] = temp_table.loc[:, "weight"].values
+            self._table.loc[:, "weight"] = temp_table.loc[:, "weight"]
         else:
             temp_table = self.table.copy()
 
@@ -805,9 +804,11 @@ class BatchMPC:
                 observation_weights = observations_for_this_link.loc[
                     :, ["weight"]
                 ].to_numpy()[:, 0]
-                observation_weights = np.concatenate(
-                    [observation_weights, observation_weights]
-                ).flatten()
+                # this is to make sure the order is 1, 1, 2, 2, etc.
+                observation_weights = np.ravel(
+                    [observation_weights, observation_weights], "F"
+                )
+
                 observation_set.weights_vector = observation_weights
 
             observation_set_list.append(observation_set)
