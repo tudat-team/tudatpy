@@ -534,7 +534,10 @@ def get_weights_VFCC17(
     # ###################
 
     # Transform residual into weight:
-    table = table.assign(weight_pre=lambda x: 1 / np.square(x.inv_w))
+    table = table.assign(
+        weight_pre=lambda x: 1
+        / np.square(Quantity(x.inv_w, unit=u.arcsec).to(u.rad).value)
+    )
 
     # Reduce weight if there are more than 4 observations that night:
     # NOTE For satellites, this is done per julian day.
