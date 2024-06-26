@@ -210,6 +210,10 @@ class BatchMPC:
         Nside=None,
         catalog_flags=None,
     ):
+        """
+        Internal, applies star catalog biases based on
+        'Star catalog position and proper motion corrections in asteroid astrometry II: The Gaia era' by Eggl et al. (2018)
+        """
         if self._EFCC18_applied:
             pass
         else:
