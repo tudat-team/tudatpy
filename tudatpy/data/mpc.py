@@ -808,7 +808,7 @@ class BatchMPC:
                 observation_weights = observations_for_this_link.loc[
                     :, ["weight"]
                 ].to_numpy()[:, 0]
-                # this is to make sure the order is 1, 1, 2, 2, etc.
+                # this is to make sure the order is RA1, DEC1, 2, 2, 3, 3 etc.
                 observation_weights = np.ravel(
                     [observation_weights, observation_weights], "F"
                 )
