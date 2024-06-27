@@ -56,7 +56,10 @@ public:
      */
     virtual Eigen::Vector3d evaluateRadiationPressureForce(
             const double sourceIrradiance, const Eigen::Vector3d& sourceToTargetDirection) = 0;
-    
+
+    virtual Eigen::Vector3d evaluateRadiationPressureTorque(
+        const double sourceIrradiance, const Eigen::Vector3d& sourceToTargetDirection) = 0;
+
     std::map<std::string, std::vector<std::string>> getSourceToTargetOccultingBodies() const
     {
         return sourceToTargetOccultingBodies_;
@@ -111,6 +114,12 @@ public:
     Eigen::Vector3d evaluateRadiationPressureForce(
             double sourceIrradiance,
             const Eigen::Vector3d& sourceToTargetDirection ) override;
+
+    Eigen::Vector3d evaluateRadiationPressureTorque(
+        const double sourceIrradiance, const Eigen::Vector3d& sourceToTargetDirection) override
+    {
+        return Eigen::Vector3d::Zero( );
+    }
 
     double getArea() const
     {
@@ -204,6 +213,12 @@ public:
     Eigen::Vector3d evaluateRadiationPressureForce(
         double sourceIrradiance,
         const Eigen::Vector3d &sourceToTargetDirectionLocalFrame ) override;
+
+    Eigen::Vector3d evaluateRadiationPressureTorque(
+        const double sourceIrradiance, const Eigen::Vector3d& sourceToTargetDirection) override
+    {
+        throw std::runtime_error( "Error, radiation pressure torque not yet implemented for panelled radiation pressure target." );
+    }
 
     std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > >& getBodyFixedPanels( )
     {

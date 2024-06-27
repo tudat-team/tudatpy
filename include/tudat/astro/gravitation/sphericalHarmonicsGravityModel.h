@@ -111,11 +111,11 @@ public:
           sphericalHarmonicsCache_( sphericalHarmonicsCache ),
           saveSphericalHarmonicTermsSeparately_( false )
     {
-        maximumDegree_ = static_cast< int >( getCosineHarmonicsCoefficients( ).rows( ) );
-        maximumOrder_ = static_cast< int >( getCosineHarmonicsCoefficients( ).cols( ) );
+        maximumDegree_ = static_cast< int >( getCosineHarmonicsCoefficients( ).rows( ) ) - 1 ;
+        maximumOrder_ = static_cast< int >( getCosineHarmonicsCoefficients( ).cols( ) )- 1 ;
         sphericalHarmonicsCache_->resetMaximumDegreeAndOrder(
                     std::max< int >( maximumDegree_,
-                                     sphericalHarmonicsCache_->getMaximumDegree( ) ),
+                                     sphericalHarmonicsCache_->getMaximumDegree( ) ) + 1,
                     std::max< int >( maximumOrder_,
                                      sphericalHarmonicsCache_->getMaximumOrder( ) ) + 1 );
     }
@@ -172,12 +172,12 @@ public:
           sphericalHarmonicsCache_( sphericalHarmonicsCache ),
           saveSphericalHarmonicTermsSeparately_( false )
     {
-        maximumDegree_ = static_cast< int >( getCosineHarmonicsCoefficients( ).rows( ) );
-        maximumOrder_ = static_cast< int >( getCosineHarmonicsCoefficients( ).cols( ) );
+        maximumDegree_ = static_cast< int >( getCosineHarmonicsCoefficients( ).rows( ) - 1 );
+        maximumOrder_ = static_cast< int >( getCosineHarmonicsCoefficients( ).cols( ) - 1 );
         sphericalHarmonicsCache_->resetMaximumDegreeAndOrder(
-                    std::max< int >( maximumDegree_,
+                    std::max< int >( maximumDegree_ + 1,
                                      sphericalHarmonicsCache_->getMaximumDegree( ) ),
-                    std::max< int >( maximumOrder_,
+                    std::max< int >( maximumOrder_ + 1,
                                      sphericalHarmonicsCache_->getMaximumOrder( ) ) + 1 );
 
 
