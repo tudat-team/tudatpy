@@ -188,6 +188,11 @@ BOOST_AUTO_TEST_CASE( test_spherical_shaping_earth_1989ML_transfer )
                     departureVelocityFunction, arrivalVelocityFunction,
                     rootFinderSettings, -1.0e-2, 1.0e-2);
         }
+        else
+        {
+            throw std::runtime_error( "Spherical shaping leg not initialized." );
+        }
+
 
         sphericalShapingLegPointer->updateLegParameters(
                 ( Eigen::Vector3d( ) << julianDate, julianDate + timeOfFlight, numberOfRevolutions ).finished( ));
