@@ -60,6 +60,17 @@ filter_test_input = [
 ]
 
 
+# for the weights tests 
+observatory_set_single = ["M22"]
+observatory_set_multi = ["K19", "D67", "089", "706"]
+weights_test_combinations = [
+    (observatory_set_single, True),  # just one obs
+    (observatory_set_single, False),
+    (observatory_set_multi, False),
+    (None, False),  # all data
+]
+
+
 @pytest.mark.parametrize("inp,expected", get_observations_input)
 def test_BatchMPC_getobservations(inp, expected):
     query = BatchMPC()
