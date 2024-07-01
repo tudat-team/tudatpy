@@ -116,6 +116,7 @@ def test_BatchMPC_to_tudat(mpc_code):
     observation_collection = query.to_tudat(
         bodies=bodies,
         included_satellites=None,
+        apply_star_catalog_debias=False
     )
 
     # reshape to [2, ...] where 2 is RA + DEC
@@ -160,6 +161,7 @@ def test_BatchMPC_to_tudat_with_satelite(mpc_code):
     observation_collection = query.to_tudat(
         bodies=bodies,
         included_satellites={"C51": "Wise"},
+        apply_star_catalog_debias=False
     )
 
     # reshape to [2, ...] where 2 is RA + DEC
