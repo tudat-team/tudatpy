@@ -403,6 +403,25 @@ public:
         return concatenatedTimes_;
     }
 
+    std::vector< TimeType > getConcatenatedWeightVector( )
+    {
+        // for now, this only takes the weights set from the single observation sets.
+        // TODO may require a change later to accomodate other sources.
+
+        // lazy evaluation, check if the weights has been set, otherwise set it then return
+        if (concatenatedWeights_.size() != totalObservableSize_) {
+            concatenatedWeights_.resize(totalObservableSize_);
+            Eigen::VectorXd temp = getWeightsFromSingleObservationSets();
+            if (temp.size() > 0) {
+                Eigen::Map<Eigen::VectorXd> tempMap(temp.data(), temp.size());
+                concatenatedWeights_ = std::vector<ObservationScalarType>(
+                    tempMap.data(), tempMap.data() + tempMap.size());
+            }
+        }
+
+        return concatenatedWeights_;
+    }
+
     std::pair< TimeType, TimeType > getTimeBounds( )
     {
         return std::make_pair ( *std::min_element( concatenatedTimes_.begin( ), concatenatedTimes_.end( ) ),
@@ -786,6 +805,8 @@ private:
     Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > concatenatedObservations_;
 
     std::vector< TimeType > concatenatedTimes_;
+
+    std::vector<ObservationScalarType> concatenatedWeights_;
 
     std::vector< int > concatenatedLinkEndIds_;
 
