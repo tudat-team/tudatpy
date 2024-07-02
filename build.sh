@@ -82,7 +82,7 @@ CLEAN_BUILD=${clean_build:-0}
 BUILD_TYPE=${build_type:-Release}
 
 # build directory
-mkdir "${BUILD_DIR}"
+mkdir -p "${BUILD_DIR}"
 
 cd "${BUILD_DIR}" || {
   echo 'entry into build folder failed'
