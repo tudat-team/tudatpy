@@ -290,6 +290,12 @@ void expose_environment(py::module &m) {
                  &tsm::VehicleSystems::getCurrentControlSurfaceDeflection,
                   py::arg("control_surface_id"),
                   get_docstring("VehicleSystems.get_control_surface_deflection").c_str() )
+            .def("set_reference_point",
+                 &tsm::VehicleSystems::setReferencePointPosition,
+                 py::arg("reference_point"),
+                 py::arg("location"),
+                 get_docstring("VehicleSystems.get_control_surface_deflection").c_str() )
+
             .def("get_engine_model",
                  &tsm::VehicleSystems::getEngineModel,
                  py::arg("engine_name"),
