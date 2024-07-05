@@ -1132,6 +1132,8 @@ public:
         return propagationResults_->equationsOfMotionNumericalSolution_;
     }
 
+
+
     //! Function to return the map of state history of numerically integrated bodies, in propagation coordinates.
     /*!
      * Function to return the map of state history of numerically integrated bodies, in propagation coordinates.

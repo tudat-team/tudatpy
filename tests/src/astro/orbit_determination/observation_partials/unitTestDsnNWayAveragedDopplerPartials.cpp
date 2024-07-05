@@ -93,7 +93,7 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerPartials )
 
         // Process ODF file
         std::shared_ptr< ProcessedOdfFileContents > processedOdfFileContents =
-            std::make_shared< ProcessedOdfFileContents >( rawOdfFileContents, "MSL", true );
+            std::make_shared< ProcessedOdfFileContents >( rawOdfFileContents, "MSL", "", true );
         // Create ground stations
         setTransmittingFrequenciesInGroundStations( processedOdfFileContents, bodies.getBody( "Earth" ) );
         // Set turnaround ratios in spacecraft (ground station)
@@ -142,7 +142,7 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerPartials )
 
         // Process ODF file
         std::shared_ptr< ProcessedOdfFileContents > processedOdfFileContents =
-            std::make_shared< ProcessedOdfFileContents >( rawOdfFileContents, "MSL", true );
+            std::make_shared< ProcessedOdfFileContents >( rawOdfFileContents, "MSL", "", true );
         // Create ground stations
         setTransmittingFrequenciesInGroundStations( processedOdfFileContents, bodies.getBody( "Earth" ) );
         // Set turnaround ratios in spacecraft (ground station)

@@ -153,7 +153,8 @@ void calculateDesignMatrixAndResiduals(
                     Eigen::MatrixXd partialsMatrix;
                     observationManagers.at( currentObservableType )->
                             computeObservationsWithPartials(
-                            currentObservations->getObservationTimes( ), currentLinkEnds,
+                            currentObservations->getObservationTimes( ),
+                            currentLinkEnds,
                             currentObservations->getReferenceLinkEnd( ),
                             currentObservations->getAncilliarySettings( ),
                             observationsVector,
