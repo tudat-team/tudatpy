@@ -77,7 +77,8 @@ enum EstimatebleParametersEnum
     inverse_tidal_quality_factor,
     yarkovsky_parameter,
     custom_estimated_parameter,
-    reference_point_position
+    reference_point_position,
+    poynomial_gravity_field_variation_amplitudes
 };
 
 std::string getParameterTypeString( const EstimatebleParametersEnum parameterType );
