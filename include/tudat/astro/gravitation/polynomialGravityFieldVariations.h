@@ -67,6 +67,11 @@ public:
         return sineAmplitudes_;
     }
 
+    double getReferenceEpoch( )
+    {
+        return referenceEpoch_;
+    }
+
 protected:
 
     std::map< int, Eigen::MatrixXd > cosineAmplitudes_;

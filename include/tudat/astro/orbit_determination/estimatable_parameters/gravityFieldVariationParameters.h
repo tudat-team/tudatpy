@@ -45,14 +45,15 @@ public:
      */
     PolynomialGravityFieldVariationsParameters(
         const std::shared_ptr< gravitation::PolynomialGravityFieldVariations > polynomialVariationModel,
-        const std::map< int, std::vector< std::pair< int, int > > >& cosineBlockIndices,
-        const std::map< int, std::vector< std::pair< int, int > > >& sineBlockIndices,
+        const std::map< int, std::vector< std::pair< int, int > > >& cosineBlockIndicesPerPower,
+        const std::map< int, std::vector< std::pair< int, int > > >& sineBlockIndicesPerPower,
         const std::string& bodyName ):
-        EstimatableParameter< Eigen::VectorXd >( poynomial_gravity_field_variation_amplitudes, bodyName ),
+        EstimatableParameter< Eigen::VectorXd >( polynomial_gravity_field_variation_amplitudes, bodyName ),
         polynomialVariationModel_( polynomialVariationModel )
         {
             std::map< int, Eigen::MatrixXd > cosineVariations = polynomialVariationModel->getCosineAmplitudes( );
-            for( auto it : cosineBlockIndices )
+            int cosineIndexCounter = 0;
+            for( auto it : cosineBlockIndicesPerPower )
             {
                 if( cosineVariations.count( it.first ) == 0 )
                 {
@@ -78,11 +79,15 @@ public:
                                                   ", no cosine coefficient variation of order " + std::to_string( it.second.at( i ).second ) + " found." );
                     }
                     cosineCorrectionIndices_.push_back( std::make_tuple( it.first, it.second.at( i ).first, it.second.at( i ).second ) );
+                    indexAndPowerPerCosineBlockIndex_[ std::make_pair( it.second.at( i ).first, it.second.at( i ).second ) ].push_back(
+                        std::make_pair( cosineIndexCounter, it.first ) );
+                    cosineIndexCounter++;
                 }
             }
 
             std::map< int, Eigen::MatrixXd > sineVariations = polynomialVariationModel->getSineAmplitudes( );
-            for( auto it : sineBlockIndices )
+            int sineIndexCounter = 0;
+            for( auto it : sineBlockIndicesPerPower )
             {
                 if( sineVariations.count( it.first ) == 0 )
                 {
@@ -107,8 +112,13 @@ public:
                                                   " of polynomial term of order " + std::to_string( it.first ) +
                                                   ", no sine coefficient variation of order " + std::to_string( it.second.at( i ).second ) + " found." );
                     }
+
+                    sineCorrectionIndices_.push_back( std::make_tuple( it.first, it.second.at( i ).first, it.second.at( i ).second ) );
+                    indexAndPowerPerSineBlockIndex_[ std::make_pair( it.second.at( i ).first, it.second.at( i ).second ) ].push_back(
+                        std::make_pair( sineIndexCounter, it.first ) );
+                    sineIndexCounter++;
                 }
-                sineCorrectionIndices_.push_back( std::make_tuple( it.first, it.second.at( i ).first, it.second.at( i ).second ) );
+
             }
         }
 
@@ -134,6 +144,8 @@ public:
             polynomialCorrections( i ) = polynomialVariationModel_->getSineAmplitudesReference( ).at( std::get< 0 >( sineCorrectionIndices_.at( i ) ) )
                 ( std::get< 1 >( sineCorrectionIndices_.at( i ) ), std::get< 2 >( cosineCorrectionIndices_.at( i ) ) );
         }
+
+        return polynomialCorrections;
     }
 
     //! Pure virtual function to (re)set the value of the parameter.
@@ -175,6 +187,19 @@ public:
         return cosineCorrectionIndices_.size( ) + sineCorrectionIndices_.size( );
     }
 
+    std::map< std::pair< int, int >, std::vector< std::pair< int, int > > > getIndexAndPowerPerCosineBlockIndex( )
+    {
+        return indexAndPowerPerCosineBlockIndex_;
+    }
+
+    std::map< std::pair< int, int >, std::vector< std::pair< int, int > > > getIndexAndPowerPerSineBlockIndex( )
+    {
+        return indexAndPowerPerSineBlockIndex_;
+    }
+    std::shared_ptr< gravitation::PolynomialGravityFieldVariations > getPolynomialVariationModel( )
+    {
+        return polynomialVariationModel_;
+    }
 
 
 protected:
@@ -184,6 +209,10 @@ protected:
     std::vector< std::tuple< int, int, int > > cosineCorrectionIndices_;
 
     std::vector< std::tuple< int, int, int > > sineCorrectionIndices_;
+
+    std::map< std::pair< int, int >, std::vector< std::pair< int, int > > > indexAndPowerPerCosineBlockIndex_;
+
+    std::map< std::pair< int, int >, std::vector< std::pair< int, int > > > indexAndPowerPerSineBlockIndex_;
 
 };
 
