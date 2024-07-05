@@ -425,6 +425,22 @@ bool isParameterTidalProperty( const EstimatebleParametersEnum parameterType )
     return flag;
 }
 
+//! Function to determine whether the given parameter influences a body's tidal gravity field variations.
+bool isParameterNonTidalGravityFieldVariationProperty( const EstimatebleParametersEnum parameterType )
+{
+    bool flag;
+    switch( parameterType )
+    {
+    case polynomial_gravity_field_variation_amplitudes:
+        flag = true;
+        break;
+    default:
+        flag = false;
+        break;
+    }
+    return flag;
+}
+
 //! Function to determine whether the given parameter represents an arc-wise initial dynamical state.
 bool isParameterArcWiseInitialStateProperty( const EstimatebleParametersEnum parameterType )
 {
