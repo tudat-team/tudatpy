@@ -1982,8 +1982,15 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
             }
             break;
         }
-        case poynomial_gravity_field_variation_amplitudes:
+        case polynomial_gravity_field_variation_amplitudes:
         {
+            std::shared_ptr< PolynomialGravityFieldVariationEstimatableParameterSettings > gravityFieldVariationSettings =
+                std::dynamic_pointer_cast< PolynomialGravityFieldVariationEstimatableParameterSettings >( vectorParameterName );
+            if( gravityFieldVariationSettings == nullptr )
+            {
+                throw std::runtime_error( "Error, expected polynomial gravity field variation parameter settings " );
+            }
+
             // Check consistency of body gravity field
             std::shared_ptr< GravityFieldModel > gravityField = currentBody->getGravityFieldModel( );
             std::shared_ptr< TimeDependentSphericalHarmonicsGravityField > timeDepGravityField =
@@ -2005,21 +2012,24 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
             {
 
                 // Get associated gravity field variation
-                std::pair< bool, std::shared_ptr< gravitation::GravityFieldVariations > > polynomialVariaton =
+                std::pair< bool, std::shared_ptr< gravitation::GravityFieldVariations > > gravityFieldVariation =
                     currentBody->getGravityFieldVariationSet( )->getGravityFieldVariation( polynomial_variation );
-                if( polynomialVariaton.first == 0 )
+                if( gravityFieldVariation.first == 0 )
                 {
                     throw std::runtime_error( "Error when creating polynomial gravity field variation parameter; associated gravity field model not found." );
                 }
-                std::shared_ptr< gravitation::PolynomialGravityFieldVariations > gravityFieldVariation =
+                std::shared_ptr< gravitation::PolynomialGravityFieldVariations > polynomialVariaton  =
                     std::dynamic_pointer_cast< gravitation::PolynomialGravityFieldVariations >(
-                        polynomialVariaton.second  );
+                        gravityFieldVariation.second  );
 
                 // Create parameter object
-                if( gravityFieldVariation != nullptr )
+                if( polynomialVariaton != nullptr )
                 {
                     vectorParameterToEstimate = std::make_shared< PolynomialGravityFieldVariationsParameters >(
-                        polynomialVariaton, cosineVariationsToEstimate, sineVariationsToEstimate, currentBodyName );
+                        polynomialVariaton,
+                        gravityFieldVariationSettings->cosineBlockIndicesPerPower_,
+                        gravityFieldVariationSettings->sineBlockIndicesPerPower_,
+                        currentBodyName );
                 }
                 else
                 {
