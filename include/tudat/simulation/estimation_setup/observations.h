@@ -180,6 +180,17 @@ public:
         return observationsVector;
     }
 
+
+    std::pair< TimeType, TimeType > getTimeBounds( )
+    {
+        if( observationTimes_.size( ) == 0 )
+        {
+            throw std::runtime_error( "Error when getting time bounds of observation set, no observations found" );
+        }
+        return std::make_pair ( *std::min_element( observationTimes_.begin( ), observationTimes_.end( ) ),
+                                *std::max_element( observationTimes_.begin( ), observationTimes_.end( ) ) );
+    }
+
     std::map< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > getObservationsHistory( )
     {
         return utilities::createMapFromVectors< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >(
@@ -422,6 +433,11 @@ public:
         return concatenatedWeights_;
     }
 
+    std::vector< double > getConcatenatedDoubleTimeVector( )
+    {
+        return utilities::staticCastVector< double, TimeType >( concatenatedTimes_ );
+    }
+
     std::pair< TimeType, TimeType > getTimeBounds( )
     {
         return std::make_pair ( *std::min_element( concatenatedTimes_.begin( ), concatenatedTimes_.end( ) ),
@@ -619,6 +635,25 @@ public:
         return observationSetListIndexSorted;
     }
 
+    std::map< ObservableType, std::map< int, std::vector< std::pair< double, double > > > > getSortedObservationSetsTimeBounds( )
+    {
+        std::map< ObservableType, std::map< int, std::vector< std::pair< double, double > > > > observationSetTimeBounds;
+        for( auto it1 : observationSetList_ )
+        {
+            for( auto it2 : it1.second )
+            {
+                int currentLinkEndId = linkEndIds_[ it2.first ];
+                for( unsigned int i = 0; i < it2.second.size( ); i++ )
+                {
+                    std::pair< TimeType, TimeType > timeBounds = it2.second.at( i )->getTimeBounds( );
+                    observationSetTimeBounds[ it1.first ][ currentLinkEndId  ].push_back(
+                        { static_cast< double >( timeBounds.first ), static_cast< double >( timeBounds.second ) } );
+                }
+            }
+        }
+        return observationSetTimeBounds;
+    }
+
     std::map < ObservableType, std::vector< LinkEnds > > getLinkEndsPerObservableType( )
     {
         std::map < ObservableType, std::vector< LinkEnds > > linkEndsPerObservableType;
@@ -671,7 +706,50 @@ public:
         return weightsVector;
     }
 
+    std::tuple< Eigen::VectorXd, Eigen::VectorXd > getFullDependentVariableVector( const std::shared_ptr< simulation_setup::ObservationDependentVariableSettings > dependentVariable )
+    {
+        Eigen::VectorXd dependentVariablesVector = Eigen::VectorXd::Zero( concatenatedTimes_.size( ) );
+        Eigen::VectorXd dependentVariableTimes = Eigen::VectorXd::Zero( concatenatedTimes_.size( ) );
 
+        for( auto it : observationSetList_ )
+        {
+            if( observation_models::getObservableSize( it.first ) != 1 )
+            {
+                throw std::runtime_error( "Error, getting full dependent variable vector not yet supported for observables of size > 1" );
+            }
+            for( auto it2 : it.second )
+            {
+                for( unsigned int i = 0; i < it2.second.size( ); i++ )
+                {
+                    std::shared_ptr<simulation_setup::ObservationDependentVariableCalculator>
+                        dependentVariableCalculator =
+                        it2.second.at( i )->getDependentVariableCalculator( );
+                    std::pair< int, int > currentVectorIndices = observationSetStartAndSize_.at( it.first ).at( it2.first ).at( i );
+
+                    bool addDependentVariables = false;
+                    if ( dependentVariableCalculator != nullptr )
+                    {
+                        std::pair<int, int> variableIndices = dependentVariableCalculator->getDependentVariableIndices(
+                            dependentVariable );
+
+                        if( variableIndices.second > 0 )
+                        {
+                            addDependentVariables = true;
+                            std::map< double, Eigen::VectorXd > currentDependentVariableHistory =
+                                utilities::sliceMatrixHistory< TimeType, double, double >( it2.second.at( i )->getDependentVariableHistory( ), variableIndices );
+
+                            dependentVariableTimes.segment( currentVectorIndices.first, currentVectorIndices.second ) =
+                                utilities::convertStlVectorToEigenVector( utilities::createVectorFromMapKeys( currentDependentVariableHistory ) );
+                            Eigen::MatrixXd currentDependentVariableBlock = utilities::convertVectorHistoryToMatrix( currentDependentVariableHistory );
+                            dependentVariablesVector.segment( currentVectorIndices.first, currentVectorIndices.second ) =
+                                currentDependentVariableBlock.block( 0, 0, currentDependentVariableBlock.rows( ), 1 );
+                        }
+                    }
+                }
+            }
+        }
+        return std::make_pair( dependentVariableTimes, dependentVariablesVector );
+    }
 private:
 
     void setObservationSetIndices( )
@@ -873,7 +951,7 @@ std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeT
                                   arcSplitIndices.at( i ).first, arcSplitIndices.at( i ).second );
         }
 
-        splitSingleObervationSet.push_back(
+        std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > newObservationSet =
             std::make_shared< SingleObservationSet< ObservationScalarType, TimeType > >(
                 originalObservationSet->getObservableType( ),
                 originalObservationSet->getLinkEnds( ),
@@ -882,7 +960,11 @@ std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeT
                 originalObservationSet->getReferenceLinkEnd( ),
                 currentSplitDependentVariables,
                 originalObservationSet->getDependentVariableCalculator( ),
-                originalObservationSet->getAncilliarySettings( ) ) );
+                originalObservationSet->getAncilliarySettings( ) );
+        if( newObservationSet->getObservationTimes( ).size( ) > 0 )
+        {
+            splitSingleObervationSet.push_back( newObservationSet );
+        }
     }
     return splitSingleObervationSet;
 }
