@@ -104,7 +104,7 @@ void expose_gravity_field_setup(py::module &m) {
             .value("goco05c", tss::SphericalHarmonicsModel::ggm02s, get_docstring("PredefinedSphericalHarmonicsModel.goco05c").c_str())
             .value("glgm3150", tss::SphericalHarmonicsModel::glgm3150, get_docstring("PredefinedSphericalHarmonicsModel.glgm3150").c_str())
             .value("lpe200", tss::SphericalHarmonicsModel::lpe200, get_docstring("PredefinedSphericalHarmonicsModel.lpe200").c_str())
-            .value("gggrx1200", tss::SphericalHarmonicsModel::lpe200, get_docstring("PredefinedSphericalHarmonicsModel.ggglpe200rx1200").c_str())
+            .value("gggrx1200", tss::SphericalHarmonicsModel::gggrx1200, get_docstring("PredefinedSphericalHarmonicsModel.gggrx1200").c_str())
             .value("jgmro120d", tss::SphericalHarmonicsModel::jgmro120d, get_docstring("PredefinedSphericalHarmonicsModel.jgmro120d").c_str())
             .value("jgmess160a", tss::SphericalHarmonicsModel::jgmess160a, get_docstring("PredefinedSphericalHarmonicsModel.jgmess160a").c_str())
             .value("shgj180u", tss::SphericalHarmonicsModel::shgj180u, get_docstring("PredefinedSphericalHarmonicsModel.shgj180u").c_str())
