@@ -43,6 +43,7 @@
 #include "tudat/astro/orbit_determination/estimatable_parameters/constantThrust.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/yarkovskyParameter.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/referencePointPosition.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/gravityFieldVariationParameters.h"
 #include "tudat/astro/relativity/metric.h"
 #include "tudat/astro/basic_astro/accelerationModelTypes.h"
 #include "tudat/simulation/estimation_setup/estimatableParameterSettings.h"
@@ -1978,6 +1979,53 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
             {
                 vectorParameterToEstimate = std::make_shared< PolarMotionAmplitude >
                         ( std::dynamic_pointer_cast< PlanetaryRotationModel > ( currentBody->getRotationalEphemeris( ) ), currentBodyName);
+            }
+            break;
+        }
+        case poynomial_gravity_field_variation_amplitudes:
+        {
+            // Check consistency of body gravity field
+            std::shared_ptr< GravityFieldModel > gravityField = currentBody->getGravityFieldModel( );
+            std::shared_ptr< TimeDependentSphericalHarmonicsGravityField > timeDepGravityField =
+                std::dynamic_pointer_cast< TimeDependentSphericalHarmonicsGravityField >( gravityField );
+            if( timeDepGravityField == nullptr )
+            {
+                throw std::runtime_error(
+                    "Error, requested polynomial gravity field variation parameter of " +
+                    vectorParameterName->parameterType_.second.first +
+                    ", but body does not have a time dependent spherical harmonic gravity field." );
+            }
+            else if( currentBody->getGravityFieldVariationSet( ) == nullptr )
+            {
+                throw std::runtime_error( "Error, requested polynomial gravity field variation parameter of " +
+                                          vectorParameterName->parameterType_.second.first +
+                                          ", but body does not have gravity field variations" );
+            }
+            else
+            {
+
+                // Get associated gravity field variation
+                std::pair< bool, std::shared_ptr< gravitation::GravityFieldVariations > > polynomialVariaton =
+                    currentBody->getGravityFieldVariationSet( )->getGravityFieldVariation( polynomial_variation );
+                if( polynomialVariaton.first == 0 )
+                {
+                    throw std::runtime_error( "Error when creating polynomial gravity field variation parameter; associated gravity field model not found." );
+                }
+                std::shared_ptr< gravitation::PolynomialGravityFieldVariations > gravityFieldVariation =
+                    std::dynamic_pointer_cast< gravitation::PolynomialGravityFieldVariations >(
+                        polynomialVariaton.second  );
+
+                // Create parameter object
+                if( gravityFieldVariation != nullptr )
+                {
+                    vectorParameterToEstimate = std::make_shared< PolynomialGravityFieldVariationsParameters >(
+                        polynomialVariaton, cosineVariationsToEstimate, sineVariationsToEstimate, currentBodyName );
+                }
+                else
+                {
+                    throw std::runtime_error(
+                        "Error, expected PolynomialGravityFieldVariations when creating polynomial gravity field variation parameter" );
+                }
             }
             break;
         }
