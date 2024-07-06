@@ -1001,8 +1001,8 @@ public:
      */
     PolynomialGravityFieldVariationEstimatableParameterSettings(
         const std::string &associatedBody,
-        const std::map<int, std::vector<std::pair<int, int> > > &cosineBlockIndicesPerPower,
-        const std::map<int, std::vector<std::pair<int, int> > > &sineBlockIndicesPerPower ) :
+        const std::map<int, std::vector<std::pair<int, int> > >& cosineBlockIndicesPerPower,
+        const std::map<int, std::vector<std::pair<int, int> > >& sineBlockIndicesPerPower ) :
         EstimatableParameterSettings( associatedBody, polynomial_gravity_field_variation_amplitudes ),
         cosineBlockIndicesPerPower_( cosineBlockIndicesPerPower ),
         sineBlockIndicesPerPower_( sineBlockIndicesPerPower ){ }
@@ -1464,6 +1464,43 @@ inline std::shared_ptr< EstimatableParameterSettings > yarkovskyParameter( const
     return std::make_shared< EstimatableParameterSettings >( bodyName, yarkovsky_parameter, centralBodyName );
 }
 
+inline std::shared_ptr< EstimatableParameterSettings > polynomialGravityFieldVariationParameter(
+    const std::string bodyName,
+    const std::map<int, std::vector<std::pair<int, int> > >& cosineBlockIndicesPerPower,
+    const std::map<int, std::vector<std::pair<int, int> > >& sineBlockIndicesPerPower )
+{
+    return std::make_shared< PolynomialGravityFieldVariationEstimatableParameterSettings >( bodyName, cosineBlockIndicesPerPower, sineBlockIndicesPerPower );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > polynomialSinglePowerGravityFieldVariationParameter(
+    const std::string bodyName,
+    const int power,
+    const std::vector<std::pair<int, int> >& cosineBlockIndices,
+    const std::vector<std::pair<int, int> >& sineBlockIndices )
+{
+    return std::make_shared< PolynomialGravityFieldVariationEstimatableParameterSettings >(
+        bodyName,
+        std::map<int, std::vector<std::pair<int, int> > >( { { power, cosineBlockIndices } } ),
+        std::map<int, std::vector<std::pair<int, int> > >( { { power, sineBlockIndices } } ) );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > polynomialSinglePowerFullBlockGravityFieldVariationParameter(
+    const std::string bodyName,
+    const int power,
+    const int minimumDegree,
+    const int minimumOrder,
+    const int maximumDegree,
+    const int maximumOrder )
+{
+
+    std::vector< std::pair< int, int > > blockIndices = getSphericalHarmonicBlockIndices( minimumDegree, minimumOrder, maximumDegree, maximumOrder );
+
+    return std::make_shared< PolynomialGravityFieldVariationEstimatableParameterSettings >(
+        bodyName,
+        std::map<int, std::vector<std::pair<int, int> > >( { { power, blockIndices } } ),
+        std::map<int, std::vector<std::pair<int, int> > >( { { power, blockIndices } } ) );
+}
+
 inline std::shared_ptr< EstimatableParameterSettings > customParameterSettings(
     const std::string& customId,
     const int parameterSize,
@@ -1473,9 +1510,6 @@ inline std::shared_ptr< EstimatableParameterSettings > customParameterSettings(
     return std::make_shared<CustomEstimatableParameterSettings>(
         customId, parameterSize, getParameterFunction, setParameterFunction );
 }
-
-
-
 
 } // namespace estimatable_parameters
 
