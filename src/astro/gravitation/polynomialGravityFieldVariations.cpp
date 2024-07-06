@@ -87,7 +87,7 @@ PolynomialGravityFieldVariations::PolynomialGravityFieldVariations(
 {
     for( auto it : cosineAmplitudes_ )
     {
-        if( cosineAmplitudes_.count( it.first ) != 0 )
+        if( sineAmplitudes_.count( it.first ) != 0 )
         {
             if( ( it.second.rows( ) != sineAmplitudes_.at( it.first ).rows( ) ) || ( it.second.cols( ) != sineAmplitudes_.at( it.first ).cols( ) ) )
             {
@@ -98,7 +98,7 @@ PolynomialGravityFieldVariations::PolynomialGravityFieldVariations(
 
     for( auto it : sineAmplitudes_ )
     {
-        if( sineAmplitudes_.count( it.first ) != 0 )
+        if( cosineAmplitudes_.count( it.first ) != 0 )
         {
             if( ( it.second.rows( ) != cosineAmplitudes_.at( it.first ).rows( ) ) || ( it.second.cols( ) != cosineAmplitudes_.at( it.first ).cols( ) ) )
             {

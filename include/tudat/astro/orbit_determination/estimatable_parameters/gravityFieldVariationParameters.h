@@ -72,7 +72,7 @@ public:
                     }
 
                     if( it.second.at( i ).second > polynomialVariationModel_->getMaximumOrder( ) ||
-                        it.second.at( i ).second < polynomialVariationModel_->getMaximumOrder( ) )
+                        it.second.at( i ).second < polynomialVariationModel_->getMinimumOrder( ) )
                     {
                         throw std::runtime_error( "Error when estimating gravity field polynomial corrections of body " + bodyName +
                                                   " of polynomial term of order " + std::to_string( it.first ) +
@@ -106,7 +106,7 @@ public:
                     }
 
                     if( it.second.at( i ).second > polynomialVariationModel_->getMaximumOrder( ) ||
-                        it.second.at( i ).second < polynomialVariationModel_->getMaximumOrder( ) )
+                        it.second.at( i ).second < polynomialVariationModel_->getMinimumOrder( ) )
                     {
                         throw std::runtime_error( "Error when estimating gravity field polynomial corrections of body " + bodyName +
                                                   " of polynomial term of order " + std::to_string( it.first ) +
@@ -136,15 +136,14 @@ public:
         for( unsigned int i = 0; i < cosineCorrectionIndices_.size( ); i++ )
         {
             polynomialCorrections( i ) = polynomialVariationModel_->getCosineAmplitudesReference( ).at( std::get< 0 >( cosineCorrectionIndices_.at( i ) ) )
-                ( std::get< 1 >( cosineCorrectionIndices_.at( i ) ), std::get< 2 >( cosineCorrectionIndices_.at( i ) ) );
+                ( std::get< 1 >( cosineCorrectionIndices_.at( i ) ) - polynomialVariationModel_->getMinimumDegree( ), std::get< 2 >( cosineCorrectionIndices_.at( i ) )  - polynomialVariationModel_->getMinimumOrder( ) );
         }
 
-        for( unsigned int i = cosineCorrectionIndices_.size( ); i < polynomialCorrections.rows( ); i++ )
+        for( unsigned int i = 0; i < sineCorrectionIndices_.size( ); i++ )
         {
-            polynomialCorrections( i ) = polynomialVariationModel_->getSineAmplitudesReference( ).at( std::get< 0 >( sineCorrectionIndices_.at( i ) ) )
-                ( std::get< 1 >( sineCorrectionIndices_.at( i ) ), std::get< 2 >( cosineCorrectionIndices_.at( i ) ) );
+            polynomialCorrections( i + cosineCorrectionIndices_.size( ) ) = polynomialVariationModel_->getSineAmplitudesReference( ).at( std::get< 0 >( sineCorrectionIndices_.at( i ) ) )
+                ( std::get< 1 >( sineCorrectionIndices_.at( i ) ) - polynomialVariationModel_->getMinimumDegree( ), std::get< 2 >( cosineCorrectionIndices_.at( i ) ) - polynomialVariationModel_->getMinimumOrder( ) );
         }
-
         return polynomialCorrections;
     }
 
@@ -164,14 +163,16 @@ public:
 
         for( unsigned int i = 0; i < cosineCorrectionIndices_.size( ); i++ )
         {
-            cosineVariations[ std::get< 0 >( cosineCorrectionIndices_.at( i ) ) ]( std::get< 1 >( cosineCorrectionIndices_.at( i ) ), std::get< 2 >( cosineCorrectionIndices_.at( i ) ) ) =
+            cosineVariations[ std::get< 0 >( cosineCorrectionIndices_.at( i ) ) ]( std::get< 1 >( cosineCorrectionIndices_.at( i ) ) - polynomialVariationModel_->getMinimumDegree( ),
+                std::get< 2 >( cosineCorrectionIndices_.at( i ) ) - polynomialVariationModel_->getMinimumOrder( ) ) =
                 parameterValue( i );
         }
 
-        for( unsigned int i = cosineCorrectionIndices_.size( ); i < parameterValue.rows( ); i++ )
+        for( unsigned int i = 0; i < sineCorrectionIndices_.size( ); i++ )
         {
-            sineVariations[ std::get< 0 >( sineCorrectionIndices_.at( i ) ) ]( std::get< 1 >( sineCorrectionIndices_.at( i ) ), std::get< 2 >( sineCorrectionIndices_.at( i ) ) ) =
-                parameterValue( i );
+            sineVariations[ std::get< 0 >( sineCorrectionIndices_.at( i ) ) ]( std::get< 1 >( sineCorrectionIndices_.at( i ) ) - polynomialVariationModel_->getMinimumDegree( ),
+                std::get< 2 >( sineCorrectionIndices_.at( i ) ) - polynomialVariationModel_->getMinimumOrder( ) ) =
+                parameterValue( i + cosineCorrectionIndices_.size( ) );
         }
         polynomialVariationModel_->resetCosineAmplitudes( cosineVariations );
         polynomialVariationModel_->resetSineAmplitudes( sineVariations );
