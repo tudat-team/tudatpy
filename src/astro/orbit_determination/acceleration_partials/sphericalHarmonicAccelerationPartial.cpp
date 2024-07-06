@@ -261,6 +261,28 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > SphericalHarmonicsGr
                                              std::placeholders::_1 );
 
                 numberOfRows = parameter->getParameterSize( );
+                break;
+            }
+            case periodic_gravity_field_variation_amplitudes:
+            {
+                std::shared_ptr< PeriodicGravityFieldVariationsParameters > periodicVariationParameter =
+                    std::dynamic_pointer_cast< PeriodicGravityFieldVariationsParameters >( parameter );
+                std::map< std::pair< int, int >, std::vector< std::pair< int, int > > > indexAndPowerPerCosineBlockIndex =
+                    periodicVariationParameter->getIndexAndPowerPerCosineBlockIndex( );
+                std::map< std::pair< int, int >, std::vector< std::pair< int, int > > > indexAndPowerPerSineBlockIndex =
+                    periodicVariationParameter->getIndexAndPowerPerSineBlockIndex( );
+
+                partialFunction = std::bind( &SphericalHarmonicsGravityPartial::wrtPeriodicGravityFieldVariations, this,
+                                             utilities::createVectorFromMapKeys( indexAndPowerPerCosineBlockIndex ),
+                                             utilities::createVectorFromMapKeys( indexAndPowerPerSineBlockIndex ),
+                                             utilities::createVectorFromMapValues( indexAndPowerPerCosineBlockIndex ),
+                                             utilities::createVectorFromMapValues( indexAndPowerPerSineBlockIndex ),
+                                             periodicVariationParameter->getPeriodicVariationModel( )->getFrequencies( ),
+                                             periodicVariationParameter->getPeriodicVariationModel( )->getReferenceEpoch( ),
+                                             std::placeholders::_1 );
+
+                numberOfRows = parameter->getParameterSize( );
+                break;
             }
             default:
                 break;
@@ -477,8 +499,64 @@ void SphericalHarmonicsGravityPartial::wrtPolynomialGravityFieldVariations(
                 staticSinePartialsMatrix.block( 0, i, 3, 1 ) * std::pow( ( currentTime_ - referenceEpoch), powersPerSineBlockIndex.at( i ).at( j ).second );
         }
     }
-
 }
+
+
+void SphericalHarmonicsGravityPartial::wrtPeriodicGravityFieldVariations(
+    const std::vector< std::pair< int, int > >& cosineBlockIndices,
+    const std::vector< std::pair< int, int > >& sineBlockIndices,
+    const std::vector< std::vector< std::pair< int, int > > > powersPerCosineBlockIndex,
+    const std::vector< std::vector< std::pair< int, int > > > powersPerSineBlockIndex,
+    const std::vector< double >& frequencies,
+    const double referenceEpoch,
+    Eigen::MatrixXd& partialDerivatives )
+{
+    Eigen::MatrixXd staticCosinePartialsMatrix = Eigen::MatrixXd::Zero( 3, cosineBlockIndices.size( ) );
+    Eigen::MatrixXd staticSinePartialsMatrix = Eigen::MatrixXd::Zero( 3, sineBlockIndices.size( ) );
+
+    calculateSphericalHarmonicGravityWrtCCoefficients(
+        bodyFixedSphericalPosition_, bodyReferenceRadius_( ), gravitationalParameterFunction_( ),
+        sphericalHarmonicCache_,
+        cosineBlockIndices, coordinate_conversions::getSphericalToCartesianGradientMatrix(
+            bodyFixedPosition_ ), fromBodyFixedToIntegrationFrameRotation_( ), staticCosinePartialsMatrix,
+        maximumDegree_, maximumOrder_ );
+
+    calculateSphericalHarmonicGravityWrtSCoefficients(
+        bodyFixedSphericalPosition_, bodyReferenceRadius_( ), gravitationalParameterFunction_( ),
+        sphericalHarmonicCache_,
+        sineBlockIndices, coordinate_conversions::getSphericalToCartesianGradientMatrix(
+            bodyFixedPosition_ ), fromBodyFixedToIntegrationFrameRotation_( ), staticSinePartialsMatrix,
+        maximumDegree_, maximumOrder_ );
+
+    partialDerivatives.setZero( );
+
+    int counter = 0;
+    for( unsigned int i = 0; i < powersPerCosineBlockIndex.size( ); i++ )
+    {
+        for( unsigned int j = 0; j < powersPerCosineBlockIndex.at( i ).size( ); j++ )
+        {
+            double frequency = frequencies.at( powersPerCosineBlockIndex.at( i ).at( j ).second );
+            partialDerivatives.block( 0, 2 * powersPerCosineBlockIndex.at( i ).at( j ).first, 3, 1 ) +=
+                staticCosinePartialsMatrix.block( 0, i, 3, 1 ) * std::cos( frequency * ( currentTime_ - referenceEpoch ) );
+            partialDerivatives.block( 0, 2 * powersPerCosineBlockIndex.at( i ).at( j ).first + 1, 3, 1 ) +=
+                staticCosinePartialsMatrix.block( 0, i, 3, 1 ) * std::sin( frequency * ( currentTime_ - referenceEpoch ) );
+            counter++;
+        }
+    }
+
+    for( unsigned int i = 0; i < powersPerSineBlockIndex.size( ); i++ )
+    {
+        for( unsigned int j = 0; j < powersPerSineBlockIndex.at( i ).size( ); j++ )
+        {
+            double frequency = frequencies.at( powersPerSineBlockIndex.at( i ).at( j ).second );
+            partialDerivatives.block( 0, 2 * ( powersPerSineBlockIndex.at( i ).at( j ).first + counter ), 3, 1 ) +=
+                staticSinePartialsMatrix.block( 0, i, 3, 1 ) * std::cos( frequency * ( currentTime_ - referenceEpoch ) );
+            partialDerivatives.block( 0, 2 * ( powersPerSineBlockIndex.at( i ).at( j ).first + counter ) + 1, 3, 1 ) +=
+                staticSinePartialsMatrix.block( 0, i, 3, 1 ) * std::sin( frequency * ( currentTime_ - referenceEpoch ) );
+        }
+    }
+}
+
 
 //! Function to calculate the partial of the acceleration wrt a set of cosine coefficients.
 void SphericalHarmonicsGravityPartial::wrtCosineCoefficientBlock(
