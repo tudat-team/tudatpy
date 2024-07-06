@@ -33,6 +33,22 @@ namespace simulation_setup
 {
 
 inline std::shared_ptr< GravityFieldVariationSettings > degreeOrderVariableLoveNumberGravityFieldVariationSettingsPy(
+    const std::vector< std::string >& deformingBodies,
+    const std::map< int, std::vector< double > > loveNumber )
+{
+    std::map< int, std::vector< std::complex< double > > > loveNumbers;
+    for( auto loveNumberIt : loveNumber )
+    {
+        for( unsigned int i = 0; i < loveNumberIt.second.size( ); i++ )
+        {
+            loveNumbers[ loveNumberIt.first ].push_back( std::complex< double >( loveNumberIt.second.at( i ), 0 ) );
+        }
+    }
+    return std::make_shared< BasicSolidBodyGravityFieldVariationSettings >(
+        deformingBodies, loveNumbers, nullptr );
+}
+
+inline std::shared_ptr< GravityFieldVariationSettings > degreeOrderVariableLoveNumberGravityFieldVariationSettingsPy(
         const std::string deformingBody,
         const std::map< int, std::vector< double > > loveNumber )
 {
@@ -120,6 +136,13 @@ void expose_gravity_field_variation_setup(py::module &m) {
           py::arg("tide_raising_body"),
           py::arg("love_number_per_degree_and_order"),
           get_docstring("solid_body_tide_degree_order_variable_k").c_str() );
+
+    m.def("solid_multi_body_tide_degree_order_variable_k",
+          py::overload_cast<const std::vector< std::string >&, const std::map<int, std::vector<double> > >(
+              &tss::degreeOrderVariableLoveNumberGravityFieldVariationSettingsPy),
+          py::arg("tide_raising_bodies"),
+          py::arg("love_number_per_degree_and_order"),
+          get_docstring("solid_multi_body_tide_degree_order_variable_k").c_str() );
 
     m.def("solid_body_tide_degree_order_variable_complex_k",
           py::overload_cast<const std::string, const std::map<int, std::vector<std::complex<double> > > >(
