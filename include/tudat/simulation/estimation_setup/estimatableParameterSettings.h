@@ -1012,6 +1012,29 @@ public:
 
 };
 
+class PeriodicGravityFieldVariationEstimatableParameterSettings: public EstimatableParameterSettings
+{
+public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param associatedBody Body being deformed
+     * \param deformingBody Body causing deformed
+     */
+    PeriodicGravityFieldVariationEstimatableParameterSettings(
+        const std::string &associatedBody,
+        const std::map<int, std::vector<std::pair<int, int> > >& cosineBlockIndicesPerPower,
+        const std::map<int, std::vector<std::pair<int, int> > >& sineBlockIndicesPerPower ) :
+        EstimatableParameterSettings( associatedBody, periodic_gravity_field_variation_amplitudes ),
+        cosineBlockIndicesPerPower_( cosineBlockIndicesPerPower ),
+        sineBlockIndicesPerPower_( sineBlockIndicesPerPower ){ }
+
+    std::map< int, std::vector< std::pair< int, int > > > cosineBlockIndicesPerPower_;
+    std::map< int, std::vector< std::pair< int, int > > > sineBlockIndicesPerPower_;
+
+};
+
 
 class CustomEstimatableParameterSettings: public EstimatableParameterSettings
 {
