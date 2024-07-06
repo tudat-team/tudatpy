@@ -78,7 +78,8 @@ enum EstimatebleParametersEnum
     yarkovsky_parameter,
     custom_estimated_parameter,
     reference_point_position,
-    polynomial_gravity_field_variation_amplitudes
+    polynomial_gravity_field_variation_amplitudes,
+    periodic_gravity_field_variation_amplitudes
 };
 
 std::string getParameterTypeString( const EstimatebleParametersEnum parameterType );
