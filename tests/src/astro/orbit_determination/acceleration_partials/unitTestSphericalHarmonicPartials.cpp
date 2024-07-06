@@ -427,6 +427,16 @@ std::vector< std::shared_ptr< GravityFieldVariationSettings > > getEarthGravityF
     std::shared_ptr< GravityFieldVariationSettings > singleGravityFieldVariation =
             std::make_shared< BasicSolidBodyGravityFieldVariationSettings >( deformingBodies, loveNumbers );
     gravityFieldVariations.push_back( singleGravityFieldVariation );
+
+    std::map<int, Eigen::MatrixXd> cosineAmplitudes;
+    cosineAmplitudes[ 1 ] = Eigen::Matrix< double, 3, 5 >::Zero( );
+    cosineAmplitudes[ 2 ] = Eigen::Matrix< double, 3, 5 >::Zero( );
+    std::map<int, Eigen::MatrixXd> sineAmplitudes;
+    sineAmplitudes[ 1 ] = Eigen::Matrix< double, 3, 5 >::Zero( );
+    std::shared_ptr< GravityFieldVariationSettings > polynomialGravityFieldVariations =
+        std::make_shared< PolynomialGravityFieldVariationsSettings >(
+            cosineAmplitudes, sineAmplitudes, -1.0E4, 2, 0 );
+    gravityFieldVariations.push_back( polynomialGravityFieldVariations );
     return gravityFieldVariations;
 }
 
@@ -578,6 +588,22 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartial )
                                   "Earth", 3, "", false ) );
     parameterNames.push_back( std::make_shared< SingleDegreeVariableTidalLoveNumberEstimatableParameterSettings >(
                                   "Earth", 3, std::vector< int >{ 0, 3 }, "", true ) );
+    parameterNames.push_back( std::make_shared< SingleDegreeVariableTidalLoveNumberEstimatableParameterSettings >(
+        "Earth", 3, std::vector< int >{ 0, 3 }, "", true ) );
+
+    std::map<int, std::vector<std::pair<int, int> > > cosineBlockIndicesPerPower;
+    cosineBlockIndicesPerPower[ 1 ].push_back( std::make_pair( 2, 0 ) );
+    cosineBlockIndicesPerPower[ 1 ].push_back( std::make_pair( 3, 2 ) );
+    cosineBlockIndicesPerPower[ 1 ].push_back( std::make_pair( 4, 4 ) );
+    cosineBlockIndicesPerPower[ 2 ].push_back( std::make_pair( 2, 0 ) );
+    cosineBlockIndicesPerPower[ 2 ].push_back( std::make_pair( 2, 2 ) );
+
+    std::map<int, std::vector<std::pair<int, int> > > sineBlockIndicesPerPower;
+    sineBlockIndicesPerPower[ 1 ].push_back( std::make_pair( 3, 2 ) );
+    parameterNames.push_back( std::make_shared< PolynomialGravityFieldVariationEstimatableParameterSettings >(
+        "Earth", cosineBlockIndicesPerPower, sineBlockIndicesPerPower ) );
+
+
 
     std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parameterSet =
             createParametersToEstimate( parameterNames, bodies );
@@ -779,10 +805,19 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartial )
 
     vectorParametersIterator->second->setParameterValue( nominalTidalParameter - Eigen::VectorXd::Constant( nominalTidalParameter.rows( ), 1.0 ) );
     earthGravityField->update( testTime );
+
     Eigen::MatrixXd downperturbedCosineCoefficients =
             earthGravityField->getCosineCoefficients( ).block( 0, 0, 3, 3 );
     Eigen::MatrixXd downperturbedSineCoefficients =
             earthGravityField->getSineCoefficients( ).block( 0, 0, 3, 3 );
+
+    vectorParametersIterator++;
+    vectorParametersIterator++;
+
+    Eigen::MatrixXd partialWrtPolynomialVariations = accelerationPartial->wrtParameter(
+        vectorParametersIterator->second );
+    Eigen::MatrixXd testPartialWrtPolynomialVariations = calculateAccelerationWrtParameterPartials(
+        vectorParametersIterator->second, gravitationalAcceleration, Eigen::VectorXd::Constant( 6, 1.0E-6 ), sphericalHarmonicFieldUpdate );
 
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtVehiclePosition, partialWrtVehiclePosition, 1.0E-6 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtVehicleVelocity, partialWrtVehicleVelocity, 1.0E-6 );
@@ -819,6 +854,8 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartial )
 
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtDegreeThreeLoveNumber, testPartialWrtDegreeThreeLoveNumber, 1.0E-6 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtComplexDegreeThreeLoveNumberAtSeparateOrder, testPartialWrtComplexDegreeThreeLoveNumberAtSeparateOrder, 1.0E-6 );
+
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtPolynomialVariations, testPartialWrtPolynomialVariations, 1.0E-12 );
 
 }
 
