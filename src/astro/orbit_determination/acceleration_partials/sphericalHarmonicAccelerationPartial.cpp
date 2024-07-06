@@ -259,6 +259,8 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > SphericalHarmonicsGr
                                              utilities::createVectorFromMapValues( indexAndPowerPerSineBlockIndex ),
                                              polynomialVariationParameter->getPolynomialVariationModel( )->getReferenceEpoch( ),
                                              std::placeholders::_1 );
+
+                numberOfRows = parameter->getParameterSize( );
             }
             default:
                 break;
@@ -437,8 +439,8 @@ void SphericalHarmonicsGravityPartial::wrtPolynomialGravityFieldVariations(
     const double referenceEpoch,
     Eigen::MatrixXd& partialDerivatives )
 {
-    Eigen::MatrixXd staticCosinePartialsMatrix = Eigen::MatrixXd::Zero( cosineBlockIndices.size( ), 1 );
-    Eigen::MatrixXd staticSinePartialsMatrix = Eigen::MatrixXd::Zero( sineBlockIndices.size( ), 1 );
+    Eigen::MatrixXd staticCosinePartialsMatrix = Eigen::MatrixXd::Zero( 3, cosineBlockIndices.size( ) );
+    Eigen::MatrixXd staticSinePartialsMatrix = Eigen::MatrixXd::Zero( 3, sineBlockIndices.size( ) );
 
     calculateSphericalHarmonicGravityWrtCCoefficients(
         bodyFixedSphericalPosition_, bodyReferenceRadius_( ), gravitationalParameterFunction_( ),
@@ -456,12 +458,14 @@ void SphericalHarmonicsGravityPartial::wrtPolynomialGravityFieldVariations(
 
     partialDerivatives.setZero( );
 
+    int counter = 0;
     for( unsigned int i = 0; i < powersPerCosineBlockIndex.size( ); i++ )
     {
         for( unsigned int j = 0; j < powersPerCosineBlockIndex.at( i ).size( ); j++ )
         {
             partialDerivatives.block( 0, powersPerCosineBlockIndex.at( i ).at( j ).first, 3, 1 ) +=
                 staticCosinePartialsMatrix.block( 0, i, 3, 1 ) * std::pow( ( currentTime_ - referenceEpoch), powersPerCosineBlockIndex.at( i ).at( j ).second );
+            counter++;
         }
     }
 
@@ -469,7 +473,7 @@ void SphericalHarmonicsGravityPartial::wrtPolynomialGravityFieldVariations(
     {
         for( unsigned int j = 0; j < powersPerSineBlockIndex.at( i ).size( ); j++ )
         {
-            partialDerivatives.block( 0, powersPerSineBlockIndex.at( i ).at( j ).first, 3, 1 ) +=
+            partialDerivatives.block( 0, powersPerSineBlockIndex.at( i ).at( j ).first + counter, 3, 1 ) +=
                 staticSinePartialsMatrix.block( 0, i, 3, 1 ) * std::pow( ( currentTime_ - referenceEpoch), powersPerSineBlockIndex.at( i ).at( j ).second );
         }
     }

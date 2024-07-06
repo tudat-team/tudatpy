@@ -150,6 +150,9 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
     case custom_estimated_parameter:
         parameterDescription = " Custom parameter ";
         break;
+    case polynomial_gravity_field_variation_amplitudes:
+        parameterDescription = " Polynomial gravity field variations ";
+        break;
     default:
         std::string errorMessage = "Error when getting parameter string, did not recognize parameter " +
                 std::to_string( parameterType );
@@ -304,6 +307,9 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
         isDoubleParameter = true;
         break;
     case custom_estimated_parameter:
+        isDoubleParameter = false;
+        break;
+    case polynomial_gravity_field_variation_amplitudes:
         isDoubleParameter = false;
         break;
     default:
