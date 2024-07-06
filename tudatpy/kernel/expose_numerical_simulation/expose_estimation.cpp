@@ -385,7 +385,10 @@ void expose_estimation(py::module &m) {
             .def_property_readonly("observations_history", &tom::SingleObservationSet<double, TIME_TYPE>::getObservationsHistory,
                                    get_docstring("SingleObservationSet.observations_history").c_str() )
             .def_property_readonly("ancilliary_settings", &tom::SingleObservationSet<double, TIME_TYPE>::getAncilliarySettings,
-                                   get_docstring("SingleObservationSet.ancilliary_settings").c_str() );
+                                   get_docstring("SingleObservationSet.ancilliary_settings").c_str() )
+            .def_property("weights_vector", &tom::SingleObservationSet<double, TIME_TYPE>::getWeightsVector,
+                                            &tom::SingleObservationSet<double, TIME_TYPE>::setWeightsVector,
+                                   get_docstring("SingleObservationSet.weights_vector").c_str() );
 
 
     m.def("single_observation_set",

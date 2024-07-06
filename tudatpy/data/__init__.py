@@ -1,13 +1,17 @@
 from . import mpc
 from . import horizons
+from . import sbdb
 from ._support import *
+from ._biases import get_biases_EFCC18
 
 __all__ = [
     # Data retrieval
     "mpc",
     "horizons",
+    "sbdb",
+    # Utilities from _biases
+    "get_biases_EFCC18",
     # Utilities from _support
-    "SBDBquery",
     "save2txt",
     "save_time_history_to_file",
     "get_resource_path",
@@ -22,5 +26,7 @@ __all__ = [
     "read_matrix_history_from_file",
     "missile_DATCOM_data",
     "DynamicCoefficientNames",
-    "StaticCoefficientNames"
+    "StaticCoefficientNames",
+    "read_tracking_txt_file",
+    "TrackingTxtFileContents",
 ]
