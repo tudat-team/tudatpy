@@ -22,3 +22,4 @@ dependencies:
   - tqdm       # for tudatpy.trajectory_design.porkchop
   - astropy    # for tudatpy.data.mpc
   - astroquery # for tudatpy.data.mpc
+  - astropy-healpix  # for tudatpy.data._biases
