@@ -1872,6 +1872,10 @@ public:
                             nWayRangeObservationSettings->oneWayRangeObsevationSettings_.at( i )->lightTimeCorrectionsList_ );
                     singleLegsLightTimeConvergenceCriteriaList.push_back(
                             nWayRangeObservationSettings->oneWayRangeObsevationSettings_.at( i )->lightTimeConvergenceCriteria_ );
+                    if( nWayRangeObservationSettings->oneWayRangeObsevationSettings_.at( i )->biasSettings_ != nullptr )
+                    {
+                        throw std::runtime_error( "Error when creating n-way range observable, cannot process single-leg bias, but setting is not null" );
+                    }
                 }
             }
             else

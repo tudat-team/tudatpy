@@ -339,6 +339,60 @@ private:
 
 };
 
+class PolynomialGravityFieldVariationsSettings: public GravityFieldVariationSettings
+{
+
+public:
+    PolynomialGravityFieldVariationsSettings(
+        const std::map<int, Eigen::MatrixXd> &cosineAmplitudes,
+        const std::map<int, Eigen::MatrixXd> &sineAmplitudes,
+        const double referenceEpoch,
+        const int minimumDegree,
+        const int minimumOrder ):
+        GravityFieldVariationSettings( gravitation::polynomial_variation ),
+        cosineAmplitudes_( cosineAmplitudes ),
+        sineAmplitudes_( sineAmplitudes ),
+        referenceEpoch_( referenceEpoch ),
+        minimumDegree_( minimumDegree ),
+        minimumOrder_( minimumOrder ){ }
+
+    std::map< int, Eigen::MatrixXd > getCosineAmplitudes( )
+    {
+        return cosineAmplitudes_;
+    }
+
+    std::map< int, Eigen::MatrixXd > getSineAmplitudes( )
+    {
+        return sineAmplitudes_;
+    }
+
+
+    double getReferenceEpoch( )
+    {
+        return referenceEpoch_;
+    }
+
+    int getMinimumDegree( )
+    {
+        return minimumDegree_;
+    }
+
+    int getMinimumOrder( )
+    {
+        return minimumOrder_;
+    }
+
+private:
+    std::map< int, Eigen::MatrixXd > cosineAmplitudes_;
+
+    std::map< int, Eigen::MatrixXd > sineAmplitudes_;
+
+    double referenceEpoch_;
+
+    int minimumDegree_;
+
+    int minimumOrder_;
+};
 //! Function to create constant complex Love number list for a range of degrees and orders.
 /*!
  * Function to create constant complex Love number list for a range of degrees and orders, maximum degree and order
@@ -520,7 +574,33 @@ inline std::shared_ptr< GravityFieldVariationSettings > periodicGravityFieldVari
 
 }
 
+inline std::shared_ptr< GravityFieldVariationSettings > polynomialGravityFieldVariationsSettings(
+    const std::map< int, Eigen::MatrixXd >& cosineAmplitudes,
+    const std::map< int, Eigen::MatrixXd >& sineAmplitudes,
+    const double referenceEpoch,
+    const int minimumDegree = 2,
+    const int minimumOrder = 0 )
+{
+    return std::make_shared< PolynomialGravityFieldVariationsSettings >(
+        cosineAmplitudes, sineAmplitudes, referenceEpoch, minimumDegree, minimumOrder );
+}
 
+inline std::shared_ptr< GravityFieldVariationSettings > polynomialGravityFieldVariationsSettingsSinglePower(
+    const Eigen::MatrixXd& cosineAmplitude,
+    const Eigen::MatrixXd& sineAmplitude,
+    const int polynomialPower,
+    const double referenceEpoch,
+    const int minimumDegree = 2,
+    const int minimumOrder = 0 )
+{
+    std::map< int, Eigen::MatrixXd > cosineAmplitudes;
+    cosineAmplitudes[ polynomialPower ] = cosineAmplitude;
+    std::map< int, Eigen::MatrixXd > sineAmplitudes;
+    sineAmplitudes[ polynomialPower ] = sineAmplitude;
+
+    return std::make_shared< PolynomialGravityFieldVariationsSettings >(
+        cosineAmplitudes, sineAmplitudes, referenceEpoch, minimumDegree, minimumOrder );
+}
 
 //! Function to create a set of gravity field variations, stored in the associated interface class
 /*!
