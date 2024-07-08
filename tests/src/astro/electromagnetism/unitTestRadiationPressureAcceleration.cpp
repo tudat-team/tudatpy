@@ -744,7 +744,7 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_IsotropicPointSource_Pan
     using namespace tudat::basic_astrodynamics;
     using namespace tudat::simulation_setup;
     using namespace tudat::ephemerides;
-    
+
     //Load spice kernels.
     spice_interface::loadStandardSpiceKernels( );
 
@@ -807,7 +807,7 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_IsotropicPointSource_Pan
             bodies.at("Vehicle")->setRotationalEphemeris(std::make_shared<tudat::ephemerides::SimpleRotationalEphemeris>(
                     rightAscensionPole[testCase], declinationPole[testCase], primeMeridianLongitude[testCase],
                     rotationalRate[testCase], numberSecondsSinceEpoch[testCase], "ECLIPJ2000", "VehicleFixed"));
-    
+
             // Create panels
             std::vector<std::shared_ptr< system_models::VehicleExteriorPanel >> panels{
                     std::make_shared< system_models::VehicleExteriorPanel >(2.0, Eigen::Vector3d::UnitX(),
@@ -817,7 +817,7 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_IsotropicPointSource_Pan
             };
             bodies.at("Vehicle")->setRadiationPressureTargetModel(
                     std::make_shared<PaneledRadiationPressureTargetModel>(panels));
-    
+
             SelectedAccelerationMap accelerationMap{
                     {"Vehicle", {
                             {"Sun", {
@@ -830,16 +830,16 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_IsotropicPointSource_Pan
                                                                     std::vector<std::string>{"Vehicle"},
                                                                     std::vector<std::string>{"Sun"});
             auto accelerationModel = accelerationModelMap.at("Vehicle").at("Sun").at(0);
-    
-    
+
+
             // Compute radiation pressure acceleration for different Sun positions.
             Eigen::Vector3d sunCenteredVehiclePosition;
             std::shared_ptr<Ephemeris> vehicleEphemeris = bodies.at("Vehicle")->getEphemeris();
-    
+
             for (unsigned int i = 0; i < testTimes.size(); i++)
             {
                 auto currentTime = testTimes[i];
-                
+
                 // Update environment and acceleration
                 bodies.at("Sun")->setStateFromEphemeris(currentTime);
                 bodies.at("Vehicle")->setStateFromEphemeris(currentTime);
@@ -848,7 +848,7 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_IsotropicPointSource_Pan
                 bodies.at("Sun")->getRadiationSourceModel()->updateMembers(currentTime);
                 bodies.at("Vehicle")->getRadiationPressureTargetModel()->updateMembers(currentTime);
                 accelerationModel->updateMembers(currentTime);
-    
+
                 // Retrieve acceleration.
                 calculatedAcceleration.push_back(accelerationModel->getAcceleration());
             }
@@ -909,8 +909,8 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_IsotropicPointSource_Pan
                                                                     std::vector<std::string>{"Vehicle"},
                                                                     std::vector<std::string>{"Sun"});
             auto accelerationModelTimeVaryingPanelSurfaceNormal = accelerationModelMap.at("Vehicle").at("Sun").at(0);
-    
-    
+
+
             // Compute radiation pressure acceleration for different Sun positions.
             Eigen::Vector3d sunCenteredVehiclePosition;
             std::shared_ptr<Ephemeris> vehicleEphemeris = bodies.at("Vehicle")->getEphemeris();
@@ -1276,6 +1276,24 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_DynamicallyPaneledSource
         // since we have a slightly different arc
         BOOST_CHECK_GT(crossTrackAcceleration, -3.0e-11);
         BOOST_CHECK_LT(crossTrackAcceleration, 1.0e-11);
+
+        accelerationModel.resetCurrentTime( );
+        accelerationModel.setPerpendicularSourceDirectionScaling( 1.5 );
+        accelerationModel.setSourceDirectionScaling( 0.8 );
+        accelerationModel.updateMembers(t);
+
+        Eigen::Vector3d scaledAcceleration = accelerationModel.getAcceleration();
+        Eigen::Vector3d directionToEarth = position.normalized( );
+
+        Eigen::Vector3d originalAccelerationInEarthDirection = directionToEarth.dot( acceleration ) * directionToEarth;
+        Eigen::Vector3d scaledAccelerationInEarthDirection = directionToEarth.dot( scaledAcceleration ) * directionToEarth;
+
+        Eigen::Vector3d originalAccelerationPerpendicularToEarthDirection = acceleration - originalAccelerationInEarthDirection;
+        Eigen::Vector3d scaledAccelerationPerpendicularToEarthDirection = scaledAcceleration - scaledAccelerationInEarthDirection;
+
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( ( 1.5 * originalAccelerationInEarthDirection ), scaledAccelerationInEarthDirection, 1.0E-12 );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( ( 0.8 * originalAccelerationPerpendicularToEarthDirection ), scaledAccelerationPerpendicularToEarthDirection, 1.0E-12 );
+
     }
 }
 

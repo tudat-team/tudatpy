@@ -35,7 +35,7 @@ void IsotropicPointSourceRadiationPressureAcceleration::computeAcceleration()
 {
     sourceCenterPositionInGlobalFrame_ = sourcePositionFunction_();
     targetCenterPositionInGlobalFrame_ = targetPositionFunction_();
-    targetWrtSourceCenterPositionInSourceFrame_ = targetCenterPositionInGlobalFrame_ - sourceCenterPositionInGlobalFrame_;
+    targetCenterPositionInSourceFrame_ = targetCenterPositionInGlobalFrame_ - sourceCenterPositionInGlobalFrame_;
     currentTargetMass_ = targetMassFunction_();
     // Evaluate irradiances at target position in source frame
     // No rotation to source frame is necessary because isotropic sources are rotation-invariant
@@ -43,7 +43,7 @@ void IsotropicPointSourceRadiationPressureAcceleration::computeAcceleration()
             sourceCenterPositionInGlobalFrame_, sourceBodyShapeModel_, targetCenterPositionInGlobalFrame_ );
 
     receivedIrradiance =
-        sourceModel_->evaluateIrradianceAtPosition( targetWrtSourceCenterPositionInSourceFrame_).front().first * sourceToTargetReceivedFraction;
+        sourceModel_->evaluateIrradianceAtPosition( targetCenterPositionInSourceFrame_).front().first * sourceToTargetReceivedFraction;
 //    std::cout<<"Irradiance "<<receivedIrradiance<<std::endl;
 
     if (receivedIrradiance <= 0)
@@ -64,13 +64,13 @@ void IsotropicPointSourceRadiationPressureAcceleration::computeAcceleration()
             currentUnscaledAcceleration_ = targetRotationFromLocalToGlobalFrame_ *
                                    targetModel_->evaluateRadiationPressureForce(
                                        receivedIrradiance, targetRotationFromGlobalToLocalFrame_ *
-                                                           targetWrtSourceCenterPositionInSourceFrame_.normalized( )) /
+                                                           targetCenterPositionInSourceFrame_.normalized( )) /
                                    currentTargetMass_;
         }
         else
         {
             currentUnscaledAcceleration_ = targetModel_->evaluateRadiationPressureForce(
-                receivedIrradiance, targetWrtSourceCenterPositionInSourceFrame_.normalized( )) / currentTargetMass_;
+                receivedIrradiance, targetCenterPositionInSourceFrame_.normalized( )) / currentTargetMass_;
 
         }
         currentRadiationPressure_ = targetModel_->getRadiationPressure( );
@@ -84,7 +84,7 @@ void PaneledSourceRadiationPressureAcceleration::computeAcceleration()
     // dominated by algebraic operations
     sourceCenterPositionInGlobalFrame_ = sourcePositionFunction_();
     targetCenterPositionInGlobalFrame_ = targetPositionFunction_();
-    targetWrtSourceCenterPositionInSourceFrame_ = targetCenterPositionInGlobalFrame_ - sourceCenterPositionInGlobalFrame_;
+    targetCenterPositionInSourceFrame_ = targetCenterPositionInGlobalFrame_ - sourceCenterPositionInGlobalFrame_;
 
     Eigen::Quaterniond sourceRotationFromLocalToGlobalFrame = sourceRotationFromLocalToGlobalFrameFunction_();
     Eigen::Quaterniond sourceRotationFromGlobalToLocalFrame = sourceRotationFromLocalToGlobalFrame.inverse();
@@ -94,7 +94,7 @@ void PaneledSourceRadiationPressureAcceleration::computeAcceleration()
 
     // Evaluate irradiances from all sub-sources at target position in source frame
     Eigen::Vector3d targetCenterPositionInSourceFrame =
-            sourceRotationFromGlobalToLocalFrame * targetWrtSourceCenterPositionInSourceFrame_;
+            sourceRotationFromGlobalToLocalFrame * targetCenterPositionInSourceFrame_;
     auto sourceIrradiancesAndPositions = sourceModel_->evaluateIrradianceAtPosition(targetCenterPositionInSourceFrame);
 
     // For dependent variables
@@ -120,7 +120,7 @@ void PaneledSourceRadiationPressureAcceleration::computeAcceleration()
         {
             // No body is occluding source as seen from target
             Eigen::Vector3d sourceToTargetDirectionInTargetFrame =
-                    targetRotationFromGlobalToLocalFrame * ( targetWrtSourceCenterPositionInSourceFrame_ ).normalized();
+                    targetRotationFromGlobalToLocalFrame * ( targetCenterPositionInGlobalFrame_ - sourcePositionInGlobalFrame ).normalized();
             totalForceInTargetFrame +=
                     targetModel_->evaluateRadiationPressureForce(occultedSourceIrradiance, sourceToTargetDirectionInTargetFrame);
             totalReceivedIrradiance += occultedSourceIrradiance;
