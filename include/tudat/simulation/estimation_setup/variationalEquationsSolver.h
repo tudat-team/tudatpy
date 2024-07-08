@@ -154,7 +154,8 @@ protected:
     {
         if( stateTransitionMatrixSize_ != initialStateEstimate.rows( ) )
         {
-            throw std::runtime_error( "Error when getting initial condition for variational equations, sizes are incompatible." );
+            throw std::runtime_error( "Error when getting initial condition for variational equations, sizes are incompatible: " +
+            std::to_string( stateTransitionMatrixSize_ ) + ", " + std::to_string( initialStateEstimate.rows( ) ) );
         }
 
         // Initialize initial conditions to zeros.

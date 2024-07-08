@@ -52,7 +52,7 @@ std::shared_ptr< observation_models::ObservationCollection< StateScalarType, Tim
     while( currentTime < finalTime )
     {
         observationTimes.push_back( currentTime );
-        currentTime += dataPointInterval;
+        currentTime += static_cast< double >( dataPointInterval );
     }
 
 

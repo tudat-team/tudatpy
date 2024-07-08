@@ -13,6 +13,7 @@
 #include "tudat/astro/gravitation/gravityFieldVariations.h"
 #include "tudat/astro/gravitation/basicSolidBodyTideGravityFieldVariations.h"
 #include "tudat/astro/gravitation/periodicGravityFieldVariations.h"
+#include "tudat/astro/gravitation/polynomialGravityFieldVariations.h"
 #include "tudat/astro/gravitation/tabulatedGravityFieldVariations.h"
 #include "tudat/astro/gravitation/timeDependentSphericalHarmonicsGravityField.h"
 #include "tudat/simulation/environment_setup/createGravityFieldVariations.h"
@@ -283,6 +284,29 @@ std::shared_ptr< gravitation::GravityFieldVariations > createGravityFieldVariati
             {
                 throw std::runtime_error( "Error when creating periodic gravity field variations; no cosine amplitudes found" );
             }
+        }
+
+        break;
+    }
+    case polynomial_variation:
+    {
+        // Check input consistency
+        std::shared_ptr< PolynomialGravityFieldVariationsSettings > polynomialGravityFieldVariationSettings
+            = std::dynamic_pointer_cast< PolynomialGravityFieldVariationsSettings >(
+                gravityFieldVariationSettings );
+        if( polynomialGravityFieldVariationSettings == nullptr )
+        {
+            throw std::runtime_error( "Error, expected polynomial gravity field variation settings for " + body );
+        }
+        else
+        {
+                // Create variation.
+                gravityFieldVariationModel = std::make_shared< PolynomialGravityFieldVariations >
+                    (  polynomialGravityFieldVariationSettings->getCosineAmplitudes( ),
+                       polynomialGravityFieldVariationSettings->getSineAmplitudes( ),
+                       polynomialGravityFieldVariationSettings->getReferenceEpoch( ),
+                       polynomialGravityFieldVariationSettings->getMinimumDegree( ),
+                       polynomialGravityFieldVariationSettings->getMinimumOrder( ) );
         }
 
         break;
