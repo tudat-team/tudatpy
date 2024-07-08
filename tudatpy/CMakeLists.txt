@@ -120,9 +120,9 @@ YACMA_PYTHON_MODULE(kernel
         kernel/expose_numerical_simulation/expose_estimation_setup/expose_observation_setup.cpp
         kernel/expose_numerical_simulation/expose_estimation_setup/expose_estimated_parameter_setup.cpp
 
-        kernel/expose_unit_tests.cpp
+#        kernel/expose_unit_tests.cpp
 
-        kernel/expose_example.cpp
+#        kernel/expose_example.cpp
         )
 
 target_link_libraries(kernel PRIVATE

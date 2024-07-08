@@ -33,7 +33,7 @@ void expose_math(py::module &m) {
   expose_numerical_integrators(numerical_integrators);
 
   auto root_finders = m.def_submodule("root_finders");
-  expose_root_finders(root_finders);
+  root_finders::expose_root_finders(root_finders);
 
   auto geometry = m.def_submodule("geometry");
   expose_geometry(geometry);
