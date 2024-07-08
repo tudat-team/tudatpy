@@ -239,6 +239,31 @@ TimeScalarType convertCalendarDateToJulianDay( const int calendarYear,
               calendarSeconds, mathematical_constants::getFloatingInteger< TimeScalarType >( 0.0 ) );
 }
 
+//! Compute Julian day since J2000 from given date and time
+/*!
+  * Computes the Julian day from given year, month, day, hour, minutes, seconds as used in everyday
+  * life. The function uses the internal calcualtions of the boost::date_time::gregorian class.
+  *
+  * \param calendarYear Year of the standard calendar in years.
+  * \param calendarMonth Month of the standard calendar in months.
+  * \param calendarDay Day of the standard calendar in days.
+  * \param calendarHour Hour of the time of this day in hours.
+  * \param calendarMinutes Minutes of the time of this day in minutes.
+  * \param calendarSeconds Seconds of the time of this day in seconds.
+  */
+template< typename TimeScalarType = double >
+TimeScalarType convertCalendarDateToJulianDaySinceJ2000(const int calendarYear,
+                                                        const int calendarMonth,
+                                                        const int calendarDay,
+                                                        const int calendarHour,
+                                                        const int calendarMinutes,
+                                                        const TimeScalarType calendarSeconds)
+{
+  return basic_astrodynamics::convertCalendarDateToJulianDaysSinceEpoch<TimeScalarType>
+      (calendarYear, calendarMonth, calendarDay, calendarHour, calendarMinutes,
+       calendarSeconds, basic_astrodynamics::JULIAN_DAY_ON_J2000);
+}
+
 //! Function to convert julian day to modified julian day.
 /*!
  *  Function to convert julian day to modified julian day.

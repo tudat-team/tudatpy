@@ -1608,6 +1608,10 @@ public:
      */
     Eigen::Matrix3d getBodyInertiaTensor( )
     {
+        if( massProperties_ == nullptr )
+        {
+            throw std::runtime_error( "Error when retrieving inertia tensor of " + bodyName_ + ", no mass properties found" );
+        }
         return massProperties_->getCurrentInertiaTensor( );
     }
 

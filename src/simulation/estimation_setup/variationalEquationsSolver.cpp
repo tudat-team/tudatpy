@@ -47,29 +47,25 @@ void createStateTransitionAndSensitivityMatrixInterpolator(
     stateTransitionMatrixInterpolator=
             std::make_shared< interpolators::LagrangeInterpolator< double, Eigen::MatrixXd > >(
                 utilities::createVectorFromMapKeys< Eigen::MatrixXd, double >( stateTransitionSolution ),
-                utilities::createVectorFromMapValues< Eigen::MatrixXd, double >( stateTransitionSolution ), 4 );
-//    if( clearRawSolution )
-//    {
-//        variationalEquationsSolution[ 0 ].clear( );
-//    }
+                utilities::createVectorFromMapValues< Eigen::MatrixXd, double >( stateTransitionSolution ), 4,
+                interpolators::huntingAlgorithm,
+                interpolators::lagrange_cubic_spline_boundary_interpolation,
+                interpolators::throw_exception_at_boundary );
 
     // Create interpolator for sensitivity matrix.
     sensitivityMatrixInterpolator =
             std::make_shared< interpolators::LagrangeInterpolator< double, Eigen::MatrixXd > >(
                 utilities::createVectorFromMapKeys< Eigen::MatrixXd, double >( sensitivitySolution ),
-                utilities::createVectorFromMapValues< Eigen::MatrixXd, double >( sensitivitySolution ), 4 );
+                utilities::createVectorFromMapValues< Eigen::MatrixXd, double >( sensitivitySolution ), 4,
+                interpolators::huntingAlgorithm,
+                interpolators::lagrange_cubic_spline_boundary_interpolation,
+                interpolators::throw_exception_at_boundary );
 
     if( clearRawSolution )
     {
         stateTransitionSolution.clear( );
         sensitivitySolution.clear( );
     }
-
-//    if( clearRawSolution )
-//    {
-//        variationalEquationsSolution[ 1 ].clear( );
-//    }
-
 }
 
 
