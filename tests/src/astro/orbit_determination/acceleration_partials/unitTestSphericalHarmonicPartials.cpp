@@ -646,8 +646,6 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartial )
                                   "Earth", 3, "", false ) );
     parameterNames.push_back( std::make_shared< SingleDegreeVariableTidalLoveNumberEstimatableParameterSettings >(
                                   "Earth", 3, std::vector< int >{ 0, 3 }, "", true ) );
-    parameterNames.push_back( std::make_shared< SingleDegreeVariableTidalLoveNumberEstimatableParameterSettings >(
-        "Earth", 3, std::vector< int >{ 0, 3 }, "", true ) );
 
     std::map<int, std::vector<std::pair<int, int> > > cosineBlockIndicesPerPower;
     cosineBlockIndicesPerPower[ 1 ].push_back( std::make_pair( 2, 0 ) );
@@ -857,27 +855,6 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartial )
     Eigen::MatrixXd testPartialWrtComplexDegreeThreeLoveNumberAtSeparateOrder = calculateAccelerationWrtParameterPartials(
                 vectorParametersIterator->second, gravitationalAcceleration, Eigen::VectorXd::Constant( 4, 10.0 ), sphericalHarmonicFieldUpdate );
 
-
-
-
-    Eigen::VectorXd nominalTidalParameter = vectorParametersIterator->second->getParameterValue( );
-
-    vectorParametersIterator->second->setParameterValue( nominalTidalParameter + Eigen::VectorXd::Constant( nominalTidalParameter.rows( ), 1.0 ) );
-    earthGravityField->update( testTime );
-    Eigen::MatrixXd upperturbedCosineCoefficients =
-            earthGravityField->getCosineCoefficients( ).block( 0, 0, 3, 3 );
-    Eigen::MatrixXd upperturbedSineCoefficients =
-            earthGravityField->getSineCoefficients( ).block( 0, 0, 3, 3 );
-
-    vectorParametersIterator->second->setParameterValue( nominalTidalParameter - Eigen::VectorXd::Constant( nominalTidalParameter.rows( ), 1.0 ) );
-    earthGravityField->update( testTime );
-
-    Eigen::MatrixXd downperturbedCosineCoefficients =
-            earthGravityField->getCosineCoefficients( ).block( 0, 0, 3, 3 );
-    Eigen::MatrixXd downperturbedSineCoefficients =
-            earthGravityField->getSineCoefficients( ).block( 0, 0, 3, 3 );
-
-    vectorParametersIterator++;
     vectorParametersIterator++;
 
     Eigen::MatrixXd partialWrtPolynomialVariations = accelerationPartial->wrtParameter(
@@ -919,10 +896,8 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartial )
     BOOST_CHECK_EQUAL( testPartialWrtCosineCoefficients.cols( ), 17 );
     BOOST_CHECK_EQUAL( testPartialWrtSineCoefficients.cols( ), 13 );
 
-
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtDegreeTwoLoveNumberAtSeparateOrders, testPartialWrtDegreeTwoOrderTwoLoveNumberAtSeparateOrders, 1.0E-6 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtComplexDegreeTwoLoveNumber, testPartialWrtComplexDegreeTwoLoveNumber, 1.0E-6 );
-
 
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtDegreeThreeLoveNumber, testPartialWrtDegreeThreeLoveNumber, 1.0E-6 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtComplexDegreeThreeLoveNumberAtSeparateOrder, testPartialWrtComplexDegreeThreeLoveNumberAtSeparateOrder, 1.0E-6 );
