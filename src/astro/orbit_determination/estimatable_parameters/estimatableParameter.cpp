@@ -153,8 +153,11 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
     case polynomial_gravity_field_variation_amplitudes:
         parameterDescription = " Polynomial gravity field variations ";
         break;
-    case periodic_gravity_field_variation_amplitudes:
-        parameterDescription = " Periodic gravity field variations ";
+    case source_direction_radiation_pressure_scaling_factor:
+        parameterDescription = " Radiation pressure acceleration scaling factor to source ";
+        break;
+    case source_perpendicular_direction_radiation_pressure_scaling_factor:
+        parameterDescription = " Radiation pressure acceleration scaling factor perpendicular to source ";
         break;
     default:
         std::string errorMessage = "Error when getting parameter string, did not recognize parameter " +
@@ -317,6 +320,12 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
         break;
     case periodic_gravity_field_variation_amplitudes:
         isDoubleParameter = false;
+        break;
+    case source_direction_radiation_pressure_scaling_factor:
+        isDoubleParameter = true;
+        break;
+    case source_perpendicular_direction_radiation_pressure_scaling_factor:
+        isDoubleParameter = true;
         break;
     default:
         throw std::runtime_error( "Error, parameter type " + std::to_string( parameterType ) +

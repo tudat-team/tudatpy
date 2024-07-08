@@ -243,6 +243,36 @@ std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAc
         }
         break;
     }
+    case source_perpendicular_direction_radiation_pressure_scaling_factor:
+    case source_direction_radiation_pressure_scaling_factor:
+    {
+        if( parameterSettings == nullptr )
+        {
+            throw std::runtime_error( "Error, expected radiation pressure scaling factor parameter settings." );
+        }
+        else
+        {
+            if( accelerationModelMap.at( parameterSettings->parameterType_.second.first ).count(
+                parameterSettings->parameterType_.second.second ) != 0 )
+
+            {
+                // Retrieve acceleration model.
+                std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > >
+                    accelerationModelListToCheck =
+                    accelerationModelMap.at( parameterSettings->parameterType_.second.first ).at(
+                        parameterSettings->parameterType_.second.second );
+                for( unsigned int i = 0; i < accelerationModelListToCheck.size( ); i++ )
+                {
+                    if( basic_astrodynamics::getAccelerationModelType( accelerationModelListToCheck[ i ] ) ==
+                        basic_astrodynamics::radiation_pressure )
+                    {
+                        accelerationModelList.push_back( accelerationModelListToCheck[ i ] );
+                    }
+                }
+            }
+        }
+        break;
+    }
     default:
         break;
     }
@@ -1236,6 +1266,43 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
             }
             doubleParameterToEstimate = std::make_shared< YarkovskyParameter >(
                 associatedYarkovskyAccelerationModels.at( 0 ), currentBodyName, doubleParameterName->parameterType_.second.second );
+            break;
+        }
+        case source_direction_radiation_pressure_scaling_factor:
+        case source_perpendicular_direction_radiation_pressure_scaling_factor:
+        {
+            if( propagatorSettings == nullptr )
+            {
+                throw std::runtime_error( "Error when creating radiation pressure scaling factor parameter, no propagatorSettings provided." );
+            }
+
+            std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > associatedAccelerationModels =
+                getAccelerationModelsListForParametersFromBase< InitialStateParameterType, TimeType >( propagatorSettings, doubleParameterName );
+            std::vector< std::shared_ptr< electromagnetism::RadiationPressureAcceleration > > associatedRadiationPressureAccelerationModels;
+            for( unsigned int i = 0; i < associatedAccelerationModels.size( ); i++ )
+            {
+                // Create parameter object
+                if( std::dynamic_pointer_cast< electromagnetism::RadiationPressureAcceleration >( associatedAccelerationModels.at( i ) )
+                    != nullptr )
+                {
+                    associatedRadiationPressureAccelerationModels.push_back(
+                        std::dynamic_pointer_cast< electromagnetism::RadiationPressureAcceleration >( associatedAccelerationModels.at( i ) ) );
+                }
+                else
+                {
+                    throw std::runtime_error(
+                        "Error, expected RadiationPressureAcceleration in list when creating radiation pressure scaling parameter" );
+                }
+            }
+            if( associatedRadiationPressureAccelerationModels.size( ) != 1 )
+            {
+                throw std::runtime_error(
+                    "Error, expected single RadiationPressureAcceleration in list when creating radiation pressure scaling parameter, found " +
+                    std::to_string( associatedRadiationPressureAccelerationModels.size( ) ) );
+            }
+            doubleParameterToEstimate = std::make_shared< RadiationPressureScalingFactor >(
+                associatedRadiationPressureAccelerationModels.at( 0 ), doubleParameterName->parameterType_.first,
+                currentBodyName, doubleParameterName->parameterType_.second.second );
             break;
         }
         default:

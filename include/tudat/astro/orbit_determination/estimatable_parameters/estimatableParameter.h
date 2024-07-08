@@ -79,7 +79,9 @@ enum EstimatebleParametersEnum
     custom_estimated_parameter,
     reference_point_position,
     polynomial_gravity_field_variation_amplitudes,
-    periodic_gravity_field_variation_amplitudes
+    periodic_gravity_field_variation_amplitudes,
+    source_direction_radiation_pressure_scaling_factor,
+    source_perpendicular_direction_radiation_pressure_scaling_factor
 };
 
 std::string getParameterTypeString( const EstimatebleParametersEnum parameterType );
