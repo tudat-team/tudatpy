@@ -184,20 +184,20 @@ void expose_gravity_field_variation_setup(py::module &m) {
           py::arg("minimum_order") = 0,
           get_docstring("single_period_periodic").c_str() );
 
-    m.def("single_period_polynomial",
+    m.def("single_power_polynomial",
           &tss::polynomialGravityFieldVariationsSettingsSinglePower,
-          py::arg("cosine_amplitude_per_power"),
-          py::arg("sine_amplitude_per_power"),
+          py::arg("cosine_amplitudes"),
+          py::arg("sine_amplitudes"),
           py::arg("polynomial_power"),
           py::arg("reference_epoch"),
           py::arg("minimum_degree") = 2,
           py::arg("minimum_order") = 0,
-          get_docstring("single_period_polynomial").c_str() );
+          get_docstring("single_power_polynomial").c_str() );
 
     m.def("polynomial",
           &tss::polynomialGravityFieldVariationsSettings,
-          py::arg("cosine_amplitude_per_power"),
-          py::arg("sine_amplitude_per_power"),
+          py::arg("cosine_amplitudes_per_power"),
+          py::arg("sine_amplitudes_per_power"),
           py::arg("reference_epoch"),
           py::arg("minimum_degree") = 2,
           py::arg("minimum_order") = 0,
