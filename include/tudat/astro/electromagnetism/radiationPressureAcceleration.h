@@ -28,6 +28,7 @@ namespace tudat
 namespace electromagnetism
 {
 
+
 /*!
  * Class modeling radiation pressure acceleration. Radiation pressure accelerates a target due to electromagnetic
  * radiation from a source.
@@ -35,6 +36,7 @@ namespace electromagnetism
 class RadiationPressureAcceleration: public basic_astrodynamics::AccelerationModel3d
 {
 public:
+
     /*!
      * Update class members.
      *
@@ -79,6 +81,43 @@ public:
         return currentRadiationPressure_;
     }
 
+    void enableScaling( )
+    {
+        isScalingModelSet_ = true;
+    }
+
+    double getSourceDirectionScaling( )
+    {
+        return sourceDirectionScaling_;
+    }
+    
+    void setSourceDirectionScaling( const double sourceDirectionScaling )
+    {
+        sourceDirectionScaling_ = sourceDirectionScaling;
+    }
+    
+    double getPerpendicularSourceDirectionScaling( )
+    {
+        return perpendicularSourceDirectionScaling_;
+    }
+
+    void setPerpendicularSourceDirectionScaling( const double perpendicularSourceDirectionScaling )
+    {
+        perpendicularSourceDirectionScaling_ = perpendicularSourceDirectionScaling;
+    }
+
+    Eigen::Vector3d getTargetCenterPositionInSourceFrame( )
+    {
+        return targetWrtSourceCenterPositionInSourceFrame_;
+    }
+
+    Eigen::Vector3d getCurrentUnscaledAcceleration( )
+    {
+        return currentUnscaledAcceleration_;
+    }
+
+
+
 protected:
     RadiationPressureAcceleration(const std::function<Eigen::Vector3d()>& sourcePositionFunction,
                                   const std::shared_ptr<RadiationPressureTargetModel>& targetModel,
@@ -92,10 +131,31 @@ protected:
             targetRotationFromLocalToGlobalFrameFunction_(targetRotationFromLocalToGlobalFrameFunction),
             targetMassFunction_(targetMassFunction),
             sourceToTargetOccultationModel_(sourceToTargetOccultationModel),
+            currentUnscaledAcceleration_( Eigen::Vector3d::Constant( TUDAT_NAN ) ),
             receivedIrradiance(TUDAT_NAN),
-            currentRadiationPressure_(TUDAT_NAN){}
+            currentRadiationPressure_(TUDAT_NAN),
+            isScalingModelSet_( false ),
+            sourceDirectionScaling_( 1.0 ),
+            perpendicularSourceDirectionScaling_( 1.0 )
+            {}
 
     virtual void computeAcceleration( ) = 0;
+
+    virtual void scaleRadiationPressureAcceleration( )
+    {
+        if( !isScalingModelSet_ )
+        {
+            currentAcceleration_ = currentUnscaledAcceleration_;
+        }
+        else
+        {
+            Eigen::Vector3d targetUnitVector = targetWrtSourceCenterPositionInSourceFrame_.normalized( );
+            Eigen::Vector3d toTargetComponent =  currentUnscaledAcceleration_ - targetUnitVector.dot( currentUnscaledAcceleration_ ) * targetUnitVector;
+            currentAcceleration_ = sourceDirectionScaling_ * toTargetComponent + perpendicularSourceDirectionScaling_ * ( currentUnscaledAcceleration_ - toTargetComponent );
+        }
+    }
+
+
 
     std::function<Eigen::Vector3d()> sourcePositionFunction_;
     std::shared_ptr<RadiationPressureTargetModel> targetModel_;
@@ -104,9 +164,21 @@ protected:
     std::function<double()> targetMassFunction_;
     std::shared_ptr<OccultationModel> sourceToTargetOccultationModel_;
 
+
+    Eigen::Vector3d currentUnscaledAcceleration_;
+
+
+    Eigen::Vector3d sourceCenterPositionInGlobalFrame_;
+    Eigen::Vector3d targetCenterPositionInGlobalFrame_;
+    Eigen::Vector3d targetWrtSourceCenterPositionInSourceFrame_;
+
     // For dependent variable
     double receivedIrradiance;
     double currentRadiationPressure_;
+
+    bool isScalingModelSet_;
+    double sourceDirectionScaling_;
+    double perpendicularSourceDirectionScaling_;
 };
 
 /*!
@@ -170,7 +242,7 @@ public:
 
     Eigen::Vector3d getTargetPositionWrtSource( )
     {
-        return targetCenterPositionInSourceFrame_;
+        return targetWrtSourceCenterPositionInSourceFrame_;
     }
 
     double getCurrentTargetMass( )
@@ -194,10 +266,6 @@ private:
     std::shared_ptr<IsotropicPointRadiationSourceModel> sourceModel_;
 
     std::shared_ptr<basic_astrodynamics::BodyShapeModel> sourceBodyShapeModel_;
-
-    Eigen::Vector3d sourceCenterPositionInGlobalFrame_;
-    Eigen::Vector3d targetCenterPositionInGlobalFrame_;
-    Eigen::Vector3d targetCenterPositionInSourceFrame_;
 
     double currentTargetMass_;
 
