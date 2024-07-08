@@ -61,9 +61,9 @@ PYBIND11_MODULE(kernel, m) {
     auto numerical_simulation = m.def_submodule("numerical_simulation");
     tudatpy::numerical_simulation::expose_numerical_simulation(numerical_simulation);
 
-    // example module
-    auto example = m.def_submodule("example");
-    tudatpy::expose_example(example);
+//    // example module
+//    auto example = m.def_submodule("example");
+//    tudatpy::expose_example(example);
 
 #ifdef VERSION_INFO
     m.attr("__version__") = VERSION_INFO;

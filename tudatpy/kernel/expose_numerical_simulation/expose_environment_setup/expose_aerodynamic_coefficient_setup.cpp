@@ -275,137 +275,137 @@ namespace aerodynamic_coefficients {
         //////////////// DEPRECATED /////////////////////////////////////
         /////////////////////////////////////////////////////////////////
 
-        m.def("custom",
-              &tss::customAerodynamicCoefficientSettingsDeprecatedPy,
-              py::arg("force_coefficient_function"),
-              py::arg("reference_area"),
-              py::arg("independent_variable_names"),
-              py::arg("are_coefficients_in_aerodynamic_frame") = true,
-              py::arg("are_coefficients_in_negative_axis_direction") = true );
+        // m.def("custom",
+        //       &tss::customAerodynamicCoefficientSettingsDeprecatedPy,
+        //       py::arg("force_coefficient_function"),
+        //       py::arg("reference_area"),
+        //       py::arg("independent_variable_names"),
+        //       py::arg("are_coefficients_in_aerodynamic_frame") = true,
+        //       py::arg("are_coefficients_in_negative_axis_direction") = true );
 
-        m.def("constant",
-              py::overload_cast<const double, const Eigen::Vector3d &, const bool,
-                      const bool>(
-                      &tss::constantAerodynamicCoefficientSettingsDeprecated ),
-              py::arg("reference_area"),
-              py::arg("constant_force_coefficient"),
-              py::arg("are_coefficients_in_aerodynamic_frame") = true,
-              py::arg("are_coefficients_in_negative_axis_direction") = true );
+        // m.def("constant",
+        //       py::overload_cast<const double, const Eigen::Vector3d &, const bool,
+        //               const bool>(
+        //               &tss::constantAerodynamicCoefficientSettingsDeprecated ),
+        //       py::arg("reference_area"),
+        //       py::arg("constant_force_coefficient"),
+        //       py::arg("are_coefficients_in_aerodynamic_frame") = true,
+        //       py::arg("are_coefficients_in_negative_axis_direction") = true );
 
-        m.def("custom_aerodynamic_force_coefficients",
-              py::overload_cast<
-                      const std::function<Eigen::Vector3d(const std::vector<double> &)>,
-                      const double, const std::vector<ta::AerodynamicCoefficientsIndependentVariables>,
-                      const bool, const bool>(&tss::customAerodynamicCoefficientSettingsDeprecated),
-              py::arg("force_coefficient_function"),
-              py::arg("reference_area"),
-              py::arg("independent_variable_names"),
-              py::arg("are_coefficients_in_aerodynamic_frame") = true,
-              py::arg("are_coefficients_in_negative_axis_direction") = true );
+        // m.def("custom_aerodynamic_force_coefficients",
+        //       py::overload_cast<
+        //               const std::function<Eigen::Vector3d(const std::vector<double> &)>,
+        //               const double, const std::vector<ta::AerodynamicCoefficientsIndependentVariables>,
+        //               const bool, const bool>(&tss::customAerodynamicCoefficientSettingsDeprecated),
+        //       py::arg("force_coefficient_function"),
+        //       py::arg("reference_area"),
+        //       py::arg("independent_variable_names"),
+        //       py::arg("are_coefficients_in_aerodynamic_frame") = true,
+        //       py::arg("are_coefficients_in_negative_axis_direction") = true );
 
-        m.def("custom_aerodynamic_force_and_moment_coefficients",
-              py::overload_cast<
-                      const std::function< Eigen::Vector3d( const std::vector< double >& ) >,
-                      const std::function< Eigen::Vector3d( const std::vector< double >& ) >,
-                      const double,
-                      const double,
-                      const Eigen::Vector3d&,
-                      const std::vector< ta::AerodynamicCoefficientsIndependentVariables >,
-                      const bool,
-                      const bool >(&tss::customAerodynamicCoefficientSettingsDeprecated),
-              py::arg("force_coefficient_function"),
-              py::arg("moment_coefficient_function"),
-              py::arg("reference_length"),
-              py::arg("reference_area"),
-              py::arg("moment_reference_point"),
-              py::arg("independent_variable_names"),
-              py::arg("are_coefficients_in_aerodynamic_frame") = true,
-              py::arg("are_coefficients_in_negative_axis_direction") = true );
+        // m.def("custom_aerodynamic_force_and_moment_coefficients",
+        //       py::overload_cast<
+        //               const std::function< Eigen::Vector3d( const std::vector< double >& ) >,
+        //               const std::function< Eigen::Vector3d( const std::vector< double >& ) >,
+        //               const double,
+        //               const double,
+        //               const Eigen::Vector3d&,
+        //               const std::vector< ta::AerodynamicCoefficientsIndependentVariables >,
+        //               const bool,
+        //               const bool >(&tss::customAerodynamicCoefficientSettingsDeprecated),
+        //       py::arg("force_coefficient_function"),
+        //       py::arg("moment_coefficient_function"),
+        //       py::arg("reference_length"),
+        //       py::arg("reference_area"),
+        //       py::arg("moment_reference_point"),
+        //       py::arg("independent_variable_names"),
+        //       py::arg("are_coefficients_in_aerodynamic_frame") = true,
+        //       py::arg("are_coefficients_in_negative_axis_direction") = true );
 
 
-        m.def("tabulated",
-              py::overload_cast<
-                      const std::vector<double>,
-                      const std::vector<Eigen::Vector3d>,
-                      const std::vector<Eigen::Vector3d>,
-                      const double,
-                      const double,
-                      const double,
-                      const Eigen::Vector3d &,
-                      const ta::AerodynamicCoefficientsIndependentVariables,
-                      const bool,
-                      const bool,
-                      const std::shared_ptr<ti::InterpolatorSettings>>
-                      (&tss::oneDimensionalTabulatedAerodynamicCoefficientSettingsDeprecated),
-              py::arg("independent_variables"),
-              py::arg("force_coefficients"),
-              py::arg("moment_coefficients"),
-              py::arg("reference_length"),
-              py::arg("reference_area"),
-              py::arg("lateral_reference_length"),
-              py::arg("moment_reference_point"),
-              py::arg("independent_variable_name"),
-              py::arg("are_coefficients_in_aerodynamic_frame") = true,
-              py::arg("are_coefficients_in_negative_axis_direction") = true,
-              py::arg("interpolator_settings") = nullptr);
+        // m.def("tabulated",
+        //       py::overload_cast<
+        //               const std::vector<double>,
+        //               const std::vector<Eigen::Vector3d>,
+        //               const std::vector<Eigen::Vector3d>,
+        //               const double,
+        //               const double,
+        //               const double,
+        //               const Eigen::Vector3d &,
+        //               const ta::AerodynamicCoefficientsIndependentVariables,
+        //               const bool,
+        //               const bool,
+        //               const std::shared_ptr<ti::InterpolatorSettings>>
+        //               (&tss::oneDimensionalTabulatedAerodynamicCoefficientSettingsDeprecated),
+        //       py::arg("independent_variables"),
+        //       py::arg("force_coefficients"),
+        //       py::arg("moment_coefficients"),
+        //       py::arg("reference_length"),
+        //       py::arg("reference_area"),
+        //       py::arg("lateral_reference_length"),
+        //       py::arg("moment_reference_point"),
+        //       py::arg("independent_variable_name"),
+        //       py::arg("are_coefficients_in_aerodynamic_frame") = true,
+        //       py::arg("are_coefficients_in_negative_axis_direction") = true,
+        //       py::arg("interpolator_settings") = nullptr);
 
-        m.def("tabulated_force_only",
-              py::overload_cast<
-                      const std::vector<double>,
-                      const std::vector<Eigen::Vector3d>,
-                      const double,
-                      const ta::AerodynamicCoefficientsIndependentVariables,
-                      const bool,
-                      const bool,
-                      const std::shared_ptr<ti::InterpolatorSettings>>
-                      (&tss::oneDimensionalTabulatedAerodynamicCoefficientSettingsDeprecated),
-              py::arg("independent_variables"),
-              py::arg("force_coefficients"),
-              py::arg("reference_area"),
-              py::arg("independent_variable_name"),
-              py::arg("are_coefficients_in_aerodynamic_frame") = true,
-              py::arg("are_coefficients_in_negative_axis_direction") = true,
-              py::arg("interpolator_settings") = nullptr);
+        // m.def("tabulated_force_only",
+        //       py::overload_cast<
+        //               const std::vector<double>,
+        //               const std::vector<Eigen::Vector3d>,
+        //               const double,
+        //               const ta::AerodynamicCoefficientsIndependentVariables,
+        //               const bool,
+        //               const bool,
+        //               const std::shared_ptr<ti::InterpolatorSettings>>
+        //               (&tss::oneDimensionalTabulatedAerodynamicCoefficientSettingsDeprecated),
+        //       py::arg("independent_variables"),
+        //       py::arg("force_coefficients"),
+        //       py::arg("reference_area"),
+        //       py::arg("independent_variable_name"),
+        //       py::arg("are_coefficients_in_aerodynamic_frame") = true,
+        //       py::arg("are_coefficients_in_negative_axis_direction") = true,
+        //       py::arg("interpolator_settings") = nullptr);
 
-        m.def("tabulated_force_only_from_files",
-              py::overload_cast<
-                      const std::map< int, std::string >,
-                      const double,
-                      const std::vector< ta::AerodynamicCoefficientsIndependentVariables >,
-                      const bool,
-                      const bool,
-                      const std::shared_ptr< ti::InterpolatorSettings > >
-                      (&tss::readTabulatedAerodynamicCoefficientsFromFilesDeprecated),
-              py::arg("force_coefficient_files"),
-              py::arg("reference_area"),
-              py::arg("independent_variable_names"),
-              py::arg("are_coefficients_in_aerodynamic_frame") = true,
-              py::arg("are_coefficients_in_negative_axis_direction") = true,
-              py::arg("interpolator_settings") = nullptr );
+        // m.def("tabulated_force_only_from_files",
+        //       py::overload_cast<
+        //               const std::map< int, std::string >,
+        //               const double,
+        //               const std::vector< ta::AerodynamicCoefficientsIndependentVariables >,
+        //               const bool,
+        //               const bool,
+        //               const std::shared_ptr< ti::InterpolatorSettings > >
+        //               (&tss::readTabulatedAerodynamicCoefficientsFromFilesDeprecated),
+        //       py::arg("force_coefficient_files"),
+        //       py::arg("reference_area"),
+        //       py::arg("independent_variable_names"),
+        //       py::arg("are_coefficients_in_aerodynamic_frame") = true,
+        //       py::arg("are_coefficients_in_negative_axis_direction") = true,
+        //       py::arg("interpolator_settings") = nullptr );
 
-        m.def("tabulated_from_files",
-              py::overload_cast<
-                      const std::map< int, std::string >,
-                      const std::map< int, std::string >,
-                      const double,
-                      const double,
-                      const double,
-                      const Eigen::Vector3d &,
-                      const std::vector< ta::AerodynamicCoefficientsIndependentVariables >,
-                      const bool,
-                      const bool,
-                      const std::shared_ptr< ti::InterpolatorSettings > >
-                      (&tss::readTabulatedAerodynamicCoefficientsFromFilesDeprecated),
-              py::arg("force_coefficient_files"),
-              py::arg("moment_coefficient_files"),
-              py::arg("reference_length"),
-              py::arg("reference_area"),
-              py::arg("lateral_reference_length"),
-              py::arg("moment_reference_point"),
-              py::arg("independent_variable_names"),
-              py::arg("are_coefficients_in_aerodynamic_frame") = true,
-              py::arg("are_coefficients_in_negative_axis_direction") = true,
-              py::arg("interpolator_settings") = nullptr );
+        // m.def("tabulated_from_files",
+        //       py::overload_cast<
+        //               const std::map< int, std::string >,
+        //               const std::map< int, std::string >,
+        //               const double,
+        //               const double,
+        //               const double,
+        //               const Eigen::Vector3d &,
+        //               const std::vector< ta::AerodynamicCoefficientsIndependentVariables >,
+        //               const bool,
+        //               const bool,
+        //               const std::shared_ptr< ti::InterpolatorSettings > >
+        //               (&tss::readTabulatedAerodynamicCoefficientsFromFilesDeprecated),
+        //       py::arg("force_coefficient_files"),
+        //       py::arg("moment_coefficient_files"),
+        //       py::arg("reference_length"),
+        //       py::arg("reference_area"),
+        //       py::arg("lateral_reference_length"),
+        //       py::arg("moment_reference_point"),
+        //       py::arg("independent_variable_names"),
+        //       py::arg("are_coefficients_in_aerodynamic_frame") = true,
+        //       py::arg("are_coefficients_in_negative_axis_direction") = true,
+        //       py::arg("interpolator_settings") = nullptr );
 
     }
 

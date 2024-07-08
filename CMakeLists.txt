@@ -75,7 +75,6 @@ include_directories(SYSTEM AFTER "${EIGEN3_INCLUDE_DIR}")
 
 # TODO: Make Tudat export definitions to the config for inheritence to this project.
 add_definitions(-DTUDAT_BUILD_WITH_SPICE_INTERFACE=1)
-add_definitions(-DTUDAT_BUILD_WITH_ESTIMATION_TOOLS=1)
 
 #if (DEFINED _GLIBCXX_USE_CXX11_ABI)
 #    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=${_GLIBCXX_USE_CXX11_ABI}")
