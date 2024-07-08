@@ -1,6 +1,9 @@
 from tudatpy.numerical_simulation import environment_setup  # type:ignore
 from tudatpy.numerical_simulation import estimation, environment  # type:ignore
 from tudatpy.numerical_simulation.estimation_setup import observation  # type:ignore
+from tudatpy.numerical_simulation.environment_setup import add_gravity_field_model
+from tudatpy.numerical_simulation.environment_setup.gravity_field import central_sbdb
+from tudatpy.data._biases import get_biases_EFCC18
 
 import pandas as pd
 import numpy as np
@@ -41,7 +44,7 @@ class BatchMPC:
     Transform to Tudat format:
     >>> ...
     >>> bodies = environment_setup.create_system_of_bodies(body_settings)
-    >>> observation_collection, links_dict = batch.to_tudat(bodies=bodies)
+    >>> observation_collection = batch.to_tudat(bodies=bodies, included_satellites=None)
 
     """
 
@@ -61,6 +64,10 @@ class BatchMPC:
 
         self._epoch_start: float = 0.0
         self._epoch_end: float = 0.0
+
+        self._bodies_created = {}
+
+        self._EFCC18_applied = False
 
         # for manual additions of table (from_pandas, from_astropy)
         self._req_cols = ["number", "epoch", "RA", "DEC", "band", "observatory"]
@@ -124,6 +131,11 @@ class BatchMPC:
         """Epoch of latest observation in batch in seconds since J2000 TDB"""
         return self._epoch_end
 
+    @property
+    def bodies_created(self) -> dict:
+        """Dictionary with the bodies created by to_tudat and details."""
+        return self._bodies_created
+
     def __len__(self):
         return self._size
 
@@ -149,7 +161,8 @@ class BatchMPC:
         self._space_telescopes = [
             x for x in self._observatories if x in self._MPC_space_telescopes
         ]
-        self._bands = list(self._table.band.unique())
+        if "bands" in self._table.columns:
+            self._bands = list(self._table.band.unique())
         self._MPC_codes = list(self._table.number.unique())
         self._size = len(self._table)
 
@@ -190,8 +203,34 @@ class BatchMPC:
         )
         self._observatory_info = temp
 
+    def _apply_EFCC18(
+        self,
+        bias_file=None,
+        Nside=None,
+        catalog_flags=None,
+    ):
+        if self._EFCC18_applied:
+            pass
+        else:
+            RA_corr, DEC_corr = get_biases_EFCC18(
+                RA=self.table.RA.to_numpy(),
+                DEC=self.table.DEC.to_numpy(),
+                epochJ2000secondsTDB=self.table.epochJ2000secondsTDB.to_numpy(),
+                catalog=self.table.catalog.to_numpy(),
+                bias_file=bias_file,
+                Nside=Nside,
+                catalog_flags=catalog_flags,
+            )
+
+            self._table = self._table.assign(RA_EFCC18=lambda x: x.RA - RA_corr)
+            self._table = self._table.assign(DEC_EFCC18=lambda x: x.DEC - DEC_corr)
+            self._table = self._table.assign(corr_RA_EFCC18=lambda x: RA_corr)
+            self._table = self._table.assign(corr_DEC_EFCC18=lambda x: DEC_corr)
+
+            self._EFCC18_applied = True
+
     # methods for data retrievels
-    def get_observations(self, MPCcodes: List[int]) -> None:
+    def get_observations(self, MPCcodes: List[Union[str, int]]) -> None:
         """Retrieve all observations for a set of MPC listed objeccts.
         This method uses astroquery to retrieve the observations from the MPC.
         An internet connection is required, observations are cached for faster subsequent retrieval
@@ -228,7 +267,11 @@ class BatchMPC:
                 )
 
                 # convert object mpc code to string
-                obs["number"] = obs.number.astype(str)
+                if "comettype" in obs.columns:
+                    # for the case where we have a comet
+                    obs["number"] = obs.desig
+                else:
+                    obs["number"] = obs.number.astype(str)
                 self._table = pd.concat([self._table, obs])
 
             except Exception as e:
@@ -442,23 +485,27 @@ class BatchMPC:
         bodies: environment.SystemOfBodies,
         included_satellites: Union[Dict[str, str], None],
         station_body: str = "Earth",
-    ) -> Tuple[estimation.ObservationCollection, Dict[str, observation.LinkDefinition]]:
+        add_sbdb_gravity_model: bool = False,
+        apply_star_catalog_debias: bool = True,
+        debias_kwargs: dict = dict(),
+    ) -> estimation.ObservationCollection:
         """Converts the observations in the batch into a Tudat compatible format and
           sets up the relevant Tudat infrastructure to support estimation.
         This method does the following:\\
-            1. Creates an empty body for each minor planet with their MPC code as a 
+            1. (By Default) Applies star catalog debiasing.
+            2. Creates an empty body for each minor planet with their MPC code as a 
             name.\\
-            2. Adds this body to the system of bodies inputted to the method.\\
-            3. Retrieves the global position of the terrestrial observatories in 
+            3. Adds this body to the system of bodies inputted to the method.\\
+            4. Retrieves the global position of the terrestrial observatories in 
             the batch and adds these stations to the Tudat environment.\\
-            4. Creates link definitions between each unique terrestrial 
+            5. Creates link definitions between each unique terrestrial 
             observatory/ minor planet combination in the batch.\\
-            5. (Optionally) creates a link definition between each 
+            6. (Optionally) creates a link definition between each 
             space telescope / minor planet combination in the batch. 
             This requires an addional input.\\
-            6. Creates a `SingleObservationSet` object for each unique link that 
+            7. Creates a `SingleObservationSet` object for each unique link that 
             includes all observations for that link.\\
-            7. Returns the observations
+            8. Returns the observations
 
 
         Parameters
@@ -476,6 +523,18 @@ class BatchMPC:
         station_body : str, optional
             Body to attach ground stations to. Does not need to be changed unless the 
             `Earth` body has been renamed, by default "Earth"
+        station_body : bool, optional
+            Adds a central_sbdb gravity model to the object, generated using JPL's small body database. 
+            This option is only available for a limited number of bodies and raises an error if unavailable. 
+            See tudatpy.numerical_simulation.environment_setup.gravity_field.central_sbdb for more info.
+            Enabled if True, by default False
+        apply_star_catalog_debias : bool, optional
+            Applies star catalog debiasing as described in: "Star catalog position and proper motion corrections 
+            in asteroid astrometry II: The Gaia era" by Eggl et al. (2018), by default True
+        apply_star_catalog_debias : bool, optional
+            Additional options when applying star catalog debiasing. A different debias file 
+            can be set here. Options are set as kwargs using a dictionary, see data._biases.get_biases_EFCC18() 
+            for more info, by default dict()
 
         Returns
         -------
@@ -493,6 +552,15 @@ class BatchMPC:
 
 
         """
+        # apply EFCC18 star catalog corrections:
+        if apply_star_catalog_debias:
+            self._apply_EFCC18(**debias_kwargs)
+            RA_col = "RA_EFCC18"
+            DEC_col = "DEC_EFCC18"
+        else:
+            RA_col = "RA"
+            DEC_col = "DEC"
+
         # start user input validation
         # Ensure that Earth is in the SystemOfBodies object
         try:
@@ -549,6 +617,12 @@ class BatchMPC:
         for body in self._MPC_codes:
             if not bodies.does_body_exist(body):
                 bodies.create_empty_body(str(body))
+                # save the name of the body added
+                self._bodies_created[str(body)] = "empty body"
+
+                if add_sbdb_gravity_model:
+                    add_gravity_field_model(bodies, str(body), central_sbdb(str(body)))
+                    self._bodies_created[str(body)] = "empty body + sbdb gravity"
 
         # add ground stations to the earth body
         for idx in range(len(tempStations)):
@@ -601,10 +675,10 @@ class BatchMPC:
                 link_definition = observation.link_definition(link_ends)
             else:
                 # link for a ground station
-                link_ends[
-                    observation.receiver
-                ] = observation.body_reference_point_link_end_id(
-                    station_body, station_name
+                link_ends[observation.receiver] = (
+                    observation.body_reference_point_link_end_id(
+                        station_body, station_name
+                    )
                 )
                 link_definition = observation.link_definition(link_ends)
 
@@ -614,7 +688,7 @@ class BatchMPC:
             ).query("observatory == @station_name")
 
             observation_angles = observations_for_this_link.loc[
-                :, ["RA", "DEC"]
+                :, [RA_col, DEC_col]
             ].to_numpy()
 
             observation_times = observations_for_this_link.loc[
@@ -699,7 +773,7 @@ class BatchMPC:
         axRA.set_ylim(0 - buffer, 360 + buffer)
         axDEC.set_ylim(-90 - buffer, 90 + buffer)
 
-        fig.set_tight_layout(True)
+        fig.set_layout_engine("tight")
 
         return fig
 
@@ -788,7 +862,7 @@ class BatchMPC:
         ax.grid()
         fig.suptitle(f"{self.size} observations between {startUTC} and {endUTC}")
 
-        fig.set_tight_layout(True)
+        fig.set_layout_engine("tight")
 
         return fig
 
