@@ -67,10 +67,11 @@ std::map< int, double > getPolynomialCoefficients( const int polynomialOrder)
 
     // Copy subset of allCoefficients map into currentCoefficients.
     std::map< int, double > currentCoefficients( allCoefficients.begin(),
-        boost::next( allCoefficients.begin(), polynomialOrder + 1 ) );
+        std::next( allCoefficients.begin(), polynomialOrder + 1 ) );
     return currentCoefficients;
 
 }
+
 
 //! Create quasi-random vector of non-uniform independent variables
 /*!
@@ -189,6 +190,7 @@ BOOST_AUTO_TEST_CASE( test_lagrange_interpolation_boundary )
 
     unsigned int independentVariableVectorSize = independentVariableVector.size( );
 
+    for( int testCase = 0; testCase < 4; testCase++ )
     {
         // Test interpolator for 4;6;8;10 data points per interpolant
         // (i.e. 3rd, 5th, 7th and 9th order polynomial)
@@ -210,8 +212,7 @@ BOOST_AUTO_TEST_CASE( test_lagrange_interpolation_boundary )
             interpolators::LagrangeInterpolator< double, double > lagrangeInterpolator =
                     interpolators::LagrangeInterpolator< double, double >(
                         independentVariableVector, dataVector, stages,
-                        interpolators::huntingAlgorithm,
-                        interpolators::lagrange_cubic_spline_boundary_interpolation );
+                        interpolators::huntingAlgorithm, static_cast< interpolators::LagrangeInterpolatorBoundaryHandling >( testCase ) );
 
             // Create spline interpolator from edge points at lower bound.
             int dataPointsForSpline = ( stages / 2 > 4 ) ? ( stages / 2 ) : 4;
@@ -234,10 +235,18 @@ BOOST_AUTO_TEST_CASE( test_lagrange_interpolation_boundary )
                 {
                     double currentTestIndependentVariable = independentVariableVector.at( i ) +
                             static_cast< double >( i ) * currentStepSize;
-                    BOOST_CHECK_EQUAL(
-                                lagrangeInterpolator.interpolate( currentTestIndependentVariable ),
-                                lowerBoundInterpolator.interpolate(
-                                    currentTestIndependentVariable ) );
+                    double interpolatedValue = lagrangeInterpolator.interpolate( currentTestIndependentVariable );
+                    if( testCase < 2 )
+                    {
+                        BOOST_CHECK_EQUAL(
+                            interpolatedValue,
+                            lowerBoundInterpolator.interpolate(
+                                currentTestIndependentVariable ));
+                    }
+                    else
+                    {
+                        BOOST_CHECK_EQUAL( !( interpolatedValue == interpolatedValue ), true );
+                    }
                 }
             }
 
@@ -265,10 +274,18 @@ BOOST_AUTO_TEST_CASE( test_lagrange_interpolation_boundary )
                     double currentTestIndependentVariable = independentVariableVector.at(
                                 independentVariableVectorSize - i - 2 ) +
                             static_cast< double >( i ) * currentStepSize;
-                    BOOST_CHECK_EQUAL( lagrangeInterpolator.interpolate(
-                                           currentTestIndependentVariable ),
-                                       upperBoundInterpolator.interpolate(
-                                           currentTestIndependentVariable ) );
+                    double interpolatedValue = lagrangeInterpolator.interpolate( currentTestIndependentVariable );
+
+                    if( testCase < 2 )
+                    {
+                        BOOST_CHECK_EQUAL( interpolatedValue,
+                                           upperBoundInterpolator.interpolate(
+                                               currentTestIndependentVariable ));
+                    }
+                    else
+                    {
+                        BOOST_CHECK_EQUAL( !( interpolatedValue == interpolatedValue ), true );
+                    }
                 }
             }
         }

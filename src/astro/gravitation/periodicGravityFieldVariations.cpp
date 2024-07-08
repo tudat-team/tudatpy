@@ -60,7 +60,7 @@ std::pair< Eigen::MatrixXd, Eigen::MatrixXd > PeriodicGravityFieldVariations::ca
     {
         cosineCorrections += cosineAmplitudes_.at( i ) * std::cos(
                     frequencies_.at( i ) * ( time - referenceEpoch_ ) + phases_.at( i ) );
-        sineCorrections += sineAmplitudes_.at( i ) * std::sin(
+        sineCorrections += sineAmplitudes_.at( i ) * std::cos(
                     frequencies_.at( i ) * ( time - referenceEpoch_ ) + phases_.at( i ) );
     }
 

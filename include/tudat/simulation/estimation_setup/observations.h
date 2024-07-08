@@ -225,6 +225,34 @@ public:
         return ancilliarySettings_;
     }
 
+    Eigen::VectorXd getWeightsVector( )
+    {
+        return weightsVector_;
+    }
+
+    Eigen::VectorXd& getWeightsVectorReference( )
+    {
+        return weightsVector_;
+    }
+
+    void setWeightsVector( const Eigen::VectorXd& weightsVector )
+    {
+        int singleObservableSize = 0;
+        if( numberOfObservations_ != 0 )
+        {
+            singleObservableSize = observations_.at( 0 ).rows( );
+            if( weightsVector.rows( ) != singleObservableSize * observations_.size( ) )
+            {
+                throw std::runtime_error( "Error when setting weights in single observation set, sizes are incompatible." );
+            }
+        }
+        else if( weightsVector.rows( ) > 0 )
+        {
+            throw std::runtime_error( "Error when setting weights in single observation set, observation set has no data." );
+        }
+        weightsVector_ = weightsVector;
+    }
+
     std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > createFilteredObservationSet(
         std::vector< int > indices )
     {
@@ -267,6 +295,8 @@ private:
     const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings_;
 
     const int numberOfObservations_;
+
+    Eigen::VectorXd weightsVector_;
 
 };
 
@@ -386,7 +416,26 @@ public:
 
     std::vector< double > getConcatenatedDoubleTimeVector( )
     {
-        return utilities::staticCastVector< double, TimeType >( concatenatedTimes_ );
+        return utilities::staticCastVector<double, TimeType>( concatenatedTimes_ );
+    }
+
+    std::vector< TimeType > getConcatenatedWeightVector( )
+    {
+        // for now, this only takes the weights set from the single observation sets.
+        // TODO may require a change later to accomodate other sources.
+
+        // lazy evaluation, check if the weights has been set, otherwise set it then return
+        if (concatenatedWeights_.size() != totalObservableSize_) {
+            concatenatedWeights_.resize(totalObservableSize_);
+            Eigen::VectorXd temp = getWeightsFromSingleObservationSets();
+            if (temp.size() > 0) {
+                Eigen::Map<Eigen::VectorXd> tempMap(temp.data(), temp.size());
+                concatenatedWeights_ = std::vector<ObservationScalarType>(
+                    tempMap.data(), tempMap.data() + tempMap.size());
+            }
+        }
+
+        return concatenatedWeights_;
     }
 
     std::pair< TimeType, TimeType > getTimeBounds( )
@@ -626,6 +675,37 @@ public:
         return linkEndsPerObservableType;
     }
 
+    Eigen::VectorXd getWeightsFromSingleObservationSets( )
+    {
+        Eigen::VectorXd weightsVector = Eigen::VectorXd::Zero( totalObservableSize_ );
+
+        for( auto observationIterator : observationSetList_ )
+        {
+            ObservableType currentObservableType = observationIterator.first;
+
+            for( auto linkEndIterator : observationIterator.second )
+            {
+                LinkEnds currentLinkEnds = linkEndIterator.first;
+                for( unsigned int i = 0; i < linkEndIterator.second.size( ); i++ )
+                {
+                    std::pair< int, int > startAndSize = observationSetStartAndSize_.at( currentObservableType ).at( currentLinkEnds ).at( i );
+                    if( observationSetList_.at( currentObservableType ).at( currentLinkEnds ).at( i )->getWeightsVectorReference( ).rows( ) ==
+                        startAndSize.second )
+                    {
+                        weightsVector.segment( startAndSize.first, startAndSize.second ) =
+                            observationSetList_.at( currentObservableType ).at( currentLinkEnds ).at(
+                                i )->getWeightsVector( );
+                    }
+                    else
+                    {
+                        throw std::runtime_error( "Error when compiling full weights vector from single observation set, sizes are inconsistent" );
+                    }
+                }
+            }
+        }
+        return weightsVector;
+    }
+
     std::tuple< Eigen::VectorXd, Eigen::VectorXd > getFullDependentVariableVector( const std::shared_ptr< simulation_setup::ObservationDependentVariableSettings > dependentVariable )
     {
         Eigen::VectorXd dependentVariablesVector = Eigen::VectorXd::Zero( concatenatedTimes_.size( ) );
@@ -803,6 +883,8 @@ private:
     Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > concatenatedObservations_;
 
     std::vector< TimeType > concatenatedTimes_;
+
+    std::vector<ObservationScalarType> concatenatedWeights_;
 
     std::vector< int > concatenatedLinkEndIds_;
 
