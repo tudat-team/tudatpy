@@ -93,6 +93,7 @@ public:
     
     void setSourceDirectionScaling( const double sourceDirectionScaling )
     {
+        enableScaling( );
         sourceDirectionScaling_ = sourceDirectionScaling;
     }
     
@@ -103,12 +104,13 @@ public:
 
     void setPerpendicularSourceDirectionScaling( const double perpendicularSourceDirectionScaling )
     {
+        enableScaling( );
         perpendicularSourceDirectionScaling_ = perpendicularSourceDirectionScaling;
     }
 
     Eigen::Vector3d getTargetCenterPositionInSourceFrame( )
     {
-        return targetWrtSourceCenterPositionInSourceFrame_;
+        return targetCenterPositionInSourceFrame_;
     }
 
     Eigen::Vector3d getCurrentUnscaledAcceleration( )
@@ -149,7 +151,7 @@ protected:
         }
         else
         {
-            Eigen::Vector3d targetUnitVector = targetWrtSourceCenterPositionInSourceFrame_.normalized( );
+            Eigen::Vector3d targetUnitVector = targetCenterPositionInSourceFrame_.normalized( );
             Eigen::Vector3d toTargetComponent =  currentUnscaledAcceleration_ - targetUnitVector.dot( currentUnscaledAcceleration_ ) * targetUnitVector;
             currentAcceleration_ = sourceDirectionScaling_ * toTargetComponent + perpendicularSourceDirectionScaling_ * ( currentUnscaledAcceleration_ - toTargetComponent );
         }
@@ -170,7 +172,7 @@ protected:
 
     Eigen::Vector3d sourceCenterPositionInGlobalFrame_;
     Eigen::Vector3d targetCenterPositionInGlobalFrame_;
-    Eigen::Vector3d targetWrtSourceCenterPositionInSourceFrame_;
+    Eigen::Vector3d targetCenterPositionInSourceFrame_;
 
     // For dependent variable
     double receivedIrradiance;
@@ -242,7 +244,7 @@ public:
 
     Eigen::Vector3d getTargetPositionWrtSource( )
     {
-        return targetWrtSourceCenterPositionInSourceFrame_;
+        return targetCenterPositionInSourceFrame_;
     }
 
     double getCurrentTargetMass( )
