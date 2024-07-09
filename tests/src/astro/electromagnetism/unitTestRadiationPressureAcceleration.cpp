@@ -846,7 +846,8 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_IsotropicPointSource_Pan
                 bodies.at("Vehicle")->setCurrentRotationToLocalFrameFromEphemeris(currentTime);
                 bodies.at("Vehicle")->updateMass(currentTime);
                 bodies.at("Sun")->getRadiationSourceModel()->updateMembers(currentTime);
-                bodies.at("Vehicle")->getRadiationPressureTargetModel()->updateMembers(currentTime);
+                simulation_setup::getRadiationPressureTargetModelOfType(
+                    bodies.at("Vehicle"), simulation_setup::paneled_target )->updateMembers(currentTime);
                 accelerationModel->updateMembers(currentTime);
 
                 // Retrieve acceleration.
@@ -925,7 +926,8 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_IsotropicPointSource_Pan
                 bodies.at("Vehicle")->setCurrentRotationToLocalFrameFromEphemeris(currentTime);
                 bodies.at("Vehicle")->updateMass(currentTime);
                 bodies.at("Sun")->getRadiationSourceModel()->updateMembers(currentTime);
-                bodies.at("Vehicle")->getRadiationPressureTargetModel()->updateMembers(currentTime);
+                simulation_setup::getRadiationPressureTargetModelOfType(
+                    bodies.at("Vehicle"), simulation_setup::paneled_target )->updateMembers(currentTime);
                 accelerationModelTimeVaryingPanelSurfaceNormal->updateMembers(currentTime);
 
                 // Retrieve acceleration.

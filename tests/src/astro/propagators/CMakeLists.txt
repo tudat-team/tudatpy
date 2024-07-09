@@ -93,4 +93,6 @@ TUDAT_ADD_TEST_CASE(DependentVariablesInterface PRIVATE_LINKS ${Tudat_ESTIMATION
 
 TUDAT_ADD_TEST_CASE(NonSequentialVariationalEquations PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
 
+TUDAT_ADD_TEST_CASE(RadiationPressurePropagation PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
+
 endif( )

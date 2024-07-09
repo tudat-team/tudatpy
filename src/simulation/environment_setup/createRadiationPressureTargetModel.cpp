@@ -24,6 +24,63 @@ namespace simulation_setup
 {
 
 
+std::shared_ptr<electromagnetism::RadiationPressureTargetModel> getRadiationPressureTargetModelOfType(
+    const std::shared_ptr< Body > target,
+    const RadiationPressureTargetModelType targetModelType,
+    const std::string errorOutput )
+{
+    std::string targetName = target->getBodyName( );
+    std::shared_ptr<electromagnetism::RadiationPressureTargetModel> targetModel;
+    if( target->getRadiationPressureTargetModels( ).size( ) == 1 )
+    {
+        std::shared_ptr<electromagnetism::RadiationPressureTargetModel> availableTargetModel = target->getRadiationPressureTargetModels( ).at( 0 );
+        if( getTargetModelType( availableTargetModel ) == targetModelType || targetModelType == undefined_target )
+        {
+            targetModel = availableTargetModel;
+        }
+        else
+        {
+            throw std::runtime_error( "Error " + errorOutput + ", body " +
+                                      targetName +
+                                      " has no radiation pressure target model of type ." + std::to_string( targetModelType ) );
+        }
+    }
+    else if( targetModelType == undefined_target )
+    {
+        throw std::runtime_error( "Error " + errorOutput + ", body " +
+                                  targetName +
+                                  " has multiple radiation pressure target models" );
+    }
+    else
+    {
+        std::vector< std::shared_ptr<electromagnetism::RadiationPressureTargetModel> > availableTargetModels = target->getRadiationPressureTargetModels( );
+        for( unsigned int i = 0; i < availableTargetModels.size( ); i++ )
+        {
+            if( getTargetModelType( availableTargetModels.at( i ) ) == targetModelType )
+            {
+                if( targetModel == nullptr )
+                {
+                    targetModel = availableTargetModels.at( i );
+                }
+                else
+                {
+                    throw std::runtime_error( "Error " + errorOutput + ", body " +
+                                              targetName +
+                                              " has multiple martching radiation pressure target models" );
+                }
+            }
+        }
+
+        if( targetModel == nullptr )
+        {
+            throw std::runtime_error( "Error " + errorOutput + ", body " +
+                                      targetName +
+                                      " has multiple radiation pressure target models, but none match required type" );
+        }
+    }
+    return targetModel;
+}
+
 std::shared_ptr< electromagnetism::ReflectionLaw > createReflectionLaw(
     const std::shared_ptr< BodyPanelReflectionLawSettings > reflectionLawSettings )
 {
