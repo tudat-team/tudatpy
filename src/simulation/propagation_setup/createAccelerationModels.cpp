@@ -30,6 +30,7 @@
 #include "tudat/simulation/propagation_setup/createAccelerationModels.h"
 #include "tudat/simulation/environment_setup/createFlightConditions.h"
 #include "tudat/simulation/environment_setup/createOccultationModel.h"
+#include "tudat/simulation/environment_setup/createRadiationPressureTargetModel.h"
 
 
 namespace tudat
@@ -1089,9 +1090,18 @@ createRadiationPressureAccelerationModel(
         const std::shared_ptr< Body > bodyExertingAcceleration,
         const std::string& nameOfBodyUndergoingAcceleration,
         const std::string& nameOfBodyExertingAcceleration,
-        const SystemOfBodies& bodies)
+        const SystemOfBodies& bodies,
+        const std::shared_ptr< AccelerationSettings > accelerationSettings )
 {
-    // using namespace tudat::electromagnetism;
+    RadiationPressureTargetModelType targetModelType = undefined_target;
+    if( std::dynamic_pointer_cast< RadiationPressureAccelerationSettings >( accelerationSettings  ) != nullptr )
+    {
+        targetModelType = std::dynamic_pointer_cast< RadiationPressureAccelerationSettings >( accelerationSettings  )->targetModelType_;
+    }
+    if( targetModelType == multi_type_target )
+    {
+        throw std::runtime_error( "Error when creating radiation pressure acceleration, cannot select multi-type target" );
+    }
 
     // Create references to bodies in radiation pressure terms
     const auto& sourceName = nameOfBodyExertingAcceleration;
@@ -1105,11 +1115,63 @@ createRadiationPressureAccelerationModel(
                                   sourceName +
                                   " has no radiation source model." );
     }
-    if( target->getRadiationPressureTargetModel() == nullptr )
+
+    std::shared_ptr<electromagnetism::RadiationPressureTargetModel> targetModel;
+    if( target->getRadiationPressureTargetModels().size( ) == 0 )
     {
         throw std::runtime_error( "Error when making radiation pressure acceleration, body " +
                                   targetName +
-                                  " has no radiation pressure target model." );
+                                  " has no radiation pressure target models." );
+    }
+    else
+    {
+        if( target->getRadiationPressureTargetModels( ).size( ) == 1 )
+        {
+            std::shared_ptr<electromagnetism::RadiationPressureTargetModel> availableTargetModel = target->getRadiationPressureTargetModels( ).at( 0 );
+            if( getTargetModelType( availableTargetModel ) == targetModelType || targetModelType == undefined_target )
+            {
+                targetModel = availableTargetModel;
+            }
+            else
+            {
+                throw std::runtime_error( "Error when making radiation pressure acceleration, body " +
+                                          targetName +
+                                          " has no radiation pressure target model of type ." + std::to_string( targetModelType ) );
+            }
+        }
+        else if( targetModelType == undefined_target )
+        {
+            throw std::runtime_error( "Error when making radiation pressure acceleration, body " +
+                                      targetName +
+                                      " has multiple radiation pressure target models, but not type specified to use for acceleration due to " + sourceName );
+        }
+        else
+        {
+            std::vector< std::shared_ptr<electromagnetism::RadiationPressureTargetModel> > availableTargetModels = target->getRadiationPressureTargetModels( );
+            for( unsigned int i = 0; i < availableTargetModels.size( ); i++ )
+            {
+                if( getTargetModelType( availableTargetModels.at( i ) ) == targetModelType )
+                {
+                    if( targetModel == nullptr )
+                    {
+                        targetModel = availableTargetModels.at( i );
+                    }
+                    else
+                    {
+                        throw std::runtime_error( "Error when making radiation pressure acceleration, body " +
+                                                  targetName +
+                                                  " has multiple martching radiation pressure target models to use for acceleration due to " + sourceName );
+                    }
+                }
+            }
+
+            if( targetModel == nullptr )
+            {
+                throw std::runtime_error( "Error when making radiation pressure acceleration, body " +
+                                          targetName +
+                                          " has multiple radiation pressure target models to use for acceleration due to " + sourceName + ", but none match required type" );
+            }
+        }
     }
 
     // Cast source and target models for type checks
@@ -1121,7 +1183,7 @@ createRadiationPressureAccelerationModel(
                     source->getRadiationSourceModel());
     auto cannonballRadiationPressureTargetModel =
             std::dynamic_pointer_cast<electromagnetism::CannonballRadiationPressureTargetModel>(
-                    target->getRadiationPressureTargetModel());
+                    targetModel);
 
     // Get target rotation function
     std::function<Eigen::Quaterniond()> targetRotationFromLocalToGlobalFrameFunction;
@@ -1137,7 +1199,7 @@ createRadiationPressureAccelerationModel(
     }
 
     // Find occulting bodies corresponding to this source
-    auto targetOccultingBodiesMap = target->getRadiationPressureTargetModel()->getSourceToTargetOccultingBodies();
+    auto targetOccultingBodiesMap = targetModel->getSourceToTargetOccultingBodies();
     std::vector<std::string> sourceToTargetOccultingBodies = {};
     if (targetOccultingBodiesMap.count(sourceName) > 0)
     {
@@ -1172,7 +1234,7 @@ createRadiationPressureAccelerationModel(
                 isotropicPointRadiationSourceModel,
                 source->getShapeModel(),
                 [source] { return source->getPosition(); },
-                target->getRadiationPressureTargetModel(),
+                targetModel,
                 [target] { return target->getPosition(); },
                 targetRotationFromLocalToGlobalFrameFunction,
                 [target] { return target->getBodyMass(); },
@@ -1184,7 +1246,7 @@ createRadiationPressureAccelerationModel(
                 paneledRadiationSourceModel,
                 [source] { return source->getPosition(); },
                 [source] { return source->getCurrentRotationToGlobalFrame(); },
-                target->getRadiationPressureTargetModel(),
+                targetModel,
                 [target] { return target->getPosition(); },
                 targetRotationFromLocalToGlobalFrameFunction,
                 [target] { return target->getBodyMass(); },
@@ -1232,7 +1294,37 @@ createCannonballRadiationPressureAcceleratioModel(
             radiationPressureInterface->getArea( ),
             radiationPressureInterface->getRadiationPressureCoefficient( ),
             occultingBodies );
-    bodyUndergoingAcceleration->setRadiationPressureTargetModel( cannonBallTargetModel );
+
+    std::vector< std::shared_ptr<electromagnetism::RadiationPressureTargetModel> > targetModels = bodyUndergoingAcceleration->getRadiationPressureTargetModels( );
+    bool addModel = false;
+    if(  targetModels.size( ) == 0 )
+    {
+        addModel = true;
+    }
+    else if( targetModels.size( ) == 1  )
+    {
+        std::shared_ptr< CannonballRadiationPressureTargetModel > existingCannonBallTargetModel =
+            std::dynamic_pointer_cast< CannonballRadiationPressureTargetModel >( targetModels.at( 0 ) );
+        if( existingCannonBallTargetModel == nullptr )
+        {
+            throw std::runtime_error( "Error when create deprecated cannonball radiation pressure model; existing target model found of non-cannonball type." );
+        }
+        else if( !( cannonBallTargetModel->getArea( ) == existingCannonBallTargetModel->getArea( ) &&
+            cannonBallTargetModel->getCoefficient( ) == existingCannonBallTargetModel->getCoefficient( ) &&
+            cannonBallTargetModel->getSourceToTargetOccultingBodies( ) == existingCannonBallTargetModel->getSourceToTargetOccultingBodies( ) ) )
+        {
+            throw std::runtime_error( "Error when create deprecated cannonball radiation pressure model; existing target model found of cannonball type with inconsistent settings." );
+        }
+    }
+    else
+    {
+        throw std::runtime_error( "Error when create deprecated cannonball radiation pressure model; deprecated interface does not permit multiple existing target models." );
+    }
+
+    if( addModel )
+    {
+        bodyUndergoingAcceleration->addRadiationPressureTargetModel( cannonBallTargetModel );
+    }
 
     return createRadiationPressureAccelerationModel(
         bodyUndergoingAcceleration, bodyExertingAcceleration, nameOfBodyUndergoingAcceleration, nameOfBodyExertingAcceleration,
@@ -1775,7 +1867,8 @@ std::shared_ptr< AccelerationModel< Eigen::Vector3d > > createAccelerationModel(
                     bodyExertingAcceleration,
                     nameOfBodyUndergoingAcceleration,
                     nameOfBodyExertingAcceleration,
-                    bodies);
+                    bodies,
+                    accelerationSettings );
         break;
     case cannon_ball_radiation_pressure:
         accelerationModelPointer = createCannonballRadiationPressureAcceleratioModel(

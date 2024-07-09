@@ -105,8 +105,8 @@ executeHybridArcMarsAndOrbiterSensitivitySimulation(
             referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
 
     // Create and set radiation pressure settings
-    bodies.at( "Orbiter" )->setRadiationPressureTargetModel(
-        createRadiationPressureTargetModel( orbiterRadiationPressureSettings, "Orbiter", bodies ) );
+    bodies.at( "Orbiter" )->addRadiationPressureTargetModel(
+        createRadiationPressureTargetModel( orbiterRadiationPressureSettings, "Orbiter", bodies ).at( 0 ) );
 
 
     // Set accelerations between bodies that are to be taken into account.

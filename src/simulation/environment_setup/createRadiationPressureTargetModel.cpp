@@ -52,14 +52,33 @@ std::shared_ptr< electromagnetism::ReflectionLaw > createReflectionLaw(
     return reflectionLaw;
 }
 
-std::shared_ptr<electromagnetism::RadiationPressureTargetModel> createRadiationPressureTargetModel(
+RadiationPressureTargetModelType getTargetModelType( const std::shared_ptr<electromagnetism::RadiationPressureTargetModel> targetModel )
+{
+    RadiationPressureTargetModelType targetModelType;
+    if( std::dynamic_pointer_cast< electromagnetism::CannonballRadiationPressureTargetModel >( targetModel ) != nullptr )
+    {
+        targetModelType = cannonball_target;
+    }
+    else if( std::dynamic_pointer_cast< electromagnetism::PaneledRadiationPressureTargetModel >( targetModel ) != nullptr )
+    {
+        targetModelType = paneled_target;
+    }
+    else
+    {
+        throw std::runtime_error( "Error when finding radiation pressure target model type, type not recognized." );
+    }
+    return targetModelType;
+}
+
+
+std::vector< std::shared_ptr<electromagnetism::RadiationPressureTargetModel> > createRadiationPressureTargetModel(
         const std::shared_ptr<RadiationPressureTargetModelSettings>& modelSettings,
         const std::string& body,
         const SystemOfBodies& bodies)
 {
     using namespace tudat::electromagnetism;
 
-    std::shared_ptr<electromagnetism::RadiationPressureTargetModel> radiationPressureTargetModel;
+    std::vector< std::shared_ptr<electromagnetism::RadiationPressureTargetModel> > radiationPressureTargetModels;
 
     // Validate occulting bodies map: can either have
     //  - multiple entries with source body names as keys
@@ -83,10 +102,10 @@ std::shared_ptr<electromagnetism::RadiationPressureTargetModel> createRadiationP
                         "Error, expected cannonball radiation pressure target for body " + body );
             }
 
-            radiationPressureTargetModel = std::make_shared<CannonballRadiationPressureTargetModel>(
+            radiationPressureTargetModels.push_back( std::make_shared<CannonballRadiationPressureTargetModel>(
                     cannonballTargetModelSettings->getArea(),
                     cannonballTargetModelSettings->getCoefficient(),
-                    sourceToTargetOccultingBodies);
+                    sourceToTargetOccultingBodies) );
             break;
         }
         case RadiationPressureTargetModelType::paneled_target:
@@ -122,15 +141,36 @@ std::shared_ptr<electromagnetism::RadiationPressureTargetModel> createRadiationP
             }
 
 
-            radiationPressureTargetModel = std::make_shared<PaneledRadiationPressureTargetModel>(
-                bodyFixedPanels, segmentFixedPanels, segmentFixedToBodyFixedRotations, sourceToTargetOccultingBodies);
+            radiationPressureTargetModels.push_back( std::make_shared<PaneledRadiationPressureTargetModel>(
+                bodyFixedPanels, segmentFixedPanels, segmentFixedToBodyFixedRotations, sourceToTargetOccultingBodies) );
+            break;
+        }
+        case RadiationPressureTargetModelType::multi_type_target:
+        {
+            std::shared_ptr< MultiRadiationPressureTargetModelSettings > multiTargetModelSettings =
+                std::dynamic_pointer_cast< MultiRadiationPressureTargetModelSettings >(modelSettings);
+
+            if(multiTargetModelSettings == nullptr)
+            {
+                throw std::runtime_error(
+                    "Error, expected multi-type radiation pressure target for body " + body );
+            }
+            for( unsigned int i = 0; i < multiTargetModelSettings->radiationPressureTargetModelSettings_.size( ); i++ )
+            {
+                if( multiTargetModelSettings->radiationPressureTargetModelSettings_.at( i )->getRadiationPressureTargetModelType( ) == multi_type_target )
+                {
+                    throw std::runtime_error( "Error, cannot have multiple nested multi-type target model settings" );
+                }
+                radiationPressureTargetModels.push_back( createRadiationPressureTargetModel(
+                    multiTargetModelSettings->radiationPressureTargetModelSettings_.at( i ), body, bodies ).at( 0 ) );
+            }
             break;
         }
         default:
             throw std::runtime_error( "Error, do not recognize radiation pressure target model settings for " + body );
     }
 
-    return radiationPressureTargetModel;
+    return radiationPressureTargetModels;
 }
 
 } // tudat
