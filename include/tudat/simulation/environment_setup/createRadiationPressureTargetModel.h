@@ -38,6 +38,11 @@ enum RadiationPressureTargetModelType
     undefined_target
 };
 
+std::shared_ptr<electromagnetism::RadiationPressureTargetModel> getRadiationPressureTargetModelOfType(
+    const std::shared_ptr< Body > target,
+    const RadiationPressureTargetModelType targetModelType = undefined_target,
+    const std::string errorOutput = "" );
+
 /*!
  * Settings for a radiation pressure target model.
  *
