@@ -821,7 +821,7 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_IsotropicPointSource_Pan
             SelectedAccelerationMap accelerationMap{
                     {"Vehicle", {
                             {"Sun", {
-                                    radiationPressureAcceleration()
+                                    radiationPressureAcceleration( paneled_target )
                             }},
                     }}
             };
@@ -895,12 +895,12 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_IsotropicPointSource_Pan
                                 reflectionLawFromSpecularAndDiffuseReflectivity(0.1, 0.46)),
             };
             bodies.at("Vehicle")->setRadiationPressureTargetModels(
-                { std::make_shared<PaneledRadiationPressureTargetModel>(panels) } );
+                { std::make_shared<PaneledRadiationPressureTargetModel>(panels), std::make_shared< CannonballRadiationPressureTargetModel >( 1000.0, 0.3 ) } );
 
             SelectedAccelerationMap accelerationMap{
                     {"Vehicle", {
                             {"Sun", {
-                                    radiationPressureAcceleration()
+                                    radiationPressureAcceleration( paneled_target )
                             }},
                     }}
             };
@@ -1181,7 +1181,7 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_StaticallyPaneledSource_
 }
 
 //! Test radiation acceleration model for LAGEOS with albedo and thermal radiation from Earth (Knocke 1988)
-BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_DynamicallyPaneledSource_CannonballTarget_LAGEOS )
+BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_DynamicallyPanelunitestradedSource_CannonballTarget_LAGEOS )
 {
     using namespace tudat;
     using namespace tudat::simulation_setup;
