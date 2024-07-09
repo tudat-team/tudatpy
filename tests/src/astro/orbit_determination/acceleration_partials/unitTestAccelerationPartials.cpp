@@ -215,7 +215,7 @@ BOOST_AUTO_TEST_CASE( testCannonballRadiationPressureAccelerationPartials )
     // Create radiation pressure properties of vehicle
     std::shared_ptr<CannonballRadiationPressureTargetModel > radiationPressureInterface =
         std::make_shared< CannonballRadiationPressureTargetModel >( mathematical_constants::PI * 0.3 * 0.3, 1.2 );
-    vehicle->setRadiationPressureTargetModel( radiationPressureInterface );
+    vehicle->addRadiationPressureTargetModel( radiationPressureInterface );
 
     // Create acceleration model.
     std::shared_ptr< RadiationPressureAcceleration > accelerationModel =
@@ -1262,9 +1262,9 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureAccelerationPartials )
 
     addBodyExteriorPanelledShape(
         std::make_shared< FullPanelledBodySettings >( panelSettingsList ), "Vehicle", bodies );
-    vehicle->setRadiationPressureTargetModel(
+    vehicle->addRadiationPressureTargetModel(
         createRadiationPressureTargetModel(
-            std::make_shared< RadiationPressureTargetModelSettings >( paneled_target ), "Vehicle", bodies ) );
+            std::make_shared< RadiationPressureTargetModelSettings >( paneled_target ), "Vehicle", bodies ).at( 0 ) );
 
     // Create acceleration model.
     std::shared_ptr< RadiationPressureAcceleration > accelerationModel =
@@ -1448,7 +1448,7 @@ BOOST_AUTO_TEST_CASE( testPanelledSurfaceRadiationPressureAccelerationPartials )
     // Create radiation pressure properties of vehicle
     std::shared_ptr<CannonballRadiationPressureTargetModel > radiationPressureInterface =
         std::make_shared< CannonballRadiationPressureTargetModel >( mathematical_constants::PI * 0.3 * 0.3, 1.2 );
-    vehicle->setRadiationPressureTargetModel( radiationPressureInterface );
+    vehicle->addRadiationPressureTargetModel( radiationPressureInterface );
     bodies.at( "Vehicle" )->getRadiationPressureTargetModel( )->updateMembers( 1.0E7 );
 
     std::vector< std::shared_ptr< EstimatableParameterSettings > > parametersNames;

@@ -480,8 +480,8 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_IsotropicPointSource_Pan
                                 reflectionLawFromSpecularAndDiffuseReflectivity(0.1, 0.46)),
             };
         }
-        bodies.at( "Vehicle" )->setRadiationPressureTargetModel(
-                std::make_shared<PaneledRadiationPressureTargetModel>(panels));
+        bodies.at( "Vehicle" )->setRadiationPressureTargetModels(
+            { std::make_shared<PaneledRadiationPressureTargetModel>(panels) } );
 
         std::vector< double > areas;
         std::vector< Eigen::Vector3d > panelSurfaceNormals;
@@ -815,8 +815,8 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_IsotropicPointSource_Pan
                     std::make_shared< system_models::VehicleExteriorPanel >(4.0, -Eigen::Vector3d::UnitX(),
                                 reflectionLawFromSpecularAndDiffuseReflectivity(0.1, 0.46)),
             };
-            bodies.at("Vehicle")->setRadiationPressureTargetModel(
-                    std::make_shared<PaneledRadiationPressureTargetModel>(panels));
+            bodies.at("Vehicle")->setRadiationPressureTargetModels(
+                { std::make_shared<PaneledRadiationPressureTargetModel>(panels) } );
 
             SelectedAccelerationMap accelerationMap{
                     {"Vehicle", {
@@ -894,8 +894,8 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_IsotropicPointSource_Pan
                     std::make_shared< system_models::VehicleExteriorPanel >([=] () { return rotationToInertialFrameFunction() * -Eigen::Vector3d::UnitX(); }, 4.0, "",
                                 reflectionLawFromSpecularAndDiffuseReflectivity(0.1, 0.46)),
             };
-            bodies.at("Vehicle")->setRadiationPressureTargetModel(
-                    std::make_shared<PaneledRadiationPressureTargetModel>(panels));
+            bodies.at("Vehicle")->setRadiationPressureTargetModels(
+                { std::make_shared<PaneledRadiationPressureTargetModel>(panels) } );
 
             SelectedAccelerationMap accelerationMap{
                     {"Vehicle", {
@@ -1202,7 +1202,7 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_DynamicallyPaneledSource
     setGlobalFrameBodyEphemerides(bodies.getMap(), globalFrameOrigin, globalFrameOrientation);
 
     const auto targetModelSettings = cannonballRadiationPressureTargetModelSettings(area, coefficient);
-    const auto targetModel = createRadiationPressureTargetModel(targetModelSettings, "Vehicle", bodies);
+    const auto targetModel = createRadiationPressureTargetModel(targetModelSettings, "Vehicle", bodies).at( 0 );
 
     const auto sourceModelSettings = extendedRadiationSourceModelSettings({
             albedoPanelRadiosityModelSettings(KnockeTypeSurfacePropertyDistributionModel::albedo_knocke, "Sun"),

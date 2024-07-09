@@ -401,7 +401,8 @@ createRadiationPressureAccelerationModel(
         const std::shared_ptr< Body > bodyExertingAcceleration,
         const std::string& nameOfBodyUndergoingAcceleration,
         const std::string& nameOfBodyExertingAcceleration,
-        const SystemOfBodies& bodies );
+        const SystemOfBodies& bodies,
+        const std::shared_ptr< AccelerationSettings > accelerationSetting = nullptr );
 
 
 //! Function to create a thrust acceleration model.
