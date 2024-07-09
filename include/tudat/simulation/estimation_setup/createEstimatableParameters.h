@@ -245,6 +245,8 @@ std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAc
     }
     case source_perpendicular_direction_radiation_pressure_scaling_factor:
     case source_direction_radiation_pressure_scaling_factor:
+    case radiation_pressure_coefficient:
+    case arc_wise_radiation_pressure_coefficient:
     {
         if( parameterSettings == nullptr )
         {
@@ -900,7 +902,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
         }
         case radiation_pressure_coefficient:
         {
-            if( currentBody->getRadiationPressureTargetModel( ) == nullptr )
+            if( currentBody->getRadiationPressureTargetModels( ).size( ) == 0 )
             {
                 std::string errorMessage = "Error, no radiation pressure target model found in body " +
                         currentBodyName + " when making Cr parameter.";
@@ -908,6 +910,8 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
             }
             else if( std::dynamic_pointer_cast< electromagnetism::CannonballRadiationPressureTargetModel >( currentBody->getRadiationPressureTargetModel( ) ) == nullptr )
             {
+                const std::shared_ptr<electromagnetism::RadiationPressureTargetModel> getRadiationPressureTargetModel()
+
                 std::string errorMessage = "Error, no cannonball radiation pressure target model found in body " +
                                            currentBodyName + " when making Cr parameter.";
                 throw std::runtime_error( errorMessage );
