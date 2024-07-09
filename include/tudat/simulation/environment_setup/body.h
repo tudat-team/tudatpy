@@ -1433,7 +1433,7 @@ public:
         }
         else
         {
-            throw std::runtime_error( "Error, could not unambiguously retreiev radiation pressure target model, found " + std::to_string( radiationPressureTargetModels_.size( ) ) + " models." );
+            throw std::runtime_error( "Error, could not unambiguously retrieve radiation pressure target model, found " + std::to_string( radiationPressureTargetModels_.size( ) ) + " models." );
         }
     }
     //! Function to retrieve a single object describing variation in the gravity field of this body.

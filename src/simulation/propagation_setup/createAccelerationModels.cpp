@@ -56,6 +56,7 @@ std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > cre
         const std::string& nameOfCentralBody,
         const bool isCentralBody )
 {
+
     // Check if sum of gravitational parameters (i.e. inertial force w.r.t. central body) should be used.
     bool sumGravitationalParameters = 0;
     if( ( nameOfCentralBody == nameOfBodyExertingAcceleration ) && bodyUndergoingAcceleration != nullptr )
@@ -1125,53 +1126,7 @@ createRadiationPressureAccelerationModel(
     }
     else
     {
-        if( target->getRadiationPressureTargetModels( ).size( ) == 1 )
-        {
-            std::shared_ptr<electromagnetism::RadiationPressureTargetModel> availableTargetModel = target->getRadiationPressureTargetModels( ).at( 0 );
-            if( getTargetModelType( availableTargetModel ) == targetModelType || targetModelType == undefined_target )
-            {
-                targetModel = availableTargetModel;
-            }
-            else
-            {
-                throw std::runtime_error( "Error when making radiation pressure acceleration, body " +
-                                          targetName +
-                                          " has no radiation pressure target model of type ." + std::to_string( targetModelType ) );
-            }
-        }
-        else if( targetModelType == undefined_target )
-        {
-            throw std::runtime_error( "Error when making radiation pressure acceleration, body " +
-                                      targetName +
-                                      " has multiple radiation pressure target models, but not type specified to use for acceleration due to " + sourceName );
-        }
-        else
-        {
-            std::vector< std::shared_ptr<electromagnetism::RadiationPressureTargetModel> > availableTargetModels = target->getRadiationPressureTargetModels( );
-            for( unsigned int i = 0; i < availableTargetModels.size( ); i++ )
-            {
-                if( getTargetModelType( availableTargetModels.at( i ) ) == targetModelType )
-                {
-                    if( targetModel == nullptr )
-                    {
-                        targetModel = availableTargetModels.at( i );
-                    }
-                    else
-                    {
-                        throw std::runtime_error( "Error when making radiation pressure acceleration, body " +
-                                                  targetName +
-                                                  " has multiple martching radiation pressure target models to use for acceleration due to " + sourceName );
-                    }
-                }
-            }
-
-            if( targetModel == nullptr )
-            {
-                throw std::runtime_error( "Error when making radiation pressure acceleration, body " +
-                                          targetName +
-                                          " has multiple radiation pressure target models to use for acceleration due to " + sourceName + ", but none match required type" );
-            }
-        }
+        targetModel = getRadiationPressureTargetModelOfType( target, targetModelType, " when making radiation pressure acceleration due to " + sourceName + " " );
     }
 
     // Cast source and target models for type checks
