@@ -908,19 +908,20 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
                         currentBodyName + " when making Cr parameter.";
                 throw std::runtime_error( errorMessage );
             }
-            else if( std::dynamic_pointer_cast< electromagnetism::CannonballRadiationPressureTargetModel >( currentBody->getRadiationPressureTargetModel( ) ) == nullptr )
-            {
-                const std::shared_ptr<electromagnetism::RadiationPressureTargetModel> getRadiationPressureTargetModel()
-
-                std::string errorMessage = "Error, no cannonball radiation pressure target model found in body " +
-                                           currentBodyName + " when making Cr parameter.";
-                throw std::runtime_error( errorMessage );
-            }
             else
             {
+                std::shared_ptr<electromagnetism::RadiationPressureTargetModel> targetModel =
+                    getRadiationPressureTargetModelOfType( currentBody, cannonball_target, " when creating cannonball radiation pressure parameter " );
+
+                if( std::dynamic_pointer_cast< electromagnetism::CannonballRadiationPressureTargetModel >( targetModel ) == nullptr )
+                {
+                    std::string errorMessage = "Error, no radiation pressure target model found in body " +
+                                               currentBodyName + " target model is incompatible.";
+                }
                 doubleParameterToEstimate = std::make_shared< RadiationPressureCoefficient >(
-                    std::dynamic_pointer_cast< electromagnetism::CannonballRadiationPressureTargetModel >( currentBody->getRadiationPressureTargetModel( ) ),
-                            currentBodyName );
+                    std::dynamic_pointer_cast< electromagnetism::CannonballRadiationPressureTargetModel >( targetModel ),
+                    currentBodyName );
+
             }
             break;
         }
@@ -1770,25 +1771,19 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
             }
             else
             {
-                if( currentBody->getRadiationPressureTargetModel( ) == nullptr )
+                std::shared_ptr<electromagnetism::RadiationPressureTargetModel> targetModel =
+                    getRadiationPressureTargetModelOfType( currentBody, cannonball_target, " when creating arc-wise cannonball radiation pressure parameter " );
+
+                if( std::dynamic_pointer_cast< electromagnetism::CannonballRadiationPressureTargetModel >( targetModel ) == nullptr )
                 {
-                    std::string errorMessage = "Error, no radiation pressure interfaces found in body " +
-                            currentBodyName + " when making arcwise Cr parameter.";
-                    throw std::runtime_error( errorMessage );
+                    std::string errorMessage = "Error, no radiation pressure target model found in body " +
+                                               currentBodyName + " target model is incompatible.";
                 }
-                else if( std::dynamic_pointer_cast< electromagnetism::CannonballRadiationPressureTargetModel >( currentBody->getRadiationPressureTargetModel( ) ) == nullptr )
-                {
-                    std::string errorMessage = "Error, no cannonball radiation pressure target model found in body " +
-                                               currentBodyName + " when making arcwise Cr parameter.";
-                    throw std::runtime_error( errorMessage );
-                }
-                else
-                {
-                    vectorParameterToEstimate = std::make_shared< ArcWiseRadiationPressureCoefficient >(
-                        std::dynamic_pointer_cast< electromagnetism::CannonballRadiationPressureTargetModel >( currentBody->getRadiationPressureTargetModel( ) ),
-                        radiationPressureCoefficientSettings->arcStartTimeList_,
-                        currentBodyName );
-                }
+                vectorParameterToEstimate = std::make_shared< ArcWiseRadiationPressureCoefficient >(
+                    std::dynamic_pointer_cast< electromagnetism::CannonballRadiationPressureTargetModel >( targetModel ),
+                    radiationPressureCoefficientSettings->arcStartTimeList_,
+                    currentBodyName );
+
                 break;
             }
             break;
