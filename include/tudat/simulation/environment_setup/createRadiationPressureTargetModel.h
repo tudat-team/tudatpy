@@ -33,7 +33,9 @@ namespace simulation_setup
 enum RadiationPressureTargetModelType
 {
     cannonball_target,
-    paneled_target
+    paneled_target,
+    multi_type_target,
+    undefined_target
 };
 
 /*!
@@ -70,6 +72,16 @@ private:
     std::map<std::string, std::vector<std::string>> sourceToTargetOccultingBodies_;
 };
 
+class MultiRadiationPressureTargetModelSettings: public RadiationPressureTargetModelSettings
+{
+public:
+    explicit MultiRadiationPressureTargetModelSettings(
+        std::vector< std::shared_ptr< RadiationPressureTargetModelSettings > > radiationPressureTargetModelSettings ) :
+        RadiationPressureTargetModelSettings( multi_type_target ),
+        radiationPressureTargetModelSettings_( radiationPressureTargetModelSettings ){ }
+
+    std::vector< std::shared_ptr< RadiationPressureTargetModelSettings > > radiationPressureTargetModelSettings_;
+};
 /*!
  * Settings for a cannonball radiation pressure target model.
  *
@@ -402,6 +414,8 @@ inline std::shared_ptr<RadiationPressureTargetModelSettings>
         occultingBodiesMap);
 }
 
+RadiationPressureTargetModelType getTargetModelType( const std::shared_ptr<electromagnetism::RadiationPressureTargetModel> targetModel );
+
 /*!
  * Create radiation pressure target model from its settings.
  *
@@ -410,7 +424,7 @@ inline std::shared_ptr<RadiationPressureTargetModelSettings>
  * @param bodies System of bodies
  * @return Shared pointer to radiation pressure target model
  */
-std::shared_ptr<electromagnetism::RadiationPressureTargetModel> createRadiationPressureTargetModel(
+std::vector< std::shared_ptr<electromagnetism::RadiationPressureTargetModel> > createRadiationPressureTargetModel(
         const std::shared_ptr< RadiationPressureTargetModelSettings >& modelSettings,
         const std::string& body,
         const SystemOfBodies& bodies);
