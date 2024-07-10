@@ -32,24 +32,34 @@ void RadiationPressureTargetModel::updateMembers(const double currentTime)
 void CannonballRadiationPressureTargetModel::updateRadiationPressureForcing(
     double sourceIrradiance,
     const Eigen::Vector3d &sourceToTargetDirection,
+    const bool resetForces,
     const std::string sourceName )
 {
+    if( resetForces )
+    {
+        resetComputations( sourceName );
+    }
+
     // From Montenbruck (2000), Sec. 3.4
     double radiationPressure = sourceIrradiance / physical_constants::SPEED_OF_LIGHT;
-    this->currentRadiationPressureForce_[ sourceName ] = currentCoefficient_ * area_ * radiationPressure * sourceToTargetDirection;
+    this->currentRadiationPressureForce_[ sourceName ] += currentCoefficient_ * area_ * radiationPressure * sourceToTargetDirection;
     if( computeTorques_ )
     {
-        this->currentRadiationPressureTorque_.at( sourceName ) = -centerOfMassFunction_( ).cross( this->currentRadiationPressureForce_.at( sourceName ) );
+        this->currentRadiationPressureTorque_[ sourceName ] += -centerOfMassFunction_( ).cross( this->currentRadiationPressureForce_.at( sourceName ) );
     }
 }
 
 void PaneledRadiationPressureTargetModel::updateRadiationPressureForcing(
         double sourceIrradiance,
         const Eigen::Vector3d& sourceToTargetDirectionLocalFrame,
+        const bool resetForces,
         const std::string sourceName )
 {
     double radiationPressure = sourceIrradiance / physical_constants::SPEED_OF_LIGHT;
-    this->currentRadiationPressureForce_[ sourceName ]  = Eigen::Vector3d::Zero();
+    if( resetForces )
+    {
+        resetComputations( sourceName );
+    }
     auto segmentFixedPanelsIterator = segmentFixedPanels_.begin( );
 
     int counter = 0;
@@ -57,9 +67,11 @@ void PaneledRadiationPressureTargetModel::updateRadiationPressureForcing(
     Eigen::Vector3d currentCenterOfMass = Eigen::Vector3d::Constant( TUDAT_NAN );
     if( computeTorques_ )
     {
-        this->currentRadiationPressureTorque_[ sourceName ]  = Eigen::Vector3d::Zero();
         currentCenterOfMass = centerOfMassFunction_( );
     }
+    Eigen::Vector3d currentPanelForce = Eigen::Vector3d::Zero( );
+    Eigen::Vector3d currentPanelTorque = Eigen::Vector3d::Zero( );
+
     for( unsigned int i = 0; i < segmentFixedPanels_.size( ) + 1; i++ )
     {
         currentOrientation = Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) );
@@ -84,24 +96,30 @@ void PaneledRadiationPressureTargetModel::updateRadiationPressureForcing(
             }
             if (surfacePanelCosines_[ counter ] > 0)
             {
-                panelForces_[ counter ] = radiationPressure * currentPanels_.at( j )->getPanelArea() * surfacePanelCosines_[ counter ] *
+                currentPanelForce = radiationPressure * currentPanels_.at( j )->getPanelArea() * surfacePanelCosines_[ counter ] *
                     currentPanels_.at( j )->getReflectionLaw()->evaluateReactionVector(surfaceNormals_[ counter ], sourceToTargetDirectionLocalFrame );
-                this->currentRadiationPressureForce_[ sourceName ]  += panelForces_[ counter ];
+                this->currentRadiationPressureForce_[ sourceName ] += currentPanelForce;
                 if( computeTorques_ )
                 {
-                    panelTorques_[ counter ] = panelCentroidMomentArms_[ counter ].cross( panelForces_[ counter ] );
-                    this->currentRadiationPressureTorque_[ sourceName ]  += panelTorques_[ counter ];
+                    currentPanelTorque = panelCentroidMomentArms_[ counter ].cross( currentPanelForce );
+                    this->currentRadiationPressureTorque_[ sourceName ]  += currentPanelTorque;
                 }
 
             }
             else
             {
-                panelForces_[ counter ].setZero( );
+                currentPanelForce.setZero( );
                 if( computeTorques_ )
                 {
-                    panelTorques_[ counter ].setZero( );
+                    currentPanelTorque.setZero( );
                 }
             }
+            panelForces_[ counter ] += currentPanelForce;
+            if( computeTorques_ )
+            {
+                panelTorques_[ counter ] += currentPanelTorque;
+            }
+
             counter++;
         }
         if( i > 0 )
