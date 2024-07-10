@@ -36,10 +36,10 @@ void CannonballRadiationPressureTargetModel::updateRadiationPressureForcing(
 {
     // From Montenbruck (2000), Sec. 3.4
     double radiationPressure = sourceIrradiance / physical_constants::SPEED_OF_LIGHT;
-    this->currentRadiationPressureForce_ = currentCoefficient_ * area_ * radiationPressure * sourceToTargetDirection;
+    this->currentRadiationPressureForce_[ sourceName ] = currentCoefficient_ * area_ * radiationPressure * sourceToTargetDirection;
     if( computeTorques_ )
     {
-        this->currentRadiationPressureTorque_ = -centerOfMassFunction_( ).cross( this->currentRadiationPressureForce_ );
+        this->currentRadiationPressureTorque_.at( sourceName ) = -centerOfMassFunction_( ).cross( this->currentRadiationPressureForce_.at( sourceName ) );
     }
 }
 
@@ -49,7 +49,7 @@ void PaneledRadiationPressureTargetModel::updateRadiationPressureForcing(
         const std::string sourceName )
 {
     double radiationPressure = sourceIrradiance / physical_constants::SPEED_OF_LIGHT;
-    this->currentRadiationPressureForce_  = Eigen::Vector3d::Zero();
+    this->currentRadiationPressureForce_[ sourceName ]  = Eigen::Vector3d::Zero();
     auto segmentFixedPanelsIterator = segmentFixedPanels_.begin( );
 
     int counter = 0;
@@ -57,7 +57,7 @@ void PaneledRadiationPressureTargetModel::updateRadiationPressureForcing(
     Eigen::Vector3d currentCenterOfMass = Eigen::Vector3d::Constant( TUDAT_NAN );
     if( computeTorques_ )
     {
-        this->currentRadiationPressureTorque_  = Eigen::Vector3d::Zero();
+        this->currentRadiationPressureTorque_[ sourceName ]  = Eigen::Vector3d::Zero();
         currentCenterOfMass = centerOfMassFunction_( );
     }
     for( unsigned int i = 0; i < segmentFixedPanels_.size( ) + 1; i++ )
@@ -86,11 +86,11 @@ void PaneledRadiationPressureTargetModel::updateRadiationPressureForcing(
             {
                 panelForces_[ counter ] = radiationPressure * currentPanels_.at( j )->getPanelArea() * surfacePanelCosines_[ counter ] *
                     currentPanels_.at( j )->getReflectionLaw()->evaluateReactionVector(surfaceNormals_[ counter ], sourceToTargetDirectionLocalFrame );
-                this->currentRadiationPressureForce_ += panelForces_[ counter ];
+                this->currentRadiationPressureForce_[ sourceName ]  += panelForces_[ counter ];
                 if( computeTorques_ )
                 {
                     panelTorques_[ counter ] = panelCentroidMomentArms_[ counter ].cross( panelForces_[ counter ] );
-                    this->currentRadiationPressureTorque_ += panelTorques_[ counter ];
+                    this->currentRadiationPressureTorque_[ sourceName ]  += panelTorques_[ counter ];
                 }
 
             }

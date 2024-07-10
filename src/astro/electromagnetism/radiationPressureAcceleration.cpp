@@ -65,14 +65,14 @@ void IsotropicPointSourceRadiationPressureAcceleration::computeAcceleration()
                 receivedIrradiance, targetRotationFromGlobalToLocalFrame_ *
                                     targetCenterPositionInSourceFrame_.normalized( ), sourceName_ );
             currentUnscaledAcceleration_ = targetRotationFromLocalToGlobalFrame_ *
-                                   targetModel_->getCurrentRadiationPressureForce() /
+                                   targetModel_->getCurrentRadiationPressureForce( sourceName_ ) /
                                    currentTargetMass_;
         }
         else
         {
             targetModel_->updateRadiationPressureForcing(
                 receivedIrradiance, targetCenterPositionInSourceFrame_.normalized( ), sourceName_ );
-            currentUnscaledAcceleration_ = targetModel_->getCurrentRadiationPressureForce( ) / currentTargetMass_;
+            currentUnscaledAcceleration_ = targetModel_->getCurrentRadiationPressureForce( sourceName_ ) / currentTargetMass_;
         }
         currentRadiationPressure_ = receivedIrradiance / physical_constants::SPEED_OF_LIGHT;
     }
