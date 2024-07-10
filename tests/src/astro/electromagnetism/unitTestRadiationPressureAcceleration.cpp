@@ -1256,7 +1256,6 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_DynamicallyPanelunitestr
 
         sourceModel->updateMembers(t);
         accelerationModel.updateMembers(t);
-
         const auto acceleration = accelerationModel.getAcceleration();
 
         Eigen::Vector3d radialUnit = position.normalized();
