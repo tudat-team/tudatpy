@@ -1737,16 +1737,29 @@ std::function< double( ) > getDoubleDependentVariableFunction(
                                               bodies.at( bodyWithProperty )->getFlightConditions( ) ) );
             break;
         case radiation_pressure_dependent_variable:
-//            if(bodies.at( bodyWithProperty )->getRadiationPressureTargetModel( ).size( ) )
-//            if( bodies.at( bodyWithProperty )->getRadiationPressureTargetModel( ) == nullptr )
-//            {
-//                std::string errorMessage = "Error, no radiation pressure target model when requesting radiation pressure output of " +
-//                        bodyWithProperty + "w.r.t." + secondaryBody;
-//                throw std::runtime_error( errorMessage );
-//            }
-//            variableFunction = std::bind( &electromagnetism::RadiationPressureTargetModel::getRadiationPressure,
-//                                          bodies.at( bodyWithProperty )->getRadiationPressureTargetModel( ) );
+        {
+            auto radiationPressureAccelerationList = getAccelerationBetweenBodies(
+                dependentVariableSettings->associatedBody_,
+                dependentVariableSettings->secondaryBody_,
+                stateDerivativeModels, basic_astrodynamics::radiation_pressure );
+
+            if (radiationPressureAccelerationList.empty())
+            {
+                std::string errorMessage = "Error, radiation pressure acceleration with target " +
+                        dependentVariableSettings->associatedBody_ + " and source " +
+                        dependentVariableSettings->secondaryBody_  +
+                       " not found";
+                throw std::runtime_error(errorMessage);
+            }
+
+            auto radiationPressureAcceleration =
+                    std::dynamic_pointer_cast<electromagnetism::RadiationPressureAcceleration>(
+                            radiationPressureAccelerationList.front());
+
+            variableFunction = [=] () { return radiationPressureAcceleration->getCurrentRadiationPressure(); };
+
             break;
+        }
         case relative_distance_dependent_variable:
         {
             // Retrieve functions for positions of two bodies.

@@ -105,8 +105,7 @@ public:
         resetDerivedComputations( );
     }
 
-
-
+    virtual void saveLocalComputations( const std::string sourceName ){ }
 
 protected:
     virtual void updateMembers_(const double currentTime) {};
@@ -271,7 +270,7 @@ public:
     }
 
     void enableTorqueComputation(
-        const std::function< Eigen::Vector3d( ) > centerOfMassFunction )
+        const std::function< Eigen::Vector3d( ) > centerOfMassFunction ) override
     {
         if( centerOfMassFunction == nullptr )
         {
@@ -311,19 +310,27 @@ public:
         return true;
     }
 
-    std::vector< Eigen::Vector3d >& getSurfaceNormals( )
+    std::vector< Eigen::Vector3d >& getSurfaceNormals(  )
     {
         return surfaceNormals_;
     }
 
-    std::vector< double >& getSurfacePanelCosines( )
+    std::vector< double >& getSurfacePanelCosines( const std::string& sourceName )
     {
-        return surfacePanelCosines_;
+        if( surfacePanelCosinesPerSource_.count( sourceName ) == 0 )
+        {
+            throw std::runtime_error( "Error wen getting panelled radiation pressure target surface cosines from body " + sourceName + ", no such source is saved" );
+        }
+        return surfacePanelCosinesPerSource_[ sourceName ];
     }
 
-    std::vector< Eigen::Vector3d >& getPanelForces( )
+    std::vector< Eigen::Vector3d >& getPanelForces( const std::string& sourceName )
     {
-        return panelForces_;
+        if( panelForcesPerSource_.count( sourceName ) == 0 )
+        {
+            throw std::runtime_error( "Error wen getting panelled radiation pressure panel fource from body " + sourceName + ", no such source is saved" );
+        }
+        return panelForcesPerSource_[ sourceName ];
     }
 
     std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > >& getFullPanels( )
@@ -336,6 +343,8 @@ public:
     {
         return totalNumberOfPanels_;
     }
+
+    void saveLocalComputations( const std::string sourceName ) ;
 
 private:
     void updateMembers_( double currentTime ) override;
@@ -372,6 +381,10 @@ private:
     std::vector< double > surfacePanelCosines_;
     std::vector< Eigen::Vector3d > panelForces_;
     std::vector< Eigen::Vector3d > panelTorques_;
+
+    std::map< std::string, std::vector< double > > surfacePanelCosinesPerSource_;
+    std::map< std::string, std::vector< Eigen::Vector3d > > panelForcesPerSource_;
+    std::map< std::string, std::vector< Eigen::Vector3d > > panelTorquesPerSource_;
 
 };
 

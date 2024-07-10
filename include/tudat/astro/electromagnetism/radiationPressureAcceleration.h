@@ -84,7 +84,7 @@ public:
 
     double getCurrentRadiationPressure( )
     {
-        return currentRadiationPressure_;
+        return getReceivedIrradiance( ) / physical_constants::SPEED_OF_LIGHT;
     }
 
     void enableScaling( )
@@ -142,7 +142,6 @@ protected:
             sourceToTargetOccultationModel_(sourceToTargetOccultationModel),
             currentUnscaledAcceleration_( Eigen::Vector3d::Constant( TUDAT_NAN ) ),
             receivedIrradiance(TUDAT_NAN),
-            currentRadiationPressure_(TUDAT_NAN),
             isScalingModelSet_( false ),
             sourceDirectionScaling_( 1.0 ),
             perpendicularSourceDirectionScaling_( 1.0 ),
