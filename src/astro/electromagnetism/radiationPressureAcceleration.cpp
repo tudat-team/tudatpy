@@ -55,24 +55,24 @@ void IsotropicPointSourceRadiationPressureAcceleration::computeAcceleration()
     else
     {
 
-        if ( targetModel_->forceFunctionRequiresLocalFrameInputs( ))
+        if ( targetModel_->forceFunctionRequiresLocalFrameInputs( ) )
         {
             targetRotationFromLocalToGlobalFrame_ = targetRotationFromLocalToGlobalFrameFunction_( );
             targetRotationFromGlobalToLocalFrame_ = targetRotationFromLocalToGlobalFrame_.inverse( );
 
             // Calculate acceleration due to radiation pressure in global frame
-            currentUnscaledAcceleration_ = targetRotationFromLocalToGlobalFrame_ *
-                                   targetModel_->evaluateRadiationPressureForce(
-                                       receivedIrradiance, targetRotationFromGlobalToLocalFrame_ *
-                                                           targetCenterPositionInSourceFrame_.normalized( ),
-                                                           sourceName_ ) /
+            targetModel_->updateRadiationPressureForcing(
+                receivedIrradiance, targetRotationFromGlobalToLocalFrame_ *
+                                    targetCenterPositionInSourceFrame_.normalized( ), sourceName_ );
+            currentAcceleration_ = targetRotationFromLocalToGlobalFrame_ *
+                                   targetModel_->getCurrentRadiationPressureForce() /
                                    currentTargetMass_;
         }
         else
         {
-            currentUnscaledAcceleration_ = targetModel_->evaluateRadiationPressureForce(
-                receivedIrradiance, targetCenterPositionInSourceFrame_.normalized( ), sourceName_ ) / currentTargetMass_;
-
+            targetModel_->updateRadiationPressureForcing(
+                receivedIrradiance, targetCenterPositionInSourceFrame_.normalized( ), sourceName_ );
+            currentAcceleration_ = targetModel_->getCurrentRadiationPressureForce( ) / currentTargetMass_;
         }
         currentRadiationPressure_ = receivedIrradiance / physical_constants::SPEED_OF_LIGHT;
     }
@@ -121,9 +121,9 @@ void PaneledSourceRadiationPressureAcceleration::computeAcceleration()
         {
             // No body is occluding source as seen from target
             Eigen::Vector3d sourceToTargetDirectionInTargetFrame =
-                    targetRotationFromGlobalToLocalFrame * ( targetCenterPositionInGlobalFrame_ - sourcePositionInGlobalFrame ).normalized();
-            totalForceInTargetFrame +=
-                    targetModel_->evaluateRadiationPressureForce(occultedSourceIrradiance, sourceToTargetDirectionInTargetFrame, sourceName_ );
+                targetRotationFromGlobalToLocalFrame * ( targetCenterPositionInGlobalFrame_ - sourcePositionInGlobalFrame ).normalized();
+            targetModel_->updateRadiationPressureForcing( occultedSourceIrradiance, sourceToTargetDirectionInTargetFrame );
+            totalForceInTargetFrame += targetModel_->getCurrentRadiationPressureForce( );
             totalReceivedIrradiance += occultedSourceIrradiance;
             visibleAndEmittingSourcePanelCounter += 1;
         }
