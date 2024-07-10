@@ -61,7 +61,7 @@ public:
      * @return Radiation pressure force vector in local (i.e. target-fixed) coordinates [N]
      */
     virtual void updateRadiationPressureForcing(
-            const double sourceIrradiance, const Eigen::Vector3d& sourceToTargetDirection, const std::string sourceName = "" ) = 0;
+            const double sourceIrradiance, const Eigen::Vector3d& sourceToTargetDirection, const bool resetForces, const std::string sourceName = "" ) = 0;
 
     std::map<std::string, std::vector<std::string>> getSourceToTargetOccultingBodies() const
     {
@@ -82,18 +82,29 @@ public:
     }
 
     Eigen::Vector3d updateAndGetRadiationPressureForce(
-        const double sourceIrradiance, const Eigen::Vector3d& sourceToTargetDirection, const std::string sourceName = "" )
+        const double sourceIrradiance, const Eigen::Vector3d& sourceToTargetDirection, const bool resetForces, const std::string sourceName = "" )
     {
-        updateRadiationPressureForcing( sourceIrradiance, sourceToTargetDirection, sourceName );
+        updateRadiationPressureForcing( sourceIrradiance, sourceToTargetDirection, resetForces, sourceName );
         return currentRadiationPressureForce_.at( sourceName );
     }
 
     Eigen::Vector3d updateAndGetRadiationPressureTorque(
-        const double sourceIrradiance, const Eigen::Vector3d& sourceToTargetDirection, const std::string sourceName = "" )
+        const double sourceIrradiance, const Eigen::Vector3d& sourceToTargetDirection, const bool resetForces, const std::string sourceName = "" )
     {
-        updateRadiationPressureForcing( sourceIrradiance, sourceToTargetDirection, sourceName );
+        updateRadiationPressureForcing( sourceIrradiance, sourceToTargetDirection, resetForces, sourceName );
         return currentRadiationPressureTorque_.at( sourceName );
     }
+
+    virtual void resetDerivedComputations( ){ }
+
+    void resetComputations( const std::string& sourceName )
+    {
+        currentRadiationPressureForce_[ sourceName ] = Eigen::Vector3d::Zero( );
+        currentRadiationPressureTorque_[ sourceName ] = Eigen::Vector3d::Zero( );
+
+        resetDerivedComputations( );
+    }
+
 
 
 
@@ -167,6 +178,7 @@ public:
     void updateRadiationPressureForcing(
             double sourceIrradiance,
             const Eigen::Vector3d& sourceToTargetDirection,
+            const bool resetForces,
             const std::string sourceName = ""  ) override;
 
 
@@ -280,6 +292,7 @@ public:
     void updateRadiationPressureForcing(
         double sourceIrradiance,
         const Eigen::Vector3d &sourceToTargetDirectionLocalFrame,
+        const bool resetForces,
         const std::string sourceName = ""  ) override;
 
 
@@ -326,6 +339,20 @@ public:
 
 private:
     void updateMembers_( double currentTime ) override;
+
+    void resetDerivedComputations( )
+    {
+        for( unsigned int i = 0; i < panelForces_.size( ); i++ )
+        {
+            panelForces_.at( i ).setZero( );
+        }
+
+        for( unsigned int i = 0; i < panelTorques_.size( ); i++ )
+        {
+            panelTorques_.at( i ).setZero( );
+        }
+    }
+
 
     std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > bodyFixedPanels_;
 
