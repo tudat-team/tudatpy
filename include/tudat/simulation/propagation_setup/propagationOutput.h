@@ -1737,6 +1737,7 @@ std::function< double( ) > getDoubleDependentVariableFunction(
                                               bodies.at( bodyWithProperty )->getFlightConditions( ) ) );
             break;
         case radiation_pressure_dependent_variable:
+            if(bodies.at( bodyWithProperty )->getRadiationPressureTargetModel( ).size( ) )
             if( bodies.at( bodyWithProperty )->getRadiationPressureTargetModel( ) == nullptr )
             {
                 std::string errorMessage = "Error, no radiation pressure target model when requesting radiation pressure output of " +
