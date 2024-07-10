@@ -129,9 +129,12 @@ void PaneledRadiationPressureTargetModel::updateRadiationPressureForcing(
     }
 }
 
-void PaneledRadiationPressureTargetModel::saveLocalComputations( const std::string sourceName )
+void PaneledRadiationPressureTargetModel::saveLocalComputations( const std::string sourceName, const bool saveCosines )
 {
-    surfacePanelCosinesPerSource_[ sourceName ] = surfacePanelCosines_;
+    if( saveCosines )
+    {
+        surfacePanelCosinesPerSource_[ sourceName ] = surfacePanelCosines_;
+    }
     panelForcesPerSource_[ sourceName ] = panelForces_;
     panelTorquesPerSource_[ sourceName ] = panelTorques_;
 }

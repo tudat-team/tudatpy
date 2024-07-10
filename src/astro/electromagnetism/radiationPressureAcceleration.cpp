@@ -62,7 +62,7 @@ void IsotropicPointSourceRadiationPressureAcceleration::computeAcceleration()
             targetModel_->updateRadiationPressureForcing(
                 receivedIrradiance, targetRotationFromGlobalToLocalFrame_ *
                                     targetCenterPositionInSourceFrame_.normalized( ), true, sourceName_ );
-            targetModel_->saveLocalComputations( sourceName_ );
+            targetModel_->saveLocalComputations( sourceName_, true );
             currentUnscaledAcceleration_ = targetRotationFromLocalToGlobalFrame_ *
                                    targetModel_->getCurrentRadiationPressureForce( sourceName_ ) /
                                    currentTargetMass_;
@@ -103,8 +103,10 @@ void PaneledSourceRadiationPressureAcceleration::computeAcceleration()
     // Calculate radiation pressure force due to all sub-sources in target frame
     Eigen::Vector3d totalForceInTargetFrame = Eigen::Vector3d::Zero();
     targetModel_->resetComputations( sourceName_ );
-    for (auto sourceIrradianceAndPosition : sourceIrradiancesAndPositions) {
-        auto sourceIrradiance = std::get<0>(sourceIrradianceAndPosition);
+    int counter = 0;
+    for (auto sourceIrradianceAndPosition : sourceIrradiancesAndPositions)
+    {
+        double sourceIrradiance = std::get<0>(sourceIrradianceAndPosition);
         Eigen::Vector3d sourcePositionInSourceFrame =
                 std::get<1>(sourceIrradianceAndPosition); // position of sub-source (e.g. panel)
         Eigen::Vector3d sourcePositionInGlobalFrame =
@@ -127,6 +129,16 @@ void PaneledSourceRadiationPressureAcceleration::computeAcceleration()
             totalReceivedIrradiance += occultedSourceIrradiance;
             visibleAndEmittingSourcePanelCounter += 1;
         }
+        if( savePanellingIrradiance_ )
+        {
+            savedPanelIrradiances_[ counter ] = sourceIrradiance;
+        }
+        counter++;
+    }
+    targetModel_->saveLocalComputations( sourceName_, false );
+    if( savePanellingGeometry_ )
+    {
+        savedPanelGeometries_ = sourceModel_->getCurrentPanelGeomtry( );
     }
     totalForceInTargetFrame = targetModel_->getCurrentRadiationPressureForce( sourceName_ );
 
