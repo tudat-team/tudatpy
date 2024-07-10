@@ -121,6 +121,7 @@ IrradianceWithSourceList PaneledRadiationSourceModel::evaluateIrradianceAtPositi
     return irradiances;
 }
 
+
 void StaticallyPaneledRadiationSourceModel::updateMembers_(double currentTime)
 {
     sourcePanelRadiosityModelUpdater_->updateMembers(currentTime);
@@ -241,6 +242,22 @@ IrradianceWithSourceList DynamicallyPaneledRadiationSourceModel::evaluateIrradia
 
     return PaneledRadiationSourceModel::evaluateIrradianceAtPosition(targetPosition);
 }
+
+std::vector< Eigen::Vector7d > DynamicallyPaneledRadiationSourceModel::getCurrentPanelGeomtry( )
+{
+    std::vector< Eigen::Vector7d > panelGeometries;
+    panelGeometries.resize( panels_.size( ) );
+    for( unsigned int i = 0; i < panels_.size( ); i++ )
+    {
+        Eigen::Vector7d currentProperties = Eigen::Vector7d::Zero( );
+        currentProperties.segment( 0, 3 ) = panels_.at( i ).getRelativeCenter( );
+        currentProperties.segment( 3, 3 ) = panels_.at( i ).getSurfaceNormal( );
+        currentProperties( 6 ) = panels_.at( i ).getArea( );
+        panelGeometries[ i ] = currentProperties;
+    }
+    return panelGeometries;
+}
+
 
 void DynamicallyPaneledRadiationSourceModel::updateMembers_(double currentTime)
 {

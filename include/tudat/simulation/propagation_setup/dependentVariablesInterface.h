@@ -89,7 +89,8 @@ public:
             const std::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, Eigen::VectorXd > > dependentVariablesInterpolator,
             const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesSettings,
             const std::map< std::pair< int, int >, std::string > dependentVariableIds,
-            const std::map< std::pair< int, int >, std::shared_ptr< SingleDependentVariableSaveSettings > > orderedDependentVariableSettings ):
+            const std::map< std::pair< int, int >, std::shared_ptr< SingleDependentVariableSaveSettings > > orderedDependentVariableSettings,
+            const simulation_setup::SystemOfBodies& bodies ):
             dependentVariablesSettings_( dependentVariablesSettings ),
             dependentVariablesInterpolator_( dependentVariablesInterpolator ),
             dependentVariableIds_( dependentVariableIds ),
@@ -102,7 +103,8 @@ public:
         {
             dependentVariablesTypes_.push_back( dependentVariablesSettings_[ i ]->dependentVariableType_ );
             dependentVariablesIdsAndIndices_[ getDependentVariableId( dependentVariablesSettings_[ i ] ) ] = dependentVariablesSize_;
-            dependentVariablesSize_ += getDependentVariableSaveSize( dependentVariablesSettings_[ i ] );
+            dependentVariablesIdsAndSize_[ getDependentVariableId( dependentVariablesSettings_[ i ] ) ] = getDependentVariableSaveSize( dependentVariablesSettings_[ i ], bodies );
+            dependentVariablesSize_ += dependentVariablesIdsAndSize_[ getDependentVariableId( dependentVariablesSettings_[ i ] ) ];
         }
         dependentVariables_ = Eigen::VectorXd::Zero( dependentVariablesSize_ );
 
@@ -184,7 +186,8 @@ public:
             // Retrieve full vector of dependent variables at a given time.
             Eigen::VectorXd fullDependentVariablesVector = getDependentVariables( evaluationTime );
 
-            dependentVariable = fullDependentVariablesVector.segment( dependentVariableIndex, getDependentVariableSaveSize( dependentVariableSettings ) );
+            dependentVariable = fullDependentVariablesVector.segment( dependentVariableIndex,
+                                                                      dependentVariablesIdsAndSize_.at( dependentVariableId ) );
         }
         else
         {
@@ -266,6 +269,9 @@ private:
 
     //! Map containing the dependent variables Ids and indices
     std::map< std::string, int > dependentVariablesIdsAndIndices_;
+
+    std::map< std::string, int > dependentVariablesIdsAndSize_;
+
 };
 
 

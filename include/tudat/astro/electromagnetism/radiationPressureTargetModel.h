@@ -105,7 +105,7 @@ public:
         resetDerivedComputations( );
     }
 
-    virtual void saveLocalComputations( const std::string sourceName ){ }
+    virtual void saveLocalComputations( const std::string sourceName, const bool saveCosines ){ }
 
 protected:
     virtual void updateMembers_(const double currentTime) {};
@@ -158,7 +158,7 @@ public:
         }
 
     void enableTorqueComputation(
-        const std::function< Eigen::Vector3d( ) > centerOfMassFunction )
+        const std::function< Eigen::Vector3d( ) > centerOfMassFunction ) override
     {
         if( centerOfMassFunction == nullptr )
         {
@@ -328,7 +328,7 @@ public:
     {
         if( panelForcesPerSource_.count( sourceName ) == 0 )
         {
-            throw std::runtime_error( "Error wen getting panelled radiation pressure panel fource from body " + sourceName + ", no such source is saved" );
+            throw std::runtime_error( "Error wen getting panelled radiation pressure panel force from body " + sourceName + ", no such source is saved" );
         }
         return panelForcesPerSource_[ sourceName ];
     }
@@ -344,12 +344,12 @@ public:
         return totalNumberOfPanels_;
     }
 
-    void saveLocalComputations( const std::string sourceName ) ;
+    void saveLocalComputations( const std::string sourceName, const bool saveCosines );
 
 private:
     void updateMembers_( double currentTime ) override;
 
-    void resetDerivedComputations( )
+    void resetDerivedComputations( ) override
     {
         for( unsigned int i = 0; i < panelForces_.size( ); i++ )
         {
