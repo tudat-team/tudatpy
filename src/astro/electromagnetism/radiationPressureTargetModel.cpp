@@ -31,18 +31,20 @@ void RadiationPressureTargetModel::updateMembers(const double currentTime)
 
 Eigen::Vector3d CannonballRadiationPressureTargetModel::evaluateRadiationPressureForce(
     const double sourceIrradiance,
-    const Eigen::Vector3d& sourceToTargetDirection)
+    const Eigen::Vector3d& sourceToTargetDirection,
+    const std::string sourceName )
 {
     // From Montenbruck (2000), Sec. 3.4
-    radiationPressure_ = sourceIrradiance / physical_constants::SPEED_OF_LIGHT;
-    return currentCoefficient_ * area_ * radiationPressure_ * sourceToTargetDirection;
+    double radiationPressure = sourceIrradiance / physical_constants::SPEED_OF_LIGHT;
+    return currentCoefficient_ * area_ * radiationPressure * sourceToTargetDirection;
 }
 
 Eigen::Vector3d PaneledRadiationPressureTargetModel::evaluateRadiationPressureForce(
         double sourceIrradiance,
-        const Eigen::Vector3d& sourceToTargetDirectionLocalFrame)
+        const Eigen::Vector3d& sourceToTargetDirectionLocalFrame,
+        const std::string sourceName )
 {
-    radiationPressure_ = sourceIrradiance / physical_constants::SPEED_OF_LIGHT;
+    double radiationPressure = sourceIrradiance / physical_constants::SPEED_OF_LIGHT;
     Eigen::Vector3d force = Eigen::Vector3d::Zero();
     auto segmentFixedPanelsIterator = segmentFixedPanels_.begin( );
 
@@ -64,7 +66,7 @@ Eigen::Vector3d PaneledRadiationPressureTargetModel::evaluateRadiationPressureFo
             surfacePanelCosines_[ counter ] = (-sourceToTargetDirectionLocalFrame).dot(surfaceNormals_[ counter ]);
             if (surfacePanelCosines_[ counter ] > 0)
             {
-                panelForces_[ counter ] = radiationPressure_ * currentPanels_.at( j )->getPanelArea() * surfacePanelCosines_[ counter ] *
+                panelForces_[ counter ] = radiationPressure * currentPanels_.at( j )->getPanelArea() * surfacePanelCosines_[ counter ] *
                     currentPanels_.at( j )->getReflectionLaw()->evaluateReactionVector(surfaceNormals_[ counter ], sourceToTargetDirectionLocalFrame );
                 force += panelForces_[ counter ];
             }

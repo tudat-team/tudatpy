@@ -41,7 +41,7 @@ class RadiationPressureTargetModel
 public:
     explicit RadiationPressureTargetModel(
         const std::map<std::string, std::vector<std::string>>& sourceToTargetOccultingBodies = {}) :
-        sourceToTargetOccultingBodies_(sourceToTargetOccultingBodies), radiationPressure_( TUDAT_NAN ) {}
+        sourceToTargetOccultingBodies_(sourceToTargetOccultingBodies) {}
 
     virtual ~RadiationPressureTargetModel() = default;
 
@@ -55,7 +55,7 @@ public:
      * @return Radiation pressure force vector in local (i.e. target-fixed) coordinates [N]
      */
     virtual Eigen::Vector3d evaluateRadiationPressureForce(
-            const double sourceIrradiance, const Eigen::Vector3d& sourceToTargetDirection) = 0;
+            const double sourceIrradiance, const Eigen::Vector3d& sourceToTargetDirection, const std::string sourceId = "" ) = 0;
 
     virtual Eigen::Vector3d evaluateRadiationPressureTorque(
         const double sourceIrradiance, const Eigen::Vector3d& sourceToTargetDirection) = 0;
@@ -67,10 +67,6 @@ public:
 
     virtual bool forceFunctionRequiresLocalFrameInputs( ) = 0;
 
-    double getRadiationPressure() const
-    {
-        return radiationPressure_;
-    }
 
 protected:
     virtual void updateMembers_(const double currentTime) {};
@@ -79,7 +75,6 @@ protected:
     // Only needed to transfer occultation settings from body setup to acceleration setup
     std::map<std::string, std::vector<std::string>> sourceToTargetOccultingBodies_;
 
-    mutable double radiationPressure_;
 };
 
 /*!
@@ -113,7 +108,8 @@ public:
 
     Eigen::Vector3d evaluateRadiationPressureForce(
             double sourceIrradiance,
-            const Eigen::Vector3d& sourceToTargetDirection ) override;
+            const Eigen::Vector3d& sourceToTargetDirection,
+            const std::string sourceId = ""  ) override;
 
     Eigen::Vector3d evaluateRadiationPressureTorque(
         const double sourceIrradiance, const Eigen::Vector3d& sourceToTargetDirection) override
@@ -159,7 +155,6 @@ private:
         {
             currentCoefficient_ = coefficientFunction_( currentTime );
         }
-        radiationPressure_ = 0.0;
     };
 
     double area_;
@@ -212,7 +207,8 @@ public:
 
     Eigen::Vector3d evaluateRadiationPressureForce(
         double sourceIrradiance,
-        const Eigen::Vector3d &sourceToTargetDirectionLocalFrame ) override;
+        const Eigen::Vector3d &sourceToTargetDirectionLocalFrame,
+        const std::string sourceId = ""  ) override;
 
     Eigen::Vector3d evaluateRadiationPressureTorque(
         const double sourceIrradiance, const Eigen::Vector3d& sourceToTargetDirection) override

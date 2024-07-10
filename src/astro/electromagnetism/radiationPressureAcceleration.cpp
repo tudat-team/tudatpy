@@ -64,16 +64,17 @@ void IsotropicPointSourceRadiationPressureAcceleration::computeAcceleration()
             currentUnscaledAcceleration_ = targetRotationFromLocalToGlobalFrame_ *
                                    targetModel_->evaluateRadiationPressureForce(
                                        receivedIrradiance, targetRotationFromGlobalToLocalFrame_ *
-                                                           targetCenterPositionInSourceFrame_.normalized( )) /
+                                                           targetCenterPositionInSourceFrame_.normalized( ),
+                                                           sourceName_ ) /
                                    currentTargetMass_;
         }
         else
         {
             currentUnscaledAcceleration_ = targetModel_->evaluateRadiationPressureForce(
-                receivedIrradiance, targetCenterPositionInSourceFrame_.normalized( )) / currentTargetMass_;
+                receivedIrradiance, targetCenterPositionInSourceFrame_.normalized( ), sourceName_ ) / currentTargetMass_;
 
         }
-        currentRadiationPressure_ = targetModel_->getRadiationPressure( );
+        currentRadiationPressure_ = receivedIrradiance / physical_constants::SPEED_OF_LIGHT;
     }
     scaleRadiationPressureAcceleration( );
 }
@@ -122,7 +123,7 @@ void PaneledSourceRadiationPressureAcceleration::computeAcceleration()
             Eigen::Vector3d sourceToTargetDirectionInTargetFrame =
                     targetRotationFromGlobalToLocalFrame * ( targetCenterPositionInGlobalFrame_ - sourcePositionInGlobalFrame ).normalized();
             totalForceInTargetFrame +=
-                    targetModel_->evaluateRadiationPressureForce(occultedSourceIrradiance, sourceToTargetDirectionInTargetFrame);
+                    targetModel_->evaluateRadiationPressureForce(occultedSourceIrradiance, sourceToTargetDirectionInTargetFrame, sourceName_ );
             totalReceivedIrradiance += occultedSourceIrradiance;
             visibleAndEmittingSourcePanelCounter += 1;
         }
@@ -130,6 +131,7 @@ void PaneledSourceRadiationPressureAcceleration::computeAcceleration()
 
     // Update dependent variables
     receivedIrradiance = totalReceivedIrradiance;
+    currentRadiationPressure_ = receivedIrradiance / physical_constants::SPEED_OF_LIGHT;
     visibleAndEmittingSourcePanelCount = visibleAndEmittingSourcePanelCounter;
 
     // Calculate acceleration due to radiation pressure in global frame
