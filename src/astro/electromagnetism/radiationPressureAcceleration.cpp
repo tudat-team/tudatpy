@@ -49,7 +49,6 @@ void IsotropicPointSourceRadiationPressureAcceleration::computeAcceleration()
     {
         // Some body is occluding source as seen from target
         currentUnscaledAcceleration_ = Eigen::Vector3d::Zero();
-        currentRadiationPressure_ = 0.0;
     }
     else
     {
@@ -63,6 +62,7 @@ void IsotropicPointSourceRadiationPressureAcceleration::computeAcceleration()
             targetModel_->updateRadiationPressureForcing(
                 receivedIrradiance, targetRotationFromGlobalToLocalFrame_ *
                                     targetCenterPositionInSourceFrame_.normalized( ), true, sourceName_ );
+            targetModel_->saveLocalComputations( sourceName_ );
             currentUnscaledAcceleration_ = targetRotationFromLocalToGlobalFrame_ *
                                    targetModel_->getCurrentRadiationPressureForce( sourceName_ ) /
                                    currentTargetMass_;
@@ -73,7 +73,6 @@ void IsotropicPointSourceRadiationPressureAcceleration::computeAcceleration()
                 receivedIrradiance, targetCenterPositionInSourceFrame_.normalized( ), true, sourceName_ );
             currentUnscaledAcceleration_ = targetModel_->getCurrentRadiationPressureForce( sourceName_ ) / currentTargetMass_;
         }
-        currentRadiationPressure_ = receivedIrradiance / physical_constants::SPEED_OF_LIGHT;
     }
     scaleRadiationPressureAcceleration( );
 }
@@ -134,7 +133,6 @@ void PaneledSourceRadiationPressureAcceleration::computeAcceleration()
 
     // Update dependent variables
     receivedIrradiance = totalReceivedIrradiance;
-    currentRadiationPressure_ = receivedIrradiance / physical_constants::SPEED_OF_LIGHT;
     visibleAndEmittingSourcePanelCount = visibleAndEmittingSourcePanelCounter;
 
     // Calculate acceleration due to radiation pressure in global frame

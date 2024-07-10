@@ -36,7 +36,6 @@ void computeRadiationPressureAccelerationWrtSourceDirectionScaling(
     Eigen::Vector3d targetUnitVector = accelerationModel->getTargetCenterPositionInSourceFrame( ).normalized( );
     Eigen::Vector3d toTargetComponent =  unscaledAcceleration - targetUnitVector.dot( unscaledAcceleration ) * targetUnitVector;
     partial = toTargetComponent;
-    std::cout<<"Source direction scaling partial "<<std::endl<<partial<<std::endl<<std::endl;
 }
 
 void computeRadiationPressureAccelerationWrtSourcePerpendicularDirectionScaling(
