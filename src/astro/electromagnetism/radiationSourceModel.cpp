@@ -177,8 +177,9 @@ DynamicallyPaneledRadiationSourceModel::DynamicallyPaneledRadiationSourceModel(
         const std::shared_ptr<basic_astrodynamics::BodyShapeModel>& sourceBodyShapeModel,
         std::unique_ptr<SourcePanelRadiosityModelUpdater> sourcePanelRadiosityModelUpdater,
         const std::vector<std::unique_ptr<SourcePanelRadiosityModel>>& baseRadiosityModels,
-        const std::vector<int>& numberOfPanelsPerRing) :
-        PaneledRadiationSourceModel(sourceBodyShapeModel, std::move(sourcePanelRadiosityModelUpdater)),
+        const std::vector<int>& numberOfPanelsPerRing,
+        const std::string& sourceName) :
+        PaneledRadiationSourceModel(sourceBodyShapeModel, std::move(sourcePanelRadiosityModelUpdater),sourceName),
         numberOfPanelsPerRing_(numberOfPanelsPerRing)
 {
     if( sourceBodyShapeModel == nullptr )
