@@ -132,7 +132,8 @@ protected:
                                   const std::function<Eigen::Vector3d()>& targetPositionFunction,
                                   const std::function<Eigen::Quaterniond()>& targetRotationFromLocalToGlobalFrameFunction,
                                   const std::function<double()>& targetMassFunction,
-                                  const std::shared_ptr<OccultationModel>& sourceToTargetOccultationModel) :
+                                  const std::shared_ptr<OccultationModel>& sourceToTargetOccultationModel,
+                                  const std::string& sourceName ) :
             sourcePositionFunction_(sourcePositionFunction),
             targetModel_(targetModel),
             targetPositionFunction_(targetPositionFunction),
@@ -145,7 +146,7 @@ protected:
             isScalingModelSet_( false ),
             sourceDirectionScaling_( 1.0 ),
             perpendicularSourceDirectionScaling_( 1.0 ),
-            sourceName_( "" )
+            sourceName_( sourceName )
             {}
 
     virtual void computeAcceleration( ) = 0;
@@ -227,7 +228,8 @@ public:
             const std::shared_ptr<OccultationModel>& sourceToTargetOccultationModel) :
             RadiationPressureAcceleration(sourcePositionFunction, targetModel,
                                           targetPositionFunction, targetRotationFromLocalToGlobalFrameFunction,
-                                          targetMassFunction, sourceToTargetOccultationModel),
+                                          targetMassFunction, sourceToTargetOccultationModel,
+                                          sourceModel->getSourceName( ) ),
                                           sourceModel_(sourceModel),
                                           sourceBodyShapeModel_(sourceBodyShapeModel),
             sourceToTargetReceivedFraction(TUDAT_NAN) {}
@@ -333,7 +335,8 @@ public:
                     targetPositionFunction,
                     targetRotationFromLocalToGlobalFrameFunction,
                     targetMassFunction,
-                    sourceToTargetOccultationModel),
+                    sourceToTargetOccultationModel,
+                    sourceModel->getSourceName( ) ),
             sourceModel_(sourceModel),
             sourceRotationFromLocalToGlobalFrameFunction_(sourceRotationFromLocalToGlobalFrameFunction),
             visibleAndEmittingSourcePanelCount(-1) {}

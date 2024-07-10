@@ -71,28 +71,28 @@ public:
     virtual bool forceFunctionRequiresLocalFrameInputs( ) = 0;
 
 
-    Eigen::Vector3d getCurrentRadiationPressureForce( )
+    Eigen::Vector3d getCurrentRadiationPressureForce( const std::string& sourceName = "" )
     {
-        return currentRadiationPressureForce_;
+        return currentRadiationPressureForce_.at( sourceName );
     }
 
-    Eigen::Vector3d getCurrentRadiationPressureTorque( )
+    Eigen::Vector3d getCurrentRadiationPressureTorque( const std::string& sourceName = "" )
     {
-        return currentRadiationPressureTorque_;
+        return currentRadiationPressureTorque_.at( sourceName );
     }
 
     Eigen::Vector3d updateAndGetRadiationPressureForce(
         const double sourceIrradiance, const Eigen::Vector3d& sourceToTargetDirection, const std::string sourceName = "" )
     {
         updateRadiationPressureForcing( sourceIrradiance, sourceToTargetDirection, sourceName );
-        return currentRadiationPressureForce_;
+        return currentRadiationPressureForce_.at( sourceName );
     }
 
     Eigen::Vector3d updateAndGetRadiationPressureTorque(
         const double sourceIrradiance, const Eigen::Vector3d& sourceToTargetDirection, const std::string sourceName = "" )
     {
         updateRadiationPressureForcing( sourceIrradiance, sourceToTargetDirection, sourceName );
-        return currentRadiationPressureTorque_;
+        return currentRadiationPressureTorque_.at( sourceName );
     }
 
 
@@ -105,10 +105,9 @@ protected:
     std::map<std::string, std::vector<std::string>> sourceToTargetOccultingBodies_;
 
 
-    Eigen::Vector3d currentRadiationPressureForce_;
-
-    Eigen::Vector3d currentRadiationPressureTorque_;
-
+    // Source-specific variables
+    std::map< std::string, Eigen::Vector3d > currentRadiationPressureForce_;
+    std::map< std::string, Eigen::Vector3d > currentRadiationPressureTorque_;
     bool computeTorques_;
 
     std::function< Eigen::Vector3d( ) > centerOfMassFunction_;
@@ -342,10 +341,9 @@ private:
 
     std::vector< Eigen::Vector3d > panelCentroidMomentArms_;
 
+    // Source-specific variables
     std::vector< double > surfacePanelCosines_;
-
     std::vector< Eigen::Vector3d > panelForces_;
-
     std::vector< Eigen::Vector3d > panelTorques_;
 
 };
