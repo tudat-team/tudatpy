@@ -86,7 +86,7 @@ BOOST_AUTO_TEST_CASE( testMultiTypeRadiationPressurePropagation )
     // Set accelerations between bodies that are to be taken into account (mutual point mass gravity between all bodies).
     SelectedAccelerationMap accelerationMap;
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
-    accelerationsOfVehicle[ "Sun" ].push_back( radiationPressureAcceleration( paneled_target ) );
+    accelerationsOfVehicle[ "Sun" ].push_back( radiationPressureAcceleration( cannonball_target ) );
     accelerationsOfVehicle[ "Earth" ].push_back( radiationPressureAcceleration( cannonball_target ) );
     accelerationsOfVehicle[ "Earth" ].push_back( pointMassGravityAcceleration(  ) );
     accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
@@ -109,10 +109,15 @@ BOOST_AUTO_TEST_CASE( testMultiTypeRadiationPressurePropagation )
     Eigen::Vector6d systemInitialState = convertKeplerianToCartesianElements(
         initialStateInKeplerianElements, bodies.at( "Earth" )->getGravitationalParameter( ) );
 
+    // Create dependent variables
+    std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesList;
+    dependentVariablesList.push_back( singleAccelerationDependentVariable( radiation_pressure, "Vehicle", "Sun" ) );
+    dependentVariablesList.push_back( singleAccelerationDependentVariable( radiation_pressure, "Vehicle", "Earth" ) );
+
     std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
         std::make_shared< TranslationalStatePropagatorSettings< double > >
             ( centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialState, initialEphemerisTime, integratorSettings,
-              std::make_shared< PropagationTimeTerminationSettings >( finalEphemerisTime ) );
+              std::make_shared< PropagationTimeTerminationSettings >( finalEphemerisTime ), cowell, dependentVariablesList );
 
     // Create simulation object and propagate dynamics.
     SingleArcDynamicsSimulator< > dynamicsSimulator(
