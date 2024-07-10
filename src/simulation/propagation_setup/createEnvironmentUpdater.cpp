@@ -1117,6 +1117,20 @@ std::vector< std::string > > createEnvironmentUpdaterSettingsForDependentVariabl
     case body_inertia_tensor:
         variablesToUpdate[ body_mass_distribution_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
         break;
+    case vehicle_panel_inertial_surface_normals:
+        variablesToUpdate[ body_segment_orientation_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
+        variablesToUpdate[ body_rotational_state_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
+        break;
+    case vehicle_panel_body_fixed_surface_normals:
+        variablesToUpdate[ body_segment_orientation_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
+        break;
+    case vehicle_surface_panel_radiation_pressure_force:
+        variablesToUpdate[ panelled_radiation_pressure_target_model_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
+        break;
+    case paneled_radiation_source_per_panel_irradiance:
+        break;
+    case paneled_radiation_source_geometry:
+        break;
     default:
         throw std::runtime_error( "Error when getting environment updates for dependent variables, parameter " +
                                   std::to_string( dependentVariableSaveSettings->dependentVariableType_ ) + " not found." );
