@@ -76,6 +76,12 @@ public:
         return targetPositionFunction_;
     }
 
+    std::function<Eigen::Quaterniond()> getTargetRotationFromLocalToGlobalFrameFunction( )
+    {
+        return targetRotationFromLocalToGlobalFrameFunction_;
+    }
+
+
     double getCurrentRadiationPressure( )
     {
         return currentRadiationPressure_;
@@ -138,7 +144,8 @@ protected:
             currentRadiationPressure_(TUDAT_NAN),
             isScalingModelSet_( false ),
             sourceDirectionScaling_( 1.0 ),
-            perpendicularSourceDirectionScaling_( 1.0 )
+            perpendicularSourceDirectionScaling_( 1.0 ),
+            sourceName_( "" )
             {}
 
     virtual void computeAcceleration( ) = 0;
@@ -181,6 +188,9 @@ protected:
     bool isScalingModelSet_;
     double sourceDirectionScaling_;
     double perpendicularSourceDirectionScaling_;
+
+    std::string sourceName_;
+
 };
 
 /*!
