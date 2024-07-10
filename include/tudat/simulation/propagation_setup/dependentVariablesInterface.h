@@ -196,6 +196,22 @@ public:
         return dependentVariable;
     }
 
+    std::pair< int, int > getSingleDependentVariableIndices(
+        const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings )
+    {
+        std::string dependentVariableId = getDependentVariableId( dependentVariableSettings );
+        if( dependentVariablesIdsAndIndices_.count( dependentVariableId ) > 0 )
+        {
+            return std::make_pair( dependentVariablesIdsAndIndices_.at( dependentVariableId ),
+                                   dependentVariablesIdsAndSize_.at( dependentVariableId ) );
+        }
+        else
+        {
+            throw std::runtime_error( "Error, dependent variable " + dependentVariableId + " not found when retrieving parameter." );
+        }
+
+    }
+
 //    //! Function to get the value of a single dependent variable at a given time, from the dependent variable ID.
 //    Eigen::VectorXd getSingleDependentVariable(
 //        const std::string dependentVariableId,

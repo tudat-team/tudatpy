@@ -49,6 +49,7 @@ void IsotropicPointSourceRadiationPressureAcceleration::computeAcceleration()
     {
         // Some body is occluding source as seen from target
         currentUnscaledAcceleration_ = Eigen::Vector3d::Zero();
+        targetModel_->resetComputations( sourceName_ );
     }
     else
     {

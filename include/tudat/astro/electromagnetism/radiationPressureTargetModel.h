@@ -63,6 +63,7 @@ public:
     virtual void updateRadiationPressureForcing(
             const double sourceIrradiance, const Eigen::Vector3d& sourceToTargetDirection, const bool resetForces, const std::string sourceName = "" ) = 0;
 
+
     std::map<std::string, std::vector<std::string>> getSourceToTargetOccultingBodies() const
     {
         return sourceToTargetOccultingBodies_;
@@ -95,14 +96,14 @@ public:
         return currentRadiationPressureTorque_.at( sourceName );
     }
 
-    virtual void resetDerivedComputations( ){ }
+    virtual void resetDerivedComputations( const std::string sourceName ){ }
 
     void resetComputations( const std::string& sourceName )
     {
         currentRadiationPressureForce_[ sourceName ] = Eigen::Vector3d::Zero( );
         currentRadiationPressureTorque_[ sourceName ] = Eigen::Vector3d::Zero( );
 
-        resetDerivedComputations( );
+        resetDerivedComputations( sourceName );
     }
 
     virtual void saveLocalComputations( const std::string sourceName, const bool saveCosines ){ }
@@ -349,17 +350,19 @@ public:
 private:
     void updateMembers_( double currentTime ) override;
 
-    void resetDerivedComputations( ) override
+    void resetDerivedComputations( const std::string sourceName ) override
     {
         for( unsigned int i = 0; i < panelForces_.size( ); i++ )
         {
             panelForces_.at( i ).setZero( );
         }
+        panelForcesPerSource_[ sourceName ] = panelForces_;
 
         for( unsigned int i = 0; i < panelTorques_.size( ); i++ )
         {
             panelTorques_.at( i ).setZero( );
         }
+        panelForcesPerSource_[ sourceName ] = panelTorques_;
     }
 
 
