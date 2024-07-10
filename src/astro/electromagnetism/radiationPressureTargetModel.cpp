@@ -56,6 +56,7 @@ void PaneledRadiationPressureTargetModel::updateRadiationPressureForcing(
         const std::string sourceName )
 {
     double radiationPressure = sourceIrradiance / physical_constants::SPEED_OF_LIGHT;
+
     if( resetForces )
     {
         resetComputations( sourceName );
@@ -115,6 +116,7 @@ void PaneledRadiationPressureTargetModel::updateRadiationPressureForcing(
                 }
             }
             panelForces_[ counter ] += currentPanelForce;
+
             if( computeTorques_ )
             {
                 panelTorques_[ counter ] += currentPanelTorque;
