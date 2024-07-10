@@ -23,6 +23,7 @@
 #include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/astro/electromagnetism/reflectionLaw.h"
 #include "tudat/astro/system_models/vehicleExteriorPanels.h"
+#include "tudat/astro/system_models/vehicleExteriorPanels.h"
 
 
 namespace tudat
@@ -41,9 +42,14 @@ class RadiationPressureTargetModel
 public:
     explicit RadiationPressureTargetModel(
         const std::map<std::string, std::vector<std::string>>& sourceToTargetOccultingBodies = {}) :
-        sourceToTargetOccultingBodies_(sourceToTargetOccultingBodies) {}
+        sourceToTargetOccultingBodies_(sourceToTargetOccultingBodies),
+        computeTorques_( false ),
+        centerOfMassFunction_( nullptr ){}
 
     virtual ~RadiationPressureTargetModel() = default;
+
+    virtual void enableTorqueComputation(
+        const std::function< Eigen::Vector3d( ) > centerOfMassFunction ) = 0;
 
     void updateMembers(double currentTime);
 
@@ -54,11 +60,8 @@ public:
      * @param sourceToTargetDirectionLocalFrame Direction of incoming radiation
      * @return Radiation pressure force vector in local (i.e. target-fixed) coordinates [N]
      */
-    virtual Eigen::Vector3d evaluateRadiationPressureForce(
-            const double sourceIrradiance, const Eigen::Vector3d& sourceToTargetDirection, const std::string sourceId = "" ) = 0;
-
-    virtual Eigen::Vector3d evaluateRadiationPressureTorque(
-        const double sourceIrradiance, const Eigen::Vector3d& sourceToTargetDirection) = 0;
+    virtual void updateRadiationPressureForcing(
+            const double sourceIrradiance, const Eigen::Vector3d& sourceToTargetDirection, const std::string sourceName = "" ) = 0;
 
     std::map<std::string, std::vector<std::string>> getSourceToTargetOccultingBodies() const
     {
@@ -68,12 +71,47 @@ public:
     virtual bool forceFunctionRequiresLocalFrameInputs( ) = 0;
 
 
+    Eigen::Vector3d getCurrentRadiationPressureForce( )
+    {
+        return currentRadiationPressureForce_;
+    }
+
+    Eigen::Vector3d getCurrentRadiationPressureTorque( )
+    {
+        return currentRadiationPressureTorque_;
+    }
+
+    Eigen::Vector3d updateAndGetRadiationPressureForce(
+        const double sourceIrradiance, const Eigen::Vector3d& sourceToTargetDirection, const std::string sourceName)
+    {
+        updateRadiationPressureForcing( sourceIrradiance, sourceToTargetDirection, sourceName );
+        return currentRadiationPressureForce_;
+    }
+
+    Eigen::Vector3d updateAndGetRadiationPressureTorque(
+        const double sourceIrradiance, const Eigen::Vector3d& sourceToTargetDirection, const std::string sourceName)
+    {
+        updateRadiationPressureForcing( sourceIrradiance, sourceToTargetDirection, sourceName );
+        return currentRadiationPressureTorque_;
+    }
+
+
+
 protected:
     virtual void updateMembers_(const double currentTime) {};
 
     double currentTime_{TUDAT_NAN};
     // Only needed to transfer occultation settings from body setup to acceleration setup
     std::map<std::string, std::vector<std::string>> sourceToTargetOccultingBodies_;
+
+
+    Eigen::Vector3d currentRadiationPressureForce_;
+
+    Eigen::Vector3d currentRadiationPressureTorque_;
+
+    bool computeTorques_;
+
+    std::function< Eigen::Vector3d( ) > centerOfMassFunction_;
 
 };
 
@@ -97,25 +135,41 @@ public:
         const std::map<std::string, std::vector<std::string>>& sourceToTargetOccultingBodies = {}) :
         RadiationPressureTargetModel(sourceToTargetOccultingBodies),
         area_(area), coefficientFunction_( nullptr ),
-        currentCoefficient_(coefficient){ }
+        currentCoefficient_(coefficient)
+        {
+        }
 
     CannonballRadiationPressureTargetModel(
         double area, std::function< double( const double ) > coefficientFunction,
         const std::map<std::string, std::vector<std::string>>& sourceToTargetOccultingBodies = {}) :
         RadiationPressureTargetModel(sourceToTargetOccultingBodies),
         area_(area), coefficientFunction_( coefficientFunction),
-        currentCoefficient_( TUDAT_NAN ){ }
+        currentCoefficient_( TUDAT_NAN )
+        {
+        }
 
-    Eigen::Vector3d evaluateRadiationPressureForce(
+    void enableTorqueComputation(
+        const std::function< Eigen::Vector3d( ) > centerOfMassFunction )
+    {
+        if( centerOfMassFunction == nullptr )
+        {
+            throw std::runtime_error( "Error when enable radiation pressure torque in panelled model; center of mass function is null." );
+        }
+
+        if( computeTorques_ )
+        {
+            throw std::runtime_error( "Error when enable radiation pressure torque in panelled model; torque is already enabled." );
+        }
+
+        computeTorques_ = true;
+        centerOfMassFunction_ = centerOfMassFunction;
+    }
+
+    void updateRadiationPressureForcing(
             double sourceIrradiance,
             const Eigen::Vector3d& sourceToTargetDirection,
-            const std::string sourceId = ""  ) override;
+            const std::string sourceName = ""  ) override;
 
-    Eigen::Vector3d evaluateRadiationPressureTorque(
-        const double sourceIrradiance, const Eigen::Vector3d& sourceToTargetDirection) override
-    {
-        return Eigen::Vector3d::Zero( );
-    }
 
     double getArea() const
     {
@@ -205,16 +259,30 @@ public:
         surfaceNormals_.resize( totalNumberOfPanels_ );
     }
 
-    Eigen::Vector3d evaluateRadiationPressureForce(
+    void enableTorqueComputation(
+        const std::function< Eigen::Vector3d( ) > centerOfMassFunction )
+    {
+        if( centerOfMassFunction == nullptr )
+        {
+            throw std::runtime_error( "Error when enable radiation pressure torque in panelled model; center of mass function is null." );
+        }
+
+        if( computeTorques_ )
+        {
+            throw std::runtime_error( "Error when enable radiation pressure torque in panelled model; torque is already enabled." );
+        }
+
+        computeTorques_ = true;
+        centerOfMassFunction_ = centerOfMassFunction;
+        panelTorques_.resize( totalNumberOfPanels_ );
+        panelCentroidMomentArms_.resize( totalNumberOfPanels_ );
+    }
+
+    void updateRadiationPressureForcing(
         double sourceIrradiance,
         const Eigen::Vector3d &sourceToTargetDirectionLocalFrame,
-        const std::string sourceId = ""  ) override;
+        const std::string sourceName = ""  ) override;
 
-    Eigen::Vector3d evaluateRadiationPressureTorque(
-        const double sourceIrradiance, const Eigen::Vector3d& sourceToTargetDirection) override
-    {
-        throw std::runtime_error( "Error, radiation pressure torque not yet implemented for panelled radiation pressure target." );
-    }
 
     std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > >& getBodyFixedPanels( )
     {
@@ -272,9 +340,13 @@ private:
     
     std::vector< Eigen::Vector3d > surfaceNormals_;
 
+    std::vector< Eigen::Vector3d > panelCentroidMomentArms_;
+
     std::vector< double > surfacePanelCosines_;
 
     std::vector< Eigen::Vector3d > panelForces_;
+
+    std::vector< Eigen::Vector3d > panelTorques_;
 
 };
 

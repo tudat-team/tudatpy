@@ -517,7 +517,6 @@ bool checkMultiArcPropagatorSettingsAndParameterEstimationConsistency(
                 ArcWiseInitialTranslationalStateParameter< StateScalarType > >(
                     parameterIterator->second )->getArcStartTimes( );
 
-//<<<<<<< HEAD
         // Check that each arc has at least one body whose state is to be estimated.
         for ( unsigned int i = 0 ; i < parameterArcStartTimes.size( ) ; i++ )
         {
@@ -527,21 +526,6 @@ bool checkMultiArcPropagatorSettingsAndParameterEstimationConsistency(
             {
                 if( std::fabs( arcStartTimes.at( j ) - parameterArcStartTimes.at( i ) ) <
                     std::max( 4.0 * parameterArcStartTimes.at( i ) * std::numeric_limits< double >::epsilon( ), 1.0E-12 ) )
-//=======
-//        // Check if arc times are (almost) exactly the same
-//        if( propagatorSettings->getSingleArcSettings( ).size( ) != parameterArcStartTimes.size( ) )
-//        {
-//            isInputConsistent = false;
-//            throw std::runtime_error( "Error, arc times for " + parameterIterator->first + " have incompatible size with estimation" );
-//        }
-//        else
-//        {
-//            for( unsigned int i = 0; i < propagatorSettings->getSingleArcSettings( ).size( ); i++ )
-//            {
-//                if( std::fabs( propagatorSettings->getSingleArcSettings( ).at( i )->getInitialTime( ) - parameterArcStartTimes.at( i ) ) >
-//                        std::max( 4.0 * parameterArcStartTimes.at( i ) * std::numeric_limits< double >::epsilon( ), 1.0E-12 ) )
-//>>>>>>> feature/consistent_propagation_settings
-
                 {
                     detectedArc = true;
                     indexDetectedArc = j;
