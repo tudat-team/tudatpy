@@ -8,8 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MAIN
+//#define BOOST_TEST_DYN_LINK
+//#define BOOST_TEST_MAIN
 
 
 
@@ -22,23 +22,26 @@
 
 #include "tudat/basics/testMacros.h"
 #include "tudat/simulation/simulation.h"
+//
+//namespace tudat
+//{
+//
+//namespace unit_tests
+//{
 
-namespace tudat
-{
-
-namespace unit_tests
-{
-
+using namespace tudat;
 using namespace tudat::propagators;
 using namespace tudat::simulation_setup;
 using namespace tudat::numerical_integrators;
 using namespace tudat::basic_astrodynamics;
 using namespace tudat::orbital_element_conversions;
 
-BOOST_AUTO_TEST_SUITE( test_propagation_radiation_pressure )
-
-// Test custom state propagation, linearly decreasing with time
-BOOST_AUTO_TEST_CASE( testMultiTypeRadiationPressurePropagation )
+//BOOST_AUTO_TEST_SUITE( test_propagation_radiation_pressure )
+//
+//// Test custom state propagation, linearly decreasing with time
+//BOOST_AUTO_TEST_CASE( testMultiTypeRadiationPressurePropagation )
+//{
+int main( )
 {
     spice_interface::loadStandardSpiceKernels( );
 
@@ -51,7 +54,7 @@ BOOST_AUTO_TEST_CASE( testMultiTypeRadiationPressurePropagation )
     // Get initial state vector as input to integration.
     // Set Keplerian elements for Capsule.
     Eigen::Vector6d initialStateInKeplerianElements;
-    initialStateInKeplerianElements( semiMajorAxisIndex ) = spice_interface::getAverageRadius( "Earth" ) + 300.0E3;
+    initialStateInKeplerianElements( semiMajorAxisIndex ) = spice_interface::getAverageRadius( "Earth" ) + 800.0E3;
     initialStateInKeplerianElements( eccentricityIndex ) = 0.005;
     initialStateInKeplerianElements( inclinationIndex ) = unit_conversions::convertDegreesToRadians( 85.3 );
     initialStateInKeplerianElements( argumentOfPeriapsisIndex )
@@ -86,8 +89,8 @@ BOOST_AUTO_TEST_CASE( testMultiTypeRadiationPressurePropagation )
     // Set accelerations between bodies that are to be taken into account (mutual point mass gravity between all bodies).
     SelectedAccelerationMap accelerationMap;
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
-    accelerationsOfVehicle[ "Sun" ].push_back( radiationPressureAcceleration( cannonball_target ) );
-    accelerationsOfVehicle[ "Earth" ].push_back( radiationPressureAcceleration( cannonball_target ) );
+    accelerationsOfVehicle[ "Sun" ].push_back( radiationPressureAcceleration( paneled_target ) );
+    accelerationsOfVehicle[ "Earth" ].push_back( radiationPressureAcceleration( paneled_target ) );
     accelerationsOfVehicle[ "Earth" ].push_back( pointMassGravityAcceleration(  ) );
     accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
 
@@ -113,21 +116,40 @@ BOOST_AUTO_TEST_CASE( testMultiTypeRadiationPressurePropagation )
     std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesList;
     dependentVariablesList.push_back( singleAccelerationDependentVariable( radiation_pressure, "Vehicle", "Sun" ) );
     dependentVariablesList.push_back( singleAccelerationDependentVariable( radiation_pressure, "Vehicle", "Earth" ) );
+    dependentVariablesList.push_back( vehiclePanelInertialSurfaceNormals( "Vehicle" ) );
+    dependentVariablesList.push_back( vehiclePanelBodyFixedSurfaceNormals( "Vehicle" ) );
+    dependentVariablesList.push_back( perVehiclePanelRadiationPressureForce( "Vehicle", "Sun" ) );
+    dependentVariablesList.push_back( perVehiclePanelRadiationPressureForce( "Vehicle", "Earth" ) );
+    dependentVariablesList.push_back( paneledRadiationSourcePerPanelIrradiance( "Vehicle", "Earth" ) );
+    dependentVariablesList.push_back( paneledRadiationSourceGeometry( "Vehicle", "Earth" ) );
 
     std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
         std::make_shared< TranslationalStatePropagatorSettings< double > >
             ( centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialState, initialEphemerisTime, integratorSettings,
               std::make_shared< PropagationTimeTerminationSettings >( finalEphemerisTime ), cowell, dependentVariablesList );
 
+    propagatorSettings->getPrintSettings( )->setPrintDependentVariableData( true );
+
     // Create simulation object and propagate dynamics.
     SingleArcDynamicsSimulator< > dynamicsSimulator(
         bodies, propagatorSettings );
-
+//
+//    std::cout<<dynamicsSimulator.getDependentVariableHistory( ).size( )<<std::endl;
+//
+//    input_output::writeDataMapToTextFile(
+//        dynamicsSimulator.getDependentVariableHistory( ),
+//        "radiationPressureDependentVariables.dat",
+//        "/home/dominic/Downloads/",
+//        "",
+//        std::numeric_limits< double >::digits10,
+//        std::numeric_limits< double >::digits10,
+//        "," );
 
 }
-
-BOOST_AUTO_TEST_SUITE_END( )
-
-} // namespace unit_tests
-
-} // namespace tudat
+//
+//BOOST_AUTO_TEST_SUITE_END( )
+//
+//} // namespace unit_tests
+//
+//} // namespace tudat
+https://github.com/tudat-team/tudatpy/tags

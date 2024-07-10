@@ -345,6 +345,12 @@ public:
         return sourceModel_;
     }
 
+    std::shared_ptr<PaneledRadiationSourceModel> getPaneledSourceModel( )
+    {
+        return sourceModel_;
+    }
+
+
     unsigned int getVisibleAndEmittingSourcePanelCount() const
     {
         return visibleAndEmittingSourcePanelCount;
@@ -358,6 +364,29 @@ public:
         return sourceModel_->getVisibleArea();
     }
 
+
+    void enableSavePanellingGeometry( )
+    {
+        savePanellingGeometry_ = true;
+        savedPanelIrradiances_.resize( sourceModel_->getNumberOfPanels( ) );
+    }
+
+    void enableSavePanellingIrradiance( )
+    {
+        savePanellingIrradiance_ = true;
+        savedPanelGeometries_.resize( sourceModel_->getNumberOfPanels( ) );
+    }
+
+    std::vector< double >& getSavedPanelIrradiances( )
+    {
+        return savedPanelIrradiances_;
+    }
+
+    std::vector< Eigen::Vector7d >& getSavedPanelGeometries( )
+    {
+        return savedPanelGeometries_;
+    }
+
 private:
     void computeAcceleration() override;
 
@@ -366,6 +395,16 @@ private:
 
     // For dependent variable
     unsigned int visibleAndEmittingSourcePanelCount;
+
+    bool savePanellingGeometry_ = false;
+
+    bool savePanellingIrradiance_ = false;
+
+    std::vector< double > savedPanelIrradiances_;
+
+    std::vector< Eigen::Vector7d > savedPanelGeometries_;
+
+
 };
 
 } // tudat

@@ -326,6 +326,9 @@ public:
         return sourcePanelRadiosityModelUpdater_;
     }
 
+    virtual std::vector< Eigen::Vector7d > getCurrentPanelGeomtry( ){ return std::vector< Eigen::Vector7d >( ); }
+
+
 protected:
     std::shared_ptr<basic_astrodynamics::BodyShapeModel> sourceBodyShapeModel_;
     std::unique_ptr<SourcePanelRadiosityModelUpdater> sourcePanelRadiosityModelUpdater_;
@@ -438,6 +441,8 @@ public:
     {
         return numberOfPanels;
     }
+
+    std::vector< Eigen::Vector7d > getCurrentPanelGeomtry( );
 
 private:
     void updateMembers_(double currentTime) override;
