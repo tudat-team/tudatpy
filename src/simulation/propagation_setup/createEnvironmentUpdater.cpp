@@ -296,7 +296,9 @@ createRotationalEquationsOfMotionEnvironmentUpdaterSettings(
                     singleTorqueUpdateNeeds[ spherical_harmonic_gravity_field_update ].push_back(
                                 acceleratedBodyIterator->first );
                     break;
-
+                case radiation_pressure_torque:
+                    throw std::runtime_error( "Error, environment updates for radiation pressure torque not yet implemented" );
+                    break;
                 case aerodynamic_torque:
                     singleTorqueUpdateNeeds[ body_translational_state_update ].push_back(
                                 torqueModelIterator->first );
