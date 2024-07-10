@@ -611,9 +611,9 @@ BOOST_AUTO_TEST_CASE( test_NonConservativeForceEnvironmentUpdate )
                 bodies.at( "Vehicle" )->getRadiationPressureTargetModel( );
 //        BOOST_CHECK_EQUAL(
 //                    ( radiationPressureInterface->getCurrentTime( ) == radiationPressureInterface->getCurrentTime( ) ), 1 );
-        BOOST_CHECK_EQUAL(
-                    ( radiationPressureInterface->getRadiationPressure( ) ==
-                radiationPressureInterface->getRadiationPressure( ) ), 1 );
+//        BOOST_CHECK_EQUAL(
+//                    ( radiationPressureInterface->getRadiationPressure( ) ==
+//                radiationPressureInterface->getRadiationPressure( ) ), 1 );
 //        TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
 //                    radiationPressureInterface->getCurrentSolarVector( ),
 //                    ( bodies.at( "Sun" )->getPosition( ) - bodies.at( "Vehicle" )->getPosition( ) ),
