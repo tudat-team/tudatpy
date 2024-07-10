@@ -82,14 +82,14 @@ public:
     }
 
     Eigen::Vector3d updateAndGetRadiationPressureForce(
-        const double sourceIrradiance, const Eigen::Vector3d& sourceToTargetDirection, const std::string sourceName)
+        const double sourceIrradiance, const Eigen::Vector3d& sourceToTargetDirection, const std::string sourceName = "" )
     {
         updateRadiationPressureForcing( sourceIrradiance, sourceToTargetDirection, sourceName );
         return currentRadiationPressureForce_;
     }
 
     Eigen::Vector3d updateAndGetRadiationPressureTorque(
-        const double sourceIrradiance, const Eigen::Vector3d& sourceToTargetDirection, const std::string sourceName)
+        const double sourceIrradiance, const Eigen::Vector3d& sourceToTargetDirection, const std::string sourceName = "" )
     {
         updateRadiationPressureForcing( sourceIrradiance, sourceToTargetDirection, sourceName );
         return currentRadiationPressureTorque_;
