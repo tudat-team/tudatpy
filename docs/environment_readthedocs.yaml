@@ -5,8 +5,7 @@ channels:
   - tudat-team
 dependencies:
   # All standard tudat-bundle deps are needed for sphinx-documentation for tudatpy.
-  - python=3.9
-  - boost-cpp=1.84.0
+  - python=3.8
   - numpy
   - matplotlib # for tudat.plotting
   - basemap # for tudat.plotting
