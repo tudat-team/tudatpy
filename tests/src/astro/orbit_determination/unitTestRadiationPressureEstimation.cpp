@@ -29,7 +29,7 @@ namespace tudat
 namespace unit_tests
 {
 
-BOOST_AUTO_TEST_SUITE( test_full_planetary_rotational_parameters_estimation )
+BOOST_AUTO_TEST_SUITE( test_radiation_pressure_estimation )
 
 //Using declarations.
 using namespace tudat::observation_models;
@@ -49,12 +49,12 @@ using namespace tudat::observation_models;
 using namespace tudat;
 
 
-BOOST_AUTO_TEST_CASE( test_CannonballPartials )
+BOOST_AUTO_TEST_CASE( test_RadiationPressurePartialsFromEstimation)
 {
     std::string initialTimeString = "2012-04-06 01:44:04.686";
 
     double initialTime = basic_astrodynamics::timeFromIsoString<double>( initialTimeString );
-    double finalTime = initialTime + 7200.0;
+    double finalTime = initialTime + 600.0;
 
     //Load spice kernels.
     std::string kernelsPath = paths::getSpiceKernelPath( );
@@ -63,7 +63,7 @@ BOOST_AUTO_TEST_CASE( test_CannonballPartials )
     // Create settings for default bodies
     std::vector<std::string>
         bodiesToCreate = { "Earth", "Sun", "Mercury", "Venus", "Mars", "Jupiter", "Saturn", "Moon" };
-    std::string globalFrameOrigin = "Earth";
+    std::string globalFrameOrigin = "Moon";
     std::string globalFrameOrientation = "J2000";
     BodyListSettings bodySettings = getDefaultBodySettings(
         bodiesToCreate, globalFrameOrigin, globalFrameOrientation );
@@ -92,33 +92,29 @@ BOOST_AUTO_TEST_CASE( test_CannonballPartials )
     double radiationPressureCoefficient = 1.5;
     std::map<std::string, std::vector<std::string> > sourceToTargetOccultingBodies;
     sourceToTargetOccultingBodies[ "Sun" ].push_back( "Moon" );
-    bodySettings.at( spacecraftName )->radiationPressureTargetModelSettings =
-        cannonballRadiationPressureTargetModelSettingsWithOccultationMap(
-            referenceAreaRadiation, radiationPressureCoefficient, sourceToTargetOccultingBodies );
+    bodySettings.get( spacecraftName )->bodyExteriorPanelSettings_ = bodyWingPanelledGeometry( 2.0, 1.0, 4.0, 1.0, 0.0, 0.0, 0.0, 0.0, false, false );
+    bodySettings.get( spacecraftName )->rotationModelSettings = constantRotationModelSettings( "J2000", spacecraftName + "_Fixed", Eigen::Matrix3d::Identity( ) );
+
 
     for ( unsigned int test = 0; test < 3; test++ )
     {
         // Create bodies
         SystemOfBodies bodies = createSystemOfBodies<long double, Time>( bodySettings );
+        addRadiationPressureTargetModel( bodies, "GRAIL-A", paneledRadiationPressureTargetModelSettingsWithOccultationMap( sourceToTargetOccultingBodies ) );
+        addRadiationPressureTargetModel( bodies, "GRAIL-A", cannonballRadiationPressureTargetModelSettingsWithOccultationMap( referenceAreaRadiation, radiationPressureCoefficient,  sourceToTargetOccultingBodies ) );
 
         // Set accelerations between bodies that are to be taken into account.
         SelectedAccelerationMap accelerationMap;
         std::map<std::string, std::vector<std::shared_ptr<AccelerationSettings> > > accelerationsOfSpacecraft;
-        accelerationsOfSpacecraft[ "Sun" ].push_back( std::make_shared<AccelerationSettings>( point_mass_gravity ));
         if( test == 0 || test == 2 )
         {
-            accelerationsOfSpacecraft[ "Sun" ].push_back( std::make_shared<AccelerationSettings>( radiation_pressure ));
+            accelerationsOfSpacecraft[ "Sun" ].push_back( std::make_shared<RadiationPressureAccelerationSettings>( cannonball_target ));
         }
-        accelerationsOfSpacecraft[ "Earth" ].push_back( std::make_shared<AccelerationSettings>( point_mass_gravity ));
-        accelerationsOfSpacecraft[ "Moon" ].push_back( std::make_shared<SphericalHarmonicAccelerationSettings>( 8, 8 ));
+        accelerationsOfSpacecraft[ "Moon" ].push_back( std::make_shared<AccelerationSettings>( point_mass_gravity ));
         if( test == 1 || test == 2 )
         {
-            accelerationsOfSpacecraft[ "Moon" ].push_back( std::make_shared<AccelerationSettings>( radiation_pressure ));
+            accelerationsOfSpacecraft[ "Moon" ].push_back( std::make_shared<RadiationPressureAccelerationSettings>( cannonball_target ));
         }
-        accelerationsOfSpacecraft[ "Moon" ].push_back( empiricalAcceleration( ));
-        accelerationsOfSpacecraft[ "Mars" ].push_back( std::make_shared<AccelerationSettings>( point_mass_gravity ));
-        accelerationsOfSpacecraft[ "Jupiter" ].push_back( std::make_shared<AccelerationSettings>( point_mass_gravity ));
-        accelerationsOfSpacecraft[ "Saturn" ].push_back( std::make_shared<AccelerationSettings>( point_mass_gravity ));
 
         accelerationMap[ "GRAIL-A" ] = accelerationsOfSpacecraft;
 
@@ -130,15 +126,12 @@ BOOST_AUTO_TEST_CASE( test_CannonballPartials )
 
         // Get initial state from Spice kernel
         Eigen::VectorXd initialState =
-            ( Eigen::VectorXd( 6 )
-                << -652685.231403348, 648916.108348616, 1549361.00176057, 495.505044473055, -1364.12825227884, 774.676881961036 ).finished( );
+            ( Eigen::VectorXd( 6 ) << -652685.231403348, 648916.108348616, 1549361.00176057, 495.505044473055, -1364.12825227884, 774.676881961036 ).finished( );
         // Define propagator settings
         std::shared_ptr<TranslationalStatePropagatorSettings<long double, Time> > propagatorSettings =
             std::make_shared<TranslationalStatePropagatorSettings<long double, Time> >
                 ( centralBodies, accelerationModelMap, bodiesToEstimate, initialState.template cast<long double>( ),
-                  Time( initialTime ),
-                  numerical_integrators::rungeKuttaFixedStepSettings<Time>( 120.0,
-                                                                            numerical_integrators::rungeKuttaFehlberg78 ),
+                  Time( initialTime ), numerical_integrators::rungeKuttaFixedStepSettings<Time>( 60.0, numerical_integrators::rungeKuttaFehlberg78 ),
                   std::make_shared<PropagationTimeTerminationSettings>( finalTime ));
 
         // Create parameters
@@ -152,9 +145,14 @@ BOOST_AUTO_TEST_CASE( test_CannonballPartials )
         SingleArcVariationalEquationsSolver<long double, Time> variationalEquationsSolver(
             bodies, propagatorSettings, parametersToEstimate );
         auto sensitivityResults = variationalEquationsSolver.getSensitivityMatrixSolution( );
-
         {
-            double parameterPerturbation = 1.0;
+            double parameterPerturbation = 1000.0;
+            double toleranceScaling = 1.0;
+            if( test == 1 )
+            {
+                toleranceScaling *= 10.0;
+                parameterPerturbation *= 10.0;
+            }
             auto nominalParameters = parametersToEstimate->getFullParameterValues<long double>( );
             auto perturbedParameters = nominalParameters;
             perturbedParameters( 6 ) += parameterPerturbation;
@@ -172,6 +170,8 @@ BOOST_AUTO_TEST_CASE( test_CannonballPartials )
 
             parametersToEstimate->resetParameterValues( nominalParameters );
 
+
+            std::cout<<test<<std::endl;
             for ( auto it: sensitivityResults )
             {
                 Eigen::VectorXd analyticalValue = it.second;
@@ -181,10 +181,10 @@ BOOST_AUTO_TEST_CASE( test_CannonballPartials )
                 for ( unsigned int i = 0; i < 3; i++ )
                 {
                     BOOST_CHECK_SMALL( std::fabs( static_cast< double >( analyticalValue( i ) - numericalValue( i ))),
-                                       1.0E-4 * analyticalValue.block( 0, 0, 3, 1 ).norm( ));
+                                       toleranceScaling * 1.0E-9 * analyticalValue.block( 0, 0, 3, 1 ).norm( ));
                     BOOST_CHECK_SMALL(
                         std::fabs( static_cast< double >( analyticalValue( i + 3 ) - numericalValue( i + 3 ))),
-                        1.0E-4 * analyticalValue.block( 0, 0, 3, 1 ).norm( ));
+                        toleranceScaling *  1.0E-9 * analyticalValue.block( 0, 0, 3, 1 ).norm( ));
                 }
             }
         }
