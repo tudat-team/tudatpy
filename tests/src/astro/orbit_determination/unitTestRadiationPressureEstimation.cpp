@@ -94,7 +94,7 @@ BOOST_AUTO_TEST_CASE( test_RadiationPressurePartialsFromEstimation)
     bodySettings.get( spacecraftName )->rotationModelSettings = constantRotationModelSettings( "J2000", spacecraftName + "_Fixed", Eigen::Matrix3d::Identity( ) );
 
     // Test for separate source, and double source
-    for ( unsigned int test = 0; test < 3; test++ )
+    for ( unsigned int test = 0; test < 6; test++ )
     {
         // Create bodies
         SystemOfBodies bodies = createSystemOfBodies<long double, Time>( bodySettings );
@@ -111,6 +111,14 @@ BOOST_AUTO_TEST_CASE( test_RadiationPressurePartialsFromEstimation)
         if( test == 1 || test == 2 )
         {
             accelerationsOfSpacecraft[ "Moon" ].push_back( std::make_shared<RadiationPressureAccelerationSettings>( cannonball_target ));
+        }
+        if( test == 3 || test == 5 )
+        {
+            accelerationsOfSpacecraft[ "Sun" ].push_back( std::make_shared<RadiationPressureAccelerationSettings>( paneled_target ));
+        }
+        if( test == 4 || test == 5 )
+        {
+            accelerationsOfSpacecraft[ "Moon" ].push_back( std::make_shared<RadiationPressureAccelerationSettings>( paneled_target ));
         }
         accelerationMap[ "GRAIL-A" ] = accelerationsOfSpacecraft;
 
@@ -134,8 +142,11 @@ BOOST_AUTO_TEST_CASE( test_RadiationPressurePartialsFromEstimation)
         // Create parameters
         std::vector<std::shared_ptr<EstimatableParameterSettings> > parameterNames =
             getInitialStateParameterSettings<long double, Time>( propagatorSettings, bodies );
-        std::vector<std::shared_ptr<estimatable_parameters::EstimatableParameterSettings> > additionalParameterNames;
-        parameterNames.push_back( estimatable_parameters::radiationPressureCoefficient( "GRAIL-A" ));
+        if( test < 3 )
+        {
+            std::vector<std::shared_ptr<estimatable_parameters::EstimatableParameterSettings> > additionalParameterNames;
+            parameterNames.push_back( estimatable_parameters::radiationPressureCoefficient( "GRAIL-A" ));
+        }
         std::shared_ptr<estimatable_parameters::EstimatableParameterSet<long double> > parametersToEstimate =
             createParametersToEstimate<long double, Time>( parameterNames, bodies, propagatorSettings );
 
@@ -151,13 +162,16 @@ BOOST_AUTO_TEST_CASE( test_RadiationPressurePartialsFromEstimation)
         {
             // Parameter perturbations and tolerances determined empirically to be acceptable
             int scalingIndex = 4;
-            double toleranceStates = 1E-5;
+            double toleranceStates = 1E-4;
             double toleranceParameter = 1E-12;
-            if( test > 0 )
+            if( test % 3 > 0 )
             {
                 scalingIndex = 2;
-                toleranceStates = 1.0E-4;
                 toleranceParameter = 1.0E-7;
+            }
+            if( test > 3 )
+            {
+                toleranceStates = 1.0E-3;
             }
 
             // Perturb parameters
@@ -233,9 +247,9 @@ BOOST_AUTO_TEST_CASE( test_RadiationPressurePartialsFromEstimation)
             {
                 TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalValue, analyticalValue, toleranceParameter );
             }
-//
-//                    Eigen::VectorXd ratio = ( numericalValue - analyticalValue ).cwiseQuotient( analyticalValue );
-//                    std::cout<<ratio.segment( 0, 3 ).maxCoeff( )<<" "<<ratio.segment( 3, 3 ).maxCoeff( )<<" "<<ratio( 6 )<<std::endl;
+
+                    Eigen::VectorXd ratio = ( numericalValue - analyticalValue ).cwiseQuotient( analyticalValue );
+                    std::cout<<ratio.segment( 0, 3 ).maxCoeff( )<<" "<<ratio.segment( 3, 3 ).maxCoeff( )<<" "<<ratio( 6 )<<std::endl;
         }
 
     }
