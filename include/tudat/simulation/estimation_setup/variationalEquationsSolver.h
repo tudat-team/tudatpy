@@ -597,12 +597,18 @@ bool checkMultiArcPropagatorSettingsAndParameterEstimationConsistency(
         }
         for ( unsigned int j = 0 ; j < estimatedBodiesPerArc.at( i ).size( ) ; j++ )
         {
-            auto itr = std::find( propagatedBodiesPerArc.at( i ).begin( ), propagatedBodiesPerArc.at( i ).end( ), estimatedBodiesPerArc.at( i )[  j ] );
+            auto currentListToTest = propagatedBodiesPerArc.at( i );
+            auto itr = std::find( currentListToTest.begin( ), currentListToTest.end( ), estimatedBodiesPerArc.at( i ).at( j ) );
             if ( itr == estimatedBodiesPerArc.at( i ).end( ) )
             {
                 isInputConsistent = false;
-                throw std::runtime_error( "Error, for arc " + std::to_string( i+1 ) + " out of " + std::to_string( arcStartTimes.size( ) )
-                                          + ", body " +  propagatedBodiesPerArc.at( i )[  j ] + " is estimated but not propagated. " );
+                std::string currentPropagatedBodies = "";
+                for( unsigned int k = 0; k < currentListToTest.size( ); k++ )
+                {
+                    currentPropagatedBodies += std::to_string( k ) + ":" + currentListToTest.at( k ) + "; ";
+                }
+                throw std::runtime_error( "Error, for arc " + std::to_string( i + 1 ) + " out of " + std::to_string( arcStartTimes.size( ) )
+                                          + ", body " +  estimatedBodiesPerArc.at( i ).at( j ) + " is estimated but not propagated.  Propagated bodies are " + currentPropagatedBodies );
             }
         }
     }
