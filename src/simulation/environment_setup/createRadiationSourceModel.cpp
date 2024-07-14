@@ -279,7 +279,7 @@ std::shared_ptr<electromagnetism::RadiationSourceModel> createRadiationSourceMod
         auto luminosityModel = createLuminosityModel(
                 isotropicPointModelSettings->getLuminosityModelSettings(), sourceBodyName);
 
-        radiationSourceModel = std::make_shared<IsotropicPointRadiationSourceModel>(luminosityModel);
+        radiationSourceModel = std::make_shared<IsotropicPointRadiationSourceModel>(luminosityModel, sourceBodyName);
         break;
     }
     case RadiationSourceModelType::extended_source:
@@ -316,7 +316,8 @@ std::shared_ptr<electromagnetism::RadiationSourceModel> createRadiationSourceMod
                 sourceBody->getShapeModel(),
                 std::move(sourcePanelRadiosityModelUpdater),
                 radiosityModels,
-                paneledModelSettings->getNumberOfPanelsPerRing());
+                paneledModelSettings->getNumberOfPanelsPerRing(),
+                sourceBodyName);
         break;
     }
     default:

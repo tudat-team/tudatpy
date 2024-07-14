@@ -36,12 +36,47 @@ public:
     std::pair< Eigen::MatrixXd, Eigen::MatrixXd > calculateSphericalHarmonicsCorrections(
             const double time );
 
+    std::map< int, Eigen::MatrixXd > getCosineAmplitudes( )
+    {
+        return cosineAmplitudes_;
+    }
+
+    std::map< int, Eigen::MatrixXd > getSineAmplitudes( )
+    {
+        return sineAmplitudes_;
+    }
+
+    void resetCosineAmplitudes( const std::map< int, Eigen::MatrixXd > cosineAmplitudes )
+    {
+        cosineAmplitudes_ = cosineAmplitudes;
+    }
+
+    void resetSineAmplitudes( const std::map< int, Eigen::MatrixXd > sineAmplitudes )
+    {
+        sineAmplitudes_ = sineAmplitudes;
+    }
+
+
+    std::map< int, Eigen::MatrixXd >& getCosineAmplitudesReference( )
+    {
+        return cosineAmplitudes_;
+    }
+
+    std::map< int, Eigen::MatrixXd >& getSineAmplitudesReference( )
+    {
+        return sineAmplitudes_;
+    }
+
+    double getReferenceEpoch( )
+    {
+        return referenceEpoch_;
+    }
 
 protected:
 
-    const std::map< int, Eigen::MatrixXd > cosineAmplitudes_;
+    std::map< int, Eigen::MatrixXd > cosineAmplitudes_;
 
-    const std::map< int, Eigen::MatrixXd > sineAmplitudes_;
+    std::map< int, Eigen::MatrixXd > sineAmplitudes_;
 
     const double referenceEpoch_;
 

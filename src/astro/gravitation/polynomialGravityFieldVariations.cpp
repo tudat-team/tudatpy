@@ -85,6 +85,27 @@ PolynomialGravityFieldVariations::PolynomialGravityFieldVariations(
     sineAmplitudes_( sineAmplitudes ),
     referenceEpoch_( referenceEpoch )
 {
+    for( auto it : cosineAmplitudes_ )
+    {
+        if( sineAmplitudes_.count( it.first ) != 0 )
+        {
+            if( ( it.second.rows( ) != sineAmplitudes_.at( it.first ).rows( ) ) || ( it.second.cols( ) != sineAmplitudes_.at( it.first ).cols( ) ) )
+            {
+                throw std::runtime_error( "Error when creating polynomial gravity field variation, sine and cosine sizes are inconsistent" );
+            }
+        }
+    }
+
+    for( auto it : sineAmplitudes_ )
+    {
+        if( cosineAmplitudes_.count( it.first ) != 0 )
+        {
+            if( ( it.second.rows( ) != cosineAmplitudes_.at( it.first ).rows( ) ) || ( it.second.cols( ) != cosineAmplitudes_.at( it.first ).cols( ) ) )
+            {
+                throw std::runtime_error( "Error when creating polynomial gravity field variation, sine and cosine sizes are inconsistent" );
+            }
+        }
+    }
 }
 
 
