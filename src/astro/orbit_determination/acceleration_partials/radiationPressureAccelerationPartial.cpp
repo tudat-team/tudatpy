@@ -70,6 +70,8 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > CannonBallRadiationP
         // Set function returning partial w.r.t. radiation pressure coefficient.
         case estimatable_parameters::radiation_pressure_coefficient:
 
+            std::cout<<"Adding radiation pressure cannonball partial (cannonball) "<<acceleratedBody_<<" "<<acceleratingBody_<<std::endl;
+
             partialFunction = std::bind( &CannonBallRadiationPressurePartial::wrtRadiationPressureCoefficient,
                                            this, std::placeholders::_1 );
             numberOfRows = 1;
