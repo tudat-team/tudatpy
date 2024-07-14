@@ -42,7 +42,7 @@ done
 # env control arguments
 BUILD_DIR="${build_dir:-build}"
 RUN_TESTS="${run_tests:-0}"
-BUILD_TESTS="${build_tests:-0}"
+BUILD_TESTS="${build_tests:-1}"
 NUMBER_OF_PROCESSORS=${number_of_processors:-1}
 CLEAN_BUILD=${clean_build:-0}
 BUILD_TYPE=${build_type:-Release}
