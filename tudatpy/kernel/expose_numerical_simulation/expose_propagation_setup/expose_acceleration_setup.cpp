@@ -205,7 +205,9 @@ void expose_acceleration_setup(py::module &m) {
           get_docstring("cannonball_radiation_pressure").c_str());
 
     m.def("radiation_pressure", &tss::radiationPressureAcceleration,
+          py::arg( "target_type" ) = tss::undefined_target,
           get_docstring("radiation_pressure").c_str());
+
 
     m.def("spherical_harmonic_gravity", &tss::sphericalHarmonicAcceleration,
           py::arg( "maximum_degree" ),
