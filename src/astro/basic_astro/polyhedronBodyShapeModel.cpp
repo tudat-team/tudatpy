@@ -24,9 +24,7 @@ double PolyhedronBodyShapeModel::getAltitude( const Eigen::Vector3d& bodyFixedPo
     // Compute distance to closest vertex and closest vertex id
     unsigned int closestVertex;
     double distanceToVertex = computeDistanceToClosestVertex( bodyFixedPosition, closestVertex );
-    std::cout<<"RETRIEVING ALTITUDE "<<std::endl;
 
-    std::cout<<"Polyhedron shape "<<justComputeDistanceToVertices_<<" "<<bodyFixedPosition.transpose( )<<std::endl;
     // Compute altitude using just the distance to the vertices
     if ( justComputeDistanceToVertices_ )
     {
@@ -117,7 +115,6 @@ double PolyhedronBodyShapeModel::getAltitude( const Eigen::Vector3d& bodyFixedPo
 
         // Altitude is the minimum distance to any of the polyhedrin features
         altitude = std::min({distanceToVertex, distanceToFacet, distanceToEdge});
-        std::cout<<"Altitude "<<altitude<<" "<<distanceToVertex<<" "<<distanceToFacet<<" "<<distanceToEdge<<std::endl;
     }
 
     // Select the altitude sign if necessary
@@ -137,16 +134,13 @@ double PolyhedronBodyShapeModel::getAltitude( const Eigen::Vector3d& bodyFixedPo
         double perFacetFactorsSum = - basic_mathematics::calculatePolyhedronLaplacianOfGravitationalPotential(
                 1.0, perFacetFactor);
 
-        std::cout<<"Altitude minus sign pre "<<altitude<<std::endl;
         // If point inside the polyhedron, altitude should be negative
         if ( perFacetFactorsSum > 2.0 * mathematical_constants::PI )
         {
             altitude = - altitude;
         }
-        std::cout<<"Altitude minus sign post "<<altitude<<std::endl;
     }
 
-    std::cout<<"RETURNING ALTITUDE "<<altitude<<std::endl<<std::endl;
     return altitude;
 }
 
