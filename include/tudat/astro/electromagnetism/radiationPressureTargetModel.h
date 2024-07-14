@@ -345,7 +345,7 @@ public:
         return totalNumberOfPanels_;
     }
 
-    void saveLocalComputations( const std::string sourceName, const bool saveCosines );
+    void saveLocalComputations( const std::string sourceName, const bool saveCosines ) override ;
 
 private:
     void updateMembers_( double currentTime ) override;
