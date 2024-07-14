@@ -151,6 +151,59 @@ void expose_gravity_field_variation_setup(py::module &m) {
           py::arg("love_number_per_degree_and_order"),
           get_docstring("solid_body_tide_degree_order_variable_complex_k").c_str() );
 
+    m.def("solid_body_tide_degree_order_variable_complex_k",
+          py::overload_cast<const std::string, const std::map<int, std::vector<std::complex<double> > > >(
+              &tss::degreeOrderVariableLoveNumberGravityFieldVariationSettingsPy),
+          py::arg("tide_raising_body"),
+          py::arg("love_number_per_degree_and_order"),
+          get_docstring("solid_body_tide_degree_order_variable_complex_k").c_str() );
+
+    m.def("single_period_periodic",
+          py::overload_cast< const Eigen::MatrixXd&, const Eigen::MatrixXd&, const double,
+                             const double, const double, const int, const int>(
+              &tss::periodicGravityFieldVariationsSettings),
+          py::arg("cosine_amplitude"),
+          py::arg("sine_amplitude"),
+          py::arg("frequency"),
+          py::arg("phase"),
+          py::arg("reference_epoch"),
+          py::arg("minimum_degree") = 2,
+          py::arg("minimum_order") = 0,
+          get_docstring("single_period_periodic").c_str() );
+
+    m.def("periodic",
+          py::overload_cast< const std::vector< Eigen::MatrixXd >&, const std::vector< Eigen::MatrixXd >&,
+                             const std::vector< double >&, const std::vector< double >&, const double, const int, const int>(
+              &tss::periodicGravityFieldVariationsSettings),
+          py::arg("cosine_amplitudes"),
+          py::arg("sine_amplitudes"),
+          py::arg("frequencies"),
+          py::arg("phases"),
+          py::arg("reference_epoch"),
+          py::arg("minimum_degree") = 2,
+          py::arg("minimum_order") = 0,
+          get_docstring("single_period_periodic").c_str() );
+
+    m.def("single_power_polynomial",
+          &tss::polynomialGravityFieldVariationsSettingsSinglePower,
+          py::arg("cosine_amplitudes"),
+          py::arg("sine_amplitudes"),
+          py::arg("polynomial_power"),
+          py::arg("reference_epoch"),
+          py::arg("minimum_degree") = 2,
+          py::arg("minimum_order") = 0,
+          get_docstring("single_power_polynomial").c_str() );
+
+    m.def("polynomial",
+          &tss::polynomialGravityFieldVariationsSettings,
+          py::arg("cosine_amplitudes_per_power"),
+          py::arg("sine_amplitudes_per_power"),
+          py::arg("reference_epoch"),
+          py::arg("minimum_degree") = 2,
+          py::arg("minimum_order") = 0,
+          get_docstring("polynomial").c_str() );
+
+
     m.def("tabulated",
           &tss::tabulatedGravityFieldVariationSettings,
           py::arg("cosine_variations_table"),
