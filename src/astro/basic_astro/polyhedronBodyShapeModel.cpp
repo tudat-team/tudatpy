@@ -24,6 +24,7 @@ double PolyhedronBodyShapeModel::getAltitude( const Eigen::Vector3d& bodyFixedPo
     // Compute distance to closest vertex and closest vertex id
     unsigned int closestVertex;
     double distanceToVertex = computeDistanceToClosestVertex( bodyFixedPosition, closestVertex );
+    std::cout<<"RETRIEVING ALTITUDE "<<std::endl;
 
     std::cout<<"Polyhedron shape "<<justComputeDistanceToVertices_<<" "<<bodyFixedPosition.transpose( )<<std::endl;
     // Compute altitude using just the distance to the vertices
@@ -145,6 +146,7 @@ double PolyhedronBodyShapeModel::getAltitude( const Eigen::Vector3d& bodyFixedPo
         std::cout<<"Altitude minus sign post "<<altitude<<std::endl;
     }
 
+    std::cout<<"RETURNING ALTITUDE "<<altitude<<std::endl<<std::endl;
     return altitude;
 }
 
