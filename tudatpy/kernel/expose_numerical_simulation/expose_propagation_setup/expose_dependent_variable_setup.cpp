@@ -738,10 +738,36 @@ namespace dependent_variable {
               py::arg("source_body"),
               get_docstring("received_irradiance_shadow_function").c_str());
 
+        m.def("vehicle_panel_surface_normals_inertial_frame",
+              &tp::vehiclePanelInertialSurfaceNormals,
+              py::arg("body_name"),
+              py::arg("part_name") = "",
+              get_docstring("vehicle_panel_surface_normals_inertial_frame").c_str());
 
+        m.def("vehicle_panel_surface_normals_body_fixed_frame",
+              &tp::vehiclePanelInertialSurfaceNormals,
+              py::arg("body_name"),
+              py::arg("part_name") = "",
+              get_docstring("vehicle_panel_surface_normals_body_fixed_frame").c_str());
 
+        m.def("per_target_panel_radiation_pressure_force",
+              &tp::vehiclePanelInertialSurfaceNormals,
+              py::arg("target_name"),
+              py::arg("source_name"),
+              get_docstring("per_vehicle_panel_radiation_pressure_force").c_str());
 
-    }
+        m.def("radiation_pressure_source_panel_irradiance",
+              &tp::paneledRadiationSourcePerPanelIrradiance,
+              py::arg("target_name"),
+              py::arg("source_name"),
+              get_docstring("radiation_pressure_source_panel_irradiance").c_str());
+
+        m.def("radiation_pressure_source_panel_geometry",
+              &tp::paneledRadiationSourceGeometry,
+              py::arg("target_name"),
+              py::arg("source_name"),
+              get_docstring("radiation_pressure_source_panel_geometry").c_str());
+
 
 }// namespace dependent_variable
 }// namespace propagation_setup
