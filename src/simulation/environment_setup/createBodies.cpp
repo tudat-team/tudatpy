@@ -72,8 +72,12 @@ void addRadiationPressureTargetModel(
     {
         throw std::runtime_error( "Error when setting radiation pressure target model for body "+ bodyName + ", body is not found in system of bodies" );
     }
-    bodies.at( bodyName )->setRadiationPressureTargetModel(
-        createRadiationPressureTargetModel( radiationPressureSettings, bodyName, bodies ) );
+    if( radiationPressureSettings->getRadiationPressureTargetModelType( ) == multi_type_target )
+    {
+        throw std::runtime_error( "Error, cannot add multi-type radiation pressure targer models (add them separately)" );
+    }
+    bodies.at( bodyName )->addRadiationPressureTargetModel(
+        createRadiationPressureTargetModel( radiationPressureSettings, bodyName, bodies ).at( 0 ) );
 
 }
 

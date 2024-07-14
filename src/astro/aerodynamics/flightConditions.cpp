@@ -105,11 +105,7 @@ void AtmosphericFlightConditions::setAerodynamicCoefficientsIndependentVariableF
         const AerodynamicCoefficientsIndependentVariables independentVariable,
         const std::function< double( ) > coefficientDependency )
 {
-    if( ( independentVariable == mach_number_dependent ) ||
-            ( independentVariable == angle_of_attack_dependent ) ||
-            ( independentVariable == angle_of_sideslip_dependent )||
-            ( independentVariable == altitude_dependent ) ||
-            ( independentVariable == time_dependent ) )
+    if( ( independentVariable != undefined_independent_variable ) && independentVariable != control_surface_deflection_dependent )
     {
         throw std::runtime_error(
                     std::string( "Error when setting aerodynamic coefficient function dependency, value of parameter " ) +
@@ -209,6 +205,41 @@ double AtmosphericFlightConditions::getAerodynamicCoefficientIndependentVariable
     case time_dependent:
         currentIndependentVariable = currentTime_;
         break;
+    case temperature_dependent:
+        currentIndependentVariable = getCurrentFreestreamTemperature( );
+        break;
+    case velocity_dependent:
+        currentIndependentVariable = getCurrentAirspeed( );
+        break;
+
+
+    // number density of atmospheric species
+    case he_number_density_dependent:
+        currentIndependentVariable = getCurrentNumberDensity( he_species );
+        break;
+    case o_number_density_dependent:
+        currentIndependentVariable = getCurrentNumberDensity( o_species );
+        break;
+    case n2_number_density_dependent:
+        currentIndependentVariable = getCurrentNumberDensity( n2_species );
+        break;
+    case o2_number_density_dependent:
+        currentIndependentVariable = getCurrentNumberDensity( o2_species );
+        break;
+    case ar_number_density_dependent:
+        currentIndependentVariable = getCurrentNumberDensity( ar_species );
+        break;
+    case h_number_density_dependent:
+        currentIndependentVariable = getCurrentNumberDensity( h_species );
+        break;
+    case n_number_density_dependent:
+        currentIndependentVariable = getCurrentNumberDensity( n_species );
+        break;
+    case anomalous_o_number_density_dependent:
+        currentIndependentVariable = getCurrentNumberDensity( anomalous_o_species );
+        break;
+
+
     case control_surface_deflection_dependent:
     {
         try
