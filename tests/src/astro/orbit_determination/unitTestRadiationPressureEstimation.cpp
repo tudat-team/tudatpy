@@ -94,7 +94,7 @@ BOOST_AUTO_TEST_CASE( test_RadiationPressurePartialsFromEstimation)
     bodySettings.get( spacecraftName )->rotationModelSettings = constantRotationModelSettings( "J2000", spacecraftName + "_Fixed", Eigen::Matrix3d::Identity( ) );
 
     // Test for separate source, and double source
-    for ( unsigned int test = 0; test < 6; test++ )
+    for ( unsigned int test = 0; test < 8; test++ )
     {
         // Create bodies
         SystemOfBodies bodies = createSystemOfBodies<long double, Time>( bodySettings );
@@ -104,19 +104,19 @@ BOOST_AUTO_TEST_CASE( test_RadiationPressurePartialsFromEstimation)
         // Set accelerations between bodies that are to be taken into account.
         SelectedAccelerationMap accelerationMap;
         std::map<std::string, std::vector<std::shared_ptr<AccelerationSettings> > > accelerationsOfSpacecraft;
-        if( test == 0 || test == 2 )
+        if( test == 0 || test == 2 || test == 6 )
         {
             accelerationsOfSpacecraft[ "Sun" ].push_back( std::make_shared<RadiationPressureAccelerationSettings>( cannonball_target ));
         }
-        if( test == 1 || test == 2 )
+        if( test == 1 || test == 2  || test == 7 )
         {
             accelerationsOfSpacecraft[ "Moon" ].push_back( std::make_shared<RadiationPressureAccelerationSettings>( cannonball_target ));
         }
-        if( test == 3 || test == 5 )
+        if( test == 3 || test == 5  || test == 7 )
         {
             accelerationsOfSpacecraft[ "Sun" ].push_back( std::make_shared<RadiationPressureAccelerationSettings>( paneled_target ));
         }
-        if( test == 4 || test == 5 )
+        if( test == 4 || test == 5  || test == 6 )
         {
             accelerationsOfSpacecraft[ "Moon" ].push_back( std::make_shared<RadiationPressureAccelerationSettings>( paneled_target ));
         }
@@ -142,7 +142,7 @@ BOOST_AUTO_TEST_CASE( test_RadiationPressurePartialsFromEstimation)
         // Create parameters
         std::vector<std::shared_ptr<EstimatableParameterSettings> > parameterNames =
             getInitialStateParameterSettings<long double, Time>( propagatorSettings, bodies );
-        if( test < 3 )
+        if( test < 3 || test > 5 )
         {
             std::vector<std::shared_ptr<estimatable_parameters::EstimatableParameterSettings> > additionalParameterNames;
             parameterNames.push_back( estimatable_parameters::radiationPressureCoefficient( "GRAIL-A" ));
@@ -158,13 +158,16 @@ BOOST_AUTO_TEST_CASE( test_RadiationPressurePartialsFromEstimation)
 
         // Iterate over all parameters
         auto nominalParameters = parametersToEstimate->getFullParameterValues<long double>( );
-        for( unsigned int parameterIndex = 0; parameterIndex < parametersToEstimate->getParameterSetSize( ); parameterIndex++ )
+        for( unsigned int parameterIndex = 0; parameterIndex < static_cast< unsigned int >( parametersToEstimate->getParameterSetSize( ) ); parameterIndex++ )
         {
+            std::cout<<test<<" "<<parameterIndex<<std::endl;
+
+
             // Parameter perturbations and tolerances determined empirically to be acceptable
             int scalingIndex = 4;
             double toleranceStates = 1E-4;
             double toleranceParameter = 1E-12;
-            if( test % 3 > 0 )
+            if( test % 3 > 0|| test == 6 )
             {
                 scalingIndex = 2;
                 toleranceParameter = 1.0E-7;
@@ -220,6 +223,8 @@ BOOST_AUTO_TEST_CASE( test_RadiationPressurePartialsFromEstimation)
             // Test current parameter
             int matrixColumn = parameterIndex < 6 ? parameterIndex : parameterIndex - 6;
 
+//            std::cout<<"Analytical "<<std::endl<<it->second<<std::endl;
+
             // Compare values
             Eigen::VectorXd analyticalValue = it->second.block( 0, matrixColumn, 6, 1 );
             Eigen::VectorXd numericalValue =
@@ -248,8 +253,8 @@ BOOST_AUTO_TEST_CASE( test_RadiationPressurePartialsFromEstimation)
                 TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalValue, analyticalValue, toleranceParameter );
             }
 
-                    Eigen::VectorXd ratio = ( numericalValue - analyticalValue ).cwiseQuotient( analyticalValue );
-                    std::cout<<ratio.segment( 0, 3 ).maxCoeff( )<<" "<<ratio.segment( 3, 3 ).maxCoeff( )<<" "<<ratio( 6 )<<std::endl;
+//                    Eigen::VectorXd ratio = ( numericalValue - analyticalValue ).cwiseQuotient( analyticalValue );
+//                    std::cout<<ratio.segment( 0, 3 ).maxCoeff( )<<" "<<ratio.segment( 3, 3 ).maxCoeff( )<<" "<<ratio( 6 )<<std::endl;
         }
 
     }

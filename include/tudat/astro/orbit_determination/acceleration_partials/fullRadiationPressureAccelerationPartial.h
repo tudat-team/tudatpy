@@ -182,12 +182,8 @@ public:
                 partialFunction = std::bind( &RadiationPressureAccelerationPartial::wrtRadiationPressureCoefficient,
                                              this, std::placeholders::_1, std::dynamic_pointer_cast<electromagnetism::CannonballRadiationPressureTargetModel>(
                         radiationPressureAcceleration_->getTargetModel( ) ) );
+                parameterSize = 1;
             }
-            else
-            {
-                throw std::runtime_error( "Error in radiation pressure partial for " + acceleratedBody_ + ", requested partial w.r.t. Cr, but no cannonball target found" );
-            }
-            parameterSize = 1;
         }
         // Check if parameter dependency exists.
         else if( parameter->getParameterName( ).second.first == acceleratedBody_ && parameter->getParameterName( ).second.second == acceleratingBody_ )
