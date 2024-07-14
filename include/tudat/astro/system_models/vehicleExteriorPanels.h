@@ -17,7 +17,6 @@
 #include <memory>
 
 #include "tudat/astro/electromagnetism/reflectionLaw.h"
-#include "tudat/astro/aerodynamics/rarefiedFlowInteractionModel.h"
 #include "tudat/astro/ephemerides/rotationalEphemeris.h"
 #include "tudat/astro/system_models/engineModel.h"
 
@@ -117,11 +116,6 @@ public:
         return reflectionLaw_;
     }
 
-    std::shared_ptr< aerodynamics::RarefiedFlowInteractionModel > getRarefiedFlowInteractionModel( ) const
-    {
-        return rarefiedFlowInteractionModel_;
-    }
-
     std::function< Eigen::Vector3d( ) > getFrameFixedSurfaceNormal( ) const
     {
         return frameFixedSurfaceNormal_;
@@ -160,8 +154,6 @@ protected:
     std::string trackedBody_;
 
     std::shared_ptr< electromagnetism::ReflectionLaw > reflectionLaw_;
-
-    std::shared_ptr< aerodynamics::RarefiedFlowInteractionModel > rarefiedFlowInteractionModel_;
 
 };
 
