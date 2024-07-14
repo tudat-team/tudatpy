@@ -142,6 +142,19 @@ void expose_estimated_parameter_setup(py::module &m) {
           py::arg("arc_initial_times"),
           get_docstring("arcwise_radiation_pressure_coefficient").c_str() );
 
+
+    m.def("radiation_pressure_target_direction_scaling",
+          &tep::radiationPressureTargetDirectionScaling,
+          py::arg("target_body"),
+          py::arg("source_body"),
+          get_docstring("radiation_pressure_target_direction_scaling").c_str() );
+
+    m.def("radiation_pressure_target_perpendicular_direction_scaling",
+          &tep::radiationPressureTargetPerpendicularDirectionScaling,
+          py::arg("target_body"),
+          py::arg("source_body"),
+          get_docstring("radiation_pressure_target_perpendicular_direction_scaling").c_str() );
+
     m.def("constant_empirical_acceleration_terms",
           &tep::constantEmpiricalAccelerationMagnitudes,
           py::arg("body"),
