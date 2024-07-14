@@ -442,7 +442,7 @@ public:
         return numberOfPanels;
     }
 
-    std::vector< Eigen::Vector7d > getCurrentPanelGeomtry( );
+    std::vector< Eigen::Vector7d > getCurrentPanelGeomtry( ) override ;
 
 private:
     void updateMembers_(double currentTime) override;
