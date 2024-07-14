@@ -49,10 +49,20 @@ enum AerodynamicCoefficientsIndependentVariables
     angle_of_sideslip_dependent = 2,
     altitude_dependent = 3,
     time_dependent = 4,
-    control_surface_deflection_dependent = 5,
-    undefined_independent_variable = 6
+    temperature_dependent = 5,
+    velocity_dependent = 6,
+    he_number_density_dependent = 7,
+    o_number_density_dependent = 8,
+    n2_number_density_dependent = 9,
+    o2_number_density_dependent = 10,
+    ar_number_density_dependent = 11,
+    h_number_density_dependent = 12,
+    n_number_density_dependent = 13,
+    anomalous_o_number_density_dependent = 14,
+    control_surface_deflection_dependent = 15,
+    undefined_independent_variable = 16
 };
-
+ 
 //! Function to combined the force and moment coefficients from separate function pointers.
 /*!
  *  Function to combined the force and moment coefficients from separate function pointers.

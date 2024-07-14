@@ -13,6 +13,7 @@
 
 #include "tudat/astro/electromagnetism/radiationPressureAcceleration.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/accelerationPartial.h"
+#include "tudat/astro/orbit_determination/acceleration_partials/radiationPressureAccelerationPartial.h"
 
 namespace tudat
 {
@@ -181,12 +182,33 @@ public:
                 partialFunction = std::bind( &RadiationPressureAccelerationPartial::wrtRadiationPressureCoefficient,
                                              this, std::placeholders::_1, std::dynamic_pointer_cast<electromagnetism::CannonballRadiationPressureTargetModel>(
                         radiationPressureAcceleration_->getTargetModel( ) ) );
+                parameterSize = 1;
             }
-            else
+        }
+        // Check if parameter dependency exists.
+        else if( parameter->getParameterName( ).second.first == acceleratedBody_ && parameter->getParameterName( ).second.second == acceleratingBody_ )
+        {
+            switch( parameter->getParameterName( ).first )
             {
-                throw std::runtime_error( "Error in radiation pressure partial for " + acceleratedBody_ + ", requested partial w.r.t. Cr, but no cannonball target found" );
+            case estimatable_parameters::source_direction_radiation_pressure_scaling_factor:
+
+                partialFunction = std::bind( &computeRadiationPressureAccelerationWrtSourceDirectionScaling,
+                                             radiationPressureAcceleration_,
+                                             std::placeholders::_1 );
+                parameterSize = 1;
+
+                break;
+            case estimatable_parameters::source_perpendicular_direction_radiation_pressure_scaling_factor:
+
+                partialFunction = std::bind( &computeRadiationPressureAccelerationWrtSourcePerpendicularDirectionScaling,
+                                             radiationPressureAcceleration_,
+                                             std::placeholders::_1 );
+                parameterSize = 1;
+
+                break;
+            default:
+                break;
             }
-            parameterSize = 1;
         }
 
         return std::make_pair( partialFunction, parameterSize );
