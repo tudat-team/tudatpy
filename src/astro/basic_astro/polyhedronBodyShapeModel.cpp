@@ -181,7 +181,7 @@ double PolyhedronBodyShapeModel::computeDistanceToClosestFacet (
     const unsigned int numberOfFacets = verticesDefiningEachFacetToEvaluate.rows();
 
     // Initialize distance: initial value set to NAN
-    double distance = TUDAT_NAN;
+    double distance = std::numeric_limits< double >::max( );
 
     for ( unsigned int facet = 0; facet < numberOfFacets; ++facet )
     {
@@ -209,13 +209,8 @@ double PolyhedronBodyShapeModel::computeDistanceToClosestFacet (
         {
             // Compute absolute value of distance
             d = std::abs( d );
-            // If there was no previous valid distance value: save d
-            if ( std::isnan( distance ) )
-            {
-                distance = d;
-            }
             // If d is smaller than the previous distance value: save d
-            else if ( d < distance )
+            if ( d < distance )
             {
                 distance = d;
             }
