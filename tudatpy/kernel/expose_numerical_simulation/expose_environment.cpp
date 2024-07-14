@@ -135,6 +135,30 @@ void expose_environment(py::module &m) {
                         get_docstring("AerodynamicCoefficientsIndependentVariables.altitude_dependent").c_str())
             .value("time_dependent", ta::AerodynamicCoefficientsIndependentVariables::time_dependent,
                         get_docstring("AerodynamicCoefficientsIndependentVariables.time_dependent").c_str())
+            .value("temperature_dependent", ta::AerodynamicCoefficientsIndependentVariables::temperature_dependent,
+                   get_docstring("AerodynamicCoefficientsIndependentVariables.temperature_dependent").c_str())
+            .value("time_dependent", ta::AerodynamicCoefficientsIndependentVariables::time_dependent,
+                   get_docstring("AerodynamicCoefficientsIndependentVariables.time_dependent").c_str())
+            .value("velocity_dependent", ta::AerodynamicCoefficientsIndependentVariables::velocity_dependent,
+                   get_docstring("AerodynamicCoefficientsIndependentVariables.velocity_dependent").c_str())
+            .value("time_dependent", ta::AerodynamicCoefficientsIndependentVariables::time_dependent,
+                   get_docstring("AerodynamicCoefficientsIndependentVariables.time_dependent").c_str())
+            .value("he_number_density_dependent", ta::AerodynamicCoefficientsIndependentVariables::he_number_density_dependent,
+                   get_docstring("AerodynamicCoefficientsIndependentVariables.he_number_density_dependent").c_str())
+            .value("o_number_density_dependent", ta::AerodynamicCoefficientsIndependentVariables::o_number_density_dependent,
+                   get_docstring("AerodynamicCoefficientsIndependentVariables.o_number_density_dependent").c_str())
+            .value("n2_number_density_dependent", ta::AerodynamicCoefficientsIndependentVariables::n2_number_density_dependent,
+                   get_docstring("AerodynamicCoefficientsIndependentVariables.n2_number_density_dependent").c_str())
+            .value("o2_number_density_dependent", ta::AerodynamicCoefficientsIndependentVariables::o2_number_density_dependent,
+                   get_docstring("AerodynamicCoefficientsIndependentVariables.o2_number_density_dependent").c_str())
+            .value("ar_number_density_dependent", ta::AerodynamicCoefficientsIndependentVariables::ar_number_density_dependent,
+                   get_docstring("AerodynamicCoefficientsIndependentVariables.ar_number_density_dependent").c_str())
+            .value("h_number_density_dependent", ta::AerodynamicCoefficientsIndependentVariables::h_number_density_dependent,
+                   get_docstring("AerodynamicCoefficientsIndependentVariables.h_number_density_dependent").c_str())
+            .value("n_number_density_dependent", ta::AerodynamicCoefficientsIndependentVariables::n_number_density_dependent,
+                   get_docstring("AerodynamicCoefficientsIndependentVariables.n_number_density_dependent").c_str())
+            .value("anomalous_o_number_density_dependent", ta::AerodynamicCoefficientsIndependentVariables::anomalous_o_number_density_dependent,
+                   get_docstring("AerodynamicCoefficientsIndependentVariables.anomalous_o_number_density_dependent").c_str())
             .value("control_surface_deflection_dependent", ta::AerodynamicCoefficientsIndependentVariables::control_surface_deflection_dependent,
                         get_docstring("AerodynamicCoefficientsIndependentVariables.control_surface_deflection_dependent").c_str())
             .value("undefined_independent_variable", ta::AerodynamicCoefficientsIndependentVariables::undefined_independent_variable,
