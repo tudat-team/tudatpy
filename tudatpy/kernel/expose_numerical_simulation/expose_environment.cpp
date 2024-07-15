@@ -137,12 +137,8 @@ void expose_environment(py::module &m) {
                         get_docstring("AerodynamicCoefficientsIndependentVariables.time_dependent").c_str())
             .value("temperature_dependent", ta::AerodynamicCoefficientsIndependentVariables::temperature_dependent,
                    get_docstring("AerodynamicCoefficientsIndependentVariables.temperature_dependent").c_str())
-            .value("time_dependent", ta::AerodynamicCoefficientsIndependentVariables::time_dependent,
-                   get_docstring("AerodynamicCoefficientsIndependentVariables.time_dependent").c_str())
             .value("velocity_dependent", ta::AerodynamicCoefficientsIndependentVariables::velocity_dependent,
                    get_docstring("AerodynamicCoefficientsIndependentVariables.velocity_dependent").c_str())
-            .value("time_dependent", ta::AerodynamicCoefficientsIndependentVariables::time_dependent,
-                   get_docstring("AerodynamicCoefficientsIndependentVariables.time_dependent").c_str())
             .value("he_number_density_dependent", ta::AerodynamicCoefficientsIndependentVariables::he_number_density_dependent,
                    get_docstring("AerodynamicCoefficientsIndependentVariables.he_number_density_dependent").c_str())
             .value("o_number_density_dependent", ta::AerodynamicCoefficientsIndependentVariables::o_number_density_dependent,
