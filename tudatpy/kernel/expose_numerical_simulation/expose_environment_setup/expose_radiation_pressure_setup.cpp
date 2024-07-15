@@ -47,6 +47,13 @@ namespace radiation_pressure {
 //                       tss::RadiationPressureType::solar_sailing_radiation_pressure_interface,
 //                       get_docstring("RadiationPressureType.solar_sailing_radiation_pressure_interface").c_str())
                 .export_values();
+        py::enum_<tss::RadiationPressureTargetModelType>(m, "RadiationPressureTargetModelType",
+                                              get_docstring("RadiationPressureTargetModelType").c_str())
+            .value("cannonball_target", tss::RadiationPressureTargetModelType::cannonball_target, get_docstring("RadiationPressureType.cannonball_target").c_str())
+            .value("paneled_target", tss::RadiationPressureTargetModelType::paneled_target, get_docstring("RadiationPressureType.paneled_target").c_str())
+            .value("multi_type_target", tss::RadiationPressureTargetModelType::multi_type_target, get_docstring("RadiationPressureType.multi_type_target").c_str())
+            .value("undefined_target", tss::RadiationPressureTargetModelType::undefined_target, get_docstring("RadiationPressureType.undefined_target").c_str())
+            .export_values();
 
 
         py::class_<tss::RadiationPressureInterfaceSettings,
