@@ -25,10 +25,11 @@ class PeriodicGravityFieldVariations: public GravityFieldVariations
 {
 public:
     PeriodicGravityFieldVariations(
-            const std::vector< Eigen::MatrixXd >& cosineAmplitudes,
-            const std::vector< Eigen::MatrixXd >& sineAmplitudes,
+            const std::vector< Eigen::MatrixXd >& cosineShAmplitudesCosineTime,
+            const std::vector< Eigen::MatrixXd >& cosineShAmplitudesSineTime,
+            const std::vector< Eigen::MatrixXd >& sineShAmplitudesCosineTime,
+            const std::vector< Eigen::MatrixXd >& sineShAmplitudesSineTime,
             const std::vector< double >& frequencies,
-            const std::vector< double >& phases,
             const double referenceEpoch,
             const int minimumDegree = 2,
             const int minimumOrder = 0 );
@@ -39,15 +40,67 @@ public:
             const double time );
 
 
+    std::vector< Eigen::MatrixXd > getCosineShAmplitudesCosineTime( )
+    {
+        return cosineShAmplitudesCosineTime_;
+    }
+
+    std::vector< Eigen::MatrixXd > getCosineShAmplitudesSineTime( )
+    {
+        return cosineShAmplitudesSineTime_;
+    }
+
+    std::vector< Eigen::MatrixXd > getSineShAmplitudesCosineTime( )
+    {
+        return sineShAmplitudesCosineTime_;
+    }
+
+    std::vector< Eigen::MatrixXd > getSineShAmplitudesSineTime( )
+    {
+        return sineShAmplitudesSineTime_;
+    }
+
+    void resetCosineShAmplitudesCosineTime( const std::vector< Eigen::MatrixXd >& cosineShAmplitudesCosineTime )
+    {
+        cosineShAmplitudesCosineTime_ = cosineShAmplitudesCosineTime;
+    }
+
+    void resetCosineShAmplitudesSineTime( const std::vector< Eigen::MatrixXd >& cosineShAmplitudesSineTime )
+    {
+        cosineShAmplitudesSineTime_ = cosineShAmplitudesSineTime;
+    }
+
+    void resetSineShAmplitudesCosineTime( const std::vector< Eigen::MatrixXd >& sineShAmplitudesCosineTime )
+    {
+        sineShAmplitudesCosineTime_ = sineShAmplitudesCosineTime;
+    }
+
+    void resetSineShAmplitudesSineTime( const std::vector< Eigen::MatrixXd >& sineShAmplitudesSineTime )
+    {
+        sineShAmplitudesSineTime_ = sineShAmplitudesSineTime;
+    }
+
+    std::vector< double > getFrequencies( )
+    {
+        return frequencies_;
+    }
+
+    double getReferenceEpoch( )
+    {
+        return referenceEpoch_;
+    }
+
 protected:
 
-    const std::vector< Eigen::MatrixXd > cosineAmplitudes_;
+    std::vector< Eigen::MatrixXd > cosineShAmplitudesCosineTime_;
 
-    const std::vector< Eigen::MatrixXd > sineAmplitudes_;
+    std::vector< Eigen::MatrixXd > cosineShAmplitudesSineTime_;
+
+    std::vector< Eigen::MatrixXd > sineShAmplitudesCosineTime_;
+
+    std::vector< Eigen::MatrixXd > sineShAmplitudesSineTime_;
 
     const std::vector< double > frequencies_;
-
-    const std::vector< double > phases_;
 
     const double referenceEpoch_;
 
