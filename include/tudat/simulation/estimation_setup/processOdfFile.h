@@ -897,6 +897,10 @@ inline void setTransmittingFrequenciesInGroundStations(
     for( auto it = processedOdfFileContents->getRampInterpolators( ).begin( );
             it != processedOdfFileContents->getRampInterpolators( ).end( ); it++ )
     {
+        if( bodyWithGroundStations->getGroundStationMap( ).count( it->first ) == 0 )
+        {
+            throw std::runtime_error( "Error when setting frequencies for station " + it->first + ", station not found." );
+        }
        bodyWithGroundStations->getGroundStation( it->first )->setTransmittingFrequencyCalculator( it->second );
     }
 }
