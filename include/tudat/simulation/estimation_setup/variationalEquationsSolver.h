@@ -599,7 +599,7 @@ bool checkMultiArcPropagatorSettingsAndParameterEstimationConsistency(
         {
             auto currentListToTest = propagatedBodiesPerArc.at( i );
             auto itr = std::find( currentListToTest.begin( ), currentListToTest.end( ), estimatedBodiesPerArc.at( i ).at( j ) );
-            if ( itr == estimatedBodiesPerArc.at( i ).end( ) )
+            if ( itr == currentListToTest.end( ) )
             {
                 isInputConsistent = false;
                 std::string currentPropagatedBodies = "";
