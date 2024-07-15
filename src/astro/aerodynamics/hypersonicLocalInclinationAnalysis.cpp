@@ -166,7 +166,6 @@ void saveVehicleMeshToFile(
 //                pressureCoefficientsList, filePrefix + "pressureCoefficientFile.dat", directory );
 }
 
-
 //! Default constructor.
 HypersonicLocalInclinationAnalysis::HypersonicLocalInclinationAnalysis(
         const std::vector< std::vector< double > >& dataPointsOfIndependentVariables,

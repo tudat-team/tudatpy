@@ -780,7 +780,7 @@ public:
                 std::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, Eigen::VectorXd > >( ),
                 propagatorSettings_->getDependentVariablesToSave( ),
                 dependentVariableIds_,
-                orderedDependentVariableSettings_ );
+                orderedDependentVariableSettings_, bodies );
 
         propagationResults_= std::make_shared< SingleArcSimulationResults< StateScalarType, TimeType > >(
                     integratedStateAndBodyList, propagatorSettings_->getOutputSettingsWithCheck( ),

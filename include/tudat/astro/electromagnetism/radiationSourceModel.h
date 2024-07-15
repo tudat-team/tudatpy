@@ -62,7 +62,11 @@ class SourcePanelRadiosityModelUpdater;
 class RadiationSourceModel
 {
 public:
-    explicit RadiationSourceModel() = default;
+    explicit RadiationSourceModel( const std::string& sourceName = "" ):
+    sourceName_( sourceName )
+    {
+
+    }
 
     virtual ~RadiationSourceModel() = default;
 
@@ -94,10 +98,17 @@ public:
     double evaluateTotalIrradianceAtPosition(
             const Eigen::Vector3d& targetPosition);
 
+    std::string getSourceName( )
+    {
+        return sourceName_;
+    }
+
 protected:
     virtual void updateMembers_(const double currentTime) {};
 
     double currentTime_{TUDAT_NAN};
+
+    std::string sourceName_;
 };
 
 //*********************************************************************************************
@@ -119,7 +130,9 @@ public:
      * @param luminosityModel Luminosity model of this source
      */
     explicit IsotropicPointRadiationSourceModel(
-            const std::shared_ptr<LuminosityModel>& luminosityModel) :
+            const std::shared_ptr<LuminosityModel>& luminosityModel,
+            const std::string& sourceName = "" ):
+        RadiationSourceModel( sourceName ),
         luminosityModel_(luminosityModel) {}
 
     IrradianceWithSourceList evaluateIrradianceAtPosition(const Eigen::Vector3d& targetPosition) override;
@@ -274,16 +287,19 @@ public:
      */
     explicit PaneledRadiationSourceModel(
             const std::shared_ptr<basic_astrodynamics::BodyShapeModel>& sourceBodyShapeModel,
-            std::unique_ptr<SourcePanelRadiosityModelUpdater> sourcePanelRadiosityModelUpdater) :
-                sourceBodyShapeModel_(sourceBodyShapeModel),
-                sourcePanelRadiosityModelUpdater_(std::move(sourcePanelRadiosityModelUpdater)) {}
+            std::unique_ptr<SourcePanelRadiosityModelUpdater> sourcePanelRadiosityModelUpdater,
+            const std::string& sourceName = "" ) :
+        RadiationSourceModel( sourceName ),
+        sourceBodyShapeModel_(sourceBodyShapeModel),
+        sourcePanelRadiosityModelUpdater_(std::move(sourcePanelRadiosityModelUpdater)) {}
 
     /*!
      * Constructor for shape-oblivious paneled source. No knowledge of shape necessary if panels are given manually.
      */
     explicit PaneledRadiationSourceModel(
-            std::unique_ptr<SourcePanelRadiosityModelUpdater> sourcePanelRadiosityModelUpdater) :
-                PaneledRadiationSourceModel(nullptr, std::move(sourcePanelRadiosityModelUpdater)) {}
+            std::unique_ptr<SourcePanelRadiosityModelUpdater> sourcePanelRadiosityModelUpdater,
+            const std::string& sourceName = "" ) :
+                PaneledRadiationSourceModel(nullptr, std::move(sourcePanelRadiosityModelUpdater),sourceName) {}
 
     IrradianceWithSourceList evaluateIrradianceAtPosition(const Eigen::Vector3d& targetPosition) override;
 
@@ -309,6 +325,9 @@ public:
     {
         return sourcePanelRadiosityModelUpdater_;
     }
+
+    virtual std::vector< Eigen::Vector7d > getCurrentPanelGeomtry( ){ return std::vector< Eigen::Vector7d >( ); }
+
 
 protected:
     std::shared_ptr<basic_astrodynamics::BodyShapeModel> sourceBodyShapeModel_;
@@ -341,7 +360,8 @@ public:
      */
     explicit StaticallyPaneledRadiationSourceModel(
             std::unique_ptr<SourcePanelRadiosityModelUpdater> sourcePanelRadiosityModelUpdater,
-            std::vector<RadiationSourcePanel> panels) :
+            std::vector<RadiationSourcePanel> panels,
+            const std::string& sourceName = "") :
             PaneledRadiationSourceModel(std::move(sourcePanelRadiosityModelUpdater)),
             numberOfPanels(panels.size()),
             panels_(std::move(panels)) {}
@@ -407,7 +427,8 @@ public:
             const std::shared_ptr<basic_astrodynamics::BodyShapeModel>& sourceBodyShapeModel,
             std::unique_ptr<SourcePanelRadiosityModelUpdater> sourcePanelRadiosityModelUpdater,
             const std::vector<std::unique_ptr<SourcePanelRadiosityModel>>& baseRadiosityModels,
-            const std::vector<int>& numberOfPanelsPerRing);
+            const std::vector<int>& numberOfPanelsPerRing,
+            const std::string& sourceName = "");
 
     IrradianceWithSourceList evaluateIrradianceAtPosition(const Eigen::Vector3d& targetPosition) override;
 
@@ -420,6 +441,8 @@ public:
     {
         return numberOfPanels;
     }
+
+    std::vector< Eigen::Vector7d > getCurrentPanelGeomtry( ) override ;
 
 private:
     void updateMembers_(double currentTime) override;

@@ -31,6 +31,7 @@ namespace tudat
 namespace unit_tests
 {
 
+using namespace tudat;
 using namespace tudat::electromagnetism;
 
 BOOST_AUTO_TEST_SUITE(test_radiation_pressure_target_model)
@@ -43,9 +44,10 @@ BOOST_AUTO_TEST_CASE( testCannonballRadiationPressureTargetModelAtAU )
 
     CannonballRadiationPressureTargetModel targetModel(1, 1);
 
-    const auto actualForce = targetModel.evaluateRadiationPressureForce(
+    const auto actualForce = targetModel.updateAndGetRadiationPressureForce(
             1367,
-            Eigen::Vector3d::UnitX());
+            Eigen::Vector3d::UnitX(),
+            true);
 
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(actualForce, expectedForce, 0.01);
 }
@@ -59,9 +61,10 @@ BOOST_AUTO_TEST_CASE( testCannonballRadiationPressureTargetModelGaneff )
 
     const auto sourceIrradiance = 683.5;  // at (1 AU, 1 AU, 0) from Sun
     const auto sourceToTargetDirection = Eigen::Vector3d(-1, -1, 0).normalized();
-    const auto actualForce = targetModel.evaluateRadiationPressureForce(
+    const auto actualForce = targetModel.updateAndGetRadiationPressureForce(
             sourceIrradiance,
-            sourceToTargetDirection);
+            sourceToTargetDirection,
+            true);
 
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(actualForce, expectedForce, 1e-3);
 }
@@ -75,9 +78,10 @@ BOOST_AUTO_TEST_CASE( testCannonballRadiationPressureTargetModelZeroCoeff )
 
     const auto sourceIrradiance = 1367;
     const auto sourceToTargetDirection = Eigen::Vector3d(-1, -1, 0).normalized();
-    const auto actualForce = targetModel.evaluateRadiationPressureForce(
+    const auto actualForce = targetModel.updateAndGetRadiationPressureForce(
             sourceIrradiance,
-            sourceToTargetDirection);
+            sourceToTargetDirection,
+            true);
 
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(actualForce, expectedForce, 1e-15);
 }
@@ -98,9 +102,10 @@ BOOST_AUTO_TEST_CASE( testPaneledRadiationPressureTargetModel_PointingAway )
 
     const auto sourceIrradiance = 1000;
     const auto sourceToTargetDirection = Eigen::Vector3d(0, 0, -1).normalized();
-    const auto actualForce = targetModel.evaluateRadiationPressureForce(
+    const auto actualForce = targetModel.updateAndGetRadiationPressureForce(
             sourceIrradiance,
-            sourceToTargetDirection);
+            sourceToTargetDirection,
+            true);
 
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(actualForce, expectedForce, 1e-15);
 }
@@ -120,9 +125,10 @@ BOOST_AUTO_TEST_CASE( testPaneledRadiationPressureTargetModel_LateralCancellatio
 
     const auto sourceIrradiance = 1000;
     const auto sourceToTargetDirection = Eigen::Vector3d(0, 0, -1).normalized();
-    const auto actualForce = targetModel.evaluateRadiationPressureForce(
+    const auto actualForce = targetModel.updateAndGetRadiationPressureForce(
             sourceIrradiance,
-            sourceToTargetDirection);
+            sourceToTargetDirection,
+            true);
 
     // No lateral force
     BOOST_CHECK_CLOSE(actualForce[0], 0, 1e-15);
@@ -139,22 +145,36 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureTargetModel_EquivalentSinglePanel )
 
     const double sourceIrradiance = 1000;
     const Eigen::Vector3d sourceToTargetDirection = Eigen::Vector3d(4, 3, -1).normalized();
+    const Eigen::Vector3d bodyFixedPanelLocation = Eigen::Vector3d( 2, -7, 8 ).normalized();
 
     auto cannonballModel = CannonballRadiationPressureTargetModel(mathematical_constants::PI * radius * radius, coefficient);
     auto paneledModel = PaneledRadiationPressureTargetModel({ std::make_shared< system_models::VehicleExteriorPanel >(
                 -sourceToTargetDirection,
                 mathematical_constants::PI * radius * radius, "",
         // This gives an equivalent coefficient of 1.6
-                reflectionLawFromSpecularAndDiffuseReflectivity(0.6, 0))
-    });
+                reflectionLawFromSpecularAndDiffuseReflectivity(0.6, 0),
+                bodyFixedPanelLocation ) } );
+
+    cannonballModel.enableTorqueComputation( [=](){return Eigen::Vector3d::Zero( );} );
+    paneledModel.enableTorqueComputation( [=](){return Eigen::Vector3d::Zero( );} );
 
     cannonballModel.updateMembers(TUDAT_NAN);
     paneledModel.updateMembers(TUDAT_NAN);
 
-    const auto cannonballForce = cannonballModel.evaluateRadiationPressureForce(sourceIrradiance, sourceToTargetDirection);
-    const auto paneledForce = paneledModel.evaluateRadiationPressureForce(sourceIrradiance, sourceToTargetDirection);
+    const auto cannonballForce = cannonballModel.updateAndGetRadiationPressureForce(sourceIrradiance, sourceToTargetDirection,true);
+    const auto paneledForce = paneledModel.updateAndGetRadiationPressureForce(sourceIrradiance, sourceToTargetDirection,true);
 
     TUDAT_CHECK_MATRIX_CLOSE(cannonballForce, paneledForce, 1e-10);
+
+    const auto cannonballTorque = cannonballModel.updateAndGetRadiationPressureTorque(sourceIrradiance, sourceToTargetDirection,true);
+    const auto paneledTorque = paneledModel.updateAndGetRadiationPressureTorque(sourceIrradiance, sourceToTargetDirection,true);
+
+    const auto expectedTorque = bodyFixedPanelLocation.cross( paneledForce );
+    TUDAT_CHECK_MATRIX_CLOSE(paneledTorque, expectedTorque, 1e-10);
+    for( int i = 0; i < 3; i++ )
+    {
+        BOOST_CHECK_EQUAL( cannonballTorque( i ), 0.0 );
+    }
 }
 
 //! Check if cannonball and paneled model agree for an equivalent paneled sphere
@@ -188,19 +208,33 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureTargetModel_EquivalentSphere )
                 Eigen::Vector3d(radius, polarAngle, azimuthAngle));
         const Eigen::Vector3d surfaceNormal = relativeCenter.normalized();
 
-        panels.emplace_back( std::make_shared< system_models::VehicleExteriorPanel >( surfaceNormal, panelArea, "", reflectionLaw ) );
+        panels.emplace_back( std::make_shared< system_models::VehicleExteriorPanel >( surfaceNormal, panelArea, "", reflectionLaw, relativeCenter ) );
     }
 
     auto paneledModel = PaneledRadiationPressureTargetModel(panels);
 
+    Eigen::Vector3d centerOfMass = Eigen::Vector3d::UnitX( );
+    cannonballModel.enableTorqueComputation( [=](){return centerOfMass; } );
+    paneledModel.enableTorqueComputation( [=](){return centerOfMass; } );
+
     cannonballModel.updateMembers(TUDAT_NAN);
     paneledModel.updateMembers(TUDAT_NAN);
 
-    const auto cannonballForce = cannonballModel.evaluateRadiationPressureForce(sourceIrradiance, sourceToTargetDirection);
-    const auto paneledForce = paneledModel.evaluateRadiationPressureForce(sourceIrradiance, sourceToTargetDirection);
+    const auto cannonballForce = cannonballModel.updateAndGetRadiationPressureForce(sourceIrradiance, sourceToTargetDirection,true);
+    const auto paneledForce = paneledModel.updateAndGetRadiationPressureForce(sourceIrradiance, sourceToTargetDirection,true);
 
     // Large tolerance since equivalent coefficient is not very accurate
     TUDAT_CHECK_MATRIX_CLOSE(cannonballForce, paneledForce, 1e-3);
+
+    const Eigen::Vector3d cannonballTorque = cannonballModel.updateAndGetRadiationPressureTorque(sourceIrradiance, sourceToTargetDirection, true);
+    const Eigen::Vector3d paneledTorque = paneledModel.updateAndGetRadiationPressureTorque(sourceIrradiance, sourceToTargetDirection, true);
+    const Eigen::Vector3d expectedPaneledTorque = -centerOfMass.cross( paneledForce );
+
+    for( unsigned int i = 0; i < 3; i++ )
+    {
+        BOOST_CHECK_SMALL( std::fabs( paneledTorque( i ) - expectedPaneledTorque( i ) ), 1.0E-4 * paneledForce.norm( ) );
+        BOOST_CHECK_SMALL( std::fabs( cannonballTorque( i ) - expectedPaneledTorque( i ) ), 1.0E-4 * paneledForce.norm( ) );
+    }
 }
 
 BOOST_AUTO_TEST_SUITE_END()
