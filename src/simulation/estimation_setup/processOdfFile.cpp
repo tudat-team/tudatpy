@@ -88,6 +88,56 @@ std::string getStationNameFromStationId ( const int networkId, const int station
     return stationName;
 }
 
+void ProcessedOdfFileSingleLinkData::splitSingleLinkDataBase(
+    const std::shared_ptr< ProcessedOdfFileSingleLinkData > firstBlockDataSet,
+    const std::shared_ptr< ProcessedOdfFileSingleLinkData > secondBlockDataSet,
+    const int splitIndex )
+{
+    utilities::getVectorStartBlock( firstBlockDataSet->unprocessedObservationTimes_, unprocessedObservationTimes_, splitIndex );
+    utilities::getVectorStartBlock( firstBlockDataSet->processedObservationTimes_, processedObservationTimes_, splitIndex );
+    utilities::getVectorStartBlock( firstBlockDataSet->observableValues_, observableValues_, splitIndex );
+    utilities::getVectorStartBlock( firstBlockDataSet->receiverDownlinkDelays_, receiverDownlinkDelays_, splitIndex );
+    utilities::getVectorStartBlock( firstBlockDataSet->downlinkBandIds_, downlinkBandIds_, splitIndex );
+    utilities::getVectorStartBlock( firstBlockDataSet->uplinkBandIds_, uplinkBandIds_, splitIndex );
+    utilities::getVectorStartBlock( firstBlockDataSet->referenceBandIds_, referenceBandIds_, splitIndex );
+    utilities::getVectorStartBlock( firstBlockDataSet->originFiles_, originFiles_, splitIndex );
+    utilities::getVectorStartBlock( firstBlockDataSet->unprocessedObservationTimes_, unprocessedObservationTimes_, splitIndex );
+
+    utilities::getVectorEndBlock( secondBlockDataSet->unprocessedObservationTimes_, unprocessedObservationTimes_, splitIndex );
+    utilities::getVectorEndBlock( secondBlockDataSet->processedObservationTimes_, processedObservationTimes_, splitIndex );
+    utilities::getVectorEndBlock( secondBlockDataSet->observableValues_, observableValues_, splitIndex );
+    utilities::getVectorEndBlock( secondBlockDataSet->receiverDownlinkDelays_, receiverDownlinkDelays_, splitIndex );
+    utilities::getVectorStartBlock( secondBlockDataSet->downlinkBandIds_, downlinkBandIds_, splitIndex );
+    utilities::getVectorEndBlock( secondBlockDataSet->uplinkBandIds_, uplinkBandIds_, splitIndex );
+    utilities::getVectorEndBlock( secondBlockDataSet->referenceBandIds_, referenceBandIds_, splitIndex );
+    utilities::getVectorEndBlock( secondBlockDataSet->originFiles_, originFiles_, splitIndex );
+    utilities::getVectorEndBlock( secondBlockDataSet->unprocessedObservationTimes_, unprocessedObservationTimes_, splitIndex );
+
+}
+
+void ProcessedOdfFileDopplerData::splitSingleLinkDataDerived( std::shared_ptr< ProcessedOdfFileSingleLinkData > firstBlockDataSet,
+                                 std::shared_ptr< ProcessedOdfFileSingleLinkData > secondBlockDataSet,
+                                 const int splitIndex )
+{
+    std::shared_ptr<ProcessedOdfFileDopplerData> firstBlockDataSetDerived = std::make_shared<ProcessedOdfFileDopplerData>( observableType_, receivingStation_, transmittingStation_ );
+    std::shared_ptr<ProcessedOdfFileDopplerData> secondBlockDataSetDerived = std::make_shared<ProcessedOdfFileDopplerData>( observableType_, receivingStation_, transmittingStation_ );
+
+    utilities::getVectorStartBlock( firstBlockDataSetDerived->receiverChannels_, receiverChannels_, splitIndex );
+    utilities::getVectorStartBlock( firstBlockDataSetDerived->referenceFrequencies_, referenceFrequencies_, splitIndex );
+    utilities::getVectorStartBlock( firstBlockDataSetDerived->countInterval_, countInterval_, splitIndex );
+    utilities::getVectorStartBlock( firstBlockDataSetDerived->transmitterUplinkDelays_, transmitterUplinkDelays_, splitIndex );
+    utilities::getVectorStartBlock( firstBlockDataSetDerived->receiverRampingFlags_, receiverRampingFlags_, splitIndex );
+
+    utilities::getVectorEndBlock( secondBlockDataSetDerived->receiverChannels_, receiverChannels_, splitIndex );
+    utilities::getVectorEndBlock( secondBlockDataSetDerived->referenceFrequencies_, referenceFrequencies_, splitIndex );
+    utilities::getVectorEndBlock( secondBlockDataSetDerived->countInterval_, countInterval_, splitIndex );
+    utilities::getVectorEndBlock( secondBlockDataSetDerived->transmitterUplinkDelays_, transmitterUplinkDelays_, splitIndex );
+    utilities::getVectorEndBlock( secondBlockDataSetDerived->receiverRampingFlags_, receiverRampingFlags_, splitIndex );
+
+    firstBlockDataSet = firstBlockDataSetDerived;
+    secondBlockDataSet = secondBlockDataSetDerived;
+
+}
 
 std::vector< std::string > ProcessedOdfFileContents::getGroundStationsNames( )
 {
@@ -164,10 +214,93 @@ std::pair< double, double > ProcessedOdfFileContents::getStartAndEndTime( )
     return std::make_pair( startTimeTdbSinceJ2000, endTimeTdbSinceJ2000 );
 }
 
+void ProcessedOdfFileContents::defineSpacecraftAntennaId( const std::string& spacecraft, const std::string& antennaName )
+{
+    std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds,
+        std::shared_ptr< ProcessedOdfFileSingleLinkData > > > reprocessedDataBlocks;
+
+    for( auto observationIterator : processedDataBlocks_ )
+    {
+        for( auto linkEndIterator : observationIterator.second )
+        {
+            LinkEnds oldLinkEnds = linkEndIterator.first;
+            LinkEnds newLinkEnds = oldLinkEnds;
+            for( auto idIterator : oldLinkEnds )
+            {
+                if( idIterator.second.bodyName_ == spacecraft )
+                {
+                    newLinkEnds[ idIterator.first ] = LinkEndId( spacecraft, antennaName );
+                }
+            }
+            reprocessedDataBlocks[ observationIterator.first ][ newLinkEnds ] = linkEndIterator.second;
+        }
+    }
+    processedDataBlocks_ = reprocessedDataBlocks;
+}
+
+void ProcessedOdfFileContents::defineSpacecraftAntennaId( const std::string& spacecraft, const std::string& antennaName,
+                                                          const std::map< double, double >& timeIntervals )
+{
+    // Create lookup scheme to find closest time interval
+    std::vector< double > timeIntervalStarts = utilities::createVectorFromMapKeys( timeIntervals );
+    std::shared_ptr< interpolators::LookUpScheme< double > > lookUpScheme_ =
+        std::make_shared< interpolators::HuntingAlgorithmLookupScheme< double > >( timeIntervalStarts );
+
+    // Define new data blocks
+    std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds,
+        std::shared_ptr< ProcessedOdfFileSingleLinkData > > > reprocessedDataBlocks;
+
+    // Iterate over all observable types
+    for( auto observationIterator : processedDataBlocks_ )
+    {
+        // Iterate over all link ends
+        for( auto linkEndIterator : observationIterator.second )
+        {
+            // Get current data block
+            std::shared_ptr< ProcessedOdfFileSingleLinkData > currentDataBlock = linkEndIterator.second;
+
+            // Get start and end times of current block
+            std::pair< double, double > timeBounds = currentDataBlock->getTimeBounds( );
+
+            // Get start and end time of nearest interval
+            double timeIntervalStart = TUDAT_NAN;
+            if( timeBounds.first > timeIntervalStarts.at( 0 ) )
+            {
+                int timeIntervalIndex = lookUpScheme_->findNearestLowerNeighbour( timeBounds.first );
+                timeIntervalStart = timeIntervalStarts.at( timeIntervalIndex );
+            }
+            else
+            {
+                timeIntervalStart = timeIntervalStarts.at( 0 );
+            }
+            double timeIntervalEnd = timeIntervalStart + timeIntervals.at( timeIntervalStart );
+
+            // Copy entire block
+            if( timeIntervalStart < timeBounds.first && timeIntervalEnd > timeBounds.second )
+            {
+                LinkEnds oldLinkEnds = linkEndIterator.first;
+                LinkEnds newLinkEnds = oldLinkEnds;
+                for ( auto idIterator: oldLinkEnds )
+                {
+                    if ( idIterator.second.bodyName_ == spacecraft )
+                    {
+                        newLinkEnds[ idIterator.first ] = LinkEndId( spacecraft, antennaName );
+                    }
+                }
+                reprocessedDataBlocks[ observationIterator.first ][ newLinkEnds ] = linkEndIterator.second;
+            }
+            else if( timeIntervalEnd > timeBounds.second  )
+            {
+
+            }
+        }
+    }
+    processedDataBlocks_ = reprocessedDataBlocks;
+}
+
 observation_models::LinkEnds getLinkEndsFromOdfBlock (
         const std::shared_ptr< input_output::OdfDataBlock > dataBlock,
-        std::string spacecraftName,
-        std::string antennaName )
+        std::string spacecraftName )
 {
     int currentObservableId = dataBlock->getObservableSpecificDataBlock( )->dataType_;
 
@@ -175,7 +308,7 @@ observation_models::LinkEnds getLinkEndsFromOdfBlock (
 
     if ( currentObservableId == 11 )
     {
-        linkEnds[ observation_models::transmitter ] = observation_models::LinkEndId ( spacecraftName, antennaName );
+        linkEnds[ observation_models::transmitter ] = observation_models::LinkEndId ( spacecraftName );
         linkEnds[ observation_models::receiver ] = observation_models::LinkEndId ( "Earth", getStationNameFromStationId(
                 0, dataBlock->getCommonDataBlock( )->receivingStationId_ ) );
     }
@@ -184,7 +317,7 @@ observation_models::LinkEnds getLinkEndsFromOdfBlock (
         linkEnds[ observation_models::transmitter ] = observation_models::LinkEndId (
                 "Earth", getStationNameFromStationId( dataBlock->getCommonDataBlock( )->transmittingStationNetworkId_,
                                                       dataBlock->getCommonDataBlock( )->transmittingStationId_ ) );
-        linkEnds[ observation_models::reflector1 ] = observation_models::LinkEndId ( spacecraftName, "Antenna" );
+        linkEnds[ observation_models::reflector1 ] = observation_models::LinkEndId ( spacecraftName );
         linkEnds[ observation_models::receiver ] = observation_models::LinkEndId (
                 "Earth", getStationNameFromStationId( 0, dataBlock->getCommonDataBlock( )->receivingStationId_ ) );
     }
@@ -193,7 +326,7 @@ observation_models::LinkEnds getLinkEndsFromOdfBlock (
         linkEnds[ observation_models::transmitter ] = observation_models::LinkEndId (
                 "Earth", getStationNameFromStationId( dataBlock->getCommonDataBlock( )->transmittingStationNetworkId_,
                                                       dataBlock->getCommonDataBlock( )->transmittingStationId_ ) );
-        linkEnds[ observation_models::reflector1 ] = observation_models::LinkEndId ( spacecraftName, "Antenna" );
+        linkEnds[ observation_models::reflector1 ] = observation_models::LinkEndId ( spacecraftName );
         linkEnds[ observation_models::receiver ] = observation_models::LinkEndId (
                 "Earth", getStationNameFromStationId( 0, dataBlock->getCommonDataBlock( )->receivingStationId_ ) );
     }
@@ -223,7 +356,6 @@ void ProcessedOdfFileContents::addOdfRawDataBlockToProcessedData(
         singleLinkProcessedData->unprocessedObservationTimes_.push_back( rawDataBlock->getCommonDataBlock( )->getObservableTime( ) );
         singleLinkProcessedData->receiverDownlinkDelays_.push_back( rawDataBlock->getCommonDataBlock( )->getReceivingStationDownlinkDelay( ) );
         singleLinkProcessedData->originFiles_.push_back( rawDataFileName );
-
         // Add properties to data object for Doppler data
         if ( singleLinkProcessedData->getObservableType( ) == observation_models::dsn_n_way_averaged_doppler )
         {
@@ -456,7 +588,7 @@ void ProcessedOdfFileContents::extractRawOdfOrbitData(
         }
 
         observation_models::LinkEnds linkEnds = getLinkEndsFromOdfBlock(
-                rawDataBlocks.at( i ), spacecraftName_, antennaName_ );
+                rawDataBlocks.at( i ), spacecraftName_ );
 
         // Check if observation is valid and should be processed
         if ( isObservationValid( rawDataBlocks.at( i ), linkEnds, currentObservableType ) )
