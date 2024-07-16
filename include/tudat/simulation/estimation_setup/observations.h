@@ -679,7 +679,7 @@ public:
 
     std::vector< double > getConcatenatedDoubleTimeVector( )
     {
-        return utilities::staticCastVector< double, TimeType >( concatenatedTimes_ );
+        return utilities::staticCastVector<double, TimeType>( concatenatedTimes_ );
     }
 
     std::pair< TimeType, TimeType > getTimeBounds( )

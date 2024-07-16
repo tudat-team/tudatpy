@@ -115,8 +115,6 @@ public:
     {
         if( tdbToTtInterpolatorSettings != nullptr )
         {
-            std::cout<<"Creating interpolator"<<std::endl;
-
             std::function< double( const double ) > correctionFunction =
                 std::bind< double( const double, const double, const double, const double ) >(
                     sofa_interface::getTDBminusTT, std::placeholders::_1, 0.0, 0.0, 0.0 );
