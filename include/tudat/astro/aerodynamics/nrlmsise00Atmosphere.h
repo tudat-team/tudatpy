@@ -320,6 +320,30 @@ class NRLMSISE00Atmosphere : public AtmosphereModel
         return numberDensities_;
     }
 
+    virtual double getNumberDensity( const AtmosphericCompositionSpecies species,
+                                     const double altitude, const double longitude,
+                                     const double latitude, const double time )
+    {
+        if( !( speciesIndices.count( species ) > 0 ) )
+        {
+            throw std::runtime_error( "Error, NRLMSISE00 has no dependency on species " + std::to_string( species ) + "." );
+        }
+        computeProperties( altitude, longitude, latitude, time );
+        return numberDensities_.at( speciesIndices.at( species ) );
+    }
+
+    bool doesModelDefineSpeciesNumberDensity( const AtmosphericCompositionSpecies species )
+    {
+        if( speciesIndices.count( species ) > 0 )
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
     //! Get local average number density.
     /*!
     * Returns the local average number density in m^-3
@@ -556,6 +580,10 @@ class NRLMSISE00Atmosphere : public AtmosphereModel
     NRLMSISE00Input inputData_;
 
     std::shared_ptr< input_output::solar_activity::SolarActivityContainer > solarActivityContainer_;
+
+    std::map< AtmosphericCompositionSpecies, int > speciesIndices =
+        { { he_species, 0 },  { o_species, 1 }, { n2_species, 2 }, { o2_species, 3 }, { ar_species, 4 }, { h_species, 5 }, { n_species, 6 }, { anomalous_o_species, 7 } };
+
 };
 
 }  // namespace aerodynamics
