@@ -136,7 +136,12 @@ enum PropagationDependentVariables
     received_irradiance = 63,
     received_fraction = 64,
     visible_and_emitting_source_panel_count = 65,
-    visible_source_area = 66
+    visible_source_area = 66,
+    vehicle_panel_inertial_surface_normals = 67,
+    vehicle_panel_body_fixed_surface_normals = 68,
+    vehicle_surface_panel_radiation_pressure_force = 69,
+    paneled_radiation_source_per_panel_irradiance = 70,
+    paneled_radiation_source_geometry = 71
 };
 
 // Functional base class for defining settings for dependent variables that are to be saved during propagation
@@ -1402,6 +1407,47 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > inertiaTensorVaria
     return std::make_shared< SingleDependentVariableSaveSettings >(
         body_inertia_tensor, bodyName );
 }
+
+inline std::shared_ptr< SingleDependentVariableSaveSettings > vehiclePanelInertialSurfaceNormals(
+    const std::string& bodyName,
+    const std::string& partName = "" )
+{
+    return std::make_shared< SingleDependentVariableSaveSettings >(
+        vehicle_panel_inertial_surface_normals, bodyName, partName );
+}
+
+inline std::shared_ptr< SingleDependentVariableSaveSettings > vehiclePanelBodyFixedSurfaceNormals(
+    const std::string& bodyName,
+    const std::string& partName = "" )
+{
+    return std::make_shared< SingleDependentVariableSaveSettings >(
+        vehicle_panel_body_fixed_surface_normals, bodyName, partName );
+}
+
+inline std::shared_ptr< SingleDependentVariableSaveSettings > perVehiclePanelRadiationPressureForce(
+    const std::string& bodyName,
+    const std::string& sourceName )
+{
+    return std::make_shared< SingleDependentVariableSaveSettings >(
+        vehicle_surface_panel_radiation_pressure_force, bodyName, sourceName );
+}
+
+inline std::shared_ptr< SingleDependentVariableSaveSettings > paneledRadiationSourcePerPanelIrradiance(
+    const std::string& bodyName,
+    const std::string& sourceName )
+{
+    return std::make_shared< SingleDependentVariableSaveSettings >(
+        paneled_radiation_source_per_panel_irradiance, bodyName, sourceName );
+}
+
+inline std::shared_ptr< SingleDependentVariableSaveSettings > paneledRadiationSourceGeometry(
+    const std::string& bodyName,
+    const std::string& sourceName )
+{
+    return std::make_shared< SingleDependentVariableSaveSettings >(
+        paneled_radiation_source_geometry, bodyName, sourceName );
+}
+
 
 } // namespace propagators
 

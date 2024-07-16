@@ -19,6 +19,7 @@
 #include "tudat/astro/gravitation/secondDegreeGravitationalTorque.h"
 #include "tudat/astro/gravitation/sphericalHarmonicGravitationalTorque.h"
 #include "tudat/astro/aerodynamics/aerodynamicTorque.h"
+#include "tudat/astro/electromagnetism/radiationPressureTorque.h"
 #include "tudat/astro/basic_astro/customTorque.h"
 
 namespace tudat
@@ -83,6 +84,14 @@ std::shared_ptr< gravitation::SphericalHarmonicGravitationalTorqueModel > create
         const std::string& nameOfBodyUndergoingTorque,
         const std::string& nameOfBodyExertingTorque );
 
+std::shared_ptr< electromagnetism::IsotropicPointSourceRadiationPressureTorque > createRadiationPressureTorqueModel(
+    const std::shared_ptr< simulation_setup::Body > bodyUndergoingTorque,
+    const std::shared_ptr< simulation_setup::Body > bodyExertingTorque,
+    const std::shared_ptr< TorqueSettings > torqueSettings,
+    const std::string& nameOfBodyUndergoingTorque,
+    const std::string& nameOfBodyExertingTorque,
+    const SystemOfBodies& bodies );
+
 std::shared_ptr< basic_astrodynamics::CustomTorqueModel > createCustomTorqueModel(
         const std::shared_ptr< TorqueSettings > torqueSettings,
         const std::string& nameOfBodyUndergoingTorque );
@@ -103,7 +112,8 @@ std::shared_ptr< basic_astrodynamics::TorqueModel > createTorqueModel(
         const std::shared_ptr< simulation_setup::Body > bodyExertingTorque,
         const std::shared_ptr< TorqueSettings > torqueSettings,
         const std::string& nameOfBodyUndergoingTorque,
-        const std::string& nameOfBodyExertingTorque );
+        const std::string& nameOfBodyExertingTorque,
+        const SystemOfBodies& bodies );
 
 //! Function to create torque models from a map of bodies and torque model settings.
 /*!

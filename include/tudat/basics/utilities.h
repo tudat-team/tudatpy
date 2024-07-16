@@ -1030,6 +1030,24 @@ std::vector< std::vector< std::vector< T > > > getThreeDimensionalVector( const 
     return std::vector< std::vector< std::vector< T > > >(firstDimension, std::vector< std::vector<T> >(secondDimension, std::vector<T>( thirdDimension, initializationValue) ) );
 }
 
+template< typename T >
+void getVectorStartBlock(
+    std::vector< T >& newVector,
+    const std::vector< T >& originalVector,
+    const int numberOfEntries )
+{
+    newVector = std::vector< T >( originalVector.begin( ), originalVector.begin( ) + numberOfEntries );
+}
+
+template< typename T >
+void getVectorEndBlock(
+    std::vector< T >& newVector,
+    const std::vector< T >& originalVector,
+    const int numberOfEntries )
+{
+    newVector = std::vector< T >( originalVector.end( ) - numberOfEntries, originalVector.end( ) );
+}
+
 } // namespace utilities
 
 } // namespace tudat

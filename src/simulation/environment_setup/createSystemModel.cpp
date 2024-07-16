@@ -78,7 +78,9 @@ std::pair< std::shared_ptr< system_models::VehicleExteriorPanel >, std::string >
     }
 
     double panelArea = TUDAT_NAN;
+    double panelTemperature = TUDAT_NAN;
     std::function< Eigen::Vector3d( ) > localFrameSurfaceNormal = nullptr;
+    std::function< Eigen::Vector3d( ) > localFramePositionVector = nullptr;
     std::string trackedBodyName = "";
 
     if( std::dynamic_pointer_cast< FrameFixedBodyPanelGeometrySettings >( panelSettings->panelGeometry_ ) != nullptr )
@@ -86,14 +88,17 @@ std::pair< std::shared_ptr< system_models::VehicleExteriorPanel >, std::string >
         std::shared_ptr< FrameFixedBodyPanelGeometrySettings > fixedBodyPanelGeometrySettings =
             std::dynamic_pointer_cast< FrameFixedBodyPanelGeometrySettings >( panelSettings->panelGeometry_ );
         panelArea = fixedBodyPanelGeometrySettings->area_;
+        panelTemperature = fixedBodyPanelGeometrySettings->panelTemperature_;
 
         localFrameSurfaceNormal = [=]( ){ return fixedBodyPanelGeometrySettings->surfaceNormal_; };
+        localFramePositionVector = [=]( ){ return fixedBodyPanelGeometrySettings->positionVector_; };
     }
     else if( std::dynamic_pointer_cast< FrameVariableBodyPanelGeometrySettings >( panelSettings->panelGeometry_ ) != nullptr )
     {
         std::shared_ptr< FrameVariableBodyPanelGeometrySettings > variableBodyPanelGeometrySettings =
             std::dynamic_pointer_cast< FrameVariableBodyPanelGeometrySettings >( panelSettings->panelGeometry_ );
         panelArea = variableBodyPanelGeometrySettings->area_;
+        panelTemperature = variableBodyPanelGeometrySettings->panelTemperature_;
         if( variableBodyPanelGeometrySettings->surfaceNormalFunction_ != nullptr )
         {
             if( variableBodyPanelGeometrySettings->bodyToTrack_.first != "" )
@@ -101,6 +106,7 @@ std::pair< std::shared_ptr< system_models::VehicleExteriorPanel >, std::string >
                 throw std::runtime_error( "Error, explicit panel orientation, and tracking target are defined" );
             }
             localFrameSurfaceNormal = variableBodyPanelGeometrySettings->surfaceNormalFunction_;
+            localFramePositionVector = variableBodyPanelGeometrySettings->positionVectorFunction_; 
         }
         else if( variableBodyPanelGeometrySettings->bodyToTrack_.first != "" )
         {
@@ -129,7 +135,12 @@ std::pair< std::shared_ptr< system_models::VehicleExteriorPanel >, std::string >
     }
 
     std::shared_ptr< system_models::VehicleExteriorPanel > exteriorPanel =
-        std::make_shared< system_models::VehicleExteriorPanel >( localFrameSurfaceNormal, panelArea, trackedBodyName );
+        std::make_shared< system_models::VehicleExteriorPanel >( 
+            localFrameSurfaceNormal,
+            localFramePositionVector,
+            panelArea, 
+            panelTemperature,
+            trackedBodyName);
 
     if( panelSettings->reflectionLawSettings_ != nullptr )
     {
