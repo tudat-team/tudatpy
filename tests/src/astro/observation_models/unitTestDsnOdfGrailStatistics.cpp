@@ -56,11 +56,11 @@ int main( )
     // Load spice kernels
     spice_interface::loadStandardSpiceKernels( );
     spice_interface::loadSpiceKernelInTudat( get_spice_kernels_path( ) + + "/moon_de440_200625.tf");
-    spice_interface::loadSpiceKernelInTudat( "/home/dominic/Tudat/Data/GRAIL_Spice/grail_v07.tf" );
-    spice_interface::loadSpiceKernelInTudat( "/home/dominic/Tudat/Data/GRAIL_Spice/gra_sclkscet_00013.tsc" );
-    spice_interface::loadSpiceKernelInTudat( "/home/dominic/Tudat/Data/GRAIL_Spice/gra_sclkscet_00014.tsc" );
-    spice_interface::loadSpiceKernelInTudat( "/home/dominic/Tudat/Data/GRAIL_Spice/grail_120301_120529_sci_v02.bsp" );
-    spice_interface::loadSpiceKernelInTudat( "/home/dominic/Tudat/Data/GRAIL_Spice/gra_rec_120402_120408.bc" );
+    spice_interface::loadSpiceKernelInTudat( "/home/mfayolle/Tudat/Data/GRAIL_Spice/grail_v07.tf" );
+    spice_interface::loadSpiceKernelInTudat( "/home/mfayolle/Tudat/Data/GRAIL_Spice/gra_sclkscet_00013.tsc" );
+    spice_interface::loadSpiceKernelInTudat( "/home/mfayolle/Tudat/Data/GRAIL_Spice/gra_sclkscet_00014.tsc" );
+    spice_interface::loadSpiceKernelInTudat( "/home/mfayolle/Tudat/Data/GRAIL_Spice/grail_120301_120529_sci_v02.bsp" );
+    spice_interface::loadSpiceKernelInTudat( "/home/mfayolle/Tudat/Data/GRAIL_Spice/gra_rec_120402_120408.bc" );
     spice_interface::loadSpiceKernelInTudat( get_spice_kernels_path( ) + + "/moon_pa_de440_200625.bpc");
 
     // Create settings for default bodies
@@ -135,7 +135,7 @@ int main( )
      *****************************************************************************************/
 
     // Define ODF data paths
-    std::string dataDirectory = "/home/dominic/Tudat/Data/GRAIL_ODF/";
+    std::string dataDirectory = "/home/mfayolle/Tudat/Data/GRAIL_ODF/";
     std::vector< std::string > odfFiles = { "gralugf2012_097_0235smmmv1.odf" };
 
     // Laod raw ODF data
@@ -169,9 +169,9 @@ int main( )
     std::vector< std::shared_ptr< observation_models::LightTimeCorrectionSettings > > lightTimeCorrectionSettings;
     lightTimeCorrectionSettings.push_back( firstOrderRelativisticLightTimeCorrectionSettings( { "Sun" } ) );
     std::vector< std::string > troposphericCorrectionFileNames =
-        {"/home/dominic/Tudat/Data/GRAIL_Ancilliary/grxlugf2012_092_2012_122.tro", "/home/dominic/Tudat/Data/GRAIL_Ancilliary/grxlugf2012_122_2012_153.tro"};
+        {"/home/mfayolle/Tudat/Data/GRAIL_Ancilliary/grxlugf2012_092_2012_122.tro", "/home/mfayolle/Tudat/Data/GRAIL_Ancilliary/grxlugf2012_122_2012_153.tro"};
     std::vector< std::string > ionosphericCorrectionFileNames =
-        {"/home/dominic/Tudat/Data/GRAIL_Ancilliary/gralugf2012_092_2012_122.ion", "/home/dominic/Tudat/Data/GRAIL_Ancilliary/gralugf2012_122_2012_153.ion"};
+        {"/home/mfayolle/Tudat/Data/GRAIL_Ancilliary/gralugf2012_092_2012_122.ion", "/home/mfayolle/Tudat/Data/GRAIL_Ancilliary/gralugf2012_122_2012_153.ion"};
     std::map< int, std::string > spacecraftNamePerSpacecraftId;
     spacecraftNamePerSpacecraftId[ 177 ] = "GRAIL-A";
 
@@ -256,21 +256,21 @@ int main( )
         filteredResidualObservationCollection, numericalTimeBiasPartials,
         timeBiases, correctedResiduals );
 
-    input_output::writeMatrixToFile( startTimes, "grailTestStartTimes.dat", 16, "/home/dominic/Tudat/Data/GRAIL_StatisticsTest/");
-    input_output::writeMatrixToFile( durations, "grailTestDurations.dat", 16, "/home/dominic/Tudat/Data/GRAIL_StatisticsTest/");
-    input_output::writeMatrixToFile( meanValues, "grailMeanValues.dat", 16, "/home/dominic/Tudat/Data/GRAIL_StatisticsTest/");
-    input_output::writeMatrixToFile( rmsValues, "grailRmsValues.dat", 16, "/home/dominic/Tudat/Data/GRAIL_StatisticsTest/");
+    input_output::writeMatrixToFile( startTimes, "grailTestStartTimes.dat", 16, "/home/mfayolle/Tudat/Data/GRAIL_StatisticsTest/");
+    input_output::writeMatrixToFile( durations, "grailTestDurations.dat", 16, "/home/mfayolle/Tudat/Data/GRAIL_StatisticsTest/");
+    input_output::writeMatrixToFile( meanValues, "grailMeanValues.dat", 16, "/home/mfayolle/Tudat/Data/GRAIL_StatisticsTest/");
+    input_output::writeMatrixToFile( rmsValues, "grailRmsValues.dat", 16, "/home/mfayolle/Tudat/Data/GRAIL_StatisticsTest/");
 
     Eigen::VectorXd observationTimes = utilities::convertStlVectorToEigenVector(
         filteredResidualObservationCollection->getConcatenatedTimeVector( ) ).template cast< double >( );
-    input_output::writeMatrixToFile( observationTimes, "grailTestTimes.dat", 16, "/home/dominic/Tudat/Data/GRAIL_StatisticsTest/");
+    input_output::writeMatrixToFile( observationTimes, "grailTestTimes.dat", 16, "/home/mfayolle/Tudat/Data/GRAIL_StatisticsTest/");
 
     Eigen::VectorXd observationLinkEndsIds = utilities::convertStlVectorToEigenVector(
         filteredResidualObservationCollection->getConcatenatedLinkEndIds( ) ).template cast< double >( );
-    input_output::writeMatrixToFile(observationLinkEndsIds , "grailTestLinkEnds.dat", 16, "/home/dominic/Tudat/Data/GRAIL_StatisticsTest/");
+    input_output::writeMatrixToFile(observationLinkEndsIds , "grailTestLinkEnds.dat", 16, "/home/mfayolle/Tudat/Data/GRAIL_StatisticsTest/");
 
-    input_output::writeMatrixToFile( residualVector, "grailUncorrectedResiduals.dat", 16, "/home/dominic/Tudat/Data/GRAIL_StatisticsTest/" );
-    input_output::writeMatrixToFile( correctedResiduals, "grailTestCorrectedResiduals.dat", 16, "/home/dominic/Tudat/Data/GRAIL_StatisticsTest/");
+    input_output::writeMatrixToFile( residualVector, "grailUncorrectedResiduals.dat", 16, "/home/mfayolle/Tudat/Data/GRAIL_StatisticsTest/" );
+    input_output::writeMatrixToFile( correctedResiduals, "grailTestCorrectedResiduals.dat", 16, "/home/mfayolle/Tudat/Data/GRAIL_StatisticsTest/");
 
     std::cout<<"Uncorrected mean: "<<linear_algebra::getVectorEntryMean( residualVector )<<std::endl;
     std::cout<<"Corrected mean: "<<linear_algebra::getVectorEntryMean( correctedResiduals )<<std::endl;
