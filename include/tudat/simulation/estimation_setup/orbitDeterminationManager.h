@@ -99,7 +99,7 @@ void calculateResiduals(
 template< typename ObservationScalarType = double, typename TimeType = double,
     typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
 void calculateDesignMatrixAndResiduals(
-    const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > observationsCollection,
+    std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > observationsCollection,
     const std::map< observation_models::ObservableType,
         std::shared_ptr< observation_models::ObservationManagerBase< ObservationScalarType, TimeType > > >& observationManagers,
     const int totalNumberParameters,
@@ -129,18 +129,17 @@ void calculateDesignMatrixAndResiduals(
         sortedObservations = observationsCollection->getObservations( );
 
     // Iterate over all observable types in observationsAndTimes
-    for( auto observablesIterator : sortedObservations )
+    for( auto observableIt : sortedObservations )
     {
-        observation_models::ObservableType currentObservableType = observablesIterator.first;
+        observation_models::ObservableType currentObservableType = observableIt.first;
 
         // Iterate over all link ends for current observable type in observationsAndTimes
-        for( auto dataIterator : observablesIterator.second )
+        for( auto linkEndIt : observableIt.second )
         {
-            observation_models::LinkEnds currentLinkEnds = dataIterator.first;
-            for( unsigned int i = 0; i < dataIterator.second.size( ); i++ )
+            observation_models::LinkEnds currentLinkEnds = linkEndIt.first;
+            for( unsigned int i = 0; i < linkEndIt.second.size( ); i++ )
             {
-                std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType, TimeType > > currentObservations =
-                    dataIterator.second.at( i );
+                std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType, TimeType > > currentObservations = linkEndIt.second.at( i );
                 std::pair< int, int > observationIndices = observationsCollection->getObservationSetStartAndSize( ).at(
                     currentObservableType ).at( currentLinkEnds ).at( i );
 
@@ -176,9 +175,11 @@ void calculateDesignMatrixAndResiduals(
                     // Compute residuals for current link ends and observable type.
                     if( calculateResiduals )
                     {
-                        residuals.segment( observationIndices.first, observationIndices.second ) =
-                            ( currentObservations->getObservationsVector( ) - observationsVector ).template cast< double >( );
-
+                        Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > residualsVector =
+                                currentObservations->getObservationsVector( ) - observationsVector;
+                        residuals.segment( observationIndices.first, observationIndices.second ) = ( residualsVector ).template cast< double >( );
+//                            ( currentObservations->getObservationsVector( ) - observationsVector ).template cast< double >( );
+                        observationsCollection->getObservations( ).at(  currentObservableType ).at( currentLinkEnds ).at( i )->setResiduals( residualsVector );
                     }
                 }
             }
@@ -682,7 +683,7 @@ public:
      *  \return Object containing estimated parameter value and associateed data, such as residuals and observation partials.
      */
     std::shared_ptr< EstimationOutput< ObservationScalarType, TimeType > > estimateParameters(
-            const std::shared_ptr< EstimationInput< ObservationScalarType, TimeType > > estimationInput )
+            std::shared_ptr< EstimationInput< ObservationScalarType, TimeType > > estimationInput )
 
     {
         currentParameterEstimate_ = parametersToEstimate_->template getFullParameterValues< ObservationScalarType >( );
