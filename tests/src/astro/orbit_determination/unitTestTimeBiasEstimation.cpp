@@ -220,6 +220,10 @@ int main( )
         std::shared_ptr< ObservationCollection< double, double > > simulatedObservations = simulateObservations< double, double >(
                 measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
+        std::map< observation_models::ObservableType, double > weightPerObservable;
+        weightPerObservable[ one_way_doppler ] = 1.0 / ( 0.1 * 0.1 );
+        simulatedObservations->setConstantPerObservableWeightsMatrix( weightPerObservable );
+
         // Perturb parameter estimate
         Eigen::Matrix< double, Eigen::Dynamic, 1 > initialParameterEstimate = parametersToEstimate->template getFullParameterValues< double >( );
         Eigen::Matrix< double, Eigen::Dynamic, 1 > truthParameters = initialParameterEstimate;
@@ -241,11 +245,6 @@ int main( )
 
         // Define estimation input
         std::shared_ptr< EstimationInput< double, double  > > estimationInput = std::make_shared< EstimationInput< double, double > >( simulatedObservations, inverseOfAprioriCovariance );
-
-        std::map< observation_models::ObservableType, double > weightPerObservable;
-        weightPerObservable[ one_way_doppler ] = 1.0 / ( 0.1 * 0.1 );
-
-        estimationInput->setConstantPerObservableWeightsMatrix( weightPerObservable );
         estimationInput->defineEstimationSettings( true, false, true, true, false );
         estimationInput->setConvergenceChecker( std::make_shared< EstimationConvergenceChecker >( numberOfIterations ) );
 

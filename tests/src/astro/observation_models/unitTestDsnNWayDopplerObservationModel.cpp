@@ -259,11 +259,11 @@ int main( )
     // Load spice kernels
     spice_interface::loadStandardSpiceKernels( );
     spice_interface::loadSpiceKernelInTudat( get_spice_kernels_path( ) + + "/moon_de440_200625.tf");
-    spice_interface::loadSpiceKernelInTudat( "/home/dominic/Tudat/Data/GRAIL_Spice/grail_v07.tf" );
-    spice_interface::loadSpiceKernelInTudat( "/home/dominic/Tudat/Data/GRAIL_Spice/gra_sclkscet_00013.tsc" );
-    spice_interface::loadSpiceKernelInTudat( "/home/dominic/Tudat/Data/GRAIL_Spice/gra_sclkscet_00014.tsc" );
-    spice_interface::loadSpiceKernelInTudat( "/home/dominic/Tudat/Data/GRAIL_Spice/grail_120301_120529_sci_v02.bsp" );
-    spice_interface::loadSpiceKernelInTudat( "/home/dominic/Tudat/Data/GRAIL_Spice/gra_rec_120402_120408.bc" );
+    spice_interface::loadSpiceKernelInTudat( "/home/mfayolle/Tudat/tudat-bundle/tudatpy/examples/estimation/grail_kernels/grail_v07.tf" );
+    spice_interface::loadSpiceKernelInTudat( "/home/mfayolle/Tudat/tudat-bundle/tudatpy/examples/estimation/grail_kernels/gra_sclkscet_00013.tsc" );
+    spice_interface::loadSpiceKernelInTudat( "/home/mfayolle/Tudat/tudat-bundle/tudatpy/examples/estimation/grail_kernels/gra_sclkscet_00014.tsc" );
+    spice_interface::loadSpiceKernelInTudat( "/home/mfayolle/Tudat/tudat-bundle/tudatpy/examples/estimation/grail_kernels/grail_120301_120529_sci_v02.bsp" );
+    spice_interface::loadSpiceKernelInTudat( "/home/mfayolle/Tudat/tudat-bundle/tudatpy/examples/estimation/grail_kernels/gra_rec_120402_120408.bc" );
     spice_interface::loadSpiceKernelInTudat( get_spice_kernels_path( ) + + "/moon_pa_de440_200625.bpc");
     // Create settings for default bodies
     std::vector< std::string > bodiesToCreate = { "Earth", "Moon", "Sun" };
@@ -301,7 +301,7 @@ int main( )
         "Antenna", ( Eigen::Vector3d( ) << -0.082, 0.152, -0.810 ).finished( ) );
 
     // Define ODF data paths
-    std::string dataDirectory = "/home/dominic/Tudat/Data/GRAIL_ODF/";
+    std::string dataDirectory = "/home/mfayolle/Tudat/tudat-bundle/tudatpy/examples/estimation/grail_data/";
     std::vector< std::string > odfFiles = { "gralugf2012_097_0235smmmv1.odf" };
 
     // Laod raw ODF data
@@ -339,9 +339,9 @@ int main( )
     std::vector< std::shared_ptr< observation_models::LightTimeCorrectionSettings > > lightTimeCorrectionSettings;
     lightTimeCorrectionSettings.push_back( firstOrderRelativisticLightTimeCorrectionSettings( { "Sun" } ) );
     std::vector< std::string > troposphericCorrectionFileNames =
-        {"/home/dominic/Tudat/Data/GRAIL_Ancilliary/grxlugf2012_092_2012_122.tro" };
+        {"/home/mfayolle/Tudat/tudat-bundle/tudatpy/examples/estimation/grail_data/grxlugf2012_092_2012_122.tro" };
     std::vector< std::string > ionosphericCorrectionFileNames =
-        {"/home/dominic/Tudat/Data/GRAIL_Ancilliary/gralugf2012_092_2012_122.ion" };
+        {"/home/mfayolle/Tudat/tudat-bundle/tudatpy/examples/estimation/grail_data/gralugf2012_092_2012_122.ion" };
     lightTimeCorrectionSettings.push_back( tabulatedTroposphericCorrectionSettings( troposphericCorrectionFileNames ) );
     lightTimeCorrectionSettings.push_back( tabulatedIonosphericCorrectionSettings( ionosphericCorrectionFileNames, spacecraftNamePerSpacecraftId ) );
 
@@ -374,14 +374,15 @@ int main( )
     std::shared_ptr< observation_models::ObservationCollection< long double, Time > > residualObservationCollection =
         createResidualCollection( observedObservationCollection, computedObservationCollection );
 
+    simulateResiduals( observedObservationCollection, observationSimulators, bodies );
+
     Eigen::VectorXd startTimes;
     Eigen::VectorXd durations;
     Eigen::VectorXd meanValues;
     Eigen::VectorXd rmsValues;
 
     getResidualStatistics(
-        residualObservationCollection,
-        residualObservationCollection->getObservationVector( ).template cast< double >( ),
+        observedObservationCollection,
         startTimes,
         durations,
         meanValues,
@@ -390,44 +391,63 @@ int main( )
     std::cout<<"RMS "<<rmsValues.transpose( )<<std::endl;
     std::cout<<"Mean "<<meanValues.transpose( )<<std::endl<<std::endl;
 
-    Eigen::VectorXd residuals = residualObservationCollection->getObservationVector( ).template cast< double >( );
-    input_output::writeMatrixToFile( residuals, "grailTestResidualsUncompressed.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TimeBiasTest/");
+    Eigen::VectorXd residuals = observedObservationCollection->getConcatenatedResidualsVector( ).template cast< double >( );
+    input_output::writeMatrixToFile( residuals, "grailTestResidualsUncompressed.dat", 16, "/home/mfayolle/Tudat/Data/GRAIL_TimeBiasTest/");
 
     Eigen::VectorXd observationTimes = utilities::convertStlVectorToEigenVector(
-        residualObservationCollection->getConcatenatedTimeVector( ) ).template cast< double >( );
-    input_output::writeMatrixToFile( observationTimes, "grailTestTimeUncompresseds.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TimeBiasTest/");
+            observedObservationCollection->getConcatenatedTimeVector( ) ).template cast< double >( );
+    input_output::writeMatrixToFile( observationTimes, "grailTestTimeUncompresseds.dat", 16, "/home/mfayolle/Tudat/Data/GRAIL_TimeBiasTest/");
 
 
     Eigen::VectorXd numericalTimeBiasPartials = getNumericalObservationTimePartial< long double, Time >(
         observationSimulationSettings, observationSimulators, bodies, 5.0 );
     Eigen::VectorXd correctedResiduals;
     std::vector< double > timeBiases;
-    estimateTimeBiasPerSet(
-        residualObservationCollection, numericalTimeBiasPartials,
-        timeBiases, correctedResiduals );
+    estimateTimeBiasPerSet( observedObservationCollection, numericalTimeBiasPartials, timeBiases, correctedResiduals );
 
-    input_output::writeMatrixToFile( correctedResiduals, "grailTestCorrectedResidualsUncompressed.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TimeBiasTest/");
+    input_output::writeMatrixToFile( correctedResiduals, "grailTestCorrectedResidualsUncompressed.dat", 16, "/home/mfayolle/Tudat/Data/GRAIL_TimeBiasTest/");
 
     std::cout<<timeBiases.at( 0 )<<std::endl;
 
 
     std::shared_ptr< observation_models::ObservationCollection< long double, Time > > compressedObservedObservationCollection =
-        createCompressedDopplerCollection( observedObservationCollection, 60.0 );
+        createCompressedDopplerCollection( fullObservedObservationCollection, 60.0 );
 
     // Create observation simulation settings consistent with observations
     std::vector< std::shared_ptr< simulation_setup::ObservationSimulationSettings< Time > > > compressedObservationSimulationSettings =
         getObservationSimulationSettingsFromObservations( compressedObservedObservationCollection );
     std::cout<<"Integration time "<<compressedObservationSimulationSettings.at( 0 )->getAncilliarySettings( )->getAncilliaryDoubleData( doppler_integration_time )<<std::endl;
 
-    // Create simulated observations and residuals
-    std::shared_ptr< observation_models::ObservationCollection< long double, Time > > computedCompressedObservationCollection =
-        simulateObservations( compressedObservationSimulationSettings, observationSimulators, bodies );
-    std::shared_ptr< observation_models::ObservationCollection< long double, Time > > residualCompressedObservationCollection =
-        createResidualCollection( compressedObservedObservationCollection, computedCompressedObservationCollection );
+//    // Create simulated observations and residuals
+//    std::shared_ptr< observation_models::ObservationCollection< long double, Time > > computedCompressedObservationCollection =
+//        simulateObservations( compressedObservationSimulationSettings, observationSimulators, bodies );
+//    std::shared_ptr< observation_models::ObservationCollection< long double, Time > > residualCompressedObservationCollection =
+//        createResidualCollection( compressedObservedObservationCollection, computedCompressedObservationCollection );
+
+    // Define compressed observation model settings
+    std::vector< std::shared_ptr< observation_models::ObservationModelSettings > > compressedObservationModelSettingsList;
+    for ( auto it : compressedObservedObservationCollection->getLinkEndsPerObservableType( ) )
+    {
+        for ( unsigned int i = 0; i < it.second.size( ); ++i )
+        {
+            if ( it.first == observation_models::dsn_n_way_averaged_doppler )
+            {
+                compressedObservationModelSettingsList.push_back(
+                        observation_models::dsnNWayAveragedDopplerObservationSettings(
+                                it.second.at( i ), lightTimeCorrectionSettings, nullptr,
+                                std::make_shared< LightTimeConvergenceCriteria >( true ) ) );
+            }
+        }
+    }
+
+    // Create compressed observation simulators
+    std::vector< std::shared_ptr< ObservationSimulatorBase< long double, Time > > > compressedObservationSimulators =
+            createObservationSimulators< long double, Time >( compressedObservationModelSettingsList, bodies );
+
+    simulateResiduals( compressedObservedObservationCollection, compressedObservationSimulators, bodies );
 
     getResidualStatistics(
-        residualCompressedObservationCollection,
-        residualCompressedObservationCollection->getObservationVector( ).template cast< double >( ),
+        compressedObservedObservationCollection,
         startTimes,
         durations,
         meanValues,
@@ -436,32 +456,32 @@ int main( )
     std::cout<<"RMS "<<rmsValues.transpose( )<<std::endl;
     std::cout<<"Mean "<<meanValues.transpose( )<<std::endl<<std::endl;
 
-    input_output::writeMatrixToFile( startTimes, "grailTestStartTimes.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TimeBiasTest/");
-    input_output::writeMatrixToFile( durations, "grailTestDurations.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TimeBiasTest/");
-    input_output::writeMatrixToFile( meanValues, "grailMeanValues.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TimeBiasTest/");
-    input_output::writeMatrixToFile( rmsValues, "grailRmsValues.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TimeBiasTest/");
+    input_output::writeMatrixToFile( startTimes, "grailTestStartTimes.dat", 16, "/home/mfayolle/Tudat/Data/GRAIL_TimeBiasTest/");
+    input_output::writeMatrixToFile( durations, "grailTestDurations.dat", 16, "/home/mfayolle/Tudat/Data/GRAIL_TimeBiasTest/");
+    input_output::writeMatrixToFile( meanValues, "grailMeanValues.dat", 16, "/home/mfayolle/Tudat/Data/GRAIL_TimeBiasTest/");
+    input_output::writeMatrixToFile( rmsValues, "grailRmsValues.dat", 16, "/home/mfayolle/Tudat/Data/GRAIL_TimeBiasTest/");
 
-    residuals = residualCompressedObservationCollection->getObservationVector( ).template cast< double >( );
-    input_output::writeMatrixToFile( residuals, "grailTestResiduals.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TimeBiasTest/");
+    residuals = compressedObservedObservationCollection->getConcatenatedResidualsVector( ).template cast< double >( );
+    input_output::writeMatrixToFile( residuals, "grailTestResiduals.dat", 16, "/home/mfayolle/Tudat/Data/GRAIL_TimeBiasTest/");
 
     observationTimes = utilities::convertStlVectorToEigenVector(
-        residualCompressedObservationCollection->getConcatenatedTimeVector( ) ).template cast< double >( );
-    input_output::writeMatrixToFile( observationTimes, "grailTestTimes.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TimeBiasTest/");
+            compressedObservedObservationCollection->getConcatenatedTimeVector( ) ).template cast< double >( );
+    input_output::writeMatrixToFile( observationTimes, "grailTestTimes.dat", 16, "/home/mfayolle/Tudat/Data/GRAIL_TimeBiasTest/");
 
     Eigen::VectorXd observationLinkEndsIds = utilities::convertStlVectorToEigenVector(
-        residualCompressedObservationCollection->getConcatenatedLinkEndIds( ) ).template cast< double >( );
-    input_output::writeMatrixToFile(observationLinkEndsIds , "grailTestLinkEnds.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TimeBiasTest/");
+            compressedObservedObservationCollection->getConcatenatedLinkEndIds( ) ).template cast< double >( );
+    input_output::writeMatrixToFile(observationLinkEndsIds , "grailTestLinkEnds.dat", 16, "/home/mfayolle/Tudat/Data/GRAIL_TimeBiasTest/");
 
 
     Eigen::VectorXd compressedNumericalTimeBiasPartials = getNumericalObservationTimePartial< long double, Time >(
-        compressedObservationSimulationSettings, observationSimulators, bodies, 5.0 );
+        compressedObservationSimulationSettings, compressedObservationSimulators, bodies, 5.0 );
     Eigen::VectorXd correctedCompressedResiduals;
     std::vector< double > compressedtimeBiases;
     estimateTimeBiasPerSet(
-        residualCompressedObservationCollection, compressedNumericalTimeBiasPartials,
+            compressedObservedObservationCollection, compressedNumericalTimeBiasPartials,
         compressedtimeBiases, correctedCompressedResiduals );
 
-    input_output::writeMatrixToFile( correctedCompressedResiduals, "grailTestCorrectedResiduals.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TimeBiasTest/");
+    input_output::writeMatrixToFile( correctedCompressedResiduals, "grailTestCorrectedResiduals.dat", 16, "/home/mfayolle/Tudat/Data/GRAIL_TimeBiasTest/");
 
     std::cout<<compressedtimeBiases.at( 0 )<<std::endl;
 
