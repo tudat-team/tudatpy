@@ -56,11 +56,11 @@ int main( )
     // Load spice kernels
     spice_interface::loadStandardSpiceKernels( );
     spice_interface::loadSpiceKernelInTudat( get_spice_kernels_path( ) + + "/moon_de440_200625.tf");
-    spice_interface::loadSpiceKernelInTudat( "/home/dominic/Tudat/Data/GRAIL_Spice/grail_v07.tf" );
-    spice_interface::loadSpiceKernelInTudat( "/home/dominic/Tudat/Data/GRAIL_Spice/gra_sclkscet_00013.tsc" );
-    spice_interface::loadSpiceKernelInTudat( "/home/dominic/Tudat/Data/GRAIL_Spice/gra_sclkscet_00014.tsc" );
-    spice_interface::loadSpiceKernelInTudat( "/home/dominic/Tudat/Data/GRAIL_Spice/grail_120301_120529_sci_v02.bsp" );
-    spice_interface::loadSpiceKernelInTudat( "/home/dominic/Tudat/Data/GRAIL_Spice/gra_rec_120402_120408.bc" );
+    spice_interface::loadSpiceKernelInTudat( "/home/mfayolle/Tudat/tudat-bundle/tudatpy/examples/estimation/grail_kernels/grail_v07.tf" );
+    spice_interface::loadSpiceKernelInTudat( "/home/mfayolle/Tudat/tudat-bundle/tudatpy/examples/estimation/grail_kernels/gra_sclkscet_00013.tsc" );
+    spice_interface::loadSpiceKernelInTudat( "/home/mfayolle/Tudat/tudat-bundle/tudatpy/examples/estimation/grail_kernels/gra_sclkscet_00014.tsc" );
+    spice_interface::loadSpiceKernelInTudat( "/home/mfayolle/Tudat/tudat-bundle/tudatpy/examples/estimation/grail_kernels/grail_120301_120529_sci_v02.bsp" );
+    spice_interface::loadSpiceKernelInTudat( "/home/mfayolle/Tudat/tudat-bundle/tudatpy/examples/estimation/grail_kernels/gra_rec_120402_120408.bc" );
     spice_interface::loadSpiceKernelInTudat( get_spice_kernels_path( ) + + "/moon_pa_de440_200625.bpc");
 
     // Create settings for default bodies
@@ -136,7 +136,7 @@ int main( )
      *****************************************************************************************/
 
     // Define ODF data paths
-    std::string dataDirectory = "/home/dominic/Tudat/Data/GRAIL_ODF/";
+    std::string dataDirectory = "/home/mfayolle/Tudat/tudat-bundle/tudatpy/examples/estimation/grail_data/";
     std::vector< std::string > odfFiles = { "gralugf2012_097_0235smmmv1.odf" };
 
     // Laod raw ODF data
@@ -205,9 +205,11 @@ int main( )
     std::vector< std::shared_ptr< observation_models::LightTimeCorrectionSettings > > lightTimeCorrectionSettings;
     lightTimeCorrectionSettings.push_back( firstOrderRelativisticLightTimeCorrectionSettings( { "Sun" } ) );
     std::vector< std::string > troposphericCorrectionFileNames =
-        {"/home/dominic/Tudat/Data/GRAIL_Ancilliary/grxlugf2012_092_2012_122.tro", "/home/dominic/Tudat/Data/GRAIL_Ancilliary/grxlugf2012_122_2012_153.tro"};
+        {"/home/mfayolle/Tudat/tudat-bundle/tudatpy/examples/estimation/grail_data/grxlugf2012_092_2012_122.tro",
+         "/home/mfayolle/Tudat/tudat-bundle/tudatpy/examples/estimation/grail_data/grxlugf2012_122_2012_153.tro"};
     std::vector< std::string > ionosphericCorrectionFileNames =
-        {"/home/dominic/Tudat/Data/GRAIL_Ancilliary/gralugf2012_092_2012_122.ion", "/home/dominic/Tudat/Data/GRAIL_Ancilliary/gralugf2012_122_2012_153.ion"};
+        {"/home/mfayolle/Tudat/tudat-bundle/tudatpy/examples/estimation/grail_data/gralugf2012_092_2012_122.ion",
+         "/home/mfayolle/Tudat/tudat-bundle/tudatpy/examples/estimation/grail_data/gralugf2012_122_2012_153.ion"};
     std::map< int, std::string > spacecraftNamePerSpacecraftId;
     spacecraftNamePerSpacecraftId[ 177 ] = "GRAIL-A";
 
@@ -239,13 +241,15 @@ int main( )
      ************************** SIMULATE OBSERVATIONS AND COMPUTE RESIDUALS
      *****************************************************************************************/
 
-    std::vector< std::shared_ptr< simulation_setup::ObservationSimulationSettings< Time > > > observationSimulationSettings =
-        getObservationSimulationSettingsFromObservations( observedObservationCollection );
-    std::shared_ptr< observation_models::ObservationCollection< long double, Time > > computedObservationCollection =
-        simulateObservations( observationSimulationSettings, observationSimulators, bodies );
+//    std::vector< std::shared_ptr< simulation_setup::ObservationSimulationSettings< Time > > > observationSimulationSettings =
+//        getObservationSimulationSettingsFromObservations( observedObservationCollection );
+//    std::shared_ptr< observation_models::ObservationCollection< long double, Time > > computedObservationCollection =
+//        simulateObservations( observationSimulationSettings, observationSimulators, bodies );
+//
+//    std::shared_ptr< observation_models::ObservationCollection< long double, Time > > residualObservationCollection =
+//        createResidualCollection( observedObservationCollection, computedObservationCollection );
 
-    std::shared_ptr< observation_models::ObservationCollection< long double, Time > > residualObservationCollection =
-        createResidualCollection( observedObservationCollection, computedObservationCollection );
+    simulateResiduals( observedObservationCollection, observationSimulators, bodies );
 
     /****************************************************************************************
     ************************** FILTER OBSERVATIONS
@@ -254,30 +258,31 @@ int main( )
     std::map< ObservableType, double > residualCutoffValuePerObservable;
     residualCutoffValuePerObservable[ dsn_n_way_averaged_doppler ] = 0.010;
 
-    std::shared_ptr< observation_models::ObservationCollection< long double, Time > > filteredObservedObservationCollection =
-        filterResidualOutliers( observedObservationCollection, residualObservationCollection, residualCutoffValuePerObservable );
+//    std::shared_ptr< observation_models::ObservationCollection< long double, Time > > filteredObservedObservationCollection =
+//        filterResidualOutliers( observedObservationCollection, residualObservationCollection, residualCutoffValuePerObservable );
+    observedObservationCollection->filterObservations( residualCutoffValuePerObservable );
 
 
-    std::vector< std::shared_ptr< simulation_setup::ObservationSimulationSettings< Time > > > filteredObservationSimulationSettings =
-        getObservationSimulationSettingsFromObservations( filteredObservedObservationCollection );
-    std::shared_ptr< observation_models::ObservationCollection< long double, Time > > filteredComputedObservationCollection =
-        simulateObservations( filteredObservationSimulationSettings, observationSimulators, bodies );
-
-    std::shared_ptr< observation_models::ObservationCollection< long double, Time > > filteredResidualObservationCollection =
-        createResidualCollection( filteredObservedObservationCollection, filteredComputedObservationCollection );
+//    std::vector< std::shared_ptr< simulation_setup::ObservationSimulationSettings< Time > > > filteredObservationSimulationSettings =
+//        getObservationSimulationSettingsFromObservations( filteredObservedObservationCollection );
+//    std::shared_ptr< observation_models::ObservationCollection< long double, Time > > filteredComputedObservationCollection =
+//        simulateObservations( filteredObservationSimulationSettings, observationSimulators, bodies );
+//
+//    std::shared_ptr< observation_models::ObservationCollection< long double, Time > > filteredResidualObservationCollection =
+//        createResidualCollection( filteredObservedObservationCollection, filteredComputedObservationCollection );
     {
-        Eigen::VectorXd residuals = filteredResidualObservationCollection->getObservationVector( ).template cast< double >( );
-        input_output::writeMatrixToFile( residuals, "grailTestResiduals.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TestResults_time_bias2/");
+        Eigen::VectorXd residuals = observedObservationCollection->getConcatenatedResidualsVector( )/*filteredResidualObservationCollection->getObservationVector( )*/.template cast< double >( );
+        input_output::writeMatrixToFile( residuals, "grailTestResiduals.dat", 16, "/home/mfayolle/Tudat/Data/GRAIL_TestResults_time_bias2/");
 
-//        input_output::writeMatrixToFile( correctedResiduals, "grailTestCorrectedResiduals.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TestResults/");
+//        input_output::writeMatrixToFile( correctedResiduals, "grailTestCorrectedResiduals.dat", 16, "/home/mfayolle/Tudat/Data/GRAIL_TestResults/");
 
         Eigen::VectorXd observationTimes = utilities::convertStlVectorToEigenVector(
-            filteredResidualObservationCollection->getConcatenatedTimeVector( ) ).template cast< double >( );
-        input_output::writeMatrixToFile( observationTimes, "grailTestTimes.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TestResults_time_bias2/");
+                observedObservationCollection/*filteredResidualObservationCollection*/->getConcatenatedTimeVector( ) ).template cast< double >( );
+        input_output::writeMatrixToFile( observationTimes, "grailTestTimes.dat", 16, "/home/mfayolle/Tudat/Data/GRAIL_TestResults_time_bias2/");
 
         Eigen::VectorXd observationLinkEndsIds = utilities::convertStlVectorToEigenVector(
-            filteredResidualObservationCollection->getConcatenatedLinkEndIds( ) ).template cast< double >( );
-        input_output::writeMatrixToFile(observationLinkEndsIds , "grailTestLinkEnds.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TestResults_time_bias2/");
+                observedObservationCollection/*filteredResidualObservationCollection*/->getConcatenatedLinkEndIds( ) ).template cast< double >( );
+        input_output::writeMatrixToFile(observationLinkEndsIds , "grailTestLinkEnds.dat", 16, "/home/mfayolle/Tudat/Data/GRAIL_TestResults_time_bias2/");
     }
 
     {
@@ -348,7 +353,7 @@ int main( )
 //        std::map < ObservableType, std::vector< LinkEnds > > linkEndsPerObservable =
 //            filteredComputedObservationCollection->getLinkEndsPerObservableType( );
         std::map< ObservableType, std::map< int, std::vector< std::pair< double, double > > > > observationTimeBounds =
-            filteredObservedObservationCollection->getSortedObservationSetsTimeBounds( );
+                observedObservationCollection->getSortedObservationSetsTimeBounds( );
 //        std::map< ObservableType, std::map< LinkEnds, std::vector< double > > > timeBiasArcs;
 
 //        for( auto it : observationTimeBounds )
@@ -405,13 +410,13 @@ int main( )
 //            inverseAprioriCovariance( numberOfParameters - 3 + i, numberOfParameters - 3 + i ) = 1.0 / 4.0;
 //        }
         std::shared_ptr< EstimationInput< long double, Time > > estimationInput = std::make_shared< EstimationInput< long double, Time > >(
-            filteredObservedObservationCollection );//, inverseAprioriCovariance );
+                observedObservationCollection );//, inverseAprioriCovariance );
         estimationInput->setConvergenceChecker( std::make_shared< EstimationConvergenceChecker >( 4 ) );
         estimationInput->defineEstimationSettings(
             0, 0, 0, 1, 1, 1 );
         std::shared_ptr< EstimationOutput< long double, Time > > estimationOutput = orbitDeterminationManager.estimateParameters( estimationInput );
 
-        input_output::writeMatrixToFile(estimationOutput->residuals_ , "grailPostFitResiduals.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TestResults_time_bias2/");
+        input_output::writeMatrixToFile(estimationOutput->residuals_ , "grailPostFitResiduals.dat", 16, "/home/mfayolle/Tudat/Data/GRAIL_TestResults_time_bias2/");
 
         auto estimatedStateHistory =
             std::dynamic_pointer_cast< SingleArcVariationalSimulationResults< long double, Time > >( estimationOutput->getSimulationResults( ).back( ) )->getDynamicsResults( )->getEquationsOfMotionNumericalSolution( );
@@ -433,18 +438,18 @@ int main( )
             finalStateDifferenceRsw[ it.first ] = rswStateDifference;
         }
 
-        input_output::writeMatrixToFile(estimationOutput->getCorrelationMatrix( ) , "grailTestCorrelations.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TestResults_time_bias2/");
-        input_output::writeMatrixToFile(estimationOutput->getUnnormalizedDesignMatrix( ), "unnormalizedDesignMatrix.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TestResults_time_bias2/");
-        input_output::writeMatrixToFile(estimationOutput->getNormalizedDesignMatrix( ), "normalizedDesignMatrix.dat", 16, "/home/dominic/Tudat/Data/GRAIL_TestResults_time_bias2/");
+        input_output::writeMatrixToFile(estimationOutput->getCorrelationMatrix( ) , "grailTestCorrelations.dat", 16, "/home/mfayolle/Tudat/Data/GRAIL_TestResults_time_bias2/");
+        input_output::writeMatrixToFile(estimationOutput->getUnnormalizedDesignMatrix( ), "unnormalizedDesignMatrix.dat", 16, "/home/mfayolle/Tudat/Data/GRAIL_TestResults_time_bias2/");
+        input_output::writeMatrixToFile(estimationOutput->getNormalizedDesignMatrix( ), "normalizedDesignMatrix.dat", 16, "/home/mfayolle/Tudat/Data/GRAIL_TestResults_time_bias2/");
 
         input_output::writeDataMapToTextFile( finalStateDifference,
                                               "stateDifference.dat",
-                                              "/home/dominic/Tudat/Data/GRAIL_TestResults_time_bias2/",
+                                              "/home/mfayolle/Tudat/Data/GRAIL_TestResults_time_bias2/",
                                               "", std::numeric_limits< double >::digits10,  std::numeric_limits< double >::digits10,  "," );
 
         input_output::writeDataMapToTextFile( finalStateDifferenceRsw,
                                               "stateDifferenceRsw.dat",
-                                              "/home/dominic/Tudat/Data/GRAIL_TestResults_time_bias2/",
+                                              "/home/mfayolle/Tudat/Data/GRAIL_TestResults_time_bias2/",
                                               "", std::numeric_limits< double >::digits10,  std::numeric_limits< double >::digits10,  "," );
 
 

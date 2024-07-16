@@ -556,7 +556,7 @@ Eigen::VectorXd  executeMultiBodyMultiArcParameterEstimation( )
     std::shared_ptr< EstimationOutput< StateScalarType, TimeType > > estimationOutput = orbitDeterminationManager.estimateParameters(
                 estimationInput );
 
-    std::string outputFolder = "/home/dominic/Software/tudatBundleTest/tudatBundle/tudatApplications/master_thesis/Output/";
+//    std::string outputFolder = "/home/mfayolle/Software/tudatBundleTest/tudatBundle/tudatApplications/master_thesis/Output/";
 
     return ( estimationOutput->parameterEstimate_ - truthParameters ).template cast< double >( );
 }
