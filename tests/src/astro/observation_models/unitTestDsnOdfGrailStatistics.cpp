@@ -147,8 +147,7 @@ int main( )
 
     // Process ODF file data
     std::shared_ptr< ProcessedOdfFileContents > processedOdfFileContents =
-        std::make_shared< ProcessedOdfFileContents >(
-            rawOdfDataVector, spacecraftName, "", true );
+        std::make_shared< ProcessedOdfFileContents >( rawOdfDataVector, spacecraftName, true );
     observation_models::setOdfInformationInBodies( processedOdfFileContents, bodies );
 
     // Create data structure that handles Observed Data in Tudat
