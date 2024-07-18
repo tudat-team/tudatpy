@@ -1724,7 +1724,7 @@ std::tuple< int, double, double > getClosestStationSatelliteDistance(
 
 
     Eigen::Vector6d stationState = getLinkEndCompleteEphemerisFunction(
-            bodies.at( "Earth" ), observation_models::LinkEndId( "Earth", groundStation->getStationId( ) ) )( time );
+            observation_models::LinkEndId( "Earth", groundStation->getStationId( ) ), bodies )( time );
 
     for( unsigned int i = 0; i < bodyList.size( ); i++ )
     {

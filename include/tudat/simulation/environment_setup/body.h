@@ -79,6 +79,8 @@ public:
     Eigen::Matrix<OutputStateScalarType, 6, 1> getBaseFrameState(
             const OutputTimeType time);
 
+    std::string getBaseFrameId( ){ return baseFrameId_; }
+
 protected:
     //! Pure virtual function through which the state of baseFrameId_ in the inertial frame can be determined
     /*!
@@ -713,6 +715,12 @@ public:
         {
             return currentLongState_.template cast<StateScalarType>();
         }
+    }
+
+    template<typename StateScalarType = double, typename TimeType = double>
+    Eigen::Matrix<StateScalarType, 3, 1> getPositionInBaseFrameFromEphemeris(const TimeType time)
+    {
+        return getStateInBaseFrameFromEphemeris< StateScalarType, TimeType >( time ).segment( 0, 3 );
     }
 
     //! Templated function to get the current berycentric state of the body from its ephemeris andcglobal-to-ephemeris-frame
