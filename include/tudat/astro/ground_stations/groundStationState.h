@@ -359,6 +359,53 @@ protected:
 
 };
 
+struct BodyCentricToBarycentricRelativisticStationMotion: public StationMotionModel
+{
+public:
+    BodyCentricToBarycentricRelativisticStationMotion(
+        const std::function< Eigen::Vector6d( const double ) > bodyBarycentricStateFunction,
+        const std::function< Eigen::Vector3d( const double ) > centralBodyBarycentricPositionFunction,
+        const std::function< Eigen::Quaterniond( const double ) > inertialToBodyFixedRotationFunction,
+        const std::function< double( ) > centralBodyGravitationalParameterFunction,
+        const bool useGeneralRelativisticCorrection ):
+        bodyBarycentricStateFunction_( bodyBarycentricStateFunction ),
+        centralBodyBarycentricPositionFunction_( centralBodyBarycentricPositionFunction ),
+        inertialToBodyFixedRotationFunction_( inertialToBodyFixedRotationFunction ),
+        centralBodyGravitationalParameterFunction_( centralBodyGravitationalParameterFunction ),
+        useGeneralRelativisticCorrection_( useGeneralRelativisticCorrection )
+    {
+
+    }
+
+    ~BodyCentricToBarycentricRelativisticStationMotion( ){ }
+
+    Eigen::Vector6d getBodyFixedStationMotion(
+        const double time,
+        const std::shared_ptr< ground_stations::GroundStationState > groundStationState = nullptr );
+
+    
+protected:
+
+    std::function< Eigen::Vector6d( const double ) > bodyBarycentricStateFunction_;
+
+    std::function< Eigen::Vector3d( const double ) > centralBodyBarycentricPositionFunction_;
+
+    std::function< Eigen::Quaterniond( const double ) > inertialToBodyFixedRotationFunction_;
+
+     std::function< double( ) > centralBodyGravitationalParameterFunction_;
+
+    Eigen::Vector6d stationMotion = Eigen::Vector6d::Zero( );
+
+    Eigen::Quaterniond currentRotationToBodyFixedFrame_;
+
+    Eigen::Vector3d inertialNominalStationPosition_;
+
+    Eigen::Vector6d centralBodyBarycentricState_;
+
+    bool useGeneralRelativisticCorrection_;
+
+};
+
 struct CustomStationMotionModel: public StationMotionModel
 {
 public:
