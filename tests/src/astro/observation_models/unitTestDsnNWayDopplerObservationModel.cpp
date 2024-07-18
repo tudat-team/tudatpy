@@ -23,6 +23,7 @@
 #include "tudat/io/readOdfFile.h"
 #include "tudat/io/readTabulatedMediaCorrections.h"
 #include "tudat/io/readTabulatedWeatherData.h"
+#include "tudat/io/readVariousPdsFiles.h"
 #include "tudat/simulation/estimation_setup/processOdfFile.h"
 #include "tudat/simulation/estimation_setup/simulateObservations.h"
 #include <boost/date_time/gregorian/gregorian.hpp>
@@ -303,6 +304,9 @@ int main( )
     // Define ODF data paths
     std::string dataDirectory = "/home/mfayolle/Tudat/tudat-bundle/tudatpy/examples/estimation/grail_data/";
     std::vector< std::string > odfFiles = { "gralugf2012_097_0235smmmv1.odf" };
+    std::vector< std::string > antennaFiles = { "vgx1b_2012_04_06_a_04.asc" };
+    std::vector< std::string > massLevel0Files = { "mas00_2012_04_06_a_04.asc" };
+    std::vector< std::string > massLevel1Files = { "mas1a_2012_04_06_a_04.asc" };
 
     // Laod raw ODF data
     std::vector< std::shared_ptr< input_output::OdfRawFileContents > > rawOdfDataVector;
@@ -310,7 +314,7 @@ int main( )
     {
         rawOdfDataVector.push_back( std::make_shared< OdfRawFileContents >( dataDirectory + odfFile ) );
     }
-
+    
     // Process ODF file data
     std::shared_ptr< ProcessedOdfFileContents > processedOdfFileContents =
         std::make_shared< ProcessedOdfFileContents >( rawOdfDataVector, spacecraftName, true );
