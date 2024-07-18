@@ -48,7 +48,9 @@ public:
         pointingAnglesCalculator_( pointingAnglesCalculator ),
         stationId_( stationId ),
         transmittingFrequencyCalculator_( transmittingFrequencyCalculator )
-    { }
+    {
+        stationState->setSiteId( stationId );
+    }
 
 
     //! Function that returns (at reference epoch) the state of the ground station
