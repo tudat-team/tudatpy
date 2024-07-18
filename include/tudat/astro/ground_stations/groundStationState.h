@@ -226,6 +226,9 @@ public:
         return geocentricUnitVectors_;
     }
 
+    void setSiteId( const std::string& siteId ){ siteId_ = siteId; }
+
+    std::string getSiteId( ){ return siteId_; }
 protected:
 
 
@@ -277,6 +280,8 @@ protected:
     std::shared_ptr< basic_astrodynamics::BodyShapeModel > bodyShapeModel_;
 
     std::shared_ptr< StationMotionModel > stationMotionModel_;
+
+    std::string siteId_ = "";
 };
 
 //! Function to calculate the rotation from a body-fixed to a topocentric frame.
