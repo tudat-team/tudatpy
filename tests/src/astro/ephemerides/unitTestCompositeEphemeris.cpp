@@ -84,9 +84,9 @@ BOOST_AUTO_TEST_CASE( testCompositeEphemeris )
     std::shared_ptr< RotationalEphemeris > rotationModel = bodies.at( "Earth" )->getRotationalEphemeris( );
 
     // Create reference point CompositeEphemeris objects (double and long double state scalars).
-    std::shared_ptr< Ephemeris > ephemeris1 = createReferencePointEphemeris< double, double >(
+    std::shared_ptr< Ephemeris > ephemeris1 = createReferencePointCompositeEphemeris< double, double >(
                 earthEphemeris, rotationModel, &getGroundStationPosition );
-    std::shared_ptr< Ephemeris > ephemeris2 = createReferencePointEphemeris< double, long double >(
+    std::shared_ptr< Ephemeris > ephemeris2 = createReferencePointCompositeEphemeris< double, long double >(
                 earthEphemeris, rotationModel, &getGroundStationPosition );
     double testTime = 1.05E7;
 
