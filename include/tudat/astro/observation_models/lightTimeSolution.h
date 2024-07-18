@@ -21,6 +21,7 @@
 
 #include "tudat/basics/basicTypedefs.h"
 #include "tudat/astro/basic_astro/physicalConstants.h"
+#include "tudat/astro/ephemerides/ephemeris.h"
 #include "tudat/astro/observation_models/corrections/lightTimeCorrection.h"
 #include "tudat/astro/observation_models/observationModel.h"
 
@@ -345,14 +346,14 @@ public:
      *  \param correctionFunctions List of light-time correction objects.
      */
     LightTimeCalculator(
-            const std::function< StateType( const TimeType ) > positionFunctionOfTransmittingBody,
-            const std::function< StateType( const TimeType ) > positionFunctionOfReceivingBody,
+            const std::shared_ptr< ephemerides::Ephemeris > ephemerisOfTransmittingBody,
+            const std::shared_ptr< ephemerides::Ephemeris > ephemerisOfReceivingBody,
             const std::vector< std::shared_ptr< LightTimeCorrection > > correctionFunctions =
                 std::vector< std::shared_ptr< LightTimeCorrection > >( ),
             const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria
                 = std::make_shared< LightTimeConvergenceCriteria >( ) ):
-        stateFunctionOfTransmittingBody_( positionFunctionOfTransmittingBody ),
-        stateFunctionOfReceivingBody_( positionFunctionOfReceivingBody ),
+        ephemerisOfTransmittingBody_( ephemerisOfTransmittingBody ),
+        ephemerisOfReceivingBody_( ephemerisOfReceivingBody ),
         correctionFunctions_( correctionFunctions ),
         lightTimeConvergenceCriteria_( lightTimeConvergenceCriteria ),
         currentCorrection_( 0.0 )
@@ -361,18 +362,18 @@ public:
     //! Class constructor.
     /*!
      *  This constructor is used to initialize the state functions and light-time functions
-     *  \param positionFunctionOfTransmittingBody State function of transmitter.
-     *  \param positionFunctionOfReceivingBody State function of receiver.
+     *  \param ephemerisOfTransmittingBody State function of transmitter.
+     *  \param ephemerisOfReceivingBody State function of receiver.
      *  \param correctionFunctions List of light-time correction functions.
      */
     LightTimeCalculator(
-            const std::function< StateType( const TimeType ) > positionFunctionOfTransmittingBody,
-            const std::function< StateType( const TimeType ) > positionFunctionOfReceivingBody,
+            const std::shared_ptr< ephemerides::Ephemeris > ephemerisOfTransmittingBody,
+            const std::shared_ptr< ephemerides::Ephemeris > ephemerisOfReceivingBody,
             const std::vector< LightTimeCorrectionFunctionMultiLeg > correctionFunctions,
             const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria
                 = std::make_shared< LightTimeConvergenceCriteria >( ) ):
-        stateFunctionOfTransmittingBody_( positionFunctionOfTransmittingBody ),
-        stateFunctionOfReceivingBody_( positionFunctionOfReceivingBody ),
+        ephemerisOfTransmittingBody_( ephemerisOfTransmittingBody ),
+        ephemerisOfReceivingBody_( ephemerisOfReceivingBody ),
         lightTimeConvergenceCriteria_( lightTimeConvergenceCriteria ),
         currentCorrection_( 0.0 )
     {
@@ -385,13 +386,13 @@ public:
     }
 
     LightTimeCalculator(
-            const std::function< StateType( const TimeType ) > positionFunctionOfTransmittingBody,
-            const std::function< StateType( const TimeType ) > positionFunctionOfReceivingBody,
+            const std::shared_ptr< ephemerides::Ephemeris > ephemerisOfTransmittingBody,
+            const std::shared_ptr< ephemerides::Ephemeris > ephemerisOfReceivingBody,
             const std::vector< LightTimeCorrectionFunctionSingleLeg > correctionFunctions,
             const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria
                 = std::make_shared< LightTimeConvergenceCriteria >( ) ):
-        stateFunctionOfTransmittingBody_( positionFunctionOfTransmittingBody ),
-        stateFunctionOfReceivingBody_( positionFunctionOfReceivingBody ),
+        ephemerisOfTransmittingBody_( ephemerisOfTransmittingBody ),
+        ephemerisOfReceivingBody_( ephemerisOfReceivingBody ),
         lightTimeConvergenceCriteria_( lightTimeConvergenceCriteria ),
         currentCorrection_( 0.0 )
     {
@@ -526,8 +527,8 @@ public:
         // If no link end times are provided, compute an initial guess for the light time without corrections
         else
         {
-            receiverState = stateFunctionOfReceivingBody_( receptionTime );
-            transmitterState = stateFunctionOfTransmittingBody_( transmissionTime );
+            receiverState = ephemerisOfReceivingBody_->getTemplatedStateFromEphemeris< ObservationScalarType, TimeType >( receptionTime );
+            transmitterState = ephemerisOfTransmittingBody_->getTemplatedStateFromEphemeris< ObservationScalarType, TimeType >( transmissionTime );
 
             currentCorrection_ = 0.0;
 
@@ -544,8 +545,8 @@ public:
             receptionTime = transmissionTime + previousLightTimeCalculation;
         }
         // Set receiver and transmitter states to initial guess
-        receiverState = stateFunctionOfReceivingBody_( receptionTime );
-        transmitterState = stateFunctionOfTransmittingBody_( transmissionTime );
+        receiverState = ephemerisOfReceivingBody_->getTemplatedStateFromEphemeris< ObservationScalarType, TimeType >( receptionTime );
+        transmitterState = ephemerisOfTransmittingBody_->getTemplatedStateFromEphemeris< ObservationScalarType, TimeType >( transmissionTime );
 
         // Set variables for iteration of light time
         iterationCounter_ = 0;
@@ -597,13 +598,13 @@ public:
             {
                 receptionTime = time;
                 transmissionTime = time - previousLightTimeCalculation;
-                transmitterState = ( stateFunctionOfTransmittingBody_( transmissionTime ) );
+                transmitterState = ephemerisOfTransmittingBody_->getTemplatedStateFromEphemeris< ObservationScalarType, TimeType >( transmissionTime );
             }
             else
             {
                 receptionTime = time + previousLightTimeCalculation;
                 transmissionTime = time;
-                receiverState = ( stateFunctionOfReceivingBody_( receptionTime ) );
+                receiverState = ephemerisOfReceivingBody_->getTemplatedStateFromEphemeris< ObservationScalarType, TimeType >( receptionTime );
             }
             newLightTimeCalculation = calculateNewLightTimeEstimate( receiverState, transmitterState );
             isToleranceReached = isSingleLegLightTimeSolutionConverged(
@@ -678,15 +679,26 @@ public:
         return iterationCounter_;
     }
 
+    std::shared_ptr< ephemerides::Ephemeris > getEphemerisOfTransmittingBody( )
+    {
+        return ephemerisOfTransmittingBody_;
+    }
+
+    std::shared_ptr< ephemerides::Ephemeris > getEphemerisOfReceivingBody( )
+    {
+        return ephemerisOfReceivingBody_;
+    }
+
     std::function< StateType( const TimeType ) > getStateFunctionOfTransmittingBody( )
     {
-        return stateFunctionOfTransmittingBody_;
+        return std::bind( &ephemerides::Ephemeris::getTemplatedStateFromEphemeris< StateType, TimeType >, ephemerisOfTransmittingBody_, std::placeholders::_1 );
     }
 
     std::function< StateType( const TimeType ) > getStateFunctionOfReceivingBody( )
     {
-        return stateFunctionOfReceivingBody_;
+        return std::bind( &ephemerides::Ephemeris::getTemplatedStateFromEphemeris< StateType, TimeType >, ephemerisOfReceivingBody_, std::placeholders::_1 );
     }
+
 
 protected:
 
@@ -694,13 +706,13 @@ protected:
     /*!
      *  Transmitter state function.
      */
-    std::function< StateType( const TimeType ) > stateFunctionOfTransmittingBody_;
+    std::shared_ptr< ephemerides::Ephemeris >  ephemerisOfTransmittingBody_;
 
     //! Receiver state function.
     /*!
      *  Receiver state function.
      */
-    std::function< StateType( const TimeType ) > stateFunctionOfReceivingBody_;
+    std::shared_ptr< ephemerides::Ephemeris >  ephemerisOfReceivingBody_;
 
     //! List of light-time correction functions.
     /*!
@@ -835,8 +847,8 @@ public:
 
     // Constructor for a single leg
     MultiLegLightTimeCalculator(
-            const std::function< StateType( const TimeType ) > positionFunctionOfTransmittingBody,
-            const std::function< StateType( const TimeType ) > positionFunctionOfReceivingBody,
+            const std::function< StateType( const TimeType ) > ephemerisOfTransmittingBody,
+            const std::function< StateType( const TimeType ) > ephemerisOfReceivingBody,
             const std::vector< std::shared_ptr< LightTimeCorrection > > correctionFunctions =
                 std::vector< std::shared_ptr< LightTimeCorrection > >( ),
             const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria
@@ -848,7 +860,7 @@ public:
     {
         lightTimeCalculators_.clear( );
         lightTimeCalculators_.push_back( std::make_shared< LightTimeCalculator< ObservationScalarType, TimeType > >(
-                positionFunctionOfTransmittingBody, positionFunctionOfReceivingBody, correctionFunctions,
+                ephemerisOfTransmittingBody, ephemerisOfReceivingBody, correctionFunctions,
                 lightTimeConvergenceCriteria ) );
     }
 
