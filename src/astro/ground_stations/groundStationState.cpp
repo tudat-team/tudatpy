@@ -58,11 +58,11 @@ GroundStationState::GroundStationState(
 
 //! Function to obtain the Cartesian state of the ground station in the local frame at a given time.
 Eigen::Vector6d GroundStationState::getCartesianStateInTime(
-        const double secondsSinceEpoch )
+        const double secondsSinceEpoch, const std::string& targetFrameOrigin )
 {
     Eigen::Vector6d currentStationState =
             ( stationMotionModel_ != nullptr ) ? ( nominalCartesianState_ + stationMotionModel_->getBodyFixedStationMotion(
-                                                       secondsSinceEpoch, shared_from_this( )  ) ) : nominalCartesianState_;
+                                                       secondsSinceEpoch, shared_from_this( ), targetFrameOrigin ) ) : nominalCartesianState_;
 
     return currentStationState;
 }
@@ -170,7 +170,8 @@ Eigen::Quaterniond getRotationQuaternionFromBodyFixedToTopocentricFrame(
 
 Eigen::Vector6d PiecewiseConstantStationMotionModel::getBodyFixedStationMotion(
         const double time,
-        const std::shared_ptr< ground_stations::GroundStationState > groundStationState )
+        const std::shared_ptr< ground_stations::GroundStationState > groundStationState,
+        const std::string& targetFrameOrigin )
 {
     timeLookupScheme_ = std::make_shared< interpolators::BinarySearchLookupScheme< double > >(
                 displacementTimes_ );
@@ -193,27 +194,30 @@ Eigen::Vector6d PiecewiseConstantStationMotionModel::getBodyFixedStationMotion(
 
 Eigen::Vector6d BodyCentricToBarycentricRelativisticStationMotion::getBodyFixedStationMotion(
     const double time,
-    const std::shared_ptr< ground_stations::GroundStationState > groundStationState )
+    const std::shared_ptr< ground_stations::GroundStationState > groundStationState,
+    const std::string& targetFrameOrigin )
 {
     Eigen::Vector6d stationMotion = Eigen::Vector6d::Zero( );
 
-
-    currentRotationToBodyFixedFrame_ = inertialToBodyFixedRotationFunction_( time );
-    inertialNominalStationPosition_ = currentRotationToBodyFixedFrame_.inverse( ) * groundStationState->getNominalCartesianPosition( );
-
-    centralBodyBarycentricState_ = bodyBarycentricStateFunction_( time );
-    stationMotion.segment( 0, 3 ) += ( centralBodyBarycentricState_.segment( 3, 3 ).dot( inertialNominalStationPosition_ ) ) * centralBodyBarycentricState_.segment( 3, 3 );
-
-    if( useGeneralRelativisticCorrection_ )
+    if( targetFrameOrigin == "SSB" )
     {
-        stationMotion.segment( 0, 3 ) += ( centralBodyGravitationalParameterFunction_( ) /
-                                           ( centralBodyBarycentricState_.segment( 0, 3 ) -
-                                             centralBodyBarycentricPositionFunction_( time )).norm( )) *
-                                         inertialNominalStationPosition_;
-    }
+        currentRotationToBodyFixedFrame_ = inertialToBodyFixedRotationFunction_( time );
+        inertialNominalStationPosition_ = currentRotationToBodyFixedFrame_.inverse( ) * groundStationState->getNominalCartesianPosition( );
 
-    stationMotion.segment( 0, 3 ) *= physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT;
-    stationMotion.segment( 0, 3 ) = currentRotationToBodyFixedFrame_ * stationMotion.segment( 0, 3 );
+        centralBodyBarycentricState_ = bodyBarycentricStateFunction_( time );
+        stationMotion.segment( 0, 3 ) += ( centralBodyBarycentricState_.segment( 3, 3 ).dot( inertialNominalStationPosition_ ) ) * centralBodyBarycentricState_.segment( 3, 3 );
+
+        if( useGeneralRelativisticCorrection_ )
+        {
+            stationMotion.segment( 0, 3 ) += ( centralBodyGravitationalParameterFunction_( ) /
+                                               ( centralBodyBarycentricState_.segment( 0, 3 ) -
+                                                 centralBodyBarycentricPositionFunction_( time )).norm( )) *
+                                             inertialNominalStationPosition_;
+        }
+
+        stationMotion.segment( 0, 3 ) *= physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT;
+        stationMotion.segment( 0, 3 ) = currentRotationToBodyFixedFrame_ * stationMotion.segment( 0, 3 );
+    }
     return stationMotion;
 }
 }
