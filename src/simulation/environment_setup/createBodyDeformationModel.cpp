@@ -1,5 +1,8 @@
 #include "tudat/astro/ground_stations/basicTidalBodyDeformation.h"
+#include "tudat/astro/ground_stations/poleTideDeformation.h"
+#include "tudat/astro/ground_stations/oceanTideEarthDeformation.h"
 #include "tudat/astro/ground_stations/iers2010SolidTidalBodyDeformation.h"
+#include "tudat/astro/ephemerides/itrsToGcrsRotationModel.h"
 #include "tudat/simulation/environment_setup/createBodyDeformationModel.h"
 #include "tudat/io/basicInputOutput.h"
 
@@ -172,7 +175,7 @@ std::shared_ptr< basic_astrodynamics::BodyDeformationModel > createBodyDeformati
     {
         if( body != "Earth" )
         {
-            throw std::runtime_error( "Error, can only assign IERS 2010 deformation model to Earth" );
+            std::cerr<<"Warning, you should use IERS 2010 deformation model only for Earth, now adding to body"<<std::endl;
         }
         if( bodyMap.count( "Earth" ) == 0 )
         {
@@ -187,7 +190,7 @@ std::shared_ptr< basic_astrodynamics::BodyDeformationModel > createBodyDeformati
             throw std::runtime_error( "Error when making IERS 2010 deformation model, Sun not found" );
         }
 
-        return createDefaultEarthIers2010DeformationModel(
+        bodyDeformationModel = createDefaultEarthIers2010DeformationModel(
                     bodyMap.at( "Earth" )->getEphemeris( ),
                     bodyMap.at( "Moon" )->getEphemeris( ),
                     bodyMap.at( "Sun" )->getEphemeris( ),
@@ -195,6 +198,55 @@ std::shared_ptr< basic_astrodynamics::BodyDeformationModel > createBodyDeformati
                     std::bind( &gravitation::GravityFieldModel::getGravitationalParameter, bodyMap.at( "Earth" )->getGravityFieldModel( ) ),
                     std::bind( &gravitation::GravityFieldModel::getGravitationalParameter, bodyMap.at( "Moon" )->getGravityFieldModel( ) ),
                     std::bind( &gravitation::GravityFieldModel::getGravitationalParameter, bodyMap.at( "Sun" )->getGravityFieldModel( ) ) );
+        break;
+    }
+    case pole_tide:
+    {
+        if( body != "Earth" )
+        {
+            std::cerr<<"Warning, you should use pole tide deformation model only for Earth, now adding to body"<<std::endl;
+        }
+        if( bodyMap.count( body ) == 0 )
+        {
+            throw std::runtime_error( "Error when making pole tide deformation model, " + body  + " not found" );
+        }
+        else if( std::dynamic_pointer_cast< ephemerides::GcrsToItrsRotationModel >( bodyMap.at( body )->getRotationalEphemeris( ))  == nullptr )
+        {
+             throw std::runtime_error( "Error when making pole tide deformation model, " + body  + ", model requires GCRS<->ITRS rotation model" );
+        }
+        else
+        {
+            bodyDeformationModel = std::make_shared< basic_astrodynamics::PoleTideDeformation >(
+                std::dynamic_pointer_cast< ephemerides::GcrsToItrsRotationModel >( bodyMap.at( body )->getRotationalEphemeris( ) )
+                    ->getAnglesCalculator( )->getPolarMotionCalculator( ) );
+        }
+        break;
+    }
+    case ocean_tide:
+    {
+        std::shared_ptr< OceanTideBodyDeformationSettings > oceanTideBodyDeformationSettings =
+            std::dynamic_pointer_cast< OceanTideBodyDeformationSettings >( bodyDeformationSettings );
+
+        if( oceanTideBodyDeformationSettings == nullptr )
+        {
+            throw std::runtime_error( "Error when creating body deformation model, expected ocean tide body settings for " + body );
+        }
+
+        if( body != "Earth" )
+        {
+            std::cerr<<"Warning, you should use ocean tide deformation model only for Earth, now adding to body"<<std::endl;
+        }
+
+        if( bodyMap.count( body ) == 0 )
+        {
+            throw std::runtime_error( "Error when making pole tide deformation model, " + body  + " not found" );
+        }
+        else
+        {
+            bodyDeformationModel = std::make_shared< basic_astrodynamics::OceanTideEarthDeformation >(
+                oceanTideBodyDeformationSettings->getBlqFiles( ) );
+        }
+        break;
     }
     default:
         throw std::runtime_error( "Error, did not recognize body deformation settings type " +

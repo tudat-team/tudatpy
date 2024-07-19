@@ -29,7 +29,9 @@ enum BodyDeformationTypes
     tabulated_variation,
     periodic_variation,
     polynomial_variation,
-    iers_2010
+    iers_2010,
+    pole_tide,
+    ocean_tide
 };
 
 

@@ -49,10 +49,16 @@ public:
      *  by BLQ file.
      *  \param blqFile BLQ file containing ocean tide displacement amplitudes and phases.
      */
-    OceanTideEarthDeformation( const std::string& blqFile ,
+    OceanTideEarthDeformation( const std::vector< std::string >& blqFiles,
                                const std::function< Eigen::Vector6d( const double ) > doodsonArgumentFunction =
                                    [](const double time ){ return sofa_interface::calculateDoodsonFundamentalArguments( time ); } );
 
+    OceanTideEarthDeformation( const std::string& blqFile,
+                               const std::function< Eigen::Vector6d( const double ) > doodsonArgumentFunction =
+                                   [](const double time ){ return sofa_interface::calculateDoodsonFundamentalArguments( time ); } ):
+                                   OceanTideEarthDeformation( std::vector< std::string >( { blqFile } ), doodsonArgumentFunction ){ }
+
+    void addBlqFile( const std::string& blqFile );
 
     Eigen::Vector3d calculateDisplacementInEnuFrame(
         const double time,

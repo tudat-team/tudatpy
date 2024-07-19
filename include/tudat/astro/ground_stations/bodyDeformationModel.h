@@ -55,8 +55,10 @@ struct BodyDeformationStationMotionModel: public StationMotionModel
 {
 public:
     BodyDeformationStationMotionModel(
-            std::function< std::vector< std::shared_ptr< basic_astrodynamics::BodyDeformationModel > >& ( ) > modelList ):
-    modelList_( modelList ){ }
+            std::function< std::vector< std::shared_ptr< basic_astrodynamics::BodyDeformationModel > >& ( ) > modelList,
+            const bool throwExceptionWhenNotAvailable ):
+    modelList_( modelList ),
+    throwExceptionWhenNotAvailable_( throwExceptionWhenNotAvailable ){ }
 
     Eigen::Vector6d getBodyFixedStationMotion(
             const double time,
@@ -66,8 +68,18 @@ public:
         std::vector< std::shared_ptr< basic_astrodynamics::BodyDeformationModel > >& currentModels = modelList_( );
         for( unsigned int i = 0; i < currentModels.size( ); i++ )
         {
-            motion.segment( 0, 3 ) += currentModels.at( i )->calculateDisplacement(
+            try
+            {
+                motion.segment( 0, 3 ) += currentModels.at( i )->calculateDisplacement(
                         time, groundStationState );
+            }
+            catch( const std::exception& caughtException )
+            {
+                if( throwExceptionWhenNotAvailable_ )
+                {
+                    throw caughtException;
+                }
+            }
         }
         return motion;
     }
@@ -76,7 +88,7 @@ protected:
 
     std::function< std::vector< std::shared_ptr< basic_astrodynamics::BodyDeformationModel > >& ( ) > modelList_;
 
-    std::shared_ptr< ground_stations::GroundStationState > groundStationState_;
+    bool throwExceptionWhenNotAvailable_;
 };
 
 }

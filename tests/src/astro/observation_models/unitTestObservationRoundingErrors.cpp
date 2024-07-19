@@ -126,12 +126,12 @@ std::shared_ptr<LightTimeCalculator<long double, Time> > getOneWayLightTimeCalcu
 
 template< typename StateScalarType, typename TimeType >
 void checkStateFunctionNumericalErrors(
-    const std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > stateFunction,
+    const std::shared_ptr< ephemerides::Ephemeris > ephemeris,
     const TimeType testTime,
     const std::vector< int > timeExponents = { 0, -6, -7, -8, -9, -10, -11, -12} )
 {
     // Compute nominal state at test time
-    Eigen::Vector6ld nominalState = stateFunction( testTime ).template cast< long double >( );
+    Eigen::Vector6ld nominalState = ephemeris->getTemplatedStateFromEphemeris< StateScalarType, TimeType >( testTime ).template cast< long double >( );
 
     // Time steps at which the relative numerical error will be around 1
     Eigen::Vector3ld stateRatio = ( nominalState.segment< 3 >( 0 ).cwiseQuotient( nominalState.segment< 3 >( 3 ) ) ).template cast< long double >( );
@@ -146,9 +146,9 @@ void checkStateFunctionNumericalErrors(
         long double perturbationStep = std::pow( 10, timeExponents.at( i ) );
 
         // Calculate numerical partial
-        Eigen::Vector3ld upperturbedState = stateFunction(
+        Eigen::Vector3ld upperturbedState = ephemeris->getTemplatedStateFromEphemeris< StateScalarType, TimeType >(
                 testTime + perturbationStep ).segment( 0, 3 );
-        Eigen::Vector3ld downperturbedState = stateFunction(
+        Eigen::Vector3ld downperturbedState = ephemeris->getTemplatedStateFromEphemeris< StateScalarType, TimeType >(
                 testTime - perturbationStep ).segment( 0, 3 );
         Eigen::Vector3ld currentPartial = ( upperturbedState - downperturbedState ) / ( 2.0 * perturbationStep );
 
@@ -226,10 +226,11 @@ BOOST_AUTO_TEST_CASE( test_ObservationModelContinuity )
     {
         std::shared_ptr<LightTimeCalculator<long double, Time>  > lightTimeCalculator =
             getOneWayLightTimeCalculator( barycentricInterpolatedBodies, centerOfMassObservationSettingsList );
+
         checkStateFunctionNumericalErrors< long double, Time >(
-            lightTimeCalculator->getStateFunctionOfTransmittingBody( ), testTime );
+            lightTimeCalculator->getEphemerisOfTransmittingBody( ), testTime );
         checkStateFunctionNumericalErrors< long double, Time >(
-            lightTimeCalculator->getStateFunctionOfReceivingBody( ), testTime );
+            lightTimeCalculator->getEphemerisOfReceivingBody( ), testTime );
     }
 
     // Check state function numerical consistency for observations from ground station
@@ -237,9 +238,9 @@ BOOST_AUTO_TEST_CASE( test_ObservationModelContinuity )
         std::shared_ptr<LightTimeCalculator<long double, Time>  > lightTimeCalculator =
             getOneWayLightTimeCalculator( barycentricInterpolatedBodies, stationObservationSettingsList );
         checkStateFunctionNumericalErrors< long double, Time >(
-            lightTimeCalculator->getStateFunctionOfTransmittingBody( ), testTime );
+            lightTimeCalculator->getEphemerisOfTransmittingBody( ), testTime );
         checkStateFunctionNumericalErrors< long double, Time >(
-            lightTimeCalculator->getStateFunctionOfReceivingBody( ), testTime );
+            lightTimeCalculator->getEphemerisOfReceivingBody( ), testTime );
     }
 
 }

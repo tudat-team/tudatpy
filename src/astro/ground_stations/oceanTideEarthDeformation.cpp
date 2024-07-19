@@ -156,16 +156,14 @@ Eigen::Vector3d convertLocalOceanTideDisplacementToPlentocentricDisplacement(
 
 //! Constructor, reads and initializes tide displacement amplitudes and phases.
 OceanTideEarthDeformation::OceanTideEarthDeformation(
-    const std::string &blqFile,
+    const std::vector< std::string >& blqFiles,
     const std::function<Eigen::Vector6d( const double )> doodsonArgumentFunction ) :
     doodsonArgumentFunction_( doodsonArgumentFunction )
 {
-    // Read BLQ file.
-    std::vector<std::map<std::string, Eigen::Matrix<double, 3, 11> > > blqFileData = readBlqFile( blqFile );
-
-    // Set data retriebed from BLQ files as member variables.
-    siteOceanTideAmplitudes_ = blqFileData[ 0 ];
-    siteOceanTidePhases_ = blqFileData[ 1 ];
+    for ( unsigned int i = 0; i < blqFiles.size( ); i++ )
+    {
+        addBlqFile( blqFiles.at( i ) );
+    }
 
     // Initialize characteristics of 11 main tides, from Moyer(2000), Table 5-1 and Eq. 5-88
     doodsonMultipliers_ << 2.0, 0.0, 0.0, 0.0,
@@ -187,6 +185,19 @@ OceanTideEarthDeformation::OceanTideEarthDeformation(
     schwiderskiFactors_ *= mathematical_constants::PI;
 
 }
+
+void OceanTideEarthDeformation::addBlqFile( const std::string& blqFile )
+{
+        // Read BLQ file.
+    std::vector<std::map<std::string, Eigen::Matrix<double, 3, 11> > > blqFileData = readBlqFile( blqFile );
+    std::map<std::string, Eigen::Matrix<double, 3, 11> > currentAmplitudes = blqFileData.at( 0 );
+    std::map<std::string, Eigen::Matrix<double, 3, 11> > currentPhases = blqFileData.at( 1 );
+
+    // Set data retriebed from BLQ files as member variables.
+    siteOceanTideAmplitudes_.insert( currentAmplitudes.begin( ), currentAmplitudes.end( ) );
+    siteOceanTidePhases_.insert( currentPhases.begin( ), currentPhases.end( ) );
+}
+
 
 Eigen::Vector3d OceanTideEarthDeformation::calculateDisplacementInEnuFrame(
     const double time,
