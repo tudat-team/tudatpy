@@ -12,6 +12,7 @@
 #define TUDAT_CREATEGROUNDSTATIONS_H
 
 #include "tudat/simulation/environment_setup/body.h"
+#include "tudat/astro/ephemerides/customEphemeris.h"
 #include "tudat/astro/ground_stations/groundStation.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 
@@ -27,7 +28,8 @@ enum StationMotionModelTypes
     linear_station_motion,
     piecewise_constant_station_motion,
     custom_station_motion,
-    body_deformation_station_motion
+    body_deformation_station_motion,
+    bodycentric_to_barycentric_station_position_motion
 };
 
 class GroundStationMotionSettings
@@ -75,6 +77,23 @@ public:
     virtual ~PiecewiseConstantGroundStationMotionSettings( ){ }
 
     std::map< double, Eigen::Vector3d > displacementList_;
+};
+
+class BodyCentricToBarycentricGroundStationMotionSettings: public GroundStationMotionSettings
+{
+public:
+    BodyCentricToBarycentricGroundStationMotionSettings(
+        const std::string centralBodyName = "Sun",
+        const bool useGeneralRelativisticCorrection = true ):
+        GroundStationMotionSettings( bodycentric_to_barycentric_station_position_motion ),
+        centralBodyName_( centralBodyName ),
+        useGeneralRelativisticCorrection_( useGeneralRelativisticCorrection ){ }
+
+    virtual ~BodyCentricToBarycentricGroundStationMotionSettings( ){ }
+
+    std::string centralBodyName_;
+
+    bool useGeneralRelativisticCorrection_;
 };
 
 class CustomGroundStationMotionSettings: public GroundStationMotionSettings
@@ -198,7 +217,8 @@ void createGroundStation(
 std::shared_ptr< ground_stations::GroundStationState > createGroundStationState(
         const std::shared_ptr< Body > body,
         const Eigen::Vector3d groundStationPosition,
-        const coordinate_conversions::PositionElementTypes positionElementType );
+        const coordinate_conversions::PositionElementTypes positionElementType,
+        const simulation_setup::SystemOfBodies& bodies = simulation_setup::SystemOfBodies( ) );
 
 //! Function to create a ground station and add it to a Body object
 /*!
@@ -290,7 +310,7 @@ std::shared_ptr< ephemerides::Ephemeris > createReferencePointEphemeris(
 }
 
 template< typename TimeType = double, typename StateScalarType = double >
-std::shared_ptr< ephemerides::Ephemeris > createReferencePointEphemeris(
+std::shared_ptr< ephemerides::Ephemeris > createReferencePointEphemerisFromId(
     const std::shared_ptr< simulation_setup::Body > bodyWithLinkEnd,
     const std::string& referencePointName )
 {
@@ -367,49 +387,6 @@ Eigen::Matrix< StateScalarType, 3, 1 > getGroundStationPositionDuringPropagation
 
 }
 
-//! Function to retrieve a state function for a link end (either a body center of mass or ground station).
-/*!
- *  Function to retrieve a state function for a link end (either a body center of mass or ground station).
- *  \param bodyWithLinkEnd Body on/in which link end is situated.
- *  \param linkEndId Id of link end for which state function is to be created. First: name of body, second: name of
- *  reference point (empty if center of mass is to be used
- *  \return Requested state function
- */
-template< typename TimeType = double, typename StateScalarType = double >
-std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType& ) > getLinkEndCompleteEphemerisFunction(
-        const std::shared_ptr< simulation_setup::Body > bodyWithLinkEnd,
-        const observation_models::LinkEndId& linkEndId )
-{
-    typedef Eigen::Matrix< StateScalarType, 6, 1 > StateType;
-
-    std::function< StateType( const TimeType& ) > linkEndCompleteEphemerisFunction;
-
-    if( linkEndId.bodyName_ != bodyWithLinkEnd->getBodyName( ) )
-    {
-        throw std::runtime_error( "Error when making ground station ephemeris function, input body names are inconsistent" );
-    }
-
-    // Checking transmitter if a reference point is to be used
-    if( linkEndId.stationName_ != "" )
-    {
-
-        // Retrieve function to calculate state of transmitter S/C
-        linkEndCompleteEphemerisFunction =
-                std::bind( &ephemerides::Ephemeris::getTemplatedStateFromEphemeris< StateScalarType,TimeType >,
-                             createReferencePointEphemeris< TimeType, StateScalarType >(
-                                 bodyWithLinkEnd, linkEndId.stationName_ ), std::placeholders::_1 );
-
-    }
-    // Else, create state function for center of mass
-    else
-    {
-        // Create function to calculate state of transmitting ground station.
-        linkEndCompleteEphemerisFunction =
-                std::bind( &simulation_setup::Body::getStateInBaseFrameFromEphemeris< StateScalarType, TimeType >,
-                                                        bodyWithLinkEnd, std::placeholders::_1 );
-    }
-    return linkEndCompleteEphemerisFunction;
-}
 
 //! Function to create a state function of a link end, expressed in base frame.
 /*!
@@ -419,7 +396,7 @@ std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType& ) > getLi
  *  \return Requested state function.
  */
 template< typename TimeType = double, typename StateScalarType = double >
-std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > getLinkEndCompleteEphemerisFunction(
+std::shared_ptr< ephemerides::Ephemeris > getLinkEndCompleteEphemeris(
         const observation_models::LinkEndId linkEndId, const simulation_setup::SystemOfBodies& bodies )
 {
     if( bodies.count( linkEndId.bodyName_ ) == 0  )
@@ -438,14 +415,43 @@ std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > getLin
 
         throw std::runtime_error( errorMessage );
     }
-    return getLinkEndCompleteEphemerisFunction< TimeType, StateScalarType >( bodies.at( linkEndId.bodyName_ ), linkEndId );
+
+    std::shared_ptr< Body > bodyWithLinkEnd = bodies.at( linkEndId.bodyName_ );
+
+    std::shared_ptr< ephemerides::Ephemeris > linkEndEphemeris;
+    // Checking transmitter if a reference point is to be used
+    if( linkEndId.stationName_ != "" )
+    {
+
+        // Retrieve function to calculate state of transmitter S/C
+         linkEndEphemeris = createReferencePointEphemerisFromId< TimeType, StateScalarType >(
+            bodyWithLinkEnd, linkEndId.stationName_ );
+    }
+        // Else, create state function for center of mass
+    else
+    {
+        // Create function to calculate state of transmitting ground station.
+        linkEndEphemeris =
+            std::make_shared< ephemerides::CustomEphemeris< TimeType, StateScalarType > >(
+                std::bind( &simulation_setup::Body::getStateInBaseFrameFromEphemeris< StateScalarType, TimeType >,
+                           bodyWithLinkEnd, std::placeholders::_1 ), bodies.getFrameOrigin( ), bodies.getFrameOrientation( ) );
+    }
+    return linkEndEphemeris;
 }
 
-std::vector< double >  getTargetElevationAngles(
-        const std::shared_ptr< Body > observingBody,
-        const std::shared_ptr< Body > targetBody,
-        const std::string groundStationName,
-        const std::vector< double > times );
+template< typename TimeType = double, typename StateScalarType = double >
+std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > getLinkEndCompleteEphemerisFunction(
+    const observation_models::LinkEndId linkEndId, const simulation_setup::SystemOfBodies& bodies )
+{
+    std::shared_ptr< ephemerides::Ephemeris > linkEndEphemeris = getLinkEndCompleteEphemeris< TimeType, StateScalarType >( linkEndId, bodies );
+    return std::bind( &ephemerides::Ephemeris::getTemplatedStateFromEphemeris< StateScalarType,TimeType >, linkEndEphemeris, std::placeholders::_1 );
+}
+
+//std::vector< double >  getTargetElevationAngles(
+//        const std::shared_ptr< Body > observingBody,
+//        const std::shared_ptr< Body > targetBody,
+//        const std::string groundStationName,
+//        const std::vector< double > times );
 
 
 } // namespace simulation_setup
