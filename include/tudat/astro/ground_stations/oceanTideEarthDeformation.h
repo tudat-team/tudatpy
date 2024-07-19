@@ -53,19 +53,10 @@ public:
                                const std::function< Eigen::Vector6d( const double ) > doodsonArgumentFunction =
                                    [](const double time ){ return sofa_interface::calculateDoodsonFundamentalArguments( time ); } );
 
-    //! Function to calculate site displacement at given time.
-    /*!
-     * Function to calculate site displacement at given time at given site. Note that the site identifier needs to be
-     * identical to that provided in the BLQ file. If doodson arguments are available, it is recommended to use the second,
-     * overloaded version of this function for performance reasons.
-     * \param siteIdentifier Identifier of site, as given in BLQ file.
-     * \param ephemerisTime Time in seconds since J2000. Due to the rate of change and amplitude of the effect, the time
-     * scale in which this is provided is unlikely to be consequential, to measurement precision, on the resulting displacement.
-     * \return Displacement of requested site, at requested time.
-     */
-    Eigen::Vector3d calculateSiteDisplacement( const std::string &siteIdentifier,
-                                               const double ephemerisTime );
 
+    Eigen::Vector3d calculateDisplacementInEnuFrame(
+        const double time,
+        const std::string& siteIdentifier );
 
     Eigen::Vector3d calculateDisplacement(
         const double time,
@@ -74,12 +65,18 @@ public:
         throw std::runtime_error( "Error, cannot compute ocean tide displacements from position alone." );
     }
 
+    //! Function to calculate site displacement at given time.
+    /*!
+     * Function to calculate site displacement at given time at given site. Note that the site identifier needs to be
+     * identical to that provided in the BLQ file. If doodson arguments are available, it is recommended to use the second,
+     * overloaded version of this function for performance reasons.
+     * \param ephemerisTime Time in seconds since J2000. Due to the rate of change and amplitude of the effect, the time
+     * scale in which this is provided is unlikely to be consequential, to measurement precision, on the resulting displacement.
+     * \return Displacement of requested site, at requested time.
+     */
     Eigen::Vector3d calculateDisplacement(
         const double time,
-        const std::shared_ptr< ground_stations::GroundStationState > stationState )
-    {
-        return calculateSiteDisplacement( stationState->getSiteId( ), time );
-    }
+        const std::shared_ptr< ground_stations::GroundStationState > stationState );
 
     //! Function to retrieve the map containing site displacement amplitudes per tide.
     /*!
