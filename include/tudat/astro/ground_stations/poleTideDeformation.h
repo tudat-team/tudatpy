@@ -1,19 +1,17 @@
-#ifndef POLETIDEDEFORMATION_H
-#define POLETIDEDEFORMATION_H
+#ifndef TUDAT_POLETIDEDEFORMATION_H
+#define TUDAT_POLETIDEDEFORMATION_H
 
-#include <boost/shared_ptr.hpp>
 
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebra.h"
+#include "tudat/astro/basic_astro/timeConversions.h"
+#include "tudat/astro/earth_orientation/polarMotionCalculator.h"
+#include "tudat/astro/ground_stations/bodyDeformationModel.h"
+#include "tudat/interface/sofa/fundamentalArguments.h"
 
-#include "Astrodynamics/EarthOrientation/polarMotionCalculator.h"
-#include "External/SofaInterface/sofaTimeConversions.h"
-#include "Astrodynamics/GroundStations/groundStation.h"
-#include "Astrodynamics/SiteDisplacements/bodyDeformationModel.h"
 
 namespace tudat
 {
 
-namespace site_displacements
+namespace basic_astrodynamics
 {
 
 //! This class is used to calculate the displacement of a site on Earth due to pole tide deformation.
@@ -30,26 +28,27 @@ public:
      *  Constructor creating pole tide deformation object from polar motion model.
      *  \param polarMotionCalculator Object capable of calculating pole position in ITRS at a given time instant.
      */
-    PoleTideDeformation( const  boost::function< Eigen::Vector2d( const double ) > polarMotionFunction ):
-        polarMotionFunction_( polarMotionFunction ){ }
+    PoleTideDeformation( const std::shared_ptr< earth_orientation::PolarMotionCalculator > polarMotionCalculator ):
+        polarMotionCalculator_( polarMotionCalculator ){ }
 
-    //! Function to calculate site displacement due to pole tide deformation.
-    /*!
-     *  Function to calculate site displacement due to pole tide deformation.
-     *  \param terrestrialTime Time (TT scale) in seconds since J2000.
-     *  \param nominalSiteState Data structure containing the nominal state of the site.
-     *  \return Displacement of site in ITRS at given site due to pole tide.
-     */
-    Eigen::Vector3d calculateSiteDisplacement( const double terrestrialTime,
-                                               const boost::shared_ptr< NominalGroundStationState > nominalSiteState );
+    ~PoleTideDeformation( ){ }
 
-    Eigen::Vector3d calculateSiteDisplacement(
-            const double time,
-            const boost::shared_ptr< NominalGroundStationState > siteState,
-            const basic_mathematics::Vector6d doodsonArguments )
+
+    Eigen::Vector3d calculateEnuDisplacement(
+        const double ephemerisTime,
+        const std::shared_ptr< ground_stations::GroundStationState > nominalSiteState );
+
+    Eigen::Vector3d calculateDisplacement(
+        const double ephemerisTime,
+        const std::shared_ptr< ground_stations::GroundStationState > stationState );
+
+    Eigen::Vector3d calculateDisplacement(
+        const double time,
+        const Eigen::Vector3d& bodyFixedPosition )
     {
-        return calculateSiteDisplacement( time, siteState );
+        return calculateDisplacement( time, std::make_shared< ground_stations::GroundStationState >( bodyFixedPosition, coordinate_conversions::cartesian_position ) );
     }
+
 
 private:
 
@@ -57,11 +56,11 @@ private:
     /*!
      *  Pointer to object to calculate the polar motion at a given time.
      */
-    boost::function< Eigen::Vector2d( const double ) > polarMotionFunction_;
+    std::shared_ptr< earth_orientation::PolarMotionCalculator > polarMotionCalculator_;
 };
 
 
 }
 
 }
-#endif // POLETIDEDEFORMATION_H
+#endif // TUDAT_POLETIDEDEFORMATION_H

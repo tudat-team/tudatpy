@@ -1,54 +1,55 @@
-#include "Tudat/Astrodynamics/BasicAstrodynamics/unitConversions.h"
-#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
-
-#include "Astrodynamics/SiteDisplacements/poleTideDeformation.h"
+#include "tudat/astro/ground_stations/poleTideDeformation.h"
+#include "tudat/astro/basic_astro/unitConversions.h"
+#include "tudat/astro/earth_orientation/polarMotionCalculator.h"
 
 namespace tudat
 {
 
-namespace site_displacements
+namespace basic_astrodynamics
 {
 
-//! Function to calculate site displacement due to pole tide deformation.
-Eigen::Vector3d PoleTideDeformation::calculateSiteDisplacement( const double terrestrialTime,
-                                                                const boost::shared_ptr< NominalGroundStationState > nominalSiteState )
+Eigen::Vector3d PoleTideDeformation::calculateEnuDisplacement(
+    const double ephemerisTime,
+    const std::shared_ptr< ground_stations::GroundStationState > nominalSiteState )
 {
-    using namespace tudat::earth_orientation;
-    using mathematical_constants::PI;
-
     // Retrieve position of CIP in ITRS from polar motion calculator.
+    double tt = ephemerisTime;
+    double utc = sofa_interface::convertTTtoUTC< double >( tt );
     Eigen::Vector2d cipPositionInItrs =
-            unit_conversions::convertDegreesToRadians< Eigen::Vector2d >( polarMotionFunction_( terrestrialTime ) ) / 3600.0;
+        unit_conversions::convertRadiansToDegrees( polarMotionCalculator_->getPositionOfCipInItrs( tt, utc ) ) * 3600.0 * 1000.0;
 
-    // Determine years since J2000 and, subsequently, the mean CIP position at the given time.
-    double yearsSinceJ2000 = terrestrialTime / physical_constants::JULIAN_DAY /
-            physical_constants::JULIAN_YEAR_IN_DAYS;
-    Eigen::Vector2d meanCipPositionInItrs =
-            calculateMeanCipPositionInItrs( yearsSinceJ2000 );
+    // Retrieve secular pole
+    Eigen::Vector2d secularPolePositionInItrs = earth_orientation::getSecularPolePositionInMas( ephemerisTime );
 
     // Calculate deviation of CIP position from mean.
-    Eigen::Vector2d cipPositionDeviationInItrs =
-            cipPositionInItrs - meanCipPositionInItrs;
+    double m1 = cipPositionInItrs( 0 ) - secularPolePositionInItrs( 0 );
+    double m2 = -( cipPositionInItrs( 1 ) - secularPolePositionInItrs( 1 ) );
+
+
+
 
     // Retrieve station latitude and longitude.
-    double latitude = PI / 2.0 - nominalSiteState->getNominalSphericalPosition( ).y( );
-    double longitude = nominalSiteState->getNominalSphericalPosition( ).z( );
+    double latitude = nominalSiteState->getNominalLatitude( );
+    double longitude = nominalSiteState->getNominalLongitude( );
 
-    double radiansToArcSeconds = 180.0 / mathematical_constants::PI / 3600.0;
+    double radiansToArcSeconds = unit_conversions::convertArcSecondsToRadians( 1.0 );
 
     // Calculate site displacement in local coordinates (east, north, up), IERS 2010 Conventions Eq. 7.26
-    Eigen::Vector3d siteDisplacement = Eigen::Vector3d::Zero( );
-    siteDisplacement.x( ) = -radiansToArcSeconds * 9.0E-3 * cos( latitude ) * ( cipPositionDeviationInItrs.x( ) * sin( longitude ) -
-                                                     cipPositionDeviationInItrs.y( ) * cos( longitude ) );
-    siteDisplacement.y( ) = radiansToArcSeconds * 9.0E-3 * cos( 2.0 * latitude ) * ( cipPositionDeviationInItrs.x( ) * cos( longitude ) +
-                                                          cipPositionDeviationInItrs.y( ) * sin( longitude ) );
-    siteDisplacement.z( ) = radiansToArcSeconds * 33.0E-3 * sin( 2.0 * latitude ) * ( cipPositionDeviationInItrs.x( ) * cos( longitude ) +
-                                                           cipPositionDeviationInItrs.y( ) * sin( longitude ) );
+    Eigen::Vector3d enuDisplacement;
+    enuDisplacement( 0 ) = 1000.0 * radiansToArcSeconds * 9.0E-3 * cos( latitude ) * ( m1 * sin( longitude ) - m2 * cos( longitude ) );
+    enuDisplacement( 1 ) = 1000.0 * -radiansToArcSeconds * 9.0E-3 * cos( 2.0 * latitude ) * ( m1 * cos( longitude ) + m2 * sin( longitude ) );
+    enuDisplacement( 2 ) = 1000.0 * -radiansToArcSeconds * 33.0E-3 * sin( 2.0 * latitude ) * ( m1 * cos( longitude ) - m2 * sin( longitude ) );
 
+    return enuDisplacement;
+}
+//! Function to calculate site displacement due to pole tide deformation.
+Eigen::Vector3d PoleTideDeformation::calculateDisplacement(
+    const double ephemerisTime,
+    const std::shared_ptr< ground_stations::GroundStationState > nominalSiteState )
+{
     // Transform to ITRS (geocentric) frame
-    return  nominalSiteState->getEastNorthRadialGeocentricUnitVectors( )[ 0 ] * siteDisplacement[ 0 ] +
-            nominalSiteState->getEastNorthRadialGeocentricUnitVectors( )[ 1 ] * siteDisplacement[ 1 ] +
-            nominalSiteState->getEastNorthRadialGeocentricUnitVectors( )[ 2 ] * siteDisplacement[ 2 ];
+    return  nominalSiteState->getRotationFromBodyFixedToTopocentricFrame( ephemerisTime ).inverse( ) *
+        calculateEnuDisplacement( ephemerisTime, nominalSiteState );
 }
 
 
