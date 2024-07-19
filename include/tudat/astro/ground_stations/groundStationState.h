@@ -58,7 +58,8 @@ public:
 
     virtual Eigen::Vector6d getBodyFixedStationMotion(
             const double time,
-            const std::shared_ptr< ground_stations::GroundStationState > groundStationState ) = 0;
+            const std::shared_ptr< ground_stations::GroundStationState > groundStationState,
+            const std::string& targetFrameOrigin ) = 0;
 
 };
 
@@ -94,7 +95,8 @@ public:
      *  \return Cartesian state of station in local frame at requested time.
      */
      Eigen::Vector6d getCartesianStateInTime(
-            const double secondsSinceEpoch );
+            const double secondsSinceEpoch,
+            const std::string& targetFrameOrigin  );
 
      //! Function to obtain the Cartesian position of the ground station in the local frame at a given time.
      /*!
@@ -106,9 +108,10 @@ public:
       *  \return Cartesian position of station in local frame at requested time.
       */
      Eigen::Vector3d getCartesianPositionInTime(
-            const double secondsSinceEpoch )
+            const double secondsSinceEpoch,
+            const std::string& targetFrameOrigin )
      {
-         return getCartesianStateInTime( secondsSinceEpoch ).segment( 0, 3 );
+         return getCartesianStateInTime( secondsSinceEpoch, targetFrameOrigin ).segment( 0, 3 );
      }
 
     //! Function to return the nominal (unperturbed) Cartesian position of the station
@@ -317,7 +320,8 @@ public:
 
     Eigen::Vector6d getBodyFixedStationMotion(
             const double time,
-            const std::shared_ptr< ground_stations::GroundStationState > groundStationState = nullptr )
+            const std::shared_ptr< ground_stations::GroundStationState > groundStationState = nullptr,
+            const std::string& targetFrameOrigin = "" )
     {
         return ( Eigen::Vector6d( ) << linearVelocity_ * ( time - referenceEpoch_ ), linearVelocity_ ).finished( );
     }
@@ -348,7 +352,8 @@ public:
 
     Eigen::Vector6d getBodyFixedStationMotion(
             const double time,
-            const std::shared_ptr< ground_stations::GroundStationState > groundStationState = nullptr );
+            const std::shared_ptr< ground_stations::GroundStationState > groundStationState = nullptr,
+            const std::string& targetFrameOrigin = "" );
 protected:
 
     double firstDisplacementTime_;
@@ -389,7 +394,8 @@ public:
 
     Eigen::Vector6d getBodyFixedStationMotion(
         const double time,
-        const std::shared_ptr< ground_stations::GroundStationState > groundStationState = nullptr );
+        const std::shared_ptr< ground_stations::GroundStationState > groundStationState,
+        const std::string& targetFrameOrigin );
 
     
 protected:
@@ -425,7 +431,8 @@ public:
 
     Eigen::Vector6d getBodyFixedStationMotion(
             const double time,
-            const std::shared_ptr< ground_stations::GroundStationState > groundStationState = nullptr  )
+            const std::shared_ptr< ground_stations::GroundStationState > groundStationState = nullptr,
+            const std::string& targetFrameOrigin = ""  )
     {
         return customDisplacementModel_( time );
     }
@@ -444,12 +451,13 @@ public:
 
     Eigen::Vector6d getBodyFixedStationMotion(
             const double time,
-            const std::shared_ptr< ground_stations::GroundStationState > groundStationState )
+            const std::shared_ptr< ground_stations::GroundStationState > groundStationState,
+            const std::string& targetFrameOrigin )
     {
         Eigen::Vector6d motion = Eigen::Vector6d::Zero( );
         for( unsigned int i = 0; i < modelList_.size( ); i++ )
         {
-            motion += modelList_.at( i )->getBodyFixedStationMotion( time, groundStationState );
+            motion += modelList_.at( i )->getBodyFixedStationMotion( time, groundStationState, targetFrameOrigin );
         }
         return motion;
     }
