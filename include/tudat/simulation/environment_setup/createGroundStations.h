@@ -36,9 +36,13 @@ class GroundStationMotionSettings
 {
 public:
     GroundStationMotionSettings(
-            const StationMotionModelTypes& modelType ):modelType_( modelType ){ }
+        const StationMotionModelTypes &modelType ) : modelType_( modelType )
+    {
+    }
 
-    virtual ~GroundStationMotionSettings( ){ }
+    virtual ~GroundStationMotionSettings( )
+    {
+    }
 
     StationMotionModelTypes getModelType( )
     {
@@ -49,67 +53,83 @@ private:
     StationMotionModelTypes modelType_;
 };
 
-class BodyDeformationStationMotionSettings: public GroundStationMotionSettings
+class BodyDeformationStationMotionSettings : public GroundStationMotionSettings
 {
 public:
     BodyDeformationStationMotionSettings(
-            const bool throwExceptionWhenNotAvailable = true ):
-            GroundStationMotionSettings( body_deformation_station_motion ),
-            throwExceptionWhenNotAvailable_( throwExceptionWhenNotAvailable ){ }
+        const bool throwExceptionWhenNotAvailable = true ) :
+        GroundStationMotionSettings( body_deformation_station_motion ),
+        throwExceptionWhenNotAvailable_( throwExceptionWhenNotAvailable )
+    {
+    }
 
-    virtual ~BodyDeformationStationMotionSettings( ){ }
+    virtual ~BodyDeformationStationMotionSettings( )
+    {
+    }
 
     bool throwExceptionWhenNotAvailable_;
 };
 
-class LinearGroundStationMotionSettings: public GroundStationMotionSettings
+class LinearGroundStationMotionSettings : public GroundStationMotionSettings
 {
 public:
     LinearGroundStationMotionSettings(
-            const Eigen::Vector3d& linearVelocity,
-            const double referenceEpoch = 0.0 ):
+        const Eigen::Vector3d &linearVelocity,
+        const double referenceEpoch = 0.0 ) :
         GroundStationMotionSettings( linear_station_motion ),
-    linearVelocity_( linearVelocity ),
-    referenceEpoch_( referenceEpoch ){ }
+        linearVelocity_( linearVelocity ),
+        referenceEpoch_( referenceEpoch )
+    {
+    }
 
-    virtual ~LinearGroundStationMotionSettings( ){ }
+    virtual ~LinearGroundStationMotionSettings( )
+    {
+    }
 
     Eigen::Vector3d linearVelocity_;
 
     double referenceEpoch_;
 };
 
-class PiecewiseConstantGroundStationMotionSettings: public GroundStationMotionSettings
+class PiecewiseConstantGroundStationMotionSettings : public GroundStationMotionSettings
 {
 public:
     PiecewiseConstantGroundStationMotionSettings(
-            const std::map< double, Eigen::Vector3d >& displacementList ):
+        const std::map<double, Eigen::Vector3d> &displacementList ) :
         GroundStationMotionSettings( piecewise_constant_station_motion ),
-    displacementList_( displacementList ){ }
+        displacementList_( displacementList )
+    {
+    }
 
-    virtual ~PiecewiseConstantGroundStationMotionSettings( ){ }
+    virtual ~PiecewiseConstantGroundStationMotionSettings( )
+    {
+    }
 
-    std::map< double, Eigen::Vector3d > displacementList_;
+    std::map<double, Eigen::Vector3d> displacementList_;
 };
 
-class BodyCentricToBarycentricGroundStationMotionSettings: public GroundStationMotionSettings
+class BodyCentricToBarycentricGroundStationMotionSettings : public GroundStationMotionSettings
 {
 public:
     BodyCentricToBarycentricGroundStationMotionSettings(
         const std::string centralBodyName = "Sun",
-        const bool useGeneralRelativisticCorrection = true ):
+        const bool useGeneralRelativisticCorrection = true ) :
         GroundStationMotionSettings( bodycentric_to_barycentric_station_position_motion ),
         centralBodyName_( centralBodyName ),
-        useGeneralRelativisticCorrection_( useGeneralRelativisticCorrection ){ }
+        useGeneralRelativisticCorrection_( useGeneralRelativisticCorrection )
+    {
+    }
 
-    virtual ~BodyCentricToBarycentricGroundStationMotionSettings( ){ }
+    virtual ~BodyCentricToBarycentricGroundStationMotionSettings( )
+    {
+    }
 
     std::string centralBodyName_;
 
     bool useGeneralRelativisticCorrection_;
 };
 
-class CustomGroundStationMotionSettings: public GroundStationMotionSettings
+class CustomGroundStationMotionSettings : public GroundStationMotionSettings
 {
 public:
 //    CustomGroundStationMotionSettings(
@@ -118,37 +138,57 @@ public:
 //    customDisplacementModel_( customDisplacementModel ){ }
 
     CustomGroundStationMotionSettings(
-            const std::function< Eigen::Vector3d( const double ) > customDisplacementModel ):
+        const std::function<Eigen::Vector3d( const double )> customDisplacementModel ) :
         GroundStationMotionSettings( custom_station_motion ),
-        customDisplacementModel_( [=](const double time ){
-        return ( Eigen::Vector6d( ) << customDisplacementModel( time ), Eigen::Vector3d::Zero( ) ).finished( ); } ){ }
+        customDisplacementModel_( [ = ]( const double time )
+                                  {
+                                      return ( Eigen::Vector6d( )
+                                          << customDisplacementModel( time ), Eigen::Vector3d::Zero( )).finished( );
+                                  } )
+    {
+    }
 
-    virtual ~CustomGroundStationMotionSettings( ){ }
+    virtual ~CustomGroundStationMotionSettings( )
+    {
+    }
 
-    const std::function< Eigen::Vector6d( const double ) > customDisplacementModel_;
+    const std::function<Eigen::Vector6d( const double )> customDisplacementModel_;
 };
 
 
-inline std::shared_ptr< GroundStationMotionSettings > linearGroundStationMotionSettings(
-        const Eigen::Vector3d& linearVelocity,
-        const double referenceEpoch =  0.0 )
+inline std::shared_ptr<GroundStationMotionSettings> linearGroundStationMotionSettings(
+    const Eigen::Vector3d &linearVelocity,
+    const double referenceEpoch = 0.0 )
 {
-    return std::make_shared< LinearGroundStationMotionSettings >(
-                linearVelocity, referenceEpoch );
+    return std::make_shared<LinearGroundStationMotionSettings>(
+        linearVelocity, referenceEpoch );
 }
 
-inline std::shared_ptr< GroundStationMotionSettings > piecewiseConstantGroundStationMotionSettings(
-        const std::map< double, Eigen::Vector3d >& displacementList)
+inline std::shared_ptr<GroundStationMotionSettings> piecewiseConstantGroundStationMotionSettings(
+    const std::map<double, Eigen::Vector3d> &displacementList )
 {
-    return std::make_shared< PiecewiseConstantGroundStationMotionSettings >(
-                displacementList );
+    return std::make_shared<PiecewiseConstantGroundStationMotionSettings>(
+        displacementList );
 }
 
-inline std::shared_ptr< GroundStationMotionSettings > customGroundStationMotionSettings(
-        const std::function< Eigen::Vector3d( const double ) > customDisplacementModel )
+inline std::shared_ptr<GroundStationMotionSettings> customGroundStationMotionSettings(
+    const std::function<Eigen::Vector3d( const double )> customDisplacementModel )
 {
-    return std::make_shared< CustomGroundStationMotionSettings >(
-                customDisplacementModel );
+    return std::make_shared<CustomGroundStationMotionSettings>(
+        customDisplacementModel );
+}
+
+inline std::shared_ptr<GroundStationMotionSettings> bodyDeformationStationMotionSettings(
+    const bool throwExceptionWhenNotAvailable = true )
+{
+    return std::make_shared< BodyDeformationStationMotionSettings >( throwExceptionWhenNotAvailable );
+}
+
+inline std::shared_ptr<GroundStationMotionSettings> bodycentricToBarycentricStationMotionSettings(
+    const std::string centralBodyName = "Sun",
+    const bool useGeneralRelativisticCorrection = true )
+{
+    return std::make_shared< BodyCentricToBarycentricGroundStationMotionSettings >( centralBodyName, useGeneralRelativisticCorrection );
 }
 
 
@@ -156,16 +196,18 @@ class GroundStationSettings
 {
 public:
     GroundStationSettings(
-            const std::string& stationName,
-            const Eigen::Vector3d& groundStationPosition,
-            const coordinate_conversions::PositionElementTypes positionElementType =
-            coordinate_conversions::cartesian_position,
-            const std::vector< std::shared_ptr< GroundStationMotionSettings > > stationMotionSettings =
-                { std::make_shared< BodyDeformationStationMotionSettings >( true ) } ):
+        const std::string &stationName,
+        const Eigen::Vector3d &groundStationPosition,
+        const coordinate_conversions::PositionElementTypes positionElementType =
+        coordinate_conversions::cartesian_position,
+        const std::vector<std::shared_ptr<GroundStationMotionSettings> > stationMotionSettings =
+            { std::make_shared<BodyDeformationStationMotionSettings>( true ) } ) :
         stationName_( stationName ),
         groundStationPosition_( groundStationPosition ),
         positionElementType_( positionElementType ),
-    stationMotionSettings_( stationMotionSettings ){ }
+        stationMotionSettings_( stationMotionSettings )
+    {
+    }
 
     std::string getStationName( )
     {
@@ -182,12 +224,12 @@ public:
         return positionElementType_;
     }
 
-    std::vector< std::shared_ptr< GroundStationMotionSettings > > getStationMotionSettings( )
+    std::vector<std::shared_ptr<GroundStationMotionSettings> > getStationMotionSettings( )
     {
         return stationMotionSettings_;
     }
 
-    void addStationMotionSettings( const std::shared_ptr< GroundStationMotionSettings > stationMotionSetting )
+    void addStationMotionSettings( const std::shared_ptr<GroundStationMotionSettings> stationMotionSetting )
     {
         stationMotionSettings_.push_back( stationMotionSetting );
     }
@@ -200,16 +242,27 @@ protected:
 
     coordinate_conversions::PositionElementTypes positionElementType_;
 
-    std::vector< std::shared_ptr< GroundStationMotionSettings > > stationMotionSettings_;
+    std::vector<std::shared_ptr<GroundStationMotionSettings> > stationMotionSettings_;
 };
 
+inline void addStationMotionModelToEachGroundStation(
+    const std::vector<std::shared_ptr<GroundStationSettings> > &groundStationSettings,
+    const std::shared_ptr<GroundStationMotionSettings> stationMotionSettings )
+{
+    for( unsigned int i = 0; i < groundStationSettings.size( ); i++ )
+    {
+        groundStationSettings.at( i )->addStationMotionSettings( stationMotionSettings );
+    }
+}
+
+
 inline std::shared_ptr< GroundStationSettings > groundStationSettings(
-        const std::string& stationName,
-        const Eigen::Vector3d& groundStationPosition,
-        const coordinate_conversions::PositionElementTypes positionElementType =
-        coordinate_conversions::cartesian_position,
-        const std::vector< std::shared_ptr< GroundStationMotionSettings > > stationMotionSettings =
-        std::vector< std::shared_ptr< GroundStationMotionSettings > >( ) )
+    const std::string& stationName,
+    const Eigen::Vector3d& groundStationPosition,
+    const coordinate_conversions::PositionElementTypes positionElementType =
+    coordinate_conversions::cartesian_position,
+    const std::vector< std::shared_ptr< GroundStationMotionSettings > > stationMotionSettings =
+    std::vector< std::shared_ptr< GroundStationMotionSettings > >( ) )
 {
     return std::make_shared< GroundStationSettings >(
                 stationName, groundStationPosition, positionElementType, stationMotionSettings );
