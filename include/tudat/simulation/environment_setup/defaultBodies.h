@@ -12,6 +12,7 @@
 #define TUDAT_DEFAULTBODIES_H
 
 #include "tudat/simulation/environment_setup/createBodies.h"
+#include "tudat/simulation/environment_setup/createGroundStations.h"
 
 namespace tudat
 {

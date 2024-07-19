@@ -53,7 +53,7 @@ std::shared_ptr< ground_stations::StationMotionModel > createGroundStationMotion
             {
                 throw std::runtime_error( "Error when making body deformation station motion model, settings type is incompatible" );
             }
-            std::shared_ptr< ground_stations::StationMotionModel > bodyDeformationMotionModel =
+            currentStationMotionModel =
                 std::make_shared< ground_stations::BodyDeformationStationMotionModel >(
                     std::bind( &Body::getBodyDeformationModelsReference, body ), bodyDeformationModelSettings->throwExceptionWhenNotAvailable_ );
             break;
@@ -103,7 +103,7 @@ std::shared_ptr< ground_stations::StationMotionModel > createGroundStationMotion
             }
 
             std::function< Eigen::Quaterniond( const double ) > inertialToBodyFixedRotationFunction = std::bind(
-                &ephemerides::RotationalEphemeris::getRotationToBaseFrame, body->getRotationalEphemeris( ), std::placeholders::_1 );
+                &ephemerides::RotationalEphemeris::getRotationToTargetFrame, body->getRotationalEphemeris( ), std::placeholders::_1 );
 
             std::function< Eigen::Vector3d( const double ) > centralBodyBarycentricPositionFunction = nullptr;
             std::function< double( ) > centralBodyGravitationalParameterFunction = nullptr;
@@ -111,7 +111,7 @@ std::shared_ptr< ground_stations::StationMotionModel > createGroundStationMotion
             {
                 throw std::runtime_error( "Error when making bodycentric to barycentric station position correction, body " + relativisticStationMotionSettings->centralBodyName_  + " not found" );
             }
-            else
+            else if( relativisticStationMotionSettings->useGeneralRelativisticCorrection_ )
             {
                 centralBodyBarycentricPositionFunction = std::bind( &Body::getPositionInBaseFrameFromEphemeris<double, double>, body, std::placeholders::_1 );
                 if( bodies.at( relativisticStationMotionSettings->centralBodyName_ )->getGravityFieldModel( ) == nullptr )

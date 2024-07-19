@@ -197,6 +197,7 @@ Eigen::Vector6d BodyCentricToBarycentricRelativisticStationMotion::getBodyFixedS
 {
     Eigen::Vector6d stationMotion = Eigen::Vector6d::Zero( );
 
+
     currentRotationToBodyFixedFrame_ = inertialToBodyFixedRotationFunction_( time );
     inertialNominalStationPosition_ = currentRotationToBodyFixedFrame_.inverse( ) * groundStationState->getNominalCartesianPosition( );
 
@@ -211,7 +212,7 @@ Eigen::Vector6d BodyCentricToBarycentricRelativisticStationMotion::getBodyFixedS
                                          inertialNominalStationPosition_;
     }
 
-    stationMotion.segment( 0, 3 ) /= physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT;
+    stationMotion.segment( 0, 3 ) *= physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT;
     stationMotion.segment( 0, 3 ) = currentRotationToBodyFixedFrame_ * stationMotion.segment( 0, 3 );
     return stationMotion;
 }
