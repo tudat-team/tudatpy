@@ -29,7 +29,7 @@ enum StationMotionModelTypes
     piecewise_constant_station_motion,
     custom_station_motion,
     body_deformation_station_motion,
-    bodycentric_to_barycentric_station_position_motion
+    bodycentric_to_barycentric_station_position_motion,
 };
 
 class GroundStationMotionSettings
@@ -47,6 +47,19 @@ public:
 
 private:
     StationMotionModelTypes modelType_;
+};
+
+class BodyDeformationStationMotionSettings: public GroundStationMotionSettings
+{
+public:
+    BodyDeformationStationMotionSettings(
+            const bool throwExceptionWhenNotAvailable = true ):
+            GroundStationMotionSettings( body_deformation_station_motion ),
+            throwExceptionWhenNotAvailable_( throwExceptionWhenNotAvailable ){ }
+
+    virtual ~BodyDeformationStationMotionSettings( ){ }
+
+    bool throwExceptionWhenNotAvailable_;
 };
 
 class LinearGroundStationMotionSettings: public GroundStationMotionSettings
@@ -148,7 +161,7 @@ public:
             const coordinate_conversions::PositionElementTypes positionElementType =
             coordinate_conversions::cartesian_position,
             const std::vector< std::shared_ptr< GroundStationMotionSettings > > stationMotionSettings =
-            std::vector< std::shared_ptr< GroundStationMotionSettings > >( ) ):
+                { std::make_shared< BodyDeformationStationMotionSettings >( true ) } ):
         stationName_( stationName ),
         groundStationPosition_( groundStationPosition ),
         positionElementType_( positionElementType ),

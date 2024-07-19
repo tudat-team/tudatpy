@@ -37,115 +37,117 @@ std::shared_ptr< ground_stations::StationMotionModel > createGroundStationMotion
         std::vector< std::shared_ptr< GroundStationMotionSettings > >( ),
         const simulation_setup::SystemOfBodies& bodies = simulation_setup::SystemOfBodies( ) )
 {
-    std::shared_ptr< ground_stations::StationMotionModel > bodyDeformationMotionModel =
-            std::make_shared< ground_stations::BodyDeformationStationMotionModel >(
-                std::bind( &Body::getBodyDeformationModelsReference, body ) );
 
-    if( stationMotionSettings.size( ) == 0 )
-    {
-        return bodyDeformationMotionModel;
-    }
-    else
-    {
-        std::vector< std::shared_ptr< ground_stations::StationMotionModel > > stationMotionModelList;
-        stationMotionModelList.push_back( bodyDeformationMotionModel );
+    std::vector< std::shared_ptr< ground_stations::StationMotionModel > > stationMotionModelList;
 
-        for( unsigned int i = 0; i < stationMotionSettings.size( ); i++ )
+    for( unsigned int i = 0; i < stationMotionSettings.size( ); i++ )
+    {
+        std::shared_ptr< ground_stations::StationMotionModel > currentStationMotionModel;
+        switch( stationMotionSettings.at( i )->getModelType( ) )
         {
-            std::shared_ptr< ground_stations::StationMotionModel > currentStationMotionModel;
-            switch( stationMotionSettings.at( i )->getModelType( ) )
+        case body_deformation_station_motion:
+        {
+            std::shared_ptr< BodyDeformationStationMotionSettings > bodyDeformationModelSettings =
+                    std::dynamic_pointer_cast< BodyDeformationStationMotionSettings >( stationMotionSettings.at( i ) );
+            if( bodyDeformationModelSettings == nullptr )
             {
-            case linear_station_motion:
-            {
-                std::shared_ptr< LinearGroundStationMotionSettings > linearStationMotionSettings =
-                        std::dynamic_pointer_cast< LinearGroundStationMotionSettings >( stationMotionSettings.at( i ) );
-                if( linearStationMotionSettings == nullptr )
-                {
-                    throw std::runtime_error( "Error when making linear ground station motion model, settings type is incompatible" );
-                }
-                currentStationMotionModel = std::make_shared< ground_stations::LinearStationMotionModel >(
-                            linearStationMotionSettings->linearVelocity_, linearStationMotionSettings->referenceEpoch_ );
-                break;
+                throw std::runtime_error( "Error when making body deformation station motion model, settings type is incompatible" );
             }
-            case piecewise_constant_station_motion:
-            {
-                std::shared_ptr< PiecewiseConstantGroundStationMotionSettings > piecewiseConstantStationMotionSettings =
-                        std::dynamic_pointer_cast< PiecewiseConstantGroundStationMotionSettings >( stationMotionSettings.at( i ) );
-                if( piecewiseConstantStationMotionSettings == nullptr )
-                {
-                    throw std::runtime_error( "Error when making piecewise constant ground station motion model, settings type is incompatible" );
-                }
-                currentStationMotionModel = std::make_shared< ground_stations::PiecewiseConstantStationMotionModel >(
-                            piecewiseConstantStationMotionSettings->displacementList_ );
-                break;
-            }
-            case bodycentric_to_barycentric_station_position_motion:
-            {
-                std::shared_ptr< BodyCentricToBarycentricGroundStationMotionSettings > relativisticStationMotionSettings =
-                    std::dynamic_pointer_cast< BodyCentricToBarycentricGroundStationMotionSettings >( stationMotionSettings.at( i ) );
-                if( relativisticStationMotionSettings == nullptr )
-                {
-                    throw std::runtime_error( "Error when making relativistic (body-centered to barycentered) ground station motion model, settings type is incompatible" );
-                }
-
-
-                std::function< Eigen::Vector6d( const double ) > bodyBarycentricStateFunction;
-                if( bodies.getFrameOrigin( ) == "SSB" )
-                {
-                    bodyBarycentricStateFunction = std::bind( &Body::getStateInBaseFrameFromEphemeris<double, double>, body, std::placeholders::_1 );
-                }
-                else
-                {
-                    throw std::runtime_error( "Error when getting body state function for (body-centered to barycentered) ground station motion model, only SSB global frame origin is currently supported" );
-                }
-
-                std::function< Eigen::Quaterniond( const double ) > inertialToBodyFixedRotationFunction = std::bind(
-                    &ephemerides::RotationalEphemeris::getRotationToBaseFrame, body->getRotationalEphemeris( ), std::placeholders::_1 );
-
-                std::function< Eigen::Vector3d( const double ) > centralBodyBarycentricPositionFunction = nullptr;
-                std::function< double( ) > centralBodyGravitationalParameterFunction = nullptr;
-                if( bodies.count( relativisticStationMotionSettings->centralBodyName_ ) == 0  && relativisticStationMotionSettings->useGeneralRelativisticCorrection_ )
-                {
-                    throw std::runtime_error( "Error when making bodycentric to barycentric station position correction, body " + relativisticStationMotionSettings->centralBodyName_  + " not found" );
-                }
-                else
-                {
-                    centralBodyBarycentricPositionFunction = std::bind( &Body::getPositionInBaseFrameFromEphemeris<double, double>, body, std::placeholders::_1 );
-                    if( bodies.at( relativisticStationMotionSettings->centralBodyName_ )->getGravityFieldModel( ) == nullptr )
-                    {
-                        throw std::runtime_error( "Error when making bodycentric to barycentric station position correction, body " + relativisticStationMotionSettings->centralBodyName_  + " has no grvaity field" );
-
-                    }
-                    centralBodyGravitationalParameterFunction = std::bind(
-                        &gravitation::GravityFieldModel::getGravitationalParameter, bodies.at( relativisticStationMotionSettings->centralBodyName_ )->getGravityFieldModel( ) );
-                }
-
-
-                currentStationMotionModel = std::make_shared< ground_stations::BodyCentricToBarycentricRelativisticStationMotion >(
-                bodyBarycentricStateFunction, centralBodyBarycentricPositionFunction, inertialToBodyFixedRotationFunction, centralBodyGravitationalParameterFunction,
-                    relativisticStationMotionSettings->useGeneralRelativisticCorrection_ );
-                break;
-            }
-            case custom_station_motion:
-            {
-                std::shared_ptr< CustomGroundStationMotionSettings > customStationMotionSettings =
-                        std::dynamic_pointer_cast< CustomGroundStationMotionSettings >( stationMotionSettings.at( i ) );
-                if( customStationMotionSettings == nullptr )
-                {
-                    throw std::runtime_error( "Error when making custom ground station motion model, settings type is incompatible" );
-                }
-                currentStationMotionModel = std::make_shared< ground_stations::CustomStationMotionModel >(
-                            customStationMotionSettings->customDisplacementModel_ );
-                break;
-            }
-            default:
-                throw std::runtime_error( "Error when making ground station motion model, settings type not recognized" );
-
-            }
-            stationMotionModelList.push_back( currentStationMotionModel );
+            std::shared_ptr< ground_stations::StationMotionModel > bodyDeformationMotionModel =
+                std::make_shared< ground_stations::BodyDeformationStationMotionModel >(
+                    std::bind( &Body::getBodyDeformationModelsReference, body ), bodyDeformationModelSettings->throwExceptionWhenNotAvailable_ );
+            break;
         }
-        return std::make_shared< ground_stations::CombinedStationMotionModel >( stationMotionModelList );
+        case linear_station_motion:
+        {
+            std::shared_ptr< LinearGroundStationMotionSettings > linearStationMotionSettings =
+                    std::dynamic_pointer_cast< LinearGroundStationMotionSettings >( stationMotionSettings.at( i ) );
+            if( linearStationMotionSettings == nullptr )
+            {
+                throw std::runtime_error( "Error when making linear ground station motion model, settings type is incompatible" );
+            }
+            currentStationMotionModel = std::make_shared< ground_stations::LinearStationMotionModel >(
+                        linearStationMotionSettings->linearVelocity_, linearStationMotionSettings->referenceEpoch_ );
+            break;
+        }
+        case piecewise_constant_station_motion:
+        {
+            std::shared_ptr< PiecewiseConstantGroundStationMotionSettings > piecewiseConstantStationMotionSettings =
+                    std::dynamic_pointer_cast< PiecewiseConstantGroundStationMotionSettings >( stationMotionSettings.at( i ) );
+            if( piecewiseConstantStationMotionSettings == nullptr )
+            {
+                throw std::runtime_error( "Error when making piecewise constant ground station motion model, settings type is incompatible" );
+            }
+            currentStationMotionModel = std::make_shared< ground_stations::PiecewiseConstantStationMotionModel >(
+                        piecewiseConstantStationMotionSettings->displacementList_ );
+            break;
+        }
+        case bodycentric_to_barycentric_station_position_motion:
+        {
+            std::shared_ptr< BodyCentricToBarycentricGroundStationMotionSettings > relativisticStationMotionSettings =
+                std::dynamic_pointer_cast< BodyCentricToBarycentricGroundStationMotionSettings >( stationMotionSettings.at( i ) );
+            if( relativisticStationMotionSettings == nullptr )
+            {
+                throw std::runtime_error( "Error when making relativistic (body-centered to barycentered) ground station motion model, settings type is incompatible" );
+            }
+
+
+            std::function< Eigen::Vector6d( const double ) > bodyBarycentricStateFunction;
+            if( bodies.getFrameOrigin( ) == "SSB" )
+            {
+                bodyBarycentricStateFunction = std::bind( &Body::getStateInBaseFrameFromEphemeris<double, double>, body, std::placeholders::_1 );
+            }
+            else
+            {
+                throw std::runtime_error( "Error when getting body state function for (body-centered to barycentered) ground station motion model, only SSB global frame origin is currently supported" );
+            }
+
+            std::function< Eigen::Quaterniond( const double ) > inertialToBodyFixedRotationFunction = std::bind(
+                &ephemerides::RotationalEphemeris::getRotationToBaseFrame, body->getRotationalEphemeris( ), std::placeholders::_1 );
+
+            std::function< Eigen::Vector3d( const double ) > centralBodyBarycentricPositionFunction = nullptr;
+            std::function< double( ) > centralBodyGravitationalParameterFunction = nullptr;
+            if( bodies.count( relativisticStationMotionSettings->centralBodyName_ ) == 0  && relativisticStationMotionSettings->useGeneralRelativisticCorrection_ )
+            {
+                throw std::runtime_error( "Error when making bodycentric to barycentric station position correction, body " + relativisticStationMotionSettings->centralBodyName_  + " not found" );
+            }
+            else
+            {
+                centralBodyBarycentricPositionFunction = std::bind( &Body::getPositionInBaseFrameFromEphemeris<double, double>, body, std::placeholders::_1 );
+                if( bodies.at( relativisticStationMotionSettings->centralBodyName_ )->getGravityFieldModel( ) == nullptr )
+                {
+                    throw std::runtime_error( "Error when making bodycentric to barycentric station position correction, body " + relativisticStationMotionSettings->centralBodyName_  + " has no grvaity field" );
+
+                }
+                centralBodyGravitationalParameterFunction = std::bind(
+                    &gravitation::GravityFieldModel::getGravitationalParameter, bodies.at( relativisticStationMotionSettings->centralBodyName_ )->getGravityFieldModel( ) );
+            }
+
+
+            currentStationMotionModel = std::make_shared< ground_stations::BodyCentricToBarycentricRelativisticStationMotion >(
+            bodyBarycentricStateFunction, centralBodyBarycentricPositionFunction, inertialToBodyFixedRotationFunction, centralBodyGravitationalParameterFunction,
+                relativisticStationMotionSettings->useGeneralRelativisticCorrection_ );
+            break;
+        }
+        case custom_station_motion:
+        {
+            std::shared_ptr< CustomGroundStationMotionSettings > customStationMotionSettings =
+                    std::dynamic_pointer_cast< CustomGroundStationMotionSettings >( stationMotionSettings.at( i ) );
+            if( customStationMotionSettings == nullptr )
+            {
+                throw std::runtime_error( "Error when making custom ground station motion model, settings type is incompatible" );
+            }
+            currentStationMotionModel = std::make_shared< ground_stations::CustomStationMotionModel >(
+                        customStationMotionSettings->customDisplacementModel_ );
+            break;
+        }
+        default:
+            throw std::runtime_error( "Error when making ground station motion model, settings type not recognized" );
+
+        }
+        stationMotionModelList.push_back( currentStationMotionModel );
     }
+    return std::make_shared< ground_stations::CombinedStationMotionModel >( stationMotionModelList );
 }
 
 std::shared_ptr< ground_stations::GroundStationState > createGroundStationState(

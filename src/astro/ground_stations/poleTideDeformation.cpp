@@ -25,9 +25,6 @@ Eigen::Vector3d PoleTideDeformation::calculateEnuDisplacement(
     double m1 = cipPositionInItrs( 0 ) - secularPolePositionInItrs( 0 );
     double m2 = -( cipPositionInItrs( 1 ) - secularPolePositionInItrs( 1 ) );
 
-
-
-
     // Retrieve station latitude and longitude.
     double latitude = nominalSiteState->getNominalLatitude( );
     double longitude = nominalSiteState->getNominalLongitude( );
