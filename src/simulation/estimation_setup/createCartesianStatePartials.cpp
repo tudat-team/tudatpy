@@ -80,7 +80,7 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
             std::function< Eigen::Vector3d( const double ) > groundStationPositionFunction =
                     std::bind( &ground_stations::GroundStationState::getCartesianPositionInTime,
                                  currentBody->getGroundStation( linkEndIterator->second.stationName_ )->getNominalStationState( ),
-                                 std::placeholders::_1 );
+                                 std::placeholders::_1, bodies.getFrameOrigin( ) );
 
             // Create partial
             partialMap[ linkEndIterator->first ] = std::make_shared< CartesianStatePartialWrtRotationMatrixParameter >(
@@ -128,7 +128,7 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
                 std::function< Eigen::Vector3d( const double ) > groundStationPositionFunction =
                         std::bind( &ground_stations::GroundStationState::getCartesianPositionInTime,
                                      ( currentBody )->getGroundStation( linkEndIterator->second.stationName_ )
-                                     ->getNominalStationState( ), std::placeholders::_1  );
+                                     ->getNominalStationState( ), std::placeholders::_1, bodies.getFrameOrigin( )  );
 
                 // Create parameter partial object.
                 partialMap[ linkEndIterator->first ] = std::make_shared< CartesianStatePartialWrtRotationMatrixParameter >(
@@ -217,7 +217,7 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
                 std::function< Eigen::Vector3d( const double ) > groundStationPositionFunction =
                         std::bind( &ground_stations::GroundStationState::getCartesianPositionInTime,
                                      currentBody->getGroundStation( linkEndIterator->second.stationName_ )
-                                     ->getNominalStationState( ), std::placeholders::_1 );
+                                     ->getNominalStationState( ), std::placeholders::_1, bodies.getFrameOrigin( ) );
 
                 // Create parameter partial object.
                 partialMap[ linkEndIterator->first ] = std::make_shared< CartesianStatePartialWrtRotationMatrixParameter >(

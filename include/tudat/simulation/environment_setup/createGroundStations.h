@@ -378,7 +378,8 @@ std::shared_ptr< ephemerides::Ephemeris > createReferencePointEphemeris(
 template< typename TimeType = double, typename StateScalarType = double >
 std::shared_ptr< ephemerides::Ephemeris > createReferencePointEphemerisFromId(
     const std::shared_ptr< simulation_setup::Body > bodyWithLinkEnd,
-    const std::string& referencePointName )
+    const std::string& referencePointName,
+    const simulation_setup::SystemOfBodies& bodies  )
 {
     std::shared_ptr< ephemerides::Ephemeris > stationEphemeris;
     if( referencePointName != "" )
@@ -398,7 +399,7 @@ std::shared_ptr< ephemerides::Ephemeris > createReferencePointEphemerisFromId(
             else
             {
                 referencePointStateFunction = std::bind( &ground_stations::GroundStation::getStateInPlanetFixedFrame<StateScalarType, TimeType>,
-                                                         bodyWithLinkEnd->getGroundStation( referencePointName ), std::placeholders::_1 );
+                                                         bodyWithLinkEnd->getGroundStation( referencePointName ), std::placeholders::_1, bodies.getFrameOrigin( ) );
             }
         }
         else
@@ -438,7 +439,8 @@ std::shared_ptr< ephemerides::Ephemeris > createReferencePointEphemerisFromId(
 template< typename StateScalarType = double >
 Eigen::Matrix< StateScalarType, 3, 1 > getGroundStationPositionDuringPropagation(
         const std::shared_ptr< simulation_setup::Body > bodyWithLinkEnd,
-        const std::string& stationName )
+        const std::string& stationName,
+        const SystemOfBodies& bodies )
 {
     if( bodyWithLinkEnd->getGroundStationMap( ).count( stationName ) == 0 )
     {
@@ -449,7 +451,7 @@ Eigen::Matrix< StateScalarType, 3, 1 > getGroundStationPositionDuringPropagation
 
     return bodyWithLinkEnd->getPosition( ) + bodyWithLinkEnd->getCurrentRotationToGlobalFrame( ) *
             bodyWithLinkEnd->getGroundStation( stationName )->getNominalStationState( )->getCartesianPositionInTime(
-                bodyWithLinkEnd->getDoubleTimeOfCurrentState( ) );
+                bodyWithLinkEnd->getDoubleTimeOfCurrentState( ), bodies.getFrameOrigin( ) );
 
 }
 
@@ -491,7 +493,7 @@ std::shared_ptr< ephemerides::Ephemeris > getLinkEndCompleteEphemeris(
 
         // Retrieve function to calculate state of transmitter S/C
          linkEndEphemeris = createReferencePointEphemerisFromId< TimeType, StateScalarType >(
-            bodyWithLinkEnd, linkEndId.stationName_ );
+            bodyWithLinkEnd, linkEndId.stationName_, bodies );
     }
         // Else, create state function for center of mass
     else

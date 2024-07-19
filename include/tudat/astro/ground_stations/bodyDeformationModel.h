@@ -62,7 +62,8 @@ public:
 
     Eigen::Vector6d getBodyFixedStationMotion(
             const double time,
-            const std::shared_ptr< ground_stations::GroundStationState > groundStationState )
+            const std::shared_ptr< ground_stations::GroundStationState > groundStationState,
+            const std::string& targetFrameOrigin = "" )
     {
         Eigen::Vector6d motion = Eigen::Vector6d::Zero( );
         std::vector< std::shared_ptr< basic_astrodynamics::BodyDeformationModel > >& currentModels = modelList_( );
