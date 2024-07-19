@@ -35,9 +35,9 @@ BOOST_AUTO_TEST_CASE( testOceanTideSiteDisplacement )
     for ( int i = 0; i < 24; i++ )
     {
         onsalaResults.block( i, 0, 1, 3 ) =
-            oceanTideDeformationModel.calculateSiteDisplacement( "ONSALA", testTime ).transpose( );
+            oceanTideDeformationModel.calculateDisplacementInEnuFrame( testTime, "ONSALA" ).transpose( );
         icelandResults.block( i, 0, 1, 3 ) =
-            oceanTideDeformationModel.calculateSiteDisplacement( "REYKJAVIK", testTime ).transpose( );
+            oceanTideDeformationModel.calculateDisplacementInEnuFrame( testTime, "REYKJAVIK" ).transpose( );
         testTime += timeStep;
     }
 
@@ -95,22 +95,25 @@ BOOST_AUTO_TEST_CASE( testOceanTideSiteDisplacement )
         -0.031544, -0.000402, -0.006125;
 
     Eigen::Matrix<double, 24, 3> onsalaTestMatrix = onsalaRawTestMatrix;
+    onsalaTestMatrix.block(0, 0, 24, 1 ) = -onsalaRawTestMatrix.block(0, 2, 24, 1 );
+    onsalaTestMatrix.block(0, 1, 24, 1 ) = -onsalaRawTestMatrix.block(0, 1, 24, 1 );
+    onsalaTestMatrix.block(0, 2, 24, 1 ) = onsalaRawTestMatrix.block(0, 0, 24, 1 );
 
-    onsalaTestMatrix.block(0, 1, 24, 1 ) = onsalaRawTestMatrix.block(0, 2, 24, 1 );
-    onsalaTestMatrix.block(0, 2, 24, 1 ) = onsalaRawTestMatrix.block(0, 1, 24, 1 );
+    std::cout<<onsalaTestMatrix<<std::endl<<std::endl<<onsalaResults<<std::endl;
 
     Eigen::Matrix<double, 24, 3> icelandTestMatrix = icelandRawTestMatrix;
+//
+    icelandTestMatrix.block(0, 0, 24, 1 ) = -icelandRawTestMatrix.block(0, 2, 24, 1 );
+    icelandTestMatrix.block(0, 1, 24, 1 ) = -icelandRawTestMatrix.block(0, 1, 24, 1 );
+    icelandTestMatrix.block(0, 2, 24, 1 ) = icelandRawTestMatrix.block(0, 0, 24, 1 );
 
-    icelandTestMatrix.block(0, 1, 24, 1 ) = icelandRawTestMatrix.block(0, 2, 24, 1 );
-    icelandTestMatrix.block(0, 2, 24, 1 ) = icelandRawTestMatrix.block(0, 1, 24, 1 );
-
-    BOOST_CHECK_SMALL(( onsalaResults - onsalaTestMatrix ).block( 0, 0, 24, 1 ).cwiseAbs( ).maxCoeff( ), 0.75E-3 );
+    BOOST_CHECK_SMALL(( onsalaResults - onsalaTestMatrix ).block( 0, 0, 24, 1 ).cwiseAbs( ).maxCoeff( ), 0.25E-3 );
     BOOST_CHECK_SMALL(( onsalaResults - onsalaTestMatrix ).block( 0, 1, 24, 1 ).cwiseAbs( ).maxCoeff( ), 0.25E-3 );
-    BOOST_CHECK_SMALL(( onsalaResults - onsalaTestMatrix ).block( 0, 2, 24, 1 ).cwiseAbs( ).maxCoeff( ), 0.25E-3 );
+    BOOST_CHECK_SMALL(( onsalaResults - onsalaTestMatrix ).block( 0, 2, 24, 1 ).cwiseAbs( ).maxCoeff( ), 0.75E-3 );
 
-    BOOST_CHECK_SMALL(( icelandResults - icelandTestMatrix ).block( 0, 0, 24, 1 ).cwiseAbs( ).maxCoeff( ), 4.0E-3 );
+    BOOST_CHECK_SMALL(( icelandResults - icelandTestMatrix ).block( 0, 0, 24, 1 ).cwiseAbs( ).maxCoeff( ), 1.0E-3 );
     BOOST_CHECK_SMALL(( icelandResults - icelandTestMatrix ).block( 0, 1, 24, 1 ).cwiseAbs( ).maxCoeff( ), 1.0E-3 );
-    BOOST_CHECK_SMALL(( icelandResults - icelandTestMatrix ).block( 0, 2, 24, 1 ).cwiseAbs( ).maxCoeff( ), 1.0E-3 );
+    BOOST_CHECK_SMALL(( icelandResults - icelandTestMatrix ).block( 0, 2, 24, 1 ).cwiseAbs( ).maxCoeff( ), 4.0E-3 );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

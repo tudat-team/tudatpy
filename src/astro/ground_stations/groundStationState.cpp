@@ -142,9 +142,9 @@ Eigen::Quaterniond getRotationQuaternionFromBodyFixedToTopocentricFrame(
     }
     else
     {
-        isSurfaceModelRecognized = 0;
-        std::cerr<<"Error when making transformation to topocentric frame, shape model not recognized"<<std::endl;
-        //        throw std::runtime_error( "Error when making transformation to topocentric frame, shape model not recognized" );
+        // Assume spherical shape
+        topocentricUnitVectors = getGeocentricLocalUnitVectors(
+            geocentricLatitude, geocentricLongitude );
     }
 
     // Create rotation matrix
