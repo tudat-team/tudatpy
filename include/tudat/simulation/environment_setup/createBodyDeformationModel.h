@@ -74,6 +74,20 @@ protected:
     double bodyReferenceRadius_;
 };
 
+class OceanTideBodyDeformationSettings: public BodyDeformationSettings
+{
+public:
+    OceanTideBodyDeformationSettings( const std::vector<std::string> blqFiles ):
+        BodyDeformationSettings( gravitation::ocean_tide ),
+        blqFiles_( blqFiles ){ }
+
+    std::vector<std::string> getBlqFiles( ){ return blqFiles_; }
+
+protected:
+
+    std::vector<std::string> blqFiles_;
+};
+
 inline std::shared_ptr< BasicSolidBodyDeformationSettings > basicTidalBodyShapeDeformation (
         const std::vector< std::string > deformingBodies,
         const std::map< int, std::pair< double, double > > displacementLoveNumbers,

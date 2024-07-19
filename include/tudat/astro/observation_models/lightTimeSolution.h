@@ -689,15 +689,7 @@ public:
         return ephemerisOfReceivingBody_;
     }
 
-    std::function< StateType( const TimeType ) > getStateFunctionOfTransmittingBody( )
-    {
-        return std::bind( &ephemerides::Ephemeris::getTemplatedStateFromEphemeris< StateType, TimeType >, ephemerisOfTransmittingBody_, std::placeholders::_1 );
-    }
 
-    std::function< StateType( const TimeType ) > getStateFunctionOfReceivingBody( )
-    {
-        return std::bind( &ephemerides::Ephemeris::getTemplatedStateFromEphemeris< StateType, TimeType >, ephemerisOfReceivingBody_, std::placeholders::_1 );
-    }
 
 
 protected:
