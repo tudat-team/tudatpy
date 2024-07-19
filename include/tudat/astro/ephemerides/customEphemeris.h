@@ -23,11 +23,13 @@ namespace ephemerides
 {
 
 //! Ephemeris class that gives a custom (i.e. arbitrarily defined as a function of time) state.
+template< typename TimeType = double, typename StateScalarType = double >
 class CustomEphemeris : public Ephemeris
 {
 public:
 
     using Ephemeris::getCartesianState;
+    typedef Eigen::Matrix< StateScalarType, 6, 1 > StateType;
 
     //! Constructor.
     /*!
@@ -36,23 +38,35 @@ public:
      *  \param referenceFrameOrigin Origin of reference frame in which state is defined.
      *  \param referenceFrameOrientation Orientation of reference frame in which state is defined.
      */
-    CustomEphemeris( const std::function< Eigen::Vector6d( const double ) > stateFunction,
+    CustomEphemeris( const std::function< StateType( const TimeType ) > stateFunction,
                      const std::string& referenceFrameOrigin = "SSB",
                      const std::string& referenceFrameOrientation = "ECLIPJ2000" ):
         Ephemeris( referenceFrameOrigin, referenceFrameOrientation ),
         stateFunction_( stateFunction ) { }
 
-    //! Get state from ephemeris according to custom function
-    /*!
-     * Returns state from ephemeris at given time.
-     * \param seconsSinceEpoch Seconds since epoch at which ephemeris is to be evaluated
-              (not used in this derived class)
-     * \return State given by stateFunction_
-     */
+
     Eigen::Vector6d getCartesianState(
-            const double seconsSinceEpoch = 0.0 )
+        const double secondsSinceEpoch )
     {
-        return stateFunction_( seconsSinceEpoch );
+        return stateFunction_( static_cast< TimeType >( secondsSinceEpoch ) ).template cast< double >( );
+    }
+
+    Eigen::Matrix< long double, 6, 1 > getCartesianLongState(
+        const double secondsSinceEpoch )
+    {
+        return stateFunction_( static_cast< TimeType >( secondsSinceEpoch ) ).template cast< long double >( );
+    }
+
+    Eigen::Vector6d getCartesianStateFromExtendedTime(
+        const Time& time )
+    {
+        return stateFunction_( static_cast< TimeType >( time ) ).template cast< double >( );
+    }
+
+    Eigen::Matrix< long double, 6, 1 > getCartesianLongStateFromExtendedTime(
+        const Time& time )
+    {
+        return stateFunction_( static_cast< TimeType >( time ) ).template cast< long double >( );
     }
 
 private:
@@ -61,7 +75,7 @@ private:
     /*!
      *  Function that returns a constant cartesian state.
      */
-    std::function< Eigen::Vector6d( const double ) > stateFunction_;
+    std::function< StateType( const TimeType ) > stateFunction_;
 
 };
 
