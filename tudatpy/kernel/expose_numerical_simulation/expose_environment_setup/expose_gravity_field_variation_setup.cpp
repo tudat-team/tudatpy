@@ -33,6 +33,22 @@ namespace simulation_setup
 {
 
 inline std::shared_ptr< GravityFieldVariationSettings > degreeOrderVariableLoveNumberGravityFieldVariationSettingsPy(
+    const std::vector< std::string >& deformingBodies,
+    const std::map< int, std::vector< double > > loveNumber )
+{
+    std::map< int, std::vector< std::complex< double > > > loveNumbers;
+    for( auto loveNumberIt : loveNumber )
+    {
+        for( unsigned int i = 0; i < loveNumberIt.second.size( ); i++ )
+        {
+            loveNumbers[ loveNumberIt.first ].push_back( std::complex< double >( loveNumberIt.second.at( i ), 0 ) );
+        }
+    }
+    return std::make_shared< BasicSolidBodyGravityFieldVariationSettings >(
+        deformingBodies, loveNumbers, nullptr );
+}
+
+inline std::shared_ptr< GravityFieldVariationSettings > degreeOrderVariableLoveNumberGravityFieldVariationSettingsPy(
         const std::string deformingBody,
         const std::map< int, std::vector< double > > loveNumber )
 {
@@ -121,12 +137,70 @@ void expose_gravity_field_variation_setup(py::module &m) {
           py::arg("love_number_per_degree_and_order"),
           get_docstring("solid_body_tide_degree_order_variable_k").c_str() );
 
+    m.def("solid_multi_body_tide_degree_order_variable_k",
+          py::overload_cast<const std::vector< std::string >&, const std::map<int, std::vector<double> > >(
+              &tss::degreeOrderVariableLoveNumberGravityFieldVariationSettingsPy),
+          py::arg("tide_raising_bodies"),
+          py::arg("love_number_per_degree_and_order"),
+          get_docstring("solid_multi_body_tide_degree_order_variable_k").c_str() );
+
     m.def("solid_body_tide_degree_order_variable_complex_k",
           py::overload_cast<const std::string, const std::map<int, std::vector<std::complex<double> > > >(
               &tss::degreeOrderVariableLoveNumberGravityFieldVariationSettingsPy),
           py::arg("tide_raising_body"),
           py::arg("love_number_per_degree_and_order"),
           get_docstring("solid_body_tide_degree_order_variable_complex_k").c_str() );
+
+    m.def("solid_body_tide_degree_order_variable_complex_k",
+          py::overload_cast<const std::string, const std::map<int, std::vector<std::complex<double> > > >(
+              &tss::degreeOrderVariableLoveNumberGravityFieldVariationSettingsPy),
+          py::arg("tide_raising_body"),
+          py::arg("love_number_per_degree_and_order"),
+          get_docstring("solid_body_tide_degree_order_variable_complex_k").c_str() );
+
+    m.def("single_period_periodic",
+              &tss::periodicGravityFieldVariationsSettingsSingleFrequency,
+          py::arg("cosine_coefficient_amplitude_cosine_time"),
+          py::arg("cosine_coefficient_amplitude_sine_time"),
+          py::arg("sine_coefficient_amplitude_cosine_time"),
+          py::arg("sine_coefficient_amplitude_sine_time"),
+          py::arg("frequency"),
+          py::arg("reference_epoch"),
+          py::arg("minimum_degree") = 2,
+          py::arg("minimum_order") = 0,
+          get_docstring("single_period_periodic").c_str() );
+
+    m.def("periodic",
+          &tss::periodicGravityFieldVariationsSettings,
+          py::arg("cosine_coefficient_amplitudes_cosine_time"),
+          py::arg("cosine_coefficient_amplitudes_sine_time"),
+          py::arg("sine_coefficient_amplitudes_cosine_time"),
+          py::arg("sine_coefficient_amplitudes_sine_time"),
+          py::arg("frequencies"),
+          py::arg("reference_epoch"),
+          py::arg("minimum_degree") = 2,
+          py::arg("minimum_order") = 0,
+          get_docstring("single_period_periodic").c_str() );
+
+    m.def("single_power_polynomial",
+          &tss::polynomialGravityFieldVariationsSettingsSinglePower,
+          py::arg("cosine_amplitudes"),
+          py::arg("sine_amplitudes"),
+          py::arg("polynomial_power"),
+          py::arg("reference_epoch"),
+          py::arg("minimum_degree") = 2,
+          py::arg("minimum_order") = 0,
+          get_docstring("single_power_polynomial").c_str() );
+
+    m.def("polynomial",
+          &tss::polynomialGravityFieldVariationsSettings,
+          py::arg("cosine_amplitudes_per_power"),
+          py::arg("sine_amplitudes_per_power"),
+          py::arg("reference_epoch"),
+          py::arg("minimum_degree") = 2,
+          py::arg("minimum_order") = 0,
+          get_docstring("polynomial").c_str() );
+
 
     m.def("tabulated",
           &tss::tabulatedGravityFieldVariationSettings,
