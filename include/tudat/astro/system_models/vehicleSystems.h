@@ -221,6 +221,16 @@ public:
         return vehicleExteriorPanels_;
     }
 
+    int getTotalNumberOfPanels( )
+    {
+        int numberOfPanels = 0;
+        for( auto it : vehicleExteriorPanels_ )
+        {
+            numberOfPanels += it.second.size( );
+        }
+        return numberOfPanels;
+    }
+
     void setVehiclePartOrientation(
         const std::map< std::string, std::shared_ptr< ephemerides::RotationalEphemeris > > vehiclePartOrientation )
     {

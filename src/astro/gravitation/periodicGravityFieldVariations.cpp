@@ -18,34 +18,41 @@ namespace gravitation
 
 //! Class constructor
 PeriodicGravityFieldVariations::PeriodicGravityFieldVariations(
-        const std::vector< Eigen::MatrixXd >& cosineAmplitudes,
-        const std::vector< Eigen::MatrixXd >& sineAmplitudes,
+    const std::vector< Eigen::MatrixXd >& cosineShAmplitudesCosineTime,
+    const std::vector< Eigen::MatrixXd >& cosineShAmplitudesSineTime,
+    const std::vector< Eigen::MatrixXd >& sineShAmplitudesCosineTime,
+    const std::vector< Eigen::MatrixXd >& sineShAmplitudesSineTime,
         const std::vector< double >& frequencies,
-        const std::vector< double >& phases,
         const double referenceEpoch,
         const int minimumDegree,
         const int minimumOrder ):
-    GravityFieldVariations( minimumDegree, minimumOrder, minimumDegree + cosineAmplitudes.at( 0 ).rows( ) - 1,
-                            minimumOrder + cosineAmplitudes.at( 0 ).cols( ) - 1 ),
-    cosineAmplitudes_( cosineAmplitudes ),
-    sineAmplitudes_( sineAmplitudes ),
+    GravityFieldVariations( minimumDegree, minimumOrder, minimumDegree + cosineShAmplitudesCosineTime.at( 0 ).rows( ) - 1,
+                            minimumOrder + cosineShAmplitudesCosineTime.at( 0 ).cols( ) - 1 ),
+    cosineShAmplitudesCosineTime_( cosineShAmplitudesCosineTime ),
+    cosineShAmplitudesSineTime_( cosineShAmplitudesSineTime ),
+    sineShAmplitudesCosineTime_( sineShAmplitudesCosineTime ),
+    sineShAmplitudesSineTime_( sineShAmplitudesSineTime ),
     frequencies_( frequencies ),
-    phases_( phases ),
     referenceEpoch_( referenceEpoch )
 {
-    if( cosineAmplitudes.size( ) != sineAmplitudes.size( ) )
+    if( cosineShAmplitudesCosineTime_.size( ) != frequencies_.size( ) )
     {
-        throw std::runtime_error( "Error when making periodic gravity field variations, amplitude input sizes inconsistent" );
+        throw std::runtime_error( "Error when making periodic gravity field variations, frequency input sizes (C_lm * cos time) inconsistent" );
     }
 
-    if( cosineAmplitudes.size( ) != frequencies.size( ) )
+    if( cosineShAmplitudesSineTime_.size( ) != frequencies_.size( ) )
     {
-        throw std::runtime_error( "Error when making periodic gravity field variations, frequency input size inconsistent" );
+        throw std::runtime_error( "Error when making periodic gravity field variations, frequency input size (C_lm * sin time) inconsistent" );
     }
 
-    if( cosineAmplitudes.size( ) != phases.size( ) )
+    if( sineShAmplitudesCosineTime_.size( ) != frequencies_.size( ) )
     {
-        throw std::runtime_error( "Error when making periodic gravity field variations, phase input size inconsistent" );
+        throw std::runtime_error( "Error when making periodic gravity field variations, frequency input size (S_lm * cos time) inconsistent" );
+    }
+
+    if( sineShAmplitudesSineTime_.size( ) != frequencies_.size( ) )
+    {
+        throw std::runtime_error( "Error when making periodic gravity field variations, frequency input size (S_lm * sin time) inconsistent" );
     }
 }
 
@@ -58,10 +65,10 @@ std::pair< Eigen::MatrixXd, Eigen::MatrixXd > PeriodicGravityFieldVariations::ca
 
     for( unsigned int i = 0; i < frequencies_.size( ); i++ )
     {
-        cosineCorrections += cosineAmplitudes_.at( i ) * std::cos(
-                    frequencies_.at( i ) * ( time - referenceEpoch_ ) + phases_.at( i ) );
-        sineCorrections += sineAmplitudes_.at( i ) * std::cos(
-                    frequencies_.at( i ) * ( time - referenceEpoch_ ) + phases_.at( i ) );
+        cosineCorrections += cosineShAmplitudesCosineTime_.at( i ) * std::cos( frequencies_.at( i ) * ( time - referenceEpoch_ ) ) +
+            cosineShAmplitudesSineTime_.at( i ) * std::sin( frequencies_.at( i ) * ( time - referenceEpoch_ ) ) ;
+        sineCorrections += sineShAmplitudesCosineTime_.at( i ) * std::cos( frequencies_.at( i ) * ( time - referenceEpoch_ ) ) +
+            sineShAmplitudesSineTime_.at( i ) * std::sin( frequencies_.at( i ) * ( time - referenceEpoch_ ) ) ;
     }
 
     return std::make_pair( cosineCorrections, sineCorrections );

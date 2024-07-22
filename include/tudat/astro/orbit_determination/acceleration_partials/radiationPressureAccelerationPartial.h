@@ -23,6 +23,13 @@ namespace tudat
 namespace acceleration_partials
 {
 
+void computeRadiationPressureAccelerationWrtSourceDirectionScaling(
+    const std::shared_ptr< electromagnetism::RadiationPressureAcceleration > accelerationModel,
+    Eigen::MatrixXd& partial );
+
+void computeRadiationPressureAccelerationWrtSourcePerpendicularDirectionScaling(
+    const std::shared_ptr< electromagnetism::RadiationPressureAcceleration > accelerationModel,
+    Eigen::MatrixXd& partial );
 
 //! Class to calculate the partials of the cannnonball radiation pressure acceleration w.r.t. parameters and states.
 class CannonBallRadiationPressurePartial: public AccelerationPartial

@@ -1650,7 +1650,7 @@ BOOST_AUTO_TEST_CASE( test_radiationPressureTargetModelSetup_CannonballTarget )
     auto cannonballRadiationPressureTarget =
             std::dynamic_pointer_cast<electromagnetism::CannonballRadiationPressureTargetModel>(
                     createRadiationPressureTargetModel(
-                            cannonballRadiationPressureTargetSettings, "Vehicle", SystemOfBodies()));
+                            cannonballRadiationPressureTargetSettings, "Vehicle", SystemOfBodies( ) ).at( 0 ) );
 
     const auto actualArea = cannonballRadiationPressureTarget->getArea();
     const auto actualCoefficient = cannonballRadiationPressureTarget->getCoefficient();
@@ -1752,7 +1752,7 @@ BOOST_AUTO_TEST_CASE( test_radiationPressureTargetModelSetup_PaneledTarget )
     std::shared_ptr<electromagnetism::PaneledRadiationPressureTargetModel> paneledRadiationPressureTarget =
             std::dynamic_pointer_cast<electromagnetism::PaneledRadiationPressureTargetModel>(
                     createRadiationPressureTargetModel(
-                            paneledRadiationPressureTargetSettings, "Vehicle", bodies));
+                            paneledRadiationPressureTargetSettings, "Vehicle", bodies ).at( 0 ) );
 
     bodies.at( "Sun" )->setStateFromEphemeris( 0. );
     bodies.at( "Vehicle" )->setStateFromEphemeris( 0. );

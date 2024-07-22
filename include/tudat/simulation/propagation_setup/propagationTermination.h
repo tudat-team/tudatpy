@@ -548,7 +548,7 @@ std::shared_ptr< PropagationTerminationCondition > createPropagationTerminationC
 
         // Get dependent variable function
         std::function< double( ) > dependentVariableFunction;
-        if( getDependentVariableSaveSize( dependentVariableTerminationSettings->dependentVariableSettings_ ) == 1 )
+        if( getDependentVariableSaveSize( dependentVariableTerminationSettings->dependentVariableSettings_, bodies ) == 1 )
         {
             dependentVariableFunction =
                     getDoubleDependentVariableFunction(

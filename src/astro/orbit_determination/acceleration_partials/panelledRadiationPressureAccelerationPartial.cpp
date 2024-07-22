@@ -43,7 +43,7 @@ void PanelledRadiationPressurePartial::update( const double currentTime )
             for( int i = 0; i < panelledTargetModel_->getTotalNumberOfPanels( ); i++ )
             {
                 currentPanelNormal = panelledTargetModel_->getSurfaceNormals( ).at( i );
-                cosineOfPanelInclination = panelledTargetModel_->getSurfacePanelCosines( ).at( i );
+                cosineOfPanelInclination = panelledTargetModel_->getSurfacePanelCosines( acceleratingBody_ ).at( i );
 
                 currentPanelPartialContribution.setZero( );
                 if( cosineOfPanelInclination > 0.0 )
@@ -51,7 +51,7 @@ void PanelledRadiationPressurePartial::update( const double currentTime )
                     currentCosineAnglePartial_ = currentPanelNormal.transpose( ) * currentSourceUnitVectorPartial_;
 
                     currentPanelArea = panelledTargetModel_->getBodyFixedPanels( ).at( i )->getPanelArea( );
-                    currentPanelReactionVector = panelledTargetModel_->getPanelForces( ).at( i ) / ( currentRadiationPressure * currentPanelArea );
+                    currentPanelReactionVector = panelledTargetModel_->getPanelForces( acceleratingBody_ ).at( i ) / ( currentRadiationPressure * currentPanelArea );
 
                     currentPanelPartialContribution += panelledTargetModel_->getFullPanels( ).at( i )->getReflectionLaw( )->
                         evaluateReactionVectorDerivativeWrtTargetPosition(
