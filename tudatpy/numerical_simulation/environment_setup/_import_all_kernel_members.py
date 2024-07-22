@@ -38,7 +38,6 @@ from tudatpy.kernel.numerical_simulation.environment_setup import \
      get_default_single_body_settings_time_limited, \
      get_ground_station_list, \
      get_safe_interpolation_interval, \
-     get_target_elevation_angles, \
      set_aerodynamic_guidance, \
      set_aerodynamic_orientation_functions, \
      set_constant_aerodynamic_orientation
