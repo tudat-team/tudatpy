@@ -317,6 +317,10 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
                     break;
                 case estimatable_parameters::custom_estimated_parameter:
                     break;
+                case estimatable_parameters::source_direction_radiation_pressure_scaling_factor:
+                    break;
+                case estimatable_parameters::source_perpendicular_direction_radiation_pressure_scaling_factor:
+                    break;
                 default:
                     std::string errorMessage =
                             "Parameter " + std::to_string(
