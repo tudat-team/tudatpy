@@ -332,6 +332,23 @@ protected:
         }
     }
 
+    void wrtPolynomialGravityFieldVariations(
+        const std::vector< std::pair< int, int > >& cosineBlockIndices,
+        const std::vector< std::pair< int, int > >& sineBlockIndices,
+        const std::vector< std::vector< std::pair< int, int > > > powersPerCosineBlockIndex,
+        const std::vector< std::vector< std::pair< int, int > > > powersPerSineBlockIndex,
+        const double referenceEpoch,
+        Eigen::MatrixXd& partialDerivatives );
+
+    void wrtPeriodicGravityFieldVariations(
+        const std::vector< std::pair< int, int > >& cosineBlockIndices,
+        const std::vector< std::pair< int, int > >& sineBlockIndices,
+        const std::vector< std::vector< std::pair< int, int > > > powersPerCosineBlockIndex,
+        const std::vector< std::vector< std::pair< int, int > > > powersPerSineBlockIndex,
+        const std::vector< double >& frequencies,
+        const double referenceEpoch,
+        Eigen::MatrixXd& partialDerivatives );
+
     //! Function to calculate the partial of the acceleration wrt a set of cosine coefficients.
     /*!
      *  Function to calculate the partial of the acceleration wrt a set of cosine coefficients.

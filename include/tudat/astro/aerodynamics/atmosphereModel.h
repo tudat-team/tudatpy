@@ -49,6 +49,22 @@ enum AtmosphereDependentVariables
     molar_mass_dependent_atmosphere = 5
 };
 
+//! Enum of all the possible species that an atmosphere can describe.
+/*!
+ * Enum of all the possible species that an atmosphere can describe.
+ */
+enum AtmosphericCompositionSpecies
+{
+    he_species,
+    o_species,
+    n2_species,
+    o2_species,
+    ar_species,
+    h_species,
+    n_species,
+    anomalous_o_species
+};
+
 //! Atmosphere model class.
 /*!
  * Base class for all atmosphere models.
@@ -112,6 +128,32 @@ public:
     */
     virtual double getSpeedOfSound( const double altitude, const double longitude,
                                     const double latitude, const double time ) = 0;
+
+    //! Get number density.
+    /*!
+    * Returns the number density of a requested species in cm^-1. (if chosen atmospher model has this implemented)
+    * \param species species (has to be described in the AtmosphericCompositionSpecies enum).
+    * \param altitude Altitude.
+    * \param longitude Longitude.
+    * \param latitude Latitude.
+    * \param time Time.
+    * \return Number density of requested species.
+    */
+    virtual double getNumberDensity( const AtmosphericCompositionSpecies species,
+                                     const double altitude, const double longitude,
+                                     const double latitude, const double time )
+    {
+        if( doesModelDefineSpeciesNumberDensity( species ) )
+        {
+            throw std::runtime_error( "Error, atmospehere model has number density for " + std::to_string( species ) + " defined, but no function to extract it" );
+        }
+        throw std::runtime_error( "Error, atmospehere model has no dependency on species " + std::to_string(species ) );
+    }
+
+    virtual bool doesModelDefineSpeciesNumberDensity( const AtmosphericCompositionSpecies species )
+    {
+        return false;
+    }
 
     //! Function to retrieve the model describing the wind velocity vector of the atmosphere
     /*!

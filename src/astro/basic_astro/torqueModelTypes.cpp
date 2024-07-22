@@ -13,6 +13,7 @@
 
 #include "tudat/astro/basic_astro/torqueModelTypes.h"
 #include "tudat/astro/basic_astro/dissipativeTorqueModel.h"
+#include "tudat/astro/electromagnetism/radiationPressureTorque.h"
 #include "tudat/astro/gravitation/secondDegreeGravitationalTorque.h"
 #include "tudat/astro/gravitation/sphericalHarmonicGravitationalTorque.h"
 #include "tudat/astro/aerodynamics/aerodynamicTorque.h"
@@ -40,6 +41,10 @@ AvailableTorque getTorqueModelType(
     else if( std::dynamic_pointer_cast< gravitation::SphericalHarmonicGravitationalTorqueModel >( torqueModel ) != nullptr )
     {
         torqueType = spherical_harmonic_gravitational_torque;
+    }
+    else if( std::dynamic_pointer_cast< electromagnetism::IsotropicPointSourceRadiationPressureTorque >( torqueModel ) != nullptr )
+    {
+        torqueType = radiation_pressure_torque;
     }
     else if( std::dynamic_pointer_cast< InertialTorqueModel >( torqueModel ) != nullptr )
     {
@@ -74,6 +79,9 @@ std::string getTorqueModelName( const AvailableTorque torqueType )
         break;
     case spherical_harmonic_gravitational_torque:
         torqueName = "spherical harmonic gravitational torque ";
+        break;
+    case radiation_pressure_torque:
+        torqueName = "radiation pressure torque ";
         break;
     case inertial_torque:
         torqueName = "inertial torque ";

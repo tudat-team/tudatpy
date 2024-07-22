@@ -875,7 +875,7 @@ orbit_determination::StateDerivativePartialsMap createAccelerationPartialsMap(
     accelerationPartialsList.resize( initialDynamicalParameters.size( ) );
 
     // Iterate over list of bodies of which the partials of the accelerations acting on them are required.
-    int bodyCounter = 0;
+//    int bodyCounter = 0;
     std::map< std::string, std::shared_ptr< relativity::EinsteinInfeldHoffmannAcceleration > > eihAccelerations;
     for( basic_astrodynamics::AccelerationMap::const_iterator accelerationIterator = accelerationMap.begin( );
          accelerationIterator != accelerationMap.end( ); accelerationIterator++ )
@@ -955,7 +955,7 @@ orbit_determination::StateDerivativePartialsMap createAccelerationPartialsMap(
                     // Add partials of current body's accelerations to vector.
                     accelerationPartialsList[ i ] = accelerationPartialVector;
 
-                    bodyCounter++;
+//                    bodyCounter++;
                 }
             }
         }
