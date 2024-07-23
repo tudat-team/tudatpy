@@ -53,7 +53,7 @@ public:
      *  \param deformedBody Name of body being tidally deformed.
      */
     TidalLoveNumberPartialInterface(
-            const std::shared_ptr< gravitation::BasicSolidBodyTideGravityFieldVariations > gravityFieldVariations,
+            const std::shared_ptr< gravitation::SolidBodyTideGravityFieldVariations > gravityFieldVariations,
             const std::function< Eigen::Vector3d( ) > deformedBodyPositionFunction,
             const std::vector< std::function< Eigen::Vector3d( ) > > deformingBodyStateFunctions,
             const std::function< Eigen::Quaterniond( ) > rotationToDeformedBodyFrameFrameFunction,
