@@ -136,13 +136,14 @@ void expose_gravity_field_variation_setup(py::module &m) {
           get_docstring("solid_body_tide_degree_order_variable_complex_k").c_str() );
 
     m.def("single_period_periodic",
-          py::overload_cast< const Eigen::MatrixXd&, const Eigen::MatrixXd&, const double,
-                             const double, const double, const int, const int>(
-              &tss::periodicGravityFieldVariationsSettings),
-          py::arg("cosine_amplitude"),
-          py::arg("sine_amplitude"),
+          py::overload_cast< const Eigen::MatrixXd&, const Eigen::MatrixXd&, const Eigen::MatrixXd&,
+                  const Eigen::MatrixXd&, const double, const double, const int, const int>(
+              &tss::periodicGravityFieldVariationsSettingsSingleFrequency),
+          py::arg("cosine_sh_amplitude_cosine_time"),
+          py::arg("cosine_sh_amplitude_sine_time"),
+          py::arg("sine_sh_amplitude_cosine_time"),
+          py::arg("sine_sh_amplitude_sine_time"),
           py::arg("frequency"),
-          py::arg("phase"),
           py::arg("reference_epoch"),
           py::arg("minimum_degree") = 2,
           py::arg("minimum_order") = 0,
@@ -150,12 +151,14 @@ void expose_gravity_field_variation_setup(py::module &m) {
 
     m.def("periodic",
           py::overload_cast< const std::vector< Eigen::MatrixXd >&, const std::vector< Eigen::MatrixXd >&,
-                             const std::vector< double >&, const std::vector< double >&, const double, const int, const int>(
+                            const std::vector< Eigen::MatrixXd >&, const std::vector< Eigen::MatrixXd >&,
+                             const std::vector< double >&, const double, const int, const int>(
               &tss::periodicGravityFieldVariationsSettings),
-          py::arg("cosine_amplitudes"),
-          py::arg("sine_amplitudes"),
+          py::arg("cosine_sh_amplitudes_cosine_time"),
+          py::arg("cosine_sh_amplitudes_sine_time"),
+          py::arg("sine_sh_amplitudes_cosine_time"),
+          py::arg("sine_sh_amplitudes_sine_time"),
           py::arg("frequencies"),
-          py::arg("phases"),
           py::arg("reference_epoch"),
           py::arg("minimum_degree") = 2,
           py::arg("minimum_order") = 0,
