@@ -773,10 +773,10 @@ public:
     {
         // Override default values for dry and wet zenith corrections
         // TRK-2-23 (2008), section 3.2.2
-        dryZenithRangeCorrectionFunction_ = [=] ( double time ) {
+        dryZenithRangeCorrectionFunction_ = [=,this] ( double time ) {
             return seasonalModelDryZenithCorrectionCalculator_->computeMediaCorrection( time ) +
                 dryZenithCorrectionAdjustmentCalculator_->computeMediaCorrection( time ); };
-        wetZenithRangeCorrectionFunction_ = [=] ( double time ) {
+        wetZenithRangeCorrectionFunction_ = [=,this] ( double time ) {
             return seasonalModelWetZenithCorrectionCalculator_->computeMediaCorrection( time ) +
                 wetZenithCorrectionAdjustmentCalculator_->computeMediaCorrection( time ); };
     }
