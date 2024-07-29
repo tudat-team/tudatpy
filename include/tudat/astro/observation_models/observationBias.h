@@ -1222,7 +1222,8 @@ private:
  *  Class for a constant time observation bias of a given size. For unbiases observation h and time bias c, the biased observation
  *  is computed as h(t+c)
  */
-class TwoWayTimeScaleRangeBias: public ObservationBias< 1 >
+template< int ObservationSize = 1 >
+class TwoWayTimeScaleRangeBias: public ObservationBias< ObservationSize >
 {
 public:
 
@@ -1235,7 +1236,7 @@ public:
     TwoWayTimeScaleRangeBias(
         const std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > timeScaleConverter,
         const std::shared_ptr< ground_stations::GroundStationState > transmittingStationState,
-        const std::shared_ptr< ground_stations::GroundStationState > receivingStationState ): ObservationBias< 1 >( false ){ }
+        const std::shared_ptr< ground_stations::GroundStationState > receivingStationState ): ObservationBias< ObservationSize >( false ){ }
 
     //! Destructor
     ~TwoWayTimeScaleRangeBias( ){ }
@@ -1248,17 +1249,22 @@ public:
      * \param currentObservableValue  Unbiased value of the observable (unused and default NAN).
      * \return Constant time drift bias.
      */
-    Eigen::Matrix< double, 1, 1 > getObservationBias(
+    Eigen::Matrix< double, ObservationSize, 1 > getObservationBias(
         const std::vector< double >& linkEndTimes,
         const std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
-        const Eigen::Matrix< double, 1, 1 >& currentObservableValue =
-        ( Eigen::Matrix< double, 1, 1 >( ) << TUDAT_NAN ).finished( ) )
+        const Eigen::Matrix< double, ObservationSize, 1 >& currentObservableValue )
     {
+        std::cout<<"Computing bias "<<timeScaleConverter_<<" "<<receivingStationState_<<" "<<transmittingStationState_<<" "
+        <<computedTimeScale_<<" "<<observedTimeScale_<<" "<<linkEndTimes.size( )<<std::endl;
         double receptionTimeDifference = timeScaleConverter_->getCurrentTimeDifference(
             computedTimeScale_, observedTimeScale_, linkEndTimes.at( 3 ), receivingStationState_->getNominalCartesianPosition( ) );
         double transmissionTimeDifference = timeScaleConverter_->getCurrentTimeDifference(
             computedTimeScale_, observedTimeScale_, linkEndTimes.at( 0 ), transmittingStationState_->getNominalCartesianPosition( ) );
-        return ( Eigen::Matrix< double, 1, 1 >( ) << ( transmissionTimeDifference - receptionTimeDifference ) * physical_constants::SPEED_OF_LIGHT ).finished( );
+        Eigen::Matrix< double, ObservationSize, 1 > biasValue = Eigen::Matrix< double, ObservationSize, 1 >::Zero( );
+        biasValue( 0 ) = ( transmissionTimeDifference - receptionTimeDifference ) * physical_constants::SPEED_OF_LIGHT;
+        std::cout<<"Computed bias"<<std::endl;
+
+        return biasValue;
     }
 
 private:
