@@ -22,6 +22,8 @@
 
 #include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/basics/basicTypedefs.h"
+#include "tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h"
+#include "tudat/astro/ground_stations/groundStationState.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/math/interpolators/lookupScheme.h"
@@ -44,7 +46,8 @@ enum ObservationBiasTypes
     constant_time_drift_bias,
     arc_wise_time_drift_bias,
     constant_time_bias,
-    arc_wise_time_bias
+    arc_wise_time_bias,
+    two_way_range_time_scale_bias
 };
 
 //! Base class (non-functional) for describing observation biases
@@ -1210,6 +1213,65 @@ private:
 
     //! Object used to determine the index from observationBiases_ to be used, based on the current time.
     std::shared_ptr< interpolators::LookUpScheme< double > > lookupScheme_;
+
+};
+
+
+//! Class for a constant time observation bias of a given size
+/*!
+ *  Class for a constant time observation bias of a given size. For unbiases observation h and time bias c, the biased observation
+ *  is computed as h(t+c)
+ */
+class TwoWayTimeScaleRangeBias: public ObservationBias< 1 >
+{
+public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param timeBias Constant (entry-wise) time bias.
+     * \param linkEndIndexForTime Link end index from which the 'current time' is determined
+     */
+    TwoWayTimeScaleRangeBias(
+        const std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > timeScaleConverter,
+        const std::shared_ptr< ground_stations::GroundStationState > transmittingStationState,
+        const std::shared_ptr< ground_stations::GroundStationState > receivingStationState ): ObservationBias< 1 >( false ){ }
+
+    //! Destructor
+    ~TwoWayTimeScaleRangeBias( ){ }
+
+    //! Function to retrieve the constant time drift bias.
+    /*!
+     * Function to retrieve the constant time drift bias.
+     * \param linkEndTimes List of times at each link end during observation (unused).
+     * \param linkEndStates List of states at each link end during observation (unused).
+     * \param currentObservableValue  Unbiased value of the observable (unused and default NAN).
+     * \return Constant time drift bias.
+     */
+    Eigen::Matrix< double, 1, 1 > getObservationBias(
+        const std::vector< double >& linkEndTimes,
+        const std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
+        const Eigen::Matrix< double, 1, 1 >& currentObservableValue =
+        ( Eigen::Matrix< double, 1, 1 >( ) << TUDAT_NAN ).finished( ) )
+    {
+        double receptionTimeDifference = timeScaleConverter_->getCurrentTimeDifference(
+            computedTimeScale_, observedTimeScale_, linkEndTimes.at( 3 ), receivingStationState_->getNominalCartesianPosition( ) );
+        double transmissionTimeDifference = timeScaleConverter_->getCurrentTimeDifference(
+            computedTimeScale_, observedTimeScale_, linkEndTimes.at( 0 ), transmittingStationState_->getNominalCartesianPosition( ) );
+        return ( Eigen::Matrix< double, 1, 1 >( ) << ( transmissionTimeDifference - receptionTimeDifference ) * physical_constants::SPEED_OF_LIGHT ).finished( );
+    }
+
+private:
+
+    std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > timeScaleConverter_;
+
+    std::shared_ptr< ground_stations::GroundStationState > transmittingStationState_;
+
+    std::shared_ptr< ground_stations::GroundStationState > receivingStationState_;
+
+    basic_astrodynamics::TimeScales observedTimeScale_ = basic_astrodynamics::utc_scale;
+
+    basic_astrodynamics::TimeScales computedTimeScale_ = basic_astrodynamics::tdb_scale;
 
 };
 

@@ -1480,6 +1480,36 @@ std::shared_ptr< ObservationBias< ObservationSize > > createObservationBiasCalcu
                         observableType, arcwiseBiasSettings->linkEndForTime_, linkEnds.size( ) ).at( 0 ) );
         break;
     }
+    case two_way_range_time_scale_bias:
+    {
+        if( observableType != n_way_range )
+        {
+            throw std::runtime_error( "Error when making two-way range time scale bias, bias is to be applied to wrong observable: " +
+                getObservableName( observableType, linkEnds.size( ) ) );
+        }
+        else if( linkEnds.size( ) != 3 )
+        {
+            throw std::runtime_error( "Error when making two-way range time scale bias, bias is to be applied to observable with wrong number of link ends: " +
+                                      std::to_string( linkEnds.size( ) ) );
+        }
+        else
+        {
+            if( linkEnds.at( transmitter ).bodyName_ != "Earth" )
+            {
+                std::cerr<<" Warning when making two-way range time scale bias, bias is to be applied observable with transmitter not on Earth: "<<linkEnds.at( transmitter ).bodyName_ <<std::endl;
+            }
+
+            if( linkEnds.at( receiver ).bodyName_ != "Earth" )
+            {
+                std::cerr<<" Warning when making two-way range time scale bias, bias is to be applied observable with receiver not on Earth: "<linkEnds.at( receiver ).bodyName_ <<std::endl;
+            }
+        }
+        observationBias = std::make_shared< TwoWayTimeScaleRangeBias >(
+            earth_orientation::defaultTimeConverter,
+            bodies.at( linkEnds.at( transmitter ).bodyName_ )->getGroundStation( linkEnds.at( transmitter ).stationName_ )->getNominalStationState( ),
+            bodies.at( linkEnds.at( transmitter ).bodyName_ )->getGroundStation( linkEnds.at( receiver ).stationName_ )->getNominalStationState( ) );
+        break;
+    }
     case multiple_observation_biases:
     {
         // Check input consistency
