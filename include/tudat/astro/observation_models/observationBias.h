@@ -1236,7 +1236,9 @@ public:
     TwoWayTimeScaleRangeBias(
         const std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > timeScaleConverter,
         const std::shared_ptr< ground_stations::GroundStationState > transmittingStationState,
-        const std::shared_ptr< ground_stations::GroundStationState > receivingStationState ): ObservationBias< ObservationSize >( false ){ }
+        const std::shared_ptr< ground_stations::GroundStationState > receivingStationState ):
+        ObservationBias< ObservationSize >( false ), timeScaleConverter_( timeScaleConverter ),
+        transmittingStationState_( transmittingStationState ),receivingStationState_( receivingStationState ){ }
 
     //! Destructor
     ~TwoWayTimeScaleRangeBias( ){ }
@@ -1261,7 +1263,7 @@ public:
         double transmissionTimeDifference = timeScaleConverter_->getCurrentTimeDifference(
             computedTimeScale_, observedTimeScale_, linkEndTimes.at( 0 ), transmittingStationState_->getNominalCartesianPosition( ) );
         Eigen::Matrix< double, ObservationSize, 1 > biasValue = Eigen::Matrix< double, ObservationSize, 1 >::Zero( );
-        biasValue( 0 ) = ( transmissionTimeDifference - receptionTimeDifference ) * physical_constants::SPEED_OF_LIGHT;
+        biasValue( 0 ) = ( receptionTimeDifference - transmissionTimeDifference ) * physical_constants::SPEED_OF_LIGHT;
         std::cout<<"Computed bias"<<std::endl;
 
         return biasValue;

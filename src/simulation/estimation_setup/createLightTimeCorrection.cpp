@@ -476,7 +476,7 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections(
         lightTimeCorrection = std::make_shared< InversePowerSeriesSolarCoronaCorrection >(
                 observableType,
                 sunStateFunction,
-                nullptr,
+                createLinkFrequencyFunction( bodies, linkEnds, transmittingLinkEndType, receivingLinkEndType ),
                 coronaCorrectionSettings->getCoefficients( ),
                 coronaCorrectionSettings->getPositiveExponents( ),
                 coronaCorrectionSettings->getCriticalPlasmaDensityDelayCoefficient( ),
@@ -606,6 +606,11 @@ std::function< double ( std::vector< FrequencyBands >, double ) > createLinkFreq
     {
         double frequency = transmittedFrequencyCalculator->getTemplatedCurrentFrequency< double, double >( time );
 
+        if( frequencyBands.size( ) + 1 < turnaroundRatioFunctions.size( ) )
+        {
+            throw std::runtime_error( "Error when computing link frequency, found incompatible number of frequency bands: " +
+            std::to_string( frequencyBands.size( ) ) + " and turnaround ratios " + std::to_string( turnaroundRatioFunctions.size( ) ) );
+        }
         for ( unsigned int i = 0; i < turnaroundRatioFunctions.size( ); ++i )
         {
             frequency *= turnaroundRatioFunctions.at( i )( frequencyBands.at( i ), frequencyBands.at( i + 1 ) );
