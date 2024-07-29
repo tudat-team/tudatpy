@@ -245,6 +245,12 @@ public:
         transponderTurnaroundRatio_ = transponderRatioFunction;
     }
 
+
+    void setDefaultTransponderTurnaroundRatio( )
+    {
+        setTransponderTurnaroundRatio( );
+    }
+
     void setTransponderTurnaroundRatio(
             std::map< std::pair< observation_models::FrequencyBands, observation_models::FrequencyBands >, double >&
                     transponderRatioPerUplinkAndDownlinkFrequencyBand )
