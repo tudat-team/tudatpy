@@ -460,7 +460,7 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections(
                     "Error when creating inverse power series solar corona correction: incompatible settings type." );
         }
 
-        std::string sunBodyName = coronaCorrectionSettings->getSunBodyName( );
+        std::string sunBodyName = "Sun";//coronaCorrectionSettings->getSunBodyName( );
 
         std::function< Eigen::Vector6d( const double ) > sunStateFunction = std::bind(
                 &simulation_setup::Body::getStateInBaseFrameFromEphemeris< double, double >,
@@ -476,7 +476,7 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections(
         lightTimeCorrection = std::make_shared< InversePowerSeriesSolarCoronaCorrection >(
                 observableType,
                 sunStateFunction,
-                createLinkFrequencyFunction( bodies, linkEnds, transmittingLinkEndType, receivingLinkEndType ),
+                nullptr,
                 coronaCorrectionSettings->getCoefficients( ),
                 coronaCorrectionSettings->getPositiveExponents( ),
                 coronaCorrectionSettings->getCriticalPlasmaDensityDelayCoefficient( ),
