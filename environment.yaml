@@ -14,7 +14,6 @@ dependencies:
   - pybind11-abi
   # Python dependencies
   - numpy<2.0.0
-  - mypy
   - pytest
   - mypy
   - pandas     # for tudatpy.io
@@ -23,3 +22,18 @@ dependencies:
   - astropy    # for tudatpy.data.mpc
   - astroquery # for tudatpy.data.mpc
   - astropy-healpix  # for tudatpy.data._biases
+  # Documentation
+  - jinja2
+  - pyyaml
+  - pydantic == 1.10.9
+  - numpydoc
+  - doxygen # for cpp api
+  - pip
+  - pip:
+     - nbsphinx
+     - sphinxcontrib-napoleon
+     - sphinx_rtd_theme
+     - sphinxcontrib-fulltoc
+     - sphinxcontrib-bibtex
+     - furo
+     - sphinx_copybutton 
