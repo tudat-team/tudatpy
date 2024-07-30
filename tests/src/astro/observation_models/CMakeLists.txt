@@ -9,11 +9,7 @@
 
 TUDAT_ADD_TEST_CASE(LightTimeSolution
         PRIVATE_LINKS
-        tudat_observation_models
-        tudat_ephemerides
-        tudat_spice_interface
-        )
-
+        ${Tudat_ESTIMATION_LIBRARIES})
 
 TUDAT_ADD_TEST_CASE(AngularPositionModel PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
 
