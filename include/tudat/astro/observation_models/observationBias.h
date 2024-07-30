@@ -1256,15 +1256,13 @@ public:
         const std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
         const Eigen::Matrix< double, ObservationSize, 1 >& currentObservableValue )
     {
-        std::cout<<"Computing bias "<<timeScaleConverter_<<" "<<receivingStationState_<<" "<<transmittingStationState_<<" "
-        <<computedTimeScale_<<" "<<observedTimeScale_<<" "<<linkEndTimes.size( )<<std::endl;
+
         double receptionTimeDifference = timeScaleConverter_->getCurrentTimeDifference(
             computedTimeScale_, observedTimeScale_, linkEndTimes.at( 3 ), receivingStationState_->getNominalCartesianPosition( ) );
         double transmissionTimeDifference = timeScaleConverter_->getCurrentTimeDifference(
             computedTimeScale_, observedTimeScale_, linkEndTimes.at( 0 ), transmittingStationState_->getNominalCartesianPosition( ) );
         Eigen::Matrix< double, ObservationSize, 1 > biasValue = Eigen::Matrix< double, ObservationSize, 1 >::Zero( );
         biasValue( 0 ) = ( receptionTimeDifference - transmissionTimeDifference ) * physical_constants::SPEED_OF_LIGHT;
-        std::cout<<"Computed bias"<<std::endl;
 
         return biasValue;
     }
