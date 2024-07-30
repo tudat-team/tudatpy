@@ -562,8 +562,8 @@ void expose_observation_setup(py::module &m) {
 
     m.def("inverse_power_series_solar_corona_light_time_correction",
           &tom::inversePowerSeriesSolarCoronaCorrectionSettings,
-          py::arg("coefficients") = std::vector< double >{ 1.31 * 5.97e-6 },
-          py::arg("positive_exponents") = std::vector< double >{ 2.0 },
+          py::arg("coefficients") = std::vector< double >{ 1.3e14, 0.5e12 },
+          py::arg("positive_exponents") = std::vector< double >{ 6.0, 2.0 },
           py::arg("delay_coefficient") = 40.3,
           py::arg("sun_body_name") = "Sun",
           get_docstring("inverse_power_series_solar_corona_light_time_correction").c_str() );
@@ -649,6 +649,10 @@ void expose_observation_setup(py::module &m) {
           &tom::multipleObservationBiasSettings,
           py::arg("bias_list"),
           get_docstring("combined_bias").c_str() );
+
+    m.def("two_way_time_scale_range_bias",
+          &tom::twoWayTimeScaleRangeBias,
+          get_docstring("two_way_time_scale_range_bias").c_str() );
 
 
     // ###########    Observation Simulation Settings     #############
