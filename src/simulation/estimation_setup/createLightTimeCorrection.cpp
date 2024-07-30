@@ -460,7 +460,7 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections(
                     "Error when creating inverse power series solar corona correction: incompatible settings type." );
         }
 
-        std::string sunBodyName = coronaCorrectionSettings->getSunBodyName( );
+        std::string sunBodyName = "Sun";//coronaCorrectionSettings->getSunBodyName( );
 
         std::function< Eigen::Vector6d( const double ) > sunStateFunction = std::bind(
                 &simulation_setup::Body::getStateInBaseFrameFromEphemeris< double, double >,
@@ -606,6 +606,11 @@ std::function< double ( std::vector< FrequencyBands >, double ) > createLinkFreq
     {
         double frequency = transmittedFrequencyCalculator->getTemplatedCurrentFrequency< double, double >( time );
 
+        if( frequencyBands.size( ) + 1 < turnaroundRatioFunctions.size( ) )
+        {
+            throw std::runtime_error( "Error when computing link frequency, found incompatible number of frequency bands: " +
+            std::to_string( frequencyBands.size( ) ) + " and turnaround ratios " + std::to_string( turnaroundRatioFunctions.size( ) ) );
+        }
         for ( unsigned int i = 0; i < turnaroundRatioFunctions.size( ); ++i )
         {
             frequency *= turnaroundRatioFunctions.at( i )( frequencyBands.at( i ), frequencyBands.at( i + 1 ) );
