@@ -900,6 +900,36 @@ public:
 
 };
 
+class ModeCoupledTidalLoveNumberEstimatableParameterSettings: public EstimatableParameterSettings
+{
+public:
+
+    //! Constructor for a single deforming body
+    /*!
+     * Constructor for a single deforming body
+     * \param associatedBody Deformed body
+     * \param degree Degree of Love number that is to be estimated
+     * \param deformingBody Name of body causing tidal deformation
+     * \param useComplexValue True if the complex Love number is estimated, false if only the real part is considered
+     */
+    ModeCoupledTidalLoveNumberEstimatableParameterSettings( const std::string& associatedBody,
+                                                            const std::map< std::pair< int, int >, std::vector< std::pair< int, int > > > loveNumberIndices,
+                                                            const std::vector< std::string >& deformingBodies,
+                                                            const bool useComplexValue = 0 ):
+        EstimatableParameterSettings( associatedBody, mode_coupled_tidal_love_numbers ),
+        loveNumberIndices_( loveNumberIndices ),
+        deformingBodies_( deformingBodies ), useComplexValue_( useComplexValue ){ }
+
+    std::map< std::pair< int, int >, std::vector< std::pair< int, int > > > loveNumberIndices_;
+
+    //! Names of bodies causing tidal deformation
+    std::vector< std::string > deformingBodies_;
+
+    bool useComplexValue_;
+
+};
+
+
 //! Class to define settings for estimating the tidal time lag of a direct tidal acceleration model
 /*!
  *  Class to define settings for estimating the tidal time lag of a direct tidal acceleration model, it links to one or more
