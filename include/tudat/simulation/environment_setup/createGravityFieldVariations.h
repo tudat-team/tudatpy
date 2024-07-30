@@ -182,6 +182,52 @@ protected:
 
 };
 
+class ModeCoupledSolidBodyGravityFieldVariationSettings: public GravityFieldVariationSettings
+{
+public:
+
+
+    ModeCoupledSolidBodyGravityFieldVariationSettings(
+        const std::vector< std::string > deformingBodies,
+        const std::map< std::pair< int, int >, std::map< std::pair< int, int >, double > > loveNumbers ):
+        GravityFieldVariationSettings( gravitation::mode_coupled_solid_body ),
+        deformingBodies_( deformingBodies ), loveNumbers_( loveNumbers ){ }
+
+    virtual ~ModeCoupledSolidBodyGravityFieldVariationSettings( ){ }
+
+    //! Function to retrieve list of bodies causing tidal deformation
+    /*!
+     * \brief Function to retrieve list of bodies causing tidal deformation
+     * \return List of bodies causing tidal deformation
+     */
+    std::vector< std::string > getDeformingBodies( ){ return deformingBodies_;}
+
+    //! Function to retrieve list of Love number for the deformed body.
+    /*!
+     * \brief Function to retrieve list of Love number for the deformed body.
+     * \return List of Love number for the deformed body.
+     */
+    std::map< std::pair< int, int >, std::map< std::pair< int, int >, double > > getLoveNumbers( ){ return loveNumbers_; }
+
+
+    //! Function to reset list of bodies causing tidal deformation
+    /*!
+     * \brief Function to reset list of bodies causing tidal deformation
+     * \param deformingBodies New list of bodies causing tidal deformation
+     */
+    void resetDeformingBodies( const std::vector< std::string >& deformingBodies ){
+        deformingBodies_ = deformingBodies; }
+
+protected:
+
+    //! List of bodies causing tidal deformation
+    std::vector< std::string > deformingBodies_;
+
+    //! List of Love number for the deformed body.
+    std::map< std::pair< int, int >, std::map< std::pair< int, int >, double > > loveNumbers_;
+
+};
+
 //! Class to define settings for tabulated gravity field variations.
 class TabulatedGravityFieldVariationSettings: public GravityFieldVariationSettings
 {
