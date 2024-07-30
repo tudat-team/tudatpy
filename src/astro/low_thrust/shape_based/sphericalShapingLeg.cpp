@@ -49,8 +49,8 @@ SphericalShapingLeg::SphericalShapingLeg(const std::shared_ptr<ephemerides::Ephe
                 Eigen::VectorXd( coefficientsElevationAngleFunction_ ) );
 
     // Define functions that return the departure and arrival velocities
-    departureVelocityFunction_ = [=]( ){ return departureBodyState_.segment( 3, 3 ); };
-    arrivalVelocityFunction_ = [=]( ){ return arrivalBodyState_.segment( 3, 3 ); };
+    departureVelocityFunction_ = [&]( ){ return departureBodyState_.segment( 3, 3 ); };
+    arrivalVelocityFunction_ = [&]( ){ return arrivalBodyState_.segment( 3, 3 ); };
 }
 
 SphericalShapingLeg::SphericalShapingLeg(const std::shared_ptr<ephemerides::Ephemeris> departureBodyEphemeris,
@@ -217,7 +217,7 @@ double SphericalShapingLeg::convertAzimuthToTime( const double currentAzimuthAng
     }
 
     // Define the derivative of the time function w.r.t the currentAzimuthAngle angle theta.
-    std::function< double( const double ) > derivativeTimeFunction = [ = ] ( const double currentAzimuthAngle ){
+    std::function< double( const double ) > derivativeTimeFunction = [&] ( const double currentAzimuthAngle ){
 
         double scalarFunctionTimeEquation = computeScalarFunctionD(currentAzimuthAngle);
 
@@ -687,7 +687,7 @@ double SphericalShapingLeg::computeDeltaV( )
 {
     // Define function to integrate: time derivative of the deltaV multiplied by a factor which changes the variable of
     // integration from the time to the azimuth
-    std::function< double( const double ) > derivativeFunctionDeltaV = [ = ] ( const double currentAzimuthAngle )
+    std::function< double( const double ) > derivativeFunctionDeltaV = [&] ( const double currentAzimuthAngle )
     {
         double thrustAcceleration = computeNormalizedThrustAccelerationInSphericalCoordinates(currentAzimuthAngle).norm();
         double derivativeOfTimeWithRespectToAzimuth = std::sqrt(computeScalarFunctionD(currentAzimuthAngle)
