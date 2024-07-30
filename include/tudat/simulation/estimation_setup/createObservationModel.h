@@ -1511,13 +1511,11 @@ std::shared_ptr< ObservationBias< ObservationSize > > createObservationBiasCalcu
                 std::cerr<<" Warning when making two-way range time scale bias, bias is to be applied observable with receiver not on Earth: "<<linkEnds.at( receiver ).bodyName_ <<std::endl;
             }
         }
-        std::cout<<"Creating 2-way range time scale bias"<<std::endl;
 
         observationBias = std::make_shared< TwoWayTimeScaleRangeBias< ObservationSize > >(
             earth_orientation::createDefaultTimeConverter( ),
             bodies.at( linkEnds.at( transmitter ).bodyName_ )->getGroundStation( linkEnds.at( transmitter ).stationName_ )->getNominalStationState( ),
             bodies.at( linkEnds.at( transmitter ).bodyName_ )->getGroundStation( linkEnds.at( receiver ).stationName_ )->getNominalStationState( ) );
-        std::cout<<"Created 2-way range time scale bias"<<std::endl;
 
         break;
     }
