@@ -1983,6 +1983,58 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
             }
             break;
         }
+        case mode_coupled_tidal_love_numbers:
+        {
+            // Check input consistency
+            std::shared_ptr< ModeCoupledTidalLoveNumberEstimatableParameterSettings > tidalLoveNumberSettings =
+                std::dynamic_pointer_cast< ModeCoupledTidalLoveNumberEstimatableParameterSettings >( vectorParameterName );
+            if( tidalLoveNumberSettings == nullptr )
+            {
+                throw std::runtime_error( "Error, expected mode-coupled tidal love number parameter settings " );
+            }
+            else
+            {
+                // Check consistency of body gravity field
+                std::shared_ptr< TimeDependentSphericalHarmonicsGravityField > timeDepGravityField =
+                    std::dynamic_pointer_cast< TimeDependentSphericalHarmonicsGravityField >(
+                        currentBody->getGravityFieldModel( ) );
+                if( timeDepGravityField == nullptr )
+                {
+                    throw std::runtime_error(
+                        "Error, requested mode-coupled tidal love number parameter of " +
+                        vectorParameterName->parameterType_.second.first +
+                        ", but body does not have a time dependent spherical harmonic gravity field." );
+                }
+                else if( currentBody->getGravityFieldVariationSet( ) == nullptr )
+                {
+                    throw std::runtime_error( "Error, requested mode-coupled tidal love number parameter of " +
+                                              vectorParameterName->parameterType_.second.first +
+                                              ", but body does not have gravity field variations" );
+                }
+                else
+                {
+                    // Get associated gravity field variation
+                    std::shared_ptr< gravitation::ModeCoupledSolidBodyTideGravityFieldVariations > gravityFieldVariation =
+                        std::dynamic_pointer_cast< gravitation::ModeCoupledSolidBodyTideGravityFieldVariations >(
+                            currentBody->getGravityFieldVariationSet( )->getDirectTidalGravityFieldVariation(
+                                tidalLoveNumberSettings->deformingBodies_, mode_coupled_solid_body ) );
+
+                    // Create parameter object
+                    if( gravityFieldVariation != nullptr )
+                    {
+                        vectorParameterToEstimate = std::make_shared< ModeCoupledTidalLoveNumber >(
+                            gravityFieldVariation, currentBodyName, tidalLoveNumberSettings->loveNumberIndices_,
+                            tidalLoveNumberSettings->useComplexValue_ );
+                    }
+                    else
+                    {
+                        throw std::runtime_error(
+                            "Error, expected ModeCoupledSolidBodyTideGravityFieldVariations for variable tidal love number" );
+                    }
+                }
+            }
+            break;
+        }
         case desaturation_delta_v_values:
         {
             if( propagatorSettings == nullptr )

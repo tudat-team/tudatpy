@@ -643,6 +643,32 @@ public:
      */
     virtual ~ModeCoupledSolidBodyTideGravityFieldVariations( ){ }
 
+    std::map< std::pair< int, int >, std::map< std::pair< int, int >, double > > getLoveNumbers( )
+    {
+        return loveNumbers_;
+    }
+
+    void resetLoveNumber(
+        const std::pair< int, int > forcingIndices, const std::pair< int, int > responseIndices, const double loveNumber )
+    {
+        if( loveNumbers_.count( forcingIndices ) == 0 )
+        {
+            throw std::runtime_error( "Error when resetting mode-coupled Love number, no number at forcing D/O " +
+                                      std::to_string( forcingIndices.first ) + "/" +
+                                      std::to_string( forcingIndices.second ) + " found " );
+        }
+        else
+        {
+            if( loveNumbers_.at( forcingIndices ).count( responseIndices ) == 0  )
+            {
+                throw std::runtime_error( "Error when resetting mode-coupled Love number, no number at forcing D/O " +
+                                          std::to_string( forcingIndices.first ) + "/" + std::to_string( forcingIndices.second ) +
+                                          " and response D/O " +  std::to_string( responseIndices.first ) + "/" + std::to_string( responseIndices.second ) +" found ");
+            }
+        }
+        loveNumbers_[ forcingIndices ][ responseIndices ] = loveNumber;
+    }
+
 protected:
 
     virtual void addBasicSolidBodyTideCorrections(

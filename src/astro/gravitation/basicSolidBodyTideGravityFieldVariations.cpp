@@ -255,12 +255,14 @@ void ModeCoupledSolidBodyTideGravityFieldVariations::addBasicSolidBodyTideCorrec
         // Compute response at required degrees/orders with required love numbers
         for( auto responseIt : loveNumberIt.second )
         {
+            int nResponse = responseIt.first.first;
+            int mResponse = responseIt.first.second;
             stokesCoefficientCorrection = std::complex< double >( responseIt.second, 0.0 ) *
                 unityLoveNumberStokesCoefficientCorrection;
-            currentCosineCorrections_( n - 2, m ) += stokesCoefficientCorrection.real( );
-            if ( m != 0 )
+            currentCosineCorrections_( nResponse - 2, mResponse ) += stokesCoefficientCorrection.real( );
+            if ( mResponse != 0 )
             {
-                currentSineCorrections_( n - 2, m ) -= stokesCoefficientCorrection.imag( );
+                currentSineCorrections_( nResponse - 2, mResponse ) -= stokesCoefficientCorrection.imag( );
             }
         }
     }
