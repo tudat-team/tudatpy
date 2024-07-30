@@ -787,6 +787,7 @@ private:
     boost::multi_array< Eigen::Vector3d, NumberOfDimensions > momentCoefficients_;
 };
 
+
 //  Object for setting aerodynamic coefficients from a user-defined 1-dimensional table.
 /*  
  *  Object for setting aerodynamic coefficients from a user-defined 1-dimensional table.
@@ -826,7 +827,7 @@ public:
      *  \param interpolatorSettings Pointer to an interpolator settings object, where the
      *  conditions for interpolation are saved.
      */
-    TabulatedAerodynamicCoefficientSettings< 1 >(
+    TabulatedAerodynamicCoefficientSettings(
             const std::vector< double > independentVariables,
             const std::vector< Eigen::Vector3d > forceCoefficients,
             const std::vector< Eigen::Vector3d > momentCoefficients,
@@ -888,7 +889,7 @@ public:
      *  \param interpolatorSettings Pointer to an interpolator settings object, where the
      *  conditions for interpolation are saved.
      */
-    TabulatedAerodynamicCoefficientSettings< 1 >(
+    TabulatedAerodynamicCoefficientSettings(
             const std::vector< std::vector< double > > independentVariables,
             const boost::multi_array< Eigen::Vector3d, 1 > forceCoefficients,
             const boost::multi_array< Eigen::Vector3d, 1 > momentCoefficients,
@@ -944,7 +945,7 @@ public:
      *  \param interpolatorSettings Pointer to an interpolator settings object, where the
      *  conditions for interpolation are saved.
      */
-    TabulatedAerodynamicCoefficientSettings< 1 >(
+    TabulatedAerodynamicCoefficientSettings(
             const std::vector< double > independentVariables,
             const std::vector< Eigen::Vector3d > forceCoefficients,
             const double referenceArea,
@@ -990,7 +991,7 @@ public:
      *  \param interpolatorSettings Pointer to an interpolator settings object, where the
      *  conditions for interpolation are saved.
      */
-    TabulatedAerodynamicCoefficientSettings< 1 >(
+    TabulatedAerodynamicCoefficientSettings(
             const std::vector< std::vector< double > > independentVariables,
             const boost::multi_array< Eigen::Vector3d, 1 > forceCoefficients,
             const double referenceArea,
@@ -1017,7 +1018,7 @@ public:
     }
 
     //  Destructor
-    ~TabulatedAerodynamicCoefficientSettings< 1 >( ){ }
+    ~TabulatedAerodynamicCoefficientSettings( ){ }
 
     //  Function to return values of force coefficients in table.
     /*  
