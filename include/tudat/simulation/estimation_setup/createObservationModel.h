@@ -1488,7 +1488,6 @@ std::shared_ptr< ObservationBias< ObservationSize > > createObservationBiasCalcu
     }
     case two_way_range_time_scale_bias:
     {
-        std::cout<<"Create 2-way range time scale bias"<<std::endl;
         if( observableType != n_way_range )
         {
             throw std::runtime_error( "Error when making two-way range time scale bias, bias is to be applied to wrong observable: " +
