@@ -69,6 +69,7 @@ if bool(os.getenv("READTHEDOCS")) is True:
     source_path = generate_documentation(api_declaration, '.')
 
 else:
+    # when building locally, use the binaries generated with tudat-bundle
     sys.path.insert(0, os.path.abspath('../../../build/tudatpy'))
 
 # -- General configuration ------------------------------------------------
