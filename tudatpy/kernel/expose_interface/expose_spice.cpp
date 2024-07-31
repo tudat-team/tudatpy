@@ -11,7 +11,7 @@
 #include "expose_spice.h"
 #include <tudat/astro/basic_astro.h>
 
-#include "tudatpy/docstrings.h"
+#include "docstrings.h"
 #include "tudat/interface/spice.h"
 
 #include <pybind11/eigen.h>

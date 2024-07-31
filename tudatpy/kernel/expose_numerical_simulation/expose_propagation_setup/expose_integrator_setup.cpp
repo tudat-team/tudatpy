@@ -10,8 +10,8 @@
 
 #include "expose_integrator_setup.h"
 
-#include "tudatpy/docstrings.h"
-#include "tudatpy/scalarTypes.h"
+#include "docstrings.h"
+#include "scalarTypes.h"
 
 #include <tudat/simulation/propagation_setup.h>
 
