@@ -18,7 +18,7 @@ else()
 #    add_definitions(-DVERSION_INFO "${tudatpy_VERSION_LABEL}")
 endif()
 
-include_directories(include)
+include_directories("tudatpy/kernel")
 # Add cmake modules
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--no-undefined")

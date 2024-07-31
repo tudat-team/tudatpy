@@ -10,8 +10,8 @@
 
 #include "expose_interpolators.h"
 
-#include "tudatpy/docstrings.h"
-#include "tudatpy/scalarTypes.h"
+#include "docstrings.h"
+#include "scalarTypes.h"
 
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>

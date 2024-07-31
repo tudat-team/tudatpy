@@ -8,11 +8,11 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include "tudatpy/scalarTypes.h"
+#include "scalarTypes.h"
 #include "expose_environment.h"
 #include <tudat/basics/deprecationWarnings.h>
 
-#include "tudatpy/docstrings.h"
+#include "docstrings.h"
 
 #include <tudat/astro/aerodynamics.h>
 #include <tudat/astro/ephemerides.h>

@@ -19,7 +19,7 @@
 #include <tudat/simulation/propagation_setup/accelerationSettings.h>
 #include "tudat/math/root_finders.h"
 
-#include "tudatpy/docstrings.h"
+#include "docstrings.h"
 
 namespace py = pybind11;
 namespace tms = tudat::mission_segments;
