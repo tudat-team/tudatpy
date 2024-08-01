@@ -900,6 +900,27 @@ public:
 
 };
 
+std::map< std::pair< int, int >, std::vector< std::pair< int, int > > > getFullModeCoupledLoveNumbers(
+    const unsigned int maximumForcingDegree, const unsigned int maximumResponseDegree )
+{
+    std::map< std::pair< int, int >, std::vector< std::pair< int, int > > > loveNumberIndices;
+
+    for( unsigned int i = 2; i < maximumForcingDegree; i++ )
+    {
+        for( unsigned int j = 0; j <= i; j++ )
+        {
+            for( unsigned int k = 2; k < maximumResponseDegree; k++ )
+            {
+                for( unsigned int l = 0; l <= k; k++ )
+                {
+                    loveNumberIndices[{i,j}].push_back({k,l});
+                }
+            }
+        }
+    }
+    return loveNumberIndices;
+}
+
 class ModeCoupledTidalLoveNumberEstimatableParameterSettings: public EstimatableParameterSettings
 {
 public:

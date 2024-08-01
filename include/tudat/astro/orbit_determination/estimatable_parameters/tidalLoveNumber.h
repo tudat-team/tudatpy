@@ -274,43 +274,7 @@ public:
         const std::shared_ptr< gravitation::ModeCoupledSolidBodyTideGravityFieldVariations > gravityFieldVariationModel,
         const std::string& associatedBody,
         const std::map< std::pair< int, int >, std::vector< std::pair< int, int > > > loveNumberIndices,
-        const bool useComplexComponents = 0 ):
-        EstimatableParameter< Eigen::VectorXd >( mode_coupled_tidal_love_numbers, associatedBody ),
-        gravityFieldVariationModel_( gravityFieldVariationModel ),
-        loveNumberIndices_( loveNumberIndices )
-    {
-        if( useComplexComponents )
-        {
-            throw std::runtime_error( "Error, complex mode-coupled Love numbers not yet supported" );
-        }
-        std::map< std::pair< int, int >, std::map< std::pair< int, int >, double > > loveNumbers = gravityFieldVariationModel->getLoveNumbers( );
-
-        parameterSize_ = 0.0;
-        for( auto it: loveNumberIndices )
-        {
-            if( loveNumbers.count( it.first ) == 0 )
-            {
-                throw std::runtime_error( "Error when estimating mode-coupled Love number, no number at forcing D/O " +
-                                          std::to_string( it.first.first ) + "/" + std::to_string( it.first.second ) + " found ");
-            }
-            for( unsigned int i = 0; i < it.second.size( ); i++ )
-            {
-                if( loveNumbers.at( it.first ).count( it.second.at( i ) ) == 0 )
-                {
-                    throw std::runtime_error( "Error when estimating mode-coupled Love number, no number at forcing D/O " +
-                                              std::to_string( it.first.first ) + "/" + std::to_string( it.first.second ) +
-                                              " and response D/O " +  std::to_string( it.second.at( i ).first ) + "/" + std::to_string( it.second.at( i ).second ) +" found ");
-                }
-            }
-            parameterSize_ += it.second.size( );
-        }
-
-        if( useComplexComponents )
-        {
-            parameterSize_ *= 2;
-        }
-    }
-
+        const bool useComplexComponents = 0 );
 
     Eigen::VectorXd getParameterValue( )
     {
@@ -350,12 +314,61 @@ public:
         return parameterSize_;
     }
 
+    int getMaximumForcingDegree( )
+    {
+        return maximumForcingDegree_;
+    }
+
+    std::vector< std::string > getDeformingBodies( )
+    {
+        return gravityFieldVariationModel_->getDeformingBodies( );
+    }
+
+
+    std::vector< std::pair< int, int > > getParameterForcingDegreeAndOrderIndices( )
+    {
+        return parameterForcingDegreeAndOrderIndices_;
+    }
+
+    std::map< int, std::vector< int > > getForcingOrdersPerDegree( )
+    {
+        return forcingOrdersPerDegree_;
+    }
+
+    std::vector< std::pair< int, int > > getResponseDegreeOrders( )
+    {
+        return responseDegreeOrders_;
+    }
+
+    std::vector< int > getResponseIndices( )
+    {
+        return responseIndices_;
+    }
+
 private:
     std::shared_ptr< gravitation::ModeCoupledSolidBodyTideGravityFieldVariations > gravityFieldVariationModel_;
 
+    // Map with forcing degree/orders (key) and list of associated response degree orders (values)
     std::map< std::pair< int, int >, std::vector< std::pair< int, int > > > loveNumberIndices_;
 
+    // NUmber of separate Love numbers
     int parameterSize_;
+
+    // Maximum degree of forcing
+    int maximumForcingDegree_;
+
+    // The list of forcing orders per forcing degree
+    std::map< int, std::vector< int > > forcingOrdersPerDegree_;
+
+    // For each independent Love number, the forcing degree, and the index in the associated vector of orders in forcingOrdersPerDegree_
+    std::vector< std::pair< int, int > > parameterForcingDegreeAndOrderIndices_;
+
+    // List of all response degree/orders
+    std::vector< std::pair< int, int > > responseDegreeOrders_;
+
+    // For each independent Love number, the response degree/order (as an index in responseDegreeOrders_);
+    std::vector< int > responseIndices_;
+
 
 
 };
