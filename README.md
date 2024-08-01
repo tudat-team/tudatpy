@@ -60,24 +60,22 @@ git submodule update --init --recursive
 cd <tudat/tudatpy>
 git checkout <branch-name>
 ````
-Be advised that the branch from with the Conda packages are built, and that is being maintained the most, is `develop` (and you will likely want to use this one for both tudat and tudatpy).
-See [here](https://github.com/tudat-team/tudatpy/tree/develop) for tudatpy develop branch, and [here](https://github.com/tudat-team/tudat/tree/develop) for tudat develop branch.
-
-It is then recommended to switch to the `develop` branch using the commands above.
+We recommend working with the `develop` branches ([tudatpy/develop](https://github.com/tudat-team/tudatpy/tree/develop), [tudat/develop](https://github.com/tudat-team/tudat/tree/develop)), as these are the most maintained and used to build the Conda packages.
 
 4. Install the contained `environment.yaml` file to satisfy dependencies
-
-It is possible that the creation of the environment will 'time out'. A likely reason for this is that the packages required cannot be found by the current channel, `conda-forge`. It is then advisable to add the channel `anaconda` to ensure a proper creation of the environment.
 
 ````
 conda env create -f environment.yaml
 ````
 
+It is possible that the creation of the environment will 'time out'. A likely reason for this is that the packages required cannot be found by the current channel, `conda-forge`. It is then advisable to add the channel `anaconda` to ensure a proper creation of the environment.
+
+
 There are two directions you can go from here: the command line or CLion.
 
 ### Build & Install: Command line
 
-5. Activate the environment installed in step 4
+5. Activate the conda environment
 
 ````
 conda activate tudat-bundle
@@ -85,30 +83,29 @@ conda activate tudat-bundle
 
 6. Build Tudat and TudatPy
 
-```bash
-bash setup build
 ```
-It is possible (but not needed) to modify the number of processors, the C++ version used
-by the compiler, the build type and some other parameters via flags. You can find more
-information by running
-
-```bash
-bash setup build --help
+python build.py
 ```
 
-7. Install Tudat and TudatPy in your conda environment
+It is possible to change the behavior of build.py (as well as the scripts used in the next steps) with command line arguments. You can check the available options running `python build.py -h`.
 
-```bash
-bash setup install
+7. Install
+
+In order to use your local distributions of Tudat and TudatPy as any other library you need to install them in your conda environment.
+
+```
+python install.py
 ```
 
-This command will add your local installations of Tudat and TudatPy to your active
-conda environment, allowing you to use them as any other C++ or Python library. If you
-ever want to remove them from the environment, just execute
+There is no need to reinstall the libraries when you recompile them or modify the Python source, we used symbolic links to automatically update the code in your conda environment.
 
-```bash
-bash setup uninstall
+8. Uninstall (don't)
+
 ```
+python uninstall.py
+```
+
+The script will not delete the build itself, but remove it from your conda environment.
 
 ### Build: CLion
 > **Note**
