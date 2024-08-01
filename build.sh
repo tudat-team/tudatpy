@@ -11,6 +11,9 @@
 ##################################################################
 ##################################################################
 
+echo "DEPRECATED - Use build.py instead"
+exit 0
+
 # allow input to set compilation config
 while getopts d:j:t:c flag
 do
@@ -18,7 +21,7 @@ do
         d) build_dir=${OPTARG};;
         j) number_of_processors=${OPTARG};;
         t) build_type=${OPTARG};;
-        c) 
+        c)
             echo -en "\n\n\e[33m[USER INPUT REQUIRED] You have requested a clean build. Are you sure? [y/N]\e[0m "
             read -r response
             if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]
