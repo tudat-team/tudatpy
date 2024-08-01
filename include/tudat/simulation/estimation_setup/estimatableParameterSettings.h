@@ -508,7 +508,7 @@ public:
     //! Constructor, sets initial value of translational state and a single central body.
     /*!
      * Constructor, sets initial value of translational state and a single central body
-     * \param associatedBody Body for which initial state is to be estimated.
+     * \param associatedBody Bo9dy for which initial state is to be estimated.
      * \param initialStateValue Current value of initial arc states (concatenated in same order as arcs)
      * \param arcStartTimes Start times for separate arcs
      * \param centralBody Body w.r.t. which the initial state is to be estimated.
@@ -900,7 +900,7 @@ public:
 
 };
 
-std::map< std::pair< int, int >, std::vector< std::pair< int, int > > > getFullModeCoupledLoveNumbers(
+inline std::map< std::pair< int, int >, std::vector< std::pair< int, int > > > getFullModeCoupledLoveNumbers(
     const unsigned int maximumForcingDegree, const unsigned int maximumResponseDegree )
 {
     std::map< std::pair< int, int >, std::vector< std::pair< int, int > > > loveNumberIndices;
