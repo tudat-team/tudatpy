@@ -182,6 +182,7 @@ protected:
 
 };
 
+
 class ModeCoupledSolidBodyGravityFieldVariationSettings: public GravityFieldVariationSettings
 {
 public:
