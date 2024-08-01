@@ -163,6 +163,14 @@ public:
             const int maximumDegree,
             const int maximumOrder );
 
+    std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > >
+    calculateSphericalHarmonicCoefficientsPartialWrtModeCoupledTidalLoveNumbers(
+        const std::vector< std::pair< int, int > > parameterDegreeAndOrderIndices,
+        const std::map< int, std::vector< int > >& ordersPerDegree,
+        const std::vector< int >& deformingBodyIndices,
+        const int maximumDegree,
+        const int maximumOrder );
+
     //! Function to calculate the partial of spherical harmonic acceleration w.r.t. real tidal love numbers.
     /*!
      *  Function to calculate the partial of spherical harmonic acceleration w.r.t. real tidal love numbers at all orders of

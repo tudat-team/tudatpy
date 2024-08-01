@@ -320,7 +320,7 @@ std::shared_ptr< BasicSolidBodyTideGravityFieldVariations > getBasicGravityField
     // Define bodies raising rides.
     std::vector< std::string > deformingBodies;
     deformingBodies.push_back( "Io" );
-//    deformingBodies.push_back( "Europa" );
+    deformingBodies.push_back( "Europa" );
 
     // Retrieve required data of bodies raising tides.
     std::vector< std::function< Eigen::Vector6d( const double ) > >
@@ -354,7 +354,7 @@ std::shared_ptr< ModeCoupledSolidBodyTideGravityFieldVariations > getModeCoupled
     // Define bodies raising rides.
     std::vector< std::string > deformingBodies;
     deformingBodies.push_back( "Io" );
-//    deformingBodies.push_back( "Europa" );
+    deformingBodies.push_back( "Europa" );
 
     // Retrieve required data of bodies raising tides.
     std::vector< std::function< Eigen::Vector6d( const double ) > >
