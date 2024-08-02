@@ -314,7 +314,7 @@ int main( )
     {
         rawOdfDataVector.push_back( std::make_shared< OdfRawFileContents >( dataDirectory + odfFile ) );
     }
-    
+
     // Process ODF file data
     std::shared_ptr< ProcessedOdfFileContents > processedOdfFileContents =
         std::make_shared< ProcessedOdfFileContents >( rawOdfDataVector, spacecraftName, true );

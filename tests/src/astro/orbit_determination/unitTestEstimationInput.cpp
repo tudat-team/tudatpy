@@ -355,17 +355,16 @@ BOOST_AUTO_TEST_CASE( test_WeightDefinitions )
             measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
 
-//    // Define estimation input
-//    std::shared_ptr< EstimationInput< double, double  > > estimationInput =
-//        std::make_shared< EstimationInput< double, double > >(
-//            simulatedObservations );
-//
-//    std::map< ObservableType, std::pair< int, int > > observationTypeStartAndSize =
-//        simulatedObservations->getObservationTypeStartAndSize( );
+    // Define estimation input
+    std::shared_ptr< EstimationInput< double, double  > > estimationInput =
+        std::make_shared< EstimationInput< double, double > >(
+            simulatedObservations );
+
+    std::map< ObservableType, std::pair< int, int > > observationTypeStartAndSize =
+        simulatedObservations->getObservationTypeStartAndSize( );
 
     {
-//        estimationInput->setConstantWeightsMatrix( 0.1 );
-        simulatedObservations->setConstantWeightsMatrix( 0.1 );
+          setConstantWeight( simulatedObservations, 0.1 );
 
         // Define estimation input
         std::shared_ptr< EstimationInput< double, double  > > estimationInput = std::make_shared< EstimationInput< double, double > >( simulatedObservations );
@@ -380,13 +379,13 @@ BOOST_AUTO_TEST_CASE( test_WeightDefinitions )
     }
 
     {
-        std::map<observation_models::ObservableType, double> weightPerObservable;
-        weightPerObservable[ one_way_range ] = 1.0 / ( 3.0 * 3.0 );
-        weightPerObservable[ angular_position ] = 1.0 / ( 1.0E-5 * 1.0E-5 );
-        weightPerObservable[ one_way_doppler ] = 1.0 / ( 1.0E-11 * 1.0E-11 * SPEED_OF_LIGHT * SPEED_OF_LIGHT );
 
-        simulatedObservations->setConstantPerObservableWeightsMatrix( weightPerObservable );
-//        estimationInput->setConstantPerObservableWeightsMatrix( weightPerObservable );
+        std::map< std::shared_ptr< observation_models::ObservationCollectionParser >, double > weightPerObservationParser;
+        weightPerObservationParser[ observationParser( one_way_range ) ] = 1.0 / ( 3.0 * 3.0 );
+        weightPerObservationParser[ observationParser( angular_position ) ] = 1.0 / ( 1.0E-5 * 1.0E-5 );
+        weightPerObservationParser[ observationParser( one_way_doppler ) ] = 1.0 / ( 1.0E-11 * 1.0E-11 * SPEED_OF_LIGHT * SPEED_OF_LIGHT );
+        setConstantWeightPerObservable( simulatedObservations, weightPerObservationParser );
+
 
         // Define estimation input
         std::shared_ptr< EstimationInput< double, double  > > estimationInput = std::make_shared< EstimationInput< double, double > >( simulatedObservations );
@@ -394,11 +393,12 @@ BOOST_AUTO_TEST_CASE( test_WeightDefinitions )
 
         Eigen::VectorXd totalWeights = estimationInput->getWeightsMatrixDiagonals( );
 
-        for( auto it : weightPerObservable )
+        for( auto it : weightPerObservationParser )
         {
-            for( int i = 0; i < observationTypeStartAndSize.at( it.first ).second; i++ )
+            ObservableType observableType = std::dynamic_pointer_cast< ObservationCollectionObservableTypeParser >( it.first )->getObservableTypes( ).at( 0 );
+            for( int i = 0; i < observationTypeStartAndSize.at( observableType ).second; i++ )
             {
-                BOOST_CHECK_CLOSE_FRACTION( totalWeights( observationTypeStartAndSize.at( it.first ).first + i ), it.second, std::numeric_limits< double >::epsilon( ) );
+                BOOST_CHECK_CLOSE_FRACTION( totalWeights( observationTypeStartAndSize.at( observableType ).first + i ), it.second, std::numeric_limits< double >::epsilon( ) );
             }
         }
     }
@@ -406,12 +406,8 @@ BOOST_AUTO_TEST_CASE( test_WeightDefinitions )
     {
         Eigen::Vector2d angularPositionWeight;
         angularPositionWeight << 0.1, 0.2;
-
-        simulatedObservations->setConstantWeightsMatrix( 2.0 );
-        simulatedObservations->setConstantSingleObservableVectorWeights( angular_position, angularPositionWeight );
-//        estimationInput->setConstantWeightsMatrix( 2.0 );
-//        estimationInput->setConstantSingleObservableVectorWeights(
-//            angular_position, angularPositionWeight );
+        setConstantWeight( simulatedObservations, 2.0 );
+        setConstantWeight( simulatedObservations, observationParser( angular_position ), angularPositionWeight );
 
         // Define estimation input
         std::shared_ptr< EstimationInput< double, double  > > estimationInput = std::make_shared< EstimationInput< double, double > >( simulatedObservations );
