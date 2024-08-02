@@ -42,7 +42,7 @@ tudatpy_packages = find_packages(tudatpy_path)
 tudatpy_packages = [f'tudatpy.{module}' for module in tudatpy_packages]
 tudatpy_modules = ['tudatpy.' + f[len(tudatpy_path)+1:-len('.py')].replace('/', '.') for f in glob.glob(os.path.join(tudatpy_path, '**/*.py'), recursive=True) if '__init__' not in f]
 
-class HybridModuleImporter(importlib.abc.MetaPathFinder):
+class TudatpyModuleImporter(importlib.abc.MetaPathFinder):
     def load_tudatpy_module(self, fullname, path, target):
         for finder in sys.meta_path:
             if finder is not self:
@@ -126,4 +126,4 @@ class HybridModuleLoader(importlib.abc.Loader):
         module.__getattr__ = getattr_from_hybrid_module
 
 # Install the custom finder
-sys.meta_path.insert(0, HybridModuleImporter())
+sys.meta_path.insert(0, TudatpyModuleImporter())
