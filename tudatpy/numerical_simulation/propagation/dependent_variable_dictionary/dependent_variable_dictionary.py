@@ -112,9 +112,11 @@ class DependentVariableDictionary(dict):
         # If the key is an instance of a `VariableSettings`-derived class, return its string ID
         if VariableSettings in getmro(key.__class__):
             key = get_dependent_variable_id(key)
-        
+        # Accept an integer key
+        elif isinstance(key, int):
+            key = list(self.keys())[key]
         # Else, ensure it is a string, or else raise a TypeError
-        if not isinstance(key, str): raise TypeError(
+        elif not isinstance(key, str): raise TypeError(
             'DependentVariableDictionary keys must be either instances of `VariableSettings`-derived classes, '
             'or dependent variable string IDs (see `numerical_simulation.propagation_setup.dependent_variable.get_dependent_variable_id`).'
         )
@@ -172,21 +174,39 @@ class DependentVariableDictionary(dict):
         * Time history of the dependent variable, returned as a `dict` mapping epochs (`float`)
           to `np.ndarray`s containing the value of the dependent variable at each given epoch.
         """
-        return super().__getitem__(self.__read_key(__key))
+        try:
+            return super().__getitem__(self.__read_key(__key))
+        except KeyError as e:
+            width = max([len(ID) for ID in self.keys()]) + 10
+            message = f'\nDependent variable "{__key}" not found in the DependentVariableDictionary. Valid keys (both indexes and strings):\n' + \
+                f'{"-"*width}\n' + self.__summary__()
+            print(message)
+            raise e
+        
+    def __summary__(self) -> str:
+        """
+        Return a string summary of the contents of a `DependentVariableDictionary` for print.
+        """
+
+        width = max([len(ID) for ID in self.keys()]) + 10
+
+        summary_string = 'Index   String ID\n' + f'{"-"*width}\n' + \
+            ''.join([
+                f'{f"[{i}]":<7} "{ID}"\n' for i, (ID, value) in enumerate(self.items())
+            ]) + \
+            f'{"="*width}\n'
+
+        return summary_string
 
     def __repr__(self) -> str:
         """
         Return a string summary of the contents of a `DependentVariableDictionary` for print.
         """
         
-        width = max([len(ID) for ID in self.keys()])+5
+        width = max([len(ID) for ID in self.keys()]) + 10
         title = f'{"Depent Variable Dictionary Summary":^{width}}'
 
-        representation_string = f'\n{"="*width}\n' + title + f'\n{"="*width}\n' + \
-            ''.join([
-                f'{f"[{i}]":<4} {ID}\n' for i, (ID, value) in enumerate(self.items())
-            ]) + \
-            f'{"="*width}\n'
+        representation_string = f'\n{"="*width}\n' + title + f'\n{"="*width}\n' + self.__summary__()
 
         return representation_string
     
@@ -206,7 +226,8 @@ class DependentVariableDictionary(dict):
 
 
 def create_dependent_variable_dictionary(
-        dynamics_simulator: numerical_simulation.SingleArcSimulator
+        dynamics_simulator: numerical_simulation.SingleArcSimulator,
+        bodies: numerical_simulation.environment.SystemOfBodies
     ) -> DependentVariableDictionary:
     """
     Construct a dictionary-like object (`DependentVariableDictionary`) which maps which maps dependent variables
@@ -247,7 +268,7 @@ def create_dependent_variable_dictionary(
     for ((i, m), dependent_variable) in dependent_variable_settings.items():
         
         # Retrieve dependent variable shape
-        A, B = get_dependent_variable_shape(dependent_variable)
+        A, B = get_dependent_variable_shape(dependent_variable, bodies)
         
         # Save dependent variable history as a tensor of (A, B)-sized 
         # matrices with `n` entries, where `n` is the number of epochs
