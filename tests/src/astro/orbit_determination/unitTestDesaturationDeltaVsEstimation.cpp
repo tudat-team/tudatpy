@@ -288,12 +288,18 @@ BOOST_AUTO_TEST_CASE( test_DesaturationDeltaVsEstimation )
                 measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
     // Set weights
-    std::map< observation_models::ObservableType, double > weightPerObservable;
-    weightPerObservable[ one_way_range ] = 1.0 / ( 1.0 * 1.0 );
-    weightPerObservable[ angular_position ] = 1.0 / ( 1.0E-5 * 1.0E-5 );
-    weightPerObservable[ one_way_doppler ] = 1.0 / ( 1.0E-11 * 1.0E-11 * physical_constants::SPEED_OF_LIGHT * physical_constants::SPEED_OF_LIGHT  );
+//    std::map< observation_models::ObservableType, double > weightPerObservable;
+//    weightPerObservable[ one_way_range ] = 1.0 / ( 1.0 * 1.0 );
+//    weightPerObservable[ angular_position ] = 1.0 / ( 1.0E-5 * 1.0E-5 );
+//    weightPerObservable[ one_way_doppler ] = 1.0 / ( 1.0E-11 * 1.0E-11 * physical_constants::SPEED_OF_LIGHT * physical_constants::SPEED_OF_LIGHT  );
+//
+//    observationsAndTimes->setConstantPerObservableWeightsMatrix( weightPerObservable );
 
-    observationsAndTimes->setConstantPerObservableWeightsMatrix( weightPerObservable );
+    std::map< std::shared_ptr< observation_models::ObservationCollectionParser >, double > weightsPerObservationParser;
+    weightsPerObservationParser[ observationParser( one_way_range ) ] = 1.0 / ( 1.0 * 1.0 );
+    weightsPerObservationParser[ observationParser( angular_position ) ] = 1.0 / ( 1.0E-5 * 1.0E-5 );
+    weightsPerObservationParser[ observationParser( one_way_doppler ) ] = 1.0 / ( 1.0E-11 * 1.0E-11 * physical_constants::SPEED_OF_LIGHT * physical_constants::SPEED_OF_LIGHT  );
+    setConstantWeightPerObservable( observationsAndTimes,  weightsPerObservationParser );
 
     // Perturb parameter estimate.
     Eigen::Matrix< double, Eigen::Dynamic, 1 > initialParameterEstimate =
