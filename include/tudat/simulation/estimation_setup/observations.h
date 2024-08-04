@@ -504,6 +504,214 @@ private:
 };
 
 
+enum ObservationParserType
+{
+    empty_parser,
+    observable_type_parser,
+    link_ends_parser,
+    body_name_parser,
+    time_bounds_parser,
+    multi_type_parser
+};
+
+struct ObservationCollectionParser
+{
+
+public:
+
+    ObservationCollectionParser( ) : parserType_( empty_parser ){ }
+
+    ObservationCollectionParser( const ObservationParserType parserType ) :
+            parserType_( parserType ){ }
+
+    virtual ~ObservationCollectionParser( ){ }
+
+    ObservationParserType getObservationParserType( ) const
+    {
+        return parserType_;
+    }
+
+
+protected:
+
+    const ObservationParserType parserType_;
+
+};
+
+struct ObservationCollectionObservableTypeParser : public ObservationCollectionParser
+{
+public:
+
+    ObservationCollectionObservableTypeParser( const ObservableType observableType ) :
+            ObservationCollectionParser( observable_type_parser ), observableTypes_( std::vector< ObservableType >( { observableType } ) ){ }
+
+    ObservationCollectionObservableTypeParser( const std::vector< ObservableType > observableTypes ) :
+            ObservationCollectionParser( observable_type_parser ), observableTypes_( observableTypes ){ }
+
+    virtual ~ObservationCollectionObservableTypeParser( ){ }
+
+    std::vector< ObservableType > getObservableTypes( ) const
+    {
+        return observableTypes_;
+    }
+
+protected:
+
+    const std::vector< ObservableType > observableTypes_;
+
+};
+
+struct ObservationCollectionLinkEndsParser : public ObservationCollectionParser
+{
+public:
+
+    ObservationCollectionLinkEndsParser( const LinkEnds linkEnds ) :
+            ObservationCollectionParser( link_ends_parser ), linkEndsVector_( std::vector< LinkEnds >( { linkEnds } ) ){ }
+
+    ObservationCollectionLinkEndsParser( const std::vector< LinkEnds > linkEndsVector ) :
+            ObservationCollectionParser( link_ends_parser ), linkEndsVector_( linkEndsVector ){ }
+
+    virtual ~ObservationCollectionLinkEndsParser( ){ }
+
+    std::vector< LinkEnds > getLinkEndsVector( ) const
+    {
+        return linkEndsVector_;
+    }
+
+protected:
+
+    const std::vector< LinkEnds > linkEndsVector_;
+
+};
+
+struct ObservationCollectionBodyNameParser : public ObservationCollectionParser
+{
+public:
+
+    ObservationCollectionBodyNameParser( const std::string bodyName,
+                                         const bool isStationName = false ) :
+            ObservationCollectionParser( body_name_parser ), bodyNames_( std::vector< std::string >( { bodyName } ) ), isStationName_( isStationName ){ }
+
+    ObservationCollectionBodyNameParser( const std::vector< std::string > bodyNames,
+                                         const bool isStationName = false ) :
+            ObservationCollectionParser( body_name_parser ), bodyNames_( bodyNames ), isStationName_( isStationName ){ }
+
+    virtual ~ObservationCollectionBodyNameParser( ){ }
+
+    std::vector< std::string > getBodyNames( ) const
+    {
+        return bodyNames_;
+    }
+
+    bool isCheckForStationName( ) const
+    {
+        return isStationName_;
+    }
+
+protected:
+
+    const std::vector< std::string > bodyNames_;
+
+    const bool isStationName_;
+
+};
+
+struct ObservationCollectionTimeBoundsParser : public ObservationCollectionParser
+{
+public:
+
+    ObservationCollectionTimeBoundsParser( const std::pair< double, double > timeBounds ) :
+            ObservationCollectionParser( time_bounds_parser ), timeBoundsVector_( std::vector< std::pair< double, double > >( { timeBounds } ) ){ }
+
+    ObservationCollectionTimeBoundsParser( const std::vector< std::pair< double, double > > timeBoundsVector ) :
+            ObservationCollectionParser( time_bounds_parser ), timeBoundsVector_( timeBoundsVector ){ }
+
+    virtual ~ObservationCollectionTimeBoundsParser( ){ }
+
+    std::vector< std::pair< double, double > > getTimeBoundsVector( ) const
+    {
+        return timeBoundsVector_;
+    }
+
+protected:
+
+    const std::vector< std::pair< double, double > > timeBoundsVector_;
+
+};
+
+
+
+struct ObservationCollectionMultiTypeParser : public ObservationCollectionParser
+{
+public:
+
+    ObservationCollectionMultiTypeParser( const std::vector< std::shared_ptr< ObservationCollectionParser > >& observationParsers ) :
+            ObservationCollectionParser( multi_type_parser ), observationParsers_( observationParsers ){ }
+
+    virtual ~ObservationCollectionMultiTypeParser( ){ }
+
+    std::vector< std::shared_ptr< ObservationCollectionParser > > getObservationParsers_(  ) const
+    {
+        return observationParsers_;
+    }
+
+protected:
+
+    const std::vector< std::shared_ptr< ObservationCollectionParser > > observationParsers_;
+
+};
+
+inline std::shared_ptr< ObservationCollectionParser > observationParser( )
+{
+    return std::make_shared< ObservationCollectionParser >( );
+}
+
+inline std::shared_ptr< ObservationCollectionParser > observationParser( const ObservableType observableType )
+{
+    return std::make_shared< ObservationCollectionObservableTypeParser >( observableType );
+}
+
+inline std::shared_ptr< ObservationCollectionParser > observationParser( const std::vector< ObservableType >& observableTypes )
+{
+    return std::make_shared< ObservationCollectionObservableTypeParser >( observableTypes );
+}
+
+inline std::shared_ptr< ObservationCollectionParser > observationParser( const LinkEnds linkEnds )
+{
+    return std::make_shared< ObservationCollectionLinkEndsParser >( linkEnds );
+}
+
+inline std::shared_ptr< ObservationCollectionParser > observationParser( const std::vector< LinkEnds >& linkEndsVector )
+{
+    return std::make_shared< ObservationCollectionLinkEndsParser >( linkEndsVector );
+}
+
+inline std::shared_ptr< ObservationCollectionParser > observationParser( const std::string bodyName, const bool isStationName = false )
+{
+    return std::make_shared< ObservationCollectionBodyNameParser >( bodyName, isStationName );
+}
+
+inline std::shared_ptr< ObservationCollectionParser > observationParser( const std::vector< std::string >& bodyNames, const bool isStationName = false )
+{
+    return std::make_shared< ObservationCollectionBodyNameParser >( bodyNames, isStationName );
+}
+
+inline std::shared_ptr< ObservationCollectionParser > observationParser( const std::pair< double, double >& timeBounds )
+{
+    return std::make_shared< ObservationCollectionTimeBoundsParser >( timeBounds );
+}
+
+inline std::shared_ptr< ObservationCollectionParser > observationParser( const std::vector< std::pair< double, double > >& timeBoundsVector )
+{
+    return std::make_shared< ObservationCollectionTimeBoundsParser >( timeBoundsVector );
+}
+
+inline std::shared_ptr< ObservationCollectionParser > observationParser( const std::vector< std::shared_ptr< ObservationCollectionParser > >& observationParsers )
+{
+    return std::make_shared< ObservationCollectionMultiTypeParser >( observationParsers );
+}
+
+
 template< typename ObservationScalarType = double, typename TimeType = double,
     typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
 std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > >
@@ -753,16 +961,16 @@ public:
         return observationSetList_;
     }
 
-    std::map< LinkEnds, std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > > getSingleTypeObservationSets(
-            const ObservableType observableType ) const
-    {
-        if( observationSetList_.count( observableType ) == 0 )
-        {
-            throw std::runtime_error( "Error when retrieving observable of type " + observation_models::getObservableName( observableType ) +
-                                      " from observation collection, no such observable exists" );
-        }
-        return observationSetList_.at( observableType );
-    }
+//    std::map< LinkEnds, std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > > getSingleTypeObservationSets(
+//            const ObservableType observableType ) const
+//    {
+//        if( observationSetList_.count( observableType ) == 0 )
+//        {
+//            throw std::runtime_error( "Error when retrieving observable of type " + observation_models::getObservableName( observableType ) +
+//                                      " from observation collection, no such observable exists" );
+//        }
+//        return observationSetList_.at( observableType );
+//    }
 
 
     std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > getSingleLinkAndTypeObservationSets(
@@ -930,26 +1138,105 @@ public:
         return linkEndsPerObservableType;
     }
 
+    std::vector< ObservableType > getObservableTypes( std::shared_ptr< ObservationCollectionParser > observationParser = std::make_shared< ObservationCollectionParser >( ) ) const
+    {
+        std::map< ObservableType, std::map< LinkEnds, std::vector< unsigned int > > > observationSetsIndices = getSingleObservationSetsIndices( observationParser );
+        std::vector< ObservableType > observableTypes;
+        for ( auto observableIt : observationSetsIndices )
+        {
+            if ( std::count( observableTypes.begin( ), observableTypes.end( ), observableIt.first ) == 0 )
+            {
+                observableTypes.push_back( observableIt.first );
+            }
+        }
+        return observableTypes;
+    }
+
+    std::vector< LinkEnds > getLinkEnds( std::shared_ptr< ObservationCollectionParser > observationParser = std::make_shared< ObservationCollectionParser >( ) ) const
+    {
+        std::map< ObservableType, std::map< LinkEnds, std::vector< unsigned int > > > observationSetsIndices = getSingleObservationSetsIndices( observationParser );
+        std::vector< LinkEnds > linkEnds;
+        for ( auto observableIt : observationSetsIndices )
+        {
+            for ( auto linkEndsIt : observableIt.second )
+            {
+                if ( std::count( linkEnds.begin( ), linkEnds.end( ), linkEndsIt.first ) == 0 )
+                {
+                    linkEnds.push_back( linkEndsIt.first );
+                }
+            }
+        }
+        return linkEnds;
+    }
+
+    std::vector< std::string > getBodiesInLinkEnds( std::shared_ptr< ObservationCollectionParser > observationParser = std::make_shared< ObservationCollectionParser >( ) ) const
+    {
+        std::map< ObservableType, std::map< LinkEnds, std::vector< unsigned int > > > observationSetsIndices = getSingleObservationSetsIndices( observationParser );
+        std::vector< std::string > bodiesInLinkEnds;
+        for ( auto observableIt : observationSetsIndices )
+        {
+            for ( auto linkEndsIt : observableIt.second )
+            {
+                for ( auto it : linkEndsIt.first )
+                {
+                    if ( std::count( bodiesInLinkEnds.begin( ), bodiesInLinkEnds.end( ), it.second.bodyName_ ) == 0 )
+                    {
+                        bodiesInLinkEnds.push_back( it.second.bodyName_ );
+                    }
+                }
+            }
+        }
+        return bodiesInLinkEnds;
+    }
+
+    std::vector< std::string > getReferencePointsInLinkEnds( std::shared_ptr< ObservationCollectionParser > observationParser = std::make_shared< ObservationCollectionParser >( ) ) const
+    {
+        std::map< ObservableType, std::map< LinkEnds, std::vector< unsigned int > > > observationSetsIndices = getSingleObservationSetsIndices( observationParser );
+        std::vector< std::string > referencePoints;
+        for ( auto observableIt : observationSetsIndices )
+        {
+            for ( auto linkEndsIt : observableIt.second )
+            {
+                for ( auto it : linkEndsIt.first )
+                {
+                    if ( std::count( referencePoints.begin( ), referencePoints.end( ), it.second.bodyName_ ) == 0 )
+                    {
+                        referencePoints.push_back( it.second.stationName_ );
+                    }
+                }
+            }
+        }
+        return referencePoints;
+    }
+
+    std::vector< std::pair< TimeType, TimeType > > getTimeBounds( std::shared_ptr< ObservationCollectionParser > observationParser = std::make_shared< ObservationCollectionParser >( ) ) const
+    {
+        std::map< ObservableType, std::map< LinkEnds, std::vector< unsigned int > > > observationSetsIndices = getSingleObservationSetsIndices( observationParser );
+        std::vector< std::pair< TimeType, TimeType > > timeBounds;
+        for ( auto observableIt : observationSetsIndices )
+        {
+            for ( auto linkEndsIt : observableIt.second )
+            {
+                for ( auto index : linkEndsIt.second )
+                {
+                    std::pair< TimeType, TimeType > currentTimeBounds = observationSetList_.at( observableIt.first ).at( linkEndsIt.first ).at( index )->getTimeBounds( );
+                    if ( std::count( timeBounds.begin( ), timeBounds.end( ), currentTimeBounds ) == 0 )
+                    {
+                        timeBounds.push_back( currentTimeBounds );
+                    }
+                }
+            }
+        }
+        return timeBounds;
+    }
+
+
     void addSingleObservationSet(
             const ObservableType observableType,
             const LinkEnds& linkEnds,
             std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > observationSet )
     {
         observationSetList_[ observableType ][ linkEnds ].push_back( observationSet );
-    }
-
-    void removeSingleObservationSet(
-            const unsigned int indexSetToRemove )
-    {
-//        observationSetList_.
-    }
-
-    void removeSingleObservationSet(
-            const ObservableType observableType,
-            const LinkDefinition& linkEnds,
-            const std::pair< TimeType, TimeType > timeBounds )
-    {
-
     }
 
 //    Eigen::VectorXd getWeightsFromSingleObservationSets( )
@@ -1201,6 +1488,185 @@ private:
         }
     }
 
+    std::map< ObservableType, std::map< LinkEnds, std::vector< unsigned int > > > getSingleObservationSetsIndices(
+            const std::shared_ptr< ObservationCollectionParser > observationParser ) const
+    {
+        std::map< ObservableType, std::map< LinkEnds, std::vector< unsigned int > > > observationSetsIndices;
+
+        ObservationParserType parserType = observationParser->getObservationParserType( );
+        switch( parserType )
+        {
+            case empty_parser:
+            {
+                for ( auto observableIt : observationSetList_ )
+                {
+                    std::map< LinkEnds, std::vector< unsigned int > > indicesPerObservable;
+                    for ( auto linkEndsIt : observableIt.second )
+                    {
+                        for ( unsigned int k = 0 ; k < linkEndsIt.second.size( ) ; k++ )
+                        {
+                            indicesPerObservable[ linkEndsIt.first ].push_back( k );
+                        }
+                    }
+                    observationSetsIndices[ observableIt.first ] = indicesPerObservable;
+                }
+                break;
+            }
+            case observable_type_parser:
+            {
+                std::vector< ObservableType > observableTypes = std::dynamic_pointer_cast< ObservationCollectionObservableTypeParser >( observationParser )->getObservableTypes( );
+                for ( auto observableType : observableTypes )
+                {
+                    if ( observationSetList_.count( observableType ) )
+                    {
+                        std::map< LinkEnds, std::vector< unsigned int > > indicesPerObservable;
+                        for ( auto linkEndsIt : observationSetList_.at( observableType ) )
+                        {
+                            for ( unsigned int k = 0 ; k < linkEndsIt.second.size( ) ; k++ )
+                            {
+                                indicesPerObservable[ linkEndsIt.first ].push_back( k );
+                            }
+                        }
+                        observationSetsIndices[ observableType ] = indicesPerObservable;
+                    }
+                }
+                break;
+            }
+            case link_ends_parser:
+            {
+                std::vector< LinkEnds > linkEndsVector = std::dynamic_pointer_cast< ObservationCollectionLinkEndsParser >( observationParser )->getLinkEndsVector( );
+                for ( auto linkEnds : linkEndsVector )
+                {
+                    for ( auto observableIt : observationSetList_ )
+                    {
+                        std::map< LinkEnds, std::vector< unsigned int > > indicesPerObservable;
+                        if ( observableIt.second.count( linkEnds ) )
+                        {
+                            for ( unsigned int k = 0 ; k < observableIt.second.at( linkEnds ).size( ) ; k++ )
+                            {
+                                indicesPerObservable[ linkEnds ].push_back( k );
+                            }
+                        }
+                        observationSetsIndices[ observableIt.first ] = indicesPerObservable;
+                    }
+                }
+                break;
+            }
+            case body_name_parser:
+            {
+                std::shared_ptr< ObservationCollectionBodyNameParser > bodyNameObservationParser =
+                        std::dynamic_pointer_cast< ObservationCollectionBodyNameParser >( observationParser );
+                std::vector< std::string > bodyNames = bodyNameObservationParser->getBodyNames( );
+                bool isStationName = bodyNameObservationParser->isCheckForStationName( );
+
+                for ( auto name : bodyNames )
+                {
+                    for ( auto observableIt : observationSetList_ )
+                    {
+                        std::map< LinkEnds, std::vector< unsigned int > > indicesPerObservable;
+                        for ( auto linkEndsIt : observableIt.second )
+                        {
+                            // FIX!
+                            bool isBodyInLinkEnds = false;
+                            bool isGroundStationInLinkEnds = false;
+                            for ( auto it : linkEndsIt.first )
+                            {
+                                if ( it.second.bodyName_ == name )
+                                {
+                                    isBodyInLinkEnds = true;
+                                }
+                                if ( it.second.stationName_ == name )
+                                {
+                                    isGroundStationInLinkEnds = true;
+                                }
+                            }
+
+                            if ( ( !isStationName && isBodyInLinkEnds/*( linkEndsIt.first, name )*/ ) ||
+                                 ( isStationName && isGroundStationInLinkEnds/*( linkEndsIt.first, name )*/ ) )
+                            {
+                                for ( unsigned int k = 0 ; k < linkEndsIt.second.size( ) ; k++ )
+                                {
+                                    indicesPerObservable[ linkEndsIt.first ].push_back( k );
+                                }
+                            }
+                        }
+                        observationSetsIndices[ observableIt.first ] = indicesPerObservable;
+                    }
+                }
+                break;
+            }
+            case time_bounds_parser:
+            {
+                std::vector< std::pair< double, double > > timeBoundsVector = std::dynamic_pointer_cast< ObservationCollectionTimeBoundsParser >( observationParser )->getTimeBoundsVector( );
+                for ( auto timeBounds : timeBoundsVector )
+                {
+                    for ( auto observableIt : observationSetList_ )
+                    {
+                        std::map< LinkEnds, std::vector< unsigned int > > indicesPerObservable;
+                        for ( auto linkEndsIt : observableIt.second )
+                        {
+                            for ( unsigned int k = 0 ; k < linkEndsIt.second.size( ) ; k++ )
+                            {
+                                if ( ( linkEndsIt.second.at( k )->getTimeBounds( ).first >= timeBounds.first ) &&
+                                     ( linkEndsIt.second.at( k )->getTimeBounds( ).second <= timeBounds.second ) )
+                                {
+                                    indicesPerObservable[ linkEndsIt.first ].push_back( k );
+                                }
+                            }
+                        }
+                        observationSetsIndices[ observableIt.first ] = indicesPerObservable;
+                    }
+                }
+                break;
+            }
+            case multi_type_parser:
+            {
+                std::vector< std::shared_ptr< ObservationCollectionParser > > observationParsers =
+                        std::dynamic_pointer_cast< ObservationCollectionMultiTypeParser >( observationParser )->getObservationParsers_( );
+
+                for ( auto parser : observationParsers )
+                {
+                    std::map< ObservableType, std::map< LinkEnds, std::vector< unsigned int > > > currentObservationSetsIndices = getSingleObservationSetsIndices( parser );
+
+                    for ( auto observableIt : currentObservationSetsIndices )
+                    {
+                        if ( observationSetsIndices.count( observableIt.first ) == 0 )
+                        {
+                            observationSetsIndices[ observableIt.first ] = observableIt.second;
+                        }
+                        else
+                        {
+                            for ( auto linkEndsIt : observableIt.second )
+                            {
+                                if ( observationSetsIndices.at( observableIt.first ).count( linkEndsIt.first ) == 0 )
+                                {
+                                    observationSetsIndices.at( observableIt.first )[ linkEndsIt.first ] = linkEndsIt.second;
+                                }
+                                else
+                                {
+                                    std::vector< unsigned int > indices = observationSetsIndices.at( observableIt.first ).at( linkEndsIt.first );
+                                    for ( auto index : linkEndsIt.second )
+                                    {
+                                        if ( std::count( indices.begin( ), indices.end( ), index ) == 0 )
+                                        {
+                                            observationSetsIndices.at( observableIt.first ).at( linkEndsIt.first ).push_back( index );
+                                        }
+                                    }
+                                }
+                            }
+
+                        }
+                    }
+                }
+                break;
+            }
+            default:
+                throw std::runtime_error( "Observation parser type not recognised." );
+        }
+
+        return observationSetsIndices;
+    }
+
     const SortedObservationSets observationSetList_;
 
     Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > concatenatedObservations_;
@@ -1233,215 +1699,6 @@ private:
 
     int totalNumberOfObservables_;
 };
-
-//typedef std::pair< ObservableType, std::set< LinkEnds > > singleObservationSetId;
-
-enum ObservationParserType
-{
-    empty_parser,
-    observable_type_parser,
-    link_ends_parser,
-    body_name_parser,
-    time_bounds_parser,
-    multi_type_parser
-};
-
-struct ObservationCollectionParser
-{
-
-public:
-
-    ObservationCollectionParser( ) : parserType_( empty_parser ){ }
-
-    ObservationCollectionParser( const ObservationParserType parserType ) :
-    parserType_( parserType ){ }
-
-    virtual ~ObservationCollectionParser( ){ }
-
-    ObservationParserType getObservationParserType( ) const
-    {
-        return parserType_;
-    }
-
-
-protected:
-
-    const ObservationParserType parserType_;
-
-};
-
-struct ObservationCollectionObservableTypeParser : public ObservationCollectionParser
-{
-public:
-
-    ObservationCollectionObservableTypeParser( const ObservableType observableType ) :
-            ObservationCollectionParser( observable_type_parser ), observableTypes_( std::vector< ObservableType >( { observableType } ) ){ }
-
-    ObservationCollectionObservableTypeParser( const std::vector< ObservableType > observableTypes ) :
-            ObservationCollectionParser( observable_type_parser ), observableTypes_( observableTypes ){ }
-
-    virtual ~ObservationCollectionObservableTypeParser( ){ }
-
-    std::vector< ObservableType > getObservableTypes( ) const
-    {
-        return observableTypes_;
-    }
-
-protected:
-
-    const std::vector< ObservableType > observableTypes_;
-
-};
-
-struct ObservationCollectionLinkEndsParser : public ObservationCollectionParser
-{
-public:
-
-    ObservationCollectionLinkEndsParser( const LinkEnds linkEnds ) :
-            ObservationCollectionParser( link_ends_parser ), linkEndsVector_( std::vector< LinkEnds >( { linkEnds } ) ){ }
-
-    ObservationCollectionLinkEndsParser( const std::vector< LinkEnds > linkEndsVector ) :
-            ObservationCollectionParser( link_ends_parser ), linkEndsVector_( linkEndsVector ){ }
-
-    virtual ~ObservationCollectionLinkEndsParser( ){ }
-
-    std::vector< LinkEnds > getLinkEndsVector( ) const
-    {
-        return linkEndsVector_;
-    }
-
-protected:
-
-    const std::vector< LinkEnds > linkEndsVector_;
-
-};
-
-struct ObservationCollectionBodyNameParser : public ObservationCollectionParser
-{
-public:
-
-    ObservationCollectionBodyNameParser( const std::string bodyName,
-                                         const bool isStationName = false ) :
-            ObservationCollectionParser( body_name_parser ), bodyNames_( std::vector< std::string >( { bodyName } ) ), isStationName_( isStationName ){ }
-
-    ObservationCollectionBodyNameParser( const std::vector< std::string > bodyNames,
-                                         const bool isStationName = false ) :
-            ObservationCollectionParser( body_name_parser ), bodyNames_( bodyNames ), isStationName_( isStationName ){ }
-
-    virtual ~ObservationCollectionBodyNameParser( ){ }
-
-    std::vector< std::string > getBodyNames( ) const
-    {
-        return bodyNames_;
-    }
-
-    bool isCheckForStationName( ) const
-    {
-        return isStationName_;
-    }
-
-protected:
-
-    const std::vector< std::string > bodyNames_;
-
-    const bool isStationName_;
-
-};
-
-struct ObservationCollectionTimeBoundsParser : public ObservationCollectionParser
-{
-public:
-
-    ObservationCollectionTimeBoundsParser( const std::pair< double, double > timeBounds ) :
-            ObservationCollectionParser( time_bounds_parser ), timeBoundsVector_( std::vector< std::pair< double, double > >( { timeBounds } ) ){ }
-
-    ObservationCollectionTimeBoundsParser( const std::vector< std::pair< double, double > > timeBoundsVector ) :
-            ObservationCollectionParser( time_bounds_parser ), timeBoundsVector_( timeBoundsVector ){ }
-
-    virtual ~ObservationCollectionTimeBoundsParser( ){ }
-
-    std::vector< std::pair< double, double > > getTimeBoundsVector( ) const
-    {
-        return timeBoundsVector_;
-    }
-
-protected:
-
-    const std::vector< std::pair< double, double > > timeBoundsVector_;
-
-};
-
-
-
-struct ObservationCollectionMultiTypeParser : public ObservationCollectionParser
-{
-public:
-
-    ObservationCollectionMultiTypeParser( const std::vector< std::shared_ptr< ObservationCollectionParser > >& observationParsers ) :
-            ObservationCollectionParser( multi_type_parser ), observationParsers_( observationParsers ){ }
-
-    virtual ~ObservationCollectionMultiTypeParser( ){ }
-
-    std::vector< std::shared_ptr< ObservationCollectionParser > > getObservationParsers_(  ) const
-    {
-        return observationParsers_;
-    }
-
-protected:
-
-    const std::vector< std::shared_ptr< ObservationCollectionParser > > observationParsers_;
-
-};
-
-inline std::shared_ptr< ObservationCollectionParser > observationParser( )
-{
-    return std::make_shared< ObservationCollectionParser >( );
-}
-
-inline std::shared_ptr< ObservationCollectionParser > observationParser( const ObservableType observableType )
-{
-    return std::make_shared< ObservationCollectionObservableTypeParser >( observableType );
-}
-
-inline std::shared_ptr< ObservationCollectionParser > observationParser( const std::vector< ObservableType >& observableTypes )
-{
-    return std::make_shared< ObservationCollectionObservableTypeParser >( observableTypes );
-}
-
-inline std::shared_ptr< ObservationCollectionParser > observationParser( const LinkEnds linkEnds )
-{
-    return std::make_shared< ObservationCollectionLinkEndsParser >( linkEnds );
-}
-
-inline std::shared_ptr< ObservationCollectionParser > observationParser( const std::vector< LinkEnds >& linkEndsVector )
-{
-    return std::make_shared< ObservationCollectionLinkEndsParser >( linkEndsVector );
-}
-
-inline std::shared_ptr< ObservationCollectionParser > observationParser( const std::string bodyName )
-{
-    return std::make_shared< ObservationCollectionBodyNameParser >( bodyName );
-}
-
-inline std::shared_ptr< ObservationCollectionParser > observationParser( const std::vector< std::string >& bodyNames )
-{
-    return std::make_shared< ObservationCollectionBodyNameParser >( bodyNames );
-}
-
-inline std::shared_ptr< ObservationCollectionParser > observationParser( const std::pair< double, double >& timeBounds )
-{
-    return std::make_shared< ObservationCollectionTimeBoundsParser >( timeBounds );
-}
-
-inline std::shared_ptr< ObservationCollectionParser > observationParser( const std::vector< std::pair< double, double > >& timeBoundsVector )
-{
-    return std::make_shared< ObservationCollectionTimeBoundsParser >( timeBoundsVector );
-}
-
-inline std::shared_ptr< ObservationCollectionParser > observationParser( const std::vector< std::shared_ptr< ObservationCollectionParser > >& observationParsers )
-{
-    return std::make_shared< ObservationCollectionMultiTypeParser >( observationParsers );
-}
 
 
 //bool isBodyInLinkEnds( const LinkEnds& linkEnds, const std::string bodyName )
@@ -1495,7 +1752,6 @@ const std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType,
             {
                 for ( auto linkEndsIt : observableIt.second )
                 {
-                    observationSetIndices = observationSetsStartAndSize.at( observableIt.first ).at( linkEndsIt.first );
                     for ( unsigned int k = 0 ; k < linkEndsIt.second.size( ) ; k++ )
                     {
                         singleObservationSets.push_back( linkEndsIt.second.at( k ) );
@@ -1514,7 +1770,6 @@ const std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType,
                 {
                     for ( auto linkEndsIt : sortedObservations.at( observableType ) )
                     {
-                        observationSetIndices = observationSetsStartAndSize.at( observableType ).at( linkEndsIt.first );
                         for ( unsigned int k = 0 ; k < linkEndsIt.second.size( ) ; k++ )
                         {
                             singleObservationSets.push_back( linkEndsIt.second.at( k ) );
