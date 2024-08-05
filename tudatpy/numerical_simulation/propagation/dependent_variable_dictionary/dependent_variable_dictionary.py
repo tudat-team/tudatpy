@@ -226,8 +226,7 @@ class DependentVariableDictionary(dict):
 
 
 def create_dependent_variable_dictionary(
-        dynamics_simulator: numerical_simulation.SingleArcSimulator,
-        bodies: numerical_simulation.environment.SystemOfBodies
+        dynamics_simulator: numerical_simulation.SingleArcSimulator
     ) -> DependentVariableDictionary:
     """
     Construct a dictionary-like object (`DependentVariableDictionary`) which maps which maps dependent variables
@@ -268,7 +267,7 @@ def create_dependent_variable_dictionary(
     for ((i, m), dependent_variable) in dependent_variable_settings.items():
         
         # Retrieve dependent variable shape
-        A, B = get_dependent_variable_shape(dependent_variable, bodies)
+        A, B = get_dependent_variable_shape(dependent_variable, dynamics_simulator.bodies)
         
         # Save dependent variable history as a tensor of (A, B)-sized 
         # matrices with `n` entries, where `n` is the number of epochs
