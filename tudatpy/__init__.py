@@ -42,16 +42,9 @@ tudatpy_packages = find_packages(tudatpy_path)
 tudatpy_packages = [f'tudatpy.{module}' for module in tudatpy_packages]
 tudatpy_modules = ['tudatpy.' + f[len(tudatpy_path)+1:-len('.py')].replace('/', '.') for f in glob.glob(os.path.join(tudatpy_path, '**/*.py'), recursive=True) if '__init__' not in f]
 
-class TudatpyModuleFinder(importlib.abc.MetaPathFinder):
-    def load_tudatpy_module(self, fullname, path, target):
-        for finder in sys.meta_path:
-            if finder is not self:
-                tudatpy_module_spec = finder.find_spec(fullname, path, target)
-                if tudatpy_module_spec is not None:
-                    break
-        tudatpy_module = importlib.util.module_from_spec(tudatpy_module_spec)
-        tudatpy_module_spec.loader.exec_module(tudatpy_module)
-        return tudatpy_module
+class TudatpyHybridModuleFinder(importlib.abc.MetaPathFinder):
+    def __init__(self, kernel_module_name: str = 'kernel') -> None:
+        self.kernel_module_name = kernel_module_name
     def find_spec(self, fullname, path, target=None):
         if fullname.startswith("tudatpy"):
 
@@ -59,7 +52,7 @@ class TudatpyModuleFinder(importlib.abc.MetaPathFinder):
             is_tudatpy_module = fullname in tudatpy_packages + tudatpy_modules
 
             # Determine whether module is a Tudat kernel module
-            kernel_module_name = fullname.replace('tudatpy', 'tudatpy.kernel', 1)
+            kernel_module_name = fullname.replace('tudatpy', f'tudatpy.{self.kernel_module_name}', 1)
             try:
                 kernel_module = importlib.import_module(kernel_module_name)
             except Exception as e:
@@ -122,8 +115,8 @@ class HybridModuleLoader(importlib.abc.Loader):
             try:
                 return self.kernel_module.__dict__[attr]
             except KeyError:
-                raise AttributeError(f"neither module '{module.__name__}' nor Tudat kernel module '{module.__name__.replace('tudatpy', 'tudatpy.kernel')}' have no attribute {attr}")
+                raise AttributeError(f"neither module '{module.__name__}' nor Tudat kernel module '{self.kernel_module.__name__}' have no attribute {attr}")
         module.__getattr__ = getattr_from_hybrid_module
 
 # Install the custom finder
-sys.meta_path.insert(0, TudatpyModuleFinder())
+sys.meta_path.insert(0, TudatpyHybridModuleFinder())
