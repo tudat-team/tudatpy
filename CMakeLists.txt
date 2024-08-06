@@ -141,6 +141,7 @@ if (${PYTHON_VERSION_MAJOR} LESS 3 OR (${PYTHON_VERSION_MAJOR} EQUAL 3 AND ${PYT
 endif ()
 
 # pybind11.
+find_package(pybind11 CONFIG REQUIRED)
 if (${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
     find_package(pybind11 REQUIRED)
 else ()

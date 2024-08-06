@@ -40,7 +40,15 @@ foreach (TUDATPY_PYTHON_FILE ${TUDATPY_PYTHON_FILES})
             "${CMAKE_CURRENT_BINARY_DIR}/${TUDATPY_PYTHON_FILE}" COPYONLY)
 endforeach ()
 
+macro (add_module_custom name location)
 
+    # Update installation prefix
+
+    set (CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${location})
+
+
+
+endmacro()
 # Core module.
 pybind11_add_module(kernel
         # kernel
@@ -149,45 +157,45 @@ target_compile_definitions(kernel PRIVATE "${pybind11_DEFINITIONS}")
 set_target_properties(kernel PROPERTIES CXX_VISIBILITY_PRESET hidden)
 set_target_properties(kernel PROPERTIES VISIBILITY_INLINES_HIDDEN TRUE)
 
-# Setup the installation path.
-set(TUDATPY_INSTALL_PATH "${YACMA_PYTHON_MODULES_INSTALL_PATH}/tudatpy")
+# # Setup the installation path.
+# set(TUDATPY_INSTALL_PATH "${YACMA_PYTHON_MODULES_INSTALL_PATH}/tudatpy")
 
-# Install the kernel module.
-install(TARGETS kernel
-        RUNTIME DESTINATION ${TUDATPY_INSTALL_PATH}
-        LIBRARY DESTINATION ${TUDATPY_INSTALL_PATH}
-        )
+# # Install the kernel module.
+# install(TARGETS kernel
+#         RUNTIME DESTINATION ${TUDATPY_INSTALL_PATH}
+#         LIBRARY DESTINATION ${TUDATPY_INSTALL_PATH}
+#         )
 
-# Install Python files.
-install(FILES ${TUDATPY_PYTHON_FILES} "${CMAKE_CURRENT_BINARY_DIR}/_version.py"
-        DESTINATION ${TUDATPY_INSTALL_PATH})
+# # Install Python files.
+# install(FILES ${TUDATPY_PYTHON_FILES} "${CMAKE_CURRENT_BINARY_DIR}/_version.py"
+#         DESTINATION ${TUDATPY_INSTALL_PATH})
 
-# Install hybrid C++/Python modules
-macro(INSTALL_HYBRID_CPP_PYTHON_MODULE module_dir_name)
-    install(DIRECTORY ${module_dir_name}/ DESTINATION "${TUDATPY_INSTALL_PATH}/${module_dir_name}")
-    file(COPY ${module_dir_name}/ DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/${module_dir_name}/)
-endmacro()
+# # Install hybrid C++/Python modules
+# macro(INSTALL_HYBRID_CPP_PYTHON_MODULE module_dir_name)
+#     install(DIRECTORY ${module_dir_name}/ DESTINATION "${TUDATPY_INSTALL_PATH}/${module_dir_name}")
+#     file(COPY ${module_dir_name}/ DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/${module_dir_name}/)
+# endmacro()
 
-# Hybrid modules
-INSTALL_HYBRID_CPP_PYTHON_MODULE(astro)
-INSTALL_HYBRID_CPP_PYTHON_MODULE(trajectory_design)
-INSTALL_HYBRID_CPP_PYTHON_MODULE(constants)
-INSTALL_HYBRID_CPP_PYTHON_MODULE(interface)
-INSTALL_HYBRID_CPP_PYTHON_MODULE(math)
-INSTALL_HYBRID_CPP_PYTHON_MODULE(numerical_simulation)
-# Pure Python modules
-INSTALL_HYBRID_CPP_PYTHON_MODULE(apps)
-INSTALL_HYBRID_CPP_PYTHON_MODULE(bodies)
-INSTALL_HYBRID_CPP_PYTHON_MODULE(plotting)
-INSTALL_HYBRID_CPP_PYTHON_MODULE(data)
-INSTALL_HYBRID_CPP_PYTHON_MODULE(util)
-INSTALL_HYBRID_CPP_PYTHON_MODULE(io)
+# # Hybrid modules
+# INSTALL_HYBRID_CPP_PYTHON_MODULE(astro)
+# INSTALL_HYBRID_CPP_PYTHON_MODULE(trajectory_design)
+# INSTALL_HYBRID_CPP_PYTHON_MODULE(constants)
+# INSTALL_HYBRID_CPP_PYTHON_MODULE(interface)
+# INSTALL_HYBRID_CPP_PYTHON_MODULE(math)
+# INSTALL_HYBRID_CPP_PYTHON_MODULE(numerical_simulation)
+# # Pure Python modules
+# INSTALL_HYBRID_CPP_PYTHON_MODULE(apps)
+# INSTALL_HYBRID_CPP_PYTHON_MODULE(bodies)
+# INSTALL_HYBRID_CPP_PYTHON_MODULE(plotting)
+# INSTALL_HYBRID_CPP_PYTHON_MODULE(data)
+# INSTALL_HYBRID_CPP_PYTHON_MODULE(util)
+# INSTALL_HYBRID_CPP_PYTHON_MODULE(io)
 
-#install(FILES test.py "${CMAKE_CURRENT_BINARY_DIR}/_version.py")
-file(COPY ../tests DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/../)
+# #install(FILES test.py "${CMAKE_CURRENT_BINARY_DIR}/_version.py")
+# file(COPY ../tests DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/../)
 
-# collect all example-X.py files
-file(GLOB EXAMPLE_SCRIPTS "../examples/example*.py")
+# # collect all example-X.py files
+# file(GLOB EXAMPLE_SCRIPTS "../examples/example*.py")
 
-# copy them into the root build tree
-file(COPY ${EXAMPLE_SCRIPTS} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/../)
+# # copy them into the root build tree
+# file(COPY ${EXAMPLE_SCRIPTS} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/../)
