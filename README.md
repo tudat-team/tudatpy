@@ -96,20 +96,6 @@ information by running
 bash setup build --help
 ```
 
-7. Install Tudat and TudatPy in your conda environment
-
-```bash
-bash setup install
-```
-
-This command will add your local installations of Tudat and TudatPy to your active
-conda environment, allowing you to use them as any other C++ or Python library. If you
-ever want to remove them from the environment, just execute
-
-```bash
-bash setup uninstall
-```
-
 ### Build: CLion
 > **Note**
 > - [**Windows Users ∩ CLion Users**] In CLion, be sure to set WSL as your Toolchain
