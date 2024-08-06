@@ -1,8 +1,5 @@
-from . import mpc
-from . import horizons
-from . import sbdb
-from ._support import *
-from ._biases import get_biases_EFCC18
+from tudatpy.data._support import *
+from tudatpy.data._biases import get_biases_EFCC18
 
 __all__ = [
     # Data retrieval
