@@ -42,7 +42,7 @@ endforeach ()
 
 
 # Core module.
-YACMA_PYTHON_MODULE(kernel
+pybind11_add_module(kernel
         # kernel
         kernel/kernel.cpp
 
