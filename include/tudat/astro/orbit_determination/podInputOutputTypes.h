@@ -48,7 +48,7 @@ public:
         saveDesignMatrix_( true ),
         printOutput_( true )
     {
-        weightsMatrixDiagonals_ = observationCollection->getConcatenatedWeightVector( ); // Eigen::VectorXd::Zero( observationCollection->getTotalObservableSize( ) );
+        weightsMatrixDiagonals_ = observationCollection->getConcatenatedWeights( ); // getConcatenatedWeightVector( ); // Eigen::VectorXd::Zero( observationCollection->getTotalObservableSize( ) );
 //        setConstantWeightsMatrix( 1.0 );
 
         considerParametersIncluded_ = false;
