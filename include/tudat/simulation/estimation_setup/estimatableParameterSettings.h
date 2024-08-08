@@ -1491,6 +1491,14 @@ inline std::shared_ptr< EstimatableParameterSettings > orderVaryingKLoveNumber(
                 associatedBody, degree, orders, std::vector< std::string >( ), useComplexValue );
 }
 
+inline std::shared_ptr< EstimatableParameterSettings > modeCoupledTidalLoveNumberEstimatableParameterSettings(
+    const std::string& associatedBody,
+    const std::map< std::pair< int, int >, std::vector< std::pair< int, int > > > loveNumberIndices,
+    const std::vector< std::string >& deformingBodies )
+{
+    return std::make_shared< ModeCoupledTidalLoveNumberEstimatableParameterSettings >(
+        associatedBody, loveNumberIndices, deformingBodies, 0 );
+}
 
 inline std::shared_ptr< EstimatableParameterSettings > coreFactor(
         const std::string& associatedBody )
