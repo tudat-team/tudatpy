@@ -665,11 +665,11 @@ BOOST_AUTO_TEST_CASE( test_ObservationParser )
     std::shared_ptr< ObservationCollection< double, double > > simulatedObservations =
             simulateObservations< double, double >( measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
-
     // Define estimation input
     std::shared_ptr< EstimationInput< double, double  > > estimationInput = std::make_shared< EstimationInput< double, double > >( simulatedObservations );
 
-    std::map< ObservableType, std::pair< int, int > > observationTypeStartAndSize = simulatedObservations->getObservationTypeStartAndSize( );
+    // Retrieve observation sets start index and size
+    std::map< ObservableType, std::map< LinkEnds, std::vector< std::pair< int, int > > > > obsSetsStartAndSize = simulatedObservations->getObservationSetStartAndSize( );
 
     std::map< std::shared_ptr< observation_models::ObservationCollectionParser >, double > weightPerObservationParser;
     weightPerObservationParser[ observationParser( one_way_range ) ] = 1.0 / ( 3.0 * 3.0 );
@@ -793,6 +793,18 @@ BOOST_AUTO_TEST_CASE( test_ObservationParser )
         BOOST_CHECK( manuallyExtractedRangeObservationSets.at( k )->getObservationTimes( ) == rangeTimesFromObservationCollection.at( k ) );
     }
 
+    // Retrieve observation sets start and size
+    std::map< ObservableType, std::map< LinkEnds, std::vector< std::pair< int, int > > > > rangeSetsStartAndSize =
+            simulatedObservations->getObservationSetStartAndSize( observationParser( one_way_range ) );
+    BOOST_CHECK( utilities::createVectorFromMapKeys( rangeSetsStartAndSize ).size( ) == 1 );
+    for ( auto linkEndsIt : rangeSetsStartAndSize.at( one_way_range ) )
+    {
+        for ( unsigned int k = 0 ; k < linkEndsIt.second.size( ) ; k++ )
+        {
+            BOOST_CHECK( linkEndsIt.second.at( k ) == rangeSetsStartAndSize.at( one_way_range ).at( linkEndsIt.first )[ k ] );
+        }
+    }
+
     // Check that pointers to selected observation sets are identical
     for ( unsigned int i = 0 ; i < rangeObservationSets.size( ) ; i++ )
     {
@@ -830,6 +842,25 @@ BOOST_AUTO_TEST_CASE( test_ObservationParser )
     {
         BOOST_CHECK( linkEnds1ObservationSets.at( i ).get( ) == manuallyExtractedStation1ObservationSets.at( i ).get( ) );
         BOOST_CHECK( station1ObservationSets.at( i ).get( ) == manuallyExtractedStation1ObservationSets.at( i ).get( ) );
+    }
+
+    // Retrieve observation sets start and size
+    std::map< ObservableType, std::map< LinkEnds, std::vector< std::pair< int, int > > > > station1SetsStartAndSize =
+            simulatedObservations->getObservationSetStartAndSize( observationParser( "Station1", true ) );
+    BOOST_CHECK( utilities::createVectorFromMapKeys( station1SetsStartAndSize ).size( ) == 1 );
+    for ( auto linkEndsIt : rangeSetsStartAndSize.at( one_way_range ) )
+    {
+        if ( linkEndsIt.first == stationReceiverLinkEnds[ 0 ] || linkEndsIt.first == stationTransmitterLinkEnds[ 0 ]  )
+        {
+            for ( unsigned int k = 0 ; k < linkEndsIt.second.size( ) ; k++ )
+            {
+                BOOST_CHECK( linkEndsIt.second.at( k ) == station1SetsStartAndSize.at( one_way_range ).at( linkEndsIt.first )[ k ] );
+            }
+        }
+        else
+        {
+            BOOST_CHECK( station1SetsStartAndSize.at( one_way_range ).count( linkEndsIt.first ) == 0 );
+        }
     }
 
     // Check parsing based on time bounds
@@ -950,6 +981,36 @@ BOOST_AUTO_TEST_CASE( test_ObservationParser )
         }
     }
 
+    // Observation sets start and size after filtering
+    std::map< ObservableType, std::map< LinkEnds, std::vector< std::pair< int, int > > > > obsSetsStartAndSizeAfterFilter =
+            simulatedObservations->getObservationSetStartAndSize( );
+    int startIndex = 0;
+    for ( auto observableIt : obsSetsStartAndSizeAfterFilter )
+    {
+        unsigned int linkEndsIndex = 0;
+        for ( auto linkEndsIt : observableIt.second )
+        {
+            for ( auto indices : linkEndsIt.second )
+            {
+                BOOST_CHECK( indices.first == startIndex );
+                if ( observableIt.first == one_way_range )
+                {
+                    BOOST_CHECK( indices.second == rangeValuesPostFiltering[ linkEndsIndex ].size( ) );
+                }
+                if ( observableIt.first == angular_position )
+                {
+                    BOOST_CHECK( indices.second == 2.0 * nbObs );
+                }
+                if ( observableIt.first == one_way_doppler )
+                {
+                    BOOST_CHECK( indices.second == nbObs );
+                }
+                startIndex += indices.second;
+            }
+            linkEndsIndex += 1;
+        }
+    }
+
     // Reintroduce observations
     std::map< std::shared_ptr< ObservationCollectionParser >, std::shared_ptr< ObservationFilter > > defilter =
             { { observationParser( one_way_range ), observationFilter( absolute_value_filtering, cutOffValueMax, false ) } };
@@ -964,6 +1025,21 @@ BOOST_AUTO_TEST_CASE( test_ObservationParser )
     {
         BOOST_CHECK( rangeValuesFromObservationCollection.at( k ) == rangeValuesPostDefiltering.at( k ) );
         BOOST_CHECK( rangeTimesFromObservationCollection.at( k ) == rangeTimesPostDefiltering.at( k ) );
+    }
+
+    // Observation sets start and size after de-filtering (should be equal to original ones)
+    std::map< ObservableType, std::map< LinkEnds, std::vector< std::pair< int, int > > > > obsSetsStartAndSizeAfterDefilter =
+            simulatedObservations->getObservationSetStartAndSize( );
+    for ( auto observableIt : obsSetsStartAndSizeAfterDefilter )
+    {
+        for ( auto linkEndsIt : observableIt.second )
+        {
+            for ( unsigned int k = 0 ; k < linkEndsIt.second.size( ) ; k++ )
+            {
+                BOOST_CHECK( obsSetsStartAndSize.at( observableIt.first ).at( linkEndsIt.first ).at( k ).first == linkEndsIt.second.at( k ).first );
+                BOOST_CHECK( obsSetsStartAndSize.at( observableIt.first ).at( linkEndsIt.first ).at( k ).second == linkEndsIt.second.at( k ).second );
+            }
+        }
     }
 
     // Test filtering based on residual values
@@ -1006,6 +1082,13 @@ BOOST_AUTO_TEST_CASE( test_ObservationParser )
         {
             BOOST_CHECK( rangeResidualsPostFiltering.at( k ).maxCoeff( ) <= residualCutOffValue );
         }
+    }
+
+    // Check that pointers to empty single observation sets are still properly defined post filtering
+    std::vector< std::shared_ptr< SingleObservationSet< > > > postFilterRangeObservationSets = simulatedObservations->getSingleObservationSets( observationParser( one_way_range ) );
+    for ( unsigned int k= 0 ; k < rangeObservationSets.size( ) ; k++ )
+    {
+        BOOST_CHECK( rangeObservationSets.at( k ).get( ) == postFilterRangeObservationSets.at( k ).get( ) );
     }
 
     // Re-introduce all observations with residuals lower than 1.0

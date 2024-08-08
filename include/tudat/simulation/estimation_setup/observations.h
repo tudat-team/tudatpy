@@ -2124,7 +2124,10 @@ public:
                                     indicesPerObservable[ linkEnds ].push_back( k );
                                 }
                             }
-                            observationSetsIndices[ observableIt.first ] = indicesPerObservable;
+                            if ( indicesPerObservable.size( ) > 0 )
+                            {
+                                observationSetsIndices[ observableIt.first ] = indicesPerObservable;
+                            }
                         }
                     }
                 }
@@ -2187,7 +2190,10 @@ public:
                                     }
                                 }
                             }
-                            observationSetsIndices[ observableIt.first ] = indicesPerObservable;
+                            if ( indicesPerObservable.size( ) > 0 )
+                            {
+                                observationSetsIndices[ observableIt.first ] = indicesPerObservable;
+                            }
                         }
                     }
                 }
@@ -2224,7 +2230,10 @@ public:
                                 }
                             }
                         }
-                        observationSetsIndices[ observableIt.first ] = indicesPerObservable;
+                        if ( indicesPerObservable.size( ) > 0 )
+                        {
+                            observationSetsIndices[ observableIt.first ] = indicesPerObservable;
+                        }
                     }
                 }
                 break;
