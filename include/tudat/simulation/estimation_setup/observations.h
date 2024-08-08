@@ -1056,8 +1056,9 @@ struct ObservationCollectionMultiTypeParser : public ObservationCollectionParser
 {
 public:
 
-    ObservationCollectionMultiTypeParser( const std::vector< std::shared_ptr< ObservationCollectionParser > >& observationParsers ) :
-            ObservationCollectionParser( multi_type_parser, false ), observationParsers_( observationParsers ){ }
+    ObservationCollectionMultiTypeParser( const std::vector< std::shared_ptr< ObservationCollectionParser > >& observationParsers,
+                                          const bool combineConditions = false ) :
+            ObservationCollectionParser( multi_type_parser, false ), observationParsers_( observationParsers ), combineConditions_( combineConditions ){ }
 
     virtual ~ObservationCollectionMultiTypeParser( ){ }
 
@@ -1066,9 +1067,16 @@ public:
         return observationParsers_;
     }
 
+    bool areConditionsCombined( ) const
+    {
+        return combineConditions_;
+    }
+
 protected:
 
     const std::vector< std::shared_ptr< ObservationCollectionParser > > observationParsers_;
+
+    const bool combineConditions_;
 
 };
 
@@ -1118,9 +1126,10 @@ inline std::shared_ptr< ObservationCollectionParser > observationParser( const s
     return std::make_shared< ObservationCollectionTimeBoundsParser >( timeBoundsVector, useOppositeCondition );
 }
 
-inline std::shared_ptr< ObservationCollectionParser > observationParser( const std::vector< std::shared_ptr< ObservationCollectionParser > >& observationParsers )
+inline std::shared_ptr< ObservationCollectionParser > observationParser( const std::vector< std::shared_ptr< ObservationCollectionParser > >& observationParsers,
+                                                                         const bool combineConditions = false )
 {
-    return std::make_shared< ObservationCollectionMultiTypeParser >( observationParsers );
+    return std::make_shared< ObservationCollectionMultiTypeParser >( observationParsers, combineConditions );
 }
 
 
@@ -2240,43 +2249,103 @@ public:
             }
             case multi_type_parser:
             {
-                std::vector< std::shared_ptr< ObservationCollectionParser > > observationParsers =
-                        std::dynamic_pointer_cast< ObservationCollectionMultiTypeParser >( observationParser )->getObservationParsers_( );
+                std::shared_ptr< ObservationCollectionMultiTypeParser > multiTypeParser = std::dynamic_pointer_cast< ObservationCollectionMultiTypeParser >( observationParser );
+                std::vector< std::shared_ptr< ObservationCollectionParser > > observationParsers = multiTypeParser->getObservationParsers_( );
 
-                for ( auto parser : observationParsers )
+                bool areConditionsCombined = multiTypeParser->areConditionsCombined( );
+
+                if ( !areConditionsCombined )
                 {
-                    std::map< ObservableType, std::map< LinkEnds, std::vector< unsigned int > > > currentObservationSetsIndices = getSingleObservationSetsIndices( parser );
-
-                    for ( auto observableIt : currentObservationSetsIndices )
+                    for ( auto parser : observationParsers )
                     {
-                        if ( observationSetsIndices.count( observableIt.first ) == 0 )
+                        std::map< ObservableType, std::map< LinkEnds, std::vector< unsigned int > > > currentObservationSetsIndices = getSingleObservationSetsIndices( parser );
+
+                        for ( auto observableIt : currentObservationSetsIndices )
                         {
-                            observationSetsIndices[ observableIt.first ] = observableIt.second;
-                        }
-                        else
-                        {
-                            for ( auto linkEndsIt : observableIt.second )
+                            if ( observationSetsIndices.count( observableIt.first ) == 0 )
                             {
-                                if ( observationSetsIndices.at( observableIt.first ).count( linkEndsIt.first ) == 0 )
+                                observationSetsIndices[ observableIt.first ] = observableIt.second;
+                            }
+                            else
+                            {
+                                for ( auto linkEndsIt : observableIt.second )
                                 {
-                                    observationSetsIndices.at( observableIt.first )[ linkEndsIt.first ] = linkEndsIt.second;
-                                }
-                                else
-                                {
-                                    std::vector< unsigned int > indices = observationSetsIndices.at( observableIt.first ).at( linkEndsIt.first );
-                                    for ( auto index : linkEndsIt.second )
+                                    if ( observationSetsIndices.at( observableIt.first ).count( linkEndsIt.first ) == 0 )
                                     {
-                                        if ( std::count( indices.begin( ), indices.end( ), index ) == 0 )
+                                        observationSetsIndices.at( observableIt.first )[ linkEndsIt.first ] = linkEndsIt.second;
+                                    }
+                                    else
+                                    {
+                                        std::vector< unsigned int > indices = observationSetsIndices.at( observableIt.first ).at( linkEndsIt.first );
+                                        for ( auto index : linkEndsIt.second )
                                         {
-                                            observationSetsIndices.at( observableIt.first ).at( linkEndsIt.first ).push_back( index );
+                                            if ( std::count( indices.begin( ), indices.end( ), index ) == 0 )
+                                            {
+                                                observationSetsIndices.at( observableIt.first ).at( linkEndsIt.first ).push_back( index );
+                                            }
                                         }
                                     }
                                 }
                             }
-
                         }
                     }
                 }
+
+                else
+                {
+                    // First retrieve all observation sets
+                    std::vector< std::map< ObservableType, std::map< LinkEnds, std::vector< unsigned int > > > > allObservationSetsIndices;
+                    for ( auto parser : observationParsers )
+                    {
+                        allObservationSetsIndices.push_back( getSingleObservationSetsIndices( parser ) );
+                    }
+
+                    if ( allObservationSetsIndices.size( ) > 0 )
+                    {
+                        std::map< ObservableType, std::map< LinkEnds, std::vector< unsigned int > > > originalSetsIndices = allObservationSetsIndices.at( 0 );
+
+                        // Retrieve common observable types
+                        std::vector< ObservableType > originalObsTypes = utilities::createVectorFromMapKeys( originalSetsIndices );
+                        std::vector< ObservableType > commonObsTypes;
+                        for ( unsigned int k = 1 ; k < allObservationSetsIndices.size( ) ; k++ )
+                        {
+                            std::vector< ObservableType > currentObsTypes = utilities::createVectorFromMapKeys( allObservationSetsIndices.at( k ) );
+                            std::set_intersection( originalObsTypes.begin( ), originalObsTypes.end( ), currentObsTypes.begin( ), currentObsTypes.end( ),
+                                                   std::back_inserter( commonObsTypes ) );
+                        }
+
+                        for ( auto obsType : commonObsTypes )
+                        {
+                            std::map< LinkEnds, std::vector< unsigned int > > indicesPerObservable;
+
+                            // For given observable type, retrieve common link ends
+                            std::vector< LinkEnds > originalLinkEndsList = utilities::createVectorFromMapKeys( originalSetsIndices.at( obsType ) );
+                            std::vector< LinkEnds > commonLinkEndsList;
+                            for ( unsigned int k = 1 ; k < allObservationSetsIndices.size( ) ; k++ )
+                            {
+                                std::vector< LinkEnds > currentLinkEndsList = utilities::createVectorFromMapKeys( allObservationSetsIndices.at( k ).at( obsType ) );
+                                std::set_intersection( originalLinkEndsList.begin( ), originalLinkEndsList.end( ), currentLinkEndsList.begin( ), currentLinkEndsList.end( ),
+                                                       std::back_inserter( commonLinkEndsList ) );
+                            }
+
+                            for ( auto linkEnds : commonLinkEndsList )
+                            {
+                                // For given observable type and link ends, retrieve common observation set indices
+                                std::vector< unsigned int > originalIndices = originalSetsIndices.at( obsType ).at( linkEnds );
+                                std::vector< unsigned int > commonIndices;
+                                for ( unsigned int k = 1 ; k < allObservationSetsIndices.size( ) ; k++ )
+                                {
+                                    std::vector< unsigned int > currentIndices = allObservationSetsIndices.at( k ).at( obsType ).at( linkEnds );
+                                    std::set_intersection( originalIndices.begin( ), originalIndices.end( ), currentIndices.begin( ), currentIndices.end( ),
+                                                           std::back_inserter( commonIndices ) );
+                                }
+                                indicesPerObservable[ linkEnds ] = commonIndices;
+                            }
+                            observationSetsIndices[ obsType ] = indicesPerObservable;
+                        }
+                    }
+                }
+
                 break;
             }
             default:
