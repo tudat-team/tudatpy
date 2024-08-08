@@ -661,6 +661,14 @@ inline std::shared_ptr< GravityFieldVariationSettings > polynomialGravityFieldVa
         cosineAmplitudes, sineAmplitudes, referenceEpoch, minimumDegree, minimumOrder );
 }
 
+inline std::shared_ptr< GravityFieldVariationSettings > modeCoupledSolidBodyGravityFieldVariationSettings(
+    const std::vector< std::string > deformingBodies,
+    const std::map< std::pair< int, int >, std::map< std::pair< int, int >, double > > loveNumbers )
+{
+    return std::make_shared< ModeCoupledSolidBodyGravityFieldVariationSettings >( deformingBodies, loveNumbers );
+}
+
+
 //! Function to create a set of gravity field variations, stored in the associated interface class
 /*!
  * Function to create a set of gravity field variations, stored in the associated interface class of
