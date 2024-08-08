@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.15)
 
 if (POLICY CMP0048)
     cmake_policy(SET CMP0048 NEW)
@@ -132,22 +132,25 @@ set(POSITION_INDEPENDENT_CODE True)
 
 enable_testing()
 
-# python.
-include(YACMAPythonSetup)
-
-# python version check.
-if (${PYTHON_VERSION_MAJOR} LESS 3 OR (${PYTHON_VERSION_MAJOR} EQUAL 3 AND ${PYTHON_VERSION_MINOR} LESS 4))
-    message(FATAL_ERROR "Minimum supported python version is 3.4.")
-endif ()
-
-# pybind11.
+set (PYBIND11_FINDPYTHON ON)
 find_package(pybind11 CONFIG REQUIRED)
-if (${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
-    find_package(pybind11 REQUIRED)
-else ()
-    set(pybind11_INCLUDE_DIRS ${pybind11_BUILD_INCLUDE_DIRS})
-    set(pybind11_INCLUDE_DIR ${pybind11_BUILD_INCLUDE_DIRS})
-endif ()
+
+# # python.
+# include(YACMAPythonSetup)
+
+# # python version check.
+# if (${PYTHON_VERSION_MAJOR} LESS 3 OR (${PYTHON_VERSION_MAJOR} EQUAL 3 AND ${PYTHON_VERSION_MINOR} LESS 4))
+#     message(FATAL_ERROR "Minimum supported python version is 3.4.")
+# endif ()
+
+# # pybind11.
+# find_package(pybind11 CONFIG REQUIRED)
+# if (${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
+#     find_package(pybind11 REQUIRED)
+# else ()
+#     set(pybind11_INCLUDE_DIRS ${pybind11_BUILD_INCLUDE_DIRS})
+#     set(pybind11_INCLUDE_DIR ${pybind11_BUILD_INCLUDE_DIRS})
+# endif ()
 
 # Configure the sphinx config file.
 #configure_file("${CMAKE_CURRENT_SOURCE_DIR}/doc/conf.py.in" "${CMAKE_CURRENT_SOURCE_DIR}/doc/conf.py" @ONLY)
@@ -156,4 +159,4 @@ endif ()
 
 # Add the module directory.
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/docs DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-add_subdirectory(tudatpy)
+add_subdirectory(src/tudatpy)

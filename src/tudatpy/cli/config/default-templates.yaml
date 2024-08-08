@@ -1,0 +1,54 @@
+project-types:
+  python:
+    - main.py
+    - module:
+        - __init__.py
+
+  pybind:
+    - main.py
+    - module:
+      name: kernel
+      submodules:
+        - alpha
+        - bravo
+        - charlie
+
+    - src:
+        - cpp_class.cpp:
+          name: cpp_class
+    - include:
+        - cpp_class.h:
+          name: cpp_class
+        - cpp_header.h:
+          name: header
+  cpp:
+    - main.cpp
+    - CMakeLists.txt
+    - src:
+        - cpp_class.cpp:
+          name: cpp_class
+    - include:
+        - cpp_class.h:
+          name: cpp_class
+        - cpp_header.h:
+          name: header
+
+CMakeLists.txt:
+
+cpp_class.cpp:
+  name: CppClass
+
+cpp_class.h:
+  name: CppClass
+
+pybind_module.cpp:
+  name: kernel
+
+pybind_submodule.cpp:
+  name: submodule
+
+tudat-space.yml:
+
+# Python
+__init__.py:
+
