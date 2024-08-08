@@ -900,7 +900,7 @@ BOOST_AUTO_TEST_CASE( test_ObservationParser )
         BOOST_CHECK( afterFirstDayObservationSets.at( i ).get( ) == manuallyDefinedAfterFirstDayObservationSets.at( i ).get( ) );
     }
 
-    // Check multi-type parsing
+    // Check multi-type parsing when conditions are treated separately
     std::vector< std::shared_ptr< ObservationCollectionParser > > multiTypeParserList;
     multiTypeParserList.push_back( observationParser( one_way_doppler ) );
     multiTypeParserList.push_back( observationParser( "Station1", true ) );
@@ -931,6 +931,39 @@ BOOST_AUTO_TEST_CASE( test_ObservationParser )
     {
         BOOST_CHECK( multiTypeObservationSets.at( k ).get( ) == manuallyDefinedMultiTypeObservationSets.at( k ).get( ) );
     }
+
+
+    // Check multi-type parsing when all conditions should be met concurrently
+    std::vector< std::shared_ptr< ObservationCollectionParser > > multiTypeParserList2;
+    multiTypeParserList2.push_back( observationParser( one_way_range ) );
+    multiTypeParserList2.push_back( observationParser( "Station2", true ) );
+
+    std::vector< std::shared_ptr< SingleObservationSet< > > > multiTypeObservationSets2 = simulatedObservations->getSingleObservationSets(
+            observationParser( multiTypeParserList2, true ) );
+
+    std::vector< std::shared_ptr< SingleObservationSet< > > > manuallyDefinedMultiTypeObservationSets2;
+    for ( auto observableIt : simulatedObservations->getObservations( ) )
+    {
+        for ( auto linkEndsIt : observableIt.second )
+        {
+            if ( ( observableIt.first == one_way_range ) && ( ( linkEndsIt.first == stationReceiverLinkEnds[ 1 ] ) || ( linkEndsIt.first == stationTransmitterLinkEnds[ 1 ] ) ) )
+            {
+                for ( auto obs : linkEndsIt.second )
+                {
+                    manuallyDefinedMultiTypeObservationSets2.push_back( obs );
+                }
+            }
+        }
+    }
+
+    //Check that pointers to selected observation sets are identical
+    BOOST_CHECK( multiTypeObservationSets2.size( ) ==  manuallyDefinedMultiTypeObservationSets2.size( ) );
+    for ( unsigned int k = 0 ; k < multiTypeObservationSets2.size( ) ; k++ )
+    {
+        BOOST_CHECK( multiTypeObservationSets2.at( k ).get( ) == manuallyDefinedMultiTypeObservationSets2.at( k ).get( ) );
+    }
+
+
 
 
     // Test filtering based on observation values
