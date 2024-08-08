@@ -320,7 +320,7 @@ Eigen::VectorXd  executeParameterEstimation(
     std::map< std::shared_ptr< observation_models::ObservationCollectionParser >, double > weightPerObservationParser;
     weightPerObservationParser[ observationParser( one_way_range ) ] = 1.0E-4;
     weightPerObservationParser[ observationParser( angular_position ) ] = 1.0E-20;
-    setConstantWeightPerObservable( observationsAndTimes, weightPerObservationParser );
+    observationsAndTimes->setConstantWeightPerObservable( weightPerObservationParser );
 
     // Perturb parameter vector
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > truthParameters = initialParameterEstimate;

@@ -872,7 +872,7 @@ BOOST_AUTO_TEST_CASE( testMultiArcMultiBodyVariationalEquationCalculation1 )
         std::map< std::shared_ptr< observation_models::ObservationCollectionParser >, double > weightPerObservationParser;
         weightPerObservationParser[ observationParser( position_observable ) ] = 1.0 / ( 1.0 * 1.0 );
         weightPerObservationParser[ observationParser( one_way_range ) ] = 1.0 / ( 1.0 * 1.0 );
-        setConstantWeightPerObservable( observationsAndTimes, weightPerObservationParser );
+        observationsAndTimes->setConstantWeightPerObservable( weightPerObservationParser );
 
         // Define POD input
         std::shared_ptr< EstimationInput< double, double > > estimationInput =

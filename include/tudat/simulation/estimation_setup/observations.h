@@ -465,10 +465,6 @@ public:
         {
             throw std::runtime_error( "Error when setting weights in single observation set, sizes are incompatible." );
         }
-//        else if( weightsVector.rows( ) > 0 )
-//        {
-//            throw std::runtime_error( "Error when setting weights in single observation set, observation set has no data." );
-//        }
         for ( unsigned int k = 0 ; k < numberOfObservations_ ; k++ )
         {
             for ( unsigned int i = 0 ; i < singleObservationSize_ ; i++ )
@@ -476,7 +472,6 @@ public:
                 weights_.at( k )[ i ] = weightsVector[ k * singleObservationSize_ + i ];
             }
         }
-//        weightsVector_ = weightsVector;
     }
 
 
@@ -1242,45 +1237,6 @@ public:
         return concatenatedTimes_;
     }
 
-//    Eigen::Matrix< double, Eigen::Dynamic, 1 > getConcatenatedWeightVector( )
-//    {
-//        Eigen::Matrix< double, Eigen::Dynamic, 1 > weightVector =
-//                Eigen::Matrix< double, Eigen::Dynamic, 1 >::Zero( totalObservableSize_, 1 );
-//        unsigned int indexObs = 0;
-//        for ( auto observableIt : observationSetList_ )
-//        {
-//            for ( auto linkEndIt : observableIt.second )
-//            {
-//                for ( auto singleObsSet : linkEndIt.second )
-//                {
-//                    unsigned int singleObsSetSize = singleObsSet->getTotalObservationSetSize( );
-//                    weightVector.segment( indexObs, singleObsSetSize ) = singleObsSet->getWeightsVector( );
-//                    indexObs += singleObsSetSize;
-//                }
-//            }
-//        }
-//        return weightVector;
-//    }
-
-//    std::vector< TimeType > getConcatenatedWeightVector( )
-//    {
-//        // for now, this only takes the weights set from the single observation sets.
-//        // TODO may require a change later to accomodate other sources.
-//
-//        // lazy evaluation, check if the weights has been set, otherwise set it then return
-//        if ( concatenatedWeights_.size( ) != totalObservableSize_ )
-//        {
-//            concatenatedWeights_.resize( totalObservableSize_ );
-//            Eigen::VectorXd temp = getWeightsFromSingleObservationSets();
-//            if (temp.size() > 0) {
-//                Eigen::Map<Eigen::VectorXd> tempMap(temp.data(), temp.size());
-//                concatenatedWeights_ = std::vector<ObservationScalarType>(
-//                    tempMap.data(), tempMap.data() + tempMap.size());
-//            }
-//        }
-//
-//        return concatenatedWeights_;
-//    }
 
     Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > getConcatenatedResidualsVector( )
     {
@@ -1883,14 +1839,6 @@ public:
     }
 
 
-//    void addSingleObservationSet(
-//            const ObservableType observableType,
-//            const LinkEnds& linkEnds,
-//            std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > observationSet )
-//    {
-//        observationSetList_[ observableType ][ linkEnds ].push_back( observationSet );
-//    }
-
 //    Eigen::VectorXd getWeightsFromSingleObservationSets( )
 //    {
 //        Eigen::VectorXd weightsVector = Eigen::VectorXd::Zero( totalObservableSize_ );
@@ -1969,48 +1917,106 @@ public:
     }
 
 
-//    void filterObservations(
-//            const std::map< ObservableType, double >& residualCutoffValuePerObservable )
-//    {
-//        for ( auto observationIt : residualCutoffValuePerObservable )
-//        {
-//            if ( observationSetList_.count( observationIt.first ) )
-//            {
-//                double filterValue = residualCutoffValuePerObservable.at( observationIt.first );
-//                for ( auto linkEndIt: observationSetList_.at( observationIt.first ) )
-//                {
-//                    for ( auto singleObsSet : linkEndIt.second )
-//                    {
-//                        singleObsSet->filterObservations( filterValue );
-//                    }
-//                }
-//            }
-//        }
-//    }
 
-//    void filterObservations(
-//            const std::map< ObservableType, std::map< LinkEnds, double > >& residualCutoffValuePerObservablePerLinkEnd )
-//    {
-//        for ( auto observationIt : residualCutoffValuePerObservablePerLinkEnd )
-//        {
-//            if ( observationSetList_.count( observationIt.first ) )
-//            {
-//                for ( auto linkEndIt : observationIt.second )
-//                {
-//                    if ( observationSetList_.at( observationIt ).count( linkEndIt.first ) )
-//                    {
-//                        double filterValue = residualCutoffValuePerObservablePerLinkEnd.at( observationIt.first ).at( linkEndIt.first );
-//                        std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > singleObservationSets =
-//                                observationSetList_.at( observationIt.first ).at( linkEndIt.first );
-//                        for ( auto singleObsSet : singleObservationSets )
-//                        {
-//                            singleObsSet->filterObservations( filterValue );
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//    }
+    void setConstantWeight(
+            const double weight = 1.0,
+            const std::shared_ptr< ObservationCollectionParser > observationParser = std::make_shared< ObservationCollectionParser >( ) )
+    {
+        std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > singleObsSets = getSingleObservationSets( observationParser );
+        if ( singleObsSets.empty( ) )
+        {
+            std::cerr << "Warning when setting constant weights, no single observation set found for specified observation parser. Weights not set";
+        }
+        for ( auto singleObsSet : singleObsSets )
+        {
+            singleObsSet->setConstantWeight( weight );
+        }
+    }
+
+    void setConstantWeight(
+            const std::shared_ptr< ObservationCollectionParser > observationParser,
+            const Eigen::VectorXd weight )
+    {
+        std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > singleObsSets = getSingleObservationSets( observationParser );
+        if ( singleObsSets.empty( ) )
+        {
+            std::cerr << "Warning when setting constant weights, no single observation set found for specified observation parser. Weights not set";
+        }
+        for ( auto singleObsSet : singleObsSets )
+        {
+            singleObsSet->setConstantWeight( weight );
+        }
+    }
+
+    void setConstantWeightPerObservable(
+            const std::map< std::shared_ptr< ObservationCollectionParser >, double > weightsPerObservationParser )
+    {
+        for ( auto parserIt : weightsPerObservationParser )
+        {
+            setConstantWeight( parserIt.second, parserIt.first );
+        }
+    }
+
+    void setConstantWeightPerObservable(
+            const std::map< std::shared_ptr< ObservationCollectionParser >, Eigen::VectorXd > weightsPerObservationParser )
+    {
+        for ( auto parserIt : weightsPerObservationParser )
+        {
+            setConstantWeight( parserIt.second, parserIt.first );
+        }
+    }
+
+    void setTabulatedWeights(
+            const std::shared_ptr< ObservationCollectionParser > observationParser,
+            const Eigen::VectorXd tabulatedWeights )
+    {
+        std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > singleObsSets = getSingleObservationSets( observationParser );
+        if ( singleObsSets.empty( ) )
+        {
+            std::cerr << "Warning when setting tabulated weights, no single observation set found for specified observation parser. Weights not set";
+        }
+
+        bool areObsSetsSameSize = true;
+        int totalSizeAllObsSets = singleObsSets.at( 0 )->getTotalObservationSetSize( );
+        for ( unsigned int k = 1 ; k < singleObsSets.size( ) ; k++ )
+        {
+            int currentObsSetSize = singleObsSets.at( k )->getTotalObservationSetSize( );
+            totalSizeAllObsSets += currentObsSetSize;
+            if ( currentObsSetSize != singleObsSets.at( 0 )->getTotalObservationSetSize( ) )
+            {
+                areObsSetsSameSize = false;
+            }
+        }
+
+        unsigned int startObsSet = 0;
+        for ( auto obsSet : singleObsSets )
+        {
+            if ( tabulatedWeights.size( ) == totalSizeAllObsSets )
+            {
+                Eigen::VectorXd singleSetWeights = tabulatedWeights.segment( startObsSet, obsSet->getTotalObservationSetSize( ) );
+                startObsSet += obsSet->getTotalObservationSetSize( );
+                obsSet->setTabulatedWeights( singleSetWeights );
+            }
+            else if ( areObsSetsSameSize && ( tabulatedWeights.size( ) == singleObsSets.at( 0 )->getTotalObservationSetSize( ) ) )
+            {
+                obsSet->setTabulatedWeights( tabulatedWeights );
+            }
+            else
+            {
+                throw std::runtime_error( "Error when setting tabulated weights, the size of the input weight vector should be consistent with "
+                                          "either the size of each individual observation set, or the combined size of all required observation sets." );
+            }
+        }
+    }
+
+    void setTabulatedWeights(
+            const std::map< std::shared_ptr< ObservationCollectionParser >, Eigen::VectorXd > weightsPerObservationParser )
+    {
+        for ( auto parserIt : weightsPerObservationParser )
+        {
+            setTabulatedWeights( parserIt.first, parserIt.second );
+        }
+    }
 
     void filterObservations( const std::map< std::shared_ptr< ObservationCollectionParser >, std::shared_ptr< ObservationFilter > >& observationFilters,
                              const bool saveFilteredObservations = true )
@@ -2500,86 +2506,6 @@ std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > crea
 }
 
 
-template< typename ObservationScalarType = double, typename TimeType = double,
-        typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
-void setConstantWeight(
-        std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > observationCollection,
-        const double weight = 1.0,
-        const std::shared_ptr< ObservationCollectionParser > observationParser = std::make_shared< ObservationCollectionParser >( ) )
-{
-    std::vector< std::pair< int, int > > observationSetIndices;
-    std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > singleObsSets = observationCollection->getSingleObservationSets( observationParser );
-    for ( auto singleObsSet : singleObsSets )
-    {
-        singleObsSet->setConstantWeight( weight );
-    }
-}
-
-template< typename ObservationScalarType = double, typename TimeType = double,
-        typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
-void setConstantWeight(
-        std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > observationCollection,
-        const std::shared_ptr< ObservationCollectionParser > observationParser,
-        const Eigen::VectorXd weight )
-{
-    std::vector< std::pair< int, int > > observationSetIndices;
-    std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > singleObsSets = observationCollection->getSingleObservationSets( observationParser );
-    for ( auto singleObsSet : singleObsSets )
-    {
-        singleObsSet->setConstantWeight( weight );
-    }
-}
-
-template< typename ObservationScalarType = double, typename TimeType = double,
-        typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
-void setConstantWeightPerObservable(
-        std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > observationCollection,
-        const std::map< std::shared_ptr< ObservationCollectionParser >, double > weightsPerObservationParser )
-{
-    for ( auto parserIt : weightsPerObservationParser )
-    {
-        setConstantWeight( observationCollection, parserIt.second, parserIt.first );
-    }
-}
-
-template< typename ObservationScalarType = double, typename TimeType = double,
-        typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
-void setConstantWeightPerObservable(
-        std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > observationCollection,
-        const std::map< std::shared_ptr< ObservationCollectionParser >, Eigen::VectorXd > weightsPerObservationParser )
-{
-    for ( auto parserIt : weightsPerObservationParser )
-    {
-        setConstantWeight( observationCollection, parserIt.second, parserIt.first );
-    }
-}
-
-template< typename ObservationScalarType = double, typename TimeType = double,
-        typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
-void setTabulatedWeights(
-        std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > observationCollection,
-        const std::shared_ptr< ObservationCollectionParser > observationParser,
-        const Eigen::VectorXd tabulatedWeights )
-{
-    std::vector< std::pair< int, int > > observationSetIndices;
-    std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > singleObsSets = observationCollection->getSingleObservationSets( observationParser );
-    for ( auto singleObsSet : singleObsSets )
-    {
-        singleObsSet->setTabulatedWeights( tabulatedWeights );
-    }
-}
-
-template< typename ObservationScalarType = double, typename TimeType = double,
-        typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
-void setTabulatedWeights(
-        std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > observationCollection,
-        const std::map< std::shared_ptr< ObservationCollectionParser >, Eigen::VectorXd > weightsPerObservationParser )
-{
-    for ( auto parserIt : weightsPerObservationParser )
-    {
-        setTabulatedWeights( observationCollection, parserIt.first, parserIt.second );
-    }
-}
 
 //void splitObservationCollectionTimeBounds( const std::pair< double, double >& timeBounds,
 //                                           std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > observationCollection,
