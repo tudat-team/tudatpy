@@ -101,11 +101,7 @@ if __name__ == "__main__":
             pylib_prefix / "tudatpy/_version.py",
             manifest,
         )
-        install(
-            build_dir / "tudatpy/tudatpy/kernel.so",
-            pylib_prefix / "tudatpy/kernel.so",
-            manifest,
-        )
-        for item in (tudatpy_dir / "tudatpy").iterdir():
+
+        for item in (tudatpy_dir / "src/tudatpy").iterdir():
             if item.name not in ("_version.py.in", "CMakeLists.txt", "__pycache__"):
                 install(item, pylib_prefix / "tudatpy" / item.name, manifest)
