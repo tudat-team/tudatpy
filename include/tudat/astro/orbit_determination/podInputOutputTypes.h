@@ -67,7 +67,7 @@ public:
 //     */
 //    void setConstantWeightsMatrix( const double constantWeight = 1.0 )
 //    {
-//        setConstantWeight( observationCollection_, constantWeight );
+//        observationCollections_->setConstantWeight( constantWeight );
 //    }
 //
 ////    void setWeightsFromObservationCollection( )
@@ -155,7 +155,7 @@ public:
 ////                                             indicesToUse.second ) =
 ////                Eigen::VectorXd::Constant( indicesToUse.second, weight );
 ////        }
-//        setConstantWeightPerObservable( observationCollection_, observationParser( std::vector< std::shared_ptr< observation_models::ObservationCollectionParser > >(
+//        observationCollection_->setConstantWeightPerObservable( observationParser( std::vector< std::shared_ptr< observation_models::ObservationCollectionParser > >(
 //                { observationParser( currentObservable ), observationParser( currentLinkEnds ) } ) ), weight );
 //    }
 
@@ -198,7 +198,7 @@ public:
 ////                                             indicesToUse.second ) =
 ////                utilities::getSuccesivelyConcatenatedVector( weight, numberOfObservations );
 ////        }
-//        setConstantWeightPerObservable( observationCollection_, observationParser( std::vector< std::shared_ptr< observation_models::ObservationCollectionParser > >(
+//        observationCollection_->setConstantWeightPerObservable( observationParser( std::vector< std::shared_ptr< observation_models::ObservationCollectionParser > >(
 //                { observationParser( currentObservable ), observationParser( currentLinkEnds ) } ) ), weight );
 //    }
 //
@@ -238,7 +238,7 @@ public:
 ////                                             indicesToUse.second ) = weight;
 ////        }
 //
-//        setTabulatedWeights( observationCollection_, observationParser( std::vector< std::shared_ptr< observation_models::ObservationCollectionParser > >(
+//        observationCollection_->setTabulatedWeights( observationParser( std::vector< std::shared_ptr< observation_models::ObservationCollectionParser > >(
 //                { observationParser( currentObservable ), observationParser( currentLinkEnds ) } ) ), weight );
 //    }
 //
@@ -256,7 +256,7 @@ public:
 //        {
 //            weightsPerObservationParser[ observationParser( observableIt.first ) ] = observableIt.second;
 //        }
-//        setConstantWeightPerObservable( observationCollection_, weightsPerObservationParser );
+//        observationCollection_->setConstantWeightPerObservable( weightsPerObservationParser );
 //    }
 ////
 //    void setConstantPerObservableVectorWeightsMatrix(
@@ -267,7 +267,7 @@ public:
 //        {
 //            weightsPerObservationParser[ observationParser( observableIt.first ) ] = observableIt.second;
 //        }
-//        setConstantWeightPerObservable( observationCollection_, weightsPerObservationParser );
+//        observationCollection_->setConstantWeightPerObservable( weightsPerObservationParser );
 //    }
 
 //    //! Function to set a values for observation weights, constant per observable type and link ends type
@@ -288,7 +288,7 @@ public:
 //                        { observationParser( observableIt.first ), observationParser( linkEndsIt.first ) } ) ) ] = linkEndsIt.second;
 //            }
 //        }
-//        setConstantWeightPerObservable( observationCollection_, weightPerObservationParser );
+//        observationCollection_->setConstantWeightPerObservable( weightPerObservationParser );
 //    }
 //
 //    void setConstantPerObservableAndLinkEndsVectorWeights(
@@ -304,7 +304,7 @@ public:
 //                        { observationParser( observableIt.first ), observationParser( linkEndsIt.first ) } ) ) ] = linkEndsIt.second;
 //            }
 //        }
-//        setConstantWeightPerObservable( observationCollection_, weightPerObservationParser );
+//        observationCollection_->setConstantWeightPerObservable( weightPerObservationParser );
 //    }
 
 //    void setConstantPerObservableAndLinkEndsWeights(
@@ -346,7 +346,7 @@ public:
 //                    observationParser( observableIt.first ), observationParser( linkEndsIt.first ) } ) ) ] = linkEndsIt.second;
 //            }
 //        }
-//        setTabulatedWeights( observationCollection_, weightPerObservableParser );
+//        observationCollection_->setTabulatedWeights( weightPerObservableParser );
 //    }
 //
 //    void setTabulatedPerObservableAndLinkEndsWeights(
@@ -363,7 +363,7 @@ public:
 //
 //        std::shared_ptr< observation_models::ObservationCollectionParser > parser = observationParser(
 //                std::vector< std::shared_ptr< observation_models::ObservationCollectionParser > >( { observationParser( observableType ), observationParser( linkEnds ) } ) );
-//        setTabulatedWeights( observationCollection_, parser, weights );
+//        observationCollection_->setTabulatedWeights( parser, weights );
 //    }
 
     //! Function to return the total data structure of observations and associated times/link ends/type (by reference)

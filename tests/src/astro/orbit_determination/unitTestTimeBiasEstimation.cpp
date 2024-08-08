@@ -226,7 +226,7 @@ int main( )
 
         std::map< std::shared_ptr< observation_models::ObservationCollectionParser >, double > weightPerObservationParser;
         weightPerObservationParser[ observationParser( one_way_doppler ) ] = 1.0 / ( 0.1 * 0.1 );
-        setConstantWeightPerObservable( simulatedObservations, weightPerObservationParser );
+        simulatedObservations->setConstantWeightPerObservable( weightPerObservationParser );
 
         // Perturb parameter estimate
         Eigen::Matrix< double, Eigen::Dynamic, 1 > initialParameterEstimate = parametersToEstimate->template getFullParameterValues< double >( );

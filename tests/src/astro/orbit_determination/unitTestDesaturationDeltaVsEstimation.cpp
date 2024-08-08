@@ -299,7 +299,7 @@ BOOST_AUTO_TEST_CASE( test_DesaturationDeltaVsEstimation )
     weightsPerObservationParser[ observationParser( one_way_range ) ] = 1.0 / ( 1.0 * 1.0 );
     weightsPerObservationParser[ observationParser( angular_position ) ] = 1.0 / ( 1.0E-5 * 1.0E-5 );
     weightsPerObservationParser[ observationParser( one_way_doppler ) ] = 1.0 / ( 1.0E-11 * 1.0E-11 * physical_constants::SPEED_OF_LIGHT * physical_constants::SPEED_OF_LIGHT  );
-    setConstantWeightPerObservable( observationsAndTimes,  weightsPerObservationParser );
+    observationsAndTimes->setConstantWeightPerObservable( weightsPerObservationParser );
 
     // Perturb parameter estimate.
     Eigen::Matrix< double, Eigen::Dynamic, 1 > initialParameterEstimate =

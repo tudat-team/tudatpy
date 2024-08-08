@@ -336,9 +336,10 @@ BOOST_AUTO_TEST_CASE( test_WeightDefinitions )
     std::vector< double > baseTimeList;
     double observationTimeStart = initialEphemerisTime + 1000.0;
     double  observationInterval = 20.0;
+    unsigned int nbObsPerDay = 50;
     for( int i = 0; i < numberOfDaysOfData; i++ )
     {
-        for( unsigned int j = 0; j < 500; j++ )
+        for( unsigned int j = 0; j < nbObsPerDay; j++ )
         {
             baseTimeList.push_back( observationTimeStart + static_cast< double >( i ) * 86400.0 +
                                     static_cast< double >( j ) * observationInterval );
@@ -364,7 +365,7 @@ BOOST_AUTO_TEST_CASE( test_WeightDefinitions )
         simulatedObservations->getObservationTypeStartAndSize( );
 
     {
-          setConstantWeight( simulatedObservations, 0.1 );
+        simulatedObservations->setConstantWeight( 0.1 );
 
         // Define estimation input
         std::shared_ptr< EstimationInput< double, double  > > estimationInput = std::make_shared< EstimationInput< double, double > >( simulatedObservations );
@@ -384,7 +385,7 @@ BOOST_AUTO_TEST_CASE( test_WeightDefinitions )
         weightPerObservationParser[ observationParser( one_way_range ) ] = 1.0 / ( 3.0 * 3.0 );
         weightPerObservationParser[ observationParser( angular_position ) ] = 1.0 / ( 1.0E-5 * 1.0E-5 );
         weightPerObservationParser[ observationParser( one_way_doppler ) ] = 1.0 / ( 1.0E-11 * 1.0E-11 * SPEED_OF_LIGHT * SPEED_OF_LIGHT );
-        setConstantWeightPerObservable( simulatedObservations, weightPerObservationParser );
+        simulatedObservations->setConstantWeightPerObservable( weightPerObservationParser );
 
 
         // Define estimation input
@@ -406,8 +407,8 @@ BOOST_AUTO_TEST_CASE( test_WeightDefinitions )
     {
         Eigen::Vector2d angularPositionWeight;
         angularPositionWeight << 0.1, 0.2;
-        setConstantWeight( simulatedObservations, 2.0 );
-        setConstantWeight( simulatedObservations, observationParser( angular_position ), angularPositionWeight );
+        simulatedObservations->setConstantWeight( 2.0 );
+        simulatedObservations->setConstantWeight( observationParser( angular_position ), angularPositionWeight );
 
         // Define estimation input
         std::shared_ptr< EstimationInput< double, double  > > estimationInput = std::make_shared< EstimationInput< double, double > >( simulatedObservations );
@@ -440,6 +441,54 @@ BOOST_AUTO_TEST_CASE( test_WeightDefinitions )
         }
     }
 
+    // Test tabulated weights
+    {
+        // Set same tabulated weights to each range observation set
+        int sizeRangeObsPerObsSet = nbObsPerDay * numberOfDaysOfData;
+        Eigen::VectorXd singleSetRangeWeights = Eigen::VectorXd::LinSpaced( sizeRangeObsPerObsSet, 1.0 / ( 3.0 * 3.0 ), 1.0 / ( 4.0 * 4.0 ) );
+
+        // Compute full range weight vector
+        unsigned int nbRangeObsSets = simulatedObservations->getSingleObservationSets( observationParser( one_way_range ) ).size( );
+        Eigen::VectorXd rangeWeights = Eigen::VectorXd::Zero( nbRangeObsSets * sizeRangeObsPerObsSet );
+        for ( unsigned int k = 0 ; k < nbRangeObsSets ; k++ )
+        {
+            rangeWeights.segment( k * sizeRangeObsPerObsSet, sizeRangeObsPerObsSet ) = singleSetRangeWeights;
+        }
+
+        // Set total tabulated weights for all Doppler observation sets
+        int totalSizeDopplerObs = simulatedObservations->getSingleObservationSets( observationParser( one_way_doppler ) ).size( ) * nbObsPerDay * numberOfDaysOfData;
+        Eigen::VectorXd dopplerWeights = Eigen::VectorXd::LinSpaced(
+                totalSizeDopplerObs, 1.0 / ( 1.0e-11 * SPEED_OF_LIGHT * 1.0e-11 * SPEED_OF_LIGHT ), 1.0 / ( 1.5e-11 * SPEED_OF_LIGHT * 1.5e-11 * SPEED_OF_LIGHT ) );
+
+        // Default angular position weights set to 1
+        int totalSizeAngularPositionObs = 2.0 * simulatedObservations->getSingleObservationSets( observationParser( angular_position ) ).size( ) * nbObsPerDay * numberOfDaysOfData;
+        Eigen::VectorXd angularPositionWeights = Eigen::VectorXd::Ones( totalSizeAngularPositionObs );
+
+        // Concatenate tabulated weights per observable type (default weihts for angular_position observables)
+        std::map< std::shared_ptr< observation_models::ObservationCollectionParser >, Eigen::VectorXd > weightPerObservationParser;
+        weightPerObservationParser[ observationParser( one_way_range ) ] = singleSetRangeWeights;
+        weightPerObservationParser[ observationParser( one_way_doppler ) ] = dopplerWeights;
+        simulatedObservations->setTabulatedWeights( weightPerObservationParser );
+
+        // Define estimation input
+        std::shared_ptr< EstimationInput< double, double  > > estimationInput = std::make_shared< EstimationInput< double, double > >( simulatedObservations );
+        std::map< ObservableType, std::pair< int, int > > observationTypeStartAndSize = simulatedObservations->getObservationTypeStartAndSize( );
+        Eigen::VectorXd totalWeights = estimationInput->getWeightsMatrixDiagonals( );
+
+        // Define expected weights per observable
+        std::map< ObservableType, Eigen::VectorXd > expectedWeights;
+        expectedWeights[ one_way_range ] = rangeWeights;
+        expectedWeights[ one_way_doppler ] = dopplerWeights;
+        expectedWeights[ angular_position ] = angularPositionWeights;
+
+        for( auto it : expectedWeights )
+        {
+            for( int i = 0; i < observationTypeStartAndSize.at( it.first ).second; i++ )
+            {
+                BOOST_CHECK_CLOSE_FRACTION( totalWeights( observationTypeStartAndSize.at( it.first ).first + i ), it.second( i ), std::numeric_limits< double >::epsilon( ) );
+            }
+        }
+    }
 }
 
 BOOST_AUTO_TEST_CASE( test_ObservationParser )
@@ -580,16 +629,6 @@ BOOST_AUTO_TEST_CASE( test_ObservationParser )
     OrbitDeterminationManager< double, double > orbitDeterminationManager = OrbitDeterminationManager< double, double >(
             bodies, parametersToEstimate, observationSettingsList, integratorSettings, propagatorSettings );
 
-//    std::vector< double > baseTimeList; //Station1, baseTimeListStation2, baseTimeListStation3;
-//    double observationTimeStart = initialEphemerisTime + 1000.0;
-//    double  observationInterval = 20.0;
-//    for( int i = 0; i < numberOfDaysOfData; i++ )
-//    {
-//        for( unsigned int j = 0; j < 100; j++ )
-//        {
-//            baseTimeList.push_back( observationTimeStart + static_cast< double >( i ) * 86400.0 + static_cast< double >( j ) * observationInterval );
-//        }
-//    }
 
     std::map< ObservableType, std::vector< double > > baseTimeList;
     double obsInterval = 20.0;
@@ -622,9 +661,6 @@ BOOST_AUTO_TEST_CASE( test_ObservationParser )
         }
     }
 
-//    std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > measurementSimulationInput =
-//            getObservationSimulationSettings< double >( linkEndsPerObservable, baseTimeList, receiver );
-
     // Simulate observations
     std::shared_ptr< ObservationCollection< double, double > > simulatedObservations =
             simulateObservations< double, double >( measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
@@ -639,7 +675,7 @@ BOOST_AUTO_TEST_CASE( test_ObservationParser )
     weightPerObservationParser[ observationParser( one_way_range ) ] = 1.0 / ( 3.0 * 3.0 );
     weightPerObservationParser[ observationParser( angular_position ) ] = 1.0 / ( 1.0E-5 * 1.0E-5 );
     weightPerObservationParser[ observationParser( one_way_doppler ) ] = 1.0 / ( 1.0E-11 * 1.0E-11 * SPEED_OF_LIGHT * SPEED_OF_LIGHT );
-    setConstantWeightPerObservable( simulatedObservations, weightPerObservationParser );
+    simulatedObservations->setConstantWeightPerObservable( weightPerObservationParser );
 
     // Check full list of observable types
     std::vector< ObservableType > observableTypes = simulatedObservations->getObservableTypes( );
