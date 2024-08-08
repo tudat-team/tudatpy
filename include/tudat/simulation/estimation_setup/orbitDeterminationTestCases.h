@@ -298,12 +298,12 @@ std::pair< std::shared_ptr< EstimationOutput< StateScalarType, TimeType > >, Eig
         weightsPerObservationParser[ observationParser( one_way_range ) ] = 1.0 / ( 1.0 * 1.0 );
         weightsPerObservationParser[ observationParser( angular_position ) ] = 1.0 / ( 1.0E-9 * 1.0E-9 );
         weightsPerObservationParser[ observationParser( one_way_doppler ) ] = 1.0 / ( 1.0E-12 * 1.0E-12 );
-        setConstantWeightPerObservable( simulatedObservations, weightsPerObservationParser );
+        simulatedObservations->setConstantWeightPerObservable( weightsPerObservationParser );
     }
     else
     {
 //        simulatedObservations->setConstantWeightsMatrix( weight );
-        setConstantWeight( simulatedObservations, weight );
+        simulatedObservations->setConstantWeight( weight );
     }
 
     // Perturb parameter estimate
@@ -621,7 +621,7 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation(
     weightsPerObservationParser[ observationParser( one_way_range ) ] = 1.0 / ( 1.0 * 1.0 );
     weightsPerObservationParser[ observationParser( angular_position ) ] = 1.0 / ( 1.0E-5 * 1.0E-5 );
     weightsPerObservationParser[ observationParser( one_way_doppler ) ] = 1.0 / ( 1.0E-11 * 1.0E-11 * SPEED_OF_LIGHT * SPEED_OF_LIGHT );
-    setConstantWeightPerObservable( simulatedObservations, weightsPerObservationParser );
+    simulatedObservations->setConstantWeightPerObservable( weightsPerObservationParser );
 
     // Perturb parameter estimate
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialParameterEstimate =
@@ -1205,7 +1205,7 @@ std::pair< Eigen::VectorXd, bool >  executeEarthOrbiterBiasEstimation(
     weightsPerObservationParser[ observationParser( one_way_range ) ] = 1.0 / ( 1.0 * 1.0 );
     weightsPerObservationParser[ observationParser( n_way_range ) ] = 1.0 / ( 1.0 * 1.0 );
     weightsPerObservationParser[ observationParser( one_way_doppler ) ] = 1.0 / ( 1.0E-12 * 1.0E-12 * SPEED_OF_LIGHT * SPEED_OF_LIGHT );
-    setConstantWeightPerObservable( simulatedObservations, weightsPerObservationParser );
+            simulatedObservations->setConstantWeightPerObservable( weightsPerObservationParser );
 
             // Perturb parameter estimate
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialParameterEstimate =
