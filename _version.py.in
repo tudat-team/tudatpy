@@ -3,4 +3,4 @@
 # This file is part of the tudatpy library.
 #
 
-__version__ = "@tudatpy_VERSION@"
+__version__ = "@PROJECT_VERSION@"

@@ -11,9 +11,9 @@
 
 #include <pybind11/eigen.h>
 #include <pybind11/pybind11.h>
-#include <tudat/astro/basic_astro.h>
-#include <tudat/astro/mission_segments.h>
 
+#include "tudat/astro/basic_astro.h"
+#include "tudat/astro/mission_segments.h"
 #include "tudatpy/docstrings.h"
 
 namespace py = pybind11;

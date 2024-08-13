@@ -11,11 +11,11 @@
 #include <pybind11/eigen.h>
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
-#include <tudat/astro/basic_astro/stateRepresentationConversions.h>
-#include <tudat/astro/conversions.h>
-#include <tudat/astro/ephemerides/rotationalEphemeris.h>
-#include <tudat/math/basic.h>
 
+#include "tudat/astro/basic_astro/stateRepresentationConversions.h"
+#include "tudat/astro/conversions.h"
+#include "tudat/astro/ephemerides/rotationalEphemeris.h"
+#include "tudat/math/basic.h"
 #include "tudatpy/docstrings.h"
 
 namespace py = pybind11;

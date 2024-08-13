@@ -12,8 +12,8 @@
 #include <pybind11/functional.h>
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
-#include <tudat/astro/ephemerides/rotationalEphemeris.h>
-#include <tudat/astro/reference_frames.h>
+#include "tudat/astro/ephemerides/rotationalEphemeris.h"
+#include "tudat/astro/reference_frames.h"
 
 #include "tudatpy/docstrings.h"
 

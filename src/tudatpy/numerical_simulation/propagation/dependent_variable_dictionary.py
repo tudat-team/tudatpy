@@ -12,10 +12,11 @@ http://tudat.tudelft.nl/LICENSE.
 # General imports
 import numpy as np
 from inspect import getmro
+from typing import Any
 
 # Tudat imports
 from ...util import result2array
-from ... import numerical_simulation
+from ...numerical_simulation import SingleArcSimulator
 from ...numerical_simulation.propagation_setup.dependent_variable import (
     VariableSettings,
     get_dependent_variable_id,
@@ -151,7 +152,7 @@ class DependentVariableDictionary(dict):
             )
         )
 
-    def __setitem__(self, __key: VariableSettings, __value: any) -> None:
+    def __setitem__(self, __key: VariableSettings, __value: Any) -> None:
         """
         Set the time history corresponding to a dependent variable, identified either by
         the dependent variable settings object corresponding to the dependent variable
@@ -213,7 +214,7 @@ class DependentVariableDictionary(dict):
 
 
 def create_dependent_variable_dictionary(
-    dynamics_simulator: numerical_simulation.SingleArcSimulator,
+    dynamics_simulator: SingleArcSimulator,
 ) -> DependentVariableDictionary:
     """
     Construct a dictionary-like object (`DependentVariableDictionary`) which maps which maps dependent variables

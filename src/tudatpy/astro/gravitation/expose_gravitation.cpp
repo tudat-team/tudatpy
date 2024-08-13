@@ -11,8 +11,8 @@
 #include <pybind11/eigen.h>
 #include <pybind11/functional.h>
 #include <pybind11/pybind11.h>
-#include <tudat/astro/gravitation.h>
-#include <tudat/math/basic.h>
+#include "tudat/astro/gravitation.h"
+#include "tudat/math/basic.h"
 
 #include "tudatpy/docstrings.h"
 

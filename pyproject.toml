@@ -1,0 +1,15 @@
+[build-system]
+requires = [
+    "scikit-build-core",
+    "pybind11",
+    "mypy"
+]
+build-backend = "scikit_build_core.build"
+
+[project]
+name = "tudatpy"
+version = "0.8.0"
+authors = [
+    { name = "The TudatPy team" }
+]
+license = { file = "LICENSE" }
