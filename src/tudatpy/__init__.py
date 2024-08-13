@@ -1,6 +1,10 @@
-# Copyright 2020 tudatpy development team
-#
-# This file is part of the tudatpy library.
-#
+from . import astro, constants, interface, math, trajectory_design, numerical_simulation
 
-__version__ = ""
+__all__ = [
+    "astro",
+    "constants",
+    "interface",
+    "math",
+    "trajectory_design",
+    "numerical_simulation",
+]

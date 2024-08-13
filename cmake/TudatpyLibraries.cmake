@@ -57,4 +57,5 @@ list(
     tudat_earth_orientation
     # Interfaces
     tudat_spice_interface
+    tudat_sofa_interface
 )

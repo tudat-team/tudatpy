@@ -38,9 +38,9 @@ namespace tudatpy {
     namespace numerical_simulation {
 
         PYBIND11_MODULE(expose_numerical_simulation, m) {
-            // py::module_::import(
-            //     "tudatpy.numerical_simulation.propagation_setup.integrator."
-            //     "expose_integrator");
+            py::module_::import(
+                "tudatpy.numerical_simulation.propagation_setup.integrator."
+                "expose_integrator");
             m.def("get_integrated_type_and_body_list",
                   &tp::getIntegratedTypeAndBodyList<double, TIME_TYPE>,
                   py::arg("propagator_settings"));

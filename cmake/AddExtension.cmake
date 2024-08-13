@@ -24,13 +24,20 @@ macro (add_extension import_path)
     # Restore installation prefix
     unset(CMAKE_LIBRARY_OUTPUT_DIRECTORY)
 
-    # Generate stubs
-    add_custom_command(
-        TARGET "expose_${extension_name}"
-        POST_BUILD
-        COMMAND stubgen -p ${import_path} -o . > /dev/null 2>&1
-        WORKING_DIRECTORY "${TUDATPY_SOURCE_DIR}/src"
-        COMMENT "Generating stubs for ${extension_name}..."
-    )
+endmacro()
 
+
+macro (generate_stubs import_path)
+
+    string(REPLACE "." ";" import_path_list ${import_path})
+    list(GET import_path_list -1 extension_name)
+
+    # Generate stubs
+    add_custom_target(${extension_name})
+    add_custom_command(
+        TARGET ${extension_name} POST_BUILD
+        COMMAND pybind11-stubgen ${import_path} -o . --root-suffix=-stubs
+        WORKING_DIRECTORY "${TUDATPY_SOURCE_DIR}/src"
+        COMMENT "Generating stubs for ${import_path}..."
+    )
 endmacro()

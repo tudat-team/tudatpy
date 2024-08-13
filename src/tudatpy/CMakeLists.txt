@@ -2,12 +2,12 @@
 include(TudatpyLibraries)
 include(AddExtension)
 
-# Generate _version.py
-configure_file(
-    "${CMAKE_CURRENT_SOURCE_DIR}/../../_version.py.in"
-    "${CMAKE_CURRENT_SOURCE_DIR}/__init__.py"
-    @ONLY
-)
+# # Generate _version.py
+# configure_file(
+#     "${CMAKE_CURRENT_SOURCE_DIR}/../../_version.py.in"
+#     "${CMAKE_CURRENT_SOURCE_DIR}/__init__.py"
+#     @ONLY
+# )
 
 # Add extensions
 ##################################
@@ -75,10 +75,6 @@ add_extension(tudatpy.numerical_simulation.estimation_setup.parameter)
 # Trajectory design
 add_extension(tudatpy.trajectory_design.shape_based_thrust)
 add_extension(tudatpy.trajectory_design.transfer_trajectory)
-
-# Main stubs
-###########################
-message(STATUS "MISSING STUB GENERATION FOR __init__ files in main modules")
 
 # # Move stubs into tudatpy
 # # - TODO: replace by install directory just like tudatpy
