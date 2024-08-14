@@ -24,20 +24,26 @@ macro (add_extension import_path)
     # Restore installation prefix
     unset(CMAKE_LIBRARY_OUTPUT_DIRECTORY)
 
-endmacro()
-
-
-macro (generate_stubs import_path)
-
-    string(REPLACE "." ";" import_path_list ${import_path})
-    list(GET import_path_list -1 extension_name)
-
-    # Generate stubs
-    add_custom_target(${extension_name})
+    # Generate stubs for extension
     add_custom_command(
-        TARGET ${extension_name} POST_BUILD
-        COMMAND pybind11-stubgen ${import_path} -o . --root-suffix=-stubs
+        TARGET "expose_${extension_name}" POST_BUILD
+        COMMAND pybind11-stubgen "${import_path}.expose_${extension_name}" -o . --root-suffix=-stubs --numpy-array-remove-parameters --print-invalid-expressions-as-is
         WORKING_DIRECTORY "${TUDATPY_SOURCE_DIR}/src"
         COMMENT "Generating stubs for ${import_path}..."
     )
+
+    # # Generate __init__.pyi for extension
+    # if (EXISTS "${TUDATPY_SOURCE_DIR}/src/tudatpy-stubs")
+    # else()
+    #     file(MAKE_DIRECTORY "${TUDATPY_SOURCE_DIR}/src/tudatpy-stubs")
+    # endif()
+    # list(REMOVE_AT import_path_list 0)
+    # list(JOIN import_path_list "/" stub_path)
+    # set(stub_path "${TUDATPY_SOURCE_DIR}/src/tudatpy-stubs/${stub_path}")
+    # configure_file(
+    #     "${TUDATPY_SOURCE_DIR}/src/${extension_path}/__init__.py"
+    #     "${stub_path}/__init__.pyi"
+    #     COPYONLY
+    # )
+
 endmacro()
