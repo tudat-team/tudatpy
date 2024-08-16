@@ -127,8 +127,18 @@ namespace tudatpy {
             PYBIND11_MODULE(expose_environment, m) {
                 py::enum_<ta::AerodynamicCoefficientsIndependentVariables>(
                     m, "AerodynamicCoefficientsIndependentVariables",
-                    get_docstring("AerodynamicCoefficientsIndependentVariables")
-                        .c_str())
+                    R"doc(Enumeration of the independent variables that can be used to compute aerodynamic coefficients.
+
+
+
+	:member mach_number_dependent:
+	:member angle_of_attack_dependent:
+	:member sideslip_angle_dependent:
+	:member altitude_dependent:
+	:member time_dependent:
+	:member control_surface_deflection_dependent:
+	:member undefined_independent_variable:
+)doc")
                     .value("mach_number_dependent",
                            ta::AerodynamicCoefficientsIndependentVariables::
                                mach_number_dependent,
@@ -415,8 +425,65 @@ namespace tudatpy {
                         py::arg("reference_length"),
                         py::arg("moment_reference_point"),
                         py::arg("save_pressure_coefficients") = false,
-                        get_docstring("HypersonicLocalInclinationAnalysis.ctor")
-                            .c_str())
+                        R"doc(Class constructor, taking the shape of the vehicle, and various analysis options as input.
+
+	:param independent_variable_points:
+		List containing three lists, with each sublist containing the data points of each of the
+		independent variables for the coefficient generation. The physical meaning of each of the
+		three independent variables is: 0 = mach number, 1 = angle of attack, 2 = angle of sideslip.
+		Each of the subvectors must be sorted in ascending order.
+
+	:param body_shape:
+		Class that defines the shape of the vehicle as a continuous surface. The local inclination analysis
+		discretizes the surface of the vehicle into quadrilateral panels, defined by the other inputs to
+		this constructor. In case the :class:`tudat.geometry.SurfaceGeometry` object is made up of multiple
+		sub-shapes, different settings may be used for each
+
+	:param number_of_lines:
+		Number of discretization points in the first independent surface variable of each of the subparts of body_shape.
+		The size of this list should match the number of parts of which the body_shape is composed. The first independent
+		variable of a subpart typically runs along the longitudinal vehicle direction
+
+	:param number_of_points:
+		Number of discretization points in the second independent surface variable of each of the subparts of body_shape.
+		The size of this list should match the number of parts of which the body_shape is composed. The first independent
+		variable of a subpart typically runs along the lateral vehicle direction
+
+	:param invert_orders:
+		Booleans to denote whether the surface normals of the panels of each discretized body_shape subpart are to be inverted
+		(i.e. inward-facing->outward facing or vice versa). The size of this list should match the number of parts of which the body_shape is composed.
+
+	:param selected_methods:
+		Double list of selected local inclination methods, the first index (outer list) represents compression or expansion (0 and 1),
+		the second index (inner list) denotes the vehicle part index. The size of this inner list should match the number of parts of which the body_shape is composed.
+		The int defining the method type is interpreted as follows.
+		For the compression methods, the following are available:
+		*  0: Newtonian Method.
+		*  1: Modified Newtonian.
+		*  2 and 3: not available at this moment.
+		*  4: Tangent-wedge method.
+		*  5: Tangent-cone method.
+		*  6: Modified Dahlem-Buck method.
+		*  7: VanDyke unified pressure method.
+		*  8: Smyth Delta Wing method.
+		*  9: Hankey flat surface method
+		The expansion method has the following options:
+		*  0: Vacuum Pressure coefficient method.
+		*  1: Zero Pressure function.
+		*  4: High Mach base pressure method.
+		*  3 or 5: Prandtl-Meyer method.
+		*  6: ACM empirical pressure coefficient.
+
+	:param reference_area:
+		Reference area used to non-dimensionalize aerodynamic forces and moments.
+
+	:param moment_reference_point:
+		Reference point wrt which aerodynamic moments are calculated.
+
+	:param save_pressure_coefficients:
+		Boolean denoting whether to save the pressure coefficients that are computed to files
+
+)doc")
                     .def("clear_data",
                          &ta::HypersonicLocalInclinationAnalysis::clearData);
 
@@ -459,11 +526,31 @@ namespace tudatpy {
                         getDefaultHypersonicLocalInclinationAngleOfSideslipPoints);
 
 
-                m.def("save_vehicle_mesh_to_file", &ta::saveVehicleMeshToFile,
-                      py::arg("local_inclination_analysis_object"),
-                      py::arg("output_directory"),
-                      py::arg("output_file_prefix") = "",
-                      get_docstring("save_vehicle_mesh_to_file").c_str());
+                m.def(
+                    "save_vehicle_mesh_to_file", &ta::saveVehicleMeshToFile,
+                    py::arg("local_inclination_analysis_object"),
+                    py::arg("output_directory"),
+                    py::arg("output_file_prefix") = "",
+                    R"doc(Function to save the mesh used for a hypersonic local inclination analysis to a file.
+
+	Function to save the mesh used for a hypersonic local inclination analysis to a file. This function saves
+	two files to the specified directory, with filenames: "ShapeFile.dat" and "SurfaceNormalFile.dat", where these
+	files names may be prefixed by an optional string (see below). The first of these files contains four columns defining
+	the surface points that define mesh, with Column 0: point index; Column 1: x-position of point; Column 1: y-position of point;
+	Column 2: z-position of point. The second file contains four columns with Column 0: point index; Column 1: x-component of surface normal;
+	Column 1: y-position of surface normal; Column 2: z-position of surface normal.
+
+
+	:param local_inclination_analysis_object:
+		Object used to calculate the aerodynamics of the vehicle
+
+	:param output_directory:
+		Directory to which the files are to be saved
+
+	:param output_file_prefix:
+		Optional prefix of output file names
+
+)doc");
 
                 m.def("get_local_inclination_total_vehicle_area",
                       &ta::getTotalSurfaceArea,
@@ -547,7 +634,22 @@ namespace tudatpy {
 
                 py::enum_<trf::AerodynamicsReferenceFrames>(
                     m, "AerodynamicsReferenceFrames",
-                    get_docstring("AerodynamicsReferenceFrames").c_str())
+                    R"doc(Enumeration of reference frame identifiers typical for aerodynamic calculations.
+
+	Enumeration of reference frame identifiers typical for aerodynamic calculations. Note that the frames are also defined
+	in the absence of any aerodynamic forces and/or atmosphere. They define frames of a body w.r.t. a central body, with
+	the details given by Mooij (1994). The chain of frames starts from the inertial frame, to the frame fixed to the
+	central body (corotating), to the vertical frame (defined by the body's relative position), the trajectory and aerodynamic frames
+	(defined by the body's relative velocity) and finally the body's own body-fixed frame.
+
+
+	:member inertial_frame:
+	:member corotating_frame:
+	:member vertical_frame:
+	:member trajectory_frame:
+	:member aerodynamic_frame:
+	:member body_frame:
+)doc")
                     .value("inertial_frame",
                            trf::AerodynamicsReferenceFrames::inertial_frame,
                            get_docstring(
@@ -583,19 +685,53 @@ namespace tudatpy {
                 py::class_<trf::AerodynamicAngleCalculator,
                            std::shared_ptr<trf::AerodynamicAngleCalculator>>(
                     m, "AerodynamicAngleCalculator",
-                    get_docstring("AerodynamicAngleCalculator").c_str())
-                    .def("get_rotation_matrix_between_frames",
-                         &trf::AerodynamicAngleCalculator::
-                             getRotationMatrixBetweenFrames,
-                         py::arg("original_frame"), py::arg("target_frame"),
-                         get_docstring("AerodynamicAngleCalculator.get_"
-                                       "rotation_matrix_between_frames")
-                             .c_str())
+                    R"doc(Object to calculate (aerodynamic) orientation angles, and frame transformations,
+from current vehicle state.
+
+
+	Object to calculate (aerodynamic) orientation angles (list given by the :class:`~AerodynamicsReferenceFrameAngles` enum)
+	and transformations between frames (list given by the :class:`~AerodynamicsReferenceFrames` enum) from current vehicle state.
+
+)doc")
+                    .def(
+                        "get_rotation_matrix_between_frames",
+                        &trf::AerodynamicAngleCalculator::
+                            getRotationMatrixBetweenFrames,
+                        py::arg("original_frame"), py::arg("target_frame"),
+                        R"doc(Function to get the rotation matrix between two frames.
+
+
+	Function to get the rotation matrix between two frames. This function
+	is meant to be used only *during* a numerical propagation, in particular
+	for the definition of a custom (e.g. guidance) model.
+
+
+	:param original_frame:
+		The frame :math:`A` from which the rotation matrix is to be calculated
+
+	:param target_frame:
+		The frame :math:`B` to which the rotation matrix is to be calculated
+
+	:return:
+		Rotation matrix :math:`\mathbf{R}^{B/A}` from frame :math:`A` to frame `B`
+)doc")
                     .def("get_angle",
                          &trf::AerodynamicAngleCalculator::getAerodynamicAngle,
                          py::arg("angle_type"),
-                         get_docstring("AerodynamicAngleCalculator.get_angle")
-                             .c_str())
+                         R"doc(Function to get a single orientation angle
+
+
+	Function to get a single orientation angle. This function
+	is meant to be used only *during* a numerical propagation, in particular
+	for the definition of a custom (e.g. guidance) model.
+
+
+	:param original_frame:
+		The identifier for the angle that is to be returnd
+
+	:return:
+		Value of requested angle
+)doc")
                     // Function removed; error is shown
                     .def("set_body_orientation_angles",
                          &trf::AerodynamicAngleCalculator::
@@ -622,7 +758,22 @@ namespace tudatpy {
                 py::class_<ta::FlightConditions,
                            std::shared_ptr<ta::FlightConditions>>(
                     m, "FlightConditions",
-                    get_docstring("FlightConditions").c_str())
+                    R"doc(Object that calculates various state-derived quantities typically
+relevant for flight dynamics.
+
+
+	Object that calculates various state-derived quantities typically
+	relevant for flight dynamics, such as latitude, longitude,
+	altitude, etc. It also contains an
+	:py:class:`~AerodynamicAngleCalculator` that computes derived
+	angles (flight path, heading angle, etc.). This object is limited
+	to non-atmospheric flight. For flight through Body objects
+	endowed with an atmosphere model, the derived class
+	:py:class:`~AtmosphericFlightConditions` is used. This object is
+	stored inside a Body object, and represents the flight conditions
+	of a single body w.r.t. a single central body.
+
+)doc")
                     //            .def(py::init<
                     //                 const
                     //                 std::shared_ptr<tudat::basic_astrodynamics::BodyShapeModel>,
@@ -638,108 +789,161 @@ namespace tudatpy {
                     .def_property_readonly(
                         "aerodynamic_angle_calculator",
                         &ta::FlightConditions::getAerodynamicAngleCalculator,
-                        get_docstring(
-                            "FlightConditions.aerodynamic_angle_calculator")
-                            .c_str())
+                        R"doc(The object that is responsible for computing various relevant
+flight dynamics angles and frame rotations.
+
+	)doc")
                     .def_property_readonly(
                         "longitude", &ta::FlightConditions::getCurrentLongitude,
-                        get_docstring("FlightConditions.longitude").c_str())
+                        R"doc(The body-fixed longitude of the body w.r.t. its central body.
+
+	)doc")
                     .def_property_readonly(
                         "latitude", &ta::FlightConditions::getCurrentLatitude,
-                        get_docstring("FlightConditions.latitude").c_str())
+                        R"doc(The body-fixed geographic latitude of the body w.r.t. its
+central body.
+
+	)doc")
                     .def_property_readonly(
                         "geodetic_latitude",
                         &ta::FlightConditions::getCurrentGeodeticLatitude,
-                        get_docstring("FlightConditions.latitude").c_str())
+                        R"doc(The body-fixed geographic latitude of the body w.r.t. its
+central body.
+
+	)doc")
                     .def_property_readonly(
                         "time", &ta::FlightConditions::getCurrentTime,
-                        get_docstring("FlightConditions.time").c_str())
+                        R"doc(The current time, at which this object was last updated
+
+	)doc")
                     .def_property_readonly(
                         "body_centered_body_fixed_state",
                         &ta::FlightConditions::
                             getCurrentBodyCenteredBodyFixedState,
-                        get_docstring(
-                            "FlightConditions.body_centered_body_fixed_state")
-                            .c_str())
+                        R"doc(Cartesian translational state, expressed in a frame centered
+at, and fixed to, the central body. Note that, due to the
+rotation of the central body, the norm of the body-fixed,
+body-centered, velocity differs from the norm of the inertial
+body-centered velocity.
+
+	)doc")
                     .def_property_readonly(
                         "altitude", &ta::FlightConditions::getCurrentAltitude,
-                        get_docstring("FlightConditions.time").c_str());
+                        R"doc(The current time, at which this object was last updated
+
+	)doc");
 
                 py::class_<ta::AtmosphericFlightConditions,
                            std::shared_ptr<ta::AtmosphericFlightConditions>,
                            ta::FlightConditions>(
                     m, "AtmosphericFlightConditions",
-                    get_docstring("AtmosphericFlightConditions").c_str())
+                    R"doc(Object that calculates various state-derived quantities typically
+relevant for flight dynamics, for flight in an atmosphere.
+
+
+	Object that calculates various state-derived quantities typically
+	relevant for flight dynamics, for flight in an atmosphere, such
+	as latitude,  longitude, altitude, density, Mach number etc. It
+	also contains an ``AerodynamicAngleCalculator`` that computes
+	derived angles (flight path, heading angle, etc.). This object is
+	derived from ``FlightConditions``, which performs computations for
+	non-atmospheric flight only. This object is stored inside a Body
+	object, and represents the flight conditions of a single body
+	w.r.t. a single central body.
+
+)doc")
                     .def_property_readonly(
                         "density",
                         &ta::AtmosphericFlightConditions::getCurrentDensity,
-                        get_docstring("AtmosphericFlightConditions.density")
-                            .c_str())
+                        R"doc(The freestream atmospheric density at the body's current
+location.
+
+	)doc")
                     .def_property_readonly(
                         "temperature",
                         &ta::AtmosphericFlightConditions::
                             getCurrentFreestreamTemperature,
-                        get_docstring("AtmosphericFlightConditions.temperature")
-                            .c_str())
+                        R"doc(The freestream atmospheric temperature at the body's current
+location.
+
+	)doc")
                     .def_property_readonly(
                         "dynamic_pressure",
                         &ta::AtmosphericFlightConditions::
                             getCurrentDynamicPressure,
-                        get_docstring(
-                            "AtmosphericFlightConditions.dynamic_pressure")
-                            .c_str())
+                        R"doc(The freestream atmospheric dynamic pressure at the body's
+current location.
+
+	)doc")
                     .def_property_readonly(
                         "pressure",
                         &ta::AtmosphericFlightConditions::getCurrentPressure,
-                        get_docstring("AtmosphericFlightConditions.pressure")
-                            .c_str())
+                        R"doc(The freestream atmospheric static pressure at the body's
+current location.
+
+	)doc")
                     .def_property_readonly(
                         "airspeed",
                         &ta::AtmosphericFlightConditions::getCurrentAirspeed,
-                        get_docstring("AtmosphericFlightConditions.airspeed")
-                            .c_str())
+                        R"doc(The airspeed of the body w.r.t. the atmosphere.
+
+	)doc")
                     .def_property_readonly(
                         "mach_number",
                         &ta::AtmosphericFlightConditions::getCurrentMachNumber,
-                        get_docstring("AtmosphericFlightConditions.mach_number")
-                            .c_str())
+                        R"doc(The freestream Mach number of the body.
+
+	)doc")
                     .def_property_readonly(
                         "airspeed_velocity",
                         &ta::AtmosphericFlightConditions::
                             getCurrentAirspeedBasedVelocity,
-                        get_docstring(
-                            "AtmosphericFlightConditions.airspeed_velocity")
-                            .c_str())
+                        R"doc(The velocity vector of the body w.r.t. the freestream
+atmosphere (e.g. vectorial counterpart of airspeed).
+
+	)doc")
                     .def_property_readonly(
                         "speed_of_sound",
                         &ta::AtmosphericFlightConditions::
                             getCurrentSpeedOfSound,
-                        get_docstring(
-                            "AtmosphericFlightConditions.speed_of_sound")
-                            .c_str())
+                        R"doc(The freestream atmospheric speed of sound at the body's current
+location.
+
+	)doc")
                     .def_property_readonly(
                         "aero_coefficient_independent_variables",
                         &ta::AtmosphericFlightConditions::
                             getAerodynamicCoefficientIndependentVariables,
-                        get_docstring("AtmosphericFlightConditions.aero_"
-                                      "coefficient_independent_variables")
-                            .c_str())
+                        R"doc(List of current values of independent variables of aerodynamic
+coefficients. This list is only defined if the body has an
+:py:class:`~AerodynamicCoefficientInterface` that has
+dependencies on environmental variables (e.g. Mach number,
+angle of attack, etc.).
+
+	)doc")
                     .def_property_readonly(
                         "control_surface_aero_coefficient_independent_"
                         "variables",
                         &ta::AtmosphericFlightConditions::
                             getControlSurfaceAerodynamicCoefficientIndependentVariables,
-                        get_docstring(
-                            "AtmosphericFlightConditions.control_surface_aero_"
-                            "coefficient_independent_variables")
-                            .c_str())
+                        R"doc(List of lists current values of independent variables of
+aerodynamic coefficients for control surfaces. The outer list
+defines the control surface, the inner list the values of the
+independent variables. This list is only defined if the body
+has an :py:class:`~AerodynamicCoefficientInterface` with
+control surfaces that have dependencies on environmental
+variables (e.g. Mach number, angle of attack, etc.).
+
+	)doc")
                     .def_property_readonly(
                         "aerodynamic_coefficient_interface",
                         &ta::AtmosphericFlightConditions::
                             getAerodynamicCoefficientInterface,
-                        get_docstring("AtmosphericFlightConditions.aerodynamic_"
-                                      "coefficient_interface")
-                            .c_str());
+                        R"doc(Object extracted from the same Body object as this
+:py:class:`~AtmosphericFlightConditions` object, which defines
+the aerodynamic coefficients.
+
+	)doc");
 
 
                 /*!
@@ -1165,55 +1369,122 @@ namespace tudatpy {
                  */
 
                 py::class_<tss::Body, std::shared_ptr<tss::Body>>(
-                    m, "Body", get_docstring("Body").c_str())
+                    m, "Body",
+                    R"doc(Object that stores the environment properties and current state of
+a single body.
+
+
+	Object that stores the environment properties and current state
+	of a single celestial body (natural or artificial). Each separate
+	environment model (gravity field, ephemeris, etc.) is stored as a
+	member object in this class. During each time step, the Body gets
+	updated to the current time/propagated state, and the current
+	properties, in as much as they are time-dependent, can be
+	extracted from this object
+
+)doc")
                     .def_property("ephemeris_frame_to_base_frame",
                                   &tss::Body::getEphemerisFrameToBaseFrame,
                                   &tss::Body::setEphemerisFrameToBaseFrame)
-                    .def_property_readonly("state", &tss::Body::getState,
-                                           get_docstring("Body.state").c_str())
+                    .def_property_readonly(
+                        "state", &tss::Body::getState,
+                        R"doc(The translational state of the Body, as set during the current
+step of the numerical propagation. The translational state
+stored here is always in Cartesian elements, w.r.t. the global
+frame origin, with axes along the global frame orientation. If
+the body's translational state is numerically propagated, this
+property gets extracted from the propagated state vector. If it
+is not propagated, the state is extracted from this body's
+ephemeris. In both cases, any required state transformations
+are automatically applied. Note that this function  is *only*
+valid during the numerical propagation if any aspects of the
+dynamics or dependent variables require the body's state.
+
+	)doc")
                     .def_property_readonly(
                         "position", &tss::Body::getPosition,
-                        get_docstring("Body.position").c_str())
+                        R"doc(The translational position of the Body, as set during the
+current step of the numerical propagation
+(see :py:attr:`~state`).
+
+	)doc")
                     .def_property_readonly(
                         "velocity", &tss::Body::getVelocity,
-                        get_docstring("Body.velocity").c_str())
+                        R"doc(The translational velocity of the Body, as set during the
+current step of the numerical propagation
+(see :py:attr:`~state`).
+
+	)doc")
                     .def_property_readonly(
                         "inertial_to_body_fixed_frame",
                         &tss::Body::getCurrentRotationMatrixToLocalFrame,
-                        get_docstring("Body.inertial_to_body_fixed_frame")
-                            .c_str())
+                        R"doc(The rotation from inertial frame (with global frame
+orientation) to this Body's body-fixed frame. The rotation is
+always returned here as a rotation matrix.  If the body's
+rotational state is numerically propagated, this property gets
+extracted from the propagated state vector. If it is not
+propagated, the state is extracted from this body's rotational
+ephemeris.
+
+.. note:: This function is **only** valid during the
+          numerical propagation if any aspects of the dynamics
+          or dependent variables require the body's rotational
+          state.
+
+	)doc")
                     .def_property_readonly(
                         "body_fixed_to_inertial_frame",
                         &tss::Body::getCurrentRotationMatrixToGlobalFrame,
-                        get_docstring("Body.body_fixed_to_inertial_frame")
-                            .c_str())
+                        R"doc(The rotation from this Body's body-fixed frame to inertial
+frame (see :py:attr:`~inertial_to_body_fixed_frame`).
+
+	)doc")
                     .def_property_readonly(
                         "inertial_to_body_fixed_frame_derivative",
                         &tss::Body::
                             getCurrentRotationMatrixDerivativeToLocalFrame,
-                        get_docstring(
-                            "Body.inertial_to_body_fixed_frame_derivative")
-                            .c_str())
+                        R"doc(Time derivative of rotation matrix from inertial frame to this
+Body's body-fixed frame
+(see :py:attr:`~inertial_to_body_fixed_frame`).
+
+	)doc")
                     .def_property_readonly(
                         "body_fixed_to_inertial_frame_derivative",
                         &tss::Body::
                             getCurrentRotationMatrixDerivativeToGlobalFrame,
-                        get_docstring(
-                            "Body.body_fixed_to_inertial_frame_derivative")
-                            .c_str())
+                        R"doc(Time derivative of rotation matrix from this Body's body-fixed
+frame to inertial frame
+(see :py:attr:`~inertial_to_body_fixed_frame`).
+
+	)doc")
                     .def_property_readonly(
                         "inertial_angular_velocity",
                         &tss::Body::
                             getCurrentAngularVelocityVectorInGlobalFrame,
-                        get_docstring("Body.inertial_angular_velocity").c_str())
+                        R"doc(Angular velocity vector of the body, expressed in inertial
+frame (see :py:attr:`~inertial_to_body_fixed_frame`).
+
+	)doc")
                     .def_property_readonly(
                         "body_fixed_angular_velocity",
                         &tss::Body::getCurrentAngularVelocityVectorInLocalFrame,
-                        get_docstring("Body.body_fixed_angular_velocity")
-                            .c_str())
-                    .def_property("mass", &tss::Body::getBodyMass,
-                                  &tss::Body::setConstantBodyMass,
-                                  get_docstring("Body.mass").c_str())
+                        R"doc(Angular velocity vector of the body, expressed in body-fixed
+frame (see :py:attr:`~inertial_to_body_fixed_frame`).
+
+	)doc")
+                    .def_property(
+                        "mass", &tss::Body::getBodyMass,
+                        &tss::Body::setConstantBodyMass,
+                        R"doc(Denotes the current mass of the vehicle, as used in the calculation of
+non-conservative acceleration. Note that defining a mass for a vehicle
+does *not* define a gravity field (this is done through a gravity field model).
+However, defining a gravity field model in a body automatically assigns it
+a mass here.
+Unlike the attributes containing the state, orientation, angular velocity
+of the Body, this attribute may be used to retrieve the state during the
+propagation *and* to define the mass of a vehicle
+
+	)doc")
                     .def("set_constant_mass", &tss::Body::setConstantBodyMass,
                          py::arg("mass"))
                     .def_property("inertia_tensor",
@@ -1227,32 +1498,58 @@ namespace tudatpy {
                          py::arg("time"))
                     .def_property_readonly(
                         "ephemeris", &tss::Body::getEphemeris,
-                        get_docstring("Body.ephemeris").c_str())
+                        R"doc(Ephemeris model of this body, used to calculate its current state as a function of time.
+Depending on the selected type of model, the type of this attribute
+is of type Ephemeris, or a derived class thereof.
+
+	)doc")
                     .def_property(
                         "atmosphere_model", &tss::Body::getAtmosphereModel,
                         &tss::Body::setAtmosphereModel,
-                        get_docstring("Body.atmosphere_model").c_str())
-                    .def_property("shape_model", &tss::Body::getShapeModel,
-                                  &tss::Body::setShapeModel,
-                                  get_docstring("Body.shape_model").c_str())
+                        R"doc(Atmosphere model of this body, used to calculate density, temperature, etc. at a given
+state/time. Depending on the selected type of model, the type of this attribute
+is of type AtmosphereModel, or a derived class thereof.
+
+	)doc")
+                    .def_property(
+                        "shape_model", &tss::Body::getShapeModel,
+                        &tss::Body::setShapeModel,
+                        R"doc(Shape model of this body, used to define the exterior shape of the body, for instance for
+the calculation of vehicle's altitude. Depending on the selected type of model, the type of this attribute
+is of type BodyShapeModel, or a derived class thereof.
+
+	)doc")
                     .def_property(
                         "gravity_field_model", &tss::Body::getGravityFieldModel,
                         &tss::Body::setGravityFieldModel,
-                        get_docstring("Body.gravity_field_model").c_str())
+                        R"doc(Gravity field model of this body, used to define the exterior gravitational potential, and
+its gradient(s). Depending on the selected type of model, the type of this attribute
+is of type GravityFieldModel, or a derived class thereof.
+
+	)doc")
                     .def_property(
                         "aerodynamic_coefficient_interface",
                         &tss::Body::getAerodynamicCoefficientInterface,
                         &tss::Body::setAerodynamicCoefficientInterface,
-                        get_docstring("Body.aerodynamic_coefficient_interface")
-                            .c_str())
+                        R"doc(Object defining the aerodynamic coefficients of a vehicle (force-only, or force and moment)
+as a function of any number of independent variables. Depending on the selected type of model, the type of this attribute
+is of type AerodynamicCoefficientInterface, or a derived class thereof.
+
+	)doc")
                     .def_property(
                         "flight_conditions", &tss::Body::getFlightConditions,
                         &tss::Body::setFlightConditions,
-                        get_docstring("Body.flight_conditions").c_str())
-                    .def_property("rotation_model",
-                                  &tss::Body::getRotationalEphemeris,
-                                  &tss::Body::setRotationalEphemeris,
-                                  get_docstring("Body.rotation_model").c_str())
+                        R"doc(Current flight conditions of the body, which can be accessed during the propagation to get the current altitude, aerodynamic angle calculator, longitude, etc.
+
+	)doc")
+                    .def_property(
+                        "rotation_model", &tss::Body::getRotationalEphemeris,
+                        &tss::Body::setRotationalEphemeris,
+                        R"doc(Object defining the orientation of a body, used to calculate the rotation to/from a body-fixed
+frame (and its derivate). Depending on the selected type of model, the type of this attribute
+is of type RotationalEphemeris, or a derived class thereof.
+
+	)doc")
                     .def_property("system_models",
                                   &tss::Body::getVehicleSystems,
                                   &tss::Body::setVehicleSystems,
@@ -1264,7 +1561,9 @@ namespace tudatpy {
                     .def_property_readonly(
                         "gravitational_parameter",
                         &tss::Body::getGravitationalParameter,
-                        get_docstring("Body.gravitational_parameter").c_str())
+                        R"doc(Attribute of convenience, equivalent to ``.gravity_field_model.gravitational_parameter``
+
+	)doc")
                     .def("get_ground_station", &tss::Body::getGroundStation,
                          py::arg("station_name"),
                          get_docstring("Body.get_ground_station").c_str())
@@ -1276,19 +1575,57 @@ namespace tudatpy {
                 py::class_<tss::SystemOfBodies,
                            std::shared_ptr<tss::SystemOfBodies>>(
                     m, "SystemOfBodies",
-                    get_docstring("SystemOfBodies").c_str())
-                    .def("get", &tss::SystemOfBodies::getBody,
-                         py::arg("body_name"),
-                         get_docstring("SystemOfBodies.get").c_str())
+                    R"doc(Object that contains a set of Body objects and associated frame
+information.
+
+
+	Object that contains a set of Body objects and associated frame
+	information. This object stored the entire environment for a
+	typical Tudat numerical simulation, and is fundamental for the
+	overall Tudat architecture.
+
+)doc")
+                    .def(
+                        "get", &tss::SystemOfBodies::getBody,
+                        py::arg("body_name"),
+                        R"doc(This function extracts a single Body object from the SystemOfBodies.
+
+	:param body_name:
+		Name of the Body that is to be retrieved.
+
+	:return:
+		Body object of the requested name
+)doc")
                     .def("get_body", &tss::SystemOfBodies::getBody,
                          py::arg("body_name"),
-                         get_docstring("SystemOfBodies.get_body").c_str())
+                         R"doc(Deprecated version of :py:func:`~get`
+)doc")
                     .def("create_empty_body",
                          &tss::SystemOfBodies::createEmptyBody<double,
                                                                TIME_TYPE>,
                          py::arg("body_name"), py::arg("process_body") = 1,
-                         get_docstring("SystemOfBodies.create_empty_body")
-                             .c_str())
+                         R"doc(This function creates a new empty body.
+
+	This function creates a new empty body, and adds it to the
+	:py:class:`~SystemOfBodies`. Since the body is empty, it will
+	not have any environment models defined. These must all be
+	added manually by a user.
+
+
+	:param body_name:
+		Name of the Body that is to be added
+
+	:param process_body:
+		Variable that defines whether this new Body will have its
+		global frame origin/orientation set to conform to rest of
+		the environment.
+
+		.. warning:: Only in very rare cases should
+		             this variable be anything other than ``True``.
+		             Users are recommended to keep this default value
+		             intact.
+
+)doc")
                     .def(
                         "does_body_exist", &tss::SystemOfBodies::doesBodyExist,
                         py::arg("body_name"),
@@ -1298,15 +1635,48 @@ namespace tudatpy {
                          get_docstring("SystemOfBodies.list_of_bodies").c_str())
                     //            .def("get_body_dict",
                     //            &tss::SystemOfBodies::getMap,
-                    //                 get_docstring("SystemOfBodies.get_body_dict").c_str())
-                    .def("add_body",
-                         &tss::SystemOfBodies::addBody<double, TIME_TYPE>,
-                         py::arg("body_to_add"), py::arg("body_name"),
-                         py::arg("process_body") = 1,
-                         get_docstring("SystemOfBodies.add_body").c_str())
+                    .def(
+                        "add_body",
+                        &tss::SystemOfBodies::addBody<double, TIME_TYPE>,
+                        py::arg("body_to_add"), py::arg("body_name"),
+                        py::arg("process_body") = 1,
+                        R"doc(This function adds an existing body, which the user has
+separately created, to the :py:class:`~SystemOfBodies`.
+
+
+	:param body_to_add:
+		Body object that is to be added.
+
+	:param body_name:
+		Name of the Body that is to be added.
+
+	:param process_body:
+		Variable that defines whether this new Body will have its
+		global frame origin/orientation set to conform to rest of
+		the environment.
+
+		.. warning:: Only in very rare cases should this variable be
+		             anything other than ``True``. Users are
+		             recommended to keep this default value intact.
+
+)doc")
                     .def("remove_body", &tss::SystemOfBodies::deleteBody,
                          py::arg("body_name"),
-                         get_docstring("SystemOfBodies.remove_body").c_str())
+                         R"doc(This function removes an existing body from the
+:py:class:`~SystemOfBodies`.
+
+
+
+	.. warning:: This function does *not* necessarily delete the
+	             Body object, it only removes it from this object.
+	             If any existing models in the simulation refer to
+	             this Body, it will persist in memory.
+
+
+	:param body_name:
+		Name of the Body that is to be removed.
+
+)doc")
                     .def(
                         "global_frame_orientation",
                         &tss::SystemOfBodies::getFrameOrientation,
@@ -1319,7 +1689,6 @@ namespace tudatpy {
 
                 //            .def_property_readonly("number_of_bodies",
                 //            &tss::SystemOfBodies::getNumberOfBodies,
-                //                                   get_docstring("number_of_bodies").c_str()
                 //                                   );
 
                 /*!

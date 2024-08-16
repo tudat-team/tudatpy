@@ -53,34 +53,56 @@ namespace tudatpy {
 
                 py::class_<tss::BodySettings,
                            std::shared_ptr<tss::BodySettings>>(
-                    m, "BodySettings", get_docstring("BodySettings").c_str())
+                    m, "BodySettings",
+                    R"doc(Class for defining settings for the creation of a single body.
+
+	Class for defining settings for the creation of a single body, this object is typically stored inside a
+	:class:`BodyListSettings`, object.
+
+)doc")
                     .def_readwrite(
                         "constant_mass", &tss::BodySettings::constantMass,
-                        get_docstring("BodySettings.constant_mass").c_str())
+                        R"doc(Mass that gets assigned to the vehicle. Note that this mass does *not* automatically define a gravity field
+model, but is instead used for the calculation of non-conservative forces only. When creating a body with a gravity field,
+leave this entry empty.
+
+	)doc")
                     .def_readwrite(
                         "atmosphere_settings",
                         &tss::BodySettings::atmosphereSettings,
-                        get_docstring("BodySettings.atmosphere_settings")
-                            .c_str())
+                        R"doc(Object that defines the settings of the atmosphere model that is to be created. Note that wind model settings
+may be defined inside this object. A variable of this type is typically assigned by using a factory function from the
+:ref:`\`\`atmosphere\`\`` module.
+
+	)doc")
                     .def_readwrite(
                         "ephemeris_settings",
                         &tss::BodySettings::ephemerisSettings,
-                        get_docstring("BodySettings.ephemeris_settings")
-                            .c_str())
+                        R"doc(Object that defines the settings of the ephemeris model that is to be created. A variable of this type is typically
+assigned by using a factory function from the :ref:`\`\`ephemeris\`\`` module.
+
+	)doc")
                     .def_readwrite(
                         "gravity_field_settings",
                         &tss::BodySettings::gravityFieldSettings,
-                        get_docstring("BodySettings.gravity_field_settings")
-                            .c_str())
+                        R"doc(Object that defines the settings of the gravity field model that is to be created. A variable of this type is typically
+assigned by using a factory function from the :ref:`\`\`gravity_field\`\`` module.
+
+	)doc")
                     .def_readwrite(
                         "rotation_model_settings",
                         &tss::BodySettings::rotationModelSettings,
-                        get_docstring("BodySettings.rotation_model_settings")
-                            .c_str())
+                        R"doc(Object that defines the settings of the rotation model that is to be created. A variable of this type is typically
+assigned by using a factory function from the :ref:`\`\`rotation_model\`\`` module.
+
+	)doc")
                     .def_readwrite(
                         "shape_settings",
                         &tss::BodySettings::shapeModelSettings,
-                        get_docstring("BodySettings.shape_settings").c_str())
+                        R"doc(Object that defines the settings of the shape model that is to be created. A variable of this type is typically
+assigned by using a factory function from the :ref:`\`\`shape\`\`` module.
+
+	)doc")
                     .def_readwrite(
                         "aerodynamic_coefficient_settings",
                         &tss::BodySettings::aerodynamicCoefficientSettings,
@@ -138,11 +160,22 @@ namespace tudatpy {
                 py::class_<tss::BodyListSettings,
                            std::shared_ptr<tss::BodyListSettings>>(
                     m, "BodyListSettings",
-                    get_docstring("BodyListSettings").c_str())
+                    R"doc(Class for defining settings for the creation of a system of bodies.
+
+	Class for defining settings for the creation of a system of bodies. This object is typically created from default settings, and
+	then adapted to the user's specific needs.
+
+)doc")
                     .def(py::init<const std::string, const std::string>(),
                          py::arg("frame_origin"), py::arg("frame_orientation"))
-                    .def("get", &tss::BodyListSettings::get,
-                         get_docstring("BodyListSettings.get").c_str())
+                    .def(
+                        "get", &tss::BodyListSettings::get,
+                        R"doc(This function extracts a single BodySettings object .
+
+	:param body_name:
+		Name of the body for which settings are to be retrieved
+
+)doc")
                     .def("add_settings",
                          py::overload_cast<std::shared_ptr<tss::BodySettings>,
                                            const std::string>(
@@ -154,34 +187,72 @@ namespace tudatpy {
                          py::arg("body_name"))
                     .def_property_readonly(
                         "frame_origin", &tss::BodyListSettings::getFrameOrigin,
-                        get_docstring("BodyListSettings.frame_origin").c_str())
+                        R"doc(Definition of the global frame origin for the bodies
+	)doc")
                     .def_property_readonly(
                         "frame_orientation",
                         &tss::BodyListSettings::getFrameOrientation,
-                        get_docstring("BodyListSettings.frame_orientation")
-                            .c_str());
+                        R"doc(Definition of the global frame orientation for the bodies
+	)doc");
 
-                m.def("get_default_body_settings",
-                      py::overload_cast<const std::vector<std::string> &,
-                                        const std::string, const std::string>(
-                          &tss::getDefaultBodySettings),
-                      py::arg("bodies"), py::arg("base_frame_origin") = "SSB",
-                      py::arg("base_frame_orientation") = "ECLIPJ2000",
-                      get_docstring("get_default_body_settings").c_str());
+                m.def(
+                    "get_default_body_settings",
+                    py::overload_cast<const std::vector<std::string> &,
+                                      const std::string, const std::string>(
+                        &tss::getDefaultBodySettings),
+                    py::arg("bodies"), py::arg("base_frame_origin") = "SSB",
+                    py::arg("base_frame_orientation") = "ECLIPJ2000",
+                    R"doc(Function that retrieves the default settings for the given set of input bodies.
 
-                m.def("get_default_body_settings_time_limited",
-                      py::overload_cast<const std::vector<std::string> &,
-                                        const double, const double,
-                                        const std::string, const std::string,
-                                        const double>(
-                          &tss::getDefaultBodySettings),
-                      py::arg("bodies"), py::arg("initial_time"),
-                      py::arg("final_time"),
-                      py::arg("base_frame_origin") = "SSB",
-                      py::arg("base_frame_orientation") = "ECLIPJ2000",
-                      py::arg("time_step") = 300.0,
-                      get_docstring("get_default_body_settings_time_limited")
-                          .c_str());
+	Function that retrieves the default settings for the given set of input bodies. Default settings are described in
+	detail `here <https://tudat-space.readthedocs.io/en/latest/_src_user_guide/state_propagation/environment_setup/create_bodies/default_settings.html>`_ .
+	Note that if a body is provided as input for which default settings do not exist, an exception is thrown. In addition
+	to settings for each separate body, this function returns an object that defines the global frame origin and orientation,
+
+
+	:param bodies:
+		List of name of bodies for which default settings are to be retrieved.
+	:param base_frame_origin:
+		Base frame origin of the set of bodies that is to be created. It defaults to the solar system barycenter (SSB), but it can by any of the bodies in `bodies_to_create` (provided it has an ephemeris defined).
+	:param base_frame_orientation:
+		Base frame orientation of the set of bodies that is to be created. It can be either ECLIPJ2000 (default) or J2000.
+	:return:
+		Object containing the settings for the SystemOfBodies that are to be created
+)doc");
+
+                m.def(
+                    "get_default_body_settings_time_limited",
+                    py::overload_cast<const std::vector<std::string> &,
+                                      const double, const double,
+                                      const std::string, const std::string,
+                                      const double>(
+                        &tss::getDefaultBodySettings),
+                    py::arg("bodies"), py::arg("initial_time"),
+                    py::arg("final_time"), py::arg("base_frame_origin") = "SSB",
+                    py::arg("base_frame_orientation") = "ECLIPJ2000",
+                    py::arg("time_step") = 300.0,
+                    R"doc(Function that retrieves the default settings for the given set of input bodies, with a limited valid time interval.
+
+	Same as :func:`~tudatpy.numerical_simulation.environment_setup.get_default_body_settings`, but with body settings valid over a limited time interval. This makes the
+	the extraction of states from ephemerides more computationally efficient, at the expense of more RAM usage, and a
+	constrained time interval over which the ephemerides are valid. See `this page <https://tudat-space.readthedocs.io/en/latest/_src_user_guide/state_propagation/environment_setup/valid_time_range.html>`_ for more details.
+
+
+	:param bodies:
+		List of name of bodies for which default settings are to be retrieved.
+	:param initial_time:
+		Start time from which the environment settings should be created.
+	:param final_time:
+		End time up to which the environment settings should be created.
+	:param base_frame_origin:
+		Base frame origin of the set of bodies that is to be created.
+	:param base_frame_orientation:
+		Base frame orientation of the set of bodies that is to be created.
+	:param time_step:
+		Time step to be used for the tabulated ephemeris.
+	:return:
+		Object containing the settings for the SystemOfBodies that are to be created
+)doc");
 
                 m.def(
                     "get_default_single_body_settings",
@@ -231,13 +302,35 @@ namespace tudatpy {
                 m.def("create_simplified_system_of_bodies",
                       &tss::createSimplifiedSystemOfBodies,
                       py::arg("initial_time") = 0,
-                      get_docstring("create_simplified_system_of_bodies")
-                          .c_str());
+                      R"doc(Function that creates a simplified System of bodies.
 
-                m.def("create_system_of_bodies",
-                      &tss::createSystemOfBodies<double, TIME_TYPE>,
-                      py::arg("body_settings"),
-                      get_docstring("create_system_of_bodies").c_str());
+	Function that creates a simplified system of bodies. The following bodies are created in this system: the Sun, all planets of the Solar system, and Pluto.
+	All bodies in this system use Gtop ephemerides and point mass gravity. The Earth is setup with a spherical shape model and a simple rotation model.
+	The reference frame used to setup this simplified system of bodies has its origin at the SSB, and has an ECLIPJ2000 orientation.
+
+
+	:param initial_time:
+		Initial system time in seconds since J2000.
+	:return:
+		Object containing the objects for bodies and environment models constituting the physical environment
+)doc");
+
+                m.def(
+                    "create_system_of_bodies",
+                    &tss::createSystemOfBodies<double, TIME_TYPE>,
+                    py::arg("body_settings"),
+                    R"doc(Function that creates a System of bodies from associated settings.
+
+	Function that creates a System of bodies from associated settings. This function creates the separate :class:`~tudatpy.numerical_simulation.Body`
+	objects and stores them in a :class:`~tudatpy.numerical_simulation.environment.SystemOfBodies` object. This object represents the full
+	physical environment in the simulation.
+
+
+	:param body_settings:
+		Object defining the physical environment, with all properties of artificial and natural bodies.
+	:return:
+		Object containing the objects for bodies and environment models constituting the physical environment
+)doc");
 
                 m.def("add_empty_tabulated_ephemeris",
                       &tp::addEmptyTabulatedEphemeris<double, TIME_TYPE>,
@@ -272,12 +365,27 @@ namespace tudatpy {
                       py::arg("ephemeris_model"));
 
 
-                m.def("add_aerodynamic_coefficient_interface",
-                      &tss::addAerodynamicCoefficientInterface,
-                      py::arg("bodies"), py::arg("body_name"),
-                      py::arg("coefficient_settings"),
-                      get_docstring("add_aerodynamic_coefficient_interface")
-                          .c_str());
+                m.def(
+                    "add_aerodynamic_coefficient_interface",
+                    &tss::addAerodynamicCoefficientInterface, py::arg("bodies"),
+                    py::arg("body_name"), py::arg("coefficient_settings"),
+                    R"doc(Function that creates an aerodynamic coefficient interface from settings, and adds it to an existing body.
+
+	This function can be used to add an aerodynamic coefficient interface to an existing body. It requires
+	settings for the aerodynamic coefficients, created using one of the factory functions from the `~tudatpy.numerical_simulation_environment_setup.aerodynamic_coefficient` module.
+	This function creates the actual coefficient interface from these settings, and assigns it to the
+	selected body. In addition to the identifier for the body to which it is assigned, this function
+	requires the full :class:`~tudatpy.numerical_simulation.environment.SystemOfBodies` as input, to facilitate
+	inter-body dependencies in the coefficient interface
+
+
+	:param bodies:
+		Object defining the physical environment, with all properties of artificial and natural bodies.
+	:param body_name:
+		Name of the body to which the aerodynamic coefficients are to be assigned
+	:param coefficient_settings:
+		Settings defining the coefficient interface that is to be created.
+)doc");
 
                 m.def("create_aerodynamic_coefficient_interface",
                       &tss::createAerodynamicCoefficientInterfaceDeprecated,
@@ -301,12 +409,47 @@ namespace tudatpy {
                     &tss::addRadiationPressureTargetModel, py::arg("bodies"),
                     py::arg("body_name"),
                     py::arg("radiation_pressure_target_settings"),
-                    get_docstring("add_radiation_pressure_interface").c_str());
+                    R"doc(Function that creates an radiation pressure interface from settings, and adds it to an existing body.
 
-                m.def("add_rotation_model", &tss::addRotationModel,
-                      py::arg("bodies"), py::arg("body_name"),
-                      py::arg("rotation_model_settings"),
-                      get_docstring("add_rotation_model").c_str());
+	This function can be used to add an radiation pressure interface to an existing body. It requires
+	settings for the radiation pressure interface, created using one of the factory functions from the :ref:`\`\`radiation_pressure\`\`` module.
+	This function creates the actual coefficient interface from these settings, and assigns it to the
+	selected body. In addition to the identifier for the body to which it is assigned, this function
+	requires the full :class:`~tudatpy.numerical_simulation.environment.SystemOfBodies` as input, to facilitate
+	inter-body dependencies in the radiation pressure interface
+
+
+	:param bodies:
+		Object defining the physical environment, with all properties of artificial and natural bodies.
+	:param body_name:
+		Name of the body to which the radiation pressure interface is to be assigned
+	:param radiation_pressure_settings:
+		Settings defining the radiation pressure interface that is to be created.
+)doc");
+
+                m.def(
+                    "add_rotation_model", &tss::addRotationModel,
+                    py::arg("bodies"), py::arg("body_name"),
+                    py::arg("rotation_model_settings"),
+                    R"doc(Function that creates a rotation model, and adds it to an existing body.
+
+	This function can be used to add  a :class:`~tudatpy.numerical_simulation.environment.RotationalEphemeris` object to an existing body.
+	Typically, the ``RotationalEphemeris`` is created along with the `~tudatpy.numerical_simulation.environment.Body` itself However, in some cases it may be useful
+	to create a rotation model after the Body objects have been created. This function requires
+	settings for the rotation model, created using one of the factory functions from the :ref:`~tudatpy.numerical_simulation_environment_setup.rotation_model` module.
+	This function creates the actual coefficient interface from these settings, and assigns it to the
+	selected body. In addition to the identifier for the body to which it is assigned, this function
+	requires the full :class:`~tudatpy.numerical_simulation.environment.SystemOfBodies` as input, to facilitate
+	inter-body dependencies in the radiation model
+
+
+	:param bodies:
+		Object defining the physical environment, with all properties of artificial and natural bodies.
+	:param body_name:
+		Name of the body to which the rotation model is to be assigned
+	:param rotation_model_settings:
+		Settings defining the rotation model that is to be created.
+)doc");
 
                 m.def(
                     "add_gravity_field_model", &tss::addGravityFieldModel,
@@ -326,25 +469,83 @@ namespace tudatpy {
                       get_docstring("add_rigid_body_properties").c_str());
 
 
-                m.def("add_engine_model", &tss::addEngineModel,
-                      py::arg("body_name"), py::arg("engine_name"),
-                      py::arg("thrust_magnitude_settings"), py::arg("bodies"),
-                      py::arg("body_fixed_thrust_direction") =
-                          Eigen::Vector3d::UnitX(),
-                      get_docstring("add_engine_model").c_str());
+                m.def(
+                    "add_engine_model", &tss::addEngineModel,
+                    py::arg("body_name"), py::arg("engine_name"),
+                    py::arg("thrust_magnitude_settings"), py::arg("bodies"),
+                    py::arg("body_fixed_thrust_direction") =
+                        Eigen::Vector3d::UnitX(),
+                    R"doc(Function that creates an engine model (to be used for thrust calculations), and adds it to an existing body.
 
-                m.def("add_variable_direction_engine_model",
-                      &tss::addVariableDirectionEngineModel,
-                      py::arg("body_name"), py::arg("engine_name"),
-                      py::arg("thrust_magnitude_settings"), py::arg("bodies"),
-                      py::arg("body_fixed_thrust_direction_function"),
-                      get_docstring("add_variable_direction_engine_model")
-                          .c_str());
+	Function that creates an engine model (to be used for thrust calculations), and adds it to an existing body. It creates and
+	object of class :class:`~tudatpy.numerical_simulation.environment.EngineModel`, and adds it to an existing body. Properties
+	assigned to this engine model are:
+	* The (constant) direction in body-fixed frame in which the engine is pointing (e.g. the body-fixed thrust direction when the engine is on)
+	* Settings for computing the thrust magnitude (as a function of time and/or other parameters), using a suitable function from the :ref:`\`\`thrust\`\`` submodule
 
-                m.def("add_flight_conditions", &tss::addFlightConditions,
-                      py::arg("bodies"), py::arg("body_name"),
-                      py::arg("central_body_name"),
-                      get_docstring("add_flight_conditions").c_str());
+
+	:param body_name:
+		Name of the body to which the engine is to be added.
+	:param engine_name:
+		Name (e.g. unique identifier) of the engine that is to be added to the body
+	:param thrust_magnitude_settings:
+		Settings for computing the thrust magnitude (and specific impulse) as a function of time
+	:param bodies:
+		Object defining the physical environment, with all properties of artificial and natural bodies.
+	:param body_name:
+		Name of the body to which the rotation model is to be assigned
+	:param body_fixed_thrust_direction:
+		Unit vector along which the thrust from the engine will point in a body-fixed frame
+)doc");
+
+                m.def(
+                    "add_variable_direction_engine_model",
+                    &tss::addVariableDirectionEngineModel, py::arg("body_name"),
+                    py::arg("engine_name"),
+                    py::arg("thrust_magnitude_settings"), py::arg("bodies"),
+                    py::arg("body_fixed_thrust_direction_function"),
+                    R"doc(Function that creates an engine model (to be used for thrust calculations), and adds it to an existing body.
+
+	Same as :func:`add_engine_model`, but with a time-variable body-fixed thrust direction
+
+
+	:param body_name:
+		Name of the body to which the engine is to be added.
+	:param engine_name:
+		Name (e.g. unique identifier) of the engine that is to be added to the body
+	:param thrust_magnitude_settings:
+		Settings for computing the thrust magnitude (and specific impulse) as a function of time
+	:param bodies:
+		Object defining the physical environment, with all properties of artificial and natural bodies.
+	:param body_name:
+		Name of the body to which the rotation model is to be assigned
+	:param body_fixed_thrust_direction_function:
+		Function returning a unit vector, as a function of time, along which the thrust from the engine will point in a body-fixed frame
+)doc");
+
+                m.def(
+                    "add_flight_conditions", &tss::addFlightConditions,
+                    py::arg("bodies"), py::arg("body_name"),
+                    py::arg("central_body_name"),
+                    R"doc(Function that creates a flight conditions, and adds it to an existing body.
+
+	This function can be used to add  a :class:`~tudatpy.numerical_simulation.environment.FlightConditions` object to an existing body.
+	Typically, the ``FlightConditions`` are created automatically when they are required (for the calulcation of an
+	aerodynamic acceleration, or the saving of certain dependent variables). However, in some cases it may be useful
+	to manually trigger their creation, which is done through this function. If the ``central_body_name`` input
+	denotes a body that is endowed with an :class:`~tudatpy.numerical_simulation.environment.AtmosphereModel`, this function
+	automically creates an :class:`~tudatpy.numerical_simulation.environment.AtmosphericFlightConditions` object (capable of
+	calculating density, speed of sound, etc.), instead of the more basic :class:`~tudatpy.numerical_simulation.environment.FlightConditions`
+	(which is limited to properties such as altitude, latitude, etc.)
+
+
+	:param bodies:
+		Object defining the physical environment, with all properties of artificial and natural bodies.
+	:param body_name:
+		Name of the body for which the flight conditions are to be created
+	:param central_body_name:
+		Name of the cenral body w.r.t. which the flight conditions are to be created (typically, but not necesarilly, the central body of propagation)/
+)doc");
 
                 m.def(
                     "convert_ground_station_state_between_itrf_frames",

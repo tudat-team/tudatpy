@@ -216,15 +216,13 @@ PYBIND11_MODULE(expose_spice, m) {
           &tudat::spice_interface::computeRotationMatrixBetweenFrames,
           py::arg("original_frame"), py::arg("new_frame"),
           py::arg("ephemeris_time"),
-          tudatpy::get_docstring("compute_rotation_matrix_between_frames")
-              .c_str());
+tudatpy::get_docstring("compute_rotation_matrix_between_frames").c_str());
 
     //   m.def("compute_rotation_quaternion_between_frames",
     //         &tudat::spice_interface::computeRotationQuaternionBetweenFrames,
     //         py::arg("original_frame"),
     //         py::arg("new_frame"),
     //         py::arg("ephemeris_time"),
-    //         tudatpy::get_docstring("compute_rotation_quaternion_between_frames").c_str());
 
     m.def("compute_rotation_matrix_derivative_between_frames",
           &tudat::spice_interface::computeRotationMatrixDerivativeBetweenFrames,
@@ -281,9 +279,7 @@ PYBIND11_MODULE(expose_spice, m) {
             computeRotationQuaternionAndRotationMatrixDerivativeBetweenFrames,
         py::arg("original_frame"), py::arg("new_frame"),
         py::arg("ephemeris_time"),
-        tudatpy::get_docstring("compute_rotation_quaternion_and_rotation_"
-                               "matrix_derivative_between_frames")
-            .c_str());
+tudatpy::get_docstring("compute_rotation_quaternion_and_rotation_matrix_derivative_between_frames").c_str());
 
     m.def("get_body_properties", &tudat::spice_interface::getBodyProperties,
           py::arg("body_name"), py::arg("property"), py::arg("max_n_val"),
@@ -362,7 +358,6 @@ PYBIND11_MODULE(expose_spice, m) {
     //        // kernel pool related
     //        m.def("get_standard_kernels",
     //              &tudat::spice_interface::getStandardSpiceKernels,
-    //              tudatpy::get_docstring("get_standard_kernels").c_str());
 
     m.def("load_standard_kernels",
           &tudat::spice_interface::loadStandardSpiceKernels,

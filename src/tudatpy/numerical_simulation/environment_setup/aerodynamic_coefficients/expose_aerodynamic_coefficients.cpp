@@ -111,8 +111,10 @@ namespace tudatpy {
                                    tss::ConstantAerodynamicCoefficientSettings>,
                                tss::AerodynamicCoefficientSettings>(
                         m, "ConstantAerodynamicCoefficientSettings",
-                        get_docstring("ConstantAerodynamicCoefficientSettings")
-                            .c_str());
+                        R"doc(Class for defining model settings from constant aerodynamic coefficients.
+
+	`AerodynamicCoefficientSettings` derived class for aerodynamic interface model settings using only constant aerodynamic coefficients.
+)doc");
 
                     py::class_<
                         tss::
@@ -126,16 +128,38 @@ namespace tudatpy {
                                       "cientSettings")
                             .c_str());
 
-                    m.def("constant",
-                          py::overload_cast<
-                              const double, const Eigen::Vector3d&,
-                              const ta::AerodynamicCoefficientFrames>(
-                              &tss::constantAerodynamicCoefficientSettings),
-                          py::arg("reference_area"),
-                          py::arg("constant_force_coefficient"),
-                          py::arg("force_coefficients_frame") =
-                              ta::negative_aerodynamic_frame_coefficients,
-                          get_docstring("constant").c_str());
+                    m.def(
+                        "constant",
+                        py::overload_cast<
+                            const double, const Eigen::Vector3d&,
+                            const ta::AerodynamicCoefficientFrames>(
+                            &tss::constantAerodynamicCoefficientSettings),
+                        py::arg("reference_area"),
+                        py::arg("constant_force_coefficient"),
+                        py::arg("force_coefficients_frame") =
+                            ta::negative_aerodynamic_frame_coefficients,
+                        R"doc(Factory function for creating aerodynamic interface model settings entirely from constant coefficients.
+
+	Factory function for settings object, defining aerodynamic interface model entirely from constant aerodynamic coefficients,
+	i.e. coefficients are not a function of any independent variables.
+
+
+	:param reference_area:
+		Reference area with which aerodynamic forces and moments are non-dimensionalized.
+	:param constant_force_coefficient:
+		Constant force coefficients.
+	:param are_coefficients_in_aerodynamic_frame:
+		Boolean to define whether the aerodynamic coefficients are defined in the aerodynamic frame
+		(drag, side, lift force) or in the body frame (typically denoted as Cx, Cy, Cz).
+
+	:param are_coefficients_in_negative_axis_direction:
+		Boolean to define whether the aerodynamic coefficients are positive along the positive axes of the body or
+		aerodynamic frame (see arg are_coefficients_in_aerodynamic_frame).
+		Note that for drag, side and lift force, the coefficients are typically defined in negative direction.
+
+	:return:
+		Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.ConstantAerodynamicCoefficientSettings` class
+)doc");
 
 
                     m.def(
@@ -153,8 +177,30 @@ namespace tudatpy {
                         py::arg("independent_variable_names"),
                         py::arg("force_coefficients_frame") =
                             ta::negative_aerodynamic_frame_coefficients,
-                        get_docstring("custom_aerodynamic_force_coefficients")
-                            .c_str());
+                        R"doc(Factory function for creating aerodynamic interface model settings from custom coefficients.
+
+	Factory function for settings object, defining aerodynamic interface model via a custom force coefficient function
+	(function of independent variable).
+
+
+	:param force_coefficient_function:
+		Function that is defining the aerodynamic coefficients as function of an independent variable (see arg independent_variable_names).
+	:param reference_area:
+		Reference area with which aerodynamic forces and moments are non-dimensionalized.
+	:param independent_variable_name:
+		Vector with identifiers for the independent variable w.r.t. which the aerodynamic coefficients are defined.
+	:param are_coefficients_in_aerodynamic_frame:
+		Boolean to define whether the aerodynamic coefficients are defined in the aerodynamic frame
+		(drag, side, lift force) or in the body frame (typically denoted as Cx, Cy, Cz).
+
+	:param are_coefficients_in_negative_axis_direction:
+		Boolean to define whether the aerodynamic coefficients are positive along the positive axes of the body or
+		aerodynamic frame (see arg are_coefficients_in_aerodynamic_frame).
+		Note that for drag, side and lift force, the coefficients are typically defined in negative direction.
+
+	:return:
+		Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.CustomAerodynamicCoefficientSettings` class
+)doc");
 
                     m.def(
                         "custom_aerodynamic_force_and_moment_coefficients",
@@ -180,9 +226,36 @@ namespace tudatpy {
                             ta::body_fixed_frame_coefficients,
                         py::arg("moment_reference_point") =
                             Eigen::Vector3d::Constant(TUDAT_NAN),
-                        get_docstring(
-                            "custom_aerodynamic_force_and_moment_coefficients")
-                            .c_str());
+                        R"doc(Factory function for creating aerodynamic interface model settings from custom coefficients.
+
+	Factory function for settings object, defining aerodynamic interface model via a custom force coefficient function
+	(function of independent variable).
+
+
+	:param force_coefficient_function:
+		Function that is defining the aerodynamic force coefficients as function of an independent variable (see arg independent_variable_names).
+	:param moment_coefficient_function:
+		Function that is defining the aerodynamic moment coefficients as function of an independent variable (see arg independent_variable_names).
+	:param reference_area:
+		Reference area with which aerodynamic forces and moments are non-dimensionalized.
+	:param reference_length:
+		Reference length with which aerodynamic moments are non-dimensionalized.
+	:param moment_reference_point:
+		Reference point in the body-fixed frame w.r.t. which the moments are provided.
+	:param independent_variable_name:
+		Vector with identifiers for the independent variable w.r.t. which the aerodynamic coefficients are defined.
+	:param are_coefficients_in_aerodynamic_frame:
+		Boolean to define whether the aerodynamic coefficients are defined in the aerodynamic frame
+		(drag, side, lift force) or in the body frame (typically denoted as Cx, Cy, Cz).
+
+	:param are_coefficients_in_negative_axis_direction:
+		Boolean to define whether the aerodynamic coefficients are positive along the positive axes of the body or
+		aerodynamic frame (see arg are_coefficients_in_aerodynamic_frame).
+		Note that for drag, side and lift force, the coefficients are typically defined in negative direction.
+
+	:return:
+		Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.CustomAerodynamicCoefficientSettings` class
+)doc");
 
 
                     m.def(
@@ -212,7 +285,42 @@ namespace tudatpy {
                         py::arg("moment_reference_point") =
                             Eigen::Vector3d::Constant(TUDAT_NAN),
                         py::arg("interpolator_settings") = nullptr,
-                        get_docstring("tabulated").c_str());
+                        R"doc(Factory function for creating aerodynamic interface model settings from user-defined, 1-d tabulated coefficients.
+
+	Factory function for settings object, defining aerodynamic interface model via user-defined, 1-dimensional, tabulated aerodynamic force and moment coefficients
+	(tabulated w.r.t. independent variable).
+
+
+	:param independent_variables:
+		Values of independent variables at which the coefficients in the input multi vector are defined (size 1).
+	:param force_coefficients:
+		Values of force coefficients at independent variables defined by independent_variables.
+	:param moment_coefficients:
+		Values of moment coefficients at independent variables defined by independent_variables.
+	:param reference_length:
+		Reference length with which aerodynamic moments about x- and z- axes are non-dimensionalized.
+	:param reference_area:
+		Reference area with which aerodynamic forces and moments are non-dimensionalized.
+	:param lateral_reference_length:
+		Reference length with which aerodynamic moment about y-axis is non-dimensionalized.
+	:param moment_reference_point:
+		Point w.r.t. aerodynamic moment is calculated.
+	:param independent_variable_name:
+		Vector with identifiers for the independent variable w.r.t. which the aerodynamic coefficients are defined.
+	:param are_coefficients_in_aerodynamic_frame:
+		Boolean to define whether the aerodynamic coefficients are defined in the aerodynamic frame
+		(drag, side, lift force) or in the body frame (typically denoted as Cx, Cy, Cz).
+
+	:param are_coefficients_in_negative_axis_direction:
+		Boolean to define whether the aerodynamic coefficients are positive along the positive axes of the body or
+		aerodynamic frame (see arg areCoefficientsInAerodynamicFrame).
+		Note that for drag, side and lift force, the coefficients are typically defined in negative direction.
+
+	:param interpolator_settings:
+		Interpolator settings object, where the conditions for interpolation of tabulated inputs are saved.
+	:return:
+		Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.TabulatedAerodynamicCoefficientSettings` class (via :class:`~tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.TabulatedAerodynamicCoefficientSettingsBase` class)
+)doc");
 
                     m.def(
                         "tabulated_force_only",
@@ -232,7 +340,36 @@ namespace tudatpy {
                         py::arg("force_coefficients_frame") =
                             ta::negative_aerodynamic_frame_coefficients,
                         py::arg("interpolator_settings") = nullptr,
-                        get_docstring("tabulated_force_only").c_str());
+                        R"doc(Factory function for creating aerodynamic interface model settings from user-defined, 1-d tabulated force coefficients.
+
+	Factory function for settings object, defining aerodynamic interface model via user-defined, 1-dimensional, tabulated aerodynamic force coefficients
+	(tabulated w.r.t. independent variable).
+
+
+	:param independent_variables:
+		Values of independent variables at which the coefficients in the input multi vector are defined (size 1)
+	:param force_coefficients:
+		Values of force coefficients at independent variables defined by independent_variables.
+	:param reference_area:
+		Reference area with which aerodynamic forces and moments are non-dimensionalized.
+	:param independent_variable_name:
+		Identifier of the independent variable w.r.t. which the aerodynamic coefficients are defined.
+	:param are_coefficients_in_aerodynamic_frame:
+		Boolean to define whether the aerodynamic coefficients are defined in the aerodynamic frame
+		(drag, side, lift force) or in the body frame (typically denoted as Cx, Cy, Cz).
+
+	:param are_coefficients_in_negative_axis_direction:
+		Boolean to define whether the aerodynamic coefficients are positive along the positive axes of the body or
+		aerodynamic frame (see arg areCoefficientsInAerodynamicFrame).
+		Note that for drag, side and lift force, the coefficients are typically defined in negative direction.
+
+	:param interpolator_settings:
+		Interpolator settings object, where the conditions for interpolation of tabulated inputs are saved.
+		Pointer to an interpolator settings object where the conditions for interpolation of tabulated inputs are saved.
+
+	:return:
+		Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.TabulatedAerodynamicCoefficientSettings` class
+)doc");
 
                     m.def(
                         "tabulated_force_only_from_files",
@@ -250,8 +387,33 @@ namespace tudatpy {
                         py::arg("force_coefficients_frame") =
                             ta::negative_aerodynamic_frame_coefficients,
                         py::arg("interpolator_settings") = nullptr,
-                        get_docstring("tabulated_force_only_from_files")
-                            .c_str());
+                        R"doc(Factory function for creating aerodynamic interface model settings from tabulated force coefficients from files.
+
+	Factory function for settings object, defining aerodynamic interface model via user-defined, tabulated aerodynamic force coefficients
+	(tabulated w.r.t. independent variable), obtained from data files.
+
+
+	:param force_coefficient_files:
+		Path of the aerodynamic coefficient files corresponding to the force coefficient of the given dict key.
+	:param reference_area:
+		Reference area with which aerodynamic forces and moments are non-dimensionalized.
+	:param independent_variable_names:
+		Vector with identifiers for the independent variable w.r.t. which the aerodynamic coefficients are defined.
+	:param are_coefficients_in_aerodynamic_frame:
+		Boolean to define whether the aerodynamic coefficients are defined in the aerodynamic frame
+		(drag, side, lift force) or in the body frame (typically denoted as Cx, Cy, Cz).
+
+	:param are_coefficients_in_negative_axis_direction:
+		Boolean to define whether the aerodynamic coefficients are positive along the positive axes of the body or
+		aerodynamic frame (see arg areCoefficientsInAerodynamicFrame).
+		Note that for drag, side and lift force, the coefficients are typically defined in negative direction.
+
+	:param interpolator_settings:
+		Interpolator settings object, where the conditions for interpolation of tabulated inputs are saved.
+
+	:return:
+		Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.TabulatedAerodynamicCoefficientSettings` class
+)doc");
 
                     m.def(
                         "tabulated_from_files",
@@ -278,32 +440,107 @@ namespace tudatpy {
                         py::arg("moment_reference_point") =
                             Eigen::Vector3d::Constant(TUDAT_NAN),
                         py::arg("interpolator_settings") = nullptr,
-                        get_docstring("tabulated_from_files").c_str());
+                        R"doc(Factory function for creating aerodynamic interface model settings from tabulated coefficients from files.
 
-                    m.def("scaled_by_constant",
-                          py::overload_cast<
-                              const std::shared_ptr<
-                                  tss::AerodynamicCoefficientSettings>,
-                              const double, const double, const bool>(
-                              &tss::scaledAerodynamicCoefficientSettings),
-                          py::arg("unscaled_coefficient_settings"),
-                          py::arg("force_scaling_constant"),
-                          py::arg("moment_scaling_constant"),
-                          py::arg("is_scaling_absolute") = false,
-                          get_docstring("scaled_by_constant").c_str());
+	Factory function for settings object, defining aerodynamic interface model via user-defined, tabulated aerodynamic force and moment coefficients
+	(tabulated w.r.t. independent variable), obtained from data files.
 
-                    m.def("scaled_by_vector",
-                          py::overload_cast<
-                              const std::shared_ptr<
-                                  tss::AerodynamicCoefficientSettings>,
-                              const Eigen::Vector3d, const Eigen::Vector3d,
-                              const bool>(
-                              &tss::scaledAerodynamicCoefficientSettings),
-                          py::arg("unscaled_coefficient_settings"),
-                          py::arg("force_scaling_vector"),
-                          py::arg("moment_scaling_vector"),
-                          py::arg("is_scaling_absolute") = false,
-                          get_docstring("scaled_by_vector").c_str());
+
+	:param force_coefficient_files:
+		Path of the aerodynamic coefficient files corresponding to the force coefficient of the given dict key.
+	:param moment_coefficient_files:
+		Path of the aerodynamic coefficient files corresponding to the moment coefficient of the given dict key.
+	:param reference_length:
+		Reference length with which aerodynamic moments about x- and z- axes are non-dimensionalized.
+	:param reference_area:
+		Reference area with which aerodynamic forces and moments are non-dimensionalized.
+	:param lateral_reference_length:
+		Reference length with which aerodynamic moment about y-axis is non-dimensionalized.
+	:param moment_reference_point:
+		Point w.r.t. aerodynamic moment is calculated.
+	:param independent_variable_names:
+		Vector with identifiers for the independent variable w.r.t. which the aerodynamic coefficients are defined.
+	:param are_coefficients_in_aerodynamic_frame:
+		Boolean to define whether the aerodynamic coefficients are defined in the aerodynamic frame
+		(drag, side, lift force) or in the body frame (typically denoted as Cx, Cy, Cz).
+
+	:param are_coefficients_in_negative_axis_direction:
+		Boolean to define whether the aerodynamic coefficients are positive along the positive axes of the body or
+		aerodynamic frame (see arg areCoefficientsInAerodynamicFrame).
+		Note that for drag, side and lift force, the coefficients are typically defined in negative direction.
+
+	:param interpolator_settings:
+		Interpolator settings object, where the conditions for interpolation of tabulated inputs are saved.
+
+	:return:
+		Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.TabulatedAerodynamicCoefficientSettings` class
+)doc");
+
+                    m.def(
+                        "scaled_by_constant",
+                        py::overload_cast<
+                            const std::shared_ptr<
+                                tss::AerodynamicCoefficientSettings>,
+                            const double, const double, const bool>(
+                            &tss::scaledAerodynamicCoefficientSettings),
+                        py::arg("unscaled_coefficient_settings"),
+                        py::arg("force_scaling_constant"),
+                        py::arg("moment_scaling_constant"),
+                        py::arg("is_scaling_absolute") = false,
+                        R"doc(Factory function for creating aerodynamic interface model settings by applying one constant scaling factor/value to all coefficients of an existing model settings object.
+
+	Factory function for settings object, defining aerodynamic interface based on scaling the coefficients of an existing model settings object by one constant factor or value.
+	Via the ``is_scaling_absolute``
+	boolean, the user can apply a constant scaling factor or an absolute value to the resulting force and moment coefficients (for instance for an uncertainty analysis).
+
+
+	:param unscaled_coefficient_settings:
+		Existing aerodynamic interface model settings object that is used as the base for the scaled settings object.
+	:param force_scaling_constant:
+		Constant scaling factor to be applied to all aerodynamic force coefficients.
+	:param moment_scaling_constant:
+		Constant scaling factor to be applied to all aerodynamic moment coefficients.
+	:param is_scaling_absolute, default = False:
+		Boolean indicating whether aerodynamic coefficient scaling is absolute.
+		Setting this boolean to true will add the scaling value to the base value,
+		instead of the default behaviour of multiplying the base value by the scaling factor.
+
+	:return:
+		Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.ScaledAerodynamicCoefficientInterfaceSettings` class
+)doc");
+
+                    m.def(
+                        "scaled_by_vector",
+                        py::overload_cast<
+                            const std::shared_ptr<
+                                tss::AerodynamicCoefficientSettings>,
+                            const Eigen::Vector3d, const Eigen::Vector3d,
+                            const bool>(
+                            &tss::scaledAerodynamicCoefficientSettings),
+                        py::arg("unscaled_coefficient_settings"),
+                        py::arg("force_scaling_vector"),
+                        py::arg("moment_scaling_vector"),
+                        py::arg("is_scaling_absolute") = false,
+                        R"doc(Factory function for creating aerodynamic interface model settings by applying constant scaling factors/values to the coefficients of an existing model settings object.
+
+	Factory function for settings object, defining aerodynamic interface based on scaling the coefficients of an existing model settings object by constant factors or values.
+	Via the ``is_scaling_absolute`` boolean, the user can apply one constant scaling factor or an absolute value to each resulting force and moment coefficient (for instance for an uncertainty analysis).
+
+
+	:param unscaled_coefficient_settings:
+		Existing aerodynamic interface model settings object that is used as the base for the scaled settings object.
+	:param force_scaling_vector:
+		Constant scaling factors to be applied to each aerodynamic force coefficient.
+	:param moment_scaling_vector:
+		Constant scaling factors to be applied to each aerodynamic moment coefficient.
+	:param is_scaling_absolute, default = False:
+		Boolean indicating whether aerodynamic coefficient scaling is absolute.
+		Setting this boolean to true will add the scaling value to the base value,
+		instead of the default behaviour of multiplying the base value by the scaling factor.
+
+	:return:
+		Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.ScaledAerodynamicCoefficientInterfaceSettings` class
+)doc");
 
                     m.def(
                         "scaled_by_vector_function",
@@ -318,7 +555,26 @@ namespace tudatpy {
                         py::arg("force_scaling_vector_function"),
                         py::arg("moment_scaling_vector_function"),
                         py::arg("is_scaling_absolute") = false,
-                        get_docstring("scaled_by_vector_function").c_str());
+                        R"doc(Factory function for creating aerodynamic interface model settings by applying custom scaling factors/values to the coefficients of an existing model settings object.
+
+	Factory function for settings object, defining aerodynamic interface based on scaling the coefficients of an existing model settings object by custom factors or values.
+	Via the ``is_scaling_absolute`` boolean, the user can apply the scaling factors or absolute values to each resulting force and moment coefficient (for instance for an uncertainty analysis).
+
+
+	:param unscaled_coefficient_settings:
+		Existing aerodynamic interface model settings object that is used as the base for the scaled settings object.
+	:param force_scaling_vector_function:
+		Custom scaling factors to be applied to each aerodynamic force coefficient.
+	:param moment_scaling_vector_function:
+		Custom scaling factors to be applied to each aerodynamic moment coefficient.
+	:param is_scaling_absolute, default = False:
+		Boolean indicating whether aerodynamic coefficient scaling is absolute.
+		Setting this boolean to true will add the scaling value to the base value,
+		instead of the default behaviour of multiplying the base value by the scaling factor.
+
+	:return:
+		Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.ScaledAerodynamicCoefficientInterfaceSettings` class
+)doc");
 
                     m.def(
                         "custom_control_surface",

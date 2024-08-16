@@ -70,7 +70,12 @@ namespace tudatpy {
                     py::class_<tss::EphemerisSettings,
                                std::shared_ptr<tss::EphemerisSettings>>(
                         m, "EphemerisSettings",
-                        get_docstring("EphemerisSettings").c_str())
+                        R"doc(Base class for providing settings for ephemeris model.
+
+	Functional (base) class for settings of ephemeris models that require no information in addition to their type (and frame origin and orientation).
+	Ephemeris model classes requiring additional information must be created using an object derived from this class.
+
+)doc")
                         //            .def(py::init<const tss::EphemerisType,
                         //                 const std::string &,
                         //                 const std::string &>(),
@@ -82,33 +87,35 @@ namespace tudatpy {
                             "frame_origin",
                             &tss::EphemerisSettings::getFrameOrigin,
                             &tss::EphemerisSettings::resetFrameOrigin,
-                            get_docstring("EphemerisSettings.frame_origin")
-                                .c_str())
+                            R"doc(Origin of frame in which ephemeris data is to be defined.
+	)doc")
                         .def_property(
                             "frame_orientation",
                             &tss::EphemerisSettings::getFrameOrientation,
                             &tss::EphemerisSettings::resetFrameOrientation,
-                            get_docstring("EphemerisSettings.frame_orientation")
-                                .c_str())
+                            R"doc(Orientation of frame in which ephemeris data is to be defined.
+	)doc")
                         .def_property(
                             "make_multi_arc_ephemeris",
                             &tss::EphemerisSettings::getMakeMultiArcEphemeris,
                             &tss::EphemerisSettings::resetMakeMultiArcEphemeris,
-                            get_docstring(
-                                "EphemerisSettings.make_multi_arc_ephemeris")
-                                .c_str())
+                            R"doc(Boolean denoting whether the ephemeris that is to be created is a multi-arc ephemeris.
+	)doc")
                         .def_property_readonly(
                             "ephemeris_type",
                             &tss::EphemerisSettings::getEphemerisType,
-                            get_docstring("EphemerisSettings.ephemeris_type")
-                                .c_str());
+                            R"doc(Type of ephemeris that is to be created.
+	)doc");
 
                     py::class_<
                         tss::DirectSpiceEphemerisSettings,
                         std::shared_ptr<tss::DirectSpiceEphemerisSettings>,
                         tss::EphemerisSettings>(
                         m, "DirectSpiceEphemerisSettings",
-                        get_docstring("DirectSpiceEphemerisSettings").c_str())
+                        R"doc(Class for defining settings of an ephemeris linked directly to Spice.
+
+	`EphemerisSettings` derived class for ephemeris which are directly linked to Spice.
+)doc")
                         //           .def(py::init<const std::string, const
                         //           std::string, const bool,
                         //                const bool, const bool, const
@@ -127,25 +134,22 @@ namespace tudatpy {
                             "correct_for_stellar_aberration",
                             &tss::DirectSpiceEphemerisSettings::
                                 getCorrectForStellarAberration,
-                            get_docstring("DirectSpiceEphemerisSettings."
-                                          "correct_for_stellar_aberration")
-                                .c_str())
+                            R"doc(Boolean defining whether to correct for stellar aberrations in retrieved values (of observed state).
+	)doc")
                         .def_property_readonly(
                             "correct_for_light_time_aberration",
                             &tss::DirectSpiceEphemerisSettings::
                                 getCorrectForLightTimeAberration,
-                            get_docstring("DirectSpiceEphemerisSettings."
-                                          "correct_for_light_time_aberration")
-                                .c_str())
+                            R"doc(Boolean defining whether to correct for light time in retrieved values (of observed state).
+	)doc")
                         .def_property_readonly(
                             "converge_light_time_aberration",
                             // TODO : Fix getConvergeLighTimeAberration typo in
                             // Tudat.
                             &tss::DirectSpiceEphemerisSettings::
                                 getConvergeLighTimeAberration,
-                            get_docstring("DirectSpiceEphemerisSettings."
-                                          "converge_light_time_aberration")
-                                .c_str());
+                            R"doc(Boolean defining whether to use single iteration or max. 3 iterations for calculating light time correction.
+	)doc");
 
 
                     py::class_<tss::InterpolatedSpiceEphemerisSettings,
@@ -153,8 +157,10 @@ namespace tudatpy {
                                    tss::InterpolatedSpiceEphemerisSettings>,
                                tss::DirectSpiceEphemerisSettings>(
                         m, "InterpolatedSpiceEphemerisSettings",
-                        get_docstring("InterpolatedSpiceEphemerisSettings")
-                            .c_str())
+                        R"doc(Class for defining settings of an ephemeris interpolated from Spice data.
+
+	`DirectSpiceEphemerisSettings` derived class for setting ephemerides to be created from interpolated Spice ephemeris data.
+)doc")
                         //            .def(py::init<
                         //                 double, double, double, std::string,
                         //                 std::string,
@@ -172,23 +178,20 @@ namespace tudatpy {
                             "initial_time",
                             &tss::InterpolatedSpiceEphemerisSettings::
                                 getInitialTime,
-                            get_docstring("InterpolatedSpiceEphemerisSettings."
-                                          "initial_time")
-                                .c_str())
+                            R"doc(Initial time from which interpolated data from Spice should be created.
+	)doc")
                         .def_property_readonly(
                             "final_time",
                             &tss::InterpolatedSpiceEphemerisSettings::
                                 getFinalTime,
-                            get_docstring(
-                                "InterpolatedSpiceEphemerisSettings.final_time")
-                                .c_str())
+                            R"doc(Final time from which interpolated data from Spice should be created.
+	)doc")
                         .def_property_readonly(
                             "time_step",
                             &tss::InterpolatedSpiceEphemerisSettings::
                                 getTimeStep,
-                            get_docstring(
-                                "InterpolatedSpiceEphemerisSettings.time_step")
-                                .c_str());
+                            R"doc(Time step setting to be used for the state interpolation.
+	)doc");
 
 
                     py::class_<
@@ -196,8 +199,10 @@ namespace tudatpy {
                         std::shared_ptr<tss::ApproximateJplEphemerisSettings>,
                         tss::EphemerisSettings>(
                         m, "ApproximateJplEphemerisSettings",
-                        get_docstring("ApproximateJplEphemerisSettings")
-                            .c_str())
+                        R"doc(Class for creating settings of approximate ephemeris for major planets.
+
+	`EphemerisSettings` derived class for approximate ephemeris for major planets as implemented in ApproximateJplEphemerisSettings class and derived class (described in `this document <https://ssd.jpl.nasa.gov/planets/approx_pos.html>`_).
+)doc")
                         .def_property_readonly(
                             "body_name",
                             &tss::ApproximateJplEphemerisSettings::getBodyName,
@@ -210,14 +215,20 @@ namespace tudatpy {
                                std::shared_ptr<tss::ScaledEphemerisSettings>,
                                tss::EphemerisSettings>(
                         m, "ScaledEphemerisSettings",
-                        get_docstring("ScaledEphemerisSettings").c_str());
+                        R"doc(Class for defining settings from scaling existing ephemeris settings.
+
+	`EphemerisSettings` derived class for a new ephemeris created from scaling an existing ephemeris settings object. It allows the user to apply a scaling factor to the resulting Cartesian states (for instance for an uncertainty analysis).
+)doc");
 
 
                     py::class_<tss::ConstantEphemerisSettings,
                                std::shared_ptr<tss::ConstantEphemerisSettings>,
                                tss::EphemerisSettings>(
                         m, "ConstantEphemerisSettings",
-                        get_docstring("ConstantEphemerisSettings").c_str());
+                        R"doc(Class for defining settings of constant ephemerides.
+
+	`EphemerisSettings` derived class for ephemerides producing a constant (time-independent) state.
+)doc");
                     //            .def(py::init<const Eigen::Vector6d &,
                     //                 const std::string &,
                     //                 const std::string &>(),
@@ -230,7 +241,10 @@ namespace tudatpy {
                                std::shared_ptr<tss::CustomEphemerisSettings>,
                                tss::EphemerisSettings>(
                         m, "CustomEphemerisSettings",
-                        get_docstring("CustomEphemerisSettings").c_str())
+                        R"doc(Class for defining settings of a custom ephemeris.
+
+	`EphemerisSettings` derived class for ephemerides which represent an ideal Kepler orbit.
+)doc")
                         //           .def(py::init<const
                         //           std::function<Eigen::Vector6d(const
                         //           double)>,
@@ -312,7 +326,10 @@ namespace tudatpy {
                                std::shared_ptr<tss::TabulatedEphemerisSettings>,
                                tss::EphemerisSettings>(
                         m, "TabulatedEphemerisSettings",
-                        get_docstring("TabulatedEphemerisSettings").c_str())
+                        R"doc(Class for defining settings of ephemeris to be created from tabulated data.
+
+	`EphemerisSettings` derived class for ephemeris created from tabulated data. The provided data is interpolated into ephemerides.
+)doc")
                         //            .def(py::init<const std::map<double,
                         //            Eigen::Vector6d> &, std::string,
                         //                 std::string>())
@@ -320,9 +337,8 @@ namespace tudatpy {
                             "body_state_history",
                             &tss::TabulatedEphemerisSettings::
                                 getBodyStateHistory,
-                            get_docstring(
-                                "TabulatedEphemerisSettings.body_state_history")
-                                .c_str());
+                            R"doc(Dictionary of the discrete state history data from which ephemeris is to be created.
+	)doc");
 
 
                     m.def("create_ephemeris",
@@ -331,34 +347,108 @@ namespace tudatpy {
                           get_docstring("create_ephemeris").c_str());
 
 
-                    m.def("keplerian", &tss::keplerEphemerisSettings,
-                          py::arg("initial_keplerian_state"),
-                          py::arg("initial_state_epoch"),
-                          py::arg("central_body_gravitational_parameter"),
-                          py::arg("frame_origin") = "SSB",
-                          py::arg("frame_orientation") = "ECLIPJ2000",
-                          py::arg("root_finder_absolute_tolerance") =
-                              200.0 * std::numeric_limits<double>::epsilon(),
-                          py::arg("root_finder_maximum_iterations") = 1000.0,
-                          get_docstring("keplerian").c_str());
+                    m.def(
+                        "keplerian", &tss::keplerEphemerisSettings,
+                        py::arg("initial_keplerian_state"),
+                        py::arg("initial_state_epoch"),
+                        py::arg("central_body_gravitational_parameter"),
+                        py::arg("frame_origin") = "SSB",
+                        py::arg("frame_orientation") = "ECLIPJ2000",
+                        py::arg("root_finder_absolute_tolerance") =
+                            200.0 * std::numeric_limits<double>::epsilon(),
+                        py::arg("root_finder_maximum_iterations") = 1000.0,
+                        R"doc(Factory function for creating Keplerian ephemeris model settings.
 
-                    m.def("keplerian_from_spice",
-                          &tss::keplerEphemerisFromSpiceSettings,
-                          py::arg("body"), py::arg("initial_state_epoch"),
-                          py::arg("central_body_gravitational_parameter"),
-                          py::arg("frame_origin") = "SSB",
-                          py::arg("frame_orientation") = "ECLIPJ2000",
-                          py::arg("root_finder_absolute_tolerance") =
-                              200.0 * std::numeric_limits<double>::epsilon(),
-                          py::arg("root_finder_maximum_iterations") = 1000.0,
-                          get_docstring("keplerian_from_spice").c_str());
+	Factory function for settings object, defining ephemeris model which represents an ideal Kepler orbit from the given Kepler elements.
+	These are taken as the elements at the ``initial_state_epoch`` and propagated to any other time using the provided ``central_body_gravitational_parameter``.
+	See `Frame/State Transformations <https://tudat-space.readthedocs.io/en/latest/_src_user_guide/astrodynamics/transformations.html#frame-state-transformations>`_ and the :ref:`\`\`astro\`\`` module for more details on orbital elements in tudat.
 
 
-                    m.def("approximate_jpl_model",
-                          py::overload_cast<const std::string>(
-                              &tss::approximateJplEphemerisSettings),
-                          py::arg("body_name"),
-                          get_docstring("approximate_jpl_model", 0).c_str());
+	:param initial_state_in_keplerian_elements:
+		Kepler elements at epoch given by ``initial_state_epoch``.
+
+	:param initial_state_epoch:
+		Epoch at which ``initial_state_epoch`` represents the Keplerian state.
+
+	:param central_body_gravitational_parameter:
+		Effective gravitational parameter of the central body that is used in the computations. Note that when
+		the Keplerian orbit is to represent the relative state of two massive bodies, with one of these bodies as the origin
+		this values should be the *sum* of the two bodies' gravitational parameters
+
+	:param frame_origin:
+		Origin of frame in which ephemeris data is defined.
+	:param frame_orientation:
+		Orientation of frame in which ephemeris data is defined.
+	:param root_finder_absolute_tolerance:
+		Convergence tolerance on iterative conversion from mean to eccentric anomaly;
+		applies every time a cartesian state is requested from the kepler ephemeris, such as during propagation.
+
+	:param root_finder_maximum_number_of_iterations:
+		Maximum iteration on iterative conversion from mean to eccentric anomaly;
+		applies every time a cartesian state is requested from the kepler ephemeris, such as during propagation.
+
+	:return:
+		Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.ephemeris.EphemerisSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.ephemeris.KeplerEphemerisSettings` class
+)doc");
+
+                    m.def(
+                        "keplerian_from_spice",
+                        &tss::keplerEphemerisFromSpiceSettings, py::arg("body"),
+                        py::arg("initial_state_epoch"),
+                        py::arg("central_body_gravitational_parameter"),
+                        py::arg("frame_origin") = "SSB",
+                        py::arg("frame_orientation") = "ECLIPJ2000",
+                        py::arg("root_finder_absolute_tolerance") =
+                            200.0 * std::numeric_limits<double>::epsilon(),
+                        py::arg("root_finder_maximum_iterations") = 1000.0,
+                        R"doc(Factory function for creating Keplerian ephemeris model settings with initial state from Spice.
+
+	Factory function for settings object, defining ephemeris model which represents an ideal Kepler orbit from an initial state from Spice.
+	The Kepler elements inferred from the initial state are propagated to any other time using the provided ``central_body_gravitational_parameter``.
+	See `Frame/State Transformations <https://tudat-space.readthedocs.io/en/latest/_src_user_guide/astrodynamics/transformations.html#frame-state-transformations>`_ and the :ref:`\`\`astro\`\`` module for more details on orbital elements in tudat.
+
+
+	:param body:
+		Name of body for which to create ephemeris settings and infer initial state from Spice.
+	:param initial_state_epoch:
+		Epoch at which ``initial_state_epoch`` represents the Keplerian state.
+
+	:param central_body_gravitational_parameter:
+		Gravitational parameter of the central body that is used in the computations.
+	:param frame_origin:
+		Origin of frame in which ephemeris data is defined.
+	:param frame_orientation:
+		Orientation of frame in which ephemeris data is defined.
+	:param root_finder_absolute_tolerance:
+		Convergence tolerance on iterative conversion from mean to eccentric anomaly;
+		applies every time a cartesian state is requested from the kepler ephemeris, such as during propagation.
+
+	:param root_finder_maximum_number_of_iterations:
+		Maximum iteration on iterative conversion from mean to eccentric anomaly;
+		applies every time a cartesian state is requested from the kepler ephemeris, such as during propagation.
+
+	:return:
+		Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.ephemeris.EphemerisSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.ephemeris.KeplerEphemerisSettings` class
+)doc");
+
+
+                    m.def(
+                        "approximate_jpl_model",
+                        py::overload_cast<const std::string>(
+                            &tss::approximateJplEphemerisSettings),
+                        py::arg("body_name"),
+                        R"doc(Factory function for creating approximate ephemeris model settings for major planets.
+
+	Factory function for settings object, defining approximate ephemeris model for major planets.
+	In this highly simplified ephemeris model, Keplerian elements of the major solar system bodies are modelled as linear functions of time and several sinusoidal variations (described `this document <https://ssd.jpl.nasa.gov/planets/approx_pos.html>`_).
+	Note that this option is only available for solar system planets. For the case of the Earth the approximate ephemeris of the Earth-Moon barycenter is returned.
+
+
+	:param body_name:
+		String that is attempted to be matched to an identifier for the body that the ephemeris is to be created for.
+	:return:
+		Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.ephemeris.EphemerisSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.ephemeris.ApproximateJPLEphemerisSettings` class
+)doc");
 
                     m.def(
                         "direct_spice",
@@ -368,7 +458,21 @@ namespace tudatpy {
                         py::arg("frame_origin") = "SSB",
                         py::arg("frame_orientation") = "ECLIPJ2000",
                         py::arg("body_name_to_use") = "",
-                        get_docstring("direct_spice").c_str());
+                        R"doc(Factory function for creating ephemeris model settings entirely from Spice.
+
+	Factory function for settings object, defining ephemeris model directly and entirely from Spice.
+	Requires an appropriate Spice kernel to be loaded.
+
+
+	:param frame_origin:
+		Origin of frame in which ephemeris data is defined.
+	:param frame_orientation:
+		Orientation of frame in which ephemeris data is defined.
+	:param body_name_to_use:
+		Body from which Spice ephemeris is to be created.
+	:return:
+		Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.ephemeris.EphemerisSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.ephemeris.DirectSpiceEphemerisSettings` class
+)doc");
 
                     m.def(
                         "interpolated_spice",
@@ -380,17 +484,59 @@ namespace tudatpy {
                             std::make_shared<ti::LagrangeInterpolatorSettings>(
                                 6),
                         py::arg("body_name_to_use") = "",
-                        get_docstring("interpolated_spice").c_str());
+                        R"doc(Factory function for creating ephemeris model settings using interpolated Spice data.
 
-                    m.def("tabulated",
-                          py::overload_cast<
-                              const std::map<double, Eigen::Vector6d>&,
-                              std::string, std::string>(
-                              &tss::tabulatedEphemerisSettings),
-                          py::arg("body_state_history"),
-                          py::arg("frame_origin") = "SSB",
-                          py::arg("frame_orientation") = "ECLIPJ2000",
-                          get_docstring("tabulated").c_str());
+	Factory function for settings object defining an ephemeris model from interpolated Spice data.
+	Using this option the state of the body is retrieved from Spice at regular intervals `before` the environment propagation (as opposed to during the propagation).
+	These data are then used to create an interpolator, which is put into the environment, and called during the propagation.
+	This option has the downside of being applicable only during a limited time interval and requiring the tabulated data to be stored in RAM,
+	but may for `some special cases <https://tudat-space.readthedocs.io/en/latest/_src_user_guide/environment_setup/valid_time_range.html>`_
+	offer an advantage over a direct Spice ephemeris (:func:`~tudatpy.numerical_simulation.environment_setup.ephemeris.direct_spice`).
+
+
+	:param initial_time:
+		Initial time from which interpolated data from Spice should be created.
+	:param final_time:
+		Final time from which interpolated data from Spice should be created.
+	:param time_step:
+		Time step with which interpolated data from Spice should be created.
+	:param frame_origin:
+		Origin of frame in which ephemeris data is defined.
+	:param frame_orientation:
+		Orientation of frame in which ephemeris data is defined.
+	:param interpolator_settings:
+		Settings to be used for the state interpolation.
+	:param body_name_to_use:
+		Body from which Spice ephemeris is to be created.
+	:return:
+		Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.ephemeris.DirectSpiceEphemerisSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.ephemeris.InterpolatedSpiceEphemerisSettings` class
+)doc");
+
+                    m.def(
+                        "tabulated",
+                        py::overload_cast<
+                            const std::map<double, Eigen::Vector6d>&,
+                            std::string, std::string>(
+                            &tss::tabulatedEphemerisSettings),
+                        py::arg("body_state_history"),
+                        py::arg("frame_origin") = "SSB",
+                        py::arg("frame_orientation") = "ECLIPJ2000",
+                        R"doc(Factory function for creating ephemeris model settings from tabulated data.
+
+	Factory function for settings object, defining ephemeris model to be created from tabulated data.
+	Currently the data that is provided gets interpolated by a 6th order Lagrange interpolator (hardcoded).
+	At the edges of the interpolation interval a cubic spline interpolator is used to suppress the influence of Runge's phenomenon.
+
+
+	:param body_state_history:
+		Dictionary of the discrete state history data from which ephemeris is to be created. Keys representing the time (float) and values representing Cartesian states (numpy.ndarray).
+	:param frame_origin:
+		Origin of frame in which ephemeris data is defined.
+	:param frame_orientation:
+		Orientation of frame in which ephemeris data is defined.
+	:return:
+		Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.ephemeris.EphemerisSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.ephemeris.TabulatedEphemerisSettings` class
+)doc");
 
 
                     m.def(
@@ -405,33 +551,99 @@ namespace tudatpy {
                         py::arg("interpolator_settings") =
                             std::make_shared<ti::LagrangeInterpolatorSettings>(
                                 8),
-                        get_docstring("tabulated_from_existing").c_str());
+                        R"doc(Factory function for creating tabulated ephemeris model settings from existing ephemeris.
 
-                    m.def("constant", &tss::constantEphemerisSettings,
-                          py::arg("constant_state"),
-                          py::arg("frame_origin") = "SSB",
-                          py::arg("frame_orientation") = "ECLIPJ2000",
-                          get_docstring("constant").c_str());
+	Factory function for creating tabulated ephemeris model settings from existing ephemeris.
+	The ephemeris that is provided gets tabulated in a given time frame, for a given time step.
+	When called, this tabulated ephemeris will use interpolation, when needed, from the specified interpolator.
 
-                    m.def("scaled_by_constant",
-                          py::overload_cast<
-                              const std::shared_ptr<tss::EphemerisSettings>,
-                              const double, const bool>(
-                              &tss::scaledEphemerisSettings),
-                          py::arg("unscaled_ephemeris_settings"),
-                          py::arg("scaling_constant"),
-                          py::arg("is_scaling_absolute") = false,
-                          get_docstring("scaled_by_constant", 0).c_str());
+	.. note:: Creating tabulated ephemeris from existing ephemeris can for instance be used when combined with estimation.
+	          This is because estimation needs the ephemeris to be tabulated to work.
 
-                    m.def("scaled_by_vector",
-                          py::overload_cast<
-                              const std::shared_ptr<tss::EphemerisSettings>,
-                              const Eigen::Vector6d, const bool>(
-                              &tss::scaledEphemerisSettings),
-                          py::arg("unscaled_ephemeris_settings"),
-                          py::arg("scaling_vector"),
-                          py::arg("is_scaling_absolute") = false,
-                          get_docstring("scaled_by_vector", 0).c_str());
+
+	:param ephemeris_settings:
+		Existing ephemeris settings that have to be tabulated.
+	:param start_time:
+		Initial time for which to create the tabulated ephemeris.
+	:param end_time:
+		Final time for which to create the tabulated ephemeris.
+	:param time_step:
+		Time step to use to tabulate the existing ephemeris.
+	:param interpolator_settings:
+		Interpolator settings to use when interpolating between two tabulated ephemeris.
+	:return:
+		Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.ephemeris.EphemerisSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.ephemeris.TabulatedEphemerisSettings` class
+)doc");
+
+                    m.def(
+                        "constant", &tss::constantEphemerisSettings,
+                        py::arg("constant_state"),
+                        py::arg("frame_origin") = "SSB",
+                        py::arg("frame_orientation") = "ECLIPJ2000",
+                        R"doc(Factory function for creating constant ephemeris model settings.
+
+	Factory function for settings object, defining ephemeris model with a constant, time-independent state.
+
+
+	:param constant_state:
+		Constant state that will be provided as output of the ephemeris at all times.
+	:param frame_origin:
+		Origin of frame in which ephemeris data is defined.
+	:param frame_orientation:
+		Orientation of frame in which ephemeris data is defined.
+	:return:
+		Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.ephemeris.EphemerisSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.ephemeris.constantEphemerisSettings` class
+)doc");
+
+                    m.def(
+                        "scaled_by_constant",
+                        py::overload_cast<
+                            const std::shared_ptr<tss::EphemerisSettings>,
+                            const double, const bool>(
+                            &tss::scaledEphemerisSettings),
+                        py::arg("unscaled_ephemeris_settings"),
+                        py::arg("scaling_constant"),
+                        py::arg("is_scaling_absolute") = false,
+                        R"doc(Factory function for creating scaled ephemeris model settings.
+
+	Factory function for settings object, defining ephemeris model based on an scaling of an existing ephemeris settings object.
+	The user can apply a scaling factor (or an absolute value) to the resulting Cartesian states (for instance for an uncertainty analysis).
+
+
+	:param unscaled_ephemeris_settings:
+		Sets base settings of ephemeris to be scaled.
+	:param scaling_constant:
+		Constant scaling factor to be applied to all elements of the Cartesian state.
+	:param is_scaling_absolute:
+		Boolean indicating whether ephemeris scaling is absolute. Setting this boolean to true will add the scaling value to the state, instead of the default behaviour of multiplying the state by the scaling value.
+	:return:
+		Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.ephemeris.EphemerisSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.ephemeris.ScaledEphemerisSettings` class
+)doc");
+
+                    m.def(
+                        "scaled_by_vector",
+                        py::overload_cast<
+                            const std::shared_ptr<tss::EphemerisSettings>,
+                            const Eigen::Vector6d, const bool>(
+                            &tss::scaledEphemerisSettings),
+                        py::arg("unscaled_ephemeris_settings"),
+                        py::arg("scaling_vector"),
+                        py::arg("is_scaling_absolute") = false,
+                        R"doc(Factory function for creating scaled ephemeris model settings.
+
+	Factory function for settings object, defining ephemeris model based on an scaling of an existing ephemeris settings object.
+	The user can apply a scaling factor (or an absolute value) to the resulting Cartesian states (for instance for an uncertainty analysis).
+
+
+	:param unscaled_ephemeris_settings:
+		Sets base settings of ephemeris to be scaled.
+	:param scaling_vector:
+		Vector containing scaling factors to be applied to each element of the Cartesian state.
+	:param is_scaling_absolute:
+		Boolean indicating whether ephemeris scaling is absolute. Setting this boolean to true will add the scaling value to the state, instead of the default behaviour of multiplying the state by the scaling value.
+	:return:
+		Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.ephemeris.EphemerisSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.ephemeris.ScaledEphemerisSettings` class
+)doc");
 
                     m.def(
                         "scaled_by_vector_function",
@@ -442,13 +654,42 @@ namespace tudatpy {
                         py::arg("unscaled_ephemeris_settings"),
                         py::arg("scaling_vector_function"),
                         py::arg("is_scaling_absolute") = false,
-                        get_docstring("scaled_by_vector_function", 0).c_str());
+                        R"doc(Factory function for creating scaled ephemeris model settings.
 
-                    m.def("custom_ephemeris", &tss::customEphemerisSettings,
-                          py::arg("custom_state_function"),
-                          py::arg("frame_origin") = "SSB",
-                          py::arg("frame_orientation") = "ECLIPJ2000",
-                          get_docstring("custom_ephemeris").c_str());
+	Factory function for settings object, defining ephemeris model based on an scaling of an existing ephemeris settings object.
+	The user can apply a scaling factor (or an absolute value) to the resulting Cartesian states (for instance for an uncertainty analysis).
+
+
+	:param unscaled_ephemeris_settings:
+		Sets base settings of ephemeris to be scaled.
+	:param scaling_vector_function:
+		Function returning a vector with the scaling factors to be applied to each element of the Cartesian state.
+	:param is_scaling_absolute:
+		Boolean indicating whether ephemeris scaling is absolute. Setting this boolean to true will add the scaling value to the state, instead of the default behaviour of multiplying the state by the scaling value.
+	:return:
+		Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.ephemeris.EphemerisSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.ephemeris.ScaledEphemerisSettings` class
+)doc");
+
+                    m.def(
+                        "custom_ephemeris", &tss::customEphemerisSettings,
+                        py::arg("custom_state_function"),
+                        py::arg("frame_origin") = "SSB",
+                        py::arg("frame_orientation") = "ECLIPJ2000",
+                        R"doc(Factory function for creating custom ephemeris model settings.
+
+	Factory function for settings object, defining ephemeris model with a custom state.
+	This allows the user to provide an custom state function as ephemeris model.
+
+
+	:param custom_state_function:
+		Function returning the state as a function of time.
+	:param frame_origin:
+		Origin of frame in which ephemeris data is defined.
+	:param frame_orientation:
+		Orientation of frame in which ephemeris data is defined.
+	:return:
+		Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.ephemeris.EphemerisSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.ephemeris.CustomEphemerisSettings` class
+)doc");
 
                     m.def("custom", &tss::customEphemerisSettingsDeprecated,
                           py::arg("custom_state_function"),

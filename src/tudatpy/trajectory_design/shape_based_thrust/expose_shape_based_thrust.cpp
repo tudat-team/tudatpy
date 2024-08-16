@@ -35,22 +35,18 @@ namespace tudatpy {
                 //             tltt::LowThrustLeg,
                 //             std::shared_ptr<tltt::LowThrustLeg> >(m,
                 //             "LowThrustLeg",
-                //                                                   get_docstring("LowThrustLeg").c_str())
                 //             .def( "get_trajectory",
                 //                   py::overload_cast<
                 //                   std::vector< double >& >(
                 //                   &tltt::LowThrustLeg::getTrajectory ),
                 //                   py::arg("times"),
-                //                   get_docstring("LowThrustLeg.get_trajectory").c_str()
                 //                   )
                 //             .def( "get_state",
                 //                   &tltt::LowThrustLeg::getStateAtEpoch,
                 //                   py::arg("time"),
-                //                   get_docstring("LowThrustLeg.get_state").c_str()
                 //                   )
                 //             .def( "compute_delta_v",
                 //                   &tltt::LowThrustLeg::computeDeltaV,
-                //                   get_docstring("LowThrustLeg.compute_delta_v").c_str()
                 //                   );
 
                 //     py::class_<
@@ -58,14 +54,12 @@ namespace tudatpy {
                 //             std::shared_ptr<tsbm::ShapeBasedMethod>,
                 //             tltt::LowThrustLeg
                 //             >(m, "ShapeBasedMethod",
-                //               get_docstring("ShapeBasedMethod").c_str());
 
                 //     py::class_<
                 //             tsbm::HodographicShaping,
                 //             std::shared_ptr<tsbm::HodographicShaping>,
                 //             tsbm::ShapeBasedMethod
                 //             >(m, "HodographicShaping",
-                //               get_docstring("HodographicShaping").c_str())
                 //             .def(py::init<
                 //                  const Eigen::Vector6d&,
                 //                  const Eigen::Vector6d&,
@@ -92,54 +86,133 @@ namespace tudatpy {
                 //                  py::arg("radial_free_coefficients"),
                 //                  py::arg("normal_free_coefficients"),
                 //                  py::arg("axial_free_coefficients"),
-                //                  get_docstring("HodographicShaping.ctor").c_str())
                 //             .def( "get_thrust",
                 //                   py::overload_cast< double >(
                 //                   &tsbm::HodographicShaping::computeCurrentThrustAcceleration
                 //                   ), py::arg( "time_since_departure" ),
-                //                   get_docstring("HodographicShaping.get_thrust").c_str());
 
 
                 py::class_<
                     tsbm::BaseFunctionHodographicShaping,
                     std::shared_ptr<tsbm::BaseFunctionHodographicShaping> >(
                     m, "BaseFunctionHodographicShaping",
-                    get_docstring("BaseFunctionHodographicShaping").c_str());
+R"doc(Base class for defining settings of the shape functions for hodographic shaping method.
+
+	Base class for defining settings of the shape functions for Hodograph shaping method. Objects derived
+	from this class are created by calling the dedicated factory functions in this module
+	
+)doc");
 
 
                 m.def("recommended_radial_hodograph_functions",
                       py::overload_cast<const double>(
                           &tsbm::getRecommendedRadialVelocityBaseFunctions),
                       py::arg("time_of_flight"),
-                      get_docstring("recommended_radial_hodograph_functions")
-                          .c_str());
+R"doc(Factory function for creating the default radial hodographic trajectory shaping functions.
+
+	Factory function for creating the default radial hodographic trajectory shaping functions. This function 
+	(and its counterparts normal and axial components) provided three shaping functions that have been found in
+	literature to work well for this method. For a given time-of-flight :math:`T`, this function returns a list of
+	three shaping functions:
+	
+	* Constant term, see :func:`hodograph_constant` 
+	* Power function, see :func:`hodograph_power`, with exponent = 1.0, scale_factor = :math:`1/T`
+	* Power function, see :func:`hodograph_power`, with exponent = 2.0, scale_factor = :math:`1/T`
+	
+
+	:param time_of_flight:
+		Total time of flight (in seconds) of the trajectory that is to be generated.
+	:return:
+		List of default settings object for radial hodographic shaping
+)doc");
 
                 m.def("recommended_normal_hodograph_functions",
                       py::overload_cast<const double>(
                           &tsbm::getRecommendedNormalBaseFunctions),
                       py::arg("time_of_flight"),
-                      get_docstring("recommended_normal_hodograph_functions")
-                          .c_str());
+R"doc(Factory function for creating the default normal hodographic trajectory shaping functions.
+
+	Factory function for creating the default normal hodographic trajectory shaping functions. This function 
+	(and its counterparts radial and axial components) provided three shaping functions that have been found in
+	literature to work well for this method. For a given time-of-flight :math:`T`, this function returns a list of
+	three shaping functions:
+	
+	* Constant term, see :func:`hodograph_constant` 
+	* Power function, see :func:`hodograph_power`, with exponent = 1.0, scale_factor = :math:`1/T`
+	* Power function, see :func:`hodograph_power`, with exponent = 2.0, scale_factor = :math:`1/T`
+	
+
+	:param time_of_flight:
+		Total time of flight (in seconds) of the trajectory that is to be generated.
+	:return:
+		List of default settings object for axial hodographic shaping
+)doc");
 
                 m.def("recommended_axial_hodograph_functions",
                       py::overload_cast<const double, const int>(
                           &tsbm::getRecommendedAxialVelocityBaseFunctions),
                       py::arg("time_of_flight"),
                       py::arg("number_of_revolutions"),
-                      get_docstring("recommended_axial_hodograph_functions")
-                          .c_str());
+R"doc(Factory function for creating the default axial hodograph	ic trajectory shaping functions.
+
+	Factory function for creating the default axial hodographic trajectory shaping functions. This function 
+	(and its counterparts radial and normal components) provided three shaping functions that have been found in
+	literature to work well for this method. For a given time-of-flight :math:`T` and number of revolutions :math:`N`, this function returns a list of
+	three shaping functions:
+	
+	* Cosine term, see :func:`hodograph_cosine` with frequency = :math:`\frac{2\pi(N+1/2)}{T}`
+	* Power cosine function term, see :func:`hodograph_power_cosine` with  exponent = 3.0, frequency = :math:`\frac{2\pi(N+1/2)}{T}`, scale_factor = :math:`1/T`
+	* Power sine function term, see :func:`hodograph_power_sine` with  exponent = 3.0, frequency = :math:`\frac{2\pi(N+1/2)}{T}`, scale_factor = :math:`1/T`
+	
+
+	:param time_of_flight:
+		Total time of flight (in seconds) of the trajectory that is to be generated.
+	:param number_of_revolutions:
+		Number of full revolutions around the central body that are to be used.
+	:return:
+		List of default settings object for axial hodographic shaping
+)doc");
 
 
                 m.def("hodograph_constant", &tsbm::hodographConstant,
-                      get_docstring("hodograph_constant").c_str());
+R"doc(Factory function for creating a constant contribution to hodographic trajectory shaping.
+
+	Factory function for creating a constant contribution to hodographic trajectory shaping. This adds a contribution 
+	:math:`K` to the selected velocity component, with :math:`K` a free parameter.
+	
+	:return:
+		Settings object for a constant contribution to hodographic shaping.
+)doc");
 
                 m.def("hodograph_sine", &tsbm::hodographSine,
                       py::arg("frequency"),
-                      get_docstring("hodograph_sine").c_str());
+R"doc(Factory function for creating a sine contribution to hodographic trajectory shaping.
+
+	Factory function for creating a sine contribution to hodographic trajectory shaping. For a 
+	provided frequency :math:`f`, this adds a contribution :math:`K\sin(f\cdot t)` to the selected
+	velocity component, with :math:`t` the time since departure, and :math:`K` a free parameter.
+	
+
+	:param frequency:
+		Frequency of the sine contribution to the shape function.
+	:return:
+		Settings object for a cosine contribution to hodographic shaping.
+)doc");
 
                 m.def("hodograph_cosine", &tsbm::hodographCosine,
                       py::arg("frequency"),
-                      get_docstring("hodograph_cosine").c_str());
+R"doc(Factory function for creating a cosine contribution to hodographic trajectory shaping.
+
+	Factory function for creating a cosine contribution to hodographic trajectory shaping. For a 
+	provided frequency :math:`f`, this adds a contribution :math:`K\cos(f\cdot T)` to the selected
+	velocity component, with :math:`T` the time since departure, and :math:`K` a free parameter.
+	
+
+	:param frequency:
+		Frequency of the cosine contribution to the shape function.
+	:return:
+		Settings object for a cosine contribution to hodographic shaping.
+)doc");
 
                 m.def("hodograph_exponential", &tsbm::hodographExponential,
                       py::arg("exponent"));
@@ -147,7 +220,7 @@ namespace tudatpy {
                 m.def("hodograph_scaled_exponential",
                       &tsbm::hodographScaledExponential, py::arg("exponent"),
                       py::arg("scale_factor") = 1.0,
-                      get_docstring("hodograph_scaled_exponential").c_str());
+get_docstring("hodograph_scaled_exponential").c_str());
 
                 //    m.def("hodograph_scaled_exponential",
                 //          &tsbm::hodographScaledExponential,
@@ -162,7 +235,7 @@ namespace tudatpy {
                     "hodograph_scaled_exponential_sine",
                     &tsbm::hodographScaledExponentialSine, py::arg("exponent"),
                     py::arg("frequency"), py::arg("scale_factor") = 1.0,
-                    get_docstring("hodograph_scaled_exponential_sine").c_str());
+get_docstring("hodograph_scaled_exponential_sine").c_str());
 
                 //    m.def("hodograph_scaled_exponential_sine",
                 //          &tsbm::hodographScaledExponentialSine,
@@ -178,8 +251,7 @@ namespace tudatpy {
                       &tsbm::hodographScaledExponentialCosine,
                       py::arg("exponent"), py::arg("frequency"),
                       py::arg("scale_factor") = 1.0,
-                      get_docstring("hodograph_scaled_exponential_cosine")
-                          .c_str());
+get_docstring("hodograph_scaled_exponential_cosine").c_str());
 
                 //    m.def("hodograph_scaled_exponential_cosine",
                 //          &tsbm::hodographScaledExponentialCosine,
@@ -192,7 +264,7 @@ namespace tudatpy {
 
                 m.def("hodograph_scaled_power", &tsbm::hodographScaledPower,
                       py::arg("exponent"), py::arg("scale_factor") = 1.0,
-                      get_docstring("hodograph_scaled_power").c_str());
+get_docstring("hodograph_scaled_power").c_str());
 
                 //    m.def("hodograph_scaled_power",
                 //          &tsbm::hodographScaledPower,
@@ -203,22 +275,52 @@ namespace tudatpy {
                 m.def("hodograph_power_sine", &tsbm::hodographScaledPowerSine,
                       py::arg("exponent"), py::arg("frequency"),
                       py::arg("scale_factor") = 1.0,
-                      get_docstring("hodograph_power_sine").c_str());
+R"doc(Factory function for creating a power sine function contribution to hodographic trajectory shaping.
+
+	Factory function for creating a power sine function contribution to hodographic trajectory shaping. For a 
+	provided exponent :math:`r`, (optional) scale factor :math:`c` and frequency :math:`f`, this adds a contribution :math:`K\cdot c\sin(f\cdot t)\cdot t^{r}` to the selected
+	velocity component, with :math:`t` the time since departure, and :math:`K` a free parameter.
+	
+
+	:param frequency:
+		Frequency of the sine contribution to the shape function.
+	:param exponent:
+		Exponent of the power function contribution to the shape function.
+	:param scale_factor:
+		Optional scale factor, which can be used to scale the physical meaning of the free parameter :math:`K`.
+	:return:
+		Settings object for a power sine function contribution to hodographic shaping.
+)doc");
 
                 m.def("hodograph_scaled_power_sine",
                       &tsbm::hodographScaledPowerSine, py::arg("exponent"),
                       py::arg("frequency"), py::arg("scale_factor"),
-                      get_docstring("hodograph_scaled_power_sine").c_str());
+get_docstring("hodograph_scaled_power_sine").c_str());
 
                 m.def("hodograph_power_cosine",
                       &tsbm::hodographScaledPowerCosine, py::arg("exponent"),
                       py::arg("frequency"), py::arg("scale_factor") = 1.0,
-                      get_docstring("hodograph_power_cosine").c_str());
+R"doc(Factory function for creating a power cosine function contribution to hodographic trajectory shaping.
+
+	Factory function for creating a power cosine function contribution to hodographic trajectory shaping. For a 
+	provided exponent :math:`r`, (optional) scale factor :math:`c` and frequency :math:`f`, this adds a contribution :math:`K\cdot c\cos(f\cdot t)\cdot t^{r}` to the selected
+	velocity component, with :math:`t` the time since departure, and :math:`K` a free parameter.
+	
+
+	:param frequency:
+		Frequency of the cosine contribution to the shape function.
+	:param exponent:
+		Exponent of the power function contribution to the shape function.
+	:param scale_factor:
+		Optional scale factor, which can be used to scale the physical meaning of the free parameter :math:`K`.
+	:return:
+		Settings object for a power cosine function contribution to hodographic shaping.
+)doc");
 
                 m.def("hodograph_scaled_power_cosine",
                       &tsbm::hodographScaledPowerCosine, py::arg("exponent"),
                       py::arg("frequency"), py::arg("scale_factor"),
-                      get_docstring("hodograph_scaled_power_cosine").c_str());
+get_docstring("hodograph_scaled_power_cosine").c_str());
             }
 
 
