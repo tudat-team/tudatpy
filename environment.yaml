@@ -21,5 +21,7 @@ dependencies:
   - matplotlib # for tudatpy.plotting
   - tqdm       # for tudatpy.trajectory_design.porkchop
   - astropy    # for tudatpy.data.mpc
-  - astroquery # for tudatpy.data.mpc
   - astropy-healpix  # for tudatpy.data._biases
+  - pip
+  - pip:
+    - astroquery==0.4.8.dev9321 # for tudatpy.data.mpc
