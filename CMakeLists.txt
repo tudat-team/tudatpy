@@ -52,9 +52,11 @@ if (TUDATPY_BUILD_WITH_NRLMSISE00_INTERFACE)
 endif()
 
 # Tudat
+message(STATUS "Finding Tudat")
 find_package(Tudat CONFIG REQUIRED)
 link_directories(${Tudat_LIBRARY_DIRS})
 include_directories(${Tudat_INCLUDE_DIRS})
+message(STATUS "Tudat: ${Tudat_PROPAGATION_LIBRARIES} ${Tudat_INCLUDE_DIRS}")
 
 # Pybind11 + Python
 set(PYBIND11_FINDPYTHON ON)
