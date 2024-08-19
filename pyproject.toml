@@ -2,7 +2,7 @@
 requires = [
     "scikit-build-core",
     "pybind11",
-    "mypy"
+    "pybind11-stubgen"
 ]
 build-backend = "scikit_build_core.build"
 
@@ -13,3 +13,26 @@ authors = [
     { name = "The TudatPy team" }
 ]
 license = { file = "LICENSE" }
+requires-python = ">=3.7"
+dependencies = [
+    "numpy<2.0.0",
+    "scipy",
+    "mypy",
+    "pytest",
+    "pandas",
+    "matplotlib",
+    "tqdm",
+    "astropy",
+    "astroquery",
+    "astropy-healpix"
+]
+
+[project.urls]
+Documentation = "https://docs.tudat.space/en/latest/"
+Homepage = "https://docs.tudat.space/en/latest/"
+Repository = "https://github.com/tudat-team/tudatpy/tree/develop"
+
+[tool.pytest.ini.options]
+testpaths = [
+    "tests"
+]

@@ -34,11 +34,11 @@ from .expose_gravity_field import (
     spherical_harmonic_gravity,
 )
 
-from .sbdb_wrapper import central_sbdb, central_sbdb_density
+# from .sbdb_wrapper import central_sbdb, central_sbdb_density
 
 __all__ = [
-    "central_sbdb",
-    "central_sbdb_density",
+    # "central_sbdb",
+    # "central_sbdb_density",
     "central",
     "central_spice",
     "from_file_spherical_harmonic",

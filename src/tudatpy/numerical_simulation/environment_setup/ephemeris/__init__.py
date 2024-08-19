@@ -24,10 +24,10 @@ from .expose_ephemeris import (
     TabulatedEphemerisSettings,
 )
 
-from .horizons_wrapper import jpl_horizons
+# from .horizons_wrapper import jpl_horizons
 
 __all__ = [
-    "jpl_horizons",
+    # "jpl_horizons",
     "approximate_jpl_model",
     "constant",
     "create_ephemeris",

@@ -33,34 +33,7 @@ from .expose_environment_setup import (
     BodySettings,
 )
 
-from . import (
-    aerodynamic_coefficients,
-    atmosphere,
-    ephemeris,
-    gravity_field,
-    gravity_field_variation,
-    ground_station,
-    radiation_pressure,
-    rigid_body,
-    rotation_model,
-    shape,
-    shape_deformation,
-    vehicle_systems,
-)
-
 __all__ = [
-    "aerodynamic_coefficients",
-    "atmosphere",
-    "ephemeris",
-    "gravity_field",
-    "gravity_field_variation",
-    "ground_station",
-    "radiation_pressure",
-    "rigid_body",
-    "rotation_model",
-    "shape",
-    "shape_deformation",
-    "vehicle_systems",
     "add_aerodynamic_coefficient_interface",
     "add_empty_tabulated_ephemeris",
     "add_engine_model",

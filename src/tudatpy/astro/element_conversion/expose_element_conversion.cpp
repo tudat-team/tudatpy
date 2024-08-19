@@ -76,17 +76,17 @@ PYBIND11_MODULE(expose_element_conversion, m) {
           py::arg("originalElements"), py::arg("original_elemet_types"),
           py::arg("new_element_types"), py::arg("shape_model"),
           py::arg("tolerance"),
-tudatpy::get_docstring("convert_position_elements").c_str());
+          tudatpy::get_docstring("convert_position_elements").c_str());
 
 
     m.def("cartesian_to_keplerian",
           &toec::convertCartesianToKeplerianElements<double>,
           py::arg("cartesian_elements"), py::arg("gravitational_parameter"),
-R"doc(Convert Cartesian to Keplerian elements.
+          R"doc(Convert Cartesian to Keplerian elements.
 
 	.. note:: See module level documentation for the standard ordering
 	          convention of Keplerian elements used.
-	
+
 
 	:param cartesian_elements:
 		Cartesian state that is to be converted to Keplerian elements
@@ -101,11 +101,11 @@ R"doc(Convert Cartesian to Keplerian elements.
           py::overload_cast<const Eigen::Vector6d&, double>(
               &toec::convertKeplerianToCartesianElements<double>),
           py::arg("keplerian_elements"), py::arg("gravitational_parameter"),
-R"doc(Convert Keplerian elements to Cartesian.
+          R"doc(Convert Keplerian elements to Cartesian.
 
 	.. note:: See module level documentation for the standard ordering
 	          convention of Keplerian elements used.
-	
+
 
 	:param keplerian_elements:
 		Keplerian state that is to be converted to Cartesian elements
@@ -123,10 +123,10 @@ R"doc(Convert Keplerian elements to Cartesian.
           py::arg("inclination"), py::arg("argument_of_periapsis"),
           py::arg("longitude_of_ascending_node"), py::arg("true_anomaly"),
           py::arg("gravitational_parameter"),
-R"doc(Convert Keplerian elements to Cartesian, with elementwise input.
+          R"doc(Convert Keplerian elements to Cartesian, with elementwise input.
 
 	.. note:: The final Keplerian element is always the true anomaly.
-	
+
 
 	:param semi_major_axis:
 		Semi-major axis (except if eccentricity = 1.0, then represents semi-latus rectum)
@@ -152,11 +152,11 @@ R"doc(Convert Keplerian elements to Cartesian, with elementwise input.
           py::arg("use_default_initial_guess") = true,
           py::arg("non_default_initial_guess") = TUDAT_NAN,
           py::arg("root_finder") = nullptr,
-R"doc(Convert mean to true anomaly.
+          R"doc(Convert mean to true anomaly.
 
 	Convert the mean anomaly of the orbit to its true anomaly. This conversion first converts mean to eccentric anomaly
 	(hyperbolic eccentric anomaly, if eccentriciy is larger than 1, elliptical eccentric anomaly if it is smaller than 1), and subsequently to true anomaly.
-	
+
 
 	:param eccentricity:
 		Value of the orbital eccentricity
@@ -175,12 +175,12 @@ R"doc(Convert mean to true anomaly.
     m.def("true_to_mean_anomaly",
           &toec::convertTrueAnomalyToMeanAnomaly<double>,
           py::arg("eccentricity"), py::arg("true_anomaly"),
-R"doc(Convert true to mean anomaly.
+          R"doc(Convert true to mean anomaly.
 
 	Convert the true anomaly of the orbit to its mean anomaly. This conversion first converts true to eccentric anomaly
 	(hyperbolic eccentric anomaly, if eccentriciy is larger than 1, elliptical eccentric anomaly if it is smaller than 1),
 	and subsequently to mean anomaly.
-	
+
 
 	:param eccentricity:
 		Value of the orbital eccentricity
@@ -193,7 +193,7 @@ R"doc(Convert true to mean anomaly.
     m.def("true_to_eccentric_anomaly",
           &toec::convertTrueAnomalyToEccentricAnomaly<double>,
           py::arg("true_anomaly"), py::arg("eccentricity"),
-R"doc(Convert true to eccentric anomaly.
+          R"doc(Convert true to eccentric anomaly.
 
 	:param eccentricity:
 		Value of the orbital eccentricity
@@ -206,7 +206,7 @@ R"doc(Convert true to eccentric anomaly.
     m.def("eccentric_to_true_anomaly",
           &toec::convertEccentricAnomalyToTrueAnomaly<double>,
           py::arg("eccentric_anomaly"), py::arg("eccentricity"),
-R"doc(Convert eccentric to true anomaly.
+          R"doc(Convert eccentric to true anomaly.
 
 	:param eccentricity:
 		Value of the orbital eccentricity
@@ -220,7 +220,7 @@ R"doc(Convert eccentric to true anomaly.
     m.def("eccentric_to_mean_anomaly",
           &toec::convertEccentricAnomalyToMeanAnomaly<double>,
           py::arg("eccentric_anomaly"), py::arg("eccentricity"),
-R"doc(Convert eccentric to mean anomaly.
+          R"doc(Convert eccentric to mean anomaly.
 
 	:param eccentricity:
 		Value of the orbital eccentricity
@@ -237,7 +237,7 @@ R"doc(Convert eccentric to mean anomaly.
           py::arg("use_default_initial_guess") = true,
           py::arg("non_default_initial_guess") = TUDAT_NAN,
           py::arg("root_finder") = nullptr,
-R"doc(Convert mean to eccentric anomaly.
+          R"doc(Convert mean to eccentric anomaly.
 
 	:param eccentricity:
 		Value of the orbital eccentricity
@@ -254,11 +254,12 @@ R"doc(Convert mean to eccentric anomaly.
 )doc");
 
 
-    m.def("elapsed_time_to_delta_mean_anomaly",
-          &toec::convertElapsedTimeToMeanAnomalyChange<double>,
-          py::arg("elapsed_time"), py::arg("gravitational_parameter"),
-          py::arg("semi_major_axis"),
-R"doc(Convert elapsed time to the corresponding change in mean anomaly along a Keplerian orbit.
+    m.def(
+        "elapsed_time_to_delta_mean_anomaly",
+        &toec::convertElapsedTimeToMeanAnomalyChange<double>,
+        py::arg("elapsed_time"), py::arg("gravitational_parameter"),
+        py::arg("semi_major_axis"),
+        R"doc(Convert elapsed time to the corresponding change in mean anomaly along a Keplerian orbit.
 
 	:param elapsed_time:
 		Elapsed time (in seconds)
@@ -270,11 +271,12 @@ R"doc(Convert elapsed time to the corresponding change in mean anomaly along a K
 		Total change in mean anomaly along the Kepler orbit, accumulated in the provided time.
 )doc");
 
-    m.def("delta_mean_anomaly_to_elapsed_time",
-          &toec::convertMeanAnomalyChangeToElapsedTime<double>,
-          py::arg("mean_anomaly_change"), py::arg("gravitational_parameter"),
-          py::arg("semi_major_axis"),
-R"doc(Convert change in mean anomaly along a Keplerian orbit to the corresponding elapsed time.
+    m.def(
+        "delta_mean_anomaly_to_elapsed_time",
+        &toec::convertMeanAnomalyChangeToElapsedTime<double>,
+        py::arg("mean_anomaly_change"), py::arg("gravitational_parameter"),
+        py::arg("semi_major_axis"),
+        R"doc(Convert change in mean anomaly along a Keplerian orbit to the corresponding elapsed time.
 
 	:param mean_anomaly_change:
 		Total change in mean anomaly along the Kepler orbit
@@ -286,10 +288,11 @@ R"doc(Convert change in mean anomaly along a Keplerian orbit to the correspondin
 		Time required for the provided mean anomaly change to be accumulated
 )doc");
 
-    m.def("mean_motion_to_semi_major_axis",
-          &toec::convertEllipticalMeanMotionToSemiMajorAxis<double>,
-          py::arg("mean_motion"), py::arg("gravitational_parameter"),
-R"doc(Convert mean motion to corresponding semi-major axis (in a Keplerian orbit).
+    m.def(
+        "mean_motion_to_semi_major_axis",
+        &toec::convertEllipticalMeanMotionToSemiMajorAxis<double>,
+        py::arg("mean_motion"), py::arg("gravitational_parameter"),
+        R"doc(Convert mean motion to corresponding semi-major axis (in a Keplerian orbit).
 
 	:param mean_motion:
 		Orbital mean motion
@@ -299,10 +302,11 @@ R"doc(Convert mean motion to corresponding semi-major axis (in a Keplerian orbit
 		Semi-major axis corresponding to mean motion
 )doc");
 
-    m.def("semi_major_axis_to_mean_motion",
-          &toec::convertSemiMajorAxisToEllipticalMeanMotion<double>,
-          py::arg("semi_major_axis"), py::arg("gravitational_parameter"),
-R"doc(Convert semi-major axis to corresponding mean motion (along a Keplerian orbit).
+    m.def(
+        "semi_major_axis_to_mean_motion",
+        &toec::convertSemiMajorAxisToEllipticalMeanMotion<double>,
+        py::arg("semi_major_axis"), py::arg("gravitational_parameter"),
+        R"doc(Convert semi-major axis to corresponding mean motion (along a Keplerian orbit).
 
 	:param semi_major_axis:
 		Semi-major axis of orbit
@@ -317,19 +321,18 @@ R"doc(Convert semi-major axis to corresponding mean motion (along a Keplerian or
      **************   MODIFIED EQUIONOCTIAL ELEMENTS  ******************
      */
 
-    m.def(
-        "keplerian_to_mee_manual_singularity",
-        py::overload_cast<const Eigen::Vector6d&, const bool>(
-            &toec::convertKeplerianToModifiedEquinoctialElements<double>),
-        py::arg("keplerian_elements"),
-        py::arg("singularity_at_zero_inclination"),
-R"doc(Convert Keplerian to Modified equinoctial elements.
+    m.def("keplerian_to_mee_manual_singularity",
+          py::overload_cast<const Eigen::Vector6d&, const bool>(
+              &toec::convertKeplerianToModifiedEquinoctialElements<double>),
+          py::arg("keplerian_elements"),
+          py::arg("singularity_at_zero_inclination"),
+          R"doc(Convert Keplerian to Modified equinoctial elements.
 
 	Convert Keplerian to Modified equinoctial elements (without intermediate step to Cartesian elements). The singularity-flipping
 	element :math:`I` is to be provided manually for this function
 	.. note:: See module level documentation for the standard ordering
 	          convention of Modified Equinoctial elements used.
-	
+
 
 	:param keplerian_elements:
 		Keplerian elements that are to be converted to Modified equinoctial elements
@@ -343,13 +346,13 @@ R"doc(Convert Keplerian to Modified equinoctial elements.
           py::overload_cast<const Eigen::Vector6d&>(
               &toec::convertKeplerianToModifiedEquinoctialElements<double>),
           py::arg("keplerian_elements"),
-R"doc(Convert Keplerian to Modified equinoctial elements.
+          R"doc(Convert Keplerian to Modified equinoctial elements.
 
 	Convert Keplerian to Modified equinoctial elements (without intermediate step to Cartesian elements). The singularity-flipping
 	element :math:`I` is computed automatically by this function (using :func:`flip_mee_singularity`)
 	.. note:: See module level documentation for the standard ordering
 	          convention of Modified Equinoctial elements used.
-	
+
 
 	:param keplerian_elements:
 		Keplerian elements that are to be converted to Modified equinoctial elements
@@ -357,14 +360,15 @@ R"doc(Convert Keplerian to Modified equinoctial elements.
 		Modified equinoctial elements, as computed from Keplerian element input (with element :math:`I` defined by :func:`flip_mee_singularity`).
 )doc");
 
-    m.def("flip_mee_singularity",
-          py::overload_cast<const Eigen::Vector6d&>(&tmg::isOrbitRetrograde),
-          py::arg("keplerian_elements"),
-R"doc(Function to determine 'optimal' location of the singularity-flipping modified equinoctial element.
+    m.def(
+        "flip_mee_singularity",
+        py::overload_cast<const Eigen::Vector6d&>(&tmg::isOrbitRetrograde),
+        py::arg("keplerian_elements"),
+        R"doc(Function to determine 'optimal' location of the singularity-flipping modified equinoctial element.
 
 	Function to determine 'optimal' location of the singularity-flipping modified equinoctial element :math:`I`, if orbit inclination is less than
 	90 degrees, it puts the singularity at 180 degrees, if it is larger than 90 degrees, it puts it at 0 degrees.
-	
+
 
 	:param keplerian_elements:
 		Keplerian elements that are to be converted to Modified equinoctial elements
@@ -376,12 +380,12 @@ R"doc(Function to determine 'optimal' location of the singularity-flipping modif
           &toec::convertModifiedEquinoctialToKeplerianElements<double>,
           py::arg("modified_equinoctial_elements"),
           py::arg("singularity_at_zero_inclination"),
-R"doc(Convert Modified equinoctial to Keplerian elements.
+          R"doc(Convert Modified equinoctial to Keplerian elements.
 
 	Modified equinoctial elements to Keplerian (without intermediate step to Cartesian elements).
 	.. note:: See module level documentation for the standard ordering
 	          convention of Modified Equinoctial elements used.
-	
+
 
 	:param modified_equinoctial_elements:
 		Modified equinoctial elements that are to be converted to Keplerian elements
@@ -395,13 +399,13 @@ R"doc(Convert Modified equinoctial to Keplerian elements.
           py::overload_cast<const Eigen::Vector6d&, const double>(
               &toec::convertCartesianToModifiedEquinoctialElements<double>),
           py::arg("cartesian_elements"), py::arg("gravitational_parameter"),
-R"doc(Convert Cartesian to Modified equinoctial elements.
+          R"doc(Convert Cartesian to Modified equinoctial elements.
 
 	Convery cartesian to Modified equinoctial elements. The singularity-flipping
 	element :math:`I` is computed automatically by this function (using :func:`flip_mee_singularity`)
 	.. note:: See module level documentation for the standard ordering
 	          convention of Modified Equinoctial elements used.
-	
+
 
 	:param cartesian_elements:
 		Cartesian elements that are to be converted to Modified equinoctial elements
@@ -411,19 +415,18 @@ R"doc(Convert Cartesian to Modified equinoctial elements.
 		Modified equinoctial elements, as computed from Cartesian element input.
 )doc");
 
-    m.def(
-        "cartesian_to_mee_manual_singularity",
-        py::overload_cast<const Eigen::Vector6d&, const double, const bool>(
-            &toec::convertCartesianToModifiedEquinoctialElements<double>),
-        py::arg("cartesian_elements"), py::arg("gravitational_parameter"),
-        py::arg("singularity_at_zero_inclination"),
-R"doc(Convert Cartesian to Modified equinoctial elements.
+    m.def("cartesian_to_mee_manual_singularity",
+          py::overload_cast<const Eigen::Vector6d&, const double, const bool>(
+              &toec::convertCartesianToModifiedEquinoctialElements<double>),
+          py::arg("cartesian_elements"), py::arg("gravitational_parameter"),
+          py::arg("singularity_at_zero_inclination"),
+          R"doc(Convert Cartesian to Modified equinoctial elements.
 
 	Convery cartesian to Modified equinoctial elements. The singularity-flipping
 	element :math:`I` is to be provided manually for this function
 	.. note:: See module level documentation for the standard ordering
 	          convention of Modified Equinoctial elements used.
-	
+
 
 	:param cartesian_elements:
 		Cartesian elements that are to be converted to Modified equinoctial elements
@@ -441,12 +444,12 @@ R"doc(Convert Cartesian to Modified equinoctial elements.
           py::arg("modified_equinoctial_elements"),
           py::arg("gravitational_parameter"),
           py::arg("singularity_at_zero_inclination"),
-R"doc(Convert Modified equinoctial to Cartesian elements.
+          R"doc(Convert Modified equinoctial to Cartesian elements.
 
 	Convert Modified equinoctial to Cartesian elements
 	.. note:: See module level documentation for the standard ordering
 	          convention of Modified Equinoctial elements used.
-	
+
 
 	:param modified_equinoctial_elements:
 		Modified equinoctial elements that are to be converted to Cartesian elements
@@ -468,7 +471,7 @@ R"doc(Convert Modified equinoctial to Cartesian elements.
           py::arg("radial_distance"), py::arg("latitude"), py::arg("longitude"),
           py::arg("speed"), py::arg("flight_path_angle"),
           py::arg("heading_angle"),
-R"doc(Convert Spherical elements to Cartesian, with elementwise input.
+          R"doc(Convert Spherical elements to Cartesian, with elementwise input.
 
 	:param radial_distance:
 		Distance from origin of central body
@@ -490,11 +493,11 @@ R"doc(Convert Spherical elements to Cartesian, with elementwise input.
           py::overload_cast<const Eigen::Vector6d&>(
               &toec::convertSphericalOrbitalToCartesianState<double>),
           py::arg("spherical_elements"),
-R"doc(Convert spherical elements to Cartesian.
+          R"doc(Convert spherical elements to Cartesian.
 
 	.. note:: See module level documentation for the standard ordering
 	          convention of spherical state elements used.
-	
+
 
 	:param spherical_elements:
 		Spherical state that is to be converted to Cartesian elements
@@ -505,11 +508,11 @@ R"doc(Convert spherical elements to Cartesian.
     m.def("cartesian_to_spherical",
           &toec::convertCartesianToSphericalOrbitalState,
           py::arg("cartesian_elements"),
-R"doc(Convert Cartesian to spherical elements.
+          R"doc(Convert Cartesian to spherical elements.
 
 	.. note:: See module level documentation for the standard ordering
 	          convention of spherical state elements used.
-	
+
 
 	:param cartesian_elements:
 		Cartesian state that is to be converted to spherical elements
@@ -522,15 +525,16 @@ R"doc(Convert Cartesian to spherical elements.
      **************   QUATERNIONS  ******************
      */
 
-    m.def("quaternion_entries_to_rotation_matrix",
-          &tla::convertVectorQuaternionToMatrixFormat,
-          py::arg("quaternion_entries"),
-R"doc(Converts an array of four quaternion elements to the equivalent rotation matrix.
+    m.def(
+        "quaternion_entries_to_rotation_matrix",
+        &tla::convertVectorQuaternionToMatrixFormat,
+        py::arg("quaternion_entries"),
+        R"doc(Converts an array of four quaternion elements to the equivalent rotation matrix.
 
 	Function to convert an array of four quaternion elements to the equivalent rotation matrix. These quaternion elements
 	are for instance used when propagating rotational dynamics in Tudat, and this function can be used to convert the
 	numerical results to a usable rotation matrix. See `our user guide <https://tudat-space.readthedocs.io/en/latest/_src_user_guide/state_propagation/environment_setup/use_of_reference_frames.html#rotational-states>`_ for more details.
-	
+
 
 	:param quaternion_entries:
 		Quaternion elements, as per the convention used in the `Eigen library <https://eigen.tuxfamily.org/dox/classEigen_1_1Quaternion.html>`_
@@ -538,13 +542,13 @@ R"doc(Converts an array of four quaternion elements to the equivalent rotation m
 		Rotation matrix defining the equivalent rotation.
 )doc");
 
-    m.def("rotation_matrix_to_quaternion_entries",
-          &tla::convertMatrixToVectorQuaternionFormat,
-          py::arg("rotation_matrix"),
-R"doc(Converts a rotation matrix to the equivalent array of four quaternion elements.
+    m.def(
+        "rotation_matrix_to_quaternion_entries",
+        &tla::convertMatrixToVectorQuaternionFormat, py::arg("rotation_matrix"),
+        R"doc(Converts a rotation matrix to the equivalent array of four quaternion elements.
 
 	Inverse function of :func:`quaternion_entries_to_rotation_matrix`.
-	
+
 
 	:param rotation_matrix:
 		Rotation matrix
