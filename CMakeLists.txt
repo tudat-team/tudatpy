@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 3.15)
 
 # Project declaration
 project(tudatpy LANGUAGES CXX C)
-set(CMAKE_CXX_STANDARD 14)
 
 # Set TudatPy source dir
 set(TUDATPY_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
@@ -60,11 +59,18 @@ include_directories(${Tudat_INCLUDE_DIRS})
 # Pybind11 + Python
 set(PYBIND11_FINDPYTHON ON)
 find_package(pybind11 CONFIG REQUIRED)
+include_directories(${pybind11_INCLUDE_DIRS})
+
+get_cmake_property(_variableNames VARIABLES)
+list (SORT _variableNames)
+foreach (_variableName ${_variableNames})
+    message(STATUS "${_variableName}=${${_variableName}}")
+endforeach()
 
 ######################################
 
-# Include tudatpy headers
-include_directories(include)
+# # Include tudatpy headers
+# include_directories(include)
 
-# Tudatpy extension modules
-add_subdirectory(src/tudatpy)
+# # Tudatpy extension modules
+# add_subdirectory(src/tudatpy)
