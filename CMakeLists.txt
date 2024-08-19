@@ -55,13 +55,18 @@ endif()
 message(STATUS "Finding Tudat")
 find_package(Tudat CONFIG REQUIRED)
 link_directories(${Tudat_LIBRARY_DIRS})
-include_directories(${Tudat_INCLUDE_DIRS})
-message(STATUS "Tudat: ${Tudat_PROPAGATION_LIBRARIES} ${Tudat_INCLUDE_DIRS}")
+include_directories(AFTER SYSTEM ${Tudat_INCLUDE_DIRS})
 
 # Pybind11 + Python
 set(PYBIND11_FINDPYTHON ON)
 find_package(pybind11 CONFIG REQUIRED)
-include_directories(${pybind11_INCLUDE_DIRS})
+include_directories(AFTER SYSTEM ${pybind11_INCLUDE_DIRS})
+
+get_cmake_property(_variableNames VARIABLES)
+list (SORT _variableNames)
+foreach (_variableName ${_variableNames})
+    message(STATUS "${_variableName}=${${_variableName}}")
+endforeach()
 
 ######################################
 
