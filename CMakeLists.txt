@@ -61,16 +61,10 @@ set(PYBIND11_FINDPYTHON ON)
 find_package(pybind11 CONFIG REQUIRED)
 include_directories(${pybind11_INCLUDE_DIRS})
 
-get_cmake_property(_variableNames VARIABLES)
-list (SORT _variableNames)
-foreach (_variableName ${_variableNames})
-    message(STATUS "${_variableName}=${${_variableName}}")
-endforeach()
-
 ######################################
 
-# # Include tudatpy headers
-# include_directories(include)
+# Include tudatpy headers
+include_directories(include)
 
-# # Tudatpy extension modules
-# add_subdirectory(src/tudatpy)
+# Tudatpy extension modules
+add_subdirectory(src/tudatpy)
