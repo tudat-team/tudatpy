@@ -1,4 +1,4 @@
-import tudatpy.interface.spice as spice_interface
+from tudatpy.interface import spice
 
 # from tudatpy import load_standard_spice_kernels
 # import pytest
@@ -8,10 +8,10 @@ import tudatpy.interface.spice as spice_interface
 # EXAMPLES: https://www.jetbrains.com/help/pycharm/pytest.html
 
 
-def test_load_default_kernels():
-    # load_standard_spice_kernels()
-    spice_interface.load_standard_kernels()
+def test_load_default_kernels() -> None:
 
-
-def test_clear_spice_kernels():
-    spice_interface.clear_kernels()
+    try:
+        spice.load_standard_kernels()
+        assert spice.get_total_count_of_kernels_loaded() == 13
+    finally:
+        spice.clear_kernels()

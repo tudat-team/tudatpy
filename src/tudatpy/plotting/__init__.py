@@ -1,10 +1,7 @@
-from ._ground_track import *
-from ._helpers import *
+from ._helpers import dual_y_axis, trajectory_3d, pareto_front
 
 __all__ = [
-    # "plot_blue_marble_ground_track",
-    # "plot_miller_ground_track",
     "dual_y_axis",
     "trajectory_3d",
-    "pareto_front"
+    "pareto_front",
 ]

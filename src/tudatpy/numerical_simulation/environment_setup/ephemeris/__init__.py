@@ -24,10 +24,12 @@ from .expose_ephemeris import (
     TabulatedEphemerisSettings,
 )
 
-# from .horizons_wrapper import jpl_horizons
+from .horizons_wrapper import jpl_horizons, HorizonsQuery, HorizonsBatch
 
 __all__ = [
-    # "jpl_horizons",
+    "jpl_horizons",
+    "HorizonsQuery",
+    "HorizonsBatch",
     "approximate_jpl_model",
     "constant",
     "create_ephemeris",

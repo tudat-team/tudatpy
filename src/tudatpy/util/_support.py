@@ -1,12 +1,15 @@
 import numpy as np
 from ..math import interpolators
-from .. import numerical_simulation
-from ..numerical_simulation import propagation_setup
+from ..numerical_simulation.propagation_setup.propagator import PropagatorSettings
+from ..numerical_simulation import (
+    get_integrated_type_and_body_list,
+    get_single_integration_size,
+)
 import os
 from typing import List, Dict, Union
 
 
-def result2array(result: Dict[float, np.array]):
+def result2array(result: Dict[float, np.ndarray]):
     """Initial prototype function to convert dict result from DynamicsSimulator
 
     The `state_history` and `dependent_history` retrieved from classes
@@ -65,8 +68,8 @@ def result2array(result: Dict[float, np.array]):
 
 
 def compare_results(
-    baseline_results: Dict[float, np.array],
-    new_results: Dict[float, np.array],
+    baseline_results: Dict[float, np.ndarray],
+    new_results: Dict[float, np.ndarray],
     difference_epochs: List[float],
 ):
     """Compare the results of a baseline simulation with the results of a new different simulation.
@@ -267,8 +270,8 @@ def pareto_optimums(points: list, operator: Union[None, List[Union[min, max]]] =
 
 
 def split_history(
-    state_history: Dict[float, np.array],
-    propagator_settings: propagation_setup.propagator.PropagatorSettings,
+    state_history: Dict[float, np.ndarray],
+    propagator_settings: PropagatorSettings,
 ):
     """Split the state history into a distinct state histories for each body.
 
@@ -291,8 +294,8 @@ def split_history(
         Dictionnary containing the name of the propagated body as key, and the state history as value.
     """
     # Get the propagated state types and names of the propagated bodies from the integrator settings.
-    integrated_type_and_body_list = (
-        numerical_simulation.get_integrated_type_and_body_list(propagator_settings)
+    integrated_type_and_body_list = get_integrated_type_and_body_list(
+        propagator_settings
     )
 
     # Extract the states and epochs from the state history.
@@ -307,7 +310,7 @@ def split_history(
             n_bodies = len(body_list)
             body_names = [body_list[i][0] for i in range(n_bodies)]
         # Get the state size for the current state type.
-        state_size = numerical_simulation.get_single_integration_size(state_type)
+        state_size = get_single_integration_size(state_type)
         propagated_states_sizes.append(state_size)
 
     # Create the empty state history book.
