@@ -52,7 +52,7 @@ if (TUDATPY_BUILD_WITH_NRLMSISE00_INTERFACE)
 endif()
 
 # Tudat
-find_package(Tudat REQUIRED)
+find_package(Tudat CONFIG REQUIRED)
 link_directories(${Tudat_LIBRARY_DIRS})
 include_directories(${Tudat_INCLUDE_DIRS})
 
