@@ -184,10 +184,10 @@ INSTALL_HYBRID_CPP_PYTHON_MODULE(util)
 INSTALL_HYBRID_CPP_PYTHON_MODULE(io)
 
 #install(FILES test.py "${CMAKE_CURRENT_BINARY_DIR}/_version.py")
-file(COPY ../../tests DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/../../)
+file(COPY ../tests DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/../)
 
 # collect all example-X.py files
-file(GLOB EXAMPLE_SCRIPTS "../../examples/example*.py")
+file(GLOB EXAMPLE_SCRIPTS "../examples/example*.py")
 
 # copy them into the root build tree
-file(COPY ${EXAMPLE_SCRIPTS} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/../../)
+file(COPY ${EXAMPLE_SCRIPTS} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/../)
