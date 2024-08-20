@@ -266,8 +266,11 @@ namespace tudatpy {
             m.def("read_solar_activity_data",
                   &tio::solar_activity::readSolarActivityData,
                   py::arg("file_path"),
-                  "Reads a SpaceWeather data file and generates a dictionary "
-                  "with SolarActivityData objects.");
+                  R"doc(
+Reads a space weather data file and produces a dictionary with solar activity data for a range of epochs. Data files can be obtained from http://celestrak.com/SpaceData and should follow the legacy format.
+
+:param file_path: Path to the space weather data file.
+)doc");
 
 
             py::class_<tio::OdfRawFileContents,
