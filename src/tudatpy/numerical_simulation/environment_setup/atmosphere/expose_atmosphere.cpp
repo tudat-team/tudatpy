@@ -8,6 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 #define PYBIND11_DETAILED_ERROR_MESSAGES
+#include <tudat/astro/aerodynamics/nrlmsise00Atmosphere.h>
+#include <tudat/astro/aerodynamics/nrlmsise00InputFunctions.h>
 #include <tudat/astro/reference_frames/referenceFrameTransformations.h>
 #include <tudat/simulation/environment_setup.h>
 
@@ -72,27 +74,27 @@ namespace tudatpy {
                     py::class_<tss::WindModelSettings,
                                std::shared_ptr<tss::WindModelSettings>>(
                         m, "WindModelSettings",
-R"doc(Class for providing settings for wind model.
+                        R"doc(Class for providing settings for wind model.
 
 	Functional (base) class for settings of wind models that require no information in addition to their type.
 	Wind model classes requiring additional information must be created using an object derived from this class.
-	
+
 )doc");
 
                     py::class_<tss::AtmosphereSettings,
                                std::shared_ptr<tss::AtmosphereSettings>>(
                         m, "AtmosphereSettings",
-R"doc(Base class for providing settings for atmosphere model.
+                        R"doc(Base class for providing settings for atmosphere model.
 
 	Functional (base) class for settings of atmosphere models that require no information in addition to their type.
 	Atmosphere model classes requiring additional information must be created using an object derived from this class.
-	
+
 )doc")
                         .def_property(
                             "wind_settings",
                             &tss::AtmosphereSettings::getWindSettings,
                             &tss::AtmosphereSettings::setWindSettings,
-R"doc(Wind model settings for the atmosphere model settings object.
+                            R"doc(Wind model settings for the atmosphere model settings object.
 	)doc");
 
                     py::class_<
@@ -100,7 +102,7 @@ R"doc(Wind model settings for the atmosphere model settings object.
                         std::shared_ptr<tss::ExponentialAtmosphereSettings>,
                         tss::AtmosphereSettings>(
                         m, "ExponentialAtmosphereSettings",
-R"doc(Class for providing settings for exponential atmosphere model.
+                        R"doc(Class for providing settings for exponential atmosphere model.
 
 	`AtmosphereSettings` derived class for a defining the settings of an exponential atmosphere model.
 )doc");
@@ -113,64 +115,66 @@ R"doc(Class for providing settings for exponential atmosphere model.
                     //         "TabulatedAtmosphereSettings",
 
 
-                    m.def("constant_wind_model",
-                          &tss::constantWindModelSettings,
-                          py::arg("wind_velocity"),
-                          py::arg("associated_reference_frame") =
-                              trf::vertical_frame,
-R"doc(Factory function for creating wind model settings with constant wind velocity.
+                    m.def(
+                        "constant_wind_model", &tss::constantWindModelSettings,
+                        py::arg("wind_velocity"),
+                        py::arg("associated_reference_frame") =
+                            trf::vertical_frame,
+                        R"doc(Factory function for creating wind model settings with constant wind velocity.
 
 	Factory function for settings object, defining wind model entirely from constant wind velocity in a given reference frame.
-	
+
 
 	:param wind_velocity:
 		Constant wind velocity in the specified reference frame.
-		
+
 	:param associated_reference_frame:
 		Reference frame in which constant wind velocity is defined.
-		
+
 	:return:
 		Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.atmosphere.WindModelSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.atmosphere.ConstantWindModelSettings` class
 )doc");
 
-                    m.def("custom_wind_model", &tss::customWindModelSettings,
-                          py::arg("wind_function"),
-                          py::arg("associated_reference_frame") =
-                              trf::vertical_frame,
-R"doc(Factory function for creating wind model settings with custom wind velocity.
+                    m.def(
+                        "custom_wind_model", &tss::customWindModelSettings,
+                        py::arg("wind_function"),
+                        py::arg("associated_reference_frame") =
+                            trf::vertical_frame,
+                        R"doc(Factory function for creating wind model settings with custom wind velocity.
 
 	Factory function for settings object, defining wind model entirely from custom wind velocity function in a given reference frame.
 	The custom wind velocity has to be given as a function of altitude, longitude, latitude and time.
-	
+
 	.. note:: The longitude and latitude will be passed to the function in **degree** and not in radians.
 	          The altitude is in meters, and the time is a Julian date in seconds since J2000.
-	
+
 
 	:param wind_velocity:
 		Custom wind velocity function (w.r.t. altitude, longitude, latitude and time) in the specified reference frame.
-		
+
 	:param associated_reference_frame:
 		Reference frame in which wind velocity is defined.
-		
+
 	:return:
 		Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.atmosphere.WindModelSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.atmosphere.CustomWindModelSettings` class
 )doc");
 
 
-                    m.def("exponential_predefined",
-                          py::overload_cast<const std::string &>(
-                              &tss::exponentialAtmosphereSettings),
-                          py::arg("body_name"),
-R"doc(Factory function for creating atmospheric model settings from pre-defined exponential model.
+                    m.def(
+                        "exponential_predefined",
+                        py::overload_cast<const std::string &>(
+                            &tss::exponentialAtmosphereSettings),
+                        py::arg("body_name"),
+                        R"doc(Factory function for creating atmospheric model settings from pre-defined exponential model.
 
 	Factory function for settings object, defining atmosphere model from pre-defined exponential model.
 	The pre-encoded properties are available for Earth and Mars, as can be seen on the table below.
 	This function creates an instance of an `AtmosphereSettings` derived `ExponentialAtmosphereSettings` object.
-	
+
 	.. list-table:: Pre-defined exponential atmosphere model properties
 	  :widths: 25 25 25 25
 	  :header-rows: 1
-	
+
 	  * - Property
 	    - Earth
 	    - Mars
@@ -195,35 +199,36 @@ R"doc(Factory function for creating atmospheric model settings from pre-defined 
 	    - 1.4
 	    - 1.3
 	    - --
-	
+
 
 	:param body_name:
 		Body for which pre-defined model settings are to be loaded. Available bodies "Earth", "Mars".
-		
+
 	:return:
 		Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.atmosphere.ExponentialAtmosphereSettings` class
 )doc");
 
 
-                    m.def("exponential",
-                          py::overload_cast<const double, const double,
-                                            const double, const double,
-                                            const double>(
-                              &tss::exponentialAtmosphereSettings),
-                          py::arg("scale_height"), py::arg("surface_density"),
-                          py::arg("constant_temperature") = 288.15,
-                          py::arg("specific_gas_constant") = tudat::
-                              physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
-                          py::arg("ratio_specific_heats") = 1.4,
-R"doc(Factory function for creating atmospheric model settings from fully parametrized exponential model.
+                    m.def(
+                        "exponential",
+                        py::overload_cast<const double, const double,
+                                          const double, const double,
+                                          const double>(
+                            &tss::exponentialAtmosphereSettings),
+                        py::arg("scale_height"), py::arg("surface_density"),
+                        py::arg("constant_temperature") = 288.15,
+                        py::arg("specific_gas_constant") = tudat::
+                            physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
+                        py::arg("ratio_specific_heats") = 1.4,
+                        R"doc(Factory function for creating atmospheric model settings from fully parametrized exponential model.
 
 	Factory function for settings object, defining exponential atmosphere model.
 	The model is solely based on an exponentially decaying density profile with a constant temperature and composition
 	(i.e. independent of time, latitude and longitude).
-	
+
 	The user has access to a fully parametrized model, meaning that in addition to the required input parameters ``scale_height`` and ``surface_density`` (ground-level air density),
 	the user can specify non-standard values for constant temperature, gas constant and specific heats ratio.
-	
+
 
 	:param scale_height:
 		Scale height for density profile of atmosphere.
@@ -239,15 +244,49 @@ R"doc(Factory function for creating atmospheric model settings from fully parame
 		Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.atmosphere.ExponentialAtmosphereSettings` class
 )doc");
 
+                    py::class_<ta::NRLMSISE00Atmosphere,
+                               std::shared_ptr<ta::NRLMSISE00Atmosphere>>(
+                        m, "NRLMSISE00Atmosphere",
+                        R"doc(NRLMSISE00 atmosphere model.
 
-                    m.def("nrlmsise00", &tss::nrlmsise00AtmosphereSettings,
-                          py::arg("space_weather_file") =
-                              tudat::paths::getSpaceWeatherDataPath() +
-                              "/sw19571001.txt",
-R"doc(Factory function for creating NRLMSISE-00 atmospheric model settings.
+                        This class uses the NRLMSISE00 model to compute the atmospheric density and temperature. The GTD7 function is used: Neutral Atmosphere Empirical Model from the surface to the lower exosphere.
+
+                        Currently, the ideal gas law is used to compute the speed of sound and the specific heat ratio is assumed to be constant and equal to 1.4.
+
+                        :param solar_activity_data: Solar activity data for a range of epochs as produced by tudatpy.io.read_solar_activity_data.
+                        )doc")
+                        .def(
+                            py::init<const std::map<
+                                double,
+                                std::shared_ptr<
+                                    tio::solar_activity::SolarActivityData>>>(),
+                            py::arg("solar_activity_data"))
+                        .def("get_density",
+                             &ta::NRLMSISE00Atmosphere::getDensity,
+                             py::arg("altitude"), py::arg("longitude"),
+                             py::arg("latitude"), py::arg("time"),
+                             R"doc(Get local density
+
+                            Returns the local density at the given altitude,
+                            longitude, latitude and time.
+
+                            :param altitude: Altitude at which to get the density. [m]
+                            :param longitude: Longitude at which to get the density [rad].
+                            :param latitude: Latitude at which to get the density [rad].
+                            :param time: Time at which density is to be computed [seconds since J2000].
+                            :return: Local density. [kg/m^3]
+                            )doc");
+
+                    // POSSIBLY DEPRECATED
+                    m.def(
+                        "nrlmsise00", &tss::nrlmsise00AtmosphereSettings,
+                        py::arg("space_weather_file") =
+                            tudat::paths::getSpaceWeatherDataPath() +
+                            "/sw19571001.txt",
+                        R"doc(Factory function for creating NRLMSISE-00 atmospheric model settings.
 
 	Factory function for settings object, defining atmosphere model in accordance to the NRLMSISE-00 global reference model for Earth's atmosphere.
-	
+
 
 	:param space_weather_file:
 		File to be used for space weather characteristics as a function of time (e.g. F10.7, Kp, etc.). The file is typically taken from here `celestrak <https://celestrak.org/SpaceData/sw19571001.txt>`_ (note that the file in your resources path will not be the latest version of this file; download and replace your existing file if required). Documentation on the file is given `here <https://celestrak.org/SpaceData/SpaceWx-format.php>`_
@@ -267,7 +306,7 @@ R"doc(Factory function for creating NRLMSISE-00 atmospheric model settings.
                           py::arg("ratio_of_specific_heats") = 1.4);
 
                     m.def("us76", &tss::us76AtmosphereSettings,
-get_docstring("us76").c_str());
+                          get_docstring("us76").c_str());
 
                     m.def(
                         "custom_constant_temperature",
@@ -280,16 +319,16 @@ get_docstring("us76").c_str());
                         py::arg("specific_gas_constant") = tudat::
                             physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
                         py::arg("ratio_of_specific_heats") = 1.4,
-R"doc(Factory function for creating atmospheric model settings from custom density profile.
+                        R"doc(Factory function for creating atmospheric model settings from custom density profile.
 
 	Factory function for settings object, defining constant temperature atmosphere model from custom density profile.
 	The user is specifying the density profile as a function of altitude.
 	The value of pressure is computed by assuming hydrostatic equilibrium, temperature, gas constant and the ratio of specific heats are modelled as constants.
-	
+
 
 	:param density_function:
 		Function to retrieve the density at the current altitude.
-		
+
 	:param constant_temperature:
 		Constant atmospheric temperature.
 	:param specific_gas_constant:
@@ -313,18 +352,18 @@ R"doc(Factory function for creating atmospheric model settings from custom densi
                         py::arg("specific_gas_constant") = tudat::
                             physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
                         py::arg("ratio_of_specific_heats") = 1.4,
-R"doc(Factory function for creating atmospheric model settings from custom density profile.
+                        R"doc(Factory function for creating atmospheric model settings from custom density profile.
 
 	Factory function for settings object, defining constant temperature atmosphere model from custom density profile.
 	The user is specifying the density profile as a function of altitude, longitude, latitude and time.
-	
+
 	.. note:: The longitude and latitude will be passed to the function in **degree** and not in radians.
 	          The altitude is in meters, and the time is a Julian date in seconds since J2000.
-	
+
 
 	:param density_function:
 		Function to retrieve the density at the current altitude, longitude, latitude and time.
-		
+
 	:param constant_temperature:
 		Constant atmospheric temperature.
 	:param specific_gas_constant:
@@ -336,19 +375,20 @@ R"doc(Factory function for creating atmospheric model settings from custom densi
 )doc");
 
 
-                    m.def("scaled_by_function",
-                          py::overload_cast<
-                              const std::shared_ptr<tss::AtmosphereSettings>,
-                              const std::function<double(const double)>,
-                              const bool>(&tss::scaledAtmosphereSettings),
-                          py::arg("unscaled_atmosphere_settings"),
-                          py::arg("density_scaling_function"),
-                          py::arg("is_scaling_absolute") = false,
-R"doc(Factory function for creating scaled atmospheric model settings.
+                    m.def(
+                        "scaled_by_function",
+                        py::overload_cast<
+                            const std::shared_ptr<tss::AtmosphereSettings>,
+                            const std::function<double(const double)>,
+                            const bool>(&tss::scaledAtmosphereSettings),
+                        py::arg("unscaled_atmosphere_settings"),
+                        py::arg("density_scaling_function"),
+                        py::arg("is_scaling_absolute") = false,
+                        R"doc(Factory function for creating scaled atmospheric model settings.
 
 	Factory function for settings object, defining atmospheric model based on scaling an existing atmospheric settings object.
 	The user can apply custom scaling factors (or absolute values) to the air densities of the existing model settings (for instance for an uncertainty analysis).
-	
+
 
 	:param unscaled_atmosphere_settings:
 		Sets base settings of atmosphere model to be scaled.
@@ -356,24 +396,25 @@ R"doc(Factory function for creating scaled atmospheric model settings.
 		Specifies air density scaling factor as a function of time.
 	:param is_scaling_absolute:
 		Boolean indicating whether density scaling is absolute. Setting this boolean to true will add the scaling value to the baseline density, instead of the default behaviour of multiplying the baseline density by the scaling value.
-		
+
 	:return:
 		Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.atmosphere.ScaledAtmosphereSettings` class.
 )doc");
 
-                    m.def("scaled_by_constant",
-                          py::overload_cast<
-                              const std::shared_ptr<tss::AtmosphereSettings>,
-                              const double, const bool>(
-                              &tss::scaledAtmosphereSettings),
-                          py::arg("unscaled_atmosphere_settings"),
-                          py::arg("density_scaling"),
-                          py::arg("is_scaling_absolute") = false,
-R"doc(Factory function for creating scaled atmospheric model settings.
+                    m.def(
+                        "scaled_by_constant",
+                        py::overload_cast<
+                            const std::shared_ptr<tss::AtmosphereSettings>,
+                            const double, const bool>(
+                            &tss::scaledAtmosphereSettings),
+                        py::arg("unscaled_atmosphere_settings"),
+                        py::arg("density_scaling"),
+                        py::arg("is_scaling_absolute") = false,
+                        R"doc(Factory function for creating scaled atmospheric model settings.
 
 	Factory function for settings object, defining atmospheric model based on an scaling of an existing atmospheric settings object.
 	The user can apply a scaling factor (or an absolute value) to the air densities of the existing model settings (for instance for an uncertainty analysis).
-	
+
 
 	:param unscaled_atmosphere_settings:
 		Sets base settings of atmosphere model to be scaled.
@@ -381,7 +422,7 @@ R"doc(Factory function for creating scaled atmospheric model settings.
 		Constant scaling factor to be applied to the entire air density profile.
 	:param is_scaling_absolute:
 		Boolean indicating whether density scaling is absolute. Setting this boolean to true will add the scaling value to the baseline density, instead of the default behaviour of multiplying the baseline density by the scaling value.
-		
+
 	:return:
 		Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.atmosphere.ScaledAtmosphereSettings` class.
 )doc");

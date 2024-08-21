@@ -28,6 +28,7 @@ namespace tudatpy {
     namespace io {
 
         PYBIND11_MODULE(expose_io, m) {
+
             py::module_::import("tudatpy.math.interpolators");
             m.def("get_resource_path", &tudat::paths::get_resource_path,
 R"doc(Get the path at which tudat resources are located.
@@ -114,15 +115,15 @@ R"doc(Class containing data and methods interfacing the Missile DATCOM software.
 	This class is the main method that can be used to interface tudat with the Missile DATCOM software.
 	It can be initialised with the output file from Missile DATCOM, and provides methods to convert these results
 	into tudat-compatible data.
-	
+
 	.. note:: The Missile DATCOM software from which outputs can be interfaced to TUDAT is an entirely separate software from Tudat(Py).
 	          Please refer to Missile DATCOM user manuals for information on how to use it. These can be accessed on the US Defence Technical
 	          Information Center at accession numbers `ADA267447 <https://apps.dtic.mil/sti/citations/ADA267447>`_ and
 	          `ADA503576 <https://apps.dtic.mil/sti/citations/ADA503576>`_.
-	
+
 	.. note:: The interfacing of Missile DATCOM to tudat assumes that aerodynamic coefficients are computed as a function of both
 	          Mach number and angle of attack.
-	
+
 )doc")
                 .def(py::init<const std::string&>(),
                      py::arg("file_name_and_path"),
@@ -130,7 +131,7 @@ R"doc(Class constructor.
 
 	Function used to construct and initialise the class. In essence, it can be used to read and extract the aerodynamic coefficients
 	computed by Missile DATCOM, and save them in different formats.
-	
+
 
 	:param file_name_and_path:
 		Full path and file name of the `for004.dat` Missile DATCOM results output file.
@@ -393,6 +394,15 @@ get_docstring("StaticCoefficientNames.clb").c_str())
                        std::shared_ptr<tio::solar_activity::SolarActivityData>>(
                 m, "SolarActivityData",
 get_docstring("SolarActivityData").c_str());
+
+            m.def("read_solar_activity_data",
+                  &tio::solar_activity::readSolarActivityData,
+                  py::arg("file_path"),
+                  R"doc(
+Reads a space weather data file and produces a dictionary with solar activity data for a range of epochs. Data files can be obtained from http://celestrak.com/SpaceData and should follow the legacy format.
+
+:param file_path: Path to the space weather data file.
+)doc");
 
             py::class_<tio::OdfRawFileContents,
                        std::shared_ptr<tio::OdfRawFileContents>>(
