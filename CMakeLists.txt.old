@@ -1,0 +1,77 @@
+cmake_minimum_required(VERSION 3.15)
+
+# Project declaration
+project(tudatpy LANGUAGES CXX C)
+
+# Set TudatPy source dir
+set(TUDATPY_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
+
+# CMake modules
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+
+if (_ENABLE_EXTENDED_ALIGNED_STORAGE)
+    message(STATUS "ENABLED EXTENDED ALIGNED STORAGE")
+    add_definitions("-D_ENABLE_EXTENDED_ALIGNED_STORAGE")
+endif()
+
+# Compiler configuration
+include(compiler)
+
+
+# Initial log
+message("")
+message(STATUS "<< ${PROJECT_NAME} (${CMAKE_BUILD_TYPE} - ${BUILD_STYLE}) >>")
+message(STATUS "System name: ${CMAKE_SYSTEM_NAME}")
+message(STATUS "TudatPy version: ${PROJECT_VERSION}")
+message("")
+
+# Dependencies
+######################################
+
+# Boost
+find_package(
+    Boost 1.72.0
+    COMPONENTS thread date_time system unit_test_framework filesystem regex
+    REQUIRED
+)
+
+# Eigen
+# Second line allows to include <Eigen/...> instead of <eigen3/Eigen/...>
+find_package(Eigen3 REQUIRED)
+include_directories(AFTER SYSTEM ${EIGEN3_INCLUDE_DIR})
+
+# SPICE
+find_package(cspice 1.0.0 REQUIRED)
+
+# Sofa
+find_package(Sofa 1.0.0 REQUIRED)
+
+# NRLMSISE-00
+if (TUDATPY_BUILD_WITH_NRLMSISE00_INTERFACE)
+    find_package(NRLMSISE00 1.0.0 REQUIRED)
+endif()
+
+# Tudat
+message(STATUS "Finding Tudat")
+find_package(Tudat CONFIG REQUIRED)
+link_directories(${Tudat_LIBRARY_DIRS})
+include_directories(AFTER SYSTEM ${Tudat_INCLUDE_DIRS})
+
+# Pybind11 + Python
+set(PYBIND11_FINDPYTHON ON)
+find_package(pybind11 CONFIG REQUIRED)
+include_directories(AFTER SYSTEM ${pybind11_INCLUDE_DIRS})
+
+# get_cmake_property(_variableNames VARIABLES)
+# list (SORT _variableNames)
+# foreach (_variableName ${_variableNames})
+#     message(STATUS "${_variableName}=${${_variableName}}")
+# endforeach()
+
+######################################
+
+# Include tudatpy headers
+include_directories(include)
+
+# Tudatpy extension modules
+add_subdirectory(src/tudatpy)

@@ -28,6 +28,7 @@ namespace tss = tudat::simulation_setup;
 namespace trf = tudat::reference_frames;
 namespace tp = tudat::physical_constants;
 namespace ta = tudat::aerodynamics;
+namespace tio = tudat::input_output;
 
 namespace tudat {
     namespace simulation_setup {
