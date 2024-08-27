@@ -973,7 +973,7 @@ BOOST_AUTO_TEST_CASE( test_ObservationParser )
                                                  rangeObservationSets.at( 2 )->getObservationsVector( ).maxCoeff( ) };
     double cutOffValueMax = *std::max_element( maximumRangeValues.begin( ), maximumRangeValues.end( ) );
 
-    std::map< std::shared_ptr< ObservationCollectionParser >, std::shared_ptr< ObservationFilter > > filters =
+    std::map< std::shared_ptr< ObservationCollectionParser >, std::shared_ptr< ObservationFilterBase > > filters =
             { { observationParser( one_way_range ), observationFilter( absolute_value_filtering, cutOffValueMean ) } };
     simulatedObservations->filterObservations( filters );
 
@@ -1045,8 +1045,8 @@ BOOST_AUTO_TEST_CASE( test_ObservationParser )
     }
 
     // Reintroduce observations
-    std::map< std::shared_ptr< ObservationCollectionParser >, std::shared_ptr< ObservationFilter > > defilter =
-            { { observationParser( one_way_range ), observationFilter( absolute_value_filtering, cutOffValueMax, false ) } };
+    std::map< std::shared_ptr< ObservationCollectionParser >, std::shared_ptr< ObservationFilterBase > > defilter =
+            { { observationParser( one_way_range ), observationFilter( absolute_value_filtering, cutOffValueMean, false ) } };
     simulatedObservations->filterObservations( defilter );
 
     // Retrieve range observations post-defiltering
@@ -1096,7 +1096,7 @@ BOOST_AUTO_TEST_CASE( test_ObservationParser )
     rangeObservationSets.at( 1 )->setResiduals( residualsStation2 );
     rangeObservationSets.at( 2 )->setResiduals( residualsStation3 );
 
-    std::map< std::shared_ptr< ObservationCollectionParser >, std::shared_ptr< ObservationFilter > > residualFilter =
+    std::map< std::shared_ptr< ObservationCollectionParser >, std::shared_ptr< ObservationFilterBase > > residualFilter =
             { { observationParser( one_way_range ), observationFilter( residual_filtering, residualCutOffValue ) } };
     simulatedObservations->filterObservations( residualFilter );
 
@@ -1124,9 +1124,9 @@ BOOST_AUTO_TEST_CASE( test_ObservationParser )
         BOOST_CHECK( rangeObservationSets.at( k ).get( ) == postFilterRangeObservationSets.at( k ).get( ) );
     }
 
-    // Re-introduce all observations with residuals lower than 1.0
-    std::map< std::shared_ptr< ObservationCollectionParser >, std::shared_ptr< ObservationFilter > > residualFilter2 =
-            { { observationParser( one_way_range ), observationFilter( residual_filtering, 1.0, false ) } };
+    // Re-introduce all observations with residuals higher than cut-off value
+    std::map< std::shared_ptr< ObservationCollectionParser >, std::shared_ptr< ObservationFilterBase > > residualFilter2 =
+            { { observationParser( one_way_range ), observationFilter( residual_filtering, residualCutOffValue, false ) } };
     simulatedObservations->filterObservations( residualFilter2 );
 
     BOOST_CHECK( rangeObservationSets.at( 0 )->getNumberOfObservables( ) == nbRangeStation1 );
@@ -1146,6 +1146,69 @@ BOOST_AUTO_TEST_CASE( test_ObservationParser )
         BOOST_CHECK( rangeTimesFromObservationCollection.at( k ) == rangeTimesPostDefiltering.at( k ) );
     }
 
+
+    // Test filtering based on epoch values and time bounds
+    std::pair< double, double > timeBounds = std::make_pair( rangeObsTimes[ int(nbObs/3) ], rangeObsTimes[ 2*int(nbObs/3) ] );
+    std::vector< double > epochsToFilter;
+    std::vector< double > epochsLeft;
+    for ( unsigned  time : rangeObsTimes )
+    {
+        if ( time >= timeBounds.first && time <= timeBounds.second )
+        {
+            epochsToFilter.push_back( time );
+        }
+        else
+        {
+            epochsLeft.push_back( time );
+        }
+    }
+
+    // Filter out observations that are outside the above-defined time bounds, using epochs-based filtering
+    simulatedObservations->filterObservations( observationFilter( epochs_filtering, epochsToFilter, true, true ), observationParser( one_way_range ) );
+
+    // Retrieve and check remaining observation times
+    std::vector< std::vector< double > > remainingObsTimes = simulatedObservations->getObservationTimes( observationParser( one_way_range ) );
+    for ( unsigned int k = 0 ; k < remainingObsTimes.size( ) ; k++ )
+    {
+        for ( unsigned int j = 0 ; j < remainingObsTimes.at( k ).size( ) ; j++ )
+        {
+            BOOST_CHECK( remainingObsTimes.at( k ).at( j ) == epochsToFilter.at( j ) );
+        }
+    }
+
+    // Reintroduce observations
+    simulatedObservations->filterObservations( observationFilter( epochs_filtering, epochsToFilter, false, true ), observationParser( one_way_range ) );
+
+    // Retrieve and check remaining observation times
+    remainingObsTimes = simulatedObservations->getObservationTimes( observationParser( one_way_range ) );
+    for ( unsigned int k = 0 ; k < remainingObsTimes.size( ) ; k++ )
+    {
+        BOOST_CHECK( remainingObsTimes.at( k ).size( ) == nbObs );
+    }
+
+
+    // Filter out observations that are outside the above defined time bounds, using time bounds filtering directly
+    simulatedObservations->filterObservations( observationFilter( time_bounds_filtering, timeBounds, true, true ), observationParser( one_way_range ) );
+
+    // Retrieve and check remaining observation times
+    remainingObsTimes = simulatedObservations->getObservationTimes( observationParser( one_way_range ) );
+    for ( unsigned int k = 0 ; k < remainingObsTimes.size( ) ; k++ )
+    {
+        for ( unsigned int j = 0 ; j < remainingObsTimes.at( k ).size( ) ; j++ )
+        {
+            BOOST_CHECK( remainingObsTimes.at( k ).at( j ) == epochsToFilter.at( j ) );
+        }
+    }
+
+    // Re-introduce observations
+    simulatedObservations->filterObservations( observationFilter( time_bounds_filtering, timeBounds, false, true ), observationParser( one_way_range ) );
+
+    // Retrieve and check remaining observation times
+    remainingObsTimes = simulatedObservations->getObservationTimes( observationParser( one_way_range ) );
+    for ( unsigned int k = 0 ; k < remainingObsTimes.size( ) ; k++ )
+    {
+        BOOST_CHECK( remainingObsTimes.at( k ).size( ) == nbObs );
+    }
 
 }
 
