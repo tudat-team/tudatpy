@@ -37,47 +37,24 @@ enum ObservationFilterType
 {
     residual_filtering,
     absolute_value_filtering,
-//    epochs_filtering,
-//    time_bounds_filtering,
+    epochs_filtering,
+    time_bounds_filtering,
     dependent_variable_filtering
 };
 
-struct ObservationFilter
+struct ObservationFilterBase
 {
 public:
-    ObservationFilter( const ObservationFilterType filterType, const double filterValue, const bool filterOut = true ) :
-            filterType_( filterType ), doubleFilterValue_( filterValue ), vectorFilterValue_( Eigen::VectorXd::Zero( 0 ) ), filterOut_( filterOut )
-    {
-    //        if ( !( isFilterDoubleValue( filterType_ ) ) )
-    //        {
-    //            throw std::runtime_error( "Error when creating ObservationFilter of type " + std::to_string( filterType_ ) + ", the input filter value should be a vector and not a double." );
-    //        }
-    }
 
-    ObservationFilter( const ObservationFilterType filterType, const Eigen::VectorXd& filterValue, const bool filterOut = true ) :
-            filterType_( filterType ), doubleFilterValue_( TUDAT_NAN ), vectorFilterValue_( filterValue ), filterOut_( filterOut )
-    {
-    //        if  ( isFilterDoubleValue( filterType_ ) )
-    //        {
-    //            throw std::runtime_error( "Error when creating ObservationFilter of type " + std::to_string( filterType_ ) + ", the input filter value should be a double and not a vector." );
-    //        }
-    }
+    ObservationFilterBase( const ObservationFilterType filterType, const bool filterOut = true, const bool useOppositeCondition = false ) :
+            filterType_( filterType ), filterOut_( filterOut ), useOppositeCondition_( useOppositeCondition )
+    { }
 
-    virtual ~ObservationFilter( ){ }
+    virtual ~ObservationFilterBase( ){ }
 
     ObservationFilterType getFilterType( ) const
     {
         return filterType_;
-    }
-
-    double getDoubleFilterValue( ) const
-    {
-        return doubleFilterValue_;
-    }
-
-    Eigen::VectorXd getVectorFilterValue( ) const
-    {
-        return vectorFilterValue_;
     }
 
     const bool filterOut( ) const
@@ -85,25 +62,90 @@ public:
         return filterOut_;
     }
 
-    protected:
+    bool useOppositeCondition( ) const
+    {
+        return useOppositeCondition_;
+    }
+
+protected:
+
     ObservationFilterType filterType_;
-
-    double doubleFilterValue_;
-
-    Eigen::VectorXd vectorFilterValue_;
-
-    bool filterOut_;
-
+    const bool filterOut_;
+    const bool useOppositeCondition_;
 };
 
-inline std::shared_ptr< ObservationFilter > observationFilter( const ObservationFilterType filterType, const double filterValue, const bool filterOut = true )
+template< typename FilterValueType >
+bool checkFilterTypeConsistency( ObservationFilterType filterType )
 {
-    return std::make_shared< ObservationFilter >( filterType, filterValue, filterOut );
+    bool consistentType = true;
+    switch( filterType )
+    {
+        case residual_filtering:
+        case absolute_value_filtering:
+        {
+            if ( !( std::is_same< FilterValueType, double>::value ) ){ consistentType = false; }
+            break;
+        }
+        case epochs_filtering:
+        {
+            if ( !( std::is_same< FilterValueType, std::vector< double > >::value ) ){ consistentType = false; }
+            break;
+        }
+        case time_bounds_filtering:
+        {
+            if ( !( std::is_same< FilterValueType, std::pair< double, double > >::value ) ) { consistentType = false; }
+            break;
+        }
+        default:
+            break;
+    }
+    return consistentType;
 }
 
-inline std::shared_ptr< ObservationFilter > observationFilter( const ObservationFilterType filterType, const Eigen::VectorXd& filterValue, const bool filterOut = true )
+
+template< typename FilterValueType >
+struct ObservationFilter : public ObservationFilterBase
 {
-    return std::make_shared< ObservationFilter >( filterType, filterValue, filterOut );
+public:
+    ObservationFilter( ObservationFilterType filterType, const FilterValueType& filterValue, const bool filterOut = true, const bool useOppositeCondition = false ) :
+            ObservationFilterBase( filterType, filterOut, useOppositeCondition ), filterValue_( filterValue )
+    {
+        if ( !checkFilterTypeConsistency< FilterValueType >( filterType ) )
+        {
+            throw std::runtime_error( "Error when creating observation filter of type " + std::to_string( filterType ) + " filter value type is inconsistent." );
+        }
+    }
+
+    virtual ~ObservationFilter( ){ }
+
+
+    FilterValueType getFilterValue( ) const
+    {
+        return filterValue_;
+    }
+
+protected:
+
+    FilterValueType filterValue_;
+};
+
+
+inline std::shared_ptr< ObservationFilterBase > observationFilter(
+        const ObservationFilterType filterType, const double filterValue, const bool filterOut = true, const bool useOppositeCondition = false )
+{
+    return std::make_shared< ObservationFilter< double > >( filterType, filterValue, filterOut, useOppositeCondition );
+}
+
+inline std::shared_ptr< ObservationFilterBase > observationFilter(
+        const ObservationFilterType filterType, const std::vector< double > filterValue, const bool filterOut = true, const bool useOppositeCondition = false )
+{
+    return std::make_shared< ObservationFilter< std::vector< double > > >( filterType, filterValue, filterOut, useOppositeCondition );
+}
+
+inline std::shared_ptr< ObservationFilterBase > observationFilter(
+        const ObservationFilterType filterType, const std::pair< double, double > filterValue, const bool filterOut = true, const bool useOppositeCondition = false )
+{
+    return std::make_shared< ObservationFilter< std::pair< double, double > > >( filterType, filterValue, filterOut, useOppositeCondition );
 }
 
 
@@ -550,7 +592,7 @@ public:
         }
     }
 
-    void filterObservations( const std::shared_ptr< ObservationFilter > observationFilter, const bool saveFilteredObservations = true )
+    void filterObservations( const std::shared_ptr< ObservationFilterBase > observationFilter, const bool saveFilteredObservations = true )
     {
         if ( observationFilter->filterOut( ) && filteredObservationSet_ == nullptr )
         {
@@ -564,94 +606,108 @@ public:
             throw std::runtime_error( "Error when attempting to un-filter observations, filtered observation set is empty." );
         }
 
+        int nbObservationsToTest = ( observationFilter->filterOut( ) ? numberOfObservations_ : filteredObservationSet_->getNumberOfObservables( ) );
+        bool useOppositeCondition = observationFilter->useOppositeCondition( );
+
         std::vector< unsigned int > indicesToRemove;
         switch ( observationFilter->getFilterType( ) )
         {
             case residual_filtering:
             {
-                double residualCutOffValue = observationFilter->getDoubleFilterValue( );
-
-                if ( observationFilter->filterOut( ) )
+                Eigen::VectorXd residualCutOff = Eigen::VectorXd::Zero( singleObservationSize_ );
+                if ( std::dynamic_pointer_cast< ObservationFilter< double > >( observationFilter ) != nullptr )
                 {
-                    for( unsigned int j = 0 ; j < numberOfObservations_ ; j++ )
+                    residualCutOff = std::dynamic_pointer_cast< ObservationFilter< double > >( observationFilter )->getFilterValue( ) * Eigen::VectorXd::Ones( singleObservationSize_ );
+                }
+                else if ( std::dynamic_pointer_cast< ObservationFilter< Eigen::VectorXd > >( observationFilter ) != nullptr )
+                {
+                    if ( std::dynamic_pointer_cast< ObservationFilter< Eigen::VectorXd > >( observationFilter )->getFilterValue( ).size( ) != singleObservationSize_ )
                     {
-                        Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > singleObservationResidual = residuals_.at( j );
-                        bool removeObservation = false;
-                        for( int k = 0 ; k < singleObservationSize_ ; k++ )
+                        throw std::runtime_error( "Error when performing residual filtering, size of the residual cut off vector inconsistent with observable size." );
+                    }
+                    residualCutOff = std::dynamic_pointer_cast< ObservationFilter< Eigen::VectorXd > >( observationFilter )->getFilterValue( );
+                }
+
+                for ( int j = 0 ; j < nbObservationsToTest ; j++ )
+                {
+                    Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > singleObservationResidual =
+                            ( observationFilter->filterOut( ) ? residuals_.at( j ) : filteredObservationSet_->getResidual( j ) );
+                    bool removeObservation = false;
+                    for( int k = 0 ; k < singleObservationSize_ ; k++ )
+                    {
+                        if( ( !useOppositeCondition && ( singleObservationResidual[ k ] > residualCutOff[ k ] ) ) ||
+                        ( useOppositeCondition && ( singleObservationResidual[ k ] <= residualCutOff[ k ] ) ) )
                         {
-                            if(  singleObservationResidual[ k ] > residualCutOffValue )
-                            {
-                                removeObservation = true;
-                            }
-                        }
-                        if( removeObservation )
-                        {
-                            indicesToRemove.push_back( j );
+                            removeObservation = true;
                         }
                     }
-                }
-                else
-                {
-                    for( unsigned int j = 0 ; j < filteredObservationSet_->getNumberOfObservables( ) ; j++ )
+                    if( removeObservation )
                     {
-                        Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > singleObservationResidual = filteredObservationSet_->getResidual( j );
-                        bool removeObservation = false;
-
-                        for( int k = 0 ; k < singleObservationSize_ ; k++ )
-                        {
-                            if( singleObservationResidual[ k ] <= residualCutOffValue )
-                            {
-                                removeObservation = true;
-                            }
-                        }
-                        if( removeObservation )
-                        {
-                            indicesToRemove.push_back( j );
-                        }
+                        indicesToRemove.push_back( j );
                     }
                 }
                 break;
             }
             case absolute_value_filtering:
             {
-                double absoluteValueCutOff = observationFilter->getDoubleFilterValue( );
-
-                if ( observationFilter->filterOut( ) )
+                Eigen::VectorXd absoluteValueCutOff = Eigen::VectorXd::Zero( singleObservationSize_ );
+                if ( std::dynamic_pointer_cast< ObservationFilter< double > >( observationFilter ) != nullptr )
                 {
-                    for( unsigned int j = 0 ; j < numberOfObservations_ ; j++ )
+                    absoluteValueCutOff = std::dynamic_pointer_cast< ObservationFilter< double > >( observationFilter )->getFilterValue( ) * Eigen::VectorXd::Ones( singleObservationSize_ );
+                }
+                else if ( std::dynamic_pointer_cast< ObservationFilter< Eigen::VectorXd > >( observationFilter ) != nullptr )
+                {
+                    if ( std::dynamic_pointer_cast< ObservationFilter< Eigen::VectorXd > >( observationFilter )->getFilterValue( ).size( ) != singleObservationSize_ )
                     {
-                        Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > singleObservation = observations_.at( j );
-                        bool removeObservation = false;
-                        for( int k = 0 ; k < singleObservationSize_ ; k++ )
+                        throw std::runtime_error( "Error when performing observation value filtering, size of the filter value inconsistent with observable size." );
+                    }
+                    absoluteValueCutOff = std::dynamic_pointer_cast< ObservationFilter< Eigen::VectorXd > >( observationFilter )->getFilterValue( );
+                }
+
+                for ( int j = 0 ; j < nbObservationsToTest ; j++ )
+                {
+                    Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > singleObservation =
+                            ( observationFilter->filterOut( ) ? observations_.at( j ) : filteredObservationSet_->getObservation( j ) );
+                    bool removeObservation = false;
+                    for( int k = 0 ; k < singleObservationSize_ ; k++ )
+                    {
+                        if ( ( !useOppositeCondition && ( singleObservation[ k ] > absoluteValueCutOff[ k ] ) ) ||
+                        ( useOppositeCondition && ( singleObservation[ k ] <= absoluteValueCutOff[ k ] ) ) )
                         {
-                            if ( singleObservation[ k ] > absoluteValueCutOff )
-                            {
-                                removeObservation = true;
-                            }
-                        }
-                        if( removeObservation )
-                        {
-                            indicesToRemove.push_back( j );
+                            removeObservation = true;
                         }
                     }
-                }
-                else
-                {
-                    for( unsigned int j = 0 ; j < filteredObservationSet_->getNumberOfObservables( ) ; j++ )
+                    if( removeObservation )
                     {
-                        Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > singleObservation = filteredObservationSet_->getObservation( j );
-                        bool removeObservation = false;
-                        for( int k = 0 ; k < singleObservationSize_ ; k++ )
-                        {
-                            if ( singleObservation[ k ] <= absoluteValueCutOff )
-                            {
-                                removeObservation = true;
-                            }
-                        }
-                        if( removeObservation )
-                        {
-                            indicesToRemove.push_back( j );
-                        }
+                        indicesToRemove.push_back( j );
+                    }
+                }
+                break;
+            }
+            case epochs_filtering:
+            {
+                std::vector< double > filterEpochs = std::dynamic_pointer_cast< ObservationFilter< std::vector< double > > >( observationFilter )->getFilterValue( );
+                for ( int j = 0 ; j < nbObservationsToTest ; j++ )
+                {
+                    TimeType singleObservationTime = ( observationFilter->filterOut( ) ? observationTimes_.at( j ) : filteredObservationSet_->getObservationTime( j ) );
+                    if ( ( !useOppositeCondition && ( std::count( filterEpochs.begin( ), filterEpochs.end( ), singleObservationTime ) > 0 ) ) ||
+                    ( useOppositeCondition && ( std::count( filterEpochs.begin( ), filterEpochs.end( ), singleObservationTime ) == 0 ) ) )
+                    {
+                        indicesToRemove.push_back( j );
+                    }
+                }
+                break;
+            }
+            case time_bounds_filtering:
+            {
+                std::pair< double, double > timeBounds = std::dynamic_pointer_cast< ObservationFilter< std::pair< double, double > > >( observationFilter )->getFilterValue( );
+                for ( int j = 0 ; j < nbObservationsToTest ; j++ )
+                {
+                    TimeType singleObservationTime = ( observationFilter->filterOut( ) ? observationTimes_.at( j ) : filteredObservationSet_->getObservationTime( j ) );
+                    if ( ( !useOppositeCondition && ( ( singleObservationTime >= timeBounds.first ) && ( singleObservationTime <= timeBounds.second ) ) ) ||
+                            ( useOppositeCondition && ( ( singleObservationTime < timeBounds.first ) || ( singleObservationTime > timeBounds.second ) ) ) )
+                    {
+                        indicesToRemove.push_back( j );
                     }
                 }
                 break;
@@ -2063,14 +2119,14 @@ public:
         }
     }
 
-    void filterObservations( const std::map< std::shared_ptr< ObservationCollectionParser >, std::shared_ptr< ObservationFilter > >& observationFilters,
+    void filterObservations( const std::map< std::shared_ptr< ObservationCollectionParser >, std::shared_ptr< ObservationFilterBase > >& observationFilters,
                              const bool saveFilteredObservations = true )
     {
         // Parse all observation filters
         for ( auto filterIt : observationFilters )
         {
             std::shared_ptr< ObservationCollectionParser > observationParser = filterIt.first;
-            std::shared_ptr< ObservationFilter > filter = filterIt.second;
+            std::shared_ptr< ObservationFilterBase > filter = filterIt.second;
 
             // Retrieve single observation sets based on observation parser
             std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > singleObsSets =
@@ -2088,12 +2144,11 @@ public:
         setConcatenatedObservationsAndTimes( );
     }
 
-
-   void filterObservations( std::shared_ptr< ObservationFilter > observationFilter,
-                            const bool saveFilteredObservations = true,
-                            std::shared_ptr< ObservationCollectionParser > observationParser = std::make_shared< ObservationCollectionParser >( ) )
+   void filterObservations( std::shared_ptr< ObservationFilterBase > observationFilter,
+                            std::shared_ptr< ObservationCollectionParser > observationParser = std::make_shared< ObservationCollectionParser >( ),
+                            const bool saveFilteredObservations = true )
     {
-        std::map< std::shared_ptr< ObservationCollectionParser >, std::shared_ptr< ObservationFilter > > observationFilters
+        std::map< std::shared_ptr< ObservationCollectionParser >, std::shared_ptr< ObservationFilterBase > > observationFilters
                 { { observationParser, observationFilter } };
 
         filterObservations( observationFilters, saveFilteredObservations );
