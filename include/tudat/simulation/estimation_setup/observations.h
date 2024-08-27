@@ -37,8 +37,8 @@ enum ObservationFilterType
 {
     residual_filtering,
     absolute_value_filtering,
-//    epochs,
-//    time_interval,
+//    epochs_filtering,
+//    time_bounds_filtering,
     dependent_variable_filtering
 };
 
@@ -912,8 +912,9 @@ enum ObservationParserType
     empty_parser,
     observable_type_parser,
     link_ends_parser,
-    body_name_parser,
+    link_end_id_parser,
     time_bounds_parser,
+    ancillary_settings_parser,
     multi_type_parser
 };
 
@@ -993,37 +994,38 @@ protected:
 
 };
 
-struct ObservationCollectionBodyNameParser : public ObservationCollectionParser
+struct ObservationCollectionLinkEndIdParser : public ObservationCollectionParser
 {
 public:
 
-    ObservationCollectionBodyNameParser( const std::string bodyName,
-                                         const bool isStationName = false,
-                                         const bool useOppositeCondition = false ) :
-            ObservationCollectionParser( body_name_parser, useOppositeCondition ), bodyNames_( std::vector< std::string >( { bodyName } ) ), isStationName_( isStationName ){ }
+    ObservationCollectionLinkEndIdParser( const std::string linkEndsNames,
+                                          const bool isReferencePoint = false,
+                                          const bool useOppositeCondition = false ) :
+            ObservationCollectionParser( link_end_id_parser, useOppositeCondition ), linkEndsNames_( std::vector< std::string >( { linkEndsNames } ) ),
+            isReferencePoint_( isReferencePoint ){ }
 
-    ObservationCollectionBodyNameParser( const std::vector< std::string > bodyNames,
-                                         const bool isStationName = false,
-                                         const bool useOppositeCondition = false ) :
-            ObservationCollectionParser( body_name_parser, useOppositeCondition ), bodyNames_( bodyNames ), isStationName_( isStationName ){ }
+    ObservationCollectionLinkEndIdParser( const std::vector< std::string > linkEndsNames,
+                                          const bool isReferencePoint = false,
+                                          const bool useOppositeCondition = false ) :
+            ObservationCollectionParser( link_end_id_parser, useOppositeCondition ), linkEndsNames_( linkEndsNames ), isReferencePoint_( isReferencePoint ){ }
 
-    virtual ~ObservationCollectionBodyNameParser( ){ }
+    virtual ~ObservationCollectionLinkEndIdParser( ){ }
 
-    std::vector< std::string > getBodyNames( ) const
+    std::vector< std::string > getLinkEndNames( ) const
     {
-        return bodyNames_;
+        return linkEndsNames_;
     }
 
-    bool isCheckForStationName( ) const
+    bool isReferencePoint( ) const
     {
-        return isStationName_;
+        return isReferencePoint_;
     }
 
 protected:
 
-    const std::vector< std::string > bodyNames_;
+    const std::vector< std::string > linkEndsNames_;
 
-    const bool isStationName_;
+    const bool isReferencePoint_;
 
 };
 
@@ -1050,7 +1052,29 @@ protected:
 
 };
 
+struct ObservationCollectionAncillarySettingsParser : public ObservationCollectionParser
+{
+public:
 
+    ObservationCollectionAncillarySettingsParser( const std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings, const bool useOppositeCondition = false ) :
+            ObservationCollectionParser( ancillary_settings_parser, useOppositeCondition ),
+            ancillarySettings_( std::vector< std::shared_ptr< ObservationAncilliarySimulationSettings > >( { ancillarySettings } ) ){ }
+
+    ObservationCollectionAncillarySettingsParser( const std::vector< std::shared_ptr< ObservationAncilliarySimulationSettings > > ancillarySettings, const bool useOppositeCondition = false ) :
+            ObservationCollectionParser( ancillary_settings_parser, useOppositeCondition ), ancillarySettings_( ancillarySettings ){ }
+
+    virtual ~ObservationCollectionAncillarySettingsParser( ){ }
+
+    std::vector< std::shared_ptr< ObservationAncilliarySimulationSettings > > getAncillarySettings( ) const
+    {
+        return ancillarySettings_;
+    }
+
+protected:
+
+    const std::vector< std::shared_ptr< ObservationAncilliarySimulationSettings > > ancillarySettings_;
+
+};
 
 struct ObservationCollectionMultiTypeParser : public ObservationCollectionParser
 {
@@ -1105,15 +1129,15 @@ inline std::shared_ptr< ObservationCollectionParser > observationParser( const s
     return std::make_shared< ObservationCollectionLinkEndsParser >( linkEndsVector, useOppositeCondition );
 }
 
-inline std::shared_ptr< ObservationCollectionParser > observationParser( const std::string bodyName, const bool isStationName = false, const bool useOppositeCondition = false )
+inline std::shared_ptr< ObservationCollectionParser > observationParser( const std::string bodyName, const bool isReferencePoint = false, const bool useOppositeCondition = false )
 {
-    return std::make_shared< ObservationCollectionBodyNameParser >( bodyName, isStationName, useOppositeCondition );
+    return std::make_shared< ObservationCollectionLinkEndIdParser >( bodyName, isReferencePoint, useOppositeCondition );
 }
 
 inline std::shared_ptr< ObservationCollectionParser > observationParser( const std::vector< std::string >& bodyNames,
-                                                                         const bool isStationName = false, const bool useOppositeCondition = false )
+                                                                         const bool isReferencePoint = false, const bool useOppositeCondition = false )
 {
-    return std::make_shared< ObservationCollectionBodyNameParser >( bodyNames, isStationName, useOppositeCondition );
+    return std::make_shared< ObservationCollectionLinkEndIdParser >( bodyNames, isReferencePoint, useOppositeCondition );
 }
 
 inline std::shared_ptr< ObservationCollectionParser > observationParser( const std::pair< double, double >& timeBounds, const bool useOppositeCondition = false )
@@ -1124,6 +1148,18 @@ inline std::shared_ptr< ObservationCollectionParser > observationParser( const s
 inline std::shared_ptr< ObservationCollectionParser > observationParser( const std::vector< std::pair< double, double > >& timeBoundsVector, const bool useOppositeCondition = false )
 {
     return std::make_shared< ObservationCollectionTimeBoundsParser >( timeBoundsVector, useOppositeCondition );
+}
+
+inline std::shared_ptr< ObservationCollectionParser > observationParser(
+        const std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings, const bool useOppositeCondition = false )
+{
+    return std::make_shared< ObservationCollectionAncillarySettingsParser >( ancillarySettings, useOppositeCondition );
+}
+
+inline std::shared_ptr< ObservationCollectionParser > observationParser(
+        const std::vector< std::shared_ptr< ObservationAncilliarySimulationSettings > >& ancillarySettings, const bool useOppositeCondition = false )
+{
+    return std::make_shared< ObservationCollectionAncillarySettingsParser >( ancillarySettings, useOppositeCondition );
 }
 
 inline std::shared_ptr< ObservationCollectionParser > observationParser( const std::vector< std::shared_ptr< ObservationCollectionParser > >& observationParsers,
@@ -2142,28 +2178,28 @@ public:
                 }
                 break;
             }
-            case body_name_parser:
+            case link_end_id_parser:
             {
-                std::shared_ptr< ObservationCollectionBodyNameParser > bodyNameObservationParser =
-                        std::dynamic_pointer_cast< ObservationCollectionBodyNameParser >( observationParser );
-                std::vector< std::string > bodyNames = bodyNameObservationParser->getBodyNames( );
-                bool isStationName = bodyNameObservationParser->isCheckForStationName( );
+                std::shared_ptr< ObservationCollectionLinkEndIdParser > linkEndIdObservationParser =
+                        std::dynamic_pointer_cast< ObservationCollectionLinkEndIdParser >( observationParser );
+                std::vector< std::string > linkEndsNames = linkEndIdObservationParser->getLinkEndNames( );
+                bool isReferencePoint = linkEndIdObservationParser->isReferencePoint( );
 
                 // Retrieve all body names
-                std::vector< std::string > allBodyNames;
-                if ( !isStationName )
+                std::vector< std::string > allLinkEndsNames;
+                if ( !isReferencePoint )
                 {
-                    allBodyNames = getBodiesInLinkEnds( );
+                    allLinkEndsNames = getBodiesInLinkEnds( );
                 }
                 else
                 {
-                    allBodyNames = getReferencePointsInLinkEnds( );
+                    allLinkEndsNames = getReferencePointsInLinkEnds( );
                 }
 
-                for ( auto name : allBodyNames )
+                for ( auto name : allLinkEndsNames )
                 {
-                    if ( ( ( std::count( bodyNames.begin( ), bodyNames.end( ), name ) ) && ( !observationParser->useOppositeCondition( ) ) ) ||
-                         ( ( std::count( bodyNames.begin( ), bodyNames.end( ), name ) == 0 ) && ( observationParser->useOppositeCondition( ) ) ) )
+                    if ( ( ( std::count( linkEndsNames.begin( ), linkEndsNames.end( ), name ) ) && ( !observationParser->useOppositeCondition( ) ) ) ||
+                         ( ( std::count( linkEndsNames.begin( ), linkEndsNames.end( ), name ) == 0 ) && ( observationParser->useOppositeCondition( ) ) ) )
                     {
                         for ( auto observableIt : observationSetList_ )
                         {
@@ -2190,8 +2226,8 @@ public:
                                     }
                                 }
 
-                                if ( ( !isStationName && isBodyInLinkEnds/*( linkEndsIt.first, name )*/ ) ||
-                                     ( isStationName && isGroundStationInLinkEnds/*( linkEndsIt.first, name )*/ ) )
+                                if ( ( !isReferencePoint && isBodyInLinkEnds/*( linkEndsIt.first, name )*/ ) ||
+                                     ( isReferencePoint && isGroundStationInLinkEnds/*( linkEndsIt.first, name )*/ ) )
                                 {
                                     for ( unsigned int k = 0 ; k < linkEndsIt.second.size( ) ; k++ )
                                     {
@@ -2234,6 +2270,46 @@ public:
                                 }
                                 if ( ( isInTimeBounds && ( !observationParser->useOppositeCondition( ) ) ) ||
                                      ( !isInTimeBounds && ( observationParser->useOppositeCondition( ) ) ) )
+                                {
+                                    indicesPerObservable[ linkEndsIt.first ].push_back( k );
+                                }
+                            }
+                        }
+                        if ( indicesPerObservable.size( ) > 0 )
+                        {
+                            observationSetsIndices[ observableIt.first ] = indicesPerObservable;
+                        }
+                    }
+                }
+                break;
+            }
+            case ancillary_settings_parser:
+            {
+                std::vector< std::shared_ptr< ObservationAncilliarySimulationSettings > > ancillarySettings =
+                        std::dynamic_pointer_cast< ObservationCollectionAncillarySettingsParser >( observationParser )->getAncillarySettings( );
+
+                for ( auto setting : ancillarySettings )
+                {
+                    for ( auto observableIt : observationSetList_ )
+                    {
+                        std::map< LinkEnds, std::vector< unsigned int > > indicesPerObservable;
+                        if ( observationSetsIndices.count( observableIt.first ) )
+                        {
+                            indicesPerObservable = observationSetsIndices.at( observableIt.first );
+                        }
+
+                        for ( auto linkEndsIt : observableIt.second )
+                        {
+                            for ( unsigned int k = 0 ; k < linkEndsIt.second.size( ) ; k++ )
+                            {
+                                bool identicalAncillarySettings = false;
+                                if ( ( linkEndsIt.second.at( k )->getAncilliarySettings( )->getDoubleData( ) == setting->getDoubleData( ) ) &&
+                                    ( linkEndsIt.second.at( k )->getAncilliarySettings( )->getDoubleVectorData( ) == setting->getDoubleVectorData( ) ) )
+                                {
+                                    identicalAncillarySettings = true;
+                                }
+                                if ( ( identicalAncillarySettings && !observationParser->useOppositeCondition( ) ) ||
+                                ( !identicalAncillarySettings && observationParser->useOppositeCondition( ) ) )
                                 {
                                     indicesPerObservable[ linkEndsIt.first ].push_back( k );
                                 }
