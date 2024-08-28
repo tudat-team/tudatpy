@@ -641,7 +641,9 @@ BOOST_AUTO_TEST_CASE( test_ObservationParser )
     {
         rangeObsTimes.push_back( initialEphemerisTime + 1000.0 + static_cast< double >( j ) * obsInterval );
         dopplerObsTimes.push_back( initialEphemerisTime + 1000.0 + 86400.0 + static_cast< double >( j ) * obsInterval );
-        angularPositionObsTimes.push_back( initialEphemerisTime + 1000.0 + 2.0 * 86400.0 + static_cast< double >( j ) * obsInterval );
+
+        double angularPositionObsBuffer = ( ( j > int(nbObs/2) ) ? 3000.0 : 1000.0 );
+        angularPositionObsTimes.push_back( initialEphemerisTime + angularPositionObsBuffer + 2.0 * 86400.0 + static_cast< double >( j ) * obsInterval );
     }
     baseTimeList[ one_way_range ] = rangeObsTimes;
     baseTimeList[ one_way_doppler ] = dopplerObsTimes;
@@ -719,7 +721,14 @@ BOOST_AUTO_TEST_CASE( test_ObservationParser )
     std::vector< std::pair< double, double > > trueTimeBoundsList;
     for ( auto it : obsStartTimes )
     {
-        trueTimeBoundsList.push_back( std::make_pair( it.second, it.second + ( nbObs - 1 ) * obsInterval ) );
+        if ( it.first != angular_position )
+        {
+            trueTimeBoundsList.push_back( std::make_pair( it.second, it.second + ( nbObs - 1 ) * obsInterval ) );
+        }
+        else
+        {
+            trueTimeBoundsList.push_back( std::make_pair( it.second, it.second + ( nbObs - 1 ) * obsInterval + 2000.0 ) );
+        }
     }
     BOOST_CHECK( timeBoundsList.size( ) == trueTimeBoundsList.size( ) );
     for ( auto timeBounds : trueTimeBoundsList )
@@ -1209,6 +1218,79 @@ BOOST_AUTO_TEST_CASE( test_ObservationParser )
     {
         BOOST_CHECK( remainingObsTimes.at( k ).size( ) == nbObs );
     }
+
+    // Test splitting based on time tags
+    int indexSplitEpoch = int(nbObs/3);
+    double splitEpoch = rangeObsTimes.at( indexSplitEpoch );
+    std::vector< double > timeTags = { rangeObsTimes.at( 0 ), splitEpoch, rangeObsTimes.back( ) };
+    simulatedObservations->splitObservationSets( observationSetSplitter( time_tags_splitter, timeTags ), observationParser( stationTransmitterLinkEnds[ 0 ] ) );
+
+    // Check that the original observation set got split in two independent sets (before/after splitEpoch)
+    std::vector< std::shared_ptr< SingleObservationSet< > > > splitObsSets = simulatedObservations->getSingleObservationSets( observationParser( stationTransmitterLinkEnds[ 0 ] ) );
+    BOOST_CHECK( splitObsSets.size( ) == 2 );
+    BOOST_CHECK( splitObsSets.at( 0 )->getNumberOfObservables( ) == indexSplitEpoch+1 );
+    BOOST_CHECK( splitObsSets.at( 1 )->getNumberOfObservables( ) == nbObs - (indexSplitEpoch+1) );
+
+    // Check that all observations in the first set occur before splitEpoch
+    for ( auto time : splitObsSets.at( 0 )->getObservationTimes( ) )
+    {
+        BOOST_CHECK( time <= splitEpoch );
+    }
+    // Check that all observations in the first set occur after splitEpoch
+    for ( auto time : splitObsSets.at( 1 )->getObservationTimes( ) )
+    {
+        BOOST_CHECK( time > splitEpoch );
+    }
+
+
+    // Test splitting based on time span. Define max time span such that one observation set would be left with one observation only
+    // (to check if the minimum number of observations condition works)
+    double maxTimeSpanObs = (indexSplitEpoch - 1) * obsInterval;
+    simulatedObservations->splitObservationSets( observationSetSplitter( time_span_splitter, maxTimeSpanObs, 10 ), observationParser( stationTransmitterLinkEnds[ 0 ] ) );
+
+    // Check that we now have three independent sets (out of the former two, only one set could be split while retaining enough observations)
+    splitObsSets = simulatedObservations->getSingleObservationSets( observationParser( stationTransmitterLinkEnds[ 0 ] ) );
+    BOOST_CHECK( splitObsSets.size( ) == 3 );
+    BOOST_CHECK( splitObsSets.at( 0 )->getNumberOfObservables( ) == indexSplitEpoch );
+    BOOST_CHECK( splitObsSets.at( 1 )->getNumberOfObservables( ) == indexSplitEpoch );
+    BOOST_CHECK( splitObsSets.at( 2 )->getNumberOfObservables( ) == nbObs - (2*indexSplitEpoch+1) );
+
+    // Check that the time span of the new observation set meets the threshold
+    for ( unsigned int i = 0 ; i < 3 ; i++ )
+    {
+        std::vector< double > newObsTimes = splitObsSets.at( i )->getObservationTimes( );
+        BOOST_CHECK( ( newObsTimes.back(  ) - newObsTimes.at( 0 ) ) <= maxTimeSpanObs );
+    }
+
+    // Test splitting based on max number of observations
+    simulatedObservations->splitObservationSets( observationSetSplitter( nb_observations_splitter, 50, 50 ), observationParser( stationTransmitterLinkEnds[ 0 ] ) );
+
+    // Check that we now have five independent sets (only two of the former three sets contain enough observations to be split in two)
+    splitObsSets = simulatedObservations->getSingleObservationSets( observationParser( stationTransmitterLinkEnds[ 0 ] ) );
+    BOOST_CHECK( splitObsSets.size( ) == 5 );
+
+    // Check the number of observations in the new observation sets
+    for ( unsigned int i = 0 ; i < 5 ; i++ )
+    {
+        BOOST_CHECK( splitObsSets.at( i )->getNumberOfObservables( ) == 50 );
+    }
+
+    // Test splitting based on time interval
+    simulatedObservations->splitObservationSets( observationSetSplitter( time_interval_splitter, 1500.0 ), observationParser( stationReceiverLinkEnds[ 2 ] ) );
+
+    // Check that the observation set associated with stationReceiverLinkEnds[ 2 ] (of type angular_position) got split into two independent sets
+    splitObsSets = simulatedObservations->getSingleObservationSets( observationParser( stationReceiverLinkEnds[ 2 ] ) );
+    BOOST_CHECK( splitObsSets.size( ) == 2 );
+
+    // Check that the split is performed properly
+    for ( unsigned int k = 0 ; k < 2 ; k++ )
+    {
+        for ( unsigned int i = 0 ; i < splitObsSets.at( k )->getNumberOfObservables( ) - 1 ; i++ )
+        {
+            BOOST_CHECK( ( splitObsSets.at( k )->getObservationTimes( ).at( i + 1 ) - splitObsSets.at( k )->getObservationTimes( ).at( i ) ) <= 1500.0 );
+        }
+    }
+    BOOST_CHECK( ( splitObsSets.at( 1 )->getObservationTimes( ).at( 0 ) - splitObsSets.at( 0 )->getObservationTimes( ).back( ) ) > 1500.0 );
 
 }
 
