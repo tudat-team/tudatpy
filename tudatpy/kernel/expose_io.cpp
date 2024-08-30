@@ -308,7 +308,9 @@ Reads a space weather data file and produces a dictionary with solar activity da
                   py::arg("file_name"), py::arg("column_types"),
                   py::arg("comment_symbol") = '#',
                   py::arg("value_separators") = ",:\t ",
-                  get_docstring("read_tracking_txt_file").c_str());
+                  R"doc(
+Loads and reads a tracking observation data file based on the specified column types, comment symbol and value separators.
+)doc");
 
             py::class_<
                 tudat::input_output::TrackingTxtFileContents,
