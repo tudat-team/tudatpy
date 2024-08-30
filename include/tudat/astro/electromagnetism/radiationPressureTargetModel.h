@@ -295,6 +295,14 @@ public:
         const bool resetForces,
         const std::string sourceName = ""  ) override;
 
+    Eigen::Vector3d evaluateRadiationPressureForcePartialWrtDiffuseReflectivity(
+        double sourceIrradiance,
+        const Eigen::Vector3d &sourceToTargetDirectionLocalFrame);
+
+    Eigen::Vector3d evaluateRadiationPressureForcePartialWrtSpecularReflectivity(
+        double sourceIrradiance,
+        const Eigen::Vector3d &sourceToTargetDirectionLocalFrame);
+
 
     std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > >& getBodyFixedPanels( )
     {
@@ -346,6 +354,110 @@ public:
     }
 
     void saveLocalComputations( const std::string sourceName, const bool saveCosines ) override ;
+
+    double getAverageDiffuseReflectivity(const std::string& panelTypeId)
+    {
+        std::vector<double> coefficients;
+        std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > panelsFromId;
+        panelsFromId = this->getPanelsFromId(panelTypeId);
+        for( unsigned int i = 0; i < panelsFromId.size(); i++ ){
+            {
+                auto reflectionLaw = std::dynamic_pointer_cast<SpecularDiffuseMixReflectionLaw>(panelsFromId.at(i)->getReflectionLaw());
+                coefficients.push_back(reflectionLaw->getDiffuseReflectivity());
+            }
+        }
+
+        // Check if coefficients are consistent
+        if (!coefficients.empty()) {
+            double firstCoefficient = coefficients[0];
+            for (size_t i = 1; i < coefficients.size(); ++i) {
+                if (coefficients[i] != firstCoefficient) {
+                    std::cerr << "Warning: Specular reflectivity coefficients for panel group "
+                              << panelTypeId << " are not consistent. Returning average value" << std::endl;
+                    break;  } } }
+
+        // Calculate average coefficient
+        double averageCoefficient = 0.0;
+        if (!coefficients.empty())
+        {
+            averageCoefficient = std::accumulate(coefficients.begin(), coefficients.end(), 0.0) / coefficients.size();
+        }
+
+        return averageCoefficient;
+    };
+
+
+    double getAverageSpecularReflectivity(const std::string& panelTypeId)
+    {
+        std::vector<double> coefficients;
+        std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > panelsFromId;
+        panelsFromId = this->getPanelsFromId(panelTypeId);
+        for( unsigned int i = 0; i < panelsFromId.size(); i++ ){
+            {
+                auto reflectionLaw = std::dynamic_pointer_cast<SpecularDiffuseMixReflectionLaw>(panelsFromId.at(i)->getReflectionLaw());
+                coefficients.push_back(reflectionLaw->getSpecularReflectivity());
+            }
+        }
+
+        // Check if coefficients are consistent
+        if (!coefficients.empty()) {
+            double firstCoefficient = coefficients[0];
+            for (size_t i = 1; i < coefficients.size(); ++i) {
+                if (coefficients[i] != firstCoefficient) {
+                    std::cerr << "Warning: Diffuse reflectivity coefficients for for panel group "
+                              << panelTypeId << " are not consistent. Returning average value" << std::endl;
+                    break;  } } }
+
+        // Calculate average coefficient
+        double averageCoefficient = 0.0;
+        if (!coefficients.empty())
+        {
+            averageCoefficient = std::accumulate(coefficients.begin(), coefficients.end(), 0.0) / coefficients.size();
+        }
+
+        return averageCoefficient;
+    };
+
+    void setGroupSpecularReflectivity(const std::string& panelTypeId, double specularReflectivity)
+    {
+        std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > panelsFromId;
+        panelsFromId = this->getPanelsFromId(panelTypeId);
+        for( unsigned int i = 0; i < panelsFromId.size(); i++ )
+        {
+            if(panelsFromId.at(i)->getReflectionLaw() != nullptr )
+            {
+                auto reflectionLaw = std::dynamic_pointer_cast<SpecularDiffuseMixReflectionLaw>(fullPanels_.at(i)->getReflectionLaw());
+                reflectionLaw->setSpecularReflectivity(specularReflectivity);
+            }
+        }
+    };
+    void setGroupDiffuseReflectivity(const std::string& panelTypeId, double diffuseReflectivity)
+    {
+        std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > panelsFromId;
+        panelsFromId = this->getPanelsFromId(panelTypeId);
+        for( unsigned int i = 0; i < panelsFromId.size(); i++ )
+        {
+            if(panelsFromId.at(i)->getReflectionLaw() != nullptr )
+            {
+                auto reflectionLaw = std::dynamic_pointer_cast<SpecularDiffuseMixReflectionLaw>(fullPanels_.at(i)->getReflectionLaw());
+                reflectionLaw->setDiffuseReflectivity(diffuseReflectivity);
+            }
+        }
+    };
+
+    void setGroupAbsorptivity(const std::string& panelTypeId, double absorbtivity)
+    {
+        std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > panelsFromId;
+        panelsFromId = this->getPanelsFromId(panelTypeId);
+        for( unsigned int i = 0; i < panelsFromId.size(); i++ )
+        {
+            if(panelsFromId.at(i)->getReflectionLaw() != nullptr )
+            {
+                auto reflectionLaw = std::dynamic_pointer_cast<SpecularDiffuseMixReflectionLaw>(fullPanels_.at(i)->getReflectionLaw());
+                reflectionLaw->setAbsorptivity(absorbtivity);
+            }
+        }
+    };
 
 private:
     void updateMembers_( double currentTime ) override;

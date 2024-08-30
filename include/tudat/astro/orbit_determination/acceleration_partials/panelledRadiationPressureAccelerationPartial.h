@@ -116,6 +116,10 @@ public:
         }
     }
 
+    void wrtSpecularReflectivity( Eigen::MatrixXd& partial, const std::string& panelTypeId );
+
+    void wrtDiffuseReflectivity( Eigen::MatrixXd& partial, const std::string& panelTypeId );
+
     //! Function for updating partial w.r.t. the bodies' positions
     /*!
      *  Function for updating common blocks of partial to current state. For the panelled radiation
