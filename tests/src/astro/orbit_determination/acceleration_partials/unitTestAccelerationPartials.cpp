@@ -1243,22 +1243,22 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureAccelerationPartials )
     std::vector< std::shared_ptr< BodyPanelSettings > > panelSettingsList;
     panelSettingsList.push_back( std::make_shared< BodyPanelSettings >(
         std::make_shared< FrameFixedBodyPanelGeometrySettings >( -Eigen::Vector3d::UnitX( ), 1.0 ),
-        std::make_shared< SpecularDiffuseBodyPanelReflectionLawSettings >( 0.5, 0.1, true ) ) );
+        std::make_shared< SpecularDiffuseBodyPanelReflectionLawSettings >( 0.5, 0.1, true ), "SolarPanel" ) );
     panelSettingsList.push_back( std::make_shared< BodyPanelSettings >(
         std::make_shared< FrameFixedBodyPanelGeometrySettings >( -Eigen::Vector3d::UnitY( ), 3.254 ),
-        std::make_shared< SpecularDiffuseBodyPanelReflectionLawSettings >( 0.4, 0.2, true ) ) );
+        std::make_shared< SpecularDiffuseBodyPanelReflectionLawSettings >( 0.4, 0.2, true ), "SolarPanel" ) );
     panelSettingsList.push_back( std::make_shared< BodyPanelSettings >(
         std::make_shared< FrameFixedBodyPanelGeometrySettings >( -Eigen::Vector3d::UnitZ( ), 8.654 ),
-        std::make_shared< SpecularDiffuseBodyPanelReflectionLawSettings >( 0.2, 0.3, true ) ) );
+        std::make_shared< SpecularDiffuseBodyPanelReflectionLawSettings >( 0.2, 0.3, true ), "SolarPanel" ) );
     panelSettingsList.push_back( std::make_shared< BodyPanelSettings >(
         std::make_shared< FrameFixedBodyPanelGeometrySettings >( Eigen::Vector3d::UnitX( ), 1.346  ),
-        std::make_shared< SpecularDiffuseBodyPanelReflectionLawSettings >( 0.25, 0.15, true ) ) );
+        std::make_shared< SpecularDiffuseBodyPanelReflectionLawSettings >( 0.25, 0.15, true ), "SolarPanel" ) );
     panelSettingsList.push_back( std::make_shared< BodyPanelSettings >(
         std::make_shared< FrameFixedBodyPanelGeometrySettings >( Eigen::Vector3d::UnitY( ), 10.4783 ),
-        std::make_shared< SpecularDiffuseBodyPanelReflectionLawSettings >( 0.44, 0.51, true ) ) );
+        std::make_shared< SpecularDiffuseBodyPanelReflectionLawSettings >( 0.44, 0.51, true ), "SolarPanel" ) );
     panelSettingsList.push_back( std::make_shared< BodyPanelSettings >(
         std::make_shared< FrameFixedBodyPanelGeometrySettings >( Eigen::Vector3d::UnitZ( ), 6.4235 ),
-        std::make_shared< SpecularDiffuseBodyPanelReflectionLawSettings >( 0.16, 0.34, true ) ) );
+        std::make_shared< SpecularDiffuseBodyPanelReflectionLawSettings >( 0.16, 0.34, true ), "SolarPanel" ) );
 
     addBodyExteriorPanelledShape(
         std::make_shared< FullPanelledBodySettings >( panelSettingsList ), "Vehicle", bodies );
@@ -1297,6 +1297,10 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureAccelerationPartials )
         std::make_shared< RadiationPressureScalingFactor >( accelerationModel, source_direction_radiation_pressure_scaling_factor, "Vehicle", "Sun" );
     std::shared_ptr< EstimatableParameter< double > > perpendicularScalingFactor =
         std::make_shared< RadiationPressureScalingFactor >( accelerationModel, source_perpendicular_direction_radiation_pressure_scaling_factor, "Vehicle", "Sun" );
+    std::shared_ptr< EstimatableParameter< double > > specularReflectivity =
+        std::make_shared< SpecularReflectivity >( radiationPressureInterface, "Vehicle", "SolarPanel" );
+    std::shared_ptr< EstimatableParameter< double > > diffuseReflectivity =
+        std::make_shared< DiffuseReflectivity >( radiationPressureInterface, "Vehicle", "SolarPanel" );
 
 
     // Calculate analytical partials.
@@ -1316,6 +1320,8 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureAccelerationPartials )
     //Eigen::MatrixXd partialWrtEmissivities = accelerationPartial->wrtParameter( panelEmissivitiesParameter );
     Eigen::MatrixXd partialWrtParallelScaling = accelerationPartial->wrtParameter( parallelScalingFactor );
     Eigen::MatrixXd partialWrtPerpendicularScaling = accelerationPartial->wrtParameter( perpendicularScalingFactor );
+    Eigen::Vector3d partialWrtSpecularReflectivity = accelerationPartial->wrtParameter( specularReflectivity );
+    Eigen::Vector3d partialWrtDiffuseReflectivity = accelerationPartial->wrtParameter( diffuseReflectivity );
 
     // Declare numerical partials.
     Eigen::Matrix3d testPartialWrtVehiclePosition = Eigen::Matrix3d::Zero( );
@@ -1325,6 +1331,8 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureAccelerationPartials )
     Eigen::MatrixXd testPartialWrtEmissivities = Eigen::MatrixXd::Zero( 3, 2 );
     Eigen::MatrixXd testPartialWrtParallelScaling = Eigen::MatrixXd::Zero( 3, 1 );
     Eigen::MatrixXd testPartialWrtPerpendicularScaling = Eigen::MatrixXd::Zero( 3, 1 );
+    Eigen::Vector3d partialWrtSpecularReflectivity = Eigen::Vector3d::Zero( );
+    Eigen::Vector3d partialWrtDiffuseReflectivity = Eigen::Vector3d::Zero( );
 
     // Declare perturbations in position for numerical partial/
     Eigen::Vector3d positionPerturbation;
@@ -1361,6 +1369,11 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureAccelerationPartials )
     testPartialWrtPerpendicularScaling = calculateAccelerationWrtParameterPartials(
         perpendicularScalingFactor, accelerationModel, 10.0, updateFunction );
 
+    testPartialWrtDiffuseReflectivity = tudat::acceleration_partials::calculateAccelerationWrtParameterPartials(
+        diffuseReflectivity, accelerationModel, 1.0E-3, updateFunction );
+    testPartialWrtSpecularReflectivity = tudat::acceleration_partials::calculateAccelerationWrtParameterPartials(
+        specularReflectivity, accelerationModel, 1.0E-3, updateFunction );
+
 //    std::cout<<testPartialWrtParallelScaling<<std::endl<<std::endl;
 //    std::cout<<partialWrtParallelScaling<<std::endl<<std::endl;
 //
@@ -1382,6 +1395,10 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureAccelerationPartials )
                                        partialWrtParallelScaling, 1.0E-13 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtPerpendicularScaling,
                                        partialWrtPerpendicularScaling, 1.0E-13 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtSpecularReflectivity,
+                                       testPartialWrtSpecularReflectivity, 1.0E-7 );
+     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtDiffuseReflectivity,
+                                       testPartialWrtDiffuseReflectivity, 1.0E-7 );
 
 }
 
