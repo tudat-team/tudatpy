@@ -354,7 +354,7 @@ public:
         }
     }
 
-    void setResiduals( std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& residuals )
+    void setResiduals( const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& residuals )
     {
         if ( residuals.size( ) != numberOfObservations_ )
         {
@@ -466,19 +466,6 @@ public:
         return timeBounds_;
     }
 
-    void updateTimeBounds( )
-    {
-        if( observationTimes_.size( ) == 0 )
-        {
-            timeBounds_ = std::make_pair( TUDAT_NAN, TUDAT_NAN );
-        }
-        else
-        {
-            timeBounds_ = std::make_pair ( *std::min_element( observationTimes_.begin( ), observationTimes_.end( ) ),
-                                           *std::max_element( observationTimes_.begin( ), observationTimes_.end( ) ) );
-        }
-    }
-
     std::map< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > getObservationsHistory( )
     {
         return utilities::createMapFromVectors< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >(
@@ -505,7 +492,6 @@ public:
         return observationsDependentVariables_;
     }
 
-
     std::shared_ptr< simulation_setup::ObservationDependentVariableCalculator > getDependentVariableCalculator( )
     {
         return dependentVariableCalculator_;
@@ -523,6 +509,11 @@ public:
     }
 
     std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > getWeights( ) const
+    {
+        return weights_;
+    }
+
+    const std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > >& getWeightsReference( )
     {
         return weights_;
     }
@@ -563,6 +554,11 @@ public:
         return residualsVector;
     }
 
+    const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& getResidualsReference( )
+    {
+        return residuals_;
+    }
+
     Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > getResidual( unsigned int index ) const
     {
         if ( index >= numberOfObservations_ )
@@ -572,16 +568,6 @@ public:
         return residuals_.at( index );
     }
 
-
-//    Eigen::VectorXd& getWeightsVectorReference( )
-//    {
-//        return weightsVector_;
-//    }
-
-//    std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& getWeightsReference( )
-//    {
-//        return weights_;
-//    }
 
     void setConstantWeight( const double weight )
     {
@@ -650,6 +636,11 @@ public:
             numberFilteredObservations = filteredObservationSet_->getNumberOfObservables( );
         }
         return numberFilteredObservations;
+    }
+
+    std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > getFilteredObservationSet( ) const
+    {
+        return filteredObservationSet_;
     }
 
 
@@ -833,158 +824,6 @@ public:
         }
     }
 
-    std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > splitObservationSet(
-            const std::shared_ptr< ObservationSetSplitterBase > observationSetSplitter )
-    {
-        if ( filteredObservationSet_ != nullptr )
-        {
-            std::cerr << "Warning when splitting single observation set, the filtered observation set pointer is not empty and "
-                         " any filtered observation will be lost after splitting." ;
-        }
-
-        std::vector< unsigned int > rawStartIndicesNewSets = { 0 };
-
-        switch ( observationSetSplitter->getSplitterType( ) )
-        {
-            case time_tags_splitter:
-            {
-                std::vector< double > timeTags = std::dynamic_pointer_cast< ObservationSetSplitter< std::vector< double > > >( observationSetSplitter )->getSplitterValue( );
-                for ( auto currentTimeTag : timeTags )
-                {
-                    if ( currentTimeTag > timeBounds_.first )
-                    {
-                        bool detectedStartSet = false;
-                        unsigned int indexObs = rawStartIndicesNewSets.at( rawStartIndicesNewSets.size( ) - 1 );
-                        while ( !detectedStartSet && indexObs < observationTimes_.size( ) )
-                        {
-                            if ( observationTimes_.at( indexObs ) > currentTimeTag )
-                            {
-                                rawStartIndicesNewSets.push_back( indexObs );
-                                detectedStartSet = true;
-                            }
-                            indexObs++;
-                        }
-                    }
-                }
-                rawStartIndicesNewSets.push_back( observationTimes_.size( ) );
-                break;
-            }
-            case time_interval_splitter:
-            {
-                double maxTimeInterval = std::dynamic_pointer_cast< ObservationSetSplitter< double > >( observationSetSplitter )->getSplitterValue( );
-
-//                std::vector< int > startIndicesNewSets = { 0 };
-                for( unsigned int i = 1; i < observationTimes_.size( ); i++ )
-                {
-                    if( ( observationTimes_.at( i ) - observationTimes_.at( i - 1 ) ) > maxTimeInterval )
-                    {
-                        rawStartIndicesNewSets.push_back( i );
-                    }
-                }
-                rawStartIndicesNewSets.push_back( observationTimes_.size( ) );
-//                startIndicesNewSets.push_back( observationTimes_.size( ) );
-
-//                std::vector< std::pair< int, int > > arcSplitIndices;
-//
-//                for( unsigned int j = 1; j < rawArcStartIndices.size( ); j++ )
-//                {
-//                    if( ( rawArcStartIndices.at( j ) - rawArcStartIndices.at( j - 1 ) ) > minimumNumberOfObservations )
-//                    {
-//                        arcSplitIndices.push_back( std::make_pair( rawArcStartIndices.at( j - 1 ), rawArcStartIndices.at( j ) - rawArcStartIndices.at( j - 1 ) ) );
-//                    }
-//                }
-
-                break;
-            }
-            case time_span_splitter:
-            {
-                double maxTimeSpan = std::dynamic_pointer_cast< ObservationSetSplitter< double > >( observationSetSplitter )->getSplitterValue( );
-                if ( numberOfObservations_ > 0 )
-                {
-                    double referenceEpoch = observationTimes_.at( 0 );
-                    for( unsigned int i = 1; i < observationTimes_.size( ); i++ )
-                    {
-                        if( ( observationTimes_.at( i ) - referenceEpoch ) > maxTimeSpan )
-                        {
-                            rawStartIndicesNewSets.push_back( i );
-                            referenceEpoch = observationTimes_.at( i );
-                        }
-                    }
-                    rawStartIndicesNewSets.push_back( observationTimes_.size( ) );
-                }
-                break;
-            }
-            case nb_observations_splitter:
-            {
-                int maxNbObs = std::dynamic_pointer_cast< ObservationSetSplitter< int > >( observationSetSplitter )->getSplitterValue( );
-                if ( maxNbObs < observationSetSplitter->getMinNumberObservations( ) )
-                {
-                    throw std::runtime_error( "Error when splitting observation sets, the maximum number of observations cannot be smaller than the minimum number of observations." );
-                }
-                for ( unsigned int ind = maxNbObs ; ind < numberOfObservations_ ; ind+=maxNbObs )
-                {
-                    rawStartIndicesNewSets.push_back( ind );
-                }
-                rawStartIndicesNewSets.push_back( observationTimes_.size( ) );
-                break;
-            }
-            case dependent_variables_splitter:
-            {
-                throw std::runtime_error( "Error when splitting observation set based on dependent variable, splitter type not yet implemented." );
-                break;
-            }
-            default:
-                throw std::runtime_error( "Observation set splitter type not recognised." );
-        }
-
-        // Check that the minimum number of observations is met
-        std::vector< std::pair< unsigned int, unsigned int > > indicesNewSets;
-        for( unsigned int j = 1; j < rawStartIndicesNewSets.size( ); j++ )
-        {
-            if( ( rawStartIndicesNewSets.at( j ) - rawStartIndicesNewSets.at( j - 1 ) ) >= observationSetSplitter->getMinNumberObservations( ) )
-            {
-                indicesNewSets.push_back( std::make_pair( rawStartIndicesNewSets.at( j - 1 ), rawStartIndicesNewSets.at( j ) ) );
-            }
-        }
-
-        // Split current observation set based on indices
-        std::vector< std::shared_ptr< SingleObservationSet > > newObsSets;
-        for ( unsigned int k = 0 ; k < indicesNewSets.size( ) ; k++ )
-        {
-            unsigned int startIndex = indicesNewSets.at( k ).first;
-            unsigned int endIndex = indicesNewSets.at( k ).second; //( ( k ==  startIndicesNewSets.size( ) - 1 ) ? numberOfObservations_ : startIndicesNewSets.at( k + 1 ) );
-
-            std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > newObservations( observations_.begin( ) + startIndex, observations_.begin( ) + endIndex );
-            std::vector< TimeType > newObservationTimes( observationTimes_.begin( ) + startIndex, observationTimes_.begin( ) + endIndex );
-
-            std::vector< Eigen::VectorXd > newDependentVariables;
-            if ( !observationsDependentVariables_.empty( ) )
-            {
-                newDependentVariables = { observationsDependentVariables_.begin( ) + startIndex, observationsDependentVariables_.begin( ) + endIndex };
-            }
-
-            Eigen::Matrix< double, Eigen::Dynamic, 1 > newWeightsVector;
-            if ( !weights_.empty( ) )
-            {
-                newWeightsVector = this->getWeightsVector( ).segment( startIndex, ( endIndex - startIndex ) * singleObservationSize_ );
-            }
-
-            std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > newResiduals;
-            if ( !residuals_.empty( ) )
-            {
-                newResiduals = { residuals_.begin( ) + startIndex, residuals_.begin( ) + endIndex };
-            }
-
-            std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > newSet = std::make_shared< SingleObservationSet< ObservationScalarType, TimeType > >(
-                    observableType_, linkEnds_, newObservations, newObservationTimes, referenceLinkEnd_, newDependentVariables, dependentVariableCalculator_, ancilliarySettings_ );
-            newSet->setTabulatedWeights( newWeightsVector );
-            newSet->setResiduals( newResiduals );
-            newObsSets.push_back( newSet );
-        }
-
-        return newObsSets;
-    }
-
     void addObservations(
             std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observations,
             std::vector< TimeType >& times,
@@ -1036,7 +875,6 @@ public:
         // Update time bounds
         updateTimeBounds( );
     }
-
 
 private:
 
@@ -1098,6 +936,19 @@ private:
                 }
                 residuals_ = utilities::createVectorFromMapValues( residualsMap );
             }
+        }
+    }
+
+    void updateTimeBounds( )
+    {
+        if( observationTimes_.size( ) == 0 )
+        {
+            timeBounds_ = std::make_pair( TUDAT_NAN, TUDAT_NAN );
+        }
+        else
+        {
+            timeBounds_ = std::make_pair ( *std::min_element( observationTimes_.begin( ), observationTimes_.end( ) ),
+                                           *std::max_element( observationTimes_.begin( ), observationTimes_.end( ) ) );
         }
     }
 
@@ -1217,6 +1068,181 @@ private:
     std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > filteredObservationSet_;
 
 };
+
+template< typename ObservationScalarType = double, typename TimeType = double,
+        typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
+std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > filterObservations(
+        const std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > singleObservationSet,
+        const std::shared_ptr< ObservationFilterBase > observationFilter, const bool saveFilteredObservations = false )
+{
+    if ( !observationFilter->filterOut( ) )
+    {
+        throw std::runtime_error( "Error when creating new single observation set post-filtering, the filterOut option should be set to true" );
+    }
+    // Create new observation set
+    std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > newObservationSet =
+            std::make_shared< SingleObservationSet< ObservationScalarType, TimeType > >(
+                    singleObservationSet->getObservableType( ), singleObservationSet->getLinkEnds( ), singleObservationSet->getObservationsReference( ),
+                    singleObservationSet->getObservationTimesReference( ), singleObservationSet->getReferenceLinkEnd( ), singleObservationSet->getObservationsDependentVariablesReference( ),
+                    singleObservationSet->getDependentVariableCalculator( ), singleObservationSet->getAncilliarySettings( ) );
+    newObservationSet->setTabulatedWeights( singleObservationSet->getWeightsVector( ) );
+    std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > residuals = singleObservationSet->getResidualsReference( );
+    newObservationSet->setResiduals( singleObservationSet->getResidualsReference( ) /*residuals*/ );
+
+    // Filter observations from new observation set
+    newObservationSet->filterObservations( observationFilter, saveFilteredObservations );
+
+    return newObservationSet;
+}
+
+template< typename ObservationScalarType = double, typename TimeType = double,
+        typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
+std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > splitObservationSet(
+        const std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > observationSet,
+        const std::shared_ptr< ObservationSetSplitterBase > observationSetSplitter )
+{
+    if ( observationSet->getFilteredObservationSet( ) != nullptr )
+    {
+        std::cerr << "Warning when splitting single observation set, the filtered observation set pointer is not empty and "
+                     " any filtered observation will be lost after splitting." ;
+    }
+
+    std::vector< unsigned int > rawStartIndicesNewSets = { 0 };
+    std::vector< TimeType > observationTimes = observationSet->getObservationTimes( );
+    std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > observations = observationSet->getObservations( );
+    std::vector< Eigen::VectorXd > dependentVariables = observationSet->getObservationsDependentVariables( );
+    Eigen::Matrix< double, Eigen::Dynamic, 1 > weightsVector = observationSet->getWeightsVector( );
+    std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > residuals = observationSet->getResiduals( );
+
+    switch ( observationSetSplitter->getSplitterType( ) )
+    {
+        case time_tags_splitter:
+        {
+            std::vector< double > timeTags = std::dynamic_pointer_cast< ObservationSetSplitter< std::vector< double > > >( observationSetSplitter )->getSplitterValue( );
+            for ( auto currentTimeTag : timeTags )
+            {
+                if ( currentTimeTag > observationSet->getTimeBounds( ).first )
+                {
+                    bool detectedStartSet = false;
+                    unsigned int indexObs = rawStartIndicesNewSets.at( rawStartIndicesNewSets.size( ) - 1 );
+                    while ( !detectedStartSet && indexObs < observationTimes.size( ) )
+                    {
+                        if ( observationTimes.at( indexObs ) > currentTimeTag )
+                        {
+                            rawStartIndicesNewSets.push_back( indexObs );
+                            detectedStartSet = true;
+                        }
+                        indexObs++;
+                    }
+                }
+            }
+            rawStartIndicesNewSets.push_back( observationTimes.size( ) );
+            break;
+        }
+        case time_interval_splitter:
+        {
+            double maxTimeInterval = std::dynamic_pointer_cast< ObservationSetSplitter< double > >( observationSetSplitter )->getSplitterValue( );
+            for( unsigned int i = 1; i < observationTimes.size( ); i++ )
+            {
+                if( ( observationTimes.at( i ) - observationTimes.at( i - 1 ) ) > maxTimeInterval )
+                {
+                    rawStartIndicesNewSets.push_back( i );
+                }
+            }
+            rawStartIndicesNewSets.push_back( observationTimes.size( ) );
+            break;
+        }
+        case time_span_splitter:
+        {
+            double maxTimeSpan = std::dynamic_pointer_cast< ObservationSetSplitter< double > >( observationSetSplitter )->getSplitterValue( );
+            if ( observationSet->getNumberOfObservables( ) > 0 )
+            {
+                double referenceEpoch = observationTimes.at( 0 );
+                for( unsigned int i = 1; i < observationTimes.size( ); i++ )
+                {
+                    if( ( observationTimes.at( i ) - referenceEpoch ) > maxTimeSpan )
+                    {
+                        rawStartIndicesNewSets.push_back( i );
+                        referenceEpoch = observationTimes.at( i );
+                    }
+                }
+                rawStartIndicesNewSets.push_back( observationTimes.size( ) );
+            }
+            break;
+        }
+        case nb_observations_splitter:
+        {
+            int maxNbObs = std::dynamic_pointer_cast< ObservationSetSplitter< int > >( observationSetSplitter )->getSplitterValue( );
+            if ( maxNbObs < observationSetSplitter->getMinNumberObservations( ) )
+            {
+                throw std::runtime_error( "Error when splitting observation sets, the maximum number of observations cannot be smaller than the minimum number of observations." );
+            }
+            for ( unsigned int ind = maxNbObs ; ind < observationSet->getNumberOfObservables( ) ; ind+=maxNbObs )
+            {
+                rawStartIndicesNewSets.push_back( ind );
+            }
+            rawStartIndicesNewSets.push_back( observationTimes.size( ) );
+            break;
+        }
+        case dependent_variables_splitter:
+        {
+            throw std::runtime_error( "Error when splitting observation set based on dependent variable, splitter type not yet implemented." );
+            break;
+        }
+        default:
+            throw std::runtime_error( "Observation set splitter type not recognised." );
+    }
+
+    // Check that the minimum number of observations is met
+    std::vector< std::pair< unsigned int, unsigned int > > indicesNewSets;
+    for( unsigned int j = 1; j < rawStartIndicesNewSets.size( ); j++ )
+    {
+        if( ( rawStartIndicesNewSets.at( j ) - rawStartIndicesNewSets.at( j - 1 ) ) >= observationSetSplitter->getMinNumberObservations( ) )
+        {
+            indicesNewSets.push_back( std::make_pair( rawStartIndicesNewSets.at( j-1 ), rawStartIndicesNewSets.at( j ) - rawStartIndicesNewSets.at( j-1 ) ) );
+        }
+    }
+
+    // Split current observation set based on indices
+    std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > newObsSets;
+    for ( unsigned int k = 0 ; k < indicesNewSets.size( ) ; k++ )
+    {
+        unsigned int startIndex = indicesNewSets.at( k ).first;
+        unsigned int sizeCurrentSet = indicesNewSets.at( k ).second;
+
+        std::vector< Eigen::VectorXd > newDependentVariables;
+        if ( !dependentVariables.empty( ) )
+        {
+            newDependentVariables = utilities::getStlVectorSegment(
+                    observationSet->getObservationsDependentVariablesReference( ), startIndex, sizeCurrentSet );
+        }
+
+        std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > newSet = std::make_shared< SingleObservationSet< ObservationScalarType, TimeType > >(
+                observationSet->getObservableType( ), observationSet->getLinkEnds( ),
+                utilities::getStlVectorSegment( observationSet->getObservationsReference( ), startIndex, sizeCurrentSet ),
+                utilities::getStlVectorSegment( observationSet->getObservationTimesReference( ), startIndex, sizeCurrentSet ),
+                observationSet->getReferenceLinkEnd( ), newDependentVariables, observationSet->getDependentVariableCalculator( ),
+                observationSet->getAncilliarySettings( ) );
+
+        Eigen::Matrix< double, Eigen::Dynamic, 1 > newWeightsVector;
+        if ( weightsVector.size( ) > 0 )
+        {
+            newWeightsVector = weightsVector.segment( startIndex, sizeCurrentSet * observationSet->getSingleObservableSize( ) );
+        }
+        newSet->setTabulatedWeights( newWeightsVector );
+
+        std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > newResiduals;
+        if ( !residuals.empty( ) )
+        {
+            newResiduals = utilities::getStlVectorSegment( observationSet->getResidualsReference( ), startIndex, sizeCurrentSet );
+        }
+        newSet->setResiduals( newResiduals );
+
+        newObsSets.push_back( newSet );
+    }
+
+    return newObsSets;
+}
 
 
 enum ObservationParserType
@@ -1594,27 +1620,6 @@ public:
         return concatenatedTimes_;
     }
 
-
-    Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > getConcatenatedResidualsVector( )
-    {
-        Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > residualsVector =
-                Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >::Zero( totalObservableSize_, 1 );
-        unsigned int indexObs = 0;
-        for ( auto observableIt : observationSetList_ )
-        {
-            for ( auto linkEndIt : observableIt.second )
-            {
-                for ( auto singleObsSet : linkEndIt.second )
-                {
-                    unsigned int singleObsSetSize = singleObsSet->getTotalObservationSetSize( );
-                    residualsVector.segment( indexObs, singleObsSetSize ) = singleObsSet->getResidualsVector( );
-                    indexObs += singleObsSetSize;
-                }
-            }
-        }
-        return residualsVector;
-    }
-
     std::vector< double > getConcatenatedDoubleTimeVector( )
     {
         return utilities::staticCastVector<double, TimeType>( concatenatedTimes_ );
@@ -1640,10 +1645,6 @@ public:
     {
         return inverseLinkEndIds_;
     }
-
-
-
-
 
     std::map< ObservableType, std::map< LinkEnds, std::vector< std::pair< int, int > > > > getObservationSetStartAndSize( )
     {
@@ -1692,106 +1693,6 @@ public:
         return observationSetList_;
     }
 
-//    std::map< LinkEnds, std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > > getSingleTypeObservationSets(
-//            const ObservableType observableType ) const
-//    {
-//        if( observationSetList_.count( observableType ) == 0 )
-//        {
-//            throw std::runtime_error( "Error when retrieving observable of type " + observation_models::getObservableName( observableType ) +
-//                                      " from observation collection, no such observable exists" );
-//        }
-//        return observationSetList_.at( observableType );
-//    }
-
-
-    std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > getSingleLinkAndTypeObservationSets(
-            const ObservableType observableType,
-            const LinkDefinition linkEnds )
-    {
-        if( observationSetList_.count( observableType ) == 0 )
-        {
-            throw std::runtime_error( "Error when retrieving observable of type " + observation_models::getObservableName( observableType ) +
-                                      " from observation collection, no such observable exists" );
-        }
-        else if( observationSetList_.at( observableType ).count( linkEnds.linkEnds_ ) == 0 )
-        {
-            throw std::runtime_error( "Error when retrieving observable of type " + observation_models::getObservableName( observableType ) +
-                                      " and link ends " + observation_models::getLinkEndsString( linkEnds.linkEnds_ ) +
-                                      " from observation collection, no such link ends found for observable" );
-        }
-
-        return observationSetList_.at( observableType ).at( linkEnds.linkEnds_ );
-    }
-
-    Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > getSingleLinkObservations(
-            const ObservableType observableType,
-            const LinkDefinition& linkEnds )
-    {
-        if( observationSetStartAndSize_.count( observableType ) == 0 )
-        {
-            throw std::runtime_error( " Error when getting single link observations, not observations of type "
-                                      + std::to_string( observableType ) );
-        }
-        else
-        {
-            if( observationSetStartAndSize_.at( observableType ).count( linkEnds.linkEnds_ ) == 0 )
-            {
-                throw std::runtime_error( " Error when getting single link observations, not observations of type "
-                                          + std::to_string( observableType ) + " for given link ends." );
-            }
-            else
-            {
-                std::vector< std::pair< int, int > > combinedIndices =
-                        observationSetStartAndSize_.at( observableType ).at( linkEnds.linkEnds_ );
-                int startIndex = combinedIndices.at( 0 ).first;
-                int finalEntry = combinedIndices.size( ) - 1;
-
-                int numberOfObservables = ( combinedIndices.at( finalEntry ).first - startIndex ) +
-                        combinedIndices.at( finalEntry ).second;
-                return concatenatedObservations_.segment( startIndex, numberOfObservables );
-            }
-        }
-    }
-
-    std::vector< TimeType > getSingleLinkTimes(
-            const ObservableType observableType,
-            const LinkDefinition& linkEnds )
-    {
-        if( observationSetStartAndSize_.count( observableType ) == 0 )
-        {
-            throw std::runtime_error( " Error when getting single link observations, not observations of type "
-                                      + std::to_string( observableType ) );
-        }
-        else
-        {
-            if( observationSetStartAndSize_.at( observableType ).count( linkEnds.linkEnds_ ) == 0 )
-            {
-                throw std::runtime_error( " Error when getting single link observations, not observations of type "
-                                          + std::to_string( observableType ) + " for given link ends." );
-            }
-            else
-            {
-                std::vector< std::pair< int, int > > combinedIndices =
-                        observationSetStartAndSize_.at( observableType ).at( linkEnds.linkEnds_ );
-                int startIndex = combinedIndices.at( 0 ).first;
-                int finalEntry = combinedIndices.size( ) - 1;
-
-                int numberOfObservables = ( combinedIndices.at( finalEntry ).first - startIndex ) +
-                        combinedIndices.at( finalEntry ).second;
-                return std::vector< TimeType >( concatenatedTimes_.begin( ) + startIndex,
-                                                concatenatedTimes_.begin( ) + ( startIndex + numberOfObservables ) );
-            }
-        }
-    }
-
-    std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >, std::vector< TimeType > > getSingleLinkObservationsAndTimes(
-            const ObservableType observableType,
-            const LinkDefinition& linkEnds )
-    {
-        return std::make_pair( getSingleLinkObservations( observableType, linkEnds ),
-                               getSingleLinkTimes( observableType, linkEnds ) );
-    }
-
     std::vector< LinkEnds > getConcatenatedLinkEndIdNames( )
     {
         return concatenatedLinkEndIdNames_;
@@ -1814,7 +1715,6 @@ public:
             return std::vector< LinkDefinition >( );
         }
     }
-
 
     std::map< ObservableType, std::map< int, std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > > > getSortedObservationSets( )
     {
@@ -2196,38 +2096,6 @@ public:
     }
 
 
-//    Eigen::VectorXd getWeightsFromSingleObservationSets( )
-//    {
-//        Eigen::VectorXd weightsVector = Eigen::VectorXd::Zero( totalObservableSize_ );
-//
-//        for( auto observationIterator : observationSetList_ )
-//        {
-//            ObservableType currentObservableType = observationIterator.first;
-//
-//            for( auto linkEndIterator : observationIterator.second )
-//            {
-//                LinkEnds currentLinkEnds = linkEndIterator.first;
-//                for( unsigned int i = 0; i < linkEndIterator.second.size( ); i++ )
-//                {
-//                    std::pair< int, int > startAndSize = observationSetStartAndSize_.at( currentObservableType ).at( currentLinkEnds ).at( i );
-////                    if( observationSetList_.at( currentObservableType ).at( currentLinkEnds ).at( i )->getWeightsVectorReference( ).rows( ) ==
-////                        startAndSize.second )
-////                    {
-//                        weightsVector.segment( startAndSize.first, startAndSize.second ) =
-//                            observationSetList_.at( currentObservableType ).at( currentLinkEnds ).at(
-//                                i )->getWeightsVector( );
-////                    }
-////                    else
-////                    {
-////                        throw std::runtime_error( "Error when compiling full weights vector from single observation set, sizes are inconsistent" );
-////                    }
-//                }
-//            }
-//        }
-//        return weightsVector;
-//    }
-
-
     std::tuple< Eigen::VectorXd, Eigen::VectorXd > getFullDependentVariableVector( const std::shared_ptr< simulation_setup::ObservationDependentVariableSettings > dependentVariable )
     {
         Eigen::VectorXd dependentVariablesVector = Eigen::VectorXd::Zero( concatenatedTimes_.size( ) );
@@ -2273,6 +2141,71 @@ public:
         return std::make_pair( dependentVariableTimes, dependentVariablesVector );
     }
 
+    std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > getSingleLinkAndTypeObservationSets(
+            const ObservableType observableType,
+            const LinkDefinition linkEndsDefinition )
+    {
+        std::vector< std::shared_ptr< ObservationCollectionParser > > multiTypeParserList;
+        multiTypeParserList.push_back( observationParser( observableType ) );
+        multiTypeParserList.push_back( observationParser( linkEndsDefinition.linkEnds_ ) );
+        std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > observationSets =
+                getSingleObservationSets( observationParser( multiTypeParserList, true ) );
+        if ( observationSets.empty( ) )
+        {
+            throw std::runtime_error( " Error when getting single link observation sets, not observations of type "
+                                      + std::to_string( observableType ) + " for given link ends." );
+        }
+        return observationSets;
+    }
+
+    Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > getSingleLinkObservations(
+            const ObservableType observableType,
+            const LinkDefinition& linkEndsDefinition )
+    {
+        std::vector< std::shared_ptr< ObservationCollectionParser > > multiTypeParserList;
+        multiTypeParserList.push_back( observationParser( observableType ) );
+        multiTypeParserList.push_back( observationParser( linkEndsDefinition.linkEnds_ ) );
+        Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > observations = getConcatenatedObservations( observationParser( multiTypeParserList, true ) );
+        if ( observations.size( ) == 0 )
+        {
+            throw std::runtime_error( " Error when getting single link observations, not observations of type "
+                                      + std::to_string( observableType ) + " for given link ends." );
+        }
+        return observations;
+    }
+
+    std::vector< TimeType > getSingleLinkTimes(
+            const ObservableType observableType,
+            const LinkDefinition& linkEndsDefinition )
+    {
+        std::vector< std::shared_ptr< ObservationCollectionParser > > multiTypeParserList;
+        multiTypeParserList.push_back( observationParser( observableType ) );
+        multiTypeParserList.push_back( observationParser( linkEndsDefinition.linkEnds_ ) );
+        std::vector< TimeType > observationTimes = getConcatenatedObservationTimes( observationParser( multiTypeParserList, true ) );
+        if ( observationTimes.empty( ) )
+        {
+            throw std::runtime_error( " Error when getting single link observation times, not observations of type "
+                                      + std::to_string( observableType ) + " for given link ends." );
+        }
+        return observationTimes;
+    }
+
+    std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >, std::vector< TimeType > > getSingleLinkObservationsAndTimes(
+            const ObservableType observableType,
+            const LinkDefinition& linkEndsDefinition )
+    {
+        std::vector< std::shared_ptr< ObservationCollectionParser > > multiTypeParserList;
+        multiTypeParserList.push_back( observationParser( observableType ) );
+        multiTypeParserList.push_back( observationParser( linkEndsDefinition.linkEnds_ ) );
+        std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >, std::vector< TimeType > > observationsAndTimes =
+                getConcatenatedObservationsAndTimes( observationParser( multiTypeParserList, true ) );
+        if ( observationsAndTimes.empty( ) )
+        {
+            throw std::runtime_error( " Error when getting single link observations and times, not observation set of type "
+                                      + std::to_string( observableType ) + " for given link ends." );
+        }
+        return observationsAndTimes;
+    }
 
 
     void setConstantWeight(
@@ -2427,7 +2360,7 @@ public:
                 {
                     // Get new observation sets after splitting
                     std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > newObsSets =
-                            singleObsSets.at( indexSetToSplit + obsSetCounter )->splitObservationSet( observationSetSplitter );
+                            splitObservationSet( singleObsSets.at( indexSetToSplit + obsSetCounter ), observationSetSplitter );
 
                     // Remove original observation set
                     singleObsSets.erase( singleObsSets.begin( ) + ( indexSetToSplit + obsSetCounter ) );
@@ -2453,7 +2386,7 @@ public:
 
 
     std::map< ObservableType, std::map< LinkEnds, std::vector< unsigned int > > > getSingleObservationSetsIndices(
-            const std::shared_ptr< ObservationCollectionParser > observationParser ) const
+            const std::shared_ptr< ObservationCollectionParser > observationParser = std::make_shared< ObservationCollectionParser >( ) ) const
     {
         std::map< ObservableType, std::map< LinkEnds, std::vector< unsigned int > > > observationSetsIndices;
 
@@ -2785,7 +2718,7 @@ public:
     }
 
     const std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > getSingleObservationSets(
-            const std::shared_ptr< ObservationCollectionParser > observationParser )
+            const std::shared_ptr< ObservationCollectionParser > observationParser = std::make_shared< ObservationCollectionParser >( ) )
     {
         std::map< ObservableType, std::map< LinkEnds, std::vector< unsigned int > > > singleObservationSetsIndices =
                 getSingleObservationSetsIndices( observationParser );
@@ -2802,6 +2735,22 @@ public:
             }
         }
         return singleObservationSets;
+    }
+
+    void printObservationSetsStartAndSize( ) const
+    {
+        std::cout << "Observation collection structure: start and size of individual observation sets" << std::endl;
+        for ( auto observableIt : observationSetStartAndSize_ )
+        {
+            for ( auto linkEndsIt : observableIt.second )
+            {
+                for ( auto indices : linkEndsIt.second )
+                {
+                    std::cout << "start index " << indices.first << " - size " << indices.second << " : " << "type " << observableIt.first << ", link ends " << getLinkEndsString( linkEndsIt.first ) << std::endl;
+                }
+            }
+        }
+        std::cout << "\n\n";
     }
 
 private:
@@ -2976,53 +2925,76 @@ private:
 };
 
 
-//bool isBodyInLinkEnds( const LinkEnds& linkEnds, const std::string bodyName )
-//{
-//    bool inLinkEnds = false;
-//    for ( auto it : linkEnds )
-//    {
-//        if ( it.second.bodyName_ == bodyName )
-//        {
-//            inLinkEnds = true;
-//        }
-//    }
-//    return inLinkEnds;
-//}
-//
-//bool isGroundStationInLinkEnds( const LinkEnds& linkEnds, const std::string stationName )
-//{
-//    bool inLinkEnds = false;
-//    for ( auto it : linkEnds )
-//    {
-//        if ( it.second.stationName_ == stationName )
-//        {
-//            inLinkEnds = true;
-//        }
-//    }
-//    return inLinkEnds;
-//}
-
-
 template< typename ObservationScalarType = double, typename TimeType = double,
         typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
 std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > createNewObservationCollection(
         const std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > observationCollection,
-        const std::shared_ptr< ObservationCollectionParser > observationParser )
+        const std::shared_ptr< ObservationCollectionParser > observationParser = std::make_shared< ObservationCollectionParser >( ) )
 {
-    return std::make_shared< ObservationCollection< ObservationScalarType, TimeType > >( observationCollection->getSingleObservationSets( observationParser ) );
+    std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > oldObservationSets =
+            observationCollection->getSingleObservationSets( observationParser );
+
+    std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > newSingleObservationSets;
+    for ( auto oldObsSet : oldObservationSets )
+    {
+        std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > newObsSet = std::make_shared< SingleObservationSet< ObservationScalarType, TimeType > >(
+                oldObsSet->getObservableType( ), oldObsSet->getLinkEnds( ), oldObsSet->getObservations( ), oldObsSet->getObservationTimes( ), oldObsSet->getReferenceLinkEnd( ),
+                oldObsSet->getObservationsDependentVariablesReference( ), oldObsSet->getDependentVariableCalculator( ), oldObsSet->getAncilliarySettings( ) );
+        newObsSet->setTabulatedWeights( oldObsSet->getWeightsVector( ) );
+        newObsSet->setResiduals( oldObsSet->getResiduals( ) );
+
+        newSingleObservationSets.push_back( newObsSet );
+    }
+    return std::make_shared< ObservationCollection< ObservationScalarType, TimeType > >( newSingleObservationSets );
 }
 
 
+template< typename ObservationScalarType = double, typename TimeType = double,
+        typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
+std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > filterObservations(
+        const std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > observationCollection,
+        const std::map< std::shared_ptr< ObservationCollectionParser >, std::shared_ptr< ObservationFilterBase > >& observationFilters )
+{
+    // Create new observation collection
+    std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > newObservationCollection = createNewObservationCollection( observationCollection );
 
-//void splitObservationCollectionTimeBounds( const std::pair< double, double >& timeBounds,
-//                                           std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > observationCollection,
-//                                                   std::shared_ptr< ObservationCollectionParser > parser = std::make_shared< ObservationCollecterParser<  > >( ) )
-//{
-//    std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > singleObservationSets = getSingleObservationSets( observationCollection, parser );
-//
-//
-//}
+    // Apply filtering to observation collection
+    newObservationCollection->filterObservations( observationFilters, false );
 
+    return newObservationCollection;
+}
+
+template< typename ObservationScalarType = double, typename TimeType = double,
+        typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
+std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > filterObservations(
+        const std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > observationCollection,
+        const std::shared_ptr< ObservationFilterBase > observationFilter,
+        const std::shared_ptr< ObservationCollectionParser > observationParser = std::make_shared< ObservationCollectionParser >( ) )
+{
+    // Create new observation collection
+    std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > newObservationCollection = createNewObservationCollection( observationCollection );
+
+    // Apply filtering to observation collection
+    newObservationCollection->filterObservations( observationFilter, observationParser, false );
+
+    return newObservationCollection;
+}
+
+template< typename ObservationScalarType = double, typename TimeType = double,
+        typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
+std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > splitObservationSets(
+        const std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > observationCollection,
+        const std::shared_ptr< ObservationSetSplitterBase > observationSetSplitter,
+        const std::shared_ptr< ObservationCollectionParser > observationParser = std::make_shared< ObservationCollectionParser >( ) )
+{
+    // Create new observation collection
+    std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > newObservationCollection = createNewObservationCollection( observationCollection );
+
+    // Split observation sets within new observation collection
+    newObservationCollection->splitObservationSets( observationSetSplitter, observationParser );
+
+    return newObservationCollection;
+}
 
 
 
