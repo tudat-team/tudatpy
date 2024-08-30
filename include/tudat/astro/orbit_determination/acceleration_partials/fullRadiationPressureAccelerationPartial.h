@@ -185,6 +185,46 @@ public:
                 parameterSize = 1;
             }
         }
+        else if( parameter->getParameterName( ).first == estimatable_parameters::specular_reflectivity &&
+                 parameter->getParameterName( ).second.first == acceleratedBody_)
+        {
+            if(std::dynamic_pointer_cast<electromagnetism::PaneledRadiationPressureTargetModel>(
+                    radiationPressureAcceleration_->getTargetModel( ) ) != nullptr){
+                throw std::runtime_error( "Error when creating specular reflectivity partial, PaneledRadiationPressureTargetModel not specified" );
+            }
+            if(parameter->getParameterName( ).second.second == ""){
+                throw std::runtime_error( "Error when creating specular reflectivity partial, panel group name not specified" );
+            }
+            else{
+                partialFunction = std::bind( &RadiationPressureAccelerationPartial::wrtSpecularReflectivity,
+                                             this,
+                                             std::placeholders::_1,
+                                             std::dynamic_pointer_cast<electromagnetism::PaneledRadiationPressureTargetModel>(
+                                                     radiationPressureAcceleration_->getTargetModel( ) ),
+                                             parameter->getParameterName( ).second.second );
+                parameterSize = 1;
+            };
+        }
+        else if( parameter->getParameterName( ).first == estimatable_parameters::diffuse_reflectivity &&
+                 parameter->getParameterName( ).second.first == acceleratedBody_)
+        {
+            if(std::dynamic_pointer_cast<electromagnetism::PaneledRadiationPressureTargetModel>(
+                    radiationPressureAcceleration_->getTargetModel( ) ) != nullptr){
+                throw std::runtime_error( "Error when creating diffuse reflectivity partial, PaneledRadiationPressureTargetModel not specified" );
+            }
+            if(parameter->getParameterName( ).second.second == ""){
+                throw std::runtime_error( "Error when creating diffuse reflectivity partial, panel group name not specified" );
+            }
+            else{
+                partialFunction = std::bind( &RadiationPressureAccelerationPartial::wrtDiffuseReflectivity,
+                                             this,
+                                             std::placeholders::_1,
+                                             std::dynamic_pointer_cast<electromagnetism::PaneledRadiationPressureTargetModel>(
+                                                     radiationPressureAcceleration_->getTargetModel( ) ),
+                                             parameter->getParameterName( ).second.second );
+                parameterSize = 1;
+            };
+        }
         // Check if parameter dependency exists.
         else if( parameter->getParameterName( ).second.first == acceleratedBody_ && parameter->getParameterName( ).second.second == acceleratingBody_ )
         {
@@ -235,6 +275,16 @@ public:
         }
         return std::make_pair( partialFunction, parameterSize );
     }
+
+    void wrtSpecularReflectivity(
+        Eigen::MatrixXd& partial,
+        std::shared_ptr< electromagnetism::PaneledRadiationPressureTargetModel > targetModel,
+        const std::string& panelTypeId);
+
+    void wrtDiffuseReflectivity(
+        Eigen::MatrixXd& partial,
+        std::shared_ptr< electromagnetism::PaneledRadiationPressureTargetModel > targetModel,
+        const std::string& panelTypeId);
 
     //! Function for updating partial w.r.t. the bodies' positions
     /*!

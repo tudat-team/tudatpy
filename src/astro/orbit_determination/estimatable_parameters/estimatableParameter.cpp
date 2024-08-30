@@ -159,6 +159,12 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
     case source_perpendicular_direction_radiation_pressure_scaling_factor:
         parameterDescription = " Radiation pressure acceleration scaling factor perpendicular to source ";
         break;
+    case specular_reflectivity:
+        parameterDescription = " specular reflectivity for panel group ";
+        break;
+    case diffuse_reflectivity:
+        parameterDescription = " diffuse reflectivity for panel group ";
+        break;
     default:
         std::string errorMessage = "Error when getting parameter string, did not recognize parameter " +
                 std::to_string( parameterType );
@@ -325,6 +331,12 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
         isDoubleParameter = true;
         break;
     case source_perpendicular_direction_radiation_pressure_scaling_factor:
+        isDoubleParameter = true;
+        break;
+    case specular_reflectivity:
+        isDoubleParameter = true;
+        break;
+    case diffuse_reflectivity:
         isDoubleParameter = true;
         break;
     default:
