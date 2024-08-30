@@ -355,6 +355,20 @@ public:
 
     void saveLocalComputations( const std::string sourceName, const bool saveCosines ) override ;
 
+    std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > getPanelsFromId(
+            const std::string& panelTypeId)
+    {
+        std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > panels;
+        for( unsigned int i = 0; i < static_cast<unsigned int>(totalNumberOfPanels_); i++ )
+        {
+            if(fullPanels_.at(i)->getPanelTypeId() == panelTypeId)
+            {
+                panels.push_back(fullPanels_.at(i));
+            }
+        }
+        return panels;
+    }
+
     double getAverageDiffuseReflectivity(const std::string& panelTypeId)
     {
         std::vector<double> coefficients;
