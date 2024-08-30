@@ -43,6 +43,9 @@ set(estimatable_parameters_HEADERS
   "polarMotionAmplitude.h"
   "coreFactor.h"
   "freeCoreNutationRate.h"
+  "specularReflectivity.h"
+  "diffuseReflectivity.h"
+
 )
 
 
