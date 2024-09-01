@@ -1095,28 +1095,24 @@ void expose_observation_setup(py::module &m) {
 
     m.def("process_odf_data_multiple_files",
           py::overload_cast<
-              const std::vector< std::string >&,
-              const std::string&,
-              const std::string&,
-              const bool,
-              const std::map< std::string, Eigen::Vector3d >& >( &tom::processOdfData ),
+                  const std::vector< std::string >&,
+                  const std::string&,
+                  const bool,
+                  const std::map< std::string, Eigen::Vector3d >& >( &tom::processOdfData ),
           py::arg("file_names"),
           py::arg("spacecraft_name"),
-          py::arg("antenna_name"),
           py::arg("verbose") = true,
           py::arg("earth_fixed_ground_station_positions") = tss::getApproximateDsnGroundStationPositions( ),
           get_docstring("create_odf_observed_observations").c_str() );
 
     m.def("process_odf_data_single_file",
           py::overload_cast<
-              const std::string&,
-              const std::string&,
-              const std::string&,
-              const bool,
-              const std::map< std::string, Eigen::Vector3d >& >( &tom::processOdfData ),
+                  const std::string&,
+                  const std::string&,
+                  const bool,
+                  const std::map< std::string, Eigen::Vector3d >& >( &tom::processOdfData ),
           py::arg("file_name"),
           py::arg("spacecraft_name"),
-          py::arg("antenna_name"),
           py::arg("verbose") = true,
           py::arg("earth_fixed_ground_station_positions") = tss::getApproximateDsnGroundStationPositions( ),
           get_docstring("create_odf_observed_observations").c_str() );

@@ -278,15 +278,18 @@ namespace dependent_variable {
               py::arg("dependent_variable_settings"),
               get_docstring("get_dependent_variable_id").c_str());
 
-        m.def("get_dependent_variable_size",
-              &tp::getDependentVariableSaveSize,
-              py::arg("dependent_variable_settings"),
-              get_docstring("get_dependent_variable_size").c_str());
+        m.def( "get_dependent_variable_size",
+               &tp::getDependentVariableSaveSize,
+               py::arg( "dependent_variable_settings" ),
+               py::arg( "bodies" ),
+               get_docstring( "get_dependent_variable_size" ).c_str( ));
 
-        m.def("get_dependent_variable_shape",
-              &tp::getDependentVariableShape,
-              py::arg("dependent_variable_settings"),
-              get_docstring("get_dependent_variable_shape").c_str());
+        m.def( "get_dependent_variable_shape",
+               &tp::getDependentVariableShape,
+               py::arg( "dependent_variable_settings" ),
+               py::arg( "bodies" ),
+               get_docstring( "get_dependent_variable_shape" ).c_str( ));
+
         //////////////////////////////////////////////////////////////////////////////////////
         /// FREE FUNCTIONS ///////////////////////////////////////////////////////////////////
         //////////////////////////////////////////////////////////////////////////////////////
