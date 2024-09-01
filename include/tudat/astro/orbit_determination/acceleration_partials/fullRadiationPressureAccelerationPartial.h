@@ -164,6 +164,7 @@ public:
     std::pair< std::function< void( Eigen::MatrixXd& ) >, int >
     getParameterPartialFunction( std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
     {
+        std::cout << "getParameterPartialFunction call " << std::endl;
         std::function< void( Eigen::MatrixXd& ) > partialFunction;
         int parameterSize = 0;
         if( customAccelerationPartialSet_->customDoubleParameterPartials_.count( parameter->getParameterName() )!= 0 )
@@ -188,6 +189,7 @@ public:
         else if( parameter->getParameterName( ).first == estimatable_parameters::specular_reflectivity &&
                  parameter->getParameterName( ).second.first == acceleratedBody_)
         {
+            std::cout << "specular_reflectivity creating xxx" << std::endl;
             if(std::dynamic_pointer_cast<electromagnetism::PaneledRadiationPressureTargetModel>(
                     radiationPressureAcceleration_->getTargetModel( ) ) != nullptr){
                 throw std::runtime_error( "Error when creating specular reflectivity partial, PaneledRadiationPressureTargetModel not specified" );
@@ -196,6 +198,7 @@ public:
                 throw std::runtime_error( "Error when creating specular reflectivity partial, panel group name not specified" );
             }
             else{
+                std::cout << "specular_reflectivity partialFunction" << std::endl;
                 partialFunction = std::bind( &RadiationPressureAccelerationPartial::wrtSpecularReflectivity,
                                              this,
                                              std::placeholders::_1,
@@ -276,16 +279,6 @@ public:
         return std::make_pair( partialFunction, parameterSize );
     }
 
-    void wrtSpecularReflectivity(
-        Eigen::MatrixXd& partial,
-        std::shared_ptr< electromagnetism::PaneledRadiationPressureTargetModel > targetModel,
-        const std::string& panelTypeId);
-
-    void wrtDiffuseReflectivity(
-        Eigen::MatrixXd& partial,
-        std::shared_ptr< electromagnetism::PaneledRadiationPressureTargetModel > targetModel,
-        const std::string& panelTypeId);
-
     //! Function for updating partial w.r.t. the bodies' positions
     /*!
      *  Function for updating common blocks of partial to current state. For the central gravitational acceleration,
@@ -298,6 +291,16 @@ protected:
 
     void wrtRadiationPressureCoefficient(
         Eigen::MatrixXd& partial, std::shared_ptr< electromagnetism::CannonballRadiationPressureTargetModel > targetModel );
+
+    void wrtSpecularReflectivity(
+        Eigen::MatrixXd& partial,
+        std::shared_ptr< electromagnetism::PaneledRadiationPressureTargetModel > targetModel,
+        const std::string& panelTypeId);
+
+    void wrtDiffuseReflectivity(
+        Eigen::MatrixXd& partial,
+        std::shared_ptr< electromagnetism::PaneledRadiationPressureTargetModel > targetModel,
+        const std::string& panelTypeId);
 
     std::shared_ptr< electromagnetism::PaneledSourceRadiationPressureAcceleration > radiationPressureAcceleration_;
 
