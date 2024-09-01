@@ -37,14 +37,14 @@ namespace vehicle_systems {
                                                      get_docstring("BodyPanelGeometrySettings").c_str());
 
         m.def("frame_fixed_panel_geometry",
-              &tss::frameFixedPanelGeometry,
+              py::overload_cast< const Eigen::Vector3d&, const double, const std::string& >( &tss::frameFixedPanelGeometry ),
               py::arg("surface_normal"),
               py::arg("area"),
               py::arg("frame_orientation") = "",
               get_docstring("frame_fixed_panel_geometry").c_str());
 
         m.def("body_tracking_panel_geometry",
-              &tss::bodyTrackingPanelGeometry,
+              py::overload_cast< const std::string&, const bool, const double, const std::string& >( &tss::bodyTrackingPanelGeometry ),
               py::arg("body_to_track"),
               py::arg("towards_tracked_body"),
               py::arg("area"),
@@ -52,7 +52,7 @@ namespace vehicle_systems {
               get_docstring("body_tracking_panel_geometry").c_str());
 
         m.def("time_varying_panel_geometry",
-              &tss::timeVaryingPanelGeometry,
+              py::overload_cast< const std::function< Eigen::Vector3d( ) >&, const double, const std::string& >( &tss::timeVaryingPanelGeometry ),
               py::arg("surface_normal_function"),
               py::arg("area"),
               py::arg("frame_orientation"),
