@@ -327,15 +327,15 @@ int main( )
             processedOdfFileContents, { dsn_n_way_averaged_doppler } ), 60.0, 10 );
 
     std::map< LinkEnds, std::vector< std::shared_ptr< observation_models::SingleObservationSet< long double, Time > > > > fullObservedObservationSets =
-        fullObservedObservationCollection->getObservations( ).at( dsn_n_way_averaged_doppler );
+        fullObservedObservationCollection->getObservationsSets( ).at( dsn_n_way_averaged_doppler );
     std::shared_ptr< observation_models::SingleObservationSet< long double, Time > > testObservationSet =
-        fullObservedObservationCollection->getObservations( ).at( dsn_n_way_averaged_doppler ).begin( )->second.at( 1 );
+        fullObservedObservationCollection->getObservationsSets( ).at( dsn_n_way_averaged_doppler ).begin( )->second.at( 1 );
     std::shared_ptr< observation_models::ObservationCollection< long double, Time > > observedObservationCollection =
         std::make_shared< observation_models::ObservationCollection< long double, Time > >(
             std::vector< std::shared_ptr< SingleObservationSet< long double, Time > > > { testObservationSet } );
 
     std::map< LinkEnds, std::vector< std::shared_ptr< observation_models::SingleObservationSet< long double, Time > > > > observedObservationSets =
-        observedObservationCollection->getObservations( ).at( dsn_n_way_averaged_doppler );
+        observedObservationCollection->getObservationsSets( ).at( dsn_n_way_averaged_doppler );
 
     // Define light-time correction settings
     std::vector< std::shared_ptr< observation_models::ObservationModelSettings > > observationModelSettingsList;
@@ -394,7 +394,7 @@ int main( )
     std::cout<<"RMS "<<rmsValues.transpose( )<<std::endl;
     std::cout<<"Mean "<<meanValues.transpose( )<<std::endl<<std::endl;
 
-    Eigen::VectorXd residuals = observedObservationCollection->getConcatenatedResidualsVector( ).template cast< double >( );
+    Eigen::VectorXd residuals = observedObservationCollection->getConcatenatedResiduals( ).template cast< double >( );
     input_output::writeMatrixToFile( residuals, "grailTestResidualsUncompressed.dat", 16, "/home/mfayolle/Tudat/Data/GRAIL_TimeBiasTest/");
 
     Eigen::VectorXd observationTimes = utilities::convertStlVectorToEigenVector(
@@ -464,7 +464,7 @@ int main( )
     input_output::writeMatrixToFile( meanValues, "grailMeanValues.dat", 16, "/home/mfayolle/Tudat/Data/GRAIL_TimeBiasTest/");
     input_output::writeMatrixToFile( rmsValues, "grailRmsValues.dat", 16, "/home/mfayolle/Tudat/Data/GRAIL_TimeBiasTest/");
 
-    residuals = compressedObservedObservationCollection->getConcatenatedResidualsVector( ).template cast< double >( );
+    residuals = compressedObservedObservationCollection->getConcatenatedResiduals( ).template cast< double >( );
     input_output::writeMatrixToFile( residuals, "grailTestResiduals.dat", 16, "/home/mfayolle/Tudat/Data/GRAIL_TimeBiasTest/");
 
     observationTimes = utilities::convertStlVectorToEigenVector(
