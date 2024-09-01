@@ -532,7 +532,7 @@ void simulateResiduals(
         const SystemOfBodies bodies )
 {
     std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds, std::vector< std::shared_ptr<
-            observation_models::SingleObservationSet< ObservationScalarType, TimeType > > > > > observationSetList = observationCollection->getObservations( );
+            observation_models::SingleObservationSet< ObservationScalarType, TimeType > > > > > observationSetList = observationCollection->getObservationsSets( );
 
     // Iterate over all observables
     for ( auto observableIt : observationSetList )
@@ -732,7 +732,7 @@ std::vector< std::shared_ptr< simulation_setup::ObservationSimulationSettings< T
 
     std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds, std::vector< std::shared_ptr<
         observation_models::SingleObservationSet< ObservationScalarType, TimeType > > > > > observationSetList =
-        observedObservationCollection->getObservations( );
+        observedObservationCollection->getObservationsSets( );
 
     for ( auto observableTypeIterator = observationSetList.begin( ); observableTypeIterator != observationSetList.end( );
           ++observableTypeIterator )
@@ -802,7 +802,7 @@ void estimateTimeBiasPerSet(
     Eigen::VectorXd& correctedResiduals )
 {
     std::vector< std::pair< int, int > > startEndIndices = observationCollection->getConcatenatedObservationSetStartAndSize( );
-    Eigen::VectorXd residualVector = observationCollection->getConcatenatedResidualsVector( ).template cast< double >( );
+    Eigen::VectorXd residualVector = observationCollection->getConcatenatedResiduals( ).template cast< double >( );
     correctedResiduals.resize( residualVector.rows( ), 1 );
 
     for( unsigned int i = 0; i < startEndIndices.size( ); i++ )
@@ -858,7 +858,7 @@ void getResidualStatistics(
     std::vector< double > stlTimeVector = utilities::staticCastVector< double, TimeType >( observationCollection->getConcatenatedTimeVector( ) );
     Eigen::VectorXd timeVector = utilities::convertStlVectorToEigenVector< double >( stlTimeVector );
 
-    Eigen::VectorXd residuals = observationCollection->getConcatenatedResidualsVector( ).template cast< double >( );
+    Eigen::VectorXd residuals = observationCollection->getConcatenatedResiduals( ).template cast< double >( );
 
     std::vector< std::pair< int, int > > startEndIndices = observationCollection->getConcatenatedObservationSetStartAndSize( );
     startTimes = Eigen::VectorXd::Zero( startEndIndices.size( ) );

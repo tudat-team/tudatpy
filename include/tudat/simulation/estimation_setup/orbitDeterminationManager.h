@@ -42,7 +42,7 @@ void calculateResiduals(
     residuals = Eigen::VectorXd::Zero( observationsCollection->getTotalObservableSize( ) );
 
     typename observation_models::ObservationCollection< ObservationScalarType, TimeType >::SortedObservationSets
-        sortedObservations = observationsCollection->getObservations( );
+        sortedObservations = observationsCollection->getObservationsSets( );
 
     // Iterate over all observable types in observationsAndTimes
     for( auto observablesIterator : sortedObservations )
@@ -126,7 +126,7 @@ void calculateDesignMatrixAndResiduals(
     }
 
     typename observation_models::ObservationCollection< ObservationScalarType, TimeType >::SortedObservationSets
-        sortedObservations = observationsCollection->getObservations( );
+        sortedObservations = observationsCollection->getObservationsSets( );
 
     // Iterate over all observable types in observationsAndTimes
     for( auto observableIt : sortedObservations )
@@ -179,7 +179,7 @@ void calculateDesignMatrixAndResiduals(
                                 currentObservations->getObservationsVector( ) - observationsVector;
                         residuals.segment( observationIndices.first, observationIndices.second ) = ( residualsVector ).template cast< double >( );
 //                            ( currentObservations->getObservationsVector( ) - observationsVector ).template cast< double >( );
-                        observationsCollection->getObservations( ).at(  currentObservableType ).at( currentLinkEnds ).at( i )->setResiduals( residualsVector );
+                        observationsCollection->getObservationsSets( ).at(  currentObservableType ).at( currentLinkEnds ).at( i )->setResiduals( residualsVector );
                     }
                 }
             }

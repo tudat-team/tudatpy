@@ -836,7 +836,7 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
     const unsigned int compressionRatio )
 {
     std::map< LinkEnds, std::vector< std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType, TimeType > > > > uncompressedObservationSets =
-        originalDopplerData->getObservations( ).at( dsn_n_way_averaged_doppler );
+        originalDopplerData->getObservationsSets( ).at( dsn_n_way_averaged_doppler );
     std::vector< std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType, TimeType > > > compressedObservationSets;
     for( auto it : uncompressedObservationSets )
     {
