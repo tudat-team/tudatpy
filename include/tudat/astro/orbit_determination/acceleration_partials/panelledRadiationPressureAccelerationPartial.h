@@ -186,10 +186,28 @@ public:
                     numberOfRows = 1;
 
                     break;
+
                 default:
                     break;
                 }
             }
+            switch( parameter->getParameterName( ).first )
+                {
+                case estimatable_parameters::specular_reflectivity:
+                    partialFunction = std::bind( &PanelledRadiationPressurePartial::wrtSpecularReflectivity,
+                                                 this, std::placeholders::_1, parameter->getParameterName( ).second.second );
+                    numberOfRows = 1;
+                    break;
+
+                case estimatable_parameters::diffuse_reflectivity:
+                    partialFunction = std::bind( &PanelledRadiationPressurePartial::wrtDiffuseReflectivity,
+                                                 this, std::placeholders::_1, parameter->getParameterName( ).second.second );
+                    numberOfRows = 1;
+                    break;
+                default:
+                    break;
+                }
+
         }
         return std::make_pair( partialFunction, numberOfRows );
     }
