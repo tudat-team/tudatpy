@@ -135,6 +135,26 @@ void expose_environment(py::module &m) {
                         get_docstring("AerodynamicCoefficientsIndependentVariables.altitude_dependent").c_str())
             .value("time_dependent", ta::AerodynamicCoefficientsIndependentVariables::time_dependent,
                         get_docstring("AerodynamicCoefficientsIndependentVariables.time_dependent").c_str())
+            .value("temperature_dependent", ta::AerodynamicCoefficientsIndependentVariables::temperature_dependent,
+                   get_docstring("AerodynamicCoefficientsIndependentVariables.temperature_dependent").c_str())
+            .value("velocity_dependent", ta::AerodynamicCoefficientsIndependentVariables::velocity_dependent,
+                   get_docstring("AerodynamicCoefficientsIndependentVariables.velocity_dependent").c_str())
+            .value("he_number_density_dependent", ta::AerodynamicCoefficientsIndependentVariables::he_number_density_dependent,
+                   get_docstring("AerodynamicCoefficientsIndependentVariables.he_number_density_dependent").c_str())
+            .value("o_number_density_dependent", ta::AerodynamicCoefficientsIndependentVariables::o_number_density_dependent,
+                   get_docstring("AerodynamicCoefficientsIndependentVariables.o_number_density_dependent").c_str())
+            .value("n2_number_density_dependent", ta::AerodynamicCoefficientsIndependentVariables::n2_number_density_dependent,
+                   get_docstring("AerodynamicCoefficientsIndependentVariables.n2_number_density_dependent").c_str())
+            .value("o2_number_density_dependent", ta::AerodynamicCoefficientsIndependentVariables::o2_number_density_dependent,
+                   get_docstring("AerodynamicCoefficientsIndependentVariables.o2_number_density_dependent").c_str())
+            .value("ar_number_density_dependent", ta::AerodynamicCoefficientsIndependentVariables::ar_number_density_dependent,
+                   get_docstring("AerodynamicCoefficientsIndependentVariables.ar_number_density_dependent").c_str())
+            .value("h_number_density_dependent", ta::AerodynamicCoefficientsIndependentVariables::h_number_density_dependent,
+                   get_docstring("AerodynamicCoefficientsIndependentVariables.h_number_density_dependent").c_str())
+            .value("n_number_density_dependent", ta::AerodynamicCoefficientsIndependentVariables::n_number_density_dependent,
+                   get_docstring("AerodynamicCoefficientsIndependentVariables.n_number_density_dependent").c_str())
+            .value("anomalous_o_number_density_dependent", ta::AerodynamicCoefficientsIndependentVariables::anomalous_o_number_density_dependent,
+                   get_docstring("AerodynamicCoefficientsIndependentVariables.anomalous_o_number_density_dependent").c_str())
             .value("control_surface_deflection_dependent", ta::AerodynamicCoefficientsIndependentVariables::control_surface_deflection_dependent,
                         get_docstring("AerodynamicCoefficientsIndependentVariables.control_surface_deflection_dependent").c_str())
             .value("undefined_independent_variable", ta::AerodynamicCoefficientsIndependentVariables::undefined_independent_variable,
@@ -504,10 +524,7 @@ void expose_environment(py::module &m) {
                  py::arg("tle") = nullptr,
                  py::arg("use_sdp") = false);
 
-    m.def( "create_ground_station_ephemeris",
-           py::overload_cast< const std::shared_ptr< tss::Body >, const std::string& >( &tss::createReferencePointEphemeris< TIME_TYPE, double > ),
-               "body_with_ground_station",
-               "station_name" );
+
 
     /*!
      **************   ROTATION MODELS  ******************
@@ -653,9 +670,11 @@ void expose_environment(py::module &m) {
     py::class_<tgs::GroundStationState,
             std::shared_ptr<tgs::GroundStationState>>(m, "GroundStationState")
             .def("get_cartesian_state", &tgs::GroundStationState::getCartesianStateInTime,
-                 py::arg( "seconds_since_epoch" ) )
+                 py::arg( "seconds_since_epoch" ),
+                 py::arg( "target_frame_origin" )  )
             .def("get_cartesian_position", &tgs::GroundStationState::getCartesianPositionInTime,
-                 py::arg( "seconds_since_epoch" ) )
+                 py::arg( "seconds_since_epoch" ),
+                 py::arg( "target_frame_origin" )  )
             .def_property_readonly("cartesian_positon_at_reference_epoch", &tgs::GroundStationState::getNominalCartesianPosition )
             .def_property_readonly("spherical_positon_at_reference_epoch", &tgs::GroundStationState::getNominalSphericalPosition )
             .def_property_readonly("geodetic_positon_at_reference_epoch", &tgs::GroundStationState::getNominalGeodeticPosition )
