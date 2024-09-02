@@ -669,9 +669,14 @@ void expose_estimation(py::module &m) {
                                    get_docstring("ObservationCollection.link_definitions_per_observable").c_str() )
             .def_property_readonly("time_bounds", &tom::ObservationCollection<double, TIME_TYPE>::getTimeBounds,
                                    get_docstring("ObservationCollection.time_bounds").c_str() )
+            .def_property_readonly("sorted_per_set_time_bounds", &tom::ObservationCollection<double, TIME_TYPE>::getSortedObservationSetsTimeBounds,
+                                   get_docstring("ObservationCollection.time_bounds").c_str() )
             .def("get_link_definitions_for_observables", &tom::ObservationCollection<double, TIME_TYPE>::getLinkDefinitionsForSingleObservable,
                  py::arg( "observable_type" ),
                  get_docstring("ObservationCollection.get_link_definitions_for_observables").c_str() )
+            .def("get_full_dependent_variable_vector", &tom::ObservationCollection<double, TIME_TYPE>::getFullDependentVariableVector,
+                 py::arg( "dependent_variable" ),
+                 get_docstring("ObservationCollection.get_full_dependent_variable_vector").c_str() )
             .def("get_single_link_and_type_observations", &tom::ObservationCollection<double, TIME_TYPE>::getSingleLinkAndTypeObservationSets,
                                    py::arg( "observable_type" ),
                                    py::arg( "link_definition" ),
