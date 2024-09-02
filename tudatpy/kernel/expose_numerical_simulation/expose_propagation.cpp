@@ -240,6 +240,8 @@ void expose_propagation(py::module &m)
                                    get_docstring("SingleArcSimulationResults.state_history").c_str() )
             .def_property_readonly("state_history_float",
                                    &tp::SingleArcSimulationResults<double, TIME_TYPE>::getEquationsOfMotionNumericalSolutionDouble)
+            .def_property_readonly("state_history_float_split",
+                                   &tp::SingleArcSimulationResults<double, TIME_TYPE>::getEquationsOfMotionNumericalSolutionDoubleSplit)
             .def_property_readonly("unprocessed_state_history",
                                    &tp::SingleArcSimulationResults<double, TIME_TYPE>::getEquationsOfMotionNumericalSolutionRaw,
                                    get_docstring("SingleArcSimulationResults.unprocessed_state_history").c_str() )

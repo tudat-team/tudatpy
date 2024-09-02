@@ -37,7 +37,7 @@ namespace vehicle_systems {
                                                      get_docstring("BodyPanelGeometrySettings").c_str());
 
         m.def("frame_fixed_panel_geometry",
-              py::overload_cast< const Eigen::Vector3d&, const double, const std::string& >( &tss::frameFixedPanelGeometry ),
+              py::overload_cast< const Eigen::Vector3d&,const double, const std::string& >( tss::frameFixedPanelGeometry ),
               py::arg("surface_normal"),
               py::arg("area"),
               py::arg("frame_orientation") = "",

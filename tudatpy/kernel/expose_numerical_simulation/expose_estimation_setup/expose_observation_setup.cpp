@@ -747,17 +747,17 @@ void expose_observation_setup(py::module &m) {
                          &tss::ObservationSimulationSettings< TIME_TYPE >::setViabilitySettingsList,
                          get_docstring("ObservationSimulationSettings.viability_settings_list").c_str() )
             .def_property("noise_function",
-                         &tss::ObservationSimulationSettings< TIME_TYPE >::getObservationNoiseFunction,
-                         py::overload_cast< const std::function< double( const double ) >& >(
-                         &tss::ObservationSimulationSettings< TIME_TYPE >::setObservationNoiseFunction ),
-                         get_docstring("ObservationSimulationSettings.noise_function").c_str() )
-            .def_property("observable_type",
-                         &tss::ObservationSimulationSettings< TIME_TYPE >::getObservableType,
-                         &tss::ObservationSimulationSettings< TIME_TYPE >::setObservableType,
-                         get_docstring("ObservationSimulationSettings.observable_type").c_str() )
-            .def_property_readonly("link_ends",
-                         &tss::ObservationSimulationSettings< TIME_TYPE >::getLinkEnds,
-                         get_docstring("ObservationSimulationSettings.link_ends").c_str() );
+                          &tss::ObservationSimulationSettings< TIME_TYPE >::getObservationNoiseFunction,
+                          py::overload_cast< const std::function< double( const double ) >& >(
+                                  &tss::ObservationSimulationSettings< TIME_TYPE >::setObservationNoiseFunction ),
+                          get_docstring("ObservationSimulationSettings.noise_function").c_str() );
+//            .def_property("observable_type",
+//                         &tss::ObservationSimulationSettings<double>::getObservableType,
+//                         &tss::ObservationSimulationSettings<double>::setObservableType,
+//                         get_docstring("ObservationSimulationSettings.observable_type").c_str() )
+//            .def_property_readonly("link_ends",
+//                         &tss::ObservationSimulationSettings<double>::getLinkEnds,
+//                         get_docstring("ObservationSimulationSettings.link_ends").c_str() );
 
 
     py::class_<tss::TabulatedObservationSimulationSettings< TIME_TYPE >,
@@ -1047,6 +1047,31 @@ void expose_observation_setup(py::module &m) {
           get_docstring("add_dependent_variables_to_observable_for_link_ends").c_str() );
 
     /////////////////////////////////////////////////////////////////////////////////////////////////
+    // DEPENDENT VARIABLES
+    /////////////////////////////////////////////////////////////////////////////////////////////////
+
+    py::enum_< tss::IntegratedObservationPropertyHandling >(
+        m, "IntegratedObservationPropertyHandling", get_docstring("IntegratedObservationPropertyHandling").c_str() )
+        .value("interval_start", tss::IntegratedObservationPropertyHandling::interval_start )
+        .value("interval_end", tss::IntegratedObservationPropertyHandling::interval_end )
+        .value("interval_undefined", tss::IntegratedObservationPropertyHandling::interval_undefined ).export_values();
+
+    m.def("azimuth_at_link_end_type",
+              &tss::azimuthAngleAtLinkEndTypeDependentVariable,
+          py::arg("link_end_type"),
+          py::arg("integrated_observation_handling") = tss::interval_undefined,
+          py::arg("originating_link_end_role") = tom::unidentified_link_end,
+          get_docstring("azimuth_at_link_end_type").c_str() );
+
+    m.def("elevation_at_link_end_type",
+          &tss::elevationAngleAtLinkEndTypeDependentVariable,
+          py::arg("link_end_type"),
+          py::arg("integrated_observation_handling") = tss::interval_undefined,
+          py::arg("originating_link_end_role") = tom::unidentified_link_end,
+          get_docstring("elevation_at_link_end_type").c_str() );
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////
     // FREQUENCIES
     /////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -1091,7 +1116,13 @@ void expose_observation_setup(py::module &m) {
                  get_docstring("ProcessedOdfFileContents.get_ignored_ground_stations").c_str( ) )
              .def_property_readonly("raw_odf_data",
                  &tom::ProcessedOdfFileContents::getRawOdfData,
-                 get_docstring("ProcessedOdfFileContents.raw_odf_data").c_str( ) );
+                 get_docstring("ProcessedOdfFileContents.raw_odf_data").c_str( ) )
+            .def("define_antenna_id",
+                  py::overload_cast< const std::string&, const std::string&>(
+                      &tom::ProcessedOdfFileContents::defineSpacecraftAntennaId ),
+                 py::arg("spacecraft_name"),
+                 py::arg("antenna_name"),
+                 get_docstring("ProcessedOdfFileContents.define_antenna_id").c_str( ) );
 
     m.def("process_odf_data_multiple_files",
           py::overload_cast<
@@ -1169,21 +1200,21 @@ void expose_observation_setup(py::module &m) {
   // Tracking Txt OBSERVATIONS
   /////////////////////////////////////////////////////////////////////////////////////////////////
 
-    m.def("create_tracking_txtfile_observation_collection",
-        py::overload_cast<
-            const std::shared_ptr<tudat::input_output::TrackingTxtFileContents>,
-            const std::string,
-            const std::vector<tom::ObservableType>,
-            const std::map<std::string, Eigen::Vector3d>,
-            const tom::ObservationAncilliarySimulationSettings&,
-            std::pair<TIME_TYPE, TIME_TYPE>>(&tom::createTrackingTxtFileObservationCollection<double, TIME_TYPE>),
-        py::arg("raw_tracking_txtfile_contents"),
-        py::arg("spacecraft_name"),
-        py::arg("observable_types_to_process") = std::vector<tom::ObservableType>(),
-        py::arg("earth_fixed_ground_station_positions") = tss::getApproximateDsnGroundStationPositions(),
-        py::arg("ancillary_settings") = tom::ObservationAncilliarySimulationSettings(),
-        py::arg("start_and_end_times_to_process") = std::make_pair<TIME_TYPE, TIME_TYPE>(TUDAT_NAN, TUDAT_NAN),
-        get_docstring("create_tracking_txtfile_observation_collection").c_str());
+//    m.def("create_tracking_txtfile_observation_collection",
+//        py::overload_cast<
+//            const std::shared_ptr<tudat::input_output::TrackingTxtFileContents>,
+//            const std::string,
+//            const std::vector<tom::ObservableType>,
+//            const std::map<std::string, Eigen::Vector3d>,
+//            const tom::ObservationAncilliarySimulationSettings&,
+//            std::pair<TIME_TYPE, TIME_TYPE>>(&tom::createTrackingTxtFileObservationCollection<double, TIME_TYPE>),
+//        py::arg("raw_tracking_txtfile_contents"),
+//        py::arg("spacecraft_name"),
+//        py::arg("observable_types_to_process") = std::vector<tom::ObservableType>(),
+//        py::arg("earth_fixed_ground_station_positions") = tss::getApproximateDsnGroundStationPositions(),
+//        py::arg("ancillary_settings") = tom::ObservationAncilliarySimulationSettings(),
+//        py::arg("start_and_end_times_to_process") = std::make_pair<TIME_TYPE, TIME_TYPE>(TUDAT_NAN, TUDAT_NAN),
+//        get_docstring("create_tracking_txtfile_observation_collection").c_str());
 
     m.def("observation_settings_from_collection",
           py::overload_cast<std::shared_ptr<tom::ObservationCollection<double, TIME_TYPE> >>(
