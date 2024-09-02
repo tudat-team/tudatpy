@@ -19,6 +19,12 @@ namespace tudat
 namespace earth_orientation
 {
 
+Eigen::Vector2d getSecularPolePositionInMas( const double time )
+{
+    double timeInYears = time / physical_constants::JULIAN_YEAR;
+    return ( Eigen::Vector2d( ) << 55.0 + 1.677 * timeInYears, 320.5 + 3.460 * timeInYears ).finished( );
+}
+
 
 //! Calculate the position of the Celestial Intermediate Pole in the ITRS
 Eigen::Vector2d PolarMotionCalculator::getPositionOfCipInItrs(
