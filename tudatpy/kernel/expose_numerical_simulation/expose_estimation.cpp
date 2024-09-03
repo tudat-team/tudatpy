@@ -793,7 +793,15 @@ void expose_estimation(py::module &m) {
                   get_docstring( "get_single_observation_sets" ).c_str( ) )
             .def( "print_observation_sets_start_and_size",
                   &tom::ObservationCollection< double, TIME_TYPE >::printObservationSetsStartAndSize,
-                  get_docstring( "print_observation_sets_start_index_and_size" ).c_str( ) );
+                  get_docstring( "print_observation_sets_start_index_and_size" ).c_str( ) )
+            .def( "remove_single_observation_sets",
+                  py::overload_cast< std::shared_ptr< tom::ObservationCollectionParser > >(
+                  &tom::ObservationCollection< double, TIME_TYPE >::removeSingleObservationSets ),
+                  py::arg("observation_parser"),
+                  get_docstring( "remove_single_observation_sets" ).c_str( ) )
+            .def( "remove_empty_observation_sets",
+                  &tom::ObservationCollection< double, TIME_TYPE >::removeEmptySingleObservationSets,
+                  get_docstring( "remove_empty_observation_sets" ).c_str( ) );
 
 
     m.def( "create_single_observation_set",
