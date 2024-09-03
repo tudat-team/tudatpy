@@ -292,24 +292,20 @@ void expose_estimation(py::module &m) {
             std::shared_ptr<tom::ObservationFilterBase>>(m, "ObservationFilterBase",
                     get_docstring("ObservationFilterBase").c_str() );
 
-    py::class_<tom::ObservationFilter< double >,
-            std::shared_ptr<tom::ObservationFilter< double > >,
-            tom::ObservationFilterBase>( m, "ObservationFilter",
-                                         get_docstring("ObservationFilter").c_str() );
-
-    py::class_<tom::ObservationFilter< std::pair< double, double > >,
-            std::shared_ptr<tom::ObservationFilter< std::pair< double, double > > >,
-            tom::ObservationFilterBase>( m, "ObservationFilter",
-                                         get_docstring("ObservationFilter").c_str() );
-
-    py::class_<tom::ObservationFilter< std::vector< double > >,
-            std::shared_ptr<tom::ObservationFilter< std::vector< double > > >,
-            tom::ObservationFilterBase>( m, "ObservationFilter",
-                                         get_docstring("ObservationFilter").c_str() );
-
-    m.def("observation_parser",
-          py::overload_cast< >( &tom::observationParser ),
-          get_docstring("observation_parser").c_str() );
+//    py::class_<tom::ObservationFilter< double >,
+//            std::shared_ptr<tom::ObservationFilter< double > >,
+//            tom::ObservationFilterBase>( m, "ObservationFilter",
+//                                         get_docstring("ObservationFilter").c_str() );
+//
+//    py::class_<tom::ObservationFilter< std::pair< double, double > >,
+//            std::shared_ptr<tom::ObservationFilter< std::pair< double, double > > >,
+//            tom::ObservationFilterBase>( m, "ObservationFilter",
+//                                         get_docstring("ObservationFilter").c_str() );
+//
+//    py::class_<tom::ObservationFilter< std::vector< double > >,
+//            std::shared_ptr<tom::ObservationFilter< std::vector< double > > >,
+//            tom::ObservationFilterBase>( m, "ObservationFilter",
+//                                         get_docstring("ObservationFilter").c_str() );
 
     m.def("observation_filter",
           py::overload_cast< tom::ObservationFilterType,
@@ -342,25 +338,20 @@ void expose_estimation(py::module &m) {
             std::shared_ptr<tom::ObservationSetSplitterBase>>(m, "ObservationSetSplitterBase",
                     get_docstring("ObservationSetSplitterBase").c_str() );
 
-    py::class_<tom::ObservationSetSplitter< std::vector< double > >,
-            std::shared_ptr<tom::ObservationSetSplitter< std::vector< double > > >,
-            tom::ObservationSetSplitterBase>( m, "ObservationSetSplitter",
-                                         get_docstring("ObservationSetSplitter").c_str() );
-
-    py::class_<tom::ObservationSetSplitter< double >,
-            std::shared_ptr<tom::ObservationSetSplitter< double > >,
-            tom::ObservationSetSplitterBase>( m, "ObservationSetSplitter",
-                                         get_docstring("ObservationSetSplitter").c_str() );
-
-    py::class_<tom::ObservationSetSplitter< int >,
-            std::shared_ptr<tom::ObservationSetSplitter< int > >,
-            tom::ObservationSetSplitterBase>( m, "ObservationSetSplitter",
-                                         get_docstring("ObservationSetSplitter").c_str() );
-
-    py::class_<tom::ObservationSetSplitter< int >,
-            std::shared_ptr<tom::ObservationSetSplitter< int > >,
-            tom::ObservationSetSplitterBase>( m, "ObservationSetSplitter",
-                                         get_docstring("ObservationSetSplitter").c_str() );
+//    py::class_<tom::ObservationSetSplitter< std::vector< double > >,
+//            std::shared_ptr<tom::ObservationSetSplitter< std::vector< double > > >,
+//            tom::ObservationSetSplitterBase>( m, "ObservationSetSplitter",
+//                                         get_docstring("ObservationSetSplitter").c_str() );
+//
+//    py::class_<tom::ObservationSetSplitter< double >,
+//            std::shared_ptr<tom::ObservationSetSplitter< double > >,
+//            tom::ObservationSetSplitterBase>( m, "ObservationSetSplitter",
+//                                         get_docstring("ObservationSetSplitter").c_str() );
+//
+//    py::class_<tom::ObservationSetSplitter< int >,
+//            std::shared_ptr<tom::ObservationSetSplitter< int > >,
+//            tom::ObservationSetSplitterBase>( m, "ObservationSetSplitter",
+//                                         get_docstring("ObservationSetSplitter").c_str() );
 
     m.def("observation_set_splitter",
       py::overload_cast< tom::ObservationSetSplitterType,
@@ -671,6 +662,10 @@ void expose_estimation(py::module &m) {
                                    get_docstring("ObservationCollection.time_bounds").c_str() )
             .def_property_readonly("sorted_per_set_time_bounds", &tom::ObservationCollection<double, TIME_TYPE>::getSortedObservationSetsTimeBounds,
                                    get_docstring("ObservationCollection.time_bounds").c_str() )
+            .def("set_observations", &tom::ObservationCollection<double, TIME_TYPE>::setObservations,
+                 py::arg("new_observations"), get_docstring("set_observations").c_str( ) )
+            .def("set_residuals", &tom::ObservationCollection<double, TIME_TYPE>::setResiduals,
+                 py::arg("new_residuals"), get_docstring("set_residuals").c_str( ) )
             .def("get_link_definitions_for_observables", &tom::ObservationCollection<double, TIME_TYPE>::getLinkDefinitionsForSingleObservable,
                  py::arg( "observable_type" ),
                  get_docstring("ObservationCollection.get_link_definitions_for_observables").c_str() )
@@ -838,9 +833,16 @@ void expose_estimation(py::module &m) {
     py::class_< tom::SingleObservationSet<double, TIME_TYPE>,
             std::shared_ptr<tom::SingleObservationSet<double, TIME_TYPE>>>(m, "SingleObservationSet",
                                                           get_docstring("SingleObservationSet").c_str() )
-            .def("set_observations", &tom::SingleObservationSet<double, TIME_TYPE>::setObservations,
-                 py::arg("observations"), get_docstring("SingleObservationSet.set_observations").c_str() )
+            .def("set_observations", py::overload_cast< const std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > >&>(
+                    &tom::SingleObservationSet<double, TIME_TYPE>::setObservations),
+                    py::arg("observations"), get_docstring("SingleObservationSet.set_observations").c_str() )
+            .def("set_observations", py::overload_cast< const Eigen::Matrix< double, Eigen::Dynamic, 1 >& >(
+                    &tom::SingleObservationSet<double, TIME_TYPE>::setObservations),
+                    py::arg("observations"), get_docstring("SingleObservationSet.set_observations").c_str() )
             .def("set_residuals", py::overload_cast< const std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > >&>(
+                    &tom::SingleObservationSet<double, TIME_TYPE>::setResiduals),
+                    py::arg("residuals"), get_docstring("SingleObservationSet.set_residuals").c_str() )
+            .def("set_residuals", py::overload_cast< const Eigen::Matrix< double, Eigen::Dynamic, 1 >& >(
                     &tom::SingleObservationSet<double, TIME_TYPE>::setResiduals),
                     py::arg("residuals"), get_docstring("SingleObservationSet.set_residuals").c_str() )
             .def("set_constant_weight", py::overload_cast< const double >( &tom::SingleObservationSet<double, TIME_TYPE>::setConstantWeight ),
