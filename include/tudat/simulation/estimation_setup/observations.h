@@ -124,13 +124,31 @@ public:
         return observations_;
     }
 
-    void setObservations( std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observations )
+    void setObservations( const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observations )
     {
         if ( observations.size( ) != observations_.size( ) )
         {
             throw std::runtime_error( "Error when resetting observations, number of observations is incompatible." );
         }
         observations_ = observations;
+        if ( !observations_.empty( ) )
+        {
+            singleObservationSize_ = observations_.at( 0 ).size( );
+        }
+    }
+
+    void setObservations( const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& observationsVector )
+    {
+        if ( observationsVector.size( ) != numberOfObservations_ * singleObservationSize_ )
+        {
+            throw std::runtime_error( "Error when resetting observations, number of observations is incompatible." );
+        }
+
+        observations_.clear( );
+        for ( unsigned int k = 0 ; k < numberOfObservations_ ; k++ )
+        {
+            observations_.push_back( observationsVector.segment( k * singleObservationSize_, singleObservationSize_ ) );
+        }
         if ( !observations_.empty( ) )
         {
             singleObservationSize_ = observations_.at( 0 ).size( );
@@ -146,7 +164,7 @@ public:
         residuals_ = residuals;
     }
 
-    void setResiduals( Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& residualsVector )
+    void setResiduals( const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& residualsVector )
     {
         if ( residualsVector.size( ) != numberOfObservations_ * singleObservationSize_ )
         {
@@ -437,16 +455,8 @@ public:
         // Update observations
         observations_.erase( observations_.begin( ) + indexToRemove );
         observationTimes_.erase( observationTimes_.begin( ) + indexToRemove );
-
-        if ( residuals_.size( ) > 0 )
-        {
-            residuals_.erase( residuals_.begin( ) + indexToRemove );
-        }
-
-        if ( weights_.size( ) > 0 )
-        {
-            weights_.erase( weights_.begin( ) + indexToRemove );
-        }
+        residuals_.erase( residuals_.begin( ) + indexToRemove );
+        weights_.erase( weights_.begin( ) + indexToRemove );
 
         if ( observationsDependentVariables_.size( ) > 0 )
         {
@@ -511,8 +521,8 @@ public:
                     bool removeObservation = false;
                     for( int k = 0 ; k < singleObservationSize_ ; k++ )
                     {
-                        if( ( !useOppositeCondition && ( singleObservationResidual[ k ] > residualCutOff[ k ] ) ) ||
-                        ( useOppositeCondition && ( singleObservationResidual[ k ] <= residualCutOff[ k ] ) ) )
+                        if( ( !useOppositeCondition && ( std::fabs( singleObservationResidual[ k ] ) > residualCutOff[ k ] ) ) ||
+                        ( useOppositeCondition && ( std::fabs( singleObservationResidual[ k ] ) <= residualCutOff[ k ] ) ) )
                         {
                             removeObservation = true;
                         }
@@ -608,11 +618,11 @@ public:
     }
 
     void addObservations(
-            std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observations,
-            std::vector< TimeType >& times,
-            std::vector< Eigen::VectorXd > dependentVariables = { },
-            std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > weights = { },
-            std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > residuals = { },
+            const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observations,
+            const std::vector< TimeType >& times,
+            const std::vector< Eigen::VectorXd >& dependentVariables = { },
+            const std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > >& weights = { },
+            const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& residuals = { },
             const bool sortObservations = true )
     {
         if ( ( observations.size( ) != times.size( ) ) ||
@@ -620,24 +630,45 @@ public:
                 ( residuals.size( ) > 0 && ( observations.size( ) != residuals.size( ) ) ) ||
                 ( dependentVariables.size( ) > 0 && ( observations.size( ) != dependentVariables.size( ) ) ) )
         {
-            throw std::runtime_error( "Error when adding observations to single obs set, input sizes are inconsistent." );
+            throw std::runtime_error( "Error when adding observations to SingleObservationSet, input sizes are inconsistent." );
         }
 
         for ( unsigned int k = 0 ; k < observations.size( ) ; k++ )
         {
+            if ( observations.at( k ).size( ) != singleObservationSize_ )
+            {
+                throw std::runtime_error( "Error when adding observations to SingleObservationSet, new observation size is inconsistent." );
+            }
+
             observations_.push_back( observations.at( k ) );
             observationTimes_.push_back( times.at( k ) );
 
-            // If residuals are set
-            if ( ( residuals_.size( ) > 0 || numberOfObservations_ == 0 ) && residuals.size( ) > 0 )
+            // If residuals are provided as inputs
+            if ( residuals.size( ) > 0 )
             {
+                if ( residuals.at( k ).size( ) != singleObservationSize_ )
+                {
+                    throw std::runtime_error( "Error when adding observations to SingleObservationSet, new residual size is inconsistent." );
+                }
                 residuals_.push_back( residuals.at( k ) );
             }
-
-            // If weights ares set
-            if ( ( weights_.size( ) > 0 || numberOfObservations_ == 0 ) && weights.size( ) > 0 )
+            else // Otherwise, set to zero by default
             {
+                residuals_.push_back( Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >::Zero( singleObservationSize_, 1 )  );
+            }
+
+            // If weights are provided as inputs
+            if ( weights.size( ) > 0 )
+            {
+                if ( weights.at( k ).size( ) != singleObservationSize_ )
+                {
+                    throw std::runtime_error( "Error when adding observations to SingleObservationSet, new weight size is inconsistent." );
+                }
                 weights_.push_back( weights.at( k ) );
+            }
+            else // Otherwise, set to one by default
+            {
+                weights_.push_back( Eigen::Matrix< double, Eigen::Dynamic, 1 >::Ones( singleObservationSize_, 1 ) );
             }
 
             // if dependent variables are set
@@ -648,6 +679,7 @@ public:
 
             numberOfObservations_ += 1;
         }
+
 
         // Sort observations
         if ( sortObservations )
@@ -692,33 +724,29 @@ private:
                 observationsDependentVariables_ = utilities::createVectorFromMapValues( observationsDependentVariablesMap );
             }
 
-            if ( weights_.size( ) > 0 )
-            {
-                if( static_cast< int >( weights_.size( ) ) != numberOfObservations_ )
-                {
-                    throw std::runtime_error( "Error when making SingleObservationSet, weights size is incompatible after time ordering" );
-                }
-                std::map< TimeType, Eigen::Matrix< double, Eigen::Dynamic, 1 > > weightsMap;
-                for( unsigned int i = 0; i < weights_.size( ); i++ )
-                {
-                    weightsMap[ observationTimes_.at( i ) ] = weights_.at( i );
-                }
-                weights_ = utilities::createVectorFromMapValues( weightsMap );
-            }
 
-            if ( residuals_.size( ) > 0 )
+            if( static_cast< int >( weights_.size( ) ) != numberOfObservations_ )
             {
-                if( static_cast< int >( residuals_.size( ) ) != numberOfObservations_ )
-                {
-                    throw std::runtime_error( "Error when making SingleObservationSet, residuals size is incompatible after time ordering" );
-                }
-                std::map< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > residualsMap;
-                for( unsigned int i = 0; i < residuals_.size( ); i++ )
-                {
-                    residualsMap[ observationTimes_.at( i ) ] = residuals_.at( i );
-                }
-                residuals_ = utilities::createVectorFromMapValues( residualsMap );
+                throw std::runtime_error( "Error when making SingleObservationSet, weights size is incompatible after time ordering" );
             }
+            std::map< TimeType, Eigen::Matrix< double, Eigen::Dynamic, 1 > > weightsMap;
+            for( unsigned int i = 0; i < weights_.size( ); i++ )
+            {
+                weightsMap[ observationTimes_.at( i ) ] = weights_.at( i );
+            }
+            weights_ = utilities::createVectorFromMapValues( weightsMap );
+
+
+            if( static_cast< int >( residuals_.size( ) ) != numberOfObservations_ )
+            {
+                throw std::runtime_error( "Error when making SingleObservationSet, residuals size is incompatible after time ordering" );
+            }
+            std::map< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > residualsMap;
+            for( unsigned int i = 0; i < residuals_.size( ); i++ )
+            {
+                residualsMap[ observationTimes_.at( i ) ] = residuals_.at( i );
+            }
+            residuals_ = utilities::createVectorFromMapValues( residualsMap );
         }
     }
 
@@ -754,20 +782,10 @@ private:
 
                 observations.push_back( observations_.at( index ) );
                 times.push_back( observationTimes_.at( index ) );
+                weights.push_back( weights_.at( index ) );
+                residuals.push_back( residuals_.at( index ) );
 
-                // If weights are set
-                if ( weights_.size( ) > 0 )
-                {
-                    weights.push_back( weights_.at( index ) );
-                }
-
-                // If residuals are set
-                if ( residuals_.size( ) > 0 )
-                {
-                    residuals.push_back( residuals_.at( index ) );
-                }
-
-                // If dependent variables are set
+                // If dependent variables not empty
                 if ( observationsDependentVariables_.size( ) > 0 )
                 {
                     dependentVariables.push_back( observationsDependentVariables_.at( index ) );
@@ -795,18 +813,8 @@ private:
 
                 observations.push_back( filteredObservationSet_->getObservations( ).at( index ) );
                 times.push_back( filteredObservationSet_->getObservationTimes( ).at( index ) );
-
-                // If weights are set
-                if ( filteredObservationSet_->getWeights( ).size( ) > 0 )
-                {
-                    weights.push_back( filteredObservationSet_->getWeights( ).at( index ) );
-                }
-
-                // If residuals are set
-                if ( filteredObservationSet_->getResiduals( ).size( ) > 0 )
-                {
-                    residuals.push_back( filteredObservationSet_->getResiduals( ).at( index ) );
-                }
+                weights.push_back( filteredObservationSet_->getWeights( ).at( index ) );
+                residuals.push_back( filteredObservationSet_->getResiduals( ).at( index ) );
 
                 // If dependent variables are set
                 if ( filteredObservationSet_->getObservationsDependentVariables( ).size( ) > 0 )
@@ -1007,18 +1015,11 @@ std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeT
                 observationSet->getReferenceLinkEnd( ), newDependentVariables, observationSet->getDependentVariableCalculator( ),
                 observationSet->getAncilliarySettings( ) );
 
-        Eigen::Matrix< double, Eigen::Dynamic, 1 > newWeightsVector;
-        if ( weightsVector.size( ) > 0 )
-        {
-            newWeightsVector = weightsVector.segment( startIndex, sizeCurrentSet * observationSet->getSingleObservableSize( ) );
-        }
+        Eigen::Matrix< double, Eigen::Dynamic, 1 > newWeightsVector = weightsVector.segment( startIndex, sizeCurrentSet * observationSet->getSingleObservableSize( ) );
         newSet->setTabulatedWeights( newWeightsVector );
 
-        std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > newResiduals;
-        if ( !residuals.empty( ) )
-        {
-            newResiduals = utilities::getStlVectorSegment( observationSet->getResidualsReference( ), startIndex, sizeCurrentSet );
-        }
+        std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > newResiduals =
+                utilities::getStlVectorSegment( observationSet->getResidualsReference( ), startIndex, sizeCurrentSet );
         newSet->setResiduals( newResiduals );
 
         newObsSets.push_back( newSet );
@@ -1133,6 +1134,50 @@ public:
     const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& getObservationVectorReference( )
     {
         return concatenatedObservations_;
+    }
+
+    void setObservations( const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& newObservations )
+    {
+        if ( newObservations.size( ) != totalObservableSize_ )
+        {
+            throw std::runtime_error( "Error when resetting observations in ObservationCollection, size of input observation vector is inconsistent." );
+        }
+
+        unsigned int startIndexObsSet = 0;
+        for ( auto observableIt : observationSetList_ )
+        {
+            for ( auto linkEndsIt : observableIt.second )
+            {
+                for ( auto set : linkEndsIt.second )
+                {
+                    unsigned int sizeCurrentSet = set->getTotalObservationSetSize( );
+                    set->setObservations( newObservations.segment( startIndexObsSet, sizeCurrentSet ) );
+                    startIndexObsSet += sizeCurrentSet;
+                }
+            }
+        }
+    }
+
+    void setResiduals( const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& newResiduals )
+    {
+        if ( newResiduals.size( ) != totalObservableSize_ )
+        {
+            throw std::runtime_error( "Error when resetting observations in ObservationCollection, size of input observation vector is inconsistent." );
+        }
+
+        unsigned int startIndexObsSet = 0;
+        for ( auto observableIt : observationSetList_ )
+        {
+            for ( auto linkEndsIt : observableIt.second )
+            {
+                for ( auto set : linkEndsIt.second )
+                {
+                    unsigned int sizeCurrentSet = set->getTotalObservationSetSize( );
+                    set->setResiduals( newResiduals.segment( startIndexObsSet, sizeCurrentSet ) );
+                    startIndexObsSet += sizeCurrentSet;
+                }
+            }
+        }
     }
 
     std::vector< TimeType > getConcatenatedTimeVector( )
