@@ -60,6 +60,17 @@ filter_test_input = [
 ]
 
 
+# for the weights tests 
+observatory_set_single = ["M22"]
+observatory_set_multi = ["K19", "D67", "089", "706"]
+weights_test_combinations = [
+    (observatory_set_single, True),  # just one obs
+    (observatory_set_single, False),
+    (observatory_set_multi, False),
+    (None, False),  # all data
+]
+
+
 @pytest.mark.parametrize("inp,expected", get_observations_input)
 def test_BatchMPC_getobservations(inp, expected):
     query = BatchMPC()
@@ -105,6 +116,7 @@ def test_BatchMPC_to_tudat(mpc_code):
     observation_collection = query.to_tudat(
         bodies=bodies,
         included_satellites=None,
+        apply_star_catalog_debias=False
     )
 
     # reshape to [2, ...] where 2 is RA + DEC
@@ -149,6 +161,7 @@ def test_BatchMPC_to_tudat_with_satelite(mpc_code):
     observation_collection = query.to_tudat(
         bodies=bodies,
         included_satellites={"C51": "Wise"},
+        apply_star_catalog_debias=False
     )
 
     # reshape to [2, ...] where 2 is RA + DEC
