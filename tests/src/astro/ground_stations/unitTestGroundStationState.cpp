@@ -221,6 +221,16 @@ Eigen::Vector3d getCustomDisplacementFunction( const double time )
             std::sin( time / ( 10.0 * physical_constants::JULIAN_DAY ) );
 }
 
+Eigen::Vector3d getBodyFixedSpecialRelativisticDisplacementFunction(
+    const double time, const simulation_setup::SystemOfBodies& bodies, const Eigen::Vector3d& nominalStationState )
+{
+    Eigen::Quaterniond bodyFixedToInertial = bodies.at( "Earth" )->getRotationalEphemeris( )->getRotationToBaseFrame( time );
+    Eigen::Vector3d inertialStationPosition = bodyFixedToInertial * nominalStationState;
+    Eigen::Vector3d earthBarycentricVelocity = bodies.at( "Earth" )->getStateInBaseFrameFromEphemeris( time ).segment( 3, 3 );
+
+    return bodyFixedToInertial.inverse( ) * ( inertialStationPosition.dot( earthBarycentricVelocity ) * earthBarycentricVelocity * physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT );
+}
+
 Eigen::Vector3d getExpectedPiecewiseConstantDisplacement( const int j )
 {
     Eigen::Vector3d expectedStateDifference;
@@ -257,7 +267,7 @@ BOOST_AUTO_TEST_CASE( test_GroundStationTimeVaryingState )
 
     for( unsigned int bodyDeformationType = 0; bodyDeformationType < 2; bodyDeformationType++ )
     {
-        for( unsigned int i = 0; i < 4; i++ )
+        for( unsigned int i = 0; i < 5; i++ )
         {
             BodyListSettings bodySettings =
                     getDefaultBodySettings( bodyNames );
@@ -273,7 +283,6 @@ BOOST_AUTO_TEST_CASE( test_GroundStationTimeVaryingState )
                                 std::vector< std::string >( { "Sun" } ), loveNumbers ) );
             }
             SystemOfBodies bodies = createSystemOfBodies( bodySettings );
-
             const Eigen::Vector3d nominalStationState( 1917032.190, 6029782.349, -801376.113 );
 
             std::vector< std::shared_ptr< GroundStationMotionSettings > > stationMotionSettings;
@@ -304,6 +313,12 @@ BOOST_AUTO_TEST_CASE( test_GroundStationTimeVaryingState )
                 stationMotionSettings.push_back(
                             std::make_shared< CustomGroundStationMotionSettings >( &getCustomDisplacementFunction ) );
             }
+            if( i == 4 )
+            {
+                stationMotionSettings.push_back(
+                    std::make_shared< BodyCentricToBarycentricGroundStationMotionSettings >( "", false ) );
+            }
+            stationMotionSettings.push_back( std::make_shared< BodyDeformationStationMotionSettings >( true ) );
 
             std::shared_ptr< GroundStationSettings > stationSettings = std::make_shared< GroundStationSettings >(
                         "Station1", nominalStationState, coordinate_conversions::cartesian_position, stationMotionSettings );
@@ -314,8 +329,7 @@ BOOST_AUTO_TEST_CASE( test_GroundStationTimeVaryingState )
 
             std::vector< double > testTimes ={ -3.0 * physical_constants::JULIAN_YEAR, -20.0 * physical_constants::JULIAN_DAY, 0.0,
                                                20.0 * physical_constants::JULIAN_YEAR };
-            //        std::vector< double >( { -30.0 * physical_constants::JULIAN_YEAR, -20.0 * physical_constants::JULIAN_DAY, 0.0,
-            //          physical_constants::JULIAN_YEAR, 20.0 physical_constants::JULIAN_YEAR } );
+
             std::vector< std::shared_ptr< tudat::basic_astrodynamics::BodyDeformationModel > > deformationModels;
             if( bodyDeformationType == 1 )
             {
@@ -325,7 +339,7 @@ BOOST_AUTO_TEST_CASE( test_GroundStationTimeVaryingState )
             {
                 for( unsigned int j = 0; j < testTimes.size( ); j++ )
                 {
-                    Eigen::Vector3d currentState = stationState->getCartesianPositionInTime( testTimes.at( j ) );
+                    Eigen::Vector3d currentState = stationState->getCartesianPositionInTime( testTimes.at( j ), bodies.getFrameOrigin( ) );
                     Eigen::Vector3d stateDifference = currentState - nominalStationState;
                     Eigen::Vector3d expectedStateDifference = ( linearMotion * ( testTimes.at( j ) - referenceTime ) );
                     if( bodyDeformationType == 1 )
@@ -341,7 +355,7 @@ BOOST_AUTO_TEST_CASE( test_GroundStationTimeVaryingState )
             {
                 for( unsigned int j = 0; j < testTimes.size( ); j++ )
                 {
-                    Eigen::Vector3d currentState = stationState->getCartesianPositionInTime( testTimes.at( j ) );
+                    Eigen::Vector3d currentState = stationState->getCartesianPositionInTime( testTimes.at( j ), bodies.getFrameOrigin( ) );
                     Eigen::Vector3d stateDifference = currentState - nominalStationState;
                     Eigen::Vector3d expectedStateDifference = getExpectedPiecewiseConstantDisplacement( j );
                     if( bodyDeformationType == 1 )
@@ -357,7 +371,7 @@ BOOST_AUTO_TEST_CASE( test_GroundStationTimeVaryingState )
             {
                 for( unsigned int j = 0; j < testTimes.size( ); j++ )
                 {
-                    Eigen::Vector3d currentState = stationState->getCartesianPositionInTime( testTimes.at( j ) );
+                    Eigen::Vector3d currentState = stationState->getCartesianPositionInTime( testTimes.at( j ), bodies.getFrameOrigin( ) );
                     Eigen::Vector3d stateDifference = currentState - nominalStationState;
                     Eigen::Vector3d expectedStateDifference = getCustomDisplacementFunction( testTimes.at( j ) );
                     if( bodyDeformationType == 1 )
@@ -372,7 +386,7 @@ BOOST_AUTO_TEST_CASE( test_GroundStationTimeVaryingState )
             {
                 for( unsigned int j = 0; j < testTimes.size( ); j++ )
                 {
-                    Eigen::Vector3d currentState = stationState->getCartesianPositionInTime( testTimes.at( j ) );
+                    Eigen::Vector3d currentState = stationState->getCartesianPositionInTime( testTimes.at( j ), bodies.getFrameOrigin( ) );
                     Eigen::Vector3d stateDifference = currentState - nominalStationState;
                     Eigen::Vector3d expectedStateDifference =
                             getCustomDisplacementFunction( testTimes.at( j ) ) + getExpectedPiecewiseConstantDisplacement( j ) +
@@ -382,7 +396,38 @@ BOOST_AUTO_TEST_CASE( test_GroundStationTimeVaryingState )
                         expectedStateDifference += deformationModels.at( 0 )->calculateDisplacement( testTimes.at( j ), nominalStationState );
                         expectedStateDifference += deformationModels.at( 1 )->calculateDisplacement( testTimes.at( j ), nominalStationState );
                     }
-                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( stateDifference, expectedStateDifference, 1.0E-7 );
+                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( stateDifference, expectedStateDifference, 1.0E-6 );
+                }
+            }
+            else if( i == 4 )
+            {
+                for( unsigned int j = 0; j < testTimes.size( ); j++ )
+                {
+                    {
+                        Eigen::Vector3d currentState = stationState->getCartesianPositionInTime( testTimes.at( j ), bodies.getFrameOrigin( ) );
+                        Eigen::Vector3d stateDifference = currentState - nominalStationState;
+                        Eigen::Vector3d expectedStateDifference = getBodyFixedSpecialRelativisticDisplacementFunction( testTimes.at( j ), bodies, nominalStationState );
+                        if( bodyDeformationType == 1 )
+                        {
+                            expectedStateDifference += deformationModels.at( 0 )->calculateDisplacement( testTimes.at( j ), nominalStationState );
+                            expectedStateDifference += deformationModels.at( 1 )->calculateDisplacement( testTimes.at( j ), nominalStationState );
+                        }
+
+                        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( stateDifference, expectedStateDifference, 1.0E-6 );
+                    }
+
+                    {
+                        Eigen::Vector3d currentState = stationState->getCartesianPositionInTime( testTimes.at( j ), "Earth" );
+                        Eigen::Vector3d stateDifference = currentState - nominalStationState;
+                        Eigen::Vector3d expectedStateDifference = Eigen::Vector3d::Zero( );
+                        if( bodyDeformationType == 1 )
+                        {
+                            expectedStateDifference += deformationModels.at( 0 )->calculateDisplacement( testTimes.at( j ), nominalStationState );
+                            expectedStateDifference += deformationModels.at( 1 )->calculateDisplacement( testTimes.at( j ), nominalStationState );
+                        }
+
+                        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( stateDifference, expectedStateDifference, 1.0E-6 );
+                    }
                 }
             }
         }

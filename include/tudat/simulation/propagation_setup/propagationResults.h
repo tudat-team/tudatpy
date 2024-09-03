@@ -212,6 +212,17 @@ namespace tudat
                 return equationsOfMotionNumericalSolution_;
             }
 
+            std::map< double, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > getEquationsOfMotionNumericalSolutionDouble( )
+            {
+                return utilities::staticCastMapKeys< double, Time, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >( equationsOfMotionNumericalSolution_ );
+            }
+
+            std::pair< std::vector< double >, std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > getEquationsOfMotionNumericalSolutionDoubleSplit( )
+            {
+                std::map< double, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > stateMap = getEquationsOfMotionNumericalSolutionDouble( );
+                return std::make_pair( utilities::createVectorFromMapKeys( stateMap ), utilities::createVectorFromMapValues( stateMap ) );
+            }
+
             std::map <TimeType, Eigen::Matrix<StateScalarType, Eigen::Dynamic, 1>> &
             getEquationsOfMotionNumericalSolutionRaw( )
             {
