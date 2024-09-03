@@ -43,7 +43,6 @@ void performObservationParameterEstimationClosureForSingleModelSet(
         const LinkEnds linkEnds,
         const ObservableType observableType )
 {
-    std::cout<<"Performing closure "<<getLinkEndsString( linkEnds )<<" "<<std::endl;
     ObservationBiasTypes biasType = getObservationBiasType( observationBias );
 
     // Check if bias type is multi-type
@@ -324,7 +323,6 @@ void performObservationParameterEstimationClosureForSingleModelSet(
         }
         case estimatable_parameters::arc_wise_time_observation_bias:
         {
-            std::cout<<"Setting closure for arc-wise time biases"<<std::endl;
             // Test input consistency
             std::shared_ptr< estimatable_parameters::ArcWiseTimeBiasParameter > timeBiasParameter =
                     std::dynamic_pointer_cast< estimatable_parameters::ArcWiseTimeBiasParameter >( parameter );
@@ -338,13 +336,8 @@ void performObservationParameterEstimationClosureForSingleModelSet(
             std::shared_ptr< ArcWiseTimeBias< ObservationSize > > timeBiasObject =
                     std::dynamic_pointer_cast< ArcWiseTimeBias< ObservationSize > >( observationBias );
 
-            std::cout<<"Is arc-wise time bias: "<<timeBiasObject<<" "<<observationBias<<std::endl;
-
             if( timeBiasObject != nullptr )
             {
-                std::cout<<( linkEnds == timeBiasParameter->getLinkEnds( ) ) <<" "<< ( observableType == timeBiasParameter->getObservableType( ) ) <<" "<<
-                     ( timeBiasObject->getLinkEndIndexForTime( ) == timeBiasParameter->getLinkEndIndex( ) ) <<" "<<
-                     ( timeBiasObject->getArcStartTimes( ).size( ) == timeBiasParameter->getArcStartTimes( ).size( ) ) <<std::endl;
                 // Check if bias and parameter link properties are equal
                 if ( ( linkEnds == timeBiasParameter->getLinkEnds( ) ) && ( observableType == timeBiasParameter->getObservableType( ) ) &&
                      ( timeBiasObject->getLinkEndIndexForTime( ) == timeBiasParameter->getLinkEndIndex( ) ) &&
@@ -360,7 +353,6 @@ void performObservationParameterEstimationClosureForSingleModelSet(
                             doTimesMatch = false;
                         }
                     }
-                    std::cout<<"Times match "<<doTimesMatch<<std::endl;
 
                     if( doTimesMatch == true )
                     {
@@ -456,8 +448,6 @@ void performObservationParameterEstimationClosure(
         // Retrieve bias objects
         std::map< LinkEnds, std::shared_ptr< ObservationBias< ObservationSize > > > observationBiases =
                 extractObservationBiasList( observationModels );
-
-        std::cout<<"Number of extracted biases "<<observationBiases.size( )<<std::endl;
 
         // Iterate over all combinations of parameters and biases and perform closure for each (if needed)
         for( unsigned int i = 0; i < vectorBiasParameters.size( ); i++ )
