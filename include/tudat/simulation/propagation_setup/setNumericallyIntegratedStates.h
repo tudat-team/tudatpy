@@ -32,16 +32,28 @@ namespace propagators
 
 template< typename StateScalarType, typename TimeType >
 void addEmptyTabulatedEphemeris(
-    const simulation_setup::SystemOfBodies& bodies, const std::string& bodyName, const std::string& ephemerisOrigin = "" )
+    const simulation_setup::SystemOfBodies& bodies, const std::string& bodyName, const std::string& ephemerisOrigin = "",
+    const bool isPartOfMultiArc = false )
 {
     if( bodies.count( bodyName ) ==  0 )
     {
         throw std::runtime_error( "Error when setting empty tabulated ephemeris for body " + bodyName + ", no such body found" );
     }
     std::string ephemerisOriginToUse = ( ephemerisOrigin == "" ) ? bodies.getFrameOrigin( ) : ephemerisOrigin;
-    bodies.at( bodyName )->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< StateScalarType, TimeType > >(
-        std::shared_ptr< interpolators::OneDimensionalInterpolator
-            < TimeType, Eigen::Matrix< StateScalarType, 6, 1 > > >( ), ephemerisOriginToUse, bodies.getFrameOrientation( ) ) );
+    std::shared_ptr< ephemerides::Ephemeris > tabulatedEphemeris =
+        std::make_shared< ephemerides::TabulatedCartesianEphemeris< StateScalarType, TimeType > >(
+            std::shared_ptr< interpolators::OneDimensionalInterpolator
+                < TimeType, Eigen::Matrix< StateScalarType, 6, 1 > > >( ), ephemerisOriginToUse, bodies.getFrameOrientation( ) );
+    if( !isPartOfMultiArc )
+    {
+        bodies.at( bodyName )->setEphemeris( tabulatedEphemeris );
+    }
+    else
+    {
+        bodies.at( bodyName )->setEphemeris( std::make_shared< ephemerides::MultiArcEphemeris >(
+            std::map< double, std::shared_ptr< ephemerides::Ephemeris > >(
+                { { 0.0, tabulatedEphemeris } } ), ephemerisOriginToUse, bodies.getFrameOrientation( ) ) );
+    }
 
     bodies.processBodyFrameDefinitions( );
 }
@@ -1181,7 +1193,8 @@ void checkTranslationalStatesFeasibility(
         const std::vector< std::string >& bodiesToIntegrate,
         const std::vector< std::string >& centralBodies,
         const simulation_setup::SystemOfBodies& bodies,
-        const bool setIntegratedResult = false )
+        const bool setIntegratedResult = false,
+        const bool isPartOfMultiArc = false )
 
 {
     // Check feasibility of epheme                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  ris origins.
@@ -1222,14 +1235,20 @@ void checkTranslationalStatesFeasibility(
         {
             if( setIntegratedResult )
             {
-                if( bodies.at( bodyToIntegrate )->getEphemeris( ) == nullptr )
+                if ( bodies.at( bodyToIntegrate )->getEphemeris( ) == nullptr )
                 {
-                    addEmptyTabulatedEphemeris< StateScalarType, TimeType >( bodies, bodyToIntegrate, centralBody );
+                    addEmptyTabulatedEphemeris<StateScalarType, TimeType>( bodies, bodyToIntegrate, centralBody, isPartOfMultiArc );
                 }
-                else if( !ephemerides::isTabulatedEphemeris( bodies.at( bodyToIntegrate )->getEphemeris( )  ) )
+                else if ( !ephemerides::isTabulatedEphemeris( bodies.at( bodyToIntegrate )->getEphemeris( ) ) && !isPartOfMultiArc )
                 {
                     throw std::runtime_error( "Error when checking translational dynamics feasibility of body " +
                                               bodyToIntegrate + " ephemeris exists, but is not tabulated." );
+                }
+                else if ( ( std::dynamic_pointer_cast< ephemerides::MultiArcEphemeris >( bodies.at( bodyToIntegrate )->getEphemeris( ) ) == nullptr )
+                    && isPartOfMultiArc )
+                {
+                    throw std::runtime_error( "Error when checking translational dynamics feasibility of body " +
+                                              bodyToIntegrate + " ephemeris exists, but is not multi-arc." );
                 }
             }
         }
@@ -1247,7 +1266,8 @@ void checkTranslationalStatesFeasibility(
 template< typename StateScalarType, typename TimeType >
 void checkPropagatedStatesFeasibility(
         const std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > propagatorSettings,
-        const simulation_setup::SystemOfBodies& bodies )
+        const simulation_setup::SystemOfBodies& bodies,
+        const bool isPartOfMultiArc )
 {
     // Check dynamics type.
     switch( propagatorSettings->getStateType( ) )
@@ -1278,7 +1298,7 @@ void checkPropagatedStatesFeasibility(
                     }
 
                     //  Create state processor
-                    checkPropagatedStatesFeasibility( typeIterator.second.at( i ), bodies );
+                    checkPropagatedStatesFeasibility( typeIterator.second.at( i ), bodies, isPartOfMultiArc );
                 }
             }
             else
@@ -1302,7 +1322,8 @@ void checkPropagatedStatesFeasibility(
         checkTranslationalStatesFeasibility< StateScalarType, TimeType >(
                     translationalPropagatorSettings->bodiesToIntegrate_,
                     translationalPropagatorSettings->centralBodies_, bodies,
-                    translationalPropagatorSettings->getOutputSettings( )->getSetIntegratedResult( ) );
+                    translationalPropagatorSettings->getOutputSettings( )->getSetIntegratedResult( ),
+                    isPartOfMultiArc );
         break;
     }
     case rotational_state:
