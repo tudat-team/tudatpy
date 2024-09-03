@@ -232,11 +232,16 @@ void expose_propagation(py::module &m)
     py::class_<
             tp::SingleArcSimulationResults<double, TIME_TYPE>,
             std::shared_ptr<tp::SingleArcSimulationResults<double, TIME_TYPE>>,
-            tp::SimulationResults<double, TIME_TYPE> >(m, "SingleArcSimulationResults",
+            tp::SimulationResults<double, TIME_TYPE> >(m, "SingleArcSimulationResults"
+                                                          "cd",
                                                        get_docstring("SingleArcSimulationResults").c_str())
             .def_property_readonly("state_history",
                                    &tp::SingleArcSimulationResults<double, TIME_TYPE>::getEquationsOfMotionNumericalSolution,
                                    get_docstring("SingleArcSimulationResults.state_history").c_str() )
+            .def_property_readonly("state_history_float",
+                                   &tp::SingleArcSimulationResults<double, TIME_TYPE>::getEquationsOfMotionNumericalSolutionDouble)
+            .def_property_readonly("state_history_float_split",
+                                   &tp::SingleArcSimulationResults<double, TIME_TYPE>::getEquationsOfMotionNumericalSolutionDoubleSplit)
             .def_property_readonly("unprocessed_state_history",
                                    &tp::SingleArcSimulationResults<double, TIME_TYPE>::getEquationsOfMotionNumericalSolutionRaw,
                                    get_docstring("SingleArcSimulationResults.unprocessed_state_history").c_str() )
