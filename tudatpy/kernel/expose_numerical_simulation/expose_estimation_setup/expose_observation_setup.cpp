@@ -1179,6 +1179,7 @@ void expose_observation_setup(py::module &m) {
           &tom::createCompressedDopplerCollection< double, TIME_TYPE >,
           py::arg("original_observation_collection"),
           py::arg("compression_ratio"),
+          py::arg("minimum_number_of_observations") = 10,
           get_docstring("create_compressed_doppler_collection").c_str() );
 
 
