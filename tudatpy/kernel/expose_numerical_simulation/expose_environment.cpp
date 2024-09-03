@@ -310,6 +310,12 @@ void expose_environment(py::module &m) {
                  &tsm::VehicleSystems::getCurrentControlSurfaceDeflection,
                   py::arg("control_surface_id"),
                   get_docstring("VehicleSystems.get_control_surface_deflection").c_str() )
+            .def("set_reference_point",
+                 &tsm::VehicleSystems::setReferencePointPosition,
+                 py::arg("reference_point"),
+                 py::arg("location"),
+                 get_docstring("VehicleSystems.get_control_surface_deflection").c_str() )
+
             .def("get_engine_model",
                  &tsm::VehicleSystems::getEngineModel,
                  py::arg("engine_name"),
@@ -518,10 +524,7 @@ void expose_environment(py::module &m) {
                  py::arg("tle") = nullptr,
                  py::arg("use_sdp") = false);
 
-    m.def( "create_ground_station_ephemeris",
-           py::overload_cast< const std::shared_ptr< tss::Body >, const std::string& >( &tss::createReferencePointEphemeris< TIME_TYPE, double > ),
-               "body_with_ground_station",
-               "station_name" );
+
 
     /*!
      **************   ROTATION MODELS  ******************
@@ -667,9 +670,11 @@ void expose_environment(py::module &m) {
     py::class_<tgs::GroundStationState,
             std::shared_ptr<tgs::GroundStationState>>(m, "GroundStationState")
             .def("get_cartesian_state", &tgs::GroundStationState::getCartesianStateInTime,
-                 py::arg( "seconds_since_epoch" ) )
+                 py::arg( "seconds_since_epoch" ),
+                 py::arg( "target_frame_origin" )  )
             .def("get_cartesian_position", &tgs::GroundStationState::getCartesianPositionInTime,
-                 py::arg( "seconds_since_epoch" ) )
+                 py::arg( "seconds_since_epoch" ),
+                 py::arg( "target_frame_origin" )  )
             .def_property_readonly("cartesian_positon_at_reference_epoch", &tgs::GroundStationState::getNominalCartesianPosition )
             .def_property_readonly("spherical_positon_at_reference_epoch", &tgs::GroundStationState::getNominalSphericalPosition )
             .def_property_readonly("geodetic_positon_at_reference_epoch", &tgs::GroundStationState::getNominalGeodeticPosition )
