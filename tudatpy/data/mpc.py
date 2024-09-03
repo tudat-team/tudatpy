@@ -319,7 +319,7 @@ class BatchMPC:
         in_degrees : bool, optional
             if True RA and DEC are assumed in degrees, else radians, by default True
         frame : str, optional
-            Reference frame. Please not that only J2000 is currently supported
+            Reference frame. Please note that only J2000 is currently supported
             , by default "J2000"
         """
         if not (
