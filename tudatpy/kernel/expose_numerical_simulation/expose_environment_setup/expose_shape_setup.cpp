@@ -103,6 +103,10 @@ namespace shape {
               py::arg("flattening"),
               get_docstring("oblate_spherical").c_str());
 
+        m.def("oblate_spherical_spice",
+              &tss::fromSpiceOblateSphericalBodyShapeSettings,
+              get_docstring("oblate_spherical_spice").c_str());
+
         m.def("polyhedron",
               &tss::polyhedronBodyShapeSettings,
               py::arg("vertices_coordinates"),
