@@ -26,6 +26,9 @@ namespace tudat
 namespace earth_orientation
 {
 
+
+Eigen::Vector2d getSecularPolePositionInMas( const double time );
+
 //! Object to compute polar motion variables x_{p} and y_{p}
 /*!
  * Object to compute polar motion variables x_{p} and y_{p}, describing the motion of the Earth pole in ITRS.

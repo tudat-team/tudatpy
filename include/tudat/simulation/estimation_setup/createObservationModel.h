@@ -438,6 +438,15 @@ inline std::shared_ptr< ObservationBiasSettings > constantTimeBias(
 }
 
 inline std::shared_ptr< ObservationBiasSettings > arcWiseTimeBias(
+    const std::vector< double >& arcStartTimes,
+    const LinkEndType linkEndForTime )
+{
+    std::vector< double > timeBiases = std::vector< double >( arcStartTimes.size( ), 0.0 );
+    return std::make_shared< ArcWiseTimeBiasSettings >( arcStartTimes, timeBiases, linkEndForTime );
+}
+
+
+inline std::shared_ptr< ObservationBiasSettings > arcWiseTimeBias(
         const std::vector< double >& timeBiases,
         const std::vector< double >& arcStartTimes,
         const LinkEndType linkEndForTime )
