@@ -110,7 +110,7 @@ jobs:
       # be downloaded manually when the cache is hit.
       # This step downloads the data files in the tudat-resources package by running
       # the post-link scripts in https://github.com/tudat-team/tudat-resources-feedstock/blob/master/recipe/
-      if: (runner.os == 'Linux' || runner.os == 'MacOS') ) #(commenting line for test) && steps.cache.outputs.cache-hit == 'true'
+      if: (runner.os == 'Linux' || runner.os == 'MacOS') #(commenting line for test) && steps.cache.outputs.cache-hit == 'true'
       run: bash -c "$(curl -fsSL https://raw.githubusercontent.com/tudat-team/tudat-resources-feedstock/master/recipe/post-link.sh)"
 
 
