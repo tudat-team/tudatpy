@@ -12,6 +12,7 @@
 #define TUDAT_CREATEGROUNDSTATIONS_H
 
 #include "tudat/simulation/environment_setup/body.h"
+#include "tudat/astro/ephemerides/customEphemeris.h"
 #include "tudat/astro/ground_stations/groundStation.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 
@@ -27,16 +28,21 @@ enum StationMotionModelTypes
     linear_station_motion,
     piecewise_constant_station_motion,
     custom_station_motion,
-    body_deformation_station_motion
+    body_deformation_station_motion,
+    bodycentric_to_barycentric_station_position_motion,
 };
 
 class GroundStationMotionSettings
 {
 public:
     GroundStationMotionSettings(
-            const StationMotionModelTypes& modelType ):modelType_( modelType ){ }
+        const StationMotionModelTypes &modelType ) : modelType_( modelType )
+    {
+    }
 
-    virtual ~GroundStationMotionSettings( ){ }
+    virtual ~GroundStationMotionSettings( )
+    {
+    }
 
     StationMotionModelTypes getModelType( )
     {
@@ -47,37 +53,83 @@ private:
     StationMotionModelTypes modelType_;
 };
 
-class LinearGroundStationMotionSettings: public GroundStationMotionSettings
+class BodyDeformationStationMotionSettings : public GroundStationMotionSettings
+{
+public:
+    BodyDeformationStationMotionSettings(
+        const bool throwExceptionWhenNotAvailable = true ) :
+        GroundStationMotionSettings( body_deformation_station_motion ),
+        throwExceptionWhenNotAvailable_( throwExceptionWhenNotAvailable )
+    {
+    }
+
+    virtual ~BodyDeformationStationMotionSettings( )
+    {
+    }
+
+    bool throwExceptionWhenNotAvailable_;
+};
+
+class LinearGroundStationMotionSettings : public GroundStationMotionSettings
 {
 public:
     LinearGroundStationMotionSettings(
-            const Eigen::Vector3d& linearVelocity,
-            const double referenceEpoch = 0.0 ):
+        const Eigen::Vector3d &linearVelocity,
+        const double referenceEpoch = 0.0 ) :
         GroundStationMotionSettings( linear_station_motion ),
-    linearVelocity_( linearVelocity ),
-    referenceEpoch_( referenceEpoch ){ }
+        linearVelocity_( linearVelocity ),
+        referenceEpoch_( referenceEpoch )
+    {
+    }
 
-    virtual ~LinearGroundStationMotionSettings( ){ }
+    virtual ~LinearGroundStationMotionSettings( )
+    {
+    }
 
     Eigen::Vector3d linearVelocity_;
 
     double referenceEpoch_;
 };
 
-class PiecewiseConstantGroundStationMotionSettings: public GroundStationMotionSettings
+class PiecewiseConstantGroundStationMotionSettings : public GroundStationMotionSettings
 {
 public:
     PiecewiseConstantGroundStationMotionSettings(
-            const std::map< double, Eigen::Vector3d >& displacementList ):
+        const std::map<double, Eigen::Vector3d> &displacementList ) :
         GroundStationMotionSettings( piecewise_constant_station_motion ),
-    displacementList_( displacementList ){ }
+        displacementList_( displacementList )
+    {
+    }
 
-    virtual ~PiecewiseConstantGroundStationMotionSettings( ){ }
+    virtual ~PiecewiseConstantGroundStationMotionSettings( )
+    {
+    }
 
-    std::map< double, Eigen::Vector3d > displacementList_;
+    std::map<double, Eigen::Vector3d> displacementList_;
 };
 
-class CustomGroundStationMotionSettings: public GroundStationMotionSettings
+class BodyCentricToBarycentricGroundStationMotionSettings : public GroundStationMotionSettings
+{
+public:
+    BodyCentricToBarycentricGroundStationMotionSettings(
+        const std::string centralBodyName = "Sun",
+        const bool useGeneralRelativisticCorrection = true ) :
+        GroundStationMotionSettings( bodycentric_to_barycentric_station_position_motion ),
+        centralBodyName_( centralBodyName ),
+        useGeneralRelativisticCorrection_( useGeneralRelativisticCorrection )
+    {
+    }
+
+    virtual ~BodyCentricToBarycentricGroundStationMotionSettings( )
+    {
+    }
+
+    std::string centralBodyName_;
+
+    bool useGeneralRelativisticCorrection_;
+};
+
+class CustomGroundStationMotionSettings : public GroundStationMotionSettings
 {
 public:
 //    CustomGroundStationMotionSettings(
@@ -86,37 +138,57 @@ public:
 //    customDisplacementModel_( customDisplacementModel ){ }
 
     CustomGroundStationMotionSettings(
-            const std::function< Eigen::Vector3d( const double ) > customDisplacementModel ):
+        const std::function<Eigen::Vector3d( const double )> customDisplacementModel ) :
         GroundStationMotionSettings( custom_station_motion ),
-        customDisplacementModel_( [=](const double time ){
-        return ( Eigen::Vector6d( ) << customDisplacementModel( time ), Eigen::Vector3d::Zero( ) ).finished( ); } ){ }
+        customDisplacementModel_( [ = ]( const double time )
+                                  {
+                                      return ( Eigen::Vector6d( )
+                                          << customDisplacementModel( time ), Eigen::Vector3d::Zero( )).finished( );
+                                  } )
+    {
+    }
 
-    virtual ~CustomGroundStationMotionSettings( ){ }
+    virtual ~CustomGroundStationMotionSettings( )
+    {
+    }
 
-    const std::function< Eigen::Vector6d( const double ) > customDisplacementModel_;
+    const std::function<Eigen::Vector6d( const double )> customDisplacementModel_;
 };
 
 
-inline std::shared_ptr< GroundStationMotionSettings > linearGroundStationMotionSettings(
-        const Eigen::Vector3d& linearVelocity,
-        const double referenceEpoch =  0.0 )
+inline std::shared_ptr<GroundStationMotionSettings> linearGroundStationMotionSettings(
+    const Eigen::Vector3d &linearVelocity,
+    const double referenceEpoch = 0.0 )
 {
-    return std::make_shared< LinearGroundStationMotionSettings >(
-                linearVelocity, referenceEpoch );
+    return std::make_shared<LinearGroundStationMotionSettings>(
+        linearVelocity, referenceEpoch );
 }
 
-inline std::shared_ptr< GroundStationMotionSettings > piecewiseConstantGroundStationMotionSettings(
-        const std::map< double, Eigen::Vector3d >& displacementList)
+inline std::shared_ptr<GroundStationMotionSettings> piecewiseConstantGroundStationMotionSettings(
+    const std::map<double, Eigen::Vector3d> &displacementList )
 {
-    return std::make_shared< PiecewiseConstantGroundStationMotionSettings >(
-                displacementList );
+    return std::make_shared<PiecewiseConstantGroundStationMotionSettings>(
+        displacementList );
 }
 
-inline std::shared_ptr< GroundStationMotionSettings > customGroundStationMotionSettings(
-        const std::function< Eigen::Vector3d( const double ) > customDisplacementModel )
+inline std::shared_ptr<GroundStationMotionSettings> customGroundStationMotionSettings(
+    const std::function<Eigen::Vector3d( const double )> customDisplacementModel )
 {
-    return std::make_shared< CustomGroundStationMotionSettings >(
-                customDisplacementModel );
+    return std::make_shared<CustomGroundStationMotionSettings>(
+        customDisplacementModel );
+}
+
+inline std::shared_ptr<GroundStationMotionSettings> bodyDeformationStationMotionSettings(
+    const bool throwExceptionWhenNotAvailable = true )
+{
+    return std::make_shared< BodyDeformationStationMotionSettings >( throwExceptionWhenNotAvailable );
+}
+
+inline std::shared_ptr<GroundStationMotionSettings> bodycentricToBarycentricStationMotionSettings(
+    const std::string centralBodyName = "Sun",
+    const bool useGeneralRelativisticCorrection = true )
+{
+    return std::make_shared< BodyCentricToBarycentricGroundStationMotionSettings >( centralBodyName, useGeneralRelativisticCorrection );
 }
 
 
@@ -124,16 +196,18 @@ class GroundStationSettings
 {
 public:
     GroundStationSettings(
-            const std::string& stationName,
-            const Eigen::Vector3d& groundStationPosition,
-            const coordinate_conversions::PositionElementTypes positionElementType =
-            coordinate_conversions::cartesian_position,
-            const std::vector< std::shared_ptr< GroundStationMotionSettings > > stationMotionSettings =
-            std::vector< std::shared_ptr< GroundStationMotionSettings > >( ) ):
+        const std::string &stationName,
+        const Eigen::Vector3d &groundStationPosition,
+        const coordinate_conversions::PositionElementTypes positionElementType =
+        coordinate_conversions::cartesian_position,
+        const std::vector<std::shared_ptr<GroundStationMotionSettings> > stationMotionSettings =
+            { std::make_shared<BodyDeformationStationMotionSettings>( true ) } ) :
         stationName_( stationName ),
         groundStationPosition_( groundStationPosition ),
         positionElementType_( positionElementType ),
-    stationMotionSettings_( stationMotionSettings ){ }
+        stationMotionSettings_( stationMotionSettings )
+    {
+    }
 
     std::string getStationName( )
     {
@@ -150,12 +224,12 @@ public:
         return positionElementType_;
     }
 
-    std::vector< std::shared_ptr< GroundStationMotionSettings > > getStationMotionSettings( )
+    std::vector<std::shared_ptr<GroundStationMotionSettings> > getStationMotionSettings( )
     {
         return stationMotionSettings_;
     }
 
-    void addStationMotionSettings( const std::shared_ptr< GroundStationMotionSettings > stationMotionSetting )
+    void addStationMotionSettings( const std::shared_ptr<GroundStationMotionSettings> stationMotionSetting )
     {
         stationMotionSettings_.push_back( stationMotionSetting );
     }
@@ -168,16 +242,27 @@ protected:
 
     coordinate_conversions::PositionElementTypes positionElementType_;
 
-    std::vector< std::shared_ptr< GroundStationMotionSettings > > stationMotionSettings_;
+    std::vector<std::shared_ptr<GroundStationMotionSettings> > stationMotionSettings_;
 };
 
+inline void addStationMotionModelToEachGroundStation(
+    const std::vector<std::shared_ptr<GroundStationSettings> > &groundStationSettings,
+    const std::shared_ptr<GroundStationMotionSettings> stationMotionSettings )
+{
+    for( unsigned int i = 0; i < groundStationSettings.size( ); i++ )
+    {
+        groundStationSettings.at( i )->addStationMotionSettings( stationMotionSettings );
+    }
+}
+
+
 inline std::shared_ptr< GroundStationSettings > groundStationSettings(
-        const std::string& stationName,
-        const Eigen::Vector3d& groundStationPosition,
-        const coordinate_conversions::PositionElementTypes positionElementType =
-        coordinate_conversions::cartesian_position,
-        const std::vector< std::shared_ptr< GroundStationMotionSettings > > stationMotionSettings =
-        std::vector< std::shared_ptr< GroundStationMotionSettings > >( ) )
+    const std::string& stationName,
+    const Eigen::Vector3d& groundStationPosition,
+    const coordinate_conversions::PositionElementTypes positionElementType =
+    coordinate_conversions::cartesian_position,
+    const std::vector< std::shared_ptr< GroundStationMotionSettings > > stationMotionSettings =
+    std::vector< std::shared_ptr< GroundStationMotionSettings > >( ) )
 {
     return std::make_shared< GroundStationSettings >(
                 stationName, groundStationPosition, positionElementType, stationMotionSettings );
@@ -198,7 +283,8 @@ void createGroundStation(
 std::shared_ptr< ground_stations::GroundStationState > createGroundStationState(
         const std::shared_ptr< Body > body,
         const Eigen::Vector3d groundStationPosition,
-        const coordinate_conversions::PositionElementTypes positionElementType );
+        const coordinate_conversions::PositionElementTypes positionElementType,
+        const simulation_setup::SystemOfBodies& bodies = simulation_setup::SystemOfBodies( ) );
 
 //! Function to create a ground station and add it to a Body object
 /*!
@@ -290,9 +376,10 @@ std::shared_ptr< ephemerides::Ephemeris > createReferencePointEphemeris(
 }
 
 template< typename TimeType = double, typename StateScalarType = double >
-std::shared_ptr< ephemerides::Ephemeris > createReferencePointEphemeris(
+std::shared_ptr< ephemerides::Ephemeris > createReferencePointEphemerisFromId(
     const std::shared_ptr< simulation_setup::Body > bodyWithLinkEnd,
-    const std::string& referencePointName )
+    const std::string& referencePointName,
+    const simulation_setup::SystemOfBodies& bodies  )
 {
     std::shared_ptr< ephemerides::Ephemeris > stationEphemeris;
     if( referencePointName != "" )
@@ -312,7 +399,7 @@ std::shared_ptr< ephemerides::Ephemeris > createReferencePointEphemeris(
             else
             {
                 referencePointStateFunction = std::bind( &ground_stations::GroundStation::getStateInPlanetFixedFrame<StateScalarType, TimeType>,
-                                                         bodyWithLinkEnd->getGroundStation( referencePointName ), std::placeholders::_1 );
+                                                         bodyWithLinkEnd->getGroundStation( referencePointName ), std::placeholders::_1, bodies.getFrameOrigin( ) );
             }
         }
         else
@@ -352,7 +439,8 @@ std::shared_ptr< ephemerides::Ephemeris > createReferencePointEphemeris(
 template< typename StateScalarType = double >
 Eigen::Matrix< StateScalarType, 3, 1 > getGroundStationPositionDuringPropagation(
         const std::shared_ptr< simulation_setup::Body > bodyWithLinkEnd,
-        const std::string& stationName )
+        const std::string& stationName,
+        const SystemOfBodies& bodies )
 {
     if( bodyWithLinkEnd->getGroundStationMap( ).count( stationName ) == 0 )
     {
@@ -363,53 +451,10 @@ Eigen::Matrix< StateScalarType, 3, 1 > getGroundStationPositionDuringPropagation
 
     return bodyWithLinkEnd->getPosition( ) + bodyWithLinkEnd->getCurrentRotationToGlobalFrame( ) *
             bodyWithLinkEnd->getGroundStation( stationName )->getNominalStationState( )->getCartesianPositionInTime(
-                bodyWithLinkEnd->getDoubleTimeOfCurrentState( ) );
+                bodyWithLinkEnd->getDoubleTimeOfCurrentState( ), bodies.getFrameOrigin( ) );
 
 }
 
-//! Function to retrieve a state function for a link end (either a body center of mass or ground station).
-/*!
- *  Function to retrieve a state function for a link end (either a body center of mass or ground station).
- *  \param bodyWithLinkEnd Body on/in which link end is situated.
- *  \param linkEndId Id of link end for which state function is to be created. First: name of body, second: name of
- *  reference point (empty if center of mass is to be used
- *  \return Requested state function
- */
-template< typename TimeType = double, typename StateScalarType = double >
-std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType& ) > getLinkEndCompleteEphemerisFunction(
-        const std::shared_ptr< simulation_setup::Body > bodyWithLinkEnd,
-        const observation_models::LinkEndId& linkEndId )
-{
-    typedef Eigen::Matrix< StateScalarType, 6, 1 > StateType;
-
-    std::function< StateType( const TimeType& ) > linkEndCompleteEphemerisFunction;
-
-    if( linkEndId.bodyName_ != bodyWithLinkEnd->getBodyName( ) )
-    {
-        throw std::runtime_error( "Error when making ground station ephemeris function, input body names are inconsistent" );
-    }
-
-    // Checking transmitter if a reference point is to be used
-    if( linkEndId.stationName_ != "" )
-    {
-
-        // Retrieve function to calculate state of transmitter S/C
-        linkEndCompleteEphemerisFunction =
-                std::bind( &ephemerides::Ephemeris::getTemplatedStateFromEphemeris< StateScalarType,TimeType >,
-                             createReferencePointEphemeris< TimeType, StateScalarType >(
-                                 bodyWithLinkEnd, linkEndId.stationName_ ), std::placeholders::_1 );
-
-    }
-    // Else, create state function for center of mass
-    else
-    {
-        // Create function to calculate state of transmitting ground station.
-        linkEndCompleteEphemerisFunction =
-                std::bind( &simulation_setup::Body::getStateInBaseFrameFromEphemeris< StateScalarType, TimeType >,
-                                                        bodyWithLinkEnd, std::placeholders::_1 );
-    }
-    return linkEndCompleteEphemerisFunction;
-}
 
 //! Function to create a state function of a link end, expressed in base frame.
 /*!
@@ -419,7 +464,7 @@ std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType& ) > getLi
  *  \return Requested state function.
  */
 template< typename TimeType = double, typename StateScalarType = double >
-std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > getLinkEndCompleteEphemerisFunction(
+std::shared_ptr< ephemerides::Ephemeris > getLinkEndCompleteEphemeris(
         const observation_models::LinkEndId linkEndId, const simulation_setup::SystemOfBodies& bodies )
 {
     if( bodies.count( linkEndId.bodyName_ ) == 0  )
@@ -438,14 +483,43 @@ std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > getLin
 
         throw std::runtime_error( errorMessage );
     }
-    return getLinkEndCompleteEphemerisFunction< TimeType, StateScalarType >( bodies.at( linkEndId.bodyName_ ), linkEndId );
+
+    std::shared_ptr< Body > bodyWithLinkEnd = bodies.at( linkEndId.bodyName_ );
+
+    std::shared_ptr< ephemerides::Ephemeris > linkEndEphemeris;
+    // Checking transmitter if a reference point is to be used
+    if( linkEndId.stationName_ != "" )
+    {
+
+        // Retrieve function to calculate state of transmitter S/C
+         linkEndEphemeris = createReferencePointEphemerisFromId< TimeType, StateScalarType >(
+            bodyWithLinkEnd, linkEndId.stationName_, bodies );
+    }
+        // Else, create state function for center of mass
+    else
+    {
+        // Create function to calculate state of transmitting ground station.
+        linkEndEphemeris =
+            std::make_shared< ephemerides::CustomEphemeris< TimeType, StateScalarType > >(
+                std::bind( &simulation_setup::Body::getStateInBaseFrameFromEphemeris< StateScalarType, TimeType >,
+                           bodyWithLinkEnd, std::placeholders::_1 ), bodies.getFrameOrigin( ), bodies.getFrameOrientation( ) );
+    }
+    return linkEndEphemeris;
 }
 
-std::vector< double >  getTargetElevationAngles(
-        const std::shared_ptr< Body > observingBody,
-        const std::shared_ptr< Body > targetBody,
-        const std::string groundStationName,
-        const std::vector< double > times );
+template< typename TimeType = double, typename StateScalarType = double >
+std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > getLinkEndCompleteEphemerisFunction(
+    const observation_models::LinkEndId linkEndId, const simulation_setup::SystemOfBodies& bodies )
+{
+    std::shared_ptr< ephemerides::Ephemeris > linkEndEphemeris = getLinkEndCompleteEphemeris< TimeType, StateScalarType >( linkEndId, bodies );
+    return std::bind( &ephemerides::Ephemeris::getTemplatedStateFromEphemeris< StateScalarType,TimeType >, linkEndEphemeris, std::placeholders::_1 );
+}
+
+//std::vector< double >  getTargetElevationAngles(
+//        const std::shared_ptr< Body > observingBody,
+//        const std::shared_ptr< Body > targetBody,
+//        const std::string groundStationName,
+//        const std::vector< double > times );
 
 
 } // namespace simulation_setup

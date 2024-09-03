@@ -48,7 +48,9 @@ public:
         pointingAnglesCalculator_( pointingAnglesCalculator ),
         stationId_( stationId ),
         transmittingFrequencyCalculator_( transmittingFrequencyCalculator )
-    { }
+    {
+        stationState->setSiteId( stationId );
+    }
 
 
     //! Function that returns (at reference epoch) the state of the ground station
@@ -59,9 +61,9 @@ public:
      *  \return State at requested time.
      */
     template< typename StateScalarType, typename TimeType >
-    Eigen::Matrix< StateScalarType, 6, 1 > getStateInPlanetFixedFrame( const TimeType& time )
+    Eigen::Matrix< StateScalarType, 6, 1 > getStateInPlanetFixedFrame( const TimeType& time, const std::string& targetFrameOrigin )
     {
-        return ( nominalStationState_->getCartesianStateInTime( static_cast< double >( time ) ) ).template cast< StateScalarType >( );
+        return ( nominalStationState_->getCartesianStateInTime( static_cast< double >( time ), targetFrameOrigin ) ).template cast< StateScalarType >( );
     }
 
     //! Function to return object to define and compute the state of the ground station.

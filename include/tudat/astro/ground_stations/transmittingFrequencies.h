@@ -236,8 +236,9 @@ public:
      * @return Frequency value.
      */
     template< typename ObservationScalarType = double, typename TimeType = double >
-    ObservationScalarType computeCurrentFrequency( const TimeType lookupTime )
+    ObservationScalarType computeCurrentFrequency( const TimeType lookupTimeOriginal )
     {
+        TimeType lookupTime = lookupTimeOriginal;
         int lowerNearestNeighbour = startTimeLookupScheme_->findNearestLowerNeighbour( lookupTime );
 
         if( lookupTime > endTimes_.at( lowerNearestNeighbour ) || lookupTime < startTimes_.at ( lowerNearestNeighbour ) )
