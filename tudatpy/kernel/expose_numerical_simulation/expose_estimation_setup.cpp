@@ -43,7 +43,7 @@ void expose_estimation_setup(py::module &m) {
 
     // # EstimatableParameterSettings --> EstimatableParameterSet #
     m.def("create_parameter_set",
-          &tss::createParametersToEstimate< double >,
+          &tss::createParametersToEstimate< double, TIME_TYPE >,
           py::arg("parameter_settings"),
           py::arg("bodies"),
           py::arg("propagator_settings") = nullptr,
