@@ -165,8 +165,15 @@ bool isIndependentVariableInInterval( const int lowerIndex,
     bool isInInterval = false;
 
     //Check if value is in interval.
-    if ( independentVariableValue >= independentValues[ lowerIndex ] &&
-         independentVariableValue < independentValues[ lowerIndex + 1 ] )
+    if( lowerIndex == static_cast< int >( independentValues.size( ) - 1 ) )
+    {
+        if ( independentVariableValue > independentValues.at( lowerIndex ))
+        {
+            isInInterval = true;
+        }
+    }
+    else if ( independentVariableValue >= independentValues.at( lowerIndex ) &&
+              independentVariableValue < independentValues.at( lowerIndex + 1 ) )
     {
         isInInterval = true;
     }
