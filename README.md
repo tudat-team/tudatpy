@@ -4,6 +4,7 @@ This repository facilitates parallel development between the `tudat` (C++) and t
 `tudatpy` (Python) library.
 Specific indications for documenting `tudat` or `tudapy` are reported in the `tudat-multidoc/README.md` file.
 
+For more details on the project, we refer to the [project website](https://docs.tudat.space/en/latest/) and our [project Github page](https://github.com/tudat-team).
 
 ## Structure of the `tudat-bundle`
 
