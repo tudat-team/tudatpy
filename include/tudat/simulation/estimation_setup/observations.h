@@ -1949,6 +1949,94 @@ public:
         setConcatenatedObservationsAndTimes( );
     }
 
+    void replaceSingleObservationSet( const std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > >& newSet,
+                                      const unsigned int setIndex )
+    {
+        if ( observationSetList_.count( newSet->getObservableType( ) ) == 0 )
+        {
+            throw std::runtime_error( "Error when replacing single observation set in observation collection, observable type not found." );
+        }
+        if ( observationSetList_.at( newSet->getObservableType( ) ).count( newSet->getLinkEnds( ).linkEnds_ ) == 0 )
+        {
+            throw std::runtime_error( "Error when replacing single observation set in observation collection, link ends not found for given observable type." );
+        }
+        if ( setIndex > observationSetList_.at( newSet->getObservableType( ) ).at( newSet->getLinkEnds( ).linkEnds_ ).size( ) - 1 )
+        {
+            throw std::runtime_error( "Error when replacing single observation set in observation collection, "
+                                      "set index exceeds number of sets found for given observable and link ends." );
+        }
+        observationSetList_.at( newSet->getObservableType( ) ).at( newSet->getLinkEnds( ).linkEnds_ ).at( setIndex ) = newSet;
+
+        // Reset observation set indices and concatenated observations and times
+        setObservationSetIndices( );
+        setConcatenatedObservationsAndTimes( );
+    }
+
+    void removeSingleObservationSets( const std::shared_ptr< ObservationCollectionParser > observationParser )
+    {
+        // Retrieve single observation sets based on observation parser
+        removeSingleObservationSets( getSingleObservationSetsIndices( observationParser ) );
+    }
+
+    void removeEmptySingleObservationSets( )
+    {
+        std::map< ObservableType, std::map< LinkEnds, std::vector< unsigned int > > > indicesSetsToRemove;
+
+        for ( auto observableIt : observationSetList_ )
+        {
+            std::map< LinkEnds, std::vector< unsigned int > > indicesToRemovePerLinkEnds;
+            for ( auto linkEndsIt : observableIt.second )
+            {
+                // Identify empty observation sets
+                for ( unsigned int k = 0 ; k < linkEndsIt.second.size( ) ; k++ )
+                {
+                    if ( linkEndsIt.second.at( k )->getNumberOfObservables( ) == 0 )
+                    {
+                        indicesToRemovePerLinkEnds[ linkEndsIt.first ].push_back( k );
+                    }
+                }
+            }
+            indicesSetsToRemove[ observableIt.first ] = indicesToRemovePerLinkEnds;
+        }
+
+        // Remove empty observation sets
+        removeSingleObservationSets( indicesSetsToRemove );
+    }
+
+    void removeSingleObservationSets( const std::map< ObservableType, std::map< LinkEnds, std::vector< unsigned int > > >& indicesSetsToRemove )
+    {
+        // Parse observation set list and remove selected sets
+        for ( auto observableIt : indicesSetsToRemove )
+        {
+            if ( observationSetList_.count( observableIt.first ) == 0 )
+            {
+                throw std::runtime_error( "Error when removing single observation sets, given observable type not found." );
+            }
+            for ( auto linkEndsIt : observableIt.second )
+            {
+                if ( observationSetList_.at( observableIt.first ).count( linkEndsIt.first ) == 0 )
+                {
+                    throw std::runtime_error( "Error when removing single observation sets, link ends not found for given observable type." );
+                }
+                unsigned int counterRemovedSets = 0;
+                for ( auto indexToRemove : linkEndsIt.second )
+                {
+                    if ( indexToRemove > observationSetList_.at( observableIt.first ).at( linkEndsIt.first ).size( ) - 1 )
+                    {
+                        throw std::runtime_error( "Error when removing single observation sets, set index exceeds number of observation sets"
+                                                  " for given observation type and link ends." );
+                    }
+                    observationSetList_.at( observableIt.first ).at( linkEndsIt.first ).erase(
+                            observationSetList_.at( observableIt.first ).at( linkEndsIt.first ).begin( ) + indexToRemove - counterRemovedSets );
+                    counterRemovedSets += 1;
+                }
+            }
+        }
+
+        // Reset observation set indices and concatenated observations and times
+        setObservationSetIndices( );
+        setConcatenatedObservationsAndTimes( );
+    }
 
     std::map< ObservableType, std::map< LinkEnds, std::vector< unsigned int > > > getSingleObservationSetsIndices(
             const std::shared_ptr< ObservationCollectionParser > observationParser = std::make_shared< ObservationCollectionParser >( ) ) const
