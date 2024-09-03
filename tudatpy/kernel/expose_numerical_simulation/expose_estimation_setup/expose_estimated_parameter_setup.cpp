@@ -8,6 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+#include "tudatpy/scalarTypes.h"
+
 #include "expose_estimated_parameter_setup.h"
 
 #include "tudat/simulation/estimation_setup/createEstimatableParameters.h"
@@ -111,7 +113,7 @@ void expose_estimated_parameter_setup(py::module &m) {
     // ###############    Initial States             ################################
 
     m.def("initial_states",
-          &tss::getInitialStateParameterSettings< double >,
+          &tss::getInitialStateParameterSettings< double, TIME_TYPE >,
           py::arg("propagator_settings"), py::arg("bodies"),
           py::arg("arc_initial_times") = std::vector< double >( ),
           get_docstring("initial_states").c_str() );
@@ -328,6 +330,19 @@ void expose_estimated_parameter_setup(py::module &m) {
           py::arg("ref_epochs"),
           py::arg("time_link_end" ) );
 
+    m.def("constant_time_bias",
+          &tep::timeObservationBias,
+          py::arg("link_ends"),
+          py::arg("observable_type"),
+          py::arg("reference_link_end") );
+
+    m.def("arcwise_time_bias",
+          &tep::arcwiseTimeObservationBias,
+          py::arg("link_ends"),
+          py::arg("observable_type"),
+          py::arg("arc_start_times" ),
+          py::arg("reference_link_end" ) );
+
     m.def("ground_station_position",
           &tep::groundStationPosition,
           py::arg("body"),
@@ -488,6 +503,8 @@ void expose_estimated_parameter_setup(py::module &m) {
     m.def("ppn_parameter_beta",
           &tep::ppnParameterBeta,
           get_docstring("ppn_parameter_beta").c_str() );
+
+
 
 
 }

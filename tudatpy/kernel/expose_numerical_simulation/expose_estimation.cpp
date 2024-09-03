@@ -309,6 +309,21 @@ void expose_estimation(py::module &m) {
           py::arg("time_step"),
           get_docstring("create_pseudo_observations_and_models").c_str() );
 
+    m.def("create_best_fit_to_ephemeris",
+          &tss::createBestFitToCurrentEphemeris<TIME_TYPE, double>,
+          py::arg("bodies"),
+          py::arg("acceleration_models"),
+          py::arg("observed_bodies" ),
+          py::arg("central_bodies" ),
+          py::arg("integrator_settings" ),
+          py::arg("initial_time"),
+          py::arg("final_time"),
+          py::arg("data_point_interval"),
+          py::arg("additional_parameter_names") = std::vector< std::shared_ptr< tep::EstimatableParameterSettings > >( ),
+          py::arg("number_of_iterations") = 3,
+          py::arg("reintegrate_variational_equations") = true,
+          get_docstring("create_best_fit_to_ephemeris").c_str() );
+
     m.def("set_existing_observations",
           &tss::setExistingObservations<double, TIME_TYPE>,
           py::arg("observations"),
@@ -334,12 +349,27 @@ void expose_estimation(py::module &m) {
           py::arg("is_station_transmitting"),
           get_docstring("compute_target_angles_and_range").c_str() );
 
+    m.def("create_residual_collection",
+          &tom::createResidualCollection< double, TIME_TYPE >,
+          py::arg("observed_data"),
+          py::arg("computed_data" ),
+          get_docstring("create_residual_collection").c_str() );
+
+    m.def("create_filtered_observation_collection",
+          &tom::filterResidualOutliers< double, TIME_TYPE >,
+          py::arg("observed_data"),
+          py::arg("residual_data" ),
+          py::arg("cutoff_value_per_observable" ),
+          get_docstring("create_filtered_residual_collection").c_str() );
+
     py::class_< tom::ObservationCollection<double, TIME_TYPE>,
             std::shared_ptr<tom::ObservationCollection<double, TIME_TYPE>>>(m, "ObservationCollection",
                                                            get_docstring("ObservationCollection").c_str() )
             .def(py::init< std::vector< std::shared_ptr< tom::SingleObservationSet< double, TIME_TYPE > > > >(),
                  py::arg("observation_sets") )
             .def_property_readonly("concatenated_times", &tom::ObservationCollection<double, TIME_TYPE>::getConcatenatedTimeVector,
+                                   get_docstring("ObservationCollection.concatenated_times").c_str() )
+            .def_property_readonly("concatenated_float_times", &tom::ObservationCollection<double, TIME_TYPE>::getConcatenatedDoubleTimeVector,
                                    get_docstring("ObservationCollection.concatenated_times").c_str() )
             .def_property_readonly("concatenated_weights", &tom::ObservationCollection<double, TIME_TYPE>::getConcatenatedWeightVector,
                                    get_docstring("ObservationCollection.concatenated_weights").c_str() )
@@ -361,9 +391,16 @@ void expose_estimation(py::module &m) {
                                    get_docstring("ObservationCollection.link_ends_per_observable_type").c_str() )
             .def_property_readonly("link_definitions_per_observable", &tom::ObservationCollection<double, TIME_TYPE>::getLinkDefinitionsPerObservable,
                                    get_docstring("ObservationCollection.link_definitions_per_observable").c_str() )
+            .def_property_readonly("time_bounds", &tom::ObservationCollection<double, TIME_TYPE>::getTimeBounds,
+                                   get_docstring("ObservationCollection.time_bounds").c_str() )
+            .def_property_readonly("sorted_per_set_time_bounds", &tom::ObservationCollection<double, TIME_TYPE>::getSortedObservationSetsTimeBounds,
+                                   get_docstring("ObservationCollection.time_bounds").c_str() )
             .def("get_link_definitions_for_observables", &tom::ObservationCollection<double, TIME_TYPE>::getLinkDefinitionsForSingleObservable,
                  py::arg( "observable_type" ),
                  get_docstring("ObservationCollection.get_link_definitions_for_observables").c_str() )
+            .def("get_full_dependent_variable_vector", &tom::ObservationCollection<double, TIME_TYPE>::getFullDependentVariableVector,
+                 py::arg( "dependent_variable" ),
+                 get_docstring("ObservationCollection.get_full_dependent_variable_vector").c_str() )
             .def("get_single_link_and_type_observations", &tom::ObservationCollection<double, TIME_TYPE>::getSingleLinkAndTypeObservationSets,
                                    py::arg( "observable_type" ),
                                    py::arg( "link_definition" ),
