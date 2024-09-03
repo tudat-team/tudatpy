@@ -83,11 +83,13 @@ BOOST_AUTO_TEST_CASE( test_RadiationPressurePartialsFromEstimation)
     std::string spacecraftName = "GRAIL-A";
     std::string spacecraftCentralBody = "Moon";
     bodySettings.addSettings( spacecraftName );
+
     bodySettings.at( spacecraftName )->constantMass = 150.0;
 
     // Create radiation pressure settings
     double referenceAreaRadiation = 5.0E5;
     double radiationPressureCoefficient = 1.5;
+
     std::map<std::string, std::vector<std::string> > sourceToTargetOccultingBodies;
     sourceToTargetOccultingBodies[ "Sun" ].push_back( "Moon" );
     bodySettings.get( spacecraftName )->bodyExteriorPanelSettings_ = bodyWingPanelledGeometry( 2.0*100.0*std::sqrt(10.0), 1.0*100.0*std::sqrt(10.0), 4.0*100.0*std::sqrt(10.0), 1.0E5, 0.0, 0.0, 0.0, 0.0, false, false );
