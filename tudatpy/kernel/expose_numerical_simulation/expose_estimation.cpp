@@ -341,6 +341,8 @@ void expose_estimation(py::module &m) {
                  py::arg("observation_sets") )
             .def_property_readonly("concatenated_times", &tom::ObservationCollection<double, TIME_TYPE>::getConcatenatedTimeVector,
                                    get_docstring("ObservationCollection.concatenated_times").c_str() )
+            .def_property_readonly("concatenated_weights", &tom::ObservationCollection<double, TIME_TYPE>::getConcatenatedWeightVector,
+                                   get_docstring("ObservationCollection.concatenated_weights").c_str() )
             .def_property_readonly("concatenated_observations", &tom::ObservationCollection<double, TIME_TYPE>::getObservationVector,
                                    get_docstring("ObservationCollection.concatenated_observations").c_str() )
             .def_property_readonly("concatenated_link_definition_ids", &tom::ObservationCollection<double, TIME_TYPE>::getConcatenatedLinkEndIds,
@@ -533,6 +535,9 @@ void expose_estimation(py::module &m) {
                   &tss::CovarianceAnalysisInput<double, TIME_TYPE>::setConstantWeightsMatrix,
                   py::arg( "weight" ),
                   get_docstring("CovarianceAnalysisInput.set_constant_weight").c_str() )
+            .def( "set_weights_from_observation_collection",
+                  &tss::CovarianceAnalysisInput<double, TIME_TYPE>::setWeightsFromObservationCollection,
+                  get_docstring("CovarianceAnalysisInput.set_weights_from_observation_collection").c_str() )
             .def( "set_constant_single_observable_weight",
                   &tss::CovarianceAnalysisInput<double, TIME_TYPE>::setConstantSingleObservableWeights,
                   py::arg( "observable_type" ),
