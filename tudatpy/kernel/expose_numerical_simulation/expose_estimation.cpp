@@ -662,10 +662,30 @@ void expose_estimation(py::module &m) {
                                    get_docstring("ObservationCollection.time_bounds").c_str() )
             .def_property_readonly("sorted_per_set_time_bounds", &tom::ObservationCollection<double, TIME_TYPE>::getSortedObservationSetsTimeBounds,
                                    get_docstring("ObservationCollection.time_bounds").c_str() )
-            .def("set_observations", &tom::ObservationCollection<double, TIME_TYPE>::setObservations,
-                 py::arg("new_observations"), get_docstring("set_observations").c_str( ) )
-            .def("set_residuals", &tom::ObservationCollection<double, TIME_TYPE>::setResiduals,
-                 py::arg("new_residuals"), get_docstring("set_residuals").c_str( ) )
+            .def("set_observations", py::overload_cast< const Eigen::Matrix< double, Eigen::Dynamic, 1 >& >(
+                 &tom::ObservationCollection<double, TIME_TYPE>::setObservations ),
+                 py::arg("observations"), get_docstring("set_observations").c_str( ) )
+            .def("set_observations", py::overload_cast<
+                const Eigen::Matrix< double, Eigen::Dynamic, 1 >&,
+                const std::shared_ptr< tom::ObservationCollectionParser > >(
+                &tom::ObservationCollection<double, TIME_TYPE>::setObservations ),
+                py::arg("observations"), py::arg("observation_parser"), get_docstring("set_observations").c_str( ) )
+            .def("set_observations", py::overload_cast<
+                    const std::map< std::shared_ptr< tom::ObservationCollectionParser >, Eigen::Matrix< double, Eigen::Dynamic, 1 > >& >(
+                    &tom::ObservationCollection<double, TIME_TYPE>::setObservations ),
+                 py::arg("observations_per_parser"), get_docstring("set_observations").c_str( ) )
+            .def("set_residuals", py::overload_cast< const Eigen::Matrix< double, Eigen::Dynamic, 1 >& >(
+                 &tom::ObservationCollection<double, TIME_TYPE>::setResiduals ),
+                 py::arg("residuals"), get_docstring("set_residuals").c_str( ) )
+            .def("set_residuals", py::overload_cast<
+                 const Eigen::Matrix< double, Eigen::Dynamic, 1 >&,
+                 const std::shared_ptr< tom::ObservationCollectionParser > >(
+                 &tom::ObservationCollection<double, TIME_TYPE>::setResiduals ),
+                 py::arg("residuals"), py::arg("observation_parser"), get_docstring("set_residuals").c_str( ) )
+            .def("set_residuals", py::overload_cast<
+                    const std::map< std::shared_ptr< tom::ObservationCollectionParser >, Eigen::Matrix< double, Eigen::Dynamic, 1 > >& >(
+                    &tom::ObservationCollection<double, TIME_TYPE>::setResiduals ),
+                 py::arg("residuals_per_parser"), get_docstring("set_residuals").c_str( ) )
             .def("get_link_definitions_for_observables", &tom::ObservationCollection<double, TIME_TYPE>::getLinkDefinitionsForSingleObservable,
                  py::arg( "observable_type" ),
                  get_docstring("ObservationCollection.get_link_definitions_for_observables").c_str() )
