@@ -8,13 +8,13 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include "tudatpy/scalarTypes.h"
 
 #include "expose_estimated_parameter_setup.h"
 
 #include "tudat/simulation/estimation_setup/createEstimatableParameters.h"
 
-#include "tudatpy/docstrings.h"
+#include "docstrings.h"
+#include "scalarTypes.h"
 
 namespace tep = tudat::estimatable_parameters;
 namespace tss = tudat::simulation_setup;
