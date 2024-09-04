@@ -8,8 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include "tudatpy/docstrings.h"
-#include "tudatpy/scalarTypes.h"
+#include "docstrings.h"
+#include "scalarTypes.h"
 
 #include <tudat/astro/aerodynamics/aerodynamicGuidance.h>
 #include <tudat/astro/basic_astro.h>
