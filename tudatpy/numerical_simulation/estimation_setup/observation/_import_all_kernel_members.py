@@ -45,7 +45,6 @@ from tudatpy.kernel.numerical_simulation.estimation_setup.observation import \
      continuous_arc_simulation_settings, \
      continuous_arc_simulation_settings_list, \
      create_odf_observed_observation_collection, \
-     create_tracking_txtfile_observation_collection, \
      doppler_ancilliary_settings, \
      dsn_default_turnaround_ratios, \
      dsn_n_way_doppler_ancilliary_settings, \
