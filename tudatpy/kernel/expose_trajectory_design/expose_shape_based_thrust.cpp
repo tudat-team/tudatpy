@@ -8,7 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include "tudatpy/docstrings.h"
+#include "docstrings.h"
 
 #include "expose_shape_based_thrust.h"
 
