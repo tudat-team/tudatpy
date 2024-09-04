@@ -10,7 +10,7 @@
 
 #include "expose_root_finders.h"
 
-#include "tudatpy/docstrings.h"
+#include "docstrings.h"
 #include "tudat/math/root_finders.h"
 
 #include <pybind11/pybind11.h>

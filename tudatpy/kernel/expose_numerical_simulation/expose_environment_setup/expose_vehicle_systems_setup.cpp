@@ -10,7 +10,7 @@
 
 #include "expose_vehicle_systems_setup.h"
 
-#include "tudatpy/docstrings.h"
+#include "docstrings.h"
 #include <tudat/simulation/environment_setup.h>
 
 //#include <pybind11/chrono.h>

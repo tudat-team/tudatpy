@@ -11,10 +11,10 @@
 #include <chrono>
 #include <ctime>
 
-#include "tudatpy/docstrings.h"
+#include "docstrings.h"
 
 #include "expose_time_conversion.h"
-#include "tudatpy/scalarTypes.h"
+#include "scalarTypes.h"
 
 #include <boost/date_time/gregorian/gregorian.hpp>
 

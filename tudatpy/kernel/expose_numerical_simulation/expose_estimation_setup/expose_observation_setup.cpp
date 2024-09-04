@@ -18,8 +18,8 @@
 #include "tudat/simulation/estimation_setup/processOdfFile.h"
 #include "tudat/simulation/estimation_setup/processTrackingTxtFile.h"
 
-#include "tudatpy/docstrings.h"
-#include "tudatpy/scalarTypes.h"
+#include "docstrings.h"
+#include "scalarTypes.h"
 
 namespace tss = tudat::simulation_setup;
 namespace tom = tudat::observation_models;
