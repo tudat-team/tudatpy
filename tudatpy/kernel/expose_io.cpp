@@ -19,7 +19,7 @@
 #include "tudat/io/readTabulatedWeatherData.h"
 #include "tudat/io/readTrackingTxtFile.h"
 #include "tudat/io/solarActivityData.h"
-#include "tudatpy/docstrings.h"
+#include "docstrings.h"
 
 namespace py = pybind11;
 namespace tio = tudat::input_output;
