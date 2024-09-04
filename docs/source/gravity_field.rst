@@ -15,7 +15,7 @@ Rigid body properties will always be created automatically when a body is endowe
 * Spherical harmonic gravity field: mass computed from gravitational parameter, center of mass computed from degree 1 gravity field coefficients, inertia tensor as described in :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field.spherical_harmonic`
 * Polyhedron gravity field: mass computed from gravitational parameter, center of mass and inertia tensor computed from homogeneous mas distribution inside body
 
-
+* sbdb_wrapper (:func:`~tudatpy.numerical_simulation.environment_setup.gravity_field.sbdb_wrapper.central_sbdb`)
 
 
 
@@ -59,6 +59,7 @@ Functions
 
    polyhedron_from_density
 
+   sbdb_wrapper.central_sbdb
 
 
 .. autofunction:: tudatpy.numerical_simulation.environment_setup.gravity_field.central
@@ -79,7 +80,7 @@ Functions
 
 .. autofunction:: tudatpy.numerical_simulation.environment_setup.gravity_field.polyhedron_from_density
 
-
+.. autofunction:: tudatpy.numerical_simulation.environment_setup.gravity_field.sbdb_wrapper.central_sbdb
 
 
 Enumerations
