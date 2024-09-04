@@ -10,7 +10,7 @@
 
 #include "expose_rigid_body_setup.h"
 
-#include "tudatpy/docstrings.h"
+#include "docstrings.h"
 #include <tudat/simulation/environment_setup.h>
 #include <tudat/astro/reference_frames/referenceFrameTransformations.h>
 
