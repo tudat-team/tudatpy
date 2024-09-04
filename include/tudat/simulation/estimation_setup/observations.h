@@ -1180,6 +1180,86 @@ public:
         }
     }
 
+    void setObservations(
+            const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& observations,
+            const std::shared_ptr< ObservationCollectionParser > observationParser )
+    {
+        std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > singleObsSets = getSingleObservationSets( observationParser );
+        if ( singleObsSets.empty( ) )
+        {
+            std::cerr << "Warning when setting observations, no single observation set found for specified observation parser. Weights not set";
+        }
+        int totalSizeAllObsSets = 0;
+        for ( unsigned int k = 0 ; k < singleObsSets.size( ) ; k++ )
+        {
+            totalSizeAllObsSets += singleObsSets.at( k )->getTotalObservationSetSize( );
+        }
+
+        if ( observations.size( ) == totalSizeAllObsSets )
+        {
+            unsigned int startObsSet = 0;
+            for ( auto obsSet : singleObsSets )
+            {
+                obsSet->setObservations( observations.segment( startObsSet, obsSet->getTotalObservationSetSize( ) ) );
+                startObsSet += obsSet->getTotalObservationSetSize( );
+            }
+        }
+        else
+        {
+            throw std::runtime_error( "Error when setting observations, the size of the input observation vector should be consistent with "
+                                      "the combined size of all required observation sets." );
+        }
+    }
+
+    void setObservations(
+            const std::map< std::shared_ptr< ObservationCollectionParser >, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observationsPerParser )
+    {
+        for ( auto parserIt : observationsPerParser )
+        {
+            setObservations( parserIt.second, parserIt.first );
+        }
+    }
+
+    void setResiduals(
+            const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& residuals,
+            const std::shared_ptr< ObservationCollectionParser > observationParser )
+    {
+        std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > singleObsSets = getSingleObservationSets( observationParser );
+        if ( singleObsSets.empty( ) )
+        {
+            std::cerr << "Warning when setting residuals, no single observation set found for specified observation parser. Weights not set";
+        }
+        int totalSizeAllObsSets = 0;
+        for ( unsigned int k = 0 ; k < singleObsSets.size( ) ; k++ )
+        {
+            totalSizeAllObsSets += singleObsSets.at( k )->getTotalObservationSetSize( );
+        }
+
+        if ( residuals.size( ) == totalSizeAllObsSets )
+        {
+            unsigned int startObsSet = 0;
+            for ( auto obsSet : singleObsSets )
+            {
+                obsSet->setResiduals( residuals.segment( startObsSet, obsSet->getTotalObservationSetSize( ) ) );
+                startObsSet += obsSet->getTotalObservationSetSize( );
+            }
+        }
+        else
+        {
+            throw std::runtime_error( "Error when setting residuals, the size of the input residual vector should be consistent with "
+                                      "the combined size of all required observation sets." );
+        }
+    }
+
+    void setResiduals(
+            const std::map< std::shared_ptr< ObservationCollectionParser >, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& residualsPerParser )
+    {
+        for ( auto parserIt : residualsPerParser )
+        {
+            setResiduals( parserIt.second, parserIt.first );
+        }
+    }
+
     std::vector< TimeType > getConcatenatedTimeVector( )
     {
         return concatenatedTimes_;
