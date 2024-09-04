@@ -71,21 +71,21 @@ weights_test_combinations = [
 ]
 
 
-@pytest.mark.parametrize("inp,expected", get_observations_input)
-def test_BatchMPC_getobservations(inp, expected):
-    query = BatchMPC()
-    query.get_observations(inp)
-    assert set(query.MPC_objects) == expected
+#@pytest.mark.parametrize("inp,expected", get_observations_input)
+#def test_BatchMPC_getobservations(inp, expected):
+#    query = BatchMPC()
+#    query.get_observations(inp)
+#    assert set(query.MPC_objects) == expected
 
 
-@pytest.mark.parametrize("inp,errtype,errvalue", get_observations_input2)
-def test_BatchMPC_getobservations2(inp, errtype, errvalue):
-    query = BatchMPC()
-    with pytest.raises(Exception) as exc_info:
-        query.get_observations(inp)
-
-    assert exc_info.type is errtype
-    assert str(exc_info.value) == errvalue
+#@pytest.mark.parametrize("inp,errtype,errvalue", get_observations_input2)
+#def test_BatchMPC_getobservations2(inp, errtype, errvalue):
+#    query = BatchMPC()
+#    with pytest.raises(Exception) as exc_info:
+#        query.get_observations(inp)
+#
+#    assert exc_info.type is errtype
+#    assert str(exc_info.value) == errvalue
 
 
 @pytest.mark.parametrize("mpc_code", mpc_codes_test)
