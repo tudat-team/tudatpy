@@ -416,6 +416,13 @@ protected:
             const int parameterSize,
             Eigen::MatrixXd& accelerationPartial );
 
+    void wrtModeCoupledLoveNumbers(
+        const std::function< std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > >( ) > coefficientPartialFunctions,
+        const std::vector< int >& responseIndices,
+        const std::vector< std::pair< int, int > >& responseDegreeOrders,
+        const int parameterSize,
+        Eigen::MatrixXd& partialMatrix );
+
     //! Function to return the gravitational parameter used for calculating the acceleration.
     std::function< double( ) > gravitationalParameterFunction_;
 
