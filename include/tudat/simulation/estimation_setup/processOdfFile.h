@@ -769,7 +769,6 @@ std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType
     ObservationScalarType floatingCompressionRatio = mathematical_constants::getFloatingInteger< ObservationScalarType >( compressionRatio );
 
     double currentCompressionTime = originalDopplerData->getAncilliarySettings( )->getAncilliaryDoubleData( doppler_integration_time );
-    double newCompressionTime = static_cast< ObservationScalarType >( compressionRatio ) * currentCompressionTime;
 
     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > originalObservations = originalDopplerData->getObservationsReference( );
     std::vector< TimeType > originalObservationTimes = originalDopplerData->getObservationTimesReference( );
