@@ -327,6 +327,9 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
     case source_perpendicular_direction_radiation_pressure_scaling_factor:
         isDoubleParameter = true;
         break;
+    case mode_coupled_tidal_love_numbers:
+        isDoubleParameter = false;
+        break;
     default:
         throw std::runtime_error( "Error, parameter type " + std::to_string( parameterType ) +
                                   " not found when getting parameter type" );
@@ -437,6 +440,9 @@ bool isParameterTidalProperty( const EstimatebleParametersEnum parameterType )
         flag = true;
         break;
     case single_degree_variable_tidal_love_number:
+        flag = true;
+        break;
+    case mode_coupled_tidal_love_numbers:
         flag = true;
         break;
     default:

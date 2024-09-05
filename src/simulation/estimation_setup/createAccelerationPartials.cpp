@@ -30,9 +30,9 @@ std::vector< std::shared_ptr< orbit_determination::TidalLoveNumberPartialInterfa
     if( bodies.at( acceleratingBodyName )->getGravityFieldVariationSet( ) != nullptr )
     {
         // Get list of tidal gravity field variations.
-        std::vector< std::shared_ptr< gravitation::BasicSolidBodyTideGravityFieldVariations > >  variationObjectList =
+        std::vector< std::shared_ptr< gravitation::SolidBodyTideGravityFieldVariations > >  variationObjectList =
                 utilities::dynamicCastSVectorToTVector< gravitation::GravityFieldVariations,
-                gravitation::BasicSolidBodyTideGravityFieldVariations >(
+                gravitation::SolidBodyTideGravityFieldVariations >(
                     bodies.at( acceleratingBodyName )->getGravityFieldVariationSet( )->
                     getDirectTidalGravityFieldVariations( ) );
 

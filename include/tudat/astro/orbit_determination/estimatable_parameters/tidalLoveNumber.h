@@ -256,6 +256,124 @@ public:
 
 };
 
+
+//! Class for estimating the tidal Love number k_{n} at a single degree that is constant for all orders
+class ModeCoupledTidalLoveNumber: public EstimatableParameter< Eigen::VectorXd >
+{
+public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param gravityFieldVariationModel Tidal gravity field variation object of which estimated paraemeter is a property
+     * \param associatedBody Deformed body
+     * \param degree Degree of Love number that is to be estimateds
+     * \param useComplexComponents True if the complex Love number is estimated, false if only the real part is considered
+     */
+    ModeCoupledTidalLoveNumber(
+        const std::shared_ptr< gravitation::ModeCoupledSolidBodyTideGravityFieldVariations > gravityFieldVariationModel,
+        const std::string& associatedBody,
+        const std::map< std::pair< int, int >, std::vector< std::pair< int, int > > > loveNumberIndices,
+        const bool useComplexComponents = 0 );
+
+    Eigen::VectorXd getParameterValue( )
+    {
+        Eigen::VectorXd currentParameters = Eigen::VectorXd::Zero( parameterSize_ );
+        std::map< std::pair< int, int >, std::map< std::pair< int, int >, double > > loveNumbers = gravityFieldVariationModel_->getLoveNumbers( );
+
+        int counter = 0;
+        for( auto it: loveNumberIndices_ )
+        {
+            for( unsigned int i = 0; i < it.second.size( ); i++ )
+            {
+                currentParameters( counter ) = loveNumbers.at( it.first ).at( it.second.at( i ) );
+                counter++;
+            }
+        }
+        return currentParameters;
+    }
+
+
+    void setParameterValue( Eigen::VectorXd parameterValue )
+    {
+        std::map< std::pair< int, int >, std::map< std::pair< int, int >, double > > loveNumbers = gravityFieldVariationModel_->getLoveNumbers( );
+
+        int counter = 0;
+        for( auto it: loveNumberIndices_ )
+        {
+            for( unsigned int i = 0; i < it.second.size( ); i++ )
+            {
+                gravityFieldVariationModel_->resetLoveNumber( it.first, it.second.at( i ), parameterValue( counter ) );
+                counter++;
+            }
+        }
+    }
+
+    int getParameterSize( )
+    {
+        return parameterSize_;
+    }
+
+    int getMaximumForcingDegree( )
+    {
+        return maximumForcingDegree_;
+    }
+
+    std::vector< std::string > getDeformingBodies( )
+    {
+        return gravityFieldVariationModel_->getDeformingBodies( );
+    }
+
+
+    std::vector< std::pair< int, int > > getParameterForcingDegreeAndOrderIndices( )
+    {
+        return parameterForcingDegreeAndOrderIndices_;
+    }
+
+    std::map< int, std::vector< int > > getForcingOrdersPerDegree( )
+    {
+        return forcingOrdersPerDegree_;
+    }
+
+    std::vector< std::pair< int, int > > getResponseDegreeOrders( )
+    {
+        return responseDegreeOrders_;
+    }
+
+    std::vector< int > getResponseIndices( )
+    {
+        return responseIndices_;
+    }
+
+private:
+    std::shared_ptr< gravitation::ModeCoupledSolidBodyTideGravityFieldVariations > gravityFieldVariationModel_;
+
+    // Map with forcing degree/orders (key) and list of associated response degree orders (values)
+    std::map< std::pair< int, int >, std::vector< std::pair< int, int > > > loveNumberIndices_;
+
+    // NUmber of separate Love numbers
+    int parameterSize_;
+
+    // Maximum degree of forcing
+    int maximumForcingDegree_;
+
+    // The list of forcing orders per forcing degree
+    std::map< int, std::vector< int > > forcingOrdersPerDegree_;
+
+    // For each independent Love number, the forcing degree, and the index in the associated vector of orders in forcingOrdersPerDegree_
+    std::vector< std::pair< int, int > > parameterForcingDegreeAndOrderIndices_;
+
+    // List of all response degree/orders
+    std::vector< std::pair< int, int > > responseDegreeOrders_;
+
+    // For each independent Love number, the response degree/order (as an index in responseDegreeOrders_);
+    std::vector< int > responseIndices_;
+
+
+
+};
+
+
 //! Class for estimating the tidal Love numbers k_{n,m} at a single degree that may vary for different orders
 class SingleDegreeVariableTidalLoveNumber: public TidalLoveNumber< Eigen::VectorXd >
 {
@@ -338,8 +456,6 @@ public:
         }
         return parameterDescription;
     }
-
-
 };
 
 }
