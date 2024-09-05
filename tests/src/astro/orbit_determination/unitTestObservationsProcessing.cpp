@@ -664,78 +664,6 @@ BOOST_AUTO_TEST_CASE( test_ObservationsFiltering )
         }
     }
 
-    // Test filtering based on residual values
-    double residualCutOffValue = 0.25;
-    int nbRangeStation1 = rangeObservationSets.at( 0 )->getNumberOfObservables( );
-    Eigen::Matrix< double, Eigen::Dynamic, 1 > residualsStation1 = ( residualCutOffValue + 0.05 ) * Eigen::Matrix< double, Eigen::Dynamic, 1 >::Ones( nbRangeStation1, 1 );
-    int nbRangeStation2 = rangeObservationSets.at( 1 )->getNumberOfObservables( );
-    Eigen::Matrix< double, Eigen::Dynamic, 1 > residualsStation2 = ( residualCutOffValue - 0.05 ) * Eigen::Matrix< double, Eigen::Dynamic, 1 >::Ones( nbRangeStation2, 1 );
-    int nbRangeStation3 = rangeObservationSets.at( 2 )->getNumberOfObservables( );
-    Eigen::Matrix< double, Eigen::Dynamic, 1 > residualsStation3 = ( residualCutOffValue - 0.05 ) * Eigen::Matrix< double, Eigen::Dynamic, 1 >::Ones( nbRangeStation3, 1 );
-    int nbLargeResidualsStation3 = 0;
-    for ( int i = 0 ; i < nbRangeStation3 ; i++ )
-    {
-        if ( i%2 )
-        {
-            residualsStation3[ i ] = ( residualCutOffValue + 0.05 );
-            nbLargeResidualsStation3 += 1;
-        }
-    }
-    rangeObservationSets.at( 0 )->setResiduals( residualsStation1 );
-    rangeObservationSets.at( 1 )->setResiduals( residualsStation2 );
-    rangeObservationSets.at( 2 )->setResiduals( residualsStation3 );
-
-    std::map< std::shared_ptr< ObservationCollectionParser >, std::shared_ptr< ObservationFilterBase > > residualFilter =
-            { { observationParser( one_way_range ), observationFilter( residual_filtering, residualCutOffValue ) } };
-    simulatedObservations->filterObservations( residualFilter );
-
-    BOOST_CHECK( rangeObservationSets.at( 0 )->getNumberOfObservables( ) == 0 );
-    BOOST_CHECK( rangeObservationSets.at( 0 )->getNumberOfFilteredObservations( ) == nbRangeStation1 );
-    BOOST_CHECK( rangeObservationSets.at( 1 )->getNumberOfObservables( ) == nbRangeStation2 );
-    BOOST_CHECK( rangeObservationSets.at( 1 )->getNumberOfFilteredObservations( ) == 0 );
-    BOOST_CHECK( rangeObservationSets.at( 2 )->getNumberOfObservables( ) == nbLargeResidualsStation3 );
-    BOOST_CHECK( rangeObservationSets.at( 2 )->getNumberOfFilteredObservations( ) == nbRangeStation3 - nbLargeResidualsStation3 );
-
-    // Check that all residual values post filtering are below the cut-off value
-    std::vector< Eigen::VectorXd > rangeResidualsPostFiltering = simulatedObservations->getResiduals( observationParser( one_way_range ) );
-    for ( unsigned int k = 0 ; k < rangeResidualsPostFiltering.size( ) ; k++ )
-    {
-        if ( rangeResidualsPostFiltering.at( k ).size( ) > 0 )
-        {
-            BOOST_CHECK( rangeResidualsPostFiltering.at( k ).maxCoeff( ) <= residualCutOffValue );
-        }
-    }
-
-    // Check that pointers to empty single observation sets are still properly defined post filtering
-    std::vector< std::shared_ptr< SingleObservationSet< > > > postFilterRangeObservationSets = simulatedObservations->getSingleObservationSets( observationParser( one_way_range ) );
-    for ( unsigned int k= 0 ; k < rangeObservationSets.size( ) ; k++ )
-    {
-        BOOST_CHECK( rangeObservationSets.at( k ).get( ) == postFilterRangeObservationSets.at( k ).get( ) );
-    }
-
-    // Re-introduce all observations with residuals higher than cut-off value
-    std::map< std::shared_ptr< ObservationCollectionParser >, std::shared_ptr< ObservationFilterBase > > residualFilter2 =
-            { { observationParser( one_way_range ), observationFilter( residual_filtering, residualCutOffValue, false ) } };
-    simulatedObservations->filterObservations( residualFilter2 );
-
-    BOOST_CHECK( rangeObservationSets.at( 0 )->getNumberOfObservables( ) == nbRangeStation1 );
-    BOOST_CHECK( rangeObservationSets.at( 0 )->getNumberOfFilteredObservations( ) == 0 );
-    BOOST_CHECK( rangeObservationSets.at( 1 )->getNumberOfObservables( ) == nbRangeStation2 );
-    BOOST_CHECK( rangeObservationSets.at( 1 )->getNumberOfFilteredObservations( ) == 0 );
-    BOOST_CHECK( rangeObservationSets.at( 2 )->getNumberOfObservables( ) == nbRangeStation3 );
-    BOOST_CHECK( rangeObservationSets.at( 2 )->getNumberOfFilteredObservations( ) == 0 );
-
-    rangeValuesPostDefiltering = simulatedObservations->getObservations( observationParser( one_way_range ) );
-    rangeTimesPostDefiltering = simulatedObservations->getObservationTimes( observationParser( one_way_range ) );
-
-    // Check consistency after re-introducing all observations (important to check observations order)
-    for ( unsigned int k = 0 ; k < rangeValuesPostDefiltering.size( ) ; k++ )
-    {
-        BOOST_CHECK( rangeValuesFromObservationCollection.at( k ) == rangeValuesPostDefiltering.at( k ) );
-        BOOST_CHECK( rangeTimesFromObservationCollection.at( k ) == rangeTimesPostDefiltering.at( k ) );
-    }
-
-
     // Test filtering based on epoch values and time bounds
     std::vector< double > rangeObsTimes = baseTimeList.at( one_way_range );
     std::pair< double, double > timeBounds = std::make_pair( rangeObsTimes[ int(nbObs/3) ], rangeObsTimes[ 2*int(nbObs/3) ] );
@@ -799,6 +727,66 @@ BOOST_AUTO_TEST_CASE( test_ObservationsFiltering )
     {
         BOOST_CHECK( remainingObsTimes.at( k ).size( ) == nbObs );
     }
+
+    // Test filtering based on residual values
+    double residualCutOffValue = 0.25;
+    int nbRangeStation1 = rangeObservationSets.at( 0 )->getNumberOfObservables( );
+    Eigen::Matrix< double, Eigen::Dynamic, 1 > residualsStation1 = ( residualCutOffValue + 0.05 ) * Eigen::Matrix< double, Eigen::Dynamic, 1 >::Ones( nbRangeStation1, 1 );
+    int nbRangeStation2 = rangeObservationSets.at( 1 )->getNumberOfObservables( );
+    Eigen::Matrix< double, Eigen::Dynamic, 1 > residualsStation2 = ( residualCutOffValue - 0.05 ) * Eigen::Matrix< double, Eigen::Dynamic, 1 >::Ones( nbRangeStation2, 1 );
+    int nbRangeStation3 = rangeObservationSets.at( 2 )->getNumberOfObservables( );
+    Eigen::Matrix< double, Eigen::Dynamic, 1 > residualsStation3 = ( residualCutOffValue - 0.05 ) * Eigen::Matrix< double, Eigen::Dynamic, 1 >::Ones( nbRangeStation3, 1 );
+    int nbLargeResidualsStation3 = 0;
+    for ( int i = 0 ; i < nbRangeStation3 ; i++ )
+    {
+        if ( i%2 )
+        {
+            residualsStation3[ i ] = ( residualCutOffValue + 0.05 );
+            nbLargeResidualsStation3 += 1;
+        }
+    }
+    rangeObservationSets.at( 0 )->setResiduals( residualsStation1 );
+    rangeObservationSets.at( 1 )->setResiduals( residualsStation2 );
+    rangeObservationSets.at( 2 )->setResiduals( residualsStation3 );
+
+    std::map< std::shared_ptr< ObservationCollectionParser >, std::shared_ptr< ObservationFilterBase > > residualFilter =
+            { { observationParser( one_way_range ), observationFilter( residual_filtering, residualCutOffValue ) } };
+    simulatedObservations->filterObservations( residualFilter );
+
+    BOOST_CHECK( rangeObservationSets.at( 0 )->getNumberOfObservables( ) == 0 );
+    BOOST_CHECK( rangeObservationSets.at( 0 )->getNumberOfFilteredObservations( ) == nbRangeStation1 );
+    BOOST_CHECK( rangeObservationSets.at( 1 )->getNumberOfObservables( ) == nbRangeStation2 );
+    BOOST_CHECK( rangeObservationSets.at( 1 )->getNumberOfFilteredObservations( ) == 0 );
+    BOOST_CHECK( rangeObservationSets.at( 2 )->getNumberOfObservables( ) == nbLargeResidualsStation3 );
+    BOOST_CHECK( rangeObservationSets.at( 2 )->getNumberOfFilteredObservations( ) == nbRangeStation3 - nbLargeResidualsStation3 );
+
+    // Check that all residual values post filtering are below the cut-off value
+    std::vector< Eigen::VectorXd > rangeResidualsPostFiltering = simulatedObservations->getResiduals( observationParser( one_way_range ) );
+    for ( unsigned int k = 0 ; k < rangeResidualsPostFiltering.size( ) ; k++ )
+    {
+        if ( rangeResidualsPostFiltering.at( k ).size( ) > 0 )
+        {
+            BOOST_CHECK( rangeResidualsPostFiltering.at( k ).maxCoeff( ) <= residualCutOffValue );
+        }
+    }
+
+    // Check that pointers to empty single observation sets are still properly defined post filtering
+    std::vector< std::shared_ptr< SingleObservationSet< > > > postFilterRangeObservationSets = simulatedObservations->getSingleObservationSets( observationParser( one_way_range ) );
+    for ( unsigned int k= 0 ; k < rangeObservationSets.size( ) ; k++ )
+    {
+        BOOST_CHECK( rangeObservationSets.at( k ).get( ) == postFilterRangeObservationSets.at( k ).get( ) );
+    }
+
+    // Remove empty observation sets post-filtering (one set should be removed)
+    simulatedObservations->removeEmptySingleObservationSets( );
+    BOOST_CHECK( simulatedObservations->getSingleObservationSets( observationParser( one_way_range ) ).size( ) == 2 );
+
+    // Remove specific observation set
+    std::map< ObservableType, std::map< LinkEnds, std::vector< unsigned int > > > indexSetToRemove =
+            { { angular_position, { {  stationReceiverLinkEnds[ 2 ], std::vector< unsigned int >( { 0 } ) } } } };
+    simulatedObservations->removeSingleObservationSets( indexSetToRemove );
+    BOOST_CHECK( simulatedObservations->getSingleObservationSets( observationParser( angular_position ) ).size( ) == 1 );
+
 }
 
 BOOST_AUTO_TEST_CASE( test_ObservationsSplitting )
