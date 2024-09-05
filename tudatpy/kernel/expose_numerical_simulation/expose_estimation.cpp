@@ -292,21 +292,6 @@ void expose_estimation(py::module &m) {
             std::shared_ptr<tom::ObservationFilterBase>>(m, "ObservationFilterBase",
                     get_docstring("ObservationFilterBase").c_str() );
 
-//    py::class_<tom::ObservationFilter< double >,
-//            std::shared_ptr<tom::ObservationFilter< double > >,
-//            tom::ObservationFilterBase>( m, "ObservationFilter",
-//                                         get_docstring("ObservationFilter").c_str() );
-//
-//    py::class_<tom::ObservationFilter< std::pair< double, double > >,
-//            std::shared_ptr<tom::ObservationFilter< std::pair< double, double > > >,
-//            tom::ObservationFilterBase>( m, "ObservationFilter",
-//                                         get_docstring("ObservationFilter").c_str() );
-//
-//    py::class_<tom::ObservationFilter< std::vector< double > >,
-//            std::shared_ptr<tom::ObservationFilter< std::vector< double > > >,
-//            tom::ObservationFilterBase>( m, "ObservationFilter",
-//                                         get_docstring("ObservationFilter").c_str() );
-
     m.def("observation_filter",
           py::overload_cast< tom::ObservationFilterType,
           const double, const bool, const bool >( &tom::observationFilter ),
@@ -338,21 +323,6 @@ void expose_estimation(py::module &m) {
             std::shared_ptr<tom::ObservationSetSplitterBase>>(m, "ObservationSetSplitterBase",
                     get_docstring("ObservationSetSplitterBase").c_str() );
 
-//    py::class_<tom::ObservationSetSplitter< std::vector< double > >,
-//            std::shared_ptr<tom::ObservationSetSplitter< std::vector< double > > >,
-//            tom::ObservationSetSplitterBase>( m, "ObservationSetSplitter",
-//                                         get_docstring("ObservationSetSplitter").c_str() );
-//
-//    py::class_<tom::ObservationSetSplitter< double >,
-//            std::shared_ptr<tom::ObservationSetSplitter< double > >,
-//            tom::ObservationSetSplitterBase>( m, "ObservationSetSplitter",
-//                                         get_docstring("ObservationSetSplitter").c_str() );
-//
-//    py::class_<tom::ObservationSetSplitter< int >,
-//            std::shared_ptr<tom::ObservationSetSplitter< int > >,
-//            tom::ObservationSetSplitterBase>( m, "ObservationSetSplitter",
-//                                         get_docstring("ObservationSetSplitter").c_str() );
-
     m.def("observation_set_splitter",
       py::overload_cast< tom::ObservationSetSplitterType,
         const std::vector< double >, const int >( &tom::observationSetSplitter ),
@@ -380,40 +350,6 @@ void expose_estimation(py::module &m) {
     py::class_<tom::ObservationCollectionParser,
                 std::shared_ptr<tom::ObservationCollectionParser>>(m, "ObservationCollectionParser",
                         get_docstring("ObservationCollectionParser").c_str() );
-
-//    py::class_<tom::ObservationCollectionObservableTypeParser,
-//                std::shared_ptr<tom::ObservationCollectionObservableTypeParser>>(m, "ObservationCollectionObservableTypeParser",
-//                        get_docstring("ObservationCollectionObservableTypeParser").c_str() );
-//
-//    py::class_<tom::ObservationCollectionObservableTypeParser,
-//                std::shared_ptr<tom::ObservationCollectionObservableTypeParser >,
-//                tom::ObservationCollectionParser >( m, "ObservationCollectionObservableTypeParser",
-//                                                    get_docstring("ObservationCollectionObservableTypeParser").c_str() );
-//
-//    py::class_<tom::ObservationCollectionLinkEndsParser,
-//                std::shared_ptr<tom::ObservationCollectionLinkEndsParser >,
-//                tom::ObservationCollectionParser >( m, "ObservationCollectionLinkEndsParser",
-//                                                    get_docstring("ObservationCollectionLinkEndsParser").c_str() );
-//
-//    py::class_<tom::ObservationCollectionLinkEndIdParser,
-//                std::shared_ptr<tom::ObservationCollectionLinkEndIdParser >,
-//                tom::ObservationCollectionParser >( m, "ObservationCollectionLinkEndIdParser",
-//                                                    get_docstring("ObservationCollectionLinkEndIdParser").c_str() );
-//
-//    py::class_<tom::ObservationCollectionTimeBoundsParser,
-//                std::shared_ptr<tom::ObservationCollectionTimeBoundsParser >,
-//                tom::ObservationCollectionParser >( m, "ObservationCollectionTimeBoundsParser",
-//                                                    get_docstring("ObservationCollectionTimeBoundsParser").c_str() );
-//
-//    py::class_<tom::ObservationCollectionAncillarySettingsParser,
-//                std::shared_ptr<tom::ObservationCollectionAncillarySettingsParser >,
-//                tom::ObservationCollectionParser >( m, "ObservationCollectionAncillarySettingsParser",
-//                                                    get_docstring("ObservationCollectionAncillarySettingsParser").c_str() );
-//
-//    py::class_<tom::ObservationCollectionMultiTypeParser,
-//                std::shared_ptr<tom::ObservationCollectionMultiTypeParser >,
-//                tom::ObservationCollectionParser >( m, "ObservationCollectionMultiTypeParser",
-//                                                    get_docstring("ObservationCollectionMultiTypeParser").c_str() );
 
     m.def("observation_parser",
           py::overload_cast<  >( &tom::observationParser ),
@@ -584,12 +520,6 @@ void expose_estimation(py::module &m) {
           py::arg("is_station_transmitting"),
           get_docstring("compute_target_angles_and_range").c_str() );
 
-    m.def("create_residual_collection",
-          &tom::createResidualCollection< double, TIME_TYPE >,
-          py::arg("observed_data"),
-          py::arg("computed_data" ),
-          get_docstring("create_residual_collection").c_str() );
-
     m.def("create_filtered_observation_collection",
           py::overload_cast<
                   const std::shared_ptr< tom::ObservationCollection< double, TIME_TYPE > >,
@@ -623,13 +553,6 @@ void expose_estimation(py::module &m) {
          py::arg("observation_parser") = std::make_shared< tom::ObservationCollectionParser >( ),
          get_docstring("create_new_observation_collection ").c_str() );
 
-
-//    m.def("create_filtered_observation_collection",
-//          &tom::filterResidualOutliers< double, TIME_TYPE >,
-//          py::arg("observed_data"),
-//          py::arg("residual_data" ),
-//          py::arg("cutoff_value_per_observable" ),
-//          get_docstring("create_filtered_residual_collection").c_str() );
 
     py::class_< tom::ObservationCollection<double, TIME_TYPE>,
             std::shared_ptr<tom::ObservationCollection<double, TIME_TYPE>>>(m, "ObservationCollection",

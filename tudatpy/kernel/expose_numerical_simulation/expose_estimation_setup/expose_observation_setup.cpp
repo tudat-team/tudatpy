@@ -1168,13 +1168,6 @@ void expose_observation_setup(py::module &m) {
           py::arg("start_and_end_times_to_process"),
           get_docstring("create_odf_observed_observation_collection").c_str() );
 
-    m.def("split_observation_sets_into_arc",
-          &tom::splitObservationSetsIntoArcs< double, TIME_TYPE >,
-          py::arg("original_observation_collection"),
-          py::arg("arc_split_interval"),
-          py::arg("minimum_number_of_observations"),
-          get_docstring("split_observation_sets_into_arc").c_str() );
-
     m.def("create_compressed_doppler_collection",
           &tom::createCompressedDopplerCollection< double, TIME_TYPE >,
           py::arg("original_observation_collection"),
