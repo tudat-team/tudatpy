@@ -31,15 +31,47 @@ namespace tudat
 namespace simulation_setup
 {
 
+template< typename ObservationScalarType >
+void checkObservationResidualDiscontinuities(
+        Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& residuals,
+        const std::pair< int, int > observableStartAndSize,
+        const observation_models::ObservableType observableType )
+{
+    if( observableType == observation_models::angular_position || observableType == observation_models::euler_angle_313_observable || observableType == observation_models::relative_angular_position )
+    {
+        Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > residualsBlock = residuals.block( observableStartAndSize.first, 0, observableStartAndSize.second, 1 );
+        for( int i = 1; i < residualsBlock.rows( ); i++ )
+        {
+            if( std::fabs( residualsBlock( i, 0 ) - residualsBlock( i - 1, 0 ) ) > 6.0 )
+            {
+                if( residualsBlock( i, 0 ) > 0 )
+                {
+                    residualsBlock( i, 0 ) = residualsBlock( i, 0 ) - 2.0 * mathematical_constants::PI;
+                }
+                else
+                {
+                    residualsBlock( i, 0 ) = residualsBlock( i, 0 ) + 2.0 * mathematical_constants::PI;
+                }
+            }
+            else if( std::fabs( residualsBlock( i, 0 ) - residualsBlock( i - 1, 0 ) ) > 3.0 )
+            {
+                std::cerr<<"Warning, detected jump in observation residual of size "<<std::fabs( residualsBlock( i, 0 ) - residualsBlock( i - 1, 0 ) )<<
+                         " for observable type "<<observableType<<std::endl;
+            }
+        }
+        residuals.block( observableStartAndSize.first, 0, observableStartAndSize.second, 1 ) = residualsBlock;
+    }
+}
+
 template< typename ObservationScalarType = double, typename TimeType = double,
     typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
 void calculateResiduals(
     const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > observationsCollection,
     const std::map< observation_models::ObservableType,
         std::shared_ptr< observation_models::ObservationSimulatorBase< ObservationScalarType, TimeType > > >& observationSimulator,
-    Eigen::VectorXd& residuals )
+    Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& residuals )
 {
-    residuals = Eigen::VectorXd::Zero( observationsCollection->getTotalObservableSize( ) );
+    residuals = Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >::Zero( observationsCollection->getTotalObservableSize( ), 1 );
 
     typename observation_models::ObservationCollection< ObservationScalarType, TimeType >::SortedObservationSets
         sortedObservations = observationsCollection->getObservationsSets( );
@@ -69,18 +101,16 @@ void calculateResiduals(
                     currentObservations->getAncilliarySettings( ),
                     observationsVector );
 
-                residuals.segment( observationIndices.first, observationIndices.second ) =
-                        ( currentObservations->getObservationsVector( ) - observationsVector ).template cast< double >( );
+                residuals.block( observationIndices.first, 0, observationIndices.second, 1 ) =
+                        ( currentObservations->getObservationsVector( ) - observationsVector );
 
             }
         }
 
         std::pair< int, int > observableStartAndSize = observationsCollection->getObservationTypeStartAndSize( ).at( currentObservableType );
 
-        observation_models::checkObservationResidualDiscontinuities(
-            residuals.block( observableStartAndSize.first, 0, observableStartAndSize.second, 1 ),
-            currentObservableType );
-
+        checkObservationResidualDiscontinuities< ObservationScalarType >(
+            residuals, observableStartAndSize, currentObservableType );
     }
 }
 
@@ -105,7 +135,7 @@ void calculateDesignMatrixAndResiduals(
     const int totalNumberParameters,
     const int totalObservationSize,
     Eigen::MatrixXd& designMatrix,
-    Eigen::VectorXd& residuals,
+    Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& residuals,
     const bool calculateResiduals = true,
     const bool calculatePartials = true )
 {
@@ -122,7 +152,7 @@ void calculateDesignMatrixAndResiduals(
 
     if( calculateResiduals )
     {
-        residuals = Eigen::VectorXd::Zero( totalObservationSize );
+        residuals = Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >::Zero( totalObservationSize, 1 );
     }
 
     typename observation_models::ObservationCollection< ObservationScalarType, TimeType >::SortedObservationSets
@@ -177,9 +207,7 @@ void calculateDesignMatrixAndResiduals(
                     {
                         Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > residualsVector =
                                 currentObservations->getObservationsVector( ) - observationsVector;
-                        residuals.segment( observationIndices.first, observationIndices.second ) = ( residualsVector ).template cast< double >( );
-//                            ( currentObservations->getObservationsVector( ) - observationsVector ).template cast< double >( );
-                        observationsCollection->getObservationsSets( ).at(  currentObservableType ).at( currentLinkEnds ).at( i )->setResiduals( residualsVector );
+                        residuals.block( observationIndices.first, 0, observationIndices.second, 1 ) = ( residualsVector );
                     }
                 }
             }
@@ -188,10 +216,7 @@ void calculateDesignMatrixAndResiduals(
         if( calculateResiduals )
         {
             std::pair< int, int > observableStartAndSize = observationsCollection->getObservationTypeStartAndSize( ).at( currentObservableType );
-
-            observation_models::checkObservationResidualDiscontinuities(
-                residuals.block( observableStartAndSize.first, 0, observableStartAndSize.second, 1 ),
-                currentObservableType );
+            checkObservationResidualDiscontinuities< ObservationScalarType >( residuals, observableStartAndSize, currentObservableType );
         }
     }
 }
@@ -206,7 +231,7 @@ void calculateDesignMatrix(
     const int totalObservationSize,
     Eigen::MatrixXd& designMatrix )
 {
-    Eigen::VectorXd dummyVector;
+    Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > dummyVector;
     calculateDesignMatrixAndResiduals< ObservationScalarType, TimeType >(
         observationsCollection, observationManagers, totalNumberParameters, totalObservationSize, designMatrix, dummyVector, false, true );
 
@@ -220,7 +245,7 @@ void calculateResiduals(
     const std::map< observation_models::ObservableType,
         std::shared_ptr< observation_models::ObservationManagerBase< ObservationScalarType, TimeType > > >& observationManagers,
     const int totalObservationSize,
-    Eigen::VectorXd& residuals )
+    Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& residuals )
 {
     Eigen::VectorXd dummyMatrix;
     calculateDesignMatrixAndResiduals< ObservationScalarType, TimeType >(
@@ -605,8 +630,8 @@ public:
         // Compute design matrices (estimated and consider), and residuals (empty for covariance analysis)
         bool exceptionDuringPropagation = false;
         std::shared_ptr< propagators::SimulationResults< ObservationScalarType, TimeType > > simulationResults;
-        std::pair< std::pair< Eigen::MatrixXd, Eigen::MatrixXd >, Eigen::VectorXd > designMatricesAndResiduals = performPreEstimationSteps(
-                estimationInput, fullParameterEstimate, false, 0, exceptionDuringPropagation, simulationResults );
+        std::pair< std::pair< Eigen::MatrixXd, Eigen::MatrixXd >, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > designMatricesAndResiduals =
+                performPreEstimationSteps( estimationInput, fullParameterEstimate, false, 0, exceptionDuringPropagation, simulationResults );
         Eigen::MatrixXd designMatrixEstimatedParameters = designMatricesAndResiduals.first.first;
         Eigen::MatrixXd designMatrixConsiderParameters;
         if ( considerParametersIncluded_ )
@@ -752,9 +777,9 @@ public:
 
             // Compute design matrices (for estimated and consider parameters) and residuals.
             std::shared_ptr< propagators::SimulationResults< ObservationScalarType, TimeType > > simulationResults;
-            std::pair< std::pair< Eigen::MatrixXd, Eigen::MatrixXd >, Eigen::VectorXd > designMatricesAndResiduals = performPreEstimationSteps(
-                    estimationInput, newFullParameterEstimate, true, numberOfIterations, exceptionDuringPropagation, simulationResults );
-            Eigen::VectorXd residuals = designMatricesAndResiduals.second;
+            std::pair< std::pair< Eigen::MatrixXd, Eigen::MatrixXd >, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > designMatricesAndResiduals =
+                    performPreEstimationSteps( estimationInput, newFullParameterEstimate, true, numberOfIterations, exceptionDuringPropagation, simulationResults );
+            Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > residuals = designMatricesAndResiduals.second;
             Eigen::MatrixXd designMatrixEstimatedParameters = designMatricesAndResiduals.first.first;
             Eigen::MatrixXd designMatrixConsiderParameters;
             if ( considerParametersIncluded_ )
@@ -809,7 +834,7 @@ public:
                 }
                 // Perform LSQ inversion
                 leastSquaresOutput = std::move( linear_algebra::performLeastSquaresAdjustmentFromDesignMatrix(
-                        designMatrixEstimatedParameters, residuals, estimationInput->getWeightsMatrixDiagonals( ),
+                        designMatrixEstimatedParameters, residuals.template cast< double >( ), estimationInput->getWeightsMatrixDiagonals( ),
                         normalizedInverseAprioriCovarianceMatrix, conditionNumberCheck, constraintStateMultiplier, constraintRightHandSide,
                         designMatrixConsiderParameters, normalizedConsiderParametersDeviation ) );
 
@@ -843,12 +868,12 @@ public:
             }
 
             // Calculate mean residual for current iteration.
-            residualRms = linear_algebra::getVectorEntryRootMeanSquare( residuals );
+            residualRms = linear_algebra::getVectorEntryRootMeanSquare( residuals.template cast< double >( ) );
             rmsResidualHistory.push_back( residualRms );
 
             if( estimationInput->getSaveResidualsAndParametersFromEachIteration( ) )
             {
-                residualHistory.push_back( residuals );
+                residualHistory.push_back( residuals.template cast< double >( ) );
                 if ( numberOfIterations == 0 )
                 {
                     parameterHistory.push_back( oldParameterEstimate );
@@ -865,7 +890,8 @@ public:
             {
                 bestResidual = residualRms;
                 bestParameterEstimate = oldParameterEstimate;
-                bestResiduals = std::move( residuals );
+                bestResiduals = std::move( residuals.template cast< double >( ) );
+                estimationInput->getObservationCollection( )->setResiduals( residuals );
                 if( estimationInput->getSaveDesignMatrix( ) )
                 {
                     bestDesignMatrixEstimatedParameters = std::move( designMatrixEstimatedParameters );
@@ -1260,7 +1286,7 @@ protected:
     }
 
 
-    std::pair< std::pair< Eigen::MatrixXd, Eigen::MatrixXd >, Eigen::VectorXd > performPreEstimationSteps(
+    std::pair< std::pair< Eigen::MatrixXd, Eigen::MatrixXd >, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > performPreEstimationSteps(
             std::shared_ptr< CovarianceAnalysisInput< ObservationScalarType, TimeType > > estimationInput,
             ParameterVectorType& newParameterEstimate,
             const bool calculateResiduals,
@@ -1300,7 +1326,7 @@ protected:
         }
 
         // Calculate residuals and observation matrix for current parameter estimate.
-        Eigen::VectorXd residuals;
+        Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > residuals;
         Eigen::MatrixXd designMatrix;
         if ( calculateResiduals )
         {

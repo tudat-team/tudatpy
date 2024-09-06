@@ -356,7 +356,7 @@ int main( )
         }
     }
 
-    // Create observation simulators
+    // Create observation simulators and compute residuals
     std::vector< std::shared_ptr< ObservationSimulatorBase< long double, Time > > > observationSimulators =
             createObservationSimulators< long double, Time >( observationModelSettingsList, bodies );
 
@@ -364,12 +364,9 @@ int main( )
     std::vector< std::shared_ptr< simulation_setup::ObservationSimulationSettings< Time > > > observationSimulationSettings =
             getObservationSimulationSettingsFromObservations( observedObservationCollection );
 
-    // Create simulated observations and residuals
-    std::shared_ptr< observation_models::ObservationCollection< long double, Time > > computedObservationCollection =
-            simulateObservations( observationSimulationSettings, observationSimulators, bodies );
-
-    Eigen::Matrix< long double, Eigen::Dynamic, 1 > residuals = observedObservationCollection->getConcatenatedObservations( ) - computedObservationCollection->getConcatenatedObservations( );
-    observedObservationCollection->setResiduals( residuals );
+    // Compute residuals
+    computeAndSetResiduals< long double, Time >( observedObservationCollection, observationSimulators, bodies );
+    Eigen::Matrix< long double, Eigen::Dynamic, 1 > residuals = observedObservationCollection->getConcatenatedResiduals( );
 
     Eigen::VectorXd startTimes;
     Eigen::VectorXd durations;
@@ -411,12 +408,9 @@ int main( )
     std::vector< std::shared_ptr< simulation_setup::ObservationSimulationSettings< Time > > > compressedObservationSimulationSettings =
             getObservationSimulationSettingsFromObservations( compressedObservedObservationCollection );
 
-    // Create simulated observations and residuals
-    std::shared_ptr< observation_models::ObservationCollection< long double, Time > > computedCompressedObservationCollection =
-            simulateObservations( compressedObservationSimulationSettings, observationSimulators, bodies );
-    Eigen::Matrix< long double, Eigen::Dynamic, 1 > compressedResiduals = compressedObservedObservationCollection->getConcatenatedObservations( ) -
-            computedCompressedObservationCollection->getConcatenatedObservations( );
-    compressedObservedObservationCollection->setResiduals( compressedResiduals );
+    // Compute compressed residuals
+    computeAndSetResiduals< long double, Time >( compressedObservedObservationCollection, observationSimulators, bodies );
+    Eigen::Matrix< long double, Eigen::Dynamic, 1 > compressedResiduals = observedObservationCollection->getConcatenatedResiduals( );
 
     getResidualStatistics(
             compressedObservedObservationCollection,
