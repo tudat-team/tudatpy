@@ -469,6 +469,13 @@ void expose_estimation(py::module &m) {
           py::arg("bodies"),
           get_docstring("simulate_observations").c_str() );
 
+    m.def("compute_and_set_residuals",
+          &tss::computeAndSetResiduals<double, TIME_TYPE>,
+          py::arg("observation_collection"),
+          py::arg("observation_simulators" ),
+          py::arg("bodies"),
+          get_docstring("compute_and_set_residuals").c_str() );
+
 
     m.def("create_pseudo_observations_and_models",
           &tss::simulatePseudoObservations<TIME_TYPE, double>,
