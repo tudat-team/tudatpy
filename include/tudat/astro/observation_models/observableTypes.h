@@ -173,9 +173,6 @@ std::vector< LinkEndType > getLinkEndTypesForGivenLinkEndId(
         const LinkEnds& linkEnds,
         const LinkEndId linkEndToCheck );
 
-void checkObservationResidualDiscontinuities(
-        Eigen::Block< Eigen::VectorXd > observationBlock,
-        const ObservableType observableType );
 
 static const std::map< LinkEndType, int > oneWayLinkStateEntries = {
     { transmitter, 0 },
