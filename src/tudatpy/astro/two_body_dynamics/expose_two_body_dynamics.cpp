@@ -14,7 +14,6 @@
 
 #include "tudat/astro/basic_astro.h"
 #include "tudat/astro/mission_segments.h"
-#include "tudatpy/docstrings.h"
 
 namespace py = pybind11;
 namespace tms = tudat::mission_segments;
@@ -258,20 +257,21 @@ namespace tudatpy {
                 //  keplerPropagator.h (complete)
                 /////////////////////////////////////////////////////////////////
 
-                m.def("propagate_kepler_orbit",
-                      &toec::propagateKeplerOrbit<double>,
-                      py::arg("initial_kepler_elements"),
-                      py::arg("propagation_time"),
-                      py::arg("gravitational_parameter"),
-                      py::arg("root_finder") = trf::RootFinderPointer(),
-R"doc(Function to propagate Keplerian elements to a later epoch, assuming an unperturbed system.
+                m.def(
+                    "propagate_kepler_orbit",
+                    &toec::propagateKeplerOrbit<double>,
+                    py::arg("initial_kepler_elements"),
+                    py::arg("propagation_time"),
+                    py::arg("gravitational_parameter"),
+                    py::arg("root_finder") = trf::RootFinderPointer(),
+                    R"doc(Function to propagate Keplerian elements to a later epoch, assuming an unperturbed system.
 
 	Function to propagate Keplerian elements to a later epoch, assuming an unperturbed system. This function will
 	take the initial Keplerian elements, and propagate the true anomaly in time as per the requested input. This
 	is done by converting true anomaly to mean anomaly, apply the constant rate in mean motion for the requested
-	time, and converting the result back to true anomaly. Currently both elliptic and hyperbolic orbits are supported. 
+	time, and converting the result back to true anomaly. Currently both elliptic and hyperbolic orbits are supported.
 	Parabolic orbits are not supported and will result in an error message.
-	
+
 
 	:param initial_kepler_elements:
 		Keplerian elements that are to be propagated (see :ref:`\`\`element_conversion\`\`` for order)

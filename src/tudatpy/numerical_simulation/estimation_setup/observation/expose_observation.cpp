@@ -21,7 +21,6 @@
 #include <tudat/simulation/estimation_setup/processTrackingTxtFile.h>
 #include <tudat/simulation/estimation_setup/simulateObservations.h>
 
-#include "tudatpy/docstrings.h"
 #include "tudatpy/scalarTypes.h"
 
 
@@ -321,9 +320,7 @@ namespace tudatpy {
 
                     m.def("get_default_reference_link_end",
                           &tom::getDefaultReferenceLinkEndType,
-                          py::arg("observabl_type"),
-                          get_docstring("get_default_reference_link_end")
-                              .c_str());
+                          py::arg("observabl_type"), "");
 
                     // ###########      Observation Model Settings
                     // ################
@@ -334,12 +331,11 @@ namespace tudatpy {
                         R"doc(Object serving as identifier of a specific link end.
 
 )doc")
-                        .def_property_readonly(
-                            "body_name", &tom::LinkEndId::getBodyName,
-                            get_docstring("LinkEndId.body_name").c_str())
-                        .def_property_readonly(
-                            "reference_point", &tom::LinkEndId::getStationName,
-                            get_docstring("LinkEndId.reference_point").c_str());
+                        .def_property_readonly("body_name",
+                                               &tom::LinkEndId::getBodyName, "")
+                        .def_property_readonly("reference_point",
+                                               &tom::LinkEndId::getStationName,
+                                               "");
 
 
                     m.def(
@@ -501,14 +497,12 @@ namespace tudatpy {
                         tom::NWayRangeObservationSettings,
                         std::shared_ptr<tom::NWayRangeObservationSettings>,
                         tom::ObservationModelSettings>(
-                        m, "NWayRangeObservationSettings",
-                        get_docstring("NWayRangeObservationSettings").c_str());
+                        m, "NWayRangeObservationSettings", "");
 
                     py::class_<
                         tom::LightTimeConvergenceCriteria,
                         std::shared_ptr<tom::LightTimeConvergenceCriteria>>(
-                        m, "LightTimeConvergenceCriteria",
-                        get_docstring("LightTimeConvergenceCriteria").c_str());
+                        m, "LightTimeConvergenceCriteria", "");
 
                     py::enum_<tom::LightTimeFailureHandling>(
                         m, "LightTimeFailureHandling",
@@ -910,8 +904,7 @@ namespace tudatpy {
                     m.def("euler_angles_313",
                           &tom::eulerAngle313ObservableSettings,
                           py::arg("link_ends"),
-                          py::arg("bias_settings") = nullptr,
-                          get_docstring("euler_angles_313").c_str());
+                          py::arg("bias_settings") = nullptr, "");
 
 
                     m.def(
@@ -1038,8 +1031,7 @@ namespace tudatpy {
                         py::arg("light_time_convergence_settings") =
                             std::make_shared<
                                 tom::LightTimeConvergenceCriteria>(),
-                        py::arg("normalized_with_speed_of_light") = false,
-                        get_docstring("two_doppler_instantaneous").c_str());
+                        py::arg("normalized_with_speed_of_light") = false, "");
 
                     m.def(
                         "one_way_doppler_averaged",
@@ -1273,7 +1265,7 @@ namespace tudatpy {
                         py::arg("light_time_convergence_settings") =
                             std::make_shared<
                                 tom::LightTimeConvergenceCriteria>(),
-                        get_docstring("dsn_n_way_doppler_averaged").c_str());
+                        "");
 
                     m.def(
                         "dsn_n_way_doppler_averaged_from_one_way_links",
@@ -1289,9 +1281,7 @@ namespace tudatpy {
                         py::arg("light_time_convergence_settings") =
                             std::make_shared<
                                 tom::LightTimeConvergenceCriteria>(),
-                        get_docstring(
-                            "dsn_n_way_doppler_averaged_from_one_way_links")
-                            .c_str());
+                        "");
 
                     py::class_<
                         tom::LightTimeCorrectionSettings,
@@ -1333,16 +1323,14 @@ namespace tudatpy {
 )doc");
 
                     py::enum_<tom::TroposphericMappingModel>(
-                        m, "TroposphericMappingModel",
-                        get_docstring("TroposphericMappingModel").c_str())
+                        m, "TroposphericMappingModel", "")
                         .value("simplified_chao",
                                tom::TroposphericMappingModel::simplified_chao)
                         .value("niell", tom::TroposphericMappingModel::niell)
                         .export_values();
 
                     py::enum_<tom::WaterVaporPartialPressureModel>(
-                        m, "WaterVaporPartialPressureModel",
-                        get_docstring("WaterVaporPartialPressureModel").c_str())
+                        m, "WaterVaporPartialPressureModel", "")
                         .value("tabulated",
                                tom::WaterVaporPartialPressureModel::tabulated)
                         .value("bean_and_dutton",
@@ -1350,16 +1338,13 @@ namespace tudatpy {
                                    bean_and_dutton)
                         .export_values();
 
-                    m.def(
-                        "dsn_tabulated_tropospheric_light_time_correction",
-                        &tom::tabulatedTroposphericCorrectionSettings,
-                        py::arg("file_names"),
-                        py::arg("body_with_atmosphere_name") = "Earth",
-                        py::arg("mapping_model") =
-                            tom::TroposphericMappingModel::niell,
-                        get_docstring(
-                            "dsn_tabulated_tropospheric_light_time_correction")
-                            .c_str());
+                    m.def("dsn_tabulated_tropospheric_light_time_correction",
+                          &tom::tabulatedTroposphericCorrectionSettings,
+                          py::arg("file_names"),
+                          py::arg("body_with_atmosphere_name") = "Earth",
+                          py::arg("mapping_model") =
+                              tom::TroposphericMappingModel::niell,
+                          "");
 
                     m.def("saastamoinen_tropospheric_light_time_correction",
                           &tom::saastamoinenTroposphericCorrectionSettings,
@@ -1368,9 +1353,7 @@ namespace tudatpy {
                               tom::TroposphericMappingModel::niell,
                           py::arg("water_vapor_partial_pressure_model") =
                               tom::WaterVaporPartialPressureModel::tabulated,
-                          get_docstring(
-                              "saastamoinen_tropospheric_light_time_correction")
-                              .c_str());
+                          "");
 
                     m.def("dsn_tabulated_ionospheric_light_time_correction",
                           &tom::tabulatedIonosphericCorrectionSettings,
@@ -1380,10 +1363,7 @@ namespace tudatpy {
                           py::arg("quasar_name_per_id") =
                               std::map<int, std::string>(),
                           py::arg("reference_frequency") = 2295e6,
-                          py::arg("body_with_atmosphere_name") = "Earth",
-                          get_docstring(
-                              "dsn_tabulated_ionospheric_light_time_correction")
-                              .c_str());
+                          py::arg("body_with_atmosphere_name") = "Earth", "");
 
                     m.def("jakowski_ionospheric_light_time_correction",
                           &tom::jakowskiIonosphericCorrectionSettings,
@@ -1398,10 +1378,7 @@ namespace tudatpy {
                           py::arg("geomagnetic_pole_longitude") =
                               tuc::convertDegreesToRadians(-72.6),
                           py::arg("use_utc_for_local_time_computation") = false,
-                          py::arg("body_with_atmosphere_name") = "Earth",
-                          get_docstring(
-                              "jakowski_ionospheric_light_time_correction")
-                              .c_str());
+                          py::arg("body_with_atmosphere_name") = "Earth", "");
 
                     m.def(
                         "inverse_power_series_solar_corona_light_time_"
@@ -1412,10 +1389,7 @@ namespace tudatpy {
                         py::arg("positive_exponents") =
                             std::vector<double>{2.0},
                         py::arg("delay_coefficient") = 40.3,
-                        py::arg("sun_body_name") = "Sun",
-                        get_docstring("inverse_power_series_solar_corona_light_"
-                                      "time_correction")
-                            .c_str());
+                        py::arg("sun_body_name") = "Sun", "");
 
                     py::class_<tom::ObservationBiasSettings,
                                std::shared_ptr<tom::ObservationBiasSettings>>(
@@ -1644,9 +1618,7 @@ namespace tudatpy {
                         .export_values();
 
                     py::enum_<tom::ObservationAncilliarySimulationVariable>(
-                        m, "ObservationAncilliarySimulationVariable",
-                        get_docstring("ObservationAncilliarySimulationVariable")
-                            .c_str())
+                        m, "ObservationAncilliarySimulationVariable", "")
                         .value("link_ends_delays",
                                tom::ObservationAncilliarySimulationVariable::
                                    link_ends_delays)
@@ -1871,15 +1843,12 @@ namespace tudatpy {
 	The user does not interact with this class directly, but defines specific observation simulation settings using an object derived from this class (created through the associated factory function).
 
 )doc")
-                        .def_property(
-                            "viability_settings_list",
-                            &tss::ObservationSimulationSettings<
-                                double>::getViabilitySettingsList,
-                            &tss::ObservationSimulationSettings<
-                                double>::setViabilitySettingsList,
-                            get_docstring("ObservationSimulationSettings."
-                                          "viability_settings_list")
-                                .c_str())
+                        .def_property("viability_settings_list",
+                                      &tss::ObservationSimulationSettings<
+                                          double>::getViabilitySettingsList,
+                                      &tss::ObservationSimulationSettings<
+                                          double>::setViabilitySettingsList,
+                                      "")
                         .def_property(
                             "noise_function",
                             &tss::ObservationSimulationSettings<
@@ -1888,25 +1857,18 @@ namespace tudatpy {
                                 const std::function<double(const double)>&>(
                                 &tss::ObservationSimulationSettings<
                                     double>::setObservationNoiseFunction),
-                            get_docstring(
-                                "ObservationSimulationSettings.noise_function")
-                                .c_str())
-                        .def_property(
-                            "observable_type",
-                            &tss::ObservationSimulationSettings<
-                                double>::getObservableType,
-                            &tss::ObservationSimulationSettings<
-                                double>::setObservableType,
-                            get_docstring(
-                                "ObservationSimulationSettings.observable_type")
-                                .c_str())
+                            "")
+                        .def_property("observable_type",
+                                      &tss::ObservationSimulationSettings<
+                                          double>::getObservableType,
+                                      &tss::ObservationSimulationSettings<
+                                          double>::setObservableType,
+                                      "")
                         .def_property_readonly(
                             "link_ends",
                             &tss::ObservationSimulationSettings<
                                 double>::getLinkEnds,
-                            get_docstring(
-                                "ObservationSimulationSettings.link_ends")
-                                .c_str());
+                            "");
 
 
                     py::class_<
@@ -1969,9 +1931,7 @@ namespace tudatpy {
 
                     m.def("doppler_ancilliary_settings",
                           &tom::getAveragedDopplerAncilliarySettings,
-                          py::arg("integration_time") = 60.0,
-                          get_docstring("doppler_integration_time_settings")
-                              .c_str());
+                          py::arg("integration_time") = 60.0, "");
 
                     m.def(
                         "two_way_range_ancilliary_settings",
@@ -2060,8 +2020,7 @@ namespace tudatpy {
                           py::arg("reference_frequency"),
                           py::arg("integration_time") = 60.0,
                           py::arg("link_end_delays") = std::vector<double>(),
-                          get_docstring("dsn_n_way_doppler_ancilliary_settings")
-                              .c_str());
+                          "");
 
                     m.def(
                         "tabulated_simulation_settings",
@@ -2199,23 +2158,21 @@ namespace tudatpy {
 		Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` derived :class:`~tudatpy.numerical_simulation.estimation_setup.observation.TabulatedObservationSimulationSettings` class.
 )doc");
 
-                    m.def(
-                        "continuous_arc_simulation_settings_list",
-                        &tss::perArcObservationSimulationSettingsList<
-                            TIME_TYPE>,
-                        py::arg("link_ends_per_observable"),
-                        py::arg("start_time"), py::arg("end_time"),
-                        py::arg("interval_between_observations"),
-                        py::arg("arc_limiting_constraints"),
-                        py::arg("minimum_arc_duration"),
-                        py::arg("maximum_arc_duration"),
-                        py::arg("minimum_time_between_arcs"),
-                        py::arg("reference_link_end_type") = tom::receiver,
-                        py::arg("additional_viability_settings") =
-                            std::vector<std::shared_ptr<
-                                tom::ObservationViabilitySettings>>(),
-                        get_docstring("continuous_arc_simulation_settings_list")
-                            .c_str());
+                    m.def("continuous_arc_simulation_settings_list",
+                          &tss::perArcObservationSimulationSettingsList<
+                              TIME_TYPE>,
+                          py::arg("link_ends_per_observable"),
+                          py::arg("start_time"), py::arg("end_time"),
+                          py::arg("interval_between_observations"),
+                          py::arg("arc_limiting_constraints"),
+                          py::arg("minimum_arc_duration"),
+                          py::arg("maximum_arc_duration"),
+                          py::arg("minimum_time_between_arcs"),
+                          py::arg("reference_link_end_type") = tom::receiver,
+                          py::arg("additional_viability_settings") =
+                              std::vector<std::shared_ptr<
+                                  tom::ObservationViabilitySettings>>(),
+                          "");
 
                     m.def(
                         "add_noise_function_to_all",
@@ -2227,8 +2184,7 @@ namespace tudatpy {
                             &tss::
                                 addNoiseFunctionToObservationSimulationSettingsPy),
                         py::arg("observation_simulation_settings_list"),
-                        py::arg("noise_amplitude"),
-                        get_docstring("add_noise_function_to_all").c_str());
+                        py::arg("noise_amplitude"), "");
 
                     m.def(
                         "add_noise_function_to_observable",
@@ -2242,8 +2198,7 @@ namespace tudatpy {
                                 addNoiseFunctionToObservationSimulationSettingsPy),
                         py::arg("observation_simulation_settings_list"),
                         py::arg("noise_amplitude"), py::arg("observable_type"),
-                        get_docstring("add_noise_function_to_observable")
-                            .c_str());
+                        "");
 
 
                     m.def(
@@ -2259,10 +2214,7 @@ namespace tudatpy {
                                 addNoiseFunctionToObservationSimulationSettingsPy),
                         py::arg("observation_simulation_settings_list"),
                         py::arg("noise_amplitude"), py::arg("observable_type"),
-                        py::arg("link_ends"),
-                        get_docstring(
-                            "add_noise_function_to_observable_for_link_ends")
-                            .c_str());
+                        py::arg("link_ends"), "");
 
 
                     m.def(
@@ -2337,10 +2289,7 @@ namespace tudatpy {
                                 addGaussianNoiseFunctionToObservationSimulationSettingsPy),
                         py::arg("observation_simulation_settings_list"),
                         py::arg("noise_amplitude"), py::arg("observable_type"),
-                        py::arg("link_definition"),
-                        get_docstring(
-                            "add_gaussian_noise_to_settings_for_link_ends")
-                            .c_str());
+                        py::arg("link_definition"), "");
 
 
                     m.def(
@@ -2388,9 +2337,7 @@ namespace tudatpy {
                                 addViabilityToObservationSimulationSettingsPy),
                         py::arg("observation_simulation_settings_list"),
                         py::arg("viability_settings"),
-                        py::arg("observable_type"),
-                        get_docstring("add_viability_check_to_observable")
-                            .c_str());
+                        py::arg("observable_type"), "");
 
                     m.def(
                         "add_viability_check_to_observable_for_link_ends",
@@ -2443,9 +2390,7 @@ namespace tudatpy {
                                 addAncilliarySettingsToObservationSimulationSettingsPy),
                         py::arg("observation_simulation_settings_list"),
                         py::arg("ancilliary_settings"),
-                        py::arg("observable_type"),
-                        get_docstring("add_ancilliary_settings_to_observable")
-                            .c_str());
+                        py::arg("observable_type"), "");
 
 
                     m.def(
@@ -2462,10 +2407,7 @@ namespace tudatpy {
                                 addAncilliarySettingsToObservationSimulationSettingsPy),
                         py::arg("observation_simulation_settings_list"),
                         py::arg("ancilliary_settings"),
-                        py::arg("observable_type"), py::arg("link_ends"),
-                        get_docstring("add_ancilliary_settings_to_observable_"
-                                      "for_link_ends")
-                            .c_str());
+                        py::arg("observable_type"), py::arg("link_ends"), "");
 
 
                     py::class_<tss::ObservationDependentVariableSettings,
@@ -2492,9 +2434,7 @@ namespace tudatpy {
                                 addDependentVariablesToObservationSimulationSettingsPy),
                         py::arg("observation_simulation_settings"),
                         py::arg("dependent_variable_settings"),
-                        py::arg("bodies"),
-                        get_docstring("add_dependent_variables_to_all")
-                            .c_str());
+                        py::arg("bodies"), "");
 
                     m.def(
                         "add_dependent_variables_to_observable",
@@ -2510,9 +2450,7 @@ namespace tudatpy {
                                 addDependentVariablesToObservationSimulationSettingsPy),
                         py::arg("observation_simulation_settings"),
                         py::arg("dependent_variable_settings"),
-                        py::arg("bodies"), py::arg("observable_type"),
-                        get_docstring("add_dependent_variables_to_observable")
-                            .c_str());
+                        py::arg("bodies"), py::arg("observable_type"), "");
 
                     m.def(
                         "add_dependent_variables_to_observable_for_link_ends",
@@ -2530,33 +2468,25 @@ namespace tudatpy {
                         py::arg("observation_simulation_settings"),
                         py::arg("dependent_variable_settings"),
                         py::arg("bodies"), py::arg("observable_type"),
-                        py::arg("link_ends"),
-                        get_docstring("add_dependent_variables_to_observable_"
-                                      "for_link_ends")
-                            .c_str());
+                        py::arg("link_ends"), "");
 
                     /////////////////////////////////////////////////////////////////////////////////////////////////
                     // FREQUENCIES
                     /////////////////////////////////////////////////////////////////////////////////////////////////
 
-                    py::enum_<tom::FrequencyBands>(
-                        m, "FrequencyBands",
-                        get_docstring("FrequencyBands").c_str())
+                    py::enum_<tom::FrequencyBands>(m, "FrequencyBands", "")
                         .value("s_band", tom::FrequencyBands::s_band)
                         .value("x_band", tom::FrequencyBands::x_band)
                         .value("ka_band", tom::FrequencyBands::ka_band)
                         .value("ku_band", tom::FrequencyBands::ku_band);
 
-                    m.def(
-                        "dsn_default_turnaround_ratios",
-                        &tom::getDsnDefaultTurnaroundRatios,
-                        py::arg("uplink_band"), py::arg("downlink_band"),
-                        get_docstring("dsn_default_turnaround_ratios").c_str());
+                    m.def("dsn_default_turnaround_ratios",
+                          &tom::getDsnDefaultTurnaroundRatios,
+                          py::arg("uplink_band"), py::arg("downlink_band"), "");
 
                     m.def("cassini_turnaround_ratios",
                           &tom::getCassiniTurnaroundRatio,
-                          py::arg("uplink_band"), py::arg("downlink_band"),
-                          get_docstring("cassini_turnaround_ratios").c_str());
+                          py::arg("uplink_band"), py::arg("downlink_band"), "");
 
                     /////////////////////////////////////////////////////////////////////////////////////////////////
                     // ODF OBSERVATIONS
@@ -2564,48 +2494,31 @@ namespace tudatpy {
 
                     py::class_<tom::ProcessedOdfFileContents,
                                std::shared_ptr<tom::ProcessedOdfFileContents>>(
-                        m, "ProcessedOdfFileContents",
-                        get_docstring("ProcessedOdfFileContents").c_str())
-                        .def_property_readonly(
-                            "ground_station_names",
-                            &tom::ProcessedOdfFileContents::
-                                getGroundStationsNames,
-                            get_docstring("ProcessedOdfFileContents.get_ground_"
-                                          "station_names")
-                                .c_str())
-                        .def_property_readonly(
-                            "processed_observable_types",
-                            &tom::ProcessedOdfFileContents::
-                                getProcessedObservableTypes,
-                            get_docstring("ProcessedOdfFileContents.get_"
-                                          "processed_observable_types")
-                                .c_str())
+                        m, "ProcessedOdfFileContents", "")
+                        .def_property_readonly("ground_station_names",
+                                               &tom::ProcessedOdfFileContents::
+                                                   getGroundStationsNames,
+                                               "")
+                        .def_property_readonly("processed_observable_types",
+                                               &tom::ProcessedOdfFileContents::
+                                                   getProcessedObservableTypes,
+                                               "")
                         .def_property_readonly(
                             "start_and_end_time",
                             &tom::ProcessedOdfFileContents::getStartAndEndTime,
-                            get_docstring("ProcessedOdfFileContents.get_start_"
-                                          "and_end_time")
-                                .c_str())
+                            "")
                         .def_property_readonly(
                             "ignored_odf_observable_types",
                             &tom::ProcessedOdfFileContents::
                                 getIgnoredRawOdfObservableTypes,
-                            get_docstring("ProcessedOdfFileContents.get_"
-                                          "ignored_odf_observable_types")
-                                .c_str())
-                        .def_property_readonly(
-                            "ignored_ground_stations",
-                            &tom::ProcessedOdfFileContents::
-                                getIgnoredGroundStations,
-                            get_docstring("ProcessedOdfFileContents.get_"
-                                          "ignored_ground_stations")
-                                .c_str())
+                            "")
+                        .def_property_readonly("ignored_ground_stations",
+                                               &tom::ProcessedOdfFileContents::
+                                                   getIgnoredGroundStations,
+                                               "")
                         .def_property_readonly(
                             "raw_odf_data",
-                            &tom::ProcessedOdfFileContents::getRawOdfData,
-                            get_docstring(
-                                "ProcessedOdfFileContents.raw_odf_data")
-                                .c_str());
+                            &tom::ProcessedOdfFileContents::getRawOdfData, "");
 
                     m.def("process_odf_data_multiple_files",
                           py::overload_cast<
@@ -2617,8 +2530,7 @@ namespace tudatpy {
                           py::arg("verbose") = true,
                           py::arg("earth_fixed_ground_station_positions") =
                               tss::getApproximateDsnGroundStationPositions(),
-                          get_docstring("create_odf_observed_observations")
-                              .c_str());
+                          "");
 
                     m.def(
                         "process_odf_data_single_file",
@@ -2630,8 +2542,7 @@ namespace tudatpy {
                         py::arg("verbose") = true,
                         py::arg("earth_fixed_ground_station_positions") =
                             tss::getApproximateDsnGroundStationPositions(),
-                        get_docstring("create_odf_observed_observations")
-                            .c_str());
+                        "");
 
                     // Create wrapper function
                     py::cpp_function getDsnDefaultTurnaroundRatios_wrapper =
@@ -2641,14 +2552,13 @@ namespace tudatpy {
                                                                       band2);
                         };
 
-                    m.def(
-                        "set_odf_information_in_bodies",
-                        &tom::setOdfInformationInBodies,
-                        py::arg("processed_odf_file"), py::arg("bodies"),
-                        py::arg("body_with_ground_stations_name") = "Earth",
-                        py::arg("turnaround_ratio_function") =
-                            getDsnDefaultTurnaroundRatios_wrapper,
-                        get_docstring("set_odf_information_in_bodies").c_str());
+                    m.def("set_odf_information_in_bodies",
+                          &tom::setOdfInformationInBodies,
+                          py::arg("processed_odf_file"), py::arg("bodies"),
+                          py::arg("body_with_ground_stations_name") = "Earth",
+                          py::arg("turnaround_ratio_function") =
+                              getDsnDefaultTurnaroundRatios_wrapper,
+                          "");
 
                     m.def(
                         "create_odf_observed_observation_collection",
@@ -2660,9 +2570,7 @@ namespace tudatpy {
                         py::arg("start_and_end_times_to_process") =
                             std::make_pair<TIME_TYPE, TIME_TYPE>(TUDAT_NAN,
                                                                  TUDAT_NAN),
-                        get_docstring(
-                            "create_odf_observed_observation_collection")
-                            .c_str());
+                        "");
 
                     //    m.def("create_odf_observation_simulation_settings_list",
                     //          &tom::createOdfObservationSimulationSettingsList<
@@ -2682,9 +2590,7 @@ namespace tudatpy {
                                  tom::n_way_differenced_range},
                                 {tom::dsn_one_way_averaged_doppler,
                                  tom::one_way_differenced_range}},
-                        get_docstring(
-                            "change_simulation_settings_observable_types")
-                            .c_str());
+                        "");
 
                     /////////////////////////////////////////////////////////////////////////////////////////////////
                     // Tracking Txt OBSERVATIONS
@@ -2713,9 +2619,7 @@ namespace tudatpy {
                         py::arg("start_and_end_times_to_process") =
                             std::make_pair<TIME_TYPE, TIME_TYPE>(TUDAT_NAN,
                                                                  TUDAT_NAN),
-                        get_docstring(
-                            "create_tracking_txtfile_observation_collection")
-                            .c_str());
+                        "");
 
                     m.def(
                         "observation_settings_from_collection",
@@ -2724,9 +2628,7 @@ namespace tudatpy {
                             &tss::
                                 getObservationSimulationSettingsFromObservations<
                                     double, TIME_TYPE>),
-                        py::arg("observed_observation_collection"),
-                        get_docstring("observation_settings_from_collection")
-                            .c_str());
+                        py::arg("observed_observation_collection"), "");
 
                     //////////////////////////////////////////// DEPRECATED
                     ///////////////////////////////////////////////

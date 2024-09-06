@@ -14,7 +14,6 @@
 #include <tudat/basics/deprecationWarnings.h>
 #include <tudat/simulation/environment_setup.h>
 
-#include "tudatpy/docstrings.h"
 #include "tudatpy/scalarTypes.h"
 
 // #include <pybind11/chrono.h>
@@ -206,9 +205,7 @@ namespace tudatpy {
                         .def_property_readonly(
                             "body_name",
                             &tss::ApproximateJplEphemerisSettings::getBodyName,
-                            get_docstring(
-                                "ApproximateJplEphemerisSettings.body_name")
-                                .c_str());
+"");
 
 
                     py::class_<tss::ScaledEphemerisSettings,
@@ -258,16 +255,14 @@ namespace tudatpy {
                             "get_custom_state_function",
                             &tss::CustomEphemerisSettings::
                                 getCustomStateFunction,
-                            get_docstring("CustomEphemerisSettings.get_custom_"
-                                          "state_function")
-                                .c_str());
+"");
 
 
                     py::class_<tss::KeplerEphemerisSettings,
                                std::shared_ptr<tss::KeplerEphemerisSettings>,
                                tss::EphemerisSettings>(
                         m, "KeplerEphemerisSettings",
-                        get_docstring("KeplerEphemerisSettings").c_str())
+"")
                         //            .def(py::init<const Eigen::Vector6d &,
                         //            const double, const double,
                         //                 const std::string &, const
@@ -289,37 +284,27 @@ namespace tudatpy {
                             "initial_state_in_keplerian_elements",
                             &tss::KeplerEphemerisSettings::
                                 getInitialStateInKeplerianElements,
-                            get_docstring("KeplerEphemerisSettings.initial_"
-                                          "state_in_keplerian_elements")
-                                .c_str())
+"")
                         .def_property_readonly(
                             "epoch_of_initial_state",
                             &tss::KeplerEphemerisSettings::
                                 getEpochOfInitialState,
-                            get_docstring("KeplerEphemerisSettings.epoch_of_"
-                                          "initial_state")
-                                .c_str())
+"")
                         .def_property_readonly(
                             "central_body_gravitational_parameter",
                             &tss::KeplerEphemerisSettings::
                                 getCentralBodyGravitationalParameter,
-                            get_docstring("KeplerEphemerisSettings.central_"
-                                          "body_gravitational_parameter")
-                                .c_str())
+"")
                         .def_property_readonly(
                             "root_finder_absolute_tolerance",
                             &tss::KeplerEphemerisSettings::
                                 getRootFinderAbsoluteTolerance,
-                            get_docstring("KeplerEphemerisSettings.root_finder_"
-                                          "absolute_tolerance")
-                                .c_str())
+"")
                         .def_property_readonly(
                             "root_finder_maximum_number_of_iterations",
                             &tss::KeplerEphemerisSettings::
                                 getRootFinderMaximumNumberOfIterations,
-                            get_docstring("KeplerEphemerisSettings.root_finder_"
-                                          "maximum_number_of_iterations")
-                                .c_str());
+"");
 
 
                     py::class_<tss::TabulatedEphemerisSettings,
@@ -344,7 +329,7 @@ namespace tudatpy {
                     m.def("create_ephemeris",
                           &tss::createBodyEphemeris<double, TIME_TYPE>,
                           py::arg("ephemeris_settings"), py::arg("body_name"),
-                          get_docstring("create_ephemeris").c_str());
+"");
 
 
                     m.def(

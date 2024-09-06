@@ -13,7 +13,6 @@
 #include <tudat/astro/reference_frames/referenceFrameTransformations.h>
 #include <tudat/simulation/environment_setup.h>
 
-#include "tudatpy/docstrings.h"
 
 // #include <pybind11/chrono.h>
 #include <pybind11/eigen.h>
@@ -307,7 +306,7 @@ namespace tudatpy {
                           py::arg("ratio_of_specific_heats") = 1.4);
 
                     m.def("us76", &tss::us76AtmosphereSettings,
-                          get_docstring("us76").c_str());
+"");
 
                     m.def(
                         "custom_constant_temperature",

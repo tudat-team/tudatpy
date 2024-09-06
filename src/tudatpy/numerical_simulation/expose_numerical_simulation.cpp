@@ -23,7 +23,6 @@
 
 // #include <tudat/math/integrators/createNumericalIntegrator.h>
 
-#include "tudatpy/docstrings.h"
 #include "tudatpy/scalarTypes.h"
 
 namespace py = pybind11;
@@ -86,7 +85,7 @@ namespace tudatpy {
 		Object that propagates the dynamics, and processes the results.
 )doc");
 
-            py::class_<tudat::Time>(m, "Time", get_docstring("Time").c_str())
+            py::class_<tudat::Time>(m, "Time", "")
                 .def(py::init<const int, const long double>(),
                      py::arg("full_periods"),
                      py::arg("seconds_into_full_period"))
@@ -157,8 +156,7 @@ namespace tudatpy {
             py::class_<
                 tp::DynamicsSimulator<double, TIME_TYPE>,
                 std::shared_ptr<tp::DynamicsSimulator<double, TIME_TYPE>>>(
-                m, "DynamicsSimulator",
-                get_docstring("DynamicsSimulator").c_str());
+                m, "DynamicsSimulator", "");
 
             py::class_<tp::SingleArcDynamicsSimulator<double, TIME_TYPE>,
                        std::shared_ptr<
@@ -253,29 +251,23 @@ in a single wrapper object
                        std::shared_ptr<
                            tp::MultiArcDynamicsSimulator<double, TIME_TYPE>>,
                        tp::DynamicsSimulator<double, TIME_TYPE>>(
-                m, "MultiArcDynamicsSimulator",
-                get_docstring("MultiArcDynamicsSimulator").c_str())
+                m, "MultiArcDynamicsSimulator", "")
                 .def_property_readonly(
                     "propagation_results",
                     &tp::MultiArcDynamicsSimulator<
                         double, TIME_TYPE>::getMultiArcPropagationResults,
-                    get_docstring(
-                        "MultiArcDynamicsSimulator.propagation_results")
-                        .c_str());
+                    "");
 
             py::class_<tp::HybridArcDynamicsSimulator<double, TIME_TYPE>,
                        std::shared_ptr<
                            tp::HybridArcDynamicsSimulator<double, TIME_TYPE>>,
                        tp::DynamicsSimulator<double, TIME_TYPE>>(
-                m, "HybridArcDynamicsSimulator",
-                get_docstring("HybridArcDynamicsSimulator").c_str())
+                m, "HybridArcDynamicsSimulator", "")
                 .def_property_readonly(
                     "propagation_results",
                     &tp::HybridArcDynamicsSimulator<
                         double, TIME_TYPE>::getHybridArcPropagationResults,
-                    get_docstring(
-                        "HybridArcDynamicsSimulator.propagation_results")
-                        .c_str());
+                    "");
 
 
             // TODO: Remove variationalOnlyIntegratorSettings

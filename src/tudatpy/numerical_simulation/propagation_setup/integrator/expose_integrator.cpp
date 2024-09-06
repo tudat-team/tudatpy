@@ -17,7 +17,6 @@
 #include <pybind11/stl.h>
 #include <tudat/simulation/propagation_setup.h>
 
-#include "tudatpy/docstrings.h"
 #include "tudatpy/scalarTypes.h"
 
 namespace py = pybind11;
@@ -40,34 +39,24 @@ namespace tudatpy {
                     // ENUMS
                     py::enum_<tni::MinimumIntegrationTimeStepHandling>(
                         m, "MinimumIntegrationTimeStepHandling",
-                        get_docstring("MinimumIntegrationTimeStepHandling")
-                            .c_str())
+"")
                         .value("throw_exception_below_minimum",
                                tni::MinimumIntegrationTimeStepHandling::
                                    throw_exception_below_minimum,
-                               get_docstring("MinimumIntegrationTimeStepHandlin"
-                                             "g.throw_exception_below_minimum")
-                                   .c_str())
+"")
                         .value("set_to_minimum_step_silently",
                                tni::MinimumIntegrationTimeStepHandling::
                                    set_to_minimum_step_silently,
-                               get_docstring("MinimumIntegrationTimeStepHandlin"
-                                             "g.set_to_minimum_step_silently")
-                                   .c_str())
+"")
                         .value(
                             "set_to_minimum_step_single_warning",
                             tni::MinimumIntegrationTimeStepHandling::
                                 set_to_minimum_step_single_warning,
-                            get_docstring("MinimumIntegrationTimeStepHandling."
-                                          "set_to_minimum_step_single_warning")
-                                .c_str())
+"")
                         .value("set_to_minimum_step_every_time_warning",
                                tni::MinimumIntegrationTimeStepHandling::
                                    set_to_minimum_step_every_time_warning,
-                               get_docstring(
-                                   "MinimumIntegrationTimeStepHandling.set_to_"
-                                   "minimum_step_every_time_warning")
-                                   .c_str())
+"")
                         .export_values();
 
 
@@ -130,60 +119,54 @@ namespace tudatpy {
 	:member rkf_1412:
 )doc")
                         .value("euler_forward", tni::forwardEuler,
-                               get_docstring("CoefficientSets.euler_forward")
-                                   .c_str())
+"")
                         .value("rk_4", tni::rungeKutta4Classic,
-                               get_docstring("CoefficientSets.rk_4").c_str())
+"")
                         .value(
                             "explicit_mid_point", tni::explicitMidPoint,
-                            get_docstring("CoefficientSets.explicit_mid_point")
-                                .c_str())
+"")
                         .value("explicit_trapezoid_rule",
                                tni::explicitTrapezoidRule,
-                               get_docstring(
-                                   "CoefficientSets.explicit_trapezoid_rule")
-                                   .c_str())
+"")
                         .value("ralston", tni::ralston,
-                               get_docstring("CoefficientSets.ralston").c_str())
+"")
                         .value("rk_3", tni::rungeKutta3,
-                               get_docstring("CoefficientSets.rk_3").c_str())
+"")
                         .value(
                             "ralston_3", tni::ralston3,
-                            get_docstring("CoefficientSets.ralston_3").c_str())
+"")
                         .value("SSPRK3", tni::SSPRK3,
-                               get_docstring("CoefficientSets.SSPRK3").c_str())
+"")
                         .value(
                             "ralston_4", tni::ralston4,
-                            get_docstring("CoefficientSets.ralston_4").c_str())
+"")
                         .value("three_eight_rule_rk_4", tni::threeEighthRuleRK4,
-                               get_docstring(
-                                   "CoefficientSets.three_eight_rule_rk_4")
-                                   .c_str())
+"")
                         .value(
                             "heun_euler", tni::heunEuler,
-                            get_docstring("CoefficientSets.heun_euler").c_str())
+"")
                         .value("rkf_12", tni::rungeKuttaFehlberg12,
-                               get_docstring("CoefficientSets.rkf_12").c_str())
+"")
                         .value("rkf_45", tni::rungeKuttaFehlberg45,
-                               get_docstring("CoefficientSets.rkf_45").c_str())
+"")
                         .value("rkf_56", tni::rungeKuttaFehlberg56,
-                               get_docstring("CoefficientSets.rkf_56").c_str())
+"")
                         .value("rkf_78", tni::rungeKuttaFehlberg78,
-                               get_docstring("CoefficientSets.rkf_78").c_str())
+"")
                         .value("rkdp_87", tni::rungeKutta87DormandPrince,
-                               get_docstring("CoefficientSets.rkdp_87").c_str())
+"")
                         .value("rkf_89", tni::rungeKuttaFehlberg89,
-                               get_docstring("CoefficientSets.rkf_89").c_str())
+"")
                         .value("rkv_89", tni::rungeKuttaVerner89,
-                               get_docstring("CoefficientSets.rkv_89").c_str())
+"")
                         .value("rkf_108", tni::rungeKuttaFeagin108,
-                               get_docstring("CoefficientSets.rkf_108").c_str())
+"")
                         .value(
                             "rkf_1210", tni::rungeKuttaFeagin1210,
-                            get_docstring("CoefficientSets.rkf_1210").c_str())
+"")
                         .value(
                             "rkf_1412", tni::rungeKuttaFeagin1412,
-                            get_docstring("CoefficientSets.rkf_1412").c_str())
+"")
                         .export_values();
 
                     py::enum_<
@@ -198,11 +181,11 @@ namespace tudatpy {
                         .value("lower",
                                tni::RungeKuttaCoefficients::
                                    OrderEstimateToIntegrate::lower,
-                               get_docstring("OrderToIntegrate.lower").c_str())
+"")
                         .value("higher",
                                tni::RungeKuttaCoefficients::
                                    OrderEstimateToIntegrate::higher,
-                               get_docstring("OrderToIntegrate.higher").c_str())
+"")
                         .export_values();
 
                     py::enum_<tni::ExtrapolationMethodStepSequences>(
@@ -216,15 +199,11 @@ namespace tudatpy {
                         .value("bulirsch_stoer_sequence",
                                tni::ExtrapolationMethodStepSequences::
                                    bulirsch_stoer_sequence,
-                               get_docstring("ExtrapolationMethodStepSequences."
-                                             "bulirsch_stoer_sequence")
-                                   .c_str())
+"")
                         .value("deufelhard_sequence",
                                tni::ExtrapolationMethodStepSequences::
                                    deufelhard_sequence,
-                               get_docstring("ExtrapolationMethodStepSequences."
-                                             "deufelhard_sequence")
-                                   .c_str())
+"")
                         .export_values();
 
                     // CLASSES
@@ -260,8 +239,7 @@ namespace tudatpy {
                                 TIME_TYPE>>,
                         tni::IntegratorSettings<TIME_TYPE>>(
                         m, "RungeKuttaVariableStepSizeBaseSettings",
-                        get_docstring("RungeKuttaVariableStepSizeBaseSettings")
-                            .c_str());
+"");
 
                     py::class_<
                         tni::RungeKuttaVariableStepSizeSettingsVectorTolerances<
@@ -321,8 +299,7 @@ namespace tudatpy {
                                std::shared_ptr<
                                    tni::IntegratorStepSizeControlSettings>>(
                         m, "IntegratorStepSizeControlSettings",
-                        get_docstring("IntegratorStepSizeControlSettings")
-                            .c_str())
+"")
                         .def_readwrite("safety_factor",
                                        &tni::IntegratorStepSizeControlSettings::
                                            safetyFactorForNextStepSize_)
@@ -339,8 +316,7 @@ namespace tudatpy {
                                std::shared_ptr<
                                    tni::IntegratorStepSizeValidationSettings>>(
                         m, "IntegratorStepSizeValidationSettings",
-                        get_docstring("IntegratorStepSizeValidationSettings")
-                            .c_str())
+"")
                         .def_readwrite(
                             "minimum_step",
                             &tni::IntegratorStepSizeValidationSettings::
@@ -371,7 +347,7 @@ namespace tudatpy {
                               tni::throw_exception_below_minimum,
                           py::arg("accept_infinity_step") = false,
                           py::arg("accept_nan_step") = false,
-                          get_docstring("step_size_validation").c_str());
+"");
 
                     m.def("step_size_control_elementwise_scalar_tolerance",
                           &tni::perElementIntegratorStepSizeControlSettings<
@@ -381,9 +357,7 @@ namespace tudatpy {
                           py::arg("safety_factor") = 0.8,
                           py::arg("minimum_factor_increase") = 0.1,
                           py::arg("maximum_factor_increase") = 4.0,
-                          get_docstring(
-                              "step_size_control_elementwise_scalar_tolerance")
-                              .c_str());
+"");
 
                     m.def("step_size_control_elementwise_matrix_tolerance",
                           &tni::perElementIntegratorStepSizeControlSettings<
@@ -393,9 +367,7 @@ namespace tudatpy {
                           py::arg("safety_factor") = 0.8,
                           py::arg("minimum_factor_increase") = 0.1,
                           py::arg("maximum_factor_increase") = 4.0,
-                          get_docstring(
-                              "step_size_control_elementwise_matrix_tolerance")
-                              .c_str());
+"");
 
                     m.def(
                         "step_size_control_blockwise_scalar_tolerance",
@@ -406,9 +378,7 @@ namespace tudatpy {
                         py::arg("safety_factor") = 0.8,
                         py::arg("minimum_factor_increase") = 0.1,
                         py::arg("maximum_factor_increase") = 4.0,
-                        get_docstring(
-                            "step_size_control_blockwise_scalar_tolerance")
-                            .c_str());
+"");
 
                     m.def("step_size_control_blockwise_matrix_tolerance",
                           &tni::perBlockIntegratorStepSizeControlSettings<
@@ -419,16 +389,13 @@ namespace tudatpy {
                           py::arg("safety_factor") = 0.8,
                           py::arg("minimum_factor_increase") = 0.1,
                           py::arg("maximum_factor_increase") = 4.0,
-                          get_docstring(
-                              "step_size_control_blockwise_matrix_tolerance")
-                              .c_str());
+"");
 
                     m.def(
                         "standard_cartesian_state_element_blocks",
                         &tni::getStandardCartesianStatesElementsToCheck,
                         py::arg("number_of_rows"), py::arg("number_of_columns"),
-                        get_docstring("standard_cartesian_state_element_blocks")
-                            .c_str());
+"");
 
                     m.def("standard_rotational_state_element_blocks",
                           &tni::getStandardRotationalStatesElementsToCheck,
@@ -446,9 +413,7 @@ namespace tudatpy {
                         py::arg("safety_factor") = 0.8,
                         py::arg("minimum_factor_increase") = 0.1,
                         py::arg("maximum_factor_increase") = 4.0,
-                        get_docstring("step_size_control_custom_blockwise_"
-                                      "scalar_tolerance")
-                            .c_str());
+"");
 
                     m.def(
                         "step_size_control_custom_blockwise_matrix_tolerance",
@@ -461,9 +426,7 @@ namespace tudatpy {
                         py::arg("safety_factor") = 0.8,
                         py::arg("minimum_factor_increase") = 0.1,
                         py::arg("maximum_factor_increase") = 4.0,
-                        get_docstring("step_size_control_custom_blockwise_"
-                                      "matrix_tolerance")
-                            .c_str());
+"");
 
                     m.def("runge_kutta_fixed_step",
                           &tni::rungeKuttaFixedStepSettings<TIME_TYPE>,
@@ -472,7 +435,7 @@ namespace tudatpy {
                               tni::RungeKuttaCoefficients::
                                   OrderEstimateToIntegrate::lower,
                           py::arg("assess_termination_on_minor_steps") = false,
-                          get_docstring("runge_kutta_fixed_step").c_str());
+"");
 
                     m.def("runge_kutta_variable_step",
                           &tni::multiStageVariableStepSizeSettings<TIME_TYPE>,
@@ -481,7 +444,7 @@ namespace tudatpy {
                           py::arg("step_size_control_settings"),
                           py::arg("step_size_validation_settings"),
                           py::arg("assess_termination_on_minor_steps") = false,
-                          get_docstring("runge_kutta_variable_step").c_str());
+"");
 
                     m.def(
                         "bulirsch_stoer_variable_step",
@@ -493,7 +456,7 @@ namespace tudatpy {
                         py::arg("step_size_control_settings"),
                         py::arg("step_size_validation_settings"),
                         py::arg("assess_termination_on_minor_steps") = false,
-                        get_docstring("bulirsch_stoer_variable_step").c_str());
+"");
 
                     m.def("bulirsch_stoer_fixed_step",
                           &tni::bulirschStoerFixedStepIntegratorSettings<
@@ -502,7 +465,7 @@ namespace tudatpy {
                           py::arg("extrapolation_sequence"),
                           py::arg("maximum_number_of_steps"),
                           py::arg("assess_termination_on_minor_steps") = false,
-                          get_docstring("bulirsch_stoer_fixed_step").c_str());
+"");
 
                     m.def(
                         "adams_bashforth_moulton",
@@ -558,8 +521,7 @@ namespace tudatpy {
                           py::arg("order") = 6,
                           py::arg("assess_termination_on_minor_steps") = false,
                           py::arg("bandwidth") = 200.0,
-                          get_docstring("adams_bashforth_moulton_fixed_order")
-                              .c_str());
+"");
 
                     m.def(
                         "adams_bashforth_moulton_fixed_step",
@@ -571,8 +533,7 @@ namespace tudatpy {
                         py::arg("maximum_order") = 11,
                         py::arg("assess_termination_on_minor_steps") = false,
                         py::arg("bandwidth") = 200.0,
-                        get_docstring("adams_bashforth_moulton_fixed_step")
-                            .c_str());
+"");
 
                     m.def(
                         "adams_bashforth_moulton_fixed_step_fixed_order",
@@ -580,9 +541,7 @@ namespace tudatpy {
                             TIME_TYPE>,
                         py::arg("time_step"), py::arg("order") = 6,
                         py::arg("assess_termination_on_minor_steps") = false,
-                        get_docstring(
-                            "adams_bashforth_moulton_fixed_step_fixed_order")
-                            .c_str());
+"");
 
                     /*!
                      * DEPRECATED

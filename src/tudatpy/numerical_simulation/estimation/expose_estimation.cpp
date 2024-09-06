@@ -19,7 +19,6 @@
 #include <tudat/basics/utilities.h>
 #include <tudat/simulation/estimation_setup/fitOrbitToEphemeris.h>
 
-#include "tudatpy/docstrings.h"
 #include "tudatpy/scalarTypes.h"
 
 namespace py = pybind11;
@@ -280,7 +279,7 @@ R"doc(Class containing a consolidated set of estimatable parameters.
 
 	Class containing a consolidated set of estimatable parameters, linked to the environment and acceleration settings of the simulation.
 	The user typically creates instances of this class via the :func:`~tudatpy.numerical_simulation.estimation_setup.create_parameters_to_estimate` factory function.
-	
+
 )doc")
                     .def_property_readonly(
                         "parameter_set_size",
@@ -328,7 +327,7 @@ R"doc(Function to retrieve the indices of a given type of parameter.
 
 	Function to retrieve the index of all parameters of a given type from the parameter set.
 	This function can be very useful, since the order of parameters within the parameter set does not necessarily correspond to the order in which the elements were added to the set.
-	
+
 
 	:param parameter_type:
 		help
@@ -349,7 +348,7 @@ R"doc(Template class for observation viability calculators.
 	Template class for classes which conducts viability calculations on simulated observations.
 	Instances of the applicable ObservationViabilityCalculators are automatically created from the given :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` objects during the simulation of observations (:func:`~tudatpy.numerical_simulation.estimation.simulate_observations`).
 	The user typically does not interact directly with this class.
-	
+
 )doc")
                     .def("is_observation_viable",
                          &tom::ObservationViabilityCalculator::
@@ -361,7 +360,7 @@ R"doc(Function to check whether an observation is viable.
 	The calculation is performed based on the given times and link end states.
 	Note, that this function is called automatically during the simulation of observations.
 	Direct calls to this function are generally not required.
-	
+
 
 	:param link_end_states:
 		Vector of states of the link ends involved in the observation.
@@ -379,7 +378,7 @@ R"doc(Class hosting the functionality for simulating observations.
 
 	Class hosting the functionality for simulating a given observable over a defined link geometry.
 	Instances of this class are automatically created from the given :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings` objects upon instantiation of the :class:`~tudatpy.numerical_simulation.Estimator` class.
-	
+
 )doc");
 
                 py::class_<tom::ObservationSimulator<1, double, TIME_TYPE>,
@@ -387,28 +386,28 @@ R"doc(Class hosting the functionality for simulating observations.
                                tom::ObservationSimulator<1, double, TIME_TYPE>>,
                            tom::ObservationSimulatorBase<double, TIME_TYPE>>(
                     m, "ObservationSimulator_1",
-get_docstring("ObservationSimulator_1").c_str());
+"");
 
                 py::class_<tom::ObservationSimulator<2, double, TIME_TYPE>,
                            std::shared_ptr<
                                tom::ObservationSimulator<2, double, TIME_TYPE>>,
                            tom::ObservationSimulatorBase<double, TIME_TYPE>>(
                     m, "ObservationSimulator_2",
-get_docstring("ObservationSimulator_2").c_str());
+"");
 
                 py::class_<tom::ObservationSimulator<3, double, TIME_TYPE>,
                            std::shared_ptr<
                                tom::ObservationSimulator<3, double, TIME_TYPE>>,
                            tom::ObservationSimulatorBase<double, TIME_TYPE>>(
                     m, "ObservationSimulator_3",
-get_docstring("ObservationSimulator_3").c_str());
+"");
 
                 py::class_<tom::ObservationSimulator<6, double, TIME_TYPE>,
                            std::shared_ptr<
                                tom::ObservationSimulator<6, double, TIME_TYPE>>,
                            tom::ObservationSimulatorBase<double, TIME_TYPE>>(
                     m, "ObservationSimulator_6",
-get_docstring("ObservationSimulator_6").c_str());
+"");
 
                 m.def("simulate_observations",
                       &tss::simulateObservations<double, TIME_TYPE>,
@@ -418,17 +417,17 @@ R"doc(Function to simulate observations.
 
 	Function to simulate observations from set observation simulators and observation simulator settings.
 	Automatically iterates over all provided observation simulators, generating the full set of simulated observations.
-	
+
 
 	:param observation_to_simulate:
 		List of settings objects, each object providing the observation time settings for simulating one type of observable and link end set.
-		
+
 	:param observation_simulators:
 		List of :class:`~tudatpy.numerical_simulation.estimation.ObservationSimulator` objects, each object hosting the functionality for simulating one type of observable and link end set.
-		
+
 	:param bodies:
 		Object consolidating all bodies and environment models, including ground station models, that constitute the physical environment.
-		
+
 	:return:
 		Object collecting all products of the observation simulation.
 )doc");
@@ -439,7 +438,7 @@ R"doc(Function to simulate observations.
                       py::arg("bodies"), py::arg("observed_bodies"),
                       py::arg("central_bodies"), py::arg("initial_time"),
                       py::arg("final_time"), py::arg("time_step"),
-get_docstring("create_pseudo_observations_and_models").c_str());
+"");
 
                 m.def("set_existing_observations",
                       &tss::setExistingObservations<double, TIME_TYPE>,
@@ -459,25 +458,25 @@ R"doc(Function to compute the azimuth angle, elevation angle and range at a grou
 	Function to compute the azimuth angle, elevation angle and range at a ground station. This functions is provided as a function of
 	convenience, to prevent users having to manually define the relevant settings for this often-needed functionality. This function
 	takes an observing station and a target body as input, and provides the observed angles and current range (without correction for aberrations, with correction for light time)
-	as observed at that station   
-	
+	as observed at that station
+
 
 	:param bodies:
 		System of bodies that defines the full physical environment
-		
+
 	:param station_id:
 		Identifier for the observing station, as a pair of strings: the body name and the station name.
-		
+
 	:param target_body:
 		Name of body which is observed by ground station
-		
+
 	:param observation_times:
 		List of times at which the ground station observations are to be analyzed
-		
+
 	:param is_station_transmitting:
-		Boolean defining whether the observation times define times at which the station is transmitting to, or receiving from, the ground station. 
+		Boolean defining whether the observation times define times at which the station is transmitting to, or receiving from, the ground station.
 		This has an impact on the whether the light-time is computed forward or backward in time from the ground station to the target
-		
+
 	:return:
 		Dictionary with the required output. Key defines the observation time, the value is an array of size three containing entry 0 - elevation angle, entry 1 - azimuth angle, entry 2 - range
 )doc");
@@ -492,25 +491,25 @@ R"doc(Function to compute the azimuth angle, elevation angle and range at a grou
 	Function to compute the azimuth angle, elevation angle and range at a ground station. This functions is provided as a function of
 	convenience, to prevent users having to manually define the relevant settings for this often-needed functionality. This function
 	takes an observing station and a target body as input, and provides the observed angles and current range (without correction for aberrations, with correction for light time)
-	as observed at that station   
-	
+	as observed at that station
+
 
 	:param bodies:
 		System of bodies that defines the full physical environment
-		
+
 	:param station_id:
 		Identifier for the observing station, as a pair of strings: the body name and the station name.
-		
+
 	:param target_body:
 		Name of body which is observed by ground station
-		
+
 	:param observation_times:
 		List of times at which the ground station observations are to be analyzed
-		
+
 	:param is_station_transmitting:
-		Boolean defining whether the observation times define times at which the station is transmitting to, or receiving from, the ground station. 
+		Boolean defining whether the observation times define times at which the station is transmitting to, or receiving from, the ground station.
 		This has an impact on the whether the light-time is computed forward or backward in time from the ground station to the target
-		
+
 	:return:
 		Dictionary with the required output. Key defines the observation time, the value is an array of size three containing entry 0 - elevation angle, entry 1 - azimuth angle, entry 2 - range
 )doc");
@@ -524,7 +523,7 @@ R"doc(Class collecting all observations and associated data for use in an estima
 	Class containing the full set of observations and associated data, typically for input into the estimation. When using simulated data,
 	this class is instantiated via a call to the :func:`~tudatpy.numerical_simulation.estimation.simulate_observations` function. More information is provided
 	on the `user guide <https://docs.tudat.space/en/stable/_src_user_guide/state_estimation/observation_simulation.html#accessing-and-analyzing-the-observations>`_
-	
+
 )doc")
                     .def(py::init<std::vector<std::shared_ptr<
                              tom::SingleObservationSet<double, TIME_TYPE>>>>(),
@@ -581,17 +580,17 @@ R"doc(The nested dictionary/list contains the list of `SingleObservationSet` obj
                         "link_ends_per_observable_type",
                         &tom::ObservationCollection<
                             double, TIME_TYPE>::getLinkEndsPerObservableType,
-get_docstring("ObservationCollection.link_ends_per_observable_type").c_str())
+"")
                     .def_property_readonly(
                         "link_definitions_per_observable",
                         &tom::ObservationCollection<
                             double, TIME_TYPE>::getLinkDefinitionsPerObservable,
-get_docstring("ObservationCollection.link_definitions_per_observable").c_str())
+"")
                     .def("get_link_definitions_for_observables",
                          &tom::ObservationCollection<double, TIME_TYPE>::
                              getLinkDefinitionsForSingleObservable,
                          py::arg("observable_type"),
-get_docstring("ObservationCollection.get_link_definitions_for_observables").c_str())
+"")
                     .def("get_single_link_and_type_observations",
                          &tom::ObservationCollection<double, TIME_TYPE>::
                              getSingleLinkAndTypeObservationSets,
@@ -667,7 +666,7 @@ R"doc(Ancilliary settings all stored observations
                                                    TIME_TYPE>::getWeightsVector,
                         &tom::SingleObservationSet<double,
                                                    TIME_TYPE>::setWeightsVector,
-get_docstring("SingleObservationSet.weights_vector").c_str());
+"");
 
 
                 m.def("single_observation_set",
@@ -677,7 +676,7 @@ get_docstring("SingleObservationSet.weights_vector").c_str());
                       py::arg("observations"), py::arg("observation_times"),
                       py::arg("reference_link_end"),
                       py::arg("ancilliary_settings") = nullptr,
-get_docstring("single_observation_set").c_str());
+"");
 
                 /*!
                  *************** STATE TRANSITION INTERFACE ***************
@@ -693,7 +692,7 @@ R"doc(Class establishing an interface with the simulation's State Transition and
 	Class establishing an interface to the State Transition and Sensitivity Matrices.
 	Instances of this class are instantiated automatically upon creation of :class:`~tudatpy.numerical_simulation.Estimator` objects,
 	using the simulation information in the observation, propagation and integration settings that the :class:`~tudatpy.numerical_simulation.Estimator` instance is linked to.
-	
+
 )doc")
                     .def(
                         "state_transition_sensitivity_at_epoch",
@@ -708,7 +707,7 @@ R"doc(Function to get the concatenated state transition and sensitivity matrix a
 
 	Function to get the concatenated state transition and sensitivity matrix at a given time.
 	Entries corresponding to parameters which are not active at the current arc are omitted.
-	
+
 
 	:param time:
 		Time at which concatenated state transition and sensitivity matrix are to be retrieved.
@@ -759,14 +758,14 @@ R"doc(Full amount of parameters w.r.t. which partials have been set up via State
                       &tp::propagateCovarianceVectorsRsw,
                       py::arg("covariance_output"), py::arg("estimator"),
                       py::arg("output_times"),
-get_docstring("propagate_covariance_rsw_split_output").c_str());
+"");
 
 
                 m.def("propagate_formal_errors_rsw_split_output",
                       &tp::propagateFormalErrorVectorsRsw,
                       py::arg("covariance_output"), py::arg("estimator"),
                       py::arg("output_times"),
-get_docstring("propagate_formal_errors_rsw_split_output").c_str());
+"");
 
                 m.def(
                     "propagate_covariance_split_output",
@@ -779,7 +778,7 @@ get_docstring("propagate_formal_errors_rsw_split_output").c_str());
                     py::arg("initial_covariance"),
                     py::arg("state_transition_interface"),
                     py::arg("output_times"),
-get_docstring("propagate_covariance_split_output").c_str());
+"");
 
                 m.def(
                     "propagate_covariance",
@@ -795,21 +794,21 @@ R"doc(Function to propagate system covariance through time.
 
 	Function to propagate the covariance of a given system through time.
 	The system dynamics and numerical settings of the propagation are prescribed by the `state_transition_interface` parameter.
-	
+
 
 	:param initial_covariance:
 		System covariance matrix (symmetric and positive semi-definite) at initial time.
 		Dimensions have to be consistent with estimatable parameters in the system (specified by `state_transition_interface`)
-		
+
 	:param state_transition_interface:
 		Interface to the variational equations of the system dynamics, handling the propagation of the covariance matrix through time.
-		
+
 	:param output_times:
 		Times at which the propagated covariance matrix shall be reported.
 		Note that this argument has no impact on the integration time-steps of the covariance propagation,
 		which always adheres to the integrator settings that the `state_transition_interface` links to.
 		Output times which do not coincide with integration time steps are calculated via interpolation.
-		
+
 	:return:
 		Dictionary reporting the propagated covariances at each output time.
 )doc");
@@ -830,21 +829,21 @@ R"doc(Function to propagate system formal errors through time.
 	Function to propagate the formal errors of a given system through time.
 	Note that in practice the entire covariance matrix is propagated, but only the formal errors (variances) are reported at the output times.
 	The system dynamics and numerical settings of the propagation are prescribed by the `state_transition_interface` parameter.
-	
+
 
 	:param initial_covariance:
 		System covariance matrix (symmetric and positive semi-definite) at initial time.
 		Dimensions have to be consistent with estimatable parameters in the system (specified by `state_transition_interface`)
-		
+
 	:param state_transition_interface:
 		Interface to the variational equations of the system dynamics, handling the propagation of the covariance matrix through time.
-		
+
 	:param output_times:
 		Times at which the propagated covariance matrix shall be reported.
 		Note that this argument has no impact on the integration time-steps of the covariance propagation,
 		which always adheres to the integrator settings that the `state_transition_interface` links to.
 		Output times which do not coincide with integration time steps are calculated via interpolation.
-		
+
 	:return:
 		Dictionary reporting the propagated formal errors at each output time.
 )doc");
@@ -865,21 +864,21 @@ R"doc(Function to propagate system formal errors through time.
 	Function to propagate the formal errors of a given system through time.
 	Note that in practice the entire covariance matrix is propagated, but only the formal errors (variances) are reported at the output times.
 	The system dynamics and numerical settings of the propagation are prescribed by the `state_transition_interface` parameter.
-	
+
 
 	:param initial_covariance:
 		System covariance matrix (symmetric and positive semi-definite) at initial time.
 		Dimensions have to be consistent with estimatable parameters in the system (specified by `state_transition_interface`)
-		
+
 	:param state_transition_interface:
 		Interface to the variational equations of the system dynamics, handling the propagation of the covariance matrix through time.
-		
+
 	:param output_times:
 		Times at which the propagated covariance matrix shall be reported.
 		Note that this argument has no impact on the integration time-steps of the covariance propagation,
 		which always adheres to the integrator settings that the `state_transition_interface` links to.
 		Output times which do not coincide with integration time steps are calculated via interpolation.
-		
+
 	:return:
 		Dictionary reporting the propagated formal errors at each output time.
 )doc");
@@ -896,7 +895,7 @@ R"doc(Class defining the convergence criteria for an estimation.
 
 	Class defining the convergence criteria for an estimation.
 	The user typically creates instances of this class via the :func:`~tudatpy.numerical_simulation.estimation.estimation_convergence_checker` factory function.
-	
+
 )doc");
 
                 m.def("estimation_convergence_checker",
@@ -908,7 +907,7 @@ R"doc(Class defining the convergence criteria for an estimation.
 R"doc(Function for creating an :class:`~tudatpy.numerical_simulation.estimation.EstimationConvergenceChecker` object.
 
 	Function for creating an :class:`~tudatpy.numerical_simulation.estimation.EstimationConvergenceChecker` object, which is required for defining the convergence criteria of an estimation.
-	
+
 
 	:param maximum_iterations:
 		Maximum number of allowed iterations for estimation.
@@ -943,7 +942,7 @@ R"doc(Class for defining all specific inputs to a covariance analysis.
 R"doc(Class constructor.
 
 	Constructor through which the user can create instances of this class. Note that the weight are all initiated as 1.0, and the default settings of ``define_covariance_settings`` are used.
-	
+
 
 	:param observations_and_times:
 		Total data structure of observations and associated times/link ends/type/etc.
@@ -960,7 +959,7 @@ R"doc(Function to set a constant weight matrix for all observables.
 
 	Function to set a constant weight matrix for all observables.
 	The weights are applied to all observations managed by the given PodInput object.
-	
+
 
 	:param constant_weight:
 		Constant weight factor that is to be applied to all observations.
@@ -971,18 +970,18 @@ R"doc(Function to set a constant weight matrix for all observables.
                          &tss::CovarianceAnalysisInput<double, TIME_TYPE>::
                              setConstantSingleObservableWeights,
                          py::arg("observable_type"), py::arg("weight"),
-get_docstring("CovarianceAnalysisInput.set_constant_single_observable_weight").c_str())
+"")
                     .def("set_constant_single_observable_vector_weight",
                          &tss::CovarianceAnalysisInput<double, TIME_TYPE>::
                              setConstantSingleObservableVectorWeights,
                          py::arg("observable_type"), py::arg("weight"),
-get_docstring("CovarianceAnalysisInput.set_constant_single_observable_vector_weight").c_str())
+"")
                     .def("set_constant_single_observable_and_link_end_weight",
                          &tss::CovarianceAnalysisInput<double, TIME_TYPE>::
                              setConstantSingleObservableAndLinkEndsWeights,
                          py::arg("observable_type"), py::arg("link_ends"),
                          py::arg("weight"),
-get_docstring("CovarianceAnalysisInput.set_constant_single_observable_and_link_end_weight").c_str())
+"")
                     .def(
                         "set_constant_single_observable_and_link_end_vector_"
                         "weight",
@@ -990,7 +989,7 @@ get_docstring("CovarianceAnalysisInput.set_constant_single_observable_and_link_e
                             setConstantSingleObservableAndLinkEndsVectorWeights,
                         py::arg("observable_type"), py::arg("link_ends"),
                         py::arg("weight"),
-get_docstring("CovarianceAnalysisInput.set_constant_single_observable_and_link_end_vector_weight").c_str())
+"")
                     .def(
                         "set_total_single_observable_and_link_end_vector_"
                         "weight",
@@ -998,7 +997,7 @@ get_docstring("CovarianceAnalysisInput.set_constant_single_observable_and_link_e
                             setTabulatedSingleObservableAndLinkEndsWeights,
                         py::arg("observable_type"), py::arg("link_ends"),
                         py::arg("weight_vector"),
-get_docstring("CovarianceAnalysisInput.set_total_single_observable_and_link_end_vector_weight").c_str())
+"")
                     .def("set_constant_weight_per_observable",
                          &tss::CovarianceAnalysisInput<double, TIME_TYPE>::
                              setConstantPerObservableWeightsMatrix,
@@ -1007,7 +1006,7 @@ R"doc(Function to set a constant weight matrix for a given type of observable.
 
 	Function to set a constant weight matrix for a given type of observable.
 	The weights are applied to all observations of the observable type specified by the `weight_per_observable` parameter.
-	
+
 
 	:param constant_weight:
 		Constant weight factor that is to be applied to all observations.
@@ -1018,7 +1017,7 @@ R"doc(Function to set a constant weight matrix for a given type of observable.
                          &tss::CovarianceAnalysisInput<double, TIME_TYPE>::
                              setConstantPerObservableVectorWeightsMatrix,
                          py::arg("weight_per_observable"),
-get_docstring("CovarianceAnalysisInput.set_constant_vector_weight_per_observable").c_str())
+"")
                     .def("define_covariance_settings",
                          &tss::CovarianceAnalysisInput<
                              double, TIME_TYPE>::defineCovarianceSettings,
@@ -1031,23 +1030,23 @@ get_docstring("CovarianceAnalysisInput.set_constant_vector_weight_per_observable
 R"doc(Function to define specific settings for covariance analysis process
 
 	Function to define specific settings for covariance analysis process
-	
+
 
 	:param reintegrate_equations:
 		Boolean denoting whether the dynamics and variational equations are to be reintegrated
 		or if existing values are to be used to perform first iteration.
-		
+
 	:param reintegrate_variational_equations:
-		Boolean denoting whether the variational equations are to be reintegrated during estimation 
+		Boolean denoting whether the variational equations are to be reintegrated during estimation
 		(if this is set to False, and ``reintegrate_equations`` to true, only the dynamics are re-integrated)
-		
+
 	:param save_design_matrix:
 		Boolean denoting whether to save the partials matrix (also called design matrix) :math:`\mathbf{H}` in the output. Setting this to false makes the
 		:math:`\mathbf{H}` matrix unavailable to the user, with the advantage of lower RAM usage.
-		
+
 	:param print_output_to_terminal:
 		Boolean denoting whether to print covariance-analysis-specific output to the terminal when running the estimation.
-		
+
 	:return:
 		Function modifies the object in-place.
 )doc")
@@ -1089,7 +1088,7 @@ R"doc(Class for defining all inputs to the estimation.
 R"doc(Class constructor.
 
 	Constructor through which the user can create instances of this class.
-	
+
 
 	:param observations_and_times:
 		Total data structure of observations and associated times/link ends/type/etc.
@@ -1118,29 +1117,29 @@ R"doc(Class constructor.
 R"doc(Function to define specific settings for the estimation process
 
 	Function to define specific settings for covariance analysis process
-	
+
 
 	:param reintegrate_equations_on_first_iteration:
 		Boolean denoting whether the dynamics and variational equations are to be reintegrated
 		or if existing values are to be used to perform first iteration.
-		
+
 	:param reintegrate_variational_equations:
-		Boolean denoting whether the variational equations are to be reintegrated during estimation 
+		Boolean denoting whether the variational equations are to be reintegrated during estimation
 		(if this is set to False, and ``reintegrate_equations_on_first_iteration`` to true, only the dynamics are re-integrated)
-		
+
 	:param save_design_matrix:
 		Boolean denoting whether to save the partials matrix (also called design matrix) :math:`\mathbf{H}` in the output. Setting this to false makes the
 		:math:`\mathbf{H}` matrix unavailable to the user, with the advantage of lower RAM usage.
-		
+
 	:param print_output_to_terminal:
 		Boolean denoting whether to print covariance-analysis-specific output to the terminal when running the estimation.
-		
+
 	:param save_residuals_and_parameters_per_iteration:
 		Boolean denoting whether the residuals and parameters from the each iteration are to be saved.
-		
+
 	:param save_state_history_per_iteration:
 		Boolean denoting whether the state history and dependent variables are to be saved on each iteration.
-		
+
 	:return:
 		Function modifies the object in-place.
 )doc");
@@ -1219,27 +1218,27 @@ R"doc(Matrix of weighted, normalized partial derivatives, equal to :math:`\mathb
                         "consider_covariance_contribution",
                         &tss::CovarianceAnalysisOutput<double, TIME_TYPE>::
                             getConsiderCovarianceContribution,
-get_docstring("CovarianceAnalysisOutput.consider_covariance_contribution").c_str())
+"")
                     .def_property_readonly(
                         "normalized_covariance_with_consider_parameters",
                         &tss::CovarianceAnalysisOutput<double, TIME_TYPE>::
                             getNormalizedCovarianceWithConsiderParameters,
-get_docstring("CovarianceAnalysisOutput.normalized_covariance_with_consider_parameters").c_str())
+"")
                     .def_property_readonly(
                         "unnormalized_covariance_with_consider_parameters",
                         &tss::CovarianceAnalysisOutput<double, TIME_TYPE>::
                             getUnnormalizedCovarianceWithConsiderParameters,
-get_docstring("CovarianceAnalysisOutput.unnormalized_covariance_with_consider_parameters").c_str())
+"")
                     .def_property_readonly(
                         "normalized_design_matrix_consider_parameters",
                         &tss::CovarianceAnalysisOutput<double, TIME_TYPE>::
                             getNormalizedDesignMatrixConsiderParameters,
-get_docstring("CovarianceAnalysisOutput.normalized_design_matrix_consider_parameters").c_str())
+"")
                     .def_property_readonly(
                         "consider_normalization_factors",
                         &tss::CovarianceAnalysisOutput<
                             double, TIME_TYPE>::getConsiderNormalizationFactors,
-get_docstring("CovarianceAnalysisOutput.consider_normalization_factors").c_str())
+"")
                     .def_readonly(
                         "normalization_terms",
                         &tss::CovarianceAnalysisOutput<double, TIME_TYPE>::
@@ -1283,12 +1282,12 @@ R"doc(Vector of post-fit observation residuals.
                         "final_parameters",
                         &tss::EstimationOutput<double,
                                                TIME_TYPE>::parameterEstimate_,
-get_docstring("EstimationOutput.final_parameters").c_str())
+"")
                     .def_readonly(
                         "best_iteration",
                         &tss::EstimationOutput<double,
                                                TIME_TYPE>::bestIteration_,
-get_docstring("EstimationOutput.best_iteration").c_str());
+"");
 
                 m.attr("PodOutput") = m.attr("EstimationOutput");
             }

@@ -18,7 +18,6 @@
 #include <tudat/astro/basic_astro.h>
 #include <tudat/astro/propagators.h>
 
-#include "tudatpy/docstrings.h"
 #include "tudatpy/scalarTypes.h"
 
 namespace py = pybind11;
@@ -104,7 +103,7 @@ namespace tudatpy {
 R"doc(Function to get the states of a set of bodies, with respect to some set of central bodies, at the requested time.
 
 	Function to get the states of a set of bodies, with respect to some set of central bodies, at the requested time.
-	
+
 
 	:param bodies_to_propagate:
 		List of bodies to be propagated.
@@ -152,23 +151,23 @@ R"doc(Function to get the states of a set of bodies, with respect to some set of
                     std::shared_ptr<tp::DampedInitialRotationalStateResults<
                         TIME_TYPE, double>>>(
                     m, "RotationalProperModeDampingResults",
-get_docstring("RotationalProperModeDampingResults").c_str())
+"")
                     .def_readwrite("damped_initial_state",
                                    &tp::DampedInitialRotationalStateResults<
                                        TIME_TYPE, double>::initialState_,
-get_docstring("RotationalProperModeDampingResults.damped_initial_state").c_str())
+"")
                     .def_readwrite(
                         "forward_backward_states",
                         &tp::DampedInitialRotationalStateResults<
                             TIME_TYPE,
                             double>::forwardBackwardPropagatedStates_,
-get_docstring("RotationalProperModeDampingResults.forward_backward_states").c_str())
+"")
                     .def_readwrite(
                         "forward_backward_dependent_variables",
                         &tp::DampedInitialRotationalStateResults<
                             TIME_TYPE,
                             double>::forwardBackwardDependentVariables_,
-get_docstring("RotationalProperModeDampingResults.forward_backward_dependent_variables").c_str());
+"");
 
                 m.def(
                     "get_damped_proper_mode_initial_rotational_state",
@@ -183,7 +182,7 @@ get_docstring("RotationalProperModeDampingResults.forward_backward_dependent_var
                     py::arg("body_mean_rotational_rate"),
                     py::arg("dissipation_times"),
                     py::arg("propagate_undamped") = true,
-get_docstring("get_damped_proper_mode_initial_rotational_state").c_str());
+"");
 
                 m.def("combine_initial_states",
                       &tp::createCombinedInitialState<double, TIME_TYPE>,
@@ -193,7 +192,7 @@ R"doc(Function to retrieve the initial state for a list of propagator settings.
 	Function to retrieve the initial state for a list of propagator settings. This way, the initial state for
 	different quantities to be propagated (e.g., translational state, rotational state, mass) are retrieved and
 	organized in a single container.
-	
+
 
 	:param propagator_settings_per_type:
 		Propagator settings where the type of propagation is reported as key and the respective list of propagator settings as value.
@@ -271,31 +270,31 @@ has a meaningful definition if the ``termination_reason`` has value ``terminatio
                         tp::PropagationTerminationDetailsFromHybridCondition>,
                     tp::PropagationTerminationDetails>(
                     m, "PropagationTerminationDetailsFromHybridCondition",
-get_docstring("PropagationTerminationDetailsFromHybridCondition").c_str())
+"")
                     .def_property_readonly(
                         "was_condition_met_when_stopping",
                         &tp::PropagationTerminationDetailsFromHybridCondition::
                             getWasConditionMetWhenStopping,
-get_docstring("PropagationTerminationDetailsFromHybridCondition.was_condition_met_when_stopping").c_str());
+"");
 
                 py::class_<tp::DependentVariablesInterface<TIME_TYPE>,
                            std::shared_ptr<
                                tp::DependentVariablesInterface<TIME_TYPE>>>(
                     m, "DependentVariablesInterface",
-get_docstring("DependentVariablesInterface").c_str());
+"");
 
                 py::class_<
                     tp::SimulationResults<double, TIME_TYPE>,
                     std::shared_ptr<tp::SimulationResults<double, TIME_TYPE>>>(
                     m, "SimulationResults",
 R"doc(	Base class for objects that store all results of a numerical propagation. Derived class are implemented for single-, multi- and hybrid-arc propagation of botj dynamics and variational equations
-	
+
 )doc")
                     .def_property_readonly(
                         "dependent_variable_interface",
                         &tp::SimulationResults<
                             double, TIME_TYPE>::getDependentVariablesInterface,
-get_docstring("SimulationResults.dependent_variable_interface").c_str());
+"");
 
                 py::class_<tp::SingleArcSimulationResults<double, TIME_TYPE>,
                            std::shared_ptr<tp::SingleArcSimulationResults<
@@ -367,17 +366,17 @@ since the beginning of the (single-arc) propagation.
                         "cumulative_number_of_function_evaluations_history",
                         &tp::SingleArcSimulationResults<double, TIME_TYPE>::
                             getCumulativeNumberOfFunctionEvaluations,
-get_docstring("SingleArcSimulationResults.cumulative_number_of_function_evaluations_history").c_str())
+"")
                     .def_property_readonly(
                         "total_computation_time",
                         &tp::SingleArcSimulationResults<
                             double, TIME_TYPE>::getTotalComputationRuntime,
-get_docstring("SingleArcSimulationResults.total_computation_time").c_str())
+"")
                     .def_property_readonly(
                         "total_number_of_function_evaluations",
                         &tp::SingleArcSimulationResults<double, TIME_TYPE>::
                             getTotalNumberOfFunctionEvaluations,
-get_docstring("SingleArcSimulationResults.total_number_of_function_evaluations").c_str())
+"")
                     .def_property_readonly(
                         "termination_details",
                         &tp::SingleArcSimulationResults<
@@ -406,12 +405,12 @@ R"doc(Key-value container with the starting entry of the dependent variables sav
                         "ordered_dependent_variable_settings",
                         &tp::SingleArcSimulationResults<double, TIME_TYPE>::
                             getOrderedDependentVariableSettings,
-get_docstring("SingleArcSimulationResults.ordered_dependent_variable_settings").c_str())
+"")
                     .def_property_readonly(
                         "unordered_dependent_variable_settings",
                         &tp::SingleArcSimulationResults<double, TIME_TYPE>::
                             getOriginalDependentVariableSettings,
-get_docstring("SingleArcSimulationResults.unordered_dependent_variable_settings").c_str())
+"")
                     .def_property_readonly(
                         "processed_state_ids",
                         &tp::SingleArcSimulationResults<
@@ -430,22 +429,22 @@ R"doc(Key-value container with the starting entry of the states (key), along wit
                         "initial_and_final_times",
                         &tp::SingleArcSimulationResults<
                             double, TIME_TYPE>::getArcInitialAndFinalTime,
-get_docstring("SingleArcSimulationResults.initial_and_final_times").c_str())
+"")
                     .def_property_readonly(
                         "propagated_state_vector_length",
                         &tp::SingleArcSimulationResults<
                             double, TIME_TYPE>::getPropagatedStateSize,
-get_docstring("SingleArcSimulationResults.propagated_state_vector_length").c_str())
+"")
                     .def_property_readonly(
                         "propagation_is_performed",
                         &tp::SingleArcSimulationResults<
                             double, TIME_TYPE>::getPropagationIsPerformed,
-get_docstring("SingleArcSimulationResults.propagation_is_performed").c_str())
+"")
                     .def_property_readonly(
                         "solution_is_cleared",
                         &tp::SingleArcSimulationResults<
                             double, TIME_TYPE>::getSolutionIsCleared,
-get_docstring("SingleArcSimulationResults.solution_is_cleared").c_str());
+"");
 
                 py::class_<
                     tp::SingleArcVariationalSimulationResults<double,
@@ -454,22 +453,22 @@ get_docstring("SingleArcSimulationResults.solution_is_cleared").c_str());
                         double, TIME_TYPE>>,
                     tp::SimulationResults<double, TIME_TYPE>>(
                     m, "SingleArcVariationalSimulationResults",
-get_docstring("SingleArcVariationalSimulationResults").c_str())
+"")
                     .def_property_readonly(
                         "state_transition_matrix_history",
                         &tp::SingleArcVariationalSimulationResults<
                             double, TIME_TYPE>::getStateTransitionSolution,
-get_docstring("SingleArcVariationalSimulationResults.state_transition_matrix_history").c_str())
+"")
                     .def_property_readonly(
                         "sensitivity_matrix_history",
                         &tp::SingleArcVariationalSimulationResults<
                             double, TIME_TYPE>::getSensitivitySolution,
-get_docstring("SingleArcVariationalSimulationResults.sensitivity_matrix_history").c_str())
+"")
                     .def_property_readonly(
                         "dynamics_results",
                         &tp::SingleArcVariationalSimulationResults<
                             double, TIME_TYPE>::getDynamicsResults,
-get_docstring("SingleArcVariationalSimulationResults.dynamics_results").c_str());
+"");
 
                 py::class_<
                     tp::MultiArcSimulationResults<
@@ -478,37 +477,37 @@ get_docstring("SingleArcVariationalSimulationResults.dynamics_results").c_str())
                         tp::SingleArcSimulationResults, double, TIME_TYPE>>,
                     tp::SimulationResults<double, TIME_TYPE>>(
                     m, "MultiArcSimulationResults",
-get_docstring("MultiArcSimulationResults").c_str())
+"")
                     .def_property_readonly(
                         "single_arc_results",
                         &tp::MultiArcSimulationResults<
                             tp::SingleArcSimulationResults, double,
                             TIME_TYPE>::getSingleArcResults,
-get_docstring("MultiArcSimulationResults.single_arc_results").c_str())
+"")
                     .def_property_readonly(
                         "arc_start_times",
                         &tp::MultiArcSimulationResults<
                             tp::SingleArcSimulationResults, double,
                             TIME_TYPE>::getArcStartTimes,
-get_docstring("MultiArcSimulationResults.arc_start_times").c_str())
+"")
                     .def_property_readonly(
                         "arc_end_times",
                         &tp::MultiArcSimulationResults<
                             tp::SingleArcSimulationResults, double,
                             TIME_TYPE>::getArcEndTimes,
-get_docstring("MultiArcSimulationResults.arc_end_times").c_str())
+"")
                     .def_property_readonly(
                         "propagation_is_performed",
                         &tp::MultiArcSimulationResults<
                             tp::SingleArcSimulationResults, double,
                             TIME_TYPE>::getPropagationIsPerformed,
-get_docstring("MultiArcSimulationResults.propagation_is_performed").c_str())
+"")
                     .def_property_readonly(
                         "solution_is_cleared",
                         &tp::MultiArcSimulationResults<
                             tp::SingleArcSimulationResults, double,
                             TIME_TYPE>::getSolutionIsCleared,
-get_docstring("MultiArcSimulationResults.solution_is_cleared").c_str());
+"");
 
                 py::class_<tp::MultiArcSimulationResults<
                                tp::SingleArcVariationalSimulationResults,
@@ -518,37 +517,37 @@ get_docstring("MultiArcSimulationResults.solution_is_cleared").c_str());
                                double, TIME_TYPE>>,
                            tp::SimulationResults<double, TIME_TYPE>>(
                     m, "MultiArcVariationalSimulationResults",
-get_docstring("MultiArcVariationalSimulationResults").c_str())
+"")
                     .def_property_readonly(
                         "single_arc_results",
                         &tp::MultiArcSimulationResults<
                             tp::SingleArcVariationalSimulationResults, double,
                             TIME_TYPE>::getSingleArcResults,
-get_docstring("MultiArcVariationalSimulationResults.single_arc_results").c_str())
+"")
                     .def_property_readonly(
                         "arc_start_times",
                         &tp::MultiArcSimulationResults<
                             tp::SingleArcVariationalSimulationResults, double,
                             TIME_TYPE>::getArcStartTimes,
-get_docstring("MultiArcVariationalSimulationResults.arc_start_times").c_str())
+"")
                     .def_property_readonly(
                         "arc_end_times",
                         &tp::MultiArcSimulationResults<
                             tp::SingleArcVariationalSimulationResults, double,
                             TIME_TYPE>::getArcEndTimes,
-get_docstring("MultiArcVariationalSimulationResults.arc_end_times").c_str())
+"")
                     .def_property_readonly(
                         "propagation_is_performed",
                         &tp::MultiArcSimulationResults<
                             tp::SingleArcVariationalSimulationResults, double,
                             TIME_TYPE>::getPropagationIsPerformed,
-get_docstring("MultiArcVariationalSimulationResults.propagation_is_performed").c_str())
+"")
                     .def_property_readonly(
                         "solution_is_cleared",
                         &tp::MultiArcSimulationResults<
                             tp::SingleArcVariationalSimulationResults, double,
                             TIME_TYPE>::getSolutionIsCleared,
-get_docstring("MultiArcVariationalSimulationResults.solution_is_cleared").c_str());
+"");
 
                 py::class_<
                     tp::HybridArcSimulationResults<
@@ -557,19 +556,19 @@ get_docstring("MultiArcVariationalSimulationResults.solution_is_cleared").c_str(
                         tp::SingleArcSimulationResults, double, TIME_TYPE>>,
                     tp::SimulationResults<double, TIME_TYPE>>(
                     m, "HybridArcSimulationResults",
-get_docstring("HybridArcSimulationResults").c_str())
+"")
                     .def_property_readonly(
                         "single_arc_results",
                         &tp::HybridArcSimulationResults<
                             tp::SingleArcSimulationResults, double,
                             TIME_TYPE>::getSingleArcResults,
-get_docstring("HybridArcSimulationResults.single_arc_results").c_str())
+"")
                     .def_property_readonly(
                         "multi_arc_results",
                         &tp::HybridArcSimulationResults<
                             tp::SingleArcSimulationResults, double,
                             TIME_TYPE>::getMultiArcResults,
-get_docstring("HybridArcSimulationResults.arc_start_times").c_str());
+"");
 
                 py::class_<tp::HybridArcSimulationResults<
                                tp::SingleArcVariationalSimulationResults,
@@ -579,19 +578,19 @@ get_docstring("HybridArcSimulationResults.arc_start_times").c_str());
                                double, TIME_TYPE>>,
                            tp::SimulationResults<double, TIME_TYPE>>(
                     m, "HybridArcVariationalSimulationResults",
-get_docstring("HybridArcVariationalSimulationResults").c_str())
+"")
                     .def_property_readonly(
                         "single_arc_results",
                         &tp::HybridArcSimulationResults<
                             tp::SingleArcVariationalSimulationResults, double,
                             TIME_TYPE>::getSingleArcResults,
-get_docstring("HybridArcVariationalSimulationResults.single_arc_results").c_str())
+"")
                     .def_property_readonly(
                         "multi_arc_results",
                         &tp::HybridArcSimulationResults<
                             tp::SingleArcVariationalSimulationResults, double,
                             TIME_TYPE>::getMultiArcResults,
-get_docstring("HybridArcVariationalSimulationResults.arc_start_times").c_str());
+"");
 
                 py::class_<tpr::ThrustMagnitudeWrapper,
                            std::shared_ptr<tpr::ThrustMagnitudeWrapper>>(

@@ -17,7 +17,6 @@
 #include <tudat/astro/propagators/getZeroProperModeRotationalInitialState.h>
 #include <tudat/simulation/propagation_setup.h>
 
-#include "tudatpy/docstrings.h"
 #include "tudatpy/scalarTypes.h"
 
 namespace py = pybind11;
@@ -254,9 +253,7 @@ body with the numerical results.
                                 getUpdateDependentVariableInterpolator,
                             &tp::PropagatorProcessingSettings::
                                 setUpdateDependentVariableInterpolator,
-                            get_docstring("PropagatorProcessingSettings.create_"
-                                          "dependent_variable_interface")
-                                .c_str());
+"");
 
                     py::class_<tp::SingleArcPropagatorProcessingSettings,
                                std::shared_ptr<
@@ -346,9 +343,7 @@ the current state is printed as soon as *one* of the two conditions (number of s
                             "identical_settings_per_arc",
                             &tp::MultiArcPropagatorProcessingSettings::
                                 useIdenticalSettings,
-                            get_docstring("MultiArcPropagatorProcessingSettings"
-                                          ".identical_settings_per_arc")
-                                .c_str())
+"")
                         .def_property_readonly(
                             "single_arc_settings",
                             &tp::MultiArcPropagatorProcessingSettings::
@@ -432,49 +427,34 @@ the current state is printed as soon as *one* of the two conditions (number of s
                             "undefined_translational_propagator",
                             tp::TranslationalPropagatorType::
                                 undefined_translational_propagator,
-                            get_docstring("TranslationalPropagatorType."
-                                          "undefined_translational_propagator")
-                                .c_str())
+"")
                         .value(
                             "cowell", tp::TranslationalPropagatorType::cowell,
-                            get_docstring("TranslationalPropagatorType.cowell")
-                                .c_str())
+"")
                         .value(
                             "encke", tp::TranslationalPropagatorType::encke,
-                            get_docstring("TranslationalPropagatorType.encke")
-                                .c_str())
+"")
                         .value(
                             "gauss_keplerian",
                             tp::TranslationalPropagatorType::gauss_keplerian,
-                            get_docstring(
-                                "TranslationalPropagatorType.gauss_keplerian")
-                                .c_str())
+"")
                         .value("gauss_modified_equinoctial",
                                tp::TranslationalPropagatorType::
                                    gauss_modified_equinoctial,
-                               get_docstring("TranslationalPropagatorType."
-                                             "gauss_modified_equinoctial")
-                                   .c_str())
+"")
                         .value("unified_state_model_quaternions",
                                tp::TranslationalPropagatorType::
                                    unified_state_model_quaternions,
-                               get_docstring("TranslationalPropagatorType."
-                                             "unified_state_model_quaternions")
-                                   .c_str())
+"")
                         .value(
                             "unified_state_model_modified_rodrigues_parameters",
                             tp::TranslationalPropagatorType::
                                 unified_state_model_modified_rodrigues_parameters,
-                            get_docstring(
-                                "TranslationalPropagatorType.unified_state_"
-                                "model_modified_rodrigues_parameters")
-                                .c_str())
+"")
                         .value(
                             "unified_state_model_exponential_map",
                             tp::unified_state_model_exponential_map,
-                            get_docstring("TranslationalPropagatorType.unified_"
-                                          "state_model_exponential_map")
-                                .c_str())
+"")
                         .export_values();
 
                     py::enum_<tp::RotationalPropagatorType>(
@@ -490,25 +470,17 @@ the current state is printed as soon as *one* of the two conditions (number of s
                         .value("undefined_rotational_propagator",
                                tp::RotationalPropagatorType::
                                    undefined_rotational_propagator,
-                               get_docstring("RotationalPropagatorType."
-                                             "undefined_rotational_propagator")
-                                   .c_str())
+"")
                         .value("quaternions",
                                tp::RotationalPropagatorType::quaternions,
-                               get_docstring(
-                                   "RotationalPropagatorType.quaternions")
-                                   .c_str())
+"")
                         .value("modified_rodrigues_parameters",
                                tp::RotationalPropagatorType::
                                    modified_rodrigues_parameters,
-                               get_docstring("RotationalPropagatorType."
-                                             "modified_rodrigues_parameters")
-                                   .c_str())
+"")
                         .value("exponential_map",
                                tp::RotationalPropagatorType::exponential_map,
-                               get_docstring(
-                                   "RotationalPropagatorType.exponential_map")
-                                   .c_str())
+"")
                         .export_values();
 
                     py::enum_<tp::PropagationTerminationTypes>(
@@ -525,34 +497,23 @@ the current state is printed as soon as *one* of the two conditions (number of s
                         .value("time_stopping_condition_type",
                                tp::PropagationTerminationTypes::
                                    time_stopping_condition,
-                               get_docstring("PropagationTerminationTypes.time_"
-                                             "stopping_condition_type")
-                                   .c_str())
+"")
                         .value("cpu_time_stopping_condition_type",
                                tp::PropagationTerminationTypes::
                                    cpu_time_stopping_condition,
-                               get_docstring("PropagationTerminationTypes.cpu_"
-                                             "time_stopping_condition_type")
-                                   .c_str())
+"")
                         .value("dependent_variable_stopping_condition_type",
                                tp::PropagationTerminationTypes::
                                    dependent_variable_stopping_condition,
-                               get_docstring(
-                                   "PropagationTerminationTypes.dependent_"
-                                   "variable_stopping_condition_type")
-                                   .c_str())
+"")
                         .value("hybrid_stopping_condition_type",
                                tp::PropagationTerminationTypes::
                                    hybrid_stopping_condition,
-                               get_docstring("PropagationTerminationTypes."
-                                             "hybrid_stopping_condition_type")
-                                   .c_str())
+"")
                         .value("custom_stopping_condition_type",
                                tp::PropagationTerminationTypes::
                                    custom_stopping_condition,
-                               get_docstring("PropagationTerminationTypes."
-                                             "custom_stopping_condition_type")
-                                   .c_str())
+"")
                         .export_values();
 
                     py::enum_<tp::IntegratedStateType>(
@@ -567,21 +528,20 @@ the current state is printed as soon as *one* of the two conditions (number of s
 	:member custom_type:
 )doc")
                         .value("hybrid_type", tp::IntegratedStateType::hybrid,
-                               get_docstring("StateType.hybrid_type").c_str())
+"")
                         .value("translational_type",
                                tp::IntegratedStateType::translational_state,
-                               get_docstring("StateType.translational_type")
-                                   .c_str())
+"")
                         .value(
                             "rotational_type",
                             tp::IntegratedStateType::rotational_state,
-                            get_docstring("StateType.rotational_type").c_str())
+"")
                         .value("mass_type",
                                tp::IntegratedStateType::body_mass_state,
-                               get_docstring("StateType.mass_type").c_str())
+"")
                         .value("custom_type",
                                tp::IntegratedStateType::custom_state,
-                               get_docstring("StateType.custom_type").c_str())
+"")
                         .export_values();
 
 
@@ -610,8 +570,7 @@ the current state is printed as soon as *one* of the two conditions (number of s
                             "initial_states",
                             &tp::PropagatorSettings<double>::getInitialStates,
                             &tp::PropagatorSettings<double>::resetInitialStates,
-                            get_docstring("PropagatorSettings.initial_states")
-                                .c_str());
+"");
 
                     py::class_<
                         tp::MultiArcPropagatorSettings<double, TIME_TYPE>,
@@ -626,9 +585,7 @@ the current state is printed as soon as *one* of the two conditions (number of s
                             "processing_settings",
                             &tp::MultiArcPropagatorSettings<
                                 double, TIME_TYPE>::getOutputSettings,
-                            get_docstring(
-                                "MultiArcPropagatorSettings.print_settings")
-                                .c_str());
+"");
 
                     py::class_<
                         tp::HybridArcPropagatorSettings<double, TIME_TYPE>,
@@ -643,9 +600,7 @@ the current state is printed as soon as *one* of the two conditions (number of s
                             "processing_settings",
                             &tp::HybridArcPropagatorSettings<
                                 double, TIME_TYPE>::getOutputSettings,
-                            get_docstring(
-                                "HybridArcPropagatorSettings.print_settings")
-                                .c_str());
+"");
 
                     py::class_<
                         tp::SingleArcPropagatorSettings<double, TIME_TYPE>,
@@ -662,32 +617,24 @@ the current state is printed as soon as *one* of the two conditions (number of s
                                 double, TIME_TYPE>::getTerminationSettings,
                             &tp::SingleArcPropagatorSettings<
                                 double, TIME_TYPE>::resetTerminationSettings,
-                            get_docstring("SingleArcPropagatorSettings."
-                                          "termination_settings")
-                                .c_str())
+"")
                         .def_property(
                             "integrator_settings",
                             &tp::SingleArcPropagatorSettings<
                                 double, TIME_TYPE>::getIntegratorSettings,
                             &tp::SingleArcPropagatorSettings<
                                 double, TIME_TYPE>::setIntegratorSettings,
-                            get_docstring("SingleArcPropagatorSettings."
-                                          "termination_settings")
-                                .c_str())
+"")
                         .def_property_readonly(
                             "processing_settings",
                             &tp::SingleArcPropagatorSettings<
                                 double, TIME_TYPE>::getOutputSettings,
-                            get_docstring("SingleArcPropagatorSettings."
-                                          "processing_settings")
-                                .c_str())
+"")
                         .def_property_readonly(
                             "print_settings",
                             &tp::SingleArcPropagatorSettings<
                                 double, TIME_TYPE>::getPrintSettings,
-                            get_docstring(
-                                "SingleArcPropagatorSettings.print_settings")
-                                .c_str());
+"");
 
 
                     py::class_<
@@ -742,9 +689,7 @@ the current state is printed as soon as *one* of the two conditions (number of s
                             "propagator_settings_per_type",
                             &tp::MultiTypePropagatorSettings<
                                 double, TIME_TYPE>::getPropagatorSettingsMap,
-                            get_docstring("MultiTypePropagatorSettings."
-                                          "propagator_settings_per_type")
-                                .c_str());
+"");
 
                     py::class_<
                         tp::RotationalStatePropagatorSettings<double,
@@ -763,7 +708,7 @@ the current state is printed as soon as *one* of the two conditions (number of s
                             tp::MassPropagatorSettings<double, TIME_TYPE>>,
                         tp::SingleArcPropagatorSettings<double, TIME_TYPE>>(
                         m, "MassPropagatorSettings",
-                        get_docstring("MassPropagatorSettings").c_str());
+"");
 
                     py::class_<
                         tp::CustomStatePropagatorSettings<double, TIME_TYPE>,
@@ -771,7 +716,7 @@ the current state is printed as soon as *one* of the two conditions (number of s
                             double, TIME_TYPE>>,
                         tp::SingleArcPropagatorSettings<double, TIME_TYPE>>(
                         m, "CustomStatePropagatorSettings",
-                        get_docstring("CustomStatePropagatorSettings").c_str());
+"");
 
 
                     m.def(
@@ -993,7 +938,7 @@ the current state is printed as soon as *one* of the two conditions (number of s
                                   tp::SingleDependentVariableSaveSettings>>(),
                           py::arg("processing_settings") = std::make_shared<
                               tp::SingleArcPropagatorProcessingSettings>(),
-                          get_docstring("custom_state").c_str());
+"");
 
 
                     m.def(
@@ -1157,9 +1102,7 @@ the current state is printed as soon as *one* of the two conditions (number of s
                             tp::NonSequentialPropagationTerminationSettings>,
                         tp::PropagationTerminationSettings>(
                         m, "NonSequentialPropagationTerminationSettings",
-                        get_docstring(
-                            "NonSequentialPropagationTerminationSettings")
-                            .c_str());
+"");
 
                     //                .def(py::init<
                     //                             const
@@ -1293,7 +1236,7 @@ the current state is printed as soon as *one* of the two conditions (number of s
                           &tp::nonSequentialPropagationTerminationSettings,
                           py::arg("forward_termination_settings"),
                           py::arg("backward_termination_settings"),
-                          get_docstring("non_sequential_termination").c_str());
+"");
 
                     m.def(
                         "add_dependent_variable_settings",

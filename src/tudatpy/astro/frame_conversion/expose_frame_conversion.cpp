@@ -12,10 +12,10 @@
 #include <pybind11/functional.h>
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
+
 #include "tudat/astro/ephemerides/rotationalEphemeris.h"
 #include "tudat/astro/reference_frames.h"
 
-#include "tudatpy/docstrings.h"
 
 namespace trf = tudat::reference_frames;
 namespace te = tudat::ephemerides;
@@ -31,7 +31,7 @@ namespace tudatpy {
                     "inertial_to_rsw_rotation_matrix",
                     &trf::getInertialToRswSatelliteCenteredFrameRotationMatrix,
                     py::arg("inertial_cartesian_state"),
-R"doc(Computes the rotation matrix from inertial to RSW frame.
+                    R"doc(Computes the rotation matrix from inertial to RSW frame.
 
 
 	Function to compute the rotation matrix from inertial to RSW frame.
@@ -42,7 +42,7 @@ R"doc(Computes the rotation matrix from inertial to RSW frame.
 	with the velocity vector, except for circular orbits). The z-axis
 	is perpendicular to the orbital plane, and completes the
 	right-handed coordinate system.
-	
+
 
 	:param inertial_cartesian_state:
 		Cartesian state, in an inertial frame, for which the rotation
@@ -50,7 +50,7 @@ R"doc(Computes the rotation matrix from inertial to RSW frame.
 		w.r.t. some central body, and this Cartesian state must be
 		defined w.r.t. that central body (e.g. central body at the
 		origin).
-		
+
 	:return:
 		Rotation matrix from inertial to RSW frame.
 )doc");
@@ -59,7 +59,7 @@ R"doc(Computes the rotation matrix from inertial to RSW frame.
                     "rsw_to_inertial_rotation_matrix",
                     &trf::getRswSatelliteCenteredToInertialFrameRotationMatrix,
                     py::arg("inertial_cartesian_state"),
-R"doc(Computes the rotation matrix from RSW to inertial frame.
+                    R"doc(Computes the rotation matrix from RSW to inertial frame.
 
 
 	Function to compute the rotation matrix from RSW to inertial. The
@@ -70,7 +70,7 @@ R"doc(Computes the rotation matrix from RSW to inertial frame.
 	velocity vector, except for circular orbits). The z-axis is
 	perpendicular to the orbital plane, and completes the right-handed
 	coordinate system.
-	
+
 
 	:param inertial_cartesian_state:
 		Cartesian state, in an inertial frame, for which the rotation
@@ -78,17 +78,18 @@ R"doc(Computes the rotation matrix from RSW to inertial frame.
 		w.r.t. some central body, and this Cartesian state must be
 		defined w.r.t. that central body (e.g. central body at the
 		origin).
-		
+
 	:return:
 		Rotation matrix from RSW to inertial frame.
 )doc");
 
-                m.def("tnw_to_inertial_rotation_matrix",
-                      py::overload_cast<const Eigen::Vector6d &, const bool>(
-                          &trf::getTnwToInertialRotation),
-                      py::arg("inertial_cartesian_state"),
-                      py::arg("n_axis_points_away_from_central_body") = true,
-R"doc(Computes the rotation matrix from TNW to inertial frame.
+                m.def(
+                    "tnw_to_inertial_rotation_matrix",
+                    py::overload_cast<const Eigen::Vector6d &, const bool>(
+                        &trf::getTnwToInertialRotation),
+                    py::arg("inertial_cartesian_state"),
+                    py::arg("n_axis_points_away_from_central_body") = true,
+                    R"doc(Computes the rotation matrix from TNW to inertial frame.
 
 
 	Function to compute the rotation matrix from TNW to inertial frame.
@@ -100,7 +101,7 @@ R"doc(Computes the rotation matrix from TNW to inertial frame.
 	variable is set to false, see below). The z-axis is perpendicular
 	to the orbital plane, and completes the right-handed coordinate
 	system.
-	
+
 
 	:param inertial_cartesian_state:
 		Cartesian state, in an inertial frame, for which the rotation
@@ -108,22 +109,23 @@ R"doc(Computes the rotation matrix from TNW to inertial frame.
 		w.r.t. some central body, and this Cartesian state must be
 		defined w.r.t. that central body (e.g. central body at the
 		origin).
-		
+
 	:param n_axis_points_away_from_central_body:
 		Boolean (default=``True``) defining whether the N axis of the
 		TNW frame points away from the central body (if ``True``) or
 		towards the central body (if ``False``).
-		
+
 	:return:
 		Rotation matrix from TNW to inertial frame
 )doc");
 
-                m.def("inertial_to_tnw_rotation_matrix",
-                      py::overload_cast<const Eigen::Vector6d &, const bool>(
-                          &trf::getInertialToTnwRotation),
-                      py::arg("inertial_cartesian_state"),
-                      py::arg("n_axis_points_away_from_central_body") = true,
-R"doc(Computes the rotation matrix from inertial to TNW frame.
+                m.def(
+                    "inertial_to_tnw_rotation_matrix",
+                    py::overload_cast<const Eigen::Vector6d &, const bool>(
+                        &trf::getInertialToTnwRotation),
+                    py::arg("inertial_cartesian_state"),
+                    py::arg("n_axis_points_away_from_central_body") = true,
+                    R"doc(Computes the rotation matrix from inertial to TNW frame.
 
 
 	Function to compute the rotation matrix from inertial to TNW frame.
@@ -135,7 +137,7 @@ R"doc(Computes the rotation matrix from inertial to TNW frame.
 	variable is set to false, see below). The z-axis is perpendicular
 	to the orbital plane, and completes the right-handed coordinate
 	system.
-	
+
 
 	:param inertial_cartesian_state:
 		Cartesian state, in an inertial frame, for which the rotation
@@ -143,12 +145,12 @@ R"doc(Computes the rotation matrix from inertial to TNW frame.
 		w.r.t. some central body, and this Cartesian state must be
 		defined w.r.t. that central body (e.g. central body at the
 		origin).
-		
+
 	:param n_axis_points_away_from_central_body:
 		Boolean (default is ``True``) defining whether the N axis of the
 		TNW frame points away from the central body (if ``True``) or
 		towards the central body (if ``False``).
-		
+
 	:return:
 		Rotation matrix from inertial to TNW frame.
 )doc");
@@ -162,25 +164,25 @@ R"doc(Computes the rotation matrix from inertial to TNW frame.
                     py::arg("pole_declination"),
                     py::arg("pole_right_ascension"),
                     py::arg("prime_meridian_longitude"),
-R"doc(Computes the rotation matrix from inertial to body-fixed frame.
+                    R"doc(Computes the rotation matrix from inertial to body-fixed frame.
 
 
 	Function to compute the rotation matrix from inertial to body-fixed
 	frame, using typical pole right ascension (:math:`\alpha`), pole
 	declination (:math:`\delta`), and prime meridian longitude
 	(:math:`W`) angles.
-	
+
 
 	:param pole_declination:
 		Declination of body pole in inertial frame (:math:`\delta`).
-		
+
 	:param pole_right_ascension:
 		Right ascension of body pole in inertial frame (:math:`\alpha`).
-		
+
 	:param prime_meridian_longitude:
 		Longitude of prime meridian w.r.t. intermediate frame
 		(:math:`W`).
-		
+
 	:return:
 		Rotation matrix from inertial to body-fixed frame
 )doc");
@@ -192,28 +194,28 @@ R"doc(Computes the rotation matrix from inertial to body-fixed frame.
                             getRotatingPlanetocentricToInertialFrameTransformationMatrix),
                     py::arg("pole_declination"),
                     py::arg("pole_right_ascension"), py::arg("pole_meridian"),
-R"doc(Computes the rotation matrix from body-fixed to inertial frame.
+                    R"doc(Computes the rotation matrix from body-fixed to inertial frame.
 
 
 	Function to compute the rotation matrix from body-fixed to inertial
 	frame, using typical pole right ascension (:math:`\alpha`), pole
 	declination (:math:`\delta`), and prime meridian longitude
 	(:math:`W`) angles.
-	
+
 
 	:param pole_declination:
 		Declination of body pole in inertial frame (:math:`\delta`).
-		
+
 	:param pole_right_ascension:
 		Right ascension of body pole in inertial frame (:math:`\alpha`).
-		
+
 	:param prime_meridian_longitude:
 		Longitude of prime meridian w.r.t. intermediate frame
 		(:math:`W`).
-		
+
 	:return:
 		Rotation matrix from body-fixed to inertial frame.
-		
+
 )doc");
 
 

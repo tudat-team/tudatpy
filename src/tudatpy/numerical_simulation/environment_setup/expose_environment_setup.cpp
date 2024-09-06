@@ -17,7 +17,6 @@
 #include <tudat/astro/reference_frames/referenceFrameTransformations.h>
 #include <tudat/simulation/environment_setup.h>
 
-#include "tudatpy/docstrings.h"
 #include "tudatpy/scalarTypes.h"
 
 namespace py = pybind11;
@@ -106,55 +105,40 @@ assigned by using a factory function from the :ref:`\`\`shape\`\`` module.
                     .def_readwrite(
                         "aerodynamic_coefficient_settings",
                         &tss::BodySettings::aerodynamicCoefficientSettings,
-                        get_docstring(
-                            "BodySettings.aerodynamic_coefficient_settings")
-                            .c_str())
+"")
                     .def_readwrite(
                         "gravity_field_variation_settings",
                         &tss::BodySettings::gravityFieldVariationSettings,
-                        get_docstring(
-                            "BodySettings.gravity_field_variation_settings")
-                            .c_str())
+"")
                     .def_readwrite(
                         "shape_deformation_settings",
                         &tss::BodySettings::bodyDeformationSettings,
-                        get_docstring("BodySettings.shape_deformation_settings")
-                            .c_str())
+"")
                     .def_readwrite(
                         "ground_station_settings",
                         &tss::BodySettings::groundStationSettings,
-                        get_docstring("BodySettings.ground_station_settings")
-                            .c_str())
+"")
                     .def_readwrite(
                         "rigid_body_settings",
                         &tss::BodySettings::rigidBodyPropertiesSettings,
-                        get_docstring(
-                            "BodySettings.rigidBodyPropertiesSettings")
-                            .c_str())
+"")
                     .def_readwrite(
                         "radiation_pressure_target_settings",
                         &tss::BodySettings::
                             radiationPressureTargetModelSettings,
-                        get_docstring(
-                            "BodySettings.rigidBodyPropertiesSettings")
-                            .c_str())
+"")
                     .def_readwrite(
                         "radiation_source_settings",
                         &tss::BodySettings::radiationSourceModelSettings,
-                        get_docstring(
-                            "BodySettings.rigidBodyPropertiesSettings")
-                            .c_str())
+"")
                     .def_readwrite(
                         "vehicle_shape_settings",
                         &tss::BodySettings::bodyExteriorPanelSettings_,
-                        get_docstring("BodySettings.vehicle_shape_settings")
-                            .c_str())
+"")
                     .def_readwrite(
                         "radiation_pressure_settings",
                         &tss::BodySettings::radiationPressureSettings,
-                        get_docstring(
-                            "BodySettings.radiation_pressure_settings")
-                            .c_str());
+"");
 
 
                 py::class_<tss::BodyListSettings,
@@ -260,7 +244,7 @@ assigned by using a factory function from the :ref:`\`\`shape\`\`` module.
                         &tss::getDefaultSingleBodySettings),
                     py::arg("body_name"),
                     py::arg("base_frame_orientation") = "ECLIPJ2000",
-                    get_docstring("get_default_single_body_settings").c_str());
+"");
 
                 m.def("get_default_single_body_settings_time_limited",
                       py::overload_cast<const std::string &, const double,
@@ -271,9 +255,7 @@ assigned by using a factory function from the :ref:`\`\`shape\`\`` module.
                       py::arg("final_time"),
                       py::arg("base_frame_orientation") = "ECLIPJ2000",
                       py::arg("time_step") = 300.0,
-                      get_docstring(
-                          "get_default_single_body_settings_time_limited")
-                          .c_str());
+"");
 
                 m.def(
                     "get_default_single_alternate_body_settings",
@@ -282,8 +264,7 @@ assigned by using a factory function from the :ref:`\`\`shape\`\`` module.
                         &tss::getDefaultSingleAlternateNameBodySettings),
                     py::arg("body_name"), py::arg("source_body_name"),
                     py::arg("base_frame_orientation") = "ECLIPJ2000",
-                    get_docstring("get_default_single_alternate_body_settings")
-                        .c_str());
+"");
 
                 m.def(
                     "get_default_single_alternate_body_settings_time_limited",
@@ -295,9 +276,7 @@ assigned by using a factory function from the :ref:`\`\`shape\`\`` module.
                     py::arg("initial_time"), py::arg("final_time"),
                     py::arg("base_frame_orientation") = "ECLIPJ2000",
                     py::arg("time_step") = 300.0,
-                    get_docstring("get_default_single_alternate_body_settings_"
-                                  "time_limited")
-                        .c_str());
+"");
 
                 m.def("create_simplified_system_of_bodies",
                       &tss::createSimplifiedSystemOfBodies,
@@ -337,7 +316,7 @@ assigned by using a factory function from the :ref:`\`\`shape\`\`` module.
                       py::arg("bodies"), py::arg("body_name"),
                       py::arg("ephemeris_origin") = "",
                       py::arg("is_part_of_multi_arc") = false,
-                      get_docstring("add_empty_tabulated_ephemeris").c_str());
+"");
 
                 m.def(
                     "create_tabulated_ephemeris_from_spice",
@@ -351,7 +330,7 @@ assigned by using a factory function from the :ref:`\`\`shape\`\`` module.
                 m.def("create_body_ephemeris",
                       &tss::createBodyEphemeris<double, TIME_TYPE>,
                       py::arg("ephemeris_settings"), py::arg("body_name"),
-                      get_docstring("create_body_ephemeris").c_str());
+"");
 
                 m.def(
                     "create_ground_station_ephemeris",
@@ -395,8 +374,7 @@ assigned by using a factory function from the :ref:`\`\`shape\`\`` module.
                       &tss::createAerodynamicCoefficientInterface,
                       py::arg("coefficient_settings"), py::arg("body"),
                       py::arg("bodies"),
-                      get_docstring("create_aerodynamic_coefficient_interface")
-                          .c_str());
+"");
 
                 m.def("add_radiation_pressure_interface",
                       &tss::addRadiationPressureInterface, py::arg("bodies"),
@@ -457,7 +435,7 @@ assigned by using a factory function from the :ref:`\`\`shape\`\`` module.
                     py::arg("gravity_field_settings"),
                     py::arg("gravity_field_variation_settings") = std::vector<
                         std::shared_ptr<tss::GravityFieldVariationSettings>>(),
-                    get_docstring("add_gravity_field_model").c_str());
+"");
 
                 m.def("add_mass_properties_model", &tss::addRigidBodyProperties,
                       py::arg("bodies"), py::arg("body_name"),
@@ -466,7 +444,7 @@ assigned by using a factory function from the :ref:`\`\`shape\`\`` module.
                 m.def("add_rigid_body_properties", &tss::addRigidBodyProperties,
                       py::arg("bodies"), py::arg("body_name"),
                       py::arg("rigid_body_property_settings"),
-                      get_docstring("add_rigid_body_properties").c_str());
+"");
 
 
                 m.def(
@@ -552,8 +530,7 @@ assigned by using a factory function from the :ref:`\`\`shape\`\`` module.
                     &trf::convertGroundStationStateBetweenItrfFrames,
                     py::arg("ground_station_state"), py::arg("epoch"),
                     py::arg("base_frame"), py::arg("target_frame"),
-                    get_docstring("convert_ground_station_state_between_frames")
-                        .c_str());
+"");
 
                 m.def(
                     "add_ground_station",
@@ -575,7 +552,7 @@ assigned by using a factory function from the :ref:`\`\`shape\`\`` module.
                           const std::shared_ptr<tss::GroundStationSettings>>(
                           &tss::createGroundStation),
                       py::arg("body"), py::arg("ground_station_settings"),
-                      get_docstring("add_ground_station").c_str());
+"");
 
                 m.def("create_radiation_pressure_interface",
                       &tss::createRadiationPressureInterface,

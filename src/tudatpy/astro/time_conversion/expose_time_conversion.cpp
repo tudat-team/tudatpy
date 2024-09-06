@@ -22,7 +22,6 @@
 #include "tudat/astro/basic_astro/timeConversions.h"
 #include "tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h"
 #include "tudat/math/basic/mathematicalConstants.h"
-#include "tudatpy/docstrings.h"
 #include "tudatpy/scalarTypes.h"
 
 namespace py = pybind11;
@@ -124,21 +123,21 @@ namespace tudatpy {
 
                 m.def("datetime_to_tudat", &timePointToDateTime,
                       py::arg("datetime"),
-get_docstring("datetime_to_tudat").c_str());
+"");
 
                 m.def("datetime_to_python", &dateTimeToTimePoint,
                       py::arg("datetime"),
-get_docstring("datetime_to_python").c_str());
+"");
 
                 m.def("add_seconds_to_datetime",
                       &tba::addSecondsToDateTime<TIME_TYPE>,
                       py::arg("datetime"), py::arg("seconds_to_add"),
-get_docstring("add_seconds_to_datetime").c_str());
+"");
 
                 m.def("add_days_to_datetime",
                       &tba::addDaysToDateTime<TIME_TYPE>, py::arg("datetime"),
                       py::arg("days_to_add"),
-get_docstring("add_days_to_datetime").c_str());
+"");
 
 
                 m.def("calendar_date_to_julian_day",
@@ -146,7 +145,7 @@ get_docstring("add_days_to_datetime").c_str());
                       py::arg("calendar_date"),
 R"doc(Convert a calendar date to Julian days.
 
-	
+
 
 	:param calendar_date:
 		Datetime, using the default Python library. Both the date and the time (hour, minutes, and seconds), can be specified. Milliseconds are ignored.
@@ -173,7 +172,7 @@ R"doc(Convert Julian days to a calendar date.
                     py::arg("calendar_date"),
                     py::arg("days_since_julian_day_zero") =
                         tba::JULIAN_DAY_ON_J2000,
-get_docstring("calendar_date_to_days_since_epoch").c_str());
+"");
 
                 m.def(
                     "julian_day_to_seconds_since_epoch",
@@ -183,7 +182,7 @@ get_docstring("calendar_date_to_days_since_epoch").c_str());
                         tba::JULIAN_DAY_ON_J2000,
 R"doc(Convert Julian days to seconds since a given epoch.
 
-	
+
 
 	:param julian_day:
 		Date in Julian days since January 1st 4713 BC.
@@ -199,7 +198,7 @@ R"doc(Convert Julian days to seconds since a given epoch.
                     py::arg("seconds_since_epoch"),
                     py::arg("days_since_julian_day_zero") =
                         tba::JULIAN_DAY_ON_J2000,
-get_docstring("seconds_since_epoch_to_julian_day").c_str());
+"");
 
                 m.def("seconds_since_epoch_to_julian_years_since_epoch",
                       &tba::convertSecondsSinceEpochToJulianYearsSinceEpoch<
@@ -207,15 +206,15 @@ get_docstring("seconds_since_epoch_to_julian_day").c_str());
                       py::arg("seconds_since_epoch"),
 R"doc(Convert the number of seconds since a given (unspecified) epoch to Julian years since the same epoch.
 
-	
+
 
 	:param seconds_since_epoch:
 		Seconds elapsed since a given (unspecified) epoch.
 	:return:
 		Julian years since the specified epoch.
-		
+
 		Since this is a float, not a integer, meaning that the fraction of the year is also included.
-		
+
 )doc");
 
                 m.def("seconds_since_epoch_to_julian_centuries_since_epoch",
@@ -224,15 +223,15 @@ R"doc(Convert the number of seconds since a given (unspecified) epoch to Julian 
                       py::arg("seconds_since_epoch"),
 R"doc(Convert the number of seconds since a given (unspecified) epoch to Julian centuries since the same epoch.
 
-	
+
 
 	:param seconds_since_epoch:
 		Seconds elapsed since a given (unspecified) epoch.
 	:return:
 		Julian centuries since the specified epoch.
-		
+
 		Since this is a float, not a integer, meaning that the fraction of the century is also included.
-		
+
 )doc");
 
                 m.def(
@@ -241,7 +240,7 @@ R"doc(Convert the number of seconds since a given (unspecified) epoch to Julian 
                     py::arg("julian_day"),
 R"doc(Convert a Julian day to a Modified Julian day.
 
-	
+
 
 	:param julian_day:
 		Date in Julian days (number of days since January 1st 4713 BC).
@@ -266,7 +265,7 @@ R"doc(Convert a Modified Julian day to a Julian day.
                 m.def("is_leap_year", &tba::isLeapYear, py::arg("year"),
 R"doc(Assess wether a year is a leap year or not.
 
-	
+
 
 	:param year:
 		Calendar year.
@@ -278,7 +277,7 @@ R"doc(Assess wether a year is a leap year or not.
                       py::arg("month"), py::arg("year"),
 R"doc(Get the number of days in the month of a given year.
 
-	
+
 
 	:param month:
 		Calendar month.
@@ -293,7 +292,7 @@ R"doc(Get the number of days in the month of a given year.
                       py::arg("julian_day"),
 R"doc(Determine the number of seconds that have elapsed in the given Julian day.
 
-	
+
 
 	:param julian_day:
 		Date in Julian days (number of days since January 1st 4713 BC).
@@ -318,9 +317,9 @@ R"doc(Convert time from the TCB scale to the TDB scale.
 R"doc(Convert time from the TBD scale to the TCB scale.
 
 	The TDB scale is the Barycentric Dynamical Time, and the TCB scale is the Barycentric Coordinate Time.
-	
+
 	Inverse function of :func:`TCB_to_TDB`.
-	
+
 
 	:param TDB_time:
 		Time in seconds since J2000, in the TDB time scale.
@@ -343,9 +342,9 @@ R"doc(Convert time from the TCG scale to the TT scale.
 R"doc(Convert time from the TT scale to the TCG scale.
 
 	The TT scale is the Terrestrial Time, and the TCG scale is the Geocentric Coordinate Time.
-	
+
 	Inverse function of :func:`TCG_to_TT`.
-	
+
 
 	:param TT_time:
 		Time in seconds since J2000, in the TT time scale.
@@ -368,9 +367,9 @@ R"doc(Convert time from the TAI scale to the TT scale.
 R"doc(Convert time from the TT scale to the TAI scale.
 
 	The TT scale is the Terrestrial Time, and the TAI scale is the International Atomic Time.
-	
+
 	Inverse function of :func:`TAI_to_TT`.
-	
+
 
 	:param TT_time:
 		Time in seconds since J2000, in the TT time scale.
@@ -401,12 +400,12 @@ R"doc(Approximately convert time from the TT scale to the TDB scale.
 
                 m.def("default_time_scale_converter",
                       &teo::createDefaultTimeConverterPy,
-get_docstring("default_time_scale_converter").c_str());
+"");
 
                 py::class_<teo::TerrestrialTimeScaleConverter,
                            std::shared_ptr<teo::TerrestrialTimeScaleConverter>>(
                     m, "TimeScaleConverter",
-get_docstring("TimeScaleConverter").c_str())
+"")
                     .def("convert_time",
                          &teo::TerrestrialTimeScaleConverter::getCurrentTime<
                              double>,
@@ -424,7 +423,7 @@ get_docstring("TimeScaleConverter").c_str())
 
 
                 py::class_<tba::DateTime>(m, "DateTime",
-get_docstring("DateTime").c_str())
+"")
                     .def(py::init<const int, const int, const int, const int,
                                   const int, const long double>(),
                          py::arg("year"), py::arg("month"), py::arg("day"),
@@ -432,47 +431,47 @@ get_docstring("DateTime").c_str())
                          py::arg("seconds") = 0.0L)
                     .def_property("year", &tba::DateTime::getYear,
                                   &tba::DateTime::setYear,
-get_docstring("DateTime.year").c_str())
+"")
                     .def_property("month", &tba::DateTime::getMonth,
                                   &tba::DateTime::setMonth,
-get_docstring("DateTime.month").c_str())
+"")
                     .def_property("day", &tba::DateTime::getDay,
                                   &tba::DateTime::setDay,
-get_docstring("DateTime.day").c_str())
+"")
                     .def_property("hour", &tba::DateTime::getHour,
                                   &tba::DateTime::setHour,
-get_docstring("DateTime.hour").c_str())
+"")
                     .def_property("minute", &tba::DateTime::getMinute,
                                   &tba::DateTime::setMinute,
-get_docstring("DateTime.minute").c_str())
+"")
                     .def_property("seconds", &tba::DateTime::getSeconds,
                                   &tba::DateTime::setSeconds,
-get_docstring("DateTime.seconds").c_str())
+"")
                     .def("iso_string", &tba::DateTime::isoString,
                          py::arg("add_T") = false,
                          py::arg("number_of_digits_seconds") = 15,
-get_docstring("DateTime.iso_string").c_str())
+"")
                     .def("day_of_year", &tba::DateTime::dayOfYear,
-get_docstring("DateTime.day_of_year").c_str())
+"")
                     .def("epoch", &tba::DateTime::epoch<TIME_TYPE>,
-get_docstring("DateTime.epoch").c_str())
+"")
                     .def("julian_day", &tba::DateTime::julianDay<double>,
-get_docstring("DateTime.julian_day").c_str())
+"")
                     .def("modified_julian_day",
                          &tba::DateTime::modifiedJulianDay<double>,
-get_docstring("DateTime.modified_julian_day").c_str());
+"");
 
 
                 m.def("epoch_from_date_time_components",
                       &tba::timeFromDecomposedDateTime<TIME_TYPE>,
                       py::arg("year"), py::arg("month"), py::arg("day"),
                       py::arg("hour"), py::arg("minute"), py::arg("seconds"),
-get_docstring("epoch_from_date_time_components").c_str());
+"");
 
                 m.def("epoch_from_date_time_iso_string",
                       &tba::timeFromIsoString<TIME_TYPE>,
                       py::arg("iso_datetime"),
-get_docstring("epoch_from_date_time_iso_string").c_str());
+"");
 
 
                 //    m.def("epoch_from_julian_day",
@@ -487,12 +486,12 @@ get_docstring("epoch_from_date_time_iso_string").c_str());
                 m.def("date_time_from_epoch",
                       &tba::getCalendarDateFromTime<TIME_TYPE>,
                       py::arg("epoch"),
-get_docstring("date_time_from_epoch").c_str());
+"");
 
                 m.def("date_time_from_iso_string",
                       &tba::getCalendarDateFromTime<TIME_TYPE>,
                       py::arg("iso_datetime"),
-get_docstring("date_time_from_iso_string").c_str());
+"");
 
 
                 /////////////// DEPRECATED

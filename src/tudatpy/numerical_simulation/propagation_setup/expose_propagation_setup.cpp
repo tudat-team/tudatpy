@@ -16,7 +16,6 @@
 #include <pybind11/stl.h>
 #include <tudat/simulation/propagation_setup.h>
 
-#include "tudatpy/docstrings.h"
 
 namespace py = pybind11;
 namespace tba = tudat::basic_astrodynamics;
@@ -33,20 +32,21 @@ namespace tudatpy {
         namespace propagation_setup {
 
             PYBIND11_MODULE(expose_propagation_setup, m) {
-                m.def("create_acceleration_models",
-                      py::overload_cast<const tss::SystemOfBodies &,
-                                        const tss::SelectedAccelerationMap &,
-                                        const std::vector<std::string> &,
-                                        const std::vector<std::string> &>(
-                          &tss::createAccelerationModelsMap),
-                      py::arg("body_system"),
-                      py::arg("selected_acceleration_per_body"),
-                      py::arg("bodies_to_propagate"), py::arg("central_bodies"),
-R"doc(Function to create a set of acceleration models from a dictionary of bodies linked to acceleration model types.
+                m.def(
+                    "create_acceleration_models",
+                    py::overload_cast<const tss::SystemOfBodies &,
+                                      const tss::SelectedAccelerationMap &,
+                                      const std::vector<std::string> &,
+                                      const std::vector<std::string> &>(
+                        &tss::createAccelerationModelsMap),
+                    py::arg("body_system"),
+                    py::arg("selected_acceleration_per_body"),
+                    py::arg("bodies_to_propagate"), py::arg("central_bodies"),
+                    R"doc(Function to create a set of acceleration models from a dictionary of bodies linked to acceleration model types.
 
 	Function to create a set of acceleration models from a map of bodies and acceleration model types. The propagated
 	bodies and central bodies are provided as two separate lists with the same order.
-	
+
 
 	:param body_system:
 		System of bodies to be used in the propagation.
@@ -60,15 +60,15 @@ R"doc(Function to create a set of acceleration models from a dictionary of bodie
 		Set of accelerations acting on the bodies to propagate, provided as dual key-value container, similar to the acceleration settings input, but now with ``AccelerationModel`` lists as inner value
 )doc");
 
-                m.def("create_torque_models", &tss::createTorqueModelsMap,
-                      py::arg("body_system"),
-                      py::arg("selected_torque_per_body"),
-                      py::arg("bodies_to_propagate"),
-R"doc(Function to create a set of acceleration models from a dictionary of bodies linked to acceleration model types.
+                m.def(
+                    "create_torque_models", &tss::createTorqueModelsMap,
+                    py::arg("body_system"), py::arg("selected_torque_per_body"),
+                    py::arg("bodies_to_propagate"),
+                    R"doc(Function to create a set of acceleration models from a dictionary of bodies linked to acceleration model types.
 
 	Function to create a set of acceleration models from a map of bodies and acceleration model types. The propagated
 	bodies is provided as a list.
-	
+
 
 	:param body_system:
 		System of bodies to be used in the propagation.
@@ -80,16 +80,17 @@ R"doc(Function to create a set of acceleration models from a dictionary of bodie
 		Set of torques acting on the bodies to propagate, provided as dual key-value container, similar to the torque settings input, but now with ``TorqueModel`` lists as inner value
 )doc");
 
-                m.def("create_mass_rate_models", &tss::createMassRateModelsMap,
-                      py::arg("body_system"),
-                      py::arg("selected_mass_rates_per_body"),
-                      py::arg("acceleration_models") = nullptr,
-R"doc(Function to create a set of mass-rate models from associated settings.
+                m.def(
+                    "create_mass_rate_models", &tss::createMassRateModelsMap,
+                    py::arg("body_system"),
+                    py::arg("selected_mass_rates_per_body"),
+                    py::arg("acceleration_models") = nullptr,
+                    R"doc(Function to create a set of mass-rate models from associated settings.
 
 	Function to create a set of mass-rate models from a map of bodies and mass-rate model types.
 	If the mass-rate depends on any acceleration models (e.g. thrust), the acceleration
 	models must be provided as an input.
-	
+
 
 	:param body_system:
 		System of bodies to be used in the propagation.

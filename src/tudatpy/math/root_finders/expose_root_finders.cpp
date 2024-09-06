@@ -11,8 +11,6 @@
 #include <pybind11/pybind11.h>
 #include <tudat/math/root_finders.h>
 
-#include "tudatpy/docstrings.h"
-
 namespace py = pybind11;
 namespace trf = tudat::root_finders;
 
@@ -38,23 +36,18 @@ namespace tudatpy {
 
                 py::enum_<trf::MaximumIterationHandling>(
                     m, "MaximumIterationHandling",
-                    get_docstring("MaximumIterationHandling").c_str())
+"")
                     .value(
                         "accept_result",
                         trf::MaximumIterationHandling::accept_result,
-                        get_docstring("MaximumIterationHandling.accept_result")
-                            .c_str())
+"")
                     .value("accept_result_with_warning",
                            trf::MaximumIterationHandling::
                                accept_result_with_warning,
-                           get_docstring("MaximumIterationHandling.accept_"
-                                         "result_with_warning")
-                               .c_str())
+"")
                     .value("throw_exception",
                            trf::MaximumIterationHandling::throw_exception,
-                           get_docstring(
-                               "MaximumIterationHandling.throw_exception")
-                               .c_str())
+"")
                     .export_values();
 
 
@@ -71,7 +64,7 @@ namespace tudatpy {
                 py::class_<trf::RootFinderSettings,
                            std::shared_ptr<trf::RootFinderSettings>>(
                     m, "RootFinderSettings",
-                    get_docstring("RootFinderSettings").c_str());
+"");
 
                 m.def("bisection", &trf::bisectionRootFinderSettings,
                       py::arg("relative_variable_tolerance") = TUDAT_NAN,
@@ -80,7 +73,7 @@ namespace tudatpy {
                       py::arg("maximum_iteration") = 1000,
                       py::arg("maximum_iteration_handling") =
                           trf::throw_exception,
-                      get_docstring("bisection").c_str());
+"");
 
 
                 m.def("newton_raphson", &trf::newtonRaphsonRootFinderSettings,
@@ -90,7 +83,7 @@ namespace tudatpy {
                       py::arg("maximum_iteration") = 1000,
                       py::arg("maximum_iteration_handling") =
                           trf::throw_exception,
-                      get_docstring("newton_raphson").c_str());
+"");
 
                 m.def("halley", &trf::halleyRootFinderSettings,
                       py::arg("relative_variable_tolerance") = TUDAT_NAN,
@@ -99,7 +92,7 @@ namespace tudatpy {
                       py::arg("maximum_iteration") = 1000,
                       py::arg("maximum_iteration_handling") =
                           trf::throw_exception,
-                      get_docstring("halley").c_str());
+"");
 
                 m.def("secant", &trf::secantRootFinderSettings,
                       py::arg("relative_variable_tolerance") = TUDAT_NAN,
@@ -108,7 +101,7 @@ namespace tudatpy {
                       py::arg("maximum_iteration") = 1000,
                       py::arg("maximum_iteration_handling") =
                           trf::throw_exception,
-                      get_docstring("secant").c_str());
+"");
             }
 
         }  // namespace root_finders

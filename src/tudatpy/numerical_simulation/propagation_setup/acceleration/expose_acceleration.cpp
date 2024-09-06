@@ -21,7 +21,6 @@
 #include <tudat/basics/deprecationWarnings.h>
 #include <tudat/simulation/propagation_setup.h>
 
-#include "tudatpy/docstrings.h"
 
 namespace py = pybind11;
 namespace tba = tudat::basic_astrodynamics;
@@ -105,7 +104,6 @@ namespace tudat {
             return nullptr;
         }
 
-
         //! @get_docstring(customAccelerationSettings)
         inline std::shared_ptr<AccelerationSettings> customAccelerationSettings(
             const std::function<Eigen::Vector3d(const double)>
@@ -138,108 +136,66 @@ namespace tudatpy {
 
 
                     py::enum_<tba::AvailableAcceleration>(
-                        m, "AvailableAcceleration",
-                        get_docstring("AvailableAcceleration").c_str())
+                        m, "AvailableAcceleration", "")
                         .value(
                             "undefined_acceleration_type",
                             tba::AvailableAcceleration::undefined_acceleration,
-                            get_docstring("AvailableAcceleration.undefined_"
-                                          "acceleration_type")
-                                .c_str())
-                        .value(
-                            "point_mass_gravity_type",
-                            tba::AvailableAcceleration::point_mass_gravity,
-                            get_docstring(
-                                "AvailableAcceleration.point_mass_gravity_type")
-                                .c_str())
+                            "")
+                        .value("point_mass_gravity_type",
+                               tba::AvailableAcceleration::point_mass_gravity,
+                               "")
                         .value("aerodynamic_type",
-                               tba::AvailableAcceleration::aerodynamic,
-                               get_docstring(
-                                   "AvailableAcceleration.aerodynamic_type")
-                                   .c_str())
+                               tba::AvailableAcceleration::aerodynamic, "")
                         .value("cannonball_radiation_pressure_type",
                                tba::AvailableAcceleration::
                                    cannon_ball_radiation_pressure,
-                               get_docstring("AvailableAcceleration.cannon_"
-                                             "ball_radiation_pressure_type")
-                                   .c_str())
+                               "")
                         .value("spherical_harmonic_gravity_type",
                                tba::AvailableAcceleration::
                                    spherical_harmonic_gravity,
-                               get_docstring("AvailableAcceleration.spherical_"
-                                             "harmonic_gravity_type")
-                                   .c_str())
+                               "")
                         .value("mutual_spherical_harmonic_gravity_type",
                                tba::AvailableAcceleration::
                                    mutual_spherical_harmonic_gravity,
-                               get_docstring("AvailableAcceleration.mutual_"
-                                             "spherical_harmonic_gravity_type")
-                                   .c_str())
-                        .value(
-                            "polyhedron_gravity_type",
-                            tba::AvailableAcceleration::polyhedron_gravity,
-                            get_docstring(
-                                "AvailableAcceleration.polyhedron_gravity_type")
-                                .c_str())
+                               "")
+                        .value("polyhedron_gravity_type",
+                               tba::AvailableAcceleration::polyhedron_gravity,
+                               "")
                         .value("ring_gravity_type",
-                               tba::AvailableAcceleration::ring_gravity,
-                               get_docstring(
-                                   "AvailableAcceleration.ring_gravity_type")
-                                   .c_str())
+                               tba::AvailableAcceleration::ring_gravity, "")
                         .value("thrust_acceleration_type",
                                tba::AvailableAcceleration::thrust_acceleration,
-                               get_docstring("AvailableAcceleration.thrust_"
-                                             "acceleration_type")
-                                   .c_str())
-                        .value(
-                            "relativistic_correction_acceleration_type",
-                            tba::AvailableAcceleration::
-                                relativistic_correction_acceleration,
-                            get_docstring("AvailableAcceleration.relativistic_"
-                                          "correction_acceleration_type")
-                                .c_str())
+                               "")
+                        .value("relativistic_correction_acceleration_type",
+                               tba::AvailableAcceleration::
+                                   relativistic_correction_acceleration,
+                               "")
                         .value(
                             "empirical_acceleration_type",
                             tba::AvailableAcceleration::empirical_acceleration,
-                            get_docstring("AvailableAcceleration.empirical_"
-                                          "acceleration_type")
-                                .c_str())
+                            "")
                         .value(
                             "direct_tidal_dissipation_in_central_body_"
                             "acceleration_type",
                             tba::AvailableAcceleration::
                                 direct_tidal_dissipation_in_central_body_acceleration,
-                            get_docstring(
-                                "AvailableAcceleration.direct_tidal_"
-                                "dissipation_in_central_body_acceleration_type")
-                                .c_str())
+                            "")
                         .value(
                             "direct_tidal_dissipation_in_orbiting_body_"
                             "acceleration_type",
                             tba::AvailableAcceleration::
                                 direct_tidal_dissipation_in_orbiting_body_acceleration,
-                            get_docstring("AvailableAcceleration.direct_tidal_"
-                                          "dissipation_in_orbiting_body_"
-                                          "acceleration_type")
-                                .c_str())
-                        .value(
-                            "quasi_impulsive_shots_acceleration_type",
-                            tba::AvailableAcceleration::
-                                momentum_wheel_desaturation_acceleration,
-                            get_docstring("AvailableAcceleration.quasi_"
-                                          "impulsive_shots_acceleration_type")
-                                .c_str())
+                            "")
+                        .value("quasi_impulsive_shots_acceleration_type",
+                               tba::AvailableAcceleration::
+                                   momentum_wheel_desaturation_acceleration,
+                               "")
                         .value("custom_acceleration_type",
                                tba::AvailableAcceleration::custom_acceleration,
-                               get_docstring("AvailableAcceleration.custom_"
-                                             "acceleration_type")
-                                   .c_str())
-                        .value(
-                            "radiation_pressure_type",
-                            tba::AvailableAcceleration::radiation_pressure,
-                            get_docstring(
-                                "AvailableAcceleration.radiation_pressure_type")
-                                .c_str())
+                               "")
+                        .value("radiation_pressure_type",
+                               tba::AvailableAcceleration::radiation_pressure,
+                               "")
                         .export_values();
 
                     //////////////////////////////////////////////////////////////////////////////
@@ -450,8 +406,7 @@ namespace tudatpy {
 
                     m.def("radiation_pressure",
                           &tss::radiationPressureAcceleration,
-                          py::arg("target_type") = tss::undefined_target,
-                          get_docstring("radiation_pressure").c_str());
+                          py::arg("target_type") = tss::undefined_target, "");
 
 
                     m.def(
@@ -526,10 +481,9 @@ namespace tudatpy {
 )doc");
 
                     m.def("polyhedron_gravity", &tss::polyhedronAcceleration,
-                          get_docstring("polyhedron_gravity").c_str());
+                          "");
 
-                    m.def("ring_gravity", &tss::ringAcceleration,
-                          get_docstring("ring_gravity").c_str());
+                    m.def("ring_gravity", &tss::ringAcceleration, "");
 
                     m.def(
                         "relativistic_correction",
@@ -599,8 +553,7 @@ namespace tudatpy {
 )doc");
 
                     m.def("yarkovsky", &tss::yarkovskyAcceleration,
-                          py::arg("yarkovsky_parameter"),
-                          get_docstring("yarkovsky").c_str());
+                          py::arg("yarkovsky_parameter"), "");
 
                     m.def("custom", &tss::customAccelerationSettingsDeprecated,
                           py::arg("acceleration_function"));
@@ -778,9 +731,7 @@ namespace tudatpy {
                           py::arg("constant_specific_impulse"),
                           py::arg("thrust_frame") =
                               tss::ThrustFrames::inertial_thrust_frame,
-                          py::arg("central_body") = "",
-                          get_docstring("thrust_and_isp_from_custom_function")
-                              .c_str());
+                          py::arg("central_body") = "", "");
                 }
 
             }  // namespace acceleration

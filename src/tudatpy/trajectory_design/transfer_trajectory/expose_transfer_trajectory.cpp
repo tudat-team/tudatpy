@@ -17,7 +17,6 @@
 #include <tudat/math/root_finders.h>
 #include <tudat/simulation/propagation_setup/accelerationSettings.h>
 
-#include "tudatpy/docstrings.h"
 
 namespace py = pybind11;
 namespace tms = tudat::mission_segments;
@@ -48,30 +47,20 @@ namespace tudatpy {
                     .value(
                         "unpowered_unperturbed_leg_type",
                         tms::TransferLegTypes::unpowered_unperturbed_leg,
-                        get_docstring(
-                            "TransferLegTypes.unpowered_unperturbed_leg_type")
-                            .c_str())
+"")
                     .value("dsm_position_based_leg_type",
                            tms::TransferLegTypes::dsm_position_based_leg,
-                           get_docstring(
-                               "TransferLegTypes.dsm_position_based_leg_type")
-                               .c_str())
+"")
                     .value("dsm_velocity_based_leg_type",
                            tms::TransferLegTypes::dsm_velocity_based_leg,
-                           get_docstring(
-                               "TransferLegTypes.dsm_velocity_based_leg_type")
-                               .c_str())
+"")
                     .value(
                         "spherical_shaping_low_thrust_leg",
                         tms::TransferLegTypes::spherical_shaping_low_thrust_leg,
-                        get_docstring(
-                            "TransferLegTypes.spherical_shaping_low_thrust_leg")
-                            .c_str())
+"")
                     .value("hodographic_low_thrust_leg",
                            tms::TransferLegTypes::hodographic_low_thrust_leg,
-                           get_docstring(
-                               "TransferLegTypes.hodographic_low_thrust_leg")
-                               .c_str())
+"")
                     .export_values();
 
                 py::class_<tms::TransferLeg,
@@ -87,8 +76,7 @@ namespace tudatpy {
                          py::overload_cast<const double>(
                              &tms::TransferLeg::getStateAlongTrajectory),
                          py::arg("time_since_leg_beginning"),
-                         get_docstring("TransferLeg.time_since_leg_beginning")
-                             .c_str());
+"");
 
 
                 py::class_<tsbm::SphericalShapingLeg,
@@ -636,7 +624,7 @@ with user-provided velocity shaping functions.
 	)doc")
                     .def_property_readonly(
                         "legs", &tms::TransferTrajectory::getLegs,
-                        get_docstring("TransferTrajectory.legs").c_str());
+"");
 
 
                 m.def(
@@ -886,7 +874,7 @@ transfer legs.
                       &tms::setLowThrustAcceleration, py::arg("transfer_leg"),
                       py::arg("bodies"), py::arg("body_name"),
                       py::arg("engine_name"),
-                      get_docstring("set_low_thrust_acceleration").c_str());
+"");
             };
 
         }  // namespace transfer_trajectory

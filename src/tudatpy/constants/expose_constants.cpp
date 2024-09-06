@@ -13,7 +13,6 @@
 #include <tudat/astro/basic_astro/timeConversions.h>
 #include <tudat/constants.h>
 
-#include "tudatpy/docstrings.h"
 
 namespace py = pybind11;
 namespace tbc = tudat::celestial_body_constants;
@@ -24,8 +23,6 @@ namespace tba = tudat::basic_astrodynamics;
 namespace tudatpy {
     namespace constants {
         PYBIND11_MODULE(expose_constants, m) {
-            m.attr("__doc__") = get_docstring("constants").c_str();
-
             // physicalConstants.h
             m.attr("SEA_LEVEL_GRAVITATIONAL_ACCELERATION") =
                 tpc::SEA_LEVEL_GRAVITATIONAL_ACCELERATION;

@@ -16,7 +16,6 @@
 #include <pybind11/stl.h>
 #include <tudat/simulation/estimation_setup/createEstimatableParameters.h>
 
-#include "tudatpy/docstrings.h"
 
 namespace py = pybind11;
 
@@ -185,9 +184,7 @@ Note that not all of the listed types might be accessible via factory functions 
                         .export_values();
 
                     py::enum_<tba::EmpiricalAccelerationComponents>(
-                        m, "EmpiricalAccelerationComponents",
-                        get_docstring("EmpiricalAccelerationComponents")
-                            .c_str())
+                        m, "EmpiricalAccelerationComponents", "")
                         .value("radial_empirical_acceleration_component",
                                tba::EmpiricalAccelerationComponents::
                                    radial_empirical_acceleration_component)
@@ -201,9 +198,7 @@ Note that not all of the listed types might be accessible via factory functions 
                         .export_values();
 
                     py::enum_<tba::EmpiricalAccelerationFunctionalShapes>(
-                        m, "EmpiricalAccelerationFunctionalShapes",
-                        get_docstring("EmpiricalAccelerationFunctionalShapes")
-                            .c_str())
+                        m, "EmpiricalAccelerationFunctionalShapes", "")
                         .value("constant_empirical",
                                tba::EmpiricalAccelerationFunctionalShapes::
                                    constant_empirical)
@@ -218,9 +213,7 @@ Note that not all of the listed types might be accessible via factory functions 
                     py::class_<tep::CustomAccelerationPartialSettings,
                                std::shared_ptr<
                                    tep::CustomAccelerationPartialSettings>>(
-                        m, "CustomAccelerationPartialSettings",
-                        get_docstring("CustomAccelerationPartialSettings")
-                            .c_str());
+                        m, "CustomAccelerationPartialSettings", "");
 
 
                     m.def("custom_analytical_partial",
@@ -228,8 +221,7 @@ Note that not all of the listed types might be accessible via factory functions 
                           py::arg("analytical_partial_function"),
                           py::arg("body_undergoing_acceleration"),
                           py::arg("body_exerting_acceleration"),
-                          py::arg("acceleration_type"),
-                          get_docstring("custom_analytical_partial").c_str());
+                          py::arg("acceleration_type"), "");
 
                     m.def("custom_numerical_partial",
                           &tep::numericalAccelerationPartialSettings,
@@ -240,7 +232,7 @@ Note that not all of the listed types might be accessible via factory functions 
                           py::arg("environment_updates") =
                               std::map<tp::EnvironmentModelsToUpdate,
                                        std::vector<std::string>>(),
-                          get_docstring("custom_numerical_partial").c_str());
+                          "");
 
                     py::class_<
                         tep::EstimatableParameterSettings,
@@ -402,20 +394,14 @@ Note that not all of the listed types might be accessible via factory functions 
 
                     m.def("radiation_pressure_target_direction_scaling",
                           &tep::radiationPressureTargetDirectionScaling,
-                          py::arg("target_body"), py::arg("source_body"),
-                          get_docstring(
-                              "radiation_pressure_target_direction_scaling")
-                              .c_str());
+                          py::arg("target_body"), py::arg("source_body"), "");
 
                     m.def(
                         "radiation_pressure_target_perpendicular_direction_"
                         "scaling",
                         &tep::
                             radiationPressureTargetPerpendicularDirectionScaling,
-                        py::arg("target_body"), py::arg("source_body"),
-                        get_docstring("radiation_pressure_target_perpendicular_"
-                                      "direction_scaling")
-                            .c_str());
+                        py::arg("target_body"), py::arg("source_body"), "");
 
                     m.def(
                         "constant_empirical_acceleration_terms",
@@ -982,33 +968,25 @@ Note that not all of the listed types might be accessible via factory functions 
                           py::overload_cast<const std::string&,
                                             const std::string&>(
                               &tep::directTidalDissipationLagTime),
-                          py::arg("body"), py::arg("deforming_body"),
-                          get_docstring("direct_tidal_dissipation_time_lag", 0)
-                              .c_str());
+                          py::arg("body"), py::arg("deforming_body"), "");
 
                     m.def("direct_tidal_dissipation_time_lag",
                           py::overload_cast<const std::string&,
                                             const std::vector<std::string>&>(
                               &tep::directTidalDissipationLagTime),
-                          py::arg("body"), py::arg("deforming_body"),
-                          get_docstring("direct_tidal_dissipation_time_lag", 1)
-                              .c_str());
+                          py::arg("body"), py::arg("deforming_body"), "");
 
                     m.def("inverse_tidal_quality_factor",
                           py::overload_cast<const std::string&,
                                             const std::string&>(
                               &tep::inverseTidalQualityFactor),
-                          py::arg("body"), py::arg("deforming_body"),
-                          get_docstring("inverse_tidal_quality_factor", 0)
-                              .c_str());
+                          py::arg("body"), py::arg("deforming_body"), "");
 
                     m.def("inverse_tidal_quality_factor",
                           py::overload_cast<const std::string&,
                                             const std::vector<std::string>&>(
                               &tep::inverseTidalQualityFactor),
-                          py::arg("body"), py::arg("deforming_body"),
-                          get_docstring("inverse_tidal_quality_factor", 1)
-                              .c_str());
+                          py::arg("body"), py::arg("deforming_body"), "");
 
                     m.def("order_invariant_k_love_number",
                           py::overload_cast<const std::string&, const int,
@@ -1016,9 +994,7 @@ Note that not all of the listed types might be accessible via factory functions 
                               &tep::orderInvariantKLoveNumber),
                           py::arg("deformed_body"), py::arg("degree"),
                           py::arg("deforming_body"),
-                          py::arg("use_complex_love_number") = 0,
-                          get_docstring("order_invariant_k_love_number", 0)
-                              .c_str());
+                          py::arg("use_complex_love_number") = 0, "");
 
                     m.def("order_invariant_k_love_number",
                           py::overload_cast<const std::string&, const int,
@@ -1027,18 +1003,14 @@ Note that not all of the listed types might be accessible via factory functions 
                               &tep::orderInvariantKLoveNumber),
                           py::arg("deformed_body"), py::arg("degree"),
                           py::arg("deforming_bodies"),
-                          py::arg("use_complex_love_number") = 0,
-                          get_docstring("order_invariant_k_love_number", 1)
-                              .c_str());
+                          py::arg("use_complex_love_number") = 0, "");
 
                     m.def("order_invariant_k_love_number",
                           py::overload_cast<const std::string&, const int,
                                             const bool>(
                               &tep::orderInvariantKLoveNumber),
                           py::arg("deformed_body"), py::arg("degree"),
-                          py::arg("use_complex_love_number") = 0,
-                          get_docstring("order_invariant_k_love_number", 2)
-                              .c_str());
+                          py::arg("use_complex_love_number") = 0, "");
 
                     m.def("order_varying_k_love_number",
                           py::overload_cast<const std::string&, const int,
@@ -1047,9 +1019,7 @@ Note that not all of the listed types might be accessible via factory functions 
                               &tep::orderVaryingKLoveNumber),
                           py::arg("deformed_body"), py::arg("degree"),
                           py::arg("orders"), py::arg("deforming_body"),
-                          py::arg("use_complex_love_number") = 0,
-                          get_docstring("order_varying_k_love_number", 0)
-                              .c_str());
+                          py::arg("use_complex_love_number") = 0, "");
 
                     m.def("order_varying_k_love_number",
                           py::overload_cast<const std::string&, const int,
@@ -1059,9 +1029,7 @@ Note that not all of the listed types might be accessible via factory functions 
                               &tep::orderVaryingKLoveNumber),
                           py::arg("deformed_body"), py::arg("degree"),
                           py::arg("orders"), py::arg("deforming_bodies"),
-                          py::arg("use_complex_love_number") = 0,
-                          get_docstring("order_varying_k_love_number", 1)
-                              .c_str());
+                          py::arg("use_complex_love_number") = 0, "");
 
                     m.def(
                         "order_varying_k_love_number",
@@ -1070,28 +1038,20 @@ Note that not all of the listed types might be accessible via factory functions 
                             &tep::orderVaryingKLoveNumber),
                         py::arg("deformed_body"), py::arg("degree"),
                         py::arg("orders"),
-                        py::arg("use_complex_love_number") = 0,
-                        get_docstring("order_varying_k_love_number", 2)
-                            .c_str());
+                        py::arg("use_complex_love_number") = 0, "");
 
                     m.def("polynomial_gravity_field_variation_amplitudes",
                           &tep::polynomialGravityFieldVariationParameter,
                           py::arg("body_name"),
                           py::arg("cosine_indices_per_power"),
-                          py::arg("sine_indices_per_power"),
-                          get_docstring(
-                              "polynomial_gravity_field_variation_amplitudes")
-                              .c_str());
+                          py::arg("sine_indices_per_power"), "");
 
                     m.def(
                         "monomial_gravity_field_variation_amplitudes",
                         &tep::
                             polynomialSinglePowerGravityFieldVariationParameter,
                         py::arg("body_name"), py::arg("power"),
-                        py::arg("cosine_indices"), py::arg("sine_indices"),
-                        get_docstring(
-                            "monomial_gravity_field_variation_amplitudes")
-                            .c_str());
+                        py::arg("cosine_indices"), py::arg("sine_indices"), "");
 
                     m.def(
                         "monomial_full_block_gravity_field_variation_"
@@ -1101,26 +1061,20 @@ Note that not all of the listed types might be accessible via factory functions 
                         py::arg("body_name"), py::arg("power"),
                         py::arg("minimum_degree"), py::arg("minimum_order"),
                         py::arg("maximum_degree"), py::arg("maximum_order"),
-                        get_docstring("monomial_full_block_gravity_field_"
-                                      "variation_amplitudes")
-                            .c_str());
+                        "");
 
                     m.def("scaled_longitude_libration_amplitude",
                           &tep::scaledLongitudeLibrationAmplitude,
-                          py::arg("body_name"),
-                          get_docstring("scaled_longitude_libration_amplitude")
-                              .c_str());
+                          py::arg("body_name"), "");
 
                     m.def("yarkovsky_parameter", &tep::yarkovskyParameter,
                           py::arg("body_name"),
-                          py::arg("central_body_name") = "Sun",
-                          get_docstring("yarkovsky_parameter").c_str());
+                          py::arg("central_body_name") = "Sun", "");
 
                     m.def("custom_parameter", &tep::customParameterSettings,
                           py::arg("custom_id"), py::arg("parameter_size"),
                           py::arg("get_parameter_function"),
-                          py::arg("set_parameter_function"),
-                          get_docstring("custom_parameter").c_str());
+                          py::arg("set_parameter_function"), "");
 
 
                     // ###############  Global (GR) Model Parameters

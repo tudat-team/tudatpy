@@ -12,7 +12,6 @@
 #include <tudat/astro/reference_frames/referenceFrameTransformations.h>
 #include <tudat/simulation/environment_setup.h>
 
-#include "tudatpy/docstrings.h"
 
 // #include <pybind11/chrono.h>
 #include <pybind11/eigen.h>
@@ -117,7 +116,7 @@ R"doc(Class for providing settings for solid body tidal gravity field variations
 R"doc(Factory function for creating solid body tides.
 
 	Factory function for creating solid body tides, using a single real Love number at a single degree (e.g. :math:`k_{2}`, :math:`k_{3}`, etc.). This function evaluates Eq. (6.6) from the IERS Conventions 2010, with real :math:`k_{l}=k_{lm}`, a single value of :math:`l` and a single tide-raising body :math:`j`.
-	
+
 
 	:param tide_raising_body:
 		Name of body raising the tide.
@@ -141,7 +140,7 @@ R"doc(Factory function for creating solid body tides.
 R"doc(Factory function for creating solid body tides.
 
 	As :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.solid_body_tide`, but with complex value for the Love number.
-	
+
 
 	:param tide_raising_body:
 		Name of body raising the tide.
@@ -164,7 +163,7 @@ R"doc(Factory function for creating solid body tides.
 R"doc(Factory function for creating solid body tides.
 
 	Factory function for creating solid body tides, using a set of real, separate, Love numbers at any number of degrees (e.g. :math:`k_{2}`, :math:`k_{3}`, etc.). This output of this function is effectively identical to a list of outputs to :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.solid_body_tide`, with differing degrees and associated Love numbers.  This function evaluates Eq. (6.6) from the IERS Conventions 2010, with a set of real values :math:`k_{l}=k_{lm}`, at a set of values of :math:`l` and a single tide-raising body :math:`j`.
-	
+
 
 	:param tide_raising_body:
 		Name of body raising the tide.
@@ -186,7 +185,7 @@ R"doc(Factory function for creating solid body tides.
 R"doc(Factory function for creating solid body tides.
 
 	As :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.solid_body_tide_degree_variable_k`, but with complex values for the Love numbers.
-	
+
 
 	:param tide_raising_body:
 		Name of body raising the tide.
@@ -208,7 +207,7 @@ R"doc(Factory function for creating solid body tides.
 R"doc(Factory function for creating solid body tides.
 
 	Factory function for creating solid body tides, using a set of real, separate, Love numbers at any number of degrees and orders (e.g. :math:`k_{20}`, :math:`k_{21}`, :math:`k_{22}`, :math:`k_{30}`, etc.).  This function evaluates Eq. (6.6) from the IERS Conventions 2010, with a set of real values :math:`k_{lm}`, at a set of values of :math:`l` and a single tide-raising body :math:`j`.
-	
+
 
 	:param tide_raising_body:
 		Name of body raising the tide.
@@ -227,7 +226,7 @@ R"doc(Factory function for creating solid body tides.
                                 degreeOrderVariableLoveNumberGravityFieldVariationSettingsPy),
                         py::arg("tide_raising_bodies"),
                         py::arg("love_number_per_degree_and_order"),
-get_docstring("solid_multi_body_tide_degree_order_variable_k").c_str());
+"");
 
                     m.def(
                         "solid_body_tide_degree_order_variable_complex_k",
@@ -242,7 +241,7 @@ get_docstring("solid_multi_body_tide_degree_order_variable_k").c_str());
 R"doc(Factory function for creating solid body tides.
 
 	As :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.solid_body_tide_degree_order_variable_k`, but with complex values for the Love number.
-	
+
 
 	:param tide_raising_body:
 		Name of body raising the tide.
@@ -265,7 +264,7 @@ R"doc(Factory function for creating solid body tides.
 R"doc(Factory function for creating solid body tides.
 
 	As :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.solid_body_tide_degree_order_variable_k`, but with complex values for the Love number.
-	
+
 
 	:param tide_raising_body:
 		Name of body raising the tide.
@@ -286,7 +285,7 @@ R"doc(Factory function for creating solid body tides.
                         py::arg("frequency"), py::arg("reference_epoch"),
                         py::arg("minimum_degree") = 2,
                         py::arg("minimum_order") = 0,
-get_docstring("single_period_periodic").c_str());
+"");
 
                     m.def("periodic",
                           &tss::periodicGravityFieldVariationsSettings,
@@ -297,7 +296,7 @@ get_docstring("single_period_periodic").c_str());
                           py::arg("frequencies"), py::arg("reference_epoch"),
                           py::arg("minimum_degree") = 2,
                           py::arg("minimum_order") = 0,
-get_docstring("single_period_periodic").c_str());
+"");
 
                     m.def(
                         "single_power_polynomial",
@@ -308,7 +307,7 @@ get_docstring("single_period_periodic").c_str());
                         py::arg("reference_epoch"),
                         py::arg("minimum_degree") = 2,
                         py::arg("minimum_order") = 0,
-get_docstring("single_power_polynomial").c_str());
+"");
 
                     m.def("polynomial",
                           &tss::polynomialGravityFieldVariationsSettings,
@@ -317,7 +316,7 @@ get_docstring("single_power_polynomial").c_str());
                           py::arg("reference_epoch"),
                           py::arg("minimum_degree") = 2,
                           py::arg("minimum_order") = 0,
-get_docstring("polynomial").c_str());
+"");
 
 
                     m.def("tabulated",

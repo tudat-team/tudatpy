@@ -14,7 +14,6 @@
 #include <pybind11/stl.h>
 #include <tudat/math/interpolators.h>
 
-#include "tudatpy/docstrings.h"
 #include "tudatpy/scalarTypes.h"
 
 namespace py = pybind11;
@@ -61,7 +60,7 @@ R"doc(Enumeration of types of behaviour to be used beyond the edges of the inter
 	Enumeration of types of behaviour to be used beyond the edges of the interpolation domain. For independent variable
 	data in the range :math:`[t_{0}..t_{N}]`, this enum is used to define the behaviour of the interpolator at
 	:math:`t<t_{0}` and :math:`t>t_{N}
-	
+
 
 	:member throw_exception_at_boundary:
 	:member use_boundary_value:
@@ -72,22 +71,22 @@ R"doc(Enumeration of types of behaviour to be used beyond the edges of the inter
                     .value("throw_exception_at_boundary",
                            ti::BoundaryInterpolationType::
                                throw_exception_at_boundary,
-get_docstring("BoundaryInterpolationType.throw_exception_at_boundary").c_str())
+"")
                     .value("use_boundary_value",
                            ti::BoundaryInterpolationType::use_boundary_value,
-get_docstring("BoundaryInterpolationType.use_boundary_value").c_str())
+"")
                     .value("use_boundary_value_with_warning",
                            ti::BoundaryInterpolationType::
                                use_boundary_value_with_warning,
-get_docstring("BoundaryInterpolationType.use_boundary_value_with_warning").c_str())
+"")
                     .value(
                         "extrapolate_at_boundary",
                         ti::BoundaryInterpolationType::extrapolate_at_boundary,
-get_docstring("BoundaryInterpolationType.extrapolate_at_boundary").c_str())
+"")
                     .value("extrapolate_at_boundary_with_warning",
                            ti::BoundaryInterpolationType::
                                extrapolate_at_boundary_with_warning,
-get_docstring("BoundaryInterpolationType.extrapolate_at_boundary_with_warning").c_str())
+"")
                     //            .value("use_default_value",
                     //            ti::BoundaryInterpolationType::use_default_value)
                     //            .value("use_default_value_with_warning",
@@ -102,7 +101,7 @@ R"doc(Enumeration of types of behaviour to be used beyond the edges of the inter
 	the requested value of the independent variable :math:`t` in the data set :math:`[t_{0}..t_{N}]`.
 	The choice of lookup scheme can have a significant influence on computational efficiency for large data sets and/or simple
 	interpolation algorithms
-	
+
 
 	:member hunting_algorithm:
 	:member binary_search:
@@ -110,10 +109,10 @@ R"doc(Enumeration of types of behaviour to be used beyond the edges of the inter
                     .value(
                         "hunting_algorithm",
                         ti::AvailableLookupScheme::huntingAlgorithm,
-get_docstring("AvailableLookupScheme.hunting_algorithm").c_str())
+"")
                     .value("binary_search",
                            ti::AvailableLookupScheme::binarySearch,
-get_docstring("AvailableLookupScheme.binary_search").c_str())
+"")
                     .export_values();
 
                 py::enum_<ti::LagrangeInterpolatorBoundaryHandling>(
@@ -123,7 +122,7 @@ R"doc(Enumeration of types of behaviour to be used close to the edges of the int
 	Enumeration of types of behaviour to be used close to the edges of the interpolation domain, for the Lagrange interpolator.
 	As explained for :func:`lagrange_interpolation`, the algorithm for the Lagrange interpolation breaks down at the edges of
 	the interpolation domain. This enum provides the available options a user has to deal with this.
-	
+
 
 	:member lagrange_cubic_spline_boundary_interpolation:
 	:member lagrange_no_boundary_interpolation:
@@ -131,11 +130,11 @@ R"doc(Enumeration of types of behaviour to be used close to the edges of the int
                     .value("lagrange_cubic_spline_boundary_interpolation",
                            ti::LagrangeInterpolatorBoundaryHandling::
                                lagrange_no_boundary_interpolation,
-get_docstring("LagrangeInterpolatorBoundaryHandling.lagrange_cubic_spline_boundary_interpolation").c_str())
+"")
                     .value("lagrange_no_boundary_interpolation",
                            ti::LagrangeInterpolatorBoundaryHandling::
                                lagrange_no_boundary_interpolation,
-get_docstring("LagrangeInterpolatorBoundaryHandling.lagrange_no_boundary_interpolation").c_str())
+"")
                     .export_values();
 
                 py::class_<ti::InterpolatorSettings,
@@ -149,7 +148,7 @@ R"doc(Base class to define settings for an interpolator.
                            std::shared_ptr<
                                ti::InterpolatorGenerationSettings<TIME_TYPE>>>(
                     m, "InterpolatorGenerationSettings",
-get_docstring("InterpolatorGenerationSettings").c_str());
+"");
 
 
                 py::class_<ti::LagrangeInterpolatorSettings,
@@ -183,7 +182,7 @@ R"doc(Function to create settings for linear interpolation.
 	Function to create settings for linear interpolation, where the interpolator
 	defines a linear curve between each two subsequent intervals of the
 	independent variable input data.
-	
+
 
 	:param lookup_scheme:
 		Algorithm used to find the nearest neighbor in the independent variable input data when the interpolation scheme is called
@@ -206,7 +205,7 @@ R"doc(Function to create settings for cubic spline interpolation.
 	second derivate between subsequent intervals. As boundary condition, the spline has
 	a zero second derivative imposed at the upper and lower boundaries of the interpolation
 	domain.
-	
+
 
 	:param lookup_scheme:
 		Algorithm used to find the nearest neighbor in the independent variable input data when the interpolation scheme is called
@@ -227,7 +226,7 @@ R"doc(Function to create settings for piecewise constant interpolation.
 	Function to create settings for piecewise constant interpolation. If interpolator
 	is to return the value at :math:`t`, and :math:`t_{i}\le t \< t_{i+1}`, the interpolator
 	returns :math:`\mathbf{x}_{i}`
-	
+
 
 	:param lookup_scheme:
 		Algorithm used to find the nearest neighbor in the independent variable input data when the interpolation scheme is called
@@ -251,17 +250,17 @@ R"doc(Function to create settings for cubic Lagrange interpolation.
 	to create the polynomial of order :math:`m-1` that interpolates these points. From here on, we assume :math:`m` is even.
 	The algorithm that is used (see `here <https://mathworld.wolfram.com/LagrangeInterpolatingPolynomial.html>`_ for mathematical details
 	on interpolating Lagrange polynomials) works as follows:
-	
+
 	* The nearest lower neighbor of the data point :math:`t` at which the state :math:`\mathbf{x}` is to be interpolated is determined, and denoted :math:`t_{i}`.
 	* An interpolating Lagrange polynomial is constructed from the consecutive data points :math:`[t_{i-(m/2-1)}...t_{i+m}]`
 	* This resulting interpolating polynomial is *only* used in the interval :math:`[t_{i}..t_{i+1}]`, to prevent `Runge's phenomenon <https://en.wikipedia.org/wiki/Runge%27s_phenomenon>`_.
-	
+
 	For instance, if :math:`m=8` we use a :math:`7^{th}` order polynomial that interpolates a contiguous set of
 	8 data points out of the full data set. Normally, the interpolating polynomial is only used between the
 	:math:`4^{th}` and :math:`5^{th}` data point, where it will typically be of good accuracy. Consequently,
 	a separate interpolating polynomial (using data over a span of :math:`m` consecutive points) is used for
 	each single interval :math:`[t_{i}..t_{i+1}]` (with the exception of the boundaries, see below).
-	
+
 	.. warning:: Issues can occur if the data point :math:`t` at which the interpolation is to be
 	             performed is close to :math:`t_{0}` or :math:`t_{N}`. In those case, there is not sufficient
 	             data to construct the interpolating polynomial *and* to only use this interpolating polynomial
@@ -269,7 +268,7 @@ R"doc(Function to create settings for cubic Lagrange interpolation.
 	             options (all defined by an entry of the :class:`LagrangeInterpolatorBoundaryHandling` variable,
 	             used as input to this function). In short, interpolation between the first and last :math:`m/2`
 	             data points will lead to degraded results, warnings, or termination.
-	
+
 
 	:param number_of_points:
 		Number of consecutive data points that are used to construct a single interpolating polynomial.
@@ -295,7 +294,7 @@ R"doc(Function to create settings for cubic Hermite spline interpolation.
 	:func:`create_one_dimensional_vector_interpolator`,  :func:`create_one_dimensional_matrix_interpolator`). The resulting
 	spline uses the value and first derivatives (four piece of information for each interval) at two subsequent nodes to construct
 	a cubic polynomial between each two subsequent nodes. The resulting spline has constant values and first derivatives
-	
+
 
 	:param lookup_scheme:
 		Algorithm used to find the nearest neighbor in the independent variable input data when the interpolation scheme is called
@@ -322,7 +321,7 @@ R"doc(Function to create an interpolator for scalar dependent variables.
 	Function to create an interpolator for scalar dependent variables, with a single independent
 	variable. This function takes the interpolator settings, and the data that is to be interpolated,
 	as input to create the object that can perform the actual interpolation
-	
+
 
 	:param data_to_interpolate:
 		Key-value container with pairs of independent variables (key) and dependent variables (value) from which the interpolation is to be performed
@@ -345,7 +344,7 @@ R"doc(Function to create an interpolator for scalar dependent variables.
 R"doc(Function to create an interpolator for vector dependent variables.
 
 	As :func:`create_one_dimensional_scalar_interpolator`, but with vectors as dependent variables
-	
+
 
 	:param data_to_interpolate:
 		Key-value container with pairs of independent variables (key) and dependent variables (value) from which the interpolation is to be performed
@@ -368,7 +367,7 @@ R"doc(Function to create an interpolator for vector dependent variables.
 R"doc(Function to create an interpolator for matrix dependent variables.
 
 	As :func:`create_one_dimensional_scalar_interpolator`, but with matrices (2-dimensional arrays) as dependent variables
-	
+
 
 	:param data_to_interpolate:
 		Key-value container with pairs of independent variables (key) and dependent variables (value) from which the interpolation is to be performed
@@ -388,7 +387,7 @@ R"doc(Object that performs interpolation for scalar independent, and scalar depe
 
 	Object that performs interpolation for scalar independent, and scalar dependent variables. This object is
 	not created manually, but is set up using the :func:`create_one_dimensional_scalar_interpolator` function.
-	
+
 )doc")
                     .def("interpolate",
                          py::overload_cast<const TIME_TYPE>(
@@ -399,7 +398,7 @@ R"doc(This function performs the interpolation at the requested independent vari
 
 	:param independent_variable_value:
 		Value of independent variable at which the interpolation is to bse performed.
-		
+
 	:return:
 		Interpolated dependent variable value, using implemented algorithm at requested independent variable value
 )doc");
@@ -413,7 +412,7 @@ R"doc(Object that performs interpolation for vector independent, and vector depe
 
 	Object that performs interpolation for vector independent, and vector dependent variables. This object is
 	not created manually, but is set up using the :func:`create_one_dimensional_vector_interpolator` function.
-	
+
 )doc")
                     .def("interpolate",
                          py::overload_cast<const TIME_TYPE>(
@@ -424,7 +423,7 @@ R"doc(This function performs the interpolation at the requested independent vari
 
 	:param independent_variable_value:
 		Value of independent variable at which the interpolation is to be performed.
-		
+
 	:return:
 		Interpolated dependent variable value, using implemented algorithm at requested independent variable value
 )doc");
@@ -438,7 +437,7 @@ R"doc(Object that performs interpolation for matrix independent, and matrix depe
 
 	Object that performs interpolation for matrix independent, and matrix dependent variables. This object is
 	not created manually, but is set up using the :func:`create_one_dimensional_matrix_interpolator` function.
-	
+
 )doc")
                     .def("interpolate",
                          py::overload_cast<const TIME_TYPE>(
@@ -449,7 +448,7 @@ R"doc(This function performs the interpolation at the requested independent vari
 
 	:param independent_variable_value:
 		Value of independent variable at which the interpolation is to be performed.
-		
+
 	:return:
 		Interpolated dependent variable value, using implemented algorithm at requested independent variable value
 )doc");

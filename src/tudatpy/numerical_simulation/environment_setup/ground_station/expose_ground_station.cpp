@@ -16,7 +16,6 @@
 #include <tudat/simulation/environment_setup/createGroundStations.h>
 #include <tudat/simulation/environment_setup/defaultBodies.h>
 
-#include "tudatpy/docstrings.h"
 
 namespace py = pybind11;
 namespace tss = tudat::simulation_setup;
@@ -45,7 +44,7 @@ R"doc(Base class for providing settings for the motion of a single ground statio
 
 	Non-functional base class for settings for the motion of a single ground station
 	Station motion settings requiring additional information must be defined using an object derived from this class.
-	
+
 )doc");
 
                     py::class_<
@@ -91,7 +90,7 @@ R"doc(Class for defining custom time-dependent motion of a ground station.
 R"doc(Factory function for creating settings for a ground station
 
 	Factory function for creating settings for a ground station, defining only its name, body-fixed position, and (optionally) time-variations of its position
-	
+
 
 	:param station_name:
 		Name (unique identifier) by which the station is to be known.
@@ -113,7 +112,7 @@ R"doc(Factory function for creating settings for all DSN stations
 	by Cartesian elements in *DSN No. 810-005, 301, Rev. K*,  see `this link <https://deepspace.jpl.nasa.gov/dsndocs/810-005/301/301K.pdf>`_.
 	Note that calling these settings will use the Cartesian elements provided in this document (in ITRF93) and apply them to the Earth-fixed
 	station positions, regardless of the selected Earth rotation model.
-	
+
 	:return:
 		List of settings to create DSN stationss
 )doc");
@@ -125,7 +124,7 @@ R"doc(Factory function for creating settings for all DSN stations
 R"doc(Factory function for creating settings for a linear station motion
 
 	Factory function for creating settings for a linear station motion, implementing :math:`\Delta \mathbf{r}=\dot{\mathbf{r}}(t-t_{0})`.
-	
+
 
 	:param linear_velocity:
 		Linear velocity :math:`\dot{\mathbf{r}}` of the station (in m/s)
@@ -141,9 +140,9 @@ R"doc(Factory function for creating settings for a linear station motion
 R"doc(Factory function for creating settings for a piecewise constant ground station position variation
 
 	Factory function for creating settings for a piecewise constant ground station position. Using this model, the added station velocity in a body-fixed frame :math:`\dot{\mathbf{r}}` is
-	always zero, but its displacement :math:`\Delta\mathbf{r}` is set according to the input list, which contains a list of times and displacments :math:`[t_{i},\Delta\mathbf{r}_{i}]`. 
+	always zero, but its displacement :math:`\Delta\mathbf{r}` is set according to the input list, which contains a list of times and displacments :math:`[t_{i},\Delta\mathbf{r}_{i}]`.
 	When the resulting model is queried at a given time :math:`t`, the nearest lower neighbour :math:`t_{i}` from this list is found, and the associated :math:`\Delta\mathbf{r}_{i}` is applied.
-	
+
 
 	:param displacement_list:
 		Dictionary with the epochs :math:`t_{i}` as values, and the associated displacement :math:`\Delta\mathbf{r}_{i}` as value
@@ -159,7 +158,7 @@ R"doc(Factory function for creating settings for a custom ground station positio
 
 	Factory function for creating settings for a custom ground station position. An arbitrary user-defined function of the signature :math:`\Delta\mathbf{r}=\Delta\mathbf{r}(t)` is provided and
 	applied to the station position
-	
+
 
 	:param custom_displacement_function:
 		Function returning :math:`\Delta\mathbf{r}`, with the time :math:`t` as input.

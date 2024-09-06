@@ -17,7 +17,6 @@
 #include <tudat/basics/deprecationWarnings.h>
 #include <tudat/simulation/propagation_setup.h>
 
-#include "tudatpy/docstrings.h"
 
 namespace py = pybind11;
 namespace tba = tudat::basic_astrodynamics;
@@ -70,7 +69,7 @@ namespace tudatpy {
 R"doc(Enumeration of available propagation dependent variables.
 
 	Enumeration of propagation dependent variables supported by tudat.
-	
+
 
 	:member mach_number_type:
 	:member altitude_type:
@@ -125,232 +124,232 @@ R"doc(Enumeration of available propagation dependent variables.
                         .value("mach_number_type",
                                tp::PropagationDependentVariables::
                                    mach_number_dependent_variable,
-get_docstring("PropagationDependentVariables.mach_number_type").c_str())
+"")
                         .value(
                             "altitude_type",
                             tp::PropagationDependentVariables::
                                 altitude_dependent_variable,
-get_docstring("PropagationDependentVariables.altitude_type").c_str())
+"")
                         .value(
                             "airspeed_type",
                             tp::PropagationDependentVariables::
                                 airspeed_dependent_variable,
-get_docstring("PropagationDependentVariables.airspeed_type").c_str())
+"")
                         .value("local_density_type",
                                tp::PropagationDependentVariables::
                                    local_density_dependent_variable,
-get_docstring("PropagationDependentVariables.local_density_type").c_str())
+"")
                         .value("relative_speed_type",
                                tp::PropagationDependentVariables::
                                    relative_speed_dependent_variable,
-get_docstring("PropagationDependentVariables.relative_speed_type").c_str())
+"")
                         .value("relative_position_type",
                                tp::PropagationDependentVariables::
                                    relative_position_dependent_variable,
-get_docstring("PropagationDependentVariables.relative_position_type").c_str())
+"")
                         .value("relative_distance_type",
                                tp::PropagationDependentVariables::
                                    relative_distance_dependent_variable,
-get_docstring("PropagationDependentVariables.relative_distance_type").c_str())
+"")
                         .value("relative_velocity_type",
                                tp::PropagationDependentVariables::
                                    relative_velocity_dependent_variable,
-get_docstring("PropagationDependentVariables.relative_velocity_type").c_str())
+"")
                         .value("radiation_pressure_type",
                                tp::PropagationDependentVariables::
                                    radiation_pressure_dependent_variable,
-get_docstring("PropagationDependentVariables.radiation_pressure_type").c_str())
+"")
                         .value("total_acceleration_norm_type",
                                tp::PropagationDependentVariables::
                                    total_acceleration_norm_dependent_variable,
-get_docstring("PropagationDependentVariables.total_acceleration_norm_type").c_str())
+"")
                         .value("single_acceleration_norm_type",
                                tp::PropagationDependentVariables::
                                    single_acceleration_norm_dependent_variable,
-get_docstring("PropagationDependentVariables.single_acceleration_norm_type").c_str())
+"")
                         .value("total_acceleration_type",
                                tp::PropagationDependentVariables::
                                    total_acceleration_dependent_variable,
-get_docstring("PropagationDependentVariables.total_acceleration_type").c_str())
+"")
                         .value("single_acceleration_type",
                                tp::PropagationDependentVariables::
                                    single_acceleration_dependent_variable,
-get_docstring("PropagationDependentVariables.single_acceleration_type").c_str())
+"")
                         .value(
                             "aerodynamic_force_coefficients_type",
                             tp::PropagationDependentVariables::
                                 aerodynamic_force_coefficients_dependent_variable,
-get_docstring("PropagationDependentVariables.aerodynamic_force_coefficients_type").c_str())
+"")
                         .value(
                             "aerodynamic_moment_coefficients_type",
                             tp::PropagationDependentVariables::
                                 aerodynamic_moment_coefficients_dependent_variable,
-get_docstring("PropagationDependentVariables.aerodynamic_moment_coefficients_type").c_str())
+"")
                         .value(
                             "rotation_matrix_to_body_fixed_frame_type",
                             tp::PropagationDependentVariables::
                                 inertial_to_body_fixed_rotation_matrix_variable,
-get_docstring("PropagationDependentVariables.rotation_matrix_to_body_fixed_frame_type").c_str())
+"")
                         .value(
                             "intermediate_aerodynamic_rotation_matrix_type",
                             tp::PropagationDependentVariables::
                                 intermediate_aerodynamic_rotation_matrix_variable,
-get_docstring("PropagationDependentVariables.intermediate_aerodynamic_rotation_matrix_type").c_str())
+"")
                         .value(
                             "relative_body_aerodynamic_orientation_angle_type",
                             tp::PropagationDependentVariables::
                                 relative_body_aerodynamic_orientation_angle_variable,
-get_docstring("PropagationDependentVariables.relative_body_aerodynamic_orientation_angle_type").c_str())
+"")
                         .value(
                             "body_fixed_airspeed_based_velocity_type",
                             tp::PropagationDependentVariables::
                                 body_fixed_airspeed_based_velocity_variable,
-get_docstring("PropagationDependentVariables.body_fixed_airspeed_based_velocity_type").c_str())
+"")
                         .value("total_aerodynamic_g_load_type",
                                tp::PropagationDependentVariables::
                                    total_aerodynamic_g_load_variable,
-get_docstring("PropagationDependentVariables.total_aerodynamic_g_load_type").c_str())
+"")
                         .value(
                             "stagnation_point_heat_flux_type",
                             tp::PropagationDependentVariables::
                                 stagnation_point_heat_flux_dependent_variable,
-get_docstring("PropagationDependentVariables.stagnation_point_heat_flux_type").c_str())
+"")
                         .value("local_temperature_type",
                                tp::PropagationDependentVariables::
                                    local_temperature_dependent_variable,
-get_docstring("PropagationDependentVariables.local_temperature_type").c_str())
+"")
                         .value("geodetic_latitude_type",
                                tp::PropagationDependentVariables::
                                    geodetic_latitude_dependent_variable,
-get_docstring("PropagationDependentVariables.geodetic_latitude_type").c_str())
+"")
                         .value(
                             "control_surface_deflection_type",
                             tp::PropagationDependentVariables::
                                 control_surface_deflection_dependent_variable,
-get_docstring("PropagationDependentVariables.control_surface_deflection_type").c_str())
+"")
                         .value("total_mass_rate_type",
                                tp::PropagationDependentVariables::
                                    total_mass_rate_dependent_variables,
-get_docstring("PropagationDependentVariables.total_mass_rate_type").c_str())
+"")
                         .value(
                             "tnw_to_inertial_frame_rotation_type",
                             tp::PropagationDependentVariables::
                                 tnw_to_inertial_frame_rotation_dependent_variable,
-get_docstring("PropagationDependentVariables.tnw_to_inertial_frame_rotation_type").c_str())
+"")
                         .value(
                             "rsw_to_inertial_frame_rotation_type",
                             tp::PropagationDependentVariables::
                                 rsw_to_inertial_frame_rotation_dependent_variable,
-get_docstring("PropagationDependentVariables.tnw_to_inertial_frame_rotation_type").c_str())
+"")
                         .value("periapsis_altitude_type",
                                tp::PropagationDependentVariables::
                                    periapsis_altitude_dependent_variable,
-get_docstring("PropagationDependentVariables.periapsis_altitude_type").c_str())
+"")
                         .value("apoapsis_altitude_type",
                                tp::PropagationDependentVariables::
                                    apoapsis_altitude_dependent_variable,
-get_docstring("PropagationDependentVariables.apoapsis_altitude_type").c_str())
+"")
                         .value("total_torque_norm_type",
                                tp::PropagationDependentVariables::
                                    total_torque_norm_dependent_variable,
-get_docstring("PropagationDependentVariables.total_torque_norm_type").c_str())
+"")
                         .value("single_torque_norm_type",
                                tp::PropagationDependentVariables::
                                    single_torque_norm_dependent_variable,
-get_docstring("PropagationDependentVariables.single_torque_norm_type").c_str())
+"")
                         .value("total_torque_type",
                                tp::PropagationDependentVariables::
                                    total_torque_dependent_variable,
-get_docstring("PropagationDependentVariables.total_torque_type").c_str())
+"")
                         .value("single_torque_type",
                                tp::PropagationDependentVariables::
                                    single_torque_dependent_variable,
-get_docstring("PropagationDependentVariables.single_torque_type").c_str())
+"")
                         .value(
                             "body_fixed_groundspeed_based_velocity_type",
                             tp::PropagationDependentVariables::
                                 body_fixed_groundspeed_based_velocity_variable,
-get_docstring("PropagationDependentVariables.body_fixed_groundspeed_based_velocity_type").c_str())
+"")
                         .value("keplerian_state_type",
                                tp::PropagationDependentVariables::
                                    keplerian_state_dependent_variable,
-get_docstring("PropagationDependentVariables.keplerian_state_type").c_str())
+"")
                         .value("modified_equinoctial_state_type",
                                tp::PropagationDependentVariables::
                                    modified_equinocial_state_dependent_variable,
-get_docstring("PropagationDependentVariables.modified_equinoctial_state_type").c_str())
+"")
                         .value(
                             "spherical_harmonic_acceleration_terms_type",
                             tp::PropagationDependentVariables::
                                 spherical_harmonic_acceleration_terms_dependent_variable,
-get_docstring("PropagationDependentVariables.spherical_harmonic_acceleration_terms_type").c_str())
+"")
                         .value(
                             "spherical_harmonic_acceleration_norm_terms_type",
                             tp::PropagationDependentVariables::
                                 spherical_harmonic_acceleration_norm_terms_dependent_variable,
-get_docstring("PropagationDependentVariables.spherical_harmonic_acceleration_norm_terms_type").c_str())
+"")
                         .value("body_fixed_relative_cartesian_position_type",
                                tp::PropagationDependentVariables::
                                    body_fixed_relative_cartesian_position,
-get_docstring("PropagationDependentVariables.body_fixed_relative_cartesian_position_type").c_str())
+"")
                         .value("body_fixed_relative_spherical_position_type",
                                tp::PropagationDependentVariables::
                                    body_fixed_relative_spherical_position,
-get_docstring("PropagationDependentVariables.body_fixed_relative_spherical_position_type").c_str())
+"")
                         .value(
                             "total_gravity_field_variation_acceleration_type",
                             tp::PropagationDependentVariables::
                                 total_gravity_field_variation_acceleration,
-get_docstring("PropagationDependentVariables.total_gravity_field_variation_acceleration_type").c_str())
+"")
                         .value(
                             "single_gravity_field_variation_acceleration_type",
                             tp::PropagationDependentVariables::
                                 single_gravity_field_variation_acceleration,
-get_docstring("PropagationDependentVariables.single_gravity_field_variation_acceleration_type").c_str())
+"")
                         .value(
                             "single_gravity_field_variation_acceleration_terms_"
                             "type",
                             tp::PropagationDependentVariables::
                                 single_gravity_field_variation_acceleration_terms,
-get_docstring("PropagationDependentVariables.single_gravity_field_variation_acceleration_terms_type").c_str())
+"")
                         .value(
                             "acceleration_partial_wrt_body_translational_state_"
                             "type",
                             tp::PropagationDependentVariables::
                                 acceleration_partial_wrt_body_translational_state,
-get_docstring("PropagationDependentVariables.acceleration_partial_wrt_body_translational_state_type").c_str())
+"")
                         .value("local_dynamic_pressure_type",
                                tp::PropagationDependentVariables::
                                    local_dynamic_pressure_dependent_variable,
-get_docstring("PropagationDependentVariables.local_dynamic_pressure_type").c_str())
+"")
                         //                .value("local_aerodynamic_heat_rate_type",
                         //                       tp::PropagationDependentVariables::local_aerodynamic_heat_rate_dependent_variable,
                         .value("euler_angles_to_body_fixed_type",
                                tp::PropagationDependentVariables::
                                    euler_angles_to_body_fixed_313,
-get_docstring("PropagationDependentVariables.euler_angles_to_body_fixed_type").c_str())
+"")
                         .value("current_body_mass_type",
                                tp::PropagationDependentVariables::
                                    current_body_mass_dependent_variable,
-get_docstring("PropagationDependentVariables.current_body_mass_type").c_str())
+"")
                         .value(
                             "radiation_pressure_coefficient_type",
                             tp::PropagationDependentVariables::
                                 radiation_pressure_coefficient_dependent_variable,
-get_docstring("PropagationDependentVariables.radiation_pressure_coefficient_type").c_str())
+"")
                         .value("custom_type",
                                tp::PropagationDependentVariables::
                                    custom_dependent_variable,
-get_docstring("PropagationDependentVariables.custom_type").c_str())
+"")
                         .value("gravity_field_potential_type",
                                tp::PropagationDependentVariables::
                                    gravity_field_potential_dependent_variable,
-get_docstring("PropagationDependentVariables.gravity_field_potential_type").c_str())
+"")
                         .value(
                             "gravity_field_laplacian_of_potential_type",
                             tp::PropagationDependentVariables::
                                 gravity_field_laplacian_of_potential_dependent_variable,
-get_docstring("PropagationDependentVariables.gravity_field_laplacian_of_potential_type").c_str())
+"")
                         .export_values();
 
 
@@ -367,7 +366,7 @@ R"doc(Functional base class to define settings for variables.
 	This class is a functional base class for defining settings for variables.
 	Any variable that requires additional information in addition to what can be provided here, should be defined by a
 	dedicated derived class.
-	
+
 )doc");
 
                     py::class_<tp::SingleDependentVariableSaveSettings,
@@ -380,7 +379,7 @@ R"doc(`VariableSettings`-derived class to define settings for dependent variable
 	Functional base class for defining settings for dependent variables that are to be computed and saved during propagation.
 	Any dependent variable that requires additional information in addition to what can be provided here, should be
 	defined by a dedicated derived class.
-	
+
 )doc");
                     //            .def(py::init<
                     //                 const tp::PropagationDependentVariables,
@@ -420,20 +419,20 @@ R"doc(`SingleDependentVariableSaveSettings`-derived class to save a single accel
                     m.def("get_dependent_variable_id",
                           &tp::getDependentVariableId,
                           py::arg("dependent_variable_settings"),
-get_docstring("get_dependent_variable_id").c_str());
+"");
 
                     m.def("get_dependent_variable_size",
                           &tp::getDependentVariableSaveSize,
                           py::arg("dependent_variable_settings"),
                           py::arg("bodies"),
-get_docstring("get_dependent_variable_size").c_str());
+"");
 
                     m.def(
                         "get_dependent_variable_shape",
                         &tp::getDependentVariableShape,
                         py::arg("dependent_variable_settings"),
                         py::arg("bodies"),
-get_docstring("get_dependent_variable_shape").c_str());
+"");
                     //////////////////////////////////////////////////////////////////////////////////////
                     /// FREE FUNCTIONS
                     /// ///////////////////////////////////////////////////////////////////
@@ -749,7 +748,7 @@ R"doc(Function to add the total torque vector to the dependent variables to save
                         py::arg("component_indices"),
 R"doc(Function to add single degree/order contributions of a spherical harmonic acceleration vector to the dependent variables to save.
 
-	Function to add single degree/order contributions of a spherical harmonic acceleration vector to the dependent variables to save. The spherical harmonic acceleration consists of a (truncated) summation of contributions at degree :math:`l` and order :math:`m`. Using this function, you can save the contributions of separate :math:`l,m` entries to the total acceleration. For instance, when requesting dependent variables for :math:`l,m=2,2`, the contribution due to the combined influence of :math:`ar{C}_{22}` and `ar{S}_{22}` are provided 
+	Function to add single degree/order contributions of a spherical harmonic acceleration vector to the dependent variables to save. The spherical harmonic acceleration consists of a (truncated) summation of contributions at degree :math:`l` and order :math:`m`. Using this function, you can save the contributions of separate :math:`l,m` entries to the total acceleration. For instance, when requesting dependent variables for :math:`l,m=2,2`, the contribution due to the combined influence of :math:`ar{C}_{22}` and `ar{S}_{22}` are provided
 
 	:param body_undergoing_acceleration:
 		Body undergoing acceleration.
@@ -817,14 +816,14 @@ R"doc(Function to add the aerodynamic moment coefficients to the dependent varia
                         &tp::
                             aerodynamicForceCoefficientControlSurfaceFreeDependentVariable,
                         py::arg("body"), py::arg("central_body") = "",
-get_docstring("aerodynamic_force_coefficients_control_surface_free").c_str());
+"");
 
                     m.def(
                         "aerodynamic_moment_coefficients_control_surface_free",
                         &tp::
                             aerodynamicMomentCoefficientControlSurfaceFreeDependentVariable,
                         py::arg("body"), py::arg("central_body") = "",
-get_docstring("aerodynamic_moment_coefficients_control_surface_free").c_str());
+"");
 
                     m.def(
                         "aerodynamic_force_coefficients_control_surface_"
@@ -833,7 +832,7 @@ get_docstring("aerodynamic_moment_coefficients_control_surface_free").c_str());
                             aerodynamicForceCoefficientControlSurfaceIncrementDependentVariable,
                         py::arg("body"), py::arg("control_surface_name"),
                         py::arg("central_body") = "",
-get_docstring("aerodynamic_force_coefficients_control_surface_increment").c_str());
+"");
 
                     m.def(
                         "aerodynamic_moment_coefficients_control_surface_"
@@ -842,7 +841,7 @@ get_docstring("aerodynamic_force_coefficients_control_surface_increment").c_str(
                             aerodynamicMomentCoefficientControlSurfaceIncrementDependentVariable,
                         py::arg("body"), py::arg("control_surface_name"),
                         py::arg("central_body") = "",
-get_docstring("aerodynamic_moment_coefficients_control_surface_increment").c_str());
+"");
 
                     m.def("latitude", &tp::latitudeDependentVariable,
                           py::arg("body"), py::arg("central_body"),
@@ -1041,14 +1040,14 @@ R"doc(Function to add the acceleration induced by a single time-variability of a
                         py::arg("body"), py::arg("minimum_degree"),
                         py::arg("maximum_degree"), py::arg("minimum_order"),
                         py::arg("maximum_order"),
-get_docstring("total_spherical_harmonic_cosine_coefficien_variation").c_str());
+"");
 
                     m.def("total_spherical_harmonic_sine_coefficien_variations",
                           &tp::totalSphericalHarmonicSineCoefficientVariation,
                           py::arg("body"), py::arg("minimum_degree"),
                           py::arg("maximum_degree"), py::arg("minimum_order"),
                           py::arg("maximum_order"),
-get_docstring("total_spherical_harmonic_sine_coefficien_variation").c_str());
+"");
 
                     m.def(
                         "total_spherical_harmonic_cosine_coefficien_variations_"
@@ -1056,7 +1055,7 @@ get_docstring("total_spherical_harmonic_sine_coefficien_variation").c_str());
                         &tp::
                             totalSphericalHarmonicCosineCoefficientVariationFromIndices,
                         py::arg("body"), py::arg("component_indices"),
-get_docstring("total_spherical_harmonic_cosine_coefficien_variations_from_indices").c_str());
+"");
 
                     m.def(
                         "total_spherical_harmonic_sine_coefficien_variations_"
@@ -1064,7 +1063,7 @@ get_docstring("total_spherical_harmonic_cosine_coefficien_variations_from_indice
                         &tp::
                             totalSphericalHarmonicCosineCoefficientVariationFromIndices,
                         py::arg("body"), py::arg("component_indices"),
-get_docstring("total_spherical_harmonic_cosine_coefficien_variations_from_indices").c_str());
+"");
 
                     m.def(
                         "body_fixed_airspeed_velocity",
@@ -1205,7 +1204,7 @@ R"doc(Function to add the altitude of apoapsis to the dependent variables to sav
                     m.def("control_surface_deflection",
                           &tp::controlSurfaceDeflectionDependentVariable,
                           py::arg("body"), py::arg("control_surface"),
-get_docstring("control_surface_deflection").c_str());
+"");
 
                     m.def("central_body_fixed_spherical_position",
                           &tp::centralBodyFixedSphericalPositionVariable,
@@ -1272,7 +1271,7 @@ R"doc(Function to add the total mass rate to the dependent variables to save.
                     m.def("custom_dependent_variable",
                           &tp::customDependentVariable,
                           py::arg("custom_function"), py::arg("variable_size"),
-get_docstring("custom_dependent_variable").c_str());
+"");
 
                     m.def("custom", &tp::customDependentVariableDeprecated,
                           py::arg("custom_function"), py::arg("variable_size"));
@@ -1318,7 +1317,7 @@ R"doc(Function to add the laplacian of the gravitational potential to the depend
                         py::arg("body_name"), py::arg("bodies_to_check"),
 R"doc(Function to compute the minimum distance between a given body, and a set of other bodies.
 
-	Function to compute the minimum distance between a given body, and a set of other bodies. This function takes the instantaneous position of body ``body_name``, and each body in the list ``bodies_to_check``, and computes the body from this list closest to ``body_name``. In this calculation, the positions of the bodies are evaluated at the current propagation time, and therefore **light time is ignored**. In addition, this functions does not consider visbility requirements (e.g. is a planet between two bodies). The dependent variable is of size 2, and consists of: (0) The distance between the body, and the closest other body; (1) The index from ``bodies_to_check`` for which the distance (given by the first index) is closest to ``body`` Typically, this function is used to compute the closest body in a constellation of satellites. 
+	Function to compute the minimum distance between a given body, and a set of other bodies. This function takes the instantaneous position of body ``body_name``, and each body in the list ``bodies_to_check``, and computes the body from this list closest to ``body_name``. In this calculation, the positions of the bodies are evaluated at the current propagation time, and therefore **light time is ignored**. In addition, this functions does not consider visbility requirements (e.g. is a planet between two bodies). The dependent variable is of size 2, and consists of: (0) The distance between the body, and the closest other body; (1) The index from ``bodies_to_check`` for which the distance (given by the first index) is closest to ``body`` Typically, this function is used to compute the closest body in a constellation of satellites.
 
 	:param body_name:
 		Body for which the distance to other bodies is to be computed.
@@ -1337,7 +1336,7 @@ R"doc(Function to compute the minimum distance between a given body, and a set o
                         py::arg("minimum_elevation_angle"),
 R"doc(Function to compute the minimum distance between a ground station, and a set of other bodies visible from that station.
 
-	Function to compute the minimum distance between a ground station, and a set of other bodies visible from that station This function takes the instantaneous position of the ground station ``station_name`` on ``body_name``, and each body in the list ``bodies_to_check``, and computes the body from this list closest to this ground station, only taking into account those bodies from this list which are visible from teh ground station. For this function, visibility is defined by a single elevation angle cutoff (at the ground station) below which a body is deemed to not be visible. In this calculation, the positions of the bodies are evaluated at the current propagation time, and therefore **light time is ignored**. The dependent variable is of size 3, and consists of: (0) The distance between the ground station, and the closest visible body; (1) The index from ``bodies_to_check`` for which the distance (given by the first index) is closest to thee ground station, and the body is visible. (2) Elevation angle for closest body. In case, no body is visible from the station, this function returns [NaN, -1, NaN]. Typically, this function is used to compute the closest body between a ground staion and a constellation of satellites. 
+	Function to compute the minimum distance between a ground station, and a set of other bodies visible from that station This function takes the instantaneous position of the ground station ``station_name`` on ``body_name``, and each body in the list ``bodies_to_check``, and computes the body from this list closest to this ground station, only taking into account those bodies from this list which are visible from teh ground station. For this function, visibility is defined by a single elevation angle cutoff (at the ground station) below which a body is deemed to not be visible. In this calculation, the positions of the bodies are evaluated at the current propagation time, and therefore **light time is ignored**. The dependent variable is of size 3, and consists of: (0) The distance between the ground station, and the closest visible body; (1) The index from ``bodies_to_check`` for which the distance (given by the first index) is closest to thee ground station, and the body is visible. (2) Elevation angle for closest body. In case, no body is visible from the station, this function returns [NaN, -1, NaN]. Typically, this function is used to compute the closest body between a ground staion and a constellation of satellites.
 
 	:param body_name:
 		Body on which ground station is located, for which the distance to other bodies is to be computed.
@@ -1354,52 +1353,52 @@ R"doc(Function to compute the minimum distance between a ground station, and a s
                     m.def("center_of_mass",
                           &tp::centerOfMassVariableSaveSettings,
                           py::arg("body"),
-get_docstring("center_of_mass").c_str());
+"");
 
                     m.def("inertia_tensor",
                           &tp::inertiaTensorVariableSaveSettings,
                           py::arg("body"),
-get_docstring("inertia_tensor").c_str());
+"");
 
                     m.def("received_irradiance",
                           &tp::receivedIrradianceDependentVariable,
                           py::arg("target_body"), py::arg("source_body"),
-get_docstring("received_irradiance").c_str());
+"");
 
                     m.def("received_irradiance_shadow_function",
                           &tp::receivedFractionDependentVariable,
                           py::arg("target_body"), py::arg("source_body"),
-get_docstring("received_irradiance_shadow_function").c_str());
+"");
 
                     m.def("visible_radiation_source_area",
                           &tp::visibleSourceAreaDependentVariable,
                           py::arg("target_body"), py::arg("source_body"),
-get_docstring("received_irradiance_shadow_function").c_str());
+"");
 
                     m.def("vehicle_panel_surface_normals_inertial_frame",
                           &tp::vehiclePanelInertialSurfaceNormals,
                           py::arg("body_name"), py::arg("part_name") = "",
-get_docstring("vehicle_panel_surface_normals_inertial_frame").c_str());
+"");
 
                     m.def("vehicle_panel_surface_normals_body_fixed_frame",
                           &tp::vehiclePanelInertialSurfaceNormals,
                           py::arg("body_name"), py::arg("part_name") = "",
-get_docstring("vehicle_panel_surface_normals_body_fixed_frame").c_str());
+"");
 
                     m.def("per_target_panel_radiation_pressure_force",
                           &tp::vehiclePanelInertialSurfaceNormals,
                           py::arg("target_name"), py::arg("source_name"),
-get_docstring("per_vehicle_panel_radiation_pressure_force").c_str());
+"");
 
                     m.def("radiation_pressure_source_panel_irradiance",
                           &tp::paneledRadiationSourcePerPanelIrradiance,
                           py::arg("target_name"), py::arg("source_name"),
-get_docstring("radiation_pressure_source_panel_irradiance").c_str());
+"");
 
                     m.def("radiation_pressure_source_panel_geometry",
                           &tp::paneledRadiationSourceGeometry,
                           py::arg("target_name"), py::arg("source_name"),
-get_docstring("radiation_pressure_source_panel_geometry").c_str());
+"");
                 }
 
             }  // namespace dependent_variable

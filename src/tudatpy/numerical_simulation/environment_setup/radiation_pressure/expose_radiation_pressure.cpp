@@ -12,7 +12,6 @@
 #include <tudat/astro/reference_frames/referenceFrameTransformations.h>
 #include <tudat/simulation/environment_setup.h>
 
-#include "tudatpy/docstrings.h"
 
 // #include <pybind11/chrono.h>
 #include <pybind11/eigen.h>
@@ -46,7 +45,7 @@ R"doc(Enumeration of available radiation pressure types.
                         .value("cannonball_radiation_pressure_interface",
                                tss::RadiationPressureType::
                                    cannon_ball_radiation_pressure_interface,
-get_docstring("RadiationPressureType.cannonball_radiation_pressure_interface").c_str())
+"")
                         //                .value("panelled_radiation_pressure_interface",
                         //                       tss::RadiationPressureType::panelled_radiation_pressure_interface,
                         //                .value("solar_sailing_radiation_pressure_interface",
@@ -54,23 +53,23 @@ get_docstring("RadiationPressureType.cannonball_radiation_pressure_interface").c
                         .export_values();
                     py::enum_<tss::RadiationPressureTargetModelType>(
                         m, "RadiationPressureTargetModelType",
-get_docstring("RadiationPressureTargetModelType").c_str())
+"")
                         .value("cannonball_target",
                                tss::RadiationPressureTargetModelType::
                                    cannonball_target,
-get_docstring("RadiationPressureType.cannonball_target").c_str())
+"")
                         .value("paneled_target",
                                tss::RadiationPressureTargetModelType::
                                    paneled_target,
-get_docstring("RadiationPressureType.paneled_target").c_str())
+"")
                         .value("multi_type_target",
                                tss::RadiationPressureTargetModelType::
                                    multi_type_target,
-get_docstring("RadiationPressureType.multi_type_target").c_str())
+"")
                         .value("undefined_target",
                                tss::RadiationPressureTargetModelType::
                                    undefined_target,
-get_docstring("RadiationPressureType.undefined_target").c_str())
+"")
                         .export_values();
 
 
@@ -82,7 +81,7 @@ R"doc(Base class for providing settings for radiation pressure interface models.
 
 	Functional (base) class for settings of radiation pressure interface models that require no information in addition to their type.
 	Radiation pressure interface model settings requiring additional information must be defined using an object derived from this class.
-	
+
 )doc");
                     //            .def(py::init<const
                     //            tss::RadiationPressureType, const std::string
@@ -125,7 +124,7 @@ R"doc(Factory function for creating cannonball radiation pressure interface mode
 
 	Factory function for settings object, defining a cannonball radiation pressure interface model,
 	In this model the effective force is co-linear with the vector from radiation source to the body experiencing the force.
-	
+
 
 	:param source_body:
 		Name of body emitting the radiation.
@@ -197,23 +196,23 @@ R"doc(Factory function for creating cannonball radiation pressure interface mode
                     py::class_<tss::LuminosityModelSettings,
                                std::shared_ptr<tss::LuminosityModelSettings>>(
                         m, "LuminosityModelSettings",
-get_docstring("LuminosityModelSettings").c_str());
+"");
 
                     m.def("constant_luminosity",
                           &tss::constantLuminosityModelSettings,
                           py::arg("luminosity"),
-get_docstring("constant_luminosity").c_str());
+"");
 
                     m.def("irradiance_based_constant_luminosity",
                           &tss::irradianceBasedLuminosityModelSettings,
                           py::arg("constant_irradiance"),
                           py::arg("reference_distance"),
-get_docstring("irradiance_based_constant_luminosity").c_str());
+"");
 
                     m.def("time_variable_luminosity",
                           &tss::timeVariableLuminosityModelSettings,
                           py::arg("luminosity_function"),
-get_docstring("time_variable_luminosity").c_str());
+"");
 
                     m.def(
                         "irradiance_based_time_variable_luminosity",
@@ -221,7 +220,7 @@ get_docstring("time_variable_luminosity").c_str());
                             timeVariableIrradianceBasedLuminosityModelSettings,
                         py::arg("irradiance_function"),
                         py::arg("reference_distance"),
-get_docstring("irradiance_based_time_variable_luminosity").c_str());
+"");
 
 
                     ///////////////////////////////////////////////////////////
@@ -233,14 +232,14 @@ get_docstring("irradiance_based_time_variable_luminosity").c_str());
                                std::shared_ptr<
                                    tss::SurfacePropertyDistributionSettings>>(
                         m, "SurfacePropertyDistributionSettings",
-get_docstring("SurfacePropertyDistributionSettings").c_str());
+"");
 
 
                     m.def(
                         "constant_surface_property_distribution",
                         &tss::constantSurfacePropertyDistributionSettings,
                         py::arg("constant_value"),
-get_docstring("constant_surface_property_distribution").c_str());
+"");
 
                     m.def(
                         "spherical_harmonic_surface_property_distribution",
@@ -250,7 +249,7 @@ get_docstring("constant_surface_property_distribution").c_str());
                                 sphericalHarmonicsSurfacePropertyDistributionSettings),
                         py::arg("cosine_coefficients"),
                         py::arg("sine_coefficients"),
-get_docstring("spherical_harmonic_surface_property_distribution").c_str());
+"");
 
                     m.def(
                         "predefined_spherical_harmonic_surface_property_"
@@ -261,7 +260,7 @@ get_docstring("spherical_harmonic_surface_property_distribution").c_str());
                             &tss::
                                 sphericalHarmonicsSurfacePropertyDistributionSettings),
                         py::arg("predefined_model"),
-get_docstring("predefined_spherical_harmonic_surface_property_distribution").c_str());
+"");
 
 
                     m.def(
@@ -274,7 +273,7 @@ get_docstring("predefined_spherical_harmonic_surface_property_distribution").c_s
                         py::arg("sine_periodic_degree_one_contribution"),
                         py::arg("constant_degree_two_contribution"),
                         py::arg("reference_epoch"), py::arg("period"),
-get_docstring("knocke_type_surface_property_distribution").c_str());
+"");
 
 
                     m.def(
@@ -284,12 +283,12 @@ get_docstring("knocke_type_surface_property_distribution").c_str());
                             &tss::
                                 secondDegreeZonalPeriodicSurfacePropertyDistributionSettings),
                         py::arg("predefined_model"),
-get_docstring("predefined_knocke_type_surface_property_distribution").c_str());
+"");
 
                     m.def("custom_surface_property_distribution",
                           &tss::customSurfacePropertyDistributionSettings,
                           py::arg("custom_function"),
-get_docstring("custom_surface_property_distribution").c_str());
+"");
 
 
                     ///////////////////////////////////////////////////////////
@@ -301,39 +300,39 @@ get_docstring("custom_surface_property_distribution").c_str());
                         tss::PanelRadiosityModelSettings,
                         std::shared_ptr<tss::PanelRadiosityModelSettings>>(
                         m, "PanelRadiosityModelSettings",
-get_docstring("PanelRadiosityModelSettings").c_str());
+"");
 
                     m.def("constant_radiosity",
                           &tss::constantPanelRadiosityModelSettings,
                           py::arg("radiosity"),
-get_docstring("constant_radiosity").c_str());
+"");
 
                     m.def("constant_albedo_surface_radiosity",
                           py::overload_cast<double, const std::string&>(
                               &tss::albedoPanelRadiosityModelSettings),
                           py::arg("constant_albedo"),
                           py::arg("original_source_name"),
-get_docstring("constant_albedo_surface_radiosity").c_str());
+"");
 
                     m.def("variable_albedo_surface_radiosity",
                           &tss::albedoPanelRadiosityModelSettingsGeneric,
                           py::arg("albedo_distribution_settings"),
                           py::arg("original_source_name"),
-get_docstring("variable_albedo_surface_radiosity").c_str());
+"");
 
                     m.def("thermal_emission_blackbody_constant_emissivity",
                           py::overload_cast<double, const std::string&>(
                               &tss::delayedThermalPanelRadiosityModelSettings),
                           py::arg("constant_emissivity"),
                           py::arg("original_source_name"),
-get_docstring("thermal_emission_blackbody_constant_emissivity").c_str());
+"");
 
                     m.def(
                         "thermal_emission_blackbody_variable_emissivity",
                         &tss::delayedThermalPanelRadiosityModelSettingsGeneric,
                         py::arg("emissivity_distribution_model"),
                         py::arg("original_source_name"),
-get_docstring("thermal_emission_blackbody_variable_emissivity").c_str());
+"");
 
                     m.def(
                         "thermal_emission_angle_based_radiosity",
@@ -342,7 +341,7 @@ get_docstring("thermal_emission_blackbody_variable_emissivity").c_str());
                         py::arg("maximum_temperature"),
                         py::arg("constant_emissivity"),
                         py::arg("original_source_name"),
-get_docstring("thermal_emission_angle_based_radiosity").c_str());
+"");
 
 
                     ///////////////////////////////////////////////////////////
@@ -353,7 +352,7 @@ get_docstring("thermal_emission_angle_based_radiosity").c_str());
                         tss::BodyPanelReflectionLawSettings,
                         std::shared_ptr<tss::BodyPanelReflectionLawSettings>>(
                         m, "BodyPanelReflectionLawSettings",
-get_docstring("BodyPanelReflectionLawSettings").c_str());
+"");
 
 
                     m.def(
@@ -362,12 +361,12 @@ get_docstring("BodyPanelReflectionLawSettings").c_str());
                         py::arg("specular_reflectivity"),
                         py::arg("diffuse_reflectivity"),
                         py::arg("with_instantaneous_reradiation"),
-get_docstring("specular_diffuse_body_panel_reflection").c_str());
+"");
 
                     m.def("lambertian_body_panel_reflection",
                           &tss::lambertainBodyPanelReflectionLawSettings,
                           py::arg("reflectivity"),
-get_docstring("lambertian_body_panel_reflection").c_str());
+"");
 
                     ///////////////////////////////////////////////////////////
                     ///////////   RADIATION SOURCE MODELS
@@ -378,13 +377,13 @@ get_docstring("lambertian_body_panel_reflection").c_str());
                         tss::RadiationSourceModelSettings,
                         std::shared_ptr<tss::RadiationSourceModelSettings>>(
                         m, "RadiationSourceModelSettings",
-get_docstring("RadiationSourceModelSettings").c_str());
+"");
 
 
                     m.def("isotropic_radiation_source",
                           &tss::isotropicPointRadiationSourceModelSettings,
                           py::arg("luminosity_model"),
-get_docstring("isotropic_radiation_source").c_str());
+"");
 
                     m.def(
                         "panelled_extended_radiation_source",
@@ -394,7 +393,7 @@ get_docstring("isotropic_radiation_source").c_str());
                         py::arg("number_of_panels_per_ring"),
                         py::arg("original_source_occulting_bodies") =
                             std::map<std::string, std::vector<std::string>>(),
-get_docstring("panelled_extended_radiation_source").c_str());
+"");
 
 
                     ///////////////////////////////////////////////////////////
@@ -405,7 +404,7 @@ get_docstring("panelled_extended_radiation_source").c_str());
                                std::shared_ptr<
                                    tss::RadiationPressureTargetModelSettings>>(
                         m, "RadiationPressureTargetModelSettings",
-get_docstring("RadiationPressureTargetModelSettings").c_str());
+"");
 
 
                     m.def(
@@ -416,7 +415,7 @@ get_docstring("RadiationPressureTargetModelSettings").c_str());
                         py::arg("radiation_pressure_coefficient"),
                         py::arg("per_source_occulting_bodies") =
                             std::map<std::string, std::vector<std::string>>(),
-get_docstring("cannonball_radiation_target").c_str());
+"");
 
                     m.def(
                         "panelled_radiation_target",
@@ -424,7 +423,7 @@ get_docstring("cannonball_radiation_target").c_str());
                             paneledRadiationPressureTargetModelSettingsWithOccultationMap,
                         py::arg("source_to_target_occulting_bodies") =
                             std::map<std::string, std::vector<std::string>>(),
-get_docstring("panelled_radiation_target").c_str());
+"");
                 }
 
             }  // namespace radiation_pressure

@@ -5,8 +5,6 @@
 #include <tudat/astro/basic_astro.h>
 #include <tudat/interface/spice.h>
 
-#include "tudatpy/docstrings.h"
-
 namespace py = pybind11;
 namespace tsi = tudat::spice_interface;
 namespace tba = tudat::basic_astrodynamics;
@@ -216,7 +214,7 @@ PYBIND11_MODULE(expose_spice, m) {
           &tudat::spice_interface::computeRotationMatrixBetweenFrames,
           py::arg("original_frame"), py::arg("new_frame"),
           py::arg("ephemeris_time"),
-tudatpy::get_docstring("compute_rotation_matrix_between_frames").c_str());
+"");
 
     //   m.def("compute_rotation_quaternion_between_frames",
     //         &tudat::spice_interface::computeRotationQuaternionBetweenFrames,
@@ -279,7 +277,7 @@ tudatpy::get_docstring("compute_rotation_matrix_between_frames").c_str());
             computeRotationQuaternionAndRotationMatrixDerivativeBetweenFrames,
         py::arg("original_frame"), py::arg("new_frame"),
         py::arg("ephemeris_time"),
-tudatpy::get_docstring("compute_rotation_quaternion_and_rotation_matrix_derivative_between_frames").c_str());
+"");
 
     m.def("get_body_properties", &tudat::spice_interface::getBodyProperties,
           py::arg("body_name"), py::arg("property"), py::arg("max_n_val"),

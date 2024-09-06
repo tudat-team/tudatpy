@@ -14,7 +14,6 @@
 #include <tudat/basics/deprecationWarnings.h>
 #include <tudat/simulation/environment_setup.h>
 
-#include "tudatpy/docstrings.h"
 
 // #include <pybind11/chrono.h>
 #include <pybind11/eigen.h>
@@ -77,34 +76,24 @@ namespace tudatpy {
                     py::class_<
                         tss::AerodynamicCoefficientSettings,
                         std::shared_ptr<tss::AerodynamicCoefficientSettings>>(
-                        m, "AerodynamicCoefficientSettings",
-                        get_docstring("AerodynamicCoefficientSettings").c_str())
-                        .def_property(
-                            "add_force_contribution_to_moments",
-                            &tss::AerodynamicCoefficientSettings::
-                                getAddForceContributionToMoments,
-                            &tss::AerodynamicCoefficientSettings::
-                                setAddForceContributionToMoments,
-                            get_docstring("AerodynamicCoefficientSettings.add_"
-                                          "force_contribution_to_moments")
-                                .c_str())
-                        .def_property(
-                            "moment_reference_point",
-                            &tss::AerodynamicCoefficientSettings::
-                                getMomentReferencePoint,
-                            &tss::AerodynamicCoefficientSettings::
-                                setMomentReferencePoint,
-                            get_docstring("AerodynamicCoefficientSettings."
-                                          "moment_reference_point")
-                                .c_str())
+                        m, "AerodynamicCoefficientSettings", "")
+                        .def_property("add_force_contribution_to_moments",
+                                      &tss::AerodynamicCoefficientSettings::
+                                          getAddForceContributionToMoments,
+                                      &tss::AerodynamicCoefficientSettings::
+                                          setAddForceContributionToMoments,
+                                      "")
+                        .def_property("moment_reference_point",
+                                      &tss::AerodynamicCoefficientSettings::
+                                          getMomentReferencePoint,
+                                      &tss::AerodynamicCoefficientSettings::
+                                          setMomentReferencePoint,
+                                      "")
                         .def("add_single_control_surface",
                              &tss::AerodynamicCoefficientSettings::
                                  addControlSurfaceSettings,
                              py::arg("control_surface_settings"),
-                             py::arg("control_surface_name"),
-                             get_docstring("AerodynamicCoefficientSettings.add_"
-                                           "single_control_surface")
-                                 .c_str());
+                             py::arg("control_surface_name"), "");
 
                     py::class_<tss::ConstantAerodynamicCoefficientSettings,
                                std::shared_ptr<
@@ -124,9 +113,7 @@ namespace tudatpy {
                                 ControlSurfaceIncrementAerodynamicCoefficientSettings>>(
                         m,
                         "ControlSurfaceIncrementAerodynamicCoefficientSettings",
-                        get_docstring("ControlSurfaceIncrementAerodynamicCoeffi"
-                                      "cientSettings")
-                            .c_str());
+                        "");
 
                     m.def(
                         "constant",
@@ -581,8 +568,7 @@ namespace tudatpy {
                         &tss::
                             customControlSurfaceIncrementAerodynamicCoefficientSettings,
                         py::arg("force_and_moment_coefficient_function"),
-                        py::arg("independent_variable_names"),
-                        get_docstring("custom_control_surface").c_str());
+                        py::arg("independent_variable_names"), "");
 
                     m.def(
                         "tabulated_from_files_control_surface",
@@ -595,9 +581,7 @@ namespace tudatpy {
                                 readTabulatedControlIncrementAerodynamicCoefficientsFromFiles),
                         py::arg("force_coefficient_files"),
                         py::arg("moment_coefficient_files"),
-                        py::arg("independent_variable_names"),
-                        get_docstring("tabulated_from_files_control_surface")
-                            .c_str());
+                        py::arg("independent_variable_names"), "");
 
 
                     /////////////////////////////////////////////////////////////////
