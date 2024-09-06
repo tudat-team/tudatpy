@@ -104,41 +104,32 @@ assigned by using a factory function from the :ref:`\`\`shape\`\`` module.
 	)doc")
                     .def_readwrite(
                         "aerodynamic_coefficient_settings",
-                        &tss::BodySettings::aerodynamicCoefficientSettings,
-"")
+                        &tss::BodySettings::aerodynamicCoefficientSettings, "")
                     .def_readwrite(
                         "gravity_field_variation_settings",
-                        &tss::BodySettings::gravityFieldVariationSettings,
-"")
-                    .def_readwrite(
-                        "shape_deformation_settings",
-                        &tss::BodySettings::bodyDeformationSettings,
-"")
-                    .def_readwrite(
-                        "ground_station_settings",
-                        &tss::BodySettings::groundStationSettings,
-"")
+                        &tss::BodySettings::gravityFieldVariationSettings, "")
+                    .def_readwrite("shape_deformation_settings",
+                                   &tss::BodySettings::bodyDeformationSettings,
+                                   "")
+                    .def_readwrite("ground_station_settings",
+                                   &tss::BodySettings::groundStationSettings,
+                                   "")
                     .def_readwrite(
                         "rigid_body_settings",
-                        &tss::BodySettings::rigidBodyPropertiesSettings,
-"")
-                    .def_readwrite(
-                        "radiation_pressure_target_settings",
-                        &tss::BodySettings::
-                            radiationPressureTargetModelSettings,
-"")
+                        &tss::BodySettings::rigidBodyPropertiesSettings, "")
+                    .def_readwrite("radiation_pressure_target_settings",
+                                   &tss::BodySettings::
+                                       radiationPressureTargetModelSettings,
+                                   "")
                     .def_readwrite(
                         "radiation_source_settings",
-                        &tss::BodySettings::radiationSourceModelSettings,
-"")
+                        &tss::BodySettings::radiationSourceModelSettings, "")
                     .def_readwrite(
                         "vehicle_shape_settings",
-                        &tss::BodySettings::bodyExteriorPanelSettings_,
-"")
+                        &tss::BodySettings::bodyExteriorPanelSettings_, "")
                     .def_readwrite(
                         "radiation_pressure_settings",
-                        &tss::BodySettings::radiationPressureSettings,
-"");
+                        &tss::BodySettings::radiationPressureSettings, "");
 
 
                 py::class_<tss::BodyListSettings,
@@ -243,8 +234,7 @@ assigned by using a factory function from the :ref:`\`\`shape\`\`` module.
                     py::overload_cast<const std::string &, const std::string &>(
                         &tss::getDefaultSingleBodySettings),
                     py::arg("body_name"),
-                    py::arg("base_frame_orientation") = "ECLIPJ2000",
-"");
+                    py::arg("base_frame_orientation") = "ECLIPJ2000", "");
 
                 m.def("get_default_single_body_settings_time_limited",
                       py::overload_cast<const std::string &, const double,
@@ -254,8 +244,7 @@ assigned by using a factory function from the :ref:`\`\`shape\`\`` module.
                       py::arg("body_name"), py::arg("initial_time"),
                       py::arg("final_time"),
                       py::arg("base_frame_orientation") = "ECLIPJ2000",
-                      py::arg("time_step") = 300.0,
-"");
+                      py::arg("time_step") = 300.0, "");
 
                 m.def(
                     "get_default_single_alternate_body_settings",
@@ -263,8 +252,7 @@ assigned by using a factory function from the :ref:`\`\`shape\`\`` module.
                                       const std::string &>(
                         &tss::getDefaultSingleAlternateNameBodySettings),
                     py::arg("body_name"), py::arg("source_body_name"),
-                    py::arg("base_frame_orientation") = "ECLIPJ2000",
-"");
+                    py::arg("base_frame_orientation") = "ECLIPJ2000", "");
 
                 m.def(
                     "get_default_single_alternate_body_settings_time_limited",
@@ -275,8 +263,7 @@ assigned by using a factory function from the :ref:`\`\`shape\`\`` module.
                     py::arg("body_name"), py::arg("source_body_name"),
                     py::arg("initial_time"), py::arg("final_time"),
                     py::arg("base_frame_orientation") = "ECLIPJ2000",
-                    py::arg("time_step") = 300.0,
-"");
+                    py::arg("time_step") = 300.0, "");
 
                 m.def("create_simplified_system_of_bodies",
                       &tss::createSimplifiedSystemOfBodies,
@@ -315,8 +302,7 @@ assigned by using a factory function from the :ref:`\`\`shape\`\`` module.
                       &tp::addEmptyTabulatedEphemeris<double, TIME_TYPE>,
                       py::arg("bodies"), py::arg("body_name"),
                       py::arg("ephemeris_origin") = "",
-                      py::arg("is_part_of_multi_arc") = false,
-"");
+                      py::arg("is_part_of_multi_arc") = false, "");
 
                 m.def(
                     "create_tabulated_ephemeris_from_spice",
@@ -329,15 +315,15 @@ assigned by using a factory function from the :ref:`\`\`shape\`\`` module.
 
                 m.def("create_body_ephemeris",
                       &tss::createBodyEphemeris<double, TIME_TYPE>,
-                      py::arg("ephemeris_settings"), py::arg("body_name"),
-"");
+                      py::arg("ephemeris_settings"), py::arg("body_name"), "");
 
-                m.def(
-                    "create_ground_station_ephemeris",
-                    py::overload_cast<const std::shared_ptr<tss::Body>,
-                                      const std::string &>(
-                        &tss::createReferencePointEphemeris<TIME_TYPE, double>),
-                    py::arg("body"), py::arg("station_name"));
+                m.def("create_ground_station_ephemeris",
+                      py::overload_cast<const std::shared_ptr<tss::Body>,
+                                        const std::string &,
+                                        const tss::SystemOfBodies &>(
+                          &tss::createReferencePointEphemerisFromId<TIME_TYPE,
+                                                                    double>),
+                      "body_with_ground_station", "station_name");
 
                 m.def("get_safe_interpolation_interval",
                       &tss::getSafeInterpolationInterval,
@@ -373,8 +359,7 @@ assigned by using a factory function from the :ref:`\`\`shape\`\`` module.
                 m.def("create_aerodynamic_coefficient_interface",
                       &tss::createAerodynamicCoefficientInterface,
                       py::arg("coefficient_settings"), py::arg("body"),
-                      py::arg("bodies"),
-"");
+                      py::arg("bodies"), "");
 
                 m.def("add_radiation_pressure_interface",
                       &tss::addRadiationPressureInterface, py::arg("bodies"),
@@ -435,7 +420,7 @@ assigned by using a factory function from the :ref:`\`\`shape\`\`` module.
                     py::arg("gravity_field_settings"),
                     py::arg("gravity_field_variation_settings") = std::vector<
                         std::shared_ptr<tss::GravityFieldVariationSettings>>(),
-"");
+                    "");
 
                 m.def("add_mass_properties_model", &tss::addRigidBodyProperties,
                       py::arg("bodies"), py::arg("body_name"),
@@ -443,8 +428,7 @@ assigned by using a factory function from the :ref:`\`\`shape\`\`` module.
 
                 m.def("add_rigid_body_properties", &tss::addRigidBodyProperties,
                       py::arg("bodies"), py::arg("body_name"),
-                      py::arg("rigid_body_property_settings"),
-"");
+                      py::arg("rigid_body_property_settings"), "");
 
 
                 m.def(
@@ -525,12 +509,10 @@ assigned by using a factory function from the :ref:`\`\`shape\`\`` module.
 		Name of the cenral body w.r.t. which the flight conditions are to be created (typically, but not necesarilly, the central body of propagation)/
 )doc");
 
-                m.def(
-                    "convert_ground_station_state_between_itrf_frames",
-                    &trf::convertGroundStationStateBetweenItrfFrames,
-                    py::arg("ground_station_state"), py::arg("epoch"),
-                    py::arg("base_frame"), py::arg("target_frame"),
-"");
+                m.def("convert_ground_station_state_between_itrf_frames",
+                      &trf::convertGroundStationStateBetweenItrfFrames,
+                      py::arg("ground_station_state"), py::arg("epoch"),
+                      py::arg("base_frame"), py::arg("target_frame"), "");
 
                 m.def(
                     "add_ground_station",
@@ -551,8 +533,7 @@ assigned by using a factory function from the :ref:`\`\`shape\`\`` module.
                           const std::shared_ptr<tss::Body>,
                           const std::shared_ptr<tss::GroundStationSettings>>(
                           &tss::createGroundStation),
-                      py::arg("body"), py::arg("ground_station_settings"),
-"");
+                      py::arg("body"), py::arg("ground_station_settings"), "");
 
                 m.def("create_radiation_pressure_interface",
                       &tss::createRadiationPressureInterface,
@@ -562,10 +543,10 @@ assigned by using a factory function from the :ref:`\`\`shape\`\`` module.
                 m.def("get_ground_station_list",
                       &tss::getGroundStationsLinkEndList, py::arg("body"));
 
-                m.def("get_target_elevation_angles",
-                      &tss::getTargetElevationAngles, py::arg("observing_body"),
-                      py::arg("target_body"), py::arg("station_name"),
-                      py::arg("times"));
+                // m.def("get_target_elevation_angles",
+                //       &tss::getTargetElevationAngles,
+                //       py::arg("observing_body"), py::arg("target_body"),
+                //       py::arg("station_name"), py::arg("times"));
 
                 // Function removed; error is shown
                 m.def("set_aerodynamic_guidance",
