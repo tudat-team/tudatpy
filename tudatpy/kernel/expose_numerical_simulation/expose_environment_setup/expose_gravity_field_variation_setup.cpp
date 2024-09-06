@@ -192,6 +192,12 @@ void expose_gravity_field_variation_setup(py::module &m) {
           py::arg("minimum_order") = 0,
           get_docstring("single_power_polynomial").c_str() );
 
+    m.def("mode_coupled_solid_body_tide",
+          &tss::modeCoupledSolidBodyGravityFieldVariationSettings,
+          py::arg("deforming_bodies"),
+          py::arg("love_numbers"),
+          get_docstring("mode_coupled_solid_body_tide").c_str() );
+
     m.def("polynomial",
           &tss::polynomialGravityFieldVariationsSettings,
           py::arg("cosine_amplitudes_per_power"),
