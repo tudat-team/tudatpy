@@ -1,9 +1,8 @@
-from tudatpy.numerical_simulation import environment_setup  # type:ignore
-from tudatpy.numerical_simulation import estimation, environment  # type:ignore
-from tudatpy.numerical_simulation.estimation_setup import observation  # type:ignore
-from tudatpy.numerical_simulation.environment_setup import add_gravity_field_model
-from tudatpy.numerical_simulation.environment_setup.gravity_field import central_sbdb
-from tudatpy.data._biases import get_biases_EFCC18
+from ..numerical_simulation import environment_setup, estimation, environment
+from ..numerical_simulation.estimation_setup import observation
+from ..numerical_simulation.environment_setup import add_gravity_field_model
+from ..numerical_simulation.environment_setup.gravity_field import central_sbdb
+from ._biases import get_biases_EFCC18
 
 import pandas as pd
 import numpy as np
@@ -302,7 +301,7 @@ class BatchMPC:
     def from_astropy(
         self, table: astropy.table.QTable, in_degrees: bool = True, frame: str = "J2000"
     ):
-        """Manually input an astropy table with observations into the batch. 
+        """Manually input an astropy table with observations into the batch.
         Usefull when manual filtering from astroquery is required
         Table must contain the following columns:
         number - MPC code of the minor planet\\
@@ -343,7 +342,7 @@ class BatchMPC:
     def from_pandas(
         self, table: pd.DataFrame, in_degrees: bool = True, frame: str = "J2000"
     ):
-        """Manually input an pandas dataframe with observations into the batch. 
+        """Manually input an pandas dataframe with observations into the batch.
         Usefull when manual filtering from astroquery is required
         Table must contain the following columns:
         number - MPC code of the minor planet\\
@@ -411,7 +410,7 @@ class BatchMPC:
         Raises
         ------
         ValueError
-            Is raised if bands, observatories, or observatories_exclude are not list or 
+            Is raised if bands, observatories, or observatories_exclude are not list or
             None.
         ValueError
             Is raised if both observations_exclude and observatories are not None.
@@ -493,17 +492,17 @@ class BatchMPC:
           sets up the relevant Tudat infrastructure to support estimation.
         This method does the following:\\
             1. (By Default) Applies star catalog debiasing.
-            2. Creates an empty body for each minor planet with their MPC code as a 
+            2. Creates an empty body for each minor planet with their MPC code as a
             name.\\
             3. Adds this body to the system of bodies inputted to the method.\\
-            4. Retrieves the global position of the terrestrial observatories in 
+            4. Retrieves the global position of the terrestrial observatories in
             the batch and adds these stations to the Tudat environment.\\
-            5. Creates link definitions between each unique terrestrial 
+            5. Creates link definitions between each unique terrestrial
             observatory/ minor planet combination in the batch.\\
-            6. (Optionally) creates a link definition between each 
-            space telescope / minor planet combination in the batch. 
+            6. (Optionally) creates a link definition between each
+            space telescope / minor planet combination in the batch.
             This requires an addional input.\\
-            7. Creates a `SingleObservationSet` object for each unique link that 
+            7. Creates a `SingleObservationSet` object for each unique link that
             includes all observations for that link.\\
             8. Returns the observations
 
@@ -511,29 +510,29 @@ class BatchMPC:
         Parameters
         ----------
         bodies : environment.SystemOfBodies
-            SystemOfBodies containing at least the earth to allow for the placement of 
+            SystemOfBodies containing at least the earth to allow for the placement of
             terrestrial telescopes
         included_satellites : Union[Dict[str, str], None], optional
-            A dictionary that links the name of a space telescope used by the user with 
-            the observatory code in MPC. Used when utilising observations from space 
-            telescopes like TESS and WISE. The keys should be the MPC observatory 
-            codes. The values should be the bodies' in the user's code. The relevant 
-            observatory code can be retrieved using 
+            A dictionary that links the name of a space telescope used by the user with
+            the observatory code in MPC. Used when utilising observations from space
+            telescopes like TESS and WISE. The keys should be the MPC observatory
+            codes. The values should be the bodies' in the user's code. The relevant
+            observatory code can be retrieved using
             the .observatories_table() method, by default None
         station_body : str, optional
-            Body to attach ground stations to. Does not need to be changed unless the 
+            Body to attach ground stations to. Does not need to be changed unless the
             `Earth` body has been renamed, by default "Earth"
         station_body : bool, optional
-            Adds a central_sbdb gravity model to the object, generated using JPL's small body database. 
-            This option is only available for a limited number of bodies and raises an error if unavailable. 
+            Adds a central_sbdb gravity model to the object, generated using JPL's small body database.
+            This option is only available for a limited number of bodies and raises an error if unavailable.
             See tudatpy.numerical_simulation.environment_setup.gravity_field.central_sbdb for more info.
             Enabled if True, by default False
         apply_star_catalog_debias : bool, optional
-            Applies star catalog debiasing as described in: "Star catalog position and proper motion corrections 
+            Applies star catalog debiasing as described in: "Star catalog position and proper motion corrections
             in asteroid astrometry II: The Gaia era" by Eggl et al. (2018), by default True
         apply_star_catalog_debias : bool, optional
-            Additional options when applying star catalog debiasing. A different debias file 
-            can be set here. Options are set as kwargs using a dictionary, see data._biases.get_biases_EFCC18() 
+            Additional options when applying star catalog debiasing. A different debias file
+            can be set here. Options are set as kwargs using a dictionary, see data._biases.get_biases_EFCC18()
             for more info, by default dict()
 
         Returns

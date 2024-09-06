@@ -6,7 +6,7 @@ from ..numerical_simulation import (
     get_single_integration_size,
 )
 import os
-from typing import List, Dict, Union
+from typing import List, Dict, Union, Callable
 
 
 def result2array(result: Dict[float, np.ndarray]):
@@ -200,7 +200,7 @@ class redirect_std:
             os.close(link)
 
 
-def pareto_optimums(points: list, operator: Union[None, List[Union[min, max]]] = None):
+def pareto_optimums(points: list, operator: Union[None, List[Callable]] = None):
     """Compute Pareto optimums from a set of points.
 
     These points are all individually optimums, meaning that to be better in one dimension, they have to be worse in another one.

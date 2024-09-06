@@ -242,7 +242,7 @@ namespace tudatpy {
                 PYBIND11_MODULE(expose_observation, m) {
                     py::module_::import(
                         "tudatpy.numerical_simulation.estimation");
-                    py::module_::import("tudatpy.io.expose_io");
+                    py::module_::import("tudatpy.data.io.expose_io");
                     // ################      Link Definition ################
 
                     py::enum_<tom::LinkEndType>(

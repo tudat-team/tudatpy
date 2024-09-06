@@ -1,1 +1,1 @@
-# TudatPy IO is deprecated - No API
+raise DeprecationWarning("tudatpy.io is deprecated. Import from tudatpy.data instead")

@@ -1,7 +1,6 @@
 import pandas as pd
 import numpy as np
 import os
-from tudatpy.kernel.io import *
 
 
 def save2txt(solution, filename, directory="./"):
@@ -23,14 +22,13 @@ def save2txt(solution, filename, directory="./"):
         pass
     else:
         os.makedirs(directory)
-    df = pd.DataFrame(index=solution.keys(),
-                      data=np.vstack(list(solution.values())))
-    if len(filename.split('.')) > 1:
+    df = pd.DataFrame(index=solution.keys(), data=np.vstack(list(solution.values())))
+    if len(filename.split(".")) > 1:
         _filename = filename
     else:
         _filename = filename + ".txt"
     df.index.name = "time"
-    df.to_csv(os.path.join(directory, filename),header=False,sep='\t')
+    df.to_csv(os.path.join(directory, filename), header=False, sep="\t")
 
 
 def save_time_history_to_file(solution, filename, directory="./"):
@@ -53,4 +51,4 @@ def save_time_history_to_file(solution, filename, directory="./"):
         Directory in which to save the text file.
     """
 
-    save2txt(solution,filename,directory)
+    save2txt(solution, filename, directory)

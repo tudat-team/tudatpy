@@ -33,7 +33,7 @@ include(AddExtension)
 add_extension(tudatpy.interface.spice)
 
 # IO
-add_extension(tudatpy.io)
+add_extension(tudatpy.data.io)
 
 # Astro
 add_extension(tudatpy.astro.element_conversion)
