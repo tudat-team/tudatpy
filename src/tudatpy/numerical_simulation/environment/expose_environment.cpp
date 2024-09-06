@@ -1524,7 +1524,7 @@ separately created, to the :py:class:`~SystemOfBodies`.
                     .def("global_frame_orientation",
                          &tss::SystemOfBodies::getFrameOrientation, "")
                     .def("global_frame_origin",
-                         &tss::SystemOfBodies::getFrameOrigin, "");
+                         &tss::SystemOfBodies::getFrameOrigin, "")
 
                 //            .def_property_readonly("number_of_bodies",
                 //            &tss::SystemOfBodies::getNumberOfBodies,
