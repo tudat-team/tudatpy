@@ -16,8 +16,7 @@ class ResourceTool:
         self._html = None
 
     def _get_destined_path(self):
-        return os.path.join(self._resource_dir,
-                            self._resource_name + self._extension)
+        return os.path.join(self._resource_dir, self._resource_name + self._extension)
 
     def _get_file(self):
         if not self.is_downloaded:
@@ -30,11 +29,11 @@ class ResourceTool:
         if not os.path.exists(dirname):
             os.makedirs(dirname)
         r = requests.get(self._resource_url, stream=True)
-        with open(self._get_destined_path(), 'wb') as f:
-            total_length = int(r.headers.get('content-length'))
+        with open(self._get_destined_path(), "wb") as f:
+            total_length = int(r.headers.get("content-length"))
             for chunk in progress.bar(
-                    r.iter_content(chunk_size=1024),
-                    expected_size=(total_length / 1024) + 1):
+                r.iter_content(chunk_size=1024), expected_size=(total_length / 1024) + 1
+            ):
                 if chunk:
                     f.write(chunk)
                     f.flush()
@@ -66,8 +65,11 @@ class DataBaseIndex:
             return _BaseResource(
                 resource_url=self._resources[key]["resource_url"],
                 resource_dir=os.path.join(self._resource_root, self._name),
-                resource_name=os.path.basename(self._resources[key]["resource_url"]).split(".")[0],
-                extension="." + os.path.basename(self._resources[key]["resource_url"]).split(".")[1]
+                resource_name=os.path.basename(
+                    self._resources[key]["resource_url"]
+                ).split(".")[0],
+                extension="."
+                + os.path.basename(self._resources[key]["resource_url"]).split(".")[1],
             )
         elif self._resources[key]["type"] == "directory":
             _key_list = []
@@ -75,19 +77,21 @@ class DataBaseIndex:
             for item in self._resources[key]["items"]:
                 file_name = os.path.basename(item["resource_url"])
                 _key_list.append(file_name)
-                _cls_list.append(_BaseResource(
-                    resource_url=item["resource_url"],
-                    resource_dir=os.path.join(self._resource_root, self._name, key),
-                    resource_name=file_name.split(".")[0],
-                    extension="." + file_name.split(".")[1]
-                ))
+                _cls_list.append(
+                    _BaseResource(
+                        resource_url=item["resource_url"],
+                        resource_dir=os.path.join(self._resource_root, self._name, key),
+                        resource_name=file_name.split(".")[0],
+                        extension="." + file_name.split(".")[1],
+                    )
+                )
             return dict(zip(_key_list, _cls_list))
         else:
             raise KeyError("type must be specified for a resource.")
 
     @classmethod
     def from_json(cls, path, resource_root="~/.cache"):
-        with open(path, 'r') as j:
+        with open(path, "r") as j:
             contents = json.loads(j.read())
         return cls(contents, resource_root)
 
@@ -96,7 +100,7 @@ class DataBaseIndex:
         return cls(dict, resource_root)
 
     def to_json(self, path, root_dir="~/.cache"):
-
+        return None
 
 
 if __name__ == "__main__":
@@ -110,5 +114,3 @@ if __name__ == "__main__":
     print(tudat_space_db.spice_kernels["naif0012.tls"].path)
     print(tudat_space_db.spice_kernels["tudat_merged_spk_kernel.inp"].path)
     print(tudat_space_db.spice_kernels["moon_assoc_pa.tf"].path)
-
-

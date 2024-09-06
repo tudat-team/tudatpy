@@ -1127,10 +1127,12 @@ the aerodynamic coefficients.
                     m, "GroundStationState")
                     .def("get_cartesian_state",
                          &tgs::GroundStationState::getCartesianStateInTime,
-                         py::arg("seconds_since_epoch"))
+                         py::arg("seconds_since_epoch"),
+                         py::arg("target_frame_origin"))
                     .def("get_cartesian_position",
                          &tgs::GroundStationState::getCartesianPositionInTime,
-                         py::arg("seconds_since_epoch"))
+                         py::arg("seconds_since_epoch"),
+                         py::arg("target_frame_origin"))
                     .def_property_readonly(
                         "cartesian_positon_at_reference_epoch",
                         &tgs::GroundStationState::getNominalCartesianPosition)
@@ -1524,7 +1526,7 @@ separately created, to the :py:class:`~SystemOfBodies`.
                     .def("global_frame_orientation",
                          &tss::SystemOfBodies::getFrameOrientation, "")
                     .def("global_frame_origin",
-                         &tss::SystemOfBodies::getFrameOrigin, "")
+                         &tss::SystemOfBodies::getFrameOrigin, "");
 
                 //            .def_property_readonly("number_of_bodies",
                 //            &tss::SystemOfBodies::getNumberOfBodies,
