@@ -854,8 +854,7 @@ the aerodynamic coefficients.
 
                 py::class_<te::ConstantEphemeris,
                            std::shared_ptr<te::ConstantEphemeris>,
-                           te::Ephemeris>(m, "ConstantEphemeris",
-                                          "")
+                           te::Ephemeris>(m, "ConstantEphemeris", "")
                     .def(
                         py::init<
                             const std::function<
@@ -1127,12 +1126,10 @@ the aerodynamic coefficients.
                     m, "GroundStationState")
                     .def("get_cartesian_state",
                          &tgs::GroundStationState::getCartesianStateInTime,
-                         py::arg("seconds_since_epoch"),
-                         py::arg("target_frame_origin"))
+                         py::arg("seconds_since_epoch"))
                     .def("get_cartesian_position",
                          &tgs::GroundStationState::getCartesianPositionInTime,
-                         py::arg("seconds_since_epoch"),
-                         py::arg("target_frame_origin"))
+                         py::arg("seconds_since_epoch"))
                     .def_property_readonly(
                         "cartesian_positon_at_reference_epoch",
                         &tgs::GroundStationState::getNominalCartesianPosition)
