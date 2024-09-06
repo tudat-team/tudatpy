@@ -449,6 +449,13 @@ void expose_estimated_parameter_setup(py::module &m) {
           py::arg("use_complex_love_number") = 0,
           get_docstring("order_varying_k_love_number", 2).c_str() );
 
+    m.def("mode_coupled_k_love_numbers",
+          &tep::modeCoupledTidalLoveNumberEstimatableParameterSettings,
+          py::arg("deformed_body"),
+          py::arg("love_number_indices"),
+          py::arg("deforming_bodies"),
+          get_docstring("mode_coupled_k_love_numbers").c_str() );
+
     m.def("polynomial_gravity_field_variation_amplitudes",
           &tep::polynomialGravityFieldVariationParameter,
           py::arg("body_name"),
