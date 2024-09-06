@@ -154,6 +154,7 @@ int main( )
             createCompressedDopplerCollection( observation_models::createOdfObservedObservationCollection< long double, Time >(
                     processedOdfFileContents, { dsn_n_way_averaged_doppler } ), 60.0, 10 );
 
+
     /****************************************************************************************
      ************************** PRINT DATA SUMMARY
      *****************************************************************************************/
@@ -224,13 +225,7 @@ int main( )
      ************************** SIMULATE OBSERVATIONS AND COMPUTE RESIDUALS
      *****************************************************************************************/
 
-    std::vector< std::shared_ptr< simulation_setup::ObservationSimulationSettings< Time > > > observationSimulationSettings =
-            getObservationSimulationSettingsFromObservations( observedObservationCollection );
-    std::shared_ptr< observation_models::ObservationCollection< long double, Time > > computedObservationCollection =
-            simulateObservations( observationSimulationSettings, observationSimulators, bodies );
-
-    Eigen::Matrix< long double, Eigen::Dynamic, 1 > residuals = observedObservationCollection->getConcatenatedObservations( ) - computedObservationCollection->getConcatenatedObservations( );
-    observedObservationCollection->setResiduals( residuals );
+    computeAndSetResiduals< long double, Time >( observedObservationCollection, observationSimulators, bodies );
     std::cout << observedObservationCollection->getConcatenatedResiduals( ).transpose( ) << std::endl;
 
     /****************************************************************************************
