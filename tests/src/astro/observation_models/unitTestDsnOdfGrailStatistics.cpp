@@ -200,13 +200,8 @@ int main( )
      ************************** SIMULATE OBSERVATIONS AND COMPUTE RESIDUALS
      *****************************************************************************************/
 
-    std::vector< std::shared_ptr< simulation_setup::ObservationSimulationSettings< Time > > > observationSimulationSettings =
-            getObservationSimulationSettingsFromObservations( observedObservationCollection );
-    std::shared_ptr< observation_models::ObservationCollection< long double, Time > > computedObservationCollection =
-            simulateObservations( observationSimulationSettings, observationSimulators, bodies );
+    computeAndSetResiduals< long double, Time >( observedObservationCollection, observationSimulators, bodies );
 
-    Eigen::Matrix< long double, Eigen::Dynamic, 1 > residuals = observedObservationCollection->getConcatenatedObservations( ) - computedObservationCollection->getConcatenatedObservations( );
-    observedObservationCollection->setResiduals( residuals );
 
     /****************************************************************************************
     ************************** FILTER OBSERVATIONS
