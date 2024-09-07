@@ -15,6 +15,15 @@ macro (add_extension import_path)
     # Add extension
     pybind11_add_module("expose_${extension_name}" MODULE ${src_path})
 
+    # Remove stub if exists
+    list(SUBLIST import_path_list 1 -1 relative_import_path_list)
+    string(JOIN "/" relative_extension_path ${relative_import_path_list})
+    add_custom_command(
+        TARGET "expose_${extension_name}"
+        POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E remove "${TUDATPY_SOURCE_DIR}/src/tudatpy-stubs/${relative_extension_path}/expose_${extension_name}.pyi"
+    )
+
     # Headers
     target_include_directories("expose_${extension_name}" PUBLIC
         $<BUILD_INTERFACE:${Boost_INCLUDE_DIRS}>
