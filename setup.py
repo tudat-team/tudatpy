@@ -476,7 +476,7 @@ if __name__ == "__main__":
     # if outcome.returncode:
     #     exit(outcome.returncode)
 
-    # Install libraries
+    # Install tudatpy
     install_command = ["cmake", "--install", f"{build_dir}"]
     outcome = subprocess.run(install_command)
     if outcome.returncode:
@@ -492,3 +492,6 @@ if __name__ == "__main__":
 
         stub_generator = StubGenerator(clean=args.stubs_clean)
         stub_generator.generate_stubs(TUDATPY_ROOT)
+
+    # Install stubs
+    install_command = ["cmake", "--install", f"{build_dir}"]

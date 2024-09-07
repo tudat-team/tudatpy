@@ -207,14 +207,19 @@ add_extension(tudatpy.math.root_finders)
 # set_target_properties(kernel PROPERTIES VISIBILITY_INLINES_HIDDEN TRUE)
 
 # Installation
+message(STATUS "Installing tudatpy")
 install(
     DIRECTORY "${TUDATPY_SOURCE_DIR}/src/tudatpy"
     DESTINATION "${PYLIB_PREFIX}"
 )
-install(
-    DIRECTORY "${TUDATPY_SOURCE_DIR}/src/tudatpy-stubs"
-    DESTINATION "${PYLIB_PREFIX}"
-)
+
+if (EXISTS "${TUDATPY_SOURCE_DIR}/src/tudatpy-stubs")
+    message(STATUS "Installing stubs")
+    install(
+        FILES "${TUDATPY_SOURCE_DIR}/src/tudatpy-stubs"
+        DESTINATION "${PYLIB_PREFIX}"
+    )
+endif()
 
 # # Install the kernel module.
 # install(TARGETS kernel
