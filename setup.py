@@ -468,13 +468,13 @@ if __name__ == "__main__":
     # Set up build directory
     setup_build_dir(args, build_dir)
 
-    # # Build libraries
-    # build_command = ["cmake", "--build", f"{build_dir}", f"-j{args.j}"]
-    # if args.verbose:
-    #     build_command.append("--verbose")
-    # outcome = subprocess.run(build_command)
-    # if outcome.returncode:
-    #     exit(outcome.returncode)
+    # Build libraries
+    build_command = ["cmake", "--build", f"{build_dir}", f"-j{args.j}"]
+    if args.verbose:
+        build_command.append("--verbose")
+    outcome = subprocess.run(build_command)
+    if outcome.returncode:
+        exit(outcome.returncode)
 
     # Install tudatpy
     install_command = ["cmake", "--install", f"{build_dir}"]
