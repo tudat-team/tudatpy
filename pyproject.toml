@@ -13,7 +13,7 @@ authors = [
     { name = "The TudatPy team" }
 ]
 license = { file = "LICENSE" }
-requires-python = ">=3.7"
+requires-python = ">=3.9"
 dependencies = [
     "numpy<2.0.0",
     "scipy",
@@ -35,4 +35,18 @@ Repository = "https://github.com/tudat-team/tudatpy/tree/develop"
 [tool.pytest.ini.options]
 testpaths = [
     "tests"
+]
+
+[tool.scikit-build.cmake.define]
+CMAKE_INSTALL_PREFIX = { env = "PREFIX", default = "" }
+CMAKE_PREFIX_PATH = { env = "PREFIX", default = "" }
+
+[tool.scikit-build]
+cmake.args = [
+    "-DCMAKE_CXX_STANDARD=14",
+    "-DBoost_NO_BOOST_CMAKE=ON",
+    "-DCMAKE_BUILD_TYPE=Release",
+    "-DTUDATPY_CONDA_BUILD=on",
+    "-D_GLIBCXX_USE_CXX11_ABI=1",
+    '-DCMAKE_CXX_FLAGS_RELEASE="-Wno-macro-redefined -Wunused-parameter"'
 ]
