@@ -495,3 +495,6 @@ if __name__ == "__main__":
 
     # Install stubs
     install_command = ["cmake", "--install", f"{build_dir}"]
+    outcome = subprocess.run(install_command)
+    if outcome.returncode:
+        exit(outcome.returncode)
