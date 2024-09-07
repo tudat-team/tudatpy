@@ -2,7 +2,6 @@ import argparse
 import os
 import shutil
 from pathlib import Path
-from contextlib import chdir
 import subprocess
 import ast
 import sys
@@ -18,6 +17,24 @@ PYLIB_PREFIX = (
     / f"python{sys.version_info.major}.{sys.version_info.minor}"
     / "site-packages"
 ).resolve()
+
+
+# Change directory
+class ChangeDir:
+    """Context manager for changing the current working directory"""
+
+    def __init__(self, new_path):
+        self.new_path = Path(new_path).resolve()
+        self.saved_path = Path.cwd()
+        return None
+
+    def __enter__(self):
+        os.chdir(self.new_path)
+        return None
+
+    def __exit__(self, etype, value, traceback):
+        os.chdir(self.saved_path)
+        return None
 
 
 class BuildParser(argparse.ArgumentParser):
@@ -453,16 +470,15 @@ if __name__ == "__main__":
     setup_build_dir(args, build_dir)
 
     # Build libraries
-    with chdir(build_dir):
-        build_command = ["cmake", "--build", ".", f"-j{args.j}"]
-        if args.verbose:
-            build_command.append("--verbose")
-        outcome = subprocess.run(build_command)
-        if outcome.returncode:
-            exit(outcome.returncode)
+    build_command = ["cmake", "--build", f"{build_dir}", f"-j{args.j}"]
+    if args.verbose:
+        build_command.append("--verbose")
+    outcome = subprocess.run(build_command)
+    if outcome.returncode:
+        exit(outcome.returncode)
 
     # Generate stubs
-    with chdir("src"):
+    with ChangeDir("src"):
 
         if (PYLIB_PREFIX / "tudatpy").exists():
             stub_generator = StubGenerator(clean=args.stubs_clean)
