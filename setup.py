@@ -5,7 +5,6 @@ from pathlib import Path
 import subprocess
 import ast
 import sys
-import string
 
 # Globals
 TUDATPY_ROOT = Path("src/tudatpy").absolute()
@@ -446,7 +445,7 @@ def setup_build_dir(args: argparse.Namespace, build_dir: Path) -> None:
                 f"-DCMAKE_CXX_STANDARD={args.cxx_standard}",
                 "-DBoost_NO_BOOST_CMAKE=ON",
                 f"-DCMAKE_BUILD_TYPE={args.build_type}",
-                '-DCMAKE_CXX_FLAGS_RELEASE="-Wno-macro-redefined -Wunused-parameter"',
+                f"-DPYLIB_PREFIX={PYLIB_PREFIX}",
                 "-B",
                 f"{build_dir}",
                 "-S",
@@ -469,19 +468,27 @@ if __name__ == "__main__":
     # Set up build directory
     setup_build_dir(args, build_dir)
 
-    # Build libraries
-    build_command = ["cmake", "--build", f"{build_dir}", f"-j{args.j}"]
-    if args.verbose:
-        build_command.append("--verbose")
-    outcome = subprocess.run(build_command)
+    # # Build libraries
+    # build_command = ["cmake", "--build", f"{build_dir}", f"-j{args.j}"]
+    # if args.verbose:
+    #     build_command.append("--verbose")
+    # outcome = subprocess.run(build_command)
+    # if outcome.returncode:
+    #     exit(outcome.returncode)
+
+    # Install libraries
+    install_command = ["cmake", "--install", f"{build_dir}"]
+    outcome = subprocess.run(install_command)
     if outcome.returncode:
         exit(outcome.returncode)
 
     # Generate stubs
     with ChangeDir("src"):
 
-        if (PYLIB_PREFIX / "tudatpy").exists():
-            stub_generator = StubGenerator(clean=args.stubs_clean)
-            stub_generator.generate_stubs(TUDATPY_ROOT)
-        else:
+        try:
+            from tudatpy import __version__
+        except ImportError:
             print("TudatPy is not installed yet. Skipping stub generation.")
+
+        stub_generator = StubGenerator(clean=args.stubs_clean)
+        stub_generator.generate_stubs(TUDATPY_ROOT)

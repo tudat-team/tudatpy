@@ -53,45 +53,45 @@ add_extension(tudatpy.math.interpolators)
 add_extension(tudatpy.math.numerical_integrators)
 add_extension(tudatpy.math.root_finders)
 
-# Numerical simulation
-add_extension(tudatpy.numerical_simulation)
-add_extension(tudatpy.numerical_simulation.propagation)
-add_extension(tudatpy.numerical_simulation.environment)
-add_extension(tudatpy.numerical_simulation.estimation)
+# # Numerical simulation
+# add_extension(tudatpy.numerical_simulation)
+# add_extension(tudatpy.numerical_simulation.propagation)
+# add_extension(tudatpy.numerical_simulation.environment)
+# add_extension(tudatpy.numerical_simulation.estimation)
 
-# Numerical simulation - Environment setup
-add_extension(tudatpy.numerical_simulation.environment_setup)
-add_extension(tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients)
-add_extension(tudatpy.numerical_simulation.environment_setup.atmosphere)
-add_extension(tudatpy.numerical_simulation.environment_setup.ephemeris)
-add_extension(tudatpy.numerical_simulation.environment_setup.gravity_field)
-add_extension(tudatpy.numerical_simulation.environment_setup.gravity_field_variation)
-add_extension(tudatpy.numerical_simulation.environment_setup.ground_station)
-add_extension(tudatpy.numerical_simulation.environment_setup.radiation_pressure)
-add_extension(tudatpy.numerical_simulation.environment_setup.rigid_body)
-add_extension(tudatpy.numerical_simulation.environment_setup.rotation_model)
-add_extension(tudatpy.numerical_simulation.environment_setup.shape)
-add_extension(tudatpy.numerical_simulation.environment_setup.shape_deformation)
-add_extension(tudatpy.numerical_simulation.environment_setup.vehicle_systems)
+# # Numerical simulation - Environment setup
+# add_extension(tudatpy.numerical_simulation.environment_setup)
+# add_extension(tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients)
+# add_extension(tudatpy.numerical_simulation.environment_setup.atmosphere)
+# add_extension(tudatpy.numerical_simulation.environment_setup.ephemeris)
+# add_extension(tudatpy.numerical_simulation.environment_setup.gravity_field)
+# add_extension(tudatpy.numerical_simulation.environment_setup.gravity_field_variation)
+# add_extension(tudatpy.numerical_simulation.environment_setup.ground_station)
+# add_extension(tudatpy.numerical_simulation.environment_setup.radiation_pressure)
+# add_extension(tudatpy.numerical_simulation.environment_setup.rigid_body)
+# add_extension(tudatpy.numerical_simulation.environment_setup.rotation_model)
+# add_extension(tudatpy.numerical_simulation.environment_setup.shape)
+# add_extension(tudatpy.numerical_simulation.environment_setup.shape_deformation)
+# add_extension(tudatpy.numerical_simulation.environment_setup.vehicle_systems)
 
-# Numerical simulation - Propagation setup
-add_extension(tudatpy.numerical_simulation.propagation_setup)
-add_extension(tudatpy.numerical_simulation.propagation_setup.acceleration)
-add_extension(tudatpy.numerical_simulation.propagation_setup.dependent_variable)
-add_extension(tudatpy.numerical_simulation.propagation_setup.integrator)
-add_extension(tudatpy.numerical_simulation.propagation_setup.mass_rate)
-add_extension(tudatpy.numerical_simulation.propagation_setup.propagator)
-add_extension(tudatpy.numerical_simulation.propagation_setup.torque)
-add_extension(tudatpy.numerical_simulation.propagation_setup.thrust)
+# # Numerical simulation - Propagation setup
+# add_extension(tudatpy.numerical_simulation.propagation_setup)
+# add_extension(tudatpy.numerical_simulation.propagation_setup.acceleration)
+# add_extension(tudatpy.numerical_simulation.propagation_setup.dependent_variable)
+# add_extension(tudatpy.numerical_simulation.propagation_setup.integrator)
+# add_extension(tudatpy.numerical_simulation.propagation_setup.mass_rate)
+# add_extension(tudatpy.numerical_simulation.propagation_setup.propagator)
+# add_extension(tudatpy.numerical_simulation.propagation_setup.torque)
+# add_extension(tudatpy.numerical_simulation.propagation_setup.thrust)
 
-# Numerical simulation - Estimation setup
-add_extension(tudatpy.numerical_simulation.estimation_setup)
-add_extension(tudatpy.numerical_simulation.estimation_setup.observation)
-add_extension(tudatpy.numerical_simulation.estimation_setup.parameter)
+# # Numerical simulation - Estimation setup
+# add_extension(tudatpy.numerical_simulation.estimation_setup)
+# add_extension(tudatpy.numerical_simulation.estimation_setup.observation)
+# add_extension(tudatpy.numerical_simulation.estimation_setup.parameter)
 
-# Trajectory design
-add_extension(tudatpy.trajectory_design.shape_based_thrust)
-add_extension(tudatpy.trajectory_design.transfer_trajectory)
+# # Trajectory design
+# add_extension(tudatpy.trajectory_design.shape_based_thrust)
+# add_extension(tudatpy.trajectory_design.transfer_trajectory)
 
 # # Core module.
 # pybind11_add_module(kernel
@@ -207,10 +207,13 @@ add_extension(tudatpy.trajectory_design.transfer_trajectory)
 # set_target_properties(kernel PROPERTIES VISIBILITY_INLINES_HIDDEN TRUE)
 
 # Installation
-set(TUDATPY_INSTALL_PATH "${CONDA_PREFIX}")
 install(
     DIRECTORY "${TUDATPY_SOURCE_DIR}/src/tudatpy"
-    DESTINATION "${TUDATPY_INSTALL_PATH}/tudatpy"
+    DESTINATION "${PYLIB_PREFIX}"
+)
+install(
+    DIRECTORY "${TUDATPY_SOURCE_DIR}/src/tudatpy-stubs"
+    DESTINATION "${PYLIB_PREFIX}"
 )
 
 # # Install the kernel module.
@@ -245,10 +248,10 @@ install(
 # INSTALL_HYBRID_CPP_PYTHON_MODULE(io)
 
 #install(FILES test.py "${CMAKE_CURRENT_BINARY_DIR}/_version.py")
-file(COPY ../../tests DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/../../)
+# file(COPY ../../tests DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/../../)
 
-# collect all example-X.py files
-file(GLOB EXAMPLE_SCRIPTS "../../examples/example*.py")
+# # collect all example-X.py files
+# file(GLOB EXAMPLE_SCRIPTS "../../examples/example*.py")
 
-# copy them into the root build tree
-file(COPY ${EXAMPLE_SCRIPTS} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/../../)
+# # copy them into the root build tree
+# file(COPY ${EXAMPLE_SCRIPTS} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/../../)
