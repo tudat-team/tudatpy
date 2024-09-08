@@ -126,4 +126,5 @@ file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/docs DESTINATION ${CMAKE_CURRENT_BINARY_DI
 
 # Tudatpy subdirectory
 include_directories(include)
+add_link_options("-L${CMAKE_INSTALL_PREFIX}/lib")
 add_subdirectory(src/tudatpy)

@@ -210,16 +210,14 @@ add_extension(tudatpy.math.root_finders)
 message(STATUS "Installing tudatpy")
 install(
     DIRECTORY "${TUDATPY_SOURCE_DIR}/src/tudatpy"
-    DESTINATION "${PYLIB_PREFIX}"
+    DESTINATION "${Python_SITELIB}"
 )
 
-if (EXISTS "${TUDATPY_SOURCE_DIR}/src/tudatpy-stubs")
-    message(STATUS "Installing stubs")
-    install(
-        FILES "${TUDATPY_SOURCE_DIR}/src/tudatpy-stubs"
-        DESTINATION "${PYLIB_PREFIX}"
-    )
-endif()
+message(STATUS "Installing stubs")
+install(
+    DIRECTORY "${TUDATPY_SOURCE_DIR}/src/tudatpy-stubs"
+    DESTINATION "${Python_SITELIB}"
+)
 
 # # Install the kernel module.
 # install(TARGETS kernel

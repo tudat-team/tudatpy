@@ -20,7 +20,13 @@ PYLIB_PREFIX = (
 
 # Change directory
 class ChangeDir:
-    """Context manager for changing the current working directory"""
+    """Context manager for changing the current working directory
+
+    NOTE: TudatPy is currently compatible with Python 3.9 and 3.10, so
+    we cannot used contextlib.chdir because it was introduced in 3.11.
+    The moment compatibility with 3.9 and 3.10 is dropped, this class should
+    be replaced with contextlib.chdir.
+    """
 
     def __init__(self, new_path):
         self.new_path = Path(new_path).resolve()
@@ -41,15 +47,12 @@ class BuildParser(argparse.ArgumentParser):
 
     def __init__(self) -> None:
 
-        super().__init__(prog="build.py", description="Build tudat and tudatpy")
+        super().__init__(
+            prog="setup.py", description="Build and install tudat and tudatpy"
+        )
 
         # Control CMake setup
         setup_group = self.add_argument_group(title="CMake setup")
-        setup_group.add_argument(
-            "--setup",
-            action="store_true",
-            help="Forced CMake setup if build directory already exists",
-        )
         setup_group.add_argument(
             "-c",
             "--clean",
@@ -75,38 +78,6 @@ class BuildParser(argparse.ArgumentParser):
             default="14",
             help="C++ standard",
         )
-        setup_group.add_argument(
-            "--tudat-tests",
-            action="store_true",
-            help="Build Tudat tests",
-        )
-        setup_group.add_argument(
-            "--no-sofa",
-            dest="sofa",
-            action="store_false",
-            help="Build without SOFA interface",
-        )
-        setup_group.add_argument(
-            "--no-nrlmsise00",
-            dest="nrlmsise00",
-            action="store_false",
-            help="Build without NRLMSISE00 interface",
-        )
-        setup_group.add_argument(
-            "--json",
-            action="store_true",
-            help="Build with JSON interface",
-        )
-        setup_group.add_argument(
-            "--pagmo",
-            action="store_true",
-            help="Build with PAGMO",
-        )
-        setup_group.add_argument(
-            "--extended-precision",
-            action="store_true",
-            help="Build with extended precision propagation tools",
-        )
 
         # Control CMake build
         control_group = self.add_argument_group("CMake build")
@@ -115,18 +86,6 @@ class BuildParser(argparse.ArgumentParser):
             metavar="<cores>",
             default="1",
             help="Number of processors",
-        )
-        control_group.add_argument(
-            "--no-tudat",
-            dest="skip_tudat",
-            action="store_true",
-            help="Skip Tudat compilation",
-        )
-        control_group.add_argument(
-            "--no-tudatpy",
-            dest="skip_tudatpy",
-            action="store_true",
-            help="Skip TudatPy compilation",
         )
         control_group.add_argument(
             "-v",
@@ -466,7 +425,29 @@ if __name__ == "__main__":
     build_dir = Path(args.build_dir).resolve()
 
     # Set up build directory
-    setup_build_dir(args, build_dir)
+    if build_dir.exists() and args.clean:
+        shutil.rmtree(build_dir)
+
+    if STUBS_ROOT.exists() and args.stubs_clean:
+        shutil.rmtree(STUBS_ROOT)
+
+    outcome = subprocess.run(
+        [
+            "cmake",
+            f"-DCMAKE_PREFIX_PATH={CONDA_PREFIX}",
+            f"-DCMAKE_INSTALL_PREFIX={CONDA_PREFIX}",
+            f"-DCMAKE_CXX_STANDARD={args.cxx_standard}",
+            "-DBoost_NO_BOOST_CMAKE=ON",
+            f"-DCMAKE_BUILD_TYPE={args.build_type}",
+            f"-DPYLIB_PREFIX={PYLIB_PREFIX}",
+            "-B",
+            f"{build_dir}",
+            "-S",
+            ".",
+        ]
+    )
+    if outcome.returncode:
+        exit(outcome.returncode)
 
     # Build libraries
     build_command = ["cmake", "--build", f"{build_dir}", f"-j{args.j}"]
@@ -475,6 +456,9 @@ if __name__ == "__main__":
     outcome = subprocess.run(build_command)
     if outcome.returncode:
         exit(outcome.returncode)
+
+    # Generate empty stubs directory
+    STUBS_ROOT.mkdir(exist_ok=True)
 
     # Install tudatpy
     install_command = ["cmake", "--install", f"{build_dir}"]
@@ -486,14 +470,15 @@ if __name__ == "__main__":
     with ChangeDir("src"):
 
         try:
-            from tudatpy import __version__
+            from tudatpy import __version__  # type: ignore
         except ImportError:
-            print("TudatPy is not installed yet. Skipping stub generation.")
+            print("Skipping stub generation: tudatpy not installed")
 
         stub_generator = StubGenerator(clean=args.stubs_clean)
         stub_generator.generate_stubs(TUDATPY_ROOT)
 
     # Install stubs
+    print("Installing stubs...")
     install_command = ["cmake", "--install", f"{build_dir}"]
     outcome = subprocess.run(install_command)
     if outcome.returncode:
