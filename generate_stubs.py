@@ -1,4 +1,4 @@
-from .build import ChangeDir, StubGenerator, TUDATPY_ROOT, BuildParser
+from setup import ChangeDir, StubGenerator, TUDATPY_ROOT, BuildParser
 import subprocess
 from pathlib import Path
 
