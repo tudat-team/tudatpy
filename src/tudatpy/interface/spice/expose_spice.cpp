@@ -213,8 +213,7 @@ PYBIND11_MODULE(expose_spice, m) {
     m.def("compute_rotation_matrix_between_frames",
           &tudat::spice_interface::computeRotationMatrixBetweenFrames,
           py::arg("original_frame"), py::arg("new_frame"),
-          py::arg("ephemeris_time"),
-"");
+          py::arg("ephemeris_time"), "");
 
     //   m.def("compute_rotation_quaternion_between_frames",
     //         &tudat::spice_interface::computeRotationQuaternionBetweenFrames,
@@ -276,8 +275,7 @@ PYBIND11_MODULE(expose_spice, m) {
         &tudat::spice_interface::
             computeRotationQuaternionAndRotationMatrixDerivativeBetweenFrames,
         py::arg("original_frame"), py::arg("new_frame"),
-        py::arg("ephemeris_time"),
-"");
+        py::arg("ephemeris_time"), "");
 
     m.def("get_body_properties", &tudat::spice_interface::getBodyProperties,
           py::arg("body_name"), py::arg("property"), py::arg("max_n_val"),
@@ -446,19 +444,10 @@ PYBIND11_MODULE(expose_spice, m) {
           py::arg("kernel_file"),
           R"doc(Loads a Spice kernel into the pool.
 
-	This function loads a Spice kernel into the kernel pool, from which
-	it can be used by the various internal spice routines. Matters
-	regarding the manner in which Spice handles different kernels
-	containing the same information can be found in the spice required
-	reading documentation, kernel section. Wrapper for the `furnsh_c`_
-	function.
+          This function loads a Spice kernel into the kernel pool, from which it can be used by the various internal spice routines. Matters regarding the manner in which Spice handles different kernels containing the same information can be found in the spice required reading documentation, kernel section. Wrapper for the `furnsh_c <https://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/cspice/furnsh_c.html>`_ function.
 
-	.. _`furnsh_c`: https://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/cspice/furnsh_c.html
-
-
-	:param file_path:
-		Path to the spice kernel to be loaded.
-)doc");
+          :param file_path: Path to the spice kernel to be loaded.
+          )doc");
 
     m.def("clear_kernels", &tudat::spice_interface::clearSpiceKernels,
           R"doc(Clear all loaded spice kernels.

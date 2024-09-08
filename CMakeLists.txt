@@ -22,9 +22,8 @@ set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--no-undefined")
 
 # Initial log
 message("")
-message(STATUS "<< ${PROJECT_NAME} (${CMAKE_BUILD_TYPE} - ${BUILD_STYLE}) >>")
+message(STATUS "<< ${PROJECT_NAME} (${CMAKE_BUILD_TYPE} - ${PROJECT_VERSION}) >>")
 message(STATUS "System name: ${CMAKE_SYSTEM_NAME}")
-message(STATUS "TudatPy version: ${PROJECT_VERSION}")
 message("")
 
 
