@@ -55,9 +55,6 @@ wheel.packages = [
     "src/tudatpy",
     "src/tudatpy-stubs"
 ]
-build.tool-args = [
-    "-j4"
-]
 
 [tool.scikit-build.cmake.define]
 CMAKE_INSTALL_PREFIX = { env = "CONDA_PREFIX", default = "" }

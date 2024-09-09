@@ -77,8 +77,11 @@ add_extension(tudatpy.trajectory_design.shape_based_thrust)
 add_extension(tudatpy.trajectory_design.transfer_trajectory)
 
 # Installation
-message(STATUS "Installing tudatpy")
 install(
     DIRECTORY "${TUDATPY_SOURCE_DIR}/src/tudatpy"
-    DESTINATION "${Python_SITELIB}"
+    DESTINATION "${CMAKE_INSTALL_PREFIX}"
+)
+install(
+    DIRECTORY "${TUDATPY_SOURCE_DIR}/src/tudatpy-stubs"
+    DESTINATION "${CMAKE_INSTALL_PREFIX}"
 )
