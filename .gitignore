@@ -39,4 +39,3 @@ __pycache__/*
 __pycache__*
 .DS_Store
 *.egg*
-tudatpy-stubs

@@ -1,0 +1,2 @@
+from .expose_shape import BodyShapeSettings, HybridBodyShapeSettings, OblateSphericalBodyShapeSettings, PolyhedronBodyShapeSettings, SphericalBodyShapeSettings, hybrid, oblate_spherical, polyhedron, spherical, spherical_spice
+__all__ = ['BodyShapeSettings', 'HybridBodyShapeSettings', 'OblateSphericalBodyShapeSettings', 'PolyhedronBodyShapeSettings', 'SphericalBodyShapeSettings', 'hybrid', 'oblate_spherical', 'polyhedron', 'spherical', 'spherical_spice']
