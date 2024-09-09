@@ -61,6 +61,8 @@ Functions
 
    sbdb_wrapper.central_sbdb
 
+   sbdb_wrapper.central_sbdb_density
+
 
 .. autofunction:: tudatpy.numerical_simulation.environment_setup.gravity_field.central
 
@@ -81,6 +83,8 @@ Functions
 .. autofunction:: tudatpy.numerical_simulation.environment_setup.gravity_field.polyhedron_from_density
 
 .. autofunction:: tudatpy.numerical_simulation.environment_setup.gravity_field.sbdb_wrapper.central_sbdb
+
+.. autofunction:: tudatpy.numerical_simulation.environment_setup.gravity_field.sbdb_wrapper.central_sbdb_density
 
 
 Enumerations
