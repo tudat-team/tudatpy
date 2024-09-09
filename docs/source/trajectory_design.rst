@@ -19,6 +19,7 @@ This module contains submodules with specific trajectory design functionalities.
 
    transfer_trajectory
    shape_based_thrust
+   porkchop
 
 
 
