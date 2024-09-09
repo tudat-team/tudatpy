@@ -77,6 +77,8 @@ add_extension(tudatpy.trajectory_design.shape_based_thrust)
 add_extension(tudatpy.trajectory_design.transfer_trajectory)
 
 # Installation
+install(CODE "")
+
 message(STATUS "Installing tudatpy")
 install(
     DIRECTORY "${TUDATPY_SOURCE_DIR}/src/tudatpy"

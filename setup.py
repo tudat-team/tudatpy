@@ -465,3 +465,21 @@ if __name__ == "__main__":
     outcome = subprocess.run(install_command)
     if outcome.returncode:
         exit(outcome.returncode)
+
+    # Generate stubs
+    with ChangeDir("src"):
+
+        try:
+            from tudatpy import __version__  # type: ignore
+        except ImportError:
+            print("Skipping stub generation: tudatpy not installed")
+
+        stub_generator = StubGenerator(clean=args.stubs_clean)
+        stub_generator.generate_stubs(TUDATPY_ROOT)
+
+    # Install stubs
+    print("Installing stubs...")
+    install_command = ["cmake", "--install", f"{build_dir}"]
+    outcome = subprocess.run(install_command)
+    if outcome.returncode:
+        exit(outcome.returncode)

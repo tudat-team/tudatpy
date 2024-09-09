@@ -24,7 +24,8 @@ dependencies = [
     "tqdm",
     "astropy",
     "astroquery",
-    "astropy-healpix"
+    "astropy-healpix",
+    "pybind11-stubgen"
 ]
 
 [project.urls]
@@ -38,8 +39,8 @@ testpaths = [
 ]
 
 [tool.scikit-build.cmake.define]
-CMAKE_INSTALL_PREFIX = { env = "PREFIX", default = "" }
-CMAKE_PREFIX_PATH = { env = "PREFIX", default = "" }
+CMAKE_INSTALL_PREFIX = { env = "CONDA_PREFIX", default = "" }
+CMAKE_PREFIX_PATH = { env = "CONDA_PREFIX", default = "" }
 
 [tool.scikit-build]
 cmake.args = [
@@ -47,6 +48,5 @@ cmake.args = [
     "-DBoost_NO_BOOST_CMAKE=ON",
     "-DCMAKE_BUILD_TYPE=Release",
     "-DTUDATPY_CONDA_BUILD=on",
-    "-D_GLIBCXX_USE_CXX11_ABI=1",
-    '-DCMAKE_CXX_FLAGS_RELEASE="-Wno-macro-redefined -Wunused-parameter"'
+    "-D_GLIBCXX_USE_CXX11_ABI=1"
 ]
