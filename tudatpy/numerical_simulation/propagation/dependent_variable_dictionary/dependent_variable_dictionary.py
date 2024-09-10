@@ -233,13 +233,16 @@ def create_dependent_variable_dictionary(
     to their time histories. See the documentation of `DependentVariableDictionary` to learn more about how
     time histories are saved, and how the time history of a given dependent variable can be retrieved.
 
-    Arguments
-    ---------
-    - dynamics_simulator: `SingleArcSimulator` object containing the results of the numerical propagation
+    Parameters
+    ----------
+    dynamics_simulator : SingleArcSimulator
+        SingleArcSimulator object containing the results of the numerical propagation
 
-    Output
-    ------
-    - dependent_variable_dictionary: `DependentVariableDictionary` of propagation
+    Returns
+	-------
+    dependent_variable_dictionary : DependentVariableDictionary
+		DependentVariableDictionary of propagation
+
     """
 
     #--------------------------------------------------------------------
