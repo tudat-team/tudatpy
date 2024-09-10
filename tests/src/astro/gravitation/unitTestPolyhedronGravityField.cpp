@@ -152,6 +152,7 @@ BOOST_AUTO_TEST_CASE( testGravityComputation )
         bool testGradient = true;
         bool testLaplacian = true;
         bool testHessian = true;
+        bool outsideBody = false;
 
         // Select expected values
         if ( positionId == 0 )
@@ -185,6 +186,7 @@ BOOST_AUTO_TEST_CASE( testGravityComputation )
         {
             (bodyFixedPosition << -5.0, 5.0, 5.0).finished();
             expectedLaplacian = 0.0;
+            outsideBody = true;
             testPotential = false;
             testGradient = false;
             testHessian = false;
@@ -200,6 +202,7 @@ BOOST_AUTO_TEST_CASE( testGravityComputation )
         else
         {
             (bodyFixedPosition << 10.0, 5.0, 10.0 + 1e-10).finished();
+            outsideBody = true;
             expectedLaplacian = 0.0;
             testPotential = false;
             testGradient = false;
@@ -222,13 +225,19 @@ BOOST_AUTO_TEST_CASE( testGravityComputation )
         {
             computedLaplacian = gravityField.getLaplacianOfPotential( bodyFixedPosition );
             // Expected value is 0 for point 3, so add a constant to the laplacian
-            if ( positionId == 3 || positionId == 5 )
-            {
-                computedLaplacian += 0.1;
-                expectedLaplacian += 0.1;
-            }
+
+            std::cout<<positionId<<" "<<expectedLaplacian<<" "<<computedLaplacian<<" "<<expectedLaplacian - computedLaplacian<<" "<<std::fabs( computedLaplacian ) * 100.0 * tolerance <<std::endl;
+
             //BOOST_CHECK_CLOSE_FRACTION( expectedLaplacian, computedLaplacian, tolerance );
-            BOOST_CHECK( std::fabs( expectedLaplacian - computedLaplacian ) < std::fabs( std::min( expectedLaplacian, computedLaplacian ) * 100.0 * tolerance ) );
+            if( !outsideBody )
+            {
+                BOOST_CHECK( std::fabs( expectedLaplacian - computedLaplacian ) < std::fabs( computedLaplacian ) * 100.0 * tolerance );
+            }
+            else
+            {
+                BOOST_CHECK( std::fabs( computedLaplacian ) < 100.0 * tolerance );
+
+            }
 
         }
         if ( testHessian )

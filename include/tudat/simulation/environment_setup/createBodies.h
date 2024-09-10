@@ -397,7 +397,7 @@ SystemOfBodies createSystemOfBodies(
     {
         if( orderedBodySettings.at( i ).second->radiationPressureTargetModelSettings != nullptr )
         {
-            bodyList.at( orderedBodySettings.at( i ).first )->setRadiationPressureTargetModel(
+            bodyList.at( orderedBodySettings.at( i ).first )->setRadiationPressureTargetModels(
                         createRadiationPressureTargetModel(
                             orderedBodySettings.at( i ).second->radiationPressureTargetModelSettings,
                             orderedBodySettings.at( i ).first, bodyList ) );

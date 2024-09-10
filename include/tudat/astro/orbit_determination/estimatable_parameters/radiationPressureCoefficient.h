@@ -95,6 +95,69 @@ private:
     std::shared_ptr< electromagnetism::CannonballRadiationPressureTargetModel > radiationPressureInterface_;
 };
 
+class RadiationPressureScalingFactor: public EstimatableParameter< double >
+{
+
+public:
+
+    RadiationPressureScalingFactor(
+        const std::shared_ptr< electromagnetism::RadiationPressureAcceleration > radiationPressureAcceleration,
+        const EstimatebleParametersEnum parameterType,
+        const std::string& associatedBody,
+        const std::string& exertingBody ):
+        EstimatableParameter< double >( parameterType, associatedBody, exertingBody ),
+        radiationPressureAcceleration_( radiationPressureAcceleration )
+    {
+        if( ( parameterType != source_direction_radiation_pressure_scaling_factor ) &&
+        ( parameterType != source_perpendicular_direction_radiation_pressure_scaling_factor) )
+        {
+            throw std::runtime_error( "Error when creating radiation pressure scaling parameter, type is inconsistent: " + std::to_string( parameterType ) );
+        }
+    }
+
+    ~RadiationPressureScalingFactor( ) { }
+
+    double getParameterValue( )
+    {
+        if( parameterName_.first == source_direction_radiation_pressure_scaling_factor )
+        {
+            return radiationPressureAcceleration_->getSourceDirectionScaling( );
+        }
+        else if( parameterName_.first == source_perpendicular_direction_radiation_pressure_scaling_factor )
+        {
+            return radiationPressureAcceleration_->getPerpendicularSourceDirectionScaling( );
+        }
+        else
+        {
+            throw std::runtime_error( "Error when getting radiation pressure scaling parameter, type is inconsistent: " + std::to_string( parameterName_.first  ) );
+        }
+    }
+
+    void setParameterValue( double parameterValue )
+    {
+        if( parameterName_.first == source_direction_radiation_pressure_scaling_factor )
+        {
+            radiationPressureAcceleration_->setSourceDirectionScaling( parameterValue );
+        }
+        else if( parameterName_.first == source_perpendicular_direction_radiation_pressure_scaling_factor )
+        {
+            radiationPressureAcceleration_->setPerpendicularSourceDirectionScaling( parameterValue );
+        }
+        else
+        {
+            throw std::runtime_error( "Error when setting radiation pressure scaling parameter, type is inconsistent: " + std::to_string( parameterName_.first  ) );
+        }
+    }
+
+    int getParameterSize( ){ return 1; }
+
+protected:
+
+private:
+
+    std::shared_ptr< electromagnetism::RadiationPressureAcceleration > radiationPressureAcceleration_;
+};
+
 //! Interface class for the estimation of an arc-wise (piecewise constant) radiation pressure coefficient
 class ArcWiseRadiationPressureCoefficient: public EstimatableParameter< Eigen::VectorXd >
 {

@@ -119,6 +119,9 @@ std::shared_ptr< acceleration_partials::TorquePartial > createAnalyticalTorquePa
                       acceleratedBody.first, acceleratingBody.first );
         }
         break;
+    case radiation_pressure_torque:
+        throw std::runtime_error( "Error, radiation pressure torque partial not yet supported" );
+        break;
     case inertial_torque:
     {
         std::function< Eigen::Vector3d( ) > angularVelocityFunction =

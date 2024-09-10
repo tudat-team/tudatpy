@@ -256,7 +256,7 @@ createTrackingTxtFileObservationCollection(
   std::map<ObservableType, std::map<LinkEnds, std::vector<Eigen::Matrix<ObservationScalarType, Eigen::Dynamic, 1> >>> observablesMap;
 
   // Get vectors of times, observations, and ancillary settings for the current observable type and link ends
-  std::vector<TimeType> allObservationTimes = processedTrackingTxtFileContents->getObservationTimes();
+  std::vector<TimeType> allObservationTimes = utilities::staticCastVector< TimeType, double >( processedTrackingTxtFileContents->getObservationTimes() );
   std::vector<LinkEnds> linkEndsVector = processedTrackingTxtFileContents->getLinkEndsVector();
   std::set<LinkEnds> linkEndsSet = processedTrackingTxtFileContents->getLinkEndsSet();
 

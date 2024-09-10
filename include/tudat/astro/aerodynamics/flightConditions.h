@@ -444,6 +444,21 @@ public:
         return scalarFlightConditions_.at( mach_number_flight_condition );
     }
 
+    double getCurrentNumberDensity( const AtmosphericCompositionSpecies species)
+    {
+        if( currentNumberDensities_.count( species ) == 0 )
+        {
+            updateAtmosphereInput( );
+            currentNumberDensities_[ species ] =
+                atmosphereModel_->getNumberDensity( species,
+                                                    scalarFlightConditions_.at( altitude_flight_condition ),
+                                                    scalarFlightConditions_.at( longitude_flight_condition ),
+                                                    scalarFlightConditions_.at( latitude_flight_condition ), currentTime_ );
+        }
+        return currentNumberDensities_.at( species );
+    }
+
+
     //! Function to return atmosphere model object
     /*!
      *  Function to return atmosphere model object
@@ -673,13 +688,14 @@ private:
             isScalarFlightConditionComputed_[ mach_number_flight_condition ] = true;
         }
     }
-
     //! Function to update the independent variables of the aerodynamic coefficient interface
     void updateAerodynamicCoefficientInput( );
 
 
     //! Atmosphere model of atmosphere through which vehicle is flying
     std::shared_ptr< aerodynamics::AtmosphereModel > atmosphereModel_;
+
+    std::map< AtmosphericCompositionSpecies, double > currentNumberDensities_;
 
     //! Object from which the aerodynamic coefficients are obtained.
     std::shared_ptr< AerodynamicCoefficientInterface > aerodynamicCoefficientInterface_;
