@@ -335,6 +335,7 @@ void performObservationParameterEstimationClosureForSingleModelSet(
             // Check if bias object is of same type as estimated parameter
             std::shared_ptr< ArcWiseTimeBias< ObservationSize > > timeBiasObject =
                     std::dynamic_pointer_cast< ArcWiseTimeBias< ObservationSize > >( observationBias );
+
             if( timeBiasObject != nullptr )
             {
                 // Check if bias and parameter link properties are equal
@@ -355,6 +356,8 @@ void performObservationParameterEstimationClosureForSingleModelSet(
 
                     if( doTimesMatch == true )
                     {
+
+
                         timeBiasParameter->setObservationBiasFunctions(
                                 std::bind( &ArcWiseTimeBias< ObservationSize >::getTemplateFreeConstantObservationBias,
                                            timeBiasObject ),
