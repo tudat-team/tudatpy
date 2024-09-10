@@ -675,7 +675,8 @@ public:
             const std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > propagatorSettings,
             const bool areEquationsOfMotionToBeIntegrated = true,
             const PredefinedSingleArcStateDerivativeModels< StateScalarType, TimeType >& predefinedStateDerivativeModels =
-            PredefinedSingleArcStateDerivativeModels< StateScalarType, TimeType >( ) ):
+            PredefinedSingleArcStateDerivativeModels< StateScalarType, TimeType >( ),
+            const bool isPartOfMultiArc = false ):
         DynamicsSimulator< StateScalarType, TimeType >(
             bodies, propagatorSettings ),
         propagatorSettings_( propagatorSettings )
@@ -699,7 +700,7 @@ public:
         {
             throw std::runtime_error( "Error in dynamics simulator, integrator settings not defined." );
         }
-        checkPropagatedStatesFeasibility( propagatorSettings_, bodies_ );
+        checkPropagatedStatesFeasibility( propagatorSettings_, bodies_, isPartOfMultiArc );
 
         // Create objects that reset the environment (e.g. ephemerides) after propagation is required
         if( propagatorSettings_->getOutputSettings( )->getSetIntegratedResult( ) )
@@ -780,7 +781,7 @@ public:
                 std::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, Eigen::VectorXd > >( ),
                 propagatorSettings_->getDependentVariablesToSave( ),
                 dependentVariableIds_,
-                orderedDependentVariableSettings_ );
+                orderedDependentVariableSettings_, bodies );
 
         propagationResults_= std::make_shared< SingleArcSimulationResults< StateScalarType, TimeType > >(
                     integratedStateAndBodyList, propagatorSettings_->getOutputSettingsWithCheck( ),
@@ -1131,6 +1132,8 @@ public:
     {
         return propagationResults_->equationsOfMotionNumericalSolution_;
     }
+
+
 
     //! Function to return the map of state history of numerically integrated bodies, in propagation coordinates.
     /*!
@@ -1717,7 +1720,7 @@ public:
             for ( unsigned int i = 0; i < singleArcSettings.size( ); i++ ) {
                 singleArcDynamicsSimulators_.push_back(
                         std::make_shared<SingleArcDynamicsSimulator<StateScalarType, TimeType> >(
-                                bodies, singleArcSettings.at( i ), false ));
+                                bodies, singleArcSettings.at( i ), false, PredefinedSingleArcStateDerivativeModels< StateScalarType, TimeType >( ), true ) );
                 singleArcResults.push_back( singleArcDynamicsSimulators_.at( i )->getSingleArcPropagationResults( ));
                 singleArcDynamicsSimulators_.at( i )->createAndSetIntegratedStateProcessors( );
             }

@@ -27,6 +27,7 @@
 #include "tudat/astro/gravitation/timeDependentSphericalHarmonicsGravityField.h"
 #include "tudat/simulation/propagation_setup/propagationSettings.h"
 #include "tudat/astro/propagators/environmentUpdateTypes.h"
+#include "tudat/simulation/environment_setup/createRadiationPressureTargetModel.h"
 
 namespace tudat
 {
@@ -45,6 +46,8 @@ template< typename StateScalarType, typename TimeType >
 class EnvironmentUpdater
 {
 public:
+
+
 
     //! Constructor
     /*!
@@ -744,22 +747,42 @@ private:
                                             ->getRadiationSourceModel(), std::placeholders::_1 ) ) );
                         break;
                     }
-                    case radiation_pressure_target_model_update:
+                    case cannonball_radiation_pressure_target_model_update:
                     {
+                        std::shared_ptr<electromagnetism::RadiationPressureTargetModel> targetModel = simulation_setup::getRadiationPressureTargetModelOfType(
+                            bodyList_.at( currentBodies.at( i ) ), simulation_setup::cannonball_target, " when creating environment update function " );
                         // Check if current body has radiation pressure target model set.
-                        if( bodyList_.at( currentBodies.at( i ) )->getRadiationPressureTargetModel() == nullptr )
+                        if( targetModel == nullptr )
                         {
                             throw std::runtime_error(
                                         "Request radiation pressure target model update of " + currentBodies.at( i ) +
-                                        ", but body has no radiation pressure target model" );
+                                        ", but body has no cannonball radiation pressure target model" );
                         }
                         // If vehicle has radiation pressure target model, add its update function to update list.
-                        updateTimeFunctionList[ radiation_pressure_target_model_update ].push_back(
+                        updateTimeFunctionList[ cannonball_radiation_pressure_target_model_update ].push_back(
                                     std::make_pair(
                                         currentBodies.at( i ), std::bind(
                                             &electromagnetism::RadiationPressureTargetModel::updateMembers,
-                                            bodyList_.at( currentBodies.at( i ) )
-                                            ->getRadiationPressureTargetModel(), std::placeholders::_1 ) ) );
+                                            targetModel, std::placeholders::_1 ) ) );
+                        break;
+                    }
+                    case panelled_radiation_pressure_target_model_update:
+                    {
+                        std::shared_ptr<electromagnetism::RadiationPressureTargetModel> targetModel = simulation_setup::getRadiationPressureTargetModelOfType(
+                            bodyList_.at( currentBodies.at( i ) ), simulation_setup::paneled_target, " when creating environment update function " );
+                        // Check if current body has radiation pressure target model set.
+                        if( targetModel == nullptr )
+                        {
+                            throw std::runtime_error(
+                                "Request radiation pressure target model update of " + currentBodies.at( i ) +
+                                ", but body has no paneled radiation pressure target model" );
+                        }
+                        // If vehicle has radiation pressure target model, add its update function to update list.
+                        updateTimeFunctionList[ panelled_radiation_pressure_target_model_update ].push_back(
+                            std::make_pair(
+                                currentBodies.at( i ), std::bind(
+                                    &electromagnetism::RadiationPressureTargetModel::updateMembers,
+                                    targetModel, std::placeholders::_1 ) ) );
                         break;
                     }
                     case body_segment_orientation_update:

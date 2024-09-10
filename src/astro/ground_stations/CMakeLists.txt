@@ -16,7 +16,9 @@ set(ground_stations_SOURCES
         "basicTidalBodyDeformation.cpp"
         "iers2010SolidTidalBodyDeformation.cpp"
         "transmittingFrequencies.cpp"
-        )
+        "oceanTideEarthDeformation.cpp"
+        "poleTideDeformation.cpp"
+)
 
 # Set the header files.
 set(ground_stations_HEADERS
@@ -27,7 +29,9 @@ set(ground_stations_HEADERS
         "bodyDeformationModel.h"
         "iers2010SolidTidalBodyDeformation.h"
         "transmittingFrequencies.h"
-        )
+        "oceanTideEarthDeformation.h"
+        "poleTideDeformation.h"
+)
 
 TUDAT_ADD_LIBRARY("ground_stations"
         "${ground_stations_SOURCES}"

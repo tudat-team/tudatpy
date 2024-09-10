@@ -74,6 +74,20 @@ protected:
     double bodyReferenceRadius_;
 };
 
+class OceanTideBodyDeformationSettings: public BodyDeformationSettings
+{
+public:
+    OceanTideBodyDeformationSettings( const std::vector<std::string> blqFiles ):
+        BodyDeformationSettings( gravitation::ocean_tide ),
+        blqFiles_( blqFiles ){ }
+
+    std::vector<std::string> getBlqFiles( ){ return blqFiles_; }
+
+protected:
+
+    std::vector<std::string> blqFiles_;
+};
+
 inline std::shared_ptr< BasicSolidBodyDeformationSettings > basicTidalBodyShapeDeformation (
         const std::vector< std::string > deformingBodies,
         const std::map< int, std::pair< double, double > > displacementLoveNumbers,
@@ -95,9 +109,19 @@ inline std::shared_ptr< BasicSolidBodyDeformationSettings > degreeTwoBasicTidalB
                 deformingBodies, displacementLoveNumbers, bodyReferenceRadius );
 }
 
-inline std::shared_ptr< BodyDeformationSettings > iers2010TidalBodyShapeDeformation ( )
+inline std::shared_ptr< BodyDeformationSettings > iers2010TidalBodyShapeDeformation( )
 {
     return std::make_shared< BodyDeformationSettings >( gravitation::iers_2010 );
+}
+
+inline std::shared_ptr< BodyDeformationSettings > oceanTideBodyShapeDeformation( const std::vector<std::string> blqFiles )
+{
+    return std::make_shared< OceanTideBodyDeformationSettings >( blqFiles );
+}
+
+inline std::shared_ptr< BodyDeformationSettings > poleTideBodyShapeDeformation( )
+{
+    return std::make_shared< BodyDeformationSettings >( gravitation::pole_tide );
 }
 
 std::shared_ptr< basic_astrodynamics::BodyDeformationModel > createBodyDeformationModel(
