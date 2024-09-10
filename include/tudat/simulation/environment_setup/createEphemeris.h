@@ -1275,7 +1275,7 @@ std::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
             else
             {
                 // Create ephemeris
-                ephemeris = std::make_shared< CustomEphemeris >(
+                ephemeris = std::make_shared< CustomEphemeris< double, double > >(
                             customEphemerisSettings->getCustomStateFunction( ),
                             customEphemerisSettings->getFrameOrigin( ),
                             customEphemerisSettings->getFrameOrientation( ) );

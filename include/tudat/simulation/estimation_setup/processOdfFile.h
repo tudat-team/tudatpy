@@ -70,6 +70,22 @@ public:
         observableType_( observableType )
     { }
 
+    void splitSingleLinkDataBase( std::shared_ptr< ProcessedOdfFileSingleLinkData > firstBlockDataSet,
+                                  std::shared_ptr< ProcessedOdfFileSingleLinkData > secondBlockDataSet,
+                                  const int splitIndex );
+
+    virtual void splitSingleLinkDataDerived( std::shared_ptr< ProcessedOdfFileSingleLinkData > firstBlockDataSet,
+                                             std::shared_ptr< ProcessedOdfFileSingleLinkData > secondBlockDataSet,
+                                             const int splitIndex ) = 0;
+
+    void splitSingleLinkData( std::shared_ptr< ProcessedOdfFileSingleLinkData > firstBlockDataSet,
+                              std::shared_ptr< ProcessedOdfFileSingleLinkData > secondBlockDataSet,
+                              const int splitIndex )
+    {
+        splitSingleLinkDataDerived( firstBlockDataSet, secondBlockDataSet, splitIndex );
+        splitSingleLinkDataDerived( firstBlockDataSet, secondBlockDataSet, splitIndex );
+    }
+
     // Destructor
     virtual ~ProcessedOdfFileSingleLinkData( ){ }
 
@@ -114,13 +130,20 @@ public:
         return processedObservationTimes_;
     }
 
+
+    std::pair< double, double > getTimeBounds( )
+    {
+        return std::make_pair ( *std::min_element( processedObservationTimes_.begin( ), processedObservationTimes_.end( ) ),
+                                *std::max_element( processedObservationTimes_.begin( ), processedObservationTimes_.end( ) ) );
+    }
+
     // Returns the observable type
     observation_models::ObservableType getObservableType( )
     {
         return observableType_;
     }
 
-private:
+protected:
 
     observation_models::ObservableType observableType_;
 
@@ -147,6 +170,11 @@ public:
 
     // Destructor
     ~ProcessedOdfFileDopplerData( ){ }
+
+    void splitSingleLinkDataDerived( std::shared_ptr< ProcessedOdfFileSingleLinkData > firstBlockDataSet,
+                                     std::shared_ptr< ProcessedOdfFileSingleLinkData > secondBlockDataSet,
+                                     const int splitIndex );
+
 
     // Name of the transmitting ground station
     std::string transmittingStation_;
@@ -232,7 +260,7 @@ public:
     ProcessedOdfFileContents(
             std::vector< std::shared_ptr< input_output::OdfRawFileContents > > rawOdfDataVector,
             const std::string spacecraftName,
-            bool verbose = true,
+            const bool verbose = true,
             const std::map< std::string, Eigen::Vector3d >& earthFixedGroundStationPositions =
                     simulation_setup::getApproximateDsnGroundStationPositions( ) ):
             rawOdfData_( rawOdfDataVector ),
@@ -308,6 +336,11 @@ public:
     {
         return rawOdfData_;
     }
+
+    void defineSpacecraftAntennaId( const std::string& spacecraft, const std::string& antennaName );
+
+    void defineSpacecraftAntennaId( const std::string& spacecraft, const std::string& antennaName,
+                                    const std::map< double, double >& timeIntervals );
 
 private:
 
@@ -389,6 +422,8 @@ private:
 
     // Name of the spacecraft
     const std::string spacecraftName_;
+
+//    const std::string antennaName_;
 
     // Map containing approximate position of ground stations
     const std::map< std::string, Eigen::Vector3d > approximateEarthFixedGroundStationPositions_;
@@ -795,6 +830,30 @@ std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType
         ancilliarySimulationSettings );
 }
 
+template< typename ObservationScalarType = double, typename TimeType = double >
+std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > createCompressedDopplerCollection(
+    const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > originalDopplerData,
+    const unsigned int compressionRatio )
+{
+    std::map< LinkEnds, std::vector< std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType, TimeType > > > > uncompressedObservationSets =
+        originalDopplerData->getObservations( ).at( dsn_n_way_averaged_doppler );
+    std::vector< std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType, TimeType > > > compressedObservationSets;
+    for( auto it : uncompressedObservationSets )
+    {
+        for( unsigned int i = 0; i < it.second.size( ); i++ )
+        {
+            std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType, TimeType > > compressedDataSet =
+                compressDopplerData< ObservationScalarType, TimeType >( it.second.at( i ), compressionRatio );
+            if( compressedDataSet->getObservationTimes( ).size( ) )
+            {
+                compressedObservationSets.push_back( compressedDataSet );
+            }
+        }
+    }
+
+    return std::make_shared< observation_models::ObservationCollection< ObservationScalarType, TimeType > >( compressedObservationSets );
+}
+
 /*!
  * Function modifies the observable types used in the provided observation simulation settings.
  * It can be used to replace a real observable (extracted from the ODF data, e.g. n-way Doppler) with an idealized
@@ -838,6 +897,10 @@ inline void setTransmittingFrequenciesInGroundStations(
     for( auto it = processedOdfFileContents->getRampInterpolators( ).begin( );
             it != processedOdfFileContents->getRampInterpolators( ).end( ); it++ )
     {
+        if( bodyWithGroundStations->getGroundStationMap( ).count( it->first ) == 0 )
+        {
+            throw std::runtime_error( "Error when setting frequencies for station " + it->first + ", station not found." );
+        }
        bodyWithGroundStations->getGroundStation( it->first )->setTransmittingFrequencyCalculator( it->second );
     }
 }

@@ -79,6 +79,8 @@ public:
     Eigen::Matrix<OutputStateScalarType, 6, 1> getBaseFrameState(
             const OutputTimeType time);
 
+    std::string getBaseFrameId( ){ return baseFrameId_; }
+
 protected:
     //! Pure virtual function through which the state of baseFrameId_ in the inertial frame can be determined
     /*!
@@ -715,6 +717,12 @@ public:
         }
     }
 
+    template<typename StateScalarType = double, typename TimeType = double>
+    Eigen::Matrix<StateScalarType, 3, 1> getPositionInBaseFrameFromEphemeris(const TimeType time)
+    {
+        return getStateInBaseFrameFromEphemeris< StateScalarType, TimeType >( time ).segment( 0, 3 );
+    }
+
     //! Templated function to get the current berycentric state of the body from its ephemeris andcglobal-to-ephemeris-frame
     //! function.
     /*!
@@ -1281,10 +1289,16 @@ public:
      *  Function to set the radiation pressure target model of the body.
      *  \param radiationPressureTargetModel Radiation pressure target model of the body.
      */
-    void setRadiationPressureTargetModel(
-            const std::shared_ptr<electromagnetism::RadiationPressureTargetModel> radiationPressureTargetModel)
+    void setRadiationPressureTargetModels(
+            const std::vector< std::shared_ptr<electromagnetism::RadiationPressureTargetModel> > radiationPressureTargetModel)
     {
-        radiationPressureTargetModel_ = radiationPressureTargetModel;
+        radiationPressureTargetModels_ = radiationPressureTargetModel;
+    }
+
+    void addRadiationPressureTargetModel(
+        const std::shared_ptr<electromagnetism::RadiationPressureTargetModel> radiationPressureTargetModel)
+    {
+        radiationPressureTargetModels_.push_back( radiationPressureTargetModel );
     }
 
     //! Function to set object containing all variations in the gravity field of this body.
@@ -1409,11 +1423,27 @@ public:
      *  Function to retrieve the radiation pressure target model of the body.
      *  \return Radiation pressure target model of the body.
      */
-    const std::shared_ptr<electromagnetism::RadiationPressureTargetModel> getRadiationPressureTargetModel() const
+    const std::vector< std::shared_ptr<electromagnetism::RadiationPressureTargetModel> > getRadiationPressureTargetModels() const
     {
-        return radiationPressureTargetModel_;
+        return radiationPressureTargetModels_;
     }
 
+
+    const std::shared_ptr<electromagnetism::RadiationPressureTargetModel> getRadiationPressureTargetModel() const
+    {
+        if( radiationPressureTargetModels_.size( ) == 1 )
+        {
+            return radiationPressureTargetModels_.at( 0 );
+        }
+        else if( radiationPressureTargetModels_.size( ) == 0 )
+        {
+            return nullptr;
+        }
+        else
+        {
+            throw std::runtime_error( "Error, could not unambiguously retrieve radiation pressure target model, found " + std::to_string( radiationPressureTargetModels_.size( ) ) + " models." );
+        }
+    }
     //! Function to retrieve a single object describing variation in the gravity field of this body.
     /*!
      *  Function to retrieve a single object describing variation in the gravity field of this body.
@@ -1825,7 +1855,7 @@ private:
     std::shared_ptr<electromagnetism::RadiationSourceModel> radiationSourceModel_;
 
     //! Radiation pressure target model of the body.
-    std::shared_ptr<electromagnetism::RadiationPressureTargetModel> radiationPressureTargetModel_;
+    std::vector< std::shared_ptr<electromagnetism::RadiationPressureTargetModel> > radiationPressureTargetModels_;
 
     //! List of ground station objects on Body
     std::map<std::string, std::shared_ptr<ground_stations::GroundStation>> groundStationMap;

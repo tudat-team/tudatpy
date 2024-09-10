@@ -44,54 +44,57 @@ void IsotropicPointSourceRadiationPressureAcceleration::computeAcceleration()
 
     receivedIrradiance =
         sourceModel_->evaluateIrradianceAtPosition( targetCenterPositionInSourceFrame_).front().first * sourceToTargetReceivedFraction;
-//    std::cout<<"Irradiance "<<receivedIrradiance<<std::endl;
 
     if (receivedIrradiance <= 0)
     {
         // Some body is occluding source as seen from target
-        currentAcceleration_ = Eigen::Vector3d::Zero();
-        currentRadiationPressure_ = 0.0;
+        currentUnscaledAcceleration_ = Eigen::Vector3d::Zero();
+        targetModel_->resetComputations( sourceName_ );
     }
     else
     {
 
-        if ( targetModel_->forceFunctionRequiresLocalFrameInputs( ))
+        if ( targetModel_->forceFunctionRequiresLocalFrameInputs( ) )
         {
             targetRotationFromLocalToGlobalFrame_ = targetRotationFromLocalToGlobalFrameFunction_( );
             targetRotationFromGlobalToLocalFrame_ = targetRotationFromLocalToGlobalFrame_.inverse( );
 
             // Calculate acceleration due to radiation pressure in global frame
-            currentAcceleration_ = targetRotationFromLocalToGlobalFrame_ *
-                                   targetModel_->evaluateRadiationPressureForce(
-                                       receivedIrradiance, targetRotationFromGlobalToLocalFrame_ *
-                                                           targetCenterPositionInSourceFrame_.normalized( )) /
+            targetModel_->updateRadiationPressureForcing(
+                receivedIrradiance, targetRotationFromGlobalToLocalFrame_ *
+                                    targetCenterPositionInSourceFrame_.normalized( ), true, sourceName_ );
+            targetModel_->saveLocalComputations( sourceName_, true );
+            currentUnscaledAcceleration_ = targetRotationFromLocalToGlobalFrame_ *
+                                   targetModel_->getCurrentRadiationPressureForce( sourceName_ ) /
                                    currentTargetMass_;
         }
         else
         {
-            currentAcceleration_ = targetModel_->evaluateRadiationPressureForce(
-                receivedIrradiance, targetCenterPositionInSourceFrame_.normalized( )) / currentTargetMass_;
-
+            targetModel_->updateRadiationPressureForcing(
+                receivedIrradiance, targetCenterPositionInSourceFrame_.normalized( ), true, sourceName_ );
+            currentUnscaledAcceleration_ = targetModel_->getCurrentRadiationPressureForce( sourceName_ ) / currentTargetMass_;
         }
-        currentRadiationPressure_ = targetModel_->getRadiationPressure( );
     }
+    scaleRadiationPressureAcceleration( );
 }
 
 void PaneledSourceRadiationPressureAcceleration::computeAcceleration()
 {
     // Could use class member to avoid allocation every call, but profiling shows allocation is by far
     // dominated by algebraic operations
-    Eigen::Vector3d sourceCenterPositionInGlobalFrame = sourcePositionFunction_(); // position of center of source (e.g. planet)
+    sourceCenterPositionInGlobalFrame_ = sourcePositionFunction_();
+    targetCenterPositionInGlobalFrame_ = targetPositionFunction_();
+    targetCenterPositionInSourceFrame_ = targetCenterPositionInGlobalFrame_ - sourceCenterPositionInGlobalFrame_;
+
     Eigen::Quaterniond sourceRotationFromLocalToGlobalFrame = sourceRotationFromLocalToGlobalFrameFunction_();
     Eigen::Quaterniond sourceRotationFromGlobalToLocalFrame = sourceRotationFromLocalToGlobalFrame.inverse();
 
-    Eigen::Vector3d targetCenterPositionInGlobalFrame = targetPositionFunction_();
     Eigen::Quaterniond targetRotationFromLocalToGlobalFrame = targetRotationFromLocalToGlobalFrameFunction_();
     Eigen::Quaterniond targetRotationFromGlobalToLocalFrame = targetRotationFromLocalToGlobalFrame.inverse();
 
     // Evaluate irradiances from all sub-sources at target position in source frame
     Eigen::Vector3d targetCenterPositionInSourceFrame =
-            sourceRotationFromGlobalToLocalFrame * (targetCenterPositionInGlobalFrame - sourceCenterPositionInGlobalFrame);
+            sourceRotationFromGlobalToLocalFrame * targetCenterPositionInSourceFrame_;
     auto sourceIrradiancesAndPositions = sourceModel_->evaluateIrradianceAtPosition(targetCenterPositionInSourceFrame);
 
     // For dependent variables
@@ -100,16 +103,19 @@ void PaneledSourceRadiationPressureAcceleration::computeAcceleration()
 
     // Calculate radiation pressure force due to all sub-sources in target frame
     Eigen::Vector3d totalForceInTargetFrame = Eigen::Vector3d::Zero();
-    for (auto sourceIrradianceAndPosition : sourceIrradiancesAndPositions) {
-        auto sourceIrradiance = std::get<0>(sourceIrradianceAndPosition);
+    targetModel_->resetComputations( sourceName_ );
+    int counter = 0;
+    for (auto sourceIrradianceAndPosition : sourceIrradiancesAndPositions)
+    {
+        double sourceIrradiance = std::get<0>(sourceIrradianceAndPosition);
         Eigen::Vector3d sourcePositionInSourceFrame =
                 std::get<1>(sourceIrradianceAndPosition); // position of sub-source (e.g. panel)
         Eigen::Vector3d sourcePositionInGlobalFrame =
-                sourceCenterPositionInGlobalFrame + sourceRotationFromLocalToGlobalFrame * sourcePositionInSourceFrame;
+                sourceCenterPositionInGlobalFrame_ + sourceRotationFromLocalToGlobalFrame * sourcePositionInSourceFrame;
 
         auto sourceToTargetReceivedFraction =
                 sourceToTargetOccultationModel_->evaluateReceivedFractionFromPointSource(sourcePositionInGlobalFrame,
-                                                                                         targetCenterPositionInGlobalFrame);
+                                                                                         targetCenterPositionInGlobalFrame_);
         auto occultedSourceIrradiance =
                 sourceIrradiance * sourceToTargetReceivedFraction;
 
@@ -117,20 +123,34 @@ void PaneledSourceRadiationPressureAcceleration::computeAcceleration()
         {
             // No body is occluding source as seen from target
             Eigen::Vector3d sourceToTargetDirectionInTargetFrame =
-                    targetRotationFromGlobalToLocalFrame * (targetCenterPositionInGlobalFrame - sourcePositionInGlobalFrame).normalized();
-            totalForceInTargetFrame +=
-                    targetModel_->evaluateRadiationPressureForce(occultedSourceIrradiance, sourceToTargetDirectionInTargetFrame);
+                targetRotationFromGlobalToLocalFrame * ( targetCenterPositionInGlobalFrame_ - sourcePositionInGlobalFrame ).normalized();
+
+            targetModel_->updateRadiationPressureForcing( occultedSourceIrradiance, sourceToTargetDirectionInTargetFrame, false, sourceName_ );
+
             totalReceivedIrradiance += occultedSourceIrradiance;
             visibleAndEmittingSourcePanelCounter += 1;
         }
+        if( savePanellingIrradiance_ )
+        {
+            savedPanelIrradiances_[ counter ] = sourceIrradiance;
+        }
+        counter++;
     }
+    targetModel_->saveLocalComputations( sourceName_, false );
+    if( savePanellingGeometry_ )
+    {
+        savedPanelGeometries_ = sourceModel_->getCurrentPanelGeomtry( );
+    }
+    totalForceInTargetFrame = targetModel_->getCurrentRadiationPressureForce( sourceName_ );
+
 
     // Update dependent variables
     receivedIrradiance = totalReceivedIrradiance;
     visibleAndEmittingSourcePanelCount = visibleAndEmittingSourcePanelCounter;
 
     // Calculate acceleration due to radiation pressure in global frame
-    currentAcceleration_ = targetRotationFromLocalToGlobalFrame * totalForceInTargetFrame / targetMassFunction_();
+    currentUnscaledAcceleration_ = targetRotationFromLocalToGlobalFrame * totalForceInTargetFrame / targetMassFunction_();
+    scaleRadiationPressureAcceleration( );
 }
 
 } // tudat

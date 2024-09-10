@@ -114,6 +114,11 @@ inline std::shared_ptr< TorqueSettings > aerodynamicTorque( )
     return std::make_shared< TorqueSettings >( basic_astrodynamics::aerodynamic_torque );
 }
 
+inline std::shared_ptr< TorqueSettings > radiationPressureTorque( )
+{
+    return std::make_shared< TorqueSettings >( basic_astrodynamics::radiation_pressure_torque );
+}
+
 //! @get_docstring(secondDegreeGravitationalTorque)
 inline std::shared_ptr< TorqueSettings > secondDegreeGravitationalTorque( )
 {

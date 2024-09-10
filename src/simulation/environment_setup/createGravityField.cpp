@@ -220,47 +220,57 @@ std::pair< double, double  > readGravityFieldFile(
     Eigen::MatrixXd sineCoefficients = Eigen::MatrixXd( maximumDegree + 1, maximumOrder + 1 );
     sineCoefficients.setZero( );
 
+    int counter = 0;
+    std::string previousLine = "";
     // Read coefficients up to required maximum degree and order.
     while ( !stream.fail( ) && !stream.eof( ) &&
             ( currentDegree <= maximumDegree && currentOrder < maximumOrder )  )
     {
         // Read current line
         std::getline( stream, line );
-
-        // Trim input string (removes all leading and trailing whitespaces).
-        boost::algorithm::trim( line );
-
-        // Split string into multiple strings, each containing one element from a line from the
-        // data file.
-        boost::algorithm::split( vectorOfIndividualStrings,
-                                 line,
-                                 boost::algorithm::is_any_of( ", \t" ),
-                                 boost::algorithm::token_compress_on );
-
-        // Check current line for consistency
-        if( vectorOfIndividualStrings.size( ) != 0 )
+        if( !line.empty( ) )
         {
-            if( vectorOfIndividualStrings.size( ) < 4 )
+            // Trim input string (removes all leading and trailing whitespaces).
+            boost::algorithm::trim( line );
+
+            // Split string into multiple strings, each containing one element from a line from the
+            // data file.
+            boost::algorithm::split( vectorOfIndividualStrings,
+                                     line,
+                                     boost::algorithm::is_any_of( ", \t" ),
+                                     boost::algorithm::token_compress_on );
+
+            // Check current line for consistency
+            if ( vectorOfIndividualStrings.size( ) != 0 )
             {
-                std::string errorMessage = "Error when reading pds gravity field file, number of fields is " +
-                        std::to_string( vectorOfIndividualStrings.size( ) );
-                throw std::runtime_error( errorMessage );
-            }
-            else
-            {
-                // Read current degree and orde from line.
-                currentDegree = static_cast< int >( std::round( std::stod( vectorOfIndividualStrings[ 0 ] ) ) );
-                currentOrder = static_cast< int >( std::round( std::stod( vectorOfIndividualStrings[ 1 ] ) ) );
-                // Set cosine and sine coefficients for current degree and order.
-                if( currentDegree <= maximumDegree && currentOrder <= maximumOrder )
+                if ( vectorOfIndividualStrings.size( ) < 4 && !(
+                    vectorOfIndividualStrings.size( ) == 1 && vectorOfIndividualStrings.at( 0 ).size( ) == 0 ))
                 {
-                    cosineCoefficients( currentDegree, currentOrder ) =
+                    std::string errorMessage = fileName + "; " + line + "; " + previousLine + "; " +
+                                               std::to_string( counter ) +
+                                               "Error when reading pds gravity field file, number of fields is " +
+                                               std::to_string( vectorOfIndividualStrings.size( )) + "; full line is " +
+                                               line + "; previouse line was " + previousLine;
+                    throw std::runtime_error( errorMessage );
+                }
+                else
+                {
+                    // Read current degree and orde from line.
+                    currentDegree = static_cast< int >( std::round( std::stod( vectorOfIndividualStrings[ 0 ] )));
+                    currentOrder = static_cast< int >( std::round( std::stod( vectorOfIndividualStrings[ 1 ] )));
+                    // Set cosine and sine coefficients for current degree and order.
+                    if ( currentDegree <= maximumDegree && currentOrder <= maximumOrder )
+                    {
+                        cosineCoefficients( currentDegree, currentOrder ) =
                             std::stod( vectorOfIndividualStrings[ 2 ] );
-                    sineCoefficients( currentDegree, currentOrder ) =
+                        sineCoefficients( currentDegree, currentOrder ) =
                             std::stod( vectorOfIndividualStrings[ 3 ] );
+                    }
                 }
             }
         }
+        previousLine = line;
+        counter++;
     }
 
     // Set cosine coefficient at (0,0) to 1.

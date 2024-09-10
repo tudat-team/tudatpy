@@ -21,12 +21,6 @@ namespace earth_orientation
 template< >
 double ShortPeriodEarthOrientationCorrectionCalculator< double >::sumCorrectionTerms( const Eigen::Vector6d& arguments )
 {
-#ifdef TUDAT_TEST_INSTALL
-    static std::string state = "install";
-#else
-    static std::string state = "build";
-#endif
-
     // Initialize corrections to zero.
     double currentCorrection = 0;
     double tideAngle = 0.0;
@@ -38,14 +32,14 @@ double ShortPeriodEarthOrientationCorrectionCalculator< double >::sumCorrectionT
         Eigen::MatrixXd currentAmplitudes = argumentAmplitudes_.at( i );
 
         // Iterte over all libration corrections.
-        for( int i = 0; i < currentAmplitudes.rows( ); i++ )
+        for( int j = 0; j < currentAmplitudes.rows( ); j++ )
         {
             // Calculate current phase angle of tide.
             tideAngle = ( arguments.transpose( ) *
-                          currentArgumentMultipliers.block( i, 0, 1, 6 ).transpose( ) )( 0, 0 );
+                          currentArgumentMultipliers.block( j, 0, 1, 6 ).transpose( ) )( 0, 0 );
 
-            currentCorrection += currentAmplitudes( i, 0 ) * std::sin( tideAngle ) +
-                    currentAmplitudes( i, 1 ) * std::cos( tideAngle );
+            currentCorrection += currentAmplitudes( j, 0 ) * std::sin( tideAngle ) +
+                    currentAmplitudes( j, 1 ) * std::cos( tideAngle );
         }
     }
 
@@ -58,11 +52,6 @@ template< >
 Eigen::Vector2d ShortPeriodEarthOrientationCorrectionCalculator< Eigen::Vector2d >::sumCorrectionTerms(
         const Eigen::Vector6d& arguments )
 {
-#ifdef TUDAT_TEST_INSTALL
-        static std::string state = "install";
-#else
-        static std::string state = "build";
-#endif
 
     // Initialize corrections to zero.
     Eigen::Vector2d currentCorrection = Eigen::Vector2d::Zero( );
@@ -75,17 +64,17 @@ Eigen::Vector2d ShortPeriodEarthOrientationCorrectionCalculator< Eigen::Vector2d
         Eigen::MatrixXd currentAmplitudes = argumentAmplitudes_.at( i );
 
         // Iterte over all libration corrections.
-        for( int i = 0; i < currentAmplitudes.rows( ); i++ )
+        for( int j = 0; j < currentAmplitudes.rows( ); j++ )
         {
             // Calculate current phase angle of tide.
             tideAngle = ( arguments.transpose( ) *
-                          currentArgumentMultipliers.block( i, 0, 1, 6 ).transpose( ) )( 0, 0 );
+                          currentArgumentMultipliers.block( j, 0, 1, 6 ).transpose( ) )( 0, 0 );
 
             // Calculate and add sine and cosine terms
-            currentCorrection.x( ) += currentAmplitudes( i, 0 ) * std::sin( tideAngle ) +
-                    currentAmplitudes( i, 1 ) * std::cos( tideAngle );
-            currentCorrection.y( ) += currentAmplitudes( i, 2 ) * std::sin( tideAngle ) +
-                    currentAmplitudes( i, 3 ) * std::cos( tideAngle );
+            currentCorrection.x( ) += currentAmplitudes( j, 0 ) * std::sin( tideAngle ) +
+                    currentAmplitudes( j, 1 ) * std::cos( tideAngle );
+            currentCorrection.y( ) += currentAmplitudes( j, 2 ) * std::sin( tideAngle ) +
+                    currentAmplitudes( j, 3 ) * std::cos( tideAngle );
         }
     }
 

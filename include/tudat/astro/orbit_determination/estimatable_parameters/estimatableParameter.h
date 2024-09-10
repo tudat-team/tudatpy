@@ -77,7 +77,12 @@ enum EstimatebleParametersEnum
     inverse_tidal_quality_factor,
     yarkovsky_parameter,
     custom_estimated_parameter,
-    reference_point_position
+    reference_point_position,
+    polynomial_gravity_field_variation_amplitudes,
+    periodic_gravity_field_variation_amplitudes,
+    source_direction_radiation_pressure_scaling_factor,
+    source_perpendicular_direction_radiation_pressure_scaling_factor,
+    mode_coupled_tidal_love_numbers
 };
 
 std::string getParameterTypeString( const EstimatebleParametersEnum parameterType );
@@ -130,6 +135,9 @@ bool isParameterObservationLinkTimeProperty( const EstimatebleParametersEnum par
  * \return True if parameter influences a body's tidal gravity field variations.
  */
 bool isParameterTidalProperty( const EstimatebleParametersEnum parameterType );
+
+//! Function to determine whether the given parameter influences a body's non-tidal gravity field variations.
+bool isParameterNonTidalGravityFieldVariationProperty( const EstimatebleParametersEnum parameterType );
 
 //! Function to determine whether the given parameter represents an arc-wise initial dynamical state.
 /*!
