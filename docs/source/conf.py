@@ -20,7 +20,7 @@
 import os
 import sys
 
-sys.path.insert(0, os.path.abspath("."))
+# sys.path.insert(0, os.path.abspath("."))
 
 # When the docs are being built on ReadTheDocs, the binaries are in the tudatpy conda package installed in site-packages directory.
 if bool(os.getenv("READTHEDOCS")) is True:
