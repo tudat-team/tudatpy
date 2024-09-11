@@ -195,10 +195,11 @@ void ProcessedTrackingTxtFileContents::updateLinkEnds()
 
       // FIXME: This is a temporary solution
       std::string vlbiStationName = rawTrackingTxtFileContents_->getMetaDataStrMap().at(input_output::TrackingDataType::vlbi_station_name);
+//      std::string vlbiStationName = rawTrackingTxtFileContents_->getMetaDataStrMap().at(input_output::TrackingDataType::vlbi_station_name);
 
       for (size_t i = 0; i < numDataRows; ++i) {
         LinkEnds currentLinkEnds{
-            {transmitter, LinkEndId("Earth", vlbiStationName)},
+            {transmitter, LinkEndId("Earth", "NNO")},
             {reflector, LinkEndId(spacecraftName_, "")},
             {receiver, LinkEndId("Earth", vlbiStationName)},
         };
