@@ -25,6 +25,7 @@
 #include "tudat/io/fieldType.h"
 #include "tudat/astro/basic_astro.h"
 #include "tudat/astro/observation_models/observableTypes.h"
+#include "tudat/astro/basic_astro/dateTime.h"
 #include "tudat/interface/spice/spiceInterface.h"
 
 /*!
@@ -202,6 +203,11 @@ public:
     {
       throw std::runtime_error("Cannot convert UTC string without spice kernels");
     }
+
+    std::cout<<"Raw "<<rawField<<std::endl;
+    double time = spice_interface::convertDateStringToEphemerisTime(rawField);
+    basic_astrodynamics::DateTime dateTime = basic_astrodynamics::getCalendarDateFromTime< double >( time );
+    std::cout<<"Processed "<<dateTime.isoString( )<<std::endl;
     return spice_interface::convertDateStringToEphemerisTime(rawField);
   }
 };
