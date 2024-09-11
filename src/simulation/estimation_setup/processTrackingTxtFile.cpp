@@ -55,6 +55,7 @@ void ProcessedTrackingTxtFileContents::updateObservations()
         break;
       }
       case doppler_measured_frequency: {
+          std::cout<<"TEST"<<std::endl;
         // Conversion function for doppler measured frequency
         auto dopplerFrequencyConversion = [](double dopplerFrequency, double dopplerBaseFrequency) {
           return dopplerFrequency + dopplerBaseFrequency;
@@ -92,6 +93,7 @@ void ProcessedTrackingTxtFileContents::updateObservationTimes()
   const auto& numDataRows = rawTrackingTxtFileContents_->getNumRows();
   TimeRepresentation timeRepresentation = getTimeRepresentation();
 
+  std::cout<<"Time rep. "<<timeRepresentation<<std::endl;
   // Depending on the time representation, convert further to tdb seconds since j2000
   switch (timeRepresentation) {
     case tdb_seconds_j2000: {
@@ -100,19 +102,19 @@ void ProcessedTrackingTxtFileContents::updateObservationTimes()
     }
     case calendar_day_time: {
       // Convert dates to Julian days since J2000
-      std::vector<double> observationJulianDaysSinceJ2000 = utilities::convertVectors(
-          basic_astrodynamics::convertCalendarDateToJulianDaySinceJ2000<double>,
-          rawTrackingTxtFileContents_->getDoubleDataColumn(input_output::TrackingDataType::year),
-          rawTrackingTxtFileContents_->getDoubleDataColumn(input_output::TrackingDataType::month),
-          rawTrackingTxtFileContents_->getDoubleDataColumn(input_output::TrackingDataType::day),
-          rawTrackingTxtFileContents_->getDoubleDataColumn(input_output::TrackingDataType::hour),
-          rawTrackingTxtFileContents_->getDoubleDataColumn(input_output::TrackingDataType::minute),
-          rawTrackingTxtFileContents_->getDoubleDataColumn(input_output::TrackingDataType::second)
-      );
+      auto years = rawTrackingTxtFileContents_->getDoubleDataColumn(input_output::TrackingDataType::year);
+      auto months = rawTrackingTxtFileContents_->getDoubleDataColumn(input_output::TrackingDataType::month);
+      auto days = rawTrackingTxtFileContents_->getDoubleDataColumn(input_output::TrackingDataType::day);
+      auto hours = rawTrackingTxtFileContents_->getDoubleDataColumn(input_output::TrackingDataType::hour);
+      auto minutes = rawTrackingTxtFileContents_->getDoubleDataColumn(input_output::TrackingDataType::minute);
+      auto seconds = rawTrackingTxtFileContents_->getDoubleDataColumn(input_output::TrackingDataType::second);
       // Convert to seconds and add to utc times
       std::vector<double> observationTimesUtc;
-      for (double julianDaySinceJ2000 : observationJulianDaysSinceJ2000) {
-        observationTimesUtc.push_back(julianDaySinceJ2000 * physical_constants::JULIAN_DAY);
+      for( unsigned int i = 0; i < years.size( ); i++ )
+      {
+            observationTimesUtc.push_back(basic_astrodynamics::DateTime(
+                years.at( i ), months.at( i ), days.at( i ), hours.at( i ), minutes.at( i ), seconds.at( i ) ).epoch< double >() - 20 * 86400.0 );
+            std::cout<<"Test"<<std::endl;
       }
       // Convert to TDB
       observationTimes_ = computeObservationTimesTdbFromJ2000(observationTimesUtc);
