@@ -124,7 +124,8 @@ int main()
     linkEnds[receiver] = std::make_pair< std::string, std::string >("Earth", static_cast<std::string>(stationName));
 
 
-    std::shared_ptr< ground_stations::StationFrequencyInterpolator > transmittingFrequencyCalculator = std::make_shared< ground_stations::ConstantFrequencyInterpolator >(7.18E9);
+    std::shared_ptr< ground_stations::StationFrequencyInterpolator > transmittingFrequencyCalculator =
+        std::make_shared< ground_stations::ConstantFrequencyInterpolator >(7.18E9);
 
     bodies.at("Earth")->getGroundStation(stationName)->setTransmittingFrequencyCalculator(transmittingFrequencyCalculator);
 
@@ -152,7 +153,7 @@ int main()
     double dopplerObservable = dopplerFrequencyObservationModel->computeObservationsWithLinkEndData(
         observationTime, referenceLinkEnd, linkEndTimes, linkEndStates, ancillarySettings)(0);
 
-    std::cout << "TEST: Doppler observable: " << dopplerObservable << std::endl;
+    std::cout << "TEST: Doppler observable: " << dopplerObservable - 8.435E9 << std::endl;
 
     // std::dynamic_pointer_cast<OneWayDopplerObservationModel< double, double>>(
     //     uplinkDopplerObservationModel)->setNormalizeWithSpeedOfLight(0);

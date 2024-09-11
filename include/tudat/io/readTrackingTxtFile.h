@@ -82,6 +82,7 @@ enum class TrackingDataType
   doppler_noise,
   doppler_bandwidth,
   vlbi_station_name,
+  transmitting_station_name,
   time_tag_delay,
 };
 
