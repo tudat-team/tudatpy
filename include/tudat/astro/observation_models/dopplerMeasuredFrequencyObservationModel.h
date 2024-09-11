@@ -146,6 +146,7 @@ public:
         // Calculate the light time
         TimeType lightTime = lighTimeCalculator_->calculateLightTimeWithLinkEndsStates(time, linkEndAssociatedWithTime, linkEndTimes, linkEndStates, ancillarySettings);
 
+        std::cout<<"LT "<<lightTime<<std::endl;
         // Get the time when the signal left the transmitter
         TimeType transmitterTime = time - lightTime;
 
@@ -157,7 +158,7 @@ public:
         // FIXME: It is not very elegant to have to divide by the multiplication term here. It relies on the implementation of the doppler model.
         ObservationScalarType dopplerMultiplicationTerm = twoWayDopplerModel_->getMultiplicationTerm();
         ObservationScalarType twoWayDoppler = twoWayDopplerModel_->computeIdealObservationsWithLinkEndData(
-            time, transmitter, linkEndTimes, linkEndStates, ancillarySettings)( 0, 0 ) / dopplerMultiplicationTerm;
+            time, linkEndAssociatedWithTime, linkEndTimes, linkEndStates, ancillarySettings)( 0, 0 ) / dopplerMultiplicationTerm;
         
 
         ObservationScalarType receivedFrequency = (transmittedFrequency * (1 + twoWayDoppler)) * turnaroundRatio_(uplinkBand, downlinkBand);
