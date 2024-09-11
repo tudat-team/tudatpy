@@ -159,6 +159,9 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
     case source_perpendicular_direction_radiation_pressure_scaling_factor:
         parameterDescription = " Radiation pressure acceleration scaling factor perpendicular to source ";
         break;
+    case mode_coupled_tidal_love_numbers:
+        parameterDescription = " Mode-coupled tidal Love numbers";
+        break;
     default:
         std::string errorMessage = "Error when getting parameter string, did not recognize parameter " +
                 std::to_string( parameterType );
