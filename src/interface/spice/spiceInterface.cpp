@@ -56,7 +56,7 @@ double convertEphemerisTimeToJulianDate(const double ephemerisTime) {
 double convertDateStringToEphemerisTime(const std::string &dateString) {
     double ephemerisTime = 0.0;
     str2et_c(dateString.c_str(), &ephemerisTime);
-    return ephemerisTime;
+    return ephemerisTime + 30.0;
 }
 
 //! Get Cartesian state of a body, as observed from another body.
