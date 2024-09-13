@@ -19,7 +19,7 @@ build:
     pre_install:
       - pwd
       - ls
-      - LATEST_TAG=$(git describe --tags --abbrev=0) || echo $LATEST_TAG ||
+      - LATEST_TAG=$(git describe --tags --abbrev=0) ; echo $LATEST_TAG ;
        wget https://github.com/tudat-team/tudatpy/archive/refs/tags/$LATEST_TAG.zip
       - unzip $LATEST_TAG.zip
       - ls
