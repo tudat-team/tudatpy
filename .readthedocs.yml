@@ -17,7 +17,9 @@ build:
     python: "mambaforge-4.10"
   jobs:
     pre_install:
+      - pwd
       - LATEST_TAG=$(git describe --tags --abbrev=0)
+      - $LATEST_TAG
       - wget https://github.com/tudat-team/tudatpy/archive/refs/tags/$LATEST_TAG.zip
       - unzip $LATEST_TAG.zip
       - ls
