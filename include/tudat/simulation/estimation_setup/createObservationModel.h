@@ -1576,6 +1576,14 @@ std::shared_ptr< ObservationBias< ObservationSize > > createObservationBiasCalcu
     return observationBias;
 }
 
+std::function< double ( observation_models::FrequencyBands, observation_models::FrequencyBands ) > getTurnaroundFunction(
+    const simulation_setup::SystemOfBodies &bodies,
+    const LinkEnds& linkEnds );
+
+std::shared_ptr< ground_stations::StationFrequencyInterpolator > getTransmittingFrequencyInterpolator(
+    const simulation_setup::SystemOfBodies &bodies,
+    const LinkEnds& linkEnds );
+
 //! Interface class for creating observation models
 /*!
  *  Interface class for creating observation models. This class is used instead of a single templated free function to
@@ -1733,7 +1741,7 @@ public:
                                 oneWayDopplerSettings->transmitterProperTimeRateSettings_, linkEnds, bodies, transmitter );
                 }
 
-                if( oneWayDopplerSettings->transmitterProperTimeRateSettings_ != nullptr )
+                if( oneWayDopplerSettings->receiverProperTimeRateSettings_ != nullptr )
                 {
                     receiverProperTimeRate =
                             createOneWayDopplerProperTimeCalculator< ObservationScalarType, TimeType >(
@@ -2042,68 +2050,46 @@ public:
                         linkEnds, observationSettings->observableType_, observationSettings->biasSettings_, bodies );
             }
 
-            std::function< double ( observation_models::FrequencyBands, observation_models::FrequencyBands ) > turnaroundRatioFunction;
-            // Check if retransmitter is a body
-            if ( linkEnds.at( observation_models::retransmitter ).stationName_ == "" || !simulation_setup::isReferencePointGroundStation(
-                bodies, linkEnds.at( observation_models::retransmitter ).bodyName_, linkEnds.at( observation_models::retransmitter ).stationName_ ) )
-            {
-                if ( bodies.getBody( linkEnds.at( observation_models::retransmitter ).bodyName_ )->getVehicleSystems( ) == nullptr )
-                {
-                    throw std::runtime_error(
-                            "Error when creating DSN N-way averaged Doppler observation model: vehicle systems are not "
-                            "defined for retransmitter link end body " + linkEnds.at( observation_models::retransmitter ).bodyName_ + "." );
-                }
-                turnaroundRatioFunction = bodies.getBody( linkEnds.at( observation_models::retransmitter ).bodyName_ )->getVehicleSystems(
-                        )->getTransponderTurnaroundRatio( );
-            }
-            // If retransmitter is a ground station of the body
-            else
-            {
-                if ( bodies.getBody( linkEnds.at( observation_models::retransmitter ).bodyName_ )->getGroundStation(
-                        linkEnds.at( observation_models::retransmitter ).stationName_ )->getVehicleSystems( ) == nullptr )
-                {
-                    throw std::runtime_error(
-                            "Error when creating DSN N-way averaged Doppler observation model: vehicle systems are not "
-                            "defined for retransmitter link end ID " + linkEnds.at( observation_models::retransmitter ).stationName_ + "." );
-                }
-                turnaroundRatioFunction = bodies.getBody( linkEnds.at( observation_models::retransmitter ).bodyName_ )->getGroundStation(
-                        linkEnds.at( observation_models::retransmitter ).stationName_ )->getVehicleSystems( )->getTransponderTurnaroundRatio( );
-            }
+            std::function< double ( observation_models::FrequencyBands, observation_models::FrequencyBands ) > turnaroundRatioFunction =
+                getTurnaroundFunction( bodies, linkEnds );
 
-            if( bodies.getBody( linkEnds.at( observation_models::transmitter ).bodyName_ )->getGroundStation(
-                linkEnds.at( observation_models::transmitter ).stationName_ )->getTransmittingFrequencyCalculator( ) == nullptr )
-            {
-                throw std::runtime_error(
-                    "Error when creating DSN N-way averaged Doppler observation model: transmitted frequency not  "
-                    "defined for link end station " + linkEnds.at( observation_models::transmitter ).bodyName_ + ", " +
-                        linkEnds.at( observation_models::transmitter ).stationName_ );
-            }
+            std::shared_ptr< ground_stations::StationFrequencyInterpolator > transmittingFrequencyInterpolator =
+                getTransmittingFrequencyInterpolator( bodies, linkEnds );
+
 
             observationModel = std::make_shared<
                     DsnNWayAveragedDopplerObservationModel< ObservationScalarType, TimeType > >(
                         linkEnds, arcStartObservationModel, arcEndObservationModel,
-                        bodies.getBody( linkEnds.at( observation_models::transmitter ).bodyName_ )->getGroundStation(
-                                linkEnds.at( observation_models::transmitter ).stationName_ )->getTransmittingFrequencyCalculator( ),
+                        transmittingFrequencyInterpolator,
                         turnaroundRatioFunction,
                         observationBias );
 
             break;
         }
         case doppler_measured_frequency: {
-            // FIXME: There is currently a lot of copy-paste involved in creating this. Maybe this could be done in a more elegant way?
-
 
             std::shared_ptr< TwoWayDopplerObservationModel< ObservationScalarType, TimeType > > twoWayDopplerModel;
             try
             {
+                auto uplinkOneWaySettings = std::make_shared< OneWayDopplerObservationSettings >(
+                    getUplinkFromTwoWayLinkEnds( linkEnds ), observationSettings->lightTimeCorrectionsList_,
+                    std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Earth" ), nullptr );
+                uplinkOneWaySettings->normalizeWithSpeedOfLight_ = false;
+                auto downlinkOneWaySettings = std::make_shared< OneWayDopplerObservationSettings >(
+                    getDownlinkFromTwoWayLinkEnds( linkEnds ), observationSettings->lightTimeCorrectionsList_,
+                    nullptr, std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Earth" ) );
+                downlinkOneWaySettings->normalizeWithSpeedOfLight_ = false;
 
-                const std::shared_ptr< ObservationModelSettings > simpleTwoWayDopplerSettings =
-                        std::make_shared< ObservationModelSettings >( two_way_doppler, linkEnds );
-                
+                auto twoWaySettings = std::make_shared< TwoWayDopplerObservationSettings >( uplinkOneWaySettings, downlinkOneWaySettings );
+
                 twoWayDopplerModel =
-                        std::dynamic_pointer_cast< TwoWayDopplerObservationModel< ObservationScalarType, TimeType > >(
-                            ObservationModelCreator< 1, ObservationScalarType, TimeType >::createObservationModel(
-                                simpleTwoWayDopplerSettings, bodies ) );
+                    std::dynamic_pointer_cast< TwoWayDopplerObservationModel< ObservationScalarType, TimeType > >(
+                    ObservationModelCreator< 1, ObservationScalarType, TimeType >::createObservationModel(
+                        twoWaySettings, bodies ) );
+                if( twoWayDopplerModel == nullptr )
+                {
+                    throw std::runtime_error( "Error when getting two-way Doppler model for measured frequency observable, model in null." );
+                }
             }
             catch( const std::exception& caughtException )
             {
@@ -2121,51 +2107,17 @@ public:
             }
 
             // Determine the turnaround ratio function
-            std::function< double ( observation_models::FrequencyBands, observation_models::FrequencyBands ) > turnaroundRatioFunction;
-            
-            // Check if retransmitter is a body
-            if ( linkEnds.at( observation_models::retransmitter ).stationName_ == "" || !simulation_setup::isReferencePointGroundStation(
-                bodies, linkEnds.at( observation_models::retransmitter ).bodyName_, linkEnds.at( observation_models::retransmitter ).stationName_ ) )
-            {
-                if ( bodies.getBody( linkEnds.at( observation_models::retransmitter ).bodyName_ )->getVehicleSystems( ) == nullptr )
-                {
-                    throw std::runtime_error(
-                            "Error when creating Doppler Measured Frequency observation model: vehicle systems are not "
-                            "defined for retransmitter link end body " + linkEnds.at( observation_models::retransmitter ).bodyName_ + "." );
-                }
-                turnaroundRatioFunction = bodies.getBody( linkEnds.at( observation_models::retransmitter ).bodyName_ )->getVehicleSystems(
-                        )->getTransponderTurnaroundRatio( );
-            }
-            // If retransmitter is a ground station of the body
-            else
-            {
-                if ( bodies.getBody( linkEnds.at( observation_models::retransmitter ).bodyName_ )->getGroundStation(
-                        linkEnds.at( observation_models::retransmitter ).stationName_ )->getVehicleSystems( ) == nullptr )
-                {
-                    throw std::runtime_error(
-                            "Error when creating Doppler Measured Frequency observation model: vehicle systems are not "
-                            "defined for retransmitter link end ID " + linkEnds.at( observation_models::retransmitter ).stationName_ + "." );
-                }
-                turnaroundRatioFunction = bodies.getBody( linkEnds.at( observation_models::retransmitter ).bodyName_ )->getGroundStation(
-                        linkEnds.at( observation_models::retransmitter ).stationName_ )->getVehicleSystems( )->getTransponderTurnaroundRatio( );
-            }
+            std::function< double ( observation_models::FrequencyBands, observation_models::FrequencyBands ) > turnaroundRatioFunction =
+                getTurnaroundFunction( bodies, linkEnds );
 
             // Check if transmitter has frequency calculator
-            if( bodies.getBody( linkEnds.at( observation_models::transmitter ).bodyName_ )->getGroundStation(
-                linkEnds.at( observation_models::transmitter ).stationName_ )->getTransmittingFrequencyCalculator( ) == nullptr )
-            {
-                throw std::runtime_error(
-                    "Error when creating Doppler Measured Frequency observation model: transmitted frequency not  "
-                    "defined for link end station " + linkEnds.at( observation_models::transmitter ).bodyName_ + ", " +
-                        linkEnds.at( observation_models::transmitter ).stationName_ );
-            }
-
+            std::shared_ptr< ground_stations::StationFrequencyInterpolator > transmittingFrequencyInterpolator =
+                getTransmittingFrequencyInterpolator( bodies, linkEnds );
             
             observationModel = std::make_shared<
                     DopplerMeasuredFrequencyObservationModel< ObservationScalarType, TimeType > >(
                         linkEnds, twoWayDopplerModel,
-                        bodies.getBody( linkEnds.at( observation_models::transmitter ).bodyName_ )->getGroundStation(
-                                linkEnds.at( observation_models::transmitter ).stationName_ )->getTransmittingFrequencyCalculator( ),
+                        transmittingFrequencyInterpolator,
                         turnaroundRatioFunction,
                         observationBias );
 
