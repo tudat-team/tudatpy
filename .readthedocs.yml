@@ -18,8 +18,10 @@ build:
   jobs:
     pre_install:
       - LATEST_TAG=$(git describe --tags --abbrev=0)
-      - wget -r https://github.com/tudat-team/tudatpy/tree/$LATEST_TAG/docs/ -O docs_$LATEST_TAG
-      - ls docs_$LATEST_TAG
+      - wget https://github.com/tudat-team/tudatpy/archive/refs/tags/$LATEST_TAG.zip
+      - unzip $LATEST_TAG.zip
+      - ls
+      - ls tudatpy-$LATEST_TAG
 
 
 conda:
