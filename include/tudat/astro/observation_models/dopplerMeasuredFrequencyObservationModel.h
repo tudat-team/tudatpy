@@ -146,7 +146,6 @@ public:
         // Calculate the light time
         TimeType lightTime = lighTimeCalculator_->calculateLightTimeWithLinkEndsStates(time, linkEndAssociatedWithTime, linkEndTimes, linkEndStates, ancillarySettings);
 
-        std::cout<<"LT "<<lightTime<<std::endl;
         // Get the time when the signal left the transmitter
         TimeType transmitterTime = time - lightTime;
 
