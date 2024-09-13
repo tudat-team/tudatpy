@@ -154,7 +154,6 @@ public:
             {
                 throw std::runtime_error( "Error when requesting partial creation for 2-way Doppler; concatenated partial not supported" );
             }
-//            throw std::runtime_error( "Error, two-way instantaneous Doppler observable currently failing in unit tests, please contact Tudat support" );
             observationPartials = createTwoWayDopplerPartials< ObservationScalarType, TimeType >(
                         observationModel, bodies, parametersToEstimate, isPartialForDifferencedObservable );
             break;
