@@ -19,8 +19,8 @@ build:
     pre_install:
       - pwd
       - ls
-      - LATEST_TAG=$(git describe --tags --abbrev=0) ; echo $LATEST_TAG ;
-       wget https://github.com/tudat-team/tudatpy/archive/refs/tags/$LATEST_TAG.zip; unzip $LATEST_TAG.zip; ls; rm -rf docs/; mv tudatpy-0.8.0.dev11/docs/ .
+      - LATEST_TAG=$(git describe --tags --abbrev=0) ; echo Downloading $LATEST_TAG ;
+       wget https://github.com/tudat-team/tudatpy/archive/refs/tags/$LATEST_TAG.zip; unzip $LATEST_TAG.zip; rm -rf docs/; mv tudatpy-${LATEST_TAG:1}/docs/ .
 
 
 conda:
