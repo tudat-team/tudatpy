@@ -156,6 +156,7 @@ public:
         // Calculate the Doppler observable
         // FIXME: It is not very elegant to have to divide by the multiplication term here. It relies on the implementation of the doppler model.
         ObservationScalarType dopplerMultiplicationTerm = twoWayDopplerModel_->getMultiplicationTerm();
+        std::cout<<"Scaling term "<<dopplerMultiplicationTerm<<std::endl;
         ObservationScalarType twoWayDoppler = twoWayDopplerModel_->computeIdealObservationsWithLinkEndData(
             time, linkEndAssociatedWithTime, linkEndTimes, linkEndStates, ancillarySettings)( 0, 0 ) / dopplerMultiplicationTerm;
         
