@@ -1009,10 +1009,10 @@ size_t commonVectorSizeOrZero(const T& first, const Args&... args) {
  * \param firstArg at least one vector must be provided
  * \param args any number of vectors. the total arguments must be compatible with the required arguments for convertFunc
  */
-template< typename ConvertFunc, typename FirstArg, typename... Args >
-std::vector<double> convertVectors(ConvertFunc convertFunc, const std::vector<FirstArg>& firstArg, const std::vector<Args>& ... args)
+template< typename ScalarType, typename ConvertFunc, typename FirstArg, typename... Args >
+std::vector< ScalarType > convertVectors(ConvertFunc convertFunc, const std::vector<FirstArg>& firstArg, const std::vector<Args>& ... args)
 {
-    std::vector<double> result;
+    std::vector<ScalarType> result;
     size_t N = commonVectorSizeOrZero(firstArg, args...);
 
     if (!N) {

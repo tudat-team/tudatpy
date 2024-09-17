@@ -242,7 +242,7 @@ public:
 
         // Moyer (2000), eq. 13-54
         Eigen::Matrix< ObservationScalarType, 1, 1 > observation = ( Eigen::Matrix< ObservationScalarType, 1, 1 >( ) <<
-                turnaroundRatio_( referenceUplinkBand, downlinkBand ) * referenceFrequency -
+                turnaroundRatio_( referenceUplinkBand, downlinkBand ) * referenceFrequency +
                 turnaroundRatio_( uplinkBand, downlinkBand ) / static_cast< ObservationScalarType >( integrationTime ) *
                 transmitterFrequencyIntegral ).finished( );
 
