@@ -54,6 +54,12 @@ int main( )
      ************************** CREATE EVIRONMENT
      *****************************************************************************************/
 
+//    /home/dominic/Downloads/M32ICL3L02_D2S_133621904_00.TAB.txt
+//     /home/dominic/Downloads/M32ICL3L02_D2S_133621819_00.TAB.txt
+//     /home/dominic/Downloads/M32ICL2L02_D2X_133621904_00.TAB.txt
+//     /home/dominic/Downloads/M32ICL2L02_D2X_133621819_00.TAB.txt
+//     /home/dominic/Downloads/M32ICL1L02_D2X_133621904_00.TAB.txt
+//     /home/dominic/Downloads/M32ICL1L02_D2X_133621819_00.TAB.txt
     // Load spice kernels
     spice_interface::loadStandardSpiceKernels( );
 //    spice_interface::loadSpiceKernelInTudat( "/home/dominic/Tudat/Data/GRAIL_Spice/grail_v07.tf" );
@@ -68,18 +74,18 @@ int main( )
     std::string globalFrameOrigin = "SSB";
     std::string globalFrameOrientation = "J2000";
     BodyListSettings bodySettings = getDefaultBodySettings(
-        bodiesToCreate, initialTimeEnvironment, finalTimeEnvironment, globalFrameOrigin, globalFrameOrientation, 120.0 );
+        bodiesToCreate, globalFrameOrigin, globalFrameOrientation );
 
     // Add high-accuracy Earth settings
     bodySettings.at( "Earth" )->shapeModelSettings = fromSpiceOblateSphericalBodyShapeSettings( );
     bodySettings.at( "Earth" )->rotationModelSettings = gcrsToItrsRotationModelSettings(
-        basic_astrodynamics::iau_2006, globalFrameOrientation,
-        std::make_shared< interpolators::InterpolatorGenerationSettings< double > >(
-            interpolators::cubicSplineInterpolation( ), initialTimeEnvironment, finalTimeEnvironment, 3600.0 ),
-        std::make_shared< interpolators::InterpolatorGenerationSettings< double > >(
-            interpolators::cubicSplineInterpolation( ), initialTimeEnvironment, finalTimeEnvironment, 3600.0 ),
-        std::make_shared< interpolators::InterpolatorGenerationSettings< double > >(
-            interpolators::cubicSplineInterpolation( ), initialTimeEnvironment, finalTimeEnvironment, 60.0 ));
+        basic_astrodynamics::iau_2006, globalFrameOrientation );
+//        std::make_shared< interpolators::InterpolatorGenerationSettings< double > >(
+//            interpolators::cubicSplineInterpolation( ), initialTimeEnvironment, finalTimeEnvironment, 3600.0 ),
+//        std::make_shared< interpolators::InterpolatorGenerationSettings< double > >(
+//            interpolators::cubicSplineInterpolation( ), initialTimeEnvironment, finalTimeEnvironment, 3600.0 ),
+//        std::make_shared< interpolators::InterpolatorGenerationSettings< double > >(
+//            interpolators::cubicSplineInterpolation( ), initialTimeEnvironment, finalTimeEnvironment, 60.0 ));
     bodySettings.at( "Earth" )->groundStationSettings = getDsnStationSettings( );
     bodySettings.at( "Earth" )->bodyDeformationSettings.push_back( iers2010TidalBodyShapeDeformation( ) );
     bodySettings.at( "Earth" )->groundStationSettings.push_back( std::make_shared< GroundStationSettings >(
@@ -99,8 +105,7 @@ int main( )
     std::string spacecraftCentralBody = "Mars";
     bodySettings.addSettings( spacecraftName );
     bodySettings.at( spacecraftName )->ephemerisSettings =
-        std::make_shared< InterpolatedSpiceEphemerisSettings >(
-            initialTimeEnvironment, finalTimeEnvironment, 10.0, spacecraftCentralBody, globalFrameOrientation );
+        std::make_shared< DirectSpiceEphemerisSettings >( spacecraftCentralBody, globalFrameOrientation );
 
 //    // Create spacecraft
 //    bodySettings.at( spacecraftName )->constantMass = 1000.0;
@@ -116,7 +121,7 @@ int main( )
 //        globalFrameOrientation, spacecraftName + "_SPACECRAFT", "" );
 
     // Create bodies
-    SystemOfBodies bodies = createSystemOfBodies< double, double >( bodySettings );
+    SystemOfBodies bodies = createSystemOfBodies< long double, Time >( bodySettings );
 //    bodies.at( "GRAIL-A" )->getVehicleSystems( )->setReferencePointPosition(
 //        "Antenna", ( Eigen::Vector3d( ) << -0.082, 0.152, -0.810 ).finished( ) );
 //    std::cout<<"Number of reference points: "<<bodies.at( "GRAIL-A" )->getVehicleSystems( )->getBodyFixedReferencePoints( ).size( )<<std::endl;
@@ -132,19 +137,19 @@ int main( )
 
     // Define ODF data paths
     std::vector< std::shared_ptr< TrackingTxtFileContents > > rawIfmsFiles;
-    std::vector< std::shared_ptr< ProcessedTrackingTxtFileContents > > processedIfmsFiles;
-
-    rawIfmsFiles.push_back( readIfmsFile( "/home/dominic/Tudat/Data/MeX/M32ICL2L02_D2X_133630120_00.TAB.txt" ) );
-    rawIfmsFiles.push_back( readIfmsFile( "/home/dominic/Tudat/Data/MeX/M32ICL2L02_D2X_133630203_00.TAB.txt" ) );
+    std::vector< std::shared_ptr< ProcessedTrackingTxtFileContents< long double, Time > > > processedIfmsFiles;
+//
+//    rawIfmsFiles.push_back( readIfmsFile( "/home/dominic/Tudat/Data/MeX/M32ICL2L02_D2X_133630120_00.TAB.txt" ) );
+//    rawIfmsFiles.push_back( readIfmsFile( "/home/dominic/Tudat/Data/MeX/M32ICL2L02_D2X_133630203_00.TAB.txt" ) );
     rawIfmsFiles.push_back( readIfmsFile( "/home/dominic/Tudat/Data/MeX/M32ICL2L02_D2X_133631902_00.TAB.txt" ) );
-    rawIfmsFiles.push_back( readIfmsFile( "/home/dominic/Tudat/Data/MeX/M32ICL2L02_D2X_133632221_00.TAB.txt" ) );
-    rawIfmsFiles.push_back( readIfmsFile( "/home/dominic/Tudat/Data/MeX/M32ICL2L02_D2X_133632301_00.TAB.txt" ) );
+//    rawIfmsFiles.push_back( readIfmsFile( "/home/dominic/Tudat/Data/MeX/M32ICL2L02_D2X_133632221_00.TAB.txt" ) );
+//    rawIfmsFiles.push_back( readIfmsFile( "/home/dominic/Tudat/Data/MeX/M32ICL2L02_D2X_133632301_00.TAB.txt" ) );
 
     for( unsigned int i = 0; i < rawIfmsFiles.size( ); i++ )
     {
         rawIfmsFiles.at( i )->addMetaData( TrackingDataType::receiving_station_name, "NWNORCIA" );
         rawIfmsFiles.at( i )->addMetaData( TrackingDataType::transmitting_station_name, "NWNORCIA" );
-        processedIfmsFiles.push_back( std::make_shared<observation_models::ProcessedTrackingTxtFileContents>(
+        processedIfmsFiles.push_back( std::make_shared<observation_models::ProcessedTrackingTxtFileContents< long double, Time > >(
             rawIfmsFiles.at( i ), "MeX", simulation_setup::getCombinedApproximateGroundStationPositions( ) ) );
     }
 
@@ -153,13 +158,13 @@ int main( )
     ancilliarySettings.setAncilliaryDoubleData( doppler_reference_frequency, 0.0 );
     ancilliarySettings.setAncilliaryDoubleData( reception_reference_frequency_band, convertFrequencyBandToDouble( x_band ) );
 
-    auto observedUncompressedObservationCollection = observation_models::createTrackingTxtFilesObservationCollection<double, double>(
+    auto observedUncompressedObservationCollection = observation_models::createTrackingTxtFilesObservationCollection< long double, Time>(
         processedIfmsFiles, {dsn_n_way_averaged_doppler}, ancilliarySettings );
 
     setTrackingDataInformationInBodies( processedIfmsFiles, bodies, {dsn_n_way_averaged_doppler} );
 
 
-    std::shared_ptr< observation_models::ObservationCollection< double, double > > observedObservationCollection =
+    std::shared_ptr< observation_models::ObservationCollection< long double, Time > > observedObservationCollection =
         createCompressedDopplerCollection( observedUncompressedObservationCollection, 60.0 );
 
     /****************************************************************************************
@@ -222,27 +227,29 @@ int main( )
         }
     }
 
-    std::vector< std::shared_ptr< ObservationSimulatorBase< double, double > > > observationSimulators =
-        createObservationSimulators< double, double >( observationModelSettingsList, bodies );
+    std::vector< std::shared_ptr< ObservationSimulatorBase< long double, Time > > > observationSimulators =
+        createObservationSimulators< long double, Time >( observationModelSettingsList, bodies );
 
 
     /****************************************************************************************
      ************************** SIMULATE OBSERVATIONS AND COMPUTE RESIDUALS
      *****************************************************************************************/
 
-    std::vector< std::shared_ptr< simulation_setup::ObservationSimulationSettings< double > > > observationSimulationSettings =
+    std::vector< std::shared_ptr< simulation_setup::ObservationSimulationSettings< Time > > > observationSimulationSettings =
         getObservationSimulationSettingsFromObservations( observedObservationCollection );
-    std::shared_ptr< observation_models::ObservationCollection< double, double > > computedObservationCollection =
+    std::shared_ptr< observation_models::ObservationCollection< long double, Time > > computedObservationCollection =
         simulateObservations( observationSimulationSettings, observationSimulators, bodies );
 
-    std::shared_ptr< observation_models::ObservationCollection< double, double > > residualObservationCollection =
+    std::shared_ptr< observation_models::ObservationCollection< long double, Time > > residualObservationCollection =
         createResidualCollection( observedObservationCollection, computedObservationCollection );
     
     std::cout<<residualObservationCollection->getObservationVector( )<<std::endl;
 
+    input_output::writeMatrixToFile( observedObservationCollection->getObservationVector( ), "ifms_doppler.dat", 16 );
     input_output::writeMatrixToFile( residualObservationCollection->getObservationVector( ), "ifms_residuals.dat", 16 );
     input_output::writeMatrixToFile(
-        utilities::convertStlVectorToEigenVector( residualObservationCollection->getConcatenatedTimeVector() ), "ifms_times.dat", 16 );
+        utilities::convertStlVectorToEigenVector(
+            utilities::staticCastVector< double, Time >( residualObservationCollection->getConcatenatedTimeVector() ) ), "ifms_times.dat", 16 );
 
 //    /****************************************************************************************
 //    ************************** FILTER OBSERVATIONS
