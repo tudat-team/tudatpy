@@ -960,7 +960,14 @@ int countNumberOfOccurencesInVector( const std::vector< T >& vector, const T& va
 template< typename T, typename U >
 bool containsAll(const T& referenceArray, const U searchArray)
 {
-  return std::includes(referenceArray.begin(), referenceArray.end(), searchArray.begin(), searchArray.end());
+    for (auto search_element: searchArray)
+    {
+        if (std::find(referenceArray.begin(), referenceArray.end(), search_element) == referenceArray.end())
+        {
+            return false;
+        }
+    }
+    return true;
 }
 
 //! Convert a vector to a set

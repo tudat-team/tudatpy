@@ -227,6 +227,8 @@ BodyListSettings getDefaultBodySettings(
  */
 std::map< std::string, Eigen::Vector3d > getApproximateDsnGroundStationPositions( );
 
+std::map<std::string, Eigen::Vector3d> getCombinedApproximateGroundStationPositions( );
+
 /*!
  * Returns the default DSN station names per DSN station complex id. Stations are named as "DSS-i", following the
  * nomenclature used when retrieving the default DSN ground station settings.
@@ -250,6 +252,11 @@ inline std::map< int, std::vector< std::string > > getDefaultDsnStationNamesPerC
  * @return Ground station position.
  */
 Eigen::Vector3d getApproximateGroundStationPosition( std::string stationName );
+
+//static std::map< std::string, Eigen::Vector3d >& getApproximateGroundStationPositionsFromFile();
+
+std::map< std::string, Eigen::Vector3d >& getVlbiStationPositions( );
+
 //
 ////! Get map of approximate ground station positions
 //const std::map<std::string, Eigen::Vector3d>& getApproximateGroundStationPositionsFromFile();
