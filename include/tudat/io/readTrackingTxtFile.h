@@ -439,7 +439,6 @@ inline std::shared_ptr< TrackingTxtFileContents> readIfmsFile(const std::string&
                      "ramp_reference_time",
                      "transmission_frequency_constant_term",
                      "transmission_frequency_linear_term",
-                     "transmission_frequency_linear_term",
                      "doppler_averaged_frequency_hz",
                      "doppler_predicted_frequency_hz",
                      "doppler_troposphere_correction",

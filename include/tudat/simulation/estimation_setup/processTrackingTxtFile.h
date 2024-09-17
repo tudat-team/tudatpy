@@ -117,6 +117,26 @@ public:
     return networkPrefix + std::to_string(stationId);
   }
 
+  void updateAncilliarySettings( const ObservableType observableType,
+                                 std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySettings )
+  {
+      if (!utilities::containsAll(observableTypes_, std::vector< ObservableType >( { observableType } ) ) )
+      {
+          throw std::runtime_error( "Error when getting ancilliary settings from processed file contents, could not find " +
+          getObservableName( observableType ) );
+      }
+
+      switch( observableType )
+      {
+      case dsn_n_way_averaged_doppler:
+      {
+          ancilliarySettings->setAncilliaryDoubleData( doppler_integration_time, getObservationTimeStep( ) );
+      }
+      default:
+          break;
+      }
+  }
+
 // Settings interpreting the file format.
 private:
 
@@ -186,6 +206,9 @@ public:
 
 
 private:
+
+  double getObservationTimeStep( );
+
   //! TrackingTxtFileContents raw file contents
   std::shared_ptr<input_output::TrackingTxtFileContents> rawTrackingTxtFileContents_;
 
@@ -220,6 +243,7 @@ private:
 
 };
 
+
 /*!
  * Function to create an observation collection from the processed Tracking file data
  * @param processedTrackingTxtFileContents
@@ -229,8 +253,8 @@ private:
  * @return observation collection
  */
 template< typename ObservationScalarType = double, typename TimeType = double >
-std::shared_ptr<observation_models::ObservationCollection<ObservationScalarType, TimeType> >
-createTrackingTxtFileObservationCollection(
+std::map<ObservableType, std::map<LinkEnds, std::vector<std::shared_ptr<SingleObservationSet<ObservationScalarType, TimeType> > > > >
+    createTrackingTxtFileObservationSets(
     const std::shared_ptr<observation_models::ProcessedTrackingTxtFileContents> processedTrackingTxtFileContents,
     std::vector<ObservableType> observableTypesToProcess = std::vector<ObservableType>(),
     const ObservationAncilliarySimulationSettings& ancillarySettings = ObservationAncilliarySimulationSettings(),
@@ -258,6 +282,11 @@ createTrackingTxtFileObservationCollection(
         throw std::runtime_error("Error while processing Tracking txt file. Not enough information to extract requested observables");
     }
 
+    if( observableTypesToProcess.size( ) > 1 )
+    {
+        throw std::runtime_error( "Error, can only process one observable type at a time from text file." );
+    }
+
 
     // Initialise necessary maps
     std::map<ObservableType, std::map<LinkEnds, std::vector<std::shared_ptr<SingleObservationSet<ObservationScalarType, TimeType> > > > > observationSets;
@@ -268,6 +297,10 @@ createTrackingTxtFileObservationCollection(
     std::vector<TimeType> allObservationTimes = utilities::staticCastVector< TimeType, double >( processedTrackingTxtFileContents->getObservationTimes() );
     std::vector<LinkEnds> linkEndsVector = processedTrackingTxtFileContents->getLinkEndsVector();
     std::set<LinkEnds> linkEndsSet = processedTrackingTxtFileContents->getLinkEndsSet();
+
+    std::shared_ptr< ObservationAncilliarySimulationSettings > updatedAncilliarySettings =
+        std::make_shared<ObservationAncilliarySimulationSettings>( ancillarySettings );
+    processedTrackingTxtFileContents->updateAncilliarySettings( availableObservableTypes.at( 0 ), updatedAncilliarySettings );
 
     // Prepare maps that order all observations per observable type and link ends
     // This is necessary for files where the linkends are not always the same
@@ -304,13 +337,42 @@ createTrackingTxtFileObservationCollection(
                     observationTimesMap[currentObservableType][currentLinkEnds],
                     receiver, // TODO: make more flexible to allow for other reference link ends
                     std::vector<Eigen::VectorXd>(),
-                    nullptr,
-                    std::make_shared<ObservationAncilliarySimulationSettings>(ancillarySettings)));
+                    nullptr, updatedAncilliarySettings ));
         }
     }
 
-    // Return as shared pointer
-    return std::make_shared<ObservationCollection<ObservationScalarType, TimeType> >(observationSets);
+    return observationSets;
+}
+
+template< typename ObservationScalarType = double, typename TimeType = double >
+std::shared_ptr<observation_models::ObservationCollection<ObservationScalarType, TimeType> >
+createTrackingTxtFilesObservationCollection(
+    const std::vector< std::shared_ptr<observation_models::ProcessedTrackingTxtFileContents> > processedTrackingTxtFileContents,
+    std::vector<ObservableType> observableTypesToProcess = std::vector<ObservableType>(),
+    const ObservationAncilliarySimulationSettings& ancillarySettings = ObservationAncilliarySimulationSettings(),
+    const std::pair<TimeType, TimeType> startAndEndTimesToProcess = std::make_pair<TimeType, TimeType>(TUDAT_NAN, TUDAT_NAN))
+{
+    std::map<ObservableType, std::map<LinkEnds, std::vector<std::shared_ptr<SingleObservationSet<ObservationScalarType, TimeType> > > > > observationSets;
+
+    for( unsigned int i = 0; i < processedTrackingTxtFileContents.size( ); i++ )
+    {
+        auto processedObervationSet = createTrackingTxtFileObservationSets(
+            processedTrackingTxtFileContents.at( i ), observableTypesToProcess, ancillarySettings, startAndEndTimesToProcess );
+        observationSets.insert( processedObervationSet.begin( ), processedObervationSet.end( ) );
+    }
+    return std::make_shared<ObservationCollection<ObservationScalarType, TimeType> >( observationSets );
+}
+
+template< typename ObservationScalarType = double, typename TimeType = double >
+std::shared_ptr<observation_models::ObservationCollection<ObservationScalarType, TimeType> >
+createTrackingTxtFileObservationCollection(
+    const std::shared_ptr<observation_models::ProcessedTrackingTxtFileContents> processedTrackingTxtFileContents,
+    std::vector<ObservableType> observableTypesToProcess = std::vector<ObservableType>(),
+    const ObservationAncilliarySimulationSettings& ancillarySettings = ObservationAncilliarySimulationSettings(),
+    const std::pair<TimeType, TimeType> startAndEndTimesToProcess = std::make_pair<TimeType, TimeType>(TUDAT_NAN, TUDAT_NAN))
+{
+    return createTrackingTxtFilesObservationCollection< ObservationScalarType, TimeType >(
+        { processedTrackingTxtFileContents }, observableTypesToProcess, ancillarySettings, startAndEndTimesToProcess );
 }
 
 /*!

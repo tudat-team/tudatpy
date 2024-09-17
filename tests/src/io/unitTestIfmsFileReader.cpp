@@ -58,17 +58,34 @@ int main( )
     SystemOfBodies bodies = SystemOfBodies( "SSB", "ECLIPJ2000" );
     bodies.createEmptyBody( "MeX" );
 
-    std::shared_ptr< TrackingTxtFileContents> rawIfmsFile = readIfmsFile( "/home/dominic/Downloads/M32ICL1L02_D2X_101660704_00.TAB.txt" );
-    rawIfmsFile->addMetaData( TrackingDataType::receiving_station_name, "NWNORCIA" );
-    rawIfmsFile->addMetaData( TrackingDataType::transmitting_station_name, "NWNORCIA" );
+    std::vector< std::shared_ptr< TrackingTxtFileContents > > rawIfmsFiles;
+    std::vector< std::shared_ptr< ProcessedTrackingTxtFileContents > > processedIfmsFiles;
 
-    auto processedTrackingTxtFileContents = std::make_shared<observation_models::ProcessedTrackingTxtFileContents>(
-        rawIfmsFile, "MeX", simulation_setup::getCombinedApproximateGroundStationPositions( ) );
+    rawIfmsFiles.push_back( readIfmsFile( "/home/dominic/Downloads/M32ICL2L02_D2X_133630120_00.TAB.txt" ) );
+    rawIfmsFiles.push_back( readIfmsFile( "/home/dominic/Downloads/M32ICL2L02_D2X_133630203_00.TAB.txt" ) );
+    rawIfmsFiles.push_back( readIfmsFile( "/home/dominic/Downloads/M32ICL2L02_D2X_133631902_00.TAB.txt" ) );
+    rawIfmsFiles.push_back( readIfmsFile( "/home/dominic/Downloads/M32ICL2L02_D2X_133632221_00.TAB.txt" ) );
+    rawIfmsFiles.push_back( readIfmsFile( "/home/dominic/Downloads/M32ICL2L02_D2X_133632301_00.TAB.txt" ) );
 
-    auto observationCollection = observation_models::createTrackingTxtFileObservationCollection<double, double>(
-        processedTrackingTxtFileContents, {dsn_n_way_averaged_doppler});
+    for( unsigned int i = 0; i < rawIfmsFiles.size( ); i++ )
+    {
+        rawIfmsFiles.at( i )->addMetaData( TrackingDataType::receiving_station_name, "NWNORCIA" );
+        rawIfmsFiles.at( i )->addMetaData( TrackingDataType::transmitting_station_name, "NWNORCIA" );
+        processedIfmsFiles.push_back( std::make_shared<observation_models::ProcessedTrackingTxtFileContents>(
+            rawIfmsFiles.at( i ), "MeX", simulation_setup::getCombinedApproximateGroundStationPositions( ) ) );
+    }
 
-    setTrackingDataInformationInBodies( { processedTrackingTxtFileContents}, bodies, {dsn_n_way_averaged_doppler} );
+    auto observationCollection = observation_models::createTrackingTxtFilesObservationCollection<double, double>(
+        processedIfmsFiles, {dsn_n_way_averaged_doppler});
+
+    setTrackingDataInformationInBodies( processedIfmsFiles, bodies, {dsn_n_way_averaged_doppler} );
+
+    Eigen::VectorXd observationTimes = utilities::convertStlVectorToEigenVector( observationCollection->getConcatenatedTimeVector( ) );
+    Eigen::VectorXd observationValues = observationCollection->getObservationVector( );
+
+    input_output::writeMatrixToFile( observationValues, "ifms_doppler.dat", 16 );
+    input_output::writeMatrixToFile( observationTimes, "ifms_times.dat", 16 );
+
 
 }
 
