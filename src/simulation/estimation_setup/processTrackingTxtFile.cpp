@@ -310,6 +310,27 @@ ProcessedTrackingTxtFileContents::LinkEndsRepresentation ProcessedTrackingTxtFil
 }
 
 
+double ProcessedTrackingTxtFileContents::getObservationTimeStep( )
+{
+    if( observationTimes_.size( ) < 2 )
+    {
+        throw std::runtime_error( "Error when getting integration time for processed file contents, size is < 2" );
+    }
+    double observationTimeStep = observationTimes_.at( 1 ) - observationTimes_.at( 0 );
+    for( unsigned int i = 1; i < observationTimes_.size( ); i++ )
+    {
+        double testObservationTimeStep = observationTimes_.at( i ) - observationTimes_.at( i - 1 );
+        if( std::fabs( observationTimeStep - testObservationTimeStep ) > 50.0 * std::numeric_limits< double >::epsilon( ) * observationTimes_.at( i - 1 )  )
+        {
+            std::cout<<i<<" "<<testObservationTimeStep<<" "<<observationTimeStep<<" "<<testObservationTimeStep - observationTimeStep<<" "<<
+                                                                                                                                         50.0 * std::numeric_limits< double >::epsilon( ) * observationTimes_.at( i - 1 )<<std::endl;
+            throw std::runtime_error( "Error when getting integration time for processed file contents, step is not equal" );
+        }
+    }
+
+    return observationTimeStep;
+}
+
 void setStationFrequenciesFromTrackingData(
     const std::map< std::string, std::vector< std::tuple< std::vector< double >, std::vector< double >, std::vector< double > > > >& rampInformation,
     simulation_setup::SystemOfBodies& bodies )
@@ -326,8 +347,8 @@ void setStationFrequenciesFromTrackingData(
         for( unsigned int i = 0; i < it.second.size( ); i++ )
         {
             std::vector< double > currentRampUtcTimes = std::get< 0 >( it.second.at( i ) );
-            std::vector< double > currentFrequencyRampRates = std::get< 1 >( it.second.at( i ) );
-            std::vector< double > currentFrequencyValues = std::get< 2 >( it.second.at( i ) );
+            std::vector< double > currentFrequencyValues = std::get< 1 >( it.second.at( i ) );
+            std::vector< double > currentFrequencyRampRates = std::get< 2 >( it.second.at( i ) );
 
             rampStartTimes.push_back( currentRampUtcTimes.at( 0 ) );
             rampEndTimes.push_back( currentRampUtcTimes.at( currentRampUtcTimes.size( ) - 1 ) );
@@ -339,17 +360,25 @@ void setStationFrequenciesFromTrackingData(
                 {
                     throw std::runtime_error( "Error when reading IFMS transmitter frequencies, frequency is constant, but ramp is not constant" );
                 }
-                else if( currentFrequencyRampRates.at( 0 ) != 0.0 )
+                else if( currentFrequencyRampRates.at( 0 ) != 0.0 && currentFrequencyRampRates.at( 0 ) != -99999.999999 )
                 {
-                    throw std::runtime_error( "Error when reading IFMS transmitter frequencies, frequency is constant, but ramp is not zero" );
+                    throw std::runtime_error( "Error when reading IFMS transmitter frequencies, frequency is constant, but ramp is not zero" + std::to_string( currentFrequencyRampRates.at( 0 ) ) );
                 }
-                currentFrequencyRampRates.push_back( 0.0 );
-                currentFrequencyValues.push_back( constantTransmitterFrequency );
+                rampRates.push_back( 0.0 );
+                rampStartFrequencies.push_back( constantTransmitterFrequency );
             }
             else
             {
+                std::cout<<utilities::convertStlVectorToEigenVector( currentFrequencyValues )<<std::endl;
                 throw std::runtime_error( "Error when reading IFMS transmitter frequencies, only unramped data currently supported." );
             }
+        }
+        for( unsigned int i = 0; i < rampStartTimes.size( ) - 1 ; i++ )
+        {
+            double timeDifference = rampStartTimes.at( i + 1 ) - rampEndTimes.at( i );
+            rampStartTimes[ i + 1 ] -= timeDifference/2.0;
+            rampEndTimes[ i ] += timeDifference/2.0;
+
         }
         rampInterpolators[ it.first ] = std::make_shared< ground_stations::PiecewiseLinearFrequencyInterpolator >(
             rampStartTimes, rampEndTimes, rampRates, rampStartFrequencies );
@@ -392,6 +421,7 @@ void setStationFrequenciesFromTrackingData(
         }
         rampInformation[ transmitterName ].push_back( std::make_tuple( rampUtcTimes, frequencyValues, frequencyRampRates ) );
     }
+    setStationFrequenciesFromTrackingData( rampInformation, bodies );
 }
 
 
