@@ -35,6 +35,10 @@ namespace tudat
 namespace unit_tests
 {
 
+using namespace basic_astrodynamics;
+using namespace earth_orientation;
+using namespace simulation_setup;
+
 //! Temporary utility function to print arrays to std::cout
 template< typename T >
 void printArr(const T& arr)
@@ -285,7 +289,8 @@ BOOST_AUTO_TEST_CASE(TestVikingRangeDataObservationCollection)
 
   // Load the observations from the Viking file
   std::shared_ptr<tio::TrackingTxtFileContents> rawVikingFile = readVikingRangeFile(vikingRangePath);
-  auto observationCollection = observation_models::createTrackingTxtFileObservationCollection<double, double>(rawVikingFile, "Viking", {tom::n_way_range});
+  auto observationCollection = observation_models::createTrackingTxtFileObservationCollection<double, double>(
+      rawVikingFile, "Viking", {tom::n_way_range} );
 
   // Check size of observations
   BOOST_CHECK_EQUAL(observationCollection->getTotalObservableSize(), 1258);
@@ -305,22 +310,27 @@ BOOST_AUTO_TEST_CASE(TestVikingRangeDataObservationCollection)
   auto observationsDsn63 = observationsAndTimesDsn63.first;
   auto timesDsn63 = observationsAndTimesDsn63.second;
 
-  BOOST_CHECK_CLOSE(observationsDsn63(0, 0), 710977235544.5463, 1e-12); // Round trip light time = 2371.564782809 seconds (don't relax from 1e-12)
-  BOOST_CHECK_CLOSE(timesDsn63[0], -738352558.0 + 32.184 + 15, 1e-8);  // "1976-08-08T18:04:02.000"
+  BOOST_CHECK_CLOSE(observationsDsn63(0, 0), 2371564782.809 * 1.0E-6 * physical_constants::SPEED_OF_LIGHT, 1e-12); // Round trip light time = 2371.564782809 seconds (don't relax from 1e-12)
+  DateTime utcObservationTime = DateTime( 1976, 8, 8, 18, 4, 2.0 );
+  double testTime = createDefaultTimeConverter( )->getCurrentTime< Time >( utc_scale, tdb_scale, utcObservationTime.epoch< Time >( ),
+                                                 getApproximateDsnGroundStationPositions( ).at( "DSS-63" ) );
+  BOOST_CHECK_CLOSE(timesDsn63[0], testTime, ( 10.0 * std::numeric_limits< double >::epsilon( ) ) ) ;  // "1976-08-08T18:04:02.000"
 }
 
 //! Test with JUICE data. Using doppler measured frequency observable
 BOOST_AUTO_TEST_CASE(TestJuiceFile)
 {
   const double dopplerBaseFrequency = 8420.0e6;
-  const std::string stationName = "HOBART12";
+  const std::string transmittingStationName = "NNO";
+  const std::string receivingStationName = "HOBART12";
 
   spice_interface::loadStandardSpiceKernels();
 
   std::shared_ptr< tio::TrackingTxtFileContents > rawFdetsDopplerFile = readJuiceFdetsFile(juiceFdetsDopplerPath);
   rawFdetsDopplerFile->addMetaData(tio::TrackingDataType::doppler_base_frequency, dopplerBaseFrequency);
   rawFdetsDopplerFile->addMetaData(tio::TrackingDataType::doppler_bandwidth, 2.0e3);
-  rawFdetsDopplerFile->addMetaData(tio::TrackingDataType::vlbi_station_name, stationName);
+  rawFdetsDopplerFile->addMetaData(tio::TrackingDataType::receiving_station_name, receivingStationName);
+  rawFdetsDopplerFile->addMetaData(tio::TrackingDataType::transmitting_station_name, transmittingStationName);
 
   // CHECK THE RAW FILE
   BOOST_CHECK_EQUAL(rawFdetsDopplerFile->getNumColumns(), 5);
@@ -328,15 +338,14 @@ BOOST_AUTO_TEST_CASE(TestJuiceFile)
   auto dataMap = rawFdetsDopplerFile->getDoubleDataMap();
   auto dataBlockLast = extractBlockFromVectorMap(dataMap, -1);
 
-  auto timeDataBlockLast = dataBlockLast[tio::TrackingDataType::tdb_time_j2000];
-  auto tdbMinusTTLast = sofa_interface::getTDBminusTT(timeDataBlockLast, Eigen::Vector3d::Zero());
-  double tdbMisMatch = timeDataBlockLast - (735687970.0 + 32.184 + 37.0) - tdbMinusTTLast;
+  auto timeDataBlockLast = dataBlockLast[tio::TrackingDataType::utc_reception_time_j2000];
 
-  // double tdbMismatch = dataBlockLast[tio::TrackingDataType::tdb_time_j2000]
-  //     - (735687970.0 + 32.184 + 37.0) - sofa_interface::getTDBminusTT(dataBlockLast[tio::TrackingDataType::tdb_time_j2000], Eigen::Vector3d::Zero());
 
-  BOOST_CHECK_SMALL(tdbMisMatch, 1.0E-5);
+  DateTime utcObservationTime = DateTime( 2023, 4, 25, 9, 46, 10.0 );
+  double tdbObservationTime = createDefaultTimeConverter( )->getCurrentTime< Time >( utc_scale, tdb_scale, utcObservationTime.epoch< Time >( ),
+      getCombinedApproximateGroundStationPositions( ).at( receivingStationName ) );
 
+  BOOST_CHECK_CLOSE_FRACTION( timeDataBlockLast, utcObservationTime.epoch< double >( ), 10.0* std::numeric_limits< double >::epsilon( ) );
   BOOST_CHECK_EQUAL(dataBlockLast[tio::TrackingDataType::signal_to_noise], 6.766652540970647242e+05);
   BOOST_CHECK_EQUAL(dataBlockLast[tio::TrackingDataType::spectral_max], 5.754946258897545704e+03);
   BOOST_CHECK_EQUAL(dataBlockLast[tio::TrackingDataType::doppler_measured_frequency], 5977954.253958693705);
@@ -344,18 +353,24 @@ BOOST_AUTO_TEST_CASE(TestJuiceFile)
 
   // Check the VLBI Station name
   const auto& metaDataStrMap = rawFdetsDopplerFile->getMetaDataStrMap();
-  BOOST_CHECK_EQUAL(metaDataStrMap.at(tio::TrackingDataType::vlbi_station_name), stationName);
+  BOOST_CHECK_EQUAL(metaDataStrMap.at(tio::TrackingDataType::transmitting_station_name), transmittingStationName);
+  BOOST_CHECK_EQUAL(metaDataStrMap.at(tio::TrackingDataType::receiving_station_name), receivingStationName);
 
   auto observationCollection = observation_models::createTrackingTxtFileObservationCollection< double, double >(rawFdetsDopplerFile, "JUICE");
   BOOST_CHECK_EQUAL(observationCollection->getTotalObservableSize(), 120);
 
   auto concatenatedObservations = observationCollection->getObservationVectorReference();
+  auto concatenatedTimes = observationCollection->getConcatenatedDoubleTimeVector( );
+
   BOOST_CHECK_EQUAL(concatenatedObservations.size(), 120);
 
   BOOST_CHECK_EQUAL(concatenatedObservations(0), dopplerBaseFrequency + 5978760.982806123793);
   BOOST_CHECK_EQUAL(concatenatedObservations(1), dopplerBaseFrequency + 5978754.318319843151);
   BOOST_CHECK_EQUAL(concatenatedObservations(2), dopplerBaseFrequency + 5978747.672510409728);
   BOOST_CHECK_EQUAL(concatenatedObservations(concatenatedObservations.rows() - 1), dopplerBaseFrequency + 5977954.253958693705);
+
+  BOOST_CHECK_CLOSE_FRACTION( tdbObservationTime, concatenatedTimes.at(concatenatedTimes.size() - 1), 10.0* std::numeric_limits< double >::epsilon( ) );
+
 }
 
 //! Test reading of ground station locations
@@ -373,6 +388,10 @@ BOOST_AUTO_TEST_CASE(GroundStationLocations)
 //  std::map<std::string, Eigen::Vector3d> stationPosMap = simulation_setup::getApproximateGroundStationPositionsFromFile();
 //  std::map<std::string, std::string> stationCodeMap = simulation_setup::getGroundStationCodesFromFile();
 
+std::map<std::string, Eigen::Vector3d> stationPositionMap = getVlbiStationPositions( );
+std::cout<<stationPositionMap.at("HOBART12");
+std::map<std::string, Eigen::Vector3d> stationPositionMap2 = getVlbiStationPositions( );
+std::cout<<stationPositionMap2.at("HOBART12");
   Eigen::Vector3d hobartPos = stationPosMap.at("HOBART12");
   Eigen::Vector3d hobartVel = stationVelMap.at("HOBART12");
 //  Eigen::Vector3d hobartPos = simulation_setup::getApproximateGroundStationPositionFromFile("HOBART12");
