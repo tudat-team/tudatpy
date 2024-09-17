@@ -470,19 +470,32 @@ Eigen::Vector3d getApproximateGroundStationPosition(std::string stationName)
 
 
 
-//const static std::string pysctrackGroundStationPosFile = tudat::paths::getTudatTestDataPath() + "glo.sit";
-//const static std::string pysctrackGroundStationVelFile = tudat::paths::getTudatTestDataPath() + "glo.vel";
-//const static std::string pysctrackGroundStationCodesFile = tudat::paths::getTudatTestDataPath() + "ns_codes.dat";
-//const static std::map<std::string, Eigen::Vector3d> approximateGroundStationPositionsFromFile = utilities::getMapFromFile<std::string, Eigen::Vector3d>(pysctrackGroundStationPosFile, '$', " \t");
-//const static std::map<std::string, Eigen::Vector3d> approximateGroundStationPositionsDsn = getApproximateDsnGroundStationPositions(); // TODO: remove once I can edit the file
-//const static std::map<std::string, Eigen::Vector3d> approximateGroundStationVelocitiesFromFile = utilities::getMapFromFile<std::string, Eigen::Vector3d>(pysctrackGroundStationVelFile, '$', " \t");
-//static std::map<std::string, std::string> groundStationCodesFromFile = utilities::getMapFromFile<std::string, std::string>(pysctrackGroundStationCodesFile, '*', " \t");
-//
-//const std::map<std::string, Eigen::Vector3d>& getApproximateGroundStationPositionsFromFile()
-//{
-//  return approximateGroundStationPositionsFromFile;
-//}
-//
+const static std::string pysctrackGroundStationPosFile = tudat::paths::getTudatTestDataPath() + "glo.sit";
+const static std::string pysctrackGroundStationVelFile = tudat::paths::getTudatTestDataPath() + "glo.vel";
+const static std::string pysctrackGroundStationCodesFile = tudat::paths::getTudatTestDataPath() + "ns_codes.dat";
+
+const static std::map<std::string, Eigen::Vector3d> approximateGroundStationPositionsFromFile =
+    utilities::getMapFromFile<std::string, Eigen::Vector3d>(pysctrackGroundStationPosFile, '$', " \t");
+const static std::map<std::string, Eigen::Vector3d> approximateGroundStationVelocitiesFromFile =
+    utilities::getMapFromFile<std::string, Eigen::Vector3d>(pysctrackGroundStationVelFile, '$', " \t");
+const static std::map<std::string, std::string> groundStationCodesFromFile =
+    utilities::getMapFromFile<std::string, std::string>(pysctrackGroundStationCodesFile, '*', " \t");
+
+
+
+std::map<std::string, Eigen::Vector3d> getCombinedApproximateGroundStationPositions()
+{
+    auto combinedMap = getApproximateDsnGroundStationPositions();
+    combinedMap.insert(approximateGroundStationPositionsFromFile.begin(), approximateGroundStationPositionsFromFile.end());
+    return combinedMap;
+}
+
+std::map< std::string, Eigen::Vector3d >& getVlbiStationPositions( )
+{
+    static std::map<std::string, Eigen::Vector3d> stationPositions = utilities::getMapFromFile<std::string, Eigen::Vector3d>( pysctrackGroundStationPosFile, '$', " \t" );
+    return stationPositions;
+}
+
 //Eigen::Vector3d getApproximateGroundStationPositionFromFile(std::string stationName )
 //{
 //  stationName = getGroundStationCodeFromFile(stationName);
