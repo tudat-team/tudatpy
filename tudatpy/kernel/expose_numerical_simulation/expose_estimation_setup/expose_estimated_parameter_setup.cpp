@@ -8,11 +8,13 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+
 #include "expose_estimated_parameter_setup.h"
 
 #include "tudat/simulation/estimation_setup/createEstimatableParameters.h"
 
-#include "tudatpy/docstrings.h"
+#include "docstrings.h"
+#include "scalarTypes.h"
 
 namespace tep = tudat::estimatable_parameters;
 namespace tss = tudat::simulation_setup;
@@ -111,7 +113,7 @@ void expose_estimated_parameter_setup(py::module &m) {
     // ###############    Initial States             ################################
 
     m.def("initial_states",
-          &tss::getInitialStateParameterSettings< double >,
+          &tss::getInitialStateParameterSettings< double, TIME_TYPE >,
           py::arg("propagator_settings"), py::arg("bodies"),
           py::arg("arc_initial_times") = std::vector< double >( ),
           get_docstring("initial_states").c_str() );
@@ -141,6 +143,19 @@ void expose_estimated_parameter_setup(py::module &m) {
           py::arg("body"),
           py::arg("arc_initial_times"),
           get_docstring("arcwise_radiation_pressure_coefficient").c_str() );
+
+
+    m.def("radiation_pressure_target_direction_scaling",
+          &tep::radiationPressureTargetDirectionScaling,
+          py::arg("target_body"),
+          py::arg("source_body"),
+          get_docstring("radiation_pressure_target_direction_scaling").c_str() );
+
+    m.def("radiation_pressure_target_perpendicular_direction_scaling",
+          &tep::radiationPressureTargetPerpendicularDirectionScaling,
+          py::arg("target_body"),
+          py::arg("source_body"),
+          get_docstring("radiation_pressure_target_perpendicular_direction_scaling").c_str() );
 
     m.def("constant_empirical_acceleration_terms",
           &tep::constantEmpiricalAccelerationMagnitudes,
@@ -315,6 +330,19 @@ void expose_estimated_parameter_setup(py::module &m) {
           py::arg("ref_epochs"),
           py::arg("time_link_end" ) );
 
+    m.def("constant_time_bias",
+          &tep::timeObservationBias,
+          py::arg("link_ends"),
+          py::arg("observable_type"),
+          py::arg("reference_link_end") );
+
+    m.def("arcwise_time_bias",
+          &tep::arcwiseTimeObservationBias,
+          py::arg("link_ends"),
+          py::arg("observable_type"),
+          py::arg("arc_start_times" ),
+          py::arg("reference_link_end" ) );
+
     m.def("ground_station_position",
           &tep::groundStationPosition,
           py::arg("body"),
@@ -421,6 +449,37 @@ void expose_estimated_parameter_setup(py::module &m) {
           py::arg("use_complex_love_number") = 0,
           get_docstring("order_varying_k_love_number", 2).c_str() );
 
+    m.def("mode_coupled_k_love_numbers",
+          &tep::modeCoupledTidalLoveNumberEstimatableParameterSettings,
+          py::arg("deformed_body"),
+          py::arg("love_number_indices"),
+          py::arg("deforming_bodies"),
+          get_docstring("mode_coupled_k_love_numbers").c_str() );
+
+    m.def("polynomial_gravity_field_variation_amplitudes",
+          &tep::polynomialGravityFieldVariationParameter,
+          py::arg("body_name"),
+          py::arg("cosine_indices_per_power"),
+          py::arg("sine_indices_per_power"),
+          get_docstring("polynomial_gravity_field_variation_amplitudes").c_str() );
+
+    m.def("monomial_gravity_field_variation_amplitudes",
+          &tep::polynomialSinglePowerGravityFieldVariationParameter,
+          py::arg("body_name"),
+          py::arg("power"),
+          py::arg("cosine_indices"),
+          py::arg("sine_indices"),
+          get_docstring("monomial_gravity_field_variation_amplitudes").c_str() );
+
+    m.def("monomial_full_block_gravity_field_variation_amplitudes",
+          &tep::polynomialSinglePowerFullBlockGravityFieldVariationParameter,
+          py::arg("body_name"),
+          py::arg("power"),
+          py::arg("minimum_degree"),
+          py::arg("minimum_order"),
+          py::arg("maximum_degree"),
+          py::arg("maximum_order"),
+          get_docstring("monomial_full_block_gravity_field_variation_amplitudes").c_str() );
 
     m.def("scaled_longitude_libration_amplitude",
           &tep::scaledLongitudeLibrationAmplitude,
@@ -451,6 +510,8 @@ void expose_estimated_parameter_setup(py::module &m) {
     m.def("ppn_parameter_beta",
           &tep::ppnParameterBeta,
           get_docstring("ppn_parameter_beta").c_str() );
+
+
 
 
 }

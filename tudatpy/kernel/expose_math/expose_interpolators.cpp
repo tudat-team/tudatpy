@@ -10,8 +10,8 @@
 
 #include "expose_interpolators.h"
 
-#include "tudatpy/docstrings.h"
-#include "tudatpy/scalarTypes.h"
+#include "docstrings.h"
+#include "scalarTypes.h"
 
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
@@ -83,10 +83,13 @@ void expose_interpolators(py::module &m) {
             std::shared_ptr<ti::InterpolatorSettings>>(m, "InterpolatorSettings",
                                                        get_docstring("InterpolatorSettings").c_str());
 
-    py::class_<ti::InterpolatorGenerationSettings<TIME_TYPE>,
-        std::shared_ptr<ti::InterpolatorGenerationSettings<TIME_TYPE>>>(m, "InterpolatorGenerationSettings",
-                                                   get_docstring("InterpolatorGenerationSettings").c_str());
+    py::class_<ti::InterpolatorGenerationSettings<tudat::Time>,
+        std::shared_ptr<ti::InterpolatorGenerationSettings<tudat::Time>>>(m, "InterpolatorGenerationSettingsTime",
+                                                   get_docstring("InterpolatorGenerationSettingsTime").c_str());
 
+    py::class_<ti::InterpolatorGenerationSettings<double>,
+        std::shared_ptr<ti::InterpolatorGenerationSettings<double>>>(m, "InterpolatorGenerationSettingsFloat",
+                                                                        get_docstring("InterpolatorGenerationSettingsFloat").c_str());
 
 
     py::class_<
@@ -107,7 +110,19 @@ void expose_interpolators(py::module &m) {
                  py::arg("lagrange_boundary_handling") = ti::lagrange_cubic_spline_boundary_interpolation,
                  py::arg("boundary_handling") = ti::extrapolate_at_boundary);
 
+      m.def("interpolator_generation_settings", &ti::interpolatorGenerationSettings< TIME_TYPE >,
+          py::arg( "interpolator_settings" ),
+          py::arg( "initial_time" ),
+          py::arg( "final_time" ),
+          py::arg( "time_step" ),
+          get_docstring("interpolator_generation_settings").c_str());
 
+    m.def("interpolator_generation_settings_float", &ti::interpolatorGenerationSettings< double >,
+          py::arg( "interpolator_settings" ),
+          py::arg( "initial_time" ),
+          py::arg( "final_time" ),
+          py::arg( "time_step" ),
+          get_docstring("interpolator_generation_settings_float").c_str());
 
     m.def("linear_interpolation", &ti::linearInterpolation,
           py::arg( "lookup_scheme" ) = ti::huntingAlgorithm,

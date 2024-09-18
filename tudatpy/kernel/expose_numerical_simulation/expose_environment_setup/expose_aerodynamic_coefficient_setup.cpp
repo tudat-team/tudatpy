@@ -11,7 +11,7 @@
 #include "expose_aerodynamic_coefficient_setup.h"
 #include <tudat/basics/deprecationWarnings.h>
 
-#include "tudatpy/docstrings.h"
+#include "docstrings.h"
 #include <tudat/simulation/environment_setup.h>
 #include <tudat/astro/reference_frames/referenceFrameTransformations.h>
 

@@ -10,7 +10,7 @@
 
 #include "expose_ground_station_setup.h"
 
-#include "tudatpy/docstrings.h"
+#include "docstrings.h"
 #include <tudat/simulation/environment_setup/createGroundStations.h>
 #include <tudat/simulation/environment_setup/defaultBodies.h>
 #include <pybind11/eigen.h>
@@ -55,7 +55,10 @@ namespace ground_station{
                                         get_docstring("CustomGroundStationMotionSettings").c_str());
 
 
-
+        m.def("add_motion_model_to_each_groun_station",
+              &tss::addStationMotionModelToEachGroundStation,
+              py::arg("ground_station_settings_list"),
+              py::arg("station_motion_setting") );
 
         m.def("basic_station",
               &tss::groundStationSettings,
