@@ -16,6 +16,7 @@
 
 #include <memory>
 
+#include "tudat/io/basicInputOutput.h"
 #include "tudat/astro/aerodynamics/atmosphereModel.h"
 #include "tudat/astro/aerodynamics/exponentialAtmosphere.h"
 #include "tudat/astro/aerodynamics/customConstantTemperatureAtmosphere.h"
@@ -929,9 +930,10 @@ inline std::shared_ptr< AtmosphereSettings > exponentialAtmosphereSettings(
 }
 
 //! @get_docstring(nrlmsise00AtmosphereSettings)
-inline std::shared_ptr< AtmosphereSettings > nrlmsise00AtmosphereSettings( )
+inline std::shared_ptr< AtmosphereSettings > nrlmsise00AtmosphereSettings(
+        const std::string dataFile = paths::getSpaceWeatherDataPath( ) + "/sw19571001.txt" )
 {
-    return std::make_shared< AtmosphereSettings >( nrlmsise00 );
+    return std::make_shared< NRLMSISE00AtmosphereSettings >( dataFile );
 }
 
 typedef std::function< double( const double, const double, const double, const double ) > DensityFunction;
@@ -977,6 +979,18 @@ inline std::shared_ptr< AtmosphereSettings > scaledAtmosphereSettings(
     return std::make_shared< ScaledAtmosphereSettings >( baseSettings, scaling, isScalingAbsolute );
 }
 
+inline std::shared_ptr< AtmosphereSettings > tabulatedAtmosphereSettings(
+        const std::string& atmosphereTableFile,
+        const std::vector< AtmosphereDependentVariables >& dependentVariablesNames = { density_dependent_atmosphere,
+        pressure_dependent_atmosphere, temperature_dependent_atmosphere },
+        const double specificGasConstant = physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
+        const double ratioOfSpecificHeats = 1.4 )
+{
+    return std::make_shared< TabulatedAtmosphereSettings >(
+                atmosphereTableFile, dependentVariablesNames, specificGasConstant, ratioOfSpecificHeats,
+                interpolators::throw_exception_at_boundary );
+}
+
 
 //! @get_docstring(customWindModelSettings)
 inline std::shared_ptr< WindModelSettings > customWindModelSettings(
@@ -993,6 +1007,9 @@ inline std::shared_ptr< WindModelSettings > constantWindModelSettings(
 {
     return std::make_shared< ConstantWindModelSettings >( constantWindVelocity, associatedFrame );
 }
+
+
+
 
 //  Function to create a wind model.
 /* 

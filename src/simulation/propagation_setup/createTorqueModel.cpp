@@ -81,15 +81,8 @@ std::shared_ptr< aerodynamics::AerodynamicTorque > createAerodynamicTorqueModel(
     // Retrieve frame in which aerodynamic coefficients are defined.
     std::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > aerodynamicCoefficients =
             bodyUndergoingTorque->getAerodynamicCoefficientInterface( );
-    reference_frames::AerodynamicsReferenceFrames torqueFrame;
-    if( aerodynamicCoefficients->getAreCoefficientsInAerodynamicFrame( ) )
-    {
-        torqueFrame = reference_frames::aerodynamic_frame;
-    }
-    else
-    {
-        torqueFrame = reference_frames::body_frame;
-    }
+    reference_frames::AerodynamicsReferenceFrames torqueFrame = aerodynamics::getCompleteFrameForCoefficients(
+            aerodynamicCoefficients->getMomentCoefficientsFrame( ) );
 
     // Create function to transform from frame of aerodynamic coefficienrs to that of propagation.
     std::function< Eigen::Vector3d( const Eigen::Vector3d& ) > toPropagationFrameTransformation;
@@ -115,7 +108,8 @@ std::shared_ptr< aerodynamics::AerodynamicTorque > createAerodynamicTorqueModel(
                 std::bind( &aerodynamics::AtmosphericFlightConditions::getCurrentAirspeed, bodyFlightConditions ),
                 std::bind( &aerodynamics::AerodynamicCoefficientInterface::getReferenceArea, aerodynamicCoefficients ),
                 std::bind( &aerodynamics::AerodynamicCoefficientInterface::getReferenceLengths, aerodynamicCoefficients ),
-                aerodynamicCoefficients->getAreCoefficientsInNegativeAxisDirection( ) );
+                aerodynamics::areCoefficientsInNegativeDirection(
+                        aerodynamicCoefficients->getMomentCoefficientsFrame( ) ) );
 }
 
 //! Function to create a second-degree gravitational torque.
@@ -189,6 +183,46 @@ std::shared_ptr< gravitation::SphericalHarmonicGravitationalTorqueModel > create
                 std::bind( &Body::getBodyMass, bodyExertingTorque ) );
 }
 
+
+//! Function to create a spherical harmonic gravitational torque
+std::shared_ptr< electromagnetism::IsotropicPointSourceRadiationPressureTorque > createRadiationPressureTorqueModel(
+    const std::shared_ptr< simulation_setup::Body > bodyUndergoingTorque,
+    const std::shared_ptr< simulation_setup::Body > bodyExertingTorque,
+    const std::shared_ptr< TorqueSettings > torqueSettings,
+    const std::string& nameOfBodyUndergoingTorque,
+    const std::string& nameOfBodyExertingTorque,
+    const SystemOfBodies& bodies )
+{
+
+    std::shared_ptr< AccelerationSettings > sphericalHarmonicAccelerationSettings =
+        std::make_shared< AccelerationSettings >( basic_astrodynamics::radiation_pressure );
+
+    std::shared_ptr< electromagnetism::IsotropicPointSourceRadiationPressureAcceleration > radiationPressureAcceleration =
+        std::dynamic_pointer_cast< electromagnetism::IsotropicPointSourceRadiationPressureAcceleration >(
+            createRadiationPressureAccelerationModel(
+                bodyExertingTorque, bodyUndergoingTorque, nameOfBodyExertingTorque, nameOfBodyUndergoingTorque,
+                bodies ) );
+
+    if( radiationPressureAcceleration == nullptr )
+    {
+        throw std::runtime_error( "Error when creating radiation pressure torque, only isotropic source is supported" );
+    }
+
+    std::function< Eigen::Vector3d( ) > centerOfMassFunction = nullptr;
+    std::shared_ptr< RigidBodyProperties > massProperties = bodyUndergoingTorque->getMassProperties( );
+    if( massProperties == nullptr )
+    {
+        throw std::runtime_error( "Error when making radiation pressure torque model, no mass properties are defined, which are required for center of mass definition" );
+    }
+    else
+    {
+        centerOfMassFunction = std::bind( &RigidBodyProperties::getCurrentCenterOfMass, massProperties );
+    }
+
+    return std::make_shared< electromagnetism::IsotropicPointSourceRadiationPressureTorque >(
+        radiationPressureAcceleration, centerOfMassFunction );
+}
+
 std::shared_ptr< basic_astrodynamics::CustomTorqueModel > createCustomTorqueModel(
         const std::shared_ptr< TorqueSettings > torqueSettings,
         const std::string& nameOfBodyUndergoingTorque )
@@ -211,7 +245,8 @@ std::shared_ptr< basic_astrodynamics::TorqueModel > createTorqueModel(
         const std::shared_ptr< simulation_setup::Body > bodyExertingTorque,
         const std::shared_ptr< TorqueSettings > torqueSettings,
         const std::string& nameOfBodyUndergoingTorque,
-        const std::string& nameOfBodyExertingTorque )
+        const std::string& nameOfBodyExertingTorque,
+        const SystemOfBodies& bodies )
 {
     std::shared_ptr< basic_astrodynamics::TorqueModel > torqueModel;
 
@@ -239,6 +274,12 @@ std::shared_ptr< basic_astrodynamics::TorqueModel > createTorqueModel(
     {
         torqueModel = createSphericalHarmonicGravitationalTorqueModel(
                     bodyUndergoingTorque, bodyExertingTorque, torqueSettings, nameOfBodyUndergoingTorque, nameOfBodyExertingTorque );
+        break;
+    }
+    case basic_astrodynamics::radiation_pressure_torque:
+    {
+        torqueModel = createRadiationPressureTorqueModel(
+            bodyUndergoingTorque, bodyExertingTorque, torqueSettings, nameOfBodyUndergoingTorque, nameOfBodyExertingTorque, bodies );
         break;
     }
     case basic_astrodynamics::custom_torque:
@@ -288,7 +329,7 @@ basic_astrodynamics::TorqueModelMap createTorqueModelsMap(
                         createTorqueModel(
                         bodies.at( acceleratedBodyIterator->first ), bodies.at( acceleratedBodyIterator->first ),
                         std::make_shared< TorqueSettings >( basic_astrodynamics::inertial_torque ),
-                        acceleratedBodyIterator->first, acceleratedBodyIterator->first ) );
+                        acceleratedBodyIterator->first, acceleratedBodyIterator->first, bodies ) );
 
             for( std::map< std::string, std::vector< std::shared_ptr< TorqueSettings > > >::const_iterator
                  acceleratingBodyIterator = acceleratedBodyIterator->second.begin( );
@@ -306,7 +347,7 @@ basic_astrodynamics::TorqueModelMap createTorqueModelsMap(
                                 createTorqueModel(
                                 bodies.at( acceleratedBodyIterator->first ), bodies.at( acceleratingBodyIterator->first ),
                                 acceleratingBodyIterator->second.at( i ),
-                                acceleratedBodyIterator->first, acceleratingBodyIterator->first ) );
+                                acceleratedBodyIterator->first, acceleratingBodyIterator->first, bodies ) );
                 }
             }
         }

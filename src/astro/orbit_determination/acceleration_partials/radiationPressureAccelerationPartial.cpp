@@ -17,14 +17,42 @@ namespace tudat
 namespace acceleration_partials
 {
 
+
 //! Calculates partial derivative of cannon ball radiation pressure acceleration wrt radiation pressure coefficient.
 Eigen::Vector3d computePartialOfCannonBallRadiationPressureAccelerationWrtRadiationPressureCoefficient(
-        const double radiationPressure,
-        const double area,
-        const double bodyMass,
-        const Eigen::Vector3d& vectorToSource )
+    const double radiationPressure,
+    const double area,
+    const double bodyMass,
+    const Eigen::Vector3d& vectorToSource )
 {
     return -radiationPressure * area / bodyMass * vectorToSource;
+}
+
+void computeRadiationPressureAccelerationWrtSourceDirectionScaling(
+    const std::shared_ptr< electromagnetism::RadiationPressureAcceleration > accelerationModel,
+    Eigen::MatrixXd& partial )
+{
+    Eigen::Vector3d unscaledAcceleration = accelerationModel->getCurrentUnscaledAcceleration( );
+    Eigen::Vector3d targetUnitVector = accelerationModel->getTargetCenterPositionInSourceFrame( ).normalized( );
+    Eigen::Vector3d toTargetComponent =  unscaledAcceleration - targetUnitVector.dot( unscaledAcceleration ) * targetUnitVector;
+    partial = toTargetComponent;
+}
+
+void computeRadiationPressureAccelerationWrtSourcePerpendicularDirectionScaling(
+    const std::shared_ptr< electromagnetism::RadiationPressureAcceleration > accelerationModel,
+    Eigen::MatrixXd& partial )
+{
+    Eigen::Vector3d unscaledAcceleration = accelerationModel->getCurrentUnscaledAcceleration( );
+    Eigen::Vector3d targetUnitVector = accelerationModel->getTargetCenterPositionInSourceFrame( ).normalized( );
+    Eigen::Vector3d toTargetComponent =  unscaledAcceleration - targetUnitVector.dot( unscaledAcceleration ) * targetUnitVector;
+    partial = unscaledAcceleration - toTargetComponent;
+}
+
+void CannonBallRadiationPressurePartial::wrtRadiationPressureCoefficient( Eigen::MatrixXd& partial )
+{
+    partial = computePartialOfCannonBallRadiationPressureAccelerationWrtRadiationPressureCoefficient(
+        radiationPressureFunction_( ), areaFunction_( ), acceleratedBodyMassFunction_( ),
+        ( sourceBodyState_( ) - acceleratedBodyState_( ) ).normalized( ) );
 }
 
 //! Function for setting up and retrieving a function returning a partial w.r.t. a double parameter.
@@ -49,6 +77,28 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > CannonBallRadiationP
             break;
         default:
             break;
+        }
+        if( parameter->getParameterName( ).second.second == acceleratingBody_ )
+        {
+            switch( parameter->getParameterName( ).first )
+            {
+            case estimatable_parameters::source_direction_radiation_pressure_scaling_factor:
+
+                partialFunction = std::bind( &computeRadiationPressureAccelerationWrtSourceDirectionScaling,
+                                             accelerationModel_, std::placeholders::_1 );
+                numberOfRows = 1;
+
+                break;
+            case estimatable_parameters::source_perpendicular_direction_radiation_pressure_scaling_factor:
+
+                partialFunction = std::bind( &computeRadiationPressureAccelerationWrtSourcePerpendicularDirectionScaling,
+                                             accelerationModel_, std::placeholders::_1 );
+                numberOfRows = 1;
+
+                break;
+            default:
+                break;
+            }
         }
     }
     return std::make_pair( partialFunction, numberOfRows );

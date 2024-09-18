@@ -16,7 +16,7 @@
 
 #include <limits>
 
-#include <boost/make_shared.hpp>
+
 #include <boost/test/unit_test.hpp>
 
 #include "tudat/basics/testMacros.h"
@@ -75,11 +75,12 @@ BOOST_AUTO_TEST_CASE( test_ArcwiseEnvironmentParameters )
     double aerodynamicCoefficient = 1.2;
     std::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings =
             std::make_shared< ConstantAerodynamicCoefficientSettings >(
-                referenceArea, aerodynamicCoefficient * ( Eigen::Vector3d( ) << 1.2, -0.01, 0.1 ).finished( ), 1, 1 );
+                referenceArea, aerodynamicCoefficient * ( Eigen::Vector3d( ) << 1.2, -0.01, 0.1 ).finished( ),
+                negative_aerodynamic_frame_coefficients );
 
     // Create and set aerodynamic coefficients object
     bodies.at( "Vehicle" )->setAerodynamicCoefficientInterface(
-                createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Vehicle" ) );
+                createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Vehicle", bodies ) );
 
     // Create radiation pressure settings
     double referenceAreaRadiation = 4.0;
@@ -94,12 +95,6 @@ BOOST_AUTO_TEST_CASE( test_ArcwiseEnvironmentParameters )
     bodies.at( "Vehicle" )->setRadiationPressureInterface(
                 "Sun", createRadiationPressureInterface(
                     asterixRadiationPressureSettings, "Vehicle", bodies ) );
-
-    bodies.at( "Vehicle" )->setEphemeris( std::make_shared< TabulatedCartesianEphemeris< > >(
-                                            std::shared_ptr< interpolators::OneDimensionalInterpolator
-                                            < double, Eigen::Vector6d > >( ), "Earth", "ECLIPJ2000" ) );
-
-
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////            CREATE ACCELERATIONS          //////////////////////////////////////////////////////
@@ -146,7 +141,6 @@ BOOST_AUTO_TEST_CASE( test_ArcwiseEnvironmentParameters )
                 asterixInitialStateInKeplerianElements, earthGravitationalParameter );
 
     // Create propagator settings
-    std::shared_ptr< DependentVariableSaveSettings > dependentVariableSaveSettings;
     std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
     dependentVariables.push_back(
                 std::make_shared< SingleDependentVariableSaveSettings >(
@@ -154,26 +148,28 @@ BOOST_AUTO_TEST_CASE( test_ArcwiseEnvironmentParameters )
     dependentVariables.push_back(
                 std::make_shared< SingleDependentVariableSaveSettings >(
                     radiation_pressure_coefficient_dependent_variable, "Vehicle", "Sun" ) );
-    dependentVariableSaveSettings = std::make_shared< DependentVariableSaveSettings >( dependentVariables );
 
-    std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
-            std::make_shared< TranslationalStatePropagatorSettings< double > >(
-                centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialState, double( finalEphemerisTime ),
-                cowell, dependentVariableSaveSettings);
 
     // Create integrator settings
     std::shared_ptr< IntegratorSettings< double > > integratorSettings =
             std::make_shared< RungeKuttaVariableStepSizeSettingsScalarTolerances< double > >(
                 double( initialEphemerisTime ), 90.0,
-                RungeKuttaCoefficients::CoefficientSets::rungeKuttaFehlberg78,
+                CoefficientSets::rungeKuttaFehlberg78,
                 90.0, 90.0, 1.0, 1.0 );
+
+    std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
+            std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialState, initialEphemerisTime, integratorSettings,
+                std::make_shared< PropagationTimeTerminationSettings >( finalEphemerisTime ),
+                cowell, dependentVariables);
+
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             CREATE OBSERVATION SETTINGS            ////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    LinkEnds linkEnds;
-    linkEnds[ observed_body ] = std::make_pair( "Vehicle", "" );
+    LinkDefinition linkEnds;
+    linkEnds[ observed_body ] = std::make_pair< std::string, std::string >( "Vehicle", "" );
     std::vector< std::shared_ptr< ObservationModelSettings > >  observationSettingsList;
     observationSettingsList.push_back( std::make_shared< ObservationModelSettings >( position_observable, linkEnds ) );
 
@@ -215,7 +211,7 @@ BOOST_AUTO_TEST_CASE( test_ArcwiseEnvironmentParameters )
     OrbitDeterminationManager< double, double > orbitDeterminationManager =
             OrbitDeterminationManager< double, double >(
                 bodies, parametersToEstimate, observationSettingsList,
-                integratorSettings, propagatorSettings );
+                propagatorSettings );
 
     std::map< double, Eigen::VectorXd > dependentVariableData =
             orbitDeterminationManager.getVariationalEquationsSolver( )->getDynamicsSimulatorBase(
@@ -292,20 +288,21 @@ BOOST_AUTO_TEST_CASE( test_ArcwiseEnvironmentParameters )
     parameterPerturbation.segment( 6, 6 ) = Eigen::VectorXd::Constant( 6, 1.0 );
     Eigen::Matrix< double, Eigen::Dynamic, 1 > initialParameterEstimate = truthParameters;
     initialParameterEstimate += parameterPerturbation;
+    parametersToEstimate->resetParameterValues( initialParameterEstimate );
 
 
     // Define estimation input
-    std::shared_ptr< PodInput< double, double > > podInput =
-            std::make_shared< PodInput< double, double > >(
-                observationsAndTimes, initialParameterEstimate.rows( ),
-                Eigen::MatrixXd::Zero( truthParameters.rows( ), truthParameters.rows( ) ),
-                initialParameterEstimate - truthParameters );
-    podInput->defineEstimationSettings( true, true, false, true );
+    std::shared_ptr< EstimationInput< double, double > > estimationInput =
+            std::make_shared< EstimationInput< double, double > >(
+                observationsAndTimes );
+    estimationInput->defineEstimationSettings( true, true, false, true );
+    estimationInput->setConvergenceChecker(
+                std::make_shared< EstimationConvergenceChecker >( 4 ) );
 
     // Perform estimation
-    std::shared_ptr< PodOutput< double > > podOutput = orbitDeterminationManager.estimateParameters(
-                podInput, std::make_shared< EstimationConvergenceChecker >( 4 ) );
-    Eigen::VectorXd parameterEstimate = podOutput->parameterEstimate_ - truthParameters;
+    std::shared_ptr< EstimationOutput< double > > estimationOutput = orbitDeterminationManager.estimateParameters(
+                estimationInput );
+    Eigen::VectorXd parameterEstimate = estimationOutput->parameterEstimate_ - truthParameters;
 
     for( int i = 0; i < 3; i++ )
     {

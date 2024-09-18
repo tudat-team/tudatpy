@@ -134,11 +134,6 @@ protected:
 
 extern template class JsonVariationalEquationsSimulationManager< double, double >;
 
-#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
-//extern template class JsonVariationalEquationsSimulationManager< Time, double >;
-extern template class JsonVariationalEquationsSimulationManager< double, long double >;
-//extern template class JsonVariationalEquationsSimulationManager< Time, long double >;
-#endif
 
 } // namespace json_interface
 

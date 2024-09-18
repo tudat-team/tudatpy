@@ -19,11 +19,19 @@ set(environment_HEADERS
         defaultBodies.h
         createBodies.h
         createGroundStations.h
+        createBodyDeformationModel.h
         body.h
         createRadiationPressureInterface.h
         createGravityFieldVariations.h
         createAtmosphereModel.h
         createFlightConditions.h
+        createRadiationSourceModel.h
+        createRadiationPressureTargetModel.h
+        createOccultationModel.h
+        createSurfacePropertyDistribution.h
+        createSystemModel.h
+        createThrustModelGuidance.h
+        thrustSettings.h
         )
 
 # Add header files.
@@ -35,6 +43,7 @@ set(environment_SOURCES
         createBodies.cpp
         createGravityField.cpp
         createBodyShapeModel.cpp
+        createBodyDeformationModel.cpp
         createFlightConditions.cpp
         createGroundStations.cpp
         createAerodynamicCoefficientInterface.cpp
@@ -42,6 +51,13 @@ set(environment_SOURCES
         defaultBodies.cpp
         body.cpp
         createAtmosphereModel.cpp
+        createSystemModel.cpp
+        createThrustModelGuidance.cpp
+        thrustSettings.cpp
+        createRadiationSourceModel.cpp
+        createRadiationPressureTargetModel.cpp
+        createOccultationModel.cpp
+        createSurfacePropertyDistribution.cpp
         )
 
 # Add library.
@@ -51,5 +67,3 @@ TUDAT_ADD_LIBRARY("environment_setup"
 #        PRIVATE_LINKS "${Boost_LIBRARIES}"
 #        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}" ${CSpice_INCLUDE_DIRS} ${Sofa_INCLUDE_DIRS}
         )
-
-

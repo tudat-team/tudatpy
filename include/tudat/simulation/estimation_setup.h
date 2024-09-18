@@ -12,21 +12,19 @@
 #define TUDAT_ESTIMATION_SETUP_H
 
 #include "estimation_setup/createAccelerationPartials.h"
-#include "estimation_setup/createAngularPositionPartials.h"
 #include "estimation_setup/createCartesianStatePartials.h"
-#include "estimation_setup/createDifferencedOneWayRangeRatePartials.h"
 #include "estimation_setup/createDopplerPartials.h"
 #include "estimation_setup/createEstimatableParameters.h"
 #include "estimation_setup/createEulerAngleObservationPartials.h"
 #include "estimation_setup/createLightTimeCalculator.h"
 #include "estimation_setup/createLightTimeCorrection.h"
+#include "estimation_setup/createAtmosphericLightTimeCorrection.h"
 #include "estimation_setup/createLightTimeCorrectionPartials.h"
 #include "estimation_setup/createNumericalSimulator.h"
 #include "estimation_setup/createNWayRangePartials.h"
 #include "estimation_setup/createObservationManager.h"
 #include "estimation_setup/createObservationModel.h"
 #include "estimation_setup/createObservationPartials.h"
-#include "estimation_setup/createOneWayRangePartials.h"
 #include "estimation_setup/createStateDerivativePartials.h"
 #include "estimation_setup/createTorquePartials.h"
 #include "estimation_setup/determinePostFitParameterInfluence.h"
@@ -35,5 +33,6 @@
 #include "estimation_setup/orbitDeterminationTestCases.h"
 #include "estimation_setup/podProcessing.h"
 #include "estimation_setup/variationalEquationsSolver.h"
+#include "estimation_setup/processOdfFile.h"
 
 #endif // TUDAT_ESTIMATION_SETUP_H

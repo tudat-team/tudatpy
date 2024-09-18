@@ -178,10 +178,10 @@ private:
 
     std::shared_ptr< simulation_setup::EstimationConvergenceChecker > convergenceChecker_;
 
-    std::shared_ptr< simulation_setup::PodInput< StateScalarType, TimeType > > estimationInput_;
+    std::shared_ptr< simulation_setup::EstimationInput< StateScalarType, TimeType > > estimationInput_;
 
 
-    std::shared_ptr< simulation_setup::PodOutput< StateScalarType, TimeType > > estimationOutput_;
+    std::shared_ptr< simulation_setup::EstimationOutput< StateScalarType, TimeType > > estimationOutput_;
 
 };
 

@@ -170,14 +170,14 @@ public:
             if ( exponentialMapMagnitude >= mathematical_constants::PI )
             {
                 // Invert flag
-                unprocessedState.block( i * 7 + 3, 1, 1, 0 ) = ( unprocessedState.block( i * 7 + 3, 0, 1, 1 ) -
+                unprocessedState.block( i * 7 + 3, 0, 1, 1 ) = ( unprocessedState.block( i * 7 + 3, 0, 1, 1 ) -
                                                              Eigen::Matrix< StateScalarType, 1, 1 >::Ones( ) ).cwiseAbs( );
 
                 // Convert to EM/SEM
                 exponentialMapVector *= ( 1.0 - ( 2.0 * mathematical_constants::PI / exponentialMapMagnitude ) );
 
                 // Replace EM with SEM, or vice-versa
-                unprocessedState.block( i * 7, 1, 3, 0 ) = exponentialMapVector;
+                unprocessedState.block( i * 7, 0, 3, 1 ) = exponentialMapVector;
             }
         }
     }
@@ -197,12 +197,6 @@ private:
 };
 
 extern template class RotationalMotionExponentialMapStateDerivative< double, double >;
-
-#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
-extern template class RotationalMotionExponentialMapStateDerivative< long double, double >;
-extern template class RotationalMotionExponentialMapStateDerivative< double, Time >;
-extern template class RotationalMotionExponentialMapStateDerivative< long double, Time >;
-#endif
 
 } // namespace propagators
 

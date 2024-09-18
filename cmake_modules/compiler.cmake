@@ -242,7 +242,7 @@
      set(CMAKE_CXX_FLAGS_RELEASE "-O2 -DNDEBUG")
      set(CMAKE_CXX_FLAGS_DEBUG "-Og -g")
 
-     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wextra -Wno-unused-parameter -Wno-unused-variable -Woverloaded-virtual -Wold-style-cast -Wnon-virtual-dtor -Wunused-but-set-variable -Wsign-compare")
+     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wextra -Wno-unused-parameter -Wno-unused-variable -Wno-array-bounds -Woverloaded-virtual -Wold-style-cast -Wnon-virtual-dtor -Wunused-but-set-variable -Wsign-compare")
 
      # MinGW fixes
      if (MINGW AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.9)
@@ -275,7 +275,7 @@
      # problem: https://dev.azure.com/tudat-team/feedstock-builds/_build/results?buildId=95&view=logs&j=00f5923e-fdef-5026-5091-0d5a0b3d5a2c&t=3cc4a9ed-60e1-5810-6eb3-5f9cd4a26dba
      # solution: https://stackoverflow.com/questions/1091662/vc-internal-compiler-error
      #     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc /Ox /W3 /FC -D_SCL_SECURE_NO_WARNINGS")
-     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc /W3 /FC /Ox -D_SCL_SECURE_NO_WARNINGS")
+     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc /W3 /FC -D_SCL_SECURE_NO_WARNINGS")
      if (TUDAT_FORCE_DYNAMIC_RUNTIME)
          # This is needed for conda builds, as the prebuilt libraries are MD.
          set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MD")
@@ -303,7 +303,6 @@
  endif ()
 
  set(CMAKE_POSITION_INDEPENDENT_CODE ON)
- message(STATUS "Building with flags: ${CMAKE_CXX_FLAGS}.")
 
 
  if (MSVC)
@@ -348,6 +347,8 @@
                  "C2557" # Comparing signed to unsigned
                  "C2722" # List init syntax is c++1z feature
                  "C3280" # Declaration hides variable
+                 "C4244" # 'argument' : conversion from 'type1' to 'type2',
+                 "C4267" # 'var' : conversion from 'size_t' to 'type',
                  )
      endif ()
      if (CMAKE_C_COMPILER_ID MATCHES "Clang")
@@ -360,3 +361,18 @@
      message(STATUS "CMAKE_C_FLAGS: ${CMAKE_C_FLAGS}")
      add_definitions(${MSVC_DISABLED_WARNINGS_STR})
  endif ()
+
+if (MSVC)
+  message(STATUS "Setting /bigobj")
+  add_compile_options(/bigobj)
+else()
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
+    #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftemplate-backtrace-limit=0")
+endif ()
+
+
+
+
+string(TOUPPER ${CMAKE_BUILD_TYPE} CMAKE_BUILD_TYPE_UPPER)
+message(STATUS "Building with flags: ${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_${CMAKE_BUILD_TYPE_UPPER}}.")
+

@@ -336,7 +336,7 @@ struct Keys
         static const std::string inverseAprioriCovariance;
         static const std::string reintegrateEquationsOnFirstIteration;
         static const std::string reintegrateVariationalEquations;
-        static const std::string saveInformationMatrix;
+        static const std::string saveDesignMatrix;
         static const std::string printOutput;
         static const std::string saveResidualsAndParametersFromEachIteration;
         static const std::string saveStateHistoryForEachIteration;
@@ -526,7 +526,7 @@ struct Keys
     {
         static const std::string notifyOnPropagationStart;
         static const std::string notifyOnPropagationTermination;
-        static const std::string printInterval;
+        static const std::string statePrintInterval;
         static const std::string defaultValueUsedForMissingKey;
         static const std::string unusedKey;
         static const std::string fullSettingsFile;

@@ -15,7 +15,7 @@
 
 #include <stdexcept>
 
-#include <boost/make_shared.hpp>
+
 
 #include "tudat/astro/basic_astro/stateVectorIndices.h"
 #include "tudat/astro/ephemerides/cartesianStateExtractor.h"

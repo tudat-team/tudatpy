@@ -26,7 +26,7 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
-#include <boost/make_shared.hpp>
+
 #include <boost/test/unit_test.hpp>
 
 #include "tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h"
@@ -58,6 +58,7 @@ using numerical_integrators::NumericalIntegratorXdPointer;
 using numerical_integrators::ReinitializableNumericalIntegratorXdPointer;
 using numerical_integrators::RungeKuttaVariableStepSizeIntegratorXd;
 using numerical_integrators::RungeKuttaCoefficients;
+using numerical_integrators::CoefficientSets;
 
 using numerical_integrator_test_functions::computeNonAutonomousModelStateDerivative;
 
@@ -99,7 +100,7 @@ BOOST_AUTO_TEST_CASE( testRungeKutta87DormandAndPrinceIntegratorUsingMatlabData 
         // Declare integrator with all necessary settings.
         NumericalIntegratorXdPointer integrator
                 = std::make_shared< RungeKuttaVariableStepSizeIntegratorXd >(
-                    RungeKuttaCoefficients::get( RungeKuttaCoefficients::rungeKutta87DormandPrince ),
+                    RungeKuttaCoefficients::get( CoefficientSets::rungeKutta87DormandPrince ),
                     &computeNonAutonomousModelStateDerivative,
                     matlabForwardIntegrationData( FIRST_ROW, TIME_COLUMN_INDEX ),
                     ( Eigen::VectorXd( 1 )
@@ -107,6 +108,7 @@ BOOST_AUTO_TEST_CASE( testRungeKutta87DormandAndPrinceIntegratorUsingMatlabData 
                                                        STATE_COLUMN_INDEX ) ).finished( ),
                     zeroMinimumStepSize,
                     infiniteMaximumStepSize,
+                    TUDAT_NAN,
                     infiniteRelativeErrorTolerance,
                     infiniteAbsoluteErrorTolerance );
 
@@ -119,7 +121,7 @@ BOOST_AUTO_TEST_CASE( testRungeKutta87DormandAndPrinceIntegratorUsingMatlabData 
         // Declare integrator with all necessary settings.
         NumericalIntegratorXdPointer integrator
                 = std::make_shared< RungeKuttaVariableStepSizeIntegratorXd >(
-                    RungeKuttaCoefficients::get( RungeKuttaCoefficients::rungeKutta87DormandPrince ),
+                    RungeKuttaCoefficients::get( CoefficientSets::rungeKutta87DormandPrince ),
                     &computeNonAutonomousModelStateDerivative,
                     matlabForwardIntegrationData( FIRST_ROW, TIME_COLUMN_INDEX ),
                     ( Eigen::VectorXd( 1 )
@@ -127,6 +129,7 @@ BOOST_AUTO_TEST_CASE( testRungeKutta87DormandAndPrinceIntegratorUsingMatlabData 
                                                        STATE_COLUMN_INDEX ) ).finished( ),
                     zeroMinimumStepSize,
                     infiniteMaximumStepSize,
+                    TUDAT_NAN,
                     infiniteRelativeErrorTolerance,
                     infiniteAbsoluteErrorTolerance );
 
@@ -140,7 +143,7 @@ BOOST_AUTO_TEST_CASE( testRungeKutta87DormandAndPrinceIntegratorUsingMatlabData 
         // Declare integrator with all necessary settings.
         NumericalIntegratorXdPointer integrator
                 = std::make_shared< RungeKuttaVariableStepSizeIntegratorXd >(
-                    RungeKuttaCoefficients::get( RungeKuttaCoefficients::rungeKutta87DormandPrince ),
+                    RungeKuttaCoefficients::get( CoefficientSets::rungeKutta87DormandPrince ),
                     &computeNonAutonomousModelStateDerivative,
                     matlabBackwardIntegrationData( FIRST_ROW, TIME_COLUMN_INDEX ),
                     ( Eigen::VectorXd( 1 )
@@ -148,6 +151,7 @@ BOOST_AUTO_TEST_CASE( testRungeKutta87DormandAndPrinceIntegratorUsingMatlabData 
                                                         STATE_COLUMN_INDEX ) ).finished( ),
                     zeroMinimumStepSize,
                     infiniteMaximumStepSize,
+                    TUDAT_NAN,
                     infiniteRelativeErrorTolerance,
                     infiniteAbsoluteErrorTolerance );
 
@@ -167,7 +171,7 @@ BOOST_AUTO_TEST_CASE( testRungeKutta87DormandAndPrinceIntegratorUsingMatlabData 
         // Declare integrator with all necessary settings.
         NumericalIntegratorXdPointer integrator
                 = std::make_shared< RungeKuttaVariableStepSizeIntegratorXd >(
-                    RungeKuttaCoefficients::get( RungeKuttaCoefficients::rungeKutta87DormandPrince ),
+                    RungeKuttaCoefficients::get( CoefficientSets::rungeKutta87DormandPrince ),
                     &computeNonAutonomousModelStateDerivative,
                     matlabForwardIntegrationData( FIRST_ROW, TIME_COLUMN_INDEX ),
                     ( Eigen::VectorXd( 1 )
@@ -175,6 +179,7 @@ BOOST_AUTO_TEST_CASE( testRungeKutta87DormandAndPrinceIntegratorUsingMatlabData 
                                                        STATE_COLUMN_INDEX ) ).finished( ),
                     zeroMinimumStepSize,
                     infiniteMaximumStepSize,
+                    TUDAT_NAN,
                     relativeErrorTolerance,
                     absoluteErrorTolerance * 10.0 );
 
@@ -190,7 +195,7 @@ BOOST_AUTO_TEST_CASE( testRungeKutta87DormandAndPrinceIntegratorUsingMatlabData 
         // Declare integrator with all necessary settings.
         ReinitializableNumericalIntegratorXdPointer integrator
                 = std::make_shared< RungeKuttaVariableStepSizeIntegratorXd >(
-                    RungeKuttaCoefficients::get( RungeKuttaCoefficients::rungeKutta87DormandPrince ),
+                    RungeKuttaCoefficients::get( CoefficientSets::rungeKutta87DormandPrince ),
                     &computeNonAutonomousModelStateDerivative,
                     matlabForwardIntegrationData( FIRST_ROW, TIME_COLUMN_INDEX ),
                     ( Eigen::VectorXd( 1 )
@@ -198,6 +203,7 @@ BOOST_AUTO_TEST_CASE( testRungeKutta87DormandAndPrinceIntegratorUsingMatlabData 
                                                        STATE_COLUMN_INDEX ) ).finished( ),
                     zeroMinimumStepSize,
                     infiniteMaximumStepSize,
+                    TUDAT_NAN,
                     infiniteRelativeErrorTolerance,
                     infiniteAbsoluteErrorTolerance );
 

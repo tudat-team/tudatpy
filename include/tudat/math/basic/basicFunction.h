@@ -21,8 +21,8 @@
 #include <limits>
 #include <stdexcept>
 
-#include <boost/bind/bind.hpp>
-using namespace boost::placeholders;
+
+
 
 #include <memory>
 

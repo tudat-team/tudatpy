@@ -11,10 +11,10 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
-#include <boost/bind/bind.hpp>
-using namespace boost::placeholders;
 
-#include <boost/make_shared.hpp>
+
+
+
 #include <memory>
 #include <boost/test/unit_test.hpp>
 
@@ -232,9 +232,6 @@ BOOST_AUTO_TEST_CASE( testMultiTypeCustomStatePropagation )
 
     // Create spacecraft object.
     bodies.createEmptyBody( "Asterix" );
-    bodies.at( "Asterix" )->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
-                                            std::shared_ptr< interpolators::OneDimensionalInterpolator
-                                            < double, Eigen::Vector6d  > >( ), "Earth", "J2000" ) );
 
     // Define propagator settings variables.
     SelectedAccelerationMap accelerationMap;
@@ -279,7 +276,7 @@ BOOST_AUTO_TEST_CASE( testMultiTypeCustomStatePropagation )
 
     // Create mass rate model and mass propagation settings
     std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels;
-    massRateModels[ "Vehicle" ] = std::make_shared< basic_astrodynamics::CustomMassRateModel >(
+    massRateModels[ "Asterix" ] = std::make_shared< basic_astrodynamics::CustomMassRateModel >(
                 [ ]( const double ){ return -0.01; } );
     Eigen::VectorXd initialMass = Eigen::VectorXd( 1 );
     initialMass( 0 ) = 500.0;

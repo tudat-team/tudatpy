@@ -89,10 +89,12 @@ double computeShadowFunction( const Eigen::Vector3d& occultedBodyPosition,
     // Set initial value for the shadow function.
     double shadowFunction = 1.0;
 
-    // Check if partial occultation takes place
+    // Check which part of shadow satellite is in
+    // Use decision schema from Fig. 5 of (Zhang et al., 2019)
     if ( std::fabs( occultedBodyApparentRadius - occultingBodyApparentRadius ) < apparentSeparation
          && apparentSeparation < occultedBodyApparentRadius + occultingBodyApparentRadius )
     {
+        // Satellite is in penumbra -> partial occultation.
         // Pre-compute values for optimal computations.
         const double apparentSeparationSquared = apparentSeparation * apparentSeparation;
         const double occultedBodyApparentRadiusSquared = occultedBodyApparentRadius
@@ -116,29 +118,30 @@ double computeShadowFunction( const Eigen::Vector3d& occultedBodyPosition,
                                                 occultedBodyApparentRadiusSquared );
     }
 
-    else
+    else if ( apparentSeparation < occultingBodyApparentRadius - occultedBodyApparentRadius &&
+         occultedBodyApparentRadius < occultingBodyApparentRadius )
     {
-        // Full or no occultation takes place.
-        // Check for type of occultation.
-        if ( apparentSeparation < occultingBodyApparentRadius - occultedBodyApparentRadius &&
-             occultedBodyApparentRadius < occultingBodyApparentRadius )
-        {
-            // Total occultation.
-            shadowFunction = 0.0;
-        }
+        // Satellite is in umbra -> total occultation.
+        // Occulted circular disk is inside occulting circular disk.
+        shadowFunction = 0.0;
+    }
 
-        else if ( apparentSeparation < occultedBodyApparentRadius - occultingBodyApparentRadius &&
-                  occultedBodyApparentRadius > occultingBodyApparentRadius )
-        {
-            // Maximum partial occultation.
-            shadowFunction = 0.0;
-        }
+    else if ( apparentSeparation < occultedBodyApparentRadius - occultingBodyApparentRadius &&
+              occultedBodyApparentRadius > occultingBodyApparentRadius )
+    {
+        //  Satellite is in antumbra (eclipse is annular) -> partial occultation.
+        // Occulting circular disk is inside occulted circular disk.
+        const double occultedBodyApparentRadiusSquared = occultedBodyApparentRadius
+                                                         * occultedBodyApparentRadius;
+        const double occultingBodyApparentRadiusSquared = occultingBodyApparentRadius
+                                                          * occultingBodyApparentRadius;
+        shadowFunction = 1.0 - occultingBodyApparentRadiusSquared / occultedBodyApparentRadiusSquared;
+    }
 
-        else if ( occultedBodyApparentRadius + occultingBodyApparentRadius <= apparentSeparation )
-        {
-            // No occultation
-            shadowFunction = 1.0;
-        }
+    else if ( occultedBodyApparentRadius + occultingBodyApparentRadius <= apparentSeparation )
+    {
+        // No occultation.
+        shadowFunction = 1.0;
     }
 
     // Return the shadow function

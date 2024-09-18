@@ -109,12 +109,6 @@ Eigen::Vector7d computeStateDerivativeForUnifiedStateModelExponentialMap(
 
 template class NBodyUnifiedStateModelExponentialMapStateDerivative< double, double >;
 
-#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
-template class NBodyUnifiedStateModelExponentialMapStateDerivative< long double, double >;
-template class NBodyUnifiedStateModelExponentialMapStateDerivative< double, Time >;
-template class NBodyUnifiedStateModelExponentialMapStateDerivative< long double, Time >;
-#endif
-
 
 } // namespace propagators
 

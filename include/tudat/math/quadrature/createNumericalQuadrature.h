@@ -11,7 +11,7 @@
 #ifndef TUDAT_CREATENUMERICALQUADRATURE_H
 #define TUDAT_CREATENUMERICALQUADRATURE_H
 
-#include <boost/make_shared.hpp>
+
 #include <memory>
 #include <boost/lexical_cast.hpp>
 

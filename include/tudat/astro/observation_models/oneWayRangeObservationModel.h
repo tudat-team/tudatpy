@@ -14,7 +14,7 @@
 #include <map>
 
 #include <functional>
-#include <boost/make_shared.hpp>
+
 
 #include <Eigen/Geometry>
 
@@ -82,7 +82,8 @@ public:
                     const TimeType time,
                     const LinkEndType linkEndAssociatedWithTime,
                     std::vector< double >& linkEndTimes,
-                    std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates )
+                    std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
+            const std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetings = nullptr  )
     {
         linkEndTimes.clear( );
         linkEndStates.clear( );
@@ -90,19 +91,24 @@ public:
         ObservationScalarType observation = TUDAT_NAN;
         TimeType transmissionTime = TUDAT_NAN, receptionTime = TUDAT_NAN;
 
+        if( ancilliarySetings != nullptr )
+        {
+            throw std::runtime_error( "Error, calling one-way range observable with ancilliary settings, but none are supported." );
+        }
+
         // Check link end associated with input time and compute observable
         switch( linkEndAssociatedWithTime )
         {
         case receiver:
             observation = lightTimeCalculator_->calculateLightTimeWithLinkEndsStates(
-                        receiverState, transmitterState, time, 1 );
+                        receiverState, transmitterState, time, 1, ancilliarySetings );
             transmissionTime = time - observation;
             receptionTime = time;
             break;
 
         case transmitter:
             observation = lightTimeCalculator_->calculateLightTimeWithLinkEndsStates(
-                        receiverState, transmitterState, time, 0 );
+                        receiverState, transmitterState, time, 0, ancilliarySetings );
             transmissionTime = time;
             receptionTime = time + observation;
             break;

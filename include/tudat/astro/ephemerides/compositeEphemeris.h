@@ -13,9 +13,9 @@
 
 #include <vector>
 
-#include <boost/bind/bind.hpp>
+
 #include <memory>
-#include <boost/make_shared.hpp>
+
 
 #include <Eigen/Core>
 
@@ -24,7 +24,7 @@
 #include "tudat/astro/ephemerides/rotationalEphemeris.h"
 #include "tudat/astro/ephemerides/constantEphemeris.h"
 
-using namespace boost::placeholders;
+
 
 namespace tudat
 {
@@ -353,11 +353,21 @@ Eigen::Matrix< NewStateScalarType, StateSize, 1 > convertStateFunctionStateScala
  *  coordinates, i.e. same as bodyEphemeris).
  */
 template< typename TimeType = double, typename StateScalarType = double >
-std::shared_ptr< Ephemeris > createReferencePointEphemeris(
+std::shared_ptr< Ephemeris > createReferencePointCompositeEphemeris(
         std::shared_ptr< Ephemeris > bodyEphemeris,
         std::shared_ptr< RotationalEphemeris > bodyRotationModel,
         std::function< Eigen::Vector6d( const double& ) > referencePointRelativeStateFunction )
 {
+    if( bodyEphemeris == nullptr )
+    {
+        throw std::runtime_error( "Error when creating reference point composite ephemeris, no body ephemeris is provided" );
+    }
+
+    if( bodyRotationModel == nullptr )
+    {
+        throw std::runtime_error( "Error when creating reference point composite ephemeris, no body rotation model is provided" );
+    }
+
     typedef Eigen::Matrix< StateScalarType, 6, 1 > StateType;
 
     // Cast state fucntion of body (global) and reference point (local) into correct form.
@@ -385,13 +395,8 @@ std::shared_ptr< Ephemeris > createReferencePointEphemeris(
                 referencePointEphemerisVector, referencePointRotationVector, "SSB", "ECLIPJ2000" );
 }
 
-extern template class CompositeEphemeris< double, double >;
+//extern template class CompositeEphemeris< double, double >;
 
-#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
-extern template class CompositeEphemeris< Time, long double >;
-extern template class CompositeEphemeris< double, double >;
-extern template class CompositeEphemeris< Time, long double >;
-#endif
 } // namespace ephemerides
 
 } // namespace tudat

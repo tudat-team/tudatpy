@@ -18,6 +18,7 @@
 #include <istream>
 #include <string>
 #include <vector>
+#include <stdexcept>
 
 #include "tudat/basics/testMacros.h"
 #include "tudat/io/solarActivityData.h"
@@ -105,6 +106,11 @@ SolarActivityDataMap readSolarActivityData( std::string filePath )
     // Open dataFile and Parse
     std::ifstream dataFile;
     dataFile.open( filePath.c_str( ), std::ifstream::in );
+    if( !dataFile.is_open( ) )
+    {
+        throw std::runtime_error( "Error when reading space weather data file. Requested file: <" + filePath + "> cannot be opened" );
+    }
+
     parsedDataVector = solarActivityParser.parse( dataFile );
     dataFile.close( );
 

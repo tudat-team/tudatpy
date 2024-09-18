@@ -49,6 +49,7 @@
 #define BOOST_TEST_MAIN
 
 #include <cmath>
+#include <Eigen/Dense>
 
 #include <boost/test/tools/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
@@ -630,6 +631,213 @@ BOOST_AUTO_TEST_CASE( testPoweredGravityAssistPropagationReverseEngineered )
     // Test if the computed outgoing velocity corresponds to the expected velocity within the
     // specified tolerance.
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedOutgoingVelocity, outgoingVelocity, tolerance );
+}
+
+//! Test powered gravity assist backward propagation function by checking consistenty with respect to forward
+//! propagation. Used the data from the reverse engineered GTOP code.
+BOOST_AUTO_TEST_CASE( testPoweredGravityAssistBackwardPropagationConsistencyCheck )
+{
+    // Benchmark obtained by reverse engineering the GTOP code, based on the first
+    // swing-by for the ideal Cassini-1 trajectory. Values were obtained with a 15-digit accuracy
+    // from GTOP, resulting in an accuracy of 1e-14 in the final results.
+    const double tolerance = 1.0e-14;
+
+    // Define swingby body gravitational parameter.
+    const double venusGravitationalParameter = 3.24860e14;
+    // Define heliocentric planet velocity vector.
+    const Eigen::Vector3d venusVelocity( 32851.224953746, -11618.7310059974, -2055.04615890989 );
+    // Define heliocentric satellite incoming vector.
+    const Eigen::Vector3d incomingVelocity( 34216.4827530912, -15170.1440677825,
+                                            395.792122152361 );
+    // Define ougoing velocity rotation angle.
+    const double outgoingVelocityRotationAngle = -2.0291949514117;
+    // Define pericenter radius.
+    const double pericenterRadius = 6351801.04541467;
+    // Define deltaV.
+    const double deltaV = 1090.64622870007;
+
+    // Define dummy value for incoming velocity rotation angle (not defined in the same way as ougoing velocity rotation angle!)
+    const double incomingVelocityRotationAngle = 0.0;
+
+    // Perform the gravity assist.
+    const Eigen::Vector3d outgoingVelocity = mission_segments::calculatePoweredGravityAssistOutgoingVelocity(
+            venusGravitationalParameter, venusVelocity,
+            incomingVelocity, outgoingVelocityRotationAngle,
+            pericenterRadius, deltaV );
+
+    const Eigen::Vector3d calculatedIncomingVelocity = mission_segments::calculatePoweredGravityAssistIncomingVelocity(
+            venusGravitationalParameter, venusVelocity,
+            outgoingVelocity, incomingVelocityRotationAngle,
+            pericenterRadius, deltaV );
+
+    // Check if deltaV applied according to the calculatedIncomingVelocity is the selected one
+    const bool useEccentricity = true;
+    const double calculatedDeltaV = mission_segments::calculateGravityAssistDeltaV(
+            venusGravitationalParameter, venusVelocity, calculatedIncomingVelocity, outgoingVelocity, pericenterRadius,
+            useEccentricity );
+    BOOST_CHECK_CLOSE_FRACTION( deltaV, calculatedDeltaV, tolerance );
+
+    // Check if bending angle between the outgoing velocity and the incoming velocity is the expected. To do that, first need
+    // to calculate the bending angle
+    const Eigen::Vector3d relativeIncomingVelocity = incomingVelocity - venusVelocity;
+    const double absoluteRelativeIncomingVelocity = relativeIncomingVelocity.norm( );
+    const double incomingEccentricity = 1.0 + pericenterRadius /
+            venusGravitationalParameter * absoluteRelativeIncomingVelocity * absoluteRelativeIncomingVelocity;
+    const double incomingBendingAngle = std::asin ( 1.0 / incomingEccentricity );
+    const double incomingPericenterVelocity = std::sqrt( absoluteRelativeIncomingVelocity * absoluteRelativeIncomingVelocity *
+            ( incomingEccentricity + 1.0 ) / ( incomingEccentricity - 1.0 ) );
+    const double outgoingPericenterVelocity = incomingPericenterVelocity + deltaV;
+    const double absoluteRelativeOutgoingVelocity = std::sqrt( outgoingPericenterVelocity * outgoingPericenterVelocity -
+            2.0 * venusGravitationalParameter / pericenterRadius );
+    const double outgoingBendingAngle = std::asin ( 1.0 / ( 1.0 + absoluteRelativeOutgoingVelocity *
+            absoluteRelativeOutgoingVelocity * pericenterRadius / venusGravitationalParameter ) );
+    const double bendingAngle = incomingBendingAngle + outgoingBendingAngle;
+
+    const Eigen::Vector3d planetocentricOutgoingVelocity = outgoingVelocity - venusVelocity;
+    const Eigen::Vector3d planetocentricCalculatedIncomingVelocity = calculatedIncomingVelocity - venusVelocity;
+
+    const double calculatedBendingAngle = std::acos(
+            planetocentricOutgoingVelocity.dot(planetocentricCalculatedIncomingVelocity) / planetocentricOutgoingVelocity.norm() /
+                    planetocentricCalculatedIncomingVelocity.norm() );
+    BOOST_CHECK_CLOSE_FRACTION( calculatedBendingAngle, bendingAngle, tolerance );
+}
+
+//! Test powered gravity assist backward propagation function: use forward propagation function to compute the outgoing
+//! velocity from the incoming velocity. Based on those two, extract the incoming velocity rotation angle. Using that,
+//! backward propagate the outgoing velocity, and check if the result is consistent with the initial incoming velocity.
+//! Data used for the initial forward propagation comes from the reverse engineered GTOP code.
+BOOST_AUTO_TEST_CASE( testPoweredGravityAssistBackwardPropagation )
+{
+    // Benchmark obtained by reverse engineering the GTOP code, based on the first
+    // swing-by for the ideal Cassini-1 trajectory. Values were obtained with a 15-digit accuracy
+    // from GTOP, resulting in an accuracy of 1e-14 in the final results.
+    const double tolerance = 1.0e-14;
+
+    // Define swingby body gravitational parameter.
+    const double venusGravitationalParameter = 3.24860e14;
+    // Define heliocentric planet velocity vector.
+    const Eigen::Vector3d venusVelocity( 32851.224953746, -11618.7310059974, -2055.04615890989 );
+    // Define heliocentric satellite incoming vector.
+    const Eigen::Vector3d incomingVelocity( 34216.4827530912, -15170.1440677825,
+                                            395.792122152361 );
+    // Define ougoing velocity rotation angle.
+    const double outgoingVelocityRotationAngle = -2.0291949514117;
+    // Define pericenter radius.
+    const double pericenterRadius = 6351801.04541467;
+    // Define deltaV.
+    const double deltaV = 1090.64622870007;
+
+    // Perform the gravity assist.
+    const Eigen::Vector3d outgoingVelocity = mission_segments::calculatePoweredGravityAssistOutgoingVelocity(
+            venusGravitationalParameter, venusVelocity,
+            incomingVelocity, outgoingVelocityRotationAngle,
+            pericenterRadius, deltaV );
+
+    const Eigen::Vector3d relativeIncomingVelocity = incomingVelocity - venusVelocity;
+    const Eigen::Vector3d relativeOutgoingVelocity = outgoingVelocity - venusVelocity;
+
+    // Compute the unit vectors used in the forward computation of the gravity assist
+    const Eigen::Vector3d unitVectorIncoming1 = relativeIncomingVelocity.normalized( );
+    const Eigen::Vector3d unitVectorIncoming2 = unitVectorIncoming1.cross( venusVelocity ).normalized( );
+    const Eigen::Vector3d unitVectorIncoming3 = unitVectorIncoming1.cross( unitVectorIncoming2 );
+
+    // Compute the unit vectors used in the backward computation of the gravity assist
+    const Eigen::Vector3d unitVectorOutgoing1 = relativeOutgoingVelocity.normalized();
+    const Eigen::Vector3d unitVectorOutgoing2 = unitVectorOutgoing1.cross( venusVelocity ).normalized( );
+    const Eigen::Vector3d unitVectorOutgoing3 = unitVectorOutgoing1.cross( unitVectorOutgoing2 );
+
+    // Compute rotation matrix between base frame and incoming-velocity frame
+    Eigen::MatrixXd A(3,3);
+    A.row(0) = unitVectorIncoming1;
+    A.row(1) = unitVectorIncoming2;
+    A.row(2) = unitVectorIncoming3;
+
+    // Compute rotation matrix between base frame and outgoing-velocity frame
+    Eigen::MatrixXd B(3,3);
+    B.row(0) = unitVectorOutgoing1;
+    B.row(1) = unitVectorOutgoing2;
+    B.row(2) = unitVectorOutgoing3;
+
+    // Rotation matrix between incoming-velocity frame and outgoing-velocity frame
+    Eigen::MatrixXd C = A * B.inverse();
+
+    // Extract bending angle and incoming velocity rotation angle
+    const double bendingAngle = std::acos(C(0,0));
+    const double incomingVelocityRotationAngleCosine = C(0,1) / sin(bendingAngle);
+    const double incomingVelocityRotationAngleSine = C(0,2) / sin(bendingAngle);
+    double incomingVelocityRotationAngle;
+
+    if (incomingVelocityRotationAngleCosine > 0)
+    {
+        incomingVelocityRotationAngle = std::asin(incomingVelocityRotationAngleSine);
+    }
+    else if ( incomingVelocityRotationAngleSine > 0)
+    {
+        incomingVelocityRotationAngle = std::acos(incomingVelocityRotationAngleCosine);
+    }
+    else
+    {
+        incomingVelocityRotationAngle = mathematical_constants::PI - std::acos(incomingVelocityRotationAngleCosine);
+    }
+
+    // Backward propagate gravity assist to get incoming velocity
+    const Eigen::Vector3d calculatedIncomingVelocity = mission_segments::calculatePoweredGravityAssistIncomingVelocity(
+            venusGravitationalParameter, venusVelocity,
+            outgoingVelocity, incomingVelocityRotationAngle,
+            pericenterRadius, deltaV );
+
+    // Check if backward propagated incoming velocity coincides with original incoming velocity
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( calculatedIncomingVelocity, incomingVelocity, tolerance );
+}
+
+//! Test forward and backward powered gravity assist when the periapsis is infinity
+BOOST_AUTO_TEST_CASE( testGravityInfinitePeriapsis )
+{
+
+    // Benchmark obtained by reverse engineering the GTOP code, based on the first
+    // swing-by for the ideal Cassini-1 trajectory. Values were obtained with a 15-digit accuracy
+    // from GTOP, resulting in an accuracy of 1e-14 in the final results.
+    const double tolerance = 1.0e-14;
+
+    // Define swingby body gravitational parameter.
+    const double venusGravitationalParameter = 3.24860e14;
+    // Define heliocentric planet velocity vector.
+    const Eigen::Vector3d venusVelocity( 32851.224953746, -11618.7310059974, -2055.04615890989 );
+    // Define heliocentric satellite incoming vector.
+    const Eigen::Vector3d incomingVelocity( 34216.4827530912, -15170.1440677825,
+                                            395.792122152361 );
+    // Define ougoing velocity rotation angle.
+    const double outgoingVelocityRotationAngle = -2.0291949514117;
+    // Define pericenter radius.
+    const double pericenterRadius = std::numeric_limits< double >::infinity();
+
+    for ( unsigned int deltaVCase : {0,1})
+    {
+        double deltaV;
+        Eigen::Vector3d expectedOutgoingVelocity;
+        
+        if ( deltaVCase == 0 )
+        {
+            // Define deltaV.
+            deltaV = 0.0;
+            expectedOutgoingVelocity = incomingVelocity;
+        }
+        else
+        {
+            deltaV = 1090.64622870007;
+            const Eigen::Vector3d relativeIncomingVelocity = incomingVelocity - venusVelocity;
+            expectedOutgoingVelocity = incomingVelocity + deltaV * relativeIncomingVelocity / relativeIncomingVelocity.norm();
+        }
+
+        // Perform the gravity assist.
+        const Eigen::Vector3d computedOutgoingVelocity = mission_segments::calculatePoweredGravityAssistOutgoingVelocity(
+                venusGravitationalParameter, venusVelocity,
+                incomingVelocity, outgoingVelocityRotationAngle,
+                pericenterRadius, deltaV );
+
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedOutgoingVelocity, computedOutgoingVelocity, tolerance );
+    }
+
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

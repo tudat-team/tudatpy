@@ -14,7 +14,7 @@
 
 #include <limits>
 #include <boost/test/unit_test.hpp>
-#include <boost/make_shared.hpp>
+
 
 #include "tudat/basics/testMacros.h"
 
@@ -70,9 +70,9 @@ BOOST_AUTO_TEST_CASE( testPolarMotionCalculator )
                        shortPeriodPolarMotionCalculator->getCorrections( testEphemerisTime ) ).y( ) );
 
     BOOST_CHECK_EQUAL( totalPolarMotionFromArguments.x( ), ( dailyPolarMotionValueInterpolator->interpolate( testUtc ) +
-                       shortPeriodPolarMotionCalculator->getCorrections( fundamentalArguments ) ).x( ) );
+                       shortPeriodPolarMotionCalculator->getCorrectionsFromFundamentalArgument( fundamentalArguments ) ).x( ) );
     BOOST_CHECK_EQUAL( totalPolarMotionFromArguments.y( ), ( dailyPolarMotionValueInterpolator->interpolate( testUtc ) +
-                       shortPeriodPolarMotionCalculator->getCorrections( fundamentalArguments ) ).y( ) );
+                       shortPeriodPolarMotionCalculator->getCorrectionsFromFundamentalArgument( fundamentalArguments ) ).y( ) );
 }
 
 

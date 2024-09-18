@@ -29,7 +29,8 @@ using namespace tudat::simulation_setup;
 std::shared_ptr< numerical_integrators::NumericalIntegrator< double, Eigen::Vector6d > > createCR3BPIntegrator(
         const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
         const double massParameter,
-        const Eigen::Vector6d& initialState )
+        const Eigen::Vector6d& initialState,
+        const double initialTime )
 {
     // Create state derivative model
     std::shared_ptr< StateDerivativeCircularRestrictedThreeBodyProblem > stateDerivativeModel =
@@ -40,7 +41,7 @@ std::shared_ptr< numerical_integrators::NumericalIntegrator< double, Eigen::Vect
 
     // Create integrator object
     return numerical_integrators::createIntegrator< double, Eigen::Vector6d >(
-                stateDerivativeFunction, initialState, integratorSettings );
+                stateDerivativeFunction, initialState, initialTime, integratorSettings );
 }
 
 //! Function to propagate the dynamics (in normalized units) in CR3BP
@@ -48,19 +49,20 @@ std::map< double, Eigen::Vector6d > performCR3BPIntegration(
         const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
         const double massParameter,
         const Eigen::Vector6d& initialState,
+        const double initialTime,
         const double finalTime,
         const bool propagateToExactFinalTime )
 {
     // Create integrator object
     std::shared_ptr< numerical_integrators::NumericalIntegrator< double, Eigen::Vector6d > > integrator =
-            createCR3BPIntegrator( integratorSettings, massParameter, initialState );
+            createCR3BPIntegrator( integratorSettings, massParameter, initialState, initialTime );
 
     // Initialize return data map
     std::map< double, Eigen::Vector6d > stateHistory;
 
     // Store initial state and time
-    double currentTime = integratorSettings->initialTime_;
-    double secondToLastTime = integratorSettings->initialTime_;
+    double currentTime = initialTime;
+    double secondToLastTime = initialTime;
 
     Eigen::Vector6d currentState = initialState;
     stateHistory[ currentTime ] = currentState;
@@ -92,42 +94,6 @@ std::map< double, Eigen::Vector6d > performCR3BPIntegration(
 
 }
 
-
-//template std::vector< std::shared_ptr< SingleStateTypeDerivative< double, double > > > createStateDerivativeModels< double, double >(
-//        const std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings,
-//        const simulation_setup::SystemOfBodies& bodies,
-//        const double propagationStartTime );
-//template std::shared_ptr< SingleStateTypeDerivative< double, double > > createStateDerivativeModel< double, double >(
-//        const std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings,
-//        const simulation_setup::SystemOfBodies& bodies,
-//        const double propagationStartTime );
-
-//#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
-//template std::vector< std::shared_ptr< SingleStateTypeDerivative< long double, double > > > createStateDerivativeModels< long double, double >(
-//        const std::shared_ptr< SingleArcPropagatorSettings< long double > > propagatorSettings,
-//        const simulation_setup::SystemOfBodies& bodies,
-//        const double propagationStartTime );
-//template std::vector< std::shared_ptr< SingleStateTypeDerivative< double, Time > > > createStateDerivativeModels< double, Time >(
-//        const std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings,
-//        const simulation_setup::SystemOfBodies& bodies,
-//        const Time propagationStartTime );
-//template std::vector< std::shared_ptr< SingleStateTypeDerivative< long double, Time > > > createStateDerivativeModels< long double, Time >(
-//        const std::shared_ptr< SingleArcPropagatorSettings< long double > > propagatorSettings,
-//        const simulation_setup::SystemOfBodies& bodies,
-//        const Time propagationStartTime );
-//template std::shared_ptr< SingleStateTypeDerivative< long double, double > > createStateDerivativeModel< long double, double >(
-//        const std::shared_ptr< SingleArcPropagatorSettings< long double > > propagatorSettings,
-//        const simulation_setup::SystemOfBodies& bodies,
-//        const double propagationStartTime );
-//template std::shared_ptr< SingleStateTypeDerivative< double, Time > > createStateDerivativeModel< double, Time >(
-//        const std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings,
-//        const simulation_setup::SystemOfBodies& bodies,
-//        const Time propagationStartTime );
-//template std::shared_ptr< SingleStateTypeDerivative< long double, Time > > createStateDerivativeModel< long double, Time >(
-//        const std::shared_ptr< SingleArcPropagatorSettings< long double > > propagatorSettings,
-//        const simulation_setup::SystemOfBodies& bodies,
-//        const Time propagationStartTime );
-//#endif
 
 }
 

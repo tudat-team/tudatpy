@@ -14,6 +14,7 @@
 
 #include <stdexcept>
 
+#include <boost/exception/exception.hpp>
 
 namespace tudat
 {

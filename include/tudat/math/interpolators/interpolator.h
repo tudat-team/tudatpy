@@ -37,7 +37,9 @@ enum BoundaryInterpolationType
     extrapolate_at_boundary = 3,
     extrapolate_at_boundary_with_warning = 4,
     use_default_value = 5,
-    use_default_value_with_warning = 6
+    use_default_value_with_warning = 6,
+    use_nan_value = 7,
+    use_nan_value_with_warning = 8
 };
 
 //! Base class for interpolator.
@@ -84,20 +86,6 @@ public:
 extern template class Interpolator< double, Eigen::VectorXd >;
 extern template class Interpolator< double, Eigen::Vector6d >;
 extern template class Interpolator< double, Eigen::MatrixXd >;
-
-#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
-extern template class Interpolator< Time, Eigen::VectorXd >;
-extern template class Interpolator< Time, Eigen::Vector6d >;
-extern template class Interpolator< Time, Eigen::MatrixXd >;
-
-extern template class Interpolator< double, Eigen::Matrix< long double, Eigen::Dynamic, 1 > >;
-extern template class Interpolator< double, Eigen::Matrix< long double, Eigen::Dynamic, 6 > >;
-extern template class Interpolator< double, Eigen::Matrix< long double, Eigen::Dynamic,  Eigen::Dynamic > >;
-
-extern template class Interpolator< Time, Eigen::Matrix< long double, Eigen::Dynamic, 1 > >;
-extern template class Interpolator< Time, Eigen::Matrix< long double, Eigen::Dynamic, 6 > >;
-extern template class Interpolator< Time, Eigen::Matrix< long double, Eigen::Dynamic, Eigen::Dynamic > >;
-#endif
 
 } // namespace interpolators
 

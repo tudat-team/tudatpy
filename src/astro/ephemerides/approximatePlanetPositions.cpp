@@ -171,7 +171,7 @@ Eigen::Vector6d getGtopCartesianElements ( const double daysSinceMjd2000,
     const double  gtopSunGravitationalParameter = 1.327124280000000e+020;  //Gravitational constant of Sun;
 
     double T = daysSinceMjd2000 / ( 100.0 * physical_constants::JULIAN_YEAR_IN_DAYS ) + 1.0;
-    Eigen::Vector6d keplerElements;
+    Eigen::Vector6d keplerElements = Eigen::Vector6d::Zero( );
     double meanMotion;
     switch (planet)
     {
@@ -259,6 +259,8 @@ Eigen::Vector6d getGtopCartesianElements ( const double daysSinceMjd2000,
             keplerElements( 3 ) = (113.368933916592 + 9.436835192183 * T - 35.762300003726 * T * T + 48.966118351549 * T * T * T - 19.384576636609 * T * T * T * T - 3.362714022614 * T * T * T * T * T);
             keplerElements( 5 ) = (15.17008631634665 + 137.023166578486 * T + 28.362805871736 * T * T - 29.677368415909 * T * T * T - 3.585159909117 * T * T * T * T + 13.406844652829 * T * T * T * T * T);
         break;
+        default:
+            throw std::runtime_error( "Error when setting GTOP ephemeris state; body index " + std::to_string( planet ) + " not found" );
 
     }
 

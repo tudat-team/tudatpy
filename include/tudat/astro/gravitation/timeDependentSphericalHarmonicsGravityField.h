@@ -12,7 +12,7 @@
 #define TUDAT_TIMEDEPENDENTSPHERICALHARMONICSGRAVITYFIELD_H
 
 #include <functional>
-#include <boost/make_shared.hpp>
+
 
 #include <vector>
 
@@ -64,10 +64,10 @@ public:
             const Eigen::MatrixXd& nominalCosineCoefficients,
             const Eigen::MatrixXd& nominalSineCoefficients,
             const std::string& fixedReferenceFrame = "",
-            const std::function< void( ) > updateInertiaTensor = std::function< void( ) > ( ) ):
+            const double scaledMeanMomentOfInertia = TUDAT_NAN ):
         SphericalHarmonicsGravityField(
             gravitationalParameter, referenceRadius, nominalCosineCoefficients,
-            nominalSineCoefficients, fixedReferenceFrame, updateInertiaTensor ),
+            nominalSineCoefficients, fixedReferenceFrame, scaledMeanMomentOfInertia ),
         nominalSineCoefficients_( nominalSineCoefficients ),
         nominalCosineCoefficients_( nominalCosineCoefficients )
     { }
@@ -92,10 +92,10 @@ public:
             const Eigen::MatrixXd& nominalSineCoefficients,
             const std::shared_ptr< GravityFieldVariationsSet > gravityFieldVariationUpdateSettings,
             const std::string& fixedReferenceFrame = "",
-            const std::function< void( ) > updateInertiaTensor = std::function< void( ) > ( ) ):
+            const double scaledMeanMomentOfInertia = TUDAT_NAN ):
         SphericalHarmonicsGravityField(
             gravitationalParameter, referenceRadius,
-            nominalCosineCoefficients, nominalSineCoefficients, fixedReferenceFrame, updateInertiaTensor ),
+            nominalCosineCoefficients, nominalSineCoefficients, fixedReferenceFrame, scaledMeanMomentOfInertia ),
         nominalSineCoefficients_( nominalSineCoefficients ),
         nominalCosineCoefficients_( nominalCosineCoefficients ),
         gravityFieldVariationsSet_( gravityFieldVariationUpdateSettings )
@@ -177,8 +177,32 @@ public:
     Eigen::MatrixXd getTotalCosineCoefficientCorrection(
             const int maximumDegree, const int maximumOrder )
     {
+        if( maximumDegree > maximumDegree_ || maximumOrder > maximumOrder_ )
+        {
+            throw std::runtime_error( "Error when retrieving cosine spherical harmonic coefficient time variation up to D/O " +
+                                      std::to_string( maximumDegree ) + "/" + std::to_string( maximumOrder ) +
+                                      " maximum D/O is " +
+                                      std::to_string( maximumDegree_ ) + "/" + std::to_string( maximumOrder_ ) );
+        }
+
+
         return cosineCoefficients_.block( 0, 0, maximumDegree + 1, maximumOrder + 1 ) -
                 nominalCosineCoefficients_.block( 0, 0, maximumDegree + 1, maximumOrder + 1 );
+    }
+
+    double getSingleCosineCoefficientCorrection(
+            const int degree, const int order )
+    {
+        if( degree > maximumDegree_ || order > maximumOrder_ )
+        {
+            throw std::runtime_error( "Error when retrieving cosine spherical harmonic coefficient time variation at D/O " +
+                                      std::to_string( degree ) + "/" + std::to_string( order ) +
+                                      " maximum D/O is " +
+                                      std::to_string( maximumDegree_ ) + "/" + std::to_string( maximumOrder_ ) );
+        }
+
+
+        return cosineCoefficients_( degree, order ) - nominalCosineCoefficients_( degree, order );
     }
 
     //! Get current total correction to sine coefficients
@@ -192,8 +216,32 @@ public:
             const int maximumDegree, const int maximumOrder )
 
     {
+        if( maximumDegree > maximumDegree_ || maximumOrder > maximumOrder_ )
+        {
+            throw std::runtime_error( "Error when retrieving sine spherical harmonic coefficient time variation up to D/O " +
+                                      std::to_string( maximumDegree ) + "/" + std::to_string( maximumOrder ) +
+                                      " maximum D/O is " +
+                                      std::to_string( maximumDegree_ ) + "/" + std::to_string( maximumOrder_ ) );
+        }
+
+
         return sineCoefficients_.block( 0, 0, maximumDegree + 1, maximumOrder + 1 ) -
                 nominalSineCoefficients_.block( 0, 0, maximumDegree + 1, maximumOrder + 1 );
+    }
+
+    double getSingleSineCoefficientCorrection(
+            const int degree, const int order )
+    {
+        if( degree > maximumDegree_ || order > maximumOrder_ )
+        {
+            throw std::runtime_error( "Error when retrieving sine spherical harmonic coefficient time variation at D/O " +
+                                      std::to_string( degree ) + "/" + std::to_string( order ) +
+                                      " maximum D/O is " +
+                                      std::to_string( maximumDegree_ ) + "/" + std::to_string( maximumOrder_ ) );
+        }
+
+
+        return sineCoefficients_( degree, order ) - nominalSineCoefficients_( degree, order );
     }
 
     //! Set nominal (i.e. with zero variations) cosine coefficients.
@@ -201,7 +249,7 @@ public:
      *  Function to set nominal (i.e. with zero variations) cosine coefficients.
      *  \param nominalCosineCoefficients New nominal cosine coefficients.
      */
-    void setNominalCosineCoefficients( Eigen::MatrixXd nominalCosineCoefficients )
+    void setNominalCosineCoefficients( const Eigen::MatrixXd& nominalCosineCoefficients )
     {
         nominalCosineCoefficients_ = nominalCosineCoefficients;
     }

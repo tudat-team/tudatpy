@@ -92,6 +92,20 @@ public:
         }
     }
 
+    std::vector< std::shared_ptr< ThrustAcceleration > > getThrustAccelerations( )
+    {
+        return thrustAccelerations_;
+    }
+
+    virtual void resetCurrentTime( )
+    {
+        for( unsigned int i = 0; i < thrustAccelerations_.size( );i++ )
+        {
+            thrustAccelerations_.at( i )->resetCurrentTime( );
+        }
+        currentTime_ = TUDAT_NAN;
+    }
+
 private:
 
     //! List of thrust accelerations from which the total mass rate is to be computed.

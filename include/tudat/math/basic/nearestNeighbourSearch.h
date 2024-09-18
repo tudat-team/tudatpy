@@ -79,7 +79,11 @@ int computeNearestLeftNeighborUsingBinarySearch(
     // Declare local variables.
     // Declare bounds of vector of sorted data and current position.
     int leftLimitOfVectorOfSortedData = 0;
-    int rightLimitOfVectorOfSortedData = vectorOfSortedData.size( ) - 1;
+    if( vectorOfSortedData.size( ) <= 0 )
+    {
+        throw std::runtime_error( "Error when getting nearest neighbour, no input data." );
+    }
+    int rightLimitOfVectorOfSortedData = static_cast< int >( vectorOfSortedData.size( ) ) - 1;
     int currentPositionInVectorOfSortedData;
 
     // Check if data is sorted in ascending order.
@@ -87,6 +91,20 @@ int computeNearestLeftNeighborUsingBinarySearch(
     bool isVectorOfSortedDataAscending
             = ( vectorOfSortedData[ rightLimitOfVectorOfSortedData ]
                 >= vectorOfSortedData[ leftLimitOfVectorOfSortedData ] );
+
+    // Check if target value is to the right of largest limit
+    if ( std::max( { vectorOfSortedData[ rightLimitOfVectorOfSortedData ], vectorOfSortedData[ leftLimitOfVectorOfSortedData ] } )
+            <= targetValueInVectorOfSortedData )
+    {
+        if ( isVectorOfSortedDataAscending )
+        {
+            leftLimitOfVectorOfSortedData = rightLimitOfVectorOfSortedData;
+        }
+        else
+        {
+            rightLimitOfVectorOfSortedData = leftLimitOfVectorOfSortedData;
+        }
+    }
 
     // Loop through vector of sorted data until left and right limits
     // are neighbours.
@@ -117,6 +135,11 @@ int computeNearestLeftNeighborUsingBinarySearch(
 
     // Set current position to left limit.
     currentPositionInVectorOfSortedData = leftLimitOfVectorOfSortedData;
+    // Check if independent variable coincide with found upper index. In that case the upper index is the true nearest lower index.
+    if ( targetValueInVectorOfSortedData == vectorOfSortedData[ rightLimitOfVectorOfSortedData ] )
+    {
+        currentPositionInVectorOfSortedData = rightLimitOfVectorOfSortedData;
+    }
 
     // Return current position in vector.
     return currentPositionInVectorOfSortedData;
@@ -142,8 +165,15 @@ bool isIndependentVariableInInterval( const int lowerIndex,
     bool isInInterval = false;
 
     //Check if value is in interval.
-    if ( independentVariableValue >= independentValues[ lowerIndex ] &&
-         independentVariableValue <= independentValues[ lowerIndex + 1 ] )
+    if( lowerIndex == static_cast< int >( independentValues.size( ) - 1 ) )
+    {
+        if ( independentVariableValue > independentValues.at( lowerIndex ))
+        {
+            isInInterval = true;
+        }
+    }
+    else if ( independentVariableValue >= independentValues.at( lowerIndex ) &&
+              independentVariableValue < independentValues.at( lowerIndex + 1 ) )
     {
         isInInterval = true;
     }
@@ -195,7 +225,10 @@ int findNearestLeftNeighbourUsingHuntingAlgorithm(
     if ( previousNearestLowerIndex_ < 0 ||
          previousNearestLowerIndex_ > static_cast< int >( independentValues_.size( ) - 2 ) )
     {
-        throw std::runtime_error( "Error, initial guess for nearest neighbour search not within allowable bounds." );
+        // throw std::runtime_error( "Error, initial guess for nearest neighbour search not within allowable bounds." );
+        newNearestLowerIndex = computeNearestLeftNeighborUsingBinarySearch< IndependentVariableType >(
+                independentValues_, independentVariableValue );
+        isFound = 1;
     }
 
     // Check if independent variable value falls within region of values provided.
@@ -207,7 +240,7 @@ int findNearestLeftNeighbourUsingHuntingAlgorithm(
 
     else if ( independentVariableValue >= independentValues_[ independentValueVectorSize - 1 ] )
     {
-        newNearestLowerIndex = independentValueVectorSize - 2;
+        newNearestLowerIndex = independentValueVectorSize - 1;
         isFound = 1;
     }
 
@@ -303,6 +336,13 @@ int findNearestLeftNeighbourUsingHuntingAlgorithm(
                     {
                         isFound = 1;
                         newNearestLowerIndex = lowerIndex;
+
+                        // Check if independent variable coincides with upper index. In that case the upper index is
+                        // true lower index
+                        if ( independentVariableValue == independentValues_[ upperIndex ] )
+                        {
+                            newNearestLowerIndex = upperIndex;
+                        }
                     }
                     else
                     {

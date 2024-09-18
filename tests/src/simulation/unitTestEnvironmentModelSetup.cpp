@@ -14,7 +14,7 @@
 #include <limits>
 
 #include <boost/test/unit_test.hpp>
-#include <boost/make_shared.hpp>
+
 
 #include <Eigen/Core>
 
@@ -28,6 +28,9 @@
 #include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/astro/basic_astro/unitConversions.h"
 #include "tudat/astro/basic_astro/geodeticCoordinateConversions.h"
+#include "tudat/astro/electromagnetism/radiationSourceModel.h"
+#include "tudat/astro/electromagnetism/radiationPressureTargetModel.h"
+#include "tudat/astro/electromagnetism/reflectionLaw.h"
 #include "tudat/astro/ephemerides/approximatePlanetPositions.h"
 #include "tudat/astro/ephemerides/tabulatedEphemeris.h"
 #include "tudat/astro/ephemerides/simpleRotationalEphemeris.h"
@@ -39,6 +42,7 @@
 #include "tudat/astro/ephemerides/synchronousRotationalEphemeris.h"
 
 #include "tudat/interface/spice/spiceEphemeris.h"
+#include "tudat/interface/spice/spiceInterface.h"
 #include "tudat/astro/gravitation/triAxialEllipsoidGravity.h"
 #include "tudat/io/basicInputOutput.h"
 #include "tudat/io/matrixTextFileReader.h"
@@ -50,6 +54,9 @@
 #include "tudat/simulation/environment_setup/createEphemeris.h"
 #include "tudat/simulation/environment_setup/createGravityField.h"
 #include "tudat/simulation/environment_setup/createRotationModel.h"
+#include "tudat/simulation/environment_setup/createRadiationSourceModel.h"
+#include "tudat/simulation/environment_setup/createRadiationPressureTargetModel.h"
+#include "tudat/simulation/environment_setup/createSurfacePropertyDistribution.h"
 #include "tudat/simulation/environment_setup/defaultBodies.h"
 
 namespace tudat
@@ -314,7 +321,6 @@ BOOST_AUTO_TEST_CASE( test_ephemerisSetup )
                     tabulatedStates, "Earth", "J2000" );
         std::shared_ptr< ephemerides::Ephemeris > tabulatedEphemeris =
                 createBodyEphemeris( tabulatedEphemerisSettings, "Moon" );
-
         // Manually create tabulated ephemeris.
         std::shared_ptr< ephemerides::Ephemeris > manualTabulatedEphemeris =
                 std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
@@ -336,6 +342,49 @@ BOOST_AUTO_TEST_CASE( test_ephemerisSetup )
 
 }
 
+//! Test set up of gravity field model environment models.
+BOOST_AUTO_TEST_CASE( test_defaultGravityFieldSetup )
+{
+    // Load Spice kernel
+    spice_interface::loadStandardSpiceKernels( );
+
+    // Create settings for spice central gravity field model.
+    std::shared_ptr< SphericalHarmonicsGravityFieldSettings > mercurySphericalHarmonicsGravityFieldSettings =
+            std::dynamic_pointer_cast< SphericalHarmonicsGravityFieldSettings >( getDefaultGravityFieldSettings( "Mercury", TUDAT_NAN, TUDAT_NAN ) );
+    BOOST_CHECK_CLOSE_FRACTION(
+            mercurySphericalHarmonicsGravityFieldSettings->getReferenceRadius( ), 2440000.0, 10.0 * std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION(
+            mercurySphericalHarmonicsGravityFieldSettings->getGravitationalParameter( ), 22031868691090.8, 10.0 * std::numeric_limits< double >::epsilon( ) );
+
+    std::shared_ptr< SphericalHarmonicsGravityFieldSettings > venusSphericalHarmonicsGravityFieldSettings =
+            std::dynamic_pointer_cast< SphericalHarmonicsGravityFieldSettings >( getDefaultGravityFieldSettings( "Venus", TUDAT_NAN, TUDAT_NAN ) );
+    BOOST_CHECK_CLOSE_FRACTION(
+            venusSphericalHarmonicsGravityFieldSettings->getReferenceRadius( ), 6051000, 10.0 * std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION(
+            venusSphericalHarmonicsGravityFieldSettings->getGravitationalParameter( ), 324858592079000, 10.0 * std::numeric_limits< double >::epsilon( ) );
+
+    std::shared_ptr< SphericalHarmonicsGravityFieldSettings > earthSphericalHarmonicsGravityFieldSettings =
+            std::dynamic_pointer_cast< SphericalHarmonicsGravityFieldSettings >( getDefaultGravityFieldSettings( "Earth", TUDAT_NAN, TUDAT_NAN ) );
+    BOOST_CHECK_CLOSE_FRACTION(
+            earthSphericalHarmonicsGravityFieldSettings->getReferenceRadius( ), 6378136.3, 10.0 * std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION(
+            earthSphericalHarmonicsGravityFieldSettings->getGravitationalParameter( ), 398600441500000, 10.0 * std::numeric_limits< double >::epsilon( ) );
+
+    std::shared_ptr< SphericalHarmonicsGravityFieldSettings > marsSphericalHarmonicsGravityFieldSettings =
+            std::dynamic_pointer_cast< SphericalHarmonicsGravityFieldSettings >( getDefaultGravityFieldSettings( "Mars", TUDAT_NAN, TUDAT_NAN ) );
+    BOOST_CHECK_CLOSE_FRACTION(
+            marsSphericalHarmonicsGravityFieldSettings->getReferenceRadius( ), 3396000, 10.0 * std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION(
+            marsSphericalHarmonicsGravityFieldSettings->getGravitationalParameter( ), 42828375815756.1, 10.0 * std::numeric_limits< double >::epsilon( ) );
+
+    std::shared_ptr< SphericalHarmonicsGravityFieldSettings > jupiterSphericalHarmonicsGravityFieldSettings =
+            std::dynamic_pointer_cast< SphericalHarmonicsGravityFieldSettings >( getDefaultGravityFieldSettings( "Jupiter", TUDAT_NAN, TUDAT_NAN ) );
+    BOOST_CHECK_CLOSE_FRACTION(
+            jupiterSphericalHarmonicsGravityFieldSettings->getReferenceRadius( ), 71492000 , 10.0 * std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION(
+            jupiterSphericalHarmonicsGravityFieldSettings->getGravitationalParameter( ), 1.266865341960128e+17, 10.0 * std::numeric_limits< double >::epsilon( ) );
+
+}
 
 //! Test set up of gravity field model environment models.
 BOOST_AUTO_TEST_CASE( test_gravityFieldSetup )
@@ -430,45 +479,230 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldSetup )
                 createGravityFieldModel( getDefaultGravityFieldSettings(
                                              "Earth", TUDAT_NAN, TUDAT_NAN ), "Earth" ) );
     BOOST_CHECK_EQUAL(
-                ( defaultEarthField->getGravitationalParameter( ) ), ( 0.3986004418E15 ) );
+                ( defaultEarthField->getGravitationalParameter( ) ), ( 398600441500000) );
     BOOST_CHECK_EQUAL(
-                ( defaultEarthField->getReferenceRadius( ) ), ( 6378137.0 ) );
+                ( defaultEarthField->getReferenceRadius( ) ), ( 6378136.3 ) );
     BOOST_CHECK_EQUAL(
-                ( defaultEarthField->getCosineCoefficients( ).rows( ) ), 51 );
+                ( defaultEarthField->getCosineCoefficients( ).rows( ) ), 201 );
     BOOST_CHECK_EQUAL(
-                ( defaultEarthField->getCosineCoefficients( ).cols( ) ), 51 );
+                ( defaultEarthField->getCosineCoefficients( ).cols( ) ), 201 );
     BOOST_CHECK_EQUAL(
-                ( defaultEarthField->getSineCoefficients( ).rows( ) ), 51 );
+                ( defaultEarthField->getSineCoefficients( ).rows( ) ), 201 );
     BOOST_CHECK_EQUAL(
-                ( defaultEarthField->getSineCoefficients( ).cols( ) ), 51 );
+                ( defaultEarthField->getSineCoefficients( ).cols( ) ), 201 );
     BOOST_CHECK_EQUAL(
-                ( defaultEarthField->getCosineCoefficients( )( 2, 0 ) ), -0.484165371736E-03 );
+                ( defaultEarthField->getCosineCoefficients( )( 2, 0 ) ), -0.00048416945884303183 );
     BOOST_CHECK_EQUAL(
-                ( defaultEarthField->getCosineCoefficients( )( 5, 3 ) ), -0.451955406071E-06 );
+                ( defaultEarthField->getCosineCoefficients( )( 5, 3 ) ), -4.5184119950616202e-07);
     BOOST_CHECK_EQUAL(
-                ( defaultEarthField->getSineCoefficients( )( 7, 1 ) ), 0.954336911867E-07 );
+                ( defaultEarthField->getSineCoefficients( )( 7, 1 ) ), 9.5160187646035301e-08 );
 
     std::shared_ptr< gravitation::SphericalHarmonicsGravityField > defaultMoonField =
             std::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >(
                 createGravityFieldModel( getDefaultGravityFieldSettings(
                                              "Moon", TUDAT_NAN, TUDAT_NAN ), "Moon" ) );
     BOOST_CHECK_EQUAL(
-                ( defaultMoonField->getGravitationalParameter( ) ), ( 0.4902800238000000E+13 ) );
+                ( defaultMoonField->getGravitationalParameter( ) ), ( 4902800121846.7998 ) );
     BOOST_CHECK_EQUAL(
                 ( defaultMoonField->getReferenceRadius( ) ), ( 0.17380E+07 ) );
     BOOST_CHECK_EQUAL(
-                ( defaultMoonField->getCosineCoefficients( ).rows( ) ), 51 );
+                ( defaultMoonField->getCosineCoefficients( ).rows( ) ), 201 );
     BOOST_CHECK_EQUAL(
-                ( defaultMoonField->getCosineCoefficients( ).cols( ) ), 51 );
+                ( defaultMoonField->getCosineCoefficients( ).cols( ) ), 201 );
     BOOST_CHECK_EQUAL(
-                ( defaultMoonField->getSineCoefficients( ).rows( ) ), 51 );
+                ( defaultMoonField->getSineCoefficients( ).rows( ) ), 201 );
     BOOST_CHECK_EQUAL(
-                ( defaultMoonField->getSineCoefficients( ).cols( ) ), 51 );
+                ( defaultMoonField->getSineCoefficients( ).cols( ) ), 201 );
     BOOST_CHECK_EQUAL(
-                ( defaultMoonField->getCosineCoefficients( )( 5, 3 ) ), 0.5493176535439800E-06 );
+                ( defaultMoonField->getCosineCoefficients( )( 5, 3 ) ), 4.6582451480171e-07 );
     BOOST_CHECK_EQUAL(
-                ( defaultMoonField->getSineCoefficients( )( 7, 1 ) ), -0.1744763377093700E-06 );
+                ( defaultMoonField->getSineCoefficients( )( 7, 1 ) ),-1.2002068145852e-07 );
 
+}
+
+//! Test set up of polyhedron gravity field model
+BOOST_AUTO_TEST_CASE( test_polyhedronGravityFieldSetup )
+{
+    // Define cuboid polyhedron dimensions
+    const double w = 10.0; // width
+    const double h = 10.0; // height
+    const double l = 20.0; // length
+
+    // Define parameters
+    const double gravitationalConstant = 6.67259e-11;
+    const double density = 2670;
+    const double volume = w * h * l;
+    const double gravitationalParameter = gravitationalConstant * density * volume;
+
+    // Define cuboid
+    Eigen::MatrixXd verticesCoordinates(8,3);
+    verticesCoordinates <<
+        0.0, 0.0, 0.0,
+        l, 0.0, 0.0,
+        0.0, w, 0.0,
+        l, w, 0.0,
+        0.0, 0.0, h,
+        l, 0.0, h,
+        0.0, w, h,
+        l, w, h;
+    Eigen::MatrixXi verticesDefiningEachFacet(12,3);
+    verticesDefiningEachFacet <<
+        2, 1, 0,
+        1, 2, 3,
+        4, 2, 0,
+        2, 4, 6,
+        1, 4, 0,
+        4, 1, 5,
+        6, 5, 7,
+        5, 6, 4,
+        3, 6, 7,
+        6, 3, 2,
+        5, 3, 7,
+        3, 5, 1;
+
+    // Create settings for polyhedron gravity field with both factory functions
+    std::shared_ptr< GravityFieldSettings > polyhedronGravityFieldSettings1 = polyhedronGravitySettings(
+            density, verticesCoordinates, verticesDefiningEachFacet, "DummyFrame", gravitationalConstant );
+    std::shared_ptr< GravityFieldSettings > polyhedronGravityFieldSettings2 = polyhedronGravitySettingsFromMu(
+            gravitationalParameter, verticesCoordinates, verticesDefiningEachFacet, "DummyFrame", gravitationalConstant );
+
+    // Create the two gravity field models, downcasting to PolyhedronGravityField
+    std::shared_ptr< gravitation::PolyhedronGravityField > polyhedronGravityField1 =
+            std::dynamic_pointer_cast< gravitation::PolyhedronGravityField >(
+                    createGravityFieldModel( polyhedronGravityFieldSettings1, "Earth" ) );
+    if( polyhedronGravityField1 == nullptr )
+    {
+        throw std::runtime_error(
+                "Error in polyhedron gravity field setup test: downcasting to PolyhedronGravityField failed.");
+    }
+    std::shared_ptr< gravitation::PolyhedronGravityField > polyhedronGravityField2 =
+            std::dynamic_pointer_cast< gravitation::PolyhedronGravityField >(
+                    createGravityFieldModel( polyhedronGravityFieldSettings2, "Earth" ) );
+    if( polyhedronGravityField2 == nullptr )
+    {
+        throw std::runtime_error(
+                "Error in polyhedron gravity field setup test: downcasting to PolyhedronGravityField failed.");
+    }
+
+    // Check both gravity fields have the correct model parameters
+    double tolerance = 1e-14;
+
+    BOOST_CHECK_CLOSE_FRACTION( gravitationalParameter, polyhedronGravityField1->getGravitationalParameter(), tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( volume, polyhedronGravityField1->getVolume(), tolerance );
+    BOOST_CHECK_EQUAL( verticesCoordinates, polyhedronGravityField1->getVerticesCoordinates() );
+    BOOST_CHECK_EQUAL( verticesDefiningEachFacet, polyhedronGravityField1->getVerticesDefiningEachFacet() );
+
+    // Check both gravity fields have the correct model parameters
+    BOOST_CHECK_CLOSE_FRACTION( gravitationalParameter, polyhedronGravityField2->getGravitationalParameter(), tolerance);
+    BOOST_CHECK_CLOSE_FRACTION( volume, polyhedronGravityField2->getVolume(), tolerance );
+    BOOST_CHECK_EQUAL( verticesCoordinates, polyhedronGravityField2->getVerticesCoordinates() );
+    BOOST_CHECK_EQUAL( verticesDefiningEachFacet, polyhedronGravityField2->getVerticesDefiningEachFacet() );
+
+    // Test computation of potential, gradient of potential, laplacian of potential
+    Eigen::Vector3d bodyFixedPosition = (Eigen::Vector3d() << 0.0, 0.0, 0.0).finished();
+    double expectedPotential = 3.19403761604211e-5;
+    Eigen::Vector3d expectedGradient = (Eigen::Vector3d() << 2.31329148957265e-6, 1.91973919943187e-6, 1.91973919943187e-6).finished();
+    double expectedLaplacian = - 0.5 * mathematical_constants::PI * gravitationalConstant * density;
+
+    BOOST_CHECK_CLOSE_FRACTION( expectedPotential, polyhedronGravityField1->getGravitationalPotential( bodyFixedPosition ), tolerance );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedGradient, polyhedronGravityField1->getGradientOfPotential( bodyFixedPosition ), tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( expectedLaplacian, polyhedronGravityField1->getLaplacianOfPotential( bodyFixedPosition ), tolerance );
+
+    BOOST_CHECK_CLOSE_FRACTION( expectedPotential, polyhedronGravityField2->getGravitationalPotential( bodyFixedPosition ), tolerance );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedGradient, polyhedronGravityField2->getGradientOfPotential( bodyFixedPosition ), tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( expectedLaplacian, polyhedronGravityField2->getLaplacianOfPotential( bodyFixedPosition ), tolerance );
+}
+
+//! Test set up of polyhedron gravity field model
+BOOST_AUTO_TEST_CASE( test_polyhedronInertiaTensorSetup )
+{
+    // Define cuboid polyhedron dimensions
+    const double w = 10.0; // width
+    const double h = 10.0; // height
+    const double l = 20.0; // length
+
+    // Define parameters
+    const double gravitationalConstant = 6.67259e-11;
+    const double density = 2670;
+    const double volume = w * h * l;
+    const double gravitationalParameter = gravitationalConstant * density * volume;
+
+    // Define cuboid
+    Eigen::MatrixXd verticesCoordinates(8,3);
+    verticesCoordinates <<
+        0.0, 0.0, 0.0,
+        l, 0.0, 0.0,
+        0.0, w, 0.0,
+        l, w, 0.0,
+        0.0, 0.0, h,
+        l, 0.0, h,
+        0.0, w, h,
+        l, w, h;
+    Eigen::MatrixXi verticesDefiningEachFacet(12,3);
+    verticesDefiningEachFacet <<
+        2, 1, 0,
+        1, 2, 3,
+        4, 2, 0,
+        2, 4, 6,
+        1, 4, 0,
+        4, 1, 5,
+        6, 5, 7,
+        5, 6, 4,
+        3, 6, 7,
+        6, 3, 2,
+        5, 3, 7,
+        3, 5, 1;
+
+    // Computation of inertia tensor
+    double mass = density * volume;
+    Eigen::Vector3d centroid = (Eigen::Vector3d() << l / 2.0, w / 2.0, h / 2.0).finished();
+    // Inertia tensor for a cuboid wrt principal axes of inertia
+    // http://www2.ece.ohio-state.edu/~zhang/RoboticsClass/docs/LN11_RigidBodyDynamics.pdf
+    Eigen::Matrix3d inertiaTensorWrtPrincipalAxes = (Eigen::Matrix3d() <<
+            mass / 12.0 * ( std::pow(w, 2) + std::pow(h, 2) ), 0.0, 0.0,
+            0.0, mass / 12.0 * ( std::pow(l, 2) + std::pow(h, 2) ), 0.0,
+            0.0, 0.0, mass / 12.0 * ( std::pow(l, 2) + std::pow(w, 2) )).finished();
+    // Inertia tensor for the cuboid, using parallel axis theorem (Dobrovolskis, 1996)
+    Eigen::Matrix3d expectedInertiaTensor = inertiaTensorWrtPrincipalAxes + mass * ( Eigen::Matrix3d() <<
+            std::pow(centroid(1), 2) + std::pow(centroid(2), 2),
+            - centroid(0) * centroid(1),
+            - centroid(0) * centroid(2),
+            - centroid(0) * centroid(1),
+            std::pow(centroid(0), 2) + std::pow(centroid(2), 2),
+            - centroid(1) * centroid(2),
+            - centroid(0) * centroid(2),
+            - centroid(1) * centroid(2),
+            std::pow(centroid(0), 2) + std::pow(centroid(1), 2) ).finished();
+
+    for ( unsigned int testMode: {0,1} )
+    {
+        // Create settings for polyhedron gravity field with both factory functions
+        std::shared_ptr< GravityFieldSettings > polyhedronGravityFieldSettings;
+
+        if ( testMode == 0 )
+        {
+            polyhedronGravityFieldSettings = polyhedronGravitySettings(
+                density, verticesCoordinates, verticesDefiningEachFacet, "DummyFrame", gravitationalConstant );
+        }
+        else
+        {
+            polyhedronGravityFieldSettings = polyhedronGravitySettingsFromMu(
+                gravitationalParameter, verticesCoordinates, verticesDefiningEachFacet, "DummyFrame", gravitationalConstant );
+        }
+
+        // Create bodies
+        std::vector< std::string > bodiesToCreate;
+        bodiesToCreate.push_back( "Phobos" );
+
+        // Set body settings
+        BodyListSettings bodySettings = getDefaultBodySettings( bodiesToCreate );
+        bodySettings.at( "Phobos" )->gravityFieldSettings = polyhedronGravityFieldSettings;
+
+        SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+
+        bodies.getBody( "Phobos" )->getMassProperties( )->update( 0.0 );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedInertiaTensor, bodies.getBody( "Phobos" )->getBodyInertiaTensor(), 1e-15 );
+    }
 }
 
 //! Test set up of triaxial ellipsoid gravity field model settings
@@ -741,7 +975,7 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldVariationSetup )
     // Calculate corrections manually and compare against created results.
     std::pair< Eigen::MatrixXd, Eigen::MatrixXd > directMoonTide =
             gravitation::calculateSolidBodyTideSingleCoefficientSetCorrectionFromAmplitude(
-                fullLoveNumberVector, 0.4902800238000000E+13 / gravitationalParameter,
+                fullLoveNumberVector, 0.49028001218467998E+13 / gravitationalParameter,
                 referenceRadius,  spice_interface::getBodyCartesianPositionAtEpoch(
                     "Moon", "Earth", "IAU_Earth", "None", testTime ), 3, 2 );
     std::pair< Eigen::MatrixXd, Eigen::MatrixXd > directSunTide =
@@ -1125,7 +1359,7 @@ BOOST_AUTO_TEST_CASE( test_synchronousRotationModelSetup )
     bodySettings.at( "Europa" )->ephemerisSettings->resetFrameOrigin( "Jupiter" );
 
     SystemOfBodies bodies = createSystemOfBodies( bodySettings );
-    
+
 
     std::shared_ptr< SynchronousRotationModelSettings > synchronousRotationSettings
             = std::dynamic_pointer_cast< SynchronousRotationModelSettings >( bodySettings.at( "Europa" )->rotationModelSettings );
@@ -1160,7 +1394,7 @@ BOOST_AUTO_TEST_CASE( test_synchronousRotationModelSetup )
 
 
 
-#if TUDAT_BUILD_WITH_SOFA_INTERFACE
+//#if TUDAT_BUILD_WITH_SOFA_INTERFACE
 //! Test set up of GCRS<->ITRS rotation model
 BOOST_AUTO_TEST_CASE( test_earthRotationModelSetup )
 {
@@ -1217,60 +1451,339 @@ BOOST_AUTO_TEST_CASE( test_earthRotationModelSetup )
         }
     }
 }
-#endif
 
 
-//! Test set up of radiation pressure interfacel environment models.
-BOOST_AUTO_TEST_CASE( test_radiationPressureInterfaceSetup )
+BOOST_AUTO_TEST_CASE( test_radiationSourceModelSetup_IsotropicPoint )
 {
-    // Load Spice kernels
     spice_interface::loadStandardSpiceKernels( );
 
-    // Define body settings.
     BodyListSettings bodySettings;
-    bodySettings.addSettings( getDefaultSingleBodySettings( "Earth", 0.0, 1.0E7 ), "Earth" );
-    bodySettings.addSettings( getDefaultSingleBodySettings( "Sun", 0.0, 1.0E7 ), "Sun" );
+    bodySettings.addSettings( getDefaultSingleBodySettings("Sun", 0.0, 86400.0 ), "Sun" );
 
-    // Get settings for vehicle
-    double area = 2.34;
-    double coefficient = 1.2;
-    Eigen::Vector6d initialKeplerElements =
-            ( Eigen::Vector6d( ) << 12000.0E3, 0.13, 0.3, 0.0, 0.0, 0.0 ).finished( );
-    bodySettings.addSettings( "Vehicle" );
-    bodySettings.at( "Vehicle" )->radiationPressureSettings[ "Sun" ] =
-            std::make_shared< CannonBallRadiationPressureInterfaceSettings >( "Sun", area, coefficient );
-    bodySettings.at( "Vehicle" )->ephemerisSettings =
-            std::make_shared< KeplerEphemerisSettings >(
-                initialKeplerElements,
-                0.0, spice_interface::getBodyGravitationalParameter( "Earth" ), "Earth", "ECLIPJ2000" );
-
-    // Create bodies
     SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+
+    const auto expectedLuminosity = 42;
+
+    auto isotropicPointSourceWithConstantLuminosityModelSettings =
+            isotropicPointRadiationSourceModelSettings(
+                    constantLuminosityModelSettings(expectedLuminosity));
+    auto isotropicPointSourceWithConstantLuminosityModel =
+            std::dynamic_pointer_cast<electromagnetism::IsotropicPointRadiationSourceModel>(
+                    createRadiationSourceModel(
+                            isotropicPointSourceWithConstantLuminosityModelSettings, "Sun", bodies));
+
+    const auto actualLuminosity =
+            isotropicPointSourceWithConstantLuminosityModel->getLuminosityModel()->getLuminosity();
+
+    BOOST_CHECK_EQUAL(actualLuminosity, expectedLuminosity);
+}
+
+BOOST_AUTO_TEST_CASE( test_radiationSourceModelSetup_Extended )
+{
+    spice_interface::loadStandardSpiceKernels( );
+
+    auto bodySettings = getDefaultBodySettings({"Sun", "Earth", "Moon"});
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+
+    bodies.at( "Earth" )->setStateFromEphemeris( 0.0 );
+    bodies.at( "Moon" )->setStateFromEphemeris( 0.0 );
+    bodies.at( "Sun" )->setStateFromEphemeris( 0.0 );
+    bodies.at( "Earth" )->setCurrentRotationalStateToLocalFrame(
+            bodies.at( "Earth" )->getRotationalEphemeris( )->getRotationStateVector( 0.0 ) );
+
+    const auto expectedOriginalSourceName = "Sun";
+    const std::vector<int> expectedNumberOfPanelsPerRing {42, 34};
+    const auto expectedNumberOfTotalPanels = 1 + 42 + 34;
+    const auto expectedNumberOfRadiosityModels = 4;
+    const auto expectedConstantRadiosity = 420;
+    const auto expectedAlbedo = 0.42;
+    const auto expectedEmissivity = 0.32;
+    const auto expectedMinTemperature = 100;
+    const auto expectedMaxTemperature = 200;
+    const std::vector<std::string> expectedOccultingBodies {"Moon"};
+
+    auto extendedSourceModelSettings =
+            extendedRadiationSourceModelSettings(
+                    {
+                            constantPanelRadiosityModelSettings(expectedConstantRadiosity),
+                            albedoPanelRadiosityModelSettings(expectedAlbedo, expectedOriginalSourceName),
+                            delayedThermalPanelRadiosityModelSettings(expectedEmissivity, expectedOriginalSourceName),
+                            angleBasedThermalPanelRadiosityModelSettings(
+                                    expectedMinTemperature, expectedMaxTemperature, expectedEmissivity, expectedOriginalSourceName)
+                    }, expectedNumberOfPanelsPerRing, expectedOccultingBodies);
+    auto extendedSourceModel =
+            std::dynamic_pointer_cast<electromagnetism::DynamicallyPaneledRadiationSourceModel>(
+                    createRadiationSourceModel(
+                            extendedSourceModelSettings, "Earth", bodies));
+    extendedSourceModel->updateMembers(TUDAT_NAN);
+    extendedSourceModel->evaluateIrradianceAtPosition(Eigen::Vector3d::UnitX()); // Actual values do not matter
+
+    BOOST_CHECK_EQUAL(extendedSourceModel->getPanels().size(), expectedNumberOfTotalPanels);
+
+    const auto& panel = extendedSourceModel->getPanels().front();
+
+    BOOST_CHECK_EQUAL(panel.getRadiosityModels().size(), expectedNumberOfRadiosityModels);
+
+    const auto constantModel =
+            dynamic_cast<electromagnetism::ConstantSourcePanelRadiosityModel&>(*panel.getRadiosityModels()[0]);
+    const auto albedoModel =
+            dynamic_cast<electromagnetism::AlbedoSourcePanelRadiosityModel&>(*panel.getRadiosityModels()[1]);
+    const auto reflectionLaw = albedoModel.getReflectionLaw();
+    const auto delayedThermalModel =
+            dynamic_cast<electromagnetism::DelayedThermalSourcePanelRadiosityModel&>(*panel.getRadiosityModels()[2]);
+    const auto angleBasedThermalModel =
+            dynamic_cast<electromagnetism::AngleBasedThermalSourcePanelRadiosityModel&>(*panel.getRadiosityModels()[3]);
+
+
+    const auto actualAlbedoOriginalSourceName = albedoModel.getOriginalSourceName();
+    const auto actualDelayedThermalOriginalSourceName = delayedThermalModel.getOriginalSourceName();
+    const auto actualAngleBasedOriginalSourceName = angleBasedThermalModel.getOriginalSourceName();
+    const auto actualNumberOfPanels = extendedSourceModel->getNumberOfPanels();
+    const auto actualConstantRadiosity = constantModel.getConstantRadiosity();
+    const auto actualAlbedo = reflectionLaw->getDiffuseReflectivity();
+    const auto actualEmissivityDelayed = delayedThermalModel.getEmissivity();
+    const auto actualEmissivityAngleBased = angleBasedThermalModel.getEmissivity();
+    const auto actualMinTemperature = angleBasedThermalModel.getMinTemperature();
+    const auto actualMaxTemperature = angleBasedThermalModel.getMaxTemperature();
+
+    const auto actualOccultingBodies =
+            extendedSourceModel->getSourcePanelRadiosityModelUpdater()->getOriginalSourceToSourceOccultingBodyNames();
+
+    BOOST_CHECK_EQUAL(actualAlbedoOriginalSourceName, expectedOriginalSourceName);
+    BOOST_CHECK_EQUAL(actualDelayedThermalOriginalSourceName, expectedOriginalSourceName);
+    BOOST_CHECK_EQUAL(actualAngleBasedOriginalSourceName, expectedOriginalSourceName);
+    BOOST_CHECK_EQUAL(actualNumberOfPanels, expectedNumberOfTotalPanels);
+    BOOST_CHECK_EQUAL(actualConstantRadiosity, expectedConstantRadiosity);
+    BOOST_CHECK_EQUAL(actualAlbedo, expectedAlbedo);
+    BOOST_CHECK_EQUAL(actualEmissivityDelayed, expectedEmissivity);
+    BOOST_CHECK_EQUAL(actualEmissivityAngleBased, expectedEmissivity);
+    BOOST_CHECK_EQUAL(actualMinTemperature, expectedMinTemperature);
+    BOOST_CHECK_EQUAL(actualMaxTemperature, expectedMaxTemperature);
+//    BOOST_CHECK_EQUAL_COLLECTIONS(
+//        actualOccultingBodies.begin(), actualOccultingBodies.end(),
+//        expectedOccultingBodies.begin(), expectedOccultingBodies.end());
+}
+
+BOOST_AUTO_TEST_CASE( test_surfacePropertyDistributionSetup_SphericalHarmonics_DLAM1 )
+{
+    using namespace tudat::electromagnetism;
+
+    auto surfacePropertyDistributionSettings = sphericalHarmonicsSurfacePropertyDistributionSettings(
+            SphericalHarmonicsSurfacePropertyDistributionModel::albedo_dlam1);
+    auto surfacePropertyDistribution =
+            std::dynamic_pointer_cast<SphericalHarmonicsSurfacePropertyDistribution>(
+                    createSurfacePropertyDistribution(surfacePropertyDistributionSettings, ""));
+
+    BOOST_CHECK(surfacePropertyDistribution->getMaximumDegree() == 15);
+    BOOST_CHECK(surfacePropertyDistribution->getMaximumOrder() == 15);
+
+    const auto expectedCosCoeff = -4.041203307692307e-08;
+    const auto actualCosCoeff = surfacePropertyDistribution->getCosineCoefficients()(7, 6);
+    BOOST_CHECK_CLOSE(actualCosCoeff, expectedCosCoeff, 2e-15);
     
+    const auto expectedSinCoeff = -4.987361846153846e-06;
+    const auto actualSinCoeff = surfacePropertyDistribution->getSineCoefficients()(10, 3);
+    BOOST_CHECK_CLOSE(actualSinCoeff, expectedSinCoeff, 2e-15);
 
-    BOOST_CHECK_EQUAL( bodies.at( "Vehicle" )->getRadiationPressureInterfaces( ).size( ), 1 );
-    BOOST_CHECK_EQUAL( bodies.at( "Vehicle" )->getRadiationPressureInterfaces( ).count( "Sun" ), 1 );
+    const auto expectedValue1 = 0.11846922315451458;
+    const auto actualValue1 = surfacePropertyDistribution->getValue(0.7, 0.42);
+    BOOST_CHECK_CLOSE(actualValue1, expectedValue1, 2e-13);
 
-    double testTime = 0.5E7;
+    const auto expectedValue2 = 0.15772976227190455;
+    const auto actualValue2 = surfacePropertyDistribution->getValue(-1.5, 0.9);
+    BOOST_CHECK_CLOSE(actualValue2, expectedValue2, 2e-13);
+}
 
-    // Update environment to current time.
-    bodies.at( "Sun" )->setStateFromEphemeris< double, double >( testTime );
-    bodies.at( "Earth" )->setStateFromEphemeris< double, double >( testTime );
-    bodies.at( "Vehicle" )->setStateFromEphemeris< double, double >( testTime );
+BOOST_AUTO_TEST_CASE( test_surfacePropertyDistributionSetup_SecondDegreeZonalPeriodic_KnockeAlbedo )
+{
+    using namespace tudat::electromagnetism;
 
-    std::shared_ptr< electromagnetism::RadiationPressureInterface > vehicleRadiationPressureInterface =
-            bodies.at( "Vehicle" )->getRadiationPressureInterfaces( ).at( "Sun" );
+    spice_interface::loadStandardSpiceKernels();
 
-    vehicleRadiationPressureInterface->updateInterface( testTime );
-    double sourceDistance = ( ( bodies.at( "Vehicle" )->getState( ) -  bodies.at( "Sun" )->getState( ) ).
-                              segment( 0, 3 ) ).norm( );
-    double expectedRadiationPressure = electromagnetism::calculateRadiationPressure(
-                defaultRadiatedPowerValues.at( "Sun" ), sourceDistance );
+    auto surfacePropertyDistributionSettings = secondDegreeZonalPeriodicSurfacePropertyDistributionSettings(
+            KnockeTypeSurfacePropertyDistributionModel::albedo_knocke);
+    auto surfacePropertyDistribution =
+            std::dynamic_pointer_cast<SecondDegreeZonalPeriodicSurfacePropertyDistribution>(
+                    createSurfacePropertyDistribution(surfacePropertyDistributionSettings, ""));
 
-    BOOST_CHECK_CLOSE_FRACTION( expectedRadiationPressure,
-                                vehicleRadiationPressureInterface->getCurrentRadiationPressure( ),
-                                std::numeric_limits< double >::epsilon( ) );
+    // Identical values to testSecondDegreeZonalPeriodicSurfacePropertyDistribution_Albedo in unitTestSurfacePropertyDistribution
+    surfacePropertyDistribution->updateMembers(spice_interface::convertDateStringToEphemerisTime("2005 AUG 19 13:46:17"));
+    double actualValue = surfacePropertyDistribution->getValue(unit_conversions::convertDegreesToRadians(29.73));
+    BOOST_CHECK_CLOSE(actualValue, 0.2752338314886392, 1e-13);
 
+    surfacePropertyDistribution->updateMembers(spice_interface::convertDateStringToEphemerisTime("2012 DEC 21 17:26:17"));
+    actualValue = surfacePropertyDistribution->getValue(unit_conversions::convertDegreesToRadians(81.43));
+    BOOST_CHECK_CLOSE(actualValue, 0.7192237282075249, 1e-13);
+}
+
+BOOST_AUTO_TEST_CASE( test_surfacePropertyDistributionSetup_SecondDegreeZonalPeriodic_KnockeEmissivity )
+{
+    using namespace tudat::electromagnetism;
+
+    spice_interface::loadStandardSpiceKernels();
+
+    auto surfacePropertyDistributionSettings = secondDegreeZonalPeriodicSurfacePropertyDistributionSettings(
+            KnockeTypeSurfacePropertyDistributionModel::emissivity_knocke);
+    auto surfacePropertyDistribution =
+            std::dynamic_pointer_cast<SecondDegreeZonalPeriodicSurfacePropertyDistribution>(
+                    createSurfacePropertyDistribution(surfacePropertyDistributionSettings, ""));
+
+    // Identical values to testSecondDegreeZonalPeriodicSurfacePropertyDistribution_Emissivity in unitTestSurfacePropertyDistribution
+    surfacePropertyDistribution->updateMembers(spice_interface::convertDateStringToEphemerisTime("2005 AUG 19 13:46:17"));
+    double actualValue = surfacePropertyDistribution->getValue(unit_conversions::convertDegreesToRadians(29.73));
+    BOOST_CHECK_CLOSE(actualValue, 0.7223209069278839, 1e-13);
+
+    surfacePropertyDistribution->updateMembers(spice_interface::convertDateStringToEphemerisTime("2012 DEC 21 17:26:17"));
+    actualValue = surfacePropertyDistribution->getValue(unit_conversions::convertDegreesToRadians(81.43));
+    BOOST_CHECK_CLOSE(actualValue, 0.4367772746818569, 1e-13);
+}
+
+BOOST_AUTO_TEST_CASE( test_radiationPressureTargetModelSetup_CannonballTarget )
+{
+    const auto expectedArea = 42;
+    const auto expectedCoefficient = 1.42;
+    const std::vector<std::string> expectedOccultingBodies {"Moon"};
+    const std::map<std::string, std::vector<std::string>> expectedOccultingBodiesMap {{"", {"Moon"}}};
+
+    auto cannonballRadiationPressureTargetSettings =
+            cannonballRadiationPressureTargetModelSettings(expectedArea, expectedCoefficient, expectedOccultingBodies);
+    auto cannonballRadiationPressureTarget =
+            std::dynamic_pointer_cast<electromagnetism::CannonballRadiationPressureTargetModel>(
+                    createRadiationPressureTargetModel(
+                            cannonballRadiationPressureTargetSettings, "Vehicle", SystemOfBodies( ) ).at( 0 ) );
+
+    const auto actualArea = cannonballRadiationPressureTarget->getArea();
+    const auto actualCoefficient = cannonballRadiationPressureTarget->getCoefficient();
+    const auto actualOccultingBodiesMap = cannonballRadiationPressureTarget->getSourceToTargetOccultingBodies();
+    const auto actualOccultingBodies = actualOccultingBodiesMap.at("");
+
+    BOOST_CHECK_EQUAL(actualArea, expectedArea);
+    BOOST_CHECK_EQUAL(actualCoefficient, expectedCoefficient);
+    BOOST_CHECK_EQUAL(actualOccultingBodiesMap.size(), 1);
+    BOOST_CHECK_EQUAL_COLLECTIONS(
+        actualOccultingBodies.begin(), actualOccultingBodies.end(),
+        expectedOccultingBodies.begin(), expectedOccultingBodies.end());
+}
+
+BOOST_AUTO_TEST_CASE( test_radiationPressureTargetModelSetup_PaneledTarget )
+{
+    const auto expectedAreaPanel1 = 42;
+    const auto expectedAreaPanel2 = 43;
+    const auto expectedSpecularReflectivityPanel1 = 0.1;
+    const auto expectedSpecularReflectivityPanel2 = 0.2;
+    const auto expectedDiffuseReflectivityPanel1 = 0.3;
+    const auto expectedDiffuseReflectivityPanel2 = 0.4;
+    const auto expectedAbsorptivityPanel1 = 0.6;
+    const auto expectedAbsorptivityPanel2 = 0.4;
+    const auto expectedWithInstantaneousReradiationPanel1 = true;
+    const auto expectedWithInstantaneousReradiationPanel2 = false;
+    const Eigen::Vector3d expectedSurfaceNormalPanel1 = Eigen::Vector3d::UnitX();
+    const Eigen::Vector3d expectedSurfaceNormalPanel2 = Eigen::Vector3d::UnitY();
+    const Eigen::Vector3d expectedSurfaceNormalPanel3 = Eigen::Vector3d(-1, -1, 0).normalized(); // towards Sun
+    const Eigen::Vector3d expectedSurfaceNormalPanel4 = Eigen::Vector3d(1, 1, 0).normalized(); // away from Sun
+
+    spice_interface::loadStandardSpiceKernels( );
+
+    BodyListSettings bodySettings("Sun");
+    bodySettings.addSettings( getDefaultSingleBodySettings("Sun", 0.0, 86400.0 ), "Sun" );
+    bodySettings.addSettings("Vehicle");
+    bodySettings.at("Vehicle")->rotationModelSettings = constantRotationModelSettings(
+            "ECLIPJ2000", "VehicleFixed", Eigen::Quaterniond::Identity());
+    bodySettings.at("Vehicle")->ephemerisSettings = constantEphemerisSettings(
+            (Eigen::Vector6d() << 1, 1, 0, 0, 0, 0).finished().normalized() * physical_constants::ASTRONOMICAL_UNIT,
+            "Sun");
+
+    std::vector< std::shared_ptr< BodyPanelSettings > > panelSettingsList = {
+        std::make_shared< BodyPanelSettings >(
+            std::make_shared< FrameFixedBodyPanelGeometrySettings >(
+                expectedSurfaceNormalPanel1, expectedAreaPanel1 ),
+            std::make_shared< SpecularDiffuseBodyPanelReflectionLawSettings >(
+                expectedSpecularReflectivityPanel1, expectedDiffuseReflectivityPanel1, expectedWithInstantaneousReradiationPanel1 ) ),
+        std::make_shared< BodyPanelSettings >(
+            std::make_shared< FrameFixedBodyPanelGeometrySettings >(
+                2.0 * expectedSurfaceNormalPanel2, expectedAreaPanel2 ),
+            std::make_shared< SpecularDiffuseBodyPanelReflectionLawSettings >(
+                expectedSpecularReflectivityPanel2, expectedDiffuseReflectivityPanel2, expectedWithInstantaneousReradiationPanel2 ) ),
+        std::make_shared< BodyPanelSettings >(
+            std::make_shared< FrameVariableBodyPanelGeometrySettings >(
+                "Sun", true, expectedAreaPanel2 ),
+            std::make_shared< SpecularDiffuseBodyPanelReflectionLawSettings >(
+                expectedSpecularReflectivityPanel2, expectedDiffuseReflectivityPanel2, expectedWithInstantaneousReradiationPanel2 ) ),
+        std::make_shared< BodyPanelSettings >(
+            std::make_shared< FrameVariableBodyPanelGeometrySettings >(
+                "Sun", false, expectedAreaPanel2 ),
+            std::make_shared< SpecularDiffuseBodyPanelReflectionLawSettings >(
+                expectedSpecularReflectivityPanel2, expectedDiffuseReflectivityPanel2, expectedWithInstantaneousReradiationPanel2 ) )
+    };
+
+    bodySettings.at("Vehicle")->bodyExteriorPanelSettings_ = std::make_shared< FullPanelledBodySettings >( panelSettingsList );
+
+    const auto bodies = createSystemOfBodies(bodySettings);
+
+    auto paneledRadiationPressureTargetSettings =
+        std::make_shared< RadiationPressureTargetModelSettings >( paneled_target );
+//            paneledRadiationPressureTargetModelSettings({
+//                    TargetPanelSettings(
+//                            expectedAreaPanel1,
+//                            expectedSpecularReflectivityPanel1,
+//                            expectedDiffuseReflectivityPanel1,
+//                            expectedWithInstantaneousReradiationPanel1,
+//                            expectedSurfaceNormalPanel1),
+//                    TargetPanelSettings(
+//                            expectedAreaPanel2,
+//                            expectedSpecularReflectivityPanel2,
+//                            expectedDiffuseReflectivityPanel2,
+//                            expectedWithInstantaneousReradiationPanel2,
+//                            2 * expectedSurfaceNormalPanel2), // setup should normalize this vector
+//                    TargetPanelSettings(
+//                            expectedAreaPanel2,
+//                            expectedSpecularReflectivityPanel2,
+//                            expectedDiffuseReflectivityPanel2,
+//                            expectedWithInstantaneousReradiationPanel2,
+//                            "Sun"), // towards Sun
+//                    TargetPanelSettings(
+//                            expectedAreaPanel2,
+//                            expectedSpecularReflectivityPanel2,
+//                            expectedDiffuseReflectivityPanel2,
+//                            expectedWithInstantaneousReradiationPanel2,
+//                            "Sun", // away from Sun
+//                            false)});
+
+    std::shared_ptr<electromagnetism::PaneledRadiationPressureTargetModel> paneledRadiationPressureTarget =
+            std::dynamic_pointer_cast<electromagnetism::PaneledRadiationPressureTargetModel>(
+                    createRadiationPressureTargetModel(
+                            paneledRadiationPressureTargetSettings, "Vehicle", bodies ).at( 0 ) );
+
+    bodies.at( "Sun" )->setStateFromEphemeris( 0. );
+    bodies.at( "Vehicle" )->setStateFromEphemeris( 0. );
+    bodies.at( "Vehicle" )->setCurrentRotationToLocalFrameFromEphemeris( 0. );
+    paneledRadiationPressureTarget->updateMembers( 0. );
+
+    BOOST_CHECK_EQUAL(paneledRadiationPressureTarget->getBodyFixedPanels().size(), 4);
+
+    const auto panel1 = paneledRadiationPressureTarget->getBodyFixedPanels()[0];
+    const auto panel2 = paneledRadiationPressureTarget->getBodyFixedPanels()[1];
+    const auto panel3 = paneledRadiationPressureTarget->getBodyFixedPanels()[2];
+    const auto panel4 = paneledRadiationPressureTarget->getBodyFixedPanels()[3];
+    const auto panel1ReflectionLaw =
+            std::dynamic_pointer_cast<electromagnetism::SpecularDiffuseMixReflectionLaw>(panel1->getReflectionLaw());
+    const auto panel2ReflectionLaw =
+            std::dynamic_pointer_cast<electromagnetism::SpecularDiffuseMixReflectionLaw>(panel2->getReflectionLaw());
+
+    BOOST_CHECK_CLOSE(panel1->getPanelArea(), expectedAreaPanel1, 1e-10);
+    BOOST_CHECK_CLOSE(panel2->getPanelArea(), expectedAreaPanel2, 1e-10);
+    BOOST_CHECK_CLOSE(panel1ReflectionLaw->getSpecularReflectivity(), expectedSpecularReflectivityPanel1, 1e-10);
+    BOOST_CHECK_CLOSE(panel2ReflectionLaw->getSpecularReflectivity(), expectedSpecularReflectivityPanel2, 1e-10);
+    BOOST_CHECK_CLOSE(panel1ReflectionLaw->getDiffuseReflectivity(), expectedDiffuseReflectivityPanel1, 1e-10);
+    BOOST_CHECK_CLOSE(panel2ReflectionLaw->getDiffuseReflectivity(), expectedDiffuseReflectivityPanel2, 1e-10);
+    BOOST_CHECK_CLOSE(panel1ReflectionLaw->getAbsorptivity(), expectedAbsorptivityPanel1, 1e-10);
+    BOOST_CHECK_CLOSE(panel2ReflectionLaw->getAbsorptivity(), expectedAbsorptivityPanel2, 1e-10);
+    BOOST_CHECK(panel1ReflectionLaw->isWithInstantaneousReradiation() == expectedWithInstantaneousReradiationPanel1);
+    BOOST_CHECK(panel2ReflectionLaw->isWithInstantaneousReradiation() == expectedWithInstantaneousReradiationPanel2);
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(panel1->getFrameFixedSurfaceNormal( )( ), expectedSurfaceNormalPanel1, 1e-10);
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(panel2->getFrameFixedSurfaceNormal( )( ), expectedSurfaceNormalPanel2, 1e-10);
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(panel3->getFrameFixedSurfaceNormal( )( ), expectedSurfaceNormalPanel3, 1e-10);
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(panel4->getFrameFixedSurfaceNormal( )( ), expectedSurfaceNormalPanel4, 1e-10);
 }
 
 
@@ -1314,6 +1827,117 @@ BOOST_AUTO_TEST_CASE( test_shapeModelSetup )
                                     std::numeric_limits< double >::epsilon( ) );
     }
 
+    // Test polyhedron setup
+    {
+        // Define cuboid polyhedron
+        const double w = 10.0; // width
+        const double h = 10.0; // height
+        const double l = 20.0; // length
+
+        Eigen::MatrixXd verticesCoordinates(8,3);
+        Eigen::MatrixXi verticesDefiningEachFacet(12,3);
+        verticesCoordinates <<
+            0.0, 0.0, 0.0,
+            l, 0.0, 0.0,
+            0.0, w, 0.0,
+            l, w, 0.0,
+            0.0, 0.0, h,
+            l, 0.0, h,
+            0.0, w, h,
+            l, w, h;
+        verticesDefiningEachFacet <<
+            2, 1, 0,
+            1, 2, 3,
+            4, 2, 0,
+            2, 4, 6,
+            1, 4, 0,
+            4, 1, 5,
+            6, 5, 7,
+            5, 6, 4,
+            3, 6, 7,
+            6, 3, 2,
+            5, 3, 7,
+            3, 5, 1;
+
+        std::shared_ptr< BodyShapeSettings > shapeSettings = std::make_shared< PolyhedronBodyShapeSettings >(
+                verticesCoordinates, verticesDefiningEachFacet, false, false);
+        std::shared_ptr< BodyShapeModel > shapeModel = createBodyShapeModel( shapeSettings, "Earth" );
+
+        Eigen::Vector3d testCartesianPosition2;
+        testCartesianPosition2 << 10.0, 5.0, 10.5;
+        BOOST_CHECK_CLOSE_FRACTION( shapeModel->getAltitude( testCartesianPosition2 ), 0.5, 1e-15 );
+    }
+
+    // Test hybrid shape model setup
+    {
+        // Define switchover altitude
+        const double switchoverAltitude = 5.0;
+
+        // Define high- and low-resolution cuboid polyhedron (they just have different sizes)
+        const double wLowRes = 10.0; // width
+        const double hLowRes = 10.0; // height
+        const double lLowRes = 20.0; // length
+        Eigen::MatrixXd verticesCoordinatesLowResModel( 8, 3);
+        verticesCoordinatesLowResModel <<
+            0.0, 0.0, 0.0,
+            lLowRes, 0.0, 0.0,
+            0.0, wLowRes, 0.0,
+            lLowRes, wLowRes, 0.0,
+            0.0, 0.0, hLowRes,
+            lLowRes, 0.0, hLowRes,
+            0.0, wLowRes, hLowRes,
+            lLowRes, wLowRes, hLowRes;
+
+        const double wHighRes = 5.0; // width
+        const double hHighRes = 5.0; // height
+        const double lHighRes = 10.0; // length
+        Eigen::MatrixXd verticesCoordinatesHighResModel( 8, 3);
+        verticesCoordinatesHighResModel <<
+            0.0, 0.0, 0.0,
+            lHighRes, 0.0, 0.0,
+            0.0, wHighRes, 0.0,
+            lHighRes, wHighRes, 0.0,
+            0.0, 0.0, hHighRes,
+            lHighRes, 0.0, hHighRes,
+            0.0, wHighRes, hHighRes,
+            lHighRes, wHighRes, hHighRes;
+
+        Eigen::MatrixXi verticesDefiningEachFacet(12,3);
+        verticesDefiningEachFacet <<
+            2, 1, 0,
+            1, 2, 3,
+            4, 2, 0,
+            2, 4, 6,
+            1, 4, 0,
+            4, 1, 5,
+            6, 5, 7,
+            5, 6, 4,
+            3, 6, 7,
+            6, 3, 2,
+            5, 3, 7,
+            3, 5, 1;
+
+
+        std::shared_ptr< BodyShapeSettings > lowResolutionShapeSettings = std::make_shared< PolyhedronBodyShapeSettings >(
+                verticesCoordinatesLowResModel, verticesDefiningEachFacet, false, false );
+        std::shared_ptr< BodyShapeSettings > highResolutionShapeSettings = std::make_shared< PolyhedronBodyShapeSettings >(
+                verticesCoordinatesHighResModel, verticesDefiningEachFacet, false, false );
+
+        std::shared_ptr< BodyShapeSettings > shapeSettings = std::make_shared< HybridBodyShapeSettings >(
+                lowResolutionShapeSettings, highResolutionShapeSettings, switchoverAltitude);
+
+        std::shared_ptr< BodyShapeModel > shapeModel = createBodyShapeModel( shapeSettings, "Earth" );
+
+        // Point above switchover altitude: altitude computed wrt low-resolution shape model
+        Eigen::Vector3d testCartesianPosition2;
+        testCartesianPosition2 << 5.0, 2.5, 20.0;
+        BOOST_CHECK_CLOSE_FRACTION( shapeModel->getAltitude( testCartesianPosition2 ), 10.0, 1e-15 );
+
+        // Point below switchover altitude: altitude computed wrt high-resolution shape model
+        testCartesianPosition2 << 5.0, 2.5, 12.0;
+        BOOST_CHECK_CLOSE_FRACTION( shapeModel->getAltitude( testCartesianPosition2 ), 7.0, 1e-15 );
+    }
+
 }
 
 
@@ -1331,13 +1955,15 @@ BOOST_AUTO_TEST_CASE( test_flightConditionsSetup )
     bodySettings.addSettings( "Vehicle" );
     bodySettings.at( "Vehicle" ) ->aerodynamicCoefficientSettings =
             std::make_shared< ConstantAerodynamicCoefficientSettings >(
-                1.0, 2.0, 3.0, Eigen::Vector3d::Zero( ),
+                1.0, 2.0, Eigen::Vector3d::Zero( ),
                 ( Eigen::Vector3d( ) << -1.1, 0.1, 2.3 ).finished( ),
-                Eigen::Vector3d::Zero( ), 1, 1 );
+                Eigen::Vector3d::Zero( ),
+                negative_aerodynamic_frame_coefficients, negative_aerodynamic_frame_coefficients );
 
     // Create bodies
     SystemOfBodies bodies = createSystemOfBodies( bodySettings );
-    
+
+
 
     // Define expected aerodynamic angles (see testAerodynamicAngleCalculator)
     double testHeadingAngle = 1.229357188236127;
@@ -1352,10 +1978,19 @@ BOOST_AUTO_TEST_CASE( test_flightConditionsSetup )
     // Create flight conditions object.
     std::shared_ptr< aerodynamics::FlightConditions > vehicleFlightConditions =
             createAtmosphericFlightConditions( bodies.at( "Vehicle" ), bodies.at( "Earth" ),
-                                               "Vehicle", "Earth",
-                                               [ & ]( ){ return angleOfAttack; },
-    [ & ]( ){ return angleOfSideslip; },
-    [ & ]( ){ return bankAngle; } );
+                                               "Vehicle", "Earth" );
+    bodies.at( "Vehicle" )->setFlightConditions( vehicleFlightConditions );
+
+    std::shared_ptr< ephemerides::AerodynamicAngleRotationalEphemeris > vehicleRotationModel =
+            createAerodynamicAngleBasedRotationModel(
+                            "Vehicle", "Earth", bodies,
+                            "ECLIPJ2000", "VehicleFixed" );
+
+    vehicleRotationModel->setAerodynamicAngleFunction(
+                [=]( const double ){ return ( Eigen::Vector3d( ) << angleOfAttack, angleOfSideslip, bankAngle ).finished( ); } );
+    bodies.at( "Vehicle" )->setRotationalEphemeris( vehicleRotationModel );
+    vehicleRotationModel->setIsBodyInPropagation( true );
+
 
     // Set vehicle body-fixed state (see testAerodynamicAngleCalculator)
     Eigen::Vector6d vehicleBodyFixedState =
@@ -1415,122 +2050,6 @@ BOOST_AUTO_TEST_CASE( test_flightConditionsSetup )
 }
 
 
-//! Test set up of solar sailing radiation pressure interface environment models.
-BOOST_AUTO_TEST_CASE( test_solarSailingRadiationPressureInterfaceSetup )
-{
-
-    // Load Spice kernels
-    spice_interface::loadStandardSpiceKernels( );
-
-    // Define body settings.
-    BodyListSettings bodySettings;
-    bodySettings.addSettings( getDefaultSingleBodySettings( "Earth", 0.0, 1.0E7 ), "Earth" );
-    bodySettings.addSettings( getDefaultSingleBodySettings( "Sun", 0.0, 1.0E7 ), "Sun" );
-
-    // Get settings for vehicle
-    Eigen::Vector6d initialKeplerElements =
-            ( Eigen::Vector6d( ) << 12000.0E3, 0.13, 0.3, 0.0, 0.0, 0.0 ).finished( );
-    bodySettings.addSettings( "Vehicle" );
-    bodySettings.at( "Vehicle" )->ephemerisSettings = std::make_shared< KeplerEphemerisSettings >(
-                initialKeplerElements, 0.0, spice_interface::getBodyGravitationalParameter( "Earth" ), "Earth", "ECLIPJ2000" );
-
-
-    // Define area subject to radiation pressure [m^2].
-    double area = 2.0;
-
-    // Set cone angle of the solar sail [rad].
-    double coneAngle = 0.25;
-
-    // Get cone angle of the solar sail [rad].
-    std::function< double( const double ) > coneAngleFunction
-            = [ = ]( const double ){ return coneAngle; };
-
-    // Define clock angle of the solar sail [rad].
-    double clockAngle = 0.2;
-
-    // Get clock angle of the solar sail [rad].
-    std::function< double( const double ) > clockAngleFunction
-            = [ = ]( const double ){ return clockAngle; };
-
-    // Define front emissivity coefficient of the solar sail [-].
-    double frontEmissivityCoefficient = 0.4;
-
-    // Define back emissivity coefficient of the solar sail [-].
-    double backEmissivityCoefficient = 0.4;
-
-    // Define front Lambertian coefficient of the solar sail [-].
-    double frontLambertianCoefficient = 0.4;
-
-    // Define back Lambertian coefficient of the solar sail [-].
-    double backLambertianCoefficient = 0.4;
-
-    // Define reflectivity coefficient of the solar sail [-].
-    double reflectivityCoefficient = 0.3;
-
-    // Define specular reflection coefficient of the solar sail [-].
-    double specularReflectionCoefficient = 1.0;
-
-    // Define central body.
-    std::string centralBody = "Earth";
-
-    // Create radiation pressure interface settings.
-    std::shared_ptr< SolarSailRadiationInterfaceSettings > radiationPressureInterfaceSettings =
-            std::make_shared< SolarSailRadiationInterfaceSettings >(
-                "Sun", area, coneAngleFunction, clockAngleFunction, frontEmissivityCoefficient, backEmissivityCoefficient, frontLambertianCoefficient,
-                backLambertianCoefficient, reflectivityCoefficient, specularReflectionCoefficient, std::vector< std::string >( ),
-                centralBody );
-
-    bodySettings.at( "Vehicle" )->radiationPressureSettings[ "Sun" ] = radiationPressureInterfaceSettings;
-
-    // Create bodies
-    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
-    
-
-    BOOST_CHECK_EQUAL( bodies.at( "Vehicle" )->getRadiationPressureInterfaces( ).size( ), 1 );
-    BOOST_CHECK_EQUAL( bodies.at( "Vehicle" )->getRadiationPressureInterfaces( ).count( "Sun" ), 1 );
-
-    double testTime = 0.5E7;
-
-    // Update environment to current time.
-    bodies.at( "Sun" )->setStateFromEphemeris< double, double >( testTime );
-    bodies.at( "Earth" )->setStateFromEphemeris< double, double >( testTime );
-    bodies.at( "Vehicle" )->setStateFromEphemeris< double, double >( testTime );
-
-
-    std::shared_ptr< electromagnetism::RadiationPressureInterface > vehicleRadiationPressureInterface =
-            bodies.at( "Vehicle" )->getRadiationPressureInterfaces( ).at( "Sun" );
-
-    // Compute expected radiation pressure.
-    vehicleRadiationPressureInterface->updateInterface( testTime );
-    double sourceDistance = ( ( bodies.at( "Vehicle" )->getState( ) -  bodies.at( "Sun" )->getState( ) ).
-                              segment( 0, 3 ) ).norm( );
-
-    double expectedRadiationPressure = electromagnetism::calculateRadiationPressure(
-                defaultRadiatedPowerValues.at( "Sun" ), sourceDistance );
-
-    BOOST_CHECK_CLOSE_FRACTION( expectedRadiationPressure,
-                                vehicleRadiationPressureInterface->getCurrentRadiationPressure( ),
-                                std::numeric_limits< double >::epsilon( ) );
-
-    std::shared_ptr< electromagnetism::SolarSailingRadiationPressureInterface > vehicleSolarSailingRadiationPressureInterface
-            = std::dynamic_pointer_cast< electromagnetism::SolarSailingRadiationPressureInterface > ( vehicleRadiationPressureInterface );
-
-    for ( int i = 0 ; i < 3 ; i++ )
-    {
-        BOOST_CHECK_SMALL( std::fabs( vehicleSolarSailingRadiationPressureInterface->getCentralBodyVelocity( )( )[ i ] -
-                                      bodies.at( "Earth" )->getState()[ i + 3 ] ), 1.0E-15 );
-
-        BOOST_CHECK_SMALL( std::fabs( vehicleSolarSailingRadiationPressureInterface->getCurrentVelocityVector( )[ i ] -
-                                      ( bodies.at( "Vehicle" )->getState( ) - bodies.at( "Earth" )->getState( ) ).segment(3,3).normalized()[ i ] ), 1.0E-15 );
-
-        BOOST_CHECK_SMALL( std::fabs( vehicleSolarSailingRadiationPressureInterface->getCurrentSolarVector( )[ i ] -
-                                      ( - bodies.at( "Vehicle" )->getState( ) + bodies.at( "Sun" )->getState( ) ).segment(0,3)[ i ] ), 1.0E-15 );
-
-    }
-
-}
-
-
 BOOST_AUTO_TEST_CASE( test_groundStationCreation )
 {
     using namespace unit_conversions;
@@ -1561,7 +2080,7 @@ BOOST_AUTO_TEST_CASE( test_groundStationCreation )
     // Create bodies
     SystemOfBodies bodies = createSystemOfBodies( bodySettings );
 
-    
+
 
     BOOST_CHECK_EQUAL( bodies.at( "Earth" )->getGroundStationMap( ).count( "Station1" ), 1 );
     BOOST_CHECK_EQUAL( bodies.at( "Earth" )->getGroundStationMap( ).count( "Station2" ), 1 );
@@ -1585,111 +2104,43 @@ BOOST_AUTO_TEST_CASE( test_groundStationCreation )
 
 
 
-//! Test set up of panelled radiation pressure interface environment models.
-BOOST_AUTO_TEST_CASE( test_panelledRadiationPressureInterfaceSetup )
+BOOST_AUTO_TEST_CASE( test_DefaultSettingsDifferentBody )
 {
 
-    // Load Spice kernels
-    spice_interface::loadStandardSpiceKernels( );
-
-    // Define body settings.
     BodyListSettings bodySettings;
-    bodySettings.addSettings( getDefaultSingleBodySettings( "Earth", 0.0, 1.0E7 ), "Earth" );
-    bodySettings.addSettings( getDefaultSingleBodySettings( "Sun", 0.0, 1.0E7 ), "Sun" );
-
-    // Get settings for vehicle
-    Eigen::Vector6d initialKeplerElements =
-            ( Eigen::Vector6d( ) << 12000.0E3, 0.13, 0.3, 0.0, 0.0, 0.0 ).finished( );
-    bodySettings.addSettings( "Vehicle" );
-    bodySettings.at( "Vehicle" )->ephemerisSettings = std::make_shared< KeplerEphemerisSettings >(
-                initialKeplerElements, 0.0, spice_interface::getBodyGravitationalParameter( "Earth" ), "Earth", "ECLIPJ2000" );
-
-
-    // Create radiation pressure properties
-    std::vector< double > areas;
-    areas.push_back( 4.0 );
-    areas.push_back( 6.0 );
-    areas.push_back( 2.3 );
-    areas.push_back( 2.3 );
-    areas.push_back( 5.3 );
-    areas.push_back( 2.7 );
-    areas.push_back( 4.1 );
-    areas.push_back( 2.7 );
-
-    std::vector< double > emissivities;
-    emissivities.push_back( 0.1 );
-    emissivities.push_back( 0.0 );
-    emissivities.push_back( 0.1 );
-    emissivities.push_back( 0.1 );
-    emissivities.push_back( 0.94 );
-    emissivities.push_back( 0.1 );
-    emissivities.push_back( 0.94 );
-    emissivities.push_back( 0.1 );
-
-    std::vector< double > diffuseReflectionCoefficients;
-    diffuseReflectionCoefficients.push_back( 0.46 );
-    diffuseReflectionCoefficients.push_back( 0.06 );
-    diffuseReflectionCoefficients.push_back( 0.46 );
-    diffuseReflectionCoefficients.push_back( 0.46 );
-    diffuseReflectionCoefficients.push_back( 0.06 );
-    diffuseReflectionCoefficients.push_back( 0.46 );
-    diffuseReflectionCoefficients.push_back( 0.06 );
-    diffuseReflectionCoefficients.push_back( 0.46 );
-
-    std::vector< Eigen::Vector3d > panelSurfaceNormals;
-    panelSurfaceNormals.push_back( Eigen::Vector3d::UnitZ( ) );
-    panelSurfaceNormals.push_back( - Eigen::Vector3d::UnitZ( ) );
-    panelSurfaceNormals.push_back( Eigen::Vector3d::UnitX( ) );
-    panelSurfaceNormals.push_back( - Eigen::Vector3d::UnitX( ) );
-    panelSurfaceNormals.push_back( Eigen::Vector3d::UnitY( ) );
-    panelSurfaceNormals.push_back( Eigen::Vector3d::UnitY( ) );
-    panelSurfaceNormals.push_back( - Eigen::Vector3d::UnitY( ) );
-    panelSurfaceNormals.push_back( - Eigen::Vector3d::UnitY( ) );
-
-
-
-    std::shared_ptr< PanelledRadiationPressureInterfaceSettings > radiationPressureInterfaceSettings =
-            std::make_shared< PanelledRadiationPressureInterfaceSettings >(
-                "Sun", emissivities, areas, diffuseReflectionCoefficients, panelSurfaceNormals );
-
-    bodySettings.at( "Vehicle" )->radiationPressureSettings[ "Sun" ] = radiationPressureInterfaceSettings;
-
+    bodySettings.addSettings( getDefaultSingleBodySettings( "Mars", "ECLIPJ2000" ), "Mars" );
+    bodySettings.addSettings( getDefaultSingleAlternateNameBodySettings( "Earth", "Mars", "ECLIPJ2000" ), "Earth" );
 
     // Create bodies
     SystemOfBodies bodies = createSystemOfBodies( bodySettings );
-    
 
-    BOOST_CHECK_EQUAL( bodies.at( "Vehicle" )->getRadiationPressureInterfaces( ).size( ), 1 );
-    BOOST_CHECK_EQUAL( bodies.at( "Vehicle" )->getRadiationPressureInterfaces( ).count( "Sun" ), 1 );
+    double testTime = 1.0E7;
 
-    double testTime = 0.5E7;
+    Eigen::Vector6d earthState = bodies.at( "Earth" )->getStateInBaseFrameFromEphemeris( testTime );
+    Eigen::Vector6d marsState = bodies.at( "Mars" )->getStateInBaseFrameFromEphemeris( testTime );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( earthState, marsState, std::numeric_limits< double >::epsilon( ) );
 
-    // Update environment to current time.
-    bodies.at( "Sun" )->setStateFromEphemeris< double, double >( testTime );
-    bodies.at( "Earth" )->setStateFromEphemeris< double, double >( testTime );
-    bodies.at( "Vehicle" )->setStateFromEphemeris< double, double >( testTime );
+    Eigen::Matrix3d earthRotation = bodies.at( "Earth" )->getRotationalEphemeris( )->getRotationMatrixToBaseFrame( testTime );
+    Eigen::Matrix3d marsRotation = bodies.at( "Mars" )->getRotationalEphemeris( )->getRotationMatrixToBaseFrame( testTime );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( earthRotation, marsRotation, std::numeric_limits< double >::epsilon( ) );
 
-
-    std::shared_ptr< electromagnetism::RadiationPressureInterface > vehicleRadiationPressureInterface =
-            bodies.at( "Vehicle" )->getRadiationPressureInterfaces( ).at( "Sun" );
-
-    // Compute expected radiation pressure.
-    vehicleRadiationPressureInterface->updateInterface( testTime );
-    double sourceDistance = ( ( bodies.at( "Vehicle" )->getState( ) -  bodies.at( "Sun" )->getState( ) ).
-                              segment( 0, 3 ) ).norm( );
-
-    double expectedRadiationPressure = electromagnetism::calculateRadiationPressure(
-                defaultRadiatedPowerValues.at( "Sun" ), sourceDistance );
-
-    BOOST_CHECK_CLOSE_FRACTION( expectedRadiationPressure,
-                                vehicleRadiationPressureInterface->getCurrentRadiationPressure( ),
+    BOOST_CHECK_CLOSE_FRACTION( bodies.at( "Earth" )->getShapeModel( )->getAverageRadius( ),
+                                bodies.at( "Mars" )->getShapeModel( )->getAverageRadius( ),
                                 std::numeric_limits< double >::epsilon( ) );
 
-}
+    Eigen::Vector3d testPosition =
+        ( Eigen::Vector3d( ) << 1.0E7, 2.0E7, 1.5E7 ).finished( );
+    double earthPotential = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalPotential( testPosition );
+    double marsPotential = bodies.at( "Mars" )->getGravityFieldModel( )->getGravitationalPotential( testPosition );
+    BOOST_CHECK_CLOSE_FRACTION( earthPotential, marsPotential,
+                                std::numeric_limits< double >::epsilon( ) );
 
+    BOOST_CHECK_EQUAL( bodies.at( "Earth" )->getRotationalEphemeris( )->getTargetFrameOrientation( ), "IAU_Earth" );
+    BOOST_CHECK_EQUAL( bodies.at( "Mars" )->getRotationalEphemeris( )->getTargetFrameOrientation( ), "IAU_Mars" );
+
+}
 
 BOOST_AUTO_TEST_SUITE_END( )
 
 } // namespace unit_tests
 } // namespace tudat
-

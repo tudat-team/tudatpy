@@ -12,7 +12,6 @@
 set(propagation_HEADERS
         createAccelerationModels.h
         dynamicsSimulator.h
-        propagationCR3BPFullProblem.h
         createTorqueModel.h
         createStateDerivativeModel.h
         createEnvironmentUpdater.h
@@ -22,24 +21,18 @@ set(propagation_HEADERS
         createMassRateModels.h
         propagationTermination.h
         propagationSettings.h
-        thrustSettings.h
+        propagationPrintSettings.h
+        propagationProcessingSettings.h
         accelerationSettings.h
         propagationOutputSettings.h
         setNumericallyIntegratedStates.h
         environmentUpdater.h
-        createThrustModelGuidance.h
-#        propagationLambertTargeterFullProblem.h
-#<<<<<<< HEAD
-#        propagationPatchedConicFullProblem.h
-        propagationLowThrustProblem.h
+        dependentVariablesInterface.h
         )
 
 # Add header files.
 set(propagation_SOURCES
         createStateDerivativeModel.cpp
-#        propagationLambertTargeterFullProblem.cpp
-        createThrustModelGuidance.cpp
-        thrustSettings.cpp
         propagationSettings.cpp
         setNumericallyIntegratedStates.cpp
         dynamicsSimulator.cpp
@@ -48,13 +41,10 @@ set(propagation_SOURCES
         createMassRateModels.cpp
         createAccelerationModels.cpp
         createEnvironmentUpdater.cpp
-        propagationCR3BPFullProblem.cpp
         propagationTermination.cpp
         propagationOutput.cpp
         environmentUpdater.cpp
-#<<<<<<< HEAD
-#        propagationPatchedConicFullProblem.cpp
-        propagationLowThrustProblem.cpp
+        dependentVariablesInterface.cpp
         )
 
 # Add library.

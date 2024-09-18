@@ -8,7 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include <boost/make_shared.hpp>
+
 
 #include "tudat/astro/gravitation/tabulatedGravityFieldVariations.h"
 

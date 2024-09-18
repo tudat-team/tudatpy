@@ -22,7 +22,7 @@
 #include "tudat/astro/aerodynamics/equilibriumWallTemperature.h"
 
 #include <memory>
-#include <boost/make_shared.hpp>
+
 
 namespace tudat
 {

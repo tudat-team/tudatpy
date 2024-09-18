@@ -8,29 +8,36 @@
 #    http://tudat.tudelft.nl/LICENSE.
 #
 
-# Set the source files.
+# Set the header files.
 set(electromagnetism_HEADERS
-        "cannonBallRadiationPressureAcceleration.h"
-        "cannonBallRadiationPressureForce.h"
         "lorentzStaticMagneticForce.h"
         "lorentzStaticMagneticAcceleration.h"
         "radiationPressureInterface.h"
         "basicElectroMagnetism.h"
-        "panelledRadiationPressure.h"
-        "solarSailAcceleration.h"
-        "solarSailForce.h"
+        "radiationSourceModel.h"
+        "luminosityModel.h"
+        "sourcePanelRadiosityModel.h"
+        "radiationPressureTargetModel.h"
+        "radiationPressureAcceleration.h"
+        "reflectionLaw.h"
+        "occultationModel.h"
+        "surfacePropertyDistribution.h"
+        "yarkovskyAcceleration.h"
         )
 
-# Set the header files.
+# Set the source files.
 set(electromagnetism_SOURCES
-        "cannonBallRadiationPressureAcceleration.cpp"
-        "cannonBallRadiationPressureForce.cpp"
         "lorentzStaticMagneticForce.cpp"
         "lorentzStaticMagneticAcceleration.cpp"
-        "radiationPressureInterface.cpp"
-        "panelledRadiationPressure.cpp"
-        "solarSailAcceleration.cpp"
-        "solarSailForce.cpp"
+        "radiationSourceModel.cpp"
+        "luminosityModel.cpp"
+        "sourcePanelRadiosityModel.cpp"
+        "radiationPressureTargetModel.cpp"
+        "radiationPressureAcceleration.cpp"
+        "reflectionLaw.cpp"
+        "occultationModel.cpp"
+        "surfacePropertyDistribution.cpp"
+        "yarkovskyAcceleration.cpp"
         )
 
 # Add tests.

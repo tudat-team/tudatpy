@@ -12,7 +12,7 @@
 #define TUDAT_KERNELDENSITYDISTRIBUTION_H
 
 #include <map>
-#include <boost/make_shared.hpp>
+
 #include <memory>
 
 #include "tudat/math/statistics/continuousProbabilityDistributions.h"

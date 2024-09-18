@@ -34,6 +34,11 @@ KeplerEphemeris::KeplerEphemeris(
     epochOfInitialState_( epochOfInitialState ),
     centralBodyGravitationalParameter_( centralBodyGravitationalParameter )
 {
+    if( !( centralBodyGravitationalParameter_ > 0.0 ) )
+    {
+        throw std::runtime_error( "Error when creating Kepler ephemeris, gravitational parameter must be larger than 0, provided value is " +
+                                  std::to_string( centralBodyGravitationalParameter_ ) );
+    }
     using namespace tudat::orbital_element_conversions;
     using namespace tudat::root_finders;
     

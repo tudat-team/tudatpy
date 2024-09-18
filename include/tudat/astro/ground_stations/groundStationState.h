@@ -11,10 +11,13 @@
 #ifndef TUDAT_GROUNDSTATIONSTATE_H
 #define TUDAT_GROUNDSTATIONSTATE_H
 
+#include <memory>
+
 #include "tudat/astro/basic_astro/bodyShapeModel.h"
 #include "tudat/astro/basic_astro/stateRepresentationConversions.h"
 #include "tudat/astro/basic_astro/timeConversions.h"
-
+#include "tudat/math/interpolators/lookupScheme.h"
+#include "tudat/basics/utilities.h"
 
 namespace tudat
 {
@@ -44,8 +47,25 @@ std::vector< Eigen::Vector3d > getGeocentricLocalUnitVectors(
 std::vector< Eigen::Vector3d > getGeocentricLocalUnitVectors(
         const double latitude,  const double longitude );
 
+class GroundStationState;
+
+struct StationMotionModel
+{
+public:
+    StationMotionModel( ){ }
+
+    virtual ~StationMotionModel( ){ }
+
+    virtual Eigen::Vector6d getBodyFixedStationMotion(
+            const double time,
+            const std::shared_ptr< ground_stations::GroundStationState > groundStationState,
+            const std::string& targetFrameOrigin ) = 0;
+
+};
+
+
 //! Class storing and computing the (time-variable) state of a ground station in a body-fixed frame.
-class GroundStationState
+class GroundStationState: public std::enable_shared_from_this<GroundStationState>
 {
 public:
 
@@ -57,11 +77,11 @@ public:
      * \param bodySurface Shape of body on which state is defined. If nullptr (default), no conversions to/from
      * geodetic position are possible.
      */
-    GroundStationState(
-            const Eigen::Vector3d stationPosition,
+    explicit GroundStationState(
+            const Eigen::Vector3d& stationPosition,
             const coordinate_conversions::PositionElementTypes inputElementType = coordinate_conversions::cartesian_position,
-            const std::shared_ptr< basic_astrodynamics::BodyShapeModel > bodySurface =
-            std::shared_ptr< basic_astrodynamics::BodyShapeModel >( ) );
+            const std::shared_ptr< basic_astrodynamics::BodyShapeModel > bodySurface = nullptr,
+            const std::shared_ptr< StationMotionModel > stationMotionModel = nullptr );
 
     virtual ~GroundStationState( ){ }
 
@@ -76,7 +96,7 @@ public:
      */
      Eigen::Vector6d getCartesianStateInTime(
             const double secondsSinceEpoch,
-            const double inputReferenceEpoch = basic_astrodynamics::JULIAN_DAY_ON_J2000 );
+            const std::string& targetFrameOrigin  );
 
      //! Function to obtain the Cartesian position of the ground station in the local frame at a given time.
      /*!
@@ -89,9 +109,9 @@ public:
       */
      Eigen::Vector3d getCartesianPositionInTime(
             const double secondsSinceEpoch,
-            const double inputReferenceEpoch = basic_astrodynamics::JULIAN_DAY_ON_J2000 )
+            const std::string& targetFrameOrigin )
      {
-         return getCartesianStateInTime( secondsSinceEpoch, inputReferenceEpoch ).segment( 0, 3 );
+         return getCartesianStateInTime( secondsSinceEpoch, targetFrameOrigin ).segment( 0, 3 );
      }
 
     //! Function to return the nominal (unperturbed) Cartesian position of the station
@@ -138,7 +158,7 @@ public:
      *  Function to return the geocentric latitude of the station.
      *  \return Geocentric latitude of the station.
      */
-    double getLatitude( )
+    double getNominalLatitude( )
     {
         return sphericalPosition_.y( );
     }
@@ -148,7 +168,7 @@ public:
      *  Function to return the geocentric longtude of the station.
      *  \return Geocentric longtude of the station.
      */
-    double getLongitude( )
+    double getNominalLongitude( )
     {
         return sphericalPosition_.z( );
     }
@@ -189,9 +209,29 @@ public:
      */
     std::shared_ptr< basic_astrodynamics::BodyShapeModel > getBodySurface( )
     {
-        return bodySurface_;
+        return bodyShapeModel_;
     }
 
+    std::vector< Eigen::Vector3d > getEnuGeocentricUnitVectors( )
+    {
+        if( geocentricUnitVectors_.size( ) == 0 )
+        {
+            try
+            {
+                setTransformationAndUnitVectors( );
+            }
+            catch( std::runtime_error& caughtException )
+            {
+                throw std::runtime_error( "Error when computing ground station unit vectors: " +
+                                std::string( caughtException.what( ) ) );
+            }
+        }
+        return geocentricUnitVectors_;
+    }
+
+    void setSiteId( const std::string& siteId ){ siteId_ = siteId; }
+
+    std::string getSiteId( ){ return siteId_; }
 protected:
 
 
@@ -203,6 +243,8 @@ protected:
      *  Cartesian position of station, without variations (linear drift, eccentricity, tides, etc.), in the body-fixed frame.
      */
     Eigen::Vector3d cartesianPosition_;
+
+    Eigen::Vector6d nominalCartesianState_;
 
     //! Spherical position of station
     /*!
@@ -238,7 +280,11 @@ protected:
     Eigen::Quaterniond bodyFixedToTopocentricFrameRotation_;
 
     //! Shape of body on which state is defined
-    std::shared_ptr< basic_astrodynamics::BodyShapeModel > bodySurface_;
+    std::shared_ptr< basic_astrodynamics::BodyShapeModel > bodyShapeModel_;
+
+    std::shared_ptr< StationMotionModel > stationMotionModel_;
+
+    std::string siteId_ = "";
 };
 
 //! Function to calculate the rotation from a body-fixed to a topocentric frame.
@@ -259,6 +305,168 @@ Eigen::Quaterniond getRotationQuaternionFromBodyFixedToTopocentricFrame(
         const double geocentricLatitude,
         const double geocentricLongitude,
         const Eigen::Vector3d localPoint );
+
+
+struct LinearStationMotionModel: public StationMotionModel
+{
+public:
+    LinearStationMotionModel(
+            const Eigen::Vector3d& linearVelocity,
+            const double referenceEpoch = basic_astrodynamics::JULIAN_DAY_ON_J2000 ):
+    linearVelocity_( linearVelocity ),
+    referenceEpoch_( referenceEpoch ){ }
+
+    ~LinearStationMotionModel( ){ }
+
+    Eigen::Vector6d getBodyFixedStationMotion(
+            const double time,
+            const std::shared_ptr< ground_stations::GroundStationState > groundStationState = nullptr,
+            const std::string& targetFrameOrigin = "" )
+    {
+        return ( Eigen::Vector6d( ) << linearVelocity_ * ( time - referenceEpoch_ ), linearVelocity_ ).finished( );
+    }
+
+protected:
+
+    Eigen::Vector3d linearVelocity_;
+
+    double referenceEpoch_;
+};
+
+struct PiecewiseConstantStationMotionModel: public StationMotionModel
+{
+public:
+    PiecewiseConstantStationMotionModel(
+            const std::map< double, Eigen::Vector3d >& displacementList )
+    {
+        displacementTimes_ = utilities::createVectorFromMapKeys( displacementList );
+        displacementVectors_ = utilities::createVectorFromMapValues( displacementList );
+
+        firstDisplacementTime_ = displacementTimes_.at( 0 );
+        finalDisplacementTime_ = displacementTimes_.at( displacementTimes_.size( ) - 1 );
+        timeLookupScheme_ = std::make_shared< interpolators::HuntingAlgorithmLookupScheme< double > >(
+                     displacementTimes_ );
+    }
+
+    ~PiecewiseConstantStationMotionModel( ){ }
+
+    Eigen::Vector6d getBodyFixedStationMotion(
+            const double time,
+            const std::shared_ptr< ground_stations::GroundStationState > groundStationState = nullptr,
+            const std::string& targetFrameOrigin = "" );
+protected:
+
+    double firstDisplacementTime_;
+
+    double finalDisplacementTime_;
+
+
+    std::shared_ptr< interpolators::LookUpScheme< double > > timeLookupScheme_;
+
+    std::vector< double > displacementTimes_;
+
+    std::vector< Eigen::Vector3d > displacementVectors_;
+
+};
+
+struct BodyCentricToBarycentricRelativisticStationMotion: public StationMotionModel
+{
+public:
+    BodyCentricToBarycentricRelativisticStationMotion(
+        const std::function< Eigen::Vector6d( const double ) > bodyBarycentricStateFunction,
+        const std::function< Eigen::Vector3d( const double ) > centralBodyBarycentricPositionFunction,
+        const std::function< Eigen::Quaterniond( const double ) > inertialToBodyFixedRotationFunction,
+        const std::function< double( ) > centralBodyGravitationalParameterFunction,
+        const bool useGeneralRelativisticCorrection ):
+        bodyBarycentricStateFunction_( bodyBarycentricStateFunction ),
+        centralBodyBarycentricPositionFunction_( centralBodyBarycentricPositionFunction ),
+        inertialToBodyFixedRotationFunction_( inertialToBodyFixedRotationFunction ),
+        centralBodyGravitationalParameterFunction_( centralBodyGravitationalParameterFunction ),
+        useGeneralRelativisticCorrection_( useGeneralRelativisticCorrection )
+    {
+        if( useGeneralRelativisticCorrection && ( centralBodyGravitationalParameterFunction == nullptr || centralBodyBarycentricPositionFunction ==  nullptr ) )
+        {
+            throw std::runtime_error( "Error wen creating body- to barycentric station position conversion, GR correction requested, but required functions not provided" );
+        }
+    }
+
+    ~BodyCentricToBarycentricRelativisticStationMotion( ){ }
+
+    Eigen::Vector6d getBodyFixedStationMotion(
+        const double time,
+        const std::shared_ptr< ground_stations::GroundStationState > groundStationState,
+        const std::string& targetFrameOrigin );
+
+    
+protected:
+
+    std::function< Eigen::Vector6d( const double ) > bodyBarycentricStateFunction_;
+
+    std::function< Eigen::Vector3d( const double ) > centralBodyBarycentricPositionFunction_;
+
+    std::function< Eigen::Quaterniond( const double ) > inertialToBodyFixedRotationFunction_;
+
+     std::function< double( ) > centralBodyGravitationalParameterFunction_;
+
+    Eigen::Vector6d stationMotion = Eigen::Vector6d::Zero( );
+
+    Eigen::Quaterniond currentRotationToBodyFixedFrame_;
+
+    Eigen::Vector3d inertialNominalStationPosition_;
+
+    Eigen::Vector6d centralBodyBarycentricState_;
+
+    bool useGeneralRelativisticCorrection_;
+
+};
+
+struct CustomStationMotionModel: public StationMotionModel
+{
+public:
+    CustomStationMotionModel(
+            const std::function< Eigen::Vector6d( const double ) > customDisplacementModel ):
+    customDisplacementModel_( customDisplacementModel ){ }
+
+    ~CustomStationMotionModel( ){ }
+
+    Eigen::Vector6d getBodyFixedStationMotion(
+            const double time,
+            const std::shared_ptr< ground_stations::GroundStationState > groundStationState = nullptr,
+            const std::string& targetFrameOrigin = ""  )
+    {
+        return customDisplacementModel_( time );
+    }
+
+protected:
+
+    std::function< Eigen::Vector6d( const double ) > customDisplacementModel_;
+};
+
+struct CombinedStationMotionModel: public StationMotionModel
+{
+public:
+    CombinedStationMotionModel(
+            const std::vector< std::shared_ptr< StationMotionModel > >& modelList ):
+    modelList_( modelList ){ }
+
+    Eigen::Vector6d getBodyFixedStationMotion(
+            const double time,
+            const std::shared_ptr< ground_stations::GroundStationState > groundStationState,
+            const std::string& targetFrameOrigin )
+    {
+        Eigen::Vector6d motion = Eigen::Vector6d::Zero( );
+        for( unsigned int i = 0; i < modelList_.size( ); i++ )
+        {
+            motion += modelList_.at( i )->getBodyFixedStationMotion( time, groundStationState, targetFrameOrigin );
+        }
+        return motion;
+    }
+
+
+protected:
+
+    std::vector< std::shared_ptr< StationMotionModel > > modelList_;
+};
 
 } // namespace ground_stations
 

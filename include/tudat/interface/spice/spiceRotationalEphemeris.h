@@ -40,14 +40,12 @@ public:
      * \param targetFrameOrientation Target frame identifier.
      * \param referenceJulianDay Reference julian day w.r.t. which ephemeris is evaluated.
      */
-    SpiceRotationalEphemeris( const std::string& baseFrameOrientation = "ECLIPJ2000",
-                              const std::string& targetFrameOrientation = "",
-                              const double referenceJulianDay = basic_astrodynamics::JULIAN_DAY_ON_J2000 ):
-        RotationalEphemeris( baseFrameOrientation, targetFrameOrientation )
-    {
-        referenceDayOffSet_ = ( referenceJulianDay - basic_astrodynamics::JULIAN_DAY_ON_J2000 ) *
-                physical_constants::JULIAN_DAY;
-    }
+    SpiceRotationalEphemeris( const std::string& baseFrameOrientation,
+                              const std::string& targetFrameOrientation,
+                              const std::string& spiceFrameName = "" ):
+        RotationalEphemeris( baseFrameOrientation, targetFrameOrientation ),
+        spiceFrameName_( ( spiceFrameName != "" ) ? spiceFrameName : targetFrameOrientation )
+    { }
 
     //! Destructor
     /*!
@@ -129,8 +127,7 @@ public:
 
 private:
 
-    //! Offset of reference julian day (from J2000) w.r.t. which ephemeris is evaluated.
-    double referenceDayOffSet_;
+    std::string spiceFrameName_;
 
 };
 

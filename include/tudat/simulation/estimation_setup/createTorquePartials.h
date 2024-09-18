@@ -11,7 +11,7 @@
 #ifndef TUDAT_CREATETORQUEPARTIALS_H
 #define TUDAT_CREATETORQUEPARTIALS_H
 
-#include <boost/make_shared.hpp>
+
 
 #include "tudat/astro/basic_astro/torqueModel.h"
 #include "tudat/simulation/environment_setup/body.h"
@@ -118,6 +118,9 @@ std::shared_ptr< acceleration_partials::TorquePartial > createAnalyticalTorquePa
                           bodies, parametersToEstimate ) ),
                       acceleratedBody.first, acceleratingBody.first );
         }
+        break;
+    case radiation_pressure_torque:
+        throw std::runtime_error( "Error, radiation pressure torque partial not yet supported" );
         break;
     case inertial_torque:
     {

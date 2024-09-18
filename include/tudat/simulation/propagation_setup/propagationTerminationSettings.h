@@ -32,7 +32,8 @@ enum PropagationTerminationTypes
     cpu_time_stopping_condition = 1,
     dependent_variable_stopping_condition = 2,
     hybrid_stopping_condition = 3,
-    custom_stopping_condition = 4
+    custom_stopping_condition = 4,
+    non_sequential_stopping_condition = 5
 };
 
 
@@ -255,6 +256,42 @@ public:
 
 };
 
+//! Class for propagation stopping conditions settings: combination of two stopping conditions.
+/*!
+ *  Class for propagation stopping conditions settings: combination of two stopping conditions. This class should be used
+ *  to define a "forward" and a "backward" propagation legs.
+ */
+class NonSequentialPropagationTerminationSettings: public PropagationTerminationSettings
+{
+public:
+
+    //! Constructor
+    /*!
+     * \brief NonSequentialPropagationTerminationSettings
+     * \param forwardTerminationSettings Termination settings for forward propagation.
+     * \param backwardTerminationSettings Termination settings for backward propagation.
+     */
+    NonSequentialPropagationTerminationSettings(
+            const std::shared_ptr< PropagationTerminationSettings > forwardTerminationSettings,
+            const std::shared_ptr< PropagationTerminationSettings > backwardTerminationSettings ):
+            PropagationTerminationSettings( non_sequential_stopping_condition ),
+            forwardTerminationSettings_( forwardTerminationSettings ),
+            backwardTerminationSettings_( backwardTerminationSettings )
+    {
+        checkTerminationToExactCondition_ = forwardTerminationSettings_->checkTerminationToExactCondition_;
+    }
+
+    //! Destructor
+    ~NonSequentialPropagationTerminationSettings( ){ }
+
+    //! Termination settings for forward propagation leg.
+    std::shared_ptr< PropagationTerminationSettings > forwardTerminationSettings_;
+
+    //! Termination settings for backward propagation leg.
+    std::shared_ptr< PropagationTerminationSettings > backwardTerminationSettings_;
+
+};
+
 inline std::shared_ptr< PropagationTerminationSettings > propagationDependentVariableTerminationSettings(
         const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings,
         const double limitValue,
@@ -295,6 +332,14 @@ inline std::shared_ptr< PropagationTerminationSettings > popagationCustomTermina
 {
     return std::make_shared< PropagationCustomTerminationSettings >(
                 checkStopCondition );
+}
+
+inline std::shared_ptr< PropagationTerminationSettings > nonSequentialPropagationTerminationSettings(
+        const std::shared_ptr< PropagationTerminationSettings > forwardTerminationSettings,
+        const std::shared_ptr< PropagationTerminationSettings > backwardTerminationSettings )
+{
+    return std::make_shared< NonSequentialPropagationTerminationSettings >(
+            forwardTerminationSettings, backwardTerminationSettings );
 }
 
 

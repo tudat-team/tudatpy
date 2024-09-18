@@ -13,7 +13,7 @@
 #define TUDAT_BASE_FUNCTIONS_SPHERICAL_SHAPING_H
 
 #include <cmath>
-#include <boost/make_shared.hpp>
+#include <memory>
 
 namespace tudat
 {

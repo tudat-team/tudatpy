@@ -87,11 +87,11 @@ BOOST_AUTO_TEST_CASE( testassessTerminationOnMinorStepsRKFixedStepSize )
         double aerodynamicCoefficient = 1.2;
         std::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings =
                 std::make_shared< ConstantAerodynamicCoefficientSettings >(
-                    referenceArea, aerodynamicCoefficient * Eigen::Vector3d::UnitX( ), 1, 1 );
+                    referenceArea, aerodynamicCoefficient * Eigen::Vector3d::UnitX( ), negative_aerodynamic_frame_coefficients );
 
         // Create and set aerodynamic coefficients object
         bodies.at( "Asterix" )->setAerodynamicCoefficientInterface(
-                    createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Asterix" ) );
+                    createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Asterix", bodies ) );
 
         // Create radiation pressure settings
         double referenceAreaRadiation = 4.0;
@@ -162,7 +162,7 @@ BOOST_AUTO_TEST_CASE( testassessTerminationOnMinorStepsRKFixedStepSize )
 
         const double fixedStepSize = 50.0;
         std::shared_ptr< IntegratorSettings< > > integratorSettings =
-                std::make_shared< IntegratorSettings< > >( rungeKutta4, 0.0, fixedStepSize, 1, assessDuringSubsteps );
+                std::make_shared< IntegratorSettings< > >( rungeKutta4, 0.0, fixedStepSize, assessDuringSubsteps );
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ///////////////////////             PROPAGATE ORBIT            /////////////////////////////////////////////
@@ -247,11 +247,11 @@ BOOST_AUTO_TEST_CASE( testassessTerminationOnMinorStepsRKVariableStepSize )
         double aerodynamicCoefficient = 1.2;
         std::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings =
                 std::make_shared< ConstantAerodynamicCoefficientSettings >(
-                    referenceArea, aerodynamicCoefficient * Eigen::Vector3d::UnitX( ), 1, 1 );
+                    referenceArea, aerodynamicCoefficient * Eigen::Vector3d::UnitX( ), negative_aerodynamic_frame_coefficients );
 
         // Create and set aerodynamic coefficients object
         bodies.at( "Asterix" )->setAerodynamicCoefficientInterface(
-                    createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Asterix" ) );
+                    createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Asterix", bodies ) );
 
         // Create radiation pressure settings
         double referenceAreaRadiation = 4.0;
@@ -342,14 +342,12 @@ BOOST_AUTO_TEST_CASE( testassessTerminationOnMinorStepsRKVariableStepSize )
         std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
            dependentVariables.push_back( std::make_shared< SingleDependentVariableSaveSettings >(
                                               altitude_dependent_variable, "Asterix", "Earth" ) );
-        std::shared_ptr< DependentVariableSaveSettings > dependentVariableSaveSettings =
-                std::make_shared< DependentVariableSaveSettings >( dependentVariables, 0 );
 
         // Create propagator settings
         std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
                 std::make_shared< TranslationalStatePropagatorSettings< double > >
                 ( centralBodies, accelerationModelMap, bodiesToPropagate, asterixInitialState,
-                  terminationSettings, cowell, dependentVariableSaveSettings );
+                  terminationSettings, cowell, dependentVariables );
 
 
         const double initialStepSize = 30.0;
@@ -359,7 +357,7 @@ BOOST_AUTO_TEST_CASE( testassessTerminationOnMinorStepsRKVariableStepSize )
         std::shared_ptr< IntegratorSettings< > > integratorSettings =
                 std::make_shared< RungeKuttaVariableStepSizeSettings< > >
                 ( simulationStartEpoch, initialStepSize,
-                  RungeKuttaCoefficients::rungeKuttaFehlberg78, minStepSize, maxStepSize, tolerance, tolerance, 1,
+                  rungeKuttaFehlberg78, minStepSize, maxStepSize, tolerance, tolerance,
                   assessDuringSubsteps );
 
 

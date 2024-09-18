@@ -16,10 +16,78 @@ namespace tudat
 namespace propagators
 {
 
+std::string getTranslationalPropagatorName( const TranslationalPropagatorType propagatorType )
+{
+    std::string propagatorName;
+    switch( propagatorType )
+    {
+        case cowell:
+            propagatorName = "Cowell";
+            break;
+        case encke:
+            propagatorName = "Encke";
+            break;
+        case gauss_keplerian:
+            propagatorName = "Kepler elements";
+            break;
+        case gauss_modified_equinoctial:
+            propagatorName = "Modified equinoctial elements";
+            break;
+        case unified_state_model_quaternions:
+            propagatorName = "USM/quaternions";
+            break;
+        case unified_state_model_modified_rodrigues_parameters:
+            propagatorName = "USM/modified Rodrigues parameters";
+            break;
+        case unified_state_model_exponential_map:
+            propagatorName = "USM/exponential map";
+            break;
+        default:
+            throw std::runtime_error( "Error when getting translational propagator name, " + std::to_string( static_cast< int >( propagatorType ) ) + " not found" );
+            break;
+    }
+    return propagatorName;
+}
+
+int getTranslationalStateSize( const TranslationalPropagatorType propagatorType )
+{
+    int stateSize;
+    switch( propagatorType )
+    {
+        case cowell:
+            stateSize = 6;
+            break;
+        case encke:
+            stateSize = 6;
+            break;
+        case gauss_keplerian:
+            stateSize = 6;
+            break;
+        case gauss_modified_equinoctial:
+            stateSize = 6;
+            break;
+        case unified_state_model_quaternions:
+            stateSize = 7;
+            break;
+        case unified_state_model_modified_rodrigues_parameters:
+            stateSize = 7;
+            break;
+        case unified_state_model_exponential_map:
+            stateSize = 7;
+            break;
+        default:
+            throw std::runtime_error( "Error when getting translational propagator size, " + std::to_string( static_cast< int >( propagatorType ) ) + " not found" );
+            break;
+    }
+    return stateSize;
+}
+
+
 //! Function to remove the central gravity acceleration from an AccelerationMap
 std::vector< std::function< double( ) > > removeCentralGravityAccelerations(
         const std::vector< std::string >& centralBodies, const std::vector< std::string >& bodiesToIntegrate,
-        basic_astrodynamics::AccelerationMap& accelerationModelsPerBody )
+        basic_astrodynamics::AccelerationMap& accelerationModelsPerBody,
+        std::map< std::string, std::shared_ptr< gravitation::CentralGravitationalAccelerationModel3d > >& removedAcceleration )
 {
     using namespace basic_astrodynamics;
     using namespace gravitation;
@@ -47,6 +115,7 @@ std::vector< std::function< double( ) > > removeCentralGravityAccelerations(
             int lastCandidate = -1;
             int numberOfCandidates = 0;
             bool isLastCandidateSphericalHarmonic = 0;
+            bool isLastCandidatePolyhedron = 0;
             listOfAccelerations =
                     accelerationModelsPerBody[ bodiesToIntegrate.at( i ) ][ centralBodies.at( i ) ];
 
@@ -54,7 +123,6 @@ std::vector< std::function< double( ) > > removeCentralGravityAccelerations(
             {
                 // Get type of current acceleration.
                 AvailableAcceleration currentAccelerationType = getAccelerationModelType( listOfAccelerations[ j ] );
-
                 // If central gravity, set as central acceleration candidate.
                 if( currentAccelerationType == point_mass_gravity )
                 {
@@ -67,13 +135,20 @@ std::vector< std::function< double( ) > > removeCentralGravityAccelerations(
                     numberOfCandidates++;
                     lastCandidate = j;
                 }
+                else if ( currentAccelerationType == polyhedron_gravity )
+                {
+                    isLastCandidatePolyhedron = 1;
+                    numberOfCandidates++;
+                    lastCandidate = j;
+                }
                 else if( ( currentAccelerationType == third_body_point_mass_gravity ) ||
-                         ( currentAccelerationType == third_body_spherical_harmonic_gravity ) )
+                         ( currentAccelerationType == third_body_spherical_harmonic_gravity ) ||
+                        ( currentAccelerationType == third_body_polyhedron_gravity ) )
                 {
                     std::string errorMessage =
                             "Error when removing central body point gravity term, removal of 3rd body accelerations (of " +
                             centralBodies.at( i ) +
-                            " on " + bodiesToIntegrate.at( i ) + ",) not yet supported";
+                            " on " + bodiesToIntegrate.at( i ) + "), not yet supported";
                     throw std::runtime_error( errorMessage );
                 }
             }
@@ -98,12 +173,13 @@ std::vector< std::function< double( ) > > removeCentralGravityAccelerations(
             }
             else
             {
-                if( !isLastCandidateSphericalHarmonic )
+                if( !isLastCandidateSphericalHarmonic && !isLastCandidatePolyhedron )
                 {
                     // Set central body gravitational parameter (used for Kepler orbit propagation)
+                    removedAcceleration[ bodiesToIntegrate.at( i ) ] = std::dynamic_pointer_cast< CentralGravitationalAccelerationModel3d >(
+                                listOfAccelerations.at( lastCandidate ) );
                     centralBodyGravitationalParameters.at( i ) =
-                            std::dynamic_pointer_cast< CentralGravitationalAccelerationModel3d >(
-                                listOfAccelerations.at( lastCandidate ) )->getGravitationalParameterFunction( );
+                            removedAcceleration[ bodiesToIntegrate.at( i ) ]->getGravitationalParameterFunction( );
 
                     // Remove central acceleration from list of accelerations that are evaluated at each time step.
                     listOfAccelerations.erase( listOfAccelerations.begin( ) + lastCandidate,
@@ -111,10 +187,24 @@ std::vector< std::function< double( ) > > removeCentralGravityAccelerations(
                     accelerationModelsPerBody[ bodiesToIntegrate.at( i ) ][ centralBodies.at( i ) ] =
                             listOfAccelerations;
                 }
-                else
+                else if ( isLastCandidateSphericalHarmonic )
                 {
                     std::shared_ptr< SphericalHarmonicsGravitationalAccelerationModel > originalAcceleration =
                             std::dynamic_pointer_cast< SphericalHarmonicsGravitationalAccelerationModel >(
+                                listOfAccelerations.at( lastCandidate ) );
+                    centralBodyGravitationalParameters.at( i ) = originalAcceleration->getGravitationalParameterFunction( );
+
+                    // Create 'additional' acceleration model which subtracts central gravity term.
+                    accelerationModelsPerBody[ bodiesToIntegrate.at( i ) ][ centralBodies.at( i ) ].push_back(
+                                std::make_shared< CentralGravitationalAccelerationModel3d >
+                                ( originalAcceleration->getStateFunctionOfBodyExertingAcceleration( ),
+                                  originalAcceleration->getGravitationalParameterFunction( ),
+                                  originalAcceleration->getStateFunctionOfBodyUndergoingAcceleration( ) ) );
+                }
+                else
+                {
+                    std::shared_ptr< PolyhedronGravitationalAccelerationModel > originalAcceleration =
+                            std::dynamic_pointer_cast< PolyhedronGravitationalAccelerationModel >(
                                 listOfAccelerations.at( lastCandidate ) );
                     centralBodyGravitationalParameters.at( i ) = originalAcceleration->getGravitationalParameterFunction( );
 
@@ -228,12 +318,6 @@ std::vector< std::string > determineEphemerisUpdateorder( std::vector< std::stri
 }
 
 template class NBodyStateDerivative< double, double >;
-
-#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
-template class NBodyStateDerivative< long double, double >;
-template class NBodyStateDerivative< double, Time >;
-template class NBodyStateDerivative< long double, Time >;
-#endif
 
 }
 
