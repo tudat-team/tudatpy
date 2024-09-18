@@ -8,8 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include "tudatpy/docstrings.h"
-#include "tudatpy/scalarTypes.h"
+#include "docstrings.h"
+#include "scalarTypes.h"
 
 #include "expose_numerical_simulation.h"
 
@@ -84,6 +84,9 @@ void expose_numerical_simulation(py::module &m) {
                  const long double>(),
                  py::arg("full_periods"),
                  py::arg("seconds_into_full_period") )
+            .def("to_float",
+                 &tudat::Time::getSeconds< double >,
+                 get_docstring("Time.to_float").c_str() )
             .def(py::self + py::self)
             .def(py::self + double())
             .def(double() + py::self)
@@ -159,6 +162,8 @@ void expose_numerical_simulation(py::module &m) {
                  py::arg("print_number_of_function_evaluations") = false,
                  py::arg("print_dependent_variable_data") = true,
                  py::arg("print_state_data") = true)
+            .def_property_readonly("bodies",
+                                   &tp::SingleArcDynamicsSimulator<double, TIME_TYPE>::getSystemOfBodies)
             .def_property_readonly("state_history",
                                    &tp::SingleArcDynamicsSimulator<double, TIME_TYPE>::getEquationsOfMotionNumericalSolution)
             .def_property_readonly("unprocessed_state_history",
@@ -226,7 +231,7 @@ void expose_numerical_simulation(py::module &m) {
                  py::arg("propagator_settings"),
                  py::arg("estimated_parameters"),
                  py::arg("integrate_equations_concurrently") = true,
-                 py::arg("variational_only_integrator_settings") = std::shared_ptr< tudat::numerical_integrators::IntegratorSettings< double > >( ),
+                 py::arg("variational_only_integrator_settings") = std::shared_ptr< tudat::numerical_integrators::IntegratorSettings< TIME_TYPE > >( ),
                  py::arg("clear_numerical_solutions") = false,
                  py::arg("integrate_on_creation") = true,
                  py::arg("set_integrated_result") = false,

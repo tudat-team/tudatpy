@@ -12,8 +12,8 @@
 #include "expose_estimation_setup/expose_estimated_parameter_setup.h"
 #include "expose_estimation_setup/expose_observation_setup.h"
 
-#include "tudatpy/docstrings.h"
-#include "tudatpy/scalarTypes.h"
+#include "docstrings.h"
+#include "scalarTypes.h"
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <pybind11/eigen.h>
@@ -43,7 +43,7 @@ void expose_estimation_setup(py::module &m) {
 
     // # EstimatableParameterSettings --> EstimatableParameterSet #
     m.def("create_parameter_set",
-          &tss::createParametersToEstimate< double >,
+          &tss::createParametersToEstimate< double, TIME_TYPE >,
           py::arg("parameter_settings"),
           py::arg("bodies"),
           py::arg("propagator_settings") = nullptr,
