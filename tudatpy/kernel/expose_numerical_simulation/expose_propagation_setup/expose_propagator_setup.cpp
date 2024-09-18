@@ -9,9 +9,9 @@
  */
 
 #include "expose_propagator_setup.h"
-#include "tudatpy/scalarTypes.h"
+#include "scalarTypes.h"
 
-#include "tudatpy/docstrings.h"
+#include "docstrings.h"
 
 #include <tudat/simulation/propagation_setup.h>
 #include <tudat/astro/propagators/getZeroProperModeRotationalInitialState.h>

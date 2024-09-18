@@ -24,8 +24,8 @@
 #include "expose_environment_setup/expose_rigid_body_setup.h"
 #include "expose_environment_setup/expose_vehicle_systems_setup.h"
 
-#include "tudatpy/docstrings.h"
-#include "tudatpy/scalarTypes.h"
+#include "docstrings.h"
+#include "scalarTypes.h"
 
 #include <tudat/simulation/environment_setup.h>
 #include <tudat/astro/reference_frames/referenceFrameTransformations.h>
@@ -162,6 +162,7 @@ namespace environment_setup {
               py::arg("bodies"),
               py::arg("body_name"),
               py::arg("ephemeris_origin") = "",
+              py::arg("is_part_of_multi_arc" ) = false,
               get_docstring("add_empty_tabulated_ephemeris").c_str());
 
         m.def("create_tabulated_ephemeris_from_spice",
@@ -176,11 +177,11 @@ namespace environment_setup {
               py::arg("ephemeris_settings"), py::arg("body_name"),
               get_docstring("create_body_ephemeris").c_str());
 
-        m.def("create_ground_station_ephemeris",
-              py::overload_cast< const std::shared_ptr< tss::Body >, const std::string& >(
-                  &tss::createReferencePointEphemeris< TIME_TYPE, double > ),
-              py::arg("body"),
-              py::arg("station_name") );
+        m.def( "create_ground_station_ephemeris",
+               py::overload_cast< const std::shared_ptr< tss::Body >, const std::string&, const tss::SystemOfBodies& >(
+                   &tss::createReferencePointEphemerisFromId< TIME_TYPE, double > ),
+               "body_with_ground_station",
+               "station_name" );
 
         m.def("get_safe_interpolation_interval", &tss::getSafeInterpolationInterval,
               py::arg("ephemeris_model"));
@@ -293,12 +294,13 @@ namespace environment_setup {
               &tss::getGroundStationsLinkEndList,
               py::arg( "body" ) );
 
-        m.def("get_target_elevation_angles",
-              &tss::getTargetElevationAngles,
-              py::arg( "observing_body" ),
-              py::arg( "target_body" ),
-              py::arg( "station_name" ),
-              py::arg( "times" ) );
+//        m.def("get_target_elevation_angles",
+//              &tss::getTargetElevationAngles,
+//              py::arg( "observing_body" ),
+//              py::arg( "target_body" ),
+//              py::arg( "station_name" ),
+//              py::arg( "times" ) );
+
 
         auto aerodynamic_coefficient_setup = m.def_submodule("aerodynamic_coefficients");
         aerodynamic_coefficients::expose_aerodynamic_coefficient_setup(aerodynamic_coefficient_setup);
@@ -369,6 +371,7 @@ namespace environment_setup {
               py::arg("bank_angle"),
               py::arg("silence_warnings") = false );
     }
+
 
 }// namespace environment_setup
 }// namespace numerical_simulation

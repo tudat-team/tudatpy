@@ -10,7 +10,7 @@
 
 #include "expose_shape_deformation_setup.h"
 
-#include "tudatpy/docstrings.h"
+#include "docstrings.h"
 #include <tudat/simulation/environment_setup/createBodyDeformationModel.h>
 
 #include <pybind11/eigen.h>
@@ -59,6 +59,14 @@ namespace shape_deformation{
               &tss::iers2010TidalBodyShapeDeformation,
               get_docstring("iers_2010_solid_body_tidal").c_str());
 
+        m.def("pole_tidal",
+              &tss::poleTideBodyShapeDeformation,
+              get_docstring("pole_tide").c_str());
+
+        m.def("ocean_tidal",
+              &tss::oceanTideBodyShapeDeformation,
+              py::arg("blq_files"),
+              get_docstring("ocean_tidal").c_str());
 
     }
 

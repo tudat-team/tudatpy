@@ -18,7 +18,7 @@ else()
 #    add_definitions(-DVERSION_INFO "${tudatpy_VERSION_LABEL}")
 endif()
 
-include_directories(include)
+include_directories("tudatpy/kernel")
 # Add cmake modules
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--no-undefined")
@@ -50,8 +50,9 @@ if (MSVC)
     # https://docs.microsoft.com/en-us/cpp/build/reference/bigobj-increase-number-of-sections-in-dot-obj-file?view=vs-2019
     # This is equivalent to the big-obj for MinGW, this should stop error C1128.
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj")
+else()
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
 endif ()
-
 message(STATUS "<< ${PROJECT_NAME} (${CMAKE_BUILD_TYPE} - ${BUILD_STYLE}) >>")
 
 set(Boost_USE_STATIC_LIBS OFF)
@@ -74,7 +75,6 @@ include_directories(SYSTEM AFTER "${EIGEN3_INCLUDE_DIR}")
 
 # TODO: Make Tudat export definitions to the config for inheritence to this project.
 add_definitions(-DTUDAT_BUILD_WITH_SPICE_INTERFACE=1)
-add_definitions(-DTUDAT_BUILD_WITH_ESTIMATION_TOOLS=1)
 
 #if (DEFINED _GLIBCXX_USE_CXX11_ABI)
 #    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=${_GLIBCXX_USE_CXX11_ABI}")

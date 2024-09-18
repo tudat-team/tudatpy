@@ -8,11 +8,11 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include "tudatpy/scalarTypes.h"
+#include "scalarTypes.h"
 #include "expose_environment.h"
 #include <tudat/basics/deprecationWarnings.h>
 
-#include "tudatpy/docstrings.h"
+#include "docstrings.h"
 
 #include <tudat/astro/aerodynamics.h>
 #include <tudat/astro/ephemerides.h>
@@ -135,6 +135,26 @@ void expose_environment(py::module &m) {
                         get_docstring("AerodynamicCoefficientsIndependentVariables.altitude_dependent").c_str())
             .value("time_dependent", ta::AerodynamicCoefficientsIndependentVariables::time_dependent,
                         get_docstring("AerodynamicCoefficientsIndependentVariables.time_dependent").c_str())
+            .value("temperature_dependent", ta::AerodynamicCoefficientsIndependentVariables::temperature_dependent,
+                   get_docstring("AerodynamicCoefficientsIndependentVariables.temperature_dependent").c_str())
+            .value("velocity_dependent", ta::AerodynamicCoefficientsIndependentVariables::velocity_dependent,
+                   get_docstring("AerodynamicCoefficientsIndependentVariables.velocity_dependent").c_str())
+            .value("he_number_density_dependent", ta::AerodynamicCoefficientsIndependentVariables::he_number_density_dependent,
+                   get_docstring("AerodynamicCoefficientsIndependentVariables.he_number_density_dependent").c_str())
+            .value("o_number_density_dependent", ta::AerodynamicCoefficientsIndependentVariables::o_number_density_dependent,
+                   get_docstring("AerodynamicCoefficientsIndependentVariables.o_number_density_dependent").c_str())
+            .value("n2_number_density_dependent", ta::AerodynamicCoefficientsIndependentVariables::n2_number_density_dependent,
+                   get_docstring("AerodynamicCoefficientsIndependentVariables.n2_number_density_dependent").c_str())
+            .value("o2_number_density_dependent", ta::AerodynamicCoefficientsIndependentVariables::o2_number_density_dependent,
+                   get_docstring("AerodynamicCoefficientsIndependentVariables.o2_number_density_dependent").c_str())
+            .value("ar_number_density_dependent", ta::AerodynamicCoefficientsIndependentVariables::ar_number_density_dependent,
+                   get_docstring("AerodynamicCoefficientsIndependentVariables.ar_number_density_dependent").c_str())
+            .value("h_number_density_dependent", ta::AerodynamicCoefficientsIndependentVariables::h_number_density_dependent,
+                   get_docstring("AerodynamicCoefficientsIndependentVariables.h_number_density_dependent").c_str())
+            .value("n_number_density_dependent", ta::AerodynamicCoefficientsIndependentVariables::n_number_density_dependent,
+                   get_docstring("AerodynamicCoefficientsIndependentVariables.n_number_density_dependent").c_str())
+            .value("anomalous_o_number_density_dependent", ta::AerodynamicCoefficientsIndependentVariables::anomalous_o_number_density_dependent,
+                   get_docstring("AerodynamicCoefficientsIndependentVariables.anomalous_o_number_density_dependent").c_str())
             .value("control_surface_deflection_dependent", ta::AerodynamicCoefficientsIndependentVariables::control_surface_deflection_dependent,
                         get_docstring("AerodynamicCoefficientsIndependentVariables.control_surface_deflection_dependent").c_str())
             .value("undefined_independent_variable", ta::AerodynamicCoefficientsIndependentVariables::undefined_independent_variable,
@@ -156,29 +176,80 @@ void expose_environment(py::module &m) {
 
 
     py::class_<ta::AerodynamicCoefficientInterface,
-            std::shared_ptr<ta::AerodynamicCoefficientInterface>>(m, "AerodynamicCoefficientInterface" )
-            .def_property_readonly("reference_area", &ta::AerodynamicCoefficientInterface::getReferenceArea )
-            .def_property_readonly("current_force_coefficients", &ta::AerodynamicCoefficientInterface::getCurrentForceCoefficients )
-            .def_property_readonly("current_moment_coefficients", &ta::AerodynamicCoefficientInterface::getCurrentMomentCoefficients )
-            .def_property_readonly("current_coefficients", &ta::AerodynamicCoefficientInterface::getCurrentAerodynamicCoefficients )
-            .def_property_readonly("independent_variable_names", &ta::AerodynamicCoefficientInterface::getIndependentVariableNames )
-            .def_property_readonly("control_surface_independent_variable_names", &ta::AerodynamicCoefficientInterface::getControlSurfaceIndependentVariables )
-            .def_property_readonly("current_control_surface_free_force_coefficients", &ta::AerodynamicCoefficientInterface::getCurrentControlSurfaceFreeForceCoefficients )
-            .def_property_readonly("current_control_surface_free_moment_coefficients", &ta::AerodynamicCoefficientInterface::getCurrentControlSurfaceFreeMomentCoefficients )
+            std::shared_ptr<ta::AerodynamicCoefficientInterface>>(
+                m, "AerodynamicCoefficientInterface",
+                get_docstring("AerodynamicCoefficientInterface").c_str() )
+            .def_property_readonly("reference_area", &ta::AerodynamicCoefficientInterface::getReferenceArea,
+                                   get_docstring("AerodynamicCoefficientInterface.reference_area").c_str() )
+            .def_property_readonly("current_force_coefficients", &ta::AerodynamicCoefficientInterface::getCurrentForceCoefficients,
+                                   get_docstring("AerodynamicCoefficientInterface.current_force_coefficients").c_str() )
+            .def_property_readonly("current_moment_coefficients", &ta::AerodynamicCoefficientInterface::getCurrentMomentCoefficients,
+                                   get_docstring("AerodynamicCoefficientInterface.current_moment_coefficients").c_str() )
+            .def_property_readonly("current_coefficients", &ta::AerodynamicCoefficientInterface::getCurrentAerodynamicCoefficients,
+                                   get_docstring("AerodynamicCoefficientInterface.current_coefficients").c_str() )
+            .def_property_readonly("force_coefficient_frame", &ta::AerodynamicCoefficientInterface::getForceCoefficientsFrame,
+                                   get_docstring("AerodynamicCoefficientInterface.force_coefficient_frame").c_str() )
+            .def_property_readonly("moment_coefficient_frame", &ta::AerodynamicCoefficientInterface::getMomentCoefficientsFrame,
+                                   get_docstring("AerodynamicCoefficientInterface.moment_coefficient_frame").c_str() )
+            .def_property_readonly("independent_variable_names", &ta::AerodynamicCoefficientInterface::getIndependentVariableNames,
+                                   get_docstring("AerodynamicCoefficientInterface.independent_variable_names").c_str() )
+            .def_property_readonly("current_control_surface_free_force_coefficients", &ta::AerodynamicCoefficientInterface::getCurrentControlSurfaceFreeForceCoefficients,
+                                   get_docstring("AerodynamicCoefficientInterface.current_control_surface_free_force_coefficients").c_str() )
+            .def_property_readonly("current_control_surface_free_moment_coefficients", &ta::AerodynamicCoefficientInterface::getCurrentControlSurfaceFreeMomentCoefficients,
+                                   get_docstring("AerodynamicCoefficientInterface.current_control_surface_free_moment_coefficients").c_str() )
+            .def_property_readonly("control_surface_independent_variable_names", &ta::AerodynamicCoefficientInterface::getControlSurfaceIndependentVariables,
+                                   get_docstring("AerodynamicCoefficientInterface.control_surface_independent_variable_names").c_str() )
             .def("current_control_surface_force_coefficient_increment", &ta::AerodynamicCoefficientInterface::getCurrentForceCoefficientIncrement,
-                 py::arg( "control_surface_name" ) )
+                 py::arg( "control_surface_name" ),
+                 get_docstring("AerodynamicCoefficientInterface.current_control_surface_force_coefficient_increment").c_str() )
             .def("current_control_surface_moment_coefficient_increment", &ta::AerodynamicCoefficientInterface::getCurrentMomentCoefficientIncrement,
-                 py::arg( "control_surface_name" ) )
+                 py::arg( "control_surface_name" ),
+                 get_docstring("AerodynamicCoefficientInterface.current_control_surface_moment_coefficient_increment").c_str() )
             .def("set_control_surface_increments", &ta::AerodynamicCoefficientInterface::setControlSurfaceIncrements,
-                 py::arg( "control_surface_list" ) )
+                 py::arg( "control_surface_list" ),
+                 get_docstring("AerodynamicCoefficientInterface.set_control_surface_increments").c_str() )
             .def("update_coefficients", &ta::AerodynamicCoefficientInterface::updateCurrentCoefficients,
                  py::arg( "independent_variables" ),
-                 py::arg( "time") )
+                 py::arg( "time"),
+                 get_docstring("AerodynamicCoefficientInterface.update_coefficients").c_str() )
             .def("update_full_coefficients", &ta::AerodynamicCoefficientInterface::updateFullCurrentCoefficients,
                  py::arg( "independent_variables" ),
                  py::arg( "control_surface_independent_variables" ),
                  py::arg( "time"),
-                 py::arg( "check_force_contribution" ) = true );
+                 py::arg( "check_force_contribution" ) = true,
+                 get_docstring("AerodynamicCoefficientInterface.update_full_coefficients").c_str() );
+
+    py::class_<ta::AerodynamicCoefficientGenerator<3, 6>,
+        std::shared_ptr<ta::AerodynamicCoefficientGenerator<3, 6>>,
+        ta::AerodynamicCoefficientInterface>(m, "AerodynamicCoefficientGenerator36", "<no_doc, only_dec>");
+
+    py::class_<ta::HypersonicLocalInclinationAnalysis,
+        std::shared_ptr<ta::HypersonicLocalInclinationAnalysis>,
+        ta::AerodynamicCoefficientGenerator<3, 6>>(m, "HypersonicLocalInclinationAnalysis" )
+        .def(py::init<
+                 const std::vector< std::vector< double > >&,
+                 const std::shared_ptr< tudat::SurfaceGeometry >,
+                 const std::vector< int >&,
+                 const std::vector< int >&,
+                 const std::vector< bool >&,
+                 const std::vector< std::vector< int > >&,
+                 const double,
+                 const double,
+                 const Eigen::Vector3d&,
+                 const bool >(),
+             py::arg("independent_variable_points"),
+             py::arg("body_shape"),
+             py::arg("number_of_lines"),
+             py::arg("number_of_points"),
+             py::arg("invert_orders"),
+             py::arg("selected_methods"),
+             py::arg("reference_area"),
+             py::arg("reference_length"),
+             py::arg("moment_reference_point"),
+             py::arg("save_pressure_coefficients") = false,
+             get_docstring("HypersonicLocalInclinationAnalysis.ctor").c_str())
+        .def("clear_data",
+             &ta::HypersonicLocalInclinationAnalysis::clearData );
 
     py::class_<ta::ControlSurfaceIncrementAerodynamicInterface,
             std::shared_ptr<ta::ControlSurfaceIncrementAerodynamicInterface>>(
@@ -194,9 +265,7 @@ void expose_environment(py::module &m) {
                  py::arg("coefficient_function"),
                  py::arg("independent_variable_names") );
 
-    py::class_<ta::AerodynamicCoefficientGenerator<3, 6>,
-            std::shared_ptr<ta::AerodynamicCoefficientGenerator<3, 6>>,
-            ta::AerodynamicCoefficientInterface>(m, "AerodynamicCoefficientGenerator36", "<no_doc, only_dec>");
+
 
 
     m.def("get_default_local_inclination_mach_points", &ta::getDefaultHypersonicLocalInclinationMachPoints,
@@ -206,33 +275,6 @@ void expose_environment(py::module &m) {
 
     m.def("get_default_local_inclination_sideslip_angle_points", &ta::getDefaultHypersonicLocalInclinationAngleOfSideslipPoints );
 
-    py::class_<ta::HypersonicLocalInclinationAnalysis,
-            std::shared_ptr<ta::HypersonicLocalInclinationAnalysis>,
-            ta::AerodynamicCoefficientGenerator<3, 6>>(m, "HypersonicLocalInclinationAnalysis" )
-            .def(py::init<
-                 const std::vector< std::vector< double > >&,
-                 const std::shared_ptr< tudat::SurfaceGeometry >,
-                 const std::vector< int >&,
-                 const std::vector< int >&,
-                 const std::vector< bool >&,
-                 const std::vector< std::vector< int > >&,
-                 const double,
-                 const double,
-                 const Eigen::Vector3d&,
-                 const bool >(),
-                 py::arg("independent_variable_points"),
-                 py::arg("body_shape"),
-                 py::arg("number_of_lines"),
-                 py::arg("number_of_points"),
-                 py::arg("invert_orders"),
-                 py::arg("selected_methods"),
-                 py::arg("reference_area"),
-                 py::arg("reference_length"),
-                 py::arg("moment_reference_point"),
-                 py::arg("save_pressure_coefficients") = false,
-                 get_docstring("HypersonicLocalInclinationAnalysis.ctor").c_str())
-            .def("clear_data",
-                 &ta::HypersonicLocalInclinationAnalysis::clearData );
 
 
     m.def("save_vehicle_mesh_to_file", &ta::saveVehicleMeshToFile,
@@ -268,6 +310,12 @@ void expose_environment(py::module &m) {
                  &tsm::VehicleSystems::getCurrentControlSurfaceDeflection,
                   py::arg("control_surface_id"),
                   get_docstring("VehicleSystems.get_control_surface_deflection").c_str() )
+            .def("set_reference_point",
+                 &tsm::VehicleSystems::setReferencePointPosition,
+                 py::arg("reference_point"),
+                 py::arg("location"),
+                 get_docstring("VehicleSystems.get_control_surface_deflection").c_str() )
+
             .def("get_engine_model",
                  &tsm::VehicleSystems::getEngineModel,
                  py::arg("engine_name"),
@@ -476,10 +524,7 @@ void expose_environment(py::module &m) {
                  py::arg("tle") = nullptr,
                  py::arg("use_sdp") = false);
 
-    m.def( "create_ground_station_ephemeris",
-           py::overload_cast< const std::shared_ptr< tss::Body >, const std::string& >( &tss::createReferencePointEphemeris< TIME_TYPE, double > ),
-               "body_with_ground_station",
-               "station_name" );
+
 
     /*!
      **************   ROTATION MODELS  ******************
@@ -507,8 +552,9 @@ void expose_environment(py::module &m) {
                  py::arg( "time" ),
                  get_docstring("RotationalEphemeris.angular_velocity_in_inertial_frame").c_str()  )
             .def_property_readonly("body_fixed_frame_name", &te::RotationalEphemeris::getTargetFrameOrientation,
-                                   get_docstring("RotationalEphemeris.body_fixed_frame_name").c_str()  );
-
+                                   get_docstring("RotationalEphemeris.body_fixed_frame_name").c_str()  )
+            .def_property_readonly("inertial_frame_name", &te::RotationalEphemeris::getBaseFrameOrientation,
+                               get_docstring("RotationalEphemeris.inertial_frame_name").c_str()  );
 
     m.def("transform_to_inertial_orientation",
           &te::transformStateToInertialOrientation<double, double>,
@@ -624,9 +670,11 @@ void expose_environment(py::module &m) {
     py::class_<tgs::GroundStationState,
             std::shared_ptr<tgs::GroundStationState>>(m, "GroundStationState")
             .def("get_cartesian_state", &tgs::GroundStationState::getCartesianStateInTime,
-                 py::arg( "seconds_since_epoch" ) )
+                 py::arg( "seconds_since_epoch" ),
+                 py::arg( "target_frame_origin" )  )
             .def("get_cartesian_position", &tgs::GroundStationState::getCartesianPositionInTime,
-                 py::arg( "seconds_since_epoch" ) )
+                 py::arg( "seconds_since_epoch" ),
+                 py::arg( "target_frame_origin" )  )
             .def_property_readonly("cartesian_positon_at_reference_epoch", &tgs::GroundStationState::getNominalCartesianPosition )
             .def_property_readonly("spherical_positon_at_reference_epoch", &tgs::GroundStationState::getNominalSphericalPosition )
             .def_property_readonly("geodetic_positon_at_reference_epoch", &tgs::GroundStationState::getNominalGeodeticPosition )
@@ -717,7 +765,7 @@ void expose_environment(py::module &m) {
             .def("set_constant_mass", &tss::Body::setConstantBodyMass, py::arg( "mass" ) )
             .def_property("inertia_tensor", &tss::Body::getBodyInertiaTensor,
                           py::overload_cast<const Eigen::Matrix3d &>(
-                              &tss::Body::setBodyInertiaTensor))
+                              &tss::Body::setBodyInertiaTensor), get_docstring("Body.inertia_tensor").c_str())
             .def("state_in_base_frame_from_ephemeris",
                  &tss::Body::getStateInBaseFrameFromEphemeris<double, double>, py::arg("time"))
             .def_property("ephemeris", &tss::Body::getEphemeris, &tss::Body::setEphemeris, get_docstring("Body.ephemeris").c_str())
@@ -731,8 +779,8 @@ void expose_environment(py::module &m) {
             .def_property("system_models", &tss::Body::getVehicleSystems, &tss::Body::setVehicleSystems, get_docstring("Body.system_models").c_str())
             .def_property("rigid_body_properties", &tss::Body::getMassProperties, &tss::Body::setMassProperties, get_docstring("Body.rigid_body_properties").c_str())
             .def_property_readonly("gravitational_parameter", &tss::Body::getGravitationalParameter, get_docstring("Body.gravitational_parameter").c_str())
-            .def("get_ground_station", &tss::Body::getGroundStation, py::arg("station_name"))
-            .def_property_readonly("ground_station_list", &tss::Body::getGroundStationMap );
+            .def("get_ground_station", &tss::Body::getGroundStation, py::arg("station_name"), get_docstring("Body.get_ground_station").c_str())
+            .def_property_readonly("ground_station_list", &tss::Body::getGroundStationMap, get_docstring("Body.ground_station_list").c_str() );
 
 
 

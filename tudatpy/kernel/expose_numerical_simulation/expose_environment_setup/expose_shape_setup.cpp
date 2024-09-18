@@ -10,7 +10,7 @@
 
 #include "expose_shape_setup.h"
 
-#include "tudatpy/docstrings.h"
+#include "docstrings.h"
 #include <tudat/simulation/environment_setup.h>
 #include <tudat/astro/reference_frames/referenceFrameTransformations.h>
 
@@ -102,6 +102,10 @@ namespace shape {
               py::arg("equatorial_radius"),
               py::arg("flattening"),
               get_docstring("oblate_spherical").c_str());
+
+        m.def("oblate_spherical_spice",
+              &tss::fromSpiceOblateSphericalBodyShapeSettings,
+              get_docstring("oblate_spherical_spice").c_str());
 
         m.def("polyhedron",
               &tss::polyhedronBodyShapeSettings,
