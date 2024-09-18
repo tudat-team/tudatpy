@@ -25,6 +25,7 @@
 #include "tudat/simulation/propagation_setup/propagationSettings.h"
 #include "tudat/simulation/environment_setup/createFlightConditions.h"
 #include "tudat/math/basic/rotationRepresentations.h"
+#include "tudat/astro/aerodynamics/nrlmsise00Atmosphere.h"
 
 namespace tudat
 {
@@ -1759,6 +1760,44 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
                 };
             }
         }
+        break;
+    }
+    case nrlmsise_input_data:
+    {
+        std::string acceleratedBody = dependentVariableSettings->associatedBody_;
+        std::string centralBody = dependentVariableSettings->secondaryBody_;
+
+
+        if( std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
+            bodies.at( acceleratedBody )->getFlightConditions( ) ) == nullptr )
+        {
+            simulation_setup::addAtmosphericFlightConditions(
+                bodies, acceleratedBody, secondaryBody );
+        }
+
+        std::shared_ptr< aerodynamics::AtmosphericFlightConditions > flightConditions =
+            std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
+                           bodies.at( acceleratedBody )->getFlightConditions( ) );
+
+        if ( std::dynamic_pointer_cast<aerodynamics::NRLMSISE00Atmosphere>(
+            bodies.at( centralBody )->getAtmosphereModel( )) == nullptr )
+        {
+            throw std::runtime_error(
+                "Error when saving nrlmsise input of " + centralBody + ", body has no NRLMSISE atmosphere." );
+        }
+        auto atmosphereModel =
+            std::dynamic_pointer_cast<aerodynamics::NRLMSISE00Atmosphere>(
+            bodies.at( centralBody )->getAtmosphereModel( ) );
+        variableFunction = [=]( )
+        {
+            atmosphereModel->setInputStruct(
+                flightConditions->getCurrentAltitude( ),
+                flightConditions->getCurrentLongitude( ),
+                flightConditions->getCurrentLatitude( ),
+                flightConditions->getCurrentTime( ) );
+            return aerodynamics::getNrlmsiseInputAsVector( atmosphereModel->getNRLMSISE00InputStruct() );
+        };
+
         break;
     }
     case custom_dependent_variable:
