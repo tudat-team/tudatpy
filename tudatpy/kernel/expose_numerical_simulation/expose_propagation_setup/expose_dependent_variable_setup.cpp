@@ -780,6 +780,11 @@ namespace dependent_variable {
                py::arg( "source_name" ),
                get_docstring( "radiation_pressure_source_panel_geometry" ).c_str( ));
 
+        m.def( "nrlmsise_input_data_vector",
+               &tp::nrlmsiseInputDependentVariable,
+               py::arg( "body_name" ),
+               py::arg( "central_body_name" ) = "Earth",
+               get_docstring( "nrlmsise_input_data_vector" ).c_str( ));
     }
 
 }// namespace dependent_variable

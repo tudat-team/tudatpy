@@ -54,6 +54,7 @@ namespace tss = tudat::simulation_setup;
 namespace ti = tudat::interpolators;
 namespace tsm = tudat::system_models;
 namespace tom = tudat::observation_models;
+namespace tsa = tudat::input_output::solar_activity;
 
 
 namespace tudat
@@ -422,6 +423,129 @@ void expose_environment(py::module &m) {
             .def_property_readonly("control_surface_aero_coefficient_independent_variables",
                                    &ta::AtmosphericFlightConditions::getControlSurfaceAerodynamicCoefficientIndependentVariables, get_docstring("AtmosphericFlightConditions.control_surface_aero_coefficient_independent_variables").c_str())
             .def_property_readonly("aerodynamic_coefficient_interface", &ta::AtmosphericFlightConditions::getAerodynamicCoefficientInterface, get_docstring("AtmosphericFlightConditions.aerodynamic_coefficient_interface").c_str());
+
+
+    /*!
+     **************   ATMOPSHERE MODELS  ******************
+     */
+    py::class_<ta::NRLMSISE00Input,
+        std::shared_ptr<ta::NRLMSISE00Input>>(
+        m, "NRLMSISE00Input",
+        R"doc(Input for computation of NRLMSISE00 atmospheric
+                         conditions at current time and position.
+
+                         Input for computation of NRLMSISE00 atmospheric
+                         conditions at current time and position. The
+                         computation of class may be reperformed every time
+                         step, to reflect the changes in atmospheric
+                         condition.
+
+                         :param year: Current year
+                         :param day_of_year: Day in the current year
+                         :param seconds_of_day: Number of seconds into the
+                         current day. :param local_solar_time: Local solar
+                         time at the computation position :param f107: Current
+                         daily F10.7 flux for previous day :param f107a: 81
+                         day average of F10.7 flux (centered on current
+                         day_of_year). :param ap_daily: Current daily magnetic
+                         index :param ap_vector: Current magnetic index data
+                         vector: \sa ap_array :param switches: List of
+                         NRLMSISE-specific flags: \sa nrlmsise_flags )doc")
+        .def(py::init<int, int, double, double, double,
+                 double,
+                 double, std::vector<double>,
+                 std::vector<int>>(),
+             py::arg("year") = 0, py::arg("day_of_year") = 0,
+             py::arg("seconds_of_day") = 0.0,
+             py::arg("local_solar_time") = 0.0,
+             py::arg("f107") = 0.0, py::arg("f107a") = 0.0,
+             py::arg("ap_daily") = 0.0,
+             py::arg("ap_vector") = std::vector<double>(7,
+                                                        0.0), py::arg("switches") = std::vector<int>());
+
+    py::class_<ta::AtmosphereModel,
+        std::shared_ptr<ta::AtmosphereModel>>(
+        m, "AtmosphereModel" );
+
+
+
+    py::class_<tsa::SolarActivityData,
+        std::shared_ptr<tsa::SolarActivityData>>(
+        m, "SolarActivityData" )
+        .def_readwrite("bartels_solar_rotation_number", &tsa::SolarActivityData::bartelsSolarRotationNumber,
+                       get_docstring("SolarActivityData.bartels_solar_rotation_number").c_str())
+        .def_readwrite("f_10_7_adjusted", &tsa::SolarActivityData::solarRadioFlux107Adjusted,
+                       get_docstring("SolarActivityData.f_10_7_adjusted").c_str())
+        .def_readwrite("f_10_7_observed", &tsa::SolarActivityData::solarRadioFlux107Observed,
+                       get_docstring("SolarActivityData.f_10_7_observed").c_str())
+        .def_readwrite("f_10_7_adjusted_centered_81_day", &tsa::SolarActivityData::centered81DaySolarRadioFlux107Adjusted,
+                       get_docstring("SolarActivityData.f_10_7_adjusted_centered_81_day").c_str())
+        .def_readwrite("f_10_7_observed_81_day", &tsa::SolarActivityData::centered81DaySolarRadioFlux107Observed,
+                       get_docstring("SolarActivityData.f_10_7_observed_81_day").c_str())
+        .def_readwrite("data_type", &tsa::SolarActivityData::dataType,
+                       get_docstring("SolarActivityData.data_type").c_str())
+        .def_readwrite("bartels_cycle_day", &tsa::SolarActivityData::dayOfBartelsCycle,
+                       get_docstring("SolarActivityData.bartels_cycle_day").c_str())
+        .def_readwrite("flux_qualifier", &tsa::SolarActivityData::fluxQualifier,
+                       get_docstring("SolarActivityData.flux_qualifier").c_str())
+        .def_readwrite("international_sun_spot_number", &tsa::SolarActivityData::internationalSunspotNumber,
+                       get_docstring("SolarActivityData.international_sun_spot_number").c_str())
+        .def_readwrite("f_10_7_adjusted_last_81_day", &tsa::SolarActivityData::last81DaySolarRadioFlux107Adjusted,
+                       get_docstring("SolarActivityData.f_10_7_adjusted_last_81_day").c_str())
+        .def_readwrite("f_10_7_observed_last_81_day", &tsa::SolarActivityData::last81DaySolarRadioFlux107Observed,
+                       get_docstring("SolarActivityData.f_10_7_observed_last_81_day").c_str())
+        .def_readwrite("bartels_solar_rotation_number", &tsa::SolarActivityData::planetaryDailyCharacterFigure,
+                       get_docstring("SolarActivityData.bartels_solar_rotation_number").c_str())
+        .def_readwrite("ap_3_hourly", &tsa::SolarActivityData::planetaryEquivalentAmplitudeVector,
+                       get_docstring("SolarActivityData.ap_3_hourly").c_str())
+        .def_readwrite("kp_3_hourly", &tsa::SolarActivityData::planetaryRangeIndexVector,
+                       get_docstring("SolarActivityData.kp_3_hourly").c_str());
+
+
+    py::class_<tsa::SolarActivityContainer,
+        std::shared_ptr<tsa::SolarActivityContainer>>(
+        m, "SolarActivityContainer" )
+        .def("get_solar_activity", &tsa::SolarActivityContainer::getSolarActivityData,
+             py::arg("epoch"),
+             get_docstring("SolarActivityContainer.get_solar_activity").c_str())
+        .def_property_readonly("solar_activity_dictionary", &tsa::SolarActivityContainer::getSolarActivityDataMap,
+             get_docstring("SolarActivityContainer.solar_activity_dictionary").c_str());
+
+
+
+    py::class_<ta::NRLMSISE00Atmosphere,
+        std::shared_ptr<ta::NRLMSISE00Atmosphere>,
+            ta::AtmosphereModel >(
+        m, "NRLMSISE00Atmosphere",
+        R"doc(NRLMSISE00 atmosphere model.
+
+                        This class uses the NRLMSISE00 model to compute the atmospheric density and temperature. The GTD7 function is used: Neutral Atmosphere Empirical Model from the surface to the lower exosphere.
+
+                        Currently, the ideal gas law is used to compute the speed of sound and the specific heat ratio is assumed to be constant and equal to 1.4.
+
+                        :param solar_activity_data: Solar activity data for a range of epochs as produced by tudatpy.io.read_solar_activity_data.
+                        )doc")
+        .def(
+            py::init<const std::map<
+                double,
+                std::shared_ptr<
+                    tsa::SolarActivityData>>>(),
+            py::arg("solar_activity_data"))
+        .def("get_density",
+             &ta::NRLMSISE00Atmosphere::getDensity,
+             py::arg("altitude"), py::arg("longitude"),
+             py::arg("latitude"), py::arg("time"),
+             R"doc(Get local density
+
+                            Returns the local density at the given altitude,
+                            longitude, latitude and time.
+
+                            :param altitude: Altitude at which to get the density. [m]
+                            :param longitude: Longitude at which to get the density [rad].
+                            :param latitude: Latitude at which to get the density [rad].
+                            :param time: Time at which density is to be computed [seconds since J2000].
+                            :return: Local density. [kg/m^3]
+                            )doc");
 
 
 
