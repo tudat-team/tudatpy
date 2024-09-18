@@ -19,7 +19,6 @@
 #include "tudat/astro/aerodynamics/aerodynamicAcceleration.h"
 #include "tudat/astro/basic_astro/accelerationModelTypes.h"
 #include "tudat/astro/reference_frames/referenceFrameTransformations.h"
-#include "tudat/simulation/propagation_setup/createThrustModelGuidance.h"
 #include "tudat/basics/deprecationWarnings.h"
 #include "tudat/simulation/environment_setup/createRadiationPressureTargetModel.h"
 
