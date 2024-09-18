@@ -22,6 +22,10 @@
 #include "tudat/io/missileDatcomData.h"
 #include "tudat/io/missileDatcomReader.h"
 #include "tudat/io/basicInputOutput.h"
+#include "tudat/math/basic/mathematicalConstants.h"
+
+#include <boost/algorithm/string.hpp>
+#include <cmath>
 
 namespace tudat
 {
@@ -174,11 +178,11 @@ double MissileDatcomData::getDynamicCoefficient( int machIndex, int angleOfAttac
 }
 
 //! Write the database to CSV files.
-void MissileDatcomData::writeCoefficientsToFile( const std::string& fileNameBase,
+void MissileDatcomData::writeAllCoefficientsToFiles( const std::string& fileNameBase,
                                                  const int basePrecision,
                                                  const int exponentWidth )
 {
-    // Write coefficients to a file spearately for each angle of attack.
+    // Write coefficients to a file separately for each angle of attack.
     for ( unsigned int i = 0; i < angleOfAttack_.size( ) ; i++ )
     {
         // Make filename for specific angle of attack.
@@ -220,6 +224,76 @@ void MissileDatcomData::writeCoefficientsToFile( const std::string& fileNameBase
         }
 
         outputFile.close( );
+    }
+}
+
+// Convert degrees to radians
+double deg2Rad( const double deg ) { return deg * tudat::mathematical_constants::PI / 180.0 ;}
+
+//! Write the force and moment aerodynamic coefficients to files
+void MissileDatcomData::writeForceAndMomentCoefficientsToFiles( const std::string& fileNameBase,
+                                                 const int basePrecision,
+                                                 const int exponentWidth )
+{
+    // Define string streams for file header and contents
+    std::stringstream header;
+    std::stringstream CFxstream; std::stringstream CFystream; std::stringstream CFzstream;
+    std::stringstream CMxstream; std::stringstream CMystream; std::stringstream CMzstream;
+
+    // Put the mach numbers and angle of attacks to the header stream
+    header << "2\n";
+    std::copy(machNumber_.begin(), machNumber_.end(), std::ostream_iterator<double>(header, "\t"));
+    header << "\n";
+    std::vector<double> angleOfAttackRadians_;
+
+    // Convert the angle of attacks from degrees to radians
+    angleOfAttackRadians_.resize( angleOfAttack_.size() );
+    std::transform( angleOfAttack_.begin(), angleOfAttack_.end(), angleOfAttackRadians_.begin(), deg2Rad );
+    std::copy(angleOfAttackRadians_.begin(), angleOfAttackRadians_.end(), std::ostream_iterator<double>(header, "\t"));
+    header << "\n\n";
+
+    // Loop trough the mach numbers and angle of attacks
+    for (unsigned int i = 0; i < machNumber_.size() ; i++ )
+    {
+        for (unsigned int j = 0; j < angleOfAttack_.size() ; j++ )
+        {
+            // Compute the real drag and lift coefficients depending on the angle of attack
+            double alpha = angleOfAttackRadians_[j];
+            const double cd = staticCoefficients_[ i ][ j ][ ca ];
+            const double cl = staticCoefficients_[ i ][ j ][ cn ];
+            const double CD = cd * std::cos(alpha) + cl * std::sin(alpha);
+            const double CL = -cd * std::sin(alpha) + cl * std::cos(alpha);
+            
+            // Add the coefficients to the relevant streams
+            CFxstream << CD;                                    // Drag force coefficient (X direction)
+            CFystream << staticCoefficients_[ i ][ j ][ cy ];   // Sideslip force coefficient (Y direction)
+            CFzstream << CL;                                    // Lift force coefficient (Z direction)
+            CMxstream << staticCoefficients_[ i ][ j ][ cll ];  // Roll moment coefficient (around X)
+            CMystream << staticCoefficients_[ i ][ j ][ cm ];   // Pitch moment coefficient (around Y)
+            CMzstream << staticCoefficients_[ i ][ j ][ cln ];  // Yaw moment coefficient (around Z)
+            // Add separating tabulation (unless we are at the end of the line)
+            if (j != angleOfAttack_.size() - 1)
+            {
+                CFxstream << "\t"; CFystream << "\t"; CFzstream << "\t";
+                CMxstream << "\t"; CMystream << "\t"; CMzstream << "\t";
+            }
+        }
+        // Add separating new lines (unless we are at the end of the file)
+        if (i != machNumber_.size() - 1)
+        {
+            CFxstream << "\n"; CFystream << "\n"; CFzstream << "\n";
+            CMxstream << "\n"; CMystream << "\n"; CMzstream << "\n";
+        }
+    }
+    
+    // Save the streams to relevant data files
+    std::vector<std::string> streamsStrings = {CFxstream.str(), CFystream.str(), CFzstream.str(), CMxstream.str(), CMystream.str(), CMzstream.str()};
+    std::vector<std::string> names = {"CFx", "CFy", "CFz", "CMx", "CMy", "CMz"};
+    for ( unsigned int i = 0; i < 6; i++ )
+    {
+        std::ofstream out(fileNameBase + names[i] + ".dat");
+        out << header.str() << streamsStrings[i];
+        out.close();
     }
 }
 

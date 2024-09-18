@@ -16,22 +16,68 @@ namespace tudat
 namespace propagators
 {
 
+
+std::string getRotationalPropagatorName( const RotationalPropagatorType propagatorType )
+{
+    std::string propagatorName;
+    switch( propagatorType )
+    {
+        case quaternions:
+            propagatorName = "Quaternions";
+            break;
+        case modified_rodrigues_parameters:
+            propagatorName = "Modified Rodrigues parameters";
+            break;
+        case exponential_map:
+            propagatorName = "Exponential map";
+            break;
+        default:
+            throw std::runtime_error( "Error when getting rotational propagator name, propagator" + std::to_string( static_cast< int >( propagatorType ) ) + " not found" );
+            break;
+    }
+    return propagatorName;
+}
+
+
+int getRotationalStateSize( const RotationalPropagatorType propagatorType )
+{
+    int stateSize;
+    switch( propagatorType )
+    {
+        case quaternions:
+            stateSize = 7;
+            break;
+        case modified_rodrigues_parameters:
+            stateSize = 7;
+            break;
+        case exponential_map:
+            stateSize = 7;
+            break;
+        default:
+            throw std::runtime_error( "Error when getting rotational propagator size, " + std::to_string( static_cast< int >( propagatorType ) ) + " not found" );
+            break;
+    }
+    return stateSize;
+}
+
 //! Function to evaluated the classical rotational equations of motion (Euler equations)
 Eigen::Vector3d evaluateRotationalEquationsOfMotion(
         const Eigen::Matrix3d& inertiaTensor, const Eigen::Vector3d& totalTorque,
         const Eigen::Vector3d& angularVelocityVector,
         const Eigen::Matrix3d& inertiaTensorTimeDerivative )
 {
-    return inertiaTensor.inverse( ) * ( totalTorque );
+    Eigen::Matrix3d inverseInertiaTensor = inertiaTensor.inverse( );
+    if( inverseInertiaTensor.hasNaN( ) )
+    {
+        std::cout<<inertiaTensor<<std::endl<<std::endl;
+        std::cout<<inverseInertiaTensor<<std::endl<<std::endl;
+
+        throw std::runtime_error( "Error when evaluating rotational equations of motion, inverse inertia tensor contains NaN. ");
+    }
+    return inverseInertiaTensor * ( totalTorque );
 }
 
 template class RotationalMotionStateDerivative< double, double >;
-
-#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
-template class RotationalMotionStateDerivative< long double, double >;
-template class RotationalMotionStateDerivative< double, Time >;
-template class RotationalMotionStateDerivative< long double, Time >;
-#endif
 
 }
 

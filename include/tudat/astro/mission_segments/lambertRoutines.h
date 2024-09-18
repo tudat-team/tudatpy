@@ -10,9 +10,10 @@
  *    References
  *      Battin, R.H. An Introduction to the math and Methods of astro,
  *          AIAA Education Series, 1999.
- *      Izzo, D. lambert_problem.h, keptoolbox.
- *      Gooding, R.H. A procedure for the solution of Lambert's orbital boundary-value problem,
- *          Celestial Mechanics and Dynamical Astronomy, 48:145-165, 1990.
+ *      Izzo, D. lambert_problem.h, http://esa.github.io/pykep/ .
+ *      Gooding, R.H. A procedure for the solution of Lambert's orbital
+ *          boundary-value problem, Celestial Mechanics and Dynamical Astronomy,
+ *          48:145-165, 1990.
  *
  */
 
@@ -34,17 +35,20 @@ namespace mission_segments
 
 //! Solve Lambert Problem using Izzo's algorithm.
 /*!
- * Solves the Lambert Problem using Izzo's algorithm. This code is an implementation of the method
- * developed by Dario Izzo from ESA/ACT and publicly available at:
- * http://keptoolbox.sourceforge.net/
- * After verification and validation, it was proven that this algorithm is faster and more robust
- * than the implemented Lancaster & Blanchard and Gooding method. Notably, this method does not
- * suffer from the near-pi singularity (pi-transfers are by nature singular). This method works in
- * adimensional units, meaning that position, time-of-flight and gravitational parameter can be
- * provided in any units, as long as they are coherent across all quantities. Results will be
- * returned in the same units as the input variables.
- * Note that while this implementation does not support multi-revolution transfers, the original
- * algorithm (see link above) does. The root-finder (Secant Method) is currently hard-coded.
+ * Solves the Lambert Problem using Izzo's algorithm. This code is an
+ * implementation of the method developed by Dario Izzo from ESA/ACT and
+ * publicly available at:
+ * http://esa.github.io/pykep/documentation/core.html?highlight=lambert#pykep.lambert_problem
+ * Through verification and validation it was determined that this algorithm is
+ * faster and more robust than the implemented Lancaster & Blanchard and
+ * Gooding method. Notably, this method does not suffer from the near-pi
+ * singularity (pi-transfers are by their nature singular). This method works
+ * in non-dimensional units, meaning that position, time-of-flight, and
+ * gravitational parameter can be provided in any units, as long as they are
+ * consistent across all quantities. Results will be returned in the same units
+ * as the input variables.  Note that while this implementation does not
+ * support multi-revolution transfers, the original algorithm (see link above)
+ * does. The root-finder (Secant Method) is currently hard-coded.
  * \param cartesianPositionAtDeparture Cartesian position at departure. [Input]
  * \param cartesianPositionAtArrival Cartesian position at arrival. [Input]
  * \param timeOfFlight Time-of-flight between departure and arrival. [Input]
@@ -69,9 +73,10 @@ void solveLambertProblemIzzo( const Eigen::Vector3d& cartesianPositionAtDepartur
 
 //! Compute time-of-flight using Lagrange's equation.
 /*!
- * Computes the time-of-flight according to Lagrange's equation as a function of the x-parameter.
+ * Computes the time-of-flight according to Lagrange's equation as a function
+ * of the x-parameter.
  * \param xParameter x parameter in Izzo's algorithm.
- * \param semiPerimeter Semi-perimeter: \f$ s = \frac{ r_1 + r_2 + c }{ 2 } \f$.
+ * \param semiParameter Semi-parameter: \f$ s = \frac{ r_1 + r_2 + c }{ 2 } \f$.
  * \param chord Chord: \f$ c = \sqrt{ r_1^2 + r_2^2 - 2 * r_1 * r_2 \cos( \theta ) } \f$.
  * \param isLongway Boolean flag to indicate if the transfer is long-way (\f$ \theta > \pi \f$) or
  *          short-way (\f$ \theta < \pi \f$).
@@ -79,17 +84,17 @@ void solveLambertProblemIzzo( const Eigen::Vector3d& cartesianPositionAtDepartur
  *          \f$ a_m = s / 2 \f$.
  * \return timeOfFlight Computed time-of-flight.
  */
-double computeTimeOfFlightIzzo( const double xParameter, const double semiPerimeter,
+double computeTimeOfFlightIzzo( const double xParameter, const double semiParameter,
                                 const double chord, const bool isLongway,
                                 const double semiMajorAxisOfTheMinimumEnergyEllipse );
 
 //! Solve Lambert Problem using Gooding's algorithm.
 /*!
- * Solves the Lambert Problem using Lancaster and Blanchard's algorithm with further improvements
- * by Gooding.
- * The number of revolutions from departure to arrival body is zero by definition in this
- * routine. This can be made user-defined later on. The resulting trajectories are in
- * anti-clockwise (prograde) direction.
+ * Solves the Lambert Problem using Lancaster and Blanchard's algorithm with
+ * further improvements by Gooding.  The number of revolutions from departure
+ * to arrival body is zero by definition in this routine. This can be made
+ * user-defined later on. The resulting trajectories are in anti-clockwise
+ * (prograde) direction.
  * \param cartesianPositionAtDeparture Cartesian position at departure [m]. [Input]
  * \param cartesianPositionAtArrival Cartesian position at arrival [m]. [Input]
  * \param timeOfFlight Time-of-flight between departure and arrival [s]. [Input]
@@ -110,8 +115,8 @@ void solveLambertProblemGooding( const Eigen::Vector3d& cartesianPositionAtDepar
 
 //! Gooding Lambert functions class.
 /*!
- * This class contains the auxiliary functions required by the root-finder in the Lambert routine
- * from Gooding.
+ * This class contains the auxiliary functions required by the root-finder in
+ * the Lambert routine from Gooding.
  */
 class LambertFunctionsGooding
 {

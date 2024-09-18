@@ -12,7 +12,7 @@
 #include "tudat/astro/aerodynamics/tabulatedAtmosphere.h"
 
 #include <iostream>
-#include <boost/make_shared.hpp>
+
 #include "tudat/io/matrixTextFileReader.h"
 
 namespace tudat

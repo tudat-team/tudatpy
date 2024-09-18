@@ -27,7 +27,7 @@ Eigen::Quaterniond SpiceRotationalEphemeris::getRotationToBaseFrame(
 {
     // Get rotational quaternion from spice wrapper function
     return spice_interface::computeRotationQuaternionBetweenFrames(
-                targetFrameOrientation_, baseFrameOrientation_, secondsSinceEpoch + referenceDayOffSet_ );
+        spiceFrameName_, baseFrameOrientation_, secondsSinceEpoch );
 }
 
 //! Function to calculate the derivative of the rotation matrix from target frame to original
@@ -37,7 +37,7 @@ Eigen::Matrix3d SpiceRotationalEphemeris::getDerivativeOfRotationToBaseFrame(
 {
     // Get rotation matrix derivative from spice wrapper function
     return spice_interface::computeRotationMatrixDerivativeBetweenFrames(
-                targetFrameOrientation_, baseFrameOrientation_, secondsSinceEpoch + referenceDayOffSet_ );
+        spiceFrameName_, baseFrameOrientation_, secondsSinceEpoch );
 }
 
 //! Function to calculate the full rotational state at given time
@@ -50,7 +50,7 @@ void SpiceRotationalEphemeris::getFullRotationalQuantitiesToTargetFrame(
     // Calculate rotation (and its time derivative) directly from spice.
     std::pair< Eigen::Quaterniond, Eigen::Matrix3d > fullRotation =
             spice_interface::computeRotationQuaternionAndRotationMatrixDerivativeBetweenFrames(
-                baseFrameOrientation_, targetFrameOrientation_, secondsSinceEpoch + referenceDayOffSet_ );
+                baseFrameOrientation_, spiceFrameName_, secondsSinceEpoch );
     currentRotationToLocalFrame = fullRotation.first;
     currentRotationToLocalFrameDerivative = fullRotation.second;
 

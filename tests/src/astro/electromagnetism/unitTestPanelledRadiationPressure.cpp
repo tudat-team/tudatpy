@@ -5,13 +5,9 @@
 
 #include "tudat/astro/basic_astro/orbitalElementConversions.h"
 #include "tudat/basics/testMacros.h"
-
 #include "tudat/astro/basic_astro/accelerationModel.h"
-
 #include "tudat/interface/spice/spiceInterface.h"
 
-
-#include "tudat/astro/electromagnetism/panelledRadiationPressure.h"
 #include "tudat/astro/ephemerides/keplerEphemeris.h"
 #include "tudat/astro/ephemerides/simpleRotationalEphemeris.h"
 #include "tudat/astro/ephemerides/constantRotationalEphemeris.h"
@@ -61,6 +57,7 @@ BOOST_AUTO_TEST_CASE( testSimpleGeometryPanelledRadiationPressure )
                 std::make_shared< KeplerEphemeris >(
                     initialStateInKeplerianElements, 0.0, spice_interface::getBodyGravitationalParameter( "Sun" ),
                     "Sun", "ECLIPJ2000", 1 ) );
+    bodies.processBodyFrameDefinitions( );
 
     // Define constant rotational ephemeris
     Eigen::Vector7d rotationalStateVehicle;
@@ -177,6 +174,7 @@ BOOST_AUTO_TEST_CASE( testSimpleGeometryPanelledRadiationPressure )
             bodies.at( "Sun" )->setStateFromEphemeris( testTimes[ i ] );
             bodies.at( "Vehicle" )->setStateFromEphemeris( testTimes[ i ] );
             bodies.at( "Vehicle" )->setCurrentRotationToLocalFrameFromEphemeris( testTimes[ i ] );
+            bodies.at( "Vehicle" )->updateMass( testTimes[ i ] );
             radiationPressureInterface->updateInterface( testTimes[ i ] );
             accelerationModel->updateMembers( testTimes[ i ] );
 
@@ -335,6 +333,7 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureMontenbruckModel )
             bodies.at( "Vehicle" )->setRotationalEphemeris( std::make_shared< tudat::ephemerides::SimpleRotationalEphemeris >(
                             0.2, 0.4, -0.2, 1.0E-5, 0.0, "ECLIPJ2000", "VehicleFixed" ) );
         }
+        bodies.processBodyFrameDefinitions( );
 
 
 
@@ -480,6 +479,7 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureMontenbruckModel )
             bodies.at( "Sun" )->setStateFromEphemeris( testTimes[ i ] );
             bodies.at( "Vehicle" )->setStateFromEphemeris( testTimes[ i ] );
             bodies.at( "Vehicle" )->setCurrentRotationToLocalFrameFromEphemeris( testTimes[ i ] );
+            bodies.at( "Vehicle" )->updateMass( testTimes[ i ] );
             radiationPressureInterface->updateInterface( testTimes[ i ] );
             accelerationModel->updateMembers( testTimes[ i ] );
 
@@ -816,6 +816,7 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureTimeVaryingPanelOrientation )
             bodies.at( "Sun" )->setStateFromEphemeris( testTimes[ i ] );
             bodies.at( "Vehicle" )->setStateFromEphemeris( testTimes[ i ] );
             bodies.at( "Vehicle" )->setCurrentRotationToLocalFrameFromEphemeris( testTimes[ i ] );
+            bodies.at( "Vehicle" )->updateMass( testTimes[ i ] );
             radiationPressureInterface->updateInterface( testTimes[ i ] );
             accelerationModel->updateMembers( testTimes[ i ] );
 
@@ -879,6 +880,7 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureTimeVaryingPanelOrientation )
             bodies.at( "Sun" )->setStateFromEphemeris( testTimes[ i ] );
             bodies.at( "Vehicle" )->setStateFromEphemeris( testTimes[ i ] );
             bodies.at( "Vehicle" )->setCurrentRotationToLocalFrameFromEphemeris( testTimes[ i ] );
+            bodies.at( "Vehicle" )->updateMass( testTimes[ i ] );
             radiationPressureInterfaceTimeVaryingSurfaceNormal->updateInterface( testTimes[ i ] );
             accelerationModelTimeVaryingPanelSurfaceNormal->updateMembers( testTimes[ i ] );
 

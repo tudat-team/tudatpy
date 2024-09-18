@@ -9,8 +9,8 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}")
 
 # Find dependencies.
 include(CMakeFindDependencyMacro)
-#find_dependency(CSpice)
-#find_dependency(Sofa)
+find_dependency(CSpice)
+find_dependency(Sofa)
 #find_dependency(Eigen3)
 #efind_dependency(Boost)
 #set(_TUDAT_FIND_BOOST_UNIT_TEST_FRAMEWORK ON)
@@ -49,4 +49,3 @@ set (Tudat_ESTIMATION_LIBRARIES "@Tudat_ESTIMATION_LIBRARIES@")
 if (CMAKE_VERSION VERSION_LESS 2.8.3)
   set (CMAKE_CURRENT_LIST_DIR)
 endif ()
-

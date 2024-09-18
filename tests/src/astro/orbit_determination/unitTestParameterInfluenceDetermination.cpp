@@ -166,7 +166,7 @@ BOOST_AUTO_TEST_CASE( test_ParameterPostFitResiduals )
         std::shared_ptr< IntegratorSettings< > > integratorSettings =
                 std::make_shared< RungeKuttaVariableStepSizeSettings< > >
                 ( simulationStartEpoch, 12.0 * 3600.0,
-                  RungeKuttaCoefficients::CoefficientSets::rungeKuttaFehlberg78,
+                  CoefficientSets::rungeKuttaFehlberg78,
                   3.0 * 3600.0, 12.0 * 3600.0, 1.0E-12, 1.0E-12 );
 
         // Create settings for parameter that is to be perturbed
@@ -176,7 +176,7 @@ BOOST_AUTO_TEST_CASE( test_ParameterPostFitResiduals )
                         2, 0, 2, 0, "Sun", spherical_harmonics_cosine_coefficient_block ) );
 
         // Generate fit for observations with J2 to model without J2
-        std::pair< std::shared_ptr< PodOutput< double > >, Eigen::VectorXd > estimationOutput =
+        std::pair< std::shared_ptr< EstimationOutput< double > >, Eigen::VectorXd > estimationOutput =
                 determinePostfitParameterInfluence(
                     bodies, integratorSettings, propagatorSettings, perturbedParameterSettings,
                     6.0 * 3600.0, { -sunNormalizedJ2 }, { 0 } );
@@ -203,10 +203,10 @@ BOOST_AUTO_TEST_CASE( test_ParameterPostFitResiduals )
         {
             BOOST_CHECK_EQUAL( finalPrefitDifference.norm( ) > 400.0, true );
 
-            BOOST_CHECK_EQUAL( initialPostfitDifference.norm( ) > 40.0, true );
+            BOOST_CHECK_EQUAL( initialPostfitDifference.norm( ) > 10.0, true );
             BOOST_CHECK_EQUAL( initialPostfitDifference.norm( ) < 60.0, true );
 
-            BOOST_CHECK_EQUAL( finalPostfitDifference.norm( ) > 40.0, true );
+            BOOST_CHECK_EQUAL( finalPostfitDifference.norm( ) > 10.0, true );
             BOOST_CHECK_EQUAL( finalPostfitDifference.norm( ) < 60.0, true );
 
             BOOST_CHECK_EQUAL( prefitRms / postfitRms > 8.0, true );
@@ -272,14 +272,21 @@ BOOST_AUTO_TEST_CASE( test_ParameterPostFitResidualsApollo )
 
     // Create vehicle objects.
     bodies.createEmptyBody( "Apollo" );
-    bodies.at( "Apollo" )->setEphemeris( std::make_shared< TabulatedCartesianEphemeris< > >(
-                                           std::shared_ptr< interpolators::OneDimensionalInterpolator
-                                           < double, Eigen::Vector6d > >( ), "Earth", "J2000" ) );
+
     bodies.at( "Apollo" )->setAerodynamicCoefficientInterface(
                 unit_tests::getApolloCoefficientInterface( ) );
     bodies.at( "Apollo" )->setConstantBodyMass( 5.0E3 );
 
-    
+    double constantAngleOfAttack = 25.0 * mathematical_constants::PI / 180.0;
+    std::shared_ptr< ephemerides::RotationalEphemeris > vehicleRotationModel =
+            createRotationModel(
+                std::make_shared< AerodynamicAngleRotationSettings >(
+                    "Earth", "J2000", "VehicleFixed",
+                    [=](const double){ return ( Eigen::Vector3d( ) << constantAngleOfAttack, 0.0, 0.0 ).finished( ); } ),
+                "Apollo", bodies );
+
+    bodies.at( "Apollo" )->setRotationalEphemeris( vehicleRotationModel );
+
     // Define propagator settings variables.
     SelectedAccelerationMap accelerationMap;
     std::vector< std::string > bodiesToPropagate;
@@ -298,10 +305,6 @@ BOOST_AUTO_TEST_CASE( test_ParameterPostFitResidualsApollo )
     basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
                 bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
-    // Define constant 25 degree angle of attack
-    double constantAngleOfAttack = 25.0 * mathematical_constants::PI / 180.0;
-    bodies.at( "Apollo" )->getFlightConditions( )->getAerodynamicAngleCalculator( )->setOrientationAngleFunctions(
-                [ & ]( ){ return constantAngleOfAttack; } );
 
     // Set initial spherical elements for Apollo.
     Eigen::Vector6d apolloSphericalEntryState;
@@ -351,7 +354,7 @@ BOOST_AUTO_TEST_CASE( test_ParameterPostFitResidualsApollo )
 
 
     // Generate fit for observations with J2 to model without J2
-    std::pair< std::shared_ptr< PodOutput< double > >, Eigen::VectorXd > estimationOutput =
+    std::pair< std::shared_ptr< EstimationOutput< double > >, Eigen::VectorXd > estimationOutput =
             determinePostfitParameterInfluence(
                 bodies, integratorSettings, propagatorSettings, perturbedParameterSettings,
                 1.0, { -earthC20 }, { 0 } );

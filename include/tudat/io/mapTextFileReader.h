@@ -24,7 +24,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/algorithm/string/trim_all.hpp>
-#include <boost/iostreams/device/file.hpp>
+//#include <boost/iostreams/device/file.hpp>
 #include <boost/iostreams/copy.hpp>
 #include <boost/iostreams/filtering_stream.hpp>
 #include <boost/lexical_cast.hpp>
@@ -168,7 +168,7 @@ std::map< KeyType, std::vector< ScalarValueType > > readStlVectorMapFromFile(
                                  boost::algorithm::token_compress_on );
 
         // Determine key and put single line entries into vector.
-        KeyType key;
+        KeyType key = KeyType( );
         std::vector< ScalarValueType > values;
         for ( unsigned int columnIndex = 0; columnIndex < lineSplit_.size( ); columnIndex++ )
         {

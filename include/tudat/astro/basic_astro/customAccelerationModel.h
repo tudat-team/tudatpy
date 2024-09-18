@@ -25,7 +25,7 @@ public:
             const std::function< Eigen::Vector3d( const double ) > accelerationFunction ):
         accelerationFunction_( accelerationFunction )
     {
-        updateMembers( TUDAT_NAN );
+
     }
 
     virtual void updateMembers( const double currentTime = TUDAT_NAN )
@@ -39,6 +39,7 @@ public:
 
 private:
     std::function< Eigen::Vector3d( const double ) > accelerationFunction_;
+
 };
 
 

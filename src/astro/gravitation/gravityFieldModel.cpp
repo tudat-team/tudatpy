@@ -9,7 +9,7 @@
  *
  */
 
-#include <boost/make_shared.hpp>
+
 #include "tudat/astro/gravitation/gravityFieldModel.h"
 
 namespace tudat

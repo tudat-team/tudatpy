@@ -23,6 +23,7 @@
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/simulation/estimation_setup/observations.h"
+#include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
 
 namespace tudat
 {
@@ -30,63 +31,34 @@ namespace tudat
 namespace simulation_setup
 {
 
-//! Data structure used to provide input to orbit determination procedure
 template< typename ObservationScalarType = double, typename TimeType = double >
-class PodInput
+class CovarianceAnalysisInput
 {
 public:
-
-   //! Constructor
-    /*!
-     * Constructor
-     * \param observationCollection Total data structure of observations and associated times/link ends/type
-     * \param numberOfEstimatedParameters Size of vector of estimated parameters
-     * \param inverseOfAprioriCovariance A priori covariance matrix (unnormalized) of estimated parameters. None (matrix of
-     * size 0) by default
-     * \param initialParameterDeviationEstimate Correction to estimated parameter vector to be applied on first iteration.
-     * None (vector of size 0) by default
-     */
-    PodInput( const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > >& observationCollection,
-              const int numberOfEstimatedParameters,
+    CovarianceAnalysisInput(
+              const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > >& observationCollection,
               const Eigen::MatrixXd inverseOfAprioriCovariance = Eigen::MatrixXd::Zero( 0, 0 ),
-              const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > initialParameterDeviationEstimate =
-            Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >::Zero( 0, 1 ) ):
-        observationCollection_( observationCollection ), initialParameterDeviationEstimate_( initialParameterDeviationEstimate ),
+              const Eigen::MatrixXd considerCovariance = Eigen::MatrixXd::Zero( 0, 0 ) ):
+        observationCollection_( observationCollection ),
         inverseOfAprioriCovariance_( inverseOfAprioriCovariance ),
+        considerCovariance_( considerCovariance ),
+        limitConditionNumberForWarning_( 1.0E8 ),
         reintegrateEquationsOnFirstIteration_( true ),
         reintegrateVariationalEquations_( true ),
-        saveInformationMatrix_( true ),
-        printOutput_( true ),
-        saveResidualsAndParametersFromEachIteration_( true ),
-        saveStateHistoryForEachIteration_( false )
+        saveDesignMatrix_( true ),
+        printOutput_( true )
     {
-        if( inverseOfAprioriCovariance_.rows( ) == 0 )
-        {
-            inverseOfAprioriCovariance_ = Eigen::MatrixXd::Zero( numberOfEstimatedParameters, numberOfEstimatedParameters );
-        }
-
-        if( ( numberOfEstimatedParameters != inverseOfAprioriCovariance_.rows( ) ) ||
-                ( numberOfEstimatedParameters != inverseOfAprioriCovariance_.cols( ) ) )
-        {
-            throw std::runtime_error( "Error when making POD input, size of a priori covariance is inconsistent" );
-        }
-
-        if( initialParameterDeviationEstimate_.rows( ) == 0 )
-        {
-            initialParameterDeviationEstimate_ =
-                    Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >::Zero( numberOfEstimatedParameters, 1 );
-        }
-
-        if( numberOfEstimatedParameters != initialParameterDeviationEstimate_.rows( ) )
-        {
-            throw std::runtime_error( "Error when making POD input, size of initial parameter deviation is inconsistent" );
-        }
         weightsMatrixDiagonals_ = Eigen::VectorXd::Zero( observationCollection->getTotalObservableSize( ) );
         setConstantWeightsMatrix( 1.0 );
+
+        considerParametersIncluded_ = false;
+        if ( considerCovariance.size( ) > 0 )
+        {
+            considerParametersIncluded_ = true;
+        }
     }
 
-    //! Destructor
-    virtual ~PodInput( ){ }
+    virtual ~CovarianceAnalysisInput( ){ }
 
     //! Function to set a constant values for all observation weights
     /*!
@@ -99,6 +71,172 @@ public:
                     observationCollection_->getTotalObservableSize( ), constantWeight );
     }
 
+    void setWeightsFromObservationCollection( )
+    {
+        weightsMatrixDiagonals_ = observationCollection_->getWeightsFromSingleObservationSets( );
+    }
+
+    //! Set constant scalar weight for all observables of given type
+    void setConstantSingleObservableWeights(
+        const observation_models::ObservableType currentObservable,
+        const double weight )
+    {
+        std::map< observation_models::ObservableType, std::pair< int, int > > observationTypeStartAndSize =
+            observationCollection_->getObservationTypeStartAndSize( );
+
+        if( observationTypeStartAndSize.count( currentObservable) == 0 )
+        {
+            std::cerr<< "Warning when setting weights for data type "<< std::to_string( currentObservable) <<  ". " <<
+                     " No data of given type found." <<std::endl;
+        }
+        else
+        {
+            std::pair< int, int > indicesToUse = observationTypeStartAndSize.at( currentObservable );
+
+                weightsMatrixDiagonals_.segment( indicesToUse.first, indicesToUse.second ) =
+                    Eigen::VectorXd::Constant( indicesToUse.second, weight );
+        }
+    }
+
+    //! Set constant vector weight for all observables of given type
+    void setConstantSingleObservableVectorWeights(
+        const observation_models::ObservableType currentObservable,
+        const Eigen::VectorXd weight )
+    {
+        std::map< observation_models::ObservableType, std::pair< int, int > > observationTypeStartAndSize =
+            observationCollection_->getObservationTypeStartAndSize( );
+
+        if( observationTypeStartAndSize.count( currentObservable) == 0 )
+        {
+            std::cerr<< "Warning when setting weights for data type "<< std::to_string( currentObservable) <<  ". " <<
+                     " No data of given type found." <<std::endl;
+        }
+        else
+        {
+            std::pair< int, int > indicesToUse = observationTypeStartAndSize.at( currentObservable );
+
+            int observableSize = observation_models::getObservableSize( currentObservable );
+            if( observableSize != weight.rows( ) )
+            {
+                throw std::runtime_error( "Error when setting weight vector for observable, size should be " +
+                                          std::to_string( observableSize ) + " but is " + std::to_string( weight.rows( ) ) );
+            }
+            int numberOfObservations =  indicesToUse.second / observableSize;
+
+            weightsMatrixDiagonals_.segment( indicesToUse.first, indicesToUse.second ) =
+                utilities::getSuccesivelyConcatenatedVector( weight, numberOfObservations );
+        }
+    }
+
+    //! Set constant scalar weight for all observables of given type and link ends
+    void setConstantSingleObservableAndLinkEndsWeights(
+        const observation_models::ObservableType currentObservable,
+        const observation_models::LinkEnds currentLinkEnds,
+        const double weight )
+    {
+        std::map< observation_models::ObservableType,
+            std::map< observation_models::LinkEnds, std::pair< int, int > > >  observationLinkEndStartAndSize =
+            observationCollection_->getObservationTypeAndLinkEndStartAndSize( );
+
+        if( observationLinkEndStartAndSize.count( currentObservable) == 0 )
+        {
+            std::cerr<< "Warning when setting weights for data type "<< std::to_string( currentObservable) <<  ". " <<
+                     " No data of given type found." <<std::endl;
+        }
+        else if( observationLinkEndStartAndSize.at( currentObservable ).count( currentLinkEnds ) == 0 )
+        {
+
+            std::cerr<< "Warning when setting weights for data type " << std::to_string( currentObservable)<< " and link ends " <<
+                     ". No data of given type and link ends found." <<std::endl;
+        }
+        else
+        {
+            std::pair< int, int > indicesToUse = observationLinkEndStartAndSize.at( currentObservable ).at( currentLinkEnds );
+            weightsMatrixDiagonals_.segment( indicesToUse.first,
+                                             indicesToUse.second ) =
+                Eigen::VectorXd::Constant( indicesToUse.second, weight );
+        }
+    }
+
+    //! Set constant vector weight for all observables of given type and link ends
+    void setConstantSingleObservableAndLinkEndsVectorWeights(
+        const observation_models::ObservableType currentObservable,
+        const observation_models::LinkEnds currentLinkEnds,
+        const Eigen::VectorXd weight )
+    {
+        std::map< observation_models::ObservableType,
+            std::map< observation_models::LinkEnds, std::pair< int, int > > >  observationLinkEndStartAndSize =
+            observationCollection_->getObservationTypeAndLinkEndStartAndSize( );
+
+        if( observationLinkEndStartAndSize.count( currentObservable) == 0 )
+        {
+            std::cerr<< "Warning when setting weights for data type "<< std::to_string( currentObservable) <<  ". " <<
+                     " No data of given type found." <<std::endl;
+        }
+        else if( observationLinkEndStartAndSize.at( currentObservable ).count( currentLinkEnds ) == 0 )
+        {
+
+            std::cerr<< "Warning when setting weights for data type " << std::to_string( currentObservable)<< " and link ends " <<
+                     ". No data of given type and link ends found." <<std::endl;
+        }
+        else
+        {
+            std::pair< int, int > indicesToUse =
+                observationLinkEndStartAndSize.at( currentObservable ).at( currentLinkEnds );
+
+            int observableSize = observation_models::getObservableSize( currentObservable );
+            if( observableSize != weight.rows( ) )
+            {
+                throw std::runtime_error( "Error when setting weight vector for observable, size should be " +
+                                          std::to_string( observableSize ) + " but is " + std::to_string( weight.rows( ) ) );
+            }
+            int numberOfObservations = indicesToUse.second / observableSize;
+
+
+            weightsMatrixDiagonals_.segment( indicesToUse.first,
+                                             indicesToUse.second ) =
+                utilities::getSuccesivelyConcatenatedVector( weight, numberOfObservations );
+        }
+    }
+
+    //! Set constant vector weight for alweightsMatrixDiagonals_l observables of given type and link ends
+    void setTabulatedSingleObservableAndLinkEndsWeights(
+        const observation_models::ObservableType currentObservable,
+        const observation_models::LinkEnds currentLinkEnds,
+        const Eigen::VectorXd weight )
+    {
+        std::map< observation_models::ObservableType,
+            std::map< observation_models::LinkEnds, std::pair< int, int > > >  observationLinkEndStartAndSize =
+            observationCollection_->getObservationTypeAndLinkEndStartAndSize( );
+
+        if( observationLinkEndStartAndSize.count( currentObservable) == 0 )
+        {
+            std::cerr<< "Warning when setting weights for data type "<< std::to_string( currentObservable) <<  ". " <<
+                     " No data of given type found." <<std::endl;
+        }
+        else if( observationLinkEndStartAndSize.at( currentObservable ).count( currentLinkEnds ) == 0 )
+        {
+
+            std::cerr<< "Warning when setting weights for data type " << std::to_string( currentObservable)<< " and link ends " <<
+                     ". No data of given type and link ends found." <<std::endl;
+        }
+        else
+        {
+            std::pair< int, int > indicesToUse =
+                observationLinkEndStartAndSize.at( currentObservable ).at( currentLinkEnds );
+
+            if( indicesToUse.second != weight.rows( ) )
+            {
+                throw std::runtime_error( "Error when setting total weight vector for observable and link ends, size should be " +
+                                          std::to_string( indicesToUse.second ) + " but is " + std::to_string( weight.rows( ) ) );
+            }
+
+            weightsMatrixDiagonals_.segment( indicesToUse.first,
+                                             indicesToUse.second ) = weight;
+        }
+    }
+
+
     //! Function to set a values for observation weights, constant per observable type
     /*!
      * Function to set a values for observation weights, constant per observable type
@@ -107,24 +245,20 @@ public:
     void setConstantPerObservableWeightsMatrix(
             const std::map< observation_models::ObservableType, double > weightPerObservable )
     {
-        std::map< observation_models::ObservableType, std::pair< int, int > > observationTypeStartAndSize =
-                observationCollection_->getObservationTypeStartAndSize( );
-
         for( auto observableIterator : weightPerObservable )
         {
-            observation_models::ObservableType currentObservable = observableIterator.first;
-            if( observationTypeStartAndSize.count( observableIterator.first ) == 0 )
-            {
-                std::cerr<<"Warning when setting weights for data type " <<std::to_string( observableIterator.first )<< ". "<<
-                           " No data of given type found."<<std::endl;
-            }
-            else
-            {
-                weightsMatrixDiagonals_.segment( observationTypeStartAndSize.at( currentObservable ).first,
-                                                 observationTypeStartAndSize.at( currentObservable ).second ) =
-                        Eigen::VectorXd::Constant( observationTypeStartAndSize.at( currentObservable ).second, observableIterator.second );
-            }
+            setConstantSingleObservableWeights(
+                    observableIterator.first, observableIterator.second );
+        }
+    }
 
+    void setConstantPerObservableVectorWeightsMatrix(
+        const std::map< observation_models::ObservableType, Eigen::VectorXd > weightPerObservable )
+    {
+        for( auto observableIterator : weightPerObservable )
+        {
+            setConstantSingleObservableVectorWeights(
+                observableIterator.first, observableIterator.second );
         }
     }
 
@@ -137,46 +271,32 @@ public:
             const std::map< observation_models::ObservableType,
             std::map< observation_models::LinkEnds, double > > weightPerObservableAndLinkEnds )
     {
-        std::map< observation_models::ObservableType,
-                std::map< observation_models::LinkEnds, std::vector< std::pair< int, int > > > >  observationSetStartAndSize =
-                observationCollection_->getObservationSetStartAndSize( );
-
         for( auto observableIterator : weightPerObservableAndLinkEnds )
         {
             observation_models::ObservableType currentObservable = observableIterator.first;
-            if( observationSetStartAndSize.count( currentObservable) == 0 )
+            for( auto linkEndIterator : observableIterator.second )
             {
-                std::cerr<< "Warning when setting weights for data type "<< std::to_string( currentObservable) <<  ". " <<
-                            " No data of given type found." <<std::endl;
+                observation_models::LinkEnds currentLinkEnds = linkEndIterator.first;
+                setConstantSingleObservableAndLinkEndsWeights( currentObservable, currentLinkEnds, linkEndIterator.second );
             }
-            else
-            {
-                for( auto linkEndIterator : observableIterator.second )
-                {
-                    observation_models::LinkEnds currentLinkEnds = linkEndIterator.first;
-                    if( observationSetStartAndSize.at( currentObservable ).count( currentLinkEnds ) == 0 )
-                    {
-
-                        std::cerr<< "Warning when setting weights for data type " << std::to_string( currentObservable)<< " and link ends " <<
-                                    //static_cast< std::string >( currentLinkEnds ) +
-                                    ". No data of given type and link ends found." <<std::endl;
-                    }
-                    else
-                    {
-                        std::vector< std::pair< int, int > > indicesToUse =
-                                observationSetStartAndSize.at( currentObservable ).at( currentLinkEnds );
-                        for( unsigned int i = 0; i < indicesToUse.size( ); i++ )
-                        {
-                            weightsMatrixDiagonals_.segment( indicesToUse.at( i ).first,
-                                                             indicesToUse.at( i ).second ) =
-                                    Eigen::VectorXd::Constant( indicesToUse.at( i ).second, linkEndIterator.second );
-                        }
-                    }
-                }
-            }
-
         }
     }
+
+    void setConstantPerObservableAndLinkEndsVectorWeights(
+        const std::map< observation_models::ObservableType,
+            std::map< observation_models::LinkEnds, Eigen::VectorXd > > weightPerObservableAndLinkEnds )
+    {
+        for( auto observableIterator : weightPerObservableAndLinkEnds )
+        {
+            observation_models::ObservableType currentObservable = observableIterator.first;
+            for( auto linkEndIterator : observableIterator.second )
+            {
+                observation_models::LinkEnds currentLinkEnds = linkEndIterator.first;
+                setConstantSingleObservableAndLinkEndsVectorWeights( currentObservable, currentLinkEnds, linkEndIterator.second );
+            }
+        }
+    }
+
     void setConstantPerObservableAndLinkEndsWeights(
             const observation_models::ObservableType observableType,
             const std::vector< observation_models::LinkEnds >& linkEnds,
@@ -190,32 +310,67 @@ public:
         setConstantPerObservableAndLinkEndsWeights( weightPerObservableAndLinkEnds );
     }
 
-    //! Function to define specific settings for estimation process
-    /*!
-     *  Function to define specific settings for estimation process
-     *  \param reintegrateEquationsOnFirstIteration Boolean denoting whether the dynamics and variational equations are to
-     *  be reintegrated on first iteration, or if existing values are to be used to perform first iteration.
-     *  \param reintegrateVariationalEquations Boolean denoting whether the variational equations are to be reintegrated during
-     *  estimation
-     *  \param saveInformationMatrix Boolean denoting whether to save the partials matrix in the output
-     *  \param printOutput Boolean denoting whether to print output to th terminal when running the estimation.
-     *  \param saveResidualsAndParametersFromEachIteration Boolean denoting whether the residuals and parameters from the each
-     *  iteration are to be saved
-     *  \param saveStateHistoryForEachIteration Boolean denoting whether the state history is to be saved on each iteration
-     */
-    void defineEstimationSettings( const bool reintegrateEquationsOnFirstIteration = 1,
-                                   const bool reintegrateVariationalEquations = 1,
-                                   const bool saveInformationMatrix = 1,
-                                   const bool printOutput = 1,
-                                   const bool saveResidualsAndParametersFromEachIteration = 1,
-                                   const bool saveStateHistoryForEachIteration = 0 )
+    void setConstantPerObservableAndLinkEndsVectorWeights(
+        const observation_models::ObservableType observableType,
+        const std::vector< observation_models::LinkEnds >& linkEnds,
+        const Eigen::VectorXd weight )
     {
-        reintegrateEquationsOnFirstIteration_ = reintegrateEquationsOnFirstIteration;
-        reintegrateVariationalEquations_ = reintegrateVariationalEquations;
-        saveInformationMatrix_ = saveInformationMatrix;
-        printOutput_ = printOutput;
-        saveResidualsAndParametersFromEachIteration_ = saveResidualsAndParametersFromEachIteration;
-        saveStateHistoryForEachIteration_ = saveStateHistoryForEachIteration;
+        std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds, Eigen::VectorXd > > weightPerObservableAndLinkEnds;
+        for( unsigned int i = 0; i < linkEnds.size( ); i++ )
+        {
+            weightPerObservableAndLinkEnds[ observableType ][ linkEnds.at( i ) ] =  weight;
+        }
+        setConstantPerObservableAndLinkEndsVectorWeights( weightPerObservableAndLinkEnds );
+    }
+
+    void setTabulatedPerObservableAndLinkEndsWeights(
+            const std::map< observation_models::ObservableType,
+            std::map< observation_models::LinkEnds, Eigen::VectorXd > > weightsPerObservableAndLinkEnds )
+    {
+        std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds, std::pair< int, int > > > observationLinkEndStartAndSize =
+                observationCollection_->getObservationTypeAndLinkEndStartAndSize( );
+
+        for( auto observableIterator : weightsPerObservableAndLinkEnds )
+        {
+            observation_models::ObservableType currentObservable = observableIterator.first;
+            if( observationLinkEndStartAndSize.count( currentObservable) == 0 )
+            {
+                std::cerr<< "Warning when setting weights for data type "<< std::to_string( currentObservable) <<  ". " <<
+                         " No data of given type found." <<std::endl;
+            }
+            else
+            {
+                for( auto linkEndIterator : observableIterator.second )
+                {
+                    observation_models::LinkEnds currentLinkEnds = linkEndIterator.first;
+                    if( observationLinkEndStartAndSize.at( currentObservable ).count( currentLinkEnds ) == 0 )
+                    {
+
+                        std::cerr<< "Warning when setting weights for data type " << std::to_string( currentObservable)<< " and link ends " <<
+                                 //static_cast< std::string >( currentLinkEnds ) +
+                                 ". No data of given type and link ends found." <<std::endl;
+                    }
+                    else
+                    {
+                        setTabulatedSingleObservableAndLinkEndsWeights( currentObservable, currentLinkEnds, linkEndIterator.second );
+                    }
+                }
+            }
+
+        }
+    }
+
+    void setTabulatedPerObservableAndLinkEndsWeights(
+        const observation_models::ObservableType observableType,
+        const std::vector< observation_models::LinkEnds >& linkEnds,
+        const Eigen::VectorXd weights )
+    {
+        std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds, Eigen::VectorXd > > weightsPerObservableAndLinkEnds;
+        for( unsigned int i = 0; i < linkEnds.size( ); i++ )
+        {
+            weightsPerObservableAndLinkEnds[ observableType ][ linkEnds.at( i ) ] =  weights;
+        }
+        setTabulatedPerObservableAndLinkEndsWeights( weightsPerObservableAndLinkEnds );
     }
 
     //! Function to return the total data structure of observations and associated times/link ends/type (by reference)
@@ -226,16 +381,6 @@ public:
     std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > getObservationCollection( )
     {
         return observationCollection_;
-    }
-
-    //! Function to return the correction to estimated parameter vector to be applied on first iteration
-    /*!
-     * Function to return the correction to estimated parameter vector to be applied on first iteration
-     * \return Correction to estimated parameter vector to be applied on first iteration
-     */
-    Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > getInitialParameterDeviationEstimate( )
-    {
-        return initialParameterDeviationEstimate_;
     }
 
     //! A priori covariance matrix (unnormalized) of estimated parameters
@@ -249,7 +394,50 @@ public:
         return inverseOfAprioriCovariance_;
     }
 
-    //! Function to return the weight matrix diagonals, sorted by link ends and observable type (by reference)
+    Eigen::MatrixXd getInverseOfAprioriCovariance( const int numberOfParameters )
+    {
+        if( inverseOfAprioriCovariance_.rows( ) == 0 )
+        {
+            return Eigen::MatrixXd::Zero( numberOfParameters, numberOfParameters );
+        }
+        else if( inverseOfAprioriCovariance_.rows( ) != numberOfParameters ||
+                 inverseOfAprioriCovariance_.cols( ) != numberOfParameters )
+        {
+            throw std::runtime_error( "Error whenr retrieving invers a priori covariance; size is incompatible" );
+        }
+        else
+        {
+            return inverseOfAprioriCovariance_;
+        }
+    }
+
+    //! Covariance matrix for consider parameters
+    //! Function to return the covariance matrix for consider parameters
+    /*!
+     * Function to return the covariance matrix for consider parameters
+     * \return Consider parameters covariance
+     */
+    Eigen::MatrixXd getConsiderCovariance( )
+    {
+        return considerCovariance_;
+    }
+
+    void setConsiderCovariance( const Eigen::MatrixXd& considerCovariance )
+    {
+        considerCovariance_ = considerCovariance;
+    }
+
+    double getLimitConditionNumberForWarning( )
+    {
+        return limitConditionNumberForWarning_;
+    }
+
+    void setLimitConditionNumberForWarning( const double limitConditionNumberForWarning)
+    {
+        limitConditionNumberForWarning_ = limitConditionNumberForWarning;
+    }
+
+      //! Function to return the weight matrix diagonals, sorted by link ends and observable type (by reference)
     /*!
      * Function to return the weight matrix diagonals, sorted by link ends and observable type (by reference)
      * \return Weight matrix diagonals, sorted by link ends and observable type (by reference)
@@ -257,6 +445,11 @@ public:
     Eigen::VectorXd getWeightsMatrixDiagonals( )
     {
         return weightsMatrixDiagonals_;
+    }
+
+    void setWeightsMatrixDiagonals( const Eigen::VectorXd& weightsMatrixDiagonals )
+    {
+        weightsMatrixDiagonals_ = weightsMatrixDiagonals;
     }
 
     //! Function to return the boolean denoting whether the dynamics and variational equations are reintegrated on first iteration
@@ -285,9 +478,9 @@ public:
      * Function to return the boolean denoting whether to print output to th terminal when running the estimation.
      * \return Boolean denoting whether to print output to th terminal when running the estimation.
      */
-    bool getSaveInformationMatrix( )
+    bool getSaveDesignMatrix( )
     {
-        return saveInformationMatrix_;
+        return saveDesignMatrix_;
     }
 
     //! Function to return the boolean denoting whether to print output to th terminal when running the estimation.
@@ -300,35 +493,37 @@ public:
         return printOutput_;
     }
 
-    //! Function to return the boolean denoting whether the residuals and parameters from the each iteration are to be saved
-    /*!
-     * Function to return the boolean denoting whether the residuals and parameters from the each iteration are to be saved
-     * \return Boolean denoting whether the residuals and parameters from the each iteration are to be saved
-     */
-    bool getSaveResidualsAndParametersFromEachIteration( )
+    void defineCovarianceSettings( const bool reintegrateEquationsOnFirstIteration = 1,
+                                   const bool reintegrateVariationalEquations = 1,
+                                   const bool saveDesignMatrix = 1,
+                                   const bool printOutput = 1,
+                                   const double limitConditionNumberForWarning = 1.0E8 )
     {
-        return saveResidualsAndParametersFromEachIteration_;
+        this->reintegrateEquationsOnFirstIteration_ = reintegrateEquationsOnFirstIteration;
+        this->reintegrateVariationalEquations_ = reintegrateVariationalEquations;
+        this->saveDesignMatrix_ = saveDesignMatrix;
+        this->printOutput_ = printOutput;
+        this->limitConditionNumberForWarning_ = limitConditionNumberForWarning;
     }
 
-    //! Function to return the boolean denoting whether the state history is to be saved on each iteration.
-    /*!
-     * Function to return the boolean denoting whether the state history is to be saved on each iteration.
-     * \return Boolean denoting whether the state history is to be saved on each iteration.
-     */
-    bool getSaveStateHistoryForEachIteration( )
+    bool areConsiderParametersIncluded( ) const
     {
-        return saveStateHistoryForEachIteration_;
+        return considerParametersIncluded_;
     }
 
-private:
+
+
+protected:
     //! Total data structure of observations and associated times/link ends/type
     std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > observationCollection_;
 
-    //! Correction to estimated parameter vector to be applied on first iteration
-    Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > initialParameterDeviationEstimate_;
-
     //! A priori covariance matrix (unnormalized) of estimated parameters
     Eigen::MatrixXd inverseOfAprioriCovariance_;
+
+    //! Covariance matrix for consider parameters
+    Eigen::MatrixXd considerCovariance_;
+
+    double limitConditionNumberForWarning_;
 
     //! Weight matrix diagonals, sorted by link ends and observable type
     Eigen::VectorXd weightsMatrixDiagonals_;
@@ -340,18 +535,15 @@ private:
     bool reintegrateVariationalEquations_;
 
     //! Boolean denoting whether to print output to th terminal when running the estimation.
-    bool saveInformationMatrix_;
+    bool saveDesignMatrix_;
 
     //! Boolean denoting whether to print output to th terminal when running the estimation.
     bool printOutput_;
 
-    //! Boolean denoting whether the residuals and parameters from the each iteration are to be saved
-    bool saveResidualsAndParametersFromEachIteration_;
-
-    //! Boolean denoting whether the state history is to be saved on each iteration.
-    bool saveStateHistoryForEachIteration_;
-
+    //! Boolean denoting whether consider parameters are included in the covariance analysis
+    bool considerParametersIncluded_;
 };
+
 
 //! Class that is used during the orbit determination/parameter estimation to determine whether the estimation is converged.
 class EstimationConvergenceChecker
@@ -413,6 +605,8 @@ public:
         }
         return isConverged;
     }
+
+
 protected:
 
     //! Maximum number of allowed iterations for estimation
@@ -426,56 +620,238 @@ protected:
 
     //!  Number of iterations without reduction of residual
     unsigned int numberOfIterationsWithoutImprovement_;
+
 };
 
-void scaleInformationMatrixWithWeights(
-        Eigen::MatrixXd& informationMatrix,
-        const Eigen::VectorXd& weightsDiagonal );
 
-//! Data structure through which the output of the orbit determination is communicated
-template< typename ObservationScalarType = double, typename TimeType = double  >
-struct PodOutput
+
+//! Data structure used to provide input to orbit determination procedure
+template< typename ObservationScalarType = double, typename TimeType = double >
+class EstimationInput: public CovarianceAnalysisInput< ObservationScalarType, TimeType >
 {
+public:
 
     //! Constructor
     /*!
      * Constructor
-     * \param parameterEstimate Vector of estimated parameter values.
-     * \param residuals Vector of postfit observation residuals
-     * \param normalizedInformationMatrix Matrix of observation partials (normalixed) used in estimation
-     * (may be empty if so requested)
-     * \param weightsMatrixDiagonal Diagonal of weights matrix used in the estimation
-     * \param informationMatrixTransformationDiagonal Vector of values by which the columns of the unnormalized information
-     * matrix were divided to normalize its entries.
-     * \param inverseNormalizedCovarianceMatrix Inverse of postfit normalized covariance matrix
-     * \param residualStandardDeviation Standard deviation of postfit residuals vector
-     * \param residualHistory Vector of residuals per iteration
-     * \param parameterHistory Vector of parameter vectors per iteration (entry 1 is pre-estimation values)
-     * \param exceptionDuringInversion Boolean denoting whether an exception was caught during inversion of normal equations
-     * \param exceptionDuringPropagation Boolean denoting whether an exception was caught during (re)propagation of equations of
-     * motion (and variational equations).
+     * \param observationCollection Total data structure of observations and associated times/link ends/type
+     * \param inverseOfAprioriCovariance A priori covariance matrix (unnormalized) of estimated parameters. None (matrix of
+     * size 0) by default
      */
-    PodOutput( const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& parameterEstimate,
-               const Eigen::VectorXd& residuals,
-               const Eigen::MatrixXd& normalizedInformationMatrix,
-               const Eigen::VectorXd& weightsMatrixDiagonal,
-               const Eigen::VectorXd& informationMatrixTransformationDiagonal,
-               const Eigen::MatrixXd& inverseNormalizedCovarianceMatrix,
-               const double residualStandardDeviation,
-               const std::vector< Eigen::VectorXd >& residualHistory = std::vector< Eigen::VectorXd >( ),
-               const std::vector< Eigen::VectorXd >& parameterHistory = std::vector< Eigen::VectorXd >( ),
-               const bool exceptionDuringInversion = false,
-               const bool exceptionDuringPropagation = false ):
-        parameterEstimate_( parameterEstimate ), residuals_( residuals ),
-        normalizedInformationMatrix_( normalizedInformationMatrix ), weightsMatrixDiagonal_( weightsMatrixDiagonal ),
-        informationMatrixTransformationDiagonal_( informationMatrixTransformationDiagonal ),
+    EstimationInput(
+            const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > >& observationCollection,
+            const Eigen::MatrixXd inverseOfAprioriCovariance = Eigen::MatrixXd::Zero( 0, 0 ),
+            const std::shared_ptr< EstimationConvergenceChecker > convergenceChecker = std::make_shared< EstimationConvergenceChecker >( ),
+            const Eigen::MatrixXd considerCovariance = Eigen::MatrixXd::Zero( 0, 0 ),
+            const Eigen::VectorXd considerParametersDeviations = Eigen::VectorXd::Zero( 0 ),
+            const bool applyFinalParameterCorrection = true ):
+        CovarianceAnalysisInput< ObservationScalarType, TimeType >(
+            observationCollection, inverseOfAprioriCovariance, considerCovariance ),
+        saveResidualsAndParametersFromEachIteration_( true ),
+        saveStateHistoryForEachIteration_( false ),
+        convergenceChecker_( convergenceChecker ),
+        considerParametersDeviations_( considerParametersDeviations ),
+        conditionNumberWarningEachIteration_( true ),
+        applyFinalParameterCorrection_( applyFinalParameterCorrection )
+
+    {
+        if ( this->areConsiderParametersIncluded( ) )
+        {
+            if ( considerParametersDeviations_.size( ) > 0 )
+            {
+                if ( considerCovariance.rows( ) != considerParametersDeviations_.size( ) )
+                {
+                    throw std::runtime_error("Error when defining consider covariance and consider parameters deviations, sizes are inconsistent.");
+                }
+                std::cerr << "Warning, considerParametersDeviations are provided as input. These should contain (statistical) deviations with respect to the *nominal*"
+                             "consider parameters values, and not their absolute values." << "\n\n";
+            }
+        }
+        else
+        {
+            if ( considerParametersDeviations_.size( ) > 0 )
+            {
+                throw std::runtime_error("Error, non-zero consider parameters deviations, but no consider covariance provided.");
+            }
+        }
+    }
+
+    //! Destructor
+    virtual ~EstimationInput( ){ }
+
+
+    //! Function to define specific settings for estimation process
+    /*!
+     *  Function to define specific settings for estimation process
+     *  \param reintegrateEquationsOnFirstIteration Boolean denoting whether the dynamics and variational equations are to
+     *  be reintegrated on first iteration, or if existing values are to be used to perform first iteration.
+     *  \param reintegrateVariationalEquations Boolean denoting whether the variational equations are to be reintegrated during
+     *  estimation
+     *  \param saveDesignMatrix Boolean denoting whether to save the partials matrix in the output
+     *  \param printOutput Boolean denoting whether to print output to th terminal when running the estimation.
+     *  \param saveResidualsAndParametersFromEachIteration Boolean denoting whether the residuals and parameters from the each
+     *  iteration are to be saved
+     *  \param saveStateHistoryForEachIteration Boolean denoting whether the state history is to be saved on each iteration
+     */
+    void defineEstimationSettings( const bool reintegrateEquationsOnFirstIteration = 1,
+                                   const bool reintegrateVariationalEquations = 1,
+                                   const bool saveDesignMatrix = 1,
+                                   const bool printOutput = 1,
+                                   const bool saveResidualsAndParametersFromEachIteration = 1,
+                                   const bool saveStateHistoryForEachIteration = 0,
+                                   const double limitConditionNumberForWarning = 1.0E8,
+                                   const bool conditionNumberWarningEachIteration = true )
+    {
+        this->reintegrateEquationsOnFirstIteration_ = reintegrateEquationsOnFirstIteration;
+        this->reintegrateVariationalEquations_ = reintegrateVariationalEquations;
+        this->saveDesignMatrix_ = saveDesignMatrix;
+        this->printOutput_ = printOutput;
+        this->saveResidualsAndParametersFromEachIteration_ = saveResidualsAndParametersFromEachIteration;
+        this->saveStateHistoryForEachIteration_ = saveStateHistoryForEachIteration;
+        this->limitConditionNumberForWarning_ = limitConditionNumberForWarning;
+        this->conditionNumberWarningEachIteration_ = conditionNumberWarningEachIteration;
+    }
+
+
+    //! Function to return the boolean denoting whether the residuals and parameters from the each iteration are to be saved
+    /*!
+     * Function to return the boolean denoting whether the residuals and parameters from the each iteration are to be saved
+     * \return Boolean denoting whether the residuals and parameters from the each iteration are to be saved
+     */
+    bool getSaveResidualsAndParametersFromEachIteration( )
+    {
+        return saveResidualsAndParametersFromEachIteration_;
+    }
+
+
+    std::shared_ptr< EstimationConvergenceChecker > getConvergenceChecker( )
+    {
+        return convergenceChecker_;
+    }
+
+
+    void setConvergenceChecker( const std::shared_ptr< EstimationConvergenceChecker > convergenceChecker )
+    {
+        convergenceChecker_ = convergenceChecker;
+    }
+
+
+
+
+    //! Function to return the boolean denoting whether the state history is to be saved on each iteration.
+    /*!
+     * Function to return the boolean denoting whether the state history is to be saved on each iteration.
+     * \return Boolean denoting whether the state history is to be saved on each iteration.
+     */
+    bool getSaveStateHistoryForEachIteration( )
+    {
+        return saveStateHistoryForEachIteration_;
+    }
+
+    //! Boolean denoting whether the residuals and parameters from the each iteration are to be saved
+    bool saveResidualsAndParametersFromEachIteration_;
+
+    //! Boolean denoting whether the state history is to be saved on each iteration.
+    bool saveStateHistoryForEachIteration_;
+
+    std::shared_ptr< EstimationConvergenceChecker > convergenceChecker_;
+
+    //! Vector of consider parameters deviations
+    Eigen::VectorXd considerParametersDeviations_;
+
+    bool conditionNumberWarningEachIteration_;
+
+    bool applyFinalParameterCorrection_;
+
+
+};
+
+inline std::shared_ptr< EstimationConvergenceChecker > estimationConvergenceChecker(
+        const unsigned int maximumNumberOfIterations = 5,
+        const double minimumResidualChange = 0.0,
+        const double minimumResidual = 1.0E-20,
+        const int numberOfIterationsWithoutImprovement = 2 )
+{
+    return std::make_shared< EstimationConvergenceChecker >(
+                maximumNumberOfIterations, minimumResidualChange, minimumResidual, numberOfIterationsWithoutImprovement );
+}
+
+
+void scaleDesignMatrixWithWeights(
+        Eigen::MatrixXd& designMatrix,
+        const Eigen::VectorXd& weightsDiagonal );
+
+Eigen::MatrixXd normaliseUnnormaliseCovarianceMatrix(
+        const Eigen::MatrixXd& covarianceMatrix,
+        const Eigen::VectorXd& normalisationFactors,
+        const bool normalise );
+
+Eigen::MatrixXd normaliseUnnormaliseInverseCovarianceMatrix(
+        Eigen::MatrixXd& inverseCovarianceMatrix,
+        Eigen::VectorXd& normalisationFactors,
+        const bool normalise );
+
+
+template< typename ObservationScalarType = double, typename TimeType = double  >
+struct CovarianceAnalysisOutput
+{
+
+    CovarianceAnalysisOutput( const Eigen::MatrixXd& normalizedDesignMatrix,
+                             const Eigen::VectorXd& weightsMatrixDiagonal,
+                             const Eigen::VectorXd& designMatrixTransformationDiagonal,
+                             const Eigen::MatrixXd& inverseNormalizedCovarianceMatrix,
+                             const Eigen::MatrixXd& designMatrixConsiderParameters = Eigen::MatrixXd::Zero( 0, 0 ),
+                             const Eigen::VectorXd& considerNormalizationFactors = Eigen::VectorXd::Zero( 0 ),
+                             const Eigen::MatrixXd& considerCovarianceContribution = Eigen::MatrixXd::Zero( 0, 0 ),
+                             const bool exceptionDuringPropagation = false ):
+        normalizedDesignMatrix_( normalizedDesignMatrix ),
+        weightsMatrixDiagonal_( weightsMatrixDiagonal ),
+        designMatrixTransformationDiagonal_( designMatrixTransformationDiagonal ),
         inverseNormalizedCovarianceMatrix_( inverseNormalizedCovarianceMatrix ),
-        residualStandardDeviation_( residualStandardDeviation ),
-        residualHistory_( residualHistory ),
-        parameterHistory_( parameterHistory ),
-        exceptionDuringInversion_( exceptionDuringInversion ),
-        exceptionDuringPropagation_( exceptionDuringPropagation)
-    { }
+        normalizedDesignMatrixConsiderParameters_( designMatrixConsiderParameters ),
+        considerNormalizationFactors_( considerNormalizationFactors ),
+        exceptionDuringPropagation_( exceptionDuringPropagation )
+    {
+        considerParametersIncluded_ = false;
+        if ( designMatrixConsiderParameters.size( ) > 0 && considerNormalizationFactors.size( ) > 0 && considerCovarianceContribution.size( ) > 0 )
+        {
+            considerParametersIncluded_ = true;
+        }
+
+        // Compute normalized covariance matrix
+        normalizedCovarianceMatrix_ = inverseNormalizedCovarianceMatrix_.inverse( );
+
+        // Compute unnormalised inverse covariance matrix
+        inverseUnnormalizedCovarianceMatrix_ = normaliseUnnormaliseInverseCovarianceMatrix(
+                inverseNormalizedCovarianceMatrix_, designMatrixTransformationDiagonal_, false );
+
+        // Compute unnormalised covariance matrix
+        unnormalizedCovarianceMatrix_ = normaliseUnnormaliseCovarianceMatrix(
+                normalizedCovarianceMatrix_, designMatrixTransformationDiagonal_, false );
+
+        normalizedCovarianceWithConsiderParameters_ = normalizedCovarianceMatrix_;
+        unnormalizedCovarianceWithConsiderParameters_ = unnormalizedCovarianceMatrix_;
+        considerCovarianceContribution_ = Eigen::MatrixXd::Zero( unnormalizedCovarianceMatrix_.rows( ), unnormalizedCovarianceMatrix_.cols( ) );
+        if ( considerParametersIncluded_ )
+        {
+            // Add contribution consider parameters to unnormalised covariance
+            normalizedCovarianceWithConsiderParameters_ += considerCovarianceContribution;
+
+            // Compute unnormalised covariance with consider parameters
+            unnormalizedCovarianceWithConsiderParameters_ = normaliseUnnormaliseCovarianceMatrix(
+                    normalizedCovarianceWithConsiderParameters_, designMatrixTransformationDiagonal_, false );
+
+            // Save unnormalised contribution to covariance from consider parameters
+            considerCovarianceContribution_ = normaliseUnnormaliseCovarianceMatrix(
+                    considerCovarianceContribution, designMatrixTransformationDiagonal_, false );
+        }
+    }
+
+
+    Eigen::VectorXd getNormalizationTerms( )
+    {
+        return designMatrixTransformationDiagonal_;
+    }
 
     Eigen::MatrixXd getNormalizedInverseCovarianceMatrix( )
     {
@@ -489,24 +865,12 @@ struct PodOutput
      */
     Eigen::MatrixXd getUnnormalizedInverseCovarianceMatrix( )
     {
-
-        Eigen::MatrixXd inverseUnnormalizedCovarianceMatrix = getNormalizedInverseCovarianceMatrix( );
-
-        for( int i = 0; i < informationMatrixTransformationDiagonal_.rows( ); i++ )
-        {
-            for( int j = 0; j < informationMatrixTransformationDiagonal_.rows( ); j++ )
-            {
-                inverseUnnormalizedCovarianceMatrix( i, j ) *=
-                        informationMatrixTransformationDiagonal_( i ) * informationMatrixTransformationDiagonal_( j );
-            }
-        }
-
-        return inverseUnnormalizedCovarianceMatrix;
+        return inverseUnnormalizedCovarianceMatrix_;
     }
 
     Eigen::MatrixXd getNormalizedCovarianceMatrix( )
     {
-        return inverseNormalizedCovarianceMatrix_.inverse( );
+        return normalizedCovarianceMatrix_;
     }
 
     //! Function to retrieve the unnormalized estimation covariance matrix
@@ -516,18 +880,7 @@ struct PodOutput
      */
     Eigen::MatrixXd getUnnormalizedCovarianceMatrix( )
     {
-        Eigen::MatrixXd unnormalizedCovarianceMatrix = getNormalizedCovarianceMatrix( );
-
-        for( int i = 0; i < informationMatrixTransformationDiagonal_.rows( ); i++ )
-        {
-            for( int j = 0; j < informationMatrixTransformationDiagonal_.rows( ); j++ )
-            {
-                unnormalizedCovarianceMatrix( i, j ) /=
-                        informationMatrixTransformationDiagonal_( i ) * informationMatrixTransformationDiagonal_( j );
-            }
-        }
-
-        return unnormalizedCovarianceMatrix;
+        return unnormalizedCovarianceMatrix_;
     }
 
     //! Function to retrieve the matrix of unnormalized partial derivatives
@@ -535,80 +888,63 @@ struct PodOutput
      * Function to retrieve the matrix of unnormalized partial derivatives (typically detnoed as H)
      * \return Matrix of unnormalized partial derivatives
      */
-    Eigen::MatrixXd getUnnormalizedInformationMatrix( )
+    Eigen::MatrixXd getUnnormalizedDesignMatrix( )
     {
         Eigen::MatrixXd unnormalizedPartialDerivatives = Eigen::MatrixXd::Zero(
-                    normalizedInformationMatrix_.rows( ), normalizedInformationMatrix_.cols( ) );
+                    normalizedDesignMatrix_.rows( ), normalizedDesignMatrix_.cols( ) );
 
-        for( int i = 0; i < informationMatrixTransformationDiagonal_.rows( ); i++ )
+        for( int i = 0; i < designMatrixTransformationDiagonal_.rows( ); i++ )
         {
-            unnormalizedPartialDerivatives.block( 0, i, normalizedInformationMatrix_.rows( ), 1 ) =
-            normalizedInformationMatrix_.block( 0, i, normalizedInformationMatrix_.rows( ), 1 ) *
-                    informationMatrixTransformationDiagonal_( i );
+            unnormalizedPartialDerivatives.block( 0, i, normalizedDesignMatrix_.rows( ), 1 ) =
+                    normalizedDesignMatrix_.block( 0, i, normalizedDesignMatrix_.rows( ), 1 ) *
+                    designMatrixTransformationDiagonal_( i );
         }
         return unnormalizedPartialDerivatives;
     }
 
-    Eigen::MatrixXd getNormalizedInformationMatrix( )
+    Eigen::MatrixXd getNormalizedDesignMatrix( )
     {
-        return normalizedInformationMatrix_;
+        return normalizedDesignMatrix_;
     }
 
-    std::vector< std::vector< std::map< TimeType, Eigen::VectorXd > > > getDependentVariableHistory( )
+    Eigen::MatrixXd getNormalizedWeightedDesignMatrix( )
     {
-        if( dependentVariableHistoryPerIteration_.size( ) == 0 )
-        {
-            throw std::runtime_error( "Error when retrieving dependent variable histories from estimation, no dependent variable histories set." );
-        }
-        return dependentVariableHistoryPerIteration_;
+        Eigen::MatrixXd weightedNormalizedDesignMatrix = normalizedDesignMatrix_;
+        scaleDesignMatrixWithWeights( weightedNormalizedDesignMatrix, weightsMatrixDiagonal_ );
+        return weightedNormalizedDesignMatrix;
     }
 
-    std::vector< std::vector< std::map< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > > > getDynamicsHistory( )
+    Eigen::MatrixXd getConsiderCovarianceContribution( )
     {
-        if( dynamicsHistoryPerIteration_.size( ) == 0 )
-        {
-            throw std::runtime_error( "Error when retrieving dynamics histories from estimation, no dynamics results set." );
-        }
-        return dynamicsHistoryPerIteration_;
+        return considerCovarianceContribution_;
     }
 
-    std::vector< std::map< TimeType, Eigen::VectorXd > > getFinalDependentVariableHistory( )
+    Eigen::MatrixXd getNormalizedCovarianceWithConsiderParameters( )
     {
-        if( dependentVariableHistoryPerIteration_.size( ) == 0 )
-        {
-            throw std::runtime_error( "Error when retrieving final dependent variable histories from estimation, no dependent variable histories set." );
-        }
-        return dependentVariableHistoryPerIteration_.at( dependentVariableHistoryPerIteration_.size( ) - 1 );
+        return normalizedCovarianceWithConsiderParameters_;
     }
 
-    std::vector< std::map< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > > getFinalDynamicsHistory( )
+    Eigen::MatrixXd getUnnormalizedCovarianceWithConsiderParameters( )
     {
-        if( dynamicsHistoryPerIteration_.size( ) == 0 )
-        {
-            throw std::runtime_error( "Error when retrieving final dynamics histories from estimation, no dynamics results set." );
-        }
-        return dynamicsHistoryPerIteration_.at( dynamicsHistoryPerIteration_.size( ) - 1 );
+        return unnormalizedCovarianceWithConsiderParameters_;
     }
 
-
-    Eigen::MatrixXd getNormalizedWeightedInformationMatrix( )
+    Eigen::MatrixXd getNormalizedDesignMatrixConsiderParameters( )
     {
-        Eigen::MatrixXd weightedNormalizedInformationMatrix = normalizedInformationMatrix_;
-        scaleInformationMatrixWithWeights(
-                weightedNormalizedInformationMatrix,
-                weightsMatrixDiagonal_ );
-        return weightedNormalizedInformationMatrix;
+        return normalizedDesignMatrixConsiderParameters_;
     }
 
-    Eigen::MatrixXd getUnnormalizedWeightedInformationMatrix( )
+    Eigen::VectorXd getConsiderNormalizationFactors( )
     {
-        Eigen::MatrixXd weightedUnnormalizedInformationMatrix = getUnnormalizedInformationMatrix( );
-        scaleInformationMatrixWithWeights(
-                weightedUnnormalizedInformationMatrix,
-                weightsMatrixDiagonal_ );
-        return weightedUnnormalizedInformationMatrix;
+        return considerNormalizationFactors_;
     }
 
+    Eigen::MatrixXd getUnnormalizedWeightedDesignMatrix( )
+    {
+        Eigen::MatrixXd weightedUnnormalizedDesignMatrix = getUnnormalizedDesignMatrix( );
+        scaleDesignMatrixWithWeights( weightedUnnormalizedDesignMatrix, weightsMatrixDiagonal_ );
+        return weightedUnnormalizedDesignMatrix;
+    }
 
 
     //! Function to retrieve the unnormalized formal error vector of the estimation result.
@@ -630,6 +966,115 @@ struct PodOutput
     {
         return getUnnormalizedCovarianceMatrix( ).cwiseQuotient( getFormalErrorVector( ) * getFormalErrorVector( ).transpose( ) );
     }
+
+    Eigen::MatrixXd getUnnormalizedDesignMatrixConsiderParameters( )
+    {
+        Eigen::MatrixXd unnormalizedPartials = Eigen::MatrixXd::Zero(
+                normalizedDesignMatrixConsiderParameters_.rows( ), normalizedDesignMatrixConsiderParameters_.cols( ) );
+
+        for( int i = 0; i < considerNormalizationFactors_.rows( ); i++ )
+        {
+            unnormalizedPartials.block( 0, i, normalizedDesignMatrixConsiderParameters_.rows( ), 1 ) =
+                    normalizedDesignMatrixConsiderParameters_.block( 0, i, normalizedDesignMatrixConsiderParameters_.rows( ), 1 )
+                    * considerNormalizationFactors_( i );
+        }
+        return unnormalizedPartials;
+    }
+
+    //! Matrix of observation partials (normalixed) used in estimation (may be empty if so requested)
+    Eigen::MatrixXd normalizedDesignMatrix_;
+
+    //! Diagonal of weights matrix used in the estimation
+    Eigen::VectorXd weightsMatrixDiagonal_;
+
+    //! Vector of values by which the columns of the unnormalized information matrix were divided to normalize its entries.
+    Eigen::VectorXd designMatrixTransformationDiagonal_;
+
+    //! Inverse of postfit normalized covariance matrix
+    Eigen::MatrixXd inverseNormalizedCovarianceMatrix_;
+
+    //! Inverse of postfit unnormalized covariance matrix
+    Eigen::MatrixXd inverseUnnormalizedCovarianceMatrix_;
+
+    //! Postfit normalized covariance matrix
+    Eigen::MatrixXd normalizedCovarianceMatrix_;
+
+    //! Postfit unnormalized covariance matrix
+    Eigen::MatrixXd unnormalizedCovarianceMatrix_;
+
+    //! Postfit covariance contribution from consider parameters
+    Eigen::MatrixXd considerCovarianceContribution_;
+
+    //! Postfit normalised covariance matrix with consider parameters
+    Eigen::MatrixXd normalizedCovarianceWithConsiderParameters_;
+
+    //! Postfit unnormalised covariance matrix with consider parameters
+    Eigen::MatrixXd unnormalizedCovarianceWithConsiderParameters_;
+
+    //! Matrix of observation partials w.r.t. consider parameters (normalized)
+    Eigen::MatrixXd normalizedDesignMatrixConsiderParameters_;
+
+    //! Vector of values by which the columns of the unnormalized consider design matrix were divided to normalize its entries.
+    Eigen::VectorXd considerNormalizationFactors_;
+
+    //! Boolean denoting whether an exception was caught during (re)propagation of equations of motion (and variational equations)
+    bool exceptionDuringPropagation_;
+
+    //! Boolean denoting whether consider parameters are included
+    bool considerParametersIncluded_;
+};
+
+//! Data structure through which the output of the orbit determination is communicated
+template< typename ObservationScalarType = double, typename TimeType = double  >
+struct EstimationOutput: public CovarianceAnalysisOutput< ObservationScalarType, TimeType >
+{
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param parameterEstimate Vector of estimated parameter values.
+     * \param residuals Vector of postfit observation residuals
+     * \param normalizedDesignMatrix Matrix of observation partials (normalixed) used in estimation
+     * (may be empty if so requested)
+     * \param weightsMatrixDiagonal Diagonal of weights matrix used in the estimation
+     * \param designMatrixTransformationDiagonal Vector of values by which the columns of the unnormalized information
+     * matrix were divided to normalize its entries.
+     * \param inverseNormalizedCovarianceMatrix Inverse of postfit normalized covariance matrix
+     * \param residualStandardDeviation Standard deviation of postfit residuals vector
+     * \param residualHistory Vector of residuals per iteration
+     * \param parameterHistory Vector of parameter vectors per iteration (entry 1 is pre-estimation values)
+     * \param exceptionDuringInversion Boolean denoting whether an exception was caught during inversion of normal equations
+     * \param exceptionDuringPropagation Boolean denoting whether an exception was caught during (re)propagation of equations of
+     * motion (and variational equations).
+     */
+    EstimationOutput( const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& parameterEstimate,
+               const Eigen::VectorXd& residuals,
+               const Eigen::MatrixXd& normalizedDesignMatrix,
+               const Eigen::VectorXd& weightsMatrixDiagonal,
+               const Eigen::VectorXd& designMatrixTransformationDiagonal,
+               const Eigen::MatrixXd& inverseNormalizedCovarianceMatrix,
+               const double residualStandardDeviation,
+               const int bestIteration,
+               const std::vector< Eigen::VectorXd >& residualHistory = std::vector< Eigen::VectorXd >( ),
+               const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& parameterHistory = std::vector< Eigen::VectorXd >( ),
+               const Eigen::MatrixXd& designMatrixConsiderParameters = Eigen::MatrixXd::Zero( 0, 0 ),
+               const Eigen::VectorXd& considerNormalizationFactors = Eigen::VectorXd::Zero( 0 ),
+               const Eigen::MatrixXd& covarianceConsiderContribution = Eigen::MatrixXd::Zero( 0, 0 ),
+               const bool exceptionDuringInversion = false,
+               const bool exceptionDuringPropagation = false ):
+        CovarianceAnalysisOutput< ObservationScalarType, TimeType >( normalizedDesignMatrix, weightsMatrixDiagonal,
+                                 designMatrixTransformationDiagonal, inverseNormalizedCovarianceMatrix, designMatrixConsiderParameters,
+                                 considerNormalizationFactors, covarianceConsiderContribution, exceptionDuringPropagation ),
+        parameterEstimate_( parameterEstimate ),
+        residuals_( residuals ),
+        bestIteration_( bestIteration ),
+        residualStandardDeviation_( residualStandardDeviation ),
+        residualHistory_( residualHistory ),
+        parameterHistory_( parameterHistory ),
+        exceptionDuringInversion_( exceptionDuringInversion ),
+        numberOfParameters_( normalizedDesignMatrix.cols( ) )
+    { }
+
 
     //! Function to get residual vectors per iteration concatenated into a matrix
     /*!
@@ -660,11 +1105,13 @@ struct PodOutput
      * pre-estimation values
      * \return Parameter vectors per iteration concatenated into a matrix
      */
-    Eigen::MatrixXd getParameterHistoryMatrix( )
+    Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, Eigen::Dynamic > getParameterHistoryMatrix( )
     {
         if( parameterHistory_.size( ) > 0 )
         {
-            Eigen::MatrixXd parameterHistoryMatrix = Eigen::MatrixXd( parameterHistory_.at( 0 ).rows( ), parameterHistory_.size( ) );
+            Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, Eigen::Dynamic > parameterHistoryMatrix =
+                    Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, Eigen::Dynamic >(
+                        parameterHistory_.at( 0 ).rows( ), parameterHistory_.size( ) );
             for( unsigned int i = 0; i < parameterHistory_.size( ); i++ )
             {
                 parameterHistoryMatrix.block( 0, i, parameterHistory_.at( 0 ).rows( ), 1 ) = parameterHistory_.at( i );
@@ -674,42 +1121,71 @@ struct PodOutput
         else
         {
             std::cerr << "Warning, requesting parameter history, but history not saved." << std::endl;
-            return Eigen::MatrixXd::Zero( 0, 0 );
+            return Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, Eigen::Dynamic >::Zero( 0, 0 );
         }
     }
 
 
-    //! Function to set the full state histories of numerical solutions and dependent variables
-    /*!
-     * Function to set the full state histories of numerical solutions and dependent variables
-     * \param dynamicsHistoryPerIteration List of numerical solutions of dynamics (per iteration, per arc)
-     * \param dependentVariableHistoryPerIteration List of numerical solutions of dependent variables (per iteration, per arc)
-     */
-    void setStateHistories(
-            std::vector< std::vector< std::map< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > > >
-            dynamicsHistoryPerIteration,
-            std::vector< std::vector< std::map< TimeType, Eigen::VectorXd > > > dependentVariableHistoryPerIteration )
+//    std::vector< std::vector< std::map< TimeType, Eigen::VectorXd > > > getDependentVariableHistory( )
+//    {
+//        if( dependentVariableHistoryPerIteration_.size( ) == 0 )
+//        {
+//            throw std::runtime_error( "Error when retrieving dependent variable histories from estimation, no dependent variable histories set." );
+//        }
+//        return dependentVariableHistoryPerIteration_;
+//    }
+
+//    std::vector< std::vector< std::map< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > > > getDynamicsHistory( )
+//    {
+//        if( dynamicsHistoryPerIteration_.size( ) == 0 )
+//        {
+//            throw std::runtime_error( "Error when retrieving dynamics histories from estimation, no dynamics results set." );
+//        }
+//        return dynamicsHistoryPerIteration_;
+//    }
+
+//    std::vector< std::map< TimeType, Eigen::VectorXd > > getFinalDependentVariableHistory( )
+//    {
+//        if( dependentVariableHistoryPerIteration_.size( ) == 0 )
+//        {
+//            throw std::runtime_error( "Error when retrieving final dependent variable histories from estimation, no dependent variable histories set." );
+//        }
+//        return dependentVariableHistoryPerIteration_.at( dependentVariableHistoryPerIteration_.size( ) - 1 );
+//    }
+
+//    std::vector< std::map< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > > getFinalDynamicsHistory( )
+//    {
+//        if( dynamicsHistoryPerIteration_.size( ) == 0 )
+//        {
+//            throw std::runtime_error( "Error when retrieving final dynamics histories from estimation, no dynamics results set." );
+//        }
+//        return dynamicsHistoryPerIteration_.at( dynamicsHistoryPerIteration_.size( ) - 1 );
+//    }
+
+    void setSimulationResults(
+            std::vector< std::shared_ptr< propagators::SimulationResults< ObservationScalarType, TimeType > > > simulationResultsPerIteration )
     {
-        dynamicsHistoryPerIteration_ = dynamicsHistoryPerIteration;
-        dependentVariableHistoryPerIteration_ = dependentVariableHistoryPerIteration;
+        simulationResultsPerIteration_ = simulationResultsPerIteration;
     }
+
+    std::vector< std::shared_ptr< propagators::SimulationResults< ObservationScalarType, TimeType > > >  getSimulationResults( )
+    {
+        return simulationResultsPerIteration_;
+    }
+
+    std::shared_ptr< propagators::SimulationResults< ObservationScalarType, TimeType > > getBestIterationSimulationResults( )
+    {
+        return simulationResultsPerIteration_.at( bestIteration_ );
+    }
+
+
     //! Vector of estimated parameter values.
     Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > parameterEstimate_;
 
     //! Vector of postfit observation residuals
     Eigen::VectorXd residuals_;
 
-    //! Matrix of observation partials (normalixed) used in estimation (may be empty if so requested)
-    Eigen::MatrixXd normalizedInformationMatrix_;
-
-    //! Diagonal of weights matrix used in the estimation
-    Eigen::VectorXd weightsMatrixDiagonal_;
-
-    //! Vector of values by which the columns of the unnormalized information matrix were divided to normalize its entries.
-    Eigen::VectorXd informationMatrixTransformationDiagonal_;
-
-    //! Inverse of postfit normalized covariance matrix
-    Eigen::MatrixXd inverseNormalizedCovarianceMatrix_;
+    int bestIteration_;
 
     //! Standard deviation of postfit residuals vector
     double residualStandardDeviation_;
@@ -718,32 +1194,33 @@ struct PodOutput
     std::vector< Eigen::VectorXd > residualHistory_;
 
     //! Vector of parameter vectors per iteration (entry 0 is pre-estimation values)
-    std::vector< Eigen::VectorXd > parameterHistory_;
-
-    //! List of numerical solutions of dynamics (per iteration, per arc)
-    std::vector< std::vector< std::map< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > > > dynamicsHistoryPerIteration_;
-
-    //! List of numerical solutions of dependent variables (per iteration, per arc)
-    std::vector< std::vector< std::map< TimeType, Eigen::VectorXd > > > dependentVariableHistoryPerIteration_;
+    std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > parameterHistory_;
 
     //! Boolean denoting whether an exception was caught during inversion of normal equations
     bool exceptionDuringInversion_;
 
-    //! Boolean denoting whether an exception was caught during (re)propagation of equations of motion (and variational equations)
-    bool exceptionDuringPropagation_;
+    int numberOfParameters_;
+
+
+    std::vector< std::shared_ptr< propagators::SimulationResults< ObservationScalarType, TimeType > > > simulationResultsPerIteration_;
+
+//    //! List of numerical solutions of dynamics (per iteration, per arc)
+//    std::vector< std::vector< std::map< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > > > dynamicsHistoryPerIteration_;
+
+//    //! List of numerical solutions of dependent variables (per iteration, per arc)
+//    std::vector< std::vector< std::map< TimeType, Eigen::VectorXd > > > dependentVariableHistoryPerIteration_;
+
+
+
+
+
 };
 
+extern template class CovarianceAnalysisInput< double, double >;
+extern template struct CovarianceAnalysisOutput< double >;
 
-extern template class PodInput< double, double >;
-extern template struct PodOutput< double >;
-
-#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
-extern template class PodInput< long double, double >;
-extern template class PodInput< double, Time >;
-extern template class PodInput< long double, Time >;
-
-extern template struct PodOutput< long double >;
-#endif
+extern template class EstimationInput< double, double >;
+extern template struct EstimationOutput< double >;
 
 }
 

@@ -9,7 +9,7 @@
  *
  */
 
-
+#include <stdexcept>
 #include <cmath>
 #include "tudat/astro/low_thrust/shape_based/createBaseFunctionHodographicShaping.h"
 

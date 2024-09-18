@@ -11,6 +11,7 @@
 # Set the source files.
 set(aerodynamics_SOURCES
         "aerodynamicAcceleration.cpp"
+        "aerodynamicCoefficientInterface.cpp"
         "aerodynamicCoefficientGenerator.cpp"
         "aerodynamicTorque.cpp"
         "aerodynamicForce.cpp"

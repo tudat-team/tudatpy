@@ -19,7 +19,7 @@
 
 #include <stdexcept>
 
-#include <boost/make_shared.hpp>
+
 
 #include "tudat/astro/basic_astro/orbitalElementConversions.h"
 

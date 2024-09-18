@@ -21,7 +21,7 @@
 #include "tudat/astro/basic_astro/accelerationModel.h"
 
 #include "tudat/astro/propagators/nBodyStateDerivative.h"
-#include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameterSet.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/initialTranslationalState.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/initialRotationalState.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/initialMassState.h"
@@ -64,7 +64,8 @@ public:
             stateDerivativePartialList,
             const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
             const std::map< IntegratedStateType, int >& stateTypeStartIndices,
-            const int currentArcIndex = -1 ):
+            const int currentArcIndex = -1,
+            const std::map< std::string, int > arcIndicesPerBody = std::map< std::string, int >( ) ):
         stateDerivativePartialList_( stateDerivativePartialList ), stateTypeStartIndices_( stateTypeStartIndices ),
         couplingEntriesToSuppress_( -1 )
     {
@@ -105,7 +106,14 @@ public:
 
         // Set parameter partial functions.
         setStatePartialFunctionList( );
-        setTranslationalStatePartialFrameScalingFunctions( parametersToEstimate, currentArcIndex );
+        if ( arcIndicesPerBody.size( ) != 0 )
+        {
+            setTranslationalStatePartialFrameScalingFunctions( parametersToEstimate, currentArcIndex, arcIndicesPerBody );
+        }
+        else
+        {
+            setTranslationalStatePartialFrameScalingFunctions( parametersToEstimate, currentArcIndex );
+        }
         setRotationalStatePartialScalingFunctions( parametersToEstimate );
         setParameterPartialFunctionList( parametersToEstimate );
     }
@@ -129,7 +137,27 @@ public:
     template< typename StateScalarType >
     void getBodyInitialStatePartialMatrix(
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& stateTransitionAndSensitivityMatrices,
-            Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > > currentMatrixDerivative );
+            Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > > currentMatrixDerivative )
+    {
+        setBodyStatePartialMatrix( );
+
+        // Add partials of body positions and velocities.
+        currentMatrixDerivative.block( 0, 0, totalDynamicalStateSize_, numberOfParameterValues_ ) =
+                ( variationalMatrix_.template cast< StateScalarType >( ) * stateTransitionAndSensitivityMatrices );
+
+        if( couplingEntriesToSuppress_ > 0 )
+        {
+            int numberOfStaticParameters = numberOfParameterValues_ - totalDynamicalStateSize_;
+            int numberOfUncoupledEntries = totalDynamicalStateSize_ - couplingEntriesToSuppress_;
+
+            currentMatrixDerivative.block( couplingEntriesToSuppress_, totalDynamicalStateSize_, numberOfUncoupledEntries, numberOfStaticParameters ) =
+                    variationalMatrix_.template cast< StateScalarType >( ).block(
+                        couplingEntriesToSuppress_, couplingEntriesToSuppress_,
+                        numberOfUncoupledEntries, numberOfUncoupledEntries ) *
+                    stateTransitionAndSensitivityMatrices.block(
+                        couplingEntriesToSuppress_, totalDynamicalStateSize_, numberOfUncoupledEntries, numberOfStaticParameters );
+        }
+    }
 
     //! Calculates matrix containing partial derivatives of state derivatives w.r.t. parameters.
     /*!
@@ -434,7 +462,8 @@ private:
     void setTranslationalStatePartialFrameScalingFunctions(
             const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > >
             parametersToEstimate,
-            const int currentArcIndex = -1 )
+            const int currentArcIndex = -1,
+            const std::map< std::string, int > arcIndicesPerBody =  std::map< std::string, int >( ) )
     {
         std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameter<
                 Eigen::Matrix< ParameterType, Eigen::Dynamic, 1 > > > > initialDynamicalParameters =
@@ -458,12 +487,22 @@ private:
             {
                 if( currentArcIndex < 0 )
                 {
-                    throw std::runtime_error( "Error in setTranslationalStatePartialFrameScalingFunctions, cpuld not find xurrent arc index " );
+                    throw std::runtime_error( "Error in setTranslationalStatePartialFrameScalingFunctions, could not find current arc index " );
                 }
                 propagatedBodies.push_back(
                             initialDynamicalParameters.at( i )->getParameterName( ).second.first );
-                centralBodies.push_back( std::dynamic_pointer_cast< estimatable_parameters::ArcWiseInitialTranslationalStateParameter< ParameterType > >(
-                                             initialDynamicalParameters.at( i ) )->getCentralBodies( ).at( currentArcIndex ) );
+
+                if ( arcIndicesPerBody.size( ) != 0 )
+                {
+                    int currentIndexPerBody = arcIndicesPerBody.at( initialDynamicalParameters.at( i )->getParameterName( ).second.first );
+                    centralBodies.push_back( std::dynamic_pointer_cast< estimatable_parameters::ArcWiseInitialTranslationalStateParameter< ParameterType > >(
+                            initialDynamicalParameters.at( i ) )->getCentralBodies( ).at( 0 /*currentIndexPerBody*/ ) );
+                }
+                else
+                {
+                    centralBodies.push_back( std::dynamic_pointer_cast< estimatable_parameters::ArcWiseInitialTranslationalStateParameter< ParameterType > >(
+                            initialDynamicalParameters.at( i ) )->getCentralBodies( ).at( 0 /*currentArcIndex*/ ) );
+                }
             }
         }
 
@@ -606,15 +645,6 @@ private:
     std::unordered_map< IntegratedStateType, Eigen::VectorXd > currentStatesPerTypeInConventionalRepresentation_;
 };
 
-extern template void VariationalEquations::getBodyInitialStatePartialMatrix< double >(
-        const Eigen::Matrix< double, Eigen::Dynamic, Eigen::Dynamic >& stateTransitionAndSensitivityMatrices,
-        Eigen::Block< Eigen::Matrix< double, Eigen::Dynamic, Eigen::Dynamic > > currentMatrixDerivative );
-
-//#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
-extern template void VariationalEquations::getBodyInitialStatePartialMatrix< long double >(
-        const Eigen::Matrix< long double, Eigen::Dynamic, Eigen::Dynamic >& stateTransitionAndSensitivityMatrices,
-        Eigen::Block< Eigen::Matrix< long double, Eigen::Dynamic, Eigen::Dynamic > > currentMatrixDerivative );
-//#endif
 
 } // namespace propagators
 

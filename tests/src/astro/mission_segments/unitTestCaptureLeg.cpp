@@ -19,7 +19,7 @@
 
 #include <limits>
 
-#include <boost/test/floating_point_comparison.hpp>
+#include <boost/test/tools/floating_point_comparison.hpp> 
 #include <boost/test/unit_test.hpp>
 
 #include <Eigen/Core>
@@ -71,7 +71,7 @@ BOOST_AUTO_TEST_CASE( testVelocitiesInfiniteParkingOrbit )
 
     // Set test case.
     using namespace tudat::mission_segments;
-    CaptureAndInsertionNode captureNode(
+    CaptureWithFixedIncomingVelocityNode captureNode(
                 constantEphemeris,
                 mercuryGravitationalParameter, semiMajorAxis, eccentricity,
                 [=]( ){return velocityBeforePlanet; } );
@@ -118,7 +118,7 @@ BOOST_AUTO_TEST_CASE( testVelocitiesCircularParkingOrbit )
 
     // Set test case.
     using namespace tudat::mission_segments;
-    CaptureAndInsertionNode captureNode(
+    CaptureWithFixedIncomingVelocityNode captureNode(
                 constantEphemeris,
                 marsGravitationalParameter, semiMajorAxis, eccentricity,
                 [=]( ){return velocityBeforePlanet; } );

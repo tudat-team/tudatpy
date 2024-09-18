@@ -15,7 +15,7 @@
 #include <string>
 #include <thread>
 
-#include <boost/make_shared.hpp>
+
 #include <boost/test/unit_test.hpp>
 
 #include "tudat/astro/basic_astro/unitConversions.h"
@@ -114,11 +114,6 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
                 // Create spacecraft object.
                 bodies.createEmptyBody( "Vehicle" );
                 bodies.at( "Vehicle" )->setConstantBodyMass( 400.0 );
-                bodies.at( "Vehicle" )->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
-                                                        std::shared_ptr< interpolators::OneDimensionalInterpolator
-                                                        < double, Eigen::Vector6d  > >( ), "Earth", "ECLIPJ2000" ) );
-
-
 
                 // Define propagator settings variables.
                 SelectedAccelerationMap accelerationMap;
@@ -229,7 +224,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
                 std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
                         std::make_shared< TranslationalStatePropagatorSettings< double > >
                         ( centralBodies, accelerationModelMap, bodiesToPropagate, vehicleInitialState, terminationSettings, cowell,
-                          std::make_shared< DependentVariableSaveSettings >( dependentVariables ) );
+                          dependentVariables );
 
                 // Define integrator settings.
                 const double fixedStepSize = 5.0;
@@ -243,7 +238,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
                 {
                     integratorSettings = std::make_shared< RungeKuttaVariableStepSizeSettings< double > >
                             ( simulationStartEpoch, directionMultiplier * fixedStepSize,
-                              RungeKuttaCoefficients::CoefficientSets::rungeKuttaFehlberg45,
+                              CoefficientSets::rungeKuttaFehlberg45,
                               1.0E-3, 1.0E3, 1.0E-12, 1.0E-12 );
                 }
 

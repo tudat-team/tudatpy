@@ -16,7 +16,7 @@
 #include <vector>
 
 #include <boost/test/unit_test.hpp>
-#include <boost/make_shared.hpp>
+
 #include <boost/lambda/lambda.hpp>
 
 #include "tudat/basics/testMacros.h"
@@ -138,10 +138,10 @@ BOOST_AUTO_TEST_CASE( testCartesianStatePartials )
     groundStations.push_back( std::make_pair( "Mars", "MSL" ) );
 
     // Create link ends set.
-    LinkEnds linkEnds;
+    LinkDefinition linkEnds;
     linkEnds[ observed_body ] = groundStations[ 0 ];
 
-    LinkEnds linkEnds2;
+    LinkDefinition linkEnds2;
     linkEnds2[ observed_body ] = groundStations[ 1 ];
 
     std::shared_ptr< GroundStation > receivingGroundStation =
@@ -161,15 +161,15 @@ BOOST_AUTO_TEST_CASE( testCartesianStatePartials )
 
     // Create explicit position partial objects.
     std::shared_ptr< CartesianStatePartial > partialObjectWrtReceiverPosition =
-            createCartesianStatePartialsWrtBodyState( linkEnds, bodies, "Earth" ).begin( )->second;
+            createCartesianStatePartialsWrtBodyState( linkEnds.linkEnds_, bodies, "Earth" ).begin( )->second;
 
     // Create explicit parameter partial objects.
     std::shared_ptr< CartesianStatePartial > partialObjectWrtReceiverRotationRate =
             createCartesianStatePartialsWrtParameter(
-                linkEnds, bodies, earthRotationRate ).begin( )->second;
+                linkEnds.linkEnds_, bodies, earthRotationRate ).begin( )->second;
     std::shared_ptr< CartesianStatePartial > partialObjectWrtReceiverPolePosition =
             createCartesianStatePartialsWrtParameter(
-                linkEnds, bodies, earthPolePosition ).begin( )->second;
+                linkEnds.linkEnds_, bodies, earthPolePosition ).begin( )->second;
 
     // Calculate transmission/reception times and states
     Eigen::Vector6d currentState;
@@ -194,10 +194,10 @@ BOOST_AUTO_TEST_CASE( testCartesianStatePartials )
 
     // Define observation function
     std::function< Eigen::VectorXd( const double ) > observationFunctionAtReception =
-            std::bind( &Ephemeris::getCartesianState, createReferencePointEphemeris< double, double >(
+            std::bind( &Ephemeris::getCartesianState, createReferencePointCompositeEphemeris< double, double >(
                              bodies.at( "Earth" )->getEphemeris( ), bodies.at( "Earth" )->getRotationalEphemeris( ),
                              std::bind( &GroundStation::getStateInPlanetFixedFrame< double, double >,
-                                          bodies.at( "Earth" )->getGroundStation( "Graz" ), std::placeholders::_1 ) ), std::placeholders::_1 );
+                                          bodies.at( "Earth" )->getGroundStation( "Graz" ), std::placeholders::_1, "Earth" ) ), std::placeholders::_1 );
 
 
 

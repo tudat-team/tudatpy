@@ -23,6 +23,8 @@
 #include "tudat/astro/gravitation/gravityFieldModel.h"
 #include "tudat/astro/gravitation/sphericalHarmonicsGravityField.h"
 #include "tudat/astro/gravitation/gravityFieldVariations.h"
+#include "tudat/astro/gravitation/polyhedronGravityField.h"
+#include "tudat/astro/gravitation/ringGravityField.h"
 
 namespace tudat
 {
@@ -40,7 +42,9 @@ enum GravityFieldType
 {
     central,
     central_spice,
-    spherical_harmonic
+    spherical_harmonic,
+    polyhedron,
+    one_dimensional_ring
 };
 
 // Class for providing settings for gravity field model.
@@ -133,7 +137,8 @@ public:
                                             const double referenceRadius,
                                             const Eigen::MatrixXd& cosineCoefficients,
                                             const Eigen::MatrixXd& sineCoefficients,
-                                            const std::string& associatedReferenceFrame ):
+                                            const std::string& associatedReferenceFrame,
+                                            const double scaledMeanMomentOfInertia = TUDAT_NAN ):
         GravityFieldSettings( spherical_harmonic ),
         gravitationalParameter_( gravitationalParameter ),
         referenceRadius_( referenceRadius ),
@@ -142,7 +147,7 @@ public:
         sineCoefficients_( sineCoefficients ),
         associatedReferenceFrame_( associatedReferenceFrame ),
         createTimeDependentField_( 0 ),
-        scaledMeanMomentOfInertia_( TUDAT_NAN )
+        scaledMeanMomentOfInertia_( scaledMeanMomentOfInertia )
     {  }
 
     SphericalHarmonicsGravityFieldSettings( const double gravitationalParameter,
@@ -204,6 +209,8 @@ public:
     Eigen::Matrix3d getInertiaTensor( ){ return inertiaTensor_; }
 
     double getScaledMeanMomentOfInertia( ){ return scaledMeanMomentOfInertia_; }
+
+    void setScaledMeanMomentOfInertia( const double scaledMeanMomentOfInertia ){ scaledMeanMomentOfInertia_ = scaledMeanMomentOfInertia; }
 
     void resetCosineCoefficients( const Eigen::MatrixXd cosineCoefficients ){ cosineCoefficients_ = cosineCoefficients; }
 
@@ -282,6 +289,228 @@ protected:
 };
 
 
+// Derived class of GravityFieldSettings defining settings of polyhedron gravity
+// field representation.
+// References: "EXTERIOR GRAVITATION OF A POLYHEDRON DERIVED AND COMPARED WITH HARMONIC AND MASCON GRAVITATION REPRESENTATIONS
+//              OF ASTEROID 4769 CASTALIA", Werner and Scheeres (1997), Celestial Mechanics and Dynamical Astronomy
+class PolyhedronGravityFieldSettings: public GravityFieldSettings
+{
+public:
+    // Constructor.
+    /*
+     *  Constructor.
+     *  \param gravitationalConstant Gravitational constant of the gravity field.
+     *  \param density Density of polyhedron.
+     *  \param verticesCoordinates Cartesian coordinates of each vertex (one row per vertex, 3 columns).
+     *  \param verticesDefiningEachFacet Index (0 based) of the vertices constituting each facet (one row per facet, 3 columns).
+     *  \param associatedReferenceFrame Identifier for body-fixed reference frame to which the polyhedron is referred.
+     */
+    PolyhedronGravityFieldSettings( const double gravitationalConstant,
+                                    const double density,
+                                    const Eigen::MatrixXd& verticesCoordinates,
+                                    const Eigen::MatrixXi& verticesDefiningEachFacet,
+                                    const std::string& associatedReferenceFrame):
+        GravityFieldSettings( polyhedron ),
+        density_( density ),
+        verticesCoordinates_( verticesCoordinates ),
+        verticesDefiningEachFacet_( verticesDefiningEachFacet ),
+        associatedReferenceFrame_( associatedReferenceFrame ),
+        gravitationalConstant_( gravitationalConstant )
+    {
+        volume_ = basic_astrodynamics::computePolyhedronVolume( verticesCoordinates, verticesDefiningEachFacet );
+        gravitationalParameter_ = gravitationalConstant_ * density_ * volume_;
+    }
+
+
+    /*! Constructor.
+     *
+     * Constructor.
+     * @param gravitationalParameter Gravitational parameter of the polyhedron.
+     * @param verticesCoordinates Cartesian coordinates of each vertex (one row per vertex, 3 columns).
+     * @param verticesDefiningEachFacet Index (0 based) of the vertices constituting each facet (one row per facet, 3 columns).
+     * @param associatedReferenceFrame Identifier for body-fixed reference frame to which the polyhedron is referred.
+     * @param density Density of the polyhedron. It is later used to set the function to update the inertia tensor.
+     */
+    PolyhedronGravityFieldSettings( const double gravitationalParameter,
+                                    const Eigen::MatrixXd& verticesCoordinates,
+                                    const Eigen::MatrixXi& verticesDefiningEachFacet,
+                                    const std::string& associatedReferenceFrame,
+                                    const double gravitationalConstant = physical_constants::GRAVITATIONAL_CONSTANT ):
+        GravityFieldSettings( polyhedron ),
+        gravitationalParameter_( gravitationalParameter ),
+        verticesCoordinates_( verticesCoordinates ),
+        verticesDefiningEachFacet_( verticesDefiningEachFacet ),
+        associatedReferenceFrame_( associatedReferenceFrame ),
+        gravitationalConstant_( gravitationalConstant )
+    {
+        volume_ = basic_astrodynamics::computePolyhedronVolume( verticesCoordinates, verticesDefiningEachFacet );
+        density_ = gravitationalParameter_ / ( gravitationalConstant_ * volume_ );
+    }
+
+    //! Destructor
+    virtual ~PolyhedronGravityFieldSettings( ){ }
+
+    // Function to return the gravitational parameter.
+    double getGravitationalParameter( )
+    { return gravitationalParameter_; }
+
+    // Function to reset the gravitational parameter.
+    void resetGravitationalParameter ( const double gravitationalParameter )
+    {
+        gravitationalParameter_ = gravitationalParameter;
+        density_ = gravitationalParameter_ / ( gravitationalConstant_ * volume_ );
+    }
+
+    // Function to return the density.
+    double getDensity ( )
+    { return density_; }
+
+    // Function to reset the density.
+    void resetDensity ( double density )
+    {
+        density_ = density;
+        gravitationalParameter_ = gravitationalConstant_ * density_ * volume_;
+    }
+
+    // Function to return identifier for body-fixed reference frame.
+    std::string getAssociatedReferenceFrame( )
+    { return associatedReferenceFrame_; }
+
+    // Function to reset identifier for body-fixed reference frame to which the polyhedron is referred.
+    void resetAssociatedReferenceFrame( const std::string& associatedReferenceFrame )
+    { associatedReferenceFrame_ = associatedReferenceFrame; }
+
+    //! Function to return the vertices coordinates.
+    const Eigen::MatrixXd& getVerticesCoordinates( )
+    { return verticesCoordinates_; }
+
+    //! Function to reset the vertices coordinates.
+    void resetVerticesCoordinates( const Eigen::MatrixXd& verticesCoordinates )
+    { verticesCoordinates_ = verticesCoordinates; }
+
+    //! Function to return the vertices defining each facet.
+    const Eigen::MatrixXi& getVerticesDefiningEachFacet( )
+    { return verticesDefiningEachFacet_; }
+
+    //! Function to reset the vertices defining each facet.
+    void resetVerticesDefiningEachFacet ( const Eigen::MatrixXi& verticesDefiningEachFacet )
+    { verticesDefiningEachFacet_ = verticesDefiningEachFacet; }
+
+protected:
+
+    // Gravitational parameter
+    double gravitationalParameter_;
+
+    // Density of the polyhedron
+    double density_;
+
+    // Cartesian coordinates of each vertex.
+    Eigen::MatrixXd verticesCoordinates_;
+
+    // Indices of the 3 vertices describing each facet.
+    Eigen::MatrixXi verticesDefiningEachFacet_;
+
+    // Identifier for body-fixed reference frame to which the polyhedron is referred.
+    std::string associatedReferenceFrame_;
+
+    double gravitationalConstant_;
+
+    double volume_;
+
+};
+
+// Derived class of GravityFieldSettings defining settings of polyhedron gravity
+// field representation.
+// References: Precise computation of acceleration due to uniform ring or disk, Toshio Fukushima (2010), Celestial Mechanics
+//             and Dynamical Astronomy, 108:339–356.
+class RingGravityFieldSettings: public GravityFieldSettings
+{
+public:
+
+    /*! Constructor.
+     *
+     * Constructor.
+     * @param gravitationalParameter Gravitational parameter of the ring.
+     * @param ringRadius Radius of the ring.
+     * @param associatedReferenceFrame Identifier for body-fixed reference frame to which the ring is referred.
+     * @param ellipticIntegralSFromDAndB Flag indicating whether to compute S(m) from D(m) and B(m) (if true),
+     *      or from K(m) and E(m) (if false). The former has a lower loss of accuracy due to numerical cancellation.
+     */
+    RingGravityFieldSettings( const double gravitationalParameter,
+                              const double ringRadius,
+                              const std::string& associatedReferenceFrame,
+                              const bool ellipticIntegralSFromDAndB = true ):
+        GravityFieldSettings( one_dimensional_ring ),
+        gravitationalParameter_( gravitationalParameter ),
+        ringRadius_( ringRadius ),
+        associatedReferenceFrame_( associatedReferenceFrame ),
+        ellipticIntegralSFromDAndB_( ellipticIntegralSFromDAndB )
+    { }
+
+    //! Destructor
+    virtual ~RingGravityFieldSettings( ){ }
+
+    // Function to return the gravitational parameter.
+    double getGravitationalParameter( )
+    {
+        return gravitationalParameter_;
+    }
+
+    // Function to reset the gravitational parameter.
+    void resetGravitationalParameter ( const double gravitationalParameter )
+    {
+        gravitationalParameter_ = gravitationalParameter;
+    }
+
+    // Function to return the ring radius
+    double getRingRadius ( )
+    {
+        return ringRadius_;
+    }
+
+    // Function to reset the density.
+    void resetRingRadius ( double ringRadius )
+    {
+        ringRadius_ = ringRadius;
+    }
+
+    // Function to return identifier for body-fixed reference frame.
+    std::string getAssociatedReferenceFrame( )
+    { return associatedReferenceFrame_; }
+
+    // Function to reset identifier for body-fixed reference frame to which the ring is referred.
+    void resetAssociatedReferenceFrame( const std::string& associatedReferenceFrame )
+    { associatedReferenceFrame_ = associatedReferenceFrame; }
+
+    // Function to get the flag indicating whether to compute S(m) from D(m) and B(m)
+    bool getEllipticIntegralSFromDAndB( )
+    {
+        return ellipticIntegralSFromDAndB_;
+    }
+
+    // Function to reset the flag indicating whether to compute S(m) from D(m) and B(m)
+    void resetEllipticIntegralSFromDAndB( bool ellipticIntegralSFromDAndB )
+    {
+        ellipticIntegralSFromDAndB_ = ellipticIntegralSFromDAndB;
+    }
+
+
+protected:
+
+    // Gravitational parameter
+    double gravitationalParameter_;
+
+    // Radius of the ring
+    double ringRadius_;
+
+    // Identifier for body-fixed reference frame to which the ring is referred
+    std::string associatedReferenceFrame_;
+
+    // Flag indicating whether to compute S(m) from D(m) and B(m) (if true), or from K(m) and E(m) (if false)
+    bool ellipticIntegralSFromDAndB_;
+
+};
+
 // Spherical harmonics models supported by Tudat.
 //! @get_docstring(SphericalHarmonicsModel.__docstring__)
 enum SphericalHarmonicsModel
@@ -290,9 +519,13 @@ enum SphericalHarmonicsModel
     egm96,
     ggm02c,
     ggm02s,
+    goco05c,
     glgm3150,
     lpe200,
-    jgmro120d
+    gggrx1200,
+    jgmro120d,
+    jgmess160a,
+    shgj180u
 };
 
 // Get the path of the SH file for a SH model.
@@ -302,6 +535,8 @@ enum SphericalHarmonicsModel
  * \return The path of the SH file for a SH model.
  */
 std::string getPathForSphericalHarmonicsModel( const SphericalHarmonicsModel sphericalHarmonicsModel );
+
+int getMaximumGravityFieldDegreeOrder( const SphericalHarmonicsModel sphericalHarmonicsModel );
 
 // Get the associated reference frame for a SH model.
 /*
@@ -343,7 +578,8 @@ public:
      * Constructor with model included in Tudat.
      * \param sphericalHarmonicsModel Spherical harmonics model to be used.
      */
-    FromFileSphericalHarmonicsGravityFieldSettings( const SphericalHarmonicsModel sphericalHarmonicsModel );
+    FromFileSphericalHarmonicsGravityFieldSettings( const SphericalHarmonicsModel sphericalHarmonicsModel,
+                                                    const int maximumDegree = -1 );
 
     virtual ~FromFileSphericalHarmonicsGravityFieldSettings( ){ }
     // Get the sphericals harmonics model.
@@ -429,10 +665,10 @@ protected:
 
 };
 
-// Function to create gravity field settings for a homogeneous triaxial ellipsoid
+// Function to create gravity field settings for a homogeneous triaxial ellipsoid with density as argument.
 /*
- * Function to create gravity field settings for a homogeneous triaxial ellipsoid. The gravity field is expressed in
- * normalized spherical harmonic coefficients.  X-axis is alligned
+ * Function to create gravity field settings for a homogeneous triaxial ellipsoid with density as argument. The gravity
+ * field is expressed in normalized spherical harmonic coefficients.  X-axis is alligned
  * with largest axis, y-axis with middle axis and z-axis with smallest axis
  * \param axisA Largest axis of triaxial ellipsoid
  * \param axisB Middle axis of triaxial ellipsoid
@@ -442,12 +678,35 @@ protected:
  * \param maximumOrder Maximum oredr of expansion
  * \param associatedReferenceFrame Identifier for body-fixed reference frame to which
  * the coefficients are referred.
+ * \param gravitationalConstant Gravitational constant.
  * \return Gravity field settings for a homogeneous triaxial ellipsoid of given properties.
  */
 std::shared_ptr< SphericalHarmonicsGravityFieldSettings > createHomogeneousTriAxialEllipsoidGravitySettings(
         const double axisA, const double axisB, const double axisC, const double ellipsoidDensity,
         const int maximumDegree, const int maximumOrder,
-        const std::string& associatedReferenceFrame  );
+        const std::string& associatedReferenceFrame,
+        const double gravitationalConstant = physical_constants::GRAVITATIONAL_CONSTANT );
+
+// Function to create gravity field settings for a homogeneous triaxial ellipsoid with the gravitational parameter as argument.
+/*
+ * Function to create gravity field settings for a homogeneous triaxial ellipsoid with the gravitational parameters as
+ * argument. The gravity field is expressed in normalized spherical harmonic coefficients.  X-axis is alligned
+ * with largest axis, y-axis with middle axis and z-axis with smallest axis
+ * \param axisA Largest axis of triaxial ellipsoid
+ * \param axisB Middle axis of triaxial ellipsoid
+ * \param axisC Smallest axis of triaxial ellipsoid
+ * \param ellipsoidGravitationalParameter Gravitational parameter of the gravity field.
+ * \param maximumDegree Maximum degree of expansion
+ * \param maximumOrder Maximum oredr of expansion
+ * \param associatedReferenceFrame Identifier for body-fixed reference frame to which
+ * the coefficients are referred.
+ * \return Gravity field settings for a homogeneous triaxial ellipsoid of given properties.
+ */
+std::shared_ptr< SphericalHarmonicsGravityFieldSettings > createHomogeneousTriAxialEllipsoidGravitySettings(
+        const double axisA, const double axisB, const double axisC,
+        const int maximumDegree, const int maximumOrder,
+        const std::string& associatedReferenceFrame,
+        const double ellipsoidGravitationalParameter );
 
 // Function to read a spherical harmonic gravity field file
 /*
@@ -541,7 +800,223 @@ inline std::shared_ptr< GravityFieldSettings > sphericalHarmonicsGravitySettings
             );
 }
 
+inline std::shared_ptr< GravityFieldSettings > polyhedronGravitySettings(
+        const double density,
+        const Eigen::MatrixXd verticesCoordinates,
+        const Eigen::MatrixXi verticesDefiningEachFacet,
+        const std::string& associatedReferenceFrame,
+        const double gravitationalConstant = physical_constants::GRAVITATIONAL_CONSTANT )
+{
+    return std::make_shared< PolyhedronGravityFieldSettings >(
+            gravitationalConstant, density, verticesCoordinates,
+            verticesDefiningEachFacet, associatedReferenceFrame);
+}
+
+inline std::shared_ptr< GravityFieldSettings > polyhedronGravitySettingsFromMu(
+        const double gravitationalParameter,
+        const Eigen::MatrixXd verticesCoordinates,
+        const Eigen::MatrixXi verticesDefiningEachFacet,
+        const std::string& associatedReferenceFrame,
+        const double gravitationalConstant = physical_constants::GRAVITATIONAL_CONSTANT )
+{
+    return std::make_shared< PolyhedronGravityFieldSettings >(
+            gravitationalParameter, verticesCoordinates, verticesDefiningEachFacet, associatedReferenceFrame,
+            gravitationalConstant );
+}
+
+inline std::shared_ptr< GravityFieldSettings > ringGravitySettings(
+        const double gravitationalParameter,
+        const double ringRadius,
+        const std::string& associatedReferenceFrame,
+        const bool ellipticIntegralSFromDAndB = true )
+{
+    return std::make_shared< RingGravityFieldSettings >(
+            gravitationalParameter, ringRadius, associatedReferenceFrame, ellipticIntegralSFromDAndB);
+}
+
+enum RigidBodyPropertiesType
+{
+    constant_rigid_body_properties,
+    from_function_rigid_body_properties,
+    from_gravity_field_rigid_body_properties,
+    mass_dependent_rigid_body_properties
+};
+
+class RigidBodyPropertiesSettings
+{
+public:
+    RigidBodyPropertiesSettings( const RigidBodyPropertiesType rigidBodyPropertiesType ):
+            rigidBodyPropertiesType_( rigidBodyPropertiesType ){ }
+
+    virtual ~RigidBodyPropertiesSettings( ){ }
+
+    RigidBodyPropertiesType getRigidBodyPropertiesType( )
+    {
+        return rigidBodyPropertiesType_;
+    }
+
+protected:
+
+    RigidBodyPropertiesType rigidBodyPropertiesType_;
+};
+
+class ConstantRigidBodyPropertiesSettings : public RigidBodyPropertiesSettings
+{
+public:
+    ConstantRigidBodyPropertiesSettings(
+        const double mass,
+        const Eigen::Vector3d &centerOfMass = Eigen::Vector3d::Constant( TUDAT_NAN ),
+        const Eigen::Matrix3d &inertiaTensor = Eigen::Matrix3d::Constant( TUDAT_NAN ) ):
+        RigidBodyPropertiesSettings( constant_rigid_body_properties ),
+        mass_( mass ),
+        centerOfMass_( centerOfMass ),
+        inertiaTensor_( inertiaTensor )
+    {
+    }
+
+    virtual ~ConstantRigidBodyPropertiesSettings( ){ }
+
+    double getMass( )
+    {
+        return mass_;
+    }
+
+    Eigen::Vector3d getCenterOfMass( )
+    {
+        return centerOfMass_;
+    }
+
+    Eigen::Matrix3d getInertiaTensor( )
+    {
+        return inertiaTensor_;
+    }
+
+
+protected:
+
+    double mass_;
+
+    Eigen::Vector3d centerOfMass_;
+
+    Eigen::Matrix3d inertiaTensor_;
+};
+
+class FromFunctionRigidBodyPropertiesSettings : public RigidBodyPropertiesSettings
+{
+public:
+    FromFunctionRigidBodyPropertiesSettings(
+        const std::function< double( const double ) > massFunction,
+        const std::function< Eigen::Vector3d( const double ) > centerOfMassFunction = nullptr,
+        const std::function< Eigen::Matrix3d( const double ) > inertiaTensorFunction = nullptr):
+        RigidBodyPropertiesSettings( from_function_rigid_body_properties ),
+        massFunction_( massFunction ),
+        centerOfMassFunction_( centerOfMassFunction ),
+        inertiaTensorFunction_( inertiaTensorFunction )
+    {
+    }
+
+    virtual ~FromFunctionRigidBodyPropertiesSettings( ){ }
+
+    std::function< double( const double ) > getMassFunction( )
+    {
+        return massFunction_;
+    }
+
+    std::function< Eigen::Vector3d( const double ) > getCenterOfMassFunction( )
+    {
+        return centerOfMassFunction_;
+    }
+
+    std::function< Eigen::Matrix3d( const double ) > getInertiaTensorFunction( )
+    {
+        return inertiaTensorFunction_;
+    }
+
+
+protected:
+
+    std::function< double( const double ) > massFunction_;
+
+    std::function< Eigen::Vector3d( const double ) > centerOfMassFunction_;
+
+    std::function< Eigen::Matrix3d( const double ) > inertiaTensorFunction_;
+};
+
+class MassDependentMassDistributionSettings : public RigidBodyPropertiesSettings
+{
+public:
+    MassDependentMassDistributionSettings(
+        const double currentMass,
+        const std::function< Eigen::Vector3d( const double ) > centerOfMassFunction,
+        const std::function< Eigen::Matrix3d( const double ) > inertiaTensorFunction ):
+        RigidBodyPropertiesSettings( mass_dependent_rigid_body_properties ),
+        currentMass_( currentMass ),
+        centerOfMassFunction_( centerOfMassFunction ),
+        inertiaTensorFunction_( inertiaTensorFunction )
+    {
+    }
+
+    virtual ~MassDependentMassDistributionSettings( ){ }
+
+    double getCurrentMass( )
+    {
+        return currentMass_;
+    }
+
+    std::function< Eigen::Vector3d( const double ) > getCenterOfMassFunction( )
+    {
+        return centerOfMassFunction_;
+    }
+
+    std::function< Eigen::Matrix3d( const double ) > getInertiaTensorFunction( )
+    {
+        return inertiaTensorFunction_;
+    }
+
+
+protected:
+
+    double currentMass_;
+
+    std::function< Eigen::Vector3d( const double ) > centerOfMassFunction_;
+
+    std::function< Eigen::Matrix3d( const double ) > inertiaTensorFunction_;
+};
+
+inline std::shared_ptr< RigidBodyPropertiesSettings > constantRigidBodyPropertiesSettings(
+    const double mass,
+    const Eigen::Vector3d &centerOfMass = Eigen::Vector3d::Constant( TUDAT_NAN ),
+    const Eigen::Matrix3d &inertiaTensor = Eigen::Matrix3d::Constant( TUDAT_NAN ) )
+{
+    return std::make_shared< ConstantRigidBodyPropertiesSettings >(
+        mass, centerOfMass, inertiaTensor );
+}
+
+inline std::shared_ptr< RigidBodyPropertiesSettings > fromFunctionRigidBodyPropertiesSettings(
+    const std::function< double( const double ) > massFunction,
+    const std::function< Eigen::Vector3d( const double ) > centerOfMassFunction = nullptr,
+    const std::function< Eigen::Matrix3d( const double ) > inertiaTensorFunction = nullptr )
+{
+    return std::make_shared< FromFunctionRigidBodyPropertiesSettings >(
+        massFunction, centerOfMassFunction, inertiaTensorFunction );
+}
+
+inline std::shared_ptr< RigidBodyPropertiesSettings > massDependentMassDistributionSettings(
+    const double currentMass,
+    const std::function< Eigen::Vector3d( const double ) > centerOfMassFunction,
+    const std::function< Eigen::Matrix3d( const double ) > inertiaTensorFunction )
+{
+    return std::make_shared< MassDependentMassDistributionSettings >(
+        currentMass, centerOfMassFunction, inertiaTensorFunction );
+}
+
+std::shared_ptr< RigidBodyProperties > createRigidBodyProperties(
+    const std::shared_ptr<RigidBodyPropertiesSettings> rigidBodyPropertiesSettings,
+    const std::string& body,
+    const SystemOfBodies& bodies );
+
 } // namespace simulation_setup
 
 } // namespace tudat
+
 #endif // TUDAT_CREATEGRAVITYFIELD_H

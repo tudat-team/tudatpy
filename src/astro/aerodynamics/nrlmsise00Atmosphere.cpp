@@ -10,7 +10,7 @@
 
 #include "tudat/astro/aerodynamics/nrlmsise00Atmosphere.h"
 #include "tudat/math/basic/mathematicalConstants.h"
-
+#include <iostream>
 
 //! Tudat library namespace.
 namespace tudat

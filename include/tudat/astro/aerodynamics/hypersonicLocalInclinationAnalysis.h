@@ -157,11 +157,11 @@ public:
      * \param vehicleIndex Index in vehicleParts_ to be retrieved.
      * \return Requested vehicle part.
      */
-     std::shared_ptr< geometric_shapes::LawgsPartGeometry > getVehiclePart(
-             const int vehicleIndex ) const
-     {
-         return vehicleParts_[ vehicleIndex ];
-     }
+    std::shared_ptr< geometric_shapes::LawgsPartGeometry > getVehiclePart(
+            const int vehicleIndex ) const
+    {
+        return vehicleParts_[ vehicleIndex ];
+    }
 
 
     //! Overload ostream to print class information.
@@ -210,6 +210,45 @@ public:
             const boost::array< int, 3 > independentVariables )
     {
         return pressureCoefficientList_.at( independentVariables );
+    }
+
+    void clearData( )
+    {
+        std::vector< std::shared_ptr< geometric_shapes::LawgsPartGeometry > > vehicleParts_;
+        for( unsigned int i = 0; i < vehicleParts_.size( ); i++ )
+        {
+            vehicleParts_.at( i )->clear( );
+        }
+
+        boost::array< int, 3 > numberOfPointsPerIndependentVariables;
+        numberOfPointsPerIndependentVariables[ 0 ] = 0;
+        numberOfPointsPerIndependentVariables[ 1 ] = 0;
+        numberOfPointsPerIndependentVariables[ 2 ] = 0;
+
+        isCoefficientGenerated_.resize( numberOfPointsPerIndependentVariables );
+
+        for( unsigned int i = 0; i < inclination_.size( ); i++ )
+        {
+            for( unsigned int j = 0; j < inclination_.at( i ).size( ); j++ )
+            {
+                inclination_.at( i ).at( j ).clear( );
+                pressureCoefficient_.at( i ).at( j ).clear( );
+            }
+            inclination_.at( i ).clear( );
+            pressureCoefficient_.at( i ).clear( );
+        }
+        inclination_.clear( );
+        pressureCoefficient_.clear( );
+
+        for( unsigned int i = 0; i < selectedMethods_.size( ); i++ )
+        {
+            selectedMethods_.at( i ).clear( );
+        }
+        selectedMethods_.clear( );
+
+        previouslyComputedInclinations_.clear( );
+        clearBaseData( );
+
     }
 
 
@@ -322,9 +361,9 @@ private:
      * Three-dimensional array of panel pressure coefficients at current values
      * of independent variables. Indices indicate part-line-point.
      */
-     std::vector< std::vector< std::vector< double > > > pressureCoefficient_;
+    std::vector< std::vector< std::vector< double > > > pressureCoefficient_;
 
-     std::map< boost::array< int, 3 >,  std::vector< std::vector< std::vector< double > > > > pressureCoefficientList_;
+    std::map< boost::array< int, 3 >,  std::vector< std::vector< std::vector< double > > > > pressureCoefficientList_;
 
     //! Stagnation pressure coefficient.
     /*!

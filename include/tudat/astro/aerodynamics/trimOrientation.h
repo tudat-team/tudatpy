@@ -20,6 +20,7 @@
 
 #include "tudat/astro/aerodynamics/aerodynamicCoefficientInterface.h"
 #include "tudat/math/root_finders/rootFinder.h"
+
 namespace tudat
 {
 

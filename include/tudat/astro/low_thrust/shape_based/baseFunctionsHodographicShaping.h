@@ -12,8 +12,9 @@
 #ifndef TUDAT_BASE_FUNCTIONS_HODOGRAPHIC_SHAPING_H
 #define TUDAT_BASE_FUNCTIONS_HODOGRAPHIC_SHAPING_H
 
+#include <vector>
 #include <cmath>
-#include <boost/make_shared.hpp>
+#include <memory>
 
 namespace tudat
 {
@@ -67,6 +68,9 @@ protected:
 private:
 
 };
+
+
+typedef std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > > HodographicBasisFunctionList;
 
 
 //! Constant function.

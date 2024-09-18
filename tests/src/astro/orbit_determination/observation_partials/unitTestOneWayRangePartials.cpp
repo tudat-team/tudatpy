@@ -17,7 +17,7 @@
 #include <vector>
 
 #include <boost/test/unit_test.hpp>
-#include <boost/make_shared.hpp>
+
 #include <boost/lambda/lambda.hpp>
 
 #include "tudat/basics/testMacros.h"
@@ -66,7 +66,7 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartials )
         SystemOfBodies bodies = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.1E7, true );
 
         // Set link ends for observation model
-        LinkEnds linkEnds;
+        LinkDefinition linkEnds;
         linkEnds[ transmitter ] = groundStations[ 1 ];
         linkEnds[ receiver ] = groundStations[ 0 ];
 
@@ -96,7 +96,7 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartials )
         SystemOfBodies bodies = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.1E7, false );
 
         // Set link ends for observation model
-        LinkEnds linkEnds;
+        LinkDefinition linkEnds;
         linkEnds[ transmitter ] = groundStations[ 1 ];
         linkEnds[ receiver ] = groundStations[ 0 ];
 
@@ -127,7 +127,7 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartials )
         SystemOfBodies bodies = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.1E7, false, 1.0, true );
 
         // Set link ends for observation model
-        LinkEnds linkEnds;
+        LinkDefinition linkEnds;
         linkEnds[ transmitter ] = groundStations[ 1 ];
         linkEnds[ receiver ] = groundStations[ 0 ];
 

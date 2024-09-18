@@ -14,7 +14,7 @@
 
 #include <limits>
 #include <boost/test/unit_test.hpp>
-#include <boost/make_shared.hpp>
+
 
 
 #include "tudat/basics/testMacros.h"
@@ -75,7 +75,7 @@ BOOST_AUTO_TEST_CASE( testEarthOrientationRotationSetupAgainstSofa )
     double ut1FractionOfDay = 0.499999165813831;
 
     double ut1 = ( ut1JulianDay - basic_astrodynamics::JULIAN_DAY_ON_J2000 + ut1FractionOfDay ) * physical_constants::JULIAN_DAY;
-    Time ut1Long = tudat::Time( ( ut1JulianDay - basic_astrodynamics::JULIAN_DAY_ON_J2000 ) * 24,
+    Time ut1Long = tudat::Time( ( ut1JulianDay - basic_astrodynamics::JULIAN_DAY_ON_J2000 ) * 24 * 3600 / TIME_NORMALIZATION_INTEGER_TERM,
                                 ut1FractionOfDay * physical_constants::JULIAN_DAY_LONG );
 
     // Compute TIRS->CIRS rotation matrix in Tudat
@@ -158,14 +158,15 @@ BOOST_AUTO_TEST_CASE( testEarthOrientationAngleFunctionsAgainstSofa )
 
     double terrestrialTimeDaysSinceMjd0 = terrestrialTimeFullDaysSinceMjd0 + terrestrialTimeDayFractionsSinceMjd0;
     double terrestrialTimeSecondsSinceJ2000Inaccruate = ( terrestrialTimeDaysSinceMjd0 -
-                                                ( basic_astrodynamics::JULIAN_DAY_ON_J2000 -
-                                                  basic_astrodynamics::JULIAN_DAY_AT_0_MJD ) ) * physical_constants::JULIAN_DAY;
+                                                          ( basic_astrodynamics::JULIAN_DAY_ON_J2000 -
+                                                            basic_astrodynamics::JULIAN_DAY_AT_0_MJD ) ) * physical_constants::JULIAN_DAY;
 
     double ut1JulianDay = 2454195.5;
     double ut1FractionOfDay = 0.499999165813831;
 
-    Time ut1TimeSecondsSinceJ2000 = tudat::Time( ( ut1JulianDay - basic_astrodynamics::JULIAN_DAY_ON_J2000 ) * 24,
-                                                        ut1FractionOfDay * physical_constants::JULIAN_DAY_LONG );
+    Time ut1TimeSecondsSinceJ2000 = tudat::Time(
+                ( ut1JulianDay - basic_astrodynamics::JULIAN_DAY_ON_J2000 ) * 24 * 3600 / TIME_NORMALIZATION_INTEGER_TERM,
+                ut1FractionOfDay * physical_constants::JULIAN_DAY_LONG );
 
     // Set SOFA values
     double sofaXValue = 0.0007122647295989105;
@@ -181,14 +182,14 @@ BOOST_AUTO_TEST_CASE( testEarthOrientationAngleFunctionsAgainstSofa )
     double era = 0.2324515536620879;
 
     // Use Tudat functions to compute precession/nutation parameters
-    std::pair< Eigen::Vector2d, double > positionOfCipInGcrs = sofa_interface::getPositionOfCipInGcrs(
+    Eigen::Vector3d positionOfCipInGcrs = sofa_interface::getPositionOfCipInGcrs(
                 terrestrialTimeSecondsSinceJ2000Inaccruate, basic_astrodynamics::JULIAN_DAY_ON_J2000,
                 basic_astrodynamics::iau_2006 );
 
     // Compare SOFA values against Tudat function output
-    BOOST_CHECK_SMALL( std::fabs( uncorrectedX - positionOfCipInGcrs.first( 0 ) ), 1.0E-15 );
-    BOOST_CHECK_SMALL( std::fabs( uncorrectedY - positionOfCipInGcrs.first( 1 ) ), 1.0E-15 );
-    BOOST_CHECK_SMALL( std::fabs( s - positionOfCipInGcrs.second ), 1.0E-15 );
+    BOOST_CHECK_SMALL( std::fabs( uncorrectedX - positionOfCipInGcrs( 0 ) ), 1.0E-15 );
+    BOOST_CHECK_SMALL( std::fabs( uncorrectedY - positionOfCipInGcrs( 1 ) ), 1.0E-15 );
+    BOOST_CHECK_SMALL( std::fabs( s - positionOfCipInGcrs( 2 ) ), 1.0E-15 );
 
     Eigen::Vector2d tudatXYCorrection = createStandardEarthOrientationCalculator( )->getPrecessionNutationCalculator( )->getDailyCorrectionInterpolator( )->interpolate(
                 terrestrialTimeSecondsSinceJ2000Inaccruate );

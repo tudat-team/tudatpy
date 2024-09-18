@@ -34,14 +34,15 @@
 
 #include <Eigen/Core>
 
-#include <boost/bind/bind.hpp>
-using namespace boost::placeholders;
+
+
 
 #include <boost/circular_buffer.hpp>
 #include <functional>
 #include <memory>
-#include <boost/unordered_map.hpp>
-#include <boost/enable_shared_from_this.hpp>
+#include <vector>
+
+
 
 #include "tudat/math/basic/mathematicalConstants.h"
 
@@ -171,6 +172,18 @@ public:
         return useGeodesyNormalization_;
     }
 
+    //! Function to reset whether the first derivatives are to be computed when calling update function
+    /*!
+     * Function to reset whether the first derivatives are to be computed when calling update function
+     * \param computeFirstDerivatives Boolean denoting whether the first derivatives of the Legendre polynomials are
+     * to be computed when calling update function.
+     */
+    void setComputeFirstDerivatives( const bool computeFirstDerivatives )
+    {
+        computeFirstDerivatives_ = computeFirstDerivatives;
+        currentPolynomialParameter_ = TUDAT_NAN;
+    }
+
     //! Function to reset whether the second derivatives are to be computed when calling update function
     /*!
      * Function to reset whether the second derivatives are to be computed when calling update function
@@ -239,6 +252,10 @@ private:
 
     //! Prec-computed normalization factors that are to be used for computation fo Legendre polynomial derivative
     std::vector< double > derivativeNormalizations_;
+
+    //! Boolean denoting whether the first derivatives of the Legendre polynomials are to be computed when calling
+    //! update function.
+    bool computeFirstDerivatives_{true};
 
     //! Boolean denoting whether the second derivatives of the Legendre polynomials are to be computed when calling
     //! update function.

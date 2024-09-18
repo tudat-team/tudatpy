@@ -32,7 +32,7 @@
 #define TUDAT_IMPROVED_INVERSE_POLYNOMIAL_WALL_H
 
 #include <functional>
-#include <boost/make_shared.hpp>
+
 
 #include <Eigen/Core>
 

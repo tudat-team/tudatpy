@@ -169,13 +169,35 @@ public:
             const std::pair< std::string, std::string >& stateReferencePoint,
             const propagators::IntegratedStateType integratedStateType )
     {
-        if( ( ( stateReferencePoint.first == acceleratingBody_ ||
-                ( stateReferencePoint.first == acceleratedBody_  ) )
-              && integratedStateType == propagators::body_mass_state ) )
+        if( ( stateReferencePoint.first == acceleratedBody_  )
+              && ( integratedStateType == propagators::body_mass_state ) )
         {
-            throw std::runtime_error( "Warning, dependency of aerodynamic acceleration on body masses not yet implemented" );
+            return true;
         }
-        return 0;
+        if( ( stateReferencePoint.first == acceleratedBody_  )
+              && ( integratedStateType == propagators::rotational_state ) )
+        {
+            throw std::runtime_error( "Warning, dependency of aerodynamic acceleration on body rotational state not yet implemented" );
+
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    void wrtNonTranslationalStateOfAdditionalBody(
+            Eigen::Block< Eigen::MatrixXd > partialMatrix,
+            const std::pair< std::string, std::string >& stateReferencePoint,
+            const propagators::IntegratedStateType integratedStateType,
+            const bool addContribution = true )
+    {
+        if( stateReferencePoint.first == acceleratedBody_ && integratedStateType == propagators::body_mass_state )
+        {
+            partialMatrix.block( 0, 0, 3, 1 ) +=
+                   ( addContribution ? 1.0 : -1.0 ) * computeDerivativeOfForceBasedAccelerationWrtMass(
+                        aerodynamicAcceleration_->getAcceleration( ), aerodynamicAcceleration_->getCurrentMass( ) );
+        }
     }
 
     //! Function for setting up and retrieving a function returning a partial w.r.t. a double parameter.
@@ -294,16 +316,19 @@ protected:
         // Retrieve current arc
         std::shared_ptr< interpolators::LookUpScheme< double > > currentArcIndexLookUp =
                 parameter->getArcTimeLookupScheme( );
-        int currentArc = currentArcIndexLookUp->findNearestLowerNeighbour( currentTime_ );
-
-        if( currentArc >= accelerationPartial.cols( ) )
-        {
-            throw std::runtime_error( "Error when getting arc-wise radiation pressure coefficient partials, data not consistent" );
-        }
-
-        // Set partial
         accelerationPartial.setZero( 3, parameter->getNumberOfArcs( ) );
-        accelerationPartial.block( 0, currentArc, 3, 1 ) = partialWrtSingleParameter;
+        if( currentArcIndexLookUp->getMinimumValue( ) <= currentTime_ )
+        {
+            int currentArc = currentArcIndexLookUp->findNearestLowerNeighbour( currentTime_ );
+
+            if( currentArc >= accelerationPartial.cols( ) )
+            {
+                throw std::runtime_error( "Error when getting arc-wise radiation pressure coefficient partials, data not consistent" );
+            }
+
+            // Set partial
+            accelerationPartial.block( 0, currentArc, 3, 1 ) = partialWrtSingleParameter;
+        }
     }
 
     //! Perturbations of Cartesian state used in the numerical (central difference) computation of

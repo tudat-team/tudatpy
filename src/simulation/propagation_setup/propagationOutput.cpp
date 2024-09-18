@@ -192,7 +192,8 @@ Eigen::VectorXd getNormsOfAccelerationDifferencesFromLists(
 
 //! Funtion to get the size of a dependent variable save settings
 int getDependentVariableSaveSize(
-        const std::shared_ptr< SingleDependentVariableSaveSettings >& singleDependentVariableSaveSettings )
+        const std::shared_ptr< SingleDependentVariableSaveSettings >& singleDependentVariableSaveSettings,
+        const simulation_setup::SystemOfBodies& bodies )
 {
     if ( singleDependentVariableSaveSettings->componentIndex_ >= 0 )
     {
@@ -200,13 +201,14 @@ int getDependentVariableSaveSize(
     }
     else
     {
-        return getDependentVariableSize(  singleDependentVariableSaveSettings );
+        return getDependentVariableSize( singleDependentVariableSaveSettings, bodies );
     }
 }
 
 //! Funtion to get the size of a dependent variable
 int getDependentVariableSize(
-        const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings )
+        const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings,
+        const simulation_setup::SystemOfBodies& bodies )
 {
     int variableSize = -1;
     switch( dependentVariableSettings->dependentVariableType_ )
@@ -247,13 +249,25 @@ int getDependentVariableSize(
     case total_acceleration_dependent_variable:
         variableSize = 3;
         break;
-    case single_acceleration_dependent_variable:
+    case    single_acceleration_dependent_variable:
         variableSize = 3;
         break;
     case aerodynamic_force_coefficients_dependent_variable:
         variableSize = 3;
         break;
     case aerodynamic_moment_coefficients_dependent_variable:
+        variableSize = 3;
+        break;
+    case aerodynamic_control_surface_free_force_coefficients_dependent_variable:
+        variableSize = 3;
+        break;
+    case aerodynamic_control_surface_free_moment_coefficients_dependent_variable:
+        variableSize = 3;
+        break;
+    case aerodynamic_control_surface_force_coefficients_increment_dependent_variable:
+        variableSize = 3;
+        break;
+    case aerodynamic_control_surface_moment_coefficients_increment_dependent_variable:
         variableSize = 3;
         break;
     case inertial_to_body_fixed_rotation_matrix_variable:
@@ -304,6 +318,9 @@ int getDependentVariableSize(
     case periapsis_altitude_dependent_variable:
         variableSize = 1;
         break;
+    case apoapsis_altitude_dependent_variable:
+        variableSize = 1;
+        break;
     case total_torque_dependent_variable:
         variableSize = 3;
         break;
@@ -314,7 +331,7 @@ int getDependentVariableSize(
         variableSize = 1;
         break;
     case single_torque_norm_dependent_variable:
-        variableSize = 3;
+        variableSize = 1;
         break;
     case keplerian_state_dependent_variable:
         variableSize = 6;
@@ -395,6 +412,152 @@ int getDependentVariableSize(
     case radiation_pressure_coefficient_dependent_variable:
         variableSize = 1;
         break;
+    case custom_dependent_variable:
+        if( std::dynamic_pointer_cast< CustomDependentVariableSaveSettings >(
+                    dependentVariableSettings ) == nullptr )
+        {
+            std::string errorMessage = "Error, input for custom dependent variable parameter size ";
+            throw std::runtime_error( errorMessage );
+        }
+        else
+        {
+            variableSize = std::dynamic_pointer_cast< CustomDependentVariableSaveSettings >(
+                        dependentVariableSettings )->dependentVariableSize_;
+        }
+        break;
+    case total_spherical_harmonic_cosine_coefficient_variation:
+    {
+        if( std::dynamic_pointer_cast< TotalGravityFieldVariationSettings >(
+                    dependentVariableSettings ) == nullptr )
+        {
+             std::string errorMessage = "Error, input for total_spherical_harmonic_cosine_coefficient_variation inconsistent when getting parameter size ";
+             throw std::runtime_error( errorMessage );
+        }
+        else
+        {
+            variableSize = std::dynamic_pointer_cast< TotalGravityFieldVariationSettings >(
+                        dependentVariableSettings )->componentIndices_.size( );
+        }
+        break;
+    }
+    case total_spherical_harmonic_sine_coefficient_variation:
+    {
+        if( std::dynamic_pointer_cast< TotalGravityFieldVariationSettings >(
+                    dependentVariableSettings ) == nullptr )
+        {
+             std::string errorMessage = "Error, input for total_spherical_harmonic_sine_coefficient_variation inconsistent when getting parameter size ";
+             throw std::runtime_error( errorMessage );
+        }
+        else
+        {
+            variableSize = std::dynamic_pointer_cast< TotalGravityFieldVariationSettings >(
+                        dependentVariableSettings )->componentIndices_.size( );
+        }
+        break;
+    }
+    case gravity_field_potential_dependent_variable:
+        variableSize = 1;
+        break;
+    case gravity_field_laplacian_of_potential_dependent_variable:
+        variableSize = 1;
+        break;
+    case total_acceleration_partial_wrt_body_translational_state:
+        variableSize = 18;
+        break;
+    case minimum_constellation_distance:
+        variableSize = 2;
+        break;
+    case minimum_constellation_ground_station_distance:
+        variableSize = 3;
+        break;
+    case body_center_of_mass:
+        variableSize = 3;
+        break;
+    case body_inertia_tensor:
+        variableSize = 9;
+        break;
+    case received_irradiance:
+        variableSize = 1;
+        break;
+    case received_fraction:
+        variableSize = 1;
+        break;
+    case visible_and_emitting_source_panel_count:
+        variableSize = 1;
+        break;
+    case visible_source_area:
+        variableSize = 1;
+        break;
+    case vehicle_panel_inertial_surface_normals:
+    case vehicle_panel_body_fixed_surface_normals:
+    {
+        std::string bodyWithProperty = dependentVariableSettings->associatedBody_;
+        std::string partName = dependentVariableSettings->secondaryBody_;
+        if( bodies.at( bodyWithProperty )->getVehicleSystems( ) == nullptr )
+        {
+            throw std::runtime_error( "Error when saving vehicle panel orientation of " + bodyWithProperty + ", body has no system models." );
+        }
+        else if( bodies.at( bodyWithProperty )->getVehicleSystems( )->getVehicleExteriorPanels( ).size( ) == 0 )
+        {
+            throw std::runtime_error( "Error when saving vehicle panel orientation of " + bodyWithProperty + ", body has no surface panels." );
+        }
+        else if( bodies.at( bodyWithProperty )->getVehicleSystems( )->getVehicleExteriorPanels( ).count( partName ) == 0 )
+        {
+            throw std::runtime_error( "Error when saving vehicle panel orientation of " + bodyWithProperty + ", body has no surface panels for part:" + partName + "." );
+        }
+        else
+        {
+            std::vector<std::shared_ptr<system_models::VehicleExteriorPanel> > partPanels =
+                bodies.at( bodyWithProperty )->getVehicleSystems( )->getVehicleExteriorPanels( ).at( partName );
+            variableSize = 3 * partPanels.size( );
+            break;
+        }
+    }
+    case vehicle_surface_panel_radiation_pressure_force:
+    {
+        std::string bodyWithProperty = dependentVariableSettings->associatedBody_;
+        std::string partName = dependentVariableSettings->secondaryBody_;
+        if( bodies.at( bodyWithProperty )->getVehicleSystems( ) == nullptr )
+        {
+            throw std::runtime_error( "Error when saving panel radiation pressure force of " + bodyWithProperty + ", body has no system models." );
+        }
+        else if( bodies.at( bodyWithProperty )->getVehicleSystems( )->getVehicleExteriorPanels( ).size( ) == 0 )
+        {
+            throw std::runtime_error( "Error when saving vehicle radiation pressure force of " + bodyWithProperty + ", body has no surface panels." );
+        }
+        else
+        {
+            variableSize = 3 * bodies.at( bodyWithProperty )->getVehicleSystems( )->getTotalNumberOfPanels( );
+            break;
+        }
+    }
+    case paneled_radiation_source_per_panel_irradiance:
+    case paneled_radiation_source_geometry:
+    {
+        std::string bodyWithProperty = dependentVariableSettings->secondaryBody_;
+        if( bodies.at( bodyWithProperty )->getRadiationSourceModel( ) == nullptr )
+        {
+            throw std::runtime_error( "Error when saving paneled radiation pressure source properties of " + bodyWithProperty + ", body has no source model." );
+        }
+        else if( std::dynamic_pointer_cast< electromagnetism::PaneledRadiationSourceModel >( bodies.at( bodyWithProperty )->getRadiationSourceModel( ) ) == nullptr )
+        {
+            throw std::runtime_error( "Error when saving paneled radiation pressure source properties of " + bodyWithProperty + ", body has no paneled source model." );
+        }
+        else
+        {
+            int numberOfPanels =
+                std::dynamic_pointer_cast< electromagnetism::PaneledRadiationSourceModel >( bodies.at( bodyWithProperty )->getRadiationSourceModel( ) )->getNumberOfPanels( );
+            if( dependentVariableSettings->dependentVariableType_ == paneled_radiation_source_per_panel_irradiance )
+            {
+                variableSize = numberOfPanels;
+            }
+            else
+            {
+                variableSize = 7 * numberOfPanels;
+            }
+        }
+        break;
+    }
     default:
         std::string errorMessage = "Error, did not recognize dependent variable size of type: " +
                 std::to_string( dependentVariableSettings->dependentVariableType_ );
@@ -403,23 +566,171 @@ int getDependentVariableSize(
     return variableSize;
 }
 
-template std::pair< std::function< Eigen::VectorXd( ) >, std::map< int, std::string > > createDependentVariableListFunction< double, double >(
-        const std::shared_ptr< DependentVariableSaveSettings > saveSettings,
-        const simulation_setup::SystemOfBodies& bodies,
-        const std::unordered_map< IntegratedStateType,
-        std::vector< std::shared_ptr< SingleStateTypeDerivative< double, double > > > >& stateDerivativeModels );
+std::pair< int, int > getDependentVariableShape(
+    const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings,
+    const simulation_setup::SystemOfBodies& bodies )
+{
+    int dependentVariableSize = getDependentVariableSaveSize( dependentVariableSettings, bodies );
+    std::pair< int, int > dependentVariableShape;
+    switch ( dependentVariableSettings->dependentVariableType_ )
+    {
+    case inertial_to_body_fixed_rotation_matrix_variable:
+        dependentVariableShape = { 3, 3 };
+        break;
+    case intermediate_aerodynamic_rotation_matrix_variable:
+        dependentVariableShape = { 3, 3 };
+        break;
+    case tnw_to_inertial_frame_rotation_dependent_variable:
+        dependentVariableShape = { 3, 3 };
+        break;
+    case rsw_to_inertial_frame_rotation_dependent_variable:
+        dependentVariableShape = { 3, 3 };
+        break;
+    case acceleration_partial_wrt_body_translational_state:
+        dependentVariableShape = { 3, 3 };
+        break;
+    case body_inertia_tensor:
+        dependentVariableShape = { 3, 3 };
+        break;
+    default:
+        dependentVariableShape = { dependentVariableSize, 1 };
+        break;
+    }
 
-//template std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariableFunction< double, double >(
-//        const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings,
-//        const simulation_setup::SystemOfBodies& bodies,
-//        const std::unordered_map< IntegratedStateType,
-//        std::vector< std::shared_ptr< SingleStateTypeDerivative< double, double > > > >& stateDerivativeModels );
+    if( isMatrixDependentVariable( dependentVariableSettings ) && dependentVariableShape.second == 1 )
+    {
+        throw std::runtime_error( "Error when finding shape of dependent variable: (" + getDependentVariableName( dependentVariableSettings ) +
+            "), dependent variable should be a matrix, but number of columns is equal to 1 " );
+    }
 
-//template std::function< double( ) > getDoubleDependentVariableFunction< double, double >(
-//        const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings,
-//        const simulation_setup::SystemOfBodies& bodies,
-//        const std::unordered_map< IntegratedStateType,
-//        std::vector< std::shared_ptr< SingleStateTypeDerivative< double, double > > > >& stateDerivativeModels );
+    if( dependentVariableShape.first * dependentVariableShape.second != dependentVariableSize )
+    {
+        throw std::runtime_error( "Error when finding shape of dependent variable: (" + getDependentVariableName( dependentVariableSettings ) +
+                                  "), vector size (" + std::to_string( dependentVariableSize ) + ") and matrix size (" +
+                                  std::to_string( dependentVariableShape.first ) + ", " + std::to_string( dependentVariableShape.second ) + ") are incompatible" );
+    }
+    return dependentVariableShape;
+
+
+    return dependentVariableShape;
+}
+
+bool isScalarDependentVariable(
+        const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings,
+        const simulation_setup::SystemOfBodies& bodies )
+{
+    int dependentVariableSize = getDependentVariableSaveSize( dependentVariableSettings, bodies );
+    if( dependentVariableSize > 1 ||
+            dependentVariableSettings->dependentVariableType_ == spherical_harmonic_acceleration_norm_terms_dependent_variable ||
+            dependentVariableSettings->dependentVariableType_ == custom_dependent_variable )
+    {
+        return false;
+    }
+    else if( dependentVariableSize == 1 )
+    {
+        return true;
+    }
+    else
+    {
+        throw std::runtime_error( "Error, found dependent variable with size " + std::to_string( dependentVariableSize ) +
+                                  ", cannot be parsed" );
+    }
+
+}
+
+
+bool isMatrixDependentVariable(
+    const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings )
+{
+    bool isMatrixVariable = false;
+    switch ( dependentVariableSettings->dependentVariableType_ )
+    {
+    case inertial_to_body_fixed_rotation_matrix_variable:
+        isMatrixVariable = true;
+        break;
+    case intermediate_aerodynamic_rotation_matrix_variable:
+        isMatrixVariable = true;
+        break;
+    case tnw_to_inertial_frame_rotation_dependent_variable:
+        isMatrixVariable = true;
+        break;
+    case rsw_to_inertial_frame_rotation_dependent_variable:
+        isMatrixVariable = true;
+        break;
+    case acceleration_partial_wrt_body_translational_state:
+        isMatrixVariable = true;
+        break;
+    case body_inertia_tensor:
+        isMatrixVariable = true;
+        break;
+    default:
+        break;
+    }
+    return isMatrixVariable;
+}
+
+Eigen::VectorXd getConstellationMinimumDistance(
+    const std::function< Eigen::Vector3d( ) >& mainBodyPositionFunction,
+    const std::vector< std::function< Eigen::Vector3d( ) > >& bodiesToCheckPositionFunctions )
+{
+    Eigen::VectorXd minimumDistanceValueAndIndex = Eigen::Vector2d::Zero( );
+    minimumDistanceValueAndIndex( 0 ) = std::numeric_limits< double >::infinity( );
+    minimumDistanceValueAndIndex( 1 ) = static_cast< double >( -1 );
+    Eigen::Vector3d mainBodyPosition = mainBodyPositionFunction( );
+    for( unsigned int i = 0; i < bodiesToCheckPositionFunctions.size( ); i++ )
+    {
+        double currentDistance = ( mainBodyPosition - bodiesToCheckPositionFunctions.at( i )( ) ).norm( );
+        if( currentDistance < minimumDistanceValueAndIndex( 0 ) )
+        {
+            minimumDistanceValueAndIndex( 0 ) = currentDistance;
+            minimumDistanceValueAndIndex( 1 ) = static_cast< double >( i );
+        }
+    }
+    if( minimumDistanceValueAndIndex( 0 ) == std::numeric_limits< double >::infinity( ) )
+    {
+        minimumDistanceValueAndIndex( 0 ) = TUDAT_NAN;
+    }
+    return minimumDistanceValueAndIndex;
+}
+
+Eigen::VectorXd getConstellationMinimumVisibleDistance(
+    const std::function< Eigen::Vector3d( ) >& mainBodyPositionFunction,
+    const std::vector< std::function< Eigen::Vector3d( ) > >& bodiesToCheckPositionFunctions,
+    const std::shared_ptr< ground_stations::PointingAnglesCalculator > stationPointingAngleCalculator,
+    const double limitAngle,
+    const double time )
+{
+    Eigen::VectorXd minimumDistanceValueAndIndex = Eigen::Vector3d::Zero( );
+    minimumDistanceValueAndIndex( 0 ) = std::numeric_limits< double >::infinity( );
+    minimumDistanceValueAndIndex( 1 ) = static_cast< double >( -1 );
+    minimumDistanceValueAndIndex( 2 ) = TUDAT_NAN;
+
+    Eigen::Vector3d mainBodyPosition = mainBodyPositionFunction( );
+    for( unsigned int i = 0; i < bodiesToCheckPositionFunctions.size( ); i++ )
+    {
+        Eigen::Vector3d vectorToTarget = bodiesToCheckPositionFunctions.at( i )( ) - mainBodyPosition;
+        double currentElevationAngle = stationPointingAngleCalculator->calculateElevationAngleFromInertialVector( vectorToTarget, time );
+        if( currentElevationAngle > limitAngle )
+        {
+            double currentDistance = vectorToTarget.norm( );
+            if( currentDistance < minimumDistanceValueAndIndex( 0 ) )
+            {
+                minimumDistanceValueAndIndex( 0 ) = currentDistance;
+                minimumDistanceValueAndIndex( 1 ) = static_cast< double >( i );
+                minimumDistanceValueAndIndex( 2 ) = currentElevationAngle;
+            }
+        }
+    }
+
+    if( minimumDistanceValueAndIndex( 0 ) == std::numeric_limits< double >::infinity( ) )
+    {
+        minimumDistanceValueAndIndex( 0 ) = TUDAT_NAN;
+    }
+    return minimumDistanceValueAndIndex;
+}
+
+
+
 
 } // namespace propagators
 

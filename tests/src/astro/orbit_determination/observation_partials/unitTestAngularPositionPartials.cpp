@@ -16,7 +16,7 @@
 #include <vector>
 
 #include <boost/test/unit_test.hpp>
-#include <boost/make_shared.hpp>
+
 #include <boost/lambda/lambda.hpp>
 
 #include "tudat/basics/testMacros.h"

@@ -24,6 +24,8 @@
 
 #include <Eigen/Core>
 
+#include "tudat/basics/identityElements.h"
+
 namespace tudat
 {
 
@@ -151,7 +153,7 @@ DependentVariableType computeCentralDifferenceFromFunction(
 
     IndependentVariableType perturbedInput;
     DependentVariableType perturbedOutput;
-    DependentVariableType numericalDerivative;
+    DependentVariableType numericalDerivative = IdentityElement::getAdditionIdentity< DependentVariableType >( );
 
     // Compute the numerical derivative.
     for ( std::map< int, double >::const_iterator coefficientIterator = coefficients.begin( );

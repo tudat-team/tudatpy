@@ -27,11 +27,11 @@
 #include <map>
 #include <vector>
 
-#include <boost/bind/bind.hpp>
-using namespace boost::placeholders;
+
+
 
 #include <boost/lambda/lambda.hpp>
-#include <boost/make_shared.hpp>
+
 #include <boost/test/tools/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
 

@@ -17,7 +17,7 @@
 
 #include <iostream>
 
-#include <boost/make_shared.hpp>
+
 
 #include "tudat/math/basic/mathematicalConstants.h"
 
@@ -36,7 +36,10 @@ namespace interpolators
 enum LagrangeInterpolatorBoundaryHandling
 {
     lagrange_cubic_spline_boundary_interpolation = 0,
-    lagrange_no_boundary_interpolation = 1
+    lagrange_cubic_spline_boundary_interpolation_with_warning = 1,
+    lagrange_boundary_nan_interpolation = 2,
+    lagrange_boundary_nan_interpolation_with_warning = 3,
+    lagrange_no_boundary_interpolation = 4
 };
 
 //! Class to perform Lagrange polynomial interpolation
@@ -49,7 +52,7 @@ enum LagrangeInterpolatorBoundaryHandling
  *  mathematical details.
  */
 template< typename IndependentVariableType, typename DependentVariableType,
-          typename ScalarType = IndependentVariableType >
+          typename ScalarType = typename scalar_type< IndependentVariableType >::value_type >
 class LagrangeInterpolator : public OneDimensionalInterpolator< IndependentVariableType,
         DependentVariableType >
 {
@@ -178,7 +181,15 @@ public:
             throw std::runtime_error( "Error: Lagrange interpolator currently only handles even orders." );
         }
 
-        numberOfIndependentValues_ = dataMap.size( );
+        if( dataMap.size( ) < static_cast< unsigned int >( numberOfStages_ ) )
+        {
+            throw std::runtime_error( "Error when creating Lagrange interpolator, input is of size " +
+                                      std::to_string( dataMap.size( ) ) +
+                                      ". This is smaller than the number of points needed for interpolator, which is " +
+                                      std::to_string( numberOfStages_ ) );
+        }
+
+        numberOfIndependentValues_ = static_cast< int >( dataMap.size( ) );
 
         // Verify that the initialization variables are not empty.
         if ( dataMap.size( ) == 0 )
@@ -252,29 +263,11 @@ public:
         // can be used.
         if( lowerEntry < offsetEntries_ )
         {
-            if( lagrangeBoundaryHandling_ == lagrange_no_boundary_interpolation )
-            {
-                throw std::runtime_error(
-                            "Error: Lagrange interpolator below allowed bounds." );
-            }
-            else if( numberOfStages_ > 2 )
-            {
-                interpolatedValue = beginInterpolator_->interpolate(
-                            targetIndependentVariableValue );
-            }
+            interpolatedValue = performLagrangeBoundaryInterpolation( beginInterpolator_, targetIndependentVariableValue );
         }
         else if( lowerEntry >= numberOfIndependentValues_ - offsetEntries_ - 1 )
         {
-            if( lagrangeBoundaryHandling_ == lagrange_no_boundary_interpolation )
-            {
-                throw std::runtime_error(
-                            "Error: Lagrange interpolator above allowed bounds." );
-            }
-            else if( numberOfStages_ > 2 )
-            {
-                interpolatedValue = endInterpolator_->interpolate(
-                            targetIndependentVariableValue );
-            }
+            interpolatedValue = performLagrangeBoundaryInterpolation( endInterpolator_, targetIndependentVariableValue );
         }
         else
         {
@@ -348,6 +341,38 @@ protected:
 
 private:
 
+    DependentVariableType performLagrangeBoundaryInterpolation(
+        const std::shared_ptr< OneDimensionalInterpolator< IndependentVariableType, DependentVariableType > > boundaryInterpolator,
+        const IndependentVariableType& targetIndependentVariableValue )
+    {
+        DependentVariableType interpolatedValue;
+        switch( lagrangeBoundaryHandling_ )
+        {
+        case lagrange_cubic_spline_boundary_interpolation_with_warning:
+            std::cerr<<"Warning, calling Lagrange interpolator near boundary (at "<<targetIndependentVariableValue<<" ), using cubic-spline interpolation"<<std::endl;
+            interpolatedValue = boundaryInterpolator->interpolate( targetIndependentVariableValue );
+            break;
+        case lagrange_cubic_spline_boundary_interpolation:
+            interpolatedValue = boundaryInterpolator->interpolate( targetIndependentVariableValue );
+            break;
+        case lagrange_boundary_nan_interpolation_with_warning:
+            std::cerr<<"Warning, calling Lagrange interpolator near boundary (at "<<targetIndependentVariableValue<<" ), returning NaN"<<std::endl;
+            interpolatedValue = IdentityElement::getNanIdentity< DependentVariableType >( zeroEntry_ );
+            break;
+        case lagrange_boundary_nan_interpolation:
+            interpolatedValue = IdentityElement::getNanIdentity< DependentVariableType >( zeroEntry_ );
+            break;
+        case lagrange_no_boundary_interpolation:
+            throw std::runtime_error( "Error: Lagrange interpolator called outside permitted bounds, at " + std::to_string(
+                static_cast< double >( targetIndependentVariableValue ) ) );
+            break;
+        default:
+            throw std::runtime_error( "Error when handling Lagrange boundary case, option not implemented" );
+
+        }
+        return interpolatedValue;
+    }
+
     //! Function called at initialization which pre-computes the denominators of the
     //! interpolants at each interval.
     /*!
@@ -415,13 +440,20 @@ private:
             const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm )
     {
         // Create interpolators
-        if( lagrangeBoundaryHandling_ == lagrange_cubic_spline_boundary_interpolation )
+        if( lagrangeBoundaryHandling_ == lagrange_cubic_spline_boundary_interpolation  ||
+            lagrangeBoundaryHandling_ == lagrange_cubic_spline_boundary_interpolation_with_warning)
         {
             // Ensure sufficient data points for spline.
             int cubicSplineInputSize = offsetEntries_;
             if( cubicSplineInputSize < 3 )
             {
                 cubicSplineInputSize = 3;
+            }
+
+            if( dependentValues_.size( ) < static_cast< unsigned int >( cubicSplineInputSize ) )
+            {
+                throw std::runtime_error( "Error when creating Lagrange interpolator, input is of size " +
+                                          std::to_string( dependentValues_.size( ) ) + ", which is too small co create cubic boundary interpolator" );
             }
 
             // Set input maps for interpolators
@@ -494,20 +526,6 @@ private:
 extern template class LagrangeInterpolator< double, Eigen::VectorXd >;
 extern template class LagrangeInterpolator< double, Eigen::Vector6d >;
 extern template class LagrangeInterpolator< double, Eigen::MatrixXd >;
-
-#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
-extern template class LagrangeInterpolator< Time, Eigen::VectorXd, long double >;
-extern template class LagrangeInterpolator< Time, Eigen::Vector6d, long double >;
-extern template class LagrangeInterpolator< Time, Eigen::MatrixXd, long double >;
-
-extern template class LagrangeInterpolator< double, Eigen::Matrix< long double, Eigen::Dynamic, 1 > >;
-extern template class LagrangeInterpolator< double, Eigen::Matrix< long double, Eigen::Dynamic, 6 > >;
-extern template class LagrangeInterpolator< double, Eigen::Matrix< long double, Eigen::Dynamic,  Eigen::Dynamic > >;
-
-extern template class LagrangeInterpolator< Time, Eigen::Matrix< long double, Eigen::Dynamic, 1 >, long double >;
-extern template class LagrangeInterpolator< Time, Eigen::Matrix< long double, Eigen::Dynamic, 6 >, long double >;
-extern template class LagrangeInterpolator< Time, Eigen::Matrix< long double, Eigen::Dynamic,  Eigen::Dynamic >, long double >;
-#endif
 
 //! Typedef for LagrangeInterpolator with double as both its dependent and independent data type.
 typedef LagrangeInterpolator< double, double > LagrangeInterpolatorDouble;

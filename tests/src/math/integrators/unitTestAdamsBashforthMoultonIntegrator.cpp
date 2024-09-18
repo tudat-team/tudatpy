@@ -55,7 +55,7 @@ BOOST_AUTO_TEST_CASE( test_AdamsBashforthMoulton_Integrator_Compare78 )
 {
     // Setup integrator
     RungeKuttaCoefficients coeff_rk78 =
-            RungeKuttaCoefficients::get( RungeKuttaCoefficients::rungeKuttaFehlberg78);
+            RungeKuttaCoefficients::get( CoefficientSets::rungeKuttaFehlberg78);
 
     // Integrator settings
     double minimumStepSize = std::numeric_limits< double >::epsilon( );
@@ -74,11 +74,11 @@ BOOST_AUTO_TEST_CASE( test_AdamsBashforthMoulton_Integrator_Compare78 )
     // Setup integrator
     AdamsBashforthMoultonIntegratorXd integrator_abam(
                 computeNonAutonomousModelStateDerivative, initialTime, initialState,
-                minimumStepSize, maximumStepSize, relativeTolerance, absoluteTolerance );
+                minimumStepSize, maximumStepSize, initialStepSize, relativeTolerance, absoluteTolerance );
 
     RungeKuttaVariableStepSizeIntegratorXd integrator_rk78(
                 coeff_rk78, computeNonAutonomousModelStateDerivative, initialTime, initialState,
-                minimumStepSize, maximumStepSize, relativeTolerance, absoluteTolerance );
+                minimumStepSize, maximumStepSize, initialStepSize, relativeTolerance, absoluteTolerance );
 
     double endTime = 1.5;
     Eigen::VectorXd solution_abam = integrator_abam.integrateTo( endTime, initialStepSize );
@@ -95,7 +95,7 @@ BOOST_AUTO_TEST_CASE( test_AdamsBashforthMoulton_Integrator_Compare78_v2 )
     // Setup integrator
     RungeKuttaCoefficients coeff_rk78 =
             RungeKuttaCoefficients::get(
-                RungeKuttaCoefficients::rungeKuttaFehlberg78 );
+                rungeKuttaFehlberg78 );
 
     // Integrator settings
     double minimumStepSize = std::numeric_limits< double >::epsilon( );
@@ -112,11 +112,11 @@ BOOST_AUTO_TEST_CASE( test_AdamsBashforthMoulton_Integrator_Compare78_v2 )
     // Setup integrator
     AdamsBashforthMoultonIntegratorXd integrator_abam(
                 computeNonAutonomousModelStateDerivative, initialTime, initialState,
-                minimumStepSize, maximumStepSize, relativeTolerance, absoluteTolerance );
+                minimumStepSize, maximumStepSize, initialStepSize, relativeTolerance, absoluteTolerance );
     
     RungeKuttaVariableStepSizeIntegratorXd integrator_rk78(
                 coeff_rk78, computeNonAutonomousModelStateDerivative, initialTime, initialState,
-                minimumStepSize, maximumStepSize, relativeTolerance, absoluteTolerance );
+                minimumStepSize, maximumStepSize, initialStepSize, relativeTolerance, absoluteTolerance );
 
     double endTime = 2.0;
     Eigen::VectorXd solution_abam = integrator_abam.integrateTo( endTime, initialStepSize );
@@ -132,7 +132,7 @@ BOOST_AUTO_TEST_CASE( test_AdamsBashforthMoulton_Integrator_Compare78_VanDerPol 
 {
     // Setup integrator
     RungeKuttaCoefficients coeff_rk78 =
-            RungeKuttaCoefficients::get( RungeKuttaCoefficients::rungeKuttaFehlberg78 );
+            RungeKuttaCoefficients::get( CoefficientSets::rungeKuttaFehlberg78 );
 
     // Integrator settings
     double minimumStepSize = 0.001;
@@ -149,11 +149,11 @@ BOOST_AUTO_TEST_CASE( test_AdamsBashforthMoulton_Integrator_Compare78_VanDerPol 
     // Setup integrator
     AdamsBashforthMoultonIntegratorXd integrator_abam(
                 computeVanDerPolStateDerivative, initialTime, initialState,
-                minimumStepSize, maximumStepSize, relativeTolerance, absoluteTolerance );
+                minimumStepSize, maximumStepSize, initialStepSize, relativeTolerance, absoluteTolerance );
 
     RungeKuttaVariableStepSizeIntegratorXd integrator_rk78(
                 coeff_rk78, computeVanDerPolStateDerivative, initialTime, initialState, 
-                minimumStepSize, maximumStepSize, relativeTolerance, absoluteTolerance );
+                minimumStepSize, maximumStepSize, initialStepSize, relativeTolerance, absoluteTolerance );
 
     double endTime = 1.4;
     Eigen::VectorXd solution_abam = integrator_abam.integrateTo(endTime,initialStepSize);

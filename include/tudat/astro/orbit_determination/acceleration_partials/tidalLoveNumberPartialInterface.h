@@ -53,7 +53,7 @@ public:
      *  \param deformedBody Name of body being tidally deformed.
      */
     TidalLoveNumberPartialInterface(
-            const std::shared_ptr< gravitation::BasicSolidBodyTideGravityFieldVariations > gravityFieldVariations,
+            const std::shared_ptr< gravitation::SolidBodyTideGravityFieldVariations > gravityFieldVariations,
             const std::function< Eigen::Vector3d( ) > deformedBodyPositionFunction,
             const std::vector< std::function< Eigen::Vector3d( ) > > deformingBodyStateFunctions,
             const std::function< Eigen::Quaterniond( ) > rotationToDeformedBodyFrameFrameFunction,
@@ -163,6 +163,14 @@ public:
             const int maximumDegree,
             const int maximumOrder );
 
+    std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > >
+    calculateSphericalHarmonicCoefficientsPartialWrtModeCoupledTidalLoveNumbers(
+        const std::vector< std::pair< int, int > > parameterDegreeAndOrderIndices,
+        const std::map< int, std::vector< int > >& ordersPerDegree,
+        const std::vector< int >& deformingBodyIndices,
+        const int maximumDegree,
+        const int maximumOrder );
+
     //! Function to calculate the partial of spherical harmonic acceleration w.r.t. real tidal love numbers.
     /*!
      *  Function to calculate the partial of spherical harmonic acceleration w.r.t. real tidal love numbers at all orders of
@@ -206,14 +214,11 @@ public:
      *  is required
      *  \param currentTime Current time to which interface is to be set.
      */
-    void resetTime( const double currentTime = TUDAT_NAN )
+    void resetCurrentTime( )
     {
-        if( !( currentTime_ == currentTime  ) )
-        {
-            currentDoubleParameterPartials_.clear( );
-            currentVectorParameterPartials_.clear( );
-        }
-        currentTime_ = currentTime;
+        currentDoubleParameterPartials_.clear( );
+        currentVectorParameterPartials_.clear( );
+        currentTime_ = TUDAT_NAN;
     }
 
     //! Function to update the values of the partial derivatives to current state and time.

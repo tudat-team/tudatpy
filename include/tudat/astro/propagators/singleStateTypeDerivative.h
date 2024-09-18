@@ -36,6 +36,8 @@ enum IntegratedStateType
     custom_state = 4
 };
 
+std::string getIntegratedStateTypString( const IntegratedStateType stateType );
+
 // Get size of state for single propagated state of given type.
 /*
  * Get size of state for single propagated state of given type (i.e. 6 for translational state).
@@ -242,11 +244,6 @@ protected:
 
 extern template class SingleStateTypeDerivative< double, double >;
 
-#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
-extern template class SingleStateTypeDerivative< long double, double >;
-extern template class SingleStateTypeDerivative< double, Time >;
-extern template class SingleStateTypeDerivative< long double, Time >;
-#endif
 
 } // namespace propagators
 

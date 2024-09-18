@@ -12,6 +12,7 @@
 #define TUDAT_BOOSTPROBABILITYDISTRIBUTIONS_H
 
 #include <cmath>
+#include <memory>
 
 #include <boost/math/distributions.hpp>
 

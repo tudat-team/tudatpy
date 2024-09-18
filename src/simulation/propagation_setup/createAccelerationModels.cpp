@@ -12,12 +12,13 @@
 #include <functional>
 #include <memory>
 
-#include <boost/make_shared.hpp>
-#include <boost/bind/bind.hpp>
-using namespace boost::placeholders;
+
+
+
 
 #include "tudat/astro/aerodynamics/flightConditions.h"
 #include "tudat/astro/ephemerides/frameManager.h"
+#include "tudat/astro/ephemerides/directionBasedRotationalEphemeris.h"
 #include "tudat/astro/gravitation/sphericalHarmonicsGravityField.h"
 #include "tudat/astro/propulsion/thrustMagnitudeWrapper.h"
 #include "tudat/astro/reference_frames/aerodynamicAngleCalculator.h"
@@ -28,6 +29,8 @@ using namespace boost::placeholders;
 #include "tudat/simulation/propagation_setup/accelerationSettings.h"
 #include "tudat/simulation/propagation_setup/createAccelerationModels.h"
 #include "tudat/simulation/environment_setup/createFlightConditions.h"
+#include "tudat/simulation/environment_setup/createOccultationModel.h"
+#include "tudat/simulation/environment_setup/createRadiationPressureTargetModel.h"
 
 
 namespace tudat
@@ -53,6 +56,7 @@ std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > cre
         const std::string& nameOfCentralBody,
         const bool isCentralBody )
 {
+
     // Check if sum of gravitational parameters (i.e. inertial force w.r.t. central body) should be used.
     bool sumGravitationalParameters = 0;
     if( ( nameOfCentralBody == nameOfBodyExertingAcceleration ) && bodyUndergoingAcceleration != nullptr )
@@ -91,6 +95,22 @@ std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > cre
                     accelerationSettings,
                     sumGravitationalParameters,
                     isCentralBody );
+        break;
+    case polyhedron_gravity:
+        accelerationModel = createPolyhedronGravityAcceleration(
+                bodyUndergoingAcceleration,
+                bodyExertingAcceleration,
+                nameOfBodyUndergoingAcceleration,
+                nameOfBodyExertingAcceleration,
+                sumGravitationalParameters);
+        break;
+    case ring_gravity:
+        accelerationModel = createRingGravityAcceleration(
+                bodyUndergoingAcceleration,
+                bodyExertingAcceleration,
+                nameOfBodyUndergoingAcceleration,
+                nameOfBodyExertingAcceleration,
+                sumGravitationalParameters);
         break;
     default:
 
@@ -152,6 +172,32 @@ std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > cre
                             centralBody, bodyExertingAcceleration, nameOfCentralBody, nameOfBodyExertingAcceleration,
                             accelerationSettings, "", 1 ) ), nameOfCentralBody );
         break;
+    case polyhedron_gravity:
+        accelerationModel = std::make_shared< ThirdBodyPolyhedronGravitationalAccelerationModel >(
+                std::dynamic_pointer_cast< PolyhedronGravitationalAccelerationModel >(
+                    createDirectGravitationalAcceleration(
+                        bodyUndergoingAcceleration, bodyExertingAcceleration,
+                        nameOfBodyUndergoingAcceleration, nameOfBodyExertingAcceleration,
+                        accelerationSettings, "", 0 ) ),
+                std::dynamic_pointer_cast< PolyhedronGravitationalAccelerationModel >(
+                    createDirectGravitationalAcceleration(
+                        centralBody, bodyExertingAcceleration, nameOfCentralBody, nameOfBodyExertingAcceleration,
+                        accelerationSettings, "", 1 ) ),
+                nameOfCentralBody );
+        break;
+    case ring_gravity:
+        accelerationModel = std::make_shared< ThirdBodyRingGravitationalAccelerationModel >(
+                std::dynamic_pointer_cast< RingGravitationalAccelerationModel >(
+                    createDirectGravitationalAcceleration(
+                        bodyUndergoingAcceleration, bodyExertingAcceleration,
+                        nameOfBodyUndergoingAcceleration, nameOfBodyExertingAcceleration,
+                        accelerationSettings, "", 0 ) ),
+                std::dynamic_pointer_cast< RingGravitationalAccelerationModel >(
+                    createDirectGravitationalAcceleration(
+                        centralBody, bodyExertingAcceleration, nameOfCentralBody, nameOfBodyExertingAcceleration,
+                        accelerationSettings, "", 1 ) ),
+                nameOfCentralBody );
+        break;
     default:
 
         std::string errorMessage = "Error when making third-body gravitional acceleration model, cannot parse type " +
@@ -175,7 +221,9 @@ std::shared_ptr< AccelerationModel< Eigen::Vector3d > > createGravitationalAccel
     std::shared_ptr< AccelerationModel< Eigen::Vector3d > > accelerationModelPointer;
     if( accelerationSettings->accelerationType_ != point_mass_gravity &&
             accelerationSettings->accelerationType_ != spherical_harmonic_gravity &&
-            accelerationSettings->accelerationType_ != mutual_spherical_harmonic_gravity )
+            accelerationSettings->accelerationType_ != mutual_spherical_harmonic_gravity &&
+            accelerationSettings->accelerationType_ != polyhedron_gravity &&
+            accelerationSettings->accelerationType_ != ring_gravity )
     {
         throw std::runtime_error( "Error when making gravitational acceleration, type is inconsistent" );
     }
@@ -227,9 +275,14 @@ std::shared_ptr< CentralGravitationalAccelerationModel3d > createCentralGravityA
     {
         std::function< double( ) > gravitationalParameterFunction;
 
+        bool useMutualAttraction = useCentralBodyFixedFrame;
+        if( bodyUndergoingAcceleration->getGravityFieldModel( ) == nullptr && useMutualAttraction )
+        {
+            useMutualAttraction = false;
+        }
+
         // Set correct value for gravitational parameter.
-        if( useCentralBodyFixedFrame == 0  ||
-                bodyUndergoingAcceleration->getGravityFieldModel( ) == nullptr )
+        if( !useMutualAttraction )
         {
             gravitationalParameterFunction =
                     std::bind( &gravitation::GravityFieldModel::getGravitationalParameter,
@@ -260,7 +313,7 @@ std::shared_ptr< CentralGravitationalAccelerationModel3d > createCentralGravityA
                     bodyUndergoingAccelerationPositionFunction,
                     gravitationalParameterFunction,
                     bodyExertingAccelerationPositionFunction,
-                    useCentralBodyFixedFrame );
+                    useMutualAttraction );
     }
 
 
@@ -330,9 +383,14 @@ createSphericalHarmonicsGravityAcceleration(
 
             std::function< double( ) > gravitationalParameterFunction;
 
+            bool useMutualAttraction = useCentralBodyFixedFrame;
+            if( bodyUndergoingAcceleration->getGravityFieldModel( ) == nullptr && useMutualAttraction )
+            {
+                useMutualAttraction = false;
+            }
+
             // Check if mutual acceleration is to be used.
-            if( useCentralBodyFixedFrame == false ||
-                    bodyUndergoingAcceleration->getGravityFieldModel( ) == nullptr )
+            if( !useMutualAttraction )
             {
                 gravitationalParameterFunction =
                         std::bind( &SphericalHarmonicsGravityField::getGravitationalParameter,
@@ -360,7 +418,7 @@ createSphericalHarmonicsGravityAcceleration(
                                sphericalHarmonicsSettings->maximumOrder_ );
 
             std::function< Eigen::MatrixXd( ) > cosineCoefficientFunction;
-            if( !useDegreeZeroTerm )
+            if( !useDegreeZeroTerm || sphericalHarmonicsSettings->removePointMass_ )
             {
                 cosineCoefficientFunction =
                         std::bind( &setDegreeAndOrderCoefficientToZero, originalCosineCoefficientFunction );
@@ -383,7 +441,7 @@ createSphericalHarmonicsGravityAcceleration(
                                  sphericalHarmonicsSettings->maximumOrder_ ),
                     std::bind( &Body::getPositionByReference, bodyExertingAcceleration, std::placeholders::_1 ),
                       std::bind( &Body::getCurrentRotationToGlobalFrame,
-                                 bodyExertingAcceleration ), useCentralBodyFixedFrame );
+                                 bodyExertingAcceleration ), useMutualAttraction );
         }
     }
     return accelerationModel;
@@ -444,6 +502,7 @@ createMutualSphericalHarmonicsGravityAcceleration(
         else
         {
             std::function< double( ) > gravitationalParameterFunction;
+
 
             // Create function returning summed gravitational parameter of the two bodies.
             if( useCentralBodyFixedFrame == false )
@@ -513,6 +572,191 @@ createMutualSphericalHarmonicsGravityAcceleration(
     return accelerationModel;
 }
 
+std::shared_ptr< gravitation::PolyhedronGravitationalAccelerationModel >
+createPolyhedronGravityAcceleration(
+        const std::shared_ptr< Body > bodyUndergoingAcceleration,
+        const std::shared_ptr< Body > bodyExertingAcceleration,
+        const std::string& nameOfBodyUndergoingAcceleration,
+        const std::string& nameOfBodyExertingAcceleration,
+        const bool useCentralBodyFixedFrame)
+{
+
+    // Declare pointer to return object
+    std::shared_ptr< PolyhedronGravitationalAccelerationModel > accelerationModel;
+
+    // Get pointer to gravity field of central body and cast to required type.
+    std::shared_ptr< PolyhedronGravityField > polyhedronGravityField =
+            std::dynamic_pointer_cast< PolyhedronGravityField >(
+                bodyExertingAcceleration->getGravityFieldModel( ) );
+
+    std::shared_ptr< RotationalEphemeris> rotationalEphemeris = bodyExertingAcceleration->getRotationalEphemeris( );
+
+    if( polyhedronGravityField == nullptr )
+    {
+        throw std::runtime_error(
+                    std::string( "Error, polyhedron gravity field model not set when ")
+                    + " making polyhedron gravitational acceleration of " +
+                    nameOfBodyExertingAcceleration +
+                    " on " + nameOfBodyUndergoingAcceleration );
+    }
+    else
+    {
+        if( rotationalEphemeris == nullptr )
+        {
+            throw std::runtime_error( "Warning when making polyhedron acceleration on body " +
+                                      nameOfBodyUndergoingAcceleration + ", no rotation model found for " +
+                                      nameOfBodyExertingAcceleration );
+        }
+
+        if( rotationalEphemeris->getTargetFrameOrientation( ) != polyhedronGravityField->getFixedReferenceFrame( ) )
+        {
+            throw std::runtime_error( "Warning when making polyhedron acceleration on body " +
+                                      nameOfBodyUndergoingAcceleration + ", rotation model found for " +
+                                      nameOfBodyExertingAcceleration + " is incompatible, frames are: " +
+                                      rotationalEphemeris->getTargetFrameOrientation( ) + " and " +
+                                      polyhedronGravityField->getFixedReferenceFrame( ) );
+        }
+
+        std::function< double( ) > gravitationalParameterFunction;
+
+        // Check if mutual acceleration is to be used.
+        if( useCentralBodyFixedFrame == false ||
+                bodyUndergoingAcceleration->getGravityFieldModel( ) == nullptr )
+        {
+            gravitationalParameterFunction =
+                    std::bind( &PolyhedronGravityField::getGravitationalParameter, polyhedronGravityField );
+        }
+        else
+        {
+            // Create function returning summed gravitational parameter of the two bodies.
+            std::function< double( ) > gravitationalParameterOfBodyExertingAcceleration =
+                    std::bind( &gravitation::GravityFieldModel::getGravitationalParameter,
+                               polyhedronGravityField );
+            std::function< double( ) > gravitationalParameterOfBodyUndergoingAcceleration =
+                    std::bind( &gravitation::GravityFieldModel::getGravitationalParameter,
+                               bodyUndergoingAcceleration->getGravityFieldModel( ) );
+            gravitationalParameterFunction =
+                    std::bind( &utilities::sumFunctionReturn< double >,
+                               gravitationalParameterOfBodyExertingAcceleration,
+                               gravitationalParameterOfBodyUndergoingAcceleration );
+        }
+
+        std::function< double( ) > volumeFunction =
+                std::bind( &PolyhedronGravityField::getVolume, polyhedronGravityField );
+        std::function< Eigen::MatrixXd( ) > verticesCoordinatesFunction =
+                std::bind( &PolyhedronGravityField::getVerticesCoordinates, polyhedronGravityField );
+        std::function< Eigen::MatrixXi( ) > verticesDefiningEachFacetFunction =
+                std::bind( &PolyhedronGravityField::getVerticesDefiningEachFacet, polyhedronGravityField );
+        std::function< Eigen::MatrixXi( ) > verticesDefiningEachEdgeFunction =
+                std::bind( &PolyhedronGravityField::getVerticesDefiningEachEdge, polyhedronGravityField );
+        std::function< std::vector< Eigen::MatrixXd >( ) > facetDyadsFunction =
+                std::bind( &PolyhedronGravityField::getFacetDyads, polyhedronGravityField );
+        std::function< std::vector< Eigen::MatrixXd >( ) > edgeDyadsFunction =
+                std::bind( &PolyhedronGravityField::getEdgeDyads, polyhedronGravityField );
+
+        // Create acceleration object.
+        accelerationModel =
+                std::make_shared< PolyhedronGravitationalAccelerationModel >(
+                        std::bind( &Body::getPositionByReference, bodyUndergoingAcceleration, std::placeholders::_1 ),
+                        gravitationalParameterFunction,
+                        volumeFunction,
+                        verticesCoordinatesFunction,
+                        verticesDefiningEachFacetFunction,
+                        verticesDefiningEachEdgeFunction,
+                        facetDyadsFunction,
+                        edgeDyadsFunction,
+                        std::bind( &Body::getPositionByReference, bodyExertingAcceleration, std::placeholders::_1 ),
+                        std::bind( &Body::getCurrentRotationToGlobalFrame, bodyExertingAcceleration ),
+                        useCentralBodyFixedFrame );
+
+    }
+    return accelerationModel;
+}
+
+std::shared_ptr< gravitation::RingGravitationalAccelerationModel > createRingGravityAcceleration(
+        const std::shared_ptr< Body > bodyUndergoingAcceleration,
+        const std::shared_ptr< Body > bodyExertingAcceleration,
+        const std::string& nameOfBodyUndergoingAcceleration,
+        const std::string& nameOfBodyExertingAcceleration,
+        const bool useCentralBodyFixedFrame)
+{
+
+    // Declare pointer to return object
+    std::shared_ptr< RingGravitationalAccelerationModel > accelerationModel;
+
+    // Get pointer to gravity field of central body and cast to required type.
+    std::shared_ptr< RingGravityField > ringGravityField =
+            std::dynamic_pointer_cast< RingGravityField >(
+                bodyExertingAcceleration->getGravityFieldModel( ) );
+
+    std::shared_ptr< RotationalEphemeris> rotationalEphemeris = bodyExertingAcceleration->getRotationalEphemeris( );
+
+    if( ringGravityField == nullptr )
+    {
+        throw std::runtime_error(
+                    std::string( "Error, ring gravity field model not set when ")
+                    + " making ring gravitational acceleration of " +
+                    nameOfBodyExertingAcceleration +
+                    " on " + nameOfBodyUndergoingAcceleration );
+    }
+    else
+    {
+        if( rotationalEphemeris == nullptr )
+        {
+            throw std::runtime_error( "Warning when making ring acceleration on body " +
+                                      nameOfBodyUndergoingAcceleration + ", no rotation model found for " +
+                                      nameOfBodyExertingAcceleration );
+        }
+
+        if( rotationalEphemeris->getTargetFrameOrientation( ) != ringGravityField->getFixedReferenceFrame( ) )
+        {
+            throw std::runtime_error( "Warning when making ring acceleration on body " +
+                                      nameOfBodyUndergoingAcceleration + ", rotation model found for " +
+                                      nameOfBodyExertingAcceleration + " is incompatible, frames are: " +
+                                      rotationalEphemeris->getTargetFrameOrientation( ) + " and " +
+                                      ringGravityField->getFixedReferenceFrame( ) );
+        }
+
+        std::function< double( ) > gravitationalParameterFunction;
+
+        // Check if mutual acceleration is to be used.
+        if( useCentralBodyFixedFrame == false ||
+                bodyUndergoingAcceleration->getGravityFieldModel( ) == nullptr )
+        {
+            gravitationalParameterFunction =
+                    std::bind( &RingGravityField::getGravitationalParameter, ringGravityField );
+        }
+        else
+        {
+            // Create function returning summed gravitational parameter of the two bodies.
+            std::function< double( ) > gravitationalParameterOfBodyExertingAcceleration =
+                    std::bind( &gravitation::GravityFieldModel::getGravitationalParameter,
+                               ringGravityField );
+            std::function< double( ) > gravitationalParameterOfBodyUndergoingAcceleration =
+                    std::bind( &gravitation::GravityFieldModel::getGravitationalParameter,
+                               bodyUndergoingAcceleration->getGravityFieldModel( ) );
+            gravitationalParameterFunction =
+                    std::bind( &utilities::sumFunctionReturn< double >,
+                               gravitationalParameterOfBodyExertingAcceleration,
+                               gravitationalParameterOfBodyUndergoingAcceleration );
+        }
+
+        std::function< double( ) > ringRadiusFunction = std::bind( &RingGravityField::getRingRadius, ringGravityField );
+
+        // Create acceleration object.
+        accelerationModel =
+                std::make_shared< RingGravitationalAccelerationModel >(
+                        std::bind( &Body::getPositionByReference, bodyUndergoingAcceleration, std::placeholders::_1 ),
+                        gravitationalParameterFunction,
+                        ringRadiusFunction,
+                        ringGravityField->getEllipticIntegralSFromDAndB( ),
+                        std::bind( &Body::getPositionByReference, bodyExertingAcceleration, std::placeholders::_1 ),
+                        std::bind( &Body::getCurrentRotationToGlobalFrame, bodyExertingAcceleration ),
+                        useCentralBodyFixedFrame );
+
+    }
+    return accelerationModel;
+}
 
 //! Function to create a third body central gravity acceleration model.
 std::shared_ptr< gravitation::ThirdBodyCentralGravityAcceleration >
@@ -679,6 +923,88 @@ createThirdBodyMutualSphericalHarmonicGravityAccelerationModel(
     return accelerationModel;
 }
 
+std::shared_ptr< gravitation::ThirdBodyPolyhedronGravitationalAccelerationModel >
+createThirdBodyPolyhedronGravityAccelerationModel(
+        const std::shared_ptr< Body > bodyUndergoingAcceleration,
+        const std::shared_ptr< Body > bodyExertingAcceleration,
+        const std::shared_ptr< Body > centralBody,
+        const std::string& nameOfBodyUndergoingAcceleration,
+        const std::string& nameOfBodyExertingAcceleration,
+        const std::string& nameOfCentralBody )
+{
+    using namespace basic_astrodynamics;
+
+    // Declare pointer to return object
+    std::shared_ptr< ThirdBodyPolyhedronGravitationalAccelerationModel > accelerationModel;
+
+    // Get pointer to gravity field of central body and cast to required type.
+    std::shared_ptr< PolyhedronGravityField > polyhedronGravityField =
+            std::dynamic_pointer_cast< PolyhedronGravityField >( bodyExertingAcceleration->getGravityFieldModel( ) );
+    if( polyhedronGravityField == nullptr )
+    {
+        std::string errorMessage = "Error " + nameOfBodyExertingAcceleration + " does not have a polyhedron gravity field " +
+                "when making third body polyhedron gravity acceleration on " +
+                nameOfBodyUndergoingAcceleration;
+        throw std::runtime_error( errorMessage );
+    }
+    else
+    {
+
+        accelerationModel =  std::make_shared< ThirdBodyPolyhedronGravitationalAccelerationModel >(
+            std::dynamic_pointer_cast< PolyhedronGravitationalAccelerationModel >(
+                createPolyhedronGravityAcceleration(
+                    bodyUndergoingAcceleration, bodyExertingAcceleration, nameOfBodyUndergoingAcceleration,
+                    nameOfBodyExertingAcceleration, 0 ) ),
+            std::dynamic_pointer_cast< PolyhedronGravitationalAccelerationModel >(
+                createPolyhedronGravityAcceleration(
+                    centralBody, bodyExertingAcceleration, nameOfCentralBody,
+                    nameOfBodyExertingAcceleration, 0 ) ),
+            nameOfCentralBody );
+    }
+
+    return accelerationModel;
+}
+
+std::shared_ptr< gravitation::ThirdBodyRingGravitationalAccelerationModel > createThirdBodyRingGravityAccelerationModel(
+        const std::shared_ptr< Body > bodyUndergoingAcceleration,
+        const std::shared_ptr< Body > bodyExertingAcceleration,
+        const std::shared_ptr< Body > centralBody,
+        const std::string& nameOfBodyUndergoingAcceleration,
+        const std::string& nameOfBodyExertingAcceleration,
+        const std::string& nameOfCentralBody )
+{
+    using namespace basic_astrodynamics;
+
+    // Declare pointer to return object
+    std::shared_ptr< ThirdBodyRingGravitationalAccelerationModel > accelerationModel;
+
+    // Get pointer to gravity field of central body and cast to required type.
+    std::shared_ptr< RingGravityField > ringGravityField =
+            std::dynamic_pointer_cast< RingGravityField >( bodyExertingAcceleration->getGravityFieldModel( ) );
+    if( ringGravityField == nullptr )
+    {
+        std::string errorMessage = "Error " + nameOfBodyExertingAcceleration + " does not have a ring gravity field " +
+                "when making third body ring gravity acceleration on " +
+                nameOfBodyUndergoingAcceleration;
+        throw std::runtime_error( errorMessage );
+    }
+    else
+    {
+        accelerationModel =  std::make_shared< ThirdBodyRingGravitationalAccelerationModel >(
+            std::dynamic_pointer_cast< RingGravitationalAccelerationModel >(
+                createPolyhedronGravityAcceleration(
+                    bodyUndergoingAcceleration, bodyExertingAcceleration, nameOfBodyUndergoingAcceleration,
+                    nameOfBodyExertingAcceleration, 0 ) ),
+            std::dynamic_pointer_cast< RingGravitationalAccelerationModel >(
+                createPolyhedronGravityAcceleration(
+                    centralBody, bodyExertingAcceleration, nameOfCentralBody,
+                    nameOfBodyExertingAcceleration, 0 ) ),
+            nameOfCentralBody );
+    }
+
+    return accelerationModel;
+}
+
 //! Function to create an aerodynamic acceleration model.
 std::shared_ptr< aerodynamics::AerodynamicAcceleration > createAerodynamicAcceleratioModel(
         const std::shared_ptr< Body > bodyUndergoingAcceleration,
@@ -712,6 +1038,7 @@ std::shared_ptr< aerodynamics::AerodynamicAcceleration > createAerodynamicAccele
 
     if( bodyFlightConditions == nullptr && bodyUndergoingAcceleration->getFlightConditions( ) == nullptr )
     {
+
         bodyFlightConditions = createAtmosphericFlightConditions( bodyUndergoingAcceleration,
                                                                   bodyExertingAcceleration,
                                                                   nameOfBodyUndergoingAcceleration,
@@ -726,15 +1053,8 @@ std::shared_ptr< aerodynamics::AerodynamicAcceleration > createAerodynamicAccele
     // Retrieve frame in which aerodynamic coefficients are defined.
     std::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > aerodynamicCoefficients =
             bodyUndergoingAcceleration->getAerodynamicCoefficientInterface( );
-    reference_frames::AerodynamicsReferenceFrames accelerationFrame;
-    if( aerodynamicCoefficients->getAreCoefficientsInAerodynamicFrame( ) )
-    {
-        accelerationFrame = reference_frames::aerodynamic_frame;
-    }
-    else
-    {
-        accelerationFrame = reference_frames::body_frame;
-    }
+    reference_frames::AerodynamicsReferenceFrames accelerationFrame = aerodynamics::getCompleteFrameForCoefficients(
+            aerodynamicCoefficients->getForceCoefficientsFrame( ) );
 
     // Create function to transform from frame of aerodynamic coefficienrs to that of propagation.
     std::function< void( Eigen::Vector3d&, const Eigen::Vector3d& ) > toPropagationFrameTransformation;
@@ -761,116 +1081,245 @@ std::shared_ptr< aerodynamics::AerodynamicAcceleration > createAerodynamicAccele
                 std::bind( &Body::getBodyMass, bodyUndergoingAcceleration ),
                 std::bind( &AerodynamicCoefficientInterface::getReferenceArea,
                            aerodynamicCoefficients ),
-                aerodynamicCoefficients->getAreCoefficientsInNegativeAxisDirection( ) );
+                aerodynamics::areCoefficientsInNegativeDirection(
+                        aerodynamicCoefficients->getForceCoefficientsFrame( ) ) );
 }
 
-//! Function to create a cannonball radiation pressure acceleration model.
-std::shared_ptr< CannonBallRadiationPressureAcceleration >
-createCannonballRadiationPressureAcceleratioModel(
+std::shared_ptr< RadiationPressureAcceleration >
+createRadiationPressureAccelerationModel(
         const std::shared_ptr< Body > bodyUndergoingAcceleration,
         const std::shared_ptr< Body > bodyExertingAcceleration,
         const std::string& nameOfBodyUndergoingAcceleration,
-        const std::string& nameOfBodyExertingAcceleration )
+        const std::string& nameOfBodyExertingAcceleration,
+        const SystemOfBodies& bodies,
+        const std::shared_ptr< AccelerationSettings > accelerationSettings )
 {
-    // Retrieve radiation pressure interface
-    if( bodyUndergoingAcceleration->getRadiationPressureInterfaces( ).count(
-                nameOfBodyExertingAcceleration ) == 0 )
+    RadiationPressureTargetModelType targetModelType = undefined_target;
+    if( std::dynamic_pointer_cast< RadiationPressureAccelerationSettings >( accelerationSettings  ) != nullptr )
     {
-        throw std::runtime_error(
-                    "Error when making radiation pressure, no radiation pressure interface found  in " +
-                    nameOfBodyUndergoingAcceleration +
-                    " for body " + nameOfBodyExertingAcceleration );
+        targetModelType = std::dynamic_pointer_cast< RadiationPressureAccelerationSettings >( accelerationSettings  )->targetModelType_;
     }
-    std::shared_ptr< RadiationPressureInterface > radiationPressureInterface =
-            bodyUndergoingAcceleration->getRadiationPressureInterfaces( ).at(
-                nameOfBodyExertingAcceleration );
-
-    // Create acceleration model.
-    return std::make_shared< CannonBallRadiationPressureAcceleration >(
-                std::bind( &Body::getPosition, bodyExertingAcceleration ),
-                std::bind( &Body::getPosition, bodyUndergoingAcceleration ),
-                std::bind( &RadiationPressureInterface::getCurrentRadiationPressure, radiationPressureInterface ),
-                std::bind( &RadiationPressureInterface::getRadiationPressureCoefficient, radiationPressureInterface ),
-                std::bind( &RadiationPressureInterface::getArea, radiationPressureInterface ),
-                std::bind( &Body::getBodyMass, bodyUndergoingAcceleration ) );
-
-}
-
-//! Function to create a panelled radiation pressure acceleration model.
-std::shared_ptr< electromagnetism::PanelledRadiationPressureAcceleration > createPanelledRadiationPressureAcceleration(
-        const std::shared_ptr< Body > bodyUndergoingAcceleration,
-        const std::shared_ptr< Body > bodyExertingAcceleration,
-        const std::string& nameOfBodyUndergoingAcceleration,
-        const std::string& nameOfBodyExertingAcceleration )
-{
-    using namespace tudat::electromagnetism;
-
-    // Declare pointer to return object.
-    std::shared_ptr< PanelledRadiationPressureAcceleration > accelerationModel;
-
-    // Get radiation pressure interface from body undergoing acceleration, containing data on how body responds to radiation pressure.
-    std::shared_ptr< PanelledRadiationPressureInterface > radiationPressureInterface =
-            std::dynamic_pointer_cast< PanelledRadiationPressureInterface >(
-                bodyUndergoingAcceleration->getRadiationPressureInterfaces( ).at( nameOfBodyExertingAcceleration ) );
-
-    if( radiationPressureInterface == NULL )
+    if( targetModelType == multi_type_target )
     {
-        throw std::runtime_error(
-                    "Error, body undergoing acceleration, " + nameOfBodyUndergoingAcceleration +
-                    " possesses no radiation pressure coefficient interface when making panelled radiation pressure acceleration due to " +
-                    nameOfBodyExertingAcceleration );
+        throw std::runtime_error( "Error when creating radiation pressure acceleration, cannot select multi-type target" );
+    }
+
+    // Create references to bodies in radiation pressure terms
+    const auto& sourceName = nameOfBodyExertingAcceleration;
+    const auto& targetName = nameOfBodyUndergoingAcceleration;
+    const auto& source = bodyExertingAcceleration;
+    const auto& target = bodyUndergoingAcceleration;
+
+    if( source->getRadiationSourceModel() == nullptr )
+    {
+        throw std::runtime_error( "Error when making radiation pressure acceleration, body " +
+                                  sourceName +
+                                  " has no radiation source model." );
+    }
+
+    std::shared_ptr<electromagnetism::RadiationPressureTargetModel> targetModel;
+    if( target->getRadiationPressureTargetModels().size( ) == 0 )
+    {
+        throw std::runtime_error( "Error when making radiation pressure acceleration, body " +
+                                  targetName +
+                                  " has no radiation pressure target models." );
     }
     else
     {
-        // Create acceleration model.
-        accelerationModel = std::make_shared< PanelledRadiationPressureAcceleration >(
-                    radiationPressureInterface, std::bind( &Body::getBodyMass, bodyUndergoingAcceleration ) );
+        targetModel = getRadiationPressureTargetModelOfType( target, targetModelType, " when making radiation pressure acceleration due to " + sourceName + " " );
     }
-    return accelerationModel;
+
+    // Cast source and target models for type checks
+    auto isotropicPointRadiationSourceModel =
+            std::dynamic_pointer_cast<electromagnetism::IsotropicPointRadiationSourceModel>(
+                    source->getRadiationSourceModel());
+    auto paneledRadiationSourceModel =
+            std::dynamic_pointer_cast<electromagnetism::PaneledRadiationSourceModel>(
+                    source->getRadiationSourceModel());
+    auto cannonballRadiationPressureTargetModel =
+            std::dynamic_pointer_cast<electromagnetism::CannonballRadiationPressureTargetModel>(
+                    targetModel);
+
+    // Get target rotation function
+    std::function<Eigen::Quaterniond()> targetRotationFromLocalToGlobalFrameFunction;
+    if (cannonballRadiationPressureTargetModel != nullptr) {
+        // Cannonball target is rotation-invariant and can use identity rotation
+        // Enables use of cannonball target without target body rotation model
+        // TODO-DOMINIK maybe move to RP acceleration subclass so that cannonball does not need target rotation, then move into if below
+        targetRotationFromLocalToGlobalFrameFunction = [] () { return Eigen::Quaterniond::Identity(); };
+    }
+    else
+    {
+        targetRotationFromLocalToGlobalFrameFunction = [target] { return target->getCurrentRotationToGlobalFrame(); };
+    }
+
+    // Find occulting bodies corresponding to this source
+    auto targetOccultingBodiesMap = targetModel->getSourceToTargetOccultingBodies();
+    std::vector<std::string> sourceToTargetOccultingBodies = {};
+    if (targetOccultingBodiesMap.count(sourceName) > 0)
+    {
+        sourceToTargetOccultingBodies = targetOccultingBodiesMap.at(sourceName);
+    }
+    else if (targetOccultingBodiesMap.count("") > 0)
+    {
+        // Use the same occulting bodies for all sources of this target
+        sourceToTargetOccultingBodies = targetOccultingBodiesMap.at("");
+    }
+
+    // Check if occulting bodies are not source or target
+    for (auto& occultingBodyName : sourceToTargetOccultingBodies)
+    {
+        if (occultingBodyName == sourceName)
+        {
+            throw std::runtime_error( "Error when making radiation pressure acceleration, source body cannot "
+                                      "act as occulting body.");
+        }
+        if (occultingBodyName == targetName)
+        {
+            throw std::runtime_error( "Error when making radiation pressure acceleration, target body cannot "
+                                      "act as occulting body.");
+        }
+    }
+    auto sourceToTargetOccultationModel = createOccultationModel(sourceToTargetOccultingBodies, bodies);
+    
+    // Create acceleration model
+    if (isotropicPointRadiationSourceModel != nullptr)
+    {
+        return std::make_shared<IsotropicPointSourceRadiationPressureAcceleration>(
+                isotropicPointRadiationSourceModel,
+                source->getShapeModel(),
+                [source] { return source->getPosition(); },
+                targetModel,
+                [target] { return target->getPosition(); },
+                targetRotationFromLocalToGlobalFrameFunction,
+                [target] { return target->getBodyMass(); },
+                sourceToTargetOccultationModel);
+    }
+    else if (paneledRadiationSourceModel != nullptr)
+    {
+        return std::make_shared<PaneledSourceRadiationPressureAcceleration>(
+                paneledRadiationSourceModel,
+                [source] { return source->getPosition(); },
+                [source] { return source->getCurrentRotationToGlobalFrame(); },
+                targetModel,
+                [target] { return target->getPosition(); },
+                targetRotationFromLocalToGlobalFrameFunction,
+                [target] { return target->getBodyMass(); },
+                sourceToTargetOccultationModel);
+    }
+    else
+    {
+        throw std::runtime_error( "Error when making radiation pressure acceleration, radiation source model "
+                                  "for body " + sourceName +
+                                  " is not supported." );
+    }
 }
 
-//! Function to create a solar sail radiation pressure acceleration model.
-std::shared_ptr< SolarSailAcceleration > createSolarSailAccelerationModel(
+//! Function to create a cannonball radiation pressure acceleration model.
+// RP-OLD
+std::shared_ptr< AccelerationModel3d >
+createCannonballRadiationPressureAcceleratioModel(
     const std::shared_ptr< Body > bodyUndergoingAcceleration,
     const std::shared_ptr< Body > bodyExertingAcceleration,
-    const std::shared_ptr< Body > centralBody,
     const std::string& nameOfBodyUndergoingAcceleration,
-    const std::string& nameOfBodyExertingAcceleration )
+    const std::string& nameOfBodyExertingAcceleration,
+    const SystemOfBodies& bodies )
 {
-    // Retrieve radiation pressure interface.
+    std::cerr<<"Warning, you are using the deprecated (as of tudatpy v0.8) version of the cannonball radiation pressure model"<<
+               ", the interface you are using will be dropped from v0.9 onwards. To learn how to convert your code to the new interfaces"<<
+               ", and be able to use the powerful new radiation pressure framework, see "<<
+               "https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/translational/radiation_pressure_acceleration.html#backwards-compatibility"<<std::endl;
+    // Retrieve radiation pressure interface
     if( bodyUndergoingAcceleration->getRadiationPressureInterfaces( ).count(
-            nameOfBodyExertingAcceleration ) == 0 )
+        nameOfBodyExertingAcceleration ) == 0 )
     {
         throw std::runtime_error(
             "Error when making radiation pressure, no radiation pressure interface found  in " +
             nameOfBodyUndergoingAcceleration +
             " for body " + nameOfBodyExertingAcceleration );
     }
+    std::shared_ptr< RadiationPressureInterface > radiationPressureInterface =
+        bodyUndergoingAcceleration->getRadiationPressureInterfaces( ).at(
+            nameOfBodyExertingAcceleration );
 
-    // Get radiation pressure interface from body undergoing acceleration, containing data on how body responds to radiation pressure.
-    std::shared_ptr< SolarSailingRadiationPressureInterface > radiationPressureInterface =
-            std::dynamic_pointer_cast< SolarSailingRadiationPressureInterface >(
-                bodyUndergoingAcceleration->getRadiationPressureInterfaces( ).at( nameOfBodyExertingAcceleration ) );
+    std::map<std::string, std::vector<std::string> > occultingBodies;
+    occultingBodies[ nameOfBodyExertingAcceleration ] = radiationPressureInterface->getOccultingBodies( );
+    std::shared_ptr< CannonballRadiationPressureTargetModel > cannonBallTargetModel =
+        std::make_shared< CannonballRadiationPressureTargetModel >(
+            radiationPressureInterface->getArea( ),
+            radiationPressureInterface->getRadiationPressureCoefficient( ),
+            occultingBodies );
 
-    // Create and return solar sailing acceleration model.
-    return std::make_shared< SolarSailAcceleration >(
-                std::bind( &Body::getPosition, bodyExertingAcceleration ),
-                std::bind( &Body::getPosition, bodyUndergoingAcceleration ),
-                std::bind( &Body::getVelocity, bodyUndergoingAcceleration ),
-                std::bind( &Body::getVelocity, centralBody ),
-                std::bind( &SolarSailingRadiationPressureInterface::getCurrentRadiationPressure, radiationPressureInterface ),
-                std::bind( &SolarSailingRadiationPressureInterface::getCurrentConeAngle, radiationPressureInterface ),
-                std::bind( &SolarSailingRadiationPressureInterface::getCurrentClockAngle, radiationPressureInterface ),
-                std::bind( &SolarSailingRadiationPressureInterface::getFrontEmissivityCoefficient, radiationPressureInterface ),
-                std::bind( &SolarSailingRadiationPressureInterface::getBackEmissivityCoefficient, radiationPressureInterface ),
-                std::bind( &SolarSailingRadiationPressureInterface::getFrontLambertianCoefficient, radiationPressureInterface ),
-                std::bind( &SolarSailingRadiationPressureInterface::getBackLambertianCoefficient, radiationPressureInterface ),
-                std::bind( &SolarSailingRadiationPressureInterface::getReflectivityCoefficient, radiationPressureInterface ),
-                std::bind( &SolarSailingRadiationPressureInterface::getSpecularReflectionCoefficient, radiationPressureInterface ),
-                std::bind( &RadiationPressureInterface::getArea, radiationPressureInterface ),
-                std::bind( &Body::getBodyMass, bodyUndergoingAcceleration ) );
+    std::vector< std::shared_ptr<electromagnetism::RadiationPressureTargetModel> > targetModels = bodyUndergoingAcceleration->getRadiationPressureTargetModels( );
+    bool addModel = false;
+    if(  targetModels.size( ) == 0 )
+    {
+        addModel = true;
+    }
+    else if( targetModels.size( ) == 1  )
+    {
+        std::shared_ptr< CannonballRadiationPressureTargetModel > existingCannonBallTargetModel =
+            std::dynamic_pointer_cast< CannonballRadiationPressureTargetModel >( targetModels.at( 0 ) );
+        if( existingCannonBallTargetModel == nullptr )
+        {
+            throw std::runtime_error( "Error when create deprecated cannonball radiation pressure model; existing target model found of non-cannonball type." );
+        }
+        else if( !( cannonBallTargetModel->getArea( ) == existingCannonBallTargetModel->getArea( ) &&
+            cannonBallTargetModel->getCoefficient( ) == existingCannonBallTargetModel->getCoefficient( ) &&
+            cannonBallTargetModel->getSourceToTargetOccultingBodies( ) == existingCannonBallTargetModel->getSourceToTargetOccultingBodies( ) ) )
+        {
+            throw std::runtime_error( "Error when create deprecated cannonball radiation pressure model; existing target model found of cannonball type with inconsistent settings." );
+        }
+    }
+    else
+    {
+        throw std::runtime_error( "Error when create deprecated cannonball radiation pressure model; deprecated interface does not permit multiple existing target models." );
+    }
 
+    if( addModel )
+    {
+        bodyUndergoingAcceleration->addRadiationPressureTargetModel( cannonBallTargetModel );
+    }
+
+    return createRadiationPressureAccelerationModel(
+        bodyUndergoingAcceleration, bodyExertingAcceleration, nameOfBodyUndergoingAcceleration, nameOfBodyExertingAcceleration,
+        bodies );
 }
+
+//! Function to create Yarkovsky acceleration model, based on the simplified model of https://doi.org/10.1038/s43247-021-00337-x.
+std::shared_ptr< electromagnetism::YarkovskyAcceleration > createYarkovskyAcceleration(
+        const std::shared_ptr< Body > bodyUndergoingAcceleration,
+        const std::shared_ptr< Body > bodyExertingAcceleration,
+        const std::string& nameOfBodyUndergoingAcceleration,
+        const std::string& nameOfBodyExertingAcceleration,
+        const  std::shared_ptr< AccelerationSettings > accelerationSettings )
+{
+
+    // Declare pointer to return object
+    std::shared_ptr< electromagnetism::YarkovskyAcceleration > accelerationModel;
+
+    // Dynamic cast acceleration settings to required type and check consistency.
+    std::shared_ptr< simulation_setup::YarkovskyAccelerationSettings > yarkovskySettings =
+            std::dynamic_pointer_cast< simulation_setup::YarkovskyAccelerationSettings >(
+                accelerationSettings );
+
+    if( yarkovskySettings == nullptr )
+    {
+        throw std::runtime_error( "Error, expected Yarkovsky acceleration settings when making acceleration model on " +
+                                  nameOfBodyUndergoingAcceleration + " due to " + nameOfBodyExertingAcceleration );
+    }
+    else
+    {
+        accelerationModel = std::make_shared< electromagnetism::YarkovskyAcceleration >(
+                    yarkovskySettings->yarkovskyParameter_,
+                    std::bind( &Body::getState, bodyUndergoingAcceleration ),
+                    std::bind( &Body::getState, bodyExertingAcceleration ) );
+        // }
+    }
+
+    return accelerationModel;
+}
+
 
 std::shared_ptr< basic_astrodynamics::CustomAccelerationModel > createCustomAccelerationModel(
         const std::shared_ptr< AccelerationSettings > accelerationSettings,
@@ -1083,86 +1532,63 @@ createThrustAcceleratioModel(
     std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > directionUpdateSettings;
 
 
-
-    // Check if user-supplied interpolator for full thrust ius present.
-    if( thrustAccelerationSettings->interpolatorInterface_ != nullptr )
+    // Create thrust magnitude model
+    std::shared_ptr< propulsion::ThrustDirectionCalculator > thrustDirectionWrapper;
+    if( std::dynamic_pointer_cast< ephemerides::DirectionBasedRotationalEphemeris >(
+                bodies.at( nameOfBodyUndergoingThrust )->getRotationalEphemeris( ) ) != nullptr )
     {
-        // Check input consisten
-        if( thrustAccelerationSettings->thrustFrame_ == reference_frames::unspecified_reference_frame )
-        {
-            throw std::runtime_error( "Error when creating thrust acceleration, input frame is inconsistent with interface" );
-        }
-        else if(thrustAccelerationSettings->thrustFrame_ != reference_frames::global_reference_frame )
-        {
-            // Create rotation function from thrust-frame to propagation frame.
-            if( thrustAccelerationSettings->thrustFrame_ == reference_frames::tnw_reference_frame ||
-                    thrustAccelerationSettings->thrustFrame_ == reference_frames::rsw_reference_frame  )
-            {
-                std::function< Eigen::Vector6d( ) > vehicleStateFunction =
-                        std::bind( &Body::getState, bodies.at( nameOfBodyUndergoingThrust ) );
-                std::function< Eigen::Vector6d( ) > centralBodyStateFunction;
+        thrustDirectionWrapper = std::make_shared< propulsion::DirectThrustDirectionCalculator >(
+                    std::dynamic_pointer_cast< ephemerides::DirectionBasedRotationalEphemeris >(
+                    bodies.at( nameOfBodyUndergoingThrust )->getRotationalEphemeris( ) ) );
+    }
+    else
+    {
+        thrustDirectionWrapper = std::make_shared< propulsion::OrientationBasedThrustDirectionCalculator >(
+                    std::bind( &Body::getCurrentRotationToGlobalFrame, bodies.at( nameOfBodyUndergoingThrust ) ) );
+        directionUpdateSettings[ propagators::body_rotational_state_update ].push_back( nameOfBodyUndergoingThrust );
+    }
 
-                if( ephemerides::isFrameInertial( thrustAccelerationSettings->centralBody_ ) )
-                {
-                    centralBodyStateFunction =  [ ]( ){ return Eigen::Vector6d::Zero( ); };
-                }
-                else
-                {
-                    if( bodies.count( thrustAccelerationSettings->centralBody_ ) == 0 )
-                    {
-                        throw std::runtime_error( "Error when creating thrust acceleration, input central body not found" );
-                    }
-                    centralBodyStateFunction =
-                            std::bind( &Body::getState, bodies.at( thrustAccelerationSettings->centralBody_ ) );
-                }
-                thrustAccelerationSettings->interpolatorInterface_->resetRotationFunction(
-                            [ = ]( ){ return reference_frames::getRotationBetweenSatelliteFrames(
-                                vehicleStateFunction( ) - centralBodyStateFunction( ),
-                                thrustAccelerationSettings->thrustFrame_,
-                                reference_frames::global_reference_frame ); } );
+    std::vector< std::shared_ptr< system_models::EngineModel > > engineModelsForAcceleration;
+    std::shared_ptr< system_models::VehicleSystems > vehicleSystems = bodies.at( nameOfBodyUndergoingThrust )->getVehicleSystems( );
+    if( vehicleSystems == nullptr )
+    {
+        throw std::runtime_error( "Error when creating thrust acceleration model for " + nameOfBodyUndergoingThrust +
+                                  ", body has no systems" );
+    }
+
+    std::map< std::string, std::shared_ptr< system_models::EngineModel > > engineModels = vehicleSystems->getEngineModels( );
+
+    if( thrustAccelerationSettings->useAllEngines_ == true )
+    {
+        engineModelsForAcceleration = utilities::createVectorFromMapValues( engineModels );
+    }
+    else
+    {
+        for( unsigned int i = 0; i < thrustAccelerationSettings->engineIds_.size( ); i++ )
+        {
+            if( engineModels.count( thrustAccelerationSettings->engineIds_.at( i ) ) == 0 )
+            {
+                throw std::runtime_error( "Error when retrieving engine " + thrustAccelerationSettings->engineIds_.at( i ) +
+                                          " for thrust acceleration. Engine with this name not found. " );
             }
             else
             {
-                throw std::runtime_error( "Error when creating thrust acceleration, input frame not recognized" );
+                engineModelsForAcceleration.push_back(
+                            engineModels.at( thrustAccelerationSettings->engineIds_.at( i ) ) );
             }
         }
     }
-
-    // Create thrust direction model.
-    std::shared_ptr< propulsion::BodyFixedForceDirectionGuidance  > thrustDirectionGuidance = createThrustGuidanceModel(
-            thrustAccelerationSettings->thrustDirectionSettings_, bodies, nameOfBodyUndergoingThrust,
-            getBodyFixedThrustDirection( thrustAccelerationSettings->thrustMagnitudeSettings_, bodies,
-                                             nameOfBodyUndergoingThrust ), magnitudeUpdateSettings );
-
-    // Create thrust magnitude model
-    std::shared_ptr< propulsion::ThrustMagnitudeWrapper > thrustMagnitude = createThrustMagnitudeWrapper(
-                thrustAccelerationSettings->thrustMagnitudeSettings_, bodies, nameOfBodyUndergoingThrust,
-                directionUpdateSettings );
 
     // Add required updates of environemt models.
     std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > totalUpdateSettings;
     propagators::addEnvironmentUpdates( totalUpdateSettings, magnitudeUpdateSettings );
     propagators::addEnvironmentUpdates( totalUpdateSettings, directionUpdateSettings );
 
-    // Set DependentOrientationCalculator for body if required.
-    if( !(thrustAccelerationSettings->thrustDirectionSettings_->thrustDirectionType_ ==
-          thrust_direction_from_existing_body_orientation ) )
-    {
-        bodies.at( nameOfBodyUndergoingThrust )->setDependentOrientationCalculator( thrustDirectionGuidance );
-    }
-
-    // Create and return thrust acceleration object.
-    std::function< void( const double ) > updateFunction =
-            std::bind(&updateThrustSettings, thrustMagnitude, thrustDirectionGuidance, std::placeholders::_1 );
-    std::function< void( const double ) > timeResetFunction =
-            std::bind(&resetThrustSettingsTime, thrustMagnitude, thrustDirectionGuidance, std::placeholders::_1 );
     return std::make_shared< propulsion::ThrustAcceleration >(
-                std::bind( &propulsion::ThrustMagnitudeWrapper::getCurrentThrustMagnitude, thrustMagnitude ),
-                std::bind( &propulsion::BodyFixedForceDirectionGuidance ::getCurrentForceDirectionInPropagationFrame, thrustDirectionGuidance ),
+                engineModelsForAcceleration,
+                thrustDirectionWrapper,
                 std::bind( &Body::getBodyMass, bodies.at( nameOfBodyUndergoingThrust ) ),
-                std::bind( &propulsion::ThrustMagnitudeWrapper::getCurrentMassRate, thrustMagnitude ),
-                thrustAccelerationSettings->thrustMagnitudeSettings_->thrustOriginId_,
-                updateFunction, timeResetFunction, totalUpdateSettings );
+                totalUpdateSettings );
 }
 
 //! Function to create a direct tical acceleration model, according to approach of Lainey et al. (2007, 2009, ...)
@@ -1181,8 +1607,8 @@ std::shared_ptr< gravitation::DirectTidalDissipationAcceleration > createDirectT
         throw std::runtime_error( "Error when creating direct tidal dissipation acceleration, input is inconsistent" );
     }
 
-    std::function< double( ) > gravitationalParaterFunctionOfBodyExertingTide;
-    std::function< double( ) > gravitationalParaterFunctionOfBodyUndergoingTide;
+    std::function< double( ) > gravitationalParameterFunctionOfBodyExertingTide;
+    std::function< double( ) > gravitationalParameterFunctionOfBodyUndergoingTide;
 
     if( tidalAccelerationSettings->useTideRaisedOnPlanet_ )
     {
@@ -1193,7 +1619,7 @@ std::shared_ptr< gravitation::DirectTidalDissipationAcceleration > createDirectT
         }
         else
         {
-            gravitationalParaterFunctionOfBodyUndergoingTide = std::bind(
+            gravitationalParameterFunctionOfBodyUndergoingTide = std::bind(
                         &GravityFieldModel::getGravitationalParameter, bodyUndergoingAcceleration->getGravityFieldModel( ) );
         }
     }
@@ -1206,7 +1632,7 @@ std::shared_ptr< gravitation::DirectTidalDissipationAcceleration > createDirectT
         }
         else
         {
-            gravitationalParaterFunctionOfBodyExertingTide = std::bind(
+            gravitationalParameterFunctionOfBodyExertingTide = std::bind(
                         &GravityFieldModel::getGravitationalParameter, bodyExertingAcceleration->getGravityFieldModel( ) );
         }
 
@@ -1218,7 +1644,7 @@ std::shared_ptr< gravitation::DirectTidalDissipationAcceleration > createDirectT
         }
         else
         {
-            gravitationalParaterFunctionOfBodyUndergoingTide = std::bind(
+            gravitationalParameterFunctionOfBodyUndergoingTide = std::bind(
                         &GravityFieldModel::getGravitationalParameter, bodyUndergoingAcceleration->getGravityFieldModel( ) );
         }
     }
@@ -1259,28 +1685,71 @@ std::shared_ptr< gravitation::DirectTidalDissipationAcceleration > createDirectT
         std::function< Eigen::Vector3d( ) > planetAngularVelocityVectorFunction =
                 std::bind( &Body::getCurrentAngularVelocityVectorInGlobalFrame, bodyExertingAcceleration );
 
-
-        return std::make_shared< DirectTidalDissipationAcceleration >(
-                    std::bind( &Body::getState, bodyUndergoingAcceleration ),
-                    std::bind( &Body::getState, bodyExertingAcceleration ),
-                    gravitationalParaterFunctionOfBodyUndergoingTide,
-                    planetAngularVelocityVectorFunction,
-                    tidalAccelerationSettings->k2LoveNumber_,
-                    tidalAccelerationSettings->timeLag_,
-                    referenceRadius,
-                    tidalAccelerationSettings->includeDirectRadialComponent_);
+        // Create direct tidal model from tidal time lag directly
+        if ( std::isnan( tidalAccelerationSettings->inverseTidalQualityFactor_ ) && std::isnan( tidalAccelerationSettings->tidalPeriod_ ) )
+        {
+            return std::make_shared< DirectTidalDissipationAcceleration >(
+                    std::bind( &Body::getState, bodyUndergoingAcceleration ), std::bind( &Body::getState, bodyExertingAcceleration ),
+                    gravitationalParameterFunctionOfBodyUndergoingTide, planetAngularVelocityVectorFunction,
+                    tidalAccelerationSettings->k2LoveNumber_, tidalAccelerationSettings->timeLag_,
+                    referenceRadius, tidalAccelerationSettings->includeDirectRadialComponent_);
+        }
+        // Create direct tidal model from Q and T
+        else
+        {
+            return std::make_shared< DirectTidalDissipationAcceleration >(
+                    std::bind( &Body::getState, bodyUndergoingAcceleration ), std::bind( &Body::getState, bodyExertingAcceleration ),
+                    gravitationalParameterFunctionOfBodyUndergoingTide, planetAngularVelocityVectorFunction,
+                    tidalAccelerationSettings->k2LoveNumber_, tidalAccelerationSettings->inverseTidalQualityFactor_,
+                    tidalAccelerationSettings->tidalPeriod_, referenceRadius, tidalAccelerationSettings->includeDirectRadialComponent_);
+        }
     }
+
+    else if( !tidalAccelerationSettings->explicitLibraionalTideOnSatellite_ )
+    {
+        // Create direct tidal model from tidal time lag directly
+        if ( std::isnan( tidalAccelerationSettings->inverseTidalQualityFactor_ ) && std::isnan( tidalAccelerationSettings->tidalPeriod_ ) )
+        {
+            return std::make_shared< DirectTidalDissipationAcceleration >(
+                    std::bind( &Body::getState, bodyUndergoingAcceleration ), std::bind( &Body::getState, bodyExertingAcceleration ),
+                    gravitationalParameterFunctionOfBodyExertingTide, gravitationalParameterFunctionOfBodyUndergoingTide,
+                    tidalAccelerationSettings->k2LoveNumber_, tidalAccelerationSettings->timeLag_,
+                    referenceRadius, tidalAccelerationSettings->includeDirectRadialComponent_);
+        }
+        // Create direct tidal model from Q and T
+        else
+        {
+            return std::make_shared< DirectTidalDissipationAcceleration >(
+                    std::bind( &Body::getState, bodyUndergoingAcceleration ), std::bind( &Body::getState, bodyExertingAcceleration ),
+                    gravitationalParameterFunctionOfBodyExertingTide, gravitationalParameterFunctionOfBodyUndergoingTide,
+                    tidalAccelerationSettings->k2LoveNumber_, tidalAccelerationSettings->inverseTidalQualityFactor_, tidalAccelerationSettings->tidalPeriod_,
+                    referenceRadius, tidalAccelerationSettings->includeDirectRadialComponent_);
+        }
+    }
+
     else
     {
-        return std::make_shared< DirectTidalDissipationAcceleration >(
-                    std::bind( &Body::getState, bodyUndergoingAcceleration ),
-                    std::bind( &Body::getState, bodyExertingAcceleration ),
-                    gravitationalParaterFunctionOfBodyExertingTide,
-                    gravitationalParaterFunctionOfBodyUndergoingTide,
-                    tidalAccelerationSettings->k2LoveNumber_,
-                    tidalAccelerationSettings->timeLag_,
-                    referenceRadius,
-                    tidalAccelerationSettings->includeDirectRadialComponent_);
+        std::function< Eigen::Vector3d( ) > moonAngularVelocityVectorFunction =
+                std::bind( &Body::getCurrentAngularVelocityVectorInGlobalFrame, bodyExertingAcceleration );
+
+        // Create direct tidal model from tidal time lag directly
+        if ( std::isnan( tidalAccelerationSettings->inverseTidalQualityFactor_ ) && std::isnan( tidalAccelerationSettings->tidalPeriod_ ) )
+        {
+            return std::make_shared< DirectTidalDissipationAcceleration >(
+                    std::bind( &Body::getState, bodyUndergoingAcceleration ), std::bind( &Body::getState, bodyExertingAcceleration ),
+                    gravitationalParameterFunctionOfBodyExertingTide, gravitationalParameterFunctionOfBodyUndergoingTide,
+                    moonAngularVelocityVectorFunction, tidalAccelerationSettings->k2LoveNumber_,
+                    tidalAccelerationSettings->timeLag_, referenceRadius, tidalAccelerationSettings->includeDirectRadialComponent_);
+        }
+        // Create direct tidal model from Q and T
+        else
+        {
+            return std::make_shared< DirectTidalDissipationAcceleration >(
+                    std::bind( &Body::getState, bodyUndergoingAcceleration ), std::bind( &Body::getState, bodyExertingAcceleration ),
+                    gravitationalParameterFunctionOfBodyExertingTide, gravitationalParameterFunctionOfBodyUndergoingTide,
+                    moonAngularVelocityVectorFunction, tidalAccelerationSettings->k2LoveNumber_, tidalAccelerationSettings->inverseTidalQualityFactor_,
+                    tidalAccelerationSettings->tidalPeriod_, referenceRadius, tidalAccelerationSettings->includeDirectRadialComponent_);
+        }
     }
 }
 
@@ -1331,18 +1800,10 @@ std::shared_ptr< AccelerationModel< Eigen::Vector3d > > createAccelerationModel(
     switch( accelerationSettings->accelerationType_ )
     {
     case point_mass_gravity:
-        accelerationModelPointer = createGravitationalAccelerationModel(
-                    bodyUndergoingAcceleration, bodyExertingAcceleration, accelerationSettings,
-                    nameOfBodyUndergoingAcceleration, nameOfBodyExertingAcceleration,
-                    centralBody, nameOfCentralBody );
-        break;
     case spherical_harmonic_gravity:
-        accelerationModelPointer = createGravitationalAccelerationModel(
-                    bodyUndergoingAcceleration, bodyExertingAcceleration, accelerationSettings,
-                    nameOfBodyUndergoingAcceleration, nameOfBodyExertingAcceleration,
-                    centralBody, nameOfCentralBody );
-        break;
     case mutual_spherical_harmonic_gravity:
+    case polyhedron_gravity:
+    case ring_gravity:
         accelerationModelPointer = createGravitationalAccelerationModel(
                     bodyUndergoingAcceleration, bodyExertingAcceleration, accelerationSettings,
                     nameOfBodyUndergoingAcceleration, nameOfBodyExertingAcceleration,
@@ -1355,19 +1816,22 @@ std::shared_ptr< AccelerationModel< Eigen::Vector3d > > createAccelerationModel(
                     nameOfBodyUndergoingAcceleration,
                     nameOfBodyExertingAcceleration );
         break;
+    case radiation_pressure:
+        accelerationModelPointer = createRadiationPressureAccelerationModel(
+                    bodyUndergoingAcceleration,
+                    bodyExertingAcceleration,
+                    nameOfBodyUndergoingAcceleration,
+                    nameOfBodyExertingAcceleration,
+                    bodies,
+                    accelerationSettings );
+        break;
     case cannon_ball_radiation_pressure:
         accelerationModelPointer = createCannonballRadiationPressureAcceleratioModel(
-                    bodyUndergoingAcceleration,
-                    bodyExertingAcceleration,
-                    nameOfBodyUndergoingAcceleration,
-                    nameOfBodyExertingAcceleration );
-        break;
-    case panelled_radiation_pressure_acceleration:
-        accelerationModelPointer = createPanelledRadiationPressureAcceleration(
-                    bodyUndergoingAcceleration,
-                    bodyExertingAcceleration,
-                    nameOfBodyUndergoingAcceleration,
-                    nameOfBodyExertingAcceleration );
+            bodyUndergoingAcceleration,
+            bodyExertingAcceleration,
+            nameOfBodyUndergoingAcceleration,
+            nameOfBodyExertingAcceleration,
+            bodies);
         break;
     case thrust_acceleration:
         accelerationModelPointer = createThrustAcceleratioModel(
@@ -1414,13 +1878,13 @@ std::shared_ptr< AccelerationModel< Eigen::Vector3d > > createAccelerationModel(
                     nameOfBodyExertingAcceleration,
                     accelerationSettings );
         break;
-    case solar_sail_acceleration:
-        accelerationModelPointer = createSolarSailAccelerationModel(
+    case yarkovsky_acceleration:
+        accelerationModelPointer = createYarkovskyAcceleration(
                     bodyUndergoingAcceleration,
                     bodyExertingAcceleration,
-                    centralBody,
                     nameOfBodyUndergoingAcceleration,
-                    nameOfBodyExertingAcceleration );
+                    nameOfBodyExertingAcceleration,
+                    accelerationSettings );
         break;
     case custom_acceleration:
         accelerationModelPointer = createCustomAccelerationModel(
@@ -1437,6 +1901,115 @@ std::shared_ptr< AccelerationModel< Eigen::Vector3d > > createAccelerationModel(
         break;
     }
     return accelerationModelPointer;
+}
+
+
+void addEihAccelerations(
+    const SystemOfBodies& bodies,
+    const std::map< std::string, std::vector< std::string > > orderedEihBodies,
+    const std::map< std::string, std::string >& centralBodies,
+    basic_astrodynamics::AccelerationMap& accelerationMap )
+{
+    std::vector< std::string > eihExertingBodies;
+    std::vector< std::string > eihUndergoingBodies;
+    std::vector< std::vector< std::string > > eihBodyListToCheck;
+
+    for( auto it : centralBodies )
+    {
+        if( it.second != "SSB" )
+        {
+            throw std::runtime_error( "Error when creating EIH accelerations, implementation currently requires central body equal to SSB" );
+        }
+    }
+    if( bodies.getFrameOrigin( ) != "SSB" )
+    {
+        throw std::runtime_error( "Error when creating EIH accelerations, implementation currently requires global frame origin to be equal to SSB" );
+    }
+
+    // Create list of bodies exerting acceleration, and bodies involved in the acceleration of each body
+    for( auto it : orderedEihBodies )
+    {
+        eihUndergoingBodies.push_back( it.first );
+        eihBodyListToCheck.push_back( it.second );
+        eihBodyListToCheck.at( eihBodyListToCheck.size( ) - 1 ).push_back( it.first );
+    }
+
+    // Create sorted list of bodies involved in first body's accelerations, and check against duplicates
+    std::vector< std::string > firstBodyInvolvedBodies = eihBodyListToCheck.at( 0 );
+    std::sort( firstBodyInvolvedBodies.begin( ), firstBodyInvolvedBodies.end( ) );
+    bool duplicateEntriesExist = std::adjacent_find(firstBodyInvolvedBodies.begin(), firstBodyInvolvedBodies.end()) != firstBodyInvolvedBodies.end();
+    if( duplicateEntriesExist )
+    {
+        throw std::runtime_error( "Error when creating EIH equations, acceleration settings for " +
+                                  eihUndergoingBodies.at( 0 ) + " duplicate entries found for involved bodies" );
+    }
+
+    // Check if all bodies require the same accelerating bodies
+    for( unsigned int i = 1; i < eihBodyListToCheck.size( ); i++ )
+    {
+        if( eihBodyListToCheck.at( 0 ).size( ) != eihBodyListToCheck.at( i ).size( ) )
+        {
+            throw std::runtime_error( "Error when creating EIH equations, acceleration settings for " +
+                                      eihUndergoingBodies.at( 0 ) + " and " +
+                                      eihUndergoingBodies.at( i ) + " are incompatible (different number of bodies exerting EIH acceleration found)" );
+        }
+        std::vector< std::string > currentBodyInvolvedBodies = eihBodyListToCheck.at( i );
+        std::sort( currentBodyInvolvedBodies.begin( ), currentBodyInvolvedBodies.end( ) );
+
+        for( unsigned int j = 0; j < firstBodyInvolvedBodies.size( ); j++ )
+        {
+            if( firstBodyInvolvedBodies.at( j ) != currentBodyInvolvedBodies.at( j ) )
+            {
+                throw std::runtime_error( "Error when creating EIH equations, acceleration settings for " +
+                                          eihExertingBodies.at( 0 ) + " and " +
+                                          eihExertingBodies.at( i ) + " are incompatible (ordered list of involved bodies are different)" );
+            }
+        }
+    }
+
+
+    eihExertingBodies = eihUndergoingBodies;
+    for( unsigned int j = 0; j < firstBodyInvolvedBodies.size( ); j++ )
+    {
+        if( std::find( eihExertingBodies.begin( ),
+                       eihExertingBodies.end( ),
+                       firstBodyInvolvedBodies.at( j ) ) == eihExertingBodies.end( ) )
+        {
+            eihExertingBodies.push_back( firstBodyInvolvedBodies.at( j ) );
+        }
+    }
+
+
+    std::vector< std::function< double( ) > > gravitationalParameterFunction;
+    std::vector< std::function< Eigen::Matrix< double, 6, 1 >( ) > > bodyStateFunctions;
+    for( unsigned int i = 0; i < eihExertingBodies.size( ); i++ )
+    {
+        gravitationalParameterFunction.push_back( std::bind( &Body::getGravitationalParameter, bodies.at( eihExertingBodies.at( i ) ) ) );
+        bodyStateFunctions.push_back( std::bind( &Body::getState, bodies.at( eihExertingBodies.at( i ) ) ) );
+
+    }
+
+    std::shared_ptr< relativity::EinsteinInfeldHoffmannEquations > eihEquations =
+        std::make_shared< relativity::EinsteinInfeldHoffmannEquations >(
+            eihUndergoingBodies, eihExertingBodies,
+            gravitationalParameterFunction,
+            bodyStateFunctions,
+            std::bind( &relativity::PPNParameterSet::getParameterGamma, relativity::ppnParameterSet ),
+            std::bind( &relativity::PPNParameterSet::getParameterBeta, relativity::ppnParameterSet ) );
+
+    for( unsigned int i = 0; i < eihUndergoingBodies.size( ); i++ )
+    {
+        std::vector< std::string > currentEihExertingAccelerations = eihExertingBodies;
+        std::vector< std::string >::iterator entryToRemove = std::find(
+            currentEihExertingAccelerations.begin(), currentEihExertingAccelerations.end(), eihUndergoingBodies.at( i ) );
+        if (entryToRemove != currentEihExertingAccelerations.end())
+        {
+            currentEihExertingAccelerations.erase( entryToRemove );
+        }
+
+        accelerationMap[ eihUndergoingBodies.at( i ) ][ "" ].push_back( std::make_shared< relativity::EinsteinInfeldHoffmannAcceleration >(
+            eihEquations, eihUndergoingBodies.at( i ), eihExertingBodies ) );
+    }
 }
 
 //! Function to put SelectedAccelerationMap in correct order, to ensure correct model creation
@@ -1534,131 +2107,151 @@ SelectedAccelerationList orderSelectedAccelerationMap( const SelectedAcceleratio
     return orderedAccelerationsPerBody;
 }
 
+inline basic_astrodynamics::AccelerationMap createAccelerationModelsMap(
+    const SystemOfBodies& bodies,
+    const SelectedAccelerationMap& selectedAccelerationPerBody,
+    const std::map< std::string, std::string >& centralBodies )
+{
+    // Declare return map.
+    basic_astrodynamics::AccelerationMap accelerationModelMap;
+    std::map< std::string, std::vector< std::string > > orderedEihBodies;
 
-////! Function to create a set of acceleration models from a map of bodies and acceleration model types.
-//basic_astrodynamics::AccelerationMap createAccelerationModelsMap(
-//        const SystemOfBodies& bodies,
-//        const SelectedAccelerationMap& selectedAccelerationPerBody,
-//        const std::map< std::string, std::string >& centralBodies )
-//{
-//    // Declare return map.
-//    basic_astrodynamics::AccelerationMap accelerationModelMap;
+    // Put selectedAccelerationPerBody in correct order
+    SelectedAccelerationList orderedAccelerationPerBody =
+        orderSelectedAccelerationMap( selectedAccelerationPerBody );
 
-//    // Put selectedAccelerationPerBody in correct order
-//    SelectedAccelerationList orderedAccelerationPerBody =
-//            orderSelectedAccelerationMap( selectedAccelerationPerBody );
+    // Iterate over all bodies which are undergoing acceleration
+    for( SelectedAccelerationList::const_iterator bodyIterator =
+        orderedAccelerationPerBody.begin( ); bodyIterator != orderedAccelerationPerBody.end( );
+         bodyIterator++ )
+    {
+        std::shared_ptr< Body > currentCentralBody;
 
-//    // Iterate over all bodies which are undergoing acceleration
-//    for( SelectedAccelerationList::const_iterator bodyIterator =
-//         orderedAccelerationPerBody.begin( ); bodyIterator != orderedAccelerationPerBody.end( );
-//         bodyIterator++ )
-//    {
-//        std::shared_ptr< Body > currentCentralBody;
+        // Retrieve name of body undergoing acceleration.
+        std::string bodyUndergoingAcceleration = bodyIterator->first;
 
-//        // Retrieve name of body undergoing acceleration.
-//        std::string bodyUndergoingAcceleration = bodyIterator->first;
+        // Retrieve name of current central body.
+        std::string currentCentralBodyName = centralBodies.at( bodyUndergoingAcceleration );
 
-//        // Retrieve name of current central body.
-//        std::string currentCentralBodyName = centralBodies.at( bodyUndergoingAcceleration );
+        if( !ephemerides::isFrameInertial( currentCentralBodyName ) )
+        {
+            if( bodies.count( currentCentralBodyName ) == 0 )
+            {
+                throw std::runtime_error(
+                    std::string( "Error, could not find non-inertial central body ") +
+                    currentCentralBodyName + " of " + bodyUndergoingAcceleration +
+                    " when making acceleration model." );
+            }
+            else
+            {
+                currentCentralBody = bodies.at( currentCentralBodyName );
+            }
+        }
 
-//        if( !ephemerides::isFrameInertial( currentCentralBodyName ) )
-//        {
-//            if( bodies.count( currentCentralBodyName ) == 0 )
-//            {
-//                throw std::runtime_error(
-//                            std::string( "Error, could not find non-inertial central body ") +
-//                            currentCentralBodyName + " of " + bodyUndergoingAcceleration +
-//                            " when making acceleration model." );
-//            }
-//            else
-//            {
-//                currentCentralBody = bodies.at( currentCentralBodyName );
-//            }
-//        }
+        // Check if body undergoing acceleration is included in bodies
+        if( bodies.count( bodyUndergoingAcceleration ) ==  0 )
+        {
+            throw std::runtime_error(
+                std::string( "Error when making acceleration models, requested forces" ) +
+                "acting on body " + bodyUndergoingAcceleration  +
+                ", but no such body found in map of bodies" );
+        }
 
-//        // Check if body undergoing acceleration is included in bodies
-//        if( bodies.count( bodyUndergoingAcceleration ) ==  0 )
-//        {
-//            throw std::runtime_error(
-//                        std::string( "Error when making acceleration models, requested forces" ) +
-//                        "acting on body " + bodyUndergoingAcceleration  +
-//                        ", but no such body found in map of bodies" );
-//        }
+        // Declare map of acceleration models acting on current body.
+        basic_astrodynamics::SingleBodyAccelerationMap mapOfAccelerationsForBody;
 
-//        // Declare map of acceleration models acting on current body.
-//        basic_astrodynamics::SingleBodyAccelerationMap mapOfAccelerationsForBody;
+        // Retrieve list of required acceleration model types and bodies exerting accelerationd on
+        // current body.
+        std::vector< std::pair< std::string, std::shared_ptr< AccelerationSettings > > >
+            accelerationsForBody = bodyIterator->second;
 
-//        // Retrieve list of required acceleration model types and bodies exerting accelerationd on
-//        // current body.
-//        std::vector< std::pair< std::string, std::shared_ptr< AccelerationSettings > > >
-//                accelerationsForBody = bodyIterator->second;
+        std::vector< std::pair< std::string, std::shared_ptr< AccelerationSettings > > > thrustAccelerationSettings;
 
-//        std::vector< std::pair< std::string, std::shared_ptr< AccelerationSettings > > > thrustAccelerationSettings;
+        std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > currentAcceleration;
 
-//        std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > currentAcceleration;
-//        // Iterate over all bodies exerting an acceleration
-//        for( unsigned int i = 0; i < accelerationsForBody.size( ); i++ )
-//        {
-//            // Retrieve name of body exerting acceleration.
-//            std::string bodyExertingAcceleration = accelerationsForBody.at( i ).first;
+        // Iterate over all bodies exerting an acceleration
+        for( unsigned int i = 0; i < accelerationsForBody.size( ); i++ )
+        {
+            // Retrieve name of body exerting acceleration.
+            std::string bodyExertingAcceleration = accelerationsForBody.at( i ).first;
 
-//            // Check if body exerting acceleration is included in bodies
-//            if( bodies.count( bodyExertingAcceleration ) ==  0 )
-//            {
-//                throw std::runtime_error(
-//                            std::string( "Error when making acceleration models, requested forces ")
-//                            + "acting on body " + bodyUndergoingAcceleration  + " due to body " +
-//                            bodyExertingAcceleration +
-//                            ", but no such body found in map of bodies" );
-//            }
+            // Check if body exerting acceleration is included in bodies
+            if( bodies.count( bodyExertingAcceleration ) ==  0 )
+            {
+                throw std::runtime_error(
+                    std::string( "Error when making acceleration models, requested forces ")
+                    + "acting on body " + bodyUndergoingAcceleration  + " due to body " +
+                    bodyExertingAcceleration +
+                    ", but no such body found in map of bodies" );
+            }
 
-//            if( !( accelerationsForBody.at( i ).second->accelerationType_ == basic_astrodynamics::thrust_acceleration ) )
-//            {
-//                currentAcceleration = createAccelerationModel( bodies.at( bodyUndergoingAcceleration ),
-//                                                               bodies.at( bodyExertingAcceleration ),
-//                                                               accelerationsForBody.at( i ).second,
-//                                                               bodyUndergoingAcceleration,
-//                                                               bodyExertingAcceleration,
-//                                                               currentCentralBody,
-//                                                               currentCentralBodyName,
-//                                                               bodies );
+            if( ( accelerationsForBody.at( i ).second->accelerationType_ == basic_astrodynamics::thrust_acceleration ) )
+            {
+                thrustAccelerationSettings.push_back( accelerationsForBody.at( i ) );
+            }
+            else if( ( accelerationsForBody.at( i ).second->accelerationType_ == basic_astrodynamics::einstein_infeld_hoffmann_acceleration ) )
+            {
+                if( orderedEihBodies.count( bodyUndergoingAcceleration ) > 0 )
+                {
+                    if( std::find( orderedEihBodies.at( bodyUndergoingAcceleration ).begin( ),
+                                   orderedEihBodies.at( bodyUndergoingAcceleration ).end( ),
+                                   bodyExertingAcceleration ) !=
+                        orderedEihBodies.at( bodyUndergoingAcceleration ).end( ) )
+                    {
+                        throw std::runtime_error( "Error when parsing EIH acceleration settings, found combinatin of bodies " +
+                                                  bodyUndergoingAcceleration + ", " + bodyExertingAcceleration  + " multiple times." );
+                    }
+                }
 
-
-//                // Create acceleration model.
-//                mapOfAccelerationsForBody[ bodyExertingAcceleration ].push_back(
-//                            currentAcceleration );
-//            }
-//            else
-//            {
-//                thrustAccelerationSettings.push_back( accelerationsForBody.at( i ) );
-//            }
-
-//        }
-
-//        for( unsigned int i = 0; i < thrustAccelerationSettings.size( ); i++ )
-//        {
-//            currentAcceleration = createAccelerationModel( bodies.at( bodyUndergoingAcceleration ),
-//                                                           bodies.at( thrustAccelerationSettings.at( i ).first ),
-//                                                           thrustAccelerationSettings.at( i ).second,
-//                                                           bodyUndergoingAcceleration,
-//                                                           thrustAccelerationSettings.at( i ).first,
-//                                                           currentCentralBody,
-//                                                           currentCentralBodyName,
-//                                                           bodies );
+                orderedEihBodies[ bodyUndergoingAcceleration ].push_back( bodyExertingAcceleration );
+            }
+            else
+            {
+                currentAcceleration = createAccelerationModel( bodies.at( bodyUndergoingAcceleration ),
+                                                               bodies.at( bodyExertingAcceleration ),
+                                                               accelerationsForBody.at( i ).second,
+                                                               bodyUndergoingAcceleration,
+                                                               bodyExertingAcceleration,
+                                                               currentCentralBody,
+                                                               currentCentralBodyName,
+                                                               bodies );
 
 
-//            // Create acceleration model.
-//            mapOfAccelerationsForBody[ thrustAccelerationSettings.at( i ).first  ].push_back(
-//                        currentAcceleration );
-//        }
+                // Create acceleration model.
+                mapOfAccelerationsForBody[ bodyExertingAcceleration ].push_back(
+                    currentAcceleration );
+            }
+        }
+
+        // Create thrust accelerations last
+        for( unsigned int i = 0; i < thrustAccelerationSettings.size( ); i++ )
+        {
+            currentAcceleration = createAccelerationModel( bodies.at( bodyUndergoingAcceleration ),
+                                                           bodies.at( thrustAccelerationSettings.at( i ).first ),
+                                                           thrustAccelerationSettings.at( i ).second,
+                                                           bodyUndergoingAcceleration,
+                                                           thrustAccelerationSettings.at( i ).first,
+                                                           currentCentralBody,
+                                                           currentCentralBodyName,
+                                                           bodies );
 
 
-//        // Put acceleration models on current body in return map.
-//        accelerationModelMap[ bodyUndergoingAcceleration ] = mapOfAccelerationsForBody;
-//    }
+            // Create acceleration model.
+            mapOfAccelerationsForBody[ thrustAccelerationSettings.at( i ).first  ].push_back(
+                currentAcceleration );
+        }
+        // Put acceleration models on current body in return map.
+        accelerationModelMap[ bodyUndergoingAcceleration ] = mapOfAccelerationsForBody;
+    }
 
-//    return accelerationModelMap;
-//}
+    if( orderedEihBodies.size( ) > 0 )
+    {
+        addEihAccelerations(
+            bodies, orderedEihBodies, centralBodies, accelerationModelMap );
+    }
+
+    return accelerationModelMap;
+}
 
 //! Function to create acceleration models from a map of bodies and acceleration model types.
 basic_astrodynamics::AccelerationMap createAccelerationModelsMap(

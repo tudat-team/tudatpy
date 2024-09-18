@@ -96,8 +96,7 @@ public:
             const std::shared_ptr< gravitation::DirectTidalDissipationAcceleration > tidalAcceleration,
             const std::string acceleratedBody,
             const std::string acceleratingBody ):
-        AccelerationPartial( acceleratedBody, acceleratingBody,
-                             basic_astrodynamics::getAccelerationModelType( tidalAcceleration ) ),
+        AccelerationPartial( acceleratedBody, acceleratingBody, basic_astrodynamics::getAccelerationModelType( tidalAcceleration ) ),
         tidalAcceleration_( tidalAcceleration )
     { }
 
@@ -273,7 +272,10 @@ protected:
     void wrtGravitationalParameterOfSatellite( Eigen::MatrixXd& gravitationalParameterPartial );
 
     //! Function to compute derivative w.r.t. tidal time lag parameter.
-    void wrtTidalTimeLag( Eigen::MatrixXd& gravitationalParameterPartial );
+    void wrtTidalTimeLag( Eigen::MatrixXd& timeLagParameterPartial );
+
+    //! Function to compute derivative w.r.t. inverse tidal quality factor parameter.
+    void wrtInverseTidalQualityFactor( Eigen::MatrixXd& qualityFactorParameterPartial );
 
     //! Acceleration model of which partial derivatives are to be computed
     std::shared_ptr< gravitation::DirectTidalDissipationAcceleration > tidalAcceleration_;

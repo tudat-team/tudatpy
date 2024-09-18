@@ -32,6 +32,7 @@
 #include "orbit_determination/estimatable_parameters/coreFactor.h"
 #include "orbit_determination/estimatable_parameters/desaturationDeltaV.h"
 #include "orbit_determination/estimatable_parameters/directTidalTimeLag.h"
+#include "orbit_determination/estimatable_parameters/inverseTidalQualityFactor.h"
 #include "orbit_determination/estimatable_parameters/empiricalAccelerationCoefficients.h"
 #include "orbit_determination/estimatable_parameters/equivalencePrincipleViolationParameter.h"
 #include "orbit_determination/estimatable_parameters/estimatableParameter.h"
@@ -52,7 +53,7 @@
 #include "orbit_determination/observation_partials/firstOrderRelativisticPartial.h"
 #include "orbit_determination/observation_partials/lightTimeCorrectionPartial.h"
 #include "orbit_determination/observation_partials/angularPositionPartial.h"
-#include "orbit_determination/observation_partials/differencedOneWayRangeRatePartial.h"
+#include "orbit_determination/observation_partials/differencedObservationPartial.h"
 #include "orbit_determination/observation_partials/eulerAngleObservablePartials.h"
 #include "orbit_determination/observation_partials/nWayRangePartial.h"
 #include "orbit_determination/observation_partials/observationPartial.h"
@@ -68,6 +69,7 @@
 #include "orbit_determination/rotational_dynamics_partials/sphericalHarmonicGravitationalTorquePartial.h"
 #include "orbit_determination/rotational_dynamics_partials/torquePartial.h"
 #include "orbit_determination/podInputOutputTypes.h"
+#include "tudat/simulation/estimation_setup/processOdfFile.h"
 #include "orbit_determination/stateDerivativePartial.h"
 
 #endif // TUDAT_ORBIT_DETERMINATION_H

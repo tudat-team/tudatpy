@@ -145,11 +145,11 @@ void PlanetaryOrientationAngleCalculator::calculateCurrentMeanPhiAngleDerivative
     }
 }
 
-boost::shared_ptr< interpolators::CubicSplineInterpolator< double, Eigen::Vector3d > >
+std::shared_ptr< interpolators::CubicSplineInterpolator< double, Eigen::Vector3d > >
 createInterpolatorForPlanetaryRotationAngles( double intervalStart,
                                               double intervalEnd,
                                               double timeStep,
-                                              boost::shared_ptr< PlanetaryOrientationAngleCalculator > planetaryOrientationCalculator )
+                                              std::shared_ptr< PlanetaryOrientationAngleCalculator > planetaryOrientationCalculator )
 {
     using namespace interpolators;
 
@@ -163,8 +163,8 @@ createInterpolatorForPlanetaryRotationAngles( double intervalStart,
         currentTime += timeStep;
     }
 
-    boost::shared_ptr< CubicSplineInterpolator< double, Eigen::Vector3d > > interpolator =
-            boost::make_shared< CubicSplineInterpolator< double, Eigen::Vector3d > >( orientationMap );
+    std::shared_ptr< CubicSplineInterpolator< double, Eigen::Vector3d > > interpolator =
+            std::make_shared< CubicSplineInterpolator< double, Eigen::Vector3d > >( orientationMap );
     return interpolator;
 }
 

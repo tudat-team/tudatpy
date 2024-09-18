@@ -16,7 +16,11 @@ set(observation_models_SOURCES
         "observationManager.cpp"
         "observationSimulator.cpp"
         "observationModel.cpp"
+        "corrections/lightTimeCorrections.cpp"
         "corrections/firstOrderRelativisticCorrection.cpp"
+        "corrections/atmosphereCorrection.cpp"
+        "corrections/solarCoronaCorrection.cpp"
+        "observationFrequencies.cpp"
         )
 
 # Set the header files.
@@ -33,13 +37,21 @@ set(observation_models_HEADERS
         "oneWayRangeObservationModel.h"
         "oneWayDopplerObservationModel.h"
         "oneWayDifferencedRangeRateObservationModel.h"
+        "nWayRangeRateObservationModel.h"
+        "relativeAngularPositionObservationModel.h"
         "positionObservationModel.h"
+        "relativePositionObservationModel.h"
         "velocityObservationModel.h"
         "twoWayDopplerObservationModel.h"
         "eulerAngleObservationModel.h"
+        "relativeAngularPositionObservationModel.h"
         "observationViabilityCalculator.h"
         "corrections/lightTimeCorrection.h"
         "corrections/firstOrderRelativisticCorrection.h"
+        "corrections/tabulatedMediaCorrection.h"
+        "corrections/solarCoronaCorrection.h"
+        "dsnNWayAveragedDopplerObservationModel.h"
+        "observationFrequencies.h"
         )
 
 TUDAT_ADD_LIBRARY("observation_models"
