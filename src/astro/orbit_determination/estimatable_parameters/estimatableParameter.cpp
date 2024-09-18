@@ -75,6 +75,9 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
     case ground_station_position:
         parameterDescription = "ground station position ";
         break;
+    case reference_point_position:
+        parameterDescription = "reference point position ";
+        break;
     case equivalence_principle_lpi_violation_parameter:
         parameterDescription = " equivalence principle violation parameter ";
         break;
@@ -119,6 +122,45 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
         break;
     case scaled_longitude_libration_amplitude:
         parameterDescription = " scaled longitude libration amplitude ";
+        break;
+    case constant_thrust_magnitude_parameter:
+        parameterDescription = " constant thrust magnitude ";
+        break;
+    case constant_specific_impulse:
+        parameterDescription = " constant specific impulse ";
+        break;
+    case constant_time_drift_observation_bias:
+        parameterDescription = "time drift observation bias ";
+        break;
+    case arc_wise_time_drift_observation_bias:
+        parameterDescription = "arc-wise time drift observation bias ";
+        break;
+    case constant_time_observation_bias:
+        parameterDescription = "time observation bias ";
+        break;
+    case arc_wise_time_observation_bias:
+        parameterDescription = "arc-wise time observation bias ";
+        break;
+    case inverse_tidal_quality_factor:
+        parameterDescription = " inverse of tidal quality factor ";
+        break;
+    case yarkovsky_parameter:
+        parameterDescription = " Yarkovsky parameter A2 ";
+        break;
+    case custom_estimated_parameter:
+        parameterDescription = " Custom parameter ";
+        break;
+    case polynomial_gravity_field_variation_amplitudes:
+        parameterDescription = " Polynomial gravity field variations ";
+        break;
+    case source_direction_radiation_pressure_scaling_factor:
+        parameterDescription = " Radiation pressure acceleration scaling factor to source ";
+        break;
+    case source_perpendicular_direction_radiation_pressure_scaling_factor:
+        parameterDescription = " Radiation pressure acceleration scaling factor perpendicular to source ";
+        break;
+    case mode_coupled_tidal_love_numbers:
+        parameterDescription = " Mode-coupled tidal Love numbers";
         break;
     default:
         std::string errorMessage = "Error when getting parameter string, did not recognize parameter " +
@@ -207,6 +249,9 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
     case ground_station_position:
         isDoubleParameter = false;
         break;
+    case reference_point_position:
+        isDoubleParameter = false;
+        break;
     case equivalence_principle_lpi_violation_parameter:
         isDoubleParameter = true;
         break;
@@ -245,6 +290,48 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
         break;
     case scaled_longitude_libration_amplitude:
         isDoubleParameter = true;
+        break;
+    case constant_thrust_magnitude_parameter:
+        isDoubleParameter = true;
+        break;
+    case constant_specific_impulse:
+        isDoubleParameter = true;
+        break;
+    case constant_time_drift_observation_bias:
+        isDoubleParameter = false;
+        break;
+    case arc_wise_time_drift_observation_bias:
+        isDoubleParameter = false;
+        break;
+    case constant_time_observation_bias:
+        isDoubleParameter = false;
+        break;
+    case arc_wise_time_observation_bias:
+        isDoubleParameter = false;
+        break;
+    case inverse_tidal_quality_factor:
+        isDoubleParameter = true;
+        break;
+    case yarkovsky_parameter:
+        isDoubleParameter = true;
+        break;
+    case custom_estimated_parameter:
+        isDoubleParameter = false;
+        break;
+    case polynomial_gravity_field_variation_amplitudes:
+        isDoubleParameter = false;
+        break;
+    case periodic_gravity_field_variation_amplitudes:
+        isDoubleParameter = false;
+        break;
+    case source_direction_radiation_pressure_scaling_factor:
+        isDoubleParameter = true;
+        break;
+    case source_perpendicular_direction_radiation_pressure_scaling_factor:
+        isDoubleParameter = true;
+        break;
+    case mode_coupled_tidal_love_numbers:
+        isDoubleParameter = false;
         break;
     default:
         throw std::runtime_error( "Error, parameter type " + std::to_string( parameterType ) +
@@ -308,9 +395,40 @@ bool isParameterObservationLinkProperty( const EstimatebleParametersEnum paramet
     case arcwise_constant_relative_observation_bias:
         flag = true;
         break;
+    case constant_time_drift_observation_bias:
+        flag = true;
+        break;
+    case arc_wise_time_drift_observation_bias:
+        flag = true;
+        break;
+    case constant_time_observation_bias:
+        flag = true;
+        break;
+    case arc_wise_time_observation_bias:
+        flag = true;
+        break;
     default:
         flag = false;
         break;
+    }
+    return flag;
+}
+
+//! Function to determine whether the given parameter influences an observation link directly
+bool isParameterObservationLinkTimeProperty( const EstimatebleParametersEnum parameterType )
+{
+    bool flag;
+    switch( parameterType )
+    {
+        case constant_time_observation_bias:
+            flag = true;
+            break;
+        case arc_wise_time_observation_bias:
+            flag = true;
+            break;
+        default:
+            flag = false;
+            break;
     }
     return flag;
 }
@@ -327,6 +445,9 @@ bool isParameterTidalProperty( const EstimatebleParametersEnum parameterType )
     case single_degree_variable_tidal_love_number:
         flag = true;
         break;
+    case mode_coupled_tidal_love_numbers:
+        flag = true;
+        break;
     default:
         flag = false;
         break;
@@ -334,16 +455,42 @@ bool isParameterTidalProperty( const EstimatebleParametersEnum parameterType )
     return flag;
 }
 
-//#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
-//template class EstimatableParameter< Eigen::VectorXd >;
-//template class EstimatableParameter< Eigen::Matrix< long double, Eigen::Dynamic, 1 > >;
-//#endif
+//! Function to determine whether the given parameter influences a body's tidal gravity field variations.
+bool isParameterNonTidalGravityFieldVariationProperty( const EstimatebleParametersEnum parameterType )
+{
+    bool flag;
+    switch( parameterType )
+    {
+    case polynomial_gravity_field_variation_amplitudes:
+        flag = true;
+        break;
+    case periodic_gravity_field_variation_amplitudes:
+        flag = true;
+        break;
+    default:
+        flag = false;
+        break;
+    }
+    return flag;
+}
 
-//template class EstimatableParameterSet< double >;
+//! Function to determine whether the given parameter represents an arc-wise initial dynamical state.
+bool isParameterArcWiseInitialStateProperty( const EstimatebleParametersEnum parameterType )
+{
+    bool flag;
+    switch( parameterType )
+    {
+        case arc_wise_initial_body_state:
+            flag = true;
+            break;
+        default:
+            flag = false;
+            break;
+    }
+    return flag;
+}
 
-//#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
-//template class EstimatableParameterSet< long double >;
-//#endif
+
 
 }
 

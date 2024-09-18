@@ -88,10 +88,21 @@ void Body::setTemplatedState( const Eigen::Matrix< long double, 6, 1 >& state )
 void Body::setIsBodyInPropagation( const bool isBodyInPropagation )
 {
     isBodyInPropagation_ = isBodyInPropagation;
-    if( std::dynamic_pointer_cast< ephemerides::SynchronousRotationalEphemeris >( rotationalEphemeris_ ) != nullptr )
+
+    if( rotationalEphemeris_ != nullptr )
     {
-        std::dynamic_pointer_cast< ephemerides::SynchronousRotationalEphemeris >( rotationalEphemeris_ ) ->setIsBodyInPropagation(
-                    isBodyInPropagation );
+        rotationalEphemeris_->setIsBodyInPropagation( isBodyInPropagation );
+    }
+
+    if( massProperties_ != nullptr )
+    {
+        massProperties_->setIsBodyInPropagation( isBodyInPropagation );
+    }
+
+    if( !isBodyInPropagation )
+    {
+        isStateSet_ = false;
+        isRotationSet_ = false;
     }
 }
 
@@ -160,6 +171,39 @@ void setAreBodiesInPropagation( const SystemOfBodies& bodies,
     {
         bodyIterator.second->setIsBodyInPropagation( areBodiesInPropagation );
     }
+}
+
+bool isReferencePointGroundStation( const std::shared_ptr< Body > body,
+                                    const std::string& referencePointName )
+{
+    bool isReferencePointGroundStation = false;
+    if( body->getGroundStationMap( ).count( referencePointName ) > 0 )
+    {
+        isReferencePointGroundStation = true;
+    }
+    else
+    {
+        if( body->getVehicleSystems( ) == nullptr )
+        {
+            throw std::runtime_error( "Error when finding reference point " + referencePointName + " on " + body->getBodyName( ) + " , point is not a ground station, and no system models found" );
+        }
+        else if( !body->getVehicleSystems( )->doesReferencePointExist( referencePointName ) )
+        {
+            throw std::runtime_error( "Error when finding reference point " + referencePointName + " on " + body->getBodyName( ) + ", point is not a ground station, and not a system reference point" );
+        }
+        else
+        {
+            isReferencePointGroundStation = false;
+        }
+    }
+    return isReferencePointGroundStation;
+}
+
+bool isReferencePointGroundStation( const SystemOfBodies &bodies,
+                                    const std::string& bodyName,
+                                    const std::string& referencePointName )
+{
+    return isReferencePointGroundStation( bodies.at( bodyName ), referencePointName );
 }
 
 

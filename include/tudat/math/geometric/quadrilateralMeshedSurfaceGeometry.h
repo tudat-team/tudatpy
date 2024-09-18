@@ -177,6 +177,18 @@ public:
          return panelSurfaceNormals_;
      }
 
+     void clear( )
+     {
+         boost::array< int, 2 > numberOfPointsPerIndependentVariables;
+         numberOfPointsPerIndependentVariables[ 0 ] = 0;
+         numberOfPointsPerIndependentVariables[ 1 ] = 0;
+
+         meshPoints_.resize( numberOfPointsPerIndependentVariables );
+         panelCentroids_.resize( numberOfPointsPerIndependentVariables );
+         panelSurfaceNormals_.resize( numberOfPointsPerIndependentVariables );
+         panelAreas_.resize( numberOfPointsPerIndependentVariables );
+     }
+
 protected:
 
      //! Calculate panel characteristics.

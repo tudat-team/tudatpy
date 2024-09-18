@@ -103,6 +103,7 @@ TwoWayDopplerPartial::TwoWayDopplerPartialReturnType TwoWayDopplerPartial::calcu
         const std::vector< Eigen::Vector6d >& states,
         const std::vector< double >& times,
         const observation_models::LinkEndType linkEndOfFixedTime,
+        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings,
         const Eigen::Vector1d& currentObservation )
 {
     TwoWayDopplerPartialReturnType completePartialSet;
@@ -142,7 +143,8 @@ TwoWayDopplerPartial::TwoWayDopplerPartialReturnType TwoWayDopplerPartial::calcu
 
 
         // Compute one-way range partials
-        currentPartialSet = dopplerPartialIterator_->second->calculatePartial( subLinkStates, subLinkTimes, subLinkReference );
+        currentPartialSet = dopplerPartialIterator_->second->calculatePartial(
+                subLinkStates, subLinkTimes, subLinkReference, ancillarySettings );
 
         // Scale partials by required amount and add to return map.
         for( unsigned int i = 0; i < currentPartialSet.size( ); i++ )
@@ -158,13 +160,12 @@ TwoWayDopplerPartial::TwoWayDopplerPartialReturnType TwoWayDopplerPartial::calcu
                     ( linkEndOfFixedTime == observation_models::receiver && dopplerPartialIterator_->first == 0 ) )
             {
                 currentPartialSet = rangePartialList_.at( dopplerPartialIterator_->first )->calculatePartial(
-                            subLinkStates, subLinkTimes, subLinkReference );
+                            subLinkStates, subLinkTimes, subLinkReference, ancillarySettings );
 
                 for( unsigned int i = 0; i < currentPartialSet.size( ); i++ )
                 {
                     currentPartialSet[ i ].first *= ( currentPartialMultiplier ) *
-                            twoWayDopplerScaler_->getRelevantOneWayDopplerTimePartial( linkEndOfFixedTime ) /
-                            physical_constants::SPEED_OF_LIGHT;
+                            twoWayDopplerScaler_->getRelevantOneWayDopplerTimePartial( linkEndOfFixedTime ) / physical_constants::SPEED_OF_LIGHT;
                 }
                 completePartialSet.insert( completePartialSet.end( ), currentPartialSet.begin( ), currentPartialSet.end( ) );
             }

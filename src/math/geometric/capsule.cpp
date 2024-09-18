@@ -18,7 +18,7 @@
 #include <cmath>
 #include <iostream>
 
-#include <boost/make_shared.hpp>
+
 #include <memory>
 
 #include <Eigen/Core>

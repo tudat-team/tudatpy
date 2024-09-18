@@ -56,7 +56,7 @@ public:
 
 private:
 
-    Eigen::VectorXd initialMassState_;
+    Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > initialMassState_;
 };
 
 

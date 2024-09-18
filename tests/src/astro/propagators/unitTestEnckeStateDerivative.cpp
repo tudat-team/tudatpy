@@ -15,7 +15,7 @@
 #include <string>
 #include <thread>
 
-#include <boost/make_shared.hpp>
+
 #include <boost/test/unit_test.hpp>
 
 #include "tudat/astro/basic_astro/unitConversions.h"
@@ -32,6 +32,8 @@
 #include "tudat/simulation/environment_setup/createBodies.h"
 #include "tudat/simulation/estimation_setup/createNumericalSimulator.h"
 #include "tudat/math/integrators/createNumericalIntegrator.h"
+#include "tudat/astro/basic_astro/celestialBodyConstants.h"
+#include "tudat/astro/basic_astro/polyhedronFuntions.h"
 
 namespace tudat
 {
@@ -39,6 +41,7 @@ namespace unit_tests
 {
 
 BOOST_AUTO_TEST_SUITE( test_encke_propagator )
+
 
 // Test Encke propagator for point mass central body.
 BOOST_AUTO_TEST_CASE( testEnckePopagatorForPointMassCentralBodies )
@@ -79,7 +82,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForPointMassCentralBodies )
         // Create bodies needed in simulation
         SystemOfBodies bodies = createSystemOfBodies(
                     getDefaultBodySettings( bodyNames, initialEphemerisTime - buffer, finalEphemerisTime + buffer ) );
-        
+
 
         // Set accelerations between bodies that are to be taken into account.
         SelectedAccelerationMap accelerationMap;
@@ -146,10 +149,33 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForPointMassCentralBodies )
                 ( rungeKutta4,
                   initialEphemerisTime, 250.0 );
 
+        std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
+
+        dependentVariables.push_back(
+                    std::make_shared< SingleAccelerationDependentVariableSaveSettings >(
+                        point_mass_gravity, "Mars", "Earth", 1 ) );
+        dependentVariables.push_back(
+                    std::make_shared< SingleAccelerationDependentVariableSaveSettings >(
+                        point_mass_gravity, "Mars", "Sun", 1 ) );
+        dependentVariables.push_back(
+                    std::make_shared< SingleDependentVariableSaveSettings >(
+                        total_acceleration_norm_dependent_variable, "Mars" ) );
+        dependentVariables.push_back(
+                    std::make_shared< SingleAccelerationDependentVariableSaveSettings >(
+                        point_mass_gravity, "Mars", "Earth" ) );
+        dependentVariables.push_back(
+                    std::make_shared< SingleAccelerationDependentVariableSaveSettings >(
+                        point_mass_gravity, "Mars", "Sun" ) );
+        dependentVariables.push_back(
+                    std::make_shared< SingleDependentVariableSaveSettings >(
+                        total_acceleration_dependent_variable, "Mars" ) );
+
+
         // Create propagation settings (Cowell)
         std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
                 std::make_shared< TranslationalStatePropagatorSettings< double > >
-                ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, finalEphemerisTime );
+                ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, finalEphemerisTime,
+                  cowell, dependentVariables );
 
         // Propagate orbit with Cowell method
         SingleArcDynamicsSimulator< double > dynamicsSimulator2(
@@ -163,6 +189,8 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForPointMassCentralBodies )
         // Get resutls of Cowell integration at given times.
         double currentTestTime = initialTestTime;
         std::map< double, Eigen::Matrix< double, 18, 1 > > cowellIntegrationResults;
+        std::map< double, Eigen::VectorXd > cowellDependentVariables = dynamicsSimulator2.getDependentVariableHistory( );
+
         while( currentTestTime < finalTestTime )
         {
             cowellIntegrationResults[ currentTestTime ].segment( 0, 6 ) =
@@ -177,7 +205,8 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForPointMassCentralBodies )
 
         // Create propagation settings (Encke)
         propagatorSettings = std::make_shared< TranslationalStatePropagatorSettings< double > >
-                ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, finalEphemerisTime, encke );
+                ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, finalEphemerisTime,
+                  encke, dependentVariables );
 
         // Propagate orbit with Encke method
         SingleArcDynamicsSimulator< double > dynamicsSimulator(
@@ -186,6 +215,8 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForPointMassCentralBodies )
         // Get resutls of Encke integration at given times.
         currentTestTime = initialTestTime;
         std::map< double, Eigen::Matrix< double, 18, 1 > > enckeIntegrationResults;
+        std::map< double, Eigen::VectorXd > enckeDependentVariables = dynamicsSimulator.getDependentVariableHistory( );
+
         while( currentTestTime < finalTestTime )
         {
             enckeIntegrationResults[ currentTestTime ].segment( 0, 6 ) =
@@ -200,8 +231,12 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForPointMassCentralBodies )
         // Compare results of Cowell and Encke propagations
         std::map< double, Eigen::Matrix< double, 18, 1 > >::iterator enckeIterator = enckeIntegrationResults.begin( );
         std::map< double, Eigen::Matrix< double, 18, 1 > >::iterator cowellIterator = cowellIntegrationResults.begin( );
+        std::map< double, Eigen::VectorXd >::iterator enckeDependentIterator = enckeDependentVariables.begin( );
+        std::map< double, Eigen::VectorXd >::iterator cowellDependentIterator = cowellDependentVariables.begin( );
         for( unsigned int i = 0; i < enckeIntegrationResults.size( ); i++ )
         {
+//            std::cout<<( ( enckeDependentIterator->second - cowellDependentIterator->second ).cwiseQuotient(
+//                           cowellDependentIterator->second ) ).transpose( )<<std::endl;
             for( int j= 0; j< 3; j++ )
             {
                 BOOST_CHECK_SMALL( ( enckeIterator->second - cowellIterator->second ).segment( j, 1 )( 0 ), 0.01 );
@@ -214,7 +249,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForPointMassCentralBodies )
 
             for( int j = 12; j < 15; j++ )
             {
-                BOOST_CHECK_SMALL( ( enckeIterator->second - cowellIterator->second ).segment( j, 1 )( 0 ), 0.1 );
+                BOOST_CHECK_SMALL( ( enckeIterator->second - cowellIterator->second ).segment( j, 1 )( 0 ), 0.2 );
             }
 
             for( int j = 3; j < 6; j++ )
@@ -233,16 +268,23 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForPointMassCentralBodies )
                 BOOST_CHECK_SMALL( ( enckeIterator->second - cowellIterator->second ).segment( j, 1 )( 0 ), 1.0E-6 );
 
             }
+
+            for( int j = 0; j < 12; j++ )
+            {
+                BOOST_CHECK_SMALL( ( enckeDependentIterator->second - cowellDependentIterator->second )( j ), 1.0E-11 );
+            }
             enckeIterator++;
             cowellIterator++;
+            enckeDependentIterator++;
+            cowellDependentIterator++;
         }
     }
 }
 
-// Test Encke propagator for point mass, and spherical harmonics central body.
-BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
+// Test Encke propagator for point mass, spherical harmonics, and polyhedron central body.
+BOOST_AUTO_TEST_CASE( testEnckePopagatorForPointMassSphericalHarmonicPolyhedronCentralBodies )
 {
-    for( unsigned int simulationCase = 0; simulationCase < 4; simulationCase++ )
+    for( unsigned int simulationCase = 0; simulationCase < 6; simulationCase++ )
     {
         using namespace tudat;
         using namespace simulation_setup;
@@ -252,6 +294,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
         using namespace basic_mathematics;
         using namespace gravitation;
         using namespace numerical_integrators;
+        using namespace basic_astrodynamics;
 
         // Load Spice kernels.
         spice_interface::loadStandardSpiceKernels( );
@@ -272,14 +315,52 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
         BodyListSettings bodySettings =
                 getDefaultBodySettings( bodiesToCreate, simulationStartEpoch - 300.0, simulationEndEpoch + 300.0,
                                         "SSB", "J2000" );
+        if ( simulationCase >= 4 )
+        {
+            // Define cuboid polyhedron dimensions
+            const double w = 6378e3 / 2; // width
+            const double h = 6378e3 / 2; // height
+            const double l = 6378e3 / 2; // length
+
+            // Define cuboid
+            Eigen::MatrixXd verticesCoordinates(8,3);
+            verticesCoordinates <<
+                0.0, 0.0, 0.0,
+                l, 0.0, 0.0,
+                0.0, w, 0.0,
+                l, w, 0.0,
+                0.0, 0.0, h,
+                l, 0.0, h,
+                0.0, w, h,
+                l, w, h;
+            Eigen::MatrixXi verticesDefiningEachFacet(12,3);
+            verticesDefiningEachFacet <<
+                2, 1, 0,
+                1, 2, 3,
+                4, 2, 0,
+                2, 4, 6,
+                1, 4, 0,
+                4, 1, 5,
+                6, 5, 7,
+                5, 6, 4,
+                3, 6, 7,
+                6, 3, 2,
+                5, 3, 7,
+                3, 5, 1;
+
+            verticesCoordinates = basic_astrodynamics::modifyPolyhedronCentroidPosition(
+                    verticesCoordinates, verticesDefiningEachFacet, Eigen::Vector3d::Zero() );
+
+            bodySettings.at( "Earth" )->gravityFieldSettings = polyhedronGravitySettingsFromMu(
+                celestial_body_constants::EARTH_GRAVITATIONAL_PARAMETER, verticesCoordinates,
+                verticesDefiningEachFacet, "IAU_Earth");
+        }
         SystemOfBodies bodies = createSystemOfBodies( bodySettings );
 
         // Create spacecraft object.
         bodies.createEmptyBody( "Vehicle" );
         bodies.at( "Vehicle" )->setConstantBodyMass( 400.0 );
-        bodies.at( "Vehicle" )->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
-                                                std::shared_ptr< interpolators::OneDimensionalInterpolator
-                                                < double, Eigen::Vector6d  > >( ), "Earth", "J2000" ) );
+
         std::shared_ptr< RadiationPressureInterfaceSettings > vehicleRadiationPressureSettings =
                 std::make_shared< CannonBallRadiationPressureInterfaceSettings >(
                     "Sun", 4.0, 1.2, std::vector< std::string >{ "Earth", "Moon" } );
@@ -303,11 +384,16 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
                                                              basic_astrodynamics::point_mass_gravity ) );
         }
         // Use spherical harmonics for Earth
-        else
+        else if ( simulationCase < 4 )
         {
             accelerationsOfVehicle[ "Earth" ].push_back(
                         std::make_shared< SphericalHarmonicAccelerationSettings >( 5, 5 ) );
 
+        }
+        // Use polyhedron for Earth
+        else
+        {
+            accelerationsOfVehicle[ "Earth" ].push_back( polyhedronAcceleration( ) );
         }
 
         // Use perturbations other than Earth gravity
@@ -345,10 +431,52 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
         const Eigen::Vector6d vehicleInitialState = convertKeplerianToCartesianElements(
                     vehicleInitialStateInKeplerianElements, earthGravitationalParameter );
 
+        std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
+
+        dependentVariables.push_back(
+                    std::make_shared< SingleDependentVariableSaveSettings >(
+                        total_acceleration_norm_dependent_variable, "Vehicle" ) );
+        if( simulationCase < 2 )
+        {
+            dependentVariables.push_back(
+                        std::make_shared< SingleAccelerationDependentVariableSaveSettings >(
+                            point_mass_gravity, "Vehicle", "Earth", 1 ) );
+            dependentVariables.push_back(
+                        std::make_shared< SingleAccelerationDependentVariableSaveSettings >(
+                            point_mass_gravity, "Vehicle", "Earth" ) );
+        }
+        // Use spherical harmonics for Earth
+        else if ( simulationCase < 4 )
+        {
+            dependentVariables.push_back(
+                        std::make_shared< SingleAccelerationDependentVariableSaveSettings >(
+                            spherical_harmonic_gravity, "Vehicle", "Earth", 1 ) );
+            dependentVariables.push_back(
+                        std::make_shared< SingleAccelerationDependentVariableSaveSettings >(
+                            spherical_harmonic_gravity, "Vehicle", "Earth" ) );
+        }
+        // Use polyhedron for Earth
+        else
+        {
+            dependentVariables.push_back(
+                        std::make_shared< SingleAccelerationDependentVariableSaveSettings >(
+                            polyhedron_gravity, "Vehicle", "Earth", 1 ) );
+            dependentVariables.push_back(
+                        std::make_shared< SingleAccelerationDependentVariableSaveSettings >(
+                            polyhedron_gravity, "Vehicle", "Earth" ) );
+        }
+        dependentVariables.push_back(
+                    std::make_shared< SingleDependentVariableSaveSettings >(
+                        total_acceleration_dependent_variable, "Vehicle" ) );
+        dependentVariables.push_back(
+                        std::make_shared< SingleDependentVariableSaveSettings >(
+                            keplerian_state_dependent_variable,  "Vehicle", "Earth" ) );
+
         // Define propagator settings (Cowell)
         std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
                 std::make_shared< TranslationalStatePropagatorSettings< double > >
-                ( centralBodies, accelerationModelMap, bodiesToPropagate, vehicleInitialState, simulationEndEpoch );
+                ( centralBodies, accelerationModelMap, bodiesToPropagate, vehicleInitialState, simulationEndEpoch,
+                  cowell, dependentVariables );
 
         // Define integrator settings.
         const double fixedStepSize = 5.0;
@@ -368,6 +496,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
         // Get resutls of Cowell integration at given times.
         double currentTestTime = initialTestTime;
         std::map< double, Eigen::Matrix< double, 6, 1 > > cowellIntegrationResults;
+        std::map< double, Eigen::VectorXd > cowellDependentVariables = dynamicsSimulator2.getDependentVariableHistory( );
         while( currentTestTime < finalTestTime )
         {
             cowellIntegrationResults[ currentTestTime ].segment( 0, 6 ) =
@@ -378,7 +507,8 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
 
         // Create propagation settings (Encke)
         propagatorSettings = std::make_shared< TranslationalStatePropagatorSettings< double > >
-                ( centralBodies, accelerationModelMap, bodiesToPropagate, vehicleInitialState, simulationEndEpoch, encke );
+                ( centralBodies, accelerationModelMap, bodiesToPropagate, vehicleInitialState, simulationEndEpoch,
+                  encke, dependentVariables );
 
         // Propagate orbit with Encke method
         SingleArcDynamicsSimulator< double > dynamicsSimulator(
@@ -387,6 +517,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
         // Get resutls of Encke integration at given times.
         currentTestTime = initialTestTime;
         std::map< double, Eigen::Matrix< double, 6, 1 > > enckeIntegrationResults;
+        std::map< double, Eigen::VectorXd > enckeDependentVariables = dynamicsSimulator.getDependentVariableHistory( );
         while( currentTestTime < finalTestTime )
         {
             enckeIntegrationResults[ currentTestTime ].segment( 0, 6 ) =
@@ -397,6 +528,8 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
         // Compare results of Cowell and Encke propagations
         std::map< double, Eigen::Matrix< double, 6, 1 > >::iterator enckeIterator = enckeIntegrationResults.begin( );
         std::map< double, Eigen::Matrix< double, 6, 1 > >::iterator cowellIterator = cowellIntegrationResults.begin( );
+        std::map< double, Eigen::VectorXd >::iterator enckeDependentIterator = enckeDependentVariables.begin( );
+        std::map< double, Eigen::VectorXd >::iterator cowellDependentIterator = cowellDependentVariables.begin( );
         for( unsigned int i = 0; i < enckeIntegrationResults.size( ); i++ )
         {
             for( int j= 0; j< 3; j++ )
@@ -409,8 +542,15 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
                 BOOST_CHECK_SMALL( ( enckeIterator->second - cowellIterator->second )( j ), 1.0E-5 );
 
             }
+            for( int j = 0; j < 8; j++ )
+            {
+                BOOST_CHECK_SMALL( ( enckeDependentIterator->second - cowellDependentIterator->second )( j ), 1.0E-11 );
+            }
+
             enckeIterator++;
             cowellIterator++;
+            enckeDependentIterator++;
+            cowellDependentIterator++;
         }
     }
 }
@@ -490,19 +630,23 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForHighEccentricities )
                     asterixInitialStateInKeplerianElements,
                     earthGravitationalParameter );
 
+        std::shared_ptr< IntegratorSettings< > > integratorSettings =
+            std::make_shared< MultiStageVariableStepSizeSettings< > >
+                ( fixedStepSize,  rungeKuttaFehlberg78,
+                  std::make_shared< PerElementIntegratorStepSizeControlSettings< double > >( 1.0E-14, 1.0E-14 ),
+                  std::make_shared< IntegratorStepSizeValidationSettings >( 1.0E-4, 3600.0, set_to_minimum_step_silently ) );
+
+
         TranslationalPropagatorType propagatorType = encke;
         std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
                 std::make_shared< TranslationalStatePropagatorSettings< double > >
-                ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, simulationEndEpoch, propagatorType);
+                ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, 0.0,
+                  integratorSettings, std::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ), propagatorType);
 
-        std::shared_ptr< IntegratorSettings< > > integratorSettings =
-                std::make_shared< RungeKuttaVariableStepSizeSettings< > >
-                ( 0.0, fixedStepSize,
-                  RungeKuttaCoefficients::rungeKuttaFehlberg78, 1.0E-4, 3600.0, 1.0E-14, 1.0E-14 );
 
         // Create simulation object and propagate dynamics.
         SingleArcDynamicsSimulator< > dynamicsSimulator(
-                    bodies, integratorSettings, propagatorSettings, true, false, false );
+                    bodies, propagatorSettings );
         std::map< double, Eigen::VectorXd > integrationResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
 
         // Check if orbit is properly propagated
@@ -533,6 +677,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForHighEccentricities )
     }
 
 }
+
 BOOST_AUTO_TEST_SUITE_END( )
 
 

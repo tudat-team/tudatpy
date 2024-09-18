@@ -58,6 +58,8 @@ public:
      */
     EstimatebleParameterIdentifier parameterType_;
 
+    std::vector< std::shared_ptr< CustomAccelerationPartialSettings > > customPartialSettings_;
+
 };
 
 
@@ -107,6 +109,29 @@ public:
         EstimatableParameterSettings( associatedBody, parameterType ), blockIndices_( blockIndices ),
         minimumDegree_( -1 ), minimumOrder_( -1 ), maximumDegree_( -1 ), maximumOrder_( -1 )
     {
+        for( unsigned int i = 0; i < blockIndices.size( ); i++ )
+        {
+            if( blockIndices.at( i ).first == 0 )
+            {
+                throw std::runtime_error( "Error, cannot estimate degree 0 spherical harmonic gravity field coefficient, estimation gravitational parameter instead" );
+            }
+
+            if( blockIndices.at( i ).first < 0 )
+            {
+                throw std::runtime_error( "Error, cannot estimate negative degree spherical harmonic gravity field coefficients, but found degree " + std::to_string( blockIndices.at( i ).first ) );
+            }
+
+            if( blockIndices.at( i ).second == 0 && parameterType == spherical_harmonics_sine_coefficient_block )
+            {
+                throw std::runtime_error( "Error when making spherical harmonic sine parameter settings, found order set to 0, but degree 0 spherical harmonic sine coefficients do not exist" );
+            }
+
+            if( blockIndices.at( i ).second > blockIndices.at( i ).first )
+            {
+                throw std::runtime_error( "Error when making spherical harmonic sine parameter settings, found coefficient with order > degree, which does not exist" );
+            }
+        }
+
         if( ( parameterType != spherical_harmonics_cosine_coefficient_block ) &&
                 ( parameterType != spherical_harmonics_sine_coefficient_block ) )
         {
@@ -143,6 +168,31 @@ public:
             throw std::runtime_error( "Error when making spherical harmonic parameter settings, input parameter type is inconsistent." );
         }
 
+        if( minimumOrder == 0 && parameterType == spherical_harmonics_sine_coefficient_block )
+        {
+            throw std::runtime_error( "Error when making spherical harmonic sine parameter settings, minimum order is set to 0, but degree 0 spherical harmonic sine coefficients do not exist" );
+        }
+
+        if( maximumDegree < minimumDegree )
+        {
+            throw std::runtime_error( "Error when making spherical harmonic parameter settings, maximum degree is smaller than minimum degree" );
+        }
+
+        if( maximumOrder < minimumOrder )
+        {
+            throw std::runtime_error( "Error when making spherical harmonic parameter settings, maximum order is smaller than minimum order" );
+        }
+
+        if( minimumDegree == 0 )
+        {
+            throw std::runtime_error( "Error, cannot estimate degree 0 spherical harmonic gravity field coefficient, estimation gravitational parameter instead" );
+        }
+
+        if( minimumDegree < 0 )
+        {
+            throw std::runtime_error( "Error, cannot estimate negative degree spherical harmonic gravity field coefficients, but minimum degree is set to " + std::to_string( minimumDegree ) );
+        }
+
         blockIndices_ = getSphericalHarmonicBlockIndices( minimumDegree, minimumOrder, maximumDegree, maximumOrder );
     }
 
@@ -175,19 +225,19 @@ public:
      * \param isBiasAdditive True if bias is absolute, false if it is relative
      */
     ConstantObservationBiasEstimatableParameterSettings(
-            const observation_models::LinkEnds& linkEnds,
+            const observation_models::LinkDefinition& linkEnds,
             const observation_models::ObservableType observableType,
             const bool isBiasAdditive ):
         EstimatableParameterSettings(
-            linkEnds.begin( )->second.first,
+            linkEnds.linkEnds_.begin( )->second.bodyName_,
             isBiasAdditive ? constant_additive_observation_bias : constant_relative_observation_bias,
-            linkEnds.begin( )->second.second ), linkEnds_( linkEnds ), observableType_( observableType ){ }
+            linkEnds.linkEnds_.begin( )->second.stationName_ ), linkEnds_( linkEnds ), observableType_( observableType ){ }
 
     //! Destructor
     ~ConstantObservationBiasEstimatableParameterSettings( ){ }
 
     //! Observation link ends for which the bias is to be estimated.
-    observation_models::LinkEnds linkEnds_;
+    observation_models::LinkDefinition linkEnds_;
 
     //! Observable type for which the bias is to be estimated.
     observation_models::ObservableType observableType_;
@@ -208,19 +258,101 @@ public:
      * \param isBiasAdditive True if bias is absolute, false if it is relative
      */
     ArcWiseConstantObservationBiasEstimatableParameterSettings(
-            const observation_models::LinkEnds& linkEnds,
+            const observation_models::LinkDefinition& linkEnds,
             const observation_models::ObservableType observableType,
             const std::vector< double > arcStartTimes,
             const observation_models::LinkEndType linkEndForTime,
             const bool isBiasAdditive ):
         EstimatableParameterSettings(
-            linkEnds.begin( )->second.first,
+            linkEnds.linkEnds_.begin( )->second.bodyName_,
             isBiasAdditive ? arcwise_constant_additive_observation_bias : arcwise_constant_relative_observation_bias,
-            linkEnds.begin( )->second.second ), linkEnds_( linkEnds ), observableType_( observableType ),
+            linkEnds.linkEnds_.begin( )->second.stationName_ ), linkEnds_( linkEnds ), observableType_( observableType ),
         arcStartTimes_( arcStartTimes ), linkEndForTime_( linkEndForTime ){ }
 
     //! Destructor
     ~ArcWiseConstantObservationBiasEstimatableParameterSettings( ){ }
+
+    //! Observation link ends for which the bias is to be estimated.
+    observation_models::LinkDefinition linkEnds_;
+
+    //! Observable type for which the bias is to be estimated.
+    observation_models::ObservableType observableType_;
+
+    //! Start times for arcs in which biases are defined
+    std::vector< double > arcStartTimes_;
+
+    //! Link end index from which the 'current time' is determined
+    observation_models::LinkEndType linkEndForTime_;
+
+};
+
+//! Class to define settings for estimation of constant time drift biases
+class ConstantTimeDriftBiasEstimatableParameterSettings: public EstimatableParameterSettings
+{
+public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param linkEnds Observation link ends for which the bias is to be estimated.
+     * \param observableType Observable type for which the bias is to be estimated.
+     * \param linkEndForTime Link end index from which the 'current time' is determined
+     * \param referenceEpoch Reference epoch at which the time drift is initialised.
+     */
+    ConstantTimeDriftBiasEstimatableParameterSettings(
+            const observation_models::LinkEnds& linkEnds,
+            const observation_models::ObservableType observableType,
+            const observation_models::LinkEndType linkEndForTime,
+            const double referenceEpoch ):
+            EstimatableParameterSettings( linkEnds.begin( )->second.bodyName_, constant_time_drift_observation_bias,
+                                          linkEnds.begin( )->second.stationName_ ), linkEnds_( linkEnds ),
+            observableType_( observableType ), linkEndForTime_( linkEndForTime ), referenceEpoch_( referenceEpoch ){ }
+
+    //! Destructor
+    ~ConstantTimeDriftBiasEstimatableParameterSettings( ){ }
+
+    //! Observation link ends for which the bias is to be estimated.
+    observation_models::LinkEnds linkEnds_;
+
+    //! Observable type for which the bias is to be estimated.
+    observation_models::ObservableType observableType_;
+
+    //! Link end index from which the 'current time' is determined
+    observation_models::LinkEndType linkEndForTime_;
+
+    //! Reference epoch at which the time drift is initialised.
+    double referenceEpoch_;
+
+};
+
+
+//! Class to define settings for estimation of arc-wise time drift biases
+class ArcWiseTimeDriftBiasEstimatableParameterSettings: public EstimatableParameterSettings
+{
+public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param linkEnds Observation link ends for which the bias is to be estimated.
+     * \param observableType Observable type for which the bias is to be estimated.
+     * \param arcStartTimes Start times for arcs in which biases are defined
+     * \param linkEndForTime Link end index from which the 'current time' is determined
+     * \param referenceEpochs Reference epochs (per arc) at which the time drifts are initialised
+     */
+    ArcWiseTimeDriftBiasEstimatableParameterSettings(
+            const observation_models::LinkEnds& linkEnds,
+            const observation_models::ObservableType observableType,
+            const std::vector< double > arcStartTimes,
+            const observation_models::LinkEndType linkEndForTime,
+            const std::vector< double > referenceEpochs ):
+            EstimatableParameterSettings(
+                    linkEnds.begin( )->second.bodyName_, arc_wise_time_drift_observation_bias,
+                    linkEnds.begin( )->second.stationName_ ), linkEnds_( linkEnds ), observableType_( observableType ),
+            arcStartTimes_( arcStartTimes ), linkEndForTime_( linkEndForTime ), referenceEpochs_( referenceEpochs ){ }
+
+    //! Destructor
+    ~ArcWiseTimeDriftBiasEstimatableParameterSettings( ){ }
 
     //! Observation link ends for which the bias is to be estimated.
     observation_models::LinkEnds linkEnds_;
@@ -234,6 +366,83 @@ public:
     //! Link end index from which the 'current time' is determined
     observation_models::LinkEndType linkEndForTime_;
 
+    //! Reference epochs at which the time drifts are initialised.
+    std::vector< double > referenceEpochs_;
+
+};
+
+//! Class to define settings for estimation of constant time biases
+class ConstantTimeBiasEstimatableParameterSettings: public EstimatableParameterSettings
+{
+public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param linkEnds Observation link ends for which the bias is to be estimated.
+     * \param observableType Observable type for which the bias is to be estimated.
+     * \param linkEndForTime Link end index from which the 'current time' is determined
+     */
+    ConstantTimeBiasEstimatableParameterSettings(
+            const observation_models::LinkEnds& linkEnds,
+            const observation_models::ObservableType observableType,
+            const observation_models::LinkEndType linkEndForTime ):
+            EstimatableParameterSettings( linkEnds.begin( )->second.bodyName_, constant_time_observation_bias,
+                                          linkEnds.begin( )->second.stationName_ ), linkEnds_( linkEnds ),
+            observableType_( observableType ), linkEndForTime_( linkEndForTime ){ }
+
+    //! Destructor
+    ~ConstantTimeBiasEstimatableParameterSettings( ){ }
+
+    //! Observation link ends for which the bias is to be estimated.
+    observation_models::LinkEnds linkEnds_;
+
+    //! Observable type for which the bias is to be estimated.
+    observation_models::ObservableType observableType_;
+
+    //! Link end index from which the 'current time' is determined
+    observation_models::LinkEndType linkEndForTime_;
+};
+
+
+//! Class to define settings for estimation of arc-wise time biases
+class ArcWiseTimeBiasEstimatableParameterSettings: public EstimatableParameterSettings
+{
+public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param linkEnds Observation link ends for which the bias is to be estimated.
+     * \param observableType Observable type for which the bias is to be estimated.
+     * \param arcStartTimes Start times for arcs in which biases are defined
+     * \param linkEndForTime Link end index from which the 'current time' is determined
+     * \param referenceEpochs Reference epochs (per arc) at which the time drifts are initialised
+     */
+    ArcWiseTimeBiasEstimatableParameterSettings(
+            const observation_models::LinkEnds& linkEnds,
+            const observation_models::ObservableType observableType,
+            const std::vector< double > arcStartTimes,
+            const observation_models::LinkEndType linkEndForTime ):
+            EstimatableParameterSettings(
+                    linkEnds.begin( )->second.bodyName_, arc_wise_time_observation_bias,
+                    linkEnds.begin( )->second.stationName_ ), linkEnds_( linkEnds ), observableType_( observableType ),
+            arcStartTimes_( arcStartTimes ), linkEndForTime_( linkEndForTime ){ }
+
+    //! Destructor
+    ~ArcWiseTimeBiasEstimatableParameterSettings( ){ }
+
+    //! Observation link ends for which the bias is to be estimated.
+    observation_models::LinkEnds linkEnds_;
+
+    //! Observable type for which the bias is to be estimated.
+    observation_models::ObservableType observableType_;
+
+    //! Start times for arcs in which biases are defined
+    std::vector< double > arcStartTimes_;
+
+    //! Link end index from which the 'current time' is determined
+    observation_models::LinkEndType linkEndForTime_;
 };
 
 //! Class to define settings for estimating an initial translational state.
@@ -298,7 +507,7 @@ public:
     //! Constructor, sets initial value of translational state and a single central body.
     /*!
      * Constructor, sets initial value of translational state and a single central body
-     * \param associatedBody Body for which initial state is to be estimated.
+     * \param associatedBody Bo9dy for which initial state is to be estimated.
      * \param initialStateValue Current value of initial arc states (concatenated in same order as arcs)
      * \param arcStartTimes Start times for separate arcs
      * \param centralBody Body w.r.t. which the initial state is to be estimated.
@@ -452,11 +661,11 @@ public:
 
     InitialMassEstimatableParameterSettings(
             const std::string& associatedBody,
-            const double initialStateValue ):
+            const InitialStateParameterType initialStateValue ):
         EstimatableParameterSettings( associatedBody, initial_mass_state ),
         initialStateValue_( initialStateValue ){ }
 
-    double initialStateValue_;
+    InitialStateParameterType initialStateValue_;
 };
 
 
@@ -690,6 +899,57 @@ public:
 
 };
 
+inline std::map< std::pair< int, int >, std::vector< std::pair< int, int > > > getFullModeCoupledLoveNumbers(
+    const unsigned int maximumForcingDegree, const unsigned int maximumResponseDegree )
+{
+    std::map< std::pair< int, int >, std::vector< std::pair< int, int > > > loveNumberIndices;
+
+    for( unsigned int i = 2; i < maximumForcingDegree; i++ )
+    {
+        for( unsigned int j = 0; j <= i; j++ )
+        {
+            for( unsigned int k = 2; k < maximumResponseDegree; k++ )
+            {
+                for( unsigned int l = 0; l <= k; k++ )
+                {
+                    loveNumberIndices[{i,j}].push_back({k,l});
+                }
+            }
+        }
+    }
+    return loveNumberIndices;
+}
+
+class ModeCoupledTidalLoveNumberEstimatableParameterSettings: public EstimatableParameterSettings
+{
+public:
+
+    //! Constructor for a single deforming body
+    /*!
+     * Constructor for a single deforming body
+     * \param associatedBody Deformed body
+     * \param degree Degree of Love number that is to be estimated
+     * \param deformingBody Name of body causing tidal deformation
+     * \param useComplexValue True if the complex Love number is estimated, false if only the real part is considered
+     */
+    ModeCoupledTidalLoveNumberEstimatableParameterSettings( const std::string& associatedBody,
+                                                            const std::map< std::pair< int, int >, std::vector< std::pair< int, int > > > loveNumberIndices,
+                                                            const std::vector< std::string >& deformingBodies,
+                                                            const bool useComplexValue = 0 ):
+        EstimatableParameterSettings( associatedBody, mode_coupled_tidal_love_numbers ),
+        loveNumberIndices_( loveNumberIndices ),
+        deformingBodies_( deformingBodies ), useComplexValue_( useComplexValue ){ }
+
+    std::map< std::pair< int, int >, std::vector< std::pair< int, int > > > loveNumberIndices_;
+
+    //! Names of bodies causing tidal deformation
+    std::vector< std::string > deformingBodies_;
+
+    bool useComplexValue_;
+
+};
+
+
 //! Class to define settings for estimating the tidal time lag of a direct tidal acceleration model
 /*!
  *  Class to define settings for estimating the tidal time lag of a direct tidal acceleration model, it links to one or more
@@ -731,6 +991,123 @@ public:
 
     //! Names of bodies causing tidal deformation
     std::vector< std::string > deformingBodies_;
+
+};
+
+//! Class to define settings for estimating the inverse of the tidal quality factor of a direct tidal acceleration model
+/*!
+ *  Class to define settings for estimating the inverse of the tidal quality factor of a direct tidal acceleration model, it links to one or more
+ *  objects of type DirectTidalDissipationAcceleration. The user can provide a list of bodies cause deformation, and the
+ *  associated DirectTidalDissipationAcceleration objects will be used. If the list of bodies causing deformation is left empty,
+ *  all DirectTidalDissipationAcceleration objects for the given body undergoing deformation will be used
+ */
+class InverseTidalQualityFactorEstimatableParameterSettings: public EstimatableParameterSettings
+{
+public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param associatedBody Body being deformed
+     * \param deformingBody Body causing deformed
+     */
+    InverseTidalQualityFactorEstimatableParameterSettings( const std::string& associatedBody,
+                                                           const std::string& deformingBody ):
+            EstimatableParameterSettings( associatedBody, inverse_tidal_quality_factor )
+    {
+        if( deformingBody != "" )
+        {
+            deformingBodies_.push_back( deformingBody );
+        }
+    }
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param associatedBody Body being deformed
+     * \param deformingBodies Names of bodies causing tidal deformation
+     */
+    InverseTidalQualityFactorEstimatableParameterSettings( const std::string& associatedBody,
+                                                           const std::vector< std::string >& deformingBodies ):
+            EstimatableParameterSettings( associatedBody, inverse_tidal_quality_factor ),
+            deformingBodies_( deformingBodies ){ }
+
+
+    //! Names of bodies causing tidal deformation
+    std::vector< std::string > deformingBodies_;
+
+};
+
+
+class PolynomialGravityFieldVariationEstimatableParameterSettings: public EstimatableParameterSettings
+{
+public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param associatedBody Body being deformed
+     * \param deformingBody Body causing deformed
+     */
+    PolynomialGravityFieldVariationEstimatableParameterSettings(
+        const std::string &associatedBody,
+        const std::map<int, std::vector<std::pair<int, int> > >& cosineBlockIndicesPerPower,
+        const std::map<int, std::vector<std::pair<int, int> > >& sineBlockIndicesPerPower ) :
+        EstimatableParameterSettings( associatedBody, polynomial_gravity_field_variation_amplitudes ),
+        cosineBlockIndicesPerPower_( cosineBlockIndicesPerPower ),
+        sineBlockIndicesPerPower_( sineBlockIndicesPerPower ){ }
+
+    std::map< int, std::vector< std::pair< int, int > > > cosineBlockIndicesPerPower_;
+    std::map< int, std::vector< std::pair< int, int > > > sineBlockIndicesPerPower_;
+
+};
+
+class PeriodicGravityFieldVariationEstimatableParameterSettings: public EstimatableParameterSettings
+{
+public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param associatedBody Body being deformed
+     * \param deformingBody Body causing deformed
+     */
+    PeriodicGravityFieldVariationEstimatableParameterSettings(
+        const std::string &associatedBody,
+        const std::map<int, std::vector<std::pair<int, int> > >& cosineBlockIndicesPerPower,
+        const std::map<int, std::vector<std::pair<int, int> > >& sineBlockIndicesPerPower ) :
+        EstimatableParameterSettings( associatedBody, periodic_gravity_field_variation_amplitudes ),
+        cosineBlockIndicesPerPower_( cosineBlockIndicesPerPower ),
+        sineBlockIndicesPerPower_( sineBlockIndicesPerPower ){ }
+
+    std::map< int, std::vector< std::pair< int, int > > > cosineBlockIndicesPerPower_;
+    std::map< int, std::vector< std::pair< int, int > > > sineBlockIndicesPerPower_;
+
+};
+
+
+class CustomEstimatableParameterSettings: public EstimatableParameterSettings
+{
+public:
+
+    CustomEstimatableParameterSettings(
+        const std::string& customId,
+        const int parameterSize,
+        const std::function< Eigen::VectorXd( ) > getParameterFunction,
+        const std::function< void( const Eigen::VectorXd& ) > setParameterFunction ):
+        EstimatableParameterSettings( "", custom_estimated_parameter, customId ),
+        parameterSize_( parameterSize ),
+        getParameterFunction_( getParameterFunction ),
+        setParameterFunction_( setParameterFunction )
+    {
+
+    }
+
+    int parameterSize_;
+
+    std::function< Eigen::VectorXd( ) > getParameterFunction_;
+
+    std::function< void( const Eigen::VectorXd& ) > setParameterFunction_;
 
 };
 
@@ -820,7 +1197,7 @@ inline std::shared_ptr< EstimatableParameterSettings > rotationPolePosition(
 }
 
 inline std::shared_ptr< EstimatableParameterSettings > observationBias(
-        const observation_models::LinkEnds& linkEnds,
+        const observation_models::LinkDefinition& linkEnds,
         const observation_models::ObservableType observableType )
 {
     return std::make_shared< ConstantObservationBiasEstimatableParameterSettings >(
@@ -828,7 +1205,7 @@ inline std::shared_ptr< EstimatableParameterSettings > observationBias(
 }
 
 inline std::shared_ptr< EstimatableParameterSettings > relativeObservationBias(
-        const observation_models::LinkEnds& linkEnds,
+        const observation_models::LinkDefinition& linkEnds,
         const observation_models::ObservableType observableType )
 {
     return std::make_shared< ConstantObservationBiasEstimatableParameterSettings >(
@@ -836,7 +1213,7 @@ inline std::shared_ptr< EstimatableParameterSettings > relativeObservationBias(
 }
 
 inline std::shared_ptr< EstimatableParameterSettings > arcwiseObservationBias(
-        const observation_models::LinkEnds& linkEnds,
+        const observation_models::LinkDefinition& linkEnds,
         const observation_models::ObservableType observableType,
         const std::vector< double > arcStartTimes,
         const observation_models::LinkEndType linkEndForTime = observation_models::receiver )
@@ -846,7 +1223,7 @@ inline std::shared_ptr< EstimatableParameterSettings > arcwiseObservationBias(
 }
 
 inline std::shared_ptr< EstimatableParameterSettings > arcwiseRelativeObservationBias(
-        const observation_models::LinkEnds& linkEnds,
+        const observation_models::LinkDefinition& linkEnds,
         const observation_models::ObservableType observableType,
         const std::vector< double > arcStartTimes,
         const observation_models::LinkEndType linkEndForTime = observation_models::receiver )
@@ -855,6 +1232,45 @@ inline std::shared_ptr< EstimatableParameterSettings > arcwiseRelativeObservatio
                 linkEnds, observableType, arcStartTimes, linkEndForTime, false );
 }
 
+inline std::shared_ptr< EstimatableParameterSettings > timeDriftObservationBias(
+        const observation_models::LinkEnds& linkEnds,
+        const observation_models::ObservableType observableType,
+        const double referenceEpoch,
+        const observation_models::LinkEndType linkEndForTime = observation_models::receiver )
+{
+    return std::make_shared< ConstantTimeDriftBiasEstimatableParameterSettings >(
+            linkEnds, observableType, linkEndForTime, referenceEpoch );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > arcwiseTimeDriftObservationBias(
+        const observation_models::LinkEnds& linkEnds,
+        const observation_models::ObservableType observableType,
+        const std::vector< double > arcStartTimes,
+        const std::vector< double > referenceEpochs,
+        const observation_models::LinkEndType linkEndForTime = observation_models::receiver )
+{
+    return std::make_shared< ArcWiseTimeDriftBiasEstimatableParameterSettings >(
+            linkEnds, observableType, arcStartTimes, linkEndForTime, referenceEpochs );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > timeObservationBias(
+        const observation_models::LinkEnds& linkEnds,
+        const observation_models::ObservableType observableType,
+        const observation_models::LinkEndType linkEndForTime = observation_models::receiver )
+{
+    return std::make_shared< ConstantTimeBiasEstimatableParameterSettings >(
+            linkEnds, observableType, linkEndForTime );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > arcwiseTimeObservationBias(
+        const observation_models::LinkEnds& linkEnds,
+        const observation_models::ObservableType observableType,
+        const std::vector< double > arcStartTimes,
+        const observation_models::LinkEndType linkEndForTime = observation_models::receiver )
+{
+    return std::make_shared< ArcWiseTimeBiasEstimatableParameterSettings >(
+            linkEnds, observableType, arcStartTimes, linkEndForTime );
+}
 
 inline std::shared_ptr< EstimatableParameterSettings > constantEmpiricalAccelerationMagnitudes(
         const std::string associatedBody,
@@ -871,6 +1287,35 @@ inline std::shared_ptr< EstimatableParameterSettings > constantEmpiricalAccelera
 
     return std::make_shared< EmpiricalAccelerationEstimatableParameterSettings >(
                 associatedBody, centralBody, componentsToEstimate );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > empiricalAccelerationMagnitudesFull(
+    const std::string associatedBody,
+    const std::string centralBody )
+{
+    std::map< basic_astrodynamics::EmpiricalAccelerationComponents,
+        std::vector< basic_astrodynamics::EmpiricalAccelerationFunctionalShapes > > componentsToEstimate;
+    componentsToEstimate[ basic_astrodynamics::radial_empirical_acceleration_component ].push_back(
+        basic_astrodynamics::constant_empirical );
+    componentsToEstimate[ basic_astrodynamics::radial_empirical_acceleration_component ].push_back(
+        basic_astrodynamics::sine_empirical );
+    componentsToEstimate[ basic_astrodynamics::radial_empirical_acceleration_component ].push_back(
+        basic_astrodynamics::cosine_empirical );
+    componentsToEstimate[ basic_astrodynamics::along_track_empirical_acceleration_component ].push_back(
+        basic_astrodynamics::constant_empirical );
+    componentsToEstimate[ basic_astrodynamics::along_track_empirical_acceleration_component ].push_back(
+        basic_astrodynamics::sine_empirical );
+    componentsToEstimate[ basic_astrodynamics::along_track_empirical_acceleration_component ].push_back(
+        basic_astrodynamics::cosine_empirical );
+    componentsToEstimate[ basic_astrodynamics::across_track_empirical_acceleration_component ].push_back(
+        basic_astrodynamics::constant_empirical );
+    componentsToEstimate[ basic_astrodynamics::across_track_empirical_acceleration_component ].push_back(
+        basic_astrodynamics::sine_empirical );
+    componentsToEstimate[ basic_astrodynamics::across_track_empirical_acceleration_component ].push_back(
+        basic_astrodynamics::cosine_empirical );
+
+    return std::make_shared< EmpiricalAccelerationEstimatableParameterSettings >(
+        associatedBody, centralBody, componentsToEstimate );
 }
 
 
@@ -920,9 +1365,7 @@ inline std::shared_ptr< EstimatableParameterSettings > ppnParameterGamma( )
     return std::make_shared< EstimatableParameterSettings >( "", ppn_parameter_gamma );
 }
 
-inline std::shared_ptr< EstimatableParameterSettings > ppnParameterBeta(
-        const std::string& body,
-        const std::string& groundStationName )
+inline std::shared_ptr< EstimatableParameterSettings > ppnParameterBeta( )
 {
     return std::make_shared< EstimatableParameterSettings >( "", ppn_parameter_beta );
 }
@@ -934,6 +1377,14 @@ inline std::shared_ptr< EstimatableParameterSettings > groundStationPosition(
     return std::make_shared< EstimatableParameterSettings >( body, ground_station_position, groundStationName );
 }
 
+inline std::shared_ptr< EstimatableParameterSettings > referencePointPosition(
+    const std::string& body,
+    const std::string& groundStationName )
+{
+    return std::make_shared< EstimatableParameterSettings >( body, reference_point_position, groundStationName );
+}
+
+
 inline std::shared_ptr< EstimatableParameterSettings > directTidalDissipationLagTime(
         const std::string& body,
         const std::vector< std::string >& deformingBodies )
@@ -944,6 +1395,22 @@ inline std::shared_ptr< EstimatableParameterSettings > directTidalDissipationLag
 
 
 inline std::shared_ptr< EstimatableParameterSettings > directTidalDissipationLagTime(
+        const std::string& body,
+        const std::string& deformingBody)
+{
+    return directTidalDissipationLagTime( body, std::vector< std::string >( { deformingBody } ) );
+}
+
+
+inline std::shared_ptr< EstimatableParameterSettings > inverseTidalQualityFactor(
+        const std::string& body,
+        const std::vector< std::string >& deformingBodies )
+{
+    return std::make_shared< InverseTidalQualityFactorEstimatableParameterSettings >(
+            body, deformingBodies);
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > inverseTidalQualityFactor(
         const std::string& body,
         const std::string& deformingBody)
 {
@@ -1023,6 +1490,121 @@ inline std::shared_ptr< EstimatableParameterSettings > orderVaryingKLoveNumber(
                 associatedBody, degree, orders, std::vector< std::string >( ), useComplexValue );
 }
 
+inline std::shared_ptr< EstimatableParameterSettings > modeCoupledTidalLoveNumberEstimatableParameterSettings(
+    const std::string& associatedBody,
+    const std::map< std::pair< int, int >, std::vector< std::pair< int, int > > > loveNumberIndices,
+    const std::vector< std::string >& deformingBodies )
+{
+    return std::make_shared< ModeCoupledTidalLoveNumberEstimatableParameterSettings >(
+        associatedBody, loveNumberIndices, deformingBodies, 0 );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > coreFactor(
+        const std::string& associatedBody )
+{
+    return std::make_shared< EstimatableParameterSettings >(
+                associatedBody, core_factor );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > freeCoreNutationRate(
+        const std::string& associatedBody )
+{
+    return std::make_shared< EstimatableParameterSettings >(
+                associatedBody, free_core_nutation_rate );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > periodicSpinVariations(
+        const std::string& associatedBody )
+{
+    return std::make_shared< EstimatableParameterSettings >(
+                associatedBody, periodic_spin_variation );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > polarMotionAmplitudes(
+        const std::string& associatedBody )
+{
+    return std::make_shared< EstimatableParameterSettings >(
+                associatedBody, polar_motion_amplitude );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > quasiImpulsiveShots(
+        const std::string& associatedBody )
+{
+    return std::make_shared< EstimatableParameterSettings >(
+                associatedBody, desaturation_delta_v_values );
+}
+
+
+inline std::shared_ptr< EstimatableParameterSettings > scaledLongitudeLibrationAmplitude( const std::string bodyName )
+{
+    return std::make_shared< EstimatableParameterSettings >( bodyName, scaled_longitude_libration_amplitude );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > yarkovskyParameter( const std::string bodyName, const std::string centralBodyName )
+{
+    return std::make_shared< EstimatableParameterSettings >( bodyName, yarkovsky_parameter, centralBodyName );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > radiationPressureTargetDirectionScaling(
+    const std::string targetName, const std::string sourceName )
+{
+    return std::make_shared< EstimatableParameterSettings >( targetName, source_direction_radiation_pressure_scaling_factor, sourceName );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > radiationPressureTargetPerpendicularDirectionScaling(
+    const std::string targetName, const std::string sourceName )
+{
+    return std::make_shared< EstimatableParameterSettings >( targetName, source_perpendicular_direction_radiation_pressure_scaling_factor, sourceName );
+}
+
+
+
+inline std::shared_ptr< EstimatableParameterSettings > polynomialGravityFieldVariationParameter(
+    const std::string bodyName,
+    const std::map<int, std::vector<std::pair<int, int> > >& cosineBlockIndicesPerPower,
+    const std::map<int, std::vector<std::pair<int, int> > >& sineBlockIndicesPerPower )
+{
+    return std::make_shared< PolynomialGravityFieldVariationEstimatableParameterSettings >( bodyName, cosineBlockIndicesPerPower, sineBlockIndicesPerPower );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > polynomialSinglePowerGravityFieldVariationParameter(
+    const std::string bodyName,
+    const int power,
+    const std::vector<std::pair<int, int> >& cosineBlockIndices,
+    const std::vector<std::pair<int, int> >& sineBlockIndices )
+{
+    return std::make_shared< PolynomialGravityFieldVariationEstimatableParameterSettings >(
+        bodyName,
+        std::map<int, std::vector<std::pair<int, int> > >( { { power, cosineBlockIndices } } ),
+        std::map<int, std::vector<std::pair<int, int> > >( { { power, sineBlockIndices } } ) );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > polynomialSinglePowerFullBlockGravityFieldVariationParameter(
+    const std::string bodyName,
+    const int power,
+    const int minimumDegree,
+    const int minimumOrder,
+    const int maximumDegree,
+    const int maximumOrder )
+{
+
+    std::vector< std::pair< int, int > > blockIndices = getSphericalHarmonicBlockIndices( minimumDegree, minimumOrder, maximumDegree, maximumOrder );
+
+    return std::make_shared< PolynomialGravityFieldVariationEstimatableParameterSettings >(
+        bodyName,
+        std::map<int, std::vector<std::pair<int, int> > >( { { power, blockIndices } } ),
+        std::map<int, std::vector<std::pair<int, int> > >( { { power, blockIndices } } ) );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > customParameterSettings(
+    const std::string& customId,
+    const int parameterSize,
+    const std::function< Eigen::VectorXd( ) > getParameterFunction,
+    const std::function< void( const Eigen::VectorXd& ) > setParameterFunction )
+{
+    return std::make_shared<CustomEstimatableParameterSettings>(
+        customId, parameterSize, getParameterFunction, setParameterFunction );
+}
 
 } // namespace estimatable_parameters
 

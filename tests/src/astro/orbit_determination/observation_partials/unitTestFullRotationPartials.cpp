@@ -13,7 +13,7 @@
 
 #include <limits>
 #include <boost/test/unit_test.hpp>
-#include <boost/make_shared.hpp>
+
 #include <boost/lambda/lambda.hpp>
 
 #include "tudat/interface/spice/spiceInterface.h"
@@ -52,7 +52,7 @@ BOOST_AUTO_TEST_CASE( testPlanetaryRotationModelEphemerisPartials )
     bodies.createEmptyBody( "Mars" );
 
     std::shared_ptr< RotationModelSettings > defaultMarsRotationSettings =
-            getHighAccuracyMarsRotationModel( initialTime, finalTime );
+            getHighAccuracyMarsRotationModel( );
 
     std::shared_ptr< RotationalEphemeris > marsRotationModel =
             createRotationModel( defaultMarsRotationSettings, "Mars" );

@@ -14,11 +14,12 @@
 #include <limits>
 
 #include <boost/test/unit_test.hpp>
-#include <boost/make_shared.hpp>
+
 
 #include <Eigen/Core>
 
 #include "tudat/astro/basic_astro/physicalConstants.h"
+#include "tudat/astro/basic_astro/celestialBodyConstants.h"
 #include "tudat/astro/basic_astro/unitConversions.h"
 #include "tudat/astro/ephemerides/approximatePlanetPositions.h"
 #include "tudat/astro/ephemerides/tabulatedEphemeris.h"
@@ -194,10 +195,14 @@ BOOST_AUTO_TEST_CASE( test_shGravityModelSetup )
     Eigen::Vector6d dummyEarthState =
             ( Eigen::Vector6d ( ) << 1.1E11, 0.5E11, 0.01E11, 0.0, 0.0, 0.0
               ).finished( );
+    Eigen::Vector7d unitRotationalState = Eigen::Vector7d::Zero( );
+    unitRotationalState.segment( 0, 4 ) = linear_algebra::convertQuaternionToVectorFormat(
+                Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ) );
     bodies.at( "Earth" )->setState( dummyEarthState );
     bodies.at( "Vehicle" )->setState(
                 ( Eigen::Vector6d ( ) << 7.0e6, 8.0e6, 9.0e6, 0.0, 0.0, 0.0
                   ).finished( ) + dummyEarthState );
+    bodies.at( "Earth" )->setCurrentRotationalStateToLocalFrame( unitRotationalState );
 
     // Define Earth gravity field.
     double gravitationalParameter = 3.986004418e14;
@@ -289,6 +294,126 @@ BOOST_AUTO_TEST_CASE( test_shGravityModelSetup )
 
 }
 
+//! Test set up of polyhedron gravitational accelerations.
+BOOST_AUTO_TEST_CASE( test_polyhedronGravityModelSetup )
+{
+
+    // Create system of bodies
+    SystemOfBodies bodies;
+    bodies.createEmptyBody( "Earth" );
+    bodies.createEmptyBody( "Vehicle" );
+
+    // Set constant state for Earth and Vehicle
+    Eigen::Vector6d dummyEarthState =
+            ( Eigen::Vector6d ( ) << 1.1E11, 0.5E11, 0.01E11, 0.0, 0.0, 0.0
+              ).finished( );
+    Eigen::Vector7d unitRotationalState = Eigen::Vector7d::Zero( );
+    unitRotationalState.segment( 0, 4 ) = linear_algebra::convertQuaternionToVectorFormat(
+                Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ) );
+    bodies.at( "Earth" )->setState( dummyEarthState );
+    bodies.at( "Vehicle" )->setState(
+                ( Eigen::Vector6d ( ) << 7.0e6, 8.0e6, 9.0e6, 0.0, 0.0, 0.0
+                  ).finished( ) + dummyEarthState );
+    bodies.at( "Earth" )->setCurrentRotationalStateToLocalFrame( unitRotationalState );
+
+    // Define Earth gravity field.
+    const double gravitationalParameter = 3.986004418e14;
+
+    // Define cuboid polyhedron dimensions
+    const double w = 6378137.0 / 2; // width
+    const double h = 6378137.0 / 2; // height
+    const double l = 6378137.0 / 2; // length
+    const double volume = w * h * l;
+    // Define cuboid
+    Eigen::MatrixXd verticesCoordinates(8,3);
+    verticesCoordinates <<
+        0.0, 0.0, 0.0,
+        l, 0.0, 0.0,
+        0.0, w, 0.0,
+        l, w, 0.0,
+        0.0, 0.0, h,
+        l, 0.0, h,
+        0.0, w, h,
+        l, w, h;
+    Eigen::MatrixXi verticesDefiningEachFacet(12,3);
+    verticesDefiningEachFacet <<
+        2, 1, 0,
+        1, 2, 3,
+        4, 2, 0,
+        2, 4, 6,
+        1, 4, 0,
+        4, 1, 5,
+        6, 5, 7,
+        5, 6, 4,
+        3, 6, 7,
+        6, 3, 2,
+        5, 3, 7,
+        3, 5, 1;
+
+    bodies.at( "Earth" )->setGravityFieldModel(
+            std::make_shared< gravitation::PolyhedronGravityField >(
+                    gravitationalParameter, verticesCoordinates,
+                    verticesDefiningEachFacet, "IAU_Earth" ) );
+    bodies.at( "Earth" )->setRotationalEphemeris(
+            std::make_shared< ephemerides::SpiceRotationalEphemeris >( "ECLIPJ2000", "IAU_Earth" ) );
+
+
+    // Define settings for acceleration model (spherical harmonic due to Earth up to degree and
+    // order 5.
+    SelectedAccelerationMap accelerationSettingsMap;
+    accelerationSettingsMap[ "Vehicle" ][ "Earth" ].push_back( polyhedronAcceleration() );
+
+    // Set accelerations to be calculated w.r.t. the Earth.
+    std::map< std::string, std::string > centralBodies;
+    centralBodies[ "Vehicle" ] = "Earth";
+
+    // Create and retrieve acceleration.
+    AccelerationMap accelerationsMap = createAccelerationModelsMap( bodies, accelerationSettingsMap, centralBodies );
+    std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > directAcceleration =
+            accelerationsMap[ "Vehicle" ][ "Earth" ][ 0 ];
+
+    // Manually create acceleration model.
+    gravitation::PolyhedronGravityField manualGravityField = gravitation::PolyhedronGravityField(
+            gravitationalParameter, verticesCoordinates, verticesDefiningEachFacet);
+
+    std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > manualAcceleration =
+            std::make_shared< gravitation::PolyhedronGravitationalAccelerationModel >(
+                    std::bind( &Body::getPositionByReference, bodies.at( "Vehicle" ), std::placeholders::_1 ),
+                    gravitationalParameter, volume, verticesCoordinates,
+                    verticesDefiningEachFacet, manualGravityField.getVerticesDefiningEachEdge(),
+                    manualGravityField.getFacetDyads(), manualGravityField.getEdgeDyads(),
+                    std::bind( &Body::getPositionByReference, bodies.at( "Earth" ), std::placeholders::_1 ));
+
+    // Test equivalence of two acceleration models.
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                ( basic_astrodynamics::updateAndGetAcceleration( manualAcceleration ) ),
+                ( basic_astrodynamics::updateAndGetAcceleration( directAcceleration ) ),
+                std::numeric_limits< double >::epsilon( ) );
+
+    // Set (unrealistically) a gravity field model on the Vehicle, to test its influence on acceleration.
+    bodies.at( "Vehicle" )->setGravityFieldModel(
+            std::make_shared< gravitation::GravityFieldModel >( 0.1 * gravitationalParameter ) );
+
+    // Recreate and retrieve acceleration.
+    accelerationsMap = createAccelerationModelsMap( bodies, accelerationSettingsMap, centralBodies );
+    directAcceleration = accelerationsMap[ "Vehicle" ][ "Earth" ][ 0 ];
+
+    // Manually create acceleration.
+    manualAcceleration = std::make_shared< gravitation::PolyhedronGravitationalAccelerationModel >(
+            std::bind( &Body::getPositionByReference, bodies.at( "Vehicle" ), std::placeholders::_1 ),
+            gravitationalParameter * 1.1, volume, verticesCoordinates,
+            verticesDefiningEachFacet, manualGravityField.getVerticesDefiningEachEdge(),
+            manualGravityField.getFacetDyads(), manualGravityField.getEdgeDyads(),
+            std::bind( &Body::getPositionByReference, bodies.at( "Earth" ), std::placeholders::_1 ) );
+
+    // Test equivalence of two acceleration models.
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                ( basic_astrodynamics::updateAndGetAcceleration( manualAcceleration ) ),
+                ( basic_astrodynamics::updateAndGetAcceleration( directAcceleration ) ),
+                std::numeric_limits< double >::epsilon( ) );
+
+}
+
 //! Test radiation pressure acceleration
 BOOST_AUTO_TEST_CASE( test_radiationPressureAcceleration )
 {
@@ -301,14 +426,16 @@ BOOST_AUTO_TEST_CASE( test_radiationPressureAcceleration )
     // Get settings for celestial bodies
     BodyListSettings bodySettings;
     bodySettings.addSettings( getDefaultSingleBodySettings( "Earth", 0.0, 10.0 * 86400.0 ), "Earth" );
-    bodySettings.addSettings( getDefaultSingleBodySettings( "Sun", 0.0,10.0 * 86400.0 ), "Sun" );
+    bodySettings.addSettings( getDefaultSingleBodySettings( "Sun", 0.0, 10.0 * 86400.0 ), "Sun" );
 
     // Get settings for vehicle
     double area = 2.34;
     double coefficient = 1.2;
+    double bodyMass = 500.0;
     bodySettings.addSettings( "Vehicle" );
-    bodySettings.at( "Vehicle" )->radiationPressureSettings[ "Sun" ] =
-            std::make_shared< CannonBallRadiationPressureInterfaceSettings >( "Sun", area, coefficient );
+    bodySettings.at("Vehicle")->constantMass = bodyMass;
+    bodySettings.at( "Vehicle" )->radiationPressureTargetModelSettings =
+            std::make_shared<CannonballRadiationPressureTargetModelSettings>(area, coefficient);
     bodySettings.at( "Vehicle" )->ephemerisSettings =
             std::make_shared< KeplerEphemerisSettings >(
                 ( Eigen::Vector6d( ) << 12000.0E3, 0.13, 0.3, 0.0, 0.0, 0.0 ).finished( ),
@@ -320,8 +447,7 @@ BOOST_AUTO_TEST_CASE( test_radiationPressureAcceleration )
 
     // Define settings for accelerations
     SelectedAccelerationMap accelerationSettingsMap;
-    accelerationSettingsMap[ "Vehicle" ][ "Sun" ].push_back(
-                std::make_shared< AccelerationSettings >( cannon_ball_radiation_pressure ) );
+    accelerationSettingsMap[ "Vehicle" ][ "Sun" ].push_back(radiationPressureAcceleration());
 
     // Define origin of integration
     std::map< std::string, std::string > centralBodies;
@@ -330,40 +456,42 @@ BOOST_AUTO_TEST_CASE( test_radiationPressureAcceleration )
     // Create accelerations
     AccelerationMap accelerationsMap = createAccelerationModelsMap(
                 bodies, accelerationSettingsMap, centralBodies );
-    std::shared_ptr< AccelerationModel3d > radiationPressureAcceleration = accelerationsMap[ "Vehicle" ][ "Sun" ][ 0 ];
+    auto radiationPressureAcceleration =
+            std::dynamic_pointer_cast<electromagnetism::IsotropicPointSourceRadiationPressureAcceleration>(
+                    accelerationsMap[ "Vehicle" ][ "Sun" ][ 0 ]);
 
     // Set (arbitrary) test time.
     double testTime = 5.0 * 86400.0;
-
-    // Set vehicle mass
-    double bodyMass = 500.0;
-    bodies.at( "Vehicle" )->setBodyMassFunction( [ & ]( const double ){ return bodyMass; } );
-    bodies.at( "Vehicle" )->updateMass( testTime );
 
     // Update environment to current time.
     bodies.at( "Sun" )->setStateFromEphemeris< double, double >( testTime );
     bodies.at( "Earth" )->setStateFromEphemeris< double, double >( testTime );
     bodies.at( "Vehicle" )->setStateFromEphemeris< double, double >( testTime );
-    bodies.at( "Vehicle" )->getRadiationPressureInterfaces( ).at( "Sun" )->updateInterface( testTime );
-
+    bodies.at("Sun")->getRadiationSourceModel()->updateMembers(testTime);
+    bodies.at( "Vehicle" )->getRadiationPressureTargetModel()->updateMembers(testTime);
+    radiationPressureAcceleration->updateMembers(testTime);
 
     // Get acceleration
-    Eigen::Vector3d calculatedAcceleration = updateAndGetAcceleration(
-                radiationPressureAcceleration );
+    Eigen::Vector3d calculatedAcceleration = radiationPressureAcceleration->getAcceleration();
+    double calculatedReceivedIrradiance = radiationPressureAcceleration->getReceivedIrradiance();
+    double calculatedReceivedFraction = radiationPressureAcceleration->getSourceToTargetReceivedFraction();
 
     // Manually calculate acceleration
-    Eigen::Vector3d expectedForceDirection =
-            ( bodies.at( "Vehicle" )->getState( ) -  bodies.at( "Sun" )->getState( ) ).segment( 0, 3 );
-    double sourceDistance = expectedForceDirection.norm( );
-    double expectedForceMagnitude = electromagnetism::calculateRadiationPressure(
-                defaultRadiatedPowerValues.at( "Sun" ), sourceDistance ) * area * coefficient;
-    Eigen::Vector3d expectedAcceleration = expectedForceDirection.normalized( ) * expectedForceMagnitude / bodyMass;
+    Eigen::Vector3d sourceTargetRelativePosition =
+            ( bodies.at( "Vehicle" )->getState() -  bodies.at( "Sun" )->getState() ).segment( 0, 3 );
+    auto sourceDistance = sourceTargetRelativePosition.norm();
+    auto irradiance =
+                celestial_body_constants::SUN_LUMINOSITY / (4 * mathematical_constants::PI * sourceDistance * sourceDistance);
+    auto radiationPressure = irradiance / physical_constants::SPEED_OF_LIGHT;
+    auto expectedForceMagnitude = radiationPressure * area * coefficient;
+    auto expectedForceDirection = sourceTargetRelativePosition.normalized();
+    Eigen::Vector3d expectedAcceleration = expectedForceDirection * expectedForceMagnitude / bodyMass;
 
     // Compare results
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                 expectedAcceleration, calculatedAcceleration, ( 2.0 * std::numeric_limits< double >::epsilon( ) ) );
-
-
+    BOOST_CHECK_CLOSE(irradiance, calculatedReceivedIrradiance, 1e-15);
+    BOOST_CHECK_CLOSE(1.0, calculatedReceivedFraction, 1e-15);
 }
 
 //! Test setup of aerodynamic accelerations (constant coefficients)
@@ -410,12 +538,26 @@ BOOST_AUTO_TEST_CASE( test_aerodynamicAccelerationModelSetup )
 
         bodySettings.at( "Vehicle" )->aerodynamicCoefficientSettings =
                 std::make_shared< ConstantAerodynamicCoefficientSettings >(
-                    1.0, referenceArea, 1.0, Eigen::Vector3d::Zero( ), aerodynamicCoefficients, Eigen::Vector3d::Zero( ),
-                    areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection );
+                    1.0, referenceArea, Eigen::Vector3d::Zero( ), aerodynamicCoefficients, Eigen::Vector3d::Zero( ),
+                    getAerodynamicCoefficientFrame( areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection ),
+                    getAerodynamicCoefficientFrame( areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection ) );
 
         // Create body objects.
         SystemOfBodies bodies = createSystemOfBodies( bodySettings );
         
+        double angleOfAttack = 1.232;
+        double angleOfSideslip = -0.00322;
+        double bankAngle = 2.323432;
+
+        std::shared_ptr< ephemerides::AerodynamicAngleRotationalEphemeris > vehicleRotationModel =
+                createAerodynamicAngleBasedRotationModel(
+                                "Vehicle", "Earth", bodies,
+                                "ECLIPJ2000", "VehicleFixed" );
+        vehicleRotationModel->setAerodynamicAngleFunction(
+                    [=]( const double ){ return ( Eigen::Vector3d( ) << angleOfAttack, angleOfSideslip, bankAngle ).finished( ); } );
+        bodies.at( "Vehicle" )->setRotationalEphemeris( vehicleRotationModel );
+
+
 
         // Define settings for accelerations
         SelectedAccelerationMap accelerationSettingsMap;
@@ -437,16 +579,6 @@ BOOST_AUTO_TEST_CASE( test_aerodynamicAccelerationModelSetup )
         double testLatitude = -0.385027359562548;
         double testLongitude = -1.849449608688977;
 
-        double angleOfAttack = 1.232;
-        double angleOfSideslip = -0.00322;
-        double bankAngle = 2.323432;
-
-        // Retrieve flight conditions and define orientation angles.
-        setAerodynamicOrientationFunctions(
-                    bodies.at( "Vehicle" ),
-                    [ & ]( ){ return angleOfAttack; },
-        [ & ]( ){ return angleOfSideslip; },
-        [ & ]( ){ return bankAngle; } );
 
         // Set vehicle body-fixed state (see testAerodynamicAngleCalculator)
         Eigen::Vector6d vehicleBodyFixedState =
@@ -463,6 +595,7 @@ BOOST_AUTO_TEST_CASE( test_aerodynamicAccelerationModelSetup )
                     bodies.at( "Earth" )->getRotationalEphemeris( )->getDerivativeOfRotationToBaseFrame( testTime ) );
 
         // Set states in environment.
+        vehicleRotationModel->setIsBodyInPropagation( true );
         bodies.at( "Earth" )->setState( Eigen::Vector6d::Zero( ) );
         bodies.at( "Earth" )->setCurrentRotationalStateToLocalFrameFromEphemeris( testTime );
         bodies.at( "Vehicle" )->setState( vehicleInertialState );
@@ -599,10 +732,16 @@ BOOST_AUTO_TEST_CASE( test_aerodynamicAccelerationModelSetupWithCoefficientIndep
     double angleOfAttack = 1.232;
     double angleOfSideslip = -0.00322;
     double bankAngle = 2.323432;
-    vehicleFlightConditions->getAerodynamicAngleCalculator( )->setOrientationAngleFunctions(
-                [ & ]( ){ return angleOfAttack; },
-    [ & ]( ){ return angleOfSideslip; },
-    [ & ]( ){ return bankAngle; } );
+
+
+    std::shared_ptr< ephemerides::AerodynamicAngleRotationalEphemeris > vehicleRotationModel =
+            createAerodynamicAngleBasedRotationModel(
+                            "Vehicle", "Earth", bodies,
+                            "ECLIPJ2000", "VehicleFixed" );
+    vehicleRotationModel->setAerodynamicAngleFunction(
+                [=]( const double ){ return ( Eigen::Vector3d( ) << angleOfAttack, angleOfSideslip, bankAngle ).finished( ); } );
+    bodies.at( "Vehicle" )->setRotationalEphemeris( vehicleRotationModel );
+
 
     // Update environment to current time.
     double testTime = 0.5E7;
@@ -643,13 +782,14 @@ BOOST_AUTO_TEST_CASE( test_aerodynamicAccelerationModelSetupWithCoefficientIndep
         {
             angleOfSideslip += 0.00123;
         }
-        vehicleFlightConditions->getAerodynamicAngleCalculator( )->setOrientationAngleFunctions(
-                    [ & ]( ){ return angleOfAttack; },
-        [ & ]( ){ return angleOfSideslip; },
-        [ & ]( ){ return bankAngle; } );
+
+        vehicleRotationModel->setIsBodyInPropagation( true );
+        vehicleRotationModel->resetCurrentTime( );
+        vehicleRotationModel->setAerodynamicAngleFunction(
+                    [=]( const double ){ return ( Eigen::Vector3d( ) << angleOfAttack, angleOfSideslip, bankAngle ).finished( ); } );
 
         // Update flight conditions
-        vehicleFlightConditions->resetCurrentTime( TUDAT_NAN );
+        vehicleFlightConditions->resetCurrentTime( );
         vehicleFlightConditions->updateConditions( testTime );
 
         // Calculate Mach number
@@ -668,282 +808,6 @@ BOOST_AUTO_TEST_CASE( test_aerodynamicAccelerationModelSetupWithCoefficientIndep
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                     automaticCoefficients, manualCoefficients, ( 5.0 *  std::numeric_limits< double >::epsilon( ) ) );
     }
-}
-
-//! Test panelled radiation pressure acceleration
-BOOST_AUTO_TEST_CASE( test_panelledRadiationPressureAcceleration )
-{
-    using namespace tudat::simulation_setup;
-    using namespace tudat;
-
-    // Load Spice kernels
-    spice_interface::loadStandardSpiceKernels( );
-
-    // Get settings for celestial bodies
-    BodyListSettings bodySettings;
-    bodySettings.addSettings( getDefaultSingleBodySettings( "Earth", 0.0, 10.0 * 86400.0 ), "Earth" );
-    bodySettings.addSettings( getDefaultSingleBodySettings( "Sun", 0.0,10.0 * 86400.0 ), "Sun" );
-
-    // Create panelled radiation pressure settings
-    std::vector< double > areas;
-    areas.push_back( 4.0 );
-    areas.push_back( 6.0 );
-    areas.push_back( 2.3 );
-    areas.push_back( 2.3 );
-    areas.push_back( 5.3 );
-    areas.push_back( 4.1 );
-
-    std::vector< double > emissivities;
-    emissivities.push_back( 0.1 );
-    emissivities.push_back( 0.0 );
-    emissivities.push_back( 0.1 );
-    emissivities.push_back( 0.1 );
-    emissivities.push_back( 0.94 );
-    emissivities.push_back( 0.94 );
-
-    std::vector< double > diffuseReflectionCoefficients;
-    diffuseReflectionCoefficients.push_back( 0.46 );
-    diffuseReflectionCoefficients.push_back( 0.06 );
-    diffuseReflectionCoefficients.push_back( 0.46 );
-    diffuseReflectionCoefficients.push_back( 0.46 );
-    diffuseReflectionCoefficients.push_back( 0.06 );
-    diffuseReflectionCoefficients.push_back( 0.06 );
-
-    std::vector< Eigen::Vector3d > panelSurfaceNormals;
-    panelSurfaceNormals.push_back( Eigen::Vector3d::UnitZ( ) );
-    panelSurfaceNormals.push_back( - Eigen::Vector3d::UnitZ( ) );
-    panelSurfaceNormals.push_back( Eigen::Vector3d::UnitX( ) );
-    panelSurfaceNormals.push_back( - Eigen::Vector3d::UnitX( ) );
-    panelSurfaceNormals.push_back( Eigen::Vector3d::UnitY( ) );
-    panelSurfaceNormals.push_back( - Eigen::Vector3d::UnitY( ) );
-
-    bodySettings.addSettings( "Vehicle" );
-    bodySettings.at( "Vehicle" )->radiationPressureSettings[ "Sun" ] =
-            std::make_shared< PanelledRadiationPressureInterfaceSettings >( "Sun", emissivities, areas, diffuseReflectionCoefficients,
-                                                                            panelSurfaceNormals);
-    bodySettings.at( "Vehicle" )->ephemerisSettings = std::make_shared< KeplerEphemerisSettings >(
-                ( Eigen::Vector6d( ) << 12000.0E3, 0.13, 0.3, 0.0, 0.0, 0.0 ).finished( ),
-                0.0, spice_interface::getBodyGravitationalParameter( "Earth" ), "Earth", "ECLIPJ2000" );
-
-
-    // Create bodies
-    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
-    
-
-
-    Eigen::Vector7d rotationalStateVehicle;
-    rotationalStateVehicle.segment( 0, 4 ) = linear_algebra::convertQuaternionToVectorFormat( Eigen::Quaterniond( Eigen::Matrix3d::Identity() ));
-    rotationalStateVehicle.segment( 4, 3 ) = Eigen::Vector3d::Zero();
-    bodies.at( "Vehicle" )->setRotationalEphemeris( std::make_shared< ephemerides::ConstantRotationalEphemeris >(
-                                                        rotationalStateVehicle, "ECLIPJ2000", "VehicleFixed" ) );
-
-    // Define settings for accelerations
-    SelectedAccelerationMap accelerationSettingsMap;
-    accelerationSettingsMap[ "Vehicle" ][ "Sun" ].push_back(
-                std::make_shared< AccelerationSettings >( panelled_radiation_pressure_acceleration ) );
-
-    // Define origin of integration
-    std::map< std::string, std::string > centralBodies;
-    centralBodies[ "Vehicle" ] = "Earth";
-
-    // Create accelerations
-    AccelerationMap accelerationsMap = createAccelerationModelsMap(
-                bodies, accelerationSettingsMap, centralBodies );
-    std::shared_ptr< AccelerationModel3d > radiationPressureAcceleration = accelerationsMap[ "Vehicle" ][ "Sun" ][ 0 ];
-
-    // Set (arbitrary) test time.
-    double testTime = 5.0 * 86400.0;
-
-    // Set vehicle mass
-    double bodyMass = 500.0;
-    bodies.at( "Vehicle" )->setBodyMassFunction( [ & ]( const double ){ return bodyMass; } );
-    bodies.at( "Vehicle" )->updateMass( testTime );
-
-    // Update environment to current time.
-    bodies.at( "Sun" )->setStateFromEphemeris< double, double >( testTime );
-    bodies.at( "Earth" )->setStateFromEphemeris< double, double >( testTime );
-    bodies.at( "Vehicle" )->setStateFromEphemeris< double, double >( testTime );
-    bodies.at( "Vehicle" )->setCurrentRotationToLocalFrameFromEphemeris( testTime );
-    bodies.at( "Vehicle" )->getRadiationPressureInterfaces( ).at( "Sun" )->updateInterface( testTime );
-
-    double currentRadiationPressure = bodies.at( "Vehicle" )->getRadiationPressureInterfaces().at( "Sun" )->getCurrentRadiationPressure();
-    double currentBodyMass = bodies.at( "Vehicle" )->getBodyMass();
-
-    // Get acceleration
-    Eigen::Vector3d calculatedAcceleration = updateAndGetAcceleration( radiationPressureAcceleration );
-    std::vector< Eigen::Vector3d > expectedAccelerationPerPanel;
-    Eigen::Vector3d expectedAcceleration = Eigen::Vector3d::Zero();
-
-    Eigen::Vector3d expectedVehicleToSunNormalisedVector =
-            ( bodies.at( "Sun" )->getState( ) - bodies.at( "Vehicle" )->getState( ) ).segment( 0, 3 ).normalized();
-
-
-    // Manually calculate acceleration
-    for ( unsigned int currentPanel = 0 ; currentPanel < areas.size() ; currentPanel++){
-
-        double cosinusCurrentPanelInclination = expectedVehicleToSunNormalisedVector.dot( panelSurfaceNormals[ currentPanel ] );
-
-        // Initialize force to zero
-        Eigen::Vector3d radiationPressureAccelerationCurrentPanel = Eigen::Vector3d::Zero( );
-
-        // If cosinusOfPanelInclination is larger than zero (i.e inclination is smaller than 90 degrees), calculated acceleration force (zero otherwise)
-        if( cosinusCurrentPanelInclination > 0.0 )
-        {
-
-            radiationPressureAccelerationCurrentPanel = - currentRadiationPressure / currentBodyMass * cosinusCurrentPanelInclination
-                    * areas[ currentPanel ] * ( ( 1.0 - emissivities[ currentPanel ] ) * expectedVehicleToSunNormalisedVector
-                                                + 2.0 * emissivities[ currentPanel ] * cosinusCurrentPanelInclination
-                                                * panelSurfaceNormals[ currentPanel ]
-                                                + 2.0 / 3.0 * diffuseReflectionCoefficients[ currentPanel ] * panelSurfaceNormals[ currentPanel ]);
-
-        }
-
-        expectedAccelerationPerPanel.push_back( radiationPressureAccelerationCurrentPanel );
-        expectedAcceleration += radiationPressureAccelerationCurrentPanel;
-
-    }
-
-
-    // Compare results
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                expectedAcceleration, calculatedAcceleration, ( 2.0 * std::numeric_limits< double >::epsilon( ) ) );
-
-}
-
-//! Test solar sailing radiation pressure acceleration
-BOOST_AUTO_TEST_CASE( test_solarSailingRadiationPressureAcceleration )
-{
-    using namespace tudat::simulation_setup;
-    using namespace tudat;
-
-    // Load Spice kernels
-    spice_interface::loadStandardSpiceKernels( );
-
-    // Get settings for celestial bodies
-    BodyListSettings bodySettings;
-    bodySettings.addSettings( getDefaultSingleBodySettings( "Earth", 0.0, 10.0 * 86400.0 ), "Earth" );
-    bodySettings.addSettings( getDefaultSingleBodySettings( "Sun", 0.0,10.0 * 86400.0 ), "Sun" );
-
-
-    // Create solar sailing radiation pressure settings.
-
-    // Define area subject to radiation pressure [m^2].
-    double area = 2.0;
-
-    // Set cone angle of the solar sail [rad].
-    double coneAngle = 0.25;
-
-    // Get cone angle of the solar sail [rad].
-    std::function< double( const double ) > coneAngleFunction
-            = [ = ]( const double ){ return coneAngle; };
-
-    // Define clock angle of the solar sail [rad].
-    double clockAngle = 0.2;
-
-    // Get clock angle of the solar sail [rad].
-    std::function< double( const double ) > clockAngleFunction
-            = [ = ]( const double ){ return clockAngle; };
-
-    // Define front emissivity coefficient of the solar sail [-].
-    double frontEmissivityCoefficient = 0.4;
-
-    // Define back emissivity coefficient of the solar sail [-].
-    double backEmissivityCoefficient = 0.4;
-
-    // Define front Lambertian coefficient of the solar sail [-].
-    double frontLambertianCoefficient = 0.4;
-
-    // Define back Lambertian coefficient of the solar sail [-].
-    double backLambertianCoefficient = 0.4;
-
-    // Define reflectivity coefficient of the solar sail [-].
-    double reflectivityCoefficient = 0.3;
-
-    // Define specular reflection coefficient of the solar sail [-].
-    double specularReflectionCoefficient = 1.0;
-
-    std::string centralBody = "Earth";
-
-    bodySettings.addSettings( "Vehicle" );
-    bodySettings.at( "Vehicle" )->radiationPressureSettings[ "Sun" ] =
-            std::make_shared< SolarSailRadiationInterfaceSettings >( "Sun", area, coneAngleFunction, clockAngleFunction, frontEmissivityCoefficient,
-                                                                     backEmissivityCoefficient, frontLambertianCoefficient, backLambertianCoefficient,
-                                                                     reflectivityCoefficient, specularReflectionCoefficient, std::vector< std::string >( ),
-                                                                     centralBody );
-
-    bodySettings.at( "Vehicle" )->ephemerisSettings = std::make_shared< KeplerEphemerisSettings >(
-                ( Eigen::Vector6d( ) << 12000.0E3, 0.13, 0.3, 0.0, 0.0, 0.0 ).finished( ),
-                0.0, spice_interface::getBodyGravitationalParameter( "Earth" ), "Earth", "ECLIPJ2000" );
-
-
-    // Create bodies
-    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
-    
-
-    // Define rotational ephemeris of the vehicle.
-    Eigen::Vector7d rotationalStateVehicle;
-    rotationalStateVehicle.segment( 0, 4 ) = linear_algebra::convertQuaternionToVectorFormat( Eigen::Quaterniond( Eigen::Matrix3d::Identity() ));
-    rotationalStateVehicle.segment( 4, 3 ) = Eigen::Vector3d::Zero();
-    bodies.at( "Vehicle" )->setRotationalEphemeris( std::make_shared< ephemerides::ConstantRotationalEphemeris >(
-                                                        rotationalStateVehicle, "ECLIPJ2000", "VehicleFixed" ) );
-
-    // Define settings for accelerations
-    SelectedAccelerationMap accelerationSettingsMap;
-    accelerationSettingsMap[ "Vehicle" ][ "Sun" ].push_back(
-                std::make_shared< AccelerationSettings >( solar_sail_acceleration ) );
-
-    // Define origin of integration
-    std::map< std::string, std::string > centralBodiesMap;
-    centralBodiesMap[ "Vehicle" ] = "Earth";
-
-    // Create accelerations
-    AccelerationMap accelerationsMap = createAccelerationModelsMap( bodies, accelerationSettingsMap, centralBodiesMap );
-    std::shared_ptr< AccelerationModel3d > radiationPressureAcceleration = accelerationsMap[ "Vehicle" ][ "Sun" ][ 0 ];
-
-    // Set (arbitrary) test time.
-    double testTime = 5.0 * 86400.0;
-
-    // Set vehicle mass
-    double bodyMass = 500.0;
-    bodies.at( "Vehicle" )->setBodyMassFunction( [ & ]( const double ){ return bodyMass; } );
-    bodies.at( "Vehicle" )->updateMass( testTime );
-
-    // Update environment to current time.
-    bodies.at( "Sun" )->setStateFromEphemeris< double, double >( testTime );
-    bodies.at( "Earth" )->setStateFromEphemeris< double, double >( testTime );
-    bodies.at( "Vehicle" )->setStateFromEphemeris< double, double >( testTime );
-    bodies.at( "Vehicle" )->setCurrentRotationToLocalFrameFromEphemeris( testTime );
-    bodies.at( "Vehicle" )->getRadiationPressureInterfaces( ).at( "Sun" )->updateInterface( testTime );
-
-    // Get acceleration
-    Eigen::Vector3d calculatedAcceleration = updateAndGetAcceleration( radiationPressureAcceleration );
-
-    // Retrieve solar sailing radiation pressure interface.
-    std::shared_ptr< electromagnetism::SolarSailingRadiationPressureInterface > radiationPressureInterface =
-            std::dynamic_pointer_cast< electromagnetism::SolarSailingRadiationPressureInterface >(
-                bodies.at( "Vehicle" )->getRadiationPressureInterfaces().at( "Sun" ) );
-
-    // Manually calculate acceleration.
-    std::shared_ptr< AccelerationModel3d > manualAccelerationModel =
-            std::make_shared< electromagnetism::SolarSailAcceleration >(
-                std::bind( &Body::getPosition, bodies.at( "Sun" ) ),
-                std::bind( &Body::getPosition, bodies.at( "Vehicle" ) ),
-                std::bind( &Body::getVelocity, bodies.at( "Vehicle" ) ),
-                std::bind( &Body::getVelocity, bodies.at( centralBodiesMap[ "Vehicle" ] ) ),
-            std::bind( &electromagnetism::SolarSailingRadiationPressureInterface::getCurrentRadiationPressure,
-                       radiationPressureInterface ),
-            std::bind( &electromagnetism::SolarSailingRadiationPressureInterface::getCurrentConeAngle,
-                       radiationPressureInterface ),
-            std::bind( &electromagnetism::SolarSailingRadiationPressureInterface::getCurrentClockAngle,
-                       radiationPressureInterface ),
-            frontEmissivityCoefficient, backEmissivityCoefficient, frontLambertianCoefficient, backLambertianCoefficient,
-            reflectivityCoefficient, specularReflectionCoefficient, area, bodyMass );
-
-    Eigen::Vector3d manualAcceleration = updateAndGetAcceleration( manualAccelerationModel );
-
-
-    // Compare results.
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( manualAcceleration, calculatedAcceleration, ( 2.0 * std::numeric_limits< double >::epsilon( ) ) );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

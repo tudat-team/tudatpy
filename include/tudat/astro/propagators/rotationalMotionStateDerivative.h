@@ -40,6 +40,10 @@ enum RotationalPropagatorType
     exponential_map = 2
 };
 
+std::string getRotationalPropagatorName( const RotationalPropagatorType propagatorType );
+
+int getRotationalStateSize( const RotationalPropagatorType propagatorType );
+
 // Function to evaluated the classical rotational equations of motion (Euler equations)
 /*
  * Function to evaluated the classical rotational equations of motion (Euler equations). The function returns the time-derivative
@@ -101,6 +105,7 @@ public:
                         "Error when making rotational state derivative model, inertia tensor list is of incompatible size" );
         }
 
+
         if( bodyInertiaTensorTimeDerivativeFunctions_.size( ) == 0 )
         {
             for( unsigned int i = 0; i < bodiesToPropagate.size( ); i++ )
@@ -118,10 +123,14 @@ public:
         {
             if( torqueModelsPerBody_.count( bodiesToPropagate.at( i ) ) == 0 )
             {
+                std::cerr<<"Warning, propagating rotational dynamics of body " + bodiesToPropagate.at( i )  +
+                           " without any torque models."<<std::endl;
                 torqueModelsPerBody_[ bodiesToPropagate.at( i ) ][ bodiesToPropagate.at( i ) ] =
                         std::vector< std::shared_ptr< basic_astrodynamics::TorqueModel > >( );
             }
         }
+
+        verifyInput( );
     }
 
     // Destructor
@@ -148,7 +157,7 @@ public:
             {
                 for( unsigned int j = 0; j < innerTorqueIterator->second.size( ); j++ )
                 {
-                    innerTorqueIterator->second[ j ]->resetTime( TUDAT_NAN );
+                    innerTorqueIterator->second[ j ]->resetCurrentTime( );
                 }
             }
         }
@@ -291,6 +300,31 @@ public:
 
 protected:
 
+    void verifyInput( )
+    {
+        for( unsigned int i = 0; i < bodiesToPropagate_.size( ); i++ )
+        {
+            if( torqueModelsPerBody_.count( bodiesToPropagate_.at( i ) ) == 0 )
+            {
+                throw std::runtime_error( "Error, requested propagation of rotational dynamics of body " +
+                                          bodiesToPropagate_.at( i ) +
+                                          ", but no torque models provided" );
+            }
+        }
+
+        for( auto it : torqueModelsPerBody_ )
+        {
+            if( std::find( bodiesToPropagate_.begin( ),
+                           bodiesToPropagate_.end( ),
+                           it.first ) == bodiesToPropagate_.end( ) )
+            {
+                throw std::runtime_error( "Error, provided torque models for body " +
+                                          it.first +
+                                          ", but this body is not included in list of bodies for which rotation is to be propagated." );
+            }
+        }
+    }
+
     // Function to get the total torques acting on each body, expressed in the body-fixed frames
     /*
      * Function to get the total torques acting on each body, expressed in the body-fixed frames. The environment
@@ -360,11 +394,6 @@ protected:
 
 extern template class RotationalMotionStateDerivative< double, double >;
 
-#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
-extern template class RotationalMotionStateDerivative< long double, double >;
-extern template class RotationalMotionStateDerivative< double, Time >;
-extern template class RotationalMotionStateDerivative< long double, Time >;
-#endif
 
 } // namespace propagators
 

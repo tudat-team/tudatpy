@@ -6,27 +6,68 @@ namespace tudat
 namespace simulation_setup
 {
 
-void scaleInformationMatrixWithWeights(
-        Eigen::MatrixXd& informationMatrix,
+void scaleDesignMatrixWithWeights(
+        Eigen::MatrixXd& designMatrix,
         const Eigen::VectorXd& weightsDiagonal )
 {
-    int numberOfParameters = informationMatrix.cols( );
+    int numberOfParameters = designMatrix.cols( );
     for( int i = 0; i < weightsDiagonal.rows( ); i++ )
     {
-        informationMatrix.block( i, 0, 1, numberOfParameters ) *= std::sqrt( weightsDiagonal( i ) );
+        designMatrix.block( i, 0, 1, numberOfParameters ) *= std::sqrt( weightsDiagonal( i ) );
     }
 }
 
+Eigen::MatrixXd normaliseUnnormaliseCovarianceMatrix(
+        const Eigen::MatrixXd& covarianceMatrix,
+        const Eigen::VectorXd& normalisationFactors,
+        const bool normalise )
+{
+    Eigen::MatrixXd modifiedCovarianceMatrix = covarianceMatrix;
+    for( int i = 0; i < normalisationFactors.rows( ); i++ )
+    {
+        for( int j = 0; j < normalisationFactors.rows( ); j++ )
+        {
+            if ( normalise ) // normalise
+            {
+                modifiedCovarianceMatrix(i, j) *= normalisationFactors(i) * normalisationFactors(j);
+            }
+            else // unnormalise
+            {
+                modifiedCovarianceMatrix( i, j ) /= normalisationFactors( i ) * normalisationFactors( j );
+            }
+        }
+    }
+    return modifiedCovarianceMatrix;
+}
 
-template class PodInput< double, double >;
-template struct PodOutput< double >;
+Eigen::MatrixXd normaliseUnnormaliseInverseCovarianceMatrix(
+        Eigen::MatrixXd& inverseCovarianceMatrix,
+        Eigen::VectorXd& normalisationFactors,
+        const bool normalise )
+{
+    Eigen::MatrixXd modifiedInverseCovarianceMatrix = inverseCovarianceMatrix;
+    for( int i = 0; i < normalisationFactors.rows( ); i++ )
+    {
+        for( int j = 0; j < normalisationFactors.rows( ); j++ )
+        {
+            if ( normalise ) // normalise
+            {
+                modifiedInverseCovarianceMatrix(i, j) /= normalisationFactors(i) * normalisationFactors(j);
+            }
+            else // unnormalise
+            {
+                modifiedInverseCovarianceMatrix( i, j ) *= normalisationFactors( i ) * normalisationFactors( j );
+            }
+        }
+    }
+    return modifiedInverseCovarianceMatrix;
+}
 
-#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
-template class PodInput< long double, double >;
-template class PodInput< double, Time >;
-template class PodInput< long double, Time >;
-template struct PodOutput< long double >;
-#endif
+template class CovarianceAnalysisInput< double, double >;
+template struct CovarianceAnalysisOutput< double >;
+
+template class EstimationInput< double, double >;
+template struct EstimationOutput< double >;
 
 }
 

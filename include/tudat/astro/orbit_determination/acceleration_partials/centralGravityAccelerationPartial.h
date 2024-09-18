@@ -21,6 +21,10 @@ namespace tudat
 namespace acceleration_partials
 {
 
+Eigen::Matrix3d calculatePartialOfPointMassGravityWrtPositionOfAcceleratedBody(
+    const Eigen::Vector3d& relativePosition,
+    const double gravitationalParameter );
+
 //! Calculates partial derivative of point mass gravitational acceleration wrt the position of body undergoing acceleration.
 /*!
  *  Calculates partial derivative of point mass gravitational acceleration wrt the position of body undergoing acceleration.
@@ -139,7 +143,9 @@ public:
               ( stateReferencePoint.first == acceleratedBody_  && accelerationUsesMutualAttraction_ ) )
               && integratedStateType == propagators::body_mass_state ) )
         {
-            std::cerr<<"Warning, dependency of central gravity on body masses not yet implemented"<<std::endl;
+            std::cout<<stateReferencePoint.first<<" "<<acceleratingBody_<<" "<<acceleratedBody_<<" "<<
+                       accelerationUsesMutualAttraction_<<std::endl;
+            std::cerr<<"Warning, dependency of central gravity on body masses (only on gravitational parameter) not yet implemented"<<std::endl;
         }
         return 0;
     }

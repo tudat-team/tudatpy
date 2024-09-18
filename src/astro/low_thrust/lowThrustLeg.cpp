@@ -20,10 +20,10 @@ namespace low_thrust_trajectories
 //Eigen::Vector3d LowThrustLeg::getThrustDirection( const double timeOffset )
 //{
 //    // Compute current independent variable.
-//    double currentIndependentVariable = convertTimeToIndependentVariable( currentTime - timeOffset  );
+//    double currentIndependentVariable = convertTimeToAzimuth( currentTime - timeOffset  );
 
 //    // Compute current direction of the acceleration vector.
-//    Eigen::Vector3d currentAccelerationDirection = computeCurrentThrustAccelerationDirection(
+//    Eigen::Vector3d currentAccelerationDirection = computeCurrentThrustAccelerationDirectionFromAzimuth(
 //                currentIndependentVariable );
 
 //    // Return direction of the low-thrust acceleration.
@@ -163,7 +163,7 @@ namespace low_thrust_trajectories
 //        }
 
 //        Eigen::Vector3d currentThrustAccelerationVector =
-//                computeCurrentThrustAcceleration( epochsVector.at( i ), specificImpulseFunction, integratorSettings );
+//                computeCurrentThrustAccelerationFromAzimuth( epochsVector.at( i ), specificImpulseFunction, integratorSettings );
 //        thrustAccelerationProfile[ epochsVector.at( i ) ] = currentThrustAccelerationVector;
 
 //    }

@@ -13,6 +13,7 @@
 #include "tudat/astro/gravitation/gravityFieldVariations.h"
 #include "tudat/astro/gravitation/basicSolidBodyTideGravityFieldVariations.h"
 #include "tudat/astro/gravitation/periodicGravityFieldVariations.h"
+#include "tudat/astro/gravitation/polynomialGravityFieldVariations.h"
 #include "tudat/astro/gravitation/tabulatedGravityFieldVariations.h"
 #include "tudat/astro/gravitation/timeDependentSphericalHarmonicsGravityField.h"
 #include "tudat/simulation/environment_setup/createGravityFieldVariations.h"
@@ -126,6 +127,7 @@ std::shared_ptr< gravitation::GravityFieldVariations > createGravityFieldVariati
     switch( gravityFieldVariationSettings->getBodyDeformationType( ) )
     {
     case basic_solid_body:
+    case mode_coupled_solid_body:
     {
         std::shared_ptr< TimeDependentSphericalHarmonicsGravityField > gravityField =
                 std::dynamic_pointer_cast< TimeDependentSphericalHarmonicsGravityField >(
@@ -137,100 +139,149 @@ std::shared_ptr< gravitation::GravityFieldVariations > createGravityFieldVariati
         }
 
         // Check consistency
-        std::shared_ptr< BasicSolidBodyGravityFieldVariationSettings >
-                basicSolidBodyGravityVariationSettings =
-                std::dynamic_pointer_cast< BasicSolidBodyGravityFieldVariationSettings >(
-                    gravityFieldVariationSettings );
-        if( basicSolidBodyGravityVariationSettings == nullptr )
+        std::vector< std::string > deformingBodies;
+        if( gravityFieldVariationSettings->getBodyDeformationType( ) == basic_solid_body )
         {
-            throw std::runtime_error( "Error, expected basic solid body gravity field settings for " + body );
-        }
-        else
-        {
-            // Define list of required input.
-            std::vector< std::string > deformingBodies
-                    = basicSolidBodyGravityVariationSettings->getDeformingBodies( );
-            std::function< Eigen::Vector6d( const double ) > deformedBodyStateFunction;
-            std::function< Eigen::Quaterniond( const double ) > deformedBodyOrientationFunction;
-            std::vector< std::function< Eigen::Vector6d( const double ) > >
-                    deformingBodyStateFunctions;
-            std::vector< std::function< double( ) > > gravitionalParametersOfDeformingBodies;
-
-            // Iterate over all bodies causing tidal perturbation.
-            for( unsigned int i = 0; i < deformingBodies.size( ); i++ )
+            std::shared_ptr< BasicSolidBodyGravityFieldVariationSettings >
+                    basicSolidBodyGravityVariationSettings =
+                    std::dynamic_pointer_cast< BasicSolidBodyGravityFieldVariationSettings >(
+                        gravityFieldVariationSettings );
+            if( basicSolidBodyGravityVariationSettings == nullptr )
             {
-                // Check if perturbing body exists.
-                if( bodies.count( deformingBodies[ i ] ) == 0 )
-                {
-                    throw std::runtime_error( "Error when making basic solid body gravity field variation, " +
-                                               deformingBodies[ i ] + " deforming body not found." );
-                }
-                
-                // Create body state functions (depending on whether the variation is calculated
-                // directly during propagation, or a priori by an interpolator
-                if( gravityFieldVariationSettings->getInterpolatorSettings( ) != nullptr )
-                {
-                    deformingBodyStateFunctions.push_back(
-                                std::bind(
-                                    &Body::getStateInBaseFrameFromEphemeris< double, double >,
-                                    bodies.at( deformingBodies[ i ] ), std::placeholders::_1 ) );
-                }
-                else
-                {
-                    deformingBodyStateFunctions.push_back(
-                                std::bind( &Body::getState, bodies.at( deformingBodies[ i ] ) ) );
-                }
-
-                // Get gravitational parameter of perturbing bodies.
-                if( bodies.at( deformingBodies[ i ] )->getGravityFieldModel( ) == nullptr )
-                {
-                    throw std::runtime_error(
-                                "Error, could not find gravity field model in body " + deformingBodies[ i ] +
-                                " when making basic sh variation for body " + body );
-                }
-                else
-                {
-                    gravitionalParametersOfDeformingBodies.push_back(
-                                std::bind( &GravityFieldModel::getGravitationalParameter,
-                                             bodies.at( deformingBodies[ i ] )
-                                             ->getGravityFieldModel( ) ) );
-                }
-            }
-
-            // Set state and orientation functions of perturbed body.
-            if( gravityFieldVariationSettings->getInterpolatorSettings( ) != nullptr )
-            {
-                deformedBodyStateFunction = std::bind( &Body::getStateInBaseFrameFromEphemeris< double, double >,
-                                                         bodies.at( body ), std::placeholders::_1 );
-                deformedBodyOrientationFunction = std::bind(
-                            &ephemerides::RotationalEphemeris::getRotationToTargetFrame,
-                            bodies.at( body )->getRotationalEphemeris( ), std::placeholders::_1 );
+                throw std::runtime_error( "Error, expected basic solid body gravity field settings for " + body );
             }
             else
             {
-                deformedBodyStateFunction = std::bind( &Body::getState, bodies.at( body ) );
-                deformedBodyOrientationFunction = std::bind( &Body::getCurrentRotationToLocalFrame,
-                                                               bodies.at( body ) );
+                deformingBodies  = basicSolidBodyGravityVariationSettings->getDeformingBodies( );
+            }
+        }
+        else if( gravityFieldVariationSettings->getBodyDeformationType( ) == mode_coupled_solid_body )
+        {
+            std::shared_ptr< ModeCoupledSolidBodyGravityFieldVariationSettings >
+                modeCoupledSolidBodyGravityVariationSettings =
+                std::dynamic_pointer_cast< ModeCoupledSolidBodyGravityFieldVariationSettings >(
+                    gravityFieldVariationSettings );
+            if( modeCoupledSolidBodyGravityVariationSettings == nullptr )
+            {
+                throw std::runtime_error( "Error, expected mode-coupled solid body gravity field settings for " + body );
+            }
+            else
+            {
+                deformingBodies  = modeCoupledSolidBodyGravityVariationSettings->getDeformingBodies( );
+            }
+        }
+        else
+        {
+            throw std::runtime_error( "Error, incorrect variation type when making tidal gravity field variation" );
+        }
 
-                
+        // Define list of required input.
+        std::function< Eigen::Vector6d( const double ) > deformedBodyStateFunction;
+        std::function< Eigen::Quaterniond( const double ) > deformedBodyOrientationFunction;
+        std::vector< std::function< Eigen::Vector6d( const double ) > >
+                deformingBodyStateFunctions;
+        std::vector< std::function< double( ) > > gravitionalParametersOfDeformingBodies;
+
+        // Iterate over all bodies causing tidal perturbation.
+        for( unsigned int i = 0; i < deformingBodies.size( ); i++ )
+        {
+            // Check if perturbing body exists.
+            if( bodies.count( deformingBodies[ i ] ) == 0 )
+            {
+                throw std::runtime_error( "Error when making basic solid body gravity field variation, " +
+                                           deformingBodies[ i ] + " deforming body not found." );
             }
 
-            std::function< double( ) > gravitionalParameterOfDeformedBody =
-                    std::bind( &GravityFieldModel::getGravitationalParameter,
-                                 bodies.at( body )->getGravityFieldModel( ) );
-            
-            // Create basic tidal variation object.
-            gravityFieldVariationModel
-                    = std::make_shared< BasicSolidBodyTideGravityFieldVariations >(
-                        deformedBodyStateFunction,
-                        deformedBodyOrientationFunction,
-                        deformingBodyStateFunctions,
-                        gravityField->getReferenceRadius( ),
-                        gravitionalParameterOfDeformedBody,
-                        gravitionalParametersOfDeformingBodies,
-                        basicSolidBodyGravityVariationSettings->getLoveNumbers( ),
-                        deformingBodies );
+            // Create body state functions (depending on whether the variation is calculated
+            // directly during propagation, or a priori by an interpolator
+            if( gravityFieldVariationSettings->getInterpolatorSettings( ) != nullptr )
+            {
+                deformingBodyStateFunctions.push_back(
+                            std::bind(
+                                &Body::getStateInBaseFrameFromEphemeris< double, double >,
+                                bodies.at( deformingBodies[ i ] ), std::placeholders::_1 ) );
+            }
+            else
+            {
+                deformingBodyStateFunctions.push_back(
+                            std::bind( &Body::getState, bodies.at( deformingBodies[ i ] ) ) );
+            }
+
+            // Get gravitational parameter of perturbing bodies.
+            if( bodies.at( deformingBodies[ i ] )->getGravityFieldModel( ) == nullptr )
+            {
+                throw std::runtime_error(
+                            "Error, could not find gravity field model in body " + deformingBodies[ i ] +
+                            " when making basic sh variation for body " + body );
+            }
+            else
+            {
+                gravitionalParametersOfDeformingBodies.push_back(
+                            std::bind( &GravityFieldModel::getGravitationalParameter,
+                                         bodies.at( deformingBodies[ i ] )
+                                         ->getGravityFieldModel( ) ) );
+            }
         }
+
+        // Set state and orientation functions of perturbed body.
+        if( gravityFieldVariationSettings->getInterpolatorSettings( ) != nullptr )
+        {
+            deformedBodyStateFunction = std::bind( &Body::getStateInBaseFrameFromEphemeris< double, double >,
+                                                     bodies.at( body ), std::placeholders::_1 );
+            deformedBodyOrientationFunction = std::bind(
+                        &ephemerides::RotationalEphemeris::getRotationToTargetFrame,
+                        bodies.at( body )->getRotationalEphemeris( ), std::placeholders::_1 );
+        }
+        else
+        {
+            deformedBodyStateFunction = std::bind( &Body::getState, bodies.at( body ) );
+            deformedBodyOrientationFunction = std::bind( &Body::getCurrentRotationToLocalFrame,
+                                                           bodies.at( body ) );
+
+
+        }
+
+        std::function< double( ) > gravitionalParameterOfDeformedBody =
+                std::bind( &GravityFieldModel::getGravitationalParameter,
+                             bodies.at( body )->getGravityFieldModel( ) );
+
+
+        // Create basic tidal variation object.
+        if( gravityFieldVariationSettings->getBodyDeformationType( ) == basic_solid_body )
+        {
+            std::shared_ptr< BasicSolidBodyGravityFieldVariationSettings >
+                basicSolidBodyGravityVariationSettings =
+                std::dynamic_pointer_cast< BasicSolidBodyGravityFieldVariationSettings >(
+                    gravityFieldVariationSettings );
+            gravityFieldVariationModel
+                = std::make_shared<BasicSolidBodyTideGravityFieldVariations>(
+                deformedBodyStateFunction,
+                deformedBodyOrientationFunction,
+                deformingBodyStateFunctions,
+                gravityField->getReferenceRadius( ),
+                gravitionalParameterOfDeformedBody,
+                gravitionalParametersOfDeformingBodies,
+                basicSolidBodyGravityVariationSettings->getLoveNumbers( ),
+                deformingBodies );
+        }
+        else if( gravityFieldVariationSettings->getBodyDeformationType( ) == mode_coupled_solid_body )
+        {
+            std::shared_ptr< ModeCoupledSolidBodyGravityFieldVariationSettings >
+                modeCoupledSolidBodyGravityVariationSettings =
+                std::dynamic_pointer_cast< ModeCoupledSolidBodyGravityFieldVariationSettings >(
+                    gravityFieldVariationSettings );
+            gravityFieldVariationModel
+                = std::make_shared<ModeCoupledSolidBodyTideGravityFieldVariations>(
+                deformedBodyStateFunction,
+                deformedBodyOrientationFunction,
+                deformingBodyStateFunctions,
+                gravityField->getReferenceRadius( ),
+                gravitionalParameterOfDeformedBody,
+                gravitionalParametersOfDeformingBodies,
+                modeCoupledSolidBodyGravityVariationSettings->getLoveNumbers( ),
+                deformingBodies );
+        }
+
         break;
     }    
     case tabulated_variation:
@@ -267,22 +318,49 @@ std::shared_ptr< gravitation::GravityFieldVariations > createGravityFieldVariati
         }
         else
         {
-            if( periodicGravityFieldVariationSettings->getCosineAmplitudes( ).size( ) > 0 )
+            if( periodicGravityFieldVariationSettings->getCosineShAmplitudesCosineTime( ).size( ) > 0 ||
+                periodicGravityFieldVariationSettings->getCosineShAmplitudesSineTime( ).size( ) > 0 ||
+                periodicGravityFieldVariationSettings->getSineShAmplitudesCosineTime( ).size( ) > 0 ||
+                periodicGravityFieldVariationSettings->getSineShAmplitudesSineTime( ).size( ) > 0)
             {
-            // Create variation.
-            gravityFieldVariationModel = std::make_shared< PeriodicGravityFieldVariations >
-                    (  periodicGravityFieldVariationSettings->getCosineAmplitudes( ),
-                       periodicGravityFieldVariationSettings->getSineAmplitudes( ),
-                       periodicGravityFieldVariationSettings->getFrequencies( ),
-                       periodicGravityFieldVariationSettings->getPhases( ),
-                       periodicGravityFieldVariationSettings->getReferenceEpoch( ),
-                       periodicGravityFieldVariationSettings->getMinimumDegree( ),
-                       periodicGravityFieldVariationSettings->getMinimumOrder( ) );
+                // Create variation.
+                gravityFieldVariationModel = std::make_shared< PeriodicGravityFieldVariations >
+                        (  periodicGravityFieldVariationSettings->getCosineShAmplitudesCosineTime(),
+                           periodicGravityFieldVariationSettings->getCosineShAmplitudesSineTime( ),
+                           periodicGravityFieldVariationSettings->getSineShAmplitudesCosineTime( ),
+                           periodicGravityFieldVariationSettings->getSineShAmplitudesSineTime( ),
+                           periodicGravityFieldVariationSettings->getFrequencies( ),
+                           periodicGravityFieldVariationSettings->getReferenceEpoch( ),
+                           periodicGravityFieldVariationSettings->getMinimumDegree( ),
+                           periodicGravityFieldVariationSettings->getMinimumOrder( ) );
             }
             else
             {
-                throw std::runtime_error( "Error when creating periodic gravity field variations; no cosine amplitudes found" );
+                throw std::runtime_error( "Error when creating periodic gravity field variations; no amplitudes found" );
             }
+        }
+
+        break;
+    }
+    case polynomial_variation:
+    {
+        // Check input consistency
+        std::shared_ptr< PolynomialGravityFieldVariationsSettings > polynomialGravityFieldVariationSettings
+            = std::dynamic_pointer_cast< PolynomialGravityFieldVariationsSettings >(
+                gravityFieldVariationSettings );
+        if( polynomialGravityFieldVariationSettings == nullptr )
+        {
+            throw std::runtime_error( "Error, expected polynomial gravity field variation settings for " + body );
+        }
+        else
+        {
+                // Create variation.
+                gravityFieldVariationModel = std::make_shared< PolynomialGravityFieldVariations >
+                    (  polynomialGravityFieldVariationSettings->getCosineAmplitudes( ),
+                       polynomialGravityFieldVariationSettings->getSineAmplitudes( ),
+                       polynomialGravityFieldVariationSettings->getReferenceEpoch( ),
+                       polynomialGravityFieldVariationSettings->getMinimumDegree( ),
+                       polynomialGravityFieldVariationSettings->getMinimumOrder( ) );
         }
 
         break;

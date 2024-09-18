@@ -16,8 +16,8 @@
 #include <string>
 
 #include <functional>
-#include <boost/bind/bind.hpp>
-#include <boost/make_shared.hpp>
+
+
 
 #include <Eigen/Core>
 
@@ -29,8 +29,8 @@
 
 #include "tudat/interface/sofa/fundamentalArguments.h"
 #include "tudat/io/basicInputOutput.h"
+#include "tudat/math/interpolators/createInterpolator.h"
 
-using namespace boost::placeholders;
 
 namespace tudat
 {
@@ -65,7 +65,8 @@ public:
             const std::vector< std::string >& amplitudesFiles,
             const std::vector< std::string >& argumentMultipliersFile ,
             const std::function< Eigen::Vector6d( const double )  > argumentFunction =
-            std::bind( &sofa_interface::calculateApproximateDelaunayFundamentalArgumentsWithGmst, std::placeholders::_1 ) ):
+            std::bind( &sofa_interface::calculateApproximateDelaunayFundamentalArgumentsWithGmst, std::placeholders::_1 ),
+            const std::shared_ptr< interpolators::InterpolatorGenerationSettings< double > > shortTermInterpolatorSettings = nullptr ):
         argumentFunction_( argumentFunction )
     {
         if( amplitudesFiles.size( ) != argumentMultipliersFile.size( ) )
@@ -82,6 +83,20 @@ public:
             argumentAmplitudes_.push_back( conversionFactor * dataFromFile.first );
             argumentMultipliers_.push_back( dataFromFile.second );
         }
+
+        if( shortTermInterpolatorSettings != nullptr )
+        {
+            std::function< OutputType( const double ) > correctionFunction  =
+                std::bind( &ShortPeriodEarthOrientationCorrectionCalculator< OutputType >::getCorrections, this,
+                           std::placeholders::_1 );
+            correctionInterpolator_ =
+                interpolators::createOneDimensionalInterpolator< double, OutputType >(
+                    correctionFunction, shortTermInterpolatorSettings );
+        }
+        else
+        {
+            correctionInterpolator_ = nullptr;
+        }
     }
 
     //! Function to obtain short period corrections.
@@ -92,7 +107,14 @@ public:
      */
     OutputType getCorrections( const double& ephemerisTime )
     {
-        return sumCorrectionTerms( argumentFunction_( ephemerisTime ) );
+        if( correctionInterpolator_ == nullptr )
+        {
+            return sumCorrectionTerms( argumentFunction_( ephemerisTime ));
+        }
+        else
+        {
+            return correctionInterpolator_->interpolate( ephemerisTime );
+        }
     }
 
     //! Function to obtain short period corrections.
@@ -101,7 +123,7 @@ public:
      *  \param fundamentalArguments Fundamental arguments from which corretions are to be determined
      *  \return Short period corrections
      */
-    OutputType getCorrections( const Eigen::Vector6d& fundamentalArguments )
+    OutputType getCorrectionsFromFundamentalArgument( const Eigen::Vector6d& fundamentalArguments )
     {
         return sumCorrectionTerms( fundamentalArguments );
     }
@@ -125,6 +147,7 @@ private:
     //! Fundamental argument functions associated with multipliers.
     std::function< Eigen::Vector6d( const double ) > argumentFunction_;
 
+    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, OutputType > > correctionInterpolator_;
 
 };
 

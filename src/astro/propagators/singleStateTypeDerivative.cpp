@@ -7,6 +7,7 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+#include <iostream>
 #include "tudat/astro/propagators/singleStateTypeDerivative.h"
 
 namespace tudat
@@ -14,6 +15,34 @@ namespace tudat
 
 namespace propagators
 {
+std::string getIntegratedStateTypString( const IntegratedStateType stateType )
+{
+    std::string stateTypeString;
+    switch( stateType )
+    {
+    case translational_state:
+        stateTypeString = "Translational state";
+        break;
+    case rotational_state:
+        stateTypeString = "Rotational state";
+        break;
+    case body_mass_state:
+        stateTypeString = "Mass state";
+        break;
+    case custom_state:
+        stateTypeString = "Custom state";
+        break;
+    case hybrid:
+        stateTypeString = "Multi-type state";
+        break;
+    default:
+        std::string errorMessage =
+                "Did not recognize state type " + std::to_string( stateType ) + "when getting string";
+       throw std::runtime_error( errorMessage );
+    }
+    return stateTypeString;
+}
+
 
 //! Get size of state for single propagated state of given type.
 int getSingleIntegrationSize( const IntegratedStateType stateType )
@@ -30,6 +59,10 @@ int getSingleIntegrationSize( const IntegratedStateType stateType )
     case body_mass_state:
         singleStateSize = 1;
         break;
+    case custom_state:
+        singleStateSize = 0;
+        std::cerr<<"Warning when requesting state size of custom state, size is unknown. Returning value of 0"<<std::endl;
+        break;
     default:
         std::string errorMessage =
                 "Did not recognize state type " + std::to_string( stateType ) + "when getting size";
@@ -38,7 +71,8 @@ int getSingleIntegrationSize( const IntegratedStateType stateType )
     return singleStateSize;
 }
 
-//! Get order of differential equation for governing equations of dynamics of given type.
+
+//!Get order of differential equation for governing equations of dynamics of given type.
 int getSingleIntegrationDifferentialEquationOrder( const IntegratedStateType stateType )
 {
     int singleStateSize = 0;
@@ -86,12 +120,6 @@ int getGeneralizedAccelerationSize( const IntegratedStateType stateType )
 
 
 template class SingleStateTypeDerivative< double, double >;
-
-#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
-template class SingleStateTypeDerivative< long double, double >;
-template class SingleStateTypeDerivative< double, Time >;
-template class SingleStateTypeDerivative< long double, Time >;
-#endif
 
 }
 

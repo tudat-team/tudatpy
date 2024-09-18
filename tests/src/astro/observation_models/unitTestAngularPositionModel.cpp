@@ -15,7 +15,7 @@
 #include <string>
 
 #include <boost/test/unit_test.hpp>
-#include <boost/make_shared.hpp>
+
 
 #include "tudat/basics/testMacros.h"
 
@@ -69,8 +69,8 @@ BOOST_AUTO_TEST_CASE( testAngularPositionModel )
 
     // Define link ends for observations.
     LinkEnds linkEnds;
-    linkEnds[ transmitter ] = std::make_pair( "Earth" , ""  );
-    linkEnds[ receiver ] = std::make_pair( "Mars" , ""  );
+    linkEnds[ transmitter ] = std::make_pair< std::string, std::string >( "Earth" , "" );
+    linkEnds[ receiver ] = std::make_pair< std::string, std::string >( "Mars" , ""  );
 
     // Create light-time correction settings
     std::vector< std::string > lightTimePerturbingBodies = { "Sun" };
@@ -105,7 +105,7 @@ BOOST_AUTO_TEST_CASE( testAngularPositionModel )
     // Manually create and compute light time corrections
     std::shared_ptr< LightTimeCorrection > lightTimeCorrectionCalculator =
             createLightTimeCorrections(
-                lightTimeCorrectionSettings.at( 0 ), bodies, linkEnds[ transmitter ], linkEnds[ receiver ] );
+                lightTimeCorrectionSettings.at( 0 ), bodies, linkEnds, transmitter, receiver );
     double lightTimeCorrection = lightTimeCorrectionCalculator->calculateLightTimeCorrection(
                 linkEndStates.at( 0 ), linkEndStates.at( 1 ), linkEndTimes.at( 0 ), linkEndTimes.at( 1 ) );
 
@@ -134,19 +134,17 @@ BOOST_AUTO_TEST_CASE( testAngularPositionModel )
                         // Poor tolerance due to rounding errors when subtracting times
 
     // Check computed right ascension/declination from link end states
-    Eigen::Vector3d sphericalRelativeCoordinates = coordinate_conversions::convertCartesianToSpherical(
-                positionDifference );
-    BOOST_CHECK_CLOSE_FRACTION(
-                sphericalRelativeCoordinates.z( ) + observationBias->getObservationBias(
-                    std::vector< double >( ), std::vector< Eigen::Vector6d >( ) ).x( ),
-                observationFromReceptionTime( 0 ),
-                std::numeric_limits< double >::epsilon( ) );
-    BOOST_CHECK_CLOSE_FRACTION(
-                mathematical_constants::PI / 2.0 - sphericalRelativeCoordinates.y( ) +
-                observationBias->getObservationBias(
-                    std::vector< double >( ), std::vector< Eigen::Vector6d>( ) ).y( ),
-                observationFromReceptionTime( 1 ),
-                std::numeric_limits< double >::epsilon( ) );
+//    Eigen::Vector3d sphericalRelativeCoordinates = coordinate_conversions::convertCartesianToSpherical(
+//                positionDifference );
+    double rightAscension = 2.0 * std::atan( positionDifference[ 1 ] /
+            ( std::sqrt( positionDifference[ 0 ] * positionDifference[ 0 ] + positionDifference[ 1 ] * positionDifference[ 1 ] ) + positionDifference[ 0 ] ) );
+    double declination = mathematical_constants::PI / 2.0 - std::acos( positionDifference[ 2 ] / positionDifference.norm( ) );
+    BOOST_CHECK_CLOSE_FRACTION( rightAscension + observationBias->getObservationBias( std::vector< double >( ), std::vector< Eigen::Vector6d >( ) ).x( ),
+                                observationFromReceptionTime( 0 ),
+                                std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION( declination + observationBias->getObservationBias( std::vector< double >( ), std::vector< Eigen::Vector6d>( ) ).y( ),
+                                observationFromReceptionTime( 1 ),
+                                std::numeric_limits< double >::epsilon( ) );
 
     // Compute transmission time from light time.
     double transmitterObservationTime = receiverObservationTime - ( linkEndTimes[ 1 ] - linkEndTimes[ 0 ] );

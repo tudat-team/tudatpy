@@ -73,6 +73,45 @@ bool MinimumElevationAngleCalculator::isObservationViable(
     return isObservationPossible;
 }
 
+double computeMinimumLinkDistanceToPoint( const Eigen::Vector3d& observingBody,
+                                          const Eigen::Vector3d& transmittingBody,
+                                          const Eigen::Vector3d& relativePoint )
+{
+    Eigen::Vector3d observerToPoint = relativePoint - observingBody;
+    Eigen::Vector3d transmitterToPoint = relativePoint - transmittingBody;
+    Eigen::Vector3d transmitterToObserver = observingBody - transmittingBody;
+    Eigen::Vector3d observerToTransmitter = transmittingBody - observingBody;
+
+    double transmitterAngle = transmitterToObserver.dot( transmitterToPoint );
+    double observerAngle = transmitterToObserver.dot( observerToPoint );
+
+    double minimumDistance = TUDAT_NAN;
+
+    // Minimum distance is at one of the extremes
+    if( transmitterAngle * observerAngle > 0.0 )
+    {
+        if( std::fabs( transmitterAngle ) < std::fabs( observerAngle ) )
+        {
+            minimumDistance = transmitterToPoint.norm( );
+        }
+        else
+        {
+            minimumDistance = observerToPoint.norm( );
+        }
+    }
+
+    // Minimum distance is impact parameter
+    else
+    {
+        // Compute as average value with both points as reference, to minimuze numerical errors
+        minimumDistance = ( ( transmitterToObserver.cross( transmitterToPoint ) ).norm( ) / transmitterToObserver.norm( ) +
+            ( observerToTransmitter.cross( observerToPoint ) ).norm( ) / observerToTransmitter.norm( ) ) / 2.0;
+    }
+
+    return minimumDistance;
+
+}
+
 double computeCosineBodyAvoidanceAngle( const Eigen::Vector3d& observingBody,
                                         const Eigen::Vector3d& transmittingBody,
                                         const Eigen::Vector3d& bodyToAvoid )
@@ -109,10 +148,6 @@ bool BodyAvoidanceAngleCalculator::isObservationViable( const std::vector< Eigen
                 .segment( 0, 3 );
         currentCosineOfAngle = computeCosineBodyAvoidanceAngle(
                     linkEndStates, linkEndIndices_.at( i ), positionOfBodyToAvoid );
-//                linear_algebra::computeCosineOfAngleBetweenVectors(
-//                    positionOfBodyToAvoid - ( linkEndStates.at( linkEndIndices_.at( i ).first ) ).segment( 0, 3 ),
-//                    linkEndStates.at( linkEndIndices_.at( i ).second ).segment( 0, 3 ) -
-//                    linkEndStates.at( linkEndIndices_.at( i ).first ).segment( 0, 3 ) );
 
         // Check if avoidance angle is sufficiently large
         if( currentCosineOfAngle > std::cos( bodyAvoidanceAngle_ ) )

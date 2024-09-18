@@ -14,14 +14,14 @@
 #include <vector>
 
 #include <functional>
-#include <boost/bind/bind.hpp>
+
 
 #include <Eigen/Core>
 
 #include "tudat/basics/basicTypedefs.h"
 #include "tudat/astro/aerodynamics/aerodynamics.h"
 
-using namespace boost::placeholders;
+
 
 namespace tudat
 {
@@ -71,7 +71,7 @@ public:
             throw std::runtime_error( errorMessage );
         }
 
-        numberOfIndependentVariables_ = independentVariableNames_.size( );
+        numberOfIndependentVariables_ = static_cast< unsigned int >( independentVariableNames_.size( ) );
     }
 
     //! Destructor

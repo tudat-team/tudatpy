@@ -13,15 +13,18 @@
 
 #include <functional>
 #include <memory>
-#include "tudat/astro/electromagnetism/cannonBallRadiationPressureAcceleration.h"
-#include "tudat/astro/electromagnetism/solarSailAcceleration.h"
 #include "tudat/astro/gravitation/centralGravityModel.h"
 #include "tudat/astro/gravitation/sphericalHarmonicsGravityModel.h"
 #include "tudat/astro/gravitation/thirdBodyPerturbation.h"
 #include "tudat/astro/aerodynamics/aerodynamicAcceleration.h"
 #include "tudat/astro/basic_astro/accelerationModelTypes.h"
+<<<<<<< HEAD
 #include "tudat/astro/reference_frames/referenceFrameTransformations.h"
 #include "tudat/simulation/propagation_setup/createThrustModelGuidance.h"
+=======
+#include "tudat/basics/deprecationWarnings.h"
+#include "tudat/simulation/environment_setup/createRadiationPressureTargetModel.h"
+>>>>>>> origin/develop
 // #include "tudat/math/interpolators/createInterpolator.h"
 
 namespace tudat
@@ -63,6 +66,31 @@ public:
 
 };
 
+class RadiationPressureAccelerationSettings: public AccelerationSettings
+{
+public:
+
+    // Constructor, sets type of acceleration.
+    /*
+     *  Constructor, sets type of acceleration.
+     *  \param accelerationType Type of acceleration from AvailableAcceleration enum.
+     */
+    RadiationPressureAccelerationSettings( const RadiationPressureTargetModelType targetModelType = undefined_target ):
+        AccelerationSettings( basic_astrodynamics::radiation_pressure ), targetModelType_( targetModelType )
+        {
+            if( targetModelType_ == multi_type_target )
+            {
+                throw std::runtime_error( "Error when creating radiation pressure acceleration settings, cannot select multi-type target" );
+            }
+        }
+
+    // Destructor.
+    virtual ~RadiationPressureAccelerationSettings( ){ }
+
+    RadiationPressureTargetModelType targetModelType_;
+
+};
+
 inline std::shared_ptr< AccelerationSettings > acceleration( basic_astrodynamics::AvailableAcceleration accelerationType  )
 {
     return std::make_shared< AccelerationSettings >( accelerationType );
@@ -73,6 +101,12 @@ inline std::shared_ptr< AccelerationSettings > pointMassGravityAcceleration( )
 {
     return std::make_shared< AccelerationSettings >( basic_astrodynamics::point_mass_gravity );
 }
+
+inline std::shared_ptr< AccelerationSettings > einsteinInfledHoffmannGravityAcceleration( )
+{
+    return std::make_shared< AccelerationSettings >( basic_astrodynamics::einstein_infeld_hoffmann_acceleration );
+}
+
 
 //! @get_docstring(aerodynamicAcceleration)
 inline std::shared_ptr< AccelerationSettings > aerodynamicAcceleration( )
@@ -85,6 +119,12 @@ inline std::shared_ptr< AccelerationSettings > cannonBallRadiationPressureAccele
 {
     return std::make_shared< AccelerationSettings >( basic_astrodynamics::cannon_ball_radiation_pressure );
 }
+
+inline std::shared_ptr< AccelerationSettings > radiationPressureAcceleration( const RadiationPressureTargetModelType targetModelType = undefined_target )
+{
+    return std::make_shared< RadiationPressureAccelerationSettings >( targetModelType );
+}
+
 
 // Class for providing settings for spherical harmonics acceleration model.
 /*
@@ -103,9 +143,11 @@ public:
      *  \param maximumOrder Maximum order
      */
     SphericalHarmonicAccelerationSettings( const int maximumDegree,
-                                           const int maximumOrder ):
+                                           const int maximumOrder,
+                                           const bool removePointMass = false ):
         AccelerationSettings( basic_astrodynamics::spherical_harmonic_gravity ),
-        maximumDegree_( maximumDegree ), maximumOrder_( maximumOrder ){ }
+        maximumDegree_( maximumDegree ), maximumOrder_( maximumOrder ),
+        removePointMass_( removePointMass ){ }
 
 
     // Maximum degree that is to be used for spherical harmonic acceleration
@@ -113,6 +155,8 @@ public:
 
     // Maximum order that is to be used for spherical harmonic acceleration
     int maximumOrder_;
+
+    bool removePointMass_;
 };
 
 //! @get_docstring(sphericalHarmonicAcceleration)
@@ -194,6 +238,16 @@ inline std::shared_ptr< AccelerationSettings > mutualSphericalHarmonicAccelerati
 			maximumDegreeOfCentralBody,
 			maximumOrderOfCentralBody
 			);
+}
+
+inline std::shared_ptr< AccelerationSettings > polyhedronAcceleration( )
+{
+    return std::make_shared< AccelerationSettings >( basic_astrodynamics::polyhedron_gravity );
+}
+
+inline std::shared_ptr< AccelerationSettings > ringAcceleration( )
+{
+    return std::make_shared< AccelerationSettings >( basic_astrodynamics::ring_gravity );
 }
 
 // Class to provide settings for typical relativistic corrections to the dynamics of an orbiter.
@@ -314,6 +368,31 @@ inline std::shared_ptr< AccelerationSettings > empiricalAcceleration(
 	return std::make_shared< EmpiricalAccelerationSettings >( constantAcceleration, sineAcceleration, cosineAcceleration );
 }
 
+// Class to define settings for yarkovsky accelerations
+//! @get_docstring(YarkovskyAccelerationSettings.__docstring__)
+class YarkovskyAccelerationSettings : public AccelerationSettings
+{
+    // Constructor
+    /*
+     * Constructor
+     * \param yarkovskyParameter (A2) au d^{-1}
+     */
+    public:
+    YarkovskyAccelerationSettings( const double yarkovskyParameter = 0.0 ):
+    AccelerationSettings(basic_astrodynamics::yarkovsky_acceleration),
+    yarkovskyParameter_(yarkovskyParameter) { }
+
+    // Yarkovsky parameter (A2) au d^{-1}
+    double yarkovskyParameter_;
+};
+
+//! @get_docstring(yarkovskyAcceleration)
+inline std::shared_ptr< AccelerationSettings> yarkovskyAcceleration(
+    const double yarkovskyParameter )
+{
+    return std::make_shared< YarkovskyAccelerationSettings >( yarkovskyParameter );
+}
+
 // Interface class that allows single interpolator to be used for thrust direction and magnitude (which are separated in
 // thrust implementation)
 // TODO: not exposed
@@ -372,7 +451,7 @@ public:
         rotationFunction_ = rotationFunction;
     }
 
-    void resetTime( const double currentTime = TUDAT_NAN )
+    void resetCurrentTime( const double currentTime = TUDAT_NAN )
     {
         currentTime_ = currentTime;
     }
@@ -416,7 +495,10 @@ private:
 
 };
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin/develop
 // Class for providing acceleration settings for a thrust acceleration model
 /*
  *  Class for providing acceleration settings for a thrust acceleration model. Settings for the direction and magnitude
@@ -427,6 +509,7 @@ class ThrustAccelerationSettings: public AccelerationSettings
 {
 public:
 
+<<<<<<< HEAD
     // Constructor from separate magnitude and diretion settings.
     /*
      * Constructor from separate magnitude and diretion settings.
@@ -458,17 +541,16 @@ public:
         AccelerationSettings( basic_astrodynamics::thrust_acceleration ),
         constantSpecificImpulse_( TUDAT_NAN ), thrustFrame_( thrustFrame ),
         centralBody_( centralBody )
+=======
+    ThrustAccelerationSettings( const std::string& engineId ):
+        AccelerationSettings( basic_astrodynamics::thrust_acceleration )
+>>>>>>> origin/develop
     {
-        interpolatorInterface_ = std::make_shared< FullThrustInterpolationInterface >( thrustForceFunction);
-        thrustDirectionSettings_ = std::make_shared< CustomThrustDirectionSettings >(
-                    std::bind( &FullThrustInterpolationInterface::getThrustDirection, interpolatorInterface_, std::placeholders::_1 ) );
-        thrustMagnitudeSettings_ =  std::make_shared< FromFunctionThrustMagnitudeSettings >(
-                    std::bind( &FullThrustInterpolationInterface::getThrustMagnitude, interpolatorInterface_, std::placeholders::_1 ),
-                    specificImpulseFunction, [ ]( const double ){ return true; },
-        [ ]( ){ return  Eigen::Vector3d::UnitX( ); },
-        std::bind( &FullThrustInterpolationInterface::resetTime, interpolatorInterface_, std::placeholders::_1 ) );
+        engineIds_.push_back( engineId );
+        useAllEngines_ = false;
     }
 
+<<<<<<< HEAD
     // Constructor used for defining total thrust vector (in local or inertial frame) from interpolator using constant
     // specific impulse
     /*
@@ -490,16 +572,30 @@ public:
     {
         constantSpecificImpulse_ = constantSpecificImpulse;
     }
+=======
+   ThrustAccelerationSettings( const std::vector< std::string >& engineIds ):
+            AccelerationSettings( basic_astrodynamics::thrust_acceleration ), engineIds_( engineIds )
+   {
+        useAllEngines_ = false;
+   }
+>>>>>>> origin/develop
 
+   ThrustAccelerationSettings( ):
+       AccelerationSettings( basic_astrodynamics::thrust_acceleration )
+   {
+        engineIds_ = std::vector< std::string >( );
+        useAllEngines_ = true;
+   }
 
 
     // Destructor.
     ~ThrustAccelerationSettings( ){ }
 
+    std::vector< std::string > engineIds_;
 
-    // Settings for the direction of the thrust
-    std::shared_ptr< ThrustDirectionSettings > thrustDirectionSettings_;
+    bool useAllEngines_;    
 
+<<<<<<< HEAD
     // Settings for the magnitude of the thrust
     std::shared_ptr< ThrustMagnitudeSettings > thrustMagnitudeSettings_;
 
@@ -526,6 +622,16 @@ public:
 
     // Interface object used when full thrust (direction and magnitude) are defined by a single user-supplied interpolation.
     std::shared_ptr< FullThrustInterpolationInterface > interpolatorInterface_;
+=======
+    template< typename ReturnType >
+    ReturnType printDeprecationError( )
+    {
+        utilities::printDeprecationError(
+                    "tudatpy.numerical_simulation.propagation_setup.acceleration.direction_settings/magnitude_settings",
+                    "https://docs.tudat.space/en/stable/_src_user_guide/state_propagation/environment_setup/thrust_refactor/thrust_refactor.html#thrust-acceleration" );
+        return nullptr;
+    }
+>>>>>>> origin/develop
 
 };
 
@@ -538,89 +644,94 @@ inline Eigen::Vector3d applyAccelerationScalingFunction(
 }
 
 //! @get_docstring(thrustAcceleration, 1)
-inline std::shared_ptr< AccelerationSettings > thrustAcceleration( const std::shared_ptr< ThrustDirectionSettings >
-        thrustDirectionGuidanceSettings,
-		const std::shared_ptr< ThrustMagnitudeSettings > thrustMagnitudeSettings )
-{
-	return std::make_shared< ThrustAccelerationSettings >( thrustDirectionGuidanceSettings, thrustMagnitudeSettings );
-}
-
-//! @get_docstring(thrustAcceleration, 2)
 inline std::shared_ptr< AccelerationSettings > thrustAcceleration(
+<<<<<<< HEAD
         const std::function< Eigen::Vector3d( const double ) > thrustForceFunction,
         const std::function< double( const double ) > specificImpulseFunction,
         const reference_frames::SatelliteReferenceFrames thrustFrame = reference_frames::unspecified_reference_frame,
 		const std::string centralBody = "" )
+=======
+        const std::vector< std::string >& engineIds )
+>>>>>>> origin/develop
 {
-    return std::make_shared< ThrustAccelerationSettings >( thrustForceFunction, specificImpulseFunction,
-														thrustFrame, centralBody );
+    return std::make_shared< ThrustAccelerationSettings >( engineIds );
 }
 
+<<<<<<< HEAD
 //! @get_docstring(thrustAcceleration, 3)
 inline std::shared_ptr< AccelerationSettings > thrustAcceleration(
         const std::function< Eigen::Vector3d( const double ) > thrustForceFunction,
         const double constantSpecificImpulse,
         const reference_frames::SatelliteReferenceFrames thrustFrame = reference_frames::unspecified_reference_frame,
 		const std::string centralBody = "" )
+=======
+inline std::shared_ptr< AccelerationSettings > thrustAccelerationFromSingleEngine(
+        const std::string& engineId )
+>>>>>>> origin/develop
 {
-    return std::make_shared< ThrustAccelerationSettings >( thrustForceFunction, constantSpecificImpulse,
-														   thrustFrame, centralBody );
+    return std::make_shared< ThrustAccelerationSettings >( std::vector< std::string >( { engineId } ) );
 }
 
-// TODO: not exposed
-// Retrieve acceleration model (thrust).
-inline std::shared_ptr< simulation_setup::ThrustAccelerationSettings > getLowThrustLegAccelerationSettings(
-        const std::shared_ptr< low_thrust_trajectories::LowThrustLeg > lowThrustLeg,
-        const simulation_setup::SystemOfBodies& bodies,
-        const std::string& bodyToPropagate,
-        const std::function< double( const double ) > specificImpulseFunction,
-        const double lowThrustLegInitialTime )
+inline std::shared_ptr< AccelerationSettings > thrustAccelerationFromAllEngines( )
 {
-    using namespace low_thrust_trajectories;
-
-    std::shared_ptr< simulation_setup::Body > vehicle = bodies.at( bodyToPropagate );
-
-    // Define thrust magnitude function from the shaped trajectory.
-    std::function< double( const double ) > thrustForceMagnitudeFunction;
-    if( lowThrustLeg->getLegModelIsForceBased( ) )
-    {
-        thrustForceMagnitudeFunction =
-                std::bind( &LowThrustLeg::getForceBasedThrustMagnitude, lowThrustLeg,
-                           std::placeholders::_1, lowThrustLegInitialTime );
-    }
-    else
-    {
-        std::function< double( const double, const double ) > thrustAccelerationMagnitudeFunction =
-                std::bind( &LowThrustLeg::getAccelerationBasedThrustMagnitude, lowThrustLeg,
-                           std::placeholders::_1, lowThrustLegInitialTime, std::placeholders::_2 );
-        std::function< double( ) > bodyMassFunction =
-                std::bind( &Body::getBodyMass, vehicle );
-        thrustForceMagnitudeFunction = [=](const double currentTime ){
-            return thrustAccelerationMagnitudeFunction( currentTime, bodyMassFunction( ) ); };
-    }
-
-    // Define thrust magnitude settings from thrust magnitude function.
-    std::shared_ptr< simulation_setup::FromFunctionThrustMagnitudeSettings > thrustMagnitudeSettings =
-            std::make_shared< simulation_setup::FromFunctionThrustMagnitudeSettings >(
-                thrustForceMagnitudeFunction, specificImpulseFunction );
-
-
-    // Define thrust direction function from the shaped trajectory.
-    std::function< Eigen::Vector3d( const double ) > thrustDirectionFunction =
-            std::bind( &LowThrustLeg::getThrustDirection, lowThrustLeg,
-                       std::placeholders::_1, lowThrustLegInitialTime );
-
-    // Define thrust direction settings from the direction of thrust acceleration retrieved from the shaping method.
-    std::shared_ptr< simulation_setup::CustomThrustDirectionSettings > thrustDirectionSettings =
-            std::make_shared< simulation_setup::CustomThrustDirectionSettings >( thrustDirectionFunction );
-
-    // Define thrust acceleration settings.
-    std::shared_ptr< simulation_setup::ThrustAccelerationSettings > thrustAccelerationSettings =
-            std::make_shared< simulation_setup::ThrustAccelerationSettings >(
-                thrustDirectionSettings, thrustMagnitudeSettings );
-
-    return thrustAccelerationSettings;
+    return std::make_shared< ThrustAccelerationSettings >( );
 }
+
+
+//// TODO: not exposed
+//// Retrieve acceleration model (thrust).
+//inline std::shared_ptr< simulation_setup::ThrustAccelerationSettings > getLowThrustLegAccelerationSettings(
+//        const std::shared_ptr< low_thrust_trajectories::LowThrustLeg > lowThrustLeg,
+//        const simulation_setup::SystemOfBodies& bodies,
+//        const std::string& bodyToPropagate,
+//        const std::function< double( const double ) > specificImpulseFunction,
+//        const double lowThrustLegInitialTime )
+//{
+//    using namespace low_thrust_trajectories;
+
+//    std::shared_ptr< simulation_setup::Body > vehicle = bodies.at( bodyToPropagate );
+
+//    // Define thrust magnitude function from the shaped trajectory.
+//    std::function< double( const double ) > thrustForceMagnitudeFunction;
+//    if( lowThrustLeg->getLegModelIsForceBased( ) )
+//    {
+//        thrustForceMagnitudeFunction =
+//                std::bind( &LowThrustLeg::getForceBasedThrustMagnitude, lowThrustLeg,
+//                           std::placeholders::_1, lowThrustLegInitialTime );
+//    }
+//    else
+//    {
+//        std::function< double( const double, const double ) > thrustAccelerationMagnitudeFunction =
+//                std::bind( &LowThrustLeg::getAccelerationBasedThrustMagnitude, lowThrustLeg,
+//                           std::placeholders::_1, lowThrustLegInitialTime, std::placeholders::_2 );
+//        std::function< double( ) > bodyMassFunction =
+//                std::bind( &Body::getBodyMass, vehicle );
+//        thrustForceMagnitudeFunction = [=](const double currentTime ){
+//            return thrustAccelerationMagnitudeFunction( currentTime, bodyMassFunction( ) ); };
+//    }
+
+//    // Define thrust magnitude settings from thrust magnitude function.
+//    std::shared_ptr< simulation_setup::FromFunctionThrustMagnitudeSettings > thrustMagnitudeSettings =
+//            std::make_shared< simulation_setup::FromFunctionThrustMagnitudeSettings >(
+//                thrustForceMagnitudeFunction, specificImpulseFunction );
+
+
+//    // Define thrust direction function from the shaped trajectory.
+//    std::function< Eigen::Vector3d( const double ) > thrustDirectionFunction =
+//            std::bind( &LowThrustLeg::getThrustDirection, lowThrustLeg,
+//                       std::placeholders::_1, lowThrustLegInitialTime );
+
+//    // Define thrust direction settings from the direction of thrust acceleration retrieved from the shaping method.
+//    std::shared_ptr< simulation_setup::CustomThrustDirectionSettings > thrustDirectionSettings =
+//            std::make_shared< simulation_setup::CustomThrustDirectionSettings >( thrustDirectionFunction );
+
+//    // Define thrust acceleration settings.
+//    std::shared_ptr< simulation_setup::ThrustAccelerationSettings > thrustAccelerationSettings =
+//            std::make_shared< simulation_setup::ThrustAccelerationSettings >(
+//                thrustDirectionSettings, thrustMagnitudeSettings );
+
+//    return thrustAccelerationSettings;
+//}
 
 //! @get_docstring(CustomAccelerationSettings.__docstring__)
 class CustomAccelerationSettings: public AccelerationSettings
@@ -682,12 +793,47 @@ public:
      */
     DirectTidalDissipationAccelerationSettings( const double k2LoveNumber, const double timeLag,
                                                 const bool includeDirectRadialComponent = true,
-                                                const bool useTideRaisedOnPlanet = true ):
+                                                const bool useTideRaisedOnPlanet = true,
+                                                const bool explicitLibraionalTideOnSatellite = false ):
         AccelerationSettings(
             ( useTideRaisedOnPlanet ? basic_astrodynamics::direct_tidal_dissipation_in_central_body_acceleration :
                                       basic_astrodynamics::direct_tidal_dissipation_in_orbiting_body_acceleration ) ),
-        k2LoveNumber_( k2LoveNumber ), timeLag_( timeLag ), includeDirectRadialComponent_( includeDirectRadialComponent ),
-        useTideRaisedOnPlanet_( useTideRaisedOnPlanet ){ }
+        k2LoveNumber_( k2LoveNumber ), timeLag_( timeLag ),
+        inverseTidalQualityFactor_( TUDAT_NAN ), tidalPeriod_( TUDAT_NAN ),
+        includeDirectRadialComponent_( includeDirectRadialComponent ),
+        useTideRaisedOnPlanet_( useTideRaisedOnPlanet ), explicitLibraionalTideOnSatellite_( explicitLibraionalTideOnSatellite )
+    {
+        if( explicitLibraionalTideOnSatellite_ && useTideRaisedOnPlanet_ )
+        {
+            throw std::runtime_error( "Error when creating tidal dissipation acceleration model, cannot use tide on planet and librational tide on satellite in same model" );
+        }
+    }
+
+    // Constructor
+    /*
+     * Constructor
+     * \param k2LoveNumber Static k2 Love number of the satellite
+     * \param inverseTidalQualityFactor Inverse of tidal quality factor Q
+     * \param period Tidal period to be considered to compute the tidal time lag
+     * \param includeDirectRadialComponent  True if term independent of time lag is to be included, false otherwise
+     * \param useTideRaisedOnPlanet True if acceleration model is to model tide raised on planet by satellite, false if vice
+     * versa
+     */
+    DirectTidalDissipationAccelerationSettings( const double k2LoveNumber, const double inverseTidalQualityFactor,
+                                                const double period,
+                                                const bool includeDirectRadialComponent = true,
+                                                const bool useTideRaisedOnPlanet = true,
+                                                const bool explicitLibraionalTideOnSatellite = false ):
+            AccelerationSettings(
+                    ( useTideRaisedOnPlanet ? basic_astrodynamics::direct_tidal_dissipation_in_central_body_acceleration :
+                      basic_astrodynamics::direct_tidal_dissipation_in_orbiting_body_acceleration ) ),
+            k2LoveNumber_( k2LoveNumber ),
+            timeLag_( period * std::atan( inverseTidalQualityFactor ) / ( 2.0 * mathematical_constants::PI ) ),
+            inverseTidalQualityFactor_( inverseTidalQualityFactor ),
+            tidalPeriod_( period ),
+            includeDirectRadialComponent_( includeDirectRadialComponent ),
+            useTideRaisedOnPlanet_( useTideRaisedOnPlanet ),
+            explicitLibraionalTideOnSatellite_( explicitLibraionalTideOnSatellite ){ }
 
     // Static k2 Love number of the satellite
     double k2LoveNumber_;
@@ -695,23 +841,47 @@ public:
     // Time lag of tidal bulge on satellite
     double timeLag_;
 
+    // Inverse of tidal quality factor of the satellite (set to NaN if tidal lag is a direct input of the model)
+    double inverseTidalQualityFactor_;
+
+    // Period to be consider for the tides (set to Nan if tidal lag is a direct input of the model)
+    double tidalPeriod_;
+
     // True if term independent of time lag is to be included, false otherwise
     bool includeDirectRadialComponent_;
 
     // True if acceleration model is to model tide raised on planet by satellite, false if vice versa
     bool useTideRaisedOnPlanet_;
+
+    bool explicitLibraionalTideOnSatellite_;
+
 };
 
 //! @get_docstring(directTidalDissipationAcceleration)
 inline std::shared_ptr< AccelerationSettings > directTidalDissipationAcceleration(
 		const double k2LoveNumber, const double timeLag,
 		const bool includeDirectRadialComponent = true,
-		const bool useTideRaisedOnPlanet = true
+        const bool useTideRaisedOnPlanet = true,
+        const bool explicitLibraionalTideOnSatellite = false
 		)
 {
 	return std::make_shared< DirectTidalDissipationAccelerationSettings >( k2LoveNumber, timeLag,
 																		includeDirectRadialComponent,
-																		useTideRaisedOnPlanet);
+                                                                        useTideRaisedOnPlanet,
+                                                                           explicitLibraionalTideOnSatellite);
+}
+
+//! @get_docstring(directTidalDissipationAccelerationFromInvQ)
+inline std::shared_ptr< AccelerationSettings > directTidalDissipationAccelerationFromInvQ(
+        const double k2LoveNumber, const double inverseTidalQualityFactor,
+        const double tidalPeriod,
+        const bool includeDirectRadialComponent = true,
+        const bool useTideRaisedOnPlanet = true,
+        const bool explicitLibraionalTideOnSatellite = false
+)
+{
+    return std::make_shared< DirectTidalDissipationAccelerationSettings >(
+            k2LoveNumber, inverseTidalQualityFactor, tidalPeriod, includeDirectRadialComponent, useTideRaisedOnPlanet, explicitLibraionalTideOnSatellite);
 }
 
 // Class for providing acceleration settings for a momentum wheel desaturation acceleration model.

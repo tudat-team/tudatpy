@@ -7,7 +7,6 @@
 #    a copy of the license with this file. If not, please or visit:
 #    http://tudat.tudelft.nl/LICENSE.
 #
-
 # Set the source files.
 set(basic_astrodynamics_SOURCES
         "accelerationModelTypes.cpp"
@@ -20,7 +19,9 @@ set(basic_astrodynamics_SOURCES
         "timeConversions.cpp"
         "astrodynamicsFunctions.cpp"
         "physicalConstants.cpp"
+        "polyhedronFunctions.cpp"
         "bodyShapeModel.cpp"
+        "polyhedronBodyShapeModel.cpp"
         "sphericalStateConversions.cpp"
         "unifiedStateModelQuaternionElementConversions.cpp"
         "unifiedStateModelModifiedRodriguesParameterElementConversions.cpp"
@@ -34,6 +35,7 @@ set(basic_astrodynamics_SOURCES
 set(basic_astrodynamics_HEADERS
         "accelerationModelTypes.h"
         "accelerationModel.h"
+        "dateTime.h"
         "customAccelerationModel.h"
         "attitudeElementConversions.h"
         "celestialBodyConstants.h"
@@ -52,10 +54,13 @@ set(basic_astrodynamics_HEADERS
         "astrodynamicsFunctions.h"
         "orbitalElementConversions.h"
         "physicalConstants.h"
+        "polyhedronFunctions.h"
         "unitConversions.h"
         "bodyShapeModel.h"
         "oblateSpheroidBodyShapeModel.h"
         "sphericalBodyShapeModel.h"
+        "polyhedronBodyShapeModel.h"
+        "hybridBodyShapeModel.h"
         "massRateModel.h"
         "sphericalStateConversions.h"
         "unifiedStateModelQuaternionElementConversions.h"

@@ -14,7 +14,7 @@
 #include <vector>
 
 #include <functional>
-#include <boost/bind/bind.hpp>
+
 
 #include "tudat/astro/aerodynamics/trimOrientation.h"
 #include "tudat/astro/aerodynamics/aerodynamicCoefficientInterface.h"
@@ -23,7 +23,7 @@
 #include "tudat/astro/reference_frames/aerodynamicAngleCalculator.h"
 #include "tudat/basics/basicTypedefs.h"
 
-using namespace boost::placeholders;
+
 
 namespace tudat
 {
@@ -72,11 +72,17 @@ public:
      *  of the vehicle are calculated.
      */
     FlightConditions( const std::shared_ptr< basic_astrodynamics::BodyShapeModel > shapeModel,
+                      const std::string& centralBodyName,
                       const std::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator =
             std::shared_ptr< reference_frames::AerodynamicAngleCalculator >( ) );
 
     //! Destructor
     virtual ~FlightConditions( ){ }
+
+    std::string getCentralBody( )
+    {
+        return centralBody_;
+    }
 
     //! Function to update all flight conditions.
     /*!
@@ -112,6 +118,15 @@ public:
             computeLatitudeAndLongitude( );
         }
         return scalarFlightConditions_.at( longitude_flight_condition );
+    }
+
+    double getCurrentLatitude( )
+    {
+        if( isScalarFlightConditionComputed_.at( latitude_flight_condition ) == 0 )
+        {
+            computeLatitudeAndLongitude( );
+        }
+        return scalarFlightConditions_.at( latitude_flight_condition );
     }
 
     //! Function to retrieve (and compute if necessary) the current geodetic latitude
@@ -169,11 +184,11 @@ public:
      *  to NaN, indicating the need to recompute all quantities for the next time computation.
      * \param currentTime
      */
-    virtual void resetCurrentTime( const double currentTime = TUDAT_NAN )
+    virtual void resetCurrentTime( )
     {
-        currentTime_ = currentTime;
+        currentTime_ = TUDAT_NAN;
         isScalarFlightConditionComputed_ = allScalarFlightConditionsUncomputed;
-        aerodynamicAngleCalculator_->resetCurrentTime( currentTime_ );
+        aerodynamicAngleCalculator_->resetCurrentTime( );
     }
 
     //! Function to return current central body-fixed state of vehicle.
@@ -193,11 +208,17 @@ protected:
     {
         scalarFlightConditions_[ latitude_flight_condition ] = aerodynamicAngleCalculator_->getAerodynamicAngle(
                     reference_frames::latitude_angle );
-        isScalarFlightConditionComputed_[ latitude_flight_condition ] = true;
+        if( currentTime_ == currentTime_ )
+        {
+            isScalarFlightConditionComputed_[ latitude_flight_condition ] = true;
+        }
 
         scalarFlightConditions_[ longitude_flight_condition ] = aerodynamicAngleCalculator_->getAerodynamicAngle(
                     reference_frames::longitude_angle );
-        isScalarFlightConditionComputed_[ longitude_flight_condition ] = true;
+        if( currentTime_ == currentTime_ )
+        {
+            isScalarFlightConditionComputed_[ longitude_flight_condition ] = true;
+        }
     }
 
     //! Function to compute and set the current altitude
@@ -205,7 +226,10 @@ protected:
     {
         scalarFlightConditions_[ altitude_flight_condition ] =
                 shapeModel_->getAltitude( currentBodyCenteredAirspeedBasedBodyFixedState_.segment( 0, 3 ) );
-        isScalarFlightConditionComputed_[ altitude_flight_condition ] = true;
+        if( currentTime_ == currentTime_ )
+        {
+            isScalarFlightConditionComputed_[ altitude_flight_condition ] = true;
+        }
     }
 
     //! Function to compute and set the current geodetic latitude.
@@ -215,7 +239,6 @@ protected:
         {
             scalarFlightConditions_[ geodetic_latitude_condition ] = geodeticLatitudeFunction_(
                         currentBodyCenteredAirspeedBasedBodyFixedState_.segment( 0, 3 ) );
-            isScalarFlightConditionComputed_[ geodetic_latitude_condition ] = true;
         }
         else
         {
@@ -224,15 +247,18 @@ protected:
                 computeLatitudeAndLongitude( );
             }
             scalarFlightConditions_[ geodetic_latitude_condition ] = scalarFlightConditions_[ latitude_flight_condition ] ;
+        }
+        if( currentTime_ == currentTime_ )
+        {
             isScalarFlightConditionComputed_[ geodetic_latitude_condition ] = true;
         }
     }
 
-    //! Name of central body (i.e. body with the atmosphere)
-    std::string centralBody_;
-
     //! Model describing the shape of the body w.r.t. which the flight is taking place.
     const std::shared_ptr< basic_astrodynamics::BodyShapeModel > shapeModel_;
+    
+    //! Name of central body (i.e. body with the atmosphere)
+    std::string centralBody_;
 
     //! Object from which the aerodynamic/trajectory angles of the vehicle are calculated.
     std::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator_;
@@ -294,6 +320,7 @@ public:
                                  aerodynamicCoefficientInterface,
                                  const std::shared_ptr< reference_frames::AerodynamicAngleCalculator >
                                  aerodynamicAngleCalculator,
+                                 const std::string centralBodyName,
                                  const std::function< double( const std::string& )> controlSurfaceDeflectionFunction =
             std::function< double( const std::string& )>( ) );
 
@@ -417,6 +444,21 @@ public:
         return scalarFlightConditions_.at( mach_number_flight_condition );
     }
 
+    double getCurrentNumberDensity( const AtmosphericCompositionSpecies species)
+    {
+        if( currentNumberDensities_.count( species ) == 0 )
+        {
+            updateAtmosphereInput( );
+            currentNumberDensities_[ species ] =
+                atmosphereModel_->getNumberDensity( species,
+                                                    scalarFlightConditions_.at( altitude_flight_condition ),
+                                                    scalarFlightConditions_.at( longitude_flight_condition ),
+                                                    scalarFlightConditions_.at( latitude_flight_condition ), currentTime_ );
+        }
+        return currentNumberDensities_.at( species );
+    }
+
+
     //! Function to return atmosphere model object
     /*!
      *  Function to return atmosphere model object
@@ -466,6 +508,12 @@ public:
      */
     std::vector< double > getAerodynamicCoefficientIndependentVariables( )
     {
+        if( aerodynamicCoefficientInterface_ == nullptr )
+        {
+            throw std::runtime_error(
+                        "Error when getting aerodynamic coefficient independent variables, no coefficient interface is defined" );
+        }
+
         if( aerodynamicCoefficientIndependentVariables_.size( ) !=
                 aerodynamicCoefficientInterface_->getNumberOfIndependentVariables( ) )
         {
@@ -483,6 +531,12 @@ public:
      */
     std::map< std::string, std::vector< double > > getControlSurfaceAerodynamicCoefficientIndependentVariables( )
     {
+        if( aerodynamicCoefficientInterface_ == nullptr )
+        {
+            throw std::runtime_error(
+                        "Error when getting control surface aerodynamic coefficient independent variables, no coefficient interface is defined" );
+        }
+
         if( controlSurfaceAerodynamicCoefficientIndependentVariables_.size( ) !=
                 aerodynamicCoefficientInterface_->getNumberOfControlSurfaces( ) )
         {
@@ -498,14 +552,19 @@ public:
      *  to NaN, indicating the need to recompute all quantities for the next time computation.
      * \param currentTime
      */
-    void resetCurrentTime( const double currentTime = TUDAT_NAN )
+    void resetCurrentTime( )
     {
-        currentTime_ = currentTime;
+        currentTime_ = TUDAT_NAN;
 
         isScalarFlightConditionComputed_ = allScalarFlightConditionsUncomputed;
-        aerodynamicAngleCalculator_->resetCurrentTime( currentTime_ );
+        aerodynamicAngleCalculator_->resetCurrentTime( );
         aerodynamicCoefficientIndependentVariables_.clear( );
         controlSurfaceAerodynamicCoefficientIndependentVariables_.clear( );
+    }
+
+    void resetAerodynamicCoefficientInterface( const std::shared_ptr< AerodynamicCoefficientInterface > coefficientInterface )
+    {
+        aerodynamicCoefficientInterface_ = coefficientInterface;
     }
 
 private:
@@ -533,7 +592,10 @@ private:
                     scalarFlightConditions_.at( altitude_flight_condition ),
                     scalarFlightConditions_.at( longitude_flight_condition ),
                     scalarFlightConditions_.at( latitude_flight_condition ), currentTime_ );
-        isScalarFlightConditionComputed_[ density_flight_condition ] = true;
+        if( currentTime_ == currentTime_ )
+        {
+            isScalarFlightConditionComputed_[ density_flight_condition ] = true;
+        }
     }
 
     //! Function to compute and set the current freestream temperature
@@ -545,7 +607,10 @@ private:
                     scalarFlightConditions_.at( altitude_flight_condition ),
                     scalarFlightConditions_.at( longitude_flight_condition ),
                     scalarFlightConditions_.at( latitude_flight_condition ), currentTime_ );
-        isScalarFlightConditionComputed_[ temperature_flight_condition ] = true;
+        if( currentTime_ == currentTime_ )
+        {
+            isScalarFlightConditionComputed_[ temperature_flight_condition ] = true;
+        }
     }
 
     //! Function to compute and set the current freestream pressure.
@@ -557,7 +622,10 @@ private:
                     scalarFlightConditions_.at( altitude_flight_condition ),
                     scalarFlightConditions_.at( longitude_flight_condition ),
                     scalarFlightConditions_.at( latitude_flight_condition ), currentTime_ );
-        isScalarFlightConditionComputed_[ pressure_flight_condition ] = true;
+        if( currentTime_ == currentTime_ )
+        {
+            isScalarFlightConditionComputed_[ pressure_flight_condition ] = true;
+        }
     }
 
 
@@ -570,14 +638,20 @@ private:
                     scalarFlightConditions_.at( altitude_flight_condition ),
                     scalarFlightConditions_.at( longitude_flight_condition ),
                     scalarFlightConditions_.at( latitude_flight_condition ), currentTime_ );
-        isScalarFlightConditionComputed_[ speed_of_sound_flight_condition ] = true;
+        if( currentTime_ == currentTime_ )
+        {
+            isScalarFlightConditionComputed_[ speed_of_sound_flight_condition ] = true;
+        }
     }
 
     //! Function to compute and set the current airspeed
     void computeAirspeed( )
     {
         scalarFlightConditions_[ airspeed_flight_condition ] = currentBodyCenteredAirspeedBasedBodyFixedState_.segment( 3, 3 ).norm( );
-        isScalarFlightConditionComputed_[ airspeed_flight_condition ] = true;
+        if( currentTime_ == currentTime_ )
+        {
+            isScalarFlightConditionComputed_[ airspeed_flight_condition ] = true;
+        }
     }
 
     //! Function to compute and set the current freestream dynamic pressure.
@@ -586,7 +660,10 @@ private:
         double currentAirspeed = getCurrentAirspeed( );
         scalarFlightConditions_[ dynamic_pressure_condition ] = 0.5 *
                 getCurrentDensity( ) * currentAirspeed * currentAirspeed;
-        isScalarFlightConditionComputed_[ dynamic_pressure_condition ] = true;
+        if( currentTime_ == currentTime_ )
+        {
+            isScalarFlightConditionComputed_[ dynamic_pressure_condition ] = true;
+        }
     }
 
     //! Function to compute and set the current aerodynamic heat rate.
@@ -595,7 +672,10 @@ private:
         double currentAirspeed = getCurrentAirspeed( );
         scalarFlightConditions_[ aerodynamic_heat_rate ] = 0.5 *
                 getCurrentDensity( ) * currentAirspeed * currentAirspeed * currentAirspeed;
-        isScalarFlightConditionComputed_[ aerodynamic_heat_rate ] = true;
+        if( currentTime_ == currentTime_ )
+        {
+            isScalarFlightConditionComputed_[ aerodynamic_heat_rate ] = true;
+        }
     }
 
     //! Function to compute and set the current Mach number.
@@ -603,15 +683,19 @@ private:
     {
         scalarFlightConditions_[ mach_number_flight_condition ] =
                 getCurrentAirspeed( ) / getCurrentSpeedOfSound( );
-        isScalarFlightConditionComputed_[ mach_number_flight_condition ] = true;
+        if( currentTime_ == currentTime_ )
+        {
+            isScalarFlightConditionComputed_[ mach_number_flight_condition ] = true;
+        }
     }
-
     //! Function to update the independent variables of the aerodynamic coefficient interface
     void updateAerodynamicCoefficientInput( );
 
 
     //! Atmosphere model of atmosphere through which vehicle is flying
     std::shared_ptr< aerodynamics::AtmosphereModel > atmosphereModel_;
+
+    std::map< AtmosphericCompositionSpecies, double > currentNumberDensities_;
 
     //! Object from which the aerodynamic coefficients are obtained.
     std::shared_ptr< AerodynamicCoefficientInterface > aerodynamicCoefficientInterface_;

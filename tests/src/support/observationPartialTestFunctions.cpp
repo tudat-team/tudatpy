@@ -8,6 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+#include <algorithm>
+
 #include "tudat/astro/ephemerides/constantRotationalEphemeris.h"
 #include "tudat/support/observationPartialTestFunctions.h"
 #include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
@@ -31,7 +33,7 @@ using namespace tudat::orbit_determination;
 using namespace tudat::estimatable_parameters;
 
 //! Function to create environment for general observation partial tests.
-SystemOfBodies setupEnvironment( const std::vector< LinkEndId > groundStations,
+SystemOfBodies setupEnvironment( const std::vector< std::pair< std::string, std::string > > groundStations,
                                const double initialEphemerisTime,
                                const double finalEphemerisTime,
                                const double stateEvaluationTime,
@@ -118,6 +120,12 @@ SystemOfBodies setupEnvironment( const std::vector< LinkEndId > groundStations,
                         marsRotationModel->getRotationStateVector( 0.0 ), "ECLIPJ2000", "IAU_Mars" ) );
     }
 
+    // Create DSN stations
+    std::vector< std::shared_ptr< GroundStationSettings > > dsnSettings = getDsnStationSettings( );
+    for ( unsigned int i = 0; i < dsnSettings.size( ); ++i )
+    {
+        createGroundStation( bodies.at( "Earth" ), dsnSettings.at( i ) );
+    }
 
     // Define and create ground stations.
     std::map< std::pair< std::string, std::string >, Eigen::Vector3d > groundStationsToCreate;
@@ -402,7 +410,7 @@ std::vector< Eigen::MatrixXd > calculateNumericalPartialsWrtVectorParameters(
 
 //! Function to retrieve times associated with analytical partial derivatives for general observation partial tests.
 std::vector< std::vector< double > > getAnalyticalPartialEvaluationTimes(
-        const LinkEnds& linkEnds,
+        const LinkDefinition& linkEnds,
         const ObservableType observableType,
         const std::vector< double >& linkEndTimes,
         const std::shared_ptr< EstimatableParameterSet< double > >& estimatedParameters )
@@ -418,19 +426,32 @@ std::vector< std::vector< double > > getAnalyticalPartialEvaluationTimes(
     for( unsigned int i = 0; i < bodiesWithTranslationalState.size( ); i++ )
     {
         currentPartialTimes.clear( );
-        for( LinkEnds::const_iterator linkEndIterator = linkEnds.begin( );
-             linkEndIterator != linkEnds.end( ); linkEndIterator++ )
+        LinkEnds currentLinkEnds = linkEnds.linkEnds_;
+        for( LinkEnds::const_iterator linkEndIterator = currentLinkEnds.begin( );
+             linkEndIterator != currentLinkEnds.end( ); linkEndIterator++ )
         {
-            if( linkEndIterator->second.first == bodiesWithTranslationalState.at( i ) )
+            if( linkEndIterator->second.bodyName_ == bodiesWithTranslationalState.at( i ) )
             {
                 currentPartialTimeIndices =
                         getLinkEndIndicesForLinkEndTypeAtObservable( observableType, linkEndIterator->first, linkEnds.size( ) );
 
+
                 for( unsigned int j = 0; j < currentPartialTimeIndices.size( ); j++ )
                 {
                     currentPartialTimes.push_back( linkEndTimes.at( currentPartialTimeIndices.at( j ) ) );
+                    if( linkEndIterator->first == receiver && observableType == relative_angular_position )
+                    {
+                        currentPartialTimes.push_back( linkEndTimes.at( currentPartialTimeIndices.at( j ) ) );
+                    }
                 }
             }
+        }
+
+        // Swap entries for consistency with test
+        if( ( observableType == observation_models::n_way_differenced_range && i == 1 ) ||
+            ( observableType == observation_models::dsn_n_way_averaged_doppler && i == 0 ) )
+        {
+            iter_swap(currentPartialTimes.begin( ) + 1, currentPartialTimes.begin( ) + 2);
         }
         partialTimes.push_back( currentPartialTimes );
     }
@@ -445,10 +466,11 @@ std::vector< std::vector< double > > getAnalyticalPartialEvaluationTimes(
     for( unsigned int i = 0; i < bodiesWithRotationalState.size( ); i++ )
     {
         currentPartialTimes.clear( );
-        for( LinkEnds::const_iterator linkEndIterator = linkEnds.begin( );
-             linkEndIterator != linkEnds.end( ); linkEndIterator++ )
+        LinkEnds currentLinkEnds = linkEnds.linkEnds_;
+        for( LinkEnds::const_iterator linkEndIterator = currentLinkEnds.begin( );
+             linkEndIterator != currentLinkEnds.end( ); linkEndIterator++ )
         {
-            if( linkEndIterator->second.first == bodiesWithRotationalState.at( i ) )
+            if( linkEndIterator->second.bodyName_ == bodiesWithRotationalState.at( i ) )
             {
                 currentPartialTimeIndices =
                         getLinkEndIndicesForLinkEndTypeAtObservable( observableType, linkEndIterator->first, linkEnds.size( ) );
@@ -468,22 +490,23 @@ std::vector< std::vector< double > > getAnalyticalPartialEvaluationTimes(
     for( unsigned int i = 0; i < estimatedParameters->getEstimatedDoubleParameters( ).size( ); i++ )
     {
         checkStationId = 0;
-        std::pair< std::string, std::string > currentAssociatedLinkEndId =
+        LinkEndId currentAssociatedLinkEndid =
                 estimatedParameters->getEstimatedDoubleParameters( ).at( i )->getParameterName( ).second;
-        if( currentAssociatedLinkEndId.second != "" )
+        if( currentAssociatedLinkEndid.stationName_ != "" )
         {
             checkStationId = 1;
         }
         currentPartialTimes.clear( );
-        for( LinkEnds::const_iterator linkEndIterator = linkEnds.begin( );
-             linkEndIterator != linkEnds.end( ); linkEndIterator++ )
+        LinkEnds currentLinkEnds = linkEnds.linkEnds_;
+        for( LinkEnds::const_iterator linkEndIterator = currentLinkEnds.begin( );
+             linkEndIterator != currentLinkEnds.end( ); linkEndIterator++ )
         {
-            if( linkEndIterator->second.first == currentAssociatedLinkEndId.first )
+            if( linkEndIterator->second.bodyName_ == currentAssociatedLinkEndid.bodyName_ )
             {
                 addContribution = 0;
                 if( checkStationId )
                 {
-                    if( linkEndIterator->second.second == currentAssociatedLinkEndId.second )
+                    if( linkEndIterator->second.stationName_ == currentAssociatedLinkEndid.stationName_ )
                     {
                         currentPartialTimeIndices =
                                 getLinkEndIndicesForLinkEndTypeAtObservable( observableType, linkEndIterator->first, linkEnds.size( ) );
@@ -505,28 +528,37 @@ std::vector< std::vector< double > > getAnalyticalPartialEvaluationTimes(
                 }
             }
         }
+
+        // Swap entries for consistency with test
+        if( ( observableType == observation_models::n_way_differenced_range && i == 1 ) ||
+            ( observableType == observation_models::dsn_n_way_averaged_doppler && i == 0 ) )
+        {
+            iter_swap(currentPartialTimes.begin( ) + 1, currentPartialTimes.begin( ) + 2);
+        }
+
         partialTimes.push_back( currentPartialTimes );
     }
 
     for( unsigned int i = 0; i < estimatedParameters->getEstimatedVectorParameters( ).size( ); i++ )
     {
         checkStationId = 0;
-        std::pair< std::string, std::string > currentAssociatedLinkEndId =
+        LinkEndId currentAssociatedLinkEndid =
                 estimatedParameters->getEstimatedVectorParameters( ).at( i )->getParameterName( ).second;
-        if( currentAssociatedLinkEndId.second != "" )
+        if( currentAssociatedLinkEndid.stationName_ != "" )
         {
             checkStationId = 1;
         }
         currentPartialTimes.clear( );
-        for( LinkEnds::const_iterator linkEndIterator = linkEnds.begin( );
-             linkEndIterator != linkEnds.end( ); linkEndIterator++ )
+        LinkEnds currentLinkEnds = linkEnds.linkEnds_;
+        for( LinkEnds::const_iterator linkEndIterator = currentLinkEnds.begin( );
+             linkEndIterator != currentLinkEnds.end( ); linkEndIterator++ )
         {
-            if( linkEndIterator->second.first == currentAssociatedLinkEndId.first )
+            if( linkEndIterator->second.bodyName_ == currentAssociatedLinkEndid.bodyName_ )
             {
                 addContribution = 0;
                 if( checkStationId )
                 {
-                    if( linkEndIterator->second.second == currentAssociatedLinkEndId.second )
+                    if( linkEndIterator->second.stationName_ == currentAssociatedLinkEndid.stationName_ )
                     {
                         currentPartialTimeIndices =
                                 getLinkEndIndicesForLinkEndTypeAtObservable( observableType, linkEndIterator->first, linkEnds.size( ) );
@@ -548,6 +580,14 @@ std::vector< std::vector< double > > getAnalyticalPartialEvaluationTimes(
                 }
             }
         }
+
+        // Swap entries for consistency with test
+        if( ( observableType == observation_models::n_way_differenced_range && i == 1 ) ||
+            ( observableType == observation_models::dsn_n_way_averaged_doppler && i == 0 ) )
+        {
+            iter_swap(currentPartialTimes.begin( ) + 1, currentPartialTimes.begin( ) + 2);
+        }
+
         partialTimes.push_back( currentPartialTimes );
     }
 
