@@ -742,58 +742,6 @@ public:
         int numberOfIterations = 0;
         while( true )
         {
-<<<<<<< HEAD
-            try
-            {
-                // Re-integrate equations of motion and variational equations with new parameter estimate.
-                if( ( numberOfIterations > 0 ) ||( podInput->getReintegrateEquationsOnFirstIteration( ) ) )
-                {
-                    resetParameterEstimate( newParameterEstimate, podInput->getReintegrateVariationalEquations( ) );
-                }
-
-
-                if( podInput->getSaveStateHistoryForEachIteration( ) )
-                {
-                    if( std::dynamic_pointer_cast< propagators::HybridArcVariationalEquationsSolver< ObservationScalarType, TimeType > >(  variationalEquationsSolver_) != nullptr )
-                    {
-
-                        std::shared_ptr< propagators::HybridArcVariationalEquationsSolver< ObservationScalarType, TimeType > > hybridArcSolver =
-                                std::dynamic_pointer_cast< propagators::HybridArcVariationalEquationsSolver< ObservationScalarType, TimeType > >(  variationalEquationsSolver_);
-
-                        std::vector< std::map< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > >  currentStateHistories;
-                        currentStateHistories = hybridArcSolver->getMultiArcSolver( )->getDynamicsSimulatorBase( )->getEquationsOfMotionNumericalSolutionBase( );
-                        currentStateHistories.insert(
-                                    currentStateHistories.begin(),
-                                    hybridArcSolver->getSingleArcSolver( )->getDynamicsSimulatorBase( )->getEquationsOfMotionNumericalSolutionBase( ).at( 0 ) );
-                        dynamicsHistoryPerIteration.push_back( currentStateHistories );
-
-                        std::vector< std::map< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > >  currentDependentVariableHistories;
-                        currentDependentVariableHistories = hybridArcSolver->getMultiArcSolver( )->getDynamicsSimulatorBase( )->getDependentVariableNumericalSolutionBase( );
-                        currentDependentVariableHistories.insert(
-                                    currentDependentVariableHistories.begin(),
-                                    hybridArcSolver->getSingleArcSolver( )->getDynamicsSimulatorBase( )->getDependentVariableNumericalSolutionBase( ).at( 0 ) );
-                        dependentVariableHistoryPerIteration.push_back( currentDependentVariableHistories );
-                    }
-                    else
-                    {
-                        dynamicsHistoryPerIteration.push_back(
-                                variationalEquationsSolver_->getDynamicsSimulatorBase( )->getEquationsOfMotionNumericalSolutionBase( ));
-                        dependentVariableHistoryPerIteration.push_back(
-                                variationalEquationsSolver_->getDynamicsSimulatorBase( )->getDependentVariableNumericalSolutionBase( ));
-                    }
-                }
-
-            }
-            catch( std::runtime_error& error )
-            {
-                std::cerr<<"Error when resetting parameters during parameter estimation: "<<std::endl<<
-                           error.what( )<<std::endl<<"Terminating estimation"<<std::endl;
-                exceptionDuringPropagation = true;
-                break;
-            }
-
-=======
->>>>>>> origin/develop
             oldParameterEstimate = newParameterEstimate;
             newFullParameterEstimate.segment( 0, numberEstimatedParameters_ ) = newParameterEstimate;
             if ( considerParametersIncluded_ )

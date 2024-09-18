@@ -688,12 +688,11 @@ Eigen::Vector3d getBodyFixedSphericalPosition(
         const std::function< Eigen::Vector3d( ) > positionFunctionOfRelativeBody,
         const std::function< Eigen::Quaterniond( ) > orientationFunctionOfCentralBody );
 
-<<<<<<< HEAD
 Eigen::Matrix3d getRotationBetweenSatelliteFrames(
         const Eigen::Vector6d relativeInertialCartesianState,
         const SatelliteReferenceFrames originalFrame,
         const SatelliteReferenceFrames targetFrame );
-=======
+
 /*! Compute the rotation matrix between ITRF2014 and another ITRF frame.
  *
  * Compute the rotation matrix between ITRF2014 and another ITRF frame. According to the IERS convetions of 2010, Eq.
@@ -773,7 +772,7 @@ Eigen::Vector6d convertGroundStationStateBetweenItrfFrames(
         double epoch,
         const std::string& baseFrame,
         const std::string& targetFrame );
->>>>>>> origin/develop
+
 
 } // namespace reference_frames
 
