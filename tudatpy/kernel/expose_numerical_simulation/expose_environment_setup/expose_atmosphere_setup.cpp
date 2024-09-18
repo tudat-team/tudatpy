@@ -51,40 +51,40 @@ namespace tudatpy {
 
                 void expose_atmosphere_setup(py::module &m) {
                     // NRLMSISE00
-                    // py::class_<ta::NRLMSISE00Input,
-                    //            std::shared_ptr<ta::NRLMSISE00Input>>(
-                    //     m, "NRLMSISE00Input",
-                    //     R"doc(Input for computation of NRLMSISE00 atmospheric
-                    //     conditions at current time and position.
+                     py::class_<ta::NRLMSISE00Input,
+                                std::shared_ptr<ta::NRLMSISE00Input>>(
+                         m, "NRLMSISE00Input",
+                         R"doc(Input for computation of NRLMSISE00 atmospheric
+                         conditions at current time and position.
 
-                    //     Input for computation of NRLMSISE00 atmospheric
-                    //     conditions at current time and position. The
-                    //     computation of class may be reperformed every time
-                    //     step, to reflect the changes in atmospheric
-                    //     condition.
+                         Input for computation of NRLMSISE00 atmospheric
+                         conditions at current time and position. The
+                         computation of class may be reperformed every time
+                         step, to reflect the changes in atmospheric
+                         condition.
 
-                    //     :param year: Current year
-                    //     :param day_of_year: Day in the current year
-                    //     :param seconds_of_day: Number of seconds into the
-                    //     current day. :param local_solar_time: Local solar
-                    //     time at the computation position :param f107: Current
-                    //     daily F10.7 flux for previous day :param f107a: 81
-                    //     day average of F10.7 flux (centered on current
-                    //     day_of_year). :param ap_daily: Current daily magnetic
-                    //     index :param ap_vector: Current magnetic index data
-                    //     vector: \sa ap_array :param switches: List of
-                    //     NRLMSISE-specific flags: \sa nrlmsise_flags )doc")
-                    //     .def(py::init<int, int, double, double, double,
-                    //     double,
-                    //                   double, std::vector<double>,
-                    //                   std::vector<int>>(),
-                    //          py::arg("year") = 0, py::arg("day_of_year") = 0,
-                    //          py::arg("seconds_of_day") = 0.0,
-                    //          py::arg("local_solar_time") = 0.0,
-                    //          py::arg("f107") = 0.0, py::arg("f107a") = 0.0,
-                    //          py::arg("ap_daily") = 0.0,
-                    //          py::arg("ap_vector") = std::vector<double>(7,
-                    //          0.0), py::arg("switches") = std::vector<int>());
+                         :param year: Current year
+                         :param day_of_year: Day in the current year
+                         :param seconds_of_day: Number of seconds into the
+                         current day. :param local_solar_time: Local solar
+                         time at the computation position :param f107: Current
+                         daily F10.7 flux for previous day :param f107a: 81
+                         day average of F10.7 flux (centered on current
+                         day_of_year). :param ap_daily: Current daily magnetic
+                         index :param ap_vector: Current magnetic index data
+                         vector: \sa ap_array :param switches: List of
+                         NRLMSISE-specific flags: \sa nrlmsise_flags )doc")
+                         .def(py::init<int, int, double, double, double,
+                         double,
+                                       double, std::vector<double>,
+                                       std::vector<int>>(),
+                              py::arg("year") = 0, py::arg("day_of_year") = 0,
+                              py::arg("seconds_of_day") = 0.0,
+                              py::arg("local_solar_time") = 0.0,
+                              py::arg("f107") = 0.0, py::arg("f107a") = 0.0,
+                              py::arg("ap_daily") = 0.0,
+                              py::arg("ap_vector") = std::vector<double>(7,
+                              0.0), py::arg("switches") = std::vector<int>());
 
                     py::class_<ta::NRLMSISE00Atmosphere,
                                std::shared_ptr<ta::NRLMSISE00Atmosphere>>(
