@@ -30,9 +30,9 @@
 #ifndef TUDAT_CONVERT_MEAN_ANOMALY_TO_ECCENTRIC_ANOMALY_H
 #define TUDAT_CONVERT_MEAN_ANOMALY_TO_ECCENTRIC_ANOMALY_H
 
-#include <boost/bind/bind.hpp>
+
 #include <memory>
-#include <boost/make_shared.hpp>
+
 #include <boost/math/special_functions/asinh.hpp>
 
 #include <cmath>
@@ -42,7 +42,7 @@
 #include "tudat/math/basic/basicMathematicsFunctions.h"
 #include "tudat/math/basic/functionProxy.h"
 
-using namespace boost::placeholders;
+
 
 namespace tudat
 {
@@ -260,7 +260,7 @@ ScalarType convertMeanAnomalyToEccentricAnomaly(
             std::shared_ptr< RootFinder< ScalarType > > bisectionRootfinder =
                     rootFinder = root_finders::createRootFinder< ScalarType >(
                                 root_finders::bisectionRootFinderSettings(
-                                    TUDAT_NAN, TUDAT_NAN, tolerance, 100, root_finders::accept_result ),
+                                    TUDAT_NAN, tolerance, TUDAT_NAN, 100, root_finders::accept_result ),
                          lowerBound, upperBound );
 
             initialGuess = meanAnomaly;

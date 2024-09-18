@@ -32,6 +32,41 @@ enum PropagationTerminationReason
     nan_or_inf_detected_in_state
 };
 
+inline std::string getPropagationTerminationReasonString(
+        const PropagationTerminationReason terminationReason,
+        const bool exactFinalCondition = false )
+{
+    std::string reasonString;
+    switch( terminationReason )
+    {
+    case propagation_never_run:
+        reasonString = "Propagation was never run";
+        break;
+    case unknown_propagation_termination_reason:
+        reasonString = "Unknown termination reason";
+        break;
+    case termination_condition_reached:
+        if( !exactFinalCondition )
+        {
+            reasonString = "Propagation successful; termination condition exceeded";
+        }
+        else
+        {
+            reasonString = "Propagation successful; exact termination condition reached by iteration";
+        }
+        break;
+    case runtime_error_caught_in_propagation:
+        reasonString = "Exception caught";
+        break;
+    case nan_or_inf_detected_in_state:
+        reasonString = "NaN or Inf detected in state";
+        break;
+    default:
+        throw std::runtime_error( "Error when getting propagation termination reason string; type not recognized" );
+    }
+    return reasonString;
+}
+
 //! Base class for checking whether the numerical propagation is to be stopped at current time step or not
 /*!
  *  Base class for checking whether the numerical propagation is to be stopped at current time step or not. Derived
@@ -66,6 +101,11 @@ public:
      * \return True if propagation is to be stopped, false otherwise.
      */
     virtual bool checkStopCondition( const double time, const double cpuTime ) = 0;
+
+    virtual bool iterateToExactTermination( )
+    {
+        return getcheckTerminationToExactCondition( );
+    }
 
     //! Function to retrieve type of termination condition
     /*!
@@ -351,6 +391,8 @@ public:
      */
     bool checkStopCondition( const double time, const double cpuTime );
 
+    bool iterateToExactTermination( );
+
     //! Function to retrieve list of termination conditions that are checked when calling checkStopCondition is called.
     /*!
      *  Function to retrieve list of termination conditions that are checked when calling checkStopCondition is called.
@@ -390,6 +432,70 @@ private:
 
 };
 
+//! Class for stopping the propagation when one or all of a given set of stopping conditions is reached.
+class NonSequentialPropagationTerminationCondition: public PropagationTerminationCondition
+{
+public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param forwardPropagationTerminationCondition Termination condition for forward propagation that is checked when calling
+     * checkStopCondition is called.
+     * \param backwardPropagationTerminationCondition Termination condition for backward propagation that is checked when calling
+     * checkStopCondition is called.
+     * \param checkTerminationToExactCondition Boolean to denote whether the propagation is to terminate exactly on the final
+     * condition, or whether it is to terminate on the first step where it is violated.
+     */
+    NonSequentialPropagationTerminationCondition(
+            const std::shared_ptr< PropagationTerminationCondition > forwardPropagationTerminationCondition,
+            const std::shared_ptr< PropagationTerminationCondition > backwardPropagationTerminationCondition ):
+            PropagationTerminationCondition( non_sequential_stopping_condition, forwardPropagationTerminationCondition->getcheckTerminationToExactCondition( ) ),
+            forwardPropagationTerminationCondition_( forwardPropagationTerminationCondition ),
+            backwardPropagationTerminationCondition_( backwardPropagationTerminationCondition )
+    { }
+
+    //! Function to check whether the propagation is to be be stopped
+    /*!
+     * Function to check whether the propagation is to be be stopped, i.e. one or all (depending on value of
+     * fulfillSingleCondition_) of the stopping conditions are fulfilled.
+     * \param time Current time in propagation
+     * \param cpuTime Current CPU time in propagation
+     * \return True if propagation is to be stopped, false otherwise.
+     */
+    bool checkStopCondition( const double time, const double cpuTime );
+
+    //! Function to retrieve termination condition for forward propagation that is checked when calling checkStopCondition is called.
+    /*!
+     *  Function to retrieve termination condition for forward propagation that is checked when calling checkStopCondition is called.
+     *  \return List of termination conditions that is checked for forward propagation when calling checkStopCondition is called.
+     */
+    std::shared_ptr< PropagationTerminationCondition > getForwardPropagationTerminationCondition( )
+    {
+        return forwardPropagationTerminationCondition_;
+    }
+
+    //! Function to retrieve termination condition for backward propagation that is checked when calling checkStopCondition is called.
+    /*!
+     *  Function to retrieve termination condition for backward propagation that is checked when calling checkStopCondition is called.
+     *  \return List of termination conditions that is checked for backward propagation when calling checkStopCondition is called.
+     */
+    std::shared_ptr< PropagationTerminationCondition > getBackwardPropagationTerminationCondition( )
+    {
+        return backwardPropagationTerminationCondition_;
+    }
+
+
+private:
+
+    //! Termination condition for forward propagation that is checked when calling checkStopCondition is called.
+    std::shared_ptr< PropagationTerminationCondition > forwardPropagationTerminationCondition_;
+
+    //! Termination condition for backward propagation that is checked when calling checkStopCondition is called.
+    std::shared_ptr< PropagationTerminationCondition > backwardPropagationTerminationCondition_;
+
+};
+
 //! Function to create propagation termination conditions from associated settings
 /*!
  * Function to create propagation termination conditions from associated settings
@@ -407,7 +513,9 @@ std::shared_ptr< PropagationTerminationCondition > createPropagationTerminationC
         const std::unordered_map< IntegratedStateType, std::vector< std::shared_ptr
         < SingleStateTypeDerivative< StateScalarType, TimeType > > > >& stateDerivativeModels =
         std::unordered_map< IntegratedStateType, std::vector< std::shared_ptr
-                < SingleStateTypeDerivative< StateScalarType, TimeType > > > >( ) )
+                < SingleStateTypeDerivative< StateScalarType, TimeType > > > >( ),
+        const std::map< propagators::IntegratedStateType, orbit_determination::StateDerivativePartialsMap >& stateDerivativePartials =
+        std::map< propagators::IntegratedStateType, orbit_determination::StateDerivativePartialsMap >( ) )
 {
     std::shared_ptr< PropagationTerminationCondition > propagationTerminationCondition;
 
@@ -440,11 +548,12 @@ std::shared_ptr< PropagationTerminationCondition > createPropagationTerminationC
 
         // Get dependent variable function
         std::function< double( ) > dependentVariableFunction;
-        if( getDependentVariableSaveSize( dependentVariableTerminationSettings->dependentVariableSettings_ ) == 1 )
+        if( getDependentVariableSaveSize( dependentVariableTerminationSettings->dependentVariableSettings_, bodies ) == 1 )
         {
             dependentVariableFunction =
                     getDoubleDependentVariableFunction(
-                        dependentVariableTerminationSettings->dependentVariableSettings_, bodies, stateDerivativeModels );
+                        dependentVariableTerminationSettings->dependentVariableSettings_, bodies,
+                        stateDerivativeModels, stateDerivativePartials );
         }
         else
         {
@@ -483,11 +592,26 @@ std::shared_ptr< PropagationTerminationCondition > createPropagationTerminationC
             propagationTerminationConditionList.push_back(
                         createPropagationTerminationConditions(
                             hybridTerminationSettings->terminationSettings_.at( i ),
-                            bodies, initialTimeStep, stateDerivativeModels ) );
+                            bodies, initialTimeStep, stateDerivativeModels, stateDerivativePartials ) );
         }
         propagationTerminationCondition = std::make_shared< HybridPropagationTerminationCondition >(
                     propagationTerminationConditionList, hybridTerminationSettings->fulfillSingleCondition_,
                     hybridTerminationSettings->checkTerminationToExactCondition_ );
+        break;
+    }
+    case non_sequential_stopping_condition:
+    {
+        std::shared_ptr< NonSequentialPropagationTerminationSettings > nonSequentialTerminationSettings =
+                std::dynamic_pointer_cast< NonSequentialPropagationTerminationSettings >( terminationSettings );
+
+        std::shared_ptr< PropagationTerminationCondition > forwardTerminationCondition = createPropagationTerminationConditions(
+                nonSequentialTerminationSettings->forwardTerminationSettings_,
+                bodies, initialTimeStep, stateDerivativeModels, stateDerivativePartials );
+        std::shared_ptr< PropagationTerminationCondition > backwardTerminationCondition = createPropagationTerminationConditions(
+                nonSequentialTerminationSettings->backwardTerminationSettings_,
+                bodies, - initialTimeStep, stateDerivativeModels, stateDerivativePartials );
+        propagationTerminationCondition = std::make_shared< NonSequentialPropagationTerminationCondition >(
+                forwardTerminationCondition, backwardTerminationCondition );
         break;
     }
     default:
@@ -509,7 +633,7 @@ public:
      * \param terminationOnExactCondition True if exact termination condition is used, false if not, -1 if neither is relevant
      */
     PropagationTerminationDetails( const PropagationTerminationReason propagationTerminationReason,
-                                   const bool terminationOnExactCondition = -1 ):
+                                   const bool terminationOnExactCondition = 0 ):
         propagationTerminationReason_( propagationTerminationReason ),
         terminationOnExactCondition_( terminationOnExactCondition ){ }
 
@@ -534,6 +658,13 @@ public:
     bool getTerminationOnExactCondition( )
     {
         return terminationOnExactCondition_;
+    }
+
+    std::string getTerminationReasonString( )
+    {
+        std::string baseString = getPropagationTerminationReasonString(
+                    propagationTerminationReason_, terminationOnExactCondition_ );
+        return baseString;
     }
 
 protected:

@@ -11,10 +11,10 @@
 #ifndef TUDAT_RADIATIONPRESSURECOEFFICIENT_H
 #define TUDAT_RADIATIONPRESSURECOEFFICIENT_H
 
-#include <boost/make_shared.hpp>
-#include <boost/bind/bind.hpp>
-using namespace boost::placeholders;
 
+
+
+#include <cmath>
 
 #include <Eigen/Core>
 
@@ -41,11 +41,21 @@ public:
      * \param associatedBody Name of body containing the radiationPressureInterface object
      */
     RadiationPressureCoefficient(
-            std::shared_ptr< electromagnetism::RadiationPressureInterface > radiationPressureInterface,
-            std::string& associatedBody ):
+            const std::shared_ptr< electromagnetism::CannonballRadiationPressureTargetModel > radiationPressureInterface,
+            const std::string& associatedBody ):
         EstimatableParameter< double >( radiation_pressure_coefficient, associatedBody ),
         radiationPressureInterface_( radiationPressureInterface )
-    { }
+    {
+        if( std::isnan( radiationPressureInterface_->getCoefficient( ) ) )
+        {
+            throw std::runtime_error( "Error when creating estimated constant Cr coefficient for " + associatedBody + ", current Cr not initialized" );
+        }
+
+        if( radiationPressureInterface_->getCoefficientFunction( ) != nullptr )
+        {
+            throw std::runtime_error( "Error when creating estimated constant Cr coefficient for " + associatedBody + ", time-variable Cr function defined" );
+        }
+    }
 
     //! Destructor.
     ~RadiationPressureCoefficient( ) { }
@@ -57,7 +67,7 @@ public:
      */
     double getParameterValue( )
     {
-        return radiationPressureInterface_->getRadiationPressureCoefficient( );
+        return radiationPressureInterface_->getCoefficient( );
     }
 
     //! Function to reset the value of the radiation pressure coefficient that is to be estimated.
@@ -67,7 +77,7 @@ public:
      */
     void setParameterValue( double parameterValue )
     {
-        radiationPressureInterface_->resetRadiationPressureCoefficient( parameterValue );
+        radiationPressureInterface_->resetCoefficient( parameterValue );
     }
 
     //! Function to retrieve the size of the parameter (always 1).
@@ -82,7 +92,70 @@ protected:
 private:
 
     //! Object containing the radiation pressure coefficient to be estimated.
-    std::shared_ptr< electromagnetism::RadiationPressureInterface > radiationPressureInterface_;
+    std::shared_ptr< electromagnetism::CannonballRadiationPressureTargetModel > radiationPressureInterface_;
+};
+
+class RadiationPressureScalingFactor: public EstimatableParameter< double >
+{
+
+public:
+
+    RadiationPressureScalingFactor(
+        const std::shared_ptr< electromagnetism::RadiationPressureAcceleration > radiationPressureAcceleration,
+        const EstimatebleParametersEnum parameterType,
+        const std::string& associatedBody,
+        const std::string& exertingBody ):
+        EstimatableParameter< double >( parameterType, associatedBody, exertingBody ),
+        radiationPressureAcceleration_( radiationPressureAcceleration )
+    {
+        if( ( parameterType != source_direction_radiation_pressure_scaling_factor ) &&
+        ( parameterType != source_perpendicular_direction_radiation_pressure_scaling_factor) )
+        {
+            throw std::runtime_error( "Error when creating radiation pressure scaling parameter, type is inconsistent: " + std::to_string( parameterType ) );
+        }
+    }
+
+    ~RadiationPressureScalingFactor( ) { }
+
+    double getParameterValue( )
+    {
+        if( parameterName_.first == source_direction_radiation_pressure_scaling_factor )
+        {
+            return radiationPressureAcceleration_->getSourceDirectionScaling( );
+        }
+        else if( parameterName_.first == source_perpendicular_direction_radiation_pressure_scaling_factor )
+        {
+            return radiationPressureAcceleration_->getPerpendicularSourceDirectionScaling( );
+        }
+        else
+        {
+            throw std::runtime_error( "Error when getting radiation pressure scaling parameter, type is inconsistent: " + std::to_string( parameterName_.first  ) );
+        }
+    }
+
+    void setParameterValue( double parameterValue )
+    {
+        if( parameterName_.first == source_direction_radiation_pressure_scaling_factor )
+        {
+            radiationPressureAcceleration_->setSourceDirectionScaling( parameterValue );
+        }
+        else if( parameterName_.first == source_perpendicular_direction_radiation_pressure_scaling_factor )
+        {
+            radiationPressureAcceleration_->setPerpendicularSourceDirectionScaling( parameterValue );
+        }
+        else
+        {
+            throw std::runtime_error( "Error when setting radiation pressure scaling parameter, type is inconsistent: " + std::to_string( parameterName_.first  ) );
+        }
+    }
+
+    int getParameterSize( ){ return 1; }
+
+protected:
+
+private:
+
+    std::shared_ptr< electromagnetism::RadiationPressureAcceleration > radiationPressureAcceleration_;
 };
 
 //! Interface class for the estimation of an arc-wise (piecewise constant) radiation pressure coefficient
@@ -98,13 +171,23 @@ public:
      * \param associatedBody Name of body containing the radiationPressureInterface object
      */
     ArcWiseRadiationPressureCoefficient(
-            const std::shared_ptr< electromagnetism::RadiationPressureInterface > radiationPressureInterface,
+            const std::shared_ptr< electromagnetism::CannonballRadiationPressureTargetModel > radiationPressureInterface,
             const std::vector< double > timeLimits,
             const std::string& associatedBody ):
         EstimatableParameter< Eigen::VectorXd >( arc_wise_radiation_pressure_coefficient, associatedBody ),
         radiationPressureInterface_( radiationPressureInterface ), timeLimits_( timeLimits )
     {
-        double radiationPressureCoefficient = radiationPressureInterface->getRadiationPressureCoefficient( );
+        if( std::isnan( radiationPressureInterface_->getCoefficient( ) ) )
+        {
+            throw std::runtime_error( "Error when creating estimated arcwise Cr coefficient for " + associatedBody + ", current Cr not initialized" );
+        }
+
+        if( radiationPressureInterface_->getCoefficientFunction( ) != nullptr )
+        {
+            throw std::runtime_error( "Error when creating estimated arcwise Cr coefficient for " + associatedBody + ", time-variable Cr function defined" );
+        }
+
+        double radiationPressureCoefficient = radiationPressureInterface->getCoefficient( );
         for( unsigned int i = 0; i < timeLimits.size( ); i++ )
         {
             radiationPressureCoefficients_.push_back( radiationPressureCoefficient );
@@ -119,7 +202,7 @@ public:
                     timeLimits_, fullRadiationPressureCoefficients_ );
 
         typedef interpolators::OneDimensionalInterpolator< double, double > LocalInterpolator;
-        radiationPressureInterface->resetRadiationPressureCoefficientFunction(
+        radiationPressureInterface->resetCoefficientFunction(
                     std::bind(
                         static_cast< double( LocalInterpolator::* )( const double ) >
                         ( &LocalInterpolator::interpolate ), coefficientInterpolator_, std::placeholders::_1 ) );
@@ -179,7 +262,7 @@ protected:
 private:
 
     //! Object containing the radiation pressure coefficient to be estimated.
-    std::shared_ptr< electromagnetism::RadiationPressureInterface > radiationPressureInterface_;
+    std::shared_ptr< electromagnetism::CannonballRadiationPressureTargetModel > radiationPressureInterface_;
 
     //! Times at which the arcs are to start (including end time at maximum double value).
     std::vector< double > timeLimits_;

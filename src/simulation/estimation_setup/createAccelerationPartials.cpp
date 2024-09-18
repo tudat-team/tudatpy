@@ -30,9 +30,9 @@ std::vector< std::shared_ptr< orbit_determination::TidalLoveNumberPartialInterfa
     if( bodies.at( acceleratingBodyName )->getGravityFieldVariationSet( ) != nullptr )
     {
         // Get list of tidal gravity field variations.
-        std::vector< std::shared_ptr< gravitation::BasicSolidBodyTideGravityFieldVariations > >  variationObjectList =
+        std::vector< std::shared_ptr< gravitation::SolidBodyTideGravityFieldVariations > >  variationObjectList =
                 utilities::dynamicCastSVectorToTVector< gravitation::GravityFieldVariations,
-                gravitation::BasicSolidBodyTideGravityFieldVariations >(
+                gravitation::SolidBodyTideGravityFieldVariations >(
                     bodies.at( acceleratingBodyName )->getGravityFieldVariationSet( )->
                     getDirectTidalGravityFieldVariations( ) );
 
@@ -74,34 +74,43 @@ std::vector< std::shared_ptr< orbit_determination::TidalLoveNumberPartialInterfa
     return loveNumberInterfaces;
 }
 
-//template std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAccelerationPartial< double >(
-//        std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > accelerationModel,
-//        const std::pair< std::string, std::shared_ptr< simulation_setup::Body > > acceleratedBody,
-//        const std::pair< std::string, std::shared_ptr< simulation_setup::Body > > acceleratingBody,
-//        const simulation_setup::SystemOfBodies& bodies,
-//        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > >
-//        parametersToEstimate );
+std::map< std::string, std::shared_ptr< acceleration_partials::AccelerationPartial > > createEihAccelerationPartials(
+    const std::map< std::string, std::shared_ptr< relativity::EinsteinInfeldHoffmannAcceleration > > eihAccelerations )
+{
+    std::map< std::string, std::shared_ptr< acceleration_partials::AccelerationPartial > > partialsList;
+    if( eihAccelerations.size( ) > 0 )
+    {
+        std::shared_ptr<relativity::EinsteinInfeldHoffmannEquations> eihEquations = eihAccelerations.begin( )->second->getEihEquations( );
 
-//#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
-//template std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAccelerationPartial< long double >(
-//        std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > accelerationModel,
-//        const std::pair< std::string, std::shared_ptr< simulation_setup::Body > > acceleratedBody,
-//        const std::pair< std::string, std::shared_ptr< simulation_setup::Body > > acceleratingBody,
-//        const simulation_setup::SystemOfBodies& bodies,
-//        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< long double > >
-//        parametersToEstimate );
-//#endif
 
-//template orbit_determination::StateDerivativePartialsMap createAccelerationPartialsMap< double >(
-//        const basic_astrodynamics::AccelerationMap& accelerationMap,
-//        const simulation_setup::SystemOfBodies& bodies,
-//        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > >
-//        parametersToEstimate );
-//        template orbit_determination::StateDerivativePartialsMap createAccelerationPartialsMap< long double >(
-//                const basic_astrodynamics::AccelerationMap& accelerationMap,
-//                const simulation_setup::SystemOfBodies& bodies,
-//                const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< long double > >
-//                parametersToEstimate );
+        for( auto it : eihAccelerations )
+        {
+            if( it.second->getEihEquations( ) != eihEquations )
+            {
+                throw std::runtime_error( "Error when making acceleration partials, different governing EIH equations found" );
+            }
+        }
+
+        std::shared_ptr< acceleration_partials::EihEquationsPartials > eihPartials = std::make_shared< acceleration_partials::EihEquationsPartials >(
+            eihEquations );
+
+        for( auto it : eihAccelerations )
+        {
+            partialsList[ it.first ] = std::make_shared< acceleration_partials::EihAccelerationPartial >(
+                eihPartials, it.first );
+        }
+    }
+    return partialsList;
+}
+
+std::shared_ptr< estimatable_parameters::NumericalAccelerationPartialSettings > getDefaultPanelledSurfaceRadiationPressurePartialSettings(
+    const std::string bodyUndergoingAcceleration,
+    const std::string bodyExertingAcceleration )
+{
+    return std::make_shared< estimatable_parameters::NumericalAccelerationPartialSettings >(
+        ( Eigen::VectorXd( 6 ) << 100.0, 100.0, 100.0, 1.0E-3, 1.0E-3, 1.0E-3 ).finished( ),
+        bodyUndergoingAcceleration, bodyExertingAcceleration, basic_astrodynamics::radiation_pressure );
+}
 
 }
 

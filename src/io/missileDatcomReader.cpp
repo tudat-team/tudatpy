@@ -17,9 +17,11 @@
 #include <functional>
 #include <sstream>
 #include <stdexcept>
+#include <boost/algorithm/string.hpp>
 
 #include "tudat/io/missileDatcomReader.h"
 #include "tudat/io/basicInputOutput.h"
+#include "tudat/math/basic/mathematicalConstants.h"
 
 namespace tudat
 {
@@ -138,6 +140,16 @@ double MissileDatcomReader::stringToDouble( std::string const& inputString )
 {
     // Create a local input string stream object.
     std::istringstream iStringStream( inputString );
+
+    // Remove leading or trailing spaces
+    std::string inputStringNoSpaces = inputString;
+    boost::algorithm::trim(inputStringNoSpaces);
+
+    // Return NaN if the string represent Not a Number
+    if (inputStringNoSpaces == "NaN")
+    {
+        return TUDAT_NAN;
+    }
 
     // Create a local double.
     double value;

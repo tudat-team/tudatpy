@@ -91,7 +91,7 @@ std::pair< Eigen::MatrixXd, Eigen::MatrixXd > calculateSolidBodyTideSingleCoeffi
 
 
 //! Sets current properties (mass state) of body involved in tidal deformation.
-void BasicSolidBodyTideGravityFieldVariations::setBodyGeometryParameters(
+void SolidBodyTideGravityFieldVariations::setBodyGeometryParameters(
         const int bodyIndex, const double evaluationTime )
 {
     // Calculate current state and orientation of deformed body.
@@ -116,7 +116,7 @@ void BasicSolidBodyTideGravityFieldVariations::setBodyGeometryParameters(
 }
 
 //! Function for calculating spherical harmonic coefficient corrections.
-std::pair< Eigen::MatrixXd, Eigen::MatrixXd > BasicSolidBodyTideGravityFieldVariations::
+std::pair< Eigen::MatrixXd, Eigen::MatrixXd > SolidBodyTideGravityFieldVariations::
 calculateBasicSphericalHarmonicsCorrections(
         const double time )
 {
@@ -183,6 +183,94 @@ void BasicSolidBodyTideGravityFieldVariations::addBasicSolidBodyTideCorrections(
             currentCosineCorrections_;
     sTermCorrections.block( 0, 0, maximumDegree_ - minimumDegree_ + 1, maximumOrder_  - minimumOrder_ + 1 ) +=
             currentSineCorrections_;
+
+}
+
+
+int getModeCoupledMaximumResponseDegree(
+    const std::map< std::pair< int, int >, std::map< std::pair< int, int >, double > >& loveNumbers )
+{
+    int maximumDegree = 0;
+    for( auto it : loveNumbers )
+    {
+        for( auto it2 : it.second )
+        {
+            if( it2.first.first > maximumDegree )
+            {
+                maximumDegree =  it2.first.first;
+            }
+        }
+    }
+    return maximumDegree;
+}
+
+int getModeCoupledMaximumResponseOrder(
+    const std::map< std::pair< int, int >, std::map< std::pair< int, int >, double > >& loveNumbers )
+{
+    int maximumOrder = 0;
+    for( auto it : loveNumbers )
+    {
+        for( auto it2 : it.second )
+        {
+            if( it2.first.second > maximumOrder )
+            {
+                maximumOrder =  it2.first.second;
+            }
+        }
+    }
+    return maximumOrder;
+}
+
+
+//! Calculates basic solid body gravity field corrections due to single body.
+void ModeCoupledSolidBodyTideGravityFieldVariations::addBasicSolidBodyTideCorrections(
+    Eigen::MatrixXd& cTermCorrections,
+    Eigen::MatrixXd& sTermCorrections )
+{
+//    // Initialize power of radiusRatio^(N+1) (calculation starts at N=2)
+
+    currentCosineCorrections_.setZero( );
+    currentSineCorrections_.setZero( );
+
+    //    // Iterate over all love
+    std::complex< double > stokesCoefficientCorrection( 0.0, 0.0 );
+
+    for( auto loveNumberIt : loveNumbers_ )
+    {
+        // Retrieve forcing degree/order
+        std::pair< int, int > forcingDegreeOrder = loveNumberIt.first;
+        int n = forcingDegreeOrder.first;
+        int m = forcingDegreeOrder.second;
+
+        // Compute forcing quantities
+        radiusRatioPower = basic_mathematics::raiseToIntegerPower( radiusRatio, n + 1 );
+        updateTidalAmplitudeAndArgument( n, m );
+
+        // Compute response for unity Love umber
+        std::complex< double > unityLoveNumberStokesCoefficientCorrection =
+                calculateSolidBodyTideSingleCoefficientSetCorrectionFromAmplitude(
+                    std::complex< double >( 1.0, 0.0 ), massRatio, radiusRatioPower, tideAmplitude,
+                    tideArgument, n, m );
+
+        // Compute response at required degrees/orders with required love numbers
+        for( auto responseIt : loveNumberIt.second )
+        {
+            int nResponse = responseIt.first.first;
+            int mResponse = responseIt.first.second;
+            stokesCoefficientCorrection = std::complex< double >( responseIt.second, 0.0 ) *
+                unityLoveNumberStokesCoefficientCorrection;
+            currentCosineCorrections_( nResponse - 2, mResponse ) += stokesCoefficientCorrection.real( );
+            if ( mResponse != 0 )
+            {
+                currentSineCorrections_( nResponse - 2, mResponse ) -= stokesCoefficientCorrection.imag( );
+            }
+        }
+    }
+
+    cTermCorrections.block( 0, 0, maximumDegree_ - minimumDegree_ + 1, maximumOrder_  - minimumOrder_ + 1 ) +=
+        currentCosineCorrections_;
+    sTermCorrections.block( 0, 0, maximumDegree_ - minimumDegree_ + 1, maximumOrder_  - minimumOrder_ + 1 ) +=
+        currentSineCorrections_;
 
 }
 

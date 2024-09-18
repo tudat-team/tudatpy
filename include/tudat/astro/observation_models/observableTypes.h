@@ -27,6 +27,7 @@ namespace observation_models
 //! Enum for types of observations
 enum ObservableType
 {
+    undefined_observation_model = -1,
     one_way_range = 0,
     angular_position = 1,
     position_observable = 2,
@@ -35,7 +36,12 @@ enum ObservableType
     n_way_range = 5,
     two_way_doppler = 6,
     euler_angle_313_observable = 7,
-    velocity_observable = 8
+    velocity_observable = 8,
+    relative_angular_position = 9,
+    n_way_differenced_range = 10,
+    relative_position_observable = 11,
+    dsn_one_way_averaged_doppler = 12,
+    dsn_n_way_averaged_doppler = 13
 };
 
 
@@ -61,6 +67,22 @@ std::string getObservableName( const ObservableType observableType, const int nu
  */
 ObservableType getObservableType( const std::string& observableName );
 
+ObservableType getUndifferencedObservableType( const ObservableType differencedObservableType );
+
+ObservableType getDifferencedObservableType( const ObservableType undifferencedObservableType );
+
+ObservableType getUnconcatenatedObservableType( const ObservableType observableType );
+
+ObservableType getBaseObservableType( const ObservableType observableType );
+
+std::pair< std::vector< int >, std::vector< int > > getUndifferencedTimeAndStateIndices(
+        const ObservableType differencedObservableType,
+        const int numberOfLinkEnds );
+
+std::pair< LinkEnds, LinkEnds > getUndifferencedLinkEnds( const ObservableType differencedObservableType, const LinkEnds& differencedLinkEnds );
+
+std::vector< LinkEnds > getUnconcatenatedLinkEnds( const ObservableType concatenatedObservableType, const LinkEnds& concatenatedLinkEnds );
+
 //! Function to get the size of an observable of a given type.
 /*!
  * Function to get the size of an observable of a given type.
@@ -69,9 +91,50 @@ ObservableType getObservableType( const std::string& observableName );
  */
 int getObservableSize( const ObservableType observableType );
 
+bool doesLinkEndTypeDefineId( const ObservableType observableType );
+
+bool isObservableTypeMultiLink( const ObservableType observableType );
+
 bool isObservableOfIntegratedType( const ObservableType observableType );
 
-bool areObservableLinksContinuous( const ObservableType observableType );
+/*! Function indicating whether observable type requires transmitting ground station.
+ *
+ * Function indicating whether observable type requires transmitting ground station in system of bodies for the
+ * observations to be simulated.
+ * @param observableType Type of observable.
+ * @return
+ */
+bool requiresTransmittingStation( const ObservableType observableType );
+
+/*! Function indicating whether observable type requires receiving ground station.
+ *
+ * Function indicating whether observable type requires receiving ground station in system of bodies for the
+ * observations to be simulated.
+ * @param observableType Type of observable.
+ * @return
+ */
+bool requiresFirstReceivingStation( const ObservableType observableType );
+
+/*! Function indicating whether observable type requires a second receiving ground station.
+ *
+ * Function indicating whether observable type requires a second receiving ground station in system of bodies for the
+ * observations to be simulated.
+ * @param observableType Type of observable.
+ * @return
+ */
+bool requiresSecondReceivingStation( const ObservableType observableType );
+
+bool isRadiometricObservableType( const ObservableType observableType );
+
+bool isPhaseVelocityBasedObservableType( const ObservableType observableType );
+
+bool isGroupVelocityBasedObservableType( const ObservableType observableType );
+
+bool observableCanHaveRetransmissionDelay( const ObservableType observableType );
+
+bool linkEndIdDefinesSingleLink( const ObservableType observableType );
+
+//bool areObservableLinksContinuous( const ObservableType observableType );
 
 LinkEndType getDefaultReferenceLinkEndType(
         const ObservableType observableType );
@@ -113,6 +176,23 @@ std::vector< LinkEndType > getLinkEndTypesForGivenLinkEndId(
 void checkObservationResidualDiscontinuities(
         Eigen::Block< Eigen::VectorXd > observationBlock,
         const ObservableType observableType );
+
+static const std::map< LinkEndType, int > oneWayLinkStateEntries = {
+    { transmitter, 0 },
+    { receiver, 1 }
+};
+
+static const std::map< LinkEndType, int > observedObserverBodiesLinkStateEntries = {
+        { observed_body, 0 },
+        { observer, 1 }
+};
+
+
+static const std::map< LinkEndType, int > observedBodyLinkStateEntries = {
+    { observed_body, 0 }
+};
+
+std::map< LinkEndType, int > getSingleLinkStateEntryIndices( const ObservableType observableType );
 
 
 } // namespace observation_models

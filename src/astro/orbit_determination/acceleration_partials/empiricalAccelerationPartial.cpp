@@ -96,8 +96,8 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > EmpiricalAcceleratio
                             &EmpiricalAccelerationPartial::wrtEmpiricalAccelerationCoefficientFromIndices, this, parameter->getParameterSize( ),
                             std::dynamic_pointer_cast< EmpiricalAccelerationCoefficientsParameter >( parameter )->getIndices( ), std::placeholders::_1 );
                 numberOfRows = parameter->getParameterSize( );
-                break;
             }
+            break;
         }
         case arc_wise_empirical_acceleration_coefficients:
         {
@@ -107,8 +107,8 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > EmpiricalAcceleratio
                             &EmpiricalAccelerationPartial::wrtArcWiseEmpiricalAccelerationCoefficient, this,
                             std::dynamic_pointer_cast< ArcWiseEmpiricalAccelerationCoefficientsParameter >( parameter ), std::placeholders::_1 );
                 numberOfRows = parameter->getParameterSize( );
-                break;
             }
+            break;
         }
         default:
             break;
@@ -196,16 +196,21 @@ void EmpiricalAccelerationPartial::wrtArcWiseEmpiricalAccelerationCoefficient(
     wrtEmpiricalAccelerationCoefficientFromIndices(
                 singleArcParameterSize, parameter->getIndices( ), partialWrtCurrentArcAccelerations );
 
+    partialDerivativeMatrix = Eigen::MatrixXd::Zero( 3, parameter->getParameterSize( ) );
+
     // Retrieve arc of current time.
     std::shared_ptr< interpolators::LookUpScheme< double > > currentArcIndexLookUp =
             parameter->getArcTimeLookupScheme( );
-    int currentArc = currentArcIndexLookUp->findNearestLowerNeighbour( currentTime_ );
+    if( currentArcIndexLookUp->getMinimumValue( ) <= currentTime_ )
+    {
+        int currentArc = currentArcIndexLookUp->findNearestLowerNeighbour( currentTime_ );
 
-    // Set current partial matrix
-    partialDerivativeMatrix = Eigen::MatrixXd::Zero( 3, parameter->getParameterSize( ) );
-    partialDerivativeMatrix.block(
-                0, currentArc * singleArcParameterSize, 3, singleArcParameterSize ) =
-            partialWrtCurrentArcAccelerations;
+        // Set current partial matrix
+        partialDerivativeMatrix.block(
+                    0, currentArc * singleArcParameterSize, 3, singleArcParameterSize ) =
+                partialWrtCurrentArcAccelerations;
+    }
+
 }
 
 //! Function to compute the partial w.r.t. time-independent empirical acceleration components

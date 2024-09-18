@@ -68,5 +68,28 @@ Eigen::Vector3d computeGravitationalForce(
                 positionOfBodyExertingForce );
 }
 
+//! Compute gravitational potential.
+double computeGravitationalPotential(
+        const Eigen::Vector3d& positionOfBodySubjectToAcceleration,
+        const double gravitationalParameterOfBodyExertingAcceleration,
+        const Eigen::Vector3d& positionOfBodyExertingAcceleration )
+{
+    double distance = ( positionOfBodySubjectToAcceleration - positionOfBodyExertingAcceleration ).norm( );
+    return gravitationalParameterOfBodyExertingAcceleration / distance;
+}
+
+//! Compute gravitational potential.
+double computeGravitationalPotential(
+        const double universalGravitationalConstant,
+        const Eigen::Vector3d& positionOfBodySubjectToAcceleration,
+        const double massOfBodyExertingAcceleration,
+        const Eigen::Vector3d& positionOfBodyExertingAcceleration )
+{
+    return computeGravitationalPotential(
+            positionOfBodySubjectToAcceleration,
+            universalGravitationalConstant * massOfBodyExertingAcceleration,
+            positionOfBodyExertingAcceleration );
+}
+
 } // namespace gravitation
 } // namespace tudat

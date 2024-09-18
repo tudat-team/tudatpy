@@ -153,7 +153,8 @@ void ReferenceFrameManager::setEphemerides(
         if( ephemerisIterator->second->getReferenceFrameOrientation( ) != firstFrameOrientation )
         {
             throw std::runtime_error(
-                        "Error, multiple reference frame orientations of ephemerides currently not supported" );
+                        "Error, multiple reference frame orientations of ephemerides currently not supported" +
+                        firstFrameOrientation + ", " + ephemerisIterator->second->getReferenceFrameOrientation( ) );
         }
     }
 }
@@ -327,7 +328,7 @@ std::string ReferenceFrameManager::getBaseFrameNameOfBody( const std::string& bo
     if( availableEphemerides_.count( bodyName ) == 0 )
     {
         throw std::runtime_error(
-                    "Error wgen getting base frame name of body, body " + bodyName + " not found" );
+                    "Error when getting base frame name of body, body " + bodyName + " not found to have an ephemeris" );
     }
     else
     {

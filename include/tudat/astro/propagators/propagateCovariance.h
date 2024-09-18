@@ -103,6 +103,7 @@ void propagateCovariance(
         const double initialTime,
         const double finalTime );
 
+<<<<<<< HEAD
 Eigen::MatrixXd convertCovarianceToFrame(
         const Eigen::MatrixXd inputCovariance,
         const Eigen::VectorXd inertialCartesianRelativeState,
@@ -114,6 +115,23 @@ std::map< double, Eigen::MatrixXd > convertCovarianceHistoryToFrame(
         const std::map< double, Eigen::VectorXd > inertialCartesianRelativeStates,
         const reference_frames::SatelliteReferenceFrames inputFrame,
         const reference_frames::SatelliteReferenceFrames outputFrame );
+=======
+//Eigen::MatrixXd convertCovarianceToFrame(
+//        const Eigen::MatrixXd inputCovariance,
+//        const Eigen::VectorXd inertialCartesianRelativeState,
+//        const reference_frames::SatelliteReferenceFrames inputFrame,
+//        const reference_frames::SatelliteReferenceFrames outputFrame );
+
+//std::map< double, Eigen::MatrixXd > convertCovarianceHistoryToFrame(
+//        const std::map< double, Eigen::MatrixXd > inputCovariances,
+//        const std::map< double, Eigen::VectorXd > inertialCartesianRelativeStates,
+//        const reference_frames::SatelliteReferenceFrames inputFrame,
+//        const reference_frames::SatelliteReferenceFrames outputFrame );
+
+void convertCovarianceHistoryToFormalErrorHistory(
+        std::map< double, Eigen::VectorXd >& propagatedFormalErrors,
+        std::map< double, Eigen::MatrixXd >& propagatedCovariance );
+>>>>>>> origin/develop
 
 //! Function to propagate full covariance at the initial time to state formal errors at later times
 /*!

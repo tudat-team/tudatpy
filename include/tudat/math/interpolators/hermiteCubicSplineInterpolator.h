@@ -26,7 +26,8 @@ namespace interpolators
 {
 
 //! Hermite Cubic Spline Interpolator
-template< typename IndependentVariableType, typename DependentVariableType >
+template< typename IndependentVariableType, typename DependentVariableType,
+          typename ScalarType = typename scalar_type< IndependentVariableType >::value_type >
 class HermiteCubicSplineInterpolator : public OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >
 {
 public:
@@ -170,11 +171,18 @@ public:
         }
 
         // Determine the lower entry in the table corresponding to the target independent variable value.
-        int lowerEntry_ = lookUpScheme_->findNearestLowerNeighbour( targetIndependentVariableValue );
+        unsigned int lowerEntry_ = lookUpScheme_->findNearestLowerNeighbour( targetIndependentVariableValue );
+
+        // If lowerEntry_ is the last element of independentValues_, execute extrapolation with
+        // the last and second to last elements of independentValues_.
+        if ( lowerEntry_ == independentValues_.size( ) - 1 )
+        {
+            lowerEntry_ -= 1;
+        }
 
         // Compute Hermite spline
-        IndependentVariableType factor = ( targetIndependentVariableValue - independentValues_[ lowerEntry_ ] ) /
-                ( independentValues_[ lowerEntry_ + 1 ] - independentValues_[ lowerEntry_ ] );
+        ScalarType factor = static_cast< ScalarType >( targetIndependentVariableValue - independentValues_[ lowerEntry_ ] ) /
+                static_cast< ScalarType >( independentValues_[ lowerEntry_ + 1 ] - independentValues_[ lowerEntry_ ] );
         targetValue =
                 coefficients_[ 0 ][ lowerEntry_ ] * factor * factor * factor +
                 coefficients_[ 1 ][ lowerEntry_ ] * factor * factor +

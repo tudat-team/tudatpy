@@ -16,7 +16,7 @@
 #include <string>
 
 #include <boost/test/unit_test.hpp>
-#include <boost/make_shared.hpp>
+
 
 #include "tudat/basics/testMacros.h"
 
@@ -59,11 +59,11 @@ BOOST_AUTO_TEST_CASE( testSeparateObservationViabilityCalculators )
 
     // Get inertial ground station state function
     std::function< Eigen::Vector6d( const double ) > groundStationStateFunction =
-            getLinkEndCompleteEphemerisFunction( std::make_pair( "Earth", "Station" ), bodies );
+            getLinkEndCompleteEphemerisFunction( std::make_pair< std::string, std::string >( "Earth", "Station" ), bodies );
 
     // Get Earth-fixed ground station position
     Eigen::Vector3d earthFixedGroundStationState =
-            bodies.at( "Earth" )->getGroundStation( "Station" )->getNominalStationState( )->getCartesianStateInTime( 0.0 ).segment( 0, 3 );
+            bodies.at( "Earth" )->getGroundStation( "Station" )->getNominalStationState( )->getCartesianStateInTime( 0.0, "Earth" ).segment( 0, 3 );
 
     // Define limiting elevation angle for test
     double testAngle = 20.0 * mathematical_constants::PI / 180.0;
@@ -82,8 +82,8 @@ BOOST_AUTO_TEST_CASE( testSeparateObservationViabilityCalculators )
     Eigen::Vector3d vectorToTarget;
     Eigen::Vector3d vectorToTestBody;
     Eigen::Vector6d targetState = Eigen::Vector6d::Zero( );
-    Eigen::Vector6d groundStationState = Eigen::Vector6d::Zero( );
-    Eigen::Vector3d localVerticalVector = Eigen::Vector3d::UnitZ( );
+//    Eigen::Vector6d groundStationState = Eigen::Vector6d::Zero( );
+//    Eigen::Vector3d localVerticalVector = Eigen::Vector3d::UnitZ( );
 
     // Run different test cases:
     // 0: one-way uplink
@@ -200,6 +200,70 @@ BOOST_AUTO_TEST_CASE( testSeparateObservationViabilityCalculators )
 }
 
 
+BOOST_AUTO_TEST_CASE( testStationAngleCalculations )
+{
+
+    //Load spice kernels.
+    spice_interface::loadStandardSpiceKernels( );
+
+    // Create default Earth
+    std::vector< std::string > bodyNames = { "Earth", "Moon" };
+    BodyListSettings bodySettings = getDefaultBodySettings(
+                bodyNames, "Earth", "J2000" );
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+
+    // Define ground station
+    double stationRadius = spice_interface::getAverageRadius( "Earth" );
+    double stationLatitude = convertDegreesToRadians( 20.0 );
+    double stationLongitude = convertDegreesToRadians( 50.0 );
+    createGroundStation( bodies.at( "Earth" ), "Station",
+                         ( Eigen::Vector3d( ) << stationRadius, stationLatitude, stationLongitude ).finished( ),
+                         coordinate_conversions::spherical_position );
+
+    // Get inertial ground station state function
+    std::function< Eigen::Vector6d( const double ) > groundStationStateFunction =
+            getLinkEndCompleteEphemerisFunction( std::make_pair< std::string, std::string >( "Earth", "Station" ), bodies );
+
+    // Get Earth-fixed ground station position
+//    Eigen::Vector3d earthFixedGroundStationState =
+//            bodies.at( "Earth" )->getGroundStation( "Station" )->getNominalStationState( )->getCartesianStateInTime( 0.0 ).segment( 0, 3 );
+
+    // Define limiting elevation angle for test
+    double testAngle = 20.0 * mathematical_constants::PI / 180.0;
+
+    // Retrieve pointing angle calculator
+    std::shared_ptr< PointingAnglesCalculator > pointingAngleCalculator =
+            bodies.at( "Earth" )->getGroundStation( "Station" )->getPointingAnglesCalculator( );
+
+    std::vector< double > times;
+    for( int i = 0; i < 1000; i++ )
+    {
+        times.push_back( static_cast< double >( i ) * 3600.0 );
+    }
+
+    std::map< double, Eigen::VectorXd > targetAnglesAndRange = getTargetAnglesAndRange(
+            bodies, std::make_pair< std::string, std::string >( "Earth", "Station" ),
+            "Moon", times, true );
+    std::map< double, Eigen::VectorXd > targetAnglesAndRange2 = getTargetAnglesAndRange(
+            bodies, std::make_pair< std::string, std::string >( "Earth", "Station" ),
+            "Moon", times, false );
+    for( auto it : targetAnglesAndRange )
+    {
+        double time = it.first;
+        Eigen::Vector6d stateOfMoon = bodies.at( "Moon" )->getStateInBaseFrameFromEphemeris( time );
+        Eigen::Vector6d relativeState =  stateOfMoon - groundStationStateFunction( time );
+        std::pair< double, double > angles = pointingAngleCalculator->calculatePointingAngles( relativeState.segment( 0, 3 ), time );
+        double elevationAngleDifference = angles.first - ( it.second( 0 ) + targetAnglesAndRange2.at( time )( 0 ) ) / 2;
+        double azimuthAngleDifference = angles.second - ( it.second( 1 ) + targetAnglesAndRange2.at( time )( 1 ) ) / 2;
+        double rangeDifference = relativeState.segment( 0, 3 ).norm( ) - ( it.second( 2 ) + targetAnglesAndRange2.at( time )( 2 ) ) / 2;
+        BOOST_CHECK_SMALL( elevationAngleDifference, 1.0E-7 );
+        BOOST_CHECK_SMALL( azimuthAngleDifference, 1.0E-7 );
+        BOOST_CHECK_SMALL( rangeDifference, 1.0E-3 );
+
+    }
+}
+
+
 ////! Test function to manually compute elevation angle(s) of observation link at given body
 //std::vector< double > getBodyLinkElevationAngles(
 //        const LinkEnds linkEnds,
@@ -299,10 +363,10 @@ BOOST_AUTO_TEST_CASE( testSeparateObservationViabilityCalculators )
 //        for( LinkEnds::const_iterator linkEndIterator = linkEnds.begin( ); linkEndIterator != linkEnds.end( );
 //             linkEndIterator++ )
 //        {
-//            if( linkEndIterator->second.first == referenceBody )
+//            if( linkEndIterator->second.bodyName_ == referenceBody )
 //            {
 //                currentPointingAnglesCalculator = bodies.at( referenceBody )->getGroundStation(
-//                            linkEndIterator->second.second )->getPointingAnglesCalculator( );
+//                            linkEndIterator->second.stationName_ )->getPointingAnglesCalculator( );
 //                if( linkEndIndex != 0 )
 //                {
 //                    elevationAngles.push_back(
@@ -352,7 +416,7 @@ BOOST_AUTO_TEST_CASE( testSeparateObservationViabilityCalculators )
 //        if( linkEnds.at( transmitter ).first == referenceBody )
 //        {
 //            cosineAvoidanceAngles.push_back(
-//                        linear_algebra::computeCosineOfmanualElevationAngle(
+//                        linear_algebra::computeCosineOfAngleBetweenVectors(
 //                            ( ( linkEndStates.at( 1 ) - linkEndStates.at( 0 ) ).segment( 0, 3 ) ), (
 //                                bodies.at( bodyToAvoid )->getStateInBaseFrameFromEphemeris< double, double >(
 //                                    ( linkEndTimes.at( 1 ) + linkEndTimes.at( 0 ) ) / 2.0 ).segment( 0, 3 ) -
@@ -361,7 +425,7 @@ BOOST_AUTO_TEST_CASE( testSeparateObservationViabilityCalculators )
 //        else if( linkEnds.at( receiver ).first == referenceBody )
 //        {
 //            cosineAvoidanceAngles.push_back(
-//                        linear_algebra::computeCosineOfmanualElevationAngle(
+//                        linear_algebra::computeCosineOfAngleBetweenVectors(
 //                            ( ( linkEndStates.at( 0 ) - linkEndStates.at( 1 ) ).segment( 0, 3 ) ), (
 //                                bodies.at( bodyToAvoid )->getStateInBaseFrameFromEphemeris< double, double >(
 //                                    ( linkEndTimes.at( 1 ) + linkEndTimes.at( 0 ) ) / 2.0 ).segment( 0, 3 ) -
@@ -374,7 +438,7 @@ BOOST_AUTO_TEST_CASE( testSeparateObservationViabilityCalculators )
 //        if( linkEnds.at( transmitter ).first == referenceBody )
 //        {
 //            cosineAvoidanceAngles.push_back(
-//                        linear_algebra::computeCosineOfmanualElevationAngle(
+//                        linear_algebra::computeCosineOfAngleBetweenVectors(
 //                            ( ( linkEndStates.at( 1 ) - linkEndStates.at( 0 ) ).segment( 0, 3 ) ), (
 //                                bodies.at( bodyToAvoid )->getStateInBaseFrameFromEphemeris< double, double >(
 //                                    ( linkEndTimes.at( 1 ) + linkEndTimes.at( 0 ) ) / 2.0 ).segment( 0, 3 ) -
@@ -383,7 +447,7 @@ BOOST_AUTO_TEST_CASE( testSeparateObservationViabilityCalculators )
 //        else if( linkEnds.at( receiver ).first == referenceBody )
 //        {
 //            cosineAvoidanceAngles.push_back(
-//                        linear_algebra::computeCosineOfmanualElevationAngle(
+//                        linear_algebra::computeCosineOfAngleBetweenVectors(
 //                            ( ( linkEndStates.at( 0 ) - linkEndStates.at( 1 ) ).segment( 0, 3 ) ), (
 //                                bodies.at( bodyToAvoid )->getStateInBaseFrameFromEphemeris< double, double >(
 //                                    ( linkEndTimes.at( 1 ) + linkEndTimes.at( 0 ) ) / 2.0 ).segment( 0, 3 ) -
@@ -396,7 +460,7 @@ BOOST_AUTO_TEST_CASE( testSeparateObservationViabilityCalculators )
 //        if( linkEnds.at( transmitter ).first == referenceBody )
 //        {
 //            cosineAvoidanceAngles.push_back(
-//                        linear_algebra::computeCosineOfmanualElevationAngle(
+//                        linear_algebra::computeCosineOfAngleBetweenVectors(
 //                            ( ( linkEndStates.at( 1 ) - linkEndStates.at( 0 ) ).segment( 0, 3 ) ), (
 //                                bodies.at( bodyToAvoid )->getStateInBaseFrameFromEphemeris< double, double >(
 //                                    ( linkEndTimes.at( 1 ) + linkEndTimes.at( 0 ) ) / 2.0 ).segment( 0, 3 ) -
@@ -405,7 +469,7 @@ BOOST_AUTO_TEST_CASE( testSeparateObservationViabilityCalculators )
 //        else if( linkEnds.at( receiver ).first == referenceBody )
 //        {
 //            cosineAvoidanceAngles.push_back(
-//                        linear_algebra::computeCosineOfmanualElevationAngle(
+//                        linear_algebra::computeCosineOfAngleBetweenVectors(
 //                            ( ( linkEndStates.at( 0 ) - linkEndStates.at( 1 ) ).segment( 0, 3 ) ), (
 //                                bodies.at( bodyToAvoid )->getStateInBaseFrameFromEphemeris< double, double >(
 //                                    ( linkEndTimes.at( 1 ) + linkEndTimes.at( 0 ) ) / 2.0 ).segment( 0, 3 ) -
@@ -418,13 +482,13 @@ BOOST_AUTO_TEST_CASE( testSeparateObservationViabilityCalculators )
 //        if( linkEnds.at( transmitter ).first == referenceBody )
 //        {
 //            cosineAvoidanceAngles.push_back(
-//                        linear_algebra::computeCosineOfmanualElevationAngle(
+//                        linear_algebra::computeCosineOfAngleBetweenVectors(
 //                            ( ( linkEndStates.at( 1 ) - linkEndStates.at( 0 ) ).segment( 0, 3 ) ), (
 //                                bodies.at( bodyToAvoid )->getStateInBaseFrameFromEphemeris< double, double >(
 //                                    ( linkEndTimes.at( 1 ) + linkEndTimes.at( 0 ) ) / 2.0 ).segment( 0, 3 ) -
 //                                linkEndStates.at( 0 ).segment( 0, 3 ) ) ) );
 //            cosineAvoidanceAngles.push_back(
-//                        linear_algebra::computeCosineOfmanualElevationAngle(
+//                        linear_algebra::computeCosineOfAngleBetweenVectors(
 //                            ( ( linkEndStates.at( 3 ) - linkEndStates.at( 2 ) ).segment( 0, 3 ) ), (
 //                                bodies.at( bodyToAvoid )->getStateInBaseFrameFromEphemeris< double, double >(
 //                                    ( linkEndTimes.at( 3 ) + linkEndTimes.at( 2 ) ) / 2.0 ).segment( 0, 3 ) -
@@ -433,13 +497,13 @@ BOOST_AUTO_TEST_CASE( testSeparateObservationViabilityCalculators )
 //        else if( linkEnds.at( receiver ).first == referenceBody )
 //        {
 //            cosineAvoidanceAngles.push_back(
-//                        linear_algebra::computeCosineOfmanualElevationAngle(
+//                        linear_algebra::computeCosineOfAngleBetweenVectors(
 //                            ( ( linkEndStates.at( 0 ) - linkEndStates.at( 1 ) ).segment( 0, 3 ) ), (
 //                                bodies.at( bodyToAvoid )->getStateInBaseFrameFromEphemeris< double, double >(
 //                                    ( linkEndTimes.at( 1 ) + linkEndTimes.at( 0 ) ) / 2.0 ).segment( 0, 3 ) -
 //                                linkEndStates.at( 1 ).segment( 0, 3 ) ) ) );
 //            cosineAvoidanceAngles.push_back(
-//                        linear_algebra::computeCosineOfmanualElevationAngle(
+//                        linear_algebra::computeCosineOfAngleBetweenVectors(
 //                            ( ( linkEndStates.at( 2 ) - linkEndStates.at( 3 ) ).segment( 0, 3 ) ), (
 //                                bodies.at( bodyToAvoid )->getStateInBaseFrameFromEphemeris< double, double >(
 //                                    ( linkEndTimes.at( 3 ) + linkEndTimes.at( 2 ) ) / 2.0 ).segment( 0, 3 ) -
@@ -453,12 +517,12 @@ BOOST_AUTO_TEST_CASE( testSeparateObservationViabilityCalculators )
 //        for( LinkEnds::const_iterator linkEndIterator = linkEnds.begin( ); linkEndIterator != linkEnds.end( );
 //             linkEndIterator++ )
 //        {
-//            if( linkEndIterator->second.first == referenceBody )
+//            if( linkEndIterator->second.bodyName_ == referenceBody )
 //            {
 //                if( linkEndIndex != 0 )
 //                {
 //                    cosineAvoidanceAngles.push_back(
-//                                linear_algebra::computeCosineOfmanualElevationAngle(
+//                                linear_algebra::computeCosineOfAngleBetweenVectors(
 //                                    ( ( linkEndStates.at( 2 * ( linkEndIndex - 1 ) ) -
 //                                        linkEndStates.at( 2 * ( linkEndIndex - 1 ) + 1 ) ).segment( 0, 3 ) ), (
 //                                        bodies.at( bodyToAvoid )->getStateInBaseFrameFromEphemeris< double, double >(
@@ -470,7 +534,7 @@ BOOST_AUTO_TEST_CASE( testSeparateObservationViabilityCalculators )
 //                if( linkEndIndex != static_cast< int >( linkEnds.size( ) ) - 1 )
 //                {
 //                    cosineAvoidanceAngles.push_back(
-//                                linear_algebra::computeCosineOfmanualElevationAngle(
+//                                linear_algebra::computeCosineOfAngleBetweenVectors(
 //                                    ( linkEndStates.at( 2 * linkEndIndex + 1 ) -
 //                                      linkEndStates.at( 2 * linkEndIndex ) ).segment( 0, 3 ), (
 //                                        bodies.at( bodyToAvoid )->getStateInBaseFrameFromEphemeris< double, double >(
@@ -573,16 +637,16 @@ BOOST_AUTO_TEST_CASE( testSeparateObservationViabilityCalculators )
 
 //    // Define one-way range/one-way Doppler/angular position/one-way differenced range link ends
 //    LinkEnds oneWayLinkEnds1;
-//    oneWayLinkEnds1[ transmitter ] = std::make_pair( "Mars", "MarsStation1" );
-//    oneWayLinkEnds1[ receiver ] = std::make_pair( "Earth", "EarthStation1" );
+//    oneWayLinkEnds1[ transmitter ] = std::make_pair< std::string, std::string >( "Mars", "MarsStation1" );
+//    oneWayLinkEnds1[ receiver ] = std::make_pair< std::string, std::string >( "Earth", "EarthStation1" );
 
 //    LinkEnds oneWayLinkEnds2;
-//    oneWayLinkEnds2[ transmitter ] = std::make_pair( "Earth", "EarthStation2" );
-//    oneWayLinkEnds2[ receiver ] = std::make_pair( "Mars", "MarsStation2" );
+//    oneWayLinkEnds2[ transmitter ] = std::make_pair< std::string, std::string >( "Earth", "EarthStation2" );
+//    oneWayLinkEnds2[ receiver ] = std::make_pair< std::string, std::string >( "Mars", "MarsStation2" );
 
 //    LinkEnds oneWayLinkEnds3;
-//    oneWayLinkEnds3[ transmitter ] = std::make_pair( "Mars", "MarsStation1" );
-//    oneWayLinkEnds3[ receiver ] = std::make_pair( "Earth", "EarthStation2" );
+//    oneWayLinkEnds3[ transmitter ] = std::make_pair< std::string, std::string >( "Mars", "MarsStation1" );
+//    oneWayLinkEnds3[ receiver ] = std::make_pair< std::string, std::string >( "Earth", "EarthStation2" );
 
 //    std::vector< LinkEnds > oneWayRangeLinkEnds;
 //    oneWayRangeLinkEnds.push_back( oneWayLinkEnds1 );
@@ -591,19 +655,19 @@ BOOST_AUTO_TEST_CASE( testSeparateObservationViabilityCalculators )
 
 //    // Define two-way range link ends
 //    LinkEnds twoWayLinkEnds1;
-//    twoWayLinkEnds1[ transmitter ] = std::make_pair( "Mars", "MarsStation1" );
-//    twoWayLinkEnds1[ reflector1 ] = std::make_pair( "Earth", "EarthStation1" );
-//    twoWayLinkEnds1[ receiver ] = std::make_pair( "Mars", "MarsStation1" );
+//    twoWayLinkEnds1[ transmitter ] = std::make_pair< std::string, std::string >( "Mars", "MarsStation1" );
+//    twoWayLinkEnds1[ reflector1 ] = std::make_pair< std::string, std::string >( "Earth", "EarthStation1" );
+//    twoWayLinkEnds1[ receiver ] = std::make_pair< std::string, std::string >( "Mars", "MarsStation1" );
 
 //    LinkEnds twoWayLinkEnds2;
-//    twoWayLinkEnds2[ transmitter ] = std::make_pair( "Earth", "EarthStation2" );
-//    twoWayLinkEnds2[ reflector1 ] = std::make_pair( "Mars", "MarsStation2" );
-//    twoWayLinkEnds2[ receiver ] = std::make_pair( "Earth", "EarthStation1" );
+//    twoWayLinkEnds2[ transmitter ] = std::make_pair< std::string, std::string >( "Earth", "EarthStation2" );
+//    twoWayLinkEnds2[ reflector1 ] = std::make_pair< std::string, std::string >( "Mars", "MarsStation2" );
+//    twoWayLinkEnds2[ receiver ] = std::make_pair< std::string, std::string >( "Earth", "EarthStation1" );
 
 //    LinkEnds twoWayLinkEnds3;
-//    twoWayLinkEnds3[ transmitter ] = std::make_pair( "Mars", "MarsStation2" );
-//    twoWayLinkEnds3[ reflector1 ] = std::make_pair( "Earth", "EarthStation2" );
-//    twoWayLinkEnds3[ receiver ] = std::make_pair( "Mars", "MarsStation1" );
+//    twoWayLinkEnds3[ transmitter ] = std::make_pair< std::string, std::string >( "Mars", "MarsStation2" );
+//    twoWayLinkEnds3[ reflector1 ] = std::make_pair< std::string, std::string >( "Earth", "EarthStation2" );
+//    twoWayLinkEnds3[ receiver ] = std::make_pair< std::string, std::string >( "Mars", "MarsStation1" );
 //    std::vector< LinkEnds > twoWayRangeLinkEnds;
 //    twoWayRangeLinkEnds.push_back( twoWayLinkEnds1 );
 //    twoWayRangeLinkEnds.push_back( twoWayLinkEnds2 );
@@ -641,19 +705,19 @@ BOOST_AUTO_TEST_CASE( testSeparateObservationViabilityCalculators )
 //    // Create observation viability settings
 //    std::vector< std::shared_ptr< ObservationViabilitySettings > > observationViabilitySettings;
 //    observationViabilitySettings.push_back( std::make_shared< ObservationViabilitySettings >(
-//                                                minimum_elevation_angle, std::make_pair( "Earth", "" ), "",
+//                                                minimum_elevation_angle, std::make_pair< std::string, std::string >( "Earth", "" ), "",
 //                                                earthtestAngle ) );
 //    observationViabilitySettings.push_back( std::make_shared< ObservationViabilitySettings >(
-//                                                minimum_elevation_angle, std::make_pair( "Mars", "" ), "",
+//                                                minimum_elevation_angle, std::make_pair< std::string, std::string >( "Mars", "" ), "",
 //                                                marstestAngle ) );
 //    observationViabilitySettings.push_back( std::make_shared< ObservationViabilitySettings >(
-//                                                body_avoidance_angle, std::make_pair( "Earth", "" ), "Sun",
+//                                                body_avoidance_angle, std::make_pair< std::string, std::string >( "Earth", "" ), "Sun",
 //                                                earthSunAvoidanceAngle ) );
 //    observationViabilitySettings.push_back( std::make_shared< ObservationViabilitySettings >(
-//                                                body_avoidance_angle, std::make_pair( "Mars", "" ), "Sun",
+//                                                body_avoidance_angle, std::make_pair< std::string, std::string >( "Mars", "" ), "Sun",
 //                                                marsSunAvoidanceAngle ) );
 //    observationViabilitySettings.push_back( std::make_shared< ObservationViabilitySettings >(
-//                                                body_occultation, std::make_pair( "Earth", "" ), "Moon" ) );
+//                                                body_occultation, std::make_pair< std::string, std::string >( "Earth", "" ), "Moon" ) );
 
 //    // Create observation model and observation time settings for all observables
 //    std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > observationTimeSettings;

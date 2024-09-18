@@ -73,7 +73,6 @@ bool HybridPropagationTerminationCondition::checkStopCondition( const double tim
                 stopIndex = i;
                 stopPropagation = true;
                 isConditionMetWhenStopping_[ i ] = true;
-                break;
             }
             else
             {
@@ -108,6 +107,35 @@ bool HybridPropagationTerminationCondition::checkStopCondition( const double tim
         {
             isConditionMetWhenStopping_[ i ] = propagationTerminationCondition_.at( i )->checkStopCondition( time, cpuTime );
         }
+    }
+
+    return stopPropagation;
+}
+
+bool HybridPropagationTerminationCondition::iterateToExactTermination( )
+{
+    bool iterateToExactCondition = 0;
+    if( checkTerminationToExactCondition_ )
+    {
+        for( unsigned int i = 0; i < propagationTerminationCondition_.size( ); i++ )
+        {
+            if( isConditionMetWhenStopping_.at( i ) && propagationTerminationCondition_.at( i )->getcheckTerminationToExactCondition( ) )
+            {
+                iterateToExactCondition = true;
+            }
+        }
+    }
+    return iterateToExactCondition;
+}
+
+//! Function to check whether the propagation is to be be stopped
+bool NonSequentialPropagationTerminationCondition::checkStopCondition( const double time, const double cpuTime )
+{
+    // Check if single condition is fulfilled.
+    bool stopPropagation = false;
+    if ( forwardPropagationTerminationCondition_->checkStopCondition( time, cpuTime ) || backwardPropagationTerminationCondition_->checkStopCondition( time, cpuTime ) )
+    {
+        stopPropagation = true;
     }
 
     return stopPropagation;

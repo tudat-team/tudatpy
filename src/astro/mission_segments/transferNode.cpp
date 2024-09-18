@@ -66,6 +66,11 @@ bool DepartureWithFixedOutgoingVelocityNode::nodeComputesOutgoingVelocity( )
     return false;
 }
 
+bool DepartureWithFixedOutgoingVelocityNode::nodeComputesIncomingVelocity( )
+{
+    return false;
+}
+
 void DepartureWithFixedOutgoingVelocityNode::computeNode( )
 {
     if( nodeParameters_.rows( ) != 1 )
@@ -83,9 +88,6 @@ void DepartureWithFixedOutgoingVelocityNode::computeNode( )
                 departureSemiMajorAxis_, departureEccentricity_,
                 ( outgoingVelocity_ - nodeState_.segment< 3 >( 3 ) ).norm( ) );
 }
-
-
-
 
 
 DepartureWithFreeOutgoingVelocityNode::DepartureWithFreeOutgoingVelocityNode(
@@ -109,6 +111,11 @@ bool DepartureWithFreeOutgoingVelocityNode::nodeComputesOutgoingVelocity( )
     return true;
 }
 
+bool DepartureWithFreeOutgoingVelocityNode::nodeComputesIncomingVelocity( )
+{
+    return false;
+}
+
 void DepartureWithFreeOutgoingVelocityNode::computeNode( )
 {
     if( nodeParameters_.rows( ) != 4 )
@@ -117,9 +124,9 @@ void DepartureWithFreeOutgoingVelocityNode::computeNode( )
     }
 
     nodeTime_ = nodeParameters_( 0 );
-    excessVelocityMagnitude_ = nodeParameters_( 1 );
-    excessVelocityInPlaneAngle_ = nodeParameters_( 2 );
-    excessVelocityOutOfPlaneAngle_ = nodeParameters_( 3 );
+    outgoingExcessVelocityMagnitude_ = nodeParameters_(1 );
+    outgoingExcessVelocityInPlaneAngle_ = nodeParameters_(2 );
+    outgoingExcessVelocityOutOfPlaneAngle_ = nodeParameters_(3 );
 
     updateNodeState( nodeTime_ );
 
@@ -130,23 +137,22 @@ void DepartureWithFreeOutgoingVelocityNode::computeNode( )
     const Eigen::Vector3d unitVector2 = unitVector3.cross( unitVector1 );
 
 
-    // Calculate the velocity after departure as described in [Vinko and Izzo, 2008].
+    // Calculate the outgoing velocity as described in [Vinko and Izzo, 2008].
     outgoingVelocity_ = nodeVelocity +
-            excessVelocityMagnitude_ * std::cos( excessVelocityInPlaneAngle_ ) *
-            std::cos( excessVelocityOutOfPlaneAngle_ ) * unitVector1 +
-            excessVelocityMagnitude_ * std::sin( excessVelocityInPlaneAngle_ ) *
-            std::cos( excessVelocityOutOfPlaneAngle_ ) * unitVector2 +
-            excessVelocityMagnitude_ * std::sin( excessVelocityOutOfPlaneAngle_ ) * unitVector3;
+                        outgoingExcessVelocityMagnitude_ * std::cos(outgoingExcessVelocityInPlaneAngle_ ) *
+                        std::cos(outgoingExcessVelocityOutOfPlaneAngle_ ) * unitVector1 +
+                        outgoingExcessVelocityMagnitude_ * std::sin(outgoingExcessVelocityInPlaneAngle_ ) *
+                        std::cos(outgoingExcessVelocityOutOfPlaneAngle_ ) * unitVector2 +
+                        outgoingExcessVelocityMagnitude_ * std::sin(outgoingExcessVelocityOutOfPlaneAngle_ ) * unitVector3;
 
     totalNodeDeltaV_ = mission_segments::computeEscapeOrCaptureDeltaV(
                 centralBodyGravitationalParameter_,
                 departureSemiMajorAxis_, departureEccentricity_,
                 ( outgoingVelocity_ - nodeVelocity ).norm( ) );
-
 }
 
 
-CaptureAndInsertionNode::CaptureAndInsertionNode(
+CaptureWithFixedIncomingVelocityNode::CaptureWithFixedIncomingVelocityNode(
         const std::shared_ptr< ephemerides::Ephemeris > nodeEphemeris,
         const double centralBodyGravitationalParameter,
         const double captureSemiMajorAxis,
@@ -159,21 +165,26 @@ CaptureAndInsertionNode::CaptureAndInsertionNode(
     incomingVelocityFunction_( incomingVelocityFunction )
 { }
 
-Eigen::Vector3d CaptureAndInsertionNode::getOutgoingVelocity( )
+Eigen::Vector3d CaptureWithFixedIncomingVelocityNode::getOutgoingVelocity( )
 {
-    throw std::runtime_error( "Error, no outgoing velocity can be given for capture_and_insertion leg" );
+    throw std::runtime_error( "Error, no outgoing velocity can be given for capture_and_insertion node" );
 }
 
-bool CaptureAndInsertionNode::nodeComputesOutgoingVelocity( )
+bool CaptureWithFixedIncomingVelocityNode::nodeComputesOutgoingVelocity( )
 {
     return false;
 }
 
-void CaptureAndInsertionNode::computeNode( )
+bool CaptureWithFixedIncomingVelocityNode::nodeComputesIncomingVelocity( )
+{
+    return false;
+}
+
+void CaptureWithFixedIncomingVelocityNode::computeNode( )
 {
     if( nodeParameters_.rows( ) != 1 )
     {
-        throw std::runtime_error( "Error when computing CaptureAndInsertionNode, incorrect input size" );
+        throw std::runtime_error( "Error when computing CaptureWithFixedIncomingVelocityNode, incorrect input size" );
     }
 
     nodeTime_ = nodeParameters_( 0 );
@@ -189,7 +200,68 @@ void CaptureAndInsertionNode::computeNode( )
 }
 
 
-SwingbyWithFixedOutgoingVelocity::SwingbyWithFixedOutgoingVelocity(
+CaptureWithFreeIncomingVelocityNode::CaptureWithFreeIncomingVelocityNode(
+        const std::shared_ptr< ephemerides::Ephemeris > nodeEphemeris,
+        const double centralBodyGravitationalParameter,
+        const double captureSemiMajorAxis,
+        const double captureEccentricity):
+    TransferNode( nodeEphemeris, capture_and_insertion ),
+    centralBodyGravitationalParameter_( centralBodyGravitationalParameter ),
+    captureSemiMajorAxis_( captureSemiMajorAxis ),
+    captureEccentricity_( captureEccentricity )
+{ }
+
+Eigen::Vector3d CaptureWithFreeIncomingVelocityNode::getOutgoingVelocity( )
+{
+    throw std::runtime_error( "Error, no outgoing velocity can be given for capture_and_insertion node" );
+}
+
+bool CaptureWithFreeIncomingVelocityNode::nodeComputesOutgoingVelocity( )
+{
+    return false;
+}
+
+bool CaptureWithFreeIncomingVelocityNode::nodeComputesIncomingVelocity( )
+{
+    return true;
+}
+
+void CaptureWithFreeIncomingVelocityNode::computeNode( )
+{
+    if( nodeParameters_.rows( ) != 4 )
+    {
+        throw std::runtime_error( "Error when computing CaptureWithFreeIncomingVelocityNode, incorrect input size" );
+    }
+
+    nodeTime_ = nodeParameters_( 0 );
+    incomingExcessVelocityMagnitude_ = nodeParameters_( 1 );
+    incomingExcessVelocityInPlaneAngle_ = nodeParameters_( 2 );
+    incomingExcessVelocityOutOfPlaneAngle_ = nodeParameters_( 3 );
+
+    updateNodeState( nodeTime_ );
+
+    // Calculate unit vectors as described in [Vinko and Izzo, 2008].
+    Eigen::Vector3d nodeVelocity = nodeState_.segment< 3 >( 3 );
+    const Eigen::Vector3d unitVector1 = nodeVelocity.normalized( );
+    const Eigen::Vector3d unitVector3 = ( nodeState_.segment< 3 >( 0 ).cross( nodeVelocity ) ).normalized( );
+    const Eigen::Vector3d unitVector2 = unitVector3.cross( unitVector1 );
+
+    // Calculate the incoming velocity as described in [Vinko and Izzo, 2008].
+    incomingVelocity_ = nodeVelocity +
+                        incomingExcessVelocityMagnitude_ * std::cos(incomingExcessVelocityInPlaneAngle_ ) *
+                        std::cos(incomingExcessVelocityOutOfPlaneAngle_ ) * unitVector1 +
+                        incomingExcessVelocityMagnitude_ * std::sin(incomingExcessVelocityInPlaneAngle_ ) *
+                        std::cos(incomingExcessVelocityOutOfPlaneAngle_ ) * unitVector2 +
+                        incomingExcessVelocityMagnitude_ * std::sin(incomingExcessVelocityOutOfPlaneAngle_ ) * unitVector3;
+
+    totalNodeDeltaV_ = mission_segments::computeEscapeOrCaptureDeltaV(
+                centralBodyGravitationalParameter_,
+                captureSemiMajorAxis_, captureEccentricity_,
+                ( incomingVelocity_ - nodeState_.segment< 3 >( 3 ) ).norm( ) );
+}
+
+
+SwingbyWithFixedIncomingFixedOutgoingVelocity::SwingbyWithFixedIncomingFixedOutgoingVelocity(
         const std::shared_ptr< ephemerides::Ephemeris > nodeEphemeris,
         const double centralBodyGravitationalParameter,
         const double minimumPeriapsisRadius,
@@ -202,17 +274,22 @@ SwingbyWithFixedOutgoingVelocity::SwingbyWithFixedOutgoingVelocity(
     outgoingVelocityFunction_( outgoingVelocityFunction )
 { }
 
-bool SwingbyWithFixedOutgoingVelocity::nodeComputesOutgoingVelocity( )
+bool SwingbyWithFixedIncomingFixedOutgoingVelocity::nodeComputesOutgoingVelocity( )
+{
+    return false;
+}
+
+bool SwingbyWithFixedIncomingFixedOutgoingVelocity::nodeComputesIncomingVelocity( )
 {
     return false;
 }
 
 
-void SwingbyWithFixedOutgoingVelocity::computeNode( )
+void SwingbyWithFixedIncomingFixedOutgoingVelocity::computeNode( )
 {
     if( nodeParameters_.rows( ) != 1 )
     {
-        throw std::runtime_error( "Error when computing SwingbyWithFixedOutgoingVelocity, incorrect input size" );
+        throw std::runtime_error( "Error when computing SwingbyWithFixedIncomingFixedOutgoingVelocity, incorrect input size" );
     }
 
     nodeTime_ = nodeParameters_( 0 );
@@ -229,9 +306,7 @@ void SwingbyWithFixedOutgoingVelocity::computeNode( )
 }
 
 
-
-
-SwingbyWithFreeOutgoingVelocity::SwingbyWithFreeOutgoingVelocity(
+SwingbyWithFixedIncomingFreeOutgoingVelocity::SwingbyWithFixedIncomingFreeOutgoingVelocity(
         const std::shared_ptr< ephemerides::Ephemeris > nodeEphemeris,
         const double centralBodyGravitationalParameter,
         const std::function< Eigen::Vector3d( ) > incomingVelocityFunction ):
@@ -240,17 +315,21 @@ SwingbyWithFreeOutgoingVelocity::SwingbyWithFreeOutgoingVelocity(
     incomingVelocityFunction_( incomingVelocityFunction )
 { }
 
-bool SwingbyWithFreeOutgoingVelocity::nodeComputesOutgoingVelocity( )
+bool SwingbyWithFixedIncomingFreeOutgoingVelocity::nodeComputesOutgoingVelocity( )
 {
     return true;
 }
 
+bool SwingbyWithFixedIncomingFreeOutgoingVelocity::nodeComputesIncomingVelocity( )
+{
+    return false;
+}
 
-void SwingbyWithFreeOutgoingVelocity::computeNode( )
+void SwingbyWithFixedIncomingFreeOutgoingVelocity::computeNode( )
 {
     if( nodeParameters_.rows( ) != 4 )
     {
-        throw std::runtime_error( "Error when computing SwingbyWithFreeOutgoingVelocity, incorrect input size" );
+        throw std::runtime_error( "Error when computing SwingbyWithFixedIncomingFreeOutgoingVelocity, incorrect input size" );
     }
 
     nodeTime_ = nodeParameters_( 0 );
@@ -262,7 +341,7 @@ void SwingbyWithFreeOutgoingVelocity::computeNode( )
 
     incomingVelocity_ = incomingVelocityFunction_( );
 
-    // Prepare the gravity assist propagator module.
+    // Forward propagate the gravity assist
     outgoingVelocity_ = mission_segments::calculatePoweredGravityAssistOutgoingVelocity(
                 centralBodyGravitationalParameter_,
                 nodeState_.segment< 3 >( 3 ), incomingVelocity_,
@@ -273,6 +352,106 @@ void SwingbyWithFreeOutgoingVelocity::computeNode( )
 }
 
 
+SwingbyWithFreeIncomingFreeOutgoingVelocity::SwingbyWithFreeIncomingFreeOutgoingVelocity(
+           const std::shared_ptr< ephemerides::Ephemeris > nodeEphemeris,
+           const double centralBodyGravitationalParameter):
+       TransferNode( nodeEphemeris, swingby ),
+       centralBodyGravitationalParameter_( centralBodyGravitationalParameter )
+{ }
+
+bool SwingbyWithFreeIncomingFreeOutgoingVelocity::nodeComputesOutgoingVelocity( )
+{
+    return true;
+}
+
+bool SwingbyWithFreeIncomingFreeOutgoingVelocity::nodeComputesIncomingVelocity( )
+{
+    return true;
+}
+
+void SwingbyWithFreeIncomingFreeOutgoingVelocity::computeNode( )
+{
+    if( nodeParameters_.rows( ) != 7 )
+    {
+        throw std::runtime_error( "Error when computing SwingbyWithFreeIncomingFreeOutgoingVelocity, incorrect input size" );
+    }
+
+    nodeTime_ = nodeParameters_( 0 );
+    incomingExcessVelocityMagnitude_ = nodeParameters_( 1 );
+    incomingExcessVelocityInPlaneAngle_ = nodeParameters_( 2 );
+    incomingExcessVelocityOutOfPlaneAngle_ = nodeParameters_( 3 );
+    periapsisRadius_ = nodeParameters_( 4 );
+    outgoingRotationAngle_ = nodeParameters_( 5 );
+    swingbyDeltaV_ = nodeParameters_( 6 );
+
+    updateNodeState( nodeTime_ );
+
+    // Calculate unit vectors as described in [Vinko and Izzo, 2008].
+    Eigen::Vector3d nodeVelocity = nodeState_.segment< 3 >( 3 );
+    const Eigen::Vector3d unitVector1 = nodeVelocity.normalized( );
+    const Eigen::Vector3d unitVector3 = ( nodeState_.segment< 3 >( 0 ).cross( nodeVelocity ) ).normalized( );
+    const Eigen::Vector3d unitVector2 = unitVector3.cross( unitVector1 );
+    // Calculate the incoming velocity as described in [Vinko and Izzo, 2008].
+    incomingVelocity_ = nodeVelocity +
+                        incomingExcessVelocityMagnitude_ * std::cos(incomingExcessVelocityInPlaneAngle_ ) *
+                        std::cos(incomingExcessVelocityOutOfPlaneAngle_ ) * unitVector1 +
+                        incomingExcessVelocityMagnitude_ * std::sin(incomingExcessVelocityInPlaneAngle_ ) *
+                        std::cos(incomingExcessVelocityOutOfPlaneAngle_ ) * unitVector2 +
+                        incomingExcessVelocityMagnitude_ * std::sin(incomingExcessVelocityOutOfPlaneAngle_ ) * unitVector3;
+
+    // Forward propagate the gravity assist
+    outgoingVelocity_ = mission_segments::calculatePoweredGravityAssistOutgoingVelocity(
+                centralBodyGravitationalParameter_,
+                nodeState_.segment< 3 >( 3 ), incomingVelocity_,
+                outgoingRotationAngle_, periapsisRadius_, swingbyDeltaV_ );
+
+    totalNodeDeltaV_ = swingbyDeltaV_;
+
+}
+
+
+SwingbyWithFreeIncomingFixedOutgoingVelocity::SwingbyWithFreeIncomingFixedOutgoingVelocity(
+           const std::shared_ptr< ephemerides::Ephemeris > nodeEphemeris,
+           const double centralBodyGravitationalParameter,
+           const std::function< Eigen::Vector3d( ) > outgoingVelocityFunction ):
+           TransferNode( nodeEphemeris, swingby ),
+       centralBodyGravitationalParameter_( centralBodyGravitationalParameter ),
+       outgoingVelocityFunction_( outgoingVelocityFunction )
+{ }
+
+bool SwingbyWithFreeIncomingFixedOutgoingVelocity::nodeComputesOutgoingVelocity( )
+{
+   return false;
+}
+
+bool SwingbyWithFreeIncomingFixedOutgoingVelocity::nodeComputesIncomingVelocity( )
+{
+   return true;
+}
+
+void SwingbyWithFreeIncomingFixedOutgoingVelocity::computeNode( )
+{
+    if( nodeParameters_.rows( ) != 4 )
+    {
+        throw std::runtime_error( "Error when computing SwingbyWithFreeIncomingFixedOutgoingVelocity, incorrect input size" );
+    }
+
+    nodeTime_ = nodeParameters_( 0 );
+    periapsisRadius_ = nodeParameters_( 1 );
+    incomingRotationAngle_ = nodeParameters_( 2 );
+    swingbyDeltaV_ = nodeParameters_( 3 );
+
+    updateNodeState( nodeTime_ );
+
+    outgoingVelocity_ = outgoingVelocityFunction_( );
+
+    // Backward propagate the gravity assist
+    incomingVelocity_ = mission_segments::calculatePoweredGravityAssistIncomingVelocity(
+            centralBodyGravitationalParameter_, nodeState_.segment<3>(3), outgoingVelocity_,
+            incomingRotationAngle_, periapsisRadius_, swingbyDeltaV_);
+
+    totalNodeDeltaV_ = swingbyDeltaV_;
+}
 
 } // namespace mission_segments
 

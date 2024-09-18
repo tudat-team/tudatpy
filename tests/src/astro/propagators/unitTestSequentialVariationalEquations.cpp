@@ -16,7 +16,7 @@
 #include <limits>
 
 #include <boost/test/unit_test.hpp>
-#include <boost/make_shared.hpp>
+
 
 #include "tudat/basics/testMacros.h"
 #include "tudat/math/basic/linearAlgebra.h"
@@ -93,11 +93,6 @@ integrateEquations( const bool performIntegrationsSequentially )
     Eigen::Vector6d lageosState = convertKeplerianToCartesianElements(
                 lageosKeplerianElements, getBodyGravitationalParameter("Earth" ) );
 
-    lageos->setEphemeris( std::make_shared< TabulatedCartesianEphemeris< double, double > >(
-                              std::shared_ptr< interpolators::OneDimensionalInterpolator<
-                              double, Eigen::Vector6d > >( ), "Earth" ) );
-    
-
     // Set accelerations between bodies that are to be taken into account.
     SelectedAccelerationMap accelerationMap;
 
@@ -144,7 +139,7 @@ integrateEquations( const bool performIntegrationsSequentially )
     std::shared_ptr< IntegratorSettings< > > matrixTypeIntegratorSettings =
             std::make_shared< RungeKuttaVariableStepSizeSettings< > >
             ( initialEphemerisTime, 10.0,
-              RungeKuttaCoefficients::rungeKuttaFehlberg45, 0.01, 10.0, 1.0E-6, 1.0E-6 );
+              rungeKuttaFehlberg45, 0.01, 10.0, 1.0E-6, 1.0E-6 );
 
 
 
@@ -163,7 +158,7 @@ integrateEquations( const bool performIntegrationsSequentially )
         // Define integrator settings for vector type.
         std::shared_ptr< IntegratorSettings< > > vectorTypeIntegratorSettings =
                 std::make_shared< RungeKuttaVariableStepSizeSettings< > >
-                ( initialEphemerisTime, 10.0, RungeKuttaCoefficients::rungeKuttaFehlberg45, 0.01, 10.0, 1.0E-6, 1.0E-6 );
+                ( initialEphemerisTime, 10.0, rungeKuttaFehlberg45, 0.01, 10.0, 1.0E-6, 1.0E-6 );
 
         // Propagate
         variationalEquationSolver = std::make_shared< SingleArcVariationalEquationsSolver< double, double > >(

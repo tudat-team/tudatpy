@@ -26,8 +26,13 @@ namespace gravitation
 enum BodyDeformationTypes
 {
     basic_solid_body,
+    mode_coupled_solid_body,
     tabulated_variation,
-    periodic_variation
+    periodic_variation,
+    polynomial_variation,
+    iers_2010,
+    pole_tide,
+    ocean_tide
 };
 
 
@@ -424,7 +429,8 @@ public:
      * \return The tidal gravity field variation with the specified bodies causing deformation
      */
     std::shared_ptr< GravityFieldVariations > getDirectTidalGravityFieldVariation(
-            const std::vector< std::string >& deformingBodies );
+            const std::vector< std::string >& deformingBodies,
+            const BodyDeformationTypes tideType = basic_solid_body );
 
     //! Function to retrieve the tidal gravity field variations
     /*!

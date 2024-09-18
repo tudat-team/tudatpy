@@ -13,7 +13,7 @@
 
 #include <string>
 
-#include <boost/make_shared.hpp>
+
 #include <boost/test/unit_test.hpp>
 
 #include "tudat/math/basic/linearAlgebra.h"
@@ -69,24 +69,24 @@ std::shared_ptr< IntegratorSettings< TimeType > > getIntegrationSettings(
     }
     else if( integratorCase < 5 )
     {
-        RungeKuttaCoefficients::CoefficientSets coefficientSet = RungeKuttaCoefficients::undefinedCoefficientSet;
+        CoefficientSets coefficientSet = CoefficientSets::undefinedCoefficientSet;
         if( integratorCase == 1 )
         {
-            coefficientSet = RungeKuttaCoefficients::rungeKuttaFehlberg45;
+            coefficientSet = rungeKuttaFehlberg45;
         }
         else if( integratorCase == 2 )
         {
-            coefficientSet = RungeKuttaCoefficients::rungeKuttaFehlberg56;
+            coefficientSet = rungeKuttaFehlberg56;
 
         }
         else if( integratorCase == 3 )
         {
-            coefficientSet = RungeKuttaCoefficients::rungeKuttaFehlberg78;
+            coefficientSet = rungeKuttaFehlberg78;
 
         }
         else if( integratorCase == 4 )
         {
-            coefficientSet = RungeKuttaCoefficients::rungeKutta87DormandPrince;
+            coefficientSet = rungeKutta87DormandPrince;
 
         }
         integratorSettings = std::make_shared< RungeKuttaVariableStepSizeSettings< TimeType > >
@@ -153,8 +153,8 @@ Eigen::Matrix< StateScalarType, 6, 1 > propagateForwardBackwards( const int inte
                 template cast< StateScalarType >( );
         AccelerationMap accelerationModelMap = createAccelerationModelsMap(
                     bodies, accelerationMap, bodiesToIntegrate, centralBodies );
-        std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > > propagatorSettings =
-                std::make_shared< TranslationalStatePropagatorSettings< StateScalarType > >
+        std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType, TimeType > > propagatorSettings =
+                std::make_shared< TranslationalStatePropagatorSettings< StateScalarType, TimeType > >
                 ( centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialState, finalEphemerisTime + buffer );
 
         // Create dynamics simulation object.
@@ -177,8 +177,8 @@ Eigen::Matrix< StateScalarType, 6, 1 > propagateForwardBackwards( const int inte
                 template cast< StateScalarType >( );
         AccelerationMap accelerationModelMap = createAccelerationModelsMap(
                     bodies, accelerationMap, bodiesToIntegrate, centralBodies );
-        std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > > propagatorSettings =
-                std::make_shared< TranslationalStatePropagatorSettings< StateScalarType > >
+        std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType, TimeType > > propagatorSettings =
+                std::make_shared< TranslationalStatePropagatorSettings< StateScalarType, TimeType > >
                 ( centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialState, initialEphemerisTime - buffer );
 
         // Create dynamics simulation object.

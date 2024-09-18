@@ -78,6 +78,11 @@ public:
         return projectedRelativeVelocityRatios_.at( linkIndex );
     }
 
+    int getNumberOfLinkEnds( )
+    {
+        return numberOfLinkEnds_;
+    }
+
 private:
 
     //! Map of consitutent one-way range scaling objects, with link index as map key
@@ -134,6 +139,7 @@ public:
             const std::vector< Eigen::Vector6d >& states,
             const std::vector< double >& times,
             const observation_models::LinkEndType linkEndOfFixedTime,
+            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings = nullptr,
             const Eigen::Vector1d& currentObservation = Eigen::Vector1d::Constant( TUDAT_NAN ) );
 
 protected:

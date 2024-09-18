@@ -37,7 +37,7 @@ Eigen::Matrix3d calculateAccelerationWrtStatePartials(
 
     Eigen::Vector6d perturbedState = originalState;
 
-    accelerationModel->resetTime( TUDAT_NAN );
+    accelerationModel->resetCurrentTime( );
 
     // Calculate perturbed accelerations for up-perturbed state entries.
     for( int i = 0; i < 3; i++ )
@@ -47,7 +47,7 @@ Eigen::Matrix3d calculateAccelerationWrtStatePartials(
         updateFunction( );
         upAccelerations.block( 0, i, 3, 1 ) = basic_astrodynamics::updateAndGetAcceleration< Eigen::Vector3d >(
                     accelerationModel, evaluationTime );
-        accelerationModel->resetTime( TUDAT_NAN );
+        accelerationModel->resetCurrentTime( );
         perturbedState = originalState;
     }
 
@@ -59,7 +59,7 @@ Eigen::Matrix3d calculateAccelerationWrtStatePartials(
         updateFunction( );
         downAccelerations.block( 0, i, 3, 1 ) = basic_astrodynamics::updateAndGetAcceleration< Eigen::Vector3d >(
                     accelerationModel, evaluationTime );
-        accelerationModel->resetTime( TUDAT_NAN );
+        accelerationModel->resetCurrentTime( );
         perturbedState = originalState;
     }
 
@@ -81,6 +81,51 @@ Eigen::Matrix3d calculateAccelerationWrtStatePartials(
     return accelerationPartials;
 }
 
+Eigen::Vector3d calculateAccelerationWrtMassPartials(
+        std::function< void( double ) > setBodyMass,
+        std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > accelerationModel,
+        double originalMass,
+        double massPerturbation,
+        std::function< void( ) > updateFunction,
+        const double evaluationTime )
+{
+    Eigen::Vector3d upAccelerations = Eigen::Vector3d::Zero( );
+    Eigen::Vector3d downAccelerations = Eigen::Vector3d::Zero( );
+
+    double perturbedMass = originalMass;
+
+    accelerationModel->resetCurrentTime( );
+
+    // Calculate perturbed accelerations for up-perturbed state entries.
+    perturbedMass += massPerturbation;
+    setBodyMass( perturbedMass );
+    updateFunction( );
+    upAccelerations = basic_astrodynamics::updateAndGetAcceleration< Eigen::Vector3d >(
+                accelerationModel, evaluationTime );
+    accelerationModel->resetCurrentTime( );
+    perturbedMass = originalMass;
+
+    // Calculate perturbed accelerations for down-perturbed state entries.
+    perturbedMass -= massPerturbation;
+    setBodyMass( perturbedMass );
+    updateFunction( );
+    downAccelerations = basic_astrodynamics::updateAndGetAcceleration< Eigen::Vector3d >(
+                accelerationModel, evaluationTime );
+    accelerationModel->resetCurrentTime( );
+    perturbedMass = originalMass;
+
+
+    // Reset state/environment to original state.
+    setBodyMass( perturbedMass );
+    updateFunction( );
+
+    basic_astrodynamics::updateAndGetAcceleration< Eigen::Vector3d >(
+                accelerationModel, evaluationTime );
+
+    // Numerically compute partial derivatives.
+    return ( upAccelerations - downAccelerations ) / ( 2.0 * massPerturbation );
+}
+
 //! Function to numerical compute the partial derivative of a torque w.r.t. a body translational state.
 Eigen::MatrixXd calculateTorqueWrtTranslationalStatePartials(
         std::function< void( Eigen::Vector6d ) > setBodyState,
@@ -96,7 +141,7 @@ Eigen::MatrixXd calculateTorqueWrtTranslationalStatePartials(
 
     Eigen::Vector6d perturbedState = originalState;
 
-    torqueModel->resetTime( TUDAT_NAN );
+    torqueModel->resetCurrentTime( );
 
     // Calculate perturbed torques for up-perturbed state entries.
     for( int i = 0; i < 3; i++ )
@@ -106,7 +151,7 @@ Eigen::MatrixXd calculateTorqueWrtTranslationalStatePartials(
         updateFunction( );
         upTorques.block( 0, i, 3, 1 ) = basic_astrodynamics::updateAndGetTorque(
                     torqueModel, evaluationTime );
-        torqueModel->resetTime( TUDAT_NAN );
+        torqueModel->resetCurrentTime( );
         perturbedState = originalState;
     }
 
@@ -118,7 +163,7 @@ Eigen::MatrixXd calculateTorqueWrtTranslationalStatePartials(
         updateFunction( );
         downTorques.block( 0, i, 3, 1 ) = basic_astrodynamics::updateAndGetTorque(
                     torqueModel, evaluationTime );
-        torqueModel->resetTime( TUDAT_NAN );
+        torqueModel->resetCurrentTime( );
         perturbedState = originalState;
     }
 
@@ -155,7 +200,7 @@ Eigen::MatrixXd calculateTorqueWrtRotationalStatePartials(
 
     Eigen::Vector7d perturbedState = originalRotationalState;
 
-    torqueModel->resetTime( TUDAT_NAN );
+    torqueModel->resetCurrentTime( );
 
     // Calculate perturbed accelerations for up-perturbed state entries.
     for( int i = 0; i < numberOfEntries; i++ )
@@ -165,7 +210,7 @@ Eigen::MatrixXd calculateTorqueWrtRotationalStatePartials(
         updateFunction( );
         upTorques.block( 0, i, 3, 1 ) = basic_astrodynamics::updateAndGetTorque(
                     torqueModel, evaluationTime );
-        torqueModel->resetTime( TUDAT_NAN );
+        torqueModel->resetCurrentTime( );
         perturbedState = originalRotationalState;
     }
 
@@ -177,7 +222,7 @@ Eigen::MatrixXd calculateTorqueWrtRotationalStatePartials(
         updateFunction( );
         downTorques.block( 0, i, 3, 1 ) = basic_astrodynamics::updateAndGetTorque(
                     torqueModel, evaluationTime );
-        torqueModel->resetTime( TUDAT_NAN );
+        torqueModel->resetCurrentTime( );
         perturbedState = originalRotationalState;
     }
 
@@ -218,7 +263,7 @@ Eigen::MatrixXd calculateAccelerationDeviationDueToOrientationChange(
 
     Eigen::Vector7d perturbedState = originalRotationalState;
 
-    accelerationModel->resetTime( TUDAT_NAN );
+    accelerationModel->resetCurrentTime( );
 
     // Calculate perturbed accelerations for up-perturbed state entries.
     for( int i = 1; i < 4; i++ )
@@ -233,7 +278,7 @@ Eigen::MatrixXd calculateAccelerationDeviationDueToOrientationChange(
         deviations.block( 0, i - 1, 3, 1 ) = basic_astrodynamics::updateAndGetAcceleration< Eigen::Vector3d >(
                     accelerationModel, evaluationTime ) -
                 nominalAcceleration;
-        accelerationModel->resetTime( TUDAT_NAN );
+        accelerationModel->resetCurrentTime( );
         perturbedState = originalRotationalState;
 
     }
@@ -262,7 +307,7 @@ Eigen::MatrixXd calculateTorqueDeviationDueToOrientationChange(
 
     Eigen::Vector7d perturbedState = originalRotationalState;
 
-    torqueModel->resetTime( TUDAT_NAN );
+    torqueModel->resetCurrentTime( );
 
     // Calculate perturbed accelerations for up-perturbed state entries.
     for( int i = 1; i < 4; i++ )
@@ -277,7 +322,7 @@ Eigen::MatrixXd calculateTorqueDeviationDueToOrientationChange(
         updateFunction( );
         deviations.block( 0, i - 1, 3, 1 ) = basic_astrodynamics::updateAndGetTorque( torqueModel, evaluationTime ) -
                 nominalTorque;
-        torqueModel->resetTime( TUDAT_NAN );
+        torqueModel->resetCurrentTime( );
         perturbedState = originalRotationalState;
 
     }
@@ -307,11 +352,11 @@ Eigen::Vector3d calculateAccelerationWrtParameterPartials(
                 unperturbedParameterValue + parameterPerturbation );
     updateDependentVariables( );
     timeDependentUpdateDependentVariables( currentTime );
-    accelerationModel->resetTime( TUDAT_NAN );
+    accelerationModel->resetCurrentTime( );
 
     Eigen::Vector3d upPerturbedAcceleration = basic_astrodynamics::updateAndGetAcceleration< Eigen::Vector3d >(
                 accelerationModel, currentTime );
-    accelerationModel->resetTime( TUDAT_NAN );
+    accelerationModel->resetCurrentTime( );
     // Calculate down-perturbation.
     parameter->setParameterValue(
                 unperturbedParameterValue - parameterPerturbation );
@@ -321,7 +366,7 @@ Eigen::Vector3d calculateAccelerationWrtParameterPartials(
     Eigen::Vector3d downPerturbedAcceleration = basic_astrodynamics::updateAndGetAcceleration< Eigen::Vector3d >(
                 accelerationModel, currentTime );
 
-    accelerationModel->resetTime( TUDAT_NAN );
+    accelerationModel->resetCurrentTime( );
 
     // Reset to original value.
     parameter->setParameterValue(
@@ -329,7 +374,7 @@ Eigen::Vector3d calculateAccelerationWrtParameterPartials(
     updateDependentVariables( );
     timeDependentUpdateDependentVariables( currentTime );
 
-    accelerationModel->resetTime( TUDAT_NAN );
+    accelerationModel->resetCurrentTime( );
     basic_astrodynamics::updateAndGetAcceleration< Eigen::Vector3d >(
                 accelerationModel, currentTime );
 
@@ -355,11 +400,11 @@ Eigen::Vector3d calculateTorqueWrtParameterPartials(
                 unperturbedParameterValue + parameterPerturbation );
     updateDependentVariables( );
     timeDependentUpdateDependentVariables( currentTime );
-    torqueModel->resetTime( TUDAT_NAN );
+    torqueModel->resetCurrentTime( );
 
     Eigen::Vector3d upPerturbedTorque = basic_astrodynamics::updateAndGetTorque(
                 torqueModel, currentTime );
-    torqueModel->resetTime( TUDAT_NAN );
+    torqueModel->resetCurrentTime( );
 
     // Calculate down-perturbation.
     parameter->setParameterValue(
@@ -370,7 +415,7 @@ Eigen::Vector3d calculateTorqueWrtParameterPartials(
     Eigen::Vector3d downPerturbedTorque = basic_astrodynamics::updateAndGetTorque(
                 torqueModel, currentTime );
 
-    torqueModel->resetTime( TUDAT_NAN );
+    torqueModel->resetCurrentTime( );
 
     // Reset to original value.
     parameter->setParameterValue(
@@ -378,7 +423,7 @@ Eigen::Vector3d calculateTorqueWrtParameterPartials(
     updateDependentVariables( );
     timeDependentUpdateDependentVariables( currentTime );
 
-    torqueModel->resetTime( TUDAT_NAN );
+    torqueModel->resetCurrentTime( );
     basic_astrodynamics::updateAndGetTorque(
                 torqueModel, currentTime );
 
@@ -386,6 +431,55 @@ Eigen::Vector3d calculateTorqueWrtParameterPartials(
     return ( upPerturbedTorque - downPerturbedTorque ) / ( 2.0 * parameterPerturbation );
 
 }
+
+
+//! Function to numerical compute the partial derivative of an acceleration w.r.t. a double parameter
+double calculateMassRateWrtParameterPartials(
+        std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter,
+        std::shared_ptr< basic_astrodynamics::MassRateModel > massRateModel,
+        double parameterPerturbation,
+        std::function< void( ) > updateDependentVariables,
+        const double currentTime,
+        std::function< void( const double ) > timeDependentUpdateDependentVariables )
+{
+    // Store uperturbed value.
+    double unperturbedParameterValue = parameter->getParameterValue( );
+
+    // Calculate up-perturbation
+    parameter->setParameterValue(
+                unperturbedParameterValue + parameterPerturbation );
+    updateDependentVariables( );
+    timeDependentUpdateDependentVariables( currentTime );
+    massRateModel->resetCurrentTime( );
+
+    massRateModel->updateMembers( currentTime );
+    double upPerturbedMassRate = massRateModel->getMassRate( );
+    massRateModel->resetCurrentTime( );
+
+    // Calculate down-perturbation.
+    parameter->setParameterValue(
+                unperturbedParameterValue - parameterPerturbation );
+    updateDependentVariables( );
+    timeDependentUpdateDependentVariables( currentTime );
+
+    massRateModel->updateMembers( currentTime );
+    double downPerturbedMassRate = massRateModel->getMassRate( );
+    massRateModel->resetCurrentTime( );
+
+    // Reset to original value.
+    parameter->setParameterValue(
+                unperturbedParameterValue ) ;
+    updateDependentVariables( );
+    timeDependentUpdateDependentVariables( currentTime );
+
+    massRateModel->resetCurrentTime( );
+    massRateModel->updateMembers( currentTime );
+
+    // Calculate partial using central difference.
+    return ( upPerturbedMassRate - downPerturbedMassRate ) / ( 2.0 * parameterPerturbation );
+
+}
+
 
 //! Function to numerical compute the partial derivative of an acceleration w.r.t. a vector parameter
 Eigen::Matrix< double, 3, Eigen::Dynamic > calculateAccelerationWrtParameterPartials(
@@ -408,7 +502,7 @@ Eigen::Matrix< double, 3, Eigen::Dynamic > calculateAccelerationWrtParameterPart
 
     Eigen::Matrix< double, 3, Eigen::Dynamic > partialMatrix = Eigen::MatrixXd::Zero( 3, unperturbedParameterValue.size( ) );
 
-    accelerationModel->resetTime( TUDAT_NAN );
+    accelerationModel->resetCurrentTime( );
 
     Eigen::VectorXd perturbedParameterValue;
     for( int i = 0; i < unperturbedParameterValue.size( ); i++ )
@@ -422,7 +516,7 @@ Eigen::Matrix< double, 3, Eigen::Dynamic > calculateAccelerationWrtParameterPart
         timeDependentUpdateDependentVariables( currentTime );
         Eigen::Vector3d upPerturbedAcceleration = basic_astrodynamics::updateAndGetAcceleration< Eigen::Vector3d >(
                     accelerationModel, currentTime );
-        accelerationModel->resetTime( TUDAT_NAN );
+        accelerationModel->resetCurrentTime( );
 
         // Calculate down-perturbation.
         perturbedParameterValue = unperturbedParameterValue;
@@ -432,7 +526,7 @@ Eigen::Matrix< double, 3, Eigen::Dynamic > calculateAccelerationWrtParameterPart
         timeDependentUpdateDependentVariables( currentTime );
         Eigen::Vector3d downPerturbedAcceleration = basic_astrodynamics::updateAndGetAcceleration< Eigen::Vector3d >(
                     accelerationModel, currentTime );
-        accelerationModel->resetTime( TUDAT_NAN );
+        accelerationModel->resetCurrentTime( );
 
         // Compute partial entry.
         partialMatrix.block( 0, i, 3, 1 ) =
@@ -445,7 +539,7 @@ Eigen::Matrix< double, 3, Eigen::Dynamic > calculateAccelerationWrtParameterPart
                 unperturbedParameterValue ) ;
     updateDependentVariables( );
     timeDependentUpdateDependentVariables( currentTime );
-    accelerationModel->resetTime( TUDAT_NAN );
+    accelerationModel->resetCurrentTime( );
 
     basic_astrodynamics::updateAndGetAcceleration< Eigen::Vector3d >(
                 accelerationModel, currentTime );
@@ -475,7 +569,7 @@ Eigen::Matrix< double, 3, Eigen::Dynamic > calculateTorqueWrtParameterPartials(
 
     Eigen::Matrix< double, 3, Eigen::Dynamic > partialMatrix = Eigen::MatrixXd::Zero( 3, unperturbedParameterValue.size( ) );
 
-    torqueModel->resetTime( TUDAT_NAN );
+    torqueModel->resetCurrentTime( );
 
     Eigen::VectorXd perturbedParameterValue;
     for( int i = 0; i < unperturbedParameterValue.size( ); i++ )
@@ -489,7 +583,7 @@ Eigen::Matrix< double, 3, Eigen::Dynamic > calculateTorqueWrtParameterPartials(
         timeDependentUpdateDependentVariables( currentTime );
         Eigen::Vector3d upPerturbedTorque = basic_astrodynamics::updateAndGetTorque(
                     torqueModel, currentTime );
-        torqueModel->resetTime( TUDAT_NAN );
+        torqueModel->resetCurrentTime( );
 
         // Calculate down-perturbation.
         perturbedParameterValue = unperturbedParameterValue;
@@ -499,7 +593,7 @@ Eigen::Matrix< double, 3, Eigen::Dynamic > calculateTorqueWrtParameterPartials(
         timeDependentUpdateDependentVariables( currentTime );
         Eigen::Vector3d downPerturbedTorque = basic_astrodynamics::updateAndGetTorque(
                     torqueModel, currentTime );
-        torqueModel->resetTime( TUDAT_NAN );
+        torqueModel->resetCurrentTime( );
 
         // Compute partial entry.
         partialMatrix.block( 0, i, 3, 1 ) =
@@ -512,7 +606,7 @@ Eigen::Matrix< double, 3, Eigen::Dynamic > calculateTorqueWrtParameterPartials(
                 unperturbedParameterValue ) ;
     updateDependentVariables( );
     timeDependentUpdateDependentVariables( currentTime );
-    torqueModel->resetTime( TUDAT_NAN );
+    torqueModel->resetCurrentTime( );
 
     basic_astrodynamics::updateAndGetTorque(
                 torqueModel, currentTime );

@@ -92,7 +92,7 @@ Eigen::Matrix3d calculateRotationRateFromItrsToGcrs(
             ( -2.0 * mathematical_constants::PI / 86400.0 * 1.00273781191135448 );
 
     return  ( calculateRotationFromCirsToGcrs( celestialPoleXPosition, celestialPoleYPosition, cioLocator )  *
-              calculateRotationFromTirsToCirs( sofa_interface::calculateEarthRotationAngleTemplated< TimeType >( ut1 ) )
+              calculateRotationFromTirsToCirs( sofa_interface::calculateEarthRotationAngleTemplated< TimeType >( ut1 - 1.42E-3 ) )
               ).toRotationMatrix( ) * auxiliaryMatrix *
             calculateRotationFromItrsToTirs( xPolePosition, yPolePosition, tioLocator ).toRotationMatrix( );
 
@@ -145,6 +145,7 @@ Eigen::Quaterniond calculateRotationFromItrsToGcrs(
         const TimeType ut1, const double xPolePosition, const double yPolePosition, const double tioLocator )
 {
     double currentEra = sofa_interface::calculateEarthRotationAngleTemplated< TimeType >( ut1 );
+
     return  calculateRotationFromCirsToGcrs( celestialPoleXPosition, celestialPoleYPosition, cioLocator ) *
             calculateRotationFromTirsToCirs( currentEra ) *
             calculateRotationFromItrsToTirs( xPolePosition, yPolePosition, tioLocator );
@@ -215,7 +216,7 @@ public:
      */
     template< typename TimeType >
     std::pair< Eigen::Vector5d, TimeType > getRotationAnglesFromItrsToGcrs(
-            const double timeValue,
+            const TimeType timeValue,
             basic_astrodynamics::TimeScales timeScale = basic_astrodynamics::tt_scale )
     {
         // Compute required time values
@@ -227,7 +228,7 @@ public:
                     timeScale, basic_astrodynamics::ut1_scale, timeValue, Eigen::Vector3d::Zero( ) );
 
         // Compute nutation/precession parameters
-        std::pair< Eigen::Vector2d, double > positionOfCipInGcrs =
+        Eigen::Vector3d positionOfCipInGcrs =
                 precessionNutationCalculator_->getPositionOfCipInGcrs(
                     terrestrialTime, utc );
 
@@ -237,9 +238,9 @@ public:
 
         // Return vector of angles.
         Eigen::Vector5d rotationAngles;
-        rotationAngles[ 0 ] = positionOfCipInGcrs.first.x( );
-        rotationAngles[ 1 ] = positionOfCipInGcrs.first.y( );
-        rotationAngles[ 2 ] = positionOfCipInGcrs.second;
+        rotationAngles[ 0 ] = positionOfCipInGcrs( 0 );
+        rotationAngles[ 1 ] = positionOfCipInGcrs( 1 );
+        rotationAngles[ 2 ] = positionOfCipInGcrs( 2 );
         rotationAngles[ 3 ] = positionOfCipInItrs.x( );
         rotationAngles[ 4 ] = positionOfCipInItrs.y( );
         return std::make_pair( rotationAngles, ut1 );
@@ -341,12 +342,6 @@ createInterpolatorsForItrsToGcrsAngles(
     // Create interpolator for angles
     std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Matrix< double, 5, 1 > > > anglesInterpolator =
             interpolators::createOneDimensionalInterpolator( anglesMap, interpolatorSettings );
-
-    // Update UT1 interpolation time step scalar
-    if( sizeof( UT1ScalarType ) == 8 )
-    {
-        interpolatorSettings->resetUseLongDoubleTimeStep( true );
-    }
 
     // Create interpolator for UT1
     std::shared_ptr< interpolators::OneDimensionalInterpolator< double, UT1ScalarType > > ut1Interpolator =

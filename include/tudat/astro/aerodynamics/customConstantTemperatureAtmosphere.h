@@ -20,9 +20,9 @@
 #ifndef TUDAT_CUSTOM_CONSTANT_TEMPERATURE_ATMOSPHERE_H
 #define TUDAT_CUSTOM_CONSTANT_TEMPERATURE_ATMOSPHERE_H
 
-#include <boost/bind/bind.hpp>
+
 #include <boost/function.hpp>
-#include <boost/shared_ptr.hpp>
+
 
 #include <cmath>
 
@@ -32,7 +32,7 @@
 #include "tudat/astro/aerodynamics/standardAtmosphere.h"
 #include "tudat/astro/basic_astro/physicalConstants.h"
 
-using namespace boost::placeholders;
+
 
 namespace tudat
 {

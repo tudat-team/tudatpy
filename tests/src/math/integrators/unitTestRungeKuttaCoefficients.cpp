@@ -39,8 +39,9 @@ namespace unit_tests
 BOOST_AUTO_TEST_SUITE( test_runge_kutta_coefficients )
 
 using numerical_integrators::RungeKuttaCoefficients;
+using numerical_integrators::CoefficientSets;
 
-void checkValidityOfCoefficientSet( const RungeKuttaCoefficients::CoefficientSets& coefficientSet,
+void checkValidityOfCoefficientSet( const CoefficientSets& coefficientSet,
                                     const double tolerance )
 {
     // Declare coefficient set.
@@ -75,7 +76,7 @@ void checkValidityOfCoefficientSet( const RungeKuttaCoefficients::CoefficientSet
 BOOST_AUTO_TEST_CASE( testRungeKuttaFehlberg45Coefficients )
 {
     // Check validity of Runge-Kutta-Fehlberg 45 coefficients.
-    checkValidityOfCoefficientSet( RungeKuttaCoefficients::rungeKuttaFehlberg45, 1.0e-15 );
+    checkValidityOfCoefficientSet( CoefficientSets::rungeKuttaFehlberg45, 1.0e-15 );
 }
 
 BOOST_AUTO_TEST_CASE( testRungeKuttaFehlberg78Coefficients )
@@ -85,7 +86,7 @@ BOOST_AUTO_TEST_CASE( testRungeKuttaFehlberg78Coefficients )
     // checkValidityOfCoefficientSet() is set to lower than this value (rows 8 and 9 of
     // aCoefficients matrix sum does not correspond to cCoefficient counterpart with tolerance less
     // than 1.0e-14).
-    checkValidityOfCoefficientSet( RungeKuttaCoefficients::rungeKuttaFehlberg78, 1.0e-14 );
+    checkValidityOfCoefficientSet( CoefficientSets::rungeKuttaFehlberg78, 1.0e-14 );
 }
 
 BOOST_AUTO_TEST_CASE( testRungeKutta87DormandAndPrinceCoefficients )
@@ -95,7 +96,7 @@ BOOST_AUTO_TEST_CASE( testRungeKutta87DormandAndPrinceCoefficients )
     // checkValidityOfCoefficientSet() is set to lower than this value (row 10 of aCoefficients
     // matrix sum does not correspond to cCoefficient counterpart with tolerance less than
     // 1.0e-14).
-    checkValidityOfCoefficientSet( RungeKuttaCoefficients::rungeKutta87DormandPrince, 1.0e-14 );
+    checkValidityOfCoefficientSet( CoefficientSets::rungeKutta87DormandPrince, 1.0e-14 );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

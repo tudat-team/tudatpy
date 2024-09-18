@@ -1,10 +1,10 @@
 #ifndef TUDAT_PANELLEDRADIATIONPRESSUREACCELERATIONPARTIAL_H
 #define TUDAT_PANELLEDRADIATIONPRESSUREACCELERATIONPARTIAL_H
 
-#include <boost/shared_ptr.hpp>
+
 
 #include "tudat/astro/orbit_determination/acceleration_partials/accelerationPartial.h"
-#include "tudat/astro/electromagnetism/panelledRadiationPressure.h"
+#include "tudat/astro/orbit_determination/acceleration_partials/radiationPressureAccelerationPartial.h"
 
 namespace tudat
 {
@@ -27,12 +27,42 @@ public:
      * \param acceleratingBody Name of the body exerting acceleration.
      */
     PanelledRadiationPressurePartial(
-            const std::shared_ptr< electromagnetism::PanelledRadiationPressureAcceleration > radiationPressureAcceleration,
-            const std::shared_ptr< electromagnetism::PanelledRadiationPressureInterface > radiationPressureInterface,
+        const std::shared_ptr< electromagnetism::IsotropicPointSourceRadiationPressureAcceleration > radiationPressureAcceleration,
+        const std::shared_ptr< electromagnetism::PaneledRadiationPressureTargetModel > panelledTargetModel,
             const std::string& acceleratedBody, const std::string& acceleratingBody ):
-        AccelerationPartial( acceleratedBody, acceleratingBody, basic_astrodynamics::panelled_radiation_pressure_acceleration ),
-        radiationPressureAcceleration_( radiationPressureAcceleration ), radiationPressureInterface_( radiationPressureInterface )
-    { }
+        AccelerationPartial( acceleratedBody, acceleratingBody, basic_astrodynamics::radiation_pressure ),
+        radiationPressureAcceleration_( radiationPressureAcceleration ), panelledTargetModel_( panelledTargetModel ),
+        numberOfBodyFixedPanels_( panelledTargetModel_->getBodyFixedPanels( ).size( ) )
+    {
+        for( unsigned int i = 0; i < numberOfBodyFixedPanels_; i++ )
+        {
+            if( panelledTargetModel_->getBodyFixedPanels( ).at( i )->getTrackedBody( ) != "" )
+            {
+                trackedTargetPerPanel_[ i ] = panelledTargetModel_->getBodyFixedPanels( ).at( i )->getTrackedBody( );
+                if(std::find(trackedTargetList_.begin(), trackedTargetList_.end(),
+                             panelledTargetModel_->getBodyFixedPanels( ).at( i )->getTrackedBody( ) ) == trackedTargetList_.end( ) )
+                {
+                    trackedTargetList_.push_back( panelledTargetModel_->getBodyFixedPanels( ).at( i )->getTrackedBody( ) );
+                }
+            }
+        }
+
+        for( auto it : panelledTargetModel_->getSegmentFixedPanels( ) )
+        {
+            for( unsigned int i = 0; i < it.second.size( ); i++ )
+            {
+                if( it.second.at( i )->getTrackedBody( ) != "" )
+                {
+                    trackedTargetPerSegmentPanel_[ it.first ][ i ] = it.second.at( i )->getTrackedBody( );
+                    if(std::find(trackedTargetList_.begin(), trackedTargetList_.end(),
+                                 it.second.at( i )->getTrackedBody( ) ) == trackedTargetList_.end( ) )
+                    {
+                        trackedTargetList_.push_back( it.second.at( i )->getTrackedBody( ) );
+                    }
+                }
+            }
+        }
+    }
 
     //! Destructor.
     ~PanelledRadiationPressurePartial( ){ }
@@ -127,7 +157,37 @@ public:
     getParameterPartialFunction( std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
     {
         std::function< void( Eigen::MatrixXd& ) > partialFunction;
-        return std::make_pair( partialFunction, 0 );
+        int numberOfRows = 0;
+
+        // Check if parameter dependency exists.
+        if( parameter->getParameterName( ).second.first == acceleratedBody_ )
+        {
+            if( parameter->getParameterName( ).second.second == acceleratingBody_ )
+            {
+                switch( parameter->getParameterName( ).first )
+                {
+                case estimatable_parameters::source_direction_radiation_pressure_scaling_factor:
+
+                    partialFunction = std::bind( &computeRadiationPressureAccelerationWrtSourceDirectionScaling,
+                                                 radiationPressureAcceleration_,
+                                                 std::placeholders::_1 );
+                    numberOfRows = 1;
+
+                    break;
+                case estimatable_parameters::source_perpendicular_direction_radiation_pressure_scaling_factor:
+
+                    partialFunction = std::bind( &computeRadiationPressureAccelerationWrtSourcePerpendicularDirectionScaling,
+                                                 radiationPressureAcceleration_,
+                                                 std::placeholders::_1 );
+                    numberOfRows = 1;
+
+                    break;
+                default:
+                    break;
+                }
+            }
+        }
+        return std::make_pair( partialFunction, numberOfRows );
     }
 
     //! Function for setting up and retrieving a function returning a partial w.r.t. a vector parameter.
@@ -144,18 +204,38 @@ public:
         return std::make_pair( partialFunction, 0 );
     }
 
+    Eigen::Matrix< double, 1, 3 > getCurrentCosineAnglePartial( )
+    {
+        return currentCosineAnglePartial_;
+    }
 
 private:
 
     //! Pointer to the panelled radiation pressure acceleration model.
-    std::shared_ptr< electromagnetism::PanelledRadiationPressureAcceleration > radiationPressureAcceleration_;
+    std::shared_ptr< electromagnetism::IsotropicPointSourceRadiationPressureAcceleration > radiationPressureAcceleration_;
 
     //! Pointer to the panelled radiation pressure interface.
-    std::shared_ptr< electromagnetism::PanelledRadiationPressureInterface > radiationPressureInterface_;
+    std::shared_ptr< electromagnetism::PaneledRadiationPressureTargetModel > panelledTargetModel_;
+
+    unsigned int numberOfBodyFixedPanels_;
+
+    std::map< int, std::string > trackedTargetPerPanel_;
+
+    std::map< std::string, std::map< int, std::string > > trackedTargetPerSegmentPanel_;
+
+    std::vector< std::string > trackedTargetList_;
 
     //! Current partial of acceleration w.r.t. position of body undergoing acceleration (equal to minus partial w.r.t.
     //! position of body exerting acceleration).
     Eigen::Matrix3d currentPartialWrtPosition_;
+
+    Eigen::Matrix3d currentSourceUnitVectorPartial_;
+
+    Eigen::Matrix< double, 1, 3 > currentRadiationPressurePositionPartial_;
+
+    Eigen::Matrix< double, 1, 3 > currentCosineAnglePartial_;
+
+
 };
 
 }

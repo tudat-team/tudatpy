@@ -315,11 +315,11 @@ public:
 protected:
 
     //! Function to reset the relevant member objects to the current time.
-    void resetTimeOfMemberObjects( )
+    void resetCurrentTimeOfMemberObjects( )
     {
         for( unsigned int i = 0; i < tidalLoveNumberPartialInterfaces_.size( ); i++ )
         {
-            tidalLoveNumberPartialInterfaces_.at( i )->resetTime( currentTime_ );
+            tidalLoveNumberPartialInterfaces_.at( i )->resetCurrentTime( );
         }
     }
 
@@ -331,6 +331,23 @@ protected:
             tidalLoveNumberPartialInterfaces_.at( i )->updateParameterPartials( );
         }
     }
+
+    void wrtPolynomialGravityFieldVariations(
+        const std::vector< std::pair< int, int > >& cosineBlockIndices,
+        const std::vector< std::pair< int, int > >& sineBlockIndices,
+        const std::vector< std::vector< std::pair< int, int > > > powersPerCosineBlockIndex,
+        const std::vector< std::vector< std::pair< int, int > > > powersPerSineBlockIndex,
+        const double referenceEpoch,
+        Eigen::MatrixXd& partialDerivatives );
+
+    void wrtPeriodicGravityFieldVariations(
+        const std::vector< std::pair< int, int > >& cosineBlockIndices,
+        const std::vector< std::pair< int, int > >& sineBlockIndices,
+        const std::vector< std::vector< std::pair< int, int > > > powersPerCosineBlockIndex,
+        const std::vector< std::vector< std::pair< int, int > > > powersPerSineBlockIndex,
+        const std::vector< double >& frequencies,
+        const double referenceEpoch,
+        Eigen::MatrixXd& partialDerivatives );
 
     //! Function to calculate the partial of the acceleration wrt a set of cosine coefficients.
     /*!
@@ -398,6 +415,13 @@ protected:
             const bool sumOrders,
             const int parameterSize,
             Eigen::MatrixXd& accelerationPartial );
+
+    void wrtModeCoupledLoveNumbers(
+        const std::function< std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > >( ) > coefficientPartialFunctions,
+        const std::vector< int >& responseIndices,
+        const std::vector< std::pair< int, int > >& responseDegreeOrders,
+        const int parameterSize,
+        Eigen::MatrixXd& partialMatrix );
 
     //! Function to return the gravitational parameter used for calculating the acceleration.
     std::function< double( ) > gravitationalParameterFunction_;

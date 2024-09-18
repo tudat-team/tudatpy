@@ -13,9 +13,9 @@
 #define BOOST_TEST_MAIN
 
 #include <boost/test/unit_test.hpp>
-#include <boost/make_shared.hpp>
-#include <boost/bind/bind.hpp>
-using namespace boost::placeholders;
+
+
+
 
 
 #include "tudat/math/basic/leastSquaresEstimation.h"
@@ -313,7 +313,7 @@ BOOST_AUTO_TEST_CASE( testLenseThirring )
         std::shared_ptr< IntegratorSettings< > > integratorSettings =
                 std::make_shared< RungeKuttaVariableStepSizeSettings< > >
                 ( 0.0, 10.0,
-                  RungeKuttaCoefficients::rungeKuttaFehlberg78, 1.0E-3, 1.0E3, 1.0E-12, 1.0E-12 );
+                  rungeKuttaFehlberg78, 1.0E-3, 1.0E3, 1.0E-12, 1.0E-12 );
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ///////////////////////             PROPAGATE ORBIT            ////////////////////////////////////////////////////////

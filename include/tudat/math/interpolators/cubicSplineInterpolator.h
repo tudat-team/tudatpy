@@ -45,7 +45,8 @@ namespace interpolators
  *  \param rightHandSide Right-hand-side of matrix equation.
  *  \return Solution to matrix equation.
  */
-template< typename IndependentVariableType, typename DependentVariableType >
+template< typename IndependentVariableType, typename DependentVariableType,
+          typename ScalarType = typename scalar_type< IndependentVariableType >::value_type >
 std::vector< DependentVariableType > solveTridiagonalMatrixEquation(
         const std::vector< IndependentVariableType >& subDiagonal,
         const std::vector< IndependentVariableType >& diagonal,
@@ -53,7 +54,11 @@ std::vector< DependentVariableType > solveTridiagonalMatrixEquation(
         const std::vector< DependentVariableType >& rightHandSide )
 {
     // Check whether input diagonals are correct size.
-    unsigned int matrixSize = rightHandSide.size( );
+    unsigned int matrixSize = static_cast< unsigned int >( rightHandSide.size( ) );
+    if( matrixSize < 2 )
+    {
+        throw std::runtime_error( "Error, RHS must be at least size 2 for tridiagonal matrix solution" );
+    }
     if ( ( diagonal.size( ) < matrixSize ) || ( superDiagonal.size( ) < matrixSize - 1 ) ||
          ( rightHandSide.size( ) < matrixSize - 1 ) )
     {
@@ -66,17 +71,17 @@ std::vector< DependentVariableType > solveTridiagonalMatrixEquation(
         throw std::runtime_error( "Error when inverting tridiagonal system, first entry of diagonal is zero" );
     }
 
-    std::vector< IndependentVariableType > intermediateVector( matrixSize );
+    std::vector< ScalarType > intermediateVector( matrixSize );
     std::vector< DependentVariableType > solution( matrixSize );
 
     // Perform solution algorithm, from (Press W.H., et al., 2002).
-    double scalingFactor = diagonal[ 0 ];
-    solution[ 0 ] = rightHandSide[ 0 ] / scalingFactor;
+    ScalarType scalingFactor = static_cast< ScalarType >( diagonal[ 0 ] );
+    solution[ 0 ] = rightHandSide[ 0 ] / static_cast< ScalarType >( scalingFactor );
 
     for ( unsigned int j = 1; j < matrixSize; j++ )
     {
-        intermediateVector[ j ] = superDiagonal[ j - 1 ] / scalingFactor;
-        scalingFactor = diagonal[ j ] - subDiagonal[ j - 1 ] * intermediateVector[ j ];
+        intermediateVector[ j ] = static_cast< ScalarType >( superDiagonal[ j - 1 ] ) / scalingFactor;
+        scalingFactor = diagonal[ j ] - static_cast< ScalarType >( subDiagonal[ j - 1 ] ) * intermediateVector[ j ];
 
         // Check whether solution will not be singular.
         if ( scalingFactor == 0.0 )
@@ -103,7 +108,8 @@ std::vector< DependentVariableType > solveTridiagonalMatrixEquation(
  *  \tparam IndependentVariableType Type of independent variables.
  *  \tparam DependentVariableType Type of dependent variables.
  */
-template< typename IndependentVariableType, typename DependentVariableType, typename ScalarType = IndependentVariableType >
+template< typename IndependentVariableType, typename DependentVariableType,
+          typename ScalarType = typename scalar_type< IndependentVariableType >::value_type >
 class CubicSplineInterpolator :
         public OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >
 {
@@ -292,8 +298,14 @@ public:
 
         // Determine the lower entry in the table corresponding to the target independent variable
         // value.
-        int lowerEntry_ = lookUpScheme_->findNearestLowerNeighbour(
-                    targetIndependentVariableValue );
+        unsigned int lowerEntry_ = lookUpScheme_->findNearestLowerNeighbour( targetIndependentVariableValue );
+
+        // If lowerEntry_ is the last element of independentValues_, execute extrapolation with
+        // the last and second to last elements of independentValues_.
+        if ( lowerEntry_ == independentValues_.size( ) - 1 )
+        {
+            lowerEntry_ -= 1;
+        }
 
         // Get independent variable values bounding interval in which requested value lies.
         IndependentVariableType lowerValue, upperValue;
@@ -334,7 +346,7 @@ private:
     void calculateSecondDerivatives( )
     {
         // Get length of vector.
-        numberOfDataPoints_ = independentValues_.size( );
+        numberOfDataPoints_ = static_cast< unsigned int >( independentValues_.size( ) );
 
         // Sub-diagonal of tri-diagonal matrix.
         std::vector< ScalarType > aCoefficients_;
@@ -415,20 +427,6 @@ private:
 extern template class CubicSplineInterpolator< double, Eigen::VectorXd >;
 extern template class CubicSplineInterpolator< double, Eigen::Vector6d >;
 extern template class CubicSplineInterpolator< double, Eigen::MatrixXd >;
-
-#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
-extern template class CubicSplineInterpolator< Time, Eigen::VectorXd, long double >;
-extern template class CubicSplineInterpolator< Time, Eigen::Vector6d, long double >;
-extern template class CubicSplineInterpolator< Time, Eigen::MatrixXd, long double >;
-
-extern template class CubicSplineInterpolator< double, Eigen::Matrix< long double, Eigen::Dynamic, 1 > >;
-extern template class CubicSplineInterpolator< double, Eigen::Matrix< long double, Eigen::Dynamic, 6 > >;
-extern template class CubicSplineInterpolator< double, Eigen::Matrix< long double, Eigen::Dynamic,  Eigen::Dynamic > >;
-
-extern template class CubicSplineInterpolator< Time, Eigen::Matrix< long double, Eigen::Dynamic, 1 >, long double >;
-extern template class CubicSplineInterpolator< Time, Eigen::Matrix< long double, Eigen::Dynamic, 6 >, long double >;
-extern template class CubicSplineInterpolator< Time, Eigen::Matrix< long double, Eigen::Dynamic,  Eigen::Dynamic >, long double >;
-#endif
 
 //! Typedef for cubic spline interpolator with (in)dependent = double.
 typedef CubicSplineInterpolator< double, double > CubicSplineInterpolatorDouble;
