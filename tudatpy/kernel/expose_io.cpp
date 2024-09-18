@@ -252,11 +252,11 @@ namespace tudatpy {
                        get_docstring("StaticCoefficientNames.clb").c_str())
                 .export_values();
 
-
-            py::class_<tio::solar_activity::SolarActivityData,
-                       std::shared_ptr<tio::solar_activity::SolarActivityData>>(
-                m, "SolarActivityData",
-                get_docstring("SolarActivityData").c_str());
+//
+//            py::class_<tio::solar_activity::SolarActivityData,
+//                       std::shared_ptr<tio::solar_activity::SolarActivityData>>(
+//                m, "SolarActivityData",
+//                get_docstring("SolarActivityData").c_str());
 
             // py::class_<std::map<
             //     double,
