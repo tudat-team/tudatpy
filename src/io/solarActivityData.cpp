@@ -36,7 +36,8 @@ namespace solar_activity
 {
 
 //! Default constructor.
-SolarActivityData::SolarActivityData( ) : year( 0 ), month( 0 ), day( 0 ),
+SolarActivityData::SolarActivityData( const int yearInput, const int monthInput, const int dayInput ):
+    year( yearInput ), month( monthInput ), day( dayInput ),
     bartelsSolarRotationNumber( 0 ), dayOfBartelsCycle( 0 ), planetaryRangeIndexSum( 0 ),
     planetaryEquivalentAmplitudeAverage( 0 ), planetaryDailyCharacterFigure( -0.0 ),
     planetaryDailyCharacterFigureConverted( 0 ), internationalSunspotNumber( 0 ),

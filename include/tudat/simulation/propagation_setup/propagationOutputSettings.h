@@ -141,7 +141,9 @@ enum PropagationDependentVariables
     vehicle_panel_body_fixed_surface_normals = 68,
     vehicle_surface_panel_radiation_pressure_force = 69,
     paneled_radiation_source_per_panel_irradiance = 70,
-    paneled_radiation_source_geometry = 71
+    paneled_radiation_source_geometry = 71,
+    nrlmsise_input_data = 72
+
 };
 
 // Functional base class for defining settings for dependent variables that are to be saved during propagation
@@ -1448,6 +1450,13 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > paneledRadiationSo
         paneled_radiation_source_geometry, bodyName, sourceName );
 }
 
+inline std::shared_ptr< SingleDependentVariableSaveSettings > nrlmsiseInputDependentVariable(
+    const std::string& bodyName,
+    const std::string& centralBodyName )
+{
+    return std::make_shared< SingleDependentVariableSaveSettings >(
+        nrlmsise_input_data, bodyName, centralBodyName );
+}
 
 } // namespace propagators
 
