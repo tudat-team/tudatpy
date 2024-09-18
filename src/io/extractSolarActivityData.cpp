@@ -57,13 +57,13 @@ std::shared_ptr< SolarActivityData > ExtractSolarActivityData::extract(
 
 
     // Convert string data and append to solar activity data object
-    getField< unsigned int >( data, year );
-    getField< unsigned int >( data, month );
-    getField< unsigned int >( data, day );
+    int currentYear = getField< unsigned int >( data, year );
+    int currentMonth = getField< unsigned int >( data, month );
+    int currentDay = getField< unsigned int >( data, day );
 
     // Create the resulting solar activity data object (will be returned at the end)
     std::shared_ptr< SolarActivityData > solarActivityContainer =
-        std::make_shared< SolarActivityData >( year, month, day );
+        std::make_shared< SolarActivityData >( currentYear, currentMonth, currentDay );
 
     solarActivityContainer->bartelsSolarRotationNumber = getField< unsigned int >(
                 data, bartelsSolarRotationNumber );
