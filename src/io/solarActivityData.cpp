@@ -120,12 +120,14 @@ SolarActivityDataMap readSolarActivityData( std::string filePath )
     double julianDate = TUDAT_NAN;
 
     // Save each line to datamap
-    for(int i = 0 ; i < numberOfLines ; i++ ){
+    for(int i = 0 ; i < numberOfLines ; i++ )
+    {
         julianDate = tudat::basic_astrodynamics::convertCalendarDateToJulianDay(
                     solarActivityExtractor.extract( parsedDataVector->at( i ) )->year,
                     solarActivityExtractor.extract( parsedDataVector->at( i ) )->month,
                     solarActivityExtractor.extract( parsedDataVector->at( i ) )->day,
                     0, 0, 0.0 ) ;
+
         dataMap[ julianDate ] = solarActivityExtractor.extract( parsedDataVector->at( i ) ) ;
     }
 
