@@ -11,7 +11,7 @@
 #include "expose_torque_setup.h"
 #include <tudat/basics/deprecationWarnings.h>
 
-#include "tudatpy/docstrings.h"
+#include "docstrings.h"
 #include <tudat/simulation/propagation_setup.h>
 
 #include <pybind11/chrono.h>
@@ -68,6 +68,8 @@ namespace torque {
                        get_docstring("AvailableTorque.second_order_gravitational_type").c_str())
                 .value("aerodynamic_type", tba::AvailableTorque::aerodynamic_torque,
                        get_docstring("AvailableTorque.aerodynamic_type").c_str())
+                .value("radiation_pressure_torque_type", tba::AvailableTorque::radiation_pressure_torque,
+                       get_docstring("AvailableTorque.radiation_pressure_torque_type").c_str())
                 .value("spherical_harmonic_gravitational_type",
                        tba::AvailableTorque::spherical_harmonic_gravitational_torque,
                        get_docstring("AvailableTorque.spherical_harmonic_gravitational_type").c_str())
@@ -90,17 +92,16 @@ namespace torque {
         m.def("aerodynamic", &tss::aerodynamicTorque,
               get_docstring("aerodynamic").c_str());
 
+        m.def("radiation_pressure_torque", &tss::radiationPressureTorque,
+              get_docstring("radiation_pressure_torque").c_str());
 
         m.def("second_degree_gravitational", &tss::secondDegreeGravitationalTorque,
               get_docstring("second_degree_gravitational").c_str());
-
 
         m.def("spherical_harmonic_gravitational", &tss::sphericalHarmonicGravitationalTorque,
               py::arg("maximum_degree"),
               py::arg("maximum_order"),
               get_docstring("spherical_harmonic_gravitational").c_str());
-
-
 
         m.def("custom_torque", &tss::customTorqueSettings,
                   py::arg("torque_function"),

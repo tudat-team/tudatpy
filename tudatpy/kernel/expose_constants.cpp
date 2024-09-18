@@ -10,7 +10,7 @@
 
 #include "expose_constants.h"
 
-#include "tudatpy/docstrings.h"
+#include "docstrings.h"
 #include "tudat/constants.h"
 #include "tudat/astro/basic_astro/timeConversions.h"
 

@@ -16,7 +16,9 @@ dependencies:
   #- cmake
   - pydantic=1.10.9
   - numpydoc
-  - tudatpy
+  - tudatpy=0.8.0.dev7
+  - tudat=2.13.0.dev10
+  - boost-cpp=1.84.0
   - pip
   - pip:
      - nbsphinx

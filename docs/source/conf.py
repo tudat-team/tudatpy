@@ -69,7 +69,8 @@ if bool(os.getenv("READTHEDOCS")) is True:
     source_path = generate_documentation(api_declaration, '.')
 
 else:
-    sys.path.insert(0, os.path.abspath('../..'))
+    # when building locally, use the binaries generated with tudat-bundle
+    sys.path.insert(0, os.path.abspath('../../../build/tudatpy'))
 
 # -- General configuration ------------------------------------------------
 
@@ -89,7 +90,7 @@ extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.ifconfig',
               'sphinx.ext.viewcode',
               'sphinx.ext.githubpages',
-              'sphinxcontrib.napoleon',
+              'sphinx.ext.napoleon',
               'sphinx.ext.autosectionlabel',
               'sphinx_copybutton'
               # 'breathe',

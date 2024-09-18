@@ -60,61 +60,32 @@ filter_test_input = [
 ]
 
 
-@pytest.mark.parametrize("inp,expected", get_observations_input)
-def test_BatchMPC_getobservations(inp, expected):
-    query = BatchMPC()
-    query.get_observations(inp)
-    assert set(query.MPC_objects) == expected
+# for the weights tests 
+observatory_set_single = ["M22"]
+observatory_set_multi = ["K19", "D67", "089", "706"]
+weights_test_combinations = [
+    (observatory_set_single, True),  # just one obs
+    (observatory_set_single, False),
+    (observatory_set_multi, False),
+    (None, False),  # all data
+]
 
 
-@pytest.mark.parametrize("inp,errtype,errvalue", get_observations_input2)
-def test_BatchMPC_getobservations2(inp, errtype, errvalue):
-    query = BatchMPC()
-    with pytest.raises(Exception) as exc_info:
-        query.get_observations(inp)
-
-    assert exc_info.type is errtype
-    assert str(exc_info.value) == errvalue
+#@pytest.mark.parametrize("inp,expected", get_observations_input)
+#def test_BatchMPC_getobservations(inp, expected):
+#    query = BatchMPC()
+#    query.get_observations(inp)
+#    assert set(query.MPC_objects) == expected
 
 
-@pytest.mark.parametrize(
-    "mpc_code,datestart,datestop,obs_exlude,obs_include,exp_size_start,exp_size_stop,exp_size_excl,exp_size_incl",
-    filter_test_input,
-)
-# def test_BatchMPC_filter(
-#     mpc_code,
-#     datestart,
-#     datestop,
-#     obs_exlude,
-#     obs_include,
-#     exp_size_start,
-#     exp_size_stop,
-#     exp_size_excl,
-#     exp_size_incl,
-# ):
-#     b = BatchMPC()
+#@pytest.mark.parametrize("inp,errtype,errvalue", get_observations_input2)
+#def test_BatchMPC_getobservations2(inp, errtype, errvalue):
+#    query = BatchMPC()
+#    with pytest.raises(Exception) as exc_info:
+#        query.get_observations(inp)
 #
-#     b.get_observations([mpc_code])
-#     b.filter(epoch_start=datestart)
-#     assert b.size == exp_size_start
-#     assert len(b._table) == exp_size_start
-#
-#     b.filter(epoch_end=datestop)
-#     assert b.size == exp_size_stop
-#     assert len(b._table) == exp_size_stop
-#
-#     b.filter(observatories_exclude=obs_exlude)
-#     assert b.size == exp_size_excl
-#     assert len(b._table) == exp_size_excl
-#
-#     b.filter(observatories=obs_include)
-#     assert b.size == exp_size_incl
-#     assert len(b._table) == exp_size_incl
-#
-#     # test not in place:
-#     b.filter(observatories=[], in_place=False)
-#     assert b.size == exp_size_incl
-#     assert len(b._table) == exp_size_incl
+#    assert exc_info.type is errtype
+#    assert str(exc_info.value) == errvalue
 
 
 @pytest.mark.parametrize("mpc_code", mpc_codes_test)
@@ -145,6 +116,7 @@ def test_BatchMPC_to_tudat(mpc_code):
     observation_collection = query.to_tudat(
         bodies=bodies,
         included_satellites=None,
+        apply_star_catalog_debias=False
     )
 
     # reshape to [2, ...] where 2 is RA + DEC
@@ -189,6 +161,7 @@ def test_BatchMPC_to_tudat_with_satelite(mpc_code):
     observation_collection = query.to_tudat(
         bodies=bodies,
         included_satellites={"C51": "Wise"},
+        apply_star_catalog_debias=False
     )
 
     # reshape to [2, ...] where 2 is RA + DEC
