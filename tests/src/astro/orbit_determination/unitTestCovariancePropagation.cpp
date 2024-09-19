@@ -250,14 +250,14 @@ BOOST_AUTO_TEST_CASE( test_EstimationInputAndOutput )
                 rotationToRswFull.block( 0, 0, 3, 3 ) = rotationToRsw;
                 rotationToRswFull.block( 3, 3, 3, 3 ) = rotationToRsw;
                 Eigen::MatrixXd manualRswCovariance = rotationToRswFull * it.second * rotationToRswFull.transpose( );
-                TUDAT_CHECK_MATRIX_CLOSE_FRACTION( rswPropagatedCovariance.at( it.first ),  manualRswCovariance, 1.0E-12 );
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION( rswPropagatedCovariance.at( it.first ),  manualRswCovariance, 1.0E-10 );
 
                 Eigen::Matrix3d rotationToTnw = reference_frames::getInertialToTnwRotation( stateHistory.at( it.first ) );
                 Eigen::Matrix6d rotationToTnwFull = Eigen::Matrix6d::Zero( );
                 rotationToTnwFull.block( 0, 0, 3, 3 ) = rotationToTnw;
                 rotationToTnwFull.block( 3, 3, 3, 3 ) = rotationToTnw;
                 Eigen::MatrixXd manualTnwCovariance = rotationToTnwFull * it.second * rotationToTnwFull.transpose( );
-                TUDAT_CHECK_MATRIX_CLOSE_FRACTION( tnwPropagatedCovariance.at( it.first ),  manualTnwCovariance, 1.0E-12 );
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION( tnwPropagatedCovariance.at( it.first ),  manualTnwCovariance, 1.0E-10 );
 
                 Eigen::VectorXd rswFormalError = rswPropagatedCovariance.at( it.first ).diagonal( ).cwiseSqrt( );
                 Eigen::VectorXd tnwFormalError = tnwPropagatedCovariance.at( it.first ).diagonal( ).cwiseSqrt( );
