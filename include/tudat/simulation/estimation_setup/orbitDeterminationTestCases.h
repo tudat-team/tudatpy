@@ -293,7 +293,7 @@ std::pair< std::shared_ptr< EstimationOutput< StateScalarType, TimeType > >, Eig
     {
         parameterPerturbation = Eigen::VectorXd::Zero( 7 );
     }
-    for( unsigned int i = 0; i < 7; i++ )
+    for( unsigned int i = 0; i < initialParameterEstimate.rows( ); i++ )
     {
         initialParameterEstimate( i ) += parameterPerturbation( i );
     }
