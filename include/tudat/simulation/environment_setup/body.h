@@ -585,8 +585,6 @@ public:
     {
         if( !isStateSet_ )
         {
-            std::vector< double > test;
-            test.at( 0 );
             throw std::runtime_error( "Error when retrieving state from body " + bodyName_ + ", state of body is not yet defined" );
         }
         else
@@ -1689,8 +1687,6 @@ public:
     std::shared_ptr<ground_stations::GroundStation> getGroundStation(const std::string &stationName) const {
         if (groundStationMap.count(stationName) == 0)
         {
-            std::vector< double > a;
-            a.at( 0 );
             throw std::runtime_error("Error, station " + stationName + " does not exist");
         }
 
