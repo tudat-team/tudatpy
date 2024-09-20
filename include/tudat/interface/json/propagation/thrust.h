@@ -102,34 +102,6 @@ void to_json( nlohmann::json& jsonObject, const std::shared_ptr< ThrustMagnitude
 void from_json( const nlohmann::json& jsonObject, std::shared_ptr< ThrustMagnitudeSettings >& magnitudeSettings );
 
 
-//// ThrustFrames
-
-////! Map of `ThrustFrames` string representations.
-//static std::map< ThrustFrames, std::string > thrustFrameTypes =
-//{
-//    { unspecified_thrust_frame, "unspecified" },
-//    { inertial_thurst_frame, "intertial" },
-//    { tnw_thrust_frame, "tnw" }
-//};
-
-////! `ThrustFrames` not supported by `json_interface`.
-//static std::vector< ThrustFrames > unsupportedThrustFrameTypes =
-//{
-//    unspecified_thrust_frame
-//};
-
-////! Convert `ThrustFrames` to `json`.
-//inline void to_json( nlohmann::json& jsonObject, const ThrustFrames& thrustFrameType )
-//{
-//    jsonObject = json_interface::stringFromEnum( thrustFrameType, thrustFrameTypes );
-//}
-
-////! Convert `json` to `ThrustFrames`.
-//inline void from_json( const nlohmann::json& jsonObject, ThrustFrames& thrustFrameType )
-//{
-//    thrustFrameType = json_interface::enumFromString( jsonObject, thrustFrameTypes );
-//}
-
 
 // Thrust
 
