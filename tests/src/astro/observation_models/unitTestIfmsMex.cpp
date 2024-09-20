@@ -97,8 +97,13 @@ int main( )
     //            interpolators::cubicSplineInterpolation( ), initialTimeEnvironment, finalTimeEnvironment, 60.0 ));
         bodySettings.at( "Earth" )->groundStationSettings = getDsnStationSettings( );
         bodySettings.at( "Earth" )->bodyDeformationSettings.push_back( iers2010TidalBodyShapeDeformation( ) );
-        bodySettings.at( "Earth" )->groundStationSettings.push_back( std::make_shared< GroundStationSettings >(
-            "NWNORCIA", getCombinedApproximateGroundStationPositions( ).at( "NWNORCIA" ) ) );
+        auto nnorciaSettings = std::make_shared< GroundStationSettings >(
+            "NWNORCIA", getCombinedApproximateGroundStationPositions( ).at( "NWNORCIA" ) );
+        nnorciaSettings->addStationMotionSettings(
+            std::make_shared<LinearGroundStationMotionSettings>(
+                ( Eigen::Vector3d( ) << -45.00, 10.00, 47.00 ).finished( ) / 1.0E3 / physical_constants::JULIAN_YEAR, 0.0) );
+        bodySettings.at( "Earth" )->groundStationSettings.push_back( nnorciaSettings );
+
     //    std::vector< std::shared_ptr< PanelRadiosityModelSettings > > panelRadiosityModels;
     //    panelRadiosityModels.push_back(angleBasedThermalPanelRadiosityModelSettings( 95.0, 385.0, 0.95, "Sun" ) );
     //    panelRadiosityModels.push_back(albedoPanelRadiosityModelSettings( SphericalHarmonicsSurfacePropertyDistributionModel::albedo_dlam1, "Sun" ) );
