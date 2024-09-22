@@ -14,7 +14,7 @@ string(
 
 # Project declaration.
 project(tudatpy VERSION "${tudatpy_VERSION}" LANGUAGES CXX C)
-set(TUDATPY_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
+
 
 # Add cmake modules
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
@@ -120,10 +120,19 @@ endif()
 set(POSITION_INDEPENDENT_CODE True)
 enable_testing()
 
+# Get relative path to Python installation prefix
+string(REPLACE "/include" "" BASE_DIR ${pybind11_INCLUDE_DIR})
+file(RELATIVE_PATH PYTHON_INSTALL_PREFIX ${BASE_DIR} ${Python_SITELIB})
+
+# Define tudatpy's source directory
+set(TUDATPY_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/tudatpy)
+
+# Create an alias for all the extension modules
+add_custom_target(kernel)
+
 # Docs
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/docs DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 # Tudatpy subdirectory
 include_directories(include)
-add_link_options("-L${CMAKE_INSTALL_PREFIX}/lib")
 add_subdirectory(src/tudatpy)

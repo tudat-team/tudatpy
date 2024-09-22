@@ -1,13 +1,17 @@
 # Update version
 configure_file(
-    "${TUDATPY_SOURCE_DIR}/_version.py.in"
-    "${TUDATPY_SOURCE_DIR}/src/tudatpy/__init__.py"
+    "${TUDATPY_SOURCE_DIR}/../../_version.py.in"
+    "${TUDATPY_SOURCE_DIR}/__init__.py"
     @ONLY
 )
 
 # Include libraries and add_extension macro
 include(TudatpyLibraries)
-include(AddExtension)
+include(Pybind11Extension)
+
+# Install tudatpy without extensions
+# NOTE: Compiled extensions will be added one by one later
+install(DIRECTORY ${TUDATPY_SOURCE_DIR} DESTINATION ${PYTHON_INSTALL_PREFIX})
 
 # Add extensions
 ##################################
@@ -75,13 +79,3 @@ add_extension(tudatpy.numerical_simulation.estimation_setup.parameter)
 # Trajectory design
 add_extension(tudatpy.trajectory_design.shape_based_thrust)
 add_extension(tudatpy.trajectory_design.transfer_trajectory)
-
-# Installation
-install(
-    DIRECTORY "${TUDATPY_SOURCE_DIR}/src/tudatpy"
-    DESTINATION "${CMAKE_INSTALL_PREFIX}"
-)
-install(
-    DIRECTORY "${TUDATPY_SOURCE_DIR}/src/tudatpy-stubs"
-    DESTINATION "${CMAKE_INSTALL_PREFIX}"
-)

@@ -9,8 +9,8 @@ macro (add_extension import_path)
         "${TUDATPY_SOURCE_DIR}/src/${extension_path}/expose_${extension_name}.cpp"
     )
 
-    # Update installation prefix
-    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${TUDATPY_SOURCE_DIR}/src/${extension_path}")
+    # # Update installation prefix
+    # set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${TUDATPY_SOURCE_DIR}/src/${extension_path}")
 
     # Add extension
     pybind11_add_module("expose_${extension_name}" MODULE ${src_path})
@@ -63,7 +63,10 @@ macro (add_extension import_path)
         ${TUDATPY_EXTERNAL_LIBRARIES}
     )
 
-    # Restore installation prefix
-    unset(CMAKE_LIBRARY_OUTPUT_DIRECTORY)
+    # Add to source tree
+    install(
+        TARGETS "expose_${extension_name}"
+        DESTINATION "${TUDATPY_SOURCE_DIR}/src/${extension_path}"
+    )
 
 endmacro()
