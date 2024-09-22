@@ -14,6 +14,7 @@ macro (add_extension import_path)
     )
 
     # Link against libraries
+    target_link_directories(${extension_name} PRIVATE "${Tudat_INCLUDE_DIRS}/../lib")
     target_link_libraries(
         ${extension_name} PRIVATE
         ${TUDATPY_INTERNAL_LIBRARIES}
@@ -59,7 +60,7 @@ macro (add_extension import_path)
     # Install extension
     install(
         TARGETS ${extension_name}
-        DESTINATION ${PYTHON_INSTALL_PREFIX}/tudatpy/${extension_path}
+        DESTINATION tudatpy/${extension_path}
     )
 
 endmacro()

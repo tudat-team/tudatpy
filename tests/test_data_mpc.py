@@ -1,5 +1,5 @@
 from tudatpy.data.mpc import BatchMPC
-from tudatpy.data.horizons import HorizonsQuery
+from tudatpy.numerical_simulation.environment_setup.ephemeris import HorizonsQuery
 
 from tudatpy.numerical_simulation import environment_setup
 from tudatpy.interface import spice

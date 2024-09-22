@@ -10,6 +10,8 @@ from tudatpy.interface import spice
 
 def test_load_default_kernels() -> None:
 
+    spice.clear_kernels()
+
     try:
         spice.load_standard_kernels()
         assert spice.get_total_count_of_kernels_loaded() == 13

@@ -1,7 +1,8 @@
 [build-system]
 requires = [
     "scikit-build-core",
-    "pybind11"
+    "pybind11",
+    "cibuildwheel"
 ]
 build-backend = "scikit_build_core.build"
 
@@ -14,9 +15,9 @@ authors = [
     { name = "The TudatPy team" }
 ]
 license = { file = "LICENSE" }
-requires-python = ">=3.9"
+requires-python = ">=3.11,<3.12"
 dependencies = [
-    "numpy<2.0.0",
+    "numpy>=1.26,<2.0.0",
     "scipy",
     "mypy",
     "pytest",
@@ -25,8 +26,7 @@ dependencies = [
     "tqdm",
     "astropy",
     "astroquery",
-    "astropy-healpix",
-    "pybind11-stubgen"
+    "astropy-healpix"
 ]
 
 [project.urls]
@@ -44,18 +44,19 @@ provider = "scikit_build_core.metadata.regex"
 input = "src/tudatpy/__init__.py"
 
 [tool.scikit-build]
-cmake.args = [
-    "-DCMAKE_CXX_STANDARD=14",
-    "-DBoost_NO_BOOST_CMAKE=ON",
-    "-DCMAKE_BUILD_TYPE=Release",
-    "-DTUDATPY_CONDA_BUILD=on",
-    "-D_GLIBCXX_USE_CXX11_ABI=1"
-]
-wheel.packages = [
-    "src/tudatpy",
-    "src/tudatpy-stubs"
+cmake.version = ">=3.25"
+cmake.verbose = true
+cmake.build-type = "Release"
+build.tool-args = [
+    "-j4"
 ]
 
 [tool.scikit-build.cmake.define]
-CMAKE_INSTALL_PREFIX = { env = "CONDA_PREFIX", default = "" }
-CMAKE_PREFIX_PATH = { env = "CONDA_PREFIX", default = "" }
+CMAKE_CXX_STANDARD = "14"
+Boost_NO_BOOST_CMAKE = "ON"
+TUDATPY_CONDA_BUILD = "ON"
+_GLIBCXX_USE_CXX11_ABI = "1"
+
+[tool.cibuildwheel]
+test-requires = "pytest"
+test-command = "pytest {project}/tests"
