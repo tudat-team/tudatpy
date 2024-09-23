@@ -7,6 +7,8 @@ macro (yacma_extension import_path)
     list(SUBLIST extension_path_list 1 -1 extension_path_list)
     list(JOIN extension_path_list "/" extension_path)
 
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${TUDATPY_SOURCE_DIR}/${extension_path})
+
     # Add extension
     YACMA_PYTHON_MODULE(
         ${extension_name}
@@ -37,11 +39,13 @@ macro (yacma_extension import_path)
     set_target_properties(${extension_name} PROPERTIES CXX_VISIBILITY_PRESET hidden)
     set_target_properties(${extension_name} PROPERTIES VISIBILITY_INLINES_HIDDEN TRUE)
 
-    # Install
-    install(
-        TARGETS ${extension_name}
-        RUNTIME DESTINATION ${TUDATPY_INSTALL_PATH}/${extension_path}
-        LIBRARY DESTINATION ${TUDATPY_INSTALL_PATH}/${extension_path}
-    )
+    unset(CMAKE_LIBRARY_OUTPUT_DIRECTORY)
+
+    # # Install
+    # install(
+    #     TARGETS ${extension_name}
+    #     RUNTIME DESTINATION ${TUDATPY_INSTALL_PATH}/${extension_path}
+    #     LIBRARY DESTINATION ${TUDATPY_INSTALL_PATH}/${extension_path}
+    # )
 
 endmacro()
