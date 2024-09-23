@@ -33,6 +33,7 @@
 #include "tudat/astro/aerodynamics/nrlmsise00InputFunctions.h"
 
 #include "tudat/math/basic/mathematicalConstants.h"
+#include "tudat/simulation/simulation.h"
 
 namespace tudat
 {
@@ -43,9 +44,9 @@ namespace unit_tests
 //! Test NRLMSISE00 atmosphere model.
 BOOST_AUTO_TEST_SUITE( test_nrlmsise00_atmosphere )
 
+using namespace tudat;
 using tudat::aerodynamics::NRLMSISE00Input;
 using tudat::aerodynamics::NRLMSISE00Atmosphere;
-
 using tudat::mathematical_constants::PI;
 
 // Global variable to be changed by tests and function.
@@ -488,7 +489,7 @@ BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTest8 )
             1.759874640391E+05, 5.501648779570E+02, 1.571888739255E-15,
             8.896775722935E+04, 1.979740836233E+06, 9.121814875991E+03,
             1.031247440715E+03, 1.024848492213E+03 };
-    
+
     // Create the model
     NRLMSISE00Atmosphere model( std::bind( &nrlmsiseTestFunction, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, false, false ) );
 
@@ -620,7 +621,7 @@ BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTest11 )
             5.498695433719E+18, 2.451733158028E+17, 1.261065661119E-03,
             0.000000000000E+00, 0.000000000000E+00, 0.000000000000E+00,
             1.027318464900E+03, 2.814647576632E+02 };
-    
+
     // Create the model
     NRLMSISE00Atmosphere model( std::bind( &nrlmsiseTestFunction, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, false, false ) );
 
@@ -752,7 +753,7 @@ BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTest14 )
             5.645392443377E+15, 2.517141749411E+14, 1.294709015929E-06,
             0.000000000000E+00, 0.000000000000E+00, 0.000000000000E+00,
             1.027318464900E+03, 2.795551129541E+02 };
-    
+
     // Create the model
     NRLMSISE00Atmosphere model( std::bind( &nrlmsiseTestFunction, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, false, false ) );
 
@@ -1137,7 +1138,172 @@ BOOST_AUTO_TEST_CASE( test_nrlmise_FullFileLoad )
 
 }
 
+BOOST_AUTO_TEST_CASE( testNRLMSISEInPropagation )
+//int main( )
+{
+    using namespace aerodynamics;
+    using namespace numerical_integrators;
+    using namespace simulation_setup;
+    using namespace propagators;
+    using namespace basic_mathematics;
+    using namespace basic_astrodynamics;
+    using namespace orbital_element_conversions;
+    using namespace spice_interface;
+
+    // Load Spice kernels.
+    loadStandardSpiceKernels( );
+
+    // Set simulation start epoch.
+    const double simulationStartEpoch = 0.0;
+    const double simulationEndEpoch = 300.0;
+    const double fixedStepSize = 1.0;
+
+    // Set Keplerian elements for Capsule.
+    Eigen::Vector6d apolloInitialStateInKeplerianElements;
+    apolloInitialStateInKeplerianElements( semiMajorAxisIndex ) = spice_interface::getAverageRadius( "Earth" ) + 120.0E3;
+    apolloInitialStateInKeplerianElements( eccentricityIndex ) = 0.005;
+    apolloInitialStateInKeplerianElements( inclinationIndex ) = unit_conversions::convertDegreesToRadians( 85.3 );
+    apolloInitialStateInKeplerianElements( argumentOfPeriapsisIndex )
+        = unit_conversions::convertDegreesToRadians( 235.7 );
+    apolloInitialStateInKeplerianElements( longitudeOfAscendingNodeIndex )
+        = unit_conversions::convertDegreesToRadians( 23.4 );
+    apolloInitialStateInKeplerianElements( trueAnomalyIndex ) = unit_conversions::convertDegreesToRadians( 139.87 );
+
+    // Convert apollo state from Keplerian elements to Cartesian elements.
+    const double earthGravitationalParameter = getBodyGravitationalParameter( "Earth" );
+    const Eigen::Vector6d apolloInitialState = convertKeplerianToCartesianElements(
+        apolloInitialStateInKeplerianElements, earthGravitationalParameter );
+
+
+    // Define simulation body settings.
+    BodyListSettings bodySettings =
+        getDefaultBodySettings( { "Earth", "Moon" }, "Earth", "ECLIPJ2000" );
+    bodySettings.at( "Earth" )->gravityFieldSettings =
+        std::make_shared< simulation_setup::GravityFieldSettings >( central_spice );
+    bodySettings.at( "Earth" )->atmosphereSettings =
+        std::make_shared< simulation_setup::AtmosphereSettings >( nrlmsise00 );
+
+
+    // Create Earth object
+    simulation_setup::SystemOfBodies bodies = simulation_setup::createSystemOfBodies( bodySettings );
+
+    // Create vehicle objects.
+    bodies.createEmptyBody( "Apollo" );
+    bodies.at( "Apollo" )->setConstantBodyMass( 2000.0 );
+
+    // Create vehicle aerodynamic coefficients
+    double referenceArea = 4.0;
+    double aerodynamicCoefficient = 1.2;
+    std::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings =
+        std::make_shared< ConstantAerodynamicCoefficientSettings >(
+            referenceArea, aerodynamicCoefficient * Eigen::Vector3d::UnitX( ), negative_aerodynamic_frame_coefficients );
+
+    // Create and set aerodynamic coefficients object
+    bodies.at( "Apollo" )->setAerodynamicCoefficientInterface(
+        createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Apollo", bodies ) );
+
+    // Define propagator settings variables.
+    SelectedAccelerationMap accelerationMap;
+    std::vector< std::string > bodiesToPropagate;
+    std::vector< std::string > centralBodies;
+
+    // Define acceleration model settings.
+    std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfApollo;
+    accelerationsOfApollo[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
+    accelerationsOfApollo[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( aerodynamic ) );
+    accelerationsOfApollo[ "Moon" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
+    accelerationMap[ "Apollo" ] = accelerationsOfApollo;
+
+    bodiesToPropagate.push_back( "Apollo" );
+    centralBodies.push_back( "Earth" );
+
+    // Set initial state
+    Eigen::Vector6d systemInitialState = apolloInitialState;
+
+    // Define list of dependent variables to save.
+    std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
+    dependentVariables.push_back(
+        std::make_shared< SingleDependentVariableSaveSettings >(
+            altitude_dependent_variable, "Apollo", "Earth" ) );
+    dependentVariables.push_back(
+        std::make_shared< SingleDependentVariableSaveSettings >(
+            local_density_dependent_variable, "Apollo", "Earth" ) );
+    dependentVariables.push_back(
+        std::make_shared< SingleDependentVariableSaveSettings >(
+            body_fixed_relative_spherical_position, "Apollo", "Earth" ) );
+    dependentVariables.push_back(
+        std::make_shared< SingleDependentVariableSaveSettings >( nrlmsise_input_data, "Apollo", "Earth" ) );
+
+    // Create acceleration models and propagation settings.
+    basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
+        bodies, accelerationMap, bodiesToPropagate, centralBodies );
+
+    std::shared_ptr< IntegratorSettings< > > integratorSettings =
+        std::make_shared< IntegratorSettings< > >
+            ( rungeKutta4, simulationStartEpoch, fixedStepSize );
+
+    std::shared_ptr< TranslationalStatePropagatorSettings < double > > propagatorSettings =
+        std::make_shared< TranslationalStatePropagatorSettings< double > >(
+            centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, simulationStartEpoch, integratorSettings,
+                std::make_shared< propagators::PropagationTimeTerminationSettings >( 3200.0 ), cowell,
+                dependentVariables );
+
+
+    // Create simulation object and propagate dynamics.
+    SingleArcDynamicsSimulator< > dynamicsSimulator(
+        bodies, propagatorSettings );
+
+    std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > dependentVariableOutput =
+        dynamicsSimulator.getDependentVariableHistory( );
+
+    nrlmsise_flags flags;
+    nrlmsise_input input;
+    nrlmsise_output output;
+    auto nrlmsiseInputFunction =
+        std::dynamic_pointer_cast< NRLMSISE00Atmosphere >( bodies.at( "Earth" )->getAtmosphereModel( ) )->getNrlmsise00InputFunction( );
+
+    for( auto it : dependentVariableOutput )
+    {
+        double altitude = it.second( 0 );
+        double density = it.second( 1 );
+        Eigen::Vector3d sphericalPosition = it.second.segment( 2, 3 );
+        Eigen::VectorXd nrlmsiseInputVector = it.second.segment( 5, 17 );
+
+        NRLMSISE00Input inputData = nrlmsiseInputFunction(
+            altitude, sphericalPosition( 2 ), sphericalPosition( 1 ), it.first );
+
+        BOOST_CHECK_EQUAL( nrlmsiseInputVector( 0 ), inputData.year );
+        BOOST_CHECK_EQUAL( nrlmsiseInputVector( 1 ), inputData.dayOfTheYear );
+        BOOST_CHECK_CLOSE_FRACTION( nrlmsiseInputVector( 2 ), inputData.secondOfTheDay, 1.0E-14 );
+        BOOST_CHECK_CLOSE_FRACTION( nrlmsiseInputVector( 3 ) * 1000.0, altitude, 1.0E-14 );
+        BOOST_CHECK_CLOSE_FRACTION( nrlmsiseInputVector( 4 ), sphericalPosition( 1 ) * 180.0 / mathematical_constants::PI, 1.0E-14 );
+        BOOST_CHECK_CLOSE_FRACTION( nrlmsiseInputVector( 5 ), sphericalPosition( 2 ) * 180.0 / mathematical_constants::PI, 1.0E-14 );
+        BOOST_CHECK_CLOSE_FRACTION( nrlmsiseInputVector( 6 ), inputData.localSolarTime, 1.0E-14 );
+        BOOST_CHECK_CLOSE_FRACTION( nrlmsiseInputVector( 7 ), inputData.f107, 1.0E-14 );
+        BOOST_CHECK_CLOSE_FRACTION( nrlmsiseInputVector( 8 ), inputData.f107a, 1.0E-14 );
+        BOOST_CHECK_CLOSE_FRACTION( nrlmsiseInputVector( 9 ), inputData.apDaily, 1.0E-14 );
+        for( int i = 0; i < 7; i++ )
+        {
+            BOOST_CHECK_CLOSE_FRACTION( nrlmsiseInputVector( 10 + i ), inputData.apVector.at( i ), 1.0E-14 );
+        }
+
+        double manualDensity = std::dynamic_pointer_cast< NRLMSISE00Atmosphere >( bodies.at( "Earth" )->getAtmosphereModel( ) )->getDensity(
+            altitude, sphericalPosition( 2 ), sphericalPosition( 1 ), it.first );
+        BOOST_CHECK_CLOSE_FRACTION( density, manualDensity, 1.0E-14 );
+
+
+//        std::copy( inputData_.switches.begin( ), inputData_.switches.end( ), flags_.switches );
+//
+//
+//        gtd7(&input_, &flags, &output );
+//
+//        // Retrieve density and temperature
+//        double reconstructeDensity_ = output_.d[ 5 ] * 1000.0;
+    }
 }
+
+BOOST_AUTO_TEST_SUITE_END( )
+
 
 } // namespace unit_tests
 

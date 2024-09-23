@@ -1797,7 +1797,7 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
                 flightConditions->getCurrentTime( ) );
             return aerodynamics::getNrlmsiseInputAsVector( atmosphereModel->getNRLMSISE00InputStruct() );
         };
-
+        parameterSize = 17;
         break;
     }
     case custom_dependent_variable:
