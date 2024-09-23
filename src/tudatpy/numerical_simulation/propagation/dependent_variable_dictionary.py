@@ -9,6 +9,14 @@ a copy of the license with this file. If not, please or visit:
 http://tudat.tudelft.nl/LICENSE.
 """
 
+import warnings
+
+warnings.warn(
+    "The functionality in this module is not properly tested, use at your own risk.",
+    UserWarning,
+    2,
+)
+
 # General imports
 import numpy as np
 from inspect import getmro

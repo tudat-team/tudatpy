@@ -2,6 +2,8 @@ import pandas as pd
 import numpy as np
 import os
 
+# from ..io import *
+
 
 def save2txt(solution, filename, directory="./"):
     """Save a vector or matrix history to a file.

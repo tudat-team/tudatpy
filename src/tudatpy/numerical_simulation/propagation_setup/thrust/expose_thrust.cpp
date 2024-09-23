@@ -10,8 +10,6 @@
 
 // #include "kernel/expose_numerical_simulation/deprecation_support.h"
 
-#define PYBIND11_DETAILED_ERROR_MESSAGES
-
 #include <pybind11/chrono.h>
 #include <pybind11/eigen.h>
 #include <pybind11/functional.h>
@@ -71,7 +69,7 @@ namespace tudatpy {
                     py::class_<tss::ThrustMagnitudeSettings,
                                std::shared_ptr<tss::ThrustMagnitudeSettings>>(
                         m, "ThrustMagnitudeSettings",
-R"doc(Functional base class to define settings for the thrust magnitude.
+                        R"doc(Functional base class to define settings for the thrust magnitude.
 
 )doc")
                         .def_readonly(
@@ -86,7 +84,7 @@ R"doc(Functional base class to define settings for the thrust magnitude.
                         std::shared_ptr<tss::ConstantThrustMagnitudeSettings>,
                         tss::ThrustMagnitudeSettings>(
                         m, "ConstantThrustMagnitudeSettings",
-R"doc(`ThrustMagnitudeSettings`-derived class to define settings for constant thrust magnitude.
+                        R"doc(`ThrustMagnitudeSettings`-derived class to define settings for constant thrust magnitude.
 
 	Derived class to provide settings for the thrust magnitude. This class should be used to define a constant thrust
 	magnitude.
@@ -103,8 +101,7 @@ R"doc(`ThrustMagnitudeSettings`-derived class to define settings for constant th
                         tss::CustomThrustMagnitudeSettings,
                         std::shared_ptr<tss::CustomThrustMagnitudeSettings>,
                         tss::ThrustMagnitudeSettings>(
-                        m, "CustomThrustMagnitudeSettings",
-"");
+                        m, "CustomThrustMagnitudeSettings", "");
 
                     m.def("get_propulsion_input_variables",
                           &tss::getPropulsionInputVariables,
@@ -118,11 +115,12 @@ R"doc(`ThrustMagnitudeSettings`-derived class to define settings for constant th
 
                     // Thrust orientation factory functions
 
-                    m.def("constant_thrust_magnitude",
-                          &tss::constantThrustMagnitudeSettings,
-                          py::arg("thrust_magnitude"),
-                          py::arg("specific_impulse"),
-R"doc(Create thrust magnitude settings from a constant thrust magnitude and Isp.
+                    m.def(
+                        "constant_thrust_magnitude",
+                        &tss::constantThrustMagnitudeSettings,
+                        py::arg("thrust_magnitude"),
+                        py::arg("specific_impulse"),
+                        R"doc(Create thrust magnitude settings from a constant thrust magnitude and Isp.
 
 	Factory function that creates constant thrust magnitude settings. The specific impulse to use for the thrust is
 	also supplied when applying a mass rate model in the propagation of the vehicle dynamics, relating the thrust
@@ -137,11 +135,12 @@ R"doc(Create thrust magnitude settings from a constant thrust magnitude and Isp.
 		Constant thrust magnitude settings object.
 )doc");
 
-                    m.def("custom_thrust_magnitude",
-                          &tss::fromFunctionThrustMagnitudeSettings,
-                          py::arg("thrust_magnitude_function"),
-                          py::arg("specific_impulse_function"),
-R"doc(Create thrust magnitude settings from a custom thrust force magnitude function.
+                    m.def(
+                        "custom_thrust_magnitude",
+                        &tss::fromFunctionThrustMagnitudeSettings,
+                        py::arg("thrust_magnitude_function"),
+                        py::arg("specific_impulse_function"),
+                        R"doc(Create thrust magnitude settings from a custom thrust force magnitude function.
 
 	Factory function that creates thrust magnitude from a custom thrust force magnitude function.
 	This model defines a thrust force and specific impulse that can vary with time. The thrust acceleration
@@ -158,11 +157,12 @@ R"doc(Create thrust magnitude settings from a custom thrust force magnitude func
 		From function thrust magnitude settings object.
 )doc");
 
-                    m.def("custom_thrust_magnitude_fixed_isp",
-                          &tss::fromFunctionThrustMagnitudeFixedIspSettings,
-                          py::arg("thrust_magnitude_function"),
-                          py::arg("specific_impulse"),
-R"doc(Same as :func:`~custom_thrust_magnitude`, but with a fixed value for the specific impulse.
+                    m.def(
+                        "custom_thrust_magnitude_fixed_isp",
+                        &tss::fromFunctionThrustMagnitudeFixedIspSettings,
+                        py::arg("thrust_magnitude_function"),
+                        py::arg("specific_impulse"),
+                        R"doc(Same as :func:`~custom_thrust_magnitude`, but with a fixed value for the specific impulse.
 
 	:param thrust_magnitude_function:
 		Function of time returning the value of the thrust force magnitude.
@@ -173,11 +173,12 @@ R"doc(Same as :func:`~custom_thrust_magnitude`, but with a fixed value for the s
 )doc");
 
 
-                    m.def("custom_thrust_acceleration_magnitude",
-                          &tss::customThrustAccelerationMagnitudeSettings,
-                          py::arg("thrust_acceleration_magnitude_function"),
-                          py::arg("specific_impulse_function"),
-R"doc(Create thrust magnitude settings from a custom thrust acceleration magnitude function.
+                    m.def(
+                        "custom_thrust_acceleration_magnitude",
+                        &tss::customThrustAccelerationMagnitudeSettings,
+                        py::arg("thrust_acceleration_magnitude_function"),
+                        py::arg("specific_impulse_function"),
+                        R"doc(Create thrust magnitude settings from a custom thrust acceleration magnitude function.
 
 	Factory function that creates thrust magnitude from a custom thrust acceleration magnitude function.
 	This model is similar to the :func:`~custom_thrust_magnitude`, with the difference being that this function
@@ -197,7 +198,7 @@ R"doc(Create thrust magnitude settings from a custom thrust acceleration magnitu
                         &tss::customThrustAccelerationMagnitudeFixedIspSettings,
                         py::arg("thrust_acceleration_magnitude_function"),
                         py::arg("specific_impulse"),
-R"doc(Same as :func:`~custom_thrust_acceleration_magnitude`, but with a fixed value for the specific impulse.
+                        R"doc(Same as :func:`~custom_thrust_acceleration_magnitude`, but with a fixed value for the specific impulse.
 
 	:param thrust_acceleration_magnitude_function:
 		Function of time returning the value of the thrust acceleration magnitude.
@@ -215,8 +216,7 @@ R"doc(Same as :func:`~custom_thrust_acceleration_magnitude`, but with a fixed va
                      */
 
                     py::enum_<tss::ThrustDirectionTypes>(
-                        m, "ThrustDirectionGuidanceTypes",
-"")
+                        m, "ThrustDirectionGuidanceTypes", "")
                         .value(
                             "colinear_with_state_segment_thrust_direction_type",
                             tss::ThrustDirectionTypes::
@@ -248,8 +248,7 @@ R"doc(Same as :func:`~custom_thrust_acceleration_magnitude`, but with a fixed va
 
                     py::class_<tss::ThrustDirectionSettings,
                                std::shared_ptr<tss::ThrustDirectionSettings>>(
-                        m, "ThrustDirectionSettings",
-"")
+                        m, "ThrustDirectionSettings", "")
                         .def_readonly(
                             "thrust_direction_type",
                             &tss::ThrustDirectionSettings::thrustDirectionType_)
@@ -263,8 +262,7 @@ R"doc(Same as :func:`~custom_thrust_acceleration_magnitude`, but with a fixed va
                         std::shared_ptr<
                             tss::ThrustDirectionFromStateGuidanceSettings>,
                         tss::ThrustDirectionSettings>(
-                        m, "ThrustDirectionFromStateGuidanceSettings",
-"")
+                        m, "ThrustDirectionFromStateGuidanceSettings", "")
                         .def_readonly(
                             "is_colinear_with_velocity",
                             &tss::ThrustDirectionFromStateGuidanceSettings::
@@ -278,8 +276,7 @@ R"doc(Same as :func:`~custom_thrust_acceleration_magnitude`, but with a fixed va
                         tss::CustomThrustDirectionSettings,
                         std::shared_ptr<tss::CustomThrustDirectionSettings>,
                         tss::ThrustDirectionSettings>(
-                        m, "CustomThrustDirectionSettings",
-"")
+                        m, "CustomThrustDirectionSettings", "")
                         .def_readonly("thrust_direction_function",
                                       &tss::CustomThrustDirectionSettings::
                                           thrustDirectionFunction_);
@@ -288,8 +285,7 @@ R"doc(Same as :func:`~custom_thrust_acceleration_magnitude`, but with a fixed va
                         tss::CustomThrustOrientationSettings,
                         std::shared_ptr<tss::CustomThrustOrientationSettings>,
                         tss::ThrustDirectionSettings>(
-                        m, "CustomThrustOrientationSettings",
-"")
+                        m, "CustomThrustOrientationSettings", "")
                         .def_readonly("thrust_orientation_function",
                                       &tss::CustomThrustOrientationSettings::
                                           thrustOrientationFunction_);

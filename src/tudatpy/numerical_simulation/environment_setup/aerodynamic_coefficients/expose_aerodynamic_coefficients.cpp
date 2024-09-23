@@ -8,8 +8,6 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#define PYBIND11_DETAILED_ERROR_MESSAGES
-
 #include <tudat/astro/reference_frames/referenceFrameTransformations.h>
 #include <tudat/basics/deprecationWarnings.h>
 #include <tudat/simulation/environment_setup.h>

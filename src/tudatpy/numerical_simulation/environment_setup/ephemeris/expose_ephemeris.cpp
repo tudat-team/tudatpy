@@ -8,7 +8,6 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#define PYBIND11_DETAILED_ERROR_MESSAGES
 
 #include <tudat/astro/reference_frames/referenceFrameTransformations.h>
 #include <tudat/basics/deprecationWarnings.h>
@@ -205,7 +204,7 @@ namespace tudatpy {
                         .def_property_readonly(
                             "body_name",
                             &tss::ApproximateJplEphemerisSettings::getBodyName,
-"");
+                            "");
 
 
                     py::class_<tss::ScaledEphemerisSettings,
@@ -251,18 +250,16 @@ namespace tudatpy {
                         //                py::arg("frame_origin") = "SSB",
                         //                py::arg("frame_orientation") =
                         //                "ECLIPJ2000")
-                        .def_property_readonly(
-                            "get_custom_state_function",
-                            &tss::CustomEphemerisSettings::
-                                getCustomStateFunction,
-"");
+                        .def_property_readonly("get_custom_state_function",
+                                               &tss::CustomEphemerisSettings::
+                                                   getCustomStateFunction,
+                                               "");
 
 
                     py::class_<tss::KeplerEphemerisSettings,
                                std::shared_ptr<tss::KeplerEphemerisSettings>,
                                tss::EphemerisSettings>(
-                        m, "KeplerEphemerisSettings",
-"")
+                        m, "KeplerEphemerisSettings", "")
                         //            .def(py::init<const Eigen::Vector6d &,
                         //            const double, const double,
                         //                 const std::string &, const
@@ -284,27 +281,26 @@ namespace tudatpy {
                             "initial_state_in_keplerian_elements",
                             &tss::KeplerEphemerisSettings::
                                 getInitialStateInKeplerianElements,
-"")
-                        .def_property_readonly(
-                            "epoch_of_initial_state",
-                            &tss::KeplerEphemerisSettings::
-                                getEpochOfInitialState,
-"")
+                            "")
+                        .def_property_readonly("epoch_of_initial_state",
+                                               &tss::KeplerEphemerisSettings::
+                                                   getEpochOfInitialState,
+                                               "")
                         .def_property_readonly(
                             "central_body_gravitational_parameter",
                             &tss::KeplerEphemerisSettings::
                                 getCentralBodyGravitationalParameter,
-"")
+                            "")
                         .def_property_readonly(
                             "root_finder_absolute_tolerance",
                             &tss::KeplerEphemerisSettings::
                                 getRootFinderAbsoluteTolerance,
-"")
+                            "")
                         .def_property_readonly(
                             "root_finder_maximum_number_of_iterations",
                             &tss::KeplerEphemerisSettings::
                                 getRootFinderMaximumNumberOfIterations,
-"");
+                            "");
 
 
                     py::class_<tss::TabulatedEphemerisSettings,
@@ -329,7 +325,7 @@ namespace tudatpy {
                     m.def("create_ephemeris",
                           &tss::createBodyEphemeris<double, TIME_TYPE>,
                           py::arg("ephemeris_settings"), py::arg("body_name"),
-"");
+                          "");
 
 
                     m.def(

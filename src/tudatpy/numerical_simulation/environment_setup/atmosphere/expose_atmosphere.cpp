@@ -7,7 +7,6 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
-#define PYBIND11_DETAILED_ERROR_MESSAGES
 #include <tudat/astro/aerodynamics/nrlmsise00Atmosphere.h>
 #include <tudat/astro/aerodynamics/nrlmsise00InputFunctions.h>
 #include <tudat/astro/reference_frames/referenceFrameTransformations.h>
@@ -305,8 +304,7 @@ namespace tudatpy {
                               tp::SPECIFIC_GAS_CONSTANT_AIR,
                           py::arg("ratio_of_specific_heats") = 1.4);
 
-                    m.def("us76", &tss::us76AtmosphereSettings,
-"");
+                    m.def("us76", &tss::us76AtmosphereSettings, "");
 
                     m.def(
                         "custom_constant_temperature",

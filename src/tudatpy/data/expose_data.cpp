@@ -24,7 +24,7 @@ namespace tudatpy {
 
     namespace io {
 
-        PYBIND11_MODULE(expose_io, m) {
+        PYBIND11_MODULE(expose_data, m) {
             py::module_::import("tudatpy.math.interpolators");
             m.def("get_resource_path", &tudat::paths::get_resource_path,
                   R"doc(Get the path at which tudat resources are located.
@@ -252,83 +252,83 @@ namespace tudatpy {
                 .value("cnq",
                        tudat::input_output::MissileDatcomData::
                            DynamicCoefficientNames::cnq,
-"")
+                       "")
                 .value("cmq",
                        tudat::input_output::MissileDatcomData::
                            DynamicCoefficientNames::cmq,
-"")
+                       "")
                 .value("caq",
                        tudat::input_output::MissileDatcomData::
                            DynamicCoefficientNames::caq,
-"")
+                       "")
                 .value("cyq",
                        tudat::input_output::MissileDatcomData::
                            DynamicCoefficientNames::cyq,
-"")
+                       "")
                 .value("clnq",
                        tudat::input_output::MissileDatcomData::
                            DynamicCoefficientNames::clnq,
-"")
+                       "")
                 .value("cllq",
                        tudat::input_output::MissileDatcomData::
                            DynamicCoefficientNames::cllq,
-"")
+                       "")
                 .value("cnr",
                        tudat::input_output::MissileDatcomData::
                            DynamicCoefficientNames::cnr,
-"")
+                       "")
                 .value("cmr",
                        tudat::input_output::MissileDatcomData::
                            DynamicCoefficientNames::cmr,
-"")
+                       "")
                 .value("car",
                        tudat::input_output::MissileDatcomData::
                            DynamicCoefficientNames::car,
-"")
+                       "")
                 .value("cyr",
                        tudat::input_output::MissileDatcomData::
                            DynamicCoefficientNames::cyr,
-"")
+                       "")
                 .value("clnr",
                        tudat::input_output::MissileDatcomData::
                            DynamicCoefficientNames::clnr,
-"")
+                       "")
                 .value("cllr",
                        tudat::input_output::MissileDatcomData::
                            DynamicCoefficientNames::cllr,
-"")
+                       "")
                 .value("cnp",
                        tudat::input_output::MissileDatcomData::
                            DynamicCoefficientNames::cnp,
-"")
+                       "")
                 .value("cmp",
                        tudat::input_output::MissileDatcomData::
                            DynamicCoefficientNames::cmp,
-"")
+                       "")
                 .value("cap",
                        tudat::input_output::MissileDatcomData::
                            DynamicCoefficientNames::cap,
-"")
+                       "")
                 .value("cyp",
                        tudat::input_output::MissileDatcomData::
                            DynamicCoefficientNames::cyp,
-"")
+                       "")
                 .value("clnp",
                        tudat::input_output::MissileDatcomData::
                            DynamicCoefficientNames::clnp,
-"")
+                       "")
                 .value("cllp",
                        tudat::input_output::MissileDatcomData::
                            DynamicCoefficientNames::cllp,
-"")
+                       "")
                 .value("cnad",
                        tudat::input_output::MissileDatcomData::
                            DynamicCoefficientNames::cnad,
-"")
+                       "")
                 .value("cmad",
                        tudat::input_output::MissileDatcomData::
                            DynamicCoefficientNames::cmad,
-"")
+                       "")
                 .export_values();
 
             py::enum_<
@@ -352,53 +352,52 @@ namespace tudatpy {
                 .value("cn",
                        tudat::input_output::MissileDatcomData::
                            StaticCoefficientNames::cn,
-"")
+                       "")
                 .value("cm",
                        tudat::input_output::MissileDatcomData::
                            StaticCoefficientNames::cm,
-"")
+                       "")
                 .value("ca",
                        tudat::input_output::MissileDatcomData::
                            StaticCoefficientNames::ca,
-"")
+                       "")
                 .value("cy",
                        tudat::input_output::MissileDatcomData::
                            StaticCoefficientNames::cy,
-"")
+                       "")
                 .value("cln",
                        tudat::input_output::MissileDatcomData::
                            StaticCoefficientNames::cln,
-"")
+                       "")
                 .value("cll",
                        tudat::input_output::MissileDatcomData::
                            StaticCoefficientNames::cll,
-"")
+                       "")
                 .value("cna",
                        tudat::input_output::MissileDatcomData::
                            StaticCoefficientNames::cna,
-"")
+                       "")
                 .value("cma",
                        tudat::input_output::MissileDatcomData::
                            StaticCoefficientNames::cma,
-"")
+                       "")
                 .value("cyb",
                        tudat::input_output::MissileDatcomData::
                            StaticCoefficientNames::cyb,
-"")
+                       "")
                 .value("cnb",
                        tudat::input_output::MissileDatcomData::
                            StaticCoefficientNames::cnb,
-"")
+                       "")
                 .value("clb",
                        tudat::input_output::MissileDatcomData::
                            StaticCoefficientNames::clb,
-"")
+                       "")
                 .export_values();
 
             py::class_<tio::solar_activity::SolarActivityData,
                        std::shared_ptr<tio::solar_activity::SolarActivityData>>(
-                m, "SolarActivityData",
-"");
+                m, "SolarActivityData", "");
 
             m.def("read_solar_activity_data",
                   &tio::solar_activity::readSolarActivityData,
@@ -411,15 +410,12 @@ Reads a space weather data file and produces a dictionary with solar activity da
 
             py::class_<tio::OdfRawFileContents,
                        std::shared_ptr<tio::OdfRawFileContents>>(
-                m, "OdfRawFileContents",
-"")
+                m, "OdfRawFileContents", "")
                 .def("write_to_text_file",
                      &tio::OdfRawFileContents::writeOdfToTextFile,
-                     py::arg("output_file"),
-"");
+                     py::arg("output_file"), "");
 
-            m.def("read_odf_file", &tio::readOdfFile, py::arg("file_name"),
-"");
+            m.def("read_odf_file", &tio::readOdfFile, py::arg("file_name"), "");
 
             m.def(
                 "set_dsn_weather_data_in_ground_stations",
@@ -435,170 +431,142 @@ Reads a space weather data file and produces a dictionary with solar activity da
                     tudat::interpolators::linearInterpolation(),
                 py::arg("ground_stations_per_complex") = tudat::
                     simulation_setup::getDefaultDsnStationNamesPerComplex(),
-                py::arg("body_with_ground_stations_name") = "Earth",
-"");
+                py::arg("body_with_ground_stations_name") = "Earth", "");
 
             m.def("read_tracking_txt_file", &tio::createTrackingTxtFileContents,
                   py::arg("file_name"), py::arg("column_types"),
                   py::arg("comment_symbol") = '#',
-                  py::arg("value_separators") = ",:\t ",
-"");
+                  py::arg("value_separators") = ",:\t ", "");
 
             py::class_<
                 tudat::input_output::TrackingTxtFileContents,
                 std::shared_ptr<tudat::input_output::TrackingTxtFileContents>>(
-                m, "TrackingTxtFileContents",
-"")
+                m, "TrackingTxtFileContents", "")
                 .def(py::init<const std::string, const std::vector<std::string>,
                               const char, const std::string>(),
                      py::arg("file_name"), py::arg("column_types"),
                      py::arg("comment_symbol") = '#',
-                     py::arg("value_separators") = ",:\t ",
-"")
+                     py::arg("value_separators") = ",:\t ", "")
                 .def_property_readonly(
                     "column_field_types",
-                    &tio::TrackingTxtFileContents::getRawColumnTypes,
-"")
+                    &tio::TrackingTxtFileContents::getRawColumnTypes, "")
                 .def_property_readonly(
                     "double_datamap",
-                    &tio::TrackingTxtFileContents::getDoubleDataMap,
-"")
+                    &tio::TrackingTxtFileContents::getDoubleDataMap, "")
                 .def_property_readonly(
                     "raw_datamap", &tio::TrackingTxtFileContents::getRawDataMap,
-"")
+                    "")
                 .def_property_readonly(
-                    "num_rows", &tio::TrackingTxtFileContents::getNumRows,
-"");
+                    "num_rows", &tio::TrackingTxtFileContents::getNumRows, "");
 
             py::enum_<tudat::input_output::TrackingDataType>(
-                m, "TrackingDataType",
-"")
-                .value("year", tudat::input_output::TrackingDataType::year,
-"")
+                m, "TrackingDataType", "")
+                .value("year", tudat::input_output::TrackingDataType::year, "")
                 .value("month", tudat::input_output::TrackingDataType::month,
-"")
-                .value("day", tudat::input_output::TrackingDataType::day,
-"")
-                .value("hour", tudat::input_output::TrackingDataType::hour,
-"")
+                       "")
+                .value("day", tudat::input_output::TrackingDataType::day, "")
+                .value("hour", tudat::input_output::TrackingDataType::hour, "")
                 .value("minute", tudat::input_output::TrackingDataType::minute,
-"")
+                       "")
                 .value("second", tudat::input_output::TrackingDataType::second,
-"")
+                       "")
                 .value("time_tag_delay",
                        tudat::input_output::TrackingDataType::time_tag_delay,
-"")
+                       "")
                 .value("observation_time_scale",
                        tudat::input_output::TrackingDataType::
                            observation_time_scale,
-"")
+                       "")
                 .value("file_name",
-                       tudat::input_output::TrackingDataType::file_name,
-"")
-                .value(
-                    "n_way_light_time",
-                    tudat::input_output::TrackingDataType::n_way_light_time,
-"")
+                       tudat::input_output::TrackingDataType::file_name, "")
+                .value("n_way_light_time",
+                       tudat::input_output::TrackingDataType::n_way_light_time,
+                       "")
                 .value("light_time_measurement_delay",
                        tudat::input_output::TrackingDataType::
                            light_time_measurement_delay,
-"")
+                       "")
                 .value("light_time_measurement_accuracy",
                        tudat::input_output::TrackingDataType::
                            light_time_measurement_accuracy,
-"")
+                       "")
                 .value("dsn_transmitting_station_nr",
                        tudat::input_output::TrackingDataType::
                            dsn_transmitting_station_nr,
-"")
-                .value(
-                    "dsn_receiving_station_nr",
-                    tudat::input_output::TrackingDataType::
-                        dsn_receiving_station_nr,
-"")
-                .value(
-                    "observation_body",
-                    tudat::input_output::TrackingDataType::observation_body,
-"")
+                       "")
+                .value("dsn_receiving_station_nr",
+                       tudat::input_output::TrackingDataType::
+                           dsn_receiving_station_nr,
+                       "")
+                .value("observation_body",
+                       tudat::input_output::TrackingDataType::observation_body,
+                       "")
                 .value("observed_body",
-                       tudat::input_output::TrackingDataType::observed_body,
-"")
+                       tudat::input_output::TrackingDataType::observed_body, "")
                 .value("spacecraft_id",
-                       tudat::input_output::TrackingDataType::spacecraft_id,
-"")
+                       tudat::input_output::TrackingDataType::spacecraft_id, "")
                 .value("planet_nr",
-                       tudat::input_output::TrackingDataType::planet_nr,
-"")
+                       tudat::input_output::TrackingDataType::planet_nr, "")
                 .value("tdb_time_j2000",
                        tudat::input_output::TrackingDataType::tdb_time_j2000,
-"")
+                       "")
                 .value(
                     "tdb_spacecraft_j2000",
                     tudat::input_output::TrackingDataType::tdb_spacecraft_j2000,
-"")
+                    "")
                 .value("x_planet_frame",
                        tudat::input_output::TrackingDataType::x_planet_frame,
-"")
+                       "")
                 .value("y_planet_frame",
                        tudat::input_output::TrackingDataType::y_planet_frame,
-"")
+                       "")
                 .value("z_planet_frame",
                        tudat::input_output::TrackingDataType::z_planet_frame,
-"")
-                .value(
-                    "vx_planet_frame",
-                    tudat::input_output::TrackingDataType::vx_planet_frame,
-"")
-                .value(
-                    "vy_planet_frame",
-                    tudat::input_output::TrackingDataType::vy_planet_frame,
-"")
-                .value(
-                    "vz_planet_frame",
-                    tudat::input_output::TrackingDataType::vz_planet_frame,
-"")
+                       "")
+                .value("vx_planet_frame",
+                       tudat::input_output::TrackingDataType::vx_planet_frame,
+                       "")
+                .value("vy_planet_frame",
+                       tudat::input_output::TrackingDataType::vy_planet_frame,
+                       "")
+                .value("vz_planet_frame",
+                       tudat::input_output::TrackingDataType::vz_planet_frame,
+                       "")
                 .value("residual_de405",
                        tudat::input_output::TrackingDataType::residual_de405,
-"")
+                       "")
                 .value("spacecraft_transponder_delay",
                        tudat::input_output::TrackingDataType::
                            spacecraft_transponder_delay,
-"")
-                .value(
-                    "uplink_frequency",
-                    tudat::input_output::TrackingDataType::uplink_frequency,
-"")
+                       "")
+                .value("uplink_frequency",
+                       tudat::input_output::TrackingDataType::uplink_frequency,
+                       "")
                 .value(
                     "downlink_frequency",
                     tudat::input_output::TrackingDataType::downlink_frequency,
-"")
-                .value(
-                    "signal_to_noise",
-                    tudat::input_output::TrackingDataType::signal_to_noise,
-"")
+                    "")
+                .value("signal_to_noise",
+                       tudat::input_output::TrackingDataType::signal_to_noise,
+                       "")
                 .value("spectral_max",
-                       tudat::input_output::TrackingDataType::spectral_max,
-"")
-                .value(
-                    "doppler_measured_frequency",
-                    tudat::input_output::TrackingDataType::
-                        doppler_measured_frequency,
-"")
+                       tudat::input_output::TrackingDataType::spectral_max, "")
+                .value("doppler_measured_frequency",
+                       tudat::input_output::TrackingDataType::
+                           doppler_measured_frequency,
+                       "")
                 .value("doppler_base_frequency",
                        tudat::input_output::TrackingDataType::
                            doppler_base_frequency,
-"")
+                       "")
                 .value("doppler_noise",
-                       tudat::input_output::TrackingDataType::doppler_noise,
-"")
-                .value(
-                    "doppler_bandwidth",
-                    tudat::input_output::TrackingDataType::doppler_bandwidth,
-"")
-                .value(
-                    "vlbi_station_name",
-                    tudat::input_output::TrackingDataType::vlbi_station_name,
-"")
+                       tudat::input_output::TrackingDataType::doppler_noise, "")
+                .value("doppler_bandwidth",
+                       tudat::input_output::TrackingDataType::doppler_bandwidth,
+                       "")
+                .value("vlbi_station_name",
+                       tudat::input_output::TrackingDataType::vlbi_station_name,
+                       "")
                 .export_values();
         };
 
