@@ -74,9 +74,6 @@ option(TUDAT_BUILD_WITH_SOFA_INTERFACE "Build Tudat with sofa interface." ON)
 # Build json interface.
 option(TUDAT_BUILD_WITH_JSON_INTERFACE "Build Tudat with json interface." OFF)
 
-# Build with nrlmsise-00 atmosphere model.
-option(TUDAT_BUILD_WITH_NRLMSISE00 "Build with nrlmsise-00 atmosphere model." OFF)
-
 # Build pagmo-dependent code
 option(TUDAT_BUILD_WITH_PAGMO "Build Tudat with pagmo." OFF)
 if(CMAKE_CXX_SIMULATE_ID MATCHES "MSVC")
@@ -120,12 +117,10 @@ message(STATUS "TUDAT_BUILD_STATIC_LIBRARY                            ${TUDAT_BU
 message(STATUS "TUDAT_BUILD_WITH_FILTERS                              ${TUDAT_BUILD_WITH_FILTERS}")
 message(STATUS "TUDAT_BUILD_WITH_SOFA_INTERFACE                       ${TUDAT_BUILD_WITH_SOFA_INTERFACE}")
 message(STATUS "TUDAT_BUILD_WITH_JSON_INTERFACE                       ${TUDAT_BUILD_WITH_JSON_INTERFACE}")
-message(STATUS "TUDAT_BUILD_WITH_NRLMSISE00                           ${TUDAT_BUILD_WITH_NRLMSISE00}")
 message(STATUS "TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS ${TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS}")
 message(STATUS "TUDAT_DOWNLOAD_AND_BUILD_BOOST                        ${TUDAT_DOWNLOAD_AND_BUILD_BOOST}")
 
 set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -DTUDAT_BUILD_WITH_FILTERS=${TUDAT_BUILD_WITH_FILTERS}")
-set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -DTUDAT_BUILD_WITH_NRLMSISE00=${TUDAT_BUILD_WITH_NRLMSISE00}")
 set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -DTUDAT_BUILD_WITH_SOFA_INTERFACE=${TUDAT_BUILD_WITH_SOFA_INTERFACE}")
 set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -DTUDAT_BUILD_WITH_JSON_INTERFACE=${TUDAT_BUILD_WITH_JSON_INTERFACE}")
 set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -DTUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS=${TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS}")
@@ -134,13 +129,19 @@ set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -DTUDAT_BUILD_WITH_EXTENDED_PRECISIO
 #  Offer the user the choice of overriding the installation directories.
 # +============================================================================
 # TODO: Consider if this can work with <tudat/paths.hpp> going forward.
-set(INSTALL_LIB_DIR "${CMAKE_INSTALL_PREFIX}/lib/" CACHE PATH "Installation directory for libraries")
-set(INSTALL_BIN_DIR "${CMAKE_INSTALL_PREFIX}/bin/" CACHE PATH "Installation directory for executables")
-set(INSTALL_INCLUDE_DIR "${CMAKE_INSTALL_PREFIX}/include/" CACHE PATH "Installation directory for header files")
-set(INSTALL_DATA_DIR "${CMAKE_INSTALL_PREFIX}/data/" CACHE PATH "Installation directory for data files")
-set(INSTALL_MAN_DIR "${CMAKE_INSTALL_PREFIX}/" CACHE PATH "Installation directory for man documentation")
-#set(INSTALL_TESTS_DIR "${CMAKE_INSTALL_PREFIX}/tests/" CACHE PATH "Installation directory for tests (default=OFF)")
-set(INSTALL_CMAKE_DIR "${INSTALL_LIB_DIR}/cmake/${PROJECT_NAME_LOWER}" CACHE PATH "Installation directory for cmake config files")
+
+set(INSTALL_LIB_DIR "${CMAKE_INSTALL_PREFIX}/lib")
+set(INSTALL_BIN_DIR "${CMAKE_INSTALL_PREFIX}/bin")
+set(INSTALL_INCLUDE_DIR "${CMAKE_INSTALL_PREFIX}/include")
+set(INSTALL_DATA_DIR "${CMAKE_INSTALL_PREFIX}/data")
+set(INSTALL_MAN_DIR "${CMAKE_INSTALL_PREFIX}")
+#set(INSTALL_TESTS_DIR "${CMAKE_INSTALL_PREFIX}/tests")
+set(INSTALL_CMAKE_DIR "${INSTALL_LIB_DIR}/cmake/${PROJECT_NAME_LOWER}")
+
+message("")
+message(STATUS "INSTALLATION PREFIX: ${CMAKE_INSTALL_PREFIX}")
+message("")
+
 
 # Make relative paths absolute (needed later on)
 foreach (p LIB BIN INCLUDE DATA CMAKE)
@@ -321,13 +322,10 @@ if (TUDAT_BUILD_WITH_SOFA_INTERFACE)
     add_definitions(-DTUDAT_BUILD_WITH_SOFA_INTERFACE=1)
 endif ()
 
-if (TUDAT_BUILD_WITH_NRLMSISE00)
-    find_package(nrlmsise00 REQUIRED 0.1)
-    message(STATUS ${NRLMSISE00_LIBRARIES})
-    add_definitions(-DTUDAT_BUILD_WITH_NRLMSISE=1)
-else( )
-    add_definitions(-DTUDAT_BUILD_WITH_NRLMSISE=0)
-endif ()
+find_package(nrlmsise00 REQUIRED 0.1)
+message(STATUS ${NRLMSISE00_LIBRARIES})
+add_definitions(-DTUDAT_BUILD_WITH_NRLMSISE=1)
+
 
 # JSON
 if (TUDAT_BUILD_WITH_JSON_INTERFACE)
