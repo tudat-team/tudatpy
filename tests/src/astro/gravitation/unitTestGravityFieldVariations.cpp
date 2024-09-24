@@ -315,6 +315,135 @@ BOOST_AUTO_TEST_CASE( testGravityFieldVariations )
     }
 }
 
+std::shared_ptr< BasicSolidBodyTideGravityFieldVariations > getBasicGravityFieldVariation( )
+{
+    // Define bodies raising rides.
+    std::vector< std::string > deformingBodies;
+    deformingBodies.push_back( "Io" );
+    deformingBodies.push_back( "Europa" );
+
+    // Retrieve required data of bodies raising tides.
+    std::vector< std::function< Eigen::Vector6d( const double ) > >
+        deformingBodyStateFunctions;
+    std::vector< std::function< double( ) > > deformingBodyMasses;
+    for( unsigned int i = 0; i < deformingBodies.size( ); i++ )
+    {
+        deformingBodyStateFunctions.push_back(
+            std::bind( &getBodyCartesianStateAtEpoch, deformingBodies.at( i ), "SSB", "J2000", "None", std::placeholders::_1 ) );
+        deformingBodyMasses.push_back( std::bind( &getBodyGravitationalParameter, deformingBodies.at( i ) ) );
+    }
+
+    // Define Love numbers ( constant for degree 2 only)
+    std::vector< std::complex< double > > degreeTwoLoveNumber =
+        { std::complex< double >( 0.1, 0.0 ), std::complex< double >( 0.2, 0.0 ), std::complex< double >( 0.3, 0.0 ) };
+    std::map< int, std::vector< std::complex< double > > > loveNumbers;
+    loveNumbers[ 2 ] = degreeTwoLoveNumber;
+
+    // Set up gravity field variation of Jupiter due to Galilean moons.
+    return std::make_shared< BasicSolidBodyTideGravityFieldVariations >(
+        std::bind( &getBodyCartesianStateAtEpoch, "Jupiter", "SSB", "J2000", "None", std::placeholders::_1 ),
+        std::bind( &computeRotationQuaternionBetweenFrames, "J2000", "IAU_Jupiter", std::placeholders::_1 ),
+        deformingBodyStateFunctions, getAverageRadius( "Jupiter" ),
+        std::bind( &getBodyGravitationalParameter, "Jupiter" ),
+        deformingBodyMasses, loveNumbers, deformingBodies );
+}
+
+std::shared_ptr< ModeCoupledSolidBodyTideGravityFieldVariations > getModeCoupledGravityFieldVariation(
+    const int index  )
+{
+    // Define bodies raising rides.
+    std::vector< std::string > deformingBodies;
+    deformingBodies.push_back( "Io" );
+    deformingBodies.push_back( "Europa" );
+
+    // Retrieve required data of bodies raising tides.
+    std::vector< std::function< Eigen::Vector6d( const double ) > >
+        deformingBodyStateFunctions;
+    std::vector< std::function< double( ) > > deformingBodyMasses;
+    for( unsigned int i = 0; i < deformingBodies.size( ); i++ )
+    {
+        deformingBodyStateFunctions.push_back(
+            std::bind( &getBodyCartesianStateAtEpoch, deformingBodies.at( i ), "SSB", "J2000", "None", std::placeholders::_1 ) );
+        deformingBodyMasses.push_back( std::bind( &getBodyGravitationalParameter, deformingBodies.at( i ) ) );
+    }
+
+    // Define Love numbers ( constant for degree 2 only)
+    std::map< std::pair< int, int >, std::map< std::pair< int, int >, double > > loveNumbers;
+    if( index == 0 )
+    {
+        loveNumbers[ std::make_pair( 2, 0 ) ][ std::make_pair( 2, 0 ) ] = 0.1;
+        loveNumbers[ std::make_pair( 2, 1 ) ][ std::make_pair( 2, 1 ) ] = 0.2;
+        loveNumbers[ std::make_pair( 2, 2 ) ][ std::make_pair( 2, 2 ) ] = 0.3;
+    }
+    else if( index == 1 )
+    {
+        loveNumbers[ std::make_pair( 2, 0 ) ][ std::make_pair( 2, 2 ) ] = 0.1;
+        loveNumbers[ std::make_pair( 2, 2 ) ][ std::make_pair( 2, 1 ) ] = 0.3;
+        loveNumbers[ std::make_pair( 2, 1 ) ][ std::make_pair( 2, 0 ) ] = 0.2;
+    }
+    else if( index == 2 )
+    {
+        loveNumbers[ std::make_pair( 2, 0 ) ][ std::make_pair( 3, 3 ) ] = 0.1;
+        loveNumbers[ std::make_pair( 2, 2 ) ][ std::make_pair( 3, 2 ) ] = 0.3;
+        loveNumbers[ std::make_pair( 2, 1 ) ][ std::make_pair( 3, 1 ) ] = 0.2;
+    }
+
+    // Set up gravity field variation of Jupiter due to Galilean moons.
+    return std::make_shared< ModeCoupledSolidBodyTideGravityFieldVariations >(
+            std::bind( &getBodyCartesianStateAtEpoch, "Jupiter", "SSB", "J2000", "None", std::placeholders::_1 ),
+            std::bind( &computeRotationQuaternionBetweenFrames, "J2000", "IAU_Jupiter", std::placeholders::_1 ),
+            deformingBodyStateFunctions, getAverageRadius( "Jupiter" ),
+            std::bind( &getBodyGravitationalParameter, "Jupiter" ),
+            deformingBodyMasses, loveNumbers, deformingBodies );
+}
+
+BOOST_AUTO_TEST_CASE( testModeCoupledGravityFieldVariations )
+{
+    std::cout<<std::endl<<std::endl<<std::endl;
+    // Load spice kernels.
+    spice_interface::loadStandardSpiceKernels( );
+
+    std::shared_ptr< ModeCoupledSolidBodyTideGravityFieldVariations > modeCoupledControlVariationModel =
+        getModeCoupledGravityFieldVariation( 0 );
+    std::shared_ptr< ModeCoupledSolidBodyTideGravityFieldVariations > modeCoupledOrderOffsetVariationModel =
+        getModeCoupledGravityFieldVariation( 1 );
+    std::shared_ptr< ModeCoupledSolidBodyTideGravityFieldVariations > modeCoupledDegreeOrderOffsetVariationModel =
+        getModeCoupledGravityFieldVariation( 2 );
+    std::shared_ptr< BasicSolidBodyTideGravityFieldVariations > basicVariationModel =
+        getBasicGravityFieldVariation( );
+
+    double testTime = 1.0E7;
+    std::pair< Eigen::MatrixXd, Eigen::MatrixXd > modeCoupledControlVariations =
+        modeCoupledControlVariationModel->calculateBasicSphericalHarmonicsCorrections( testTime );
+    std::pair< Eigen::MatrixXd, Eigen::MatrixXd > basicVariations =
+        basicVariationModel->calculateBasicSphericalHarmonicsCorrections( testTime );
+    std::pair< Eigen::MatrixXd, Eigen::MatrixXd > modeCoupledOrderOffsetVariations =
+        modeCoupledOrderOffsetVariationModel->calculateBasicSphericalHarmonicsCorrections( testTime );
+    std::pair< Eigen::MatrixXd, Eigen::MatrixXd > modeCoupledDegreeOrderOffsetVariations =
+        modeCoupledDegreeOrderOffsetVariationModel->calculateBasicSphericalHarmonicsCorrections( testTime );
+
+    std::cout<<modeCoupledDegreeOrderOffsetVariations.first<<std::endl<<std::endl<<modeCoupledDegreeOrderOffsetVariations.second<<std::endl<<std::endl<<std::endl;
+    std::cout<<modeCoupledOrderOffsetVariations.first<<std::endl<<std::endl<<modeCoupledOrderOffsetVariations.second<<std::endl<<std::endl<<std::endl;
+    std::cout<<modeCoupledControlVariations.first<<std::endl<<std::endl<<modeCoupledControlVariations.second<<std::endl<<std::endl<<std::endl;
+    std::cout<<basicVariations.first<<std::endl<<std::endl<<basicVariations.second<<std::endl<<std::endl<<std::endl;
+
+    for( unsigned int i = 0; i < 3; i++ )
+    {
+        BOOST_CHECK_SMALL( modeCoupledControlVariations.first( 0, i ) - basicVariations.first( 0, i ), 1.0E-19 );
+        BOOST_CHECK_SMALL( modeCoupledControlVariations.second( 0, i ) - basicVariations.second( 0, i ), 1.0E-19 );
+    }
+
+    BOOST_CHECK_SMALL( modeCoupledOrderOffsetVariations.first( 0, 0 ) - modeCoupledControlVariations.first( 0, 1 ), 1.0E-19 );
+    BOOST_CHECK_SMALL( modeCoupledOrderOffsetVariations.first( 0, 1 ) - modeCoupledControlVariations.first( 0, 2 ), 1.0E-19 );
+    BOOST_CHECK_SMALL( modeCoupledOrderOffsetVariations.first( 0, 2 ) - modeCoupledControlVariations.first( 0, 0 ), 1.0E-19 );
+    BOOST_CHECK_SMALL( modeCoupledOrderOffsetVariations.second( 0, 1 ) - modeCoupledControlVariations.second( 0, 2 ), 1.0E-19 );
+
+    BOOST_CHECK_SMALL( modeCoupledDegreeOrderOffsetVariations.first( 1, 1 ) - basicVariations.first( 0, 1 ), 1.0E-19 );
+    BOOST_CHECK_SMALL( modeCoupledDegreeOrderOffsetVariations.first( 1, 2 ) - basicVariations.first( 0, 2 ), 1.0E-19 );
+    BOOST_CHECK_SMALL( modeCoupledDegreeOrderOffsetVariations.first( 1, 3 ) - basicVariations.first( 0, 0 ), 1.0E-19 );
+    BOOST_CHECK_SMALL( modeCoupledDegreeOrderOffsetVariations.second( 1, 1 ) - basicVariations.second( 0, 1 ), 1.0E-19 );
+    BOOST_CHECK_SMALL( modeCoupledDegreeOrderOffsetVariations.second( 1, 2 ) - basicVariations.second( 0, 2 ), 1.0E-19 );
+}
 
 void getPeriodicGravityFieldVariationSettings(
         std::vector< Eigen::MatrixXd >& cosineShAmplitudesCosineTime,

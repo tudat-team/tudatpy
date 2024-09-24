@@ -18,8 +18,10 @@
 #include "tudat/astro/gravitation/thirdBodyPerturbation.h"
 #include "tudat/astro/aerodynamics/aerodynamicAcceleration.h"
 #include "tudat/astro/basic_astro/accelerationModelTypes.h"
+#include "tudat/astro/reference_frames/referenceFrameTransformations.h"
 #include "tudat/basics/deprecationWarnings.h"
 #include "tudat/simulation/environment_setup/createRadiationPressureTargetModel.h"
+
 // #include "tudat/math/interpolators/createInterpolator.h"
 
 namespace tudat
@@ -490,6 +492,7 @@ private:
 
 };
 
+
 // Class for providing acceleration settings for a thrust acceleration model
 /*
  *  Class for providing acceleration settings for a thrust acceleration model. Settings for the direction and magnitude
@@ -499,6 +502,7 @@ private:
 class ThrustAccelerationSettings: public AccelerationSettings
 {
 public:
+
 
     ThrustAccelerationSettings( const std::string& engineId ):
         AccelerationSettings( basic_astrodynamics::thrust_acceleration )
@@ -527,6 +531,7 @@ public:
     std::vector< std::string > engineIds_;
 
     bool useAllEngines_;    
+
 
     template< typename ReturnType >
     ReturnType printDeprecationError( )
