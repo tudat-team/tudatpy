@@ -104,9 +104,9 @@ std::pair< Eigen::MatrixXd, Eigen::MatrixXd > calculateSolidBodyTideSingleCoeffi
         const double referenceRadius, const Eigen::Vector3d& relativeBodyFixedPosition,
         const int maximumDegree, const int maximumOrder );
 
-//! Class to calculate first-order solid body tide gravity field variations on a single body raised
-//! by any number of bodies up to any degree and order.
-class BasicSolidBodyTideGravityFieldVariations: public GravityFieldVariations
+
+
+class SolidBodyTideGravityFieldVariations: public GravityFieldVariations
 {
 public:
     //! Constructor
@@ -122,50 +122,41 @@ public:
      *  deformed.
      *  \param deformingBodyMasses List of functions returning masses (or gravitational parameters)
      *  of bodies causing deformation.
-     *  \param loveNumbers List of love numbers for each degree and order. First vector level
-     *  denotes degree (index 0 = degree 2), second vector level denotes order and must be of maximum size
-     *  (loveNumbers.size( ) + 2, i.e. maximum degree >= maximum order)
      *  \param deformingBodies List of names of bodies causing deformation
      */
-    BasicSolidBodyTideGravityFieldVariations(
-            const std::function< Eigen::Vector6d( const double ) >
-            deformedBodyStateFunction,
-            const std::function< Eigen::Quaterniond( const double ) >
-            deformedBodyOrientationFunction,
-            const std::vector< std::function< Eigen::Vector6d( const double ) > >
-            deformingBodyStateFunctions,
-            const double deformedBodyReferenceRadius,
-            const std::function< double( ) > deformedBodyMass,
-            const std::vector< std::function< double( ) > > deformingBodyMasses,
-            const std::map< int, std::vector< std::complex< double > > > loveNumbers,
-            const std::vector< std::string > deformingBodies ):
-        // LOVE NUMBERS TODO: FIX MIN/MAX STUFF
-        GravityFieldVariations( 2, 0, loveNumbers.rbegin( )->first, loveNumbers.rbegin( )->first ),
+    SolidBodyTideGravityFieldVariations(
+        const std::function< Eigen::Vector6d( const double ) >
+        deformedBodyStateFunction,
+        const std::function< Eigen::Quaterniond( const double ) >
+        deformedBodyOrientationFunction,
+        const std::vector< std::function< Eigen::Vector6d( const double ) > >
+        deformingBodyStateFunctions,
+        const double deformedBodyReferenceRadius,
+        const std::function< double( ) > deformedBodyMass,
+        const std::vector< std::function< double( ) > > deformingBodyMasses,
+        const std::vector< std::string > deformingBodies,
+        const int maximumDegree, const int maximumOrder ):
+    // LOVE NUMBERS TODO: FIX MIN/MAX STUFF
+        GravityFieldVariations( 2, 0, maximumDegree, maximumOrder ),
         deformedBodyStateFunction_( deformedBodyStateFunction ),
         deformedBodyOrientationFunction_( deformedBodyOrientationFunction ),
         deformingBodyStateFunctions_( deformingBodyStateFunctions ),
         deformedBodyReferenceRadius_( deformedBodyReferenceRadius ),
         deformedBodyMass_( deformedBodyMass ),
         deformingBodyMasses_( deformingBodyMasses ),
-        loveNumbers_( loveNumbers ),
         deformingBodies_( deformingBodies )
     {
-        // Set basic deformation functon as function to be evaluated when requesting variations.
-        correctionFunctions.push_back(
-                    std::bind(
-                        &BasicSolidBodyTideGravityFieldVariations::addBasicSolidBodyTideCorrections,
-                        this, std::placeholders::_1, std::placeholders::_2 ) );
         currentCosineCorrections_ = Eigen::MatrixXd::Zero(
-                    maximumDegree_ - minimumDegree_ + 1, maximumOrder_ - minimumOrder_ + 1 );
+            maximumDegree_ - minimumDegree_ + 1, maximumOrder_ - minimumOrder_ + 1 );
         currentSineCorrections_ = Eigen::MatrixXd::Zero(
-                    maximumDegree_ - minimumDegree_ + 1, maximumOrder_ - minimumOrder_ + 1 );
+            maximumDegree_ - minimumDegree_ + 1, maximumOrder_ - minimumOrder_ + 1 );
     }
 
     //! Destructor
     /*!
      *  Destructor
      */
-    virtual ~BasicSolidBodyTideGravityFieldVariations( ){ }
+    virtual ~SolidBodyTideGravityFieldVariations( ){ }
 
     //! Function for calculating basic spherical harmonic coefficient corrections.
     /*!
@@ -174,7 +165,7 @@ public:
      *  \return Pair of matrices containing variations in (cosine,sine) coefficients.
      */
     std::pair< Eigen::MatrixXd, Eigen::MatrixXd > calculateBasicSphericalHarmonicsCorrections(
-            const double time );
+        const double time );
 
     //! Derived function for calculating spherical harmonic coefficient corrections.
     /*!
@@ -183,66 +174,9 @@ public:
      *  \return Pair of matrices containing variations in (cosine,sine) coefficients.
      */
     virtual std::pair< Eigen::MatrixXd, Eigen::MatrixXd > calculateSphericalHarmonicsCorrections(
-            const double time )
+        const double time )
     {
         return calculateBasicSphericalHarmonicsCorrections( time );
-    }
-
-    //! Function to retrieve the love numbers at given degree.
-    /*!
-     *  Function to retrieve the love numbers at given degree. Returns a vector containing (complex)
-     *  love numbers at all orders in current degree.
-     *  \param degree Degree from which love numbers are to be retrieved.
-     *  \return Vector of love numbers (i^{th} entry representing i^{th} order in requested degree)
-     *  containing love numbers at current degree.
-     */
-    std::vector< std::complex< double > > getLoveNumbersOfDegree( const int degree )
-    {
-        return loveNumbers_[ degree ];
-    }
-
-    //! Function to return all love numbers.
-    /*!
-     *  Function to return all love numbers, i.e. at all degrees and orders.
-     *  \return Complete set of available love numbers.
-     */
-    const std::map< int, std::vector< std::complex< double > > > getLoveNumbers( )
-    {
-        return loveNumbers_;
-    }
-
-    //! Function to reset the love numbers at given degree.
-    /*!
-     *  Function to reset the love numbers at given degree. Input requires a vector containing
-     *  (complex) love numbers at all orders in current degree.
-     *  \param degree Degree from which love numbers are to be retrieved.
-     *  \param loveNumbers Vector of love numbers (i^{th} entry representing i^{th} order in requested degree)
-     *  containing new love numbers at current degree.
-     */
-    void resetLoveNumbersOfDegree( const std::vector< std::complex< double > > loveNumbers,
-                                   const int degree )
-    {
-        if( loveNumbers_.count( degree ) == 0 )
-        {
-            std::string errorMessage = "Error, tried to set love numbers at degree " +
-                    std::to_string( degree ) +
-                    " in BasicSolidBodyTideGravityFieldVariations: not available";
-            throw std::runtime_error( errorMessage );
-        }
-        else
-        {
-            if( loveNumbers.size( ) <= static_cast< unsigned int >( degree + 1 ) )
-            {
-                loveNumbers_[ degree ] = loveNumbers;
-            }
-            else
-            {
-                std::string errorMessage = "Error, tried to set love numbers at degree " +
-                        std::to_string( degree ) + " in BasicSolidBodyTideGravityFieldVariations with" +
-                        std::to_string( loveNumbers.size( ) ) + " orders";
-                throw std::runtime_error( errorMessage );
-            }
-        }
     }
 
     //! Function to return reference radius the spherical harmonic gravity field of deformed body.
@@ -335,7 +269,7 @@ public:
             id += deformingBodies_[ i ];
             if( i != deformingBodies_.size( ) - 1 )
             {
-                 id += "_";
+                id += "_";
             }
         }
 
@@ -373,7 +307,7 @@ protected:
      *  the required (tidal) correction.
      */
     std::vector< std::function< void( Eigen::MatrixXd&, Eigen::MatrixXd& ) > >
-    correctionFunctions;
+        correctionFunctions;
 
     //! Calculates basic solid body gravity field corrections due to single body.
     /*!
@@ -389,7 +323,7 @@ protected:
      *  (passed by reference; correction added to input value).
      */
     virtual void addBasicSolidBodyTideCorrections(
-            Eigen::MatrixXd& cTermCorrections, Eigen::MatrixXd& sTermCorrections );
+        Eigen::MatrixXd& cTermCorrections, Eigen::MatrixXd& sTermCorrections ) = 0;
 
     //! Sets current properties (mass state) of body causing tidal deformation.
     /*!
@@ -399,7 +333,7 @@ protected:
      * \param evaluationTime Time at which properties are to be evaluated.
      */
     virtual void setBodyGeometryParameters(
-            const int bodyIndex, const double evaluationTime);
+        const int bodyIndex, const double evaluationTime);
 
     //! Calculate tidal amplitude and argument at current degree and order.
     /*!
@@ -408,10 +342,10 @@ protected:
      * \param order Order of tide.
      */
     virtual void updateTidalAmplitudeAndArgument(
-            const int degree, const int order )
+        const int degree, const int order )
     {
         tideAmplitude = basic_mathematics::computeLegendrePolynomialExplicit(
-                    degree, order, sineOfLatitude );
+            degree, order, sineOfLatitude );
         tideArgument = static_cast< double >( order ) * iLongitude;
     }
 
@@ -433,7 +367,7 @@ protected:
      *  List of state functions of body causing deformations.
      */
     std::vector< std::function< Eigen::Vector6d( const double ) > >
-    deformingBodyStateFunctions_;
+        deformingBodyStateFunctions_;
 
     //! Reference radius (typically equatorial) of body being deformed's spherical harmonic
     //! gravity field.
@@ -454,16 +388,6 @@ protected:
      *  List of functions returning masses of bodies causing deformation.
      */
     std::vector< std::function< double( ) > > deformingBodyMasses_;
-
-    // LOVE NUMBER TODO: FIX DOCS
-    //! List of love numbers for each degree and order
-    /*!
-     *  List of love numbers for each degree and order. First vector level denotes degree
-     *  (index 0 = degree 2), second vector level must be of size (loveNumbers.size( ) + 2, i.e.
-     *  maximum degree == maximum order.
-     */
-    std::map< int, std::vector< std::complex< double > > > loveNumbers_;
-
 
     //! List of names of bodies causing deformation.
     /*!
@@ -537,6 +461,222 @@ protected:
 
 };
 
+
+//! Class to calculate first-order solid body tide gravity field variations on a single body raised
+//! by any number of bodies up to any degree and order.
+class BasicSolidBodyTideGravityFieldVariations: public SolidBodyTideGravityFieldVariations
+{
+public:
+    //! Constructor
+    /*!
+     *  Contructor, sets Love numbers and properties of deformed and tide-raising bodies.
+     *  \param deformedBodyStateFunction Function returning state of body being deformed.
+     *  \param deformedBodyOrientationFunction Function providing rotation from inertial to body
+     *  being deformed-fixed frame
+     *  \param deformingBodyStateFunctions List of state functions of body causing deformations.
+     *  \param deformedBodyReferenceRadius Reference radius (typically equatorial) of body being
+     *  deformed's spherical harmonic gravity field.
+     *  \param deformedBodyMass Function returning mass (or gravitational parameter) of body being
+     *  deformed.
+     *  \param deformingBodyMasses List of functions returning masses (or gravitational parameters)
+     *  of bodies causing deformation.
+     *  \param loveNumbers List of love numbers for each degree and order. First vector level
+     *  denotes degree (index 0 = degree 2), second vector level denotes order and must be of maximum size
+     *  (loveNumbers.size( ) + 2, i.e. maximum degree >= maximum order)
+     *  \param deformingBodies List of names of bodies causing deformation
+     */
+    BasicSolidBodyTideGravityFieldVariations(
+            const std::function< Eigen::Vector6d( const double ) >
+            deformedBodyStateFunction,
+            const std::function< Eigen::Quaterniond( const double ) >
+            deformedBodyOrientationFunction,
+            const std::vector< std::function< Eigen::Vector6d( const double ) > >
+            deformingBodyStateFunctions,
+            const double deformedBodyReferenceRadius,
+            const std::function< double( ) > deformedBodyMass,
+            const std::vector< std::function< double( ) > > deformingBodyMasses,
+            const std::map< int, std::vector< std::complex< double > > > loveNumbers,
+            const std::vector< std::string > deformingBodies ):
+        // LOVE NUMBERS TODO: FIX MIN/MAX STUFF
+        SolidBodyTideGravityFieldVariations(
+            deformedBodyStateFunction, deformedBodyOrientationFunction, deformingBodyStateFunctions, deformedBodyReferenceRadius,
+            deformedBodyMass, deformingBodyMasses, deformingBodies, loveNumbers.rbegin( )->first, loveNumbers.rbegin( )->first ),
+        loveNumbers_( loveNumbers )
+    {
+        // Set basic deformation functon as function to be evaluated when requesting variations.
+        correctionFunctions.push_back(
+            std::bind(
+                &BasicSolidBodyTideGravityFieldVariations::addBasicSolidBodyTideCorrections,
+                this, std::placeholders::_1, std::placeholders::_2 ));
+    }
+
+    //! Destructor
+    /*!
+     *  Destructor
+     */
+    virtual ~BasicSolidBodyTideGravityFieldVariations( ){ }
+
+
+    //! Function to retrieve the love numbers at given degree.
+    /*!
+     *  Function to retrieve the love numbers at given degree. Returns a vector containing (complex)
+     *  love numbers at all orders in current degree.
+     *  \param degree Degree from which love numbers are to be retrieved.
+     *  \return Vector of love numbers (i^{th} entry representing i^{th} order in requested degree)
+     *  containing love numbers at current degree.
+     */
+    std::vector< std::complex< double > > getLoveNumbersOfDegree( const int degree )
+    {
+        return loveNumbers_[ degree ];
+    }
+
+    //! Function to return all love numbers.
+    /*!
+     *  Function to return all love numbers, i.e. at all degrees and orders.
+     *  \return Complete set of available love numbers.
+     */
+    const std::map< int, std::vector< std::complex< double > > > getLoveNumbers( )
+    {
+        return loveNumbers_;
+    }
+
+    //! Function to reset the love numbers at given degree.
+    /*!
+     *  Function to reset the love numbers at given degree. Input requires a vector containing
+     *  (complex) love numbers at all orders in current degree.
+     *  \param degree Degree from which love numbers are to be retrieved.
+     *  \param loveNumbers Vector of love numbers (i^{th} entry representing i^{th} order in requested degree)
+     *  containing new love numbers at current degree.
+     */
+    void resetLoveNumbersOfDegree( const std::vector< std::complex< double > > loveNumbers,
+                                   const int degree )
+    {
+        if( loveNumbers_.count( degree ) == 0 )
+        {
+            std::string errorMessage = "Error, tried to set love numbers at degree " +
+                    std::to_string( degree ) +
+                    " in BasicSolidBodyTideGravityFieldVariations: not available";
+            throw std::runtime_error( errorMessage );
+        }
+        else
+        {
+            if( loveNumbers.size( ) <= static_cast< unsigned int >( degree + 1 ) )
+            {
+                loveNumbers_[ degree ] = loveNumbers;
+            }
+            else
+            {
+                std::string errorMessage = "Error, tried to set love numbers at degree " +
+                        std::to_string( degree ) + " in BasicSolidBodyTideGravityFieldVariations with" +
+                        std::to_string( loveNumbers.size( ) ) + " orders";
+                throw std::runtime_error( errorMessage );
+            }
+        }
+    }
+
+protected:
+
+
+    //! Calculates basic solid body gravity field corrections due to single body.
+    /*!
+     *  Calculates basic solid body gravity field corrections for all degrees and orders set.
+     *  The arguments are modified as they are passed by reference, through which the corrections
+     *  are returned.
+     *  Class variables denoting properties of currently considered body must have been set before
+     *  this function is called.
+     *  \param cTermCorrections Corrections to cosine terms
+     *  (passed by reference; correction added to input value).
+     *  \param sTermCorrections Corrections to sine terms.
+     *
+     *  (passed by reference; correction added to input value).
+     */
+    virtual void addBasicSolidBodyTideCorrections(
+            Eigen::MatrixXd& cTermCorrections, Eigen::MatrixXd& sTermCorrections );
+
+
+    // LOVE NUMBER TODO: FIX DOCS
+    //! List of love numbers for each degree and order
+    /*!
+     *  List of love numbers for each degree and order. First vector level denotes degree
+     *  (index 0 = degree 2), second vector level must be of size (loveNumbers.size( ) + 2, i.e.
+     *  maximum degree == maximum order.
+     */
+    std::map< int, std::vector< std::complex< double > > > loveNumbers_;
+
+};
+
+int getModeCoupledMaximumResponseDegree(
+    const std::map< std::pair< int, int >, std::map< std::pair< int, int >, double > >& loveNumbers );
+
+int getModeCoupledMaximumResponseOrder(
+    const std::map< std::pair< int, int >, std::map< std::pair< int, int >, double > >& loveNumbers );
+
+
+class ModeCoupledSolidBodyTideGravityFieldVariations: public SolidBodyTideGravityFieldVariations
+{
+public:
+
+    ModeCoupledSolidBodyTideGravityFieldVariations(
+        const std::function< Eigen::Vector6d( const double ) > deformedBodyStateFunction,
+        const std::function< Eigen::Quaterniond( const double ) > deformedBodyOrientationFunction,
+        const std::vector< std::function< Eigen::Vector6d( const double ) > > deformingBodyStateFunctions,
+        const double deformedBodyReferenceRadius,
+        const std::function< double( ) > deformedBodyMass,
+        const std::vector< std::function< double( ) > > deformingBodyMasses,
+        const std::map< std::pair< int, int >, std::map< std::pair< int, int >, double > > loveNumbers,
+        const std::vector< std::string > deformingBodies ):SolidBodyTideGravityFieldVariations(
+        deformedBodyStateFunction, deformedBodyOrientationFunction, deformingBodyStateFunctions, deformedBodyReferenceRadius,
+        deformedBodyMass, deformingBodyMasses, deformingBodies,
+        getModeCoupledMaximumResponseDegree( loveNumbers ),
+        getModeCoupledMaximumResponseOrder( loveNumbers ) ), loveNumbers_( loveNumbers )
+    {
+        // Set basic deformation functon as function to be evaluated when requesting variations.
+        correctionFunctions.push_back(
+            std::bind(
+                &ModeCoupledSolidBodyTideGravityFieldVariations::addBasicSolidBodyTideCorrections,
+                this, std::placeholders::_1, std::placeholders::_2 ) );
+    }
+
+    //! Destructor
+    /*!
+     *  Destructor
+     */
+    virtual ~ModeCoupledSolidBodyTideGravityFieldVariations( ){ }
+
+    std::map< std::pair< int, int >, std::map< std::pair< int, int >, double > > getLoveNumbers( )
+    {
+        return loveNumbers_;
+    }
+
+    void resetLoveNumber(
+        const std::pair< int, int > forcingIndices, const std::pair< int, int > responseIndices, const double loveNumber )
+    {
+        if( loveNumbers_.count( forcingIndices ) == 0 )
+        {
+            throw std::runtime_error( "Error when resetting mode-coupled Love number, no number at forcing D/O " +
+                                      std::to_string( forcingIndices.first ) + "/" +
+                                      std::to_string( forcingIndices.second ) + " found " );
+        }
+        else
+        {
+            if( loveNumbers_.at( forcingIndices ).count( responseIndices ) == 0  )
+            {
+                throw std::runtime_error( "Error when resetting mode-coupled Love number, no number at forcing D/O " +
+                                          std::to_string( forcingIndices.first ) + "/" + std::to_string( forcingIndices.second ) +
+                                          " and response D/O " +  std::to_string( responseIndices.first ) + "/" + std::to_string( responseIndices.second ) +" found ");
+            }
+        }
+        loveNumbers_[ forcingIndices ][ responseIndices ] = loveNumber;
+    }
+
+protected:
+
+    virtual void addBasicSolidBodyTideCorrections(
+        Eigen::MatrixXd& cTermCorrections, Eigen::MatrixXd& sTermCorrections );
+
+    std::map< std::pair< int, int >, std::map< std::pair< int, int >, double > > loveNumbers_;
+
+};
 } // namespace gravitation
 
 } // namespace tudat

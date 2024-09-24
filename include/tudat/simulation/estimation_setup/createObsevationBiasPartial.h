@@ -434,7 +434,6 @@ std::shared_ptr< ObservationPartial< ObservationSize > > createObservationPartia
                         std::bind( &ephemerides::Ephemeris::getCartesianAcceleration, transmitterInertialEphemeris, std::placeholders::_1, 30.0 ),
                         std::bind( &ephemerides::Ephemeris::getCartesianAcceleration, receiverInertialEphemeris, std::placeholders::_1, 30.0 ) );
 
-                    std::cout<<"CREATING PARTIAL "<<arcwiseTimeBias->getLookupScheme( )<<std::endl;
                     observationPartial = std::make_shared< ObservationPartialWrtArcWiseTimeBias< ObservationSize > >(
                         timeBiasPartial, arcwiseTimeBias->getLookupScheme( ),
                         arcwiseTimeBias->getLinkEndIndex( ),
