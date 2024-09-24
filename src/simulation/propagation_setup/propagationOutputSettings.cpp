@@ -322,6 +322,9 @@ std::string getDependentVariableName(
     case paneled_radiation_source_geometry:
         variableName = "Per-source panel radiation pressure geometry";
         break;
+    case nrlmsise_input_data:
+        variableName = "NRLMSISE00 input data vector";
+        break;
     default:
         std::string errorMessage = "Error, dependent variable " +
                 std::to_string( propagationDependentVariables ) +

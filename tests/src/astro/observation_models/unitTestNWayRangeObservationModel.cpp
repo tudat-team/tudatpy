@@ -511,8 +511,97 @@ BOOST_AUTO_TEST_CASE( testNWayRangeModel )
             }
         }
     }
-
 }
+
+
+BOOST_AUTO_TEST_CASE( testTwoWayRangeModelTimeScaleBias )
+{
+    spice_interface::loadStandardSpiceKernels( );
+
+    // Define bodies to use.
+    std::vector< std::string > bodiesToCreate;
+    bodiesToCreate.push_back( "Earth" );
+    bodiesToCreate.push_back( "Mars" );
+
+    // Specify initial time
+    double initialEphemerisTime = 0.0;
+    double finalEphemerisTime = initialEphemerisTime + 7.0 * 86400.0;
+    double maximumTimeStep = 3600.0;
+    double buffer = 10.0 * maximumTimeStep;
+
+    // Create bodies settings needed in simulation
+    BodyListSettings defaultBodySettings =
+        getDefaultBodySettings(
+            bodiesToCreate );
+
+    // Create bodies
+    SystemOfBodies bodies = createSystemOfBodies( defaultBodySettings );
+
+    // Create ground stations
+    std::pair< std::string, std::string > earthStationStation = std::pair< std::string, std::string >( "Earth", "EarthStation" );
+    std::pair< std::string, std::string > earthStationStation2 = std::pair< std::string, std::string >( "Earth", "EarthStation2" );
+    std::pair< std::string, std::string > mslStation = std::pair< std::string, std::string >( "Mars", "MarsStation" );
+    createGroundStation( bodies.at( "Mars" ), "MarsStation", ( Eigen::Vector3d( ) << 100.0, 0.5, 2.1 ).finished( ),
+                         coordinate_conversions::geodetic_position );
+    createGroundStation( bodies.at( "Earth" ), "EarthStation", ( Eigen::Vector3d( ) << 1.0, 0.1, -1.4 ).finished( ),
+                         coordinate_conversions::geodetic_position );
+    createGroundStation( bodies.at( "Earth" ), "EarthStation2", ( Eigen::Vector3d( ) << -30.0, 1.2, 2.1 ).finished( ),
+                         coordinate_conversions::geodetic_position );
+
+    std::vector< std::pair< std::string, std::string > > groundStations;
+    groundStations.push_back( earthStationStation );
+    groundStations.push_back( earthStationStation2 );
+    groundStations.push_back( mslStation );
+
+    // Define list of observation times for which to check model
+    std::vector< double > observationTimes;
+    observationTimes.push_back( 1.0E8 );
+    observationTimes.push_back( 2.0E8 );
+    observationTimes.push_back( 3.0E8 );
+
+    // Define link ends for observations.
+    for( unsigned int observationTimeNumber = 0; observationTimeNumber < observationTimes.size( ); observationTimeNumber++ )
+    {
+        // Define link ends for 2-way model and constituent one-way models
+        LinkEnds twoWayLinkEnds;
+        twoWayLinkEnds[ transmitter ] = std::make_pair< std::string, std::string >( "Earth" , "EarthStation"  );
+        twoWayLinkEnds[ reflector1 ] = std::make_pair< std::string, std::string >( "Mars" , "MarsStation"  );
+        twoWayLinkEnds[ receiver ] = std::make_pair< std::string, std::string >( "Earth" , "EarthStation2"  );
+
+        // Create observation models
+        std::shared_ptr< NWayRangeObservationSettings > twoWayObservableSettings = std::make_shared< NWayRangeObservationSettings >
+            ( twoWayLinkEnds, std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( )  );
+        std::shared_ptr< ObservationModel< 1, double, double > > twoWayObservationModel =
+            ObservationModelCreator< 1, double, double >::createObservationModel(
+                twoWayObservableSettings, bodies );
+
+        std::vector< double > linkEndTimes;
+        std::vector< Eigen::Matrix< double, 6, 1 > > linkEndStates;
+        double unbiasedTwoWayRange = twoWayObservationModel->computeObservationsWithLinkEndData(
+            observationTimes.at( observationTimeNumber ), receiver,
+            linkEndTimes, linkEndStates )( 0 );
+
+        std::shared_ptr< ObservationBiasSettings > biasSettings = twoWayTimeScaleRangeBias( );
+        std::shared_ptr< NWayRangeObservationSettings > twoWayObservableSettingsWithBias = std::make_shared< NWayRangeObservationSettings >
+            ( twoWayLinkEnds, std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ), biasSettings );
+        std::shared_ptr< ObservationModel< 1, double, double > > twoWayObservationModelWithBias =
+            ObservationModelCreator< 1, double, double >::createObservationModel(
+                twoWayObservableSettingsWithBias, bodies );
+
+        double biasedTwoWayRange = twoWayObservationModelWithBias->computeObservationsWithLinkEndData(
+            observationTimes.at( observationTimeNumber ), receiver,
+            linkEndTimes, linkEndStates )( 0 );
+
+        std::cout<<biasedTwoWayRange - unbiasedTwoWayRange<<std::endl;
+        std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > timeScaleConverter = earth_orientation::defaultTimeConverter;
+        double transmissionTimeDifference = timeScaleConverter->getCurrentTime< Time >( basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, linkEndTimes.at( 0 ),
+                                                    bodies.at( "Earth" )->getGroundStationMap( ).at( "EarthStation" )->getNominalStationState( )->getNominalCartesianPosition( ) ) - Time( linkEndTimes.at( 0 ) );
+        double receptionTimeDifference = timeScaleConverter->getCurrentTime< Time >( basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, linkEndTimes.at( 3 ),
+                                                    bodies.at( "Earth" )->getGroundStationMap( ).at( "EarthStation2" )->getNominalStationState( )->getNominalCartesianPosition( ) ) - Time( linkEndTimes.at( 3 ) );
+        BOOST_CHECK_SMALL( ( receptionTimeDifference -transmissionTimeDifference ) * physical_constants::SPEED_OF_LIGHT - (biasedTwoWayRange - unbiasedTwoWayRange), 1.0E-4 );
+    }
+}
+
 
 BOOST_AUTO_TEST_SUITE_END( )
 
