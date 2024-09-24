@@ -220,10 +220,6 @@ int main( )
         std::shared_ptr< ObservationCollection< double, double > > simulatedObservations = simulateObservations< double, double >(
                 measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
-//        std::map< observation_models::ObservableType, double > weightPerObservable;
-//        weightPerObservable[ one_way_doppler ] = 1.0 / ( 0.1 * 0.1 );
-//        simulatedObservations->setConstantPerObservableWeightsMatrix( weightPerObservable );
-
         std::map< std::shared_ptr< observation_models::ObservationCollectionParser >, double > weightPerObservationParser;
         weightPerObservationParser[ observationParser( one_way_doppler ) ] = 1.0 / ( 0.1 * 0.1 );
         simulatedObservations->setConstantWeightPerObservable( weightPerObservationParser );

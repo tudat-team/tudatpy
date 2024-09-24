@@ -312,11 +312,6 @@ Eigen::VectorXd  executeParameterEstimation(
                 measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
     // Set weights
-//    std::map< observation_models::ObservableType, double > weightPerObservable;
-//    weightPerObservable[ one_way_range ] = 1.0E-4;
-//    weightPerObservable[ angular_position ] = 1.0E-20;
-//    observationsAndTimes->setConstantPerObservableWeightsMatrix( weightPerObservable );
-
     std::map< std::shared_ptr< observation_models::ObservationCollectionParser >, double > weightPerObservationParser;
     weightPerObservationParser[ observationParser( one_way_range ) ] = 1.0E-4;
     weightPerObservationParser[ observationParser( angular_position ) ] = 1.0E-20;
