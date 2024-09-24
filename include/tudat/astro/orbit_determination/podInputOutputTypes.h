@@ -48,7 +48,7 @@ public:
         saveDesignMatrix_( true ),
         printOutput_( true )
     {
-        weightsMatrixDiagonals_ = observationCollection->getConcatenatedWeights( ); // getConcatenatedWeightVector( ); // Eigen::VectorXd::Zero( observationCollection->getTotalObservableSize( ) );
+//        weightsMatrixDiagonals_ = observationCollection->getConcatenatedWeights( );
 //        setConstantWeightsMatrix( 1.0 );
 
         considerParametersIncluded_ = false;
@@ -60,311 +60,229 @@ public:
 
     virtual ~CovarianceAnalysisInput( ){ }
 
-//    //! Function to set a constant values for all observation weights
-//    /*!
-//     * Function to set a constant values for all observation weights
-//     * \param constantWeight Constant weight that is to be set for all observations
-//     */
-//    void setConstantWeightsMatrix( const double constantWeight = 1.0 )
-//    {
-//        observationCollections_->setConstantWeight( constantWeight );
-//    }
-//
-////    void setWeightsFromObservationCollection( )
-////    {
-////        weightsMatrixDiagonals_ = observationCollection_->getConcatenatedWeightVector( ); // getWeightsFromSingleObservationSets( );
-////    }
-//
-//    //! Set constant scalar weight for all observables of given type
-//    void setConstantSingleObservableWeights(
-//        const observation_models::ObservableType currentObservable,
-//        const double weight )
-//    {
-//        std::map< observation_models::ObservableType, std::pair< int, int > > observationTypeStartAndSize =
-//            observationCollection_->getObservationTypeStartAndSize( );
-//
-//        if( observationTypeStartAndSize.count( currentObservable) == 0 )
-//        {
-//            std::cerr<< "Warning when setting weights for data type "<< std::to_string( currentObservable) <<  ". " <<
-//                     " No data of given type found." <<std::endl;
-//        }
-//        else
-//        {
-//            std::pair< int, int > indicesToUse = observationTypeStartAndSize.at( currentObservable );
-//
-//                weightsMatrixDiagonals_.segment( indicesToUse.first, indicesToUse.second ) =
-//                    Eigen::VectorXd::Constant( indicesToUse.second, weight );
-//        }
-//    }
-//
-//    //! Set constant vector weight for all observables of given type
-//    void setConstantSingleObservableVectorWeights(
-//        const observation_models::ObservableType currentObservable,
-//        const Eigen::VectorXd weight )
-//    {
-//        std::map< observation_models::ObservableType, std::pair< int, int > > observationTypeStartAndSize =
-//            observationCollection_->getObservationTypeStartAndSize( );
-//
-//        if( observationTypeStartAndSize.count( currentObservable) == 0 )
-//        {
-//            std::cerr<< "Warning when setting weights for data type "<< std::to_string( currentObservable) <<  ". " <<
-//                     " No data of given type found." <<std::endl;
-//        }
-//        else
-//        {
-//            std::pair< int, int > indicesToUse = observationTypeStartAndSize.at( currentObservable );
-//
-//            int observableSize = observation_models::getObservableSize( currentObservable );
-//            if( observableSize != weight.rows( ) )
-//            {
-//                throw std::runtime_error( "Error when setting weight vector for observable, size should be " +
-//                                          std::to_string( observableSize ) + " but is " + std::to_string( weight.rows( ) ) );
-//            }
-//            int numberOfObservations =  indicesToUse.second / observableSize;
-//
-//            weightsMatrixDiagonals_.segment( indicesToUse.first, indicesToUse.second ) =
-//                utilities::getSuccesivelyConcatenatedVector( weight, numberOfObservations );
-//        }
-//    }
-//
-//    //! Set constant scalar weight for all observables of given type and link ends
-//    void setConstantSingleObservableAndLinkEndsWeights(
-//        const observation_models::ObservableType currentObservable,
-//        const observation_models::LinkEnds currentLinkEnds,
-//        const double weight )
-//    {
-////        std::map< observation_models::ObservableType,
-////            std::map< observation_models::LinkEnds, std::pair< int, int > > >  observationLinkEndStartAndSize =
-////            observationCollection_->getObservationTypeAndLinkEndStartAndSize( );
-////
-////        if( observationLinkEndStartAndSize.count( currentObservable) == 0 )
-////        {
-////            std::cerr<< "Warning when setting weights for data type "<< std::to_string( currentObservable) <<  ". " <<
-////                     " No data of given type found." <<std::endl;
-////        }
-////        else if( observationLinkEndStartAndSize.at( currentObservable ).count( currentLinkEnds ) == 0 )
-////        {
-////
-////            std::cerr<< "Warning when setting weights for data type " << std::to_string( currentObservable)<< " and link ends " <<
-////                     ". No data of given type and link ends found." <<std::endl;
-////        }
-////        else
-////        {
-////            std::pair< int, int > indicesToUse = observationLinkEndStartAndSize.at( currentObservable ).at( currentLinkEnds );
-////            weightsMatrixDiagonals_.segment( indicesToUse.first,
-////                                             indicesToUse.second ) =
-////                Eigen::VectorXd::Constant( indicesToUse.second, weight );
-////        }
-//        observationCollection_->setConstantWeightPerObservable( observationParser( std::vector< std::shared_ptr< observation_models::ObservationCollectionParser > >(
-//                { observationParser( currentObservable ), observationParser( currentLinkEnds ) } ) ), weight );
-//    }
+    //! Function to set a constant values for all observation weights
+    /*!
+     * Function to set a constant values for all observation weights
+     * \param constantWeight Constant weight that is to be set for all observations
+     */
+    void setConstantWeightsMatrix( const double constantWeight = 1.0 )
+    {
+        observationCollection_->setConstantWeight( constantWeight );
+    }
 
-//    //! Set constant vector weight for all observables of given type and link ends
-//    void setConstantSingleObservableAndLinkEndsVectorWeights(
-//        const observation_models::ObservableType currentObservable,
-//        const observation_models::LinkEnds currentLinkEnds,
-//        const Eigen::VectorXd weight )
-//    {
-////        std::map< observation_models::ObservableType,
-////            std::map< observation_models::LinkEnds, std::pair< int, int > > >  observationLinkEndStartAndSize =
-////            observationCollection_->getObservationTypeAndLinkEndStartAndSize( );
-////
-////        if( observationLinkEndStartAndSize.count( currentObservable) == 0 )
-////        {
-////            std::cerr<< "Warning when setting weights for data type "<< std::to_string( currentObservable) <<  ". " <<
-////                     " No data of given type found." <<std::endl;
-////        }
-////        else if( observationLinkEndStartAndSize.at( currentObservable ).count( currentLinkEnds ) == 0 )
-////        {
-////
-////            std::cerr<< "Warning when setting weights for data type " << std::to_string( currentObservable)<< " and link ends " <<
-////                     ". No data of given type and link ends found." <<std::endl;
-////        }
-////        else
-////        {
-////            std::pair< int, int > indicesToUse =
-////                observationLinkEndStartAndSize.at( currentObservable ).at( currentLinkEnds );
-////
-////            int observableSize = observation_models::getObservableSize( currentObservable );
-////            if( observableSize != weight.rows( ) )
-////            {
-////                throw std::runtime_error( "Error when setting weight vector for observable, size should be " +
-////                                          std::to_string( observableSize ) + " but is " + std::to_string( weight.rows( ) ) );
-////            }
-////            int numberOfObservations = indicesToUse.second / observableSize;
-////
-////
-////            weightsMatrixDiagonals_.segment( indicesToUse.first,
-////                                             indicesToUse.second ) =
-////                utilities::getSuccesivelyConcatenatedVector( weight, numberOfObservations );
-////        }
-//        observationCollection_->setConstantWeightPerObservable( observationParser( std::vector< std::shared_ptr< observation_models::ObservationCollectionParser > >(
-//                { observationParser( currentObservable ), observationParser( currentLinkEnds ) } ) ), weight );
-//    }
-//
-//    //! Set constant vector weight for alweightsMatrixDiagonals_l observables of given type and link ends
-//    void setTabulatedSingleObservableAndLinkEndsWeights(
-//        const observation_models::ObservableType currentObservable,
-//        const observation_models::LinkEnds currentLinkEnds,
-//        const Eigen::VectorXd weight )
-//    {
-////        std::map< observation_models::ObservableType,
-////            std::map< observation_models::LinkEnds, std::pair< int, int > > >  observationLinkEndStartAndSize =
-////            observationCollection_->getObservationTypeAndLinkEndStartAndSize( );
-////
-////        if( observationLinkEndStartAndSize.count( currentObservable) == 0 )
-////        {
-////            std::cerr<< "Warning when setting weights for data type "<< std::to_string( currentObservable) <<  ". " <<
-////                     " No data of given type found." <<std::endl;
-////        }
-////        else if( observationLinkEndStartAndSize.at( currentObservable ).count( currentLinkEnds ) == 0 )
-////        {
-////
-////            std::cerr<< "Warning when setting weights for data type " << std::to_string( currentObservable)<< " and link ends " <<
-////                     ". No data of given type and link ends found." <<std::endl;
-////        }
-////        else
-////        {
-////            std::pair< int, int > indicesToUse =
-////                observationLinkEndStartAndSize.at( currentObservable ).at( currentLinkEnds );
-////
-////            if( indicesToUse.second != weight.rows( ) )
-////            {
-////                throw std::runtime_error( "Error when setting total weight vector for observable and link ends, size should be " +
-////                                          std::to_string( indicesToUse.second ) + " but is " + std::to_string( weight.rows( ) ) );
-////            }
-////
-////            weightsMatrixDiagonals_.segment( indicesToUse.first,
-////                                             indicesToUse.second ) = weight;
-////        }
-//
-//        observationCollection_->setTabulatedWeights( observationParser( std::vector< std::shared_ptr< observation_models::ObservationCollectionParser > >(
-//                { observationParser( currentObservable ), observationParser( currentLinkEnds ) } ) ), weight );
-//    }
-//
-//
-//    //! Function to set a values for observation weights, constant per observable type
-//    /*!
-//     * Function to set a values for observation weights, constant per observable type
-//     * \param weightPerObservable Values for observation weights, constant per observable type
-//     */
-//    void setConstantPerObservableWeightsMatrix(
-//            const std::map< observation_models::ObservableType, double > weightPerObservable )
-//    {
-//        std::map< std::shared_ptr< observation_models::ObservationCollectionParser >, double > weightsPerObservationParser;
-//        for( auto observableIt : weightPerObservable )
-//        {
-//            weightsPerObservationParser[ observationParser( observableIt.first ) ] = observableIt.second;
-//        }
-//        observationCollection_->setConstantWeightPerObservable( weightsPerObservationParser );
-//    }
-////
-//    void setConstantPerObservableVectorWeightsMatrix(
-//        const std::map< observation_models::ObservableType, Eigen::VectorXd > weightPerObservable )
-//    {
-//        std::map< std::shared_ptr< observation_models::ObservationCollectionParser >, Eigen::VectorXd > weightsPerObservationParser;
-//        for( auto observableIt : weightPerObservable )
-//        {
-//            weightsPerObservationParser[ observationParser( observableIt.first ) ] = observableIt.second;
-//        }
-//        observationCollection_->setConstantWeightPerObservable( weightsPerObservationParser );
-//    }
+    //! Set constant scalar weight for all observables of given type
+    void setConstantSingleObservableWeights(
+        const observation_models::ObservableType currentObservable,
+        const double weight )
+    {
+        std::cerr << "Warning, function setConstantSingleObservableWeights is deprecated, "
+                     "weights should preferably be defined at the observation collection level.";
 
-//    //! Function to set a values for observation weights, constant per observable type and link ends type
-//    /*!
-//     * Function to set a values for observation weights, constant per observable type and link ends type
-//     * \param weightPerObservableAndLinkEnds Values for observation weights, constant per observable type and link ends type
-//     */
-//    void setConstantPerObservableAndLinkEndsWeights(
-//            const std::map< observation_models::ObservableType,
-//            std::map< observation_models::LinkEnds, double > > weightPerObservableAndLinkEnds )
-//    {
-//        std::map< std::shared_ptr< observation_models::ObservationCollectionParser >, double > weightPerObservationParser;
-//        for ( auto observableIt : weightPerObservableAndLinkEnds )
-//        {
-//            for ( auto linkEndsIt : observableIt.second )
-//            {
-//                weightPerObservationParser[ observationParser( std::vector< std::shared_ptr< observation_models::ObservationCollectionParser > >(
-//                        { observationParser( observableIt.first ), observationParser( linkEndsIt.first ) } ) ) ] = linkEndsIt.second;
-//            }
-//        }
-//        observationCollection_->setConstantWeightPerObservable( weightPerObservationParser );
-//    }
-//
-//    void setConstantPerObservableAndLinkEndsVectorWeights(
-//        const std::map< observation_models::ObservableType,
-//            std::map< observation_models::LinkEnds, Eigen::VectorXd > > weightPerObservableAndLinkEnds )
-//    {
-//        std::map< std::shared_ptr< observation_models::ObservationCollectionParser >, Eigen::VectorXd > weightPerObservationParser;
-//        for ( auto observableIt : weightPerObservableAndLinkEnds )
-//        {
-//            for ( auto linkEndsIt : observableIt.second )
-//            {
-//                weightPerObservationParser[ observationParser( std::vector< std::shared_ptr< observation_models::ObservationCollectionParser > >(
-//                        { observationParser( observableIt.first ), observationParser( linkEndsIt.first ) } ) ) ] = linkEndsIt.second;
-//            }
-//        }
-//        observationCollection_->setConstantWeightPerObservable( weightPerObservationParser );
-//    }
+        std::map< observation_models::ObservableType, std::pair< int, int > > observationTypeStartAndSize =
+            observationCollection_->getObservationTypeStartAndSize( );
+        if( observationTypeStartAndSize.count( currentObservable) == 0 )
+        {
+            std::cerr<< "Warning when setting weights for data type "<< std::to_string( currentObservable) <<  ". " <<
+                     " No data of given type found." <<std::endl;
+        }
+        else
+        {
+            observationCollection_->setConstantWeight( weight, observationParser( currentObservable ) );
+        }
+    }
 
-//    void setConstantPerObservableAndLinkEndsWeights(
-//            const observation_models::ObservableType observableType,
-//            const std::vector< observation_models::LinkEnds >& linkEnds,
-//            const double weight )
-//    {
-//        std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds, double > > weightPerObservableAndLinkEnds;
-//        for( unsigned int i = 0; i < linkEnds.size( ); i++ )
-//        {
-//            weightPerObservableAndLinkEnds[ observableType ][ linkEnds.at( i ) ] =  weight;
-//        }
-//        setConstantPerObservableAndLinkEndsWeights( weightPerObservableAndLinkEnds );
-//    }
-//
-//    void setConstantPerObservableAndLinkEndsVectorWeights(
-//        const observation_models::ObservableType observableType,
-//        const std::vector< observation_models::LinkEnds >& linkEnds,
-//        const Eigen::VectorXd weight )
-//    {
-//        std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds, Eigen::VectorXd > > weightPerObservableAndLinkEnds;
-//        for( unsigned int i = 0; i < linkEnds.size( ); i++ )
-//        {
-//            weightPerObservableAndLinkEnds[ observableType ][ linkEnds.at( i ) ] =  weight;
-//        }
-//        setConstantPerObservableAndLinkEndsVectorWeights( weightPerObservableAndLinkEnds );
-//    }
-//
-//    void setTabulatedPerObservableAndLinkEndsWeights(
-//            const std::map< observation_models::ObservableType,
-//            std::map< observation_models::LinkEnds, Eigen::VectorXd > > weightsPerObservableAndLinkEnds )
-//    {
-//        std::map< observation_models::ObservationCollectionParser, Eigen::VectorXd > weightPerObservableParser;
-//        for ( auto observableIt : weightsPerObservableAndLinkEnds )
-//        {
-//            for ( auto linkEndsIt : observableIt.second )
-//            {
-//                weightPerObservableParser[ observationParser( std::vector< std::shared_ptr< observation_models::ObservationCollectionParser > >( {
-//                    observationParser( observableIt.first ), observationParser( linkEndsIt.first ) } ) ) ] = linkEndsIt.second;
-//            }
-//        }
-//        observationCollection_->setTabulatedWeights( weightPerObservableParser );
-//    }
-//
-//    void setTabulatedPerObservableAndLinkEndsWeights(
-//        const observation_models::ObservableType observableType,
-//        const std::vector< observation_models::LinkEnds >& linkEnds,
-//        const Eigen::VectorXd weights )
-//    {
-//        std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds, Eigen::VectorXd > > weightsPerObservableAndLinkEnds;
-//        for( unsigned int i = 0; i < linkEnds.size( ); i++ )
-//        {
-//            weightsPerObservableAndLinkEnds[ observableType ][ linkEnds.at( i ) ] =  weights;
-//        }
-//        setTabulatedPerObservableAndLinkEndsWeights( weightsPerObservableAndLinkEnds );
-//
-//        std::shared_ptr< observation_models::ObservationCollectionParser > parser = observationParser(
-//                std::vector< std::shared_ptr< observation_models::ObservationCollectionParser > >( { observationParser( observableType ), observationParser( linkEnds ) } ) );
-//        observationCollection_->setTabulatedWeights( parser, weights );
-//    }
+    //! Set constant vector weight for all observables of given type
+    void setConstantSingleObservableVectorWeights(
+        const observation_models::ObservableType currentObservable,
+        const Eigen::VectorXd weight )
+    {
+        std::cerr << "Warning, function setConstantSingleObservableVectorWeights is deprecated, "
+                     "weights should preferably be defined at the observation collection level.";
+
+        std::map< observation_models::ObservableType, std::pair< int, int > > observationTypeStartAndSize =
+            observationCollection_->getObservationTypeStartAndSize( );
+        if( observationTypeStartAndSize.count( currentObservable) == 0 )
+        {
+            std::cerr<< "Warning when setting weights for data type "<< std::to_string( currentObservable) <<  ". " <<
+                     " No data of given type found." <<std::endl;
+        }
+        else
+        {
+            observationCollection_->setConstantWeight( weight, observationParser( currentObservable ) );
+        }
+    }
+
+    //! Set constant scalar weight for all observables of given type and link ends
+    void setConstantSingleObservableAndLinkEndsWeights(
+        const observation_models::ObservableType currentObservable,
+        const observation_models::LinkEnds currentLinkEnds,
+        const double weight )
+    {
+        std::cerr << "Warning, function setConstantSingleObservableAndLinkEndsWeights is deprecated, "
+                     "weights should preferably be defined at the observation collection level.";
+        observationCollection_->setConstantWeightPerObservable( observationParser( std::vector< std::shared_ptr< observation_models::ObservationCollectionParser > >(
+                { observationParser( currentObservable ), observationParser( currentLinkEnds ) } ) ), weight );
+    }
+
+    //! Set constant vector weight for all observables of given type and link ends
+    void setConstantSingleObservableAndLinkEndsVectorWeights(
+        const observation_models::ObservableType currentObservable,
+        const observation_models::LinkEnds currentLinkEnds,
+        const Eigen::VectorXd weight )
+    {
+        std::cerr << "Warning, function setConstantSingleObservableAndLinkEndsVectorWeights is deprecated, "
+                     "weights should preferably be defined at the observation collection level.";
+        observationCollection_->setConstantWeightPerObservable( observationParser( std::vector< std::shared_ptr< observation_models::ObservationCollectionParser > >(
+                { observationParser( currentObservable ), observationParser( currentLinkEnds ) } ) ), weight );
+    }
+
+    //! Set constant vector weight for all observables of given type and link ends
+    void setTabulatedSingleObservableAndLinkEndsWeights(
+        const observation_models::ObservableType currentObservable,
+        const observation_models::LinkEnds currentLinkEnds,
+        const Eigen::VectorXd weight )
+    {
+        std::cerr << "Warning, function setTabulatedSingleObservableAndLinkEndsWeights is deprecated, "
+                     "weights should preferably be defined at the observation collection level.";
+        observationCollection_->setTabulatedWeights( observationParser( std::vector< std::shared_ptr< observation_models::ObservationCollectionParser > >(
+                { observationParser( currentObservable ), observationParser( currentLinkEnds ) } ) ), weight );
+    }
+
+
+    //! Function to set a values for observation weights, constant per observable type
+    /*!
+     * Function to set a values for observation weights, constant per observable type
+     * \param weightPerObservable Values for observation weights, constant per observable type
+     */
+    void setConstantPerObservableWeightsMatrix(
+            const std::map< observation_models::ObservableType, double > weightPerObservable )
+    {
+        std::cerr << "Warning, function setConstantPerObservableWeightsMatrix is deprecated, "
+                     "weights should preferably be defined at the observation collection level.";
+        std::map< std::shared_ptr< observation_models::ObservationCollectionParser >, double > weightsPerObservationParser;
+        for( auto observableIt : weightPerObservable )
+        {
+            weightsPerObservationParser[ observationParser( observableIt.first ) ] = observableIt.second;
+        }
+        observationCollection_->setConstantWeightPerObservable( weightsPerObservationParser );
+    }
+
+    void setConstantPerObservableVectorWeightsMatrix(
+        const std::map< observation_models::ObservableType, Eigen::VectorXd > weightPerObservable )
+    {
+        std::cerr << "Warning, function setConstantPerObservableVectorWeightsMatrix is deprecated, "
+                     "weights should preferably be defined at the observation collection level.";
+        std::map< std::shared_ptr< observation_models::ObservationCollectionParser >, Eigen::VectorXd > weightsPerObservationParser;
+        for( auto observableIt : weightPerObservable )
+        {
+            weightsPerObservationParser[ observationParser( observableIt.first ) ] = observableIt.second;
+        }
+        observationCollection_->setConstantWeightPerObservable( weightsPerObservationParser );
+    }
+
+    //! Function to set a values for observation weights, constant per observable type and link ends type
+    /*!
+     * Function to set a values for observation weights, constant per observable type and link ends type
+     * \param weightPerObservableAndLinkEnds Values for observation weights, constant per observable type and link ends type
+     */
+    void setConstantPerObservableAndLinkEndsWeights(
+            const std::map< observation_models::ObservableType,
+            std::map< observation_models::LinkEnds, double > > weightPerObservableAndLinkEnds )
+    {
+        std::cerr << "Warning, function setConstantPerObservableAndLinkEndsWeights is deprecated, "
+                     "weights should preferably be defined at the observation collection level.";
+        std::map< std::shared_ptr< observation_models::ObservationCollectionParser >, double > weightPerObservationParser;
+        for ( auto observableIt : weightPerObservableAndLinkEnds )
+        {
+            for ( auto linkEndsIt : observableIt.second )
+            {
+                weightPerObservationParser[ observationParser( std::vector< std::shared_ptr< observation_models::ObservationCollectionParser > >(
+                        { observationParser( observableIt.first ), observationParser( linkEndsIt.first ) } ) ) ] = linkEndsIt.second;
+            }
+        }
+        observationCollection_->setConstantWeightPerObservable( weightPerObservationParser );
+    }
+
+    void setConstantPerObservableAndLinkEndsVectorWeights(
+        const std::map< observation_models::ObservableType,
+            std::map< observation_models::LinkEnds, Eigen::VectorXd > > weightPerObservableAndLinkEnds )
+    {
+        std::cerr << "Warning, function setConstantPerObservableAndLinkEndsVectorWeights is deprecated, "
+                     "weights should preferably be defined at the observation collection level.";
+        std::map< std::shared_ptr< observation_models::ObservationCollectionParser >, Eigen::VectorXd > weightPerObservationParser;
+        for ( auto observableIt : weightPerObservableAndLinkEnds )
+        {
+            for ( auto linkEndsIt : observableIt.second )
+            {
+                weightPerObservationParser[ observationParser( std::vector< std::shared_ptr< observation_models::ObservationCollectionParser > >(
+                        { observationParser( observableIt.first ), observationParser( linkEndsIt.first ) } ) ) ] = linkEndsIt.second;
+            }
+        }
+        observationCollection_->setConstantWeightPerObservable( weightPerObservationParser );
+    }
+
+    void setConstantPerObservableAndLinkEndsWeights(
+            const observation_models::ObservableType observableType,
+            const std::vector< observation_models::LinkEnds >& linkEnds,
+            const double weight )
+    {
+        std::cerr << "Warning, function setConstantPerObservableAndLinkEndsWeights is deprecated, "
+                     "weights should preferably be defined at the observation collection level.";
+        std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds, double > > weightPerObservableAndLinkEnds;
+        for( unsigned int i = 0; i < linkEnds.size( ); i++ )
+        {
+            weightPerObservableAndLinkEnds[ observableType ][ linkEnds.at( i ) ] =  weight;
+        }
+        setConstantPerObservableAndLinkEndsWeights( weightPerObservableAndLinkEnds );
+    }
+
+    void setConstantPerObservableAndLinkEndsVectorWeights(
+        const observation_models::ObservableType observableType,
+        const std::vector< observation_models::LinkEnds >& linkEnds,
+        const Eigen::VectorXd weight )
+    {
+        std::cerr << "Warning, function setConstantPerObservableAndLinkEndsVectorWeights is deprecated, "
+                     "weights should preferably be defined at the observation collection level.";
+        std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds, Eigen::VectorXd > > weightPerObservableAndLinkEnds;
+        for( unsigned int i = 0; i < linkEnds.size( ); i++ )
+        {
+            weightPerObservableAndLinkEnds[ observableType ][ linkEnds.at( i ) ] =  weight;
+        }
+        setConstantPerObservableAndLinkEndsVectorWeights( weightPerObservableAndLinkEnds );
+    }
+
+    void setTabulatedPerObservableAndLinkEndsWeights(
+            const std::map< observation_models::ObservableType,
+            std::map< observation_models::LinkEnds, Eigen::VectorXd > > weightsPerObservableAndLinkEnds )
+    {
+        std::cerr << "Warning, function setTabulatedPerObservableAndLinkEndsWeights is deprecated, "
+                     "weights should preferably be defined at the observation collection level.";
+        std::map< std::shared_ptr< observation_models::ObservationCollectionParser >, Eigen::VectorXd > weightPerObservableParser;
+        for ( auto observableIt : weightsPerObservableAndLinkEnds )
+        {
+            for ( auto linkEndsIt : observableIt.second )
+            {
+                weightPerObservableParser[ observationParser( std::vector< std::shared_ptr< observation_models::ObservationCollectionParser > >( {
+                    observationParser( observableIt.first ), observationParser( linkEndsIt.first ) } ) ) ] = linkEndsIt.second;
+            }
+        }
+        observationCollection_->setTabulatedWeights( weightPerObservableParser );
+    }
+
+    void setTabulatedPerObservableAndLinkEndsWeights(
+        const observation_models::ObservableType observableType,
+        const std::vector< observation_models::LinkEnds >& linkEnds,
+        const Eigen::VectorXd weights )
+    {
+        std::cerr << "Warning, function setTabulatedPerObservableAndLinkEndsWeights is deprecated, "
+                     "weights should preferably be defined at the observation collection level.";
+        std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds, Eigen::VectorXd > > weightsPerObservableAndLinkEnds;
+        for( unsigned int i = 0; i < linkEnds.size( ); i++ )
+        {
+            weightsPerObservableAndLinkEnds[ observableType ][ linkEnds.at( i ) ] =  weights;
+        }
+        setTabulatedPerObservableAndLinkEndsWeights( weightsPerObservableAndLinkEnds );
+    }
 
     //! Function to return the total data structure of observations and associated times/link ends/type (by reference)
     /*!
@@ -437,13 +355,16 @@ public:
      */
     Eigen::VectorXd getWeightsMatrixDiagonals( )
     {
-        return weightsMatrixDiagonals_;
+        return observationCollection_->getConcatenatedWeights( );
     }
 
-//    void setWeightsMatrixDiagonals( const Eigen::VectorXd& weightsMatrixDiagonals )
-//    {
+    void setWeightsMatrixDiagonals( const Eigen::VectorXd& weightsMatrixDiagonals )
+    {
+        std::cerr << "Warning, function setWeightsMatrixDiagonals is deprecated, "
+                     "weights should preferably be defined at the observation collection level.";
+        observationCollection_->setTabulatedWeights( weightsMatrixDiagonals );
 //        weightsMatrixDiagonals_ = weightsMatrixDiagonals;
-//    }
+    }
 
     //! Function to return the boolean denoting whether the dynamics and variational equations are reintegrated on first iteration
     /*!
@@ -518,8 +439,8 @@ protected:
 
     double limitConditionNumberForWarning_;
 
-    //! Weight matrix diagonals, sorted by link ends and observable type
-    Eigen::VectorXd weightsMatrixDiagonals_;
+//    //! Weight matrix diagonals, sorted by link ends and observable type
+//    Eigen::VectorXd weightsMatrixDiagonals_;
 
     //!  Boolean denoting whether the dynamics and variational equations are to be reintegrated on first iteration
     bool reintegrateEquationsOnFirstIteration_;
