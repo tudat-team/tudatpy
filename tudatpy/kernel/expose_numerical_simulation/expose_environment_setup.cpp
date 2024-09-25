@@ -154,11 +154,11 @@ namespace environment_setup {
               py::arg("initial_time") = 0,
               get_docstring("create_simplified_system_of_bodies").c_str());
 
-        m.def("create_system_of_bodies", &tss::createSystemOfBodies< double, TIME_TYPE >,
+        m.def("create_system_of_bodies", &tss::createSystemOfBodies< STATE_SCALAR_TYPE, TIME_TYPE >,
               py::arg("body_settings"),
               get_docstring("create_system_of_bodies").c_str());
 
-        m.def("add_empty_tabulated_ephemeris", &tp::addEmptyTabulatedEphemeris< double, TIME_TYPE >,
+        m.def("add_empty_tabulated_ephemeris", &tp::addEmptyTabulatedEphemeris< STATE_SCALAR_TYPE, TIME_TYPE >,
               py::arg("bodies"),
               py::arg("body_name"),
               py::arg("ephemeris_origin") = "",
@@ -166,20 +166,20 @@ namespace environment_setup {
               get_docstring("add_empty_tabulated_ephemeris").c_str());
 
         m.def("create_tabulated_ephemeris_from_spice",
-                &tss::createTabulatedEphemerisFromSpice<double, TIME_TYPE >, py::arg("body"),
+                &tss::createTabulatedEphemerisFromSpice<STATE_SCALAR_TYPE, TIME_TYPE >, py::arg("body"),
                 py::arg("initial_time"), py::arg("end_time"), py::arg("time_step"),
                 py::arg("observer_name"), py::arg("reference_frame_name"),
                 py::arg("interpolator_settings") =
                         std::make_shared<tudat::interpolators::LagrangeInterpolatorSettings>(
                                 8));
 
-        m.def("create_body_ephemeris", &tss::createBodyEphemeris< double, TIME_TYPE >,
+        m.def("create_body_ephemeris", &tss::createBodyEphemeris< STATE_SCALAR_TYPE, TIME_TYPE >,
               py::arg("ephemeris_settings"), py::arg("body_name"),
               get_docstring("create_body_ephemeris").c_str());
 
         m.def( "create_ground_station_ephemeris",
                py::overload_cast< const std::shared_ptr< tss::Body >, const std::string&, const tss::SystemOfBodies& >(
-                   &tss::createReferencePointEphemerisFromId< TIME_TYPE, double > ),
+                   &tss::createReferencePointEphemerisFromId< TIME_TYPE, STATE_SCALAR_TYPE > ),
                "body_with_ground_station",
                "station_name" );
 

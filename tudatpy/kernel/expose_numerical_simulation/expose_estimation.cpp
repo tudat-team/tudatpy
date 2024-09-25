@@ -41,8 +41,8 @@ namespace propagators
 {
 
 std::map< double, Eigen::MatrixXd > propagateCovarianceRsw(
-        const std::shared_ptr< tss::CovarianceAnalysisOutput< double, TIME_TYPE > > estimationOutput,
-        const std::shared_ptr< tss::OrbitDeterminationManager<double, TIME_TYPE> > orbitDeterminationManager,
+        const std::shared_ptr< tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE > > estimationOutput,
+        const std::shared_ptr< tss::OrbitDeterminationManager<STATE_SCALAR_TYPE, TIME_TYPE> > orbitDeterminationManager,
         const std::vector< double > evaluationTimes )
 {
     std::map< double, Eigen::MatrixXd > propagatedCovariance;
@@ -52,21 +52,22 @@ std::map< double, Eigen::MatrixXd > propagateCovarianceRsw(
 
     tss::SystemOfBodies bodies = orbitDeterminationManager->getBodies( );
 
-    std::shared_ptr< tep::EstimatableParameterSet<double> > parameterSet = orbitDeterminationManager->getParametersToEstimate( );
+    std::shared_ptr< tep::EstimatableParameterSet<STATE_SCALAR_TYPE> > parameterSet = orbitDeterminationManager->getParametersToEstimate( );
 
-    std::map< int, std::shared_ptr< tep::EstimatableParameter< Eigen::VectorXd > > > initialStates = parameterSet->getInitialStateParameters( );
+    std::map< int, std::shared_ptr< tep::EstimatableParameter< Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > > > > initialStates =
+        parameterSet->getInitialStateParameters( );
     std::map< std::pair< std::string, std::string >, std::vector< int > > transformationList;
     for( auto it : initialStates )
     {
-        if( std::dynamic_pointer_cast< tep::InitialTranslationalStateParameter< double > >( it.second ) )
+        if( std::dynamic_pointer_cast< tep::InitialTranslationalStateParameter< STATE_SCALAR_TYPE > >( it.second ) )
         {
-            std::shared_ptr< tep::InitialTranslationalStateParameter< double > > currentInitialState =
-                    std::dynamic_pointer_cast< tep::InitialTranslationalStateParameter< double > >( it.second );
+            std::shared_ptr< tep::InitialTranslationalStateParameter< STATE_SCALAR_TYPE > > currentInitialState =
+                    std::dynamic_pointer_cast< tep::InitialTranslationalStateParameter< STATE_SCALAR_TYPE > >( it.second );
             transformationList[ std::make_pair( currentInitialState->getParameterName( ).second.first, currentInitialState->getCentralBody( ) ) ].push_back(
                         it.first );
 
         }
-        else if( std::dynamic_pointer_cast< tep::ArcWiseInitialTranslationalStateParameter< double > >( it.second ) )
+        else if( std::dynamic_pointer_cast< tep::ArcWiseInitialTranslationalStateParameter< STATE_SCALAR_TYPE > >( it.second ) )
         {
             throw std::runtime_error( "Error, multi-arc not yet supported in automatic covariance conversion" );
         }
@@ -79,7 +80,7 @@ std::map< double, Eigen::MatrixXd > propagateCovarianceRsw(
     std::map< double, Eigen::MatrixXd > propagatedRswCovariance;
     for( auto it : propagatedCovariance )
     {
-        double currentTime = it.first;
+        double currentTime = static_cast< double >( it.first );
         Eigen::MatrixXd currentCovariance = it.second;
         currentFullInertialToRswState.setZero( );
 
@@ -105,8 +106,8 @@ std::map< double, Eigen::MatrixXd > propagateCovarianceRsw(
 
 
 std::pair< std::vector< double >, std::vector< Eigen::MatrixXd > > propagateCovarianceVectorsRsw(
-        const std::shared_ptr< tss::CovarianceAnalysisOutput<double, TIME_TYPE> > estimationOutput,
-        const std::shared_ptr< tss::OrbitDeterminationManager<double, TIME_TYPE> > orbitDeterminationManager,
+        const std::shared_ptr< tss::CovarianceAnalysisOutput<STATE_SCALAR_TYPE, TIME_TYPE> > estimationOutput,
+        const std::shared_ptr< tss::OrbitDeterminationManager<STATE_SCALAR_TYPE, TIME_TYPE> > orbitDeterminationManager,
         const std::vector< double > evaluationTimes )
 {
     std::map< double, Eigen::MatrixXd > propagatedRswCovariance = propagateCovarianceRsw(
@@ -119,8 +120,8 @@ std::pair< std::vector< double >, std::vector< Eigen::MatrixXd > > propagateCova
 }
 
 std::map< double, Eigen::VectorXd > propagateFormalErrorsRsw(
-        const std::shared_ptr< tss::CovarianceAnalysisOutput<double, TIME_TYPE> > estimationOutput,
-        const std::shared_ptr< tss::OrbitDeterminationManager<double, TIME_TYPE> > orbitDeterminationManager,
+        const std::shared_ptr< tss::CovarianceAnalysisOutput<STATE_SCALAR_TYPE, TIME_TYPE> > estimationOutput,
+        const std::shared_ptr< tss::OrbitDeterminationManager<STATE_SCALAR_TYPE, TIME_TYPE> > orbitDeterminationManager,
         const std::vector< double > evaluationTimes )
 {
     std::map< double, Eigen::MatrixXd > propagatedCovariance;
@@ -134,8 +135,8 @@ std::map< double, Eigen::VectorXd > propagateFormalErrorsRsw(
 }
 
 std::pair< std::vector< double >, std::vector< Eigen::VectorXd > > propagateFormalErrorVectorsRsw(
-        const std::shared_ptr< tss::CovarianceAnalysisOutput<double, TIME_TYPE> > estimationOutput,
-        const std::shared_ptr< tss::OrbitDeterminationManager<double, TIME_TYPE> > orbitDeterminationManager,
+        const std::shared_ptr< tss::CovarianceAnalysisOutput<STATE_SCALAR_TYPE, TIME_TYPE> > estimationOutput,
+        const std::shared_ptr< tss::OrbitDeterminationManager<STATE_SCALAR_TYPE, TIME_TYPE> > orbitDeterminationManager,
         const std::vector< double > evaluationTimes )
 {
     std::map< double, Eigen::VectorXd > propagatedFormalErrors =
@@ -207,7 +208,7 @@ std::shared_ptr< tom::SingleObservationSet< ObservationScalarType, TimeType > > 
 {
     return std::make_shared< tom::SingleObservationSet< ObservationScalarType, TimeType > >(
             observableType, linkEnds, observations, observationTimes, referenceLinkEnd,
-            std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >( ), nullptr, ancilliarySettings );
+            std::vector< Eigen::VectorXd >( ), nullptr, ancilliarySettings );
 }
 
 
@@ -228,30 +229,30 @@ void expose_estimation(py::module &m) {
      */
 
 
-    py::class_<tep::EstimatableParameterSet<double>,
-            std::shared_ptr<tep::EstimatableParameterSet<double>>>(m, "EstimatableParameterSet",
+    py::class_<tep::EstimatableParameterSet<STATE_SCALAR_TYPE>,
+            std::shared_ptr<tep::EstimatableParameterSet<STATE_SCALAR_TYPE>>>(m, "EstimatableParameterSet",
                                                                    get_docstring("EstimatableParameterSet").c_str() )
             .def_property_readonly( "parameter_set_size",
-                                    &tep::EstimatableParameterSet<double>::getEstimatedParameterSetSize,
+                                    &tep::EstimatableParameterSet<STATE_SCALAR_TYPE>::getEstimatedParameterSetSize,
                                     get_docstring("EstimatableParameterSet.parameter_set_size").c_str() )
             .def_property_readonly( "initial_states_size",
-                                    &tep::EstimatableParameterSet<double>::getInitialDynamicalStateParameterSize,
+                                    &tep::EstimatableParameterSet<STATE_SCALAR_TYPE>::getInitialDynamicalStateParameterSize,
                                     get_docstring("EstimatableParameterSet.initial_states_size").c_str() )
             .def_property_readonly( "initial_single_arc_states_size",
-                                    &tep::EstimatableParameterSet<double>::getInitialDynamicalSingleArcStateParameterSize,
+                                    &tep::EstimatableParameterSet<STATE_SCALAR_TYPE>::getInitialDynamicalSingleArcStateParameterSize,
                                     get_docstring("EstimatableParameterSet.initial_single_arc_states_size").c_str() )
             .def_property_readonly( "initial_multi_arc_states_size",
-                                    &tep::EstimatableParameterSet<double>::getInitialDynamicalMultiArcStateParameterSize,
+                                    &tep::EstimatableParameterSet<STATE_SCALAR_TYPE>::getInitialDynamicalMultiArcStateParameterSize,
                                     get_docstring("EstimatableParameterSet.initial_multi_arc_states_size").c_str() )
             .def_property_readonly( "constraints_size",
-                                    &tep::EstimatableParameterSet<double>::getConstraintSize,
+                                    &tep::EstimatableParameterSet<STATE_SCALAR_TYPE>::getConstraintSize,
                                     get_docstring("EstimatableParameterSet.constraints_size").c_str() )
             .def_property( "parameter_vector",
-                           &tep::EstimatableParameterSet<double>::getFullParameterValues< double >,
-                           &tep::EstimatableParameterSet<double>::resetParameterValues< double >,
+                           &tep::EstimatableParameterSet<STATE_SCALAR_TYPE>::getFullParameterValues< double >,
+                           &tep::EstimatableParameterSet<STATE_SCALAR_TYPE>::resetParameterValues< double >,
                            get_docstring("EstimatableParameterSet.parameter_vector").c_str() )
             .def( "indices_for_parameter_type",
-                  &tep::EstimatableParameterSet<double>::getIndicesForParameterType,
+                  &tep::EstimatableParameterSet<STATE_SCALAR_TYPE>::getIndicesForParameterType,
                   py::arg("parameter_type"),
                   get_docstring("EstimatableParameterSet.indices_for_parameter_type").c_str() );
 
@@ -267,32 +268,32 @@ void expose_estimation(py::module &m) {
                  py::arg( "link_end_times" ),
                  get_docstring("ObservationViabilityCalculator.is_observation_viable").c_str() );
 
-    py::class_<tom::ObservationSimulatorBase<double, TIME_TYPE>,
-            std::shared_ptr<tom::ObservationSimulatorBase<double, TIME_TYPE>>>(m, "ObservationSimulator",
+    py::class_<tom::ObservationSimulatorBase<STATE_SCALAR_TYPE, TIME_TYPE>,
+            std::shared_ptr<tom::ObservationSimulatorBase<STATE_SCALAR_TYPE, TIME_TYPE>>>(m, "ObservationSimulator",
                                                                            get_docstring("ObservationSimulator").c_str() );
 
-    py::class_<tom::ObservationSimulator<1,double, TIME_TYPE>,
-            std::shared_ptr<tom::ObservationSimulator<1,double, TIME_TYPE>>,
-            tom::ObservationSimulatorBase<double, TIME_TYPE>>(m, "ObservationSimulator_1",
+    py::class_<tom::ObservationSimulator<1,STATE_SCALAR_TYPE, TIME_TYPE>,
+            std::shared_ptr<tom::ObservationSimulator<1,STATE_SCALAR_TYPE, TIME_TYPE>>,
+            tom::ObservationSimulatorBase<STATE_SCALAR_TYPE, TIME_TYPE>>(m, "ObservationSimulator_1",
                                                           get_docstring("ObservationSimulator_1").c_str() );
 
-    py::class_<tom::ObservationSimulator<2,double, TIME_TYPE>,
-            std::shared_ptr<tom::ObservationSimulator<2,double, TIME_TYPE>>,
-            tom::ObservationSimulatorBase<double, TIME_TYPE>>(m, "ObservationSimulator_2",
+    py::class_<tom::ObservationSimulator<2,STATE_SCALAR_TYPE, TIME_TYPE>,
+            std::shared_ptr<tom::ObservationSimulator<2,STATE_SCALAR_TYPE, TIME_TYPE>>,
+            tom::ObservationSimulatorBase<STATE_SCALAR_TYPE, TIME_TYPE>>(m, "ObservationSimulator_2",
                                                           get_docstring("ObservationSimulator_2").c_str() );
 
-    py::class_<tom::ObservationSimulator<3,double, TIME_TYPE>,
-            std::shared_ptr<tom::ObservationSimulator<3,double, TIME_TYPE>>,
-            tom::ObservationSimulatorBase<double, TIME_TYPE>>(m, "ObservationSimulator_3",
+    py::class_<tom::ObservationSimulator<3,STATE_SCALAR_TYPE, TIME_TYPE>,
+            std::shared_ptr<tom::ObservationSimulator<3,STATE_SCALAR_TYPE, TIME_TYPE>>,
+            tom::ObservationSimulatorBase<STATE_SCALAR_TYPE, TIME_TYPE>>(m, "ObservationSimulator_3",
                                                           get_docstring("ObservationSimulator_3").c_str() );
 
-    py::class_<tom::ObservationSimulator<6,double, TIME_TYPE>,
-            std::shared_ptr<tom::ObservationSimulator<6,double, TIME_TYPE>>,
-            tom::ObservationSimulatorBase<double, TIME_TYPE>>(m, "ObservationSimulator_6",
+    py::class_<tom::ObservationSimulator<6,STATE_SCALAR_TYPE, TIME_TYPE>,
+            std::shared_ptr<tom::ObservationSimulator<6,STATE_SCALAR_TYPE, TIME_TYPE>>,
+            tom::ObservationSimulatorBase<STATE_SCALAR_TYPE, TIME_TYPE>>(m, "ObservationSimulator_6",
                                                           get_docstring("ObservationSimulator_6").c_str() );
 
     m.def("simulate_observations",
-          &tss::simulateObservations<double, TIME_TYPE>,
+          &tss::simulateObservations<STATE_SCALAR_TYPE, TIME_TYPE>,
           py::arg("simulation_settings"),
           py::arg("observation_simulators" ),
           py::arg("bodies"),
@@ -300,7 +301,7 @@ void expose_estimation(py::module &m) {
 
 
     m.def("create_pseudo_observations_and_models",
-          &tss::simulatePseudoObservations<TIME_TYPE, double>,
+          &tss::simulatePseudoObservations<TIME_TYPE, STATE_SCALAR_TYPE>,
           py::arg("bodies"),
           py::arg("observed_bodies" ),
           py::arg("central_bodies" ),
@@ -310,7 +311,7 @@ void expose_estimation(py::module &m) {
           get_docstring("create_pseudo_observations_and_models").c_str() );
 
     m.def("create_best_fit_to_ephemeris",
-          &tss::createBestFitToCurrentEphemeris<TIME_TYPE, double>,
+          &tss::createBestFitToCurrentEphemeris<TIME_TYPE, STATE_SCALAR_TYPE>,
           py::arg("bodies"),
           py::arg("acceleration_models"),
           py::arg("observed_bodies" ),
@@ -325,7 +326,7 @@ void expose_estimation(py::module &m) {
           get_docstring("create_best_fit_to_ephemeris").c_str() );
 
     m.def("set_existing_observations",
-          &tss::setExistingObservations<double, TIME_TYPE>,
+          &tss::setExistingObservations<STATE_SCALAR_TYPE, TIME_TYPE>,
           py::arg("observations"),
           py::arg("reference_link_end" ),
           py::arg("ancilliary_settings_per_observatble" ) = std::map< tom::ObservableType,
@@ -350,88 +351,88 @@ void expose_estimation(py::module &m) {
           get_docstring("compute_target_angles_and_range").c_str() );
 
     m.def("create_residual_collection",
-          &tom::createResidualCollection< double, TIME_TYPE >,
+          &tom::createResidualCollection< STATE_SCALAR_TYPE, TIME_TYPE >,
           py::arg("observed_data"),
           py::arg("computed_data" ),
           get_docstring("create_residual_collection").c_str() );
 
     m.def("create_filtered_observation_collection",
-          &tom::filterResidualOutliers< double, TIME_TYPE >,
+          &tom::filterResidualOutliers< STATE_SCALAR_TYPE, TIME_TYPE >,
           py::arg("observed_data"),
           py::arg("residual_data" ),
           py::arg("cutoff_value_per_observable" ),
           get_docstring("create_filtered_residual_collection").c_str() );
 
-    py::class_< tom::ObservationCollection<double, TIME_TYPE>,
-            std::shared_ptr<tom::ObservationCollection<double, TIME_TYPE>>>(m, "ObservationCollection",
+    py::class_< tom::ObservationCollection<STATE_SCALAR_TYPE, TIME_TYPE>,
+            std::shared_ptr<tom::ObservationCollection<STATE_SCALAR_TYPE, TIME_TYPE>>>(m, "ObservationCollection",
                                                            get_docstring("ObservationCollection").c_str() )
-            .def(py::init< std::vector< std::shared_ptr< tom::SingleObservationSet< double, TIME_TYPE > > > >(),
+            .def(py::init< std::vector< std::shared_ptr< tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE > > > >(),
                  py::arg("observation_sets") )
-            .def_property_readonly("concatenated_times", &tom::ObservationCollection<double, TIME_TYPE>::getConcatenatedTimeVector,
+            .def_property_readonly("concatenated_times", &tom::ObservationCollection<STATE_SCALAR_TYPE, TIME_TYPE>::getConcatenatedTimeVector,
                                    get_docstring("ObservationCollection.concatenated_times").c_str() )
-            .def_property_readonly("concatenated_float_times", &tom::ObservationCollection<double, TIME_TYPE>::getConcatenatedDoubleTimeVector,
+            .def_property_readonly("concatenated_float_times", &tom::ObservationCollection<STATE_SCALAR_TYPE, TIME_TYPE>::getConcatenatedDoubleTimeVector,
                                    get_docstring("ObservationCollection.concatenated_times").c_str() )
-            .def_property_readonly("concatenated_weights", &tom::ObservationCollection<double, TIME_TYPE>::getConcatenatedWeightVector,
+            .def_property_readonly("concatenated_weights", &tom::ObservationCollection<STATE_SCALAR_TYPE, TIME_TYPE>::getConcatenatedWeightVector,
                                    get_docstring("ObservationCollection.concatenated_weights").c_str() )
-            .def_property_readonly("concatenated_observations", &tom::ObservationCollection<double, TIME_TYPE>::getObservationVector,
+            .def_property_readonly("concatenated_observations", &tom::ObservationCollection<STATE_SCALAR_TYPE, TIME_TYPE>::getObservationVector,
                                    get_docstring("ObservationCollection.concatenated_observations").c_str() )
-            .def_property_readonly("concatenated_link_definition_ids", &tom::ObservationCollection<double, TIME_TYPE>::getConcatenatedLinkEndIds,
+            .def_property_readonly("concatenated_link_definition_ids", &tom::ObservationCollection<STATE_SCALAR_TYPE, TIME_TYPE>::getConcatenatedLinkEndIds,
                                    get_docstring("ObservationCollection.concatenated_link_definition_ids").c_str() )
-            .def_property_readonly("link_definition_ids", &tom::ObservationCollection<double, TIME_TYPE>::getInverseLinkEndIdentifierMap,
+            .def_property_readonly("link_definition_ids", &tom::ObservationCollection<STATE_SCALAR_TYPE, TIME_TYPE>::getInverseLinkEndIdentifierMap,
                                    get_docstring("ObservationCollection.link_definition_ids").c_str() )
-            .def_property_readonly("observable_type_start_index_and_size", &tom::ObservationCollection<double, TIME_TYPE>::getObservationTypeStartAndSize,
+            .def_property_readonly("observable_type_start_index_and_size", &tom::ObservationCollection<STATE_SCALAR_TYPE, TIME_TYPE>::getObservationTypeStartAndSize,
                                    get_docstring("ObservationCollection.observable_type_start_index_and_size").c_str() )
-            .def_property_readonly("observation_set_start_index_and_size", &tom::ObservationCollection<double, TIME_TYPE>::getObservationSetStartAndSizePerLinkEndIndex,
+            .def_property_readonly("observation_set_start_index_and_size", &tom::ObservationCollection<STATE_SCALAR_TYPE, TIME_TYPE>::getObservationSetStartAndSizePerLinkEndIndex,
                                    get_docstring("ObservationCollection.observation_set_start_index_and_size").c_str() )
-            .def_property_readonly("observation_vector_size", &tom::ObservationCollection<double, TIME_TYPE>::getTotalObservableSize,
+            .def_property_readonly("observation_vector_size", &tom::ObservationCollection<STATE_SCALAR_TYPE, TIME_TYPE>::getTotalObservableSize,
                                    get_docstring("ObservationCollection.observation_vector_size").c_str() )
-            .def_property_readonly("sorted_observation_sets", &tom::ObservationCollection<double, TIME_TYPE>::getSortedObservationSets,
+            .def_property_readonly("sorted_observation_sets", &tom::ObservationCollection<STATE_SCALAR_TYPE, TIME_TYPE>::getSortedObservationSets,
                                    get_docstring("ObservationCollection.sorted_observation_sets").c_str() )
-            .def_property_readonly("link_ends_per_observable_type", &tom::ObservationCollection<double, TIME_TYPE>::getLinkEndsPerObservableType,
+            .def_property_readonly("link_ends_per_observable_type", &tom::ObservationCollection<STATE_SCALAR_TYPE, TIME_TYPE>::getLinkEndsPerObservableType,
                                    get_docstring("ObservationCollection.link_ends_per_observable_type").c_str() )
-            .def_property_readonly("link_definitions_per_observable", &tom::ObservationCollection<double, TIME_TYPE>::getLinkDefinitionsPerObservable,
+            .def_property_readonly("link_definitions_per_observable", &tom::ObservationCollection<STATE_SCALAR_TYPE, TIME_TYPE>::getLinkDefinitionsPerObservable,
                                    get_docstring("ObservationCollection.link_definitions_per_observable").c_str() )
-            .def_property_readonly("time_bounds", &tom::ObservationCollection<double, TIME_TYPE>::getTimeBounds,
+            .def_property_readonly("time_bounds", &tom::ObservationCollection<STATE_SCALAR_TYPE, TIME_TYPE>::getTimeBounds,
                                    get_docstring("ObservationCollection.time_bounds").c_str() )
-            .def_property_readonly("sorted_per_set_time_bounds", &tom::ObservationCollection<double, TIME_TYPE>::getSortedObservationSetsTimeBounds,
+            .def_property_readonly("sorted_per_set_time_bounds", &tom::ObservationCollection<STATE_SCALAR_TYPE, TIME_TYPE>::getSortedObservationSetsTimeBounds,
                                    get_docstring("ObservationCollection.time_bounds").c_str() )
-            .def("get_link_definitions_for_observables", &tom::ObservationCollection<double, TIME_TYPE>::getLinkDefinitionsForSingleObservable,
+            .def("get_link_definitions_for_observables", &tom::ObservationCollection<STATE_SCALAR_TYPE, TIME_TYPE>::getLinkDefinitionsForSingleObservable,
                  py::arg( "observable_type" ),
                  get_docstring("ObservationCollection.get_link_definitions_for_observables").c_str() )
-            .def("get_full_dependent_variable_vector", &tom::ObservationCollection<double, TIME_TYPE>::getFullDependentVariableVector,
+            .def("get_full_dependent_variable_vector", &tom::ObservationCollection<STATE_SCALAR_TYPE, TIME_TYPE>::getFullDependentVariableVector,
                  py::arg( "dependent_variable" ),
                  get_docstring("ObservationCollection.get_full_dependent_variable_vector").c_str() )
-            .def("get_single_link_and_type_observations", &tom::ObservationCollection<double, TIME_TYPE>::getSingleLinkAndTypeObservationSets,
+            .def("get_single_link_and_type_observations", &tom::ObservationCollection<STATE_SCALAR_TYPE, TIME_TYPE>::getSingleLinkAndTypeObservationSets,
                                    py::arg( "observable_type" ),
                                    py::arg( "link_definition" ),
                                    get_docstring("ObservationCollection.get_single_link_and_type_observations").c_str() );
 
-    py::class_< tom::SingleObservationSet<double, TIME_TYPE>,
-            std::shared_ptr<tom::SingleObservationSet<double, TIME_TYPE>>>(m, "SingleObservationSet",
+    py::class_< tom::SingleObservationSet<STATE_SCALAR_TYPE, TIME_TYPE>,
+            std::shared_ptr<tom::SingleObservationSet<STATE_SCALAR_TYPE, TIME_TYPE>>>(m, "SingleObservationSet",
                                                           get_docstring("SingleObservationSet").c_str() )
-            .def_property_readonly("observable_type", &tom::SingleObservationSet<double, TIME_TYPE>::getObservableType,
+            .def_property_readonly("observable_type", &tom::SingleObservationSet<STATE_SCALAR_TYPE, TIME_TYPE>::getObservableType,
                                    get_docstring("SingleObservationSet.observable_type").c_str() )
-            .def_property_readonly("link_definition", &tom::SingleObservationSet<double, TIME_TYPE>::getLinkEnds,
+            .def_property_readonly("link_definition", &tom::SingleObservationSet<STATE_SCALAR_TYPE, TIME_TYPE>::getLinkEnds,
                                    get_docstring("SingleObservationSet.link_definition").c_str() )
-            .def_property_readonly("reference_link_end", &tom::SingleObservationSet<double, TIME_TYPE>::getReferenceLinkEnd,
+            .def_property_readonly("reference_link_end", &tom::SingleObservationSet<STATE_SCALAR_TYPE, TIME_TYPE>::getReferenceLinkEnd,
                                    get_docstring("SingleObservationSet.reference_link_end").c_str() )
-            .def_property_readonly("list_of_observations", &tom::SingleObservationSet<double, TIME_TYPE>::getObservations,
+            .def_property_readonly("list_of_observations", &tom::SingleObservationSet<STATE_SCALAR_TYPE, TIME_TYPE>::getObservations,
                                    get_docstring("SingleObservationSet.list_of_observations").c_str() )
-            .def_property_readonly("observation_times", &tom::SingleObservationSet<double, TIME_TYPE>::getObservationTimes,
+            .def_property_readonly("observation_times", &tom::SingleObservationSet<STATE_SCALAR_TYPE, TIME_TYPE>::getObservationTimes,
                                    get_docstring("SingleObservationSet.observation_times").c_str() )
-            .def_property_readonly("concatenated_observations", &tom::SingleObservationSet<double, TIME_TYPE>::getObservationsVector,
+            .def_property_readonly("concatenated_observations", &tom::SingleObservationSet<STATE_SCALAR_TYPE, TIME_TYPE>::getObservationsVector,
                                    get_docstring("SingleObservationSet.concatenated_observations").c_str() )
-            .def_property_readonly("observations_history", &tom::SingleObservationSet<double, TIME_TYPE>::getObservationsHistory,
+            .def_property_readonly("observations_history", &tom::SingleObservationSet<STATE_SCALAR_TYPE, TIME_TYPE>::getObservationsHistory,
                                    get_docstring("SingleObservationSet.observations_history").c_str() )
-            .def_property_readonly("ancilliary_settings", &tom::SingleObservationSet<double, TIME_TYPE>::getAncilliarySettings,
+            .def_property_readonly("ancilliary_settings", &tom::SingleObservationSet<STATE_SCALAR_TYPE, TIME_TYPE>::getAncilliarySettings,
                                    get_docstring("SingleObservationSet.ancilliary_settings").c_str() )
-            .def_property("weights_vector", &tom::SingleObservationSet<double, TIME_TYPE>::getWeightsVector,
-                                            &tom::SingleObservationSet<double, TIME_TYPE>::setWeightsVector,
+            .def_property("weights_vector", &tom::SingleObservationSet<STATE_SCALAR_TYPE, TIME_TYPE>::getWeightsVector,
+                                            &tom::SingleObservationSet<STATE_SCALAR_TYPE, TIME_TYPE>::setWeightsVector,
                                    get_docstring("SingleObservationSet.weights_vector").c_str() );
 
 
     m.def("single_observation_set",
-          &tss::singleObservationSetWithoutDependentVariables< double, TIME_TYPE >,
+          &tss::singleObservationSetWithoutDependentVariables< STATE_SCALAR_TYPE, TIME_TYPE >,
           py::arg("observable_type"),
           py::arg("link_definition" ),
           py::arg("observations" ),
@@ -557,11 +558,11 @@ void expose_estimation(py::module &m) {
 
 
     py::class_<
-            tss::CovarianceAnalysisInput<double, TIME_TYPE>,
-            std::shared_ptr<tss::CovarianceAnalysisInput<double, TIME_TYPE>>>(m, "CovarianceAnalysisInput",
+            tss::CovarianceAnalysisInput<STATE_SCALAR_TYPE, TIME_TYPE>,
+            std::shared_ptr<tss::CovarianceAnalysisInput<STATE_SCALAR_TYPE, TIME_TYPE>>>(m, "CovarianceAnalysisInput",
                                                                            get_docstring("CovarianceAnalysisInput").c_str() )
             .def(py::init<
-                 const std::shared_ptr< tom::ObservationCollection<double, TIME_TYPE> >&,
+                 const std::shared_ptr< tom::ObservationCollection<STATE_SCALAR_TYPE, TIME_TYPE> >&,
                  const Eigen::MatrixXd,
                  const Eigen::MatrixXd  >( ),
                  py::arg( "observations_and_times" ),
@@ -569,50 +570,50 @@ void expose_estimation(py::module &m) {
                  py::arg( "consider_covariance" ) = Eigen::MatrixXd::Zero( 0, 0 ),
                  get_docstring("CovarianceAnalysisInput.ctor").c_str() )
             .def( "set_constant_weight",
-                  &tss::CovarianceAnalysisInput<double, TIME_TYPE>::setConstantWeightsMatrix,
+                  &tss::CovarianceAnalysisInput<STATE_SCALAR_TYPE, TIME_TYPE>::setConstantWeightsMatrix,
                   py::arg( "weight" ),
                   get_docstring("CovarianceAnalysisInput.set_constant_weight").c_str() )
             .def( "set_weights_from_observation_collection",
-                  &tss::CovarianceAnalysisInput<double, TIME_TYPE>::setWeightsFromObservationCollection,
+                  &tss::CovarianceAnalysisInput<STATE_SCALAR_TYPE, TIME_TYPE>::setWeightsFromObservationCollection,
                   get_docstring("CovarianceAnalysisInput.set_weights_from_observation_collection").c_str() )
             .def( "set_constant_single_observable_weight",
-                  &tss::CovarianceAnalysisInput<double, TIME_TYPE>::setConstantSingleObservableWeights,
+                  &tss::CovarianceAnalysisInput<STATE_SCALAR_TYPE, TIME_TYPE>::setConstantSingleObservableWeights,
                   py::arg( "observable_type" ),
                   py::arg( "weight" ),
                   get_docstring("CovarianceAnalysisInput.set_constant_single_observable_weight").c_str() )
             .def( "set_constant_single_observable_vector_weight",
-                  &tss::CovarianceAnalysisInput<double, TIME_TYPE>::setConstantSingleObservableVectorWeights,
+                  &tss::CovarianceAnalysisInput<STATE_SCALAR_TYPE, TIME_TYPE>::setConstantSingleObservableVectorWeights,
                   py::arg( "observable_type" ),
                   py::arg( "weight" ),
                   get_docstring("CovarianceAnalysisInput.set_constant_single_observable_vector_weight").c_str() )
             .def( "set_constant_single_observable_and_link_end_weight",
-                  &tss::CovarianceAnalysisInput<double, TIME_TYPE>::setConstantSingleObservableAndLinkEndsWeights,
+                  &tss::CovarianceAnalysisInput<STATE_SCALAR_TYPE, TIME_TYPE>::setConstantSingleObservableAndLinkEndsWeights,
                   py::arg( "observable_type" ),
                   py::arg( "link_ends" ),
                   py::arg( "weight" ),
                   get_docstring("CovarianceAnalysisInput.set_constant_single_observable_and_link_end_weight").c_str() )
             .def( "set_constant_single_observable_and_link_end_vector_weight",
-                  &tss::CovarianceAnalysisInput<double, TIME_TYPE>::setConstantSingleObservableAndLinkEndsVectorWeights,
+                  &tss::CovarianceAnalysisInput<STATE_SCALAR_TYPE, TIME_TYPE>::setConstantSingleObservableAndLinkEndsVectorWeights,
                   py::arg( "observable_type" ),
                   py::arg( "link_ends" ),
                   py::arg( "weight" ),
                   get_docstring("CovarianceAnalysisInput.set_constant_single_observable_and_link_end_vector_weight").c_str() )
             .def( "set_total_single_observable_and_link_end_vector_weight",
-                  &tss::CovarianceAnalysisInput<double, TIME_TYPE>::setTabulatedSingleObservableAndLinkEndsWeights,
+                  &tss::CovarianceAnalysisInput<STATE_SCALAR_TYPE, TIME_TYPE>::setTabulatedSingleObservableAndLinkEndsWeights,
                   py::arg( "observable_type" ),
                   py::arg( "link_ends" ),
                   py::arg( "weight_vector" ),
                   get_docstring("CovarianceAnalysisInput.set_total_single_observable_and_link_end_vector_weight").c_str() )
             .def( "set_constant_weight_per_observable",
-                  &tss::CovarianceAnalysisInput<double, TIME_TYPE>::setConstantPerObservableWeightsMatrix,
+                  &tss::CovarianceAnalysisInput<STATE_SCALAR_TYPE, TIME_TYPE>::setConstantPerObservableWeightsMatrix,
                   py::arg( "weight_per_observable" ),
                   get_docstring("CovarianceAnalysisInput.set_constant_weight_per_observable").c_str() )
             .def( "set_constant_vector_weight_per_observable",
-                  &tss::CovarianceAnalysisInput<double, TIME_TYPE>::setConstantPerObservableVectorWeightsMatrix,
+                  &tss::CovarianceAnalysisInput<STATE_SCALAR_TYPE, TIME_TYPE>::setConstantPerObservableVectorWeightsMatrix,
                   py::arg( "weight_per_observable" ),
                   get_docstring("CovarianceAnalysisInput.set_constant_vector_weight_per_observable").c_str() )
             .def( "define_covariance_settings",
-                  &tss::CovarianceAnalysisInput<double, TIME_TYPE>::defineCovarianceSettings,
+                  &tss::CovarianceAnalysisInput<STATE_SCALAR_TYPE, TIME_TYPE>::defineCovarianceSettings,
                   py::arg( "reintegrate_equations_on_first_iteration" ) = true,
                   py::arg( "reintegrate_variational_equations" ) = true,
                   py::arg( "save_design_matrix" ) = true,
@@ -620,17 +621,17 @@ void expose_estimation(py::module &m) {
                   py::arg( "limit_condition_number_for_warning" ) = 1.0E8,
                   get_docstring("CovarianceAnalysisInput.define_covariance_settings").c_str() )
             .def_property("weight_matrix_diagonal",
-                                   &tss::CovarianceAnalysisInput<double, TIME_TYPE>::getWeightsMatrixDiagonals,
-                                   &tss::CovarianceAnalysisInput<double, TIME_TYPE>::setWeightsMatrixDiagonals,
+                                   &tss::CovarianceAnalysisInput<STATE_SCALAR_TYPE, TIME_TYPE>::getWeightsMatrixDiagonals,
+                                   &tss::CovarianceAnalysisInput<STATE_SCALAR_TYPE, TIME_TYPE>::setWeightsMatrixDiagonals,
                                    get_docstring("CovarianceAnalysisInput.weight_matrix_diagonal").c_str() );
 
     py::class_<
-            tss::EstimationInput<double, TIME_TYPE>,
-            std::shared_ptr<tss::EstimationInput<double, TIME_TYPE>>,
-            tss::CovarianceAnalysisInput<double, TIME_TYPE>>(m, "EstimationInput",
+            tss::EstimationInput<STATE_SCALAR_TYPE, TIME_TYPE>,
+            std::shared_ptr<tss::EstimationInput<STATE_SCALAR_TYPE, TIME_TYPE>>,
+            tss::CovarianceAnalysisInput<STATE_SCALAR_TYPE, TIME_TYPE>>(m, "EstimationInput",
                                                           get_docstring("EstimationInput").c_str() )
             .def(py::init<
-                 const std::shared_ptr< tom::ObservationCollection<double, TIME_TYPE> >&,
+                 const std::shared_ptr< tom::ObservationCollection<STATE_SCALAR_TYPE, TIME_TYPE> >&,
                  const Eigen::MatrixXd,
                  std::shared_ptr< tss::EstimationConvergenceChecker >,
                  const Eigen::MatrixXd,
@@ -644,7 +645,7 @@ void expose_estimation(py::module &m) {
                  py::arg( "apply_final_parameter_correction" ) = true,
                  get_docstring("EstimationInput.ctor").c_str() )
             .def( "define_estimation_settings",
-                  &tss::EstimationInput<double, TIME_TYPE>::defineEstimationSettings,
+                  &tss::EstimationInput<STATE_SCALAR_TYPE, TIME_TYPE>::defineEstimationSettings,
                   py::arg( "reintegrate_equations_on_first_iteration" ) = true,
                   py::arg( "reintegrate_variational_equations" ) = true,
                   py::arg( "save_design_matrix" ) = true,
@@ -659,81 +660,81 @@ void expose_estimation(py::module &m) {
 
 
     py::class_<
-            tss::CovarianceAnalysisOutput<double, TIME_TYPE>,
-            std::shared_ptr<tss::CovarianceAnalysisOutput<double, TIME_TYPE>>>(m, "CovarianceAnalysisOutput",
+            tss::CovarianceAnalysisOutput<STATE_SCALAR_TYPE, TIME_TYPE>,
+            std::shared_ptr<tss::CovarianceAnalysisOutput<STATE_SCALAR_TYPE, TIME_TYPE>>>(m, "CovarianceAnalysisOutput",
                                                                             get_docstring("CovarianceAnalysisOutput").c_str() )
             .def_property_readonly("inverse_covariance",
-                                   &tss::CovarianceAnalysisOutput<double, TIME_TYPE>::getUnnormalizedInverseCovarianceMatrix,
+                                   &tss::CovarianceAnalysisOutput<STATE_SCALAR_TYPE, TIME_TYPE>::getUnnormalizedInverseCovarianceMatrix,
                                    get_docstring("CovarianceAnalysisOutput.inverse_covariance").c_str() )
             .def_property_readonly("covariance",
-                                   &tss::CovarianceAnalysisOutput<double, TIME_TYPE>::getUnnormalizedCovarianceMatrix,
+                                   &tss::CovarianceAnalysisOutput<STATE_SCALAR_TYPE, TIME_TYPE>::getUnnormalizedCovarianceMatrix,
                                    get_docstring("CovarianceAnalysisOutput.covariance").c_str() )
             .def_property_readonly("inverse_normalized_covariance",
-                                   &tss::CovarianceAnalysisOutput<double, TIME_TYPE>::getNormalizedInverseCovarianceMatrix,
+                                   &tss::CovarianceAnalysisOutput<STATE_SCALAR_TYPE, TIME_TYPE>::getNormalizedInverseCovarianceMatrix,
                                    get_docstring("CovarianceAnalysisOutput.inverse_normalized_covariance").c_str() )
             .def_property_readonly("normalized_covariance",
-                                   &tss::CovarianceAnalysisOutput<double, TIME_TYPE>::getNormalizedCovarianceMatrix,
+                                   &tss::CovarianceAnalysisOutput<STATE_SCALAR_TYPE, TIME_TYPE>::getNormalizedCovarianceMatrix,
                                    get_docstring("CovarianceAnalysisOutput.normalized_covariance").c_str() )
             .def_property_readonly("formal_errors",
-                                   &tss::CovarianceAnalysisOutput<double, TIME_TYPE>::getFormalErrorVector,
+                                   &tss::CovarianceAnalysisOutput<STATE_SCALAR_TYPE, TIME_TYPE>::getFormalErrorVector,
                                    get_docstring("CovarianceAnalysisOutput.formal_errors").c_str() )
             .def_property_readonly("correlations",
-                                   &tss::CovarianceAnalysisOutput<double, TIME_TYPE>::getCorrelationMatrix,
+                                   &tss::CovarianceAnalysisOutput<STATE_SCALAR_TYPE, TIME_TYPE>::getCorrelationMatrix,
                                    get_docstring("CovarianceAnalysisOutput.correlations").c_str() )
             .def_property_readonly("design_matrix",
-                                   &tss::CovarianceAnalysisOutput<double, TIME_TYPE>::getUnnormalizedDesignMatrix,
+                                   &tss::CovarianceAnalysisOutput<STATE_SCALAR_TYPE, TIME_TYPE>::getUnnormalizedDesignMatrix,
                                    get_docstring("CovarianceAnalysisOutput.design_matrix").c_str() )
             .def_property_readonly("normalized_design_matrix",
-                                   &tss::CovarianceAnalysisOutput<double, TIME_TYPE>::getNormalizedDesignMatrix,
+                                   &tss::CovarianceAnalysisOutput<STATE_SCALAR_TYPE, TIME_TYPE>::getNormalizedDesignMatrix,
                                    get_docstring("CovarianceAnalysisOutput.normalized_design_matrix").c_str() )
             .def_property_readonly("weighted_design_matrix",
-                                   &tss::CovarianceAnalysisOutput<double, TIME_TYPE>::getUnnormalizedWeightedDesignMatrix,
+                                   &tss::CovarianceAnalysisOutput<STATE_SCALAR_TYPE, TIME_TYPE>::getUnnormalizedWeightedDesignMatrix,
                                    get_docstring("CovarianceAnalysisOutput.weighted_design_matrix").c_str() )
             .def_property_readonly("weighted_normalized_design_matrix",
-                                   &tss::CovarianceAnalysisOutput<double, TIME_TYPE>::getNormalizedWeightedDesignMatrix,
+                                   &tss::CovarianceAnalysisOutput<STATE_SCALAR_TYPE, TIME_TYPE>::getNormalizedWeightedDesignMatrix,
                                    get_docstring("CovarianceAnalysisOutput.weighted_normalized_design_matrix").c_str() )
             .def_property_readonly("consider_covariance_contribution",
-                                   &tss::CovarianceAnalysisOutput<double, TIME_TYPE>::getConsiderCovarianceContribution,
+                                   &tss::CovarianceAnalysisOutput<STATE_SCALAR_TYPE, TIME_TYPE>::getConsiderCovarianceContribution,
                                    get_docstring("CovarianceAnalysisOutput.consider_covariance_contribution").c_str() )
             .def_property_readonly("normalized_covariance_with_consider_parameters",
-                                   &tss::CovarianceAnalysisOutput<double, TIME_TYPE>::getNormalizedCovarianceWithConsiderParameters,
+                                   &tss::CovarianceAnalysisOutput<STATE_SCALAR_TYPE, TIME_TYPE>::getNormalizedCovarianceWithConsiderParameters,
                                    get_docstring("CovarianceAnalysisOutput.normalized_covariance_with_consider_parameters").c_str() )
             .def_property_readonly("unnormalized_covariance_with_consider_parameters",
-                                   &tss::CovarianceAnalysisOutput<double, TIME_TYPE>::getUnnormalizedCovarianceWithConsiderParameters,
+                                   &tss::CovarianceAnalysisOutput<STATE_SCALAR_TYPE, TIME_TYPE>::getUnnormalizedCovarianceWithConsiderParameters,
                                    get_docstring("CovarianceAnalysisOutput.unnormalized_covariance_with_consider_parameters").c_str() )
             .def_property_readonly("normalized_design_matrix_consider_parameters",
-                                   &tss::CovarianceAnalysisOutput<double, TIME_TYPE>::getNormalizedDesignMatrixConsiderParameters,
+                                   &tss::CovarianceAnalysisOutput<STATE_SCALAR_TYPE, TIME_TYPE>::getNormalizedDesignMatrixConsiderParameters,
                                    get_docstring("CovarianceAnalysisOutput.normalized_design_matrix_consider_parameters").c_str() )
             .def_property_readonly("consider_normalization_factors",
-                                   &tss::CovarianceAnalysisOutput<double, TIME_TYPE>::getConsiderNormalizationFactors,
+                                   &tss::CovarianceAnalysisOutput<STATE_SCALAR_TYPE, TIME_TYPE>::getConsiderNormalizationFactors,
                                    get_docstring("CovarianceAnalysisOutput.consider_normalization_factors").c_str() )
             .def_readonly("normalization_terms",
-                          &tss::CovarianceAnalysisOutput<double, TIME_TYPE>::designMatrixTransformationDiagonal_,
+                          &tss::CovarianceAnalysisOutput<STATE_SCALAR_TYPE, TIME_TYPE>::designMatrixTransformationDiagonal_,
                           get_docstring("CovarianceAnalysisOutput.normalization_terms").c_str() );
 
 
     py::class_<
-            tss::EstimationOutput<double, TIME_TYPE>,
-            std::shared_ptr<tss::EstimationOutput<double, TIME_TYPE>>,
-            tss::CovarianceAnalysisOutput<double, TIME_TYPE>>(m, "EstimationOutput",
+            tss::EstimationOutput<STATE_SCALAR_TYPE, TIME_TYPE>,
+            std::shared_ptr<tss::EstimationOutput<STATE_SCALAR_TYPE, TIME_TYPE>>,
+            tss::CovarianceAnalysisOutput<STATE_SCALAR_TYPE, TIME_TYPE>>(m, "EstimationOutput",
                                                            get_docstring("EstimationOutput").c_str() )
             .def_property_readonly("residual_history",
-                                   &tss::EstimationOutput<double, TIME_TYPE>::getResidualHistoryMatrix,
+                                   &tss::EstimationOutput<STATE_SCALAR_TYPE, TIME_TYPE>::getResidualHistoryMatrix,
                                    get_docstring("EstimationOutput.residual_history").c_str() )
             .def_property_readonly("parameter_history",
-                                   &tss::EstimationOutput<double, TIME_TYPE>::getParameterHistoryMatrix,
+                                   &tss::EstimationOutput<STATE_SCALAR_TYPE, TIME_TYPE>::getParameterHistoryMatrix,
                                    get_docstring("EstimationOutput.parameter_history").c_str() )
             .def_property_readonly("simulation_results_per_iteration",
-                                   &tss::EstimationOutput<double, TIME_TYPE>::getSimulationResults,
+                                   &tss::EstimationOutput<STATE_SCALAR_TYPE, TIME_TYPE>::getSimulationResults,
                                    get_docstring("EstimationOutput.simulation_results_per_iteration").c_str() )
             .def_readonly("final_residuals",
-                          &tss::EstimationOutput<double, TIME_TYPE>::residuals_,
+                          &tss::EstimationOutput<STATE_SCALAR_TYPE, TIME_TYPE>::residuals_,
                           get_docstring("EstimationOutput.final_residuals").c_str() )
             .def_readonly("final_parameters",
-                          &tss::EstimationOutput<double, TIME_TYPE>::parameterEstimate_,
+                          &tss::EstimationOutput<STATE_SCALAR_TYPE, TIME_TYPE>::parameterEstimate_,
                           get_docstring("EstimationOutput.final_parameters").c_str() )
             .def_readonly("best_iteration",
-                          &tss::EstimationOutput<double, TIME_TYPE>::bestIteration_,
+                          &tss::EstimationOutput<STATE_SCALAR_TYPE, TIME_TYPE>::bestIteration_,
                           get_docstring("EstimationOutput.best_iteration").c_str() );
 
     m.attr("PodOutput") = m.attr("EstimationOutput");
