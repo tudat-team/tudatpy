@@ -249,7 +249,7 @@ inline std::map< int, std::vector< std::string > > getDefaultDsnStationNamesPerC
  * Returns the approximate position of the specified ground station. Currently only implemented for DSN stations.
  *
  * @param stationName Station name
- * @return Ground station position.
+ * @return Ground station position.getApproximateGroundStationPositionsFromFile
  */
 Eigen::Vector3d getApproximateGroundStationPosition( std::string stationName );
 
