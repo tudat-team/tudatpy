@@ -28,7 +28,8 @@ from tudatpy.kernel.math.interpolators import \
 from tudatpy.kernel.math.interpolators import \
      AvailableLookupScheme, \
      BoundaryInterpolationType, \
-     InterpolatorGenerationSettings, \
+     InterpolatorGenerationSettingsTime, \
+     InterpolatorGenerationSettingsFloat, \
      InterpolatorSettings, \
      LagrangeInterpolatorBoundaryHandling, \
      LagrangeInterpolatorSettings, \

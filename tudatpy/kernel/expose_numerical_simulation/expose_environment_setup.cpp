@@ -24,8 +24,8 @@
 #include "expose_environment_setup/expose_rigid_body_setup.h"
 #include "expose_environment_setup/expose_vehicle_systems_setup.h"
 
-#include "tudatpy/docstrings.h"
-#include "tudatpy/scalarTypes.h"
+#include "docstrings.h"
+#include "scalarTypes.h"
 
 #include <tudat/simulation/environment_setup.h>
 #include <tudat/astro/reference_frames/referenceFrameTransformations.h>
@@ -162,7 +162,7 @@ namespace environment_setup {
               py::arg("bodies"),
               py::arg("body_name"),
               py::arg("ephemeris_origin") = "",
-              py::arg("is_part_of_multi_arc") = false,
+              py::arg("is_part_of_multi_arc" ) = false,
               get_docstring("add_empty_tabulated_ephemeris").c_str());
 
         m.def("create_tabulated_ephemeris_from_spice",

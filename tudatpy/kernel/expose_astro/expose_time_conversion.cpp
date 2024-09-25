@@ -11,10 +11,10 @@
 #include <chrono>
 #include <ctime>
 
-#include "tudatpy/docstrings.h"
+#include "docstrings.h"
 
 #include "expose_time_conversion.h"
-#include "tudatpy/scalarTypes.h"
+#include "scalarTypes.h"
 
 #include <boost/date_time/gregorian/gregorian.hpp>
 
@@ -115,7 +115,8 @@ namespace tudatpy {
 namespace astro {
 namespace time_conversion {
 
-void expose_time_conversion(py::module &m) {
+void expose_time_conversion(py::module &m)
+{
 
 //    m.attr("default_time_converter") = tudat::earth_orientation::defaultTimeConverter;
 
@@ -293,7 +294,13 @@ void expose_time_conversion(py::module &m) {
                   py::arg( "input_scale" ),
                   py::arg( "output_scale" ),
                   py::arg( "input_value" ),
+                  py::arg( "earth_fixed_position" ) = Eigen::Vector3d::Zero( ) )
+            .def( "get_time_difference", &teo::TerrestrialTimeScaleConverter::getCurrentTimeDifference< double >,
+                  py::arg( "input_scale" ),
+                  py::arg( "output_scale" ),
+                  py::arg( "input_value" ),
                   py::arg( "earth_fixed_position" ) = Eigen::Vector3d::Zero( ) );
+
 
     py::class_< tba::DateTime >( m,"DateTime", get_docstring("DateTime").c_str())
         .def(py::init<

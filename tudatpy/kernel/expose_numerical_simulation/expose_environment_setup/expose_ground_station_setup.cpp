@@ -10,7 +10,7 @@
 
 #include "expose_ground_station_setup.h"
 
-#include "tudatpy/docstrings.h"
+#include "docstrings.h"
 #include <tudat/simulation/environment_setup/createGroundStations.h>
 #include <tudat/simulation/environment_setup/defaultBodies.h>
 #include <pybind11/eigen.h>
