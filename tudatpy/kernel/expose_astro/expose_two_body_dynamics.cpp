@@ -8,7 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include "tudatpy/docstrings.h"
+#include "docstrings.h"
 
 #include "expose_two_body_dynamics.h"
 

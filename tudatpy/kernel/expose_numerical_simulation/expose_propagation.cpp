@@ -8,8 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include "tudatpy/docstrings.h"
-#include "tudatpy/scalarTypes.h"
+#include "docstrings.h"
+#include "scalarTypes.h"
 
 #include <tudat/astro/aerodynamics/aerodynamicGuidance.h>
 #include <tudat/astro/basic_astro.h>
@@ -232,8 +232,7 @@ void expose_propagation(py::module &m)
     py::class_<
             tp::SingleArcSimulationResults<double, TIME_TYPE>,
             std::shared_ptr<tp::SingleArcSimulationResults<double, TIME_TYPE>>,
-            tp::SimulationResults<double, TIME_TYPE> >(m, "SingleArcSimulationResults"
-                                                          "cd",
+            tp::SimulationResults<double, TIME_TYPE> >(m, "SingleArcSimulationResults",
                                                        get_docstring("SingleArcSimulationResults").c_str())
             .def_property_readonly("state_history",
                                    &tp::SingleArcSimulationResults<double, TIME_TYPE>::getEquationsOfMotionNumericalSolution,

@@ -10,8 +10,8 @@
 
 #include "expose_interpolators.h"
 
-#include "tudatpy/docstrings.h"
-#include "tudatpy/scalarTypes.h"
+#include "docstrings.h"
+#include "scalarTypes.h"
 
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
@@ -83,9 +83,9 @@ void expose_interpolators(py::module &m) {
             std::shared_ptr<ti::InterpolatorSettings>>(m, "InterpolatorSettings",
                                                        get_docstring("InterpolatorSettings").c_str());
 
-    py::class_<ti::InterpolatorGenerationSettings<TIME_TYPE>,
-        std::shared_ptr<ti::InterpolatorGenerationSettings<TIME_TYPE>>>(m, "InterpolatorGenerationSettings",
-                                                   get_docstring("InterpolatorGenerationSettings").c_str());
+    py::class_<ti::InterpolatorGenerationSettings<tudat::Time>,
+        std::shared_ptr<ti::InterpolatorGenerationSettings<tudat::Time>>>(m, "InterpolatorGenerationSettingsTime",
+                                                   get_docstring("InterpolatorGenerationSettingsTime").c_str());
 
     py::class_<ti::InterpolatorGenerationSettings<double>,
         std::shared_ptr<ti::InterpolatorGenerationSettings<double>>>(m, "InterpolatorGenerationSettingsFloat",

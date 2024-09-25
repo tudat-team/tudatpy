@@ -10,7 +10,7 @@
 
 #include "expose_shape_deformation_setup.h"
 
-#include "tudatpy/docstrings.h"
+#include "docstrings.h"
 #include <tudat/simulation/environment_setup/createBodyDeformationModel.h>
 
 #include <pybind11/eigen.h>

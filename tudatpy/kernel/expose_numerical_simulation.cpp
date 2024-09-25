@@ -8,8 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include "tudatpy/docstrings.h"
-#include "tudatpy/scalarTypes.h"
+#include "docstrings.h"
+#include "scalarTypes.h"
 
 #include "expose_numerical_simulation.h"
 
@@ -162,6 +162,8 @@ void expose_numerical_simulation(py::module &m) {
                  py::arg("print_number_of_function_evaluations") = false,
                  py::arg("print_dependent_variable_data") = true,
                  py::arg("print_state_data") = true)
+            .def_property_readonly("bodies",
+                                   &tp::SingleArcDynamicsSimulator<double, TIME_TYPE>::getSystemOfBodies)
             .def_property_readonly("state_history",
                                    &tp::SingleArcDynamicsSimulator<double, TIME_TYPE>::getEquationsOfMotionNumericalSolution)
             .def_property_readonly("unprocessed_state_history",

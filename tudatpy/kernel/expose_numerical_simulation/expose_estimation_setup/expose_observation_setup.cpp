@@ -18,8 +18,8 @@
 #include "tudat/simulation/estimation_setup/processOdfFile.h"
 #include "tudat/simulation/estimation_setup/processTrackingTxtFile.h"
 
-#include "tudatpy/docstrings.h"
-#include "tudatpy/scalarTypes.h"
+#include "docstrings.h"
+#include "scalarTypes.h"
 
 namespace tss = tudat::simulation_setup;
 namespace tom = tudat::observation_models;
@@ -567,8 +567,8 @@ void expose_observation_setup(py::module &m) {
 
     m.def("inverse_power_series_solar_corona_light_time_correction",
           &tom::inversePowerSeriesSolarCoronaCorrectionSettings,
-          py::arg("coefficients") = std::vector< double >{ 1.31 * 5.97e-6 },
-          py::arg("positive_exponents") = std::vector< double >{ 2.0 },
+          py::arg("coefficients") = std::vector< double >{ 1.3e14, 0.5e12 },
+          py::arg("positive_exponents") = std::vector< double >{ 6.0, 2.0 },
           py::arg("delay_coefficient") = 40.3,
           py::arg("sun_body_name") = "Sun",
           get_docstring("inverse_power_series_solar_corona_light_time_correction").c_str() );
@@ -654,6 +654,10 @@ void expose_observation_setup(py::module &m) {
           &tom::multipleObservationBiasSettings,
           py::arg("bias_list"),
           get_docstring("combined_bias").c_str() );
+
+    m.def("two_way_time_scale_range_bias",
+          &tom::twoWayTimeScaleRangeBias,
+          get_docstring("two_way_time_scale_range_bias").c_str() );
 
 
     // ###########    Observation Simulation Settings     #############
@@ -1194,21 +1198,21 @@ void expose_observation_setup(py::module &m) {
   // Tracking Txt OBSERVATIONS
   /////////////////////////////////////////////////////////////////////////////////////////////////
 
-//    m.def("create_tracking_txtfile_observation_collection",
-//        py::overload_cast<
-//            const std::shared_ptr<tudat::input_output::TrackingTxtFileContents>,
-//            const std::string,
-//            const std::vector<tom::ObservableType>,
-//            const std::map<std::string, Eigen::Vector3d>,
-//            const tom::ObservationAncilliarySimulationSettings&,
-//            std::pair<TIME_TYPE, TIME_TYPE>>(&tom::createTrackingTxtFileObservationCollection<double, TIME_TYPE>),
-//        py::arg("raw_tracking_txtfile_contents"),
-//        py::arg("spacecraft_name"),
-//        py::arg("observable_types_to_process") = std::vector<tom::ObservableType>(),
-//        py::arg("earth_fixed_ground_station_positions") = tss::getApproximateDsnGroundStationPositions(),
-//        py::arg("ancillary_settings") = tom::ObservationAncilliarySimulationSettings(),
-//        py::arg("start_and_end_times_to_process") = std::make_pair<TIME_TYPE, TIME_TYPE>(TUDAT_NAN, TUDAT_NAN),
-//        get_docstring("create_tracking_txtfile_observation_collection").c_str());
+    m.def("create_tracking_txtfile_observation_collection",
+        py::overload_cast<
+            const std::shared_ptr<tudat::input_output::TrackingTxtFileContents>,
+            const std::string,
+            const std::vector<tom::ObservableType>,
+            const std::map<std::string, Eigen::Vector3d>,
+            const tom::ObservationAncilliarySimulationSettings&,
+            std::pair<TIME_TYPE, TIME_TYPE>>(&tom::createTrackingTxtFileObservationCollection<double, TIME_TYPE>),
+        py::arg("raw_tracking_txtfile_contents"),
+        py::arg("spacecraft_name"),
+        py::arg("observable_types_to_process") = std::vector<tom::ObservableType>(),
+        py::arg("earth_fixed_ground_station_positions") = tss::getApproximateDsnGroundStationPositions(),
+        py::arg("ancillary_settings") = tom::ObservationAncilliarySimulationSettings(),
+        py::arg("start_and_end_times_to_process") = std::make_pair<TIME_TYPE, TIME_TYPE>(TUDAT_NAN, TUDAT_NAN),
+        get_docstring("create_tracking_txtfile_observation_collection").c_str());
 
     m.def("observation_settings_from_collection",
           py::overload_cast<std::shared_ptr<tom::ObservationCollection<double, TIME_TYPE> >>(

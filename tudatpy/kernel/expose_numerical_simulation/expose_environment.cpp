@@ -8,11 +8,11 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include "tudatpy/scalarTypes.h"
+#include "scalarTypes.h"
 #include "expose_environment.h"
 #include <tudat/basics/deprecationWarnings.h>
 
-#include "tudatpy/docstrings.h"
+#include "docstrings.h"
 
 #include <tudat/astro/aerodynamics.h>
 #include <tudat/astro/ephemerides.h>
@@ -306,6 +306,9 @@ void expose_environment(py::module &m) {
                          &tsm::VehicleSystems::setTransponderTurnaroundRatio),
                  py::arg("transponder_ratio_per_uplink_and_downlink_frequency_band"),
                  get_docstring("VehicleSystems.set_transponder_turnaround_ratio").c_str() )
+            .def("set_default_transponder_turnaround_ratio_function",
+                 &tsm::VehicleSystems::setDefaultTransponderTurnaroundRatio,
+                 get_docstring("VehicleSystems.set_default_transponder_turnaround_ratio_function").c_str() )
             .def("get_control_surface_deflection",
                  &tsm::VehicleSystems::getCurrentControlSurfaceDeflection,
                   py::arg("control_surface_id"),
