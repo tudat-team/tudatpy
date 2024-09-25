@@ -507,7 +507,7 @@ public:
     //! Constructor, sets initial value of translational state and a single central body.
     /*!
      * Constructor, sets initial value of translational state and a single central body
-     * \param associatedBody Body for which initial state is to be estimated.
+     * \param associatedBody Bo9dy for which initial state is to be estimated.
      * \param initialStateValue Current value of initial arc states (concatenated in same order as arcs)
      * \param arcStartTimes Start times for separate arcs
      * \param centralBody Body w.r.t. which the initial state is to be estimated.
@@ -898,6 +898,57 @@ public:
     bool useComplexValue_;
 
 };
+
+inline std::map< std::pair< int, int >, std::vector< std::pair< int, int > > > getFullModeCoupledLoveNumbers(
+    const unsigned int maximumForcingDegree, const unsigned int maximumResponseDegree )
+{
+    std::map< std::pair< int, int >, std::vector< std::pair< int, int > > > loveNumberIndices;
+
+    for( unsigned int i = 2; i < maximumForcingDegree; i++ )
+    {
+        for( unsigned int j = 0; j <= i; j++ )
+        {
+            for( unsigned int k = 2; k < maximumResponseDegree; k++ )
+            {
+                for( unsigned int l = 0; l <= k; k++ )
+                {
+                    loveNumberIndices[{i,j}].push_back({k,l});
+                }
+            }
+        }
+    }
+    return loveNumberIndices;
+}
+
+class ModeCoupledTidalLoveNumberEstimatableParameterSettings: public EstimatableParameterSettings
+{
+public:
+
+    //! Constructor for a single deforming body
+    /*!
+     * Constructor for a single deforming body
+     * \param associatedBody Deformed body
+     * \param degree Degree of Love number that is to be estimated
+     * \param deformingBody Name of body causing tidal deformation
+     * \param useComplexValue True if the complex Love number is estimated, false if only the real part is considered
+     */
+    ModeCoupledTidalLoveNumberEstimatableParameterSettings( const std::string& associatedBody,
+                                                            const std::map< std::pair< int, int >, std::vector< std::pair< int, int > > > loveNumberIndices,
+                                                            const std::vector< std::string >& deformingBodies,
+                                                            const bool useComplexValue = 0 ):
+        EstimatableParameterSettings( associatedBody, mode_coupled_tidal_love_numbers ),
+        loveNumberIndices_( loveNumberIndices ),
+        deformingBodies_( deformingBodies ), useComplexValue_( useComplexValue ){ }
+
+    std::map< std::pair< int, int >, std::vector< std::pair< int, int > > > loveNumberIndices_;
+
+    //! Names of bodies causing tidal deformation
+    std::vector< std::string > deformingBodies_;
+
+    bool useComplexValue_;
+
+};
+
 
 //! Class to define settings for estimating the tidal time lag of a direct tidal acceleration model
 /*!
@@ -1439,6 +1490,14 @@ inline std::shared_ptr< EstimatableParameterSettings > orderVaryingKLoveNumber(
                 associatedBody, degree, orders, std::vector< std::string >( ), useComplexValue );
 }
 
+inline std::shared_ptr< EstimatableParameterSettings > modeCoupledTidalLoveNumberEstimatableParameterSettings(
+    const std::string& associatedBody,
+    const std::map< std::pair< int, int >, std::vector< std::pair< int, int > > > loveNumberIndices,
+    const std::vector< std::string >& deformingBodies )
+{
+    return std::make_shared< ModeCoupledTidalLoveNumberEstimatableParameterSettings >(
+        associatedBody, loveNumberIndices, deformingBodies, 0 );
+}
 
 inline std::shared_ptr< EstimatableParameterSettings > coreFactor(
         const std::string& associatedBody )
