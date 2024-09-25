@@ -11,7 +11,7 @@
 #include "expose_mass_rate_setup.h"
 #include <tudat/basics/deprecationWarnings.h>
 
-#include "tudatpy/docstrings.h"
+#include "docstrings.h"
 #include <tudat/simulation/propagation_setup.h>
 
 #include <pybind11/chrono.h>
