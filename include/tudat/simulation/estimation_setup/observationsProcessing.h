@@ -254,7 +254,7 @@ enum ObservationParserType
     empty_parser,
     observable_type_parser,
     link_ends_parser,
-    link_end_id_parser,
+    link_end_string_parser,
     time_bounds_parser,
     ancillary_settings_parser,
     multi_type_parser
@@ -336,22 +336,22 @@ protected:
 
 };
 
-struct ObservationCollectionLinkEndIdParser : public ObservationCollectionParser
+struct ObservationCollectionLinkEndStringParser : public ObservationCollectionParser
 {
 public:
 
-    ObservationCollectionLinkEndIdParser( const std::string linkEndsNames,
+    ObservationCollectionLinkEndStringParser( const std::string linkEndsNames,
                                           const bool isReferencePoint = false,
                                           const bool useOppositeCondition = false ) :
-            ObservationCollectionParser( link_end_id_parser, useOppositeCondition ), linkEndsNames_( std::vector< std::string >( { linkEndsNames } ) ),
+            ObservationCollectionParser( link_end_string_parser, useOppositeCondition ), linkEndsNames_( std::vector< std::string >( { linkEndsNames } ) ),
             isReferencePoint_( isReferencePoint ){ }
 
-    ObservationCollectionLinkEndIdParser( const std::vector< std::string > linkEndsNames,
+    ObservationCollectionLinkEndStringParser( const std::vector< std::string > linkEndsNames,
                                           const bool isReferencePoint = false,
                                           const bool useOppositeCondition = false ) :
-            ObservationCollectionParser( link_end_id_parser, useOppositeCondition ), linkEndsNames_( linkEndsNames ), isReferencePoint_( isReferencePoint ){ }
+            ObservationCollectionParser( link_end_string_parser, useOppositeCondition ), linkEndsNames_( linkEndsNames ), isReferencePoint_( isReferencePoint ){ }
 
-    virtual ~ObservationCollectionLinkEndIdParser( ){ }
+    virtual ~ObservationCollectionLinkEndStringParser( ){ }
 
     std::vector< std::string > getLinkEndNames( ) const
     {
@@ -473,13 +473,13 @@ inline std::shared_ptr< ObservationCollectionParser > observationParser( const s
 
 inline std::shared_ptr< ObservationCollectionParser > observationParser( const std::string bodyName, const bool isReferencePoint = false, const bool useOppositeCondition = false )
 {
-    return std::make_shared< ObservationCollectionLinkEndIdParser >( bodyName, isReferencePoint, useOppositeCondition );
+    return std::make_shared< ObservationCollectionLinkEndStringParser >( bodyName, isReferencePoint, useOppositeCondition );
 }
 
 inline std::shared_ptr< ObservationCollectionParser > observationParser( const std::vector< std::string >& bodyNames,
                                                                          const bool isReferencePoint = false, const bool useOppositeCondition = false )
 {
-    return std::make_shared< ObservationCollectionLinkEndIdParser >( bodyNames, isReferencePoint, useOppositeCondition );
+    return std::make_shared< ObservationCollectionLinkEndStringParser >( bodyNames, isReferencePoint, useOppositeCondition );
 }
 
 inline std::shared_ptr< ObservationCollectionParser > observationParser( const std::pair< double, double >& timeBounds, const bool useOppositeCondition = false )

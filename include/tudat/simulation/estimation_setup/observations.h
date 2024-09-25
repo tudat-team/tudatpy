@@ -119,6 +119,11 @@ public:
         return linkEnds_;
     }
 
+    void setLinkEnds( LinkDefinition& linkEnds )
+    {
+        linkEnds_ = linkEnds;
+    }
+
     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > getObservations( )
     {
         return observations_;
@@ -830,7 +835,7 @@ private:
 
     const ObservableType observableType_;
 
-    const LinkDefinition linkEnds_;
+    LinkDefinition linkEnds_;
 
     std::pair< TimeType, TimeType > timeBounds_;
 
@@ -2139,10 +2144,10 @@ public:
                 }
                 break;
             }
-            case link_end_id_parser:
+            case link_end_string_parser:
             {
-                std::shared_ptr< ObservationCollectionLinkEndIdParser > linkEndIdObservationParser =
-                        std::dynamic_pointer_cast< ObservationCollectionLinkEndIdParser >( observationParser );
+                std::shared_ptr< ObservationCollectionLinkEndStringParser > linkEndIdObservationParser =
+                        std::dynamic_pointer_cast< ObservationCollectionLinkEndStringParser >( observationParser );
                 std::vector< std::string > linkEndsNames = linkEndIdObservationParser->getLinkEndNames( );
                 bool isReferencePoint = linkEndIdObservationParser->isReferencePoint( );
 

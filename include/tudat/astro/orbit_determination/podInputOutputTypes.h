@@ -120,8 +120,12 @@ public:
     {
         std::cerr << "Warning, function setConstantSingleObservableAndLinkEndsWeights is deprecated, "
                      "weights should preferably be defined at the observation collection level.";
-        observationCollection_->setConstantWeightPerObservable( observationParser( std::vector< std::shared_ptr< observation_models::ObservationCollectionParser > >(
-                { observationParser( currentObservable ), observationParser( currentLinkEnds ) } ) ), weight );
+        std::map< std::shared_ptr< observation_models::ObservationCollectionParser >, double > weightsPerParser;
+        std::shared_ptr< observation_models::ObservationCollectionParser > multiTypeParser = observationParser(
+                std::vector< std::shared_ptr< observation_models::ObservationCollectionParser > >(
+                        { observationParser( currentObservable ), observationParser( currentLinkEnds ) } ) );
+        weightsPerParser[ multiTypeParser ] = weight;
+        observationCollection_->setConstantWeightPerObservable( weightsPerParser );
     }
 
     //! Set constant vector weight for all observables of given type and link ends
@@ -132,8 +136,12 @@ public:
     {
         std::cerr << "Warning, function setConstantSingleObservableAndLinkEndsVectorWeights is deprecated, "
                      "weights should preferably be defined at the observation collection level.";
-        observationCollection_->setConstantWeightPerObservable( observationParser( std::vector< std::shared_ptr< observation_models::ObservationCollectionParser > >(
-                { observationParser( currentObservable ), observationParser( currentLinkEnds ) } ) ), weight );
+        std::map< std::shared_ptr< observation_models::ObservationCollectionParser >, Eigen::VectorXd > weightsPerParser;
+        std::shared_ptr< observation_models::ObservationCollectionParser > multiTypeParser = observationParser(
+                std::vector< std::shared_ptr< observation_models::ObservationCollectionParser > >(
+                        { observationParser( currentObservable ), observationParser( currentLinkEnds ) } ) );
+        weightsPerParser[ multiTypeParser ] = weight;
+        observationCollection_->setConstantWeightPerObservable( weightsPerParser );
     }
 
     //! Set constant vector weight for all observables of given type and link ends
@@ -144,8 +152,8 @@ public:
     {
         std::cerr << "Warning, function setTabulatedSingleObservableAndLinkEndsWeights is deprecated, "
                      "weights should preferably be defined at the observation collection level.";
-        observationCollection_->setTabulatedWeights( observationParser( std::vector< std::shared_ptr< observation_models::ObservationCollectionParser > >(
-                { observationParser( currentObservable ), observationParser( currentLinkEnds ) } ) ), weight );
+        observationCollection_->setTabulatedWeights( weight, observationParser( std::vector< std::shared_ptr< observation_models::ObservationCollectionParser > >(
+                { observationParser( currentObservable ), observationParser( currentLinkEnds ) } ) ) );
     }
 
 
