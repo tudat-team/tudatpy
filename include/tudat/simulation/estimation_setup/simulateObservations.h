@@ -550,7 +550,7 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
         std::shared_ptr< observation_models::SingleObservationSet<ObservationScalarType,TimeType> > observationSet =
                 std::make_shared< observation_models::SingleObservationSet<ObservationScalarType,TimeType> >(
                         observableType, linkEnds, observationsTimesAndValues.first, observationsTimesAndValues.second, referenceLinkEnd,
-                     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >( ), nullptr, currentAncilliarySettings );
+                     std::vector< Eigen::VectorXd >( ), nullptr, currentAncilliarySettings );
 
         sortedObservations[ observableType ][ linkEnds ].push_back( observationSet );
 
