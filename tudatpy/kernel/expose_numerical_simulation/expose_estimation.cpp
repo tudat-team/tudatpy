@@ -14,8 +14,8 @@
 #include "tudat/astro/propagators/propagateCovariance.h"
 #include "tudat/basics/utilities.h"
 
-#include "tudatpy/docstrings.h"
-#include "tudatpy/scalarTypes.h"
+#include "docstrings.h"
+#include "scalarTypes.h"
 
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
@@ -570,6 +570,8 @@ void expose_estimation(py::module &m) {
                                    get_docstring("ObservationCollection.concatenated_times").c_str() )
             .def_property_readonly("concatenated_float_times", &tom::ObservationCollection<double, TIME_TYPE>::getConcatenatedDoubleTimeVector,
                                    get_docstring("ObservationCollection.concatenated_times").c_str() )
+            .def_property_readonly("concatenated_weights", &tom::ObservationCollection<double, TIME_TYPE>::getConcatenatedWeightVector,
+                                   get_docstring("ObservationCollection.concatenated_weights").c_str() )
             .def_property_readonly("concatenated_observations", &tom::ObservationCollection<double, TIME_TYPE>::getObservationVector,
                                    get_docstring("ObservationCollection.concatenated_observations").c_str() )
             .def_property_readonly("concatenated_link_definition_ids", &tom::ObservationCollection<double, TIME_TYPE>::getConcatenatedLinkEndIds,
@@ -1006,6 +1008,9 @@ void expose_estimation(py::module &m) {
                   &tss::CovarianceAnalysisInput<double, TIME_TYPE>::setConstantWeightsMatrix,
                   py::arg( "weight" ),
                   get_docstring("CovarianceAnalysisInput.set_constant_weight").c_str() )
+            .def( "set_weights_from_observation_collection",
+                  &tss::CovarianceAnalysisInput<double, TIME_TYPE>::setWeightsFromObservationCollection,
+                  get_docstring("CovarianceAnalysisInput.set_weights_from_observation_collection").c_str() )
             .def( "set_constant_single_observable_weight",
                   &tss::CovarianceAnalysisInput<double, TIME_TYPE>::setConstantSingleObservableWeights,
                   py::arg( "observable_type" ),
