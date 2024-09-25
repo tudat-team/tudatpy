@@ -122,7 +122,7 @@ std::shared_ptr< EstimationOutput< StateScalarType, TimeType > > createBestFitTo
 
     std::pair< std::vector< std::shared_ptr< observation_models::ObservationModelSettings > >,
         std::shared_ptr< observation_models::ObservationCollection< StateScalarType, TimeType > > >
-        observationCollectionAndModelSettings = simulatePseudoObservations(
+        observationCollectionAndModelSettings = simulatePseudoObservations< TimeType, StateScalarType >(
             bodies, bodiesToPropagate, centralBodies, initialTime, finalTime, dataPointInterval  );
     std::shared_ptr< observation_models::ObservationCollection< StateScalarType, TimeType > > observationCollection = observationCollectionAndModelSettings.second;
 

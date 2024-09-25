@@ -419,7 +419,7 @@ public:
         return utilities::staticCastVector<double, TimeType>( concatenatedTimes_ );
     }
 
-    std::vector< TimeType > getConcatenatedWeightVector( )
+    std::vector< ObservationScalarType > getConcatenatedWeightVector( )
     {
         // for now, this only takes the weights set from the single observation sets.
         // TODO may require a change later to accomodate other sources.
@@ -1126,7 +1126,7 @@ inline std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > 
 {
     return std::make_shared< SingleObservationSet< ObservationScalarType, TimeType > >(
                 observableType, linkEnds, observations, observationTimes, referenceLinkEnd,
-                std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >( ), nullptr, ancilliarySettings );
+                std::vector< Eigen::VectorXd >( ), nullptr, ancilliarySettings );
 }
 
 //template< typename ObservationScalarType = double, typename TimeType = double,
