@@ -11,10 +11,6 @@
 #ifndef TUDAT_CREATEOBSERVATIONMODEL_H
 #define TUDAT_CREATEOBSERVATIONMODEL_H
 
-// FIXME: Remove checkpoints (for debugging)
-#define CHECKPOINT std::cout << __FILE__ << ":" << __LINE__ << " TEST CHECKPOINT" << std::endl;
-
-
 #include <map>
 
 #include <functional>
@@ -894,9 +890,11 @@ public:
             std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
             const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
             const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria
-                = std::make_shared< LightTimeConvergenceCriteria >( ) ):
+                = std::make_shared< LightTimeConvergenceCriteria >( ),
+            const bool subtractDopplerSignature = true ):
         ObservationModelSettings( dsn_n_way_averaged_doppler, linkEnds, lightTimeCorrectionsList, biasSettings ),
-        multiLegLightTimeConvergenceCriteria_( lightTimeConvergenceCriteria )
+        multiLegLightTimeConvergenceCriteria_( lightTimeConvergenceCriteria ),
+        subtractDopplerSignature_( subtractDopplerSignature )
     {
         for( unsigned int i = 0; i < linkEnds.size( ) - 1; i++ )
         {
@@ -911,12 +909,14 @@ public:
             const std::vector< std::shared_ptr< ObservationModelSettings > > oneWayRangeObsevationSettings,
             const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
             const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria
-                = std::make_shared< LightTimeConvergenceCriteria >( ) ):
+                = std::make_shared< LightTimeConvergenceCriteria >( ),
+            const bool subtractDopplerSignature = true ):
         ObservationModelSettings( n_way_differenced_range,
                                   mergeOneWayLinkEnds( getObservationModelListLinkEnds( oneWayRangeObsevationSettings ) ),
                                   std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ), biasSettings ),
         oneWayRangeObsevationSettings_( oneWayRangeObsevationSettings ),
-        multiLegLightTimeConvergenceCriteria_( lightTimeConvergenceCriteria ){ }
+        multiLegLightTimeConvergenceCriteria_( lightTimeConvergenceCriteria ),
+        subtractDopplerSignature_( subtractDopplerSignature ){ }
 
     std::shared_ptr< ObservationModelSettings > getNWayRangeObservationSettings( )
     {
@@ -924,10 +924,18 @@ public:
                 oneWayRangeObsevationSettings_, nullptr, multiLegLightTimeConvergenceCriteria_ );
     }
 
+    bool getSubtractDopplerSignature( )
+    {
+        return subtractDopplerSignature_;
+    }
+
+
 private:
     std::vector< std::shared_ptr< ObservationModelSettings > > oneWayRangeObsevationSettings_;
 
     std::shared_ptr< LightTimeConvergenceCriteria > multiLegLightTimeConvergenceCriteria_;
+
+    bool subtractDopplerSignature_;
 
 };
 
@@ -1119,20 +1127,22 @@ inline std::shared_ptr< ObservationModelSettings > dsnNWayAveragedDopplerObserva
                 std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
         const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
         const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria =
-                std::make_shared< LightTimeConvergenceCriteria >( ) )
+                std::make_shared< LightTimeConvergenceCriteria >( ),
+        const bool subtractDopplerSignature = true )
 {
     return std::make_shared< DsnNWayAveragedDopplerObservationSettings >(
-                linkEnds, lightTimeCorrectionsList, biasSettings, lightTimeConvergenceCriteria );
+                linkEnds, lightTimeCorrectionsList, biasSettings, lightTimeConvergenceCriteria, subtractDopplerSignature );
 }
 
 inline std::shared_ptr< ObservationModelSettings > dsnNWayAveragedDopplerObservationSettings(
         const std::vector< std::shared_ptr< ObservationModelSettings > > oneWayRangeObsevationSettings,
         const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
         const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria
-                = std::make_shared< LightTimeConvergenceCriteria >( ) )
+                = std::make_shared< LightTimeConvergenceCriteria >( ),
+        const bool subtractDopplerSignature = true )
 {
     return std::make_shared< DsnNWayAveragedDopplerObservationSettings >(
-                oneWayRangeObsevationSettings, biasSettings, lightTimeConvergenceCriteria );
+                oneWayRangeObsevationSettings, biasSettings, lightTimeConvergenceCriteria, subtractDopplerSignature );
 }
 
 
@@ -2062,7 +2072,8 @@ public:
                         linkEnds, arcStartObservationModel, arcEndObservationModel,
                         transmittingFrequencyInterpolator,
                         turnaroundRatioFunction,
-                        observationBias );
+                        observationBias,
+                        dsnNWayAveragedDopplerObservationSettings->getSubtractDopplerSignature( ) );
 
             break;
         }

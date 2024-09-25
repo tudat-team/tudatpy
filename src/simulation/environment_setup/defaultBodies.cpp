@@ -455,17 +455,20 @@ std::map<std::string, Eigen::Vector3d> getApproximateDsnGroundStationPositions()
 
 Eigen::Vector3d getApproximateGroundStationPosition(std::string stationName)
 {
-  Eigen::Vector3d groundStationPosition;
+    Eigen::Vector3d groundStationPosition;
 
-  std::map<std::string, Eigen::Vector3d> dsnMap = getApproximateDsnGroundStationPositions();
-  if (dsnMap.count(stationName) != 0) {
-    groundStationPosition = dsnMap.at(stationName);
-  } else {
-    throw std::runtime_error("Error when retrieving approximate ground station position: station name " + stationName +
+    std::map<std::string, Eigen::Vector3d> dsnMap = getApproximateDsnGroundStationPositions();
+    if (dsnMap.count(stationName) != 0)
+    {
+        groundStationPosition = dsnMap.at(stationName);
+    }
+    else
+    {
+        throw std::runtime_error("Error when retrieving approximate ground station position: station name " + stationName +
         "not recognized.");
-  }
+    }
 
-  return groundStationPosition;
+    return groundStationPosition;
 }
 
 

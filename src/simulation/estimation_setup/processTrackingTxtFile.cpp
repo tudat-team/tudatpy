@@ -72,7 +72,7 @@ void setStationFrequenciesFromTrackingData(
             }
             else
             {
-                std::cout<<utilities::convertStlVectorToEigenVector( currentFrequencyValues )<<std::endl;
+                std::cout<<utilities::convertStlVectorToEigenVector( currentFrequencyValues ).transpose( )<<std::endl;
                 throw std::runtime_error( "Error when reading IFMS transmitter frequencies, only unramped data currently supported." );
             }
         }
@@ -81,8 +81,6 @@ void setStationFrequenciesFromTrackingData(
             double timeDifference = rampStartTimes.at( i + 1 ) - rampEndTimes.at( i );
             rampStartTimes[ i + 1 ] -= timeDifference/2.0;
             rampEndTimes[ i ] += timeDifference/2.0;
-
-            std::cout<<rampStartTimes[ i ]<<" "<<rampEndTimes[ i ]<<std::endl;
         }
         rampEndTimes[ rampEndTimes.size( ) - 1 ] += 86400.0;
         rampInterpolators[ it.first ] = std::make_shared< ground_stations::PiecewiseLinearFrequencyInterpolator >(
