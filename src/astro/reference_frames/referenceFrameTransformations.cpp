@@ -597,12 +597,12 @@ Eigen::Matrix3d getJ2000toECLIPJ2000TransformationMatrix ()
 
 //! Get transformation matrix from ECLIPJ2000 to J2000
 Eigen::Matrix3d getECLIPJ2000toJ2000TransformationMatrix ()
-    {
-        return (Eigen::Matrix3d() <<
-                1, 0, 0,
-                0, 0.9174820620691818, -0.3977771559319137,
-                0, 0.3977771559319137, 0.9174820620691818).finished() ;
-    }
+{
+    return (Eigen::Matrix3d() <<
+            1, 0, 0,
+            0, 0.9174820620691818, -0.3977771559319137,
+            0, 0.3977771559319137, 0.9174820620691818).finished() ;
+}
 
 //! Function to compute the derivative of a rotation about the x-axis w.r.t. the rotation angle
 Eigen::Matrix3d getDerivativeOfXAxisRotationWrtAngle( const double angle )
@@ -670,6 +670,51 @@ Eigen::Vector3d getBodyFixedSphericalPosition(
                                                orientationFunctionOfCentralBody ) );
     sphericalPosition( 1 ) = mathematical_constants::PI / 2.0 - sphericalPosition( 1 );
     return sphericalPosition;
+}
+
+Eigen::Matrix3d getRotationBetweenSatelliteFrames(
+        const Eigen::Vector6d relativeInertialCartesianState,
+        const SatelliteReferenceFrames originalFrame,
+        const SatelliteReferenceFrames targetFrame )
+{
+    Eigen::Matrix3d rotationMatrix;
+    if ( !( originalFrame == global_reference_frame || targetFrame == global_reference_frame ))
+    {
+        rotationMatrix = getRotationBetweenSatelliteFrames(
+            relativeInertialCartesianState, originalFrame, global_reference_frame ) *
+                         getRotationBetweenSatelliteFrames(
+                             relativeInertialCartesianState, global_reference_frame, targetFrame );
+
+    }
+    else if ( targetFrame == global_reference_frame )
+    {
+        rotationMatrix = getRotationBetweenSatelliteFrames(
+            relativeInertialCartesianState, targetFrame, originalFrame ).transpose( );
+    }
+    else if ( originalFrame == global_reference_frame )
+    {
+        switch ( targetFrame )
+        {
+        case global_reference_frame:
+            rotationMatrix = Eigen::Matrix3d::Identity( );
+            break;
+        case rsw_reference_frame:
+            rotationMatrix = getInertialToRswSatelliteCenteredFrameRotationMatrix(
+                relativeInertialCartesianState );
+            break;
+        case tnw_reference_frame:
+            rotationMatrix = getInertialToTnwRotation(
+                relativeInertialCartesianState, true );
+            break;
+        default:
+            throw std::runtime_error( "Error when converting between satellite frames, target frame not recognized" );
+        }
+    }
+    else
+    {
+        throw std::runtime_error( "Error when converting between satellite frames, could not parse frames." );
+    }
+    return rotationMatrix;
 }
 
 Eigen::Matrix3d getItrf2014ToArbitraryItrfRotationMatrix( const std::string& targetFrame )
