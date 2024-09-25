@@ -756,7 +756,7 @@ void expose_environment(py::module &m) {
                           py::overload_cast<const Eigen::Matrix3d &>(
                               &tss::Body::setBodyInertiaTensor), get_docstring("Body.inertia_tensor").c_str())
             .def("state_in_base_frame_from_ephemeris",
-                 &tss::Body::getStateInBaseFrameFromEphemeris<double, double>, py::arg("time"))
+                 &tss::Body::getStateInBaseFrameFromEphemeris<STATE_SCALAR_TYPE, TIME_TYPE>, py::arg("time"))
             .def_property_readonly("ephemeris", &tss::Body::getEphemeris, get_docstring("Body.ephemeris").c_str())
             .def_property("atmosphere_model", &tss::Body::getAtmosphereModel, &tss::Body::setAtmosphereModel, get_docstring("Body.atmosphere_model").c_str())
             .def_property("shape_model", &tss::Body::getShapeModel, &tss::Body::setShapeModel, get_docstring("Body.shape_model").c_str())
@@ -782,7 +782,7 @@ void expose_environment(py::module &m) {
             .def("get_body", &tss::SystemOfBodies::getBody,
                  py::arg("body_name"),
                  get_docstring("SystemOfBodies.get_body").c_str())
-            .def("create_empty_body", &tss::SystemOfBodies::createEmptyBody< double, TIME_TYPE >,
+            .def("create_empty_body", &tss::SystemOfBodies::createEmptyBody< STATE_SCALAR_TYPE, TIME_TYPE >,
                  py::arg("body_name"),
                  py::arg("process_body") = 1,
                  get_docstring("SystemOfBodies.create_empty_body").c_str())
@@ -793,7 +793,7 @@ void expose_environment(py::module &m) {
                  get_docstring("SystemOfBodies.list_of_bodies").c_str())
 //            .def("get_body_dict", &tss::SystemOfBodies::getMap,
 //                 get_docstring("SystemOfBodies.get_body_dict").c_str())
-            .def("add_body", &tss::SystemOfBodies::addBody< double, TIME_TYPE >,
+            .def("add_body", &tss::SystemOfBodies::addBody< STATE_SCALAR_TYPE, TIME_TYPE >,
                  py::arg("body_to_add"),
                  py::arg("body_name"),
                  py::arg("process_body") = 1,

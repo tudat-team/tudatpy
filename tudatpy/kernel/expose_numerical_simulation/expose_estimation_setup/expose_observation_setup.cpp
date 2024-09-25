@@ -504,7 +504,7 @@ void expose_observation_setup(py::module &m) {
           get_docstring("dsn_n_way_doppler_averaged_from_one_way_links").c_str() );
 
     m.def("observation_settings_from_collection",
-          &tss::getObservationSimulationSettingsFromObservations< double, TIME_TYPE >,
+          &tss::getObservationSimulationSettingsFromObservations< STATE_SCALAR_TYPE, TIME_TYPE >,
           py::arg("observation_collection" ),
           get_docstring("observation_settings_from_collection").c_str() );
 
@@ -1166,21 +1166,21 @@ void expose_observation_setup(py::module &m) {
           get_docstring("set_odf_information_in_bodies").c_str() );
 
     m.def("create_odf_observed_observation_collection",
-          &tom::createOdfObservedObservationCollection< double, TIME_TYPE >,
+          &tom::createOdfObservedObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >,
           py::arg("processed_odf_file"),
           py::arg("observable_types_to_process"),
           py::arg("start_and_end_times_to_process"),
           get_docstring("create_odf_observed_observation_collection").c_str() );
 
     m.def("split_observation_sets_into_arc",
-          &tom::splitObservationSetsIntoArcs< double, TIME_TYPE >,
+          &tom::splitObservationSetsIntoArcs< STATE_SCALAR_TYPE, TIME_TYPE >,
           py::arg("original_observation_collection"),
           py::arg("arc_split_interval"),
           py::arg("minimum_number_of_observations"),
           get_docstring("split_observation_sets_into_arc").c_str() );
 
     m.def("create_compressed_doppler_collection",
-          &tom::createCompressedDopplerCollection< double, TIME_TYPE >,
+          &tom::createCompressedDopplerCollection< STATE_SCALAR_TYPE, TIME_TYPE >,
           py::arg("original_observation_collection"),
           py::arg("compression_ratio"),
           get_docstring("create_compressed_doppler_collection").c_str() );
@@ -1188,12 +1188,12 @@ void expose_observation_setup(py::module &m) {
 
 
 //    m.def("create_odf_observation_simulation_settings_list",
-//          &tom::createOdfObservationSimulationSettingsList< double, TIME_TYPE >,
+//          &tom::createOdfObservationSimulationSettingsList< STATE_SCALAR_TYPE, TIME_TYPE >,
 //          py::arg("observed_observation_collection"),
 //          get_docstring("create_odf_observation_simulation_settings_list").c_str() );
 
     m.def("change_simulation_settings_observable_types",
-          &tom::changeObservableTypesOfObservationSimulationSettings< double, TIME_TYPE >,
+          &tom::changeObservableTypesOfObservationSimulationSettings< STATE_SCALAR_TYPE, TIME_TYPE >,
           py::arg("observation_simulation_settings"),
           py::arg("replacement_observable_types") = std::map< tom::ObservableType, tom::ObservableType >{
                 { tom::dsn_n_way_averaged_doppler, tom::n_way_differenced_range },
@@ -1204,25 +1204,23 @@ void expose_observation_setup(py::module &m) {
   // Tracking Txt OBSERVATIONS
   /////////////////////////////////////////////////////////////////////////////////////////////////
 
-    m.def("create_tracking_txtfile_observation_collection",
-        py::overload_cast<
-            const std::shared_ptr<tudat::input_output::TrackingTxtFileContents>,
-            const std::string,
-            const std::vector<tom::ObservableType>,
-            const std::map<std::string, Eigen::Vector3d>,
-            const tom::ObservationAncilliarySimulationSettings&,
-            std::pair<TIME_TYPE, TIME_TYPE>>(&tom::createTrackingTxtFileObservationCollection<double, TIME_TYPE>),
-        py::arg("raw_tracking_txtfile_contents"),
-        py::arg("spacecraft_name"),
-        py::arg("observable_types_to_process") = std::vector<tom::ObservableType>(),
-        py::arg("earth_fixed_ground_station_positions") = tss::getApproximateDsnGroundStationPositions(),
-        py::arg("ancillary_settings") = tom::ObservationAncilliarySimulationSettings(),
-        py::arg("start_and_end_times_to_process") = std::make_pair<TIME_TYPE, TIME_TYPE>(TUDAT_NAN, TUDAT_NAN),
-        get_docstring("create_tracking_txtfile_observation_collection").c_str());
+//    m.def("create_tracking_txtfile_observation_collection",
+//        py::overload_cast<
+//            const std::shared_ptr<tudat::input_output::TrackingTxtFileContents>,
+//            const std::string,
+//            const std::vector<tom::ObservableType>,
+//            const std::map<std::string, Eigen::Vector3d>,
+//            const tom::ObservationAncilliarySimulationSettings& >(&tom::createTrackingTxtFileObservationCollection<STATE_SCALAR_TYPE, TIME_TYPE>),
+//        py::arg("raw_tracking_txtfile_contents"),
+//        py::arg("spacecraft_name"),
+//        py::arg("observable_types_to_process") = std::vector<tom::ObservableType>(),
+//        py::arg("earth_fixed_ground_station_positions") = tss::getApproximateDsnGroundStationPositions(),
+//        py::arg("ancillary_settings") = tom::ObservationAncilliarySimulationSettings(),
+//        get_docstring("create_tracking_txtfile_observation_collection").c_str());
 
     m.def("observation_settings_from_collection",
-          py::overload_cast<std::shared_ptr<tom::ObservationCollection<double, TIME_TYPE> >>(
-              &tss::getObservationSimulationSettingsFromObservations<double, TIME_TYPE>),
+          py::overload_cast<std::shared_ptr<tom::ObservationCollection<STATE_SCALAR_TYPE, TIME_TYPE> >>(
+              &tss::getObservationSimulationSettingsFromObservations<STATE_SCALAR_TYPE, TIME_TYPE>),
           py::arg("observed_observation_collection"),
           get_docstring("observation_settings_from_collection").c_str()
     );
