@@ -48,7 +48,7 @@ static const std::map<ObservableType, std::vector<input_output::TrackingDataType
 std::vector<ObservableType> findAvailableObservableTypes(std::vector<input_output::TrackingDataType> availableDataTypes);
 
 //! Class containing the processed file contents for a Tracking txt data file
-template< typename ObservationScalarType, typename TimeType >
+template< typename ObservationScalarType = double, typename TimeType = double >
 class ProcessedTrackingTxtFileContents
 {
 public:

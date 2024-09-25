@@ -374,7 +374,7 @@ BOOST_AUTO_TEST_CASE(TestJuiceFile)
 }
 
 //! Test reading of ground station locations
-// TODO: This might need to be moved to another file
+// FIXME-DOPPLER: This might need to be moved to another file
 BOOST_AUTO_TEST_CASE(GroundStationLocations)
 {
 

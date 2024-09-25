@@ -130,13 +130,15 @@ public:
             const std::shared_ptr< ground_stations::StationFrequencyInterpolator > transmittingFrequencyCalculator,
             const std::function< double ( observation_models::FrequencyBands uplinkBand,
                     observation_models::FrequencyBands downlinkBand ) >& turnaroundRatio,
-            const std::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = nullptr ):
+            const std::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = nullptr,
+            const bool subtractDopplerSignature = true ):
         ObservationModel< 1, ObservationScalarType, TimeType >( dsn_n_way_averaged_doppler , linkEnds, observationBiasCalculator),
         arcStartObservationModel_( arcStartObservationModel ),
         arcEndObservationModel_( arcEndObservationModel ),
         numberOfLinkEnds_( linkEnds.size( ) ),
         transmittingFrequencyCalculator_( transmittingFrequencyCalculator ),
-        turnaroundRatio_( turnaroundRatio )
+        turnaroundRatio_( turnaroundRatio ),
+        subtractDopplerSignature_( subtractDopplerSignature )
     {
         if( !std::is_same< Time, TimeType >::value )
         {
@@ -243,6 +245,8 @@ public:
         // Moyer (2000), eq. 13-54
         Eigen::Matrix< ObservationScalarType, 1, 1 > observation = ( Eigen::Matrix< ObservationScalarType, 1, 1 >( ) <<
                 turnaroundRatio_( referenceUplinkBand, downlinkBand ) * referenceFrequency +
+                ( subtractDopplerSignature_ ? mathematical_constants::getFloatingInteger< ObservationScalarType >( -1.0 ) :
+                    mathematical_constants::getFloatingInteger< ObservationScalarType >( -1.0 ) ) *
                 turnaroundRatio_( uplinkBand, downlinkBand ) / static_cast< ObservationScalarType >( integrationTime ) *
                 transmitterFrequencyIntegral ).finished( );
 
@@ -291,6 +295,8 @@ private:
 
     // Function returning the turnaround ratio for given uplink and downlink bands
     std::function< double ( FrequencyBands uplinkBand, FrequencyBands downlinkBand ) > turnaroundRatio_;
+
+    bool subtractDopplerSignature_;
 };
 
 
