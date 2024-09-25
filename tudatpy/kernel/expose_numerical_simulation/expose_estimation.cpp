@@ -814,8 +814,10 @@ void expose_estimation(py::module &m) {
                  get_docstring("SingleObservationSet.filter_observations").c_str() )
             .def_property_readonly("observable_type", &tom::SingleObservationSet<double, TIME_TYPE>::getObservableType,
                                    get_docstring("SingleObservationSet.observable_type").c_str() )
-            .def_property_readonly("link_definition", &tom::SingleObservationSet<double, TIME_TYPE>::getLinkEnds,
-                                   get_docstring("SingleObservationSet.link_definition").c_str() )
+            .def_property("link_definition",
+                          &tom::SingleObservationSet<double, TIME_TYPE>::getLinkEnds,
+                          &tom::SingleObservationSet<double, TIME_TYPE>::setLinkEnds,
+                          get_docstring("SingleObservationSet.link_definition").c_str() )
             .def_property_readonly("reference_link_end", &tom::SingleObservationSet<double, TIME_TYPE>::getReferenceLinkEnd,
                                    get_docstring("SingleObservationSet.reference_link_end").c_str() )
             .def_property_readonly("number_of_observables", &tom::SingleObservationSet<double, TIME_TYPE>::getNumberOfObservables,
