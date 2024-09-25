@@ -282,7 +282,7 @@ void expose_estimation(py::module &m) {
             .value("empty_parser", tom::ObservationParserType::empty_parser )
             .value("observable_type_parser", tom::ObservationParserType::observable_type_parser )
             .value("link_ends_parser", tom::ObservationParserType::link_ends_parser )
-            .value("link_end_id_parser", tom::ObservationParserType::link_end_id_parser )
+            .value("link_end_str_parser", tom::ObservationParserType::link_end_string_parser )
             .value("time_bounds_parser", tom::ObservationParserType::time_bounds_parser )
             .value("ancillary_settings_parser", tom::ObservationParserType::ancillary_settings_parser )
             .value("multi_type_parser", tom::ObservationParserType::multi_type_parser )
@@ -1050,10 +1050,10 @@ void expose_estimation(py::module &m) {
                   py::arg( "print_output_to_terminal" ) = true,
                   py::arg( "limit_condition_number_for_warning" ) = 1.0E8,
                   get_docstring("CovarianceAnalysisInput.define_covariance_settings").c_str() )
-            .def_property_readonly("weight_matrix_diagonal",
-                                   &tss::CovarianceAnalysisInput<double, TIME_TYPE>::getWeightsMatrixDiagonals,
-                                   &tss::CovarianceAnalysisInput<double, TIME_TYPE>::setWeightsMatrixDiagonals,
-                                   get_docstring("CovarianceAnalysisInput.weight_matrix_diagonal").c_str() );
+            .def_property("weight_matrix_diagonal",
+                          &tss::CovarianceAnalysisInput<double, TIME_TYPE>::getWeightsMatrixDiagonals,
+                          &tss::CovarianceAnalysisInput<double, TIME_TYPE>::setWeightsMatrixDiagonals,
+                          get_docstring("CovarianceAnalysisInput.weight_matrix_diagonal").c_str() );
 
     py::class_<
             tss::EstimationInput<double, TIME_TYPE>,
