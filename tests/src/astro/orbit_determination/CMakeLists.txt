@@ -131,13 +131,12 @@ TUDAT_ADD_TEST_CASE(NonSequentialStateEstimation
          ${Tudat_ESTIMATION_LIBRARIES}
  )
 
-
  TUDAT_ADD_TEST_CASE(ObservationsProcessing
          PRIVATE_LINKS
          ${Tudat_ESTIMATION_LIBRARIES}
  )
 
- TUDAT_ADD_TEST_CASE(CovariancePropagation
+TUDAT_ADD_TEST_CASE(CovariancePropagation
          PRIVATE_LINKS
          ${Tudat_ESTIMATION_LIBRARIES}
  )
