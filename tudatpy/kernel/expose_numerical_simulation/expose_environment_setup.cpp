@@ -162,6 +162,7 @@ namespace environment_setup {
               py::arg("bodies"),
               py::arg("body_name"),
               py::arg("ephemeris_origin") = "",
+              py::arg("is_part_of_multi_arc") = false,
               get_docstring("add_empty_tabulated_ephemeris").c_str());
 
         m.def("create_tabulated_ephemeris_from_spice",
