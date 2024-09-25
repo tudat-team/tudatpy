@@ -252,7 +252,7 @@ int main( )
                             observationModelSettingsList.push_back(
                                 observation_models::dsnNWayAveragedDopplerObservationSettings(
                                     it->second.at( i ), lightTimeCorrectionSettings, constantAbsoluteBias( Eigen::Vector1d::Zero( ) ),
-                                    std::make_shared< LightTimeConvergenceCriteria >( true )  ) );
+                                    std::make_shared< LightTimeConvergenceCriteria >( true ), false ) );
                         }
                     }
                 }

@@ -106,7 +106,7 @@ int main()
     // Create ground station
     std::string stationName = "HOBART12";
     const Eigen::Vector3d stationCartesianPosition = Eigen::Vector3d(-3949990.106, 2522421.118, -4311708.734);
-    createGroundStation(bodies.at("Earth"), stationName, stationCartesianPosition, cartesian_position);
+    createGroundStation(bodies.at("Earth"), stationName, stationCartesianPositinormalizeWithSpeedOfLight_on, cartesian_position);
 
 
     // Set turnaround ratios in spacecraft (ground station)
