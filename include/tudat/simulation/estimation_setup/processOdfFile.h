@@ -769,11 +769,6 @@ std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType
     ObservationScalarType floatingCompressionRatio = mathematical_constants::getFloatingInteger< ObservationScalarType >( compressionRatio );
 
     double currentCompressionTime = originalDopplerData->getAncilliarySettings( )->getAncilliaryDoubleData( doppler_integration_time );
-    double newCompressionTime = static_cast< ObservationScalarType >( compressionRatio ) * currentCompressionTime;
-
-    std::shared_ptr< ObservationAncilliarySimulationSettings > newAncilliarySettings =
-        std::make_shared< ObservationAncilliarySimulationSettings >( *(originalDopplerData->getAncilliarySettings( ) ) );
-    newAncilliarySettings->setAncilliaryDoubleData( doppler_integration_time, newCompressionTime );
 
     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > originalObservations = originalDopplerData->getObservationsReference( );
     std::vector< TimeType > originalObservationTimes = originalDopplerData->getObservationTimesReference( );
@@ -833,25 +828,40 @@ std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType
 template< typename ObservationScalarType = double, typename TimeType = double >
 std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > createCompressedDopplerCollection(
     const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > originalDopplerData,
-    const unsigned int compressionRatio )
+    const unsigned int compressionRatio,
+    const unsigned int minNumberObservations = 10 )
 {
+    // Split Doppler observation sets into arcs
+    double compressionRatioFloat = mathematical_constants::getFloatingInteger< double >( compressionRatio );
+    std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > compressedData =
+            splitObservationSets( originalDopplerData, observationSetSplitter( time_interval_splitter, compressionRatioFloat, minNumberObservations ),
+                                  observationParser( dsn_n_way_averaged_doppler ) );
+
     std::map< LinkEnds, std::vector< std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType, TimeType > > > > uncompressedObservationSets =
-        originalDopplerData->getObservations( ).at( dsn_n_way_averaged_doppler );
-    std::vector< std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType, TimeType > > > compressedObservationSets;
+        compressedData->getObservationsSets( ).at( dsn_n_way_averaged_doppler );
+
+    std::map< LinkEnds, std::vector< unsigned int > > indicesSetsToRemove;
     for( auto it : uncompressedObservationSets )
     {
-        for( unsigned int i = 0; i < it.second.size( ); i++ )
+        for( unsigned int index = 0; index < it.second.size( ); index++ )
         {
             std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType, TimeType > > compressedDataSet =
-                compressDopplerData< ObservationScalarType, TimeType >( it.second.at( i ), compressionRatio );
+                compressDopplerData< ObservationScalarType, TimeType >( it.second.at( index ), compressionRatio );
             if( compressedDataSet->getObservationTimes( ).size( ) )
             {
-                compressedObservationSets.push_back( compressedDataSet );
+                compressedData->replaceSingleObservationSet( compressedDataSet, index );
+            }
+            else
+            {
+                indicesSetsToRemove[ it.first ].push_back( index );
             }
         }
     }
 
-    return std::make_shared< observation_models::ObservationCollection< ObservationScalarType, TimeType > >( compressedObservationSets );
+    // Remove empty compressed sets if any
+    compressedData->removeSingleObservationSets( { { dsn_n_way_averaged_doppler, indicesSetsToRemove } } );
+
+    return compressedData;
 }
 
 /*!

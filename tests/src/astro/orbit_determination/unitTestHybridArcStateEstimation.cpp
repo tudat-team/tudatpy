@@ -311,6 +311,12 @@ Eigen::VectorXd  executeParameterEstimation(
     std::shared_ptr< ObservationCollection< > > observationsAndTimes = simulateObservations< ObservationScalarType, TimeType >(
                 measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
+    // Set weights
+    std::map< std::shared_ptr< observation_models::ObservationCollectionParser >, double > weightPerObservationParser;
+    weightPerObservationParser[ observationParser( one_way_range ) ] = 1.0E-4;
+    weightPerObservationParser[ observationParser( angular_position ) ] = 1.0E-20;
+    observationsAndTimes->setConstantWeightPerObservable( weightPerObservationParser );
+
     // Perturb parameter vector
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > truthParameters = initialParameterEstimate;
     initialParameterEstimate[ 0 ] += 1.0E2;
@@ -342,10 +348,7 @@ Eigen::VectorXd  executeParameterEstimation(
     std::shared_ptr< EstimationInput< ObservationScalarType, TimeType > > estimationInput =
             std::make_shared< EstimationInput< ObservationScalarType, TimeType > >(
                 observationsAndTimes );
-    std::map< observation_models::ObservableType, double > weightPerObservable;
-    weightPerObservable[ one_way_range ] = 1.0E-4;
-    weightPerObservable[ angular_position ] = 1.0E-20;
-    estimationInput->setConstantPerObservableWeightsMatrix( weightPerObservable );
+
     estimationInput->setConvergenceChecker(
                 std::make_shared< EstimationConvergenceChecker >( 6 ) );
     // Estimate parameters and return postfit error
