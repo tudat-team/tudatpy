@@ -60,6 +60,12 @@ public:
 
     virtual ~CovarianceAnalysisInput( ){ }
 
+    void setWeightsFromObservationCollection( )
+    {
+        std::cerr << "setWeightsFromObservationCollection is deprecated: the weightsMatrixDiagonals_ vector is now by default defined by "
+                     "the weights stored in the ObservationCollection object." << std::endl;
+    }
+
     //! Function to set a constant values for all observation weights
     /*!
      * Function to set a constant values for all observation weights
