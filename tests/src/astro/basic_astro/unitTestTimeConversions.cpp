@@ -90,14 +90,15 @@ BOOST_AUTO_TEST_CASE( testJulianDayToSecondsConversions )
         const long double computedSecondsSinceEpoch = convertJulianDayToSecondsSinceEpoch< long double >(
                     julianDay, referenceEpoch );
 
+        std::cout<<std::setprecision( 19 )<<std::numeric_limits< long double >::epsilon( )<<" "<<referenceEpoch<<" "<<julianDay<<" "<<computedSecondsSinceEpoch<<" "<<expectedSecondsSinceEpoch<<" "<<computedSecondsSinceEpoch - expectedSecondsSinceEpoch<<std::endl;
         // Test that computed result matches expected result.
         // Test is run at reduced tolerance, because the final digits of the seconds were lost
         // when converting to Julian day.
 #if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
         BOOST_CHECK_CLOSE_FRACTION( computedSecondsSinceEpoch, expectedSecondsSinceEpoch,
                                     1.0e-14 );
-#endif
     }
+#endif
 
     // Test conversion from Julian day to seconds since J2000 epoch  with long doubles
     {
