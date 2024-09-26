@@ -420,7 +420,7 @@ BOOST_AUTO_TEST_CASE( testTimeConversions )
 BOOST_AUTO_TEST_CASE( testTimeConversionsLong )
 {
     // Define test dates (arbitrary).
-    const long double testModifiedJulianDay = static_cast< long double >( 54583.87 );
+    const long double testModifiedJulianDay = 54583.87L;
     const long double testJulianDay = testModifiedJulianDay + JULIAN_DAY_AT_0_MJD_LONG;
 
     // Test whether back and forth conversion between JD and MJD provides correct resulats.
