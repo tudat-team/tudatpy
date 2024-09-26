@@ -70,7 +70,7 @@ double computeExpectedSemiMajorAxisDrift( const Eigen::Vector6d& keplerElements,
 //! Test the implementation of the Yarkovsky Acceleration Model
 BOOST_AUTO_TEST_CASE( testYarkovskyAccelerationVerySimple )
 {
-    const Eigen::Vector6d state = { 0.5 * AU, 0.0, 0.0, 0.0, 5e4, 0.0 }; // Arbitrary numbers
+    const Eigen::Vector6d state = ( Eigen::Vector6d( ) << 0.5 * AU, 0.0, 0.0, 0.0, 5e4, 0.0 ).finished( ); // Arbitrary numbers
 
     const Eigen::Vector3d computedYarkovskyAcceleration = electromagnetism::computeYarkovskyAcceleration(
             yarkovskyParameter,
@@ -85,7 +85,7 @@ BOOST_AUTO_TEST_CASE( testYarkovskyAccelerationVerySimple )
 //! Test the implementation of the Yarkovsky Acceleration Model
 BOOST_AUTO_TEST_CASE( testYarkovskyAccelerationSimple )
 {
-    const Eigen::Vector6d state = { 2.0 * AU, AU, 3.0 * AU, 3.0e5, 4.0e5, 12.0e5 };
+    const Eigen::Vector6d state = ( Eigen::Vector6d( ) << 2.0 * AU, AU, 3.0 * AU, 3.0e5, 4.0e5, 12.0e5 ).finished( );
     const Eigen::Vector3d expectedYarkovskyAcceleration = computeExpectedYarkovskyAcceleration( yarkovskyParameter,
                                                                                                 state );
     const Eigen::Vector3d computedYarkovskyAcceleration = electromagnetism::computeYarkovskyAcceleration(
@@ -96,7 +96,7 @@ BOOST_AUTO_TEST_CASE( testYarkovskyAccelerationSimple )
                                        ( 10.0 * std::numeric_limits< double >::epsilon( ) ) );
 }
 
-Eigen::Vector6d bodyState = Eigen::Vector6d { AU, 0, 0, 12.0e5, 3.0e5, 4.0e5 };
+Eigen::Vector6d bodyState = ( Eigen::Vector6d( ) << AU, 0, 0, 12.0e5, 3.0e5, 4.0e5 ).finished( );
 
 Eigen::Vector6d getBodyState( )
 {
