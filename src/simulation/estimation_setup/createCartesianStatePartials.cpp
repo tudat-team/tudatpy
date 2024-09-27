@@ -159,6 +159,10 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
                     break;
                 case estimatable_parameters::inverse_tidal_quality_factor:
                     break;
+                case estimatable_parameters::source_direction_radiation_pressure_scaling_factor:
+                    break;
+                case estimatable_parameters::source_perpendicular_direction_radiation_pressure_scaling_factor:
+                    break;
                 default:
 
                     std::string errorMessage =
@@ -254,8 +258,10 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
                     break;
                 case estimatable_parameters::single_degree_variable_tidal_love_number:
                     break;
+                case estimatable_parameters::desaturation_delta_v_values:
+                    break;
                 case estimatable_parameters::ground_station_position:
-
+                {
                     // Check if current link end station is same station as that of which position is to be estimated.
                     if( linkEndIterator->second.stationName_ == parameterToEstimate->getParameterName( ).second.second )
                     {
@@ -275,8 +281,9 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
                                     currentBody->getRotationalEphemeris( ) );
                     }
                     break;
+                }
                 case estimatable_parameters::reference_point_position:
-
+                {
                     // Check if current link end station is same station as that of which position is to be estimated.
                     if( linkEndIterator->second.stationName_ == parameterToEstimate->getParameterName( ).second.second )
                     {
@@ -305,6 +312,7 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
                             currentBody->getRotationalEphemeris( ) );
                     }
                     break;
+                }
                 case estimatable_parameters::constant_time_drift_observation_bias:
                     break;
                 case estimatable_parameters::arc_wise_time_drift_observation_bias:
@@ -316,10 +324,6 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
                 case estimatable_parameters::yarkovsky_parameter:
                     break;
                 case estimatable_parameters::custom_estimated_parameter:
-                    break;
-                case estimatable_parameters::source_direction_radiation_pressure_scaling_factor:
-                    break;
-                case estimatable_parameters::source_perpendicular_direction_radiation_pressure_scaling_factor:
                     break;
                 default:
                     std::string errorMessage =
