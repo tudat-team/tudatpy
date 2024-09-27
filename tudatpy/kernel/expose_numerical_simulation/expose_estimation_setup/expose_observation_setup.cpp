@@ -751,10 +751,10 @@ void expose_observation_setup(py::module &m) {
                          &tss::ObservationSimulationSettings< TIME_TYPE >::setViabilitySettingsList,
                          get_docstring("ObservationSimulationSettings.viability_settings_list").c_str() )
             .def_property("noise_function",
-                         &tss::ObservationSimulationSettings< TIME_TYPE >::getObservationNoiseFunction,
-                         py::overload_cast< const std::function< double( const double ) >& >(
-                              &tss::ObservationSimulationSettings< TIME_TYPE >::setObservationNoiseFunction ),
-                         get_docstring("ObservationSimulationSettings.noise_function").c_str() );
+                          &tss::ObservationSimulationSettings< TIME_TYPE >::getObservationNoiseFunction,
+                          py::overload_cast< const std::function< double( const double ) >& >(
+                                  &tss::ObservationSimulationSettings< TIME_TYPE >::setObservationNoiseFunction ),
+                          get_docstring("ObservationSimulationSettings.noise_function").c_str() );
 //            .def_property("observable_type",
 //                         &tss::ObservationSimulationSettings<double>::getObservableType,
 //                         &tss::ObservationSimulationSettings<double>::setObservableType,
@@ -1130,10 +1130,10 @@ void expose_observation_setup(py::module &m) {
 
     m.def("process_odf_data_multiple_files",
           py::overload_cast<
-              const std::vector< std::string >&,
-              const std::string&,
-              const bool,
-              const std::map< std::string, Eigen::Vector3d >& >( &tom::processOdfData ),
+                  const std::vector< std::string >&,
+                  const std::string&,
+                  const bool,
+                  const std::map< std::string, Eigen::Vector3d >& >( &tom::processOdfData ),
           py::arg("file_names"),
           py::arg("spacecraft_name"),
           py::arg("verbose") = true,
@@ -1142,10 +1142,10 @@ void expose_observation_setup(py::module &m) {
 
     m.def("process_odf_data_single_file",
           py::overload_cast<
-              const std::string&,
-              const std::string&,
-              const bool,
-              const std::map< std::string, Eigen::Vector3d >& >( &tom::processOdfData ),
+                  const std::string&,
+                  const std::string&,
+                  const bool,
+                  const std::map< std::string, Eigen::Vector3d >& >( &tom::processOdfData ),
           py::arg("file_name"),
           py::arg("spacecraft_name"),
           py::arg("verbose") = true,
@@ -1172,17 +1172,11 @@ void expose_observation_setup(py::module &m) {
           py::arg("start_and_end_times_to_process"),
           get_docstring("create_odf_observed_observation_collection").c_str() );
 
-    m.def("split_observation_sets_into_arc",
-          &tom::splitObservationSetsIntoArcs< double, TIME_TYPE >,
-          py::arg("original_observation_collection"),
-          py::arg("arc_split_interval"),
-          py::arg("minimum_number_of_observations"),
-          get_docstring("split_observation_sets_into_arc").c_str() );
-
     m.def("create_compressed_doppler_collection",
           &tom::createCompressedDopplerCollection< double, TIME_TYPE >,
           py::arg("original_observation_collection"),
           py::arg("compression_ratio"),
+          py::arg("minimum_number_of_observations") = 10,
           get_docstring("create_compressed_doppler_collection").c_str() );
 
 
