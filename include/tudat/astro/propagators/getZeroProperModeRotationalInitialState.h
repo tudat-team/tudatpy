@@ -338,7 +338,7 @@ std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > >
 
 template< typename TimeType = double, typename StateScalarType = double >
 std::shared_ptr< DampedInitialRotationalStateResults< TimeType, StateScalarType > >
-getZeroProperModeRotationalStateWithStruct(
+ getZeroProperModeRotationalStateWithStruct(
         const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > propagatorSettings,
         const double bodyMeanRotationRate,
