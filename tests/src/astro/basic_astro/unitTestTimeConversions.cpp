@@ -97,8 +97,8 @@ BOOST_AUTO_TEST_CASE( testJulianDayToSecondsConversions )
 #if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
         BOOST_CHECK_CLOSE_FRACTION( computedSecondsSinceEpoch, expectedSecondsSinceEpoch,
                                     1.0e-14 );
-    }
 #endif
+    }
 
     // Test conversion from Julian day to seconds since J2000 epoch  with long doubles
     {
