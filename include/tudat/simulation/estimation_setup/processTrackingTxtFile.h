@@ -237,7 +237,8 @@ createTrackingTxtFileObservationCollection(
     std::vector<ObservableType> observableTypesToProcess = std::vector<ObservableType>(),
     const std::map<std::string, Eigen::Vector3d> earthFixedGroundStationPositions = simulation_setup::getApproximateDsnGroundStationPositions(),
     // const std::map<std::string, Eigen::Vector3d> earthFixedGroundStationPositions = simulation_setup::getApproximateGroundStationPositionsFromFile(), // TODO: get ground stations from file
-    const ObservationAncilliarySimulationSettings& ancillarySettings = ObservationAncilliarySimulationSettings() )
+    const ObservationAncilliarySimulationSettings& ancillarySettings = ObservationAncilliarySimulationSettings(),
+    const std::pair<TimeType, TimeType> startAndEndTimesToProcess = std::make_pair<TimeType, TimeType>(TUDAT_NAN, TUDAT_NAN))
 {
 
   // Make sure processing the tracking file was successful
@@ -331,7 +332,8 @@ createTrackingTxtFileObservationCollection(
     const std::vector<ObservableType> observableTypesToProcess = std::vector<ObservableType>(),
     const std::map<std::string, Eigen::Vector3d> earthFixedGroundStationPositions = simulation_setup::getApproximateDsnGroundStationPositions(),
 //    std::map<std::string, Eigen::Vector3d> earthFixedGroundStationPositions = simulation_setup::getApproximateGroundStationPositionsFromFile(),
-    const ObservationAncilliarySimulationSettings& ancillarySettings = ObservationAncilliarySimulationSettings())
+    const ObservationAncilliarySimulationSettings& ancillarySettings = ObservationAncilliarySimulationSettings(),
+    std::pair<TimeType, TimeType> startAndEndTimesToProcess = std::make_pair<TimeType, TimeType>(TUDAT_NAN, TUDAT_NAN))
 {
   // Create processed tracking file contents
   auto processedTrackingTxtFileContents = std::make_shared<observation_models::ProcessedTrackingTxtFileContents>(rawTrackingTxtFileContents,
@@ -342,7 +344,8 @@ createTrackingTxtFileObservationCollection(
   return createTrackingTxtFileObservationCollection(processedTrackingTxtFileContents,
                                                     observableTypesToProcess,
                                                     earthFixedGroundStationPositions,
-                                                    ancillarySettings);
+                                                    ancillarySettings,
+                                                    startAndEndTimesToProcess);
 }
 
 } // namespace observation_models
