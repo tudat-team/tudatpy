@@ -1626,10 +1626,10 @@ public:
         return concatenatedResiduals;
     }
 
-    std::vector< Eigen::VectorXd > getComputedObservations(
+    std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > getComputedObservations(
             std::shared_ptr< ObservationCollectionParser > observationParser = std::make_shared< ObservationCollectionParser >( ) ) const
     {
-        std::vector< Eigen::VectorXd > computedObservations;
+        std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > computedObservations;
 
         std::map< ObservableType, std::map< LinkEnds, std::vector< unsigned int > > > observationSetsIndices = getSingleObservationSetsIndices( observationParser );
         for ( auto observableIt : observationSetsIndices )
@@ -1645,10 +1645,10 @@ public:
         return computedObservations;
     }
 
-    Eigen::VectorXd getConcatenatedComputedObservations(
+    Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > getConcatenatedComputedObservations(
             std::shared_ptr< ObservationCollectionParser > observationParser = std::make_shared< ObservationCollectionParser >( ) ) const
     {
-        std::vector< Eigen::VectorXd > computedObservations = getComputedObservations( observationParser );
+        std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > computedObservations = getComputedObservations( observationParser );
 
         unsigned int totalObsSize = 0;
         for ( auto obs : computedObservations )
@@ -1656,7 +1656,7 @@ public:
             totalObsSize += obs.size( );
         }
 
-        Eigen::VectorXd concatenatedComputedObservations = Eigen::VectorXd::Zero( totalObsSize );
+        Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > concatenatedComputedObservations = Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >::Zero( totalObsSize );
         unsigned int obsIndex = 0;
         for ( unsigned int k = 0 ; k < computedObservations.size( ) ; k++ )
         {
