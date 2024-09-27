@@ -993,7 +993,7 @@ std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeT
     std::vector< std::pair< unsigned int, unsigned int > > indicesNewSets;
     for( unsigned int j = 1; j < rawStartIndicesNewSets.size( ); j++ )
     {
-        if( ( rawStartIndicesNewSets.at( j ) - rawStartIndicesNewSets.at( j - 1 ) ) >= observationSetSplitter->getMinNumberObservations( ) )
+        if( static_cast< int >( rawStartIndicesNewSets.at( j ) - rawStartIndicesNewSets.at( j - 1 ) ) >= observationSetSplitter->getMinNumberObservations( ) )
         {
             indicesNewSets.push_back( std::make_pair( rawStartIndicesNewSets.at( j-1 ), rawStartIndicesNewSets.at( j ) - rawStartIndicesNewSets.at( j-1 ) ) );
         }
@@ -1709,7 +1709,7 @@ public:
                         it2.second.at( i )->getDependentVariableCalculator( );
                     std::pair< int, int > currentVectorIndices = observationSetStartAndSize_.at( it.first ).at( it2.first ).at( i );
 
-                    bool addDependentVariables = false;
+//                    bool addDependentVariables = false;
                     if ( dependentVariableCalculator != nullptr )
                     {
                         std::pair<int, int> variableIndices = dependentVariableCalculator->getDependentVariableIndices(
@@ -1717,7 +1717,7 @@ public:
 
                         if( variableIndices.second > 0 )
                         {
-                            addDependentVariables = true;
+//                            addDependentVariables = true;
                             std::map< double, Eigen::VectorXd > currentDependentVariableHistory =
                                 utilities::sliceMatrixHistory< TimeType, double, double >( it2.second.at( i )->getDependentVariableHistory( ), variableIndices );
 
