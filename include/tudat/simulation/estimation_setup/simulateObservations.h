@@ -660,9 +660,9 @@ void computeAndSetResiduals(
         const std::vector< std::shared_ptr< observation_models::ObservationSimulatorBase< ObservationScalarType, TimeType > > >& observationSimulators,
         const SystemOfBodies& bodies )
 {
-    std::vector< std::shared_ptr< simulation_setup::ObservationSimulationSettings< Time > > > observationSimulationSettings =
+    std::vector< std::shared_ptr< simulation_setup::ObservationSimulationSettings< TimeType > > > observationSimulationSettings =
             getObservationSimulationSettingsFromObservations( observationCollection );
-    std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, Time > > computedObservationCollection =
+    std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > computedObservationCollection =
             simulateObservations( observationSimulationSettings, observationSimulators, bodies );
 
     Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > residuals = observationCollection->getConcatenatedObservations( ) - computedObservationCollection->getConcatenatedObservations( );
