@@ -91,13 +91,13 @@ public:
         singleObservationSize_ = getObservableSize( observableType );
 
         // Initialise weights
-        for ( unsigned int k = 0 ; k < numberOfObservations_ ; k++ )
+        for ( int k = 0 ; k < numberOfObservations_ ; k++ )
         {
             weights_.push_back( Eigen::Matrix< double, Eigen::Dynamic, 1 >::Ones( singleObservationSize_, 1 ) );
         }
 
         // Initialise residuals
-        for ( unsigned int k = 0 ; k < numberOfObservations_ ; k++ )
+        for ( int k = 0 ; k < numberOfObservations_ ; k++ )
         {
             residuals_.push_back( Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >::Zero( singleObservationSize_, 1 ) );
         }
@@ -150,7 +150,7 @@ public:
         }
 
         observations_.clear( );
-        for ( unsigned int k = 0 ; k < numberOfObservations_ ; k++ )
+        for ( int k = 0 ; k < numberOfObservations_ ; k++ )
         {
             observations_.push_back( observationsVector.segment( k * singleObservationSize_, singleObservationSize_ ) );
         }
@@ -177,7 +177,7 @@ public:
         }
 
         residuals_.clear( );
-        for ( unsigned int k = 0 ; k < numberOfObservations_ ; k++ )
+        for ( int k = 0 ; k < numberOfObservations_ ; k++ )
         {
             residuals_.push_back( residualsVector.segment( k * singleObservationSize_, singleObservationSize_ ) );
         }
@@ -328,7 +328,7 @@ public:
     {
         Eigen::Matrix< double, Eigen::Dynamic, 1 > weightsVector =
                 Eigen::Matrix< double, Eigen::Dynamic, 1 >::Zero( singleObservationSize_ * numberOfObservations_, 1 );
-        for( unsigned int i = 0; i < numberOfObservations_ ; i++ )
+        for( int i = 0; i < numberOfObservations_ ; i++ )
         {
             weightsVector.block( i * singleObservationSize_, 0, singleObservationSize_, 1 ) = weights_.at( i );
         }
@@ -353,7 +353,7 @@ public:
     {
         Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > residualsVector =
                 Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >::Zero( singleObservationSize_ * numberOfObservations_, 1 );
-        for( unsigned int i = 0; i < numberOfObservations_ ; i++ )
+        for( int i = 0; i < numberOfObservations_ ; i++ )
         {
             residualsVector.block( i * singleObservationSize_, 0, singleObservationSize_, 1 ) = residuals_.at( i );
         }
@@ -377,7 +377,7 @@ public:
 
     void setConstantWeight( const double weight )
     {
-        for ( unsigned int k = 0 ; k < numberOfObservations_ ; k++ )
+        for ( int k = 0 ; k < numberOfObservations_ ; k++ )
         {
             weights_.at( k ) = weight * Eigen::Matrix< double, Eigen::Dynamic, 1 >::Ones( singleObservationSize_, 1 );
         }
@@ -397,13 +397,13 @@ public:
 
     void setTabulatedWeights( const Eigen::VectorXd& weightsVector )
     {
-        if( weightsVector.rows( ) != singleObservationSize_ * observations_.size( ) )
+        if( weightsVector.rows( ) != singleObservationSize_ * static_cast< int >( observations_.size( ) ) )
         {
             throw std::runtime_error( "Error when setting weights in single observation set, sizes are incompatible." );
         }
-        for ( unsigned int k = 0 ; k < numberOfObservations_ ; k++ )
+        for ( int k = 0 ; k < numberOfObservations_ ; k++ )
         {
-            for ( unsigned int i = 0 ; i < singleObservationSize_ ; i++ )
+            for ( int i = 0 ; i < singleObservationSize_ ; i++ )
             {
                 weights_.at( k )[ i ] = weightsVector[ k * singleObservationSize_ + i ];
             }
@@ -427,7 +427,7 @@ public:
                 Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >::Zero( singleObservationSize_ * numberOfObservations_, 1 );
 
         std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > computedObservations = getComputedObservations( );
-        for( unsigned int i = 0; i < numberOfObservations_ ; i++ )
+        for( int i = 0; i < numberOfObservations_ ; i++ )
         {
             computedObservationsVector.segment( i * singleObservationSize_, singleObservationSize_ ) = computedObservations.at( i );
         }
@@ -1865,7 +1865,7 @@ public:
         {
             int currentObsSetSize = singleObsSets.at( k )->getTotalObservationSetSize( );
             totalSizeAllObsSets += currentObsSetSize;
-            if ( currentObsSetSize != singleObsSets.at( 0 )->getTotalObservationSetSize( ) )
+            if ( currentObsSetSize != static_cast< int >( singleObsSets.at( 0 )->getTotalObservationSetSize( ) ) )
             {
                 areObsSetsSameSize = false;
             }
