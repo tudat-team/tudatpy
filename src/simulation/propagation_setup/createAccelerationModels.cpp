@@ -2185,11 +2185,11 @@ inline basic_astrodynamics::AccelerationMap createAccelerationModelsMap(
                     ", but no such body found in map of bodies" );
             }
 
-            if( ( accelerationsForBody.at( i ).second->accelerationType_ == basic_astrodynamics::thrust_acceleration ) )
+            if( accelerationsForBody.at( i ).second->accelerationType_ == basic_astrodynamics::thrust_acceleration )
             {
                 thrustAccelerationSettings.push_back( accelerationsForBody.at( i ) );
             }
-            else if( ( accelerationsForBody.at( i ).second->accelerationType_ == basic_astrodynamics::einstein_infeld_hoffmann_acceleration ) )
+            else if( accelerationsForBody.at( i ).second->accelerationType_ == basic_astrodynamics::einstein_infeld_hoffmann_acceleration )
             {
                 if( orderedEihBodies.count( bodyUndergoingAcceleration ) > 0 )
                 {
