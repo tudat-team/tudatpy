@@ -38,7 +38,7 @@ void expose_estimated_parameter_setup(py::module &m) {
             .value("constant_drag_coefficient_type", tep::EstimatebleParametersEnum::constant_drag_coefficient)
             .value("radiation_pressure_coefficient_type", tep::EstimatebleParametersEnum::radiation_pressure_coefficient)
             .value("arc_wise_radiation_pressure_coefficient_type", tep::EstimatebleParametersEnum::arc_wise_radiation_pressure_coefficient)
-            .value("spherical_harmonics_cosine_coefficient_block_type", tep::EstimatebleParametersEnum::arc_wise_initial_body_state)
+            .value("spherical_harmonics_cosine_coefficient_block_type", tep::EstimatebleParametersEnum::spherical_harmonics_cosine_coefficient_block)
             .value("spherical_harmonics_sine_coefficient_block_type", tep::EstimatebleParametersEnum::spherical_harmonics_sine_coefficient_block)
             .value("constant_rotation_rate_type", tep::EstimatebleParametersEnum::constant_rotation_rate)
             .value("rotation_pole_position_type", tep::EstimatebleParametersEnum::rotation_pole_position)
