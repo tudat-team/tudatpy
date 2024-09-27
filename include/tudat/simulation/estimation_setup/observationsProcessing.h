@@ -56,7 +56,7 @@ public:
         return filterType_;
     }
 
-    const bool filterOut( ) const
+    bool filterOut( ) const
     {
         return filterOut_;
     }
