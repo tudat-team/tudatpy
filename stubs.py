@@ -4,6 +4,8 @@ import ast
 import subprocess
 import argparse
 
+raise NotImplementedError("This script is not yet ready for use")
+
 # Globals
 TUDATPY_ROOT = Path(__file__).parent / "src/tudatpy"
 STUBS_ROOT = Path(__file__).parent / "src/tudatpy-stubs"
