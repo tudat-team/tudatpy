@@ -357,7 +357,7 @@ std::vector< std::shared_ptr< GravityFieldVariations > > GravityFieldVariationsS
     // Iterate over variation objects and check type
     for( unsigned int i = 0; i < variationType_.size( ); i++ )
     {
-        if( variationType_[ i ] == basic_solid_body )
+        if( variationType_[ i ] == basic_solid_body || variationType_[ i ] == mode_coupled_solid_body )
         {
             directTidalVariations.push_back( variationObjects_[ i ] );
         }
