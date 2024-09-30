@@ -136,8 +136,8 @@ set(POSITION_INDEPENDENT_CODE True)
 enable_testing()
 
 # python.
-# include(YACMAPythonSetup)
-include(PythonSetup)
+include(YACMAPythonSetup)
+# include(PythonSetup)
 
 # # python version check.
 # if (${PYTHON_VERSION_MAJOR} LESS 3 OR (${PYTHON_VERSION_MAJOR} EQUAL 3 AND ${PYTHON_VERSION_MINOR} LESS 4))
