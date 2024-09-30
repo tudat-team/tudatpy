@@ -15,17 +15,6 @@ endif()
 # Find Python interpreter.
 find_package(PythonInterp REQUIRED)
 
-# Find Python through pybind11
-set(PYBIND11_FINDPYTHON ON)
-find_package(pybind11 CONFIG REQUIRED)
-
-if (Python_INCLUDE_DIRS)
-    set(
-        YACMA_PYTHON_INCLUDE_DIR "${Python_INCLUDE_DIRS}"
-        CACHE PATH "Path to the Python include dir."
-    )
-endif()
-
 if(_YACMA_PYTHON_MODULE_NEED_LINK)
     # NOTE: this will give us both the Python lib and the Python include dir.
     find_package(PythonLibs REQUIRED)
