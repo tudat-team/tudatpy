@@ -32,11 +32,11 @@ build:
       # directory with the docs/ directory of the latest tag.
 
 # The pre-install step does the following:
-# Download and unzip the latest tag.
-# Move the current environment_readthedocs.yaml file to a temporary location.
-# Remove the current docs/ folder.
-# Move the docs/ folder from the latest tag to the current location.
-# Move the environment_readthedocs.yaml file back to the docs/ folder.
+# 1. Download and unzip the latest tag.
+# 2. Move the current environment_readthedocs.yaml file to a temporary location. (Preserving the current environment_readthedocs.yaml facilitates introducing changes to the environment_readthedocs.yaml and testing them on the latest tag.)
+# 3. Remove the current docs/ folder.
+# 4. Move the docs/ folder from the latest tag to the current location.
+# 5. Move the environment_readthedocs.yaml file back to the docs/ folder.
 
 conda:
   environment: docs/environment_readthedocs.yaml
