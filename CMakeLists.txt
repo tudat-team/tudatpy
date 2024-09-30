@@ -138,10 +138,10 @@ enable_testing()
 # python.
 include(YACMAPythonSetup)
 
-# python version check.
-if (${PYTHON_VERSION_MAJOR} LESS 3 OR (${PYTHON_VERSION_MAJOR} EQUAL 3 AND ${PYTHON_VERSION_MINOR} LESS 4))
-    message(FATAL_ERROR "Minimum supported python version is 3.4.")
-endif ()
+# # python version check.
+# if (${PYTHON_VERSION_MAJOR} LESS 3 OR (${PYTHON_VERSION_MAJOR} EQUAL 3 AND ${PYTHON_VERSION_MINOR} LESS 4))
+#     message(FATAL_ERROR "Minimum supported python version is 3.4.")
+# endif ()
 
 # pybind11.
 if (${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
