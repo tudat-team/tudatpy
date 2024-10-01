@@ -1048,6 +1048,17 @@ void getVectorEndBlock(
     newVector = std::vector< T >( originalVector.end( ) - numberOfEntries, originalVector.end( ) );
 }
 
+
+template<typename T>
+bool compareStlVectors( const std::vector<T>& v1, const std::vector<T>& v2)
+{
+    auto v1Sort = v1;
+    auto v2Sort = v2;
+
+    std::sort(v1Sort.begin(), v1Sort.end());
+    std::sort(v2Sort.begin(), v2Sort.end());
+    return v1Sort == v2Sort;
+}
 } // namespace utilities
 
 } // namespace tudat
