@@ -50,23 +50,40 @@ std::vector< std::shared_ptr< orbit_determination::TidalLoveNumberPartialInterfa
                 if( variationObjectList.at( i ) != nullptr )
                 {
                     // Get state/rotation functions for deforming bodyies
-                    std::vector< std::function< Eigen::Vector3d( ) > > deformingBodyStateFunctions;
-                    std::vector< std::string > deformingBodies = variationObjectList.at( i )->getDeformingBodies( );
-                    for( unsigned int i = 0; i < deformingBodies.size( ); i++ )
+                    std::vector<std::function<Eigen::Vector3d( )> > deformingBodyStateFunctions;
+                    std::vector<std::string> deformingBodies = variationObjectList.at( i )->getDeformingBodies( );
+                    for ( unsigned int i = 0; i < deformingBodies.size( ); i++ )
                     {
                         deformingBodyStateFunctions.push_back(
-                                    std::bind( &Body::getPosition, bodies.at( deformingBodies.at( i ) ) ) );
+                            std::bind( &Body::getPosition, bodies.at( deformingBodies.at( i ))));
                     }
-                    // Get state/rotation functions for deformed body
-
                     // Create partial object
-                    loveNumberInterfaces.push_back(
-                                std::make_shared< orbit_determination::TidalLoveNumberPartialInterface >(
-                                    variationObjectList.at( i ),
-                                    deformedBodyPositionFunction,
-                                    deformingBodyStateFunctions,
-                                    rotationToDeformedBodyFrameFrameFunction,
-                                    acceleratingBodyName ) );
+                    auto
+                        newLoveNumberInterface = std::make_shared<orbit_determination::TidalLoveNumberPartialInterface>(
+                        variationObjectList.at( i ),
+                        deformedBodyPositionFunction,
+                        deformingBodyStateFunctions,
+                        rotationToDeformedBodyFrameFrameFunction,
+                        acceleratingBodyName );
+
+                    bool addInterface = true;
+                    for ( unsigned int j = 0; j < loveNumberInterfaces.size( ); j++ )
+                    {
+                        if ( acceleratingBodyName == loveNumberInterfaces.at( j )->getDeformedBody( ))
+                        {
+                            if ( utilities::compareStlVectors<std::string>(
+                                newLoveNumberInterface->getDeformingBodies( ),
+                                loveNumberInterfaces.at( j )->getDeformingBodies( )))
+                            {
+                                addInterface = false;
+                            }
+                        }
+                    }
+
+                    if ( addInterface )
+                    {
+                        loveNumberInterfaces.push_back( newLoveNumberInterface );
+                    }
                 }
             }
         }
