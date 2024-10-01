@@ -137,7 +137,6 @@ calculateSphericalHarmonicCoefficientsPartialWrtModeCoupledTidalLoveNumbers(
     }
 
     // Add all partials into single list (ordered as per parameterDegreeAndOrderIndices)
-    std::cout<<"Number of indices "<<parameterDegreeAndOrderIndices.size( )<<std::endl;
     for( unsigned int i = 0; i < parameterDegreeAndOrderIndices.size( ); i++ )
     {
         partials.push_back( partialsPerDegree.at( parameterDegreeAndOrderIndices.at( i ).first ).at( parameterDegreeAndOrderIndices.at( i ).second ) );
