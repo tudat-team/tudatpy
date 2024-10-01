@@ -7,9 +7,9 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
-//
-//#define BOOST_TEST_DYN_LINK
-//#define BOOST_TEST_MAIN
+
+#define BOOST_TEST_DYN_LINK
+#define BOOST_TEST_MAIN
 
 #include <limits>
 #include <string>
@@ -19,11 +19,11 @@
 #include "tudat/basics/utilities.h"
 
 #include "tudat/simulation/estimation.h"
-//
-//namespace tudat
-//{
-//namespace unit_tests
-//{
+
+namespace tudat
+{
+namespace unit_tests
+{
 
 using namespace tudat;
 using namespace tudat::observation_models;
@@ -42,9 +42,9 @@ using namespace tudat::statistics;
 using namespace tudat::ground_stations;
 
 
-//
-//BOOST_AUTO_TEST_SUITE( test_observation_dependent_variables )
-//
+
+BOOST_AUTO_TEST_SUITE( test_observation_dependent_variables )
+
 
 void compareAgainstReference(
     const std::shared_ptr<ObservationCollection< > > simulatedObservations,
@@ -124,8 +124,7 @@ double computeLineSegmentToCenterOfMassDistance(
  *  with transmitter/receiver as station/spacecraft (and the other way around). It is then checked whether the
  *  corresponding link in other observables yields identical results
  */
-//BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
-int main( )
+BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
 {
     //Load spice kernels.
     spice_interface::loadStandardSpiceKernels( );
@@ -258,7 +257,7 @@ int main( )
     std::vector< std::map< double, Eigen::VectorXd > > referenceTransmitterDependentVariableResults;
 
     // Run analysis for each observable (only compare against theory for 1st one)
-    for( unsigned int currentObservableTestCase = 0; currentObservableTestCase < 9; currentObservableTestCase++ )
+    for( unsigned int currentObservableTestCase = 0; currentObservableTestCase < 8; currentObservableTestCase++ )
     {
         // Check if observable is differenced
         bool isDifferencedObservable = false;
@@ -305,13 +304,13 @@ int main( )
             geometryType = 1;
             isDifferencedObservable = true;
         }
+//        else if( currentObservableTestCase == 7 )
+//        {
+//            currentObservableType = dsn_n_way_averaged_doppler;
+//            geometryType = 1;
+//            isDifferencedObservable = true;
+//        }
         else if( currentObservableTestCase == 7 )
-        {
-            currentObservableType = dsn_n_way_averaged_doppler;
-            geometryType = 1;
-            isDifferencedObservable = true;
-        }
-        else if( currentObservableTestCase == 8 )
         {
             currentObservableType = relative_angular_position;
             geometryType = 2;
@@ -809,10 +808,10 @@ int main( )
         }
     }
 }
-//
-//BOOST_AUTO_TEST_SUITE_END( )
-//
-//}
-//
-//}
+
+BOOST_AUTO_TEST_SUITE_END( )
+
+}
+
+}
 

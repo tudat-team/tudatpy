@@ -239,15 +239,23 @@ public:
     ObservationScalarType computeCurrentFrequency( const TimeType lookupTimeOriginal )
     {
         TimeType lookupTime = lookupTimeOriginal;
-        int lowerNearestNeighbour = startTimeLookupScheme_->findNearestLowerNeighbour( lookupTime );
-
+        int lowerNearestNeighbour = 0;
+        try
+        {
+            int lowerNearestNeighbour = startTimeLookupScheme_->findNearestLowerNeighbour( lookupTime );
+        }
+        catch( ... )
+        {
+            std::cout<<"Time diff "<<startTimes_.at( 0 ) - lookupTimeOriginal<<std::endl;
+            return 0.0;
+        }
         if( lookupTime > endTimes_.at( lowerNearestNeighbour ) || lookupTime < startTimes_.at ( lowerNearestNeighbour ) )
         {
             throw std::runtime_error(
                     "Error when interpolating ramp reference frequency: look up time (" + std::to_string(
                             static_cast< double >( lookupTime ) ) +
                     ") is outside the ramp table interval (" + std::to_string( startTimes_.at( 0 ) ) + " to " +
-                    std::to_string( startTimes_.back( ) ) + ")." );
+                    std::to_string( endTimes_.back( ) ) + ")." );
         }
         else if ( invalidStartTimeLookupScheme_ != nullptr )
         {

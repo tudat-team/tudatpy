@@ -972,7 +972,7 @@ std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeT
             {
                 throw std::runtime_error( "Error when splitting observation sets, the maximum number of observations cannot be smaller than the minimum number of observations." );
             }
-            for ( unsigned int ind = maxNbObs ; ind < observationSet->getNumberOfObservables( ) ; ind+=maxNbObs )
+            for ( int ind = maxNbObs ; ind < observationSet->getNumberOfObservables( ) ; ind+=maxNbObs )
             {
                 rawStartIndicesNewSets.push_back( ind );
             }

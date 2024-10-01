@@ -75,7 +75,7 @@ std::pair< std::vector< double >, std::vector< double > > grailAntennaFileReader
             double xAxisCosinus = std::stod( vectorOfIndividualStrings.at( 3 ) );
             double yAxisCosinus = std::stod( vectorOfIndividualStrings.at( 4 ) );
             double zAxisCosinus = std::stod( vectorOfIndividualStrings.at( 5 ) );
-            Eigen::Vector3d antennaPosition = antennaPositionNorm * ( Eigen::Vector3d( ) << xAxisCosinus, yAxisCosinus, zAxisCosinus  ).finished( );
+//            Eigen::Vector3d antennaPosition = antennaPositionNorm * ( Eigen::Vector3d( ) << xAxisCosinus, yAxisCosinus, zAxisCosinus  ).finished( );
 
             switchTimes.push_back( switchTimeTbd );
             antennaPositions.push_back( xAxisCosinus );

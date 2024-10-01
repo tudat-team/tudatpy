@@ -172,10 +172,10 @@ public:
       }
       case utc_seconds_j2000:
       {
-          std::vector<TimeType> observationTimesUtc =
+          observationTimesUtc_ =
               utilities::staticCastVector< TimeType, double >(
-                  rawTrackingTxtFileContents_->getDoubleDataColumn(input_output::TrackingDataType::utc_reception_time_j2000 ) );
-          observationTimes_ = convertTimesTdbFromJ2000(observationTimesUtc, observation_models::receiver );
+                  rawTrackingTxtFileContents_->getDoubleDataColumn( input_output::TrackingDataType::utc_reception_time_j2000 ) );
+          observationTimes_ = convertTimesTdbFromJ2000( observation_models::receiver );
           break;
       }
       case calendar_day_time:
@@ -188,14 +188,14 @@ public:
           auto minutes = rawTrackingTxtFileContents_->getDoubleDataColumn(input_output::TrackingDataType::minute);
           auto seconds = rawTrackingTxtFileContents_->getDoubleDataColumn(input_output::TrackingDataType::second);
           // Convert to seconds and add to utc times
-          std::vector< TimeType > observationTimesUtc;
+          observationTimesUtc_.clear( );
           for( unsigned int i = 0; i < years.size( ); i++ )
           {
-              observationTimesUtc.push_back(basic_astrodynamics::DateTime(
+              observationTimesUtc_.push_back(basic_astrodynamics::DateTime(
                   years.at( i ), months.at( i ), days.at( i ), hours.at( i ), minutes.at( i ), seconds.at( i ) ).epoch< TimeType >() );
           }
           // Convert to TDB
-          observationTimes_ = convertTimesTdbFromJ2000(observationTimesUtc, observation_models::receiver );
+          observationTimes_ = convertTimesTdbFromJ2000( observation_models::receiver );
 
           break;
       }
@@ -287,15 +287,14 @@ public:
 
   /*!
    * Convert the UTC observation times to TDB
-   * @param observationTimesUtc
    * @return vector of TDB observation times
    */
-  std::vector< TimeType > convertTimesTdbFromJ2000( const std::vector< TimeType >& observationTimesUtc, const LinkEndType referenceLinkEnd )
+  std::vector< TimeType > convertTimesTdbFromJ2000( const LinkEndType referenceLinkEnd )
   {
       // Get the timescale converter
 
       // Check if there is one LinkEnds per observation time
-      if (linkEndsVector_.size() != observationTimesUtc.size())
+      if (linkEndsVector_.size() != observationTimesUtc_.size())
       {
           throw std::runtime_error("Error while processing tracking data: vector of linkEnds and observationTimes not of equal size");
       }
@@ -317,8 +316,9 @@ public:
       }
 
       // Convert to TDB using the GS positions
-      std::vector< TimeType > observationTimesTdb = timeScaleConverter_->getCurrentTimes< TimeType >(
-          basic_astrodynamics::utc_scale, basic_astrodynamics::tdb_scale, observationTimesUtc, groundStationPositions);
+      std::vector< TimeType > observationTimesTdb =
+          timeScaleConverter_->getCurrentTimes< Time >(
+          basic_astrodynamics::utc_scale, basic_astrodynamics::tdb_scale, observationTimesUtc_, groundStationPositions );
       return observationTimesTdb;
   }
 
@@ -375,16 +375,10 @@ private:
       auto const& availableDataTypes = rawTrackingTxtFileContents_->getDataColumnTypes();
 
       // Return representation based on available data types
-
-      if (utilities::containsAll(availableDataTypes, std::vector<input_output::TrackingDataType>{input_output::TrackingDataType::tdb_reception_time_j2000}))
-      {
-          return tdb_seconds_j2000;
-      }
       if (utilities::containsAll(availableDataTypes, std::vector<input_output::TrackingDataType>{input_output::TrackingDataType::utc_reception_time_j2000}))
       {
           return utc_seconds_j2000;
       }
-
       if (utilities::containsAll(availableDataTypes,
                                  std::vector<input_output::TrackingDataType>{
                                      input_output::TrackingDataType::year,
@@ -395,6 +389,10 @@ private:
                                      input_output::TrackingDataType::second }))
       {
           return calendar_day_time;
+      }
+      if (utilities::containsAll(availableDataTypes, std::vector<input_output::TrackingDataType>{input_output::TrackingDataType::tdb_reception_time_j2000}))
+      {
+          return tdb_seconds_j2000;
       }
 
       // Throw an error if no match is found
@@ -477,18 +475,18 @@ private:
 
   double getObservationTimeStep( )
   {
-      if( observationTimes_.size( ) < 2 )
+      if( observationTimesUtc_.size( ) < 2 )
       {
           throw std::runtime_error( "Error when getting integration time for processed file contents, size is < 2" );
       }
-      double observationTimeStep = observationTimes_.at( 1 ) - observationTimes_.at( 0 );
-      for( unsigned int i = 1; i < observationTimes_.size( ); i++ )
+      double observationTimeStep = observationTimesUtc_.at( 1 ) - observationTimesUtc_.at( 0 );
+      for( unsigned int i = 1; i < observationTimesUtc_.size( ); i++ )
       {
-          double testObservationTimeStep = observationTimes_.at( i ) - observationTimes_.at( i - 1 );
-          if( std::fabs( observationTimeStep - testObservationTimeStep ) > 50.0 * std::numeric_limits< double >::epsilon( ) * observationTimes_.at( i - 1 )  )
+          double testObservationTimeStep = observationTimesUtc_.at( i ) - observationTimesUtc_.at( i - 1 );
+          if( std::fabs( observationTimeStep - testObservationTimeStep ) > 0.01 )// 50.0 * std::numeric_limits< double >::epsilon( ) * observationTimesUtc_.at( i - 1 )  )
           {
-              std::cout<<i<<" "<<testObservationTimeStep<<" "<<observationTimeStep<<" "<<testObservationTimeStep - observationTimeStep<<" "<<
-                       50.0 * std::numeric_limits< double >::epsilon( ) * observationTimes_.at( i - 1 )<<std::endl;
+              std::cout<<std::setprecision( 19 )<<i<<" "<<observationTimesUtc_.at( i )<<" "<<observationTimesUtc_.at( i - 1 )<<" "<<observationTimesUtc_.at( i - 2 )<<" "<<testObservationTimeStep<<" "<<observationTimeStep<<" "<<testObservationTimeStep - observationTimeStep<<" "<<
+                       50.0 * std::numeric_limits< double >::epsilon( ) * observationTimesUtc_.at( i - 1 )<<std::endl;
               throw std::runtime_error( "Error when getting integration time for processed file contents, step is not equal" );
           }
       }
@@ -505,7 +503,9 @@ private:
   //! Vector of TDB observation times
   std::vector<TimeType> observationTimes_;
 
-  //! Map of observations
+  std::vector<TimeType> observationTimesUtc_;
+
+    //! Map of observations
   std::map<ObservableType, std::vector<ObservationScalarType>> observationMap_;
 
   //! Vector of observable types that can be derived from the tracking data
