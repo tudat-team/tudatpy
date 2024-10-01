@@ -18,6 +18,7 @@
 #include "tudat/io/readOdfFile.h"
 #include "tudat/io/readTabulatedWeatherData.h"
 #include "tudat/io/readTrackingTxtFile.h"
+#include "tudat/io/readVariousPdsFiles.h"
 
 #include <pybind11/stl.h>
 
@@ -253,6 +254,13 @@ void expose_io(py::module &m) {
             .value("doppler_bandwidth", tudat::input_output::TrackingDataType::doppler_bandwidth, get_docstring("TrackingDataType.doppler_bandwidth").c_str())
             .value("vlbi_station_name", tudat::input_output::TrackingDataType::vlbi_station_name, get_docstring("TrackingDataType.vlbi_station_name").c_str())
             .export_values();
+
+      m.def( "grail_antenna_file_reader", &tio::grailAntennaFileReader,
+             py::arg( "file_name" ), get_docstring( "grail_antenna_file_reader" ).c_str( ) );
+      m.def( "grail_mass_level_0_file_reader", &tio::grailMassLevel0FileReader,
+             py::arg( "file_name" ), get_docstring( "grail_mass_level_0_file_reader" ).c_str( ) );
+      m.def( "grail_mass_level_1_file_reader", &tio::grailMassLevel1FileReader,
+             py::arg( "file_name" ), py::arg( "data_level" ) = "1b", get_docstring( "grail_mass_level_1_file_reader" ).c_str( ) );
 };
 
 }// namespace io
