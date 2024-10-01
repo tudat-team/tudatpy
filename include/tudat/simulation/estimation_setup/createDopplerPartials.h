@@ -253,9 +253,6 @@ std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialSca
 }
 
 
-
-
-
 }
 
 }

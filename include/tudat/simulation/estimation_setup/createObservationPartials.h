@@ -154,7 +154,6 @@ public:
             {
                 throw std::runtime_error( "Error when requesting partial creation for 2-way Doppler; concatenated partial not supported" );
             }
-//            throw std::runtime_error( "Error, two-way instantaneous Doppler observable currently failing in unit tests, please contact Tudat support" );
             observationPartials = createTwoWayDopplerPartials< ObservationScalarType, TimeType >(
                         observationModel, bodies, parametersToEstimate, isPartialForDifferencedObservable );
             break;
@@ -176,6 +175,7 @@ public:
             break;
         case observation_models::n_way_differenced_range:
         case observation_models::dsn_n_way_averaged_doppler:
+        case observation_models::doppler_measured_frequency:
             if( isPartialForDifferencedObservable )
             {
                 throw std::runtime_error( "Error when requesting partial creation for n-way averaged Doppler; differenced partial not supported" );

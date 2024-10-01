@@ -132,13 +132,15 @@ public:
                     observation_models::FrequencyBands downlinkBand ) >& turnaroundRatio,
             const std::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = nullptr,
             const std::shared_ptr< ground_stations::GroundStationState > groundStationState = nullptr ):
+            const bool subtractDopplerSignature = true ):
         ObservationModel< 1, ObservationScalarType, TimeType >( dsn_n_way_averaged_doppler , linkEnds, observationBiasCalculator),
         arcStartObservationModel_( arcStartObservationModel ),
         arcEndObservationModel_( arcEndObservationModel ),
         numberOfLinkEnds_( linkEnds.size( ) ),
         transmittingFrequencyCalculator_( transmittingFrequencyCalculator ),
         turnaroundRatio_( turnaroundRatio ),
-        groundStationState_( groundStationState )
+        groundStationState_( groundStationState ),
+        subtractDopplerSignature_( subtractDopplerSignature )
     {
         if( !std::is_same< Time, TimeType >::value )
         {
@@ -260,7 +262,9 @@ public:
 
         // Moyer (2000), eq. 13-54
         Eigen::Matrix< ObservationScalarType, 1, 1 > observation = ( Eigen::Matrix< ObservationScalarType, 1, 1 >( ) <<
-                turnaroundRatio_( referenceUplinkBand, downlinkBand ) * referenceFrequency -
+                turnaroundRatio_( referenceUplinkBand, downlinkBand ) * referenceFrequency +
+                ( subtractDopplerSignature_ ? mathematical_constants::getFloatingInteger< ObservationScalarType >( -1.0 ) :
+                    mathematical_constants::getFloatingInteger< ObservationScalarType >( -1.0 ) ) *
                 turnaroundRatio_( uplinkBand, downlinkBand ) / static_cast< ObservationScalarType >( integrationTime ) *
                 transmitterFrequencyIntegral ).finished( );
 
@@ -313,6 +317,8 @@ private:
     std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > terrestrialTimeScaleConverter_;
 
     std::shared_ptr< ground_stations::GroundStationState > groundStationState_;
+
+    bool subtractDopplerSignature_;
 };
 
 
