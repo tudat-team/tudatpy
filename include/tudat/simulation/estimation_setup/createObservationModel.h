@@ -2075,7 +2075,6 @@ public:
                         bodies.getBody( linkEnds.at( observation_models::transmitter ).bodyName_ )->getGroundStation(
                                 linkEnds.at( observation_models::transmitter ).stationName_ )->getTransmittingFrequencyCalculator( ),
                         turnaroundRatioFunction, observationBias, receivingStationState, dsnNWayAveragedDopplerObservationSettings->getSubtractDopplerSignature( ) );
-
             break;
         }
         case doppler_measured_frequency:
@@ -2133,7 +2132,6 @@ public:
                         transmittingFrequencyInterpolator,
                         turnaroundRatioFunction,
                         observationBias );
->>>>>>> feature/dopplerMeasuredFrequencyObservationModel
 
             break;
         }

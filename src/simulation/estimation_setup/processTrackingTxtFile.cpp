@@ -76,6 +76,7 @@ void setStationFrequenciesFromTrackingData(
                 throw std::runtime_error( "Error when reading IFMS transmitter frequencies, only unramped data currently supported." );
             }
         }
+        rampStartTimes[ 0 ] -= 1.0;
         for( unsigned int i = 0; i < rampStartTimes.size( ) - 1 ; i++ )
         {
             double timeDifference = rampStartTimes.at( i + 1 ) - rampEndTimes.at( i );
