@@ -349,6 +349,12 @@ void expose_estimated_parameter_setup(py::module &m) {
           py::arg("ground_station_name"),
           get_docstring("ground_station_position").c_str() );
 
+    m.def("reference_point_position",
+          &tep::referencePointPosition,
+          py::arg("body"),
+          py::arg("reference_point_name"),
+          get_docstring("reference_point_position").c_str() );
+
 
 
     // ###############  Tidal Model Parameters  ################################
