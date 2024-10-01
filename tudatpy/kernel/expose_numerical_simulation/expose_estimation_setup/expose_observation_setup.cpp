@@ -241,7 +241,8 @@ void expose_observation_setup(py::module &m) {
                 m, "LinkDefinition",
                 get_docstring("LinkDefinition").c_str() )
             .def(py::init<const std::map< tom::LinkEndType, tom::LinkEndId >&>(),
-                 py::arg("link_ends") );
+                 py::arg("link_ends") )
+            .def("link_end_id", &tom::LinkDefinition::at, py::arg("link_end_type"), get_docstring("LinkDefinition.link_end_id").c_str());
 //            .def_property( "link_ends", &tom::LinkDefinition::linkEnds_,
 //                           get_docstring("LinkDefinition.link_ends").c_str() );
 
@@ -1097,29 +1098,29 @@ void expose_observation_setup(py::module &m) {
     // ODF OBSERVATIONS
     /////////////////////////////////////////////////////////////////////////////////////////////////
 
-    py::class_< tom::ProcessedOdfFileContents, std::shared_ptr< tom::ProcessedOdfFileContents > >
+    py::class_< tom::ProcessedOdfFileContents< TIME_TYPE >, std::shared_ptr< tom::ProcessedOdfFileContents< TIME_TYPE > > >
             (m, "ProcessedOdfFileContents", get_docstring("ProcessedOdfFileContents").c_str( ) )
              .def_property_readonly("ground_station_names",
-                 &tom::ProcessedOdfFileContents::getGroundStationsNames,
+                 &tom::ProcessedOdfFileContents< TIME_TYPE >::getGroundStationsNames,
                  get_docstring("ProcessedOdfFileContents.get_ground_station_names").c_str( ) )
              .def_property_readonly("processed_observable_types",
-                 &tom::ProcessedOdfFileContents::getProcessedObservableTypes,
+                 &tom::ProcessedOdfFileContents< TIME_TYPE >::getProcessedObservableTypes,
                  get_docstring("ProcessedOdfFileContents.get_processed_observable_types").c_str( ) )
              .def_property_readonly("start_and_end_time",
-                 &tom::ProcessedOdfFileContents::getStartAndEndTime,
+                 &tom::ProcessedOdfFileContents< TIME_TYPE >::getStartAndEndTime,
                  get_docstring("ProcessedOdfFileContents.get_start_and_end_time").c_str( ) )
              .def_property_readonly("ignored_odf_observable_types",
-                 &tom::ProcessedOdfFileContents::getIgnoredRawOdfObservableTypes,
+                 &tom::ProcessedOdfFileContents< TIME_TYPE >::getIgnoredRawOdfObservableTypes,
                  get_docstring("ProcessedOdfFileContents.get_ignored_odf_observable_types").c_str( ) )
              .def_property_readonly("ignored_ground_stations",
-                 &tom::ProcessedOdfFileContents::getIgnoredGroundStations,
+                 &tom::ProcessedOdfFileContents< TIME_TYPE >::getIgnoredGroundStations,
                  get_docstring("ProcessedOdfFileContents.get_ignored_ground_stations").c_str( ) )
              .def_property_readonly("raw_odf_data",
-                 &tom::ProcessedOdfFileContents::getRawOdfData,
+                 &tom::ProcessedOdfFileContents< TIME_TYPE >::getRawOdfData,
                  get_docstring("ProcessedOdfFileContents.raw_odf_data").c_str( ) )
             .def("define_antenna_id",
                   py::overload_cast< const std::string&, const std::string&>(
-                      &tom::ProcessedOdfFileContents::defineSpacecraftAntennaId ),
+                      &tom::ProcessedOdfFileContents< TIME_TYPE >::defineSpacecraftAntennaId ),
                  py::arg("spacecraft_name"),
                  py::arg("antenna_name"),
                  get_docstring("ProcessedOdfFileContents.define_antenna_id").c_str( ) );
@@ -1129,7 +1130,7 @@ void expose_observation_setup(py::module &m) {
                   const std::vector< std::string >&,
                   const std::string&,
                   const bool,
-                  const std::map< std::string, Eigen::Vector3d >& >( &tom::processOdfData ),
+                  const std::map< std::string, Eigen::Vector3d >& >( &tom::processOdfData< TIME_TYPE > ),
           py::arg("file_names"),
           py::arg("spacecraft_name"),
           py::arg("verbose") = true,
@@ -1141,7 +1142,7 @@ void expose_observation_setup(py::module &m) {
                   const std::string&,
                   const std::string&,
                   const bool,
-                  const std::map< std::string, Eigen::Vector3d >& >( &tom::processOdfData ),
+                  const std::map< std::string, Eigen::Vector3d >& >( &tom::processOdfData< TIME_TYPE > ),
           py::arg("file_name"),
           py::arg("spacecraft_name"),
           py::arg("verbose") = true,
@@ -1154,7 +1155,7 @@ void expose_observation_setup(py::module &m) {
         return tom::getDsnDefaultTurnaroundRatios(band1, band2); };
 
     m.def("set_odf_information_in_bodies",
-          &tom::setOdfInformationInBodies,
+          &tom::setOdfInformationInBodies< TIME_TYPE >,
           py::arg("processed_odf_file"),
           py::arg("bodies"),
           py::arg("body_with_ground_stations_name") = "Earth",
