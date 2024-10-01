@@ -238,7 +238,6 @@ public:
             convertedTimes.push_back(
                     getCurrentTime( inputScale, outputScale, inputTimeValues.at( i ), earthFixedPositions.at( i ) ) );
         }
-
         return convertedTimes;
     }
 
