@@ -219,7 +219,8 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > SphericalHarmonicsGr
                                 parameter, maximumDegree_, maximumOrder_ );
                     if( numberOfRows != 0 && currentTidalPartialOutput.first > 0 )
                     {
-                        throw std::runtime_error( "Error when getting vector tidal parameter partial, inconsistent output" +
+                        std::cout<<i<<std::endl;
+                        throw std::runtime_error( "Error when getting vector tidal parameter partial B, inconsistent output" +
                                                   std::to_string( numberOfRows ) + ", " +
                                                   std::to_string( currentTidalPartialOutput.first ) );
                     }
@@ -260,7 +261,7 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > SphericalHarmonicsGr
                         parameter, maximumDegree_, maximumOrder_ );
                     if( numberOfRows != 0 && currentTidalPartialOutput.first > 0 )
                     {
-                        throw std::runtime_error( "Error when getting vector tidal parameter partial, inconsistent output" +
+                        throw std::runtime_error( "Error when getting vector tidal parameter partial A, inconsistent output" +
                                                   std::to_string( numberOfRows ) + ", " +
                                                   std::to_string( currentTidalPartialOutput.first ) );
                     }

@@ -385,7 +385,17 @@ public:
     }
 
 
+    //! Name of body being deformed
+    std::string getDeformedBody( )
+    {
+        return deformedBody_;
+    }
 
+
+    std::vector< std::string > getDeformingBodies( )
+    {
+        return deformingBodies_;
+    }
 protected:
 
     //! Function to compute Love number partials from pre-computed partials and provided scaling values
