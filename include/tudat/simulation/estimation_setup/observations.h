@@ -12,7 +12,6 @@
 #define TUDAT_OBSERVATIONS_H
 
 #include <vector>
-
 #include <memory>
 #include <functional>
 
