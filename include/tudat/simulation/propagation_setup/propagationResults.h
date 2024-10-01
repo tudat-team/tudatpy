@@ -934,7 +934,7 @@ namespace tudat
             
             std::vector< std::map< TimeType, Eigen::VectorXd > > getConcatenatedDependentVariableResults( )
             {
-                std::vector< std::map< TimeType, Eigen::VectorXd > > concatenatedResults;
+                std::vector< std::map< TimeType, Eigen::VectorXd  > > concatenatedResults;
                 if( singleArcResults_->getSolutionIsCleared( ) != multiArcResults_->getSolutionIsCleared( ) )
                 {
                     throw std::runtime_error( "Error when getting concatenated hybrid-arc results, constituent results have inconsistent cleared state." );
@@ -946,9 +946,9 @@ namespace tudat
                 }
                 if( !singleArcResults_->getSolutionIsCleared( ) )
                 {
-                    concatenatedResults.push_back( singleArcResults_->getEquationsOfMotionNumericalSolution( ) );
+                    concatenatedResults.push_back( singleArcResults_->getDependentVariableHistory( ) );
                     std::vector< std::map< TimeType, Eigen::VectorXd > >
-                            multiArcResults = multiArcResults_->getConcatenatedEquationsOfMotionResults( );
+                            multiArcResults = multiArcResults_->getConcatenatedDependentVariableResults( );
                     concatenatedResults.insert( concatenatedResults.end( ), multiArcResults.begin( ), multiArcResults.end( ) );
                 }
                 return concatenatedResults;
