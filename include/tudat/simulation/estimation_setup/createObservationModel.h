@@ -2060,13 +2060,14 @@ public:
                         linkEnds.at( observation_models::transmitter ).stationName_ );
             }
 
+            std::shared_ptr< ground_stations::GroundStationState > receivingStationState =
+                    bodies.at( linkEnds.at( receiver ).bodyName_ )->getGroundStation( linkEnds.at( receiver ).stationName_ )->getNominalStationState( );
             observationModel = std::make_shared<
                     DsnNWayAveragedDopplerObservationModel< ObservationScalarType, TimeType > >(
                         linkEnds, arcStartObservationModel, arcEndObservationModel,
                         bodies.getBody( linkEnds.at( observation_models::transmitter ).bodyName_ )->getGroundStation(
                                 linkEnds.at( observation_models::transmitter ).stationName_ )->getTransmittingFrequencyCalculator( ),
-                        turnaroundRatioFunction,
-                        observationBias );
+                        turnaroundRatioFunction, observationBias, receivingStationState );
 
             break;
         }
