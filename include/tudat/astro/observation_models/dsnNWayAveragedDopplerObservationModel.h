@@ -131,7 +131,7 @@ public:
             const std::function< double ( observation_models::FrequencyBands uplinkBand,
                     observation_models::FrequencyBands downlinkBand ) >& turnaroundRatio,
             const std::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = nullptr,
-            const std::shared_ptr< ground_stations::GroundStationState > groundStationState = nullptr ):
+            const std::shared_ptr< ground_stations::GroundStationState > groundStationState = nullptr,
             const bool subtractDopplerSignature = true ):
         ObservationModel< 1, ObservationScalarType, TimeType >( dsn_n_way_averaged_doppler , linkEnds, observationBiasCalculator),
         arcStartObservationModel_( arcStartObservationModel ),
@@ -155,7 +155,6 @@ public:
                     "Error when defining DSN N-way averaged Doppler observation model: model allows exactly 3 link ends, " +
                     std::to_string( numberOfLinkEnds_ ) + "were selected.");
         }
-
         terrestrialTimeScaleConverter_ = earth_orientation::createDefaultTimeConverter( );
     }
 
@@ -261,10 +260,11 @@ public:
                         transmissionUtcStartTime, transmissionUtcEndTime );
 
         // Moyer (2000), eq. 13-54
-        Eigen::Matrix< ObservationScalarType, 1, 1 > observation = ( Eigen::Matrix< ObservationScalarType, 1, 1 >( ) <<
+        Eigen::Matrix< ObservationScalarType, 1, 1 > observation =
+            ( Eigen::Matrix< ObservationScalarType, 1, 1 >( ) <<
                 turnaroundRatio_( referenceUplinkBand, downlinkBand ) * referenceFrequency +
                 ( subtractDopplerSignature_ ? mathematical_constants::getFloatingInteger< ObservationScalarType >( -1.0 ) :
-                    mathematical_constants::getFloatingInteger< ObservationScalarType >( -1.0 ) ) *
+                    mathematical_constants::getFloatingInteger< ObservationScalarType >( 1.0 ) ) *
                 turnaroundRatio_( uplinkBand, downlinkBand ) / static_cast< ObservationScalarType >( integrationTime ) *
                 transmitterFrequencyIntegral ).finished( );
 
