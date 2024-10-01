@@ -1199,21 +1199,21 @@ void expose_observation_setup(py::module &m) {
   // Tracking Txt OBSERVATIONS
   /////////////////////////////////////////////////////////////////////////////////////////////////
 
-    m.def("create_tracking_txtfile_observation_collection",
-        py::overload_cast<
-            const std::shared_ptr<tudat::input_output::TrackingTxtFileContents>,
-            const std::string,
-            const std::vector<tom::ObservableType>,
-            const std::map<std::string, Eigen::Vector3d>,
-            const tom::ObservationAncilliarySimulationSettings&,
-            std::pair<TIME_TYPE, TIME_TYPE>>(&tom::createTrackingTxtFileObservationCollection<double, TIME_TYPE>),
-        py::arg("raw_tracking_txtfile_contents"),
-        py::arg("spacecraft_name"),
-        py::arg("observable_types_to_process") = std::vector<tom::ObservableType>(),
-        py::arg("earth_fixed_ground_station_positions") = tss::getApproximateDsnGroundStationPositions(),
-        py::arg("ancillary_settings") = tom::ObservationAncilliarySimulationSettings(),
-        py::arg("start_and_end_times_to_process") = std::make_pair<TIME_TYPE, TIME_TYPE>(TUDAT_NAN, TUDAT_NAN),
-        get_docstring("create_tracking_txtfile_observation_collection").c_str());
+//    m.def("create_tracking_txtfile_observation_collection",
+//        py::overload_cast<
+//            const std::shared_ptr<tudat::input_output::TrackingTxtFileContents>,
+//            const std::string,
+//            const std::vector<tom::ObservableType>,
+//            const std::map<std::string, Eigen::Vector3d>,
+//            const tom::ObservationAncilliarySimulationSettings&,
+//            std::pair<TIME_TYPE, TIME_TYPE>>(&tom::createTrackingTxtFileObservationCollection<double, TIME_TYPE>),
+//        py::arg("raw_tracking_txtfile_contents"),
+//        py::arg("spacecraft_name"),
+//        py::arg("observable_types_to_process") = std::vector<tom::ObservableType>(),
+//        py::arg("earth_fixed_ground_station_positions") = tss::getApproximateDsnGroundStationPositions(),
+//        py::arg("ancillary_settings") = tom::ObservationAncilliarySimulationSettings(),
+//        py::arg("start_and_end_times_to_process") = std::make_pair<TIME_TYPE, TIME_TYPE>(TUDAT_NAN, TUDAT_NAN),
+//        get_docstring("create_tracking_txtfile_observation_collection").c_str());
 
     m.def("observation_settings_from_collection",
           py::overload_cast<std::shared_ptr<tom::ObservationCollection<double, TIME_TYPE> >>(
