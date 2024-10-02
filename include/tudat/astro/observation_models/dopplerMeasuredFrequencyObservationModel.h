@@ -49,13 +49,14 @@ public:
         const std::shared_ptr< ground_stations::StationFrequencyInterpolator > transmittingFrequencyCalculator,
         const std::function< double(observation_models::FrequencyBands uplinkBand, observation_models::FrequencyBands downlinkBand) >& turnaroundRatio,
         const std::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = nullptr,
-        const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria = std::make_shared< LightTimeConvergenceCriteria >()
-    ) :
+        const std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > > groundStationStates =
+        std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > >( ) ) :
         ObservationModel< 1, ObservationScalarType, TimeType >(doppler_measured_frequency, linkEnds, observationBiasCalculator),
         twoWayDopplerModel_(twoWayDopplerModel),
         numberOfLinkEnds_(linkEnds.size()),
         transmittingFrequencyCalculator_(transmittingFrequencyCalculator),
-        turnaroundRatio_(turnaroundRatio)
+        turnaroundRatio_(turnaroundRatio),
+        stationStates_( groundStationStates )
     {
         if (numberOfLinkEnds_ != 3)
         {
@@ -64,20 +65,20 @@ public:
                 std::to_string(numberOfLinkEnds_) + "were selected.");
         }
 
-        uplinkDopplerModel_ = twoWayDopplerModel_->getUplinkDopplerCalculator();
-
-        downlinkDopplerModel_ = twoWayDopplerModel_->getDownlinkDopplerCalculator();
+        uplinkDopplerModel_ = twoWayDopplerModel_->getUplinkDopplerCalculator( );
+        downlinkDopplerModel_ = twoWayDopplerModel_->getDownlinkDopplerCalculator( );
 
         std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > >
             uplinkLightTimeCalculator = uplinkDopplerModel_->getLightTimeCalculator();
-
         std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > >
             downlinkLightTimeCalculator = downlinkDopplerModel_->getLightTimeCalculator();
 
         std::vector< std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > >
             lightTimeCalculators = { uplinkLightTimeCalculator, downlinkLightTimeCalculator };
-        lighTimeCalculator_ = std::make_shared< observation_models::MultiLegLightTimeCalculator< ObservationScalarType, TimeType > >(lightTimeCalculators, lightTimeConvergenceCriteria);
+        lighTimeCalculator_ = std::make_shared< observation_models::MultiLegLightTimeCalculator< ObservationScalarType, TimeType > >
+            (lightTimeCalculators );
 
+        terrestrialTimeScaleConverter_ = earth_orientation::createDefaultTimeConverter( );
     }
 
     //! Destructor
@@ -136,29 +137,30 @@ public:
                 std::to_string(numberOfLinkEnds_ - 1) + ").");
         }
 
-        FrequencyBands uplinkBand = frequencyBands.at(0);
-        FrequencyBands downlinkBand = frequencyBands.at(1);
-
-        // TimeType receptionStartTime = time - integrationTime / 2.0;
-        // TimeType receptionEndTime = time + integrationTime / 2.0;
-
+        FrequencyBands uplinkBand = frequencyBands.at( 0 );
+        FrequencyBands downlinkBand = frequencyBands.at( 1 );
 
         // Calculate the light time
-        TimeType lightTime = lighTimeCalculator_->calculateLightTimeWithLinkEndsStates(time, linkEndAssociatedWithTime, linkEndTimes, linkEndStates, ancillarySettings);
+        TimeType lightTime = lighTimeCalculator_->calculateLightTimeWithLinkEndsStates(
+            time, linkEndAssociatedWithTime, linkEndTimes, linkEndStates, ancillarySettings );
 
         // Get the time when the signal left the transmitter
+        Eigen::Vector3d nominalTransmittingStationState =
+            ( stationStates_.count( transmitter ) == 0 ) ?
+            Eigen::Vector3d::Zero( ) : stationStates_.at( transmitter )->getNominalCartesianPosition( );
         TimeType transmitterTime = time - lightTime;
+        TimeType transmitterUtcTime = terrestrialTimeScaleConverter_->getCurrentTime< TimeType >(
+            basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, transmitterTime, nominalTransmittingStationState );
 
         // Get the frequency of the transmitter
         ObservationScalarType transmittedFrequency =
-            transmittingFrequencyCalculator_->getTemplatedCurrentFrequency<ObservationScalarType, TimeType>(transmitterTime);
+            transmittingFrequencyCalculator_->getTemplatedCurrentFrequency<ObservationScalarType, TimeType>( transmitterUtcTime );
 
         // Calculate the Doppler observable
-        // FIXME: It is not very elegant to have to divide by the multiplication term here. It relies on the implementation of the doppler model.
         ObservationScalarType dopplerMultiplicationTerm = twoWayDopplerModel_->getMultiplicationTerm();
         ObservationScalarType twoWayDoppler = twoWayDopplerModel_->computeIdealObservationsWithLinkEndData(
             time, linkEndAssociatedWithTime, linkEndTimes, linkEndStates, ancillarySettings)( 0, 0 ) / dopplerMultiplicationTerm;
-        
+
 
         ObservationScalarType receivedFrequency = (transmittedFrequency * (1 + twoWayDoppler)) * turnaroundRatio_(uplinkBand, downlinkBand);
         Eigen::Matrix< ObservationScalarType, 1, 1 > observation = (Eigen::Matrix< ObservationScalarType, 1, 1 >() << receivedFrequency).finished();
@@ -187,6 +189,11 @@ private:
 
     // Light time calculator
     std::shared_ptr< observation_models::MultiLegLightTimeCalculator< ObservationScalarType, TimeType > > lighTimeCalculator_;
+
+    std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > terrestrialTimeScaleConverter_;
+
+    std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > > stationStates_;
+
 };
 
 
