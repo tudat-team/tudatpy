@@ -161,7 +161,7 @@ public:
 
     void setResiduals( const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& residuals )
     {
-        if ( residuals.size( ) != numberOfObservations_ )
+        if ( residuals.size( ) != static_cast< unsigned int >( numberOfObservations_ ) )
         {
             throw std::runtime_error( "Error when setting residuals, number of observations is inconsistent." );
         }
