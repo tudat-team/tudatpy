@@ -2067,6 +2067,16 @@ public:
                 getTransmittingFrequencyInterpolator( bodies, linkEnds );
 
 
+            std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > > stationStates;
+            for( auto it : linkEnds )
+            {
+                if( bodies.at( linkEnds.at( it.first ).bodyName_ )->getGroundStationMap( ).count( linkEnds.at( it.first ).stationName_ ) > 0 )
+                {
+                    stationStates[ it.first ] =
+                        bodies.at( linkEnds.at( it.first ).bodyName_ )->getGroundStation( linkEnds.at( it.first ).stationName_ )->getNominalStationState( );
+                }
+            }
+
             std::shared_ptr< ground_stations::GroundStationState > receivingStationState =
                     bodies.at( linkEnds.at( receiver ).bodyName_ )->getGroundStation( linkEnds.at( receiver ).stationName_ )->getNominalStationState( );
             observationModel = std::make_shared<
@@ -2074,7 +2084,7 @@ public:
                         linkEnds, arcStartObservationModel, arcEndObservationModel,
                         bodies.getBody( linkEnds.at( observation_models::transmitter ).bodyName_ )->getGroundStation(
                                 linkEnds.at( observation_models::transmitter ).stationName_ )->getTransmittingFrequencyCalculator( ),
-                        turnaroundRatioFunction, observationBias, receivingStationState, dsnNWayAveragedDopplerObservationSettings->getSubtractDopplerSignature( ) );
+                        turnaroundRatioFunction, observationBias, stationStates, dsnNWayAveragedDopplerObservationSettings->getSubtractDopplerSignature( ) );
             break;
         }
         case doppler_measured_frequency:
@@ -2125,13 +2135,24 @@ public:
             // Check if transmitter has frequency calculator
             std::shared_ptr< ground_stations::StationFrequencyInterpolator > transmittingFrequencyInterpolator =
                 getTransmittingFrequencyInterpolator( bodies, linkEnds );
-            
+
+            std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > > stationStates;
+            for( auto it : linkEnds )
+            {
+                if( bodies.at( linkEnds.at( it.first ).bodyName_ )->getGroundStationMap( ).count( linkEnds.at( it.first ).stationName_ ) > 0 )
+                {
+                    stationStates[ it.first ] =
+                        bodies.at( linkEnds.at( it.first ).bodyName_ )->getGroundStation( linkEnds.at( it.first ).stationName_ )->getNominalStationState( );
+                }
+            }
+
             observationModel = std::make_shared<
                     DopplerMeasuredFrequencyObservationModel< ObservationScalarType, TimeType > >(
                         linkEnds, twoWayDopplerModel,
                         transmittingFrequencyInterpolator,
                         turnaroundRatioFunction,
-                        observationBias );
+                        observationBias,
+                        stationStates );
 
             break;
         }
