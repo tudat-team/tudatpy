@@ -131,7 +131,8 @@ public:
             const std::function< double ( observation_models::FrequencyBands uplinkBand,
                     observation_models::FrequencyBands downlinkBand ) >& turnaroundRatio,
             const std::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = nullptr,
-            const std::shared_ptr< ground_stations::GroundStationState > groundStationState = nullptr,
+            const std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > > groundStationStates =
+                std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > >( ),
             const bool subtractDopplerSignature = true ):
         ObservationModel< 1, ObservationScalarType, TimeType >( dsn_n_way_averaged_doppler , linkEnds, observationBiasCalculator),
         arcStartObservationModel_( arcStartObservationModel ),
@@ -139,7 +140,7 @@ public:
         numberOfLinkEnds_( linkEnds.size( ) ),
         transmittingFrequencyCalculator_( transmittingFrequencyCalculator ),
         turnaroundRatio_( turnaroundRatio ),
-        groundStationState_( groundStationState ),
+        stationStates_( groundStationStates ),
         subtractDopplerSignature_( subtractDopplerSignature )
     {
         if( !std::is_same< Time, TimeType >::value )
@@ -228,16 +229,18 @@ public:
         FrequencyBands uplinkBand = frequencyBands.at( 0 );
         FrequencyBands downlinkBand = frequencyBands.at( 1 );
 
+        Eigen::Vector3d nominalReceivingStationState = ( stationStates_.count( receiver ) == 0 ) ?
+                                              Eigen::Vector3d::Zero( ) : stationStates_.at( receiver )->getNominalCartesianPosition( );
         TimeType utcTime = terrestrialTimeScaleConverter_->getCurrentTime< TimeType >(
-                basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, time, groundStationState_->getNominalCartesianPosition( ) );
+                basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, time, nominalReceivingStationState );
 
         TimeType receptionUtcStartTime = utcTime - integrationTime / 2.0;
         TimeType receptionUtcEndTime = utcTime + integrationTime / 2.0;
 
         TimeType receptionTdbStartTime = terrestrialTimeScaleConverter_->getCurrentTime< TimeType >(
-                basic_astrodynamics::utc_scale, basic_astrodynamics::tdb_scale, receptionUtcStartTime, groundStationState_->getNominalCartesianPosition( ) );
+                basic_astrodynamics::utc_scale, basic_astrodynamics::tdb_scale, receptionUtcStartTime, nominalReceivingStationState );
         TimeType receptionTdbEndTime = terrestrialTimeScaleConverter_->getCurrentTime< TimeType >(
-                basic_astrodynamics::utc_scale, basic_astrodynamics::tdb_scale, receptionUtcEndTime, groundStationState_->getNominalCartesianPosition( ) );
+                basic_astrodynamics::utc_scale, basic_astrodynamics::tdb_scale, receptionUtcEndTime, nominalReceivingStationState );
 
         TimeType startLightTime = arcStartObservationModel_->computeIdealObservationsWithLinkEndData(
                 receptionTdbStartTime, linkEndAssociatedWithTime, arcStartLinkEndTimes, arcStartLinkEndStates,
@@ -250,10 +253,13 @@ public:
         TimeType transmissionTdbStartTime = receptionTdbStartTime - startLightTime;
         TimeType transmissionTdbEndTime = receptionTdbEndTime - endLightTime;
 
+        Eigen::Vector3d nominalTransmittingStationState = ( stationStates_.count( transmitter ) == 0 ) ?
+                                                       Eigen::Vector3d::Zero( ) : stationStates_.at( transmitter )->getNominalCartesianPosition( );
+
         TimeType transmissionUtcStartTime = terrestrialTimeScaleConverter_->getCurrentTime< TimeType >(
-                basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, transmissionTdbStartTime, groundStationState_->getNominalCartesianPosition( ) );
+                basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, transmissionTdbStartTime, nominalTransmittingStationState );
         TimeType transmissionUtcEndTime = terrestrialTimeScaleConverter_->getCurrentTime< TimeType >(
-                basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, transmissionTdbEndTime, groundStationState_->getNominalCartesianPosition( ) );
+                basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, transmissionTdbEndTime, nominalTransmittingStationState );
 
         ObservationScalarType transmitterFrequencyIntegral =
                 transmittingFrequencyCalculator_->template getTemplatedFrequencyIntegral< ObservationScalarType, TimeType >(
@@ -316,7 +322,7 @@ private:
 
     std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > terrestrialTimeScaleConverter_;
 
-    std::shared_ptr< ground_stations::GroundStationState > groundStationState_;
+    std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > > stationStates_;
 
     bool subtractDopplerSignature_;
 };
