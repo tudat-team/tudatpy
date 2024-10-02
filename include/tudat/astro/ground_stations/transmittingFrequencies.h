@@ -255,8 +255,8 @@ public:
             throw std::runtime_error(
                     "Error when interpolating ramp reference frequency: look up time (" + std::to_string(
                             static_cast< double >( lookupTime ) ) +
-                    ") is outside the ramp table interval (" + std::to_string( startTimes_.at( 0 ) ) + " to " +
-                    std::to_string( endTimes_.back( ) ) + ")." );
+                    ") is outside the ramp table interval (" + std::to_string( double( startTimes_.at( 0 ) ) ) + " to " +
+                    std::to_string( double( startTimes_.back( ) ) ) + ")." );
         }
         else if ( invalidStartTimeLookupScheme_ != nullptr )
         {
