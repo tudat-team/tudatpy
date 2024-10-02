@@ -42,8 +42,8 @@ void setStationFrequenciesFromTrackingData(
 
     for( auto it : rampInformation )
     {
-        std::vector< double > rampStartTimes;
-        std::vector< double > rampEndTimes;
+        std::vector< Time > rampStartTimes;
+        std::vector< Time > rampEndTimes;
         std::vector< double > rampRates;
         std::vector< double > rampStartFrequencies;
 
@@ -83,7 +83,7 @@ void setStationFrequenciesFromTrackingData(
             rampStartTimes[ i + 1 ] -= timeDifference/2.0;
             rampEndTimes[ i ] += timeDifference/2.0;
         }
-        rampEndTimes[ rampEndTimes.size( ) - 1 ] += 86400.0;
+        rampEndTimes[ rampEndTimes.size( ) - 1 ] += 1.0;
         rampInterpolators[ it.first ] = std::make_shared< ground_stations::PiecewiseLinearFrequencyInterpolator >(
             rampStartTimes, rampEndTimes, rampRates, rampStartFrequencies );
     }

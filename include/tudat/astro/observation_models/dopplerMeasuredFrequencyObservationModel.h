@@ -162,7 +162,10 @@ public:
             time, linkEndAssociatedWithTime, linkEndTimes, linkEndStates, ancillarySettings)( 0, 0 ) / dopplerMultiplicationTerm;
 
 
-        ObservationScalarType receivedFrequency = (transmittedFrequency * (1 + twoWayDoppler)) * turnaroundRatio_(uplinkBand, downlinkBand);
+        ObservationScalarType receivedFrequency =
+            ( transmittedFrequency * ( mathematical_constants::getFloatingInteger< ObservationScalarType >( 1 ) + twoWayDoppler ) ) *
+            turnaroundRatio_(uplinkBand, downlinkBand);
+
         Eigen::Matrix< ObservationScalarType, 1, 1 > observation = (Eigen::Matrix< ObservationScalarType, 1, 1 >() << receivedFrequency).finished();
 
         return observation;
