@@ -135,7 +135,7 @@ BOOST_AUTO_TEST_CASE(testIfmsObservationMex)
 
         // Define ancilliary settings
         ObservationAncilliarySimulationSettings ancilliarySettings;
-        ancilliarySettings.setAncilliaryDoubleVectorData(frequency_bands, { x_band, currentReceptionBand });
+        ancilliarySettings.setAncilliaryDoubleVectorData(frequency_bands, { static_cast< double >( x_band ), static_cast< double >( currentReceptionBand ) });
         ancilliarySettings.setAncilliaryDoubleData( doppler_reference_frequency, 0.0 );
         ancilliarySettings.setAncilliaryDoubleData( reception_reference_frequency_band, convertFrequencyBandToDouble( currentReceptionBand ) );
 

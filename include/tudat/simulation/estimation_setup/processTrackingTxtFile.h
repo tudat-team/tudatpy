@@ -317,7 +317,7 @@ public:
 
       // Convert to TDB using the GS positions
       std::vector< TimeType > observationTimesTdb =
-          timeScaleConverter_->getCurrentTimes< Time >(
+          timeScaleConverter_->getCurrentTimes< TimeType >(
           basic_astrodynamics::utc_scale, basic_astrodynamics::tdb_scale, observationTimesUtc_, groundStationPositions );
       return observationTimesTdb;
   }
