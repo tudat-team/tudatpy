@@ -239,16 +239,17 @@ public:
     ObservationScalarType computeCurrentFrequency( const TimeType lookupTimeOriginal )
     {
         TimeType lookupTime = lookupTimeOriginal;
-        int lowerNearestNeighbour = 0;
+        int lowerNearestNeighbour = -10;
         try
         {
-            int lowerNearestNeighbour = startTimeLookupScheme_->findNearestLowerNeighbour( lookupTime );
+            lowerNearestNeighbour = startTimeLookupScheme_->findNearestLowerNeighbour( lookupTime );
         }
         catch( ... )
         {
             std::cout<<"Time diff "<<startTimes_.at( 0 ) - lookupTimeOriginal<<std::endl;
             return 0.0;
         }
+
         if( lookupTime > endTimes_.at( lowerNearestNeighbour ) || lookupTime < startTimes_.at ( lowerNearestNeighbour ) )
         {
             throw std::runtime_error(
