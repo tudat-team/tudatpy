@@ -95,7 +95,7 @@ void expose_propagation(py::module &m)
           const std::vector<std::string> &,
           const tss::SystemOfBodies &,
           const TIME_TYPE>(
-              &tp::getInitialStatesOfBodies<TIME_TYPE,double>),
+              &tp::getInitialStatesOfBodies<TIME_TYPE, STATE_SCALAR_TYPE>),
           py::arg("bodies_to_propagate"),
           py::arg("central_bodies"),
           py::arg("body_system"),
@@ -108,7 +108,7 @@ void expose_propagation(py::module &m)
           const std::vector<std::string> &,
           const tss::SystemOfBodies &,
           const TIME_TYPE>(
-              &tp::getInitialStatesOfBodies<TIME_TYPE,double>),
+              &tp::getInitialStatesOfBodies<TIME_TYPE, STATE_SCALAR_TYPE>),
           py::arg("bodies_to_propagate"),
           py::arg("central_bodies"),
           py::arg("body_system"),
@@ -119,7 +119,7 @@ void expose_propagation(py::module &m)
           const std::string&,
           const tss::SystemOfBodies&,
           const TIME_TYPE>(
-              &tp::getInitialStateOfBody<TIME_TYPE,double>),
+              &tp::getInitialStateOfBody<TIME_TYPE, STATE_SCALAR_TYPE>),
           py::arg("body_to_propagate"),
           py::arg("central_body"),
           py::arg("bodies"),
@@ -130,39 +130,39 @@ void expose_propagation(py::module &m)
           const std::string&,
           const tss::SystemOfBodies&,
           const TIME_TYPE>(
-              &tp::getInitialRotationalStateOfBody<TIME_TYPE,double>),
+              &tp::getInitialRotationalStateOfBody<TIME_TYPE, STATE_SCALAR_TYPE>),
           py::arg("body_to_propagate"),
           py::arg("base_orientation"),
           py::arg("bodies"),
           py::arg("initial_time"));
     
     py::class_<
-            tp::DampedInitialRotationalStateResults<TIME_TYPE, double>,
-            std::shared_ptr<tp::DampedInitialRotationalStateResults<TIME_TYPE, double>>>(m, "RotationalProperModeDampingResults",
+            tp::DampedInitialRotationalStateResults<TIME_TYPE, STATE_SCALAR_TYPE>,
+            std::shared_ptr<tp::DampedInitialRotationalStateResults<TIME_TYPE, STATE_SCALAR_TYPE>>>(m, "RotationalProperModeDampingResults",
                                                                  get_docstring("RotationalProperModeDampingResults").c_str())
-            .def_readwrite("damped_initial_state", &tp::DampedInitialRotationalStateResults<TIME_TYPE,double>::initialState_,
+            .def_readwrite("damped_initial_state", &tp::DampedInitialRotationalStateResults<TIME_TYPE, STATE_SCALAR_TYPE>::initialState_,
                            get_docstring("RotationalProperModeDampingResults.damped_initial_state").c_str())
-            .def_readwrite("forward_backward_states", &tp::DampedInitialRotationalStateResults<TIME_TYPE,double>::forwardBackwardPropagatedStates_,
+            .def_readwrite("forward_backward_states", &tp::DampedInitialRotationalStateResults<TIME_TYPE, STATE_SCALAR_TYPE>::forwardBackwardPropagatedStates_,
                            get_docstring("RotationalProperModeDampingResults.forward_backward_states").c_str())
-            .def_readwrite("forward_backward_dependent_variables", &tp::DampedInitialRotationalStateResults<TIME_TYPE,double>::forwardBackwardDependentVariables_ ,
+            .def_readwrite("forward_backward_dependent_variables", &tp::DampedInitialRotationalStateResults<TIME_TYPE, STATE_SCALAR_TYPE>::forwardBackwardDependentVariables_ ,
                            get_docstring("RotationalProperModeDampingResults.forward_backward_dependent_variables").c_str());
 
-    m.def("get_damped_proper_mode_initial_rotational_state",
-          py::overload_cast<
-          const tss::SystemOfBodies&,
-          const std::shared_ptr< tp::SingleArcPropagatorSettings< double, TIME_TYPE > >,
-          const double,
-          const std::vector< double >,
-          const bool >( &tp::getZeroProperModeRotationalStateWithStruct< TIME_TYPE, double > ),
-          py::arg("bodies"),
-          py::arg("propagator_settings"),
-          py::arg("body_mean_rotational_rate"),
-          py::arg("dissipation_times"),
-          py::arg("propagate_undamped") = true ,
-          get_docstring("get_damped_proper_mode_initial_rotational_state").c_str());
+//    m.def("get_damped_proper_mode_initial_rotational_state",
+//          py::overload_cast<
+//          const tss::SystemOfBodies&,
+//          const std::shared_ptr< tp::SingleArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > >,
+//          const double,
+//          const std::vector< double >,
+//          const bool >( &tp::getZeroProperModeRotationalStateWithStruct< TIME_TYPE, STATE_SCALAR_TYPE > ),
+//          py::arg("bodies"),
+//          py::arg("propagator_settings"),
+//          py::arg("body_mean_rotational_rate"),
+//          py::arg("dissipation_times"),
+//          py::arg("propagate_undamped") = true ,
+//          get_docstring("get_damped_proper_mode_initial_rotational_state").c_str());
 
     m.def("combine_initial_states",
-          &tp::createCombinedInitialState<double,TIME_TYPE>,
+          &tp::createCombinedInitialState<STATE_SCALAR_TYPE,TIME_TYPE>,
           py::arg("propagator_settings_per_type"),
           get_docstring("combine_initial_states").c_str());
 
@@ -222,159 +222,159 @@ void expose_propagation(py::module &m)
                                                                          get_docstring("DependentVariablesInterface").c_str());
 
     py::class_<
-            tp::SimulationResults<double, TIME_TYPE>,
-            std::shared_ptr<tp::SimulationResults<double, TIME_TYPE>>>(m, "SimulationResults",
+            tp::SimulationResults<STATE_SCALAR_TYPE, TIME_TYPE>,
+            std::shared_ptr<tp::SimulationResults<STATE_SCALAR_TYPE, TIME_TYPE>>>(m, "SimulationResults",
                                                                        get_docstring("SimulationResults").c_str())
             .def_property_readonly("dependent_variable_interface",
-                                   &tp::SimulationResults<double, TIME_TYPE>::getDependentVariablesInterface,
+                                   &tp::SimulationResults<STATE_SCALAR_TYPE, TIME_TYPE>::getDependentVariablesInterface,
                                    get_docstring("SimulationResults.dependent_variable_interface").c_str() );
 
     py::class_<
-            tp::SingleArcSimulationResults<double, TIME_TYPE>,
-            std::shared_ptr<tp::SingleArcSimulationResults<double, TIME_TYPE>>,
-            tp::SimulationResults<double, TIME_TYPE> >(m, "SingleArcSimulationResults",
+            tp::SingleArcSimulationResults<STATE_SCALAR_TYPE, TIME_TYPE>,
+            std::shared_ptr<tp::SingleArcSimulationResults<STATE_SCALAR_TYPE, TIME_TYPE>>,
+            tp::SimulationResults<STATE_SCALAR_TYPE, TIME_TYPE> >(m, "SingleArcSimulationResults",
                                                        get_docstring("SingleArcSimulationResults").c_str())
             .def_property_readonly("state_history",
-                                   &tp::SingleArcSimulationResults<double, TIME_TYPE>::getEquationsOfMotionNumericalSolution,
+                                   &tp::SingleArcSimulationResults<STATE_SCALAR_TYPE, TIME_TYPE>::getEquationsOfMotionNumericalSolution,
                                    get_docstring("SingleArcSimulationResults.state_history").c_str() )
             .def_property_readonly("state_history_float",
-                                   &tp::SingleArcSimulationResults<double, TIME_TYPE>::getEquationsOfMotionNumericalSolutionDouble)
+                                   &tp::SingleArcSimulationResults<STATE_SCALAR_TYPE, TIME_TYPE>::getEquationsOfMotionNumericalSolutionDouble)
             .def_property_readonly("state_history_float_split",
-                                   &tp::SingleArcSimulationResults<double, TIME_TYPE>::getEquationsOfMotionNumericalSolutionDoubleSplit)
+                                   &tp::SingleArcSimulationResults<STATE_SCALAR_TYPE, TIME_TYPE>::getEquationsOfMotionNumericalSolutionDoubleSplit)
             .def_property_readonly("unprocessed_state_history",
-                                   &tp::SingleArcSimulationResults<double, TIME_TYPE>::getEquationsOfMotionNumericalSolutionRaw,
+                                   &tp::SingleArcSimulationResults<STATE_SCALAR_TYPE, TIME_TYPE>::getEquationsOfMotionNumericalSolutionRaw,
                                    get_docstring("SingleArcSimulationResults.unprocessed_state_history").c_str() )
             .def_property_readonly("dependent_variable_history",
-                                   &tp::SingleArcSimulationResults<double, TIME_TYPE>::getDependentVariableHistory,
+                                   &tp::SingleArcSimulationResults<STATE_SCALAR_TYPE, TIME_TYPE>::getDependentVariableHistory,
                                    get_docstring("SingleArcSimulationResults.dependent_variable_history").c_str() )
             .def_property_readonly("cumulative_computation_time_history",
-                                   &tp::SingleArcSimulationResults<double, TIME_TYPE>::getCumulativeComputationTimeHistory,
+                                   &tp::SingleArcSimulationResults<STATE_SCALAR_TYPE, TIME_TYPE>::getCumulativeComputationTimeHistory,
                                    get_docstring("SingleArcSimulationResults.cumulative_computation_time_history").c_str() )
             .def_property_readonly("cumulative_computation_time_history",
-                                   &tp::SingleArcSimulationResults<double, TIME_TYPE>::getCumulativeComputationTimeHistory,
+                                   &tp::SingleArcSimulationResults<STATE_SCALAR_TYPE, TIME_TYPE>::getCumulativeComputationTimeHistory,
                                    get_docstring("SingleArcSimulationResults.cumulative_computation_time_history").c_str() )
             .def_property_readonly("cumulative_number_of_function_evaluations_history",
-                                   &tp::SingleArcSimulationResults<double, TIME_TYPE>::getCumulativeNumberOfFunctionEvaluations,
+                                   &tp::SingleArcSimulationResults<STATE_SCALAR_TYPE, TIME_TYPE>::getCumulativeNumberOfFunctionEvaluations,
                                    get_docstring("SingleArcSimulationResults.cumulative_number_of_function_evaluations_history").c_str() )
             .def_property_readonly("total_computation_time",
-                                   &tp::SingleArcSimulationResults<double, TIME_TYPE>::getTotalComputationRuntime,
+                                   &tp::SingleArcSimulationResults<STATE_SCALAR_TYPE, TIME_TYPE>::getTotalComputationRuntime,
                                    get_docstring("SingleArcSimulationResults.total_computation_time").c_str() )
             .def_property_readonly("total_number_of_function_evaluations",
-                                   &tp::SingleArcSimulationResults<double, TIME_TYPE>::getTotalNumberOfFunctionEvaluations,
+                                   &tp::SingleArcSimulationResults<STATE_SCALAR_TYPE, TIME_TYPE>::getTotalNumberOfFunctionEvaluations,
                                    get_docstring("SingleArcSimulationResults.total_number_of_function_evaluations").c_str() )
             .def_property_readonly("termination_details",
-                                   &tp::SingleArcSimulationResults<double, TIME_TYPE>::getPropagationTerminationReason,
+                                   &tp::SingleArcSimulationResults<STATE_SCALAR_TYPE, TIME_TYPE>::getPropagationTerminationReason,
                                    get_docstring("SingleArcSimulationResults.termination_details").c_str() )
             .def_property_readonly("integration_completed_successfully",
-                                   &tp::SingleArcSimulationResults<double, TIME_TYPE>::integrationCompletedSuccessfully,
+                                   &tp::SingleArcSimulationResults<STATE_SCALAR_TYPE, TIME_TYPE>::integrationCompletedSuccessfully,
                                    get_docstring("SingleArcSimulationResults.integration_completed_successfully").c_str() )
             .def_property_readonly("dependent_variable_ids",
-                                   &tp::SingleArcSimulationResults<double, TIME_TYPE>::getDependentVariableId,
+                                   &tp::SingleArcSimulationResults<STATE_SCALAR_TYPE, TIME_TYPE>::getDependentVariableId,
                                    get_docstring("SingleArcSimulationResults.dependent_variable_ids").c_str() )
             .def_property_readonly("ordered_dependent_variable_settings",
-                                   &tp::SingleArcSimulationResults<double, TIME_TYPE>::getOrderedDependentVariableSettings,
+                                   &tp::SingleArcSimulationResults<STATE_SCALAR_TYPE, TIME_TYPE>::getOrderedDependentVariableSettings,
                                    get_docstring("SingleArcSimulationResults.ordered_dependent_variable_settings").c_str() )
             .def_property_readonly("unordered_dependent_variable_settings",
-                                   &tp::SingleArcSimulationResults<double, TIME_TYPE>::getOriginalDependentVariableSettings,
+                                   &tp::SingleArcSimulationResults<STATE_SCALAR_TYPE, TIME_TYPE>::getOriginalDependentVariableSettings,
                                    get_docstring("SingleArcSimulationResults.unordered_dependent_variable_settings").c_str() )
             .def_property_readonly("processed_state_ids",
-                                   &tp::SingleArcSimulationResults<double, TIME_TYPE>::getProcessedStateIds,
+                                   &tp::SingleArcSimulationResults<STATE_SCALAR_TYPE, TIME_TYPE>::getProcessedStateIds,
                                    get_docstring("SingleArcSimulationResults.state_ids").c_str() )
             .def_property_readonly("propagated_state_ids",
-                                   &tp::SingleArcSimulationResults<double, TIME_TYPE>::getPropagatedStateIds,
+                                   &tp::SingleArcSimulationResults<STATE_SCALAR_TYPE, TIME_TYPE>::getPropagatedStateIds,
                                    get_docstring("SingleArcSimulationResults.state_ids").c_str() )
             .def_property_readonly("initial_and_final_times",
-                                   &tp::SingleArcSimulationResults<double, TIME_TYPE>::getArcInitialAndFinalTime,
+                                   &tp::SingleArcSimulationResults<STATE_SCALAR_TYPE, TIME_TYPE>::getArcInitialAndFinalTime,
                                    get_docstring("SingleArcSimulationResults.initial_and_final_times").c_str() )
             .def_property_readonly("propagated_state_vector_length",
-                                   &tp::SingleArcSimulationResults<double, TIME_TYPE>::getPropagatedStateSize,
+                                   &tp::SingleArcSimulationResults<STATE_SCALAR_TYPE, TIME_TYPE>::getPropagatedStateSize,
                                    get_docstring("SingleArcSimulationResults.propagated_state_vector_length").c_str() )
             .def_property_readonly("propagation_is_performed",
-                                   &tp::SingleArcSimulationResults<double, TIME_TYPE>::getPropagationIsPerformed,
+                                   &tp::SingleArcSimulationResults<STATE_SCALAR_TYPE, TIME_TYPE>::getPropagationIsPerformed,
                                    get_docstring("SingleArcSimulationResults.propagation_is_performed").c_str() )
             .def_property_readonly("solution_is_cleared",
-                                   &tp::SingleArcSimulationResults<double, TIME_TYPE>::getSolutionIsCleared,
+                                   &tp::SingleArcSimulationResults<STATE_SCALAR_TYPE, TIME_TYPE>::getSolutionIsCleared,
                                    get_docstring("SingleArcSimulationResults.solution_is_cleared").c_str() );
 
     py::class_<
-            tp::SingleArcVariationalSimulationResults<double, TIME_TYPE>,
-            std::shared_ptr<tp::SingleArcVariationalSimulationResults<double, TIME_TYPE>>,
-            tp::SimulationResults<double, TIME_TYPE> >(m, "SingleArcVariationalSimulationResults",
+            tp::SingleArcVariationalSimulationResults<STATE_SCALAR_TYPE, TIME_TYPE>,
+            std::shared_ptr<tp::SingleArcVariationalSimulationResults<STATE_SCALAR_TYPE, TIME_TYPE>>,
+            tp::SimulationResults<STATE_SCALAR_TYPE, TIME_TYPE> >(m, "SingleArcVariationalSimulationResults",
                                                        get_docstring("SingleArcVariationalSimulationResults").c_str())
             .def_property_readonly("state_transition_matrix_history",
-                                   &tp::SingleArcVariationalSimulationResults<double, TIME_TYPE>::getStateTransitionSolution,
+                                   &tp::SingleArcVariationalSimulationResults<STATE_SCALAR_TYPE, TIME_TYPE>::getStateTransitionSolution,
                                    get_docstring("SingleArcVariationalSimulationResults.state_transition_matrix_history").c_str() )
             .def_property_readonly("sensitivity_matrix_history",
-                                   &tp::SingleArcVariationalSimulationResults<double, TIME_TYPE>::getSensitivitySolution,
+                                   &tp::SingleArcVariationalSimulationResults<STATE_SCALAR_TYPE, TIME_TYPE>::getSensitivitySolution,
                                    get_docstring("SingleArcVariationalSimulationResults.sensitivity_matrix_history").c_str() )
             .def_property_readonly("dynamics_results",
-                                   &tp::SingleArcVariationalSimulationResults<double, TIME_TYPE>::getDynamicsResults,
+                                   &tp::SingleArcVariationalSimulationResults<STATE_SCALAR_TYPE, TIME_TYPE>::getDynamicsResults,
                                    get_docstring("SingleArcVariationalSimulationResults.dynamics_results").c_str() );
 
     py::class_<
-            tp::MultiArcSimulationResults<tp::SingleArcSimulationResults, double, TIME_TYPE>,
-            std::shared_ptr<tp::MultiArcSimulationResults<tp::SingleArcSimulationResults, double, TIME_TYPE>>,
-            tp::SimulationResults<double, TIME_TYPE> >(m, "MultiArcSimulationResults",
+            tp::MultiArcSimulationResults<tp::SingleArcSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE>,
+            std::shared_ptr<tp::MultiArcSimulationResults<tp::SingleArcSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE>>,
+            tp::SimulationResults<STATE_SCALAR_TYPE, TIME_TYPE> >(m, "MultiArcSimulationResults",
                                                        get_docstring("MultiArcSimulationResults").c_str())
             .def_property_readonly("single_arc_results",
-                                   &tp::MultiArcSimulationResults<tp::SingleArcSimulationResults, double, TIME_TYPE>::getSingleArcResults,
+                                   &tp::MultiArcSimulationResults<tp::SingleArcSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE>::getSingleArcResults,
                                    get_docstring("MultiArcSimulationResults.single_arc_results").c_str() )
             .def_property_readonly("arc_start_times",
-                                   &tp::MultiArcSimulationResults<tp::SingleArcSimulationResults, double, TIME_TYPE>::getArcStartTimes,
+                                   &tp::MultiArcSimulationResults<tp::SingleArcSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE>::getArcStartTimes,
                                    get_docstring("MultiArcSimulationResults.arc_start_times").c_str() )
             .def_property_readonly("arc_end_times",
-                                   &tp::MultiArcSimulationResults<tp::SingleArcSimulationResults, double, TIME_TYPE>::getArcEndTimes,
+                                   &tp::MultiArcSimulationResults<tp::SingleArcSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE>::getArcEndTimes,
                                    get_docstring("MultiArcSimulationResults.arc_end_times").c_str() )
             .def_property_readonly("propagation_is_performed",
-                                   &tp::MultiArcSimulationResults<tp::SingleArcSimulationResults, double, TIME_TYPE>::getPropagationIsPerformed,
+                                   &tp::MultiArcSimulationResults<tp::SingleArcSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE>::getPropagationIsPerformed,
                                    get_docstring("MultiArcSimulationResults.propagation_is_performed").c_str() )
             .def_property_readonly("solution_is_cleared",
-                                   &tp::MultiArcSimulationResults<tp::SingleArcSimulationResults, double, TIME_TYPE>::getSolutionIsCleared,
+                                   &tp::MultiArcSimulationResults<tp::SingleArcSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE>::getSolutionIsCleared,
                                    get_docstring("MultiArcSimulationResults.solution_is_cleared").c_str() );
 
     py::class_<
-            tp::MultiArcSimulationResults<tp::SingleArcVariationalSimulationResults, double, TIME_TYPE>,
-            std::shared_ptr<tp::MultiArcSimulationResults<tp::SingleArcVariationalSimulationResults, double, TIME_TYPE>>,
-            tp::SimulationResults<double, TIME_TYPE> >(m, "MultiArcVariationalSimulationResults",
+            tp::MultiArcSimulationResults<tp::SingleArcVariationalSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE>,
+            std::shared_ptr<tp::MultiArcSimulationResults<tp::SingleArcVariationalSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE>>,
+            tp::SimulationResults<STATE_SCALAR_TYPE, TIME_TYPE> >(m, "MultiArcVariationalSimulationResults",
                                                        get_docstring("MultiArcVariationalSimulationResults").c_str())
             .def_property_readonly("single_arc_results",
-                                   &tp::MultiArcSimulationResults<tp::SingleArcVariationalSimulationResults, double, TIME_TYPE>::getSingleArcResults,
+                                   &tp::MultiArcSimulationResults<tp::SingleArcVariationalSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE>::getSingleArcResults,
                                    get_docstring("MultiArcVariationalSimulationResults.single_arc_results").c_str() )
             .def_property_readonly("arc_start_times",
-                                   &tp::MultiArcSimulationResults<tp::SingleArcVariationalSimulationResults, double, TIME_TYPE>::getArcStartTimes,
+                                   &tp::MultiArcSimulationResults<tp::SingleArcVariationalSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE>::getArcStartTimes,
                                    get_docstring("MultiArcVariationalSimulationResults.arc_start_times").c_str() )
             .def_property_readonly("arc_end_times",
-                                   &tp::MultiArcSimulationResults<tp::SingleArcVariationalSimulationResults, double, TIME_TYPE>::getArcEndTimes,
+                                   &tp::MultiArcSimulationResults<tp::SingleArcVariationalSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE>::getArcEndTimes,
                                    get_docstring("MultiArcVariationalSimulationResults.arc_end_times").c_str() )
             .def_property_readonly("propagation_is_performed",
-                                   &tp::MultiArcSimulationResults<tp::SingleArcVariationalSimulationResults, double, TIME_TYPE>::getPropagationIsPerformed,
+                                   &tp::MultiArcSimulationResults<tp::SingleArcVariationalSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE>::getPropagationIsPerformed,
                                    get_docstring("MultiArcVariationalSimulationResults.propagation_is_performed").c_str() )
             .def_property_readonly("solution_is_cleared",
-                                   &tp::MultiArcSimulationResults<tp::SingleArcVariationalSimulationResults, double, TIME_TYPE>::getSolutionIsCleared,
+                                   &tp::MultiArcSimulationResults<tp::SingleArcVariationalSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE>::getSolutionIsCleared,
                                    get_docstring("MultiArcVariationalSimulationResults.solution_is_cleared").c_str() );
 
     py::class_<
-            tp::HybridArcSimulationResults<tp::SingleArcSimulationResults, double, TIME_TYPE>,
-            std::shared_ptr<tp::HybridArcSimulationResults<tp::SingleArcSimulationResults, double, TIME_TYPE>>,
-            tp::SimulationResults<double, TIME_TYPE> >(m, "HybridArcSimulationResults",
+            tp::HybridArcSimulationResults<tp::SingleArcSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE>,
+            std::shared_ptr<tp::HybridArcSimulationResults<tp::SingleArcSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE>>,
+            tp::SimulationResults<STATE_SCALAR_TYPE, TIME_TYPE> >(m, "HybridArcSimulationResults",
                                                        get_docstring("HybridArcSimulationResults").c_str())
             .def_property_readonly("single_arc_results",
-                                   &tp::HybridArcSimulationResults<tp::SingleArcSimulationResults, double, TIME_TYPE>::getSingleArcResults,
+                                   &tp::HybridArcSimulationResults<tp::SingleArcSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE>::getSingleArcResults,
                                    get_docstring("HybridArcSimulationResults.single_arc_results").c_str() )
             .def_property_readonly("multi_arc_results",
-                                   &tp::HybridArcSimulationResults<tp::SingleArcSimulationResults, double, TIME_TYPE>::getMultiArcResults,
+                                   &tp::HybridArcSimulationResults<tp::SingleArcSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE>::getMultiArcResults,
                                    get_docstring("HybridArcSimulationResults.arc_start_times").c_str() );
 
         py::class_<
-            tp::HybridArcSimulationResults<tp::SingleArcVariationalSimulationResults, double, TIME_TYPE>,
-            std::shared_ptr<tp::HybridArcSimulationResults<tp::SingleArcVariationalSimulationResults, double, TIME_TYPE>>,
-            tp::SimulationResults<double, TIME_TYPE> >(m, "HybridArcVariationalSimulationResults",
+            tp::HybridArcSimulationResults<tp::SingleArcVariationalSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE>,
+            std::shared_ptr<tp::HybridArcSimulationResults<tp::SingleArcVariationalSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE>>,
+            tp::SimulationResults<STATE_SCALAR_TYPE, TIME_TYPE> >(m, "HybridArcVariationalSimulationResults",
                                                        get_docstring("HybridArcVariationalSimulationResults").c_str())
             .def_property_readonly("single_arc_results",
-                                   &tp::HybridArcSimulationResults<tp::SingleArcVariationalSimulationResults, double, TIME_TYPE>::getSingleArcResults,
+                                   &tp::HybridArcSimulationResults<tp::SingleArcVariationalSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE>::getSingleArcResults,
                                    get_docstring("HybridArcVariationalSimulationResults.single_arc_results").c_str() )
             .def_property_readonly("multi_arc_results",
-                                   &tp::HybridArcSimulationResults<tp::SingleArcVariationalSimulationResults, double, TIME_TYPE>::getMultiArcResults,
+                                   &tp::HybridArcSimulationResults<tp::SingleArcVariationalSimulationResults, STATE_SCALAR_TYPE, TIME_TYPE>::getMultiArcResults,
                                    get_docstring("HybridArcVariationalSimulationResults.arc_start_times").c_str() );
 
     py::class_<
