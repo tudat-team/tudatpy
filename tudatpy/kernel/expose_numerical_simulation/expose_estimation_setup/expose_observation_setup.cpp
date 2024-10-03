@@ -268,6 +268,7 @@ void expose_observation_setup(py::module &m) {
             .value("euler_angle_313_observable_type", tom::ObservableType::euler_angle_313_observable )
             .value("dsn_one_way_averaged_doppler", tom::ObservableType::dsn_one_way_averaged_doppler )
             .value("dsn_n_way_averaged_doppler", tom::ObservableType::dsn_n_way_averaged_doppler )
+            .value("doppler_measured_frequency_type", tom::ObservableType::doppler_measured_frequency )
             .export_values();
 
 
@@ -502,6 +503,18 @@ void expose_observation_setup(py::module &m) {
           py::arg("bias_settings") = nullptr,
           py::arg("light_time_convergence_settings") = std::make_shared< tom::LightTimeConvergenceCriteria >( ),
           get_docstring("dsn_n_way_doppler_averaged_from_one_way_links").c_str() );
+
+    m.def("doppler_measured_frequency",
+          py::overload_cast<
+          const tom::LinkDefinition&,   
+          const std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >&, 
+          const std::shared_ptr< tom::ObservationBiasSettings >, 
+          const std::shared_ptr< tom::LightTimeConvergenceCriteria > >( &tom::dopplerMeasuredFrequencyObservationSettings ),
+          py::arg("link_ends" ),
+          py::arg("light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
+          py::arg("bias_settings") = nullptr,
+          py::arg("light_time_convergence_settings") = std::make_shared< tom::LightTimeConvergenceCriteria >( ),
+          get_docstring("doppler_measured_frequency").c_str() );
 
     m.def("observation_settings_from_collection",
           &tss::getObservationSimulationSettingsFromObservations< double, TIME_TYPE >,
@@ -823,6 +836,11 @@ void expose_observation_setup(py::module &m) {
           py::arg("integration_time") = 60.0,
           py::arg("link_end_delays") = std::vector< double >( ),
           get_docstring("dsn_n_way_doppler_ancilliary_settings").c_str() );
+
+    m.def("doppler_measured_frequency_ancillary_settings",
+          &tom::getDopplerMeasuredFrequencyAncilliarySettings,
+          py::arg("frequency_bands"),
+          get_docstring("doppler_measured_frequency_ancillary_settings").c_str() );
 
     m.def("tabulated_simulation_settings",
           &tss::tabulatedObservationSimulationSettings< TIME_TYPE >,
