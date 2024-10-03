@@ -98,7 +98,7 @@ jobs:
     - name: Create conda environment from environment.yml
       # Update the tudat conda environment created using the environment.yml file if the cache is not restored
       run: mamba env update -n tudat -f environment.yml
-      #(commenting line for test) if: steps.cache.outputs.cache-hit != 'true'
+      if: steps.cache.outputs.cache-hit != 'true'
 
 
     - name: Download tudat resources data files for Linux and MacOS
@@ -110,12 +110,12 @@ jobs:
       # be downloaded manually when the cache is hit.
       # This step downloads the data files in the tudat-resources package by running
       # the post-link scripts in https://github.com/tudat-team/tudat-resources-feedstock/blob/master/recipe/
-      if: (runner.os == 'Linux' || runner.os == 'MacOS') #(commenting line for test) && steps.cache.outputs.cache-hit == 'true'
+      if: (runner.os == 'Linux' || runner.os == 'MacOS') && steps.cache.outputs.cache-hit == 'true'
       run: bash -c "$(curl -fsSL https://raw.githubusercontent.com/tudat-team/tudat-resources-feedstock/master/recipe/post-link.sh)"
 
 
     - name: Download tudat-resources data files for Windows
-      if: runner.os == 'Windows' #(commenting line for test) && steps.cache.outputs.cache-hit == 'true'
+      if: runner.os == 'Windows' && steps.cache.outputs.cache-hit == 'true'
       run: cmd /c "curl -fsSL https://raw.githubusercontent.com/tudat-team/tudat-resources-feedstock/master/recipe/post-link.bat | cmd"
 
 
@@ -138,7 +138,6 @@ jobs:
         -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
         -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
         -DCMAKE_C_COMPILER_LAUNCHER=ccache
-        -DTUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS=OFF
         -DTUDAT_BUILD_GITHUB_ACTIONS=ON
 
 
