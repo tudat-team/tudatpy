@@ -960,7 +960,14 @@ int countNumberOfOccurencesInVector( const std::vector< T >& vector, const T& va
 template< typename T, typename U >
 bool containsAll(const T& referenceArray, const U searchArray)
 {
-  return std::includes(referenceArray.begin(), referenceArray.end(), searchArray.begin(), searchArray.end());
+    for (auto search_element: searchArray)
+    {
+        if (std::find(referenceArray.begin(), referenceArray.end(), search_element) == referenceArray.end())
+        {
+            return false;
+        }
+    }
+    return true;
 }
 
 //! Convert a vector to a set
@@ -974,21 +981,48 @@ std::set<T> vectorToSet(std::vector<T> vector)
   return set;
 }
 
+//! Base case for the commonVectorSizeOrZero function
+template<typename T>
+size_t commonVectorSizeOrZero(const T& first) {
+    return first.size(); // Base case: single vector, return its size
+}
+
+/*!
+ * Recursive function to check if all vectors have the same size. If they do, return the size, otherwise return 0.
+ * \param first first vector
+ * \param args any number of vectors
+ * \return size of all vectors if they have the same size, 0 otherwise
+ */
+template<typename T, typename... Args>
+size_t commonVectorSizeOrZero(const T& first, const Args&... args) {
+    size_t sizeFirst = first.size();
+    size_t sizeRest = commonVectorSizeOrZero(args...);
+
+    // Return size of all vectors if they have the same size, 0 otherwise
+    return (sizeFirst == sizeRest) ? sizeFirst : 0;
+}
+
+
 /*!
  * Apply a function that takes multiple arguments to operate on all the rows of vectors.
  * \param convertFunc function that will convert each row of the vectors to the output
  * \param firstArg at least one vector must be provided
  * \param args any number of vectors. the total arguments must be compatible with the required arguments for convertFunc
  */
-template< typename ConvertFunc, typename FirstArg, typename... Args >
-std::vector<double> convertVectors(ConvertFunc convertFunc, const std::vector<FirstArg>& firstArg, const std::vector<Args>& ... args)
+template< typename ScalarType, typename ConvertFunc, typename FirstArg, typename... Args >
+std::vector< ScalarType > convertVectors(ConvertFunc convertFunc, const std::vector<FirstArg>& firstArg, const std::vector<Args>& ... args)
 {
-  std::vector<double> result;
-  size_t N = firstArg.size(); // Assuming all vectors have the same size
-  for (size_t i = 0; i < N; ++i) {
-    result.push_back(convertFunc(firstArg[i], args[i]...));
-  }
-  return result;
+    std::vector<ScalarType> result;
+    size_t N = commonVectorSizeOrZero(firstArg, args...);
+
+    if (!N) {
+        throw std::runtime_error("Error when applying conversion function: Vectors have different sizes");
+    }
+
+    for (size_t i = 0; i < N; ++i) {
+        result.push_back(convertFunc(firstArg[i], args[i]...));
+    }    
+    return result;
 }
 
 
