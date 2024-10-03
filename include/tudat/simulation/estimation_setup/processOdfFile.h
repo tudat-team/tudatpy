@@ -1282,7 +1282,7 @@ std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType
     std::vector< Eigen::Vector3d > originalEarthFixedPositions;
     for ( unsigned int i = 0; i < originalObservationTimesTdb.size( ); ++i )
     {
-        originalEarthFixedPositions.push_back( simulation_setup::getApproximateDsnGroundStationPositions( ).at( originalDopplerData->getLinkEnds( ).at( receiver ).stationName_ ) );
+        originalEarthFixedPositions.push_back( simulation_setup::getCombinedApproximateGroundStationPositions( ).at( originalDopplerData->getLinkEnds( ).at( receiver ).stationName_ ) );
     }
 
     std::vector< TimeType > originalObservationTimesUtc = timeScaleConverter.getCurrentTimes< TimeType >(
@@ -1326,10 +1326,17 @@ std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType
         }
     }
 
+    std::string stationName = originalDopplerData->getLinkEnds( ).at( receiver ).stationName_;
+    if( simulation_setup::getCombinedApproximateGroundStationPositions( ).count( stationName ) == 0 )
+    {
+        throw std::runtime_error( "Error in Doppler data compression, could not retrieve approximate station position for " + stationName );
+    }
+    Eigen::Vector3d stationPosition = simulation_setup::getCombinedApproximateGroundStationPositions( ).at( stationName );
+
     std::vector< Eigen::Vector3d > compressedEarthFixedPositions;
     for ( unsigned int i = 0; i < compressedObservationTimesUtc.size( ); ++i )
     {
-        compressedEarthFixedPositions.push_back( simulation_setup::getApproximateDsnGroundStationPositions( ).at( originalDopplerData->getLinkEnds( ).at( receiver ).stationName_ ) );
+        compressedEarthFixedPositions.push_back( stationPosition );
     }
     std::vector< TimeType > compressedObservationTimesTdb = timeScaleConverter.getCurrentTimes< TimeType >(
             basic_astrodynamics::utc_scale, basic_astrodynamics::tdb_scale, compressedObservationTimesUtc, compressedEarthFixedPositions );
