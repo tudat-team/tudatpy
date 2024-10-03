@@ -451,7 +451,7 @@ public:
 
     void removeSingleObservation( unsigned int indexToRemove )
     {
-        if ( indexToRemove >= numberOfObservations_ )
+        if ( static_cast< int >( indexToRemove ) >= numberOfObservations_ )
         {
             throw std::runtime_error( "Error when removing single observation from SingleObservationSet, index incompatible with number of observations." );
         }
@@ -810,7 +810,7 @@ private:
                 {
                     throw std::runtime_error( "Error when moving observation back from filtered observation set, filtered observation set is empty." );
                 }
-                if ( index >= getNumberOfFilteredObservations( ) )
+                if ( static_cast< int >( index ) >= getNumberOfFilteredObservations( ) )
                 {
                     throw std::runtime_error( "Error when moving observation back from filtered observation set, index incompatible with number of observations." );
                 }

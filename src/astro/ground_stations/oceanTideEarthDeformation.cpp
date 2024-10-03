@@ -41,8 +41,8 @@ std::vector<std::map<std::string, Eigen::Matrix<double, 3, 11> > > readBlqFile( 
     std::vector<std::vector<std::string> > unparsedSiteBlock;
     unparsedSiteBlock.resize( 11 );
 
-    // Initialized number of parsed sites.
-    int numberOfSitesParsed = 0;
+//    // Initialized number of parsed sites.
+//    int numberOfSitesParsed = 0;
 
     // Declare current site characteristics
     std::string currentSiteName;
@@ -114,7 +114,7 @@ std::vector<std::map<std::string, Eigen::Matrix<double, 3, 11> > > readBlqFile( 
             amplitudeMap[ currentSiteName ] = currentDataMatrix.block( 0, 0, 3, 11 );
             phaseMap[ currentSiteName ] =
                 convertDegreesToRadians<Eigen::MatrixXd>( currentDataMatrix.block( 3, 0, 3, 11 ));
-            numberOfSitesParsed++;
+//            numberOfSitesParsed++;
         }
 
         if ( !stream.fail( ) && !stream.eof( ))

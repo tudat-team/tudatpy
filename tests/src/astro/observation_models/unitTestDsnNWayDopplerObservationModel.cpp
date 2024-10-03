@@ -145,8 +145,8 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
      // Compare value of observations
      // Min/max values from Verma (2022), "A Python-based tool for constructing observables from the DSN’s closed-loop
      // archival tracking data files", fig. 4 right
-     std::pair< double, double > vermaFirstBlockMinMaxResidual = std::make_pair( -0.04, 0.10 );
-     std::pair< double, double > vermaSecondBlockMinMaxResidual = std::make_pair( -0.06, 0.07 );
+//     std::pair< double, double > vermaFirstBlockMinMaxResidual = std::make_pair( -0.04, 0.10 );
+//     std::pair< double, double > vermaSecondBlockMinMaxResidual = std::make_pair( -0.06, 0.07 );
      // Min/max values obtained with current code
      std::pair< double, double > firstBlockMinMaxResidual = std::make_pair( -0.080, 0.120 );
      std::pair< double, double > secondBlockMinMaxResidual = std::make_pair( -0.08, 0.06 );
