@@ -135,9 +135,9 @@ jobs:
         -S "${{ github.workspace }}"
         -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
         -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
-        -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+        #-DCMAKE_CXX_COMPILER_LAUNCHER=ccache
         -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
-        -DCMAKE_C_COMPILER_LAUNCHER=ccache
+        #-DCMAKE_C_COMPILER_LAUNCHER=ccache
         -DTUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS=OFF
         -DTUDAT_BUILD_GITHUB_ACTIONS=ON
 
