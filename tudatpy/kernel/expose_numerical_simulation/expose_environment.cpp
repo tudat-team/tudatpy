@@ -721,8 +721,8 @@ void expose_environment(py::module &m) {
             std::shared_ptr<tgs::PiecewiseLinearFrequencyInterpolator>,
             tgs::StationFrequencyInterpolator>(m, "PiecewiseLinearFrequencyInterpolator")
             .def(py::init< 
-                    const std::vector< double >& ,
-                    const std::vector< double >& ,
+                    const std::vector< tudat::Time >& ,
+                    const std::vector< tudat::Time >& ,
                     const std::vector< double >&,
                     const std::vector< double >& >(),
                  py::arg("start_times"),
