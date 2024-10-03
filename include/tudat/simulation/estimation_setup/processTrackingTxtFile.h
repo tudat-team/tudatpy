@@ -536,7 +536,6 @@ private:
  * @param processedTrackingTxtFileContents
  * @param observableTypesToProcess
  * @param ancillarySettings
- * @param startAndEndTimesToProcess
  * @return observation collection
  */
 template< typename ObservationScalarType = double, typename TimeType = double >
@@ -544,8 +543,7 @@ std::map<ObservableType, std::map<LinkEnds, std::vector<std::shared_ptr<SingleOb
     createTrackingTxtFileObservationSets(
     const std::shared_ptr<observation_models::ProcessedTrackingTxtFileContents< ObservationScalarType, TimeType > > processedTrackingTxtFileContents,
     std::vector<ObservableType> observableTypesToProcess = std::vector<ObservableType>(),
-    const ObservationAncilliarySimulationSettings& ancillarySettings = ObservationAncilliarySimulationSettings(),
-    const std::pair<TimeType, TimeType> startAndEndTimesToProcess = std::make_pair<TimeType, TimeType>(TUDAT_NAN, TUDAT_NAN))
+    const ObservationAncilliarySimulationSettings& ancillarySettings = ObservationAncilliarySimulationSettings() )
 {
 
     // Make sure processing the tracking file was successful
@@ -636,8 +634,7 @@ std::shared_ptr<observation_models::ObservationCollection<ObservationScalarType,
 createTrackingTxtFilesObservationCollection(
     const std::vector< std::shared_ptr<observation_models::ProcessedTrackingTxtFileContents< ObservationScalarType, TimeType > > > processedTrackingTxtFileContents,
     std::vector<ObservableType> observableTypesToProcess = std::vector<ObservableType>(),
-    const ObservationAncilliarySimulationSettings& ancillarySettings = ObservationAncilliarySimulationSettings(),
-    const std::pair<TimeType, TimeType> startAndEndTimesToProcess = std::make_pair<TimeType, TimeType>(TUDAT_NAN, TUDAT_NAN))
+    const ObservationAncilliarySimulationSettings& ancillarySettings = ObservationAncilliarySimulationSettings())
 {
     std::map<ObservableType, std::map<LinkEnds, std::vector<std::shared_ptr<SingleObservationSet<ObservationScalarType, TimeType> > > > > observationSets;
 
@@ -645,7 +642,7 @@ createTrackingTxtFilesObservationCollection(
     {
         std::map<ObservableType, std::map<LinkEnds, std::vector<std::shared_ptr<SingleObservationSet<ObservationScalarType, TimeType> > > > >
             processedObervationSet = createTrackingTxtFileObservationSets< ObservationScalarType, TimeType >(
-            processedTrackingTxtFileContents.at( i ), observableTypesToProcess, ancillarySettings, startAndEndTimesToProcess );
+            processedTrackingTxtFileContents.at( i ), observableTypesToProcess, ancillarySettings );
         for( auto it : processedObervationSet )
         {
             for( auto it2 : it.second )
@@ -665,11 +662,10 @@ std::shared_ptr<observation_models::ObservationCollection<ObservationScalarType,
 createTrackingTxtFileObservationCollection(
     const std::shared_ptr<observation_models::ProcessedTrackingTxtFileContents< ObservationScalarType, TimeType > > processedTrackingTxtFileContents,
     std::vector<ObservableType> observableTypesToProcess = std::vector<ObservableType>(),
-    const ObservationAncilliarySimulationSettings& ancillarySettings = ObservationAncilliarySimulationSettings(),
-    const std::pair<TimeType, TimeType> startAndEndTimesToProcess = std::make_pair<TimeType, TimeType>(TUDAT_NAN, TUDAT_NAN))
+    const ObservationAncilliarySimulationSettings& ancillarySettings = ObservationAncilliarySimulationSettings())
 {
     return createTrackingTxtFilesObservationCollection< ObservationScalarType, TimeType >(
-        { processedTrackingTxtFileContents }, observableTypesToProcess, ancillarySettings, startAndEndTimesToProcess );
+        { processedTrackingTxtFileContents }, observableTypesToProcess, ancillarySettings );
 }
 
 /*!
@@ -679,7 +675,6 @@ createTrackingTxtFileObservationCollection(
  * @param observableTypesToProcess Vector of observable types that need to be in the collection
  * @param earthFixedGroundStationPositions map of ground station positions
  * @param ancillarySettings
- * @param startAndEndTimesToProcess
  * @return observation collection
  */
 template< typename ObservationScalarType = double, typename TimeType = double >
@@ -689,8 +684,7 @@ createTrackingTxtFileObservationCollection(
     const std::string spacecraftName,
     const std::vector<ObservableType> observableTypesToProcess = std::vector<ObservableType>(),
     const std::map<std::string, Eigen::Vector3d> earthFixedGroundStationPositions = simulation_setup::getCombinedApproximateGroundStationPositions(),
-    const ObservationAncilliarySimulationSettings& ancillarySettings = ObservationAncilliarySimulationSettings(),
-    std::pair<TimeType, TimeType> startAndEndTimesToProcess = std::make_pair<TimeType, TimeType>(TUDAT_NAN, TUDAT_NAN))
+    const ObservationAncilliarySimulationSettings& ancillarySettings = ObservationAncilliarySimulationSettings())
 {
     // Create processed tracking file contents
     auto processedTrackingTxtFileContents = std::make_shared<observation_models::ProcessedTrackingTxtFileContents< ObservationScalarType, TimeType > >(
@@ -699,8 +693,7 @@ createTrackingTxtFileObservationCollection(
     // Create observation collection and return
     return createTrackingTxtFileObservationCollection(processedTrackingTxtFileContents,
                                                     observableTypesToProcess,
-                                                    ancillarySettings,
-                                                    startAndEndTimesToProcess);
+                                                    ancillarySettings);
 }
 
 void setStationFrequenciesFromTrackingData(

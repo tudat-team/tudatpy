@@ -173,7 +173,7 @@ std::shared_ptr< ObservationCollection< double, double > > setUpObservationColle
     std::vector< double > rangeObsTimes, dopplerObsTimes, angularPositionObsTimes;
     obsStartTimes = { { one_way_range, initialEphemerisTime + 1000.0 }, { one_way_doppler, initialEphemerisTime + 1000.0 + 86400.0 },
                       { angular_position, initialEphemerisTime + 1000.0 + 2.0 * 86400.0 } };
-    for( unsigned int j = 0; j < numberOfObservations; j++ )
+    for( int j = 0; j < numberOfObservations; j++ )
     {
         rangeObsTimes.push_back( initialEphemerisTime + 1000.0 + static_cast< double >( j ) * observationsInterval );
         dopplerObsTimes.push_back( initialEphemerisTime + 1000.0 + 86400.0 + static_cast< double >( j ) * observationsInterval );
@@ -223,7 +223,7 @@ BOOST_AUTO_TEST_CASE( test_ObservationCollectionParser )
 {
     const double startTime = double( 1.0E7 );
     const int numberOfDaysOfData = 3;
-    unsigned int nbObs = 300;
+    unsigned int numberOfObservations = 300;
     double obsInterval = 20.0;
 
     std::vector< LinkEnds > stationReceiverLinkEnds;
@@ -231,7 +231,7 @@ BOOST_AUTO_TEST_CASE( test_ObservationCollectionParser )
     std::map< ObservableType, double > obsStartTimes;
     std::map< ObservableType, std::vector< double > > baseTimeList;
     std::shared_ptr< ObservationCollection< double, double > > simulatedObservations = setUpObservationCollectionToTest(
-            startTime, numberOfDaysOfData, nbObs, obsInterval, stationReceiverLinkEnds, stationTransmitterLinkEnds, obsStartTimes, baseTimeList );
+            startTime, numberOfDaysOfData, numberOfObservations, obsInterval, stationReceiverLinkEnds, stationTransmitterLinkEnds, obsStartTimes, baseTimeList );
 
     // Check full list of observable types
     std::vector< ObservableType > observableTypes = simulatedObservations->getObservableTypes( );
@@ -277,11 +277,11 @@ BOOST_AUTO_TEST_CASE( test_ObservationCollectionParser )
     {
         if ( it.first != angular_position )
         {
-            trueTimeBoundsList.push_back( std::make_pair( it.second, it.second + ( nbObs - 1 ) * obsInterval ) );
+            trueTimeBoundsList.push_back( std::make_pair( it.second, it.second + ( numberOfObservations - 1 ) * obsInterval ) );
         }
         else
         {
-            trueTimeBoundsList.push_back( std::make_pair( it.second, it.second + ( nbObs - 1 ) * obsInterval + 2000.0 ) );
+            trueTimeBoundsList.push_back( std::make_pair( it.second, it.second + ( numberOfObservations - 1 ) * obsInterval + 2000.0 ) );
         }
     }
     BOOST_CHECK( timeBoundsList.size( ) == trueTimeBoundsList.size( ) );
@@ -532,7 +532,7 @@ BOOST_AUTO_TEST_CASE( test_ObservationsFiltering )
 {
     const double startTime = double( 1.0E7 );
     const int numberOfDaysOfData = 3;
-    unsigned int nbObs = 300;
+    unsigned int numberOfObservations = 300;
     double obsInterval = 20.0;
 
     std::vector< LinkEnds > stationReceiverLinkEnds;
@@ -540,7 +540,7 @@ BOOST_AUTO_TEST_CASE( test_ObservationsFiltering )
     std::map< ObservableType, double > obsStartTimes;
     std::map< ObservableType, std::vector< double > > baseTimeList;
     std::shared_ptr< ObservationCollection< double, double > > simulatedObservations = setUpObservationCollectionToTest(
-            startTime, numberOfDaysOfData, nbObs, obsInterval, stationReceiverLinkEnds, stationTransmitterLinkEnds, obsStartTimes, baseTimeList );
+            startTime, numberOfDaysOfData, numberOfObservations, obsInterval, stationReceiverLinkEnds, stationTransmitterLinkEnds, obsStartTimes, baseTimeList );
 
     // Retrieve start indices and sizes for observation sets
     std::map< ObservableType, std::map< LinkEnds, std::vector< std::pair< int, int > > > > obsSetsStartAndSize = simulatedObservations->getObservationSetStartAndSize( );
@@ -621,11 +621,11 @@ BOOST_AUTO_TEST_CASE( test_ObservationsFiltering )
                 }
                 if ( observableIt.first == angular_position )
                 {
-                    BOOST_CHECK( indices.second == 2.0 * nbObs );
+                    BOOST_CHECK( indices.second == 2.0 * numberOfObservations );
                 }
                 if ( observableIt.first == one_way_doppler )
                 {
-                    BOOST_CHECK( indices.second == nbObs );
+                    BOOST_CHECK( indices.second == static_cast< int >( numberOfObservations ) );
                 }
                 startIndex += indices.second;
             }
@@ -666,7 +666,7 @@ BOOST_AUTO_TEST_CASE( test_ObservationsFiltering )
 
     // Test filtering based on epoch values and time bounds
     std::vector< double > rangeObsTimes = baseTimeList.at( one_way_range );
-    std::pair< double, double > timeBounds = std::make_pair( rangeObsTimes[ int(nbObs/3) ], rangeObsTimes[ 2*int(nbObs/3) ] );
+    std::pair< double, double > timeBounds = std::make_pair( rangeObsTimes[ int(numberOfObservations/3) ], rangeObsTimes[ 2*int(numberOfObservations/3) ] );
     std::vector< double > epochsToFilter;
     std::vector< double > epochsLeft;
     for ( auto time : rangeObsTimes )
@@ -701,7 +701,7 @@ BOOST_AUTO_TEST_CASE( test_ObservationsFiltering )
     remainingObsTimes = simulatedObservations->getObservationTimes( observationParser( one_way_range ) );
     for ( unsigned int k = 0 ; k < remainingObsTimes.size( ) ; k++ )
     {
-        BOOST_CHECK( remainingObsTimes.at( k ).size( ) == nbObs );
+        BOOST_CHECK( remainingObsTimes.at( k ).size( ) == numberOfObservations );
     }
 
 
@@ -725,7 +725,7 @@ BOOST_AUTO_TEST_CASE( test_ObservationsFiltering )
     remainingObsTimes = simulatedObservations->getObservationTimes( observationParser( one_way_range ) );
     for ( unsigned int k = 0 ; k < remainingObsTimes.size( ) ; k++ )
     {
-        BOOST_CHECK( remainingObsTimes.at( k ).size( ) == nbObs );
+        BOOST_CHECK( remainingObsTimes.at( k ).size( ) == numberOfObservations );
     }
 
     // Test filtering based on residual values
@@ -794,7 +794,7 @@ BOOST_AUTO_TEST_CASE( test_ObservationsSplitting )
 
     const double startTime = double( 1.0E7 );
     const int numberOfDaysOfData = 3;
-    unsigned int nbObs = 300;
+    unsigned int numberOfObservations = 300;
     double obsInterval = 20.0;
 
     std::vector< LinkEnds > stationReceiverLinkEnds;
@@ -802,11 +802,11 @@ BOOST_AUTO_TEST_CASE( test_ObservationsSplitting )
     std::map< ObservableType, double > obsStartTimes;
     std::map< ObservableType, std::vector< double > > baseTimeList;
     std::shared_ptr< ObservationCollection< double, double > > simulatedObservations = setUpObservationCollectionToTest(
-            startTime, numberOfDaysOfData, nbObs, obsInterval, stationReceiverLinkEnds, stationTransmitterLinkEnds, obsStartTimes, baseTimeList );
+            startTime, numberOfDaysOfData, numberOfObservations, obsInterval, stationReceiverLinkEnds, stationTransmitterLinkEnds, obsStartTimes, baseTimeList );
 
 
     // Test splitting based on time tags
-    int indexSplitEpoch = int(nbObs/3);
+    int indexSplitEpoch = int(numberOfObservations/3);
     std::vector< double > rangeObsTimes = baseTimeList.at( one_way_range );
     double splitEpoch = rangeObsTimes.at( indexSplitEpoch );
     std::vector< double > timeTags = { rangeObsTimes.at( 0 ), splitEpoch, rangeObsTimes.back( ) };
@@ -816,7 +816,7 @@ BOOST_AUTO_TEST_CASE( test_ObservationsSplitting )
     std::vector< std::shared_ptr< SingleObservationSet< > > > splitObsSets = simulatedObservations->getSingleObservationSets( observationParser( stationTransmitterLinkEnds[ 0 ] ) );
     BOOST_CHECK( splitObsSets.size( ) == 2 );
     BOOST_CHECK( splitObsSets.at( 0 )->getNumberOfObservables( ) == indexSplitEpoch+1 );
-    BOOST_CHECK( splitObsSets.at( 1 )->getNumberOfObservables( ) == nbObs - (indexSplitEpoch+1) );
+    BOOST_CHECK( splitObsSets.at( 1 )->getNumberOfObservables( ) == numberOfObservations - (indexSplitEpoch+1) );
 
     // Check that all observations in the first set occur before splitEpoch
     for ( auto time : splitObsSets.at( 0 )->getObservationTimes( ) )
@@ -840,7 +840,7 @@ BOOST_AUTO_TEST_CASE( test_ObservationsSplitting )
     BOOST_CHECK( splitObsSets.size( ) == 3 );
     BOOST_CHECK( splitObsSets.at( 0 )->getNumberOfObservables( ) == indexSplitEpoch );
     BOOST_CHECK( splitObsSets.at( 1 )->getNumberOfObservables( ) == indexSplitEpoch );
-    BOOST_CHECK( splitObsSets.at( 2 )->getNumberOfObservables( ) == nbObs - (2*indexSplitEpoch+1) );
+    BOOST_CHECK( splitObsSets.at( 2 )->getNumberOfObservables( ) == numberOfObservations - (2*indexSplitEpoch+1) );
 
     // Check that the time span of the new observation set meets the threshold
     for ( unsigned int i = 0 ; i < 3 ; i++ )
