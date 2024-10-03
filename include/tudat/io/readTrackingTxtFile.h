@@ -25,6 +25,7 @@
 #include "tudat/io/fieldType.h"
 #include "tudat/astro/basic_astro.h"
 #include "tudat/astro/observation_models/observableTypes.h"
+#include "tudat/astro/basic_astro/dateTime.h"
 #include "tudat/interface/spice/spiceInterface.h"
 
 /*!
@@ -61,8 +62,11 @@ enum class TrackingDataType
   observation_body, // In case observations corrected for body center.
   observed_body, // In case observations corrected for body center.
   spacecraft_id,
+  spacecraft_name,
   planet_nr,
-  tdb_time_j2000,
+  tdb_reception_time_j2000,
+  utc_reception_time_j2000,
+  utc_ramp_referencee_j2000,
   tdb_spacecraft_j2000,
   x_planet_frame,
   y_planet_frame,
@@ -77,13 +81,21 @@ enum class TrackingDataType
   signal_to_noise,
   spectral_max,
   doppler_measured_frequency,
+  doppler_averaged_frequency,
   doppler_base_frequency,
   doppler_noise,
   doppler_bandwidth,
-  vlbi_station_name,
+  receiving_station_name,
+  transmitting_station_name,
   time_tag_delay,
+  sample_number,
+  utc_day_of_year,
+  reference_body_distance,
+  transmission_frequency_constant_term,
+  transmission_frequency_linear_term,
+  doppler_predicted_frequency_hz,
+  doppler_troposphere_correction
 };
-
 /*!
  * Simple converter class that can convert a string data field to a double.
  * One can inherit from this and overload the `toDouble()` method to extend the supported formats
@@ -192,11 +204,11 @@ private:
 class TrackingFileFieldUTCTimeConverter : public TrackingFileFieldConverter
 {
 public:
-  TrackingFileFieldUTCTimeConverter(TrackingDataType trackingDataType = TrackingDataType::tdb_time_j2000)
+  TrackingFileFieldUTCTimeConverter(TrackingDataType trackingDataType = TrackingDataType::utc_reception_time_j2000)
       : TrackingFileFieldConverter(trackingDataType) {}
   double toDouble(std::string& rawField) const
   {
-    return spice_interface::convertDateStringToEphemerisTime(rawField);
+      return basic_astrodynamics::dateTimeFromIsoString( rawField ).epoch< double >( );
   }
 };
 
@@ -238,8 +250,19 @@ static const std::map<std::string, std::shared_ptr<TrackingFileFieldConverter>> 
     {"signal_to_noise_ratio", std::make_shared<TrackingFileFieldConverter>(TrackingDataType::signal_to_noise)},
     {"normalised_spectral_max", std::make_shared<TrackingFileFieldConverter>(TrackingDataType::spectral_max)},
     {"doppler_measured_frequency_hz", std::make_shared<TrackingFileFieldConverter>(TrackingDataType::doppler_measured_frequency)},
+    {"doppler_averaged_frequency_hz", std::make_shared<TrackingFileFieldConverter>(TrackingDataType::doppler_averaged_frequency)},
     {"doppler_noise_hz", std::make_shared<TrackingFileFieldConverter>(TrackingDataType::doppler_noise)},
-    {"utc_datetime_string", std::make_shared<TrackingFileFieldUTCTimeConverter>(TrackingDataType::tdb_time_j2000)}
+    {"utc_datetime_string", std::make_shared<TrackingFileFieldUTCTimeConverter>(TrackingDataType::utc_reception_time_j2000)},
+    {"utc_day_of_year", std::make_shared<TrackingFileFieldConverter>(TrackingDataType::utc_day_of_year)},
+    {"tdb_seconds_since_j2000", std::make_shared<TrackingFileFieldConverter>(TrackingDataType::tdb_reception_time_j2000)},
+    {"sample_number", std::make_shared<TrackingFileFieldConverter>(TrackingDataType::sample_number)},
+    {"reference_body_distance", std::make_shared<TrackingFileFieldMultiplyingConverter>(TrackingDataType::reference_body_distance,1.0E3)},
+    {"ramp_reference_time", std::make_shared<TrackingFileFieldUTCTimeConverter>(TrackingDataType::utc_ramp_referencee_j2000)},
+    {"transmission_frequency_constant_term", std::make_shared<TrackingFileFieldConverter>(TrackingDataType::transmission_frequency_constant_term)},
+    {"transmission_frequency_linear_term", std::make_shared<TrackingFileFieldConverter>(TrackingDataType::transmission_frequency_linear_term)},
+    {"doppler_predicted_frequency_hz", std::make_shared<TrackingFileFieldConverter>(TrackingDataType::doppler_predicted_frequency_hz)},
+    {"doppler_troposphere_correction", std::make_shared<TrackingFileFieldConverter>(TrackingDataType::doppler_troposphere_correction)}
+
 };
 
 /*!
@@ -261,9 +284,10 @@ public:
   TrackingTxtFileContents(const std::string fileName,
                           const std::vector<std::string> columnTypes,
                           const char commentSymbol = '#',
-                          const std::string valueSeparators = ",: \t")
+                          const std::string valueSeparators = ",: \t",
+                          const bool ignoreOmittedColumns = false )
       : fileName_(fileName), columnFieldTypes_(columnTypes), commentSymbol_(commentSymbol),
-        valueSeparators_(valueSeparators)
+        valueSeparators_(valueSeparators), ignoreOmittedColumns_( ignoreOmittedColumns )
   {
     parseData();
   }
@@ -315,7 +339,8 @@ public:
   const std::vector<TrackingDataType>& getDataColumnTypes()
   {
     columnDataTypes_.clear();
-    for (auto& pair : doubleDataMap_) {
+    for (auto& pair : doubleDataMap_)
+    {
       columnDataTypes_.push_back(pair.first);
     }
     return columnDataTypes_;
@@ -370,6 +395,8 @@ private:
   //! String of separator characters that mark a gap between two columns
   std::string valueSeparators_ = ":, \t";
 
+  bool ignoreOmittedColumns_ = false;
+
   //! Map to link a columnfieldtype (as provided by the user) to a vector of values (read from file)
   std::map<std::string, std::vector<std::string>> rawDataMap_;
 
@@ -394,11 +421,33 @@ private:
 static inline std::shared_ptr<TrackingTxtFileContents> createTrackingTxtFileContents(const std::string& fileName,
                                                                                      std::vector<std::string>& columnTypes,
                                                                                      char commentSymbol = '#',
-                                                                                     const std::string& valueSeparators = ",: \t")
+                                                                                     const std::string& valueSeparators = ",: \t",
+                                                                                     const bool ignoreOmittedColumns = false )
 {
-  return std::make_shared<TrackingTxtFileContents>(fileName, columnTypes, commentSymbol, valueSeparators);
+  return std::make_shared<TrackingTxtFileContents>(fileName, columnTypes, commentSymbol, valueSeparators, ignoreOmittedColumns);
 }
 
+
+inline std::shared_ptr< TrackingTxtFileContents> readIfmsFile(const std::string& fileName)
+{
+    std::vector<std::string>
+        columnTypes({"sample_number",
+                     "utc_datetime_string",
+                     "utc_day_of_year",
+                     "tdb_seconds_since_j2000",
+                     "reference_body_distance",
+                     "ramp_reference_time",
+                     "transmission_frequency_constant_term",
+                     "transmission_frequency_linear_term",
+                     "doppler_averaged_frequency_hz",
+                     "doppler_predicted_frequency_hz",
+                     "doppler_troposphere_correction",
+                     "doppler_noise_hz"});
+
+    auto rawFileContents = createTrackingTxtFileContents(fileName, columnTypes, '#', ", \t",true);
+    rawFileContents->addMetaData( TrackingDataType::file_name, fileName );
+    return rawFileContents;
+}
 } // namespace input_output
 } // namespace tudat
 

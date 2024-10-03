@@ -12,7 +12,6 @@
 #define TUDAT_OBSERVATIONS_H
 
 #include <vector>
-
 #include <memory>
 #include <functional>
 
@@ -162,7 +161,7 @@ public:
 
     void setResiduals( const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& residuals )
     {
-        if ( residuals.size( ) != numberOfObservations_ )
+        if ( residuals.size( ) != static_cast< unsigned int >( numberOfObservations_ ) )
         {
             throw std::runtime_error( "Error when setting residuals, number of observations is inconsistent." );
         }
@@ -452,7 +451,7 @@ public:
 
     void removeSingleObservation( unsigned int indexToRemove )
     {
-        if ( indexToRemove >= numberOfObservations_ )
+        if ( static_cast< int >( indexToRemove ) >= numberOfObservations_ )
         {
             throw std::runtime_error( "Error when removing single observation from SingleObservationSet, index incompatible with number of observations." );
         }
@@ -811,7 +810,7 @@ private:
                 {
                     throw std::runtime_error( "Error when moving observation back from filtered observation set, filtered observation set is empty." );
                 }
-                if ( index >= getNumberOfFilteredObservations( ) )
+                if ( static_cast< int >( index ) >= getNumberOfFilteredObservations( ) )
                 {
                     throw std::runtime_error( "Error when moving observation back from filtered observation set, index incompatible with number of observations." );
                 }
@@ -973,7 +972,7 @@ std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeT
             {
                 throw std::runtime_error( "Error when splitting observation sets, the maximum number of observations cannot be smaller than the minimum number of observations." );
             }
-            for ( unsigned int ind = maxNbObs ; ind < observationSet->getNumberOfObservables( ) ; ind+=maxNbObs )
+            for ( int ind = maxNbObs ; ind < observationSet->getNumberOfObservables( ) ; ind+=maxNbObs )
             {
                 rawStartIndicesNewSets.push_back( ind );
             }
