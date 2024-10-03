@@ -20,6 +20,9 @@
 #include "tudat/io/readTrackingTxtFile.h"
 #include "tudat/io/solarActivityData.h"
 #include "docstrings.h"
+#include "tudat/io/readVariousPdsFiles.h"
+
+#include <pybind11/stl.h>
 
 namespace py = pybind11;
 namespace tio = tudat::input_output;
@@ -345,6 +348,13 @@ Reads a space weather data file and produces a dictionary with solar activity da
                       &tio::TrackingTxtFileContents::getNumRows,
                       get_docstring("TrackingTxtFileContents.num_rows").c_str( ) );
 
+
+      m.def( "grail_antenna_file_reader", &tio::grailAntennaFileReader,
+             py::arg( "file_name" ), get_docstring( "grail_antenna_file_reader" ).c_str( ) );
+      m.def( "grail_mass_level_0_file_reader", &tio::grailMassLevel0FileReader,
+             py::arg( "file_name" ), get_docstring( "grail_mass_level_0_file_reader" ).c_str( ) );
+      m.def( "grail_mass_level_1_file_reader", &tio::grailMassLevel1FileReader,
+             py::arg( "file_name" ), py::arg( "data_level" ) = "1b", get_docstring( "grail_mass_level_1_file_reader" ).c_str( ) );
 
 
       py::enum_<tudat::input_output::TrackingDataType>(m, "TrackingDataType",
