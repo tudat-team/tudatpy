@@ -290,7 +290,7 @@ void expose_time_conversion(py::module &m)
             std::shared_ptr<teo::TerrestrialTimeScaleConverter>>(
                 m, "TimeScaleConverter",
                 get_docstring("TimeScaleConverter").c_str( ) )
-            .def( "convert_time", &teo::TerrestrialTimeScaleConverter::getCurrentTime< double >,
+            .def( "convert_time", &teo::TerrestrialTimeScaleConverter::getCurrentTime< TIME_TYPE >,
                   py::arg( "input_scale" ),
                   py::arg( "output_scale" ),
                   py::arg( "input_value" ),
