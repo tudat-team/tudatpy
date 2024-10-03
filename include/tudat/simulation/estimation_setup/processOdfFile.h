@@ -841,8 +841,8 @@ private:
         {
             std::string stationName = it->first;
 
-            std::vector< TimeType > rampStartTimesPerStationUtc = computeObservationTimesUtcFromJ2000( unprocessedRampStartTimesPerStation_[ stationName ] );
-            std::vector< TimeType > rampEndTimesPerStationUtc = computeObservationTimesUtcFromJ2000( unprocessedRampEndTimesPerStation_[ stationName ] );
+            std::vector< Time > rampStartTimesPerStationUtc = computeObservationTimesUtcFromJ2000< Time >( unprocessedRampStartTimesPerStation_[ stationName ] );
+            std::vector< Time > rampEndTimesPerStationUtc = computeObservationTimesUtcFromJ2000< Time >( unprocessedRampEndTimesPerStation_[ stationName ] );
 
             rampInterpolators_[ stationName ] = std::make_shared< ground_stations::PiecewiseLinearFrequencyInterpolator >(
                     rampStartTimesPerStationUtc, rampEndTimesPerStationUtc,
@@ -874,17 +874,19 @@ private:
      * @param observationTimesUtcFromEME1950 UTC times from EME1950.
      * @return UTC times from J2000
      */
-    std::vector< TimeType > computeObservationTimesUtcFromJ2000( std::vector< Time > observationTimesUtcFromEME1950 )
+    template< typename InputTimeType >
+    std::vector< Time > computeObservationTimesUtcFromJ2000(
+        const std::vector< InputTimeType >& observationTimesUtcFromEME1950 )
     {
-        std::vector < TimeType > observationTimesUtcFromJ2000;
+        std::vector < Time > observationTimesUtcFromJ2000;
 
-        TimeType EME1950ToJ2000Offset = Time( basic_astrodynamics::convertCalendarDateToJulianDaysSinceEpoch< double >(
+        Time EME1950ToJ2000Offset = Time( basic_astrodynamics::convertCalendarDateToJulianDaysSinceEpoch< double >(
                 1950, 1, 1, 0, 0, 0, basic_astrodynamics::JULIAN_DAY_ON_J2000 )
                                               * physical_constants::JULIAN_DAY );
 
         for ( unsigned int i = 0; i < observationTimesUtcFromEME1950.size( ); ++i )
         {
-            observationTimesUtcFromJ2000.push_back( static_cast< TimeType >( observationTimesUtcFromEME1950.at( i ) ) + EME1950ToJ2000Offset );
+            observationTimesUtcFromJ2000.push_back( static_cast< Time >( observationTimesUtcFromEME1950.at( i ) ) + EME1950ToJ2000Offset );
         }
 
         return observationTimesUtcFromJ2000;
@@ -898,12 +900,13 @@ private:
      * @return TDB times from J2000
      */
     std::vector< TimeType > computeObservationTimesTdbFromJ2000(
-            std::string groundStation, std::vector< TimeType > observationTimesUtcFromEME1950 )
+            const std::string groundStation,
+            const std::vector< TimeType >& observationTimesUtcFromEME1950 )
     {
         earth_orientation::TerrestrialTimeScaleConverter timeScaleConverter =
                 earth_orientation::TerrestrialTimeScaleConverter( );
 
-        std::vector< TimeType > observationTimesUtcFromJ2000 = computeObservationTimesUtcFromJ2000( observationTimesUtcFromEME1950 );
+        std::vector< Time > observationTimesUtcFromJ2000 = computeObservationTimesUtcFromJ2000< TimeType >( observationTimesUtcFromEME1950 );
 
         if ( approximateEarthFixedGroundStationPositions_.count( groundStation ) == 0 )
         {
@@ -918,8 +921,9 @@ private:
             earthFixedPositions.push_back( approximateEarthFixedGroundStationPositions_.at( groundStation ) );
         }
 
-        std::vector< TimeType > observationTimesTdbFromJ2000 = timeScaleConverter.getCurrentTimes< TimeType >(
-                basic_astrodynamics::utc_scale, basic_astrodynamics::tdb_scale, observationTimesUtcFromJ2000, earthFixedPositions );
+        std::vector< TimeType > observationTimesTdbFromJ2000 =
+            utilities::staticCastVector< TimeType, Time >( timeScaleConverter.getCurrentTimes< Time >(
+                basic_astrodynamics::utc_scale, basic_astrodynamics::tdb_scale, observationTimesUtcFromJ2000, earthFixedPositions ) );
 
         return observationTimesTdbFromJ2000;
     }
