@@ -308,9 +308,11 @@ Reads a space weather data file and produces a dictionary with solar activity da
                     .c_str());
 
             m.def("read_tracking_txt_file", &tio::createTrackingTxtFileContents,
-                  py::arg("file_name"), py::arg("column_types"),
+                  py::arg("file_name"),
+                  py::arg("column_types"),
                   py::arg("comment_symbol") = '#',
-                  py::arg("value_separators") = ",:\t " );
+                  py::arg("value_separators") = ",:\t ",
+                  py::arg("ignore_omitted_columns") = false );
 
           py::class_<
               tudat::input_output::TrackingTxtFileContents,
@@ -377,7 +379,6 @@ Reads a space weather data file and produces a dictionary with solar activity da
             .value("observed_body", tudat::input_output::TrackingDataType::observed_body, get_docstring("TrackingDataType.observed_body").c_str())
             .value("spacecraft_id", tudat::input_output::TrackingDataType::spacecraft_id, get_docstring("TrackingDataType.spacecraft_id").c_str())
             .value("planet_nr", tudat::input_output::TrackingDataType::planet_nr, get_docstring("TrackingDataType.planet_nr").c_str())
-            .value("tdb_time_j2000", tudat::input_output::TrackingDataType::tdb_time_j2000, get_docstring("TrackingDataType.tdb_time_j2000").c_str())
             .value("tdb_spacecraft_j2000", tudat::input_output::TrackingDataType::tdb_spacecraft_j2000, get_docstring("TrackingDataType.tdb_spacecraft_j2000").c_str())
             .value("x_planet_frame", tudat::input_output::TrackingDataType::x_planet_frame, get_docstring("TrackingDataType.x_planet_frame").c_str())
             .value("y_planet_frame", tudat::input_output::TrackingDataType::y_planet_frame, get_docstring("TrackingDataType.y_planet_frame").c_str())
@@ -395,7 +396,8 @@ Reads a space weather data file and produces a dictionary with solar activity da
             .value("doppler_base_frequency", tudat::input_output::TrackingDataType::doppler_base_frequency, get_docstring("TrackingDataType.doppler_base_frequency").c_str())
             .value("doppler_noise", tudat::input_output::TrackingDataType::doppler_noise, get_docstring("TrackingDataType.doppler_noise").c_str())
             .value("doppler_bandwidth", tudat::input_output::TrackingDataType::doppler_bandwidth, get_docstring("TrackingDataType.doppler_bandwidth").c_str())
-            .value("vlbi_station_name", tudat::input_output::TrackingDataType::vlbi_station_name, get_docstring("TrackingDataType.vlbi_station_name").c_str())
+            .value("receiving_station_name", tudat::input_output::TrackingDataType::receiving_station_name, get_docstring("TrackingDataType.receiving_station_name").c_str())
+            .value("transmitting_station_name", tudat::input_output::TrackingDataType::transmitting_station_name, get_docstring("TrackingDataType.transmitting_station_name").c_str())
             .export_values();
 };
 
