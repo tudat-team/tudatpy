@@ -142,7 +142,7 @@ BOOST_AUTO_TEST_CASE(testIfmsObservationMex)
         // Create and process observation collection
         auto observedUncompressedObservationCollection = observation_models::createTrackingTxtFilesObservationCollection< long double, Time>(
             processedIfmsFiles, {dsn_n_way_averaged_doppler}, ancilliarySettings );
-        setTrackingDataInformationInBodies( processedIfmsFiles, bodies, {dsn_n_way_averaged_doppler} );
+        setTrackingDataInformationInBodies( processedIfmsFiles, bodies, dsn_n_way_averaged_doppler );
         std::shared_ptr< observation_models::ObservationCollection< long double, Time > > observedObservationCollection =
             createCompressedDopplerCollection( observedUncompressedObservationCollection, 60.0 );
 
