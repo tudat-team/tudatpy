@@ -874,7 +874,7 @@ private:
      * @param observationTimesUtcFromEME1950 UTC times from EME1950.
      * @return UTC times from J2000
      */
-    std::vector< TimeType > computeObservationTimesUtcFromJ2000( std::vector< TimeType > observationTimesUtcFromEME1950 )
+    std::vector< TimeType > computeObservationTimesUtcFromJ2000( std::vector< Time > observationTimesUtcFromEME1950 )
     {
         std::vector < TimeType > observationTimesUtcFromJ2000;
 
@@ -884,7 +884,7 @@ private:
 
         for ( unsigned int i = 0; i < observationTimesUtcFromEME1950.size( ); ++i )
         {
-            observationTimesUtcFromJ2000.push_back( observationTimesUtcFromEME1950.at( i ) + EME1950ToJ2000Offset );
+            observationTimesUtcFromJ2000.push_back( static_cast< TimeType >( observationTimesUtcFromEME1950.at( i ) ) + EME1950ToJ2000Offset );
         }
 
         return observationTimesUtcFromJ2000;
