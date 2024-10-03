@@ -488,21 +488,25 @@ void expose_observation_setup(py::module &m) {
               const tom::LinkDefinition&,
               const std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >,
               const std::shared_ptr< tom::ObservationBiasSettings >,
-              const std::shared_ptr< tom::LightTimeConvergenceCriteria > >( &tom::dsnNWayAveragedDopplerObservationSettings ),
+              const std::shared_ptr< tom::LightTimeConvergenceCriteria >,
+              const bool >( &tom::dsnNWayAveragedDopplerObservationSettings ),
           py::arg("link_ends" ),
           py::arg("light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
           py::arg("bias_settings") = nullptr,
           py::arg("light_time_convergence_settings") = std::make_shared< tom::LightTimeConvergenceCriteria >( ),
+          py::arg("subtract_doppler_signature") = true,
           get_docstring("dsn_n_way_doppler_averaged").c_str() );
 
     m.def("dsn_n_way_doppler_averaged_from_one_way_links",
           py::overload_cast<
               const std::vector< std::shared_ptr< tom::ObservationModelSettings > >,
               const std::shared_ptr< tom::ObservationBiasSettings >,
-              const std::shared_ptr< tom::LightTimeConvergenceCriteria > >( &tom::dsnNWayAveragedDopplerObservationSettings ),
+              const std::shared_ptr< tom::LightTimeConvergenceCriteria >,
+              const bool  >( &tom::dsnNWayAveragedDopplerObservationSettings ),
           py::arg("one_way_range_settings" ),
           py::arg("bias_settings") = nullptr,
           py::arg("light_time_convergence_settings") = std::make_shared< tom::LightTimeConvergenceCriteria >( ),
+          py::arg("subtract_doppler_signature") = true,
           get_docstring("dsn_n_way_doppler_averaged_from_one_way_links").c_str() );
 
     m.def("doppler_measured_frequency",
@@ -1217,21 +1221,19 @@ void expose_observation_setup(py::module &m) {
   // Tracking Txt OBSERVATIONS
   /////////////////////////////////////////////////////////////////////////////////////////////////
 
-//    m.def("create_tracking_txtfile_observation_collection",
-//        py::overload_cast<
-//            const std::shared_ptr<tudat::input_output::TrackingTxtFileContents>,
-//            const std::string,
-//            const std::vector<tom::ObservableType>,
-//            const std::map<std::string, Eigen::Vector3d>,
-//            const tom::ObservationAncilliarySimulationSettings&,
-//            std::pair<TIME_TYPE, TIME_TYPE>>(&tom::createTrackingTxtFileObservationCollection<double, TIME_TYPE>),
-//        py::arg("raw_tracking_txtfile_contents"),
-//        py::arg("spacecraft_name"),
-//        py::arg("observable_types_to_process") = std::vector<tom::ObservableType>(),
-//        py::arg("earth_fixed_ground_station_positions") = tss::getApproximateDsnGroundStationPositions(),
-//        py::arg("ancillary_settings") = tom::ObservationAncilliarySimulationSettings(),
-//        py::arg("start_and_end_times_to_process") = std::make_pair<TIME_TYPE, TIME_TYPE>(TUDAT_NAN, TUDAT_NAN),
-//        get_docstring("create_tracking_txtfile_observation_collection").c_str());
+    m.def("create_tracking_txtfile_observation_collection",
+          py::overload_cast<
+              const std::shared_ptr<tudat::input_output::TrackingTxtFileContents>,
+              const std::string,
+              const std::vector<tom::ObservableType>,
+              const std::map<std::string, Eigen::Vector3d>,
+              const tom::ObservationAncilliarySimulationSettings& >(&tom::createTrackingTxtFileObservationCollection<double, TIME_TYPE>),
+          py::arg("raw_tracking_txtfile_contents"),
+          py::arg("spacecraft_name"),
+          py::arg("observable_types_to_process") = std::vector<tom::ObservableType>(),
+          py::arg("earth_fixed_ground_station_positions") = tss::getApproximateDsnGroundStationPositions(),
+          py::arg("ancillary_settings") = tom::ObservationAncilliarySimulationSettings(),
+          get_docstring("create_tracking_txtfile_observation_collection").c_str());
 
     m.def("observation_settings_from_collection",
           py::overload_cast<std::shared_ptr<tom::ObservationCollection<double, TIME_TYPE> >>(
