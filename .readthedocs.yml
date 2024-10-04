@@ -18,10 +18,8 @@ build:
   jobs:
     pre_install:
       - LATEST_TAG=$(git describe --tags --abbrev=0) ; echo Downloading $LATEST_TAG ;
-       wget https://github.com/tudat-team/tudatpy/archive/refs/tags/$LATEST_TAG.zip; unzip $LATEST_TAG.zip;
-       mv docs/environment_readthedocs.yaml /tmp/environment_readthedocs.yaml;
-       rm -rf docs/; LT=$(echo $LATEST_TAG | cut -c 2-); mv tudatpy-$LT/docs/ .;
-       mv /tmp/environment_readthedocs.yaml docs/environment_readthedocs.yaml;
+       wget https://github.com/tudat-team/tudatpy/archive/refs/tags/$LATEST_TAG.zip; unzip $LATEST_TAG.zip; rm -rf docs/; LT=$(echo $LATEST_TAG | cut -c 2-); mv tudatpy-$LT/docs/ .;
+
       # The pre-install step enables building the docs on the latest tag
       # instead of the latest commit. Since Read the Docs uses the latest
       # tudatpy dev conda package to find the binaries (see docs/source/conf.
@@ -30,13 +28,6 @@ build:
       # step overrides the default behavior of Read the Docs to build the docs
       # on the latest commit. The pre-install step replaces the docs/
       # directory with the docs/ directory of the latest tag.
-
-# The pre-install step does the following:
-# 1. Download and unzip the latest tag.
-# 2. Move the current environment_readthedocs.yaml file to a temporary location. (Preserving the current environment_readthedocs.yaml facilitates introducing changes to the environment_readthedocs.yaml and testing them on the latest tag.)
-# 3. Remove the current docs/ folder.
-# 4. Move the docs/ folder from the latest tag to the current location.
-# 5. Move the environment_readthedocs.yaml file back to the docs/ folder.
 
 conda:
   environment: docs/environment_readthedocs.yaml
