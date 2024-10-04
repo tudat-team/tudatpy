@@ -378,9 +378,9 @@ BOOST_AUTO_TEST_CASE(TestJuiceFile)
 BOOST_AUTO_TEST_CASE(GroundStationLocations)
 {
 
-  const static std::string pysctrackGroundStationPosFile = tudat::paths::getTudatTestDataPath() + "glo.sit";
-  const static std::string pysctrackGroundStationVelFile = tudat::paths::getTudatTestDataPath() + "glo.vel";
-  const static std::string pysctrackGroundStationCodesFile = tudat::paths::getTudatTestDataPath() + "ns_codes.dat";
+  const static std::string pysctrackGroundStationPosFile = tudat::paths::getStationLocationDataPath() + "/glo.sit";
+  const static std::string pysctrackGroundStationVelFile = tudat::paths::getStationLocationDataPath() + "/glo.vel";
+  const static std::string pysctrackGroundStationCodesFile = tudat::paths::getStationLocationDataPath() + "/ns_codes.dat";
 
   std::map<std::string, Eigen::Vector3d> stationPosMap = utilities::getMapFromFile<std::string, Eigen::Vector3d>(pysctrackGroundStationPosFile, '$', " \t");
   std::map<std::string, Eigen::Vector3d> stationVelMap = utilities::getMapFromFile<std::string, Eigen::Vector3d>(pysctrackGroundStationVelFile, '$', " \t");
