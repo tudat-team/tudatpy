@@ -2433,6 +2433,81 @@ public:
         std::cout << "\n\n";
     }
 
+    void setReferencePoints( simulation_setup::SystemOfBodies& bodies,
+                             const std::map< double, Eigen::Vector3d >& antennaSwitchHistory,
+                             const std::string& spacecraftName,
+                             const LinkEndType linkEndType,
+                             const std::shared_ptr< ObservationCollectionParser > observationParser = std::make_shared< ObservationCollectionParser >( ) )
+    {
+        // Retrieve existing reference points
+        std::map< std::string, Eigen::Vector3d > existingReferencePoints = bodies.at( spacecraftName )->getVehicleSystems( )->getBodyFixedReferencePoints( );
+
+        // Check if reference points exist and create missing antenna if necessary
+        std::map< double, std::string > antennaNames;
+
+        unsigned int counter = 0;
+        for ( auto antennaIt : antennaSwitchHistory )
+        {
+            bool antennaDetected = false;
+            for ( auto refPointsIt : existingReferencePoints )
+            {
+                if ( refPointsIt.second == antennaIt.second )
+                {
+                    antennaDetected = true;
+                    antennaNames[ antennaIt.first ] = refPointsIt.first;
+                    std::cout << "antenna " << refPointsIt.first << " detected" << std::endl;
+                }
+            }
+            if ( !antennaDetected )
+            {
+                counter++;
+                std::string newReferencePointName = "Antenna" + std::to_string( counter );
+                bodies.at( spacecraftName )->getVehicleSystems( )->setReferencePointPosition( newReferencePointName, antennaIt.second );
+                antennaNames[ antennaIt.first ] = newReferencePointName;
+                std::cout << "created new antenna: " << newReferencePointName << std::endl;
+            }
+        }
+
+        // Retrieve switch times
+        std::vector< double > originalSwitchTimes = utilities::createVectorFromMapKeys( antennaSwitchHistory );
+        std::pair< TimeType, TimeType > timeBounds = getTimeBounds( );
+        if ( originalSwitchTimes.front( ) > timeBounds.first || originalSwitchTimes.back( ) < timeBounds.second )
+        {
+            throw std::runtime_error( "Error when setting reference points in ObservationCollection, the antenna switch history does not cover the required observation time interval." );
+        }
+
+        // Split single observation sets accordingly
+        splitObservationSets( observationSetSplitter( time_tags_splitter, originalSwitchTimes ), observationParser );
+
+
+        // Set reference points
+        std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > singleSets = getSingleObservationSets( observationParser );
+
+        for ( auto set : singleSets )
+        {
+            TimeType setStartTime =  set->getTimeBounds( ).first;
+            TimeType setEndTime =  set->getTimeBounds( ).second;
+
+            for ( unsigned int k = 0 ; k < originalSwitchTimes.size( ) - 1 ; k++ )
+            {
+                if ( setStartTime >= originalSwitchTimes[ k ] && setEndTime <= originalSwitchTimes[ k+1 ] )
+                {
+                    std::string currentAntenna = antennaNames[ originalSwitchTimes[ k ] ];
+                    std::map< LinkEndType, LinkEndId > newLinkEnds = set->getLinkEnds( ).linkEnds_;
+                    newLinkEnds[ linkEndType ] = LinkEndId( std::make_pair( newLinkEnds[ linkEndType ].bodyName_, currentAntenna ) );
+                    LinkDefinition newLinkDefinition = LinkDefinition( newLinkEnds );
+                    set->setLinkEnds( newLinkDefinition );
+                }
+            }
+        }
+
+        observationSetList_ = createSortedObservationSetList< ObservationScalarType, TimeType >( singleSets );
+        setObservationSetIndices();
+        setConcatenatedObservationsAndTimes();
+        printObservationSetsStartAndSize();
+
+    }
+
 private:
 
     void setObservationSetIndices( )
