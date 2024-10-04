@@ -473,9 +473,9 @@ Eigen::Vector3d getApproximateGroundStationPosition(std::string stationName)
 
 
 
-const static std::string pysctrackGroundStationPosFile = tudat::paths::getTudatTestDataPath() + "glo.sit";
-const static std::string pysctrackGroundStationVelFile = tudat::paths::getTudatTestDataPath() + "glo.vel";
-const static std::string pysctrackGroundStationCodesFile = tudat::paths::getTudatTestDataPath() + "ns_codes.dat";
+const static std::string pysctrackGroundStationPosFile = tudat::paths::getStationLocationDataPath() + "/glo.sit";
+const static std::string pysctrackGroundStationVelFile = tudat::paths::getStationLocationDataPath() + "/glo.vel";
+const static std::string pysctrackGroundStationCodesFile = tudat::paths::getStationLocationDataPath() + "/ns_codes.dat";
 
 const static std::map<std::string, Eigen::Vector3d> approximateGroundStationPositionsFromFile =
     utilities::getMapFromFile<std::string, Eigen::Vector3d>(pysctrackGroundStationPosFile, '$', " \t");
