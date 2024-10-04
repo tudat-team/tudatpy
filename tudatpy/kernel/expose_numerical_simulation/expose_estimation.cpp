@@ -751,6 +751,14 @@ void expose_estimation(py::module &m) {
                   &tom::ObservationCollection< double, TIME_TYPE >::removeSingleObservationSets ),
                   py::arg("observation_parser"),
                   get_docstring( "remove_single_observation_sets" ).c_str( ) )
+            .def("set_reference_points",
+                 &tom::ObservationCollection< double, TIME_TYPE >::setReferencePoints,
+                  py::arg("bodies"),
+                  py::arg("antenna_switch_history"),
+                  py::arg("spacecraft_name"),
+                  py::arg("link_end_type"),
+                  py::arg("observation_parser") = std::make_shared< tom::ObservationCollectionParser >( ),
+                  get_docstring( "set_reference_points" ).c_str( ) )
             .def( "remove_empty_observation_sets",
                   &tom::ObservationCollection< double, TIME_TYPE >::removeEmptySingleObservationSets,
                   get_docstring( "remove_empty_observation_sets" ).c_str( ) );
