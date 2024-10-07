@@ -55,7 +55,7 @@ namespace tio = tudat::input_output;
 //BOOST_AUTO_TEST_CASE(testSimpleCase)
 
 
-const static std::string juiceDataFile = "/home/simon/lib/tudat-bundle/tudatpy/examples/estimation/data/Fdets.jui2023.09.14.Hb.r2i.txt";
+const static std::string juiceDataFile = "/home/dominic/Downloads/Fdets.jui2024.08.20.Yg.r2i.txt";
 
 std::shared_ptr<tio::TrackingTxtFileContents> readJuiceFdetsFile(const std::string& fileName)
 {
@@ -73,41 +73,45 @@ int main()
     // Load Spice kernels
     std::string kernelsPath = paths::getSpiceKernelPath();
     spice_interface::loadStandardSpiceKernels();
+    spice_interface::loadSpiceKernelInTudat( "/home/dominic/Downloads/juice_orbc_000074_230414_310721_v01.bsp" );
 
     // Define bodies to use.
-    std::vector< std::string > bodiesToCreate = { "Earth", "Sun", "Jupiter" };
-    std::string globalFrameOrigin = "Sun";
+    std::vector< std::string > bodiesToCreate = { "Earth", "Moon", "Sun", "Jupiter" };
+    std::string globalFrameOrigin = "SSB";
     std::string globalFrameOrientation = "J2000";
-
-
-    // Specify simulation time settings
-    std::string initialEphemerisDateString = "2023-09-14T06:18:05.000"; // FDETS FILE START
-    double initialEphemerisTime = convertDateStringToEphemerisTime(initialEphemerisDateString);
-    double finalEphemerisTime = initialEphemerisTime + 7.0 * 86400.0;
-    double maximumTimeStep = 3600.0;
-    double buffer = 10.0 * maximumTimeStep;
-
-    double initialTimeEnvironment = initialEphemerisTime - buffer;
-    double finalTimeEnvironment = finalEphemerisTime + buffer;
 
     // Create bodies settings needed in simulation
     BodyListSettings bodySettings = getDefaultBodySettings(
-        bodiesToCreate, initialTimeEnvironment, finalTimeEnvironment, globalFrameOrigin, globalFrameOrientation);
+        bodiesToCreate, globalFrameOrigin, globalFrameOrientation);
+    bodySettings.at( "Earth" )->shapeModelSettings = fromSpiceOblateSphericalBodyShapeSettings( );
+    bodySettings.at( "Earth" )->rotationModelSettings = gcrsToItrsRotationModelSettings(
+        basic_astrodynamics::iau_2006, globalFrameOrientation );
+    bodySettings.at( "Earth" )->bodyDeformationSettings.push_back( iers2010TidalBodyShapeDeformation( ) );
+
+    std::shared_ptr<GroundStationSettings> nnorciaSettings = std::make_shared<GroundStationSettings>(
+        "NWNORCIA", getCombinedApproximateGroundStationPositions( ).at( "NWNORCIA" ) );
+    nnorciaSettings->addStationMotionSettings(
+        std::make_shared<LinearGroundStationMotionSettings>(
+            ( Eigen::Vector3d( ) << -45.00, 10.00, 47.00 ).finished( ) / 1.0E3 / physical_constants::JULIAN_YEAR, 0.0) );
+
+    std::shared_ptr<GroundStationSettings> yarragadeeSettings = std::make_shared<GroundStationSettings>(
+        "YARRAGAD", getCombinedApproximateGroundStationPositions( ).at( "YARRAGAD" ) );
+    yarragadeeSettings->addStationMotionSettings(
+        std::make_shared<LinearGroundStationMotionSettings>(
+            ( Eigen::Vector3d( ) << -47.45, 9.12, 51.76).finished( ) / 1.0E3 / physical_constants::JULIAN_YEAR, 0.0) );
+
+    bodySettings.at( "Earth" )->groundStationSettings.push_back( nnorciaSettings );
+    bodySettings.at( "Earth" )->groundStationSettings.push_back( yarragadeeSettings );
+
 
     // Create Spacecraft
     const std::string spacecraftName = "JUICE";
     bodiesToCreate.push_back(spacecraftName);
     bodySettings.addSettings(spacecraftName);
-    bodySettings.get(spacecraftName)->ephemerisSettings = directSpiceEphemerisSettings("Sun", "J2000", false);
+    bodySettings.get(spacecraftName)->ephemerisSettings = directSpiceEphemerisSettings("Earth", "J2000", false);
 
     // Create bodies
     SystemOfBodies bodies = createSystemOfBodies(bodySettings);
-
-    // Create ground station
-    std::string stationName = "HOBART12";
-    const Eigen::Vector3d stationCartesianPosition = Eigen::Vector3d(-3949990.106, 2522421.118, -4311708.734);
-    createGroundStation(bodies.at("Earth"), stationName, stationCartesianPosition, cartesian_position);
-
 
     // Set turnaround ratios in spacecraft (ground station)
     std::shared_ptr< system_models::VehicleSystems > vehicleSystems = std::make_shared< system_models::VehicleSystems >();
@@ -119,25 +123,28 @@ int main()
 
     // Define link ends for observations.
     LinkEnds linkEnds;
-    linkEnds[transmitter] = std::make_pair< std::string, std::string >("Earth", static_cast<std::string>(stationName));
+    linkEnds[transmitter] = std::make_pair< std::string, std::string >("Earth", static_cast<std::string>( "NWNORCIA" ) );
     linkEnds[retransmitter] = std::make_pair< std::string, std::string >(static_cast<std::string>(spacecraftName), "");
-    linkEnds[receiver] = std::make_pair< std::string, std::string >("Earth", static_cast<std::string>(stationName));
+    linkEnds[receiver] = std::make_pair< std::string, std::string >("Earth", static_cast<std::string>( "YARRAGAD" ) );
 
 
     std::shared_ptr< ground_stations::StationFrequencyInterpolator > transmittingFrequencyCalculator =
-        std::make_shared< ground_stations::ConstantFrequencyInterpolator >(7.18E9);
+        std::make_shared< ground_stations::ConstantFrequencyInterpolator >(7180.142419E6);
 
-    bodies.at("Earth")->getGroundStation(stationName)->setTransmittingFrequencyCalculator(transmittingFrequencyCalculator);
+    bodies.at("Earth")->getGroundStation( "NWNORCIA" )->setTransmittingFrequencyCalculator(transmittingFrequencyCalculator);
 
     // Create observation settings
-    std::shared_ptr< DopplerMeasuredFrequencyObservationModel< double, double> > dopplerFrequencyObservationModel =
-        std::dynamic_pointer_cast<DopplerMeasuredFrequencyObservationModel< double, double>>(
-            ObservationModelCreator< 1, double, double>::createObservationModel(
+    std::shared_ptr< DopplerMeasuredFrequencyObservationModel< double, Time > > dopplerFrequencyObservationModel =
+        std::dynamic_pointer_cast<DopplerMeasuredFrequencyObservationModel< double, Time>>(
+            ObservationModelCreator< 1, double, Time>::createObservationModel(
                 std::make_shared< ObservationModelSettings >(doppler_measured_frequency, linkEnds), bodies));
 
     // Test observable for both fixed link ends
 
-    double observationTime = initialEphemerisTime;
+    Time observationTimeUtc = basic_astrodynamics::timeFromIsoString< Time >( "2024-08-20T17:29:51.500" );
+    Time observationTime = earth_orientation::defaultTimeConverter->getCurrentTime< Time >(
+        basic_astrodynamics::utc_scale, basic_astrodynamics::tdb_scale, observationTimeUtc,
+        getCombinedApproximateGroundStationPositions( ).at( "NWNORCIA" ) );
     std::vector< double > linkEndTimes;
     std::vector< Eigen::Vector6d > linkEndStates;
 
@@ -153,8 +160,8 @@ int main()
     double dopplerObservable = dopplerFrequencyObservationModel->computeObservationsWithLinkEndData(
         observationTime, referenceLinkEnd, linkEndTimes, linkEndStates, ancillarySettings)(0);
 
-    std::cout << "TEST: Doppler observable: " << dopplerObservable - 8.435E9 << std::endl;
-
+    std::cout << "TEST: Doppler observable: " << dopplerObservable - 8422.49E6 << std::endl;
+    std::cout<< dopplerObservable - 8422.49E6 - 13682699.425314944237<<std::endl;
     // std::dynamic_pointer_cast<OneWayDopplerObservationModel< double, double>>(
     //     uplinkDopplerObservationModel)->setNormalizeWithSpeedOfLight(0);
     // std::dynamic_pointer_cast<OneWayDopplerObservationModel< double, double>>(
