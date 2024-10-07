@@ -612,6 +612,7 @@ public:
                     taylorSeriesExpansionOrder_ );
 
         // Compute full Doppler observable and return
+        std::cout<<"One-way Doppler "<<firstOrderDopplerObservable<<" "<<properTimeCorrectionTerm<<std::endl;
         ObservationScalarType totalDopplerObservable = firstOrderDopplerObservable *
                 ( mathematical_constants::getFloatingInteger< ObservationScalarType >( 1 ) + properTimeCorrectionTerm ) +
                 properTimeCorrectionTerm;
