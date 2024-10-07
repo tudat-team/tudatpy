@@ -149,6 +149,9 @@ public:
             ( stationStates_.count( transmitter ) == 0 ) ?
             Eigen::Vector3d::Zero( ) : stationStates_.at( transmitter )->getNominalCartesianPosition( );
         TimeType transmitterTime = time - lightTime;
+
+        std::cout<<"LT "<<std::setprecision( 12 )<<lightTime<<" "<<linkEndTimes.at( 3 ) - linkEndTimes.at( 2 )<<" "<<linkEndTimes.at( 1 ) - linkEndTimes.at( 0 )<<std::endl;
+
         TimeType transmitterUtcTime = terrestrialTimeScaleConverter_->getCurrentTime< TimeType >(
             basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, transmitterTime, nominalTransmittingStationState );
 
