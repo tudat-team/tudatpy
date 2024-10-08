@@ -18,7 +18,7 @@ name: Bump dev version in tudatpy and tudatpy-feedstock if new commit in last 24
 
 on:
     schedule:
-        - cron: '0 1 * * *'  # This triggers the workflow daily at 3:00 AM CET. GitHub uses UTC time, so 1:00 AM UTC is 3:00 AM CET.
+        - cron: '0 5 * * *'  # This triggers the workflow daily at 3:00 AM CET. GitHub uses UTC time, so 1:00 AM UTC is 3:00 AM CET.
     workflow_dispatch:       # This facilitates manual triggering of the workflow from the Actions tab of the repository in case the scheduled run fails.
 
 
@@ -91,7 +91,7 @@ jobs:
           uses: actions/checkout@v4
           with:
             repository: tudat-team/tudatpy-feedstock
-            token: ${{ secrets.<add_secret_name> }}
+            token: ${{ secrets.BUMP_VERSION_NIGHTLY }}
             ref: develop
 
         - name: Install bump2version
