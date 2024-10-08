@@ -18,7 +18,7 @@ name: Bump dev version in tudatpy and tudatpy-feedstock if new commit in last 24
 
 on:
     schedule:
-        - cron: '0 6 * * *'  # This triggers the workflow daily at 8:00 AM UTC. 
+        - cron: '0 7 * * *'  # This triggers the workflow daily at 9:00 AM UTC. 
     workflow_dispatch:       # This facilitates manual triggering of the workflow from the Actions tab of the repository in case the scheduled run fails.
 
 
@@ -113,4 +113,4 @@ jobs:
         - name: Push tag to tudatpy-feedstock
           run: git push origin --follow-tags
           env:
-              GITHUB_TOKEN: ${{ secrets.<add_secret_name>}}
+              GITHUB_TOKEN: ${{ secrets.BUMP_VERSION_NIGHTLY}}
