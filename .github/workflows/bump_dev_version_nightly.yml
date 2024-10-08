@@ -1,0 +1,116 @@
+# This workflow is triggered at 3:00 AM CET everyday and checks if there has
+# been a commit in the last 24 hours on the develop branch of tudatpy repository.
+
+# If there has been a commit, it bumps the version in the develop branch of
+# the tudatpy repository, creates a tag with the version numbers and pushes
+# both the commit and the tag to the repository, and then bumps the version in
+# the develop branch of the tudatpy-feedstock repository and pushes the commit
+# and the tag to the repository.
+
+# This workflow uses personal access tokens to push the changes to the repository. The personal access token is stored as a secret in the repository.
+
+# This workflow file must be in the master (default branch) of the tudatpy repository because scheduled workflows are only triggered on the default branch.
+
+# Reference for the logic to check if there has been a commit in the last 24 hours: https://stackoverflow.com/questions/4089430/how-can-i-determine-if-a-git-commit-is-more-recent-than-another-commit
+
+
+name: Bump dev version in tudatpy and tudatpy-feedstock if new commit in last 24 hours
+
+on:
+    schedule:
+        - cron: '0 5 * * *'  # This triggers the workflow daily at 5:00 AM UTC. 
+    workflow_dispatch:       # This facilitates manual triggering of the workflow from the Actions tab of the repository in case the scheduled run fails.
+
+
+permissions:
+  contents: write
+  actions: write
+
+jobs:
+
+  check_recent_24h_commit:
+        runs-on: ubuntu-latest
+        name: Check latest commit
+        outputs:
+          should_run: ${{ steps.should_run.outputs.should_run }}
+        steps:
+          - uses: actions/checkout@v4
+            with:
+              ref: develop  # Check the latest commit on the develop branch of tudatpy repository
+          - name: print latest_commit
+            run: git log -n 1 --pretty=format:"%H"
+
+
+          - id: should_run
+            continue-on-error: true
+            name: check latest commit is less than a day
+            if: ${{ github.event_name == 'schedule' }}
+            run: test -z $(git rev-list  --after="24 hours" $(git log -n 1 --pretty=format:"%H")) && echo "::set-output name=should_run::false"
+            # If the latest commit is less than 24 hours old, the command git rev-list --after="24 hours" $(git log -n 1 --pretty=format:"%H") will return a non-empty string (list of commit ids in the last 24 hours), which will cause the test -z command to return false and the output should_run will not be set to false.
+            # test -z $STR checks if $STR is empty or not. If it is empty, it returns true, else false.
+
+  bump-version_tudatpy:
+    needs: check_recent_24h_commit
+    if: ${{ needs.check_recent_24h_commit.outputs.should_run != 'false' }}
+    runs-on: ubuntu-latest
+    name: Bump version in tudatpy repository
+    outputs:
+      new_version: ${{ steps.bump_version.outputs.new_version }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: develop
+
+      - name: Install bump2version
+        run: pip install bump2version
+
+      - name: Bump version
+        id: bump_version
+        run: |
+          git config --global user.email "actions@github.com"
+          git config --global user.name "GitHub Actions"
+          bump2version dev --config-file .bumpversion.cfg --verbose
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push tag to tudatpy repository
+        run: git push origin --follow-tags
+        env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+
+  bump_version_tudatpy_feedstock:
+    needs: check_recent_24h_commit
+    if: ${{ needs.check_recent_24h_commit.outputs.should_run != 'false' }}
+    runs-on: ubuntu-latest
+    name: bump version and create tag in tudatpy-feedstock
+    steps:
+        - name: checkout tudatpy-feedstock
+          uses: actions/checkout@v4
+          with:
+            repository: tudat-team/tudatpy-feedstock
+            token: ${{ secrets.BUMP_VERSION_NIGHTLY }}
+            ref: develop
+
+        - name: Install bump2version
+          run: pip install bump2version
+
+        - name: Bump version on feedstock
+          run: |
+              git config --global user.email "actions@github.com"
+              git config --global user.name "GitHub Actions"
+              bump2version dev --config-file .bumpversion.cfg --verbose
+
+        - name: Reset build number in meta.yml to 0
+          shell: bash
+          run: |
+                sed -i 's/build = ".*" %}/build = "0" %}/' recipe/meta.yaml
+                git add recipe/meta.yaml
+                git commit --amend --no-edit
+
+        - name: Push tag to tudatpy-feedstock
+          run: git push origin --follow-tags
+          env:
+              GITHUB_TOKEN: ${{ secrets.<add_secret_name>}}
