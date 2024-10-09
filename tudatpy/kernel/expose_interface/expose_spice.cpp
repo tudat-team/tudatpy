@@ -160,6 +160,11 @@ namespace spice {
               py::arg("body_name"),
               get_docstring("convert_body_name_to_naif_id").c_str());
 
+        m.def("convert_naif_id_to_body_name",
+              &tudat::spice_interface::convertNaifIdToBodyName,
+              py::arg("naif_id"),
+              get_docstring("convert_naif_id_to_body_name").c_str());
+
 //        // kernel pool related
 //        m.def("get_standard_kernels",
 //              &tudat::spice_interface::getStandardSpiceKernels,
