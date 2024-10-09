@@ -40,14 +40,23 @@ public:
             throw std::runtime_error( "Error when making reference point position parameter for " +
                 associatedBody + ", " + associatedReferencePoint + ", reference point not found" );
         }
+        else
+        {
+            if ( std::dynamic_pointer_cast< ephemerides::ConstantEphemeris >( systemModels_->getReferencePoints( ).at( associatedReferencePoint ) ) == nullptr )
+            {
+                throw std::runtime_error( "Error when creating reference_point_position parameter, the ephemeris of reference point (" + associatedBody + ", "
+                + associatedReferencePoint + ") should be of type ConstantEphemeris for the reference point position to be estimatable." );
+            }
+        }
     }
 
     //! Destructor    
     ~ReferencePointPosition( ) { }
 
-    Eigen::VectorXd  getParameterValue( )
+    Eigen::VectorXd getParameterValue( )
     {
-        return systemModels_->getReferencePointPosition( parameterName_.second.second );
+        return std::dynamic_pointer_cast< ephemerides::ConstantEphemeris >(
+                systemModels_->getReferencePointEphemerisInBodyFixedFrame( parameterName_.second.second ) )->getCartesianState( ).segment( 0, 3 );
     }
 
     void setParameterValue( Eigen::VectorXd parameterValue )
