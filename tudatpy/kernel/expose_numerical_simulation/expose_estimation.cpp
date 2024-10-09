@@ -32,6 +32,7 @@ namespace tss = tudat::simulation_setup;
 namespace tni = tudat::numerical_integrators;
 namespace tom = tudat::observation_models;
 namespace trf = tudat::reference_frames;
+namespace te = tudat::ephemerides;
 
 
 namespace tudat
@@ -751,6 +752,37 @@ void expose_estimation(py::module &m) {
                   &tom::ObservationCollection< double, TIME_TYPE >::removeSingleObservationSets ),
                   py::arg("observation_parser"),
                   get_docstring( "remove_single_observation_sets" ).c_str( ) )
+            .def("set_reference_point",
+                 py::overload_cast< tss::SystemOfBodies&, const Eigen::Vector3d&, const std::string&,
+                 const std::string&, const tom::LinkEndType, const std::shared_ptr< tom::ObservationCollectionParser > >( &tom::ObservationCollection< double, TIME_TYPE>::setReferencePoint ),
+                 py::arg( "bodies" ),
+                 py::arg( "antenna_position" ),
+                 py::arg( "antenna_name" ),
+                 py::arg( "spacecraft_name" ),
+                 py::arg( "link_end_type" ),
+                 py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
+                 get_docstring("set_reference_point").c_str( ) )
+            .def("set_reference_points",
+                  py::overload_cast< tss::SystemOfBodies&, const std::map< double, Eigen::Vector3d >&, const std::string&,
+                  const tom::LinkEndType, const std::shared_ptr< tom::ObservationCollectionParser > >(
+                  &tom::ObservationCollection< double, TIME_TYPE >::setReferencePoints ),
+                  py::arg("bodies"),
+                  py::arg("antenna_switch_history"),
+                  py::arg("spacecraft_name"),
+                  py::arg("link_end_type"),
+                  py::arg("observation_parser") = std::make_shared< tom::ObservationCollectionParser >( ),
+                  get_docstring( "set_reference_points" ).c_str( ) )
+            .def("set_reference_point",
+                 py::overload_cast< tss::SystemOfBodies&, const std::shared_ptr< te::Ephemeris >, const std::string&,
+                 const std::string&, const tom::LinkEndType, const std::shared_ptr< tom::ObservationCollectionParser > >(
+                 &tom::ObservationCollection< double, TIME_TYPE >::setReferencePoint ),
+                 py::arg("bodies"),
+                 py::arg("antenna_body_fixed_ephemeris"),
+                 py::arg("antenna_name"),
+                 py::arg("spacecraft_name"),
+                 py::arg("link_end_type"),
+                 py::arg("observation_parser") = std::make_shared< tom::ObservationCollectionParser >( ),
+                 get_docstring( "set_reference_points" ).c_str( ) )
             .def( "remove_empty_observation_sets",
                   &tom::ObservationCollection< double, TIME_TYPE >::removeEmptySingleObservationSets,
                   get_docstring( "remove_empty_observation_sets" ).c_str( ) );
