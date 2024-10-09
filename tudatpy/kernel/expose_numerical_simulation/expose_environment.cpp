@@ -606,7 +606,8 @@ void expose_environment(py::module &m) {
      */
 
     py::class_<tg::GravityFieldModel,
-            std::shared_ptr<tg::GravityFieldModel>>(m, "GravityFieldModel")
+            std::shared_ptr<tg::GravityFieldModel>>(m, "GravityFieldModel",
+                get_docstring("GravityFieldModel").c_str() )
             .def(py::init<
                  const double,
                  const std::function<void()>>(),
