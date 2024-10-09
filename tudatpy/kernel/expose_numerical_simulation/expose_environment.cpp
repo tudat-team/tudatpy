@@ -665,7 +665,7 @@ void expose_environment(py::module &m) {
             .def_property_readonly("rotation_matrix_body_fixed_to_topocentric", &tgs::GroundStationState::getRotationMatrixFromBodyFixedToTopocentricFrame );
 
     py::class_<tgs::GroundStation,
-            std::shared_ptr<tgs::GroundStation>>(m, "GroundStation")
+            std::shared_ptr<tgs::GroundStation>>(m, "GroundStation", get_docstring("GroundStation").c_str())
             .def_property_readonly("pointing_angles_calculator", &tgs::GroundStation::getPointingAnglesCalculator )
             .def_property_readonly("station_state", &tgs::GroundStation::getNominalStationState );
 
