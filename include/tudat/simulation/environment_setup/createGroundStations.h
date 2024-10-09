@@ -418,9 +418,18 @@ std::shared_ptr< ephemerides::Ephemeris > createReferencePointEphemerisFromId(
             }
             else
             {
+                std::shared_ptr< ephemerides::Ephemeris > referencePointEphemeris = bodyWithLinkEnd->getVehicleSystems( )->getReferencePointEphemerisInBodyFixedFrame( referencePointName );
+                std::shared_ptr< ephemerides::RotationalEphemeris > bodyRotationModel = bodyWithLinkEnd->getRotationalEphemeris( );
+
+                if ( ( referencePointEphemeris->getReferenceFrameOrientation( ) != "" ) &&
+                        ( referencePointEphemeris->getReferenceFrameOrientation( ) != bodyRotationModel->getTargetFrameOrientation( ) ) )
+                {
+                    throw std::runtime_error( "Error when defining reference point ephemeris, the ephemeris frame orientation should match the base frame orientation of the body's"
+                                              "rotational model." );
+                }
                 referencePointStateFunction = std::bind(
-                    &system_models::VehicleSystems::getReferencePointStateInBodyFixedFrame< StateScalarType, TimeType >,
-                    bodyWithLinkEnd->getVehicleSystems( ), referencePointName, std::placeholders::_1 );
+                        &system_models::VehicleSystems::getReferencePointStateInBodyFixedFrame< StateScalarType, TimeType >,
+                        bodyWithLinkEnd->getVehicleSystems( ), referencePointName, std::placeholders::_1 );
             }
         }
 

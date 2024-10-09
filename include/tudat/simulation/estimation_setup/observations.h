@@ -12,6 +12,7 @@
 #define TUDAT_OBSERVATIONS_H
 
 #include <vector>
+
 #include <memory>
 #include <functional>
 
@@ -90,13 +91,13 @@ public:
         singleObservationSize_ = getObservableSize( observableType );
 
         // Initialise weights
-        for ( int k = 0 ; k < numberOfObservations_ ; k++ )
+        for ( unsigned int k = 0 ; k < numberOfObservations_ ; k++ )
         {
             weights_.push_back( Eigen::Matrix< double, Eigen::Dynamic, 1 >::Ones( singleObservationSize_, 1 ) );
         }
 
         // Initialise residuals
-        for ( int k = 0 ; k < numberOfObservations_ ; k++ )
+        for ( unsigned int k = 0 ; k < numberOfObservations_ ; k++ )
         {
             residuals_.push_back( Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >::Zero( singleObservationSize_, 1 ) );
         }
@@ -149,7 +150,7 @@ public:
         }
 
         observations_.clear( );
-        for ( int k = 0 ; k < numberOfObservations_ ; k++ )
+        for ( unsigned int k = 0 ; k < numberOfObservations_ ; k++ )
         {
             observations_.push_back( observationsVector.segment( k * singleObservationSize_, singleObservationSize_ ) );
         }
@@ -161,7 +162,7 @@ public:
 
     void setResiduals( const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& residuals )
     {
-        if ( residuals.size( ) != static_cast< unsigned int >( numberOfObservations_ ) )
+        if ( residuals.size( ) != numberOfObservations_ )
         {
             throw std::runtime_error( "Error when setting residuals, number of observations is inconsistent." );
         }
@@ -176,7 +177,7 @@ public:
         }
 
         residuals_.clear( );
-        for ( int k = 0 ; k < numberOfObservations_ ; k++ )
+        for ( unsigned int k = 0 ; k < numberOfObservations_ ; k++ )
         {
             residuals_.push_back( residualsVector.segment( k * singleObservationSize_, singleObservationSize_ ) );
         }
@@ -327,7 +328,7 @@ public:
     {
         Eigen::Matrix< double, Eigen::Dynamic, 1 > weightsVector =
                 Eigen::Matrix< double, Eigen::Dynamic, 1 >::Zero( singleObservationSize_ * numberOfObservations_, 1 );
-        for( int i = 0; i < numberOfObservations_ ; i++ )
+        for( unsigned int i = 0; i < numberOfObservations_ ; i++ )
         {
             weightsVector.block( i * singleObservationSize_, 0, singleObservationSize_, 1 ) = weights_.at( i );
         }
@@ -352,7 +353,7 @@ public:
     {
         Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > residualsVector =
                 Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >::Zero( singleObservationSize_ * numberOfObservations_, 1 );
-        for( int i = 0; i < numberOfObservations_ ; i++ )
+        for( unsigned int i = 0; i < numberOfObservations_ ; i++ )
         {
             residualsVector.block( i * singleObservationSize_, 0, singleObservationSize_, 1 ) = residuals_.at( i );
         }
@@ -376,7 +377,7 @@ public:
 
     void setConstantWeight( const double weight )
     {
-        for ( int k = 0 ; k < numberOfObservations_ ; k++ )
+        for ( unsigned int k = 0 ; k < numberOfObservations_ ; k++ )
         {
             weights_.at( k ) = weight * Eigen::Matrix< double, Eigen::Dynamic, 1 >::Ones( singleObservationSize_, 1 );
         }
@@ -396,13 +397,13 @@ public:
 
     void setTabulatedWeights( const Eigen::VectorXd& weightsVector )
     {
-        if( weightsVector.rows( ) != singleObservationSize_ * static_cast< int >( observations_.size( ) ) )
+        if( weightsVector.rows( ) != singleObservationSize_ * observations_.size( ) )
         {
             throw std::runtime_error( "Error when setting weights in single observation set, sizes are incompatible." );
         }
-        for ( int k = 0 ; k < numberOfObservations_ ; k++ )
+        for ( unsigned int k = 0 ; k < numberOfObservations_ ; k++ )
         {
-            for ( int i = 0 ; i < singleObservationSize_ ; i++ )
+            for ( unsigned int i = 0 ; i < singleObservationSize_ ; i++ )
             {
                 weights_.at( k )[ i ] = weightsVector[ k * singleObservationSize_ + i ];
             }
@@ -426,7 +427,7 @@ public:
                 Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >::Zero( singleObservationSize_ * numberOfObservations_, 1 );
 
         std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > computedObservations = getComputedObservations( );
-        for( int i = 0; i < numberOfObservations_ ; i++ )
+        for( unsigned int i = 0; i < numberOfObservations_ ; i++ )
         {
             computedObservationsVector.segment( i * singleObservationSize_, singleObservationSize_ ) = computedObservations.at( i );
         }
@@ -451,7 +452,7 @@ public:
 
     void removeSingleObservation( unsigned int indexToRemove )
     {
-        if ( static_cast< int >( indexToRemove ) >= numberOfObservations_ )
+        if ( indexToRemove >= numberOfObservations_ )
         {
             throw std::runtime_error( "Error when removing single observation from SingleObservationSet, index incompatible with number of observations." );
         }
@@ -810,7 +811,7 @@ private:
                 {
                     throw std::runtime_error( "Error when moving observation back from filtered observation set, filtered observation set is empty." );
                 }
-                if ( static_cast< int >( index ) >= getNumberOfFilteredObservations( ) )
+                if ( index >= getNumberOfFilteredObservations( ) )
                 {
                     throw std::runtime_error( "Error when moving observation back from filtered observation set, index incompatible with number of observations." );
                 }
@@ -972,7 +973,7 @@ std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeT
             {
                 throw std::runtime_error( "Error when splitting observation sets, the maximum number of observations cannot be smaller than the minimum number of observations." );
             }
-            for ( int ind = maxNbObs ; ind < observationSet->getNumberOfObservables( ) ; ind+=maxNbObs )
+            for ( unsigned int ind = maxNbObs ; ind < observationSet->getNumberOfObservables( ) ; ind+=maxNbObs )
             {
                 rawStartIndicesNewSets.push_back( ind );
             }
@@ -992,7 +993,7 @@ std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeT
     std::vector< std::pair< unsigned int, unsigned int > > indicesNewSets;
     for( unsigned int j = 1; j < rawStartIndicesNewSets.size( ); j++ )
     {
-        if( static_cast< int >( rawStartIndicesNewSets.at( j ) - rawStartIndicesNewSets.at( j - 1 ) ) >= observationSetSplitter->getMinNumberObservations( ) )
+        if( ( rawStartIndicesNewSets.at( j ) - rawStartIndicesNewSets.at( j - 1 ) ) >= observationSetSplitter->getMinNumberObservations( ) )
         {
             indicesNewSets.push_back( std::make_pair( rawStartIndicesNewSets.at( j-1 ), rawStartIndicesNewSets.at( j ) - rawStartIndicesNewSets.at( j-1 ) ) );
         }
@@ -1215,7 +1216,6 @@ public:
     {
         return utilities::staticCastVector<double, TimeType>( concatenatedTimes_ );
     }
-
 
     std::pair< TimeType, TimeType > getTimeBounds( )
     {
@@ -1625,10 +1625,10 @@ public:
         return concatenatedResiduals;
     }
 
-    std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > getComputedObservations(
+    std::vector< Eigen::VectorXd > getComputedObservations(
             std::shared_ptr< ObservationCollectionParser > observationParser = std::make_shared< ObservationCollectionParser >( ) ) const
     {
-        std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > computedObservations;
+        std::vector< Eigen::VectorXd > computedObservations;
 
         std::map< ObservableType, std::map< LinkEnds, std::vector< unsigned int > > > observationSetsIndices = getSingleObservationSetsIndices( observationParser );
         for ( auto observableIt : observationSetsIndices )
@@ -1644,10 +1644,10 @@ public:
         return computedObservations;
     }
 
-    Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > getConcatenatedComputedObservations(
+    Eigen::VectorXd getConcatenatedComputedObservations(
             std::shared_ptr< ObservationCollectionParser > observationParser = std::make_shared< ObservationCollectionParser >( ) ) const
     {
-        std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > computedObservations = getComputedObservations( observationParser );
+        std::vector< Eigen::VectorXd > computedObservations = getComputedObservations( observationParser );
 
         unsigned int totalObsSize = 0;
         for ( auto obs : computedObservations )
@@ -1655,7 +1655,7 @@ public:
             totalObsSize += obs.size( );
         }
 
-        Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > concatenatedComputedObservations = Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >::Zero( totalObsSize );
+        Eigen::VectorXd concatenatedComputedObservations = Eigen::VectorXd::Zero( totalObsSize );
         unsigned int obsIndex = 0;
         for ( unsigned int k = 0 ; k < computedObservations.size( ) ; k++ )
         {
@@ -1708,7 +1708,7 @@ public:
                         it2.second.at( i )->getDependentVariableCalculator( );
                     std::pair< int, int > currentVectorIndices = observationSetStartAndSize_.at( it.first ).at( it2.first ).at( i );
 
-//                    bool addDependentVariables = false;
+                    bool addDependentVariables = false;
                     if ( dependentVariableCalculator != nullptr )
                     {
                         std::pair<int, int> variableIndices = dependentVariableCalculator->getDependentVariableIndices(
@@ -1716,7 +1716,7 @@ public:
 
                         if( variableIndices.second > 0 )
                         {
-//                            addDependentVariables = true;
+                            addDependentVariables = true;
                             std::map< double, Eigen::VectorXd > currentDependentVariableHistory =
                                 utilities::sliceMatrixHistory< TimeType, double, double >( it2.second.at( i )->getDependentVariableHistory( ), variableIndices );
 
@@ -1864,7 +1864,7 @@ public:
         {
             int currentObsSetSize = singleObsSets.at( k )->getTotalObservationSetSize( );
             totalSizeAllObsSets += currentObsSetSize;
-            if ( currentObsSetSize != static_cast< int >( singleObsSets.at( 0 )->getTotalObservationSetSize( ) ) )
+            if ( currentObsSetSize != singleObsSets.at( 0 )->getTotalObservationSetSize( ) )
             {
                 areObsSetsSameSize = false;
             }
@@ -2433,6 +2433,169 @@ public:
         std::cout << "\n\n";
     }
 
+    void setReferencePoint( simulation_setup::SystemOfBodies& bodies,
+                             const Eigen::Vector3d& antennaPosition,
+                             const std::string& antennaName,
+                             const std::string& spacecraftName,
+                             const LinkEndType linkEndType,
+                             const std::shared_ptr< ObservationCollectionParser > observationParser = std::make_shared< ObservationCollectionParser >( ) )
+    {
+        // Retrieve existing reference points with fixed position in the spacecraft-fixed frame
+        std::map< std::string, std::shared_ptr< ephemerides::ConstantEphemeris > > existingReferencePoints = bodies.at( spacecraftName )->getVehicleSystems( )->getFixedReferencePoints( );
+
+        // Check if reference point exists and create missing antenna if necessary
+        bool antennaDetected = false;
+        for ( auto refPointsIt : existingReferencePoints )
+        {
+            if ( ( refPointsIt.second->getCartesianState( ).segment( 0, 3 ) == antennaPosition ) && ( refPointsIt.first == antennaName ) )
+            {
+                antennaDetected = true;
+            }
+            else if ( ( refPointsIt.second->getCartesianState( ).segment( 0, 3 ) == antennaPosition ) && ( refPointsIt.first != antennaName ) )
+            {
+                throw std::runtime_error( "Error when setting reference point in observation collection, the required antenna position is already defined "
+                                          "as a reference point, but associated with different antenna name (" + antennaName + ")." );
+            }
+            else if ( ( refPointsIt.second->getCartesianState( ).segment( 0, 3 ) != antennaPosition ) && ( refPointsIt.first == antennaName ) )
+            {
+                throw std::runtime_error( "Error when setting reference point in observation collection, the required antenna name is already defined "
+                                          "as a reference point, but associated with different position." );
+            }
+        }
+        if ( !antennaDetected )
+        {
+            bodies.at( spacecraftName )->getVehicleSystems( )->setReferencePointPosition( antennaName, antennaPosition );
+        }
+
+
+        // Set reference point in observation collection
+        std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > singleSets = getSingleObservationSets( observationParser );
+        for ( auto set : singleSets )
+        {
+            std::map< LinkEndType, LinkEndId > newLinkEnds = set->getLinkEnds( ).linkEnds_;
+            newLinkEnds[ linkEndType ] = LinkEndId( std::make_pair( newLinkEnds[ linkEndType ].bodyName_, antennaName ) );
+            LinkDefinition newLinkDefinition = LinkDefinition( newLinkEnds );
+            set->setLinkEnds( newLinkDefinition );
+        }
+
+        observationSetList_ = createSortedObservationSetList< ObservationScalarType, TimeType >( singleSets );
+        setObservationSetIndices();
+        setConcatenatedObservationsAndTimes();
+        printObservationSetsStartAndSize();
+
+    }
+
+    void setReferencePoints( simulation_setup::SystemOfBodies& bodies,
+                             const std::map< double, Eigen::Vector3d >& antennaSwitchHistory,
+                             const std::string& spacecraftName,
+                             const LinkEndType linkEndType,
+                             const std::shared_ptr< ObservationCollectionParser > observationParser = std::make_shared< ObservationCollectionParser >( ) )
+    {
+        // Check if reference points exist and create missing antenna if necessary
+        std::map< double, std::string > antennaNames;
+
+        unsigned int counter = 0;
+        for ( auto antennaIt : antennaSwitchHistory )
+        {
+            // Retrieve existing reference points with fixed position in the spacecraft-fixed frame
+            std::map< std::string, std::shared_ptr< ephemerides::ConstantEphemeris > > existingReferencePoints = bodies.at( spacecraftName )->getVehicleSystems( )->getFixedReferencePoints( );
+
+            bool antennaDetected = false;
+            for ( auto refPointsIt : existingReferencePoints )
+            {
+                if ( refPointsIt.second->getCartesianState( ).segment( 0, 3 ) == antennaIt.second )
+                {
+                    antennaDetected = true;
+                    antennaNames[ antennaIt.first ] = refPointsIt.first;
+                }
+            }
+            if ( !antennaDetected )
+            {
+                counter++;
+                std::string newReferencePointName = "Antenna" + std::to_string( counter );
+                bodies.at( spacecraftName )->getVehicleSystems( )->setReferencePointPosition( newReferencePointName, antennaIt.second );
+                antennaNames[ antennaIt.first ] = newReferencePointName;
+            }
+        }
+
+        // Retrieve switch times
+        std::vector< double > originalSwitchTimes = utilities::createVectorFromMapKeys( antennaSwitchHistory );
+        std::pair< TimeType, TimeType > timeBounds = getTimeBounds( );
+        if ( originalSwitchTimes.front( ) > timeBounds.first || originalSwitchTimes.back( ) < timeBounds.second )
+        {
+            throw std::runtime_error( "Error when setting reference points in ObservationCollection, the antenna switch history does not cover the required observation time interval." );
+        }
+
+        // Split single observation sets accordingly
+        splitObservationSets( observationSetSplitter( time_tags_splitter, originalSwitchTimes ), observationParser );
+
+
+        // Set reference points
+        std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > singleSets = getSingleObservationSets( observationParser );
+
+        for ( auto set : singleSets )
+        {
+            TimeType setStartTime =  set->getTimeBounds( ).first;
+            TimeType setEndTime =  set->getTimeBounds( ).second;
+
+            for ( unsigned int k = 0 ; k < originalSwitchTimes.size( ) - 1 ; k++ )
+            {
+                if ( setStartTime >= originalSwitchTimes[ k ] && setEndTime <= originalSwitchTimes[ k+1 ] )
+                {
+                    std::string currentAntenna = antennaNames[ originalSwitchTimes[ k ] ];
+                    std::map< LinkEndType, LinkEndId > newLinkEnds = set->getLinkEnds( ).linkEnds_;
+                    newLinkEnds[ linkEndType ] = LinkEndId( std::make_pair( newLinkEnds[ linkEndType ].bodyName_, currentAntenna ) );
+                    LinkDefinition newLinkDefinition = LinkDefinition( newLinkEnds );
+                    set->setLinkEnds( newLinkDefinition );
+                }
+            }
+        }
+
+        observationSetList_ = createSortedObservationSetList< ObservationScalarType, TimeType >( singleSets );
+        setObservationSetIndices();
+        setConcatenatedObservationsAndTimes();
+        printObservationSetsStartAndSize();
+
+    }
+
+
+    void setReferencePoint( simulation_setup::SystemOfBodies& bodies,
+                             const std::shared_ptr< ephemerides::Ephemeris > antennaBodyFixedEphemeris,
+                             const std::string& antennaName,
+                             const std::string& spacecraftName,
+                             const LinkEndType linkEndType,
+                             const std::shared_ptr< ObservationCollectionParser > observationParser = std::make_shared< ObservationCollectionParser >( ) )
+    {
+        // Retrieve existing reference points
+        std::map< std::string, std::shared_ptr< ephemerides::Ephemeris > > existingReferencePoints = bodies.at( spacecraftName )->getVehicleSystems( )->getReferencePoints( );
+
+        // Check if ephemeris already defined for given reference point
+        if ( existingReferencePoints.count( antennaName ) > 0 )
+        {
+            std::cerr << "Warning when setting reference point (" << spacecraftName << ", " << antennaName << "), the reference point already exists. Its ephemeris will be overwritten.";
+        }
+
+        // Set reference point body-fixed ephemeris
+        bodies.at( spacecraftName )->getVehicleSystems( )->setReferencePointPosition( antennaName, antennaBodyFixedEphemeris );
+
+        // Set reference point
+        std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > singleSets = getSingleObservationSets( observationParser );
+
+        for ( auto set : singleSets )
+        {
+            std::map< LinkEndType, LinkEndId > newLinkEnds = set->getLinkEnds( ).linkEnds_;
+            newLinkEnds[ linkEndType ] = LinkEndId( std::make_pair( newLinkEnds[ linkEndType ].bodyName_, antennaName ) );
+            LinkDefinition newLinkDefinition = LinkDefinition( newLinkEnds );
+            set->setLinkEnds( newLinkDefinition );
+        }
+
+        observationSetList_ = createSortedObservationSetList< ObservationScalarType, TimeType >( singleSets );
+        setObservationSetIndices();
+        setConcatenatedObservationsAndTimes();
+        printObservationSetsStartAndSize();
+
+    }
+
 private:
 
     void setObservationSetIndices( )
@@ -2806,7 +2969,7 @@ inline std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > 
 {
     return std::make_shared< SingleObservationSet< ObservationScalarType, TimeType > >(
                 observableType, linkEnds, observations, observationTimes, referenceLinkEnd,
-                std::vector< Eigen::VectorXd >( ), nullptr, ancilliarySettings );
+                std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >( ), nullptr, ancilliarySettings );
 }
 
 //template< typename ObservationScalarType = double, typename TimeType = double,
