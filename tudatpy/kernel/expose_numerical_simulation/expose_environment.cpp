@@ -154,6 +154,42 @@ void expose_environment(py::module &m) {
         .export_values();
 
 
+    py::class_<ta::AtmosphereModel,
+            std::shared_ptr<ta::AtmosphereModel>>(
+                m, "AtmosphereModel",
+                get_docstring("AtmosphereModel").c_str() )
+            .def("get_density", &ta::AtmosphereModel::getDensity,
+                 py::arg( "altitude" ),
+                 py::arg( "longitude" ),
+                 py::arg( "latitude" ),
+                 py::arg( "time" ),
+                 get_docstring("AtmosphereModel.get_density").c_str() )
+            .def("get_pressure", &ta::AtmosphereModel::getPressure,
+                 py::arg( "altitude" ),
+                 py::arg( "longitude" ),
+                 py::arg( "latitude" ),
+                 py::arg( "time" ),
+                 get_docstring("AtmosphereModel.get_pressure").c_str() )
+            .def("get_temperature", &ta::AtmosphereModel::getTemperature,
+                 py::arg( "altitude" ),
+                 py::arg( "longitude" ),
+                 py::arg( "latitude" ),
+                 py::arg( "time" ),
+                 get_docstring("AtmosphereModel.get_temperature").c_str() )
+            .def("get_speed_of_sound", &ta::AtmosphereModel::getSpeedOfSound,
+                 py::arg( "altitude" ),
+                 py::arg( "longitude" ),
+                 py::arg( "latitude" ),
+                 py::arg( "time" ),
+                 get_docstring("AtmosphereModel.get_speed_of_sound").c_str() )
+            .def("get_number_density", &ta::AtmosphereModel::getNumberDensity,
+                 py::arg( "species" ),
+                 py::arg( "altitude" ),
+                 py::arg( "longitude" ),
+                 py::arg( "latitude" ),
+                 py::arg( "time" ),
+                 get_docstring("AtmosphereModel.get_number_density").c_str() );
+    
     py::class_<ta::AerodynamicCoefficientInterface,
             std::shared_ptr<ta::AerodynamicCoefficientInterface>>(m, "AerodynamicCoefficientInterface" )
             .def_property_readonly("reference_area", &ta::AerodynamicCoefficientInterface::getReferenceArea )
