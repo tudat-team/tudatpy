@@ -1,8 +1,8 @@
-''' 
+'''
 Copyright (c) 2010-2023, Delft University of Technology
 All rigths reserved
 
-This file is part of the Tudat. Redistribution and use in source and 
+This file is part of the Tudat. Redistribution and use in source and
 binary forms, with or without modification, are permitted exclusively
 under the terms of the Modified BSD license. You should have received
 a copy of the license with this file. If not, please or visit:
@@ -36,7 +36,7 @@ class DependentVariableDictionary(dict):
         propagation_setup.dependent_variable.total_acceleration("Delfi-C3")
     ]
     ```
-        
+
     Example usage:
     --------------
 
@@ -54,7 +54,7 @@ class DependentVariableDictionary(dict):
 
     # Create DependentVariableDictionary
     dep_vars_dict = result2dict(dynamics_simulator)
-    
+
     # Retrieve the time history (in `dict[epoch: value]` form) of the total acceleration experienced by Delft-C3
     total_acceleration_history = dep_vars_dict[
         # This can be done using either the `SingleAccelerationDependentVariableSaveSettings`
@@ -71,26 +71,26 @@ class DependentVariableDictionary(dict):
     -----------------------------------------------------------
 
     A `DependentVariableDictionary` maps which maps dependent variables, identified by either their
-    corresponding dependent variable settings object (an instance of a `VariableSettings`-derived 
+    corresponding dependent variable settings object (an instance of a `VariableSettings`-derived
     class) or its string ID, to their time histories.
 
     The time history of each dependent variable is a Python `dict` which maps epochs (`float`) to
     NumPy arrays (`np.ndarray`) of shape `(A, B)`:
 
         dict[epoch: np.ndarray[A, B]]
-    
-    **Important**: in `(A, B)`, we remove singleton/trivial dimensions (dimensions, `A` or `B`, of size 1). 
-    In the case of scalar dependent variables, the value associated to each epoch is a `np.ndarray` of shape `(1,)`. 
-    In the case of vectorial dependent variables, it is a **row** vector of size `(A,)`. This is done by using 
+
+    **Important**: in `(A, B)`, we remove singleton/trivial dimensions (dimensions, `A` or `B`, of size 1).
+    In the case of scalar dependent variables, the value associated to each epoch is a `np.ndarray` of shape `(1,)`.
+    In the case of vectorial dependent variables, it is a **row** vector of size `(A,)`. This is done by using
     `np.squeeze` to remove any dimensions of size 1. Practical examples:
-    
+
     Dimensions of dependent variable values associated to each epoch based on their type:
 
-    +-----------+-------------+ 
-    | Data Type | Shape       | 
-    +===========+=============+ 
+    +-----------+-------------+
+    | Data Type | Shape       |
+    +===========+=============+
     | Scalar    | `(1,)`      |
-    | Vectorial | `(3,)`      | 
+    | Vectorial | `(3,)`      |
     | Matrix    | `(A, B)`    |
     | Tensor    | `(A, B, C)` |
     +===========+=============+
@@ -103,7 +103,7 @@ class DependentVariableDictionary(dict):
         * If the `key` is an instance of a `VariableSettings`-derived class, return the
           object's string ID, obtained using `get_dependent_variable_id`.
 
-        * If the `key` is a string, use it directly, assuming it is the string ID of a 
+        * If the `key` is a string, use it directly, assuming it is the string ID of a
           dependent variable settings object
 
         * If the `key` is neither type, raise a `TypeError`
@@ -125,7 +125,7 @@ class DependentVariableDictionary(dict):
 
     def __init__(self, mapping=None, /, **kwargs):
         """
-        Create a `DependentVariableDictionary` from either a dictionary (`mapping`), or a series of 
+        Create a `DependentVariableDictionary` from either a dictionary (`mapping`), or a series of
         keyword-value pairs (`kwargs`).
         """
         if mapping is not None:
@@ -170,7 +170,7 @@ class DependentVariableDictionary(dict):
 
         Output
         ------
-        
+
         * Time history of the dependent variable, returned as a `dict` mapping epochs (`float`)
           to `np.ndarray`s containing the value of the dependent variable at each given epoch.
         """
@@ -182,7 +182,7 @@ class DependentVariableDictionary(dict):
                 f'{"-"*width}\n' + self.__summary__()
             print(message)
             raise e
-        
+
     def __summary__(self) -> str:
         """
         Return a string summary of the contents of a `DependentVariableDictionary` for print.
@@ -202,14 +202,14 @@ class DependentVariableDictionary(dict):
         """
         Return a string summary of the contents of a `DependentVariableDictionary` for print.
         """
-        
+
         width = max([len(ID) for ID in self.keys()]) + 10
         title = f'{"Depent Variable Dictionary Summary":^{width}}'
 
         representation_string = f'\n{"="*width}\n' + title + f'\n{"="*width}\n' + self.__summary__()
 
         return representation_string
-    
+
     def asarray(self, key: VariableSettings) -> np.ndarray:
         """
         Return the time history of a given dependent variable as a NumPy array.
@@ -233,13 +233,15 @@ def create_dependent_variable_dictionary(
     to their time histories. See the documentation of `DependentVariableDictionary` to learn more about how
     time histories are saved, and how the time history of a given dependent variable can be retrieved.
 
-    Arguments
-    ---------
-    - dynamics_simulator: `SingleArcSimulator` object containing the results of the numerical propagation
+    Parameters
+    ----------
+    dynamics_simulator : SingleArcSimulator
+        SingleArcSimulator object containing the results of the numerical propagation
 
-    Output
-    ------
-    - dependent_variable_dictionary: `DependentVariableDictionary` of propagation
+    Returns
+	-------
+    dependent_variable_dictionary : DependentVariableDictionary
+		DependentVariableDictionary of propagation
     """
 
     #--------------------------------------------------------------------
@@ -261,15 +263,15 @@ def create_dependent_variable_dictionary(
     #--------------------------------------------------------------------
     #%% CONSTRUCT DEPENDENT VARIABLE DICTIONARY
     #--------------------------------------------------------------------
-    
+
     # Construct dependent variable matrices
     dependent_variable_matrices = []
     for ((i, m), dependent_variable) in dependent_variable_settings.items():
-        
+
         # Retrieve dependent variable shape
         A, B = get_dependent_variable_shape(dependent_variable, dynamics_simulator.bodies)
-        
-        # Save dependent variable history as a tensor of (A, B)-sized 
+
+        # Save dependent variable history as a tensor of (A, B)-sized
         # matrices with `n` entries, where `n` is the number of epochs
         dependent_variable_matrices.append(
             dependent_variable_history[
@@ -277,7 +279,7 @@ def create_dependent_variable_dictionary(
                 i:i+m, :
             ].T.reshape((n, A, B))
         )
-    
+
     # Construct dependent variable dictionary
     dependent_variable_dictionary = DependentVariableDictionary({
         dependent_variable: {
