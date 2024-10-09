@@ -128,7 +128,7 @@ int main( )
     SystemOfBodies bodies = createSystemOfBodies< long double, Time >( bodySettings );
     bodies.at( "GRAIL-A" )->getVehicleSystems( )->setReferencePointPosition(
             "Antenna", ( Eigen::Vector3d( ) << 0.0, 0.0, 0.0 ).finished( ) );
-    std::cout<<"Number of reference points: "<<bodies.at( "GRAIL-A" )->getVehicleSystems( )->getBodyFixedReferencePoints( ).size( )<<std::endl;
+    std::cout<<"Number of reference points: "<<bodies.at( "GRAIL-A" )->getVehicleSystems( )->getReferencePoints( ).size( )<<std::endl;
 
     /****************************************************************************************
      ************************** LOAD ODF FILES
