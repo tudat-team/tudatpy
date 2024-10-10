@@ -597,7 +597,8 @@ public:
                 computeDopplerProperTimeInfluenceTaylorSeriesExpansion(
                     transmitterProperTimeDifference, receiverProperTimeDifference, taylorSeriesExpansionOrder_ );
 
-        // Compute first-order (geometrical) one-way Doppler contribution
+
+                 // Compute first-order (geometrical) one-way Doppler contribution
         lightTimePartialWrtReceiverPosition_ =
                 lightTimeCalculator_->getPartialOfLightTimeWrtLinkEndPosition(
                     transmitterState_, receiverState_, transmissionTime, receptionTime, true );
@@ -612,7 +613,6 @@ public:
                     taylorSeriesExpansionOrder_ );
 
         // Compute full Doppler observable and return
-        std::cout<<"One-way Doppler "<<firstOrderDopplerObservable<<" "<<properTimeCorrectionTerm<<std::endl;
         ObservationScalarType totalDopplerObservable = firstOrderDopplerObservable *
                 ( mathematical_constants::getFloatingInteger< ObservationScalarType >( 1 ) + properTimeCorrectionTerm ) +
                 properTimeCorrectionTerm;
