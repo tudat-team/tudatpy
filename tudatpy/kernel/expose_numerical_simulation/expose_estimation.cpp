@@ -570,7 +570,7 @@ void expose_estimation(py::module &m) {
                                    get_docstring("ObservationCollection.concatenated_times").c_str() )
             .def_property_readonly("concatenated_float_times", &tom::ObservationCollection<double, TIME_TYPE>::getConcatenatedDoubleTimeVector,
                                    get_docstring("ObservationCollection.concatenated_times").c_str() )
-            .def_property_readonly("concatenated_weights", &tom::ObservationCollection<double, TIME_TYPE>::getConcatenatedWeights,
+            .def_property_readonly("concatenated_weights", &tom::ObservationCollection<double, TIME_TYPE>::getUnparsedConcatenatedWeights,
                                    get_docstring("ObservationCollection.concatenated_weights").c_str() )
             .def_property_readonly("concatenated_observations", &tom::ObservationCollection<double, TIME_TYPE>::getObservationVector,
                                    get_docstring("ObservationCollection.concatenated_observations").c_str() )
