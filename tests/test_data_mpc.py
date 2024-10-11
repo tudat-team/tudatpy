@@ -1,6 +1,3 @@
-import sys
-sys.path.insert(0, "/home/dominic/Tudat/tudat-bundle/tudat-bundle/cmake-build-debug/tudatpy")
-
 
 from tudatpy.data.mpc import BatchMPC
 from tudatpy.data.horizons import HorizonsQuery
