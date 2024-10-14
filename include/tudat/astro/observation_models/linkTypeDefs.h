@@ -107,12 +107,12 @@ struct LinkEndId
 
     std::string stationName_;
 
-    std::string getBodyName( )
+    std::string getBodyName( ) const
     {
         return bodyName_;
     }
 
-    std::string getStationName( )
+    std::string getStationName( ) const
     {
         return stationName_;
     }
@@ -171,6 +171,10 @@ struct LinkDefinition
     LinkEndId &operator[](LinkEndType linkEndType)
     {
         return linkEnds_[ linkEndType ];
+    }
+
+    std::map< LinkEndType, LinkEndId > getLinkEnds() const {
+        return linkEnds_;
     }
 
     std::map< LinkEndType, LinkEndId > linkEnds_;

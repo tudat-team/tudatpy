@@ -100,15 +100,13 @@ executeHybridArcMarsAndOrbiterSensitivitySimulation(
     double radiationPressureCoefficient = 1.2;
     std::vector< std::string > occultingBodies;
     occultingBodies.push_back( "Earth" );
-    std::shared_ptr< RadiationPressureInterfaceSettings > orbiterRadiationPressureSettings =
-            std::make_shared< CannonBallRadiationPressureInterfaceSettings >(
-                    "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
+    std::shared_ptr< RadiationPressureTargetModelSettings > orbiterRadiationPressureSettings =
+        cannonballRadiationPressureTargetModelSettings(
+            referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
 
     // Create and set radiation pressure settings
-    bodies.at( "Orbiter" )->setRadiationPressureInterface(
-            "Sun", createRadiationPressureInterface(
-                    orbiterRadiationPressureSettings, "Orbiter", bodies ) );
-
+    bodies.at( "Orbiter" )->addRadiationPressureTargetModel(
+        createRadiationPressureTargetModel( orbiterRadiationPressureSettings, "Orbiter", bodies ).at( 0 ) );
 
 
     // Set accelerations between bodies that are to be taken into account.
@@ -141,7 +139,7 @@ executeHybridArcMarsAndOrbiterSensitivitySimulation(
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfOrbiter;
     accelerationsOfOrbiter[ "Mars" ].push_back( std::make_shared< SphericalHarmonicAccelerationSettings >( 2, 2 ) );
     accelerationsOfOrbiter[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
-    accelerationsOfOrbiter[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( cannon_ball_radiation_pressure ) );
+    accelerationsOfOrbiter[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( radiation_pressure ) );
     accelerationsOfOrbiter[ "Jupiter" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
     multiArcAccelerationMap[ "Orbiter" ] = accelerationsOfOrbiter;
 

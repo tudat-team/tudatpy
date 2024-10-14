@@ -8,6 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 //
+
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
@@ -19,6 +20,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include "tudat/simulation/estimation_setup/fitOrbitToEphemeris.h"
+
 
 
 namespace tudat
@@ -34,7 +36,6 @@ using namespace tudat::orbit_determination;
 using namespace tudat::estimatable_parameters;
 using namespace tudat::simulation_setup;
 using namespace tudat::basic_astrodynamics;
-
 BOOST_AUTO_TEST_CASE( test_FitToSpice )
 {
     //Load spice kernels.
@@ -149,11 +150,9 @@ BOOST_AUTO_TEST_CASE( test_FitToSpice )
                 linear_algebra::getVectorEntryRootMeanSquare( estimationOutput->residualHistory_.at( 0 ) ), 0.02 );
 
         }
-
     }
-
-
 }
+
 
 BOOST_AUTO_TEST_SUITE_END( )
 

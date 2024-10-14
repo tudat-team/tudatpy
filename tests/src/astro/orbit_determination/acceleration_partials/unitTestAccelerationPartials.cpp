@@ -215,7 +215,7 @@ BOOST_AUTO_TEST_CASE( testCannonballRadiationPressureAccelerationPartials )
     // Create radiation pressure properties of vehicle
     std::shared_ptr<CannonballRadiationPressureTargetModel > radiationPressureInterface =
         std::make_shared< CannonballRadiationPressureTargetModel >( mathematical_constants::PI * 0.3 * 0.3, 1.2 );
-    vehicle->setRadiationPressureTargetModel( radiationPressureInterface );
+    vehicle->addRadiationPressureTargetModel( radiationPressureInterface );
 
     // Create acceleration model.
     std::shared_ptr< RadiationPressureAcceleration > accelerationModel =
@@ -231,6 +231,9 @@ BOOST_AUTO_TEST_CASE( testCannonballRadiationPressureAccelerationPartials )
     std::shared_ptr< EstimatableParameter< double > > radiationPressureCoefficient =
             std::make_shared< RadiationPressureCoefficient >( radiationPressureInterface, vehicleName );
 
+    std::shared_ptr< EstimatableParameter< double > > radiationPressureScalingSourceDirection =
+        std::make_shared< RadiationPressureScalingFactor >( accelerationModel, source_direction_radiation_pressure_scaling_factor, vehicleName, "Sun" );
+
     std::vector< double > timeLimits;
     timeLimits.push_back( 0.0 );
     timeLimits.push_back( 3600.0 );
@@ -239,6 +242,7 @@ BOOST_AUTO_TEST_CASE( testCannonballRadiationPressureAccelerationPartials )
 
     std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > arcWiseRadiationPressureCoefficient =
             std::make_shared< ArcWiseRadiationPressureCoefficient >( radiationPressureInterface, timeLimits, vehicleName );
+
 
 
     // Calculate analytical partials.
@@ -254,6 +258,9 @@ BOOST_AUTO_TEST_CASE( testCannonballRadiationPressureAccelerationPartials )
     accelerationPartial->wrtVelocityOfAcceleratedBody( partialWrtVehicleVelocity.block( 0, 0, 3, 3 ), 1, 0, 0 );
     Eigen::Vector3d partialWrtRadiationPressureCoefficient = accelerationPartial->wrtParameter(
                 radiationPressureCoefficient );
+    Eigen::Vector3d partialWrtScalingFactor = accelerationPartial->wrtParameter(
+        radiationPressureScalingSourceDirection );
+
 
     // Get arc-wise radiation pressure coefficient partials
     Eigen::MatrixXd partialWrtRadiationPressureCoefficientArcwise = accelerationPartial->wrtParameter(
@@ -338,6 +345,8 @@ BOOST_AUTO_TEST_CASE( testCannonballRadiationPressureAccelerationPartials )
     Eigen::Matrix3d testPartialWrtSunPosition = Eigen::Matrix3d::Zero( );
     Eigen::Matrix3d testPartialWrtSunVelocity = Eigen::Matrix3d::Zero( );
     Eigen::Vector3d testPartialWrtRadiationPressureCoefficient = Eigen::Vector3d::Zero( );
+    Eigen::Vector3d testPartialWrtScalingFactor = Eigen::Vector3d::Zero( );
+
 
     // Declare perturbations in position for numerical partial/
     Eigen::Vector3d positionPerturbation;
@@ -358,6 +367,8 @@ BOOST_AUTO_TEST_CASE( testCannonballRadiationPressureAccelerationPartials )
                 vehicleStateSetFunction, accelerationModel, vehicle->getState( ), velocityPerturbation, 3, updateFunction );
     testPartialWrtRadiationPressureCoefficient = calculateAccelerationWrtParameterPartials(
                 radiationPressureCoefficient, accelerationModel, 1.0E-2, updateFunction );
+    testPartialWrtScalingFactor = calculateAccelerationWrtParameterPartials(
+        radiationPressureScalingSourceDirection, accelerationModel, 100.0, updateFunction );
 
 
     // Compare numerical and analytical results.
@@ -372,6 +383,8 @@ BOOST_AUTO_TEST_CASE( testCannonballRadiationPressureAccelerationPartials )
                                        partialWrtVehicleVelocity, std::numeric_limits< double >::epsilon( ) );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtRadiationPressureCoefficient,
                                        partialWrtRadiationPressureCoefficient, 1.0E-12 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtScalingFactor,
+                                       partialWrtScalingFactor, 1.0E-12 );
 }
 
 BOOST_AUTO_TEST_CASE( testThirdBodyGravityPartials )
@@ -1249,9 +1262,9 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureAccelerationPartials )
 
     addBodyExteriorPanelledShape(
         std::make_shared< FullPanelledBodySettings >( panelSettingsList ), "Vehicle", bodies );
-    vehicle->setRadiationPressureTargetModel(
+    vehicle->addRadiationPressureTargetModel(
         createRadiationPressureTargetModel(
-            std::make_shared< RadiationPressureTargetModelSettings >( paneled_target ), "Vehicle", bodies ) );
+            std::make_shared< RadiationPressureTargetModelSettings >( paneled_target ), "Vehicle", bodies ).at( 0 ) );
 
     // Create acceleration model.
     std::shared_ptr< RadiationPressureAcceleration > accelerationModel =
@@ -1279,6 +1292,13 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureAccelerationPartials )
     //    std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > panelEmissivitiesParameter =
     //            estimatableParameters->getVectorParameters( ).begin( )->second;
 
+
+    std::shared_ptr< EstimatableParameter< double > > parallelScalingFactor =
+        std::make_shared< RadiationPressureScalingFactor >( accelerationModel, source_direction_radiation_pressure_scaling_factor, "Vehicle", "Sun" );
+    std::shared_ptr< EstimatableParameter< double > > perpendicularScalingFactor =
+        std::make_shared< RadiationPressureScalingFactor >( accelerationModel, source_perpendicular_direction_radiation_pressure_scaling_factor, "Vehicle", "Sun" );
+
+
     // Calculate analytical partials.
     accelerationPartial->update( 0.0 );
     Eigen::MatrixXd partialWrtSunPosition = Eigen::Matrix3d::Zero( );
@@ -1294,6 +1314,8 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureAccelerationPartials )
     accelerationPartial->wrtVelocityOfAcceleratedBody( partialWrtVehicleVelocity.block( 0, 0, 3, 3 ) );
 
     //Eigen::MatrixXd partialWrtEmissivities = accelerationPartial->wrtParameter( panelEmissivitiesParameter );
+    Eigen::MatrixXd partialWrtParallelScaling = accelerationPartial->wrtParameter( parallelScalingFactor );
+    Eigen::MatrixXd partialWrtPerpendicularScaling = accelerationPartial->wrtParameter( perpendicularScalingFactor );
 
     // Declare numerical partials.
     Eigen::Matrix3d testPartialWrtVehiclePosition = Eigen::Matrix3d::Zero( );
@@ -1301,6 +1323,8 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureAccelerationPartials )
     Eigen::Matrix3d testPartialWrtSunPosition = Eigen::Matrix3d::Zero( );
     Eigen::Matrix3d testPartialWrtSunVelocity = Eigen::Matrix3d::Zero( );
     Eigen::MatrixXd testPartialWrtEmissivities = Eigen::MatrixXd::Zero( 3, 2 );
+    Eigen::MatrixXd testPartialWrtParallelScaling = Eigen::MatrixXd::Zero( 3, 1 );
+    Eigen::MatrixXd testPartialWrtPerpendicularScaling = Eigen::MatrixXd::Zero( 3, 1 );
 
     // Declare perturbations in position for numerical partial/
     Eigen::Vector3d positionPerturbation;
@@ -1332,6 +1356,17 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureAccelerationPartials )
     //    testPartialWrtEmissivities = calculateAccelerationWrtParameterPartials(
     //                panelEmissivitiesParameter, accelerationModel, emissivityPerturbations );
 
+    testPartialWrtParallelScaling = calculateAccelerationWrtParameterPartials(
+        parallelScalingFactor, accelerationModel, 10.0, updateFunction );
+    testPartialWrtPerpendicularScaling = calculateAccelerationWrtParameterPartials(
+        perpendicularScalingFactor, accelerationModel, 10.0, updateFunction );
+
+//    std::cout<<testPartialWrtParallelScaling<<std::endl<<std::endl;
+//    std::cout<<partialWrtParallelScaling<<std::endl<<std::endl;
+//
+//    std::cout<<testPartialWrtPerpendicularScaling<<std::endl<<std::endl;
+//    std::cout<<partialWrtPerpendicularScaling<<std::endl<<std::endl;
+
     // Compare numerical and analytical results.
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtSunPosition,
                                        partialWrtSunPosition, 1.0e-6 );
@@ -1343,6 +1378,11 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureAccelerationPartials )
                                        partialWrtVehicleVelocity, std::numeric_limits< double >::epsilon( ) );
     //    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtEmissivities,
     //                                       partialWrtEmissivities, 1.0e-14 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtParallelScaling,
+                                       partialWrtParallelScaling, 1.0E-13 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtPerpendicularScaling,
+                                       partialWrtPerpendicularScaling, 1.0E-13 );
+
 }
 
 
@@ -1408,7 +1448,7 @@ BOOST_AUTO_TEST_CASE( testPanelledSurfaceRadiationPressureAccelerationPartials )
     // Create radiation pressure properties of vehicle
     std::shared_ptr<CannonballRadiationPressureTargetModel > radiationPressureInterface =
         std::make_shared< CannonballRadiationPressureTargetModel >( mathematical_constants::PI * 0.3 * 0.3, 1.2 );
-    vehicle->setRadiationPressureTargetModel( radiationPressureInterface );
+    vehicle->addRadiationPressureTargetModel( radiationPressureInterface );
     bodies.at( "Vehicle" )->getRadiationPressureTargetModel( )->updateMembers( 1.0E7 );
 
     std::vector< std::shared_ptr< EstimatableParameterSettings > > parametersNames;
@@ -1429,6 +1469,14 @@ BOOST_AUTO_TEST_CASE( testPanelledSurfaceRadiationPressureAccelerationPartials )
         createAnalyticalAccelerationPartial( accelerationModel, std::make_pair( "Vehicle", vehicle ),
                                              std::make_pair( "Earth", earth ), bodies, parametersToEstimate );
 
+    std::string vehicleName = "Vehicle";
+    std::shared_ptr< EstimatableParameter< double > > radiationPressureCoefficient =
+        std::make_shared< RadiationPressureCoefficient >( radiationPressureInterface, vehicleName );
+    std::shared_ptr< EstimatableParameter< double > > parallelScalingFactor =
+        std::make_shared< RadiationPressureScalingFactor >( accelerationModel, source_direction_radiation_pressure_scaling_factor, "Vehicle", "Earth" );
+    std::shared_ptr< EstimatableParameter< double > > perpendicularScalingFactor =
+        std::make_shared< RadiationPressureScalingFactor >( accelerationModel, source_perpendicular_direction_radiation_pressure_scaling_factor, "Vehicle", "Earth" );
+
     // Calculate analytical partials.
     double currentTime = 0.0;
     accelerationPartial->update( currentTime );
@@ -1440,12 +1488,21 @@ BOOST_AUTO_TEST_CASE( testPanelledSurfaceRadiationPressureAccelerationPartials )
     accelerationPartial->wrtPositionOfAcceleratedBody( partialWrtVehiclePosition.block( 0, 0, 3, 3 ) );
     Eigen::MatrixXd partialWrtVehicleVelocity = Eigen::Matrix3d::Zero( );
     accelerationPartial->wrtVelocityOfAcceleratedBody( partialWrtVehicleVelocity.block( 0, 0, 3, 3 ), 1, 0, 0 );
+    Eigen::Vector3d partialWrtRadiationPressureCoefficient = accelerationPartial->wrtParameter(
+        radiationPressureCoefficient );
+    Eigen::MatrixXd partialWrtParallelScaling = accelerationPartial->wrtParameter(
+        parallelScalingFactor );
+    Eigen::MatrixXd partialWrtPerpendicularScaling = accelerationPartial->wrtParameter(
+        perpendicularScalingFactor );
 
     // Declare numerical partials.
     Eigen::Matrix3d testPartialWrtVehiclePosition = Eigen::Matrix3d::Zero( );
     Eigen::Matrix3d testPartialWrtVehicleVelocity = Eigen::Matrix3d::Zero( );
     Eigen::Matrix3d testPartialWrtEarthPosition = Eigen::Matrix3d::Zero( );
     Eigen::Matrix3d testPartialWrtEarthVelocity = Eigen::Matrix3d::Zero( );
+    Eigen::Vector3d testPartialWrtRadiationPressureCoefficient = Eigen::Vector3d::Zero( );
+    Eigen::MatrixXd testPartialWrtParallelScaling = Eigen::MatrixXd::Zero( 3, 1 );
+    Eigen::MatrixXd testPartialWrtPerpendicularScaling = Eigen::MatrixXd::Zero( 3, 1 );
 
     // Declare perturbations in position for numerical partial/
     Eigen::Vector3d positionPerturbation;
@@ -1464,7 +1521,12 @@ BOOST_AUTO_TEST_CASE( testPanelledSurfaceRadiationPressureAccelerationPartials )
         earthStateSetFunction, accelerationModel, earth->getState( ),velocityPerturbation, 3, updateFunction );
     testPartialWrtVehicleVelocity = calculateAccelerationWrtStatePartials(
         vehicleStateSetFunction, accelerationModel, vehicle->getState( ), velocityPerturbation, 3, updateFunction );
-
+    testPartialWrtRadiationPressureCoefficient = calculateAccelerationWrtParameterPartials(
+        radiationPressureCoefficient, accelerationModel, 1.0E-2, updateFunction );
+    testPartialWrtParallelScaling = calculateAccelerationWrtParameterPartials(
+        parallelScalingFactor, accelerationModel, 10.0, updateFunction );
+    testPartialWrtPerpendicularScaling = calculateAccelerationWrtParameterPartials(
+        perpendicularScalingFactor, accelerationModel, 10.0, updateFunction );
 
     // Compare numerical and analytical results.
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtEarthPosition,
@@ -1475,6 +1537,12 @@ BOOST_AUTO_TEST_CASE( testPanelledSurfaceRadiationPressureAccelerationPartials )
                                        partialWrtVehiclePosition, 1.0E-5 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtVehicleVelocity,
                                        partialWrtVehicleVelocity, std::numeric_limits< double >::epsilon( ) );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtRadiationPressureCoefficient,
+                                       partialWrtRadiationPressureCoefficient, 1.0E-12 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtParallelScaling,
+                                       partialWrtParallelScaling, 1.0E-13 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtPerpendicularScaling,
+                                       partialWrtPerpendicularScaling, 1.0E-13 );
 }
 
 

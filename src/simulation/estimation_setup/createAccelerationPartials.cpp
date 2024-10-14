@@ -30,9 +30,9 @@ std::vector< std::shared_ptr< orbit_determination::TidalLoveNumberPartialInterfa
     if( bodies.at( acceleratingBodyName )->getGravityFieldVariationSet( ) != nullptr )
     {
         // Get list of tidal gravity field variations.
-        std::vector< std::shared_ptr< gravitation::BasicSolidBodyTideGravityFieldVariations > >  variationObjectList =
+        std::vector< std::shared_ptr< gravitation::SolidBodyTideGravityFieldVariations > >  variationObjectList =
                 utilities::dynamicCastSVectorToTVector< gravitation::GravityFieldVariations,
-                gravitation::BasicSolidBodyTideGravityFieldVariations >(
+                gravitation::SolidBodyTideGravityFieldVariations >(
                     bodies.at( acceleratingBodyName )->getGravityFieldVariationSet( )->
                     getDirectTidalGravityFieldVariations( ) );
 
@@ -50,23 +50,40 @@ std::vector< std::shared_ptr< orbit_determination::TidalLoveNumberPartialInterfa
                 if( variationObjectList.at( i ) != nullptr )
                 {
                     // Get state/rotation functions for deforming bodyies
-                    std::vector< std::function< Eigen::Vector3d( ) > > deformingBodyStateFunctions;
-                    std::vector< std::string > deformingBodies = variationObjectList.at( i )->getDeformingBodies( );
-                    for( unsigned int i = 0; i < deformingBodies.size( ); i++ )
+                    std::vector<std::function<Eigen::Vector3d( )> > deformingBodyStateFunctions;
+                    std::vector<std::string> deformingBodies = variationObjectList.at( i )->getDeformingBodies( );
+                    for ( unsigned int i = 0; i < deformingBodies.size( ); i++ )
                     {
                         deformingBodyStateFunctions.push_back(
-                                    std::bind( &Body::getPosition, bodies.at( deformingBodies.at( i ) ) ) );
+                            std::bind( &Body::getPosition, bodies.at( deformingBodies.at( i ))));
                     }
-                    // Get state/rotation functions for deformed body
-
                     // Create partial object
-                    loveNumberInterfaces.push_back(
-                                std::make_shared< orbit_determination::TidalLoveNumberPartialInterface >(
-                                    variationObjectList.at( i ),
-                                    deformedBodyPositionFunction,
-                                    deformingBodyStateFunctions,
-                                    rotationToDeformedBodyFrameFrameFunction,
-                                    acceleratingBodyName ) );
+                    auto
+                        newLoveNumberInterface = std::make_shared<orbit_determination::TidalLoveNumberPartialInterface>(
+                        variationObjectList.at( i ),
+                        deformedBodyPositionFunction,
+                        deformingBodyStateFunctions,
+                        rotationToDeformedBodyFrameFrameFunction,
+                        acceleratingBodyName );
+
+                    bool addInterface = true;
+                    for ( unsigned int j = 0; j < loveNumberInterfaces.size( ); j++ )
+                    {
+                        if ( acceleratingBodyName == loveNumberInterfaces.at( j )->getDeformedBody( ))
+                        {
+                            if ( utilities::compareStlVectors<std::string>(
+                                newLoveNumberInterface->getDeformingBodies( ),
+                                loveNumberInterfaces.at( j )->getDeformingBodies( )))
+                            {
+                                addInterface = false;
+                            }
+                        }
+                    }
+
+                    if ( addInterface )
+                    {
+                        loveNumberInterfaces.push_back( newLoveNumberInterface );
+                    }
                 }
             }
         }
@@ -74,6 +91,34 @@ std::vector< std::shared_ptr< orbit_determination::TidalLoveNumberPartialInterfa
     return loveNumberInterfaces;
 }
 
+std::map< std::string, std::shared_ptr< acceleration_partials::AccelerationPartial > > createEihAccelerationPartials(
+    const std::map< std::string, std::shared_ptr< relativity::EinsteinInfeldHoffmannAcceleration > > eihAccelerations )
+{
+    std::map< std::string, std::shared_ptr< acceleration_partials::AccelerationPartial > > partialsList;
+    if( eihAccelerations.size( ) > 0 )
+    {
+        std::shared_ptr<relativity::EinsteinInfeldHoffmannEquations> eihEquations = eihAccelerations.begin( )->second->getEihEquations( );
+
+
+        for( auto it : eihAccelerations )
+        {
+            if( it.second->getEihEquations( ) != eihEquations )
+            {
+                throw std::runtime_error( "Error when making acceleration partials, different governing EIH equations found" );
+            }
+        }
+
+        std::shared_ptr< acceleration_partials::EihEquationsPartials > eihPartials = std::make_shared< acceleration_partials::EihEquationsPartials >(
+            eihEquations );
+
+        for( auto it : eihAccelerations )
+        {
+            partialsList[ it.first ] = std::make_shared< acceleration_partials::EihAccelerationPartial >(
+                eihPartials, it.first );
+        }
+    }
+    return partialsList;
+}
 
 std::shared_ptr< estimatable_parameters::NumericalAccelerationPartialSettings > getDefaultPanelledSurfaceRadiationPressurePartialSettings(
     const std::string bodyUndergoingAcceleration,

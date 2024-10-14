@@ -427,8 +427,90 @@ std::vector< std::shared_ptr< GravityFieldVariationSettings > > getEarthGravityF
     std::shared_ptr< GravityFieldVariationSettings > singleGravityFieldVariation =
             std::make_shared< BasicSolidBodyGravityFieldVariationSettings >( deformingBodies, loveNumbers );
     gravityFieldVariations.push_back( singleGravityFieldVariation );
+
+    // Define Love numbers ( constant for degree 2 only)
+    std::map< std::pair< int, int >, std::map< std::pair< int, int >, double > > modeCoupledLoveNumbers;
+    modeCoupledLoveNumbers[ std::make_pair( 2, 0 ) ][ std::make_pair( 2, 1 ) ] = 0.1;
+    modeCoupledLoveNumbers[ std::make_pair( 2, 0 ) ][ std::make_pair( 2, 2 ) ] = 0.3;
+    modeCoupledLoveNumbers[ std::make_pair( 2, 2 ) ][ std::make_pair( 2, 2 ) ] = 0.2;
+    modeCoupledLoveNumbers[ std::make_pair( 2, 2 ) ][ std::make_pair( 2, 1 ) ] = 0.2;
+    modeCoupledLoveNumbers[ std::make_pair( 2, 2 ) ][ std::make_pair( 3, 2 ) ] = 0.2;
+    modeCoupledLoveNumbers[ std::make_pair( 2, 1 ) ][ std::make_pair( 3, 1 ) ] = 0.2;
+    modeCoupledLoveNumbers[ std::make_pair( 3, 3 ) ][ std::make_pair( 3, 1 ) ] = 0.2;
+
+    gravityFieldVariations.push_back( std::make_shared< ModeCoupledSolidBodyGravityFieldVariationSettings >(
+        deformingBodies, modeCoupledLoveNumbers ) );
+
+    std::map<int, Eigen::MatrixXd> cosineAmplitudes;
+    cosineAmplitudes[ 1 ] = Eigen::Matrix< double, 3, 5 >::Zero( );
+    cosineAmplitudes[ 2 ] = Eigen::Matrix< double, 3, 5 >::Zero( );
+    std::map<int, Eigen::MatrixXd> sineAmplitudes;
+    sineAmplitudes[ 1 ] = Eigen::Matrix< double, 3, 5 >::Zero( );
+    std::shared_ptr< GravityFieldVariationSettings > polynomialGravityFieldVariations =
+        std::make_shared< PolynomialGravityFieldVariationsSettings >(
+            cosineAmplitudes, sineAmplitudes, -1.0E4, 2, 0 );
+    gravityFieldVariations.push_back( polynomialGravityFieldVariations );
+
+
+    std::vector< Eigen::MatrixXd > cosineShAmplitudesCosineTime;
+    std::vector< Eigen::MatrixXd > cosineShAmplitudesSineTime;
+    std::vector< Eigen::MatrixXd > sineShAmplitudesCosineTime;
+    std::vector< Eigen::MatrixXd > sineShAmplitudesSineTime;
+    std::vector< double > frequencies;
+
+    cosineShAmplitudesCosineTime.push_back(
+        ( Eigen::MatrixXd( 2, 3 )<<2.0E-8, -2.0E-8, 4.2E-9,
+            4.0E-8, -3.7E-9, 2.9E-7 ).finished( ) );
+    cosineShAmplitudesCosineTime.push_back(
+        ( Eigen::MatrixXd( 2, 3 )<<5.0E-8, -6.0E-8, 2.2E-9,
+            4.0E-7, -3.4E-7, 8.9E-7 ).finished( ) );
+    cosineShAmplitudesCosineTime.push_back(
+        ( Eigen::MatrixXd( 2, 3 )<<8.0E-8, 2.0E-7, 7.2E-8,
+            7.5E-7, -1.9E-7, 2.5E-7 ).finished( ) );
+
+    cosineShAmplitudesSineTime.push_back(
+        ( Eigen::MatrixXd( 2, 3 )<<3.0E-8, -6.0E-8, 2.2E-9,
+            9.0E-8, -6.7E-9, 3.9E-7 ).finished( ) );
+    cosineShAmplitudesSineTime.push_back(
+        ( Eigen::MatrixXd( 2, 3 )<<8.0E-8, -9.0E-8, 4.2E-9,
+            2.0E-7, -6.4E-7, 4.9E-7 ).finished( ) );
+    cosineShAmplitudesSineTime.push_back(
+        ( Eigen::MatrixXd( 2, 3 )<<3.0E-8, 6.0E-7, 8.2E-8,
+            1.5E-7, 5.9E-7, 9.5E-7 ).finished( ) );
+
+    sineShAmplitudesCosineTime.push_back(
+        ( Eigen::MatrixXd( 2, 3 )<<0.0, 6.0E-8, 5.2E-9,
+            0.0, 7.4E-8, 5.6E-7 ).finished( ) );
+    sineShAmplitudesCosineTime.push_back(
+        ( Eigen::MatrixXd( 2, 3 )<<0.0, 5.5E-8, 9.2E-9,
+            0.0, 4.4E-8, 1.1E-7 ).finished( ) );
+    sineShAmplitudesCosineTime.push_back(
+        ( Eigen::MatrixXd( 2, 3 )<<0.0, 7.8E-7, 4.2E-8,
+            0.0, 8.5E-7, -2.5E-8 ).finished( ) );
+
+    sineShAmplitudesSineTime.push_back(
+        ( Eigen::MatrixXd( 2, 3 )<<0.0, 5.0E-8, -4.2E-9,
+            0.0, 4.4E-8, -1.6E-7 ).finished( ) );
+    sineShAmplitudesSineTime.push_back(
+        ( Eigen::MatrixXd( 2, 3 )<<0.0, -4.5E-8, 6.2E-9,
+            0.0, 6.4E-8, 2.1E-7 ).finished( ) );
+    sineShAmplitudesSineTime.push_back(
+        ( Eigen::MatrixXd( 2, 3 )<<0.0, 5.8E-7, 6.2E-8,
+            0.0, 2.5E-7, 5.5E-8 ).finished( ) );
+
+    frequencies.resize( 3 );
+    frequencies = { 2.0E-5, 7.0E-5, 4.0E-6 };
+
+    std::shared_ptr< GravityFieldVariationSettings > periodicGravityFieldVariations =
+        std::make_shared< PeriodicGravityFieldVariationsSettings >(
+            cosineShAmplitudesCosineTime, cosineShAmplitudesSineTime, sineShAmplitudesCosineTime, sineShAmplitudesSineTime,
+            frequencies, 1.0E3, 2, 0 );
+
+    gravityFieldVariations.push_back( periodicGravityFieldVariations );
+
     return gravityFieldVariations;
 }
+
 
 BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartial )
 {
@@ -578,6 +660,40 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartial )
                                   "Earth", 3, "", false ) );
     parameterNames.push_back( std::make_shared< SingleDegreeVariableTidalLoveNumberEstimatableParameterSettings >(
                                   "Earth", 3, std::vector< int >{ 0, 3 }, "", true ) );
+
+
+    std::map< std::pair< int, int >, std::vector< std::pair< int, int > > > loveNumberIndices;
+    loveNumberIndices[{2,0}].push_back({2,1});
+    loveNumberIndices[{2,0}].push_back({2,2});
+    loveNumberIndices[{2,2}].push_back({2,2});
+    loveNumberIndices[{2,2}].push_back({2,1});
+    loveNumberIndices[{2,2}].push_back({3,2});
+    loveNumberIndices[{2,1}].push_back({3,1});
+    loveNumberIndices[{3,3}].push_back({3,1});
+
+    parameterNames.push_back( std::make_shared< ModeCoupledTidalLoveNumberEstimatableParameterSettings >(
+        "Earth", loveNumberIndices, std::vector<std::string >({"Moon"}) ) );
+    std::map<int, std::vector<std::pair<int, int> > > cosineBlockIndicesPerPower;
+    cosineBlockIndicesPerPower[ 1 ].push_back( std::make_pair( 2, 0 ) );
+    cosineBlockIndicesPerPower[ 1 ].push_back( std::make_pair( 3, 2 ) );
+    cosineBlockIndicesPerPower[ 1 ].push_back( std::make_pair( 4, 4 ) );
+    cosineBlockIndicesPerPower[ 2 ].push_back( std::make_pair( 2, 0 ) );
+    cosineBlockIndicesPerPower[ 2 ].push_back( std::make_pair( 2, 2 ) );
+
+    std::map<int, std::vector<std::pair<int, int> > > sineBlockIndicesPerPower;
+    sineBlockIndicesPerPower[ 1 ].push_back( std::make_pair( 3, 2 ) );
+    parameterNames.push_back( std::make_shared< PolynomialGravityFieldVariationEstimatableParameterSettings >(
+        "Earth", cosineBlockIndicesPerPower, sineBlockIndicesPerPower ) );
+
+    std::map<int, std::vector<std::pair<int, int> > > cosineBlockIndicesPerPeriod;
+    cosineBlockIndicesPerPeriod[ 0 ].push_back( std::make_pair( 2, 1 ) );
+    cosineBlockIndicesPerPeriod[ 2 ].push_back( std::make_pair( 2, 0 ) );
+    cosineBlockIndicesPerPeriod[ 1 ].push_back( std::make_pair( 3, 2 ) );
+
+    std::map<int, std::vector<std::pair<int, int> > > sineBlockIndicesPerPeriod;
+    sineBlockIndicesPerPeriod[ 1 ].push_back( std::make_pair( 3, 1 ) );
+    parameterNames.push_back( std::make_shared< PeriodicGravityFieldVariationEstimatableParameterSettings >(
+        "Earth", cosineBlockIndicesPerPeriod, sineBlockIndicesPerPeriod ) );
 
     std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parameterSet =
             createParametersToEstimate( parameterNames, bodies );
@@ -765,24 +881,24 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartial )
     Eigen::MatrixXd testPartialWrtComplexDegreeThreeLoveNumberAtSeparateOrder = calculateAccelerationWrtParameterPartials(
                 vectorParametersIterator->second, gravitationalAcceleration, Eigen::VectorXd::Constant( 4, 10.0 ), sphericalHarmonicFieldUpdate );
 
+    vectorParametersIterator++;
+    Eigen::MatrixXd partialWrtModeCoupledLoveNumbers = accelerationPartial->wrtParameter(
+        vectorParametersIterator->second );
+    Eigen::MatrixXd testPartialWrtModeCoupledLoveNumbers = calculateAccelerationWrtParameterPartials(
+        vectorParametersIterator->second, gravitationalAcceleration, Eigen::VectorXd::Constant(
+            vectorParametersIterator->second->getParameterSize( ), 10.0 ), sphericalHarmonicFieldUpdate );
+    vectorParametersIterator++;
 
+    Eigen::MatrixXd partialWrtPolynomialVariations = accelerationPartial->wrtParameter(
+        vectorParametersIterator->second );
+    Eigen::MatrixXd testPartialWrtPolynomialVariations = calculateAccelerationWrtParameterPartials(
+        vectorParametersIterator->second, gravitationalAcceleration, Eigen::VectorXd::Constant( 6, 1.0E-6 ), sphericalHarmonicFieldUpdate );
 
-
-    Eigen::VectorXd nominalTidalParameter = vectorParametersIterator->second->getParameterValue( );
-
-    vectorParametersIterator->second->setParameterValue( nominalTidalParameter + Eigen::VectorXd::Constant( nominalTidalParameter.rows( ), 1.0 ) );
-    earthGravityField->update( testTime );
-    Eigen::MatrixXd upperturbedCosineCoefficients =
-            earthGravityField->getCosineCoefficients( ).block( 0, 0, 3, 3 );
-    Eigen::MatrixXd upperturbedSineCoefficients =
-            earthGravityField->getSineCoefficients( ).block( 0, 0, 3, 3 );
-
-    vectorParametersIterator->second->setParameterValue( nominalTidalParameter - Eigen::VectorXd::Constant( nominalTidalParameter.rows( ), 1.0 ) );
-    earthGravityField->update( testTime );
-    Eigen::MatrixXd downperturbedCosineCoefficients =
-            earthGravityField->getCosineCoefficients( ).block( 0, 0, 3, 3 );
-    Eigen::MatrixXd downperturbedSineCoefficients =
-            earthGravityField->getSineCoefficients( ).block( 0, 0, 3, 3 );
+    vectorParametersIterator++;
+    Eigen::MatrixXd partialWrtPeriodicVariations = accelerationPartial->wrtParameter(
+        vectorParametersIterator->second );
+    Eigen::MatrixXd testPartialWrtPeriodicVariations = calculateAccelerationWrtParameterPartials(
+        vectorParametersIterator->second, gravitationalAcceleration, Eigen::VectorXd::Constant( vectorParametersIterator->second->getParameterSize( ), 1.0E-2 ), sphericalHarmonicFieldUpdate );
 
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtVehiclePosition, partialWrtVehiclePosition, 1.0E-6 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtVehicleVelocity, partialWrtVehicleVelocity, 1.0E-6 );
@@ -812,13 +928,15 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartial )
     BOOST_CHECK_EQUAL( testPartialWrtCosineCoefficients.cols( ), 17 );
     BOOST_CHECK_EQUAL( testPartialWrtSineCoefficients.cols( ), 13 );
 
-
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtDegreeTwoLoveNumberAtSeparateOrders, testPartialWrtDegreeTwoOrderTwoLoveNumberAtSeparateOrders, 1.0E-6 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtComplexDegreeTwoLoveNumber, testPartialWrtComplexDegreeTwoLoveNumber, 1.0E-6 );
 
-
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtDegreeThreeLoveNumber, testPartialWrtDegreeThreeLoveNumber, 1.0E-6 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtComplexDegreeThreeLoveNumberAtSeparateOrder, testPartialWrtComplexDegreeThreeLoveNumberAtSeparateOrder, 1.0E-6 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtModeCoupledLoveNumbers, testPartialWrtModeCoupledLoveNumbers, 1.0E-6 );
+
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtPolynomialVariations, testPartialWrtPolynomialVariations, 1.0E-12 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtPeriodicVariations, testPartialWrtPeriodicVariations, 1.0E-12 );
 
 }
 

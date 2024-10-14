@@ -177,6 +177,12 @@ public:
     {
         return normalizeWithSpeedOfLight_;
     }
+
+    ObservationScalarType getMultiplicationTerm( )
+    {
+        return multiplicationTerm_;
+    }
+
 private:
 
     //! Object that computes the one-way Doppler observable for the uplink

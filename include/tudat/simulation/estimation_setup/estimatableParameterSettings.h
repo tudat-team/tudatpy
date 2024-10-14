@@ -15,7 +15,6 @@
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
-#include "tudat/astro/basic_astro/accelerationModelTypes.h"
 
 namespace tudat
 {
@@ -508,7 +507,7 @@ public:
     //! Constructor, sets initial value of translational state and a single central body.
     /*!
      * Constructor, sets initial value of translational state and a single central body
-     * \param associatedBody Body for which initial state is to be estimated.
+     * \param associatedBody Bo9dy for which initial state is to be estimated.
      * \param initialStateValue Current value of initial arc states (concatenated in same order as arcs)
      * \param arcStartTimes Start times for separate arcs
      * \param centralBody Body w.r.t. which the initial state is to be estimated.
@@ -900,6 +899,57 @@ public:
 
 };
 
+inline std::map< std::pair< int, int >, std::vector< std::pair< int, int > > > getFullModeCoupledLoveNumbers(
+    const unsigned int maximumForcingDegree, const unsigned int maximumResponseDegree )
+{
+    std::map< std::pair< int, int >, std::vector< std::pair< int, int > > > loveNumberIndices;
+
+    for( unsigned int i = 2; i < maximumForcingDegree; i++ )
+    {
+        for( unsigned int j = 0; j <= i; j++ )
+        {
+            for( unsigned int k = 2; k < maximumResponseDegree; k++ )
+            {
+                for( unsigned int l = 0; l <= k; k++ )
+                {
+                    loveNumberIndices[{i,j}].push_back({k,l});
+                }
+            }
+        }
+    }
+    return loveNumberIndices;
+}
+
+class ModeCoupledTidalLoveNumberEstimatableParameterSettings: public EstimatableParameterSettings
+{
+public:
+
+    //! Constructor for a single deforming body
+    /*!
+     * Constructor for a single deforming body
+     * \param associatedBody Deformed body
+     * \param degree Degree of Love number that is to be estimated
+     * \param deformingBody Name of body causing tidal deformation
+     * \param useComplexValue True if the complex Love number is estimated, false if only the real part is considered
+     */
+    ModeCoupledTidalLoveNumberEstimatableParameterSettings( const std::string& associatedBody,
+                                                            const std::map< std::pair< int, int >, std::vector< std::pair< int, int > > > loveNumberIndices,
+                                                            const std::vector< std::string >& deformingBodies,
+                                                            const bool useComplexValue = 0 ):
+        EstimatableParameterSettings( associatedBody, mode_coupled_tidal_love_numbers ),
+        loveNumberIndices_( loveNumberIndices ),
+        deformingBodies_( deformingBodies ), useComplexValue_( useComplexValue ){ }
+
+    std::map< std::pair< int, int >, std::vector< std::pair< int, int > > > loveNumberIndices_;
+
+    //! Names of bodies causing tidal deformation
+    std::vector< std::string > deformingBodies_;
+
+    bool useComplexValue_;
+
+};
+
+
 //! Class to define settings for estimating the tidal time lag of a direct tidal acceleration model
 /*!
  *  Class to define settings for estimating the tidal time lag of a direct tidal acceleration model, it links to one or more
@@ -987,6 +1037,54 @@ public:
     std::vector< std::string > deformingBodies_;
 
 };
+
+
+class PolynomialGravityFieldVariationEstimatableParameterSettings: public EstimatableParameterSettings
+{
+public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param associatedBody Body being deformed
+     * \param deformingBody Body causing deformed
+     */
+    PolynomialGravityFieldVariationEstimatableParameterSettings(
+        const std::string &associatedBody,
+        const std::map<int, std::vector<std::pair<int, int> > >& cosineBlockIndicesPerPower,
+        const std::map<int, std::vector<std::pair<int, int> > >& sineBlockIndicesPerPower ) :
+        EstimatableParameterSettings( associatedBody, polynomial_gravity_field_variation_amplitudes ),
+        cosineBlockIndicesPerPower_( cosineBlockIndicesPerPower ),
+        sineBlockIndicesPerPower_( sineBlockIndicesPerPower ){ }
+
+    std::map< int, std::vector< std::pair< int, int > > > cosineBlockIndicesPerPower_;
+    std::map< int, std::vector< std::pair< int, int > > > sineBlockIndicesPerPower_;
+
+};
+
+class PeriodicGravityFieldVariationEstimatableParameterSettings: public EstimatableParameterSettings
+{
+public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param associatedBody Body being deformed
+     * \param deformingBody Body causing deformed
+     */
+    PeriodicGravityFieldVariationEstimatableParameterSettings(
+        const std::string &associatedBody,
+        const std::map<int, std::vector<std::pair<int, int> > >& cosineBlockIndicesPerPower,
+        const std::map<int, std::vector<std::pair<int, int> > >& sineBlockIndicesPerPower ) :
+        EstimatableParameterSettings( associatedBody, periodic_gravity_field_variation_amplitudes ),
+        cosineBlockIndicesPerPower_( cosineBlockIndicesPerPower ),
+        sineBlockIndicesPerPower_( sineBlockIndicesPerPower ){ }
+
+    std::map< int, std::vector< std::pair< int, int > > > cosineBlockIndicesPerPower_;
+    std::map< int, std::vector< std::pair< int, int > > > sineBlockIndicesPerPower_;
+
+};
+
 
 class CustomEstimatableParameterSettings: public EstimatableParameterSettings
 {
@@ -1326,6 +1424,14 @@ inline std::shared_ptr< EstimatableParameterSettings > groundStationPosition(
     return std::make_shared< EstimatableParameterSettings >( body, ground_station_position, groundStationName );
 }
 
+inline std::shared_ptr< EstimatableParameterSettings > referencePointPosition(
+    const std::string& body,
+    const std::string& groundStationName )
+{
+    return std::make_shared< EstimatableParameterSettings >( body, reference_point_position, groundStationName );
+}
+
+
 inline std::shared_ptr< EstimatableParameterSettings > directTidalDissipationLagTime(
         const std::string& body,
         const std::vector< std::string >& deformingBodies )
@@ -1431,6 +1537,14 @@ inline std::shared_ptr< EstimatableParameterSettings > orderVaryingKLoveNumber(
                 associatedBody, degree, orders, std::vector< std::string >( ), useComplexValue );
 }
 
+inline std::shared_ptr< EstimatableParameterSettings > modeCoupledTidalLoveNumberEstimatableParameterSettings(
+    const std::string& associatedBody,
+    const std::map< std::pair< int, int >, std::vector< std::pair< int, int > > > loveNumberIndices,
+    const std::vector< std::string >& deformingBodies )
+{
+    return std::make_shared< ModeCoupledTidalLoveNumberEstimatableParameterSettings >(
+        associatedBody, loveNumberIndices, deformingBodies, 0 );
+}
 
 inline std::shared_ptr< EstimatableParameterSettings > coreFactor(
         const std::string& associatedBody )
@@ -1478,6 +1592,57 @@ inline std::shared_ptr< EstimatableParameterSettings > yarkovskyParameter( const
     return std::make_shared< EstimatableParameterSettings >( bodyName, yarkovsky_parameter, centralBodyName );
 }
 
+inline std::shared_ptr< EstimatableParameterSettings > radiationPressureTargetDirectionScaling(
+    const std::string targetName, const std::string sourceName )
+{
+    return std::make_shared< EstimatableParameterSettings >( targetName, source_direction_radiation_pressure_scaling_factor, sourceName );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > radiationPressureTargetPerpendicularDirectionScaling(
+    const std::string targetName, const std::string sourceName )
+{
+    return std::make_shared< EstimatableParameterSettings >( targetName, source_perpendicular_direction_radiation_pressure_scaling_factor, sourceName );
+}
+
+
+
+inline std::shared_ptr< EstimatableParameterSettings > polynomialGravityFieldVariationParameter(
+    const std::string bodyName,
+    const std::map<int, std::vector<std::pair<int, int> > >& cosineBlockIndicesPerPower,
+    const std::map<int, std::vector<std::pair<int, int> > >& sineBlockIndicesPerPower )
+{
+    return std::make_shared< PolynomialGravityFieldVariationEstimatableParameterSettings >( bodyName, cosineBlockIndicesPerPower, sineBlockIndicesPerPower );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > polynomialSinglePowerGravityFieldVariationParameter(
+    const std::string bodyName,
+    const int power,
+    const std::vector<std::pair<int, int> >& cosineBlockIndices,
+    const std::vector<std::pair<int, int> >& sineBlockIndices )
+{
+    return std::make_shared< PolynomialGravityFieldVariationEstimatableParameterSettings >(
+        bodyName,
+        std::map<int, std::vector<std::pair<int, int> > >( { { power, cosineBlockIndices } } ),
+        std::map<int, std::vector<std::pair<int, int> > >( { { power, sineBlockIndices } } ) );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > polynomialSinglePowerFullBlockGravityFieldVariationParameter(
+    const std::string bodyName,
+    const int power,
+    const int minimumDegree,
+    const int minimumOrder,
+    const int maximumDegree,
+    const int maximumOrder )
+{
+
+    std::vector< std::pair< int, int > > blockIndices = getSphericalHarmonicBlockIndices( minimumDegree, minimumOrder, maximumDegree, maximumOrder );
+
+    return std::make_shared< PolynomialGravityFieldVariationEstimatableParameterSettings >(
+        bodyName,
+        std::map<int, std::vector<std::pair<int, int> > >( { { power, blockIndices } } ),
+        std::map<int, std::vector<std::pair<int, int> > >( { { power, blockIndices } } ) );
+}
+
 inline std::shared_ptr< EstimatableParameterSettings > customParameterSettings(
     const std::string& customId,
     const int parameterSize,
@@ -1487,9 +1652,6 @@ inline std::shared_ptr< EstimatableParameterSettings > customParameterSettings(
     return std::make_shared<CustomEstimatableParameterSettings>(
         customId, parameterSize, getParameterFunction, setParameterFunction );
 }
-
-
-
 
 } // namespace estimatable_parameters
 

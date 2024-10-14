@@ -80,6 +80,7 @@ double computeMinimumLinkDistanceToPoint( const Eigen::Vector3d& observingBody,
     Eigen::Vector3d observerToPoint = relativePoint - observingBody;
     Eigen::Vector3d transmitterToPoint = relativePoint - transmittingBody;
     Eigen::Vector3d transmitterToObserver = observingBody - transmittingBody;
+    Eigen::Vector3d observerToTransmitter = transmittingBody - observingBody;
 
     double transmitterAngle = transmitterToObserver.dot( transmitterToPoint );
     double observerAngle = transmitterToObserver.dot( observerToPoint );
@@ -91,18 +92,20 @@ double computeMinimumLinkDistanceToPoint( const Eigen::Vector3d& observingBody,
     {
         if( std::fabs( transmitterAngle ) < std::fabs( observerAngle ) )
         {
-            minimumDistance = transmitterAngle;
+            minimumDistance = transmitterToPoint.norm( );
         }
         else
         {
-            minimumDistance = observerAngle;
+            minimumDistance = observerToPoint.norm( );
         }
     }
 
     // Minimum distance is impact parameter
     else
     {
-        minimumDistance = ( transmitterToObserver.cross( transmitterToPoint ) ).norm( ) / transmitterToObserver.norm( );
+        // Compute as average value with both points as reference, to minimuze numerical errors
+        minimumDistance = ( ( transmitterToObserver.cross( transmitterToPoint ) ).norm( ) / transmitterToObserver.norm( ) +
+            ( observerToTransmitter.cross( observerToPoint ) ).norm( ) / observerToTransmitter.norm( ) ) / 2.0;
     }
 
     return minimumDistance;

@@ -26,6 +26,7 @@
 #include "tudat/astro/orbit_determination/acceleration_partials/aerodynamicAccelerationPartial.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/mutualSphericalHarmonicGravityPartial.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/empiricalAccelerationPartial.h"
+#include "tudat/astro/orbit_determination/acceleration_partials/einsteinInfeldHoffmannPartials.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/directTidalDissipationAccelerationPartial.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/panelledRadiationPressureAccelerationPartial.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/thrustAccelerationPartial.h"
@@ -841,6 +842,8 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAc
     return accelerationPartial;
 }
 
+std::map< std::string, std::shared_ptr< acceleration_partials::AccelerationPartial > > createEihAccelerationPartials(
+    const std::map< std::string, std::shared_ptr< relativity::EinsteinInfeldHoffmannAcceleration > > eihAccelerations );
 
 //! This function creates acceleration partial objects for translational dynamics
 /*!
@@ -872,7 +875,8 @@ orbit_determination::StateDerivativePartialsMap createAccelerationPartialsMap(
     accelerationPartialsList.resize( initialDynamicalParameters.size( ) );
 
     // Iterate over list of bodies of which the partials of the accelerations acting on them are required.
-    int bodyCounter = 0;
+//    int bodyCounter = 0;
+    std::map< std::string, std::shared_ptr< relativity::EinsteinInfeldHoffmannAcceleration > > eihAccelerations;
     for( basic_astrodynamics::AccelerationMap::const_iterator accelerationIterator = accelerationMap.begin( );
          accelerationIterator != accelerationMap.end( ); accelerationIterator++ )
     {
@@ -909,19 +913,41 @@ orbit_determination::StateDerivativePartialsMap createAccelerationPartialsMap(
 
                         for( unsigned int j = 0; j < innerAccelerationIterator->second.size( ); j++ )
                         {
-                            // Create single partial object
-                            std::shared_ptr< acceleration_partials::AccelerationPartial > currentAccelerationPartial =
+                            if( basic_astrodynamics::getAccelerationModelType( innerAccelerationIterator->second[ j ] ) !=
+                                basic_astrodynamics::einstein_infeld_hoffmann_acceleration )
+                            {
+                                // Create single partial object
+                                std::shared_ptr<acceleration_partials::AccelerationPartial> currentAccelerationPartial =
                                     createAnalyticalAccelerationPartial(
                                         innerAccelerationIterator->second[ j ],
                                         std::make_pair( acceleratedBody, acceleratedBodyObject ),
                                         std::make_pair( acceleratingBody, acceleratingBodyObject ),
                                         bodies, parametersToEstimate );
 
-                            if( currentAccelerationPartial != nullptr )
+                                if ( currentAccelerationPartial != nullptr )
+                                {
+                                    accelerationPartialVector.push_back( currentAccelerationPartial );
+                                    accelerationPartialsMap[ acceleratedBody ][ acceleratingBody ].push_back(
+                                        currentAccelerationPartial );
+                                }
+                            }
+                            else
                             {
-                                accelerationPartialVector.push_back( currentAccelerationPartial );
-                                accelerationPartialsMap[ acceleratedBody ][ acceleratingBody ].push_back(
-                                            currentAccelerationPartial );
+                                std::shared_ptr< relativity::EinsteinInfeldHoffmannAcceleration > eihAcceleration = std::dynamic_pointer_cast<
+                                    relativity::EinsteinInfeldHoffmannAcceleration >( innerAccelerationIterator->second[ j ] );
+                                if( eihAcceleration == nullptr )
+                                {
+                                    throw std::runtime_error( "Error when making acceleration partials, eih acceleration has incomaptible type" );
+                                }
+                                else if( eihAccelerations.count( acceleratedBody ) != 0 )
+                                {
+                                    throw std::runtime_error( "Error when making acceleration partials, multiple eih accelerations found for single body " + acceleratedBody );
+                                }
+                                else
+                                {
+                                    eihAccelerations[ acceleratedBody ] = eihAcceleration;
+                                }
+
                             }
                         }
                     }
@@ -929,9 +955,29 @@ orbit_determination::StateDerivativePartialsMap createAccelerationPartialsMap(
                     // Add partials of current body's accelerations to vector.
                     accelerationPartialsList[ i ] = accelerationPartialVector;
 
-                    bodyCounter++;
+//                    bodyCounter++;
                 }
             }
+        }
+    }
+
+    if( eihAccelerations.size( ) > 0 )
+    {
+        std::map< std::string, std::shared_ptr< acceleration_partials::AccelerationPartial > >  eihPartials = createEihAccelerationPartials(
+            eihAccelerations );
+        unsigned int additionCounter =  0;
+        for( unsigned int i = 0; i < initialDynamicalParameters.size( ); i++ )
+        {
+            if ( eihPartials.count( initialDynamicalParameters.at( i )->getParameterName( ).second.first ) > 0 )
+            {
+                accelerationPartialsList[ i ].push_back( eihPartials.at( initialDynamicalParameters.at( i )->getParameterName( ).second.first ) );
+                additionCounter++;
+            }
+        }
+
+        if( !( additionCounter == eihPartials.size() ) )
+        {
+            throw std::runtime_error( "Error when making acceleration partials, not all eih partials have been used" );
         }
     }
     return accelerationPartialsList;

@@ -1,9 +1,0 @@
-
-BasedOnStyle: LLVM
-IndentWidth: 4
-
-ExperimentalAutoDetectBinPacking: false
-AllowAllParametersOfDeclarationOnNextLine: false
-BinPackArguments: false
-BinPackParameters: false
-
