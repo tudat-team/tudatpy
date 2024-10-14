@@ -739,6 +739,40 @@ private:
 
 extern template class DynamicsStateDerivativeModel< double, double >;
 
+inline std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAccelerationBetweenBodies(
+    const std::string bodyUndergoingAcceleration,
+    const std::string bodyExertingAcceleration,
+    const basic_astrodynamics::AccelerationMap& accelerationModelList,
+    const basic_astrodynamics::AvailableAcceleration accelerationModelType )
+{
+    std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > >
+        listOfSuitableAccelerationModels;
+    if( accelerationModelList.count( bodyUndergoingAcceleration ) == 0 )
+    {
+
+        std::string errorMessage = "Error when getting acceleration between bodies, no translational dynamics models acting on " +
+                                   bodyUndergoingAcceleration + " are found";
+        throw std::runtime_error( errorMessage );
+    }
+    else
+    {
+        // Retrieve accelerations acting on bodyUndergoingAcceleration
+        if( accelerationModelList.at( bodyUndergoingAcceleration ).count( bodyExertingAcceleration ) == 0 )
+        {
+            std::string errorMessage = "Error when getting acceleration between bodies, no translational dynamics models by " +
+                                       bodyExertingAcceleration + " acting on " + bodyUndergoingAcceleration + " are found";
+            throw std::runtime_error( errorMessage );
+        }
+        else
+        {
+            // Retrieve required acceleration.
+            listOfSuitableAccelerationModels = basic_astrodynamics::getAccelerationModelsOfType(
+                accelerationModelList.at( bodyUndergoingAcceleration ).at( bodyExertingAcceleration ), accelerationModelType );
+        }
+    }
+    return listOfSuitableAccelerationModels;
+}
+
 //! Function to retrieve a single given acceleration model from a list of models
 /*!
  *  Function to retrieve a single given acceleration model, determined by
@@ -766,30 +800,9 @@ std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAc
         basic_astrodynamics::AccelerationMap accelerationModelList =
                 std::dynamic_pointer_cast< NBodyStateDerivative< StateScalarType, TimeType > >(
                     stateDerivativeModels.at( propagators::translational_state ).at( 0 ) )->getFullAccelerationsMap( );
+        listOfSuitableAccelerationModels = getAccelerationBetweenBodies(
+            bodyUndergoingAcceleration, bodyExertingAcceleration, accelerationModelList, accelerationModelType );
 
-        if( accelerationModelList.count( bodyUndergoingAcceleration ) == 0 )
-        {
-
-            std::string errorMessage = "Error when getting acceleration between bodies, no translational dynamics models acting on " +
-                    bodyUndergoingAcceleration + " are found";
-            throw std::runtime_error( errorMessage );
-        }
-        else
-        {
-            // Retrieve accelerations acting on bodyUndergoingAcceleration
-            if( accelerationModelList.at( bodyUndergoingAcceleration ).count( bodyExertingAcceleration ) == 0 )
-            {
-                std::string errorMessage = "Error when getting acceleration between bodies, no translational dynamics models by " +
-                        bodyExertingAcceleration + " acting on " + bodyUndergoingAcceleration + " are found";
-                throw std::runtime_error( errorMessage );
-            }
-            else
-            {
-                // Retrieve required acceleration.
-                listOfSuitableAccelerationModels = basic_astrodynamics::getAccelerationModelsOfType(
-                            accelerationModelList.at( bodyUndergoingAcceleration ).at( bodyExertingAcceleration ), accelerationModelType );
-            }
-        }
     }
     else
     {
@@ -797,6 +810,54 @@ std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAc
         throw std::runtime_error( errorMessage );
     }
     return listOfSuitableAccelerationModels;
+}
+
+inline std::shared_ptr< relativity::EinsteinInfeldHoffmannEquations > getEihEquationsFromAccelerationMap(
+    const basic_astrodynamics::AccelerationMap& accelerationModelList )
+{
+    std::vector< std::shared_ptr< relativity::EinsteinInfeldHoffmannAcceleration > > eihAccelerations;
+    for( auto it : accelerationModelList )
+    {
+        try
+        {
+            std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > suitableAccelerations =
+                getAccelerationBetweenBodies( it.first, "", accelerationModelList,
+                                          basic_astrodynamics::einstein_infeld_hoffmann_acceleration );
+            if( suitableAccelerations.size( ) != 1 )
+            {
+                throw std::runtime_error( "Error when getting EIH accelerations from bodies, multiple EIH accelerations found for " +
+                    it.first );
+            }
+            else if( std::dynamic_pointer_cast< relativity::EinsteinInfeldHoffmannAcceleration >( suitableAccelerations.at( 0 ) ) == nullptr )
+            {
+                throw std::runtime_error( "Error when getting EIH accelerations from bodies, EIH acceleration is not of correct type for " +
+                                          it.first );
+            }
+            else
+            {
+                eihAccelerations.push_back( std::dynamic_pointer_cast< relativity::EinsteinInfeldHoffmannAcceleration >( suitableAccelerations.at( 0 ) ) );
+            }
+        }
+        catch( ... )
+        {
+
+        }
+    }
+
+    if( eihAccelerations.size( ) == 0 )
+    {
+        throw std::runtime_error( "Error when getting EIH accelerations from bodies, no EIH accelerations found" );
+    }
+    std::shared_ptr< relativity::EinsteinInfeldHoffmannEquations > eihEquations = eihAccelerations.at( 0 )->getEihEquations( );
+    for( unsigned int i = 1; i < eihAccelerations.size( ); i++ )
+    {
+        if( eihEquations != eihAccelerations.at( i )->getEihEquations( ) )
+        {
+            throw std::runtime_error( "Error when getting EIH accelerations from bodies, EIH equations objects are incompatible" );
+        }
+    }
+
+    return eihEquations;
 }
 
 //! Function to retrieve a single given torque model from a list of models

@@ -326,6 +326,35 @@ protected:
                     }
                     break;
                 }
+                case use_nan_value:
+                case use_nan_value_with_warning:
+                {
+                    // Warn user, if requested
+                    if ( boundaryHandling_ == use_nan_value_with_warning )
+                    {
+                        std::string errorMessage = "Warning in interpolator, requesting data point outside of boundaries, requested data at " +
+                                                   boost::lexical_cast< std::string >( targetIndependentVariable ) + " but limit values are " +
+                                                   boost::lexical_cast< std::string >( independentValues_.front( ) ) + " and " +
+                                                   boost::lexical_cast< std::string >( independentValues_.back( ) ) + ", taking NaN value instead.";
+                        std::cerr << errorMessage << std::endl;
+                    }
+
+                    // Get default value
+                    useValue = true;
+                    if ( isAtBoundary == -1 )
+                    {
+                        dependentVariable = IdentityElement::getNanIdentity< DependentVariableType >( dependentVariable );
+                    }
+                    else if ( isAtBoundary == 1 )
+                    {
+                        dependentVariable = IdentityElement::getNanIdentity< DependentVariableType >( dependentVariable );
+                    }
+                    else
+                    {
+                        throw std::runtime_error( "Error when checking interpolation boundary, inconsistent data encountered" );
+                    }
+                    break;
+                }
                 default:
                     throw std::runtime_error( "Error when checking interpolation boundary, boundary handling method not recognized." );
                 }
@@ -351,17 +380,15 @@ protected:
         case binarySearch:
         {
             // Create binary search look up scheme.
-            lookUpScheme_ = std::shared_ptr< LookUpScheme< IndependentVariableType > >
-                    ( new BinarySearchLookupScheme< IndependentVariableType >
-                      ( independentValues_ ) );
+            lookUpScheme_ = std::make_shared< BinarySearchLookupScheme< IndependentVariableType > >
+                      ( independentValues_ );
             break;
         }
         case huntingAlgorithm:
         {
             // Create hunting scheme, which uses an intial guess from previous look-ups.
-            lookUpScheme_ = std::shared_ptr< LookUpScheme< IndependentVariableType > >
-                    ( new HuntingAlgorithmLookupScheme< IndependentVariableType >
-                      ( independentValues_ ) );
+            lookUpScheme_ = std::make_shared< HuntingAlgorithmLookupScheme< IndependentVariableType > >
+                      ( independentValues_ );
             break;
         }
         default:

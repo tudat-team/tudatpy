@@ -75,6 +75,9 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
     case ground_station_position:
         parameterDescription = "ground station position ";
         break;
+    case reference_point_position:
+        parameterDescription = "reference point position ";
+        break;
     case equivalence_principle_lpi_violation_parameter:
         parameterDescription = " equivalence principle violation parameter ";
         break;
@@ -152,6 +155,18 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
         break;
     case custom_estimated_parameter:
         parameterDescription = " Custom parameter ";
+        break;
+    case polynomial_gravity_field_variation_amplitudes:
+        parameterDescription = " Polynomial gravity field variations ";
+        break;
+    case source_direction_radiation_pressure_scaling_factor:
+        parameterDescription = " Radiation pressure acceleration scaling factor to source ";
+        break;
+    case source_perpendicular_direction_radiation_pressure_scaling_factor:
+        parameterDescription = " Radiation pressure acceleration scaling factor perpendicular to source ";
+        break;
+    case mode_coupled_tidal_love_numbers:
+        parameterDescription = " Mode-coupled tidal Love numbers";
         break;
     default:
         std::string errorMessage = "Error when getting parameter string, did not recognize parameter " +
@@ -240,6 +255,9 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
     case ground_station_position:
         isDoubleParameter = false;
         break;
+    case reference_point_position:
+        isDoubleParameter = false;
+        break;
     case equivalence_principle_lpi_violation_parameter:
         isDoubleParameter = true;
         break;
@@ -310,6 +328,21 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
         isDoubleParameter = true;
         break;
     case custom_estimated_parameter:
+        isDoubleParameter = false;
+        break;
+    case polynomial_gravity_field_variation_amplitudes:
+        isDoubleParameter = false;
+        break;
+    case periodic_gravity_field_variation_amplitudes:
+        isDoubleParameter = false;
+        break;
+    case source_direction_radiation_pressure_scaling_factor:
+        isDoubleParameter = true;
+        break;
+    case source_perpendicular_direction_radiation_pressure_scaling_factor:
+        isDoubleParameter = true;
+        break;
+    case mode_coupled_tidal_love_numbers:
         isDoubleParameter = false;
         break;
     default:
@@ -428,6 +461,28 @@ bool isParameterTidalProperty( const EstimatebleParametersEnum parameterType )
         flag = true;
         break;
     case single_degree_variable_tidal_love_number:
+        flag = true;
+        break;
+    case mode_coupled_tidal_love_numbers:
+        flag = true;
+        break;
+    default:
+        flag = false;
+        break;
+    }
+    return flag;
+}
+
+//! Function to determine whether the given parameter influences a body's tidal gravity field variations.
+bool isParameterNonTidalGravityFieldVariationProperty( const EstimatebleParametersEnum parameterType )
+{
+    bool flag;
+    switch( parameterType )
+    {
+    case polynomial_gravity_field_variation_amplitudes:
+        flag = true;
+        break;
+    case periodic_gravity_field_variation_amplitudes:
         flag = true;
         break;
     default:

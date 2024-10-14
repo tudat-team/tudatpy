@@ -105,6 +105,7 @@ BOOST_AUTO_TEST_CASE( testConstantTimeBias )
 
 
     // Check link end times
+    std::cout<<unbiasedLinkEndTimes[ 1 ]<<" "<<biasedLinkEndTimes[ 1 ]<<" "<<timeBias<<std::endl;
     BOOST_CHECK_CLOSE_FRACTION( static_cast< double >( unbiasedLinkEndTimes[ 1 ] - biasedLinkEndTimes[ 1 ] ), timeBias, std::numeric_limits< double >::epsilon( ) );
 
     // Check link end states

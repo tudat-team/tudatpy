@@ -442,6 +442,17 @@ public:
     const IndependentType timeStep_;
 };
 
+template< typename IndependentType >
+inline std::shared_ptr< InterpolatorGenerationSettings< IndependentType > > interpolatorGenerationSettings(
+    const std::shared_ptr< InterpolatorSettings > interpolatorSettings,
+    const IndependentType initialTime,
+    const IndependentType finalTime,
+    const IndependentType timeStep  )
+{
+    return std::make_shared< InterpolatorGenerationSettings< IndependentType > >(
+        interpolatorSettings, initialTime, finalTime, timeStep );
+}
+
 //! Class containing (the settings to create) the data needed for the interpolation and the settings to create the
 //! interpolator.
 /*!

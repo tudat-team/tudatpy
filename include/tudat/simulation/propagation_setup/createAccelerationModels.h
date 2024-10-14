@@ -26,6 +26,9 @@
 #include "tudat/astro/basic_astro/empiricalAcceleration.h"
 #include "tudat/astro/ephemerides/frameManager.h"
 #include "tudat/astro/gravitation/directTidalDissipationAcceleration.h"
+#include "tudat/astro/relativity/einsteinInfeldHoffmannEquations.h"
+#include "tudat/astro/relativity/einsteinInfeldHoffmannAcceleration.h"
+#include "tudat/astro/relativity/metric.h"
 
 namespace tudat
 {
@@ -398,7 +401,8 @@ createRadiationPressureAccelerationModel(
         const std::shared_ptr< Body > bodyExertingAcceleration,
         const std::string& nameOfBodyUndergoingAcceleration,
         const std::string& nameOfBodyExertingAcceleration,
-        const SystemOfBodies& bodies );
+        const SystemOfBodies& bodies,
+        const std::shared_ptr< AccelerationSettings > accelerationSetting = nullptr );
 
 
 //! Function to create a thrust acceleration model.
@@ -543,6 +547,12 @@ createAccelerationModel(
  */
 SelectedAccelerationList orderSelectedAccelerationMap( const SelectedAccelerationMap& selectedAccelerationPerBody );
 
+void addEihAccelerations(
+    const SystemOfBodies& bodies,
+    const std::map< std::string, std::vector< std::string > > orderedEihBodies,
+    const std::map< std::string, std::string >& centralBodies,
+    basic_astrodynamics::AccelerationMap& accelerationMap );
+
 //! Function to create acceleration models from a map of bodies and acceleration model types.
 /*!
  *  Function to create acceleration models from a map of bodies and acceleration model types.
@@ -559,131 +569,10 @@ SelectedAccelerationList orderSelectedAccelerationMap( const SelectedAcceleratio
 //        const SelectedAccelerationMap& selectedAccelerationPerBody,
 //        const std::map< std::string, std::string >& centralBodies );
 //! Function to create a set of acceleration models from a map of bodies and acceleration model types.
-inline basic_astrodynamics::AccelerationMap createAccelerationModelsMap(
+basic_astrodynamics::AccelerationMap createAccelerationModelsMap(
         const SystemOfBodies& bodies,
         const SelectedAccelerationMap& selectedAccelerationPerBody,
-        const std::map< std::string, std::string >& centralBodies )
-{
-    // Declare return map.
-    basic_astrodynamics::AccelerationMap accelerationModelMap;
-
-    // Put selectedAccelerationPerBody in correct order
-    SelectedAccelerationList orderedAccelerationPerBody =
-            orderSelectedAccelerationMap( selectedAccelerationPerBody );
-
-    // Iterate over all bodies which are undergoing acceleration
-    for( SelectedAccelerationList::const_iterator bodyIterator =
-         orderedAccelerationPerBody.begin( ); bodyIterator != orderedAccelerationPerBody.end( );
-         bodyIterator++ )
-    {
-        std::shared_ptr< Body > currentCentralBody;
-
-        // Retrieve name of body undergoing acceleration.
-        std::string bodyUndergoingAcceleration = bodyIterator->first;
-
-        // Retrieve name of current central body.
-        std::string currentCentralBodyName = centralBodies.at( bodyUndergoingAcceleration );
-
-        if( !ephemerides::isFrameInertial( currentCentralBodyName ) )
-        {
-            if( bodies.count( currentCentralBodyName ) == 0 )
-            {
-                throw std::runtime_error(
-                            std::string( "Error, could not find non-inertial central body ") +
-                            currentCentralBodyName + " of " + bodyUndergoingAcceleration +
-                            " when making acceleration model." );
-            }
-            else
-            {
-                currentCentralBody = bodies.at( currentCentralBodyName );
-            }
-        }
-
-        // Check if body undergoing acceleration is included in bodies
-        if( bodies.count( bodyUndergoingAcceleration ) ==  0 )
-        {
-            throw std::runtime_error(
-                        std::string( "Error when making acceleration models, requested forces" ) +
-                        "acting on body " + bodyUndergoingAcceleration  +
-                        ", but no such body found in map of bodies" );
-        }
-
-        // Declare map of acceleration models acting on current body.
-        basic_astrodynamics::SingleBodyAccelerationMap mapOfAccelerationsForBody;
-
-        // Retrieve list of required acceleration model types and bodies exerting accelerationd on
-        // current body.
-        std::vector< std::pair< std::string, std::shared_ptr< AccelerationSettings > > >
-                accelerationsForBody = bodyIterator->second;
-
-        std::vector< std::pair< std::string, std::shared_ptr< AccelerationSettings > > > thrustAccelerationSettings;
-
-        std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > currentAcceleration;
-
-        // Iterate over all bodies exerting an acceleration
-        for( unsigned int i = 0; i < accelerationsForBody.size( ); i++ )
-        {
-            // Retrieve name of body exerting acceleration.
-            std::string bodyExertingAcceleration = accelerationsForBody.at( i ).first;
-
-            // Check if body exerting acceleration is included in bodies
-            if( bodies.count( bodyExertingAcceleration ) ==  0 )
-            {
-                throw std::runtime_error(
-                            std::string( "Error when making acceleration models, requested forces ")
-                            + "acting on body " + bodyUndergoingAcceleration  + " due to body " +
-                            bodyExertingAcceleration +
-                            ", but no such body found in map of bodies" );
-            }
-
-            if( !( accelerationsForBody.at( i ).second->accelerationType_ == basic_astrodynamics::thrust_acceleration ) )
-            {
-                currentAcceleration = createAccelerationModel( bodies.at( bodyUndergoingAcceleration ),
-                                                               bodies.at( bodyExertingAcceleration ),
-                                                               accelerationsForBody.at( i ).second,
-                                                               bodyUndergoingAcceleration,
-                                                               bodyExertingAcceleration,
-                                                               currentCentralBody,
-                                                               currentCentralBodyName,
-                                                               bodies );
-
-
-                // Create acceleration model.
-                mapOfAccelerationsForBody[ bodyExertingAcceleration ].push_back(
-                            currentAcceleration );
-            }
-            else
-            {
-                thrustAccelerationSettings.push_back( accelerationsForBody.at( i ) );
-            }
-
-        }
-
-        // Create thrust accelerations last
-        for( unsigned int i = 0; i < thrustAccelerationSettings.size( ); i++ )
-        {
-            currentAcceleration = createAccelerationModel( bodies.at( bodyUndergoingAcceleration ),
-                                                           bodies.at( thrustAccelerationSettings.at( i ).first ),
-                                                           thrustAccelerationSettings.at( i ).second,
-                                                           bodyUndergoingAcceleration,
-                                                           thrustAccelerationSettings.at( i ).first,
-                                                           currentCentralBody,
-                                                           currentCentralBodyName,
-                                                           bodies );
-
-
-            // Create acceleration model.
-            mapOfAccelerationsForBody[ thrustAccelerationSettings.at( i ).first  ].push_back(
-                        currentAcceleration );
-        }
-
-
-        // Put acceleration models on current body in return map.
-        accelerationModelMap[ bodyUndergoingAcceleration ] = mapOfAccelerationsForBody;
-    }
-
-    return accelerationModelMap;
-}
+        const std::map< std::string, std::string >& centralBodies );
 
 //! Function to create acceleration models from a map of bodies and acceleration model types.
 /*!

@@ -165,6 +165,14 @@ public:
      */
     std::string getReferenceFrameOrientation( ) { return referenceFrameOrientation_; }
 
+    Eigen::Vector3d getCartesianAcceleration( const double time, const double finiteDifferenceStep )
+    {
+        return (
+            -getCartesianVelocity( time + 2.0 * finiteDifferenceStep )
+            + 8.0 * getCartesianVelocity( time + finiteDifferenceStep )
+            - 8.0 * getCartesianVelocity( time - finiteDifferenceStep )
+            + getCartesianVelocity( time - 2.0 * finiteDifferenceStep ) ) / ( 12.0 * finiteDifferenceStep );
+    }
 protected:
 
     //! Reference frame origin.

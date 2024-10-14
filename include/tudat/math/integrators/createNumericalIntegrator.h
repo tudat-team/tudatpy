@@ -388,7 +388,8 @@ public:
  *  Class to define settings of fixed step RK numerical integrator, that can take distinct Butcher tableaus.
  */
 template< typename IndependentVariableType = double >
-class RungeKuttaFixedStepSizeSettings: public IntegratorSettings< IndependentVariableType >
+class
+RungeKuttaFixedStepSizeSettings: public IntegratorSettings< IndependentVariableType >
 {
 public:
 

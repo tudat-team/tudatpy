@@ -23,6 +23,7 @@
 #include "tudat/astro/propulsion/thrustAccelerationModel.h"
 #include "tudat/astro/propulsion/massRateFromThrust.h"
 #include "tudat/astro/relativity/relativisticAccelerationCorrection.h"
+#include "tudat/astro/relativity/einsteinInfeldHoffmannAcceleration.h"
 #include "tudat/astro/basic_astro/empiricalAcceleration.h"
 #include "tudat/astro/propulsion/massRateFromThrust.h"
 #include "tudat/astro/electromagnetism/radiationPressureAcceleration.h"
@@ -64,6 +65,7 @@ enum AvailableAcceleration
     radiation_pressure,
     momentum_wheel_desaturation_acceleration,
     custom_acceleration,
+    einstein_infeld_hoffmann_acceleration,
     yarkovsky_acceleration
 };
 
@@ -119,6 +121,8 @@ AvailableMassRateModels getMassRateModelType(
 std::vector< std::shared_ptr< AccelerationModel3d > > getAccelerationModelsOfType(
         const std::vector< std::shared_ptr< AccelerationModel3d > >& fullList,
         const AvailableAcceleration modelType );
+
+
 
 // Function to check whether an acceleration type is a direct gravitational acceleration
 /*

@@ -13,6 +13,7 @@
 
 #include "tudat/astro/electromagnetism/radiationPressureAcceleration.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/accelerationPartial.h"
+#include "tudat/astro/orbit_determination/acceleration_partials/radiationPressureAccelerationPartial.h"
 
 namespace tudat
 {
@@ -172,6 +173,44 @@ public:
                                          customAccelerationPartialSet_->customDoubleParameterPartials_.at( parameter->getParameterName() ) );
             parameterSize = 1;
         }
+        else if( parameter->getParameterName( ).first == estimatable_parameters::radiation_pressure_coefficient &&
+            parameter->getParameterName( ).second.first == acceleratedBody_ )
+        {
+            if ( std::dynamic_pointer_cast<electromagnetism::CannonballRadiationPressureTargetModel>(
+                radiationPressureAcceleration_->getTargetModel( ) ) != nullptr )
+            {
+                partialFunction = std::bind( &RadiationPressureAccelerationPartial::wrtRadiationPressureCoefficient,
+                                             this, std::placeholders::_1, std::dynamic_pointer_cast<electromagnetism::CannonballRadiationPressureTargetModel>(
+                        radiationPressureAcceleration_->getTargetModel( ) ) );
+                parameterSize = 1;
+            }
+        }
+        // Check if parameter dependency exists.
+        else if( parameter->getParameterName( ).second.first == acceleratedBody_ && parameter->getParameterName( ).second.second == acceleratingBody_ )
+        {
+            switch( parameter->getParameterName( ).first )
+            {
+            case estimatable_parameters::source_direction_radiation_pressure_scaling_factor:
+
+                partialFunction = std::bind( &computeRadiationPressureAccelerationWrtSourceDirectionScaling,
+                                             radiationPressureAcceleration_,
+                                             std::placeholders::_1 );
+                parameterSize = 1;
+
+                break;
+            case estimatable_parameters::source_perpendicular_direction_radiation_pressure_scaling_factor:
+
+                partialFunction = std::bind( &computeRadiationPressureAccelerationWrtSourcePerpendicularDirectionScaling,
+                                             radiationPressureAcceleration_,
+                                             std::placeholders::_1 );
+                parameterSize = 1;
+
+                break;
+            default:
+                break;
+            }
+        }
+
         return std::make_pair( partialFunction, parameterSize );
     }
 
@@ -206,6 +245,9 @@ public:
     void update( const double currentTime = TUDAT_NAN );
 
 protected:
+
+    void wrtRadiationPressureCoefficient(
+        Eigen::MatrixXd& partial, std::shared_ptr< electromagnetism::CannonballRadiationPressureTargetModel > targetModel );
 
     std::shared_ptr< electromagnetism::PaneledSourceRadiationPressureAcceleration > radiationPressureAcceleration_;
 

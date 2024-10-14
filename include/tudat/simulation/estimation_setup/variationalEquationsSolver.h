@@ -154,7 +154,8 @@ protected:
     {
         if( stateTransitionMatrixSize_ != initialStateEstimate.rows( ) )
         {
-            throw std::runtime_error( "Error when getting initial condition for variational equations, sizes are incompatible." );
+            throw std::runtime_error( "Error when getting initial condition for variational equations, sizes are incompatible: " +
+            std::to_string( stateTransitionMatrixSize_ ) + ", " + std::to_string( initialStateEstimate.rows( ) ) );
         }
 
         // Initialize initial conditions to zeros.
@@ -516,7 +517,6 @@ bool checkMultiArcPropagatorSettingsAndParameterEstimationConsistency(
                 ArcWiseInitialTranslationalStateParameter< StateScalarType > >(
                     parameterIterator->second )->getArcStartTimes( );
 
-//<<<<<<< HEAD
         // Check that each arc has at least one body whose state is to be estimated.
         for ( unsigned int i = 0 ; i < parameterArcStartTimes.size( ) ; i++ )
         {
@@ -526,21 +526,6 @@ bool checkMultiArcPropagatorSettingsAndParameterEstimationConsistency(
             {
                 if( std::fabs( arcStartTimes.at( j ) - parameterArcStartTimes.at( i ) ) <
                     std::max( 4.0 * parameterArcStartTimes.at( i ) * std::numeric_limits< double >::epsilon( ), 1.0E-12 ) )
-//=======
-//        // Check if arc times are (almost) exactly the same
-//        if( propagatorSettings->getSingleArcSettings( ).size( ) != parameterArcStartTimes.size( ) )
-//        {
-//            isInputConsistent = false;
-//            throw std::runtime_error( "Error, arc times for " + parameterIterator->first + " have incompatible size with estimation" );
-//        }
-//        else
-//        {
-//            for( unsigned int i = 0; i < propagatorSettings->getSingleArcSettings( ).size( ); i++ )
-//            {
-//                if( std::fabs( propagatorSettings->getSingleArcSettings( ).at( i )->getInitialTime( ) - parameterArcStartTimes.at( i ) ) >
-//                        std::max( 4.0 * parameterArcStartTimes.at( i ) * std::numeric_limits< double >::epsilon( ), 1.0E-12 ) )
-//>>>>>>> feature/consistent_propagation_settings
-
                 {
                     detectedArc = true;
                     indexDetectedArc = j;
@@ -612,12 +597,18 @@ bool checkMultiArcPropagatorSettingsAndParameterEstimationConsistency(
         }
         for ( unsigned int j = 0 ; j < estimatedBodiesPerArc.at( i ).size( ) ; j++ )
         {
-            auto itr = std::find( propagatedBodiesPerArc.at( i ).begin( ), propagatedBodiesPerArc.at( i ).end( ), estimatedBodiesPerArc.at( i )[  j ] );
-            if ( itr == estimatedBodiesPerArc.at( i ).end( ) )
+            auto currentListToTest = propagatedBodiesPerArc.at( i );
+            auto itr = std::find( currentListToTest.begin( ), currentListToTest.end( ), estimatedBodiesPerArc.at( i ).at( j ) );
+            if ( itr == currentListToTest.end( ) )
             {
                 isInputConsistent = false;
-                throw std::runtime_error( "Error, for arc " + std::to_string( i+1 ) + " out of " + std::to_string( arcStartTimes.size( ) )
-                                          + ", body " +  propagatedBodiesPerArc.at( i )[  j ] + " is estimated but not propagated. " );
+                std::string currentPropagatedBodies = "";
+                for( unsigned int k = 0; k < currentListToTest.size( ); k++ )
+                {
+                    currentPropagatedBodies += std::to_string( k ) + ":" + currentListToTest.at( k ) + "; ";
+                }
+                throw std::runtime_error( "Error, for arc " + std::to_string( i + 1 ) + " out of " + std::to_string( arcStartTimes.size( ) )
+                                          + ", body " +  estimatedBodiesPerArc.at( i ).at( j ) + " is estimated but not propagated.  Propagated bodies are " + currentPropagatedBodies );
             }
         }
     }

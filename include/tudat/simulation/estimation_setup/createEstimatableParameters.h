@@ -43,8 +43,9 @@
 #include "tudat/astro/orbit_determination/estimatable_parameters/polynomialClockCorrections.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/constantThrust.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/yarkovskyParameter.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/referencePointPosition.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/gravityFieldVariationParameters.h"
 #include "tudat/astro/relativity/metric.h"
-#include "tudat/astro/basic_astro/accelerationModelTypes.h"
 #include "tudat/simulation/estimation_setup/estimatableParameterSettings.h"
 #include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
 #include "tudat/simulation/environment_setup/body.h"
@@ -239,6 +240,38 @@ std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAc
                 }
             }
 
+        }
+        break;
+    }
+    case source_perpendicular_direction_radiation_pressure_scaling_factor:
+    case source_direction_radiation_pressure_scaling_factor:
+    case radiation_pressure_coefficient:
+    case arc_wise_radiation_pressure_coefficient:
+    {
+        if( parameterSettings == nullptr )
+        {
+            throw std::runtime_error( "Error, expected radiation pressure scaling factor parameter settings." );
+        }
+        else
+        {
+            if( accelerationModelMap.at( parameterSettings->parameterType_.second.first ).count(
+                parameterSettings->parameterType_.second.second ) != 0 )
+
+            {
+                // Retrieve acceleration model.
+                std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > >
+                    accelerationModelListToCheck =
+                    accelerationModelMap.at( parameterSettings->parameterType_.second.first ).at(
+                        parameterSettings->parameterType_.second.second );
+                for( unsigned int i = 0; i < accelerationModelListToCheck.size( ); i++ )
+                {
+                    if( basic_astrodynamics::getAccelerationModelType( accelerationModelListToCheck[ i ] ) ==
+                        basic_astrodynamics::radiation_pressure )
+                    {
+                        accelerationModelList.push_back( accelerationModelListToCheck[ i ] );
+                    }
+                }
+            }
         }
         break;
     }
@@ -869,23 +902,26 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
         }
         case radiation_pressure_coefficient:
         {
-            if( currentBody->getRadiationPressureTargetModel( ) == nullptr )
+            if( currentBody->getRadiationPressureTargetModels( ).size( ) == 0 )
             {
                 std::string errorMessage = "Error, no radiation pressure target model found in body " +
                         currentBodyName + " when making Cr parameter.";
                 throw std::runtime_error( errorMessage );
             }
-            else if( std::dynamic_pointer_cast< electromagnetism::CannonballRadiationPressureTargetModel >( currentBody->getRadiationPressureTargetModel( ) ) == nullptr )
-            {
-                std::string errorMessage = "Error, no cannonball radiation pressure target model found in body " +
-                                           currentBodyName + " when making Cr parameter.";
-                throw std::runtime_error( errorMessage );
-            }
             else
             {
+                std::shared_ptr<electromagnetism::RadiationPressureTargetModel> targetModel =
+                    getRadiationPressureTargetModelOfType( currentBody, cannonball_target, " when creating cannonball radiation pressure parameter " );
+
+                if( std::dynamic_pointer_cast< electromagnetism::CannonballRadiationPressureTargetModel >( targetModel ) == nullptr )
+                {
+                    std::string errorMessage = "Error, no radiation pressure target model found in body " +
+                                               currentBodyName + " target model is incompatible.";
+                }
                 doubleParameterToEstimate = std::make_shared< RadiationPressureCoefficient >(
-                    std::dynamic_pointer_cast< electromagnetism::CannonballRadiationPressureTargetModel >( currentBody->getRadiationPressureTargetModel( ) ),
-                            currentBodyName );
+                    std::dynamic_pointer_cast< electromagnetism::CannonballRadiationPressureTargetModel >( targetModel ),
+                    currentBodyName );
+
             }
             break;
         }
@@ -1237,6 +1273,43 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
                 associatedYarkovskyAccelerationModels.at( 0 ), currentBodyName, doubleParameterName->parameterType_.second.second );
             break;
         }
+        case source_direction_radiation_pressure_scaling_factor:
+        case source_perpendicular_direction_radiation_pressure_scaling_factor:
+        {
+            if( propagatorSettings == nullptr )
+            {
+                throw std::runtime_error( "Error when creating radiation pressure scaling factor parameter, no propagatorSettings provided." );
+            }
+
+            std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > associatedAccelerationModels =
+                getAccelerationModelsListForParametersFromBase< InitialStateParameterType, TimeType >( propagatorSettings, doubleParameterName );
+            std::vector< std::shared_ptr< electromagnetism::RadiationPressureAcceleration > > associatedRadiationPressureAccelerationModels;
+            for( unsigned int i = 0; i < associatedAccelerationModels.size( ); i++ )
+            {
+                // Create parameter object
+                if( std::dynamic_pointer_cast< electromagnetism::RadiationPressureAcceleration >( associatedAccelerationModels.at( i ) )
+                    != nullptr )
+                {
+                    associatedRadiationPressureAccelerationModels.push_back(
+                        std::dynamic_pointer_cast< electromagnetism::RadiationPressureAcceleration >( associatedAccelerationModels.at( i ) ) );
+                }
+                else
+                {
+                    throw std::runtime_error(
+                        "Error, expected RadiationPressureAcceleration in list when creating radiation pressure scaling parameter" );
+                }
+            }
+            if( associatedRadiationPressureAccelerationModels.size( ) != 1 )
+            {
+                throw std::runtime_error(
+                    "Error, expected single RadiationPressureAcceleration in list when creating radiation pressure scaling parameter, found " +
+                    std::to_string( associatedRadiationPressureAccelerationModels.size( ) ) );
+            }
+            doubleParameterToEstimate = std::make_shared< RadiationPressureScalingFactor >(
+                associatedRadiationPressureAccelerationModels.at( 0 ), doubleParameterName->parameterType_.first,
+                currentBodyName, doubleParameterName->parameterType_.second.second );
+            break;
+        }
         default:
             throw std::runtime_error( "Warning, this double parameter has not yet been implemented when making parameters" );
             break;
@@ -1428,9 +1501,9 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                 vectorParameterToEstimate = std::make_shared< ConstantTimeBiasParameter >(
                         std::function< Eigen::VectorXd( ) >( ),
                         std::function< void( const Eigen::VectorXd& ) >( ),
-                        observation_models::getLinkEndIndicesForLinkEndTypeAtObservable(
-                                biasSettings->observableType_, biasSettings->linkEndForTime_, biasSettings->linkEnds_.size( ) ).at( 0 ),
-                        biasSettings->linkEnds_, biasSettings->observableType_ );
+                        biasSettings->linkEndForTime_,
+                        biasSettings->linkEnds_,
+                        biasSettings->observableType_ );
             }
             break;
         }
@@ -1448,8 +1521,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                         timeBiasSettings->arcStartTimes_,
                         std::function< std::vector< Eigen::VectorXd >( ) >( ),
                         std::function< void( const std::vector< Eigen::VectorXd >& ) >( ),
-                        observation_models::getLinkEndIndicesForLinkEndTypeAtObservable(
-                                timeBiasSettings->observableType_, timeBiasSettings->linkEndForTime_, timeBiasSettings->linkEnds_.size( ) ).at( 0 ),
+                        timeBiasSettings->linkEndForTime_,
                         timeBiasSettings->linkEnds_, timeBiasSettings->observableType_ );
             }
             break;
@@ -1620,6 +1692,25 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
             }
             break;
         }
+        case reference_point_position:
+        {
+            if( currentBody->getVehicleSystems( ) == nullptr )
+            {
+                std::string errorMessage =
+                    "Error, requested reference point position parameter of "
+                    + vectorParameterName->parameterType_.second.first + " "
+                    + vectorParameterName->parameterType_.second.second + " , but no system models found";
+                throw std::runtime_error( errorMessage );
+            }
+            else
+            {
+                vectorParameterToEstimate = std::make_shared< ReferencePointPosition  >(
+                    currentBody->getVehicleSystems( ),
+                    vectorParameterName->parameterType_.second.first,
+                    vectorParameterName->parameterType_.second.second );
+            }
+            break;
+        }
         case empirical_acceleration_coefficients:
         {
             if( propagatorSettings == nullptr )
@@ -1680,25 +1771,19 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
             }
             else
             {
-                if( currentBody->getRadiationPressureTargetModel( ) == nullptr )
+                std::shared_ptr<electromagnetism::RadiationPressureTargetModel> targetModel =
+                    getRadiationPressureTargetModelOfType( currentBody, cannonball_target, " when creating arc-wise cannonball radiation pressure parameter " );
+
+                if( std::dynamic_pointer_cast< electromagnetism::CannonballRadiationPressureTargetModel >( targetModel ) == nullptr )
                 {
-                    std::string errorMessage = "Error, no radiation pressure interfaces found in body " +
-                            currentBodyName + " when making arcwise Cr parameter.";
-                    throw std::runtime_error( errorMessage );
+                    std::string errorMessage = "Error, no radiation pressure target model found in body " +
+                                               currentBodyName + " target model is incompatible.";
                 }
-                else if( std::dynamic_pointer_cast< electromagnetism::CannonballRadiationPressureTargetModel >( currentBody->getRadiationPressureTargetModel( ) ) == nullptr )
-                {
-                    std::string errorMessage = "Error, no cannonball radiation pressure target model found in body " +
-                                               currentBodyName + " when making arcwise Cr parameter.";
-                    throw std::runtime_error( errorMessage );
-                }
-                else
-                {
-                    vectorParameterToEstimate = std::make_shared< ArcWiseRadiationPressureCoefficient >(
-                        std::dynamic_pointer_cast< electromagnetism::CannonballRadiationPressureTargetModel >( currentBody->getRadiationPressureTargetModel( ) ),
-                        radiationPressureCoefficientSettings->arcStartTimeList_,
-                        currentBodyName );
-                }
+                vectorParameterToEstimate = std::make_shared< ArcWiseRadiationPressureCoefficient >(
+                    std::dynamic_pointer_cast< electromagnetism::CannonballRadiationPressureTargetModel >( targetModel ),
+                    radiationPressureCoefficientSettings->arcStartTimeList_,
+                    currentBodyName );
+
                 break;
             }
             break;
@@ -1898,6 +1983,58 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
             }
             break;
         }
+        case mode_coupled_tidal_love_numbers:
+        {
+            // Check input consistency
+            std::shared_ptr< ModeCoupledTidalLoveNumberEstimatableParameterSettings > tidalLoveNumberSettings =
+                std::dynamic_pointer_cast< ModeCoupledTidalLoveNumberEstimatableParameterSettings >( vectorParameterName );
+            if( tidalLoveNumberSettings == nullptr )
+            {
+                throw std::runtime_error( "Error, expected mode-coupled tidal love number parameter settings " );
+            }
+            else
+            {
+                // Check consistency of body gravity field
+                std::shared_ptr< TimeDependentSphericalHarmonicsGravityField > timeDepGravityField =
+                    std::dynamic_pointer_cast< TimeDependentSphericalHarmonicsGravityField >(
+                        currentBody->getGravityFieldModel( ) );
+                if( timeDepGravityField == nullptr )
+                {
+                    throw std::runtime_error(
+                        "Error, requested mode-coupled tidal love number parameter of " +
+                        vectorParameterName->parameterType_.second.first +
+                        ", but body does not have a time dependent spherical harmonic gravity field." );
+                }
+                else if( currentBody->getGravityFieldVariationSet( ) == nullptr )
+                {
+                    throw std::runtime_error( "Error, requested mode-coupled tidal love number parameter of " +
+                                              vectorParameterName->parameterType_.second.first +
+                                              ", but body does not have gravity field variations" );
+                }
+                else
+                {
+                    // Get associated gravity field variation
+                    std::shared_ptr< gravitation::ModeCoupledSolidBodyTideGravityFieldVariations > gravityFieldVariation =
+                        std::dynamic_pointer_cast< gravitation::ModeCoupledSolidBodyTideGravityFieldVariations >(
+                            currentBody->getGravityFieldVariationSet( )->getDirectTidalGravityFieldVariation(
+                                tidalLoveNumberSettings->deformingBodies_, mode_coupled_solid_body ) );
+
+                    // Create parameter object
+                    if( gravityFieldVariation != nullptr )
+                    {
+                        vectorParameterToEstimate = std::make_shared< ModeCoupledTidalLoveNumber >(
+                            gravityFieldVariation, currentBodyName, tidalLoveNumberSettings->loveNumberIndices_,
+                            tidalLoveNumberSettings->useComplexValue_ );
+                    }
+                    else
+                    {
+                        throw std::runtime_error(
+                            "Error, expected ModeCoupledSolidBodyTideGravityFieldVariations for variable tidal love number" );
+                    }
+                }
+            }
+            break;
+        }
         case desaturation_delta_v_values:
         {
             if( propagatorSettings == nullptr )
@@ -1991,6 +2128,63 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
             }
             break;
         }
+        case polynomial_gravity_field_variation_amplitudes:
+        {
+            std::shared_ptr< PolynomialGravityFieldVariationEstimatableParameterSettings > gravityFieldVariationSettings =
+                std::dynamic_pointer_cast< PolynomialGravityFieldVariationEstimatableParameterSettings >( vectorParameterName );
+            if( gravityFieldVariationSettings == nullptr )
+            {
+                throw std::runtime_error( "Error, expected polynomial gravity field variation parameter settings " );
+            }
+
+            // Check consistency of body gravity field
+            std::shared_ptr< GravityFieldModel > gravityField = currentBody->getGravityFieldModel( );
+            std::shared_ptr< TimeDependentSphericalHarmonicsGravityField > timeDepGravityField =
+                std::dynamic_pointer_cast< TimeDependentSphericalHarmonicsGravityField >( gravityField );
+            if( timeDepGravityField == nullptr )
+            {
+                throw std::runtime_error(
+                    "Error, requested polynomial gravity field variation parameter of " +
+                    vectorParameterName->parameterType_.second.first +
+                    ", but body does not have a time dependent spherical harmonic gravity field." );
+            }
+            else if( currentBody->getGravityFieldVariationSet( ) == nullptr )
+            {
+                throw std::runtime_error( "Error, requested polynomial gravity field variation parameter of " +
+                                          vectorParameterName->parameterType_.second.first +
+                                          ", but body does not have gravity field variations" );
+            }
+            else
+            {
+
+                // Get associated gravity field variation
+                std::pair< bool, std::shared_ptr< gravitation::GravityFieldVariations > > gravityFieldVariation =
+                    currentBody->getGravityFieldVariationSet( )->getGravityFieldVariation( polynomial_variation );
+                if( gravityFieldVariation.first == 0 )
+                {
+                    throw std::runtime_error( "Error when creating polynomial gravity field variation parameter; associated gravity field model not found." );
+                }
+                std::shared_ptr< gravitation::PolynomialGravityFieldVariations > polynomialVariaton  =
+                    std::dynamic_pointer_cast< gravitation::PolynomialGravityFieldVariations >(
+                        gravityFieldVariation.second  );
+
+                // Create parameter object
+                if( polynomialVariaton != nullptr )
+                {
+                    vectorParameterToEstimate = std::make_shared< PolynomialGravityFieldVariationsParameters >(
+                        polynomialVariaton,
+                        gravityFieldVariationSettings->cosineBlockIndicesPerPower_,
+                        gravityFieldVariationSettings->sineBlockIndicesPerPower_,
+                        currentBodyName );
+                }
+                else
+                {
+                    throw std::runtime_error(
+                        "Error, expected PolynomialGravityFieldVariations when creating polynomial gravity field variation parameter" );
+                }
+            }
+            break;
+        }
         case arc_wise_polynomial_clock_corrections:
         {
             std::shared_ptr< MultiArcPolynomialClockCorrectionsParameterSettings > polynomialClockParameterSettings =
@@ -2016,6 +2210,63 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                             polynomialClockParameterSettings->arcIndices_,
                             polynomialClockParameterSettings->parameterType_.second.first,
                             polynomialClockParameterSettings->parameterType_.second.second );
+                }
+            }
+            break;
+        }
+        case periodic_gravity_field_variation_amplitudes:
+        {
+            std::shared_ptr< PeriodicGravityFieldVariationEstimatableParameterSettings > gravityFieldVariationSettings =
+                std::dynamic_pointer_cast< PeriodicGravityFieldVariationEstimatableParameterSettings >( vectorParameterName );
+            if( gravityFieldVariationSettings == nullptr )
+            {
+                throw std::runtime_error( "Error, expected periodic gravity field variation parameter settings " );
+            }
+
+            // Check consistency of body gravity field
+            std::shared_ptr< GravityFieldModel > gravityField = currentBody->getGravityFieldModel( );
+            std::shared_ptr< TimeDependentSphericalHarmonicsGravityField > timeDepGravityField =
+                std::dynamic_pointer_cast< TimeDependentSphericalHarmonicsGravityField >( gravityField );
+            if( timeDepGravityField == nullptr )
+            {
+                throw std::runtime_error(
+                    "Error, requested periodic gravity field variation parameter of " +
+                    vectorParameterName->parameterType_.second.first +
+                    ", but body does not have a time dependent spherical harmonic gravity field." );
+            }
+            else if( currentBody->getGravityFieldVariationSet( ) == nullptr )
+            {
+                throw std::runtime_error( "Error, requested periodic gravity field variation parameter of " +
+                                          vectorParameterName->parameterType_.second.first +
+                                          ", but body does not have gravity field variations" );
+            }
+            else
+            {
+
+                // Get associated gravity field variation
+                std::pair< bool, std::shared_ptr< gravitation::GravityFieldVariations > > gravityFieldVariation =
+                    currentBody->getGravityFieldVariationSet( )->getGravityFieldVariation( periodic_variation );
+                if( gravityFieldVariation.first == 0 )
+                {
+                    throw std::runtime_error( "Error when creating periodic gravity field variation parameter; associated gravity field model not found." );
+                }
+                std::shared_ptr< gravitation::PeriodicGravityFieldVariations > periodicVariaton  =
+                    std::dynamic_pointer_cast< gravitation::PeriodicGravityFieldVariations >(
+                        gravityFieldVariation.second  );
+
+                // Create parameter object
+                if( periodicVariaton != nullptr )
+                {
+                    vectorParameterToEstimate = std::make_shared< PeriodicGravityFieldVariationsParameters >(
+                        periodicVariaton,
+                        gravityFieldVariationSettings->cosineBlockIndicesPerPower_,
+                        gravityFieldVariationSettings->sineBlockIndicesPerPower_,
+                        currentBodyName );
+                }
+                else
+                {
+                    throw std::runtime_error(
+                        "Error, expected PeriodicGravityFieldVariations when creating periodic gravity field variation parameter" );
                 }
             }
             break;

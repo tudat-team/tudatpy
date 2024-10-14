@@ -19,7 +19,7 @@ namespace gravitation
 
 void PolyhedronGravityCache::update (const Eigen::Vector3d& currentBodyFixedPosition)
 {
-    if ( currentBodyFixedPosition != currentBodyFixedPosition_ )
+//    if ( currentBodyFixedPosition_.hasNaN( ) || currentBodyFixedPosition != currentBodyFixedPosition_ )
     {
         currentBodyFixedPosition_ = currentBodyFixedPosition;
 
