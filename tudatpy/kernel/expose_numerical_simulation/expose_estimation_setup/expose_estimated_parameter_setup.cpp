@@ -113,7 +113,7 @@ void expose_estimated_parameter_setup(py::module &m) {
     // ###############    Initial States             ################################
 
     m.def("initial_states",
-          &tss::getInitialStateParameterSettings< double, TIME_TYPE >,
+          &tss::getInitialStateParameterSettings< STATE_SCALAR_TYPE, TIME_TYPE >,
           py::arg("propagator_settings"), py::arg("bodies"),
           py::arg("arc_initial_times") = std::vector< double >( ),
           get_docstring("initial_states").c_str() );
