@@ -1,6 +1,7 @@
 #include <cmath>
 #include <iostream>
 #include <iomanip>
+#include <string>
 
 #include <boost/make_shared.hpp>
 
@@ -9,12 +10,58 @@
 #include "tudat/math/basic/linearAlgebra.h"
 #include "tudat/math/interpolators/linearInterpolator.h"
 #include "tudat/math/statistics/powerLawNoiseGeneration.h"
+#include "tudat/math/quadrature/gaussianQuadrature.h"
 
 namespace tudat
 {
 
 namespace system_models
 {
+    //! Function to convert an allan variance to polynomial form
+/*!
+ *  Function to convert an allan variance nodes to polynomial form.
+ *  (polynomial with integer time powers -2 >= power <= 1 )
+ *  \param allanVarianceNodes Allan deviation nodes, with key as integration time (tau) and value as the avar
+ *  \return allanVarianceAmplitudes Allan variance amplitudes, with key as integration time (tau) and value
+ *  as a pair containing: the slope of the following node & the mulitplying factor (amplitude).
+ */
+std::map< int, std::pair<double, double> > convertAllanVarianceNodesToAmplitudes(
+    const std::map< int, double > allanVarianceNodes,
+    const std::string& varianceType ) {
+
+    std::map< int, std::pair<double, double> > allanVarianceAmplitudes;
+    std::vector< double > Mus;
+
+    for( std::map< int, double >::const_iterator iter = allanVarianceNodes.begin( );
+         iter != std::prev(allanVarianceNodes.end( )); iter++ ){
+        double mu = ( std::log(std::next(iter) ->second ) - std::log(iter -> second ) ) /
+                    ( std::log(std::next(iter) ->first )-std::log(iter -> first) );
+        if ( ( ( mu < -2 || mu > 2 ) & (varianceType.compare("Allan") || varianceType.compare("Overlapping Allan")) )
+             || ( ( mu < -2 || mu > 4 ) & (varianceType.compare("Hadamard") || varianceType.compare("Overlapping Hadamard")) ) )
+        { std::cerr<<"Error, Allan variance slope outside boundaries (-2, 1), found "<< mu <<std::endl;}
+        else{Mus.push_back( mu );}
+    }
+
+    int counter = 0;
+    double Bi = 0.;
+    for( std::map< int, double >::const_iterator iter = std::next(allanVarianceNodes.begin( ));
+         iter != allanVarianceNodes.end( ); iter++ ){
+        if(counter == 0){
+            Bi = iter->second * std::pow(iter->first, - Mus[counter]);
+            //std::cout << counter << " " << iter->second << " " << iter->first << " " << Mus[counter] << std::endl;
+        }
+        else {
+            //std::cout << Bi << std::endl;
+            Bi = Bi * std::pow( std::prev(iter)->first, (Mus[counter-1] - Mus[counter]));
+            //std::cout << counter << " " << std::prev(iter)->first << " " << Mus[counter -1] << " " << Mus[counter] << std::endl;
+        }
+        allanVarianceAmplitudes[ std::prev(iter)->first ] = std::make_pair(Mus[counter], Bi);
+        //allanVarianceAmplitudes[ Mus[counter] ] = Bi;
+        counter++;
+        }
+    return allanVarianceAmplitudes;
+}
+
 
 //! Function to convert allan variance amplitudes (time domain) to phase noise amplitudes (frequency domain)
 std::map< int, double > convertAllanVarianceAmplitudesToPhaseNoiseAmplitudes(
@@ -66,6 +113,79 @@ std::map< int, double > convertAllanVarianceAmplitudesToPhaseNoiseAmplitudes(
     return phaseNoiseAmplitudes;
 }
 
+
+
+double genericIntegrationFunction(const double x, const double mu, const double sinExponent, const double factor){
+    return factor * std::pow( std::sin( x ), sinExponent) / (std::pow(x, 3 + mu ) );
+}
+//! Function to convert allan variance amplitudes (time domain) to phase noise amplitudes (frequency domain)
+/*!
+ *  Function to convert allan variance amplitudes (time domain) to phase noise amplitudes (frequency domain) using DeMarchi et al method.
+ *  \param allanVarianceAmplitudes Allan variance amplitudes, with key as power of time and value the mulitplying factor (amplitude).
+ *  \param frequencyDomainCutoffFrequency Cut off frequency of noise generation (needed for time powers < -1, since their integration over all
+ *  frequencies leads to a divergent solution, i.e. infinite power)
+ *  \param isInverseSquareTermFlickerPhaseNoise Boolean determining whether inverse square time term is flicker phase noise (freq.^(-1)) or
+ *  white phase modulation (freq.^(0)). Note that for allan variance of flicker phase noise, the logarithmic term will be neglected when using this
+ *  function.
+ *  \return Pair containing first: Map with phase noise amplitudes, powers of frequency as keys and ampliutdes as values, second: frequency_nodes
+ */
+std::pair< std::map<double, double>, std::vector<double > > convertAllanVarianceAmplitudesToApproximatedPhaseNoiseSpectrum(
+        const std::map< int, std::pair < double, double > > allanVarianceAmplitudes,
+        const std::string& varianceType)
+{
+    using namespace numerical_quadrature;
+    //std::map< double, double > PowerSpectralDensity_Sy;
+    std::map< double, double > PowerSpectralDensity_Sx;
+    std::vector<double> his;
+    std::vector<double> alphas;
+    std::vector<double> frequencyNodes;
+    double sinExponent;
+    double factor;
+
+    if (varianceType.compare("Allan") || varianceType.compare("Overlapping Allan")){
+        factor = 1;
+        sinExponent = 4;}
+    else if (varianceType.compare("Hadamard") || varianceType.compare("Overlapping Hadamard")){
+        factor = 8;
+        sinExponent = 6;}
+    else{ throw std::runtime_error( "Unknown varianceType" ); }
+
+    const unsigned int numberOfNodes = 64;
+    const double lowerLimit = 0.0;
+    const double upperLimit = 10.0; //std::numeric_limits< double >::infinity( );
+    for( std::map< int, std::pair <double,double> >::const_iterator iter  = allanVarianceAmplitudes.begin( );
+         iter != allanVarianceAmplitudes.end( ); iter++ ) {
+    //for( unsigned int i = 0; i != allanVarianceAmplitudes.size(); i++){
+        double mu = iter->second.first;
+        alphas.push_back( - mu - 1);
+        auto integrationFunction = std::bind(&genericIntegrationFunction, std::placeholders::_1, mu, sinExponent, factor);
+        GaussianQuadrature<double, double> integrator(integrationFunction, lowerLimit,  upperLimit, numberOfNodes);
+        double integral = integrator.getQuadrature();
+        double B = iter->second.second;
+        double hi = B / ( 2 * integral * std::pow( mathematical_constants::PI, mu) );
+        his.push_back(hi);
+        // std::cout << " mu " << mu << " bi " <<  B <<  " integ " << integral << " hi " << hi << std::endl;
+    }
+    for( unsigned int i = 0; i != his.size() - 1; i++ ) {
+        double frequencyNode = std::pow( his[i] / his[i+1], 1 / ( alphas[i+1] - alphas[i]) );
+        // std::cout << frequencyNode << std::endl;
+        frequencyNodes.push_back(frequencyNode);
+    }
+    std::reverse(frequencyNodes.begin(), frequencyNodes.end());
+    frequencyNodes.insert(frequencyNodes.begin(), 0.0);
+    frequencyNodes.push_back(std::numeric_limits< double >::infinity( ));
+    std::reverse(alphas.begin(), alphas.end());
+    std::reverse(his.begin(), his.end());
+
+    for( unsigned int i = 0; i != allanVarianceAmplitudes.size(); i++ ){
+        PowerSpectralDensity_Sx[ alphas[i] - 2] = his[i] / (4 * mathematical_constants::PI * mathematical_constants::PI);
+    }
+
+    return std::make_pair(PowerSpectralDensity_Sx, frequencyNodes);
+
+}
+
+
 //! Function to generate clock noise for a clock with given allan variance behaviour
 std::pair< std::vector< double >, double > generateClockNoise( const std::map< int, double > allanVarianceAmplitudes,
                                                                const double startTime, const double endTime,
@@ -105,6 +225,45 @@ std::pair< std::vector< double >, double > generateClockNoise( const std::map< i
         maximumFrequency, numberOfFrequencySteps, doublePhaseNoiseAmplitudes, seed );
 }
 
+
+//! Function to generate clock noise for a clock with given allan variance behaviour
+std::pair< std::vector< double >, double > generateColoredClockNoise( const std::map< int, double > allanVarianceNodes,
+                                                               const std::string& varianceType,
+                                                               const double startTime, const double endTime,
+                                                               const int numberOfTimeSteps,
+                                                               const double seed )
+{
+    using namespace statistics;
+
+    // Calculate time step between subsequent realizations of stochastic process
+    double timeStep = ( endTime - startTime ) / static_cast< double >( numberOfTimeSteps );
+
+    // Calculate maximum noise frequency that can be generated with goven time step
+    double maximumFrequency = 0.5 / timeStep;
+
+    // Calculate number of steps in frequency domain (for real time domain data)
+    int numberOfFrequencySteps = numberOfTimeSteps / 2;
+
+    if( numberOfTimeSteps % 2 == 1 )
+    {
+        numberOfFrequencySteps++;
+    }
+
+    // convert allan variance nodes  to allan variance amplitudes
+
+    std::map< int, std::pair<double, double > > allanVarianceAmplitudes = convertAllanVarianceNodesToAmplitudes(allanVarianceNodes, varianceType);
+
+    // Convert time domain amplitudes to frequency domain amplitudes.
+    std::pair< std::map<double, double>, std::vector<double> > dummy = convertAllanVarianceAmplitudesToApproximatedPhaseNoiseSpectrum( allanVarianceAmplitudes, varianceType );
+    std::map< double, double > phaseNoiseAmplitudes = dummy.first;
+    std::vector<double> frequencyNodes = dummy.second;
+
+    // return clock noise with time step used.
+    return generatePowerLawNoise(
+            maximumFrequency, numberOfFrequencySteps, phaseNoiseAmplitudes, frequencyNodes, seed );
+}
+
+
 std::map< double, double > generateClockNoiseMap( const std::map< int, double >& allanVarianceAmplitudes,
                                                   const double startTime, const double endTime,
                                                   const double timeStep, const bool isInverseSquareTermFlickerPhaseNoise, const double seed )
@@ -125,6 +284,26 @@ std::map< double, double > generateClockNoiseMap( const std::map< int, double >&
     return clockNoiseMap;
 }
 
+std::map< double, double > generateColoredClockNoiseMap( const std::map< int, double >& allanVarianceNodes,
+                                                         const std::string& varianceType,
+                                                  const double startTime, const double endTime,
+                                                  const double timeStep, const double seed )
+{
+    int numberOfTimeSteps = std::ceil( ( endTime - startTime ) / timeStep );
+
+    std::cout<<"Generating clock noise with :"<<numberOfTimeSteps<<" steps"<<std::endl;
+
+    std::pair< std::vector< double >, double > clockNoise = generateColoredClockNoise(
+            allanVarianceNodes, varianceType, startTime, endTime, numberOfTimeSteps,  seed );
+    std::map< double, double > clockNoiseMap;
+
+    for( unsigned int i = 0; i < clockNoise.first.size( ); i++ )
+    {
+        clockNoiseMap[ startTime + static_cast< double >( i * clockNoise.second ) ] = clockNoise.first[ i ];
+    }
+
+    return clockNoiseMap;
+}
 std::function< double( const double ) > getClockNoiseInterpolator(
         const std::map< int, double > allanVarianceAmplitudes,
         const double startTime, const double endTime,
@@ -140,6 +319,22 @@ std::function< double( const double ) > getClockNoiseInterpolator(
                 ( &LocalInterpolator::interpolate ), std::make_shared< interpolators::LinearInterpolatorDouble >( clockNoiseMap ),
                         std::placeholders::_1 );
 }
+
+std::function< double( const double ) > getColoredClockNoiseInterpolator(
+        const std::map< int, double > allanVarianceNodes,
+        const std::string& varianceType,
+        const double startTime, const double endTime,
+        const double timeStep, const double seed)
+        {
+            std::map< double, double > clockNoiseMap = generateColoredClockNoiseMap( allanVarianceNodes, varianceType, startTime, endTime, timeStep , seed );
+
+            typedef interpolators::OneDimensionalInterpolator< double, double > LocalInterpolator;
+
+            return std::bind(
+                    static_cast< double( LocalInterpolator::* )( const double ) >
+                    ( &LocalInterpolator::interpolate ), std::make_shared< interpolators::LinearInterpolatorDouble >( clockNoiseMap ),
+                    std::placeholders::_1 );
+        }
 
 TimingSystem::TimingSystem( const std::vector< Time > arcTimes,
               const std::vector< double > allArcsPolynomialDriftCoefficients,

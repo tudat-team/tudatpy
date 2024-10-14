@@ -4,6 +4,7 @@
 #include <map>
 #include <vector>
 #include <iostream>
+#include <string>
 
 #include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/astro/basic_astro/timeConversions.h"
@@ -16,6 +17,10 @@ namespace tudat
 
 namespace system_models
 {
+
+std::map< int, std::pair<double, double> > convertAllanVarianceNodesToAmplitudes(
+    const std::map< int, double > allanVarianceNodes );
+    //const std::string& varianceType
 
 
 //! Function to convert allan variance amplitudes (time domain) to phase noise amplitudes (frequency domain)
@@ -33,6 +38,20 @@ std::map< int, double > convertAllanVarianceAmplitudesToPhaseNoiseAmplitudes(
         const std::map< int, double > allanVarianceAmplitudes,
         const double frequencyDomainCutoffFrequency,
         const bool isInverseSquareTermFlickerPhaseNoise = 0 );
+
+//! Function implementing the analytical method by (De Marchi et al, 2023, TUFFC) to generate an approximated PSD expressed as a set of power-laws defined in specific intervals in the frequency domain, starting from an AVAR/HVAR expressed as a set of power laws in the time domain.
+/*!
+ *  Function implementing the analytical method by (De Marchi et al, 2023, TUFFC) to generate an approximated PSD expressed as a set of power-laws
+ *  defined in specific intervals in the frequency domain, starting from an AVAR/HVAR expressed as a set of power laws in the time domain.
+ *  \param allanVarianceAmplitudes Allan variance amplitudes, with key as power of time and value the mulitplying factor (amplitude).
+ *  \param variance Allan or Hadamard
+ *  \return Pair containing first: map of power spectral density of phase fluctuations (Sx) with key as power of time and value the mulitplying factor (amplitude).
+ *  as values,  second: frequency nodes specifying the intervals of validity for Sx
+ */
+
+std::pair< std::map<double, double>, std::vector<double > > convertAllanVarianceAmplitudesToApproximatedPhaseNoiseSpectrum(
+        const std::map< int, std::pair < double, double > > allanVarianceAmplitudes,
+        const std::string& varianceType);
 
 //! Function to generate clock noise for a clock with given allan variance behaviour
 /*!
@@ -55,6 +74,30 @@ std::pair< std::vector< double >, double > generateClockNoise(
         const int numberOfTimeSteps, const bool isInverseSquareTermFlickerPhaseNoise = 0,
         const double seed = statistics::defaultRandomSeedGenerator->getRandomVariableValue( )  );
 
+//! Function to generate colored clock noise for a clock with given allan variance behaviour
+/*!
+ *  Function to generate clock noise for a clock with given allan variance behaviour (polynomial with integer time powers -2 >= power <= 1 )
+ *  The function uses the convertAllanVarianceNodesToAmplitudes function to convert the nodes to amplitudes, then uses the 
+ *  convertAllanVarianceAmplitudesToApproximatedPhaseNoiseSpectrum function to generate an approximated PSD for phase fluctuations.
+ *  Subsequently, a discretized phase noise spectrum is generated in frequency domain, which is subsequently Fourier transformed
+ *  to time domain to yoield a time series of random errors, which are a realization of the requested allan variance behaviour.
+ *  \param allanVarianceNodes Allan variance nodes, with key as integration time and value as ADEV/HDEV
+ *  \param startTime Start time of noise time series generation
+ *  \param varianceType Allan or Hadamard
+ *  \param startTime Start time of noise time series generation
+ *  \param endTime End time of noise time series generation
+ *  \param numberOfTimeSteps Number of discrete relaizations of continuous random process to generate, i.e. number of data points in clock
+ *  noise vector.
+ *  \return Pair containing first: vector of clock noise realizations, second: time step between subsequent realizations of clock noise.
+ */
+
+std::pair< std::vector< double >, double > generateColoredClockNoise(
+    const std::map< int, double > allanVarianceNodes,
+     const std::string& varianceType,
+    const double startTime, const double endTime,
+    const int numberOfTimeSteps,
+    const double seed = statistics::defaultRandomSeedGenerator->getRandomVariableValue( )  );
+
 //! Function to generate clock noise for a clock with given allan variance behaviour
 /*!
  *  Function to generate clock noise for a clock with given allan variance behaviour (polynomial with integer time powers -2 >= power <= 1 )
@@ -64,7 +107,7 @@ std::pair< std::vector< double >, double > generateClockNoise(
  *  \param allanVarianceAmplitudes Allan variance amplitudes, with key as power of time and value the mulitplying factor (amplitude).
  *  \param startTime Start time of noise time series generation
  *  \param endTime End time of noise time series generation
- *  \param numberOfTimeSteps Number of discrete relaizations of continuous random process to generate, i.e. number of data points in clock
+ *  \param timeStep Sampling time setp in discrete relaizations of continuous random process to generate
  *  noise vector.
  *  \param isInverseSquareTermFlickerPhaseNoise Boolean determining whether inverse square time term is flicker phase noise (freq.^(-1)) or
  *  white phase modulation (freq.^(0)). Note that for allan variance of flicker phase noise, the logarithmic term will be neglected when using this
@@ -75,6 +118,26 @@ std::map< double, double > generateClockNoiseMap( const std::map< int, double >&
                                                   const double startTime, const double endTime,
                                                   const double timeStep, const bool isInverseSquareTermFlickerPhaseNoise = 0,
                                                   const double seed = statistics::defaultRandomSeedGenerator->getRandomVariableValue( ) );
+
+//! Function to generate colored clock noise for a clock with given allan variance behaviour
+/*!
+*  Function to generate clock noise for a clock with given allan variance behaviour (polynomial with integer time powers -2 >= power <= 1 )
+ *  The function uses the convertAllanVarianceNodesToAmplitudes function to convert the nodes to amplitudes, then uses the 
+ *  convertAllanVarianceAmplitudesToApproximatedPhaseNoiseSpectrum function to generate an approximated PSD for phase fluctuations.
+ *  Subsequently, a discretized phase noise spectrum is generated in frequency domain, which is subsequently Fourier transformed
+ *  to time domain to yoield a time series of random errors, which are a realization of the requested allan variance behaviour.
+ *  \param allanVarianceNodes Allan variance nodes, with key as integration time and value as ADEV/HDEV
+ *  \param startTime Start time of noise time series generation
+ *  \param endTime End time of noise time series generation
+ *  \param timeStep Sampling time setp in discrete relaizations of continuous random process to generate
+ *  \return Map of clock noise realizations, with associated times as keys and noise as values.
+ */
+
+std::map< double, double > generateColoredClockNoiseMap( const std::map< int, double >& allanVarianceNodes,
+                                                         const std::string& varianceType,
+                                                         const double startTime, const double endTime,
+                                                         const double timeStep,
+                                                          const double seed = statistics::defaultRandomSeedGenerator->getRandomVariableValue( ));
 
 //! Function to generate a function to retrieve clock noise for a clock with given allan variance behaviour
 /*!
@@ -88,8 +151,7 @@ std::map< double, double > generateClockNoiseMap( const std::map< int, double >&
  *  \param allanVarianceAmplitudes Allan variance amplitudes, with key as power of time and value the mulitplying factor (amplitude).
  *  \param startTime Start time of noise time series generation
  *  \param endTime End time of noise time series generation
- *  \param numberOfTimeSteps Number of discrete relaizations of continuous random process to generate, i.e. number of data points in clock
- *  noise vector.
+ *  \param timeStep Sampling time setp in discrete relaizations of continuous random process to generate
  *  \param isInverseSquareTermFlickerPhaseNoise Boolean determining whether inverse square time term is flicker phase noise (freq.^(-1)) or
  *  white phase modulation (freq.^(0)). Note that for allan variance of flicker phase noise, the logarithmic term will be neglected when using this
  *  function.
@@ -99,6 +161,28 @@ std::function< double( const double ) > getClockNoiseInterpolator(
         const std::map< int, double > allanVarianceAmplitudes,
         const double startTime, const double endTime,
         const double timeStep, const bool isInverseSquareTermFlickerPhaseNoise = 0, const double seed = time( 0 ) );
+
+//! Function to generate a function to retrieve colored clock noise for a clock with given allan variance behaviour
+/*!
+ *  Function to generate a function to retrieve colored clock noise for a clock with given allan variance behaviour
+ *  (polynomial with integer time powers -2 >= power <= 1 )
+ *  The function uses the convertAllanVarianceAmplitudesToPhaseNoiseAmplitudes function to convert allan variance to phase noise amplitudes in
+ *  frequency domain. Subsequently, a discretized phase noise spectrum is generated in frequency domain, which is subsequently Fourier transformed
+ *  to time domain to yoield a time series of random errors, which are a realization of the requested allan variance behaviour. Subsequently,
+ *  an interpolator is created using the discrete noise realizations. Note that the power spectrum is no longer valid at time differences smaller
+ *  than the time between two subsequent noise realizations.
+ *  \param allanVarianceNodes Allan variance nodes, with key as integration time and value as ADEV/HDEV
+ *  \param varianceType Allan or Hadamard
+ *  \param startTime Start time of noise time series generation
+ *  \param endTime End time of noise time series generation
+ *  \param timeStep Sampling time setp in discrete relaizations of continuous random process to generate
+ *  \return Function that returns clock noise as a function of time.
+ */
+std::function< double( const double ) > getColoredClockNoiseInterpolator(
+        const std::map< int, double > allanVarianceNodes,
+        const std::string& varianceType,
+        const double startTime, const double endTime,
+        const double timeStep,  const double seed = time( 0 ) );
 
 //! Class to represent timing system hardware (such as USO).
 class TimingSystem
