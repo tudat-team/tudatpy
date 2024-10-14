@@ -19,5 +19,6 @@
 #include "statistics/randomSampling.h"
 #include "statistics/randomVariableGenerator.h"
 #include "statistics/simpleLinearRegression.h"
+#include "statistics/allanVariance.h"
 
 #endif // TUDAT_STATISTICS_H
