@@ -121,6 +121,7 @@ IrradianceWithSourceList PaneledRadiationSourceModel::evaluateIrradianceAtPositi
     return irradiances;
 }
 
+
 void StaticallyPaneledRadiationSourceModel::updateMembers_(double currentTime)
 {
     sourcePanelRadiosityModelUpdater_->updateMembers(currentTime);
@@ -177,8 +178,9 @@ DynamicallyPaneledRadiationSourceModel::DynamicallyPaneledRadiationSourceModel(
         const std::shared_ptr<basic_astrodynamics::BodyShapeModel>& sourceBodyShapeModel,
         std::unique_ptr<SourcePanelRadiosityModelUpdater> sourcePanelRadiosityModelUpdater,
         const std::vector<std::unique_ptr<SourcePanelRadiosityModel>>& baseRadiosityModels,
-        const std::vector<int>& numberOfPanelsPerRing) :
-        PaneledRadiationSourceModel(sourceBodyShapeModel, std::move(sourcePanelRadiosityModelUpdater)),
+        const std::vector<int>& numberOfPanelsPerRing,
+        const std::string& sourceName) :
+        PaneledRadiationSourceModel(sourceBodyShapeModel, std::move(sourcePanelRadiosityModelUpdater),sourceName),
         numberOfPanelsPerRing_(numberOfPanelsPerRing)
 {
     if( sourceBodyShapeModel == nullptr )
@@ -240,6 +242,22 @@ IrradianceWithSourceList DynamicallyPaneledRadiationSourceModel::evaluateIrradia
 
     return PaneledRadiationSourceModel::evaluateIrradianceAtPosition(targetPosition);
 }
+
+std::vector< Eigen::Vector7d > DynamicallyPaneledRadiationSourceModel::getCurrentPanelGeomtry( )
+{
+    std::vector< Eigen::Vector7d > panelGeometries;
+    panelGeometries.resize( panels_.size( ) );
+    for( unsigned int i = 0; i < panels_.size( ); i++ )
+    {
+        Eigen::Vector7d currentProperties = Eigen::Vector7d::Zero( );
+        currentProperties.segment( 0, 3 ) = panels_.at( i ).getRelativeCenter( );
+        currentProperties.segment( 3, 3 ) = panels_.at( i ).getSurfaceNormal( );
+        currentProperties( 6 ) = panels_.at( i ).getArea( );
+        panelGeometries[ i ] = currentProperties;
+    }
+    return panelGeometries;
+}
+
 
 void DynamicallyPaneledRadiationSourceModel::updateMembers_(double currentTime)
 {

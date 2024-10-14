@@ -121,3 +121,9 @@ TUDAT_ADD_TEST_CASE(ReadTabulatedMediaCorrections
 
 TUDAT_ADD_TEST_CASE(ReadTabulatedWeatherData
         PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES} )
+
+TUDAT_ADD_TEST_CASE(TrackingTxtFileReader
+        PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES} )
+
+TUDAT_ADD_TEST_CASE(IfmsFileReader
+        PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES} )

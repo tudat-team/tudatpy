@@ -14,6 +14,7 @@ set(relativity_SOURCES
         "relativisticAccelerationCorrection.cpp"
         "relativisticTimeConversion.cpp"
         "metric.cpp"
+        "einsteinInfeldHoffmannEquations.cpp"
         )
 
 # Set the header files.
@@ -22,6 +23,8 @@ set(relativity_HEADERS
         "relativisticAccelerationCorrection.h"
         "relativisticTimeConversion.h"
         "metric.h"
+        "einsteinInfeldHoffmannEquations.h"
+        "einsteinInfeldHoffmannAcceleration.h"
         )
 
 TUDAT_ADD_LIBRARY("relativity"

@@ -25,6 +25,7 @@
 #include "tudat/simulation/propagation_setup/propagationSettings.h"
 #include "tudat/simulation/environment_setup/createFlightConditions.h"
 #include "tudat/math/basic/rotationRepresentations.h"
+#include "tudat/astro/aerodynamics/nrlmsise00Atmosphere.h"
 
 namespace tudat
 {
@@ -110,7 +111,8 @@ Eigen::VectorXd getNormsOfAccelerationDifferencesFromLists(
  * or equal to 1 if the property `component_` is set).
  */
 int getDependentVariableSaveSize(
-        const std::shared_ptr< SingleDependentVariableSaveSettings >& singleDependentVariableSaveSettings );
+        const std::shared_ptr< SingleDependentVariableSaveSettings >& singleDependentVariableSaveSettings,
+        const simulation_setup::SystemOfBodies& bodies );
 
 //! Funtion to get the size of a dependent variable
 /*!
@@ -120,13 +122,16 @@ int getDependentVariableSaveSize(
  * \return Size of requested dependent variable.
  */
 int getDependentVariableSize(
-        const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings );
+        const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings,
+        const simulation_setup::SystemOfBodies& bodies );
 
 std::pair< int, int > getDependentVariableShape(
-    const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings );
+    const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings,
+    const simulation_setup::SystemOfBodies& bodies );
 
 bool isScalarDependentVariable(
-        const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings );
+        const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings,
+        const simulation_setup::SystemOfBodies& bodies );
 
 bool isMatrixDependentVariable(
     const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings );
@@ -1536,7 +1541,7 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
         {
             std::function< Eigen::Vector3d( ) > stationPositionFunction =
                     std::bind( &simulation_setup::getGroundStationPositionDuringPropagation< double >,
-                                   bodies.at( bodyWithProperty ), secondaryBody );
+                                   bodies.at( bodyWithProperty ), secondaryBody, bodies );
             std::shared_ptr< ground_stations::PointingAnglesCalculator > stationPointingAngleCalculator =
                     bodies.at( bodyWithProperty )->getGroundStation( secondaryBody )->getPointingAnglesCalculator( );
 
@@ -1582,6 +1587,217 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
             variableFunction = [=]( ){ return getVectorRepresentationForRotationMatrix( massProperties->getCurrentInertiaTensor( ) ); };
             parameterSize = 9;
         }
+        break;
+    }
+    case vehicle_panel_inertial_surface_normals:
+    case vehicle_panel_body_fixed_surface_normals:
+    {
+        if( bodies.at( bodyWithProperty )->getVehicleSystems( ) == nullptr )
+        {
+            throw std::runtime_error( "Error when saving vehicle panel orientation of " + bodyWithProperty + ", body has no system models." );
+        }
+        else if( bodies.at( bodyWithProperty )->getVehicleSystems( )->getVehicleExteriorPanels( ).size( ) == 0 )
+        {
+            throw std::runtime_error( "Error when saving vehicle panel orientation of " + bodyWithProperty + ", body has no surface panels." );
+        }
+        else if( bodies.at( bodyWithProperty )->getVehicleSystems( )->getVehicleExteriorPanels( ).count( secondaryBody ) == 0 )
+        {
+            throw std::runtime_error( "Error when saving vehicle panel orientation of " + bodyWithProperty + ", body has no surface panels for part:" + secondaryBody + "." );
+        }
+        else
+        {
+            std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > partPanels =
+                bodies.at( bodyWithProperty )->getVehicleSystems( )->getVehicleExteriorPanels( ).at( secondaryBody );
+            parameterSize = 3 * partPanels.size( );
+
+            variableFunction = [=]( )
+            {
+
+                Eigen::VectorXd partSurfaceNormals = Eigen::VectorXd::Zero( parameterSize );
+                Eigen::Quaterniond normalRotation = Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) );
+                if( secondaryBody != "" )
+                {
+                    normalRotation = bodies.at( bodyWithProperty )->getVehicleSystems( )->getPartRotationToBaseFrame( secondaryBody );
+                }
+                if( dependentVariable == vehicle_panel_inertial_surface_normals )
+                {
+                    normalRotation = bodies.at( bodyWithProperty )->getCurrentRotationToGlobalFrame( ) * normalRotation;
+                }
+                for( unsigned int i = 0; i < partPanels.size( ); i++ )
+                {
+                    partSurfaceNormals.segment( i * 3, 3 ) = normalRotation * partPanels.at( i )->getFrameFixedSurfaceNormal( )( );
+                }
+
+                return partSurfaceNormals;
+            };
+
+        }
+        break;
+    }
+    case vehicle_surface_panel_radiation_pressure_force:
+    {
+        auto radiationPressureAccelerationList = getAccelerationBetweenBodies(
+            dependentVariableSettings->associatedBody_,
+            dependentVariableSettings->secondaryBody_,
+            stateDerivativeModels, basic_astrodynamics::radiation_pressure );
+
+        if (radiationPressureAccelerationList.empty())
+        {
+            std::string errorMessage = "Error, radiation pressure acceleration with target " +
+                                       dependentVariableSettings->associatedBody_ + " and source " +
+                                       dependentVariableSettings->secondaryBody_  +
+                                       " not found";
+            throw std::runtime_error(errorMessage);
+        }
+
+        auto radiationPressureAcceleration =
+            std::dynamic_pointer_cast<electromagnetism::RadiationPressureAcceleration>(
+                radiationPressureAccelerationList.front());
+        if( radiationPressureAcceleration == nullptr )
+        {
+            std::string errorMessage = "Error, radiation pressure acceleration with target " +
+                                       dependentVariableSettings->associatedBody_ + " and source " +
+                                       dependentVariableSettings->secondaryBody_  +
+                                       " not found with compatible type";
+            throw std::runtime_error(errorMessage);
+        }
+        else if( std::dynamic_pointer_cast< electromagnetism::PaneledRadiationPressureTargetModel >( radiationPressureAcceleration->getTargetModel( ) ) == nullptr )
+        {
+            std::string errorMessage = "Error, radiation pressure acceleration with target " +
+                                       dependentVariableSettings->associatedBody_ + " and source " +
+                                       dependentVariableSettings->secondaryBody_  +
+                                       " has no panelled target model when saving per-panel radiation pressure force";
+            throw std::runtime_error(errorMessage);
+        }
+        else
+        {
+            std::shared_ptr< electromagnetism::PaneledRadiationPressureTargetModel > paneledTarget =
+                std::dynamic_pointer_cast< electromagnetism::PaneledRadiationPressureTargetModel >( radiationPressureAcceleration->getTargetModel( ) );
+            parameterSize = 3 * paneledTarget->getTotalNumberOfPanels( );
+
+            variableFunction = [=]( )
+            {
+                Eigen::VectorXd panelForces = Eigen::VectorXd::Zero( parameterSize );
+                std::vector< Eigen::Vector3d >& panelForceList = paneledTarget->getPanelForces( secondaryBody );
+                for( unsigned int i = 0; i < panelForceList.size( ); i++ )
+                {
+                    panelForces.segment( 3 * i, 3 ) = panelForceList.at( i );
+                }
+                return panelForces;
+            };
+        }
+        break;
+    }
+    case paneled_radiation_source_per_panel_irradiance:
+    case paneled_radiation_source_geometry:
+    {
+        auto radiationPressureAccelerationList = getAccelerationBetweenBodies(
+            dependentVariableSettings->associatedBody_,
+            dependentVariableSettings->secondaryBody_,
+            stateDerivativeModels, basic_astrodynamics::radiation_pressure );
+        if (radiationPressureAccelerationList.empty())
+        {
+            std::string errorMessage = "Error, radiation pressure acceleration with target " +
+                                       dependentVariableSettings->associatedBody_ + " and source " +
+                                       dependentVariableSettings->secondaryBody_  +
+                                       " not found";
+            throw std::runtime_error(errorMessage);
+        }
+
+        auto radiationPressureAcceleration =
+            std::dynamic_pointer_cast<electromagnetism::RadiationPressureAcceleration>(
+                radiationPressureAccelerationList.front());
+        if( radiationPressureAcceleration == nullptr )
+        {
+            std::string errorMessage = "Error, radiation pressure acceleration with target " +
+                                       dependentVariableSettings->associatedBody_ + " and source " +
+                                       dependentVariableSettings->secondaryBody_  +
+                                       " not found with compatible type";
+            throw std::runtime_error(errorMessage);
+        }
+        else if( std::dynamic_pointer_cast< electromagnetism::PaneledSourceRadiationPressureAcceleration >( radiationPressureAcceleration ) == nullptr )
+        {
+            std::string errorMessage = "Error, radiation pressure acceleration with target " +
+                                       dependentVariableSettings->associatedBody_ + " and source " +
+                                       dependentVariableSettings->secondaryBody_  +
+                                       " has no panelled source model when saving per-source-panel properties";
+            throw std::runtime_error(errorMessage);
+        }
+        else
+        {
+            std::shared_ptr< electromagnetism::PaneledSourceRadiationPressureAcceleration > paneledRadiationPressureAcceleration =
+                std::dynamic_pointer_cast< electromagnetism::PaneledSourceRadiationPressureAcceleration >( radiationPressureAcceleration );
+            if( dependentVariable == paneled_radiation_source_per_panel_irradiance )
+            {
+                paneledRadiationPressureAcceleration->enableSavePanellingIrradiance( );
+                parameterSize = paneledRadiationPressureAcceleration->getPaneledSourceModel( )->getNumberOfPanels( );
+                variableFunction = [=]( )
+                {
+                    Eigen::VectorXd panelIrradiances = Eigen::VectorXd::Zero( parameterSize );
+                    std::vector< double >& panelIrradianceList = paneledRadiationPressureAcceleration->getSavedPanelIrradiances( );
+                    for( unsigned int i = 0; i < panelIrradianceList.size( ); i++ )
+                    {
+                        panelIrradiances( i ) = panelIrradianceList.at( i );
+                    }
+
+                    return panelIrradiances;
+                };
+            }
+            else if( dependentVariable == paneled_radiation_source_geometry )
+            {
+                paneledRadiationPressureAcceleration->enableSavePanellingGeometry( );
+                parameterSize = 7 * paneledRadiationPressureAcceleration->getPaneledSourceModel( )->getNumberOfPanels( );
+                variableFunction = [=]( )
+                {
+                    Eigen::VectorXd panelGeometries = Eigen::VectorXd::Zero( parameterSize );
+                    std::vector< Eigen::Vector7d >& panelGeometriesList = paneledRadiationPressureAcceleration->getSavedPanelGeometries( );
+                    for( unsigned int i = 0; i < panelGeometriesList.size( ); i++ )
+                    {
+                        panelGeometries.segment( 7 * i, 7 ) = panelGeometriesList.at( i );
+                    }
+
+                    return panelGeometries;
+                };
+            }
+        }
+        break;
+    }
+    case nrlmsise_input_data:
+    {
+        std::string acceleratedBody = dependentVariableSettings->associatedBody_;
+        std::string centralBody = dependentVariableSettings->secondaryBody_;
+
+
+        if( std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
+            bodies.at( acceleratedBody )->getFlightConditions( ) ) == nullptr )
+        {
+            simulation_setup::addAtmosphericFlightConditions(
+                bodies, acceleratedBody, secondaryBody );
+        }
+
+        std::shared_ptr< aerodynamics::AtmosphericFlightConditions > flightConditions =
+            std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
+                           bodies.at( acceleratedBody )->getFlightConditions( ) );
+
+        if ( std::dynamic_pointer_cast<aerodynamics::NRLMSISE00Atmosphere>(
+            bodies.at( centralBody )->getAtmosphereModel( )) == nullptr )
+        {
+            throw std::runtime_error(
+                "Error when saving nrlmsise input of " + centralBody + ", body has no NRLMSISE atmosphere." );
+        }
+        auto atmosphereModel =
+            std::dynamic_pointer_cast<aerodynamics::NRLMSISE00Atmosphere>(
+            bodies.at( centralBody )->getAtmosphereModel( ) );
+        variableFunction = [=]( )
+        {
+            atmosphereModel->setInputStruct(
+                flightConditions->getCurrentAltitude( ),
+                flightConditions->getCurrentLongitude( ),
+                flightConditions->getCurrentLatitude( ),
+                flightConditions->getCurrentTime( ) );
+            return aerodynamics::getNrlmsiseInputAsVector( atmosphereModel->getNRLMSISE00InputStruct() );
+        };
+        parameterSize = 17;
         break;
     }
     case custom_dependent_variable:
@@ -1653,7 +1869,7 @@ std::function< double( ) > getDoubleDependentVariableFunction(
         std::map< propagators::IntegratedStateType, orbit_determination::StateDerivativePartialsMap >( ) )
 {
     const int componentIndex = dependentVariableSettings->componentIndex_;
-    const int dependentVariableSize = getDependentVariableSize( dependentVariableSettings );
+    const int dependentVariableSize = getDependentVariableSize( dependentVariableSettings, bodies );
     if ( componentIndex >= 0 )
     {
         if ( dependentVariableSettings->componentIndex_ > dependentVariableSize - 1 )
@@ -1737,15 +1953,29 @@ std::function< double( ) > getDoubleDependentVariableFunction(
                                               bodies.at( bodyWithProperty )->getFlightConditions( ) ) );
             break;
         case radiation_pressure_dependent_variable:
-            if( bodies.at( bodyWithProperty )->getRadiationPressureTargetModel( ) == nullptr )
+        {
+            auto radiationPressureAccelerationList = getAccelerationBetweenBodies(
+                dependentVariableSettings->associatedBody_,
+                dependentVariableSettings->secondaryBody_,
+                stateDerivativeModels, basic_astrodynamics::radiation_pressure );
+
+            if (radiationPressureAccelerationList.empty())
             {
-                std::string errorMessage = "Error, no radiation pressure target model when requesting radiation pressure output of " +
-                        bodyWithProperty + "w.r.t." + secondaryBody;
-                throw std::runtime_error( errorMessage );
+                std::string errorMessage = "Error, radiation pressure acceleration with target " +
+                        dependentVariableSettings->associatedBody_ + " and source " +
+                        dependentVariableSettings->secondaryBody_  +
+                       " not found";
+                throw std::runtime_error(errorMessage);
             }
-            variableFunction = std::bind( &electromagnetism::RadiationPressureTargetModel::getRadiationPressure,
-                                          bodies.at( bodyWithProperty )->getRadiationPressureTargetModel( ) );
+
+            auto radiationPressureAcceleration =
+                    std::dynamic_pointer_cast<electromagnetism::RadiationPressureAcceleration>(
+                            radiationPressureAccelerationList.front());
+
+            variableFunction = [=] () { return radiationPressureAcceleration->getCurrentRadiationPressure(); };
+
             break;
+        }
         case relative_distance_dependent_variable:
         {
             // Retrieve functions for positions of two bodies.
@@ -2575,7 +2805,7 @@ std::pair< std::function< Eigen::VectorXd( ) >, std::map< std::pair< int, int >,
     {
         std::pair< std::function< Eigen::VectorXd( ) >, int > vectorFunction;
         // Create double parameter
-        if( isScalarDependentVariable( variable ) )
+        if( isScalarDependentVariable( variable, bodies ) )
         {
 #if(TUDAT_BUILD_WITH_ESTIMATION_TOOLS )
             std::function< double( ) > doubleFunction =

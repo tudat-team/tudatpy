@@ -41,7 +41,8 @@ enum ObservableType
     n_way_differenced_range = 10,
     relative_position_observable = 11,
     dsn_one_way_averaged_doppler = 12,
-    dsn_n_way_averaged_doppler = 13
+    dsn_n_way_averaged_doppler = 13,
+    doppler_measured_frequency = 14,
 };
 
 
@@ -71,11 +72,17 @@ ObservableType getUndifferencedObservableType( const ObservableType differencedO
 
 ObservableType getDifferencedObservableType( const ObservableType undifferencedObservableType );
 
+ObservableType getUnconcatenatedObservableType( const ObservableType observableType );
+
 ObservableType getBaseObservableType( const ObservableType observableType );
 
 std::pair< std::vector< int >, std::vector< int > > getUndifferencedTimeAndStateIndices(
         const ObservableType differencedObservableType,
         const int numberOfLinkEnds );
+
+std::pair< LinkEnds, LinkEnds > getUndifferencedLinkEnds( const ObservableType differencedObservableType, const LinkEnds& differencedLinkEnds );
+
+std::vector< LinkEnds > getUnconcatenatedLinkEnds( const ObservableType concatenatedObservableType, const LinkEnds& concatenatedLinkEnds );
 
 //! Function to get the size of an observable of a given type.
 /*!
@@ -169,10 +176,6 @@ std::vector< LinkEndType > getLinkEndTypesForGivenLinkEndId(
 
 std::vector< int > getLinkEndIndicesForLinkEndIdAtObservable(
         const ObservableType observableType, const LinkEnds& linkEnds, const LinkEndId linkEndToCheck );
-
-void checkObservationResidualDiscontinuities(
-        Eigen::Block< Eigen::VectorXd > observationBlock,
-        const ObservableType observableType );
 
 static const std::map< LinkEndType, int > oneWayLinkStateEntries = {
     { transmitter, 0 },

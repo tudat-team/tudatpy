@@ -97,6 +97,12 @@ public:
         return referenceScalingFactor_ * ( ( linkEndType == observation_models::transmitter ) ? ( -1.0 ) : ( 1.0 ) );
     }
 
+    Eigen::Matrix< double, 2, 3 > getFixedTimePositionScalingFactor(
+        const observation_models::LinkEndType linkEndType )
+    {
+        return scalingFactor_ * ( ( linkEndType == observation_models::transmitter ) ? ( -1.0 ) : ( 1.0 ) );
+    }
+
     //! Function to retrieve the factor by which the light-time partials should be scaled in one-way observation partial.
     /*!
      * Function to retrieve the factor by which the light-time partials should be scaled in one-way observation partial.

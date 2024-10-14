@@ -113,6 +113,37 @@ calculateSphericalHarmonicCoefficientsPartialWrtRealTidalLoveNumbers(
                 realCoefficientPartials, realLoveNumberScaler_ );
 }
 
+std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > > TidalLoveNumberPartialInterface::
+calculateSphericalHarmonicCoefficientsPartialWrtModeCoupledTidalLoveNumbers(
+    const std::vector< std::pair< int, int > > parameterDegreeAndOrderIndices,
+    const std::map< int, std::vector< int > >& ordersPerDegree,
+    const std::vector< int >& deformingBodyIndices,
+    const int maximumDegree,
+    const int maximumOrder )
+{
+    std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > > partials;
+    partials.reserve( parameterDegreeAndOrderIndices.size( ) );
+    deformedBodyGravitationalParameter_ = deformedBodyGravitationalParameterFunction_( );
+
+    // Set and calculate states and rotation needed for calculation of partial.
+    updateCurrentTidalBodyStates( deformingBodyIndices );
+
+    // Compute list of partials for all orders at requested degree
+    std::map< int, std::vector<Eigen::Vector2d> > partialsPerDegree;
+    for( auto it : ordersPerDegree )
+    {
+        partialsPerDegree[ it.first ] = calculateCoefficientPartialWrtRealTidalLoveNumber(
+            it.first, it.second, deformingBodyIndices, maximumDegree, maximumOrder );
+    }
+
+    // Add all partials into single list (ordered as per parameterDegreeAndOrderIndices)
+    for( unsigned int i = 0; i < parameterDegreeAndOrderIndices.size( ); i++ )
+    {
+        partials.push_back( partialsPerDegree.at( parameterDegreeAndOrderIndices.at( i ).first ).at( parameterDegreeAndOrderIndices.at( i ).second ) );
+    }
+    return partials;
+}
+
 //! Function to set a dependency of this partial object w.r.t. a given double parameter.
 std::pair< int, std::pair< int, int > > TidalLoveNumberPartialInterface::setParameterPartialFunction(
         const std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter,
@@ -246,6 +277,65 @@ std::pair< int, std::pair< int, int > > TidalLoveNumberPartialInterface::setPara
                                                  selectedDeformingBodies, maximumUsedDegree, maximumUsedOrder );
                         }
                     }
+
+                    numberOfRows = coefficientsParameter->getParameterSize( );
+                }
+            }
+
+            break;
+        }
+        case mode_coupled_tidal_love_numbers:
+        {
+            // Cast parameter object to required type.
+            std::shared_ptr< ModeCoupledTidalLoveNumber > coefficientsParameter =
+                std::dynamic_pointer_cast< ModeCoupledTidalLoveNumber >( parameter );
+            if( coefficientsParameter == nullptr )
+            {
+                throw std::runtime_error(
+                    "Error when setting partil function of mode_coupled_tidal_love_numbers in TidalLoveNumberPartialInterface, input is inconsistent" );
+            }
+
+            // Retrieve the maximum degree and order that are to be used for this model
+            getMaximumUsedDegreeAndOrder(
+                maximumDegree, maximumOrder, coefficientsParameter->getMaximumForcingDegree( ), maximumUsedDegree, maximumUsedOrder );
+
+            // Set parameter partial function if relevant terms are found
+            if( maximumUsedDegree > 0 )
+            {
+                // Check if deforming bodies correspond to bodies in model.
+                std::vector< int > selectedDeformingBodies = getSelectedDeformingBodyIds(
+                    coefficientsParameter->getDeformingBodies( ) );
+                if( selectedDeformingBodies.size( ) == coefficientsParameter->getDeformingBodies( ).size( ) &&
+                    coefficientsParameter->getDeformingBodies( ).size( ) == deformingBodies_.size( ) )
+                {
+                    // Add partial function if it is not yet set.
+                    if( parameterVectorPartialFunctions_.count(
+                        std::make_pair( parameter, std::make_pair( maximumUsedDegree, maximumUsedOrder ) ) ) == 0 )
+                    {
+//                        if( coefficientsParameter->useComplexComponents( ) )
+//                        {
+//                            // Calculate partials for complex love number
+//                            parameterVectorPartialFunctions_[ std::make_pair(
+//                                parameter, std::make_pair( maximumUsedDegree, maximumUsedOrder ) ) ] =
+//                                std::bind( &TidalLoveNumberPartialInterface::
+//                                           calculateSphericalHarmonicCoefficientsPartialWrtComplexTidalLoveNumbers, this,
+//                                           coefficientsParameter->getDegree( ), coefficientsParameter->getOrders( ),
+//                                           selectedDeformingBodies, maximumUsedDegree, maximumUsedOrder );
+//                        }
+//                        else
+//                        {
+                            // Calculate partial for real love number
+                            parameterVectorPartialFunctions_[ std::make_pair(
+                                parameter, std::make_pair( maximumUsedDegree, maximumUsedOrder ) ) ] =
+                                std::bind( &TidalLoveNumberPartialInterface::
+                                           calculateSphericalHarmonicCoefficientsPartialWrtModeCoupledTidalLoveNumbers, this,
+                                           coefficientsParameter->getParameterForcingDegreeAndOrderIndices( ),
+                                           coefficientsParameter->getForcingOrdersPerDegree( ),
+                                           selectedDeformingBodies, maximumUsedDegree, maximumUsedOrder );
+//                        }
+                    }
+
+
 
                     numberOfRows = coefficientsParameter->getParameterSize( );
                 }

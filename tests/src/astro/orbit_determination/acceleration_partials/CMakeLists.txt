@@ -37,4 +37,11 @@ TUDAT_ADD_TEST_CASE(RingPartials
         ${Tudat_ESTIMATION_LIBRARIES}
         )
 
+TUDAT_ADD_TEST_CASE(EihPartials
+        PRIVATE_LINKS
+        ${Tudat_ESTIMATION_LIBRARIES}
+        )
+
+
+
 

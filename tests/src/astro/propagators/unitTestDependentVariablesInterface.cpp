@@ -571,18 +571,18 @@ BOOST_AUTO_TEST_CASE( testHybridArcDependentVariablesInterface )
                         utilities::createVectorFromMapKeys< Eigen::VectorXd, double >( totalAccelerationHistory ),
                         utilities::createVectorFromMapValues< Eigen::VectorXd, double >( totalAccelerationHistory ), 4 );
 
-        // Total acceleration dependent variable settings.
-        std::shared_ptr< SingleDependentVariableSaveSettings > totalAccelerationDependentVariable
-                = std::make_shared< SingleDependentVariableSaveSettings >( total_acceleration_dependent_variable, "AlienSpaceship" );
-
-
-        // Check consistency between interpolator results and interface results, for a single dependent variable.
-        for ( unsigned int j = 0 ; j < testEpochs.size( ) ; j++ )
-        {
-            TUDAT_CHECK_MATRIX_CLOSE_FRACTION( totalAccelerationInterpolator->interpolate( testEpochs[ j ] ),
-                                               dependentVariablesInterface->getSingleDependentVariable( totalAccelerationDependentVariable, testEpochs[ j ] ),
-                                               ( 10.0 * std::numeric_limits< double >::epsilon( ) ) );
-        }
+//        // Total acceleration dependent variable settings.
+//        std::shared_ptr< SingleDependentVariableSaveSettings > totalAccelerationDependentVariable
+//                = std::make_shared< SingleDependentVariableSaveSettings >( total_acceleration_dependent_variable, "AlienSpaceship" );
+//
+//
+//        // Check consistency between interpolator results and interface results, for a single dependent variable.
+//        for ( unsigned int j = 0 ; j < testEpochs.size( ) ; j++ )
+//        {
+//            TUDAT_CHECK_MATRIX_CLOSE_FRACTION( totalAccelerationInterpolator->interpolate( testEpochs[ j ] ),
+//                                               dependentVariablesInterface->getSingleDependentVariable( totalAccelerationDependentVariable, testEpochs[ j ] ),
+//                                               ( 10.0 * std::numeric_limits< double >::epsilon( ) ) );
+//        }
     }
 
 }

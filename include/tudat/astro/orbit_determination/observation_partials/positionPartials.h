@@ -295,6 +295,13 @@ public:
         return Eigen::Matrix3d::Identity( );
     }
 
+    Eigen::Matrix< double, 3, 3 > getFixedTimePositionScalingFactor(
+        const observation_models::LinkEndType linkEndType )
+    {
+        return getPositionScalingFactor( linkEndType );
+    }
+
+
     virtual Eigen::Matrix< double, 3, 1 > getLightTimePartialScalingFactor( )
     {
         throw std::runtime_error( "Error when calculating position partial scaling factor; term non-existent for position observables" );
@@ -366,6 +373,12 @@ public:
         }
     }
 
+    Eigen::Matrix< double, 3, 3 > getFixedTimePositionScalingFactor(
+        const observation_models::LinkEndType linkEndType )
+    {
+        return getPositionScalingFactor( linkEndType );
+    }
+
     virtual Eigen::Matrix< double, 3, 1 > getLightTimePartialScalingFactor( )
     {
         throw std::runtime_error( "Error when calculating position partial scaling factor; term non-existent for position observables" );
@@ -427,10 +440,22 @@ public:
         return Eigen::Matrix3d::Zero( );
     }
 
+    Eigen::Matrix< double, 3, 3 > getFixedTimePositionScalingFactor(
+        const observation_models::LinkEndType linkEndType )
+    {
+        return getPositionScalingFactor( linkEndType );
+    }
+
     Eigen::Matrix< double, 3, 3 > getVelocityScalingFactor(
             const observation_models::LinkEndType linkEndType )
     {
         return Eigen::Matrix3d::Identity( );
+    }
+
+    Eigen::Matrix< double, 3, 3 > getFixedTimeVelocityScalingFactor(
+        const observation_models::LinkEndType linkEndType )
+    {
+        return getVelocityScalingFactor( linkEndType );
     }
 
     virtual Eigen::Matrix< double, 3, 1 > getLightTimePartialScalingFactor( )

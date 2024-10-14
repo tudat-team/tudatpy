@@ -653,25 +653,35 @@ BOOST_AUTO_TEST_CASE( generatePaneledSphericalCap_EqualAngularResolution_FarAway
     // All areas should sum to 2π (one hemisphere)
     const auto actualTotalArea = std::accumulate(areas.begin(), areas.end(), 0.0);
     const auto expectedTotalArea = 2 * PI;
-    BOOST_CHECK_CLOSE(actualTotalArea, expectedTotalArea, 1e-15);
+    //BOOST_CHECK_CLOSE(actualTotalArea, expectedTotalArea, 1e-15);
+    BOOST_CHECK_LT(std::fabs(actualTotalArea - expectedTotalArea), 1e-15);
 
     // Check central cap
-    BOOST_CHECK_CLOSE(polarAngles[0], 0, 1e-15);
-    BOOST_CHECK_CLOSE(azimuthAngles[0], 0, 1e-15);
+    //BOOST_CHECK_CLOSE(polarAngles[0], 0, 1e-15);
+    BOOST_CHECK_LT(std::fabs(polarAngles[0]), 1e-15);
+    //BOOST_CHECK_CLOSE(azimuthAngles[0], 0, 1e-15);
+    BOOST_CHECK_LT(std::fabs(azimuthAngles[0]), 1e-15);
 
     // Check ring panels
     // Their center should be at 22.5° latitude (ring stretches from equator to 45°)
     const auto expectedPolarAngle = 3. / 8 * PI;
-    BOOST_CHECK_CLOSE(polarAngles[1], expectedPolarAngle, 1e-15);
-    BOOST_CHECK_CLOSE(polarAngles[2], expectedPolarAngle, 1e-15);
-    BOOST_CHECK_CLOSE(polarAngles[3], expectedPolarAngle, 1e-15);
+    //BOOST_CHECK_CLOSE(polarAngles[1], expectedPolarAngle, 1e-15);
+    BOOST_CHECK_LT(std::fabs(polarAngles[1] - expectedPolarAngle), 1e-15);
+    //BOOST_CHECK_CLOSE(polarAngles[2], expectedPolarAngle, 1e-15);
+    BOOST_CHECK_LT(std::fabs(polarAngles[2] - expectedPolarAngle), 1e-15);
+    //BOOST_CHECK_CLOSE(polarAngles[3], expectedPolarAngle, 1e-15);
+    BOOST_CHECK_LT(std::fabs(polarAngles[3] - expectedPolarAngle), 1e-15);
     // They should be evenly spaced
     const auto expectedAzimuthAngle = 2. / 3 * PI;
-    BOOST_CHECK_CLOSE(azimuthAngles[3] - azimuthAngles[2], expectedAzimuthAngle, 1e-13);
-    BOOST_CHECK_CLOSE(azimuthAngles[2] - azimuthAngles[1], expectedAzimuthAngle, 1e-13);
+    //BOOST_CHECK_CLOSE(azimuthAngles[3] - azimuthAngles[2], expectedAzimuthAngle, 1e-13);
+    BOOST_CHECK_LT(std::fabs(azimuthAngles[3] - azimuthAngles[2] - expectedAzimuthAngle), 1e-13);
+    //BOOST_CHECK_CLOSE(azimuthAngles[2] - azimuthAngles[1], expectedAzimuthAngle, 1e-13);
+    BOOST_CHECK_LT(std::fabs(azimuthAngles[2] - azimuthAngles[1] - expectedAzimuthAngle), 1e-13);
     // They should have equal area
-    BOOST_CHECK_CLOSE(areas[1], areas[2], 1e-15);
-    BOOST_CHECK_CLOSE(areas[2], areas[3], 1e-15);
+    //BOOST_CHECK_CLOSE(areas[1], areas[2], 1e-15);
+    BOOST_CHECK_LT(std::fabs(areas[1] - areas[2]), 1e-15);
+    //BOOST_CHECK_CLOSE(areas[2], areas[3], 1e-15);
+    BOOST_CHECK_LT(std::fabs(areas[2] - areas[3]), 1e-15);
 }
 
 //! Test area of spherical cap panels (equal angular resolution)

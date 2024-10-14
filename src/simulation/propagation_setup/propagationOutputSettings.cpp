@@ -307,6 +307,24 @@ std::string getDependentVariableName(
     case visible_source_area:
         variableName = "Visible area";
         break;
+    case vehicle_panel_inertial_surface_normals:
+        variableName = "Vehicle surface panel inertial surface normals";
+        break;
+    case vehicle_panel_body_fixed_surface_normals:
+        variableName = "Vehicle surface panel body-fixed surface normals";
+        break;
+    case vehicle_surface_panel_radiation_pressure_force:
+        variableName = "Per-target panel vehicle radiation pressure force";
+        break;
+    case paneled_radiation_source_per_panel_irradiance:
+        variableName = "Per-source panel radiation pressure irradiance";
+        break;
+    case paneled_radiation_source_geometry:
+        variableName = "Per-source panel radiation pressure geometry";
+        break;
+    case nrlmsise_input_data:
+        variableName = "NRLMSISE00 input data vector";
+        break;
     default:
         std::string errorMessage = "Error, dependent variable " +
                 std::to_string( propagationDependentVariables ) +

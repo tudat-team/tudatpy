@@ -18,8 +18,6 @@ add_subdirectory(acceleration_partials)
 add_subdirectory(rotational_dynamics_partials)
 add_subdirectory(observation_partials)
 
-
-
 TUDAT_ADD_TEST_CASE(EstimationInput
     PRIVATE_LINKS
     ${Tudat_ESTIMATION_LIBRARIES}
@@ -91,6 +89,10 @@ TUDAT_ADD_TEST_CASE(NonSequentialStateEstimation
      ${Tudat_ESTIMATION_LIBRARIES}
      )
 
+ TUDAT_ADD_TEST_CASE(EihEstimation
+         PRIVATE_LINKS
+         ${Tudat_ESTIMATION_LIBRARIES}
+         )
 # Example application: estimation of Doppler observations from ODF/DSN data
 #TUDAT_ADD_TEST_CASE(EstimationFromDsnData
 #    PRIVATE_LINKS
@@ -102,17 +104,39 @@ TUDAT_ADD_TEST_CASE(NonSequentialStateEstimation
 #    PRIVATE_LINKS
 #    ${Tudat_ESTIMATION_LIBRARIES}
 #    )
+
  TUDAT_ADD_TEST_CASE(ConsiderParameters
          PRIVATE_LINKS
          ${Tudat_ESTIMATION_LIBRARIES}
          )
+
+ TUDAT_ADD_TEST_CASE(FitToSpice
+        PRIVATE_LINKS
+        ${Tudat_ESTIMATION_LIBRARIES}
+ )
 
  TUDAT_ADD_TEST_CASE(CustomAccelerationVariationalEquations
          PRIVATE_LINKS
          ${Tudat_ESTIMATION_LIBRARIES}
  )
 
- TUDAT_ADD_TEST_CASE(FitToSpice
+
+ TUDAT_ADD_TEST_CASE(VehicleReferencePointEstimation
+         PRIVATE_LINKS
+         ${Tudat_ESTIMATION_LIBRARIES}
+ )
+
+ TUDAT_ADD_TEST_CASE(RadiationPressureEstimation
+         PRIVATE_LINKS
+         ${Tudat_ESTIMATION_LIBRARIES}
+ )
+
+ TUDAT_ADD_TEST_CASE(ObservationsProcessing
+         PRIVATE_LINKS
+         ${Tudat_ESTIMATION_LIBRARIES}
+ )
+
+TUDAT_ADD_TEST_CASE(CovariancePropagation
          PRIVATE_LINKS
          ${Tudat_ESTIMATION_LIBRARIES}
  )

@@ -260,7 +260,7 @@ ScalarType convertMeanAnomalyToEccentricAnomaly(
             std::shared_ptr< RootFinder< ScalarType > > bisectionRootfinder =
                     rootFinder = root_finders::createRootFinder< ScalarType >(
                                 root_finders::bisectionRootFinderSettings(
-                                    TUDAT_NAN, TUDAT_NAN, tolerance, 100, root_finders::accept_result ),
+                                    TUDAT_NAN, tolerance, TUDAT_NAN, 100, root_finders::accept_result ),
                          lowerBound, upperBound );
 
             initialGuess = meanAnomaly;

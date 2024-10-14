@@ -192,7 +192,8 @@ Eigen::VectorXd getNormsOfAccelerationDifferencesFromLists(
 
 //! Funtion to get the size of a dependent variable save settings
 int getDependentVariableSaveSize(
-        const std::shared_ptr< SingleDependentVariableSaveSettings >& singleDependentVariableSaveSettings )
+        const std::shared_ptr< SingleDependentVariableSaveSettings >& singleDependentVariableSaveSettings,
+        const simulation_setup::SystemOfBodies& bodies )
 {
     if ( singleDependentVariableSaveSettings->componentIndex_ >= 0 )
     {
@@ -200,13 +201,14 @@ int getDependentVariableSaveSize(
     }
     else
     {
-        return getDependentVariableSize( singleDependentVariableSaveSettings );
+        return getDependentVariableSize( singleDependentVariableSaveSettings, bodies );
     }
 }
 
 //! Funtion to get the size of a dependent variable
 int getDependentVariableSize(
-        const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings )
+        const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings,
+        const simulation_setup::SystemOfBodies& bodies )
 {
     int variableSize = -1;
     switch( dependentVariableSettings->dependentVariableType_ )
@@ -486,6 +488,79 @@ int getDependentVariableSize(
     case visible_source_area:
         variableSize = 1;
         break;
+    case vehicle_panel_inertial_surface_normals:
+    case vehicle_panel_body_fixed_surface_normals:
+    {
+        std::string bodyWithProperty = dependentVariableSettings->associatedBody_;
+        std::string partName = dependentVariableSettings->secondaryBody_;
+        if( bodies.at( bodyWithProperty )->getVehicleSystems( ) == nullptr )
+        {
+            throw std::runtime_error( "Error when saving vehicle panel orientation of " + bodyWithProperty + ", body has no system models." );
+        }
+        else if( bodies.at( bodyWithProperty )->getVehicleSystems( )->getVehicleExteriorPanels( ).size( ) == 0 )
+        {
+            throw std::runtime_error( "Error when saving vehicle panel orientation of " + bodyWithProperty + ", body has no surface panels." );
+        }
+        else if( bodies.at( bodyWithProperty )->getVehicleSystems( )->getVehicleExteriorPanels( ).count( partName ) == 0 )
+        {
+            throw std::runtime_error( "Error when saving vehicle panel orientation of " + bodyWithProperty + ", body has no surface panels for part:" + partName + "." );
+        }
+        else
+        {
+            std::vector<std::shared_ptr<system_models::VehicleExteriorPanel> > partPanels =
+                bodies.at( bodyWithProperty )->getVehicleSystems( )->getVehicleExteriorPanels( ).at( partName );
+            variableSize = 3 * partPanels.size( );
+            break;
+        }
+    }
+    case vehicle_surface_panel_radiation_pressure_force:
+    {
+        std::string bodyWithProperty = dependentVariableSettings->associatedBody_;
+        std::string partName = dependentVariableSettings->secondaryBody_;
+        if( bodies.at( bodyWithProperty )->getVehicleSystems( ) == nullptr )
+        {
+            throw std::runtime_error( "Error when saving panel radiation pressure force of " + bodyWithProperty + ", body has no system models." );
+        }
+        else if( bodies.at( bodyWithProperty )->getVehicleSystems( )->getVehicleExteriorPanels( ).size( ) == 0 )
+        {
+            throw std::runtime_error( "Error when saving vehicle radiation pressure force of " + bodyWithProperty + ", body has no surface panels." );
+        }
+        else
+        {
+            variableSize = 3 * bodies.at( bodyWithProperty )->getVehicleSystems( )->getTotalNumberOfPanels( );
+            break;
+        }
+    }
+    case paneled_radiation_source_per_panel_irradiance:
+    case paneled_radiation_source_geometry:
+    {
+        std::string bodyWithProperty = dependentVariableSettings->secondaryBody_;
+        if( bodies.at( bodyWithProperty )->getRadiationSourceModel( ) == nullptr )
+        {
+            throw std::runtime_error( "Error when saving paneled radiation pressure source properties of " + bodyWithProperty + ", body has no source model." );
+        }
+        else if( std::dynamic_pointer_cast< electromagnetism::PaneledRadiationSourceModel >( bodies.at( bodyWithProperty )->getRadiationSourceModel( ) ) == nullptr )
+        {
+            throw std::runtime_error( "Error when saving paneled radiation pressure source properties of " + bodyWithProperty + ", body has no paneled source model." );
+        }
+        else
+        {
+            int numberOfPanels =
+                std::dynamic_pointer_cast< electromagnetism::PaneledRadiationSourceModel >( bodies.at( bodyWithProperty )->getRadiationSourceModel( ) )->getNumberOfPanels( );
+            if( dependentVariableSettings->dependentVariableType_ == paneled_radiation_source_per_panel_irradiance )
+            {
+                variableSize = numberOfPanels;
+            }
+            else
+            {
+                variableSize = 7 * numberOfPanels;
+            }
+        }
+        break;
+    }
+    case nrlmsise_input_data:
+        variableSize = 17;
+        break;
     default:
         std::string errorMessage = "Error, did not recognize dependent variable size of type: " +
                 std::to_string( dependentVariableSettings->dependentVariableType_ );
@@ -495,9 +570,10 @@ int getDependentVariableSize(
 }
 
 std::pair< int, int > getDependentVariableShape(
-    const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings )
+    const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings,
+    const simulation_setup::SystemOfBodies& bodies )
 {
-    int dependentVariableSize = getDependentVariableSaveSize( dependentVariableSettings );
+    int dependentVariableSize = getDependentVariableSaveSize( dependentVariableSettings, bodies );
     std::pair< int, int > dependentVariableShape;
     switch ( dependentVariableSettings->dependentVariableType_ )
     {
@@ -543,9 +619,10 @@ std::pair< int, int > getDependentVariableShape(
 }
 
 bool isScalarDependentVariable(
-        const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings )
+        const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings,
+        const simulation_setup::SystemOfBodies& bodies )
 {
-    int dependentVariableSize = getDependentVariableSaveSize( dependentVariableSettings );
+    int dependentVariableSize = getDependentVariableSaveSize( dependentVariableSettings, bodies );
     if( dependentVariableSize > 1 ||
             dependentVariableSettings->dependentVariableType_ == spherical_harmonic_acceleration_norm_terms_dependent_variable ||
             dependentVariableSettings->dependentVariableType_ == custom_dependent_variable )

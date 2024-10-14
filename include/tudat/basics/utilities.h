@@ -14,13 +14,16 @@
 #include <unordered_map>
 #include <map>
 #include <vector>
+#include <set>
 #include <iostream>
 #include <stdexcept>
 #include <sstream>
+#include <fstream>
 #include <iomanip>
 
 #include <functional>
 #include <boost/multi_array.hpp>
+#include <boost/algorithm/string.hpp>
 #include <memory>
 
 #include <Eigen/Core>
@@ -693,19 +696,45 @@ std::vector< T > linspace(T start_in, T end_in, int num_in)
     return linspaced;
 }
 
-template< typename KeyType, typename ScalarType >
-std::map< KeyType, Eigen::Matrix< ScalarType, Eigen::Dynamic, 1 > > sliceMatrixHistory(
+template< typename KeyType, typename ScalarType, typename NewKeyType = KeyType >
+std::map< NewKeyType, Eigen::Matrix< ScalarType, Eigen::Dynamic, 1 > > sliceMatrixHistory(
         const std::map< KeyType, Eigen::Matrix< ScalarType, Eigen::Dynamic, 1 > >& fullHistory,
         const std::pair< int, int > sliceStartIndexAndSize )
 {
-    std::map< KeyType, Eigen::Matrix< ScalarType, Eigen::Dynamic, 1 > > slicedHistory;
+    std::map< NewKeyType, Eigen::Matrix< ScalarType, Eigen::Dynamic, 1 > > slicedHistory;
 
     for( auto mapIterator : fullHistory )
     {
-        slicedHistory[ mapIterator.first ] = mapIterator.second.segment(
+        slicedHistory[ static_cast< NewKeyType >( mapIterator.first ) ] = mapIterator.second.segment(
                     sliceStartIndexAndSize.first, sliceStartIndexAndSize.second );
     }
     return slicedHistory;
+}
+
+template< typename KeyType, typename ScalarType >
+Eigen::Matrix< ScalarType, Eigen::Dynamic, Eigen::Dynamic > convertVectorHistoryToMatrix(
+    const std::map< KeyType, Eigen::Matrix< ScalarType, Eigen::Dynamic, 1 > >& vectorHistory )
+{
+    int numberOfRows = vectorHistory.size( );
+    int numberOfColumns = 0;
+    if( numberOfRows > 0 )
+    {
+        numberOfColumns = vectorHistory.begin( )->second.rows( );
+    }
+    Eigen::Matrix< ScalarType, Eigen::Dynamic, Eigen::Dynamic > concatenatedMatrix =
+        Eigen::Matrix< ScalarType, Eigen::Dynamic, Eigen::Dynamic >::Zero( numberOfRows, numberOfColumns );
+    int counter = 0;
+    for( auto it : vectorHistory )
+    {
+        Eigen::Matrix< ScalarType, Eigen::Dynamic, 1 > currentVector = it.second;
+        if( currentVector.rows( ) != numberOfColumns )
+        {
+            throw std::runtime_error( "Error when converting vector history to matrix, size is incompatible" );
+        }
+        concatenatedMatrix.block( counter, 0, 1, numberOfColumns ) = currentVector.transpose( );
+        counter++;
+    }
+    return concatenatedMatrix;
 }
 
 template< typename KeyType, typename ValueType >
@@ -873,7 +902,7 @@ std::vector< T > getStlVectorSegment( const std::vector< T > originalVector, con
 }
 
 template< typename T, typename S >
-std::vector< T > staticCastVector( const std::vector< S > originalVector )
+std::vector< T > staticCastVector( const std::vector< S >& originalVector )
 {
     std::vector< T > castVector;
     for( unsigned int i = 0; i < originalVector.size( ); i++ )
@@ -881,6 +910,17 @@ std::vector< T > staticCastVector( const std::vector< S > originalVector )
         castVector.push_back( static_cast< T >( originalVector.at( i ) ) );
     }
     return castVector;
+}
+
+template< typename T, typename S, typename U >
+std::map< T, U > staticCastMapKeys( const std::map< S, U >& originalMap )
+{
+    std::map< T, U > castMap;
+    for( auto it : originalMap )
+    {
+        castMap[ static_cast< T >( it.first) ] = it.second;
+    }
+    return castMap;
 }
 
 template <typename T>
@@ -897,7 +937,162 @@ Eigen::Matrix< T, Eigen::Dynamic, 1 > getSuccesivelyConcatenatedVector(
     return concatenatedVector;
 }
 
+template <typename T>
+int countNumberOfOccurencesInVector( const std::vector< T >& vector, const T& value )
+{
+    int counter = 0;
+    for( unsigned int i = 0; i < vector.size( ); i++ )
+    {
+        if( vector.at( i ) == value )
+        {
+            counter++;
+        }
+    }
+    return counter;
+}
 
+/*!
+ * Check if one container contains all elements of another container
+ * @param referenceArray The array that is expected to contain all the elements of the searchArray
+ * @param searchArray The array of elements that will be searched in the reference array
+ * @return true if all elements from searchArray are in referenceArray
+ */
+template< typename T, typename U >
+bool containsAll(const T& referenceArray, const U searchArray)
+{
+    for (auto search_element: searchArray)
+    {
+        if (std::find(referenceArray.begin(), referenceArray.end(), search_element) == referenceArray.end())
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+//! Convert a vector to a set
+template< typename T >
+std::set<T> vectorToSet(std::vector<T> vector)
+{
+  std::set<T> set;
+  for (T& elem : vector) {
+    set.insert(elem);
+  }
+  return set;
+}
+
+//! Base case for the commonVectorSizeOrZero function
+template<typename T>
+size_t commonVectorSizeOrZero(const T& first) {
+    return first.size(); // Base case: single vector, return its size
+}
+
+/*!
+ * Recursive function to check if all vectors have the same size. If they do, return the size, otherwise return 0.
+ * \param first first vector
+ * \param args any number of vectors
+ * \return size of all vectors if they have the same size, 0 otherwise
+ */
+template<typename T, typename... Args>
+size_t commonVectorSizeOrZero(const T& first, const Args&... args) {
+    size_t sizeFirst = first.size();
+    size_t sizeRest = commonVectorSizeOrZero(args...);
+
+    // Return size of all vectors if they have the same size, 0 otherwise
+    return (sizeFirst == sizeRest) ? sizeFirst : 0;
+}
+
+
+/*!
+ * Apply a function that takes multiple arguments to operate on all the rows of vectors.
+ * \param convertFunc function that will convert each row of the vectors to the output
+ * \param firstArg at least one vector must be provided
+ * \param args any number of vectors. the total arguments must be compatible with the required arguments for convertFunc
+ */
+template< typename ScalarType, typename ConvertFunc, typename FirstArg, typename... Args >
+std::vector< ScalarType > convertVectors(ConvertFunc convertFunc, const std::vector<FirstArg>& firstArg, const std::vector<Args>& ... args)
+{
+    std::vector<ScalarType> result;
+    size_t N = commonVectorSizeOrZero(firstArg, args...);
+
+    if (!N) {
+        throw std::runtime_error("Error when applying conversion function: Vectors have different sizes");
+    }
+
+    for (size_t i = 0; i < N; ++i) {
+        result.push_back(convertFunc(firstArg[i], args[i]...));
+    }    
+    return result;
+}
+
+
+template<typename T, typename U>
+std::map<T, U> getMapFromFile(std::string fileName, char commentSymbol='#', std::string separators="\t");
+
+template<>
+std::map<std::string, Eigen::Vector3d> getMapFromFile<std::string, Eigen::Vector3d>(std::string fileName, char commentSymbol, std::string separators);
+
+template<>
+std::map<std::string, std::string> getMapFromFile<std::string, std::string>(std::string fileName, char commentSymbol, std::string separators);
+
+/*!
+ * Utility function to get a value from a string map where the keys are all uppercase
+ * @param strValue string value of which the value needs to be found. This can be a combination of upper and lower case letters
+ * @param upperCaseMapping map with upper case string keys
+ * @return value in the map
+ */
+template< typename T >
+T upperCaseFromMap(const std::string& strValue, const std::map<std::string, T>& upperCaseMapping)
+{
+  std::string upperCaseStrValue = boost::to_upper_copy(strValue);
+  const auto iter = upperCaseMapping.find(upperCaseStrValue);
+  if (iter != upperCaseMapping.cend()) {
+    return iter->second;
+  }
+  throw std::runtime_error("Invalid key found in map while converting tracking data");
+}
+
+template<typename T>
+std::vector< std::vector< T > > getTwoDimensionalVector( const int firstDimension, const int secondDimension, const T initializationValue )
+{
+    return std::vector< std::vector< T > >(firstDimension, std::vector<T>(secondDimension, initializationValue));
+}
+
+template<typename T>
+std::vector< std::vector< std::vector< T > > > getThreeDimensionalVector( const int firstDimension, const int secondDimension, const int thirdDimension, const T initializationValue )
+{
+    return std::vector< std::vector< std::vector< T > > >(firstDimension, std::vector< std::vector<T> >(secondDimension, std::vector<T>( thirdDimension, initializationValue) ) );
+}
+
+template< typename T >
+void getVectorStartBlock(
+    std::vector< T >& newVector,
+    const std::vector< T >& originalVector,
+    const int numberOfEntries )
+{
+    newVector = std::vector< T >( originalVector.begin( ), originalVector.begin( ) + numberOfEntries );
+}
+
+template< typename T >
+void getVectorEndBlock(
+    std::vector< T >& newVector,
+    const std::vector< T >& originalVector,
+    const int numberOfEntries )
+{
+    newVector = std::vector< T >( originalVector.end( ) - numberOfEntries, originalVector.end( ) );
+}
+
+
+template<typename T>
+bool compareStlVectors( const std::vector<T>& v1, const std::vector<T>& v2)
+{
+    auto v1Sort = v1;
+    auto v2Sort = v2;
+
+    std::sort(v1Sort.begin(), v1Sort.end());
+    std::sort(v2Sort.begin(), v2Sort.end());
+    return v1Sort == v2Sort;
+}
 } // namespace utilities
 
 } // namespace tudat

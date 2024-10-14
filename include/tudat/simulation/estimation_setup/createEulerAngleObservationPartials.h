@@ -58,7 +58,8 @@ createEulerAngleObservablePartials(
         const observation_models::LinkEnds eulerAngleLinkEnds,
         const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
-        const bool useBiasPartials = true )
+        const bool isPartialForDifferencedObservable = false,
+        const bool isPartialForConcatenatedObservable = false )
 
 {
     // Create scaling object, to be used for each partial created here (i.e. same scaling for different parameters but same

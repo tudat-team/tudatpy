@@ -88,7 +88,7 @@ protected:
     /*!
      * Whether the radiosity model is invariant with time. If yes, its members will not be updated even if the time
      * changed, it will only be updated when the latitude/longitude change. The time invariance is usually determined
-     * by the albedo/emissivity distribution.
+     * by the albedo/emissivity SourcePanelRadiosityModeldistribution.
      *
      * @return Whether the radiosity model is invariant with time
      */

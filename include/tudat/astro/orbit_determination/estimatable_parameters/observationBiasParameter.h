@@ -421,6 +421,39 @@ private:
     std::shared_ptr< interpolators::LookUpScheme< double > > lookupScheme_;
 };
 
+class TimeBiasParameterBase: public EstimatableParameter< Eigen::VectorXd >
+{
+public:
+
+    TimeBiasParameterBase( const EstimatebleParametersEnum parameterName,
+                          const std::string& associatedBody,
+                          const std::string& pointOnBodyId = ""  ):
+        EstimatableParameter< Eigen::VectorXd >( parameterName, associatedBody, pointOnBodyId )
+    {
+        if( !isParameterObservationLinkTimeProperty( parameterName ) )
+        {
+            throw std::runtime_error( "Error when creating TimeBiasParameterBase, parameter " + std::to_string( parameterName ) + " not supported" );
+        }
+    }
+
+    ~TimeBiasParameterBase( ){ }
+
+    void setBodyAccelerationFunction( const std::function< Eigen::VectorXd( const double ) >  bodyAccelerationFunction )
+    {
+        bodyAccelerationFunction_ = bodyAccelerationFunction;
+    }
+
+    std::function< Eigen::VectorXd( const double ) > getBodyAccelerationFunction( )
+    {
+        return bodyAccelerationFunction_;
+    }
+
+
+protected:
+
+    std::function< Eigen::VectorXd( const double ) > bodyAccelerationFunction_;
+
+};
 
 //! Interface class for the estimation of a constant time drift bias.
 /*!
@@ -867,6 +900,7 @@ private:
     std::vector< double > referenceEpochs_;
 };
 
+
 //! Interface class for the estimation of a constant time bias.
 /*!
  *  Interface class for the estimation of a constant time bias (at given link ends and observable
@@ -875,7 +909,7 @@ private:
  *  used in the simulations for the observation bias. This is due to the fact that the ConstantTimeBias class is
  *  templated by the observable size, while this class is not.
  */
-class ConstantTimeBiasParameter: public EstimatableParameter< Eigen::VectorXd >
+class ConstantTimeBiasParameter: public TimeBiasParameterBase
 {
 
 public:
@@ -892,12 +926,16 @@ public:
     ConstantTimeBiasParameter(
             const std::function< Eigen::VectorXd( ) > getCurrentBias,
             const std::function< void( const Eigen::VectorXd& ) > resetCurrentBias,
-            const int linkEndIndex,
+            const observation_models::LinkEndType linkEndForTime,
             const observation_models::LinkEnds linkEnds,
             const observation_models::ObservableType observableType ):
-            EstimatableParameter< Eigen::VectorXd >( constant_time_observation_bias, linkEnds.begin( )->second.bodyName_ ),
-            getCurrentBias_( getCurrentBias ), resetCurrentBias_( resetCurrentBias ), linkEndIndex_( linkEndIndex ),
-            linkEnds_( linkEnds ), observableType_( observableType ){ }
+            TimeBiasParameterBase( constant_time_observation_bias, linkEnds.begin( )->second.bodyName_ ),
+            getCurrentBias_( getCurrentBias ), resetCurrentBias_( resetCurrentBias ), linkEndForTime_( linkEndForTime ),
+            linkEnds_( linkEnds ), observableType_( observableType )
+            {
+                linkEndIndex_ = observation_models::getLinkEndIndicesForLinkEndTypeAtObservable(
+                    observableType_, linkEndForTime_, linkEnds_.size( ) ).at( 0 );
+            }
 
     //! Destructor
     ~ConstantTimeBiasParameter( ) { }
@@ -915,7 +953,7 @@ public:
         }
         else
         {
-            return Eigen::VectorXd::Constant( getParameterSize( ), TUDAT_NAN );
+            return Eigen::VectorXd::Constant( 1, TUDAT_NAN );
         }
     }
 
@@ -995,6 +1033,18 @@ public:
         return linkEnds_;
     }
 
+    observation_models::LinkEndId getLinkEndId( )
+    {
+        return linkEnds_.at( linkEndForTime_ );
+    }
+
+    observation_models::LinkEndType getReferenceLinkEnd( )
+    {
+        return linkEndForTime_;
+    }
+
+
+
     //! Function to retrieve the observable type for which the bias is active.
     /*!
      * Function to retrieve the observable type ends for which the bias is active.
@@ -1033,14 +1083,16 @@ private:
     //! Function to reset the current time drift
     std::function< void( const Eigen::VectorXd& ) > resetCurrentBias_;
 
-    //! Link end index from which the 'current time' is determined
-    int linkEndIndex_;
+    observation_models::LinkEndType linkEndForTime_;
 
     //! Observation link ends for which the bias is active.
     observation_models::LinkEnds linkEnds_;
 
     //! Observable type for which the bias is active.
     observation_models::ObservableType observableType_;
+
+    //! Link end index from which the 'current time' is determined
+    int linkEndIndex_;
 };
 
 //! Interface class for the estimation of an arc-wise time bias.
@@ -1051,7 +1103,7 @@ private:
 *  simulations for the observation bias. This is due to the fact that the ArcWiseTimeBias class
 *  is templated by the observable size, while this class is not.
 */
-class ArcWiseTimeBiasParameter: public EstimatableParameter< Eigen::VectorXd >
+class ArcWiseTimeBiasParameter: public TimeBiasParameterBase
 {
 
 public:
@@ -1070,13 +1122,15 @@ public:
             const std::vector< double > arcStartTimes,
             const std::function< std::vector< Eigen::VectorXd >( ) > getBiasList,
             const std::function< void( const std::vector< Eigen::VectorXd >& ) > resetBiasList,
-            const int linkEndIndex,
+            const observation_models::LinkEndType linkEndForTime,
             const observation_models::LinkEnds linkEnds,
             const observation_models::ObservableType observableType ):
-            EstimatableParameter< Eigen::VectorXd >( arc_wise_time_observation_bias, linkEnds.begin( )->second.bodyName_ ),
+            TimeBiasParameterBase( arc_wise_time_observation_bias, linkEnds.begin( )->second.bodyName_ ),
             arcStartTimes_( arcStartTimes ), getBiasList_( getBiasList ), resetBiasList_( resetBiasList ),
-            linkEndIndex_( linkEndIndex ), linkEnds_( linkEnds ), observableType_( observableType )
+            linkEndForTime_( linkEndForTime ), linkEnds_( linkEnds ), observableType_( observableType )
     {
+        linkEndIndex_ = observation_models::getLinkEndIndicesForLinkEndTypeAtObservable(
+            observableType_, linkEndForTime_, linkEnds_.size( ) ).at( 0 );
         observableSize_ = observation_models::getObservableSize( observableType );
         numberOfArcs_ = arcStartTimes.size( );
     }
@@ -1095,10 +1149,10 @@ public:
         {
             std::vector< Eigen::VectorXd > observationBiases = getBiasList_( );
             Eigen::VectorXd currentParameterSet = Eigen::VectorXd::Zero(
-                    observableSize_ * observationBiases.size( ) );
+                    observationBiases.size( ) );
             for( unsigned int i = 0; i < observationBiases.size( ); i++ )
             {
-                currentParameterSet.segment( i * observableSize_, observableSize_ ) = observationBiases.at( i );
+                currentParameterSet.segment( i, 1 ) = observationBiases.at( i );
             }
             return currentParameterSet;
         }
@@ -1126,7 +1180,7 @@ public:
 
             for( int i = 0; i < numberOfArcs_; i++ )
             {
-                observationBiases.push_back( parameterValue.segment( i * observableSize_, observableSize_ ) );
+                observationBiases.push_back( parameterValue.segment( i, 1 ) );
             }
             resetBiasList_( observationBiases );
         }
@@ -1159,7 +1213,7 @@ public:
      */
     int getParameterSize( )
     {
-        return 1 * numberOfArcs_;
+        return numberOfArcs_;
     }
 
     //! Function to reset the get/set function of the observation bias list
@@ -1250,6 +1304,17 @@ public:
         lookupScheme_ = lookupScheme;
     }
 
+    observation_models::LinkEndId getLinkEndId( )
+    {
+        return linkEnds_.at( linkEndForTime_ );
+    }
+
+    observation_models::LinkEndType getReferenceLinkEnd( )
+    {
+        return linkEndForTime_;
+    }
+
+
 protected:
 
 private:
@@ -1265,6 +1330,8 @@ private:
 
     //! Link end index from which the 'current time' is determined
     int linkEndIndex_;
+
+    observation_models::LinkEndType linkEndForTime_;
 
     //! Observation link ends for which the bias is active.
     observation_models::LinkEnds linkEnds_;
