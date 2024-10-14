@@ -2860,33 +2860,6 @@ inline std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType >
 #endif // TUDAT_OBSERVATIONS_H
 
 
-            obsCollection->addDependentVariable( elevation_angle( receiver ) );
-
-            observationParserGet // For given time interval
-
-            // Each entry in STL vector = a given SingleObservationSet
-            std::pair< std::vector< Eigen::MatrixXd >, ObservationParser > perSingleObservationSetDependentVariables =
-                obsCollection->getDependentVariable( elevation_angle( "STATION1" ), observationParserGet );
-            ObservationParser singleDependentVariableParser = perSingleObservationSetDependentVariables.second;
-
-            singleDependentVariableParser // For given time interval, and have elevation_angle( "STATION1" ) available
-
-
-
-            Eigen::MatrixXd concatenatedDependentVariables = ... perSingleObservationSetDependentVariables ...
-            Eigen::VectorXd concatenatedTimes = obsCollection->getTimes( perSingleObservationSetDependentVariables.second );
-            Eigen::VectorXd concatenatedLinkEnds = ....
-
-
-
-//            // All concatenated into one
-//            Eigen::MatrixXd = obsCollection->getDependentVariable( elevation_angle( "sTATION1" ) );
-
-
-
-
-
-
 
 
 
