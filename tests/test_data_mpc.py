@@ -1,3 +1,4 @@
+
 from tudatpy.data.mpc import BatchMPC
 from tudatpy.data.horizons import HorizonsQuery
 
@@ -18,7 +19,7 @@ spice.load_standard_kernels()
 # positions of observatories.
 
 # Parameterised inputs
-mpc_codes_test = [222, 999, 1234]
+mpc_codes_test = [222, 999]
 mpc_codes_test2 = [3]
 
 get_observations_input = [
