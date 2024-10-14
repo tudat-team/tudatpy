@@ -5,20 +5,15 @@ channels:
   - tudat-team
 dependencies:
   # All standard tudat-bundle deps are needed for sphinx-documentation for tudatpy.
-  - python=3.8
-  - numpy
-  - matplotlib # for tudat.plotting
+  # Skipping listing tudat and boost-cpp here because they will be installed as part of tudatpy installation
   - basemap # for tudat.plotting
   - basemap-data-hires # for tudat.plotting
   # Other doc related
   - jinja2
   - yaml
-  #- cmake
   - pydantic=1.10.9
   - numpydoc
-  - tudatpy=0.8.0.dev7
-  - tudat=2.13.0.dev10
-  - boost-cpp=1.84.0
+  - tudatpy
   - pip
   - pip:
      - nbsphinx
@@ -27,4 +22,4 @@ dependencies:
      - sphinxcontrib-fulltoc
      - sphinxcontrib-bibtex
      - furo
-     - sphinx_copybutton 
+     - sphinx_copybutton
