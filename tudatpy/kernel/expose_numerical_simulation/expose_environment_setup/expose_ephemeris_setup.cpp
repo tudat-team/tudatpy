@@ -215,7 +215,7 @@ namespace ephemeris {
                                        get_docstring("TabulatedEphemerisSettings.body_state_history").c_str());
 
 
-        m.def("create_ephemeris", &tss::createBodyEphemeris< double, TIME_TYPE >,
+        m.def("create_ephemeris", &tss::createBodyEphemeris< STATE_SCALAR_TYPE, TIME_TYPE >,
               py::arg("ephemeris_settings"), py::arg("body_name"),
               get_docstring("create_ephemeris").c_str());
 
