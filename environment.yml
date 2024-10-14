@@ -9,3 +9,4 @@ dependencies:
   - sofa-cmake
   - nrlmsise-00
   - cspice-cmake
+  - fftw

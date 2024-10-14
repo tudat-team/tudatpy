@@ -1219,44 +1219,45 @@ private:
 };
 
 
-<<<<<<< HEAD
 template< int ObservationSize = 1 >
 class ClockInducedRangeBias: public ObservationBias< ObservationSize >
 {
 public:
 
     ClockInducedRangeBias(
-            const std::shared_ptr< system_models::TimingSystem > timingSystem,
-            const std::vector< int > linkEndIndicesForTime,
-            const observation_models::LinkEndId linkEndId ):
-            timingSystem_( timingSystem ), linkEndIndicesForTime_( linkEndIndicesForTime ),
-            linkEndId_( linkEndId ), onesVector_( Eigen::Matrix< double, ObservationSize, 1 >::Ones( )  )
+        const std::shared_ptr<system_models::TimingSystem> timingSystem,
+        const std::vector<int> linkEndIndicesForTime,
+        const observation_models::LinkEndId linkEndId ) :
+        timingSystem_( timingSystem ), linkEndIndicesForTime_( linkEndIndicesForTime ),
+        linkEndId_( linkEndId ), onesVector_( Eigen::Matrix<double, ObservationSize, 1>::Ones( ))
     {
-        for( unsigned int i = 0; i < linkEndIndicesForTime_.size( ); i++ )
+        for ( unsigned int i = 0; i < linkEndIndicesForTime_.size( ); i++ )
         {
-            signMultipliers_.push_back( ( linkEndIndicesForTime_.at( i ) % 2 == 1 ? 1.0 : -1.0 ) );
+            signMultipliers_.push_back(( linkEndIndicesForTime_.at( i ) % 2 == 1 ? 1.0 : -1.0 ));
         }
     }
 
     //! Destructor
-    ~ClockInducedRangeBias( ){ }
+    ~ClockInducedRangeBias( )
+    {
+    }
 
-    Eigen::Matrix< double, ObservationSize, 1 > getObservationBias(
-            const std::vector< double >& linkEndTimes,
-            const std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
-            const Eigen::Matrix< double, ObservationSize, 1 >& currentObservableValue =
-            ( Eigen::Matrix< double, ObservationSize, 1 >( ) << TUDAT_NAN ).finished( ) )
+    Eigen::Matrix<double, ObservationSize, 1> getObservationBias(
+        const std::vector<double> &linkEndTimes,
+        const std::vector<Eigen::Matrix<double, 6, 1> > &linkEndStates,
+        const Eigen::Matrix<double, ObservationSize, 1> &currentObservableValue =
+        ( Eigen::Matrix<double, ObservationSize, 1>( ) << TUDAT_NAN ).finished( ))
     {
         double currentBias = 0.0;
-        for( unsigned int i = 0; i < linkEndIndicesForTime_.size( ); i++ )
+        for ( unsigned int i = 0; i < linkEndIndicesForTime_.size( ); i++ )
         {
             currentBias += signMultipliers_.at( i ) * timingSystem_->getCompleteClockError(
-                linkEndTimes.at( linkEndIndicesForTime_.at( i ) ) );
+                linkEndTimes.at( linkEndIndicesForTime_.at( i )));
         }
         return currentBias * onesVector_ * physical_constants::SPEED_OF_LIGHT;
     }
 
-    std::shared_ptr< system_models::TimingSystem > getTimingSystem( )
+    std::shared_ptr<system_models::TimingSystem> getTimingSystem( )
     {
         return timingSystem_;
     }
@@ -1264,7 +1265,24 @@ public:
     LinkEndId getLinkEndId( )
     {
         return linkEndId_;
-=======
+
+    }
+
+private:
+
+    std::shared_ptr<system_models::TimingSystem> timingSystem_;
+
+    //! Link end index from which the 'current time' is determined (e.g. entry from linkEndTimes used in getObservationBias
+    //! function.
+    std::vector<int> linkEndIndicesForTime_;
+
+    std::vector<double> signMultipliers_;
+
+    LinkEndId linkEndId_;
+
+    Eigen::Matrix<double, ObservationSize, 1> onesVector_;
+};
+
 //! Class for a constant time observation bias of a given size
 /*!
  *  Class for a constant time observation bias of a given size. For unbiases observation h and time bias c, the biased observation
@@ -1313,24 +1331,10 @@ public:
         biasValue( 0 ) = ( receptionTimeDifference - transmissionTimeDifference ) * physical_constants::SPEED_OF_LIGHT;
 
         return biasValue;
->>>>>>> develop
     }
 
 private:
 
-<<<<<<< HEAD
-    std::shared_ptr< system_models::TimingSystem > timingSystem_;
-
-    //! Link end index from which the 'current time' is determined (e.g. entry from linkEndTimes used in getObservationBias
-    //! function.
-    std::vector< int > linkEndIndicesForTime_;
-
-    std::vector< double > signMultipliers_;
-
-    LinkEndId linkEndId_;
-
-    Eigen::Matrix< double, ObservationSize, 1 > onesVector_;
-=======
     std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > timeScaleConverter_;
 
     std::shared_ptr< ground_stations::GroundStationState > transmittingStationState_;
@@ -1341,7 +1345,6 @@ private:
 
     basic_astrodynamics::TimeScales computedTimeScale_ = basic_astrodynamics::tdb_scale;
 
->>>>>>> develop
 };
 
 
