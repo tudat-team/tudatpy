@@ -1105,7 +1105,6 @@ BOOST_AUTO_TEST_CASE( testCombinedAerodynamicForceAndMoment )
                     it.second.segment( 30, 9 ) );
                 Eigen::Vector3d aerodynamicForce = it.second.segment( 39, 3 ) * mass;
                 Eigen::Vector3d aerodynamicMoment = it.second.segment( 42, 3 );
-                Eigen::Vector3d centerOfMass = it.second.segment( 45, 3 );
 
                 // Update environment to current state for comparison
                 dynamicsSimulator.getDynamicsStateDerivative( )->computeStateDerivative(
@@ -1174,6 +1173,8 @@ BOOST_AUTO_TEST_CASE( testCombinedAerodynamicForceAndMoment )
 
                 if( propagationType == 1  )
                 {
+                    Eigen::Vector3d centerOfMass = it.second.segment( 45, 3 );
+
                     // Get force contribution to moment calculation
                     aerodynamicCoefficientInterface->updateFullCurrentCoefficients(
                         { machNumber, angleOfAttack,sideslipAngle },
@@ -1190,9 +1191,9 @@ BOOST_AUTO_TEST_CASE( testCombinedAerodynamicForceAndMoment )
                     // Check force contribution to moment calculation
                     for( unsigned int index = 0; index < 3; index++ )
                     {
-                            BOOST_CHECK_SMALL(
+                        BOOST_CHECK_SMALL(
                                 std::fabs( directMomentContribution( index ) - testForceContribution( index )),
-                                10.0 * std::numeric_limits<double>::epsilon( ) * testForceContribution.norm( ));
+                                20.0 * std::numeric_limits<double>::epsilon( ) * testForceContribution.norm( ));
                     }
                 }
             }

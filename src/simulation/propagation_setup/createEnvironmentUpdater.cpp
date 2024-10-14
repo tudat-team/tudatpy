@@ -134,15 +134,27 @@ void checkValidityOfRequiredEnvironmentUpdates(
                     }
                     break;
                 }
-                case radiation_pressure_target_model_update:
+                case cannonball_radiation_pressure_target_model_update:
                 {
-                    std::shared_ptr< electromagnetism::RadiationPressureTargetModel > radiationPressureTargetModel = bodies.at(
-                            updateIterator->second.at( i ) )->getRadiationPressureTargetModel();
+                    std::shared_ptr<electromagnetism::RadiationPressureTargetModel> radiationPressureTargetModel = simulation_setup::getRadiationPressureTargetModelOfType(
+                        bodies.at( updateIterator->second.at( i ) ), simulation_setup::cannonball_target, " when creating environment update function " );
                     if( radiationPressureTargetModel == nullptr )
                     {
                         throw std::runtime_error(
-                                "Error when making environment model update settings, could not find radiation pressure target model of body "
+                                "Error when making environment model update settings, could not find cannonball radiation pressure target model of body "
                                 + updateIterator->second.at( i ) );
+                    }
+                    break;
+                }
+                case panelled_radiation_pressure_target_model_update:
+                {
+                    std::shared_ptr<electromagnetism::RadiationPressureTargetModel> radiationPressureTargetModel = simulation_setup::getRadiationPressureTargetModelOfType(
+                        bodies.at( updateIterator->second.at( i ) ), simulation_setup::paneled_target, " when creating environment update function " );
+                    if( radiationPressureTargetModel == nullptr )
+                    {
+                        throw std::runtime_error(
+                            "Error when making environment model update settings, could not find paneled radiation pressure target model of body "
+                            + updateIterator->second.at( i ) );
                     }
                     break;
                 }
@@ -284,7 +296,9 @@ createRotationalEquationsOfMotionEnvironmentUpdaterSettings(
                     singleTorqueUpdateNeeds[ spherical_harmonic_gravity_field_update ].push_back(
                                 acceleratedBodyIterator->first );
                     break;
-
+                case radiation_pressure_torque:
+                    throw std::runtime_error( "Error, environment updates for radiation pressure torque not yet implemented" );
+                    break;
                 case aerodynamic_torque:
                     singleTorqueUpdateNeeds[ body_translational_state_update ].push_back(
                                 torqueModelIterator->first );
@@ -401,7 +415,6 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
 
                     singleAccelerationUpdateNeeds[ body_mass_update ].push_back(targetName);
                     singleAccelerationUpdateNeeds[ radiation_source_model_update ].push_back(sourceName);
-                    singleAccelerationUpdateNeeds[ radiation_pressure_target_model_update ].push_back(targetName);
 
                     auto radiationPressureAcceleration =
                             std::dynamic_pointer_cast<electromagnetism::RadiationPressureAcceleration>(
@@ -437,6 +450,8 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                                     radiationPressureAcceleration->getTargetModel());
                     if (paneledRadiationPressureTargetModel != nullptr)
                     {
+                        singleAccelerationUpdateNeeds[ panelled_radiation_pressure_target_model_update ].push_back(targetName);
+
                         // Only paneled target, not cannonball target needs rotational state
                         singleAccelerationUpdateNeeds[ body_rotational_state_update ].push_back(targetName );
 
@@ -465,6 +480,10 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                                 }
                             }
                         }
+                    }
+                    else
+                    {
+                        singleAccelerationUpdateNeeds[ cannonball_radiation_pressure_target_model_update ].push_back(targetName);
                     }
 
                     // Update occulting body positions
@@ -659,6 +678,22 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                         break;
                 case custom_acceleration:
                     break;
+                case einstein_infeld_hoffmann_acceleration:
+                {
+                    std::shared_ptr< relativity::EinsteinInfeldHoffmannAcceleration > eihAcceleration =
+                        std::dynamic_pointer_cast< relativity::EinsteinInfeldHoffmannAcceleration >(
+                            accelerationModelIterator->second.at( i ) );
+                    if( eihAcceleration == nullptr )
+                    {
+                        throw std::runtime_error( "Error when getting environment updates for EIH acceleration, acceleration object is incompatible" );
+                    }
+                    std::vector< std::string > bodiesExertingEihAcceleration = eihAcceleration->getBodiesExertingAcceleration( );
+                    for( unsigned int j = 0; j < bodiesExertingEihAcceleration.size( ); j++ )
+                    {
+                        singleAccelerationUpdateNeeds[ body_translational_state_update ].push_back( bodiesExertingEihAcceleration.at( j ) );
+                    }
+                    break;
+                }
                 default:
                     throw std::runtime_error( std::string( "Error when setting acceleration model update needs, model type not recognized: " ) +
                                               std::to_string( currentAccelerationModelType ) );
@@ -984,11 +1019,11 @@ std::vector< std::string > > createEnvironmentUpdaterSettingsForDependentVariabl
     case control_surface_deflection_dependent_variable:
         variablesToUpdate[ vehicle_flight_conditions_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
         break;
-//    case radiation_pressure_dependent_variable:
-//        variablesToUpdate[ radiation_pressure_interface_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
-//        variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
-//        variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->secondaryBody_ );
-//        break;
+    case radiation_pressure_dependent_variable:
+        variablesToUpdate[ radiation_source_model_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
+        variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
+        variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->secondaryBody_ );
+        break;
     case periapsis_altitude_dependent_variable:
         variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
         variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->secondaryBody_ );
@@ -1017,7 +1052,7 @@ std::vector< std::string > > createEnvironmentUpdaterSettingsForDependentVariabl
         variablesToUpdate[ body_mass_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
         break;
     case radiation_pressure_coefficient_dependent_variable:
-        variablesToUpdate[ radiation_pressure_target_model_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
+        variablesToUpdate[ cannonball_radiation_pressure_target_model_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
         break;
     case custom_dependent_variable:
         break;
@@ -1081,6 +1116,23 @@ std::vector< std::string > > createEnvironmentUpdaterSettingsForDependentVariabl
         break;
     case body_inertia_tensor:
         variablesToUpdate[ body_mass_distribution_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
+        break;
+    case vehicle_panel_inertial_surface_normals:
+        variablesToUpdate[ body_segment_orientation_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
+        variablesToUpdate[ body_rotational_state_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
+        break;
+    case vehicle_panel_body_fixed_surface_normals:
+        variablesToUpdate[ body_segment_orientation_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
+        break;
+    case vehicle_surface_panel_radiation_pressure_force:
+        variablesToUpdate[ panelled_radiation_pressure_target_model_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
+        break;
+    case paneled_radiation_source_per_panel_irradiance:
+        break;
+    case paneled_radiation_source_geometry:
+        break;
+    case nrlmsise_input_data:
+        variablesToUpdate[ vehicle_flight_conditions_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
         break;
     default:
         throw std::runtime_error( "Error when getting environment updates for dependent variables, parameter " +
@@ -1201,11 +1253,22 @@ std::vector< std::string > > createFullEnvironmentUpdaterSettings(
         }
 
         // If body has radiation pressure target model, add its update to update list
-        if( bodyIterator.second->getRadiationPressureTargetModel() != nullptr )
+        for( unsigned int i = 0; i < bodyIterator.second->getRadiationPressureTargetModels().size( ); i++ )
         {
-            singleAccelerationUpdateNeeds[ radiation_pressure_target_model_update ].
+            if( std::dynamic_pointer_cast< CannonballRadiationPressureTargetModel >(
+                bodyIterator.second->getRadiationPressureTargetModels().at( i ) ) != nullptr )
+            {
+                singleAccelerationUpdateNeeds[ cannonball_radiation_pressure_target_model_update ].
                     push_back( bodyIterator.first );
+            }
+            else if( std::dynamic_pointer_cast< PaneledRadiationPressureTargetModel >(
+                bodyIterator.second->getRadiationPressureTargetModels().at( i ) ) != nullptr )
+            {
+                singleAccelerationUpdateNeeds[ panelled_radiation_pressure_target_model_update ].
+                    push_back( bodyIterator.first );
+            }
         }
+
 
         // If body has rotation model, update rotational state in each time step.;
         if( ( bodyIterator.second->getRotationalEphemeris( ) != nullptr )

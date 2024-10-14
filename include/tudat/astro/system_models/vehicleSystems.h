@@ -232,6 +232,16 @@ public:
         return vehicleExteriorPanels_;
     }
 
+    int getTotalNumberOfPanels( )
+    {
+        int numberOfPanels = 0;
+        for( auto it : vehicleExteriorPanels_ )
+        {
+            numberOfPanels += it.second.size( );
+        }
+        return numberOfPanels;
+    }
+
     void setVehiclePartOrientation(
         const std::map< std::string, std::shared_ptr< ephemerides::RotationalEphemeris > > vehiclePartOrientation )
     {
@@ -244,6 +254,12 @@ public:
                      observation_models::FrequencyBands downlinkBand ) > transponderRatioFunction = &observation_models::getDsnDefaultTurnaroundRatios )
     {
         transponderTurnaroundRatio_ = transponderRatioFunction;
+    }
+
+
+    void setDefaultTransponderTurnaroundRatio( )
+    {
+        setTransponderTurnaroundRatio( );
     }
 
     void setTransponderTurnaroundRatio(
@@ -269,8 +285,40 @@ public:
         return transponderTurnaroundRatio_;
     }
 
+    bool doesReferencePointExist( const std::string referencePoint )
+    {
+        return ( bodyFixedReferencePoint_.count( referencePoint ) > 0 );
+    }
+
+    Eigen::Vector3d getReferencePointPosition( const std::string referencePoint )
+    {
+        return bodyFixedReferencePoint_.at( referencePoint );
+    }
+
+    void setReferencePointPosition( const std::string referencePoint, const Eigen::Vector3d location )
+    {
+        bodyFixedReferencePoint_[ referencePoint ] = location;
+    }
+
+    std::map< std::string, Eigen::Vector3d > getBodyFixedReferencePoints( )
+    {
+        return bodyFixedReferencePoint_;
+    }
+
+
+    template< typename StateScalarType, typename TimeType >
+    Eigen::Matrix< StateScalarType, 6, 1 > getReferencePointStateInBodyFixedFrame(
+        const std::string referencePoint, const TimeType& time )
+    {
+        Eigen::Matrix< StateScalarType, 6, 1 > pointLocation = Eigen::Matrix< StateScalarType, 6, 1 >::Zero( );
+        pointLocation.segment( 0, 3 ) = bodyFixedReferencePoint_.at( referencePoint ).template cast< StateScalarType >( );
+        return pointLocation;
+    }
+
+
 private:
 
+    std::map< std::string, Eigen::Vector3d > bodyFixedReferencePoint_;
 
     std::map< std::string, std::shared_ptr< ephemerides::RotationalEphemeris > > vehiclePartOrientation_;
 

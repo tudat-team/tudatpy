@@ -399,7 +399,7 @@ public:
             if( maximumColumn > state.cols( ) )
             {
                 throw std::runtime_error( "Error when setting per-segment step-size control, block to check is out of bounds. Number of columns is " +
-                                          std::to_string( state.cols( ) ) + ", but control is requested on column segment" +
+                                          std::to_string( state.cols( ) ) + ", but control is requested on column segment " +
                                           std::to_string( std::get< 1 >( blocksToCheck_.at( i ) )  ) + ", " +
                                           std::to_string( std::get< 3 >( blocksToCheck_.at( i ) ) ) );
             }

@@ -18,6 +18,28 @@ namespace tudat
 namespace aerodynamics
 {
 
+void NRLMSISE00Atmosphere::setInputStruct( const double altitude, const double longitude,
+                                           const double latitude, const double time )
+{
+// Retrieve input data.
+    inputData_ = nrlmsise00InputFunction_(
+        altitude, longitude, latitude, time );
+    std::copy( inputData_.apVector.begin( ), inputData_.apVector.end( ), aph_.a );
+    std::copy( inputData_.switches.begin( ), inputData_.switches.end( ), flags_.switches );
+
+    input_.g_lat = latitude * 180.0 / mathematical_constants::PI; // rad to deg
+    input_.g_long = longitude * 180.0 / mathematical_constants::PI; // rad to deg
+    input_.alt = altitude * 1.0E-3; // m to km
+    input_.year = inputData_.year;
+    input_.doy = inputData_.dayOfTheYear;
+    input_.sec = inputData_.secondOfTheDay;
+    input_.lst = inputData_.localSolarTime;
+    input_.f107 = inputData_.f107;
+    input_.f107A = inputData_.f107a;
+    input_.ap = inputData_.apDaily;
+    input_.ap_a = &aph_;
+}
+
 void NRLMSISE00Atmosphere::computeProperties(
         const double altitude, const double longitude,
         const double latitude, const double time )
@@ -32,23 +54,7 @@ void NRLMSISE00Atmosphere::computeProperties(
     }
     hashKey_ = hashKey;
 
-    // Retrieve input data.
-    inputData_ = nrlmsise00InputFunction_(
-                altitude, longitude, latitude, time );
-    std::copy( inputData_.apVector.begin( ), inputData_.apVector.end( ), aph_.a );
-    std::copy( inputData_.switches.begin( ), inputData_.switches.end( ), flags_.switches);
-
-    input_.g_lat  = latitude * 180.0 / mathematical_constants::PI; // rad to deg
-    input_.g_long = longitude * 180.0 / mathematical_constants::PI; // rad to deg
-    input_.alt    = altitude * 1.0E-3; // m to km
-    input_.year   = inputData_.year;
-    input_.doy    = inputData_.dayOfTheYear;
-    input_.sec    = inputData_.secondOfTheDay;
-    input_.lst    = inputData_.localSolarTime;
-    input_.f107   = inputData_.f107;
-    input_.f107A  = inputData_.f107a;
-    input_.ap     = inputData_.apDaily;
-    input_.ap_a   = &aph_;
+    setInputStruct( altitude, longitude, latitude, time );
 
     // Call NRLMSISE00
     gtd7(&input_, &flags_, &output_);
@@ -158,6 +164,28 @@ NRLMSISE00Atmosphere::getFullOutput( const double altitude, const double longitu
     output.second = std::vector< double >(
                 output_.t, output_.t + sizeof output_.t / sizeof output_.t[ 0 ] );
     return output;
+}
+
+Eigen::VectorXd getNrlmsiseInputAsVector( const nrlmsise_input& input )
+{
+    static Eigen::VectorXd inputVector( 17 );
+    inputVector( 0 ) = static_cast< double >( input.year );
+    inputVector( 1 ) = static_cast< double >( input.doy );
+    inputVector( 2 ) = input.sec;
+    inputVector( 3 ) = input.alt;
+    inputVector( 4 ) = input.g_lat;
+    inputVector( 5 ) = input.g_long;
+    inputVector( 6 ) = input.lst;
+    inputVector( 7 ) = input.f107;
+    inputVector( 8 ) = input.f107A;
+    inputVector( 9 ) = input.ap;
+    for( int i = 0; i < 7; i++ )
+    {
+        inputVector( 10 + i ) = input.ap_a->a[ i ];
+    }
+    return inputVector;
+
+
 }
 
 }  // namespace aerodynamics

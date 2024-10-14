@@ -283,7 +283,7 @@ protected:
         // Create interpolator for coefficients.
         coefficientInterpolator_ =
                 std::make_shared< interpolators::MultiLinearInterpolator< double,
-                Eigen::Vector6d, 3 > >
+                Eigen::Vector6d, NumberOfIndependentVariables > >
                 ( dataPointsOfIndependentVariables_, aerodynamicCoefficients_ );
     }
 

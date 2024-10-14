@@ -194,10 +194,10 @@ BOOST_AUTO_TEST_CASE( testCartesianStatePartials )
 
     // Define observation function
     std::function< Eigen::VectorXd( const double ) > observationFunctionAtReception =
-            std::bind( &Ephemeris::getCartesianState, createReferencePointEphemeris< double, double >(
+            std::bind( &Ephemeris::getCartesianState, createReferencePointCompositeEphemeris< double, double >(
                              bodies.at( "Earth" )->getEphemeris( ), bodies.at( "Earth" )->getRotationalEphemeris( ),
                              std::bind( &GroundStation::getStateInPlanetFixedFrame< double, double >,
-                                          bodies.at( "Earth" )->getGroundStation( "Graz" ), std::placeholders::_1 ) ), std::placeholders::_1 );
+                                          bodies.at( "Earth" )->getGroundStation( "Graz" ), std::placeholders::_1, "Earth" ) ), std::placeholders::_1 );
 
 
 

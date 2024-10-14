@@ -266,7 +266,7 @@ DateTime addSecondsToDateTime( const DateTime& dateTime, const TimeType timeToAd
 template< typename TimeType >
 DateTime addDaysToDateTime( const DateTime& dateTime, const TimeType daysToAdd )
 {
-    return getCalendarDateFromTime< Time >( dateTime.epoch< Time >( ) + daysToAdd * mathematical_constants::getFloatingInteger< TimeType >( 86400 ) );
+    return getCalendarDateFromTime< Time >( dateTime.epoch< Time >( ) + daysToAdd * mathematical_constants::getFloatingInteger< long double >( 86400 ) );
 }
 
 

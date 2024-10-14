@@ -22,9 +22,8 @@ void checkObservationDependentVariableEnvironment(
         const SystemOfBodies& bodies,
         const std::shared_ptr< StationAngleObservationDependentVariableSettings > variableSettings )
 {
-    if( isObservationDependentVariableGroundStationProperty( variableSettings ) )
+    if( isObservationDependentVariableGroundStationProperty( variableSettings ) && variableSettings->isLinkEndDefined_ )
     {
-      
         std::string bodyName = variableSettings->relevantLinkEnd_.bodyName_;
         std::string stationName = variableSettings->relevantLinkEnd_.stationName_;
 
@@ -151,13 +150,35 @@ ObservationDependentVariableFunction getStationObservationAngleFunction(
     checkObservationDependentVariableEnvironment( bodies, variableSettings );
 
     // Retrieve link-end ID for station
-    std::string bodyName = variableSettings->relevantLinkEnd_.bodyName_;
-    std::string stationName = variableSettings->relevantLinkEnd_.stationName_;
+
+    observation_models::LinkEndId linkEndIdToUse;
+    if( variableSettings->isLinkEndDefined_ )
+    {
+        linkEndIdToUse = variableSettings->relevantLinkEnd_;
+    }
+    else
+    {
+        linkEndIdToUse = linkEnds.at( variableSettings->linkEndRole_ );
+    }
+
+    std::string bodyName = linkEndIdToUse.bodyName_;
+    std::string stationName = linkEndIdToUse.stationName_;
+
+    if( bodies.count( bodyName ) == 0 )
+    {
+        throw std::runtime_error( "Error when getting station angle function, body " + bodyName + " does not exist " );
+    }
+
+    if( bodies.at( bodyName )->getGroundStationMap( ).count( stationName ) == 0 )
+    {
+        throw std::runtime_error( "Error when getting station angle function, station " + stationName + " does not exist on body " + bodyName );
+    }
 
     std::pair< int, int > linkEndIndicesToUse = getLinkEndStateTimeIndices(
-        observableType, linkEnds, variableSettings->relevantLinkEnd_,
+        observableType, linkEnds, linkEndIdToUse,
         variableSettings->linkEndRole_, variableSettings->originatingLinkEndRole_,
         variableSettings->integratedObservableHandling_ );
+
 
     // Retrieve pointing angles calculator for station, and setup output function
     std::shared_ptr< ground_stations::PointingAnglesCalculator > pointingAnglesCalculator =
@@ -225,7 +246,7 @@ ObservationDependentVariableFunction getInterlinkObservationVariableFunction(
     }
     case body_avoidance_angle_variable:
     {
-        if ( bodies.count( variableSettings->relativeBody_ ) != 0 )
+        if ( bodies.count( variableSettings->relativeBody_ ) == 0 )
         {
             throw std::runtime_error( "Error when parsing body avoidance observation dependent variable w.r.t. " +
                                       variableSettings->relativeBody_ + ", body is not defined" );
@@ -246,7 +267,7 @@ ObservationDependentVariableFunction getInterlinkObservationVariableFunction(
                 linkEndStates.at( linkEndIndicesToUse.first ).segment( 0, 3 ),
                 linkEndStates.at( linkEndIndicesToUse.second ).segment( 0, 3 ),
                 bodies.at( variableSettings->relativeBody_ )->getStateInBaseFrameFromEphemeris<double, double>(
-                    ( linkEndIndicesToUse.first + linkEndIndicesToUse.second ) / 2.0 ).segment( 0, 3 ));
+                    ( linkEndTimes.at( linkEndIndicesToUse.first ) + linkEndTimes.at( linkEndIndicesToUse.second ) ) / 2.0 ).segment( 0, 3 ));
             if ( std::fabs( cosineOfAvoidanceAngle ) >= 1.0 )
             {
                 return ( Eigen::Vector1d( )
@@ -261,7 +282,7 @@ ObservationDependentVariableFunction getInterlinkObservationVariableFunction(
     }
     case link_body_center_distance:
     {
-        if ( bodies.count( variableSettings->relativeBody_ ) != 0 )
+        if ( bodies.count( variableSettings->relativeBody_ ) == 0 )
         {
             throw std::runtime_error( "Error when parsing link-body distance observation dependent variable w.r.t. " +
                                       variableSettings->relativeBody_ + ", body is not defined" );
@@ -282,20 +303,24 @@ ObservationDependentVariableFunction getInterlinkObservationVariableFunction(
                 linkEndStates.at( linkEndIndicesToUse.first ).segment( 0, 3 ),
                 linkEndStates.at( linkEndIndicesToUse.second ).segment( 0, 3 ),
                 bodies.at( variableSettings->relativeBody_ )->getStateInBaseFrameFromEphemeris<double, double>(
-                    ( linkEndIndicesToUse.first + linkEndIndicesToUse.second ) / 2.0 ).segment( 0, 3 ));
+                    ( linkEndTimes.at( linkEndIndicesToUse.first ) + linkEndTimes.at( linkEndIndicesToUse.second ) ) / 2.0 ).segment( 0, 3 ));
             return ( Eigen::Vector1d( ) << minimumDistance ).finished( );
         };
         break;
     }
     case link_limb_distance:
     {
-        std::shared_ptr< InterlinkObservationDependentVariableSettings > bodyCenterDistanceSettings =
-            std::make_shared< InterlinkObservationDependentVariableSettings >(
-                link_body_center_distance,
-                variableSettings->startLinkEnd_, variableSettings->endLinkEnd_,
-                variableSettings->integratedObservableHandling_, variableSettings->relativeBody_ );
-        ObservationDependentVariableFunction linkCenterFunction = getInterlinkObservationVariableFunction(
-            bodies, variableSettings, observableType, linkEnds );
+        if ( bodies.count( variableSettings->relativeBody_ ) == 0 )
+        {
+            throw std::runtime_error( "Error when parsing link-body distance observation dependent variable w.r.t. " +
+                                      variableSettings->relativeBody_ + ", body is not defined" );
+        }
+
+        if ( bodies.at( variableSettings->relativeBody_ )->getEphemeris( ) == nullptr )
+        {
+            throw std::runtime_error( "Error when parsing link-body distance observation dependent variable w.r.t. " +
+                                      variableSettings->relativeBody_ + ", body has no ephemeris" );
+        }
 
         if ( bodies.at( variableSettings->relativeBody_ )->getShapeModel( ) == nullptr )
         {
@@ -308,14 +333,18 @@ ObservationDependentVariableFunction getInterlinkObservationVariableFunction(
                                 const Eigen::VectorXd &observationValue,
                                 const std::shared_ptr<observation_models::ObservationAncilliarySimulationSettings> ancilliarySimulationSettings )
         {
-            return linkCenterFunction( linkEndTimes, linkEndStates, observationValue, ancilliarySimulationSettings ) -
-                ( Eigen::Vector1d( ) << shapeModel->getAverageRadius( ) ).finished( );
+            double minimumDistance = observation_models::computeMinimumLinkDistanceToPoint(
+                linkEndStates.at( linkEndIndicesToUse.first ).segment( 0, 3 ),
+                linkEndStates.at( linkEndIndicesToUse.second ).segment( 0, 3 ),
+                bodies.at( variableSettings->relativeBody_ )->getStateInBaseFrameFromEphemeris<double, double>(
+                    ( linkEndTimes.at( linkEndIndicesToUse.first ) + linkEndTimes.at( linkEndIndicesToUse.second ) ) / 2.0 ).segment( 0, 3 ));
+            return ( Eigen::Vector1d( ) << minimumDistance - shapeModel->getAverageRadius( ) ).finished( );
         };
         break;
     }
     case link_angle_with_orbital_plane:
     {
-        if ( bodies.count( variableSettings->relativeBody_ ) != 0 )
+        if ( bodies.count( variableSettings->relativeBody_ ) == 0 )
         {
             throw std::runtime_error( "Error when parsing link-orbital plane angle observation dependent variable w.r.t. " +
                                       variableSettings->relativeBody_ + ", body is not defined" );
@@ -336,9 +365,10 @@ ObservationDependentVariableFunction getInterlinkObservationVariableFunction(
                 linkEndStates.at( linkEndIndicesToUse.second ).segment( 0, 3 ) -
                 linkEndStates.at( linkEndIndicesToUse.first ).segment( 0, 3 );
             Eigen::Vector6d targetStateWrtCentralBody = linkEndStates.at( linkEndIndicesToUse.second ) -
-                bodies.at( variableSettings->relativeBody_ )->getStateInBaseFrameFromEphemeris<double, double>( linkEndIndicesToUse.second );
+                bodies.at( variableSettings->relativeBody_ )->getStateInBaseFrameFromEphemeris<double, double>(
+                    linkEndTimes.at( linkEndIndicesToUse.second ) );
             Eigen::Vector3d orbitNormal = targetStateWrtCentralBody.segment< 3 >( 0 ).cross( targetStateWrtCentralBody.segment< 3 >( 3 ) );
-            return ( Eigen::Vector1d( ) << linear_algebra::computeAngleBetweenVectors( orbitNormal, vectorToTarget ) ).finished( );
+            return ( Eigen::Vector1d( ) << linear_algebra::computeAngleBetweenVectors( orbitNormal, vectorToTarget ) - mathematical_constants::PI / 2.0 ).finished( );
 
         };
         break;

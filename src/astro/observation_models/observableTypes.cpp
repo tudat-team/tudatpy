@@ -56,6 +56,7 @@ bool doesLinkEndTypeDefineId( const ObservableType observableType )
         linkEndTypeDefinesId = false;
         break;
     case two_way_doppler:
+    case doppler_measured_frequency:
         linkEndTypeDefinesId = false;
         break;
     case euler_angle_313_observable:
@@ -95,6 +96,7 @@ bool isObservableTypeMultiLink( const ObservableType observableType )
         isIntegratedTypeisMultiLink = true;
         break;
     case two_way_doppler:
+    case doppler_measured_frequency:
         isIntegratedTypeisMultiLink = true;
         break;
     case euler_angle_313_observable:
@@ -140,6 +142,7 @@ bool isObservableOfIntegratedType( const ObservableType observableType )
         isIntegratedType = false;
         break;
     case two_way_doppler:
+    case doppler_measured_frequency:
         isIntegratedType = false;
         break;
     case euler_angle_313_observable:
@@ -190,6 +193,7 @@ bool requiresTransmittingStation( const ObservableType observableType )
         requiresTransmittingStation = false;
         break;
     case dsn_n_way_averaged_doppler:
+    case doppler_measured_frequency:
         requiresTransmittingStation = true;
         break;
     default:
@@ -211,6 +215,7 @@ bool requiresFirstReceivingStation( const ObservableType observableType )
     case one_way_differenced_range:
     case n_way_range:
     case two_way_doppler:
+    case doppler_measured_frequency:
     case euler_angle_313_observable:
     case velocity_observable:
     case relative_angular_position:
@@ -240,6 +245,7 @@ bool requiresSecondReceivingStation( const ObservableType observableType )
     case one_way_differenced_range:
     case n_way_range:
     case two_way_doppler:
+    case doppler_measured_frequency:
     case euler_angle_313_observable:
     case velocity_observable:
     case relative_angular_position:
@@ -265,6 +271,7 @@ bool isRadiometricObservableType( const ObservableType observableType )
     case one_way_differenced_range:
     case n_way_range:
     case two_way_doppler:
+    case doppler_measured_frequency:
     case n_way_differenced_range:
     case dsn_n_way_averaged_doppler:
     case dsn_one_way_averaged_doppler:
@@ -292,6 +299,7 @@ bool isPhaseVelocityBasedObservableType( const ObservableType observableType )
     case one_way_doppler:
     case one_way_differenced_range:
     case two_way_doppler:
+    case doppler_measured_frequency:
     case n_way_differenced_range:
     case dsn_n_way_averaged_doppler:
     case dsn_one_way_averaged_doppler:
@@ -323,6 +331,7 @@ bool isGroupVelocityBasedObservableType( const ObservableType observableType )
         isGroupVelocityBased = true;
         break;
     case two_way_doppler:
+    case doppler_measured_frequency:
     case n_way_differenced_range:
     case dsn_n_way_averaged_doppler:
     case dsn_one_way_averaged_doppler:
@@ -519,6 +528,9 @@ std::string getObservableName( const ObservableType observableType, const int nu
     case dsn_n_way_averaged_doppler:
         observableName = "Dsn" + getNWayString( numberOfLinkEnds ) + "WayAveragedDoppler";
         break;
+    case doppler_measured_frequency:
+        observableName = getNWayString( numberOfLinkEnds ) + "WayDopplerMeasuredFrequency";
+        break;
     default:
         std::string errorMessage =
                 "Error, could not find observable type " + std::to_string( observableType ) +
@@ -632,6 +644,24 @@ ObservableType getDifferencedObservableType( const ObservableType undifferencedO
     return differencedObservableType;
 }
 
+ObservableType getUnconcatenatedObservableType( const ObservableType observableType )
+{
+    ObservableType unconcatenatedObservableType = undefined_observation_model;
+    switch( observableType )
+    {
+    case n_way_differenced_range:
+    case n_way_range:
+    case dsn_n_way_averaged_doppler:
+        unconcatenatedObservableType = one_way_range;
+        break;
+    default:
+        throw std::runtime_error( "Error when getting unconcatenated observable type for " + getObservableName(
+            observableType ) + ", no such type exists" );
+
+    }
+    return unconcatenatedObservableType;
+}
+
 ObservableType getBaseObservableType( const ObservableType observableType )
 {
     ObservableType baseObservableType = undefined_observation_model;
@@ -647,6 +677,7 @@ ObservableType getBaseObservableType( const ObservableType observableType )
     case n_way_differenced_range:
     case dsn_one_way_averaged_doppler:
     case dsn_n_way_averaged_doppler:
+    case doppler_measured_frequency:
         baseObservableType = one_way_doppler;
         break;
     case angular_position:
@@ -697,6 +728,70 @@ std::pair< std::vector< int >, std::vector< int > > getUndifferencedTimeAndState
 }
 
 
+std::pair< LinkEnds, LinkEnds > getUndifferencedLinkEnds( const ObservableType differencedObservableType, const LinkEnds& differencedLinkEnds )
+{
+    std::pair< LinkEnds, LinkEnds > linkEndsPair;
+    switch( differencedObservableType )
+    {
+    case one_way_differenced_range:
+    case n_way_differenced_range:
+    case dsn_n_way_averaged_doppler:
+        linkEndsPair = { differencedLinkEnds, differencedLinkEnds };
+        break;
+    case relative_angular_position:
+    {
+        LinkEnds firstLinkEnds;
+        firstLinkEnds[ transmitter ] = differencedLinkEnds.at( transmitter );
+        firstLinkEnds[ receiver ] = differencedLinkEnds.at( receiver );
+
+        LinkEnds secondLinkEnds;
+        secondLinkEnds[ transmitter ] = differencedLinkEnds.at( transmitter2 );
+        secondLinkEnds[ receiver ] = differencedLinkEnds.at( receiver );
+        linkEndsPair = { firstLinkEnds, secondLinkEnds };
+        break;
+    }
+    default:
+        throw std::runtime_error( "Error when getting undifferenced link ends for " + getObservableName(
+            differencedObservableType ) + ", no such type exists" );
+
+    }
+    return linkEndsPair;
+}
+
+
+std::vector< LinkEnds > getUnconcatenatedLinkEnds( const ObservableType concatenatedObservableType, const LinkEnds& concatenatedLinkEnds )
+{
+    std::vector< LinkEnds >  linkEndsList;
+    switch( concatenatedObservableType )
+    {
+    case n_way_differenced_range:
+    case n_way_range:
+    case dsn_n_way_averaged_doppler:
+    {
+        auto linkEndIterator = concatenatedLinkEnds.begin( );
+        for( unsigned int i = 0; i < concatenatedLinkEnds.size( ) - 1; i++ )
+        {
+            LinkEnds currentOneWayLinkEnds;
+            currentOneWayLinkEnds[ transmitter ] = linkEndIterator->second;
+            linkEndIterator++;
+            currentOneWayLinkEnds[ receiver ] = linkEndIterator->second;
+            linkEndsList.push_back( currentOneWayLinkEnds );
+
+        }
+        break;
+    }
+    default:
+        throw std::runtime_error( "Error when getting unconcatenated link ends for " + getObservableName(
+            concatenatedObservableType ) + ", no such type exists" );
+
+    }
+    return linkEndsList;
+}
+
+
+
+
+
 //! Function to get the size of an observable of a given type.
 int getObservableSize( const ObservableType observableType )
 {
@@ -719,6 +814,7 @@ int getObservableSize( const ObservableType observableType )
         observableSize = 1;
         break;
     case two_way_doppler:
+    case doppler_measured_frequency:
         observableSize = 1;
         break;
     case one_way_differenced_range:
@@ -796,6 +892,7 @@ std::vector< int > getLinkEndIndicesForLinkEndTypeAtObservable(
         }
         break;
     case two_way_doppler:
+    case doppler_measured_frequency:
         switch( linkEndType )
         {
         case transmitter:
@@ -1001,6 +1098,7 @@ LinkEndType getDefaultReferenceLinkEndType(
         referenceLinkEndType = receiver;
         break;
     case one_way_doppler:
+    case doppler_measured_frequency:
         referenceLinkEndType = receiver;
         break;
     case one_way_differenced_range:
@@ -1081,6 +1179,7 @@ int getNumberOfLinksInObservable(
         numberOfLinks = numberOfLinkEnds - 1;
         break;
     case two_way_doppler:
+    case doppler_measured_frequency:
         numberOfLinks = 2;
         break;
     case position_observable:
@@ -1135,34 +1234,6 @@ std::vector< int > getLinkEndIndicesForLinkEndIdAtObservable(
     return totalLinkEndIndices;
 }
 
-void checkObservationResidualDiscontinuities(
-        Eigen::Block< Eigen::VectorXd > observationResidualBlock,
-        const ObservableType observableType )
-{
-    if( observableType == angular_position || observableType == euler_angle_313_observable || observableType == relative_angular_position )
-    {
-        for( int i = 1; i < observationResidualBlock.rows( ); i++ )
-        {
-            if( std::fabs( observationResidualBlock( i, 0 ) - observationResidualBlock( i - 1, 0 ) ) > 6.0 )
-            {
-                if( observationResidualBlock( i, 0 ) > 0 )
-                {
-                    observationResidualBlock( i, 0 ) = observationResidualBlock( i, 0 ) - 2.0 * mathematical_constants::PI;
-                }
-                else
-                {
-                    observationResidualBlock( i, 0 ) = observationResidualBlock( i, 0 ) + 2.0 * mathematical_constants::PI;
-                }
-            }
-            else if( std::fabs( observationResidualBlock( i, 0 ) - observationResidualBlock( i - 1, 0 ) ) > 3.0 )
-            {
-                std::cerr<<"Warning, detected jump in observation residual of size "<<std::fabs( observationResidualBlock( i, 0 ) - observationResidualBlock( i - 1, 0 ) )<<
-                           " for observable type "<<observableType<<std::endl;
-            }
-        }
-    }
-}
-
 
 //! Function to retrieve the link end indices in link end states/times that are to be used in viability calculation
 std::vector< std::pair< int, int > > getLinkStateAndTimeIndicesForLinkEnd(
@@ -1205,6 +1276,7 @@ std::vector< std::pair< int, int > > getLinkStateAndTimeIndicesForLinkEnd(
         }
         break;
     case two_way_doppler:
+    case doppler_measured_frequency:
         if( ( linkEnds.at( transmitter ) == linkEndToCheck ) || ( ( linkEnds.at( transmitter ).bodyName_ == linkEndToCheck.bodyName_ ) &&
                                                                   ( linkEndToCheck.stationName_ == "" ) ) )
         {
