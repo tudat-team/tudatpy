@@ -154,6 +154,42 @@ void expose_environment(py::module &m) {
         .export_values();
 
 
+    py::class_<ta::AtmosphereModel,
+            std::shared_ptr<ta::AtmosphereModel>>(
+                m, "AtmosphereModel",
+                get_docstring("AtmosphereModel").c_str() )
+            .def("get_density", &ta::AtmosphereModel::getDensity,
+                 py::arg( "altitude" ),
+                 py::arg( "longitude" ),
+                 py::arg( "latitude" ),
+                 py::arg( "time" ),
+                 get_docstring("AtmosphereModel.get_density").c_str() )
+            .def("get_pressure", &ta::AtmosphereModel::getPressure,
+                 py::arg( "altitude" ),
+                 py::arg( "longitude" ),
+                 py::arg( "latitude" ),
+                 py::arg( "time" ),
+                 get_docstring("AtmosphereModel.get_pressure").c_str() )
+            .def("get_temperature", &ta::AtmosphereModel::getTemperature,
+                 py::arg( "altitude" ),
+                 py::arg( "longitude" ),
+                 py::arg( "latitude" ),
+                 py::arg( "time" ),
+                 get_docstring("AtmosphereModel.get_temperature").c_str() )
+            .def("get_speed_of_sound", &ta::AtmosphereModel::getSpeedOfSound,
+                 py::arg( "altitude" ),
+                 py::arg( "longitude" ),
+                 py::arg( "latitude" ),
+                 py::arg( "time" ),
+                 get_docstring("AtmosphereModel.get_speed_of_sound").c_str() )
+            .def("get_number_density", &ta::AtmosphereModel::getNumberDensity,
+                 py::arg( "species" ),
+                 py::arg( "altitude" ),
+                 py::arg( "longitude" ),
+                 py::arg( "latitude" ),
+                 py::arg( "time" ),
+                 get_docstring("AtmosphereModel.get_number_density").c_str() );
+    
     py::class_<ta::AerodynamicCoefficientInterface,
             std::shared_ptr<ta::AerodynamicCoefficientInterface>>(m, "AerodynamicCoefficientInterface" )
             .def_property_readonly("reference_area", &ta::AerodynamicCoefficientInterface::getReferenceArea )
@@ -276,7 +312,8 @@ void expose_environment(py::module &m) {
      **************   FLIGHT CONDITIONS AND ASSOCIATED FUNCTIONALITY  ******************
      */
 
-    py::enum_<trf::AerodynamicsReferenceFrameAngles>(m, "AerodynamicsReferenceFrameAngles")
+    py::enum_<trf::AerodynamicsReferenceFrameAngles>(m, "AerodynamicsReferenceFrameAngles",
+                                                get_docstring("AerodynamicsReferenceFrameAngles").c_str())
             .value("latitude_angle", trf::AerodynamicsReferenceFrameAngles::latitude_angle)
             .value("longitude_angle", trf::AerodynamicsReferenceFrameAngles::longitude_angle)
             .value("heading_angle", trf::AerodynamicsReferenceFrameAngles::heading_angle)
@@ -570,7 +607,8 @@ void expose_environment(py::module &m) {
      */
 
     py::class_<tg::GravityFieldModel,
-            std::shared_ptr<tg::GravityFieldModel>>(m, "GravityFieldModel")
+            std::shared_ptr<tg::GravityFieldModel>>(m, "GravityFieldModel",
+                get_docstring("GravityFieldModel").c_str() )
             .def(py::init<
                  const double,
                  const std::function<void()>>(),
@@ -604,7 +642,8 @@ void expose_environment(py::module &m) {
      */
 
     py::class_<tba::BodyShapeModel,
-            std::shared_ptr<tba::BodyShapeModel>>(m, "ShapeModel")
+            std::shared_ptr<tba::BodyShapeModel>>(m, "ShapeModel", 
+            get_docstring("ShapeModel").c_str() )
             .def("get_average_radius", &tba::BodyShapeModel::getAverageRadius)
             .def_property_readonly("average_radius", &tba::BodyShapeModel::getAverageRadius);
 
@@ -626,7 +665,7 @@ void expose_environment(py::module &m) {
             .def_property_readonly("rotation_matrix_body_fixed_to_topocentric", &tgs::GroundStationState::getRotationMatrixFromBodyFixedToTopocentricFrame );
 
     py::class_<tgs::GroundStation,
-            std::shared_ptr<tgs::GroundStation>>(m, "GroundStation")
+            std::shared_ptr<tgs::GroundStation>>(m, "GroundStation", get_docstring("GroundStation").c_str())
             .def_property_readonly("pointing_angles_calculator", &tgs::GroundStation::getPointingAnglesCalculator )
             .def_property_readonly("station_state", &tgs::GroundStation::getNominalStationState );
 
