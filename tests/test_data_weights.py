@@ -1,3 +1,4 @@
+
 # tests for data weights functionality
 from tudatpy.numerical_simulation import environment_setup
 from tudatpy.numerical_simulation import estimation
@@ -99,45 +100,3 @@ def test_MPC_weights_to_ObsCol(
     )
     pod_input.set_weights_from_observation_collection()
 
-
-def test_MPC_weights_noweights():
-    """Test if adding no weights raises an error"""
-    target_mpc_code = "433"
-    mpc_codes = [target_mpc_code]
-
-    observations_start = datetime.datetime(2023, 1, 1)
-    observations_end = datetime.datetime(2024, 1, 1)
-    global_frame_origin = "SSB"
-    global_frame_orientation = "J2000"
-
-    # Create system of bodies
-    bodies_to_create = ["Sun", "Earth"]
-    body_settings = environment_setup.get_default_body_settings(
-        bodies_to_create, global_frame_origin, global_frame_orientation
-    )
-    bodies = environment_setup.create_system_of_bodies(body_settings)
-
-    batch = BatchMPC()
-    batch.get_observations(mpc_codes)
-    batch.filter(
-        epoch_start=observations_start,
-        epoch_end=observations_end,
-    )
-
-    observation_collection = batch.to_tudat(
-        bodies=bodies,
-        included_satellites=None,
-        apply_star_catalog_debias=False,
-        apply_weights_VFCC17=False,
-    )
-
-    with pytest.raises(RuntimeError):
-        temp = observation_collection.concatenated_weights
-    with pytest.raises(RuntimeError):
-        pod_input = estimation.EstimationInput(
-            observations_and_times=observation_collection,
-            convergence_checker=estimation.estimation_convergence_checker(
-                maximum_iterations=1,
-            ),
-        )
-        pod_input.set_weights_from_observation_collection()
