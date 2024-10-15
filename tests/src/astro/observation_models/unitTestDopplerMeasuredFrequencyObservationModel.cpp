@@ -53,17 +53,7 @@ using namespace tudat::input_output;
 
 BOOST_AUTO_TEST_SUITE(test_doppler_measured_frequency)
 
-
-std::shared_ptr<TrackingTxtFileContents> readJuiceFdetsFile(const std::string& fileName)
-{
-    std::vector<std::string>
-        columnTypes({ "sample_number", "utc_datetime_string", "signal_to_noise_ratio", "normalised_spectral_max", "doppler_measured_frequency_hz", "doppler_noise_hz", });
-
-    auto rawFileContents = createTrackingTxtFileContents(fileName, columnTypes, '#', ", \t");
-    rawFileContents->addMetaData(TrackingDataType::file_name, "JUICE Fdets Test File");
-    return rawFileContents;
-}
-
+const static std::string juiceDataFile = "/home/simon/lib/tudat-bundle/tudatpy/examples/estimation/data/Fdets.jui2023.09.14.Hb.r2i.txt";
 
 BOOST_AUTO_TEST_CASE(testJuiceMeasuredFrequency)
 {
@@ -160,7 +150,7 @@ BOOST_AUTO_TEST_CASE(testJuiceMeasuredFrequency)
     ancillarySettings->setAncilliaryDoubleVectorData( frequency_bands, { x_band, x_band } );
 
     std::string juiceDataFile = tudat::paths::getTudatTestDataPath( ) + "Fdets.jui2024.08.20.Yg.r2i.txt";
-    std::shared_ptr<TrackingTxtFileContents> fdetsFileContents = readJuiceFdetsFile( juiceDataFile );
+    std::shared_ptr<TrackingTxtFileContents> fdetsFileContents = readFdetsFile( juiceDataFile );
     fdetsFileContents->addMetaData( TrackingDataType::receiving_station_name, "YARRAGAD" );
     fdetsFileContents->addMetaData( TrackingDataType::transmitting_station_name, "NWNORCIA" );
     fdetsFileContents->addMetaData( TrackingDataType::doppler_base_frequency, 8422.49E6);
