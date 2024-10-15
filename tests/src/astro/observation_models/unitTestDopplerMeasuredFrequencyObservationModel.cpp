@@ -53,8 +53,6 @@ using namespace tudat::input_output;
 
 BOOST_AUTO_TEST_SUITE(test_doppler_measured_frequency)
 
-const static std::string juiceDataFile = "/home/simon/lib/tudat-bundle/tudatpy/examples/estimation/data/Fdets.jui2023.09.14.Hb.r2i.txt";
-
 BOOST_AUTO_TEST_CASE(testJuiceMeasuredFrequency)
 {
     // Load Spice kernels
@@ -150,7 +148,8 @@ BOOST_AUTO_TEST_CASE(testJuiceMeasuredFrequency)
     ancillarySettings->setAncilliaryDoubleVectorData( frequency_bands, { x_band, x_band } );
 
     std::string juiceDataFile = tudat::paths::getTudatTestDataPath( ) + "Fdets.jui2024.08.20.Yg.r2i.txt";
-    std::shared_ptr<TrackingTxtFileContents> fdetsFileContents = readFdetsFile( juiceDataFile );
+    std::shared_ptr<TrackingTxtFileContents> fdetsFileContents = readFdetsFile(
+        juiceDataFile, { "scan_number", "utc_datetime_string", "signal_to_noise_ratio", "normalised_spectral_max", "doppler_measured_frequency_hz", "doppler_noise_hz" } );
     fdetsFileContents->addMetaData( TrackingDataType::receiving_station_name, "YARRAGAD" );
     fdetsFileContents->addMetaData( TrackingDataType::transmitting_station_name, "NWNORCIA" );
     fdetsFileContents->addMetaData( TrackingDataType::doppler_base_frequency, 8422.49E6);
