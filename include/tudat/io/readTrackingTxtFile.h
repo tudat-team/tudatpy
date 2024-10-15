@@ -448,6 +448,17 @@ inline std::shared_ptr< TrackingTxtFileContents> readIfmsFile(const std::string&
     rawFileContents->addMetaData( TrackingDataType::file_name, fileName );
     return rawFileContents;
 }
+
+inline td::shared_ptr<tio::TrackingTxtFileContents> readFdetsFile(
+    const std::string& fileName,
+    const std::vector<std::string>& columnTypes ={ "utc_datetime_string", "signal_to_noise_ratio", "normalised_spectral_max", "doppler_measured_frequency_hz", "doppler_noise_hz" } )
+{
+    auto rawFileContents = tio::createTrackingTxtFileContents(fileName, columnTypes, '#', ", \t");
+    rawFileContents->addMetaData(tio::TrackingDataType::file_name, fileName );
+    return rawFileContents;
+}
+
+
 } // namespace input_output
 } // namespace tudat
 
