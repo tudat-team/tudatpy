@@ -42,8 +42,8 @@ TUDAT_ADD_TEST_CASE(PowerLawNoise PRIVATE_LINKS
         tudat_statistics
         tudat_basic_mathematics
         tudat_basics
-        ${FFTW_LIBRARIES}
+        ${FFTW3_LIBRARIES}
         )
 
 TUDAT_ADD_TEST_CASE(Fft PRIVATE_LINKS
-        tudat_statistics tudat_basic_mathematics ${FFTW_LIBRARIES})
+        tudat_statistics tudat_basic_mathematics ${FFTW3_LIBRARIES})
