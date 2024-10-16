@@ -133,6 +133,7 @@ jobs:
       run: >
         cmake -B "${{ github.workspace }}/build"
         -S "${{ github.workspace }}"
+        --debug-find
         -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
         -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
         -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
