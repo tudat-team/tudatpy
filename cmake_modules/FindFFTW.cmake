@@ -43,14 +43,14 @@ if( NOT FFTW_ROOT AND DEFINED ENV{FFTWDIR} )
 endif()
 
 # Check if we can use PkgConfig
-find_package(PkgConfig)
-message(STATUS "FIND FFTW")
+#find_package(PkgConfig)
+#message(STATUS "FIND FFTW")
 
-#Determine from PKG
-if( PKG_CONFIG_FOUND AND NOT FFTW_ROOT )
-    message(STATUS "PKG_CONFIG_FOUND" )
-    pkg_check_modules( PKG_FFTW QUIET "fftw3" )
-endif()
+##Determine from PKG
+#if( PKG_CONFIG_FOUND AND NOT FFTW_ROOT )
+#    message(STATUS "PKG_CONFIG_FOUND" )
+#    pkg_check_modules( PKG_FFTW QUIET "fftw3" )
+#endif()
 
 #Check whether to search static or dynamic libs
 set( CMAKE_FIND_LIBRARY_SUFFIXES_SAV ${CMAKE_FIND_LIBRARY_SUFFIXES} )
