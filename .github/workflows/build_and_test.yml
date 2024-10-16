@@ -100,7 +100,7 @@ jobs:
 
     - name: Create conda environment from environment.yml
       # Update the tudat conda environment created using the environment.yml file if the cache is not restored
-      run: mamba env create -n tudat -f environment.yml
+      run: mamba env update -n tudat -f environment.yml
       if: steps.cache.outputs.cache-hit != 'true'
 
 
