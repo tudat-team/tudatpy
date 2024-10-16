@@ -328,7 +328,7 @@ add_definitions(-DTUDAT_BUILD_WITH_NRLMSISE=1)
 
 
 if(NOT APPLE)
-    find_package(FFTW)
+    find_package(FFTW3)
     message(STATUS "FFTW " ${FFTW_LIBRARIES})
     include_directories(SYSTEM AFTER "${FFTW_INCLUDE_DIRS}")
 else( )
