@@ -149,6 +149,7 @@ public:
             ( stationStates_.count( transmitter ) == 0 ) ?
             Eigen::Vector3d::Zero( ) : stationStates_.at( transmitter )->getNominalCartesianPosition( );
         TimeType transmitterTime = time - lightTime;
+
         TimeType transmitterUtcTime = terrestrialTimeScaleConverter_->getCurrentTime< TimeType >(
             basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, transmitterTime, nominalTransmittingStationState );
 
@@ -161,13 +162,11 @@ public:
         ObservationScalarType twoWayDoppler = twoWayDopplerModel_->computeIdealObservationsWithLinkEndData(
             time, linkEndAssociatedWithTime, linkEndTimes, linkEndStates, ancillarySettings)( 0, 0 ) / dopplerMultiplicationTerm;
 
-
         ObservationScalarType receivedFrequency =
             ( transmittedFrequency * ( mathematical_constants::getFloatingInteger< ObservationScalarType >( 1 ) + twoWayDoppler ) ) *
             turnaroundRatio_(uplinkBand, downlinkBand);
 
         Eigen::Matrix< ObservationScalarType, 1, 1 > observation = (Eigen::Matrix< ObservationScalarType, 1, 1 >() << receivedFrequency).finished();
-
         return observation;
     }
 
