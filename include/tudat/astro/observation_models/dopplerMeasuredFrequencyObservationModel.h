@@ -167,7 +167,6 @@ public:
             turnaroundRatio_(uplinkBand, downlinkBand);
 
         Eigen::Matrix< ObservationScalarType, 1, 1 > observation = (Eigen::Matrix< ObservationScalarType, 1, 1 >() << receivedFrequency).finished();
-
         return observation;
     }
 
