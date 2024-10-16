@@ -38,14 +38,17 @@
 
 
 if( NOT FFTW_ROOT AND DEFINED ENV{FFTWDIR} )
+    message(STATUS "FFTWDIR $ENV{FFTWDIR} ")
     set( FFTW_ROOT $ENV{FFTWDIR} )
 endif()
 
 # Check if we can use PkgConfig
 find_package(PkgConfig)
+message(STATUS "FIND FFTW")
 
 #Determine from PKG
 if( PKG_CONFIG_FOUND AND NOT FFTW_ROOT )
+    message(STATUS "PKG_CONFIG_FOUND" )
     pkg_check_modules( PKG_FFTW QUIET "fftw3" )
 endif()
 
@@ -60,6 +63,7 @@ endif()
 
 if( FFTW_ROOT )
     # find libs
+    message(STATUS "FFTW SEARCHING IN ROOT" )
 
     find_library(
             FFTW_DOUBLE_LIB
@@ -166,6 +170,10 @@ if( FFTW_ROOT )
     )
 
 else()
+    message(STATUS "FFTW SEARCHING IN NON-ROOT" )
+    message(STATUS "FFTW SEARCHING IN: " ${PKG_FFTW_LIBRARY_DIRS} )
+    message(STATUS "FFTW SEARCHING IN: " ${LIB_INSTALL_DIR} )
+    message(STATUS "FFTW SEARCHING IN: ${CMAKE_MODULE_PATH}" )
 
     find_library(
             FFTW_DOUBLE_LIB
@@ -247,6 +255,7 @@ endif( FFTW_ROOT )
 #--------------------------------------- components
 
 if (FFTW_DOUBLE_LIB)
+    MESSAGE("FOUND FFTW DOUBLE")
     set(FFTW_DOUBLE_LIB_FOUND TRUE)
     set(FFTW_LIBRARIES ${FFTW_LIBRARIES} ${FFTW_DOUBLE_LIB})
     add_library(FFTW::Double INTERFACE IMPORTED)
