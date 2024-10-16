@@ -18,7 +18,7 @@ name: Bump dev version in tudatpy and tudatpy-feedstock if new commit in last 24
 
 on:
     schedule:
-        - cron: '0 5 * * *'  # This triggers the workflow daily at 5:00 AM UTC. 
+        - cron: '0 5 * * *'  # This triggers the workflow daily at 5:00 AM UTC.
     workflow_dispatch:       # This facilitates manual triggering of the workflow from the Actions tab of the repository in case the scheduled run fails.
 
 
@@ -63,17 +63,14 @@ jobs:
         with:
           ref: develop
 
-      - name: Install bump2version
-        run: pip install bump2version
-
-      - name: Bump version
-        id: bump_version
+      - name: Install bump2version and run bumpversion
         run: |
-          git config --global user.email "actions@github.com"
-          git config --global user.name "GitHub Actions"
-          bump2version dev --config-file .bumpversion.cfg --verbose
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            python3 -m venv venv
+            source venv/bin/activate
+            pip install bump2version
+            git config --global user.email "actions@github.com"
+            git config --global user.name "GitHub Actions"
+            bump2version dev --config-file .bumpversion.cfg --verbose
 
       - name: Push tag to tudatpy repository
         run: git push origin --follow-tags
@@ -94,14 +91,14 @@ jobs:
             token: ${{ secrets.BUMP_VERSION_NIGHTLY }}
             ref: develop
 
-        - name: Install bump2version
-          run: pip install bump2version
-
-        - name: Bump version on feedstock
+        - name: Install bump2version and run bumpversion
           run: |
-              git config --global user.email "actions@github.com"
-              git config --global user.name "GitHub Actions"
-              bump2version dev --config-file .bumpversion.cfg --verbose
+               python3 -m venv venv
+               source venv/bin/activate
+               pip install bump2version
+               git config --global user.email "actions@github.com"
+               git config --global user.name "GitHub Actions"
+               bump2version dev --config-file .bumpversion.cfg --verbose
 
         - name: Reset build number in meta.yml to 0
           shell: bash
