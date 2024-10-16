@@ -329,13 +329,13 @@ add_definitions(-DTUDAT_BUILD_WITH_NRLMSISE=1)
 
 if(NOT APPLE)
     find_package(FFTW3)
-    message(STATUS "FFTW " ${FFTW_LIBRARIES})
-    include_directories(SYSTEM AFTER "${FFTW_INCLUDE_DIRS}")
+    message(STATUS "FFTW " ${FFTW3_LIBRARIES})
+    include_directories(SYSTEM AFTER "${FFTW3_INCLUDE_DIRS}")
 else( )
     find_package(FFTW3)
-    message(STATUS ${FFTW_LIBRARIES})
-    include_directories(SYSTEM AFTER "${FFTW_INCLUDE_DIRS}")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isystem \"${FFTW_INCLUDE_DIR}\"")
+    message(STATUS ${FFTW3_LIBRARIES})
+    include_directories(SYSTEM AFTER "${FFTW3_INCLUDE_DIRS}")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isystem \"${FFTW3_INCLUDE_DIR}\"")
 endif( )
 
 # JSON
