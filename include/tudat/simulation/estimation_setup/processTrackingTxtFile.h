@@ -791,13 +791,15 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
 
     ObservationAncilliarySimulationSettings ancilliarySettings;
     ancilliarySettings.setAncilliaryDoubleVectorData(frequency_bands, { static_cast< double >( transmissionBand ), static_cast< double >( receptionBand ) });
+    ancilliarySettings.setAncilliaryDoubleData( doppler_reference_frequency, 0.0 );
+    ancilliarySettings.setAncilliaryDoubleData( reception_reference_frequency_band, convertFrequencyBandToDouble( receptionBand ) );
 
-    return observation_models::createTrackingTxtFilesObservationCollection< long double, Time>(
+    return observation_models::createTrackingTxtFilesObservationCollection< ObservationScalarType, TimeType >(
         processedIfmsFiles, std::vector<ObservableType>(), ancilliarySettings );
 }
 
 template< typename ObservationScalarType = double, typename TimeType = Time >
-std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > createFdetsObservedObservationCollectionFromFiles(
+std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > createFdetsObservedObservationCollectionFromFile(
     const std::string& fdetsFileName,
     const double& baseFrequency,
     const std::vector<std::string>& columnTypes,
@@ -823,7 +825,7 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
     ObservationAncilliarySimulationSettings ancilliarySettings;
     ancilliarySettings.setAncilliaryDoubleVectorData(frequency_bands, { static_cast< double >( transmissionBand ), static_cast< double >( receptionBand ) });
 
-    return observation_models::createTrackingTxtFilesObservationCollection< long double, Time>(
+    return observation_models::createTrackingTxtFilesObservationCollection< ObservationScalarType, TimeType >(
         processedFdetsFiles, std::vector<ObservableType>( ), ancilliarySettings );
 }
 
