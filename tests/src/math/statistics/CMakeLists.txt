@@ -38,12 +38,14 @@ TUDAT_ADD_TEST_CASE(RandomSampling PRIVATE_LINKS
         tudat_basics
         )
 
-TUDAT_ADD_TEST_CASE(PowerLawNoise PRIVATE_LINKS
-        tudat_statistics
-        tudat_basic_mathematics
-        tudat_basics
-        ${FFTW3_LIBRARIES}
-        )
+if(TUDAT_BUILD_WITH_FFTW3)
+    TUDAT_ADD_TEST_CASE(PowerLawNoise PRIVATE_LINKS
+            tudat_statistics
+            tudat_basic_mathematics
+            tudat_basics
+            ${FFTW3_LIBRARIES}
+            )
 
-TUDAT_ADD_TEST_CASE(Fft PRIVATE_LINKS
-        tudat_statistics tudat_basic_mathematics ${FFTW3_LIBRARIES})
+    TUDAT_ADD_TEST_CASE(Fft PRIVATE_LINKS
+            tudat_statistics tudat_basic_mathematics ${FFTW3_LIBRARIES})
+endif()
