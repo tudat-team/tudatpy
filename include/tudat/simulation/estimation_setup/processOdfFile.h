@@ -71,42 +71,6 @@ public:
         observableType_( observableType )
     { }
 
-    void splitSingleLinkDataBase( std::shared_ptr< ProcessedOdfFileSingleLinkData< TimeType > > firstBlockDataSet,
-                                  std::shared_ptr< ProcessedOdfFileSingleLinkData< TimeType > > secondBlockDataSet,
-                                  const int splitIndex )
-    {
-        utilities::getVectorStartBlock( firstBlockDataSet->unprocessedObservationTimes_, unprocessedObservationTimes_, splitIndex );
-        utilities::getVectorStartBlock( firstBlockDataSet->processedObservationTimes_, processedObservationTimes_, splitIndex );
-        utilities::getVectorStartBlock( firstBlockDataSet->observableValues_, observableValues_, splitIndex );
-        utilities::getVectorStartBlock( firstBlockDataSet->receiverDownlinkDelays_, receiverDownlinkDelays_, splitIndex );
-        utilities::getVectorStartBlock( firstBlockDataSet->downlinkBandIds_, downlinkBandIds_, splitIndex );
-        utilities::getVectorStartBlock( firstBlockDataSet->uplinkBandIds_, uplinkBandIds_, splitIndex );
-        utilities::getVectorStartBlock( firstBlockDataSet->referenceBandIds_, referenceBandIds_, splitIndex );
-        utilities::getVectorStartBlock( firstBlockDataSet->originFiles_, originFiles_, splitIndex );
-        utilities::getVectorStartBlock( firstBlockDataSet->unprocessedObservationTimes_, unprocessedObservationTimes_, splitIndex );
-
-        utilities::getVectorEndBlock( secondBlockDataSet->unprocessedObservationTimes_, unprocessedObservationTimes_, splitIndex );
-        utilities::getVectorEndBlock( secondBlockDataSet->processedObservationTimes_, processedObservationTimes_, splitIndex );
-        utilities::getVectorEndBlock( secondBlockDataSet->observableValues_, observableValues_, splitIndex );
-        utilities::getVectorEndBlock( secondBlockDataSet->receiverDownlinkDelays_, receiverDownlinkDelays_, splitIndex );
-        utilities::getVectorStartBlock( secondBlockDataSet->downlinkBandIds_, downlinkBandIds_, splitIndex );
-        utilities::getVectorEndBlock( secondBlockDataSet->uplinkBandIds_, uplinkBandIds_, splitIndex );
-        utilities::getVectorEndBlock( secondBlockDataSet->referenceBandIds_, referenceBandIds_, splitIndex );
-        utilities::getVectorEndBlock( secondBlockDataSet->originFiles_, originFiles_, splitIndex );
-        utilities::getVectorEndBlock( secondBlockDataSet->unprocessedObservationTimes_, unprocessedObservationTimes_, splitIndex );
-    }
-
-    virtual void splitSingleLinkDataDerived( std::shared_ptr< ProcessedOdfFileSingleLinkData< TimeType > > firstBlockDataSet,
-                                             std::shared_ptr< ProcessedOdfFileSingleLinkData< TimeType > > secondBlockDataSet,
-                                             const int splitIndex ) = 0;
-
-    void splitSingleLinkData( std::shared_ptr< ProcessedOdfFileSingleLinkData< TimeType > > firstBlockDataSet,
-                              std::shared_ptr< ProcessedOdfFileSingleLinkData< TimeType > > secondBlockDataSet,
-                              const int splitIndex )
-    {
-        splitSingleLinkDataDerived( firstBlockDataSet, secondBlockDataSet, splitIndex );
-        splitSingleLinkDataDerived( firstBlockDataSet, secondBlockDataSet, splitIndex );
-    }
 
     // Destructor
     virtual ~ProcessedOdfFileSingleLinkData( ){ }
@@ -201,32 +165,6 @@ public:
 
     // Destructor
     ~ProcessedOdfFileDopplerData( ){ }
-
-    void splitSingleLinkDataDerived( std::shared_ptr< ProcessedOdfFileSingleLinkData< TimeType > > firstBlockDataSet,
-                                     std::shared_ptr< ProcessedOdfFileSingleLinkData< TimeType > > secondBlockDataSet,
-                                     const int splitIndex )
-    {
-        std::shared_ptr<ProcessedOdfFileDopplerData< TimeType > > firstBlockDataSetDerived =
-                std::make_shared<ProcessedOdfFileDopplerData< TimeType > >( this->observableType_, this->receivingStation_, transmittingStation_ );
-        std::shared_ptr<ProcessedOdfFileDopplerData< TimeType > > secondBlockDataSetDerived =
-                std::make_shared<ProcessedOdfFileDopplerData< TimeType > >( this->observableType_, this->receivingStation_, transmittingStation_ );
-
-        utilities::getVectorStartBlock( firstBlockDataSetDerived->receiverChannels_, receiverChannels_, splitIndex );
-        utilities::getVectorStartBlock( firstBlockDataSetDerived->referenceFrequencies_, referenceFrequencies_, splitIndex );
-        utilities::getVectorStartBlock( firstBlockDataSetDerived->countInterval_, countInterval_, splitIndex );
-        utilities::getVectorStartBlock( firstBlockDataSetDerived->transmitterUplinkDelays_, transmitterUplinkDelays_, splitIndex );
-        utilities::getVectorStartBlock( firstBlockDataSetDerived->receiverRampingFlags_, receiverRampingFlags_, splitIndex );
-
-        utilities::getVectorEndBlock( secondBlockDataSetDerived->receiverChannels_, receiverChannels_, splitIndex );
-        utilities::getVectorEndBlock( secondBlockDataSetDerived->referenceFrequencies_, referenceFrequencies_, splitIndex );
-        utilities::getVectorEndBlock( secondBlockDataSetDerived->countInterval_, countInterval_, splitIndex );
-        utilities::getVectorEndBlock( secondBlockDataSetDerived->transmitterUplinkDelays_, transmitterUplinkDelays_, splitIndex );
-        utilities::getVectorEndBlock( secondBlockDataSetDerived->receiverRampingFlags_, receiverRampingFlags_, splitIndex );
-
-        firstBlockDataSet = firstBlockDataSetDerived;
-        secondBlockDataSet = secondBlockDataSetDerived;
-    }
-
 
     // Name of the transmitting ground station
     std::string transmittingStation_;
@@ -1266,6 +1204,7 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
             sortedObservationSets );
 }
 
+
 template< typename ObservationScalarType = double, typename TimeType = double >
 std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType, TimeType > > compressDopplerData(
     const std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType, TimeType > > originalDopplerData,
@@ -1470,6 +1409,32 @@ void setOdfInformationInBodies(
     // Set turnaround ratios in spacecraft body
     std::shared_ptr< system_models::VehicleSystems > vehicleSystems =  bodies.getBody( processedOdfFileContents->getSpacecraftName( ) )->getVehicleSystems( );
     vehicleSystems->setTransponderTurnaroundRatio( getTurnaroundRatio );
+}
+
+
+template< typename ObservationScalarType = double, typename TimeType = Time >
+std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > createOdfObservedObservationCollectionFromFile(
+    simulation_setup::SystemOfBodies& bodies,
+    const std::vector< std::string >& odfFileNames,
+    const std::string& targetName,
+    const bool verboseOutput = true,
+    const std::map< std::string, Eigen::Vector3d >& earthFixedGroundStationPositions =
+    simulation_setup::getApproximateDsnGroundStationPositions( ) )
+{
+
+    std::vector< std::shared_ptr< input_output::OdfRawFileContents > > rawOdfDataVector;
+    for( std::string odfFileName : odfFileNames )
+    {
+        rawOdfDataVector.push_back( std::make_shared< input_output::OdfRawFileContents>( odfFileName ) );
+    }
+
+    std::shared_ptr< ProcessedOdfFileContents< TimeType > > processedOdfFileContents =
+        std::make_shared< ProcessedOdfFileContents< TimeType > >( rawOdfDataVector, targetName, verboseOutput, earthFixedGroundStationPositions );
+    observation_models::setOdfInformationInBodies( processedOdfFileContents, bodies );
+
+    // Create observed observation collection
+    return observation_models::createOdfObservedObservationCollection< ObservationScalarType, TimeType >(
+        processedOdfFileContents );
 }
 
 } // namespace observation_models
