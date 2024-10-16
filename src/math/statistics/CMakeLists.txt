@@ -42,5 +42,5 @@ set(statistics_HEADERS
 TUDAT_ADD_LIBRARY("statistics"
         "${statistics_SOURCES}"
         "${statistics_HEADERS}"
-        "${FFTW_LIBRARIES}"
+        "${FFTW3_LIBRARIES}"
         )
