@@ -39,8 +39,16 @@ set(statistics_HEADERS
         )
 
 # Add library.
-TUDAT_ADD_LIBRARY("statistics"
-        "${statistics_SOURCES}"
-        "${statistics_HEADERS}"
-        "${FFTW3_LIBRARIES}"
-        )
+if(TUDAT_BUILD_WITH_FFTW3)
+    TUDAT_ADD_LIBRARY("statistics"
+            "${statistics_SOURCES}"
+            "${statistics_HEADERS}"
+            "${FFTW3_LIBRARIES}"
+            )
+else()
+    TUDAT_ADD_LIBRARY("statistics"
+            "${statistics_SOURCES}"
+            "${statistics_HEADERS}"
+            "${FFTW3_LIBRARIES}"
+            )
+endif()
