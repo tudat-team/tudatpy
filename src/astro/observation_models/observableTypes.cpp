@@ -1219,6 +1219,21 @@ std::vector< LinkEndType > getLinkEndTypesForGivenLinkEndId(
     return linkEndTypeList;
 }
 
+std::vector< int > getLinkEndIndicesForLinkEndIdAtObservable(
+        const ObservableType observableType, const LinkEnds& linkEnds, const LinkEndId linkEndToCheck )
+{
+    std::vector< LinkEndType > linkEndTypes = getLinkEndTypesForGivenLinkEndId(
+            linkEnds, linkEndToCheck );
+    std::vector< int > totalLinkEndIndices;
+    for( unsigned int i = 0; i < linkEndTypes.size( ); i++ )
+    {
+        std::vector< int > currentLinkEndIndices = getLinkEndIndicesForLinkEndTypeAtObservable(
+                observableType, linkEndTypes.at( i ), linkEnds.size( ) );
+        totalLinkEndIndices.insert(totalLinkEndIndices.end(), currentLinkEndIndices.begin(), currentLinkEndIndices.end());
+    }
+    return totalLinkEndIndices;
+}
+
 
 //! Function to retrieve the link end indices in link end states/times that are to be used in viability calculation
 std::vector< std::pair< int, int > > getLinkStateAndTimeIndicesForLinkEnd(

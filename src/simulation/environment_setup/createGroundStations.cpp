@@ -178,7 +178,7 @@ void createGroundStation(
 }
 
 //! Function to create a set of ground stations and add them to the corresponding Body objects
-void createGroundStations(
+void    createGroundStations(
         const SystemOfBodies& bodies,
         const std::map< std::pair< std::string, std::string >, Eigen::Vector3d >& groundStationsWithPosition,
         const coordinate_conversions::PositionElementTypes positionElementType )
