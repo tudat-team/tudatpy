@@ -64,140 +64,169 @@ BOOST_AUTO_TEST_CASE(testIfmsObservationMex)
      ************************** CREATE EVIRONMENT
      *****************************************************************************************/
 
+    std::vector< std::string > ifmsFileNames;
+    ifmsFileNames.push_back( paths::getTudatTestDataPath( )  + "/estrack_n_way_doppler_observation_model/M32ICL3L02_D2S_133621904_00.TAB.txt" );
+//    ifmsFileNames.push_back( paths::getTudatTestDataPath( )  + "/estrack_n_way_doppler_observation_model/M32ICL3L02_D2S_133621819_00.TAB.txt" );
+//    ifmsFileNames.push_back( paths::getTudatTestDataPath( )  + "/estrack_n_way_doppler_observation_model/M32ICL2L02_D2X_133621904_00.TAB.txt" );
+//    ifmsFileNames.push_back( paths::getTudatTestDataPath( )  + "/estrack_n_way_doppler_observation_model/M32ICL2L02_D2X_133621819_00.TAB.txt" );
+//    ifmsFileNames.push_back( paths::getTudatTestDataPath( )  + "/estrack_n_way_doppler_observation_model/M32ICL1L02_D2X_133621904_00.TAB.txt" );
+//    ifmsFileNames.push_back( paths::getTudatTestDataPath( )  + "/estrack_n_way_doppler_observation_model/M32ICL1L02_D2X_133621819_00.TAB.txt" );
     std::vector< std::shared_ptr< TrackingTxtFileContents > > rawIfmsFiles;
-
-    rawIfmsFiles.push_back( readIfmsFile( paths::getTudatTestDataPath( )  + "/estrack_n_way_doppler_observation_model/M32ICL3L02_D2S_133621904_00.TAB.txt" ) );
-    rawIfmsFiles.push_back( readIfmsFile( paths::getTudatTestDataPath( )  + "/estrack_n_way_doppler_observation_model/M32ICL3L02_D2S_133621819_00.TAB.txt" ) );
-    rawIfmsFiles.push_back( readIfmsFile( paths::getTudatTestDataPath( )  + "/estrack_n_way_doppler_observation_model/M32ICL2L02_D2X_133621904_00.TAB.txt" ) );
-    rawIfmsFiles.push_back( readIfmsFile( paths::getTudatTestDataPath( )  + "/estrack_n_way_doppler_observation_model/M32ICL2L02_D2X_133621819_00.TAB.txt" ) );
-    rawIfmsFiles.push_back( readIfmsFile( paths::getTudatTestDataPath( )  + "/estrack_n_way_doppler_observation_model/M32ICL1L02_D2X_133621904_00.TAB.txt" ) );
-    rawIfmsFiles.push_back( readIfmsFile( paths::getTudatTestDataPath( )  + "/estrack_n_way_doppler_observation_model/M32ICL1L02_D2X_133621819_00.TAB.txt" ) );
+    for( int i = 0; i < ifmsFileNames.size( ); i++ )
+    {
+        rawIfmsFiles.push_back( readIfmsFile( ifmsFileNames.at( i ) ) );
+    }
     // Load spice kernels
     spice_interface::loadStandardSpiceKernels( );
     spice_interface::loadSpiceKernelInTudat( paths::getTudatTestDataPath( )  + "/estrack_n_way_doppler_observation_model/MEX_ROB_130101_131231_001_shortened.bsp" );
 
     for( int i = 0; i < 1; i++ )// rawIfmsFiles.size( ); i++ )
     {
-        FrequencyBands currentReceptionBand = x_band;
-        if( i < 2 )
+        Eigen::Matrix< long double, Eigen::Dynamic, 1 > manualResiduals;
+        for( int testType = 0; testType < 2; testType++ )
         {
-            currentReceptionBand = s_band;
-        }
-
-        // Create settings for default bodies
-        std::vector< std::string > bodiesToCreate = { "Earth", "Sun", "Moon", "Mars" };
-        std::string globalFrameOrigin = "SSB";
-        std::string globalFrameOrientation = "J2000";
-        BodyListSettings bodySettings = getDefaultBodySettings(
-            bodiesToCreate, globalFrameOrigin, globalFrameOrientation );
-
-        // Add high-accuracy Earth settings
-        bodySettings.at( "Earth" )->shapeModelSettings = fromSpiceOblateSphericalBodyShapeSettings( );
-        bodySettings.at( "Earth" )->rotationModelSettings = gcrsToItrsRotationModelSettings(
-            basic_astrodynamics::iau_2006, globalFrameOrientation );
-        bodySettings.at( "Earth" )->groundStationSettings = getDsnStationSettings( );
-        bodySettings.at( "Earth" )->bodyDeformationSettings.push_back( iers2010TidalBodyShapeDeformation( ) );
-
-        // Add ground station
-        Eigen::Vector3d stationPosition = getCombinedApproximateGroundStationPositions( ).at( "NWNORCIA" );
-        std::shared_ptr<GroundStationSettings> nnorciaSettings = std::make_shared<GroundStationSettings>(
-            "NWNORCIA", stationPosition );
-        nnorciaSettings->addStationMotionSettings(
-            std::make_shared<LinearGroundStationMotionSettings>(
-                ( Eigen::Vector3d( ) << -45.00, 10.00, 47.00 ).finished( ) / 1.0E3 / physical_constants::JULIAN_YEAR, 0.0) );
-        bodySettings.at( "Earth" )->groundStationSettings.push_back( nnorciaSettings );
-
-        // Add spacecraft settings
-        std::string spacecraftName = "MeX";
-        std::string spacecraftCentralBody = "Mars";
-        bodySettings.addSettings( spacecraftName );
-        bodySettings.at( spacecraftName )->ephemerisSettings =
-            std::make_shared< DirectSpiceEphemerisSettings >( spacecraftCentralBody, globalFrameOrientation );
-
-        // Create bodies
-        SystemOfBodies bodies = createSystemOfBodies< long double, Time >( bodySettings );
-
-        // Set turnaround ratios in spacecraft (ground station)
-        std::shared_ptr< system_models::VehicleSystems > vehicleSystems = std::make_shared< system_models::VehicleSystems >();
-        vehicleSystems->setTransponderTurnaroundRatio(&getDsnDefaultTurnaroundRatios);
-        bodies.at( "MeX" )->setVehicleSystems(vehicleSystems);
-
-        /****************************************************************************************
-         ************************** LOAD ODF FILES
-         *****************************************************************************************/
-
-        // Process IFMS files
-        std::vector< std::shared_ptr< ProcessedTrackingTxtFileContents< long double, Time > > > processedIfmsFiles;
-        rawIfmsFiles.at( i )->addMetaData( TrackingDataType::receiving_station_name, "NWNORCIA" );
-        rawIfmsFiles.at( i )->addMetaData( TrackingDataType::transmitting_station_name, "NWNORCIA" );
-        processedIfmsFiles.push_back( std::make_shared<observation_models::ProcessedTrackingTxtFileContents< long double, Time > >(
-            rawIfmsFiles.at( i ), "MeX", simulation_setup::getCombinedApproximateGroundStationPositions( ) ) );
-
-        // Define ancilliary settings
-        ObservationAncilliarySimulationSettings ancilliarySettings;
-        ancilliarySettings.setAncilliaryDoubleVectorData(frequency_bands, { static_cast< double >( x_band ), static_cast< double >( currentReceptionBand ) });
-        ancilliarySettings.setAncilliaryDoubleData( doppler_reference_frequency, 0.0 );
-        ancilliarySettings.setAncilliaryDoubleData( reception_reference_frequency_band, convertFrequencyBandToDouble( currentReceptionBand ) );
-
-        // Create and process observation collection
-        auto observedUncompressedObservationCollection = observation_models::createTrackingTxtFilesObservationCollection< long double, Time>(
-            processedIfmsFiles, {dsn_n_way_averaged_doppler}, ancilliarySettings );
-        setTrackingDataInformationInBodies( processedIfmsFiles, bodies, dsn_n_way_averaged_doppler );
-        std::shared_ptr< observation_models::ObservationCollection< long double, Time > > observedObservationCollection =
-            createCompressedDopplerCollection( observedUncompressedObservationCollection, 60.0 );
-
-        /****************************************************************************************
-         ************************** CREATE OBSERVATION MODEL SETTINGS
-         *****************************************************************************************/
-
-        // Define observation model settings
-        std::vector< std::shared_ptr< observation_models::ObservationModelSettings > > observationModelSettingsList;
-        std::vector< std::shared_ptr< observation_models::LightTimeCorrectionSettings > > lightTimeCorrectionSettings;
-        lightTimeCorrectionSettings.push_back( firstOrderRelativisticLightTimeCorrectionSettings( { "Sun" } ) );
-        std::map < observation_models::ObservableType, std::vector< observation_models::LinkEnds > > linkEndsPerObservable =
-            observedObservationCollection->getLinkEndsPerObservableType( );
-
-        for ( auto it = linkEndsPerObservable.begin(); it != linkEndsPerObservable.end(); ++it )
-        {
-            for ( unsigned int i = 0; i < it->second.size( ); ++i )
+            FrequencyBands currentReceptionBand = x_band;
+            if( i < 2 )
             {
-                if ( it->first == observation_models::dsn_n_way_averaged_doppler )
+                currentReceptionBand = s_band;
+            }
+
+            // Create settings for default bodies
+            std::vector< std::string > bodiesToCreate = { "Earth", "Sun", "Moon", "Mars" };
+            std::string globalFrameOrigin = "SSB";
+            std::string globalFrameOrientation = "J2000";
+            BodyListSettings bodySettings = getDefaultBodySettings(
+                bodiesToCreate, globalFrameOrigin, globalFrameOrientation );
+
+            // Add high-accuracy Earth settings
+            bodySettings.at( "Earth" )->shapeModelSettings = fromSpiceOblateSphericalBodyShapeSettings( );
+            bodySettings.at( "Earth" )->rotationModelSettings = gcrsToItrsRotationModelSettings(
+                basic_astrodynamics::iau_2006, globalFrameOrientation );
+            bodySettings.at( "Earth" )->groundStationSettings = getDsnStationSettings( );
+            bodySettings.at( "Earth" )->bodyDeformationSettings.push_back( iers2010TidalBodyShapeDeformation( ) );
+
+            // Add ground station
+            Eigen::Vector3d stationPosition = getCombinedApproximateGroundStationPositions( ).at( "NWNORCIA" );
+            std::shared_ptr<GroundStationSettings> nnorciaSettings = std::make_shared<GroundStationSettings>(
+                "NWNORCIA", stationPosition );
+            nnorciaSettings->addStationMotionSettings(
+                std::make_shared<LinearGroundStationMotionSettings>(
+                    ( Eigen::Vector3d( ) << -45.00, 10.00, 47.00 ).finished( ) / 1.0E3 / physical_constants::JULIAN_YEAR, 0.0) );
+            bodySettings.at( "Earth" )->groundStationSettings.push_back( nnorciaSettings );
+
+            // Add spacecraft settings
+            std::string spacecraftName = "MeX";
+            std::string spacecraftCentralBody = "Mars";
+            bodySettings.addSettings( spacecraftName );
+            bodySettings.at( spacecraftName )->ephemerisSettings =
+                std::make_shared< DirectSpiceEphemerisSettings >( spacecraftCentralBody, globalFrameOrientation );
+
+            // Create bodies
+            SystemOfBodies bodies = createSystemOfBodies< long double, Time >( bodySettings );
+
+            // Set turnaround ratios in spacecraft (ground station)
+            std::shared_ptr< system_models::VehicleSystems > vehicleSystems = std::make_shared< system_models::VehicleSystems >();
+            vehicleSystems->setTransponderTurnaroundRatio(&getDsnDefaultTurnaroundRatios);
+            bodies.at( "MeX" )->setVehicleSystems(vehicleSystems);
+
+            /****************************************************************************************
+             ************************** LOAD ODF FILES
+             *****************************************************************************************/
+
+            std::shared_ptr<observation_models::ObservationCollection< long double, Time> > observedUncompressedObservationCollection;
+
+            if( testType == 0 )
+            {
+                // Process IFMS files
+                std::vector< std::shared_ptr< ProcessedTrackingTxtFileContents< long double, Time > > > processedIfmsFiles;
+                rawIfmsFiles.at( i )->addMetaData( TrackingDataType::receiving_station_name, "NWNORCIA" );
+                rawIfmsFiles.at( i )->addMetaData( TrackingDataType::transmitting_station_name, "NWNORCIA" );
+                processedIfmsFiles.push_back( std::make_shared<observation_models::ProcessedTrackingTxtFileContents< long double, Time > >(
+                    rawIfmsFiles.at( i ), "MeX", simulation_setup::getCombinedApproximateGroundStationPositions( ) ) );
+
+                // Define ancilliary settings
+                ObservationAncilliarySimulationSettings ancilliarySettings;
+                ancilliarySettings.setAncilliaryDoubleVectorData(frequency_bands, { static_cast< double >( x_band ), static_cast< double >( currentReceptionBand ) });
+                ancilliarySettings.setAncilliaryDoubleData( doppler_reference_frequency, 0.0 );
+                ancilliarySettings.setAncilliaryDoubleData( reception_reference_frequency_band, convertFrequencyBandToDouble( currentReceptionBand ) );
+
+                // Create and process observation collection
+                observedUncompressedObservationCollection = observation_models::createTrackingTxtFilesObservationCollection< long double, Time>(
+                    { processedIfmsFiles.at( i ) }, {dsn_n_way_averaged_doppler}, ancilliarySettings );
+                setTrackingDataInformationInBodies( processedIfmsFiles, bodies, dsn_n_way_averaged_doppler );
+            }
+            else
+            {
+                observedUncompressedObservationCollection = createIfmsObservedObservationCollectionFromFiles< long double, Time >(
+                    { ifmsFileNames.at( i ) }, bodies, "MeX", "NWNORCIA", currentReceptionBand, x_band );
+            }
+
+            std::shared_ptr< observation_models::ObservationCollection< long double, Time > > observedObservationCollection =
+                createCompressedDopplerCollection( observedUncompressedObservationCollection, 60.0 );
+
+            /****************************************************************************************
+             ************************** CREATE OBSERVATION MODEL SETTINGS
+             *****************************************************************************************/
+
+            // Define observation model settings
+            std::vector< std::shared_ptr< observation_models::ObservationModelSettings > > observationModelSettingsList;
+            std::vector< std::shared_ptr< observation_models::LightTimeCorrectionSettings > > lightTimeCorrectionSettings;
+            lightTimeCorrectionSettings.push_back( firstOrderRelativisticLightTimeCorrectionSettings( { "Sun" } ) );
+            std::map < observation_models::ObservableType, std::vector< observation_models::LinkEnds > > linkEndsPerObservable =
+                observedObservationCollection->getLinkEndsPerObservableType( );
+
+            for ( auto it = linkEndsPerObservable.begin(); it != linkEndsPerObservable.end(); ++it )
+            {
+                for ( unsigned int i = 0; i < it->second.size( ); ++i )
                 {
-                    observationModelSettingsList.push_back(
-                        observation_models::dsnNWayAveragedDopplerObservationSettings(
-                            it->second.at( i ), lightTimeCorrectionSettings, constantAbsoluteBias( Eigen::Vector1d::Zero( ) ),
-                            std::make_shared< LightTimeConvergenceCriteria >( true ), false ) );
+                    if ( it->first == observation_models::dsn_n_way_averaged_doppler )
+                    {
+                        observationModelSettingsList.push_back(
+                            observation_models::dsnNWayAveragedDopplerObservationSettings(
+                                it->second.at( i ), lightTimeCorrectionSettings, constantAbsoluteBias( Eigen::Vector1d::Zero( ) ),
+                                std::make_shared< LightTimeConvergenceCriteria >( true ), false ) );
+                    }
                 }
             }
+
+            // Create observation simulator
+            std::vector< std::shared_ptr< ObservationSimulatorBase< long double, Time > > > observationSimulators =
+                createObservationSimulators< long double, Time >( observationModelSettingsList, bodies );
+
+            /****************************************************************************************
+             ************************** SIMULATE OBSERVATIONS AND COMPUTE RESIDUALS
+             *****************************************************************************************/
+
+            std::vector< std::shared_ptr< simulation_setup::ObservationSimulationSettings< Time > > > observationSimulationSettings =
+                getObservationSimulationSettingsFromObservations( observedObservationCollection );
+            std::shared_ptr< observation_models::ObservationCollection< long double, Time > > computedObservationCollection =
+                simulateObservations( observationSimulationSettings, observationSimulators, bodies );
+
+            Eigen::Matrix< long double, Eigen::Dynamic, 1 > residualVector = observedObservationCollection->getObservationVector( ) - computedObservationCollection->getObservationVector( );
+            double rmsResidual = linear_algebra::getVectorEntryRootMeanSquare( residualVector.cast< double >( ) );
+            double meanResidual = linear_algebra::getVectorEntryMean( residualVector.cast< double >( ) );
+
+            std::cout<<residualVector.rows( )<<" "<<rmsResidual<<" "<<meanResidual<<std::endl;
+            BOOST_CHECK_SMALL( rmsResidual, 5.0E-3 );
+            BOOST_CHECK_SMALL( meanResidual, 5.0E-3 );
+
+            if( testType == 0 )
+            {
+                manualResiduals = residualVector;
+            }
+            else
+            {
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION( manualResiduals, residualVector, std::numeric_limits< double >::epsilon( ) );
+            }
+
+    //        input_output::writeMatrixToFile( observedObservationCollection->getObservationVector( ), "ifms_doppler_" + std::to_string( i ) + ".dat", 16 );
+    //        input_output::writeMatrixToFile( residualVector, "ifms_residuals_" + std::to_string( i ) + ".dat", 16 );
+    //        input_output::writeMatrixToFile(
+    //            utilities::convertStlVectorToEigenVector(
+    //                utilities::staticCastVector< double, Time >( observedObservationCollection->getConcatenatedTimeVector() ) ), "ifms_times_" + std::to_string( i ) + ".dat", 16 );
         }
-
-        // Create observation simulator
-        std::vector< std::shared_ptr< ObservationSimulatorBase< long double, Time > > > observationSimulators =
-            createObservationSimulators< long double, Time >( observationModelSettingsList, bodies );
-
-        /****************************************************************************************
-         ************************** SIMULATE OBSERVATIONS AND COMPUTE RESIDUALS
-         *****************************************************************************************/
-
-        std::vector< std::shared_ptr< simulation_setup::ObservationSimulationSettings< Time > > > observationSimulationSettings =
-            getObservationSimulationSettingsFromObservations( observedObservationCollection );
-        std::shared_ptr< observation_models::ObservationCollection< long double, Time > > computedObservationCollection =
-            simulateObservations( observationSimulationSettings, observationSimulators, bodies );
-
-        Eigen::Matrix< long double, Eigen::Dynamic, 1 > residualVector = observedObservationCollection->getObservationVector( ) - computedObservationCollection->getObservationVector( );
-        double rmsResidual = linear_algebra::getVectorEntryRootMeanSquare( residualVector.cast< double >( ) );
-        double meanResidual = linear_algebra::getVectorEntryMean( residualVector.cast< double >( ) );
-
-        std::cout<<rmsResidual<<" "<<meanResidual<<std::endl;
-        BOOST_CHECK_SMALL( rmsResidual, 5.0E-3 );
-        BOOST_CHECK_SMALL( meanResidual, 5.0E-3 );
-
-//        input_output::writeMatrixToFile( observedObservationCollection->getObservationVector( ), "ifms_doppler_" + std::to_string( i ) + ".dat", 16 );
-//        input_output::writeMatrixToFile( residualVector, "ifms_residuals_" + std::to_string( i ) + ".dat", 16 );
-//        input_output::writeMatrixToFile(
-//            utilities::convertStlVectorToEigenVector(
-//                utilities::staticCastVector< double, Time >( observedObservationCollection->getConcatenatedTimeVector() ) ), "ifms_times_" + std::to_string( i ) + ".dat", 16 );
     }
+
 }
 // End test suite
 BOOST_AUTO_TEST_SUITE_END();

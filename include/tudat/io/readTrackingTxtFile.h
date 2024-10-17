@@ -94,7 +94,8 @@ enum class TrackingDataType
   transmission_frequency_constant_term,
   transmission_frequency_linear_term,
   doppler_predicted_frequency_hz,
-  doppler_troposphere_correction
+  doppler_troposphere_correction,
+  scan_nr
 };
 /*!
  * Simple converter class that can convert a string data field to a double.
@@ -261,7 +262,8 @@ static const std::map<std::string, std::shared_ptr<TrackingFileFieldConverter>> 
     {"transmission_frequency_constant_term", std::make_shared<TrackingFileFieldConverter>(TrackingDataType::transmission_frequency_constant_term)},
     {"transmission_frequency_linear_term", std::make_shared<TrackingFileFieldConverter>(TrackingDataType::transmission_frequency_linear_term)},
     {"doppler_predicted_frequency_hz", std::make_shared<TrackingFileFieldConverter>(TrackingDataType::doppler_predicted_frequency_hz)},
-    {"doppler_troposphere_correction", std::make_shared<TrackingFileFieldConverter>(TrackingDataType::doppler_troposphere_correction)}
+    {"doppler_troposphere_correction", std::make_shared<TrackingFileFieldConverter>(TrackingDataType::doppler_troposphere_correction)},
+    {"scan_number", std::make_shared<TrackingFileFieldConverter>(TrackingDataType::scan_nr)}
 
 };
 
@@ -419,7 +421,7 @@ private:
  * @return TrackingFileContents
  */
 static inline std::shared_ptr<TrackingTxtFileContents> createTrackingTxtFileContents(const std::string& fileName,
-                                                                                     std::vector<std::string>& columnTypes,
+                                                                                     const std::vector<std::string>& columnTypes,
                                                                                      char commentSymbol = '#',
                                                                                      const std::string& valueSeparators = ",: \t",
                                                                                      const bool ignoreOmittedColumns = false )
@@ -448,6 +450,17 @@ inline std::shared_ptr< TrackingTxtFileContents> readIfmsFile(const std::string&
     rawFileContents->addMetaData( TrackingDataType::file_name, fileName );
     return rawFileContents;
 }
+
+inline std::shared_ptr< TrackingTxtFileContents> readFdetsFile(
+    const std::string& fileName,
+    const std::vector<std::string>& columnTypes ={ "utc_datetime_string", "signal_to_noise_ratio", "normalised_spectral_max", "doppler_measured_frequency_hz", "doppler_noise_hz" } )
+{
+    auto rawFileContents = createTrackingTxtFileContents(fileName, columnTypes, '#', ", \t");
+    rawFileContents->addMetaData(TrackingDataType::file_name, fileName );
+    return rawFileContents;
+}
+
+
 } // namespace input_output
 } // namespace tudat
 
