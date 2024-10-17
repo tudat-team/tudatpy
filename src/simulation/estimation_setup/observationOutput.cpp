@@ -24,8 +24,8 @@ void checkObservationDependentVariableEnvironment(
 {
     if( isObservationDependentVariableGroundStationProperty( variableSettings ) && variableSettings->isLinkEndDefined_ )
     {
-        std::string bodyName = variableSettings->relevantLinkEnd_.bodyName_;
-        std::string stationName = variableSettings->relevantLinkEnd_.stationName_;
+        std::string bodyName = variableSettings->linkEndId_.bodyName_;
+        std::string stationName = variableSettings->linkEndId_.stationName_;
 
         if( bodies.count( bodyName ) == 0 )
         {
@@ -107,6 +107,12 @@ std::pair< int, int > getLinkEndStateTimeIndices(
         currentStateTimeIndex = stateTimeIndex;
     }
 
+    if ( currentStateTimeIndex.size( ) == 0 )
+    {
+        throw std::runtime_error( "Error when getting link end state and time indices for observation dependent variable calculation, "
+                                  "no indices could be found for required relevant and originating link ends (must be inconsistent)." );
+    }
+
     // Check if observation is integrated
     if( observation_models::isObservableOfIntegratedType( observableType ) )
     {
@@ -154,11 +160,11 @@ ObservationDependentVariableFunction getStationObservationAngleFunction(
     observation_models::LinkEndId linkEndIdToUse;
     if( variableSettings->isLinkEndDefined_ )
     {
-        linkEndIdToUse = variableSettings->relevantLinkEnd_;
+        linkEndIdToUse = variableSettings->linkEndId_;
     }
     else
     {
-        linkEndIdToUse = linkEnds.at( variableSettings->linkEndRole_ );
+        linkEndIdToUse = linkEnds.at( variableSettings->linkEndType_ );
     }
 
     std::string bodyName = linkEndIdToUse.bodyName_;
@@ -176,7 +182,7 @@ ObservationDependentVariableFunction getStationObservationAngleFunction(
 
     std::pair< int, int > linkEndIndicesToUse = getLinkEndStateTimeIndices(
         observableType, linkEnds, linkEndIdToUse,
-        variableSettings->linkEndRole_, variableSettings->originatingLinkEndRole_,
+        variableSettings->linkEndType_, variableSettings->originatingLinkEndType_,
         variableSettings->integratedObservableHandling_ );
 
 
@@ -218,8 +224,8 @@ ObservationDependentVariableFunction getInterlinkObservationVariableFunction(
     const observation_models::LinkDefinition linkEnds )
 {
     std::pair< int, int > linkEndIndicesToUse = getLinkEndStateTimeIndices(
-        observableType, linkEnds, linkEnds.at( variableSettings->startLinkEnd_ ),
-        variableSettings->startLinkEnd_, variableSettings->endLinkEnd_,
+        observableType, linkEnds, linkEnds.at( variableSettings->originatingLinkEndType_ ),
+        variableSettings->originatingLinkEndType_, variableSettings->linkEndType_,
         variableSettings->integratedObservableHandling_ );
 
     ObservationDependentVariableFunction outputFunction;
@@ -550,10 +556,12 @@ void ObservationDependentVariableCalculator::addDependentVariable(
         const std::shared_ptr< ObservationDependentVariableSettings > variableSettings,
         const SystemOfBodies& bodies )
 {
+    std::cout << "in addDependentVariable (calculator)" << std::endl;
     // Check if the requested dependent variable can be used for given link
     if( doesObservationDependentVariableExistForGivenLink(
                 observableType_, linkEnds_.linkEnds_, variableSettings ) )
     {
+        std::cout << "does exist" << std::endl;
         // Retrieve the current index in list of dependent variables and size of new parameter
         int currentIndex = totalDependentVariableSize_;
         int parameterSize = getObservationDependentVariableSize( variableSettings );
