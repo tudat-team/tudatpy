@@ -147,19 +147,19 @@ void expose_propagation(py::module &m)
             .def_readwrite("forward_backward_dependent_variables", &tp::DampedInitialRotationalStateResults<TIME_TYPE, STATE_SCALAR_TYPE>::forwardBackwardDependentVariables_ ,
                            get_docstring("RotationalProperModeDampingResults.forward_backward_dependent_variables").c_str());
 
-//    m.def("get_damped_proper_mode_initial_rotational_state",
-//          py::overload_cast<
-//          const tss::SystemOfBodies&,
-//          const std::shared_ptr< tp::SingleArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > >,
-//          const double,
-//          const std::vector< double >,
-//          const bool >( &tp::getZeroProperModeRotationalStateWithStruct< TIME_TYPE, STATE_SCALAR_TYPE > ),
-//          py::arg("bodies"),
-//          py::arg("propagator_settings"),
-//          py::arg("body_mean_rotational_rate"),
-//          py::arg("dissipation_times"),
-//          py::arg("propagate_undamped") = true ,
-//          get_docstring("get_damped_proper_mode_initial_rotational_state").c_str());
+    m.def("get_damped_proper_mode_initial_rotational_state",
+          py::overload_cast<
+          const tss::SystemOfBodies&,
+          const std::shared_ptr< tp::SingleArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > >,
+          const double,
+          const std::vector< double >,
+          const bool >( &tp::getZeroProperModeRotationalStateWithStruct< TIME_TYPE, STATE_SCALAR_TYPE > ),
+          py::arg("bodies"),
+          py::arg("propagator_settings"),
+          py::arg("body_mean_rotational_rate"),
+          py::arg("dissipation_times"),
+          py::arg("propagate_undamped") = true ,
+          get_docstring("get_damped_proper_mode_initial_rotational_state").c_str());
 
     m.def("combine_initial_states",
           &tp::createCombinedInitialState<STATE_SCALAR_TYPE,TIME_TYPE>,
