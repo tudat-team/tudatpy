@@ -74,6 +74,8 @@ option(TUDAT_BUILD_WITH_SOFA_INTERFACE "Build Tudat with sofa interface." ON)
 # Build json interface.
 option(TUDAT_BUILD_WITH_JSON_INTERFACE "Build Tudat with json interface." OFF)
 
+option(TUDAT_BUILD_WITH_FFTW3 "Build Tudat with FFTW3." OFF)
+
 # Build pagmo-dependent code
 option(TUDAT_BUILD_WITH_PAGMO "Build Tudat with pagmo." OFF)
 if(CMAKE_CXX_SIMULATE_ID MATCHES "MSVC")
@@ -116,12 +118,14 @@ message(STATUS "TUDAT_BUILD_TUDAT_TUTORIALS                           ${TUDAT_BU
 message(STATUS "TUDAT_BUILD_STATIC_LIBRARY                            ${TUDAT_BUILD_STATIC_LIBRARY}")
 message(STATUS "TUDAT_BUILD_WITH_FILTERS                              ${TUDAT_BUILD_WITH_FILTERS}")
 message(STATUS "TUDAT_BUILD_WITH_SOFA_INTERFACE                       ${TUDAT_BUILD_WITH_SOFA_INTERFACE}")
+message(STATUS "TUDAT_BUILD_WITH_FFTW3                                ${TUDAT_BUILD_WITH_FFTW3}")
 message(STATUS "TUDAT_BUILD_WITH_JSON_INTERFACE                       ${TUDAT_BUILD_WITH_JSON_INTERFACE}")
 message(STATUS "TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS ${TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS}")
 message(STATUS "TUDAT_DOWNLOAD_AND_BUILD_BOOST                        ${TUDAT_DOWNLOAD_AND_BUILD_BOOST}")
 
 set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -DTUDAT_BUILD_WITH_FILTERS=${TUDAT_BUILD_WITH_FILTERS}")
 set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -DTUDAT_BUILD_WITH_SOFA_INTERFACE=${TUDAT_BUILD_WITH_SOFA_INTERFACE}")
+set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -DTUDAT_BUILD_WITH_FFTW3=${TUDAT_BUILD_WITH_FFTW3}")
 set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -DTUDAT_BUILD_WITH_JSON_INTERFACE=${TUDAT_BUILD_WITH_JSON_INTERFACE}")
 set(Tudat_DEFINITIONS "${Tudat_DEFINITIONS} -DTUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS=${TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS}")
 # +============================================================================
@@ -326,6 +330,28 @@ find_package(nrlmsise00 REQUIRED 0.1)
 message(STATUS ${NRLMSISE00_LIBRARIES})
 add_definitions(-DTUDAT_BUILD_WITH_NRLMSISE=1)
 
+if (TUDAT_BUILD_WITH_FFTW3)
+    if(NOT APPLE)
+        find_package(FFTW3)
+        message(STATUS "FFTW " ${FFTW3_LIBRARIES})
+        include_directories(SYSTEM AFTER "${FFTW3_INCLUDE_DIRS}")
+        if(WIN32)
+            set (FFTW3_LIBRARIES "${FFTW3_LIBRARY_DIRS}/fftw3.lib")
+        else()
+            set (FFTW3_LIBRARIES "${FFTW3_LIBRARY_DIRS}/libfftw3.so")
+        endif()
+        add_definitions(-DTUDAT_BUILD_WITH_FFTW3=1)
+    else( )
+        find_package(FFTW3)
+        message(STATUS ${FFTW3_LIBRARIES})
+        include_directories(SYSTEM AFTER "${FFTW3_INCLUDE_DIRS}")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isystem \"${FFTW3_INCLUDE_DIR}\"")
+        set (FFTW3_LIBRARIES "${FFTW3_LIBRARY_DIRS}/libfftw3.dylib")
+        add_definitions(-DTUDAT_BUILD_WITH_FFTW3=1)
+    endif( )
+else( )
+    add_definitions(-DTUDAT_BUILD_WITH_FFTW3=0)
+endif( )
 
 # JSON
 if (TUDAT_BUILD_WITH_JSON_INTERFACE)

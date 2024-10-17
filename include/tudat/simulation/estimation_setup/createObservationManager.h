@@ -369,6 +369,10 @@ void performObservationParameterEstimationClosureForSingleModelSet(
             }
             break;
         }
+        case estimatable_parameters::global_polynomial_clock_corrections:
+            break;
+        case estimatable_parameters::arc_wise_polynomial_clock_corrections:
+            break;
         default:
             std::string errorMessage = "Error when closing observation bias/estimation loop, did not recognize bias type " +
                     std::to_string( parameter->getParameterName( ).first );

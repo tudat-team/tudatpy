@@ -350,6 +350,38 @@ public:
 
 };
 
+
+//! Class for defining settings for the creation of a multiple biases for a single observable
+class TiminigSystemBiasSettings: public ObservationBiasSettings
+{
+public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param biasSettingsList List of settings for bias objects that are to be created.
+     */
+    TiminigSystemBiasSettings(
+            const std::string& bodyName,
+            const std::string& stationName ):
+            ObservationBiasSettings( clock_induced_bias ),
+            bodyName_( bodyName ), stationName_( stationName ){ }
+
+    //! Destructor
+    ~TiminigSystemBiasSettings( ){ }
+
+    const std::string bodyName_;
+
+    const std::string stationName_;
+};
+
+inline std::shared_ptr< ObservationBiasSettings > clockInducedBias(
+        const std::string& bodyName, const std::string& stationName  )
+{
+    return std::make_shared< TiminigSystemBiasSettings >(
+            bodyName, stationName );
+}
+
 inline std::shared_ptr< ObservationBiasSettings > constantAbsoluteBias(
         const Eigen::VectorXd& observationBias )
 {
@@ -1574,6 +1606,79 @@ std::shared_ptr< ObservationBias< ObservationSize > > createObservationBiasCalcu
         // Create combined bias object
         observationBias = std::make_shared< MultiTypeObservationBias< ObservationSize > >(
                     observationBiasList );
+        break;
+    }
+    case clock_induced_bias:
+    {
+        if( observableType != one_way_range && observableType != n_way_range )
+        {
+            throw std::runtime_error( "Error, clock-induced observation bias currently only supported for one- and n-way range" );
+        }
+        else
+        {
+            // Check input consistency
+            std::shared_ptr< TiminigSystemBiasSettings > clockInducedBiasSettings = std::dynamic_pointer_cast<
+                    TiminigSystemBiasSettings >( biasSettings );
+
+            std::vector< int > relevantLinkEndIndices = getLinkEndIndicesForLinkEndIdAtObservable(
+                    observableType, linkEnds.linkEnds_, LinkEndId( clockInducedBiasSettings->bodyName_, clockInducedBiasSettings->stationName_ ) );
+
+            if( clockInducedBiasSettings == nullptr )
+            {
+                throw std::runtime_error( "Error when making clock-induced bias, settings are inconsistent" );
+            }
+
+            std::shared_ptr< system_models::TimingSystem > timingSystem;
+            if( bodies.count( clockInducedBiasSettings->bodyName_ ) == 0 )
+            {
+                throw std::runtime_error( "Error when getting timing system of body " + clockInducedBiasSettings->bodyName_ +
+                    " for observation bias, no such body exists." );
+            }
+            else
+            {
+                if( clockInducedBiasSettings->stationName_ == "" )
+                {
+                    if( bodies.at( clockInducedBiasSettings->bodyName_ )->getVehicleSystems( ) == nullptr )
+                    {
+                        throw std::runtime_error( "Error when getting timing system of body " + clockInducedBiasSettings->bodyName_ +
+                                                  " for observation bias, body has no vehicle systems." );
+                    }
+                    else
+                    {
+                        timingSystem = bodies.at( clockInducedBiasSettings->bodyName_ )->getVehicleSystems( )->getTimingSystem( );
+                        if( timingSystem == nullptr )
+                        {
+                            throw std::runtime_error( "Error when getting timing system of body " + clockInducedBiasSettings->bodyName_ +
+                                                      " for observation bias, body has no timing system." );
+                        }
+                    }
+                }
+                else
+                {
+                    if( bodies.at( clockInducedBiasSettings->bodyName_ )->getGroundStationMap( ).count( clockInducedBiasSettings->stationName_ ) == 0 )
+                    {
+                        throw std::runtime_error( "Error when getting timing system of body " + clockInducedBiasSettings->bodyName_ +
+                                                  " and station " + clockInducedBiasSettings->stationName_ +
+                                                  " no such station exists" );
+                    }
+                    else
+                    {
+                        timingSystem = bodies.at( clockInducedBiasSettings->bodyName_ )->getGroundStation( clockInducedBiasSettings->stationName_ )->getTimingSystem( );
+                        if( timingSystem == nullptr )
+                        {
+                            throw std::runtime_error( "Error when getting timing system of body " + clockInducedBiasSettings->bodyName_ +
+                                                      " and station " + clockInducedBiasSettings->stationName_ +
+                                                      " station has no timing system" );
+                        }
+                    }
+                }
+
+                // Create combined bias object
+                observationBias = std::make_shared< ClockInducedRangeBias< ObservationSize > >(
+                        timingSystem, relevantLinkEndIndices,
+                        LinkEndId( clockInducedBiasSettings->bodyName_, clockInducedBiasSettings->stationName_ ) );
+            }
+        }
         break;
     }
     default:
