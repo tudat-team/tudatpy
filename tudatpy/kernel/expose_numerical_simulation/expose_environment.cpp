@@ -318,11 +318,49 @@ void expose_environment(py::module &m) {
                  py::arg("reference_point"),
                  py::arg("location"),
                  get_docstring("VehicleSystems.get_control_surface_deflection").c_str() )
-
             .def("get_engine_model",
                  &tsm::VehicleSystems::getEngineModel,
                  py::arg("engine_name"),
-                 get_docstring("VehicleSystems.get_engine_model").c_str() );
+                 get_docstring("VehicleSystems.get_engine_model").c_str() )
+            .def("set_timing_system",
+                 &tsm::VehicleSystems::setTimingSystem,
+                 py::arg("timing_system"));
+
+    py::class_<tsm::TimingSystem,
+        std::shared_ptr<tsm::TimingSystem>>
+        (m, "TimingSystem",
+         get_docstring("TimingSystem").c_str())
+
+        .def( // ctor 1
+            py::init<
+                const std::vector<tudat::Time>,
+                const std::vector<double>,
+                const std::function<std::function<double(const double)>(const double, const double,
+                                                                        const double)>,
+                const double>(),
+            py::arg("arc_times"),
+            py::arg("all_arcs_polynomial_drift_coefficients") = std::vector<double>(),
+            py::arg("clock_noise_generation_function") = nullptr,
+            py::arg("clock_noise_time_step") = 1.0E-3)
+        .def( // ctor 2
+            py::init<
+                const std::vector<tudat::Time>,
+                const std::vector<std::vector<double> >,
+                const std::function<std::function<double(const double)>(const double, const double,
+                                                                        const double)>,
+                const double>(),
+            py::arg("arc_times"),
+            py::arg("polynomial_drift_coefficients"),
+            py::arg("clock_noise_generation_function") = nullptr,
+            py::arg("clock_noise_time_step") = 1.0E-3)
+        .def( // ctor 3
+            py::init<
+                const std::vector<std::vector<double> >,
+                const std::vector<std::function<double(const double)>>,
+                const std::vector<tudat::Time> >(),
+            py::arg("polynomial_drift_coefficients"),
+            py::arg("stochastic_clock_noise_functions"),
+            py::arg("arc_times"));
 
         py::class_<tsm::EngineModel,
             std::shared_ptr<tsm::EngineModel>>(m, "EngineModel" )
@@ -704,7 +742,8 @@ void expose_environment(py::module &m) {
             .def_property_readonly("pressure_function", &tgs::GroundStation::getPressureFunction)
             .def_property_readonly("relative_humidity_function", &tgs::GroundStation::getRelativeHumidityFunction)
             .def_property_readonly("pointing_angles_calculator", &tgs::GroundStation::getPointingAnglesCalculator )
-            .def_property_readonly("station_state", &tgs::GroundStation::getNominalStationState );
+            .def_property_readonly("station_state", &tgs::GroundStation::getNominalStationState )
+            .def("set_timing_system", &tgs::GroundStation::setTimingSystem, py::arg("timing_system"));
 
 
     py::class_<tgs::StationFrequencyInterpolator,
@@ -784,8 +823,6 @@ void expose_environment(py::module &m) {
             .def_property_readonly("gravitational_parameter", &tss::Body::getGravitationalParameter, get_docstring("Body.gravitational_parameter").c_str())
             .def("get_ground_station", &tss::Body::getGroundStation, py::arg("station_name"), get_docstring("Body.get_ground_station").c_str())
             .def_property_readonly("ground_station_list", &tss::Body::getGroundStationMap, get_docstring("Body.ground_station_list").c_str() );
-
-
 
 
     py::class_<tss::SystemOfBodies,
