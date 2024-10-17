@@ -92,9 +92,9 @@ std::shared_ptr< ObservationPartial< ObservationSize > > createObservationPartia
     const std::function< std::shared_ptr< ObservationPartial< ObservationSize > >( const std::string& ) > partialWrtStateCreationFunction = nullptr )
 {
     std::shared_ptr< ObservationPartial< ObservationSize > > observationPartial;
-
-    observationPartial = ObservationPartialWrtClockCreator< Eigen::VectorXd, ObservationSize >::createPartialWrtClockProperty(
-        linkEnds, observableType, parameterToEstimate, getClockInducedBiases( observationBiases ) );
+//
+//    observationPartial = ObservationPartialWrtClockCreator< Eigen::VectorXd, ObservationSize >::createPartialWrtClockProperty(
+//        linkEnds, observableType, parameterToEstimate, getClockInducedBiases( observationBiases ) );
     if( observationPartial == nullptr )
     {
         bool useObservationBiasPartials = !( isPartialForDifferencedObservable || isPartialForConcatenatedObservable );
