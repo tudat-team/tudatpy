@@ -1195,6 +1195,38 @@ void expose_observation_setup(py::module &m) {
           py::arg("start_and_end_times_to_process"),
           get_docstring("create_odf_observed_observation_collection").c_str() );
 
+    m.def("observations_from_odf_files",
+          &tom::createOdfObservedObservationCollectionFromFile< STATE_SCALAR_TYPE, TIME_TYPE >,
+          py::arg("bodies"),
+          py::arg("odf_file_names"),
+          py::arg("target_name"),
+          py::arg("verbose_output") = true,
+          py::arg("earth_fixed_station_positions" ) = tss::getApproximateDsnGroundStationPositions( ),
+          get_docstring("create_odf_observed_observation_collection").c_str() );
+
+    m.def("observations_from_ifms_files",
+          &tom::createIfmsObservedObservationCollectionFromFiles< STATE_SCALAR_TYPE, TIME_TYPE >,
+          py::arg("bodies"),
+          py::arg("ifms_file_names"),
+          py::arg("target_name"),
+          py::arg("ground_station_name"),
+          py::arg("reception_band"),
+          py::arg("transmission_band"),
+          py::arg("earth_fixed_station_positions" ) = tss::getApproximateDsnGroundStationPositions( ),
+          get_docstring("create_odf_observed_observation_collection").c_str() );
+
+    m.def("observations_from_fdets_files",
+          &tom::createFdetsObservedObservationCollectionFromFile< STATE_SCALAR_TYPE, TIME_TYPE >,
+          py::arg("ifms_file_name"),
+          py::arg("base_frequency"),
+          py::arg("column_types"),
+          py::arg("target_name"),
+          py::arg("transmitting_station_name"),
+          py::arg("receiving_station_name"),
+          py::arg("reception_band"),
+          py::arg("transmission_band"),
+          py::arg("earth_fixed_station_positions" ) = tss::getApproximateDsnGroundStationPositions( ),
+          get_docstring("create_odf_observed_observation_collection").c_str() );
 
     m.def("create_compressed_doppler_collection",
           &tom::createCompressedDopplerCollection< STATE_SCALAR_TYPE, TIME_TYPE >,
