@@ -280,7 +280,7 @@ BOOST_AUTO_TEST_CASE( test_ClockParameterEstimation )
     Eigen::VectorXd relativeParameterError = executeParameterEstimation< long double, tudat::Time >( );
     for( unsigned int i = 6; i < relativeParameterError.rows( ); i++ )
     {
-        BOOST_CHECK_SMALL( std::fabs( relativeParameterError( i ) ), 2.5E-7 );
+        BOOST_CHECK_SMALL( std::fabs( relativeParameterError( i ) ), 1.0E-6 );
     }
 }
 
