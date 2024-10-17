@@ -243,7 +243,7 @@ bool doesStationAngleVariableExistForGivenLink(
         if( variableSettings->isLinkEndDefined_ )
         {
             std::vector<observation_models::LinkEndType> linkEndTypeList = getLinkEndTypesForGivenLinkEndId(
-                linkEnds, variableSettings->relevantLinkEnd_ );
+                linkEnds, variableSettings->linkEndId_ );
             if ( linkEndTypeList.size( ) > 0 )
             {
                 doesLinkHaveDependency = true;
@@ -251,7 +251,7 @@ bool doesStationAngleVariableExistForGivenLink(
         }
         else
         {
-            if( linkEnds.count( variableSettings->linkEndRole_ ) > 0 )
+            if( linkEnds.count( variableSettings->linkEndType_ ) > 0 )
             {
                 doesLinkHaveDependency = true;
             }
@@ -266,17 +266,17 @@ bool doesInterlinkVariableExistForGivenLink(
     const std::shared_ptr< InterlinkObservationDependentVariableSettings > variableSettings )
 {
     bool doesLinkHaveDependency = true;
-    if( variableSettings->startLinkEnd_ != observation_models::unidentified_link_end )
+    if( variableSettings->originatingLinkEndType_ != observation_models::unidentified_link_end )
     {
-        if( linkEnds.count( variableSettings->startLinkEnd_ ) == 0 )
+        if( linkEnds.count( variableSettings->originatingLinkEndType_ ) == 0 )
         {
             doesLinkHaveDependency = false;
         }
     }
 
-    if( variableSettings->endLinkEnd_ != observation_models::unidentified_link_end )
+    if( variableSettings->linkEndType_ != observation_models::unidentified_link_end )
     {
-        if( linkEnds.count( variableSettings->endLinkEnd_ ) == 0 )
+        if( linkEnds.count( variableSettings->linkEndType_ ) == 0 )
         {
             doesLinkHaveDependency = false;
         }
