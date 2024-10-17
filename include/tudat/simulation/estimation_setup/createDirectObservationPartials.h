@@ -339,7 +339,7 @@ createSingleLinkObservationPartials(
                            oneWayLinkEnds, bodies, std::placeholders::_1, positionScaling, lightTimeCorrectionPartialObjects  );
             currentObservationPartial = createObservationPartialWrtLinkProperty< ObservationSize >(
                         oneWayLinkEnds, observableType, parameterIterator->second, bodies, isPartialForDifferencedObservable, isPartialForConcatenatedObservable,
-                        observationPartials, partialWrtStateCreationFunction );
+                        observationPartials, partialWrtStateCreationFunction, observationModel->getObservationBiasCalculator( ) );
         }
 
         // Check if partial is non-nullptr (i.e. whether dependency exists between current observable and current parameter)
