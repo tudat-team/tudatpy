@@ -74,7 +74,7 @@ option(TUDAT_BUILD_WITH_SOFA_INTERFACE "Build Tudat with sofa interface." ON)
 # Build json interface.
 option(TUDAT_BUILD_WITH_JSON_INTERFACE "Build Tudat with json interface." OFF)
 
-option(TUDAT_BUILD_WITH_FFTW3 "Build Tudat with FFTW3." ON)
+option(TUDAT_BUILD_WITH_FFTW3 "Build Tudat with FFTW3." OFF)
 
 # Build pagmo-dependent code
 option(TUDAT_BUILD_WITH_PAGMO "Build Tudat with pagmo." OFF)
@@ -340,14 +340,17 @@ if (TUDAT_BUILD_WITH_FFTW3)
         else()
             set (FFTW3_LIBRARIES "${FFTW3_LIBRARY_DIRS}/libfftw3.so")
         endif()
-
+        add_definitions(-DTUDAT_BUILD_WITH_FFTW3=1)
     else( )
         find_package(FFTW3)
         message(STATUS ${FFTW3_LIBRARIES})
         include_directories(SYSTEM AFTER "${FFTW3_INCLUDE_DIRS}")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isystem \"${FFTW3_INCLUDE_DIR}\"")
         set (FFTW3_LIBRARIES "${FFTW3_LIBRARY_DIRS}/libfftw3.dylib")
+        add_definitions(-DTUDAT_BUILD_WITH_FFTW3=1)
     endif( )
+else( )
+    add_definitions(-DTUDAT_BUILD_WITH_FFTW3=0)
 endif( )
 
 # JSON

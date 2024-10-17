@@ -9,8 +9,10 @@
 #include "tudat/astro/system_models/timingSystem.h"
 #include "tudat/math/basic/linearAlgebra.h"
 #include "tudat/math/interpolators/linearInterpolator.h"
-#include "tudat/math/statistics/powerLawNoiseGeneration.h"
 #include "tudat/math/quadrature/gaussianQuadrature.h"
+#if(TUDAT_BUILD_WITH_FFTW3 )
+#include "tudat/math/statistics/powerLawNoiseGeneration.h"
+#endif
 
 namespace tudat
 {
@@ -185,7 +187,7 @@ std::pair< std::map<double, double>, std::vector<double > > convertAllanVariance
 
 }
 
-
+#if( TUDAT_BUILD_WITH_FFTW3 )
 //! Function to generate clock noise for a clock with given allan variance behaviour
 std::pair< std::vector< double >, double > generateClockNoise( const std::map< int, double > allanVarianceAmplitudes,
                                                                const double startTime, const double endTime,
@@ -335,6 +337,8 @@ std::function< double( const double ) > getColoredClockNoiseInterpolator(
                     ( &LocalInterpolator::interpolate ), std::make_shared< interpolators::LinearInterpolatorDouble >( clockNoiseMap ),
                     std::placeholders::_1 );
         }
+#endif
+
 
 TimingSystem::TimingSystem( const std::vector< Time > arcTimes,
               const std::vector< double > allArcsPolynomialDriftCoefficients,
