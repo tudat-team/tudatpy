@@ -1,8 +1,0 @@
-classes:
-  - name: ExampleClass
-    methods:
-      - name: cpp    # [cpp]
-      - name: py    # [py]
-      - name: constructor    # [cpp]
-      - name: foo_method
-      # there is no bar_method!
