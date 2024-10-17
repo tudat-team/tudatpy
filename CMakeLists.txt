@@ -74,7 +74,7 @@ option(TUDAT_BUILD_WITH_SOFA_INTERFACE "Build Tudat with sofa interface." ON)
 # Build json interface.
 option(TUDAT_BUILD_WITH_JSON_INTERFACE "Build Tudat with json interface." OFF)
 
-option(TUDAT_BUILD_WITH_FFTW3 "Build Tudat with FFTW3." ON)
+option(TUDAT_BUILD_WITH_FFTW3 "Build Tudat with FFTW3." OFF)
 
 # Build pagmo-dependent code
 option(TUDAT_BUILD_WITH_PAGMO "Build Tudat with pagmo." OFF)
