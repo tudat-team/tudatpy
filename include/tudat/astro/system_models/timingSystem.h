@@ -53,6 +53,7 @@ std::pair< std::map<double, double>, std::vector<double > > convertAllanVariance
         const std::map< int, std::pair < double, double > > allanVarianceAmplitudes,
         const std::string& varianceType);
 
+#if( TUDAT_BUILD_WITH_FFTW3 )
 //! Function to generate clock noise for a clock with given allan variance behaviour
 /*!
  *  Function to generate clock noise for a clock with given allan variance behaviour (polynomial with integer time powers -2 >= power <= 1 )
@@ -183,6 +184,7 @@ std::function< double( const double ) > getColoredClockNoiseInterpolator(
         const std::string& varianceType,
         const double startTime, const double endTime,
         const double timeStep,  const double seed = time( 0 ) );
+#endif
 
 //! Class to represent timing system hardware (such as USO).
 class TimingSystem
