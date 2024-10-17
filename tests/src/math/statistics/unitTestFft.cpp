@@ -7,6 +7,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include "tudat/math/statistics/fastFourierTransform.h"
+#include "tudat/math/basic/mathematicalConstants.h"
 
 namespace tudat
 {
@@ -23,8 +24,8 @@ namespace tudat
                 timeDomainData.resize( numberOfDataPoints );
                 for( unsigned int i = 0; i < timeDomainData.size(); i++ )
                 {
-                    timeDomainData[ i ] =  std::sin( 5.0 * 2.0 * M_PI * static_cast< double >( i ) / static_cast< double >( numberOfDataPoints ) ) +
-                                           std::cos( 17.0 * 2.0 * M_PI * static_cast< double >( i ) / static_cast< double >( numberOfDataPoints ) ) + 19.0+ static_cast< double >( i );
+                    timeDomainData[ i ] =  std::sin( 5.0 * 2.0 * mathematical_constants::PI * static_cast< double >( i ) / static_cast< double >( numberOfDataPoints ) ) +
+                                           std::cos( 17.0 * 2.0 * mathematical_constants::PI * static_cast< double >( i ) / static_cast< double >( numberOfDataPoints ) ) + 19.0+ static_cast< double >( i );
                 }
 
                 std::vector< std::complex< double > > frequencyDomainData = performFftOfRealData( timeDomainData );
