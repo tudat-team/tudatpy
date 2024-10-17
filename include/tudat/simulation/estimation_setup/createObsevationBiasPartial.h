@@ -89,12 +89,13 @@ std::shared_ptr< ObservationPartial< ObservationSize > > createObservationPartia
     const bool isPartialForConcatenatedObservable = false,
     const std::map< std::pair< int, int >, std::shared_ptr< ObservationPartial< ObservationSize > > >& observationPartials =
         std::map< std::pair< int, int >, std::shared_ptr< ObservationPartial< ObservationSize > > >( ),
-    const std::function< std::shared_ptr< ObservationPartial< ObservationSize > >( const std::string& ) > partialWrtStateCreationFunction = nullptr )
+    const std::function< std::shared_ptr< ObservationPartial< ObservationSize > >( const std::string& ) > partialWrtStateCreationFunction = nullptr,
+    const std::shared_ptr< observation_models::ObservationBias< ObservationSize > > observationBiases = nullptr )
 {
     std::shared_ptr< ObservationPartial< ObservationSize > > observationPartial;
-//
-//    observationPartial = ObservationPartialWrtClockCreator< Eigen::VectorXd, ObservationSize >::createPartialWrtClockProperty(
-//        linkEnds, observableType, parameterToEstimate, getClockInducedBiases( observationBiases ) );
+
+    observationPartial = ObservationPartialWrtClockCreator< Eigen::VectorXd, ObservationSize >::createPartialWrtClockProperty(
+        linkEnds, observableType, parameterToEstimate, getClockInducedBiases( observationBiases ) );
     if( observationPartial == nullptr )
     {
         bool useObservationBiasPartials = !( isPartialForDifferencedObservable || isPartialForConcatenatedObservable );
