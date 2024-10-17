@@ -8,5 +8,6 @@
 #    http://tudat.tudelft.nl/LICENSE.
 #
 
-TUDAT_ADD_TEST_CASE(ClockNoiseGeneration PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES})
-
+if(TUDAT_BUILD_WITH_FFTW3)
+    TUDAT_ADD_TEST_CASE(ClockNoiseGeneration PRIVATE_LINKS ${Tudat_PROPAGATION_LIBRARIES})
+endif ()
