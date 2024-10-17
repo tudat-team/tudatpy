@@ -141,6 +141,12 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
     case arc_wise_time_observation_bias:
         parameterDescription = "arc-wise time observation bias ";
         break;
+    case global_polynomial_clock_corrections:
+        parameterDescription = "global polynomial clock corrections ";
+        break;
+    case arc_wise_polynomial_clock_corrections:
+        parameterDescription = "arc-wise polynomial clock corrections ";
+        break;
     case inverse_tidal_quality_factor:
         parameterDescription = " inverse of tidal quality factor ";
         break;
@@ -309,6 +315,12 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
     case arc_wise_time_observation_bias:
         isDoubleParameter = false;
         break;
+    case global_polynomial_clock_corrections:
+        isDoubleParameter = false;
+        break;
+    case arc_wise_polynomial_clock_corrections:
+        isDoubleParameter = false;
+        break;
     case inverse_tidal_quality_factor:
         isDoubleParameter = true;
         break;
@@ -407,6 +419,12 @@ bool isParameterObservationLinkProperty( const EstimatebleParametersEnum paramet
     case arc_wise_time_observation_bias:
         flag = true;
         break;
+    case global_polynomial_clock_corrections:
+        flag = true;
+        break;
+    case arc_wise_polynomial_clock_corrections:
+        flag = true;
+        break;
     default:
         flag = false;
         break;
@@ -481,6 +499,24 @@ bool isParameterArcWiseInitialStateProperty( const EstimatebleParametersEnum par
     switch( parameterType )
     {
         case arc_wise_initial_body_state:
+            flag = true;
+            break;
+        default:
+            flag = false;
+            break;
+    }
+    return flag;
+}
+
+bool isParameterClockProperty( const EstimatebleParametersEnum parameterType )
+{
+    bool flag;
+    switch( parameterType )
+    {
+        case global_polynomial_clock_corrections:
+            flag = true;
+            break;
+        case arc_wise_polynomial_clock_corrections:
             flag = true;
             break;
         default:
