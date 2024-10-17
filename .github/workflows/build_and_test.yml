@@ -69,7 +69,7 @@ jobs:
 
 
     - name: Setup conda environment using mamba
-      # This step sets up a conda environment using mamba, a faster alternative to conda. It creates an empty conda environment with the name 'tudat' and activates it. The environment is created using the latest version of Miniforge, a conda distribution that includes mamba.
+      # This step sets up a conda environment using mamba, a faster alternative to conda. It creates an empty conda environment with the name 'tudat' and activates it. The environment is created using the latest version of Mambaforge, a conda distribution that includes mamba.
       uses: conda-incubator/setup-miniconda@v3
       with:
          miniforge-variant: Mambaforge
@@ -86,17 +86,14 @@ jobs:
       shell: bash
 
 
-    # - name: Cache conda environment
-    #   # Cache the conda environment to avoid re-installing the same packages every time the workflow runs. The cache key is based on the environment.yml file, the operating system, and the date. The cache is restored if the cache key matches the cache key of the previous run.
-    #   uses: actions/cache@v4
-    #   with:
-    #       path: ${{ matrix.path_conda_env }}
-    #       key: ${{ runner.os }}-conda-${{ env.CACHE_NUMBER }}-${{ hashFiles('environment.yml') }}-${{steps.get-date.outputs.today}}
-    #   id: cache
+    - name: Cache conda environment
+      # Cache the conda environment to avoid re-installing the same packages every time the workflow runs. The cache key is based on the environment.yml file, the operating system, and the date. The cache is restored if the cache key matches the cache key of the previous run.
+      uses: actions/cache@v4
+      with:
+          path: ${{ matrix.path_conda_env }}
+          key: ${{ runner.os }}-conda-${{ env.CACHE_NUMBER }}-${{ hashFiles('environment.yml') }}-${{steps.get-date.outputs.today}}
+      id: cache
 
-
-    - name: Show conda environment
-      run: cat environment.yml
 
     - name: Create conda environment from environment.yml
       # Update the tudat conda environment created using the environment.yml file if the cache is not restored
@@ -136,7 +133,6 @@ jobs:
       run: >
         cmake -B "${{ github.workspace }}/build"
         -S "${{ github.workspace }}"
-        --debug-find
         -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
         -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
         -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
