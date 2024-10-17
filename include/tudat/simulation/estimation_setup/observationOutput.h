@@ -100,6 +100,22 @@ public:
     {
         return linkEnds_;
     }
+
+    std::map< std::pair< int, int >, std::shared_ptr< ObservationDependentVariableSettings > > getSettingsIndicesAndSizes( ) const
+    {
+        std::map< std::pair< int, int >, std::shared_ptr< ObservationDependentVariableSettings > > settingsStartIndices;
+        for ( unsigned int i = 0 ; i < dependentVariableStartIndices_.size( ) ; i++ )
+        {
+            settingsStartIndices[ std::make_pair( dependentVariableStartIndices_[ i ], dependentVariableSizes_[ i ] ) ] = settingsList_[ i ];
+        }
+        return settingsStartIndices;
+    }
+
+    std::vector< std::shared_ptr< ObservationDependentVariableSettings > > getDependentVariableSettings( ) const
+    {
+        return settingsList_;
+    }
+
 private:
 
     observation_models::ObservableType observableType_;

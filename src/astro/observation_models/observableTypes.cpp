@@ -1493,6 +1493,62 @@ std::map< LinkEndType, int > getSingleLinkStateEntryIndices( const ObservableTyp
 }
 
 
+std::vector< std::pair< std::pair< LinkEndType, LinkEndId >, std::pair< LinkEndType, LinkEndId > > > getInterlinks( const ObservableType observableType, const LinkEnds& linkEnds )
+{
+    std::vector< std::pair< std::pair< LinkEndType, LinkEndId >, std::pair< LinkEndType, LinkEndId > > > interlinks;
+
+    switch( observableType )
+    {
+        case one_way_range:
+        case angular_position:
+        case one_way_doppler:
+        case one_way_differenced_range:
+        case n_way_range:
+        case two_way_doppler:
+        case n_way_differenced_range:
+        case dsn_one_way_averaged_doppler:
+        case dsn_n_way_averaged_doppler:
+        case doppler_measured_frequency:
+        {
+            // Retrieve link indices
+            std::map< int, std::pair< LinkEndType, LinkEndId > > linkIndices;
+            for ( auto linkEndIt : linkEnds )
+            {
+                LinkEndType linkEndType = linkEndIt.first;
+                linkIndices[ getNWayLinkIndexFromLinkEndType( linkEndIt.first, linkEnds.size( ) ) ] = std::make_pair( linkEndIt.first, linkEndIt.second );
+            }
+
+            // Retrieve interlinks link ends information
+            for ( unsigned int i = 1 ; i < linkIndices.size( ) ; i++ )
+            {
+                interlinks.push_back( std::make_pair( linkIndices[ i ], linkIndices[ i-1 ] ) );
+            }
+            break;
+        }
+        case position_observable:
+        case euler_angle_313_observable:
+        case velocity_observable:
+        {
+//            interlinks.push_back( std::make_pair( std::make_pair( observed_body, linkEnds.at( observed_body ) ), std::make_pair( unidentified_link_end, LinkEndId( "", "" ) ) ) );
+            break;
+        }
+        case relative_angular_position:
+        {
+            interlinks.push_back( std::make_pair( std::make_pair( receiver, linkEnds.at( receiver ) ), std::make_pair( transmitter, linkEnds.at( transmitter ) ) ) );
+            interlinks.push_back( std::make_pair( std::make_pair( receiver, linkEnds.at( receiver ) ), std::make_pair( transmitter2, linkEnds.at( transmitter2 ) ) ) );
+            break;
+        }
+        case relative_position_observable:
+        {
+            interlinks.push_back( std::make_pair( std::make_pair( observer, linkEnds.at( observer ) ), std::make_pair( observed_body, linkEnds.at( observed_body ) ) ) );
+            break;
+        }
+    }
+
+    return interlinks;
+}
+
+
 }
 
 }
