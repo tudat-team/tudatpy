@@ -47,6 +47,7 @@ from tudatpy.kernel.numerical_simulation.environment_setup.radiation_pressure im
      PanelRadiosityModelSettings, \
      RadiationPressureInterfaceSettings, \
      RadiationPressureTargetModelSettings, \
+     RadiationPressureTargetModelType, \
      RadiationPressureType, \
      RadiationSourceModelSettings, \
      SphericalHarmonicsSurfacePropertyDistributionModel, \
@@ -54,5 +55,9 @@ from tudatpy.kernel.numerical_simulation.environment_setup.radiation_pressure im
      albedo_dlam1, \
      albedo_knocke, \
      cannonball_radiation_pressure_interface, \
+     cannonball_target, \
      custom, \
-     emissivity_knocke
+     emissivity_knocke, \
+     multi_type_target, \
+     paneled_target, \
+     undefined_target

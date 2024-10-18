@@ -19,6 +19,8 @@ from tudatpy.kernel.math.interpolators import \
      cubic_spline_interpolation, \
      hermite_interpolation, \
      hermite_spline_interpolation, \
+     interpolator_generation_settings, \
+     interpolator_generation_settings_float, \
      lagrange_interpolation, \
      linear_interpolation, \
      piecewise_constant_interpolation
@@ -28,8 +30,8 @@ from tudatpy.kernel.math.interpolators import \
 from tudatpy.kernel.math.interpolators import \
      AvailableLookupScheme, \
      BoundaryInterpolationType, \
-     InterpolatorGenerationSettingsTime, \
      InterpolatorGenerationSettingsFloat, \
+     InterpolatorGenerationSettingsTime, \
      InterpolatorSettings, \
      LagrangeInterpolatorBoundaryHandling, \
      LagrangeInterpolatorSettings, \
