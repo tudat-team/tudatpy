@@ -15,6 +15,7 @@
 from tudatpy.kernel.numerical_simulation.environment_setup.shape import \
      hybrid, \
      oblate_spherical, \
+     oblate_spherical_spice, \
      polyhedron, \
      spherical, \
      spherical_spice
