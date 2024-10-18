@@ -109,8 +109,7 @@ namespace aerodynamic_coefficients {
 
 
         m.def("constant_force_and_moment",
-              py::overload_cast<const double, const Eigen::Vector3d &, const ta::AerodynamicCoefficientFrames >(
-                  &tss::constantAerodynamicCoefficientSettings ),
+              &tss::constantAerodynamicForceAndMomentCoefficientSettings,
               py::arg("reference_length"),
               py::arg("reference_area"),
               py::arg("moment_reference_point"),
