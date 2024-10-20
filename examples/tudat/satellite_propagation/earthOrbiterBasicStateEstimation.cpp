@@ -81,10 +81,13 @@ int main( )
     std::vector < std::shared_ptr< system_models::VehicleExteriorPanel > > panels;
     panels = {
                     std::make_shared< system_models::VehicleExteriorPanel >(9.9, Eigen::Vector3d::UnitX(),
-                                reflectionLawFromSpecularAndDiffuseReflectivity(0.0, 0.06)),
+                                reflectionLawFromSpecularAndDiffuseReflectivity(0.35, 0.20)),
+                    std::make_shared< system_models::VehicleExteriorPanel >(9.9, Eigen::Vector3d::UnitY(),
+                                reflectionLawFromSpecularAndDiffuseReflectivity(0.35, 0.25)),
             };
     const std::string panelTypeId = "SolarPanel";
     panels.at(0)->setPanelTypeId(panelTypeId);
+    panels.at(1)->setPanelTypeId(panelTypeId);
 
     bodies.at( "Vehicle" )->setRadiationPressureTargetModels(
             { std::make_shared<PaneledRadiationPressureTargetModel>(panels) } );
