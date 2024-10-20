@@ -61,7 +61,7 @@ class DiffuseReflectivity: public EstimatableParameter< double >
 
         double getParameterValue( )
         {
-            // Retrieve all specular reflectivity values for the panels corresponding to the given panelTypeId
+            // Retrieve all diffuse reflectivity values for the panels corresponding to the given panelTypeId
             std::vector<double> diffuseReflectivities = radiationPressureInterface_->getDiffuseReflectivityForPanelTypeId(panelTypeId_);
 
             // Check if all values are the same
@@ -75,10 +75,10 @@ class DiffuseReflectivity: public EstimatableParameter< double >
                           << panelTypeId_ << " are not consistent. Resetting all to the average value." << std::endl;
 
                 // Calculate the average specular reflectivity
-                double averageSpecularReflectivity = std::accumulate(diffuseReflectivities.begin(), diffuseReflectivities.end(), 0.0) / diffuseReflectivities.size();
+                double averageDiffuseReflectivity = std::accumulate(diffuseReflectivities.begin(), diffuseReflectivities.end(), 0.0) / diffuseReflectivities.size();
 
-                // Set all panels' specular reflectivity to the average value
-                radiationPressureInterface_->setGroupSpecularReflectivity(panelTypeId_, averageSpecularReflectivity);
+                // Set all panels' diffuse reflectivity to the average value
+                radiationPressureInterface_->setGroupDiffuseReflectivity(panelTypeId_, averageDiffuseReflectivity);
             }
 
             // Return the average value (or the original value if all values were the same)
