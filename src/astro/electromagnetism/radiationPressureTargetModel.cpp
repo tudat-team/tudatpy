@@ -217,7 +217,7 @@ Eigen::Vector3d PaneledRadiationPressureTargetModel::evaluateRadiationPressureFo
             if (surfacePanelCosines_[ counter ] > 0)
             {
                 Eigen::Vector3d panelForce = radiationPressure * currentPanels_.at( j )->getPanelArea() * surfacePanelCosines_[ counter ] *
-                    currentPanels_.at( j )->getReflectionLaw()->evaluateReactionVectorPartialWrtDiffuseReflectivity(surfaceNormals_[ counter ], sourceToTargetDirectionLocalFrame );
+                    currentPanels_.at( j )->getReflectionLaw()->evaluateReactionVectorPartialWrtSpecularReflectivity(surfaceNormals_[ counter ], sourceToTargetDirectionLocalFrame );
                 forcePartialWrtSpecularReflectivity += panelForce;
             }
 
