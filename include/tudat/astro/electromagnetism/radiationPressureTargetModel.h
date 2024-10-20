@@ -400,7 +400,6 @@ public:
         return averageCoefficient;
     };
 
-
     double getAverageSpecularReflectivity(const std::string& panelTypeId)
     {
         std::vector<double> coefficients;
@@ -418,7 +417,7 @@ public:
             double firstCoefficient = coefficients[0];
             for (size_t i = 1; i < coefficients.size(); ++i) {
                 if (coefficients[i] != firstCoefficient) {
-                    std::cerr << "Warning: Diffuse reflectivity coefficients for for panel group "
+                    std::cerr << "Warning: Specular reflectivity coefficients for panel group "
                               << panelTypeId << " are not consistent. Returning average value" << std::endl;
                     break;  } } }
 
@@ -431,6 +430,35 @@ public:
 
         return averageCoefficient;
     };
+
+    std::vector<double> getSpecularReflectivityForPanelTypeId(const std::string& panelTypeId)
+    {
+        std::vector<double> coefficients;
+        std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > panelsFromId;
+
+        panelsFromId = this->getPanelsFromId(panelTypeId);
+        for (unsigned int i = 0; i < panelsFromId.size(); i++) {
+            auto reflectionLaw = std::dynamic_pointer_cast<SpecularDiffuseMixReflectionLaw>(panelsFromId.at(i)->getReflectionLaw());
+            coefficients.push_back(reflectionLaw->getSpecularReflectivity());
+        }
+
+        return coefficients;
+    }
+
+    std::vector<double> getDiffuseReflectivityForPanelTypeId(const std::string& panelTypeId)
+    {
+        std::vector<double> coefficients;
+        std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > panelsFromId;
+
+        panelsFromId = this->getPanelsFromId(panelTypeId);
+        for (unsigned int i = 0; i < panelsFromId.size(); i++) {
+            auto reflectionLaw = std::dynamic_pointer_cast<SpecularDiffuseMixReflectionLaw>(panelsFromId.at(i)->getReflectionLaw());
+            coefficients.push_back(reflectionLaw->getDiffuseReflectivity());
+        }
+
+        return coefficients;
+    }
+
 
     void setGroupSpecularReflectivity(const std::string& panelTypeId, double specularReflectivity)
     {
