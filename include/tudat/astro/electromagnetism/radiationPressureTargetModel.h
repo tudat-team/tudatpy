@@ -386,7 +386,7 @@ public:
             double firstCoefficient = coefficients[0];
             for (size_t i = 1; i < coefficients.size(); ++i) {
                 if (coefficients[i] != firstCoefficient) {
-                    std::cerr << "Warning: Specular reflectivity coefficients for panel group "
+                    std::cerr << "Warning: Diffuse reflectivity coefficients for panel group "
                               << panelTypeId << " are not consistent. Returning average value" << std::endl;
                     break;  } } }
 
