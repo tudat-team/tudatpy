@@ -61,33 +61,54 @@ class DiffuseReflectivity: public EstimatableParameter< double >
 
         double getParameterValue( )
         {
-            return radiationPressureInterface_->getAverageDiffuseReflectivity( panelTypeId_ );
+            // Retrieve all specular reflectivity values for the panels corresponding to the given panelTypeId
+            std::vector<double> diffuseReflectivities = radiationPressureInterface_->getDiffuseReflectivityForPanelTypeId(panelTypeId_);
+
+            // Check if all values are the same
+            bool allValuesSame = std::all_of(diffuseReflectivities.begin(), diffuseReflectivities.end(),
+                                             [&](double value) { return value == diffuseReflectivities[0]; });
+
+            // If not all values are the same, print a warning and reset the values to the average
+            if (!allValuesSame)
+            {
+                std::cerr << "Warning: Diffuse reflectivity values for panel group "
+                          << panelTypeId_ << " are not consistent. Resetting all to the average value." << std::endl;
+
+                // Calculate the average specular reflectivity
+                double averageSpecularReflectivity = std::accumulate(diffuseReflectivities.begin(), diffuseReflectivities.end(), 0.0) / diffuseReflectivities.size();
+
+                // Set all panels' specular reflectivity to the average value
+                radiationPressureInterface_->setGroupSpecularReflectivity(panelTypeId_, averageSpecularReflectivity);
+            }
+
+            // Return the average value (or the original value if all values were the same)
+            return diffuseReflectivities[0];
         }
+
 
         void setParameterValue( double parameterValue )
         {
-            // set the diffuse reflectivity
-            if ( parameterValue > 1.0 ){
-                parameterValue = 1.0;
-            }
-            radiationPressureInterface_->setGroupDiffuseReflectivity(panelTypeId_, parameterValue );
+            // Set the diffuse reflectivity, even if it's greater than 1 (non-physical case)
+            radiationPressureInterface_->setGroupDiffuseReflectivity(panelTypeId_, parameterValue);
 
-            // update the absorptivity
+            // Get the current specular reflectivity
             double specularReflectivity = radiationPressureInterface_->getAverageSpecularReflectivity( panelTypeId_ );
-            if(parameterValue + specularReflectivity >= 1.0)
-            {
-                std::cerr << "Warning: When updating reflectivity coefficients for panel group "
-                << panelTypeId_ << ", sum of specular and diffuse is larger than 1. Setting absorptivity to zero" << std::endl;
-                double absorptivity = 0;
-                radiationPressureInterface_->setGroupAbsorptivity(panelTypeId_, absorptivity);
 
-            }
-            else
+            // Compute the absorptivity such that the sum of specular + diffuse + absorptivity = 1
+            double absorptivity = 1.0 - parameterValue - specularReflectivity;
+
+            // Check if the absorptivity is negative, which indicates non-physical behavior
+            if ( absorptivity < 0.0 )
             {
-                double absorptivity = 1.0 - parameterValue - specularReflectivity;
-                //std::cout<<"Set absorptivity to " << absorptivity <<std::endl;
-                radiationPressureInterface_->setGroupAbsorptivity(panelTypeId_, absorptivity);
+                // Print a warning with both the non-physical specular reflectivity and the resulting negative absorptivity
+                std::cerr << "Warning: Non-physical behavior detected for panel group "
+                          << panelTypeId_ << ". Diffuse reflectivity = " << parameterValue
+                          << ", resulting absorptivity = " << absorptivity << "."
+                          << std::endl;
             }
+
+            // Set the absorptivity for the panel group (even if it's negative)
+            radiationPressureInterface_->setGroupAbsorptivity(panelTypeId_, absorptivity);
 
         }
 
