@@ -12,7 +12,6 @@
 #define TUDAT_OBSERVATIONOUTPUTSETTINGS
 
 #include "tudat/simulation/estimation_setup/createObservationModel.h"
-#include "tudat/simulation/estimation_setup/observationsProcessing.h"
 
 namespace tudat
 {
@@ -54,9 +53,36 @@ public:
 
     ObservationDependentVariables variableType_;
 
-    virtual std::string getIdentifier( ) = 0;
+    virtual std::string getIdentifier( ) // = 0;
+    {
+        std::string identifier;
+        if( linkEndId_ != LinkEndId( "", "" ) )
+        {
+            identifier = ", station: (" + linkEndId_.bodyName_ + ", " + linkEndId_.stationName_ + ")";
+            if ( linkEndType_ != unidentified_link_end )
+            {
+                identifier += " as " + getLinkEndTypeString( linkEndType_ );
+            }
+            if ( originatingLinkEndType_ != unidentified_link_end )
+            {
+                identifier += " link to " + getLinkEndTypeString( originatingLinkEndType_ );
+            }
+        }
+        else if ( linkEndType_ != unidentified_link_end )
+        {
+            identifier += " link end " + getLinkEndTypeString( linkEndType_ );
+            if ( originatingLinkEndType_ != unidentified_link_end )
+            {
+                identifier += " link to " + getLinkEndTypeString( originatingLinkEndType_ );
+            }
+        }
+        return identifier;
+    }
 
-    virtual bool areSettingsCompatible( const std::shared_ptr< ObservationDependentVariableSettings > otherSettings ) = 0;
+    virtual bool areSettingsCompatible( const std::shared_ptr< ObservationDependentVariableSettings > otherSettings ) //= 0;
+    {
+        return areBaseSettingsCompatible( otherSettings );
+    }
 
     bool areBaseSettingsCompatible( const std::shared_ptr< ObservationDependentVariableSettings > otherSettings )
     {
@@ -270,6 +296,95 @@ public:
     std::string relativeBody_;
 };
 
+std::function< bool( const ObservableType observableType ) > getIsObservableTypeCompatibleFunction(
+        const ObservationDependentVariables variableType );
+
+class AncillaryObservationDependentVariableSettings: public ObservationDependentVariableSettings
+{
+public:
+    AncillaryObservationDependentVariableSettings(
+            const ObservationDependentVariables variableType,
+            const ObservableType observableType = undefined_observation_model ):
+            ObservationDependentVariableSettings( variableType ), observableType_( observableType )
+    {
+        isObservableTypeCompatible_ = getIsObservableTypeCompatibleFunction( variableType );
+    }
+
+//    AncillaryObservationDependentVariableSettings(
+//            const ObservationDependentVariables variableType,
+//            const ObservableType observableTypes ):
+//            ObservationDependentVariableSettings( variableType ), observableTypes_( std::vector< ObservableType >( { observableTypes } ) ){ }
+
+    ~AncillaryObservationDependentVariableSettings( ){ }
+
+    std::string getIdentifier( )
+    {
+        std::string identifier;
+        if ( observableType_ != undefined_observation_model )
+        {
+            identifier += "for observable of type " + std::to_string( observableType_ );
+        }
+        identifier += "." ;//", for observable(s) of type ";
+//        for ( unsigned int k = 0 ; k < observableTypes_.size( ) - 1 ; k++ )
+//        {
+//            identifier += std::to_string( observableTypes_[ k ] ) + ", ";
+//        }
+//        identifier += std::to_string( observableTypes_[ observableTypes_.size( ) - 1 ] ) + ".";
+
+        return identifier;
+    }
+
+//
+    bool areSettingsCompatible( const std::shared_ptr< ObservationDependentVariableSettings > otherSettings )
+    {
+        bool isCompatible = true;
+        std::shared_ptr< AncillaryObservationDependentVariableSettings > ancillarySettings =
+                std::dynamic_pointer_cast< AncillaryObservationDependentVariableSettings >( otherSettings );
+        if ( ancillarySettings == nullptr )
+        {
+            isCompatible = false;
+        }
+        else
+        {
+            if ( variableType_ != otherSettings->variableType_ )
+            {
+                isCompatible = false;
+            }
+            if ( ( observableType_ != ancillarySettings->observableType_ ) && ( observableType_ != undefined_observation_model )
+            && ( ancillarySettings->observableType_ != undefined_observation_model ) )
+            {
+                isCompatible = false;
+            }
+//            if (  )
+//            for ( unsigned int k = 0 ; k  )
+//            if ( !areBaseSettingsCompatible( otherSettings ) )
+//            {
+//                isCompatible = false;
+//            }
+//            else
+//            {
+//                if ( ( integratedObservableHandling_ != interlinkSettings->integratedObservableHandling_ )
+//                     && ( integratedObservableHandling_ != interval_undefined )
+//                     && ( interlinkSettings->integratedObservableHandling_ != interval_undefined ) )
+//                {
+//                    isCompatible = false;
+//                }
+//                if ( ( relativeBody_ != interlinkSettings->relativeBody_ ) && ( relativeBody_ != "" ) && ( interlinkSettings->relativeBody_ != "" ) )
+//                {
+//                    isCompatible = false;
+//                }
+//            }
+        }
+
+        return isCompatible;
+    }
+
+    ObservableType observableType_;
+
+    std::function< bool( const ObservableType observableType ) > isObservableTypeCompatible_;
+
+};
+
 
 std::string getObservationDependentVariableName(
         const ObservationDependentVariables variableType );
@@ -282,7 +397,7 @@ bool isObservationDependentVariableVectorial(
 
 
 bool isObservationDependentVariableAncilliarySetting(
-    const std::shared_ptr< ObservationDependentVariableSettings > variableSettings );
+        const ObservationDependentVariables variableType );
 
 
 bool isObservationDependentVariableGroundStationProperty(
@@ -291,8 +406,12 @@ bool isObservationDependentVariableGroundStationProperty(
 bool isObservationDependentVariableSimpleLinkProperty(
     const std::shared_ptr< ObservationDependentVariableSettings > variableSettings );
 
-int getObservationDependentVariableSize(
+bool isObservationDependentVariableLinkEndDependent(
         const std::shared_ptr< ObservationDependentVariableSettings > variableSettings );
+
+int getObservationDependentVariableSize(
+        const std::shared_ptr< ObservationDependentVariableSettings > variableSettings,
+        const LinkEnds linkEnds );
 
 bool doesStationAngleVariableExistForGivenLink(
         const ObservableType observableType,
@@ -309,6 +428,14 @@ bool doesObservationDependentVariableExistForGivenLink(
         const LinkEnds& linkEnds,
         const std::shared_ptr< ObservationDependentVariableSettings > variableSettings );
 
+std::shared_ptr< ObservationDependentVariableSettings > createCompleteObservationDependentVariableSettings(
+        const std::shared_ptr< ObservationDependentVariableSettings > originalSettings,
+        const LinkEndType& linkEndType, const LinkEndId& linkEndId, const LinkEndType& originatingLinkEndType, const LinkEndId& originatingLinkEndId );
+
+std::vector< std::shared_ptr< ObservationDependentVariableSettings > > createAllCompatibleDependentVariableSettings(
+        const ObservableType observableType,
+        const LinkEnds& linkEnds,
+        std::shared_ptr< ObservationDependentVariableSettings > dependentVariableSettings );
 
 inline std::shared_ptr< ObservationDependentVariableSettings > elevationAngleAtLinkEndTypeDependentVariable(
         const LinkEndType linkEndRole,
