@@ -335,6 +335,7 @@ void performObservationParameterEstimationClosureForSingleModelSet(
             // Check if bias object is of same type as estimated parameter
             std::shared_ptr< ArcWiseTimeBias< ObservationSize > > timeBiasObject =
                     std::dynamic_pointer_cast< ArcWiseTimeBias< ObservationSize > >( observationBias );
+
             if( timeBiasObject != nullptr )
             {
                 // Check if bias and parameter link properties are equal
@@ -355,6 +356,8 @@ void performObservationParameterEstimationClosureForSingleModelSet(
 
                     if( doTimesMatch == true )
                     {
+
+
                         timeBiasParameter->setObservationBiasFunctions(
                                 std::bind( &ArcWiseTimeBias< ObservationSize >::getTemplateFreeConstantObservationBias,
                                            timeBiasObject ),
@@ -366,6 +369,10 @@ void performObservationParameterEstimationClosureForSingleModelSet(
             }
             break;
         }
+        case estimatable_parameters::global_polynomial_clock_corrections:
+            break;
+        case estimatable_parameters::arc_wise_polynomial_clock_corrections:
+            break;
         default:
             std::string errorMessage = "Error when closing observation bias/estimation loop, did not recognize bias type " +
                     std::to_string( parameter->getParameterName( ).first );
@@ -555,6 +562,7 @@ std::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > cre
     case n_way_differenced_range:
     case dsn_one_way_averaged_doppler:
     case dsn_n_way_averaged_doppler:
+    case doppler_measured_frequency:
         observationManager = createObservationManager< 1, ObservationScalarType, TimeType >(
                     observableType, observationModelSettingsList, bodies, parametersToEstimate,
                     stateTransitionMatrixInterface, dependentVariablesInterface );

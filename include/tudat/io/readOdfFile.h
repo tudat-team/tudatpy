@@ -25,6 +25,7 @@
 #include "tudat/io/basicInputOutput.h"
 #include "tudat/io/readBinaryFile.h"
 #include "tudat/math/interpolators/lookupScheme.h"
+#include "tudat/basics/timeType.h"
 
 namespace tudat
 {
@@ -119,15 +120,15 @@ public:
     }
 
     // Returns the ramp start time in UTC seconds since the reference time specified in the header.
-    double getRampStartTime( )
+    Time getRampStartTime( )
     {
-        return static_cast< double >( integerRampStartTime_ ) + static_cast< double >( fractionalRampStartTime_ ) * 1.0E-9;
+        return Time( static_cast< double >( integerRampStartTime_ ) ) + Time( static_cast< double >( fractionalRampStartTime_ ) * 1.0E-9 );
     }
 
     // Returns the ramp end time in UTC seconds since the reference time specified in the header.
-    double getRampEndTime( )
+    Time getRampEndTime( )
     {
-        return static_cast< double >( integerRampEndTime_ ) + static_cast< double >( fractionalRampEndTime_ ) * 1.0E-9;
+        return Time( static_cast< double >( integerRampEndTime_ ) ) + Time( static_cast< double >( fractionalRampEndTime_ ) * 1.0E-9 );
     }
 
     // ID of the DSN station to which the ramp block applies, specified according to TRK-2-18 (2018).
@@ -540,9 +541,9 @@ public:
     OdfCommonDataBlock( const std::bitset< 160 > commonDataBits );
 
     // Returns the observable time in UTC seconds since the reference time specified in the header.
-    double getObservableTime( )
+    Time getObservableTime( )
     {
-        return static_cast< double >( integerTimeTag_ ) + static_cast< double >( fractionalTimeTag_ ) / 1000.0;
+        return Time( static_cast< double >( integerTimeTag_ ) ) + Time( static_cast<     double >( fractionalTimeTag_ ) / 1000.0 );
     }
 
     // Returns the observable value in SI units.

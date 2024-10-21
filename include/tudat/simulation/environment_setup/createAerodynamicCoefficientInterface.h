@@ -463,6 +463,21 @@ inline std::shared_ptr< AerodynamicCoefficientSettings > constantAerodynamicCoef
             coefficientsFrame );
 }
 
+//! @get_docstring(constantAerodynamicCoefficientSettings)
+inline std::shared_ptr< AerodynamicCoefficientSettings > constantAerodynamicForceAndMomentCoefficientSettings(
+    const double referenceLength,
+    const double referenceArea,
+    const Eigen::Vector3d& momentReferencePoint,
+    const Eigen::Vector3d& constantForceCoefficient,
+    const Eigen::Vector3d& constantMomentCoefficient = Eigen::Vector3d::Zero( ),
+    const aerodynamics::AerodynamicCoefficientFrames forceCoefficientsFrame = aerodynamics::negative_aerodynamic_frame_coefficients,
+    const aerodynamics::AerodynamicCoefficientFrames momentCoefficientsFrame = aerodynamics::body_fixed_frame_coefficients )
+{
+    return std::make_shared< ConstantAerodynamicCoefficientSettings >(
+        referenceLength, referenceArea, momentReferencePoint, constantForceCoefficient, constantMomentCoefficient,
+        forceCoefficientsFrame, momentCoefficientsFrame );
+}
+
 //! @get_docstring(scaledAerodynamicCoefficientSettings)
 inline std::shared_ptr< AerodynamicCoefficientSettings > scaledAerodynamicCoefficientSettings(
         const std::shared_ptr< AerodynamicCoefficientSettings > baseSettings,

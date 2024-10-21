@@ -223,6 +223,13 @@ BOOST_AUTO_TEST_CASE( test_ReferencePointEstimation )
     std::shared_ptr< ObservationCollection< > > observationsAndTimes = simulateObservations< double, double >(
         measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
+    // Set observation weights
+    std::map< std::shared_ptr< observation_models::ObservationCollectionParser >, double > weightsPerObservationParser;
+    weightsPerObservationParser[ observationParser( one_way_range ) ] = 1.0 / ( 1.0 * 1.0 );
+    weightsPerObservationParser[ observationParser( angular_position ) ] = 1.0 / ( 1.0E-5 * 1.0E-5 );
+    weightsPerObservationParser[ observationParser( one_way_doppler ) ] = 1.0 / ( 1.0E-11 * 1.0E-11 * physical_constants::SPEED_OF_LIGHT * physical_constants::SPEED_OF_LIGHT  );
+    observationsAndTimes->setConstantWeightPerObservable( weightsPerObservationParser );
+
     // Perturb parameter estimate.
     Eigen::Matrix< double, Eigen::Dynamic, 1 > initialParameterEstimate =
         parametersToEstimate->template getFullParameterValues< double >( );
@@ -242,12 +249,7 @@ BOOST_AUTO_TEST_CASE( test_ReferencePointEstimation )
     std::shared_ptr< EstimationInput< double, double  > > estimationInput = std::make_shared< EstimationInput< double, double > >(
         observationsAndTimes );
 
-    std::map< observation_models::ObservableType, double > weightPerObservable;
-    weightPerObservable[ one_way_range ] = 1.0 / ( 1.0 * 1.0 );
-    weightPerObservable[ angular_position ] = 1.0 / ( 1.0E-5 * 1.0E-5 );
-    weightPerObservable[ one_way_doppler ] = 1.0 / ( 1.0E-11 * 1.0E-11 * physical_constants::SPEED_OF_LIGHT * physical_constants::SPEED_OF_LIGHT  );
 
-    estimationInput->setConstantPerObservableWeightsMatrix( weightPerObservable );
     estimationInput->defineEstimationSettings( true, true, true, true, false );
     estimationInput->setConvergenceChecker(
         std::make_shared< EstimationConvergenceChecker >( 4 ) );

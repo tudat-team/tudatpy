@@ -52,7 +52,7 @@ public:
     /*!
      * Default constructor.
      */
-    SolarActivityData( );
+    SolarActivityData( const int yearInput = 0, const int monthInput = 0, const int dayInput = 0 );
 
     //! Year.
     unsigned int year;
@@ -192,6 +192,11 @@ struct SolarActivityContainer
         double nearestJulianDay = lookUpScheme_->getIndependentVariableValue(
                     lookUpScheme_->findNearestLowerNeighbour( julianDay ) );
         return solarActivityDataMap_.at( nearestJulianDay );
+    }
+
+    std::map< double, SolarActivityDataPtr > getSolarActivityDataMap( )
+    {
+        return solarActivityDataMap_;
     }
 
 

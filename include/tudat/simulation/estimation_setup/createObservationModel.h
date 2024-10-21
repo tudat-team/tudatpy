@@ -34,6 +34,7 @@
 #include "tudat/astro/observation_models/velocityObservationModel.h"
 #include "tudat/astro/observation_models/observationSimulator.h"
 #include "tudat/astro/observation_models/dsnNWayAveragedDopplerObservationModel.h"
+#include "tudat/astro/observation_models/dopplerMeasuredFrequencyObservationModel.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/estimation_setup/createLightTimeCalculator.h"
 #include "tudat/simulation/estimation_setup/createObservationViability.h"
@@ -349,6 +350,38 @@ public:
 
 };
 
+
+//! Class for defining settings for the creation of a multiple biases for a single observable
+class TiminigSystemBiasSettings: public ObservationBiasSettings
+{
+public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param biasSettingsList List of settings for bias objects that are to be created.
+     */
+    TiminigSystemBiasSettings(
+            const std::string& bodyName,
+            const std::string& stationName ):
+            ObservationBiasSettings( clock_induced_bias ),
+            bodyName_( bodyName ), stationName_( stationName ){ }
+
+    //! Destructor
+    ~TiminigSystemBiasSettings( ){ }
+
+    const std::string bodyName_;
+
+    const std::string stationName_;
+};
+
+inline std::shared_ptr< ObservationBiasSettings > clockInducedBias(
+        const std::string& bodyName, const std::string& stationName  )
+{
+    return std::make_shared< TiminigSystemBiasSettings >(
+            bodyName, stationName );
+}
+
 inline std::shared_ptr< ObservationBiasSettings > constantAbsoluteBias(
         const Eigen::VectorXd& observationBias )
 {
@@ -436,6 +469,15 @@ inline std::shared_ptr< ObservationBiasSettings > constantTimeBias(
 {
     return std::make_shared< ConstantTimeBiasSettings >( timeBias, linkEndForTime );
 }
+
+inline std::shared_ptr< ObservationBiasSettings > arcWiseTimeBias(
+    const std::vector< double >& arcStartTimes,
+    const LinkEndType linkEndForTime )
+{
+    std::vector< double > timeBiases = std::vector< double >( arcStartTimes.size( ), 0.0 );
+    return std::make_shared< ArcWiseTimeBiasSettings >( arcStartTimes, timeBiases, linkEndForTime );
+}
+
 
 inline std::shared_ptr< ObservationBiasSettings > arcWiseTimeBias(
         const std::vector< double >& timeBiases,
@@ -880,9 +922,11 @@ public:
             std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
             const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
             const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria
-                = std::make_shared< LightTimeConvergenceCriteria >( ) ):
+                = std::make_shared< LightTimeConvergenceCriteria >( ),
+            const bool subtractDopplerSignature = true ):
         ObservationModelSettings( dsn_n_way_averaged_doppler, linkEnds, lightTimeCorrectionsList, biasSettings ),
-        multiLegLightTimeConvergenceCriteria_( lightTimeConvergenceCriteria )
+        multiLegLightTimeConvergenceCriteria_( lightTimeConvergenceCriteria ),
+        subtractDopplerSignature_( subtractDopplerSignature )
     {
         for( unsigned int i = 0; i < linkEnds.size( ) - 1; i++ )
         {
@@ -897,12 +941,14 @@ public:
             const std::vector< std::shared_ptr< ObservationModelSettings > > oneWayRangeObsevationSettings,
             const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
             const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria
-                = std::make_shared< LightTimeConvergenceCriteria >( ) ):
+                = std::make_shared< LightTimeConvergenceCriteria >( ),
+            const bool subtractDopplerSignature = true ):
         ObservationModelSettings( n_way_differenced_range,
                                   mergeOneWayLinkEnds( getObservationModelListLinkEnds( oneWayRangeObsevationSettings ) ),
                                   std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ), biasSettings ),
         oneWayRangeObsevationSettings_( oneWayRangeObsevationSettings ),
-        multiLegLightTimeConvergenceCriteria_( lightTimeConvergenceCriteria ){ }
+        multiLegLightTimeConvergenceCriteria_( lightTimeConvergenceCriteria ),
+        subtractDopplerSignature_( subtractDopplerSignature ){ }
 
     std::shared_ptr< ObservationModelSettings > getNWayRangeObservationSettings( )
     {
@@ -910,10 +956,18 @@ public:
                 oneWayRangeObsevationSettings_, nullptr, multiLegLightTimeConvergenceCriteria_ );
     }
 
+    bool getSubtractDopplerSignature( )
+    {
+        return subtractDopplerSignature_;
+    }
+
+
 private:
     std::vector< std::shared_ptr< ObservationModelSettings > > oneWayRangeObsevationSettings_;
 
     std::shared_ptr< LightTimeConvergenceCriteria > multiLegLightTimeConvergenceCriteria_;
+
+    bool subtractDopplerSignature_;
 
 };
 
@@ -1023,6 +1077,17 @@ inline std::shared_ptr< ObservationModelSettings > twoWayOpenLoopDoppler(
                 linkEnds, lightTimeCorrectionsList, biasSettings, lightTimeConvergenceCriteria, normalizeWithSpeedOfLight );
 }
 
+inline std::shared_ptr< ObservationModelSettings > dopplerMeasuredFrequencyObservationSettings(
+        const LinkDefinition& linkEnds,
+        const std::vector< std::shared_ptr< LightTimeCorrectionSettings > >& lightTimeCorrectionsList = std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
+        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
+        const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria
+        = std::make_shared< LightTimeConvergenceCriteria >( ))
+{
+    return std::make_shared< ObservationModelSettings >(
+                doppler_measured_frequency,
+                linkEnds, lightTimeCorrectionsList, biasSettings, lightTimeConvergenceCriteria);
+}
 
 inline std::shared_ptr< ObservationModelSettings > oneWayClosedLoopDoppler(
         const LinkDefinition& linkEnds,
@@ -1094,20 +1159,22 @@ inline std::shared_ptr< ObservationModelSettings > dsnNWayAveragedDopplerObserva
                 std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
         const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
         const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria =
-                std::make_shared< LightTimeConvergenceCriteria >( ) )
+                std::make_shared< LightTimeConvergenceCriteria >( ),
+        const bool subtractDopplerSignature = true )
 {
     return std::make_shared< DsnNWayAveragedDopplerObservationSettings >(
-                linkEnds, lightTimeCorrectionsList, biasSettings, lightTimeConvergenceCriteria );
+                linkEnds, lightTimeCorrectionsList, biasSettings, lightTimeConvergenceCriteria, subtractDopplerSignature );
 }
 
 inline std::shared_ptr< ObservationModelSettings > dsnNWayAveragedDopplerObservationSettings(
         const std::vector< std::shared_ptr< ObservationModelSettings > > oneWayRangeObsevationSettings,
         const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
         const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria
-                = std::make_shared< LightTimeConvergenceCriteria >( ) )
+                = std::make_shared< LightTimeConvergenceCriteria >( ),
+        const bool subtractDopplerSignature = true )
 {
     return std::make_shared< DsnNWayAveragedDopplerObservationSettings >(
-                oneWayRangeObsevationSettings, biasSettings, lightTimeConvergenceCriteria );
+                oneWayRangeObsevationSettings, biasSettings, lightTimeConvergenceCriteria, subtractDopplerSignature );
 }
 
 
@@ -1541,6 +1608,79 @@ std::shared_ptr< ObservationBias< ObservationSize > > createObservationBiasCalcu
                     observationBiasList );
         break;
     }
+    case clock_induced_bias:
+    {
+        if( observableType != one_way_range && observableType != n_way_range )
+        {
+            throw std::runtime_error( "Error, clock-induced observation bias currently only supported for one- and n-way range" );
+        }
+        else
+        {
+            // Check input consistency
+            std::shared_ptr< TiminigSystemBiasSettings > clockInducedBiasSettings = std::dynamic_pointer_cast<
+                    TiminigSystemBiasSettings >( biasSettings );
+
+            std::vector< int > relevantLinkEndIndices = getLinkEndIndicesForLinkEndIdAtObservable(
+                    observableType, linkEnds.linkEnds_, LinkEndId( clockInducedBiasSettings->bodyName_, clockInducedBiasSettings->stationName_ ) );
+
+            if( clockInducedBiasSettings == nullptr )
+            {
+                throw std::runtime_error( "Error when making clock-induced bias, settings are inconsistent" );
+            }
+
+            std::shared_ptr< system_models::TimingSystem > timingSystem;
+            if( bodies.count( clockInducedBiasSettings->bodyName_ ) == 0 )
+            {
+                throw std::runtime_error( "Error when getting timing system of body " + clockInducedBiasSettings->bodyName_ +
+                    " for observation bias, no such body exists." );
+            }
+            else
+            {
+                if( clockInducedBiasSettings->stationName_ == "" )
+                {
+                    if( bodies.at( clockInducedBiasSettings->bodyName_ )->getVehicleSystems( ) == nullptr )
+                    {
+                        throw std::runtime_error( "Error when getting timing system of body " + clockInducedBiasSettings->bodyName_ +
+                                                  " for observation bias, body has no vehicle systems." );
+                    }
+                    else
+                    {
+                        timingSystem = bodies.at( clockInducedBiasSettings->bodyName_ )->getVehicleSystems( )->getTimingSystem( );
+                        if( timingSystem == nullptr )
+                        {
+                            throw std::runtime_error( "Error when getting timing system of body " + clockInducedBiasSettings->bodyName_ +
+                                                      " for observation bias, body has no timing system." );
+                        }
+                    }
+                }
+                else
+                {
+                    if( bodies.at( clockInducedBiasSettings->bodyName_ )->getGroundStationMap( ).count( clockInducedBiasSettings->stationName_ ) == 0 )
+                    {
+                        throw std::runtime_error( "Error when getting timing system of body " + clockInducedBiasSettings->bodyName_ +
+                                                  " and station " + clockInducedBiasSettings->stationName_ +
+                                                  " no such station exists" );
+                    }
+                    else
+                    {
+                        timingSystem = bodies.at( clockInducedBiasSettings->bodyName_ )->getGroundStation( clockInducedBiasSettings->stationName_ )->getTimingSystem( );
+                        if( timingSystem == nullptr )
+                        {
+                            throw std::runtime_error( "Error when getting timing system of body " + clockInducedBiasSettings->bodyName_ +
+                                                      " and station " + clockInducedBiasSettings->stationName_ +
+                                                      " station has no timing system" );
+                        }
+                    }
+                }
+
+                // Create combined bias object
+                observationBias = std::make_shared< ClockInducedRangeBias< ObservationSize > >(
+                        timingSystem, relevantLinkEndIndices,
+                        LinkEndId( clockInducedBiasSettings->bodyName_, clockInducedBiasSettings->stationName_ ) );
+            }
+        }
+        break;
+    }
     default:
     {
         std::string errorMessage = "Error when making observation bias, bias type " +
@@ -1550,6 +1690,14 @@ std::shared_ptr< ObservationBias< ObservationSize > > createObservationBiasCalcu
     }
     return observationBias;
 }
+
+std::function< double ( observation_models::FrequencyBands, observation_models::FrequencyBands ) > getTurnaroundFunction(
+    const simulation_setup::SystemOfBodies &bodies,
+    const LinkEnds& linkEnds );
+
+std::shared_ptr< ground_stations::StationFrequencyInterpolator > getTransmittingFrequencyInterpolator(
+    const simulation_setup::SystemOfBodies &bodies,
+    const LinkEnds& linkEnds );
 
 //! Interface class for creating observation models
 /*!
@@ -1600,14 +1748,17 @@ public:
     {
         using namespace observation_models;
 
+
         std::shared_ptr< observation_models::ObservationModel<
                 1, ObservationScalarType, TimeType > > observationModel;
         LinkEnds linkEnds = observationSettings->linkEnds_.linkEnds_;
+
 
         if ( topLevelObservableType == undefined_observation_model )
         {
             topLevelObservableType = observationSettings->observableType_;
         }
+
 
         // Check type of observation model.
         switch( observationSettings->observableType_ )
@@ -1705,7 +1856,7 @@ public:
                                 oneWayDopplerSettings->transmitterProperTimeRateSettings_, linkEnds, bodies, transmitter );
                 }
 
-                if( oneWayDopplerSettings->transmitterProperTimeRateSettings_ != nullptr )
+                if( oneWayDopplerSettings->receiverProperTimeRateSettings_ != nullptr )
                 {
                     receiverProperTimeRate =
                             createOneWayDopplerProperTimeCalculator< ObservationScalarType, TimeType >(
@@ -1763,7 +1914,6 @@ public:
             }
 
             // Create observation model
-
             LinkDefinition uplinkLinkEnds;
             uplinkLinkEnds[ transmitter ] = linkEnds.at( transmitter );
             uplinkLinkEnds[ receiver ] = linkEnds.at( reflector1 );
@@ -1774,6 +1924,7 @@ public:
 
             std::shared_ptr< TwoWayDopplerObservationSettings > twoWayDopplerSettings =
                     std::dynamic_pointer_cast< TwoWayDopplerObservationSettings >( observationSettings );
+
 
             if( twoWayDopplerSettings == nullptr )
             {
@@ -2014,50 +2165,99 @@ public:
                         linkEnds, observationSettings->observableType_, observationSettings->biasSettings_, bodies );
             }
 
-            std::function< double ( observation_models::FrequencyBands, observation_models::FrequencyBands ) > turnaroundRatioFunction;
-            // Check if retransmitter is a body
-            if ( linkEnds.at( observation_models::retransmitter ).stationName_ == "" || !simulation_setup::isReferencePointGroundStation(
-                bodies, linkEnds.at( observation_models::retransmitter ).bodyName_, linkEnds.at( observation_models::retransmitter ).stationName_ ) )
+            std::function< double ( observation_models::FrequencyBands, observation_models::FrequencyBands ) > turnaroundRatioFunction =
+                getTurnaroundFunction( bodies, linkEnds );
+
+            std::shared_ptr< ground_stations::StationFrequencyInterpolator > transmittingFrequencyInterpolator =
+                getTransmittingFrequencyInterpolator( bodies, linkEnds );
+
+
+            std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > > stationStates;
+            for( auto it : linkEnds )
             {
-                if ( bodies.getBody( linkEnds.at( observation_models::retransmitter ).bodyName_ )->getVehicleSystems( ) == nullptr )
+                if( bodies.at( linkEnds.at( it.first ).bodyName_ )->getGroundStationMap( ).count( linkEnds.at( it.first ).stationName_ ) > 0 )
                 {
-                    throw std::runtime_error(
-                            "Error when creating DSN N-way averaged Doppler observation model: vehicle systems are not "
-                            "defined for retransmitter link end body " + linkEnds.at( observation_models::retransmitter ).bodyName_ + "." );
+                    stationStates[ it.first ] =
+                        bodies.at( linkEnds.at( it.first ).bodyName_ )->getGroundStation( linkEnds.at( it.first ).stationName_ )->getNominalStationState( );
                 }
-                turnaroundRatioFunction = bodies.getBody( linkEnds.at( observation_models::retransmitter ).bodyName_ )->getVehicleSystems(
-                        )->getTransponderTurnaroundRatio( );
-            }
-            // If retransmitter is a ground station of the body
-            else
-            {
-                if ( bodies.getBody( linkEnds.at( observation_models::retransmitter ).bodyName_ )->getGroundStation(
-                        linkEnds.at( observation_models::retransmitter ).stationName_ )->getVehicleSystems( ) == nullptr )
-                {
-                    throw std::runtime_error(
-                            "Error when creating DSN N-way averaged Doppler observation model: vehicle systems are not "
-                            "defined for retransmitter link end ID " + linkEnds.at( observation_models::retransmitter ).stationName_ + "." );
-                }
-                turnaroundRatioFunction = bodies.getBody( linkEnds.at( observation_models::retransmitter ).bodyName_ )->getGroundStation(
-                        linkEnds.at( observation_models::retransmitter ).stationName_ )->getVehicleSystems( )->getTransponderTurnaroundRatio( );
             }
 
-            if( bodies.getBody( linkEnds.at( observation_models::transmitter ).bodyName_ )->getGroundStation(
-                linkEnds.at( observation_models::transmitter ).stationName_ )->getTransmittingFrequencyCalculator( ) == nullptr )
-            {
-                throw std::runtime_error(
-                    "Error when creating DSN N-way averaged Doppler observation model: transmitted frequency not  "
-                    "defined for link end station " + linkEnds.at( observation_models::transmitter ).bodyName_ + ", " +
-                        linkEnds.at( observation_models::transmitter ).stationName_ );
-            }
-
+            std::shared_ptr< ground_stations::GroundStationState > receivingStationState =
+                    bodies.at( linkEnds.at( receiver ).bodyName_ )->getGroundStation( linkEnds.at( receiver ).stationName_ )->getNominalStationState( );
             observationModel = std::make_shared<
                     DsnNWayAveragedDopplerObservationModel< ObservationScalarType, TimeType > >(
                         linkEnds, arcStartObservationModel, arcEndObservationModel,
                         bodies.getBody( linkEnds.at( observation_models::transmitter ).bodyName_ )->getGroundStation(
                                 linkEnds.at( observation_models::transmitter ).stationName_ )->getTransmittingFrequencyCalculator( ),
+                        turnaroundRatioFunction, observationBias, stationStates, dsnNWayAveragedDopplerObservationSettings->getSubtractDopplerSignature( ) );
+            break;
+        }
+        case doppler_measured_frequency:
+        {
+
+            std::shared_ptr< TwoWayDopplerObservationModel< ObservationScalarType, TimeType > > twoWayDopplerModel;
+            try
+            {
+                auto uplinkOneWaySettings = std::make_shared< OneWayDopplerObservationSettings >(
+                    getUplinkFromTwoWayLinkEnds( linkEnds ), observationSettings->lightTimeCorrectionsList_,
+                    std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Earth" ), nullptr );
+                uplinkOneWaySettings->normalizeWithSpeedOfLight_ = false;
+                auto downlinkOneWaySettings = std::make_shared< OneWayDopplerObservationSettings >(
+                    getDownlinkFromTwoWayLinkEnds( linkEnds ), observationSettings->lightTimeCorrectionsList_,
+                    nullptr, std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Earth" ) );
+                downlinkOneWaySettings->normalizeWithSpeedOfLight_ = false;
+
+                auto twoWaySettings = std::make_shared< TwoWayDopplerObservationSettings >( uplinkOneWaySettings, downlinkOneWaySettings );
+
+                twoWayDopplerModel =
+                    std::dynamic_pointer_cast< TwoWayDopplerObservationModel< ObservationScalarType, TimeType > >(
+                    ObservationModelCreator< 1, ObservationScalarType, TimeType >::createObservationModel(
+                        twoWaySettings, bodies ) );
+                if( twoWayDopplerModel == nullptr )
+                {
+                    throw std::runtime_error( "Error when getting two-way Doppler model for measured frequency observable, model in null." );
+                }
+            }
+            catch( const std::exception& caughtException )
+            {
+                std::string exceptionText = std::string( caughtException.what( ) );
+                throw std::runtime_error( "Error when creating Doppler Measured Frequency observation model, error: " +
+                exceptionText );
+            }
+
+            // Determine the bias settings
+            std::shared_ptr< ObservationBias< 1 > > observationBias;
+            if( observationSettings->biasSettings_ != nullptr )
+            {
+                observationBias = createObservationBiasCalculator(
+                        linkEnds, observationSettings->observableType_, observationSettings->biasSettings_, bodies );
+            }
+
+            // Determine the turnaround ratio function
+            std::function< double ( observation_models::FrequencyBands, observation_models::FrequencyBands ) > turnaroundRatioFunction =
+                getTurnaroundFunction( bodies, linkEnds );
+
+            // Check if transmitter has frequency calculator
+            std::shared_ptr< ground_stations::StationFrequencyInterpolator > transmittingFrequencyInterpolator =
+                getTransmittingFrequencyInterpolator( bodies, linkEnds );
+
+            std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > > stationStates;
+            for( auto it : linkEnds )
+            {
+                if( bodies.at( linkEnds.at( it.first ).bodyName_ )->getGroundStationMap( ).count( linkEnds.at( it.first ).stationName_ ) > 0 )
+                {
+                    stationStates[ it.first ] =
+                        bodies.at( linkEnds.at( it.first ).bodyName_ )->getGroundStation( linkEnds.at( it.first ).stationName_ )->getNominalStationState( );
+                }
+            }
+
+            observationModel = std::make_shared<
+                    DopplerMeasuredFrequencyObservationModel< ObservationScalarType, TimeType > >(
+                        linkEnds, twoWayDopplerModel,
+                        transmittingFrequencyInterpolator,
                         turnaroundRatioFunction,
-                        observationBias );
+                        observationBias,
+                        stationStates );
 
             break;
         }
@@ -2067,6 +2267,7 @@ public:
                     "  not recognized when making size 1 observation model.";
             throw std::runtime_error( errorMessage );
         }
+
         return observationModel;
     }
 
@@ -2755,6 +2956,10 @@ public:
             firstObservationModel = dsnNWayAveragedDopplerObservationModel->getArcStartObservationModel( );
             secondObservationModel = dsnNWayAveragedDopplerObservationModel->getArcEndObservationModel( );
             break;
+        }
+        case observation_models::doppler_measured_frequency:
+        {
+            throw std::runtime_error( "Error when extract undifferenced observation model. Doppler Measured Frequency model not implemented." );
         }
         default:
             std::string errorMessage =

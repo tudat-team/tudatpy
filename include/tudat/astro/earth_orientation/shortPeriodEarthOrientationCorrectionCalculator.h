@@ -125,7 +125,6 @@ public:
      */
     OutputType getCorrectionsFromFundamentalArgument( const Eigen::Vector6d& fundamentalArguments )
     {
-        std::cout<<"Computing from fundamental arguments"<<std::endl;
         return sumCorrectionTerms( fundamentalArguments );
     }
 
