@@ -64,6 +64,9 @@ class SpecularReflectivity: public EstimatableParameter< double >
             // Retrieve all specular reflectivity values for the panels corresponding to the given panelTypeId
             std::vector<double> specularReflectivities = radiationPressureInterface_->getSpecularReflectivityForPanelTypeId(panelTypeId_);
 
+            // Calculate the average diffuse reflectivity
+            double averageSpecularReflectivity = std::accumulate(specularReflectivities.begin(), specularReflectivities.end(), 0.0) / specularReflectivities.size();
+
             // Check if all values are the same
             bool allValuesSame = std::all_of(specularReflectivities.begin(), specularReflectivities.end(),
                                              [&](double value) { return value == specularReflectivities[0]; });
@@ -74,15 +77,17 @@ class SpecularReflectivity: public EstimatableParameter< double >
                 std::cerr << "Warning: Specular reflectivity values for panel group "
                           << panelTypeId_ << " are not consistent. Resetting all to the average value." << std::endl;
 
-                // Calculate the average specular reflectivity
-                double averageSpecularReflectivity = std::accumulate(specularReflectivities.begin(), specularReflectivities.end(), 0.0) / specularReflectivities.size();
-
                 // Set all panels' specular reflectivity to the average value
                 radiationPressureInterface_->setGroupSpecularReflectivity(panelTypeId_, averageSpecularReflectivity);
+
+                // Adjust the absorptivity
+                double averageDiffuseReflectivity = radiationPressureInterface_->getAverageDiffuseReflectivity(panelTypeId_);
+                double apsorptivity = 1 - averageDiffuseReflectivity - averageSpecularReflectivity;
+                radiationPressureInterface_->setGroupAbsorptivity(panelTypeId_, apsorptivity);
             }
 
-            // Return the average value (or the original value if all values were the same)
-            return specularReflectivities[0];
+            // Return the average diffuse reflectivity in all cases
+            return averageSpecularReflectivity;
         }
 
         void setParameterValue( double parameterValue )
