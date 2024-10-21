@@ -353,7 +353,7 @@ Eigen::Matrix< NewStateScalarType, StateSize, 1 > convertStateFunctionStateScala
  *  coordinates, i.e. same as bodyEphemeris).
  */
 template< typename TimeType = double, typename StateScalarType = double >
-std::shared_ptr< Ephemeris > createReferencePointEphemeris(
+std::shared_ptr< Ephemeris > createReferencePointCompositeEphemeris(
         std::shared_ptr< Ephemeris > bodyEphemeris,
         std::shared_ptr< RotationalEphemeris > bodyRotationModel,
         std::function< Eigen::Vector6d( const double& ) > referencePointRelativeStateFunction )

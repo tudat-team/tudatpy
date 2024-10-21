@@ -177,8 +177,8 @@ BOOST_AUTO_TEST_CASE( testProcessSingleOdfFile )
             std::make_shared< input_output::OdfRawFileContents >( file );
 
     // Process ODF file
-    std::shared_ptr< observation_models::ProcessedOdfFileContents > processedOdfFileContents =
-            std::make_shared< observation_models::ProcessedOdfFileContents >( rawOdfContents, spacecraftName );
+    std::shared_ptr< observation_models::ProcessedOdfFileContents< double > > processedOdfFileContents =
+            std::make_shared< observation_models::ProcessedOdfFileContents< double > >( rawOdfContents, spacecraftName );
 
     std::pair< double, double > startAndEndTimeTdb = processedOdfFileContents->getStartAndEndTime( );
 
@@ -254,8 +254,8 @@ BOOST_AUTO_TEST_CASE( testProcessMultipleOdfFile )
     std::vector< std::shared_ptr< input_output::OdfRawFileContents > > rawOdfDataVector = { rawOdfContents2, rawOdfContents1 };
 
     // Process ODF files
-    std::shared_ptr< observation_models::ProcessedOdfFileContents > processedOdfFileContents =
-            std::make_shared< observation_models::ProcessedOdfFileContents >( rawOdfDataVector, spacecraftName );
+    std::shared_ptr< observation_models::ProcessedOdfFileContents< double > > processedOdfFileContents =
+            std::make_shared< observation_models::ProcessedOdfFileContents< double > >( rawOdfDataVector, spacecraftName );
 
     std::pair< double, double > startAndEndTimeTdb = processedOdfFileContents->getStartAndEndTime( );
 

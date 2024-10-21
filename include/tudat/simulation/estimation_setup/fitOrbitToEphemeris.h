@@ -48,7 +48,7 @@ std::shared_ptr< observation_models::ObservationCollection< StateScalarType, Tim
     using namespace observation_models;
 
     std::vector< TimeType > observationTimes;
-    double currentTime = initialTime;
+    TimeType currentTime = initialTime;
     while( currentTime < finalTime )
     {
         observationTimes.push_back( currentTime );
@@ -84,7 +84,7 @@ std::shared_ptr< observation_models::ObservationCollection< StateScalarType, Tim
 }
 
 template< typename TimeType = double, typename StateScalarType = double >
-std::shared_ptr< EstimationOutput< > > createBestFitToCurrentEphemeris(
+std::shared_ptr< EstimationOutput< StateScalarType, TimeType > > createBestFitToCurrentEphemeris(
     const SystemOfBodies& bodies,
     const basic_astrodynamics::AccelerationMap& accelerationModelMap,
     const std::vector< std::string >& bodiesToPropagate,
@@ -95,23 +95,25 @@ std::shared_ptr< EstimationOutput< > > createBestFitToCurrentEphemeris(
     const TimeType dataPointInterval,
     const std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > additionalParameterNames =
     std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > >( ),
-    const int numberOfIterations = 3 )
+    const int numberOfIterations = 3,
+    const bool reintegrateVariationalEquations = true )
 {
     using namespace observation_models;
     using namespace estimatable_parameters;
     using namespace propagators;
 
-    double initialPropagationTime = initialTime;
+    TimeType initialPropagationTime = initialTime;
 
-   Eigen::VectorXd initialState = getInitialStatesOfBodies( bodiesToPropagate, centralBodies, bodies, initialPropagationTime );
+   Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialState =
+       getInitialStatesOfBodies< TimeType, StateScalarType >( bodiesToPropagate, centralBodies, bodies, initialPropagationTime );
 
-    std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
-        std::make_shared< TranslationalStatePropagatorSettings< double > >
+    std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType, TimeType > > propagatorSettings =
+        std::make_shared< TranslationalStatePropagatorSettings< StateScalarType, TimeType > >
         ( centralBodies, accelerationModelMap, bodiesToPropagate, initialState, initialPropagationTime, integratorSettings,
             std::make_shared< PropagationTimeTerminationSettings >( finalTime ) );
 
     std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames =
-        getInitialStateParameterSettings< double >( propagatorSettings, bodies );
+        getInitialStateParameterSettings< StateScalarType, TimeType >( propagatorSettings, bodies );
     parameterNames.insert(parameterNames.end(), additionalParameterNames.begin(), additionalParameterNames.end());
 
     std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate =
@@ -120,9 +122,9 @@ std::shared_ptr< EstimationOutput< > > createBestFitToCurrentEphemeris(
 
     std::pair< std::vector< std::shared_ptr< observation_models::ObservationModelSettings > >,
         std::shared_ptr< observation_models::ObservationCollection< StateScalarType, TimeType > > >
-        observationCollectionAndModelSettings = simulatePseudoObservations(
+        observationCollectionAndModelSettings = simulatePseudoObservations< TimeType, StateScalarType >(
             bodies, bodiesToPropagate, centralBodies, initialTime, finalTime, dataPointInterval  );
-    std::shared_ptr< observation_models::ObservationCollection< > > observationCollection = observationCollectionAndModelSettings.second;
+    std::shared_ptr< observation_models::ObservationCollection< StateScalarType, TimeType > > observationCollection = observationCollectionAndModelSettings.second;
 
     std::vector< std::shared_ptr< observation_models::ObservationModelSettings > > observationModelSettingsList =
         observationCollectionAndModelSettings.first;
@@ -130,7 +132,7 @@ std::shared_ptr< EstimationOutput< > > createBestFitToCurrentEphemeris(
     OrbitDeterminationManager< StateScalarType, TimeType > orbitDeterminationManager = OrbitDeterminationManager< StateScalarType, TimeType >(
         bodies, parametersToEstimate, observationModelSettingsList, propagatorSettings );
 
-    std::shared_ptr< EstimationInput< > > estimationInput = std::make_shared< EstimationInput< > >(
+    std::shared_ptr< EstimationInput< StateScalarType, TimeType > > estimationInput = std::make_shared< EstimationInput< StateScalarType, TimeType > >(
         observationCollection );
     estimationInput->setConvergenceChecker( std::make_shared< EstimationConvergenceChecker >( numberOfIterations ) );
     estimationInput->defineEstimationSettings(

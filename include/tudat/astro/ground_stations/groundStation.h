@@ -18,6 +18,7 @@
 
 #include "tudat/astro/ground_stations/groundStationState.h"
 #include "tudat/astro/ground_stations/pointingAnglesCalculator.h"
+#include "tudat/astro/system_models/timingSystem.h"
 #include "tudat/astro/ground_stations/transmittingFrequencies.h"
 #include "tudat/astro/system_models/vehicleSystems.h"
 
@@ -48,7 +49,9 @@ public:
         pointingAnglesCalculator_( pointingAnglesCalculator ),
         stationId_( stationId ),
         transmittingFrequencyCalculator_( transmittingFrequencyCalculator )
-    { }
+    {
+        stationState->setSiteId( stationId );
+    }
 
 
     //! Function that returns (at reference epoch) the state of the ground station
@@ -59,9 +62,9 @@ public:
      *  \return State at requested time.
      */
     template< typename StateScalarType, typename TimeType >
-    Eigen::Matrix< StateScalarType, 6, 1 > getStateInPlanetFixedFrame( const TimeType& time )
+    Eigen::Matrix< StateScalarType, 6, 1 > getStateInPlanetFixedFrame( const TimeType& time, const std::string& targetFrameOrigin )
     {
-        return ( nominalStationState_->getCartesianStateInTime( static_cast< double >( time ) ) ).template cast< StateScalarType >( );
+        return ( nominalStationState_->getCartesianStateInTime( static_cast< double >( time ), targetFrameOrigin ) ).template cast< StateScalarType >( );
     }
 
     //! Function to return object to define and compute the state of the ground station.
@@ -92,6 +95,16 @@ public:
     std::shared_ptr< PointingAnglesCalculator > getPointingAnglesCalculator( )
     {
         return pointingAnglesCalculator_;
+    }
+
+    std::shared_ptr< system_models::TimingSystem > getTimingSystem( )
+    {
+        return timingSystem_;
+    }
+
+    void setTimingSystem( const std::shared_ptr< system_models::TimingSystem > timingSystem )
+    {
+        timingSystem_ = timingSystem;
     }
 
     //! Function to return the object used to compute the ground station's transmitting frequency at a given time
@@ -215,6 +228,8 @@ private:
 
     //! Object used to computed pointing angles (elevation, azimuth) to a given target from this ground station.
     std::shared_ptr< PointingAnglesCalculator > pointingAnglesCalculator_;
+
+    std::shared_ptr< system_models::TimingSystem > timingSystem_;
 
     //! Name of the ground station
     std::string stationId_;

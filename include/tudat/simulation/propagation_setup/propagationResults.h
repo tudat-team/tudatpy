@@ -212,6 +212,17 @@ namespace tudat
                 return equationsOfMotionNumericalSolution_;
             }
 
+            std::map< double, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > getEquationsOfMotionNumericalSolutionDouble( )
+            {
+                return utilities::staticCastMapKeys< double, TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >( equationsOfMotionNumericalSolution_ );
+            }
+
+            std::pair< std::vector< double >, std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > getEquationsOfMotionNumericalSolutionDoubleSplit( )
+            {
+                std::map< double, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > stateMap = getEquationsOfMotionNumericalSolutionDouble( );
+                return std::make_pair( utilities::createVectorFromMapKeys( stateMap ), utilities::createVectorFromMapValues( stateMap ) );
+            }
+
             std::map <TimeType, Eigen::Matrix<StateScalarType, Eigen::Dynamic, 1>> &
             getEquationsOfMotionNumericalSolutionRaw( )
             {
@@ -923,7 +934,7 @@ namespace tudat
             
             std::vector< std::map< TimeType, Eigen::VectorXd > > getConcatenatedDependentVariableResults( )
             {
-                std::vector< std::map< TimeType, Eigen::VectorXd > > concatenatedResults;
+                std::vector< std::map< TimeType, Eigen::VectorXd  > > concatenatedResults;
                 if( singleArcResults_->getSolutionIsCleared( ) != multiArcResults_->getSolutionIsCleared( ) )
                 {
                     throw std::runtime_error( "Error when getting concatenated hybrid-arc results, constituent results have inconsistent cleared state." );
@@ -935,9 +946,9 @@ namespace tudat
                 }
                 if( !singleArcResults_->getSolutionIsCleared( ) )
                 {
-                    concatenatedResults.push_back( singleArcResults_->getEquationsOfMotionNumericalSolution( ) );
+                    concatenatedResults.push_back( singleArcResults_->getDependentVariableHistory( ) );
                     std::vector< std::map< TimeType, Eigen::VectorXd > >
-                            multiArcResults = multiArcResults_->getConcatenatedEquationsOfMotionResults( );
+                            multiArcResults = multiArcResults_->getConcatenatedDependentVariableResults( );
                     concatenatedResults.insert( concatenatedResults.end( ), multiArcResults.begin( ), multiArcResults.end( ) );
                 }
                 return concatenatedResults;

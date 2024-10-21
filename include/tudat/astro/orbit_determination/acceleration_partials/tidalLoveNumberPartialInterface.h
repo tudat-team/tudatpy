@@ -53,7 +53,7 @@ public:
      *  \param deformedBody Name of body being tidally deformed.
      */
     TidalLoveNumberPartialInterface(
-            const std::shared_ptr< gravitation::BasicSolidBodyTideGravityFieldVariations > gravityFieldVariations,
+            const std::shared_ptr< gravitation::SolidBodyTideGravityFieldVariations > gravityFieldVariations,
             const std::function< Eigen::Vector3d( ) > deformedBodyPositionFunction,
             const std::vector< std::function< Eigen::Vector3d( ) > > deformingBodyStateFunctions,
             const std::function< Eigen::Quaterniond( ) > rotationToDeformedBodyFrameFrameFunction,
@@ -162,6 +162,14 @@ public:
             const std::vector< int >& deformingBodyIndices,
             const int maximumDegree,
             const int maximumOrder );
+
+    std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > >
+    calculateSphericalHarmonicCoefficientsPartialWrtModeCoupledTidalLoveNumbers(
+        const std::vector< std::pair< int, int > > parameterDegreeAndOrderIndices,
+        const std::map< int, std::vector< int > >& ordersPerDegree,
+        const std::vector< int >& deformingBodyIndices,
+        const int maximumDegree,
+        const int maximumOrder );
 
     //! Function to calculate the partial of spherical harmonic acceleration w.r.t. real tidal love numbers.
     /*!
@@ -377,7 +385,17 @@ public:
     }
 
 
+    //! Name of body being deformed
+    std::string getDeformedBody( )
+    {
+        return deformedBody_;
+    }
 
+
+    std::vector< std::string > getDeformingBodies( )
+    {
+        return deformingBodies_;
+    }
 protected:
 
     //! Function to compute Love number partials from pre-computed partials and provided scaling values

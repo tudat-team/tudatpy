@@ -23,6 +23,40 @@ namespace tudat
 namespace observation_models
 {
 
+template< typename ObservationScalarType = double, typename TimeType = double >
+std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > >
+createLightTimeCalculator(
+    const std::shared_ptr< ephemerides::Ephemeris >& transmitterCompleteEphemeris,
+    const std::shared_ptr< ephemerides::Ephemeris >& receiverCompleteEphemeris,
+    const simulation_setup::SystemOfBodies& bodies,
+    const std::vector< std::shared_ptr< LightTimeCorrectionSettings > >& lightTimeCorrections,
+    const LinkEnds& linkEnds,
+    const LinkEndType& transmittingLinkEndType,
+    const LinkEndType& receivingLinkEndType,
+    const ObservableType observableType,
+    const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria
+    = std::make_shared< LightTimeConvergenceCriteria >( )  )
+{
+    std::vector< std::shared_ptr< LightTimeCorrection > > lightTimeCorrectionFunctions;
+
+    // Create lighttime correction functions from lightTimeCorrections
+    for( unsigned int i = 0; i < lightTimeCorrections.size( ); i++ )
+    {
+        std::shared_ptr< LightTimeCorrection > lightTimeCorrectionFunction = createLightTimeCorrections(
+            lightTimeCorrections[ i ], bodies, linkEnds, transmittingLinkEndType,
+            receivingLinkEndType, observableType );
+
+        if ( lightTimeCorrectionFunction != nullptr )
+        {
+            lightTimeCorrectionFunctions.push_back( lightTimeCorrectionFunction );
+        }
+    }
+
+    // Create light time calculator.
+    return std::make_shared< LightTimeCalculator< ObservationScalarType, TimeType > >
+        ( transmitterCompleteEphemeris, receiverCompleteEphemeris, lightTimeCorrectionFunctions,
+          lightTimeConvergenceCriteria );
+}
 
 //! Function to create a light-time calculation object
 /*!
@@ -50,25 +84,10 @@ createLightTimeCalculator(
         const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria
             = std::make_shared< LightTimeConvergenceCriteria >( )  )
 {
-    std::vector< std::shared_ptr< LightTimeCorrection > > lightTimeCorrectionFunctions;
-
-    // Create lighttime correction functions from lightTimeCorrections
-    for( unsigned int i = 0; i < lightTimeCorrections.size( ); i++ )
-    {
-        std::shared_ptr< LightTimeCorrection > lightTimeCorrectionFunction = createLightTimeCorrections(
-                        lightTimeCorrections[ i ], bodies, linkEnds, transmittingLinkEndType,
-                        receivingLinkEndType, observableType );
-
-        if ( lightTimeCorrectionFunction != nullptr )
-        {
-            lightTimeCorrectionFunctions.push_back( lightTimeCorrectionFunction );
-        }
-    }
-
-    // Create light time calculator.
-    return std::make_shared< LightTimeCalculator< ObservationScalarType, TimeType > >
-            ( transmitterCompleteEphemeris, receiverCompleteEphemeris, lightTimeCorrectionFunctions,
-              lightTimeConvergenceCriteria );
+    return createLightTimeCalculator< ObservationScalarType, TimeType >(
+        std::make_shared< ephemerides::CustomEphemeris< TimeType, ObservationScalarType > >( transmitterCompleteEphemeris, bodies.getFrameOrigin( ), bodies.getFrameOrientation( ) ),
+        std::make_shared< ephemerides::CustomEphemeris< TimeType, ObservationScalarType > >( transmitterCompleteEphemeris, bodies.getFrameOrigin( ), bodies.getFrameOrientation( ) ),
+            bodies, lightTimeCorrections, linkEnds, transmittingLinkEndType, receivingLinkEndType, observableType, lightTimeConvergenceCriteria );
 }
 
 //! Function to create a light-time calculation object
@@ -97,9 +116,9 @@ createLightTimeCalculator(
 
     // Get link end state functions and create light time calculator.
     return createLightTimeCalculator< ObservationScalarType, TimeType >(
-                simulation_setup::getLinkEndCompleteEphemerisFunction< TimeType, ObservationScalarType >(
+                simulation_setup::getLinkEndCompleteEphemeris< TimeType, ObservationScalarType >(
                     linkEnds.at( transmittingLinkEndType ), bodies ),
-                simulation_setup::getLinkEndCompleteEphemerisFunction< TimeType, ObservationScalarType >(
+                simulation_setup::getLinkEndCompleteEphemeris< TimeType, ObservationScalarType >(
                     linkEnds.at( receivingLinkEndType ), bodies ),
                 bodies, lightTimeCorrections, linkEnds, transmittingLinkEndType, receivingLinkEndType,
                 observableType, lightTimeConvergenceCriteria );

@@ -23,10 +23,11 @@ if (TUDAT_BUILD_WITH_SOFA_INTERFACE)
     list(APPEND TUDAT_ITRS_LIBRARIES Tudat::tudat_earth_orientation)
 endif ()
 
-if (TUDAT_BUILD_WITH_NRLMSISE00)
-    list(APPEND TUDAT_EXTERNAL_INTERFACE_LIBRARIES ${NRLMSISE00_LIBRARIES})
-endif ()
+list(APPEND TUDAT_EXTERNAL_INTERFACE_LIBRARIES ${NRLMSISE00_LIBRARIES})
 
+if(TUDAT_BUILD_WITH_FFTW3)
+    list(APPEND TUDAT_EXTERNAL_INTERFACE_LIBRARIES ${FFTW3_LIBRARIES})
+endif( )
 
 if (TUDAT_BUILD_WITH_JSON_INTERFACE)
     list(APPEND TUDAT_EXTERNAL_LIBRARIES ${nlohmann_json_LIBRARIES})
@@ -69,7 +70,7 @@ list(APPEND Tudat_PROPAGATION_LIBRARIES
         Tudat::tudat_statistics
         Tudat::tudat_propagators
         ${TUDAT_EXTERNAL_INTERFACE_LIBRARIES}
-        Tudat::tudat_basic_astrodynamics        
+        Tudat::tudat_basic_astrodynamics
         Tudat::tudat_numerical_quadrature
         Tudat::tudat_interpolators
         Tudat::tudat_root_finders
@@ -77,7 +78,7 @@ list(APPEND Tudat_PROPAGATION_LIBRARIES
         Tudat::tudat_input_output
         Tudat::tudat_basics
         Tudat::tudat_data
-#        ${TUDAT_EXTERNAL_LIBRARIES}
+        #        ${TUDAT_EXTERNAL_LIBRARIES}
         )
 
 if (TUDAT_BUILD_WITH_ESTIMATION_TOOLS)

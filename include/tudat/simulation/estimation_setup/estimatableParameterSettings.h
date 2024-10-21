@@ -15,7 +15,6 @@
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
-#include "tudat/astro/basic_astro/accelerationModelTypes.h"
 
 namespace tudat
 {
@@ -508,7 +507,7 @@ public:
     //! Constructor, sets initial value of translational state and a single central body.
     /*!
      * Constructor, sets initial value of translational state and a single central body
-     * \param associatedBody Body for which initial state is to be estimated.
+     * \param associatedBody Bo9dy for which initial state is to be estimated.
      * \param initialStateValue Current value of initial arc states (concatenated in same order as arcs)
      * \param arcStartTimes Start times for separate arcs
      * \param centralBody Body w.r.t. which the initial state is to be estimated.
@@ -900,6 +899,57 @@ public:
 
 };
 
+inline std::map< std::pair< int, int >, std::vector< std::pair< int, int > > > getFullModeCoupledLoveNumbers(
+    const unsigned int maximumForcingDegree, const unsigned int maximumResponseDegree )
+{
+    std::map< std::pair< int, int >, std::vector< std::pair< int, int > > > loveNumberIndices;
+
+    for( unsigned int i = 2; i < maximumForcingDegree; i++ )
+    {
+        for( unsigned int j = 0; j <= i; j++ )
+        {
+            for( unsigned int k = 2; k < maximumResponseDegree; k++ )
+            {
+                for( unsigned int l = 0; l <= k; k++ )
+                {
+                    loveNumberIndices[{i,j}].push_back({k,l});
+                }
+            }
+        }
+    }
+    return loveNumberIndices;
+}
+
+class ModeCoupledTidalLoveNumberEstimatableParameterSettings: public EstimatableParameterSettings
+{
+public:
+
+    //! Constructor for a single deforming body
+    /*!
+     * Constructor for a single deforming body
+     * \param associatedBody Deformed body
+     * \param degree Degree of Love number that is to be estimated
+     * \param deformingBody Name of body causing tidal deformation
+     * \param useComplexValue True if the complex Love number is estimated, false if only the real part is considered
+     */
+    ModeCoupledTidalLoveNumberEstimatableParameterSettings( const std::string& associatedBody,
+                                                            const std::map< std::pair< int, int >, std::vector< std::pair< int, int > > > loveNumberIndices,
+                                                            const std::vector< std::string >& deformingBodies,
+                                                            const bool useComplexValue = 0 ):
+        EstimatableParameterSettings( associatedBody, mode_coupled_tidal_love_numbers ),
+        loveNumberIndices_( loveNumberIndices ),
+        deformingBodies_( deformingBodies ), useComplexValue_( useComplexValue ){ }
+
+    std::map< std::pair< int, int >, std::vector< std::pair< int, int > > > loveNumberIndices_;
+
+    //! Names of bodies causing tidal deformation
+    std::vector< std::string > deformingBodies_;
+
+    bool useComplexValue_;
+
+};
+
+
 //! Class to define settings for estimating the tidal time lag of a direct tidal acceleration model
 /*!
  *  Class to define settings for estimating the tidal time lag of a direct tidal acceleration model, it links to one or more
@@ -1062,6 +1112,34 @@ public:
 };
 
 
+class GlobalPolynomialClockCorrectionsParameterSettings: public EstimatableParameterSettings
+{
+public:
+    GlobalPolynomialClockCorrectionsParameterSettings(
+            const std::string& associatedBody,
+            const std::string& associatedStation,
+            const std::vector< int > correctionPowers ):
+            EstimatableParameterSettings( associatedBody, global_polynomial_clock_corrections, associatedStation ),
+            correctionPowers_( correctionPowers ){ }
+
+    std::vector< int > correctionPowers_;
+};
+
+class MultiArcPolynomialClockCorrectionsParameterSettings: public EstimatableParameterSettings
+{
+public:
+    MultiArcPolynomialClockCorrectionsParameterSettings(
+            const std::string& associatedBody,
+            const std::string& associatedStation,
+            const std::vector< int > correctionPowers,
+            const std::vector< int > arcIndices ):
+            EstimatableParameterSettings( associatedBody, arc_wise_polynomial_clock_corrections, associatedStation ),
+            correctionPowers_( correctionPowers ), arcIndices_( arcIndices ){ }
+
+    std::vector< int > correctionPowers_;
+    std::vector< int > arcIndices_;
+};
+
 inline std::shared_ptr< EstimatableParameterSettings > gravitationalParameter( const std::string bodyName )
 {
     return std::make_shared< EstimatableParameterSettings >( bodyName, gravitational_parameter );
@@ -1220,6 +1298,25 @@ inline std::shared_ptr< EstimatableParameterSettings > arcwiseTimeObservationBia
 {
     return std::make_shared< ArcWiseTimeBiasEstimatableParameterSettings >(
             linkEnds, observableType, arcStartTimes, linkEndForTime );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > globalPolynomialClockCorrections(
+        const std::string& associatedBody,
+        const std::string& associatedStation,
+        const std::vector< int > correctionPowers )
+{
+    return std::make_shared< GlobalPolynomialClockCorrectionsParameterSettings >(
+            associatedBody, associatedStation, correctionPowers );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > multiArcPolynomialClockCorrections(
+        const std::string& associatedBody,
+        const std::string& associatedStation,
+        const std::vector< int > correctionPowers,
+        const std::vector< int > arcIndices )
+{
+    return std::make_shared< MultiArcPolynomialClockCorrectionsParameterSettings >(
+            associatedBody, associatedStation, correctionPowers, arcIndices );
 }
 
 inline std::shared_ptr< EstimatableParameterSettings > constantEmpiricalAccelerationMagnitudes(
@@ -1440,6 +1537,14 @@ inline std::shared_ptr< EstimatableParameterSettings > orderVaryingKLoveNumber(
                 associatedBody, degree, orders, std::vector< std::string >( ), useComplexValue );
 }
 
+inline std::shared_ptr< EstimatableParameterSettings > modeCoupledTidalLoveNumberEstimatableParameterSettings(
+    const std::string& associatedBody,
+    const std::map< std::pair< int, int >, std::vector< std::pair< int, int > > > loveNumberIndices,
+    const std::vector< std::string >& deformingBodies )
+{
+    return std::make_shared< ModeCoupledTidalLoveNumberEstimatableParameterSettings >(
+        associatedBody, loveNumberIndices, deformingBodies, 0 );
+}
 
 inline std::shared_ptr< EstimatableParameterSettings > coreFactor(
         const std::string& associatedBody )
