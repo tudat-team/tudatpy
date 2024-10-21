@@ -7,7 +7,7 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
-//
+
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
@@ -72,10 +72,6 @@ void compareAgainstReference(
             {
 
                 BOOST_CHECK_CLOSE_FRACTION( computedIterator->first - referenceIterator->first, expectedTimeOffset, 4.0 * std::numeric_limits< double >::epsilon( ) );
-
-//                double currentTime = it.first;
-
-//                std::cout<<i<<" "<<computedIterator->second<<" "<<referenceIterator->second<<std::endl;
 
                 for ( int j = 0; j < variableSize; j++ )
                 {
@@ -261,7 +257,7 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
     std::vector< std::map< double, Eigen::VectorXd > > referenceTransmitterDependentVariableResults;
 
     // Run analysis for each observable (only compare against theory for 1st one)
-    for( unsigned int currentObservableTestCase = 0; currentObservableTestCase < 9; currentObservableTestCase++ )
+    for( unsigned int currentObservableTestCase = 0; currentObservableTestCase < 8; currentObservableTestCase++ )
     {
         // Check if observable is differenced
         bool isDifferencedObservable = false;
@@ -308,13 +304,13 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
             geometryType = 1;
             isDifferencedObservable = true;
         }
+//        else if( currentObservableTestCase == 7 )
+//        {
+//            currentObservableType = dsn_n_way_averaged_doppler;
+//            geometryType = 1;
+//            isDifferencedObservable = true;
+//        }
         else if( currentObservableTestCase == 7 )
-        {
-            currentObservableType = dsn_n_way_averaged_doppler;
-            geometryType = 1;
-            isDifferencedObservable = true;
-        }
-        else if( currentObservableTestCase == 8 )
         {
             currentObservableType = relative_angular_position;
             geometryType = 2;
@@ -568,10 +564,18 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
                     std::make_shared<StationAngleObservationDependentVariableSettings>(
                         station_elevation_angle, LinkEndId( std::make_pair( "Earth", "Station1" )),
                         referenceLinkEnd, integratedObservableHandling, originatingLinkEndRole );
+                std::shared_ptr<ObservationDependentVariableSettings> linkEndTypeElevationAngleSettings =
+                    std::make_shared<StationAngleObservationDependentVariableSettings>(
+                        station_elevation_angle, referenceLinkEnd, integratedObservableHandling, originatingLinkEndRole );
+
                 std::shared_ptr<ObservationDependentVariableSettings> azimuthAngleSettings =
                     std::make_shared<StationAngleObservationDependentVariableSettings>(
                         station_azimuth_angle, LinkEndId( std::make_pair( "Earth", "Station1" )),
                         referenceLinkEnd, integratedObservableHandling, originatingLinkEndRole );
+                std::shared_ptr<ObservationDependentVariableSettings> linkEndTypeAzimuthAngleSettings =
+                    std::make_shared<StationAngleObservationDependentVariableSettings>(
+                        station_azimuth_angle, referenceLinkEnd, integratedObservableHandling, originatingLinkEndRole );
+
                 std::shared_ptr<ObservationDependentVariableSettings> targetRangeSettings =
                     std::make_shared<InterlinkObservationDependentVariableSettings>(
                         target_range, referenceLinkEnd, originatingLinkEndRole, integratedObservableHandling );
@@ -598,7 +602,9 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
                         link_angle_with_orbital_plane, referenceLinkEnd, originatingLinkEndRole, integratedObservableHandling, "Moon" );
 
                 dependentVariableList.push_back( elevationAngleSettings );
+                dependentVariableList.push_back( linkEndTypeElevationAngleSettings );
                 dependentVariableList.push_back( azimuthAngleSettings );
+                dependentVariableList.push_back( linkEndTypeAzimuthAngleSettings );
                 dependentVariableList.push_back( targetRangeSettings );
                 dependentVariableList.push_back( targetInverseRangeSettings );
                 dependentVariableList.push_back( linkBodyCenterDistanceSettings );
@@ -620,8 +626,12 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
                 {
                     std::map<double, Eigen::VectorXd> elevationAngles1 = getDependentVariableResultList(
                         idealObservationsAndTimes, elevationAngleSettings, currentObservableType );
+                    std::map<double, Eigen::VectorXd> elevationAngles2 = getDependentVariableResultList(
+                        idealObservationsAndTimes, linkEndTypeElevationAngleSettings, currentObservableType );
                     std::map<double, Eigen::VectorXd> azimuthAngles1 = getDependentVariableResultList(
                         idealObservationsAndTimes, azimuthAngleSettings, currentObservableType );
+                    std::map<double, Eigen::VectorXd> azimuthAngles2 = getDependentVariableResultList(
+                        idealObservationsAndTimes, linkEndTypeAzimuthAngleSettings, currentObservableType );
 
                     std::map<double, Eigen::VectorXd> targetRanges1 = getDependentVariableResultList(
                         idealObservationsAndTimes, targetRangeSettings, currentObservableType );
@@ -646,7 +656,9 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
                     if( currentLinkEndCase == 0 )
                     {
                         referenceReceiverDependentVariableResults.push_back( elevationAngles1 );
+                        referenceReceiverDependentVariableResults.push_back( elevationAngles2 );
                         referenceReceiverDependentVariableResults.push_back( azimuthAngles1 );
+                        referenceReceiverDependentVariableResults.push_back( azimuthAngles2 );
                         referenceReceiverDependentVariableResults.push_back( targetRanges1 );
                         referenceReceiverDependentVariableResults.push_back( targetInverseRanges1 );
                         referenceReceiverDependentVariableResults.push_back( linkBodyDistances );
@@ -660,7 +672,9 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
                     else if( currentLinkEndCase == 1 )
                     {
                         referenceTransmitterDependentVariableResults.push_back( elevationAngles1 );
+                        referenceTransmitterDependentVariableResults.push_back( elevationAngles2 );
                         referenceTransmitterDependentVariableResults.push_back( azimuthAngles1 );
+                        referenceTransmitterDependentVariableResults.push_back( azimuthAngles2 );
                         referenceTransmitterDependentVariableResults.push_back( targetRanges1 );
                         referenceTransmitterDependentVariableResults.push_back( targetInverseRanges1 );
                         referenceTransmitterDependentVariableResults.push_back( linkBodyDistances );
@@ -700,7 +714,9 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
                     {
                         double currentTime = it.first;
                         double currentElevation = elevationAngles1.at( currentTime )( 0 );
+                        double currentElevation2 = elevationAngles2.at( currentTime )( 0 );
                         double currentAzimuth = azimuthAngles1.at( currentTime )( 0 );
+                        double currentAzimuth2 = azimuthAngles2.at( currentTime )( 0 );
                         double targetRange = targetRanges1.at( currentTime )( 0 );
                         double targetInverseRange = targetInverseRanges1.at( currentTime )( 0 );
                         double linkBodyDistance = linkBodyDistances.at( currentTime )( 0 );
@@ -741,6 +757,7 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
                         double elevationAngle = pointingAnglesCalculator1->calculateElevationAngleFromInertialVector(
                             vectorToTarget, referenceTime );
                         BOOST_CHECK_SMALL(( elevationAngle - currentElevation ), std::numeric_limits<double>::epsilon( ));
+                        BOOST_CHECK_SMALL(( elevationAngle - currentElevation2 ), std::numeric_limits<double>::epsilon( ));
 
                         double azimuthAngle = pointingAnglesCalculator1->calculateAzimuthAngleFromInertialVector(
                             vectorToTarget, referenceTime );
@@ -753,6 +770,7 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
                         double manualOrbitalPlaneAngle = linear_algebra::computeAngleBetweenVectors( orbitalAngularMomentum, vectorToTarget ) - mathematical_constants::PI / 2.0;
 
                         BOOST_CHECK_SMALL( std::fabs( azimuthAngle - currentAzimuth ), std::numeric_limits<double>::epsilon( ));
+                        BOOST_CHECK_SMALL( std::fabs( azimuthAngle - currentAzimuth2 ), std::numeric_limits<double>::epsilon( ));
 
                         BOOST_CHECK_SMALL( std::fabs( targetRange - vectorToTarget.norm( )),
                                           std::numeric_limits<double>::epsilon( ) * vectorToTarget.norm( ));

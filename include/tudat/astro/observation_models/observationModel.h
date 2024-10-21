@@ -265,6 +265,16 @@ inline std::shared_ptr< ObservationAncilliarySimulationSettings > getDsnNWayAver
     return ancillarySettings;
 }
 
+inline std::shared_ptr< ObservationAncilliarySimulationSettings > getDopplerMeasuredFrequencyAncilliarySettings(
+        const std::vector< FrequencyBands >& frequencyBands)
+{
+    std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings =
+            std::make_shared< ObservationAncilliarySimulationSettings >( );
+
+    ancillarySettings->setAncilliaryDoubleVectorData( frequency_bands, convertFrequencyBandsToDoubleVector( frequencyBands ) );
+
+    return ancillarySettings;
+}
 
 inline std::shared_ptr< ObservationAncilliarySimulationSettings > getDefaultAncilliaryObservationSettings(
         const observation_models::ObservableType observableType )

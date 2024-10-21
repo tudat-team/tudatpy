@@ -21,6 +21,7 @@ set(observation_partials_SOURCES
   "observationPartial.cpp"
   "lightTimeCorrectionPartial.cpp"
   "firstOrderRelativisticPartial.cpp"
+  "clockParameterPartials.cpp"
 )
 
 # Set the header files.
@@ -39,7 +40,8 @@ set(observation_partials_HEADERS
   "relativeAngularPositionPartial.h"
   "lightTimeCorrectionPartial.h"
   "firstOrderRelativisticPartial.h"
-)
+  "clockParameterPartials.h"
+        )
 
 TUDAT_ADD_LIBRARY("observation_partials"
         "${observation_partials_SOURCES}"

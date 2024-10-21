@@ -196,45 +196,93 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > SphericalHarmonicsGr
         // Check if partial is a tidal property of body exerting acceleration.
         else if( estimatable_parameters::isParameterTidalProperty( parameter->getParameterName( ).first ) )
         {
-            // Check input consistency
-            std::shared_ptr< estimatable_parameters::TidalLoveNumber< Eigen::VectorXd > > tidalLoveNumber =
-                    std::dynamic_pointer_cast< estimatable_parameters::TidalLoveNumber< Eigen::VectorXd >  >( parameter );
-            if( tidalLoveNumber == nullptr )
+            if( parameter->getParameterName( ).first != mode_coupled_tidal_love_numbers )
             {
-                throw std::runtime_error( "Error when getting tidal Love number vector parameter, object is nullptr" );
-            }
-
-            // Get degree and order(s) of tidal variations
-            int degree = tidalLoveNumber->getDegree( );
-            std::vector< int > orders = tidalLoveNumber->getOrders( );
-            int sumOrders = tidalLoveNumber->getSumOrders( );
-
-            std::pair< int, std::pair< int, int > > currentTidalPartialOutput;
-            for( unsigned int i = 0; i < tidalLoveNumberPartialInterfaces_.size( ); i++ )
-            {
-                // Check dependency on current partial object
-                currentTidalPartialOutput = tidalLoveNumberPartialInterfaces_.at( i )->setParameterPartialFunction(
-                            parameter, maximumDegree_, maximumOrder_ );
-                if( numberOfRows != 0 && currentTidalPartialOutput.first > 0 )
+                // Check input consistency
+                std::shared_ptr< estimatable_parameters::TidalLoveNumber< Eigen::VectorXd > > tidalLoveNumber =
+                        std::dynamic_pointer_cast< estimatable_parameters::TidalLoveNumber< Eigen::VectorXd >  >( parameter );
+                if( tidalLoveNumber == nullptr )
                 {
-                    throw std::runtime_error( "Error when getting vector tidal parameter partial, inconsistent output" +
-                                              std::to_string( numberOfRows ) + ", " +
-                                              std::to_string( currentTidalPartialOutput.first ) );
+                    throw std::runtime_error( "Error when getting tidal Love number vector parameter, object is nullptr" );
                 }
-                else
+
+                // Get degree and order(s) of tidal variations
+                int degree = tidalLoveNumber->getDegree( );
+                std::vector< int > orders = tidalLoveNumber->getOrders( );
+                int sumOrders = tidalLoveNumber->getSumOrders( );
+
+                std::pair< int, std::pair< int, int > > currentTidalPartialOutput;
+                for( unsigned int i = 0; i < tidalLoveNumberPartialInterfaces_.size( ); i++ )
                 {
-                    // If tidal dependency esists, set partial function
-                    if( currentTidalPartialOutput.first > 0 )
+                    // Check dependency on current partial object
+                    currentTidalPartialOutput = tidalLoveNumberPartialInterfaces_.at( i )->setParameterPartialFunction(
+                                parameter, maximumDegree_, maximumOrder_ );
+                    if( numberOfRows != 0 && currentTidalPartialOutput.first > 0 )
                     {
-                        std::function< std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > >( ) > coefficientPartialFunction =
+                        std::cout<<i<<std::endl;
+                        throw std::runtime_error( "Error when getting vector tidal parameter partial B, inconsistent output" +
+                                                  std::to_string( numberOfRows ) + ", " +
+                                                  std::to_string( currentTidalPartialOutput.first ) );
+                    }
+                    else
+                    {
+                        // If tidal dependency esists, set partial function
+                        if( currentTidalPartialOutput.first > 0 )
+                        {
+                            std::function< std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > >( ) > coefficientPartialFunction =
+                                    std::bind( &orbit_determination::TidalLoveNumberPartialInterface::getCurrentVectorParameterPartial,
+                                               tidalLoveNumberPartialInterfaces_.at( i ), parameter, currentTidalPartialOutput.second );
+                            partialFunction = std::bind(
+                                        &SphericalHarmonicsGravityPartial::wrtTidalModelParameter, this, coefficientPartialFunction,
+                                        degree, orders, sumOrders, parameter->getParameterSize( ), std::placeholders::_1 );
+
+                            numberOfRows = currentTidalPartialOutput.first;
+
+                        }
+                    }
+                }
+            }
+            else
+            {
+                // Check input consistency
+                std::shared_ptr< estimatable_parameters::ModeCoupledTidalLoveNumber > tidalLoveNumber =
+                    std::dynamic_pointer_cast< estimatable_parameters::ModeCoupledTidalLoveNumber  >( parameter );
+                if( tidalLoveNumber == nullptr )
+                {
+                    throw std::runtime_error( "Error when getting mode coupled tidal Love number vector parameter, object is nullptr" );
+                }
+
+
+                std::pair< int, std::pair< int, int > > currentTidalPartialOutput;
+                for( unsigned int i = 0; i < tidalLoveNumberPartialInterfaces_.size( ); i++ )
+                {
+                    // Check dependency on current partial object
+                    currentTidalPartialOutput = tidalLoveNumberPartialInterfaces_.at( i )->setParameterPartialFunction(
+                        parameter, maximumDegree_, maximumOrder_ );
+                    if( numberOfRows != 0 && currentTidalPartialOutput.first > 0 )
+                    {
+                        throw std::runtime_error( "Error when getting vector tidal parameter partial A, inconsistent output" +
+                                                  std::to_string( numberOfRows ) + ", " +
+                                                  std::to_string( currentTidalPartialOutput.first ) );
+                    }
+                    else
+                    {
+                        // If tidal dependency esists, set partial function
+                        if( currentTidalPartialOutput.first > 0 )
+                        {
+                            std::function< std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > >( ) > coefficientPartialFunction =
                                 std::bind( &orbit_determination::TidalLoveNumberPartialInterface::getCurrentVectorParameterPartial,
                                            tidalLoveNumberPartialInterfaces_.at( i ), parameter, currentTidalPartialOutput.second );
-                        partialFunction = std::bind(
-                                    &SphericalHarmonicsGravityPartial::wrtTidalModelParameter, this, coefficientPartialFunction,
-                                    degree, orders, sumOrders, parameter->getParameterSize( ), std::placeholders::_1 );
+                            partialFunction = std::bind(
+                                &SphericalHarmonicsGravityPartial::wrtModeCoupledLoveNumbers, this, coefficientPartialFunction,
+                                tidalLoveNumber->getResponseIndices( ),
+                                tidalLoveNumber->getResponseDegreeOrders( ),
+                                tidalLoveNumber->getParameterSize( ),
+                                std::placeholders::_1 );
 
-                        numberOfRows = currentTidalPartialOutput.first;
+                            numberOfRows = currentTidalPartialOutput.first;
 
+                        }
                     }
                 }
             }
@@ -685,6 +733,51 @@ void SphericalHarmonicsGravityPartial::wrtTidalModelParameter(
 
         }
     }
+}
+
+//! Function to calculate an acceleration partial wrt a tidal parameter.
+void SphericalHarmonicsGravityPartial::wrtModeCoupledLoveNumbers(
+    const std::function< std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > >( ) > coefficientPartialFunctions,
+    const std::vector< int >& responseIndices,
+    const std::vector< std::pair< int, int > >& responseDegreeOrders,
+    const int parameterSize,
+    Eigen::MatrixXd& partialMatrix )
+{
+    // Initialize partial matrix to zero values.
+    partialMatrix = Eigen::Matrix< double, 3, Eigen::Dynamic >::Zero( 3, parameterSize );
+
+    std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > > coefficientPartialsPerForcingDegreeOrder_ = coefficientPartialFunctions( );
+
+    if( coefficientPartialsPerForcingDegreeOrder_.size( ) != responseIndices.size( ) )
+    {
+        std::cout<<coefficientPartialsPerForcingDegreeOrder_.size( )<<" "<<responseIndices.size( )<<std::endl;
+        throw std::runtime_error( "Error when computing mode-coupled Love number partials, inputs are not consistent." );
+    }
+
+    Eigen::MatrixXd partialsWrtResponseCCoefficients = Eigen::MatrixXd::Zero( 3, responseDegreeOrders.size( ) );
+    Eigen::MatrixXd partialsWrtResponseSCoefficients = Eigen::MatrixXd::Zero( 3, responseDegreeOrders.size( ) );
+
+    Eigen::Matrix3d sphericalToCartesianGradient = coordinate_conversions::getSphericalToCartesianGradientMatrix( bodyFixedPosition_ );
+    calculateSphericalHarmonicGravityWrtCCoefficients(
+            bodyFixedSphericalPosition_, bodyReferenceRadius_( ), gravitationalParameterFunction_( ), sphericalHarmonicCache_,
+            responseDegreeOrders, sphericalToCartesianGradient, fromBodyFixedToIntegrationFrameRotation_( ), partialsWrtResponseCCoefficients,
+            maximumDegree_, maximumOrder_  );
+
+    calculateSphericalHarmonicGravityWrtSCoefficients(
+        bodyFixedSphericalPosition_, bodyReferenceRadius_( ), gravitationalParameterFunction_( ), sphericalHarmonicCache_,
+        responseDegreeOrders, sphericalToCartesianGradient, fromBodyFixedToIntegrationFrameRotation_( ), partialsWrtResponseSCoefficients,
+        maximumDegree_, maximumOrder_  );
+
+    for( unsigned int i = 0; i < responseIndices.size( ); i++ )
+    {
+        int responseIndex = responseIndices.at( i );
+
+        partialMatrix.block( 0, i, 3, 1 ) =
+            partialsWrtResponseCCoefficients.block( 0, responseIndex, 3, 1 ) * coefficientPartialsPerForcingDegreeOrder_.at( i )( 0 ) +
+            partialsWrtResponseSCoefficients.block( 0, responseIndex, 3, 1 ) * coefficientPartialsPerForcingDegreeOrder_.at( i )( 1 );
+    }
+
+
 }
 
 }
