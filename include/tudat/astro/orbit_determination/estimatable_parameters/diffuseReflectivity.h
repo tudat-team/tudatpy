@@ -64,6 +64,9 @@ class DiffuseReflectivity: public EstimatableParameter< double >
             // Retrieve all diffuse reflectivity values for the panels corresponding to the given panelTypeId
             std::vector<double> diffuseReflectivities = radiationPressureInterface_->getDiffuseReflectivityForPanelTypeId(panelTypeId_);
 
+            // Calculate the average diffuse reflectivity
+            double averageDiffuseReflectivity = std::accumulate(diffuseReflectivities.begin(), diffuseReflectivities.end(), 0.0) / diffuseReflectivities.size();
+
             // Check if all values are the same
             bool allValuesSame = std::all_of(diffuseReflectivities.begin(), diffuseReflectivities.end(),
                                              [&](double value) { return value == diffuseReflectivities[0]; });
@@ -74,15 +77,17 @@ class DiffuseReflectivity: public EstimatableParameter< double >
                 std::cerr << "Warning: Diffuse reflectivity values for panel group "
                           << panelTypeId_ << " are not consistent. Resetting all to the average value." << std::endl;
 
-                // Calculate the average specular reflectivity
-                double averageDiffuseReflectivity = std::accumulate(diffuseReflectivities.begin(), diffuseReflectivities.end(), 0.0) / diffuseReflectivities.size();
-
                 // Set all panels' diffuse reflectivity to the average value
                 radiationPressureInterface_->setGroupDiffuseReflectivity(panelTypeId_, averageDiffuseReflectivity);
+
+                // Adjust the absorptivity
+                double averageSpecularReflectivity = radiationPressureInterface_->getAverageSpecularReflectivity(panelTypeId_);
+                double apsorptivity = 1 - averageDiffuseReflectivity - averageSpecularReflectivity;
+                radiationPressureInterface_->setGroupAbsorptivity(panelTypeId_, apsorptivity);
             }
 
-            // Return the average value (or the original value if all values were the same)
-            return diffuseReflectivities[0];
+            // Return the average diffuse reflectivity in all cases
+            return averageDiffuseReflectivity;
         }
 
 

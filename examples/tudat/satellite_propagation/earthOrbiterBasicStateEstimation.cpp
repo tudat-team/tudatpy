@@ -303,7 +303,7 @@ int main( )
     estimationInput->setConstantPerObservableWeightsMatrix( weightPerObservable );
     estimationInput->defineEstimationSettings( true, true, true, true, true );
     estimationInput->setConvergenceChecker(
-            std::make_shared< EstimationConvergenceChecker >( 4 ) );
+            std::make_shared< EstimationConvergenceChecker >( 10 ) );
 
     // Perform estimation
     std::shared_ptr< EstimationOutput< double > > estimationOutput = orbitDeterminationManager.estimateParameters(
