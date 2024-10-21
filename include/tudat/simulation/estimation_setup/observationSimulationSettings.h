@@ -474,88 +474,108 @@ void addDependentVariableToSingleObservationSimulationSettings(
     std::cout << "observable type: " << observableType << std::endl;
     std::vector< std::pair< std::pair< LinkEndType, LinkEndId >, std::pair< LinkEndType, LinkEndId > > > interlinksInSet = getInterlinks( observableType, linkEnds );
 
-    // PRINT FOR TEST
-    std::cout << "interlinks: ";
-    for ( auto interlink : interlinksInSet )
-    {
-        std::cout << interlink.first.first << " : " << interlink.first.second.bodyName_ << ", " << interlink.first.second.stationName_ << "  -  "
-                  << interlink.second.first << " : " << interlink.second.second.bodyName_ << ", " << interlink.second.second.stationName_ << std::endl;
-    }
-    std::cout << "\n\n";
 
     for ( auto settings : dependentVariableList )
     {
-        std::cout << "dependent variable type: " << settings->variableType_ << std::endl;
-        // Get interlink requirements from dependent variable settings
-        std::pair< std::pair< LinkEndType, LinkEndId >, std::pair< LinkEndType, LinkEndId > > interlinksSettings =
-                std::make_pair( std::make_pair( settings->linkEndType_, settings->linkEndId_ ), std::make_pair( settings->originatingLinkEndType_, settings->originatingLinkEndId_ ) );
-        std::cout << "interlink settings: " << interlinksSettings.first.first << " : " << interlinksSettings.first.second.bodyName_ << ", " << interlinksSettings.first.second.stationName_ << "  -  "
-                  << interlinksSettings.second.first << " : " << interlinksSettings.second.second.bodyName_ << ", " << interlinksSettings.second.second.stationName_ << std::endl;
+//        std::cout << "dependent variable type: " << settings->variableType_ << std::endl;
+//        // Get interlink requirements from dependent variable settings
+//        std::pair< std::pair< LinkEndType, LinkEndId >, std::pair< LinkEndType, LinkEndId > > interlinksSettings =
+//                std::make_pair( std::make_pair( settings->linkEndType_, settings->linkEndId_ ), std::make_pair( settings->originatingLinkEndType_, settings->originatingLinkEndId_ ) );
+//        std::cout << "interlink settings: " << interlinksSettings.first.first << " : " << interlinksSettings.first.second.bodyName_ << ", " << interlinksSettings.first.second.stationName_ << "  -  "
+//                  << interlinksSettings.second.first << " : " << interlinksSettings.second.second.bodyName_ << ", " << interlinksSettings.second.second.stationName_ << std::endl;
+//
+//        std::vector< std::pair< std::pair< LinkEndType, LinkEndId >, std::pair< LinkEndType, LinkEndId > > > interlinksToCreateList;
+//        for ( auto interlink : interlinksInSet )
+//        {
+//            // PRINT FOR TEST
+//            std::cout << "interlink: ";
+//            std::cout << interlink.first.first << " : " << interlink.first.second.bodyName_ << ", " << interlink.first.second.stationName_ << "  -  "
+//                << interlink.second.first << " : " << interlink.second.second.bodyName_ << ", " << interlink.second.second.stationName_ << std::endl;
+//            std::cout << "\n\n";
+//
+//            bool directLinksMatch =
+//                    ( interlink.first.first == interlinksSettings.first.first || interlinksSettings.first.first == unidentified_link_end )// Check link end type start interlink
+//                    && ( interlink.first.second == interlinksSettings.first.second || interlinksSettings.first.second == LinkEndId( "", "" ) ) // Check link end id start interlink
+//                    && ( interlink.second.first == interlinksSettings.second.first || interlinksSettings.second.first == unidentified_link_end ) // Check link end type end interlink
+//                    && ( interlink.second.second == interlinksSettings.second.second || interlinksSettings.second.second == LinkEndId( "", "" ) ); // Check link end id start interlink
+//            bool revertedLinksMatch =
+//                    ( interlink.second.first == interlinksSettings.first.first || interlinksSettings.first.first == unidentified_link_end )// Check link end type start interlink
+//                    && ( interlink.second.second == interlinksSettings.first.second || interlinksSettings.first.second == LinkEndId( "", "" ) ) // Check link end id start interlink
+//                    && ( interlink.first.first == interlinksSettings.second.first || interlinksSettings.second.first == unidentified_link_end ) // Check link end type end interlink
+//                    && ( interlink.first.second == interlinksSettings.second.second || interlinksSettings.second.second == LinkEndId( "", "" ) ); // Check link end id start interlink
+//
+//            std::cout << "directLinksMatch: " << directLinksMatch << std::endl;
+//            std::cout << "revertedLinksMatch: " << revertedLinksMatch << std::endl;
+//
+//            if ( directLinksMatch || revertedLinksMatch )
+//            {
+//                if ( !isObservationDependentVariableGroundStationProperty( settings ) )
+//                {
+//                    interlinksToCreateList.push_back( interlink );
+//                }
+//                else
+//                {
+//                    // if station defined for start link end
+//                    if ( interlink.first.second.stationName_ != "" )
+//                    {
+//                        interlinksToCreateList.push_back( interlink );
+//                    }
+//                        // if station only defined for end link end
+//                    else if ( interlink.second.second.stationName_ != "" )
+//                    {
+//                        // Reverse link order
+//                        interlinksToCreateList.push_back( std::make_pair( interlink.second, interlink.first ) );
+//                    }
+//                }
+//            }
+//        }
+//
+//
+//
+//        // Create dependent variables
+//        for ( auto interlink : interlinksToCreateList )
+//        {
+//            std::cout << "interlinks to be created: ";
+//            std::cout << interlink.first.first << " : " << interlink.first.second.bodyName_ << ", " << interlink.first.second.stationName_ << "  -  "
+//                      << interlink.second.first << " : " << interlink.second.second.bodyName_ << ", " << interlink.second.second.stationName_ << std::endl;
+//            std::cout << "\n\n";
+//
+////            std::shared_ptr< ObservationDependentVariableSettings > completeSettings;
+////            if ( std::dynamic_pointer_cast< StationAngleObservationDependentVariableSettings >( settings ) != nullptr )
+////            {
+////                std::shared_ptr< StationAngleObservationDependentVariableSettings > stationAngleSettings =
+////                        std::dynamic_pointer_cast< StationAngleObservationDependentVariableSettings >( settings );
+////                completeSettings = std::make_shared< StationAngleObservationDependentVariableSettings >(
+////                        settings->variableType_, interlink.first.second, interlink.first.first,
+////                        stationAngleSettings->integratedObservableHandling_, interlink.second.first );
+////                completeSettings->originatingLinkEndId_ = interlink.second.second;
+////            }
+////            else if ( std::dynamic_pointer_cast< InterlinkObservationDependentVariableSettings >( settings ) != nullptr )
+////            {
+////                std::shared_ptr< InterlinkObservationDependentVariableSettings > interlinkSettings =
+////                        std::dynamic_pointer_cast< InterlinkObservationDependentVariableSettings >( settings );
+////                completeSettings = std::make_shared< InterlinkObservationDependentVariableSettings >(
+////                        settings->variableType_, interlink.second.first, interlink.first.first, interlinkSettings->integratedObservableHandling_,
+////                        interlinkSettings->relativeBody_ );
+////                completeSettings->linkEndId_ = interlink.first.second;
+////                completeSettings->originatingLinkEndId_ = interlink.second.second;
+////            }
+//
+//            std::shared_ptr< ObservationDependentVariableSettings > completeSettings = createCompleteObservationDependentVariableSettings(
+//                    settings, interlink.first.first, interlink.first.second, interlink.second.first, interlink.second.second );
+//
+//            extendedDependentVariablesList.push_back( completeSettings );
+//        }
 
-        std::vector< std::pair< std::pair< LinkEndType, LinkEndId >, std::pair< LinkEndType, LinkEndId > > > interlinksToCreateList;
-        for ( auto interlink : interlinksInSet )
+        std::vector< std::shared_ptr< ObservationDependentVariableSettings > > allSettingsToCreate =
+                createAllCompatibleDependentVariableSettings( observableType, linkEnds, settings );
+        for ( auto it : allSettingsToCreate )
         {
-            if ( ( interlink.first.first == interlinksSettings.first.first || interlinksSettings.first.first == unidentified_link_end ) // Check link end type start interlink
-                 && ( interlink.first.second == interlinksSettings.first.second || interlinksSettings.first.second == LinkEndId( "", "" ) ) // Check link end id start interlink
-                 && ( interlink.second.first == interlinksSettings.second.first || interlinksSettings.second.first == unidentified_link_end ) // Check link end type end interlink
-                 && ( interlink.second.second == interlinksSettings.second.second || interlinksSettings.second.second == LinkEndId( "", "" ) ) ) // Check link end id start interlink
-            {
-                if ( !isObservationDependentVariableGroundStationProperty( settings ) )
-                {
-                    interlinksToCreateList.push_back( interlink );
-                }
-                else
-                {
-                    // if station defined for start link end
-                    if ( interlink.first.second.stationName_ != "" )
-                    {
-                        interlinksToCreateList.push_back( interlink );
-                    }
-                        // if station only defined for end link end
-                    else if ( interlink.second.second.stationName_ != "" )
-                    {
-                        // Reverse link order
-                        interlinksToCreateList.push_back( std::make_pair( interlink.second, interlink.first ) );
-                    }
-                }
-            }
+            extendedDependentVariablesList.push_back( it );
         }
-
-
-
-        // Create dependent variables
-        for ( auto interlink : interlinksToCreateList )
-        {
-            std::cout << "interlinks to be created: ";
-            std::cout << interlink.first.first << " : " << interlink.first.second.bodyName_ << ", " << interlink.first.second.stationName_ << "  -  "
-                      << interlink.second.first << " : " << interlink.second.second.bodyName_ << ", " << interlink.second.second.stationName_ << std::endl;
-            std::cout << "\n\n";
-
-            std::shared_ptr< ObservationDependentVariableSettings > completeSettings;
-            if ( std::dynamic_pointer_cast< StationAngleObservationDependentVariableSettings >( settings ) != nullptr )
-            {
-                std::shared_ptr< StationAngleObservationDependentVariableSettings > stationAngleSettings =
-                        std::dynamic_pointer_cast< StationAngleObservationDependentVariableSettings >( settings );
-                completeSettings = std::make_shared< StationAngleObservationDependentVariableSettings >(
-                        settings->variableType_, interlink.first.second, interlink.first.first,
-                        stationAngleSettings->integratedObservableHandling_, interlink.second.first );
-                completeSettings->originatingLinkEndId_ = interlink.second.second;
-            }
-            else if ( std::dynamic_pointer_cast< InterlinkObservationDependentVariableSettings >( settings ) != nullptr )
-            {
-                std::shared_ptr< InterlinkObservationDependentVariableSettings > interlinkSettings =
-                        std::dynamic_pointer_cast< InterlinkObservationDependentVariableSettings >( settings );
-                completeSettings = std::make_shared< InterlinkObservationDependentVariableSettings >(
-                        settings->variableType_, interlink.second.first, interlink.first.first, interlinkSettings->integratedObservableHandling_,
-                        interlinkSettings->relativeBody_ );
-                completeSettings->linkEndId_ = interlink.first.second;
-                completeSettings->originatingLinkEndId_ = interlink.second.second;
-            }
-
-            extendedDependentVariablesList.push_back( completeSettings );
-        }
-
     }
+
+    std::cout << "extendedDependentVariablesList: " << extendedDependentVariablesList.size( ) << std::endl;
 
     observationSimulationSettings->getDependentVariableCalculator( )->addDependentVariables(
             extendedDependentVariablesList, bodies );

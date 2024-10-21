@@ -499,6 +499,7 @@ BOOST_AUTO_TEST_CASE( test_ObservationCollectionParser )
     // Check multi-type parsing when all conditions should be met concurrently
     std::vector< std::shared_ptr< ObservationCollectionParser > > multiTypeParserList2;
     multiTypeParserList2.push_back( observationParser( one_way_range ) );
+    multiTypeParserList2.push_back( observationParser( std::make_pair( receiver, LinkEndId( "Earth", "Station2" ) ) ) );
     multiTypeParserList2.push_back( observationParser( "Station2", true ) );
 
     std::vector< std::shared_ptr< SingleObservationSet< > > > multiTypeObservationSets2 = simulatedObservations->getSingleObservationSets(
@@ -509,7 +510,7 @@ BOOST_AUTO_TEST_CASE( test_ObservationCollectionParser )
     {
         for ( auto linkEndsIt : observableIt.second )
         {
-            if ( ( observableIt.first == one_way_range ) && ( ( linkEndsIt.first == stationReceiverLinkEnds[ 1 ] ) || ( linkEndsIt.first == stationTransmitterLinkEnds[ 1 ] ) ) )
+            if ( ( observableIt.first == one_way_range ) && ( ( linkEndsIt.first == stationReceiverLinkEnds[ 1 ] ) ) )
             {
                 for ( auto obs : linkEndsIt.second )
                 {
@@ -880,33 +881,6 @@ BOOST_AUTO_TEST_CASE( test_ObservationsSplitting )
     BOOST_CHECK( ( splitObsSets.at( 1 )->getObservationTimes( ).at( 0 ) - splitObsSets.at( 0 )->getObservationTimes( ).back( ) ) > 1500.0 );
 
 
-    // TEST
-    std::shared_ptr< SingleObservationSet< > > testSet = simulatedObservations->getSingleObservationSets( observationParser( stationReceiverLinkEnds[ 0 ] ) ).at( 0 );
-
-    std::vector< double > obsTimesTest = testSet->getObservationTimes( );
-    std::pair< double, double > timeBoundsTest = std::make_pair( obsTimesTest.at( 0 ), obsTimesTest.at( int( obsTimesTest.size( )/2 ) ) );
-//    std::shared_ptr< SingleObservationSet< > > testSetCopy = filterObservations( testSet, observationFilter( time_bounds_filtering, timeBoundsTest, true, false ), false );
-//    std::cout << "after filtering nb obs (set): " << testSet->getNumberOfObservables( ) << std::endl;
-//    std::cout << "after filtering nb obs (set copy): " << testSetCopy->getNumberOfObservables( ) << std::endl;
-
-        std::cout << "before filtering nb obs (new set): " << testSet->getNumberOfObservables( ) << std::endl;
-        std::shared_ptr< ObservationCollection< > > newSimulatedObservations =
-                filterObservations( simulatedObservations, observationFilter( time_bounds_filtering, timeBoundsTest, true, false ), observationParser( stationReceiverLinkEnds[ 0 ] ) );
-        std::shared_ptr< SingleObservationSet< > > newTestSet = newSimulatedObservations->getSingleObservationSets( observationParser( stationReceiverLinkEnds[ 0 ] ) ).at( 0 );
-        std::cout << "after filtering nb obs (new set): " << newTestSet->getNumberOfObservables( ) << std::endl;
-        std::cout << "after filtering nb obs (set): " << testSet->getNumberOfObservables( ) << std::endl;
-
-        std::vector< std::shared_ptr< SingleObservationSet< > > > test1 = newSimulatedObservations->getSingleObservationSets( observationParser( stationReceiverLinkEnds[ 0 ] ) );
-        std::cout << "test1 size: " << test1.size( ) << std::endl;
-        std::cout << "test 1 nb obs: " << test1.at( 0 )->getNumberOfObservables( ) << std::endl;
-        std::shared_ptr< ObservationCollection< > > newSimulatedObservations2 =
-                splitObservationSets( newSimulatedObservations, observationSetSplitter( nb_observations_splitter, 100 ), observationParser( stationReceiverLinkEnds[ 0 ] ) );
-        std::vector< std::shared_ptr< SingleObservationSet< > > > test2 = newSimulatedObservations2->getSingleObservationSets( observationParser( stationReceiverLinkEnds[ 0 ] ) );
-        std::cout << "test2 size: " << test2.size( ) << std::endl;
-        std::cout << "test 2 nb obs: " << test2.at( 0 )->getNumberOfObservables( ) << std::endl;
-        std::cout << "test 2 nb obs: " << test2.at( 1 )->getNumberOfObservables( ) << std::endl;
-
-        newSimulatedObservations2->printObservationSetsStartAndSize( );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
