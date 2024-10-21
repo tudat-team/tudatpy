@@ -295,22 +295,79 @@ public:
         return observationsDependentVariables_.at( index );
     }
 
-    std::vector< Eigen::VectorXd > getSingleDependentVariable( std::pair< int, int > dependentVariableIndexAndSize ) const
+    std::vector< Eigen::VectorXd > getSingleDependentVariable(
+            std::shared_ptr< ObservationDependentVariableSettings > dependentVariableSettings,
+            const bool returnFirstCompatibleSettings = false ) const
     {
-        std::vector< Eigen::VectorXd > singleDependentVariable;
-        for ( auto it : observationsDependentVariables_ )
+        std::map< std::pair< int, int >, std::shared_ptr< simulation_setup::ObservationDependentVariableSettings > > settingsIndicesAndSizes =
+                dependentVariableCalculator_->getSettingsIndicesAndSizes( );
+        std::cout << "settingsIndicesAndSizes size: " << settingsIndicesAndSizes.size( ) << std::endl;
+
+        std::vector< std::pair< int, int > > indicesAndSizes;
+        for ( auto it : settingsIndicesAndSizes )
         {
-            if ( dependentVariableIndexAndSize.first + dependentVariableIndexAndSize.second > it.size( ) )
+            std::cout << "compatibility check" << std::endl;
+            if ( dependentVariableSettings->areSettingsCompatible( it.second ) )
             {
-                throw std::runtime_error( "Error when retrieving single observation dependent variable, required index and size incompatible with "
-                                          "dependent variables size." );
-            }
-            else
-            {
-                singleDependentVariable.push_back( it.segment( dependentVariableIndexAndSize.first, dependentVariableIndexAndSize.second ) );
+                indicesAndSizes.push_back( it.first );
+                std::cout << "settings compatibles: " << it.first.first << " - " << it.first.second << std::endl;
             }
         }
-        return singleDependentVariable;
+
+        // Check that a single settings is identified
+        if ( indicesAndSizes.size( ) == 0 )
+        {
+            throw std::runtime_error( "Error when getting dependent variable, no dependent variable values found for given settings." );
+        }
+        else if ( indicesAndSizes.size( ) > 1 && !returnFirstCompatibleSettings )
+        {
+            throw std::runtime_error( "Error when getting dependent variable, multiple dependent variables found for given settings." );
+        }
+
+        std::cout << "indicesAndSizes.at( 0 ): " << indicesAndSizes.at( 0 ).first << " - " << indicesAndSizes.at( 0 ).second << std::endl;
+        std::vector< Eigen::VectorXd > dependentVariables = getSingleDependentVariable( indicesAndSizes.at( 0 ) );
+        std::cout << "fullDependentVariablesCurrentSet size: " << dependentVariables.size( ) << std::endl;
+
+        return dependentVariables;
+    }
+
+    std::vector< std::shared_ptr< ObservationDependentVariableSettings > > getCompatibleDependentVariablesSettingsList(
+            std::shared_ptr< ObservationDependentVariableSettings > dependentVariableSettings ) const
+    {
+        // Retrieve all dependent variables settings
+        std::vector< std::shared_ptr< simulation_setup::ObservationDependentVariableSettings > > allDependentVariablesSettings =
+                dependentVariableCalculator_->getDependentVariableSettings( );
+
+        // Check which settings are compatible
+        std::vector< std::shared_ptr< ObservationDependentVariableSettings > > compatibleSettings;
+        for ( auto it : allDependentVariablesSettings )
+        {
+            if ( dependentVariableSettings->areSettingsCompatible( it ) )
+            {
+                compatibleSettings.push_back( it );
+            }
+        }
+        return compatibleSettings;
+    }
+
+    std::vector< std::vector< Eigen::VectorXd > > getAllCompatibleDependentVariables(
+            std::shared_ptr< ObservationDependentVariableSettings > dependentVariableSettings ) const
+    {
+        // Retrieve settings start indices and sizes
+        std::map< std::pair< int, int >, std::shared_ptr< simulation_setup::ObservationDependentVariableSettings > > settingsIndicesAndSizes =
+                dependentVariableCalculator_->getSettingsIndicesAndSizes( );
+
+        // Retrieve all relevant dependent variables
+        std::vector< std::vector< Eigen::VectorXd > > dependentVariablesList;
+        for ( auto it : settingsIndicesAndSizes )
+        {
+            if ( dependentVariableSettings->areSettingsCompatible( it.second ) )
+            {
+                dependentVariablesList.push_back( getSingleDependentVariable( it.first ) );
+            }
+        }
+
+        return dependentVariablesList;
     }
 
     std::vector< Eigen::VectorXd >& getObservationsDependentVariablesReference( )
@@ -862,6 +919,24 @@ private:
             addObservations( observations, times, dependentVariables, weights, residuals, true );
             filteredObservationSet_->removeObservations( indices );
         }
+    }
+
+    std::vector< Eigen::VectorXd > getSingleDependentVariable( std::pair< int, int > dependentVariableIndexAndSize ) const
+    {
+        std::vector< Eigen::VectorXd > singleDependentVariable;
+        for ( auto it : observationsDependentVariables_ )
+        {
+            if ( dependentVariableIndexAndSize.first + dependentVariableIndexAndSize.second > it.size( ) )
+            {
+                throw std::runtime_error( "Error when retrieving single observation dependent variable, required index and size incompatible with "
+                                          "dependent variables size." );
+            }
+            else
+            {
+                singleDependentVariable.push_back( it.segment( dependentVariableIndexAndSize.first, dependentVariableIndexAndSize.second ) );
+            }
+        }
+        return singleDependentVariable;
     }
 
     const ObservableType observableType_;
@@ -2604,7 +2679,7 @@ public:
         return observationSetsIndices;
     }
 
-    const std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > getSingleObservationSets(
+    std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > getSingleObservationSets(
             const std::shared_ptr< ObservationCollectionParser > observationParser = std::make_shared< ObservationCollectionParser >( ) )
     {
         std::map< ObservableType, std::map< LinkEnds, std::vector< unsigned int > > > singleObservationSetsIndices =
@@ -2798,58 +2873,6 @@ public:
     }
 
 
-    std::shared_ptr< ObservationCollectionParser > getObservationParserFromDependentVariableSettings(
-            const std::shared_ptr< simulation_setup::ObservationDependentVariableSettings > dependentVariableSettings )
-    {
-        std::shared_ptr< ObservationCollectionParser > observationParser;
-
-        std::vector< std::shared_ptr< ObservationCollectionParser > > parserList;
-
-        // Check if relevant link end id and type are both specified
-        if ( ( dependentVariableSettings->linkEndId_ != LinkEndId( "", "" ) ) && ( dependentVariableSettings->linkEndType_ != unidentified_link_end ) )
-        {
-            parserList.push_back( std::make_shared< ObservationCollectionSingleLinkEndParser >( std::make_pair( dependentVariableSettings->linkEndType_, dependentVariableSettings->linkEndId_ ) ) );
-        }
-        // if only relevant link end id is specified
-        else if ( dependentVariableSettings->linkEndId_ != LinkEndId( "", "" ) )
-        {
-            parserList.push_back( std::make_shared< ObservationCollectionLinkEndIdParser >( dependentVariableSettings->linkEndId_ ) );
-        }
-        // if only relevant link end type is specified
-        else if ( dependentVariableSettings->linkEndType_ != unidentified_link_end )
-        {
-            parserList.push_back( std::make_shared< ObservationCollectionLinkEndTypeParser >( dependentVariableSettings->linkEndType_ ) );
-        }
-
-        // Check if originating link end id and type are both specified
-        if ( ( dependentVariableSettings->originatingLinkEndId_ != LinkEndId( "", "" ) ) && ( dependentVariableSettings->originatingLinkEndType_ != unidentified_link_end ) )
-        {
-            parserList.push_back( std::make_shared< ObservationCollectionSingleLinkEndParser >( std::make_pair( dependentVariableSettings->originatingLinkEndType_, dependentVariableSettings->originatingLinkEndId_ ) ) );
-        }
-        // if only originating link end id is specified
-        else if ( dependentVariableSettings->originatingLinkEndId_ != LinkEndId( "", "" ) )
-        {
-            parserList.push_back( std::make_shared< ObservationCollectionLinkEndIdParser >( dependentVariableSettings->originatingLinkEndId_ ) );
-        }
-        // if only originating link end type is specified
-        else if ( dependentVariableSettings->originatingLinkEndType_ != unidentified_link_end )
-        {
-            parserList.push_back( std::make_shared< ObservationCollectionLinkEndTypeParser >( dependentVariableSettings->originatingLinkEndType_ ) );
-        }
-
-        // Create multi-type observation collection parser
-        if ( parserList.size( ) > 0 )
-        {
-            observationParser = std::make_shared< ObservationCollectionMultiTypeParser >( parserList, true );
-        }
-        else
-        {
-            observationParser = std::make_shared< ObservationCollectionParser >( );
-        }
-
-        return observationParser;
-    }
-
     // Add given observation dependent variable for given observation parser
     std::shared_ptr< ObservationCollectionParser > addDependentVariable(
             std::shared_ptr< simulation_setup::ObservationDependentVariableSettings > settings,
@@ -2889,95 +2912,138 @@ public:
             ObservableType observableType = set->getObservableType( );
             LinkEnds linkEnds = set->getLinkEnds( ).linkEnds_;
 
-            std::vector< std::pair< std::pair< LinkEndType, LinkEndId >, std::pair< LinkEndType, LinkEndId > > > interlinksInSet = getInterlinks( observableType, linkEnds );
+            std::vector< std::shared_ptr< ObservationDependentVariableSettings > > allSettingsToCreate = createAllCompatibleDependentVariableSettings(
+                    observableType, linkEnds, settings );
 
-            // PRINT FOR TEST
-            std::cout << "interlinks: ";
-            for ( auto interlink : interlinksInSet )
-            {
-                std::cout << interlink.first.first << " : " << interlink.first.second.bodyName_ << ", " << interlink.first.second.stationName_ << "  -  "
-                << interlink.second.first << " : " << interlink.second.second.bodyName_ << ", " << interlink.second.second.stationName_ << std::endl;
-            }
-            std::cout << "\n\n";
-
-            std::vector< std::pair< std::pair< LinkEndType, LinkEndId >, std::pair< LinkEndType, LinkEndId > > > interlinksToCreateList;
-            for ( auto interlink : interlinksInSet )
-            {
-                if ( ( interlink.first.first == interlinksSettings.first.first || interlinksSettings.first.first == unidentified_link_end ) // Check link end type start interlink
-                && ( interlink.first.second == interlinksSettings.first.second || interlinksSettings.first.second == LinkEndId( "", "" ) ) // Check link end id start interlink
-                && ( interlink.second.first == interlinksSettings.second.first || interlinksSettings.second.first == unidentified_link_end ) // Check link end type end interlink
-                && ( interlink.second.second == interlinksSettings.second.second || interlinksSettings.second.second == LinkEndId( "", "" ) ) ) // Check link end id start interlink
-                {
-                    if ( !isObservationDependentVariableGroundStationProperty( settings ) )
-                    {
-                        interlinksToCreateList.push_back( interlink );
-                    }
-                    else
-                    {
-                        // if station defined for start link end
-                        if ( interlink.first.second.stationName_ != "" )
-                        {
-                            interlinksToCreateList.push_back( interlink );
-                        }
-                        // if station only defined for end link end
-                        else if ( interlink.second.second.stationName_ != "" )
-                        {
-                            // Reverse link order
-                            interlinksToCreateList.push_back( std::make_pair( interlink.second, interlink.first ) );
-                        }
-                    }
-                }
-            }
-
-            std::cout << "interlinks to be created: ";
-            for ( auto interlink : interlinksToCreateList )
-            {
-                std::cout << interlink.first.first << " : " << interlink.first.second.bodyName_ << ", " << interlink.first.second.stationName_ << "  -  "
-                          << interlink.second.first << " : " << interlink.second.second.bodyName_ << ", " << interlink.second.second.stationName_ << std::endl;
-            }
-            std::cout << "\n\n";
-
+//            std::vector< std::pair< std::pair< LinkEndType, LinkEndId >, std::pair< LinkEndType, LinkEndId > > > interlinksInSet = getInterlinks( observableType, linkEnds );
+//
+//            std::vector< std::pair< std::pair< LinkEndType, LinkEndId >, std::pair< LinkEndType, LinkEndId > > > interlinksToCreateList;
+//            for ( auto interlink : interlinksInSet )
+//            {
+//                // PRINT FOR TEST
+//                std::cout << "interlink: ";
+//                std::cout << interlink.first.first << " : " << interlink.first.second.bodyName_ << ", " << interlink.first.second.stationName_ << "  -  "
+//                          << interlink.second.first << " : " << interlink.second.second.bodyName_ << ", " << interlink.second.second.stationName_ << std::endl;
+//                std::cout << "\n\n";
+//
+//                bool directLinksMatch =
+//                        ( interlink.first.first == interlinksSettings.first.first || interlinksSettings.first.first == unidentified_link_end )// Check link end type start interlink
+//                        && ( interlink.first.second == interlinksSettings.first.second || interlinksSettings.first.second == LinkEndId( "", "" ) ) // Check link end id start interlink
+//                        && ( interlink.second.first == interlinksSettings.second.first || interlinksSettings.second.first == unidentified_link_end ) // Check link end type end interlink
+//                        && ( interlink.second.second == interlinksSettings.second.second || interlinksSettings.second.second == LinkEndId( "", "" ) ); // Check link end id start interlink
+//                bool revertedLinksMatch =
+//                        ( interlink.second.first == interlinksSettings.first.first || interlinksSettings.first.first == unidentified_link_end )// Check link end type start interlink
+//                        && ( interlink.second.second == interlinksSettings.first.second || interlinksSettings.first.second == LinkEndId( "", "" ) ) // Check link end id start interlink
+//                        && ( interlink.first.first == interlinksSettings.second.first || interlinksSettings.second.first == unidentified_link_end ) // Check link end type end interlink
+//                        && ( interlink.first.second == interlinksSettings.second.second || interlinksSettings.second.second == LinkEndId( "", "" ) ); // Check link end id start interlink
+//
+//                std::cout << "directLinksMatch: " << directLinksMatch << std::endl;
+//                std::cout << "revertedLinksMatch: " << revertedLinksMatch << std::endl;
+//
+//                if ( directLinksMatch || revertedLinksMatch )
+//                {
+//                    if ( !isObservationDependentVariableGroundStationProperty( settings ) )
+//                    {
+//                        interlinksToCreateList.push_back( interlink );
+//                    }
+//                    else
+//                    {
+//                        // if station defined for start link end
+//                        if ( interlink.first.second.stationName_ != "" )
+//                        {
+//                            interlinksToCreateList.push_back( interlink );
+//                        }
+//                        // if station only defined for end link end
+//                        else if ( interlink.second.second.stationName_ != "" )
+//                        {
+//                            // Reverse link order
+//                            interlinksToCreateList.push_back( std::make_pair( interlink.second, interlink.first ) );
+//                        }
+//                    }
+//                }
+//            }
+//
+//            std::cout << "interlinks to be created: ";
+//            for ( auto interlink : interlinksToCreateList )
+//            {
+//                std::cout << interlink.first.first << " : " << interlink.first.second.bodyName_ << ", " << interlink.first.second.stationName_ << "  -  "
+//                          << interlink.second.first << " : " << interlink.second.second.bodyName_ << ", " << interlink.second.second.stationName_ << std::endl;
+//            }
+//            std::cout << "\n\n";
+//
             // Retrieve existing dependent variable settings
             std::vector< std::shared_ptr< simulation_setup::ObservationDependentVariableSettings > > existingDependentVariablesSettings =
                     set->getDependentVariableCalculator( )->getDependentVariableSettings( );
 
-            // Create dependent variables
-            for ( auto interlink : interlinksToCreateList )
-            {
-//                std::shared_ptr< simulation_setup::ObservationDependentVariableSettings > extendedDependentVariableSettings = createCompleteObservationDependentVariableSettings(
+//            // Create dependent variables
+//            for ( auto interlink : interlinksToCreateList )
+//            {
+////                std::shared_ptr< simulation_setup::ObservationDependentVariableSettings > extendedDependentVariableSettings = createCompleteObservationDependentVariableSettings(
+////                        settings, interlink.first.first, interlink.first.second, interlink.second.first, interlink.second.second );
+////                        settings;
+////                settings->linkEndType_ = interlink.first.first;
+////                settings->linkEndId_ = interlink.first.second;
+////                settings->originatingLinkEndType_ = interlink.second.first;
+////                settings->originatingLinkEndId_ = interlink.second.second;
+//
+////                std::shared_ptr< ObservationDependentVariableSettings > completeSettings;
+////                if ( std::dynamic_pointer_cast< StationAngleObservationDependentVariableSettings >( settings ) != nullptr )
+////                {
+////                    std::shared_ptr< StationAngleObservationDependentVariableSettings > stationAngleSettings =
+////                            std::dynamic_pointer_cast< StationAngleObservationDependentVariableSettings >( settings );
+////                    completeSettings = std::make_shared< StationAngleObservationDependentVariableSettings >(
+////                            settings->variableType_, interlink.first.second, interlink.first.first,
+////                            stationAngleSettings->integratedObservableHandling_, interlink.second.first );
+////                    completeSettings->originatingLinkEndId_ = interlink.second.second;
+////                }
+////                else if ( std::dynamic_pointer_cast< InterlinkObservationDependentVariableSettings >( settings ) != nullptr )
+////                {
+////                    std::shared_ptr< InterlinkObservationDependentVariableSettings > interlinkSettings =
+////                            std::dynamic_pointer_cast< InterlinkObservationDependentVariableSettings >( settings );
+////                    completeSettings = std::make_shared< InterlinkObservationDependentVariableSettings >(
+////                            settings->variableType_, interlink.second.first, interlink.first.first, interlinkSettings->integratedObservableHandling_,
+////                            interlinkSettings->relativeBody_ );
+////                    completeSettings->linkEndId_ = interlink.first.second;
+////                    completeSettings->originatingLinkEndId_ = interlink.second.second;
+////                }
+////                else
+////                {
+////                    completeSettings = std::make_shared< ObservationDependentVariableSettings >( settings->variableType_, interlink.first.second, interlink.first.first,
+////                                                                                                 interlink.second.second, interlink.second.first );
+////                }
+//
+//                std::shared_ptr< ObservationDependentVariableSettings > completeSettings = createCompleteObservationDependentVariableSettings(
 //                        settings, interlink.first.first, interlink.first.second, interlink.second.first, interlink.second.second );
-//                        settings;
-//                settings->linkEndType_ = interlink.first.first;
-//                settings->linkEndId_ = interlink.first.second;
-//                settings->originatingLinkEndType_ = interlink.second.first;
-//                settings->originatingLinkEndId_ = interlink.second.second;
+//
+//                // Check if settings already exist for given observation set
+//                bool settingsDetected = false;
+//                for ( auto existingSettings : existingDependentVariablesSettings )
+//                {
+//                    if ( existingSettings->areSettingsCompatible( completeSettings /*extendedDependentVariableSettings*/ ) )
+//                    {
+//                        settingsDetected = true;
+//                    }
+//                }
+//
+//                // Add required dependent variable in relevant single observation set
+//                if ( !settingsDetected )
+//                {
+//                    set->addDependentVariable( completeSettings /*extendedDependentVariableSettings*/, bodies );
+//                    std::cout << "interlink actually created: ";
+//                    std::cout << completeSettings->linkEndType_ << " : " << completeSettings->linkEndId_.bodyName_ << ", " << completeSettings->linkEndId_.stationName_ << "  -  "
+//                              << completeSettings->originatingLinkEndType_ << " : " << completeSettings->originatingLinkEndId_.bodyName_ << ", " <<
+//                              completeSettings->originatingLinkEndId_.stationName_ << std::endl;
+//                    std::cout << "\n\n";
+//                }
+//            }
 
-                std::shared_ptr< ObservationDependentVariableSettings > completeSettings;
-                if ( std::dynamic_pointer_cast< StationAngleObservationDependentVariableSettings >( settings ) != nullptr )
-                {
-                    std::shared_ptr< StationAngleObservationDependentVariableSettings > stationAngleSettings =
-                            std::dynamic_pointer_cast< StationAngleObservationDependentVariableSettings >( settings );
-                    completeSettings = std::make_shared< StationAngleObservationDependentVariableSettings >(
-                            settings->variableType_, interlink.first.second, interlink.first.first,
-                            stationAngleSettings->integratedObservableHandling_, interlink.second.first );
-                    completeSettings->originatingLinkEndId_ = interlink.second.second;
-                }
-                else if ( std::dynamic_pointer_cast< InterlinkObservationDependentVariableSettings >( settings ) != nullptr )
-                {
-                    std::shared_ptr< InterlinkObservationDependentVariableSettings > interlinkSettings =
-                            std::dynamic_pointer_cast< InterlinkObservationDependentVariableSettings >( settings );
-                    completeSettings = std::make_shared< InterlinkObservationDependentVariableSettings >(
-                            settings->variableType_, interlink.second.first, interlink.first.first, interlinkSettings->integratedObservableHandling_,
-                            interlinkSettings->relativeBody_ );
-                    completeSettings->linkEndId_ = interlink.first.second;
-                    completeSettings->originatingLinkEndId_ = interlink.second.second;
-                }
-
+            for ( auto settings : allSettingsToCreate )
+            {
                 // Check if settings already exist for given observation set
                 bool settingsDetected = false;
                 for ( auto existingSettings : existingDependentVariablesSettings )
                 {
-                    if ( existingSettings->areSettingsCompatible( completeSettings /*extendedDependentVariableSettings*/ ) )
+                    if ( existingSettings->areSettingsCompatible( settings /*extendedDependentVariableSettings*/ ) )
                     {
                         settingsDetected = true;
                     }
@@ -2986,13 +3052,15 @@ public:
                 // Add required dependent variable in relevant single observation set
                 if ( !settingsDetected )
                 {
-                    set->addDependentVariable( completeSettings /*extendedDependentVariableSettings*/, bodies );
+                    set->addDependentVariable( settings /*extendedDependentVariableSettings*/, bodies );
                     std::cout << "interlink actually created: ";
-                    std::cout << interlink.first.first << " : " << interlink.first.second.bodyName_ << ", " << interlink.first.second.stationName_ << "  -  "
-                              << interlink.second.first << " : " << interlink.second.second.bodyName_ << ", " << interlink.second.second.stationName_ << std::endl;
+                    std::cout << settings->linkEndType_ << " : " << settings->linkEndId_.bodyName_ << ", " << settings->linkEndId_.stationName_ << "  -  "
+                              << settings->originatingLinkEndType_ << " : " << settings->originatingLinkEndId_.bodyName_ << ", " <<
+                              settings->originatingLinkEndId_.stationName_ << std::endl;
                     std::cout << "\n\n";
                 }
             }
+
         }
 
 //        // Reset initial settings
@@ -3010,6 +3078,7 @@ public:
     std::pair< std::vector< std::vector< Eigen::VectorXd > /*Eigen::MatrixXd*/ >, std::shared_ptr< ObservationCollectionParser > > getDependentVariables(
             std::shared_ptr< simulation_setup::ObservationDependentVariableSettings > dependentVariableSettings,
             const simulation_setup::SystemOfBodies& bodies,
+            const bool returnFirstCompatibleSettings = false,
             const std::shared_ptr< ObservationCollectionParser > parser = std::make_shared< ObservationCollectionParser >( ) )
     {
         // Create observation collection parser corresponding to the required dependent variable settings
@@ -3042,40 +3111,100 @@ public:
         std::cout << "size single obs sets: " << singleObsSets.size( ) << std::endl;
         for ( auto set : singleObsSets )
         {
-            std::map< std::pair< int, int >, std::shared_ptr< simulation_setup::ObservationDependentVariableSettings > > settingsIndicesAndSizes =
-                    set->getDependentVariableCalculator( )->getSettingsIndicesAndSizes( );
-            std::cout << "settingsIndicesAndSizes size: " << settingsIndicesAndSizes.size( ) << std::endl;
+//            std::map< std::pair< int, int >, std::shared_ptr< simulation_setup::ObservationDependentVariableSettings > > settingsIndicesAndSizes =
+//                    set->getDependentVariableCalculator( )->getSettingsIndicesAndSizes( );
+//            std::cout << "settingsIndicesAndSizes size: " << settingsIndicesAndSizes.size( ) << std::endl;
+//
+//            std::vector< std::pair< int, int > > indicesAndSizes;
+//            for ( auto it : settingsIndicesAndSizes )
+//            {
+//                std::cout << "compatibility check" << std::endl;
+//                if ( dependentVariableSettings->areSettingsCompatible( it.second ) )
+//                {
+//                    indicesAndSizes.push_back( it.first );
+//                    std::cout << "settings compatibles: " << it.first.first << " - " << it.first.second << std::endl;
+//                }
+//            }
+//
+//            // Check that a single settings is identified
+//            if ( indicesAndSizes.size( ) == 0 )
+//            {
+//                throw std::runtime_error( "Error when getting dependent variable, no dependent variable values found for given settings." );
+//            }
+//            else if ( indicesAndSizes.size( ) > 1 )
+//            {
+//                throw std::runtime_error( "Error when getting dependent variable, multiple dependent variables found for given settings." );
+//            }
+//
+//            std::cout << "indicesAndSizes.at( 0 ): " << indicesAndSizes.at( 0 ).first << " - " << indicesAndSizes.at( 0 ).second << std::endl;
+//            std::vector< Eigen::VectorXd > fullDependentVariablesCurrentSet = set->getSingleDependentVariable( indicesAndSizes.at( 0 ) );
+//            std::cout << "fullDependentVariablesCurrentSet size: " << fullDependentVariablesCurrentSet.size( ) << std::endl;
+//            dependentVariablesTest.push_back( set->getSingleDependentVariable( indicesAndSizes.at( 0 ) ) );
 
-            std::vector< std::pair< int, int > > indicesAndSizes;
-            for ( auto it : settingsIndicesAndSizes )
-            {
-                std::cout << "compatibility check" << std::endl;
-                if ( dependentVariableSettings->areSettingsCompatible( it.second ) )
-                {
-                    indicesAndSizes.push_back( it.first );
-                    std::cout << "settings compatibles: " << it.first.first << " - " << it.first.second << std::endl;
-                }
-            }
-
-            // Check that a single settings is identified
-            if ( indicesAndSizes.size( ) == 0 )
-            {
-                throw std::runtime_error( "Error when getting dependent variable, no dependent variable values found for given settings." );
-            }
-            else if ( indicesAndSizes.size( ) > 1 )
-            {
-                throw std::runtime_error( "Error when getting dependent variable, multiple dependent variables found for given settings." );
-            }
-
-            std::cout << "indicesAndSizes.at( 0 ): " << indicesAndSizes.at( 0 ).first << " - " << indicesAndSizes.at( 0 ).second << std::endl;
-            std::vector< Eigen::VectorXd > fullDependentVariablesCurrentSet = set->getSingleDependentVariable( indicesAndSizes.at( 0 ) );
-            std::cout << "fullDependentVariablesCurrentSet size: " << fullDependentVariablesCurrentSet.size( ) << std::endl;
-            dependentVariablesTest.push_back( set->getSingleDependentVariable( indicesAndSizes.at( 0 ) ) );
+            dependentVariablesTest.push_back( set->getSingleDependentVariable( dependentVariableSettings, returnFirstCompatibleSettings ) );
 
         }
 
         // Return dependent variables values and joint parser
         return std::make_pair( dependentVariablesTest /*dependentVariablesValues*/, jointParser );
+    }
+
+    std::pair< std::vector< std::vector< std::shared_ptr< ObservationDependentVariableSettings > > >, std::shared_ptr< ObservationCollectionParser > >
+            getCompatibleDependentVariablesSettingsList(
+                    std::shared_ptr< ObservationDependentVariableSettings > dependentVariableSettings,
+                    std::shared_ptr< ObservationCollectionParser > parser = std::make_shared< ObservationCollectionParser >( ) )
+    {
+        // Create observation collection parser corresponding to the required dependent variable settings
+        std::shared_ptr< ObservationCollectionParser > dependentVariablesParser = getObservationParserFromDependentVariableSettings( dependentVariableSettings );
+
+        // Define joint observation collection parser
+        std::shared_ptr< ObservationCollectionMultiTypeParser > jointParser = std::make_shared< ObservationCollectionMultiTypeParser >(
+                std::vector< std::shared_ptr< ObservationCollectionParser > >( { dependentVariablesParser, parser } ), true );
+
+        // Retrieve relevant single observation sets
+        std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > singleObservationSets = getSingleObservationSets( jointParser );
+
+        // Parse all single observation sets
+        std::vector< std::vector< std::shared_ptr< ObservationDependentVariableSettings > > > dependentVariablesListPerSet;
+        for ( auto set : singleObservationSets )
+        {
+            std::vector< std::shared_ptr< ObservationDependentVariableSettings > > currentVariableSettingsList =
+                    set->getCompatibleDependentVariablesSettingsList( dependentVariableSettings );
+            if ( currentVariableSettingsList.size( ) > 0 )
+            {
+                dependentVariablesListPerSet.push_back( currentVariableSettingsList );
+            }
+        }
+
+        return std::make_pair( dependentVariablesListPerSet, jointParser );
+    }
+
+    std::pair< std::vector< std::vector< std::vector< Eigen::VectorXd > > >, std::shared_ptr< ObservationCollectionParser > > getAllCompatibleDependentVariables(
+            std::shared_ptr< ObservationDependentVariableSettings > dependentVariableSettings,
+            std::shared_ptr< ObservationCollectionParser > parser = std::make_shared< ObservationCollectionParser >( ) )
+    {
+        // Create observation collection parser corresponding to the required dependent variable settings
+        std::shared_ptr< ObservationCollectionParser > dependentVariablesParser = getObservationParserFromDependentVariableSettings( dependentVariableSettings );
+
+        // Define joint observation collection parser
+        std::shared_ptr< ObservationCollectionMultiTypeParser > jointParser = std::make_shared< ObservationCollectionMultiTypeParser >(
+                std::vector< std::shared_ptr< ObservationCollectionParser > >( { dependentVariablesParser, parser } ), true );
+
+        // Retrieve relevant single observation sets
+        std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > singleObservationSets = getSingleObservationSets( jointParser );
+
+        // Parse all single observation sets
+        std::vector< std::vector< std::vector< Eigen::VectorXd > > > dependentVariablesListPerSet;
+        for ( auto set : singleObservationSets )
+        {
+            std::vector< std::vector< Eigen::VectorXd > > currentVariablesList = set->getAllCompatibleDependentVariables( dependentVariableSettings );
+            if ( currentVariablesList.size( ) > 0 )
+            {
+                dependentVariablesListPerSet.push_back( currentVariablesList );
+            }
+        }
+
+        return std::make_pair( dependentVariablesListPerSet, jointParser );
     }
 
 
@@ -3119,16 +3248,6 @@ public:
 
 
 
-
-
-//    observationParserGet // For given time interval
-//
-//// Each entry in STL vector = a given SingleObservationSet
-//    std::pair< std::vector< Eigen::MatrixXd >, ObservationParser > perSingleObservationSetDependentVariables =
-//    obsCollection->getDependentVariable( elevation_angle( "STATION1" ), observationParserGet );
-//    ObservationParser singleDependentVariableParser = perSingleObservationSetDependentVariables.second;
-//
-//    singleDependentVariableParser // For given time interval, and have elevation_angle( "STATION1" ) available
 
 
 
@@ -3267,6 +3386,101 @@ private:
                 observationSetStartAndSizePerLinkEndIndex_[ it1.first ][ linkEndIds_[ it2.first ] ] = it2.second;
             }
         }
+    }
+
+    std::shared_ptr< ObservationCollectionParser > getObservationParserFromDependentVariableSettings(
+            const std::shared_ptr< simulation_setup::ObservationDependentVariableSettings > dependentVariableSettings )
+    {
+        std::shared_ptr< ObservationCollectionParser > observationParser;
+
+        if ( !isObservationDependentVariableAncilliarySetting( dependentVariableSettings->variableType_ ) )
+        {
+            std::vector< std::shared_ptr< ObservationCollectionParser > > parserList;
+
+            // Check if relevant link end id and type are both specified
+            if ( ( dependentVariableSettings->linkEndId_ != LinkEndId( "", "" ) ) && ( dependentVariableSettings->linkEndType_ != unidentified_link_end ) )
+            {
+                parserList.push_back( std::make_shared< ObservationCollectionSingleLinkEndParser >( std::make_pair( dependentVariableSettings->linkEndType_, dependentVariableSettings->linkEndId_ ) ) );
+            }
+                // if only relevant link end id is specified
+            else if ( dependentVariableSettings->linkEndId_ != LinkEndId( "", "" ) )
+            {
+                parserList.push_back( std::make_shared< ObservationCollectionLinkEndIdParser >( dependentVariableSettings->linkEndId_ ) );
+            }
+                // if only relevant link end type is specified
+            else if ( dependentVariableSettings->linkEndType_ != unidentified_link_end )
+            {
+                parserList.push_back( std::make_shared< ObservationCollectionLinkEndTypeParser >( dependentVariableSettings->linkEndType_ ) );
+            }
+
+            // Check if originating link end id and type are both specified
+            if ( ( dependentVariableSettings->originatingLinkEndId_ != LinkEndId( "", "" ) ) && ( dependentVariableSettings->originatingLinkEndType_ != unidentified_link_end ) )
+            {
+                parserList.push_back( std::make_shared< ObservationCollectionSingleLinkEndParser >( std::make_pair( dependentVariableSettings->originatingLinkEndType_, dependentVariableSettings->originatingLinkEndId_ ) ) );
+            }
+                // if only originating link end id is specified
+            else if ( dependentVariableSettings->originatingLinkEndId_ != LinkEndId( "", "" ) )
+            {
+                parserList.push_back( std::make_shared< ObservationCollectionLinkEndIdParser >( dependentVariableSettings->originatingLinkEndId_ ) );
+            }
+                // if only originating link end type is specified
+            else if ( dependentVariableSettings->originatingLinkEndType_ != unidentified_link_end )
+            {
+                parserList.push_back( std::make_shared< ObservationCollectionLinkEndTypeParser >( dependentVariableSettings->originatingLinkEndType_ ) );
+            }
+
+            // Create multi-type observation collection parser
+            if ( parserList.size( ) > 0 )
+            {
+                observationParser = std::make_shared< ObservationCollectionMultiTypeParser >( parserList, true );
+            }
+            else
+            {
+                observationParser = std::make_shared< ObservationCollectionParser >( );
+            }
+
+        }
+        else
+        {
+            std::vector< std::shared_ptr< ObservationCollectionParser > > parserList;
+
+            // Check if indirect condition on observable type via ancillary settings
+            if ( std::dynamic_pointer_cast< simulation_setup::AncillaryObservationDependentVariableSettings >( dependentVariableSettings ) != nullptr )
+            {
+                std::shared_ptr< simulation_setup::AncillaryObservationDependentVariableSettings > ancillaryDependentVariables =
+                        std::dynamic_pointer_cast< simulation_setup::AncillaryObservationDependentVariableSettings >( dependentVariableSettings );
+                if ( ancillaryDependentVariables->observableType_ != undefined_observation_model )
+                {
+                    std::cout << "test 1" << std::endl;
+                    parserList.push_back( std::make_shared< ObservationCollectionObservableTypeParser >( ancillaryDependentVariables->observableType_ ) );
+                }
+                else
+                {
+                    std::vector< ObservableType > allObservableTypes = utilities::createVectorFromMapKeys( observationSetList_ );
+                    for ( auto observableIt : allObservableTypes )
+                    {
+                        if ( ancillaryDependentVariables->isObservableTypeCompatible_( observableIt ) )
+                        {
+                            std::cout << "test type " << observableIt << std::endl;
+                            parserList.push_back( std::make_shared< ObservationCollectionObservableTypeParser >( observableIt ) );
+                        }
+                    }
+                }
+            }
+
+            // Create multi-type observation collection parser
+            if ( parserList.size( ) > 0 )
+            {
+                observationParser = std::make_shared< ObservationCollectionMultiTypeParser >( parserList, false );
+            }
+            else
+            {
+                observationParser = std::make_shared< ObservationCollectionParser >( );
+            }
+
+        }
+
+        return observationParser;
     }
 
 

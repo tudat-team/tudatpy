@@ -518,21 +518,21 @@ ObservationDependentVariableFunction getObservationVectorDependentVariableFuncti
                 observableType, linkEnds.size( ) ) );
         }
 
-        int numberOfLinkEnds = linkEnds.size( );
-        Eigen::VectorXd zeroDelay = Eigen::VectorXd::Zero( numberOfLinkEnds - 1 );
-
         outputFunction = [ = ]( const std::vector<double> &linkEndTimes,
                                 const std::vector<Eigen::Matrix<double, 6, 1> > &linkEndStates,
                                 const Eigen::VectorXd &observationValue,
                                 const std::shared_ptr<observation_models::ObservationAncilliarySimulationSettings> ancilliarySimulationSettings )
         {
-            std::vector< double > retransmissionDelays = ancilliarySimulationSettings->getAncilliaryDoubleVectorData( observation_models::doppler_integration_time, false );
+            int numberOfLinkEnds = linkEnds.size( );
+            Eigen::VectorXd zeroDelay = Eigen::VectorXd::Zero( numberOfLinkEnds - 2 );
+
+            std::vector< double > retransmissionDelays = ancilliarySimulationSettings->getAncilliaryDoubleVectorData( observation_models::link_ends_delays, false );
             if( retransmissionDelays.size( ) > 0 )
             {
-                if( static_cast< int >( retransmissionDelays.size( ) ) != numberOfLinkEnds - 1 )
+                if( static_cast< int >( retransmissionDelays.size( ) ) != numberOfLinkEnds - 2 )
                 {
                     throw std::runtime_error( "Error in observation dependent variables, retransmission time size for observable " + observation_models::getObservableName(
-                        observableType, linkEnds.size( ) ) + " is of inconsistent size. Should be " + std::to_string( numberOfLinkEnds - 1 ) +
+                        observableType, linkEnds.size( ) ) + " is of inconsistent size. Should be " + std::to_string( numberOfLinkEnds - 2 ) +
                         " but is " + std::to_string( retransmissionDelays.size( ) ) );
                 }
 
@@ -564,7 +564,7 @@ void ObservationDependentVariableCalculator::addDependentVariable(
         std::cout << "does exist" << std::endl;
         // Retrieve the current index in list of dependent variables and size of new parameter
         int currentIndex = totalDependentVariableSize_;
-        int parameterSize = getObservationDependentVariableSize( variableSettings );
+        int parameterSize = getObservationDependentVariableSize( variableSettings, linkEnds_.linkEnds_ );
 
         // Create function to compute dependent variable
         ObservationDependentVariableFunction observationDependentVariableFunction =

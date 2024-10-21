@@ -384,6 +384,9 @@ bool observableCanHaveRetransmissionDelay( const ObservableType observableType )
     case n_way_differenced_range:
         canHaveDelay = true;
         break;
+    case dsn_n_way_averaged_doppler:
+        canHaveDelay = true;
+        break;
     default:
         throw std::runtime_error( "Error when determining if observable type can have retransmission delay; observable " +
                                   getObservableName( observableType ) + " not found" );
