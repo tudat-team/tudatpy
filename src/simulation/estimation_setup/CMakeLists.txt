@@ -67,6 +67,7 @@ set(estimation_SOURCES
         observationSimulationSettings.cpp
         observationOutputSettings.cpp
         observationOutput.cpp
+        observationsProcessing.cpp
         simulateObservations.cpp
         processOdfFile.cpp
         processTrackingTxtFile.cpp

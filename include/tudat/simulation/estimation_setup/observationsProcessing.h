@@ -25,6 +25,7 @@
 
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/observableTypes.h"
+#include "tudat/simulation/estimation_setup/observationOutputSettings.h"
 
 namespace tudat
 {
@@ -623,6 +624,9 @@ inline std::shared_ptr< ObservationCollectionParser > observationParser( const s
 {
     return std::make_shared< ObservationCollectionMultiTypeParser >( observationParsers, combineConditions );
 }
+
+//std::shared_ptr< ObservationCollectionParser > getObservationParserFromDependentVariableSettings(
+//        const std::shared_ptr< simulation_setup::ObservationDependentVariableSettings > dependentVariableSettings );
 
 
 } // namespace observation_models
