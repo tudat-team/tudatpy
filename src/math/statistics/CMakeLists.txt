@@ -18,6 +18,7 @@ set(statistics_SOURCES
         "kernelDensityDistribution.cpp"
         "randomSampling.cpp"
         "randomVariableGenerator.cpp"
+        "allanVariance.cpp"
         )
 
 # Add header files.
@@ -30,12 +31,24 @@ set(statistics_HEADERS
         "kernelDensityDistribution.h"
         "randomSampling.h"
         "randomVariableGenerator.h"
+        "allanVariance.h"
         )
 
 # Add library.
-TUDAT_ADD_LIBRARY("statistics"
-        "${statistics_SOURCES}"
-        "${statistics_HEADERS}"
-#        PRIVATE_LINKS "${Boost_LIBRARIES}"
-#        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}"
-        )
+if(TUDAT_BUILD_WITH_FFTW3)
+
+    set(statistics_HEADERS "${statistics_HEADERS};fastFourierTransform.h;powerLawNoiseGeneration.h")
+    set(statistics_SOURCES "${statistics_SOURCES};fastFourierTransform.cpp;powerLawNoiseGeneration.cpp")
+
+    TUDAT_ADD_LIBRARY("statistics"
+            "${statistics_SOURCES}"
+            "${statistics_HEADERS}"
+            "${FFTW3_LIBRARIES}"
+            )
+else()
+    TUDAT_ADD_LIBRARY("statistics"
+            "${statistics_SOURCES}"
+            "${statistics_HEADERS}"
+            "${FFTW3_LIBRARIES}"
+            )
+endif()

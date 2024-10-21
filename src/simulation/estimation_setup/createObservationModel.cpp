@@ -47,6 +47,57 @@ std::map< ObservableType, std::vector< std::shared_ptr< ObservationModelSettings
 }
 
 
+std::function< double ( observation_models::FrequencyBands, observation_models::FrequencyBands ) > getTurnaroundFunction(
+    const simulation_setup::SystemOfBodies &bodies,
+    const LinkEnds& linkEnds )
+{
+    std::function< double ( observation_models::FrequencyBands, observation_models::FrequencyBands ) > turnaroundRatioFunction;
+    // Check if retransmitter is a body
+    if ( linkEnds.at( observation_models::retransmitter ).stationName_ == "" || !simulation_setup::isReferencePointGroundStation(
+        bodies, linkEnds.at( observation_models::retransmitter ).bodyName_, linkEnds.at( observation_models::retransmitter ).stationName_ ) )
+    {
+        if ( bodies.getBody( linkEnds.at( observation_models::retransmitter ).bodyName_ )->getVehicleSystems( ) == nullptr )
+        {
+            throw std::runtime_error(
+                "Error when creating DSN N-way averaged Doppler observation model: vehicle systems are not "
+                "defined for retransmitter link end body " + linkEnds.at( observation_models::retransmitter ).bodyName_ + "." );
+        }
+        turnaroundRatioFunction = bodies.getBody( linkEnds.at( observation_models::retransmitter ).bodyName_ )->getVehicleSystems(
+        )->getTransponderTurnaroundRatio( );
+    }
+        // If retransmitter is a ground station of the body
+    else
+    {
+        if ( bodies.getBody( linkEnds.at( observation_models::retransmitter ).bodyName_ )->getGroundStation(
+            linkEnds.at( observation_models::retransmitter ).stationName_ )->getVehicleSystems( ) == nullptr )
+        {
+            throw std::runtime_error(
+                "Error when creating DSN N-way averaged Doppler observation model: vehicle systems are not "
+                "defined for retransmitter link end ID " + linkEnds.at( observation_models::retransmitter ).stationName_ + "." );
+        }
+        turnaroundRatioFunction = bodies.getBody( linkEnds.at( observation_models::retransmitter ).bodyName_ )->getGroundStation(
+            linkEnds.at( observation_models::retransmitter ).stationName_ )->getVehicleSystems( )->getTransponderTurnaroundRatio( );
+    }
+    return turnaroundRatioFunction;
+}
+
+std::shared_ptr< ground_stations::StationFrequencyInterpolator > getTransmittingFrequencyInterpolator(
+    const simulation_setup::SystemOfBodies &bodies,
+    const LinkEnds& linkEnds )
+{
+    if ( bodies.getBody( linkEnds.at( observation_models::transmitter ).bodyName_ )->getGroundStation(
+        linkEnds.at( observation_models::transmitter ).stationName_ )->getTransmittingFrequencyCalculator( ) ==
+         nullptr )
+    {
+        throw std::runtime_error(
+            "Error when creating DSN N-way averaged Doppler observation model: transmitted frequency not  "
+            "defined for link end station " + linkEnds.at( observation_models::transmitter ).bodyName_ + ", " +
+            linkEnds.at( observation_models::transmitter ).stationName_ );
+    }
+    return bodies.getBody( linkEnds.at( observation_models::transmitter ).bodyName_ )->getGroundStation(
+        linkEnds.at( observation_models::transmitter ).stationName_ )->getTransmittingFrequencyCalculator( );
+}
+
 
 } // namespace observation_models
 

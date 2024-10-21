@@ -131,7 +131,23 @@ TUDAT_ADD_TEST_CASE(NonSequentialStateEstimation
          ${Tudat_ESTIMATION_LIBRARIES}
  )
 
-if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+ TUDAT_ADD_TEST_CASE(ObservationsProcessing
+         PRIVATE_LINKS
+         ${Tudat_ESTIMATION_LIBRARIES}
+ )
+
+TUDAT_ADD_TEST_CASE(CovariancePropagation
+         PRIVATE_LINKS
+         ${Tudat_ESTIMATION_LIBRARIES}
+ )
+
+ TUDAT_ADD_TEST_CASE(ClockParameterEstimation
+         PRIVATE_LINKS
+         ${Tudat_ESTIMATION_LIBRARIES}
+         )
+
+
+ if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 
 
     TUDAT_ADD_TEST_CASE(EstimationFromIdealDataTimeDouble
