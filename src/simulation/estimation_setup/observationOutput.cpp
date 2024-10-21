@@ -22,9 +22,8 @@ void checkObservationDependentVariableEnvironment(
         const SystemOfBodies& bodies,
         const std::shared_ptr< StationAngleObservationDependentVariableSettings > variableSettings )
 {
-    if( isObservationDependentVariableGroundStationProperty( variableSettings ) )
+    if( isObservationDependentVariableGroundStationProperty( variableSettings ) && variableSettings->isLinkEndDefined_ )
     {
-      
         std::string bodyName = variableSettings->relevantLinkEnd_.bodyName_;
         std::string stationName = variableSettings->relevantLinkEnd_.stationName_;
 
@@ -151,13 +150,35 @@ ObservationDependentVariableFunction getStationObservationAngleFunction(
     checkObservationDependentVariableEnvironment( bodies, variableSettings );
 
     // Retrieve link-end ID for station
-    std::string bodyName = variableSettings->relevantLinkEnd_.bodyName_;
-    std::string stationName = variableSettings->relevantLinkEnd_.stationName_;
+
+    observation_models::LinkEndId linkEndIdToUse;
+    if( variableSettings->isLinkEndDefined_ )
+    {
+        linkEndIdToUse = variableSettings->relevantLinkEnd_;
+    }
+    else
+    {
+        linkEndIdToUse = linkEnds.at( variableSettings->linkEndRole_ );
+    }
+
+    std::string bodyName = linkEndIdToUse.bodyName_;
+    std::string stationName = linkEndIdToUse.stationName_;
+
+    if( bodies.count( bodyName ) == 0 )
+    {
+        throw std::runtime_error( "Error when getting station angle function, body " + bodyName + " does not exist " );
+    }
+
+    if( bodies.at( bodyName )->getGroundStationMap( ).count( stationName ) == 0 )
+    {
+        throw std::runtime_error( "Error when getting station angle function, station " + stationName + " does not exist on body " + bodyName );
+    }
 
     std::pair< int, int > linkEndIndicesToUse = getLinkEndStateTimeIndices(
-        observableType, linkEnds, variableSettings->relevantLinkEnd_,
+        observableType, linkEnds, linkEndIdToUse,
         variableSettings->linkEndRole_, variableSettings->originatingLinkEndRole_,
         variableSettings->integratedObservableHandling_ );
+
 
     // Retrieve pointing angles calculator for station, and setup output function
     std::shared_ptr< ground_stations::PointingAnglesCalculator > pointingAnglesCalculator =

@@ -63,7 +63,7 @@ BOOST_AUTO_TEST_CASE( testSeparateObservationViabilityCalculators )
 
     // Get Earth-fixed ground station position
     Eigen::Vector3d earthFixedGroundStationState =
-            bodies.at( "Earth" )->getGroundStation( "Station" )->getNominalStationState( )->getCartesianStateInTime( 0.0 ).segment( 0, 3 );
+            bodies.at( "Earth" )->getGroundStation( "Station" )->getNominalStationState( )->getCartesianStateInTime( 0.0, "Earth" ).segment( 0, 3 );
 
     // Define limiting elevation angle for test
     double testAngle = 20.0 * mathematical_constants::PI / 180.0;

@@ -95,6 +95,10 @@ static inline std::string getSpaceWeatherDataPath() {
   return std::string(get_space_weather_path()).c_str();
 }
 
+static inline std::string getStationLocationDataPath() {
+    return std::string(get_resource_path()) + "/station_locations";
+}
+
 } // namespace paths
 
 namespace input_output {
