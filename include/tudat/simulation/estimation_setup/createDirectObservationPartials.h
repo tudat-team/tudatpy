@@ -36,6 +36,7 @@
 #include "tudat/simulation/estimation_setup/createLightTimeCorrectionPartials.h"
 #include "tudat/simulation/estimation_setup/createPositionPartialScaling.h"
 #include "tudat/simulation/estimation_setup/createObservationModel.h"
+#include "tudat/simulation/estimation_setup/createClockPartials.h"
 #include "tudat/simulation/estimation_setup/createObsevationBiasPartial.h"
 
 namespace tudat
@@ -43,7 +44,6 @@ namespace tudat
 
 namespace observation_partials
 {
-
 
 
 //! Function to generate observation partial wrt a single  parameter.
@@ -339,7 +339,7 @@ createSingleLinkObservationPartials(
                            oneWayLinkEnds, bodies, std::placeholders::_1, positionScaling, lightTimeCorrectionPartialObjects  );
             currentObservationPartial = createObservationPartialWrtLinkProperty< ObservationSize >(
                         oneWayLinkEnds, observableType, parameterIterator->second, bodies, isPartialForDifferencedObservable, isPartialForConcatenatedObservable,
-                        observationPartials, partialWrtStateCreationFunction );
+                        observationPartials, partialWrtStateCreationFunction, observationModel->getObservationBiasCalculator( ) );
         }
 
         // Check if partial is non-nullptr (i.e. whether dependency exists between current observable and current parameter)

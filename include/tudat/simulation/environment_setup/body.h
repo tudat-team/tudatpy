@@ -79,6 +79,8 @@ public:
     Eigen::Matrix<OutputStateScalarType, 6, 1> getBaseFrameState(
             const OutputTimeType time);
 
+    std::string getBaseFrameId( ){ return baseFrameId_; }
+
 protected:
     //! Pure virtual function through which the state of baseFrameId_ in the inertial frame can be determined
     /*!
@@ -583,8 +585,6 @@ public:
     {
         if( !isStateSet_ )
         {
-            std::vector< double > test;
-            test.at( 0 );
             throw std::runtime_error( "Error when retrieving state from body " + bodyName_ + ", state of body is not yet defined" );
         }
         else
@@ -713,6 +713,12 @@ public:
         {
             return currentLongState_.template cast<StateScalarType>();
         }
+    }
+
+    template<typename StateScalarType = double, typename TimeType = double>
+    Eigen::Matrix<StateScalarType, 3, 1> getPositionInBaseFrameFromEphemeris(const TimeType time)
+    {
+        return getStateInBaseFrameFromEphemeris< StateScalarType, TimeType >( time ).segment( 0, 3 );
     }
 
     //! Templated function to get the current berycentric state of the body from its ephemeris andcglobal-to-ephemeris-frame
@@ -1681,8 +1687,6 @@ public:
     std::shared_ptr<ground_stations::GroundStation> getGroundStation(const std::string &stationName) const {
         if (groundStationMap.count(stationName) == 0)
         {
-            std::vector< double > a;
-            a.at( 0 );
             throw std::runtime_error("Error, station " + stationName + " does not exist");
         }
 
@@ -2244,6 +2248,9 @@ std::string getGlobalFrameOrigin(const SystemOfBodies &bodies);
  */
 void setAreBodiesInPropagation(const SystemOfBodies &bodies,
                                const bool areBodiesInPropagation);
+
+std::shared_ptr< system_models::TimingSystem > getTimingSystem( const std::pair< std::string, std::string > linkEndName,
+                                                                const SystemOfBodies& bodyMap );
 
 bool isReferencePointGroundStation( const std::shared_ptr< Body > body,
                                     const std::string& referencePointName );

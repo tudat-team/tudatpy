@@ -270,12 +270,13 @@ GravityFieldVariationsSet::getVariationFunctions( )
 
 //! Function to retrieve the tidal gravity field variation with the specified bodies causing deformation
 std::shared_ptr< GravityFieldVariations > GravityFieldVariationsSet::getDirectTidalGravityFieldVariation(
-        const std::vector< std::string >& namesOfBodiesCausingDeformation )
+        const std::vector< std::string >& namesOfBodiesCausingDeformation,
+        const BodyDeformationTypes tideType )
 {
     std::shared_ptr< GravityFieldVariations > gravityFieldVariation;
 
     // Check number of variation objects of correct type
-    int numberOfBasicModels = std::count( variationType_.begin( ), variationType_.end( ), basic_solid_body );
+    int numberOfBasicModels = std::count( variationType_.begin( ), variationType_.end( ), tideType );
 
     // If one model of correct type is found, check if it is consistent with input
     if( ( numberOfBasicModels ) == 1 )
@@ -283,9 +284,9 @@ std::shared_ptr< GravityFieldVariations > GravityFieldVariationsSet::getDirectTi
         // Retrieve variation object. It is the return object if no namesOfBodiesCausingDeformation are given
         gravityFieldVariation = variationObjects_.at(
                     ( std::distance( variationType_.begin( ), std::find( variationType_.begin( ), variationType_.end( ),
-                                                                         basic_solid_body ) ) ) );
-        std::shared_ptr< BasicSolidBodyTideGravityFieldVariations > tidalGravityFieldVariation =
-                std::dynamic_pointer_cast< BasicSolidBodyTideGravityFieldVariations >( gravityFieldVariation );
+                                                                         tideType ) ) ) );
+        std::shared_ptr< SolidBodyTideGravityFieldVariations > tidalGravityFieldVariation =
+                std::dynamic_pointer_cast< SolidBodyTideGravityFieldVariations >( gravityFieldVariation );
 
         // Check consistency
         if( tidalGravityFieldVariation == nullptr )
@@ -323,11 +324,11 @@ std::shared_ptr< GravityFieldVariations > GravityFieldVariationsSet::getDirectTi
         // Iterate over all objects and check consistency with input
         for( unsigned int i = 0; i < variationType_.size( ); i++ )
         {
-            if( std::dynamic_pointer_cast< gravitation::BasicSolidBodyTideGravityFieldVariations >(
+            if( std::dynamic_pointer_cast< gravitation::SolidBodyTideGravityFieldVariations >(
                         variationObjects_.at( i ) ) != nullptr )
             {
                 bool doBodiesMatch = utilities::doStlVectorContentsMatch(
-                            std::dynamic_pointer_cast< gravitation::BasicSolidBodyTideGravityFieldVariations >(
+                            std::dynamic_pointer_cast< gravitation::SolidBodyTideGravityFieldVariations >(
                                 variationObjects_.at( i ) )->getDeformingBodies( ), namesOfBodiesCausingDeformation );
 
                 if( doBodiesMatch )
@@ -356,7 +357,7 @@ std::vector< std::shared_ptr< GravityFieldVariations > > GravityFieldVariationsS
     // Iterate over variation objects and check type
     for( unsigned int i = 0; i < variationType_.size( ); i++ )
     {
-        if( variationType_[ i ] == basic_solid_body )
+        if( variationType_[ i ] == basic_solid_body || variationType_[ i ] == mode_coupled_solid_body )
         {
             directTidalVariations.push_back( variationObjects_[ i ] );
         }

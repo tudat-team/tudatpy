@@ -144,7 +144,8 @@ TimeScalarType convertJulianDayToSecondsSinceEpoch(
         const TimeScalarType julianDay,
         const TimeScalarType epochSinceJulianDayZero = getJulianDayOnJ2000< TimeScalarType >( ) )
 {
-    return ( julianDay - epochSinceJulianDayZero ) * physical_constants::getJulianDay< TimeScalarType >( );
+
+    return (  julianDay - epochSinceJulianDayZero ) * physical_constants::getJulianDay< TimeScalarType >( );
 }
 
 //! Compute Julian day from seconds since reference Julian day epoch.

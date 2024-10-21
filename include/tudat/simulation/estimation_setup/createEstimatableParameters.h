@@ -40,12 +40,12 @@
 #include "tudat/astro/orbit_determination/estimatable_parameters/freeCoreNutationRate.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/desaturationDeltaV.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/longitudeLibrationAmplitude.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/polynomialClockCorrections.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/constantThrust.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/yarkovskyParameter.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/referencePointPosition.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/gravityFieldVariationParameters.h"
 #include "tudat/astro/relativity/metric.h"
-#include "tudat/astro/basic_astro/accelerationModelTypes.h"
 #include "tudat/simulation/estimation_setup/estimatableParameterSettings.h"
 #include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
 #include "tudat/simulation/environment_setup/body.h"
@@ -2018,6 +2018,58 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
             }
             break;
         }
+        case mode_coupled_tidal_love_numbers:
+        {
+            // Check input consistency
+            std::shared_ptr< ModeCoupledTidalLoveNumberEstimatableParameterSettings > tidalLoveNumberSettings =
+                std::dynamic_pointer_cast< ModeCoupledTidalLoveNumberEstimatableParameterSettings >( vectorParameterName );
+            if( tidalLoveNumberSettings == nullptr )
+            {
+                throw std::runtime_error( "Error, expected mode-coupled tidal love number parameter settings " );
+            }
+            else
+            {
+                // Check consistency of body gravity field
+                std::shared_ptr< TimeDependentSphericalHarmonicsGravityField > timeDepGravityField =
+                    std::dynamic_pointer_cast< TimeDependentSphericalHarmonicsGravityField >(
+                        currentBody->getGravityFieldModel( ) );
+                if( timeDepGravityField == nullptr )
+                {
+                    throw std::runtime_error(
+                        "Error, requested mode-coupled tidal love number parameter of " +
+                        vectorParameterName->parameterType_.second.first +
+                        ", but body does not have a time dependent spherical harmonic gravity field." );
+                }
+                else if( currentBody->getGravityFieldVariationSet( ) == nullptr )
+                {
+                    throw std::runtime_error( "Error, requested mode-coupled tidal love number parameter of " +
+                                              vectorParameterName->parameterType_.second.first +
+                                              ", but body does not have gravity field variations" );
+                }
+                else
+                {
+                    // Get associated gravity field variation
+                    std::shared_ptr< gravitation::ModeCoupledSolidBodyTideGravityFieldVariations > gravityFieldVariation =
+                        std::dynamic_pointer_cast< gravitation::ModeCoupledSolidBodyTideGravityFieldVariations >(
+                            currentBody->getGravityFieldVariationSet( )->getDirectTidalGravityFieldVariation(
+                                tidalLoveNumberSettings->deformingBodies_, mode_coupled_solid_body ) );
+
+                    // Create parameter object
+                    if( gravityFieldVariation != nullptr )
+                    {
+                        vectorParameterToEstimate = std::make_shared< ModeCoupledTidalLoveNumber >(
+                            gravityFieldVariation, currentBodyName, tidalLoveNumberSettings->loveNumberIndices_,
+                            tidalLoveNumberSettings->useComplexValue_ );
+                    }
+                    else
+                    {
+                        throw std::runtime_error(
+                            "Error, expected ModeCoupledSolidBodyTideGravityFieldVariations for variable tidal love number" );
+                    }
+                }
+            }
+            break;
+        }
         case desaturation_delta_v_values:
         {
             if( propagatorSettings == nullptr )
@@ -2083,6 +2135,34 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
             }
             break;
         }
+        case global_polynomial_clock_corrections:
+        {
+            std::shared_ptr< GlobalPolynomialClockCorrectionsParameterSettings > polynomialClockParameterSettings =
+                    std::dynamic_pointer_cast< GlobalPolynomialClockCorrectionsParameterSettings >( vectorParameterName );
+            if( polynomialClockParameterSettings == NULL )
+            {
+                std::cerr<<"Error, expected global polynomial clock variation settings "<<std::endl;
+            }
+            else
+            {
+                std::shared_ptr< system_models::TimingSystem > timingSystem =
+                        getTimingSystem( polynomialClockParameterSettings->parameterType_.second, bodies );
+                if( timingSystem == NULL )
+                {
+                    std::cerr<<"Error when making global polynomial clock variation parameter, could not find timing system of:  "<<
+                             polynomialClockParameterSettings->parameterType_.second.first<<" "<<
+                             polynomialClockParameterSettings->parameterType_.second.second<<std::endl;
+                }
+                else
+                {
+                    vectorParameterToEstimate = std::make_shared< GlobalPolynomialClockCorrections >(
+                            timingSystem, polynomialClockParameterSettings->correctionPowers_,
+                            polynomialClockParameterSettings->parameterType_.second.first,
+                            polynomialClockParameterSettings->parameterType_.second.second );
+                }
+            }
+            break;
+        }
         case polynomial_gravity_field_variation_amplitudes:
         {
             std::shared_ptr< PolynomialGravityFieldVariationEstimatableParameterSettings > gravityFieldVariationSettings =
@@ -2136,6 +2216,35 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                 {
                     throw std::runtime_error(
                         "Error, expected PolynomialGravityFieldVariations when creating polynomial gravity field variation parameter" );
+                }
+            }
+            break;
+        }
+        case arc_wise_polynomial_clock_corrections:
+        {
+            std::shared_ptr< MultiArcPolynomialClockCorrectionsParameterSettings > polynomialClockParameterSettings =
+                    std::dynamic_pointer_cast< MultiArcPolynomialClockCorrectionsParameterSettings >( vectorParameterName );
+            if( polynomialClockParameterSettings == NULL )
+            {
+                std::cerr<<"Error, expected multi-arc polynomial clock variation settings "<<std::endl;
+            }
+            else
+            {
+                std::shared_ptr< system_models::TimingSystem > timingSystem =
+                        getTimingSystem( polynomialClockParameterSettings->parameterType_.second, bodies );
+                if( timingSystem == NULL )
+                {
+                    std::cerr<<"Error when making multi-arc polynomial clock variation parameter, could not find timing system of:  "<<
+                             polynomialClockParameterSettings->parameterType_.second.first<<" "<<
+                             polynomialClockParameterSettings->parameterType_.second.second<<std::endl;
+                }
+                else
+                {
+                    vectorParameterToEstimate = std::make_shared< MultiArcClockCorrections >(
+                            timingSystem, polynomialClockParameterSettings->correctionPowers_,
+                            polynomialClockParameterSettings->arcIndices_,
+                            polynomialClockParameterSettings->parameterType_.second.first,
+                            polynomialClockParameterSettings->parameterType_.second.second );
                 }
             }
             break;
@@ -2422,7 +2531,7 @@ getAssociatedMultiArcParameter(
     }
     default:
         throw std::runtime_error( "Error when getting multi-arc parameter from single-arc equivalent, parameter type " +
-                                  boost::lexical_cast< std::string >( singleArcParameter->getParameterName( ).first ) +
+                                          getParameterTypeString( singleArcParameter->getParameterName( ).first ) +
                                   " not recognized." );
     }
     return multiArcParameter;
