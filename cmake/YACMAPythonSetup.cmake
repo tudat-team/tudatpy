@@ -24,7 +24,7 @@ if(_YACMA_PYTHON_MODULE_NEED_LINK)
 else()
     # NOTE: we need to determine the include dir on our own.
     if(NOT YACMA_PYTHON_INCLUDE_DIR)
-        execute_process(COMMAND ${PYTHON_EXECUTABLE} -c "from sysconfig import get_paths as gp; print(gp()['include'])"
+        execute_process(COMMAND ${PYTHON_EXECUTABLE} -c "from __future__ import print_function\nfrom distutils import sysconfig\nprint(sysconfig.get_python_inc())"
                 OUTPUT_VARIABLE _YACMA_PYTHON_INCLUDE_DIR OUTPUT_STRIP_TRAILING_WHITESPACE)
         if(_YACMA_PYTHON_INCLUDE_DIR)
             set(YACMA_PYTHON_INCLUDE_DIR "${_YACMA_PYTHON_INCLUDE_DIR}" CACHE PATH "Path to the Python include dir.")
@@ -64,12 +64,10 @@ if(UNIX)
         message(STATUS "Generic UNIX platform detected.")
     endif()
     if(NOT YACMA_PYTHON_MODULES_INSTALL_PATH)
-        # Using sysconfig instead of distutils.sysconfig
-        execute_process(
-                COMMAND ${PYTHON_EXECUTABLE} -c "from sysconfig import get_paths; import os; print(os.path.split(get_paths()['purelib'])[-1])"
-                OUTPUT_VARIABLE _YACMA_PY_PACKAGES_DIR
-                OUTPUT_STRIP_TRAILING_WHITESPACE
-        )
+        # NOTE: here we use this contraption (instead of the simple method below for Win32) because like this we can
+        # support installation into the CMake prefix (e.g., in the user's home dir).
+        execute_process(COMMAND ${PYTHON_EXECUTABLE} -c "from __future__ import print_function\nimport distutils.sysconfig\nimport os\nprint(os.path.split(distutils.sysconfig.get_python_lib())[-1])"
+                OUTPUT_VARIABLE _YACMA_PY_PACKAGES_DIR OUTPUT_STRIP_TRAILING_WHITESPACE)
         message(STATUS "Python packages dir is: ${_YACMA_PY_PACKAGES_DIR}")
         set(YACMA_PYTHON_MODULES_INSTALL_PATH "lib/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/${_YACMA_PY_PACKAGES_DIR}" CACHE PATH "Install path for Python modules.")
         mark_as_advanced(YACMA_PYTHON_MODULES_INSTALL_PATH)
@@ -79,19 +77,15 @@ elseif(WIN32)
     message(STATUS "Output extension for compiled modules will be '.pyd'.")
     set(_YACMA_PY_MODULE_EXTENSION "pyd")
     if(NOT YACMA_PYTHON_MODULES_INSTALL_PATH)
-        # Using sysconfig instead of distutils.sysconfig
-        execute_process(
-                COMMAND ${PYTHON_EXECUTABLE} -c "from sysconfig import get_paths; print(get_paths()['purelib'])"
-                OUTPUT_VARIABLE _YACMA_PYTHON_MODULES_INSTALL_PATH
-                OUTPUT_STRIP_TRAILING_WHITESPACE
-        )
+        # On Windows, we will install directly into the install path of the Python interpreter.
+        execute_process(COMMAND ${PYTHON_EXECUTABLE} -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())"
+                OUTPUT_VARIABLE _YACMA_PYTHON_MODULES_INSTALL_PATH OUTPUT_STRIP_TRAILING_WHITESPACE)
         set(YACMA_PYTHON_MODULES_INSTALL_PATH "${_YACMA_PYTHON_MODULES_INSTALL_PATH}" CACHE PATH "Install path for Python modules.")
         mark_as_advanced(YACMA_PYTHON_MODULES_INSTALL_PATH)
     endif()
 else()
     message(FATAL_ERROR "Platform not supported.")
 endif()
-
 
 # Check the install path was actually detected.
 if("${YACMA_PYTHON_MODULES_INSTALL_PATH}" STREQUAL "")
