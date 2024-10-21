@@ -557,7 +557,6 @@ typedef std::map< std::pair< int, int >, std::shared_ptr< ObservationPartial< 2 
 typedef std::map< std::pair< int, int >, std::shared_ptr< ObservationPartial< 3 > > > SingleLinkObservationThreePartialList;
 
 
-
 }
 
 }

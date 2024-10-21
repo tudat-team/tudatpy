@@ -207,6 +207,39 @@ bool isReferencePointGroundStation( const SystemOfBodies &bodies,
 }
 
 
+std::shared_ptr< system_models::TimingSystem > getTimingSystem( const std::pair< std::string, std::string > linkEndName,
+                                                                const SystemOfBodies& bodyMap )
+{
+    std::shared_ptr< system_models::TimingSystem > timingSystem = nullptr;
+
+    if( bodyMap.count( linkEndName.first ) > 0 )
+    {
+        std::shared_ptr< Body > currentBody = bodyMap.at( linkEndName.first );
+
+        if( currentBody->getVehicleSystems( ) != NULL )
+        {
+            timingSystem = currentBody->getVehicleSystems( )->getTimingSystem( );
+        }
+        if( timingSystem == nullptr )
+        {
+            if( currentBody->getGroundStationMap( ).count( linkEndName.second ) > 0 )
+            {
+                std::shared_ptr< ground_stations::GroundStation > currentGroundStation = currentBody->getGroundStation( linkEndName.second );
+                if( currentGroundStation->getTimingSystem( ) != NULL )
+                {
+                    timingSystem = currentGroundStation->getTimingSystem( );
+                }
+            }
+        }
+    }
+
+    if( timingSystem == nullptr )
+    {
+        throw std::runtime_error( "Error, did not find timing system for +(" + linkEndName.first + "," + linkEndName.second + ")");
+    }
+
+    return timingSystem;
+}
 } // namespace simulation_setup
 
 } // namespace tudat

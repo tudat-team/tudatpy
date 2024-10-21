@@ -29,8 +29,8 @@ BOOST_AUTO_TEST_SUITE( test_transmitting_frequencies )
 BOOST_AUTO_TEST_CASE( testPiecewiseLinearFrequencyInterpolator )
 {
 
-    std::vector< double > startTimes = { 1.0, 5.0, 9.0, 10.0 };
-    std::vector< double > endTimes = { 5.0, 9.0, 10.0, 15.0 };
+    std::vector< Time > startTimes = { 1.0, 5.0, 9.0, 10.0 };
+    std::vector< Time > endTimes = { 5.0, 9.0, 10.0, 15.0 };
     std::vector< double > rampRates = { 1.0, 2.0, 1.0, 3.0 };
     std::vector< double > startFrequency = { 10.0, 5.0, 10.0, 2.0 };
 
