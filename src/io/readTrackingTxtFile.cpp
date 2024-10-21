@@ -39,7 +39,7 @@ void TrackingTxtFileContents::readRawDataMap(std::ifstream& dataFile)
 void TrackingTxtFileContents::addLineToRawDataMap(std::string& rawLine)
 {
 
-  size_t numColumns = getNumColumns();
+  size_t numberOfColumns = getNumColumns();
   std::vector<std::string> currentSplitRawLine_;
 
   // Trim the line and split based on the separators
@@ -50,19 +50,25 @@ void TrackingTxtFileContents::addLineToRawDataMap(std::string& rawLine)
                           boost::algorithm::token_compress_on);
 
   // Check if the expected number of columns is present in this line
-  if (currentSplitRawLine_.size() != numColumns) {
-    unsigned int columnsFound = currentSplitRawLine_.size();
-    for (auto a : currentSplitRawLine_) {
-      std::cout << a << "\n";
+  if (currentSplitRawLine_.size() != numberOfColumns)
+  {
+    if( !(currentSplitRawLine_.size() > numberOfColumns && ignoreOmittedColumns_ ) )
+    {
+        unsigned int columnsFound = currentSplitRawLine_.size( );
+        for ( auto a: currentSplitRawLine_ )
+        {
+            std::cout << a << "\n";
+        }
+        throw std::runtime_error(
+            "The current line in file " + fileName_ + " has " + std::to_string( columnsFound ) + " columns but "
+            + std::to_string( numberOfColumns ) + " columns were expected.\nRaw line:" + rawLine );
     }
-    throw std::runtime_error(
-        "The current line in file " + fileName_ + " has " + std::to_string(columnsFound) + " columns but "
-            + std::to_string(numColumns) + " columns were expected.\nRaw line:" + rawLine);
 
   }
 
   // Populate the dataMap_ with a new row on each of the vectors
-  for (std::size_t i = 0; i < numColumns; ++i) {
+  for (std::size_t i = 0; i < numberOfColumns; ++i)
+  {
     std::string currentFieldType = columnFieldTypes_.at(i);
     std::string currentValue = currentSplitRawLine_.at(i);
     rawDataMap_[currentFieldType].push_back(currentValue);
@@ -96,14 +102,22 @@ void TrackingTxtFileContents::convertDataMap()
 
 const std::vector<double> TrackingTxtFileContents::getDoubleDataColumn(TrackingDataType dataType, double defaultVal)
 {
-  if (doubleDataMap_.find(dataType) != doubleDataMap_.end()) {
+  if (doubleDataMap_.find(dataType) != doubleDataMap_.end())
+  {
     return doubleDataMap_.at(dataType);
-  } else if (metaDataMapDouble_.find(dataType) != metaDataMapDouble_.end()) {
+  }
+  else if (metaDataMapDouble_.find(dataType) != metaDataMapDouble_.end())
+  {
     return std::vector<double>(getNumRows(), metaDataMapDouble_[dataType]);
-  } else if (!std::isnan(defaultVal)) {
+  }
+  else if (!std::isnan(defaultVal))
+  {
     return std::vector<double>(getNumRows(), defaultVal);
-  } else {
-    throw std::runtime_error("Error while working with trackinig data. Required datatype not found");
+  }
+  else
+  {
+    throw std::runtime_error("Error while working with trackinig data. Required datatype not found" + std::to_string(
+        static_cast< int >( dataType ) ) );
   }
 }
 
