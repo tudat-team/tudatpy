@@ -516,7 +516,7 @@ private:
         {
             panelTorques_.at( i ).setZero( );
         }
-        panelForcesPerSource_[ sourceName ] = panelTorques_;
+        panelTorquesPerSource_[ sourceName ] = panelTorques_;
     }
 
 
