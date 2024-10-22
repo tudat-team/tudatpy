@@ -54,13 +54,15 @@ class SpecularReflectivity: public EstimatableParameter< double >
                 throw std::runtime_error( "Error when creating estimated specular reflectivity for " +
                 panelTypeId + " of " + associatedBody + ", no corresponding panels defined" );
             }
+            normalizeValue( );
 
         }
         //! Destructor.
         ~SpecularReflectivity( ) { }
 
-        double getParameterValue( )
+        double normalizeValue( )
         {
+
             // Retrieve all specular reflectivity values for the panels corresponding to the given panelTypeId
             std::vector<double> specularReflectivities = radiationPressureInterface_->getSpecularReflectivityForPanelTypeId(panelTypeId_);
 
@@ -88,6 +90,11 @@ class SpecularReflectivity: public EstimatableParameter< double >
 
             // Return the average diffuse reflectivity in all cases
             return averageSpecularReflectivity;
+        }
+
+        double getParameterValue( )
+        {
+            return normalizeValue( );
         }
 
         void setParameterValue( double parameterValue )

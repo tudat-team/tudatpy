@@ -54,12 +54,13 @@ class DiffuseReflectivity: public EstimatableParameter< double >
                 throw std::runtime_error( "Error when creating estimated diffuse reflectivity for " +
                 panelTypeId + " of " + associatedBody + ", no corresponding panels defined" );
             }
+            normalizeValue( );
 
         }
         //! Destructor.
         ~DiffuseReflectivity( ) { }
 
-        double getParameterValue( )
+        double normalizeValue( )
         {
             // Retrieve all diffuse reflectivity values for the panels corresponding to the given panelTypeId
             std::vector<double> diffuseReflectivities = radiationPressureInterface_->getDiffuseReflectivityForPanelTypeId(panelTypeId_);
@@ -85,9 +86,12 @@ class DiffuseReflectivity: public EstimatableParameter< double >
                 double apsorptivity = 1 - averageDiffuseReflectivity - averageSpecularReflectivity;
                 radiationPressureInterface_->setGroupAbsorptivity(panelTypeId_, apsorptivity);
             }
-
-            // Return the average diffuse reflectivity in all cases
             return averageDiffuseReflectivity;
+        }
+
+        double getParameterValue( )
+        {
+            return normalizeValue( );
         }
 
 
