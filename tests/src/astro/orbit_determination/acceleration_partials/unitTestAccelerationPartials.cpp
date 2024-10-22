@@ -74,7 +74,7 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureAccelerationPartials )
 {
     tudat::spice_interface::loadStandardSpiceKernels( );
 
-    for( int testIndex = 0; testIndex < 6; testIndex++ )
+    for( int testIndex = 0; testIndex < 7; testIndex++ )
     {
         // Create empty bodies, earth and sun.
         std::shared_ptr< Body > vehicle = std::make_shared< Body >( );
@@ -114,42 +114,57 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureAccelerationPartials )
         double specularReflectivity = 0.5;
         double diffuseReflectivity = 0.1;
         bool useInstantaneousReradiation = false;
-        if( testIndex % 2 == 1 )
-        {
-            useInstantaneousReradiation = true;
-        }
-        std::string panelName = "SolarPanel";
-        double scalingValue = 1.0;
-        if( testIndex > 3 )
-        {
-            scalingValue = 0.5;
-            panelName = "PanelName";
-        }
         std::vector< std::shared_ptr< BodyPanelSettings > > panelSettingsList;
-        panelSettingsList.push_back( std::make_shared< BodyPanelSettings >(
-            std::make_shared< FrameFixedBodyPanelGeometrySettings >( -Eigen::Vector3d::UnitX( ), 1.0 ),
-            std::make_shared< SpecularDiffuseBodyPanelReflectionLawSettings >( specularReflectivity, diffuseReflectivity, useInstantaneousReradiation ), "SolarPanel" ) );
-        if( testIndex > 2 )
+
+        if( testIndex < 6 )
+        {
+            if( testIndex % 2 == 1 )
+            {
+                useInstantaneousReradiation = true;
+            }
+            std::string panelName = "SolarPanel";
+            double scalingValue = 1.0;
+            if( testIndex > 3 )
+            {
+                scalingValue = 0.5;
+                panelName = "PanelName";
+            }
+            panelSettingsList.push_back( std::make_shared< BodyPanelSettings >(
+                std::make_shared< FrameFixedBodyPanelGeometrySettings >( -Eigen::Vector3d::UnitX( ), 1.0 ),
+                std::make_shared< SpecularDiffuseBodyPanelReflectionLawSettings >( specularReflectivity, diffuseReflectivity, useInstantaneousReradiation ), "SolarPanel" ) );
+            if( testIndex > 2 )
+            {
+                panelSettingsList.push_back( std::make_shared< BodyPanelSettings >(
+                    std::make_shared< FrameFixedBodyPanelGeometrySettings >( -Eigen::Vector3d::UnitY( ), 3.254 ),
+                    std::make_shared< SpecularDiffuseBodyPanelReflectionLawSettings >( specularReflectivity, diffuseReflectivity, useInstantaneousReradiation ), "SolarPanel" ) );
+                panelSettingsList.push_back( std::make_shared< BodyPanelSettings >(
+                    std::make_shared< FrameFixedBodyPanelGeometrySettings >( -Eigen::Vector3d::UnitZ( ), 8.654 ),
+                    std::make_shared< SpecularDiffuseBodyPanelReflectionLawSettings >( specularReflectivity, diffuseReflectivity, useInstantaneousReradiation ), "SolarPanel" ) );
+                panelSettingsList.push_back( std::make_shared< BodyPanelSettings >(
+                    std::make_shared< FrameFixedBodyPanelGeometrySettings >( Eigen::Vector3d::UnitX( ), 1.346  ),
+                    std::make_shared< SpecularDiffuseBodyPanelReflectionLawSettings >(
+                        scalingValue * specularReflectivity, scalingValue * diffuseReflectivity, useInstantaneousReradiation ), panelName ) );
+                panelSettingsList.push_back( std::make_shared< BodyPanelSettings >(
+                    std::make_shared< FrameFixedBodyPanelGeometrySettings >( Eigen::Vector3d::UnitY( ), 10.4783 ),
+                    std::make_shared< SpecularDiffuseBodyPanelReflectionLawSettings >(
+                        scalingValue * specularReflectivity, scalingValue * diffuseReflectivity, useInstantaneousReradiation ), panelName ) );
+                panelSettingsList.push_back( std::make_shared< BodyPanelSettings >(
+                    std::make_shared< FrameFixedBodyPanelGeometrySettings >( Eigen::Vector3d::UnitZ( ), 6.4235 ),
+                    std::make_shared< SpecularDiffuseBodyPanelReflectionLawSettings >(
+                        scalingValue * specularReflectivity, scalingValue * diffuseReflectivity, useInstantaneousReradiation ), panelName ) );
+            }
+        }
+        else
         {
             panelSettingsList.push_back( std::make_shared< BodyPanelSettings >(
-                std::make_shared< FrameFixedBodyPanelGeometrySettings >( -Eigen::Vector3d::UnitY( ), 3.254 ),
+                bodyTrackingPanelGeometry( "Sun", true , 1.0 ),
                 std::make_shared< SpecularDiffuseBodyPanelReflectionLawSettings >( specularReflectivity, diffuseReflectivity, useInstantaneousReradiation ), "SolarPanel" ) );
             panelSettingsList.push_back( std::make_shared< BodyPanelSettings >(
-                std::make_shared< FrameFixedBodyPanelGeometrySettings >( -Eigen::Vector3d::UnitZ( ), 8.654 ),
+                bodyTrackingPanelGeometry( "Sun", false , 1.346 ),
                 std::make_shared< SpecularDiffuseBodyPanelReflectionLawSettings >( specularReflectivity, diffuseReflectivity, useInstantaneousReradiation ), "SolarPanel" ) );
-            panelSettingsList.push_back( std::make_shared< BodyPanelSettings >(
-                std::make_shared< FrameFixedBodyPanelGeometrySettings >( Eigen::Vector3d::UnitX( ), 1.346  ),
-                std::make_shared< SpecularDiffuseBodyPanelReflectionLawSettings >(
-                    scalingValue * specularReflectivity, scalingValue * diffuseReflectivity, useInstantaneousReradiation ), panelName ) );
-            panelSettingsList.push_back( std::make_shared< BodyPanelSettings >(
-                std::make_shared< FrameFixedBodyPanelGeometrySettings >( Eigen::Vector3d::UnitY( ), 10.4783 ),
-                std::make_shared< SpecularDiffuseBodyPanelReflectionLawSettings >(
-                    scalingValue * specularReflectivity, scalingValue * diffuseReflectivity, useInstantaneousReradiation ), panelName ) );
-            panelSettingsList.push_back( std::make_shared< BodyPanelSettings >(
-                std::make_shared< FrameFixedBodyPanelGeometrySettings >( Eigen::Vector3d::UnitZ( ), 6.4235 ),
-                std::make_shared< SpecularDiffuseBodyPanelReflectionLawSettings >(
-                    scalingValue * specularReflectivity, scalingValue * diffuseReflectivity, useInstantaneousReradiation ), panelName ) );
+
         }
+
 
         addBodyExteriorPanelledShape(
             std::make_shared< FullPanelledBodySettings >( panelSettingsList ), "Vehicle", bodies );
@@ -249,12 +264,6 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureAccelerationPartials )
             diffuseReflectivityParameter, accelerationModel, 0.1, updateFunction );
         testPartialWrtSpecularReflectivity = calculateAccelerationWrtParameterPartials(
             specularReflectivityParameter, accelerationModel, 0.1, updateFunction );
-
-        std::cout<<partialWrtSpecularReflectivity<<std::endl<<std::endl;
-        std::cout<<testPartialWrtSpecularReflectivity<<std::endl<<std::endl;
-
-        std::cout<<partialWrtDiffuseReflectivity<<std::endl<<std::endl;
-        std::cout<<testPartialWrtDiffuseReflectivity<<std::endl<<std::endl;
 
         // Compare numerical and analytical results.
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtSunPosition,

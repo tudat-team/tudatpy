@@ -33,6 +33,9 @@ void PanelledRadiationPressurePartial::update( const double currentTime )
                     2.0 * currentRadiationPressure * bodyFixedUnitVectorToSource.transpose( ) / ( distanceToSource );
 
             currentCosineAnglePartial_ = Eigen::Matrix< double, 1, 3 >::Zero( );
+
+            Eigen::Matrix3d rotationToInertialFrame =
+                Eigen::Matrix3d( radiationPressureAcceleration_->getTargetRotationFromLocalToGlobalFrame( ) );
             Eigen::Vector3d currentPanelReactionVector = Eigen::Vector3d::Zero( );
             Eigen::Vector3d currentPanelNormal = Eigen::Vector3d::Zero( );
             Eigen::Matrix3d currentPanelPartialContribution = Eigen::Matrix3d::Zero( );
@@ -42,31 +45,39 @@ void PanelledRadiationPressurePartial::update( const double currentTime )
 
             for( int i = 0; i < panelledTargetModel_->getTotalNumberOfPanels( ); i++ )
             {
-                currentPanelNormal = panelledTargetModel_->getSurfaceNormals( ).at( i );
-                cosineOfPanelInclination = panelledTargetModel_->getSurfacePanelCosines( acceleratingBody_ ).at( i );
-
                 currentPanelPartialContribution.setZero( );
-                if( cosineOfPanelInclination > 0.0 )
+                if( panelledTargetModel_->getBodyFixedPanels( ).at( i )->getTrackedBody( ) != acceleratingBody_ )
                 {
-                    currentCosineAnglePartial_ = currentPanelNormal.transpose( ) * currentSourceUnitVectorPartial_;
+                    currentPanelNormal = panelledTargetModel_->getSurfaceNormals( ).at( i );
+                    cosineOfPanelInclination = panelledTargetModel_->getSurfacePanelCosines( acceleratingBody_ ).at( i );
 
-                    currentPanelArea = panelledTargetModel_->getBodyFixedPanels( ).at( i )->getPanelArea( );
-                    currentPanelReactionVector = panelledTargetModel_->getPanelForces( acceleratingBody_ ).at( i ) / ( currentRadiationPressure * currentPanelArea );
+                    currentPanelPartialContribution.setZero( );
+                    if( cosineOfPanelInclination > 0.0 )
+                    {
+                        currentCosineAnglePartial_ = currentPanelNormal.transpose( ) * currentSourceUnitVectorPartial_;
 
-                    currentPanelPartialContribution += panelledTargetModel_->getFullPanels( ).at( i )->getReflectionLaw( )->
-                        evaluateReactionVectorDerivativeWrtTargetPosition(
-                            currentPanelNormal, -bodyFixedUnitVectorToSource, cosineOfPanelInclination, currentPanelReactionVector,
-                            currentSourceUnitVectorPartial_, currentCosineAnglePartial_ );
+                        currentPanelArea = panelledTargetModel_->getBodyFixedPanels( ).at( i )->getPanelArea( );
+                        currentPanelReactionVector = panelledTargetModel_->getPanelForces( acceleratingBody_ ).at( i ) / ( currentRadiationPressure * currentPanelArea );
 
-                    currentPanelPartialContribution *= currentRadiationPressure * currentPanelArea;
+                        currentPanelPartialContribution += panelledTargetModel_->getFullPanels( ).at( i )->getReflectionLaw( )->
+                            evaluateReactionVectorDerivativeWrtTargetPosition(
+                                currentPanelNormal, -bodyFixedUnitVectorToSource, cosineOfPanelInclination, currentPanelReactionVector,
+                                currentSourceUnitVectorPartial_, currentCosineAnglePartial_ );
 
-
+                        currentPanelPartialContribution *= currentRadiationPressure * currentPanelArea;
+                    }
+                }
+                else
+                {
+                    currentPanelPartialContribution =
+                        panelledTargetModel_->getPanelForces( acceleratingBody_ ).at( i ).norm( ) *
+                        rotationToInertialFrame.transpose( ) *
+                        ( Eigen::Matrix3d::Identity( ) / distanceToSource - inertialVectorFromSource * inertialVectorFromSource.transpose( ) / ( distanceToSource * distanceToSource * distanceToSource ) ) *
+                        rotationToInertialFrame;
                 }
                 currentPartialWrtPosition_ += currentPanelPartialContribution;
             }
 
-            Eigen::Matrix3d rotationToInertialFrame =
-                Eigen::Matrix3d( radiationPressureAcceleration_->getTargetRotationFromLocalToGlobalFrame( ) );
             currentPartialWrtPosition_ = rotationToInertialFrame * currentPartialWrtPosition_ * rotationToInertialFrame.transpose( );
             currentPartialWrtPosition_ /= currentMass;
 
