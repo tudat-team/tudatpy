@@ -195,7 +195,6 @@ Eigen::Vector3d PaneledRadiationPressureTargetModel::evaluateRadiationPressureFo
     auto segmentFixedPanelsIterator = segmentFixedPanels_.begin( );
     int counter = 0;
     Eigen::Quaterniond currentOrientation;
-    Eigen::Vector3d currentCenterOfMass = Eigen::Vector3d::Constant( TUDAT_NAN );
 
     for( unsigned int i = 0; i < segmentFixedPanels_.size( ) + 1; i++ )
     {
