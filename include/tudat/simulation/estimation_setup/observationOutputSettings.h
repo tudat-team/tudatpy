@@ -58,10 +58,8 @@ public:
             const LinkEndType linkEndType = unidentified_link_end,
             const LinkEndId originatingLinkEndId = LinkEndId( "", "" ),
             const LinkEndType originatingLinkEndType = unidentified_link_end ):
-        variableType_( variableType ), linkEndId_( linkEndId ), linkEndType_( linkEndType ), originatingLinkEndId_( originatingLinkEndId ), originatingLinkEndType_( originatingLinkEndType )
-    {
-
-    }
+        variableType_( variableType ), linkEndId_( linkEndId ), linkEndType_( linkEndType ),
+        originatingLinkEndId_( originatingLinkEndId ), originatingLinkEndType_( originatingLinkEndType ){ }
 
     virtual ~ObservationDependentVariableSettings( ){ }
 
@@ -98,12 +96,12 @@ public:
         return identifier;
     }
 
-    virtual std::string getIdentifier( ) // = 0;
+    virtual std::string getIdentifier( )
     {
         return getBaseIdentifier( );
     }
 
-    virtual bool areSettingsCompatible( const std::shared_ptr< ObservationDependentVariableSettings > otherSettings ) //= 0;
+    virtual bool areSettingsCompatible( const std::shared_ptr< ObservationDependentVariableSettings > otherSettings )
     {
         return areBaseSettingsCompatible( otherSettings, true );
     }
@@ -134,18 +132,9 @@ public:
                     && ( ( originatingLinkEndId_ == otherSettings->linkEndId_ ||
                     originatingLinkEndId_ == LinkEndId( "", "" ) || otherSettings->linkEndId_ == LinkEndId( "", "" ) ) ) );
 
-            if ( !directLinksMatch && ( !revertedLinksAllowed || !revertedLinksMatch ) /*( linkEndType_ != otherSettings->linkEndType_ && linkEndType_ != unidentified_link_end && otherSettings->linkEndType_ != unidentified_link_end )
-            || ( ( linkEndId_ != otherSettings->linkEndId_ && linkEndId_ != LinkEndId( "", "" ) && otherSettings->linkEndId_ != LinkEndId( "", "" ) ) )
-            || ( ( originatingLinkEndType_ != otherSettings->originatingLinkEndType_ &&
-                originatingLinkEndType_ != unidentified_link_end && otherSettings->originatingLinkEndType_ != unidentified_link_end ) )
-            || ( ( originatingLinkEndId_ != otherSettings->originatingLinkEndId_ &&
-                originatingLinkEndId_ != LinkEndId( "", "" ) && otherSettings->originatingLinkEndId_ != LinkEndId( "", "" ) ) )*/ )
+            if ( !directLinksMatch && ( !revertedLinksAllowed || !revertedLinksMatch ) )
             {
-//                isCompatible = false;
-//                if ( !revertedLinksAllowed || !revertedLinksMatch )
-//                {
-                    isCompatible = false;
-//                }
+                isCompatible = false;
             }
         }
 
@@ -180,27 +169,8 @@ public:
             const LinkEndType originatingLinkEndRole = unidentified_link_end,
             const IntegratedObservationPropertyHandling integratedObservableHandling = interval_start ):
         ObservationDependentVariableSettings( variableType, relevantLinkEnd, linkEndRole, originatingLinkEndId, originatingLinkEndRole ),
-//        relevantLinkEnd_( relevantLinkEnd ), linkEndRole_( linkEndRole ),
         integratedObservableHandling_( integratedObservableHandling ),
-//        originatingLinkEndRole_( originatingLinkEndRole ),
-        isLinkEndDefined_( ( relevantLinkEnd != LinkEndId( "", "" ) ? true : false ) )
-    {
-
-    }
-
-//    StationAngleObservationDependentVariableSettings(
-//        const ObservationDependentVariables variableType,
-//        const LinkEndType linkEndRole,
-//        const IntegratedObservationPropertyHandling integratedObservableHandling = interval_start, // interval_undefined,
-//        const LinkEndType originatingLinkEndRole = unidentified_link_end ):
-//        ObservationDependentVariableSettings( variableType, LinkEndId( "", "" ), linkEndRole, LinkEndId( "", "" ), originatingLinkEndRole ),
-////        linkEndRole_( linkEndRole ),
-//        integratedObservableHandling_( integratedObservableHandling ),
-////        originatingLinkEndRole_( originatingLinkEndRole ),
-//        isLinkEndDefined_( false )
-//    {
-//
-//    }
+        isLinkEndDefined_( ( relevantLinkEnd != LinkEndId( "", "" ) ? true : false ) ){ }
 
     std::string getIdentifier( )
     {
@@ -236,13 +206,7 @@ public:
         return isCompatible;
     }
 
-//    LinkEndId relevantLinkEnd_;
-
-//    LinkEndType linkEndRole_;
-
     IntegratedObservationPropertyHandling integratedObservableHandling_;
-
-//    LinkEndType originatingLinkEndRole_;
 
     bool isLinkEndDefined_;
 
@@ -257,10 +221,9 @@ public:
             const LinkEndType endLinkEndType = unidentified_link_end,
             const LinkEndId startLinkEndId = LinkEndId( "", "" ),
             const LinkEndId endLinkEndId = LinkEndId( "", "" ),
-            const IntegratedObservationPropertyHandling integratedObservableHandling = interval_start, // interval_undefined,
+            const IntegratedObservationPropertyHandling integratedObservableHandling = interval_start,
             const std::string relativeBody = "" ):
     ObservationDependentVariableSettings( variableType, endLinkEndId, endLinkEndType, startLinkEndId, startLinkEndType ),
-//        startLinkEnd_( startLinkEnd ), endLinkEnd_( endLinkEnd ),
         integratedObservableHandling_( integratedObservableHandling ),
         relativeBody_( relativeBody ){ }
 
@@ -311,10 +274,6 @@ public:
         return isCompatible;
     }
 
-//    LinkEndType startLinkEnd_;
-
-//    LinkEndType endLinkEnd_;
-
     IntegratedObservationPropertyHandling integratedObservableHandling_;
 
     std::string relativeBody_;
@@ -333,11 +292,6 @@ public:
     {
         isObservableTypeCompatible_ = getIsObservableTypeCompatibleFunction( variableType );
     }
-
-//    AncillaryObservationDependentVariableSettings(
-//            const ObservationDependentVariables variableType,
-//            const ObservableType observableTypes ):
-//            ObservationDependentVariableSettings( variableType ), observableTypes_( std::vector< ObservableType >( { observableTypes } ) ){ }
 
     ~AncillaryObservationDependentVariableSettings( ){ }
 
@@ -371,25 +325,6 @@ public:
             {
                 isCompatible = false;
             }
-//            if (  )
-//            for ( unsigned int k = 0 ; k  )
-//            if ( !areBaseSettingsCompatible( otherSettings ) )
-//            {
-//                isCompatible = false;
-//            }
-//            else
-//            {
-//                if ( ( integratedObservableHandling_ != interlinkSettings->integratedObservableHandling_ )
-//                     && ( integratedObservableHandling_ != interval_undefined )
-//                     && ( interlinkSettings->integratedObservableHandling_ != interval_undefined ) )
-//                {
-//                    isCompatible = false;
-//                }
-//                if ( ( relativeBody_ != interlinkSettings->relativeBody_ ) && ( relativeBody_ != "" ) && ( interlinkSettings->relativeBody_ != "" ) )
-//                {
-//                    isCompatible = false;
-//                }
-//            }
         }
 
         return isCompatible;
@@ -525,12 +460,6 @@ inline std::shared_ptr< ObservationDependentVariableSettings > retransmissionDel
 {
     return std::make_shared< AncillaryObservationDependentVariableSettings >( retransmission_delays_dependent_variable, observableType );
 }
-
-
-
-
-// type -> always needs to be provided
-// linkEndsId
 
 }
 
