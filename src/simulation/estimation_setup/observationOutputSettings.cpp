@@ -479,7 +479,6 @@ std::shared_ptr< ObservationDependentVariableSettings > createCompleteObservatio
         completeSettings = std::make_shared< StationAngleObservationDependentVariableSettings >(
                 originalSettings->variableType_, linkEndId, linkEndType, originatingLinkEndId, originatingLinkEndType,
                 stationAngleSettings->integratedObservableHandling_ );
-//        completeSettings->originatingLinkEndId_ = originatingLinkEndId;
     }
     else if ( std::dynamic_pointer_cast< InterlinkObservationDependentVariableSettings >( originalSettings ) != nullptr )
     {
@@ -488,8 +487,6 @@ std::shared_ptr< ObservationDependentVariableSettings > createCompleteObservatio
         completeSettings = std::make_shared< InterlinkObservationDependentVariableSettings >(
                 originalSettings->variableType_, originatingLinkEndType, linkEndType, originatingLinkEndId, linkEndId,
                 interlinkSettings->integratedObservableHandling_, interlinkSettings->relativeBody_ );
-//        completeSettings->linkEndId_ = linkEndId;
-//        completeSettings->originatingLinkEndId_ = originatingLinkEndId;
     }
     else
     {
@@ -508,15 +505,10 @@ std::vector< std::shared_ptr< ObservationDependentVariableSettings > > createAll
     // Retrieve interlinks information for current observable type and link ends
     std::vector< std::pair< std::pair< LinkEndType, LinkEndId >, std::pair< LinkEndType, LinkEndId > > > interlinksInSet = getInterlinks( observableType, linkEnds );
 
-    std::cout << "dependent variable type: " << dependentVariableSettings->variableType_ << std::endl;
-
     // Get interlink requirements from dependent variable settings
     std::pair< std::pair< LinkEndType, LinkEndId >, std::pair< LinkEndType, LinkEndId > > interlinksSettings =
             std::make_pair( std::make_pair( dependentVariableSettings->linkEndType_, dependentVariableSettings->linkEndId_ ),
                             std::make_pair( dependentVariableSettings->originatingLinkEndType_, dependentVariableSettings->originatingLinkEndId_ ) );
-    std::cout << "interlink settings: " << interlinksSettings.first.first << " : "
-              << interlinksSettings.first.second.bodyName_ << ", " << interlinksSettings.first.second.stationName_ << "  -  "
-              << interlinksSettings.second.first << " : " << interlinksSettings.second.second.bodyName_ << ", " << interlinksSettings.second.second.stationName_ << std::endl;
 
     std::vector< std::shared_ptr< ObservationDependentVariableSettings > > allDependentVariablesSettings;
     if ( !isObservationDependentVariableLinkEndDependent( dependentVariableSettings->variableType_ ) )
@@ -542,12 +534,6 @@ std::vector< std::shared_ptr< ObservationDependentVariableSettings > > createAll
         std::vector< std::pair< std::pair< LinkEndType, LinkEndId >, std::pair< LinkEndType, LinkEndId > > > interlinksToCreateList;
         for ( auto interlink : interlinksInSet )
         {
-            // PRINT FOR TEST
-            std::cout << "interlink: ";
-            std::cout << interlink.first.first << " : " << interlink.first.second.bodyName_ << ", " << interlink.first.second.stationName_ << "  -  "
-                      << interlink.second.first << " : " << interlink.second.second.bodyName_ << ", " << interlink.second.second.stationName_ << std::endl;
-            std::cout << "\n\n";
-
             bool directLinksMatch =
                     ( interlink.first.first == interlinksSettings.first.first || interlinksSettings.first.first == unidentified_link_end )// Check link end type start interlink
                     && ( interlink.first.second == interlinksSettings.first.second || interlinksSettings.first.second == LinkEndId( "", "" ) ) // Check link end id start interlink
@@ -562,9 +548,6 @@ std::vector< std::shared_ptr< ObservationDependentVariableSettings > > createAll
             {
                 interlink = std::make_pair( interlink.second, interlink.first );
             }
-
-            std::cout << "directLinksMatch: " << directLinksMatch << std::endl;
-            std::cout << "revertedLinksMatch: " << revertedLinksMatch << std::endl;
 
             if ( directLinksMatch || revertedLinksMatch )
             {
@@ -592,11 +575,6 @@ std::vector< std::shared_ptr< ObservationDependentVariableSettings > > createAll
         // Create dependent variables
         for ( auto interlink : interlinksToCreateList )
         {
-            std::cout << "interlinks to be created: ";
-            std::cout << interlink.first.first << " : " << interlink.first.second.bodyName_ << ", " << interlink.first.second.stationName_ << "  -  "
-                      << interlink.second.first << " : " << interlink.second.second.bodyName_ << ", " << interlink.second.second.stationName_ << std::endl;
-            std::cout << "\n\n";
-
             std::shared_ptr< ObservationDependentVariableSettings > completeSettings = createCompleteObservationDependentVariableSettings(
                     dependentVariableSettings, interlink.first.first, interlink.first.second, interlink.second.first, interlink.second.second );
 

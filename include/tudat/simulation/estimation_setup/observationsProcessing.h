@@ -625,8 +625,6 @@ inline std::shared_ptr< ObservationCollectionParser > observationParser( const s
     return std::make_shared< ObservationCollectionMultiTypeParser >( observationParsers, combineConditions );
 }
 
-//std::shared_ptr< ObservationCollectionParser > getObservationParserFromDependentVariableSettings(
-//        const std::shared_ptr< simulation_setup::ObservationDependentVariableSettings > dependentVariableSettings );
 
 
 } // namespace observation_models
