@@ -648,16 +648,19 @@ std::vector< std::shared_ptr< simulation_setup::ObservationSimulationSettings< T
                                 singleObservationSets.at( i )->getAncilliarySettings( ) );
 
                 // Add dependent variables
-                std::vector< std::shared_ptr< ObservationDependentVariableSettings > > dependentVariablesList =
-                        singleObservationSets.at( i )->getDependentVariableCalculator( )->getDependentVariableSettings( );
-                std::cout << "dependentVariablesList: " << dependentVariablesList.size( ) << std::endl;
-                if ( dependentVariablesList.size( ) > 0 )
+                if ( singleObservationSets.at( i )->getDependentVariableCalculator( ) != nullptr )
                 {
-                    std::cout << dependentVariablesList.at( 0 )->linkEndType_ << " " << dependentVariablesList.at( 0 )->linkEndId_.bodyName_ << " " <<
-                    dependentVariablesList.at( 0 )->linkEndId_.stationName_ << " & " <<
-                    dependentVariablesList.at( 0 )->originatingLinkEndType_ << " " << dependentVariablesList.at( 0 )->originatingLinkEndId_.bodyName_ << " "
-                    << dependentVariablesList.at( 0 )->originatingLinkEndId_.stationName_ << std::endl;
-                    addDependentVariableToSingleObservationSimulationSettings< TimeType >( singleSetSimulationSettings, dependentVariablesList, bodies );
+                    std::vector< std::shared_ptr< ObservationDependentVariableSettings > > dependentVariablesList =
+                            singleObservationSets.at( i )->getDependentVariableCalculator( )->getDependentVariableSettings( );
+                    std::cout << "dependentVariablesList: " << dependentVariablesList.size( ) << std::endl;
+                    if ( dependentVariablesList.size( ) > 0 )
+                    {
+                        std::cout << dependentVariablesList.at( 0 )->linkEndType_ << " " << dependentVariablesList.at( 0 )->linkEndId_.bodyName_ << " " <<
+                                  dependentVariablesList.at( 0 )->linkEndId_.stationName_ << " & " <<
+                                  dependentVariablesList.at( 0 )->originatingLinkEndType_ << " " << dependentVariablesList.at( 0 )->originatingLinkEndId_.bodyName_ << " "
+                                  << dependentVariablesList.at( 0 )->originatingLinkEndId_.stationName_ << std::endl;
+                        addDependentVariableToSingleObservationSimulationSettings< TimeType >( singleSetSimulationSettings, dependentVariablesList, bodies );
+                    }
                 }
 
                 observationSimulationSettings.push_back( singleSetSimulationSettings );
@@ -670,7 +673,7 @@ std::vector< std::shared_ptr< simulation_setup::ObservationSimulationSettings< T
 }
 
 template< typename ObservationScalarType = double, typename TimeType = double >
-void computeAndSetResiduals(
+void computeResidualsAndDependentVariables(
         std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > observationCollection,
         const std::vector< std::shared_ptr< observation_models::ObservationSimulatorBase< ObservationScalarType, TimeType > > >& observationSimulators,
         const SystemOfBodies& bodies )
@@ -682,64 +685,93 @@ void computeAndSetResiduals(
 
     Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > residuals = observationCollection->getConcatenatedObservations( ) - computedObservationCollection->getConcatenatedObservations( );
     observationCollection->setResiduals( residuals );
-}
-
-template< typename ObservationScalarType = double, typename TimeType = Time >
-void computeAndSetObservationDependentVariables(
-        std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > observationCollection,
-        const std::vector< std::shared_ptr< observation_models::ObservationSimulatorBase< ObservationScalarType, TimeType > > >& observationSimulators,
-        const SystemOfBodies& bodies/*,
-        const std::vector< std::shared_ptr< ObservationDependentVariableSettings > > dependentVariables = { }*/ )
-{
-    // Create observation simulation settings
-    std::vector< std::shared_ptr< simulation_setup::ObservationSimulationSettings< TimeType > > > observationSimulationSettings =
-            getObservationSimulationSettingsFromObservations( observationCollection, bodies );
-
-    std::cout << "observationSimulationSettings size: " << observationSimulationSettings.size( ) << std::endl;
-
-//    // Add dependent variables to observation simulation settings
-//    if ( dependentVariables.size( ) > 0 )
-//    {
-//        addDependentVariablesToObservationSimulationSettings( observationSimulationSettings, dependentVariables, bodies );
-//    }
-
-    // Create computed observations collection
-    std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > computedObservationCollection =
-            simulateObservations( observationSimulationSettings, observationSimulators, bodies );
-
-    // Set residuals
-    Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > residuals = observationCollection->getConcatenatedObservations( ) - computedObservationCollection->getConcatenatedObservations( );
-    observationCollection->setResiduals( residuals );
 
     // Set dependent variables
-//    if ( dependentVariables.size( ) > 0 )
-//    {
-        for ( auto observableIt : computedObservationCollection->getObservationsSets( ) )
+    for ( auto observableIt : computedObservationCollection->getObservationsSets( ) )
+    {
+        for ( auto linkEndsIt : observableIt.second )
         {
-            for ( auto linkEndsIt : observableIt.second )
+            for ( unsigned int setIndex = 0 ; setIndex < linkEndsIt.second.size( ) ; setIndex++ )
             {
-                for ( unsigned int setIndex = 0 ; setIndex < linkEndsIt.second.size( ) ; setIndex++ )
+                std::vector< Eigen::VectorXd > computedDependentVariables = linkEndsIt.second.at( setIndex )->getObservationsDependentVariables( );
+                std::cout << "size computedDependentVariables: " << computedDependentVariables.size( ) << std::endl;
+                if ( computedDependentVariables.size( ) > 0 )
                 {
-                    std::vector< Eigen::VectorXd > computedDependentVariables = linkEndsIt.second.at( setIndex )->getObservationsDependentVariables( );
-                    std::cout << "size computedDependentVariables: " << computedDependentVariables.size( ) << std::endl;
-                    if ( computedDependentVariables.size( ) > 0 )
+                    std::cout << "computedDependentVariables.at( 0 ).size( ) " << computedDependentVariables.at( 0 ).size( ) << std::endl;
+                    if ( computedDependentVariables.at( 0 ).size( ) > 0 )
                     {
-                        if ( computedDependentVariables.at( 0 ).size( ) )
-                        {
-                            observationCollection->getObservationsSets( ).at( observableIt.first ).at( linkEndsIt.first ).at( setIndex )->setObservationsDependentVariables(
-                                    computedDependentVariables );
-                        }
+                        observationCollection->getObservationsSets( ).at( observableIt.first ).at( linkEndsIt.first ).at( setIndex )->setObservationsDependentVariables(
+                                computedDependentVariables );
                     }
-                    std::cout << "size after computation: " << observationCollection->getObservationsSets( ).at( observableIt.first ).at( linkEndsIt.first ).at( setIndex )
-                            ->getObservationsDependentVariables( ).size( ) << std::endl;
-                    std::cout << "computedDependentVariables: " << computedDependentVariables.at( 0 ) << " " << computedDependentVariables.at( 1 ) <<
-                    " " << computedDependentVariables.at( 2 ) << " " << computedDependentVariables.at( 3 ) << std::endl;
                 }
+                std::cout << "size after computation: " << observationCollection->getObservationsSets( ).at( observableIt.first ).at( linkEndsIt.first ).at( setIndex )
+                        ->getObservationsDependentVariables( ).size( ) << std::endl;
+
+//                std::cout << "computedDependentVariables: " << computedDependentVariables.at( 0 ) << " " << computedDependentVariables.at( 1 ) <<
+//                          " " << computedDependentVariables.at( 2 ) << " " << computedDependentVariables.at( 3 ) << std::endl;
             }
         }
-//    }
+    }
 
 }
+
+//template< typename ObservationScalarType = double, typename TimeType = Time >
+//void computeAndSetObservationDependentVariables(
+//        std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > observationCollection,
+//        const std::vector< std::shared_ptr< observation_models::ObservationSimulatorBase< ObservationScalarType, TimeType > > >& observationSimulators,
+//        const SystemOfBodies& bodies/*,
+//        const std::vector< std::shared_ptr< ObservationDependentVariableSettings > > dependentVariables = { }*/ )
+//{
+//    // Create observation simulation settings
+//    std::vector< std::shared_ptr< simulation_setup::ObservationSimulationSettings< TimeType > > > observationSimulationSettings =
+//            getObservationSimulationSettingsFromObservations( observationCollection, bodies );
+//
+//    std::cout << "observationSimulationSettings size: " << observationSimulationSettings.size( ) << std::endl;
+//
+////    // Add dependent variables to observation simulation settings
+////    if ( dependentVariables.size( ) > 0 )
+////    {
+////        addDependentVariablesToObservationSimulationSettings( observationSimulationSettings, dependentVariables, bodies );
+////    }
+//
+//    // Create computed observations collection
+//    std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > computedObservationCollection =
+//            simulateObservations( observationSimulationSettings, observationSimulators, bodies );
+//
+//    // Set residuals
+//    Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > residuals = observationCollection->getConcatenatedObservations( ) - computedObservationCollection->getConcatenatedObservations( );
+//    observationCollection->setResiduals( residuals );
+//
+//    // Set dependent variables
+////    if ( dependentVariables.size( ) > 0 )
+////    {
+//        for ( auto observableIt : computedObservationCollection->getObservationsSets( ) )
+//        {
+//            for ( auto linkEndsIt : observableIt.second )
+//            {
+//                for ( unsigned int setIndex = 0 ; setIndex < linkEndsIt.second.size( ) ; setIndex++ )
+//                {
+//                    std::vector< Eigen::VectorXd > computedDependentVariables = linkEndsIt.second.at( setIndex )->getObservationsDependentVariables( );
+//                    std::cout << "size computedDependentVariables: " << computedDependentVariables.size( ) << std::endl;
+//                    if ( computedDependentVariables.size( ) > 0 )
+//                    {
+//                        std::cout << "computedDependentVariables.at( 0 ).size( ) " << computedDependentVariables.at( 0 ).size( ) << std::endl;
+//                        if ( computedDependentVariables.at( 0 ).size( ) > 0 )
+//                        {
+//                            observationCollection->getObservationsSets( ).at( observableIt.first ).at( linkEndsIt.first ).at( setIndex )->setObservationsDependentVariables(
+//                                    computedDependentVariables );
+//                        }
+//                    }
+//                    std::cout << "size after computation: " << observationCollection->getObservationsSets( ).at( observableIt.first ).at( linkEndsIt.first ).at( setIndex )
+//                            ->getObservationsDependentVariables( ).size( ) << std::endl;
+//                    std::cout << "computedDependentVariables: " << computedDependentVariables.at( 0 ) << " " << computedDependentVariables.at( 1 ) <<
+//                    " " << computedDependentVariables.at( 2 ) << " " << computedDependentVariables.at( 3 ) << std::endl;
+//                }
+//            }
+//        }
+////    }
+//
+//}
 
 
 template< typename ObservationScalarType = double, typename TimeType = double >
