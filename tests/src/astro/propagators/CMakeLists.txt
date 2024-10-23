@@ -10,8 +10,7 @@
 
 TUDAT_ADD_TEST_CASE(CentralBodyData
         PRIVATE_LINKS
-        tudat_propagators
-        tudat_basic_mathematics
+        ${Tudat_PROPAGATION_LIBRARIES}
         )
 
 TUDAT_ADD_TEST_CASE(CowellStateDerivative

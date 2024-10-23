@@ -19,6 +19,7 @@
 #include "tudat/astro/electromagnetism/reflectionLaw.h"
 #include "tudat/astro/ephemerides/rotationalEphemeris.h"
 #include "tudat/astro/system_models/engineModel.h"
+#include "tudat/astro/system_models/timingSystem.h"
 #include "tudat/astro/system_models/vehicleExteriorPanels.h"
 #include "tudat/astro/observation_models/observationFrequencies.h"
 #include "tudat/astro/ephemerides/constantEphemeris.h"
@@ -85,6 +86,16 @@ public:
         }
 
         engineModels_[ engineModel->getEngineName( ) ] = engineModel;
+    }
+
+    std::shared_ptr< system_models::TimingSystem > getTimingSystem( )
+    {
+        return timingSystem_;
+    }
+
+    void setTimingSystem( const std::shared_ptr< system_models::TimingSystem > timingSystem )
+    {
+        timingSystem_ = timingSystem;
     }
 
     //! Function to retrieve the total dry mass of the vehicle
@@ -344,6 +355,8 @@ private:
 
     //! Named list of engine models in the vehicle
     std::map< std::string, std::shared_ptr< EngineModel > > engineModels_;
+
+    std::shared_ptr< system_models::TimingSystem > timingSystem_;
 
     //! Total dry mass of the vehicle
     double dryMass_;

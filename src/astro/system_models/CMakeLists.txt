@@ -12,10 +12,12 @@
 set(system_models_HEADERS
         "engineModel.h"
         "vehicleSystems.h"
+        "timingSystem.h"
         )
 
 set(system_models_SOURCES
         "dummySystemModel.cpp"
+        "timingSystem.cpp"
         )
 
 TUDAT_ADD_LIBRARY("system_models"

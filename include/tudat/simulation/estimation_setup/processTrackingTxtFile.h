@@ -758,6 +758,77 @@ void setTrackingDataInformationInBodies(
 
 }
 
+
+template< typename ObservationScalarType = double, typename TimeType = Time >
+std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > createIfmsObservedObservationCollectionFromFiles(
+    const std::vector< std::string >& ifmsFileNames,
+    simulation_setup::SystemOfBodies& bodies,
+    const std::string& targetName,
+    const std::string& groundStationName,
+    const FrequencyBands& receptionBand,
+    const FrequencyBands& transmissionBand,
+    const std::map< std::string, Eigen::Vector3d >& earthFixedGroundStationPositions =
+    simulation_setup::getCombinedApproximateGroundStationPositions( ) )
+{
+    std::vector< std::shared_ptr< input_output::TrackingTxtFileContents > > rawIfmsDataList;
+
+    for( std::string ifmsFileName : ifmsFileNames )
+    {
+        rawIfmsDataList.push_back( input_output::readIfmsFile( ifmsFileName ) );
+    }
+
+    std::vector< std::shared_ptr< ProcessedTrackingTxtFileContents< ObservationScalarType, TimeType > > > processedIfmsFiles;
+    for( unsigned int i = 0; i < rawIfmsDataList.size( ); i++ )
+    {
+        rawIfmsDataList.at( i )->addMetaData( input_output::TrackingDataType::receiving_station_name, groundStationName );
+        rawIfmsDataList.at( i )->addMetaData( input_output::TrackingDataType::transmitting_station_name, groundStationName);
+        processedIfmsFiles.push_back( std::make_shared<observation_models::ProcessedTrackingTxtFileContents< ObservationScalarType, TimeType > >(
+            rawIfmsDataList.at( i ), targetName, earthFixedGroundStationPositions ) );
+    }
+
+    setTrackingDataInformationInBodies(
+        processedIfmsFiles, bodies, dsn_n_way_averaged_doppler );
+
+    ObservationAncilliarySimulationSettings ancilliarySettings;
+    ancilliarySettings.setAncilliaryDoubleVectorData(frequency_bands, { static_cast< double >( transmissionBand ), static_cast< double >( receptionBand ) });
+    ancilliarySettings.setAncilliaryDoubleData( doppler_reference_frequency, 0.0 );
+    ancilliarySettings.setAncilliaryDoubleData( reception_reference_frequency_band, convertFrequencyBandToDouble( receptionBand ) );
+
+    return observation_models::createTrackingTxtFilesObservationCollection< ObservationScalarType, TimeType >(
+        processedIfmsFiles, std::vector<ObservableType>(), ancilliarySettings );
+}
+
+template< typename ObservationScalarType = double, typename TimeType = Time >
+std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > createFdetsObservedObservationCollectionFromFile(
+    const std::string& fdetsFileName,
+    const double& baseFrequency,
+    const std::vector<std::string>& columnTypes,
+    const std::string& targetName,
+    const std::string& transmittingStationName,
+    const std::string& receivingStationName,
+    const FrequencyBands& receptionBand,
+    const FrequencyBands& transmissionBand,
+    const std::map< std::string, Eigen::Vector3d >& earthFixedGroundStationPositions =
+    simulation_setup::getCombinedApproximateGroundStationPositions( ) )
+{
+    using namespace input_output;
+    std::shared_ptr<TrackingTxtFileContents> fdetsFileContents = readFdetsFile( fdetsFileName, columnTypes );
+    fdetsFileContents->addMetaData( TrackingDataType::receiving_station_name, receivingStationName );
+    fdetsFileContents->addMetaData( TrackingDataType::transmitting_station_name, transmittingStationName );
+    fdetsFileContents->addMetaData( TrackingDataType::doppler_base_frequency, baseFrequency);
+
+    std::vector< std::shared_ptr< ProcessedTrackingTxtFileContents< ObservationScalarType, TimeType > > > processedFdetsFiles;
+    processedFdetsFiles.push_back( std::make_shared<observation_models::ProcessedTrackingTxtFileContents< ObservationScalarType, TimeType > >(
+        fdetsFileContents, targetName, earthFixedGroundStationPositions ) );
+
+    // Define ancilliary settings
+    ObservationAncilliarySimulationSettings ancilliarySettings;
+    ancilliarySettings.setAncilliaryDoubleVectorData(frequency_bands, { static_cast< double >( transmissionBand ), static_cast< double >( receptionBand ) });
+
+    return observation_models::createTrackingTxtFilesObservationCollection< ObservationScalarType, TimeType >(
+        processedFdetsFiles, std::vector<ObservableType>( ), ancilliarySettings );
+}
+
 } // namespace observation_models
 } // namespace tudat
 
