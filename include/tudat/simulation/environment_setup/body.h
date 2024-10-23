@@ -2249,6 +2249,9 @@ std::string getGlobalFrameOrigin(const SystemOfBodies &bodies);
 void setAreBodiesInPropagation(const SystemOfBodies &bodies,
                                const bool areBodiesInPropagation);
 
+std::shared_ptr< system_models::TimingSystem > getTimingSystem( const std::pair< std::string, std::string > linkEndName,
+                                                                const SystemOfBodies& bodyMap );
+
 bool isReferencePointGroundStation( const std::shared_ptr< Body > body,
                                     const std::string& referencePointName );
 

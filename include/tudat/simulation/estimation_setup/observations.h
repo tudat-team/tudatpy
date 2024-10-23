@@ -87,8 +87,6 @@ public:
             }
         }
 
-        // Sort observations and metadata per observation time
-        orderObservationsAndMetadata( );
 
         singleObservationSize_ = getObservableSize( observableType );
 
@@ -119,8 +117,11 @@ public:
             }
         }
 
+        // Sort observations and metadata per observation time
+        orderObservationsAndMetadata( );
+
         // Initialise time bounds
-       updateTimeBounds( );
+        updateTimeBounds( );
 
     }
 
@@ -854,12 +855,12 @@ private:
                 {
                     throw std::runtime_error( "Error when making SingleObservationSet, dependent variables vector size is incompatible after time ordering" );
                 }
-                std::map< TimeType, Eigen::VectorXd > observationsDependentVariablesMap;
+                std::multimap< TimeType, Eigen::VectorXd > observationsDependentVariablesMap;
                 for( unsigned int i = 0; i < observationsDependentVariables_.size( ); i++ )
                 {
-                    observationsDependentVariablesMap[ observationTimes_.at( i ) ] = observationsDependentVariables_.at( i );
+                    observationsDependentVariablesMap.insert( { observationTimes_.at( i ), observationsDependentVariables_.at( i ) } );
                 }
-                observationsDependentVariables_ = utilities::createVectorFromMapValues( observationsDependentVariablesMap );
+                observationsDependentVariables_ = utilities::createVectorFromMultiMapValues( observationsDependentVariablesMap );
             }
 
 
@@ -867,24 +868,23 @@ private:
             {
                 throw std::runtime_error( "Error when making SingleObservationSet, weights size is incompatible after time ordering" );
             }
-            std::map< TimeType, Eigen::Matrix< double, Eigen::Dynamic, 1 > > weightsMap;
+            std::multimap< TimeType, Eigen::Matrix< double, Eigen::Dynamic, 1 > > weightsMap;
             for( unsigned int i = 0; i < weights_.size( ); i++ )
             {
-                weightsMap[ observationTimes_.at( i ) ] = weights_.at( i );
+                weightsMap.insert( { observationTimes_.at( i ), weights_.at( i ) } );
             }
-            weights_ = utilities::createVectorFromMapValues( weightsMap );
-
+            weights_ = utilities::createVectorFromMultiMapValues( weightsMap );
 
             if( static_cast< int >( residuals_.size( ) ) != numberOfObservations_ )
             {
                 throw std::runtime_error( "Error when making SingleObservationSet, residuals size is incompatible after time ordering" );
             }
-            std::map< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > residualsMap;
+            std::multimap< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > residualsMap;
             for( unsigned int i = 0; i < residuals_.size( ); i++ )
             {
-                residualsMap[ observationTimes_.at( i ) ] = residuals_.at( i );
+                residualsMap.insert( {  observationTimes_.at( i ), residuals_.at( i ) } );
             }
-            residuals_ = utilities::createVectorFromMapValues( residualsMap );
+            residuals_ = utilities::createVectorFromMultiMapValues( residualsMap );
         }
     }
 
@@ -1735,6 +1735,11 @@ public:
         }
 
         return concatenatedWeights;
+    }
+
+    Eigen::VectorXd getUnparsedConcatenatedWeights( ) const
+    {
+        return getConcatenatedWeights( );
     }
 
     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > getResiduals(
