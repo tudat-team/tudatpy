@@ -28,6 +28,7 @@ namespace observation_partials
 {
 
 
+
 //! Function to split observation partials and scaling object (produced by observationPartialsAndScaler function) into separate
 //! containers
 /*!
@@ -631,7 +632,7 @@ std::shared_ptr< PositionPartialScaling > > createDifferencedObservablePartials(
     }
 
 
-    // Create bias partials
+    // Creatlinke bias partials
     std::map< int, std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > >
             vectorParametersToEstimate =  parametersToEstimate->getVectorParameters( );
     for( std::map< int, std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd  > > >::iterator

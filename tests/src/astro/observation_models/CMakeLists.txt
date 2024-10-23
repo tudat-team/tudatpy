@@ -7,6 +7,7 @@
 #    a copy of the license with this file. If not, please or visit:
 #    http://tudat.tudelft.nl/LICENSE.
 
+
 TUDAT_ADD_TEST_CASE(LightTimeSolution PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
 
 TUDAT_ADD_TEST_CASE(AngularPositionModel PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
@@ -40,6 +41,8 @@ TUDAT_ADD_TEST_CASE(ObservationViabilityCalculators PRIVATE_LINKS ${Tudat_ESTIMA
 TUDAT_ADD_TEST_CASE(PerArcObservationSimulation PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
 
 TUDAT_ADD_TEST_CASE(TimeBias PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
+
+TUDAT_ADD_TEST_CASE(ClockModels PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
 
 TUDAT_ADD_TEST_CASE(AtmosphereCorrection PRIVATE_LINKS ${Tudat_ESTIMATION_LIBRARIES})
 
