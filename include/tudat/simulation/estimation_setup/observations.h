@@ -391,6 +391,15 @@ public:
                     observationTimes_, observationsDependentVariables_ );
     }
 
+    std::map< TimeType, Eigen::VectorXd > getSingleDependentVariableHistory(
+            std::shared_ptr< ObservationDependentVariableSettings > dependentVariableSettings,
+            const bool returnFirstCompatibleSettings = false )
+    {
+        std::vector< Eigen::VectorXd > singleDependentVariableValues = getSingleDependentVariable( dependentVariableSettings, returnFirstCompatibleSettings );
+        return utilities::createMapFromVectors< TimeType, Eigen::VectorXd >(
+                observationTimes_, singleDependentVariableValues );
+    }
+
     std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > getAncilliarySettings( )
     {
         return ancilliarySettings_;
@@ -778,10 +787,10 @@ public:
         updateTimeBounds( );
     }
 
-    void addDependentVariable( std::shared_ptr< simulation_setup::ObservationDependentVariableSettings > dependentVariableSettings,
-                               const simulation_setup::SystemOfBodies& bodies )
+    void addDependentVariables( const std::vector< std::shared_ptr< simulation_setup::ObservationDependentVariableSettings > > dependentVariableSettings,
+                                const simulation_setup::SystemOfBodies& bodies )
     {
-        dependentVariableCalculator_->addDependentVariable( dependentVariableSettings, bodies );
+        dependentVariableCalculator_->addDependentVariables( dependentVariableSettings, bodies );
     }
 
 private:
@@ -2971,9 +2980,9 @@ public:
 //            }
 //            std::cout << "\n\n";
 //
-            // Retrieve existing dependent variable settings
-            std::vector< std::shared_ptr< simulation_setup::ObservationDependentVariableSettings > > existingDependentVariablesSettings =
-                    set->getDependentVariableCalculator( )->getDependentVariableSettings( );
+//            // Retrieve existing dependent variable settings
+//            std::vector< std::shared_ptr< simulation_setup::ObservationDependentVariableSettings > > existingDependentVariablesSettings =
+//                    set->getDependentVariableCalculator( )->getDependentVariableSettings( );
 
 //            // Create dependent variables
 //            for ( auto interlink : interlinksToCreateList )
@@ -3037,29 +3046,32 @@ public:
 //                }
 //            }
 
-            for ( auto settings : allSettingsToCreate )
-            {
-                // Check if settings already exist for given observation set
-                bool settingsDetected = false;
-                for ( auto existingSettings : existingDependentVariablesSettings )
-                {
-                    if ( existingSettings->areSettingsCompatible( settings /*extendedDependentVariableSettings*/ ) )
-                    {
-                        settingsDetected = true;
-                    }
-                }
 
-                // Add required dependent variable in relevant single observation set
-                if ( !settingsDetected )
-                {
-                    set->addDependentVariable( settings /*extendedDependentVariableSettings*/, bodies );
-                    std::cout << "interlink actually created: ";
-                    std::cout << settings->linkEndType_ << " : " << settings->linkEndId_.bodyName_ << ", " << settings->linkEndId_.stationName_ << "  -  "
-                              << settings->originatingLinkEndType_ << " : " << settings->originatingLinkEndId_.bodyName_ << ", " <<
-                              settings->originatingLinkEndId_.stationName_ << std::endl;
-                    std::cout << "\n\n";
-                }
-            }
+//            for ( auto settings : allSettingsToCreate )
+//            {
+//                // Check if settings already exist for given observation set
+//                bool settingsDetected = false;
+//                for ( auto existingSettings : existingDependentVariablesSettings )
+//                {
+//                    if ( existingSettings->areSettingsCompatible( settings /*extendedDependentVariableSettings*/ ) )
+//                    {
+//                        settingsDetected = true;
+//                    }
+//                }
+//
+//                // Add required dependent variable in relevant single observation set
+//                if ( !settingsDetected )
+//                {
+//                    set->addDependentVariable( settings /*extendedDependentVariableSettings*/, bodies );
+//                    std::cout << "interlink actually created: ";
+//                    std::cout << settings->linkEndType_ << " : " << settings->linkEndId_.bodyName_ << ", " << settings->linkEndId_.stationName_ << "  -  "
+//                              << settings->originatingLinkEndType_ << " : " << settings->originatingLinkEndId_.bodyName_ << ", " <<
+//                              settings->originatingLinkEndId_.stationName_ << std::endl;
+//                    std::cout << "\n\n";
+//                }
+//            }
+
+            set->addDependentVariables( allSettingsToCreate, bodies );
 
         }
 
@@ -3077,7 +3089,7 @@ public:
     // Retrieve given observation dependent variables for given observation parser, sorted per single observation set
     std::pair< std::vector< std::vector< Eigen::VectorXd > /*Eigen::MatrixXd*/ >, std::shared_ptr< ObservationCollectionParser > > getDependentVariables(
             std::shared_ptr< simulation_setup::ObservationDependentVariableSettings > dependentVariableSettings,
-            const simulation_setup::SystemOfBodies& bodies,
+//            const simulation_setup::SystemOfBodies& bodies,
             const bool returnFirstCompatibleSettings = false,
             const std::shared_ptr< ObservationCollectionParser > parser = std::make_shared< ObservationCollectionParser >( ) )
     {
@@ -3149,6 +3161,37 @@ public:
         return std::make_pair( dependentVariablesTest /*dependentVariablesValues*/, jointParser );
     }
 
+    std::vector< std::map< TimeType, Eigen::VectorXd > > getDependentVariableResultPerObservationSet(
+            std::shared_ptr< simulation_setup::ObservationDependentVariableSettings > dependentVariableSettings,
+            const bool returnFirstCompatibleSettings = false,
+            const std::shared_ptr< ObservationCollectionParser > parser = std::make_shared< ObservationCollectionParser >( ) )
+    {
+        std::pair< std::vector< std::vector< Eigen::VectorXd > /*Eigen::MatrixXd*/ >, std::shared_ptr< ObservationCollectionParser > > dependentVariableResultList =
+                getDependentVariables( dependentVariableSettings, returnFirstCompatibleSettings, parser );
+
+        // Retrieve single observation sets for which the dependent variable of interest is computed
+        std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > singleObservationSets =
+                getSingleObservationSets( dependentVariableResultList.second );
+
+        // Parse all relevant single observation sets
+        std::vector< std::map< TimeType, Eigen::VectorXd > > dependentVariableResult;
+        for ( auto set : singleObservationSets )
+        {
+            dependentVariableResult.push_back( set->getSingleDependentVariableHistory( dependentVariableSettings, returnFirstCompatibleSettings ) );
+        }
+        return dependentVariableResult;
+    }
+
+    std::map< TimeType, Eigen::VectorXd > getDependentVariableResult(
+            std::shared_ptr< simulation_setup::ObservationDependentVariableSettings > dependentVariableSettings,
+            const bool returnFirstCompatibleSettings = false,
+            const std::shared_ptr< ObservationCollectionParser > parser = std::make_shared< ObservationCollectionParser >( ) )
+    {
+        std::vector< std::map< TimeType, Eigen::VectorXd > > dependentVariableResultPerObservationSet =
+                getDependentVariableResultPerObservationSet( dependentVariableSettings, returnFirstCompatibleSettings, parser );
+        return utilities::concatenateMaps( dependentVariableResultPerObservationSet );
+    }
+
     std::pair< std::vector< std::vector< std::shared_ptr< ObservationDependentVariableSettings > > >, std::shared_ptr< ObservationCollectionParser > >
             getCompatibleDependentVariablesSettingsList(
                     std::shared_ptr< ObservationDependentVariableSettings > dependentVariableSettings,
@@ -3211,11 +3254,11 @@ public:
     // Retrieve concatenated observation dependent variables for given observation parser
     std::pair< Eigen::MatrixXd, std::shared_ptr< ObservationCollectionParser > > getConcatenatedDependentVariables(
             std::shared_ptr< simulation_setup::ObservationDependentVariableSettings > dependentVariableSettings,
-            const simulation_setup::SystemOfBodies& bodies,
+//            const simulation_setup::SystemOfBodies& bodies,
             const std::shared_ptr< ObservationCollectionParser > parser = std::make_shared< ObservationCollectionParser >( ) )
     {
         // Retrieve dependent variables stored per single observation sets
-        std::pair< std::vector< Eigen::MatrixXd >, std::shared_ptr< ObservationCollectionParser > > dependentVariables = getDependentVariables( dependentVariableSettings, bodies, parser );
+        std::pair< std::vector< Eigen::MatrixXd >, std::shared_ptr< ObservationCollectionParser > > dependentVariables = getDependentVariables( dependentVariableSettings, parser );
 
         // Compute size concatenated dependent variables matrix
         unsigned int dependentVariableSize = 0;
@@ -3673,6 +3716,7 @@ std::vector< std::map< double, Eigen::VectorXd > > getDependentVariableResultPer
     std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > observationsWithVariable =
             getObservationListWithDependentVariables(
                 observationCollection, dependentVariableToRetrieve, args ... );
+    std::cout << "observationsWithVariable size: " << observationsWithVariable.size( ) << std::endl;
 
     std::vector< std::map< double, Eigen::VectorXd > > dependentVariableList;
     for( unsigned int i = 0; i < observationsWithVariable.size( ); i++ )
@@ -3680,8 +3724,8 @@ std::vector< std::map< double, Eigen::VectorXd > > getDependentVariableResultPer
         std::shared_ptr< simulation_setup::ObservationDependentVariableCalculator > dependentVariableCalculator =
                 observationsWithVariable.at( i )->getDependentVariableCalculator( );
 
-        std::pair< int, int > variableIndices = dependentVariableCalculator->getDependentVariableIndices(
-                    dependentVariableToRetrieve );
+        std::pair< int, int > variableIndices = dependentVariableCalculator->getDependentVariableIndices( dependentVariableToRetrieve );
+        std::cout << "variableIndices " << variableIndices.first << " - " << variableIndices.second << std::endl;
         std::map< double, Eigen::VectorXd > slicedHistory =
                 utilities::sliceMatrixHistory(
                     observationsWithVariable.at( i )->getDependentVariableHistory( ), variableIndices );

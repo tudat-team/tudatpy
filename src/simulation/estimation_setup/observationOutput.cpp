@@ -22,7 +22,7 @@ void checkObservationDependentVariableEnvironment(
         const SystemOfBodies& bodies,
         const std::shared_ptr< StationAngleObservationDependentVariableSettings > variableSettings )
 {
-    if( isObservationDependentVariableGroundStationProperty( variableSettings ) && variableSettings->isLinkEndDefined_ )
+    if( isObservationDependentVariableGroundStationProperty( variableSettings->variableType_ ) && variableSettings->isLinkEndDefined_ )
     {
         std::string bodyName = variableSettings->linkEndId_.bodyName_;
         std::string stationName = variableSettings->linkEndId_.stationName_;
@@ -223,10 +223,14 @@ ObservationDependentVariableFunction getInterlinkObservationVariableFunction(
     const observation_models::ObservableType observableType,
     const observation_models::LinkDefinition linkEnds )
 {
+//    std::pair< int, int > linkEndIndicesToUse = getLinkEndStateTimeIndices(
+//        observableType, linkEnds, linkEnds.at( variableSettings->originatingLinkEndType_ ),
+//        variableSettings->originatingLinkEndType_, variableSettings->linkEndType_,
+//        variableSettings->integratedObservableHandling_ );
     std::pair< int, int > linkEndIndicesToUse = getLinkEndStateTimeIndices(
-        observableType, linkEnds, linkEnds.at( variableSettings->originatingLinkEndType_ ),
-        variableSettings->originatingLinkEndType_, variableSettings->linkEndType_,
-        variableSettings->integratedObservableHandling_ );
+            observableType, linkEnds, linkEnds.at( variableSettings->linkEndType_ ),
+            variableSettings->linkEndType_, variableSettings->originatingLinkEndType_,
+            variableSettings->integratedObservableHandling_ );
 
     ObservationDependentVariableFunction outputFunction;
 
@@ -245,8 +249,7 @@ ObservationDependentVariableFunction getInterlinkObservationVariableFunction(
                                 const std::shared_ptr<observation_models::ObservationAncilliarySimulationSettings> ancilliarySimulationSettings )
         {
             return ( Eigen::VectorXd( 1 ) << ( linkEndStates.at( linkEndIndicesToUse.first ).segment( 0, 3 ) -
-                                               linkEndStates.at( linkEndIndicesToUse.second ).segment( 0,
-                                                                                                       3 )).norm( )).finished( );
+                                               linkEndStates.at( linkEndIndicesToUse.second ).segment( 0, 3 )).norm( )).finished( );
         };
         break;
     }
@@ -604,9 +607,33 @@ void ObservationDependentVariableCalculator::addDependentVariables(
         const std::vector< std::shared_ptr< ObservationDependentVariableSettings > > settingsList,
         const SystemOfBodies& bodies )
 {
-    for( unsigned int i = 0; i < settingsList.size( ); i++ )
+    // Retrieve existing dependent variable settings
+    std::vector< std::shared_ptr< simulation_setup::ObservationDependentVariableSettings > > existingSettingsList = settingsList_;
+
+    // Parse all settings to be added and check if they are already included
+    for ( auto settingsToAdd : settingsList )
     {
-        addDependentVariable( settingsList.at( i ), bodies );
+        // Check if settings already exist for given observation set
+        bool settingsDetected = false;
+        for ( auto existingSettings : settingsList_ )
+        {
+            if ( existingSettings->areSettingsCompatible( settingsToAdd ) )
+            {
+                std::cout << "settings already detected" << std::endl;
+                settingsDetected = true;
+            }
+        }
+
+        // Add required dependent variable if not yet included
+        if ( !settingsDetected )
+        {
+            addDependentVariable( settingsToAdd, bodies );
+            std::cout << "interlink actually created: ";
+            std::cout << settingsToAdd->linkEndType_ << " : " << settingsToAdd->linkEndId_.bodyName_ << ", " << settingsToAdd->linkEndId_.stationName_ << "  -  "
+                      << settingsToAdd->originatingLinkEndType_ << " : " << settingsToAdd->originatingLinkEndId_.bodyName_ << ", " <<
+                      settingsToAdd->originatingLinkEndId_.stationName_ << std::endl;
+            std::cout << "\n\n";
+        }
     }
 }
 
@@ -616,8 +643,8 @@ std::pair< int, int > ObservationDependentVariableCalculator::getDependentVariab
     std::pair< int, int > startAndSizePair = std::make_pair( 0, 0 );
     for( unsigned int i = 0; i < settingsList_.size( ); i++ )
     {
-        if( getObservationDependentVariableId( settingsList_.at( i ) ) ==
-                getObservationDependentVariableId( dependentVariables ) )
+        if( settingsList_.at( i )->areSettingsCompatible( dependentVariables ) ) // getObservationDependentVariableId( settingsList_.at( i ) ) ==
+//                getObservationDependentVariableId( dependentVariables ) )
         {
             if( startAndSizePair.second == 0 )
             {
@@ -629,6 +656,7 @@ std::pair< int, int > ObservationDependentVariableCalculator::getDependentVariab
                 throw std::runtime_error( "Error when finding observation dependent variable; multiple candidates found" );
             }
         }
+        std::cout << "startAndSizePair: " << startAndSizePair.first << " - " << startAndSizePair.second << std::endl;
     }
     return startAndSizePair;
 }
