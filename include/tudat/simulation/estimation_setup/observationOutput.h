@@ -71,7 +71,7 @@ public:
                                             const observation_models::LinkDefinition& linkEnds ):
     observableType_( observableType ), linkEnds_( linkEnds )
     {
-        totalDependentVariableSize_ = 0.0;
+        totalDependentVariableSize_ = 0;
     }
 
     Eigen::VectorXd calculateDependentVariables(
@@ -114,6 +114,11 @@ public:
     std::vector< std::shared_ptr< ObservationDependentVariableSettings > > getDependentVariableSettings( ) const
     {
         return settingsList_;
+    }
+
+    int getTotalDependentVariableSize( ) const
+    {
+        return totalDependentVariableSize_;
     }
 
 private:

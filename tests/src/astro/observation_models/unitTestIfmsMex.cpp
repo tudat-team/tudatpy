@@ -180,7 +180,7 @@ BOOST_AUTO_TEST_CASE(testIfmsObservationMex)
          *****************************************************************************************/
 
         std::vector< std::shared_ptr< simulation_setup::ObservationSimulationSettings< Time > > > observationSimulationSettings =
-            getObservationSimulationSettingsFromObservations( observedObservationCollection );
+            getObservationSimulationSettingsFromObservations( observedObservationCollection, bodies );
         std::shared_ptr< observation_models::ObservationCollection< long double, Time > > computedObservationCollection =
             simulateObservations( observationSimulationSettings, observationSimulators, bodies );
 
