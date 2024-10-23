@@ -123,7 +123,7 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
 
     std::vector< std::shared_ptr< ObservationSimulationSettings< Time > > > observationSimulationSettings =
             getObservationSimulationSettingsFromObservations< long double, Time >(
-                    observedObservationCollection );
+                    observedObservationCollection, bodies );
 
     std::cout<<"Pre-simulation "<<observationSimulationSettings.size( )<<std::endl;
 

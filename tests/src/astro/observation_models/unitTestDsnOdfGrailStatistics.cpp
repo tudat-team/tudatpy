@@ -200,7 +200,7 @@ int main( )
      ************************** SIMULATE OBSERVATIONS AND COMPUTE RESIDUALS
      *****************************************************************************************/
 
-    computeAndSetResiduals< long double, Time >( observedObservationCollection, observationSimulators, bodies );
+    computeResidualsAndDependentVariables< long double, Time >( observedObservationCollection, observationSimulators, bodies );
 
 
     /****************************************************************************************
@@ -217,7 +217,7 @@ int main( )
             filterObservations( observedObservationCollection, filters );
 
     std::vector< std::shared_ptr< simulation_setup::ObservationSimulationSettings< Time > > > filteredObservationSimulationSettings =
-            getObservationSimulationSettingsFromObservations( observedObservationCollection );
+            getObservationSimulationSettingsFromObservations( observedObservationCollection, bodies );
 
     /****************************************************************************************
     ************************** ARC STATISTICS

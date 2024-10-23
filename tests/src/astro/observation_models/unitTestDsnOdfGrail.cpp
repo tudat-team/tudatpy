@@ -225,7 +225,7 @@ int main( )
      ************************** SIMULATE OBSERVATIONS AND COMPUTE RESIDUALS
      *****************************************************************************************/
 
-    computeAndSetResiduals< long double, Time >( observedObservationCollection, observationSimulators, bodies );
+    computeResidualsAndDependentVariables< long double, Time >( observedObservationCollection, observationSimulators, bodies );
     std::cout << observedObservationCollection->getConcatenatedResiduals( ).transpose( ) << std::endl;
 
     /****************************************************************************************
