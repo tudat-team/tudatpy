@@ -18,6 +18,8 @@
 #include "tudat/basics/testMacros.h"
 
 #include "tudat/astro/ephemerides/tleEphemeris.h"
+#include "tudat/astro/basic_astro/dateTime.h"
+#include "tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h"
 
 namespace tudat
 {
@@ -29,7 +31,7 @@ BOOST_AUTO_TEST_SUITE( test_two_line_elements_ephemeris )
 
 
 //! Test the functionality of the two-line elements ephemeris
-BOOST_AUTO_TEST_CASE( testTwoLineElementsEphemeris )
+BOOST_AUTO_TEST_CASE( testTwoLineElementsEphemerisVallado )
 {
 	using namespace tudat;
 	using namespace tudat::ephemerides;
@@ -45,7 +47,10 @@ BOOST_AUTO_TEST_CASE( testTwoLineElementsEphemeris )
 	std::shared_ptr< TleEphemeris > tleEphemeris = std::make_shared< TleEphemeris >( "Earth", "J2000", tlePtr, false );
 
 	// Propagate TLE for 3 Julian days to be able to compare state to the one given in Vallado
-	Eigen::Vector6d propagatedState = tleEphemeris->getCartesianState( 3.0 * tudat::physical_constants::JULIAN_DAY + tlePtr->getEpoch() );
+    double utcEpoch =  3.0 * tudat::physical_constants::JULIAN_DAY + tlePtr->getEpoch();
+    double tdbEpoch = earth_orientation::createDefaultTimeConverter( )->getCurrentTime( basic_astrodynamics::utc_scale, basic_astrodynamics::tdb_scale, utcEpoch );
+
+	Eigen::Vector6d propagatedState = tleEphemeris->getCartesianState( tdbEpoch );
 	Eigen::Vector3d propagatedPosition = propagatedState.head( 3 );
 	Eigen::Vector3d propagatedVelocity = propagatedState.tail( 3 );
 
@@ -55,9 +60,50 @@ BOOST_AUTO_TEST_CASE( testTwoLineElementsEphemeris )
 	verificationPosition << -9059941.3786, 4659697.2000, 813958.8875;
 	verificationVelocity << -2233.348094, -4110.136162, -3157.394074;
 
+    std::cout<<"Diff pos"<<( verificationPosition - propagatedPosition ).norm( )<<std::endl;
+    std::cout<<"Diff vel"<<( verificationVelocity - propagatedVelocity ).norm( )<<std::endl;
+
 	// Check if difference within tolerances
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( propagatedPosition, verificationPosition, 5.0e-5 );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( propagatedVelocity, verificationVelocity, 5.0e-6);
+    BOOST_CHECK_SMALL( ( verificationPosition - propagatedPosition ).norm( ), 50.0 );
+    BOOST_CHECK_SMALL( ( propagatedVelocity - verificationVelocity ).norm( ), 0.05 );
+
+
+}
+
+BOOST_AUTO_TEST_CASE( testTwoLineElementsEphemerisGehly )
+{
+    using namespace tudat;
+    using namespace tudat::ephemerides;
+
+    //Retrieve the initial state of Delfi-C3 using Two-Line-Elements (TLEs)
+    std::string elements = "1 32789U 07021G   08119.60740078 -.00000054  00000-0  00000+0 0  9999\n"
+        "2 32789 098.0082 179.6267 0015321 307.2977 051.0656 14.81417433    68";
+
+    std::shared_ptr< Tle > delfiTle = std::make_shared< Tle >( elements );
+
+    // Create TLE Ephemeris object; output state in J2000 frame fixed at the centre of the Earth
+    std::shared_ptr< TleEphemeris > tleEphemeris = std::make_shared< TleEphemeris >( "Earth", "J2000", delfiTle, false );
+
+
+    basic_astrodynamics::DateTime currentDate = basic_astrodynamics::DateTime(
+        2008, 4, 28, 14, 34, 39.427392 );
+
+    // Create time scale converter object
+    auto timeScaleConverter = earth_orientation::createDefaultTimeConverter( );
+
+    // Set the epoch in UTC scale (for instance from the above example using DateTime)
+    double tdbTime = timeScaleConverter->getCurrentTime< double >(
+        basic_astrodynamics::utc_scale, basic_astrodynamics::tdb_scale,
+        currentDate.epoch< double >( ) );
+
+    Eigen::VectorXd currentState  = tleEphemeris->getCartesianState( tdbTime );
+    Eigen::VectorXd referenceState =
+        ( Eigen::Vector6d( ) << -6.99682490e+06,  3.09944881e+04, -1.90322410e+05,
+        -1.99894020e+02,  1.05296158e+03,  7.47516550e+03 ).finished( );
+
+    // Check if difference within tolerances
+    BOOST_CHECK_SMALL( ( currentState - referenceState ).segment( 0, 3 ).norm( ), 50.0 );
+    BOOST_CHECK_SMALL( ( currentState - referenceState ).segment( 3, 3 ).norm( ), 0.05 );
 
 }
 
