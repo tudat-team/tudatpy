@@ -1532,7 +1532,6 @@ std::vector< std::pair< std::pair< LinkEndType, LinkEndId >, std::pair< LinkEndT
         case euler_angle_313_observable:
         case velocity_observable:
         {
-//            interlinks.push_back( std::make_pair( std::make_pair( observed_body, linkEnds.at( observed_body ) ), std::make_pair( unidentified_link_end, LinkEndId( "", "" ) ) ) );
             break;
         }
         case relative_angular_position:

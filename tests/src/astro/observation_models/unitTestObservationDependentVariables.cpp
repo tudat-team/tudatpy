@@ -1131,7 +1131,6 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariablesInterface )
                     // Retrieve relevant dependent variable settings and check numbers of settings are consistent
                     std::vector< Eigen::MatrixXd > dependentVariables = observationSets.at( i )->getAllCompatibleDependentVariables(
                             std::make_shared< ObservationDependentVariableSettings >( variableIt.first ) );
-                    std::cout << dependentVariables.size( ) << " - " <<  observableIt.second.at( i ) << std::endl;
                     BOOST_CHECK( dependentVariables.size( ) == observableIt.second.at( i ) );
                 }
             }
@@ -1198,8 +1197,6 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariablesInterface )
                 std::vector< std::vector< Eigen::MatrixXd > > referenceValues =
                         dependentVariablesReferenceValues.at( currentSettings->variableType_ );
 
-                std::cout << "dependentVariableValues.size( ): " << dependentVariableValues.size( ) << std::endl;
-                std::cout << "from ref: " << referenceValues.size( ) << std::endl;
 
                 // Check that the number of single observation sets for which the given settings are relevant is consistent
                 if ( currentSettings != moonAvoidanceAngleSettings )
