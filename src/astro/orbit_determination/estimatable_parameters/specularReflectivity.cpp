@@ -18,17 +18,23 @@ namespace tudat
 namespace estimatable_parameters
 {
 
-SpecularReflectivity::SpecularReflectivity(
+SpecularDiffuseReflectivityParameter::SpecularDiffuseReflectivityParameter(
     const std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > vehiclePanels,
     const std::string& associatedBody,
-    const std::string panelTypeId):
-    EstimatableParameter< double >( specular_reflectivity, associatedBody, panelTypeId ),
+    const std::string& panelTypeId,
+    const EstimatebleParametersEnum parameterType ):
+    EstimatableParameter< double >( parameterType, associatedBody, panelTypeId ),
     panelTypeId_( panelTypeId )
 {
+    if( !( ( parameterType == specular_reflectivity ) || ( parameterType == diffuse_reflectivity ) ) )
+    {
+        throw std::runtime_error( "Error when creating estimated specular/diffuse reflectivity for " +
+                                  panelTypeId + " of " + associatedBody + ", input type is inconsistent" );
+    }
     // check if the panelTypeID exists among the panels
     if(vehiclePanels.size() < 1)
     {
-        throw std::runtime_error( "Error when creating estimated specular reflectivity for " +
+        throw std::runtime_error( "Error when creating estimated specular/diffuse reflectivity for " +
                                   panelTypeId + " of " + associatedBody + ", no corresponding panels defined" );
     }
 
@@ -47,53 +53,67 @@ SpecularReflectivity::SpecularReflectivity(
 
         if( isNull )
         {
-            throw std::runtime_error( "Error when creating estimated specular reflectivity for " +
+            throw std::runtime_error( "Error when creating estimated specular/diffuse reflectivity for " +
                                       panelTypeId + " of " + associatedBody + ", detected incompatible panel reflection law" );
         }
     }
     normalizeValue( );
 }
 
-double SpecularReflectivity::normalizeValue( )
+double SpecularDiffuseReflectivityParameter::normalizeValue( )
 {
 
-    // Retrieve all specular reflectivity values for the panels corresponding to the given panelTypeId
-    std::vector<double> specularReflectivities = getPanelSpecularReflectivities(  );
+    // Retrieve all reflectivity values for the panels corresponding to the given panelTypeId
+    std::vector<double> reflectivities = getPanelReflectivities( );
 
     // Calculate the average diffuse reflectivity
-    double averageSpecularReflectivity = std::accumulate(specularReflectivities.begin(), specularReflectivities.end(), 0.0) / specularReflectivities.size();
+    double averageReflectivity = std::accumulate(reflectivities.begin(), reflectivities.end(), 0.0) / reflectivities.size();
 
     // Check if all values are the same
-    bool allValuesSame = std::all_of(specularReflectivities.begin(), specularReflectivities.end(),
-                                     [&](double value) { return value == specularReflectivities[0]; });
+    bool allValuesSame = std::all_of(reflectivities.begin(), reflectivities.end(),
+                                     [&](double value) { return value == reflectivities[0]; });
 
     // If not all values are the same, print a warning and reset the values to the average
     if (!allValuesSame)
     {
-        std::cerr << "Warning: Specular reflectivity values for panel group "
+        std::cerr << "Warning: reflectivity values for panel group "
                   << panelTypeId_ << " are not consistent. Resetting all to the average value." << std::endl;
 
-        // Set all panels' specular reflectivity to the average value
+        // Set all panels' reflectivity to the average value
         for( unsigned int i  = 0; i < reflectionLaws_.size( ); i++ )
         {
-            reflectionLaws_.at( i )->setSpecularReflectivity( averageSpecularReflectivity, true );
+            if( parameterName_.first == specular_reflectivity )
+            {
+                reflectionLaws_.at( i )->setSpecularReflectivity( averageReflectivity, true );
+            }
+            else
+            {
+                reflectionLaws_.at( i )->setDiffuseReflectivity( averageReflectivity, true );
+            }
         }
     }
 
     // Return the average diffuse reflectivity in all cases
-    return averageSpecularReflectivity;
+    return averageReflectivity;
 }
 
-double SpecularReflectivity::getParameterValue( )
+double SpecularDiffuseReflectivityParameter::getParameterValue( )
 {
     return normalizeValue( );
 }
 
-void SpecularReflectivity::setParameterValue( double parameterValue )
+void SpecularDiffuseReflectivityParameter::setParameterValue( double parameterValue )
 {
     for( unsigned int i  = 0; i < reflectionLaws_.size( ); i++ )
     {
-        reflectionLaws_.at( i )->setSpecularReflectivity( parameterValue, true );
+        if( parameterName_.first == specular_reflectivity )
+        {
+            reflectionLaws_.at( i )->setSpecularReflectivity( parameterValue, true );
+        }
+        else
+        {
+            reflectionLaws_.at( i )->setDiffuseReflectivity( parameterValue, true );
+        }
         double absorptivity = reflectionLaws_.at( i )->getAbsorptivity( );
 
         // Check if the absorptivity is negative, which indicates non-physical behavior
@@ -101,19 +121,26 @@ void SpecularReflectivity::setParameterValue( double parameterValue )
         {
             // Print a warning with both the non-physical specular reflectivity and the resulting negative absorptivity
             std::cerr << "Warning: Non-physical behavior detected for panel group "
-                      << panelTypeId_ << ". Specular reflectivity = " << parameterValue
+                      << panelTypeId_ << ". reflectivity = " << parameterValue
                       << ", resulting absorptivity = " << absorptivity << "."
                       << std::endl;
         }
     }
 }
 
-std::vector< double > SpecularReflectivity::getPanelSpecularReflectivities( )
+std::vector< double > SpecularDiffuseReflectivityParameter::getPanelReflectivities( )
 {
     std::vector< double > values;
     for( unsigned int i = 0; i < reflectionLaws_.size( ); i++ )
     {
-        values.push_back( reflectionLaws_.at( i )->getSpecularReflectivity( ) );
+        if( parameterName_.first == specular_reflectivity )
+        {
+            values.push_back( reflectionLaws_.at( i )->getSpecularReflectivity( ) );
+        }
+        else
+        {
+            values.push_back( reflectionLaws_.at( i )->getDiffuseReflectivity( ) );
+        }
     }
     return values;
 }
