@@ -94,7 +94,7 @@ BOOST_AUTO_TEST_CASE( test_RadiationPressurePartialsFromEstimation )
 
     std::map<std::string, std::vector<std::string> > sourceToTargetOccultingBodies;
     sourceToTargetOccultingBodies[ "Sun" ].push_back( "Moon" );
-    bodySettings.get( spacecraftName )->bodyExteriorPanelSettings_ = bodyWingPanelledGeometry( 2.0*100.0*std::sqrt(10.0), 1.0*100.0*std::sqrt(10.0), 4.0*100.0*std::sqrt(10.0), 1.0E5, 0.0, 0.0, 0.0, 0.0, false, false );
+    bodySettings.get( spacecraftName )->bodyExteriorPanelSettings_ = bodyWingPanelledGeometry( 2.0*100.0*std::sqrt(10.0), 1.0*100.0*std::sqrt(10.0), 4.0*100.0*std::sqrt(10.0), 1.0E5, 0.1, 0.2, 0.2, 0.3, false, false );
     bodySettings.get( spacecraftName )->rotationModelSettings = constantRotationModelSettings( "J2000", spacecraftName + "_Fixed", Eigen::Matrix3d::Identity( ) );
 
     // Test for separate source, and double source
@@ -170,16 +170,17 @@ BOOST_AUTO_TEST_CASE( test_RadiationPressurePartialsFromEstimation )
             // Parameter perturbations and tolerances determined empirically to be acceptable
             int scalingIndex = 4;
             double toleranceStates = 1E-3;
+            if( test == 0 || test == 3 )
+            {
+                toleranceStates /= 100.0;
+            }
             double toleranceParameter = 1E-12;
             if( test % 3 > 0|| test == 6 )
             {
                 scalingIndex = 2;
                 toleranceParameter = 1.0E-7;
             }
-//            if( test > 3 )
-//            {
-//                toleranceStates = 1.0E-3;
-//            }
+
 
             // Perturb parameters
             auto perturbedParameters = nominalParameters;
