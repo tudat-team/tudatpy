@@ -14,7 +14,7 @@ set(estimatable_parameters_SOURCES
   "sphericalHarmonicSineCoefficients.cpp"
   "sphericalHarmonicCosineCoefficients.cpp"
   "tidalLoveNumber.cpp"
-  "specularReflectivity.cpp"
+  "specularDiffuseReflectivity.cpp"
 )
 
 # Set the header files.
@@ -44,8 +44,7 @@ set(estimatable_parameters_HEADERS
   "polarMotionAmplitude.h"
   "coreFactor.h"
   "freeCoreNutationRate.h"
-  "specularReflectivity.h"
-  "diffuseReflectivity.h"
+  "specularDiffuseReflectivity.h"
   "polynomialClockCorrections.h"
 )
 
