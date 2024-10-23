@@ -1313,12 +1313,13 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
             break;
         }
         case specular_reflectivity:
+        case diffuse_reflectivity:
         {
 
             if( currentBody->getVehicleSystems( )->getVehicleExteriorPanels( ).size( ) == 0)
             {
                 std::string errorMessage = "Error, no vehicle panelsl found in body " +
-                        currentBodyName + " when making specular reflectivity parameter.";
+                        currentBodyName + " when making specular/diffuse reflectivity parameter.";
                 throw std::runtime_error( errorMessage );
             }
             else
@@ -1337,24 +1338,8 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
                     }
                 }
 
-                doubleParameterToEstimate = std::make_shared< SpecularReflectivity >(  panelsFromId,
-                    currentBodyName, doubleParameterName->parameterType_.second.second);
-            }
-            break;
-        }
-        case diffuse_reflectivity:
-        {
-            if( std::dynamic_pointer_cast< electromagnetism::PaneledRadiationPressureTargetModel >( currentBody->getRadiationPressureTargetModel( ) ) == nullptr)
-            {
-                std::string errorMessage = "Error, no panelled radiation pressure target model found in body " +
-                        currentBodyName + " when making diffuse reflectivity parameter.";
-                throw std::runtime_error( errorMessage );
-            }
-            else
-            {
-                doubleParameterToEstimate = std::make_shared< DiffuseReflectivity >(
-                    std::dynamic_pointer_cast< electromagnetism::PaneledRadiationPressureTargetModel >( currentBody->getRadiationPressureTargetModel( ) ),
-                    currentBodyName, doubleParameterName->parameterType_.second.second);
+                doubleParameterToEstimate = std::make_shared< SpecularDiffuseReflectivityParameter >(  panelsFromId,
+                    currentBodyName, doubleParameterName->parameterType_.second.second, doubleParameterName->parameterType_.first );
             }
             break;
         }
