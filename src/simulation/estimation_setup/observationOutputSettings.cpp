@@ -102,11 +102,10 @@ std::string getObservationDependentVariableId(
 }
 
 
-bool isObservationDependentVariableVectorial(
-        const std::shared_ptr< ObservationDependentVariableSettings > variableSettings )
+bool isObservationDependentVariableVectorial( const ObservationDependentVariables variableType )
 {
     bool isVariableVectorial = false;
-    switch( variableSettings->variableType_ )
+    switch( variableType )
     {
     case station_elevation_angle:
         isVariableVectorial = false;
@@ -136,10 +135,8 @@ bool isObservationDependentVariableVectorial(
         isVariableVectorial = true;
         break;
     default:
-        throw std::runtime_error( "Error when checking observation dependent variable. Type " +
-                                  getObservationDependentVariableId( variableSettings ) +
+        throw std::runtime_error( "Error when checking observation dependent variable. Type " + getObservationDependentVariableName( variableType ) +
                                   " not found when checking if variable is vectorial." );
-
     }
     return isVariableVectorial;
 }
@@ -172,8 +169,7 @@ bool isObservationDependentVariableAncilliarySetting(
         isAncilliarySetting = true;
         break;
     default:
-        throw std::runtime_error( "Error when checking observation dependent variable. Type " +
-                                  std::to_string( variableType ) +
+        throw std::runtime_error( "Error when checking observation dependent variable. Type " + getObservationDependentVariableName( variableType ) +
                                   " not found when checking for ancilliary setting." );
 
     }
@@ -181,11 +177,10 @@ bool isObservationDependentVariableAncilliarySetting(
 }
 
 
-bool isObservationDependentVariableGroundStationProperty(
-        const std::shared_ptr< ObservationDependentVariableSettings > variableSettings )
+bool isObservationDependentVariableGroundStationProperty( const ObservationDependentVariables variableType )
 {
     bool isGroundStationProperty = false;
-    switch( variableSettings->variableType_ )
+    switch( variableType )
     {
     case station_elevation_angle:
         isGroundStationProperty = true;
@@ -208,12 +203,45 @@ bool isObservationDependentVariableGroundStationProperty(
     case retransmission_delays_dependent_variable:
         break;
     default:
-        throw std::runtime_error( "Error when checking observation dependent variable. Type " +
-                                  getObservationDependentVariableId( variableSettings ) +
+        throw std::runtime_error( "Error when checking observation dependent variable. Type " + getObservationDependentVariableName( variableType ) +
                                   " not found when checking for ground station dependency." );
-
     }
     return isGroundStationProperty;
+}
+
+bool isObservationDependentVariableInterlinkProperty( const ObservationDependentVariables variableType )
+{
+    bool isInterlinkProperty = false;
+    switch( variableType )
+    {
+        case station_elevation_angle:
+            break;
+        case station_azimuth_angle:
+            break;
+        case target_range:
+            isInterlinkProperty = true;
+            break;
+        case body_avoidance_angle_variable:
+            isInterlinkProperty = true;
+            break;
+        case doppler_integration_time_dependent_variable:
+            break;
+        case link_body_center_distance:
+            isInterlinkProperty = true;
+            break;
+        case link_limb_distance:
+            isInterlinkProperty = true;
+            break;
+        case link_angle_with_orbital_plane:
+            isInterlinkProperty = true;
+            break;
+        case retransmission_delays_dependent_variable:
+            break;
+        default:
+            throw std::runtime_error( "Error when checking observation dependent variable. Type " + getObservationDependentVariableName( variableType ) +
+                                      " not found when checking if interlink property." );
+    }
+    return isInterlinkProperty;
 }
 
 int getObservationDependentVariableSize(
@@ -221,7 +249,7 @@ int getObservationDependentVariableSize(
         const LinkEnds linkEnds )
 {
     int variableSize = 0;
-    if( !isObservationDependentVariableVectorial( variableSettings ) )
+    if( !isObservationDependentVariableVectorial( variableSettings->variableType_ ) )
     {
         variableSize = 1;
     }
@@ -353,11 +381,10 @@ bool doesObservationDependentVariableExistForGivenLink(
     return doesLinkHaveDependency;
 }
 
-bool isObservationDependentVariableLinkEndDependent(
-        const std::shared_ptr< ObservationDependentVariableSettings > variableSettings )
+bool isObservationDependentVariableLinkEndDependent( const ObservationDependentVariables variableType )
 {
     bool linkEndDependent = true;
-    switch( variableSettings->variableType_ )
+    switch( variableType )
     {
         case station_elevation_angle:
         case station_azimuth_angle:
@@ -374,11 +401,40 @@ bool isObservationDependentVariableLinkEndDependent(
             linkEndDependent = false;
             break;
         default:
-            throw std::runtime_error( "Error when checking observation dependent variable. Type " +
-                                      getObservationDependentVariableId( variableSettings ) +
+            throw std::runtime_error( "Error when checking observation dependent variable. Type " + getObservationDependentVariableName( variableType ) +
                                       " not found when checking if variable is link end dependent." );
     }
     return linkEndDependent;
+}
+
+bool isInterlinkPropertyDirectionAgnostic( const ObservationDependentVariables variableType )
+{
+    if ( !isObservationDependentVariableInterlinkProperty( variableType ) )
+    {
+        throw std::runtime_error( "Error when checking if interlink dependent variable is link direction-agnostic, type " +
+                                          getObservationDependentVariableName( variableType ) + " is not interlink property." );
+    }
+    bool isDirectionAgnostic = false;
+    switch( variableType )
+    {
+        case target_range:
+            isDirectionAgnostic = true;
+            break;
+        case body_avoidance_angle_variable:
+            break;
+        case link_body_center_distance:
+            isDirectionAgnostic = true;
+            break;
+        case link_limb_distance:
+            isDirectionAgnostic = true;
+            break;
+        case link_angle_with_orbital_plane:
+            break;
+        default:
+            throw std::runtime_error( "Error when checking observation dependent variable. Type " + getObservationDependentVariableName( variableType ) +
+                                      " not found when checking if interlink variable is link direction-agnostic." );
+    }
+    return isDirectionAgnostic;
 }
 
 std::function< bool( const ObservableType observableType ) > getIsObservableTypeCompatibleFunction(
@@ -421,18 +477,19 @@ std::shared_ptr< ObservationDependentVariableSettings > createCompleteObservatio
         std::shared_ptr< StationAngleObservationDependentVariableSettings > stationAngleSettings =
                 std::dynamic_pointer_cast< StationAngleObservationDependentVariableSettings >( originalSettings );
         completeSettings = std::make_shared< StationAngleObservationDependentVariableSettings >(
-                originalSettings->variableType_, linkEndId, linkEndType, stationAngleSettings->integratedObservableHandling_, originatingLinkEndType );
-        completeSettings->originatingLinkEndId_ = originatingLinkEndId;
+                originalSettings->variableType_, linkEndId, linkEndType, originatingLinkEndId, originatingLinkEndType,
+                stationAngleSettings->integratedObservableHandling_ );
+//        completeSettings->originatingLinkEndId_ = originatingLinkEndId;
     }
     else if ( std::dynamic_pointer_cast< InterlinkObservationDependentVariableSettings >( originalSettings ) != nullptr )
     {
         std::shared_ptr< InterlinkObservationDependentVariableSettings > interlinkSettings =
                 std::dynamic_pointer_cast< InterlinkObservationDependentVariableSettings >( originalSettings );
         completeSettings = std::make_shared< InterlinkObservationDependentVariableSettings >(
-                originalSettings->variableType_, originatingLinkEndType, linkEndType, interlinkSettings->integratedObservableHandling_,
-                interlinkSettings->relativeBody_ );
-        completeSettings->linkEndId_ = linkEndId;
-        completeSettings->originatingLinkEndId_ = originatingLinkEndId;
+                originalSettings->variableType_, originatingLinkEndType, linkEndType, originatingLinkEndId, linkEndId,
+                interlinkSettings->integratedObservableHandling_, interlinkSettings->relativeBody_ );
+//        completeSettings->linkEndId_ = linkEndId;
+//        completeSettings->originatingLinkEndId_ = originatingLinkEndId;
     }
     else
     {
@@ -462,7 +519,7 @@ std::vector< std::shared_ptr< ObservationDependentVariableSettings > > createAll
               << interlinksSettings.second.first << " : " << interlinksSettings.second.second.bodyName_ << ", " << interlinksSettings.second.second.stationName_ << std::endl;
 
     std::vector< std::shared_ptr< ObservationDependentVariableSettings > > allDependentVariablesSettings;
-    if ( !isObservationDependentVariableLinkEndDependent( dependentVariableSettings ) )
+    if ( !isObservationDependentVariableLinkEndDependent( dependentVariableSettings->variableType_ ) )
     {
         if ( std::dynamic_pointer_cast< AncillaryObservationDependentVariableSettings >( dependentVariableSettings ) != nullptr )
         {
@@ -501,13 +558,17 @@ std::vector< std::shared_ptr< ObservationDependentVariableSettings > > createAll
                     && ( interlink.second.second == interlinksSettings.first.second || interlinksSettings.first.second == LinkEndId( "", "" ) ) // Check link end id start interlink
                     && ( interlink.first.first == interlinksSettings.second.first || interlinksSettings.second.first == unidentified_link_end ) // Check link end type end interlink
                     && ( interlink.first.second == interlinksSettings.second.second || interlinksSettings.second.second == LinkEndId( "", "" ) ); // Check link end id start interlink
+            if ( revertedLinksMatch )
+            {
+                interlink = std::make_pair( interlink.second, interlink.first );
+            }
 
             std::cout << "directLinksMatch: " << directLinksMatch << std::endl;
             std::cout << "revertedLinksMatch: " << revertedLinksMatch << std::endl;
 
             if ( directLinksMatch || revertedLinksMatch )
             {
-                if ( !isObservationDependentVariableGroundStationProperty( dependentVariableSettings ) )
+                if ( !isObservationDependentVariableGroundStationProperty( dependentVariableSettings->variableType_ ) )
                 {
                     interlinksToCreateList.push_back( interlink );
                 }
