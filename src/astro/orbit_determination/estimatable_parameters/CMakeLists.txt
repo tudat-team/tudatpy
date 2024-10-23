@@ -14,7 +14,8 @@ set(estimatable_parameters_SOURCES
   "sphericalHarmonicSineCoefficients.cpp"
   "sphericalHarmonicCosineCoefficients.cpp"
   "tidalLoveNumber.cpp"
-        )
+  "specularReflectivity.cpp"
+)
 
 # Set the header files.
 set(estimatable_parameters_HEADERS
