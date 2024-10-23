@@ -299,27 +299,27 @@ BOOST_AUTO_TEST_CASE( test_PanelledRadiationPressureEstimation )
                 rotationalStateVehicle, "ECLIPJ2000", "VehicleFixed" ));
 
         {
-//            double specular1 = 0.35, specular2 = 0.35, diffuse1 = 0.25, diffuse2 = 0.25;
-//            if( testCase == 1 )
-//            {
-//                specular1 += 0.1;
-//                specular2 -= 0.1;
-//                diffuse1 += 0.05;
-//                diffuse2 -= 0.05;
-//            }
-//            std::vector<std::shared_ptr<BodyPanelSettings> > panelSettingsList;
-//            panelSettingsList.push_back(
-//                bodyPanelSettings(
-//                    frameFixedPanelGeometry( Eigen::Vector3d::UnitX( ), 9.9 ),
-//                    specularDiffuseBodyPanelReflectionLawSettings( specular1, diffuse1, false ), "SolarPanel" ));
-//            panelSettingsList.push_back(
-//                bodyPanelSettings(
-//                    frameFixedPanelGeometry( Eigen::Vector3d::UnitY( ), 9.9 ),
-//                    specularDiffuseBodyPanelReflectionLawSettings( specular2, diffuse2, false ), "SolarPanel" ));
+            double specular1 = 0.35, specular2 = 0.35, diffuse1 = 0.25, diffuse2 = 0.25;
+            if( testCase == 1 )
+            {
+                specular1 += 0.1;
+                specular2 -= 0.1;
+                diffuse1 += 0.05;
+                diffuse2 -= 0.05;
+            }
+            std::vector<std::shared_ptr<BodyPanelSettings> > panelSettingsList;
+            panelSettingsList.push_back(
+                bodyPanelSettings(
+                    frameFixedPanelGeometry( Eigen::Vector3d::UnitX( ), 9.9 ),
+                    specularDiffuseBodyPanelReflectionLawSettings( specular1, diffuse1, false ), "SolarPanel" ));
+            panelSettingsList.push_back(
+                bodyPanelSettings(
+                    frameFixedPanelGeometry( Eigen::Vector3d::UnitY( ), 9.9 ),
+                    specularDiffuseBodyPanelReflectionLawSettings( specular2, diffuse2, false ), "SolarPanel" ));
             std::shared_ptr<FullPanelledBodySettings> panelSettings =
-                bodyWingPanelledGeometry(
-                2., 3., 4., 10., 0.35, 0.25, 0.35, 0.25, false, false );
-//                fullPanelledBodySettings( panelSettingsList );
+//                bodyWingPanelledGeometry(
+//                2., 3., 4., 10., 0.35, 0.25, 0.35, 0.25, false, false );
+                fullPanelledBodySettings( panelSettingsList );
             addBodyExteriorPanelledShape(
                 panelSettings, "Vehicle", bodies );
             bodies.at( "Vehicle" )->setRadiationPressureTargetModels(
@@ -456,42 +456,42 @@ BOOST_AUTO_TEST_CASE( test_PanelledRadiationPressureEstimation )
             parametersToEstimate->template getFullParameterValues<double>( );
         std::cout<<"TEST A:"<<truthParameters.transpose( )<<std::endl;
         std::cout<<"TEST B:"<<testValues.transpose( )<<std::endl;
+
 //
-////
-//
-//        // Define estimation input
-//        std::shared_ptr<EstimationInput<double, double> >
-//            estimationInput = std::make_shared<EstimationInput<double, double> >(
-//            observationsAndTimes );
-//
-//        estimationInput->defineEstimationSettings( true, true, true, true, true );
-//        estimationInput->setConvergenceChecker(
-//            std::make_shared<EstimationConvergenceChecker>( 1 ));
-//
-//        // Perform estimation
-//        std::shared_ptr<EstimationOutput<double> > estimationOutput = orbitDeterminationManager.estimateParameters(
-//            estimationInput );
-//
-//        double rmsResidual = linear_algebra::getVectorEntryRootMeanSquare( observationsAndTimes->getConcatenatedResiduals( ) );
-//        BOOST_CHECK_SMALL( rmsResidual, 5.0E-5 );
-//        Eigen::VectorXd parameterEstimate = estimationOutput->parameterEstimate_;
-//        std::cout << "parameter estimate: " << ( parameterEstimate ).transpose( ) << std::endl;
-//
-//        Eigen::VectorXd estimationError = parameterEstimate - truthParameters;
-//        for( int i = 0; i < 3; i++ )
-//        {
-//            BOOST_CHECK_SMALL( std::fabs( estimationError( i ) ), 1.0E-4 );
-//            BOOST_CHECK_SMALL( std::fabs( estimationError( i + 3 ) ), 1.0E-7 );
-//        }
-//        BOOST_CHECK_SMALL( std::fabs( estimationError( 6 ) ), 1.0E-4 );
-//        BOOST_CHECK_SMALL( std::fabs( estimationError( 6 ) ), 1.0E-4 );
-//
-//        Eigen::Matrix<double, Eigen::Dynamic, 1> newTestValues =
-//            parametersToEstimate->template getFullParameterValues<double>( );
-//        std::cout<<"TEST C:"<<newTestValues.transpose( )<<std::endl;
-//
-//        std::cout << "estimation error: " << ( estimationError ).transpose( ) << std::endl;
-//        std::cout << "truth value: " << ( truthParameters ).transpose( ) << std::endl;
+
+        // Define estimation input
+        std::shared_ptr<EstimationInput<double, double> >
+            estimationInput = std::make_shared<EstimationInput<double, double> >(
+            observationsAndTimes );
+
+        estimationInput->defineEstimationSettings( true, true, true, true, true );
+        estimationInput->setConvergenceChecker(
+            std::make_shared<EstimationConvergenceChecker>( 4 ));
+
+        // Perform estimation
+        std::shared_ptr<EstimationOutput<double> > estimationOutput = orbitDeterminationManager.estimateParameters(
+            estimationInput );
+
+        double rmsResidual = linear_algebra::getVectorEntryRootMeanSquare( observationsAndTimes->getConcatenatedResiduals( ) );
+        BOOST_CHECK_SMALL( rmsResidual, 5.0E-5 );
+        Eigen::VectorXd parameterEstimate = estimationOutput->parameterEstimate_;
+        std::cout << "parameter estimate: " << ( parameterEstimate ).transpose( ) << std::endl;
+
+        Eigen::VectorXd estimationError = parameterEstimate - truthParameters;
+        for( int i = 0; i < 3; i++ )
+        {
+            BOOST_CHECK_SMALL( std::fabs( estimationError( i ) ), 1.0E-4 );
+            BOOST_CHECK_SMALL( std::fabs( estimationError( i + 3 ) ), 1.0E-7 );
+        }
+        BOOST_CHECK_SMALL( std::fabs( estimationError( 6 ) ), 1.0E-4 );
+        BOOST_CHECK_SMALL( std::fabs( estimationError( 6 ) ), 1.0E-4 );
+
+        Eigen::Matrix<double, Eigen::Dynamic, 1> newTestValues =
+            parametersToEstimate->template getFullParameterValues<double>( );
+        std::cout<<"TEST C:"<<newTestValues.transpose( )<<std::endl;
+
+        std::cout << "estimation error: " << ( estimationError ).transpose( ) << std::endl;
+        std::cout << "truth value: " << ( truthParameters ).transpose( ) << std::endl;
     }
 }
 
