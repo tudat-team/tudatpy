@@ -18,12 +18,47 @@ namespace tudat
 namespace estimatable_parameters
 {
 
+SpecularReflectivity::SpecularReflectivity(
+    const std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > vehiclePanels,
+    const std::string& associatedBody,
+    const std::string panelTypeId):
+    EstimatableParameter< double >( specular_reflectivity, associatedBody, panelTypeId ),
+    panelTypeId_( panelTypeId )
+{
+    // check if the panelTypeID exists among the panels
+    if(vehiclePanels.size() < 1)
+    {
+        throw std::runtime_error( "Error when creating estimated specular reflectivity for " +
+                                  panelTypeId + " of " + associatedBody + ", no corresponding panels defined" );
+    }
+
+    for( unsigned int i = 0; i < vehiclePanels.size( ); i++ )
+    {
+        bool isNull = true;
+        if(vehiclePanels.at ( i )->getReflectionLaw() != nullptr )
+        {
+            auto reflectionLaw = std::dynamic_pointer_cast<electromagnetism::SpecularDiffuseMixReflectionLaw>(vehiclePanels.at(i)->getReflectionLaw());
+            if( reflectionLaw != nullptr )
+            {
+                reflectionLaws_.push_back( reflectionLaw );
+                isNull = false;
+            }
+        }
+
+        if( isNull )
+        {
+            throw std::runtime_error( "Error when creating estimated specular reflectivity for " +
+                                      panelTypeId + " of " + associatedBody + ", detected incompatible panel reflection law" );
+        }
+    }
+    normalizeValue( );
+}
 
 double SpecularReflectivity::normalizeValue( )
 {
 
     // Retrieve all specular reflectivity values for the panels corresponding to the given panelTypeId
-    std::vector<double> specularReflectivities = radiationPressureInterface_->getSpecularReflectivityForPanelTypeId(panelTypeId_);
+    std::vector<double> specularReflectivities = getPanelSpecularReflectivities(  );
 
     // Calculate the average diffuse reflectivity
     double averageSpecularReflectivity = std::accumulate(specularReflectivities.begin(), specularReflectivities.end(), 0.0) / specularReflectivities.size();
@@ -39,15 +74,11 @@ double SpecularReflectivity::normalizeValue( )
                   << panelTypeId_ << " are not consistent. Resetting all to the average value." << std::endl;
 
         // Set all panels' specular reflectivity to the average value
-        radiationPressureInterface_->setGroupSpecularReflectivity(panelTypeId_, averageSpecularReflectivity);
-
-        // Adjust the absorptivity
-        double averageDiffuseReflectivity = radiationPressureInterface_->getAverageDiffuseReflectivity(panelTypeId_);
-        double apsorptivity = 1 - averageDiffuseReflectivity - averageSpecularReflectivity;
-        radiationPressureInterface_->setGroupAbsorptivity(panelTypeId_, apsorptivity);
+        for( unsigned int i  = 0; i < reflectionLaws_.size( ); i++ )
+        {
+            reflectionLaws_.at( i )->setSpecularReflectivity( averageSpecularReflectivity, true );
+        }
     }
-
-    std::cout<<"Getting "<<averageSpecularReflectivity<<std::endl;
 
     // Return the average diffuse reflectivity in all cases
     return averageSpecularReflectivity;
@@ -60,35 +91,33 @@ double SpecularReflectivity::getParameterValue( )
 
 void SpecularReflectivity::setParameterValue( double parameterValue )
 {
-    std::cout<<"Setting "<<parameterValue<<std::endl;
-
-
-    // Set the specular reflectivity, even if it's greater than 1 (non-physical case)
-    radiationPressureInterface_->setGroupSpecularReflectivity(panelTypeId_, parameterValue);
-    std::vector<double> specularReflectivities = radiationPressureInterface_->getSpecularReflectivityForPanelTypeId(panelTypeId_);
-    for( int i = 0; i < specularReflectivities.size( ); i++ )
+    for( unsigned int i  = 0; i < reflectionLaws_.size( ); i++ )
     {
-        std::cout<<"Val "<<specularReflectivities.at( i )<<std::endl;
+        reflectionLaws_.at( i )->setSpecularReflectivity( parameterValue, true );
+        double absorptivity = reflectionLaws_.at( i )->getAbsorptivity( );
+
+        // Check if the absorptivity is negative, which indicates non-physical behavior
+        if ( absorptivity < 0.0 )
+        {
+            // Print a warning with both the non-physical specular reflectivity and the resulting negative absorptivity
+            std::cerr << "Warning: Non-physical behavior detected for panel group "
+                      << panelTypeId_ << ". Specular reflectivity = " << parameterValue
+                      << ", resulting absorptivity = " << absorptivity << "."
+                      << std::endl;
+        }
     }
-    // Get the current diffuse reflectivity
-    double diffuseReflectivity = radiationPressureInterface_->getAverageDiffuseReflectivity( panelTypeId_ );
-
-    // Compute the absorptivity such that the sum of specular + diffuse + absorptivity = 1
-    double absorptivity = 1.0 - parameterValue - diffuseReflectivity;
-
-    // Check if the absorptivity is negative, which indicates non-physical behavior
-    if ( absorptivity < 0.0 )
-    {
-        // Print a warning with both the non-physical specular reflectivity and the resulting negative absorptivity
-        std::cerr << "Warning: Non-physical behavior detected for panel group "
-                  << panelTypeId_ << ". Specular reflectivity = " << parameterValue
-                  << ", resulting absorptivity = " << absorptivity << "."
-                  << std::endl;
-    }
-
-    // Set the absorptivity for the panel group (even if it's negative)
-    radiationPressureInterface_->setGroupAbsorptivity(panelTypeId_, absorptivity);
 }
+
+std::vector< double > SpecularReflectivity::getPanelSpecularReflectivities( )
+{
+    std::vector< double > values;
+    for( unsigned int i = 0; i < reflectionLaws_.size( ); i++ )
+    {
+        values.push_back( reflectionLaws_.at( i )->getSpecularReflectivity( ) );
+    }
+    return values;
+}
+
 
 } // namespace estimatable_parameters
 

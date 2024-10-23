@@ -1314,16 +1314,30 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
         }
         case specular_reflectivity:
         {
-            if( std::dynamic_pointer_cast< electromagnetism::PaneledRadiationPressureTargetModel >( currentBody->getRadiationPressureTargetModel( ) ) == nullptr)
+
+            if( currentBody->getVehicleSystems( )->getVehicleExteriorPanels( ).size( ) == 0)
             {
-                std::string errorMessage = "Error, no panelled radiation pressure target model found in body " +
+                std::string errorMessage = "Error, no vehicle panelsl found in body " +
                         currentBodyName + " when making specular reflectivity parameter.";
                 throw std::runtime_error( errorMessage );
             }
             else
             {
-                doubleParameterToEstimate = std::make_shared< SpecularReflectivity >(
-                    std::dynamic_pointer_cast< electromagnetism::PaneledRadiationPressureTargetModel >( currentBody->getRadiationPressureTargetModel( ) ),
+                std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > panelsFromId;
+                std::map< std::string, std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > > fullPanels =
+                    currentBody->getVehicleSystems( )->getVehicleExteriorPanels( );
+                for( auto it : fullPanels )
+                {
+                    for( unsigned int i = 0; i < it.second.size( ); i++ )
+                    {
+                        if( it.second.at( i  )->getPanelTypeId( ) == doubleParameterName->parameterType_.second.second )
+                        {
+                            panelsFromId.push_back( it.second.at( i ) );
+                        }
+                    }
+                }
+
+                doubleParameterToEstimate = std::make_shared< SpecularReflectivity >(  panelsFromId,
                     currentBodyName, doubleParameterName->parameterType_.second.second);
             }
             break;
