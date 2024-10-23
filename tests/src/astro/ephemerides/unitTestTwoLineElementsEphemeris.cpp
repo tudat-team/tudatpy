@@ -60,9 +60,6 @@ BOOST_AUTO_TEST_CASE( testTwoLineElementsEphemerisVallado )
 	verificationPosition << -9059941.3786, 4659697.2000, 813958.8875;
 	verificationVelocity << -2233.348094, -4110.136162, -3157.394074;
 
-    std::cout<<"Diff pos"<<( verificationPosition - propagatedPosition ).norm( )<<std::endl;
-    std::cout<<"Diff vel"<<( verificationVelocity - propagatedVelocity ).norm( )<<std::endl;
-
 	// Check if difference within tolerances
     BOOST_CHECK_SMALL( ( verificationPosition - propagatedPosition ).norm( ), 50.0 );
     BOOST_CHECK_SMALL( ( propagatedVelocity - verificationVelocity ).norm( ), 0.05 );
