@@ -34,6 +34,20 @@ enum ObservationDependentVariables
     retransmission_delays_dependent_variable
 };
 
+std::string getObservationDependentVariableName( const ObservationDependentVariables variableType );
+
+bool isObservationDependentVariableAncilliarySetting( const ObservationDependentVariables variableType );
+
+bool isObservationDependentVariableInterlinkProperty( const ObservationDependentVariables variableType );
+
+bool isInterlinkPropertyDirectionAgnostic( const ObservationDependentVariables variableType );
+
+bool isObservationDependentVariableVectorial( const ObservationDependentVariables variableType );
+
+bool isObservationDependentVariableGroundStationProperty( const ObservationDependentVariables variableType );
+
+bool isObservationDependentVariableLinkEndDependent( const ObservationDependentVariables variableType );
+
 
 class ObservationDependentVariableSettings
 {
@@ -53,38 +67,49 @@ public:
 
     ObservationDependentVariables variableType_;
 
-    virtual std::string getIdentifier( ) // = 0;
+    std::string getBaseIdentifier( )
     {
-        std::string identifier;
-        if( linkEndId_ != LinkEndId( "", "" ) )
+        std::string identifier = ", link end";
+        if( linkEndId_ != LinkEndId( "", "" ) && linkEndType_ != unidentified_link_end )
         {
-            identifier = ", station: (" + linkEndId_.bodyName_ + ", " + linkEndId_.stationName_ + ")";
-            if ( linkEndType_ != unidentified_link_end )
-            {
-                identifier += " as " + getLinkEndTypeString( linkEndType_ );
-            }
-            if ( originatingLinkEndType_ != unidentified_link_end )
-            {
-                identifier += " link to " + getLinkEndTypeString( originatingLinkEndType_ );
-            }
+            identifier += ": (" + linkEndId_.bodyName_ + ", " + linkEndId_.stationName_ + ") as " + getLinkEndTypeString( linkEndType_ );
+        }
+        else if ( linkEndId_ != LinkEndId( "", "" ) )
+        {
+            identifier = ": (" + linkEndId_.bodyName_ + ", " + linkEndId_.stationName_ + ")";
         }
         else if ( linkEndType_ != unidentified_link_end )
         {
-            identifier += " link end " + getLinkEndTypeString( linkEndType_ );
-            if ( originatingLinkEndType_ != unidentified_link_end )
-            {
-                identifier += " link to " + getLinkEndTypeString( originatingLinkEndType_ );
-            }
+            identifier = " of type " + getLinkEndTypeString( linkEndType_ );
+        }
+
+        if( originatingLinkEndId_ != LinkEndId( "", "" ) && originatingLinkEndType_ != unidentified_link_end )
+        {
+            identifier += " to link end: (" + originatingLinkEndId_.bodyName_ + ", " + originatingLinkEndId_.stationName_ + ") as " + getLinkEndTypeString( originatingLinkEndType_ );
+        }
+        else if ( originatingLinkEndId_ != LinkEndId( "", "" ) )
+        {
+            identifier += " to link end: (" + originatingLinkEndId_.bodyName_ + ", " + originatingLinkEndId_.stationName_ + ")";
+        }
+        else if ( originatingLinkEndType_ != unidentified_link_end )
+        {
+            identifier += " to link end of type " + getLinkEndTypeString( originatingLinkEndType_ );
         }
         return identifier;
     }
 
-    virtual bool areSettingsCompatible( const std::shared_ptr< ObservationDependentVariableSettings > otherSettings ) //= 0;
+    virtual std::string getIdentifier( ) // = 0;
     {
-        return areBaseSettingsCompatible( otherSettings );
+        return getBaseIdentifier( );
     }
 
-    bool areBaseSettingsCompatible( const std::shared_ptr< ObservationDependentVariableSettings > otherSettings )
+    virtual bool areSettingsCompatible( const std::shared_ptr< ObservationDependentVariableSettings > otherSettings ) //= 0;
+    {
+        return areBaseSettingsCompatible( otherSettings, true );
+    }
+
+    bool areBaseSettingsCompatible( const std::shared_ptr< ObservationDependentVariableSettings > otherSettings,
+                                    const bool revertedLinksAllowed = true )
     {
         bool isCompatible = true;
         if ( variableType_ != otherSettings->variableType_ )
@@ -93,14 +118,34 @@ public:
         }
         else
         {
-            if ( ( linkEndType_ != otherSettings->linkEndType_ && linkEndType_ != unidentified_link_end && otherSettings->linkEndType_ != unidentified_link_end )
+            bool directLinksMatch =
+                    ( ( linkEndType_ == otherSettings->linkEndType_ || linkEndType_ == unidentified_link_end || otherSettings->linkEndType_ == unidentified_link_end )
+                    && ( ( linkEndId_ == otherSettings->linkEndId_ || linkEndId_ == LinkEndId( "", "" ) || otherSettings->linkEndId_ == LinkEndId( "", "" ) ) )
+                    && ( ( originatingLinkEndType_ == otherSettings->originatingLinkEndType_ ||
+                    originatingLinkEndType_ == unidentified_link_end || otherSettings->originatingLinkEndType_ == unidentified_link_end ) )
+                    && ( ( originatingLinkEndId_ == otherSettings->originatingLinkEndId_ ||
+                    originatingLinkEndId_ == LinkEndId( "", "" ) || otherSettings->originatingLinkEndId_ == LinkEndId( "", "" ) ) ) );
+
+            bool revertedLinksMatch =
+                    ( ( linkEndType_ == otherSettings->originatingLinkEndType_ || linkEndType_ == unidentified_link_end || otherSettings->originatingLinkEndType_ == unidentified_link_end )
+                    && ( ( linkEndId_ == otherSettings->originatingLinkEndId_ || linkEndId_ == LinkEndId( "", "" ) || otherSettings->originatingLinkEndId_ == LinkEndId( "", "" ) ) )
+                    && ( ( originatingLinkEndType_ == otherSettings->linkEndType_ ||
+                    originatingLinkEndType_ == unidentified_link_end || otherSettings->linkEndType_ == unidentified_link_end ) )
+                    && ( ( originatingLinkEndId_ == otherSettings->linkEndId_ ||
+                    originatingLinkEndId_ == LinkEndId( "", "" ) || otherSettings->linkEndId_ == LinkEndId( "", "" ) ) ) );
+
+            if ( !directLinksMatch && ( !revertedLinksAllowed || !revertedLinksMatch ) /*( linkEndType_ != otherSettings->linkEndType_ && linkEndType_ != unidentified_link_end && otherSettings->linkEndType_ != unidentified_link_end )
             || ( ( linkEndId_ != otherSettings->linkEndId_ && linkEndId_ != LinkEndId( "", "" ) && otherSettings->linkEndId_ != LinkEndId( "", "" ) ) )
             || ( ( originatingLinkEndType_ != otherSettings->originatingLinkEndType_ &&
                 originatingLinkEndType_ != unidentified_link_end && otherSettings->originatingLinkEndType_ != unidentified_link_end ) )
             || ( ( originatingLinkEndId_ != otherSettings->originatingLinkEndId_ &&
-                originatingLinkEndId_ != LinkEndId( "", "" ) && otherSettings->originatingLinkEndId_ != LinkEndId( "", "" ) ) ) )
+                originatingLinkEndId_ != LinkEndId( "", "" ) && otherSettings->originatingLinkEndId_ != LinkEndId( "", "" ) ) )*/ )
             {
-                isCompatible = false;
+//                isCompatible = false;
+//                if ( !revertedLinksAllowed || !revertedLinksMatch )
+//                {
+                    isCompatible = false;
+//                }
             }
         }
 
@@ -131,57 +176,35 @@ public:
             const ObservationDependentVariables variableType,
             const LinkEndId relevantLinkEnd = LinkEndId( "", "" ),
             const LinkEndType linkEndRole = unidentified_link_end,
-            const IntegratedObservationPropertyHandling integratedObservableHandling = interval_start, // interval_undefined,
-            const LinkEndType originatingLinkEndRole = unidentified_link_end ):
-        ObservationDependentVariableSettings( variableType, relevantLinkEnd, linkEndRole, LinkEndId( "", "" ), originatingLinkEndRole ),
+            const LinkEndId originatingLinkEndId = LinkEndId( "", "" ),
+            const LinkEndType originatingLinkEndRole = unidentified_link_end,
+            const IntegratedObservationPropertyHandling integratedObservableHandling = interval_start ):
+        ObservationDependentVariableSettings( variableType, relevantLinkEnd, linkEndRole, originatingLinkEndId, originatingLinkEndRole ),
 //        relevantLinkEnd_( relevantLinkEnd ), linkEndRole_( linkEndRole ),
         integratedObservableHandling_( integratedObservableHandling ),
 //        originatingLinkEndRole_( originatingLinkEndRole ),
-        isLinkEndDefined_( true )
+        isLinkEndDefined_( ( relevantLinkEnd != LinkEndId( "", "" ) ? true : false ) )
     {
 
     }
 
-    StationAngleObservationDependentVariableSettings(
-        const ObservationDependentVariables variableType,
-        const LinkEndType linkEndRole,
-        const IntegratedObservationPropertyHandling integratedObservableHandling = interval_start, // interval_undefined,
-        const LinkEndType originatingLinkEndRole = unidentified_link_end ):
-        ObservationDependentVariableSettings( variableType, LinkEndId( "", "" ), linkEndRole, LinkEndId( "", "" ), originatingLinkEndRole ),
-//        linkEndRole_( linkEndRole ),
-        integratedObservableHandling_( integratedObservableHandling ),
-//        originatingLinkEndRole_( originatingLinkEndRole ),
-        isLinkEndDefined_( false )
-    {
-
-    }
+//    StationAngleObservationDependentVariableSettings(
+//        const ObservationDependentVariables variableType,
+//        const LinkEndType linkEndRole,
+//        const IntegratedObservationPropertyHandling integratedObservableHandling = interval_start, // interval_undefined,
+//        const LinkEndType originatingLinkEndRole = unidentified_link_end ):
+//        ObservationDependentVariableSettings( variableType, LinkEndId( "", "" ), linkEndRole, LinkEndId( "", "" ), originatingLinkEndRole ),
+////        linkEndRole_( linkEndRole ),
+//        integratedObservableHandling_( integratedObservableHandling ),
+////        originatingLinkEndRole_( originatingLinkEndRole ),
+//        isLinkEndDefined_( false )
+//    {
+//
+//    }
 
     std::string getIdentifier( )
     {
-        std::string identifier;
-        if( isLinkEndDefined_ )
-        {
-            identifier = ", station: (" + linkEndId_.bodyName_ + ", " + linkEndId_.stationName_ + ")";
-            if ( linkEndType_ != unidentified_link_end )
-            {
-                identifier += " as " + getLinkEndTypeString( linkEndType_ );
-            }
-            if ( originatingLinkEndType_ != unidentified_link_end )
-            {
-                identifier += " link to " + getLinkEndTypeString( originatingLinkEndType_ );
-            }
-            identifier += getIntegrationHandlingString( integratedObservableHandling_ );
-        }
-        else
-        {
-            identifier += " link end " + getLinkEndTypeString( linkEndType_ );
-            if ( originatingLinkEndType_ != unidentified_link_end )
-            {
-                identifier += " link to " + getLinkEndTypeString( originatingLinkEndType_ );
-            }
-            identifier += getIntegrationHandlingString( integratedObservableHandling_ );
-        }
-        return identifier;
+        return getBaseIdentifier( ) + getIntegrationHandlingString( integratedObservableHandling_ );
     }
 
     bool areSettingsCompatible( const std::shared_ptr< ObservationDependentVariableSettings > otherSettings )
@@ -195,7 +218,7 @@ public:
         }
         else
         {
-            if ( !areBaseSettingsCompatible( otherSettings ) )
+            if ( !areBaseSettingsCompatible( otherSettings, false ) )
             {
                 isCompatible = false;
             }
@@ -230,11 +253,13 @@ class InterlinkObservationDependentVariableSettings: public ObservationDependent
 public:
     InterlinkObservationDependentVariableSettings(
             const ObservationDependentVariables variableType,
-            const LinkEndType startLinkEnd = unidentified_link_end,
-            const LinkEndType endLinkEnd = unidentified_link_end,
+            const LinkEndType startLinkEndType = unidentified_link_end,
+            const LinkEndType endLinkEndType = unidentified_link_end,
+            const LinkEndId startLinkEndId = LinkEndId( "", "" ),
+            const LinkEndId endLinkEndId = LinkEndId( "", "" ),
             const IntegratedObservationPropertyHandling integratedObservableHandling = interval_start, // interval_undefined,
             const std::string relativeBody = "" ):
-    ObservationDependentVariableSettings( variableType, LinkEndId( "", "" ), endLinkEnd, LinkEndId( "", "" ), startLinkEnd ),
+    ObservationDependentVariableSettings( variableType, endLinkEndId, endLinkEndType, startLinkEndId, startLinkEndType ),
 //        startLinkEnd_( startLinkEnd ), endLinkEnd_( endLinkEnd ),
         integratedObservableHandling_( integratedObservableHandling ),
         relativeBody_( relativeBody ){ }
@@ -243,8 +268,7 @@ public:
 
     std::string getIdentifier( )
     {
-        std::string identifier = ", link from " + getLinkEndTypeString( originatingLinkEndType_ ) + " to " +
-            getLinkEndTypeString( linkEndType_ );
+        std::string identifier = getBaseIdentifier( );
         if( relativeBody_ != "" )
         {
             identifier += " with " + relativeBody_ + " as relative body";
@@ -265,7 +289,7 @@ public:
         }
         else
         {
-            if ( !areBaseSettingsCompatible( otherSettings ) )
+            if ( !areBaseSettingsCompatible( otherSettings, isInterlinkPropertyDirectionAgnostic( variableType_ ) ) )
             {
                 isCompatible = false;
             }
@@ -319,22 +343,14 @@ public:
 
     std::string getIdentifier( )
     {
-        std::string identifier;
+        std::string identifier = getBaseIdentifier( );
         if ( observableType_ != undefined_observation_model )
         {
-            identifier += "for observable of type " + std::to_string( observableType_ );
+            identifier += ", for observable of type " + std::to_string( observableType_ );
         }
-        identifier += "." ;//", for observable(s) of type ";
-//        for ( unsigned int k = 0 ; k < observableTypes_.size( ) - 1 ; k++ )
-//        {
-//            identifier += std::to_string( observableTypes_[ k ] ) + ", ";
-//        }
-//        identifier += std::to_string( observableTypes_[ observableTypes_.size( ) - 1 ] ) + ".";
-
         return identifier;
     }
 
-//
     bool areSettingsCompatible( const std::shared_ptr< ObservationDependentVariableSettings > otherSettings )
     {
         bool isCompatible = true;
@@ -386,27 +402,7 @@ public:
 };
 
 
-std::string getObservationDependentVariableName(
-        const ObservationDependentVariables variableType );
-
 std::string getObservationDependentVariableId(
-        const std::shared_ptr< ObservationDependentVariableSettings > variableSettings );
-
-bool isObservationDependentVariableVectorial(
-        const std::shared_ptr< ObservationDependentVariableSettings > variableSettings );
-
-
-bool isObservationDependentVariableAncilliarySetting(
-        const ObservationDependentVariables variableType );
-
-
-bool isObservationDependentVariableGroundStationProperty(
-        const std::shared_ptr< ObservationDependentVariableSettings > variableSettings );
-
-bool isObservationDependentVariableSimpleLinkProperty(
-    const std::shared_ptr< ObservationDependentVariableSettings > variableSettings );
-
-bool isObservationDependentVariableLinkEndDependent(
         const std::shared_ptr< ObservationDependentVariableSettings > variableSettings );
 
 int getObservationDependentVariableSize(
@@ -437,171 +433,98 @@ std::vector< std::shared_ptr< ObservationDependentVariableSettings > > createAll
         const LinkEnds& linkEnds,
         std::shared_ptr< ObservationDependentVariableSettings > dependentVariableSettings );
 
-inline std::shared_ptr< ObservationDependentVariableSettings > elevationAngleAtLinkEndTypeDependentVariable(
-        const LinkEndType linkEndRole,
-        const IntegratedObservationPropertyHandling integratedObservableHandling = interval_undefined,
-        const LinkEndType originatingLinkEndRole = unidentified_link_end )
+inline std::shared_ptr< ObservationDependentVariableSettings > elevationAngleDependentVariable(
+        const LinkEndType linkEndRole = unidentified_link_end,
+        const LinkEndId linkEndId = LinkEndId( "", "" ),
+        const LinkEndType originatingLinkEndRole = unidentified_link_end,
+        const LinkEndId originatingLinkEndId = LinkEndId( "", "" ),
+        const IntegratedObservationPropertyHandling integratedObservableHandling = interval_start )
 {
-    return std::make_shared< StationAngleObservationDependentVariableSettings >( station_elevation_angle, linkEndRole, integratedObservableHandling, originatingLinkEndRole );
+    return std::make_shared< StationAngleObservationDependentVariableSettings >(
+            station_elevation_angle, linkEndId, linkEndRole, originatingLinkEndId, originatingLinkEndRole, integratedObservableHandling );
 }
 
-inline std::shared_ptr< ObservationDependentVariableSettings > azimuthAngleAtLinkEndTypeDependentVariable(
-    const LinkEndType linkEndRole,
-    const IntegratedObservationPropertyHandling integratedObservableHandling = interval_undefined,
-    const LinkEndType originatingLinkEndRole = unidentified_link_end )
+inline std::shared_ptr< ObservationDependentVariableSettings > azimuthAngleDependentVariable(
+    const LinkEndType linkEndRole = unidentified_link_end,
+    const LinkEndId linkEndId = LinkEndId( "", "" ),
+    const LinkEndType originatingLinkEndRole = unidentified_link_end,
+    const LinkEndId originatingLinkEndId = LinkEndId( "", "" ),
+    const IntegratedObservationPropertyHandling integratedObservableHandling = interval_start )
 {
-    return std::make_shared< StationAngleObservationDependentVariableSettings >( station_azimuth_angle, linkEndRole, integratedObservableHandling, originatingLinkEndRole );
+    return std::make_shared< StationAngleObservationDependentVariableSettings >(
+            station_azimuth_angle, linkEndId, linkEndRole, originatingLinkEndId, originatingLinkEndRole, integratedObservableHandling );
 }
 
 inline std::shared_ptr< ObservationDependentVariableSettings > targetRangeBetweenLinkEndsDependentVariable(
-        const LinkEndType startLinkEnd,
-        const LinkEndType endLinkEnd,
-        const IntegratedObservationPropertyHandling integratedObservableHandling = interval_undefined )
+        const LinkEndType startLinkEndType = unidentified_link_end,
+        const LinkEndType endLinkEndType = unidentified_link_end,
+        const LinkEndId startLinkEndId = LinkEndId( "", "" ),
+        const LinkEndId endLinkEndId = LinkEndId( "", "" ),
+        const IntegratedObservationPropertyHandling integratedObservableHandling = interval_start )
 {
-    return std::make_shared< InterlinkObservationDependentVariableSettings >( target_range, startLinkEnd, endLinkEnd, integratedObservableHandling );
+    return std::make_shared< InterlinkObservationDependentVariableSettings >(
+            target_range, startLinkEndType, endLinkEndType, startLinkEndId, endLinkEndId, integratedObservableHandling );
 }
 
 inline std::shared_ptr< ObservationDependentVariableSettings > bodyAvoidanceAngleDependentVariable(
-        const LinkEndType startLinkEnd,
-        const LinkEndType endLinkEnd,
         const std::string relativeBody,
-        const IntegratedObservationPropertyHandling integratedObservableHandling = interval_undefined )
+        const LinkEndType startLinkEndType = unidentified_link_end,
+        const LinkEndType endLinkEndType = unidentified_link_end,
+        const LinkEndId startLinkEndId = LinkEndId( "", "" ),
+        const LinkEndId endLinkEndId = LinkEndId( "", "" ),
+        const IntegratedObservationPropertyHandling integratedObservableHandling = interval_start )
 {
-    return std::make_shared< InterlinkObservationDependentVariableSettings >( body_avoidance_angle_variable, startLinkEnd, endLinkEnd, integratedObservableHandling, relativeBody );
+    return std::make_shared< InterlinkObservationDependentVariableSettings >(
+            body_avoidance_angle_variable, startLinkEndType, endLinkEndType, startLinkEndId, endLinkEndId, integratedObservableHandling, relativeBody );
 }
 
 inline std::shared_ptr< ObservationDependentVariableSettings > linkBodyCenterDistanceDependentVariable(
-        const LinkEndType startLinkEnd,
-        const LinkEndType endLinkEnd,
         const std::string relativeBody,
-        const IntegratedObservationPropertyHandling integratedObservableHandling = interval_undefined )
+        const LinkEndType startLinkEndType = unidentified_link_end,
+        const LinkEndType endLinkEndType = unidentified_link_end,
+        const LinkEndId startLinkEndId = LinkEndId( "", "" ),
+        const LinkEndId endLinkEndId = LinkEndId( "", "" ),
+        const IntegratedObservationPropertyHandling integratedObservableHandling = interval_start )
 {
-    return std::make_shared< InterlinkObservationDependentVariableSettings >( link_body_center_distance, startLinkEnd, endLinkEnd, integratedObservableHandling, relativeBody );
+    return std::make_shared< InterlinkObservationDependentVariableSettings >(
+            link_body_center_distance, startLinkEndType, endLinkEndType, startLinkEndId, endLinkEndId, integratedObservableHandling, relativeBody );
 }
 
 inline std::shared_ptr< ObservationDependentVariableSettings > linkLimbDistanceDependentVariable(
-        const LinkEndType startLinkEnd,
-        const LinkEndType endLinkEnd,
         const std::string relativeBody,
-        const IntegratedObservationPropertyHandling integratedObservableHandling = interval_undefined )
+        const LinkEndType startLinkEndType = unidentified_link_end,
+        const LinkEndType endLinkEndType = unidentified_link_end,
+        const LinkEndId startLinkEndId = LinkEndId( "", "" ),
+        const LinkEndId endLinkEndId = LinkEndId( "", "" ),
+        const IntegratedObservationPropertyHandling integratedObservableHandling = interval_start )
 {
-    return std::make_shared< InterlinkObservationDependentVariableSettings >( link_limb_distance, startLinkEnd, endLinkEnd, integratedObservableHandling, relativeBody );
+    return std::make_shared< InterlinkObservationDependentVariableSettings >(
+            link_limb_distance, startLinkEndType, endLinkEndType, startLinkEndId, endLinkEndId, integratedObservableHandling, relativeBody );
 }
 
 inline std::shared_ptr< ObservationDependentVariableSettings > linkAngleWrtOrbitalPlaneDependentVariable(
-        const LinkEndType startLinkEnd,
-        const LinkEndType endLinkEnd,
         const std::string relativeBody,
-        const IntegratedObservationPropertyHandling integratedObservableHandling = interval_undefined )
+        const LinkEndType startLinkEndType = unidentified_link_end,
+        const LinkEndType endLinkEndType = unidentified_link_end,
+        const LinkEndId startLinkEndId = LinkEndId( "", "" ),
+        const LinkEndId endLinkEndId = LinkEndId( "", "" ),
+        const IntegratedObservationPropertyHandling integratedObservableHandling = interval_start )
 {
-    return std::make_shared< InterlinkObservationDependentVariableSettings >( link_angle_with_orbital_plane, startLinkEnd, endLinkEnd, integratedObservableHandling, relativeBody );
+    return std::make_shared< InterlinkObservationDependentVariableSettings >(
+            link_angle_with_orbital_plane, startLinkEndType, endLinkEndType, startLinkEndId, endLinkEndId, integratedObservableHandling, relativeBody );
 }
 
-//inline std::shared_ptr< ObservationDependentVariableSettings > dopplerIntegrationTimeDependentVariable( )
-//{
-//    return std::make_shared< ObservationDependentVariableSettings >( doppler_integration_time_dependent_variable );
-//}
-//
-//inline std::shared_ptr< ObservationDependentVariableSettings > retransmissionDelaysDependentVariable( )
-//{
-//    return std::make_shared< ObservationDependentVariableSettings >( retransmission_delays_dependent_variable );
-//}
+inline std::shared_ptr< ObservationDependentVariableSettings > dopplerIntegrationTimeDependentVariable(
+        const ObservableType observableType = undefined_observation_model )
+{
+    return std::make_shared< AncillaryObservationDependentVariableSettings >( doppler_integration_time_dependent_variable, observableType );
+}
 
-//// for interlink
-//inline std::shared_ptr< ObservationDependentVariableSettings > dependentVariable(
-//        const ObservationDependentVariables variableType,
-//        const std::pair< LinkEndId, LinkEndId > linkEnds =
-//                std::make_pair( LinkEndId( "", "" ), LinkEndId( "", "" ) ),/*
-//        const std::shared_ptr< ObservationCollectionParser > observationParser = std::make_shared< ObservationCollectionParser >( )*/ )
-//{
-//
-//}
-//
-//// for interlink
-//inline std::shared_ptr< ObservationDependentVariableSettings > dependentVariable(
-//        const ObservationDependentVariables variableType,
-//        const std::pair< LinkEndType, LinkEndType > linkEnds,
-//        const std::shared_ptr< ObservationCollectionParser > observationParser = std::make_shared< ObservationCollectionParser >( ) )
-//{
-//
-//}
-//
-//
-//// for station angle
-//inline std::shared_ptr< ObservationDependentVariableSettings > dependentVariable(
-//        const ObservationDependentVariables variableType,
-//        const LinkEndId linkEnds,
-//        const std::shared_ptr< ObservationCollectionParser > observationParser = std::make_shared< ObservationCollectionParser >( ) )
-//{
-//
-//}
-//
-//inline std::shared_ptr< ObservationDependentVariableSettings > dependentVariable(
-//        const ObservationDependentVariables variableType,
-//        const LinkEndType linkEnds,
-//        const std::shared_ptr< ObservationCollectionParser > observationParser = std::make_shared< ObservationCollectionParser >( ) )
-//{
-//
-//}
-
-//std::shared_ptr< ObservationCollectionParser > getObservationParserFromDependentVariableSettings(
-//        const std::shared_ptr< ObservationDependentVariableSettings > dependentVariableSettings )
-//{
-//    std::shared_ptr< ObservationCollectionParser > observationParser;
-//
-//    std::vector< std::shared_ptr< ObservationCollectionParser > > parserList;
-//
-//    // Check if relevant link end id and type are both specified
-//    if ( ( dependentVariableSettings->linkEndId_ != LinkEndId( "", "" ) ) && ( dependentVariableSettings->linkEndType_ != unidentified_link_end ) )
-//    {
-//        parserList.push_back( std::make_shared< ObservationCollectionSingleLinkEndParser >( std::make_pair( dependentVariableSettings->linkEndType_, dependentVariableSettings->linkEndId_ ) ) );
-//    }
-//    // if only relevant link end id is specified
-//    else if ( dependentVariableSettings->linkEndId_ != LinkEndId( "", "" ) )
-//    {
-//        parserList.push_back( std::make_shared< ObservationCollectionLinkEndIdParser >( dependentVariableSettings->linkEndId_ ) );
-//    }
-//    // if only relevant link end type is specified
-//    else if ( dependentVariableSettings->linkEndType_ != unidentified_link_end )
-//    {
-//        parserList.push_back( std::make_shared< ObservationCollectionLinkEndTypeParser >( dependentVariableSettings->linkEndType_ ) );
-//    }
-//
-//    // Check if originating link end id and type are both specified
-//    if ( ( dependentVariableSettings->originatingLinkEndId_ != LinkEndId( "", "" ) ) && ( dependentVariableSettings->originatingLinkEndType_ != unidentified_link_end ) )
-//    {
-//        parserList.push_back( std::make_shared< ObservationCollectionSingleLinkEndParser >( std::make_pair( dependentVariableSettings->originatingLinkEndType_, dependentVariableSettings->originatingLinkEndId_ ) ) );
-//    }
-//    // if only originating link end id is specified
-//    else if ( dependentVariableSettings->originatingLinkEndId_ != LinkEndId( "", "" ) )
-//    {
-//        parserList.push_back( std::make_shared< ObservationCollectionLinkEndIdParser >( dependentVariableSettings->originatingLinkEndId_ ) );
-//    }
-//    // if only originating link end type is specified
-//    else if ( dependentVariableSettings->originatingLinkEndType_ != unidentified_link_end )
-//    {
-//        parserList.push_back( std::make_shared< ObservationCollectionLinkEndTypeParser >( dependentVariableSettings->originatingLinkEndType_ ) );
-//    }
-//
-//    // Create multi-type observation collection parser
-//    observationParser = std::make_shared< ObservationCollectionMultiTypeParser >( parserList, true );
-//
-//    return observationParser;
-//}
-
-//obsCollection->addDependentVariable( elevation_angle( receiver ) );
-//Eigen::MatrixXd = obsCollection->getDependentVariable( elevation_angle( "sTATION1" ) );
-//std::vector< Eigen::MatrixXd > test = obsCollection->getDependentVariable( elevation_angle( "sTATION1" ) );
-//
-//dependentVariable( target_range );
-//dependentVariable( target_range, std::make_pair( receiver, reflector1 ) );
-//dependentVariable( target_range, std::make_pair( "station1", "spacecraft" ) );
-//
-//dependentVariable( elevation_angle );
-//dependentVariable( elevation_angle, receiver );
-//dependentVariable( elevation_angle, "station1" );
-//
-//observationCollection->addDependentVariable( elevationAngle( receiver ), observationParser( one_way_doppler ) );
+inline std::shared_ptr< ObservationDependentVariableSettings > retransmissionDelaysDependentVariable(
+        const ObservableType observableType = undefined_observation_model )
+{
+    return std::make_shared< AncillaryObservationDependentVariableSettings >( retransmission_delays_dependent_variable, observableType );
+}
 
 
 
