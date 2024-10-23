@@ -193,9 +193,9 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureAccelerationPartials )
         std::shared_ptr< EstimatableParameter< double > > perpendicularScalingFactor =
             std::make_shared< RadiationPressureScalingFactor >( accelerationModel, source_perpendicular_direction_radiation_pressure_scaling_factor, "Vehicle", "Sun" );
         std::shared_ptr< EstimatableParameter< double > > diffuseReflectivityParameter =
-            std::make_shared< DiffuseReflectivity >( radiationPressureInterface, "Vehicle", "SolarPanel" );
+            createDoubleParameterToEstimate< double, double >( std::make_shared< EstimatableParameterSettings >( "Vehicle", diffuse_reflectivity, "SolarPanel" ), bodies );
         std::shared_ptr< EstimatableParameter< double > > specularReflectivityParameter =
-                std::make_shared< SpecularReflectivity >( radiationPressureInterface, "Vehicle", "SolarPanel" );
+            createDoubleParameterToEstimate< double, double >( std::make_shared< EstimatableParameterSettings >( "Vehicle", specular_reflectivity, "SolarPanel" ), bodies );
 
         // Calculate analytical partials.
         accelerationPartial->update( 0.0 );
