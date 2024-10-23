@@ -10,7 +10,7 @@
 
 
 
-#include "tudat/astro/orbit_determination/estimatable_parameters/specularReflectivity.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/specularDiffuseReflectivity.h"
 
 namespace tudat
 {
