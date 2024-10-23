@@ -163,9 +163,13 @@ public:
         return specularReflectivity_;
     }
 
-    void setSpecularReflectivity( const double specularReflectivity)
+    void setSpecularReflectivity( const double specularReflectivity, bool normalizeParameters = false )
     {
         specularReflectivity_ = specularReflectivity;
+        if( normalizeParameters )
+        {
+            absorptivity_ = 1.0 - specularReflectivity_ - diffuseReflectivity_;
+        }
     }
 
     double getDiffuseReflectivity() const
