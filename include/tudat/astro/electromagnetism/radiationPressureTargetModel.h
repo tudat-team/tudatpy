@@ -355,24 +355,6 @@ public:
 
     void saveLocalComputations( const std::string sourceName, const bool saveCosines ) override ;
 
-    std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > getPanelsFromId(
-            const std::string& panelTypeId);
-
-    double getAverageDiffuseReflectivity(const std::string& panelTypeId);
-
-    double getAverageSpecularReflectivity(const std::string& panelTypeId);
-
-    std::vector<double> getSpecularReflectivityForPanelTypeId(const std::string& panelTypeId);
-
-    std::vector<double> getDiffuseReflectivityForPanelTypeId(const std::string& panelTypeId);
-
-
-    void setGroupSpecularReflectivity(const std::string& panelTypeId, double specularReflectivity);
-
-    void setGroupDiffuseReflectivity(const std::string& panelTypeId, double diffuseReflectivity);
-
-    void setGroupAbsorptivity(const std::string& panelTypeId, double absorbtivity);
-
 private:
     void updateMembers_( double currentTime ) override;
 
