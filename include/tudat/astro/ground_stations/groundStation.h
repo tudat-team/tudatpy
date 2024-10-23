@@ -18,6 +18,7 @@
 
 #include "tudat/astro/ground_stations/groundStationState.h"
 #include "tudat/astro/ground_stations/pointingAnglesCalculator.h"
+#include "tudat/astro/system_models/timingSystem.h"
 #include "tudat/astro/ground_stations/transmittingFrequencies.h"
 #include "tudat/astro/system_models/vehicleSystems.h"
 
@@ -94,6 +95,16 @@ public:
     std::shared_ptr< PointingAnglesCalculator > getPointingAnglesCalculator( )
     {
         return pointingAnglesCalculator_;
+    }
+
+    std::shared_ptr< system_models::TimingSystem > getTimingSystem( )
+    {
+        return timingSystem_;
+    }
+
+    void setTimingSystem( const std::shared_ptr< system_models::TimingSystem > timingSystem )
+    {
+        timingSystem_ = timingSystem;
     }
 
     //! Function to return the object used to compute the ground station's transmitting frequency at a given time
@@ -217,6 +228,8 @@ private:
 
     //! Object used to computed pointing angles (elevation, azimuth) to a given target from this ground station.
     std::shared_ptr< PointingAnglesCalculator > pointingAnglesCalculator_;
+
+    std::shared_ptr< system_models::TimingSystem > timingSystem_;
 
     //! Name of the ground station
     std::string stationId_;

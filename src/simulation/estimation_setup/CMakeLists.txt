@@ -42,6 +42,7 @@ set(estimation_HEADERS
         observations.h
         createDirectObservationPartials.h
         createPositionPartialScaling.h
+        createClockPartials.h
         processOdfFile.h
         processTrackingTxtFile.h
         )
@@ -68,6 +69,7 @@ set(estimation_SOURCES
         observationOutputSettings.cpp
         observationOutput.cpp
         simulateObservations.cpp
+        createClockPartials.cpp
         processOdfFile.cpp
         processTrackingTxtFile.cpp
         )
