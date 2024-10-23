@@ -40,23 +40,10 @@ class SpecularReflectivity: public EstimatableParameter< double >
         * \param panelTypeID Name of panel group for which to estimate the coefficient
         */
         SpecularReflectivity(
-                const std::shared_ptr< electromagnetism::PaneledRadiationPressureTargetModel > radiationPressureInterface,
+                const std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > vehiclePanels,
                 const std::string& associatedBody,
-                const std::string panelTypeId):
-            EstimatableParameter< double >( specular_reflectivity, associatedBody, panelTypeId ),
-            radiationPressureInterface_( radiationPressureInterface ),
-            panelTypeId_( panelTypeId )
-        {
-            // check if the panelTypeID exists among the panels
-            std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > panelsFromId =
-            radiationPressureInterface_->getPanelsFromId( panelTypeId_);
-            if(panelsFromId.size() < 1){
-                throw std::runtime_error( "Error when creating estimated specular reflectivity for " +
-                panelTypeId + " of " + associatedBody + ", no corresponding panels defined" );
-            }
-            normalizeValue( );
+                const std::string panelTypeId);
 
-        }
         //! Destructor.
         ~SpecularReflectivity( ) { }
 
@@ -72,7 +59,9 @@ class SpecularReflectivity: public EstimatableParameter< double >
 
     private:
 
-        std::shared_ptr< electromagnetism::PaneledRadiationPressureTargetModel > radiationPressureInterface_;
+        std::vector< double > getPanelSpecularReflectivities( );
+
+        std::vector< std::shared_ptr< electromagnetism::SpecularDiffuseMixReflectionLaw > > reflectionLaws_;
 
         std::string panelTypeId_;
 
