@@ -99,8 +99,6 @@ class SpecularReflectivity: public EstimatableParameter< double >
 
         void setParameterValue( double parameterValue )
         {
-            std::cout<<"Setting values "<<panelTypeId_<<" "<<parameterValue<<std::endl;
-
             // Set the specular reflectivity, even if it's greater than 1 (non-physical case)
             radiationPressureInterface_->setGroupSpecularReflectivity(panelTypeId_, parameterValue);
 

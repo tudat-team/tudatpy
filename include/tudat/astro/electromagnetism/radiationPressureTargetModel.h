@@ -465,13 +465,11 @@ public:
         std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > panelsFromId;
         panelsFromId = this->getPanelsFromId(panelTypeId);
 
-        std::cout<<"Number of panels with ID "<<panelsFromId.size( )<<std::endl;
         for( unsigned int i = 0; i < panelsFromId.size(); i++ )
         {
             if(panelsFromId.at(i)->getReflectionLaw() != nullptr )
             {
                 auto reflectionLaw = std::dynamic_pointer_cast<SpecularDiffuseMixReflectionLaw>(fullPanels_.at(i)->getReflectionLaw());
-                std::cout<<"Resetting reflection law "<<specularReflectivity<<" "<<reflectionLaw->getSpecularReflectivity( )<<std::endl;
                 reflectionLaw->setSpecularReflectivity(specularReflectivity);
             }
         }
