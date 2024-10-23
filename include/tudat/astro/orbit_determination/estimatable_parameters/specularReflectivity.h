@@ -29,7 +29,7 @@ namespace estimatable_parameters
 {
 
 //! Interface class for the estimation of a specular reflectivity coefficient per group of panels
-class SpecularReflectivity: public EstimatableParameter< double >
+class SpecularDiffuseReflectivityParameter: public EstimatableParameter< double >
 {
     public:
         //! Constructor.
@@ -39,13 +39,14 @@ class SpecularReflectivity: public EstimatableParameter< double >
         * \param associatedBody Name of body containing the radiationPressureInterface object
         * \param panelTypeID Name of panel group for which to estimate the coefficient
         */
-        SpecularReflectivity(
+        SpecularDiffuseReflectivityParameter(
                 const std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > vehiclePanels,
                 const std::string& associatedBody,
-                const std::string panelTypeId);
+                const std::string& panelTypeId,
+                const EstimatebleParametersEnum parameterType );
 
         //! Destructor.
-        ~SpecularReflectivity( ) { }
+        ~SpecularDiffuseReflectivityParameter( ) { }
 
         double normalizeValue( );
 
@@ -59,7 +60,7 @@ class SpecularReflectivity: public EstimatableParameter< double >
 
     private:
 
-        std::vector< double > getPanelSpecularReflectivities( );
+        std::vector< double > getPanelReflectivities( );
 
         std::vector< std::shared_ptr< electromagnetism::SpecularDiffuseMixReflectionLaw > > reflectionLaws_;
 

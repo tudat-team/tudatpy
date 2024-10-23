@@ -177,9 +177,13 @@ public:
         return diffuseReflectivity_;
     }
 
-    void setDiffuseReflectivity( const double diffuseReflectivity)
+    void setDiffuseReflectivity( const double diffuseReflectivity, bool normalizeParameters = false )
     {
         diffuseReflectivity_ = diffuseReflectivity;
+        if( normalizeParameters )
+        {
+            absorptivity_ = 1.0 - specularReflectivity_ - diffuseReflectivity_;
+        }
     }
 
     bool isWithInstantaneousReradiation() const
