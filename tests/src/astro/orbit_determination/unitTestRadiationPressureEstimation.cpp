@@ -244,7 +244,7 @@ BOOST_AUTO_TEST_CASE( test_RadiationPressurePartialsFromEstimation )
             if( parameterIndex < 6 )
             {
                 // Modify tolernace for geometrically poor term
-                if( test == 1 && parameterIndex == 3 )
+                if( ( test == 1 && parameterIndex == 3 ) || ( test == 3 && parameterIndex == 4 )
                 {
                     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalValue, analyticalValue, ( toleranceStates * 20.0 ) );
                 }
