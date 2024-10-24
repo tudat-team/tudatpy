@@ -49,6 +49,7 @@
 #include "tudat/simulation/estimation_setup/estimatableParameterSettings.h"
 #include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
 #include "tudat/simulation/environment_setup/body.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/specularDiffuseReflectivity.h"
 
 namespace tudat
 {
@@ -1310,6 +1311,37 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
                 currentBodyName, doubleParameterName->parameterType_.second.second );
             break;
         }
+        case specular_reflectivity:
+        case diffuse_reflectivity:
+        {
+
+            if( currentBody->getVehicleSystems( )->getVehicleExteriorPanels( ).size( ) == 0)
+            {
+                std::string errorMessage = "Error, no vehicle panelsl found in body " +
+                        currentBodyName + " when making specular/diffuse reflectivity parameter.";
+                throw std::runtime_error( errorMessage );
+            }
+            else
+            {
+                std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > panelsFromId;
+                std::map< std::string, std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > > fullPanels =
+                    currentBody->getVehicleSystems( )->getVehicleExteriorPanels( );
+                for( auto it : fullPanels )
+                {
+                    for( unsigned int i = 0; i < it.second.size( ); i++ )
+                    {
+                        if( it.second.at( i  )->getPanelTypeId( ) == doubleParameterName->parameterType_.second.second )
+                        {
+                            panelsFromId.push_back( it.second.at( i ) );
+                        }
+                    }
+                }
+
+                doubleParameterToEstimate = std::make_shared< SpecularDiffuseReflectivityParameter >(  panelsFromId,
+                    currentBodyName, doubleParameterName->parameterType_.second.second, doubleParameterName->parameterType_.first );
+            }
+            break;
+        }
         default:
             throw std::runtime_error( "Warning, this double parameter has not yet been implemented when making parameters" );
             break;
@@ -1788,6 +1820,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
             }
             break;
         }
+
         case arc_wise_constant_drag_coefficient:
         {
             // Check input consistency

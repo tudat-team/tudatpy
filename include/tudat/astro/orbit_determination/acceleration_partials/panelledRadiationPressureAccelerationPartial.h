@@ -116,6 +116,10 @@ public:
         }
     }
 
+    void wrtSpecularReflectivity( Eigen::MatrixXd& partial, const std::string& panelTypeId );
+
+    void wrtDiffuseReflectivity( Eigen::MatrixXd& partial, const std::string& panelTypeId );
+
     //! Function for updating partial w.r.t. the bodies' positions
     /*!
      *  Function for updating common blocks of partial to current state. For the panelled radiation
@@ -182,10 +186,28 @@ public:
                     numberOfRows = 1;
 
                     break;
+
                 default:
                     break;
                 }
             }
+            switch( parameter->getParameterName( ).first )
+                {
+                case estimatable_parameters::specular_reflectivity:
+                    partialFunction = std::bind( &PanelledRadiationPressurePartial::wrtSpecularReflectivity,
+                                                 this, std::placeholders::_1, parameter->getParameterName( ).second.second );
+                    numberOfRows = 1;
+                    break;
+
+                case estimatable_parameters::diffuse_reflectivity:
+                    partialFunction = std::bind( &PanelledRadiationPressurePartial::wrtDiffuseReflectivity,
+                                                 this, std::placeholders::_1, parameter->getParameterName( ).second.second );
+                    numberOfRows = 1;
+                    break;
+                default:
+                    break;
+                }
+
         }
         return std::make_pair( partialFunction, numberOfRows );
     }

@@ -9,7 +9,10 @@
  */
 
 #include <tudat/simulation/estimation.h>
-
+#include "tudat/astro/ephemerides/constantRotationalEphemeris.h"
+#include "tudat/simulation/environment_setup/createRadiationPressureInterface.h"
+#include "tudat/astro/electromagnetism/radiationPressureAcceleration.h"
+#include "tudat/astro/electromagnetism/radiationPressureTargetModel.h"
 #include <tudat/io/applicationOutput.h>
 
 //! Execute propagation of orbits of Vehicle and Obelix around the Earth.
@@ -34,6 +37,8 @@ int main( )
     using namespace tudat::coordinate_conversions;
     using namespace tudat::ground_stations;
     using namespace tudat::observation_models;
+    using namespace tudat::electromagnetism;
+
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////     CREATE ENVIRONMENT AND VEHICLE       //////////////////////////////////////////////////////
@@ -46,12 +51,10 @@ int main( )
     std::vector< std::string > bodyNames;
     bodyNames.push_back( "Earth" );
     bodyNames.push_back( "Sun" );
-    bodyNames.push_back( "Moon" );
-    bodyNames.push_back( "Mars" );
 
     // Specify initial time
     double initialEphemerisTime = double( 1.0E7 );
-    double finalEphemerisTime = initialEphemerisTime + 3.0 * 86400.0;
+    double finalEphemerisTime = initialEphemerisTime + 0.5 * 86400.0;
 
     // Create bodies needed in simulation
     BodyListSettings bodySettings = getDefaultBodySettings( bodyNames, initialEphemerisTime - 3600.0,finalEphemerisTime + 3600.0 );
@@ -62,25 +65,36 @@ int main( )
     bodies.createEmptyBody( "Vehicle" );
     bodies.at( "Vehicle" )->setConstantBodyMass( 400.0 );
 
-    // Create and add aerodynamic coefficient interface
-    double referenceArea = 4.0;
-    double aerodynamicDragCoefficient = 1.2;
-    std::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings =
-            constantAerodynamicCoefficientSettings(
-                referenceArea, ( Eigen::Vector3d( ) << aerodynamicDragCoefficient, -0.01, 0.1 ).finished( ), 1, 1 );
-    addAerodynamicCoefficientInterface(
-                bodies, "Vehicle", aerodynamicCoefficientSettings );
+    // Define constant rotational ephemeris
+    //bodies.at( "Vehicle" )->setRotationalEphemeris(
+    //            createRotationModel(
+    //                orbitalStateBasedRotationSettings( "Sun", false, false, "ECLIPJ2000", "VehicleFixed" ),
+    //                "Vehicle", bodies ));
+    Eigen::Vector7d rotationalStateVehicle;
+    rotationalStateVehicle.segment( 0, 4 ) = linear_algebra::convertQuaternionToVectorFormat( Eigen::Quaterniond( Eigen::Matrix3d::Identity() ));
+    rotationalStateVehicle.segment( 4, 3 ) = Eigen::Vector3d::Zero();
+    bodies.at( "Vehicle" )->setRotationalEphemeris(
+                std::make_shared< ConstantRotationalEphemeris >(
+                    rotationalStateVehicle, "ECLIPJ2000", "VehicleFixed" ) );
+    //bodySettings.at( "Vehicle" )->rotationModelSettings = std::make_shared< SynchronousRotationModelSettings >( "Jupiter", "ECLIPJ2000", "VehicleFixed" );
 
-    // Create and add radiation pressure interace
-    double referenceAreaRadiation = 4.0;
-    double radiationPressureCoefficient = 1.2;
-    std::vector< std::string > occultingBodies = { "Earth" };
-    std::shared_ptr< RadiationPressureInterfaceSettings > vehicleRadiationPressureSettings =
-            cannonBallRadiationPressureSettings(
-                "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
-    addRadiationPressureInterface(
-                bodies, "Vehicle", vehicleRadiationPressureSettings );
-    addEmptyTabulateEphemeris( bodies, "Vehicle", "Earth" );
+    std::vector < std::shared_ptr< system_models::VehicleExteriorPanel > > panels;
+    panels = {
+                    std::make_shared< system_models::VehicleExteriorPanel >(9.9, Eigen::Vector3d::UnitX(),
+                                reflectionLawFromSpecularAndDiffuseReflectivity(0.35, 0.20)),
+                    std::make_shared< system_models::VehicleExteriorPanel >(9.9, Eigen::Vector3d::UnitY(),
+                                reflectionLawFromSpecularAndDiffuseReflectivity(0.35, 0.25)),
+            };
+    const std::string panelTypeId = "SolarPanel";
+    panels.at(0)->setPanelTypeId(panelTypeId);
+    panels.at(1)->setPanelTypeId(panelTypeId);
+
+    bodies.at( "Vehicle" )->setRadiationPressureTargetModels(
+            { std::make_shared<PaneledRadiationPressureTargetModel>(panels) } );
+
+
+    //const auto bodyShape = std::make_shared< FullPanelledBodySettings > bodyWingPanelledGeometry(2,2,2,2,0.1,0.2,0.1,0.2);
+
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////     CREATE GROUND STATIONS               //////////////////////////////////////////////////////
@@ -108,15 +122,11 @@ int main( )
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
 
     accelerationsOfVehicle[ "Earth" ] = {
-            sphericalHarmonicAcceleration( 32, 32 ),
-            aerodynamicAcceleration( ) };
+            sphericalHarmonicAcceleration( 32, 32 )};
     accelerationsOfVehicle[ "Sun" ] = {
             pointMassGravityAcceleration( ),
-            cannonBallRadiationPressureAcceleration( ) };
-    accelerationsOfVehicle[ "Mars" ] = {
-            pointMassGravityAcceleration( ) };
-    accelerationsOfVehicle[ "Moon" ] = {
-            pointMassGravityAcceleration( ) };
+            radiationPressureAcceleration( ) };
+
     accelerationSettingsList[ "Vehicle" ] = accelerationsOfVehicle;
 
     // Set bodies for which initial state is to be estimated and integrated.
@@ -161,25 +171,25 @@ int main( )
     ///////////////////////             DEFINE LINK ENDS FOR OBSERVATIONS            //////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    // Create list of link ends in which station is receiver and in which station is transmitter (with spacecraft other link end).
-    std::vector< LinkEnds > stationReceiverLinkEnds;
-    std::vector< LinkEnds > stationTransmitterLinkEnds;
+
+    // Define link ends.
+    std::vector< LinkDefinition > stationReceiverLinkEnds;
+    std::vector< LinkDefinition > stationTransmitterLinkEnds;
 
     for( unsigned int i = 0; i < groundStationNames.size( ); i++ )
     {
-        LinkEnds linkEnds;
-        linkEnds[ transmitter ] = std::make_pair( "Earth", groundStationNames.at( i ) );
-        linkEnds[ receiver ] = std::make_pair( "Vehicle", "" );
+        LinkDefinition linkEnds;
+        linkEnds[ transmitter ] = std::pair< std::string, std::string >( std::make_pair( "Earth", groundStationNames.at( i ) ) );
+        linkEnds[ receiver ] = std::make_pair< std::string, std::string >( "Vehicle", "" );
         stationTransmitterLinkEnds.push_back( linkEnds );
 
-        linkEnds.clear( );
-        linkEnds[ receiver ] = std::make_pair( "Earth", groundStationNames.at( i ) );
-        linkEnds[ transmitter ] = std::make_pair( "Vehicle", "" );
+        linkEnds[ receiver ] = std::pair< std::string, std::string >( std::make_pair( "Earth", groundStationNames.at( i ) ) );
+        linkEnds[ transmitter ] = std::make_pair< std::string, std::string >( "Vehicle", "" );
         stationReceiverLinkEnds.push_back( linkEnds );
     }
 
     // Define (arbitrarily) link ends to be used for 1-way range, 1-way doppler and angular position observables
-    std::map< ObservableType, std::vector< LinkEnds > > linkEndsPerObservable;
+    std::map< ObservableType, std::vector< LinkDefinition > > linkEndsPerObservable;
     linkEndsPerObservable[ one_way_range ].push_back( stationReceiverLinkEnds[ 0 ] );
     linkEndsPerObservable[ one_way_range ].push_back( stationTransmitterLinkEnds[ 0 ] );
     linkEndsPerObservable[ one_way_range ].push_back( stationReceiverLinkEnds[ 1 ] );
@@ -187,27 +197,6 @@ int main( )
     linkEndsPerObservable[ one_way_doppler ].push_back( stationReceiverLinkEnds[ 1 ] );
     linkEndsPerObservable[ one_way_doppler ].push_back( stationTransmitterLinkEnds[ 2 ] );
 
-    linkEndsPerObservable[ angular_position ].push_back( stationReceiverLinkEnds[ 2 ] );
-    linkEndsPerObservable[ angular_position ].push_back( stationTransmitterLinkEnds[ 1 ] );
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    ///////////////////////             CREATE OBSERVATION SETTINGS            ////////////////////////////////////////////
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    observation_models::ObservationSettingsMap observationSettingsMap;
-    for( std::map< ObservableType, std::vector< LinkEnds > >::iterator linkEndIterator = linkEndsPerObservable.begin( );
-         linkEndIterator != linkEndsPerObservable.end( ); linkEndIterator++ )
-    {
-        ObservableType currentObservable = linkEndIterator->first;
-
-        std::vector< LinkEnds > currentLinkEndsList = linkEndIterator->second;
-        for( unsigned int i = 0; i < currentLinkEndsList.size( ); i++ )
-        {
-            // Define settings for observable, no light-time corrections, and biases for selected 1-way range links
-            observationSettingsMap.insert( std::make_pair( currentLinkEndsList.at( i ),
-                                                           std::make_shared< ObservationSettings >( currentObservable ) ) );
-        }
-    }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////    DEFINE PARAMETERS THAT ARE TO BE ESTIMATED      ////////////////////////////////////////////
@@ -216,12 +205,9 @@ int main( )
     // Define list of parameters to estimate.
     std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
     parameterNames = getInitialStateParameterSettings< double >( propagatorSettings, bodies );
-    parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Vehicle", radiation_pressure_coefficient ) );
-    parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Vehicle", constant_drag_coefficient ) );
-    parameterNames.push_back( std::make_shared< SphericalHarmonicEstimatableParameterSettings >(
-                                  2, 0, 2, 2, "Earth", spherical_harmonics_cosine_coefficient_block ) );
-    parameterNames.push_back( std::make_shared< SphericalHarmonicEstimatableParameterSettings >(
-                                  2, 1, 2, 2, "Earth", spherical_harmonics_sine_coefficient_block ) );
+    const std::string dummy = "SolarPanel";
+    parameterNames.push_back(std::make_shared<EstimatableParameterSettings>("Vehicle", specular_reflectivity, dummy));
+    parameterNames.push_back(std::make_shared<EstimatableParameterSettings>("Vehicle", diffuse_reflectivity, dummy));
 
     // Create parameters
     std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate =
@@ -230,164 +216,109 @@ int main( )
     // Print identifiers and indices of parameters to terminal.
     printEstimatableParameterEntries( parametersToEstimate );
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    ///////////////////////          INITIALIZE ORBIT DETERMINATION OBJECT     ////////////////////////////////////////////
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    // Create orbit determination object (propagate orbit, create observation models)
-    OrbitDeterminationManager< double, double > orbitDeterminationManager =
-            OrbitDeterminationManager< double, double >(
-                bodies, parametersToEstimate, observationSettingsMap,
-                integratorSettings, propagatorSettings );
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    ///////////////////////          SIMULATE OBSERVATIONS                     ////////////////////////////////////////////
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    // Define time of first observation
-    double observationTimeStart = initialEphemerisTime + 1000.0;
-
-    // Define time between two observations
-    double  observationInterval = 20.0;
-
-    // Simulate observations for 3 days
-    std::vector< double > baseTimeList;
-    for( unsigned int i = 0; i < 3; i++ )
-    {
-        // Simulate 500 observations per day (observationInterval apart)
-        for( unsigned int j = 0; j < 500; j++ )
-        {
-            baseTimeList.push_back( observationTimeStart + static_cast< double >( i ) * 86400.0 +
-                                    static_cast< double >( j ) * observationInterval );
-        }
-    }
-
-    // Create measureement simulation input
-    std::map< ObservableType, std::map< LinkEnds, std::pair< std::vector< double >, LinkEndType > > > measurementSimulationInput;
-    for( std::map< ObservableType, std::vector< LinkEnds > >::iterator linkEndIterator = linkEndsPerObservable.begin( );
+    std::vector< std::shared_ptr< ObservationModelSettings > > observationSettingsList;
+    for( std::map< ObservableType, std::vector< LinkDefinition > >::iterator linkEndIterator = linkEndsPerObservable.begin( );
          linkEndIterator != linkEndsPerObservable.end( ); linkEndIterator++ )
     {
-        // Define observable type and link ends
         ObservableType currentObservable = linkEndIterator->first;
-        std::vector< LinkEnds > currentLinkEndsList = linkEndIterator->second;
 
-        // Define observation times and reference link ends
+
+        std::vector< LinkDefinition > currentLinkEndsList = linkEndIterator->second;
         for( unsigned int i = 0; i < currentLinkEndsList.size( ); i++ )
         {
-            measurementSimulationInput[ currentObservable ][ currentLinkEndsList.at( i ) ] =
-                    std::make_pair( baseTimeList, receiver );
+            observationSettingsList.push_back(
+                        std::make_shared< ObservationModelSettings >(
+                            currentObservable, currentLinkEndsList.at( i ), std::shared_ptr< LightTimeCorrectionSettings >( ) ) );
         }
     }
+
+    // Create orbit determination object.
+    OrbitDeterminationManager< double, double > orbitDeterminationManager = OrbitDeterminationManager< double, double >(
+                bodies, parametersToEstimate, observationSettingsList, integratorSettings, propagatorSettings );
+
+    // Compute list of observation times.
+    std::vector< double > baseTimeList;
+    double observationTime = initialEphemerisTime + 1000.0;
+    double  observationInterval = 60.0;
+    while(observationTime < finalEphemerisTime - 1000.0)
+    {
+        baseTimeList.push_back( observationTime);
+        observationTime += observationInterval;
+    }
+
+    std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > measurementSimulationInput;
+    for( std::map< ObservableType, std::vector< LinkDefinition > >::iterator linkEndIterator = linkEndsPerObservable.begin( );
+         linkEndIterator != linkEndsPerObservable.end( ); linkEndIterator++ )
+    {
+        ObservableType currentObservable = linkEndIterator->first;
+        std::vector< LinkDefinition > currentLinkEndsList = linkEndIterator->second;
+        for( unsigned int i = 0; i < currentLinkEndsList.size( ); i++ )
+        {
+            measurementSimulationInput.push_back(
+                        std::make_shared< TabulatedObservationSimulationSettings< > >(
+                            currentObservable, currentLinkEndsList[ i ], baseTimeList, receiver ) );
+        }
+    }
+
+    // Simulate observations.
+    std::shared_ptr< ObservationCollection< > > observationsAndTimes = simulateObservations< double, double >(
+                measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
+
 
     // Set typedefs for POD input (observation types, observation link ends, observation values, associated times with
     // reference link ends.
     typedef Eigen::Matrix< double, Eigen::Dynamic, 1 > ObservationVectorType;
     typedef std::map< LinkEnds, std::pair< ObservationVectorType, std::pair< std::vector< double >, LinkEndType > > >
             SingleObservablePodInputType;
-    typedef std::map< ObservableType, SingleObservablePodInputType > PodInputDataType;
-
-    // Simulate observations
-    PodInputDataType observationsAndTimes = simulateObservations< double, double >(
-                measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ) );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //////////////////    PERTURB PARAMETER VECTOR AND ESTIMATE PARAMETERS     ////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    // Perturb parameter estimate
+    // Perturb parameter estimate.
     Eigen::Matrix< double, Eigen::Dynamic, 1 > initialParameterEstimate =
             parametersToEstimate->template getFullParameterValues< double >( );
     Eigen::Matrix< double, Eigen::Dynamic, 1 > truthParameters = initialParameterEstimate;
     Eigen::Matrix< double, Eigen::Dynamic, 1 > parameterPerturbation =
             Eigen::Matrix< double, Eigen::Dynamic, 1 >::Zero( truthParameters.rows( ) );
-    parameterPerturbation.segment( 0, 3 ) = Eigen::Vector3d::Constant( 10.0 );
-    parameterPerturbation.segment( 3, 3 ) = Eigen::Vector3d::Constant( 1.0E-2 );
-    parameterPerturbation( 6 ) = 0.01;
-    parameterPerturbation( 7 ) = 0.01;
+
+    // Perturbe initial state estimate.
+    parameterPerturbation.segment( 0, 3 ) = Eigen::Vector3d::Constant( 1.0 );
+    parameterPerturbation.segment( 3, 3 ) = Eigen::Vector3d::Constant( 1.E-3 );
+    parameterPerturbation.segment( 6, 1 ) = Eigen::Vector1d::Constant( 0.05 );
+    parameterPerturbation.segment( 7, 1 ) = Eigen::Vector1d::Constant( 0.05 );
+
     initialParameterEstimate += parameterPerturbation;
+    parametersToEstimate->resetParameterValues( initialParameterEstimate );
+
 
     // Define estimation input
-    std::shared_ptr< PodInput< double, double > > podInput =
-            std::make_shared< PodInput< double, double > >(
-                observationsAndTimes, initialParameterEstimate.rows( ),
-                Eigen::MatrixXd::Zero( truthParameters.rows( ), truthParameters.rows( ) ),
-                initialParameterEstimate - truthParameters );
-    podInput->defineEstimationSettings( true, true, false, true );
+    std::shared_ptr< EstimationInput< double, double  > > estimationInput = std::make_shared< EstimationInput< double, double > >(
+            observationsAndTimes );
 
-    // Define observation weights (constant per observable type)
     std::map< observation_models::ObservableType, double > weightPerObservable;
     weightPerObservable[ one_way_range ] = 1.0 / ( 1.0 * 1.0 );
-    weightPerObservable[ angular_position ] = 1.0 / ( 1.0E-5 * 1.0E-5 );
-    weightPerObservable[ one_way_doppler ] = 1.0 / ( 1.0E-11 * 1.0E-11 );
-    podInput->setConstantPerObservableWeightsMatrix( weightPerObservable );
+    weightPerObservable[ one_way_doppler ] = 1.0 / ( 1.0E-11 * 1.0E-11 * physical_constants::SPEED_OF_LIGHT * physical_constants::SPEED_OF_LIGHT  );
+
+    estimationInput->setConstantPerObservableWeightsMatrix( weightPerObservable );
+    estimationInput->defineEstimationSettings( true, true, true, true, true );
+    estimationInput->setConvergenceChecker(
+            std::make_shared< EstimationConvergenceChecker >( 10 ) );
 
     // Perform estimation
-    std::shared_ptr< PodOutput< double > > podOutput = orbitDeterminationManager.estimateParameters(
-                podInput, std::make_shared< EstimationConvergenceChecker >( 4 ) );
+    std::shared_ptr< EstimationOutput< double > > estimationOutput = orbitDeterminationManager.estimateParameters(
+            estimationInput );
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    ///////////////////////        PROVIDE OUTPUT TO CONSOLE AND FILES           //////////////////////////////////////////
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    input_output::writeMatrixToFile( estimationOutput->getParameterHistoryMatrix( ),
+                                     "MichaelearthOrbitParameterHistory.dat", 16,
+                                     tudat_applications::getOutputPath( )  );
 
-    std::string outputSubFolder = "EarthOrbiterStateEstimationExample/";
+    Eigen::VectorXd parameterEstimate = estimationOutput->parameterEstimate_;
+    std::cout <<"parameter estimate: "<< ( parameterEstimate ).transpose( ) << std::endl;
 
-    // Print true estimation error, limited mostly by numerical error
-    Eigen::VectorXd estimationError = podOutput->parameterEstimate_ - truthParameters;
-    std::cout << "True estimation error is:   " << std::endl << ( estimationError ).transpose( ) << std::endl;
-    std::cout << "Formal estimation error is: " << std::endl << podOutput->getFormalErrorVector( ).transpose( ) << std::endl;
+    Eigen::VectorXd estimationError = parameterEstimate - truthParameters;
+    std::cout <<"estimation error: "<< ( estimationError ).transpose( ) << std::endl;
 
-    std::map< double, Eigen::VectorXd > propagatedErrors;
-
-    propagateFormalErrors(
-                propagatedErrors, podOutput->getUnnormalizedCovarianceMatrix( ),
-                orbitDeterminationManager.getStateTransitionAndSensitivityMatrixInterface( ),
-                60.0, initialEphemerisTime + 3600.0, finalEphemerisTime - 3600.0 );
-    input_output::writeDataMapToTextFile( propagatedErrors,
-                                          "earthOrbitBasicEstimationPropagatedErrors.dat",
-                                          tudat_applications::getOutputPath( ) + outputSubFolder );
-
-    input_output::writeMatrixToFile( podOutput->getUnnormalizedCovarianceMatrix( ),
-                                     "earthOrbitBasicEstimationCovariance.dat", 16,
-                                     tudat_applications::getOutputPath( ) + outputSubFolder );
-    input_output::writeMatrixToFile( podOutput->normalizedInformationMatrix_,
-                                     "earthOrbitBasicEstimationInformationMatrix.dat", 16,
-                                     tudat_applications::getOutputPath( ) + outputSubFolder );
-    input_output::writeMatrixToFile( podOutput->weightsMatrixDiagonal_,
-                                     "earthOrbitBasicEstimationWeightsDiagonal.dat", 16,
-                                     tudat_applications::getOutputPath( ) + outputSubFolder );
-    input_output::writeMatrixToFile( podOutput->residuals_,
-                                     "earthOrbitBasicEstimationResiduals.dat", 16,
-                                     tudat_applications::getOutputPath( ) + outputSubFolder );
-    input_output::writeMatrixToFile( podOutput->getCorrelationMatrix( ),
-                                     "earthOrbitBasicEstimationCorrelations.dat", 16,
-                                     tudat_applications::getOutputPath( ) + outputSubFolder );
-    input_output::writeMatrixToFile( podOutput->getResidualHistoryMatrix( ),
-                                     "earthOrbitBasicResidualHistory.dat", 16,
-                                     tudat_applications::getOutputPath( ) + outputSubFolder );
-    input_output::writeMatrixToFile( podOutput->getParameterHistoryMatrix( ),
-                                     "earthOrbitBasicParameterHistory.dat", 16,
-                                     tudat_applications::getOutputPath( ) + outputSubFolder );
-    input_output::writeMatrixToFile( getConcatenatedMeasurementVector( podInput->getObservationsAndTimes( ) ),
-                                     "earthOrbitBasicObservationMeasurements.dat", 16,
-                                     tudat_applications::getOutputPath( ) + outputSubFolder );
-    input_output::writeMatrixToFile( utilities::convertStlVectorToEigenVector(
-                                         getConcatenatedTimeVector( podInput->getObservationsAndTimes( ) ) ),
-                                     "earthOrbitBasicObservationTimes.dat", 16,
-                                     tudat_applications::getOutputPath( ) + outputSubFolder );
-    input_output::writeMatrixToFile( utilities::convertStlVectorToEigenVector(
-                                         getConcatenatedGroundStationIndex( podInput->getObservationsAndTimes( ) ).first ),
-                                     "earthOrbitBasicObservationLinkEnds.dat", 16,
-                                     tudat_applications::getOutputPath( ) + outputSubFolder );
-    input_output::writeMatrixToFile( utilities::convertStlVectorToEigenVector(
-                                         getConcatenatedObservableTypes( podInput->getObservationsAndTimes( ) ) ),
-                                     "earthOrbitBasicObservationObservableTypes.dat", 16,
-                                     tudat_applications::getOutputPath( ) + outputSubFolder );
-    input_output::writeMatrixToFile( estimationError,
-                                     "earthOrbitBasicObservationTrueEstimationError.dat", 16,
-                                     tudat_applications::getOutputPath( ) + outputSubFolder );
-    input_output::writeMatrixToFile( podOutput->getFormalErrorVector( ),
-                                     "earthOrbitBasicObservationFormalEstimationError.dat", 16,
-                                     tudat_applications::getOutputPath( ) + outputSubFolder );
 
     // Final statement.
     // The exit code EXIT_SUCCESS indicates that the program was successfully executed.
