@@ -71,6 +71,14 @@ public:
             const Eigen::Vector3d& surfaceNormal,
             const Eigen::Vector3d& incomingDirection) const = 0;
 
+    virtual Eigen::Vector3d evaluateReactionVectorPartialWrtSpecularReflectivity(
+            const Eigen::Vector3d& surfaceNormal,
+            const Eigen::Vector3d& incomingDirection) const = 0;
+
+    virtual Eigen::Vector3d evaluateReactionVectorPartialWrtDiffuseReflectivity(
+            const Eigen::Vector3d& surfaceNormal,
+            const Eigen::Vector3d& incomingDirection) const = 0;
+
     virtual Eigen::Matrix3d evaluateReactionVectorDerivativeWrtTargetPosition(
         const Eigen::Vector3d& surfaceNormal,
         const Eigen::Vector3d& incomingDirection,
@@ -124,6 +132,14 @@ public:
         const Eigen::Vector3d& surfaceNormal,
         const Eigen::Vector3d& incomingDirection) const override;
 
+    Eigen::Vector3d evaluateReactionVectorPartialWrtSpecularReflectivity(
+        const Eigen::Vector3d& surfaceNormal,
+        const Eigen::Vector3d& incomingDirection) const override;
+
+    Eigen::Vector3d evaluateReactionVectorPartialWrtDiffuseReflectivity(
+        const Eigen::Vector3d& surfaceNormal,
+        const Eigen::Vector3d& incomingDirection) const override;
+
     Eigen::Matrix3d evaluateReactionVectorDerivativeWrtTargetPosition(
         const Eigen::Vector3d& surfaceNormal,
         const Eigen::Vector3d& incomingDirection,
@@ -137,14 +153,37 @@ public:
         return absorptivity_;
     }
 
+    void setAbsorptivity( const double absorptivity )
+    {
+        absorptivity_ = absorptivity;
+    }
+
     double getSpecularReflectivity() const
     {
         return specularReflectivity_;
     }
 
+    void setSpecularReflectivity( const double specularReflectivity, bool normalizeParameters = false )
+    {
+        specularReflectivity_ = specularReflectivity;
+        if( normalizeParameters )
+        {
+            absorptivity_ = 1.0 - specularReflectivity_ - diffuseReflectivity_;
+        }
+    }
+
     double getDiffuseReflectivity() const
     {
         return diffuseReflectivity_;
+    }
+
+    void setDiffuseReflectivity( const double diffuseReflectivity, bool normalizeParameters = false )
+    {
+        diffuseReflectivity_ = diffuseReflectivity;
+        if( normalizeParameters )
+        {
+            absorptivity_ = 1.0 - specularReflectivity_ - diffuseReflectivity_;
+        }
     }
 
     bool isWithInstantaneousReradiation() const
