@@ -295,6 +295,14 @@ public:
         const bool resetForces,
         const std::string sourceName = ""  ) override;
 
+    Eigen::Vector3d evaluateRadiationPressureForcePartialWrtDiffuseReflectivity(
+        double sourceIrradiance,
+        const Eigen::Vector3d &sourceToTargetDirectionLocalFrame);
+
+    Eigen::Vector3d evaluateRadiationPressureForcePartialWrtSpecularReflectivity(
+        double sourceIrradiance,
+        const Eigen::Vector3d &sourceToTargetDirectionLocalFrame);
+
 
     std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > >& getBodyFixedPanels( )
     {
@@ -362,7 +370,7 @@ private:
         {
             panelTorques_.at( i ).setZero( );
         }
-        panelForcesPerSource_[ sourceName ] = panelTorques_;
+        panelTorquesPerSource_[ sourceName ] = panelTorques_;
     }
 
 

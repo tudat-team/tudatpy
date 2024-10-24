@@ -75,6 +75,57 @@ void RadiationPressureAccelerationPartial::wrtRadiationPressureCoefficient(
     partial = radiationPressureAcceleration_->getAcceleration( ) / targetModel->getCoefficient( );
 }
 
+
+void RadiationPressureAccelerationPartial::wrtSpecularReflectivity(
+        Eigen::MatrixXd& partial,
+        std::shared_ptr< electromagnetism::PaneledRadiationPressureTargetModel > targetModel,
+        const std::string& panelTypeId)
+{
+    Eigen::Vector3d partial_temp = Eigen::Vector3d::Zero();
+    partial = partial_temp;
+
+    std::function<double()> targetMassFunction = radiationPressureAcceleration_->getTargetMassFunction();
+    double spacecraftMass = targetMassFunction();
+
+    std::function<Eigen::Quaterniond()> targetRotationFromLocalToGlobalFrameFunction = radiationPressureAcceleration_->getTargetRotationFromLocalToGlobalFrameFunction();
+    Eigen::Quaterniond targetRotationFromGlobalToLocalFrame = targetRotationFromLocalToGlobalFrameFunction().inverse( );
+    std::function<Eigen::Vector3d()> sourceCenterPositionInGlobalFrameFunction = radiationPressureAcceleration_->getSourcePositionFunction();
+    std::function<Eigen::Vector3d()> targetCenterPositionInGlobalFrameFunction = radiationPressureAcceleration_->getTargetPositionFunction();
+    Eigen::Vector3d targetCenterPositionInGlobalFrame = targetCenterPositionInGlobalFrameFunction() - sourceCenterPositionInGlobalFrameFunction();
+    Eigen::Vector3d sourceToTargetDirectionLocalFrame = targetRotationFromGlobalToLocalFrame * targetCenterPositionInGlobalFrame.normalized( );
+    double receivedIrradiance = radiationPressureAcceleration_->getReceivedIrradiance();
+    if (receivedIrradiance >= 0)
+    {
+        Eigen::Vector3d forcePartialWrtSpecularReflectivity = targetRotationFromLocalToGlobalFrameFunction() *
+                targetModel->evaluateRadiationPressureForcePartialWrtSpecularReflectivity(receivedIrradiance, sourceToTargetDirectionLocalFrame);
+        partial += forcePartialWrtSpecularReflectivity/spacecraftMass;
+    }
+
+}
+void RadiationPressureAccelerationPartial::wrtDiffuseReflectivity(
+        Eigen::MatrixXd& partial,
+        std::shared_ptr< electromagnetism::PaneledRadiationPressureTargetModel > targetModel,
+        const std::string& panelTypeId)
+{
+    std::function<double()> targetMassFunction = radiationPressureAcceleration_->getTargetMassFunction();
+    double spacecraftMass = targetMassFunction();
+    std::function<Eigen::Quaterniond()> targetRotationFromLocalToGlobalFrameFunction = radiationPressureAcceleration_->getTargetRotationFromLocalToGlobalFrameFunction();
+    Eigen::Quaterniond targetRotationFromGlobalToLocalFrame = targetRotationFromLocalToGlobalFrameFunction().inverse( );
+    std::function<Eigen::Vector3d()> sourceCenterPositionInGlobalFrameFunction = radiationPressureAcceleration_->getSourcePositionFunction();
+    std::function<Eigen::Vector3d()> targetCenterPositionInGlobalFrameFunction = radiationPressureAcceleration_->getTargetPositionFunction();
+    Eigen::Vector3d targetCenterPositionInGlobalFrame = targetCenterPositionInGlobalFrameFunction() - sourceCenterPositionInGlobalFrameFunction();
+    Eigen::Vector3d sourceToTargetDirectionLocalFrame = targetRotationFromGlobalToLocalFrame * targetCenterPositionInGlobalFrame.normalized( );
+
+    double receivedIrradiance = radiationPressureAcceleration_->getReceivedIrradiance();
+    if (receivedIrradiance >= 0)
+    {
+        Eigen::Vector3d forcePartialWrtDiffuseReflectivity = targetRotationFromLocalToGlobalFrameFunction() *
+                targetModel->evaluateRadiationPressureForcePartialWrtDiffuseReflectivity(receivedIrradiance, sourceToTargetDirectionLocalFrame);
+        partial += forcePartialWrtDiffuseReflectivity/spacecraftMass;
+    }
+}
+
+
 }
 
 }
