@@ -127,5 +127,59 @@ Eigen::Vector3d computeMirrorlikeReflection(
     }
 }
 
+Eigen::Vector3d SpecularDiffuseMixReflectionLaw::evaluateReactionVectorPartialWrtSpecularReflectivity(
+        const Eigen::Vector3d& surfaceNormal,
+        const Eigen::Vector3d& incomingDirection) const
+{
+    const double cosBetweenNormalAndIncoming = surfaceNormal.dot(-incomingDirection);
+    if (cosBetweenNormalAndIncoming <= 0)
+    {
+        // Radiation is incident on backside of surface
+        return Eigen::Vector3d::Zero();
+    }
+    Eigen::Vector3d pureSpecularPartial = - 2 * cosBetweenNormalAndIncoming * surfaceNormal;
+    Eigen::Vector3d reactionFromInstantaneousReradiation;
+    if (withInstantaneousReradiation_)
+    {
+        reactionFromInstantaneousReradiation = -2. / 3 * surfaceNormal;
+    }
+    else
+    {
+        reactionFromInstantaneousReradiation = Eigen::Vector3d::Zero();
+    }
+    Eigen::Vector3d adjustmentForAbsorptivity = incomingDirection + reactionFromInstantaneousReradiation;
+
+    Eigen::Vector3d partial = pureSpecularPartial - adjustmentForAbsorptivity;
+    return partial;
+
+};
+
+Eigen::Vector3d SpecularDiffuseMixReflectionLaw::evaluateReactionVectorPartialWrtDiffuseReflectivity(
+        const Eigen::Vector3d& surfaceNormal,
+        const Eigen::Vector3d& incomingDirection) const
+{
+    const double cosBetweenNormalAndIncoming = surfaceNormal.dot(-incomingDirection);
+    if (cosBetweenNormalAndIncoming <= 0)
+    {
+        // Radiation is incident on backside of surface
+        return Eigen::Vector3d::Zero();
+    }
+    Eigen::Vector3d pureDiffusePartial = incomingDirection - 2. / 3 * surfaceNormal;
+    Eigen::Vector3d reactionFromInstantaneousReradiation;
+    if (withInstantaneousReradiation_)
+    {
+        reactionFromInstantaneousReradiation = -2. / 3 * surfaceNormal;
+    }
+    else
+    {
+        reactionFromInstantaneousReradiation = Eigen::Vector3d::Zero();
+    }
+    Eigen::Vector3d adjustmentForAbsorptivity = incomingDirection + reactionFromInstantaneousReradiation;
+    Eigen::Vector3d partial = pureDiffusePartial - adjustmentForAbsorptivity;
+
+    return partial;
+
+};
+
 } // tudat
 } // electromagnetism
