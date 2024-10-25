@@ -615,7 +615,8 @@ std::map< double, Eigen::VectorXd > getTargetAnglesAndRange(
  */
 template< typename ObservationScalarType = double, typename TimeType = double >
 std::vector< std::shared_ptr< simulation_setup::ObservationSimulationSettings< TimeType > > > getObservationSimulationSettingsFromObservations(
-    std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > observedObservationCollection )
+    std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > observedObservationCollection,
+    const SystemOfBodies& bodies )
 {
     std::vector< std::shared_ptr< simulation_setup::ObservationSimulationSettings< TimeType > > > observationSimulationSettings;
 
@@ -637,15 +638,26 @@ std::vector< std::shared_ptr< simulation_setup::ObservationSimulationSettings< T
 
             for ( unsigned int i = 0; i < singleObservationSets.size( ); ++i )
             {
-                observationSimulationSettings.push_back(
-                    std::make_shared< simulation_setup::TabulatedObservationSimulationSettings< TimeType > >(
-                        currentObservableType, currentLinkEnds, singleObservationSets.at( i )->getObservationTimes( ),
-                        singleObservationSets.at( i )->getReferenceLinkEnd( ),
-                        std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > >( ),
-                        nullptr,
-                        singleObservationSets.at( i )->getAncilliarySettings( )
-                    )
-                );
+                std::shared_ptr< simulation_setup::TabulatedObservationSimulationSettings< TimeType > > singleSetSimulationSettings =
+                        std::make_shared< simulation_setup::TabulatedObservationSimulationSettings< TimeType > >(
+                                currentObservableType, currentLinkEnds, singleObservationSets.at( i )->getObservationTimes( ),
+                                singleObservationSets.at( i )->getReferenceLinkEnd( ),
+                                std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > >( ),
+                                nullptr,
+                                singleObservationSets.at( i )->getAncilliarySettings( ) );
+
+                // Add dependent variables
+                if ( singleObservationSets.at( i )->getDependentVariableCalculator( ) != nullptr )
+                {
+                    std::vector< std::shared_ptr< ObservationDependentVariableSettings > > dependentVariablesList =
+                            singleObservationSets.at( i )->getDependentVariableCalculator( )->getDependentVariableSettings( );
+                    if ( dependentVariablesList.size( ) > 0 )
+                    {
+                        addDependentVariableToSingleObservationSimulationSettings< TimeType >( singleSetSimulationSettings, dependentVariablesList, bodies );
+                    }
+                }
+
+                observationSimulationSettings.push_back( singleSetSimulationSettings );
             }
 
         }
@@ -654,20 +666,51 @@ std::vector< std::shared_ptr< simulation_setup::ObservationSimulationSettings< T
     return observationSimulationSettings;
 }
 
+//! Function that simulates observations from a given observation collection (containing real observations), and computes the residuals and relevant observation dependent variables.
+//! The derived residuals and dependent variables are then appended to the observed observation collection.
 template< typename ObservationScalarType = double, typename TimeType = double >
-void computeAndSetResiduals(
+void computeResidualsAndDependentVariables(
         std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > observationCollection,
         const std::vector< std::shared_ptr< observation_models::ObservationSimulatorBase< ObservationScalarType, TimeType > > >& observationSimulators,
         const SystemOfBodies& bodies )
 {
+    // Retrieve observation simulation settings from observed observation collection and simulate observations
     std::vector< std::shared_ptr< simulation_setup::ObservationSimulationSettings< TimeType > > > observationSimulationSettings =
-            getObservationSimulationSettingsFromObservations( observationCollection );
+            getObservationSimulationSettingsFromObservations( observationCollection, bodies );
     std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > computedObservationCollection =
             simulateObservations( observationSimulationSettings, observationSimulators, bodies );
 
+    // Retrieve observation residuals and add them to the original observation collection
     Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > residuals = observationCollection->getConcatenatedObservations( ) - computedObservationCollection->getConcatenatedObservations( );
     observationCollection->setResiduals( residuals );
+
+    // Parse all observable types
+    for ( auto observableIt : computedObservationCollection->getObservationsSets( ) )
+    {
+        // Parse all link ends
+        for ( auto linkEndsIt : observableIt.second )
+        {
+            // Parse all single observation sets for given observable type and link ends
+            for ( unsigned int setIndex = 0 ; setIndex < linkEndsIt.second.size( ) ; setIndex++ )
+            {
+                // Retrieve dependent variables for current single observation set
+                std::vector< Eigen::VectorXd > computedDependentVariables = linkEndsIt.second.at( setIndex )->getObservationsDependentVariables( );
+                if ( computedDependentVariables.size( ) > 0 )
+                {
+                    if ( computedDependentVariables.at( 0 ).size( ) > 0 )
+                    {
+                        // If dependent variables were computed for this observation set, add them to the corresponding single observation set in
+                        // the original observation collection
+                        observationCollection->getObservationsSets( ).at( observableIt.first ).at( linkEndsIt.first ).at( setIndex )->setObservationsDependentVariables(
+                                computedDependentVariables );
+                    }
+                }
+            }
+        }
+    }
+
 }
+
 
 
 template< typename ObservationScalarType = double, typename TimeType = double >

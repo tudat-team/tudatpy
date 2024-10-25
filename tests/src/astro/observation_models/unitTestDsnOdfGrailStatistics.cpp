@@ -128,7 +128,7 @@ int main( )
     SystemOfBodies bodies = createSystemOfBodies< long double, Time >( bodySettings );
     bodies.at( "GRAIL-A" )->getVehicleSystems( )->setReferencePointPosition(
             "Antenna", ( Eigen::Vector3d( ) << 0.0, 0.0, 0.0 ).finished( ) );
-    std::cout<<"Number of reference points: "<<bodies.at( "GRAIL-A" )->getVehicleSystems( )->getBodyFixedReferencePoints( ).size( )<<std::endl;
+    std::cout<<"Number of reference points: "<<bodies.at( "GRAIL-A" )->getVehicleSystems( )->getReferencePoints( ).size( )<<std::endl;
 
     /****************************************************************************************
      ************************** LOAD ODF FILES
@@ -200,7 +200,7 @@ int main( )
      ************************** SIMULATE OBSERVATIONS AND COMPUTE RESIDUALS
      *****************************************************************************************/
 
-    computeAndSetResiduals< long double, Time >( observedObservationCollection, observationSimulators, bodies );
+    computeResidualsAndDependentVariables< long double, Time >( observedObservationCollection, observationSimulators, bodies );
 
 
     /****************************************************************************************
@@ -217,7 +217,7 @@ int main( )
             filterObservations( observedObservationCollection, filters );
 
     std::vector< std::shared_ptr< simulation_setup::ObservationSimulationSettings< Time > > > filteredObservationSimulationSettings =
-            getObservationSimulationSettingsFromObservations( observedObservationCollection );
+            getObservationSimulationSettingsFromObservations( observedObservationCollection, bodies );
 
     /****************************************************************************************
     ************************** ARC STATISTICS

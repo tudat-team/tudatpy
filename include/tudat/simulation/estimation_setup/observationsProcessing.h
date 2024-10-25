@@ -25,6 +25,7 @@
 
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/observableTypes.h"
+#include "tudat/simulation/estimation_setup/observationOutputSettings.h"
 
 namespace tudat
 {
@@ -95,6 +96,11 @@ bool checkFilterTypeConsistency( ObservationFilterType filterType )
             if ( !( std::is_same< FilterValueType, std::pair< double, double > >::value ) ) { consistentType = false; }
             break;
         }
+        case dependent_variable_filtering:
+        {
+            if ( !( std::is_same< FilterValueType, Eigen::VectorXd >::value ) ) { consistentType = false; }
+            break;
+        }
         default:
             break;
     }
@@ -128,6 +134,26 @@ protected:
 };
 
 
+struct ObservationDependentVariableFilter : public ObservationFilter< Eigen::VectorXd >
+{
+public:
+    ObservationDependentVariableFilter( const std::shared_ptr< simulation_setup::ObservationDependentVariableSettings > dependentVariableSettings,
+                                        const Eigen::VectorXd& filterValue, const bool filterOut = true, const bool useOppositeCondition = false ) :
+            ObservationFilter( dependent_variable_filtering, filterValue, filterOut, useOppositeCondition ), dependentVariableSettings_( dependentVariableSettings ){ }
+
+    virtual ~ObservationDependentVariableFilter( ){ }
+
+    std::shared_ptr< simulation_setup::ObservationDependentVariableSettings > getDependentVariableSettings( ) const
+    {
+        return dependentVariableSettings_;
+    }
+
+protected:
+
+    std::shared_ptr< simulation_setup::ObservationDependentVariableSettings > dependentVariableSettings_;
+};
+
+
 inline std::shared_ptr< ObservationFilterBase > observationFilter(
         const ObservationFilterType filterType, const double filterValue, const bool filterOut = true, const bool useOppositeCondition = false )
 {
@@ -146,13 +172,25 @@ inline std::shared_ptr< ObservationFilterBase > observationFilter(
     return std::make_shared< ObservationFilter< std::pair< double, double > > >( filterType, filterValue, filterOut, useOppositeCondition );
 }
 
+inline std::shared_ptr< ObservationFilterBase > observationFilter(
+        const ObservationFilterType filterType, const Eigen::VectorXd& filterValue, const bool filterOut = true, const bool useOppositeCondition = false )
+{
+    return std::make_shared< ObservationFilter< Eigen::VectorXd > >( filterType, filterValue, filterOut, useOppositeCondition );
+}
+
+inline std::shared_ptr< ObservationFilterBase > observationFilter(
+        const std::shared_ptr< simulation_setup::ObservationDependentVariableSettings > dependentVariableSettings,
+        const Eigen::VectorXd& filterValue, const bool filterOut = true, const bool useOppositeCondition = false )
+{
+    return std::make_shared< ObservationDependentVariableFilter >( dependentVariableSettings, filterValue, filterOut, useOppositeCondition );
+}
+
 enum ObservationSetSplitterType
 {
     time_tags_splitter,
     time_interval_splitter,
     time_span_splitter,
-    nb_observations_splitter,
-    dependent_variables_splitter
+    nb_observations_splitter
 };
 
 struct ObservationSetSplitterBase
@@ -255,6 +293,9 @@ enum ObservationParserType
     observable_type_parser,
     link_ends_parser,
     link_end_string_parser,
+    link_end_id_parser,
+    link_end_type_parser,
+    single_link_end_parser,
     time_bounds_parser,
     ancillary_settings_parser,
     multi_type_parser
@@ -371,6 +412,79 @@ protected:
 
 };
 
+struct ObservationCollectionLinkEndIdParser : public ObservationCollectionParser
+{
+public:
+
+    ObservationCollectionLinkEndIdParser( const LinkEndId& linkEndId,
+                                          const bool useOppositeCondition = false ) :
+            ObservationCollectionParser( link_end_id_parser, useOppositeCondition ), linkEndIds_( std::vector< LinkEndId >( { linkEndId } ) ){ }
+
+    ObservationCollectionLinkEndIdParser( const std::vector< LinkEndId >& linkEndIds,
+                                          const bool useOppositeCondition = false ) :
+            ObservationCollectionParser( link_end_id_parser, useOppositeCondition ), linkEndIds_( linkEndIds ){ }
+
+    virtual ~ObservationCollectionLinkEndIdParser( ){ }
+
+    std::vector< LinkEndId > getLinkEndIds( ) const
+    {
+        return linkEndIds_;
+    }
+
+protected:
+
+    const std::vector< LinkEndId > linkEndIds_;
+
+};
+
+struct ObservationCollectionLinkEndTypeParser : public ObservationCollectionParser
+{
+public:
+
+    ObservationCollectionLinkEndTypeParser( const LinkEndType& linkEndType, const bool useOppositeCondition = false ) :
+            ObservationCollectionParser( link_end_type_parser, useOppositeCondition ),
+            linkEndTypes_( std::vector< LinkEndType >( { linkEndType } ) ){ }
+
+    ObservationCollectionLinkEndTypeParser( const std::vector< LinkEndType >& linkEndTypes, const bool useOppositeCondition = false ) :
+            ObservationCollectionParser( link_end_type_parser, useOppositeCondition ), linkEndTypes_( linkEndTypes ){ }
+
+    virtual ~ObservationCollectionLinkEndTypeParser( ){ }
+
+    std::vector< LinkEndType > getLinkEndTypes( ) const
+    {
+        return linkEndTypes_;
+    }
+
+protected:
+
+    const std::vector< LinkEndType > linkEndTypes_;
+
+};
+
+struct ObservationCollectionSingleLinkEndParser : public ObservationCollectionParser
+{
+public:
+
+    ObservationCollectionSingleLinkEndParser( const std::pair< LinkEndType, LinkEndId >& singleLinkEnd, const bool useOppositeCondition = false ) :
+            ObservationCollectionParser( single_link_end_parser, useOppositeCondition ),
+            singleLinkEnds_( std::vector< std::pair< LinkEndType, LinkEndId > >( { singleLinkEnd } ) ){ }
+
+    ObservationCollectionSingleLinkEndParser( const std::vector< std::pair< LinkEndType, LinkEndId > >& singleLinkEnds, const bool useOppositeCondition = false ) :
+            ObservationCollectionParser( single_link_end_parser, useOppositeCondition ), singleLinkEnds_( singleLinkEnds ){ }
+
+    virtual ~ObservationCollectionSingleLinkEndParser( ){ }
+
+    std::vector< std::pair< LinkEndType, LinkEndId > > getSingleLinkEnds( ) const
+    {
+        return singleLinkEnds_;
+    }
+
+protected:
+
+    const std::vector< std::pair< LinkEndType, LinkEndId > > singleLinkEnds_;
+
+};
+
 struct ObservationCollectionTimeBoundsParser : public ObservationCollectionParser
 {
 public:
@@ -482,6 +596,44 @@ inline std::shared_ptr< ObservationCollectionParser > observationParser( const s
     return std::make_shared< ObservationCollectionLinkEndStringParser >( bodyNames, isReferencePoint, useOppositeCondition );
 }
 
+inline std::shared_ptr< ObservationCollectionParser > observationParser( const std::pair< std::string, std::string >& linkEndId, const bool useOppositeCondition = false )
+{
+    return std::make_shared< ObservationCollectionLinkEndIdParser >( LinkEndId( linkEndId ), useOppositeCondition );
+}
+
+inline std::shared_ptr< ObservationCollectionParser > observationParser( const std::vector< std::pair< std::string, std::string > >& linkEndIds,
+                                                                         const bool useOppositeCondition = false )
+{
+    std::vector< LinkEndId > linkEndIdsVector;
+    for ( auto it : linkEndIds )
+    {
+        linkEndIdsVector.push_back( LinkEndId( it ) );
+    }
+    return std::make_shared< ObservationCollectionLinkEndIdParser >( linkEndIdsVector, useOppositeCondition );
+}
+
+inline std::shared_ptr< ObservationCollectionParser > observationParser( const LinkEndType& linkEndType, const bool useOppositeCondition = false )
+{
+    return std::make_shared< ObservationCollectionLinkEndTypeParser >( linkEndType, useOppositeCondition );
+}
+
+inline std::shared_ptr< ObservationCollectionParser > observationParser( const std::vector< LinkEndType >& linkEndTypes,
+                                                                         const bool useOppositeCondition = false )
+{
+    return std::make_shared< ObservationCollectionLinkEndTypeParser >( linkEndTypes, useOppositeCondition );
+}
+
+inline std::shared_ptr< ObservationCollectionParser > observationParser( const std::pair< LinkEndType, LinkEndId >& singleLinkEnd, const bool useOppositeCondition = false )
+{
+    return std::make_shared< ObservationCollectionSingleLinkEndParser >( singleLinkEnd, useOppositeCondition );
+}
+
+inline std::shared_ptr< ObservationCollectionParser > observationParser( const std::vector< std::pair< LinkEndType, LinkEndId > >& singleLinkEnds,
+                                                                         const bool useOppositeCondition = false )
+{
+    return std::make_shared< ObservationCollectionSingleLinkEndParser >( singleLinkEnds, useOppositeCondition );
+}
+
 inline std::shared_ptr< ObservationCollectionParser > observationParser( const std::pair< double, double >& timeBounds, const bool useOppositeCondition = false )
 {
     return std::make_shared< ObservationCollectionTimeBoundsParser >( timeBounds, useOppositeCondition );
@@ -509,6 +661,7 @@ inline std::shared_ptr< ObservationCollectionParser > observationParser( const s
 {
     return std::make_shared< ObservationCollectionMultiTypeParser >( observationParsers, combineConditions );
 }
+
 
 
 } // namespace observation_models
