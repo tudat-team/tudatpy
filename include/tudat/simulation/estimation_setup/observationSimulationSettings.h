@@ -470,6 +470,8 @@ void addDependentVariableToSingleObservationSimulationSettings(
     // Parse all dependent variable settings
     for ( auto settings : dependentVariableList )
     {
+        // Create complete list of all dependent variable settings compatible with the original settings (possibly not fully defined, i.e. with
+        // missing information on link ends, etc.) for the given observable type and link ends
         std::vector< std::shared_ptr< ObservationDependentVariableSettings > > allSettingsToCreate =
                 createAllCompatibleDependentVariableSettings( observableType, linkEnds, settings );
         for ( auto it : allSettingsToCreate )
@@ -477,6 +479,7 @@ void addDependentVariableToSingleObservationSimulationSettings(
             extendedDependentVariablesList.push_back( it );
         }
     }
+    // Add all relevant dependent variables
     observationSimulationSettings->getDependentVariableCalculator( )->addDependentVariables( extendedDependentVariablesList, bodies );
 }
 
