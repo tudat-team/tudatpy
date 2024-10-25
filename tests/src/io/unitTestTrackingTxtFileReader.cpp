@@ -392,13 +392,13 @@ std::map<std::string, Eigen::Vector3d> stationPositionMap = getVlbiStationPositi
 std::cout<<stationPositionMap.at("HOBART12");
 std::map<std::string, Eigen::Vector3d> stationPositionMap2 = getVlbiStationPositions( );
 std::cout<<stationPositionMap2.at("HOBART12");
-  Eigen::Vector3d hobartPos = stationPosMap.at("HOBART12");
-  Eigen::Vector3d hobartVel = stationVelMap.at("HOBART12");
+//  Eigen::Vector3d hobartPos = stationPosMap.at("HOBART12");
+//  Eigen::Vector3d hobartVel = stationVelMap.at("HOBART12");
 //  Eigen::Vector3d hobartPos = simulation_setup::getApproximateGroundStationPositionFromFile("HOBART12");
 //  Eigen::Vector3d hobartVel = simulation_setup::getApproximateGroundStationVelocityFromFile("HOBART12");
 
 //  BOOST_TEST(hobartPos == stationPosMap["HOBART12"], boost::test_tools::per_element());
-//  BOOST_TEST(hobartPos == Eigen::Vector3d(-3949990.106, 2522421.118, -4311708.734), boost::test_tools::per_element());
+//  BOOST_TESTfirstBlockMinMaxResidual(hobartPos == Eigen::Vector3d(-3949990.106, 2522421.118, -4311708.734), boost::test_tools::per_element());
 //  BOOST_TEST(hobartVel == Eigen::Vector3d(-39.90, 9.00, 39.90), boost::test_tools::per_element());
 }
 

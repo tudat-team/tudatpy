@@ -576,7 +576,7 @@ public:
         return computedObservationsVector;
     }
 
-    int getNumberOfFilteredObservations( ) const
+    unsigned int getNumberOfFilteredObservations( ) const
     {
         int numberFilteredObservations = 0;
         if ( filteredObservationSet_ != nullptr )
@@ -661,12 +661,12 @@ public:
                     residualCutOff = std::dynamic_pointer_cast< ObservationFilter< Eigen::VectorXd > >( observationFilter )->getFilterValue( );
                 }
 
-                for ( int j = 0 ; j < nbObservationsToTest ; j++ )
+                for ( unsigned int j = 0 ; j < nbObservationsToTest ; j++ )
                 {
                     Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > singleObservationResidual =
                             ( observationFilter->filterOut( ) ? residuals_.at( j ) : filteredObservationSet_->getResidual( j ) );
                     bool removeObservation = false;
-                    for( int k = 0 ; k < singleObservationSize_ ; k++ )
+                    for( unsigned int k = 0 ; k < singleObservationSize_ ; k++ )
                     {
                         if( ( !useOppositeCondition && ( std::fabs( singleObservationResidual[ k ] ) > residualCutOff[ k ] ) ) ||
                         ( useOppositeCondition && ( std::fabs( singleObservationResidual[ k ] ) <= residualCutOff[ k ] ) ) )
@@ -697,12 +697,12 @@ public:
                     absoluteValueCutOff = std::dynamic_pointer_cast< ObservationFilter< Eigen::VectorXd > >( observationFilter )->getFilterValue( );
                 }
 
-                for ( int j = 0 ; j < nbObservationsToTest ; j++ )
+                for ( unsigned int j = 0 ; j < nbObservationsToTest ; j++ )
                 {
                     Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > singleObservation =
                             ( observationFilter->filterOut( ) ? observations_.at( j ) : filteredObservationSet_->getObservation( j ) );
                     bool removeObservation = false;
-                    for( int k = 0 ; k < singleObservationSize_ ; k++ )
+                    for( unsigned int k = 0 ; k < singleObservationSize_ ; k++ )
                     {
                         if ( ( !useOppositeCondition && ( singleObservation[ k ] > absoluteValueCutOff[ k ] ) ) ||
                         ( useOppositeCondition && ( singleObservation[ k ] <= absoluteValueCutOff[ k ] ) ) )
@@ -720,7 +720,7 @@ public:
             case epochs_filtering:
             {
                 std::vector< double > filterEpochs = std::dynamic_pointer_cast< ObservationFilter< std::vector< double > > >( observationFilter )->getFilterValue( );
-                for ( int j = 0 ; j < nbObservationsToTest ; j++ )
+                for ( unsigned int j = 0 ; j < nbObservationsToTest ; j++ )
                 {
                     TimeType singleObservationTime = ( observationFilter->filterOut( ) ? observationTimes_.at( j ) : filteredObservationSet_->getObservationTime( j ) );
                     if ( ( !useOppositeCondition && ( std::count( filterEpochs.begin( ), filterEpochs.end( ), singleObservationTime ) > 0 ) ) ||
@@ -734,7 +734,7 @@ public:
             case time_bounds_filtering:
             {
                 std::pair< double, double > timeBounds = std::dynamic_pointer_cast< ObservationFilter< std::pair< double, double > > >( observationFilter )->getFilterValue( );
-                for ( int j = 0 ; j < nbObservationsToTest ; j++ )
+                for ( unsigned int j = 0 ; j < nbObservationsToTest ; j++ )
                 {
                     TimeType singleObservationTime = ( observationFilter->filterOut( ) ? observationTimes_.at( j ) : filteredObservationSet_->getObservationTime( j ) );
                     if ( ( !useOppositeCondition && ( ( singleObservationTime >= timeBounds.first ) && ( singleObservationTime <= timeBounds.second ) ) ) ||
@@ -774,10 +774,10 @@ public:
                 }
 
                 // Check dependent variable values against cut-off value
-                for ( int j = 0 ; j < nbObservationsToTest ; j++ )
+                for ( unsigned int j = 0 ; j < nbObservationsToTest ; j++ )
                 {
                     bool removeObservation = false;
-                    for( int k = 0 ; k < dependentVariableSize ; k++ )
+                    for( unsigned int k = 0 ; k < dependentVariableSize ; k++ )
                     {
                         if( ( !useOppositeCondition && ( singleDependentVariableValues( j, k ) ) > dependentVariableCutOff[ k ] ) ||
                             ( useOppositeCondition && ( singleDependentVariableValues( j, k ) ) <= dependentVariableCutOff[ k ] ) )
@@ -1130,7 +1130,7 @@ std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeT
                 {
                     bool detectedStartSet = false;
                     int indexObs = rawStartIndicesNewSets.at( rawStartIndicesNewSets.size( ) - 1 );
-                    while ( !detectedStartSet && indexObs < observationTimes.size( ) )
+                    while ( !detectedStartSet && indexObs < static_cast< int >( observationTimes.size( ) ) )
                     {
                         if ( observationTimes.at( indexObs ) > currentTimeTag )
                         {
