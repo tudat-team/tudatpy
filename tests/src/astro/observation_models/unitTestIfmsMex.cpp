@@ -72,7 +72,7 @@ BOOST_AUTO_TEST_CASE(testIfmsObservationMex)
 //    ifmsFileNames.push_back( paths::getTudatTestDataPath( )  + "/estrack_n_way_doppler_observation_model/M32ICL1L02_D2X_133621904_00.TAB.txt" );
 //    ifmsFileNames.push_back( paths::getTudatTestDataPath( )  + "/estrack_n_way_doppler_observation_model/M32ICL1L02_D2X_133621819_00.TAB.txt" );
     std::vector< std::shared_ptr< TrackingTxtFileContents > > rawIfmsFiles;
-    for( int i = 0; i < ifmsFileNames.size( ); i++ )
+    for( unsigned int i = 0; i < ifmsFileNames.size( ); i++ )
     {
         rawIfmsFiles.push_back( readIfmsFile( ifmsFileNames.at( i ) ) );
     }
