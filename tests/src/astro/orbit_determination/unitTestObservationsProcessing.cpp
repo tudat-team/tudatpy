@@ -745,8 +745,8 @@ BOOST_AUTO_TEST_CASE( test_ObservationsFiltering )
     Eigen::Matrix< double, Eigen::Dynamic, 1 > residualsStation2 = ( residualCutOffValue - 0.05 ) * Eigen::Matrix< double, Eigen::Dynamic, 1 >::Ones( nbRangeStation2, 1 );
     unsigned int nbRangeStation3 = rangeObservationSets.at( 2 )->getNumberOfObservables( );
     Eigen::Matrix< double, Eigen::Dynamic, 1 > residualsStation3 = ( residualCutOffValue - 0.05 ) * Eigen::Matrix< double, Eigen::Dynamic, 1 >::Ones( nbRangeStation3, 1 );
-    int nbLargeResidualsStation3 = 0;
-    for ( int i = 0 ; i < nbRangeStation3 ; i++ )
+    unsigned int nbLargeResidualsStation3 = 0;
+    for ( unsigned int i = 0 ; i < nbRangeStation3 ; i++ )
     {
         if ( i%2 )
         {
@@ -845,7 +845,7 @@ BOOST_AUTO_TEST_CASE( test_ObservationsSplitting )
 
 
     // Test splitting based on time tags
-    int indexSplitEpoch = int(numberOfObservations/3);
+    unsigned int indexSplitEpoch = static_cast< unsigned int >(numberOfObservations/3);
     std::vector< double > rangeObsTimes = baseTimeList.at( one_way_range );
     double splitEpoch = rangeObsTimes.at( indexSplitEpoch );
     std::vector< double > timeTags = { rangeObsTimes.at( 0 ), splitEpoch, rangeObsTimes.back( ) };
