@@ -96,6 +96,11 @@ bool checkFilterTypeConsistency( ObservationFilterType filterType )
             if ( !( std::is_same< FilterValueType, std::pair< double, double > >::value ) ) { consistentType = false; }
             break;
         }
+        case dependent_variable_filtering:
+        {
+            if ( !( std::is_same< FilterValueType, Eigen::VectorXd >::value ) ) { consistentType = false; }
+            break;
+        }
         default:
             break;
     }
@@ -129,6 +134,26 @@ protected:
 };
 
 
+struct ObservationDependentVariableFilter : public ObservationFilter< Eigen::VectorXd >
+{
+public:
+    ObservationDependentVariableFilter( const std::shared_ptr< simulation_setup::ObservationDependentVariableSettings > dependentVariableSettings,
+                                        const Eigen::VectorXd& filterValue, const bool filterOut = true, const bool useOppositeCondition = false ) :
+            ObservationFilter( dependent_variable_filtering, filterValue, filterOut, useOppositeCondition ), dependentVariableSettings_( dependentVariableSettings ){ }
+
+    virtual ~ObservationDependentVariableFilter( ){ }
+
+    std::shared_ptr< simulation_setup::ObservationDependentVariableSettings > getDependentVariableSettings( ) const
+    {
+        return dependentVariableSettings_;
+    }
+
+protected:
+
+    std::shared_ptr< simulation_setup::ObservationDependentVariableSettings > dependentVariableSettings_;
+};
+
+
 inline std::shared_ptr< ObservationFilterBase > observationFilter(
         const ObservationFilterType filterType, const double filterValue, const bool filterOut = true, const bool useOppositeCondition = false )
 {
@@ -147,13 +172,25 @@ inline std::shared_ptr< ObservationFilterBase > observationFilter(
     return std::make_shared< ObservationFilter< std::pair< double, double > > >( filterType, filterValue, filterOut, useOppositeCondition );
 }
 
+inline std::shared_ptr< ObservationFilterBase > observationFilter(
+        const ObservationFilterType filterType, const Eigen::VectorXd& filterValue, const bool filterOut = true, const bool useOppositeCondition = false )
+{
+    return std::make_shared< ObservationFilter< Eigen::VectorXd > >( filterType, filterValue, filterOut, useOppositeCondition );
+}
+
+inline std::shared_ptr< ObservationFilterBase > observationFilter(
+        const std::shared_ptr< simulation_setup::ObservationDependentVariableSettings > dependentVariableSettings,
+        const Eigen::VectorXd& filterValue, const bool filterOut = true, const bool useOppositeCondition = false )
+{
+    return std::make_shared< ObservationDependentVariableFilter >( dependentVariableSettings, filterValue, filterOut, useOppositeCondition );
+}
+
 enum ObservationSetSplitterType
 {
     time_tags_splitter,
     time_interval_splitter,
     time_span_splitter,
-    nb_observations_splitter,
-    dependent_variables_splitter
+    nb_observations_splitter
 };
 
 struct ObservationSetSplitterBase
