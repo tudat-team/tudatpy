@@ -29,7 +29,7 @@ namespace tio = tudat::input_output;
 
 namespace tudatpy {
 
-    namespace io {
+    namespace data {
 
         void expose_data(py::module &m) {
             m.def("get_resource_path", &tudat::paths::get_resource_path,
