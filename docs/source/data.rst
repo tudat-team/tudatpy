@@ -77,41 +77,6 @@ Functions
 
 
 
-Enumerations
-------------
-.. currentmodule:: tudatpy.data
-
-.. autosummary::
-
-   StaticCoefficientNames
-
-   DynamicCoefficientNames
-
-
-
-.. autoclass:: tudatpy.data.StaticCoefficientNames
-   :members:
-
-.. autoclass:: tudatpy.data.DynamicCoefficientNames
-   :members:
-
-
-
-
-Classes
--------
-.. currentmodule:: tudatpy.data
-
-.. autosummary::
-
-   missile_DATCOM_data
-
-
-
-.. autoclass:: tudatpy.data.missile_DATCOM_data
-   :members:
-   :special-members: __init__
-
 
 
 
