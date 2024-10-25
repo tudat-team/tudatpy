@@ -225,315 +225,316 @@ std::shared_ptr< ObservationCollection< double, double > > setUpObservationColle
 
 }
 
-//BOOST_AUTO_TEST_CASE( test_ObservationCollectionParser )
-//{
-//    const double startTime = double( 1.0E7 );
-//    const int numberOfDaysOfData = 3;
-//    unsigned int numberOfObservations = 300;
-//    double obsInterval = 20.0;
-//
-//    std::vector< LinkEnds > stationReceiverLinkEnds;
-//    std::vector< LinkEnds > stationTransmitterLinkEnds;
-//    std::map< ObservableType, double > obsStartTimes;
-//    std::map< ObservableType, std::vector< double > > baseTimeList;
-//    std::shared_ptr< ObservationCollection< double, double > > simulatedObservations = setUpObservationCollectionToTest(
-//            startTime, numberOfDaysOfData, numberOfObservations, obsInterval, stationReceiverLinkEnds, stationTransmitterLinkEnds, obsStartTimes, baseTimeList );
-//
-//    // Check full list of observable types
-//    std::vector< ObservableType > observableTypes = simulatedObservations->getObservableTypes( );
-//    std::vector< ObservableType > trueObservableTypes = { one_way_range, one_way_doppler, angular_position };
-//    BOOST_CHECK( observableTypes.size( ) == trueObservableTypes.size( ) );
-//    for ( auto type : trueObservableTypes )
-//    {
-//        BOOST_CHECK( std::count( observableTypes.begin( ), observableTypes.end( ), type ) == 1 );
-//    }
-//
-//    // Check full list of link ends
-//    std::vector< LinkEnds > linkEndsList = simulatedObservations->getLinkEnds( );
-//    std::vector< LinkEnds > trueLinkEndsList = { stationReceiverLinkEnds[ 0 ], stationTransmitterLinkEnds[ 0 ], stationReceiverLinkEnds[ 1 ], stationTransmitterLinkEnds[ 1 ],
-//                                                 stationReceiverLinkEnds[ 2 ], stationTransmitterLinkEnds[ 2 ] };
-//    BOOST_CHECK( linkEndsList.size( ) == trueLinkEndsList.size( ) );
-//    for ( auto linkEnds : trueLinkEndsList )
-//    {
-//        BOOST_CHECK( std::count( linkEndsList.begin( ), linkEndsList.end( ), linkEnds ) == 1 );
-//    }
-//
-//    // Check full list of body names
-//    std::vector< std::string > bodyNamesInLinkEnds = simulatedObservations->getBodiesInLinkEnds( );
-//    std::vector< std::string > trueBodyNamesInLinkEnds = { "Earth", "Vehicle" };
-//    BOOST_CHECK( bodyNamesInLinkEnds.size( ) == trueBodyNamesInLinkEnds.size( ) );
-//    for ( auto name : trueBodyNamesInLinkEnds )
-//    {
-//        BOOST_CHECK( std::count( bodyNamesInLinkEnds.begin( ), bodyNamesInLinkEnds.end( ), name ) == 1 );
-//    }
-//
-//    // Check full list of reference points
-//    std::vector< std::string > referencePointsInLinkEnds = simulatedObservations->getReferencePointsInLinkEnds( );
-//    std::vector< std::string > trueReferencePointsInLinkEnds = { "Station1", "Station2", "Station3" };
-//    BOOST_CHECK( referencePointsInLinkEnds.size( ) == trueReferencePointsInLinkEnds.size( ) );
-//    for ( auto refPoint : trueReferencePointsInLinkEnds )
-//    {
-//        BOOST_CHECK( std::count( referencePointsInLinkEnds.begin( ), referencePointsInLinkEnds.end( ), refPoint ) == 1 );
-//    }
-//
-//    // Check full list of time bounds
-//    std::vector< std::pair< double, double > > timeBoundsList = simulatedObservations->getTimeBoundsList( );
-//    std::vector< std::pair< double, double > > trueTimeBoundsList;
-//    for ( auto it : obsStartTimes )
-//    {
-//        if ( it.first != angular_position )
-//        {
-//            trueTimeBoundsList.push_back( std::make_pair( it.second, it.second + ( numberOfObservations - 1 ) * obsInterval ) );
-//        }
-//        else
-//        {
-//            trueTimeBoundsList.push_back( std::make_pair( it.second, it.second + ( numberOfObservations - 1 ) * obsInterval + 2000.0 ) );
-//        }
-//    }
-//    BOOST_CHECK( timeBoundsList.size( ) == trueTimeBoundsList.size( ) );
-//    for ( auto timeBounds : trueTimeBoundsList )
-//    {
-//        BOOST_CHECK( std::count( timeBoundsList.begin( ), timeBoundsList.end( ), timeBounds ) == 1 );
-//    }
-//
-//
-//    // Check parsing based on observable type
-//    std::vector< std::shared_ptr< SingleObservationSet< > > > rangeObservationSets = simulatedObservations->getSingleObservationSets( observationParser( one_way_range ) );
-//
-//    std::vector< std::shared_ptr< SingleObservationSet< > > > manuallyExtractedRangeObservationSets;
-//    std::map< LinkEnds, std::vector< std::shared_ptr< SingleObservationSet< > > > > manuallyExtractedRangeObservationSetsMap = simulatedObservations->getObservationsSets( ).at( one_way_range );
-//    for ( auto linkEndsIt : manuallyExtractedRangeObservationSetsMap )
-//    {
-//        for ( auto obsSet : linkEndsIt.second )
-//        {
-//            manuallyExtractedRangeObservationSets.push_back( obsSet );
-//        }
-//    }
-//
-//    BOOST_CHECK( rangeObservationSets.size( ) == manuallyExtractedRangeObservationSets.size( ) );
-//    BOOST_CHECK( rangeObservationSets.size( ) == 3 );
-//
-//    std::vector< LinkEnds > trueRangeLinkEnds = { stationReceiverLinkEnds[ 0 ], stationTransmitterLinkEnds[ 0 ], stationReceiverLinkEnds[ 1 ]  };
-//    std::vector< std::string > trueRangeBodyNames = { "Earth", "Vehicle" };
-//    std::vector< std::string > trueRangeReferencePoints = { "Station1", "Station2" };
-//
-//    std::vector< LinkEnds > rangeLinkEnds;
-//    for ( auto obsSet : rangeObservationSets )
-//    {
-//        rangeLinkEnds.push_back( obsSet->getLinkEnds( ).linkEnds_ );
-//    }
-//    std::vector< LinkEnds > rangeLinkEndsFromObsCollection = simulatedObservations->getLinkEnds( observationParser( one_way_range ) );
-//
-//    BOOST_CHECK( rangeLinkEnds.size( ) == rangeLinkEndsFromObsCollection.size( ) );
-//    BOOST_CHECK( rangeLinkEnds.size( ) == 3 );
-//
-//    for ( auto testLinkEnds : trueRangeLinkEnds )
-//    {
-//        BOOST_CHECK( std::count( rangeLinkEnds.begin( ), rangeLinkEnds.end( ), testLinkEnds ) == 1 );
-//        BOOST_CHECK( std::count( rangeLinkEndsFromObsCollection.begin( ), rangeLinkEndsFromObsCollection.end( ), testLinkEnds ) == 1 );
-//    }
-//
-//    std::vector< std::string > rangeBodyNamesFromObsCollection = simulatedObservations->getBodiesInLinkEnds( observationParser( one_way_range ) );
-//    for ( auto testBodyName : trueRangeBodyNames )
-//    {
-//        BOOST_CHECK( std::count( rangeBodyNamesFromObsCollection.begin( ), rangeBodyNamesFromObsCollection.end( ), testBodyName ) == 1 );
-//    }
-//
-//    std::vector< std::string > rangeRefPointsFromObsCollection = simulatedObservations->getReferencePointsInLinkEnds( observationParser( one_way_range ) );
-//    for ( auto testRefPoint : trueRangeReferencePoints )
-//    {
-//        BOOST_CHECK( std::count( rangeRefPointsFromObsCollection.begin( ), rangeRefPointsFromObsCollection.end( ), testRefPoint ) == 1 );
-//    }
-//
-//    // Retrieve observation values
-//    std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > rangeValuesFromObservationCollection =
-//            simulatedObservations->getObservations( observationParser( one_way_range ) );
-//    for ( unsigned int k = 0 ; k < rangeObservationSets.size( ) ; k++ )
-//    {
-//        BOOST_CHECK( rangeObservationSets.at( k )->getObservationsVector( ) == rangeValuesFromObservationCollection.at( k ) );
-//        BOOST_CHECK( manuallyExtractedRangeObservationSets.at( k )->getObservationsVector( ) == rangeValuesFromObservationCollection.at( k ) );
-//    }
-//
-//    // Retrieve observation times
-//    std::vector< std::vector< double > > rangeTimesFromObservationCollection = simulatedObservations->getObservationTimes( observationParser( one_way_range ) );
-//    for ( unsigned int k = 0 ; k < rangeObservationSets.size( ) ; k++ )
-//    {
-//        BOOST_CHECK( rangeObservationSets.at( k )->getObservationTimes( ) == rangeTimesFromObservationCollection.at( k ) );
-//        BOOST_CHECK( manuallyExtractedRangeObservationSets.at( k )->getObservationTimes( ) == rangeTimesFromObservationCollection.at( k ) );
-//    }
-//
-//    // Retrieve observation sets start and size
-//    std::map< ObservableType, std::map< LinkEnds, std::vector< std::pair< int, int > > > > rangeSetsStartAndSize =
-//            simulatedObservations->getObservationSetStartAndSize( observationParser( one_way_range ) );
-//    BOOST_CHECK( utilities::createVectorFromMapKeys( rangeSetsStartAndSize ).size( ) == 1 );
-//    for ( auto linkEndsIt : rangeSetsStartAndSize.at( one_way_range ) )
-//    {
-//        for ( unsigned int k = 0 ; k < linkEndsIt.second.size( ) ; k++ )
-//        {
-//            BOOST_CHECK( linkEndsIt.second.at( k ) == rangeSetsStartAndSize.at( one_way_range ).at( linkEndsIt.first )[ k ] );
-//        }
-//    }
-//
-//    // Check that pointers to selected observation sets are identical
-//    for ( unsigned int i = 0 ; i < rangeObservationSets.size( ) ; i++ )
-//    {
-//        BOOST_CHECK( rangeObservationSets.at( i ).get( ) == manuallyExtractedRangeObservationSets.at( i ).get( ) );
-//    }
-//
-//
-//    // Check parsing based on link ends
-//    std::vector< std::shared_ptr< SingleObservationSet< > > > linkEnds1ObservationSets = simulatedObservations->getSingleObservationSets(
-//            observationParser( std::vector< LinkEnds >( { stationReceiverLinkEnds[ 0 ], stationTransmitterLinkEnds[ 0 ] } ) ) );
-//
-//    // Check parsing based on names
-//    std::vector< std::shared_ptr< SingleObservationSet< > > > station1ObservationSets = simulatedObservations->getSingleObservationSets(
-//            observationParser( "Station1", true ) );
-//
-//    std::vector< std::shared_ptr< SingleObservationSet< > > > manuallyExtractedStation1ObservationSets;
-//    for ( auto observableIt : simulatedObservations->getObservationsSets( ) )
-//    {
-//        for ( auto linkEndsIt : observableIt.second )
-//        {
-//            if ( linkEndsIt.first == stationReceiverLinkEnds[ 0 ] || linkEndsIt.first == stationTransmitterLinkEnds[ 0 ]  )
-//            {
-//                for ( auto obsSet : linkEndsIt.second )
-//                {
-//                    manuallyExtractedStation1ObservationSets.push_back( obsSet );
-//                }
-//            }
-//        }
-//    }
-//
-//    // Check that pointers to selected observation sets are identical
-//    BOOST_CHECK( linkEnds1ObservationSets.size( ) == manuallyExtractedStation1ObservationSets.size( ) );
-//    BOOST_CHECK( station1ObservationSets.size( ) == manuallyExtractedStation1ObservationSets.size( ) );
-//    for ( unsigned int i = 0 ; i < linkEnds1ObservationSets.size( ) ; i++ )
-//    {
-//        BOOST_CHECK( linkEnds1ObservationSets.at( i ).get( ) == manuallyExtractedStation1ObservationSets.at( i ).get( ) );
-//        BOOST_CHECK( station1ObservationSets.at( i ).get( ) == manuallyExtractedStation1ObservationSets.at( i ).get( ) );
-//    }
-//
-//    // Retrieve observation sets start and size
-//    std::map< ObservableType, std::map< LinkEnds, std::vector< std::pair< int, int > > > > station1SetsStartAndSize =
-//            simulatedObservations->getObservationSetStartAndSize( observationParser( "Station1", true ) );
-//    BOOST_CHECK( utilities::createVectorFromMapKeys( station1SetsStartAndSize ).size( ) == 1 );
-//    for ( auto linkEndsIt : rangeSetsStartAndSize.at( one_way_range ) )
-//    {
-//        if ( linkEndsIt.first == stationReceiverLinkEnds[ 0 ] || linkEndsIt.first == stationTransmitterLinkEnds[ 0 ]  )
-//        {
-//            for ( unsigned int k = 0 ; k < linkEndsIt.second.size( ) ; k++ )
-//            {
-//                BOOST_CHECK( linkEndsIt.second.at( k ) == station1SetsStartAndSize.at( one_way_range ).at( linkEndsIt.first )[ k ] );
-//            }
-//        }
-//        else
-//        {
-//            BOOST_CHECK( station1SetsStartAndSize.at( one_way_range ).count( linkEndsIt.first ) == 0 );
-//        }
-//    }
-//
-//    // Check parsing based on time bounds
-//    std::vector< std::shared_ptr< SingleObservationSet< > > > firstDayObservationSets = simulatedObservations->getSingleObservationSets(
-//            observationParser( std::make_pair( startTime, startTime + 86400.0 ) ) );
-//
-//    // Test opposite condition
-//    std::vector< std::shared_ptr< SingleObservationSet< > > > afterFirstDayObservationSets = simulatedObservations->getSingleObservationSets(
-//            observationParser( std::make_pair( startTime, startTime + 86400.0 ), true ) );
-//
-//    // Manually retrieve observation sets based on time bounds
-//    std::vector< std::shared_ptr< SingleObservationSet< > > > manuallyDefinedFirstDayObservationSets, manuallyDefinedAfterFirstDayObservationSets;
-//    for ( auto observableIt : simulatedObservations->getObservationsSets( ) )
-//    {
-//        for ( auto linkEndsIt : observableIt.second )
-//        {
-//            for ( auto obsSet : linkEndsIt.second )
-//            {
-//                if ( ( obsSet->getTimeBounds( ).first >= startTime ) && ( obsSet->getTimeBounds( ).second <= startTime + 1000.0 + 86400.0 ) )
-//                {
-//                    manuallyDefinedFirstDayObservationSets.push_back( obsSet );
-//                }
-//                else
-//                {
-//                    manuallyDefinedAfterFirstDayObservationSets.push_back( obsSet );
-//                }
-//            }
-//        }
-//    }
-//
-//    // Check that pointers to selected observation sets are identical
-//    BOOST_CHECK( firstDayObservationSets.size( ) == manuallyDefinedFirstDayObservationSets.size( ) );
-//    BOOST_CHECK( afterFirstDayObservationSets.size( ) == manuallyDefinedAfterFirstDayObservationSets.size( ) );
-//    for ( unsigned int i = 0 ; i < firstDayObservationSets.size( ) ; i++ )
-//    {
-//        BOOST_CHECK( firstDayObservationSets.at( i ).get( ) == manuallyDefinedFirstDayObservationSets.at( i ).get( ) );
-//        BOOST_CHECK( afterFirstDayObservationSets.at( i ).get( ) == manuallyDefinedAfterFirstDayObservationSets.at( i ).get( ) );
-//    }
-//
-//    // Check multi-type parsing when conditions are treated separately
-//    std::vector< std::shared_ptr< ObservationCollectionParser > > multiTypeParserList;
-//    multiTypeParserList.push_back( observationParser( one_way_doppler ) );
-//    multiTypeParserList.push_back( observationParser( "Station1", true ) );
-//    multiTypeParserList.push_back( observationParser( stationTransmitterLinkEnds[ 1 ] ) );
-//
-//    std::vector< std::shared_ptr< SingleObservationSet< > > > multiTypeObservationSets = simulatedObservations->getSingleObservationSets(
-//            observationParser( multiTypeParserList ) );
-//
-//    std::vector< std::shared_ptr< SingleObservationSet< > > > manuallyDefinedMultiTypeObservationSets;
-//    for ( auto observableIt : simulatedObservations->getObservationsSets( ) )
-//    {
-//        for ( auto linkEndsIt : observableIt.second )
-//        {
-//            if ( ( observableIt.first == one_way_doppler ) || ( linkEndsIt.first == stationReceiverLinkEnds[ 0 ] ) || ( linkEndsIt.first == stationTransmitterLinkEnds[ 0 ] ) ||
-//                    ( linkEndsIt.first == stationTransmitterLinkEnds[ 1 ] ) )
-//            {
-//                for ( auto obs : linkEndsIt.second )
-//                {
-//                    manuallyDefinedMultiTypeObservationSets.push_back( obs );
-//                }
-//            }
-//        }
-//    }
-//
-//    //Check that pointers to selected observation sets are identical
-//    BOOST_CHECK( multiTypeObservationSets.size( ) ==  manuallyDefinedMultiTypeObservationSets.size( ) );
-//    for ( unsigned int k = 0 ; k < multiTypeObservationSets.size( ) ; k++ )
-//    {
-//        BOOST_CHECK( multiTypeObservationSets.at( k ).get( ) == manuallyDefinedMultiTypeObservationSets.at( k ).get( ) );
-//    }
-//
-//
-//    // Check multi-type parsing when all conditions should be met concurrently
-//    std::vector< std::shared_ptr< ObservationCollectionParser > > multiTypeParserList2;
-//    multiTypeParserList2.push_back( observationParser( one_way_range ) );
-//    multiTypeParserList2.push_back( observationParser( std::make_pair( receiver, LinkEndId( "Earth", "Station2" ) ) ) );
-//    multiTypeParserList2.push_back( observationParser( "Station2", true ) );
-//
-//    std::vector< std::shared_ptr< SingleObservationSet< > > > multiTypeObservationSets2 = simulatedObservations->getSingleObservationSets(
-//            observationParser( multiTypeParserList2, true ) );
-//
-//    std::vector< std::shared_ptr< SingleObservationSet< > > > manuallyDefinedMultiTypeObservationSets2;
-//    for ( auto observableIt : simulatedObservations->getObservationsSets( ) )
-//    {
-//        for ( auto linkEndsIt : observableIt.second )
-//        {
-//            if ( ( observableIt.first == one_way_range ) && ( ( linkEndsIt.first == stationReceiverLinkEnds[ 1 ] ) ) )
-//            {
-//                for ( auto obs : linkEndsIt.second )
-//                {
-//                    manuallyDefinedMultiTypeObservationSets2.push_back( obs );
-//                }
-//            }
-//        }
-//    }
-//
-//    //Check that pointers to selected observation sets are identical
-//    BOOST_CHECK( multiTypeObservationSets2.size( ) ==  manuallyDefinedMultiTypeObservationSets2.size( ) );
-//    for ( unsigned int k = 0 ; k < multiTypeObservationSets2.size( ) ; k++ )
-//    {
-//        BOOST_CHECK( multiTypeObservationSets2.at( k ).get( ) == manuallyDefinedMultiTypeObservationSets2.at( k ).get( ) );
-//    }
-//
-//}
+BOOST_AUTO_TEST_CASE( test_ObservationCollectionParser )
+{
+    const double startTime = double( 1.0E7 );
+    const int numberOfDaysOfData = 3;
+    unsigned int numberOfObservations = 300;
+    double obsInterval = 20.0;
+
+    std::vector< LinkEnds > stationReceiverLinkEnds;
+    std::vector< LinkEnds > stationTransmitterLinkEnds;
+    std::map< ObservableType, double > obsStartTimes;
+    std::map< ObservableType, std::vector< double > > baseTimeList;
+    SystemOfBodies bodies;
+    std::shared_ptr< ObservationCollection< double, double > > simulatedObservations = setUpObservationCollectionToTest(
+            startTime, numberOfDaysOfData, numberOfObservations, obsInterval, stationReceiverLinkEnds, stationTransmitterLinkEnds, obsStartTimes, baseTimeList,bodies );
+
+    // Check full list of observable types
+    std::vector< ObservableType > observableTypes = simulatedObservations->getObservableTypes( );
+    std::vector< ObservableType > trueObservableTypes = { one_way_range, one_way_doppler, angular_position };
+    BOOST_CHECK( observableTypes.size( ) == trueObservableTypes.size( ) );
+    for ( auto type : trueObservableTypes )
+    {
+        BOOST_CHECK( std::count( observableTypes.begin( ), observableTypes.end( ), type ) == 1 );
+    }
+
+    // Check full list of link ends
+    std::vector< LinkEnds > linkEndsList = simulatedObservations->getLinkEnds( );
+    std::vector< LinkEnds > trueLinkEndsList = { stationReceiverLinkEnds[ 0 ], stationTransmitterLinkEnds[ 0 ], stationReceiverLinkEnds[ 1 ], stationTransmitterLinkEnds[ 1 ],
+                                                 stationReceiverLinkEnds[ 2 ], stationTransmitterLinkEnds[ 2 ] };
+    BOOST_CHECK( linkEndsList.size( ) == trueLinkEndsList.size( ) );
+    for ( auto linkEnds : trueLinkEndsList )
+    {
+        BOOST_CHECK( std::count( linkEndsList.begin( ), linkEndsList.end( ), linkEnds ) == 1 );
+    }
+
+    // Check full list of body names
+    std::vector< std::string > bodyNamesInLinkEnds = simulatedObservations->getBodiesInLinkEnds( );
+    std::vector< std::string > trueBodyNamesInLinkEnds = { "Earth", "Vehicle" };
+    BOOST_CHECK( bodyNamesInLinkEnds.size( ) == trueBodyNamesInLinkEnds.size( ) );
+    for ( auto name : trueBodyNamesInLinkEnds )
+    {
+        BOOST_CHECK( std::count( bodyNamesInLinkEnds.begin( ), bodyNamesInLinkEnds.end( ), name ) == 1 );
+    }
+
+    // Check full list of reference points
+    std::vector< std::string > referencePointsInLinkEnds = simulatedObservations->getReferencePointsInLinkEnds( );
+    std::vector< std::string > trueReferencePointsInLinkEnds = { "Station1", "Station2", "Station3" };
+    BOOST_CHECK( referencePointsInLinkEnds.size( ) == trueReferencePointsInLinkEnds.size( ) );
+    for ( auto refPoint : trueReferencePointsInLinkEnds )
+    {
+        BOOST_CHECK( std::count( referencePointsInLinkEnds.begin( ), referencePointsInLinkEnds.end( ), refPoint ) == 1 );
+    }
+
+    // Check full list of time bounds
+    std::vector< std::pair< double, double > > timeBoundsList = simulatedObservations->getTimeBoundsList( );
+    std::vector< std::pair< double, double > > trueTimeBoundsList;
+    for ( auto it : obsStartTimes )
+    {
+        if ( it.first != angular_position )
+        {
+            trueTimeBoundsList.push_back( std::make_pair( it.second, it.second + ( numberOfObservations - 1 ) * obsInterval ) );
+        }
+        else
+        {
+            trueTimeBoundsList.push_back( std::make_pair( it.second, it.second + ( numberOfObservations - 1 ) * obsInterval + 2000.0 ) );
+        }
+    }
+    BOOST_CHECK( timeBoundsList.size( ) == trueTimeBoundsList.size( ) );
+    for ( auto timeBounds : trueTimeBoundsList )
+    {
+        BOOST_CHECK( std::count( timeBoundsList.begin( ), timeBoundsList.end( ), timeBounds ) == 1 );
+    }
+
+
+    // Check parsing based on observable type
+    std::vector< std::shared_ptr< SingleObservationSet< > > > rangeObservationSets = simulatedObservations->getSingleObservationSets( observationParser( one_way_range ) );
+
+    std::vector< std::shared_ptr< SingleObservationSet< > > > manuallyExtractedRangeObservationSets;
+    std::map< LinkEnds, std::vector< std::shared_ptr< SingleObservationSet< > > > > manuallyExtractedRangeObservationSetsMap = simulatedObservations->getObservationsSets( ).at( one_way_range );
+    for ( auto linkEndsIt : manuallyExtractedRangeObservationSetsMap )
+    {
+        for ( auto obsSet : linkEndsIt.second )
+        {
+            manuallyExtractedRangeObservationSets.push_back( obsSet );
+        }
+    }
+
+    BOOST_CHECK( rangeObservationSets.size( ) == manuallyExtractedRangeObservationSets.size( ) );
+    BOOST_CHECK( rangeObservationSets.size( ) == 3 );
+
+    std::vector< LinkEnds > trueRangeLinkEnds = { stationReceiverLinkEnds[ 0 ], stationTransmitterLinkEnds[ 0 ], stationReceiverLinkEnds[ 1 ]  };
+    std::vector< std::string > trueRangeBodyNames = { "Earth", "Vehicle" };
+    std::vector< std::string > trueRangeReferencePoints = { "Station1", "Station2" };
+
+    std::vector< LinkEnds > rangeLinkEnds;
+    for ( auto obsSet : rangeObservationSets )
+    {
+        rangeLinkEnds.push_back( obsSet->getLinkEnds( ).linkEnds_ );
+    }
+    std::vector< LinkEnds > rangeLinkEndsFromObsCollection = simulatedObservations->getLinkEnds( observationParser( one_way_range ) );
+
+    BOOST_CHECK( rangeLinkEnds.size( ) == rangeLinkEndsFromObsCollection.size( ) );
+    BOOST_CHECK( rangeLinkEnds.size( ) == 3 );
+
+    for ( auto testLinkEnds : trueRangeLinkEnds )
+    {
+        BOOST_CHECK( std::count( rangeLinkEnds.begin( ), rangeLinkEnds.end( ), testLinkEnds ) == 1 );
+        BOOST_CHECK( std::count( rangeLinkEndsFromObsCollection.begin( ), rangeLinkEndsFromObsCollection.end( ), testLinkEnds ) == 1 );
+    }
+
+    std::vector< std::string > rangeBodyNamesFromObsCollection = simulatedObservations->getBodiesInLinkEnds( observationParser( one_way_range ) );
+    for ( auto testBodyName : trueRangeBodyNames )
+    {
+        BOOST_CHECK( std::count( rangeBodyNamesFromObsCollection.begin( ), rangeBodyNamesFromObsCollection.end( ), testBodyName ) == 1 );
+    }
+
+    std::vector< std::string > rangeRefPointsFromObsCollection = simulatedObservations->getReferencePointsInLinkEnds( observationParser( one_way_range ) );
+    for ( auto testRefPoint : trueRangeReferencePoints )
+    {
+        BOOST_CHECK( std::count( rangeRefPointsFromObsCollection.begin( ), rangeRefPointsFromObsCollection.end( ), testRefPoint ) == 1 );
+    }
+
+    // Retrieve observation values
+    std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > rangeValuesFromObservationCollection =
+            simulatedObservations->getObservations( observationParser( one_way_range ) );
+    for ( unsigned int k = 0 ; k < rangeObservationSets.size( ) ; k++ )
+    {
+        BOOST_CHECK( rangeObservationSets.at( k )->getObservationsVector( ) == rangeValuesFromObservationCollection.at( k ) );
+        BOOST_CHECK( manuallyExtractedRangeObservationSets.at( k )->getObservationsVector( ) == rangeValuesFromObservationCollection.at( k ) );
+    }
+
+    // Retrieve observation times
+    std::vector< std::vector< double > > rangeTimesFromObservationCollection = simulatedObservations->getObservationTimes( observationParser( one_way_range ) );
+    for ( unsigned int k = 0 ; k < rangeObservationSets.size( ) ; k++ )
+    {
+        BOOST_CHECK( rangeObservationSets.at( k )->getObservationTimes( ) == rangeTimesFromObservationCollection.at( k ) );
+        BOOST_CHECK( manuallyExtractedRangeObservationSets.at( k )->getObservationTimes( ) == rangeTimesFromObservationCollection.at( k ) );
+    }
+
+    // Retrieve observation sets start and size
+    std::map< ObservableType, std::map< LinkEnds, std::vector< std::pair< int, int > > > > rangeSetsStartAndSize =
+            simulatedObservations->getObservationSetStartAndSize( observationParser( one_way_range ) );
+    BOOST_CHECK( utilities::createVectorFromMapKeys( rangeSetsStartAndSize ).size( ) == 1 );
+    for ( auto linkEndsIt : rangeSetsStartAndSize.at( one_way_range ) )
+    {
+        for ( unsigned int k = 0 ; k < linkEndsIt.second.size( ) ; k++ )
+        {
+            BOOST_CHECK( linkEndsIt.second.at( k ) == rangeSetsStartAndSize.at( one_way_range ).at( linkEndsIt.first )[ k ] );
+        }
+    }
+
+    // Check that pointers to selected observation sets are identical
+    for ( unsigned int i = 0 ; i < rangeObservationSets.size( ) ; i++ )
+    {
+        BOOST_CHECK( rangeObservationSets.at( i ).get( ) == manuallyExtractedRangeObservationSets.at( i ).get( ) );
+    }
+
+
+    // Check parsing based on link ends
+    std::vector< std::shared_ptr< SingleObservationSet< > > > linkEnds1ObservationSets = simulatedObservations->getSingleObservationSets(
+            observationParser( std::vector< LinkEnds >( { stationReceiverLinkEnds[ 0 ], stationTransmitterLinkEnds[ 0 ] } ) ) );
+
+    // Check parsing based on names
+    std::vector< std::shared_ptr< SingleObservationSet< > > > station1ObservationSets = simulatedObservations->getSingleObservationSets(
+            observationParser( "Station1", true ) );
+
+    std::vector< std::shared_ptr< SingleObservationSet< > > > manuallyExtractedStation1ObservationSets;
+    for ( auto observableIt : simulatedObservations->getObservationsSets( ) )
+    {
+        for ( auto linkEndsIt : observableIt.second )
+        {
+            if ( linkEndsIt.first == stationReceiverLinkEnds[ 0 ] || linkEndsIt.first == stationTransmitterLinkEnds[ 0 ]  )
+            {
+                for ( auto obsSet : linkEndsIt.second )
+                {
+                    manuallyExtractedStation1ObservationSets.push_back( obsSet );
+                }
+            }
+        }
+    }
+
+    // Check that pointers to selected observation sets are identical
+    BOOST_CHECK( linkEnds1ObservationSets.size( ) == manuallyExtractedStation1ObservationSets.size( ) );
+    BOOST_CHECK( station1ObservationSets.size( ) == manuallyExtractedStation1ObservationSets.size( ) );
+    for ( unsigned int i = 0 ; i < linkEnds1ObservationSets.size( ) ; i++ )
+    {
+        BOOST_CHECK( linkEnds1ObservationSets.at( i ).get( ) == manuallyExtractedStation1ObservationSets.at( i ).get( ) );
+        BOOST_CHECK( station1ObservationSets.at( i ).get( ) == manuallyExtractedStation1ObservationSets.at( i ).get( ) );
+    }
+
+    // Retrieve observation sets start and size
+    std::map< ObservableType, std::map< LinkEnds, std::vector< std::pair< int, int > > > > station1SetsStartAndSize =
+            simulatedObservations->getObservationSetStartAndSize( observationParser( "Station1", true ) );
+    BOOST_CHECK( utilities::createVectorFromMapKeys( station1SetsStartAndSize ).size( ) == 1 );
+    for ( auto linkEndsIt : rangeSetsStartAndSize.at( one_way_range ) )
+    {
+        if ( linkEndsIt.first == stationReceiverLinkEnds[ 0 ] || linkEndsIt.first == stationTransmitterLinkEnds[ 0 ]  )
+        {
+            for ( unsigned int k = 0 ; k < linkEndsIt.second.size( ) ; k++ )
+            {
+                BOOST_CHECK( linkEndsIt.second.at( k ) == station1SetsStartAndSize.at( one_way_range ).at( linkEndsIt.first )[ k ] );
+            }
+        }
+        else
+        {
+            BOOST_CHECK( station1SetsStartAndSize.at( one_way_range ).count( linkEndsIt.first ) == 0 );
+        }
+    }
+
+    // Check parsing based on time bounds
+    std::vector< std::shared_ptr< SingleObservationSet< > > > firstDayObservationSets = simulatedObservations->getSingleObservationSets(
+            observationParser( std::make_pair( startTime, startTime + 86400.0 ) ) );
+
+    // Test opposite condition
+    std::vector< std::shared_ptr< SingleObservationSet< > > > afterFirstDayObservationSets = simulatedObservations->getSingleObservationSets(
+            observationParser( std::make_pair( startTime, startTime + 86400.0 ), true ) );
+
+    // Manually retrieve observation sets based on time bounds
+    std::vector< std::shared_ptr< SingleObservationSet< > > > manuallyDefinedFirstDayObservationSets, manuallyDefinedAfterFirstDayObservationSets;
+    for ( auto observableIt : simulatedObservations->getObservationsSets( ) )
+    {
+        for ( auto linkEndsIt : observableIt.second )
+        {
+            for ( auto obsSet : linkEndsIt.second )
+            {
+                if ( ( obsSet->getTimeBounds( ).first >= startTime ) && ( obsSet->getTimeBounds( ).second <= startTime + 1000.0 + 86400.0 ) )
+                {
+                    manuallyDefinedFirstDayObservationSets.push_back( obsSet );
+                }
+                else
+                {
+                    manuallyDefinedAfterFirstDayObservationSets.push_back( obsSet );
+                }
+            }
+        }
+    }
+
+    // Check that pointers to selected observation sets are identical
+    BOOST_CHECK( firstDayObservationSets.size( ) == manuallyDefinedFirstDayObservationSets.size( ) );
+    BOOST_CHECK( afterFirstDayObservationSets.size( ) == manuallyDefinedAfterFirstDayObservationSets.size( ) );
+    for ( unsigned int i = 0 ; i < firstDayObservationSets.size( ) ; i++ )
+    {
+        BOOST_CHECK( firstDayObservationSets.at( i ).get( ) == manuallyDefinedFirstDayObservationSets.at( i ).get( ) );
+        BOOST_CHECK( afterFirstDayObservationSets.at( i ).get( ) == manuallyDefinedAfterFirstDayObservationSets.at( i ).get( ) );
+    }
+
+    // Check multi-type parsing when conditions are treated separately
+    std::vector< std::shared_ptr< ObservationCollectionParser > > multiTypeParserList;
+    multiTypeParserList.push_back( observationParser( one_way_doppler ) );
+    multiTypeParserList.push_back( observationParser( "Station1", true ) );
+    multiTypeParserList.push_back( observationParser( stationTransmitterLinkEnds[ 1 ] ) );
+
+    std::vector< std::shared_ptr< SingleObservationSet< > > > multiTypeObservationSets = simulatedObservations->getSingleObservationSets(
+            observationParser( multiTypeParserList ) );
+
+    std::vector< std::shared_ptr< SingleObservationSet< > > > manuallyDefinedMultiTypeObservationSets;
+    for ( auto observableIt : simulatedObservations->getObservationsSets( ) )
+    {
+        for ( auto linkEndsIt : observableIt.second )
+        {
+            if ( ( observableIt.first == one_way_doppler ) || ( linkEndsIt.first == stationReceiverLinkEnds[ 0 ] ) || ( linkEndsIt.first == stationTransmitterLinkEnds[ 0 ] ) ||
+                    ( linkEndsIt.first == stationTransmitterLinkEnds[ 1 ] ) )
+            {
+                for ( auto obs : linkEndsIt.second )
+                {
+                    manuallyDefinedMultiTypeObservationSets.push_back( obs );
+                }
+            }
+        }
+    }
+
+    //Check that pointers to selected observation sets are identical
+    BOOST_CHECK( multiTypeObservationSets.size( ) ==  manuallyDefinedMultiTypeObservationSets.size( ) );
+    for ( unsigned int k = 0 ; k < multiTypeObservationSets.size( ) ; k++ )
+    {
+        BOOST_CHECK( multiTypeObservationSets.at( k ).get( ) == manuallyDefinedMultiTypeObservationSets.at( k ).get( ) );
+    }
+
+
+    // Check multi-type parsing when all conditions should be met concurrently
+    std::vector< std::shared_ptr< ObservationCollectionParser > > multiTypeParserList2;
+    multiTypeParserList2.push_back( observationParser( one_way_range ) );
+    multiTypeParserList2.push_back( observationParser( std::make_pair( receiver, LinkEndId( "Earth", "Station2" ) ) ) );
+    multiTypeParserList2.push_back( observationParser( "Station2", true ) );
+
+    std::vector< std::shared_ptr< SingleObservationSet< > > > multiTypeObservationSets2 = simulatedObservations->getSingleObservationSets(
+            observationParser( multiTypeParserList2, true ) );
+
+    std::vector< std::shared_ptr< SingleObservationSet< > > > manuallyDefinedMultiTypeObservationSets2;
+    for ( auto observableIt : simulatedObservations->getObservationsSets( ) )
+    {
+        for ( auto linkEndsIt : observableIt.second )
+        {
+            if ( ( observableIt.first == one_way_range ) && ( ( linkEndsIt.first == stationReceiverLinkEnds[ 1 ] ) ) )
+            {
+                for ( auto obs : linkEndsIt.second )
+                {
+                    manuallyDefinedMultiTypeObservationSets2.push_back( obs );
+                }
+            }
+        }
+    }
+
+    //Check that pointers to selected observation sets are identical
+    BOOST_CHECK( multiTypeObservationSets2.size( ) ==  manuallyDefinedMultiTypeObservationSets2.size( ) );
+    for ( unsigned int k = 0 ; k < multiTypeObservationSets2.size( ) ; k++ )
+    {
+        BOOST_CHECK( multiTypeObservationSets2.at( k ).get( ) == manuallyDefinedMultiTypeObservationSets2.at( k ).get( ) );
+    }
+
+}
 
 BOOST_AUTO_TEST_CASE( test_ObservationsFiltering )
 {
@@ -738,11 +739,11 @@ BOOST_AUTO_TEST_CASE( test_ObservationsFiltering )
 
     // Test filtering based on residual values
     double residualCutOffValue = 0.25;
-    int nbRangeStation1 = rangeObservationSets.at( 0 )->getNumberOfObservables( );
+    unsigned int nbRangeStation1 = rangeObservationSets.at( 0 )->getNumberOfObservables( );
     Eigen::Matrix< double, Eigen::Dynamic, 1 > residualsStation1 = ( residualCutOffValue + 0.05 ) * Eigen::Matrix< double, Eigen::Dynamic, 1 >::Ones( nbRangeStation1, 1 );
-    int nbRangeStation2 = rangeObservationSets.at( 1 )->getNumberOfObservables( );
+    unsigned int nbRangeStation2 = rangeObservationSets.at( 1 )->getNumberOfObservables( );
     Eigen::Matrix< double, Eigen::Dynamic, 1 > residualsStation2 = ( residualCutOffValue - 0.05 ) * Eigen::Matrix< double, Eigen::Dynamic, 1 >::Ones( nbRangeStation2, 1 );
-    int nbRangeStation3 = rangeObservationSets.at( 2 )->getNumberOfObservables( );
+    unsigned int nbRangeStation3 = rangeObservationSets.at( 2 )->getNumberOfObservables( );
     Eigen::Matrix< double, Eigen::Dynamic, 1 > residualsStation3 = ( residualCutOffValue - 0.05 ) * Eigen::Matrix< double, Eigen::Dynamic, 1 >::Ones( nbRangeStation3, 1 );
     int nbLargeResidualsStation3 = 0;
     for ( int i = 0 ; i < nbRangeStation3 ; i++ )
@@ -820,114 +821,105 @@ BOOST_AUTO_TEST_CASE( test_ObservationsFiltering )
     for ( unsigned int i = 0 ; i < remainingElevationAngles.size( ) ; i++ )
     {
         BOOST_CHECK( remainingElevationAngles[ i ].rows( ) == nbObservationsToKeepPerSet[ i ] );
-//        std::cout << "elevationAngleMatrix " << remainingElevationAngles[ i ].rows( ) << std::endl;
-//        std::cout << "nbObservationsToKeep: " << nbObservationsToKeepPerSet[ i ] << std::endl;
     }
-
-
-//    for ( auto set : sets )
-//    {
-//        Eigen::MatrixXd singleDependentVariableValues = set->getSingleDependentVariable( elevationAngleSettings );
-//        std::cout << "singleDependentVariableValues size: " << singleDependentVariableValues.rows( ) << " - " << singleDependentVariableValues.cols( ) << std::endl;
-////        std::cout << singleDependentVariableValues << std::endl;
-//    }
 
 
 
 }
 
-//BOOST_AUTO_TEST_CASE( test_ObservationsSplitting )
-//{
-//
-//    const double startTime = double( 1.0E7 );
-//    const int numberOfDaysOfData = 3;
-//    unsigned int numberOfObservations = 300;
-//    double obsInterval = 20.0;
-//
-//    std::vector< LinkEnds > stationReceiverLinkEnds;
-//    std::vector< LinkEnds > stationTransmitterLinkEnds;
-//    std::map< ObservableType, double > obsStartTimes;
-//    std::map< ObservableType, std::vector< double > > baseTimeList;
-//    std::shared_ptr< ObservationCollection< double, double > > simulatedObservations = setUpObservationCollectionToTest(
-//            startTime, numberOfDaysOfData, numberOfObservations, obsInterval, stationReceiverLinkEnds, stationTransmitterLinkEnds, obsStartTimes, baseTimeList );
-//
-//
-//    // Test splitting based on time tags
-//    int indexSplitEpoch = int(numberOfObservations/3);
-//    std::vector< double > rangeObsTimes = baseTimeList.at( one_way_range );
-//    double splitEpoch = rangeObsTimes.at( indexSplitEpoch );
-//    std::vector< double > timeTags = { rangeObsTimes.at( 0 ), splitEpoch, rangeObsTimes.back( ) };
-//    simulatedObservations->splitObservationSets( observationSetSplitter( time_tags_splitter, timeTags ), observationParser( stationTransmitterLinkEnds[ 0 ] ) );
-//
-//    // Check that the original observation set got split in two independent sets (before/after splitEpoch)
-//    std::vector< std::shared_ptr< SingleObservationSet< > > > splitObsSets = simulatedObservations->getSingleObservationSets( observationParser( stationTransmitterLinkEnds[ 0 ] ) );
-//    BOOST_CHECK( splitObsSets.size( ) == 2 );
-//    BOOST_CHECK( splitObsSets.at( 0 )->getNumberOfObservables( ) == indexSplitEpoch+1 );
-//    BOOST_CHECK( splitObsSets.at( 1 )->getNumberOfObservables( ) == numberOfObservations - (indexSplitEpoch+1) );
-//
-//    // Check that all observations in the first set occur before splitEpoch
-//    for ( auto time : splitObsSets.at( 0 )->getObservationTimes( ) )
-//    {
-//        BOOST_CHECK( time <= splitEpoch );
-//    }
-//    // Check that all observations in the first set occur after splitEpoch
-//    for ( auto time : splitObsSets.at( 1 )->getObservationTimes( ) )
-//    {
-//        BOOST_CHECK( time > splitEpoch );
-//    }
-//
-//
-//    // Test splitting based on time span. Define max time span such that one observation set would be left with one observation only
-//    // (to check if the minimum number of observations condition works)
-//    double maxTimeSpanObs = (indexSplitEpoch - 1) * obsInterval;
-//    simulatedObservations->splitObservationSets( observationSetSplitter( time_span_splitter, maxTimeSpanObs, 10 ), observationParser( stationTransmitterLinkEnds[ 0 ] ) );
-//
-//    // Check that we now have three independent sets (out of the former two, only one set could be split while retaining enough observations)
-//    splitObsSets = simulatedObservations->getSingleObservationSets( observationParser( stationTransmitterLinkEnds[ 0 ] ) );
-//    BOOST_CHECK( splitObsSets.size( ) == 3 );
-//    BOOST_CHECK( splitObsSets.at( 0 )->getNumberOfObservables( ) == indexSplitEpoch );
-//    BOOST_CHECK( splitObsSets.at( 1 )->getNumberOfObservables( ) == indexSplitEpoch );
-//    BOOST_CHECK( splitObsSets.at( 2 )->getNumberOfObservables( ) == numberOfObservations - (2*indexSplitEpoch+1) );
-//
-//    // Check that the time span of the new observation set meets the threshold
-//    for ( unsigned int i = 0 ; i < 3 ; i++ )
-//    {
-//        std::vector< double > newObsTimes = splitObsSets.at( i )->getObservationTimes( );
-//        BOOST_CHECK( ( newObsTimes.back(  ) - newObsTimes.at( 0 ) ) <= maxTimeSpanObs );
-//    }
-//
-//    // Test splitting based on max number of observations
-//    simulatedObservations->splitObservationSets( observationSetSplitter( nb_observations_splitter, 50, 50 ), observationParser( stationTransmitterLinkEnds[ 0 ] ) );
-//
-//    // Check that we now have five independent sets (only two of the former three sets contain enough observations to be split in two)
-//    splitObsSets = simulatedObservations->getSingleObservationSets( observationParser( stationTransmitterLinkEnds[ 0 ] ) );
-//    BOOST_CHECK( splitObsSets.size( ) == 5 );
-//
-//    // Check the number of observations in the new observation sets
-//    for ( unsigned int i = 0 ; i < 5 ; i++ )
-//    {
-//        BOOST_CHECK( splitObsSets.at( i )->getNumberOfObservables( ) == 50 );
-//    }
-//
-//    // Test splitting based on time interval
-//    simulatedObservations->splitObservationSets( observationSetSplitter( time_interval_splitter, 1500.0 ), observationParser( stationReceiverLinkEnds[ 2 ] ) );
-//
-//    // Check that the observation set associated with stationReceiverLinkEnds[ 2 ] (of type angular_position) got split into two independent sets
-//    splitObsSets = simulatedObservations->getSingleObservationSets( observationParser( stationReceiverLinkEnds[ 2 ] ) );
-//    BOOST_CHECK( splitObsSets.size( ) == 2 );
-//
-//    // Check that the split is performed properly
-//    for ( unsigned int k = 0 ; k < 2 ; k++ )
-//    {
-//        for ( unsigned int i = 0 ; i < splitObsSets.at( k )->getNumberOfObservables( ) - 1 ; i++ )
-//        {
-//            BOOST_CHECK( ( splitObsSets.at( k )->getObservationTimes( ).at( i + 1 ) - splitObsSets.at( k )->getObservationTimes( ).at( i ) ) <= 1500.0 );
-//        }
-//    }
-//    BOOST_CHECK( ( splitObsSets.at( 1 )->getObservationTimes( ).at( 0 ) - splitObsSets.at( 0 )->getObservationTimes( ).back( ) ) > 1500.0 );
-//
-//
-//}
+BOOST_AUTO_TEST_CASE( test_ObservationsSplitting )
+{
+
+    const double startTime = double( 1.0E7 );
+    const int numberOfDaysOfData = 3;
+    unsigned int numberOfObservations = 300;
+    double obsInterval = 20.0;
+
+    std::vector< LinkEnds > stationReceiverLinkEnds;
+    std::vector< LinkEnds > stationTransmitterLinkEnds;
+    std::map< ObservableType, double > obsStartTimes;
+    std::map< ObservableType, std::vector< double > > baseTimeList;
+    SystemOfBodies bodies;
+    std::shared_ptr< ObservationCollection< double, double > > simulatedObservations = setUpObservationCollectionToTest(
+            startTime, numberOfDaysOfData, numberOfObservations, obsInterval, stationReceiverLinkEnds, stationTransmitterLinkEnds, obsStartTimes, baseTimeList, bodies );
+
+
+    // Test splitting based on time tags
+    int indexSplitEpoch = int(numberOfObservations/3);
+    std::vector< double > rangeObsTimes = baseTimeList.at( one_way_range );
+    double splitEpoch = rangeObsTimes.at( indexSplitEpoch );
+    std::vector< double > timeTags = { rangeObsTimes.at( 0 ), splitEpoch, rangeObsTimes.back( ) };
+    simulatedObservations->splitObservationSets( observationSetSplitter( time_tags_splitter, timeTags ), observationParser( stationTransmitterLinkEnds[ 0 ] ) );
+
+    // Check that the original observation set got split in two independent sets (before/after splitEpoch)
+    std::vector< std::shared_ptr< SingleObservationSet< > > > splitObsSets = simulatedObservations->getSingleObservationSets( observationParser( stationTransmitterLinkEnds[ 0 ] ) );
+    BOOST_CHECK( splitObsSets.size( ) == 2 );
+    BOOST_CHECK( splitObsSets.at( 0 )->getNumberOfObservables( ) == indexSplitEpoch+1 );
+    BOOST_CHECK( splitObsSets.at( 1 )->getNumberOfObservables( ) == numberOfObservations - (indexSplitEpoch+1) );
+
+    // Check that all observations in the first set occur before splitEpoch
+    for ( auto time : splitObsSets.at( 0 )->getObservationTimes( ) )
+    {
+        BOOST_CHECK( time <= splitEpoch );
+    }
+    // Check that all observations in the first set occur after splitEpoch
+    for ( auto time : splitObsSets.at( 1 )->getObservationTimes( ) )
+    {
+        BOOST_CHECK( time > splitEpoch );
+    }
+
+
+    // Test splitting based on time span. Define max time span such that one observation set would be left with one observation only
+    // (to check if the minimum number of observations condition works)
+    double maxTimeSpanObs = (indexSplitEpoch - 1) * obsInterval;
+    simulatedObservations->splitObservationSets( observationSetSplitter( time_span_splitter, maxTimeSpanObs, 10 ), observationParser( stationTransmitterLinkEnds[ 0 ] ) );
+
+    // Check that we now have three independent sets (out of the former two, only one set could be split while retaining enough observations)
+    splitObsSets = simulatedObservations->getSingleObservationSets( observationParser( stationTransmitterLinkEnds[ 0 ] ) );
+    BOOST_CHECK( splitObsSets.size( ) == 3 );
+    BOOST_CHECK( splitObsSets.at( 0 )->getNumberOfObservables( ) == indexSplitEpoch );
+    BOOST_CHECK( splitObsSets.at( 1 )->getNumberOfObservables( ) == indexSplitEpoch );
+    BOOST_CHECK( splitObsSets.at( 2 )->getNumberOfObservables( ) == numberOfObservations - (2*indexSplitEpoch+1) );
+
+    // Check that the time span of the new observation set meets the threshold
+    for ( unsigned int i = 0 ; i < 3 ; i++ )
+    {
+        std::vector< double > newObsTimes = splitObsSets.at( i )->getObservationTimes( );
+        BOOST_CHECK( ( newObsTimes.back(  ) - newObsTimes.at( 0 ) ) <= maxTimeSpanObs );
+    }
+
+    // Test splitting based on max number of observations
+    simulatedObservations->splitObservationSets( observationSetSplitter( nb_observations_splitter, 50, 50 ), observationParser( stationTransmitterLinkEnds[ 0 ] ) );
+
+    // Check that we now have five independent sets (only two of the former three sets contain enough observations to be split in two)
+    splitObsSets = simulatedObservations->getSingleObservationSets( observationParser( stationTransmitterLinkEnds[ 0 ] ) );
+    BOOST_CHECK( splitObsSets.size( ) == 5 );
+
+    // Check the number of observations in the new observation sets
+    for ( unsigned int i = 0 ; i < 5 ; i++ )
+    {
+        BOOST_CHECK( splitObsSets.at( i )->getNumberOfObservables( ) == 50 );
+    }
+
+    // Test splitting based on time interval
+    simulatedObservations->splitObservationSets( observationSetSplitter( time_interval_splitter, 1500.0 ), observationParser( stationReceiverLinkEnds[ 2 ] ) );
+
+    // Check that the observation set associated with stationReceiverLinkEnds[ 2 ] (of type angular_position) got split into two independent sets
+    splitObsSets = simulatedObservations->getSingleObservationSets( observationParser( stationReceiverLinkEnds[ 2 ] ) );
+    BOOST_CHECK( splitObsSets.size( ) == 2 );
+
+    // Check that the split is performed properly
+    for ( unsigned int k = 0 ; k < 2 ; k++ )
+    {
+        for ( unsigned int i = 0 ; i < splitObsSets.at( k )->getNumberOfObservables( ) - 1 ; i++ )
+        {
+            BOOST_CHECK( ( splitObsSets.at( k )->getObservationTimes( ).at( i + 1 ) - splitObsSets.at( k )->getObservationTimes( ).at( i ) ) <= 1500.0 );
+        }
+    }
+    BOOST_CHECK( ( splitObsSets.at( 1 )->getObservationTimes( ).at( 0 ) - splitObsSets.at( 0 )->getObservationTimes( ).back( ) ) > 1500.0 );
+
+
+}
 
 BOOST_AUTO_TEST_SUITE_END( )
 

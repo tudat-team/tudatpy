@@ -35,6 +35,34 @@ std::string getIntegrationHandlingString( const IntegratedObservationPropertyHan
     return identifier;
 
 }
+
+//! Function checking whether the interlinks between two link ends are compatible (i.e., for both the originating and receiving ends of the interlink,
+//! the link end's types and IDs should be either identical, or undefined).
+bool areInterlinksCompatible(
+        const std::pair< LinkEndType, LinkEndId >& firstReceivingLinkEnd,
+        const std::pair< LinkEndType, LinkEndId >& firstOriginatingLinkEnd,
+        const std::pair< LinkEndType, LinkEndId >& secondReceivingLinkEnd,
+        const std::pair< LinkEndType, LinkEndId >& secondOriginatingLinkEnd )
+{
+    // Check if the receiving link ends (both types and link IDs) are either identical or undefined (in which case the two settings would be considered compatible).
+    bool compatibleReceivingEndTypes = ( firstReceivingLinkEnd.first == secondReceivingLinkEnd.first
+            || firstReceivingLinkEnd.first == unidentified_link_end || secondReceivingLinkEnd.first == unidentified_link_end );
+    bool compatibleReceivingEndIds = ( firstReceivingLinkEnd.second == secondReceivingLinkEnd.second
+            || firstReceivingLinkEnd.second == LinkEndId( "", "" ) || secondReceivingLinkEnd.second == LinkEndId( "", "" ) );
+
+    // Check if the originating link ends (both types and link IDs) are either identical or undefined (in which case the two settings would be considered compatible).
+    bool compatibleOriginatingEndTypes = ( firstOriginatingLinkEnd.first == secondOriginatingLinkEnd.first
+            || firstOriginatingLinkEnd.first == unidentified_link_end || secondOriginatingLinkEnd.first == unidentified_link_end );
+    bool compatibleOriginatingEndIds = ( firstOriginatingLinkEnd.second == secondOriginatingLinkEnd.second
+            || firstOriginatingLinkEnd.second == LinkEndId( "", "" ) || secondOriginatingLinkEnd.second == LinkEndId( "", "" ) );
+
+    // Check whether both link ends' types and IDs match
+    bool areLinkEndsCompatible = ( compatibleReceivingEndTypes && compatibleReceivingEndIds && compatibleOriginatingEndTypes && compatibleOriginatingEndIds );
+
+    return areLinkEndsCompatible;
+}
+
+//! Function returning the dependent variable name
 std::string getObservationDependentVariableName(
         const ObservationDependentVariables variableType )
 {
@@ -76,9 +104,9 @@ std::string getObservationDependentVariableName(
         dependentVariableName = "Angle between link vector and orbital plane ";
         break;
     }
-    case doppler_integration_time_dependent_variable:
+    case integration_time_dependent_variable:
     {
-        dependentVariableName = "Doppler integration count time ";
+        dependentVariableName = "Integration count time ";
         break;
     }
     case retransmission_delays_dependent_variable:
@@ -94,6 +122,7 @@ std::string getObservationDependentVariableName(
     return dependentVariableName;
 }
 
+//! Function that returns a string uniquely describing a dependent variable settings object
 std::string getObservationDependentVariableId(
         const std::shared_ptr< ObservationDependentVariableSettings > variableSettings )
 {
@@ -101,7 +130,7 @@ std::string getObservationDependentVariableId(
             variableSettings->getIdentifier( );
 }
 
-
+//! Function checking whether a given dependent variable should be given as a vector of size > 1
 bool isObservationDependentVariableVectorial( const ObservationDependentVariables variableType )
 {
     bool isVariableVectorial = false;
@@ -119,7 +148,7 @@ bool isObservationDependentVariableVectorial( const ObservationDependentVariable
     case body_avoidance_angle_variable:
         isVariableVectorial = false;
         break;
-    case doppler_integration_time_dependent_variable:
+    case integration_time_dependent_variable:
         isVariableVectorial = false;
         break;
     case link_body_center_distance:
@@ -141,7 +170,7 @@ bool isObservationDependentVariableVectorial( const ObservationDependentVariable
     return isVariableVectorial;
 }
 
-
+//! Function checking whether a given dependent variable type is related to some ancillary settings
 bool isObservationDependentVariableAncilliarySetting(
     const ObservationDependentVariables variableType )
 {
@@ -162,7 +191,7 @@ bool isObservationDependentVariableAncilliarySetting(
         break;
     case link_angle_with_orbital_plane:
         break;
-    case doppler_integration_time_dependent_variable:
+    case integration_time_dependent_variable:
         isAncilliarySetting = true;
         break;
     case retransmission_delays_dependent_variable:
@@ -176,7 +205,7 @@ bool isObservationDependentVariableAncilliarySetting(
     return isAncilliarySetting;
 }
 
-
+//! Function checking whether a given dependent variable is related to a ground station property
 bool isObservationDependentVariableGroundStationProperty( const ObservationDependentVariables variableType )
 {
     bool isGroundStationProperty = false;
@@ -192,7 +221,7 @@ bool isObservationDependentVariableGroundStationProperty( const ObservationDepen
         break;
     case body_avoidance_angle_variable:
         break;
-    case doppler_integration_time_dependent_variable:
+    case integration_time_dependent_variable:
         break;
     case link_body_center_distance:
         break;
@@ -209,6 +238,7 @@ bool isObservationDependentVariableGroundStationProperty( const ObservationDepen
     return isGroundStationProperty;
 }
 
+//! Function checking whether a given dependent variable type is an interlink property
 bool isObservationDependentVariableInterlinkProperty( const ObservationDependentVariables variableType )
 {
     bool isInterlinkProperty = false;
@@ -224,7 +254,7 @@ bool isObservationDependentVariableInterlinkProperty( const ObservationDependent
         case body_avoidance_angle_variable:
             isInterlinkProperty = true;
             break;
-        case doppler_integration_time_dependent_variable:
+        case integration_time_dependent_variable:
             break;
         case link_body_center_distance:
             isInterlinkProperty = true;
@@ -244,6 +274,7 @@ bool isObservationDependentVariableInterlinkProperty( const ObservationDependent
     return isInterlinkProperty;
 }
 
+//! Function that returns the size of a given dependent variable (can be link end-dependent for ancillary settings dependent variables)
 int getObservationDependentVariableSize(
         const std::shared_ptr< ObservationDependentVariableSettings > variableSettings,
         const LinkEnds linkEnds )
@@ -269,6 +300,7 @@ int getObservationDependentVariableSize(
     return variableSize;
 }
 
+//! Function that checks whether a given station angle dependent variable can be computed for a given observable type and link ends.
 bool doesStationAngleVariableExistForGivenLink(
         const observation_models::ObservableType observableType,
         const observation_models::LinkEnds& linkEnds,
@@ -298,6 +330,7 @@ bool doesStationAngleVariableExistForGivenLink(
     return doesLinkHaveDependency;
 }
 
+//! Function that checks whether a given interlink dependent variable can be computed for a given observable type and link ends.
 bool doesInterlinkVariableExistForGivenLink(
     const observation_models::ObservableType observableType,
     const observation_models::LinkEnds& linkEnds,
@@ -323,6 +356,7 @@ bool doesInterlinkVariableExistForGivenLink(
     return doesLinkHaveDependency;
 }
 
+//! Function that checks whether a given dependent variable can be computed for a given observable type and link ends.
 bool doesObservationDependentVariableExistForGivenLink(
         const observation_models::ObservableType observableType,
         const observation_models::LinkEnds& linkEnds,
@@ -366,7 +400,7 @@ bool doesObservationDependentVariableExistForGivenLink(
             observableType, linkEnds, std::dynamic_pointer_cast< InterlinkObservationDependentVariableSettings >(
                 variableSettings ) );
         break;
-    case doppler_integration_time_dependent_variable:
+    case integration_time_dependent_variable:
         doesLinkHaveDependency = true;
         break;
     case retransmission_delays_dependent_variable:
@@ -381,6 +415,7 @@ bool doesObservationDependentVariableExistForGivenLink(
     return doesLinkHaveDependency;
 }
 
+//! Function checking whether a given dependent variable is link end-dependent (false for ancillary settings dependent variables)
 bool isObservationDependentVariableLinkEndDependent( const ObservationDependentVariables variableType )
 {
     bool linkEndDependent = true;
@@ -394,7 +429,7 @@ bool isObservationDependentVariableLinkEndDependent( const ObservationDependentV
         case link_limb_distance:
         case link_angle_with_orbital_plane:
             break;
-        case doppler_integration_time_dependent_variable:
+        case integration_time_dependent_variable:
             linkEndDependent = false;
             break;
         case retransmission_delays_dependent_variable:
@@ -407,6 +442,7 @@ bool isObservationDependentVariableLinkEndDependent( const ObservationDependentV
     return linkEndDependent;
 }
 
+//! Function checking whether a given interlink dependent variable depends on the link direction (i.e., depends on which link end is the receiving/originating one)
 bool isInterlinkPropertyDirectionAgnostic( const ObservationDependentVariables variableType )
 {
     if ( !isObservationDependentVariableInterlinkProperty( variableType ) )
@@ -437,6 +473,8 @@ bool isInterlinkPropertyDirectionAgnostic( const ObservationDependentVariables v
     return isDirectionAgnostic;
 }
 
+//! Returns a function which checks whether an ancillary settings dependent variable exists for a given observable type (dependent on whether
+//! such ancillary settings are defined for a specific observable type)
 std::function< bool( const ObservableType observableType ) > getIsObservableTypeCompatibleFunction(
         const ObservationDependentVariables variableType )
 {
@@ -448,7 +486,7 @@ std::function< bool( const ObservableType observableType ) > getIsObservableType
     }
     switch( variableType )
     {
-        case doppler_integration_time_dependent_variable:
+        case integration_time_dependent_variable:
         {
             isObservableTypeCompatibleFunction = std::bind( &observation_models::isObservableOfIntegratedType, std::placeholders::_1 );
             break;
@@ -466,6 +504,8 @@ std::function< bool( const ObservableType observableType ) > getIsObservableType
     return isObservableTypeCompatibleFunction;
 }
 
+//! Function that returns a fully defined ObservationDependentVariableSettings object, using the original settings (possibly incomplete, i.e.
+//! with missing link ends information) and specific link ends information for both the receiving and originating ends of the link
 std::shared_ptr< ObservationDependentVariableSettings > createCompleteObservationDependentVariableSettings(
         const std::shared_ptr< ObservationDependentVariableSettings > originalSettings,
         const LinkEndType& linkEndType, const LinkEndId& linkEndId, const LinkEndType& originatingLinkEndType, const LinkEndId& originatingLinkEndId )
@@ -474,6 +514,7 @@ std::shared_ptr< ObservationDependentVariableSettings > createCompleteObservatio
 
     if ( std::dynamic_pointer_cast< StationAngleObservationDependentVariableSettings >( originalSettings ) != nullptr )
     {
+        // Create fully defined station angle dependent variable settings
         std::shared_ptr< StationAngleObservationDependentVariableSettings > stationAngleSettings =
                 std::dynamic_pointer_cast< StationAngleObservationDependentVariableSettings >( originalSettings );
         completeSettings = std::make_shared< StationAngleObservationDependentVariableSettings >(
@@ -482,6 +523,7 @@ std::shared_ptr< ObservationDependentVariableSettings > createCompleteObservatio
     }
     else if ( std::dynamic_pointer_cast< InterlinkObservationDependentVariableSettings >( originalSettings ) != nullptr )
     {
+        // Create fully defined interlink property dependent variable settings
         std::shared_ptr< InterlinkObservationDependentVariableSettings > interlinkSettings =
                 std::dynamic_pointer_cast< InterlinkObservationDependentVariableSettings >( originalSettings );
         completeSettings = std::make_shared< InterlinkObservationDependentVariableSettings >(
@@ -497,12 +539,14 @@ std::shared_ptr< ObservationDependentVariableSettings > createCompleteObservatio
     return completeSettings;
 }
 
+//! Function that returns a list of all compatible dependent variable settings that can be created for a given observable type and link ends, from a base
+//! dependent variable settings that might not be entirely defined (i.e., some link ends not specified, etc.)
 std::vector< std::shared_ptr< ObservationDependentVariableSettings > > createAllCompatibleDependentVariableSettings(
         const ObservableType observableType,
         const LinkEnds& linkEnds,
         std::shared_ptr< ObservationDependentVariableSettings > dependentVariableSettings )
 {
-    // Retrieve interlinks information for current observable type and link ends
+    // Retrieve relevant information about all interlinks for current observable type and link ends
     std::vector< std::pair< std::pair< LinkEndType, LinkEndId >, std::pair< LinkEndType, LinkEndId > > > interlinksInSet = getInterlinks( observableType, linkEnds );
 
     // Get interlink requirements from dependent variable settings
@@ -511,8 +555,10 @@ std::vector< std::shared_ptr< ObservationDependentVariableSettings > > createAll
                             std::make_pair( dependentVariableSettings->originatingLinkEndType_, dependentVariableSettings->originatingLinkEndId_ ) );
 
     std::vector< std::shared_ptr< ObservationDependentVariableSettings > > allDependentVariablesSettings;
+    // If the dependent variable is independent of the link ends
     if ( !isObservationDependentVariableLinkEndDependent( dependentVariableSettings->variableType_ ) )
     {
+        // If the dependent variable refers to an observation ancillary data, check whether it is compatible with the current observable type
         if ( std::dynamic_pointer_cast< AncillaryObservationDependentVariableSettings >( dependentVariableSettings ) != nullptr )
         {
             std::shared_ptr< AncillaryObservationDependentVariableSettings > ancillaryDependentVariableSettings =
@@ -529,32 +575,37 @@ std::vector< std::shared_ptr< ObservationDependentVariableSettings > > createAll
             allDependentVariablesSettings.push_back( dependentVariableSettings );
         }
     }
+    // For link end-dependent variables, all possible links must be considered and a separate dependent variable settings object is created for each of them.
     else
     {
         std::vector< std::pair< std::pair< LinkEndType, LinkEndId >, std::pair< LinkEndType, LinkEndId > > > interlinksToCreateList;
         for ( auto interlink : interlinksInSet )
         {
-            bool directLinksMatch =
-                    ( interlink.first.first == interlinksSettings.first.first || interlinksSettings.first.first == unidentified_link_end )// Check link end type start interlink
-                    && ( interlink.first.second == interlinksSettings.first.second || interlinksSettings.first.second == LinkEndId( "", "" ) ) // Check link end id start interlink
-                    && ( interlink.second.first == interlinksSettings.second.first || interlinksSettings.second.first == unidentified_link_end ) // Check link end type end interlink
-                    && ( interlink.second.second == interlinksSettings.second.second || interlinksSettings.second.second == LinkEndId( "", "" ) ); // Check link end id start interlink
-            bool revertedLinksMatch =
-                    ( interlink.second.first == interlinksSettings.first.first || interlinksSettings.first.first == unidentified_link_end )// Check link end type start interlink
-                    && ( interlink.second.second == interlinksSettings.first.second || interlinksSettings.first.second == LinkEndId( "", "" ) ) // Check link end id start interlink
-                    && ( interlink.first.first == interlinksSettings.second.first || interlinksSettings.second.first == unidentified_link_end ) // Check link end type end interlink
-                    && ( interlink.first.second == interlinksSettings.second.second || interlinksSettings.second.second == LinkEndId( "", "" ) ); // Check link end id start interlink
+            std::pair< LinkEndType, LinkEndId > receivingLinkEnd = interlink.first;
+            std::pair< LinkEndType, LinkEndId > originatingLinkEnd = interlink.second;
+            std::pair< LinkEndType, LinkEndId > receivingLinkEndInSettings = interlinksSettings.first;
+            std::pair< LinkEndType, LinkEndId > originatingLinkEndInSettings = interlinksSettings.second;
+
+            // Check if the link ends (both receiving and originating ends) are either identical or undefined (in which case the two settings would be considered compatible).
+            bool directLinksMatch = areInterlinksCompatible( receivingLinkEnd, originatingLinkEnd, receivingLinkEndInSettings, originatingLinkEndInSettings );
+
+            // Check if inverting the receiving/originating ends of the link would lead to compatible link definitions (for dependent variables that are independent of the
+            // link "direction").
+            bool revertedLinksMatch = areInterlinksCompatible( receivingLinkEnd, originatingLinkEnd, originatingLinkEndInSettings, receivingLinkEndInSettings );
             if ( revertedLinksMatch )
             {
                 interlink = std::make_pair( interlink.second, interlink.first );
             }
 
+
             if ( directLinksMatch || revertedLinksMatch )
             {
+                // If dependent variable is not a station property, include all interlinks
                 if ( !isObservationDependentVariableGroundStationProperty( dependentVariableSettings->variableType_ ) )
                 {
                     interlinksToCreateList.push_back( interlink );
                 }
+                // If dependent variable is a station property, check that the first link end has a ground station defined
                 else
                 {
                     // if station defined for start link end
@@ -562,7 +613,7 @@ std::vector< std::shared_ptr< ObservationDependentVariableSettings > > createAll
                     {
                         interlinksToCreateList.push_back( interlink );
                     }
-                        // if station only defined for end link end
+                    // if station only defined for end link end
                     else if ( interlink.second.second.stationName_ != "" )
                     {
                         // Reverse link order
@@ -572,7 +623,7 @@ std::vector< std::shared_ptr< ObservationDependentVariableSettings > > createAll
             }
         }
 
-        // Create dependent variables
+        // Create fully defined dependent variable settings for all relevant links.
         for ( auto interlink : interlinksToCreateList )
         {
             std::shared_ptr< ObservationDependentVariableSettings > completeSettings = createCompleteObservationDependentVariableSettings(
@@ -581,7 +632,6 @@ std::vector< std::shared_ptr< ObservationDependentVariableSettings > > createAll
             allDependentVariablesSettings.push_back( completeSettings );
         }
     }
-
 
     return allDependentVariablesSettings;
 

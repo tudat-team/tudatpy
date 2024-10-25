@@ -972,8 +972,8 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariablesInterface )
     // Avoidance angle settings
     std::shared_ptr< ObservationDependentVariableSettings > moonAvoidanceAngleSettings = bodyAvoidanceAngleDependentVariable( "Moon", unidentified_link_end, receiver );
 
-    // Doppler integration time settings
-    std::shared_ptr< ObservationDependentVariableSettings > dopplerIntegrationTimeSettings = dopplerIntegrationTimeDependentVariable( );
+    // Integration time settings
+    std::shared_ptr< ObservationDependentVariableSettings > integrationTimeSettings = integrationTimeDependentVariable( );
 
     // Retransmission delays settings
     std::shared_ptr< ObservationDependentVariableSettings > retransmissionDelaysSettings = retransmissionDelaysDependentVariable( );
@@ -983,7 +983,7 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariablesInterface )
     dependentVariablesList.push_back( azimuthStationSettings1 );
     dependentVariablesList.push_back( limbDistanceSettings );
     dependentVariablesList.push_back( moonAvoidanceAngleSettings );
-    dependentVariablesList.push_back( dopplerIntegrationTimeSettings );
+    dependentVariablesList.push_back( integrationTimeSettings );
     dependentVariablesList.push_back( retransmissionDelaysSettings );
 
     std::map< unsigned int, std::map< ObservationDependentVariables, std::map< ObservableType, std::vector< unsigned int > > > > numberOfSettingsToBeCreated;
@@ -1007,7 +1007,7 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariablesInterface )
                                                  { one_way_range, { 1 } }, { relative_angular_position, { 2 } } }
             },
             {
-                doppler_integration_time_dependent_variable, { { n_way_differenced_range, { 1 } }, { dsn_n_way_averaged_doppler, std::vector< unsigned int >( { 1, 1 } ) },
+                integration_time_dependent_variable, { { n_way_differenced_range, { 1 } }, { dsn_n_way_averaged_doppler, std::vector< unsigned int >( { 1, 1 } ) },
                                                                { one_way_range, { 0 } }, { relative_angular_position, { 0 } } }
             },
             {
@@ -1036,7 +1036,7 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariablesInterface )
                                                  { one_way_range, { 1 } }, { relative_angular_position, { 2 } } }
         },
         {
-                doppler_integration_time_dependent_variable, { { n_way_differenced_range, { 1 } }, { dsn_n_way_averaged_doppler, std::vector< unsigned int >( { 1, 1 } ) },
+                integration_time_dependent_variable, { { n_way_differenced_range, { 1 } }, { dsn_n_way_averaged_doppler, std::vector< unsigned int >( { 1, 1 } ) },
                                                              { one_way_range, { 0 } }, { relative_angular_position, { 0 } } }
         },
         {
@@ -1090,8 +1090,8 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariablesInterface )
                     idealObservationsAndTimes->addDependentVariable( limbDistanceSettings, bodies );
             std::shared_ptr< ObservationCollectionParser > moonAngleParser =
                     idealObservationsAndTimes->addDependentVariable( moonAvoidanceAngleSettings, bodies, observationParser( std::make_pair( "Earth", "Station1" ) ) );
-            std::shared_ptr< ObservationCollectionParser > dopplerIntegrationTimeParser =
-                    idealObservationsAndTimes->addDependentVariable( dopplerIntegrationTimeSettings, bodies );
+            std::shared_ptr< ObservationCollectionParser > integrationTimeParser =
+                    idealObservationsAndTimes->addDependentVariable( integrationTimeSettings, bodies );
             std::shared_ptr< ObservationCollectionParser > retransmissionDelaysParser =
                     idealObservationsAndTimes->addDependentVariable( retransmissionDelaysSettings, bodies );
 
