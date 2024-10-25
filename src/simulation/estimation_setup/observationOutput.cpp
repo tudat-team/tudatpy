@@ -491,7 +491,7 @@ ObservationDependentVariableFunction getObservationVectorDependentVariableFuncti
             bodies, linkSettings, observableType, linkEnds );
         break;
     }
-    case doppler_integration_time_dependent_variable:
+    case integration_time_dependent_variable:
     {
         if( !observation_models::isObservableOfIntegratedType( observableType ) )
         {

@@ -1510,7 +1510,7 @@ std::map< LinkEndType, int > getSingleLinkStateEntryIndices( const ObservableTyp
     return singleLinkStateEntries;
 }
 
-
+//! Function retrieving link ends information for all interlinks for a given observable type and link ends
 std::vector< std::pair< std::pair< LinkEndType, LinkEndId >, std::pair< LinkEndType, LinkEndId > > > getInterlinks( const ObservableType observableType, const LinkEnds& linkEnds )
 {
     std::vector< std::pair< std::pair< LinkEndType, LinkEndId >, std::pair< LinkEndType, LinkEndId > > > interlinks;
@@ -1532,7 +1532,6 @@ std::vector< std::pair< std::pair< LinkEndType, LinkEndId >, std::pair< LinkEndT
             std::map< int, std::pair< LinkEndType, LinkEndId > > linkIndices;
             for ( auto linkEndIt : linkEnds )
             {
-                LinkEndType linkEndType = linkEndIt.first;
                 linkIndices[ getNWayLinkIndexFromLinkEndType( linkEndIt.first, linkEnds.size( ) ) ] = std::make_pair( linkEndIt.first, linkEndIt.second );
             }
 
@@ -1560,6 +1559,8 @@ std::vector< std::pair< std::pair< LinkEndType, LinkEndId >, std::pair< LinkEndT
             interlinks.push_back( std::make_pair( std::make_pair( observer, linkEnds.at( observer ) ), std::make_pair( observed_body, linkEnds.at( observed_body ) ) ) );
             break;
         }
+        default:
+            throw std::runtime_error( "Error when retrieving interlink information, observable type " + std::to_string( observableType ) + " not recognised." );
     }
 
     return interlinks;
