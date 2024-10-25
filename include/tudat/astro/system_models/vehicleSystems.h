@@ -22,6 +22,7 @@
 #include "tudat/astro/system_models/timingSystem.h"
 #include "tudat/astro/system_models/vehicleExteriorPanels.h"
 #include "tudat/astro/observation_models/observationFrequencies.h"
+#include "tudat/astro/ephemerides/constantEphemeris.h"
 
 namespace tudat
 {
@@ -287,38 +288,62 @@ public:
 
     bool doesReferencePointExist( const std::string referencePoint )
     {
-        return ( bodyFixedReferencePoint_.count( referencePoint ) > 0 );
+        return ( referencePoints_.count( referencePoint ) > 0 );
     }
 
-    Eigen::Vector3d getReferencePointPosition( const std::string referencePoint )
+    std::shared_ptr< ephemerides::Ephemeris > getReferencePointEphemerisInBodyFixedFrame( const std::string referencePoint )
     {
-        return bodyFixedReferencePoint_.at( referencePoint );
+        return referencePoints_.at( referencePoint );
     }
 
-    void setReferencePointPosition( const std::string referencePoint, const Eigen::Vector3d location )
+    Eigen::Vector3d getReferencePointPositionInBodyFixedFrame( const std::string referencePoint, const double time )
     {
-        bodyFixedReferencePoint_[ referencePoint ] = location;
+        return referencePoints_.at( referencePoint )->getCartesianPosition( time );
     }
 
-    std::map< std::string, Eigen::Vector3d > getBodyFixedReferencePoints( )
+    void setReferencePointPosition( const std::string referencePoint, const Eigen::Vector3d& location,
+                                    const std::string frameOrigin = "", const std::string frameOrientation = "" )
     {
-        return bodyFixedReferencePoint_;
+        Eigen::Vector6d pointState = Eigen::Vector6d::Zero( );
+        pointState.segment( 0, 3 ) = location;
+        referencePoints_[ referencePoint ] = std::make_shared< ephemerides::ConstantEphemeris >( pointState, frameOrigin, frameOrientation );
     }
 
+    void setReferencePointPosition( const std::string referencePoint, std::shared_ptr< ephemerides::Ephemeris > referencePointEphemeris )
+    {
+        referencePoints_[ referencePoint ] = referencePointEphemeris;
+    }
+
+    std::map< std::string, std::shared_ptr< ephemerides::Ephemeris > > getReferencePoints( )
+    {
+        return referencePoints_;
+    }
+
+    //! Function to return reference points with fixed position in body-fixed frame only.
+    std::map< std::string, std::shared_ptr< ephemerides::ConstantEphemeris > > getFixedReferencePoints( )
+    {
+        std::map< std::string, std::shared_ptr< ephemerides::ConstantEphemeris > > fixedReferencePoints;
+        for ( auto it : referencePoints_ )
+        {
+            if ( std::dynamic_pointer_cast< ephemerides::ConstantEphemeris >( it.second ) != nullptr )
+            {
+                fixedReferencePoints[ it.first ] = std::dynamic_pointer_cast< ephemerides::ConstantEphemeris >( it.second );
+            }
+        }
+        return fixedReferencePoints;
+    }
 
     template< typename StateScalarType, typename TimeType >
     Eigen::Matrix< StateScalarType, 6, 1 > getReferencePointStateInBodyFixedFrame(
-        const std::string referencePoint, const TimeType& time )
+            const std::string referencePoint, const TimeType& time )
     {
-        Eigen::Matrix< StateScalarType, 6, 1 > pointLocation = Eigen::Matrix< StateScalarType, 6, 1 >::Zero( );
-        pointLocation.segment( 0, 3 ) = bodyFixedReferencePoint_.at( referencePoint ).template cast< StateScalarType >( );
-        return pointLocation;
+        return referencePoints_.at( referencePoint )->getTemplatedStateFromEphemeris< StateScalarType, TimeType >( time );
     }
 
 
 private:
 
-    std::map< std::string, Eigen::Vector3d > bodyFixedReferencePoint_;
+    std::map< std::string, std::shared_ptr< ephemerides::Ephemeris > > referencePoints_;
 
     std::map< std::string, std::shared_ptr< ephemerides::RotationalEphemeris > > vehiclePartOrientation_;
 

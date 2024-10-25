@@ -194,6 +194,9 @@ static const std::map< LinkEndType, int > observedBodyLinkStateEntries = {
 
 std::map< LinkEndType, int > getSingleLinkStateEntryIndices( const ObservableType observableType );
 
+//! Function retrieving link ends information for all interlinks for a given observable type and link ends
+std::vector< std::pair< std::pair< LinkEndType, LinkEndId >, std::pair< LinkEndType, LinkEndId > > > getInterlinks( const ObservableType observableType, const LinkEnds& linkEnds );
+
 
 } // namespace observation_models
 
