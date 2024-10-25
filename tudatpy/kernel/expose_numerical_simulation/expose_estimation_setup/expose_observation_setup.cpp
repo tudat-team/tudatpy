@@ -524,6 +524,7 @@ void expose_observation_setup(py::module &m) {
     m.def("observation_settings_from_collection",
           &tss::getObservationSimulationSettingsFromObservations< double, TIME_TYPE >,
           py::arg("observation_collection" ),
+          py::arg( "bodies" ),
           get_docstring("observation_settings_from_collection").c_str() );
 
     py::class_<tom::LightTimeCorrectionSettings,
@@ -1083,19 +1084,75 @@ void expose_observation_setup(py::module &m) {
         .value("interval_end", tss::IntegratedObservationPropertyHandling::interval_end )
         .value("interval_undefined", tss::IntegratedObservationPropertyHandling::interval_undefined ).export_values();
 
-    m.def("azimuth_at_link_end_type",
-              &tss::azimuthAngleAtLinkEndTypeDependentVariable,
-          py::arg("link_end_type"),
-          py::arg("integrated_observation_handling") = tss::interval_undefined,
-          py::arg("originating_link_end_role") = tom::unidentified_link_end,
-          get_docstring("azimuth_at_link_end_type").c_str() );
+    m.def( "elevation_angle_dependent_variable", &tss::elevationAngleDependentVariable,
+          py::arg( "link_end_type" ) = tom::unidentified_link_end,
+          py::arg( "link_end_id" ) = tom::LinkEndId( "", "" ),
+          py::arg( "originating_link_end_type" ) = tom::unidentified_link_end,
+          py::arg( "originating_link_end_id" ) = tom::LinkEndId( "", "" ),
+          py::arg( "integrated_observation_handling" ) = tss::interval_undefined,
+          get_docstring( "elevation_angle_dependent_variable" ).c_str() );
 
-    m.def("elevation_at_link_end_type",
-          &tss::elevationAngleAtLinkEndTypeDependentVariable,
-          py::arg("link_end_type"),
-          py::arg("integrated_observation_handling") = tss::interval_undefined,
-          py::arg("originating_link_end_role") = tom::unidentified_link_end,
-          get_docstring("elevation_at_link_end_type").c_str() );
+    m.def( "azimuth_angle_dependent_variable", &tss::azimuthAngleDependentVariable,
+           py::arg( "link_end_type" ) = tom::unidentified_link_end,
+           py::arg( "link_end_id" ) = tom::LinkEndId( "", "" ),
+           py::arg( "originating_link_end_type" ) = tom::unidentified_link_end,
+           py::arg( "originating_link_end_id" ) = tom::LinkEndId( "", "" ),
+           py::arg( "integrated_observation_handling" ) = tss::interval_undefined,
+           get_docstring( "azimuth_angle_dependent_variable" ).c_str() );
+
+    m.def( "target_range_between_link_ends_dependent_variable", &tss::targetRangeBetweenLinkEndsDependentVariable,
+          py::arg( "start_link_end_type" ) = tom::unidentified_link_end,
+          py::arg( "end_link_end_type" ) = tom::unidentified_link_end,
+          py::arg( "start_link_end_id" ) = tom::LinkEndId( "", "" ),
+          py::arg( "end_link_end_id" ) = tom::LinkEndId( "", "" ),
+          py::arg( "integrated_observation_handling" ) = tss::interval_undefined,
+          get_docstring( "target_range_between_link_ends_dependent_variable" ).c_str() );
+
+    m.def( "avoidance_angle_dependent_variable", &tss::bodyAvoidanceAngleDependentVariable,
+           py::arg( "body_name" ),
+           py::arg( "start_link_end_type" ) = tom::unidentified_link_end,
+           py::arg( "end_link_end_type" ) = tom::unidentified_link_end,
+           py::arg( "start_link_end_id" ) = tom::LinkEndId( "", "" ),
+           py::arg( "end_link_end_id" ) = tom::LinkEndId( "", "" ),
+           py::arg( "integrated_observation_handling" ) = tss::interval_undefined,
+           get_docstring( "avoidance_angle_dependent_variable" ).c_str() );
+
+    m.def( "body_center_distance_dependent_variable", &tss::linkBodyCenterDistanceDependentVariable,
+           py::arg( "body_name" ),
+           py::arg( "start_link_end_type" ) = tom::unidentified_link_end,
+           py::arg( "end_link_end_type" ) = tom::unidentified_link_end,
+           py::arg( "start_link_end_id" ) = tom::LinkEndId( "", "" ),
+           py::arg( "end_link_end_id" ) = tom::LinkEndId( "", "" ),
+           py::arg( "integrated_observation_handling" ) = tss::interval_undefined,
+           get_docstring( "body_center_distance_dependent_variable" ).c_str() );
+
+    m.def( "body_limb_distance_dependent_variable", &tss::linkLimbDistanceDependentVariable,
+           py::arg( "body_name" ),
+           py::arg( "start_link_end_type" ) = tom::unidentified_link_end,
+           py::arg( "end_link_end_type" ) = tom::unidentified_link_end,
+           py::arg( "start_link_end_id" ) = tom::LinkEndId( "", "" ),
+           py::arg( "end_link_end_id" ) = tom::LinkEndId( "", "" ),
+           py::arg( "integrated_observation_handling" ) = tss::interval_undefined,
+           get_docstring( "body_limb_distance_dependent_variable" ).c_str() );
+
+    m.def( "angle_wrt_orbital_plane_dependent_variable", &tss::linkAngleWrtOrbitalPlaneDependentVariable,
+           py::arg( "body_name" ),
+           py::arg( "start_link_end_type" ) = tom::unidentified_link_end,
+           py::arg( "end_link_end_type" ) = tom::unidentified_link_end,
+           py::arg( "start_link_end_id" ) = tom::LinkEndId( "", "" ),
+           py::arg( "end_link_end_id" ) = tom::LinkEndId( "", "" ),
+           py::arg( "integrated_observation_handling" ) = tss::interval_undefined,
+           get_docstring( "angle_wrt_orbital_plane_dependent_variable" ).c_str() );
+
+    m.def( "integration_time_dependent_variable", &tss::integrationTimeDependentVariable,
+           py::arg( "observable_type" ) = tom::undefined_observation_model,
+           get_docstring( "integration_time_dependent_variable" ).c_str() );
+
+    m.def( "retransmission_delays_dependent_variable", &tss::retransmissionDelaysDependentVariable,
+           py::arg( "observable_type" ) = tom::undefined_observation_model,
+           get_docstring( "retransmission_delays_dependent_variable" ).c_str() );
+
+
 
 
     /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1235,12 +1292,6 @@ void expose_observation_setup(py::module &m) {
           py::arg("ancillary_settings") = tom::ObservationAncilliarySimulationSettings(),
           get_docstring("create_tracking_txtfile_observation_collection").c_str());
 
-    m.def("observation_settings_from_collection",
-          py::overload_cast<std::shared_ptr<tom::ObservationCollection<double, TIME_TYPE> >>(
-              &tss::getObservationSimulationSettingsFromObservations<double, TIME_TYPE>),
-          py::arg("observed_observation_collection"),
-          get_docstring("observation_settings_from_collection").c_str()
-    );
 
     //////////////////////////////////////////// DEPRECATED ////////////////////////////////////////////
 
