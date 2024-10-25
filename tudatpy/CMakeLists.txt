@@ -76,8 +76,8 @@ YACMA_PYTHON_MODULE(kernel
         #        kernel/expose_interface/expose_json_interface.cpp
         #        kernel/expose_interface/expose_sofa_interface.cpp
 
-        # kernel/io
-        kernel/expose_io.cpp
+        # kernel/data
+        kernel/expose_data.cpp
 
         # kernel/math
         kernel/expose_math.cpp
@@ -177,12 +177,9 @@ INSTALL_HYBRID_CPP_PYTHON_MODULE(interface)
 INSTALL_HYBRID_CPP_PYTHON_MODULE(math)
 INSTALL_HYBRID_CPP_PYTHON_MODULE(numerical_simulation)
 # Pure Python modules
-INSTALL_HYBRID_CPP_PYTHON_MODULE(apps)
-INSTALL_HYBRID_CPP_PYTHON_MODULE(bodies)
 INSTALL_HYBRID_CPP_PYTHON_MODULE(plotting)
 INSTALL_HYBRID_CPP_PYTHON_MODULE(data)
 INSTALL_HYBRID_CPP_PYTHON_MODULE(util)
-INSTALL_HYBRID_CPP_PYTHON_MODULE(io)
 
 #install(FILES test.py "${CMAKE_CURRENT_BINARY_DIR}/_version.py")
 file(COPY ../tests DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/../)
