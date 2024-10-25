@@ -32,6 +32,7 @@ namespace tss = tudat::simulation_setup;
 namespace tni = tudat::numerical_integrators;
 namespace tom = tudat::observation_models;
 namespace trf = tudat::reference_frames;
+namespace te = tudat::ephemerides;
 
 
 namespace tudat
@@ -275,7 +276,6 @@ void expose_estimation(py::module &m) {
             .value("time_interval_splitter", tom::ObservationSetSplitterType::time_interval_splitter )
             .value("time_span_splitter", tom::ObservationSetSplitterType::time_span_splitter )
             .value("nb_observations_splitter", tom::ObservationSetSplitterType::nb_observations_splitter )
-            .value("dependent_variables_splitter", tom::ObservationSetSplitterType::dependent_variables_splitter )
             .export_values();
 
     py::enum_< tom::ObservationParserType >(m, "ObservationParserType",
@@ -284,6 +284,9 @@ void expose_estimation(py::module &m) {
             .value("observable_type_parser", tom::ObservationParserType::observable_type_parser )
             .value("link_ends_parser", tom::ObservationParserType::link_ends_parser )
             .value("link_end_str_parser", tom::ObservationParserType::link_end_string_parser )
+            .value("link_end_id_parser", tom::ObservationParserType::link_end_id_parser )
+            .value("link_end_type_parser", tom::ObservationParserType::link_end_type_parser )
+            .value("single_link_end_parser", tom::ObservationParserType::single_link_end_parser )
             .value("time_bounds_parser", tom::ObservationParserType::time_bounds_parser )
             .value("ancillary_settings_parser", tom::ObservationParserType::ancillary_settings_parser )
             .value("multi_type_parser", tom::ObservationParserType::multi_type_parser )
@@ -315,6 +318,23 @@ void expose_estimation(py::module &m) {
           py::overload_cast< tom::ObservationFilterType,
           const std::pair< double, double >, const bool, const bool >( &tom::observationFilter ),
           py::arg("filter_type"),
+          py::arg("filter_value"),
+          py::arg("filter_out") = true,
+          py::arg("use_opposite_condition") = false,
+          get_docstring("observation_filter").c_str() );
+
+    m.def("observation_filter",
+          py::overload_cast< tom::ObservationFilterType, const Eigen::VectorXd&, const bool, const bool >( &tom::observationFilter ),
+          py::arg("filter_type"),
+          py::arg("filter_value"),
+          py::arg("filter_out") = true,
+          py::arg("use_opposite_condition") = false,
+          get_docstring("observation_filter").c_str() );
+
+    m.def("observation_filter",
+          py::overload_cast< std::shared_ptr< tss::ObservationDependentVariableSettings >, const Eigen::VectorXd&, const bool, const bool >(
+                  &tom::observationFilter ),
+          py::arg("dependent_variable_settings"),
           py::arg("filter_value"),
           py::arg("filter_out") = true,
           py::arg("use_opposite_condition") = false,
@@ -382,15 +402,51 @@ void expose_estimation(py::module &m) {
 
     m.def("observation_parser",
           py::overload_cast< const std::string, const bool, const bool >( &tom::observationParser ),
-          py::arg("link_ends_id"),
+          py::arg("link_ends_str"),
           py::arg( "is_reference_point") = false,
           py::arg("use_opposite_condition") = false,
           get_docstring("observation_parser").c_str() );
 
     m.def("observation_parser",
           py::overload_cast< const std::vector< std::string >&, const bool, const bool >( &tom::observationParser ),
-          py::arg("link_ends_id_vector"),
+          py::arg("link_ends_str_vector"),
           py::arg( "is_reference_point") = false,
+          py::arg("use_opposite_condition") = false,
+          get_docstring("observation_parser").c_str() );
+
+    m.def("observation_parser",
+          py::overload_cast< const std::pair< std::string, std::string >&, const bool >( &tom::observationParser ),
+          py::arg("link_end_id"),
+          py::arg("use_opposite_condition") = false,
+          get_docstring("observation_parser").c_str() );
+
+    m.def("observation_parser",
+          py::overload_cast< const std::vector< std::pair< std::string, std::string > >&, const bool >( &tom::observationParser ),
+          py::arg("link_end_ids_vector"),
+          py::arg("use_opposite_condition") = false,
+          get_docstring("observation_parser").c_str() );
+
+    m.def("observation_parser",
+          py::overload_cast< const tom::LinkEndType&, const bool >( &tom::observationParser ),
+          py::arg("link_end_type"),
+          py::arg("use_opposite_condition") = false,
+          get_docstring("observation_parser").c_str() );
+
+    m.def("observation_parser",
+          py::overload_cast< const std::vector< tom::LinkEndType >&, const bool >( &tom::observationParser ),
+          py::arg("link_end_types_vector"),
+          py::arg("use_opposite_condition") = false,
+          get_docstring("observation_parser").c_str() );
+
+    m.def("observation_parser",
+          py::overload_cast< const std::pair< tom::LinkEndType, tom::LinkEndId >&, const bool >( &tom::observationParser ),
+          py::arg("single_link_end"),
+          py::arg("use_opposite_condition") = false,
+          get_docstring("observation_parser").c_str() );
+
+    m.def("observation_parser",
+          py::overload_cast< const std::vector< std::pair< tom::LinkEndType, tom::LinkEndId > >&, const bool >( &tom::observationParser ),
+          py::arg("single_link_ends_vector"),
           py::arg("use_opposite_condition") = false,
           get_docstring("observation_parser").c_str() );
 
@@ -470,8 +526,8 @@ void expose_estimation(py::module &m) {
           py::arg("bodies"),
           get_docstring("simulate_observations").c_str() );
 
-    m.def("compute_and_set_residuals",
-          &tss::computeAndSetResiduals<double, TIME_TYPE>,
+    m.def("compute_residuals_and_dependent_variables",
+          &tss::computeResidualsAndDependentVariables<double, TIME_TYPE>,
           py::arg("observation_collection"),
           py::arg("observation_simulators" ),
           py::arg("bodies"),
@@ -622,9 +678,6 @@ void expose_estimation(py::module &m) {
             .def("get_link_definitions_for_observables", &tom::ObservationCollection<STATE_SCALAR_TYPE, TIME_TYPE>::getLinkDefinitionsForSingleObservable,
                  py::arg( "observable_type" ),
                  get_docstring("ObservationCollection.get_link_definitions_for_observables").c_str() )
-            .def("get_full_dependent_variable_vector", &tom::ObservationCollection<STATE_SCALAR_TYPE, TIME_TYPE>::getFullDependentVariableVector,
-                 py::arg( "dependent_variable" ),
-                 get_docstring("ObservationCollection.get_full_dependent_variable_vector").c_str() )
             .def("get_single_link_and_type_observations", &tom::ObservationCollection<STATE_SCALAR_TYPE, TIME_TYPE>::getSingleLinkAndTypeObservationSets,
                                    py::arg( "observable_type" ),
                                    py::arg( "link_definition" ),
@@ -752,9 +805,81 @@ void expose_estimation(py::module &m) {
                   &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::removeSingleObservationSets ),
                   py::arg("observation_parser"),
                   get_docstring( "remove_single_observation_sets" ).c_str( ) )
+            .def("set_reference_point",
+                 py::overload_cast< tss::SystemOfBodies&, const Eigen::Vector3d&, const std::string&,
+                 const std::string&, const tom::LinkEndType, const std::shared_ptr< tom::ObservationCollectionParser > >(
+                         &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE>::setReferencePoint ),
+                 py::arg( "bodies" ),
+                 py::arg( "antenna_position" ),
+                 py::arg( "antenna_name" ),
+                 py::arg( "spacecraft_name" ),
+                 py::arg( "link_end_type" ),
+                 py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
+                 get_docstring("set_reference_point").c_str( ) )
+            .def("set_reference_points",
+                  py::overload_cast< tss::SystemOfBodies&, const std::map< double, Eigen::Vector3d >&, const std::string&,
+                  const tom::LinkEndType, const std::shared_ptr< tom::ObservationCollectionParser > >(
+                  &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::setReferencePoints ),
+                  py::arg("bodies"),
+                  py::arg("antenna_switch_history"),
+                  py::arg("spacecraft_name"),
+                  py::arg("link_end_type"),
+                  py::arg("observation_parser") = std::make_shared< tom::ObservationCollectionParser >( ),
+                  get_docstring( "set_reference_points" ).c_str( ) )
+            .def("set_reference_point",
+                 py::overload_cast< tss::SystemOfBodies&, const std::shared_ptr< te::Ephemeris >, const std::string&,
+                 const std::string&, const tom::LinkEndType, const std::shared_ptr< tom::ObservationCollectionParser > >(
+                 &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::setReferencePoint ),
+                 py::arg("bodies"),
+                 py::arg("antenna_body_fixed_ephemeris"),
+                 py::arg("antenna_name"),
+                 py::arg("spacecraft_name"),
+                 py::arg("link_end_type"),
+                 py::arg("observation_parser") = std::make_shared< tom::ObservationCollectionParser >( ),
+                 get_docstring( "set_reference_points" ).c_str( ) )
             .def( "remove_empty_observation_sets",
                   &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::removeEmptySingleObservationSets,
-                  get_docstring( "remove_empty_observation_sets" ).c_str( ) );
+                  get_docstring( "remove_empty_observation_sets" ).c_str( ) )
+            .def( "add_dependent_variable",
+                  &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::addDependentVariable,
+                  py::arg( "dependent_variable_settings" ),
+                  py::arg( "bodies" ),
+                  py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
+                  get_docstring( "add_dependent_variable" ).c_str( ) )
+            .def( "dependent_variable",
+                  &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getDependentVariables,
+                  py::arg( "dependent_variable_settings" ),
+                  py::arg( "first_compatible_settings" ) = false,
+                  py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
+                  get_docstring( "dependent_variable" ).c_str( ) )
+            .def( "concatenated_dependent_variable",
+                  &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getConcatenatedDependentVariables,
+                  py::arg( "dependent_variable_settings" ),
+                  py::arg( "first_compatible_settings" ) = false,
+                  py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
+                  get_docstring( "concatenated_dependent_variable" ).c_str( ) )
+            .def( "compatible_dependent_variable_settings",
+                  &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getCompatibleDependentVariablesSettingsList,
+                  py::arg( "dependent_variable_settings" ),
+                  py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
+                  get_docstring( "compatible_dependent_variable_settings" ).c_str( ) )
+            .def( "compatible_dependent_variables_list",
+                  &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getAllCompatibleDependentVariables,
+                  py::arg( "dependent_variable_settings" ),
+                  py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
+                  get_docstring( "compatible_dependent_variables_list" ).c_str( ) )
+            .def( "dependent_variable_history_per_set",
+                  &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getDependentVariableHistoryPerObservationSet,
+                  py::arg( "dependent_variable_settings" ),
+                  py::arg( "first_compatible_settings" ) = false,
+                  py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
+                  get_docstring( "dependent_variable_history_per_set" ).c_str( ) )
+            .def( "dependent_variable_history",
+                  &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getDependentVariableHistory,
+                  py::arg( "dependent_variable_settings" ),
+                  py::arg( "first_compatible_settings" ) = false,
+                  py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
+                  get_docstring( "dependent_variable_history" ).c_str( ) );
 
 
     m.def( "create_single_observation_set",
@@ -850,7 +975,8 @@ void expose_estimation(py::module &m) {
                                    get_docstring("SingleObservationSet.weights").c_str())
             .def_property_readonly("concatenad_weights", &tom::SingleObservationSet<STATE_SCALAR_TYPE, TIME_TYPE>::getWeightsVector,
                                    get_docstring("SingleObservationSet.concatenad_weights").c_str())
-            .def_property_readonly("dependent_variables", &tom::SingleObservationSet<STATE_SCALAR_TYPE, TIME_TYPE>::getObservationsDependentVariables,
+            .def_property("dependent_variables", &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationsDependentVariables,
+                                                 &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::setObservationsDependentVariables,
                                    get_docstring("SingleObservationSet.dependent_variables").c_str())
             .def_property_readonly("dependent_variables_history", &tom::SingleObservationSet<STATE_SCALAR_TYPE, TIME_TYPE>::getDependentVariableHistory,
                                    get_docstring("SingleObservationSet.dependent_variables_history").c_str())
@@ -864,7 +990,25 @@ void expose_estimation(py::module &m) {
             .def_property_readonly("filtered_observation_set", &tom::SingleObservationSet<STATE_SCALAR_TYPE, TIME_TYPE>::getFilteredObservationSet,
                                     get_docstring("SingleObservationSet.filtered_observation_set").c_str() )
             .def_property_readonly("number_filtered_observations", &tom::SingleObservationSet<STATE_SCALAR_TYPE, TIME_TYPE>::getNumberOfFilteredObservations,
-                                   get_docstring("SingleObservationSet.number_filtered_observations").c_str() );
+                                   get_docstring("SingleObservationSet.number_filtered_observations").c_str() )
+            .def( "single_dependent_variable",
+                  py::overload_cast< std::shared_ptr< tss::ObservationDependentVariableSettings >, const bool >(
+                          &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::getSingleDependentVariable ),
+                          py::arg( "dependent_variable_settings" ),
+                          py::arg( "return_first_compatible_settings" ) = false,
+                          get_docstring("SingleObservationSet.single_dependent_variable").c_str() )
+            .def( "compatible_dependent_variable_settings",
+                  &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::getCompatibleDependentVariablesSettingsList,
+                  get_docstring( "SingleObservationSet.compatible_dependent_variable_settings" ).c_str() )
+            .def( "compatible_dependent_variables_list",
+                  &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::getAllCompatibleDependentVariables,
+                  get_docstring( "SingleObservationSet.compatible_dependent_variables_list" ).c_str() )
+            .def( "single_dependent_variable_history",
+                  &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::getSingleDependentVariableHistory,
+                  get_docstring( "SingleObservationSet.single_dependent_variable_history" ).c_str() )
+            .def_property_readonly( "dependent_variables_matrix",
+                                    &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationsDependentVariablesMatrix,
+                                    get_docstring( "SingleObservationSet.dependent_variables_matrix" ).c_str() );
 
 
     m.def("single_observation_set",
