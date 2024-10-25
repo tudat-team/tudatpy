@@ -49,7 +49,7 @@ PYBIND11_MODULE(kernel, m) {
     auto constants = m.def_submodule("constants");
     tudatpy::constants::expose_constants(constants);
 
-    // io module
+    // data module
     auto data = m.def_submodule("data");
     tudatpy::data::expose_data(data);
 
