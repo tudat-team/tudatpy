@@ -1,4 +1,4 @@
-``io``
+``data``
 ======
 Interfacing of Tudat(py) to and from other applications.
 
@@ -20,7 +20,7 @@ to read inputs from other softwares and integrate them with Tudat(py).
 
 Functions
 ---------
-.. currentmodule:: tudatpy.io
+.. currentmodule:: tudatpy.data
 
 .. autosummary::
 
@@ -50,36 +50,36 @@ Functions
 
 
 
-.. autofunction:: tudatpy.io.save2txt
+.. autofunction:: tudatpy.data.save2txt
 
-.. autofunction:: tudatpy.io.save_time_history_to_file
+.. autofunction:: tudatpy.data.save_time_history_to_file
 
-.. autofunction:: tudatpy.io.get_resource_path
+.. autofunction:: tudatpy.data.get_resource_path
 
-.. autofunction:: tudatpy.io.get_ephemeris_path
+.. autofunction:: tudatpy.data.get_ephemeris_path
 
-.. autofunction:: tudatpy.io.get_earth_orientation_path
+.. autofunction:: tudatpy.data.get_earth_orientation_path
 
-.. autofunction:: tudatpy.io.get_quadrature_path
+.. autofunction:: tudatpy.data.get_quadrature_path
 
-.. autofunction:: tudatpy.io.get_spice_kernel_path
+.. autofunction:: tudatpy.data.get_spice_kernel_path
 
-.. autofunction:: tudatpy.io.get_atmosphere_tables_path
+.. autofunction:: tudatpy.data.get_atmosphere_tables_path
 
-.. autofunction:: tudatpy.io.get_gravity_models_path
+.. autofunction:: tudatpy.data.get_gravity_models_path
 
-.. autofunction:: tudatpy.io.get_space_weather_path
+.. autofunction:: tudatpy.data.get_space_weather_path
 
-.. autofunction:: tudatpy.io.read_vector_history_from_file
+.. autofunction:: tudatpy.data.read_vector_history_from_file
 
-.. autofunction:: tudatpy.io.read_matrix_history_from_file
+.. autofunction:: tudatpy.data.read_matrix_history_from_file
 
 
 
 
 Enumerations
 ------------
-.. currentmodule:: tudatpy.io
+.. currentmodule:: tudatpy.data
 
 .. autosummary::
 
@@ -89,10 +89,10 @@ Enumerations
 
 
 
-.. autoclass:: tudatpy.io.StaticCoefficientNames
+.. autoclass:: tudatpy.data.StaticCoefficientNames
    :members:
 
-.. autoclass:: tudatpy.io.DynamicCoefficientNames
+.. autoclass:: tudatpy.data.DynamicCoefficientNames
    :members:
 
 
@@ -100,7 +100,7 @@ Enumerations
 
 Classes
 -------
-.. currentmodule:: tudatpy.io
+.. currentmodule:: tudatpy.data
 
 .. autosummary::
 
@@ -108,7 +108,7 @@ Classes
 
 
 
-.. autoclass:: tudatpy.io.missile_DATCOM_data
+.. autoclass:: tudatpy.data.missile_DATCOM_data
    :members:
    :special-members: __init__
 
