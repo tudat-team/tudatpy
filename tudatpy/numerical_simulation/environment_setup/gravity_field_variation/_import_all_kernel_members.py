@@ -13,12 +13,18 @@
 #                 METHODS                 
 # ----------------------------------------
 from tudatpy.kernel.numerical_simulation.environment_setup.gravity_field_variation import \
+     mode_coupled_solid_body_tide, \
+     periodic, \
+     polynomial, \
+     single_period_periodic, \
+     single_power_polynomial, \
      solid_body_tide, \
      solid_body_tide_complex_k, \
      solid_body_tide_degree_order_variable_complex_k, \
      solid_body_tide_degree_order_variable_k, \
      solid_body_tide_degree_variable_complex_k, \
      solid_body_tide_degree_variable_k, \
+     solid_multi_body_tide_degree_order_variable_k, \
      tabulated
 # ----------------------------------------
 #                 OBJECTS                 

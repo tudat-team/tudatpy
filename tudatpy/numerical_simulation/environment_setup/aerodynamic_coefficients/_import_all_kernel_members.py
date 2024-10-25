@@ -14,6 +14,7 @@
 # ----------------------------------------
 from tudatpy.kernel.numerical_simulation.environment_setup.aerodynamic_coefficients import \
      constant, \
+     constant_force_and_moment, \
      custom_aerodynamic_force_and_moment_coefficients, \
      custom_aerodynamic_force_coefficients, \
      custom_control_surface, \

@@ -13,6 +13,7 @@
 #                 METHODS                 
 # ----------------------------------------
 from tudatpy.kernel.numerical_simulation.environment_setup.ground_station import \
+     add_motion_model_to_each_groun_station, \
      basic_station, \
      custom_station_motion, \
      dsn_stations, \
