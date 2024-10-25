@@ -76,8 +76,8 @@ YACMA_PYTHON_MODULE(kernel
         #        kernel/expose_interface/expose_json_interface.cpp
         #        kernel/expose_interface/expose_sofa_interface.cpp
 
-        # kernel/io
-        kernel/expose_io.cpp
+        # kernel/data
+        kernel/expose_data.cpp
 
         # kernel/math
         kernel/expose_math.cpp

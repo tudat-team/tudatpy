@@ -8,7 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include "expose_io.h"
+#include "expose_data.h"
 
 #include <pybind11/stl.h>
 #include <pybind11/stl_bind.h>
@@ -31,7 +31,7 @@ namespace tudatpy {
 
     namespace io {
 
-        void expose_io(py::module &m) {
+        void expose_data(py::module &m) {
             m.def("get_resource_path", &tudat::paths::get_resource_path,
                   get_docstring("get_resource_path").c_str());
             m.def("get_ephemeris_path",
