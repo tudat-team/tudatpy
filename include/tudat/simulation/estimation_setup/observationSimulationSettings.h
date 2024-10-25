@@ -454,18 +454,33 @@ void clearNoiseFunctionFromObservationSimulationSettings(
     }
 }
 
-void addDependentVariables(
-        const std::vector< std::shared_ptr< ObservationDependentVariableSettings > > settingsList,
-        const SystemOfBodies& bodies );
-
 template< typename TimeType = double >
 void addDependentVariableToSingleObservationSimulationSettings(
         const std::shared_ptr< ObservationSimulationSettings< TimeType > >& observationSimulationSettings,
         const std::vector< std::shared_ptr< ObservationDependentVariableSettings > >& dependentVariableList,
         const SystemOfBodies& bodies )
 {
-    observationSimulationSettings->getDependentVariableCalculator( )->addDependentVariables(
-                dependentVariableList, bodies );
+    std::vector< std::shared_ptr< ObservationDependentVariableSettings > > extendedDependentVariablesList;
+
+    // Retrieve interlinks information for current observable type and link ends
+    ObservableType observableType = observationSimulationSettings->getObservableType( );
+    LinkEnds linkEnds = observationSimulationSettings->getLinkEnds( ).linkEnds_;
+    std::vector< std::pair< std::pair< LinkEndType, LinkEndId >, std::pair< LinkEndType, LinkEndId > > > interlinksInSet = getInterlinks( observableType, linkEnds );
+
+    // Parse all dependent variable settings
+    for ( auto settings : dependentVariableList )
+    {
+        // Create complete list of all dependent variable settings compatible with the original settings (possibly not fully defined, i.e. with
+        // missing information on link ends, etc.) for the given observable type and link ends
+        std::vector< std::shared_ptr< ObservationDependentVariableSettings > > allSettingsToCreate =
+                createAllCompatibleDependentVariableSettings( observableType, linkEnds, settings );
+        for ( auto it : allSettingsToCreate )
+        {
+            extendedDependentVariablesList.push_back( it );
+        }
+    }
+    // Add all relevant dependent variables
+    observationSimulationSettings->getDependentVariableCalculator( )->addDependentVariables( extendedDependentVariablesList, bodies );
 }
 
 template< typename TimeType = double >
