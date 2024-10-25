@@ -1,6 +1,4 @@
-
 #include <string>
-
 
 namespace tudatpy {
 

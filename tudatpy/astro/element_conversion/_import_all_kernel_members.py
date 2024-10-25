@@ -17,6 +17,7 @@ from tudatpy.kernel.astro.element_conversion import \
      cartesian_to_mee, \
      cartesian_to_mee_manual_singularity, \
      cartesian_to_spherical, \
+     convert_position_elements, \
      delta_mean_anomaly_to_elapsed_time, \
      eccentric_to_mean_anomaly, \
      eccentric_to_true_anomaly, \

@@ -190,6 +190,9 @@ void expose_observation_setup(py::module &m) {
             .value("reflector3", tom::LinkEndType::reflector3 )
             .value("reflector4", tom::LinkEndType::reflector4 )
             .value("receiver", tom::LinkEndType::receiver )
+
+            .value("transmitter2", tom::LinkEndType::transmitter2 )
+
             .value("observed_body", tom::LinkEndType::observed_body )
             .export_values();
 
@@ -522,7 +525,7 @@ void expose_observation_setup(py::module &m) {
           get_docstring("doppler_measured_frequency").c_str() );
 
     m.def("observation_settings_from_collection",
-          &tss::getObservationSimulationSettingsFromObservations< double, TIME_TYPE >,
+          &tss::getObservationSimulationSettingsFromObservations< STATE_SCALAR_TYPE, TIME_TYPE >,
           py::arg("observation_collection" ),
           py::arg( "bodies" ),
           get_docstring("observation_settings_from_collection").c_str() );
@@ -596,6 +599,13 @@ void expose_observation_setup(py::module &m) {
             std::shared_ptr<tom::ObservationBiasSettings>>(
                 m, "ObservationBiasSettings",
                 get_docstring("ObservationBiasSettings").c_str() );
+
+    m.def("clock_induced_bias",
+          &tom::clockInducedBias,
+          py::arg("body_name"),
+          py::arg("station_name"),
+          get_docstring("clock_induced_bias").c_str() );
+
 
     m.def("absolute_bias",
           &tom::constantAbsoluteBias,
@@ -1246,14 +1256,47 @@ void expose_observation_setup(py::module &m) {
           get_docstring("set_odf_information_in_bodies").c_str() );
 
     m.def("create_odf_observed_observation_collection",
-          &tom::createOdfObservedObservationCollection< double, TIME_TYPE >,
+          &tom::createOdfObservedObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >,
           py::arg("processed_odf_file"),
           py::arg("observable_types_to_process"),
           py::arg("start_and_end_times_to_process"),
           get_docstring("create_odf_observed_observation_collection").c_str() );
 
+    m.def("observations_from_odf_files",
+          &tom::createOdfObservedObservationCollectionFromFile< STATE_SCALAR_TYPE, TIME_TYPE >,
+          py::arg("bodies"),
+          py::arg("odf_file_names"),
+          py::arg("target_name"),
+          py::arg("verbose_output") = true,
+          py::arg("earth_fixed_station_positions" ) = tss::getApproximateDsnGroundStationPositions( ),
+          get_docstring("create_odf_observed_observation_collection").c_str() );
+
+    m.def("observations_from_ifms_files",
+          &tom::createIfmsObservedObservationCollectionFromFiles< STATE_SCALAR_TYPE, TIME_TYPE >,
+          py::arg("bodies"),
+          py::arg("ifms_file_names"),
+          py::arg("target_name"),
+          py::arg("ground_station_name"),
+          py::arg("reception_band"),
+          py::arg("transmission_band"),
+          py::arg("earth_fixed_station_positions" ) = tss::getApproximateDsnGroundStationPositions( ),
+          get_docstring("create_odf_observed_observation_collection").c_str() );
+
+    m.def("observations_from_fdets_files",
+          &tom::createFdetsObservedObservationCollectionFromFile< STATE_SCALAR_TYPE, TIME_TYPE >,
+          py::arg("ifms_file_name"),
+          py::arg("base_frequency"),
+          py::arg("column_types"),
+          py::arg("target_name"),
+          py::arg("transmitting_station_name"),
+          py::arg("receiving_station_name"),
+          py::arg("reception_band"),
+          py::arg("transmission_band"),
+          py::arg("earth_fixed_station_positions" ) = tss::getApproximateDsnGroundStationPositions( ),
+          get_docstring("create_odf_observed_observation_collection").c_str() );
+
     m.def("create_compressed_doppler_collection",
-          &tom::createCompressedDopplerCollection< double, TIME_TYPE >,
+          &tom::createCompressedDopplerCollection< STATE_SCALAR_TYPE, TIME_TYPE >,
           py::arg("original_observation_collection"),
           py::arg("compression_ratio"),
           py::arg("minimum_number_of_observations") = 10,
@@ -1262,12 +1305,12 @@ void expose_observation_setup(py::module &m) {
 
 
 //    m.def("create_odf_observation_simulation_settings_list",
-//          &tom::createOdfObservationSimulationSettingsList< double, TIME_TYPE >,
+//          &tom::createOdfObservationSimulationSettingsList< STATE_SCALAR_TYPE, TIME_TYPE >,
 //          py::arg("observed_observation_collection"),
 //          get_docstring("create_odf_observation_simulation_settings_list").c_str() );
 
     m.def("change_simulation_settings_observable_types",
-          &tom::changeObservableTypesOfObservationSimulationSettings< double, TIME_TYPE >,
+          &tom::changeObservableTypesOfObservationSimulationSettings< STATE_SCALAR_TYPE, TIME_TYPE >,
           py::arg("observation_simulation_settings"),
           py::arg("replacement_observable_types") = std::map< tom::ObservableType, tom::ObservableType >{
                 { tom::dsn_n_way_averaged_doppler, tom::n_way_differenced_range },
