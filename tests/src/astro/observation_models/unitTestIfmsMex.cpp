@@ -72,7 +72,7 @@ BOOST_AUTO_TEST_CASE(testIfmsObservationMex)
 //    ifmsFileNames.push_back( paths::getTudatTestDataPath( )  + "/estrack_n_way_doppler_observation_model/M32ICL1L02_D2X_133621904_00.TAB.txt" );
 //    ifmsFileNames.push_back( paths::getTudatTestDataPath( )  + "/estrack_n_way_doppler_observation_model/M32ICL1L02_D2X_133621819_00.TAB.txt" );
     std::vector< std::shared_ptr< TrackingTxtFileContents > > rawIfmsFiles;
-    for( int i = 0; i < ifmsFileNames.size( ); i++ )
+    for( unsigned int i = 0; i < ifmsFileNames.size( ); i++ )
     {
         rawIfmsFiles.push_back( readIfmsFile( ifmsFileNames.at( i ) ) );
     }
@@ -197,10 +197,10 @@ BOOST_AUTO_TEST_CASE(testIfmsObservationMex)
              ************************** SIMULATE OBSERVATIONS AND COMPUTE RESIDUALS
              *****************************************************************************************/
 
-            std::vector< std::shared_ptr< simulation_setup::ObservationSimulationSettings< Time > > > observationSimulationSettings =
-                getObservationSimulationSettingsFromObservations( observedObservationCollection );
-            std::shared_ptr< observation_models::ObservationCollection< long double, Time > > computedObservationCollection =
-                simulateObservations( observationSimulationSettings, observationSimulators, bodies );
+        std::vector< std::shared_ptr< simulation_setup::ObservationSimulationSettings< Time > > > observationSimulationSettings =
+            getObservationSimulationSettingsFromObservations( observedObservationCollection, bodies );
+        std::shared_ptr< observation_models::ObservationCollection< long double, Time > > computedObservationCollection =
+            simulateObservations( observationSimulationSettings, observationSimulators, bodies );
 
             Eigen::Matrix< long double, Eigen::Dynamic, 1 > residualVector = observedObservationCollection->getObservationVector( ) - computedObservationCollection->getObservationVector( );
             double rmsResidual = linear_algebra::getVectorEntryRootMeanSquare( residualVector.cast< double >( ) );

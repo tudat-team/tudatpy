@@ -33,7 +33,8 @@ std::shared_ptr< ObservationCollection< double, double > > setUpObservationColle
         std::vector< LinkEnds >& stationReceiverLinkEnds,
         std::vector< LinkEnds >& stationTransmitterLinkEnds,
         std::map< ObservableType, double >& obsStartTimes,
-        std::map< ObservableType, std::vector< double > >& baseTimeList )
+        std::map< ObservableType, std::vector< double > >& baseTimeList,
+        SystemOfBodies& bodies )
 {
     //Load spice kernels.
     spice_interface::loadStandardSpiceKernels( );
@@ -56,7 +57,7 @@ std::shared_ptr< ObservationCollection< double, double > > setUpObservationColle
             "ECLIPJ2000", "IAU_Earth", spice_interface::computeRotationQuaternionBetweenFrames( "ECLIPJ2000", "IAU_Earth", initialEphemerisTime ),
             initialEphemerisTime, 2.0 * mathematical_constants::PI / ( physical_constants::JULIAN_DAY ) );
 
-    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+    bodies = createSystemOfBodies( bodySettings );
     bodies.createEmptyBody( "Vehicle" );
     bodies.at( "Vehicle" )->setConstantBodyMass( 400.0 );
 
@@ -199,6 +200,11 @@ std::shared_ptr< ObservationCollection< double, double > > setUpObservationColle
         }
     }
 
+    // Add elevation angle dependent variables
+    std::shared_ptr< ObservationDependentVariableSettings > elevationAngleSettings = elevationAngleDependentVariable( );
+    addDependentVariablesToObservationSimulationSettings( measurementSimulationInput,
+                                                          std::vector< std::shared_ptr< ObservationDependentVariableSettings > >( { elevationAngleSettings } ), bodies );
+
     // Simulate observations
     std::shared_ptr< ObservationCollection< double, double > > simulatedObservations =
             simulateObservations< double, double >( measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
@@ -230,8 +236,9 @@ BOOST_AUTO_TEST_CASE( test_ObservationCollectionParser )
     std::vector< LinkEnds > stationTransmitterLinkEnds;
     std::map< ObservableType, double > obsStartTimes;
     std::map< ObservableType, std::vector< double > > baseTimeList;
+    SystemOfBodies bodies;
     std::shared_ptr< ObservationCollection< double, double > > simulatedObservations = setUpObservationCollectionToTest(
-            startTime, numberOfDaysOfData, numberOfObservations, obsInterval, stationReceiverLinkEnds, stationTransmitterLinkEnds, obsStartTimes, baseTimeList );
+            startTime, numberOfDaysOfData, numberOfObservations, obsInterval, stationReceiverLinkEnds, stationTransmitterLinkEnds, obsStartTimes, baseTimeList,bodies );
 
     // Check full list of observable types
     std::vector< ObservableType > observableTypes = simulatedObservations->getObservableTypes( );
@@ -499,6 +506,7 @@ BOOST_AUTO_TEST_CASE( test_ObservationCollectionParser )
     // Check multi-type parsing when all conditions should be met concurrently
     std::vector< std::shared_ptr< ObservationCollectionParser > > multiTypeParserList2;
     multiTypeParserList2.push_back( observationParser( one_way_range ) );
+    multiTypeParserList2.push_back( observationParser( std::make_pair( receiver, LinkEndId( "Earth", "Station2" ) ) ) );
     multiTypeParserList2.push_back( observationParser( "Station2", true ) );
 
     std::vector< std::shared_ptr< SingleObservationSet< > > > multiTypeObservationSets2 = simulatedObservations->getSingleObservationSets(
@@ -509,7 +517,7 @@ BOOST_AUTO_TEST_CASE( test_ObservationCollectionParser )
     {
         for ( auto linkEndsIt : observableIt.second )
         {
-            if ( ( observableIt.first == one_way_range ) && ( ( linkEndsIt.first == stationReceiverLinkEnds[ 1 ] ) || ( linkEndsIt.first == stationTransmitterLinkEnds[ 1 ] ) ) )
+            if ( ( observableIt.first == one_way_range ) && ( ( linkEndsIt.first == stationReceiverLinkEnds[ 1 ] ) ) )
             {
                 for ( auto obs : linkEndsIt.second )
                 {
@@ -539,8 +547,9 @@ BOOST_AUTO_TEST_CASE( test_ObservationsFiltering )
     std::vector< LinkEnds > stationTransmitterLinkEnds;
     std::map< ObservableType, double > obsStartTimes;
     std::map< ObservableType, std::vector< double > > baseTimeList;
+    SystemOfBodies bodies;
     std::shared_ptr< ObservationCollection< double, double > > simulatedObservations = setUpObservationCollectionToTest(
-            startTime, numberOfDaysOfData, numberOfObservations, obsInterval, stationReceiverLinkEnds, stationTransmitterLinkEnds, obsStartTimes, baseTimeList );
+            startTime, numberOfDaysOfData, numberOfObservations, obsInterval, stationReceiverLinkEnds, stationTransmitterLinkEnds, obsStartTimes, baseTimeList, bodies );
 
     // Retrieve start indices and sizes for observation sets
     std::map< ObservableType, std::map< LinkEnds, std::vector< std::pair< int, int > > > > obsSetsStartAndSize = simulatedObservations->getObservationSetStartAndSize( );
@@ -730,14 +739,14 @@ BOOST_AUTO_TEST_CASE( test_ObservationsFiltering )
 
     // Test filtering based on residual values
     double residualCutOffValue = 0.25;
-    int nbRangeStation1 = rangeObservationSets.at( 0 )->getNumberOfObservables( );
+    unsigned int nbRangeStation1 = rangeObservationSets.at( 0 )->getNumberOfObservables( );
     Eigen::Matrix< double, Eigen::Dynamic, 1 > residualsStation1 = ( residualCutOffValue + 0.05 ) * Eigen::Matrix< double, Eigen::Dynamic, 1 >::Ones( nbRangeStation1, 1 );
-    int nbRangeStation2 = rangeObservationSets.at( 1 )->getNumberOfObservables( );
+    unsigned int nbRangeStation2 = rangeObservationSets.at( 1 )->getNumberOfObservables( );
     Eigen::Matrix< double, Eigen::Dynamic, 1 > residualsStation2 = ( residualCutOffValue - 0.05 ) * Eigen::Matrix< double, Eigen::Dynamic, 1 >::Ones( nbRangeStation2, 1 );
-    int nbRangeStation3 = rangeObservationSets.at( 2 )->getNumberOfObservables( );
+    unsigned int nbRangeStation3 = rangeObservationSets.at( 2 )->getNumberOfObservables( );
     Eigen::Matrix< double, Eigen::Dynamic, 1 > residualsStation3 = ( residualCutOffValue - 0.05 ) * Eigen::Matrix< double, Eigen::Dynamic, 1 >::Ones( nbRangeStation3, 1 );
-    int nbLargeResidualsStation3 = 0;
-    for ( int i = 0 ; i < nbRangeStation3 ; i++ )
+    unsigned int nbLargeResidualsStation3 = 0;
+    for ( unsigned int i = 0 ; i < nbRangeStation3 ; i++ )
     {
         if ( i%2 )
         {
@@ -787,6 +796,35 @@ BOOST_AUTO_TEST_CASE( test_ObservationsFiltering )
     simulatedObservations->removeSingleObservationSets( indexSetToRemove );
     BOOST_CHECK( simulatedObservations->getSingleObservationSets( observationParser( angular_position ) ).size( ) == 1 );
 
+
+    // Retrieve elevation angles before filtering
+    std::shared_ptr< ObservationDependentVariableSettings > elevationAngleSettings = elevationAngleDependentVariable( );
+    std::vector< Eigen::MatrixXd > originalElevationAngles = simulatedObservations->getDependentVariables( elevationAngleSettings, false ).first;
+    std::vector< unsigned int > nbObservationsToKeepPerSet;
+    for ( auto elevationAngleMatrix : originalElevationAngles )
+    {
+        unsigned int nbPositiveElevationAngles = 0;
+        for ( unsigned int i = 0 ; i < elevationAngleMatrix.rows( ) ; i++ )
+        {
+            if ( elevationAngleMatrix( i, 0 ) > 0.0 )
+            {
+                nbPositiveElevationAngles += 1;
+            }
+        }
+        nbObservationsToKeepPerSet.push_back( nbPositiveElevationAngles );
+    }
+
+    // Filter out observations with negative elevation angles
+    simulatedObservations->filterObservations( observationFilter( elevationAngleSettings, Eigen::Vector1d::Zero( ), true, true ) );
+
+    std::vector< Eigen::MatrixXd > remainingElevationAngles = simulatedObservations->getDependentVariables( elevationAngleSettings, false ).first;
+    for ( unsigned int i = 0 ; i < remainingElevationAngles.size( ) ; i++ )
+    {
+        BOOST_CHECK( remainingElevationAngles[ i ].rows( ) == nbObservationsToKeepPerSet[ i ] );
+    }
+
+
+
 }
 
 BOOST_AUTO_TEST_CASE( test_ObservationsSplitting )
@@ -801,12 +839,13 @@ BOOST_AUTO_TEST_CASE( test_ObservationsSplitting )
     std::vector< LinkEnds > stationTransmitterLinkEnds;
     std::map< ObservableType, double > obsStartTimes;
     std::map< ObservableType, std::vector< double > > baseTimeList;
+    SystemOfBodies bodies;
     std::shared_ptr< ObservationCollection< double, double > > simulatedObservations = setUpObservationCollectionToTest(
-            startTime, numberOfDaysOfData, numberOfObservations, obsInterval, stationReceiverLinkEnds, stationTransmitterLinkEnds, obsStartTimes, baseTimeList );
+            startTime, numberOfDaysOfData, numberOfObservations, obsInterval, stationReceiverLinkEnds, stationTransmitterLinkEnds, obsStartTimes, baseTimeList, bodies );
 
 
     // Test splitting based on time tags
-    int indexSplitEpoch = int(numberOfObservations/3);
+    unsigned int indexSplitEpoch = static_cast< unsigned int >(numberOfObservations/3);
     std::vector< double > rangeObsTimes = baseTimeList.at( one_way_range );
     double splitEpoch = rangeObsTimes.at( indexSplitEpoch );
     std::vector< double > timeTags = { rangeObsTimes.at( 0 ), splitEpoch, rangeObsTimes.back( ) };
@@ -880,33 +919,6 @@ BOOST_AUTO_TEST_CASE( test_ObservationsSplitting )
     BOOST_CHECK( ( splitObsSets.at( 1 )->getObservationTimes( ).at( 0 ) - splitObsSets.at( 0 )->getObservationTimes( ).back( ) ) > 1500.0 );
 
 
-    // TEST
-    std::shared_ptr< SingleObservationSet< > > testSet = simulatedObservations->getSingleObservationSets( observationParser( stationReceiverLinkEnds[ 0 ] ) ).at( 0 );
-
-    std::vector< double > obsTimesTest = testSet->getObservationTimes( );
-    std::pair< double, double > timeBoundsTest = std::make_pair( obsTimesTest.at( 0 ), obsTimesTest.at( int( obsTimesTest.size( )/2 ) ) );
-//    std::shared_ptr< SingleObservationSet< > > testSetCopy = filterObservations( testSet, observationFilter( time_bounds_filtering, timeBoundsTest, true, false ), false );
-//    std::cout << "after filtering nb obs (set): " << testSet->getNumberOfObservables( ) << std::endl;
-//    std::cout << "after filtering nb obs (set copy): " << testSetCopy->getNumberOfObservables( ) << std::endl;
-
-        std::cout << "before filtering nb obs (new set): " << testSet->getNumberOfObservables( ) << std::endl;
-        std::shared_ptr< ObservationCollection< > > newSimulatedObservations =
-                filterObservations( simulatedObservations, observationFilter( time_bounds_filtering, timeBoundsTest, true, false ), observationParser( stationReceiverLinkEnds[ 0 ] ) );
-        std::shared_ptr< SingleObservationSet< > > newTestSet = newSimulatedObservations->getSingleObservationSets( observationParser( stationReceiverLinkEnds[ 0 ] ) ).at( 0 );
-        std::cout << "after filtering nb obs (new set): " << newTestSet->getNumberOfObservables( ) << std::endl;
-        std::cout << "after filtering nb obs (set): " << testSet->getNumberOfObservables( ) << std::endl;
-
-        std::vector< std::shared_ptr< SingleObservationSet< > > > test1 = newSimulatedObservations->getSingleObservationSets( observationParser( stationReceiverLinkEnds[ 0 ] ) );
-        std::cout << "test1 size: " << test1.size( ) << std::endl;
-        std::cout << "test 1 nb obs: " << test1.at( 0 )->getNumberOfObservables( ) << std::endl;
-        std::shared_ptr< ObservationCollection< > > newSimulatedObservations2 =
-                splitObservationSets( newSimulatedObservations, observationSetSplitter( nb_observations_splitter, 100 ), observationParser( stationReceiverLinkEnds[ 0 ] ) );
-        std::vector< std::shared_ptr< SingleObservationSet< > > > test2 = newSimulatedObservations2->getSingleObservationSets( observationParser( stationReceiverLinkEnds[ 0 ] ) );
-        std::cout << "test2 size: " << test2.size( ) << std::endl;
-        std::cout << "test 2 nb obs: " << test2.at( 0 )->getNumberOfObservables( ) << std::endl;
-        std::cout << "test 2 nb obs: " << test2.at( 1 )->getNumberOfObservables( ) << std::endl;
-
-        newSimulatedObservations2->printObservationSetsStartAndSize( );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
