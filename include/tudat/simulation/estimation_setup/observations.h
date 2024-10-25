@@ -733,7 +733,46 @@ public:
             }
             case dependent_variable_filtering:
             {
-                throw std::runtime_error( "Error when filtering observations based on dependent variable, filter type not yet implemented." );
+                if ( std::dynamic_pointer_cast< ObservationDependentVariableFilter >( observationFilter ) == nullptr )
+                {
+                    throw std::runtime_error( "Error when performing dependent variable filtering, inconsistent filter input (should be ObservationDependentVariableFilter object)." );
+                }
+                std::shared_ptr< ObservationDependentVariableSettings > settings =
+                        std::dynamic_pointer_cast< ObservationDependentVariableFilter >( observationFilter )->getDependentVariableSettings( );
+                unsigned int dependentVariableSize = getObservationDependentVariableSize( settings, linkEnds_.linkEnds_ );
+
+                Eigen::VectorXd dependentVariableCutOff = std::dynamic_pointer_cast< ObservationDependentVariableFilter >( observationFilter )->getFilterValue( );
+                if ( dependentVariableCutOff.size( ) != dependentVariableSize )
+                {
+                    throw std::runtime_error( "Error when performing dependent variable filtering, size of the dependent variable cut off vector inconsistent with dependent variable size." );
+                }
+
+                // Retrieve dependent variable values
+                Eigen::MatrixXd singleDependentVariableValues =
+                        ( observationFilter->filterOut( ) ? getSingleDependentVariable( settings ) : filteredObservationSet_->getSingleDependentVariable( settings ) );
+                if ( ( singleDependentVariableValues.rows( ) != nbObservationsToTest ) || ( singleDependentVariableValues.cols( ) != dependentVariableSize ) )
+                {
+                    throw std::runtime_error( "Error when performing dependent variable filtering, size of observation dependent variables is inconsistent with the "
+                                              "number of observations and presupposed dependent variable size." );
+                }
+
+                // Check dependent variable values against cut-off value
+                for ( int j = 0 ; j < nbObservationsToTest ; j++ )
+                {
+                    bool removeObservation = false;
+                    for( int k = 0 ; k < dependentVariableSize ; k++ )
+                    {
+                        if( ( !useOppositeCondition && ( singleDependentVariableValues( j, k ) ) > dependentVariableCutOff[ k ] ) ||
+                            ( useOppositeCondition && ( singleDependentVariableValues( j, k ) ) <= dependentVariableCutOff[ k ] ) )
+                        {
+                            removeObservation = true;
+                        }
+                    }
+                    if( removeObservation )
+                    {
+                        indicesToRemove.push_back( j );
+                    }
+                }
                 break;
             }
             default:
@@ -1130,11 +1169,6 @@ std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeT
                 rawStartIndicesNewSets.push_back( ind );
             }
             rawStartIndicesNewSets.push_back( observationTimes.size( ) );
-            break;
-        }
-        case dependent_variables_splitter:
-        {
-            throw std::runtime_error( "Error when splitting observation set based on dependent variable, splitter type not yet implemented." );
             break;
         }
         default:
