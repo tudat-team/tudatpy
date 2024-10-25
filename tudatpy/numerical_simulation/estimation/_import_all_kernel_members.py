@@ -13,9 +13,19 @@
 #                 METHODS                 
 # ----------------------------------------
 from tudatpy.kernel.numerical_simulation.estimation import \
+     compute_and_set_residuals, \
      compute_target_angles_and_range, \
      compute_target_angles_and_range_vectors, \
+     create_best_fit_to_ephemeris, \
+     create_filtered_observation_collection, \
+     create_new_observation_collection, \
+     create_pseudo_observations_and_models, \
+     create_single_observation_set, \
      estimation_convergence_checker, \
+     filter_observations, \
+     observation_filter, \
+     observation_parser, \
+     observation_set_splitter, \
      propagate_covariance, \
      propagate_covariance_rsw_split_output, \
      propagate_covariance_split_output, \
@@ -24,7 +34,9 @@ from tudatpy.kernel.numerical_simulation.estimation import \
      propagate_formal_errors_split_output, \
      set_existing_observations, \
      simulate_observations, \
-     single_observation_set
+     single_observation_set, \
+     split_observation_collection, \
+     split_observation_set
 # ----------------------------------------
 #                 OBJECTS                 
 # ----------------------------------------
@@ -37,6 +49,12 @@ from tudatpy.kernel.numerical_simulation.estimation import \
      EstimationInput, \
      EstimationOutput, \
      ObservationCollection, \
+     ObservationCollectionParser, \
+     ObservationFilterBase, \
+     ObservationFilterType, \
+     ObservationParserType, \
+     ObservationSetSplitterBase, \
+     ObservationSetSplitterType, \
      ObservationSimulator, \
      ObservationSimulator_1, \
      ObservationSimulator_2, \
@@ -45,4 +63,21 @@ from tudatpy.kernel.numerical_simulation.estimation import \
      ObservationViabilityCalculator, \
      PodInput, \
      PodOutput, \
-     SingleObservationSet
+     SingleObservationSet, \
+     absolute_value_filtering, \
+     ancillary_settings_parser, \
+     dependent_variable_filtering, \
+     dependent_variables_splitter, \
+     empty_parser, \
+     epochs_filtering, \
+     link_end_str_parser, \
+     link_ends_parser, \
+     multi_type_parser, \
+     nb_observations_splitter, \
+     observable_type_parser, \
+     residual_filtering, \
+     time_bounds_filtering, \
+     time_bounds_parser, \
+     time_interval_splitter, \
+     time_span_splitter, \
+     time_tags_splitter

@@ -20,8 +20,10 @@ from tudatpy.kernel.astro.time_conversion import \
      TT_to_TAI, \
      TT_to_TCG, \
      TT_to_TDB_approximate, \
+     add_days_to_datetime, \
      add_seconds_to_datetime, \
      calculate_seconds_in_current_julian_day, \
+     calendar_date_to_days_since_epoch, \
      calendar_date_to_julian_day, \
      calendar_date_to_julian_day_since_epoch, \
      date_time_from_epoch, \
