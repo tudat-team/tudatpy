@@ -13,7 +13,7 @@
 #                 METHODS                 
 # ----------------------------------------
 from tudatpy.kernel.numerical_simulation.estimation import \
-     compute_and_set_residuals, \
+     compute_residuals_and_dependent_variables, \
      compute_target_angles_and_range, \
      compute_target_angles_and_range_vectors, \
      create_best_fit_to_ephemeris, \
@@ -67,15 +67,17 @@ from tudatpy.kernel.numerical_simulation.estimation import \
      absolute_value_filtering, \
      ancillary_settings_parser, \
      dependent_variable_filtering, \
-     dependent_variables_splitter, \
      empty_parser, \
      epochs_filtering, \
+     link_end_id_parser, \
      link_end_str_parser, \
+     link_end_type_parser, \
      link_ends_parser, \
      multi_type_parser, \
      nb_observations_splitter, \
      observable_type_parser, \
      residual_filtering, \
+     single_link_end_parser, \
      time_bounds_filtering, \
      time_bounds_parser, \
      time_interval_splitter, \
