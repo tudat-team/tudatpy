@@ -53,7 +53,6 @@ from tudatpy.kernel.numerical_simulation.environment import \
      KeplerEphemeris, \
      LongitudeLibrationCalculator, \
      MultiArcEphemeris, \
-     PiecewiseLinearFrequencyInterpolator, \
      PointingAnglesCalculator, \
      PolyhedronGravityField, \
      RotationalEphemeris, \

@@ -28,13 +28,17 @@ from tudatpy.kernel.numerical_simulation.estimation_setup.observation import \
      add_viability_check_to_all, \
      add_viability_check_to_observable, \
      add_viability_check_to_observable_for_link_ends, \
+     angle_wrt_orbital_plane_dependent_variable, \
      angular_position, \
      arc_wise_time_drift_bias, \
      arcwise_absolute_bias, \
      arcwise_relative_bias, \
-     azimuth_at_link_end_type, \
+     avoidance_angle_dependent_variable, \
+     azimuth_angle_dependent_variable, \
      body_avoidance_viability, \
      body_avoidance_viability_list, \
+     body_center_distance_dependent_variable, \
+     body_limb_distance_dependent_variable, \
      body_occultation_viability, \
      body_occultation_viability_list, \
      body_origin_link_end_id, \
@@ -59,12 +63,13 @@ from tudatpy.kernel.numerical_simulation.estimation_setup.observation import \
      dsn_n_way_doppler_averaged_from_one_way_links, \
      dsn_tabulated_ionospheric_light_time_correction, \
      dsn_tabulated_tropospheric_light_time_correction, \
+     elevation_angle_dependent_variable, \
      elevation_angle_viability, \
      elevation_angle_viability_list, \
-     elevation_at_link_end_type, \
      euler_angles_313, \
      first_order_relativistic_light_time_correction, \
      get_default_reference_link_end, \
+     integration_time_dependent_variable, \
      inverse_power_series_solar_corona_light_time_correction, \
      jakowski_ionospheric_light_time_correction, \
      light_time_convergence_settings, \
@@ -91,10 +96,12 @@ from tudatpy.kernel.numerical_simulation.estimation_setup.observation import \
      relative_angular_position, \
      relative_bias, \
      relative_cartesian_position, \
+     retransmission_delays_dependent_variable, \
      saastamoinen_tropospheric_light_time_correction, \
      set_odf_information_in_bodies, \
      tabulated_simulation_settings, \
      tabulated_simulation_settings_list, \
+     target_range_between_link_ends_dependent_variable, \
      time_drift_bias, \
      two_doppler_instantaneous, \
      two_way_doppler_ancilliary_settings, \

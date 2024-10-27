@@ -22,6 +22,7 @@ from tudatpy.kernel.interface.spice import \
      convert_date_string_to_ephemeris_time, \
      convert_ephemeris_time_to_julian_date, \
      convert_julian_date_to_ephemeris_time, \
+     convert_naif_id_to_body_name, \
      get_angular_velocity_vector_of_frame_in_original_frame, \
      get_average_radius, \
      get_body_cartesian_position_at_epoch, \
