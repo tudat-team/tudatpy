@@ -126,13 +126,13 @@ BOOST_AUTO_TEST_CASE( testSingleOdfFileReader )
             std::dynamic_pointer_cast< input_output::OdfSequentialRangeDataBlock >(
                     rawOdfContents->getDataBlocks( ).at( 23 )->getObservableSpecificDataBlock( ) );
     BOOST_CHECK_EQUAL ( rangeDataBlock->dataType_, 37 );
-    BOOST_CHECK_EQUAL ( rangeDataBlock->lowestRangingComponent_, 14 );
+    BOOST_CHECK_EQUAL ( rangeDataBlock->getLowestRangingComponent(), 14 );
     BOOST_CHECK_EQUAL ( rangeDataBlock->getSpacecraftId( ), 236 );
     //BOOST_CHECK_EQUAL ( rangeDataBlock->reservedBlock_, 1 );
     BOOST_CHECK_EQUAL ( int(rangeDataBlock->reservedBlock_), 1 );
     BOOST_CHECK_EQUAL ( static_cast< unsigned long long >( std::round( 1000.0 * rangeDataBlock->getReferenceFrequency( ) ) ), 7177004669452LL );
-    BOOST_CHECK_EQUAL ( rangeDataBlock->uplinkCoderInPhaseTimeOffset_, 774 );
-    BOOST_CHECK_EQUAL ( rangeDataBlock->compositeTwo_, 400000 );
+    BOOST_CHECK_EQUAL ( rangeDataBlock->getUplinkCoderInPhaseTimeOffset( ), 774 );
+    BOOST_CHECK_EQUAL ( rangeDataBlock->getCompositeTwo( ), 400000 );
     BOOST_CHECK_EQUAL ( rangeDataBlock->getTransmittingStationUplinkDelay( ), 0 );
 
     // Check number of data blocks
