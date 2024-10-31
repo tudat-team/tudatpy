@@ -343,6 +343,68 @@ Desired result:
 =========================================== 6 passed in 1.78s ============================================
 ````
 
+## C++ Code Formatting with Clang-Format
+`tudat-bundle` uses `clang-format` to enforce a consistent code style. The configuration file is located in the root of the repository as `.clang-format`.
+
+### Prerequisites
+
+Ensure `clang-format` is installed. You can check the installation by running:
+
+```bash
+clang-format --version
+```
+
+If it's not installed, install `clang-format` using a package manager:
+
+- **On Ubuntu/Debian**: `sudo apt install clang-format`
+- **On macOS**: `brew install clang-format`
+- **On Windows**: Download and install from [LLVM's official site](https://releases.llvm.org/).
+
+### Configuration File
+
+This `.clang-format` file configures formatting settings, including indentation width, brace wrapping, spacing rules, and alignment settings. These settings will ensure your code remains organized, readable, and consistent with `tudat` code style.
+
+### Usage
+
+#### 1. Running Clang-Format on a Single File
+
+To format a single file, run:
+
+```bash
+clang-format -i path/to/your/file.cpp
+```
+
+The `-i` flag formats the file in place.
+
+#### 2. Running Clang-Format on Multiple Files
+
+To format all `.cpp` and `.h` files in your project directory:
+
+```bash
+find path/to/your/project -name '*.cpp' -o -name '*.h' | xargs clang-format -i
+```
+
+Alternatively, if you're using an IDE like Visual Studio Code, you can configure it to automatically format on save.
+
+#### 3. Setting Up Automatic Formatting in VSCode
+
+If you’re using Visual Studio Code, you can automate code formatting:
+
+1. Install the **Clang-Format** extension from the marketplace.
+2. Open your project’s **Settings** (File > Preferences > Settings).
+3. Search for `Clang-Format` and set the path to your `.clang-format` file.
+4. Enable **Format on Save** by setting `"editor.formatOnSave": true` in your `settings.json`.
+
+#### 4. Checking Format Without Applying
+
+To preview formatting changes without modifying files, run:
+
+```bash
+clang-format -output-replacements-xml path/to/your/file.cpp
+```
+
+This will show XML output if there are any format issues. You can then decide to apply formatting manually.
+
 <!-- ## Use your build
 The path of the TudatPy kernel that has been manually compiled needs to be added before importing any `tudatpy.kernel` module.
 This can be done with the following two lines, with `<kernel_path>` being similar to `<tudat-bundle_path>/build/tudatpy`:
