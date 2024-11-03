@@ -173,6 +173,13 @@ inline std::shared_ptr< ObservationFilterBase > observationFilter(
 }
 
 inline std::shared_ptr< ObservationFilterBase > observationFilter(
+        const ObservationFilterType filterType, const double firstFilterValue, const double secondFilterValue, const bool filterOut = true, const bool useOppositeCondition = false )
+{
+    std::pair< double, double > filterValue = std::make_pair( firstFilterValue, secondFilterValue );
+    return std::make_shared< ObservationFilter< std::pair< double, double > > >( filterType, filterValue, filterOut, useOppositeCondition );
+}
+
+inline std::shared_ptr< ObservationFilterBase > observationFilter(
         const ObservationFilterType filterType, const Eigen::VectorXd& filterValue, const bool filterOut = true, const bool useOppositeCondition = false )
 {
     return std::make_shared< ObservationFilter< Eigen::VectorXd > >( filterType, filterValue, filterOut, useOppositeCondition );
