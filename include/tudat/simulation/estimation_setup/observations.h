@@ -516,6 +516,36 @@ public:
         return residuals_.at( index );
     }
 
+    Eigen::VectorXd getRmsResiduals( )
+    {
+        Eigen::VectorXd rmsResiduals = Eigen::VectorXd::Zero( singleObservationSize_ );
+        for ( unsigned int i = 0 ; i < singleObservationSize_ ; i++ )
+        {
+            // Calculate RMS of the residuals for each observation component
+            for( int j = 0; j < numberOfObservations_ ; j++ )
+            {
+                rmsResiduals[ i ] += residuals_[ j ]( i, 0 ) * residuals_[ j ]( i, 0 );
+            }
+            rmsResiduals[ i ] = std::sqrt( rmsResiduals[ i ] / numberOfObservations_ );
+        }
+
+        return rmsResiduals;
+    }
+
+    Eigen::VectorXd getMeanResiduals( )
+    {
+        Eigen::VectorXd meanResiduals = Eigen::VectorXd::Zero( singleObservationSize_ );
+        for ( unsigned int i = 0 ; i < singleObservationSize_ ; i++ )
+        {
+            // Calculate mean residual for each observation component
+            for ( unsigned int j = 0 ; j < numberOfObservations_ ; j++ )
+            {
+                meanResiduals[ i ] += residuals_[ j ]( i, 0 );
+            }
+            meanResiduals[ i ] /= numberOfObservations_;
+        }
+        return meanResiduals;
+    }
 
     void setConstantWeight( const double weight )
     {
@@ -883,6 +913,10 @@ public:
     void addDependentVariables( const std::vector< std::shared_ptr< simulation_setup::ObservationDependentVariableSettings > > dependentVariableSettings,
                                 const simulation_setup::SystemOfBodies& bodies )
     {
+        if ( dependentVariableCalculator_ == nullptr )
+        {
+            dependentVariableCalculator_ = std::make_shared< ObservationDependentVariableCalculator >( observableType_, linkEnds_.linkEnds_ );
+        }
         dependentVariableCalculator_->addDependentVariables( dependentVariableSettings, bodies );
     }
 
@@ -1056,7 +1090,7 @@ private:
 
     std::vector< Eigen::VectorXd > observationsDependentVariables_;
 
-    const std::shared_ptr< simulation_setup::ObservationDependentVariableCalculator > dependentVariableCalculator_;
+    std::shared_ptr< simulation_setup::ObservationDependentVariableCalculator > dependentVariableCalculator_;
 
     const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings_;
 
@@ -1428,9 +1462,49 @@ public:
                                 *std::max_element( concatenatedTimes_.begin( ), concatenatedTimes_.end( ) ) );
     }
 
+    std::vector< std::pair< TimeType, TimeType > > getTimeBoundsPerSet(
+            std::shared_ptr< ObservationCollectionParser > observationParser = std::make_shared< ObservationCollectionParser >( ) ) const
+    {
+        std::vector< std::pair< TimeType, TimeType > > timeBounds;
+        for ( auto observableIt : getSingleObservationSetsIndices( observationParser ) )
+        {
+            for ( auto linkEndsIt : observableIt.second )
+            {
+                for ( auto index : linkEndsIt.second )
+                {
+                    timeBounds.push_back( observationSetList_.at( observableIt.first ).at( linkEndsIt.first ).at( index )->getTimeBounds( ) );
+                }
+            }
+        }
+        return timeBounds;
+    }
+
     std::vector< int > getConcatenatedLinkEndIds( )
     {
         return concatenatedLinkEndIds_;
+    }
+
+    std::vector< int > getConcatenatedLinkEndIds( std::shared_ptr< ObservationCollectionParser > observationParser )
+    {
+        std::vector< int > subsetConcatenatedLinkEndIds;
+        std::map< ObservableType, std::map< LinkEnds, std::vector< unsigned int > > > observationSetsIndices = getSingleObservationSetsIndices( observationParser );
+
+        for ( auto obsIt : observationSetsIndices )
+        {
+            for ( auto linkEndsIt : obsIt.second )
+            {
+                std::vector< unsigned int > listRelevantSetIndices = linkEndsIt.second;
+                for ( auto index : listRelevantSetIndices )
+                {
+                    std::pair< int, int > singleSetStartAndSize = observationSetStartAndSize_.at( obsIt.first ).at( linkEndsIt.first ).at( index );
+                    for ( unsigned int k = singleSetStartAndSize.first ; k < ( singleSetStartAndSize.first + singleSetStartAndSize.second ) ; k++ )
+                    {
+                        subsetConcatenatedLinkEndIds.push_back( concatenatedLinkEndIds_[ k ] );
+                    }
+                }
+            }
+        }
+        return subsetConcatenatedLinkEndIds;
     }
 
     std::map< observation_models::LinkEnds, int > getLinkEndIdentifierMap( )
@@ -1736,6 +1810,12 @@ public:
         return concatenatedObservationsTimes;
     }
 
+    std::vector< double > getConcatenatedDoubleObservationTimes(
+            std::shared_ptr< ObservationCollectionParser > observationParser = std::make_shared< ObservationCollectionParser >( ) )
+    {
+        return utilities::staticCastVector< double, TimeType >( getConcatenatedObservationTimes( observationParser ) );
+    }
+
     std::pair< std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >, std::vector< std::vector< TimeType > > > getObservationsAndTimes(
             std::shared_ptr< ObservationCollectionParser > observationParser = std::make_shared< ObservationCollectionParser >( ) )
     {
@@ -1833,6 +1913,44 @@ public:
         }
 
         return concatenatedResiduals;
+    }
+
+    std::vector< Eigen::VectorXd > getRmsResiduals(
+            std::shared_ptr< ObservationCollectionParser > observationParser = std::make_shared< ObservationCollectionParser >( ) ) const
+    {
+        std::vector< Eigen::VectorXd > rmsResiduals;
+
+        std::map< ObservableType, std::map< LinkEnds, std::vector< unsigned int > > > observationSetsIndices = getSingleObservationSetsIndices( observationParser );
+        for ( auto observableIt : observationSetsIndices )
+        {
+            for ( auto linkEndsIt : observableIt.second )
+            {
+                for ( auto index : linkEndsIt.second )
+                {
+                    rmsResiduals.push_back( observationSetList_.at( observableIt.first ).at( linkEndsIt.first ).at( index )->getRmsResiduals( ) );
+                }
+            }
+        }
+        return rmsResiduals;
+    }
+
+    std::vector< Eigen::VectorXd > getMeanResiduals(
+            std::shared_ptr< ObservationCollectionParser > observationParser = std::make_shared< ObservationCollectionParser >( ) ) const
+    {
+        std::vector< Eigen::VectorXd > meanResiduals;
+
+        std::map< ObservableType, std::map< LinkEnds, std::vector< unsigned int > > > observationSetsIndices = getSingleObservationSetsIndices( observationParser );
+        for ( auto observableIt : observationSetsIndices )
+        {
+            for ( auto linkEndsIt : observableIt.second )
+            {
+                for ( auto index : linkEndsIt.second )
+                {
+                    meanResiduals.push_back( observationSetList_.at( observableIt.first ).at( linkEndsIt.first ).at( index )->getMeanResiduals( ) );
+                }
+            }
+        }
+        return meanResiduals;
     }
 
     std::vector< Eigen::VectorXd > getComputedObservations(
@@ -2213,7 +2331,7 @@ public:
                 unsigned int counterRemovedSets = 0;
                 for ( auto indexToRemove : linkEndsIt.second )
                 {
-                    if ( indexToRemove > observationSetList_.at( observableIt.first ).at( linkEndsIt.first ).size( ) - 1 )
+                    if ( indexToRemove - counterRemovedSets > observationSetList_.at( observableIt.first ).at( linkEndsIt.first ).size( ) - 1 )
                     {
                         throw std::runtime_error( "Error when removing single observation sets, set index exceeds number of observation sets"
                                                   " for given observation type and link ends." );

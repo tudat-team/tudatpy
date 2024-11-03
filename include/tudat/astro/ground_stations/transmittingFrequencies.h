@@ -250,13 +250,22 @@ public:
                     static_cast< double >( lookupTime ) ) + ", caught exception: " + exceptionText );
         }
 
-        if( lookupTime > endTimes_.at( lowerNearestNeighbour ) || lookupTime < startTimes_.at ( lowerNearestNeighbour ) )
+
+//        if( lookupTime > endTimes_.at( lowerNearestNeighbour ) || lookupTime < startTimes_.at ( lowerNearestNeighbour ) )
+//        {
+//            throw std::runtime_error(
+//                    "Error when interpolating ramp reference frequency: look up time (" + std::to_string(
+//                            static_cast< double >( lookupTime ) ) +
+//                    ") is outside the ramp table interval (" + std::to_string( double( startTimes_.at( 0 ) ) ) + " to " +
+//                    std::to_string( double( startTimes_.back( ) ) ) + ")." );
+//        }
+        if ( lookupTime > endTimes_.at( lowerNearestNeighbour ) )
         {
-            throw std::runtime_error(
-                    "Error when interpolating ramp reference frequency: look up time (" + std::to_string(
-                            static_cast< double >( lookupTime ) ) +
-                    ") is outside the ramp table interval (" + std::to_string( double( startTimes_.at( 0 ) ) ) + " to " +
-                    std::to_string( double( startTimes_.back( ) ) ) + ")." );
+            lowerNearestNeighbour = endTimes_.size( ) - 1;
+        }
+        if ( lookupTime < startTimes_.at ( lowerNearestNeighbour ) )
+        {
+            lowerNearestNeighbour = 0;
         }
         else if ( invalidStartTimeLookupScheme_ != nullptr )
         {
