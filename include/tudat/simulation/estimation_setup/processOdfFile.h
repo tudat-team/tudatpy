@@ -798,7 +798,7 @@ class ProcessedOdfFileContents
                                             linkEnds.at( transmitter ).stationName_ );
                             break;
                         }
-                        case observation_models::n_way_range: {
+                        case observation_models::dsn_n_way_range: {
                             processedDataBlocks_[ currentObservableType ][ linkEnds ] =
                                     std::make_shared<
                                             ProcessedOdfFileSequentialRangeData< TimeType > >(
@@ -884,7 +884,7 @@ class ProcessedOdfFileContents
                         odfDopplerDataBlock->getTransmittingStationUplinkDelay( ) );
             }
             else if( singleLinkProcessedData->getObservableType( ) ==
-                     observation_models::n_way_range )
+                     observation_models::dsn_n_way_range )
             {
                 std::shared_ptr< input_output::OdfSequentialRangeDataBlock >
                         odfSequentialRangeDataBlock = std::dynamic_pointer_cast<

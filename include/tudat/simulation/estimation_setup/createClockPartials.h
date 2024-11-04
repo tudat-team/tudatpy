@@ -195,6 +195,7 @@ public:
                 }
                 break;
             }
+            case observation_models::dsn_n_way_range:
             case observation_models::n_way_range:
             {
                 std::map< int, std::shared_ptr< TimingPartial > > timingPartialList = createTimingPartialWrtClockProperty(

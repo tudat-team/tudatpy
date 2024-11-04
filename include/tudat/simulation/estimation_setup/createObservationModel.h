@@ -34,6 +34,7 @@
 #include "tudat/astro/observation_models/velocityObservationModel.h"
 #include "tudat/astro/observation_models/observationSimulator.h"
 #include "tudat/astro/observation_models/dsnNWayAveragedDopplerObservationModel.h"
+#include "tudat/astro/observation_models/dsnNWayRangeObservationModel.h"
 #include "tudat/astro/observation_models/dopplerMeasuredFrequencyObservationModel.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/estimation_setup/createLightTimeCalculator.h"
@@ -1610,7 +1611,7 @@ std::shared_ptr< ObservationBias< ObservationSize > > createObservationBiasCalcu
     }
     case clock_induced_bias:
     {
-        if( observableType != one_way_range && observableType != n_way_range )
+        if( observableType != one_way_range && observableType != n_way_range  && observableType != dsn_n_way_range )
         {
             throw std::runtime_error( "Error, clock-induced observation bias currently only supported for one- and n-way range" );
         }
@@ -2190,6 +2191,69 @@ public:
                         bodies.getBody( linkEnds.at( observation_models::transmitter ).bodyName_ )->getGroundStation(
                                 linkEnds.at( observation_models::transmitter ).stationName_ )->getTransmittingFrequencyCalculator( ),
                         turnaroundRatioFunction, observationBias, stationStates, dsnNWayAveragedDopplerObservationSettings->getSubtractDopplerSignature( ) );
+            break;
+        }
+        case dsn_n_way_range:
+        {
+            std::shared_ptr< observation_models::MultiLegLightTimeCalculator< ObservationScalarType, TimeType > > multiLegLightTimeCalculator;
+            try
+            {
+                std::vector< std::shared_ptr< LightTimeConvergenceCriteria > > singleLegsLightTimeConvergenceCriteriaList;
+                std::shared_ptr< LightTimeConvergenceCriteria > multiLegLightTimeConvergenceCriteria;
+                std::vector< std::vector< std::shared_ptr< LightTimeCorrectionSettings > > > lightTimeCorrectionsList;
+
+                multiLegLightTimeConvergenceCriteria = observationSettings->lightTimeConvergenceCriteria_;
+                for( unsigned int i = 0; i < linkEnds.size( ) - 1; i++ )
+                {
+                    lightTimeCorrectionsList.push_back(
+                        observationSettings->lightTimeCorrectionsList_ );
+                    singleLegsLightTimeConvergenceCriteriaList.push_back(
+                        observationSettings->lightTimeConvergenceCriteria_ );
+                }
+
+                // Create multi-leg light time calculator
+                multiLegLightTimeCalculator = createMultiLegLightTimeCalculator< ObservationScalarType, TimeType >(
+                    linkEnds, bodies, topLevelObservableType, lightTimeCorrectionsList,
+                    singleLegsLightTimeConvergenceCriteriaList,
+                    multiLegLightTimeConvergenceCriteria );
+
+            }
+            catch( const std::exception& caughtException )
+            {
+                std::string exceptionText = std::string( caughtException.what( ) );
+                throw std::runtime_error( "Error when creating DSN N-way averaged Doppler observation model, error: " +
+                                          exceptionText );
+            }
+
+            std::shared_ptr< ObservationBias< 1 > > observationBias;
+            if( observationSettings->biasSettings_ != nullptr )
+            {
+                observationBias = createObservationBiasCalculator(
+                    linkEnds, observationSettings->observableType_, observationSettings->biasSettings_, bodies );
+            }
+
+            std::shared_ptr< ground_stations::StationFrequencyInterpolator > transmittingFrequencyInterpolator =
+                getTransmittingFrequencyInterpolator( bodies, linkEnds );
+
+
+            std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > > stationStates;
+            for( auto it : linkEnds )
+            {
+                if( bodies.at( linkEnds.at( it.first ).bodyName_ )->getGroundStationMap( ).count( linkEnds.at( it.first ).stationName_ ) > 0 )
+                {
+                    stationStates[ it.first ] =
+                        bodies.at( linkEnds.at( it.first ).bodyName_ )->getGroundStation( linkEnds.at( it.first ).stationName_ )->getNominalStationState( );
+                }
+            }
+
+            std::shared_ptr< ground_stations::GroundStationState > receivingStationState =
+                bodies.at( linkEnds.at( receiver ).bodyName_ )->getGroundStation( linkEnds.at( receiver ).stationName_ )->getNominalStationState( );
+            observationModel = std::make_shared<
+                DsnNWayRangeObservationModel< ObservationScalarType, TimeType > >(
+                linkEnds, multiLegLightTimeCalculator,
+                bodies.getBody( linkEnds.at( observation_models::transmitter ).bodyName_ )->getGroundStation(
+                    linkEnds.at( observation_models::transmitter ).stationName_ )->getTransmittingFrequencyCalculator( ),
+                observationBias, stationStates );
             break;
         }
         case doppler_measured_frequency:
@@ -2814,6 +2878,19 @@ std::vector< std::vector< std::shared_ptr< observation_models::LightTimeCorrecti
                 ( observationModel );
         std::vector< std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > > lightTimeCalculatorList =
                 nWayRangeObservationModel->getLightTimeCalculators( );
+        for( unsigned int i = 0; i < lightTimeCalculatorList.size( ); i++ )
+        {
+            currentLightTimeCorrections.push_back( lightTimeCalculatorList.at( i )->getLightTimeCorrection( ) );
+        }
+        break;
+    }
+    case observation_models::dsn_n_way_range:
+    {
+        std::shared_ptr< observation_models::DsnNWayRangeObservationModel< ObservationScalarType, TimeType > > nWayRangeObservationModel =
+            std::dynamic_pointer_cast< observation_models::DsnNWayRangeObservationModel< ObservationScalarType, TimeType > >
+                ( observationModel );
+        std::vector< std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > > lightTimeCalculatorList =
+            nWayRangeObservationModel->getLightTimeCalculator( )->getLightTimeCalculators( );
         for( unsigned int i = 0; i < lightTimeCalculatorList.size( ); i++ )
         {
             currentLightTimeCorrections.push_back( lightTimeCalculatorList.at( i )->getLightTimeCorrection( ) );
