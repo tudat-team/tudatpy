@@ -37,7 +37,7 @@ observation_models::ObservableType getObservableTypeForOdfId( const int odfId )
             observableType = observation_models::dsn_n_way_averaged_doppler;
             break;
         case 37:
-            observableType = observation_models::n_way_range;
+            observableType = observation_models::dsn_n_way_range;
             break;
         default:
             throw std::runtime_error( "Error when getting observable type for ODF ID, ID: " +
