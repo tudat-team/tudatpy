@@ -132,7 +132,7 @@ BOOST_AUTO_TEST_CASE( testSingleOdfFileReader )
     BOOST_CHECK_EQUAL ( int(rangeDataBlock->reservedBlock_), 1 );
     BOOST_CHECK_EQUAL ( static_cast< unsigned long long >( std::round( 1000.0 * rangeDataBlock->getReferenceFrequency( ) ) ), 7177004669452LL );
     BOOST_CHECK_EQUAL ( rangeDataBlock->getUplinkCoderInPhaseTimeOffset( ), 774 );
-    BOOST_CHECK_EQUAL ( rangeDataBlock->getCompositeTwo( ), 400000 );
+    BOOST_CHECK_EQUAL ( rangeDataBlock->getCompositeTwo( ), 4 );
     BOOST_CHECK_EQUAL ( rangeDataBlock->getTransmittingStationUplinkDelay( ), 0 );
 
     // Check number of data blocks
