@@ -43,6 +43,8 @@ enum ObservableType
     dsn_one_way_averaged_doppler = 12,
     dsn_n_way_averaged_doppler = 13,
     doppler_measured_frequency = 14,
+    dsn_n_way_range = 15
+
 };
 
 
