@@ -21,13 +21,14 @@ astrodynamics.
    :caption: Modules
 
    astro
+   data
    interface
    math
    numerical_simulation
    trajectory_design
    plotting
    util
-   io
+
 
 
 
