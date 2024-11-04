@@ -314,15 +314,61 @@ void expose_environment(py::module &m) {
                   py::arg("control_surface_id"),
                   get_docstring("VehicleSystems.get_control_surface_deflection").c_str() )
             .def("set_reference_point",
-                 &tsm::VehicleSystems::setReferencePointPosition,
+                 py::overload_cast< const std::string, const Eigen::Vector3d&, const std::string, const std::string >( &tsm::VehicleSystems::setReferencePointPosition ),
                  py::arg("reference_point"),
                  py::arg("location"),
-                 get_docstring("VehicleSystems.get_control_surface_deflection").c_str() )
+                 py::arg("frame_origin") = "",
+                 py::arg("frame_orientation") = "",
+                 get_docstring("VehicleSystems.set_reference_point").c_str() )
+            .def("set_reference_point",
+                 py::overload_cast< const std::string, std::shared_ptr< te::Ephemeris > >( &tsm::VehicleSystems::setReferencePointPosition ),
+                 py::arg("reference_point"),
+                 py::arg("ephemeris"),
+                 get_docstring("VehicleSystems.set_reference_point").c_str() )
 
             .def("get_engine_model",
                  &tsm::VehicleSystems::getEngineModel,
                  py::arg("engine_name"),
-                 get_docstring("VehicleSystems.get_engine_model").c_str() );
+                 get_docstring("VehicleSystems.get_engine_model").c_str() )
+            .def("set_timing_system",
+                 &tsm::VehicleSystems::setTimingSystem,
+                 py::arg("timing_system"));
+
+    py::class_<tsm::TimingSystem,
+        std::shared_ptr<tsm::TimingSystem>>
+        (m, "TimingSystem",
+         get_docstring("TimingSystem").c_str())
+
+        .def( // ctor 1
+            py::init<
+                const std::vector<tudat::Time>,
+                const std::vector<double>,
+                const std::function<std::function<double(const double)>(const double, const double,
+                                                                        const double)>,
+                const double>(),
+            py::arg("arc_times"),
+            py::arg("all_arcs_polynomial_drift_coefficients") = std::vector<double>(),
+            py::arg("clock_noise_generation_function") = nullptr,
+            py::arg("clock_noise_time_step") = 1.0E-3)
+        .def( // ctor 2
+            py::init<
+                const std::vector<tudat::Time>,
+                const std::vector<std::vector<double> >,
+                const std::function<std::function<double(const double)>(const double, const double,
+                                                                        const double)>,
+                const double>(),
+            py::arg("arc_times"),
+            py::arg("polynomial_drift_coefficients"),
+            py::arg("clock_noise_generation_function") = nullptr,
+            py::arg("clock_noise_time_step") = 1.0E-3)
+        .def( // ctor 3
+            py::init<
+                const std::vector<std::vector<double> >,
+                const std::vector<std::function<double(const double)>>,
+                const std::vector<tudat::Time> >(),
+            py::arg("polynomial_drift_coefficients"),
+            py::arg("stochastic_clock_noise_functions"),
+            py::arg("arc_times"));
 
         py::class_<tsm::EngineModel,
             std::shared_ptr<tsm::EngineModel>>(m, "EngineModel" )
@@ -704,7 +750,8 @@ void expose_environment(py::module &m) {
             .def_property_readonly("pressure_function", &tgs::GroundStation::getPressureFunction)
             .def_property_readonly("relative_humidity_function", &tgs::GroundStation::getRelativeHumidityFunction)
             .def_property_readonly("pointing_angles_calculator", &tgs::GroundStation::getPointingAnglesCalculator )
-            .def_property_readonly("station_state", &tgs::GroundStation::getNominalStationState );
+            .def_property_readonly("station_state", &tgs::GroundStation::getNominalStationState )
+            .def("set_timing_system", &tgs::GroundStation::setTimingSystem, py::arg("timing_system"));
 
 
     py::class_<tgs::StationFrequencyInterpolator,
@@ -715,20 +762,6 @@ void expose_environment(py::module &m) {
             tgs::StationFrequencyInterpolator>(m, "ConstantFrequencyInterpolator")
             .def(py::init< double >(),
                 py::arg("frequency"));
-
-
-    py::class_<tgs::PiecewiseLinearFrequencyInterpolator,
-            std::shared_ptr<tgs::PiecewiseLinearFrequencyInterpolator>,
-            tgs::StationFrequencyInterpolator>(m, "PiecewiseLinearFrequencyInterpolator")
-            .def(py::init< 
-                    const std::vector< tudat::Time >& ,
-                    const std::vector< tudat::Time >& ,
-                    const std::vector< double >&,
-                    const std::vector< double >& >(),
-                 py::arg("start_times"),
-                 py::arg("end_times"),
-                 py::arg("ramp_rates"),
-                 py::arg("start_frequencies") );
 
 
     py::class_<tgs::PointingAnglesCalculator,
@@ -770,7 +803,7 @@ void expose_environment(py::module &m) {
                           py::overload_cast<const Eigen::Matrix3d &>(
                               &tss::Body::setBodyInertiaTensor), get_docstring("Body.inertia_tensor").c_str())
             .def("state_in_base_frame_from_ephemeris",
-                 &tss::Body::getStateInBaseFrameFromEphemeris<double, double>, py::arg("time"))
+                 &tss::Body::getStateInBaseFrameFromEphemeris<STATE_SCALAR_TYPE, TIME_TYPE>, py::arg("time"))
             .def_property("ephemeris", &tss::Body::getEphemeris, &tss::Body::setEphemeris, get_docstring("Body.ephemeris").c_str())
             .def_property("atmosphere_model", &tss::Body::getAtmosphereModel, &tss::Body::setAtmosphereModel, get_docstring("Body.atmosphere_model").c_str())
             .def_property("shape_model", &tss::Body::getShapeModel, &tss::Body::setShapeModel, get_docstring("Body.shape_model").c_str())
@@ -786,8 +819,6 @@ void expose_environment(py::module &m) {
             .def_property_readonly("ground_station_list", &tss::Body::getGroundStationMap, get_docstring("Body.ground_station_list").c_str() );
 
 
-
-
     py::class_<tss::SystemOfBodies,
             std::shared_ptr<tss::SystemOfBodies> >(m, "SystemOfBodies", get_docstring("SystemOfBodies").c_str())
             .def("get", &tss::SystemOfBodies::getBody,
@@ -796,7 +827,7 @@ void expose_environment(py::module &m) {
             .def("get_body", &tss::SystemOfBodies::getBody,
                  py::arg("body_name"),
                  get_docstring("SystemOfBodies.get_body").c_str())
-            .def("create_empty_body", &tss::SystemOfBodies::createEmptyBody< double, TIME_TYPE >,
+            .def("create_empty_body", &tss::SystemOfBodies::createEmptyBody< STATE_SCALAR_TYPE, TIME_TYPE >,
                  py::arg("body_name"),
                  py::arg("process_body") = 1,
                  get_docstring("SystemOfBodies.create_empty_body").c_str())
@@ -807,7 +838,7 @@ void expose_environment(py::module &m) {
                  get_docstring("SystemOfBodies.list_of_bodies").c_str())
 //            .def("get_body_dict", &tss::SystemOfBodies::getMap,
 //                 get_docstring("SystemOfBodies.get_body_dict").c_str())
-            .def("add_body", &tss::SystemOfBodies::addBody< double, TIME_TYPE >,
+            .def("add_body", &tss::SystemOfBodies::addBody< STATE_SCALAR_TYPE, TIME_TYPE >,
                  py::arg("body_to_add"),
                  py::arg("body_name"),
                  py::arg("process_body") = 1,

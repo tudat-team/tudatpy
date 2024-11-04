@@ -1,17 +1,17 @@
 # This file, by virtue of the import statement below, merges
-# the Tudat kernel module `tudatpy.kernel.numerical_simulation.environment_setup.ephemeris` with
-# its Python extensions defined in `tudatpy/numerical_simulation/environment_setup/ephemeris`.
+# the Tudat kernel module `tudatpy.kernel.math.root_finders` with
+# its Python extensions defined in `tudatpy/math/root_finders`.
 # 
 # This allows the import of all the C++ and Python submodules of the 
-# `numerical_simulation.environment_setup.ephemeris` kernel module directly from tudatpy:
+# `math.root_finders` kernel module directly from tudatpy:
 # 
-#     from tudatpy.numerical_simulation.environment_setup.ephemeris import <any>
+#     from tudatpy.math.root_finders import <any>
 # 
-# Without the statement below, importing the `numerical_simulation.environment_setup.ephemeris` kernel module
+# Without the statement below, importing the `math.root_finders` kernel module
 # would only be possible as follows, and hybrid Python/C++ modules would not
 # be posible in tudatpy.
 # 
-#     from tudatpy.kernel.numerical_simulation.environment_setup.ephemeris import <any>
+#     from tudatpy.kernel.math.root_finders import <any>
 # 
 # The reason why C++ kernel modules can only be imported as written above 
 # is an issue with the `def_submodule` function of pybind11. The issue is discussed
@@ -33,7 +33,5 @@
 # An added benefit of this method is that it makes it possible to write Python extensions 
 # and add them to the kernel modules simply by placing them inside this module!
 
-from tudatpy.kernel.numerical_simulation.environment_setup.ephemeris import *
-from tudatpy.numerical_simulation.environment_setup.ephemeris._import_all_kernel_members import *
-
-from tudatpy.numerical_simulation.environment_setup.ephemeris.horizons_wrapper import jpl_horizons
+from tudatpy.kernel.math.statistics import *
+from tudatpy.math.statistics._import_all_kernel_members import *

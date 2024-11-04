@@ -62,7 +62,7 @@ void expose_numerical_simulation(py::module &m) {
     estimation_setup::expose_estimation_setup(estimation_setup_submodule);
 
     m.def("get_integrated_type_and_body_list",
-          &tp::getIntegratedTypeAndBodyList<double,TIME_TYPE>,
+          &tp::getIntegratedTypeAndBodyList<STATE_SCALAR_TYPE,TIME_TYPE>,
           py::arg("propagator_settings") );
 
     m.def("get_single_integration_size",
@@ -70,7 +70,7 @@ void expose_numerical_simulation(py::module &m) {
           py::arg("state_type") );
 
     m.def("create_dynamics_simulator",
-          &tss::createDynamicsSimulator<double,TIME_TYPE>,
+          &tss::createDynamicsSimulator<STATE_SCALAR_TYPE,TIME_TYPE>,
           py::arg("bodies"),
           py::arg("propagator_settings"),
           py::arg("simulate_dynamics_on_creation") = true,
@@ -84,9 +84,9 @@ void expose_numerical_simulation(py::module &m) {
                  const long double>(),
                  py::arg("full_periods"),
                  py::arg("seconds_into_full_period") )
-            .def("to_float",
-                 &tudat::Time::getSeconds< double >,
-                 get_docstring("Time.to_float").c_str() )
+            .def(py::init<
+                 const double>(),
+                 py::arg("seconds_into_full_period") )
             .def(py::self + py::self)
             .def(py::self + double())
             .def(double() + py::self)
@@ -124,7 +124,7 @@ void expose_numerical_simulation(py::module &m) {
 
 
     m.def("create_variational_equations_solver",
-          &tss::createVariationalEquationsSolver<double,TIME_TYPE>,
+          &tss::createVariationalEquationsSolver<STATE_SCALAR_TYPE,TIME_TYPE>,
           py::arg("bodies"),
           py::arg("propagator_settings"),
           py::arg("parameters_to_estimate"),
@@ -134,19 +134,19 @@ void expose_numerical_simulation(py::module &m) {
 
 
     py::class_<
-        tp::DynamicsSimulator<double, TIME_TYPE>,
-        std::shared_ptr<tp::DynamicsSimulator<double, TIME_TYPE>>>(
+        tp::DynamicsSimulator<STATE_SCALAR_TYPE, TIME_TYPE>,
+        std::shared_ptr<tp::DynamicsSimulator<STATE_SCALAR_TYPE, TIME_TYPE>>>(
         m,"DynamicsSimulator", get_docstring("DynamicsSimulator").c_str());
 
     py::class_<
-            tp::SingleArcDynamicsSimulator<double, TIME_TYPE>,
-            std::shared_ptr<tp::SingleArcDynamicsSimulator<double, TIME_TYPE>>,
-            tp::DynamicsSimulator< double, TIME_TYPE> >(
+            tp::SingleArcDynamicsSimulator<STATE_SCALAR_TYPE, TIME_TYPE>,
+            std::shared_ptr<tp::SingleArcDynamicsSimulator<STATE_SCALAR_TYPE, TIME_TYPE>>,
+            tp::DynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE> >(
                 m,"SingleArcSimulator", get_docstring("SingleArcSimulator").c_str())
             .def(py::init<
                  const tudat::simulation_setup::SystemOfBodies &,
                  const std::shared_ptr<tudat::numerical_integrators::IntegratorSettings<TIME_TYPE>>,
-                 const std::shared_ptr<tp::PropagatorSettings<double>>,
+                 const std::shared_ptr<tp::PropagatorSettings<STATE_SCALAR_TYPE>>,
                  const bool,
                  const bool,
                  const bool,
@@ -163,63 +163,63 @@ void expose_numerical_simulation(py::module &m) {
                  py::arg("print_dependent_variable_data") = true,
                  py::arg("print_state_data") = true)
             .def_property_readonly("bodies",
-                                   &tp::SingleArcDynamicsSimulator<double, TIME_TYPE>::getSystemOfBodies)
+                                   &tp::SingleArcDynamicsSimulator<STATE_SCALAR_TYPE, TIME_TYPE>::getSystemOfBodies)
             .def_property_readonly("state_history",
-                                   &tp::SingleArcDynamicsSimulator<double, TIME_TYPE>::getEquationsOfMotionNumericalSolution)
+                                   &tp::SingleArcDynamicsSimulator<STATE_SCALAR_TYPE, TIME_TYPE>::getEquationsOfMotionNumericalSolution)
             .def_property_readonly("unprocessed_state_history",
-                                   &tp::SingleArcDynamicsSimulator<double, TIME_TYPE>::getEquationsOfMotionNumericalSolutionRaw)
+                                   &tp::SingleArcDynamicsSimulator<STATE_SCALAR_TYPE, TIME_TYPE>::getEquationsOfMotionNumericalSolutionRaw)
             .def_property_readonly("dependent_variable_history",
-                                   &tp::SingleArcDynamicsSimulator<double, TIME_TYPE>::getDependentVariableHistory)
+                                   &tp::SingleArcDynamicsSimulator<STATE_SCALAR_TYPE, TIME_TYPE>::getDependentVariableHistory)
             .def_property_readonly("cumulative_computation_time_history",
-                                   &tp::SingleArcDynamicsSimulator<double, TIME_TYPE>::getCumulativeComputationTimeHistory)
+                                   &tp::SingleArcDynamicsSimulator<STATE_SCALAR_TYPE, TIME_TYPE>::getCumulativeComputationTimeHistory)
             .def_property_readonly("cumulative_number_of_function_evaluations",
-                                   &tp::SingleArcDynamicsSimulator<double, TIME_TYPE>::getCumulativeNumberOfFunctionEvaluations)
+                                   &tp::SingleArcDynamicsSimulator<STATE_SCALAR_TYPE, TIME_TYPE>::getCumulativeNumberOfFunctionEvaluations)
             .def_property_readonly("integrator_settings",
-                                   &tp::SingleArcDynamicsSimulator<double, TIME_TYPE>::getIntegratorSettings,
+                                   &tp::SingleArcDynamicsSimulator<STATE_SCALAR_TYPE, TIME_TYPE>::getIntegratorSettings,
                                    get_docstring("SingleArcSimulator.integrator_settings").c_str())
             .def_property_readonly("state_derivative_function",
-                                   &tp::SingleArcDynamicsSimulator<double, TIME_TYPE>::getStateDerivativeFunction,
+                                   &tp::SingleArcDynamicsSimulator<STATE_SCALAR_TYPE, TIME_TYPE>::getStateDerivativeFunction,
                                    get_docstring("SingleArcSimulator.state_derivative_function").c_str())
             .def_property_readonly("environment_updater",
-                                   &tp::SingleArcDynamicsSimulator<double, TIME_TYPE>::getEnvironmentUpdater,
+                                   &tp::SingleArcDynamicsSimulator<STATE_SCALAR_TYPE, TIME_TYPE>::getEnvironmentUpdater,
                                    get_docstring("SingleArcSimulator.environment_updater").c_str())
             .def_property_readonly("propagation_results",
-                                   &tp::SingleArcDynamicsSimulator<double, TIME_TYPE>::getPropagationResults,
+                                   &tp::SingleArcDynamicsSimulator<STATE_SCALAR_TYPE, TIME_TYPE>::getPropagationResults,
                                    get_docstring("SingleArcSimulator.propagation_results").c_str())
             .def_property_readonly("propagation_termination_details",
-                                   &tp::SingleArcDynamicsSimulator<double, TIME_TYPE>::getPropagationTerminationReason)
+                                   &tp::SingleArcDynamicsSimulator<STATE_SCALAR_TYPE, TIME_TYPE>::getPropagationTerminationReason)
             .def_property_readonly("integration_completed_successfully",
-                                   &tp::SingleArcDynamicsSimulator<double, TIME_TYPE>::integrationCompletedSuccessfully);
+                                   &tp::SingleArcDynamicsSimulator<STATE_SCALAR_TYPE, TIME_TYPE>::integrationCompletedSuccessfully);
 
     py::class_<
-        tp::MultiArcDynamicsSimulator<double, TIME_TYPE>,
-        std::shared_ptr<tp::MultiArcDynamicsSimulator<double, TIME_TYPE>>,
-        tp::DynamicsSimulator< double, TIME_TYPE>>(
+        tp::MultiArcDynamicsSimulator<STATE_SCALAR_TYPE, TIME_TYPE>,
+        std::shared_ptr<tp::MultiArcDynamicsSimulator<STATE_SCALAR_TYPE, TIME_TYPE>>,
+        tp::DynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE>>(
         m,"MultiArcDynamicsSimulator", get_docstring("MultiArcDynamicsSimulator").c_str())
             .def_property_readonly("propagation_results",
-                                   &tp::MultiArcDynamicsSimulator<double, TIME_TYPE>::getMultiArcPropagationResults,
+                                   &tp::MultiArcDynamicsSimulator<STATE_SCALAR_TYPE, TIME_TYPE>::getMultiArcPropagationResults,
                                    get_docstring("MultiArcDynamicsSimulator.propagation_results").c_str());
 
     py::class_<
-        tp::HybridArcDynamicsSimulator<double, TIME_TYPE>,
-        std::shared_ptr<tp::HybridArcDynamicsSimulator<double, TIME_TYPE>>,
-        tp::DynamicsSimulator< double, TIME_TYPE>>(
+        tp::HybridArcDynamicsSimulator<STATE_SCALAR_TYPE, TIME_TYPE>,
+        std::shared_ptr<tp::HybridArcDynamicsSimulator<STATE_SCALAR_TYPE, TIME_TYPE>>,
+        tp::DynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE>>(
         m,"HybridArcDynamicsSimulator", get_docstring("HybridArcDynamicsSimulator").c_str())
             .def_property_readonly("propagation_results",
-                                   &tp::HybridArcDynamicsSimulator<double, TIME_TYPE>::getHybridArcPropagationResults,
+                                   &tp::HybridArcDynamicsSimulator<STATE_SCALAR_TYPE, TIME_TYPE>::getHybridArcPropagationResults,
                                    get_docstring("HybridArcDynamicsSimulator.propagation_results").c_str());
 
 
     //TODO: Remove variationalOnlyIntegratorSettings
     py::class_<
-            tp::SingleArcVariationalEquationsSolver<double, TIME_TYPE>,
-            std::shared_ptr<tp::SingleArcVariationalEquationsSolver<double, TIME_TYPE>>>(m, "SingleArcVariationalSimulator",
+            tp::SingleArcVariationalEquationsSolver<STATE_SCALAR_TYPE, TIME_TYPE>,
+            std::shared_ptr<tp::SingleArcVariationalEquationsSolver<STATE_SCALAR_TYPE, TIME_TYPE>>>(m, "SingleArcVariationalSimulator",
                                                                                       get_docstring("SingleArcVariationalSimulator").c_str() )
             .def(py::init<
                  const tudat::simulation_setup::SystemOfBodies&,
                  const std::shared_ptr< tudat::numerical_integrators::IntegratorSettings<TIME_TYPE>>,
-                 const std::shared_ptr< tp::PropagatorSettings<double>>,
-                 const std::shared_ptr< tep::EstimatableParameterSet< double > >,
+                 const std::shared_ptr< tp::PropagatorSettings<STATE_SCALAR_TYPE>>,
+                 const std::shared_ptr< tep::EstimatableParameterSet< STATE_SCALAR_TYPE > >,
                  const bool,
                  const std::shared_ptr< tudat::numerical_integrators::IntegratorSettings< double > >,
                  const bool,
@@ -238,43 +238,43 @@ void expose_numerical_simulation(py::module &m) {
                  py::arg("print_dependent_variable_data") = true,
                  get_docstring("SingleArcVariationalSimulator.ctor").c_str() )
             .def("integrate_equations_of_motion_only",
-                 &tp::SingleArcVariationalEquationsSolver<double, TIME_TYPE>::integrateDynamicalEquationsOfMotionOnly,
+                 &tp::SingleArcVariationalEquationsSolver<STATE_SCALAR_TYPE, TIME_TYPE>::integrateDynamicalEquationsOfMotionOnly,
                  py::arg("initial_states"),
                  get_docstring("SingleArcVariationalSimulator.integrate_equations_of_motion_only").c_str() )
             .def("integrate_full_equations",
-                 &tp::SingleArcVariationalEquationsSolver<double, TIME_TYPE>::integrateVariationalAndDynamicalEquations,
+                 &tp::SingleArcVariationalEquationsSolver<STATE_SCALAR_TYPE, TIME_TYPE>::integrateVariationalAndDynamicalEquations,
                  py::arg("initial_states"),
                  py::arg("integrate_equations_concurrently") = true,
                  get_docstring("SingleArcVariationalSimulator.integrate_full_equations").c_str() )
             .def_property("parameter_vector",
-                          &tp::SingleArcVariationalEquationsSolver<double, TIME_TYPE>::getParametersToEstimate,
-                          &tp::SingleArcVariationalEquationsSolver<double, TIME_TYPE>::resetParameterEstimate,
+                          &tp::SingleArcVariationalEquationsSolver<STATE_SCALAR_TYPE, TIME_TYPE>::getParametersToEstimate,
+                          &tp::SingleArcVariationalEquationsSolver<STATE_SCALAR_TYPE, TIME_TYPE>::resetParameterEstimate,
                           get_docstring("SingleArcVariationalSimulator.parameter_vector").c_str() )
             .def_property_readonly("variational_equations_history",
-                                   &tp::SingleArcVariationalEquationsSolver<double, TIME_TYPE>::getNumericalVariationalEquationsSolution,
+                                   &tp::SingleArcVariationalEquationsSolver<STATE_SCALAR_TYPE, TIME_TYPE>::getNumericalVariationalEquationsSolution,
                                    get_docstring("SingleArcVariationalSimulator.variational_equations_history").c_str() )
             .def_property_readonly("state_transition_matrix_history",
-                                   &tp::SingleArcVariationalEquationsSolver<double, TIME_TYPE>::getStateTransitionMatrixSolution,
+                                   &tp::SingleArcVariationalEquationsSolver<STATE_SCALAR_TYPE, TIME_TYPE>::getStateTransitionMatrixSolution,
                                    get_docstring("SingleArcVariationalSimulator.state_transition_matrix_history").c_str() )
             .def_property_readonly("sensitivity_matrix_history",
-                                   &tp::SingleArcVariationalEquationsSolver<double, TIME_TYPE>::getSensitivityMatrixSolution,
+                                   &tp::SingleArcVariationalEquationsSolver<STATE_SCALAR_TYPE, TIME_TYPE>::getSensitivityMatrixSolution,
                                    get_docstring("SingleArcVariationalSimulator.sensitivity_matrix_history").c_str() )
             .def_property_readonly("state_history",
-                                   &tp::SingleArcVariationalEquationsSolver<double, TIME_TYPE>::getEquationsOfMotionSolution,
+                                   &tp::SingleArcVariationalEquationsSolver<STATE_SCALAR_TYPE, TIME_TYPE>::getEquationsOfMotionSolution,
                                    get_docstring("SingleArcVariationalSimulator.state_history").c_str() )
             .def_property_readonly("dynamics_simulator",
-                                   &tp::SingleArcVariationalEquationsSolver<double, TIME_TYPE>::getDynamicsSimulator,
+                                   &tp::SingleArcVariationalEquationsSolver<STATE_SCALAR_TYPE, TIME_TYPE>::getDynamicsSimulator,
                                    get_docstring("SingleArcVariationalSimulator.dynamics_simulator").c_str() );
 
     py::class_<
-            tss::OrbitDeterminationManager<double, TIME_TYPE>,
-            std::shared_ptr<tss::OrbitDeterminationManager<double, TIME_TYPE>>>(m, "Estimator",
+            tss::OrbitDeterminationManager<STATE_SCALAR_TYPE, TIME_TYPE>,
+            std::shared_ptr<tss::OrbitDeterminationManager<STATE_SCALAR_TYPE, TIME_TYPE>>>(m, "Estimator",
                                                                              get_docstring("Estimator").c_str() )
             .def(py::init<
                  const tss::SystemOfBodies&,
-                 const std::shared_ptr< tep::EstimatableParameterSet< double > >,
+                 const std::shared_ptr< tep::EstimatableParameterSet< STATE_SCALAR_TYPE > >,
                  const std::vector< std::shared_ptr< tom::ObservationModelSettings > >&,
-                 const std::shared_ptr< tp::PropagatorSettings< double > >,
+                 const std::shared_ptr< tp::PropagatorSettings< STATE_SCALAR_TYPE > >,
                  const bool >( ),
                  py::arg("bodies"),
                  py::arg("estimated_parameters"),
@@ -283,24 +283,24 @@ void expose_numerical_simulation(py::module &m) {
                  py::arg("integrate_on_creation") = true,
                  get_docstring("Estimator.ctor").c_str() )
             .def_property_readonly("observation_simulators",
-                                   &tss::OrbitDeterminationManager<double, TIME_TYPE>::getObservationSimulators,
+                                   &tss::OrbitDeterminationManager<STATE_SCALAR_TYPE, TIME_TYPE>::getObservationSimulators,
                                    get_docstring("Estimator.observation_simulators").c_str() )
             .def_property_readonly("observation_managers",
-                                   &tss::OrbitDeterminationManager<double, TIME_TYPE>::getObservationManagers,
+                                   &tss::OrbitDeterminationManager<STATE_SCALAR_TYPE, TIME_TYPE>::getObservationManagers,
                                    get_docstring("Estimator.observation_managers").c_str() )
             .def_property_readonly("state_transition_interface",
-                                   &tss::OrbitDeterminationManager<double, TIME_TYPE>::getStateTransitionAndSensitivityMatrixInterface,
+                                   &tss::OrbitDeterminationManager<STATE_SCALAR_TYPE, TIME_TYPE>::getStateTransitionAndSensitivityMatrixInterface,
                                    get_docstring("Estimator.state_transition_interface").c_str() )
             .def("perform_estimation",
-                 &tss::OrbitDeterminationManager<double, TIME_TYPE>::estimateParameters,
+                 &tss::OrbitDeterminationManager<STATE_SCALAR_TYPE, TIME_TYPE>::estimateParameters,
                  py::arg( "estimation_input" ),
                  get_docstring("Estimator.perform_estimation").c_str() )
             .def("compute_covariance",
-                 &tss::OrbitDeterminationManager<double, TIME_TYPE>::computeCovariance,
+                 &tss::OrbitDeterminationManager<STATE_SCALAR_TYPE, TIME_TYPE>::computeCovariance,
                  py::arg( "covariance_analysis_input" ),
                  get_docstring("Estimator.compute_covariance").c_str() )
             .def_property_readonly("variational_solver",
-                                   &tss::OrbitDeterminationManager<double, TIME_TYPE>::getVariationalEquationsSolver,
+                                   &tss::OrbitDeterminationManager<STATE_SCALAR_TYPE, TIME_TYPE>::getVariationalEquationsSolver,
                                    get_docstring("Estimator.variational_solver").c_str() );
 };
 
