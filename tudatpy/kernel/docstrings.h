@@ -11187,7 +11187,7 @@ Factory function for settings object, defining atmosphere model in accordance to
 
 Parameters
 ----------
-space_weather_file : str, default = :func:`~tudatpy.io.get_space_weather_path` + 'sw19571001.txt'
+space_weather_file : str, default = :func:`~tudatpy.data.get_space_weather_path` + 'sw19571001.txt'
     File to be used for space weather characteristics as a function of time (e.g. F10.7, Kp, etc.). The file is typically taken from here `celestrak <https://celestrak.org/SpaceData/sw19571001.txt>`_ (note that the file in your resources path will not be the latest version of this file; download and replace your existing file if required). Documentation on the file is given `here <https://celestrak.org/SpaceData/SpaceWx-format.php>`_
 Returns
 -------
@@ -12547,7 +12547,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 
         Enumeration of predefined spherical harmonics models supported by tudat, for which thee coefficient files are automatically available (downloaded from
         `here <https://github.com/tudat-team/tudat-resources/tree/master/resource/gravity_models>`_). The directory where these files are stored can be 
-        extracted using the :func:`~tudatpy.io.get_gravity_models_path` function.
+        extracted using the :func:`~tudatpy.data.get_gravity_models_path` function.
 
 
 
@@ -29354,7 +29354,7 @@ Pitching moment coefficient change w.r.t. angle of attack change rate.
             Index of the Mach number for which to get the static coefficient.
         angle_of_attack_index : int
             Index of the angle of attack for which to get the static coefficient.
-        coefficient_index : tudatpy.io.StaticCoefficientNames
+        coefficient_index : tudatpy.data.StaticCoefficientNames
             Type of the static aerodynamic coefficient.
         Returns
         -------
@@ -29381,7 +29381,7 @@ Pitching moment coefficient change w.r.t. angle of attack change rate.
             Index of the Mach number for which to get the static coefficient.
         angle_of_attack_index : int
             Index of the angle of attack for which to get the static coefficient.
-        coefficient_index : tudatpy.io.DynamicCoefficientNames
+        coefficient_index : tudatpy.data.DynamicCoefficientNames
             Type of the dynamic aerodynamic coefficient.
         Returns
         -------

@@ -6,7 +6,7 @@
 #include "expose_constants.h"
 #include "expose_example.h"
 #include "expose_interface.h"
-#include "expose_io.h"
+#include "expose_data.h"
 #include "expose_math.h"
 #include "expose_numerical_simulation.h"
 #include "expose_trajectory_design.h"
@@ -49,9 +49,9 @@ PYBIND11_MODULE(kernel, m) {
     auto constants = m.def_submodule("constants");
     tudatpy::constants::expose_constants(constants);
 
-    // io module
-    auto io = m.def_submodule("io");
-    tudatpy::io::expose_io(io);
+    // data module
+    auto data = m.def_submodule("data");
+    tudatpy::data::expose_data(data);
 
     // simulation module
     auto trajectory_design = m.def_submodule("trajectory_design");

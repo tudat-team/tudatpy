@@ -16,6 +16,7 @@ from tudatpy.kernel.numerical_simulation.propagation_setup.torque import \
      aerodynamic, \
      custom, \
      custom_torque, \
+     radiation_pressure_torque, \
      second_degree_gravitational, \
      spherical_harmonic_gravitational
 # ----------------------------------------
@@ -28,6 +29,7 @@ from tudatpy.kernel.numerical_simulation.propagation_setup.torque import \
      aerodynamic_type, \
      dissipative_type, \
      inertial_type, \
+     radiation_pressure_torque_type, \
      second_order_gravitational_type, \
      spherical_harmonic_gravitational_type, \
      torque_free_type, \

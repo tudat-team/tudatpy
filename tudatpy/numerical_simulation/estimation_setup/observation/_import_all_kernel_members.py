@@ -13,8 +13,9 @@
 #                 METHODS                 
 # ----------------------------------------
 from tudatpy.kernel.numerical_simulation.estimation_setup.observation import \
-     euler_angles_313, \
      absolute_bias, \
+     add_ancilliary_settings_to_observable, \
+     add_ancilliary_settings_to_observable_for_link_ends, \
      add_dependent_variables_to_all, \
      add_dependent_variables_to_observable, \
      add_dependent_variables_to_observable_for_link_ends, \
@@ -27,12 +28,17 @@ from tudatpy.kernel.numerical_simulation.estimation_setup.observation import \
      add_viability_check_to_all, \
      add_viability_check_to_observable, \
      add_viability_check_to_observable_for_link_ends, \
+     angle_wrt_orbital_plane_dependent_variable, \
      angular_position, \
      arc_wise_time_drift_bias, \
      arcwise_absolute_bias, \
      arcwise_relative_bias, \
+     avoidance_angle_dependent_variable, \
+     azimuth_angle_dependent_variable, \
      body_avoidance_viability, \
      body_avoidance_viability_list, \
+     body_center_distance_dependent_variable, \
+     body_limb_distance_dependent_variable, \
      body_occultation_viability, \
      body_occultation_viability_list, \
      body_origin_link_end_id, \
@@ -41,21 +47,29 @@ from tudatpy.kernel.numerical_simulation.estimation_setup.observation import \
      cartesian_velocity, \
      cassini_turnaround_ratios, \
      change_simulation_settings_observable_types, \
+     clock_induced_bias, \
      combined_bias, \
      continuous_arc_simulation_settings, \
      continuous_arc_simulation_settings_list, \
+     create_compressed_doppler_collection, \
      create_odf_observed_observation_collection, \
+     create_tracking_txtfile_observation_collection, \
      doppler_ancilliary_settings, \
+     doppler_measured_frequency, \
+     doppler_measured_frequency_ancillary_settings, \
      dsn_default_turnaround_ratios, \
      dsn_n_way_doppler_ancilliary_settings, \
      dsn_n_way_doppler_averaged, \
      dsn_n_way_doppler_averaged_from_one_way_links, \
      dsn_tabulated_ionospheric_light_time_correction, \
      dsn_tabulated_tropospheric_light_time_correction, \
+     elevation_angle_dependent_variable, \
      elevation_angle_viability, \
      elevation_angle_viability_list, \
+     euler_angles_313, \
      first_order_relativistic_light_time_correction, \
      get_default_reference_link_end, \
+     integration_time_dependent_variable, \
      inverse_power_series_solar_corona_light_time_correction, \
      jakowski_ionospheric_light_time_correction, \
      light_time_convergence_settings, \
@@ -66,6 +80,10 @@ from tudatpy.kernel.numerical_simulation.estimation_setup.observation import \
      n_way_range, \
      n_way_range_ancilliary_settings, \
      n_way_range_from_one_way_links, \
+     observation_settings_from_collection, \
+     observations_from_fdets_files, \
+     observations_from_ifms_files, \
+     observations_from_odf_files, \
      one_way_closed_loop_doppler, \
      one_way_doppler_averaged, \
      one_way_doppler_instantaneous, \
@@ -78,10 +96,12 @@ from tudatpy.kernel.numerical_simulation.estimation_setup.observation import \
      relative_angular_position, \
      relative_bias, \
      relative_cartesian_position, \
+     retransmission_delays_dependent_variable, \
      saastamoinen_tropospheric_light_time_correction, \
      set_odf_information_in_bodies, \
      tabulated_simulation_settings, \
      tabulated_simulation_settings_list, \
+     target_range_between_link_ends_dependent_variable, \
      time_drift_bias, \
      two_doppler_instantaneous, \
      two_way_doppler_ancilliary_settings, \
@@ -92,13 +112,15 @@ from tudatpy.kernel.numerical_simulation.estimation_setup.observation import \
      two_way_open_loop_doppler_from_one_way_links, \
      two_way_range, \
      two_way_range_ancilliary_settings, \
-     two_way_range_from_one_way_links
+     two_way_range_from_one_way_links, \
+     two_way_time_scale_range_bias
 # ----------------------------------------
 #                 OBJECTS                 
 # ----------------------------------------
 from tudatpy.kernel.numerical_simulation.estimation_setup.observation import \
      DopplerProperTimeRateSettings, \
      FrequencyBands, \
+     IntegratedObservationPropertyHandling, \
      LightTimeConvergenceCriteria, \
      LightTimeCorrectionSettings, \
      LightTimeFailureHandling, \
@@ -126,11 +148,15 @@ from tudatpy.kernel.numerical_simulation.estimation_setup.observation import \
      body_avoidance_angle, \
      body_occultation, \
      doppler_integration_time, \
+     doppler_measured_frequency_type, \
      doppler_reference_frequency, \
      dsn_n_way_averaged_doppler, \
      dsn_one_way_averaged_doppler, \
      euler_angle_313_observable_type, \
      frequency_bands, \
+     interval_end, \
+     interval_start, \
+     interval_undefined, \
      link_ends_delays, \
      minimum_elevation_angle, \
      n_way_averaged_doppler_type, \
@@ -154,6 +180,7 @@ from tudatpy.kernel.numerical_simulation.estimation_setup.observation import \
      tabulated, \
      throw_exception, \
      transmitter, \
+     transmitter2, \
      two_way_instantaneous_doppler_type, \
      unidentified_link_end, \
      velocity_observable_type
