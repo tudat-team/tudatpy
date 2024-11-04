@@ -982,7 +982,6 @@ class ProcessedOdfFileContents
             std::vector< Time > rampEndTimesPerStationUtc =
                     computeObservationTimesUtcFromJ2000< Time >(
                             unprocessedRampEndTimesPerStation_[ stationName ] );
-
             rampInterpolators_[ stationName ] =
                     std::make_shared< ground_stations::PiecewiseLinearFrequencyInterpolator >(
                             rampStartTimesPerStationUtc,

@@ -117,7 +117,7 @@ int main( )
                 const std::shared_ptr< LightTimeCorrectionSettings > lightTimeCorrections =
                     std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( std::vector< std::string >( { "Sun" } ) );
                 observationModelSettingsList.push_back(
-                    std::make_shared< observation_models::ObservationModelSettings >( dsn_n_way_range, it->second.at( i ) ) );
+                    std::make_shared< observation_models::ObservationModelSettings >( dsn_n_way_range, it->second.at( i ), lightTimeCorrections ) );
             }
         }
     }
@@ -136,8 +136,8 @@ int main( )
                     observationSimulationSettings, observationSimulators, bodies );
     std::cout<<"Post-simulation"<<std::endl;
 
-    std::cout<<simulatedObservationCollection->getConcatenatedObservations( ).transpose( )<<std::endl;
-    std::cout<<observedObservationCollection->getConcatenatedObservations( ).transpose( )<<std::endl;
+    std::cout<<simulatedObservationCollection->getConcatenatedObservations( ).transpose( ) -
+    observedObservationCollection->getConcatenatedObservations( ).transpose( )<<std::endl;
 
     LinkEnds dss45MgsLinkEnds;
     dss45MgsLinkEnds[ transmitter ] = LinkEndId( "Earth", "DSS-45" );
