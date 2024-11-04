@@ -149,22 +149,22 @@ public:
 
         ObservationScalarType transmitterFrequencyIntegral =
                 transmittingFrequencyCalculator_->template getTemplatedFrequencyIntegral< ObservationScalarType, TimeType >(
-                    utcReceptionTime, utcTransmissionTime );
+                    utcTransmissionTime, utcReceptionTime );
         ObservationScalarType rangeUnitIntegral = 221.0 / ( 749.0 * 2.0 ) * transmitterFrequencyIntegral;
 
         // Moyer (2000), eq. 13-54
         Eigen::Matrix< ObservationScalarType, 1, 1 > observation =
             ( Eigen::Matrix< ObservationScalarType, 1, 1 >( ) <<
             static_cast< ObservationScalarType >( basic_mathematics::computeModulo( rangeUnitIntegral, std::pow( 2.0, lowestRangingComponent + 6.0 ) ) ) ).finished( );
-        std::cout<<rangeUnitIntegral<<" "<<
-                                         221.0 / ( 749.0 * 2.0 ) * transmittingFrequencyCalculator_->getTemplatedCurrentFrequency( utcReceptionTime ) *
-                                             static_cast< double >( utcReceptionTime - utcTransmissionTime ) <<" "<<
-                                         ( utcReceptionTime - utcTransmissionTime ) <<" "<<
-        transmittingFrequencyCalculator_->getTemplatedCurrentFrequency( utcReceptionTime )<<" "<<
-        transmittingFrequencyCalculator_->getTemplatedCurrentFrequency( utcTransmissionTime )<<" "<<
-       transmittingFrequencyCalculator_->getTemplatedCurrentFrequency( utcReceptionTime ) - transmittingFrequencyCalculator_->getTemplatedCurrentFrequency( utcTransmissionTime )<<" "<<
-
-        observation<<" "<<std::pow( 2.0, lowestRangingComponent + 6.0 )<<std::endl;
+//        std::cout<<rangeUnitIntegral<<" "<<
+//             221.0 / ( 749.0 * 2.0 ) * transmittingFrequencyCalculator_->getTemplatedCurrentFrequency( utcReceptionTime ) *
+//                 static_cast< double >( utcReceptionTime - utcTransmissionTime ) <<" "<<
+//             ( utcReceptionTime - utcTransmissionTime ) <<" "<<
+//            transmittingFrequencyCalculator_->getTemplatedCurrentFrequency( utcReceptionTime )<<" "<<
+//            transmittingFrequencyCalculator_->getTemplatedCurrentFrequency( utcTransmissionTime )<<" "<<
+//            transmittingFrequencyCalculator_->getTemplatedCurrentFrequency( utcReceptionTime ) - transmittingFrequencyCalculator_->getTemplatedCurrentFrequency( utcTransmissionTime )<<" "<<
+//
+//        observation<<" "<<std::pow( 2.0, lowestRangingComponent + 6.0 )<<std::endl;
 
         return observation;
     }
