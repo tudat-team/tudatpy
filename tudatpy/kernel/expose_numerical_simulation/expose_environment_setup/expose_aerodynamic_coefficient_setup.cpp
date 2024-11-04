@@ -108,6 +108,26 @@ namespace aerodynamic_coefficients {
               get_docstring("constant").c_str());
 
 
+        m.def("constant_force_and_moment",
+              &tss::constantAerodynamicForceAndMomentCoefficientSettings,
+              py::arg("reference_length"),
+              py::arg("reference_area"),
+              py::arg("moment_reference_point"),
+              py::arg("constant_force_coefficient"),
+              py::arg("constant_moment_coefficient"),
+              py::arg("force_coefficients_frame") = ta::negative_aerodynamic_frame_coefficients,
+              py::arg("moment_coefficients_frame") = ta::body_fixed_frame_coefficients,
+              get_docstring("constant").c_str());
+
+        m.def("constant",
+              py::overload_cast<const double, const Eigen::Vector3d &, const ta::AerodynamicCoefficientFrames >(
+                  &tss::constantAerodynamicCoefficientSettings ),
+              py::arg("reference_area"),
+              py::arg("constant_force_coefficient"),
+              py::arg("force_coefficients_frame") = ta::negative_aerodynamic_frame_coefficients,
+              get_docstring("constant").c_str());
+
+
         m.def("custom_aerodynamic_force_coefficients",
               py::overload_cast<
                       const std::function<Eigen::Vector3d(const std::vector<double> &)>,

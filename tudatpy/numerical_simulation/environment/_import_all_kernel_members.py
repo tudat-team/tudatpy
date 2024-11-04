@@ -35,6 +35,7 @@ from tudatpy.kernel.numerical_simulation.environment import \
      AtmosphericFlightConditions, \
      Body, \
      ConstantEphemeris, \
+     ConstantFrequencyInterpolator, \
      ControlSurfaceIncrementAerodynamicInterface, \
      CustomBodyFixedDirectionCalculator, \
      CustomControlSurfaceIncrementAerodynamicInterface, \
@@ -57,9 +58,11 @@ from tudatpy.kernel.numerical_simulation.environment import \
      RotationalEphemeris, \
      ShapeModel, \
      SphericalHarmonicsGravityField, \
+     StationFrequencyInterpolator, \
      SynchronousRotationalEphemeris, \
      SystemOfBodies, \
      TabulatedEphemeris, \
+     TimingSystem, \
      Tle, \
      TleEphemeris, \
      VehicleSystems, \
@@ -68,22 +71,32 @@ from tudatpy.kernel.numerical_simulation.environment import \
      angle_of_attack, \
      angle_of_attack_dependent, \
      angle_of_sideslip, \
+     anomalous_o_number_density_dependent, \
+     ar_number_density_dependent, \
      bank_angle, \
      body_frame, \
      control_surface_deflection_dependent, \
      corotating_frame, \
      flight_path_angle, \
+     h_number_density_dependent, \
+     he_number_density_dependent, \
      heading_angle, \
      inertial_frame, \
      latitude_angle, \
      longitude_angle, \
      mach_number_dependent, \
+     n2_number_density_dependent, \
+     n_number_density_dependent, \
      negative_aerodynamic_frame_coefficients, \
      negative_body_fixed_frame_coefficients, \
+     o2_number_density_dependent, \
+     o_number_density_dependent, \
      positive_aerodynamic_frame_coefficients, \
      positive_body_fixed_frame_coefficients, \
      sideslip_angle_dependent, \
+     temperature_dependent, \
      time_dependent, \
      trajectory_frame, \
      undefined_independent_variable, \
+     velocity_dependent, \
      vertical_frame

@@ -64,6 +64,8 @@ void expose_estimated_parameter_setup(py::module &m) {
             .value("desaturation_delta_v_values_type", tep::EstimatebleParametersEnum::desaturation_delta_v_values)
             .value("constant_time_drift_observation_bias_type", tep::EstimatebleParametersEnum::constant_time_drift_observation_bias)
             .value("arc_wise_time_drift_observation_bias_type", tep::EstimatebleParametersEnum::arc_wise_time_drift_observation_bias)
+            .value("global_polynomial_clock_corrections_type", tep::EstimatebleParametersEnum::global_polynomial_clock_corrections)
+            .value("arc_wise_polynomial_clock_corrections_type", tep::EstimatebleParametersEnum::arc_wise_polynomial_clock_corrections)
             .value("inverse_tidal_quality_factor_type", tep::EstimatebleParametersEnum::inverse_tidal_quality_factor)
             .export_values();
 
@@ -113,7 +115,7 @@ void expose_estimated_parameter_setup(py::module &m) {
     // ###############    Initial States             ################################
 
     m.def("initial_states",
-          &tss::getInitialStateParameterSettings< double, TIME_TYPE >,
+          &tss::getInitialStateParameterSettings< STATE_SCALAR_TYPE, TIME_TYPE >,
           py::arg("propagator_settings"), py::arg("bodies"),
           py::arg("arc_initial_times") = std::vector< double >( ),
           get_docstring("initial_states").c_str() );
@@ -300,6 +302,19 @@ void expose_estimated_parameter_setup(py::module &m) {
           py::arg("arc_start_times" ),
           py::arg("time_link_end" ),
           get_docstring("arcwise_absolute_observation_bias").c_str() );
+
+    m.def("global_polynomial_clock_corrections",
+           &tep::globalPolynomialClockCorrections,
+           py::arg("associated_body"),
+           py::arg("associated_station"),
+           py::arg("correction_powers" ) );
+
+     m.def("arc_wise_polynomial_clock_corrections",
+           &tep::multiArcPolynomialClockCorrections,
+           py::arg("associated_body"),
+           py::arg("associated_station"),
+           py::arg("correction_powers" ),
+           py::arg("arc_indices" ));
 
     m.def("relative_observation_bias",
           &tep::relativeObservationBias,
