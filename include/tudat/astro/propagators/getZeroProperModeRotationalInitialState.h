@@ -130,7 +130,7 @@ void integrateForwardWithDissipationAndBackwardsWithout(
  *  \param outputFolder Directory to which files will be written, if writeToFileInLoop is true
  */
 template< typename TimeType, typename StateScalarType >
-Eigen::VectorXd getZeroProperModeRotationalState(
+Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getZeroProperModeRotationalState(
         const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > propagatorSettings,
         const double bodyMeanRotationRate,
@@ -298,7 +298,7 @@ Eigen::VectorXd getZeroProperModeRotationalState(
 template< typename TimeType = double, typename StateScalarType = double >
 struct DampedInitialRotationalStateResults
 {
-    Eigen::VectorXd initialState_;
+    Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialState_;
     std::vector< std::pair< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >,
             std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > > forwardBackwardPropagatedStates_;
     std::vector< std::pair< std::map< TimeType, Eigen::Matrix< double, Eigen::Dynamic, 1 > >,
@@ -307,7 +307,7 @@ struct DampedInitialRotationalStateResults
 
 template< typename TimeType = double, typename StateScalarType = double >
 std::tuple<
-Eigen::VectorXd,
+Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >,
 std::vector< std::pair< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >,
 std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > >,
 std::vector< std::pair< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >,
@@ -324,7 +324,7 @@ std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > >
     std::vector< std::pair< std::map< TimeType, Eigen::Matrix< double, Eigen::Dynamic, 1 > >,
     std::map< TimeType, Eigen::Matrix< double, Eigen::Dynamic, 1 > > > > dependentVariables;
 
-    Eigen::VectorXd initialState =
+    Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialState =
             getZeroProperModeRotationalState(
                 bodies, propagatorSettings, bodyMeanRotationRate, dissipationTimes,
                 propagatedStates, dependentVariables,
@@ -350,7 +350,7 @@ std::shared_ptr< DampedInitialRotationalStateResults< TimeType, StateScalarType 
     std::vector< std::pair< std::map< TimeType, Eigen::Matrix< double, Eigen::Dynamic, 1 > >,
             std::map< TimeType, Eigen::Matrix< double, Eigen::Dynamic, 1 > > > > dependentVariables;
 
-    Eigen::VectorXd initialState =
+    Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialState =
             getZeroProperModeRotationalState(
                     bodies, propagatorSettings, bodyMeanRotationRate, dissipationTimes,
                     propagatedStates, dependentVariables,
@@ -378,7 +378,7 @@ std::shared_ptr< DampedInitialRotationalStateResults< TimeType, StateScalarType 
  *
  */
 template< typename TimeType = double, typename StateScalarType = double >
-Eigen::VectorXd getZeroProperModeRotationalState(
+Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getZeroProperModeRotationalState(
         const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > propagatorSettings,
         const double bodyMeanRotationRate,

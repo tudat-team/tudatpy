@@ -600,9 +600,6 @@ void ObservationDependentVariableCalculator::addDependentVariables(
         const std::vector< std::shared_ptr< ObservationDependentVariableSettings > > settingsList,
         const SystemOfBodies& bodies )
 {
-    // Retrieve existing dependent variable settings
-    std::vector< std::shared_ptr< simulation_setup::ObservationDependentVariableSettings > > existingSettingsList = settingsList_;
-
     // Parse all settings to be added and check if they are already included
     for ( auto settingsToAdd : settingsList )
     {
