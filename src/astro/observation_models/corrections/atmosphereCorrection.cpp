@@ -475,10 +475,22 @@ double TabulatedIonosphericCorrection::calculateLightTimeCorrectionWithMultiLegL
                 std::string( caughtException.what( ) ) );
     }
 
+    // Convert times from TDB TO UTC. To speed up the conversion, we actually convert from TT to UTC. This approximation should be accurate enough for ionospheric delay computation.
+    double firstLegTransmissionTimeUtc = sofa_interface::convertTTtoUTC( firstLegTransmissionTime );
+    double stationTimeUtc = sofa_interface::convertTTtoUTC( stationTime );
+
+    // Compute light-time correction
+    double lightTimeCorrection = 0.0;
+    double transmittedFrequency = transmittedFrequencyFunction_( frequencyBands, firstLegTransmissionTimeUtc );
+    if ( !std::isnan( transmittedFrequency ) )
+    {
+        lightTimeCorrection = ( sign_ * referenceCorrectionCalculator_->computeMediaCorrection( stationTimeUtc ) *
+                std::pow( referenceFrequency_ / transmittedFrequencyFunction_( frequencyBands, firstLegTransmissionTimeUtc ), 2.0 ) ) /
+                        physical_constants::getSpeedOfLight< double >( );
+    }
+
     // Moyer (2000), eq. 10-11
-    return ( sign_ * referenceCorrectionCalculator_->computeMediaCorrection( stationTime ) *
-        std::pow( referenceFrequency_ / transmittedFrequencyFunction_( frequencyBands, firstLegTransmissionTime ), 2.0 ) ) /
-                physical_constants::getSpeedOfLight< double >( );
+    return lightTimeCorrection;
 }
 
 double JakowskiVtecCalculator::calculateVtec( const double time,
