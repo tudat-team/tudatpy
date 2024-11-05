@@ -64,6 +64,7 @@ public:
         {
             if( dependentVariableCalculator_->getObservableType( ) != observableType_ )
             {
+                std::cout<<dependentVariableCalculator_->getObservableType( )<<" "<<observableType_<<std::endl;
                 throw std::runtime_error( "Error when creating SingleObservationSet, ObservationDependentVariableCalculator has incompatible type " );
             }
 

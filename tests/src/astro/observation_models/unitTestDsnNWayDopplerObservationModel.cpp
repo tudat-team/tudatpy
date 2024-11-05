@@ -60,6 +60,7 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
     std::vector< double > testResiduals;
     for( int testType = 0; testType < 2; testType++ )
     {
+        std::cout<<"Test type "<<testType<<std::endl;
         int counter = 0;
         std::string spacecraftName = "MGS";
         std::string ephemeridesOrigin = "SSB";
@@ -112,6 +113,8 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
         {
             observedObservationCollection = createOdfObservedObservationCollectionFromFile< long double, Time >(
                 bodies, odfFiles, spacecraftName );
+            observedObservationCollection->removeSingleObservationSets( std::make_shared< ObservationCollectionObservableTypeParser >( dsn_n_way_range ) );
+
         }
         // Create computed observation collection
         std::vector< std::shared_ptr< observation_models::ObservationModelSettings > > observationModelSettingsList;
