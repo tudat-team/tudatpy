@@ -52,6 +52,7 @@ bool doesLinkEndTypeDefineId( const ObservableType observableType )
         break;
     case one_way_differenced_range:
         break;
+    case dsn_n_way_range:
     case n_way_range:
         linkEndTypeDefinesId = false;
         break;
@@ -93,6 +94,7 @@ bool isObservableTypeMultiLink( const ObservableType observableType )
     case one_way_differenced_range:
         break;
     case n_way_range:
+    case dsn_n_way_range:
         isIntegratedTypeisMultiLink = true;
         break;
     case two_way_doppler:
@@ -139,6 +141,7 @@ bool isObservableOfIntegratedType( const ObservableType observableType )
         isIntegratedType = true;
         break;
     case n_way_range:
+    case dsn_n_way_range:
         isIntegratedType = false;
         break;
     case two_way_doppler:
@@ -194,6 +197,7 @@ bool requiresTransmittingStation( const ObservableType observableType )
         break;
     case dsn_n_way_averaged_doppler:
     case doppler_measured_frequency:
+    case dsn_n_way_range:
         requiresTransmittingStation = true;
         break;
     default:
@@ -221,6 +225,7 @@ bool requiresFirstReceivingStation( const ObservableType observableType )
     case relative_angular_position:
     case n_way_differenced_range:
     case dsn_n_way_averaged_doppler:
+    case dsn_n_way_range:
         requiresFirstReceivingStation = false;
         break;
     case dsn_one_way_averaged_doppler:
@@ -251,6 +256,7 @@ bool requiresSecondReceivingStation( const ObservableType observableType )
     case relative_angular_position:
     case n_way_differenced_range:
     case dsn_n_way_averaged_doppler:
+    case dsn_n_way_range:
     case dsn_one_way_averaged_doppler:
         requiresSecondReceivingStation = false;
         break;
@@ -275,6 +281,7 @@ bool isRadiometricObservableType( const ObservableType observableType )
     case n_way_differenced_range:
     case dsn_n_way_averaged_doppler:
     case dsn_one_way_averaged_doppler:
+    case dsn_n_way_range:
         isRadiometric = true;
         break;
     case angular_position:
@@ -308,6 +315,7 @@ bool isPhaseVelocityBasedObservableType( const ObservableType observableType )
     case one_way_range:
     case n_way_range:
     case angular_position:
+    case dsn_n_way_range:
     case position_observable:
     case euler_angle_313_observable:
     case velocity_observable:
@@ -328,6 +336,7 @@ bool isGroupVelocityBasedObservableType( const ObservableType observableType )
     {
     case one_way_range:
     case n_way_range:
+    case dsn_n_way_range:
         isGroupVelocityBased = true;
         break;
     case two_way_doppler:
@@ -368,6 +377,7 @@ bool observableCanHaveRetransmissionDelay( const ObservableType observableType )
     case one_way_differenced_range:
         break;
     case n_way_range:
+    case dsn_n_way_range:
         canHaveDelay = true;
         break;
     case two_way_doppler:
@@ -513,6 +523,11 @@ std::string getObservableName( const ObservableType observableType, const int nu
         observableName = getNWayString( numberOfLinkEnds ) + "WayRange";
         break;
     }
+    case dsn_n_way_range:
+    {
+        observableName = "DSN " + getNWayString( numberOfLinkEnds ) + "WayRange";
+        break;
+    }
     case euler_angle_313_observable:
         observableName = "EulerAngle313";
         break;
@@ -654,6 +669,7 @@ ObservableType getUnconcatenatedObservableType( const ObservableType observableT
     {
     case n_way_differenced_range:
     case n_way_range:
+    case dsn_n_way_range:
     case dsn_n_way_averaged_doppler:
         unconcatenatedObservableType = one_way_range;
         break;
@@ -672,6 +688,7 @@ ObservableType getBaseObservableType( const ObservableType observableType )
     {
     case one_way_range:
     case n_way_range:
+    case dsn_n_way_range:
         baseObservableType = one_way_range;
         break;
     case one_way_doppler:
@@ -769,6 +786,7 @@ std::vector< LinkEnds > getUnconcatenatedLinkEnds( const ObservableType concaten
     {
     case n_way_differenced_range:
     case n_way_range:
+    case dsn_n_way_range:
     case dsn_n_way_averaged_doppler:
     {
         auto linkEndIterator = concatenatedLinkEnds.begin( );
@@ -823,6 +841,7 @@ int getObservableSize( const ObservableType observableType )
     case one_way_differenced_range:
         observableSize = 1;
         break;
+    case dsn_n_way_range:
     case n_way_range:
         observableSize = 1;
         break;
@@ -996,6 +1015,7 @@ std::vector< int > getLinkEndIndicesForLinkEndTypeAtObservable(
         }
         break;
     case n_way_range:
+    case dsn_n_way_range:
         if( numberOfLinkEnds < 2 )
         {
             throw std::runtime_error( "Error when getting n way differenced range link end indices, not enough link ends" );
@@ -1108,6 +1128,7 @@ LinkEndType getDefaultReferenceLinkEndType(
         referenceLinkEndType = receiver;
         break;
     case n_way_range:
+    case dsn_n_way_range:
         referenceLinkEndType = receiver;
         break;
     case two_way_doppler:
@@ -1166,6 +1187,7 @@ int getNumberOfLinksInObservable(
         numberOfLinks = 1;
         break;
     case n_way_range:
+    case dsn_n_way_range:
         if( numberOfLinkEnds < 0 )
         {
             throw std::runtime_error( "Error when determining number of links for n-way range: number of link ends not provided" );
@@ -1341,6 +1363,7 @@ std::vector< std::pair< int, int > > getLinkStateAndTimeIndicesForLinkEnd(
         }
         break;
     case n_way_range:
+    case dsn_n_way_range:
     {
         std::vector< int > matchingLinkEndIndices = getNWayLinkEndIndicesFromLinkEndId( linkEndToCheck, linkEnds );
         if( matchingLinkEndIndices.size( ) > 0 )
@@ -1522,6 +1545,7 @@ std::vector< std::pair< std::pair< LinkEndType, LinkEndId >, std::pair< LinkEndT
         case one_way_doppler:
         case one_way_differenced_range:
         case n_way_range:
+        case dsn_n_way_range:
         case two_way_doppler:
         case n_way_differenced_range:
         case dsn_one_way_averaged_doppler:
