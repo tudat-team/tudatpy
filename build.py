@@ -4,17 +4,23 @@ import subprocess
 from pathlib import Path
 from contextlib import chdir
 
+
 def usage():
     print("Usage: build.py [options]")
     print("Options:")
     print("  -h, --help            Show this help message and exit")
-    print("  -j N                  Number of processors to use")
-    print("  -c, --clean           Clean build")
-    print("  --build-dir DIR       Build directory")
-    print("  --no-tests            Do not build tests")
-    print("  --cxx-std STD         C++ standard to use")
-    print("  --build-type TYPE     Build type (e.g., Release, Debug)")
-    print("  --output-to-file      Output logs to file instead of terminal")
+    print("  -j N                  Number of processors to use [Default: 1]")
+    print("  -c, --clean           Clean build [Default: False]")
+    print("  --build-dir DIR       Build directory [Default: 'build']")
+    print("  --no-tests            Do not build tests [Default: False]")
+    print("  --cxx-std STD         C++ standard to use [Default: 'c++17']")
+    print(
+        "  --build-type TYPE     Build type (e.g., Release, Debug) [Default: 'Release']"
+    )
+    print(
+        "  --output-to-file      Output logs to file instead of terminal [Default: False]"
+    )
+
 
 if __name__ == "__main__":
 
@@ -81,7 +87,7 @@ if __name__ == "__main__":
                     "..",
                 ],
                 stdout=output_dest,
-                stderr=output_dest
+                stderr=output_dest,
             )
             if outcome.returncode:
                 exit(outcome.returncode)
@@ -91,7 +97,9 @@ if __name__ == "__main__":
                 build_command.append("--target")
                 build_command.append("clean")
             build_command.append(f"-j{ARGUMENTS['NUMBER_OF_PROCESSORS']}")
-            outcome = subprocess.run(build_command, stdout=output_dest, stderr=output_dest)
+            outcome = subprocess.run(
+                build_command, stdout=output_dest, stderr=output_dest
+            )
             if outcome.returncode:
                 exit(outcome.returncode)
     finally:
