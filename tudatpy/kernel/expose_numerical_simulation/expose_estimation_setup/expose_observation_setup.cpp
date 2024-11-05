@@ -1099,7 +1099,7 @@ void expose_observation_setup(py::module &m) {
           py::arg( "link_end_id" ) = tom::LinkEndId( "", "" ),
           py::arg( "originating_link_end_type" ) = tom::unidentified_link_end,
           py::arg( "originating_link_end_id" ) = tom::LinkEndId( "", "" ),
-          py::arg( "integrated_observation_handling" ) = tss::interval_undefined,
+          py::arg( "integrated_observation_handling" ) = tss::interval_start,
           get_docstring( "elevation_angle_dependent_variable" ).c_str() );
 
     m.def( "azimuth_angle_dependent_variable", &tss::azimuthAngleDependentVariable,
@@ -1107,7 +1107,7 @@ void expose_observation_setup(py::module &m) {
            py::arg( "link_end_id" ) = tom::LinkEndId( "", "" ),
            py::arg( "originating_link_end_type" ) = tom::unidentified_link_end,
            py::arg( "originating_link_end_id" ) = tom::LinkEndId( "", "" ),
-           py::arg( "integrated_observation_handling" ) = tss::interval_undefined,
+           py::arg( "integrated_observation_handling" ) = tss::interval_start,
            get_docstring( "azimuth_angle_dependent_variable" ).c_str() );
 
     m.def( "target_range_between_link_ends_dependent_variable", &tss::targetRangeBetweenLinkEndsDependentVariable,
@@ -1115,7 +1115,7 @@ void expose_observation_setup(py::module &m) {
           py::arg( "end_link_end_type" ) = tom::unidentified_link_end,
           py::arg( "start_link_end_id" ) = tom::LinkEndId( "", "" ),
           py::arg( "end_link_end_id" ) = tom::LinkEndId( "", "" ),
-          py::arg( "integrated_observation_handling" ) = tss::interval_undefined,
+          py::arg( "integrated_observation_handling" ) = tss::interval_start,
           get_docstring( "target_range_between_link_ends_dependent_variable" ).c_str() );
 
     m.def( "avoidance_angle_dependent_variable", &tss::bodyAvoidanceAngleDependentVariable,
@@ -1124,7 +1124,7 @@ void expose_observation_setup(py::module &m) {
            py::arg( "end_link_end_type" ) = tom::unidentified_link_end,
            py::arg( "start_link_end_id" ) = tom::LinkEndId( "", "" ),
            py::arg( "end_link_end_id" ) = tom::LinkEndId( "", "" ),
-           py::arg( "integrated_observation_handling" ) = tss::interval_undefined,
+           py::arg( "integrated_observation_handling" ) = tss::interval_start,
            get_docstring( "avoidance_angle_dependent_variable" ).c_str() );
 
     m.def( "body_center_distance_dependent_variable", &tss::linkBodyCenterDistanceDependentVariable,
@@ -1133,7 +1133,7 @@ void expose_observation_setup(py::module &m) {
            py::arg( "end_link_end_type" ) = tom::unidentified_link_end,
            py::arg( "start_link_end_id" ) = tom::LinkEndId( "", "" ),
            py::arg( "end_link_end_id" ) = tom::LinkEndId( "", "" ),
-           py::arg( "integrated_observation_handling" ) = tss::interval_undefined,
+           py::arg( "integrated_observation_handling" ) = tss::interval_start,
            get_docstring( "body_center_distance_dependent_variable" ).c_str() );
 
     m.def( "body_limb_distance_dependent_variable", &tss::linkLimbDistanceDependentVariable,
@@ -1142,7 +1142,7 @@ void expose_observation_setup(py::module &m) {
            py::arg( "end_link_end_type" ) = tom::unidentified_link_end,
            py::arg( "start_link_end_id" ) = tom::LinkEndId( "", "" ),
            py::arg( "end_link_end_id" ) = tom::LinkEndId( "", "" ),
-           py::arg( "integrated_observation_handling" ) = tss::interval_undefined,
+           py::arg( "integrated_observation_handling" ) = tss::interval_start,
            get_docstring( "body_limb_distance_dependent_variable" ).c_str() );
 
     m.def( "angle_wrt_orbital_plane_dependent_variable", &tss::linkAngleWrtOrbitalPlaneDependentVariable,
@@ -1151,7 +1151,7 @@ void expose_observation_setup(py::module &m) {
            py::arg( "end_link_end_type" ) = tom::unidentified_link_end,
            py::arg( "start_link_end_id" ) = tom::LinkEndId( "", "" ),
            py::arg( "end_link_end_id" ) = tom::LinkEndId( "", "" ),
-           py::arg( "integrated_observation_handling" ) = tss::interval_undefined,
+           py::arg( "integrated_observation_handling" ) = tss::interval_start,
            get_docstring( "angle_wrt_orbital_plane_dependent_variable" ).c_str() );
 
     m.def( "integration_time_dependent_variable", &tss::integrationTimeDependentVariable,
