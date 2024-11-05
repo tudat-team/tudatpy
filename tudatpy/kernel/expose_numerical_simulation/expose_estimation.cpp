@@ -314,11 +314,20 @@ void expose_estimation(py::module &m) {
           py::arg("use_opposite_condition") = false,
           get_docstring("observation_filter").c_str() );
 
+//    m.def("observation_filter",
+//          py::overload_cast< tom::ObservationFilterType,
+//          const std::pair< double, double >, const bool, const bool >( &tom::observationFilter ),
+//          py::arg("filter_type"),
+//          py::arg("filter_value"),
+//          py::arg("filter_out") = true,
+//          py::arg("use_opposite_condition") = false,
+//          get_docstring("observation_filter").c_str() );
+
     m.def("observation_filter",
-          py::overload_cast< tom::ObservationFilterType,
-          const std::pair< double, double >, const bool, const bool >( &tom::observationFilter ),
+          py::overload_cast< tom::ObservationFilterType, const double, const double, const bool, const bool >( &tom::observationFilter ),
           py::arg("filter_type"),
-          py::arg("filter_value"),
+          py::arg("first_filter_value"),
+          py::arg("second_filter_value"),
           py::arg("filter_out") = true,
           py::arg("use_opposite_condition") = false,
           get_docstring("observation_filter").c_str() );
@@ -631,7 +640,8 @@ void expose_estimation(py::module &m) {
                                    get_docstring("ObservationCollection.concatenated_weights").c_str() )
             .def_property_readonly("concatenated_observations", &tom::ObservationCollection<STATE_SCALAR_TYPE, TIME_TYPE>::getObservationVector,
                                    get_docstring("ObservationCollection.concatenated_observations").c_str() )
-            .def_property_readonly("concatenated_link_definition_ids", &tom::ObservationCollection<STATE_SCALAR_TYPE, TIME_TYPE>::getConcatenatedLinkEndIds,
+            .def_property_readonly("concatenated_link_definition_ids",
+                                   py::overload_cast< >( &tom::ObservationCollection<STATE_SCALAR_TYPE, TIME_TYPE>::getConcatenatedLinkEndIds ),
                                    get_docstring("ObservationCollection.concatenated_link_definition_ids").c_str() )
             .def_property_readonly("link_definition_ids", &tom::ObservationCollection<STATE_SCALAR_TYPE, TIME_TYPE>::getInverseLinkEndIdentifierMap,
                                    get_docstring("ObservationCollection.link_definition_ids").c_str() )
@@ -694,6 +704,9 @@ void expose_estimation(py::module &m) {
             .def( "get_time_bounds_list", &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getTimeBoundsList,
                   py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
                   get_docstring( "get_time_bounds_list" ).c_str() )
+            .def( "get_time_bounds_per_set", &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getTimeBoundsPerSet,
+                  py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
+                  get_docstring( "get_time_bounds_per_set" ).c_str() )
             .def( "get_observations", &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getObservations,
                   py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
                   get_docstring( "get_observations" ).c_str() )
@@ -706,12 +719,20 @@ void expose_estimation(py::module &m) {
             .def( "get_concatenated_observation_times", &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getConcatenatedObservationTimes,
                   py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
                   get_docstring( "get_concatenated_observation_times" ).c_str() )
+            .def( "get_concatenated_float_observation_times", &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getConcatenatedDoubleObservationTimes,
+                  py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
+                  get_docstring( "get_concatenated_float_observation_times" ).c_str() )
             .def( "get_observations_and_times", &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationsAndTimes,
                   py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
                   get_docstring( "get_observations_and_times" ).c_str() )
             .def( "get_concatenated_observations_and_times", &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getConcatenatedObservationsAndTimes,
                   py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
                   get_docstring( "get_concatenated_observations_and_times" ).c_str() )
+            .def( "get_concatenated_link_definition_ids",
+                  py::overload_cast< std::shared_ptr< tom::ObservationCollectionParser > >(
+                          &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getConcatenatedLinkEndIds ),
+                  py::arg( "observation_parser" ),
+                  get_docstring( "get_concatenated_link_definition_ids" ).c_str() )
             .def( "get_weights", &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getWeights,
                   py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
                   get_docstring( "get_weights" ).c_str() )
@@ -724,6 +745,12 @@ void expose_estimation(py::module &m) {
             .def( "get_concatenated_residuals", &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getConcatenatedResiduals,
                   py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
                   get_docstring( "get_concatenated_residuals" ).c_str() )
+            .def( "get_rms_residuals", &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getRmsResiduals,
+                  py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
+                  get_docstring( "get_rms_residuals" ).c_str() )
+            .def( "get_mean_residuals", &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getMeanResiduals,
+                  py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
+                  get_docstring( "get_mean_residuals" ).c_str() )
             .def( "get_computed_observations", &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getComputedObservations,
                   py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
                   get_docstring( "get_computed_observations" ).c_str() )
@@ -971,6 +998,10 @@ void expose_estimation(py::module &m) {
                                    get_docstring("SingleObservationSet.residuals").c_str() )
             .def_property_readonly("concatenated_residuals", &tom::SingleObservationSet<STATE_SCALAR_TYPE, TIME_TYPE>::getResidualsVector,
                                    get_docstring("SingleObservationSet.concatenated_residuals").c_str() )
+            .def_property_readonly("rms_residuals", &tom::SingleObservationSet<STATE_SCALAR_TYPE, TIME_TYPE>::getRmsResiduals,
+                                   get_docstring("SingleObservationSet.rms_residuals").c_str() )
+            .def_property_readonly("mean_residuals", &tom::SingleObservationSet<STATE_SCALAR_TYPE, TIME_TYPE>::getMeanResiduals,
+                                   get_docstring("SingleObservationSet.mean_residuals").c_str() )
             .def_property_readonly("weights", &tom::SingleObservationSet<STATE_SCALAR_TYPE, TIME_TYPE>::getWeights,
                                    get_docstring("SingleObservationSet.weights").c_str())
             .def_property_readonly("concatenad_weights", &tom::SingleObservationSet<STATE_SCALAR_TYPE, TIME_TYPE>::getWeightsVector,
