@@ -536,7 +536,7 @@ void expose_estimation(py::module &m) {
           get_docstring("simulate_observations").c_str() );
 
     m.def("compute_residuals_and_dependent_variables",
-          &tss::computeResidualsAndDependentVariables<double, TIME_TYPE>,
+          &tss::computeResidualsAndDependentVariables<STATE_SCALAR_TYPE, TIME_TYPE>,
           py::arg("observation_collection"),
           py::arg("observation_simulators" ),
           py::arg("bodies"),
