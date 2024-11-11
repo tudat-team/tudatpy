@@ -241,6 +241,23 @@ public:
         return convertedTimes;
     }
 
+    template< typename TimeType >
+    std::vector< TimeType > getCurrentTimesFromSinglePosition(
+        const basic_astrodynamics::TimeScales inputScale, const basic_astrodynamics::TimeScales outputScale,
+        const std::vector< TimeType >& inputTimeValues,
+        const Eigen::Vector3d& earthFixedPosition )
+    {
+        std::vector < TimeType > convertedTimes;
+        convertedTimes.resize( inputTimeValues.size( ) );
+
+        for ( unsigned int i = 0; i < inputTimeValues.size(); ++i )
+        {
+            convertedTimes [ i ] =
+                getCurrentTime( inputScale, outputScale, inputTimeValues.at( i ), earthFixedPosition );
+        }
+        return convertedTimes;
+    }
+
     //! Function to reset all current times at given precision to NaN.
     template< typename TimeType >
     void resetTimes( )
