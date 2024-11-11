@@ -1139,12 +1139,13 @@ template< typename ObservationScalarType = double, typename TimeType = double,
         typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
 std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > splitObservationSet(
         const std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > observationSet,
-        const std::shared_ptr< ObservationSetSplitterBase > observationSetSplitter )
+        const std::shared_ptr< ObservationSetSplitterBase > observationSetSplitter,
+        const bool printWarning = true )
 {
-    if ( observationSet->getFilteredObservationSet( ) != nullptr )
+    if ( printWarning && observationSet->getFilteredObservationSet( ) != nullptr )
     {
         std::cerr << "Warning when splitting single observation set, the filtered observation set pointer is not empty and "
-                     " any filtered observation will be lost after splitting." ;
+                     " any filtered observation will be lost after splitting." << std::endl;
     }
 
     std::vector< int > rawStartIndicesNewSets = { 0 };
@@ -2226,6 +2227,10 @@ public:
         // Retrieve single observation sets based on observation parser
         std::map< ObservableType, std::map< LinkEnds, std::vector< unsigned int > > > singleObsSetsIndices = getSingleObservationSetsIndices( observationParser );
 
+        // Boolean denoting whether the warning about splitting observation sets which contain filtered observations has already been
+        // printed or not (this warning should only been thrown out once).
+        bool warningPrinted = false;
+
         for ( auto observableIt : singleObsSetsIndices )
         {
             for ( auto linkEndsIt : observableIt.second )
@@ -2237,7 +2242,8 @@ public:
                 {
                     // Get new observation sets after splitting
                     std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > newObsSets =
-                            splitObservationSet( singleObsSets.at( indexSetToSplit + obsSetCounter ), observationSetSplitter );
+                            splitObservationSet( singleObsSets.at( indexSetToSplit + obsSetCounter ), observationSetSplitter, !warningPrinted );
+                    warningPrinted = true;
 
                     // Remove original observation set
                     singleObsSets.erase( singleObsSets.begin( ) + ( indexSetToSplit + obsSetCounter ) );
