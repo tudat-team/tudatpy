@@ -226,10 +226,10 @@ std::map< propagators::IntegratedStateType, orbit_determination::StateDerivative
             std::string errorMessage = "Cannot yet create state derivative partial models for type " +
                     std::to_string( stateDerivativeIterator->first );
             throw std::runtime_error( errorMessage );
+        }
     }
-}
 
-return stateDerivativePartials;
+    return stateDerivativePartials;
 }
 //
 //extern template std::map< propagators::IntegratedStateType, orbit_determination::StateDerivativePartialsMap > createStateDerivativePartials< double, double >(
