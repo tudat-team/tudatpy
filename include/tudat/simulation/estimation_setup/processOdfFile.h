@@ -1536,19 +1536,14 @@ compressDopplerData(
 
     earth_orientation::TerrestrialTimeScaleConverter timeScaleConverter =
             earth_orientation::TerrestrialTimeScaleConverter( );
-    std::vector< Eigen::Vector3d > originalEarthFixedPositions;
-    for( unsigned int i = 0; i < originalObservationTimesTdb.size( ); ++i )
-    {
-        originalEarthFixedPositions.push_back(
-                simulation_setup::getCombinedApproximateGroundStationPositions( ).at(
-                        originalDopplerData->getLinkEnds( ).at( receiver ).stationName_ ) );
-    }
+    Eigen::Vector3d stationPosition = simulation_setup::getCombinedApproximateGroundStationPositions( ).at(
+        originalDopplerData->getLinkEnds( ).at( receiver ).stationName_ );
 
     std::vector< TimeType > originalObservationTimesUtc =
-            timeScaleConverter.getCurrentTimes< TimeType >( basic_astrodynamics::tdb_scale,
+            timeScaleConverter.getCurrentTimesFromSinglePosition< TimeType >( basic_astrodynamics::tdb_scale,
                                                             basic_astrodynamics::utc_scale,
                                                             originalObservationTimesTdb,
-                                                            originalEarthFixedPositions );
+                                                            stationPosition );
 
     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > compressedObservations;
     std::vector< TimeType > compressedObservationTimesUtc;
@@ -1597,8 +1592,6 @@ compressDopplerData(
                 "position for " +
                 stationName );
     }
-    Eigen::Vector3d stationPosition =
-            simulation_setup::getCombinedApproximateGroundStationPositions( ).at( stationName );
 
     std::vector< Eigen::Vector3d > compressedEarthFixedPositions;
     for( unsigned int i = 0; i < compressedObservationTimesUtc.size( ); ++i )
@@ -1665,6 +1658,7 @@ createCompressedDopplerCollection(
                     observation_models::SingleObservationSet< ObservationScalarType, TimeType > >
                     compressedDataSet = compressDopplerData< ObservationScalarType, TimeType >(
                             it.second.at( index ), compressionRatio );
+
             if( compressedDataSet->getObservationTimes( ).size( ) )
             {
                 compressedData->replaceSingleObservationSet( compressedDataSet, index );
