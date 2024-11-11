@@ -117,7 +117,7 @@ BOOST_AUTO_TEST_CASE( testPiecewiseLinearFrequencyInterpolator )
         errorThrown = true;
     }
     BOOST_CHECK( errorThrown );
-    x
+    
 
 }
 
