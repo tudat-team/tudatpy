@@ -192,7 +192,7 @@
   "transmitter:(Vehicle,); reflector1:(Earth,Station1); receiver:(Vehicle,)": [
     {
       "observableType": "nWayRange",
-      "oneWayRangeObsevation": [
+      "oneWayRangeObservation": [
         {
           "observableType": "oneWayRange"
         },
@@ -205,7 +205,7 @@
   "transmitter:(Vehicle,); reflector1:(Earth,Station2); receiver:(Vehicle,)": [
     {
       "observableType": "nWayRange",
-      "oneWayRangeObsevation": [
+      "oneWayRangeObservation": [
         {
           "lightTimeCorrections": [
             {
