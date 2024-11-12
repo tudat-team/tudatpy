@@ -293,6 +293,28 @@ getDsnNWayAveragedDopplerAncillarySettings(
     return ancillarySettings;
 }
 
+inline std::shared_ptr< ObservationAncilliarySimulationSettings > getDsnNWayRangeAncillarySettings(
+        const std::vector< FrequencyBands > &frequencyBands,
+        const double referenceFrequency,
+        const double lowestRangingComponent,
+        const std::vector< double > linkEndsDelays = std::vector< double >( ) )
+
+{
+    std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings =
+            std::make_shared< ObservationAncilliarySimulationSettings >( );
+
+    ancillarySettings->setAncilliaryDoubleData( sequential_range_lowest_ranging_component,
+                                                lowestRangingComponent );
+    ancillarySettings->setAncilliaryDoubleData( sequential_range_reference_frequency,
+                                                referenceFrequency );
+
+    ancillarySettings->setAncilliaryDoubleVectorData(
+            frequency_bands, convertFrequencyBandsToDoubleVector( frequencyBands ) );
+    ancillarySettings->setAncilliaryDoubleVectorData( link_ends_delays, linkEndsDelays );
+
+    return ancillarySettings;
+}
+
 inline std::shared_ptr< ObservationAncilliarySimulationSettings >
 getDopplerMeasuredFrequencyAncilliarySettings( const std::vector< FrequencyBands > &frequencyBands )
 {

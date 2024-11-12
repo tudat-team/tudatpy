@@ -1017,7 +1017,7 @@ public:
     //    /*!
     //     *  Function to convert from one representation of all measurement data (AlternativeEstimationInputType) to the other (EstimationInputType).
     //     *  In the former, the vector of times and vector of associated observations are stored separately.  In the latter, they are
-    //     *  stored as a map with time as key and obsevation as value.
+    //     *  stored as a map with time as key and observation as value.
     //     *  \param alternativeEstimationInput Original representation of measurement data
     //     *  \return Converted measurement data.
     //     */
