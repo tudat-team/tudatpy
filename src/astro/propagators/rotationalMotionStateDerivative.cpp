@@ -77,7 +77,7 @@ Eigen::Vector3d evaluateRotationalEquationsOfMotion(
     return inverseInertiaTensor * ( totalTorque );
 }
 
-template class RotationalMotionStateDerivative< double, double >;
+//template class RotationalMotionStateDerivative< double, double >;
 
 }
 

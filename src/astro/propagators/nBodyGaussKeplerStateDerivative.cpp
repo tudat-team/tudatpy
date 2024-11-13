@@ -110,7 +110,7 @@ Eigen::Vector6d computeGaussPlanetaryEquationsForKeplerElements(
                     currentCartesianState ) * accelerationsInInertialFrame, centralBodyGravitationalParameter );
 }
 
-template class NBodyGaussKeplerStateDerivative< double, double >;
+//template class NBodyGaussKeplerStateDerivative< double, double >;
 
 } // namespace propagators
 

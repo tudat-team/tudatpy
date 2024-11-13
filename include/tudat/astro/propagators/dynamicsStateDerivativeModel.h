@@ -737,7 +737,7 @@ private:
     std::map< TimeType, unsigned int > cumulativeFunctionEvaluationCounter_;
 };
 
-extern template class DynamicsStateDerivativeModel< double, double >;
+//extern template class DynamicsStateDerivativeModel< double, double >;
 
 inline std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAccelerationBetweenBodies(
     const std::string bodyUndergoingAcceleration,

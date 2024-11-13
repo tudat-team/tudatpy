@@ -260,9 +260,9 @@ protected:
 };
 
 
-extern template class NumericalIntegrator < double, Eigen::VectorXd, Eigen::VectorXd >;
-extern template class NumericalIntegrator < double, Eigen::Vector6d, Eigen::Vector6d >;
-extern template class NumericalIntegrator < double, Eigen::MatrixXd, Eigen::MatrixXd >;
+//extern template class NumericalIntegrator < double, Eigen::VectorXd, Eigen::VectorXd >;
+//extern template class NumericalIntegrator < double, Eigen::Vector6d, Eigen::Vector6d >;
+//extern template class NumericalIntegrator < double, Eigen::MatrixXd, Eigen::MatrixXd >;
 
 //! Perform an integration to a specified independent variable value.
 template< typename IndependentVariableType, typename StateType, typename StateDerivativeType, typename TimeStepType >

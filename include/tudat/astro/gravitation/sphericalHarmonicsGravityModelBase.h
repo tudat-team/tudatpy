@@ -21,7 +21,7 @@ namespace gravitation
 
 //! Template base class for spherical harmonics gravitational acceleration models.
 /*!
- * This template class serves as the base class for the
+ * This //template class serves as the base class for the
  * SphericalHarmonicsGravitationalAccelerationModel, CentralGravitationalAccelerationModel,
  * CentralJ2GravitationalAccelerationModel, CentralJ2J3GravitationalAccelerationModel, and
  * CentralJ2J3J4GravitationalAccelerationModel classes.

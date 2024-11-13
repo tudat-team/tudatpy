@@ -261,7 +261,7 @@ std::shared_ptr< RotationalEphemeris > getTabulatedRotationalEphemeris(
 
 }
 
-extern template class TabulatedRotationalEphemeris< double, double >;
+//extern template class TabulatedRotationalEphemeris< double, double >;
 
 
 bool isTabulatedRotationalEphemeris( const std::shared_ptr< RotationalEphemeris > rotationalEphemeris );
