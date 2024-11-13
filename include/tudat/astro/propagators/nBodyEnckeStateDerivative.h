@@ -290,7 +290,7 @@ private:
 
 };
 
-extern template class NBodyEnckeStateDerivative< double, double >;
+//extern template class NBodyEnckeStateDerivative< double, double >;
 
 
 } // namespace propagators
