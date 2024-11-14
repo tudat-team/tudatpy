@@ -197,7 +197,7 @@ private:
 
 };
 
-extern template class RotationalMotionModifiedRodriguesParametersStateDerivative< double, double >;
+//extern template class RotationalMotionModifiedRodriguesParametersStateDerivative< double, double >;
 
 } // namespace propagators
 

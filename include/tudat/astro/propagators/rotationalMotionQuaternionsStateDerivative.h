@@ -199,7 +199,7 @@ private:
 };
 
 
-extern template class RotationalMotionQuaternionsStateDerivative< double, double >;
+//extern template class RotationalMotionQuaternionsStateDerivative< double, double >;
 
 } // namespace propagators
 

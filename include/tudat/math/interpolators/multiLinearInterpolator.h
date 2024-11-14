@@ -348,11 +348,11 @@ private:
     }
 };
 
-extern template class MultiLinearInterpolator< double, Eigen::Vector6d, 1 >;
-extern template class MultiLinearInterpolator< double, Eigen::Vector6d, 2 >;
-extern template class MultiLinearInterpolator< double, Eigen::Vector6d, 3 >;
-extern template class MultiLinearInterpolator< double, Eigen::Vector6d, 4 >;
-extern template class MultiLinearInterpolator< double, Eigen::Vector6d, 5 >;
+//extern template class MultiLinearInterpolator< double, Eigen::Vector6d, 1 >;
+//extern template class MultiLinearInterpolator< double, Eigen::Vector6d, 2 >;
+//extern template class MultiLinearInterpolator< double, Eigen::Vector6d, 3 >;
+//extern template class MultiLinearInterpolator< double, Eigen::Vector6d, 4 >;
+//extern template class MultiLinearInterpolator< double, Eigen::Vector6d, 5 >;
 
 } // namespace interpolators
 
