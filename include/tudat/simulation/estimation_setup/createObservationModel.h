@@ -1017,9 +1017,17 @@ class DsnNWayAveragedDopplerObservationSettings : public ObservationModelSetting
     bool subtractDopplerSignature_;
 };
 
-class DsnNWayRangeObservationSettings : public NWayRangeObservationSettings
+class DsnNWayRangeObservationSettings : public ObservationModelSettings
 {
    public:
+    //! Constructor
+    /*!
+     * Constructor for same light-time corrections per link
+     * \param lightTimeCorrections Settings for a single light-time correction that is to be used
+     * for the observation model (nullptr if none)
+     * \param biasSettings Settings for the observation bias model that is to be used (default none:
+     * nullptr)
+     */
     DsnNWayRangeObservationSettings(
             const LinkDefinition& linkEnds,
             const std::vector< std::shared_ptr< LightTimeCorrectionSettings > >
@@ -1028,22 +1036,51 @@ class DsnNWayRangeObservationSettings : public NWayRangeObservationSettings
             const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
             const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria =
                     std::make_shared< LightTimeConvergenceCriteria >( ) ) :
-        NWayRangeObservationSettings( linkEnds,
-                                      lightTimeCorrectionsList,
-                                      biasSettings,
-                                      lightTimeConvergenceCriteria )
-    { }
+        ObservationModelSettings( dsn_n_way_range,
+                                  linkEnds,
+                                  lightTimeCorrectionsList,
+                                  biasSettings ),
+        multiLegLightTimeConvergenceCriteria_( lightTimeConvergenceCriteria )
+    {
+        for( unsigned int i = 0; i < linkEnds.size( ) - 1; i++ )
+        {
+            oneWayRangeObservationSettings_.push_back( std::make_shared< ObservationModelSettings >(
+                    one_way_range,
+                    getSingleLegLinkEnds( linkEnds.linkEnds_, i ),
+                    lightTimeCorrectionsList,
+                    nullptr,
+                    lightTimeConvergenceCriteria ) );
+        }
+    }
 
+    //! Constructor
+    /*!
+     * Constructor for different light-time corrections per link
+     * \param oneWayRangeObservationSettings List of settings for the one-way range observation
+     * models \param biasSettings Settings for the observation bias model that is to be used
+     * (default none: nullptr) \param lightTimeConvergenceCriteria Settings for the light-time
+     * convergence criteria
+     */
     DsnNWayRangeObservationSettings(
             const std::vector< std::shared_ptr< ObservationModelSettings > >
                     oneWayRangeObservationSettings,
             const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
             const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria =
                     std::make_shared< LightTimeConvergenceCriteria >( ) ) :
-        NWayRangeObservationSettings( oneWayRangeObservationSettings,
-                                      biasSettings,
-                                      lightTimeConvergenceCriteria )
+        ObservationModelSettings( dsn_n_way_range,
+                                  mergeOneWayLinkEnds( getObservationModelListLinkEnds(
+                                          oneWayRangeObservationSettings ) ),
+                                  std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
+                                  biasSettings ),
+        oneWayRangeObservationSettings_( oneWayRangeObservationSettings ),
+        multiLegLightTimeConvergenceCriteria_( lightTimeConvergenceCriteria )
     { }
+
+    //! Destructor
+    ~DsnNWayRangeObservationSettings( ) { }
+
+    std::vector< std::shared_ptr< ObservationModelSettings > > oneWayRangeObservationSettings_;
+    std::shared_ptr< LightTimeConvergenceCriteria > multiLegLightTimeConvergenceCriteria_;
 };
 
 inline std::shared_ptr< ObservationModelSettings > oneWayRangeSettings(
@@ -1297,7 +1334,7 @@ inline std::shared_ptr< ObservationModelSettings > dsnNWayAveragedDopplerObserva
             subtractDopplerSignature );
 }
 
-inline std::shared_ptr< DsnNWayRangeObservationSettings > dsnNWayRangeObservationSettings(
+inline std::shared_ptr< ObservationModelSettings > dsnNWayRangeObservationSettings(
         const LinkDefinition& linkEnds,
         const std::vector< std::shared_ptr< LightTimeCorrectionSettings > >
                 lightTimeCorrectionsList =
