@@ -83,9 +83,9 @@ public:
 
 };
 
-extern template class Interpolator< double, Eigen::VectorXd >;
-extern template class Interpolator< double, Eigen::Vector6d >;
-extern template class Interpolator< double, Eigen::MatrixXd >;
+//extern template class Interpolator< double, Eigen::VectorXd >;
+//extern template class Interpolator< double, Eigen::Vector6d >;
+//extern template class Interpolator< double, Eigen::MatrixXd >;
 
 } // namespace interpolators
 

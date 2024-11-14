@@ -92,13 +92,13 @@ Eigen::VectorXd computeLinearInterpolation(
              * locationTargetIndependentVariableValueInInterval );
 }
 
-template class LinearInterpolator< double, Eigen::VectorXd >;
-template class LinearInterpolator< double, Eigen::Vector6d >;
-template class LinearInterpolator< double, Eigen::MatrixXd >;
+//template class LinearInterpolator< double, Eigen::VectorXd >;
+//template class LinearInterpolator< double, Eigen::Vector6d >;
+//template class LinearInterpolator< double, Eigen::MatrixXd >;
 
-template class LinearInterpolator< double, Eigen::Matrix< long double, Eigen::Dynamic, 1 > >;
-template class LinearInterpolator< double, Eigen::Matrix< long double, Eigen::Dynamic, 6 > >;
-template class LinearInterpolator< double, Eigen::Matrix< long double, Eigen::Dynamic,  Eigen::Dynamic > >;
+//template class LinearInterpolator< double, Eigen::Matrix< long double, Eigen::Dynamic, 1 > >;
+//template class LinearInterpolator< double, Eigen::Matrix< long double, Eigen::Dynamic, 6 > >;
+//template class LinearInterpolator< double, Eigen::Matrix< long double, Eigen::Dynamic,  Eigen::Dynamic > >;
 
 } // namespace interpolators
 } // mamespace tudat

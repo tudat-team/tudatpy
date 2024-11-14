@@ -242,7 +242,7 @@ protected:
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > unprocessedState_;
 };
 
-extern template class SingleStateTypeDerivative< double, double >;
+//extern template class SingleStateTypeDerivative< double, double >;
 
 
 } // namespace propagators

@@ -523,9 +523,9 @@ private:
 
 };
 
-extern template class LagrangeInterpolator< double, Eigen::VectorXd >;
-extern template class LagrangeInterpolator< double, Eigen::Vector6d >;
-extern template class LagrangeInterpolator< double, Eigen::MatrixXd >;
+//extern template class LagrangeInterpolator< double, Eigen::VectorXd >;
+//extern template class LagrangeInterpolator< double, Eigen::Vector6d >;
+//extern template class LagrangeInterpolator< double, Eigen::MatrixXd >;
 
 //! Typedef for LagrangeInterpolator with double as both its dependent and independent data type.
 typedef LagrangeInterpolator< double, double > LagrangeInterpolatorDouble;
