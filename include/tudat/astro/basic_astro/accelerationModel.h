@@ -132,7 +132,7 @@ typedef AccelerationModel< Eigen::Vector2d > AccelerationModel2d;
 //! Typedef for shared-pointer to a 2D acceleration model.
 typedef std::shared_ptr< AccelerationModel2d > AccelerationModel2dPointer;
 
-extern template class AccelerationModel< Eigen::Vector3d >;
+//extern template class AccelerationModel< Eigen::Vector3d >;
 
 
 //! Update the members of an acceleration model and evaluate the acceleration.

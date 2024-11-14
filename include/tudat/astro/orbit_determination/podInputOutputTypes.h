@@ -1144,11 +1144,11 @@ struct EstimationOutput: public CovarianceAnalysisOutput< ObservationScalarType,
 
 };
 
-extern template class CovarianceAnalysisInput< double, double >;
-extern template struct CovarianceAnalysisOutput< double >;
-
-extern template class EstimationInput< double, double >;
-extern template struct EstimationOutput< double >;
+//extern template class CovarianceAnalysisInput< double, double >;
+//extern template struct CovarianceAnalysisOutput< double >;
+//
+//extern template class EstimationInput< double, double >;
+//extern template struct EstimationOutput< double >;
 
 }
 
