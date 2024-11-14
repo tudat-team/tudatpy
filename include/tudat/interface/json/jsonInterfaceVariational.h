@@ -132,7 +132,7 @@ protected:
 
 };
 
-extern template class JsonVariationalEquationsSimulationManager< double, double >;
+//extern template class JsonVariationalEquationsSimulationManager< double, double >;
 
 
 } // namespace json_interface
