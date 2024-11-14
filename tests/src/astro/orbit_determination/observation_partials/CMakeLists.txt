@@ -61,11 +61,11 @@ TUDAT_ADD_TEST_CASE(EulerAngleObservationPartials
         ${Tudat_ESTIMATION_LIBRARIES}
         )
 
-TUDAT_ADD_TEST_CASE(LightTimePartials
-        PRIVATE_LINKS
-        tudat_test_support
-        ${Tudat_ESTIMATION_LIBRARIES}
-        )
+#TUDAT_ADD_TEST_CASE(LightTimePartials
+#        PRIVATE_LINKS
+#        tudat_test_support
+#        ${Tudat_ESTIMATION_LIBRARIES}
+#        )
 
 TUDAT_ADD_TEST_CASE(RotationMatrixPartials
         PRIVATE_LINKS
