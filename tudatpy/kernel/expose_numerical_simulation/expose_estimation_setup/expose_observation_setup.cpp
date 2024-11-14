@@ -573,21 +573,19 @@ void expose_observation_setup( py::module& m )
            py::arg( "subtract_doppler_signature" ) = true,
            get_docstring( "dsn_n_way_doppler_averaged_from_one_way_links" ).c_str( ) );
 
-    m.def( "dsn_n_way_range",
+    m.def( "dsn_n_way_Range",
            py::overload_cast<
-                   const tudat::observation_models::LinkDefinition&,
-                   const std::vector< std::shared_ptr<
-                           tudat::observation_models::LightTimeCorrectionSettings > >,
-                   const std::shared_ptr< tudat::observation_models::ObservationBiasSettings >,
-                   const std::shared_ptr<
-                           tudat::observation_models::LightTimeConvergenceCriteria > >(
-                   &tudat::observation_models::dsnNWayRangeObservationSettings ),
+                   const tom::LinkDefinition&,
+                   const std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >,
+                   const std::shared_ptr< tom::ObservationBiasSettings >,
+                   const std::shared_ptr< tom::LightTimeConvergenceCriteria > >(
+                   &tom::dsnNWayRangeObservationSettings ),
            py::arg( "link_ends" ),
-           py::arg( "light_time_correction_settings" ) = std::vector<
-                   std::shared_ptr< tudat::observation_models::LightTimeCorrectionSettings > >( ),
+           py::arg( "light_time_correction_settings" ) =
+                   std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
            py::arg( "bias_settings" ) = nullptr,
            py::arg( "light_time_convergence_settings" ) =
-                   std::make_shared< tudat::observation_models::LightTimeConvergenceCriteria >( ),
+                   std::make_shared< tom::LightTimeConvergenceCriteria >( ),
            get_docstring( "dsn_n_way_range" ).c_str( ) );
 
     m.def( "doppler_measured_frequency",
