@@ -41,7 +41,7 @@ bool customTerminationConditionOnStateElement( const double time, const Eigen::M
     }
 }
 
-bool customTerminationConditionOnAltitude( const double time, const Eigen::MatrixXd& state, const SystemOfBodies& bodies )
+bool customTerminationConditionOnAltitude( const double time, const SystemOfBodies& bodies )
 {
     if( bodies.at( "Asterix" )->getFlightConditions( )->getCurrentAltitude( ) < 1.0E6 )
     {
@@ -163,16 +163,23 @@ BOOST_AUTO_TEST_CASE( testCustomPropagationTermination )
     for ( int test = 0; test < 2; test++ )
     {
 
-        std::shared_ptr< PropagationTimeTerminationSettings > terminationSettings;
+        std::shared_ptr< PropagationTerminationSettings > terminationSettings;
         if( test == 0 )
         {
-            terminationSettings = popagationCustomTerminationSettings( )
+            std::function< bool( const double, const Eigen::MatrixXd& ) > terminationFunction =
+                std::bind( &customTerminationConditionOnStateElement, std::placeholders::_1, std::placeholders::_2 );
+            terminationSettings = popagationCustomTerminationSettingsFromFullState( terminationFunction );
         }
+        else if( test == 1 )
+        {
+            terminationSettings = popagationCustomTerminationSettings( std::bind( &customTerminationConditionOnAltitude, std::placeholders::_1, bodies ) );
+        }
+
         std::shared_ptr<TranslationalStatePropagatorSettings<double> > propagatorSettings =
             std::make_shared<TranslationalStatePropagatorSettings<double> >
                 ( centralBodies, accelerationModelMap, bodiesToPropagate, asterixInitialState, simulationStartEpoch,
                   integratorSettings,
-                  std::make_shared<PropagationTimeTerminationSettings>( simulationEndEpoch ), cowell,
+                  terminationSettings, cowell,
                   dependentVariablesList );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -182,16 +189,46 @@ BOOST_AUTO_TEST_CASE( testCustomPropagationTermination )
 
         // Create simulation object (but do not propagate dynamics).
         SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings );
-        auto stateHistory = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
-        for ( auto it: stateHistory )
+
+        BOOST_CHECK( ( dynamicsSimulator.getEquationsOfMotionNumericalSolution().size( ) > 50 ) );
+        if( test == 0 )
         {
-            std::cout << "State: " << it.second.transpose( ) << std::endl;
+            int checkTermination = 0;
+            bool terminationReachedAtEnd = false;
+            std::map< double, Eigen::VectorXd > stateHistory = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
+            for ( std::map< double, Eigen::VectorXd >::iterator it = stateHistory.begin( ); it != stateHistory.end( ); it++ )
+            {
+                if( it->second( 0 ) < 0.0 )
+                {
+                    if( it->first == stateHistory.rbegin( )->first )
+                    {
+                        terminationReachedAtEnd = true;
+                    }
+                    checkTermination++;
+                }
+            }
+            BOOST_CHECK( checkTermination == 1 );
+            BOOST_CHECK( terminationReachedAtEnd );
         }
 
-        auto dependentVariableHistory = dynamicsSimulator.getDependentVariableHistory( );
-        for ( auto it: dependentVariableHistory )
+        if( test == 1 )
         {
-            std::cout << "Dep: " << it.second.transpose( ) << std::endl;
+            int checkTermination = 0;
+            bool terminationReachedAtEnd = false;
+            std::map< double, Eigen::VectorXd > dependentVariableHistory = dynamicsSimulator.getDependentVariableHistory( );
+            for ( std::map< double, Eigen::VectorXd >::iterator it = dependentVariableHistory.begin( ); it != dependentVariableHistory.end( ); it++ )
+            {
+                if( it->second( 0 ) < 1.0E6 )
+                {
+                    if( it->first == dependentVariableHistory.rbegin( )->first )
+                    {
+                        terminationReachedAtEnd = true;
+                    }
+                    checkTermination++;
+                }
+            }
+            BOOST_CHECK( checkTermination == 1 );
+            BOOST_CHECK( terminationReachedAtEnd );
         }
     }
 }
