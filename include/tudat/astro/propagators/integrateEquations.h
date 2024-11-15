@@ -432,14 +432,14 @@ void propagateToExactTerminationCondition(
             dependentVariableHistory[ endTime ] = dependentVariableFunction( );
 
             // Check stopping conditions to be able to save details
-            propagationTerminationCondition->checkStopCondition( endTime, currentCpuTime, endState );
+            propagationTerminationCondition->checkStopCondition( endTime, currentCpuTime, endState.template cast< double >( ) );
         }
     }
     else
     {
         // Check stopping conditions to be able to save details
         integrator->getStateDerivativeFunction( )( endTime, endState );
-        propagationTerminationCondition->checkStopCondition( endTime, currentCpuTime, endState );
+        propagationTerminationCondition->checkStopCondition( endTime, currentCpuTime, endState.template cast< double >( ) );
     }
 
     // Turn step size control back on
@@ -618,7 +618,7 @@ void integrateEquationsFromIntegrator(
                         std::chrono::steady_clock::now( ) - initialClockTime ).count( ) * 1.0e-9;
             cumulativeComputationTimeHistory[ currentTime ] = currentCPUTime;
 
-            if( propagationTerminationCondition->checkStopCondition( static_cast< double >( currentTime ), currentCPUTime, newState ) )
+            if( propagationTerminationCondition->checkStopCondition( static_cast< double >( currentTime ), currentCPUTime, newState.template cast< double >( ) ) )
             {
                 // Propagate to the exact termination conditions
                 if( propagationTerminationCondition->iterateToExactTermination( ) )
