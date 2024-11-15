@@ -788,6 +788,12 @@ void expose_observation_setup( py::module& m )
             .value( "reception_reference_frequency_band",
                     tom::ObservationAncilliarySimulationVariable::
                             reception_reference_frequency_band )
+            .value( "sequential_range_reference_frequency",
+                    tom::ObservationAncilliarySimulationVariable::
+                            sequential_range_reference_frequency )
+            .value( "sequential_range_lowest_ranging_component",
+                    tom::ObservationAncilliarySimulationVariable::
+                            sequential_range_lowest_ranging_component )
             .export_values( );
 
     py::class_< tom::ObservationViabilitySettings,
