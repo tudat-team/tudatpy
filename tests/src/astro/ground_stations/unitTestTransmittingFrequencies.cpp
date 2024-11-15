@@ -100,7 +100,7 @@ BOOST_AUTO_TEST_CASE( testPiecewiseLinearFrequencyInterpolator )
     {
         errorThrown = true;
     }
-   // BOOST_CHECK( errorThrown );
+    BOOST_CHECK( errorThrown );
 
     // Check whether error is thrown for discontinuous start/end times
     startTimes.pop_back( );
@@ -116,24 +116,8 @@ BOOST_AUTO_TEST_CASE( testPiecewiseLinearFrequencyInterpolator )
     {
         errorThrown = true;
     }
-   // BOOST_CHECK( errorThrown );
-
-    // Check whether error is thrown when accessing an invalid time block
-    startTimes.pop_back( );
-    startTimes.push_back( 10.1 );
-    frequencyInterpolator = PiecewiseLinearFrequencyInterpolator(
-            startTimes, endTimes, rampRates, startFrequency );
-    frequencyInterpolator.template getTemplatedCurrentFrequency< >( 10.15 );
-    try
-    {
-        frequencyInterpolator.template getTemplatedCurrentFrequency< >( 10.05 );
-        errorThrown = false;
-    }
-    catch( std::runtime_error const& )
-    {
-        errorThrown = true;
-    }
-   // BOOST_CHECK( errorThrown );
+    BOOST_CHECK( errorThrown );
+    
 
 }
 

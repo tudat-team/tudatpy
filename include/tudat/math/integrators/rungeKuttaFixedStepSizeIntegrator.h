@@ -356,9 +356,9 @@ protected:
     RungeKuttaCoefficients::OrderEstimateToIntegrate orderToUse_;
 };
 
-extern template class RungeKuttaFixedStepSizeIntegrator < double, Eigen::VectorXd, Eigen::VectorXd >;
-extern template class RungeKuttaFixedStepSizeIntegrator < double, Eigen::Vector6d, Eigen::Vector6d >;
-extern template class RungeKuttaFixedStepSizeIntegrator < double, Eigen::MatrixXd, Eigen::MatrixXd >;
+//extern template class RungeKuttaFixedStepSizeIntegrator < double, Eigen::VectorXd, Eigen::VectorXd >;
+//extern template class RungeKuttaFixedStepSizeIntegrator < double, Eigen::Vector6d, Eigen::Vector6d >;
+//extern template class RungeKuttaFixedStepSizeIntegrator < double, Eigen::MatrixXd, Eigen::MatrixXd >;
 
 
 //! Typedef of RK fixed-step integrator (state/state derivative = VectorXd, independent variable = double).

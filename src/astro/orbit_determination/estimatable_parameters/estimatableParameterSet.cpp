@@ -16,10 +16,10 @@ namespace tudat
 namespace estimatable_parameters
 {
 
-//template class EstimatableParameterSet< double >;
+////template class EstimatableParameterSet< double >;
 
 //#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
-//template class dsdEstimatableParameterSet< long double >;
+////template class dsdEstimatableParameterSet< long double >;
 //#endif
 
 }

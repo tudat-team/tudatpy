@@ -864,7 +864,7 @@ private:
 
 };
 
-extern template class EnvironmentUpdater< double, double >;
+//extern template class EnvironmentUpdater< double, double >;
 
 
 } // namespace propagators

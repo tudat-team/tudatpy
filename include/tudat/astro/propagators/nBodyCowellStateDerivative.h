@@ -103,7 +103,7 @@ public:
 
 };
 
-extern template class NBodyCowellStateDerivative< double, double >;
+//extern template class NBodyCowellStateDerivative< double, double >;
 
 } // namespace propagators
 
