@@ -220,7 +220,7 @@ private:
 
 };
 
-extern template class NBodyGaussModifiedEquinictialStateDerivative< double, double >;
+//extern template class NBodyGaussModifiedEquinictialStateDerivative< double, double >;
 
 } // namespace propagators
 
