@@ -76,6 +76,12 @@ public:
                                       const std::vector< double >& linkEndTimes ) = 0;
 };
 
+double getEvaluationEpochOfViabilityBody(
+    const std::vector< Eigen::Vector6d >& linkEndStates,
+    const std::vector< double >& linkEndTimes,
+    const std::pair< int, int > linkEndIndexPair,
+    const std::function< Eigen::Vector6d( const double ) > viabilityBodyStateFunction  );
+
 //! Function to check whether an observation is viable
 /*!
  * Function to check whether an observation is viable. The input from which the viability of an observation is calculated are a
