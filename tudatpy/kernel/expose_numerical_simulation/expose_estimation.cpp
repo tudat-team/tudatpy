@@ -536,7 +536,7 @@ void expose_estimation(py::module &m) {
           get_docstring("simulate_observations").c_str() );
 
     m.def("compute_residuals_and_dependent_variables",
-          &tss::computeResidualsAndDependentVariables<double, TIME_TYPE>,
+          &tss::computeResidualsAndDependentVariables<STATE_SCALAR_TYPE, TIME_TYPE>,
           py::arg("observation_collection"),
           py::arg("observation_simulators" ),
           py::arg("bodies"),
@@ -937,10 +937,12 @@ void expose_estimation(py::module &m) {
     m.def("split_observation_set",
           py::overload_cast<
                   const std::shared_ptr< tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE > >,
-                  const std::shared_ptr< tom::ObservationSetSplitterBase > >(
+                  const std::shared_ptr< tom::ObservationSetSplitterBase >,
+                  const bool >(
                   &tom::splitObservationSet< STATE_SCALAR_TYPE, TIME_TYPE > ),
           py::arg( "original_observation_set" ),
           py::arg( "observation_splitter" ),
+          py::arg( "print_warning" ) = true,
           get_docstring( "split_observation_set" ).c_str( ) );
 
     py::class_< tom::SingleObservationSet<STATE_SCALAR_TYPE, TIME_TYPE>,
