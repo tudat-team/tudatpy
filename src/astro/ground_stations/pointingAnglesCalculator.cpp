@@ -20,6 +20,8 @@ namespace ground_stations
 //! Function to calculate the elevation angle given a vector in the topocentric frame.
 double PointingAnglesCalculator::calculateElevationAngle( const Eigen::Vector3d& vectorInTopoCentricFrame )
 {
+//    std::cout<<"Elevation "<<mathematical_constants::PI / 2.0 - linear_algebra::computeAngleBetweenVectors(
+//        vectorInTopoCentricFrame, Eigen::Vector3d::UnitZ( ) )<<std::endl;
     // Calculate and return elevation angle.
     return mathematical_constants::PI / 2.0 - linear_algebra::computeAngleBetweenVectors(
                  vectorInTopoCentricFrame, Eigen::Vector3d::UnitZ( ) );
