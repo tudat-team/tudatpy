@@ -253,9 +253,9 @@ public:
 };
 
 
-extern template class LinearInterpolator< double, Eigen::VectorXd >;
-extern template class LinearInterpolator< double, Eigen::Vector6d >;
-extern template class LinearInterpolator< double, Eigen::MatrixXd >;
+//extern template class LinearInterpolator< double, Eigen::VectorXd >;
+//extern template class LinearInterpolator< double, Eigen::Vector6d >;
+//extern template class LinearInterpolator< double, Eigen::MatrixXd >;
 
 
 //! Typedef for linear interpolator with (in)dependent variable = double.

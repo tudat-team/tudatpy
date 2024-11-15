@@ -5,7 +5,7 @@ namespace tudat
 namespace basic_astrodynamics
 {
 
-template class AccelerationModel< Eigen::Vector3d >;
+//template class AccelerationModel< Eigen::Vector3d >;
 
 } // namespace basic_astrodynamics
 

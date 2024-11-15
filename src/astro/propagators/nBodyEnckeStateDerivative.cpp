@@ -16,7 +16,7 @@ namespace tudat
 namespace propagators
 {
 
-template class NBodyEnckeStateDerivative< double, double >;
+//template class NBodyEnckeStateDerivative< double, double >;
 
 }
 

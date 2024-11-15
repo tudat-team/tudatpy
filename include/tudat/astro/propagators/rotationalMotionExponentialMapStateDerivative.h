@@ -196,7 +196,7 @@ private:
 
 };
 
-extern template class RotationalMotionExponentialMapStateDerivative< double, double >;
+//extern template class RotationalMotionExponentialMapStateDerivative< double, double >;
 
 } // namespace propagators
 
