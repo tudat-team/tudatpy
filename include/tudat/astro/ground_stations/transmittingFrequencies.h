@@ -238,47 +238,22 @@ public:
     {
         TimeType lookupTime = lookupTimeOriginal;
         int lowerNearestNeighbour = -1;
-        try
-        {
-            lowerNearestNeighbour = startTimeLookupScheme_->findNearestLowerNeighbour( lookupTime );
-        }
-        catch( const std::exception& caughtException )
-        {
-            std::string exceptionText = std::string( caughtException.what( ) );
-            throw std::runtime_error(
-                "Error when interpolating ramp reference frequency: look up time (" + std::to_string(
-                    static_cast< double >( lookupTime ) ) + ", caught exception: " + exceptionText );
-        }
-
-
-//        if( lookupTime > endTimes_.at( lowerNearestNeighbour ) || lookupTime < startTimes_.at ( lowerNearestNeighbour ) )
-//        {
-//            throw std::runtime_error(
-//                    "Error when interpolating ramp reference frequency: look up time (" + std::to_string(
-//                            static_cast< double >( lookupTime ) ) +
-//                    ") is outside the ramp table interval (" + std::to_string( double( startTimes_.at( 0 ) ) ) + " to " +
-//                    std::to_string( double( startTimes_.back( ) ) ) + ")." );
-//        }
-        if ( lookupTime > endTimes_.at( lowerNearestNeighbour ) )
-        {
-            lowerNearestNeighbour = endTimes_.size( ) - 1;
-        }
-        if ( lookupTime < startTimes_.at ( lowerNearestNeighbour ) )
+        if( lookupTimeOriginal < startTimes_.at( 0 ) )
         {
             lowerNearestNeighbour = 0;
         }
-        else if ( invalidStartTimeLookupScheme_ != nullptr )
+        else
         {
-            int invalidLowestNearestNeighbour = invalidStartTimeLookupScheme_->findNearestLowerNeighbour( lookupTime );
-            if ( lookupTime > invalidTimeBlocksStartTimes_.at ( invalidLowestNearestNeighbour ) &&
-                lookupTime < invalidTimeBlocksEndTimes_.at ( invalidLowestNearestNeighbour ) )
+            try
             {
+                lowerNearestNeighbour = startTimeLookupScheme_->findNearestLowerNeighbour( lookupTime );
+            }
+            catch ( const std::exception &caughtException )
+            {
+                std::string exceptionText = std::string( caughtException.what( ));
                 throw std::runtime_error(
                     "Error when interpolating ramp reference frequency: look up time (" + std::to_string(
-                            static_cast< double >( lookupTime ) ) +
-                    ") is in time interval without transmitted frequency (" +
-                    std::to_string( double( invalidTimeBlocksStartTimes_.at ( invalidLowestNearestNeighbour ) ) ) + " to " +
-                    std::to_string( double( invalidTimeBlocksEndTimes_.at ( invalidLowestNearestNeighbour ) ) ) + ")." );
+                        static_cast< double >( lookupTime )) + ", caught exception: " + exceptionText );
             }
         }
 

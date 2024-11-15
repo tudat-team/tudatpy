@@ -287,7 +287,7 @@ private:
 
 };
 
-extern template class NBodyUnifiedStateModelModifiedRodriguesParametersStateDerivative< double, double >;
+//extern template class NBodyUnifiedStateModelModifiedRodriguesParametersStateDerivative< double, double >;
 
 } // namespace propagators
 

@@ -650,7 +650,7 @@ protected:
 
 };
 
-extern template class JsonSimulationManager< double, double >;
+//extern template class JsonSimulationManager< double, double >;
 
 //! Function to create a `json` object from a Simulation object.
 template< typename TimeType, typename StateScalarType >

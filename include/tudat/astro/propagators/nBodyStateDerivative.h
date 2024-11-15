@@ -548,7 +548,7 @@ protected:
 
 };
 
-extern template class NBodyStateDerivative< double, double >;
+//extern template class NBodyStateDerivative< double, double >;
 
 } // namespace propagators
 
