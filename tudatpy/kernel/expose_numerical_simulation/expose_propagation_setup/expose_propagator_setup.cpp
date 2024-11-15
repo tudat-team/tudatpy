@@ -589,6 +589,11 @@ void expose_propagator_setup(py::module &m) {
           py::arg("custom_condition"),
           get_docstring("custom_termination").c_str());
 
+    m.def("custom_termination_with_state_input",
+          &tp::popagationCustomTerminationSettingsFromFullState,
+          py::arg("custom_condition"),
+          get_docstring("custom_termination_with_state_input").c_str());
+
     m.def("hybrid_termination",
           &tp::propagationHybridTerminationSettings,
           py::arg("termination_settings"),
