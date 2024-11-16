@@ -432,14 +432,14 @@ void propagateToExactTerminationCondition(
             dependentVariableHistory[ endTime ] = dependentVariableFunction( );
 
             // Check stopping conditions to be able to save details
-            propagationTerminationCondition->checkStopCondition( endTime, currentCpuTime );
+            propagationTerminationCondition->checkStopCondition( endTime, currentCpuTime, endState.template cast< double >( ) );
         }
     }
     else
     {
         // Check stopping conditions to be able to save details
         integrator->getStateDerivativeFunction( )( endTime, endState );
-        propagationTerminationCondition->checkStopCondition( endTime, currentCpuTime );
+        propagationTerminationCondition->checkStopCondition( endTime, currentCpuTime, endState.template cast< double >( ) );
     }
 
     // Turn step size control back on
@@ -618,7 +618,7 @@ void integrateEquationsFromIntegrator(
                         std::chrono::steady_clock::now( ) - initialClockTime ).count( ) * 1.0e-9;
             cumulativeComputationTimeHistory[ currentTime ] = currentCPUTime;
 
-            if( propagationTerminationCondition->checkStopCondition( static_cast< double >( currentTime ), currentCPUTime ) )
+            if( propagationTerminationCondition->checkStopCondition( static_cast< double >( currentTime ), currentCPUTime, newState.template cast< double >( ) ) )
             {
                 // Propagate to the exact termination conditions
                 if( propagationTerminationCondition->iterateToExactTermination( ) )
@@ -720,8 +720,8 @@ void integrateEquationsFromIntegrator(
             const std::function< void( StateType& ) > statePostProcessingFunction = std::function< void( StateType& ) >( ),
             const std::shared_ptr< SingleArcPropagatorProcessingSettings > processingSettings = std::make_shared< SingleArcPropagatorProcessingSettings >( ) )
     {
-        std::function< bool( const double, const double ) > stopPropagationFunction =
-                std::bind( &PropagationTerminationCondition::checkStopCondition, propagationTerminationCondition, std::placeholders::_1, std::placeholders::_2 );
+        std::function< bool( const double, const double, const Eigen::MatrixXd& ) > stopPropagationFunction =
+                std::bind( &PropagationTerminationCondition::checkStopCondition, propagationTerminationCondition, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3 );
 
         // Create numerical integrator.
         std::shared_ptr< numerical_integrators::NumericalIntegrator< TimeType, StateType, StateType, typename scalar_type< TimeType >::value_type > > integrator =
