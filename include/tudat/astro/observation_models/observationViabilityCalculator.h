@@ -258,6 +258,12 @@ private:
     std::string bodyToAvoid_;
 };
 
+bool computeOccultation(
+    const Eigen::Vector3d observer1Position,
+    const Eigen::Vector3d observer2Position,
+    const Eigen::Vector3d occulterPosition,
+    const double radius );
+
 //! Function to check whether an observation is possible, based on whether a given body is causing an occultation of the link
 /*!
  *  Function to check whether an observation is possible, based on whether a given body is causing an occultation of the link.
