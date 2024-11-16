@@ -189,6 +189,41 @@ bool BodyAvoidanceAngleCalculator::isObservationViable( const std::vector< Eigen
     return isObservationPossible;
 }
 
+bool computeOccultation(
+    const Eigen::Vector3d observer1Position,
+    const Eigen::Vector3d observer2Position,
+    const Eigen::Vector3d occulterPosition,
+    const double radius )
+{
+    double observerRelativeDistance = (observer2Position - observer1Position ).norm( );
+    double observer1OcculterDistance = (occulterPosition - observer1Position ).norm( );
+    double observer2OcculterDistance = (occulterPosition - observer2Position ).norm( );
+
+    double cosineBody1Angle =
+       - ( observer1OcculterDistance * observer1OcculterDistance - observer2OcculterDistance * observer2OcculterDistance - observerRelativeDistance * observerRelativeDistance ) /
+            ( 2.0 * observer2OcculterDistance * observerRelativeDistance );
+    double cosineBody2Angle =
+        - ( observer2OcculterDistance * observer2OcculterDistance - observer1OcculterDistance * observer1OcculterDistance - observerRelativeDistance * observerRelativeDistance ) /
+        ( 2.0 * observer1OcculterDistance * observerRelativeDistance );
+
+    if( cosineBody1Angle < 0.0 || cosineBody2Angle < 0.0 )
+    {
+        return false;
+    }
+    else
+    {
+        double distanceToTest = observer2OcculterDistance * std::sqrt( 1.0 - cosineBody1Angle * cosineBody1Angle );
+        if ( distanceToTest < radius )
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+}
+
 //! Function for determining whether the link is occulted during the observataion.
 bool OccultationCalculator::isObservationViable( const std::vector< Eigen::Vector6d >& linkEndStates,
                                                  const std::vector< double >& linkEndTimes )
@@ -202,15 +237,20 @@ bool OccultationCalculator::isObservationViable( const std::vector< Eigen::Vecto
 
         double evaluationEpoch = getEvaluationEpochOfViabilityBody( linkEndStates, linkEndTimes, linkEndIndices_.at( i ), stateFunctionOfOccultingBody_ );
 
-        std::cout<<"Epoch "<<evaluationEpoch<<" "<<linkEndTimes.at( 0 )<<" "<<linkEndTimes.at( 1 )<<std::endl;
-        std::cout<<"Epoch diff "<<" "<<linkEndTimes.at( 0 ) - evaluationEpoch<<" "<<linkEndTimes.at( 1 )- evaluationEpoch<<std::endl;
-        std::cout<<"Position diff "<<( linkEndStates.at( 1 ) - stateFunctionOfOccultingBody_( linkEndTimes.at( 1 ) ) ).segment( 0, 3 ).norm( )<<std::endl;
-        // Check if observing link end is occulted by body.
-        if( mission_geometry::computeShadowFunction(
-                    linkEndStates.at( linkEndIndices_.at( i ).first ).segment( 0, 3 ), 0.0,
-                    stateFunctionOfOccultingBody_( evaluationEpoch ).segment( 0, 3 ),
-                    radiusOfOccultingBody_,
-                    linkEndStates.at( linkEndIndices_.at( i ).second ).segment( 0, 3 ) ) < 1.0E-10 )
+//        std::cout<<"Epoch "<<evaluationEpoch<<" "<<linkEndTimes.at( 0 )<<" "<<linkEndTimes.at( 1 )<<std::endl;
+//        std::cout<<"Epoch diff "<<" "<<linkEndTimes.at( 0 ) - evaluationEpoch<<" "<<linkEndTimes.at( 1 )- evaluationEpoch<<std::endl;
+//        std::cout<<"Position diff "<<( linkEndStates.at( 1 ) - stateFunctionOfOccultingBody_( linkEndTimes.at( 1 ) ) ).segment( 0, 3 ).norm( )<<std::endl;
+//        // Check if observing link end is occulted by body.
+//        if( mission_geometry::computeShadowFunction(
+//                    linkEndStates.at( linkEndIndices_.at( i ).first ).segment( 0, 3 ), 0.0,
+//                    stateFunctionOfOccultingBody_( evaluationEpoch ).segment( 0, 3 ),
+//                    radiusOfOccultingBody_,
+//                    linkEndStates.at( linkEndIndices_.at( i ).second ).segment( 0, 3 ) ) < 1.0E-10 )
+        if( computeOccultation(
+            linkEndStates.at( linkEndIndices_.at( i ).first ).segment( 0, 3 ),
+            linkEndStates.at( linkEndIndices_.at( i ).second ).segment( 0, 3 ),
+            stateFunctionOfOccultingBody_( evaluationEpoch ).segment( 0, 3 ),
+            radiusOfOccultingBody_ ) )
         {
             isObservationPossible = 0;
             break;
