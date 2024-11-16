@@ -195,6 +195,7 @@ bool computeOccultation(
     const Eigen::Vector3d occulterPosition,
     const double radius )
 {
+
     double observerRelativeDistance = (observer2Position - observer1Position ).norm( );
     double observer1OcculterDistance = (occulterPosition - observer1Position ).norm( );
     double observer2OcculterDistance = (occulterPosition - observer2Position ).norm( );
