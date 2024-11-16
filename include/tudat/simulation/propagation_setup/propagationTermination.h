@@ -100,7 +100,7 @@ public:
      * \param cpuTime Current CPU time in propagation
      * \return True if propagation is to be stopped, false otherwise.
      */
-    virtual bool checkStopCondition( const double time, const double cpuTime ) = 0;
+    virtual bool checkStopCondition( const double time, const double cpuTime, const Eigen::MatrixXd& currentState = Eigen::MatrixXd::Zero( 0, 0 ) ) = 0;
 
     virtual bool iterateToExactTermination( )
     {
@@ -167,7 +167,7 @@ public:
      * \param cpuTime Current CPU time in propagation
      * \return True if propagation is to be stopped, false otherwise.
      */
-    bool checkStopCondition( const double time, const double cpuTime );
+    bool checkStopCondition( const double time, const double cpuTime, const Eigen::MatrixXd& currentState = Eigen::MatrixXd::Zero( 0, 0 ) );
 
     //! Function to retrieve time at which the propagation is to stop.
     /*!
@@ -213,7 +213,7 @@ public:
      * \param cpuTime Current CPU time in propagation
      * \return True if propagation is to be stopped, false otherwise.
      */
-    bool checkStopCondition( const double time, const double cpuTime );
+    bool checkStopCondition( const double time, const double cpuTime, const Eigen::MatrixXd& currentState = Eigen::MatrixXd::Zero( 0, 0 ) );
 
 private:
 
@@ -275,7 +275,7 @@ public:
      * \param cpuTime Current CPU time in propagation
      * \return True if propagation is to be stopped, false otherwise.
      */
-    bool checkStopCondition( const double time, const double cpuTime );
+    bool checkStopCondition( const double time, const double cpuTime, const Eigen::MatrixXd& currentState = Eigen::MatrixXd::Zero( 0, 0 ) );
 
     //! Function to return current difference between termination variable, and the value at which the propagation must terminate
     /*!
@@ -329,7 +329,7 @@ public:
      * condition, or whether it is to terminate on the first step where it is violated.
      */
     CustomTerminationCondition(
-            std::function< bool( const double ) >& checkStopCondition,
+            std::function< bool( const double, const Eigen::MatrixXd& ) >& checkStopCondition,
             const bool checkTerminationToExactCondition = false ):
         PropagationTerminationCondition( custom_stopping_condition, checkTerminationToExactCondition ),
         checkStopCondition_( checkStopCondition )
@@ -342,16 +342,16 @@ public:
      * \param cpuTime Current CPU time in propagation.
      * \return True if propagation is to be stopped, false otherwise.
      */
-    bool checkStopCondition( const double time, const double cpuTime )
+    bool checkStopCondition( const double time, const double cpuTime, const Eigen::MatrixXd& currentState )
     {
         TUDAT_UNUSED_PARAMETER( cpuTime );
-        return checkStopCondition_( time );
+        return checkStopCondition_( time, currentState );
     }
 
 private:
 
     //! Custom temination function.
-    std::function< bool( const double ) > checkStopCondition_;
+    std::function< bool( const double, const Eigen::MatrixXd& ) > checkStopCondition_;
 
 };
 
@@ -389,7 +389,7 @@ public:
      * \param cpuTime Current CPU time in propagation
      * \return True if propagation is to be stopped, false otherwise.
      */
-    bool checkStopCondition( const double time, const double cpuTime );
+    bool checkStopCondition( const double time, const double cpuTime, const Eigen::MatrixXd& currentState = Eigen::MatrixXd::Zero( 0, 0 ) );
 
     bool iterateToExactTermination( );
 
@@ -463,7 +463,7 @@ public:
      * \param cpuTime Current CPU time in propagation
      * \return True if propagation is to be stopped, false otherwise.
      */
-    bool checkStopCondition( const double time, const double cpuTime );
+    bool checkStopCondition( const double time, const double cpuTime, const Eigen::MatrixXd& currentState = Eigen::MatrixXd::Zero( 0, 0 ) );
 
     //! Function to retrieve termination condition for forward propagation that is checked when calling checkStopCondition is called.
     /*!
