@@ -934,8 +934,8 @@ BOOST_AUTO_TEST_CASE( testObservationViabilityCalculators )
 Eigen::Vector6d customStateFunction( const double time )
 {
     Eigen::Vector6d currentState = Eigen::Vector6d::Zero( );
-    currentState( 0 ) = ( 5.0E6 + 10000.0 ) * std::sin( time / 3600.0 );
-    currentState( 1 ) = ( 5.0E6 + 10000.0 ) * std::cos( time / 3600.0 );
+    currentState( 0 ) = ( 5.0E6 + 10.0 ) * std::sin( time / 3600.0 );
+    currentState( 1 ) = ( 5.0E6 + 10.0 ) * std::cos( time / 3600.0 );
     return currentState;
 
 }
@@ -953,12 +953,16 @@ BOOST_AUTO_TEST_CASE( testOrbiterOccultationObservationViabilityCalculators )
     bodyNames.push_back( "Jupiter" );
 
     BodyListSettings bodySettings =
-        getDefaultBodySettings( bodyNames, "SSB", "J2000" );
+        getDefaultBodySettings( bodyNames, "SSB", "ECLIPJ2000" );
     bodySettings.addSettings( "Spacecraft" );
-    bodySettings.at( "Spacecraft" )->ephemerisSettings = customEphemerisSettings(  customStateFunction, "Earth", "J2000" );
+    bodySettings.at( "Spacecraft" )->ephemerisSettings = customEphemerisSettings(  customStateFunction, "Earth", "ECLIPJ2000" );
 
     // Set unrealistically large radius of Moon to make iss occultation mode significant
     double earthRadius = 5.0E6;
+    bodySettings.at( "Earth" )->ephemerisSettings = std::make_shared<ApproximateJplEphemerisSettings>( "Earth", true );
+    bodySettings.at( "Jupiter" )->ephemerisSettings = std::make_shared<ApproximateJplEphemerisSettings>( "Jupiter", true );
+    bodySettings.at( "Sun" )->ephemerisSettings = std::make_shared<ConstantEphemerisSettings>( Eigen::Vector6d::Zero( ) );
+
     bodySettings.at( "Earth" )->shapeModelSettings = std::make_shared<SphericalBodyShapeSettings>( earthRadius );
 
     // Create list of body objects
@@ -984,8 +988,8 @@ BOOST_AUTO_TEST_CASE( testOrbiterOccultationObservationViabilityCalculators )
 
     // Define list of observation times that are to be checked: one observation every 2.5 days, over a period of 10 years.
     std::vector< double > unconstrainedObservationTimes;
-    LinkEndType referenceLinkEnd = transmitter;
-    double initialTime = 0.0, finalTime = 10.0 * physical_constants::JULIAN_DAY, timeStep = physical_constants::JULIAN_DAY * 0.01;
+    LinkEndType referenceLinkEnd = receiver;
+    double initialTime = 0.0, finalTime = 10.0 * physical_constants::JULIAN_DAY, timeStep = physical_constants::JULIAN_DAY * 0.1;
     double currentTime = initialTime;
     while( currentTime <= finalTime )
     {
@@ -1133,8 +1137,31 @@ BOOST_AUTO_TEST_CASE( testOrbiterOccultationObservationViabilityCalculators )
                         computeObservationsWithLinkEndData(
                         unconstrainedObservationTimes.at( unconstrainedIndex ), referenceLinkEnd,
                         linkEndTimes, linkEndStates );
-//                    std::cout<<unconstrainedObservationTimes.at( unconstrainedIndex )<<" "<<currentObservationWasViable<<std::endl;
 
+
+                    Eigen::Vector3d currentJupiterPosition = bodies.getBody( "Jupiter" )->getStateInBaseFrameFromEphemeris( linkEndTimes[ 0 ] ).segment( 0, 3 ) -
+                        bodies.getBody( "Earth" )->getStateInBaseFrameFromEphemeris( linkEndTimes[ 1 ] ).segment( 0, 3 );
+                    Eigen::Vector3d currentSpacecraftPosition = bodies.getBody( "Spacecraft" )->getStateInBaseFrameFromEphemeris( linkEndTimes[ 1 ] ).segment( 0, 3 ) -
+                        bodies.getBody( "Earth" )->getStateInBaseFrameFromEphemeris( linkEndTimes[ 1 ] ).segment( 0, 3 );
+
+                    double jupiterAngle = std::atan2( currentJupiterPosition( 1 ), currentJupiterPosition( 0 ) );
+                    Eigen::Matrix3d rotationMatrix = Eigen::Matrix3d( Eigen::AngleAxisd( -jupiterAngle, Eigen::Vector3d::UnitZ( ) ) );
+
+                    Eigen::Vector3d rotatedJupiter = rotationMatrix * currentJupiterPosition;
+                    Eigen::Vector3d rotatedSpacecraft = rotationMatrix * currentSpacecraftPosition;
+
+                    BOOST_CHECK_CLOSE_FRACTION( rotatedJupiter( 0 ), currentJupiterPosition.norm( ), 100.0 * std::numeric_limits< double >::epsilon( ) );
+                    BOOST_CHECK_SMALL( std::fabs( rotatedJupiter( 1 ) ), 1.0E-3);
+                    BOOST_CHECK_SMALL( std::fabs( rotatedJupiter( 2 ) ), 1.0E-3);
+
+
+                    bool currentObservationIsViable = false;
+                    if( rotatedSpacecraft( 0 ) > 0 )
+                    {
+                        currentObservationIsViable = true;
+                    }
+
+                    BOOST_CHECK_EQUAL( currentObservationIsViable, currentObservationWasViable );
                     if( currentObservationWasViable )
                     {
                         constrainedIndex++;
