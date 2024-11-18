@@ -74,7 +74,7 @@ jobs:
       with:
            activate-environment: tudat
            auto-activate-base: false
-           conda-version: 'latest'
+
 
 
     - name: Get date
