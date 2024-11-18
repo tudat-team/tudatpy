@@ -59,7 +59,7 @@ Eigen::Vector4d calculateExponentialMapDerivative( const Eigen::Vector4d& curren
     return exponentialMapDerivative;
 }
 
-template class RotationalMotionExponentialMapStateDerivative< double, double >;
+//template class RotationalMotionExponentialMapStateDerivative< double, double >;
 
 } // namespace propagators
 
