@@ -285,7 +285,7 @@ private:
 
 };
 
-extern template class NBodyUnifiedStateModelExponentialMapStateDerivative< double, double >;
+//extern template class NBodyUnifiedStateModelExponentialMapStateDerivative< double, double >;
 
 } // namespace propagators
 
