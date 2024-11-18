@@ -1218,8 +1218,13 @@ BOOST_AUTO_TEST_CASE( testOrbiterOccultationObservationViabilityCalculators )
                         {
                             currentObservationIsViable = false;
                         }
+                    }
 
-                        BOOST_CHECK_EQUAL( currentObservationIsViable, currentObservationWasViable );
+                    BOOST_CHECK_EQUAL( currentObservationIsViable, currentObservationWasViable );
+
+                    if( currentObservationIsViable != currentObservationWasViable )
+                    {
+                        std::cout<<currentObservable<<" "<<getLinkEndsString( currentLinkEnds )<<std::endl;
                     }
                     if( currentObservationWasViable )
                     {
