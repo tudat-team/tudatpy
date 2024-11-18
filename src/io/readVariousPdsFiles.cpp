@@ -65,7 +65,6 @@ std::pair< std::vector< double >, std::vector< double > > grailAntennaFileReader
             }
 
             std::string emptyFlags = vectorOfIndividualStrings.at( 6 );
-            std::cout << "emptyFlags.compare( 00000000 ) " << emptyFlags.compare( "00000000" ) << std::endl;
             if ( emptyFlags.compare( "00000000" ) != 1 )
             {
                 throw std::runtime_error( "Error when reading antenna switch file for GRAIL, inconsistent entry. The last eights digits should be set to zero." );
