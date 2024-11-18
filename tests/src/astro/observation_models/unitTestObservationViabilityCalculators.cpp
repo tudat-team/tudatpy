@@ -973,18 +973,33 @@ BOOST_AUTO_TEST_CASE( testOrbiterOccultationObservationViabilityCalculators )
     LinkEnds oneWayLinkEnds1;
     oneWayLinkEnds1[ transmitter ] = std::make_pair<std::string, std::string>( "Jupiter", "" );
     oneWayLinkEnds1[ receiver ] = std::make_pair<std::string, std::string>( "Spacecraft", "" );
-//
-//    LinkEnds oneWayLinkEnds2;
-//    oneWayLinkEnds2[ receiver ] = std::make_pair<std::string, std::string>( "Jupiter", "" );
-//    oneWayLinkEnds2[ transmitter ] = std::make_pair<std::string, std::string>( "Spacecraft", "" );
+
+    LinkEnds oneWayLinkEnds2;
+    oneWayLinkEnds2[ receiver ] = std::make_pair<std::string, std::string>( "Jupiter", "" );
+    oneWayLinkEnds2[ transmitter ] = std::make_pair<std::string, std::string>( "Spacecraft", "" );
+
+    LinkEnds twoWayLinkEnds1;
+    twoWayLinkEnds1[ receiver ] = std::make_pair<std::string, std::string>( "Jupiter", "" );
+    twoWayLinkEnds1[ retransmitter ] = std::make_pair<std::string, std::string>( "Spacecraft", "" );
+    twoWayLinkEnds1[ transmitter ] = std::make_pair<std::string, std::string>( "Jupiter", "" );
+
+    LinkEnds twoWayLinkEnds2;
+    twoWayLinkEnds2[ receiver ] = std::make_pair<std::string, std::string>( "Spacecraft", "" );
+    twoWayLinkEnds2[ retransmitter ] = std::make_pair<std::string, std::string>( "Jupiter", "" );
+    twoWayLinkEnds2[ transmitter ] = std::make_pair<std::string, std::string>( "Spacecraft", "" );
 
     std::vector<LinkEnds> oneWayRangeLinkEnds;
     oneWayRangeLinkEnds.push_back( oneWayLinkEnds1 );
-//    oneWayRangeLinkEnds.push_back( oneWayLinkEnds2 );
+    oneWayRangeLinkEnds.push_back( oneWayLinkEnds2 );
+
+    std::vector<LinkEnds> twoWayRangeLinkEnds;
+    twoWayRangeLinkEnds.push_back( twoWayLinkEnds1 );
+    twoWayRangeLinkEnds.push_back( twoWayLinkEnds2 );
 
     // Create list of link ends per obsevables
     std::map< ObservableType, std::vector< LinkEnds > > testLinkEndsList;
     testLinkEndsList[ one_way_range ] = oneWayRangeLinkEnds;
+    testLinkEndsList[ n_way_range ] = twoWayRangeLinkEnds;
 
     // Define list of observation times that are to be checked: one observation every 2.5 days, over a period of 10 years.
     std::vector< double > unconstrainedObservationTimes;
@@ -1138,30 +1153,74 @@ BOOST_AUTO_TEST_CASE( testOrbiterOccultationObservationViabilityCalculators )
                         unconstrainedObservationTimes.at( unconstrainedIndex ), referenceLinkEnd,
                         linkEndTimes, linkEndStates );
 
-
-                    Eigen::Vector3d currentJupiterPosition = bodies.getBody( "Jupiter" )->getStateInBaseFrameFromEphemeris( linkEndTimes[ 0 ] ).segment( 0, 3 ) -
-                        bodies.getBody( "Earth" )->getStateInBaseFrameFromEphemeris( linkEndTimes[ 1 ] ).segment( 0, 3 );
-                    Eigen::Vector3d currentSpacecraftPosition = bodies.getBody( "Spacecraft" )->getStateInBaseFrameFromEphemeris( linkEndTimes[ 1 ] ).segment( 0, 3 ) -
-                        bodies.getBody( "Earth" )->getStateInBaseFrameFromEphemeris( linkEndTimes[ 1 ] ).segment( 0, 3 );
-
-                    double jupiterAngle = std::atan2( currentJupiterPosition( 1 ), currentJupiterPosition( 0 ) );
-                    Eigen::Matrix3d rotationMatrix = Eigen::Matrix3d( Eigen::AngleAxisd( -jupiterAngle, Eigen::Vector3d::UnitZ( ) ) );
-
-                    Eigen::Vector3d rotatedJupiter = rotationMatrix * currentJupiterPosition;
-                    Eigen::Vector3d rotatedSpacecraft = rotationMatrix * currentSpacecraftPosition;
-
-                    BOOST_CHECK_CLOSE_FRACTION( rotatedJupiter( 0 ), currentJupiterPosition.norm( ), 100.0 * std::numeric_limits< double >::epsilon( ) );
-                    BOOST_CHECK_SMALL( std::fabs( rotatedJupiter( 1 ) ), 1.0E-3);
-                    BOOST_CHECK_SMALL( std::fabs( rotatedJupiter( 2 ) ), 1.0E-3);
-
-
-                    bool currentObservationIsViable = false;
-                    if( rotatedSpacecraft( 0 ) > 0 )
+                    int numberOfLinksToCheck = currentLinkEnds.size( ) - 1;
+                    bool currentObservationIsViable = true;
+                    for( int linksToCheck = 0; linksToCheck < numberOfLinksToCheck; linksToCheck++ )
                     {
-                        currentObservationIsViable = true;
-                    }
+                        int jupiterIndex, spacecraftIndex;
+                        if( linksToCheck == 0 )
+                        {
+                            if ( currentLinkEnds[ transmitter ].bodyName_ == "Spacecraft" )
+                            {
+                                jupiterIndex = 1;
+                                spacecraftIndex = 0;
+                            }
+                            else if ( currentLinkEnds[ transmitter ].bodyName_ == "Jupiter" )
+                            {
+                                jupiterIndex = 0;
+                                spacecraftIndex = 1;
+                            }
+                            else
+                            {
+                                throw std::runtime_error( "Error, did not find correct link end in viability settings test" );
+                            }
+                        }
+                        else
+                        {
+                            if ( currentLinkEnds[ receiver ].bodyName_ == "Spacecraft" )
+                            {
+                                jupiterIndex = 2;
+                                spacecraftIndex = 3;
+                            }
+                            else if ( currentLinkEnds[ receiver ].bodyName_ == "Jupiter" )
+                            {
+                                jupiterIndex = 3;
+                                spacecraftIndex = 2;
+                            }
+                        }
 
-                    BOOST_CHECK_EQUAL( currentObservationIsViable, currentObservationWasViable );
+
+                        Eigen::Vector3d currentJupiterPosition =
+                            bodies.getBody( "Jupiter" )->getStateInBaseFrameFromEphemeris(
+                                linkEndTimes[ jupiterIndex ] ).segment( 0, 3 ) -
+                            bodies.getBody( "Earth" )->getStateInBaseFrameFromEphemeris(
+                                linkEndTimes[ jupiterIndex ] ).segment( 0, 3 );
+                        Eigen::Vector3d currentSpacecraftPosition =
+                            bodies.getBody( "Spacecraft" )->getStateInBaseFrameFromEphemeris(
+                                linkEndTimes[ spacecraftIndex ] ).segment( 0, 3 ) -
+                            bodies.getBody( "Earth" )->getStateInBaseFrameFromEphemeris(
+                                linkEndTimes[ spacecraftIndex ] ).segment( 0, 3 );
+
+                        double jupiterAngle = std::atan2( currentJupiterPosition( 1 ), currentJupiterPosition( 0 ));
+                        Eigen::Matrix3d rotationMatrix =
+                            Eigen::Matrix3d( Eigen::AngleAxisd( -jupiterAngle, Eigen::Vector3d::UnitZ( )));
+
+                        Eigen::Vector3d rotatedJupiter = rotationMatrix * currentJupiterPosition;
+                        Eigen::Vector3d rotatedSpacecraft = rotationMatrix * currentSpacecraftPosition;
+
+                        BOOST_CHECK_CLOSE_FRACTION( rotatedJupiter( 0 ), currentJupiterPosition.norm( ),
+                                                    100.0 * std::numeric_limits<double>::epsilon( ));
+                        BOOST_CHECK_SMALL( std::fabs( rotatedJupiter( 1 )), 1.0E-3 );
+                        BOOST_CHECK_SMALL( std::fabs( rotatedJupiter( 2 )), 1.0E-3 );
+
+
+                        if ( rotatedSpacecraft( 0 ) < 0 )
+                        {
+                            currentObservationIsViable = false;
+                        }
+
+                        BOOST_CHECK_EQUAL( currentObservationIsViable, currentObservationWasViable );
+                    }
                     if( currentObservationWasViable )
                     {
                         constrainedIndex++;
