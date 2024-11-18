@@ -13,6 +13,7 @@
  *
  */
 
+#include <iostream>
 #include <Eigen/Core>
 #include <cmath>
 
@@ -65,6 +66,7 @@ double computeShadowFunction( const Eigen::Vector3d& occultedBodyPosition,
                               const double occultingBodyRadius,
                               const Eigen::Vector3d& satellitePosition )
 {
+
     // Calculate coordinates of the spacecraft with respect to the occulting body.
     const Eigen::Vector3d satellitePositionRelativeToOccultingBody = satellitePosition
             - occultingBodyPosition;
@@ -121,6 +123,7 @@ double computeShadowFunction( const Eigen::Vector3d& occultedBodyPosition,
     else if ( apparentSeparation < occultingBodyApparentRadius - occultedBodyApparentRadius &&
          occultedBodyApparentRadius < occultingBodyApparentRadius )
     {
+
         // Satellite is in umbra -> total occultation.
         // Occulted circular disk is inside occulting circular disk.
         shadowFunction = 0.0;
