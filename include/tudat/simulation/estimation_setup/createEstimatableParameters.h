@@ -11,6 +11,7 @@
 #ifndef TUDAT_CREATEESTIMATABLEPARAMETERS_H
 #define TUDAT_CREATEESTIMATABLEPARAMETERS_H
 
+#include "tudat/astro/basic_astro/accelerationModelTypes.h"
 #include "tudat/astro/basic_astro/accelerationModel.h"
 
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"

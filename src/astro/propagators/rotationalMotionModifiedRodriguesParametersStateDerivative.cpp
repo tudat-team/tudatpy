@@ -40,7 +40,7 @@ Eigen::Vector4d calculateModifiedRodriguesParametersDerivative(
     return modifiedRodriguesParametersDerivative;
 }
 
-template class RotationalMotionModifiedRodriguesParametersStateDerivative< double, double >;
+//template class RotationalMotionModifiedRodriguesParametersStateDerivative< double, double >;
 
 } // namespace propagators
 

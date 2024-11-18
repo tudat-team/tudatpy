@@ -61,7 +61,7 @@ public:
      */
     NumericalIntegrator( const StateDerivativeFunction& stateDerivativeFunction ) :
         stateDerivativeFunction_( stateDerivativeFunction ),
-        propagationTerminationFunction_( [ = ]( const double, const double ){ return false; } )
+        propagationTerminationFunction_( [ = ]( const double, const double, const Eigen::MatrixXd& ){ return false; } )
     { }
 
     //! Default virtual destructor.
@@ -185,7 +185,7 @@ public:
      *  \param terminationFunction Function that returns true if termination condition is reached, false if it has not,
      *  as a function of current time.
      */
-    void setPropagationTerminationFunction( std::function< bool( const double, const double ) > terminationFunction )
+    void setPropagationTerminationFunction( std::function< bool( const double, const double, const Eigen::MatrixXd& ) > terminationFunction )
     {
         propagationTerminationFunction_ = terminationFunction;
     }
@@ -256,13 +256,13 @@ protected:
      *  By default, this function evaluates always to false, so the propagation termination conditions will not be
      *  checked during the integration subteps.
      */
-    std::function< bool( const double, const double ) > propagationTerminationFunction_;
+    std::function< bool( const double, const double, const Eigen::MatrixXd& ) > propagationTerminationFunction_;
 };
 
 
-extern template class NumericalIntegrator < double, Eigen::VectorXd, Eigen::VectorXd >;
-extern template class NumericalIntegrator < double, Eigen::Vector6d, Eigen::Vector6d >;
-extern template class NumericalIntegrator < double, Eigen::MatrixXd, Eigen::MatrixXd >;
+//extern template class NumericalIntegrator < double, Eigen::VectorXd, Eigen::VectorXd >;
+//extern template class NumericalIntegrator < double, Eigen::Vector6d, Eigen::Vector6d >;
+//extern template class NumericalIntegrator < double, Eigen::MatrixXd, Eigen::MatrixXd >;
 
 //! Perform an integration to a specified independent variable value.
 template< typename IndependentVariableType, typename StateType, typename StateDerivativeType, typename TimeStepType >

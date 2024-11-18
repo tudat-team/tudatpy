@@ -16,46 +16,46 @@ namespace tudat
 namespace gravitation
 {
 
-void RingGravitationalAccelerationModel::updateMembers( const double currentTime )
-{
-    if( !( this->currentTime_ == currentTime ) )
-    {
-
-        rotationToIntegrationFrame_ = rotationFromBodyFixedToIntegrationFrameFunction_( );
-
-        subjectPositionFunction_( positionOfBodySubjectToAcceleration_ );
-        sourcePositionFunction_( positionOfBodyExertingAcceleration_ );
-        currentInertialRelativePosition_ =
-                positionOfBodySubjectToAcceleration_ - positionOfBodyExertingAcceleration_ ;
-
-        currentRelativePosition_ = rotationToIntegrationFrame_.inverse( ) * currentInertialRelativePosition_;
-
-        ringCache_->setRingRadius( ringRadiusFunction_( ) );
-        ringCache_->update( currentRelativePosition_ );
-
-        // Compute the current acceleration
-        currentAccelerationInBodyFixedFrame_ = computeRingGravitationalAcceleration(
-                currentRelativePosition_,
-                ringRadiusFunction_( ),
-                gravitationalParameterFunction_(),
-                ringCache_->getEllipticIntegralB( ),
-                ringCache_->getEllipticIntegralE( ),
-                ringCache_->getEllipticIntegralS( ) );
-
-        currentAcceleration_ = rotationToIntegrationFrame_ * currentAccelerationInBodyFixedFrame_;
-
-        // Compute the current gravitational potential
-        if ( updatePotential_ )
-        {
-            currentPotential_ = computeRingGravitationalPotential(
-                currentRelativePosition_,
-                ringRadiusFunction_( ),
-                gravitationalParameterFunction_(),
-                ringCache_->getEllipticIntegralK( ) );
-        }
-
-    }
-}
+//void RingGravitationalAccelerationModel::updateMembers( const double currentTime )
+//{
+//    if( !( this->currentTime_ == currentTime ) )
+//    {
+//
+//        rotationToIntegrationFrame_ = rotationFromBodyFixedToIntegrationFrameFunction_( );
+//
+//        subjectPositionFunction_( positionOfBodySubjectToAcceleration_ );
+//        sourcePositionFunction_( positionOfBodyExertingAcceleration_ );
+//        currentInertialRelativePosition_ =
+//                positionOfBodySubjectToAcceleration_ - positionOfBodyExertingAcceleration_ ;
+//
+//        currentRelativePosition_ = rotationToIntegrationFrame_.inverse( ) * currentInertialRelativePosition_;
+//
+//        ringCache_->setRingRadius( ringRadiusFunction_( ) );
+//        ringCache_->update( currentRelativePosition_ );
+//
+//        // Compute the current acceleration
+//        currentAccelerationInBodyFixedFrame_ = computeRingGravitationalAcceleration(
+//                currentRelativePosition_,
+//                ringRadiusFunction_( ),
+//                gravitationalParameterFunction_(),
+//                ringCache_->getEllipticIntegralB( ),
+//                ringCache_->getEllipticIntegralE( ),
+//                ringCache_->getEllipticIntegralS( ) );
+//
+//        currentAcceleration_ = rotationToIntegrationFrame_ * currentAccelerationInBodyFixedFrame_;
+//
+//        // Compute the current gravitational potential
+//        if ( updatePotential_ )
+//        {
+//            currentPotential_ = computeRingGravitationalPotential(
+//                currentRelativePosition_,
+//                ringRadiusFunction_( ),
+//                gravitationalParameterFunction_(),
+//                ringCache_->getEllipticIntegralK( ) );
+//        }
+//
+//    }
+//}
 
 
 } // namespace gravitation

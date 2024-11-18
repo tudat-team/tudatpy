@@ -102,7 +102,7 @@ Eigen::Vector7d computeStateDerivativeForUnifiedStateModelQuaternions(
                     currentCartesianState ) * accelerationsInInertialFrame, centralBodyGravitationalParameter );
 }
 
-template class NBodyUnifiedStateModelQuaternionsStateDerivative< double, double >;
+//template class NBodyUnifiedStateModelQuaternionsStateDerivative< double, double >;
 
 
 } // namespace propagators

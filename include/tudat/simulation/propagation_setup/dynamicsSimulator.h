@@ -2285,7 +2285,7 @@ public:
      *  \param propagatorSettings Propagator settings for dynamics (must be of multi arc type)
      *  \param arcStartTimes Times at which the separate arcs start, for the multi-arc case
      *  \param areEquationsOfMotionToBeIntegrated Boolean to denote whether equations of motion should be integrated at
-     *  the end of the contructor or not.extern template class MultiArcDynamicsSimulator< double, double >;
+     *  the end of the contructor or not.//extern template class MultiArcDynamicsSimulator< double, double >;
 
 
      *  \param clearNumericalSolutions Boolean to determine whether to clear the raw numerical solution member variables
@@ -2520,9 +2520,9 @@ std::shared_ptr< PropagatorSettings< StateScalarType > > validateDeprecatePropag
     }
 }
 
-extern template class SingleArcDynamicsSimulator< double, double >;
-extern template class MultiArcDynamicsSimulator< double, double >;
-extern template class HybridArcDynamicsSimulator< double, double >;
+//extern template class SingleArcDynamicsSimulator< double, double >;
+//extern template class MultiArcDynamicsSimulator< double, double >;
+//extern template class HybridArcDynamicsSimulator< double, double >;
 
 
 
