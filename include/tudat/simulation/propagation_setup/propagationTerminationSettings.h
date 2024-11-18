@@ -200,13 +200,17 @@ public:
      */
     PropagationCustomTerminationSettings( const std::function< bool( const double ) >& checkStopCondition ):
         PropagationTerminationSettings( custom_stopping_condition ),
+        checkStopCondition_( [=]( const double time, const Eigen::MatrixXd&  ){ return checkStopCondition( time ); } ){ }
+
+    PropagationCustomTerminationSettings( const std::function< bool( const double, const Eigen::MatrixXd&  ) >& checkStopCondition ):
+        PropagationTerminationSettings( custom_stopping_condition ),
         checkStopCondition_( checkStopCondition ){ }
 
     //! Destructor
     ~PropagationCustomTerminationSettings( ){ }
 
     //! Custom temination function.
-    std::function< bool( const double ) > checkStopCondition_;
+    std::function< bool( const double, const Eigen::MatrixXd& ) > checkStopCondition_;
 
 };
 
@@ -332,6 +336,13 @@ inline std::shared_ptr< PropagationTerminationSettings > popagationCustomTermina
 {
     return std::make_shared< PropagationCustomTerminationSettings >(
                 checkStopCondition );
+}
+
+inline std::shared_ptr< PropagationTerminationSettings > popagationCustomTerminationSettingsFromFullState(
+    const std::function< bool( const double, const Eigen::MatrixXd& ) > checkStopCondition )
+{
+    return std::make_shared< PropagationCustomTerminationSettings >(
+        checkStopCondition );
 }
 
 inline std::shared_ptr< PropagationTerminationSettings > nonSequentialPropagationTerminationSettings(

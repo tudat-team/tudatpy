@@ -737,9 +737,9 @@ std::vector< std::shared_ptr< ObservationSimulationSettings< TimeType > > >  get
     return getObservationSimulationSettings( linkDefsPerObservable, observationTimes, referenceLinkEnd );
 }
 
-extern template class ObservationSimulationSettings< double >;
-extern template class TabulatedObservationSimulationSettings< double >;
-extern template class PerArcObservationSimulationSettings< double >;
+//extern template class ObservationSimulationSettings< double >;
+//extern template class TabulatedObservationSimulationSettings< double >;
+//extern template class PerArcObservationSimulationSettings< double >;
 
 
 }
